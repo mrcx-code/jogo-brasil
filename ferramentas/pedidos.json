@@ -1,0 +1,18 @@
+[
+  {
+    "nome": "cap1-fundo-alto",
+    "titulo": "Capítulo 1 · fundo, peça de CIMA (céu e distância)",
+    "referencia": "Tupinambá, litoral atlântico, séc. XVI · rola mais devagar que o chão",
+    "tamanho": "retrato, ~832×1216 ou maior · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art, borda dura, sem anti-aliasing, paleta saturada, quatro a cinco tons por material, luz quente vinda de cima à direita.\n\nLitoral atlântico do Brasil visto DA PRAIA, na altura dos olhos de quem está de pé. Elevação frontal plana, sem perspectiva de fuga — como cenário de jogo lateral. Linha do horizonte reta, atravessando o meio da imagem.\n\nUma parede contínua de mata atlântica alta, copa densa em camadas, palmeiras e árvores de folha larga. Mar aberto ao fundo. Pontas de terra distantes sumindo em azul de neblina. Céu claro com cúmulos altos ocupando a metade de cima.\n\nOBRIGATÓRIO: linha de árvores repetida e uniforme, SEM nenhum marco único e dominante (vira dois marcos se encarando quando a imagem é espelhada). NADA apoiado no chão na parte de baixo (esta peça rola mais devagar e um objeto plantado ali desliza sobre o próprio pé). Sem texto, sem placa, sem letra. Sem pessoas, sem construções, sem barcos."
+  },
+  {
+    "nome": "cap1-fundo-baixo",
+    "titulo": "Capítulo 1 · fundo, peça de BAIXO (chão)",
+    "referencia": "o chão em que ela pisa · rola 1:1, é o que faz o pé casar",
+    "tamanho": "paisagem larga, ~1216×832 ou maior · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art, borda dura, sem anti-aliasing, paleta saturada, quatro a cinco tons por material, luz quente vinda de cima à direita.\n\nO CHÃO de uma clareira no litoral, visto de pouco acima. Areia clara compacta misturada com terra escura, folhas caídas, tufos de grama baixa, raízes finas e seixos. Luz salpicada de copa de árvore vindo de cima.\n\nOBRIGATÓRIO: textura contínua, que possa ser repetida lado a lado sem emenda visível. Sem pessoas, sem objetos, sem construções, sem texto."
+  }
+]

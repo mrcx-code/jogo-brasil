@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesa de entrega</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 24px; background: #14161c; color: #e8e6df;
+         font: 15px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  .sub { color: #8d8a80; margin: 0 0 24px; font-size: 13px; }
+  .pedido { border: 1px solid #2c3038; border-radius: 8px; padding: 16px; margin-bottom: 16px;
+            background: #191c23; }
+  .pedido.feito { border-color: #2f5d3f; }
+  .titulo { font-weight: 600; margin-bottom: 2px; }
+  .ref { color: #8d8a80; font-size: 13px; margin-bottom: 10px; }
+  .prompt { background: #101218; border: 1px solid #2c3038; border-radius: 6px; padding: 10px;
+            font: 12px/1.45 ui-monospace, monospace; color: #b8c9a8; white-space: pre-wrap;
+            max-height: 130px; overflow: auto; margin-bottom: 10px; }
+  .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 22px; text-align: center;
+          color: #8d8a80; cursor: text; outline: none; font-size: 14px; }
+  .cola:focus { border-color: #6fdd94; color: #b8c9a8; }
+  .cola.tem { border-style: solid; border-color: #38b764; padding: 8px; }
+  .cola img { max-width: 100%; max-height: 260px; display: block; margin: 0 auto; }
+  .estado { font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .ok { color: #6fdd94; } .erro { color: #e0603a; }
+  button { background: #38b764; color: #0d1013; border: 0; border-radius: 6px; padding: 8px 16px;
+           font: 600 14px system-ui; cursor: pointer; margin-top: 10px; }
+  button:disabled { background: #2c3038; color: #6b6862; cursor: default; }
+  .vazio { color: #8d8a80; font-size: 14px; }
+  .resposta { margin-top: 14px; padding: 12px; border-radius: 6px; border-left: 3px solid #3a4049;
+              background: #101218; }
+  .resposta.vOk { border-left-color: #38b764; }
+  .resposta.vRefazer { border-left-color: #e0a03a; }
+  .resposta.vEsperando { border-left-color: #4a5568; }
+  .vTitulo { font-weight: 600; margin-bottom: 6px; }
+  .vOk .vTitulo { color: #6fdd94; }
+  .vRefazer .vTitulo { color: #ffcd75; }
+  .vEsperando .vTitulo { color: #8d8a80; }
+  .vTexto { font-size: 14px; margin-bottom: 10px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Mesa de entrega</h1>
+<p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
+Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
+<div id="lista"><p class="vazio">carregando…</p></div>
+
+<script>
+// A página é burra de propósito: lê a lista de pedidos que o Claude escreveu, recebe uma
+// colagem, e manda o data-uri para o servidor local gravar. Nada além disso.
+const lista = document.getElementById("lista");
+
+function el(tag, cls, txt) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined) e.textContent = txt;   // textContent, nunca innerHTML
+  return e;
+}
+
+// O laço de conversa: depois que você cola, o Claude analisa o arquivo e escreve a resposta
+// de volta no pedidos.json. Esta página relê o arquivo a cada 3s e mostra o veredito aqui,
+// para você não precisar ficar olhando o chat. `rodada` sobe a cada ida e volta: é ela que
+// diz à página que a resposta é NOVA e não a da tentativa anterior.
+const cards = {};
+
+function pintarResposta(cx, p) {
+  let r = cx.querySelector(".resposta");
+  if (!r) { r = el("div", "resposta"); cx.appendChild(r); }
+  r.textContent = "";
+  if (!p.resposta) { r.style.display = "none"; return; }
+  r.style.display = "";
+  const est = p.resposta.estado;
+  r.className = "resposta " + (est === "ok" ? "vOk" : est === "refazer" ? "vRefazer" : "vEsperando");
+  r.appendChild(el("div", "vTitulo",
+    est === "ok" ? "✓ Está bom — pode seguir" :
+    est === "refazer" ? "↻ Precisa refazer" : "⋯ Analisando…"));
+  if (p.resposta.texto) r.appendChild(el("div", "vTexto", p.resposta.texto));
+  if (p.resposta.promptNovo) {
+    r.appendChild(el("div", "ref", "Prompt novo — gere de novo com este e cole outra vez:"));
+    const pn = el("div", "prompt", p.resposta.promptNovo);
+    r.appendChild(pn);
+    const b = el("button", null, "Copiar prompt novo");
+    b.addEventListener("click", function () {
+      navigator.clipboard.writeText(p.resposta.promptNovo)
+        .then(function () { b.textContent = "copiado ✓"; })
+        .catch(function () { b.textContent = "copie à mão do quadro acima"; });
+    });
+    r.appendChild(b);
+  }
+}
+
+function puxar() {
+  fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
+    pedidos.forEach(function (p) {
+      const c = cards[p.nome];
+      if (!c) return;
+      const rod = (p.resposta && p.resposta.rodada) || 0;
+      if (rod !== c.rodada) { c.rodada = rod; pintarResposta(c.el, p); }
+    });
+  }).catch(function () {});
+}
+
+fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
+  lista.textContent = "";
+  if (!pedidos.length) {
+    lista.appendChild(el("p", "vazio", "Nenhum pedido em aberto. O Claude escreve os pedidos em ferramentas/pedidos.json."));
+    return;
+  }
+  pedidos.forEach(function (p) {
+    const cx = el("div", "pedido");
+    cards[p.nome] = { el: cx, rodada: (p.resposta && p.resposta.rodada) || 0 };
+    cx.appendChild(el("div", "titulo", p.titulo || p.nome));
+    cx.appendChild(el("div", "ref", (p.referencia || "") + (p.tamanho ? " · " + p.tamanho : "")));
+    if (p.prompt) cx.appendChild(el("div", "prompt", p.prompt));
+
+    const alvo = el("div", "cola", "clique aqui e cole a imagem (Ctrl+V)");
+    alvo.tabIndex = 0;
+    const estado = el("div", "estado");
+    const botao = el("button", null, "Salvar");
+    botao.disabled = true;
+    let dados = null;
+
+    alvo.addEventListener("paste", function (ev) {
+      const itens = (ev.clipboardData || {}).items || [];
+      for (const it of itens) {
+        if (it.type && it.type.indexOf("image/") === 0) {
+          ev.preventDefault();
+          const arq = it.getAsFile();
+          const fr = new FileReader();
+          fr.onload = function () {
+            dados = fr.result;
+            alvo.textContent = "";
+            alvo.className = "cola tem";
+            const img = new Image();
+            img.onload = function () {
+              estado.className = "estado";
+              estado.textContent = img.naturalWidth + " × " + img.naturalHeight + " px · pronta para salvar";
+            };
+            img.src = dados;
+            alvo.appendChild(img);
+            botao.disabled = false;
+          };
+          fr.readAsDataURL(arq);
+          return;
+        }
+      }
+      estado.className = "estado erro";
+      estado.textContent = "não vi imagem na área de transferência — copie a imagem, não o link";
+    });
+
+    botao.addEventListener("click", function () {
+      if (!dados) return;
+      botao.disabled = true;
+      estado.className = "estado";
+      estado.textContent = "salvando…";
+      fetch("/salvar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: p.nome, pedido: p.titulo || p.nome, origem: p.origem || "", dados: dados })
+      }).then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(function (r) {
+        if (!r.ok || !r.j.ok) throw new Error("recusado");
+        estado.className = "estado ok";
+        estado.textContent = "salva em " + r.j.arquivo + " (" + r.j.bytes + " bytes)";
+        cx.className = "pedido feito";
+        // A partir daqui a bola é do Claude: a página passa a esperar o veredito dele.
+        pintarResposta(cx, { resposta: { estado: "esperando",
+          texto: "Recebi. O Claude vai medir o arquivo e responder aqui — pode deixar esta aba aberta." } });
+      }).catch(function () {
+        estado.className = "estado erro";
+        estado.textContent = "falhou ao salvar";
+        botao.disabled = false;
+      });
+    });
+
+    cx.appendChild(alvo);
+    cx.appendChild(estado);
+    cx.appendChild(botao);
+    pintarResposta(cx, p);
+    lista.appendChild(cx);
+  });
+  setInterval(puxar, 3000);
+}).catch(function () {
+  lista.textContent = "";
+  lista.appendChild(el("p", "vazio", "o servidor não respondeu — rode: node ferramentas/receber.js"));
+});
+</script>
+</body>
+</html>
