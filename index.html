@@ -3490,8 +3490,14 @@ const VIDA_TOPO = { smog: 30, barrel: 27, cash: 21 };   // world px above ground
 // is supposed to sit on top of), and it must not glow at midnight either.
 // It reads `m.hp` and `m.hpMax` and nothing else — no hp value, no spawn, no block changes.
 const PIP_PISO = 0.67, PIP_PISO_FLASH = 0.82;
-let pipPasso = -1, VIDA_CHEIO = "#c2361f", VIDA_BAIXO = "#8d2418", VIDA_LUZ = "#e0603a",
-    VIDA_TRILHO = "#3a2028", PIP_FLASH = "#ffffff";
+// A barra ENCHE, e essa é a conversão inteira do verbo em uma decisão de cor.
+//
+// Ela drenava de vermelho-sangue para vermelho-escuro: vocabulário de matar. Uma barra que
+// esvazia diz "estou destruindo isto"; a mesma barra enchendo diz "estou terminando isto".
+// Mesmo número de toques, mesma mecânica, leitura oposta — e é a leitura que o jogo existe
+// para dizer. O verde é o do resto da paleta, não uma cor nova.
+let pipPasso = -1, FEITO_CHEIO = "#38b764", FEITO_QUASE = "#6fdd94", FEITO_LUZ = "#b5e08c",
+    FEITO_TRILHO = "#22303a", PIP_FLASH = "#ffffff";
 function pipLuzPasso() {
   const k = horaKey() >> 2;                        // same 24 steps a day as everything else
   if (k === pipPasso) return;
@@ -3501,10 +3507,10 @@ function pipLuzPasso() {
     const c = hexA(hex), f = 1 - (1 - piso) * e;
     return rgbS([cl255(c[0] * f), cl255(c[1] * f), cl255(c[2] * f)]);
   };
-  VIDA_CHEIO = dim("#c2361f", PIP_PISO);
-  VIDA_BAIXO = dim("#8d2418", PIP_PISO);           // the last third goes darker, not brighter
-  VIDA_LUZ = dim("#e0603a", PIP_PISO);             // one lit row along the top of the fill
-  VIDA_TRILHO = dim("#3a2028", PIP_PISO);
+  FEITO_CHEIO = dim("#38b764", PIP_PISO);
+  FEITO_QUASE = dim("#6fdd94", PIP_PISO);          // o último terço clareia, não escurece
+  FEITO_LUZ = dim("#b5e08c", PIP_PISO);            // uma fileira acesa no topo do preenchido
+  FEITO_TRILHO = dim("#22303a", PIP_PISO);
   PIP_FLASH = dim("#ffffff", PIP_PISO_FLASH);
 }
 function desenharVidaMob(m) {
@@ -3517,16 +3523,19 @@ function desenharVidaMob(m) {
   // is wider" rather than as "this one takes more hits"
   const larg = 20, alt = 3;
   const x0 = sx + 5 - (larg >> 1), y = GROUND - (VIDA_TOPO[m.type] || 22);
-  const frac = Math.max(0, Math.min(1, m.hp / m.hpMax));
+  // `m.hp` continua sendo quantos alcances faltam — o nome interno é herdado e trocá-lo em
+  // trinta lugares não mudaria um pixel. O que mudou é o que a barra MOSTRA: a fração já
+  // FEITA, não a que resta.
+  const frac = Math.max(0, Math.min(1, 1 - m.hp / m.hpMax));
   const cheio = Math.round(larg * frac);
-  cx.fillStyle = "#10121c";                       // keyline: it has to read on any ground
+  cx.fillStyle = "#10121c";                       // contorno: tem que ler sobre qualquer chão
   cx.fillRect(x0 - 1, y - 1, larg + 2, alt + 2);
-  cx.fillStyle = VIDA_TRILHO;                     // the empty track it drains along
+  cx.fillStyle = FEITO_TRILHO;                    // o trilho vazio que ela vai preenchendo
   cx.fillRect(x0, y, larg, alt);
   if (cheio > 0) {
-    cx.fillStyle = m.flash > 0 ? PIP_FLASH : (frac <= 0.34 ? VIDA_BAIXO : VIDA_CHEIO);
+    cx.fillStyle = m.flash > 0 ? PIP_FLASH : (frac >= 0.66 ? FEITO_QUASE : FEITO_CHEIO);
     cx.fillRect(x0, y, cheio, alt);
-    if (m.flash <= 0) { cx.fillStyle = VIDA_LUZ; cx.fillRect(x0, y, cheio, 1); }
+    if (m.flash <= 0) { cx.fillStyle = FEITO_LUZ; cx.fillRect(x0, y, cheio, 1); }
   }
 }
 
