@@ -532,31 +532,11 @@ const bonusDias = () => 1 + CFG.bonusDia * Math.min(Math.max(0, R.dias.length - 
 // other multiplier this used to carry belonged to a feature that no longer exists.
 const ganhoClique = () => forcaToque() * bonusDias();
 
-function poluicaoPorSegundo() {
-  if (S.modo !== "carvao") return 0;
-  return 0;
-}
 function worldHealth() {
   const run = Math.min(1, S.energiaTotal / CFG.metaPrestigio);
   return Math.max(0, Math.min(1, 0.04 + run * 0.72));
 }
 
-// how long until team health reaches `alvo` (0..1) in this mode; Infinity if it never does
-function segundosAteSaude(modo, alvo) {
-  const p = 100 / alvo - 100, eq = cansacoEq(modo), d = S.poluicao - eq;
-  if (Math.abs(d) < 1e-9) return 0;
-  const r = (p - eq) / d;
-  if (r <= 0) return Infinity;
-  const t = -Math.log(r) / kCansaco();
-  return t > 0 ? t : 0;
-}
-function curto(seg) {
-  if (!isFinite(seg)) return "never";
-  if (seg < 1) return "now";
-  if (seg < 60) return Math.round(seg) + "s";
-  if (seg >= 600) return Math.round(seg / 60) + "m";     // past ten minutes the seconds are noise
-  return Math.floor(seg / 60) + "m" + String(Math.round(seg % 60)).padStart(2, "0");
-}
 
 
 // ---------- actions ----------
@@ -859,11 +839,12 @@ function clicar(auto, naoConta, semAnim) {
   if (!auto) floats.push({ x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: 40 });
   desenhar();
 }
-// Changing rhythm is THE decision this prototype exists to measure, and it used to be one
-// floating word. Now the switch reports what it just cost and what it just bought, with
-// numbers read from the live formulas — including the ramp you threw away, which was the
-// sharpest hidden cost in the game.
-let modoAviso = null;
+// Trocar o ritmo alterna andar e correr. A faixa de texto que anunciava o que a troca custava
+// e o que comprava lia quatro identificadores que não existiam — `delta`, `saudeFim`,
+// `fracaoPerdida` e `rampaCheia` — restos da economia passiva do jogo anterior. Em `use
+// strict` isso é ReferenceError, não `undefined`: o card estourava em TODO clique, nos dois
+// sentidos, e o HUD só se corrigia por acidente no tique seguinte do laço. Ver o teste do
+// card em test/smoke.js — ele agora CLICA no card, que é o que faltava para pegar isto.
 function definirModo(m) {
   if (S.modo === m) return;
   S.modo = m;
@@ -878,17 +859,6 @@ function definirModo(m) {
       vx: (Math.random() - 0.5) * (rapido ? 40 : 16), vy: -(rapido ? 70 : 34) - Math.random() * 40,
       life: 0.7 + Math.random() * 0.4, c: rapido ? "#ff6b57" : "#6fdd94", grav: rapido ? 60 : 22 });
   }
-
-  // one line, in the strip, that stays long enough to be read
-  modoAviso = {
-    t: 4.5, rapido: rapido,
-    txt: rapido
-      ? "GO FAST — " + (delta >= 0 ? "+" : "") + Math.round(delta) + "% NOW, TEAM SINKS TO "
-        + Math.round(saudeFim * 100) + "%"
-      : "GO STEADY — TEAM BACK TO 90% IN " + curto(segundosAteSaude("limpo", 0.9))
-        + ", RAMP IN " + curto(rampaCheia())
-  };
-  if (fracaoPerdida > 0.02) modoAviso.txt += " · RAMP LOST";
   desenhar();
 }
 // screen-level punch that belongs to the HUD, not to the scene: a full-frame wash and a
@@ -2959,32 +2929,67 @@ function rolarFundo() {
   // street — reaching the next one is earned, in avancarCenario() below.
   const im = CENARIO_FUNDO[cenarioAtual()];
   if (!im || !im.complete || !im.naturalWidth) return;
+
+  // DUAS CAMADAS, e a regra que decide onde cada fração é segura.
+  //
+  // Paralaxe quebrou este motor uma vez e o comentário acima conta como. Mas o diagnóstico
+  // certo não é "paralaxe é proibida" — é que ela é FATAL NO HORIZONTE E ABAIXO, e INÓCUA
+  // ACIMA. O que quebrou foi aplicar uma fração a uma pintura que continha o chão: a rua
+  // deslizava sob os pés a um terço da velocidade que eles cobriam.
+  //
+  // Separando a pintura na própria linha do chão, a parte de baixo — a única em que a
+  // personagem pisa — continua a 1:1 e o pé continua casando. A parte de cima não toca
+  // ninguém, então pode rolar mais devagar, e é dela que vem a sensação de movimento
+  // contínuo sem animar nada.
+  //
+  // `paralaxeLonge` em 0 desliga a separação e desenha a pintura inteira num passe só,
+  // idêntico ao que este arquivo desenhava antes desta mudança. É o mesmo contrato que o
+  // `ceu` usa: cenário que não declara nada computa bit por bit o que computava antes.
   const volta = g.dw * 2;
-  const desl = ((worldX * (g.cw / W)) % volta + volta) % volta;
-  // The slice under the left edge of the screen. The loop has to START here: it used to run
-  // k from -1 upward, which was fine while desl stayed under one painting width, but desl now
-  // runs to seven of them — so past the second street every x landed far off-screen, nothing
-  // was drawn at all, and what showed through was the page behind the canvas. That was the
-  // green.
-  const k0 = Math.floor(desl / g.dw);
-  const quantas = Math.ceil(g.cw / g.dw) + 2;
-  for (let j = 0; j < quantas; j++) {
-    const k = k0 + j;
-    const x = k * g.dw - desl;
-    if (x > g.cw || x + g.dw < 0) continue;
-    fx.globalAlpha = 1;
-    const espelhado = (((k % 2) + 2) % 2) === 1;
-    if (espelhado) {
-      fx.save();
-      fx.translate(x + g.dw, 0); fx.scale(-1, 1);
-      fx.drawImage(im, 0, g.dy, g.dw, g.dh);
-      fx.restore();
-    } else {
-      fx.drawImage(im, x, g.dy, g.dw, g.dh);
+  const linha = FUNDO_GROUND_SRC;          // onde o chão começa, na fonte e no destino
+  function ladrilhar(fracao, sy, sh, dy, dh) {
+    const desl = ((worldX * fracao * (g.cw / W)) % volta + volta) % volta;
+    // A fatia sob a borda esquerda da tela. O laço tem que COMEÇAR aqui: ele já rodou de
+    // k = -1 para cima, o que servia enquanto desl ficava dentro de uma largura de pintura,
+    // mas desl chega a sete delas — e aí todo x caía fora da tela, nada era desenhado, e o
+    // que aparecia era a página atrás do canvas.
+    const k0 = Math.floor(desl / g.dw);
+    const quantas = Math.ceil(g.cw / g.dw) + 2;
+    for (let j = 0; j < quantas; j++) {
+      const k = k0 + j;
+      const x = k * g.dw - desl;
+      if (x > g.cw || x + g.dw < 0) continue;
+      fx.globalAlpha = 1;
+      // Cópias alternadas espelhadas: é o espelho que elimina a emenda, porque uma borda só
+      // encontra o próprio reflexo. Junta espelhada não tem o que suavizar.
+      const espelhado = (((k % 2) + 2) % 2) === 1;
+      if (espelhado) {
+        fx.save();
+        fx.translate(x + g.dw, 0); fx.scale(-1, 1);
+        fx.drawImage(im, sy === null ? 0 : 0, sy, im.naturalWidth, sh, 0, dy, g.dw, dh);
+        fx.restore();
+      } else {
+        fx.drawImage(im, 0, sy, im.naturalWidth, sh, x, dy, g.dw, dh);
+      }
     }
-    // A mirrored join has nothing to soften: the edge meets its own reflection.
+  }
+
+  const ih = im.naturalHeight;
+  if (paralaxeLonge <= 0) {
+    ladrilhar(1, 0, ih, g.dy, g.dh);                       // uma camada, como sempre foi
+  } else {
+    ladrilhar(paralaxeLonge, 0, ih * linha, g.dy, g.dh * linha);              // céu e distância
+    ladrilhar(1, ih * linha, ih * (1 - linha),
+      g.dy + g.dh * linha, g.dh * (1 - linha));                              // chão, sempre 1:1
   }
 }
+// 0 = camada única, o comportamento herdado. Acima de 0, a parte acima da linha do chão rola
+// nessa fração. A arte dos capítulos vem em duas peças e então isto deixa de ser depuração.
+let paralaxeLonge = 0;
+window.setParalaxe = function (f) {
+  paralaxeLonge = (typeof f === "number" && f > 0 && f < 1) ? f : 0;
+  return paralaxeLonge;
+};
 // Debug hook: force any of the seven paintings regardless of the coded scenario. n<0 clears
 // the override and returns to deriving the painting from cenAtivo.
 window.setFundo = function (n) { fundoAtivo = (typeof n === "number" && n >= 0 && n < CENARIO_FUNDO.length) ? n : -1; redesenharFundo(); return fundoAtivo; };
@@ -3800,7 +3805,6 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarDrops(dt);
     atualizarChamada(dt);
     verificarAnuncios();
-    if (modoAviso) { modoAviso.t -= dt; if (modoAviso.t <= 0) modoAviso = null; }
     if (S.u3) { // U3: neighbours keep helping on their own
       autoAcc += dt * CFG.autoTapsPorSeg;
       let n = Math.min(4, Math.floor(autoAcc));

@@ -12,15 +12,44 @@
 // blended edge. That number drives the alpha, and the colour is un-blended from it, which
 // recovers what the pixel would have been over nothing at all.
 //
-// Usage: slice_geral.js <sheet> <n frames> <saida.json> [compressaoVertical]
+// The sheet is either a horizontal strip (N frames side by side) or a GRID of C columns by R
+// rows, read left to right and top to bottom. The grid exists because the image model cannot
+// draw a 12.6:1 strip — past roughly 1:2.5 it degrades and duplicates bodies — so a twelve-pose
+// sheet is generated as 1024x1024 in 4 columns by 3 rows and cut from there. A strip is simply
+// the R = 1 case and walks the same code, not a second path.
+//
+// The one thing a grid needs that a strip does not is a PER-CELL baseline. Every vertical
+// measurement — the shared ground line, the bounce each pose keeps above it, the flattening —
+// is taken from the top of the pose's OWN cell rather than the top of the sheet. Measured from
+// the sheet, a pose on the second row sits a whole cell lower than one on the first, and the
+// common baseline would drag it off the canvas. When R = 1 the cell top is 0 and every number
+// below is the number the strip has always produced.
+//
+// Usage: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [compressaoVertical]
+//   12      12 frames side by side           (the strip, unchanged)
+//   4x3     4 columns by 3 rows, 12 frames   (reading order: left to right, top to bottom)
+//   3x3:7   the first 7 cells of a 3x3 grid  (for a grid whose last row is not full)
 const fs = require('fs');
 const { chromium } = require('playwright');
 
 const SRC = process.argv[2];
-const N = parseInt(process.argv[3], 10);
+const GRADE = process.argv[3];
 const OUT = process.argv[4];
 const COMP = process.argv[5] === undefined ? 1 : parseFloat(process.argv[5]);
-if (!SRC || !N || !OUT) { console.error('uso: slice_geral.js <sheet> <n> <saida.json> [comp]'); process.exit(1); }
+
+const USO = 'uso: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [comp]';
+// "12" parses as C=12, R=1: the strip is the one-row grid, so there is nothing to keep in sync
+const gr = /^(\d+)(?:[xX](\d+))?(?::(\d+))?$/.exec(GRADE || '');
+if (!SRC || !gr || !OUT) { console.error(USO); process.exit(1); }
+const COLS = parseInt(gr[1], 10);
+const ROWS = gr[2] === undefined ? 1 : parseInt(gr[2], 10);
+const N = gr[3] === undefined ? COLS * ROWS : parseInt(gr[3], 10);
+if (!COLS || !ROWS || !N) { console.error(USO); process.exit(1); }
+if (N > COLS * ROWS) {
+  console.error('ERRO: ' + N + ' quadros nao cabem numa grade ' + COLS + 'x' + ROWS +
+    ', que tem ' + COLS * ROWS + ' celulas');
+  process.exit(1);
+}
 
 function chromiumPath() {
   if (process.env.PW_CHROMIUM) return process.env.PW_CHROMIUM;
@@ -34,7 +63,7 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage();
   const saida = await page.evaluate(async (args) => {
-    const { src, N, COMP } = args;
+    const { src, N, COLS, ROWS, COMP } = args;
     const im = await new Promise((res, rej) => {
       const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
     });
@@ -69,7 +98,9 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
       if (m) { if (x < bx0) bx0 = x; bx1 = x; }
     }
     if (bx1 < 0) { bx0 = 0; bx1 = W - 1; }
-    const BW = bx1 - bx0 + 1, BH = y1 - y0 + 1, larg = BW / N;
+    const BW = bx1 - bx0 + 1, BH = y1 - y0 + 1;
+    // equal cells, never a split on empty columns: an object in the hand crosses the cell line
+    const larg = BW / COLS, alt = BH / ROWS;   // ROWS = 1 makes alt the whole band, as before
 
     // ink: anything that is not background and not the white page around the band
     const tinta = new Uint8Array(BW * BH);
@@ -81,16 +112,19 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
 
     const poses = [];
     for (let k = 0; k < N; k++) {
-      const a = Math.round(k * larg), b = Math.round((k + 1) * larg) - 1;
+      // reading order: left to right, top to bottom. With ROWS = 1 this is cx = k, cy = 0.
+      const cx = k % COLS, cy = (k / COLS) | 0;
+      const a = Math.round(cx * larg), b = Math.round((cx + 1) * larg) - 1;
+      const topo = Math.round(cy * alt), baixo = Math.round((cy + 1) * alt) - 1;
       let col = -1, colN = -1;
       for (let x = a; x <= b; x++) {
         let n = 0;
-        for (let y = 0; y < BH; y++) if (tinta[y * BW + x]) n++;
+        for (let y = topo; y <= baixo; y++) if (tinta[y * BW + x]) n++;
         if (n > colN) { colN = n; col = x; }
       }
       if (colN <= 0) return { erro: 'celula ' + (k + 1) + ' vazia' };
       let sy = -1;
-      for (let y = 0; y < BH; y++) if (tinta[y * BW + col]) { sy = y; break; }
+      for (let y = topo; y <= baixo; y++) if (tinta[y * BW + col]) { sy = y; break; }
 
       // flood the whole band so the wand, which crosses the cell line, comes along
       const manter = new Uint8Array(BW * BH);
@@ -110,14 +144,21 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
         if (x < ex0) ex0 = x; if (x > ex1) ex1 = x;
         if (y < ey0) ey0 = y; if (y > ey1) ey1 = y;
       }
+      // the flood is deliberately NOT clipped to the cell, so a held object crossing the cell
+      // line comes along; these two size checks are what catches a blob that ran into a
+      // neighbour instead. With ROWS = 1, alt is the whole band and the vertical one never fires.
       if (ex1 - ex0 + 1 > larg * 1.9) return { erro: 'a mancha do frame ' + (k + 1) + ' encostou na vizinha' };
+      if (ey1 - ey0 + 1 > alt * 1.9) return { erro: 'a mancha do frame ' + (k + 1) + ' encostou na de cima ou na de baixo' };
 
       // register on the head: the lowest ink is the front foot on one beat and the back foot
       // on the next, so anchoring there makes her surge forward and back
       let hs = 0, hn = 0;
       const ate = ey0 + Math.round((ey1 - ey0) * 0.2);
       for (let y = ey0; y <= ate; y++) for (let x = 0; x < BW; x++) if (manter[y * BW + x]) { hs += x; hn++; }
-      poses.push({ manter, ex0, ex1, ey0, ey1, cabeca: hn ? hs / hn : (ex0 + ex1) / 2 });
+      // every vertical number is stored relative to the top of the pose's own cell, so that poses
+      // on different rows share one ground line. topo is 0 when ROWS is 1, leaving these as they
+      // were. x needs no such shift: the head anchor is only ever used as a difference in x.
+      poses.push({ manter, topo, ex0, ex1, ey0: ey0 - topo, ey1: ey1 - topo, cabeca: hn ? hs / hn : (ex0 + ex1) / 2 });
     }
 
     const esq = Math.ceil(Math.max(...poses.map(p => p.cabeca - p.ex0))) + 1;
@@ -142,7 +183,7 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
       for (let y = 0; y < BH; y++) {
         for (let x = 0; x < BW; x++) {
           if (!p.manter[y * BW + x]) continue;
-          const tx = x + dx, ty = y + dy;
+          const tx = x + dx, ty = y - p.topo + dy;   // p.topo is 0 for a strip
           if (tx < 0 || ty < 0 || tx >= FW || ty >= FHi) continue;
           const s = at(bx0 + x, y0 + y), t = (ty * FW + tx) * 4;
           const m = magentice(s);
@@ -162,11 +203,13 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
       frames.push({ w: FW, h: FHi, b64: fc.toDataURL('image/webp', 0.92) });
     }
     return { frames };
-  }, { src: dataUrl, N, COMP });
+  }, { src: dataUrl, N, COLS, ROWS, COMP });
   await browser.close();
 
   if (saida.erro) { console.error('ERRO:', saida.erro); process.exit(1); }
   fs.writeFileSync(OUT, JSON.stringify(saida));
+  const kb = Math.round(saida.frames.reduce((n, f) => n + f.b64.length, 0) / 1024);
+  // the strip's line is left exactly as it was, so a grid announces itself and nothing else moves
   console.log(N, 'frames em', saida.frames[0].w + 'x' + saida.frames[0].h,
-    '|', Math.round(saida.frames.reduce((n, f) => n + f.b64.length, 0) / 1024), 'kb');
+    '|', kb + ' kb' + (ROWS > 1 ? ' | grade ' + COLS + 'x' + ROWS : ''));
 })();

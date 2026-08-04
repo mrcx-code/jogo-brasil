@@ -299,6 +299,25 @@ function chromiumPath() {
   await page.evaluate(() => fecharTudo());   // the close X moved onto the card below
   await page.waitForTimeout(400);
 
+  // ---- o card do ritmo, CLICADO ----
+  // Este bloco existe por causa de um bug que passou meses vivo: definirModo() lia quatro
+  // identificadores que não existiam e estourava ReferenceError em todo clique, nos dois
+  // sentidos. Nada pegou porque todo teste que mexia em ritmo escrevia `S.modo` direto.
+  // Escrever no estado prova a fórmula; só o clique prova o botão. Um dos três botões do
+  // jogo estava quebrado e o teste dizia PASS.
+  const erros0 = errors.length;
+  const antesModo = await page.evaluate(() => S.modo);
+  await page.tap('#modeQuick');
+  await page.waitForTimeout(120);
+  const meioModo = await page.evaluate(() => S.modo);
+  await page.tap('#modeQuick');
+  await page.waitForTimeout(120);
+  const fimModo = await page.evaluate(() => ({ modo: S.modo, rotulo: document.getElementById('modeNome').textContent }));
+  console.log('rhythm card tapped ->', antesModo, '->', meioModo, '->', fimModo.modo, '| label:', fimModo.rotulo);
+  if (meioModo === antesModo) errors.push('tapping the rhythm card did not change the mode');
+  if (fimModo.modo !== antesModo) errors.push('tapping the rhythm card twice did not come back');
+  if (errors.length > erros0) errors.push('the rhythm card threw while being tapped');
+
   // third hit must be a leap: hero leaves the ground, then a shockwave appears
   const mid = await page.evaluate(() => { combo = 2; S.energiaTotal = 30000; mobs.length = 0; shocks.length = 0; clicar(); return jumpT; });
 // obsolete:   if (mid <= 0) errors.push('third hit did not leap');
