@@ -1,0 +1,11 @@
+[
+  { "_comment": "Template — replace this array with one entry per delivered PNG. See README.md for the schema. Example entries below show each type; delete them once real files land." },
+
+  { "file": "hero/hero_idle.png",    "category": "hero", "type": "sheet", "w": 0, "h": 0, "frameW": 48, "frameH": 64, "frames": 4, "fps": 6,  "anchorX": 24, "anchorY": 64, "notes": "faces right, feet-anchored" },
+  { "file": "hero/hero_walk.png",    "category": "hero", "type": "sheet", "w": 0, "h": 0, "frameW": 48, "frameH": 64, "frames": 7, "fps": 10, "anchorX": 24, "anchorY": 64, "notes": "faces right, feet-anchored" },
+  { "file": "hero/hero_attack1.png", "category": "hero", "type": "sheet", "w": 0, "h": 0, "frameW": 48, "frameH": 64, "frames": 4, "fps": 12, "anchorX": 24, "anchorY": 64, "notes": "simple basic cast, one bolt" },
+  { "file": "hero/hero_attack2.png", "category": "hero", "type": "sheet", "w": 0, "h": 0, "frameW": 48, "frameH": 64, "frames": 4, "fps": 12, "anchorX": 24, "anchorY": 64, "notes": "second basic cast" },
+  { "file": "hero/hero_special.png", "category": "hero", "type": "sheet", "w": 0, "h": 0, "frameW": 48, "frameH": 64, "frames": 6, "fps": 12, "anchorX": 24, "anchorY": 64, "notes": "leap + heal burst" },
+  { "file": "hero/hero_shadow.png",  "category": "hero", "type": "sprite", "w": 0, "h": 0, "anchorX": 0, "anchorY": 0, "notes": "oval contact shadow, its own file" },
+  { "file": "staff/staff.png",       "category": "staff", "type": "sprite", "w": 0, "h": 0, "notes": "standalone item" }
+]

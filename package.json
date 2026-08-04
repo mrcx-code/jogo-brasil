@@ -1,0 +1,13 @@
+{
+  "name": "jogo-brasil",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Jogo de acao lateral em pixel art sobre a historia do Brasil. Um arquivo, sem build, sem rede.",
+  "scripts": {
+    "test": "node test/smoke.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

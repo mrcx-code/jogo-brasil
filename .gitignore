@@ -1,0 +1,12 @@
+node_modules/
+package-lock.json
+shot-*.png
+tela-*.png
+.DS_Store
+.vercel
+look-*.png
+
+# PNGs de medição das bancadas visuais — saída descartável, nunca fonte
+cruz-*.png
+board-*.png
+medida-*.png
