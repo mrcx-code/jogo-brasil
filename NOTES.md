@@ -268,3 +268,172 @@ mexer no laço de combate inteiro.
 
 **Próximo passo:** a referência visual do capítulo 1, que precisa da aprovação do dono antes
 de qualquer prompt de imagem, e a conversão de `golpear` para `alcançar`.
+
+### 2026-08-04 · o fundo em duas camadas, e um bug que estava vivo em produção
+
+**A camada dupla, e por que paralaxe deixou de ser proibida.** O dono pediu fundo com
+sensação de movimento contínuo sem animar muito. Paralaxe é a armadilha nº 1 do CLAUDE.md §7
+e custou uma sessão no motor anterior — mas o diagnóstico registrado estava incompleto. Não é
+que paralaxe seja proibida: ela é **fatal no horizonte e abaixo, e inócua acima**. O que
+quebrou foi aplicar uma fração a uma pintura que continha o chão, e aí a rua deslizava sob os
+pés a um terço da velocidade que eles cobriam.
+
+`rolarFundo()` agora ladrilha em duas passadas: acima da linha do chão na fração
+`paralaxeLonge`, do horizonte para baixo sempre a 1:1. Com `paralaxeLonge = 0` desenha numa
+passada só, idêntico ao de antes — mesmo contrato do `ceu`, em que cenário que não declara
+nada computa o que computava. Verificado no navegador: nasce em 0, liga em 0,35, renderiza
+sem erro, e a camada que a personagem pisa continua a 1:1 por construção.
+
+**A decisão tinha prazo.** Arte em duas peças custa 6 renders em vez de 3 e é de graça
+enquanto nada foi gerado; depois de gerado, é regerar tudo. Por isso entrou antes da arte.
+
+**O bug.** Um agente de auditoria apontou que `definirModo()` lançava `ReferenceError`. Não
+aceitei de cara — ele avisou que não tinha rodado o jogo. Verificado por mim no navegador:
+
+```
+definirModo('carvao') -> ReferenceError: delta is not defined
+definirModo('limpo')  -> ReferenceError: cansacoEq is not defined
+```
+
+Quatro identificadores inexistentes (`delta`, `saudeFim`, `fracaoPerdida`, `rampaCheia`)
+montavam uma faixa de texto sobre cansaço de time, resto da economia passiva do jogo
+anterior. Em `use strict` isso é exceção, não `undefined`. **Um dos três botões do jogo,
+quebrado nos dois sentidos, em produção.**
+
+**A lição não é sobre o código, é sobre o teste.** `modeQuick` não aparecia uma única vez no
+`smoke.js`. Todo teste que mexia em ritmo escrevia `S.modo` direto. **Escrever no estado prova
+a fórmula; só o clique prova o botão.** O teste agora toca no card duas vezes e confere que o
+modo troca, que volta e que nada estourou. E o guarda foi **provado**, não presumido: com um
+`ReferenceError` injetado de propósito o teste falha com 4 erros; removido, passa.
+
+**Erro de processo meu, registrado para não repetir.** O commit `e64afc7` levou três coisas —
+o conserto do card, a camada dupla e trabalho de um agente que ainda estava escrevendo — e a
+mensagem descreve só a primeira. Causa: `git add -A` com agentes rodando em paralelo. Com
+mais de um agente ativo, commitar por caminho explícito, nunca `-A`.
+
+**Dúvida nova.** A camada dupla está implementada mas nunca foi vista com arte de duas peças,
+porque ela não existe. O que testei foi que a fração se aplica e que o chão não se mexe — não
+que o resultado seja bonito. Isso só dá para julgar com a arte do capítulo 1 na mão.
+
+**Próximo passo:** as correções de fonte da pesquisa (ver abaixo) e a conversão de `golpear`
+para `alcançar`.
+
+### 2026-08-04 · o recortador aprende a cortar grade
+
+`test/recortar-folha.js` agora aceita `N`, `CxR` ou `CxR:N`. A tira deixou de ser um caminho
+separado: virou o caso de uma linha só, e `12` é lido como 12 colunas × 1 linha. Existe porque
+SDXL não desenha uma tira de 12,6:1 — acima de ~1:2,5 ele duplica corpos — então a folha de 12
+poses sai 1024×1024 em 4×3 e é cortada de lá.
+
+**A única adição de substância é a linha de base POR CÉLULA.** Toda medida vertical — o chão
+comum, o quique que cada pose guarda acima dele, o achatamento — passa a ser tirada do topo da
+célula da própria pose, não do topo da folha. Sem isso, uma pose da segunda linha fica uma
+célula inteira abaixo de uma da primeira e a base comum a arrasta para fora do canvas. Medido:
+desligando a base por célula, a mesma grade 4×3 produz quadros de **25×515 em vez de 25×133**,
+3,9× altos demais. Com uma linha só, o topo da célula é 0 e todo número sai igual ao de antes.
+
+**Regressão provada, não presumida.** Antes de comparar, o agente estabeleceu a precondição:
+rodou o script antigo duas vezes e obteve SHA-256 idênticos, então comparar bytes significa
+alguma coisa. Depois, script novo contra a saída capturada do antigo:
+
+| folha | bytes | quadros | canvas | sha |
+|---|---:|---:|---|---|
+| andar (12, comp 1) | 174.032 | 12/12 | 191×182 | igual |
+| correr (12, comp 0,35) | 182.368 | 12/12 | 217×204 | igual |
+| pular (6, comp 0) | 153.860 | 6/6 | 297×319 | igual |
+
+**30/30 quadros idênticos byte a byte.** `12` e `12x1` dão o mesmo SHA. E a ordem de leitura da
+grade não é verificação vazia: uma grade com as linhas trocadas produz hash diferente.
+
+**As três decisões já pagas continuam de pé:** corte em células iguais (agora em 2D),
+desfranjamento intocado, registro pela cabeça intocado — e este último não precisa de
+normalização por célula porque a âncora só é usada como *diferença* em x, então um
+deslocamento de célula inteira se cancela.
+
+**O achado que veio de um caminho errado, e vale mais que o acerto:** a primeira tentativa de
+montar uma grade de teste copiou os retângulos nominais das células e só 6 de 12 quadros
+bateram. A causa não era o recortador — **as doze personagens não estão alinhadas à grade
+nominal de células**. Toda mancha atravessa uma linha de célula; a da pose 1 ocupa `[10,195]`
+numa célula `[0,166]`, e a transbordagem vai de 3 a 46 px. Quem realmente encontra cada
+personagem é a mancha; a divisão em células só precisa conter a coluna-semente certa. Isso
+está correto por projeto, mas significa que **"cortar uma tira nas linhas de célula" não é
+jeito válido de montar uma grade de teste** — e é a armadilha em que a próxima pessoa cairia.
+
+Falta o `test/LEIAME.md` documentar a forma de grade; hoje ele descreve só a tira, que segue
+funcionando literalmente.
+
+## Fontes — o que a pesquisa achou, e uma correção
+
+**CORREÇÃO: "Angola Janga" não pode ser apresentado como fato histórico.** Eu havia afirmado
+ao dono, com base em enciclopédia aberta, que quem morava em Palmares chamava o lugar assim.
+A pesquisa não localizou **nenhuma atestação do termo em documento colonial do século XVII**.
+As ocorrências remontam a dicionários do século XX (Clóvis Moura, "pequena Angola"; Nei Lopes,
+"minha Angola" — e os dois **divergem** no sentido) e à popularização pela graphic novel
+*Angola Janga*, de Marcelo D'Salete (2017), que é pesquisa séria mas é ficção histórica.
+Sinal decisivo: o estudo mais completo e recente da toponímia palmarina a partir da
+documentação primária — Silvia Hunold Lara, "O território dos Palmares", *Afro-Ásia* n. 64,
+2021 — **não menciona o termo em momento nenhum**. Antes de qualquer uso, buscar *janga* /
+*ianga* no corpus do Documenta Palmares. Sem isso, o jogo não afirma; no máximo credita como
+nome consagrado pela cultura contemporânea.
+
+**Base documental central do capítulo 2:** [Documenta Palmares](https://palmares.ifch.unicamp.br)
+(Silvia H. Lara, Unicamp/CECULT) — ~4.400 cópias digitais de documentos dos séc. XVII–XIX, de
+arquivos brasileiros, portugueses e holandeses, mais cartografia interativa dos mocambos. A
+própria apresentação avisa que as informações são "incompletas e muitas vezes contraditórias".
+
+**Grafias corrigidas por paleografia** (Lara & Fachin, *Guerra contra Palmares: o manuscrito de
+1678*, Chão Editora, 2021): **"Gana Zumba"**, não "Ganga Zumba" — em quimbundo *gana* é
+"senhor" e *ganga* é "sacerdote"; e **"Aca Inene"**, não "Acotirene". Mocambos documentados:
+Macaco, Subupira, Amaro, Andalaquituche, Osenga, Dambrabanga, Arotirene, Tabocas, Aqualtune,
+Zumbi, Acotirene, Gongro. (Minha lista anterior tinha grafias erradas.)
+
+**O achado que liga o capítulo 1 ao 3: os Tupinambá não são passado.** Existe o povo
+**Tupinambá de Olivença**, no sul da Bahia, com terra em demarcação **agora**: Portaria
+Declaratória nº 1075/2025, ~47.376 ha em Ilhéus, Una e Buerarema, 23 comunidades — o
+penúltimo passo administrativo, após o processo ficar parado mais de uma década depois do
+RCID de 2009. ([Enciclopédia Povos Indígenas no Brasil / ISA](https://pib.socioambiental.org/pt/Povo:Tupinambá))
+
+**O objeto que atravessa os três capítulos:** o **manto Tupinambá**, penas de guará, na
+Dinamarca desde 1644, reconhecido em 2000 pela anciã Nivalda Amaral, do povo Tupinambá de
+Olivença, e recebido pelo Museu Nacional/UFRJ em 12 de setembro de 2024.
+([UFRJ](https://ufrj.br/2024/09/cerimonia-oficial-marca-chegada-do-manto-tupinamba-ao-museu-nacional-da-ufrj/))
+
+**O dado mais forte para o §2.1**, e vem do Estado, não de opinião: Censo 2022 do IBGE —
+**391 etnias e 295 línguas indígenas**, 1,69 milhão de pessoas, crescimento de 88,96% entre
+2010 e 2022. É o argumento factual contra tratar "índio" como categoria única.
+
+**Terminologia, com base legal:** Lei nº 14.402/2022 institui o Dia dos Povos Indígenas e
+revoga o "Dia do Índio" de 1943. É o Estado brasileiro, em lei, adotando "povos indígenas" no
+plural. ([Planalto](https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/lei/L14402.htm))
+
+**"Confederação dos Tamoios" é rótulo do século XIX**, consolidado pelo poema épico de
+Gonçalves de Magalhães (1856), não autodenominação. O conflito (1554–1567) é real; o nome é
+construção romântica imperial. Usar com aspas ou explicar a origem.
+
+**Tibiriçá — erro confirmado como erro.** Era **Tupiniquim**, em Piratininga (São Paulo), não
+guarani na Bahia. E era aliado dos portugueses, tendo lutado contra outros povos indígenas.
+Impróprio para o capítulo 1 por duas razões independentes.
+
+### Números que NÃO podem entrar como fato
+
+- **População indígena em 1500:** sem consenso. Rosenblat 1 milhão (1945), Hemming 2,4 milhões
+  (1978 — que chamou o próprio número de *"pure guess-work"*), Denevan 4,8 milhões (1976,
+  criticado por basear-se em potencial agrícola). O **IBGE publica 2.431.000 sem ressalva
+  metodológica**, atribuído a Darcy Ribeiro (1957) e Kietzman (1967). Recomendação: **não citar
+  número; citar a disputa.** (Carrara, *Tempo* v. 20, 2014)
+- **População de Palmares:** a Fundação Cultural Palmares, órgão federal, afirma "cerca de 20
+  mil pessoas"; Silvia Lara classifica os números da documentação seiscentista como
+  **exagerados**. Um órgão do Estado e a historiadora de referência discordam. Não escolher
+  lado: dizer que a documentação colonial registra números que a pesquisa atual considera
+  inflados.
+- **Tombamento da Serra da Barriga:** 1985 (Fundação Palmares) × 31/01/1986 (outras fontes).
+  A página do IPHAN não abriu. Verificar antes de usar.
+
+### Lacuna de método, não de bibliografia
+
+Nenhuma fonte levantada é de **autoria indígena ou quilombola direta** — todas são de
+instituições e pesquisadores *sobre* esses povos. Para um repositório cuja regra diz que "o
+protagonismo é de quem foi escravizado" e que os povos originários "continuam aqui", isso é
+uma falha de método. Buscar publicações da APIB, do ISA em coautoria indígena, e autores como
+Ailton Krenak, Davi Kopenawa, Daniel Munduruku, Beatriz Nascimento e Abdias do Nascimento —
+**antes** de escrever qualquer ponte, não depois.
