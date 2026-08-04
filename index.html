@@ -502,23 +502,7 @@ const CFG = {
   // with you. Never tiredness, in either direction.
   superCombos: 3,        // completed combos that arm it
   // --- SPECIAL PROJECTS. The answer to "projects feel too basic": drops now pile up into
-  // three resources (flower/water/meal) and a specific COMBO of them funds a one-time,
-  // within-run project with a permanent-for-the-run bonus. Every bonus is a MULTIPLIER on
-  // output (never tiredness, in either direction) and is mode-neutral, so — exactly like the
-  // world layer — it cannot shift the GO FAST / GO STEADY gap: both modes get the same
-  // factor, and it is still multiplied by team health, so a worn team gets less from it too.
-  // custo carries flor/agua/refeicao counts. prod/tap/drop/bloq default to 1 when absent.
-  // `bloq` scales how hard a parked trouble blocks the work (< 1 = cheaper troubles).
-  especiais: [
-    { id: "garden", nome: "Community Garden", custo: { flor: 12, agua: 6 }, prod: 1.06,
-      efeito: "+6% production" },
-    { id: "kitchen", nome: "Shared Kitchen", custo: { refeicao: 10, flor: 6 }, tap: 1.10, drop: 1.10,
-      efeito: "+10% taps & pickups" },
-    { id: "water", nome: "Clean Water Works", custo: { agua: 12, refeicao: 8 }, bloq: 0.6,
-      efeito: "troubles block 40% less" },
-    { id: "workshop", nome: "Repair Workshop", custo: { flor: 10, agua: 10, refeicao: 10 },
-      prod: 1.05, tap: 1.05, drop: 1.05, efeito: "+5% everything" }
-  ]
+  // three resources (flower/water/meal) and a specific COMBO of them funds a one-time
 };
 
 // Everything the game remembers. It is deliberately small: each field is read somewhere and
@@ -763,8 +747,6 @@ function coletarDrop(d, auto) {
   const r = RECURSO_DE[d.type]; if (r) S.recursos[r] = (S.recursos[r] || 0) + 1;
   const sx = Math.round(d.wx - worldX);
   floats.push({ x: sx - 10, y: GROUND - 30, txt: "+" + Math.round(v), life: 38 });
-  if (!auto) floats.push({ x: sx - 18, y: GROUND - 46,
-    txt: d.type === "cash" ? "SHARED!" : d.type === "barrel" ? "CLEAN!" : "CLEAR!", life: 30 });
   burst(sx, GROUND - 16, auto ? 5 : 10, d.type === "cash" ? ["#f3a03d", "#dcbb84"]
     : d.type === "barrel" ? ["#71a39c", "#dad8c0"] : ["#f2d2dc", "#cf7d92"]);
   d.morto = true;
@@ -1121,19 +1103,14 @@ function carregarMuro() {
 // greeting. This note fires on its own, whether or not anything was earned overnight.
 // One line for coming back, picked by how many days you have shown up. The cast that used
 // to speak these went with the rest of the names, so the street says them now.
-const NOTAS_VOLTA = [
-  "Nothing collapsed while you were gone.",
-  "Second day. That is when people usually stop.",
-  "Three days. The street is starting to notice.",
-  "You keep coming back. So does everyone else.",
-  "A week of this. Sit down, eat something."
-];
-function notaDeVolta() {
-  const d = R.dias.length;
-  if (d < 2 && voltouDepoisDe < 60) return null;    // a cold first start is not a return
-  const i = d >= 7 ? 4 : (d >= 4 ? 3 : Math.max(0, Math.min(2, d - 1)));
-  return NOTAS_VOLTA[i];
-}
+// Todo texto escrito por nós vive aqui, num lugar só, e por um motivo: o smoke test varre
+// esta lista e falha se qualquer linha contiver um dígito. É a regra do CLAUDE.md §2 com
+// dentes — um número solto dentro de uma frase de jogo lê como afirmação histórica, e
+// afirmação histórica precisa de fonte. Frase que precisa de número não entra aqui: entra
+// como dado com `fonte` e `data`, separado da ficção.
+// As pontes entre capítulos vão morar nesta lista quando existirem.
+const TEXTOS = [];
+function notaDeVolta() { return null; }   // o texto de volta era do tema anterior; o bônus por dia distinto continua
 
 // ---------- the world (fullscreen side-scroller) ----------
 const cv = document.getElementById("scene");
@@ -3607,62 +3584,6 @@ function desenharMundo() {
     cx.fillRect(sx - 6, GROUND - 1, 2, 3); cx.fillRect(sx + 14, GROUND - 1, 2, 3);
     cx.globalAlpha = 1;
   });
-  // the community call: a pot, steam, and a friendly radial countdown (NOT an HP bar)
-  if (chamada) {
-    const sx = chamada.sx, resta = Math.max(0, 1 - chamada.t / chamada.janela);
-    cx.globalAlpha = 0.30 * pulso;
-    cx.fillStyle = "#f3a03d";
-    cx.fillRect(sx - 16, GROUND - 26, 32, 28);
-    cx.globalAlpha = 1;
-    // ARGILA, off the board's ITENS sheet: a fired clay pot, not the old violet cauldron
-    cx.fillStyle = "#7d4a1e"; cx.fillRect(sx - 10, GROUND - 12, 20, 12);   // pot
-    cx.fillStyle = "#b9732c"; cx.fillRect(sx - 9, GROUND - 11, 17, 11);
-    cx.fillStyle = "#dcbb84"; cx.fillRect(sx + 6, GROUND - 11, 2, 11);     // the sunlit side
-    cx.fillStyle = "#f3a03d"; cx.fillRect(sx - 12, GROUND - 14, 24, 3);    // the rim
-    cx.fillStyle = "#da7a29"; cx.fillRect(sx - 12, GROUND - 12, 24, 1);
-    cx.fillStyle = "#5c421f"; cx.fillRect(sx - 7, GROUND, 4, 4); cx.fillRect(sx + 3, GROUND, 4, 4);
-    cx.globalAlpha = 0.6;
-    cx.fillStyle = "#dad8c0";
-    for (let s = 0; s < 3; s++) {                                          // steam
-      const t = (animT * 22 + s * 9) % 18;
-      cx.fillRect(sx - 6 + s * 6 + Math.round(Math.sin((animT * 4) + s) * 2), GROUND - 17 - t, 3, 3);
-    }
-    cx.globalAlpha = 1;
-    // NOT a horizontal HP bar. The old closing-window strip sat at mob-HP height and drained
-    // green->red exactly like an enemy's health, so players read the pot as a threat. It is a
-    // friendly, time-limited call, so it now wears event markers a monster never gets: a name
-    // pill, a RADIAL clock with the seconds ticking in the middle, and a fat arrow.
-    const seg = Math.max(0, Math.ceil(chamada.janela - chamada.t));
-    // a name pill above the pot: this is the mutirao, not something to kill
-    const lbl = "MUTIRAO";
-    const lw = larguraTexto(lbl, 1);
-    cx.fillStyle = "#10121c"; cx.fillRect(sx - (lw >> 1) - 4, GROUND - 60, lw + 8, 12);
-    cx.fillStyle = "#43391a"; cx.fillRect(sx - (lw >> 1) - 4, GROUND - 60, lw + 8, 1);
-    texto(lbl, sx - (lw >> 1), GROUND - 58, 1, "#fbe7ae", "#10121c");
-    // a circular countdown clock (warm gold, never mob-red) with the seconds in the middle
-    const cyC = GROUND - 34, rC = 9;
-    cx.lineWidth = 3; cx.lineCap = "butt";
-    cx.strokeStyle = "#10121c";                                           // dark track ring
-    cx.beginPath(); cx.arc(sx, cyC, rC, 0, Math.PI * 2); cx.stroke();
-    cx.globalAlpha = resta > 0.3 ? 1 : (0.5 + 0.5 * pulso);               // pulses when short
-    cx.strokeStyle = resta > 0.3 ? "#ffcd75" : "#f3a03d";
-    cx.beginPath(); cx.arc(sx, cyC, rC, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * resta); cx.stroke();
-    cx.globalAlpha = 1;
-    cx.fillStyle = "#10121c"; cx.beginPath(); cx.arc(sx, cyC, rC - 2, 0, Math.PI * 2); cx.fill();
-    const sw = larguraTexto(String(seg), 1);
-    texto(String(seg), sx - (sw >> 1) + 1, cyC - 4, 1, "#fbe7ae", "#10121c");
-    // a fat arrow nodding down at the pot: the clearest "put your thumb here" there is
-    const bob = Math.round(Math.sin(animT * 7) * 2), ay = GROUND - 24 + bob;
-    cx.fillStyle = "#10121c";                                            // outline
-    for (let r = 0; r < 6; r++) { const w = 11 - r * 2; cx.fillRect(sx - (w >> 1) - 1, ay + r, w + 2, 1); }
-    cx.fillStyle = "#ffcd75";                                            // the arrow
-    for (let r = 0; r < 5; r++) { const w = 9 - r * 2; cx.fillRect(sx - (w >> 1), ay + r, w, 1); }
-  }
-  // the mutirão: the street is working with you, so the ground is busier
-  if (mutiraoT > 0 && Math.random() < 0.3) {
-    parts.push({ x: HX + 20 + Math.random() * 60, y: GROUND - 4, vx: -20 - Math.random() * 20,
-      vy: -20 - Math.random() * 26, life: 0.5, c: Math.random() < 0.5 ? "#ffcd75" : "#6fdd94", grav: 90 });
-  }
 }
 
 // ---------- HUD ----------
@@ -3746,21 +3667,9 @@ function semearAnuncios() {          // adopt the current state without shouting
   anTocha = S.energiaTotal >= CFG.metaPrestigio;
 }
 function verificarAnuncios() {
-  const temChamada = !!chamada;
-  if (temChamada && !anChamada) anunciar("THE POT IS OUT — tap it, quick!", "chama");
-  anChamada = temChamada;
-
-  const temMutirao = mutiraoT > 0;   // rising edge covers "the player answered the call"
-  if (temMutirao && !anMutirao) anunciar("MUTIRAO! Everyone's helping — ×" + CFG.mutiraoMult, "festa");
-  anMutirao = temMutirao;
-
-  const bloqueado = false;   // troubles no longer hold anything back: there is no production
-  if (bloqueado && !anBloqueio) anunciar("TROUBLES IN THE WAY — tap them to clear", "perigo");
-  anBloqueio = bloqueado;
-
-  const tocha = S.energiaTotal >= CFG.metaPrestigio;   // a run just reached its end
-  if (tocha && !anTocha) anunciar("TORCH READY — pass it on", "chama");
-  anTocha = tocha;
+  // vazio: os anúncios que existiam aqui eram todos do tema anterior — a panela da
+  // comunidade, o mutirão e a tocha do prestígio, que já tinha sido removido. Os textos
+  // dos capítulos entram por aqui quando existirem.
 }
 
 // owner: the REAL DATA ticker is gone (element, style and rotation).

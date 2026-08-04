@@ -326,7 +326,7 @@ function chromiumPath() {
   // can never be mistaken for the sourced REAL DATA banner ----
   const digitos = await page.evaluate(() => {
     const s = [];
-    NOTAS_VOLTA.forEach(v => s.push(v));   // plain lines now: the cast that spoke them is gone
+    TEXTOS.forEach(v => s.push(v));   // todo texto autoral do jogo vive numa lista só
     return { total: s.length, ruins: s.filter(x => /[0-9]/.test(x)) };
   });
   console.log('fiction strings checked for digits ->', digitos.total, '| with a digit:', digitos.ruins.length);
