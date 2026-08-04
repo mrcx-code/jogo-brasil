@@ -28,6 +28,8 @@
   button { background: #38b764; color: #0d1013; border: 0; border-radius: 6px; padding: 8px 16px;
            font: 600 14px system-ui; cursor: pointer; margin-top: 10px; }
   button:disabled { background: #2c3038; color: #6b6862; cursor: default; }
+  button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 12px; padding: 6px 12px;
+                      font-size: 13px; }
   .vazio { color: #8d8a80; font-size: 14px; }
   .resposta { margin-top: 14px; padding: 12px; border-radius: 6px; border-left: 3px solid #3a4049;
               background: #101218; }
@@ -113,7 +115,17 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     cards[p.nome] = { el: cx, rodada: (p.resposta && p.resposta.rodada) || 0 };
     cx.appendChild(el("div", "titulo", p.titulo || p.nome));
     cx.appendChild(el("div", "ref", (p.referencia || "") + (p.tamanho ? " · " + p.tamanho : "")));
-    if (p.prompt) cx.appendChild(el("div", "prompt", p.prompt));
+    if (p.prompt) {
+      cx.appendChild(el("div", "prompt", p.prompt));
+      const bc = el("button", "secundario", "Copiar prompt");
+      bc.addEventListener("click", function () {
+        navigator.clipboard.writeText(p.prompt)
+          .then(function () { bc.textContent = "copiado ✓";
+            setTimeout(function () { bc.textContent = "Copiar prompt"; }, 2000); })
+          .catch(function () { bc.textContent = "copie à mão do quadro acima"; });
+      });
+      cx.appendChild(bc);
+    }
 
     const alvo = el("div", "cola", "clique aqui e cole a imagem (Ctrl+V)");
     alvo.tabIndex = 0;
