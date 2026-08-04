@@ -1023,8 +1023,8 @@ function carregar() {
 // should not take the measurement down with it.
 // bumped when the cleanup removed projects, the torch and the whole economy those fed:
 // a save from before that carries totals no version of this game could have produced.
-const CHAVE_JOGO = "proto_savetheworld_v2";
-const CHAVE_RET = "proto_savetheworld_retencao";
+const CHAVE_JOGO = "jogo_brasil_v1";
+const CHAVE_RET = "jogo_brasil_retencao";
 let R = { dias: [], segundos: 0, tochas: 0 };
 function diaLocal() {
   const d = new Date();
@@ -1090,7 +1090,7 @@ let guiaAtual = null, guiaAlvoEl = null, guiaMostradoEm = 0;
 // Every torch leaves a name painted on it and the wall only ever grows. It is the one
 // thing here that survives a reset, so it lives in its own localStorage key — passing the
 // torch wipes S, and a corrupted game save must not take the wall down with it.
-const CHAVE_MURO = "proto_savetheworld_muro";
+const CHAVE_MURO = "jogo_brasil_muro";
 const MURO_MAX = 30;               // it grows, but not without bound
 let MURO = [];
 function carregarMuro() {

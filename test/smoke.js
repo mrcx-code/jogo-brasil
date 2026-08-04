@@ -263,7 +263,7 @@ function chromiumPath() {
   // obsolete: the AUTO-FIRE skill was removed by owner request — feature and test.
   // ---- coming back on another day is worth something ----
   const dias = await page.evaluate(() => {
-    localStorage.setItem('proto_savetheworld_retencao',
+    localStorage.setItem('jogo_brasil_retencao',
       JSON.stringify({ dias: ['2026-07-30', '2026-07-31', '2026-08-01'], segundos: 900, tochas: 0 }));
     R = { dias: [], segundos: 0, tochas: 0 };
     diaNovo = false;
@@ -275,7 +275,7 @@ function chromiumPath() {
   if (Math.abs(dias.bonus - 1.06) > 1e-9) errors.push('the day bonus is not what CFG says');
   if (!dias.novo) errors.push('coming back on a new day was not noticed');
   await page.evaluate(() => {
-    localStorage.removeItem('proto_savetheworld_retencao');
+    localStorage.removeItem('jogo_brasil_retencao');
     R = { dias: [], segundos: 0, tochas: 0 }; carregarRetencao();
     mobs.length = 0; drops.length = 0; chamada = null; mutiraoT = 0; superT = 0; superCarga = 0; superSwings = 0; superCd = 0; superFx = null;
     S.geradores = 0; S.poluicao = 0; S.modo = 'carvao';
@@ -332,7 +332,7 @@ function chromiumPath() {
   console.log('fiction strings checked for digits ->', digitos.total, '| with a digit:', digitos.ruins.length);
   if (digitos.ruins.length) errors.push('a fiction string contains a digit: ' + JSON.stringify(digitos.ruins));
 
-  await page.evaluate(() => { localStorage.removeItem('proto_savetheworld_muro'); MURO = []; });
+  await page.evaluate(() => { localStorage.removeItem('jogo_brasil_muro'); MURO = []; });
 
   // ---- the save is untrusted input ----
   // localStorage can be edited by hand, by anything else that runs on this origin, and by
