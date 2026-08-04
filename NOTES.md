@@ -5,6 +5,8 @@ histórico, uma entrada por sessão. Se as duas discordarem, esta é a verdade.
 
 ## Onde este projeto está
 
+Produção: <https://jogo-brasil-mrcx.vercel.app>
+
 **No começo.** O que existe hoje é o motor herdado, funcionando, com a arte e a temática do
 projeto anterior ainda dentro dele. Nada de história do Brasil foi feito. A primeira coisa
 a decidir com o dono é *como* a passagem do tempo aparece — se é cenário que troca, se é
@@ -130,3 +132,20 @@ começo real do trabalho.
 
 **Próximo passo:** decidir com o dono como a passagem do tempo aparece no jogo. É a decisão
 que trava todas as outras.
+
+### 2026-08-04 · deploy próprio, independente do projeto de origem
+
+Projeto criado na Vercel a partir do `mrcx-code/jogo-brasil`, preset Other, raiz `./`,
+sem build. Push na `main` publica sozinho.
+
+Nasceu com **Vercel Authentication** ligada — as URLs pediam login e devolviam a página de
+login da Vercel em vez do jogo. Desliguei para ficar igual ao projeto de origem, que é
+público. Medido depois: `<title>BRASIL</title>`, CSP presente, 2.871.381 bytes.
+
+Verifiquei que os dois projetos são independentes: nenhum `vercel.json` nem pasta
+`.vercel` em qualquer um dos repos — a ligação vive do lado da Vercel, e são dois projetos
+distintos apontando para dois repositórios distintos.
+
+Atenção a uma pegadinha: `jogo-brasil.vercel.app` (sem o sufixo do time) **não é seu** —
+esse domínio genérico já pertence a outra conta e serve um "Vite App". A URL desta produção
+é a com `-mrcx`.

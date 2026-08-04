@@ -138,7 +138,8 @@ Cada uma custou uma sessão no projeto anterior:
 
 ## 8. Infraestrutura e nome
 
-Repo: `mrcx-code/jogo-brasil`. **Ainda sem deploy** — quando houver, este arquivo diz onde.
+Produção: <https://jogo-brasil-mrcx.vercel.app> · Repo: `mrcx-code/jogo-brasil`
+Push na `main` publica sozinho.
 Não há segredo, variável de ambiente nem backend, e não deve haver.
 
 O nome `jogo-brasil` é **provisório**, um marcador escolhido pelo dono. Nome definitivo,
