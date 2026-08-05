@@ -385,7 +385,7 @@
 <div id="hudTop">
   <div id="barraTopo">
     <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="12" height="12"></canvas>
-      <div class="cInfo"><div class="valor" id="energia">0</div><div class="rotulo">IMPACTO</div></div></div>
+      <div class="cInfo"><div class="valor" id="energia">0</div><div class="rotulo" id="rotuloEpoca">ÉPOCA 1 · 0%</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
       <span class="rec"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
@@ -2898,6 +2898,19 @@ function cenarioAtual() {
   const n = Math.max(0, Math.min(CENARIO_ALTO.length - 1, S.cenario | 0));
   return n;
 }
+// Quanto da ÉPOCA atual já foi percorrido, de 0 a 1. Substitui o número absoluto de impacto
+// como leitura de progresso: "24.6K" não diz nada sobre onde você está: 24 mil é muito? falta
+// pouco? Uma porcentagem responde sozinha, e ao chegar em 100% a época vira.
+//
+// A conta é sobre a FATIA da época, não sobre o total acumulado — senão a primeira época
+// pareceria eterna e a última, instantânea.
+function progressoCena() {
+  const i = cenarioAtual();
+  const fim = i < LIMIARES.length ? LIMIARES[i] : null;
+  if (fim === null) return 1;                    // última cena: não há para onde avançar
+  const ini = i > 0 ? LIMIARES[i - 1] : 0;
+  return Math.max(0, Math.min(1, (S.energiaTotal - ini) / (fim - ini)));
+}
 function proximoLimiar() {
   const i = cenarioAtual();
   return i >= LIMIARES.length ? null : LIMIARES[i];
@@ -3629,6 +3642,9 @@ function desenhar() {
   verificarCenario();
   $("energia").textContent = fmt(S.energia);
   $("nFlor").textContent = S.recursos.flor | 0;
+  // a leitura de progresso: em que época você está e quanto falta para virar
+  const pc = Math.floor(progressoCena() * 100);
+  $("rotuloEpoca").textContent = "ÉPOCA " + (Math.floor(cenarioAtual() / 2) + 1) + " · " + pc + "%";
   $("nAgua").textContent = S.recursos.agua | 0;
   $("nRef").textContent = S.recursos.refeicao | 0;
   pintarIconesDrop();

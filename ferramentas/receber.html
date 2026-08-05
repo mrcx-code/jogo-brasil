@@ -130,7 +130,30 @@ function pintarResposta(cx, p) {
   }
 }
 
+// A mesa era burra: listava o pedido mesmo depois do arquivo ter chegado, e eu ficava
+// pedindo coisa já entregue. O servidor sempre soube o que tem em disco (/recebidas); a
+// página é que não perguntava. Agora pergunta, e marca sozinha.
+function marcarRecebidas() {
+  fetch("/recebidas").then(r => r.json()).then(function (arquivos) {
+    const chegou = {};
+    arquivos.forEach(function (f) { chegou[f.replace(/\.(png|jpg|jpeg|webp)$/i, "")] = f; });
+    for (const nome in cards) {
+      const c = cards[nome];
+      if (!chegou[nome] || c.marcado) continue;
+      c.marcado = true;
+      c.el.className = "pedido feito";
+      const t = c.el.querySelector(".titulo");
+      if (t && t.textContent.indexOf("✓") !== 0) t.textContent = "✓ " + t.textContent;
+      const alvo = c.el.querySelector(".cola");
+      if (alvo) alvo.textContent = "já recebida (" + chegou[nome] + ") — cole de novo só se for refazer";
+      const b = c.el.querySelector(".secundario");
+      if (b) b.style.opacity = "0.5";
+    }
+  }).catch(function () {});
+}
+
 function puxar() {
+  marcarRecebidas();
   fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     pedidos.forEach(function (p) {
       const c = cards[p.nome];
@@ -229,6 +252,7 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     pintarResposta(cx, p);
     lista.appendChild(cx);
   });
+  marcarRecebidas();
   setInterval(puxar, 3000);
 }).catch(function () {
   lista.textContent = "";
