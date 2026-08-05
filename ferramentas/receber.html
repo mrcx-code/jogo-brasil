@@ -41,6 +41,14 @@
   .vRefazer .vTitulo { color: #ffcd75; }
   .vEsperando .vTitulo { color: #8d8a80; }
   .vTexto { font-size: 14px; margin-bottom: 10px; white-space: pre-wrap; }
+  /* o giro só existe no estado de espera: enquanto ele roda, a bola está com o Claude */
+  .giro { display: inline-block; width: 13px; height: 13px; margin-right: 8px;
+          border: 2px solid #3a4049; border-top-color: #6fdd94; border-radius: 50%;
+          animation: rodar .8s linear infinite; vertical-align: -2px; }
+  @keyframes rodar { to { transform: rotate(360deg); } }
+  .pontos::after { content: ""; animation: reticencias 1.4s steps(4, end) infinite; }
+  @keyframes reticencias { 0% { content: ""; } 25% { content: "."; }
+                           50% { content: ".."; } 75% { content: "..."; } }
 </style>
 </head>
 <body>
@@ -75,9 +83,16 @@ function pintarResposta(cx, p) {
   r.style.display = "";
   const est = p.resposta.estado;
   r.className = "resposta " + (est === "ok" ? "vOk" : est === "refazer" ? "vRefazer" : "vEsperando");
-  r.appendChild(el("div", "vTitulo",
-    est === "ok" ? "✓ Está bom — pode seguir" :
-    est === "refazer" ? "↻ Precisa refazer" : "⋯ Analisando…"));
+  if (est === "esperando") {
+    const t = el("div", "vTitulo");
+    t.appendChild(el("span", "giro"));
+    const txt = el("span", "pontos", "Analisando");
+    t.appendChild(txt);
+    r.appendChild(t);
+  } else {
+    r.appendChild(el("div", "vTitulo",
+      est === "ok" ? "✓ Está bom — pode seguir" : "↻ Precisa refazer"));
+  }
   if (p.resposta.texto) r.appendChild(el("div", "vTexto", p.resposta.texto));
   if (p.resposta.promptNovo) {
     r.appendChild(el("div", "ref", "Prompt novo — gere de novo com este e cole outra vez:"));
