@@ -3273,6 +3273,7 @@ function rolarFundo() {
   // personagem pisa, e qualquer valor diferente de 1 faz o pé deslizar.
   ladrilhar(imAlto, paralaxeLonge > 0 ? paralaxeLonge : 1, g.dy, g.dh * linha);
   ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha));
+  matoDaEmenda(fx, g);
 }
 
 // TERCEIRA CAMADA — e a que faz a coisa virar profundidade em vez de duas imagens deslizando.
@@ -3321,6 +3322,42 @@ function sombraContato(w, h) {
   frenteSombra = { w: w, cv: cv };
   return cv;
 }
+// A EMENDA entre as duas peças, resolvida com mato em vez de arte nova.
+//
+// As peças de cima e de baixo foram geradas separadas, então a de cima termina numa coisa
+// (rio, mata, mar) e a de baixo começa em outra (areia, terra). O corte é reto e o olho vê.
+//
+// Regerar as peças de baixo com vegetação no topo consertaria — e custa três imagens. Isto
+// custa zero: uma faixa densa de mato baixo plantada EXATAMENTE na linha, com a arte de
+// frente que já está embutida. É o que jogo lateral faz há décadas, e funciona porque o olho
+// não procura a emenda quando há vegetação nela: mata encostando em chão é o que ele espera.
+//
+// Roda a 1:1, igual ao chão. Fosse mais devagar deslizaria sobre a areia e denunciaria de
+// outro jeito. Fica ATRÁS da personagem — é cenário, não primeiro plano; quem passa na
+// frente é a camada de desenharFrente().
+const MATO_PASSO = 46;
+function matoDaEmenda(fx, g) {
+  if (typeof FRENTE_SPR === "undefined" || !FRENTE_SPR.length) return;
+  const esc = g.cw / W;
+  const y = g.dy + g.dh * FUNDO_GROUND_SRC;      // a linha da emenda, no destino
+  const bloco = Math.min(2, Math.floor(cenarioAtual() / 2)) * 8;
+  const i0 = Math.floor(worldX / MATO_PASSO) - 1;
+  const quantos = Math.ceil(W / MATO_PASSO) + 3;
+  for (let k = 0; k < quantos; k++) {
+    const n = i0 + k;
+    const h = ((n * 2246822519) >>> 0);
+    const im = FRENTE_SPR[bloco + ((h >>> 5) % 8)];
+    if (!im || !im.complete || !im.naturalWidth) continue;
+    const alt = (26 + (h >>> 9) % 16) * esc;      // baixo: é rodapé de mata, não árvore
+    const larg = alt * (im.naturalWidth / im.naturalHeight);
+    const x = (n * MATO_PASSO + ((h >>> 15) % 30) - 15 - worldX) * esc;
+    if (x > g.cw + 120 || x < -120) continue;
+    // afunda um terço abaixo da linha: a base some no chão e não sobra pé cortado
+    fx.drawImage(im, Math.round(x - larg / 2), Math.round(y - alt * 0.72),
+      Math.round(larg), Math.round(alt));
+  }
+}
+
 function desenharFrente(fx, g) {
   // `typeof` e não só `.length`: esta função é chamada de dentro do desenho da personagem,
   // que roda antes desta linha do arquivo ter sido executada na primeira volta do laço.
