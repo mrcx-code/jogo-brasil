@@ -511,3 +511,49 @@ protagonismo é de quem foi escravizado" e que os povos originários "continuam 
 uma falha de método. Buscar publicações da APIB, do ISA em coautoria indígena, e autores como
 Ailton Krenak, Davi Kopenawa, Daniel Munduruku, Beatriz Nascimento e Abdias do Nascimento —
 **antes** de escrever qualquer ponte, não depois.
+
+### 2026-08-05 · as sprites saem por IA, contra o meu próprio veredito
+
+Eu havia dito que a protagonista não sairia por gerador. **Estava errado, e por um motivo que
+era suposição minha:** a parede de política vinha de eu descrever *criança*, porque a arte
+herdada tem proporção infantil (2,0 × a largura da cabeça). Com pessoa adulta, o gatilho não
+aparece.
+
+O outro medo — 12 quadros com a mesma pessoa — **foi resolvido pela folha em render único**.
+Medido pelo `test/validar-folha.js` na caminhada do capítulo 1:
+
+| medida | valor |
+|---|---|
+| largura da cabeça | média 76,8 · min 76 · max 78 · **CV 1,0%** |
+| amplitude | 2,6% da média |
+| altura/cabeça | 4,2 · CV 1,2% |
+| manchas | 12, em 4 \| 4 \| 4, zero fragmento |
+| franja | 0,55 px (o desfranjador resolve até ~1) |
+
+CV de 1,0% na cabeça é a prova: o modelo manteve a mesma pessoa porque desenhou as doze
+figuras **no mesmo render**, e coerência interna da imagem fez o trabalho que memória entre
+chamadas não faria.
+
+**Consequência já prevista e ainda não paga:** altura/cabeça passa de 2,0 para 4,2 — proporção
+adulta. `PASSO_PX` foi *medido* na arte antiga (40,9/12 px por quadro, tirado da pose de maior
+abertura). Com corpo novo, essa medida não vale mais, e usar a velha faz o pé deslizar. É meia
+sessão de medição e é bloqueante para trocar a personagem.
+
+**Dúvida de representação que fica aberta, e é do dono:** a figura veio com tanga e braçadeira.
+Não caiu no erro do cocar das Planícies — o aviso no prompt funcionou —, mas "tanga genérica"
+ainda é uma escolha sobre cultura material Tupinambá que eu não devo tomar sozinho. Está entre
+as 15 do `PROMPTS.md`.
+
+## Telas que faltam — pedido do dono, 2026-08-05
+
+O jogo tem uma tela só. Faltam quatro, em ordem de valor:
+
+1. **Menu inicial.** Hoje o jogo começa sem começar. É a primeira impressão e não existe.
+2. **Transição entre capítulos.** É onde as PONTES vivem — o texto curto que contextualiza,
+   estilo caixa de jogo antigo (referência do dono: Pokémon). Toda afirmação histórica ali
+   precisa de fonte no `NOTES.md`, e o `TEXTOS` já é varrido pelo smoke test contra dígitos.
+3. **Visão de completude.** O que a pessoa já viu e o que falta. É o motivo de voltar amanhã.
+4. **Configurações.** Som (que não existe ainda), e apagar o save.
+
+Nenhuma delas precisa de arte nova: são interface, e a interface do jogo já tem vocabulário
+próprio (as sheets de MELHORIAS). Fazer com o que existe é mais rápido e fica mais coeso.
