@@ -1,15 +1,127 @@
 [
   {
-    "nome": "pausa",
-    "titulo": "Nada pendente — a bola está com o Claude",
-    "referencia": "12 de 12 recebidas · fila de geração vazia de propósito",
+    "nome": "conversao",
+    "titulo": "Conversão provada — capítulo 1 convertido e olhado",
+    "referencia": "1024x1536 -> 720x959 · 173.679 cores -> 48",
     "tamanho": "",
     "origem": "",
     "prompt": "",
     "resposta": {
       "estado": "ok",
-      "rodada": 4,
-      "texto": "RECEBIDAS AS 12 — seis fundos e seis objetos, todos na orientação certa e os objetos com fundo magenta entre 62% e 83%.\n\nNÃO GERE MAIS NADA POR ENQUANTO, e o motivo é economia do seu tempo: eu integrei ZERO dessas 12. Ainda não provei que sobrevivem à conversão — redução para 720x959, quantização de paleta, desfranjamento do magenta. Se a conversão falhar, ou a paleta quantizada ficar ruim, os parâmetros mudam e o que você gerar agora vira trabalho perdido.\n\nA bola é minha. Próximo passo é código: converter, embutir e olhar rodando. Quando eu souber que a arte serve, volto com os pedidos seguintes — e eles já virão com os parâmetros certos."
+      "rodada": 5,
+      "texto": "CONVERSÃO PROVADA. A peça de cima do capítulo 1 virou 720x959 com 48 cores, e o corte de paleta não estragou — ele CRIOU a textura de pixel art que faltava: degradê virou banda com granulado, nuvem ganhou bloco, copa virou mancha chapada.\n\nPor isso a fila reabre agora e não antes: cada pedido abaixo sai com parâmetro provado, não com palpite."
     }
+  },
+  {
+    "nome": "cap1-var-alto",
+    "titulo": "CAP1 · cenário 2, peça de CIMA",
+    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
+    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nlitoral atlântico séc. XVI, PRAIA ABERTA: faixa de areia clara, mar batendo, coqueiros esparsos inclinados pelo vento, mata recuada ao fundo.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap1-var-baixo",
+    "titulo": "CAP1 · cenário 2, peça de BAIXO",
+    "referencia": "o chão dessa segunda paisagem",
+    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: litoral atlântico séc. XVI, PRAIA ABERTA: faixa de areia clara, mar batendo, coqueiros esparsos inclinados pelo vento, mata recuada ao fundo.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap2-var-alto",
+    "titulo": "CAP2 · cenário 2, peça de CIMA",
+    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
+    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nserra alagoana séc. XVII, ALTO DA SERRA: mata mais rala no topo, pedras expostas, vista de vales cobertos de floresta ao longe sob neblina.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap2-var-baixo",
+    "titulo": "CAP2 · cenário 2, peça de BAIXO",
+    "referencia": "o chão dessa segunda paisagem",
+    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: serra alagoana séc. XVII, ALTO DA SERRA: mata mais rala no topo, pedras expostas, vista de vales cobertos de floresta ao longe sob neblina.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap3-var-alto",
+    "titulo": "CAP3 · cenário 2, peça de CIMA",
+    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
+    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nterra indígena hoje, BEIRA DE RIO: rio largo de água escura, mata fechada nas duas margens, um pequeno banco de areia.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap3-var-baixo",
+    "titulo": "CAP3 · cenário 2, peça de BAIXO",
+    "referencia": "o chão dessa segunda paisagem",
+    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: terra indígena hoje, BEIRA DE RIO: rio largo de água escura, mata fechada nas duas margens, um pequeno banco de areia.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+  },
+  {
+    "nome": "cap1-det-palmeira",
+    "titulo": "Cap. 1 · palmeira de frente",
+    "referencia": "detalhe de frente, fica na beira da tela",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma palmeira jovem inteira, tronco fino e folhas largas abertas, vista de perfil.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap1-det-pedra",
+    "titulo": "Cap. 1 · pedra com musgo",
+    "referencia": "detalhe de frente, fica na beira da tela",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma pedra grande arredondada de rio, coberta de musgo verde de um lado.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap2-det-samambaia",
+    "titulo": "Cap. 2 · samambaia grande",
+    "referencia": "detalhe de frente, fica na beira da tela",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma samambaia arborescente, folhas recortadas abrindo em leque.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap3-det-bananeira",
+    "titulo": "Cap. 3 · bananeira",
+    "referencia": "detalhe de frente, fica na beira da tela",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma bananeira com folhas largas rasgadas pelo vento e um cacho verde.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "icone-folha",
+    "titulo": "Ícone · folha",
+    "referencia": "ícone do HUD · precisa ler a 26 px",
+    "tamanho": "QUADRADO ~512×512 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma folha tropical simples, verde, de perfil — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "icone-agua",
+    "titulo": "Ícone · água",
+    "referencia": "ícone do HUD · precisa ler a 26 px",
+    "tamanho": "QUADRADO ~512×512 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma gota de água azul — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "icone-cesto",
+    "titulo": "Ícone · cesto",
+    "referencia": "ícone do HUD · precisa ler a 26 px",
+    "tamanho": "QUADRADO ~512×512 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto trançado pequeno visto de frente — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "icone-passo",
+    "titulo": "Ícone · ritmo",
+    "referencia": "ícone do HUD · precisa ler a 26 px",
+    "tamanho": "QUADRADO ~512×512 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma pegada de pé descalço — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
   }
 ]
