@@ -41,14 +41,17 @@
   .vRefazer .vTitulo { color: #ffcd75; }
   .vEsperando .vTitulo { color: #8d8a80; }
   .vTexto { font-size: 14px; margin-bottom: 10px; white-space: pre-wrap; }
-  /* o giro só existe no estado de espera: enquanto ele roda, a bola está com o Claude */
-  .giro { display: inline-block; width: 13px; height: 13px; margin-right: 8px;
-          border: 2px solid #3a4049; border-top-color: #6fdd94; border-radius: 50%;
-          animation: rodar .8s linear infinite; vertical-align: -2px; }
-  @keyframes rodar { to { transform: rotate(360deg); } }
-  .pontos::after { content: ""; animation: reticencias 1.4s steps(4, end) infinite; }
-  @keyframes reticencias { 0% { content: ""; } 25% { content: "."; }
-                           50% { content: ".."; } 75% { content: "..."; } }
+  /* Barra de 0 a 100 no estado de espera. IMPORTANTE: é ESTIMATIVA por tempo decorrido,
+     não progresso real — o navegador não tem como saber quanto falta da análise. Por isso
+     ela sobe até 95 e PARA lá, e só vai a 100 quando o veredito chega de verdade. Uma barra
+     que chega sozinha a 100 e continua esperando é uma barra que mente. */
+  .barraFora { height: 8px; background: #22262e; border-radius: 4px; overflow: hidden;
+               margin: 8px 0 4px; }
+  .barraDentro { height: 100%; width: 0; background: #38b764; border-radius: 4px;
+                 transition: width .5s linear; }
+  .barraDentro.cheia { background: #6fdd94; }
+  .pct { font: 12px ui-monospace, monospace; color: #8d8a80; display: flex;
+         justify-content: space-between; }
 </style>
 </head>
 <body>
@@ -84,14 +87,33 @@ function pintarResposta(cx, p) {
   const est = p.resposta.estado;
   r.className = "resposta " + (est === "ok" ? "vOk" : est === "refazer" ? "vRefazer" : "vEsperando");
   if (est === "esperando") {
-    const t = el("div", "vTitulo");
-    t.appendChild(el("span", "giro"));
-    const txt = el("span", "pontos", "Analisando");
-    t.appendChild(txt);
-    r.appendChild(t);
+    r.appendChild(el("div", "vTitulo", "Analisando"));
+    const fora = el("div", "barraFora"), dentro = el("div", "barraDentro");
+    fora.appendChild(dentro);
+    const linha = el("div", "pct");
+    const esq = el("span", null, "0%"), dir = el("span", null, "0s");
+    linha.appendChild(esq); linha.appendChild(dir);
+    r.appendChild(fora); r.appendChild(linha);
+    // Curva que desacelera: rápido no começo, arrastando perto do teto. Nunca passa de 95 —
+    // os 5 que faltam são o veredito chegando, e quem os entrega é o Claude, não o relógio.
+    const t0 = Date.now(), TIPICO = 90000;
+    if (cx._relogio) clearInterval(cx._relogio);
+    cx._relogio = setInterval(function () {
+      const s = (Date.now() - t0) / 1000;
+      const p = Math.min(95, Math.round(95 * (1 - Math.exp(-s * 1000 / TIPICO))));
+      dentro.style.width = p + "%";
+      esq.textContent = p + "%";
+      dir.textContent = s < 60 ? Math.round(s) + "s"
+        : Math.floor(s / 60) + "m" + String(Math.round(s % 60)).padStart(2, "0");
+    }, 500);
   } else {
+    if (cx._relogio) { clearInterval(cx._relogio); cx._relogio = null; }
     r.appendChild(el("div", "vTitulo",
       est === "ok" ? "✓ Está bom — pode seguir" : "↻ Precisa refazer"));
+    const fora = el("div", "barraFora"), dentro = el("div", "barraDentro cheia");
+    dentro.style.width = "100%";
+    fora.appendChild(dentro);
+    r.appendChild(fora);
   }
   if (p.resposta.texto) r.appendChild(el("div", "vTexto", p.resposta.texto));
   if (p.resposta.promptNovo) {
