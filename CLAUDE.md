@@ -142,9 +142,17 @@ Produção: <https://jogo-brasil-mrcx.vercel.app> · Repo: `mrcx-code/jogo-brasi
 Push na `main` publica sozinho.
 Não há segredo, variável de ambiente nem backend, e não deve haver.
 
-O nome `jogo-brasil` é **provisório**, um marcador escolhido pelo dono. Nome definitivo,
-identidade visual e direção de arte ainda não foram decididos — **não invente nenhum dos
-três sem perguntar.**
+O nome do jogo é **BRASIL**, decidido pelo dono em 2026-08-05. O repositório continua se
+chamando `jogo-brasil`, o que é só o slug.
+
+O **logo** também está decidido: troncos com folha de costela-de-adão e um rio, embutido no
+menu. Foi escolhido entre seis por um critério que vale registrar — as outras opções usavam
+grafismo geométrico *inventado*, e grafismo indígena não é ornamento: cada padrão pertence a
+um povo, tem nome e significado. Um padrão que "parece indígena" é a versão gráfica de tratar
+centenas de povos como uma estética só, e é o mesmo erro do §2.1. As duas finalistas eram
+natureza pura justamente por isso.
+
+Direção de arte para além disso **ainda não foi decidida — não invente sem perguntar.**
 
 Este repositório não tem relação com o projeto de onde o motor veio. Não referencie o
 outro, não puxe dele, não empurre para ele.
