@@ -171,7 +171,19 @@ function puxar() {
 fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
   lista.textContent = "";
   if (!pedidos.length) {
-    lista.appendChild(el("p", "vazio", "Nenhum pedido em aberto. O Claude escreve os pedidos em ferramentas/pedidos.json."));
+    // Fila vazia e o unico momento em que REVISAR faz sentido: com pedido em aberto o botao
+    // so daria vontade de atropelar o que ja esta na mesa.
+    lista.appendChild(el("p", "vazio", "Fila vazia. Reveja o que o jogo ainda precisa."));
+    const b = el("button", null, "REVISAR O QUE FALTA");
+    b.addEventListener("click", function () {
+      b.disabled = true; b.textContent = "revisando…";
+      fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
+        b.textContent = j.n ? j.n + " pedido(s) reposto(s) — recarregando" : "nada falta ✨";
+        if (j.n) setTimeout(function () { location.reload(); }, 800);
+        else b.disabled = false;
+      }).catch(function () { b.textContent = "falhou"; b.disabled = false; });
+    });
+    lista.appendChild(b);
     return;
   }
   pedidos.forEach(function (p) {

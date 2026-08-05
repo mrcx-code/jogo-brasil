@@ -57,6 +57,35 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
+  // REVISAR: compara o que o jogo precisa (necessario.json) com o que ja chegou
+  // (assets/entrada) e repoe na fila so o que falta. Existe porque a fila vinha sendo podada
+  // a mao — por mim — e mao esquece. O servidor ja sabia o que tem em disco; faltava saber o
+  // que o jogo consome.
+  if (req.method === 'POST' && url === '/revisar') {
+    let nec;
+    try { nec = JSON.parse(fs.readFileSync(path.join(__dirname, 'necessario.json'), 'utf8')); }
+    catch (e) { res.writeHead(500).end('necessario.json ilegivel'); return; }
+    let tem = [];
+    try { tem = fs.readdirSync(ENTRADA); } catch (e) {}
+    const chegou = new Set(tem.map(function (f) { return f.replace(/\.(png|jpg|jpeg|webp)$/i, ''); }));
+    const faltam = (nec.itens || []).filter(function (i) { return !chegou.has(i.nome); })
+      .map(function (i, n) {
+        return {
+          nome: i.nome,
+          titulo: (n + 1) + ' · ' + i.titulo,
+          referencia: i.ref || '',
+          tamanho: i.tam || '',
+          origem: '',
+          prompt: nec._estilo + "\n\n" + i.p + (i.semMagenta ? "" : nec._magenta)
+        };
+      });
+    fs.writeFileSync(PEDIDOS, JSON.stringify(faltam, null, 2) + "\n");
+    console.log('revisao: ' + faltam.length + ' pedidos repostos');
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, n: faltam.length }));
+    return;
+  }
+
   if (req.method === 'POST' && url === '/salvar') {
     const pedacos = [];
     let total = 0;
