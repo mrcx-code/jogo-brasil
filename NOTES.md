@@ -362,6 +362,57 @@ jeito válido de montar uma grade de teste** — e é a armadilha em que a próx
 Falta o `test/LEIAME.md` documentar a forma de grade; hoje ele descreve só a tira, que segue
 funcionando literalmente.
 
+### 2026-08-05 · a arte do capítulo 1 entra no jogo
+
+Primeira vez que o tema aparece na tela. Antes disso o repositório falava de história do
+Brasil e mostrava uma rua contemporânea.
+
+**A cadeia inteira, ponta a ponta.** O dono gera fora (ChatGPT), cola na mesa de entrega
+(`ferramentas/receber.js`, localhost:8200), o arquivo cai em `assets/entrada/`, o
+`test/converter-fundo.js` recorta/reduz/quantiza, e o `test/inline-fundos.js` embute em WebP.
+Doze imagens recebidas: seis peças de cenário e seis objetos.
+
+**O achado que destravou tudo: a quantização não é conserto, é o passo que faz a arte
+existir.** O gerador não faz pixel art — as seis peças vieram com 220 mil a 328 mil cores
+depois de *dois rounds* pedindo 32, sem mover o número. Isso é limite do modelo, não do
+prompt. Mas cortar para 48 cores por popularidade não estragou nada: transformou degradê
+suave em banda com granulado, que lê como dithering; nuvem ganhou bloco; copa virou mancha
+chapada. **O que era ilustração suave virou pixel art de verdade.** Medido na peça de cima do
+capítulo 1: 1024×1536 → recorte 1024×1364 → 720×959, 173.679 cores → 48.
+
+**As duas camadas, funcionando.** `rolarFundo()` ladrilha duas imagens em passadas separadas:
+a de cima na fração `paralaxeLonge`, a de baixo **sempre 1:1**. A geometria não precisou
+mudar — as peças têm 959 e 320 px, somam 1279, e a emenda cai em 0,75, exatamente o
+`FUNDO_GROUND_SRC` que a conta já usava quando a pintura era uma só. `fundoPintado()` agora
+exige as duas peças carregadas: meia paisagem é pior que nenhuma, porque a personagem
+apareceria pisando no vazio por alguns quadros.
+
+**Sete cenários viram três capítulos.** `LIMIARES` cai de seis limiares para dois, e o campo
+`cenario` do `ESQUEMA_SAVE` de `max: 6` para `max: 2` — save é entrada não confiável e o
+esquema é a única porta.
+
+**Números:** index.html 2,75 → **2,41 MB**. Encolheu mesmo trocando toda a arte, porque as
+seis peças em WebP pesam menos que as sete pinturas antigas. Em PNG teriam levado o arquivo a
+~4,1 MB. Smoke test verde, 61 FPS.
+
+**O que está feio agora, e é honesto registrar:** a protagonista continua sendo a menina
+contemporânea do projeto anterior, com varinha, plantada numa mata atlântica do século XVI. É
+o contraste mais gritante do jogo hoje, e não tem conserto por ferramenta — ver a seção sobre
+o muro abaixo.
+
+**Ferramentas de geração, três testadas e três paredes.** Hugging Face (Space pausado, widget
+exige login), Civitai (bloqueou o prompt com "Inappropriate minor content" — falso positivo,
+o prompt não tinha pessoa nenhuma) e ChatGPT. As três compartilham dois limites: **nenhuma faz
+pixel art nativa**, e **todas bloqueiam a descrição do corpo de uma criança**. O primeiro eu
+contorno quantizando; o segundo não tem contorno.
+
+**A protagonista é o caminho crítico e não se resolve com prompt melhor.** Cenário perdoa a
+quantização; sprite não, porque precisa de 12 quadros com a *mesma* pessoa, e quantizar 12
+imagens ligeiramente diferentes dá 12 personagens piscando. Precisa de alguém desenhando.
+
+**Próximo passo:** HUD em português (ainda diz IMPACT, STEADY, UPGRADES), e os seis objetos
+em magenta, que ainda não foram recortados nem embutidos.
+
 ## Fontes — o que a pesquisa achou, e uma correção
 
 **CORREÇÃO: "Angola Janga" não pode ser apresentado como fato histórico.** Eu havia afirmado
