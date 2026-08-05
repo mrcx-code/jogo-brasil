@@ -410,8 +410,31 @@ contorno quantizando; o segundo não tem contorno.
 quantização; sprite não, porque precisa de 12 quadros com a *mesma* pessoa, e quantizar 12
 imagens ligeiramente diferentes dá 12 personagens piscando. Precisa de alguém desenhando.
 
-**Próximo passo:** HUD em português (ainda diz IMPACT, STEADY, UPGRADES), e os seis objetos
-em magenta, que ainda não foram recortados nem embutidos.
+**Feito na sequência, mesma noite:**
+
+- **Interface em português.** IMPACTO, ANDAR/CORRER, MELHORIAS, GRÁTIS. `lang="pt-BR"` no
+  html — não é cosmético, leitor de tela e corretor seguem esse atributo. `toLocaleString`
+  em pt-BR, então o milhar sai `1.234`. ANDAR/CORRER no lugar de STEADY/FAST: o modo já era
+  isso na prática; "limpo/carvão" era vocabulário de energia do jogo anterior.
+- **Os objetos do capítulo 1 substituíram os monstros de poluição.** Fruta, peixe e muda no
+  lugar de fumaça, tambor e saco de dinheiro. `test/converter-objeto.js` faz o caminho do
+  magenta ao quadro, e o passo que não é óbvio é o **desfranjamento**: os pixels de contorno
+  são *mistura* do objeto com o fundo, porque o gerador antialiasa a borda contra o magenta.
+  Teste binário deixaria esses pixels opacos e pintaria um aro rosa em volta de tudo. Mede-se
+  `min(R,B) − G`, isso vira o alfa, e a cor é desmisturada.
+- Seis fatias iguais por objeto: o motor pede seis quadros e há uma arte só. Objeto parado
+  certo vale mais que objeto animado errado.
+
+**Ferramentas novas em `test/`:** `converter-fundo.js` (recorte, redução, quantização),
+`converter-objeto.js` (desfranjamento do magenta) e `inline-fundos.js` (embute em WebP).
+`ferramentas/servir.js` e `.claude/launch.json` declaram os dois servidores — jogo na 8199,
+mesa de entrega na 8200. O `npm start` estava quebrado: chamava `python3`, que neste Windows
+não existe.
+
+**Próximo passo:** a personagem é o contraste mais gritante da tela — menina contemporânea com
+varinha numa mata do séc. XVI. Sem solução por ferramenta. Depois dela: os drops (ainda são
+os do jogo antigo), o segundo cenário por capítulo, e dar peso ao verbo `alcançar` — hoje
+ignorar o que passa não custa nada, então o verbo mudou de nome mas não de consequência.
 
 ## Fontes — o que a pesquisa achou, e uma correção
 
