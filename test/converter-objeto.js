@@ -36,6 +36,10 @@ if (!ENT || !SAI) { console.error('uso: converter-objeto.js <entrada> <saida.png
     let x0 = w, y0 = h, x1 = -1, y1 = -1;
     for (let i = 0, p = 0; i < d.length; i += 4, p++) {
       const R = d[i], G = d[i + 1], B = d[i + 2];
+      // Nem toda arte vem sobre magenta: algumas chegam já com alfa. Aí o teste do magenta
+      // lê (0,0,0,0) como "sem magenta" e devolve a imagem inteira OPACA E PRETA. Honrar o
+      // alfa da origem antes de qualquer coisa é o que evita isso.
+      if (d[i + 3] < 8) { d[i + 3] = 0; continue; }
       const m = Math.min(R, B) - G;            // >0 = tem magenta na mistura
       if (m <= 0) { d[i + 3] = 255; }          // sem magenta: opaco
       else {
@@ -47,7 +51,13 @@ if (!ENT || !SAI) { console.error('uso: converter-objeto.js <entrada> <saida.png
           d[i + 2] = Math.max(0, Math.min(255, (B - (255 - a)) * k));
         }
       }
-      if (d[i + 3] > 40) {                     // mancha, para o recorte
+      // Mancha, para o recorte. O corte é em 128 e não em 40 porque o magenta do gerador não
+      // é chapado: tem ruído, e um punhado de pixels de fundo passa de 40 de alfa. Com 40, a
+      // mancha de TODAS estas artes dava a moldura inteira — nada era recortado, o objeto
+      // ficava com uma borda de vazio de tamanho arbitrário, e como a escala no jogo é
+      // altura-do-quadro / altura-alvo, essa borda virava objeto pequeno E flutuando acima do
+      // chão. 128 é meio alfa: pega o corpo, ignora a franja e o ruído.
+      if (d[i + 3] > 128) {
         const px = p % w, py = (p / w) | 0;
         if (px < x0) x0 = px; if (px > x1) x1 = px;
         if (py < y0) y0 = py; if (py > y1) y1 = py;

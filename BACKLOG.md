@@ -5,12 +5,18 @@ Regra de corte: **o que aumenta a chance de alguém voltar amanhã vale mais que
 
 ## Agora
 
-- [ ] **Trocar a personagem pelas sprites novas.** BLOQUEANTE e já pago em arte. A pessoa nova
-      tem proporção altura/cabeça 4,2 contra 2,0 da atual, e `PASSO_PX` foi *medido* na arte
-      velha. Embutir sem **remedir a passada** faz o pé deslizar — armadilha nº 1 do §7.
-- [ ] **Embutir os 4 ícones** já convertidos em `assets/objetos/`. Os do HUD ainda são do
-      jogo anterior.
-- [ ] **Objetos de cap.2 e cap.3.** Hoje só o capítulo 1 tem os três.
+- [ ] **Sprites de cap.2 e cap.3.** A arte existe e as folhas foram medidas: 12 manchas, zero
+      fragmento, cabeça com CV de 0,8% nas duas — é a mesma pessoa nos doze quadros. O que
+      falta é do motor, não da arte: `HERO_B64`, `PASSO_PX` e `heroScale` são únicos, e
+      personagem por capítulo significa velocidade por capítulo, que tem de continuar sendo
+      `PASSO × 60 / n` com `n` inteiro em cada um. Os quadros repetidos de cada folha estão
+      medidos no `NOTES.md` — **`--quadros=6,5,2` é do capítulo 1 e não serve para os outros.**
+- [x] **Embutir os 4 ícones** já convertidos em `assets/objetos/`. Folha, água e cesto viraram
+      os três contadores; o pé virou o cartão de ritmo.
+- [x] **Objetos de cap.2 e cap.3.** Três por capítulo, mais os drops. `MOB_B64` e `DROP_B64`
+      passaram a variar por capítulo, como o `FRENTE_B64` já fazia.
+- [ ] **Achar onde pôr o feixe de lenha (cap.2) e a enxada (cap.3).** Convertidos e sem vaga:
+      há três tipos de objeto e quatro artes por capítulo.
 
 ## Depois
 

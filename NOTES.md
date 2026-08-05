@@ -597,59 +597,103 @@ Duas saídas, e a segunda é melhor:
    de caminhada completo". O modelo não sabe o que é fase de contato, de passagem e de
    impulso; ele sabe desenhar o que for descrito.
 
-### 2026-08-05 · a personagem troca, e a auditoria acha 23 assets parados
+### 2026-08-05 · os objetos, os drops e os ícones param de ser só do capítulo 1
 
-**A personagem trocou.** Um agente em worktree isolada fez, e o achado dele derruba a minha
-premissa: eu disse que "sobram 6 ou 8 quadros" dos 12; **sobram TRÊS**.
+A auditoria da entrada anterior contou 23 imagens geradas e nunca embutidas. Esta sessão
+embutiu 15 delas: seis objetos que atravessam a tela, dois drops e quatro ícones do painel — e
+reconverteu as nove que já estavam no jogo, para que todas passem pela mesma régua.
 
-Minha medição usava o **centroide** de cada pé, e centroide mente — em apoio duplo o pé de
-trás está na ponta e o da frente está chapado, então os dois centroides ficam em pontos
-diferentes *do pé* e a distância entre eles não é o passo. Ele mediu a **SOLA**: as colunas
-cuja tinta mais baixa fica a ≤2 px da base. Dá 45–49 px com o pé chapado e 14–16 px na ponta,
-e isso separa as fases sozinho.
+**O que variava por capítulo era só a vegetação.** `FRENTE_B64` já escolhia o bloco do capítulo
+com `Math.floor(cenarioAtual() / 2)`; `MOB_B64` e `DROP_B64` tinham um conjunto só, o do
+capítulo 1. Na prática: em Palmares e hoje, o que atravessava a tela era o cacho de fruta do
+litoral do século XVI. Agora as três estruturas usam o mesmo desenho — `capArte()` é a conta,
+escrita uma vez.
 
-Seis dos doze quadros diferem 11–19% de silhueta e **1,4 px de mundo** entre si: são o mesmo
-quadro na tela. Era essa a manqueira, e nenhum `PASSO_PX` consertaria.
+| vaga | recurso | capítulo 1 | capítulo 2 | capítulo 3 |
+|---|---|---|---|---|
+| `smog` | flor | cacho de fruta | mandioca | muda em saco |
+| `drum` | agua | muda | pote de água | galão de água |
+| `cash` | refeicao | peixe | cesto de mantimento | cesto de hortaliça |
 
-| | valor |
-|---|---|
-| quadros escolhidos | 6, 5, 2 — rastreando o calcanhar do pé de apoio |
-| laço | 140 px de sprite, três pernas iguais a menos de 0,7 px |
-| `PASSO_PX` | **6,377** px de mundo por quadro |
-| andar | `n = 10` → 38,26 px/s, 6 fps, 2 passos/s |
-| correr | `n = 5` → 76,52 px/s, exatamente o dobro |
-| **escorregamento medido** | **0,091 px de mundo num passo de 19,13 — 0,5%** |
+Sobraram sem vaga `cap2-obj-3` (feixe de lenha) e `cap3-obj-3` (enxada): são três tipos de
+objeto e quatro artes por capítulo. Ficam convertidos em `assets/objetos`, prontos.
 
-Cada ciclo é um **PASSO, não uma passada**: de perfil os dois pés compartilham silhueta, e é
-por isso que três quadros bastam.
+Drops: o capítulo 1 tem três (semente, broto, peixe); os capítulos 2 e 3 têm **um cada** —
+mandioca e muda — porque foi o que se desenhou. `DROP_B64` virou uma lista por capítulo, e a
+lista curta é lida como "todo mundo deixa isto". Repetir o mesmo base64 três vezes seria peso
+por nada, e servir o drop do capítulo errado seria pior.
 
-**`HERO_PISO` de 4,6 para 0.** As folhas em grade trazem um degrau vertical entre linhas que é
-*diagramação*, não quique. Sem zerar, o quadro sairia com 388 px de altura e ela renderizaria
-a 36,6 px de mundo em vez de 44.
+**O bug que a medição achou, e que estava em produção: nada era recortado.** O
+`converter-objeto.js` monta a mancha com os pixels de alfa acima de **40**, e o magenta do
+gerador não é chapado — tem ruído, e um punhado de pixels de fundo passa desse corte. Medido: a
+mancha das 20 artes dava a **moldura inteira**, sempre. Como a escala no jogo é
+`altura-alvo / altura-do-quadro`, essa borda de vazio virava duas coisas ao mesmo tempo:
 
-**A folha de CORRIDA ficou de fora de propósito:** 17% de variação de altura contra 1,5% da
-caminhada, e mistura tronco ereto com inclinado. CORRER reusa as poses da caminhada mais
-rápido. Consertar é outra sessão.
+- **objeto menor que o alvo** — 30 px de alvo davam 24 de fruta, 19,8 de muda, 16,9 de peixe;
+- **objeto flutuando** — a borda de baixo empurrava tudo para cima: 6,0 · 5,3 · 5,0 px de mundo
+  acima do chão, num jogo cuja primeira regra de integração de cenário é que nada levita.
 
-**O agente de produto mediu o que eu não tinha:**
+O corte passou para 128 — meio alfa, que pega o corpo e ignora a franja e o ruído. E os alvos
+foram refeitos para o objeto ficar do MESMO tamanho de antes na tela, agora sem a borda:
 
-- segurando o botão por 12 s, o que **atravessa a tela** vale **4%** da renda sem melhorias e
-  **1%** com `u1`. O resto é toque no vazio e folha recolhida andando. **O verbo trocou de
-  nome e não trocou de consequência.**
-- parado no menu, sem tocar em nada, o jogo rende **2,2 impacto/s**
-- do zero até ver todo o conteúdo: **5 min 07 s** — e ~4 s com o cartão de teste
-- **`recursos` não está no `ESQUEMA_SAVE`**: os três contadores do HUD zeram a cada
-  carregamento, e nada os gasta
+| | antes · quadro / objeto / flutua | depois |
+|---|---|---|
+| `smog` | 30,0 / 24,0 / **6,0** | 24,0 / **24,0** / **0,0** |
+| `drum` | 30,0 / 19,8 / **5,3** | 20,0 / **20,0** / **0,0** |
+| `cash` | 26,0 / 16,9 / **5,0** | 17,0 / **17,0** / **0,0** |
+| drop | quadro de 18,0 para ~8,3 de objeto | 9,0 / 9,0 |
 
-E achou um erro meu que eu vinha piorando sozinho: **`A HISTÓRIA` e `DE ONDE VEM` ficavam
-inacessíveis a partir do primeiro ponto ganho**, porque o menu só abria no carregamento e só
-com placar zerado. Eu escrevi as duas melhores telas do jogo e as tranquei. Um botão de 34 px
-conserta, e era a melhor razão valor/custo do repositório.
+Medido no navegador nas duas versões, mesma cena, mesmos objetos.
 
-**A auditoria de assets, pedida pelo dono:** 54 imagens geradas, **~23 nunca embutidas** —
-oito objetos de cap.2 e cap.3, dois drops, quatro ícones do HUD e nove folhas de sprite.
-Também descobri que eu havia dito ao dono que o logo não tinha chegado; **tinha**. Era por
-isso que a fila da mesa esvaziou sozinha.
+**Segundo bug do mesmo conversor: `icone-agua` era um quadrado preto.** A arte chegou com alfa
+em vez de magenta, e `min(R,B) − G` sobre um pixel transparente `(0,0,0,0)` dá 0, que o
+conversor lê como "sem magenta, portanto opaco" — devolvendo a imagem inteira opaca e preta. O
+arquivo já estava em `assets/objetos` desde a sessão passada. Honrar o alfa da origem antes do
+teste do magenta resolve, e é uma linha.
 
-**Próximo passo:** embutir os 23. É mecânico, o pipeline inteiro já existe, e é o que mais
-muda o jogo por esforço. Há um agente fazendo isso em worktree.
+**A levitação virou tabela por capítulo.** A vaga `smog` voa (levitação 16 mais senóide) porque
+no capítulo 1 ela é um cacho pendurado. Nos capítulos 2 e 3 são mandioca e muda: `MOB_LIFT` é
+um array de três, a senóide só existe onde a levitação é maior que zero, e mandioca não boia.
+
+**Os seis quadros por objeto eram a mesma imagem seis vezes.** O motor pede seis quadros
+(entrando, parado, dissipando) e há um desenho só por objeto, então o base64 estava guardado
+seis vezes para produzir uma animação de quadros idênticos. Agora é uma arte por capítulo por
+vaga, e `mobFrame()` devolve a do capítulo. Nada se perde: a animação já era um quadro parado.
+
+**Os ícones do painel.** Os três contadores mostravam os DROPS do capítulo 1. Com o drop
+variando por capítulo, o contador mudaria de figura no meio da partida — e ele conta um
+acumulado que atravessa os capítulos. Agora são folha, água e cesto, que é exatamente o
+`RECURSO_DE` (flor, agua, refeicao) e foi para isso que as artes foram pedidas. O quarto ícone,
+o pé, é o cartão de ritmo, e é o **mesmo nos dois modos**: quem diz qual ritmo está valendo são
+o nome e a cor do cartão, e a chama contra a folha era a mesma informação dita duas vezes. O
+`renderIcon` procedural continua vivo e intocado para o `leaf`, o `sword` e o `up` da marcação.
+
+**Números:** `index.html` 3,43 → **3,46 MB** (+34 KB). Cresceu embora cinco sextos da arte
+repetida tenham saído, porque o recorte justo põe mais objeto e menos vazio dentro do mesmo
+quadro, e vazio comprime melhor que desenho. Arte embutida: 122 KB de WebP. Smoke test verde,
+61 FPS, e nenhum erro de console nos três capítulos.
+
+**A medição que o capítulo 2 e o 3 pediam, feita — e ela diz para NÃO copiar o capítulo 1.**
+A sessão passada escolheu os quadros 6, 5 e 2 da folha de caminhada do capítulo 1 medindo a
+SOLA (as colunas cuja tinta mais baixa fica a ≤2 px da base da mancha). Repeti a medida nas
+folhas de cap.2 e cap.3, e a estrutura de quadros repetidos é **outra**:
+
+| folha | pares quase idênticos, por diferença de silhueta | cabeça CV |
+|---|---|---|
+| cap 1 | 6→7 (2,4%) · 7→8 (3,6%) · 10→11 (3,6%) · 11→12 (3,1%) | 1,0% |
+| cap 2 | 3→4 (5,9%) · 7→8 (7,8%) · 8→9 (8,3%) | 0,8% |
+| cap 3 | 3→4 (3,6%) · 8→9 (4,2%) · 6→7 (6,8%) | 0,8% |
+
+As três folhas passam no teste que importava — 12 manchas, zero fragmento, cabeça com CV de
+0,8%, ou seja **a mesma pessoa nos doze quadros**. Mas `--quadros=6,5,2` é resposta da folha do
+capítulo 1 e de mais nenhuma: cada folha precisa da própria escolha e do próprio `PASSO_PX`.
+
+**Por que as sprites de cap.2 e cap.3 NÃO entraram.** Não é a folha: é o motor. Hoje há um
+`HERO_B64`, um `PASSO_PX` e um `heroScale`, todos únicos. Personagem por capítulo significa
+velocidade de caminhada por capítulo, e a velocidade tem de continuar sendo `PASSO × 60 / n`
+com `n` inteiro em **cada** capítulo — senão a cadência sai 2-2-3 e lê como trepidação. É a
+armadilha nº 1 do §7 e é sessão própria, não sobra de sessão.
+
+**Próximo passo:** as sprites de cap.2 e cap.3, começando pela escolha de quadros da tabela
+acima e por decidir se `PASSO_PX` vira tabela por capítulo ou se as três folhas são reescaladas
+para um passo comum.
