@@ -105,24 +105,31 @@
      o melhor conteúdo do jogo — ficavam trancadas a partir do primeiro ponto ganho, porque o
      menu só abria no carregamento e só com placar zerado. Eu escrevi as duas telas e as
      tranquei; um agente de produto mediu e achou. */
-  #abrirMenu { position: absolute; right: 6px; top: calc(env(safe-area-inset-top) + 4px);
-    pointer-events: auto; cursor: pointer; width: 34px; height: 34px; padding: 0;
-    font: 900 17px/1 inherit; color: #e6dcc4; background: #2a2318; border: 0;
-    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806; }
   #barraEpocaFill { height: 100%; width: 0%; background: #d9a441;
     box-shadow: inset 0 2px 0 #ffd98a, inset 0 -2px 0 #9a6f22;
     transition: width .35s ease-out; }
   /* the three drop counters: small, quiet, and only as wide as their numbers */
-  #hudLinha { display: flex; align-items: center; padding-right: 42px; }   /* espaço do ≡ */
+  /* O HUD de cima estava espremido: o placar, tres contadores e um botao de menu disputando
+     uma faixa de 40 px, e o botao ainda cobria o terceiro contador. O botao desceu para a
+     barra de controles, onde moram as outras acoes — acao com acao, leitura com leitura — e
+     o que sobrou aqui respira. */
+  #hudLinha { display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 10px 2px; gap: 10px; }
   /* cada contador num nicho próprio, como slot de inventário */
   #recursos { display: flex; align-items: center; gap: 7px; margin-left: 10px; }
-  .rec { display: flex; align-items: center; gap: 5px; padding: 3px 7px 3px 4px;
-    background: #100d09; box-shadow: inset 0 0 0 2px #3a2f20; }
+  /* Mesmo material dos botoes do menu, em escala menor: laje com luz em cima e sombra
+     embaixo. Antes era um retangulo preto com contorno — o unico lugar do jogo com esse
+     vocabulario, e era isso que fazia a barra parecer colada de outro jogo. */
+  .rec { display: flex; align-items: center; gap: 5px; padding: 4px 9px 4px 5px;
+    border-radius: 4px; background: #a39a83;
+    box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
+  .rec b { color: #2a2418 !important; text-shadow: 0 1px 0 rgba(255,250,235,.5) !important; }
   .rec b { font-size: var(--fs-sm); font-weight: 900; color: #f4e3bb;
     font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 rgba(0,0,0,.75); }
   .pd { image-rendering: pixelated; width: 26px; height: 26px; }
-  #barraTopo { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline;
-    justify-content: center; gap: 14px; padding: 12px 14px 14px; }
+  #barraTopo { flex: 0 1 auto; min-width: 0; display: flex; align-items: center;
+    justify-content: flex-start; gap: 9px; padding: 6px 4px; }
   /* one line, no stacking: the leaf, the number, then what the number is */
   .chip { min-width: 0; display: flex; align-items: baseline; gap: 10px; }
   .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
@@ -238,15 +245,26 @@
 
   /* the four cards — icon over name over value, exactly the board's card */
   #cartoes { display: flex; gap: 6px; align-items: stretch; }
+  /* Mesma pedra do menu, em cartao. Antes era verde-oliva chapado com canto de 18 px — canto
+     de aplicativo, e o unico material assim no jogo. Agora a barra de baixo, os nichos de
+     recurso e os botoes do menu falam a mesma lingua. */
   .cartao { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 4px; padding: 10px 4px; border-radius: 18px;
-    background: #2b331c; }
-  .cartao .cn { font-size: 10px; font-weight: 900; letter-spacing: .12em; color: var(--creme);
+    justify-content: center; gap: 4px; padding: 11px 4px; border-radius: 5px;
+    background: #a39a83; color: #2a2418;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
+    transition: transform .06s, box-shadow .06s; }
+  .cartao:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+  .cartao .cn { font-size: 9px; font-weight: 900; letter-spacing: .08em; color: #2a2418;
     white-space: nowrap; overflow: hidden; max-width: 100%;
-    text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+    text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   .cartao .cv { font-size: var(--fs-xs); font-weight: 800; color: var(--gold); white-space: nowrap;
     font-variant-numeric: tabular-nums; }
-  .cartao.pronto { background: #3d4a25; }
+  .cartao.pronto { background: #c9a86a;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
   /* the panel is open: this card is now the way out of it */
   .cartao.fechando { background: #8a2f22; }
   .cartao.fechando .cn { color: #ffd9cd; }
@@ -525,7 +543,7 @@
   </div>
   </div>
   <div id="barraEpoca"><div id="barraEpocaFill"></div></div>
-  <button id="abrirMenu" type="button" aria-label="menu">≡</button>
+
 </div>
 
 <div id="offline"></div>
@@ -553,7 +571,8 @@
     </div>
     <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="12" height="12"></canvas>
       <span class="cn">MELHORIAS</span></button>
-  </div>
+    <button class="cartao" id="abrirMenu" type="button"><span class="cn">MENU</span></button>
+</div>
 </div>
 
 
