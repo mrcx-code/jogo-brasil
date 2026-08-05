@@ -217,20 +217,20 @@ function puxar() {
 
 fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
   lista.textContent = "";
+  // REVISAR fica SEMPRE visivel. Eu tinha escondido com fila cheia, achando que so faria
+  // sentido no vazio — errado: o dono precisa poder conferir quando quiser, e a acao e
+  // idempotente (recomputa a fila a partir do manifesto e do que ha em disco, nao acumula).
+  const bRev = el("button", "secundario", "REVISAR O QUE FALTA");
+  bRev.addEventListener("click", function () {
+    bRev.disabled = true; bRev.textContent = "revisando…";
+    fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
+      bRev.textContent = j.n + " na fila — recarregando";
+      setTimeout(function () { location.reload(); }, 700);
+    }).catch(function () { bRev.textContent = "falhou"; bRev.disabled = false; });
+  });
+  lista.appendChild(bRev);
   if (!pedidos.length) {
-    // Fila vazia e o unico momento em que REVISAR faz sentido: com pedido em aberto o botao
-    // so daria vontade de atropelar o que ja esta na mesa.
-    lista.appendChild(el("p", "vazio", "Fila vazia. Reveja o que o jogo ainda precisa."));
-    const b = el("button", null, "REVISAR O QUE FALTA");
-    b.addEventListener("click", function () {
-      b.disabled = true; b.textContent = "revisando…";
-      fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
-        b.textContent = j.n ? j.n + " pedido(s) reposto(s) — recarregando" : "nada falta ✨";
-        if (j.n) setTimeout(function () { location.reload(); }, 800);
-        else b.disabled = false;
-      }).catch(function () { b.textContent = "falhou"; b.disabled = false; });
-    });
-    lista.appendChild(b);
+    lista.appendChild(el("p", "vazio", "Fila vazia — nada falta que o manifesto conheca."));
     return;
   }
   pedidos.forEach(function (p) {
