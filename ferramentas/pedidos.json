@@ -1,75 +1,35 @@
 [
   {
-    "nome": "drop-semente",
-    "titulo": "1 · Drop · punhado de sementes",
-    "referencia": "o que fica no chão depois da fruta alcançada · PRIORIDADE ALTA: aparece o tempo todo",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "nome": "sprite-cap1-andar",
+    "titulo": "1 · Sprite · caminhada, capítulo 1",
+    "referencia": "Tupinambá, litoral, séc. XVI · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
+    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um punhado de sementes e grãos grandes, cores quentes, amontoados.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem Tupinambá do litoral atlântico brasileiro do século XVI, pele morena, cabelo escuro liso na altura do queixo.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, visto de perfil: o ciclo começa com o pé direito à frente, passa pela passada, e volta à posição inicial. Passos largos e calmos, sem pressa.\n\nATENÇÃO: NADA de iconografia indígena norte-americana. Sem cocar de penas das Planícies, sem machadinha, sem pintura facial genérica de faroeste. Isto é litoral atlântico do Brasil, não América do Norte — e modelos de imagem erram isso sozinhos, com confiança.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
   },
   {
-    "nome": "drop-peixe",
-    "titulo": "2 · Drop · peixe pequeno",
-    "referencia": "o que fica no chão depois da pesca · PRIORIDADE ALTA: aparece o tempo todo",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "nome": "sprite-cap1-correr",
+    "titulo": "2 · Sprite · corrida, capítulo 1",
+    "referencia": "mesma pessoa do pedido 1 · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
+    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um peixe pequeno e gordo de rio, prateado com brilho azulado, visto de perfil.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA pessoa do pedido anterior — mesmo cabelo, mesma roupa, mesmas cores.\n\nOs 12 quadros são um CICLO DE CORRIDA completo, de perfil: passada longa, tronco inclinado à frente, e uma fase de voo em que os dois pés saem do chão.\n\nATENÇÃO: NADA de iconografia indígena norte-americana. Litoral atlântico do Brasil, século XVI.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
   },
   {
-    "nome": "drop-broto",
-    "titulo": "3 · Drop · broto plantado",
-    "referencia": "o que fica no chão depois da muda · PRIORIDADE ALTA: aparece o tempo todo",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "nome": "sprite-cap2-andar",
+    "titulo": "3 · Sprite · caminhada, capítulo 2",
+    "referencia": "Palmares, séc. XVII · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
+    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um broto verde novo, duas folhinhas abrindo, saindo de um montinho de terra escura.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem negra de Palmares, no interior de Alagoas do século XVII, pele retinta, cabelo crespo curto, roupa simples de tecido de algodão cru.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, de perfil. Postura ereta e firme, passo decidido — é gente livre, na terra dela.\n\nATENÇÃO: nada de iconografia de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência: o protagonismo aqui é de quem resistia, e o capítulo é sobre a vida no quilombo.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
   },
   {
-    "nome": "cap1-var-alto",
-    "titulo": "4 · CAP1 · cenário 2, peça de CIMA",
-    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
-    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
+    "nome": "sprite-cap3-andar",
+    "titulo": "4 · Sprite · caminhada, capítulo 3",
+    "referencia": "presente, terra indígena demarcada · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
+    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nlitoral atlântico séc. XVI, PRAIA ABERTA: faixa de areia clara, mar batendo, coqueiros esparsos inclinados pelo vento, mata recuada ao fundo.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
-  },
-  {
-    "nome": "cap1-var-baixo",
-    "titulo": "5 · CAP1 · cenário 2, peça de BAIXO",
-    "referencia": "o chão dessa segunda paisagem",
-    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: litoral atlântico séc. XVI, PRAIA ABERTA: faixa de areia clara, mar batendo, coqueiros esparsos inclinados pelo vento, mata recuada ao fundo.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
-  },
-  {
-    "nome": "cap2-var-alto",
-    "titulo": "6 · CAP2 · cenário 2, peça de CIMA",
-    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
-    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nserra alagoana séc. XVII, ALTO DA SERRA: mata mais rala no topo, pedras expostas, vista de vales cobertos de floresta ao longe sob neblina.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
-  },
-  {
-    "nome": "cap2-var-baixo",
-    "titulo": "7 · CAP2 · cenário 2, peça de BAIXO",
-    "referencia": "o chão dessa segunda paisagem",
-    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: serra alagoana séc. XVII, ALTO DA SERRA: mata mais rala no topo, pedras expostas, vista de vales cobertos de floresta ao longe sob neblina.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
-  },
-  {
-    "nome": "cap3-var-alto",
-    "titulo": "8 · CAP3 · cenário 2, peça de CIMA",
-    "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
-    "tamanho": "RETRATO ~1024×1536 · vira 720×959",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM VERTICAL, retrato, mais alta que larga.\n\nCENA: elevação frontal plana, altura dos olhos de quem está de pé, sem perspectiva de fuga. Horizonte reto. Céu na metade de cima.\n\nterra indígena hoje, BEIRA DE RIO: rio largo de água escura, mata fechada nas duas margens, um pequeno banco de areia.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
-  },
-  {
-    "nome": "cap3-var-baixo",
-    "titulo": "9 · CAP3 · cenário 2, peça de BAIXO",
-    "referencia": "o chão dessa segunda paisagem",
-    "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. FORMATO: IMAGEM DEITADA, paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, textura contínua repetível lado a lado sem emenda e sem ponto que chame atenção.\n\nO chão correspondente a: terra indígena hoje, BEIRA DE RIO: rio largo de água escura, mata fechada nas duas margens, um pequeno banco de areia.\n\nOBRIGATÓRIO: composição uniforme, SEM marco único e dominante — a imagem é espelhada lado a lado no jogo. Sem texto, sem pessoas, sem construções."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem indígena brasileira HOJE, no século XXI, em terra demarcada. Pele morena, cabelo escuro. Roupa do dia a dia contemporânea — camiseta e bermuda — com um adorno discreto, porque a pessoa vive nos dois mundos e isso é o ponto do capítulo.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, de perfil, passo tranquilo de quem está em casa.\n\nATENÇÃO: não é figura histórica nem de museu. É uma pessoa de hoje, e o capítulo existe para dizer que esses povos continuam aqui.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
   },
   {
     "nome": "cap1-det-palmeira",
