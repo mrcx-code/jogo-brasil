@@ -325,18 +325,59 @@
     animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
   @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  #telaMenu .telaTxt { color: #f0e4c6; font-size: 13px; letter-spacing: .06em;
-    text-shadow: 0 2px 0 rgba(0,0,0,.85); margin-bottom: 26px; }
+  /* A FRASE vira faixa, não texto solto. Sobre paisagem, texto sem suporte flutua e o
+     contraste muda conforme a mata passa atrás — o que a referência faz é dar CHÃO a ele.
+     Faixa escura estreita, texto claro em versalete espaçado, e uma linha de luz no topo
+     para ela pertencer ao mesmo material dos botões. */
+  #telaMenu .telaTxt { color: #efe3c2; font-size: 9.5px; letter-spacing: .1em; white-space: nowrap;
+    font-weight: 700; text-transform: uppercase; margin: 0 0 24px;
+    padding: 7px 18px; background: #1b1610; border-radius: 3px;
+    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806;
+    text-shadow: 0 1px 0 rgba(0,0,0,.9); }
+  /* Botões com a mesma largura: na referência eles formam uma coluna, não uma escada.
+     Coluna alinhada lê como menu; larguras diferentes leem como três coisas soltas. */
+  #telaMenu .telaBtn { width: min(72vw, 300px); box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; }
+  /* JOGAR e o caminho principal e precisa ler primeiro. Na referencia ele se destaca por
+     MATERIAL, nao por tamanho — pedra mais quente, do mesmo bloco. Destacar por tamanho
+     quebraria a coluna alinhada, que e o que faz o conjunto ler como menu. */
+  #btnJogar { background: #c9a86a; color: #2a2012;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
+  #btnJogar:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 1px 0 #191510; }
   .tela.aberta { display: flex; }
   .telaTit { font-size: 26px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
     text-shadow: 0 3px 0 #0a0806; margin-bottom: 6px; }
   .telaTxt { font-size: 14px; color: #e6dcc4; line-height: 1.7; max-width: 30em;
     margin-bottom: 22px; white-space: pre-wrap; }
+  /* BOTÃO DE PEDRA — vocabulário tirado de uma referência que o dono gerou.
+     O que estava aqui era botão de formulário com cor marrom: retângulo chapado, uma sombra,
+     zero material. Laje de pedra precisa de quatro coisas, e todas são box-shadow empilhado:
+     luz na aresta de cima, sombra na de baixo, um contorno escuro que separa do fundo, e o
+     degrau que a apoia. O canto é levemente arredondado porque pedra lascada não tem quina
+     viva — é a única curva que este jogo aceita.
+     O texto é escuro com contorno claro, não claro sobre escuro: sobre pedra clara é o que
+     lê, e é o que a referência faz. */
   .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
-    letter-spacing: .1em; color: #1b1610; background: #d9a441; border: 0; padding: 14px 30px;
-    margin: 5px; box-shadow: inset 0 3px 0 #ffd98a, inset 0 -3px 0 #9a6f22, 0 4px 0 #0a0806; }
-  .telaBtn.sec { background: #3a3226; color: #e6dcc4;
-    box-shadow: inset 0 2px 0 #5c5140, inset 0 -2px 0 #221d15, 0 4px 0 #0a0806; }
+    letter-spacing: .1em; color: #2a2418; background: #b9ae95; border: 0;
+    padding: 15px 34px; margin: 5px; border-radius: 5px;
+    text-shadow: 0 1px 0 rgba(255,250,235,.55);
+    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
+                inset 0 0 0 2px #4a4234, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4);
+    transition: transform .06s, box-shadow .06s; }
+  /* afunda no toque: o degrau some e o botão desce até onde ele estava */
+  .telaBtn:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
+                inset 0 0 0 2px #4a4234, 0 1px 0 #191510; }
+  /* o primeiro botão é o caminho principal e a referência o destaca em pedra mais quente */
+  .telaBtn.sec { background: #a39a83; color: #37301f;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
+  .telaBtn.sec:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
   /* a caixa de texto da ponte, estilo jogo antigo: moldura grossa e texto revelado */
   #pontesCaixa { background: #16130d; box-shadow: inset 0 0 0 3px #4a3c28, 0 5px 0 #0a0806;
     padding: 20px 22px; max-width: 34em; margin-bottom: 20px; text-align: left; }
