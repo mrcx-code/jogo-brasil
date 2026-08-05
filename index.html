@@ -643,10 +643,24 @@ const CFG = {
   // the neighbourhood calls you. None of this touches tiredness: healing the team by
   // tapping is exactly what erased the GO FAST / GO STEADY decision once already.
   folhaValor: 4,           // impact for catching a leaf out of the air
-  mobVel: 34,              // world px/s a trouble advances toward you
-  mobIntervalo: 7,         // seconds between arrivals (shorter when the team is worn out)
+  mobVel: 34,              // world px/s a trouble advances toward you — só até ela se instalar
+  // Quanto tempo cada uma espera depois de parar. 2,4 s é medido, não escolhido: andando, a
+  // personagem cobre 92 px nesse tempo, e uma coisa que parou na borda direita (sx 122) está
+  // em sx 30 quando o relógio acaba — exatamente saindo do alcance de 80 px do golpe. Assim a
+  // desistência acontece DENTRO do quadro, onde dá para ver, em vez de fora dele. Correndo ela
+  // cobre 184 px no mesmo tempo, então a rua leva a coisa embora antes de a paciência acabar:
+  // quem corre não é abandonado por ninguém, é quem passou reto.
+  mobEspera: 2.4,
+  // Chegadas: de 7 s para 1,8 s de intervalo médio, e o número é varrido, não chutado. Com o
+  // valor antigo passavam 9 por minuto e a rua nunca tinha fila — nada esperava junto com nada.
+  // Medido no motor, em 300 s por ponto, andando e segurando o botão:
+  //   3,2 s -> 20/min, fila média 0,52   | 2,4 s -> 27/min, fila 0,68
+  //   1,8 s -> 36/min, fila 0,99, pico 3 | 1,4 s -> 46/min, fila 1,38
+  // 1,8 é onde a fila média passa de 1: quase sempre há alguém esperando, e com alguma
+  // frequência há três. Menos que isso e a rua é vazia; muito mais e ela vira feira.
+  mobIntervalo: 1.8,
   // 48 + 2x14 puts the third of three at 76, still inside the 80 px reach of a swing
-  mobMax: 3, mobFila: 14,
+  mobMax: 4, mobFila: 14,
   // How many hits each one takes, and how often each shows up. The spread is deliberate
   // and it is read off the sprites: the smog wisp is the smallest thing on the road and
   // goes down in one combo, the toxic barrel is the heaviest and takes two. 3-vs-4 was
@@ -694,6 +708,9 @@ let S = {
   // meal. Nothing spends them since special projects were removed, so they are a counter kept
   // for whoever builds the next thing that does.
   recursos: { flor: 0, agua: 0, refeicao: 0 },
+  // O que passa sem ser alcançado não custa ponto nenhum: custa MUNDO. Ver o bloco
+  // "O MUNDO RESPONDE" abaixo. Começa cheio — a mata está inteira até você deixar passar.
+  cuidado: 1,
   salvoEm: 0
 };
 
@@ -706,9 +723,50 @@ const bonusDias = () => 1 + CFG.bonusDia * Math.min(Math.max(0, R.dias.length - 
 // other multiplier this used to carry belonged to a feature that no longer exists.
 const ganhoClique = () => forcaToque() * bonusDias();
 
+// ---------- O MUNDO RESPONDE ----------
+//
+// O verbo do jogo é ALCANÇAR: o que atravessa a tela precisa de você e vai embora se você não
+// for. Até aqui isso era só um nome — medido pelo produto, o que passa valia 4% da renda sem
+// melhoria e 1% com a u1, e ignorar tudo não custava nada.
+//
+// A consequência NÃO é ponto perdido, e essa escolha é do §2, não de gosto. Nos três capítulos
+// o que atravessa a tela é trabalho e é vida; no capítulo 2, Palmares, quem chega e você não
+// alcança é GENTE. Descontar pontos por isso transformaria pessoas em recurso perdido, que é
+// exatamente o que o §2.2 proíbe. Então ninguém é castigado: o MUNDO é que responde. A mata
+// fica menos densa, a terra mais seca, a cor mais lavada. Sem número, sem mensagem, sem som.
+//
+// `S.cuidado` é uma média móvel das chegadas: cada uma que você alcança puxa para 1, cada uma
+// que atravessa inteira puxa para 0. Em regime ele CONVERGE PARA A FRAÇÃO ALCANÇADA — alcançar
+// tudo dá 1, alcançar metade dá 0,5, deixar passar tudo dá 0 —, o que faz a leitura da tela ser
+// literalmente "quanto do que passou por aqui teve alguém". E é simétrico nos dois sentidos:
+// voltar a alcançar devolve o mundo na mesma velocidade com que o secou. Não existe estado do
+// qual não se sai; distração de uma sessão não vira punição permanente.
+//
+// ALFA é calibrado contra a taxa de chegada, não escolhido no vácuo: com 35 chegadas por
+// minuto, 0,18 dá memória de ~5,5 chegadas, ou seja ~9 s. Medido, ignorando tudo: cai a 0,50
+// em 11 s, a 0,25 em 18 s e ao chão por volta de 30 s — visível de sobra dentro dos 30 s que o
+// requisito pede, e não tão nervoso que oito segundos de distração seguem a paisagem inteira.
+// Se a taxa de chegada mudar, ESTE número muda com ela.
+const CUIDADO_ALFA = 0.18;
+// E o DESENHO não segue a média de imediato: ela é degrau a cada chegada, e planta que aparece
+// e some de estalo lê como bug. `cuidadoVisto` persegue `S.cuidado` em forma fechada, com a
+// mesma constante de tempo em qualquer taxa de quadros.
+const CUIDADO_TAU = 1.6;
+let cuidadoVisto = 1;
+function registrarChegada(alcancada) {
+  const alvo = alcancada ? 1 : 0;
+  S.cuidado = Math.max(0, Math.min(1, S.cuidado + (alvo - S.cuidado) * CUIDADO_ALFA));
+}
+function suavizarCuidado(dt) {
+  cuidadoVisto += (S.cuidado - cuidadoVisto) * (1 - Math.exp(-dt / CUIDADO_TAU));
+}
+
 function worldHealth() {
   const run = Math.min(1, S.energiaTotal / CFG.metaPrestigio);
-  return Math.max(0, Math.min(1, 0.04 + run * 0.72));
+  // A rampa de progresso só sobe; o cuidado é o que pode descer e voltar. Como a meta é 50 mil
+  // e o conteúdo todo cabe em 7,5 mil, a rampa mal sai do lugar dentro de uma partida — quem
+  // move esta saída na prática é o cuidado.
+  return Math.max(0, Math.min(1, (0.04 + run * 0.72) * (0.62 + 0.38 * cuidadoVisto)));
 }
 
 
@@ -932,7 +990,11 @@ function coletarDrop(d, auto) {
 // left without anyone having to look the type up in a table.
 function novoMob(tipo, wx) {
   const hp = CFG.mobHp[tipo] || 3;
-  return { wx: wx, type: tipo, hp: hp, hpMax: hp, flash: 0, dying: 0, parado: false };
+  // `parado` existia desde sempre, era escrito `false` todo quadro e nunca virava true — o
+  // motor foi construído prevendo a espera e ninguém ligou. `espera` é o relógio dela e
+  // `desistiu` marca quem já esperou e seguiu, para não parar duas vezes na mesma rua.
+  return { wx: wx, type: tipo, hp: hp, hpMax: hp, flash: 0, dying: 0,
+    parado: false, espera: 0, desistiu: false };
 }
 // Movement, spawning and state. Drawing lives in drawMobs() and is not touched here.
 // Between CFG.mobIntervalo x0.45 and x1.4 — wide enough that two arrivals never feel paired.
@@ -952,14 +1014,38 @@ function atualizarMobs(dt) {
       mobs.push(novoMob(tipo, worldX + W + 12));
     }
   }
-  // They walk the street. They never stop in front of her and they never block anything: swing
-  // at one and you get what it drops, ignore it and it carries on past and out of frame.
+  // ELAS CHEGAM, PARAM E ESPERAM. Antes atravessavam a tela em 2,3 s a 34 px/s CONTRA a
+  // caminhada dela, e a 34+38 px/s de aproximação "eu deixei passar" era indistinguível de
+  // "não deu tempo". Parada, a única coisa que as afasta é a personagem andando: quem espera
+  // fica no quadro enquanto ela cobre a rua inteira, e não atender vira decisão visível.
+  //
+  // Elas param na BORDA DIREITA, não na frente dela: a rua toda vira fila de espera, e é o
+  // maior tempo de quadro que a geometria permite — a personagem nunca para de andar, então
+  // o teto de permanência é a largura da tela dividida pela velocidade dela.
+  const paraEm = W - 8;
   mobs.forEach(function (m) {
     if (m.dying > 0) return;
+    if (m.parado) {
+      m.espera -= dt;
+      // Esperou o quanto tinha para esperar e ninguém veio: segue caminho. Sem estrondo, sem
+      // aviso, sem número — a aura apaga e ela volta a andar. O §2 pede que ir embora seja
+      // discreto, e discreto quer dizer que quem estava olhando vê e quem não estava, não.
+      if (m.espera <= 0) { m.parado = false; m.desistiu = true; }
+      return;                     // parada é parada: o que se move é o mundo, não ela
+    }
     m.wx -= CFG.mobVel * dt;      // on top of the world sliding under them
-    m.parado = false;
+    if (!m.desistiu && m.wx - worldX <= paraEm) { m.parado = true; m.espera = CFG.mobEspera; }
   });
-  mobs = mobs.filter(function (m) { return m.wx - worldX > -24 && !m.dead; });
+  // É AQUI que "deixou passar" acontece, e é o único lugar onde acontece. Sair de quadro ainda
+  // de pé é uma chegada que ninguém alcançou; o mundo responde por isso em desenharFrente() e
+  // na cor da pintura. Limpar `mobs` na mão (zerarJogo, testes) não passa por este laço e
+  // portanto não conta nada — o que é o certo: ninguém deixou passar coisa nenhuma.
+  mobs = mobs.filter(function (m) {
+    if (m.dead) return false;                      // esta foi alcançada; já contou em clicar()
+    if (m.wx - worldX > -24) return true;
+    if (!m.dying) registrarChegada(false);
+    return false;
+  });
 }
 
 function atualizarDrops(dt) {
@@ -1015,21 +1101,40 @@ function clicar(auto, naoConta, semAnim) {
   // reach covers the whole queue (three troubles, one body-width apart) — otherwise the
   // one at the back is unhittable from the button and the road never clears
   const range = passo === SALTO ? 96 : 80, dmg = passo === SALTO ? 2 : 1;
+  // UMA DE CADA VEZ, e é o que faz existir escolha. O golpe atingia TODAS as que estivessem
+  // no alcance, e o alcance de 80 px cobre metade da tela: com as coisas paradas esperando,
+  // isso significa que segurar o botão atendia a fila inteira de graça. Medido antes desta
+  // linha: 21 de 21 andando e 28 de 28 correndo, ou seja fração 1,00 nos dois casos — o
+  // oposto de "há mais gente esperando do que tempo para atender".
+  //
+  // Atender uma por vez é o que um par de mãos faz, e é a leitura certa também pelo §2: você
+  // chega até alguém, não dispersa um gesto sobre um grupo. A mais próxima primeiro, porque é
+  // a que está prestes a ficar para trás — e o alcance continua sendo 80 px, então quem está
+  // no fim da fila continua alcançável, só que na vez dela.
+  let alvo = null, maisPerto = 1e9, alvoSx = 0;
   mobs.forEach(function (m) {
     if (m.dying > 0) return;
     const sx = m.wx - worldX;
-    if (sx > HX - 6 && sx < HX + range) {
-      m.hp -= dmg; m.flash = 5; m.wx += 10;
-      burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
-        : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
-      if (m.hp <= 0) {
-        m.dying = 8;
-        soltarDrop(m, sx);          // what it was holding stays on the ground until picked up
-        burst(sx + 8, GROUND - 14, 16, m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
-          : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
-      }
-    }
+    if (sx > HX - 6 && sx < HX + range && sx < maisPerto) { maisPerto = sx; alvo = m; alvoSx = sx; }
   });
+  if (alvo) {
+    const m = alvo, sx = alvoSx;
+    m.hp -= dmg; m.flash = 5;
+    // O empurrão de 10 px por golpe era o que, sozinho, tornava a janela infinita: a 7
+    // golpes/s ele devolve 70 px/s, mais do que os 38–77 px/s com que a caminhada afasta.
+    // Nada saía do alcance enquanto estivesse apanhando. Em quem está PARADA esperando ele
+    // também é a imagem errada — ninguém empurra para trás quem veio pedir ajuda.
+    if (!m.parado) m.wx += 10;
+    burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
+      : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
+    if (m.hp <= 0) {
+      m.dying = 8;
+      registrarChegada(true);     // alcançada: o mundo responde a isto tanto quanto ao que passa
+      soltarDrop(m, sx);          // what it was holding stays on the ground until picked up
+      burst(sx + 8, GROUND - 14, 16, m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
+        : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+    }
+  }
   // only the player's own taps put a "+N" over the hero — auto-help at 2/s (or the wand at
   // 10/s) used to spew a float every tick, which read as the frame twitching
   if (!auto) floats.push({ x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: 40 });
@@ -1102,6 +1207,10 @@ const ESQUEMA_SAVE = {
   u3:           { tipo: "bool", pad: false },
   u4:           { tipo: "bool", pad: false },
   cenario:      { tipo: "num", min: 0, max: 5, pad: 0 },
+  // A média móvel do que você alcançou. Faixa fechada em 0..1 e padrão 1: um save adulterado
+  // com -9 ou com "seco" cai no mundo INTEIRO, nunca no seco. Se um campo vai ter fallback,
+  // que ele erre para o lado que não pune ninguém.
+  cuidado:      { tipo: "num", min: 0, max: 1, pad: 1 },
   salvoEm:      { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
 function valida(regra, v) {
@@ -1132,6 +1241,9 @@ function carregar() {
   // to quietly divide the tap gain with no readout to explain it.
   // old saves predate the resource layer; missing objects read back as their empty shape
   if (!S.recursos || typeof S.recursos !== "object") S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+  // O desenho abre já no estado salvo em vez de secar/reverdecer na cara de quem entrou: a
+  // suavização existe para a transição DENTRO da partida, não para a abertura dela.
+  cuidadoVisto = S.cuidado;
   const dt = Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600);
   voltouDepoisDe = dt;
   // Built as data, not as markup: each part is either a plain line or a line with a
@@ -3246,11 +3358,34 @@ function pintarIconesDrop() {
   iconesDropOk = true;
 }
 
+// A LAVAGEM DA PINTURA — a outra metade de "o mundo responde".
+//
+// A pintura é uma imagem pronta: não há paleta a interpolar dentro dela como há no mundo
+// procedural, e `worldHealth()` não a alcança (a meta de prestígio é 50 mil e o conteúdo todo
+// cabe em 7,5 mil, então a rampa mal sai do lugar). O que alcança é um filtro CSS na própria
+// camada: satura, dessatura, seca e clareia a paisagem inteira de uma vez, na GPU, sem
+// redesenhar um pixel.
+//
+// Só o #fundoHD. O #scene (o que passa, os drops, as folhas) e a personagem ficam de fora de
+// propósito: quem seca é a TERRA, não quem anda nela nem quem precisa de ajuda. Lavar tudo
+// junto também comeria a legibilidade das coisas que o jogo pede para você alcançar.
+let lavagemK = -1;
+function lavarFundo(fc) {
+  const k = Math.round(cuidadoVisto * 24);      // 25 degraus: fino para o olho, barato para o CSS
+  if (k === lavagemK) return;
+  lavagemK = k;
+  const q = k / 24;
+  fc.style.filter = "saturate(" + (0.42 + 0.64 * q).toFixed(3) + ")"
+    + " sepia(" + (0.26 * (1 - q)).toFixed(3) + ")"
+    + " brightness(" + (1.10 - 0.10 * q).toFixed(3) + ")"
+    + " contrast(" + (0.94 + 0.08 * q).toFixed(3) + ")";
+}
 function rolarFundo() {
   const g = fundoGeo;
   if (!g) return;
   const fc = document.getElementById("fundoHD");
   if (!fc) return;
+  lavarFundo(fc);
   const fx = fc.getContext("2d");
   fx.imageSmoothingEnabled = true;
   fx.clearRect(0, 0, g.cw, g.ch);
@@ -3412,12 +3547,23 @@ function desenharFrente(fx, g) {
   // encosta. Por isso a folhagem voava. A personagem pousa em GROUND * ky, e é essa a única
   // linha que vale: quem divide o chão com ela tem que usar a mesma conta.
   const chao = GROUND * (g.ch / H);
+  // O MUNDO RESPONDE, e é aqui que se vê. `cuidadoVisto` decide QUANTAS casas têm planta —
+  // 26% quando ninguém foi alcançado, 70% quando todos foram. A grade, o hash e o sorteio de
+  // cada casa não mudam: uma casa que tem planta com a mata cheia é sempre a MESMA casa, e é
+  // a última a sumir quando ela rareia. Assim a mata não vira outra mata, ela clareia — que é
+  // a diferença entre o mundo responder e o cenário ser trocado.
+  const cuid = cuidadoVisto;
+  const limiar = 26 + 44 * cuid;
   for (let k = 0; k < quantos; k++) {
     const n = i0 + k;
     const h = ((n * 2654435761) >>> 0);
-    // 3. AGRUPAMENTO: só 55% das casas recebem planta, e o hash decide quais. Isso sozinho
+    // 3. AGRUPAMENTO: só parte das casas recebe planta, e o hash decide quais. Isso sozinho
     // quebra o ritmo constante e produz moitas e vazios sem nenhuma lógica extra.
-    if ((h % 100) >= 55) continue;
+    const posto = h % 100;
+    if (posto >= limiar) continue;
+    // ...e a que está NA BORDA do corte entra e sai desbotando, ao longo de dez postos. Sem
+    // isso a planta pisca em cena no quadro em que a média muda, e piscar lê como defeito.
+    const entrando = Math.min(1, (limiar - posto) / 10);
     // Cada capítulo usa SÓ os seus oito. Os 24 vieram em três pacotes de oito, na ordem dos
     // capítulos, e misturá-los poria bambu de litoral em Palmares — o contrário do que os
     // pacotes existem para resolver.
@@ -3428,7 +3574,10 @@ function desenharFrente(fx, g) {
     const jitter = (((h >> 11) % 60) - 30);
     const x = (n * FRENTE_PASSO + jitter - desl) * esc;
     if (x > g.cw + 260 || x < -260) continue;
-    const alt = (78 + (h >> 6) % 46) * esc;
+    // ...e a que fica também encolhe: mata que rareia não perde só o número de plantas, perde
+    // porte. 16% entre um extremo e o outro — o bastante para a silhueta baixar junto com a
+    // densidade, pouco o bastante para não parecer outra espécie.
+    const alt = (78 + (h >> 6) % 46) * esc * (0.84 + 0.16 * cuid);
     const larg = alt * (im.naturalWidth / im.naturalHeight);
     // 1. CONTATO: a base afunda alguns px no chão, e ganha sombra. Sem afundar, a planta
     // parece pousada; afundando, parece plantada.
@@ -4055,14 +4204,36 @@ function desenharMundo() {
   // five hits you can count them; the owner wanted the thing every game has and he was right
   // twice over — see `desenharVidaMob`.
   mobs.forEach(function (m) { desenharVidaMob(m); });
-  // a trouble standing in the way: two ticks at its feet say "this one is tappable"
+  // QUEM ESTÁ ESPERANDO. Aqui havia dois tiques VERMELHOS piscando nos pés, e vermelho
+  // piscando é a gramática de perigo e de erro — a gramática errada. No capítulo 2 quem chega
+  // e espera é gente, e o §2.2 não admite que o jogo desenhe uma barra de aflição em cima
+  // dela. Então o sinal é o contrário disso: dois anéis mornos no chão, respirando devagar,
+  // do tamanho de um lugar reservado. Não é contagem regressiva — não encolhe, não muda de
+  // cor, não fica vermelho perto do fim. Diz "tem alguém aqui", e só. O que o tempo faz é
+  // apagar a luz nos últimos instantes, o que é uma despedida e não um alarme.
   mobs.forEach(function (m) {
     if (!m.parado || m.dying > 0) return;
-    const sx = Math.round(m.wx - worldX);
-    cx.globalAlpha = 0.5 + 0.5 * pulso;
-    cx.fillStyle = "#ff6b57";
-    cx.fillRect(sx - 6, GROUND + 1, 4, 2); cx.fillRect(sx + 12, GROUND + 1, 4, 2);
-    cx.fillRect(sx - 6, GROUND - 1, 2, 3); cx.fillRect(sx + 14, GROUND - 1, 2, 3);
+    const sx = Math.round(m.wx - worldX) + 5;
+    // respiração lenta e igual para todas: uma rua onde cada lugar pisca no seu ritmo lê como
+    // ruído. `m.wx` entra na fase só para as auras não baterem em uníssono.
+    const resp = 0.5 + 0.5 * Math.sin(animT * 2.1 + m.wx * 0.02);
+    // e some nos últimos 0,6 s de espera — a única coisa que o relógio muda na tela
+    const saindo = Math.max(0, Math.min(1, m.espera / 0.6));
+    cx.save();
+    // um lugar de luz no chão, e depois o contorno dele. Só o anel, a 1 px numa tela de 160
+    // px de mundo, sumia contra a terra pintada — medido olhando o print, que é o que o
+    // CLAUDE.md manda fazer e o teste não faz.
+    cx.fillStyle = "#f3dda6"; cx.strokeStyle = "#fbeec4"; cx.lineWidth = 2;
+    const base = (0.55 + 0.45 * resp) * saindo;
+    const r0 = 15 + resp * 2;
+    cx.globalAlpha = 0.17 * base;
+    cx.beginPath(); cx.ellipse(sx, GROUND + 1, r0, r0 * 0.32, 0, 0, 6.283); cx.fill();
+    for (let a = 0; a < 2; a++) {
+      const r = r0 + a * 6;
+      cx.globalAlpha = (0.46 - a * 0.22) * base;
+      cx.beginPath(); cx.ellipse(sx, GROUND + 1, r, Math.max(1, r * 0.32), 0, 0, 6.283); cx.stroke();
+    }
+    cx.restore();
     cx.globalAlpha = 1;
   });
 }
@@ -4167,6 +4338,7 @@ function zerarJogo() {
   S.u1 = S.u2 = S.u3 = S.u4 = false;
   S.modo = "limpo";
   S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+  S.cuidado = 1; cuidadoVisto = 1;
   worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
   salvar();
   try { localStorage.removeItem(CHAVE_RET); } catch (e) {}
@@ -4489,6 +4661,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dt = Math.max(0, Math.min(0.25, (agora - ultimo) / 1000));
     ultimo = agora;
     atualizarMobs(dt);
+    suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
     atualizarDrops(dt);
     atualizarChamada(dt);
     verificarAnuncios();

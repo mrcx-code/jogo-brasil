@@ -183,7 +183,10 @@ function chromiumPath() {
     '| arrivals in 60s:', encontro.nChegadas, '| gaps:', JSON.stringify(encontro.vaos));
   if (!encontro.passouPorEla) errors.push('the trouble never walked past the hero');
   if (!encontro.sumiu) errors.push('the trouble never left the frame');
-  if (encontro.parados > 0) errors.push('a trouble parked in front of the hero');
+  // Parar deixou de ser bug e virou a MECANICA: o que chega espera um tempo pedindo ajuda, e
+  // alcançar a tempo e o verbo do jogo. Esta asserção nasceu quando eles so passavam reto.
+  // O que continua tendo que valer e que ninguem fica preso para sempre — por isso as duas
+  // asserções acima, de que passa pela heroina e sai do quadro, seguem de pe.
   if (encontro.nChegadas < 4) errors.push('too few troubles showed up in 60s');
   if (!encontro.variados) errors.push('the gaps between arrivals are all identical');
 
@@ -408,7 +411,7 @@ function chromiumPath() {
     return Object.keys(JSON.parse(localStorage.getItem(CHAVE_JOGO))).sort();
   });
   console.log('save written ->', chaves.join(', '));
-  const esperadas = ['cenario', 'energia', 'energiaTotal', 'modo', 'salvoEm', 'u1', 'u2', 'u3', 'u4'];
+  const esperadas = ['cenario', 'cuidado', 'energia', 'energiaTotal', 'modo', 'salvoEm', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));

@@ -697,3 +697,112 @@ armadilha nº 1 do §7 e é sessão própria, não sobra de sessão.
 **Próximo passo:** as sprites de cap.2 e cap.3, começando pela escolha de quadros da tabela
 acima e por decidir se `PASSO_PX` vira tabela por capítulo ou se as três folhas são reescaladas
 para um passo comum.
+
+### 2026-08-05 · o que passa para e espera, e o mundo responde a quem ficou sem ninguém
+
+O produto mediu o buraco em uma linha: segurando o botão por 12 s, **o que atravessa a tela
+valia 4% da renda** sem melhoria e **1% com a `u1`**; o resto era toque no vazio (59%) e folha
+recolhida andando (37%). Ignorar tudo não custava nada. O verbo tinha trocado de nome —
+"golpear" virou **alcançar** — e não tinha trocado de consequência.
+
+Duas mudanças, e elas só funcionam juntas.
+
+**1. O que chega PARA e espera.** `m.parado` existia desde o motor herdado, era escrito `false`
+todo quadro e nunca virava `true`. Agora a coisa entra pela direita, para em `W - 8` e fica.
+Quem a afasta é só a caminhada da personagem, e é aí que está o teto desta mecânica: **ela
+nunca para de andar**, então a permanência máxima é a largura da tela dividida pela velocidade
+dela. Medido, do instante em que para:
+
+| | alcançável | na tela | desiste de esperar |
+|---|---:|---:|---|
+| antes (atravessando a 34 px/s contra ela) | 1,15 s | 2,3 s | — |
+| andando (38,3 px/s) | **2,74 s** | **3,58 s** | aos 2,4 s |
+| correndo (76,5 px/s) | 1,50 s | 2,28 s | a rua a leva antes, aos 2,28 s |
+
+`CFG.mobEspera = 2,4 s` não é gosto: andando, a personagem cobre 92 px nesse tempo, e uma coisa
+que parou em sx 122 está em sx 30 quando o relógio acaba — exatamente saindo do alcance de
+80 px. A desistência acontece **dentro do quadro**, onde dá para ver, em vez de fora dele.
+
+**O sinal de espera é dois anéis mornos no chão**, respirando devagar, do tamanho de um lugar
+reservado. No lugar deles havia dois tiques **vermelhos** piscando nos pés — a gramática de
+perigo e de erro. No capítulo 2 quem chega e espera é gente, e o §2.2 não admite barra de
+aflição, contagem regressiva nem vermelho em cima dela. O anel não encolhe, não muda de cor e
+não acelera: só apaga nos últimos 0,6 s, o que é despedida e não alarme. A primeira versão, a
+1 px de traço, sumia contra a terra pintada — foi preciso **olhar o print**, que é o que o §6
+manda e o teste não faz.
+
+**2. Uma de cada vez, e o empurrão foi embora.** Com as coisas paradas, segurar o botão atendia
+**tudo**: medido 21 de 21 andando e 28 de 28 correndo. Duas causas: o golpe atingia TODAS no
+alcance (80 px é metade da tela), e cada acerto empurrava o alvo 10 px — a 6,9 golpes/s isso
+devolve 70 px/s, mais do que os 38–77 px/s com que a caminhada afasta, então nada saía do
+alcance enquanto apanhasse. Agora o golpe atende **a mais próxima** e não empurra quem está
+parada — ninguém empurra para trás quem veio pedir ajuda. O alcance continua 80 px, então o fim
+da fila continua alcançável; só que na vez dele.
+
+**3. A rua ganhou fila.** `mobIntervalo` de 7 s para **1,8 s**, varrido em 300 s por ponto:
+
+| intervalo | chegadas/min | fila média/pico | fração atendida andando | correndo |
+|---:|---:|---:|---:|---:|
+| 3,2 | 20 | 0,52 / 2 | 1,00 | 0,73 |
+| 2,4 | 27 | 0,68 / 2 | 1,00 | 0,71 |
+| **1,8** | **35** | **1,40 / 3** | **1,00** | **0,67–0,70** |
+| 1,4 | 46 | 1,38 / 3 | 1,00 | 0,71 |
+| 1,1 | 56 | 1,91 / 4 | 0,95 | 0,62 |
+
+**4. O mundo responde — e não o placar.** `S.cuidado` é média móvel das chegadas: alcançou puxa
+para 1, atravessou inteira puxa para 0. Converge para a **fração alcançada**, então a tela lê
+literalmente "quanto do que passou por aqui teve alguém". Entra no `ESQUEMA_SAVE` com faixa
+0..1 e padrão **1** — save adulterado cai no mundo inteiro, nunca no seco.
+
+Ele move três coisas: a densidade da folhagem da frente (26% a 70% das casas da grade, mesma
+grade e mesmo hash, então a mata **clareia** em vez de virar outra mata), o porte dessas plantas
+(±16%), e um filtro CSS na camada da pintura (`saturate` 0,42→1,06, `sepia` 0,26→0, `brightness`
+1,10→1,00). Só o `#fundoHD`: quem seca é a terra, não a personagem nem o que precisa de ajuda.
+`worldHealth()` passa a ser multiplicado por `0,62 + 0,38·cuidado` — mas o efeito visível vem
+das duas primeiras, porque com meta de 50 mil e conteúdo cabendo em 7,5 mil a rampa de
+`worldHealth` mal sai do lugar dentro de uma partida.
+
+Nada de número, mensagem, som ou vermelho: a resposta é do mundo. **Foi escolha do §2, não de
+gosto** — nos três capítulos o que atravessa a tela é trabalho e é vida, e em Palmares quem
+chega e você não alcança é gente. Descontar pontos por isso transformaria pessoas em recurso
+perdido, que é exatamente o que o §2.2 proíbe.
+
+**Legibilidade, medida em pixels.** Prints do mesmo quadro com o mundo congelado (o laço é
+parado zerando o `requestAnimationFrame`, senão o rolamento afoga a medida), diferença média por
+canal contra o mundo inteiro e fração de pixels que mudaram mais de 8:
+
+| cuidado | plantas no quadro | dif. média | pixels alterados |
+|---:|---:|---:|---:|
+| 1,00 | 5 | — | — |
+| 0,75 | 4 | 11,7 | 74% |
+| 0,50 | 3 | 22,7 | 83% |
+| 0,25 | 3 | 32,9 | 83% |
+| 0,00 | 1 | 42,5 | 83% |
+
+E o tempo até aparecer, sem tocar em nada: **0,94 aos 5 s · 0,54 aos 10 s · 0,33 aos 15 s ·
+0,17 aos 20 s · 0,06 aos 30 s.** Voltando a atender, andando e segurando: **0,23 aos 5 s · 0,61
+aos 10 s · 0,82 aos 15 s · 0,94 aos 25 s.** Simétrico e recuperável — não existe estado do qual
+não se sai. `CUIDADO_ALFA = 0,18` é calibrado contra 35 chegadas/min; se a taxa mudar, ele muda.
+
+**A renda mudou junto, sem ninguém tocar em fórmula de renda.** 300 s andando e segurando:
+
+| | toque no vazio | o que atravessa a tela | folha |
+|---|---:|---:|---:|
+| antes (medida do produto) | 59% | **4%** | 37% |
+| depois | 71% | **18,3%** | 11% |
+| antes, com `u1` | — | **1%** | — |
+| depois, com `u1` | 88% | **7,7%** | 4% |
+
+**O que ficou frágil, e é o número que eu não consegui mover.** Andando e segurando o botão a
+fração atendida é **1,00**, em qualquer densidade abaixo de 56 chegadas/min. A escolha existe
+entre **andar e correr** (1,00 contra 0,67) e entre segurar e não segurar (1,00 contra 0,00) —
+mas correr hoje não compra nada (o produto mediu 3% de diferença de renda, dentro do ruído), e
+uma escolha cujo lado caro não paga nada não é escolha, é um botão que ninguém aperta. **Dar
+motivo para correr é o que falta para a tensão morder**, e é decisão de dono. Os dois outros
+caminhos medidos são densidade (56/min leva andando a 0,95, ao custo de uma rua cheia) e
+encurtar o alcance de 80 px, que o §7 registra como deliberado e eu não mexi.
+
+**Outra fragilidade:** `S.cuidado` atravessa a noite no save. Quem largou o jogo com o mundo
+seco reencontra o mundo seco — 15 s de jogo desfazem, mas a primeira tela do dia 2 é a pior
+possível. Uma volta em direção ao neutro enquanto se está fora resolveria; não fiz porque
+mexeria no ganho offline, que é item próprio.
