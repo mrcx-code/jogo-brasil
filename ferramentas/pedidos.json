@@ -1,20 +1,31 @@
 [
   {
-    "nome": "conversao",
-    "titulo": "Conversão provada — capítulo 1 convertido e olhado",
-    "referencia": "1024x1536 -> 720x959 · 173.679 cores -> 48",
-    "tamanho": "",
+    "nome": "drop-semente",
+    "titulo": "1 · Drop · punhado de sementes",
+    "referencia": "o que fica no chão depois da fruta alcançada · PRIORIDADE ALTA: aparece o tempo todo",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 5,
-      "texto": "CONVERSÃO PROVADA. A peça de cima do capítulo 1 virou 720x959 com 48 cores, e o corte de paleta não estragou — ele CRIOU a textura de pixel art que faltava: degradê virou banda com granulado, nuvem ganhou bloco, copa virou mancha chapada.\n\nPor isso a fila reabre agora e não antes: cada pedido abaixo sai com parâmetro provado, não com palpite."
-    }
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um punhado de sementes e grãos grandes, cores quentes, amontoados.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "drop-peixe",
+    "titulo": "2 · Drop · peixe pequeno",
+    "referencia": "o que fica no chão depois da pesca · PRIORIDADE ALTA: aparece o tempo todo",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um peixe pequeno e gordo de rio, prateado com brilho azulado, visto de perfil.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "drop-broto",
+    "titulo": "3 · Drop · broto plantado",
+    "referencia": "o que fica no chão depois da muda · PRIORIDADE ALTA: aparece o tempo todo",
+    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um broto verde novo, duas folhinhas abrindo, saindo de um montinho de terra escura.\n\nATENÇÃO AO TAMANHO FINAL: isto vai ser visto com cerca de 26 pixels de altura. Formas GRANDES e POUCAS, silhueta que se reconhece de longe, sem detalhe fino — detalhe fino vira sujeira nesse tamanho.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
   },
   {
     "nome": "cap1-var-alto",
-    "titulo": "CAP1 · cenário 2, peça de CIMA",
+    "titulo": "4 · CAP1 · cenário 2, peça de CIMA",
     "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
     "tamanho": "RETRATO ~1024×1536 · vira 720×959",
     "origem": "",
@@ -22,7 +33,7 @@
   },
   {
     "nome": "cap1-var-baixo",
-    "titulo": "CAP1 · cenário 2, peça de BAIXO",
+    "titulo": "5 · CAP1 · cenário 2, peça de BAIXO",
     "referencia": "o chão dessa segunda paisagem",
     "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
     "origem": "",
@@ -30,7 +41,7 @@
   },
   {
     "nome": "cap2-var-alto",
-    "titulo": "CAP2 · cenário 2, peça de CIMA",
+    "titulo": "6 · CAP2 · cenário 2, peça de CIMA",
     "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
     "tamanho": "RETRATO ~1024×1536 · vira 720×959",
     "origem": "",
@@ -38,7 +49,7 @@
   },
   {
     "nome": "cap2-var-baixo",
-    "titulo": "CAP2 · cenário 2, peça de BAIXO",
+    "titulo": "7 · CAP2 · cenário 2, peça de BAIXO",
     "referencia": "o chão dessa segunda paisagem",
     "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
     "origem": "",
@@ -46,7 +57,7 @@
   },
   {
     "nome": "cap3-var-alto",
-    "titulo": "CAP3 · cenário 2, peça de CIMA",
+    "titulo": "8 · CAP3 · cenário 2, peça de CIMA",
     "referencia": "segunda paisagem do capítulo — a rua não pode ser uma só",
     "tamanho": "RETRATO ~1024×1536 · vira 720×959",
     "origem": "",
@@ -54,7 +65,7 @@
   },
   {
     "nome": "cap3-var-baixo",
-    "titulo": "CAP3 · cenário 2, peça de BAIXO",
+    "titulo": "9 · CAP3 · cenário 2, peça de BAIXO",
     "referencia": "o chão dessa segunda paisagem",
     "tamanho": "PAISAGEM ~1774×887 · vira 720×320",
     "origem": "",
@@ -62,7 +73,7 @@
   },
   {
     "nome": "cap1-det-palmeira",
-    "titulo": "Cap. 1 · palmeira de frente",
+    "titulo": "10 · Cap. 1 · palmeira de frente",
     "referencia": "detalhe de frente, fica na beira da tela",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
@@ -70,7 +81,7 @@
   },
   {
     "nome": "cap1-det-pedra",
-    "titulo": "Cap. 1 · pedra com musgo",
+    "titulo": "11 · Cap. 1 · pedra com musgo",
     "referencia": "detalhe de frente, fica na beira da tela",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
@@ -78,7 +89,7 @@
   },
   {
     "nome": "cap2-det-samambaia",
-    "titulo": "Cap. 2 · samambaia grande",
+    "titulo": "12 · Cap. 2 · samambaia grande",
     "referencia": "detalhe de frente, fica na beira da tela",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
@@ -86,7 +97,7 @@
   },
   {
     "nome": "cap3-det-bananeira",
-    "titulo": "Cap. 3 · bananeira",
+    "titulo": "13 · Cap. 3 · bananeira",
     "referencia": "detalhe de frente, fica na beira da tela",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
@@ -94,7 +105,7 @@
   },
   {
     "nome": "icone-folha",
-    "titulo": "Ícone · folha",
+    "titulo": "14 · Ícone · folha",
     "referencia": "ícone do HUD · precisa ler a 26 px",
     "tamanho": "QUADRADO ~512×512 · magenta",
     "origem": "",
@@ -102,7 +113,7 @@
   },
   {
     "nome": "icone-agua",
-    "titulo": "Ícone · água",
+    "titulo": "15 · Ícone · água",
     "referencia": "ícone do HUD · precisa ler a 26 px",
     "tamanho": "QUADRADO ~512×512 · magenta",
     "origem": "",
@@ -110,7 +121,7 @@
   },
   {
     "nome": "icone-cesto",
-    "titulo": "Ícone · cesto",
+    "titulo": "16 · Ícone · cesto",
     "referencia": "ícone do HUD · precisa ler a 26 px",
     "tamanho": "QUADRADO ~512×512 · magenta",
     "origem": "",
@@ -118,7 +129,7 @@
   },
   {
     "nome": "icone-passo",
-    "titulo": "Ícone · ritmo",
+    "titulo": "17 · Ícone · ritmo",
     "referencia": "ícone do HUD · precisa ler a 26 px",
     "tamanho": "QUADRADO ~512×512 · magenta",
     "origem": "",
