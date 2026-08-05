@@ -31,6 +31,13 @@
   button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 12px; padding: 6px 12px;
                       font-size: 13px; }
   .vazio { color: #8d8a80; font-size: 14px; }
+  /* Campo livre: a fila cobre o que EU previ, e o dono nao deve depender disso. */
+  #avulso { border: 1px dashed #3a4049; border-radius: 8px; padding: 16px; margin-bottom: 26px;
+            background: #16181e; }
+  #avulsoNome { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 9px 11px;
+    background: #101218; border: 1px solid #2c3038; border-radius: 6px; color: #e8e6df;
+    font: 13px ui-monospace, monospace; }
+  #avulsoNome:focus { outline: none; border-color: #6fdd94; }
   /* ROADMAP: fila sem destino e so lista de tarefas. */
   #roadmap { margin-top: 40px; border-top: 1px solid #2c3038; padding-top: 22px; }
   #roadmap h2 { font-size: 15px; margin: 0 0 4px; }
@@ -76,6 +83,14 @@
 <h1>Mesa de entrega</h1>
 <p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
 Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
+<div id="avulso">
+  <div class="titulo">Colar avulso</div>
+  <div class="ref">Para quando a imagem não corresponde a nenhum pedido da fila. Dê um nome e cole.</div>
+  <input id="avulsoNome" type="text" placeholder="nome-do-arquivo (sem extensão)" spellcheck="false">
+  <div class="cola" id="avulsoCola" tabindex="0">clique aqui e cole a imagem (Ctrl+V)</div>
+  <div class="estado" id="avulsoEstado"></div>
+  <button id="avulsoSalvar" disabled>Salvar</button>
+</div>
 <div id="lista"><p class="vazio">carregando…</p></div>
 <div id="roadmap"></div>
 
@@ -177,6 +192,50 @@ function marcarRecebidas() {
 
 // O roadmap vive abaixo da fila porque fila sem destino e so lista de tarefas: da para
 // entregar os cinco pedidos e nao saber para onde o jogo esta indo.
+// Colar avulso: mesmo caminho do card, sem depender de a fila ter previsto o arquivo.
+(function () {
+  const alvo = document.getElementById("avulsoCola");
+  const nome = document.getElementById("avulsoNome");
+  const est = document.getElementById("avulsoEstado");
+  const bt = document.getElementById("avulsoSalvar");
+  let dados = null;
+  alvo.addEventListener("paste", function (ev) {
+    const itens = (ev.clipboardData || {}).items || [];
+    for (const it of itens) {
+      if (it.type && it.type.indexOf("image/") === 0) {
+        ev.preventDefault();
+        const fr = new FileReader();
+        fr.onload = function () {
+          dados = fr.result;
+          alvo.textContent = ""; alvo.className = "cola tem";
+          const img = new Image();
+          img.onload = function () {
+            est.className = "estado";
+            est.textContent = img.naturalWidth + " × " + img.naturalHeight + " px";
+          };
+          img.src = dados; alvo.appendChild(img);
+          bt.disabled = !nome.value.trim();
+        };
+        fr.readAsDataURL(it.getAsFile());
+        return;
+      }
+    }
+    est.className = "estado erro";
+    est.textContent = "não vi imagem — copie a imagem, não o link";
+  });
+  nome.addEventListener("input", function () { bt.disabled = !(dados && nome.value.trim()); });
+  bt.addEventListener("click", function () {
+    if (!dados) return;
+    bt.disabled = true; est.className = "estado"; est.textContent = "salvando…";
+    fetch("/salvar", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nome.value.trim(), pedido: "avulso", dados: dados })
+    }).then(r => r.json()).then(function (j) {
+      est.className = "estado ok";
+      est.textContent = "salva em " + j.arquivo + " (" + j.bytes + " bytes)";
+    }).catch(function () { est.className = "estado erro"; est.textContent = "falhou"; bt.disabled = false; });
+  });
+})();
+
 function montarRoadmap() {
   fetch("/roadmap").then(r => r.json()).then(function (rm) {
     const box = document.getElementById("roadmap");

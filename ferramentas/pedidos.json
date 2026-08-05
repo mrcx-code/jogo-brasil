@@ -1,10 +1,1 @@
-[
-  {
-    "nome": "menu-refs",
-    "titulo": "1 · MENU · 4 referencias de tela inicial",
-    "referencia": "para OLHAR e copiar o vocabulario, nao para recortar",
-    "tamanho": "1024×1024 · grade 2×2 · SEM magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nQuatro TELAS INICIAIS diferentes de jogo, numa grade 2x2. Cada célula é uma proposta completa e independente: um logotipo no alto e quatro botões empilhados abaixo (JOGAR, A HISTÓRIA, DE ONDE VEM, AJUSTES).\n\nO jogo é sobre a história do Brasil vista por quem já estava aqui — mata atlântica, litoral, terra vermelha, serra. Paleta: verdes de mata, marrom de terra, dourado quente.\n\nO QUE EU QUERO VER, e é o ponto do pedido: como os BOTÕES podem parecer parte do mundo do jogo em vez de retângulos de formulário. Placa de madeira entalhada, pedra, tábua amarrada com fibra, faixa de couro, moldura de galho — mostre quatro caminhos BEM diferentes entre si.\n\nEstilo pixel art pintada em alta resolução, borda dura, contorno marrom escuro nunca preto. Sem canto arredondado de aplicativo, sem sombra suave, sem degradê de interface web.\n\nNADA de futebol, carnaval, bandeira nem verde-amarelo de camisa."
-  }
-]
+[]
