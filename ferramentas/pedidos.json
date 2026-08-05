@@ -1,18 +1,60 @@
 [
   {
     "nome": "cap1-fundo-alto",
-    "titulo": "Capítulo 1 · fundo, peça de CIMA (céu e distância)",
-    "referencia": "Tupinambá, litoral atlântico, séc. XVI · rola mais devagar que o chão · RODADA 2",
-    "tamanho": "RETRATO, mais alto que largo · ~1024×1536 · vira 720×959",
+    "titulo": "Capítulo 1 · fundo, peça de CIMA — FECHADO",
+    "referencia": "Tupinambá, litoral atlântico, séc. XVI",
+    "tamanho": "recebida 1024×1536",
     "origem": "",
-    "prompt": "PIXEL ART DE VERDADE, não ilustração com aparência de pixel art. Este é o requisito mais importante, e é o que falhou na tentativa anterior — a imagem saiu com 268 mil cores e microvariação dentro de cada bloco.\n\n- Paleta LIMITADA: no máximo 32 cores na imagem inteira.\n- Blocos de cor CHAPADA e uniforme — cada pixel é um quadrado grande e visível, com a mesma cor exata em todo o bloco.\n- ZERO gradiente, zero degradê suave, zero desfoque, zero ruído, zero anti-aliasing.\n- Sombreado por DITHERING (padrão xadrez de duas cores), nunca por transição suave.\n- Quatro a cinco tons por material, e só.\n- Referência: sprite de Super Nintendo desenhado à mão, não arte digital suavizada.\n\nFORMATO: IMAGEM VERTICAL, em retrato, mais alta que larga. Não deitada.\n\nCENA — isto já saiu certo na tentativa anterior, mantenha igual: litoral atlântico do Brasil visto DA PRAIA, na altura dos olhos de quem está de pé. Elevação frontal plana, sem perspectiva de fuga, como cenário de jogo lateral. Linha do horizonte reta atravessando a imagem. Céu com cúmulos altos na metade de cima. Parede contínua de mata atlântica alta, copa densa em camadas, palmeiras e árvores de folha larga. Mar aberto ao fundo. Pontas de terra distantes sumindo em azul de neblina. Luz quente vinda de cima à direita. Contorno marrom escuro, nunca preto.\n\nOBRIGATÓRIO: linha de árvores repetida e uniforme, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. NADA apoiado no chão na parte de baixo: esta peça rola mais devagar que o chão, e um objeto plantado ali desliza sobre o próprio pé. Sem texto, sem placa, sem letra. Sem pessoas, sem construções, sem barcos."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 2,
+      "texto": "APROVADAS as duas. A orientação obedeceu — retrato e paisagem vieram certas, o pedido em maiúscula funcionou.\n\nA paleta NÃO obedeceu, e eu paro de pedir: 270.106 e 222.058 cores, pixel lógico 1 nas duas, depois de dois rounds com instrução explícita e destacada. Isso é limite do modelo, não do prompt — o GPT pinta algo que PARECE pixel art, não faz pixel art. Quantizo do meu lado. Não é mais problema seu.\n\nCapítulo 1 está fechado. Os próximos pedidos são capítulo 2 (Palmares) e capítulo 3 (hoje)."
+    }
   },
   {
     "nome": "cap1-fundo-baixo",
-    "titulo": "Capítulo 1 · fundo, peça de BAIXO (chão)",
-    "referencia": "o chão em que ela pisa · rola 1:1, é o que faz o pé casar",
-    "tamanho": "PAISAGEM, bem mais larga que alta · ~1536×640 · vira 720×320",
+    "titulo": "Capítulo 1 · fundo, peça de BAIXO — FECHADO",
+    "referencia": "o chão do litoral",
+    "tamanho": "recebida 1774×887",
     "origem": "",
-    "prompt": "PIXEL ART DE VERDADE, não ilustração com aparência de pixel art. Requisito mais importante:\n\n- Paleta LIMITADA: no máximo 32 cores na imagem inteira.\n- Blocos de cor CHAPADA e uniforme — cada pixel é um quadrado grande e visível.\n- ZERO gradiente, zero desfoque, zero ruído, zero anti-aliasing.\n- Sombreado por DITHERING (padrão xadrez de duas cores), nunca por transição suave.\n- Quatro a cinco tons por material, e só.\n- Referência: sprite de Super Nintendo desenhado à mão.\n\nFORMATO: IMAGEM DEITADA, em paisagem, bem mais larga que alta.\n\nCena: o CHÃO de uma clareira no litoral atlântico, visto de pouco acima, como o piso de um jogo lateral. Areia clara compacta misturada com terra escura, folhas caídas, tufos de grama baixa, raízes finas e seixos. Luz quente salpicada vinda de cima à direita.\n\nOBRIGATÓRIO: textura contínua e uniforme, que possa ser repetida lado a lado sem emenda visível e sem nenhum ponto que chame atenção. Sem pessoas, sem objetos, sem construções, sem texto."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 2,
+      "texto": "APROVADAS as duas. A orientação obedeceu — retrato e paisagem vieram certas, o pedido em maiúscula funcionou.\n\nA paleta NÃO obedeceu, e eu paro de pedir: 270.106 e 222.058 cores, pixel lógico 1 nas duas, depois de dois rounds com instrução explícita e destacada. Isso é limite do modelo, não do prompt — o GPT pinta algo que PARECE pixel art, não faz pixel art. Quantizo do meu lado. Não é mais problema seu.\n\nCapítulo 1 está fechado. Os próximos pedidos são capítulo 2 (Palmares) e capítulo 3 (hoje)."
+    }
+  },
+  {
+    "nome": "cap2-fundo-alto",
+    "titulo": "Capítulo 2 · fundo, peça de CIMA (céu e serra)",
+    "referencia": "Palmares, séc. XVII · a mata da Serra da Barriga, Alagoas · rola devagar",
+    "tamanho": "RETRATO · ~1024×1536 · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM VERTICAL, em retrato, mais alta que larga.\n\nCENA: elevação frontal plana, na altura dos olhos de quem está de pé, sem perspectiva de fuga — como cenário de jogo lateral. Linha do horizonte reta atravessando a imagem. Céu ocupando a metade de cima.\n\nMata atlântica de encosta no interior de Alagoas, século XVII. Serra alta coberta de floresta densa, morros arredondados em camadas sumindo em azul de neblina, palmeiras de pindoba entre árvores de folha larga. Céu tropical com nuvens altas.\n\nATENÇÃO — erro que modelos cometem sozinhos aqui: pedir Palmares ou quilombo puxa \"aldeia africana genérica de safári\" — cabana redonda de palha, savana, acácia. NADA disso. É mata atlântica fechada de serra brasileira, úmida e verde-escura.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções., sem cabanas, sem aldeia, sem savana."
+  },
+  {
+    "nome": "cap2-fundo-baixo",
+    "titulo": "Capítulo 2 · fundo, peça de BAIXO (chão da mata)",
+    "referencia": "o chão da serra · rola 1:1",
+    "tamanho": "PAISAGEM larga · ~1774×887 · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM DEITADA, em paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, como o piso de um jogo lateral. Textura contínua e uniforme, repetível lado a lado sem emenda visível e sem nenhum ponto que chame atenção.\n\nChão de mata atlântica de encosta: terra vermelha úmida, serrapilheira de folhas caídas, raízes expostas, samambaias baixas, pedras cobertas de musgo. Luz salpicada filtrada por copa alta.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
+  },
+  {
+    "nome": "cap3-fundo-alto",
+    "titulo": "Capítulo 3 · fundo, peça de CIMA (céu e mata, hoje)",
+    "referencia": "presente · terra indígena demarcada · a MESMA mata do capítulo 1, cinco séculos depois",
+    "tamanho": "RETRATO · ~1024×1536 · vira 720×959",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM VERTICAL, em retrato, mais alta que larga.\n\nCENA: elevação frontal plana, na altura dos olhos de quem está de pé, sem perspectiva de fuga — como cenário de jogo lateral. Linha do horizonte reta atravessando a imagem. Céu ocupando a metade de cima.\n\nMata atlântica de litoral no presente, em terra indígena demarcada e preservada. Deve parecer PARENTE da paisagem do capítulo 1 — mesma mata, mesmo mar ao fundo — mas com sinais discretos de hoje: uma clareira de roçado bem cuidada, bananeiras e mandioca plantadas em linha, uma trilha de terra batida.\n\nO tom é de terra viva e cuidada, não de ruína nem de nostalgia. Não é \"o que sobrou\" — é o que foi mantido.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
+  },
+  {
+    "nome": "cap3-fundo-baixo",
+    "titulo": "Capítulo 3 · fundo, peça de BAIXO (chão, hoje)",
+    "referencia": "o chão de hoje · rola 1:1",
+    "tamanho": "PAISAGEM larga · ~1774×887 · vira 720×320",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM DEITADA, em paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, como o piso de um jogo lateral. Textura contínua e uniforme, repetível lado a lado sem emenda visível e sem nenhum ponto que chame atenção.\n\nChão de trilha em terra indígena hoje: terra batida clara de caminho usado, capim baixo nas beiradas, folhas caídas, algumas mudas plantadas em linha. Cuidado e uso, não abandono.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
   }
 ]
