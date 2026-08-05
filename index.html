@@ -508,7 +508,7 @@
   <div class="telaTit">BRASIL</div>
   <div class="telaTxt" id="menuSub">um jogo sobre quem já estava aqui</div>
   <button class="telaBtn" id="btnJogar">JOGAR</button>
-  <button class="telaBtn sec" id="btnCompletude">O QUE JÁ VI</button>
+  <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
   <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
 </div>
@@ -522,7 +522,7 @@
 
 <!-- COMPLETUDE: o que já foi visto. É o motivo de voltar amanhã. -->
 <div class="tela" id="telaCompletude">
-  <div class="telaTit">O QUE JÁ VI</div>
+  <div class="telaTit">A HISTÓRIA</div>
   <div id="listaCenas"></div>
   <button class="telaBtn" id="btnVoltarComp">VOLTAR</button>
 </div>
@@ -4036,22 +4036,70 @@ function fecharTelas() { TELAS.forEach(function (t) { $(t).classList.remove("abe
 
 // Os nomes das cenas. Não afirmam nada de história — são lugares, e lugar não precisa de
 // fonte. O que precisar de fonte vai para TEXTOS e para o NOTES.md, não para cá.
-const NOME_CENA = ["Litoral", "Praia aberta", "Serra", "Alto da serra", "Mata de hoje", "Beira de rio"];
+// OS MOMENTOS. Lugar não é história — "Litoral" não diz nada. Cada cena passa a ser um
+// momento com DATA, CONTEXTO e FONTE, e a fonte fica visível ao lado do texto.
+//
+// Vive aqui e não em `TEXTOS` pelo mesmo motivo que as fontes: `TEXTOS` é ficção autoral e o
+// smoke test proíbe dígito nela, porque número solto numa frase de jogo lê como fato. Isto é
+// o contrário — precisa de ano, e por isso carrega a fonte junto. Afirmação com data e sem
+// procedência é exatamente o que o §2 existe para impedir.
+//
+// TUDO abaixo veio da pesquisa registrada no NOTES.md. Nada foi inventado para preencher. Se
+// uma linha não tinha fonte, ela não entrou.
+const MOMENTOS = [
+  { q: "século XVI", t: "Antes de qualquer chegada",
+    d: "Os Tupinambá ocupavam a costa atlântica com agricultura, pesca e horticultura — mandioca, tubérculos, divisão do trabalho. Não eram um estágio anterior a nada.",
+    f: "IBGE · Brasil: 500 anos de povoamento" },
+  { q: "1554–1557", t: "O que os europeus escreveram",
+    d: "Hans Staden viveu cativo entre os Tupinambá e escreveu o relato mais citado do período. Ele descreve preocupações europeias tanto quanto realidades indígenas — e a pesquisa moderna lê as duas coisas separadas.",
+    f: "Carneiro da Cunha · Estudos Avançados 4(10), 1990" },
+  { q: "por volta de 1630", t: "Palmares",
+    d: "Milhares de pessoas que fugiram da escravidão ergueram povoados fortificados na serra da Barriga. Não era esconderijo: era um conjunto de vilas com roça, comércio e defesa.",
+    f: "Documenta Palmares · Unicamp" },
+  { q: "1678–1694", t: "Os mocambos, e a guerra contra eles",
+    d: "A documentação nomeia Macaco, Subupira, Amaro, Andalaquituche, Osenga. Quase tudo o que se sabe da forma do lugar vem de quem foi atacá-lo — e os números que essa documentação dá são hoje considerados exagerados.",
+    f: "Silvia H. Lara · Afro-Ásia nº 64, 2021" },
+  { q: "20 de novembro de 1695", t: "Zumbi",
+    d: "Morto após a destruição de Palmares. A data é hoje o Dia da Consciência Negra. A paleografia recente corrige nomes que a historiografia repetia: “Gana Zumba”, não “Ganga Zumba”.",
+    f: "Fundação Cultural Palmares · Lara & Fachin, 2021" },
+  { q: "hoje", t: "E eles continuam aqui",
+    d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de dezesseis anos de processo parado.",
+    f: "IBGE · Censo 2022 · Enciclopédia Povos Indígenas no Brasil" }
+];
 function montarCompletude() {
   const box = $("listaCenas");
   box.textContent = "";
+  box.style.cssText = "overflow-y:auto;max-width:32em;width:100%;text-align:left;margin-bottom:14px;max-height:" + Math.max(200, window.innerHeight - 240) + "px";
   const ate = cenarioAtual();
-  NOME_CENA.forEach(function (nome, i) {
+  MOMENTOS.forEach(function (mo, i) {
+    const visto = i <= ate;
     const l = document.createElement("div");
-    l.className = "cenaLinha" + (i <= ate ? " vista" : "");
+    l.className = "cenaLinha" + (visto ? " vista" : "");
+    l.style.display = "block";
+    const cab = document.createElement("div");
+    cab.style.cssText = "display:flex;gap:8px;align-items:baseline";
     const m = document.createElement("span");
-    m.className = "marca"; m.textContent = i <= ate ? "✓" : "·";
+    m.className = "marca"; m.textContent = visto ? "✓" : "·";
+    const q = document.createElement("span");
+    q.style.cssText = "font-size:11px;letter-spacing:.1em;color:#d9a441;font-weight:900";
+    q.textContent = visto ? mo.q : "— ainda não —";
     const n = document.createElement("span");
-    n.className = "nm";
-    // Cena não vista não revela o nome: o que falta é o motivo de voltar, e nomear tudo de
-    // saída entrega o mapa inteiro na primeira sessão.
-    n.textContent = i <= ate ? nome : "— ainda não —";
-    l.appendChild(m); l.appendChild(n); box.appendChild(l);
+    n.className = "nm"; n.style.fontWeight = "700";
+    n.textContent = visto ? mo.t : "";
+    cab.appendChild(m); cab.appendChild(q); cab.appendChild(n);
+    l.appendChild(cab);
+    // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar, e
+    // entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
+    if (visto) {
+      const d = document.createElement("div");
+      d.style.cssText = "font-size:12px;color:#cfc4a8;line-height:1.55;margin:6px 0 5px";
+      d.textContent = mo.d;
+      const f = document.createElement("div");
+      f.style.cssText = "font-size:10px;color:#8d8272;letter-spacing:.04em";
+      f.textContent = "fonte: " + mo.f;
+      l.appendChild(d); l.appendChild(f);
+    }
+    box.appendChild(l);
   });
 }
 
