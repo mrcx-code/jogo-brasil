@@ -84,15 +84,32 @@
      sitting apart at its right end, not in three separate floating slabs. That is the
      grammar copied here: a single pill, chips inside it, rounded corners, cream on deep
      olive, and the gear as its own square at the end of the row. */
+  /* PAINEL DE JOGO, não barra de site.
+     Era um gradiente translúcido com blur — vocabulário de aplicativo, e a paisagem
+     atravessava o texto. HUD de jogo é OPACO e tem MOLDURA: o olho precisa saber onde a
+     interface começa. A borda é feita de sombras duras empilhadas, nunca de border-radius e
+     nunca de blur, porque pixel art não tem canto redondo nem desfoque. */
   #hudTop { position: fixed; z-index: 10; left: 0; right: 0; top: 0;
     padding-top: env(safe-area-inset-top);
-    display: flex; pointer-events: none;
-    /* a score plate, not a header bar: the street shows through it */
-    background: linear-gradient(180deg, rgba(24,18,10,.72), rgba(24,18,10,.34));
-    backdrop-filter: blur(1px); }
+    display: flex; flex-direction: column; pointer-events: none;
+    background: #1b1610;
+    box-shadow:
+      inset 0 2px 0 #4a3c28,        /* luz na aresta de cima */
+      inset 0 -2px 0 #0a0806,       /* sombra na de baixo */
+      0 3px 0 #0a0806,              /* o degrau que separa do mundo */
+      0 5px 0 rgba(0,0,0,.45); }
+  /* a barra da época: o progresso vira coisa que se vê, não número que se lê */
+  #barraEpoca { height: 7px; margin: 0 10px 8px; background: #0d0b08;
+    box-shadow: inset 0 0 0 2px #3a2f20; position: relative; overflow: hidden; }
+  #barraEpocaFill { height: 100%; width: 0%; background: #d9a441;
+    box-shadow: inset 0 2px 0 #ffd98a, inset 0 -2px 0 #9a6f22;
+    transition: width .35s ease-out; }
   /* the three drop counters: small, quiet, and only as wide as their numbers */
-  #recursos { display: flex; align-items: center; gap: 14px; margin-left: 18px; }
-  .rec { display: flex; align-items: center; gap: 6px; }
+  #hudLinha { display: flex; align-items: center; }
+  /* cada contador num nicho próprio, como slot de inventário */
+  #recursos { display: flex; align-items: center; gap: 7px; margin-left: 10px; }
+  .rec { display: flex; align-items: center; gap: 5px; padding: 3px 7px 3px 4px;
+    background: #100d09; box-shadow: inset 0 0 0 2px #3a2f20; }
   .rec b { font-size: var(--fs-sm); font-weight: 900; color: #f4e3bb;
     font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 rgba(0,0,0,.75); }
   .pd { image-rendering: pixelated; width: 26px; height: 26px; }
@@ -383,6 +400,7 @@
 
 <!-- The board's top bar: one dark rail of counters, and a gear standing apart at its end. -->
 <div id="hudTop">
+  <div id="hudLinha">
   <div id="barraTopo">
     <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="12" height="12"></canvas>
       <div class="cInfo"><div class="valor" id="energia">0</div><div class="rotulo" id="rotuloEpoca">ÉPOCA 1 · 0%</div></div></div>
@@ -394,6 +412,8 @@
     </div>
     <!-- owner: the third chip (world %) is gone — the top row is impact and team only. -->
   </div>
+  </div>
+  <div id="barraEpoca"><div id="barraEpocaFill"></div></div>
 </div>
 
 <div id="offline"></div>
@@ -434,6 +454,7 @@
     <div class="upgrade" id="cardU2"><span class="nome">×2<br>no que pega</span><button id="btnU2"></button></div>
     <div class="upgrade" id="cardU3"><span class="nome">2/s<br>sozinhos</span><button id="btnU3"></button></div>
     <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
+    <div class="upgrade teste" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>
 
@@ -3746,7 +3767,11 @@ function desenhar() {
   $("nFlor").textContent = S.recursos.flor | 0;
   // a leitura de progresso: em que época você está e quanto falta para virar
   const pc = Math.floor(progressoCena() * 100);
-  $("rotuloEpoca").textContent = "ÉPOCA " + (Math.floor(cenarioAtual() / 2) + 1) + " · " + pc + "%";
+  // Só "ÉPOCA 3": a porcentagem em texto ficou redundante com a barra logo abaixo, e o texto
+  // longo esbarrava nos contadores. Duas leituras da mesma coisa competindo pelo mesmo espaço
+  // é pior que uma boa — a barra responde "quanto falta" mais rápido que um número.
+  $("rotuloEpoca").textContent = "ÉPOCA " + (Math.floor(cenarioAtual() / 2) + 1);
+  $("barraEpocaFill").style.width = pc + "%";
   $("nAgua").textContent = S.recursos.agua | 0;
   $("nRef").textContent = S.recursos.refeicao | 0;
   pintarIconesDrop();
@@ -3802,6 +3827,43 @@ function desenhar() {
 
 // owner: the top alert strip is gone (element, style and text). Kept as an empty function
 // because the frame loop and several state changes still call it.
+// ZERAR — interruptor de teste, irmão do u4 e com o mesmo vermelho.
+//
+// Duas decisões:
+//
+// 1. NÃO usa confirm(). Diálogo do navegador no meio de um jogo em tela cheia quebra a
+//    imersão e, no celular, aparece fora do lugar. O confirme é DOIS TOQUES no próprio
+//    botão: o primeiro pergunta, o segundo apaga, e a pergunta expira em 4s sozinha. Sem
+//    isso, um toque distraído apaga a partida de alguém.
+// 2. Zera pelo ESQUEMA, não por localStorage.clear(). Escrever os padrões e salvar é o
+//    caminho que já passa pela validação; limpar o storage na mão deixaria o estado em
+//    memória vivo e o próximo autosave regravaria tudo de volta — que foi exatamente o que
+//    aconteceu quando tentei zerar pelo console.
+let zerarArmado = 0;
+function zerarJogo() {
+  const agora = Date.now();
+  const b = $("btnU5");
+  if (agora - zerarArmado > 4000) {          // primeiro toque: pergunta
+    zerarArmado = agora;
+    if (b) b.textContent = "tem certeza?";
+    setTimeout(function () { if (b && Date.now() - zerarArmado >= 4000) b.textContent = "apagar"; }, 4100);
+    return;
+  }
+  zerarArmado = 0;                            // segundo toque: apaga
+  S.energia = 0; S.energiaTotal = 0; S.cenario = 0;
+  S.u1 = S.u2 = S.u3 = S.u4 = false;
+  S.modo = "limpo";
+  S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+  worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
+  salvar();
+  try { localStorage.removeItem(CHAVE_RET); } catch (e) {}
+  R = { dias: [], segundos: 0, tochas: 0 };
+  if (b) b.textContent = "apagado";
+  redesenharFundo();
+  desenhar();
+  setTimeout(function () { if (b) b.textContent = "apagar"; }, 1500);
+}
+
 function alertaMundo() {}
 
 function anunciar(txt, tom) {
@@ -3912,6 +3974,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // any other tap dismisses the step WITHOUT consuming the event, so the same tap still
   // reaches the game underneath (this is a capture-phase listener that only sets state). A
   // short grace stops a tap already in flight when a step appears from killing it unread.
+  $("btnU5").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); });
   $("guiaOk").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); dispensarGuia(); });
   $("guiaSkip").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pularGuia(); });
   document.addEventListener("pointerdown", function (e) {
