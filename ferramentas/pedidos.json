@@ -1,98 +1,90 @@
 [
   {
-    "nome": "sprite-cap1-andar",
-    "titulo": "1 · Sprite · caminhada, capítulo 1",
-    "referencia": "Tupinambá, litoral, séc. XVI · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
-    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
+    "nome": "sprite-cap1-pular",
+    "titulo": "1 · Sprite cap.1 · SALTO",
+    "referencia": "completa o capítulo jogável · 6 quadros",
+    "tamanho": "1024×1024 · grade 3x2 · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem Tupinambá do litoral atlântico brasileiro do século XVI, pele morena, cabelo escuro liso na altura do queixo.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, visto de perfil: o ciclo começa com o pé direito à frente, passa pela passada, e volta à posição inicial. Passos largos e calmos, sem pressa.\n\nATENÇÃO: NADA de iconografia indígena norte-americana. Sem cocar de penas das Planícies, sem machadinha, sem pintura facial genérica de faroeste. Isto é litoral atlântico do Brasil, não América do Norte — e modelos de imagem erram isso sozinhos, com confiança.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil: impulso, subida, ápice, descida, aterrissagem.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, séc. XVI.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "sprite-cap1-correr",
-    "titulo": "2 · Sprite · corrida, capítulo 1",
-    "referencia": "mesma pessoa do pedido 1 · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
-    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
+    "nome": "sprite-cap1-alcancar",
+    "titulo": "2 · Sprite cap.1 · ALCANÇAR",
+    "referencia": "completa o capítulo jogável · 4 quadros",
+    "tamanho": "1024×1024 · grade 4x1 · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA pessoa do pedido anterior — mesmo cabelo, mesma roupa, mesmas cores.\n\nOs 12 quadros são um CICLO DE CORRIDA completo, de perfil: passada longa, tronco inclinado à frente, e uma fase de voo em que os dois pés saem do chão.\n\nATENÇÃO: NADA de iconografia indígena norte-americana. Litoral atlântico do Brasil, século XVI.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente, na altura do peito: o braço estende, a mão abre, pega, e recolhe. NÃO é golpe, não é soco, não é ataque — é colher, pegar, acolher.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, séc. XVI.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "sprite-cap2-andar",
-    "titulo": "3 · Sprite · caminhada, capítulo 2",
-    "referencia": "Palmares, séc. XVII · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
-    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem negra de Palmares, no interior de Alagoas do século XVII, pele retinta, cabelo crespo curto, roupa simples de tecido de algodão cru.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, de perfil. Postura ereta e firme, passo decidido — é gente livre, na terra dela.\n\nATENÇÃO: nada de iconografia de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência: o protagonismo aqui é de quem resistia, e o capítulo é sobre a vida no quilombo.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
-  },
-  {
-    "nome": "sprite-cap3-andar",
-    "titulo": "4 · Sprite · caminhada, capítulo 3",
-    "referencia": "presente, terra indígena demarcada · 12 quadros em grade 4x3 · CAMINHO CRÍTICO",
-    "tamanho": "1024×1024 · grade 4 colunas × 3 linhas · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nUma pessoa adulta jovem indígena brasileira HOJE, no século XXI, em terra demarcada. Pele morena, cabelo escuro. Roupa do dia a dia contemporânea — camiseta e bermuda — com um adorno discreto, porque a pessoa vive nos dois mundos e isso é o ponto do capítulo.\n\nOs 12 quadros são um CICLO DE CAMINHADA completo, de perfil, passo tranquilo de quem está em casa.\n\nATENÇÃO: não é figura histórica nem de museu. É uma pessoa de hoje, e o capítulo existe para dizer que esses povos continuam aqui.\n\nFORMATO — LEIA COM ATENÇÃO, é o que mais falha:\n- UMA imagem quadrada de 1024x1024, dividida em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro em toda a imagem, atrás de todos os quadros.\n- SEM linhas de grade desenhadas, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os doze quadros numa mancha só e o recortador quebra.\n- Cada figura inteira dentro da sua célula, de CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA — o requisito mais difícil: é a MESMA PESSOA nos doze quadros. Mesmo cabelo, mesma roupa, mesmas cores, mesma altura. O que muda entre um quadro e outro é SÓ a pose."
-  },
-  {
-    "nome": "cap1-det-palmeira",
-    "titulo": "10 · Cap. 1 · palmeira de frente",
-    "referencia": "detalhe de frente, fica na beira da tela",
+    "nome": "cap2-obj-roca",
+    "titulo": "3 · Objeto · CAP2",
+    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma palmeira jovem inteira, tronco fino e folhas largas abertas, vista de perfil.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um feixe de mandioca recém-colhida, raízes marrons compridas amarradas com fibra\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
   },
   {
-    "nome": "cap1-det-pedra",
-    "titulo": "11 · Cap. 1 · pedra com musgo",
-    "referencia": "detalhe de frente, fica na beira da tela",
+    "nome": "cap3-obj-cesto",
+    "titulo": "4 · Objeto · CAP3",
+    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma pedra grande arredondada de rio, coberta de musgo verde de um lado.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto de fibra com frutas e legumes de horta, colorido\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
   },
   {
-    "nome": "cap2-det-samambaia",
-    "titulo": "12 · Cap. 2 · samambaia grande",
-    "referencia": "detalhe de frente, fica na beira da tela",
+    "nome": "cap3-obj-agua",
+    "titulo": "5 · Objeto · CAP3",
+    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
     "tamanho": "QUADRADO ~1024×1024 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma samambaia arborescente, folhas recortadas abrindo em leque.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um galão de água de plástico azul translúcido, cheio\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
   },
   {
-    "nome": "cap3-det-bananeira",
-    "titulo": "13 · Cap. 3 · bananeira",
-    "referencia": "detalhe de frente, fica na beira da tela",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "nome": "sprite-cap2-correr",
+    "titulo": "6 · Sprite cap2 · CORRIDA",
+    "referencia": "a pessoa de Palmares, séc. XVII · 12 quadros",
+    "tamanho": "1024×1024 · grade 4x3 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma bananeira com folhas largas rasgadas pelo vento e um cacho verde.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 12 quadros são um CICLO DE CORRIDA de perfil: passada longa, tronco à frente, com fase de voo.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "icone-folha",
-    "titulo": "14 · Ícone · folha",
-    "referencia": "ícone do HUD · precisa ler a 26 px",
-    "tamanho": "QUADRADO ~512×512 · magenta",
+    "nome": "sprite-cap2-pular",
+    "titulo": "7 · Sprite cap2 · SALTO",
+    "referencia": "a pessoa de Palmares, séc. XVII · 6 quadros",
+    "tamanho": "1024×1024 · grade 3x2 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma folha tropical simples, verde, de perfil — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "icone-agua",
-    "titulo": "15 · Ícone · água",
-    "referencia": "ícone do HUD · precisa ler a 26 px",
-    "tamanho": "QUADRADO ~512×512 · magenta",
+    "nome": "sprite-cap2-alcancar",
+    "titulo": "8 · Sprite cap2 · ALCANÇAR",
+    "referencia": "a pessoa de Palmares, séc. XVII · 4 quadros",
+    "tamanho": "1024×1024 · grade 4x1 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma gota de água azul — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente. NÃO é golpe nem ataque — é colher, pegar, acolher.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "icone-cesto",
-    "titulo": "16 · Ícone · cesto",
-    "referencia": "ícone do HUD · precisa ler a 26 px",
-    "tamanho": "QUADRADO ~512×512 · magenta",
+    "nome": "sprite-cap3-correr",
+    "titulo": "9 · Sprite cap3 · CORRIDA",
+    "referencia": "a pessoa indígena de hoje, séc. XXI · 12 quadros",
+    "tamanho": "1024×1024 · grade 4x3 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto trançado pequeno visto de frente — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 12 quadros são um CICLO DE CORRIDA de perfil: passada longa, tronco à frente, com fase de voo.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   },
   {
-    "nome": "icone-passo",
-    "titulo": "17 · Ícone · ritmo",
-    "referencia": "ícone do HUD · precisa ler a 26 px",
-    "tamanho": "QUADRADO ~512×512 · magenta",
+    "nome": "sprite-cap3-pular",
+    "titulo": "10 · Sprite cap3 · SALTO",
+    "referencia": "a pessoa indígena de hoje, séc. XXI · 6 quadros",
+    "tamanho": "1024×1024 · grade 3x2 · magenta",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma pegada de pé descalço — ícone de interface, silhueta limpa e legível em tamanho pequeno. Formas grandes e poucas, sem detalhe fino: isto vai ser visto com 26 pixels de altura.\n\nFORMATO: objeto único e centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada, o objeto sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
+  },
+  {
+    "nome": "sprite-cap3-alcancar",
+    "titulo": "11 · Sprite cap3 · ALCANÇAR",
+    "referencia": "a pessoa indígena de hoje, séc. XXI · 4 quadros",
+    "tamanho": "1024×1024 · grade 4x1 · magenta",
+    "origem": "",
+    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente. NÃO é golpe nem ataque — é colher, pegar, acolher.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   }
 ]
