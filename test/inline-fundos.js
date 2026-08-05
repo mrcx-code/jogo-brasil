@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
 const RAIZ = path.resolve(__dirname, '..');
 const ARQ = path.join(RAIZ, 'index.html');
 const DIR = path.join(RAIZ, 'assets', 'cenarios-novos');
-const CAPS = ['cap1', 'cap2', 'cap3'];
+const CAPS = ['cap1', 'cap1v', 'cap2', 'cap2v', 'cap3', 'cap3v'];
 const QUAL = 0.92;
 
 (async () => {
