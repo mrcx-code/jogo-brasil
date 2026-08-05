@@ -411,7 +411,7 @@ function chromiumPath() {
     return Object.keys(JSON.parse(localStorage.getItem(CHAVE_JOGO))).sort();
   });
   console.log('save written ->', chaves.join(', '));
-  const esperadas = ['cenario', 'cuidado', 'energia', 'energiaTotal', 'modo', 'salvoEm', 'u1', 'u2', 'u3', 'u4'];
+  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'modo', 'salvoEm', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));

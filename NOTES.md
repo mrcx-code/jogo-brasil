@@ -133,7 +133,9 @@ Decidido em 2026-08-04. As cinco perguntas que abriam esta seção estão respon
 - Referência visual do capítulo 1 **precisa ser aprovada pelo dono antes** de qualquer prompt
   de imagem. Modelos de imagem devolvem cocar das Planícies norte-americanas para um povo do
   litoral atlântico do séc. XVI — o erro do §2.1 gerado automaticamente, com confiança.
-- Formato das pontes: caixa de texto estilo jogo antigo (referência do dono: Pokémon).
+- ~~Formato das pontes: caixa de texto estilo jogo antigo (referência do dono: Pokémon).~~
+  **Feito.** Virou a caixa de fala: personagem à esquerda, texto revelado letra a letra, toque
+  para avançar, PULAR discreto. O conteúdo é `EPOCAS`, escrito pelo dono.
 
 ## Medidas reais da arte, para gerar a nova
 
@@ -549,9 +551,9 @@ as 15 do `PROMPTS.md`.
 O jogo tem uma tela só. Faltam quatro, em ordem de valor:
 
 1. **Menu inicial.** Hoje o jogo começa sem começar. É a primeira impressão e não existe.
-2. **Transição entre capítulos.** É onde as PONTES vivem — o texto curto que contextualiza,
-   estilo caixa de jogo antigo (referência do dono: Pokémon). Toda afirmação histórica ali
-   precisa de fonte no `NOTES.md`, e o `TEXTOS` já é varrido pelo smoke test contra dígitos.
+2. ~~**Transição entre capítulos.**~~ **Feita**, e ela virou mais que transição: a abertura de
+   cada capítulo fala **antes** de a pessoa jogar, e o fecho fala ao completá-lo. O texto é do
+   dono e vive em `EPOCAS` — não em `TEXTOS`, que é ficção autoral e não pode conter dígito.
 3. **Visão de completude.** O que a pessoa já viu e o que falta. É o motivo de voltar amanhã.
 4. **Configurações.** Som (que não existe ainda), e apagar o save.
 
@@ -806,3 +808,83 @@ encurtar o alcance de 80 px, que o §7 registra como deliberado e eu não mexi.
 seco reencontra o mundo seco — 15 s de jogo desfazem, mas a primeira tela do dia 2 é a pior
 possível. Uma volta em direção ao neutro enquanto se está fora resolveria; não fiz porque
 mexeria no ganho offline, que é item próprio.
+
+### 2026-08-05 · os capítulos ganham nome e falam antes de você jogar
+
+**O pedido do dono, e ele é o coração do jogo:** contexto histórico não pode ficar escondido
+numa tela de menu. A pessoa abre o jogo e, **antes de jogar**, recebe uma conversa que explica
+onde ela está — caixa de diálogo de jogo antigo, referência dele: Pokémon. **O texto é dele,
+palavra por palavra.** Nenhuma linha foi escrita, completada ou "melhorada na transição" aqui.
+
+**As três épocas deixaram de ser números.** `ÉPOCA 1/2/3` virou `ANTES DA CHEGADA`,
+`PALMARES` e `AINDA AQUI`, cada uma com um `quando` (lugar e século) e duas conversas: a
+**abertura**, na primeira vez que se entra no capítulo, e o **fecho**, ao completá-lo.
+
+**Onde esse texto mora, e por quê.** Numa estrutura própria, `EPOCAS`, ao lado de `MOMENTOS` e
+`FONTES` — **nunca em `TEXTOS`**. As falas carregam 1500, 1630, 2022; `TEXTOS` é ficção autoral
+e o smoke test falha se qualquer linha dela contiver dígito. As duas naturezas são diferentes e
+misturá-las apagaria a regra que protege as duas. É o §2 com dentes, e ele continua de pé.
+
+**Números da conversa,** medidos na página:
+
+| capítulo | abertura | fecho | revelação da abertura |
+|---|---:|---:|---:|
+| ANTES DA CHEGADA | 4 falas · 454 car. | 4 falas · 370 car. | 8,2 s |
+| PALMARES | 4 falas · 366 car. | 4 falas · 432 car. | 6,6 s |
+| AINDA AQUI | 4 falas · 416 car. | 3 falas · 259 car. | 7,5 s |
+
+A 18 ms por letra. **Toques por abertura: 4 se você deixa cada fala aparecer, 8 se você toca
+por cima** — o primeiro toque completa a revelação, o segundo avança. Nunca se pula uma fala
+sem querer, que é o motivo de a regra ser essa e não "um toque avança sempre".
+
+**A altura da caixa não é um número escolhido, e não podia ser.** Medida a mesma fala em três
+larguras: **5 linhas a 430 px, 6 a 390, 8 a 320**. Qualquer `min-height` erra numa das pontas, e
+caixa que cresce letra a letra faz a moldura pular enquanto se lê. A solução é uma grade de uma
+célula só com **todas as falas da conversa empilhadas invisíveis dentro dela**: a célula nasce
+do tamanho da mais alta, exatamente, em qualquer largura.
+
+**O nome não cabia onde o número cabia.** No chip do topo, espremido entre o impacto e os três
+contadores, sobravam **73 px** para o rótulo e `ANTES DA CHEGADA` saía como `ANTES DA …`. O
+rótulo desceu para a linha da barra de progresso — que é justamente o que ele nomeia — e agora
+cabe inteiro nos três capítulos.
+
+**Dois bugs que a tarefa achou de passagem, os dois vivos em produção:**
+
+1. **O menu abria para todo mundo.** `if (!S.energiaTotal) abrirTela("telaMenu")` estava
+   **acima** de `carregar()`, então `S.energiaTotal` ainda era 0 para qualquer save e quem
+   estava no meio de uma partida caía no menu toda vez. A decisão desceu para depois da leitura
+   do save. O `PRODUTO.md` cita essa linha e não pegou a ordem.
+2. **Aparar não serve para máscara de bits.** `ESQUEMA_SAVE` só tinha `num`, que apara na
+   faixa: um save com `aberturas: 999` viraria 7, isto é, **"já viu tudo"**, e trancaria o
+   conteúdo histórico — a razão de o jogo existir — por causa de um save torto. Entrou o tipo
+   `bits`: inteiro, dentro da faixa, ou o padrão 0. Fora da faixa erra para o lado de MOSTRAR.
+
+**O capítulo 3 não tinha 100%, logo o fecho dele nunca falaria.** `proximoLimiar()` devolvia
+`null` na última cena e a barra ficava cheia para sempre. `LIMIAR_FIM` é **derivado** do passo
+plano que as outras cinco cenas já usam (`último + (segundo − primeiro)` = 9.000), não escolhido
+à parte: se o passo mudar, ele muda junto. Não abre cena nova; só fecha a última, e é o que faz
+a última fala do jogo existir. **Isto mexe em ritmo e é a única coisa aqui que o dono pode
+querer rever** — o resto é conteúdo dele e interface.
+
+**O que saiu:** `telaPonte`, `mostrarPonte()` e `ponteDepois`. A tela existia, era chamada com
+`TEXTOS[n]` (vazio) e desenhava uma moldura em volta do silêncio — o `PRODUTO.md` a lista como
+item 4 do backlog, dizendo que moldura vazia é pior que nenhuma tela. A caixa de fala ocupa o
+mesmo lugar com o texto que faltava.
+
+**A tela A HISTÓRIA** passou a agrupar os seis momentos por capítulo, com o mesmo nome que o
+HUD mostra e a fala anuncia. Uma fonte só, `EPOCAS`, para os três lugares nunca discordarem.
+
+**O teste aprendeu a conversa,** e não só a atravessá-la: JOGAR abre a fala, ela aparece letra a
+letra (3 de 115 caracteres 60 ms depois de abrir), um toque completa a linha, a caixa fecha em 8
+toques, e **não volta**. Mais a virada de capítulo (o fecho fala, a cena só troca depois dele, e
+ele encadeia na abertura do seguinte), o fim do capítulo 3, e um save adulterado com
+`aberturas: 99` e `fechos: "tudo"`. Smoke verde duas vezes seguidas, 61–62 FPS.
+
+**O que achei frágil.** (a) A fala é a única coisa do jogo que **para** a partida, e o mundo
+continua andando atrás — o impacto sobe enquanto se lê, e quem lê tudo chega ao fim do capítulo
+com mais impacto do que quem pula. É pequeno hoje e cresce se as conversas crescerem. (b) O
+retrato é `HERO_SPR.walk[0]`, um quadro de caminhada: a personagem "fala" de perfil, andando.
+É a mesma pessoa que se joga, que era o pedido, mas uma pose parada de frente seria melhor e é
+arte que não existe. (c) A abertura do capítulo 1 dispara no **JOGAR**, não no carregamento:
+quem já tem partida em andamento e nunca viu a fala do capítulo em que está a recebe no boot,
+o que é certo, mas é a única fala que aparece sem alguém ter apertado nada.
