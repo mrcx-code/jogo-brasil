@@ -557,3 +557,42 @@ O jogo tem uma tela só. Faltam quatro, em ordem de valor:
 
 Nenhuma delas precisa de arte nova: são interface, e a interface do jogo já tem vocabulário
 próprio (as sheets de MELHORIAS). Fazer com o que existe é mais rápido e fica mais coeso.
+
+### 2026-08-05 · a passada medida na arte nova, e um problema que a medição achou
+
+**A medição que bloqueava a troca da personagem, feita.** Na folha `sprite-cap1-andar`,
+recortada em 4×3:
+
+| | arte antiga | arte nova |
+|---|---:|---:|
+| maior abertura pé a pé | 85,5 px de sprite | **132 px** |
+| altura da figura nessa pose | 184 px | **315 px** |
+| escala para 44 px de mundo | 0,239 | **0,1397** |
+| PASSO (meio passo) | 20,45 px | **18,44 px** |
+| **PASSADA (ciclo)** | 40,9 px | **36,88 px** |
+
+A passada nova é ~10% MENOR, não maior — contra a intuição, porque a figura adulta é mais
+alta em pixels de arte, então a escala para caber nos mesmos 44 px de mundo é mais agressiva
+e come a diferença da perna mais longa.
+
+**Mas a medição achou um problema maior que o que foi resolver.** O vão pé-a-pé quadro a
+quadro:
+
+```
+110  94  132  131  |  22  27  26  25  |  125  51  52  51
+```
+
+**Isso não é um ciclo de caminhada.** Ciclo real vai de aberto a fechado e volta, de forma
+contínua. Aqui há um degrau brusco — quatro quadros abertos, quatro quase fechados, e depois
+valores que não fecham o laço. O modelo desenhou **doze poses da mesma pessoa** (CV de 1,0%
+na cabeça, isso ele acertou e era o difícil), mas não desenhou **um ciclo**.
+
+Consequência: embutir assim faz a caminhada ler como tropeço, e aí `PASSO_PX` correto não
+salva. **O bloqueio da troca de personagem deixou de ser medição e passou a ser a arte.**
+
+Duas saídas, e a segunda é melhor:
+1. Escolher a dedo os quadros que formam uma progressão e descartar o resto — sobra um ciclo
+   de 6 ou 8 quadros, e as velocidades teriam que ser refeitas para `PASSO × 60 / n`.
+2. Pedir a folha de novo com o ciclo descrito **pose a pose** no prompt, em vez de "um ciclo
+   de caminhada completo". O modelo não sabe o que é fase de contato, de passagem e de
+   impulso; ele sabe desenhar o que for descrito.
