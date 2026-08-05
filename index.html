@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -385,7 +385,7 @@
 <div id="hudTop">
   <div id="barraTopo">
     <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="12" height="12"></canvas>
-      <div class="cInfo"><div class="valor" id="energia">0</div><div class="rotulo">IMPACT</div></div></div>
+      <div class="cInfo"><div class="valor" id="energia">0</div><div class="rotulo">IMPACTO</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
       <span class="rec"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
@@ -401,8 +401,8 @@
 <div id="guia" aria-live="polite">
   <div class="guiaBolha">
     <div id="guiaV"></div>
-    <div class="guiaRow"><button id="guiaOk" type="button">got it</button>
-      <button id="guiaSkip" type="button">skip</button></div>
+    <div class="guiaRow"><button id="guiaOk" type="button">entendi</button>
+      <button id="guiaSkip" type="button">pular</button></div>
     <div class="guiaCaret"></div>
   </div>
 </div>
@@ -415,24 +415,24 @@
 <div id="controls">
   <div id="cartoes">
     <button id="modeQuick" class="cartao"><canvas class="pi" id="modeIcon" width="12" height="12"></canvas>
-      <span class="cn" id="modeNome">FAST</span><span class="cv" id="modeSub"></span></button>
+      <span class="cn" id="modeNome">CORRER</span><span class="cv" id="modeSub"></span></button>
     <div id="rail">
       <button id="btnClique"><canvas class="pi big" data-i="sword" width="12" height="12"></canvas><span>+<span id="ganhoClique">1</span></span></button>
     </div>
     <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="12" height="12"></canvas>
-      <span class="cn">UPGRADES</span></button>
+      <span class="cn">MELHORIAS</span></button>
   </div>
 </div>
 
 
 
 <div class="sheet" id="sheetUpgrades">
-  <div class="sheetHead"><div class="t">UPGRADES</div>
+  <div class="sheetHead"><div class="t">MELHORIAS</div>
     <button class="fechar" data-close="sheetUpgrades">✕</button></div>
   <div id="listaUp">
-    <div class="upgrade" id="cardU1"><span class="nome">×3<br>per hit</span><button id="btnU1"></button></div>
-    <div class="upgrade" id="cardU2"><span class="nome">×2<br>per pickup</span><button id="btnU2"></button></div>
-    <div class="upgrade" id="cardU3"><span class="nome">2 hits/s<br>on their own</span><button id="btnU3"></button></div>
+    <div class="upgrade" id="cardU1"><span class="nome">×3<br>por alcance</span><button id="btnU1"></button></div>
+    <div class="upgrade" id="cardU2"><span class="nome">×2<br>no que pega</span><button id="btnU2"></button></div>
+    <div class="upgrade" id="cardU3"><span class="nome">2/s<br>sozinhos</span><button id="btnU3"></button></div>
     <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
   </div>
 </div>
@@ -852,7 +852,7 @@ function definirModo(m) {
   // The rhythm decides how fast the street goes past and which cycle she runs. It used to
   // report a rate change, a settling rate and a team-health figure as well; those belonged to
   // the passive economy and all of them read zero now.
-  floats.push({ x: HX - 10, y: GROUND - 44, txt: rapido ? "GO FAST!" : "GO STEADY!", life: 52 });
+  floats.push({ x: HX - 10, y: GROUND - 44, txt: rapido ? "CORRER!" : "ANDAR!", life: 52 });
   burst(HX + 6, GROUND - 20, 26, rapido ? ["#ff6b57", "#ffcd75", "#ffe9b0"] : ["#38b764", "#6fdd94", "#b5e08c"]);
   for (let i = 0; i < 14; i++) {   // a column of sparks going up: revving, or exhaling
     parts.push({ x: HX + 4 + (Math.random() - 0.5) * 26, y: GROUND - 4,
@@ -3627,7 +3627,7 @@ function fmt(n) {
   if (n >= 1e9) return (n / 1e9).toFixed(3) + "B";
   if (n >= 1e6) return (n / 1e6).toFixed(3) + "M";
   if (n >= 1e4) return (n / 1e3).toFixed(1) + "K";
-  return Math.floor(n).toLocaleString("en-US");
+  return Math.floor(n).toLocaleString("pt-BR");
 }
 function desenhar() {
   verificarCenario();
@@ -3641,7 +3641,7 @@ function desenhar() {
   // the rhythm card: icon, name and colour follow S.modo. This used to live in
   // desenharRitmo(), inside the projects panel that is gone.
   const rapido = S.modo === "carvao";
-  $("modeNome").textContent = rapido ? "FAST" : "STEADY";
+  $("modeNome").textContent = rapido ? "CORRER" : "ANDAR";
   $("modeQuick").className = "cartao " + (rapido ? "fast" : "steady");
   if (modoIconeAtual !== S.modo) {
     modoIconeAtual = S.modo;
@@ -3662,7 +3662,7 @@ function desenhar() {
   [1, 2, 3, 4].forEach(function (n) {
     const custo = CFG["custoU" + n], comprado = S["u" + n];
     $("cardU" + n).classList.toggle("comprado", comprado);
-    $("btnU" + n).textContent = comprado ? "✓" : (custo === 0 ? "FREE" : fmt(custo));
+    $("btnU" + n).textContent = comprado ? "✓" : (custo === 0 ? "GRÁTIS" : fmt(custo));
     $("btnU" + n).disabled = comprado || S.energia < custo;
   });
 
