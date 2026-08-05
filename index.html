@@ -3227,7 +3227,11 @@ function desenharFrente(fx, g) {
   const desl = worldX * FRENTE_VEL;
   const i0 = Math.floor(desl / FRENTE_PASSO) - 2;
   const quantos = Math.ceil(W / FRENTE_PASSO) + 5;
-  const chao = FUNDO_GROUND_DST * g.ch;
+  // O CHÃO É O DA PERSONAGEM, não uma fração da altura da tela. Estava em
+  // FUNDO_GROUND_DST * altura, que é onde o horizonte da PINTURA cai — não onde o pé dela
+  // encosta. Por isso a folhagem voava. A personagem pousa em GROUND * ky, e é essa a única
+  // linha que vale: quem divide o chão com ela tem que usar a mesma conta.
+  const chao = GROUND * (g.ch / H);
   for (let k = 0; k < quantos; k++) {
     const n = i0 + k;
     const h = ((n * 2654435761) >>> 0);
