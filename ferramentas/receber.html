@@ -31,6 +31,24 @@
   button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 12px; padding: 6px 12px;
                       font-size: 13px; }
   .vazio { color: #8d8a80; font-size: 14px; }
+  /* ROADMAP: fila sem destino e so lista de tarefas. */
+  #roadmap { margin-top: 40px; border-top: 1px solid #2c3038; padding-top: 22px; }
+  #roadmap h2 { font-size: 15px; margin: 0 0 4px; }
+  .rmFase { margin: 20px 0 0; }
+  .rmTit { font-size: 13px; font-weight: 700; color: #b8c9a8; }
+  .rmPor { font-size: 12px; color: #8d8a80; margin: 3px 0 9px; line-height: 1.5; }
+  .rmItem { background: #191c23; border: 1px solid #2c3038; border-radius: 6px;
+            padding: 9px 12px; margin-bottom: 6px; }
+  .rmL { display: flex; gap: 8px; align-items: baseline; }
+  .rmS { font-size: 10px; letter-spacing: .06em; padding: 2px 6px; border-radius: 3px;
+         flex: 0 0 auto; text-transform: uppercase; }
+  .s-bloqueado { background: #4a2a20; color: #e0a08a; }
+  .s-na-fila { background: #2a3a4a; color: #8ab8e0; }
+  .s-a-fazer { background: #2c3038; color: #b0aca2; }
+  .s-trava-do-dono { background: #4a3a1a; color: #ffcd75; }
+  .s-medir { background: #2a4a32; color: #8fd96a; }
+  .rmT { font-size: 13px; color: #e8e6df; font-weight: 600; }
+  .rmN { font-size: 12px; color: #8d8a80; margin-top: 5px; line-height: 1.55; }
   .resposta { margin-top: 14px; padding: 12px; border-radius: 6px; border-left: 3px solid #3a4049;
               background: #101218; }
   .resposta.vOk { border-left-color: #38b764; }
@@ -59,6 +77,7 @@
 <p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
 Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
 <div id="lista"><p class="vazio">carregando…</p></div>
+<div id="roadmap"></div>
 
 <script>
 // A página é burra de propósito: lê a lista de pedidos que o Claude escreveu, recebe uma
@@ -155,6 +174,34 @@ function marcarRecebidas() {
     }
   }).catch(function () {});
 }
+
+// O roadmap vive abaixo da fila porque fila sem destino e so lista de tarefas: da para
+// entregar os cinco pedidos e nao saber para onde o jogo esta indo.
+function montarRoadmap() {
+  fetch("/roadmap").then(r => r.json()).then(function (rm) {
+    const box = document.getElementById("roadmap");
+    box.textContent = "";
+    if (!rm.fases) return;
+    box.appendChild(el("h2", null, "Para onde o jogo vai"));
+    box.appendChild(el("p", "sub", rm._ || ""));
+    rm.fases.forEach(function (f) {
+      const d = el("div", "rmFase");
+      d.appendChild(el("div", "rmTit", f.titulo));
+      d.appendChild(el("div", "rmPor", f.porque || ""));
+      (f.itens || []).forEach(function (i) {
+        const it = el("div", "rmItem");
+        const l = el("div", "rmL");
+        l.appendChild(el("span", "rmS s-" + String(i.s || "").replace(/ /g, "-"), i.s || ""));
+        l.appendChild(el("span", "rmT", i.t));
+        it.appendChild(l);
+        if (i.n) it.appendChild(el("div", "rmN", i.n));
+        d.appendChild(it);
+      });
+      box.appendChild(d);
+    });
+  }).catch(function () {});
+}
+montarRoadmap();
 
 function puxar() {
   marcarRecebidas();

@@ -57,9 +57,18 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
-  // REVISAR: compara o que o jogo precisa (necessario.json) com o que ja chegou
-  // (assets/entrada) e repoe na fila so o que falta. Existe porque a fila vinha sendo podada
-  // a mao — por mim — e mao esquece. O servidor ja sabia o que tem em disco; faltava saber o
+  // Para onde o jogo vai. Fila sem destino é só lista de tarefas.
+  if (req.method === 'GET' && url === '/roadmap') {
+    let r = null;
+    try { r = fs.readFileSync(path.join(__dirname, 'roadmap.json'), 'utf8'); } catch (e) {}
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(r || '{}');
+    return;
+  }
+
+  // REVISAR: compara o que o jogo precisa (necessario.json) com o que já chegou
+  // (assets/entrada) e repõe na fila só o que falta. Existe porque a fila vinha sendo podada
+  // à mão — por mim — e mão esquece. O servidor já sabia o que tem em disco; faltava saber o
   // que o jogo consome.
   if (req.method === 'POST' && url === '/revisar') {
     let nec;
