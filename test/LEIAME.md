@@ -13,24 +13,53 @@ adulterado envenenar o estado, ou se os monstros pararem de andar. Salva prints
 
 ## Pipeline de sprites
 
-A arte da personagem chega de fora como uma folha horizontal em fundo **magenta
-`#FF00FF`**. As folhas-fonte estão versionadas em `assets/hero/`. Reproduzir:
+A arte da personagem chega de fora como folha em fundo **magenta `#FF00FF`**, hoje em
+**grade** (`4x3`, `3x2`, `4x1`) e não em tira, porque o gerador não desenha uma tira de
+12,6:1. As folhas do capítulo 1 estão em `assets/entrada/` (fora do git, é entrada bruta).
+Reproduzir a personagem do capítulo 1:
 
 ```bash
-# 1. recortar (o último argumento é a compressão vertical, ver abaixo)
-node test/recortar-folha.js assets/hero/folha_andar_12.webp  12 /tmp/andar.json 1
-node test/recortar-folha.js assets/hero/folha_correr_12.webp 12 /tmp/correr.json 0.35
-node test/recortar-folha.js assets/hero/folha_pular_6.webp    6 /tmp/pular.json  0
+# 1. recortar. Argumentos: folha, grade, saída, compressão vertical, e quais células manter.
+#    --quadros escolhe E ORDENA: a caminhada sai da célula 6, depois 5, depois 2.
+node test/recortar-folha.js assets/entrada/sprite-cap1-andar.png    4x3 /tmp/andar.json 0 --quadros=6,5,2
+node test/recortar-folha.js assets/entrada/sprite-cap1-pular.png    3x2 /tmp/pular.json 0
+node test/recortar-folha.js assets/entrada/sprite-cap1-alcancar.png 4x1 /tmp/alc.json   0 --quadros=2,3,4,1
 
 # 2. conferir se as folhas foram desenhadas na mesma escala (mede LARGURA DA CABEÇA,
-#    que é a única medida que não muda com a pose) e reescalar as que destoarem
-node test/medir-escala.js /tmp/andar.json /tmp/correr.json
-node test/reescalar.js /tmp/correr.json 0.9252 /tmp/correr2.json
-node test/reescalar.js /tmp/pular.json   0.6445 /tmp/pular2.json
+#    que é a única medida que não muda com a pose) e reescalar as que destoarem.
+#    O 4º argumento do reescalar é a largura do quadro de destino (191 se omitido).
+node test/medir-escala.js /tmp/andar.json /tmp/pular.json
+node test/reescalar.js /tmp/pular.json 0.7933 /tmp/pular2.json 309
+node test/reescalar.js /tmp/alc.json   0.5672 /tmp/alc2.json   260
 
-# 3. embutir no index.html (ordem: walk, run, sp)
-node test/embutir-heroi.js /tmp/andar.json /tmp/correr2.json /tmp/pular2.json
+# 3. embutir no index.html. A forma com chave aceita qualquer bloco, e chave vazia esvazia:
+node test/embutir-heroi.js walk=/tmp/andar.json run= sp=/tmp/pular2.json \
+                           atk1=/tmp/alc2.json atk2=/tmp/alc2.json
 ```
+
+**Atenção ao `medir-escala.js` em pose de braço levantado.** Ele mede a linha mais larga do
+quinto superior da figura, e um braço erguido ou esticado entra nesse quinto e infla o
+número: na folha de salto ele deu `99, 157, 93, 104, 91, 92` — o 157 é o braço do quadro do
+impulso, não a cabeça. Use a mediana, não a média que ele imprime.
+
+### A folha nem sempre é um ciclo, e o `--quadros` é a resposta
+
+A folha de caminhada do capítulo 1 tem doze figuras da **mesma pessoa** (CV de 1,0% na
+largura da cabeça) mas só **três fases distintas**. Medido em `discordância de silhueta da
+metade de baixo`: as células 3, 4, 6, 7, 8, 9 divergem entre si de 11% a 19% e têm o
+calcanhar do pé da frente entre +31 e +42 px de sprite — dez px de sprite é **1,4 px de
+mundo**, ou seja a mesma pose na tela. As células 5, 10, 11 e 12 divergem de 4% a 13% entre
+si: quatro cópias da passagem. Sobram três fases reais.
+
+Enfiar as doze num ciclo puxado pela distância deixa o pé parado por vários quadros e depois
+o faz saltar — é isso que lê como manqueira, e `PASSO_PX` certo não salva.
+
+**Como escolher, com número e não com olho:** meça a **sola**, não o centroide do pé. No
+apoio duplo o pé de trás está na ponta e o da frente chapado, e os centroides mentem sobre
+onde cada um encosta. A sola é o trecho de colunas cuja tinta mais baixa fica a ≤ 2 px da
+base da figura; ela sai com 45–49 px quando o pé está chapado e com 14–16 quando está na
+ponta ou no calcanhar. O marco que serve de régua é o **calcanhar** (borda esquerda da
+sola). Ele tem que andar para trás em passos iguais; se anda, o pé está plantado.
 
 ### O que cada decisão do recortador resolve
 
@@ -55,9 +84,18 @@ borda — usa isso como alfa e desmistura a cor: `F = (C − (1−a)·B) / a`.
 
 | valor | efeito | usar quando |
 |---|---|---|
-| `1` | preserva a subida e descida da folha | caminhada — o balanço é autoral |
-| `0.35` | achata para 35% | corrida — a folha sobe 57 px, o que numa personagem de 44 px lê como pulinho |
-| `0` | achata tudo | pulo — o **código** já desenha o arco; manter os dois dobra o salto |
+| `1` | preserva a subida e descida da folha | quando o balanço da folha é autoral |
+| `0.35` | achata para 35% | folha que sobe muito — 57 px numa personagem de 44 lê como pulinho |
+| `0` | achata tudo | **todas as folhas do capítulo 1**, e o pulo, cujo arco o código já desenha |
+
+**Por que o capítulo 1 usa `0` até na caminhada.** Numa folha em GRADE, o desnível vertical
+entre poses não é balanço: é o degrau entre as **linhas da grade**. Medido na folha de
+caminhada, a base das poses cai em 387 / 353 / 322 px conforme a linha, e *dentro* de cada
+linha varia ±1,5 px. As doze figuras medem 318 a 323 px de altura — 1,5% de variação, ou
+seja, a personagem não sobe nem desce. Achatar não perde balanço nenhum e resolve dois
+problemas de uma vez: o quadro deixa de ter 388 px de altura para ter 322 (a personagem
+renderizava a 36,6 px de mundo em vez de 44, porque `heroScale = HERO_TARGET / altura do
+quadro`), e a sola passa a encostar na borda de baixo, o que zera o `HERO_PISO`.
 
 ## `inline-cenarios.js`, `inline-sheets.js`
 

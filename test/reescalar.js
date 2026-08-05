@@ -2,12 +2,18 @@
 // the one thing that does not change with the pose. Resample so the character is the same size
 // in both, then re-lay onto a 191-wide canvas with the head centred (drawHero centres the frame
 // on HX) and the feet on the bottom edge (it anchors the bottom at the foot line).
+//
+// A largura de destino e opcional (5o argumento). Ela nao precisa ser a mesma entre folhas:
+// drawHero centra CADA quadro em HX pela sua propria largura, entao uma folha mais larga so
+// carrega mais transparencia em volta. O que ela nao pode e ser MENOR que o quadro
+// reescalado, porque ai as laterais saem cortadas — foi por isso que o 191 fixo virou
+// parametro quando a arte nova chegou com 195 de largura de caminhada.
 const fs = require('fs');
 const { chromium } = require('playwright');
 const dados = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const R = parseFloat(process.argv[3]);
 const OUT = process.argv[4];
-const LARGURA = 191;
+const LARGURA = process.argv[5] ? parseInt(process.argv[5], 10) : 191;
 function chromiumPath() { return process.env.PW_CHROMIUM || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined); }
 (async () => {
   const b = await chromium.launch({ executablePath: chromiumPath() });

@@ -25,19 +25,34 @@
 // common baseline would drag it off the canvas. When R = 1 the cell top is 0 and every number
 // below is the number the strip has always produced.
 //
-// Usage: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [compressaoVertical]
+// KEEPING ONLY SOME OF THE CELLS, IN A CHOSEN ORDER. --quadros=6,5,2 emits three frames, in
+// that order, and ignores the other nine. It exists because a generated sheet is a bag of
+// poses, not a cycle: the walk sheet of chapter 1 has twelve figures of the same person but
+// only three distinct PHASES, the rest being near-duplicates a couple of sprite px apart.
+// Feeding all twelve to a distance-driven walk makes the foot stall for several frames, which
+// reads as a limp. The selection happens AFTER every cell is measured, so the cells are found
+// exactly as they always were; it is the shared margin, the common ground line and the canvas
+// size that are then computed over the kept frames alone — which is what they should be, since
+// a discarded pose has no business setting the canvas for the ones that ship.
+//
+// Usage: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [compressaoVertical] [--quadros=a,b,c]
 //   12      12 frames side by side           (the strip, unchanged)
 //   4x3     4 columns by 3 rows, 12 frames   (reading order: left to right, top to bottom)
 //   3x3:7   the first 7 cells of a 3x3 grid  (for a grid whose last row is not full)
 const fs = require('fs');
 const { chromium } = require('playwright');
 
-const SRC = process.argv[2];
-const GRADE = process.argv[3];
-const OUT = process.argv[4];
-const COMP = process.argv[5] === undefined ? 1 : parseFloat(process.argv[5]);
+const argv = process.argv.slice(2);
+const QARG = argv.find(a => a.startsWith('--quadros='));
+const pos = argv.filter(a => !a.startsWith('--'));
+const SRC = pos[0];
+const GRADE = pos[1];
+const OUT = pos[2];
+const COMP = pos[3] === undefined ? 1 : parseFloat(pos[3]);
+// 1-based, in the order they should come out; repeats are allowed (a pose may serve twice)
+const QUADROS = QARG ? QARG.slice(10).split(',').map(s => parseInt(s, 10)) : null;
 
-const USO = 'uso: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [comp]';
+const USO = 'uso: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [comp] [--quadros=a,b,c]';
 // "12" parses as C=12, R=1: the strip is the one-row grid, so there is nothing to keep in sync
 const gr = /^(\d+)(?:[xX](\d+))?(?::(\d+))?$/.exec(GRADE || '');
 if (!SRC || !gr || !OUT) { console.error(USO); process.exit(1); }
@@ -48,6 +63,10 @@ if (!COLS || !ROWS || !N) { console.error(USO); process.exit(1); }
 if (N > COLS * ROWS) {
   console.error('ERRO: ' + N + ' quadros nao cabem numa grade ' + COLS + 'x' + ROWS +
     ', que tem ' + COLS * ROWS + ' celulas');
+  process.exit(1);
+}
+if (QUADROS && (!QUADROS.length || QUADROS.some(q => !(q >= 1 && q <= N)))) {
+  console.error('ERRO: --quadros aceita indices de 1 a ' + N);
   process.exit(1);
 }
 
@@ -63,7 +82,7 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage();
   const saida = await page.evaluate(async (args) => {
-    const { src, N, COLS, ROWS, COMP } = args;
+    const { src, N, COLS, ROWS, COMP, QUADROS } = args;
     const im = await new Promise((res, rej) => {
       const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
     });
@@ -110,7 +129,7 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
         if (magentice(i) <= FUNDO && !branco(i) && d[i + 3] > 12) tinta[y * BW + x] = 1;
       }
 
-    const poses = [];
+    let poses = [];
     for (let k = 0; k < N; k++) {
       // reading order: left to right, top to bottom. With ROWS = 1 this is cx = k, cy = 0.
       const cx = k % COLS, cy = (k / COLS) | 0;
@@ -161,6 +180,10 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
       poses.push({ manter, topo, ex0, ex1, ey0: ey0 - topo, ey1: ey1 - topo, cabeca: hn ? hs / hn : (ex0 + ex1) / 2 });
     }
 
+    // from here on "poses" means the poses that SHIP: margin, ground line and canvas are
+    // measured over those alone, so a discarded pose cannot inflate the frame
+    if (QUADROS) poses = QUADROS.map(q => poses[q - 1]);
+
     const esq = Math.ceil(Math.max(...poses.map(p => p.cabeca - p.ex0))) + 1;
     const dir = Math.ceil(Math.max(...poses.map(p => p.ex1 - p.cabeca))) + 1;
     const margem = Math.max(esq, dir);
@@ -203,13 +226,14 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
       frames.push({ w: FW, h: FHi, b64: fc.toDataURL('image/webp', 0.92) });
     }
     return { frames };
-  }, { src: dataUrl, N, COLS, ROWS, COMP });
+  }, { src: dataUrl, N, COLS, ROWS, COMP, QUADROS });
   await browser.close();
 
   if (saida.erro) { console.error('ERRO:', saida.erro); process.exit(1); }
   fs.writeFileSync(OUT, JSON.stringify(saida));
   const kb = Math.round(saida.frames.reduce((n, f) => n + f.b64.length, 0) / 1024);
   // the strip's line is left exactly as it was, so a grid announces itself and nothing else moves
-  console.log(N, 'frames em', saida.frames[0].w + 'x' + saida.frames[0].h,
-    '|', kb + ' kb' + (ROWS > 1 ? ' | grade ' + COLS + 'x' + ROWS : ''));
+  console.log(saida.frames.length, 'frames em', saida.frames[0].w + 'x' + saida.frames[0].h,
+    '|', kb + ' kb' + (ROWS > 1 ? ' | grade ' + COLS + 'x' + ROWS : '') +
+    (QUADROS ? ' | de ' + N + ', mantidos ' + QUADROS.join(',') : ''));
 })();
