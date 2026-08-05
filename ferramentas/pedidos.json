@@ -1,59 +1,27 @@
 [
   {
-    "nome": "sprite-cap1-pular",
-    "titulo": "1 · Sprite cap.1 · SALTO",
-    "referencia": "completa o capítulo jogável · 6 quadros",
-    "tamanho": "1024×1024 · grade 3x2 · magenta",
+    "nome": "pacote-cap1-frente",
+    "titulo": "1 · PACOTE · vegetação de frente, capítulo 1",
+    "referencia": "8 plantas do litoral atlântico, séc. XVI · substitui os avulsos que não combinavam",
+    "tamanho": "1024×1024 · grade 4x2 · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil: impulso, subida, ápice, descida, aterrissagem.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, séc. XVI.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO da mata atlântica de litoral, para passarem na frente da câmera num jogo lateral: uma palmeira jovem, um pé de bananeira, uma moita de samambaia, um tufo de capim alto, um arbusto de folha larga, uma raiz saliente com musgo, uma pedra baixa coberta de liquens, e um feixe de bambu fino.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
   },
   {
-    "nome": "sprite-cap1-alcancar",
-    "titulo": "2 · Sprite cap.1 · ALCANÇAR",
-    "referencia": "completa o capítulo jogável · 4 quadros",
-    "tamanho": "1024×1024 · grade 4x1 · magenta",
+    "nome": "pacote-cap2-frente",
+    "titulo": "2 · PACOTE · vegetação de frente, capítulo 2",
+    "referencia": "8 plantas da serra alagoana, séc. XVII · substitui os avulsos que não combinavam",
+    "tamanho": "1024×1024 · grade 4x2 · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente, na altura do peito: o braço estende, a mão abre, pega, e recolhe. NÃO é golpe, não é soco, não é ataque — é colher, pegar, acolher.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, séc. XVI.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO da mata de encosta da serra: uma samambaia arborescente, um pé de mandioca, uma moita de capim-navalha, um arbusto espinhoso, uma pedra grande de granito, um tronco caído com musgo, um pé de palmeira pindoba, e um cupinzeiro baixo.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
   },
   {
-    "nome": "cap2-obj-roca",
-    "titulo": "3 · Objeto · CAP2",
-    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
+    "nome": "pacote-cap3-frente",
+    "titulo": "3 · PACOTE · vegetação de frente, capítulo 3",
+    "referencia": "8 plantas de terra indígena hoje · substitui os avulsos que não combinavam",
+    "tamanho": "1024×1024 · grade 4x2 · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um feixe de mandioca recém-colhida, raízes marrons compridas amarradas com fibra\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap3-obj-cesto",
-    "titulo": "4 · Objeto · CAP3",
-    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto de fibra com frutas e legumes de horta, colorido\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap3-obj-agua",
-    "titulo": "5 · Objeto · CAP3",
-    "referencia": "o que atravessa a tela — cada capítulo precisa de 3",
-    "tamanho": "QUADRADO ~1024×1024 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um galão de água de plástico azul translúcido, cheio\n\nFORMATO: objeto único centralizado, de perfil, sobre FUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada, sem encostar nas bordas. Sem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "sprite-cap2-correr",
-    "titulo": "6 · Sprite cap2 · CORRIDA",
-    "referencia": "a pessoa de Palmares, séc. XVII · 12 quadros",
-    "tamanho": "1024×1024 · grade 4x3 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 12 quadros são um CICLO DE CORRIDA de perfil: passada longa, tronco à frente, com fase de voo.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
-  },
-  {
-    "nome": "sprite-cap2-pular",
-    "titulo": "7 · Sprite cap2 · SALTO",
-    "referencia": "a pessoa de Palmares, séc. XVII · 6 quadros",
-    "tamanho": "1024×1024 · grade 3x2 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO de uma terra indígena cuidada hoje: um pé de bananeira com cacho, uma muda de árvore nativa em saco de viveiro, um pé de mandioca, um tufo de capim, um arbusto de folha larga, uma pedra baixa, um toco de madeira cortado, e um pé de milho novo.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
   },
   {
     "nome": "sprite-cap2-alcancar",
