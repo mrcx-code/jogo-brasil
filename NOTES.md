@@ -37,8 +37,13 @@ na quinta ela salta — alcance 96 e dano dobrado.
 | cash | 8 |
 | barrel | 13 |
 
-Eles **passam reto**. Chegam em intervalos sorteados entre 0,45× e 1,4× de
-`CFG.mobIntervalo`. Ao morrer largam um drop, recolhido ao passar por cima.
+Eles **param e esperam**, e quem não é alcançado segue caminho. Chegam a cada 0,45× a 1,4× de
+`CFG.mobVao`, que é medido em **pixels de mundo percorridos** e não em segundos — o mesmo vale
+para as folhas. É essa unidade que faz **correr** significar alguma coisa: a rua é um lugar, não
+um relógio, então quem corre atravessa o dobro dela e encontra o dobro de gente, com metade do
+tempo para cada uma. Andando: ~34 chegadas/min, fração alcançada 1,00. Correndo: ~70/min, fração
+0,46–0,51 e +13 a +18% de renda. Ao ser alcançado, cada um larga um drop, recolhido ao passar
+por cima.
 
 ### Economia
 
@@ -69,6 +74,10 @@ O quadro do sprite é escolhido pela **distância percorrida**, não pelo tempo.
 As velocidades são `PASSO × 60 / n` com `n` inteiro, para que um quadro de sprite dure um
 número inteiro de quadros de tela. Com 88 px/s cada quadro durava 2,3 quadros de tela e a
 cadência saía 2-2-3-2-2-3, lendo como trepidação.
+
+A conta mora em `velocidadeMundo()`, e ela tem **dois** clientes: o rolamento do mundo e o
+nascimento das chegadas e das folhas, que são medidos em chão e não em relógio. Se os dois
+divergirem, andar e correr deixam de ser a mesma rua vista em ritmos diferentes.
 
 A passada da caminhada foi **medida** na arte: na pose de maior abertura as duas solas ficam
 a 85,5 px de sprite, centro a centro; na escala 44/184 isso dá 20,45 px de passo e 40,9 de
@@ -888,3 +897,82 @@ retrato é `HERO_SPR.walk[0]`, um quadro de caminhada: a personagem "fala" de pe
 arte que não existe. (c) A abertura do capítulo 1 dispara no **JOGAR**, não no carregamento:
 quem já tem partida em andamento e nunca viu a fala do capítulo em que está a recebe no boot,
 o que é certo, mas é a única fala que aparece sem alguém ter apertado nada.
+
+### 2026-08-05 · a rua vira lugar, e aí correr passa a significar alguma coisa
+
+**Um erro de contagem que a medição achou, e ele estava em produção.** `dying` conta oito
+quadros e zera dentro de `drawMobs()`, que marca `dead`; quem varre `dead` é o laço de
+`atualizarMobs`, no quadro seguinte. Entre as duas coisas existe uma fresta — e o relógio do
+segurar-pra-atacar (145 ms) não é o relógio do quadro. Um toque que caísse ali achava uma
+chegada com `dying` 0 e `hp` 0, batia de novo e chamava `registrarChegada(true)` uma **segunda
+vez pela mesma pessoa**. Medido: **19 alcances contados para 17 pessoas alcançadas em 30 s**,
+12% de inflação em cima da média que o mundo lê — a mata ficava mais verde do que o cuidado
+merecia. Uma condição no alvo (`m.dead || m.hp <= 0`) resolve, e o teste reproduz a fresta na
+mão em vez de esperar dar sorte.
+
+Duas sessões atrás o verbo virou **alcançar** e o mundo passou a responder. Ficou uma
+fragilidade escrita com todas as letras no Diário: *"correr hoje não compra nada"* — 3% de
+diferença de renda, dentro do ruído. Um dos três botões do jogo sem função.
+
+**A causa não era o preço de correr, era a natureza da rua.** Chegadas e folhas nasciam de um
+**cronômetro**. Quem corria atravessava o dobro de mata e encontrava exatamente a mesma gente,
+com metade do tempo para cada uma: correr era desvantagem pura, e o botão só tinha razão de
+existir se alguém gostasse de ver a paisagem passar rápido.
+
+**A mudança é uma linha de ideia:** o que vem pela rua nasce por **distância percorrida**, não
+por tempo. A rua deixa de ser um relógio e vira um **lugar**. `CFG.mobIntervalo` (1,8 s) virou
+`CFG.mobVao` (69 px de mundo) e o vão entre folhas virou `34 + 84 px`; os dois números são a
+conversão exata dos antigos pela velocidade da caminhada (38,26 px/s), então **andando a rua é
+folha por folha e pessoa por pessoa a mesma de sempre**. Correndo é o dobro de gente no mesmo
+minuto, com metade do tempo para cada uma.
+
+**Medido no jogo de verdade**, 390×844, sem melhoria nenhuma, segurando o botão, 90 s por
+célula, mesmo arnês nos dois lados (o "antes" é este mesmo arquivo com as duas somas devolvidas
+ao relógio, para o A/B isolar só isto):
+
+| | chegadas/min | fração alcançada | alcançadas/min | renda/min |
+|---|---:|---:|---:|---:|
+| **antes** · andar | 34 | 1,00 | 34 | 629 |
+| **antes** · correr | 38 | 0,65 | 24,7 | **595 (−5%)** |
+| **depois** · andar | 33–36 | 1,00 | 33–36 | 631–636 |
+| **depois** · correr | 69–72 | **0,46–0,51** | 31–37 | **716–747 (+13 a +18%)** |
+
+Correr saiu de **−5%** para **+13 a +18%** de renda, e a diferença não vem de "bater mais": vem
+de atravessar o dobro de mata, o que dobra a folha apanhada (112 → 208–228 por minuto). O que
+correr **custa** é metade da gente que apareceu ficar sem ninguém — e é o mundo, não o placar,
+que cobra isso: `S.cuidado` estabiliza em 0,46–0,55 correndo contra 1,00 andando.
+
+**A frase que alguém consegue dizer sem ver número**, que era o critério: *"andando eu alcanço
+todo mundo e a mata fica inteira, mas passo por pouca gente; correndo passa o dobro, rende
+mais, e metade fica sem ninguém — e a mata rala."* Medido em quanto tempo isso aparece, trocando
+de ritmo em regime: a rua **enche em 6–8 s** (de 0,95 para 1,85–1,95 pessoas esperando na tela,
+com picos de 3 e 4), e a folhagem responde a **9,1 s** (cuidado visto 0,90), **10,1 s** (0,75) e
+**15,1 s** (0,50). A régua de legibilidade da sessão passada diz o que 0,75 já significa: 4
+plantas na frente em vez de 5 e 74% dos pixels mudando. Dois prints do mesmo jogo, andando e
+correndo, mostram a coisa inteira sem nenhum número na tela.
+
+**O que NÃO mudou, de propósito:** as velocidades (`PASSO × 60 / n`, n = 10 e 5 — armadilha nº 1
+do §7), `LIMIARES`, o alcance de 80 px, a paciência de 2,4 s, o valor de nada, e o
+`ESQUEMA_SAVE`, que não ganhou campo porque a mudança não guarda estado novo.
+
+**O que ficou frágil.**
+
+1. **Andando, a fração continua 1,00.** Foi decidido, não esquecido: segurar o botão dá ~8,3 de
+   dano por segundo e uma chegada custa 8,5 de vida em média, ou 1,03 s; a janela de alcance
+   andando é 1,95 s. Há **quase o dobro de folga**, então nenhuma densidade plausível quebra o
+   1,00 — o varrido da sessão passada já mostrou 46/min ainda em 1,00 e 56/min em 0,95, ao custo
+   de uma rua que vira feira. Quebrar esse 1,00 exige mexer no **alcance de 80 px** ou na
+   **paciência de 2,4 s**, e os dois foram escolhas medidas da sessão passada. Hoje o 1,00 deixou
+   de ser "andar é de graça" e passou a ser o que andar **é**: cuidar bem de pouco, por menos.
+2. **O toque no vazio ainda é 65% da renda** (414 de 631 por minuto, sem melhoria). Enquanto o
+   botão pagar por ser apertado, e não por encontrar alguém, qualquer escolha sobre a rua move
+   só a fatia de fora. O teto disso está medido: mesmo alcançando 100% das 72 chegadas de quem
+   corre, o drop a 3 de impacto renderia 216/min. **Este é o item 1 do `PRODUTO.md` e ele não foi
+   resolvido aqui.**
+3. **`CUIDADO_ALFA` é por chegada**, então correndo a memória continua sendo ~5,5 chegadas e
+   passa a valer ~4,5 s de relógio em vez de ~9 s. O equilíbrio continua sendo exatamente a
+   fração alcançada nos dois ritmos; o que muda é a rapidez da resposta. Isso é desejável, mas
+   é um segundo comportamento que ninguém escolheu explicitamente.
+
+**Próximo passo:** o item 1 do `PRODUTO.md` — o que o botão paga. Enquanto ele pagar por ser
+apertado, a rua é decoração cara.

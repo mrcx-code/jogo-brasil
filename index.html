@@ -735,14 +735,23 @@ const CFG = {
   // cobre 184 px no mesmo tempo, então a rua leva a coisa embora antes de a paciência acabar:
   // quem corre não é abandonado por ninguém, é quem passou reto.
   mobEspera: 2.4,
-  // Chegadas: de 7 s para 1,8 s de intervalo médio, e o número é varrido, não chutado. Com o
-  // valor antigo passavam 9 por minuto e a rua nunca tinha fila — nada esperava junto com nada.
-  // Medido no motor, em 300 s por ponto, andando e segurando o botão:
+  // O VÃO ENTRE CHEGADAS É MEDIDO EM CHÃO, NÃO EM RELÓGIO, e é essa linha que faz correr
+  // significar alguma coisa. Enquanto as chegadas nasciam de um cronômetro, atravessar o dobro
+  // de rua encontrava exatamente a mesma gente em metade do tempo com cada uma: correr era
+  // desvantagem pura, e medido deu 3% de diferença de renda — um dos três botões do jogo sem
+  // função. Nascendo por distância, a rua vira LUGAR: quem corre passa por gente que quem anda
+  // nunca encontra, e paga por isso com o tempo que tem para cada uma.
+  //
+  // 69 px de mundo é 1,80 s de caminhada (38,26 px/s), que é o valor de relógio que estava aqui
+  // antes — ANDANDO a rua é a mesma de sempre, chegada por chegada. Correndo é o dobro de gente
+  // no mesmo minuto, com metade do tempo para cada uma.
+  //
+  // O varrido que escolheu 1,8 s continua valendo, porque ele é sobre a rua de quem anda:
   //   3,2 s -> 20/min, fila média 0,52   | 2,4 s -> 27/min, fila 0,68
   //   1,8 s -> 36/min, fila 0,99, pico 3 | 1,4 s -> 46/min, fila 1,38
   // 1,8 é onde a fila média passa de 1: quase sempre há alguém esperando, e com alguma
   // frequência há três. Menos que isso e a rua é vazia; muito mais e ela vira feira.
-  mobIntervalo: 1.8,
+  mobVao: 69,
   // 48 + 2x14 puts the third of three at 76, still inside the 80 px reach of a swing
   mobMax: 4, mobFila: 14,
   // How many hits each one takes, and how often each shows up. The spread is deliberate
@@ -836,6 +845,12 @@ const ganhoClique = () => forcaToque() * bonusDias();
 // em 11 s, a 0,25 em 18 s e ao chão por volta de 30 s — visível de sobra dentro dos 30 s que o
 // requisito pede, e não tão nervoso que oito segundos de distração seguem a paisagem inteira.
 // Se a taxa de chegada mudar, ESTE número muda com ela.
+//
+// Desde que as chegadas nascem por DISTÂNCIA, quem corre encontra o dobro por minuto — então
+// correndo a memória continua sendo as mesmas ~5,5 chegadas e passa a valer ~4,5 s de relógio.
+// Isso é o certo e não precisa de segundo alfa: a média é da RUA, não do cronômetro, e o
+// equilíbrio continua sendo exatamente a fração alcançada nos dois ritmos. O que muda é a
+// rapidez com que a paisagem responde a quem acelerou — que é justamente o que se quer ver.
 const CUIDADO_ALFA = 0.18;
 // E o DESENHO não segue a média de imediato: ela é degrau a cada chegada, e planta que aparece
 // e some de estalo lê como bug. `cuidadoVisto` persegue `S.cuidado` em forma fechada, com a
@@ -885,18 +900,23 @@ const HERO_PISO = 0;
 // Leaves hanging over the street. They sit between knee height and the top of the jump arc, so
 // the low ones are free and the high ones cost you a well-timed tap. Nothing else in the game
 // asks for timing, and this is the only thing the jump is for.
-let folhas = [], folhaT = 0, proximaFolha = -1;
+let folhas = [], folhaChao = 0, proximaFolha = -1;
 function pular() {
   if (jumpT > 0) return;          // one jump at a time; no double-tapping into orbit
   jumpT = JUMPF;
   clicar(false, false, true);     // and it lands a blow on the way up
 }
-function sorteiaFolha() { return 0.9 + Math.random() * 2.2; }
+// Em PIXELS DE MUNDO, pela mesma razão de CFG.mobVao: uma folha é um lugar da mata, não um
+// horário. Com o relógio, atravessar o dobro de mata dava exatamente as mesmas folhas — a
+// mata ficava mais rala quanto mais depressa se andasse, o que é o contrário do que se vê.
+// 34 + 84 px é o antigo 0,9 + 2,2 s convertido pela velocidade da caminhada (38,26 px/s), então
+// ANDANDO a mata é folha por folha a mesma de sempre.
+function sorteiaFolha() { return 34 + Math.random() * 84; }
 function atualizarFolhas(dt, alto) {
-  folhaT += dt;
+  folhaChao += dt * velocidadeMundo();
   if (proximaFolha < 0) proximaFolha = sorteiaFolha();
-  if (folhaT >= proximaFolha) {
-    folhaT = 0; proximaFolha = sorteiaFolha();
+  if (folhaChao >= proximaFolha) {
+    folhaChao = 0; proximaFolha = sorteiaFolha();
     if (folhas.length < 8) {
       // the arc peaks at 52px, and she is 44 tall, so anything under about 80 is reachable
       const h = 16 + Math.random() * 62;
@@ -973,6 +993,16 @@ const TELA_POR_QUADRO_CORRER = 5;
 // poses da caminhada — o pé continua plantado, porque o quadro é escolhido pela distância e o
 // passo é o mesmo. Este valor só passa a ser lido quando a folha de corrida entrar.
 const PASSO_CORRIDA = PASSO_PX;
+// QUANTO CHÃO ELA COBRE POR SEGUNDO, no ritmo de agora. Estava escrito só dentro do laço de
+// quadro; virou função porque as chegadas passaram a nascer por DISTÂNCIA e precisam da mesma
+// conta — se as duas divergirem, andar e correr deixam de ser a mesma rua vista em ritmos
+// diferentes. A forma `PASSO × 60 / n` com n INTEIRO é a armadilha nº 1 do §7 e não é
+// negociável: 10 quadros de tela por pose andando, 5 correndo, o dobro exato.
+function velocidadeMundo() {
+  const correndo = S.modo === "carvao";
+  const passo = (correndo && HERO_SPR.run.length > 0) ? PASSO_CORRIDA : PASSO_PX;
+  return passo * 60 / (correndo ? TELA_POR_QUADRO_CORRER : TELA_POR_QUADRO_ANDAR);
+}
 const ATKF = 16;                  // frames a cast animation is shown — long enough to READ the
                                   // 4 sprite frames (was 9 ≈ 0.15s, a flash the owner couldn't follow)
 let jumpT = 0, shocks = [];       // owner: both stay at rest — the leap was removed
@@ -991,7 +1021,7 @@ let jumpT = 0, shocks = [];       // owner: both stay at rest — the leap was r
 // multiplier on output or a lump of impact, both of which are still multiplied by team
 // health — so a worn-out team gets less out of the world too.
 // ============================================================
-let drops = [], mutiraoT = 0, chamada = null, chamadaT = 0, mobT = 0;
+let drops = [], mutiraoT = 0, chamada = null, chamadaT = 0, mobChao = 0;
 let chamadaDobrada = false, diaNovo = false, voltouDepoisDe = 0;
 
 // ============================================================
@@ -1086,16 +1116,19 @@ function novoMob(tipo, wx) {
     parado: false, espera: 0, desistiu: false };
 }
 // Movement, spawning and state. Drawing lives in drawMobs() and is not touched here.
-// Between CFG.mobIntervalo x0.45 and x1.4 — wide enough that two arrivals never feel paired.
-function sorteiaEspera() { return CFG.mobIntervalo * (0.45 + Math.random() * 0.95); }
+// Entre CFG.mobVao x0,45 e x1,4 — largo o bastante para duas chegadas nunca soarem em par.
+// A UNIDADE É PIXEL DE MUNDO, não segundo: ver o comentário de CFG.mobVao.
+function sorteiaEspera() { return CFG.mobVao * (0.45 + Math.random() * 0.95); }
 let proximoMob = -1;
 function atualizarMobs(dt) {
-  mobT += dt;
+  // Chão coberto desde a última chegada. É a única diferença entre andar e correr que não é
+  // cosmética: a rua não acontece com o tempo, ela acontece com o caminho.
+  mobChao += dt * velocidadeMundo();
   // The gap between arrivals is random inside a window, so the street never falls into a
   // rhythm you can count. proximo is rolled once and held until it is used.
   if (proximoMob < 0) proximoMob = sorteiaEspera();
-  if (mobT >= proximoMob) {
-    mobT = 0;
+  if (mobChao >= proximoMob) {
+    mobChao = 0;
     proximoMob = sorteiaEspera();
     if (mobs.filter(function (m) { return !m.dying; }).length < CFG.mobMax) {
       const r = Math.random(), mix = CFG.mobMix[S.modo] || CFG.mobMix.limpo;
@@ -1202,7 +1235,13 @@ function clicar(auto, naoConta, semAnim) {
   // no fim da fila continua alcançável, só que na vez dela.
   let alvo = null, maisPerto = 1e9, alvoSx = 0;
   mobs.forEach(function (m) {
-    if (m.dying > 0) return;
+    // `dying` conta oito quadros e zera em drawMobs(), que marca `dead`; quem varre `dead` é o
+    // laço de atualizarMobs, no quadro seguinte. Entre as duas coisas existe uma fresta, e o
+    // relógio do segurar (145 ms) não é o relógio do quadro: um toque que caísse nessa fresta
+    // achava uma chegada com dying 0 e hp 0, batia de novo e chamava registrarChegada(true)
+    // uma SEGUNDA vez pela mesma pessoa. Medido: 19 alcances contados para 17 chegadas
+    // alcançadas em 30 s, 12% de inflação em cima da média que o mundo lê.
+    if (m.dying > 0 || m.dead || m.hp <= 0) return;
     const sx = m.wx - worldX;
     if (sx > HX - 6 && sx < HX + range && sx < maisPerto) { maisPerto = sx; alvo = m; alvoSx = sx; }
   });
@@ -3430,7 +3469,7 @@ function verificarCenario() {
     S.cenario = proxima;
     redesenharFundo();
     floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58, life: 90,
-      txt: "NOVO CAPÍTULO" });
+      txt: "NOVA ERA" });
     burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
     salvar();
     if (vira) mostrarAbertura();     // e a fala do capítulo novo vem logo depois do fecho
@@ -4982,9 +5021,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // manca. Dez por pose andando (6 quadros/s, 38,3 px/s, 2 passos/s) e cinco correndo
     // (12 quadros/s, 76,5 px/s) — o dobro exato, porque correr usa as mesmas poses da caminhada
     // enquanto não houver folha de corrida, e a única coisa que muda é quanto chão passa.
-    const quadrosPorPose = S.modo === "carvao" ? TELA_POR_QUADRO_CORRER : TELA_POR_QUADRO_ANDAR;
-    const passoAtual = (S.modo === "carvao" && HERO_SPR.run.length > 0) ? PASSO_CORRIDA : PASSO_PX;
-    worldX += dt * passoAtual * 60 / quadrosPorPose;
+    // A conta mora em velocidadeMundo(), porque as chegadas nascem da mesma distância.
+    worldX += dt * velocidadeMundo();
     // rAF stops in a background tab and dt is clamped, so this counts time actually
     // spent playing rather than time the tab sat open
     R.segundos += dt; retAcc += dt;

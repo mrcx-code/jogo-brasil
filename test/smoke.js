@@ -85,7 +85,7 @@ function chromiumPath() {
     folhas.length = 0; jumpT = 0; floats.length = 0;
     // hold off the spawner: a leaf arriving mid-test would leave the array non-empty and say
     // nothing about whether THIS one was taken
-    folhaT = 0; proximaFolha = 9999;
+    folhaChao = 0; proximaFolha = 9999;   // o vao entre folhas e medido em CHAO, nao em relogio
     // one parked right where her head passes at the top of the arc
     const alvo = { wx: worldX + HX, y: GROUND - 60, fase: 0 };
     folhas.push(alvo);
@@ -190,6 +190,66 @@ function chromiumPath() {
   if (encontro.nChegadas < 4) errors.push('too few troubles showed up in 60s');
   if (!encontro.variados) errors.push('the gaps between arrivals are all identical');
 
+
+  // ---- A RUA E LUGAR, NAO RELOGIO ----
+  // Chegadas e folhas nascem por DISTANCIA percorrida. E isso, e so isso, que faz correr
+  // significar alguma coisa: quem corre atravessa o dobro de rua e encontra o dobro de gente,
+  // com metade do tempo para cada uma. Enquanto isso nascia de um cronometro, correr encontrava
+  // exatamente a mesma gente em metade do tempo — desvantagem pura, 3% de diferenca de renda
+  // medida, um dos tres botoes do jogo sem funcao. Se alguem devolver o spawn para o relogio,
+  // a escolha morre em silencio e nada mais no teste percebe. Por isso esta asserção existe.
+  const chao = await page.evaluate(() => {
+    const conta = function (modo, segundos) {
+      S.modo = modo; mobs.length = 0; folhas.length = 0;
+      mobChao = 0; proximoMob = -1; folhaChao = 0; proximaFolha = -1;
+      let mob = 0, folha = 0, px = 0;
+      for (let i = 0; i < segundos * 60; i++) {
+        const a = mobs.length, b = folhas.length;
+        atualizarMobs(1 / 60);
+        atualizarFolhas(1 / 60, 0);
+        if (mobs.length > a) mob++;
+        if (folhas.length > b) folha++;
+        mobs.length = 0; folhas.length = 0;   // so o vao entre chegadas interessa aqui
+        const v = velocidadeMundo();
+        px += v / 60; worldX += v / 60;
+      }
+      return { mob: mob, folha: folha, px: Math.round(px) };
+    };
+    const andando = conta('limpo', 300), correndo = conta('carvao', 300);
+    S.modo = 'limpo'; mobs.length = 0; folhas.length = 0;
+    return { andando: andando, correndo: correndo,
+      razaoMob: +(correndo.mob / andando.mob).toFixed(2),
+      razaoFolha: +(correndo.folha / andando.folha).toFixed(2),
+      razaoPx: +(correndo.px / andando.px).toFixed(2) };
+  });
+  console.log('the road is a place -> walking', chao.andando.mob, 'arrivals /', chao.andando.folha,
+    'leaves in', chao.andando.px, 'px | running', chao.correndo.mob, '/', chao.correndo.folha,
+    'in', chao.correndo.px, 'px | ratios', chao.razaoMob, chao.razaoFolha, '(ground', chao.razaoPx + ')');
+  if (Math.abs(chao.razaoPx - 2) > 0.02) errors.push('running no longer covers exactly twice the ground');
+  if (chao.razaoMob < 1.6) errors.push('running does not meet more arrivals than walking: the road is back on a clock');
+  if (chao.razaoFolha < 1.6) errors.push('running does not pass more leaves than walking: the forest is back on a clock');
+  if (chao.andando.mob / (chao.andando.px / 60) > 1.6 || chao.andando.mob / (chao.andando.px / 60) < 0.6) {
+    errors.push('the walking street changed density: it must stay the street it always was');
+  }
+
+  // ...e uma chegada ja alcancada nao pode ser alcancada duas vezes. `dying` zera em drawMobs e
+  // quem varre `dead` e atualizarMobs no quadro seguinte; o relogio do segurar (145 ms) nao e o
+  // do quadro, entao um toque cai nessa fresta. Media medida: 19 alcances para 17 pessoas.
+  const duplo = await page.evaluate(() => {
+    mobs.length = 0; drops.length = 0;
+    S.cuidado = 0.5;
+    const m = novoMob('smog', worldX + HX + 20);
+    m.hp = 0; m.dying = 0; m.dead = true;      // a fresta, reproduzida na mao
+    mobs.push(m);
+    const antes = S.cuidado, nDrops = drops.length;
+    clicar();
+    const r = { mexeu: S.cuidado !== antes, drop: drops.length - nDrops };
+    mobs.length = 0; drops.length = 0; S.cuidado = 1; cuidadoVisto = 1;
+    return r;
+  });
+  console.log('an arrival already reached -> counted again:', duplo.mexeu, '| dropped again:', duplo.drop);
+  if (duplo.mexeu) errors.push('the same arrival was counted as reached twice');
+  if (duplo.drop) errors.push('the same arrival dropped twice');
 
   // clearing one leaves a drop; the drop is picked up with a tap on the world
   const recolha = await page.evaluate(async () => {
