@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "jogo",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ferramentas/servir.js", "8199"],
+      "port": 8199
+    },
+    {
+      "name": "mesa",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ferramentas/receber.js"],
+      "port": 8200
+    }
+  ]
+}

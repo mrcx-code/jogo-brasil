@@ -5,7 +5,8 @@
   "description": "Jogo de acao lateral em pixel art sobre a historia do Brasil. Um arquivo, sem build, sem rede.",
   "scripts": {
     "test": "node test/smoke.js",
-    "start": "python3 -m http.server 8000"
+    "start": "node ferramentas/servir.js 8199",
+    "mesa": "node ferramentas/receber.js"
   },
   "devDependencies": {
     "playwright": "^1.47.0"
