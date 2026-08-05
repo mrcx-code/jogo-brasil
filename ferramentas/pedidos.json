@@ -1,128 +1,15 @@
 [
   {
-    "nome": "cap1-fundo-alto",
-    "titulo": "cap1 fundo alto — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
+    "nome": "pausa",
+    "titulo": "Nada pendente — a bola está com o Claude",
+    "referencia": "12 de 12 recebidas · fila de geração vazia de propósito",
+    "tamanho": "",
     "origem": "",
     "prompt": "",
     "resposta": {
       "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
+      "rodada": 4,
+      "texto": "RECEBIDAS AS 12 — seis fundos e seis objetos, todos na orientação certa e os objetos com fundo magenta entre 62% e 83%.\n\nNÃO GERE MAIS NADA POR ENQUANTO, e o motivo é economia do seu tempo: eu integrei ZERO dessas 12. Ainda não provei que sobrevivem à conversão — redução para 720x959, quantização de paleta, desfranjamento do magenta. Se a conversão falhar, ou a paleta quantizada ficar ruim, os parâmetros mudam e o que você gerar agora vira trabalho perdido.\n\nA bola é minha. Próximo passo é código: converter, embutir e olhar rodando. Quando eu souber que a arte serve, volto com os pedidos seguintes — e eles já virão com os parâmetros certos."
     }
-  },
-  {
-    "nome": "cap1-fundo-baixo",
-    "titulo": "cap1 fundo baixo — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
-    "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
-    }
-  },
-  {
-    "nome": "cap2-fundo-alto",
-    "titulo": "cap2 fundo alto — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
-    "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
-    }
-  },
-  {
-    "nome": "cap2-fundo-baixo",
-    "titulo": "cap2 fundo baixo — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
-    "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
-    }
-  },
-  {
-    "nome": "cap3-fundo-alto",
-    "titulo": "cap3 fundo alto — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
-    "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
-    }
-  },
-  {
-    "nome": "cap3-fundo-baixo",
-    "titulo": "cap3 fundo baixo — FECHADO",
-    "referencia": "recebido",
-    "tamanho": "ok",
-    "origem": "",
-    "prompt": "",
-    "resposta": {
-      "estado": "ok",
-      "rodada": 3,
-      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
-    }
-  },
-  {
-    "nome": "cap1-obj-fruta",
-    "titulo": "Cap. 1 · cacho de fruta madura",
-    "referencia": "o que ela alcança: a colheita do dia",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um galho carregado de frutas tropicais maduras, cores fortes, folhas largas.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap1-obj-peixe",
-    "titulo": "Cap. 1 · peixes",
-    "referencia": "o que ela alcança: a pesca",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Dois ou três peixes prateados de rio, vistos de perfil, brilho nas escamas.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap1-obj-muda",
-    "titulo": "Cap. 1 · muda para plantar",
-    "referencia": "o que ela alcança: o roçado",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma muda jovem de folhas largas com o torrão de terra nas raízes, pronta para plantar.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap2-obj-cesto",
-    "titulo": "Cap. 2 · cesto de mantimento",
-    "referencia": "o que ela alcança em Palmares",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto trançado de fibra vegetal, cheio de raízes e legumes, tampa de lado.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap2-obj-agua",
-    "titulo": "Cap. 2 · pote de água",
-    "referencia": "o que ela alcança em Palmares",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma moringa de barro cozido, barriguda, com água transbordando na boca.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
-  },
-  {
-    "nome": "cap3-obj-muda",
-    "titulo": "Cap. 3 · muda em saco",
-    "referencia": "o que ela alcança hoje",
-    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
-    "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma muda de árvore nativa em saquinho de viveiro, folhas novas verde-claras.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
   }
 ]
