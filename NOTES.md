@@ -596,3 +596,60 @@ Duas saídas, e a segunda é melhor:
 2. Pedir a folha de novo com o ciclo descrito **pose a pose** no prompt, em vez de "um ciclo
    de caminhada completo". O modelo não sabe o que é fase de contato, de passagem e de
    impulso; ele sabe desenhar o que for descrito.
+
+### 2026-08-05 · a personagem troca, e a auditoria acha 23 assets parados
+
+**A personagem trocou.** Um agente em worktree isolada fez, e o achado dele derruba a minha
+premissa: eu disse que "sobram 6 ou 8 quadros" dos 12; **sobram TRÊS**.
+
+Minha medição usava o **centroide** de cada pé, e centroide mente — em apoio duplo o pé de
+trás está na ponta e o da frente está chapado, então os dois centroides ficam em pontos
+diferentes *do pé* e a distância entre eles não é o passo. Ele mediu a **SOLA**: as colunas
+cuja tinta mais baixa fica a ≤2 px da base. Dá 45–49 px com o pé chapado e 14–16 px na ponta,
+e isso separa as fases sozinho.
+
+Seis dos doze quadros diferem 11–19% de silhueta e **1,4 px de mundo** entre si: são o mesmo
+quadro na tela. Era essa a manqueira, e nenhum `PASSO_PX` consertaria.
+
+| | valor |
+|---|---|
+| quadros escolhidos | 6, 5, 2 — rastreando o calcanhar do pé de apoio |
+| laço | 140 px de sprite, três pernas iguais a menos de 0,7 px |
+| `PASSO_PX` | **6,377** px de mundo por quadro |
+| andar | `n = 10` → 38,26 px/s, 6 fps, 2 passos/s |
+| correr | `n = 5` → 76,52 px/s, exatamente o dobro |
+| **escorregamento medido** | **0,091 px de mundo num passo de 19,13 — 0,5%** |
+
+Cada ciclo é um **PASSO, não uma passada**: de perfil os dois pés compartilham silhueta, e é
+por isso que três quadros bastam.
+
+**`HERO_PISO` de 4,6 para 0.** As folhas em grade trazem um degrau vertical entre linhas que é
+*diagramação*, não quique. Sem zerar, o quadro sairia com 388 px de altura e ela renderizaria
+a 36,6 px de mundo em vez de 44.
+
+**A folha de CORRIDA ficou de fora de propósito:** 17% de variação de altura contra 1,5% da
+caminhada, e mistura tronco ereto com inclinado. CORRER reusa as poses da caminhada mais
+rápido. Consertar é outra sessão.
+
+**O agente de produto mediu o que eu não tinha:**
+
+- segurando o botão por 12 s, o que **atravessa a tela** vale **4%** da renda sem melhorias e
+  **1%** com `u1`. O resto é toque no vazio e folha recolhida andando. **O verbo trocou de
+  nome e não trocou de consequência.**
+- parado no menu, sem tocar em nada, o jogo rende **2,2 impacto/s**
+- do zero até ver todo o conteúdo: **5 min 07 s** — e ~4 s com o cartão de teste
+- **`recursos` não está no `ESQUEMA_SAVE`**: os três contadores do HUD zeram a cada
+  carregamento, e nada os gasta
+
+E achou um erro meu que eu vinha piorando sozinho: **`A HISTÓRIA` e `DE ONDE VEM` ficavam
+inacessíveis a partir do primeiro ponto ganho**, porque o menu só abria no carregamento e só
+com placar zerado. Eu escrevi as duas melhores telas do jogo e as tranquei. Um botão de 34 px
+conserta, e era a melhor razão valor/custo do repositório.
+
+**A auditoria de assets, pedida pelo dono:** 54 imagens geradas, **~23 nunca embutidas** —
+oito objetos de cap.2 e cap.3, dois drops, quatro ícones do HUD e nove folhas de sprite.
+Também descobri que eu havia dito ao dono que o logo não tinha chegado; **tinha**. Era por
+isso que a fila da mesa esvaziou sozinha.
+
+**Próximo passo:** embutir os 23. É mecânico, o pipeline inteiro já existe, e é o que mais
+muda o jogo por esforço. Há um agente fazendo isso em worktree.
