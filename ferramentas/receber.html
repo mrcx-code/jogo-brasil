@@ -141,6 +141,10 @@ function marcarRecebidas() {
       const c = cards[nome];
       if (!chegou[nome] || c.marcado) continue;
       c.marcado = true;
+      // SOME da lista, não fica marcado. Card marcado ainda ocupa espaço e ainda LÊ como
+      // pedido — o dono achou que a fila estava repetindo quando na verdade estava só
+      // mostrando o que já tinha entregue. A lista é uma fila de trabalho, não um histórico.
+      c.el.style.display = "none";
       c.el.className = "pedido feito";
       const t = c.el.querySelector(".titulo");
       if (t && t.textContent.indexOf("✓") !== 0) t.textContent = "✓ " + t.textContent;

@@ -12,29 +12,5 @@
     "referencia": "paisagem larga que fica atrás do logo",
     "tamanho": "PAISAGEM ~1536×640 · sem magenta",
     "prompt": "PIXEL ART de alta resolução. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Estética de jogo lateral pintado, não 8-bit retrô.\n\nUma paisagem de ABERTURA para a tela inicial: mata atlântica vista de longe ao amanhecer, camadas de morro sumindo em neblina azul, o mar ao fundo à direita, silhuetas de palmeiras em primeiro plano nas beiradas.\n\nComposição com o MEIO VAZIO e calmo — é onde o logotipo e os botões vão ficar. Toda a informação visual nas bordas de cima e de baixo. Luz de amanhecer, quente, baixa.\n\nSem pessoas, sem construções, sem texto. Formato deitado, bem mais largo que alto."
-  },
-  {
-    "nome": "sprite-cap3-correr",
-    "titulo": "9 · Sprite cap3 · CORRIDA",
-    "referencia": "a pessoa indígena de hoje, séc. XXI · 12 quadros",
-    "tamanho": "1024×1024 · grade 4x3 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 12 quadros são um CICLO DE CORRIDA de perfil: passada longa, tronco à frente, com fase de voo.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 3 LINHAS = 12 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
-  },
-  {
-    "nome": "sprite-cap3-pular",
-    "titulo": "10 · Sprite cap3 · SALTO",
-    "referencia": "a pessoa indígena de hoje, séc. XXI · 6 quadros",
-    "tamanho": "1024×1024 · grade 3x2 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 6 quadros são um SALTO completo de perfil.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 3 COLUNAS por 2 LINHAS = 6 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
-  },
-  {
-    "nome": "sprite-cap3-alcancar",
-    "titulo": "11 · Sprite cap3 · ALCANÇAR",
-    "referencia": "a pessoa indígena de hoje, séc. XXI · 4 quadros",
-    "tamanho": "1024×1024 · grade 4x1 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente. NÃO é golpe nem ataque — é colher, pegar, acolher.\n\nATENÇÃO: não é figura histórica nem de museu. Pessoa de hoje, séc. XXI, em terra demarcada.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
   }
 ]
