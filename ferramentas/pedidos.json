@@ -1,35 +1,17 @@
 [
   {
-    "nome": "pacote-cap1-frente",
-    "titulo": "1 · PACOTE · vegetação de frente, capítulo 1",
-    "referencia": "8 plantas do litoral atlântico, séc. XVI · substitui os avulsos que não combinavam",
-    "tamanho": "1024×1024 · grade 4x2 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO da mata atlântica de litoral, para passarem na frente da câmera num jogo lateral: uma palmeira jovem, um pé de bananeira, uma moita de samambaia, um tufo de capim alto, um arbusto de folha larga, uma raiz saliente com musgo, uma pedra baixa coberta de liquens, e um feixe de bambu fino.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
+    "nome": "logo-ideias",
+    "titulo": "1 · LOGO · pacote de 6 ideias",
+    "referencia": "para ESCOLHER uma, não para usar direto",
+    "tamanho": "1024×1024 · grade 3×2 · magenta",
+    "prompt": "PIXEL ART de alta resolução. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Estética de jogo lateral pintado, não 8-bit retrô.\n\nSeis PROPOSTAS DIFERENTES de logotipo para um jogo chamado BRASIL, numa grade de 3 colunas por 2 linhas. Cada célula é uma ideia independente e deve ser bem diferente das outras — não seis variações da mesma.\n\nO jogo é sobre a história do Brasil vista por quem já estava aqui: povos originários, quilombos, e o presente. Mata atlântica, litoral, terra vermelha, serra. NÃO é sobre futebol, carnaval, bandeira nacional, verde-amarelo de camisa, nem samba — esses são o Brasil de cartão postal e não é disso que o jogo trata.\n\nDirecione para: grafismo indígena, trançado de fibra, folha de mata atlântica, penas, terra e barro, madeira entalhada, pedra. Cores da paleta do jogo: verdes de mata, marrom de terra, dourado quente, azul de rio.\n\nA palavra BRASIL deve aparecer em cada uma, legível, integrada ao desenho — não escrita por cima.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Imagem quadrada 1024x1024. Sem texto solto fora do desenho, sem marca d'água, sem moldura."
   },
   {
-    "nome": "pacote-cap2-frente",
-    "titulo": "2 · PACOTE · vegetação de frente, capítulo 2",
-    "referencia": "8 plantas da serra alagoana, séc. XVII · substitui os avulsos que não combinavam",
-    "tamanho": "1024×1024 · grade 4x2 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO da mata de encosta da serra: uma samambaia arborescente, um pé de mandioca, uma moita de capim-navalha, um arbusto espinhoso, uma pedra grande de granito, um tronco caído com musgo, um pé de palmeira pindoba, e um cupinzeiro baixo.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
-  },
-  {
-    "nome": "pacote-cap3-frente",
-    "titulo": "3 · PACOTE · vegetação de frente, capítulo 3",
-    "referencia": "8 plantas de terra indígena hoje · substitui os avulsos que não combinavam",
-    "tamanho": "1024×1024 · grade 4x2 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro nunca preto.\n\nOito plantas e elementos de PRIMEIRO PLANO de uma terra indígena cuidada hoje: um pé de bananeira com cacho, uma muda de árvore nativa em saco de viveiro, um pé de mandioca, um tufo de capim, um arbusto de folha larga, uma pedra baixa, um toco de madeira cortado, e um pé de milho novo.\n\nFORMATO — PACOTE numa imagem só, e é isso que faz os elementos combinarem:\n- UMA imagem de 1024x1024 com 8 objetos numa GRADE de 4 colunas por 2 linhas.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de todos.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto — linha desenhada gruda os objetos numa mancha só e o recortador quebra.\n- Cada objeto inteiro dentro da sua célula, sem encostar nas bordas, apoiado na base da célula.\n\nO PONTO DO PACOTE: os 8 objetos têm que parecer do MESMO lugar e do MESMO desenhista — mesma paleta de verdes e marrons, mesma direção de luz, mesma espessura de contorno, mesmo nível de detalhe. É por isso que vão juntos numa imagem e não separados."
-  },
-  {
-    "nome": "sprite-cap2-alcancar",
-    "titulo": "8 · Sprite cap2 · ALCANÇAR",
-    "referencia": "a pessoa de Palmares, séc. XVII · 4 quadros",
-    "tamanho": "1024×1024 · grade 4x1 · magenta",
-    "origem": "",
-    "prompt": "PIXEL ART para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA PESSOA da folha de caminhada deste capítulo — mesmo cabelo, mesma roupa, mesmas cores, mesma altura. Só a pose muda.\n\nOs 4 quadros são o gesto de ALCANÇAR algo à frente. NÃO é golpe nem ataque — é colher, pegar, acolher.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFORMATO — é o que mais falha:\n- UMA imagem quadrada de 1024x1024 em GRADE de 4 COLUNAS por 1 LINHAS = 4 quadros.\n- Leitura da esquerda para a direita, de cima para baixo.\n- FUNDO MAGENTA CHAPADO #FF00FF puro atrás de tudo.\n- SEM linha de grade desenhada, sem moldura, sem numeração, sem texto. Uma linha desenhada gruda os quadros numa mancha só e o recortador quebra.\n- Figura inteira dentro da célula, CORPO INTEIRO, de PERFIL, virada para a DIREITA.\n\nCONSISTÊNCIA: é a mesma pessoa em todos os quadros."
+    "nome": "logo-fundo",
+    "titulo": "2 · LOGO · fundo da tela de abertura",
+    "referencia": "paisagem larga que fica atrás do logo",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
+    "prompt": "PIXEL ART de alta resolução. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Estética de jogo lateral pintado, não 8-bit retrô.\n\nUma paisagem de ABERTURA para a tela inicial: mata atlântica vista de longe ao amanhecer, camadas de morro sumindo em neblina azul, o mar ao fundo à direita, silhuetas de palmeiras em primeiro plano nas beiradas.\n\nComposição com o MEIO VAZIO e calmo — é onde o logotipo e os botões vão ficar. Toda a informação visual nas bordas de cima e de baixo. Luz de amanhecer, quente, baixa.\n\nSem pessoas, sem construções, sem texto. Formato deitado, bem mais largo que alto."
   },
   {
     "nome": "sprite-cap3-correr",
