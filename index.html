@@ -289,6 +289,32 @@
   /* --hControles is measured from the real control block on load and on resize: NOTES
      records a panel covering the menu bar once already, and a hardcoded 126px breaks
      again the moment a button grows a line of text */
+
+  /* ===== TELAS ===== As quatro que faltavam. Todas usam o mesmo vocabulário do HUD:
+     painel opaco, moldura de sombra dura, zero canto redondo, zero blur. */
+  .tela { position: fixed; inset: 0; z-index: 40; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(12,10,7,.94); padding: 24px; text-align: center; }
+  .tela.aberta { display: flex; }
+  .telaTit { font-size: 26px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
+    text-shadow: 0 3px 0 #0a0806; margin-bottom: 6px; }
+  .telaTxt { font-size: 14px; color: #e6dcc4; line-height: 1.7; max-width: 30em;
+    margin-bottom: 22px; white-space: pre-wrap; }
+  .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
+    letter-spacing: .1em; color: #1b1610; background: #d9a441; border: 0; padding: 14px 30px;
+    margin: 5px; box-shadow: inset 0 3px 0 #ffd98a, inset 0 -3px 0 #9a6f22, 0 4px 0 #0a0806; }
+  .telaBtn.sec { background: #3a3226; color: #e6dcc4;
+    box-shadow: inset 0 2px 0 #5c5140, inset 0 -2px 0 #221d15, 0 4px 0 #0a0806; }
+  /* a caixa de texto da ponte, estilo jogo antigo: moldura grossa e texto revelado */
+  #pontesCaixa { background: #16130d; box-shadow: inset 0 0 0 3px #4a3c28, 0 5px 0 #0a0806;
+    padding: 20px 22px; max-width: 34em; margin-bottom: 20px; text-align: left; }
+  /* completude: uma linha por cena, marcada ou não */
+  .cenaLinha { display: flex; align-items: center; gap: 10px; padding: 7px 12px; margin: 3px 0;
+    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; min-width: 16em; text-align: left; }
+  .cenaLinha .marca { font-weight: 900; width: 1.4em; }
+  .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
+  .cenaLinha.vista .marca { color: #8fd96a; }
+  .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
   .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);
     bottom: calc(var(--hControles, 120px) + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px);
     background: rgba(26, 31, 16, .93); border: 0; border-radius: 18px; box-shadow: none;
@@ -445,6 +471,38 @@
 </div>
 
 
+
+
+<!-- MENU INICIAL: o jogo começava sem começar. É a primeira impressão e não existia. -->
+<div class="tela" id="telaMenu">
+  <div class="telaTit">BRASIL</div>
+  <div class="telaTxt" id="menuSub">um jogo sobre quem já estava aqui</div>
+  <button class="telaBtn" id="btnJogar">JOGAR</button>
+  <button class="telaBtn sec" id="btnCompletude">O QUE JÁ VI</button>
+  <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
+</div>
+
+<!-- PONTE: a tela entre capítulos. O texto vive em TEXTOS, que o smoke test varre. -->
+<div class="tela" id="telaPonte">
+  <div class="telaTit" id="ponteTit">NOVA ÉPOCA</div>
+  <div id="pontesCaixa"><div class="telaTxt" id="ponteTxt" style="margin:0"></div></div>
+  <button class="telaBtn" id="btnPonte">CONTINUAR</button>
+</div>
+
+<!-- COMPLETUDE: o que já foi visto. É o motivo de voltar amanhã. -->
+<div class="tela" id="telaCompletude">
+  <div class="telaTit">O QUE JÁ VI</div>
+  <div id="listaCenas"></div>
+  <button class="telaBtn" id="btnVoltarComp">VOLTAR</button>
+</div>
+
+<!-- AJUSTES -->
+<div class="tela" id="telaConfig">
+  <div class="telaTit">AJUSTES</div>
+  <div class="telaTxt" id="cfgInfo"></div>
+  <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
+  <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
+</div>
 
 <div class="sheet" id="sheetUpgrades">
   <div class="sheetHead"><div class="t">MELHORIAS</div>
@@ -2953,6 +3011,13 @@ function verificarCenario() {
   if (alvo === null) return;                       // the last street: nothing further to reach
   if (S.energiaTotal < alvo) return;
   S.cenario = cenarioAtual() + 1;
+  const nova = Math.floor(cenarioAtual() / 2) + 1;
+  if (cenarioAtual() % 2 === 0) {
+    // Só na virada de ÉPOCA, não a cada cena: interromper o jogo duas vezes por época
+    // transforma a ponte em obstáculo. O texto fica vazio até o dono aprovar o conteúdo —
+    // tela pronta, conteúdo histórico não inventado.
+    mostrarPonte("ÉPOCA " + nova, TEXTOS[nova - 1] || "");
+  }
   redesenharFundo();
   floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58, life: 90,
     txt: "NOVO CAPÍTULO" });
@@ -3890,6 +3955,65 @@ const SHEETS = ["sheetUpgrades"];
 function abrir(id) {
   SHEETS.forEach(function (s) { $(s).classList.toggle("aberto", s === id && !$(s).classList.contains("aberto")); });
 }
+
+// ===== AS QUATRO TELAS =====
+// Todas usam o mesmo mecanismo: uma classe. Sem framework, sem roteador, sem estado paralelo
+// — o jogo continua rodando atrás, e é isso que faz a transição parecer parte dele.
+const TELAS = ["telaMenu", "telaPonte", "telaCompletude", "telaConfig"];
+function abrirTela(id) {
+  TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
+}
+function fecharTelas() { TELAS.forEach(function (t) { $(t).classList.remove("aberta"); }); }
+
+// Os nomes das cenas. Não afirmam nada de história — são lugares, e lugar não precisa de
+// fonte. O que precisar de fonte vai para TEXTOS e para o NOTES.md, não para cá.
+const NOME_CENA = ["Litoral", "Praia aberta", "Serra", "Alto da serra", "Mata de hoje", "Beira de rio"];
+function montarCompletude() {
+  const box = $("listaCenas");
+  box.textContent = "";
+  const ate = cenarioAtual();
+  NOME_CENA.forEach(function (nome, i) {
+    const l = document.createElement("div");
+    l.className = "cenaLinha" + (i <= ate ? " vista" : "");
+    const m = document.createElement("span");
+    m.className = "marca"; m.textContent = i <= ate ? "✓" : "·";
+    const n = document.createElement("span");
+    n.className = "nm";
+    // Cena não vista não revela o nome: o que falta é o motivo de voltar, e nomear tudo de
+    // saída entrega o mapa inteiro na primeira sessão.
+    n.textContent = i <= ate ? nome : "— ainda não —";
+    l.appendChild(m); l.appendChild(n); box.appendChild(l);
+  });
+}
+
+let ponteDepois = null;
+function mostrarPonte(titulo, texto, depois) {
+  $("ponteTit").textContent = titulo;
+  $("ponteTxt").textContent = texto;
+  ponteDepois = depois || null;
+  abrirTela("telaPonte");
+}
+
+function ligarTelas() {
+  $("btnJogar").addEventListener("pointerdown", function (e) { e.preventDefault(); fecharTelas(); });
+  $("btnCompletude").addEventListener("pointerdown", function (e) { e.preventDefault(); montarCompletude(); abrirTela("telaCompletude"); });
+  $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
+  $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+  $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+  $("btnPonte").addEventListener("pointerdown", function (e) {
+    e.preventDefault(); fecharTelas();
+    if (ponteDepois) { const f = ponteDepois; ponteDepois = null; f(); }
+  });
+  $("btnApagar").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); montarConfig(); });
+}
+function montarConfig() {
+  const d = R.dias.length, m = Math.floor((R.segundos || 0) / 60);
+  $("cfgInfo").textContent = "dias distintos jogados: " + d
+    + " · tempo total: " + m + " min"
+    + " · nada sai deste aparelho: o jogo não tem rede.";
+  $("btnApagar").textContent = "APAGAR MEU PROGRESSO";
+}
+
 function fecharTudo() {
   SHEETS.forEach(function (s) { $(s).classList.remove("aberto"); });
   const b = $("openUpgrades"); if (b) b.classList.remove("fechando");
@@ -3974,6 +4098,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // any other tap dismisses the step WITHOUT consuming the event, so the same tap still
   // reaches the game underneath (this is a capture-phase listener that only sets state). A
   // short grace stops a tap already in flight when a step appears from killing it unread.
+  ligarTelas();
+  // O menu abre só quando não há partida em andamento. Quem já jogou não quer clicar JOGAR
+  // toda vez que volta — quer voltar para onde estava.
+  if (!S.energiaTotal) abrirTela("telaMenu");
   $("btnU5").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); });
   $("guiaOk").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); dispensarGuia(); });
   $("guiaSkip").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pularGuia(); });

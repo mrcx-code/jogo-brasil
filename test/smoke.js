@@ -22,6 +22,14 @@ function chromiumPath() {
 
   await page.goto(file);
   await page.waitForTimeout(900);
+
+  // O menu inicial abre quando nao ha partida, e o teste comeca sempre em partida nova, entao
+  // ele cobre a tela e todo tap seguinte cai nele. Nao e bug do jogo: e o teste que precisa
+  // entrar antes de testar.
+  await page.evaluate(() => {
+    if (typeof fecharTelas === 'function') fecharTelas();
+  });
+  await page.waitForTimeout(150);
   // read the tuning out of the page instead of restating it here
   const CFG_TIROS = await page.evaluate(() => CFG.autoFogoTiros);
   const CFG_COMBOS = await page.evaluate(() => CFG.superCombos);
