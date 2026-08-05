@@ -5,6 +5,16 @@ Regra de corte: **o que aumenta a chance de alguém voltar amanhã vale mais que
 
 ## Agora
 
+- [ ] **Fazer correr valer a pena.** Andando e segurando o botão, atende-se 100% — então a
+      escolha entre andar e correr não morde, e correr não compra nada (3% de renda, dentro do
+      ruído). O verbo tem consequência mas não tem tensão. **Critério:** a pessoa tem que
+      conseguir descrever a diferença sem ver número. Há agente nisso.
+- [ ] **Ler não pode pagar mais que pular.** O mundo continua rendendo durante a caixa de
+      fala, então quem lê a história ganha mais que quem pula. Pequeno, mas é um incentivo na
+      direção errada — recompensa quem espera em vez de quem se interessa.
+- [ ] **Pose parada para a caixa de fala.** Ela conversa de perfil, no meio da passada,
+      porque o único retrato disponível é um quadro de caminhada. Já pedido na mesa.
+
 - [ ] **Sprites de cap.2 e cap.3.** A arte existe e as folhas foram medidas: 12 manchas, zero
       fragmento, cabeça com CV de 0,8% nas duas — é a mesma pessoa nos doze quadros. O que
       falta é do motor, não da arte: `HERO_B64`, `PASSO_PX` e `heroScale` são únicos, e

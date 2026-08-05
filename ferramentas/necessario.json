@@ -4,6 +4,13 @@
   "_magenta": "\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra.",
   "itens": [
     {
+      "nome": "sprite-cap1-parada",
+      "titulo": "SPRITE · pose PARADA de frente, cap.1",
+      "ref": "para a caixa de fala — hoje ela conversa de perfil, no meio da passada",
+      "tam": "1024×1024 · 1 figura · magenta",
+      "p": "A MESMA pessoa Tupinambá do litoral atlântico das folhas de caminhada — mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados ao lado do corpo, expressão calma e atenta. É o retrato que aparece ao lado do texto quando ela conta a história — precisa parecer que ela está falando com você, não passando por você.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, século XVI."
+    },
+    {
       "nome": "menu-refs",
       "titulo": "MENU · 4 referencias de tela inicial",
       "ref": "para OLHAR e copiar o vocabulario, nao para recortar",
