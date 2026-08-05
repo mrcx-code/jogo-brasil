@@ -3041,28 +3041,80 @@ function rolarFundo() {
 // sorteio a cada quadro a folhagem piscaria de lugar; com hash da posição, cada trecho da rua
 // tem sempre as mesmas plantas, e voltar para trás encontra o que estava lá.
 const FRENTE_SPR = FRENTE_B64.map(function (d) { const im = new Image(); im.src = d; return im; });
-const FRENTE_VAO = 190;      // px de mundo entre um elemento e o próximo
+
+// O que separa cenário integrado de adesivo espalhado. Quatro coisas, e nenhuma é sobre a
+// arte em si — são sobre COMO ela é posta na tela. Jogo bom faz as quatro:
+//
+// 1. CONTATO. Elemento sem sombra na base flutua, mesmo na altura certa. A sombra não precisa
+//    ser realista; precisa existir. Uma elipse escura achatada resolve.
+// 2. PERSPECTIVA ATMOSFÉRICA. Perto é mais escuro e mais saturado; longe é mais claro e mais
+//    azulado, porque há ar no caminho. Tingir a camada da frente para BAIXO é o que a separa
+//    do fundo sem mudar um pixel de arte.
+// 3. AGRUPAMENTO. Natureza não é espaçada por igual. Espaçamento constante é a assinatura
+//    mais denunciante de cenário gerado. Três juntas, um vazio, uma sozinha.
+// 4. SOBREPOSIÇÃO. Elementos que se cruzam leem como mata; isolados leem como ícones. Vem de
+//    graça do agrupamento, desde que eles não sejam empurrados para longe uns dos outros.
+//
+// Tudo determinístico por hash da posição — nunca Math.random(), senão a folhagem pisca de
+// lugar a cada quadro e voltar para trás encontra outra rua.
 const FRENTE_VEL = 1.35;
+const FRENTE_PASSO = 110;          // grade base; o hash decide se cada casa tem planta ou não
+let frenteSombra = null;
+function sombraContato(w, h) {
+  if (frenteSombra && frenteSombra.w === w) return frenteSombra.cv;
+  const cv = document.createElement("canvas");
+  cv.width = Math.max(2, w); cv.height = Math.max(2, h);
+  const g = cv.getContext("2d");
+  const grad = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+  grad.addColorStop(0, "rgba(20,26,18,0.55)");
+  grad.addColorStop(1, "rgba(20,26,18,0)");
+  g.fillStyle = grad; g.fillRect(0, 0, w, h);
+  frenteSombra = { w: w, cv: cv };
+  return cv;
+}
 function desenharFrente(fx, g) {
-  if (!FRENTE_SPR.length) return;
-  const esc = g.cw / W;                       // mundo -> pixels do canvas de fundo
+  // `typeof` e não só `.length`: esta função é chamada de dentro do desenho da personagem,
+  // que roda antes desta linha do arquivo ter sido executada na primeira volta do laço.
+  if (typeof FRENTE_SPR === "undefined" || !FRENTE_SPR.length) return;
+  const esc = g.cw / W;
   const desl = worldX * FRENTE_VEL;
-  const i0 = Math.floor(desl / FRENTE_VAO) - 1;
-  const quantos = Math.ceil(W / FRENTE_VAO) + 3;
+  const i0 = Math.floor(desl / FRENTE_PASSO) - 2;
+  const quantos = Math.ceil(W / FRENTE_PASSO) + 5;
+  const chao = FUNDO_GROUND_DST * g.ch;
   for (let k = 0; k < quantos; k++) {
     const n = i0 + k;
-    // hash inteiro barato: mesma posição, sempre o mesmo elemento e o mesmo tamanho
     const h = ((n * 2654435761) >>> 0);
-    const im = FRENTE_SPR[h % FRENTE_SPR.length];
-    if (!im.complete || !im.naturalWidth) continue;
-    const x = (n * FRENTE_VAO - desl) * esc;
-    if (x > g.cw + 200 || x < -200) continue;
-    const alt = (70 + (h >> 8) % 40) * esc;   // 70..110 px de mundo
+    // 3. AGRUPAMENTO: só 55% das casas recebem planta, e o hash decide quais. Isso sozinho
+    // quebra o ritmo constante e produz moitas e vazios sem nenhuma lógica extra.
+    if ((h % 100) >= 55) continue;
+    const im = FRENTE_SPR[(h >>> 3) % FRENTE_SPR.length];
+    if (!im || !im.complete || !im.naturalWidth) continue;
+    // deslocamento lateral dentro da casa: tira o alinhamento de grade que sobraria
+    const jitter = (((h >> 11) % 60) - 30);
+    const x = (n * FRENTE_PASSO + jitter - desl) * esc;
+    if (x > g.cw + 260 || x < -260) continue;
+    const alt = (78 + (h >> 6) % 46) * esc;
     const larg = alt * (im.naturalWidth / im.naturalHeight);
-    const base = FUNDO_GROUND_DST * g.ch + ((h >> 16) % 14) * esc;
-    fx.drawImage(im, Math.round(x - larg / 2), Math.round(base - alt), Math.round(larg), Math.round(alt));
+    // 1. CONTATO: a base afunda alguns px no chão, e ganha sombra. Sem afundar, a planta
+    // parece pousada; afundando, parece plantada.
+    const base = chao + (4 + (h >> 17) % 10) * esc;
+    const sw = larg * 0.85, sh = Math.max(3, alt * 0.10);
+    fx.drawImage(sombraContato(64, 24), Math.round(x - sw / 2), Math.round(base - sh / 2),
+      Math.round(sw), Math.round(sh));
+    fx.drawImage(im, Math.round(x - larg / 2), Math.round(base - alt),
+      Math.round(larg), Math.round(alt));
   }
+  // 2. PERSPECTIVA ATMOSFÉRICA, aplicada à camada inteira de uma vez: um véu escuro e quente
+  // só onde há tinta. `source-atop` pinta apenas sobre o que já foi desenhado, então a
+  // personagem e a folhagem escurecem juntas e passam a pertencer ao mesmo plano — que é
+  // exatamente o que faltava para não parecerem coladas por cima do fundo.
+  fx.save();
+  fx.globalCompositeOperation = "source-atop";
+  fx.fillStyle = "rgba(24,32,20,0.13)";
+  fx.fillRect(0, 0, g.cw, g.ch);
+  fx.restore();
 }
+
 // 0 = camada única, o comportamento herdado. Acima de 0, a parte acima da linha do chão rola
 // nessa fração. A arte dos capítulos vem em duas peças e então isto deixa de ser depuração.
 let paralaxeLonge = 0.45;
