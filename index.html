@@ -333,6 +333,18 @@
   .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
   .cenaLinha.vista .marca { color: #8fd96a; }
   .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
+  /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */
+  #telaFontes { justify-content: flex-start; padding-top: 30px; }
+  #listaFontes { overflow-y: auto; max-width: 34em; width: 100%; text-align: left;
+    margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+  .fnGrupo { font-size: 11px; letter-spacing: .16em; color: #d9a441; font-weight: 900;
+    margin: 16px 0 7px; }
+  .fnItem { background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; padding: 9px 12px;
+    margin-bottom: 6px; }
+  .fnT { font-size: 13px; color: #f0e4c6; line-height: 1.45; }
+  .fnQ { font-size: 11px; color: #9d9280; margin-top: 4px; line-height: 1.5; }
+  .fnDuv { box-shadow: inset 0 0 0 2px #6b5220; }
+  .fnDuv .fnT { color: #ffd98a; }
   .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);
     bottom: calc(var(--hControles, 120px) + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px);
     background: rgba(26, 31, 16, .93); border: 0; border-radius: 18px; box-shadow: none;
@@ -497,6 +509,7 @@
   <div class="telaTxt" id="menuSub">um jogo sobre quem já estava aqui</div>
   <button class="telaBtn" id="btnJogar">JOGAR</button>
   <button class="telaBtn sec" id="btnCompletude">O QUE JÁ VI</button>
+  <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
 </div>
 
@@ -520,6 +533,14 @@
   <div class="telaTxt" id="cfgInfo"></div>
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
+</div>
+
+
+<!-- FONTES: o §2 virando interface. Se alguém inventar um fato, esta tela fica vazia. -->
+<div class="tela" id="telaFontes">
+  <div class="telaTit">DE ONDE VEM</div>
+  <div id="listaFontes"></div>
+  <button class="telaBtn" id="btnVoltarFontes">VOLTAR</button>
 </div>
 
 <div class="sheet" id="sheetUpgrades">
@@ -3977,7 +3998,7 @@ function abrir(id) {
 // ===== AS QUATRO TELAS =====
 // Todas usam o mesmo mecanismo: uma classe. Sem framework, sem roteador, sem estado paralelo
 // — o jogo continua rodando atrás, e é isso que faz a transição parecer parte dele.
-const TELAS = ["telaMenu", "telaPonte", "telaCompletude", "telaConfig"];
+const TELAS = ["telaMenu", "telaPonte", "telaCompletude", "telaConfig", "telaFontes"];
 function abrirTela(id) {
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
 }
@@ -4017,6 +4038,8 @@ function ligarTelas() {
   $("btnCompletude").addEventListener("pointerdown", function (e) { e.preventDefault(); montarCompletude(); abrirTela("telaCompletude"); });
   $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
   $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+  $("btnFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); montarFontes(); abrirTela("telaFontes"); });
+  $("btnVoltarFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnPonte").addEventListener("pointerdown", function (e) {
     e.preventDefault(); fecharTelas();
@@ -4030,6 +4053,56 @@ function montarConfig() {
     + " · tempo total: " + m + " min"
     + " · nada sai deste aparelho: o jogo não tem rede.";
   $("btnApagar").textContent = "APAGAR MEU PROGRESSO";
+}
+
+
+// ===== DE ONDE VEM =====
+// Um jogo que afirma história devia mostrar de onde tirou. Esta lista NÃO vive em `TEXTOS`,
+// e a separação é deliberada: `TEXTOS` é ficção autoral e o smoke test o proíbe de conter
+// dígito, porque número solto numa frase de jogo lê como fato. Fonte é o contrário — ela
+// PRECISA de ano, de número de lei, de volume de periódico. São duas naturezas diferentes e
+// misturá-las apagaria a regra que protege as duas.
+//
+// A seção de DÚVIDA existe porque história tem disputa, e fingir que ela é lisa é pior que
+// mostrar a costura. Dizer "estas fontes discordam" ensina mais que escolher uma calado.
+const FONTES = [
+  { g: "POVOS ORIGINÁRIOS" },
+  { t: "Manuela Carneiro da Cunha, “Imagens de índios do Brasil: o século XVI”, Estudos Avançados 4(10), 1990 — USP",
+    q: "Inventário crítico das fontes quinhentistas, e a demonstração de que elas descrevem preocupações europeias, não realidades indígenas." },
+  { t: "IBGE — Censo 2022",
+    q: "391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. É o dado que derruba tratar “índio” como categoria única." },
+  { t: "Lei nº 14.402/2022 — Planalto",
+    q: "Institui o Dia dos Povos Indígenas e revoga o “Dia do Índio” de 1943. O Estado brasileiro, em lei, adotando o plural." },
+  { t: "Enciclopédia Povos Indígenas no Brasil — Tupinambá de Olivença",
+    q: "O povo Tupinambá está vivo, no sul da Bahia, com terra em demarcação. Não são passado." },
+  { g: "PALMARES" },
+  { t: "Documenta Palmares — Silvia Hunold Lara, Unicamp",
+    q: "Cerca de 4.400 documentos digitalizados dos séculos XVII a XIX. A própria base avisa que as informações são incompletas e contraditórias." },
+  { t: "Silvia H. Lara, “O território dos Palmares”, Afro-Ásia nº 64, 2021 — UFBA",
+    q: "Cartografia dos mocambos a partir da documentação primária: Macaco, Subupira, Amaro, Andalaquituche, Osenga." },
+  { t: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678 — Chão Editora, 2021",
+    q: "Paleografia que corrige nomes: “Gana Zumba”, não “Ganga Zumba” — em quimbundo, gana é senhor e ganga é sacerdote." },
+  { g: "ONDE AS FONTES DISCORDAM", d: 1 },
+  { t: "Quanta gente vivia aqui em 1500?", d: 1,
+    q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
+  { t: "Quantos viviam em Palmares?", d: 1,
+    q: "A Fundação Cultural Palmares, órgão federal, afirma cerca de 20 mil. Silvia Lara classifica os números da documentação seiscentista como exagerados." },
+  { t: "“Angola Janga” era mesmo o nome?", d: 1,
+    q: "Circula como o nome que os palmaristas usavam, mas não localizamos atestação em documento colonial. O estudo mais completo da toponímia não menciona o termo. Por isso o jogo não o usa." }
+];
+function montarFontes() {
+  const box = $("listaFontes");
+  box.textContent = "";
+  box.style.maxHeight = Math.max(220, window.innerHeight - 260) + "px";
+  FONTES.forEach(function (f) {
+    if (f.g) { const h = document.createElement("div"); h.className = "fnGrupo"; h.textContent = f.g; box.appendChild(h); return; }
+    const d = document.createElement("div");
+    d.className = "fnItem" + (f.d ? " fnDuv" : "");
+    const t = document.createElement("div"); t.className = "fnT"; t.textContent = f.t;
+    d.appendChild(t);
+    if (f.q) { const q = document.createElement("div"); q.className = "fnQ"; q.textContent = f.q; d.appendChild(q); }
+    box.appendChild(d);
+  });
 }
 
 function fecharTudo() {
