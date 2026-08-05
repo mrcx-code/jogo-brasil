@@ -1,60 +1,128 @@
 [
   {
     "nome": "cap1-fundo-alto",
-    "titulo": "Capítulo 1 · fundo, peça de CIMA — FECHADO",
-    "referencia": "Tupinambá, litoral atlântico, séc. XVI",
-    "tamanho": "recebida 1024×1536",
+    "titulo": "cap1 fundo alto — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
     "prompt": "",
     "resposta": {
       "estado": "ok",
-      "rodada": 2,
-      "texto": "APROVADAS as duas. A orientação obedeceu — retrato e paisagem vieram certas, o pedido em maiúscula funcionou.\n\nA paleta NÃO obedeceu, e eu paro de pedir: 270.106 e 222.058 cores, pixel lógico 1 nas duas, depois de dois rounds com instrução explícita e destacada. Isso é limite do modelo, não do prompt — o GPT pinta algo que PARECE pixel art, não faz pixel art. Quantizo do meu lado. Não é mais problema seu.\n\nCapítulo 1 está fechado. Os próximos pedidos são capítulo 2 (Palmares) e capítulo 3 (hoje)."
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
     }
   },
   {
     "nome": "cap1-fundo-baixo",
-    "titulo": "Capítulo 1 · fundo, peça de BAIXO — FECHADO",
-    "referencia": "o chão do litoral",
-    "tamanho": "recebida 1774×887",
+    "titulo": "cap1 fundo baixo — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
     "prompt": "",
     "resposta": {
       "estado": "ok",
-      "rodada": 2,
-      "texto": "APROVADAS as duas. A orientação obedeceu — retrato e paisagem vieram certas, o pedido em maiúscula funcionou.\n\nA paleta NÃO obedeceu, e eu paro de pedir: 270.106 e 222.058 cores, pixel lógico 1 nas duas, depois de dois rounds com instrução explícita e destacada. Isso é limite do modelo, não do prompt — o GPT pinta algo que PARECE pixel art, não faz pixel art. Quantizo do meu lado. Não é mais problema seu.\n\nCapítulo 1 está fechado. Os próximos pedidos são capítulo 2 (Palmares) e capítulo 3 (hoje)."
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
     }
   },
   {
     "nome": "cap2-fundo-alto",
-    "titulo": "Capítulo 2 · fundo, peça de CIMA (céu e serra)",
-    "referencia": "Palmares, séc. XVII · a mata da Serra da Barriga, Alagoas · rola devagar",
-    "tamanho": "RETRATO · ~1024×1536 · vira 720×959",
+    "titulo": "cap2 fundo alto — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM VERTICAL, em retrato, mais alta que larga.\n\nCENA: elevação frontal plana, na altura dos olhos de quem está de pé, sem perspectiva de fuga — como cenário de jogo lateral. Linha do horizonte reta atravessando a imagem. Céu ocupando a metade de cima.\n\nMata atlântica de encosta no interior de Alagoas, século XVII. Serra alta coberta de floresta densa, morros arredondados em camadas sumindo em azul de neblina, palmeiras de pindoba entre árvores de folha larga. Céu tropical com nuvens altas.\n\nATENÇÃO — erro que modelos cometem sozinhos aqui: pedir Palmares ou quilombo puxa \"aldeia africana genérica de safári\" — cabana redonda de palha, savana, acácia. NADA disso. É mata atlântica fechada de serra brasileira, úmida e verde-escura.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções., sem cabanas, sem aldeia, sem savana."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
+    }
   },
   {
     "nome": "cap2-fundo-baixo",
-    "titulo": "Capítulo 2 · fundo, peça de BAIXO (chão da mata)",
-    "referencia": "o chão da serra · rola 1:1",
-    "tamanho": "PAISAGEM larga · ~1774×887 · vira 720×320",
+    "titulo": "cap2 fundo baixo — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM DEITADA, em paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, como o piso de um jogo lateral. Textura contínua e uniforme, repetível lado a lado sem emenda visível e sem nenhum ponto que chame atenção.\n\nChão de mata atlântica de encosta: terra vermelha úmida, serrapilheira de folhas caídas, raízes expostas, samambaias baixas, pedras cobertas de musgo. Luz salpicada filtrada por copa alta.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
+    }
   },
   {
     "nome": "cap3-fundo-alto",
-    "titulo": "Capítulo 3 · fundo, peça de CIMA (céu e mata, hoje)",
-    "referencia": "presente · terra indígena demarcada · a MESMA mata do capítulo 1, cinco séculos depois",
-    "tamanho": "RETRATO · ~1024×1536 · vira 720×959",
+    "titulo": "cap3 fundo alto — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM VERTICAL, em retrato, mais alta que larga.\n\nCENA: elevação frontal plana, na altura dos olhos de quem está de pé, sem perspectiva de fuga — como cenário de jogo lateral. Linha do horizonte reta atravessando a imagem. Céu ocupando a metade de cima.\n\nMata atlântica de litoral no presente, em terra indígena demarcada e preservada. Deve parecer PARENTE da paisagem do capítulo 1 — mesma mata, mesmo mar ao fundo — mas com sinais discretos de hoje: uma clareira de roçado bem cuidada, bananeiras e mandioca plantadas em linha, uma trilha de terra batida.\n\nO tom é de terra viva e cuidada, não de ruína nem de nostalgia. Não é \"o que sobrou\" — é o que foi mantido.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
+    }
   },
   {
     "nome": "cap3-fundo-baixo",
-    "titulo": "Capítulo 3 · fundo, peça de BAIXO (chão, hoje)",
-    "referencia": "o chão de hoje · rola 1:1",
-    "tamanho": "PAISAGEM larga · ~1774×887 · vira 720×320",
+    "titulo": "cap3 fundo baixo — FECHADO",
+    "referencia": "recebido",
+    "tamanho": "ok",
     "origem": "",
-    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta rica e saturada, poucos tons por material, luz quente vinda de cima à direita, contorno marrom escuro e nunca preto.\n\nFORMATO: IMAGEM DEITADA, em paisagem, bem mais larga que alta.\n\nCENA: o CHÃO visto de pouco acima, como o piso de um jogo lateral. Textura contínua e uniforme, repetível lado a lado sem emenda visível e sem nenhum ponto que chame atenção.\n\nChão de trilha em terra indígena hoje: terra batida clara de caminho usado, capim baixo nas beiradas, folhas caídas, algumas mudas plantadas em linha. Cuidado e uso, não abandono.\n\nOBRIGATÓRIO: composição uniforme e repetida, SEM nenhum marco único e dominante — a imagem é espelhada lado a lado no jogo, e um marco vira dois se encarando. Sem texto, sem placa, sem letra. Sem pessoas, sem construções.."
+    "prompt": "",
+    "resposta": {
+      "estado": "ok",
+      "rodada": 3,
+      "texto": "RECEBIDAS AS SEIS peças de fundo dos três capítulos, todas na orientação certa. Capítulos 1, 2 e 3 fechados no que é cenário.\n\nCores medidas: 270k, 222k, 328k, 257k, 288k, 268k. Como esperado — quantizo eu.\n\nPróximo: os objetos que atravessam a tela. São o que a pessoa ALCANÇA, o verbo do jogo."
+    }
+  },
+  {
+    "nome": "cap1-obj-fruta",
+    "titulo": "Cap. 1 · cacho de fruta madura",
+    "referencia": "o que ela alcança: a colheita do dia",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um galho carregado de frutas tropicais maduras, cores fortes, folhas largas.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap1-obj-peixe",
+    "titulo": "Cap. 1 · peixes",
+    "referencia": "o que ela alcança: a pesca",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Dois ou três peixes prateados de rio, vistos de perfil, brilho nas escamas.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap1-obj-muda",
+    "titulo": "Cap. 1 · muda para plantar",
+    "referencia": "o que ela alcança: o roçado",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma muda jovem de folhas largas com o torrão de terra nas raízes, pronta para plantar.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap2-obj-cesto",
+    "titulo": "Cap. 2 · cesto de mantimento",
+    "referencia": "o que ela alcança em Palmares",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Um cesto trançado de fibra vegetal, cheio de raízes e legumes, tampa de lado.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap2-obj-agua",
+    "titulo": "Cap. 2 · pote de água",
+    "referencia": "o que ela alcança em Palmares",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma moringa de barro cozido, barriguda, com água transbordando na boca.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
+  },
+  {
+    "nome": "cap3-obj-muda",
+    "titulo": "Cap. 3 · muda em saco",
+    "referencia": "o que ela alcança hoje",
+    "tamanho": "QUADRADO ~1024×1024 · fundo magenta #FF00FF",
+    "origem": "",
+    "prompt": "Ilustração em pixel art de alta resolução para jogo lateral. Borda dura, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto. Uma muda de árvore nativa em saquinho de viveiro, folhas novas verde-claras.\n\nFORMATO: um único objeto centralizado, de PERFIL, sobre FUNDO MAGENTA CHAPADO #FF00FF puro — magenta absoluto, sem sombra e sem brilho sobre ele. Imagem quadrada. O objeto não encosta nas bordas.\n\nSem texto, sem pessoas, sem mãos."
   }
 ]
