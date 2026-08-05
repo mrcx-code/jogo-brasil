@@ -3015,7 +3015,7 @@ function rolarFundo() {
 }
 // 0 = camada única, o comportamento herdado. Acima de 0, a parte acima da linha do chão rola
 // nessa fração. A arte dos capítulos vem em duas peças e então isto deixa de ser depuração.
-let paralaxeLonge = 0;
+let paralaxeLonge = 0.45;
 window.setParalaxe = function (f) {
   paralaxeLonge = (typeof f === "number" && f > 0 && f < 1) ? f : 0;
   return paralaxeLonge;
