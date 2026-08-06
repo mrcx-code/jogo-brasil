@@ -789,7 +789,15 @@ const CFG = {
   // desistência acontece DENTRO do quadro, onde dá para ver, em vez de fora dele. Correndo ela
   // cobre 184 px no mesmo tempo, então a rua leva a coisa embora antes de a paciência acabar:
   // quem corre não é abandonado por ninguém, é quem passou reto.
-  mobEspera: 2.4,
+  //
+  // 2,4 s virou 3,6 s a pedido do dono ("que esperem um pouquinho mais"). O teto é geométrico e
+  // vale registrar: parada em sx 152, ela é levada para fora do quadro (sx −24) em 4,6 s de
+  // caminhada, então qualquer paciência acima disso deixaria de existir — ninguém desistiria,
+  // todo mundo só sairia de cena de pé. 3,6 s a deixa em sx 14 quando o relógio acaba: ainda
+  // no quadro, ainda dentro do alcance, e portanto a desistência continua sendo uma coisa que
+  // se vê acontecer. Correndo ela cobre 276 px nesses 3,6 s, muito mais que a tela: quem corre
+  // continua não sendo abandonado por ninguém, é quem passou reto.
+  mobEspera: 3.6,
   // O VÃO ENTRE CHEGADAS É MEDIDO EM CHÃO, NÃO EM RELÓGIO, e é essa linha que faz correr
   // significar alguma coisa. Enquanto as chegadas nasciam de um cronômetro, atravessar o dobro
   // de rua encontrava exatamente a mesma gente em metade do tempo com cada uma: correr era
@@ -806,7 +814,16 @@ const CFG = {
   //   1,8 s -> 36/min, fila 0,99, pico 3 | 1,4 s -> 46/min, fila 1,38
   // 1,8 é onde a fila média passa de 1: quase sempre há alguém esperando, e com alguma
   // frequência há três. Menos que isso e a rua é vazia; muito mais e ela vira feira.
-  mobVao: 69,
+  //
+  // 69 virou 78 a pedido do dono ("não aparece item tão rápido assim atrás do outro"). É o vão
+  // MÉDIO — a janela do sorteio é simétrica em volta dele (ver `sorteiaEspera`). Medido no jogo
+  // de verdade, 390x844, segurando o botão, 90 s por célula, duas amostras por célula:
+  //   andando  34,7 -> 29–30 chegadas/min | fila média 1,10 -> 0,91–0,99 | pico 3 -> 2 | fração 1,00
+  //   correndo 68,7 -> 55–56 chegadas/min | fila média 2,04 -> 1,57 | pico 4 -> 3–4 | fração 0,63 -> 0,65–0,67
+  // A fila andando fica logo abaixo de 1, que é o piso do varrido acima: menos gente do que isso
+  // e a rua vira vazia. É o preço pedido, e ele foi pago com paciência maior (3,6 s) para que
+  // menos gente não virasse rua deserta — cada uma fica mais tempo no quadro.
+  mobVao: 78,
   // 48 + 2x14 puts the third of three at 76, still inside the 80 px reach of a swing
   mobMax: 4, mobFila: 14,
   // How many hits each one takes, and how often each shows up. The spread is deliberate
@@ -1192,9 +1209,13 @@ function novoMob(tipo, wx) {
     parado: false, espera: 0, desistiu: false };
 }
 // Movement, spawning and state. Drawing lives in drawMobs() and is not touched here.
-// Entre CFG.mobVao x0,45 e x1,4 — largo o bastante para duas chegadas nunca soarem em par.
+// Entre CFG.mobVao x0,65 e x1,35 — a janela é SIMÉTRICA de propósito, então `mobVao` é
+// literalmente o vão MÉDIO e não um valor de canto. Andando dá 51 a 105 px, isto é 1,3 a 2,8 s
+// entre chegadas: largo o bastante para duas nunca soarem em par, e com PISO ALTO — a queixa
+// do dono era chegada colada em chegada, e quem produz isso é o fundo da janela, não a média.
+// O piso era 0,45 (31 px, 0,8 s de caminhada) e virou 0,65 (51 px, 1,3 s): +63% no menor vão.
 // A UNIDADE É PIXEL DE MUNDO, não segundo: ver o comentário de CFG.mobVao.
-function sorteiaEspera() { return CFG.mobVao * (0.45 + Math.random() * 0.95); }
+function sorteiaEspera() { return CFG.mobVao * (0.65 + Math.random() * 0.7); }
 let proximoMob = -1;
 function atualizarMobs(dt) {
   // Chão coberto desde a última chegada. É a única diferença entre andar e correr que não é
@@ -2858,11 +2879,15 @@ function drawMobs(smog) {
     const cxm = Math.round(m.wx - worldX) + 5;            // mob centre, same x the HP bar uses
     const key = MOB_KEY[m.type];
     const img = mobFrame(m);
-    const bob = (Math.floor(tick / 8) % 2) * 1;
-    // O que já vem no ar continua no ar: sobe e desce numa senóide enquanto a sombra fica no
-    // chão, que é o que vende "está flutuando". Quem tem levitação zero neste capítulo não
-    // ganha a senóide — senão a mandioca do capítulo 2 boiaria.
+    // SÓ VOA O QUE FAZ SENTIDO VOAR. `noAr` é a única chave: quem a tem ganha a senóide de 7 px
+    // e o pisca-pisca de 1 px; quem não a tem fica PARADO no chão, sem nem o de 1 px.
+    // O de 1 px valia para todo mundo e era o resto do motor antigo, onde tudo que atravessava
+    // a rua era fumaça. Medido: pote de barro, cesto e galão de 20 L subiam e desciam 1 px de
+    // mundo a 3,75 Hz — 2,4 px de tela neste viewport, e um galão que vibra é um galão que voa
+    // devagar. Hoje o único que se mexe no ar é o cacho pendurado do capítulo 1, que é a única
+    // coisa nas nove vagas que já está pendurada no desenho.
     const noAr = lifts[m.type] > 0;
+    const bob = noAr ? (Math.floor(tick / 8) % 2) * 1 : 0;
     const voa = noAr ? Math.round(Math.sin(tick / 13 + m.wx * 0.04) * 3.5) : 0;
     const lift = lifts[m.type] + bob + voa;
     // contact shadow like the hero: soft and wide for anything floating, firmer for whatever
@@ -3071,8 +3096,13 @@ const MOB_KEY = { smog: "smog", barrel: "drum", cash: "cash" };
 // de vazio dentro do quadro (a mancha não era recortada), então 30 de alvo davam 24 de objeto.
 // O recorte agora é justo, e o alvo passa a ser o objeto — mesmo tamanho na tela, sem a borda.
 const MOB_TARGET = { smog: 24, drum: 20, cash: 17 };
-// Levitação POR CAPÍTULO. No capítulo 1 o que ocupa a vaga `smog` é um cacho pendurado e
-// flutuar cabe; nos capítulos 2 e 3 são mandioca e muda, e mandioca voadora é outro jogo.
+// Levitação POR CAPÍTULO, e a lista foi conferida objeto por objeto NA TELA:
+//   cap 1: cacho de fruta pendurado num galho | muda com torrão | três peixes
+//   cap 2: feixe de mandioca | pote de barro | cesto de raízes
+//   cap 3: muda em vaso | galão de água | cesto de legumes
+// Um só se sustenta no ar, e é o cacho: ele já vem pendurado no próprio desenho, com o galho
+// dentro do quadro. Todo o resto é coisa colhida, carregada ou pousada — pote de barro, cesto e
+// galão de 20 L não pairam, e um objeto pesado boiando não lê como magia, lê como bug.
 const MOB_LIFT = [
   { smog: 16, barrel: 0, cash: 0 },
   { smog: 0, barrel: 0, cash: 0 },
@@ -4741,6 +4771,14 @@ function fecharTelas() {
 //
 // O texto abaixo é do dono, palavra por palavra. Não se completa, não se resume e não se
 // "melhora a transição" — falta de linha se relata, não se preenche.
+//
+// UMA EXCEÇÃO, pedida por ele: a ÚLTIMA linha de cada `abertura` apresenta os objetos daquele
+// capítulo, porque quem entrava via fruta, peixe e muda passando sem nenhuma explicação. Ela é
+// escrita sob uma regra estreita e a regra vale para quem mexer nela depois: essa linha
+// DESCREVE O QUE ESTÁ NA TELA — o que vem pela rua e o que o contador faz com aquilo — e nunca
+// afirma fato histórico novo. "Aqui vem cesto de legumes" é seguro; qualquer frase sobre o que
+// um povo comia, plantava ou usava é afirmação com procedência e exige fonte no NOTES.md.
+// Na dúvida, descreva a mecânica e não a história.
 const EPOCAS = [
   {
     nome: "ANTES DA CHEGADA",
@@ -4749,7 +4787,8 @@ const EPOCAS = [
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
       "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria, e não eram um povo só — eram centenas de povos, com centenas de línguas.",
       "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
-      "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder."
+      "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
+      "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
     ],
     fecho: [
       "Em 1500 chegaram navios. Depois deles vieram mais.",
@@ -4765,7 +4804,8 @@ const EPOCAS = [
       "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
       "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
       "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por quase cem anos a mais de vinte expedições militares.",
-      "Aqui, alcançar é acolher. Quem chega vem ficar."
+      "Aqui, alcançar é acolher. Quem chega vem ficar.",
+      "Muda a paisagem e muda o que vem por ela: feixe de mandioca, pote de água e cesto cheio. São os mesmos três contadores do capítulo anterior, com outras coisas dentro."
     ],
     fecho: [
       "Palmares foi destruída em 1694. Zumbi foi morto em 20 de novembro de 1695 — a data é hoje o Dia da Consciência Negra.",
@@ -4781,7 +4821,8 @@ const EPOCAS = [
       "Este é o presente. A mesma mata, cinco séculos depois.",
       "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
       "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de dezesseis anos de processo parado.",
-      "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência."
+      "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
+      "Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três coisas do começo, com a cara de agora."
     ],
     fecho: [
       "A demarcação não é um final feliz. É uma disputa em curso, e ela continua depois que você fecha o jogo.",

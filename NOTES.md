@@ -977,95 +977,94 @@ do §7), `LIMIARES`, o alcance de 80 px, a paciência de 2,4 s, o valor de nada,
 **Próximo passo:** o item 1 do `PRODUTO.md` — o que o botão paga. Enquanto ele pagar por ser
 apertado, a rua é decoração cara.
 
-### 2026-08-05 · cada época ganha a sua gente — e três folhas trazem a pessoa errada
+### 2026-08-05 · a rua respira mais fundo, o galão para de flutuar, e o capítulo se apresenta
 
-O jogo tinha três capítulos com três pessoas e mostrava a mesma figura nos três. Agora
-`HERO_B64`, `PASSO_PX`, `PASSO_CORRIDA` e `heroScale` são **por capítulo**, com a mesma conta
-que `MOB_B64`, `DROP_B64` e `FRENTE_B64` já usavam — `capArte()`, escrita uma vez.
+Três pedidos do dono, medidos um a um. Nada commitado — a worktree fica para ele revisar.
 
-**Uma pessoa por capítulo é uma passada por capítulo, e passada não se escolhe: mede-se.**
-Cada folha foi medida pela SOLA (colunas cuja tinta mais baixa fica a ≤2 px da base), com o
-CALCANHAR — borda esquerda do trecho — como marco. O método foi validado antes de ser usado:
-rodado às cegas na folha do capítulo 1, ele devolveu os quadros **6, 5, 2** com espalhamento
-0,00 px de sprite, que é exatamente a escolha registrada na sessão que a fez.
+**1. Os itens esperam mais e chegam mais espaçados.** `CFG.mobEspera` 2,4 → **3,6 s** e
+`CFG.mobVao` 69 → **78 px**, com a janela do sorteio virando `0,65 + rand × 0,7` (era
+`0,45 + rand × 0,95`). A janela ficou **simétrica de propósito**: agora `mobVao` é literalmente o
+vão MÉDIO, e não um valor de canto que ninguém sabia interpretar. A unidade continua sendo
+**pixel de mundo** — devolver isto ao relógio desfaz o achado da sessão passada, e o smoke test
+tem guarda para isso (razão de chão 2,00, razão de chegadas 2,01).
 
-| | quadros | calcanhares (px de sprite) | laço | quadro | PASSO_PX | `n` | velocidade |
-|---|---|---|---:|---:|---:|---:|---:|
-| cap 1 | 6, 5, 2 | 135 / 88 / 41 | 140 | 322 | 6,3768 | 10 | 38,26 px/s |
-| cap 2 | 1, 5, 8 | 135 / 80 / 25 | 165 | 323 | 7,4923 | 12 | 37,46 px/s |
-| cap 3 | 7, 11, 2 | 154 / 105 / 54 | 150 | 318 | 6,9182 | 11 | 37,74 px/s |
+A queixa era "não aparece item tão rápido assim atrás do outro", e quem produz chegada colada em
+chegada é o **fundo** da janela, não a média. O piso subiu 0,45 → 0,65: o menor vão sai de **31 px
+(0,81 s de caminhada) para 51 px (1,33 s)**, +63%. O maior vão é 105 px (2,75 s).
 
-**Escorregamento**, medido dentro do jogo (`G = i·PASSO_PX + calcanhar·escala`; G igual entre
-quadros significa pé parado em relação ao chão):
+Medido no jogo de verdade, 390×844, segurando o botão, 90 s por célula, duas amostras por célula:
 
-| | G por quadro | espalhamento | passo | % |
-|---|---|---:|---:|---:|
-| cap 1 | 18,447 / 18,402 / 18,356 | 0,091 | 19,13 | **0,48%** |
-| cap 2 | 18,390 / 18,390 / 18,390 | 0,000 | 22,48 | **0,00%** |
-| cap 3 | 21,308 / 21,447 / 21,308 | 0,138 | 20,75 | **0,67%** |
+| | chegadas/min | fração alcançada | fila média | pico |
+|---|---:|---:|---:|---:|
+| **antes** · andar | 34,7 | 1,00 | 1,10 | 3 |
+| **antes** · correr | 68,7 | 0,63 | 2,04 | 4 |
+| **depois** · andar | 29,3 e 30,0 | 1,00 | 0,91 e 0,99 | 2 |
+| **depois** · correr | 55,3 e 56,0 | 0,67 e 0,65 | 1,57 | 3 e 4 |
 
-**`--quadros=6,5,2` era resposta da folha do capítulo 1 e de mais nenhuma**, como o Diário já
-suspeitava — e os índices repetidos que a sessão passada listou também não bastavam, porque
-quase-duplicata diz quais quadros *sobram*, não quais formam o ciclo.
+**O que a medição respondeu e eu não sabia antes de medir:** espaçar as chegadas *deveria* ter
+matado a tensão de correr, porque mais tempo por chegada é mais chance de alcançar cada uma.
+Não matou — a fração correndo subiu só de 0,63 para 0,66, dentro de um passo de ruído. A razão é
+que o gargalo de quem corre não é o vão entre chegadas, é o **dano por segundo contra a vida
+média**: 8,3/s contra 8,5 de vida é 1,03 s de trabalho por chegada, e correndo chegam 0,93 por
+segundo. Continua não cabendo. **Andar segue em 1,00 e correr segue deixando um terço para trás.**
 
-**O `n` inteiro custa velocidade, e o custo está medido.** O passo é da ARTE — quanto a pessoa
-avança em relação à própria altura —, então cada capítulo tem o seu, e o único ajuste é `n`,
-que é inteiro por construção (armadilha nº 1 do §7). Escolhido para cada capítulo cair o mais
-perto possível dos 38,26 px/s do capítulo 1, que é o que a economia inteira tem embaixo (o vão
-das chegadas e o das folhas são em px de MUNDO): sobra **−2,1%** no capítulo 2 e **−1,4%** no 3.
-A corrida herda o mesmo problema com meia resolução a menos: 5 e 6 quadros de tela dão 74,92
-(−2,1%) e 83,02 (+8,5%). Os +8,5% do capítulo 3 são a pior sobra desta sessão.
+**O que ficou pior, e foi escolhido:** a fila andando encostou em 1,0 (0,91–0,99), que é o piso do
+varrido antigo — *"menos que isso e a rua é vazia"*. O pico andando caiu de 3 para 2: quase nunca
+há três esperando. Foi por isso que a paciência subiu junto — menos gente, cada uma mais tempo no
+quadro. Se ao jogar isso ler como rua deserta, o número a mexer é o `mobVao`, não a janela.
 
-**A prova que não é número: o rastro de pegadas.** Cada contato com o chão desenhado em
-coordenada de MUNDO e empilhado por tempo. Uma caminhada certa desenha uma escada de pegadas
-paradas. No capítulo 1 a pegada fica em 135..179 por dois quadros e reaparece no terceiro como
-165..178 — a ponta do mesmo pé, com o calcanhar já levantado —, e a escada anda de 140 em 140.
-Os capítulos 2 e 3 desenham a mesma figura. Foi esse desenho, e não o menor espalhamento, que
-decidiu entre candidatos empatados: a folha do capítulo 2 tem três combinações com
-espalhamento zero, e só uma delas dá um passo compatível com a abertura das pernas desenhada.
+**O teto da paciência é geométrico e vale registrar:** parada em sx 152, a pessoa é levada para
+fora do quadro (sx −24) em **4,6 s** de caminhada. Paciência acima disso deixa de existir —
+ninguém desistiria, todo mundo só sairia de cena de pé. 3,6 s a deixa em **sx 14** quando o
+relógio acaba: ainda no quadro, ainda dentro do alcance, então desistir continua sendo uma coisa
+que se vê acontecer, que era a razão de o número ser 2,4.
 
-**O que a medição achou e é maior que a medição: TRÊS DAS OITO FOLHAS TRAZEM A PESSOA ERRADA.**
-`sprite-cap2-correr`, `sprite-cap2-pular` e `sprite-cap2-alcancar` mostram a pessoa do
-**capítulo 1** — tanga branca, colar de contas, braçadeiras, pés descalços —, e não a pessoa de
-Palmares que `sprite-cap2-andar` traz (cabelo crespo, túnica e calça de algodão cru, sandálias,
-cinto). Não é variação de pose: é outra figura. As quatro folhas do capítulo 3 são coerentes
-entre si.
+**2. Só voa o que faz sentido voar.** `MOB_LIFT` já estava certo — só o cacho de fruta do
+capítulo 1 tem levitação, e ele é a única das nove vagas que já vem pendurada no próprio desenho,
+com o galho dentro do quadro. **O que estava errado era o `bob`**, um pisca-pisca de 1 px aplicado
+a *todo mundo*, resto do motor antigo, onde tudo que atravessava a rua era fumaça.
 
-Pôr a figura do capítulo 1 em Palmares é uma decisão de representação, e o CLAUDE.md §2 diz que
-representação é a única coisa deste repositório em que decidir sozinho é a escolha errada. Então
-as três folhas **não entraram**. O capítulo 2 recebeu só a caminhada, e os blocos vazios caem na
-**própria caminhada do capítulo**, nunca na de outro: perder a animação de um gesto é defeito
-visível e reparável; trocar a pessoa no meio do capítulo é o erro do §2, e não se conserta com
-arte melhor depois. Na prática, em Palmares o gesto de alcançar e o salto mostram a pessoa certa
-numa pose de caminhada.
+Medido espionando o `drawImage` de verdade (não relendo a fórmula), 2 s por objeto, `dy` máximo
+menos mínimo:
 
-**A corrida continua vazia nos três**, como já estava: a folha do capítulo 2 é a pessoa errada,
-e ligar a corrida só no capítulo 3 faria a velocidade de correr mudar de capítulo sem que
-ninguém tivesse pedido.
+| | cap 1 | cap 2 | cap 3 |
+|---|---|---|---|
+| **antes** | fruta **7 px** · muda 1 · peixe 1 | mandioca 1 · pote 1 · cesto 1 | muda 1 · galão 1 · cesto 1 |
+| **depois** | fruta **7 px** · muda 0 · peixe 0 | mandioca 0 · pote 0 · cesto 0 | muda 0 · galão 0 · cesto 0 |
 
-**Escala entre folhas, medida pela LARGURA DA CABEÇA** e pela MEDIANA, não pela média que o
-`medir-escala.js` imprime — um braço esticado entra no quinto superior e infla o número (167 no
-salto do capítulo 3, 213 no alcance). Cabeça andando 65; salto 101 → razão 0,6436; alcance 103,5
-→ 0,6280.
+1 px de mundo são 2,4 px de tela neste viewport, a 3,75 Hz. Um pote de barro, um cesto e um galão
+de 20 L vibrando não leem como magia, leem como bug. Decisão objeto por objeto, olhando a arte:
+**flutua** o cacho de fruta (cap 1, pendurado no galho); **não flutuam** muda com torrão, três
+peixes, feixe de mandioca, pote de barro, cesto de raízes, muda em vaso, galão e cesto de legumes
+— tudo coisa colhida, carregada ou pousada. Prints em `shot-obj-cap{1,2,3}-{antes,depois}.png`.
 
-**O retrato da caixa de fala é a pessoa DAQUELA época.** Ele lia `HERO_SPR.walk[0]` e, pior,
-tinha uma guarda `if (!src)` que o prendia no primeiro capítulo visto na sessão. Verificado na
-virada: o FECHO fala com a pessoa do capítulo que termina (cena 1 → pessoa 1; cena 3 → pessoa 2)
-e a ABERTURA, com a do que começa (cena 2 → pessoa 2; cena 4 → pessoa 3).
+**3. O capítulo apresenta os próprios itens.** Uma linha nova ao fim de cada `abertura`, porque
+quem entrava via fruta, peixe e muda passando sem nenhuma explicação — o buraco dos primeiros
+cinco minutos que o `PRODUTO.md` aponta.
 
-**Números:** `index.html` 3,46 → **3,86 MB** (+400 KB: caminhada do cap. 2, e caminhada, salto e
-alcance do cap. 3). Smoke test verde, 61 FPS, nenhum erro de console nos três capítulos.
+- cap 1: *"Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes,
+  e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para
+  quem pula."*
+- cap 2: *"Muda a paisagem e muda o que vem por ela: feixe de mandioca, pote de água e cesto cheio.
+  São os mesmos três contadores do capítulo anterior, com outras coisas dentro."*
+- cap 3: *"Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três
+  coisas do começo, com a cara de agora."*
 
-**O que ficou frágil.**
+**A regra sob a qual foram escritas, e ela vale para quem mexer nelas depois:** a linha
+**descreve o que está na tela** — o objeto que vem pela rua e o contador que ele enche — e **não
+afirma fato histórico novo**. Nenhuma delas diz o que um povo comia, plantava ou usava; isso é
+afirmação com procedência e exige fonte no `NOTES.md` (§2). Por isso "cesto cheio" e não "cesto de
+farinha". Elas foram escritas por agente, não pelo dono, e essa é a única exceção ao aviso de que
+o texto de `EPOCAS` é dele palavra por palavra — o aviso agora carrega a exceção e a regra.
 
-1. **O capítulo 2 anda como Palmares e alcança como quem caminha.** É o preço de não decidir
-   sozinho, e some no dia em que houver folha de corrida, salto e alcance com a pessoa certa.
-2. **A folha do capítulo 2 não fecha o laço.** As poses de apoio amostram o ciclo de 26,5 em
-   26,5 px de sprite, mas as poses de pé de trás desenham um passo de 133 — ou seja, a folha tem
-   três fases de um ciclo de cinco, e as fases 3 e 4 não foram desenhadas. Os quadros escolhidos
-   (1, 5, 8) dão espalhamento 0,00 dentro do ciclo, que é o que o olho segue; o que sobra é o pé
-   que está SAINDO aparecer ~25 px de sprite atrás de onde a escada de pegadas o quer, num
-   quadro de três. Os capítulos 1 e 3 não têm essa sobra: neles a pegada anterior bate na ponta.
-3. **Correr no capítulo 3 está 8,5% mais rápido** que nos outros dois, e isso é `n` inteiro
-   contra uma passada que a arte fez mais longa. Andar, que é o que a economia mede, ficou dentro
-   de 2% nos três.
+Medido na tela: caixa de 230–256 px de altura, texto inteiro visível, nada cortado, nada fora da
+tela em 390×844. Prints em `shot-fala-cap{1,2,3}.png`.
+
+**Ferramentas que ficaram** (não commitadas): `test/medir-rua.js` (fração, chegadas/min, fila
+média e pico, andando e correndo), `test/medir-flutuacao.js` (quanto cada objeto sobe e desce,
+espionando o `drawImage`), `test/shot-objetos.js` (os três objetos de cada capítulo lado a lado).
+
+**Dúvida nova.** A fila andando em 0,95 e o pico em 2 são exatamente a borda do "rua vazia" do
+varrido antigo. Ninguém mediu se rua mais rala **lê como calma ou como abandono** — é a diferença
+entre o pedido ter sido atendido e o pedido ter sido cumprido ao pé da letra. Próximo passo:
+jogar os dois e decidir com o dono, ou medir tempo até o primeiro tédio.
