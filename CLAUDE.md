@@ -45,13 +45,32 @@ Regras práticas que decorrem disso:
 - **Na dúvida sobre representação, pare e pergunte ao dono.** É o único assunto deste
   repositório em que decidir sozinho é a escolha errada.
 
-## 3. Regras invioláveis (técnicas)
+## 3. Regras técnicas
 
-1. **Um arquivo só.** Nada de separar CSS/JS, nada de bundler, nada de CDN.
-2. **Zero rede.** Nenhum `fetch`, nenhum recurso externo, nenhuma fonte de CDN. Toda arte é
-   base64 embutido. Há uma `Content-Security-Policy` no `<head>` que faz o navegador cobrar
-   isso — se você adicionar algo de fora, o navegador bloqueia. Não relaxe a CSP para
-   contornar; o bloqueio é o ponto.
+> **Virada de arquitetura, decidida pelo dono em 2026-08-05.** As duas primeiras regras desta
+> seção eram invioláveis e deixaram de ser. O jogo vai migrar para **TypeScript + Phaser +
+> React + Supabase + Capacitor**, em fases, com o jogo funcionando ao fim de cada uma.
+> O que está escrito abaixo descreve o estado ATUAL e continua valendo até a fase que o mudar.
+>
+> **O que a migração custa, e foi dito antes de decidir:** todas as constantes medidas
+> precisam ser re-derivadas ou aceitas como quebradas — `PASSO_PX = 6,377` (medido da sola em
+> 12 quadros), o `n` inteiro da velocidade, as três camadas de paralaxe, o desfranjamento do
+> magenta, e o spawn por distância. Cada uma custou pelo menos uma sessão.
+>
+> **Ordem acordada:** Capacitor primeiro (ganho puro, sem reescrita), depois TypeScript
+> (mantendo saída de arquivo único), depois React nas telas, depois Phaser no motor, e
+> Supabase para sincronizar save e leaderboard.
+>
+> **O que a chegada do Supabase obriga a mudar junto, e não é opcional:** a tela de AJUSTES
+> afirma hoje ao jogador que *"nada sai deste aparelho"*. Isso deixa de ser verdade no
+> instante em que o primeiro byte sai. Afirmação de privacidade que virou falsa é pior que
+> nenhuma — reescreva a tela na MESMA fase que ligar a rede, nunca depois.
+
+1. **Um arquivo só** — até a fase do TypeScript, que mantém a saída em arquivo único.
+2. **Zero rede** — até a fase do Supabase. Há uma `Content-Security-Policy` no `<head>` que
+   faz o navegador cobrar isso hoje. Quando ela precisar abrir, abra **só o que a fase pede**
+   e escreva no commit o que passou a ser permitido; CSP relaxada por conveniência é o começo
+   de não ter CSP.
 3. **O save é entrada não confiável.** `localStorage` é editável à mão. O carregamento passa
    por `ESQUEMA_SAVE`: lista fixa de campos, cada um com tipo e faixa. **Ao adicionar estado
    persistente, adicione ao esquema** — se não estiver lá, não é lido nem gravado. O smoke
@@ -140,7 +159,9 @@ Cada uma custou uma sessão no projeto anterior:
 
 Produção: <https://jogo-brasil-mrcx.vercel.app> · Repo: `mrcx-code/jogo-brasil`
 Push na `main` publica sozinho.
-Não há segredo, variável de ambiente nem backend, e não deve haver.
+Não há segredo, variável de ambiente nem backend **ainda**. O Supabase traz os três, e a
+chave publicável dele pode ficar no cliente — mas nenhuma chave de serviço, nunca, num jogo
+que roda no navegador de outra pessoa.
 
 O nome do jogo é **BRASIL**, decidido pelo dono em 2026-08-05. O repositório continua se
 chamando `jogo-brasil`, o que é só o slug.
