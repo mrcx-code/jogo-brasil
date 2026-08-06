@@ -84,23 +84,21 @@
      sitting apart at its right end, not in three separate floating slabs. That is the
      grammar copied here: a single pill, chips inside it, rounded corners, cream on deep
      olive, and the gear as its own square at the end of the row. */
-  /* PAINEL DE JOGO, não barra de site.
-     Era um gradiente translúcido com blur — vocabulário de aplicativo, e a paisagem
-     atravessava o texto. HUD de jogo é OPACO e tem MOLDURA: o olho precisa saber onde a
-     interface começa. A borda é feita de sombras duras empilhadas, nunca de border-radius e
-     nunca de blur, porque pixel art não tem canto redondo nem desfoque. */
+  /* O HUD RECUA: não há mais laje de largura total tapando o céu — barra opaca no topo é
+     vocabulário de site. O que sobra são OBJETOS soltos, cada um com material próprio (os
+     nichos de pedra dos contadores, a plaquinha de madeira da era), apoiados direto sobre o
+     mundo. O contêiner é invisível e só organiza. */
   #hudTop { position: fixed; z-index: 10; left: 0; right: 0; top: 0;
     padding-top: env(safe-area-inset-top);
     display: flex; flex-direction: column; pointer-events: none;
-    background: #1b1610;
-    box-shadow:
-      inset 0 2px 0 #4a3c28,        /* luz na aresta de cima */
-      inset 0 -2px 0 #0a0806,       /* sombra na de baixo */
-      0 3px 0 #0a0806,              /* o degrau que separa do mundo */
-      0 5px 0 rgba(0,0,0,.45); }
-  /* a barra da época: o progresso vira coisa que se vê, não número que se lê */
-  #linhaEpoca { display: flex; align-items: center; gap: 9px; margin: 0 10px 8px;
-    padding-right: 42px; }                                   /* espaço do ≡ */
+    background: transparent; box-shadow: none; }
+  /* a barra da época: uma plaquinha de madeira compacta encostada à esquerda, não uma faixa
+     de ponta a ponta — o progresso é coisa que se vê no lugar, não um cabeçalho */
+  #linhaEpoca { display: flex; align-items: center; gap: 9px; margin: 6px auto 0 10px;
+    width: min(64vw, 270px); padding: 6px 10px;
+    background: linear-gradient(180deg, #503319, #38220e); border-radius: 2px;
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
   #rotuloEpoca { flex: 0 1 auto; min-width: 0; font-size: 9px; font-weight: 900;
     letter-spacing: .14em; color: #d8c398; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 0 rgba(0,0,0,.7); }
@@ -136,7 +134,13 @@
   #barraTopo { flex: 0 1 auto; min-width: 0; display: flex; align-items: center;
     justify-content: flex-start; gap: 9px; padding: 6px 4px; }
   /* one line, no stacking: the leaf, the number, then what the number is */
-  .chip { min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+  /* o placar mora num nicho de pedra igual ao dos três contadores: com a laje do topo
+     removida, texto solto sobre o céu não tem chão — o nicho é o chão dele */
+  .chip { min-width: 0; display: flex; align-items: center; gap: 8px;
+    padding: 5px 11px 5px 7px; border-radius: 4px; background: #a39a83;
+    box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
+  .chip .valor { color: #2a2418 !important; text-shadow: 0 1px 0 rgba(255,250,235,.5) !important; }
   .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
   /* O rótulo do capítulo saiu deste chip e foi para a linha da barra — ver #linhaEpoca.
      Nenhum elemento usa mais `.rotulo` dentro de `.chip`. */
@@ -302,18 +306,25 @@
     padding: 0; display: flex; box-shadow: none; }
   /* THE primary action: gold, a soft inner sheen and a gentle lift so it reads as the one
      button that matters — no hard offset block under it anymore */
+  /* canto 5px como os cartões de pedra ao lado: era o único elemento do jogo com canto de
+     20px — vocabulário de aplicativo destoando dentro do próprio rodapé */
   #btnClique { flex: 1 1 auto; min-width: 0; min-height: 62px; padding: 9px 10px;
-    border-radius: 20px;
+    border-radius: 5px;
     font-size: var(--fs-lg); font-weight: 800;
     background: var(--ouroA);
     color: #221806; border: 0; letter-spacing: .02em;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-weight: 900; text-shadow: 0 2px 0 rgba(255,255,255,.35); box-shadow: none;
+    font-weight: 900; text-shadow: 0 2px 0 rgba(255,255,255,.35);
+    /* mesma construção de laje dos cartões vizinhos, em ouro: luz em cima, sombra embaixo,
+       contorno e degrau — o rodapé inteiro fala uma língua só */
+    box-shadow: inset 0 3px 0 #f8dc96, inset 0 -4px 0 #b06a1e,
+                inset 0 0 0 2px #5a3a10, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
     position: relative; }
   /* owner: the HOLD hint is gone from the button — holding still works. */
-  #btnClique.segurando { transform: translateY(2px);
+  #btnClique.segurando { transform: translateY(4px);
     background: linear-gradient(180deg, #fdeec2 0%, #f6cf7e 34%, #e8a244 100%);
-    box-shadow: 0 1px 5px rgba(120,60,0,.3), inset 0 1px 0 rgba(255,255,255,.65); }
+    box-shadow: inset 0 3px 0 #f8dc96, inset 0 -4px 0 #b06a1e,
+                inset 0 0 0 2px #5a3a10, 0 1px 0 #191510; }
   /* the super's charge, on the button that swings it: one square per completed combo */
 
   /* ---- floating sheets above the character ---- */
@@ -321,86 +332,117 @@
      records a panel covering the menu bar once already, and a hardcoded 126px breaks
      again the moment a button grows a line of text */
 
-  /* ===== TELAS ===== As quatro que faltavam. Todas usam o mesmo vocabulário do HUD:
-     painel opaco, moldura de sombra dura, zero canto redondo, zero blur. */
-  .tela { position: fixed; inset: 0; z-index: 40; display: none;
+  /* ===== TELAS ===== A tela é o LUGAR, não um painel sobre ele. Três decisões estruturais:
+     1. O chrome do jogo (HUD e controles) SAI de cena quando qualquer tela abre — ver
+        body.emTela logo abaixo. Menu emoldurado por contadores e por um botão MENU era a
+        causa de tudo parecer um modal boiando.
+     2. Nenhuma tela aparece por display seco: ficam sempre em flex, invisíveis por
+        opacity+visibility, e a troca é um crossfade — o mundo continua andando atrás.
+     3. A mobília de cada tela BROTA do chão (sobe alguns px ao abrir), porque coisa posta
+        no lugar chega pelo chão, não por corte de edição. */
+  .tela { position: fixed; inset: 0; z-index: 40; display: flex;
+    opacity: 0; visibility: hidden; pointer-events: none;
     flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(12,10,7,.94); padding: 24px; text-align: center; }
-  /* O MENU é a exceção, e de propósito: o jogo já está rodando atrás dele, com as três
-     camadas de paralaxe andando. Escurecer só o suficiente para o texto ler, em vez de tapar,
-     dá movimento de graça — mata rolando, folhagem passando na frente, a personagem andando.
-     Nenhuma animação nova, nenhuma imagem nova. O véu é um gradiente vertical porque o texto
-     mora no meio: escuro onde há letra, quase limpo nas beiradas, para a paisagem respirar. */
+    background: rgba(12,10,7,.88); padding: 24px; text-align: center;
+    transition: opacity .3s ease, visibility 0s linear .3s; }
+  .tela.aberta { opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .3s ease; }
+  /* o chrome desliza para fora quando uma tela assume, e volta quando o jogo retoma */
+  #hudTop, #controls { transition: transform .34s ease, opacity .3s ease; }
+  body.emTela #hudTop { transform: translateY(-115%); opacity: 0; pointer-events: none; }
+  body.emTela #controls { transform: translateX(-50%) translateY(150%); opacity: 0;
+    pointer-events: none; }
+  /* a mobília brota: só nas telas de estar (menu e eras) — as de leitura só esmaecem */
+  #telaMenu.aberta > *, #telaCapitulos.aberta > * { animation: brota .42s ease-out backwards; }
+  #telaMenu.aberta > :nth-child(2), #telaCapitulos.aberta > :nth-child(2) { animation-delay: .06s; }
+  #telaMenu.aberta > :nth-child(3), #telaCapitulos.aberta > :nth-child(3) { animation-delay: .12s; }
+  @keyframes brota { 0% { opacity: 0; transform: translateY(18px); }
+    100% { opacity: 1; transform: translateY(0); } }
+  /* O MENU é a mata. O véu é quase nenhum — só um assentamento no pé, onde o poste finca,
+     e um nada no céu para o logo não disputar com nuvem clara. Quem dá legibilidade é a
+     MADEIRA opaca das tábuas, não o escurecimento do mundo. */
   #telaMenu { background:
-    linear-gradient(180deg, rgba(10,9,6,.55) 0%, rgba(10,9,6,.86) 38%,
-                            rgba(10,9,6,.86) 62%, rgba(10,9,6,.55) 100%); }
-  /* o título: placa de madeira com talho, não texto solto sobre a foto */
+    linear-gradient(180deg, rgba(10,9,6,.30) 0%, rgba(10,9,6,.06) 34%,
+                            rgba(10,9,6,.10) 62%, rgba(10,9,6,.52) 100%);
+    justify-content: flex-start; padding-top: max(7vh, 34px); }
   /* O logo virou imagem. Mantem o respiro lento de 4,2s que a placa de texto tinha —
      jogo bom se mexe pouco e no ritmo certo. image-rendering pixelated porque a arte e
      nativa no tamanho em que foi salva: suavizar apagaria a borda dura. */
   #logoImg { image-rendering: pixelated; width: min(52vw, 210px); height: auto;
     margin-bottom: 4px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
     animation: respira 4.2s ease-in-out infinite; }
-  #telaMenu .telaTit { font-size: 44px; letter-spacing: .18em; color: #ffd98a;
-    padding: 10px 26px; background: #1b1610;
-    box-shadow: inset 0 3px 0 #4a3c28, inset 0 -3px 0 #0a0806, 0 6px 0 #0a0806;
-    text-shadow: 0 4px 0 #6b4a12, 0 5px 0 #0a0806; margin-bottom: 14px;
-    animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
   @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  /* A FRASE vira faixa, não texto solto. Sobre paisagem, texto sem suporte flutua e o
-     contraste muda conforme a mata passa atrás — o que a referência faz é dar CHÃO a ele.
-     Faixa escura estreita, texto claro em versalete espaçado, e uma linha de luz no topo
-     para ela pertencer ao mesmo material dos botões. */
-  #telaMenu .telaTxt { color: #efe3c2; font-size: 9.5px; letter-spacing: .1em; white-space: nowrap;
-    font-weight: 700; text-transform: uppercase; margin: 0 0 24px;
-    padding: 7px 18px; background: #1b1610; border-radius: 3px;
-    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806;
-    text-shadow: 0 1px 0 rgba(0,0,0,.9); }
-  /* Botões com a mesma largura: na referência eles formam uma coluna, não uma escada.
-     Coluna alinhada lê como menu; larguras diferentes leem como três coisas soltas. */
-  #telaMenu .telaBtn { width: min(72vw, 300px); box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center; }
-  /* JOGAR e o caminho principal e precisa ler primeiro. Na referencia ele se destaca por
-     MATERIAL, nao por tamanho — pedra mais quente, do mesmo bloco. Destacar por tamanho
-     quebraria a coluna alinhada, que e o que faz o conjunto ler como menu. */
-  #btnJogar { background: #c9a86a; color: #2a2012;
-    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
-                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
+  /* a frase: uma tabuinha estreita pendurada sob o logo, do mesmo material do poste */
+  #telaMenu .telaTxt { color: #f0dfb4; font-size: 9.5px; letter-spacing: .1em; white-space: nowrap;
+    font-weight: 700; text-transform: uppercase; margin: 0;
+    padding: 7px 16px; background: linear-gradient(180deg, #6d4b28, #503319);
+    border-radius: 2px;
+    box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e,
+                inset 0 0 0 2px #241605, 0 3px 0 #120c06;
+    text-shadow: 0 1px 0 rgba(0,0,0,.8); }
+  /* O POSTE. Um mastro de madeira fincado no chão — ele atravessa a borda de baixo da tela,
+     e é isso que o planta no lugar em vez de deixá-lo boiando no centro. As tábuas são os
+     botões, pregadas nele. O vazio morto entre o último botão e o rodapé morreu aqui: o
+     conjunto se ancora embaixo, e o que sobra de céu fica em cima, onde céu deve estar. */
+  #poste { position: relative; margin-top: auto;
+    margin-bottom: calc(30px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 18px 0 26px; }
+  #poste::before { content: ""; position: absolute; left: 50%; top: 0; bottom: -60vh;
+    width: 18px; transform: translateX(-50%);
+    background: linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.10) 0 3px, transparent 3px 11px);
+    box-shadow: inset 2px 0 0 #8a6236, inset -2px 0 0 #33200e, 4px 0 0 rgba(0,0,0,.35); }
+  #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; margin: 0; }
+  /* JOGAR é a tábua nova, de madeira clara recém-cortada; as outras três são do mesmo poste,
+     mais curtidas. Destaque por MATERIAL, nunca por tamanho — a coluna alinhada é o que faz
+     o conjunto ler como um só objeto. */
+  #btnJogar { background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+    color: #2a1a0a;
+    text-shadow: 0 1px 0 rgba(255,236,196,.5);
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 7px 0 rgba(0,0,0,.4); }
   #btnJogar:active { transform: translateY(4px);
-    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
-                inset 0 0 0 2px #4a3a1e, 0 1px 0 #191510; }
-  .tela.aberta { display: flex; }
-  .telaTit { font-size: 26px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
-    text-shadow: 0 3px 0 #0a0806; margin-bottom: 6px; }
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 1px 0 #120c06; }
+  /* o título de cada tela é uma placa de madeira escura, não texto solto sobre o véu */
+  .telaTit { font-size: 22px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
+    text-shadow: 0 3px 0 #0a0806; margin-bottom: 14px; padding: 10px 22px;
+    background: linear-gradient(180deg, #503319, #38220e);
+    border-radius: 2px;
+    box-shadow: inset 0 3px 0 #6d4b28, inset 0 -3px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 5px 0 #0a0806; }
   .telaTxt { font-size: 14px; color: #e6dcc4; line-height: 1.7; max-width: 30em;
     margin-bottom: 22px; white-space: pre-wrap; }
-  /* BOTÃO DE PEDRA — vocabulário tirado de uma referência que o dono gerou.
-     O que estava aqui era botão de formulário com cor marrom: retângulo chapado, uma sombra,
-     zero material. Laje de pedra precisa de quatro coisas, e todas são box-shadow empilhado:
-     luz na aresta de cima, sombra na de baixo, um contorno escuro que separa do fundo, e o
-     degrau que a apoia. O canto é levemente arredondado porque pedra lascada não tem quina
-     viva — é a única curva que este jogo aceita.
-     O texto é escuro com contorno claro, não claro sobre escuro: sobre pedra clara é o que
-     lê, e é o que a referência faz. */
+  /* TÁBUA DE MADEIRA — dois materiais no jogo inteiro, cada um com um sentido: PEDRA é
+     ferramenta de jogo (a barra de baixo, os nichos de contador), MADEIRA é coisa posta no
+     lugar (as placas das telas). A tábua tem as mesmas quatro coisas da laje, todas em
+     box-shadow empilhado: luz na aresta de cima, sombra na de baixo, contorno escuro, e o
+     degrau que a apoia. O veio é um repeating-linear-gradient — madeira lisa, NENHUM
+     grafismo geométrico (§2: padrão que "parece indígena" pertence a um povo e tem nome). */
   .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
-    letter-spacing: .1em; color: #2a2418; background: #b9ae95; border: 0;
-    padding: 15px 34px; margin: 5px; border-radius: 5px;
-    text-shadow: 0 1px 0 rgba(255,250,235,.55);
-    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
-                inset 0 0 0 2px #4a4234, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4);
+    letter-spacing: .1em; color: #f2e3c0;
+    background: linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    border: 0; padding: 15px 34px; margin: 5px; border-radius: 3px;
+    text-shadow: 0 2px 0 rgba(0,0,0,.55);
+    box-shadow: inset 0 3px 0 #9a6f3e, inset 0 -4px 0 #33200e,
+                inset 0 0 0 2px #241605, 0 5px 0 #120c06, 0 7px 0 rgba(0,0,0,.4);
     transition: transform .06s, box-shadow .06s; }
-  /* afunda no toque: o degrau some e o botão desce até onde ele estava */
+  /* afunda no toque: o degrau some e a tábua desce até onde ele estava */
   .telaBtn:active { transform: translateY(4px);
-    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
-                inset 0 0 0 2px #4a4234, 0 1px 0 #191510; }
-  /* o primeiro botão é o caminho principal e a referência o destaca em pedra mais quente */
-  .telaBtn.sec { background: #a39a83; color: #37301f;
-    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
-                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
-  .telaBtn.sec:active { transform: translateY(4px);
-    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
-                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+    box-shadow: inset 0 3px 0 #9a6f3e, inset 0 -4px 0 #33200e,
+                inset 0 0 0 2px #241605, 0 1px 0 #120c06; }
+  .telaBtn.sec { color: #e3d2ac; }
+  /* os pregos: dois quadradinhos escuros nas pontas — é o que diz "pregada", não "flutuando" */
+  #poste .telaBtn::before, #poste .telaBtn::after { content: ""; position: absolute;
+    top: 50%; width: 5px; height: 5px; margin-top: -2px; background: #241605;
+    box-shadow: inset 0 -1px 0 #000, inset 0 1px 0 #8a6236; }
+  #poste .telaBtn::before { left: 9px; }
+  #poste .telaBtn::after { right: 9px; }
   /* ===== A CAIXA DE FALA ===== estilo jogo antigo: a personagem à esquerda, a moldura
      grossa embaixo, o texto revelado letra a letra. O véu escurece só o pé da tela — o
      mundo continua andando atrás, e é isso que faz a conversa parecer parte do jogo em vez
@@ -443,6 +485,11 @@
     image-rendering: pixelated; object-fit: contain; object-position: bottom center;
     background: none; box-shadow: none;
     filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
+  /* a caixa e quem fala CHEGAM pelo pé da tela quando a conversa abre — mesma regra das
+     outras telas: nada aparece por corte seco */
+  #telaFala #falaCaixa, #telaFala #falaRetrato { transform: translateY(16px); opacity: 0;
+    transition: transform .34s ease, opacity .3s ease; }
+  #telaFala.aberta #falaCaixa, #telaFala.aberta #falaRetrato { transform: translateY(0); opacity: 1; }
   #falaCaixa { position: relative; z-index: 1; width: min(560px, 100%); box-sizing: border-box;
     background: #16130d; padding: 16px 16px 24px; display: block;
     /* os 20 px de baixo são a faixa do "toque para continuar": sem eles ele encosta na
@@ -488,23 +535,34 @@
   .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
   .cenaLinha.vista .marca { color: #8fd96a; }
   .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
-  /* CAPITULOS: cada era e uma laje, como os botoes do menu. A trancada nao some — mostrar o
-     que falta e o que faz querer voltar; esconder faz o jogo parecer menor do que e. */
-  #listaCapitulos { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px;
+  /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
+     do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
+     esconder faz o jogo parecer menor do que e. O véu desta tela é mais leve que o das telas
+     de leitura: aqui a mata ainda é o assunto. */
+  #telaCapitulos { background:
+    linear-gradient(180deg, rgba(10,9,6,.42) 0%, rgba(10,9,6,.28) 45%, rgba(10,9,6,.55) 100%); }
+  #listaCapitulos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;
     width: min(78vw, 330px); }
-  .capItem { text-align: left; padding: 13px 15px; border-radius: 5px; background: #a39a83;
-    color: #2a2418; border: 0; font: inherit; cursor: pointer;
-    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
-                inset 0 0 0 2px #423b2e, 0 5px 0 #191510; }
+  .capItem { text-align: left; padding: 13px 15px; border-radius: 3px; color: #eaD8b2;
+    background: linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    border: 0; font: inherit; cursor: pointer;
+    box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
+                inset 0 0 0 2px #1c1106, 0 5px 0 #120c06;
+    transition: transform .06s, box-shadow .06s; }
   .capItem:active { transform: translateY(4px);
-    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
-                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
-  .capItem.livre { background: #c9a86a;
-    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
-                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510; }
-  .capItem.preso { background: #4a463c; color: #8d8677; cursor: default;
-    box-shadow: inset 0 2px 0 #5e594c, inset 0 -3px 0 #35322a,
-                inset 0 0 0 2px #2a2720, 0 4px 0 #12100c; }
+    box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
+                inset 0 0 0 2px #1c1106, 0 1px 0 #120c06; }
+  /* a era onde você está é a tábua nova, clara — mesma regra do JOGAR: material, não tamanho */
+  .capItem.livre { color: #2a1a0a; text-shadow: 0 1px 0 rgba(255,236,196,.5);
+    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06; }
+  /* a trancada é madeira encardida de tempo, sem contraste — ainda não é caminho */
+  .capItem.preso { background: #453c30; color: #8d8271; cursor: default;
+    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2c2418,
+                inset 0 0 0 2px #1e1810, 0 4px 0 #0e0b07; }
   .capItem.preso:active { transform: none; }
   .capNome { font-size: 15px; font-weight: 900; letter-spacing: .1em; }
   .capQuando { font-size: 10px; letter-spacing: .06em; opacity: .8; margin-top: 3px; }
@@ -691,10 +749,16 @@
 <div class="tela" id="telaMenu">
   <img id="logoImg" alt="BRASIL" src="data:image/webp;base64,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">
   <div class="telaTxt" id="menuSub">um jogo sobre quem já estava aqui</div>
-  <button class="telaBtn" id="btnJogar">JOGAR</button>
-  <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
-  <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
-  <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
+  <!-- O POSTE: o menu não é um painel sobre a mata — é a mata, e as opções são tábuas de
+       madeira pregadas num poste fincado no chão, que corre para fora da tela por baixo.
+       Madeira lisa com veio, sem NENHUM grafismo geométrico: padrão que "parece indígena"
+       pertence a um povo e tem nome — é a regra do §2 e do logo. -->
+  <div id="poste">
+    <button class="telaBtn" id="btnJogar">JOGAR</button>
+    <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
+    <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
+    <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
+  </div>
 </div>
 
 <!-- A FALA: a caixa de diálogo de jogo antigo. É por aqui que o contexto histórico chega —
@@ -5596,10 +5660,15 @@ function telaAberta() {
 }
 function abrirTela(id) {
     TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
+    // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de
+    // controles) sai de cena deslizando. É esta classe que faz o menu deixar de ser um modal
+    // emoldurado por contadores e botões — ver estilo.css, body.emTela.
+    document.body.classList.add("emTela");
 }
 function fecharTelas() {
     pararFala(); // uma fala fechada por fora não pode continuar se revelando escondida
     TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
+    document.body.classList.remove("emTela");
 }
 // ===== OS CAPÍTULOS =====
 // Cada um tem NOME (o rótulo do HUD e o título da fala), QUANDO (onde e em que século), e as

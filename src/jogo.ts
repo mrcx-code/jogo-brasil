@@ -4565,10 +4565,15 @@ function telaAberta() {
 }
 function abrirTela(id) {
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
+  // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de
+  // controles) sai de cena deslizando. É esta classe que faz o menu deixar de ser um modal
+  // emoldurado por contadores e botões — ver estilo.css, body.emTela.
+  document.body.classList.add("emTela");
 }
 function fecharTelas() {
   pararFala();          // uma fala fechada por fora não pode continuar se revelando escondida
   TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
+  document.body.classList.remove("emTela");
 }
 
 // ===== OS CAPÍTULOS =====
