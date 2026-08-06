@@ -483,13 +483,50 @@ function alvo() {
     return Object.keys(JSON.parse(localStorage.getItem(CHAVE_JOGO))).sort();
   });
   console.log('save written ->', chaves.join(', '));
-  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'modo', 'salvoEm', 'u1', 'u2', 'u3', 'u4'];
+  // `som` é o interruptor de áudio dos AJUSTES. Entra aqui porque é estado PERSISTIDO: a lista
+  // é a cópia independente do ESQUEMA_SAVE, e é ela que pega um campo gravado sem esquema.
+  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));
 
 
   // obsolete: the STREET bar was removed by owner request — element, style and test.
+
+  // ---- SOM: existe, é sintetizado, e não nasce antes de um toque ----
+  // A trava que importa aqui é a última: criar um AudioContext na carga rende aviso ou erro no
+  // console em navegador nenhum autorizado, e este teste reprova erro de console — mas só se
+  // alguém der o toque. Como o teste nunca deu um gesto CONFIÁVEL, `audCtx` tem de estar nulo.
+  const som = await page.evaluate(() => {
+    const antes = audCtx;
+    acordarAudio();                       // o que o primeiro toque faria
+    const ctx = audCtx;
+    const nos = [];
+    // com o som ligado, cada efeito tem de criar nó; com ele desligado, nenhum
+    const co = ctx && ctx.createOscillator.bind(ctx), cb = ctx && ctx.createBufferSource.bind(ctx);
+    if (ctx) {
+      ctx.createOscillator = function () { nos.push('o'); return co(); };
+      ctx.createBufferSource = function () { nos.push('b'); return cb(); };
+    }
+    S.som = true;
+    somAlcance(true); somAtendida(); somDrop(); somPulo(); somPouso(); somPasso();
+    somEra(); somTique(); somChegada();
+    const ligado = nos.length;
+    nos.length = 0;
+    S.som = false;
+    somAlcance(true); somDrop(); somPulo(); somPouso(); somPasso(); somEra(); somTique(); somChegada();
+    const desligado = nos.length;
+    S.som = true;
+    return { criadoNaCarga: !!antes, temContexto: !!ctx, ligado, desligado };
+  });
+  console.log('sound -> context before any gesture:', som.criadoNaCarga,
+    '| nodes with sound on:', som.ligado, '| with sound off:', som.desligado);
+  if (som.criadoNaCarga) errors.push('an AudioContext was built before a user gesture');
+  // Nove efeitos disparados no MESMO quadro rendem 6 nós e não 10: é o teto de vozes por
+  // quadro (ver audioPronto) fazendo exatamente o que existe para fazer. O que se cobra aqui é
+  // que o som EXISTA e que o teto segure — nunca que os nove passem.
+  if (som.temContexto && (som.ligado < 5 || som.ligado > 6)) errors.push('the per-frame voice budget is not holding: ' + som.ligado);
+  if (som.desligado !== 0) errors.push('sound is off and something still made an audio node');
 
   const fps = await page.evaluate(() => new Promise(res => {
     let n = 0; const t0 = performance.now();

@@ -747,6 +747,9 @@
 <div class="tela" id="telaConfig">
   <div class="telaTit">AJUSTES</div>
   <div class="telaTxt" id="cfgInfo"></div>
+  <!-- O interruptor do som. Primeiro botão da tela porque é o único ajuste que alguém procura
+       com pressa — quem está no ônibus quer calar o jogo agora, não depois de ler. -->
+  <button class="telaBtn sec" id="btnSom">SOM</button>
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>
@@ -898,6 +901,9 @@ let S = {
     // capítulo, o fecho ao completá-lo. Marcar no bit errado faria alguém reler o que já leu,
     // que é justamente o que o botão PULAR existe para evitar.
     aberturas: 0, fechos: 0,
+    // Som ligado por padrão, e BAIXO por padrão (ver AUD_VOL): alguém abre o jogo no ônibus.
+    // O interruptor mora na tela de AJUSTES.
+    som: true,
     salvoEm: 0
 };
 // U1 triples the tap; U4 is the test switch and multiplies whatever that came to by a
@@ -988,6 +994,7 @@ function pular() {
     if (jumpT > 0)
         return; // one jump at a time; no double-tapping into orbit
     jumpT = JUMPF;
+    somPulo();
     clicar(false, false, true); // and it lands a blow on the way up
 }
 // Em PIXELS DE MUNDO, pela mesma razão de CFG.mobVao: uma folha é um lugar da mata, não um
@@ -1220,6 +1227,10 @@ function coletarDrop(d, auto) {
     if (r)
         S.recursos[r] = (S.recursos[r] || 0) + 1;
     const sx = Math.round(d.wx - worldX);
+    // Só o que a personagem pega em mão soa. O que o U3 recolhe sozinho é 0,5/s de fundo, e um
+    // tinido automático duas vezes por segundo é exatamente o som que cansa em trinta segundos.
+    if (!auto)
+        somDrop();
     floats.push({ x: sx - 10, y: GROUND - 30, txt: "+" + Math.round(v), life: 38 });
     burst(sx, GROUND - 16, auto ? 5 : 10, d.type === "cash" ? ["#f3a03d", "#dcbb84"]
         : d.type === "barrel" ? ["#71a39c", "#dad8c0"] : ["#f2d2dc", "#cf7d92"]);
@@ -1259,6 +1270,8 @@ function atualizarMobs(dt) {
             const r = Math.random(), mix = CFG.mobMix[S.modo] || CFG.mobMix.limpo;
             const tipo = r < mix.smog ? "smog" : r < mix.barrel ? "barrel" : "cash";
             mobs.push(novoMob(tipo, worldX + W + 12));
+            if (!telaAberta())
+                somChegada(); // aviso, não susto: ver somChegada()
         }
     }
     // ELAS CHEGAM, PARAM E ESPERAM. Antes atravessavam a tela em 2,3 s a 34 px/s CONTRA a
@@ -1413,8 +1426,15 @@ function clicar(auto, naoConta, semAnim) {
             soltarDrop(m, sx); // what it was holding stays on the ground until picked up
             burst(sx + 8, GROUND - 14, 16, m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
                 : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+            if (!auto)
+                somAtendida();
         }
     }
+    // O som é do GESTO DE QUEM JOGA. A ajuda automática do U3 bate 2 vezes por segundo e a mão
+    // de ninguém está ali: sonorizá-la faria o jogo tocar sozinho numa mesa, que é a definição
+    // de som que cansa. `alvo` decide o timbre — ver somAlcance().
+    if (!auto)
+        somAlcance(!!alvo);
     // only the player's own taps put a "+N" over the hero — auto-help at 2/s (or the wand at
     // 10/s) used to spew a float every tick, which read as the frame twitching
     if (!auto)
@@ -1454,6 +1474,228 @@ function comprar(u, custo) {
         desenhar();
     }
 }
+// ============================================================
+// ---------- SOM ----------
+//
+// TUDO SINTETIZADO. Nenhum byte de áudio no arquivo: osciladores, envelopes e ruído filtrado,
+// escritos aqui. Duas razões e as duas pesam. O index.html já passa de 3,5 MB e um punhado de
+// efeitos gravados custaria centenas de KB; e som sintetizado é o vocabulário nativo do pixel
+// art — cada efeito é meia dúzia de números que se afinam um a um.
+//
+// O QUE ESTE MÓDULO NÃO TEM, E É REGRA E NÃO ESQUECIMENTO: nenhum som de dano, de dor, de
+// golpe ou de morte. O verbo do jogo é ALCANÇAR. Quem atravessa a tela pede ajuda, e no
+// capítulo 2 é GENTE — som de impacto em pessoa é a linha do §2.2 e não se cruza. Por isso o
+// som de alcançar é uma NOTA, e o de atender alguém até o fim é um intervalo que RESOLVE:
+// a leitura sonora é "cheguei até você", nunca "bati em você".
+//
+// ARQUITETURA. Um AudioContext só, criado no PRIMEIRO toque e nunca antes — navegador nenhum
+// deixa tocar sem gesto, e tentar antes derruba erro no console (o smoke test reprova erro de
+// console). Cada som cria os nós de que precisa, agenda o envelope e se desconecta sozinho no
+// `onended`: nada fica pendurado no grafo. O mestre é um GainNode único, e desligar o som no
+// AJUSTES é o mesmo caminho que não tocar nada — a checagem é na porta de cada função.
+let audCtx = null;
+let audMestre = null;
+let audRuido = null;
+// Volume BAIXO por padrão: alguém abre o jogo no ônibus. Isto multiplica todos os efeitos, e
+// os ganhos individuais lá embaixo são relativos a ele.
+const AUD_VOL = 0.22;
+// Teto de vozes por quadro. Segurar o botão dá ~7 alcances/s e cada um é uma voz; o teto está
+// aqui para o caso patológico (fila cheia + passo + drop no mesmo instante), não para o normal.
+let audVozes = 0, audVozesQuadro = -1;
+// `resume()` devolve uma PROMESSA, e ela REJEITA quando o navegador ainda não viu um gesto de
+// verdade — evento sintético não destrava nada. Promessa rejeitada sem `catch` vira erro não
+// tratado no console, e o smoke test reprova erro de console: o `catch` vazio aqui não é
+// desleixo, é o tratamento. Silêncio é a degradação certa para som que não pode tocar.
+function retomarAudio() {
+    if (!audCtx)
+        return;
+    try {
+        const p = audCtx.resume();
+        if (p && typeof p.catch === "function")
+            p.catch(function () { });
+    }
+    catch (e) { }
+}
+function audioPronto() {
+    if (!S.som)
+        return null;
+    if (!audCtx)
+        return null;
+    // Abas que voltam do segundo plano acordam com o contexto suspenso. Retomar é barato e
+    // silencioso; se o navegador recusar, o som simplesmente não sai e nada estoura.
+    if (audCtx.state === "suspended")
+        retomarAudio();
+    // O orçamento é por QUADRO de desenho (`tick`), não por segundo: é o que impede um pico
+    // instantâneo de virar uma parede de som, sem limitar a cadência normal de nada.
+    if (audVozesQuadro !== tick) {
+        audVozesQuadro = tick;
+        audVozes = 0;
+    }
+    if (audVozes >= 6)
+        return null;
+    audVozes++;
+    return audCtx;
+}
+// Ligado no primeiro gesto do usuário, venha ele de onde vier. Chamado de dentro dos
+// pointerdown que já existem, e envolto em try/catch porque um AudioContext recusado não pode
+// ser a razão de o jogo não abrir.
+function acordarAudio() {
+    if (audCtx) {
+        if (audCtx.state === "suspended")
+            retomarAudio();
+        return;
+    }
+    try {
+        const C = window.AudioContext || window.webkitAudioContext;
+        if (!C)
+            return;
+        audCtx = new C();
+        audMestre = audCtx.createGain();
+        audMestre.gain.value = AUD_VOL;
+        audMestre.connect(audCtx.destination);
+        // Um segundo de ruído branco, gerado UMA vez e reutilizado por todo BufferSource. Gerar
+        // ruído por evento seria alocar 44.100 floats para tocar 30 ms deles.
+        const n = Math.floor(audCtx.sampleRate * 0.5);
+        audRuido = audCtx.createBuffer(1, n, audCtx.sampleRate);
+        const d = audRuido.getChannelData(0);
+        for (let i = 0; i < n; i++)
+            d[i] = Math.random() * 2 - 1;
+    }
+    catch (e) {
+        audCtx = null;
+        audMestre = null;
+    }
+}
+// UMA NOTA. Oscilador -> ganho com envelope -> mestre. `ataque` curto mas nunca zero: um
+// envelope que salta de 0 ao pico num sample estala, e estalo é a coisa que cansa mais rápido.
+// Tudo é agendado no relógio do áudio e o nó se desliga no fim, então não há timer, não há
+// laço e não há nó vivo depois do som.
+function nota(freq, dur, vol, tipo, ataque, freqFim) {
+    const c = audioPronto();
+    if (!c || !audMestre)
+        return;
+    const t = c.currentTime, atk = ataque === undefined ? 0.006 : ataque;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = tipo || "triangle";
+    o.frequency.setValueAtTime(freq, t);
+    // Uma varredura de altura quando pedida — é o que faz o pulo subir e o tique não ser plano.
+    if (freqFim)
+        o.frequency.exponentialRampToValueAtTime(Math.max(20, freqFim), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), t + atk);
+    // Decaimento exponencial até quase zero e um degrau para zero no fim: `exponentialRamp`
+    // nunca chega a 0, e deixar o ganho parado em 0,0001 seria um zumbido somado a cada voz.
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.gain.setValueAtTime(0, t + dur);
+    o.connect(g);
+    g.connect(audMestre);
+    o.start(t);
+    o.stop(t + dur + 0.02);
+    o.onended = function () { try {
+        o.disconnect();
+        g.disconnect();
+    }
+    catch (e) { } };
+}
+// UM SOPRO DE RUÍDO, passado por um filtro. É o passo, é a aterrissagem e é o farfalhar — a
+// diferença entre os três é a frequência do filtro e o tempo do envelope, nada mais.
+function sopro(dur, vol, corte, q, passaAlta) {
+    const c = audioPronto();
+    if (!c || !audMestre || !audRuido)
+        return;
+    const t = c.currentTime;
+    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = audRuido;
+    // Começa num ponto aleatório do meio segundo gravado: dois passos seguidos nunca são o
+    // mesmo recorte de ruído, e é isso que impede a passada de soar como um loop.
+    const off = Math.random() * 0.4;
+    f.type = passaAlta ? "highpass" : "bandpass";
+    f.frequency.value = corte;
+    f.Q.value = q;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.gain.setValueAtTime(0, t + dur);
+    s.connect(f);
+    f.connect(g);
+    g.connect(audMestre);
+    s.start(t, off, dur + 0.05);
+    s.stop(t + dur + 0.05);
+    s.onended = function () { try {
+        s.disconnect();
+        f.disconnect();
+        g.disconnect();
+    }
+    catch (e) { } };
+}
+// A ESCALA. Pentatônica maior em lá — as cinco notas que não têm meio-tom entre si, então
+// qualquer sequência delas, em qualquer ordem e em qualquer velocidade, continua consonante.
+// É a razão TÉCNICA de o som de alcançar não cansar: ele toca dezenas de vezes por minuto e
+// nunca repete a mesma altura duas vezes seguidas, mas também nunca produz um intervalo feio.
+const AUD_ESCALA = [440.00, 493.88, 587.33, 659.25, 739.99, 880.00];
+let audGrau = 0;
+// ALCANÇAR — o verbo. Uma nota curta de triângulo, ataque suave, 110 ms, subindo pela
+// pentatônica e voltando ao começo. Soa como um dedo numa marimba pequena: madeira, não metal,
+// e sem nenhuma componente de choque. O grau anda +2 a cada toque, então a sequência é um
+// arpejo aberto em vez de uma escada, e volta ao grave antes de ficar estridente.
+// `contato` diz se aquele gesto chegou em alguém. Alcançar o vazio é 65% da renda hoje, então
+// ele NÃO pode ser mudo — mas também não pode soar igual a chegar em alguém, ou o som deixa de
+// informar. A diferença é de timbre e não de volume: com contato entra a quinta acima, que dá
+// corpo; sem contato fica a nota nua e mais curta, e lê como um gesto no ar.
+function somAlcance(contato) {
+    const f = AUD_ESCALA[audGrau % AUD_ESCALA.length];
+    audGrau = (audGrau + 2) % (AUD_ESCALA.length * 3);
+    nota(f, contato ? 0.11 : 0.075, contato ? 0.30 : 0.17, "triangle", 0.004);
+    if (contato)
+        nota(f * 1.5, 0.055, 0.09, "sine", 0.004);
+}
+// ATENDIDA ATÉ O FIM. Não é um som de queda: é um intervalo que RESOLVE, dois graus subindo
+// com 60 ms entre eles, e o segundo mais longo que o primeiro. Lê como "pronto", como quem
+// termina de ajudar alguém. É deliberadamente a mesma família tímbrica do alcance, uma oitava
+// acima, para que a orelha entenda que é a conclusão daquilo e não outro evento.
+function somAtendida() {
+    const f = AUD_ESCALA[audGrau % AUD_ESCALA.length];
+    nota(f, 0.09, 0.22, "triangle", 0.004);
+    setTimeout(function () { nota(f * 1.5, 0.22, 0.24, "triangle", 0.006); }, 60);
+}
+// RECOLHER. Curto e claramente outra coisa: duas senoides brilhantes, quase juntas, subindo.
+// 70 ms no total. É metal e não madeira, e é o único som agudo do jogo — foi assim que ficou
+// distinto do alcance sem precisar ser mais alto que ele.
+function somDrop() {
+    nota(880, 0.06, 0.16, "sine", 0.003);
+    setTimeout(function () { nota(1318.5, 0.09, 0.14, "sine", 0.003); }, 45);
+}
+// PULAR. Uma varredura de 300 para 700 Hz em 130 ms, senoide. Sobe junto com ela e some antes
+// do topo do arco, então o ouvido guarda a impulsão e não o voo.
+function somPulo() { nota(300, 0.13, 0.15, "sine", 0.004, 700); }
+// ATERRISSAR. Duas camadas: um baque grave (senoide caindo de 150 para 60 Hz em 90 ms) e um
+// sopro de terra por cima (ruído em passa-baixa larga, 70 ms). Junto soa como sola em chão de
+// terra batida, e não como uma batida de bumbo.
+function somPouso() {
+    nota(150, 0.09, 0.22, "sine", 0.004, 60);
+    sopro(0.07, 0.10, 380, 0.7);
+}
+// PASSO. O mais sutil de todos e o mais fácil de errar: 22 ms de ruído em passa-banda a 900 Hz
+// com Q baixo, a um sexto do volume de um alcance. Sozinho quase não se ouve; o que se ouve é
+// a CADÊNCIA. Sai no mesmo evento que troca o quadro do sprite, então ele casa com o pé por
+// construção — a passada já é escolhida pela distância percorrida, e não pelo relógio.
+function somPasso() { sopro(0.022, 0.05, 900, 0.9); }
+// VIRADA DE ERA. Um momento, não um efeito: três notas da pentatônica soando em arpejo com
+// 130 ms entre elas e decaimento de 1,1 s, então elas se sobrepõem e o que fica é um acorde
+// que abre. É o único som longo do jogo, e o único que usa mais de duas vozes.
+function somEra() {
+    [0, 2, 4].forEach(function (g, i) {
+        setTimeout(function () { nota(AUD_ESCALA[g] * 0.5, 1.1, 0.20, "triangle", 0.03); }, i * 130);
+    });
+}
+// TIQUE DA FALA. 12 ms, onda quadrada bem baixa em 1,4 kHz, e só a cada TRÊS letras — a cada
+// letra vira metralhadora, e foi medido lendo: a 18 ms por letra, uma a uma dá 55 tiques por
+// segundo. A cada três dá 18, que é a cadência de quem digita depressa.
+function somTique() { nota(1400, 0.012, 0.05, "square", 0.002); }
+// CHEGOU ALGUÉM. Discreto: é aviso, não susto. Uma nota grave e curta (220 Hz, 70 ms,
+// triangular, ataque lento de 12 ms para não ter transiente), no fundo da mistura. Quem estava
+// olhando percebe; quem não estava, não leva sobressalto.
+function somChegada() { nota(220, 0.07, 0.09, "triangle", 0.012); }
 // Offline used to bill one frozen rate for the whole night: efficiency was read at save
 // time and multiplied by twelve hours. Go to bed right after switching to GO FAST with a
 // rested team and you were paid the rested rate while the team wore out in their sleep.
@@ -1506,6 +1748,11 @@ const ESQUEMA_SAVE = {
     // alguém relê uma fala, nunca perde uma.
     aberturas: { tipo: "bits", min: 0, max: 7, pad: 0 },
     fechos: { tipo: "bits", min: 0, max: 7, pad: 0 },
+    // O interruptor de som. `bool` é o tipo mais fechado que existe aqui: qualquer coisa que não
+    // seja o literal `true` cai em false. O padrão do ESQUEMA é portanto DESLIGADO, e é o lado
+    // certo para errar — um save torto pode calar o jogo, nunca fazer barulho sem permissão. O
+    // padrão de quem nunca jogou continua sendo ligado, porque vem de `S` e não daqui.
+    som: { tipo: "bool", pad: false },
     salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
 function valida(regra, v) {
@@ -3682,12 +3929,32 @@ function drawHero() {
     // ---- state advance: identical side effects to the old procedural path ----
     if (air)
         jumpT--; // the arc runs down; landing no longer spawns anything
+    // A aterrissagem é a passagem de jumpT 1 para 0, e só existe aqui — não há outro lugar no
+    // motor que saiba que ela aconteceu.
+    if (air && jumpT === 0)
+        somPouso();
     if (attackT > 0)
         attackT--;
     // poeirinha no pé a cada passo. O gatilho é a VOLTA do ciclo, e não "quadro par": com três
     // quadros por passo, o par acendia duas vezes num passo e uma no seguinte.
     if (!air && attackT <= 0 && fi !== lastFi && fi === 0) {
         parts.push({ x: HX - 6, y: GROUND - 3, vx: -24, vy: -10, life: 0.4, c: "#9b8468", grav: 70 });
+    }
+    // O PASSO SOA NO MESMO EVENTO QUE TROCA O QUADRO — é por isso que ele casa com o pé por
+    // construção, e não por ajuste: o quadro já é escolhido pela DISTÂNCIA percorrida, então a
+    // cadência do som herda a cadência da passada em qualquer velocidade, de graça.
+    //
+    // Um ciclo do sprite são DOIS passos (um pé e o outro), então o som sai duas vezes por
+    // ciclo: na volta ao quadro 0 e na metade. Um ciclo de três quadros não tem metade inteira,
+    // e `n >> 1` dá 1 — que é o quadro certo, o do outro pé.
+    //
+    // Silencia enquanto uma tela está aberta: o mundo continua andando por baixo da caixa de
+    // fala (de propósito, ver contandoParado), mas ouvir passos durante a história é ruído em
+    // cima do texto — e o tique da fala já ocupa esse espaço.
+    if (!air && attackT <= 0 && fi !== lastFi && !telaAberta()) {
+        const meio = frames.length >> 1;
+        if (fi === 0 || (meio > 0 && fi === meio))
+            somPasso();
     }
     lastFi = fi;
 }
@@ -3945,6 +4212,7 @@ function verificarCenario() {
         floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58, life: 90,
             txt: "NOVA ERA" });
         burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
+        somEra();
         salvar();
         if (vira)
             mostrarAbertura(); // e a fala do capítulo novo vem logo depois do fecho
@@ -5074,6 +5342,17 @@ function contandoParado() {
     return !!(t && t.classList.contains("aberta"));
 }
 const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes"];
+// Alguma tela cobrindo o jogo. O mundo continua vivo por baixo delas — é decisão, ver
+// contandoParado() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
+// vez de guardar um sinalizador porque o DOM já é a única fonte da verdade sobre isso.
+function telaAberta() {
+    for (let i = 0; i < TELAS.length; i++) {
+        const t = document.getElementById(TELAS[i]);
+        if (t && t.classList.contains("aberta"))
+            return true;
+    }
+    return false;
+}
 function abrirTela(id) {
     TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
 }
@@ -5305,6 +5584,11 @@ function revelarFala() {
     falaTimer = setInterval(function () {
         n++;
         $("falaTxt").textContent = txt.slice(0, n);
+        // A cada TRÊS letras, e nunca no espaço: a 18 ms por letra, um tique por letra dá 55 por
+        // segundo e vira metralhadora. A cada três dá 18/s, que é a cadência de quem digita
+        // depressa — e pular o espaço faz o tique cair dentro das palavras, não entre elas.
+        if (n % 3 === 0 && txt.charAt(n - 1) !== " ")
+            somTique();
         if (n >= txt.length)
             terminarLinha();
     }, FALA_MS);
@@ -5515,6 +5799,19 @@ function ligarTelas() {
         e.stopPropagation();
         encerrarFala();
     });
+    // Ligar/desligar o som. Salva na hora — quem calou o jogo não pode reencontrá-lo falando
+    // depois de fechar a aba. E toca uma nota ao LIGAR, nunca ao desligar: é a única confirmação
+    // honesta de que a coisa funciona, e ela chega pelo ouvido.
+    $("btnSom").addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        S.som = !S.som;
+        if (S.som) {
+            acordarAudio();
+            somAlcance(true);
+        }
+        salvar();
+        montarConfig();
+    });
     $("btnApagar").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); montarConfig(); });
 }
 function montarConfig() {
@@ -5522,6 +5819,7 @@ function montarConfig() {
     $("cfgInfo").textContent = "dias distintos jogados: " + d
         + " · tempo total: " + m + " min"
         + " · nada sai deste aparelho: o jogo não tem rede.";
+    $("btnSom").textContent = S.som ? "SOM: LIGADO" : "SOM: DESLIGADO";
     $("btnApagar").textContent = "APAGAR MEU PROGRESSO";
 }
 // ===== DE ONDE VEM =====
@@ -5603,6 +5901,18 @@ function medirControles() {
 // ---------- main loop ----------
 document.addEventListener("DOMContentLoaded", () => {
     fitCanvas();
+    // O ÁUDIO SÓ NASCE DEPOIS DE UM TOQUE. Navegador nenhum deixa um AudioContext tocar antes de
+    // um gesto, e criar um na carga rende aviso ou erro no console — que o smoke test reprova.
+    // Este ouvinte é de CAPTURA, não consome o evento e não impede nada: ele só existe para que
+    // o primeiro toque de qualquer natureza (menu, rua, botão) sirva de destravamento. Sai de
+    // o primeiro toque de qualquer natureza (menu, rua, botão) sirva de destravamento.
+    //
+    // Sem `once`, de propósito: se a primeira tentativa falhar — contexto recusado, aba ainda
+    // sem permissão — a segunda conserta sozinha. `acordarAudio` sai na primeira linha quando já
+    // existe contexto, então o custo permanente é uma comparação por toque.
+    ["pointerdown", "touchstart", "keydown"].forEach(function (ev) {
+        document.addEventListener(ev, acordarAudio, { capture: true, passive: true });
+    });
     document.querySelectorAll("canvas.pi[data-i]").forEach(function (c) { renderIcon(c, c.dataset.i); });
     // Main attack: tap once, or HOLD to keep swinging — on the button *or* on the world.
     // Both surfaces share ONE repeat timer, so two thumbs cannot double the hit rate: the

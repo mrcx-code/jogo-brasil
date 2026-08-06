@@ -1154,3 +1154,68 @@ diz que alcançar é **acolher quem chega**, e quem chega é gente, não objeto.
 continua sendo "receber uma coisa", e o `NOTES` de 2026-08-05 já tinha marcado essa trava. Não é
 erro da folha nova — ela faz o que foi pedido — mas a pergunta de representação continua aberta:
 em Palmares, o que a mão da pessoa recebe?
+
+### 2026-08-06 · o jogo deixa de ser mudo, e nada disso é um arquivo de áudio
+
+**Sintetizado, não gravado, e as duas razões pesam.** Nenhum byte de áudio entrou no
+`index.html`: são osciladores, envelopes e ruído filtrado, escritos em código na seção `SOM` do
+`src/jogo.ts`. Um punhado de efeitos gravados custaria centenas de KB num arquivo que já passa
+de 3,4 MB — e som sintetizado é o vocabulário nativo do pixel art, meia dúzia de números que se
+afinam um a um.
+
+**A trava do §2 virou decisão de timbre, não só de ausência.** Não existe som de dano, de dor,
+de golpe nem de morte. O verbo é ALCANÇAR e no capítulo 2 quem chega é gente. Por isso:
+
+- **alcançar** é uma NOTA, não um impacto — triângulo, 110 ms, ataque de 4 ms;
+- **atender alguém até o fim** é um intervalo que RESOLVE (a nota e a quinta acima, 60 ms de
+  intervalo), a leitura sonora de "pronto", nunca de "caiu".
+
+**Por que ele não cansa, e é técnico.** As alturas vêm de uma pentatônica maior em lá
+(`AUD_ESCALA`), andando **dois graus por toque**. Segurando o botão a ~7 alcances/s a mesma
+altura nunca sai duas vezes seguidas, e como não há meio-tom na escala, sequência nenhuma
+produz intervalo feio. O toque no vazio — 65% da renda — não é mudo, mas perde a quinta e fica
+mais curto: a diferença é de TIMBRE, então ela informa sem precisar de volume.
+
+**O passo sai no mesmo evento que troca o quadro do sprite.** O quadro já é escolhido pela
+distância percorrida, então a cadência do som herda a cadência da passada em qualquer
+velocidade, de graça — duas vezes por ciclo (quadro 0 e `n >> 1`, os dois pés). Cala com
+qualquer tela aberta: o mundo continua andando por baixo da caixa de fala, mas passo em cima de
+texto histórico é ruído.
+
+**Tique da fala a cada TRÊS letras, e nunca no espaço.** Medido: a `FALA_MS = 18`, um tique por
+letra dá 55/s (metralhadora); a cada três dá 18/s, que é alguém digitando depressa.
+
+**Medido.**
+
+| | |
+|---|---|
+| FPS com som ligado, segurando o botão | **60** |
+| FPS com som desligado, mesma condição | **60** |
+| FPS no `npm test` | **61** (igual ao de antes) |
+| nós de áudio criados em 12 s segurando o botão | 203–211 |
+| nós ainda vivos 4 s depois | **0** (o único pendente tinha 5 ms de vida: passo em voo) |
+| pico no barramento mestre, por efeito | 0,019 (passo, tique, chegada) a 0,065 (alcance com gente) |
+| pico com o som desligado | **0,0000** |
+| peso somado ao `index.html` | **+22,9 KB** (3,597 → 3,620 MB), 257 linhas das quais 128 são comentário |
+
+**O que ficou frágil, e onde.**
+
+1. **O teto de vozes é por `tick`, e `tick` só anda no laço de desenho.** Se alguém disparar
+   muitos sons de fora do laço (um `setInterval` próprio), todos caem no mesmo orçamento de 6.
+   Foi exatamente o que o smoke test flagrou ao tocar nove efeitos numa evaluate só — e a
+   asserção hoje **cobra** que só passem 6, que é o comportamento certo.
+2. **Evento sintético não destrava áudio.** O smoke test nunca dá um gesto confiável, então ele
+   prova que `audCtx` é nulo antes do toque e que os efeitos criam nó depois de `acordarAudio()`
+   — mas quem quiser medir som de verdade tem de subir o chromium com
+   `--autoplay-policy=no-user-gesture-required`. Foi assim que os picos acima foram lidos.
+3. **`resume()` devolve promessa que REJEITA sem gesto.** Sem `catch` isso vira erro não tratado
+   no console e reprova o teste. O `catch` vazio em `retomarAudio()` é o tratamento, não
+   desleixo.
+4. **O pulo toca dois sons quase juntos** (`somPulo` e o `somAlcance` do golpe que o pulo acerta
+   na subida). Soou bem nos picos, mas é o lugar mais provável de alguém achar abarrotado.
+5. **`som` entrou no `ESQUEMA_SAVE` com padrão `false`** — um save torto cala o jogo, nunca o
+   faz gritar. O padrão de quem nunca jogou continua `true`, porque vem de `S` e não do esquema.
+   A lista de chaves esperadas no `test/smoke.js` é cópia independente do esquema e teve de ser
+   atualizada junto; é ela que pega campo gravado sem esquema.
+
+**Nada de música de fundo** — é outra escala de trabalho e outra decisão. Só efeitos.
