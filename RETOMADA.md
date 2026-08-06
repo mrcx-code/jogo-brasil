@@ -1,7 +1,6 @@
 # RETOMADA — leia isto primeiro na próxima sessão
 
-Escrito em 2026-08-05, no fim de uma sessão longa, para a sessão seguinte começar sabendo
-onde as coisas estão. **Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.**
+Atualizado em 2026-08-06. Existe para a sessão seguinte começar sabendo onde tudo está. **Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.**
 
 ## Em uma frase
 
@@ -17,7 +16,7 @@ quem não é atendido faz o mundo ralear.
 | mesa de entrega | `npm run mesa` → localhost:8200 |
 | produção | <https://jogo-brasil-mrcx.vercel.app> |
 
-## ATUALIZADO em 2026-08-06
+## O que mudou por último
 
 - **Retratos das três eras** entraram: cada capítulo é narrado por quem viveu nele.
   Palmares estava sendo contada pelo rosto do litoral, o que contradizia o texto lido.
@@ -37,37 +36,28 @@ com o build verde e a tela igual, integre; se a diferença aparecer, volte para 
 qualidade de WebP ou menos cores — **nunca cortar conteúdo**, e **nunca SVG**: medido, pixel
 art em vetor vira dezenas de milhares de retângulos, maior que o WebP e mais lento.
 
-## As DUAS coisas grandes que estão prontas e NÃO integradas
+## O que está pronto e NÃO integrado
 
-Ambas em worktrees, verdes, sem commit. **Integrar as duas é o primeiro trabalho.**
+**Só uma coisa:** a migração TypeScript + Capacitor. Um agente está portando agora; se ele
+falhar, a worktree `agent-a3040c2ea3c2db2f8` tem a versão original e o `BACKLOG.md` a lista.
 
-1. **Migração TypeScript + Capacitor** — corta `index.html` em `src/`. Construída sete
-   commits atrás; a lista exata do que portar está no `BACKLOG.md`.
-2. **Personagem por época** — mede as 8 folhas de cap.2 e cap.3. Estava rodando quando a
-   sessão acabou; pode ter terminado.
+A personagem por época **já foi integrada** — as três eras têm pessoa e passada próprias.
 
-Integração é sempre a mesma receita, e funcionou seis vezes:
+Receita de integração, que funcionou sete vezes:
 `git diff <base-do-agente> -- index.html > x.patch` e `git apply --3way x.patch`.
+Ela NÃO serve para a migração, porque essa muda a FORMA do arquivo, não o conteúdo.
 
 ## O que o dono pediu e ainda NÃO foi feito
 
 Em ordem do que ele falou por último:
 
-1. **Itens esperam mais e chegam mais espaçados.** Hoje `CFG.mobEspera = 2,4 s` e
-   `CFG.mobVao = 69 px`. Ele achou rápido demais e quer **intervalo aleatório** entre
-   chegadas. Meça antes e depois — a fração atendida andando é 1,00 e correndo 0,48.
-2. **Só voa o que faz sentido voar.** `MOB_LIFT` é por capítulo. Hoje há coisa flutuando sem
-   razão; cesto e mandioca não voam, cacho pendurado pode.
-3. **Revisar todos os assets** à luz do pulo e do subir.
-4. **Backgrounds na história**, trocando por fala. Barato: reaproveita as 12 peças que já
-   estão embutidas.
-5. **Explicar os itens no fim da história**, antes de jogar. Fecha o buraco dos primeiros
-   cinco minutos. **O texto é conteúdo — mostre rascunho, não publique sozinho.**
-6. **Plataformas estilo Mario.** É uma SESSÃO INTEIRA: `GROUND` é constante hoje, e altura
+1. **Revisar todos os assets** à luz do pulo e do subir.
+2. **Backgrounds na história**, trocando por fala. Barato: reaproveita as 12 peças embutidas.
+3. **Plataformas estilo Mario.** É uma SESSÃO INTEIRA: `GROUND` é constante hoje, e altura
    variável reabre a armadilha nº 1 do §7. Avisei que o verbo do jogo é *alcançar* e
    plataforma é *chegar* — podem competir. Ele não respondeu a isso.
-7. **Emenda dos fundos** ainda incomoda ele, mesmo com o mato na costura.
-8. **Melhorar menu, jogabilidade, HUD, textos e os botões de baixo.**
+4. **Emenda dos fundos** ainda incomoda ele, mesmo com o mato na costura.
+5. **Melhorar menu, jogabilidade, HUD, textos e os botões de baixo.**
 
 ## Decidido pelo dono, ainda não implementado
 
@@ -91,14 +81,15 @@ instante em que o primeiro byte sair, e tem que ser reescrita **na mesma fase**.
 
 | | |
 |---|---|
-| `PASSO_PX` | `140 × 44 / 322 / 3` = 6,377 · andar `n=10`, correr `n=5` |
-| escorregamento do pé | 0,5% |
+| passada, por era | 6,377 (n=10) · 7,492 (n=12) · 6,918 (n=11) |
+| escorregamento do pé | 0,48% · 0,00% · 0,67% |
 | paralaxe | 0,45 céu · 1,0 chão · 1,35 folhagem |
-| atendido em 60 s | andando 1,00 · correndo 0,48 · parado 0,00 |
+| atendido em 60 s | andando 1,00 · correndo 0,66 · parado 0,00 |
 | renda de correr | +16% (era −5% antes do spawn por distância) |
 | o que atravessa a tela | 18,3% da renda (era 4%) |
 | toque no vazio | **65% da renda** — o último item grande |
 | do zero até ver tudo | 5 min 07 s |
+| peso do index.html | 3,91 MB |
 
 ## Armadilhas que já custaram sessão — não repita
 
