@@ -183,9 +183,17 @@ function montarPendencias() {
     const box = document.getElementById("pendencias");
     box.textContent = "";
     if (!pd.itens) return;
+    // SO O QUE AINDA NAO FOI RESPONDIDO. Item respondido deixou de ser pendencia e virou
+    // trabalho MEU — mante-lo aqui faz a lista so crescer, e lista que so cresce ninguem le.
+    // A resposta nao se perde: continua no pendencias.json, que e o que eu leio.
     box.appendChild(el("h2", null, "Esperando você"));
+    const abertos = (pd.itens || []).filter(function (i) { return !String(i.resposta || "").trim(); });
+    if (!abertos.length) {
+      box.appendChild(el("p", "sub", "Nada pendente — tudo que eu precisava de você já foi respondido."));
+      return;
+    }
     box.appendChild(el("p", "sub", pd._ || ""));
-    pd.itens.forEach(function (i) {
+    abertos.forEach(function (i) {
       const it = el("div", "rmItem");
       const l = el("div", "rmL");
       l.appendChild(el("span", "rmS s-" + String(i.p || "").replace(/ /g, "-"), i.p || ""));
@@ -201,8 +209,12 @@ function montarPendencias() {
       ta.addEventListener("change", function () {
         fetch("/responder", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ t: i.t, resposta: ta.value }) })
-          .then(function () { ta.classList.add("salvo");
-            setTimeout(function () { ta.classList.remove("salvo"); }, 1200); });
+          .then(function () {
+            ta.classList.add("salvo");
+            // Some da lista assim que responde: a pergunta foi feita e respondida, e o lugar
+            // dela agora e o meu backlog, nao a tela dele.
+            setTimeout(function () { montarPendencias(); }, 900);
+          });
       });
       it.appendChild(ta);
       box.appendChild(it);
