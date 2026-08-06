@@ -475,6 +475,26 @@
   .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
   .cenaLinha.vista .marca { color: #8fd96a; }
   .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
+  /* CAPITULOS: cada era e uma laje, como os botoes do menu. A trancada nao some — mostrar o
+     que falta e o que faz querer voltar; esconder faz o jogo parecer menor do que e. */
+  #listaCapitulos { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px;
+    width: min(78vw, 330px); }
+  .capItem { text-align: left; padding: 13px 15px; border-radius: 5px; background: #a39a83;
+    color: #2a2418; border: 0; font: inherit; cursor: pointer;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510; }
+  .capItem:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+  .capItem.livre { background: #c9a86a;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510; }
+  .capItem.preso { background: #4a463c; color: #8d8677; cursor: default;
+    box-shadow: inset 0 2px 0 #5e594c, inset 0 -3px 0 #35322a,
+                inset 0 0 0 2px #2a2720, 0 4px 0 #12100c; }
+  .capItem.preso:active { transform: none; }
+  .capNome { font-size: 15px; font-weight: 900; letter-spacing: .1em; }
+  .capQuando { font-size: 10px; letter-spacing: .06em; opacity: .8; margin-top: 3px; }
   /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */
   #telaFontes { justify-content: flex-start; padding-top: 30px; }
   #listaFontes { overflow-y: auto; max-width: 34em; width: 100%; text-align: left;
@@ -667,6 +687,15 @@
 <!-- A FALA: a caixa de diálogo de jogo antigo. É por aqui que o contexto histórico chega —
      antes de jogar, não escondido numa tela de menu. O texto vive em EPOCAS, que carrega
      data e procedência, e não em TEXTOS, que é ficção autoral e não pode conter dígito. -->
+
+<!-- CAPITULOS: o caminho de entrada do jogo. O dono pediu que sempre se comece pelo menu e
+     que daqui se veja o que ja se abriu e o que falta — a lista de eras E o mapa do jogo. -->
+<div class="tela" id="telaCapitulos">
+  <div class="telaTit">ESCOLHA A ERA</div>
+  <div id="listaCapitulos"></div>
+  <button class="telaBtn sec" id="btnVoltarCap">VOLTAR</button>
+</div>
+
 <div class="tela" id="telaFala">
   <!-- O retrato e IRMAO da caixa, nao filho. Como filho, mesmo com z-index negativo ele
        ficava na frente do fundo da caixa — dentro de um contexto de empilhamento, filho
@@ -4589,7 +4618,7 @@ function contandoParado() {
   const t = document.getElementById("telaFala");
   return !!(t && t.classList.contains("aberta"));
 }
-const TELAS = ["telaMenu", "telaFala", "telaCompletude", "telaConfig", "telaFontes"];
+const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes"];
 function abrirTela(id) {
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
 }
@@ -4789,6 +4818,33 @@ const MOMENTOS = [
     d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de dezesseis anos de processo parado.",
     f: "IBGE · Censo 2022 · Enciclopédia Povos Indígenas no Brasil" }
 ];
+// A lista de eras. Uma era esta aberta se voce ja chegou nela; a proxima aparece trancada,
+// porque ver o que falta e o que faz querer voltar. Esconder faria o jogo parecer menor.
+function montarCapitulos() {
+  const box = $("listaCapitulos");
+  box.textContent = "";
+  const atual = Math.min(2, Math.floor(cenarioAtual() / 2));
+  EPOCAS.forEach(function (ep, i) {
+    const livre = i <= atual;
+    const b = document.createElement("button");
+    b.className = "capItem " + (livre ? (i === atual ? "livre" : "") : "preso");
+    b.type = "button";
+    const n = document.createElement("div");
+    n.className = "capNome";
+    n.textContent = livre ? ep.nome : "— ainda trancada —";
+    const q = document.createElement("div");
+    q.className = "capQuando";
+    q.textContent = livre ? ep.quando : "termine a era anterior";
+    b.appendChild(n); b.appendChild(q);
+    if (livre) b.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      // Entrar numa era ja vista volta para ela; a historia so fala uma vez.
+      S.cenario = i * 2; salvar(); redesenharFundo();
+      fecharTelas(); mostrarAbertura();
+    });
+    box.appendChild(b);
+  });
+}
 function montarCompletude() {
   const box = $("listaCenas");
   box.textContent = "";
@@ -4850,8 +4906,9 @@ function ligarTelas() {
   // jogar, que é o pedido do dono — o contexto histórico não pode ficar escondido num menu.
   // Quem já leu passa direto, porque `mostrarAbertura()` só fala uma vez por capítulo.
   $("btnJogar").addEventListener("pointerdown", function (e) {
-    e.preventDefault(); fecharTelas(); mostrarAbertura();
+    e.preventDefault(); montarCapitulos(); abrirTela("telaCapitulos");
   });
+  $("btnVoltarCap").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnCompletude").addEventListener("pointerdown", function (e) { e.preventDefault(); montarCompletude(); abrirTela("telaCompletude"); });
   $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
   $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
@@ -5037,10 +5094,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // estava, não apertar JOGAR de novo. E esta decisão vem DEPOIS de carregar(): ela morava
   // acima da leitura do save, onde S.energiaTotal ainda era zero para todo mundo, então o
   // menu abria também para quem estava no meio de uma partida.
-  if (!S.energiaTotal) abrirTela("telaMenu");
-  // Quem volta a um capítulo cuja abertura nunca viu — save antigo, ou fechou o jogo na
-  // virada — recebe ela agora, e uma vez só.
-  else mostrarAbertura();
+  // SEMPRE o menu. Antes ele so abria com placar zerado, entao quem ja jogava caia direto na
+  // rua sem passar pela porta — e sem ver as eras. O dono pediu que o comeco seja sempre
+  // aqui, e faz sentido: e daqui que se ve o que ja se abriu e o que falta.
+  // O menu abre SEMPRE. A abertura da era nao dispara mais aqui: ela passou a ser
+  // consequencia de ESCOLHER a era na lista, que e o caminho que o dono pediu.
+  abrirTela("telaMenu");
   desenhar();
   semearAnuncios();      // adopt current state so the first frames do not shout on load
   medirControles();
