@@ -904,6 +904,10 @@ let S = {
     // Som ligado por padrão, e BAIXO por padrão (ver AUD_VOL): alguém abre o jogo no ônibus.
     // O interruptor mora na tela de AJUSTES.
     som: true,
+    // Quantas pessoas estão andando com você AGORA, no capítulo 2. Não é placar nem total: é o
+    // tamanho da fila que está na tela, para que ela continue lá depois de fechar o jogo. Ver o
+    // bloco "QUEM CHEGA PASSA A ANDAR COM VOCÊ".
+    grupo: 0,
     salvoEm: 0
 };
 // U1 triples the tap; U4 is the test switch and multiplies whatever that came to by a
@@ -1244,7 +1248,7 @@ function novoMob(tipo, wx) {
     // motor foi construído prevendo a espera e ninguém ligou. `espera` é o relógio dela e
     // `desistiu` marca quem já esperou e seguiu, para não parar duas vezes na mesma rua.
     return { wx: wx, type: tipo, hp: hp, hpMax: hp, flash: 0, dying: 0,
-        parado: false, espera: 0, desistiu: false };
+        parado: false, espera: 0, desistiu: false, d: 0, esc: 0.82 + Math.random() * 0.13 };
 }
 // Movement, spawning and state. Drawing lives in drawMobs() and is not touched here.
 // Entre CFG.mobVao x0,65 e x1,35 — a janela é SIMÉTRICA de propósito, então `mobVao` é
@@ -1298,6 +1302,7 @@ function atualizarMobs(dt) {
             return; // parada é parada: o que se move é o mundo, não ela
         }
         m.wx -= CFG.mobVel * dt; // on top of the world sliding under them
+        m.d += CFG.mobVel * dt; // chão coberto por ELA: é o que escolhe o quadro da caminhada
         if (!m.desistiu && m.wx - worldX <= paraEm) {
             m.parado = true;
             m.espera = CFG.mobEspera;
@@ -1316,6 +1321,103 @@ function atualizarMobs(dt) {
             registrarChegada(false);
         return false;
     });
+}
+// ============================================================
+// CAPÍTULO 2 — QUEM CHEGA PASSA A ANDAR COM VOCÊ
+//
+// No capítulo 2 o que atravessa a tela não é cesto nem pote: é GENTE. A decisão do dono está
+// escrita na abertura desde sempre — "aqui, alcançar é acolher; quem chega vem ficar" — e com
+// objetos no lugar das pessoas o capítulo virava mais um de colher coisas.
+//
+// O §2.2 do CLAUDE.md é o que desenha o resto, e vale escrever por extenso o que ele proíbe e
+// o que sobrou depois de tirar tudo que ele proíbe:
+//
+//  · NÃO vira número. Não há contador de pessoas acolhidas, não há placar, não há tela de
+//    resumo. `S.grupo` existe só para o grupo continuar na tela depois de fechar o jogo, e é
+//    o TAMANHO DA FILA VISÍVEL, nunca um total. A recompensa é o grupo aparecer, e é só isso.
+//  · NÃO vira drop. Ninguém é recolhido do chão. O que fica no chão é o que a pessoa TROUXE —
+//    o feixe, o pote, o cesto —, e a economia continua byte a byte a mesma por causa disso.
+//  · NÃO tem barra de vida. Uma barra em cima de alguém conta quantas pancadas essa pessoa
+//    aguenta, e é exatamente a linha do §2.2. Quem lê o progresso é o CHÃO: o lugar de espera
+//    que já existia vai se enchendo de luz enquanto você chega até ela. Ver `desenharVidaMob`,
+//    que não é chamada neste capítulo, e o bloco do anel.
+//  · NÃO tem sinal de aflição. Sem vermelho, sem estilhaço, sem clarão branco no corpo de
+//    alguém — o pisca de acerto e o `burst` de detrito são gramática de combate e ficam
+//    desligados aqui. O que responde a cada alcance são dois pontos de luz morna subindo.
+//  · NÃO tem punição. Quem não é alcançada segue caminho e sai de quadro, como sempre; o que
+//    responde é o mundo (`S.cuidado`), e isso não mudou uma linha.
+//
+// COMO A FILA SE FORMA, e por que ela é um fluxo e não um saldo. Alcançada, a pessoa VIRA e
+// passa a andar no mesmo sentido que a protagonista, mas mais devagar que ela — então a rua a
+// deixa cair até o lugar dela na fila, e a partir daí as duas andam no mesmo passo. Quando
+// chega a sexta, a que está na frente segue mais devagar e fica pela serra: o grupo é uma fila
+// viva de até cinco, e não um número que satura e para de dizer coisa. Ninguém é descartado —
+// quem sai, sai ANDANDO, no lugar onde veio ficar.
+//
+// Ninguém para nunca: o quadro do sprite é escolhido pela DISTÂNCIA que cada uma percorreu, e
+// uma figura parada com pose de caminhada é a armadilha nº 1 do §7 vista de outro ângulo. Por
+// isso todo estado desta fila tem velocidade própria e nenhum tem zero.
+const CAP_GENTE = 1; // Palmares. Único capítulo em que isto tudo existe.
+function capGente() { return capArte() === CAP_GENTE; }
+const GRUPO_MAX = 5; // cabem cinco atrás dela em 390 px de tela; ver o Diário
+const GRUPO_FRENTE = 14, GRUPO_VAO = 10; // px de mundo: a primeira atrás dela, e o vão entre elas
+let grupo = [], ficando = [];
+// A ÚNICA variação entre as figuras é a ALTURA. A arte é uma só — a mesma pessoa do capítulo 2,
+// que é a arte que existe —, e a tentação era mexer no matiz para elas não parecerem cópias.
+// Mexer no matiz de gente é mexer em tom de pele, e fazer isso por sorteio, para "variar", é a
+// versão em código de tratar pessoas como textura. Altura e fase da passada bastam a 44 px.
+//
+// A faixa é 0,82 a 0,95 da protagonista — 36 a 42 px contra os 44 dela. Fica SEMPRE abaixo dela
+// de propósito: com a faixa antiga (0,88 a 1,02) metade do grupo saía mais alta que quem se
+// joga, e a regra de leitura deste arquivo é que a protagonista mantém margem sobre tudo que
+// está na tela. A variação continua sendo de gente adulta, não de criança.
+function acolherPessoa(x, esc) {
+    grupo.push({ x: x, d: 0, esc: esc });
+    while (grupo.length > GRUPO_MAX) {
+        const s = grupo.shift();
+        if (s)
+            ficando.push(s);
+    }
+    S.grupo = grupo.length;
+}
+function atualizarGrupo(dt) {
+    // Fora do capítulo 2 não há fila: a arte é a pessoa de Palmares e ela não anda nos outros
+    // dois. Quem fecha o capítulo deixa o grupo lá, que é onde ele veio ficar.
+    if (!capGente()) {
+        if (grupo.length || ficando.length || S.grupo) {
+            grupo.length = 0;
+            ficando.length = 0;
+            S.grupo = 0;
+        }
+        return;
+    }
+    const v = velocidadeMundo();
+    grupo.forEach(function (c, i) {
+        const alvo = worldX + HX - (GRUPO_FRENTE + i * GRUPO_VAO);
+        const dx = alvo - c.x;
+        // Velocidade própria, nunca zero: 0,55× enquanto ainda está à frente do lugar dela (a rua
+        // faz o resto), até 1,25× para fechar o vão quando alguém sai da frente da fila.
+        const vp = dx < 0 ? v * 0.55 : dx > 0 ? v * Math.min(1.25, 1 + dx * 0.08) : v;
+        const p = vp * dt;
+        c.x += p;
+        c.d += p;
+        if (dx > 0 && c.x > alvo)
+            c.x = alvo; // apressou o passo: não passa do lugar dela
+    });
+    ficando.forEach(function (c) { const p = v * 0.42 * dt; c.x += p; c.d += p; });
+    ficando = ficando.filter(function (c) { return c.x - worldX > -40; });
+}
+// Ao carregar um save, a fila volta como estava. Ela é REMONTADA e não guardada: o que o save
+// carrega é quantas, e o resto (lugar, altura, fase da passada) nasce de novo aqui — nada
+// disso é informação que valha a pena confiar a `localStorage`, que é entrada não confiável.
+function semearGrupo() {
+    grupo = [];
+    ficando = [];
+    const n = Math.max(0, Math.min(GRUPO_MAX, S.grupo | 0));
+    for (let i = 0; i < n; i++) {
+        grupo.push({ x: worldX + HX - (GRUPO_FRENTE + i * GRUPO_VAO),
+            d: Math.random() * 60, esc: 0.82 + Math.random() * 0.13 });
+    }
 }
 function atualizarDrops(dt) {
     drops.forEach(function (d) {
@@ -1410,22 +1512,48 @@ function clicar(auto, naoConta, semAnim) {
         // O fluxo de análise do TS não enxerga atribuição feita dentro do callback do forEach
         // acima, então para ele `alvo` ainda seria null aqui. É limite do compilador, não do código.
         const m = alvo, sx = alvoSx;
+        // No capítulo 2 quem está ali é uma PESSOA, e três coisas deste bloco são gramática de
+        // combate: o pisca branco no corpo, o estilhaço, e o empurrão. Todas ficam de fora.
+        const gente = capGente();
         m.hp -= dmg;
-        m.flash = 5;
+        if (!gente)
+            m.flash = 5;
         // O empurrão de 10 px por golpe era o que, sozinho, tornava a janela infinita: a 7
         // golpes/s ele devolve 70 px/s, mais do que os 38–77 px/s com que a caminhada afasta.
         // Nada saía do alcance enquanto estivesse apanhando. Em quem está PARADA esperando ele
         // também é a imagem errada — ninguém empurra para trás quem veio pedir ajuda.
-        if (!m.parado)
+        if (!m.parado && !gente)
             m.wx += 10;
-        burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
-            : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
+        if (gente) {
+            // dois pontos de luz morna subindo dos pés: diz "estou chegando até você" sem estilhaço,
+            // sem clarão e sem cor de alarme. `grav` negativo os faz subir em vez de cair.
+            for (let i = 0; i < 2; i++) {
+                parts.push({ x: sx + 4 + (Math.random() - 0.5) * 10, y: GROUND - 8,
+                    vx: (Math.random() - 0.5) * 8, vy: -16 - Math.random() * 10,
+                    life: 0.45 + Math.random() * 0.2, c: "#f3dda6", grav: -8 });
+            }
+        }
+        else {
+            burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
+                : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
+        }
         if (m.hp <= 0) {
-            m.dying = 8;
+            // Objeto se dissipa em oito quadros; PESSOA não se dissipa. Ela sai da rua e entra na
+            // fila que anda atrás da protagonista, sem sumir de quadro em nenhum momento. `dead`
+            // é o mesmo caminho que atualizarMobs já varre, e não conta nada por si.
+            // o +5 é o mesmo deslocamento com que ela vinha sendo desenhada: sem ele a figura
+            // saltaria 5 px para a esquerda no quadro em que vira para andar junto
+            if (gente) {
+                m.dead = true;
+                acolherPessoa(m.wx + 5, m.esc);
+            }
+            else
+                m.dying = 8;
             registrarChegada(true); // alcançada: o mundo responde a isto tanto quanto ao que passa
-            soltarDrop(m, sx); // what it was holding stays on the ground until picked up
-            burst(sx + 8, GROUND - 14, 16, m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
-                : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+            soltarDrop(m, sx); // o que ela TROUXE fica no chão; a pessoa, não
+            burst(sx + 8, GROUND - 14, gente ? 12 : 16, gente ? ["#f3dda6", "#fbeec4", "#e6c98a"]
+                : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
+                    : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
             if (!auto)
                 somAtendida();
         }
@@ -1753,6 +1881,9 @@ const ESQUEMA_SAVE = {
     // certo para errar — um save torto pode calar o jogo, nunca fazer barulho sem permissão. O
     // padrão de quem nunca jogou continua sendo ligado, porque vem de `S` e não daqui.
     som: { tipo: "bool", pad: false },
+    // Quantas andam com você. Faixa fechada em 0..GRUPO_MAX e padrão 0: um save adulterado com
+    // 900 não põe novecentas figuras na tela, e errar para 0 é o lado que não inventa gente.
+    grupo: { tipo: "num", min: 0, max: 5, pad: 0 },
     salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
 function valida(regra, v) {
@@ -1809,6 +1940,7 @@ function carregar() {
     // O desenho abre já no estado salvo em vez de secar/reverdecer na cara de quem entrou: a
     // suavização existe para a transição DENTRO da partida, não para a abertura dela.
     cuidadoVisto = S.cuidado;
+    semearGrupo(); // a fila volta como estava: quem veio ficar continua andando junto
     const dt = Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600);
     voltouDepoisDe = dt;
     // Built as data, not as markup: each part is either a plain line or a line with a
@@ -2000,6 +2132,63 @@ function ajustarHeroHD() {
     heroCv.height = Math.max(1, Math.round(window.innerHeight * dpr));
     heroCx = heroCv.getContext("2d");
 }
+// ---------- CAPÍTULO 2: as pessoas, na camada da personagem ----------
+// Tudo aqui é gente, e gente usa a arte da personagem do capítulo 2, que é a arte que existe.
+// Duas leituras, e são as duas que a rua precisa:
+//   · quem CHEGA vem de espelho, virada para a esquerda — está vindo na sua direção. Andando,
+//     usa a caminhada; parada esperando, usa a pose de pé que segura o que trouxe (atk1, quadro
+//     3), que é gesto de quem espera com uma coisa na mão e não gesto de aflição.
+//   · quem foi ACOLHIDA está de frente para a direita, no mesmo sentido que você. É o instante
+//     em que a leitura vira: ela deixou de vir na sua direção e passou a ir com você.
+// O quadro da caminhada sai da DISTÂNCIA percorrida por cada uma, e a passada é multiplicada
+// pela altura dela — uma pessoa mais baixa dá um passo mais curto, e sem isso o pé desliza.
+function desenharGenteHD(hc, kx, ky, escBase) {
+    if (!escBase)
+        return;
+    const walk = heroBloco("walk"), n = walk.length;
+    const atk = heroBloco("atk1");
+    const poseEspera = atk[Math.min(3, atk.length - 1)] || walk[0];
+    const passo = passoCap().passo;
+    const desenha = function (img, xMundo, esc, espelha) {
+        if (!img || !img.complete || !img.naturalWidth)
+            return;
+        const sc = escBase * esc;
+        const dw = img.naturalWidth * sc * kx, dh = img.naturalHeight * sc * ky;
+        const sx = xMundo - worldX;
+        if (sx < -40 || sx > W + 40)
+            return;
+        const dx = sx * kx - dw / 2, dy = GROUND * ky - dh + HERO_PISO * sc * ky;
+        if (espelha) {
+            hc.save();
+            hc.translate(dx + dw, dy);
+            hc.scale(-1, 1);
+            hc.drawImage(img, 0, 0, dw, dh);
+            hc.restore();
+        }
+        else
+            hc.drawImage(img, dx, dy, dw, dh);
+    };
+    const quadro = function (d, esc) {
+        if (!n)
+            return walk[0];
+        const p = Math.max(0.5, passo * esc);
+        return walk[((Math.floor(d / p) % n) + n) % n];
+    };
+    // de trás para a frente, para quem está mais perto ficar por cima
+    for (let i = ficando.length - 1; i >= 0; i--) {
+        const c = ficando[i];
+        desenha(quadro(c.d, c.esc), c.x, c.esc, false);
+    }
+    for (let i = grupo.length - 1; i >= 0; i--) {
+        const c = grupo[i];
+        desenha(quadro(c.d, c.esc), c.x, c.esc, false);
+    }
+    mobs.forEach(function (m) {
+        if (m.dead || m.dying > 0)
+            return;
+        desenha(m.parado ? poseEspera : quadro(m.d, m.esc), m.wx + 5, m.esc, true);
+    });
+}
 function desenharHeroiHD(img, alto) {
     // Clear here rather than at the top of a world pass: drawHero() runs from a function that
     // completes BEFORE desenharMundo(), so clearing there wiped her the instant she was drawn.
@@ -2023,6 +2212,10 @@ function desenharHeroiHD(img, alto) {
     const dy = (GROUND - alto) * ky - dh + HERO_PISO * sc * ky;
     heroCx.imageSmoothingEnabled = true;
     heroCx.imageSmoothingQuality = "high";
+    // ANTES dela: quem chega ainda pela frente e quem já anda atrás. A protagonista é desenhada
+    // por cima porque é a leitura do quadro — e porque a fila é atrás dela, literalmente.
+    if (capGente())
+        desenharGenteHD(heroCx, kx, ky, heroScale[capH] || sc);
     heroCx.drawImage(img, dx, dy, dw, dh);
     // A camada de FRENTE vem depois da personagem, e tem que ser aqui: no #fundoHD ela ficava
     // atrás de tudo, e o olho recebia dois sinais brigando — "passa rápido, logo está perto"
@@ -3306,6 +3499,26 @@ function drawMobs(smog) {
     // hp, m.parado, m.dying, position or hitbox. Feet-anchored on the ground; smoke hovers.
     const cap = capArte();
     const lifts = MOB_LIFT[cap] || MOB_LIFT[0];
+    // CAPÍTULO 2: o que chega é gente, e gente é desenhada na camada da PERSONAGEM, em
+    // resolução de aparelho — a arte tem 323 px de quadro e esmagá-la para 44 aqui dentro é
+    // exatamente o erro que fez a personagem ganhar canvas próprio (§4 do CLAUDE.md). Aqui fica
+    // só o que é do mundo: a sombra de contato, que é uma mancha macia e não perde nada em baixa
+    // resolução. A figura sai em desenharGenteHD().
+    if (capGente()) {
+        mobs.forEach(function (m) {
+            if (m.dead || m.dying > 0)
+                return;
+            const cxm = Math.round(m.wx - worldX) + 5;
+            if (cxm < -30 || cxm > W + 30)
+                return;
+            sombra(cxm, GROUND, 24, 0.28);
+            if (m.flash > 0)
+                m.flash--;
+        });
+        grupo.forEach(function (c) { sombra(Math.round(c.x - worldX), GROUND, 22, 0.24); });
+        ficando.forEach(function (c) { sombra(Math.round(c.x - worldX), GROUND, 22, 0.24); });
+        return;
+    }
     mobs.forEach(function (m) {
         const cxm = Math.round(m.wx - worldX) + 5; // mob centre, same x the HP bar uses
         const key = MOB_KEY[m.type];
@@ -5151,7 +5364,12 @@ function desenharMundo() {
     // until the thing suddenly popped. It was pips for a while, on the argument that at two to
     // five hits you can count them; the owner wanted the thing every game has and he was right
     // twice over — see `desenharVidaMob`.
-    mobs.forEach(function (m) { desenharVidaMob(m); });
+    // ...mas NÃO no capítulo 2. Ali quem está ali é gente, e uma barra sobre a cabeça de alguém
+    // conta quantas pancadas essa pessoa aguenta — a linha exata do §2.2. O mesmo progresso é
+    // lido no CHÃO, no anel logo abaixo: o lugar de espera vai se enchendo de luz enquanto você
+    // chega até ela. Mesma informação, sem transformar ninguém em alvo com vida.
+    if (!capGente())
+        mobs.forEach(function (m) { desenharVidaMob(m); });
     // QUEM ESTÁ ESPERANDO. Aqui havia dois tiques VERMELHOS piscando nos pés, e vermelho
     // piscando é a gramática de perigo e de erro — a gramática errada. No capítulo 2 quem chega
     // e espera é gente, e o §2.2 não admite que o jogo desenhe uma barra de aflição em cima
@@ -5181,6 +5399,26 @@ function desenharMundo() {
         cx.beginPath();
         cx.ellipse(sx, GROUND + 1, r0, r0 * 0.32, 0, 0, 6.283);
         cx.fill();
+        // O PROGRESSO DO ACOLHIMENTO, no capítulo 2 e só nele: o lugar vai se enchendo de luz
+        // conforme você chega até ela. É a leitura que substitui a barra de vida — cresce, nunca
+        // encolhe, não muda de cor e não tem fim marcado. `m.hp` continua sendo quantos alcances
+        // faltam; o nome interno é herdado, e o que mudou é o que a tela faz com ele.
+        if (capGente() && m.hpMax) {
+            const feito = Math.max(0, Math.min(1, 1 - m.hp / m.hpMax));
+            if (feito > 0) {
+                const rf = r0 * (0.34 + 0.66 * feito);
+                // no creme mais claro do bloco, e não no mesmo tom da poça: medido no print, a 0,30 do
+                // mesmo #f3dda6 a diferença entre "acabou de chegar" e "quase lá" não se lia contra a
+                // terra iluminada. Sobe para 0,42 e clareia — continua sem contorno e sem borda dura,
+                // então cresce como luz e não como barra.
+                cx.fillStyle = "#fbeec4";
+                cx.globalAlpha = 0.42 * feito * base;
+                cx.beginPath();
+                cx.ellipse(sx, GROUND + 1, rf, Math.max(1, rf * 0.32), 0, 0, 6.283);
+                cx.fill();
+                cx.fillStyle = "#f3dda6";
+            }
+        }
         for (let a = 0; a < 2; a++) {
             const r = r0 + a * 6;
             cx.globalAlpha = (0.46 - a * 0.22) * base;
@@ -5293,6 +5531,9 @@ function zerarJogo() {
     S.recursos = { flor: 0, agua: 0, refeicao: 0 };
     S.cuidado = 1;
     cuidadoVisto = 1;
+    S.grupo = 0;
+    grupo.length = 0;
+    ficando.length = 0;
     worldX = 0;
     mobs.length = 0;
     drops.length = 0;
@@ -5426,7 +5667,7 @@ const EPOCAS = [
             "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
             "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por quase cem anos a mais de vinte expedições militares.",
             "Aqui, alcançar é acolher. Quem chega vem ficar.",
-            "Muda a paisagem e muda o que vem por ela: feixe de mandioca, pote de água e cesto cheio. São os mesmos três contadores do capítulo anterior, com outras coisas dentro."
+            "Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão, e são os mesmos três contadores do capítulo anterior."
         ],
         // a serra segura as duas primeiras: a primeira a nomeia, a segunda fala de subir estas
         // encostas — é a mesma imagem. A roça entra em "eram vilas, com roça, comércio e defesa",
@@ -6055,6 +6296,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const dt = Math.max(0, Math.min(0.25, (agora - ultimo) / 1000));
         ultimo = agora;
         atualizarMobs(dt);
+        atualizarGrupo(dt); // quem já foi acolhida anda junto — capítulo 2 e só ele
         suavizarCuidado(dt); // o desenho persegue a média; a média anda a degraus
         atualizarDrops(dt);
         atualizarChamada(dt);

@@ -1155,67 +1155,88 @@ continua sendo "receber uma coisa", e o `NOTES` de 2026-08-05 já tinha marcado 
 erro da folha nova — ela faz o que foi pedido — mas a pergunta de representação continua aberta:
 em Palmares, o que a mão da pessoa recebe?
 
-### 2026-08-06 · o jogo deixa de ser mudo, e nada disso é um arquivo de áudio
+### 2026-08-06 · Palmares: quem chega é GENTE, e quem é acolhida anda com você
 
-**Sintetizado, não gravado, e as duas razões pesam.** Nenhum byte de áudio entrou no
-`index.html`: são osciladores, envelopes e ruído filtrado, escritos em código na seção `SOM` do
-`src/jogo.ts`. Um punhado de efeitos gravados custaria centenas de KB num arquivo que já passa
-de 3,4 MB — e som sintetizado é o vocabulário nativo do pixel art, meia dúzia de números que se
-afinam um a um.
+Executando a decisão do dono registrada aqui desde o começo — *"aqui, alcançar é acolher; quem
+chega vem ficar"*. Até hoje o capítulo 2 tinha cesto, pote e feixe atravessando a tela, o que
+fazia dele mais um capítulo de colher coisa. Agora, e **só no capítulo 2**, o que atravessa a
+tela é uma pessoa; os capítulos 1 e 3 não mudaram um pixel.
 
-**A trava do §2 virou decisão de timbre, não só de ausência.** Não existe som de dano, de dor,
-de golpe nem de morte. O verbo é ALCANÇAR e no capítulo 2 quem chega é gente. Por isso:
+**O §2.2 é quem desenhou isto, não o gosto.** O que ele proíbe, e o que sobrou depois de tirar:
 
-- **alcançar** é uma NOTA, não um impacto — triângulo, 110 ms, ataque de 4 ms;
-- **atender alguém até o fim** é um intervalo que RESOLVE (a nota e a quinta acima, 60 ms de
-  intervalo), a leitura sonora de "pronto", nunca de "caiu".
+| a regra | o que saiu do capítulo 2 | o que ficou no lugar |
+|---|---|---|
+| pessoa não é coisa a coletar | nada — ninguém é recolhido do chão | o drop continua sendo o que ela **trouxe**: feixe, pote, cesto |
+| pessoa não vira número | contador, placar, tela de resumo | o **grupo na tela** é a recompensa inteira |
+| barra de vida sobre gente conta pancada | `desenharVidaMob` não é chamada | o **chão** se enche de luz enquanto você chega até ela |
+| nada de sinal de aflição | pisca branco, estilhaço, empurrão de 10 px | dois pontos de luz morna subindo por alcance |
+| quem não é alcançada não é punida | nada mudou aqui | segue caminho e sai de quadro; responde `S.cuidado` |
 
-**Por que ele não cansa, e é técnico.** As alturas vêm de uma pentatônica maior em lá
-(`AUD_ESCALA`), andando **dois graus por toque**. Segurando o botão a ~7 alcances/s a mesma
-altura nunca sai duas vezes seguidas, e como não há meio-tom na escala, sequência nenhuma
-produz intervalo feio. O toque no vazio — 65% da renda — não é mudo, mas perde a quinta e fica
-mais curto: a diferença é de TIMBRE, então ela informa sem precisar de volume.
+**A fila.** Alcançada, a pessoa **vira** — deixa de vir na sua direção e passa a ir com você — e
+anda a 0,55× da velocidade dela até a rua a deixar cair no lugar dela; daí em diante as duas
+andam no mesmo passo. Cabem cinco (`GRUPO_MAX`); quando chega a sexta, a que está na frente
+segue a 0,42× e fica pela serra. Ninguém desaparece e ninguém para: **todo estado da fila tem
+velocidade própria e nenhum tem zero**, porque o quadro do sprite é escolhido pela distância
+percorrida e uma figura parada em pose de caminhada é a armadilha nº 1 do §7 por outro ângulo.
+A passada de cada uma é multiplicada pela altura dela — pessoa mais baixa, passo mais curto.
 
-**O passo sai no mesmo evento que troca o quadro do sprite.** O quadro já é escolhido pela
-distância percorrida, então a cadência do som herda a cadência da passada em qualquer
-velocidade, de graça — duas vezes por ciclo (quadro 0 e `n >> 1`, os dois pés). Cala com
-qualquer tela aberta: o mundo continua andando por baixo da caixa de fala, mas passo em cima de
-texto histórico é ruído.
+**Arte: nenhuma nova, e nenhum matiz mexido.** É a folha do capítulo 2 (`HERO_CAP_B64[1]`).
+Quem chega vem **espelhada**, virada para a esquerda, andando na caminhada; parada esperando,
+usa `atk1` quadro 3 — a pose de pé segurando o que trouxe, que é gesto de espera e não de
+aflição. A única variação entre as figuras é a **altura, 0,82 a 0,95 da protagonista**. A
+primeira faixa foi 0,88–1,02 e saiu errada em duas contas: metade do grupo ficava mais alta que
+quem se joga, e a protagonista tem de manter margem sobre tudo que está na tela. Matiz foi
+descartado de propósito: sortear tom de pele para "variar" é a versão em código de tratar
+pessoas como textura.
 
-**Tique da fala a cada TRÊS letras, e nunca no espaço.** Medido: a `FALA_MS = 18`, um tique por
-letra dá 55/s (metralhadora); a cada três dá 18/s, que é alguém digitando depressa.
+**Medido**, viewport 390×844, capítulo 2, 30 s por linha:
 
-**Medido.**
+| | chegadas/min | fração acolhida | fila média | fila cheia em | FPS |
+|---|---:|---:|---:|---:|---:|
+| andando, sem tocar | 26 | 0,00 | 0 | — | 60 |
+| andando, segurando | 28 | **1,00** | 3,74 | 12,0 s | 60 |
+| correndo, sem tocar | 54 | 0,00 | 0 | — | 60 |
+| correndo, segurando | 56 | **0,68** | 4,15 | 9,5 s | 60 |
 
-| | |
-|---|---|
-| FPS com som ligado, segurando o botão | **60** |
-| FPS com som desligado, mesma condição | **60** |
-| FPS no `npm test` | **61** (igual ao de antes) |
-| nós de áudio criados em 12 s segurando o botão | 203–211 |
-| nós ainda vivos 4 s depois | **0** (o único pendente tinha 5 ms de vida: passo em voo) |
-| pico no barramento mestre, por efeito | 0,019 (passo, tique, chegada) a 0,065 (alcance com gente) |
-| pico com o som desligado | **0,0000** |
-| peso somado ao `index.html` | **+22,9 KB** (3,597 → 3,620 MB), 257 linhas das quais 128 são comentário |
+Os 0,68 correndo batem com os 0,66 já gravados para a rua antiga: **a economia não mudou**.
+`m.hp` continua 5/8/13, o drop continua saindo no mesmo lugar e com o mesmo valor, e nada em
+`LIMIARES`, `PASSO_CAP`, no alcance de 80 px ou na paciência de 3,6 s foi tocado. **Ao fim de
+qualquer capítulo 2 a fila está em 5** — ela satura em 10 a 12 s e passa a ser um fluxo com
+troca, não um saldo que cresce.
 
-**O que ficou frágil, e onde.**
+**O grupo não atrapalha ler o que vem.** Ele fica atrás da protagonista, na quarta parte
+esquerda da tela (`HX` = 26% de `W`), e as chegadas nascem na borda direita: os dois nunca
+disputam o mesmo espaço. A quinta figura sai pela borda esquerda, o que lê como "tem mais" e
+não como corte.
 
-1. **O teto de vozes é por `tick`, e `tick` só anda no laço de desenho.** Se alguém disparar
-   muitos sons de fora do laço (um `setInterval` próprio), todos caem no mesmo orçamento de 6.
-   Foi exatamente o que o smoke test flagrou ao tocar nove efeitos numa evaluate só — e a
-   asserção hoje **cobra** que só passem 6, que é o comportamento certo.
-2. **Evento sintético não destrava áudio.** O smoke test nunca dá um gesto confiável, então ele
-   prova que `audCtx` é nulo antes do toque e que os efeitos criam nó depois de `acordarAudio()`
-   — mas quem quiser medir som de verdade tem de subir o chromium com
-   `--autoplay-policy=no-user-gesture-required`. Foi assim que os picos acima foram lidos.
-3. **`resume()` devolve promessa que REJEITA sem gesto.** Sem `catch` isso vira erro não tratado
-   no console e reprova o teste. O `catch` vazio em `retomarAudio()` é o tratamento, não
-   desleixo.
-4. **O pulo toca dois sons quase juntos** (`somPulo` e o `somAlcance` do golpe que o pulo acerta
-   na subida). Soou bem nos picos, mas é o lugar mais provável de alguém achar abarrotado.
-5. **`som` entrou no `ESQUEMA_SAVE` com padrão `false`** — um save torto cala o jogo, nunca o
-   faz gritar. O padrão de quem nunca jogou continua `true`, porque vem de `S` e não do esquema.
-   A lista de chaves esperadas no `test/smoke.js` é cópia independente do esquema e teve de ser
-   atualizada junto; é ela que pega campo gravado sem esquema.
+**Estado novo:** `S.grupo`, no `ESQUEMA_SAVE`, `num` 0..5, padrão 0. É o tamanho da fila
+visível, nunca um total — e é **remontado**, não guardado: o save carrega quantas, e lugar,
+altura e fase da passada nascem de novo em `semearGrupo()`. Save adulterado com 900 não põe
+novecentas figuras na tela. O `test/smoke.js` cobra a chave nova na lista de campos gravados.
 
-**Nada de música de fundo** — é outra escala de trabalho e outra decisão. Só efeitos.
+**Texto.** A última linha da abertura do capítulo 2 apresentava os objetos e virou mentira:
+agora diz que vem gente, que quem você alcança passa a andar com você, e que o que ela trazia
+fica no chão. Descreve a tela e a mecânica, não afirma história — a regra estreita dessa linha
+continua valendo.
+
+**A dúvida da sessão passada está respondida.** "Em Palmares, o que a mão da pessoa recebe?" —
+recebe o que quem chegou trazia. A pessoa não é recebida: ela passa a andar junto.
+
+**O que ficou frágil, e é do §2, não do código:**
+
+1. **Alcançar continua sendo o mesmo gesto de bater.** É o combo de cinco, com dano dobrado no
+   quinto tempo, e por baixo é `m.hp -= dmg`. Tirei toda a gramática visível de combate, mas o
+   verbo do motor continua sendo golpe, e quem lê o código lê isso. Trocar o nome em trinta
+   lugares não muda um pixel; trocar o GESTO é sessão própria, e é decisão do dono.
+2. **A quinta batida do combo alcança 96 px e vale dobrado.** Sobre gente isso é um golpe forte,
+   e a arte dele é a mesma dos outros quatro. Não mexi porque mexer altera economia.
+3. **Quem desiste e volta a andar não tem leitura de progresso**, porque o anel só existe para
+   quem está parada. Acontece pouco (a paciência de 3,6 s quase sempre acaba fora do alcance),
+   mas existe.
+4. **A fila satura em cinco.** Cinco é o que cabe atrás dela em 390 px; acima disso as figuras
+   saem de quadro sem serem vistas. É honesto, mas quer dizer que depois dos primeiros 12 s a
+   recompensa de acolher é a fila TROCAR, não CRESCER.
+
+**Próximo passo:** decidir com o dono se o gesto de alcançar em Palmares continua sendo o combo
+de golpe (item 1 acima). É o único ponto do capítulo em que a mecânica ainda fala uma língua
+diferente do que a tela mostra.

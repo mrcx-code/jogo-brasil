@@ -483,9 +483,10 @@ function alvo() {
     return Object.keys(JSON.parse(localStorage.getItem(CHAVE_JOGO))).sort();
   });
   console.log('save written ->', chaves.join(', '));
-  // `som` é o interruptor de áudio dos AJUSTES. Entra aqui porque é estado PERSISTIDO: a lista
-  // é a cópia independente do ESQUEMA_SAVE, e é ela que pega um campo gravado sem esquema.
-  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
+  // `som` e `grupo` sao estado PERSISTIDO: o interruptor de audio dos AJUSTES e o tamanho da
+  // fila que anda com voce em Palmares. Esta lista e a copia INDEPENDENTE do ESQUEMA_SAVE, e e
+  // ela que pega um campo gravado sem esquema — por isso nao se gera uma da outra.
+  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));
