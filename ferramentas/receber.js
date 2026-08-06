@@ -57,10 +57,11 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
-  // Para onde o jogo vai. Fila sem destino é só lista de tarefas.
-  if (req.method === 'GET' && url === '/roadmap') {
+  // O que está parado esperando o dono. Substituiu o roadmap: para onde o jogo vai já mora
+  // no BACKLOG.md e no PRODUTO.md — o que faltava era a lista do que eu não decido sozinho.
+  if (req.method === 'GET' && url === '/pendencias') {
     let r = null;
-    try { r = fs.readFileSync(path.join(__dirname, 'roadmap.json'), 'utf8'); } catch (e) {}
+    try { r = fs.readFileSync(path.join(__dirname, 'pendencias.json'), 'utf8'); } catch (e) {}
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(r || '{}');
     return;
