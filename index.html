@@ -5008,7 +5008,13 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarDrops(dt);
     atualizarChamada(dt);
     verificarAnuncios();
-    if (S.u3) { // U3: neighbours keep helping on their own
+      // A HISTORIA PAUSA O JOGO. Sem isto o mundo continua rendendo enquanto a pessoa le, e
+    // quem le a historia ganha mais que quem pula — incentivo ao contrario num jogo que
+    // existe para ensinar. E tambem: item aparecendo atras da caixa de fala e coisa
+    // acontecendo sem ninguem poder atender.
+    if (document.getElementById("telaFala")
+        && document.getElementById("telaFala").classList.contains("aberta")) return;
+  if (S.u3) { // U3: neighbours keep helping on their own
       autoAcc += dt * CFG.autoTapsPorSeg;
       let n = Math.min(4, Math.floor(autoAcc));
       autoAcc -= Math.floor(autoAcc);

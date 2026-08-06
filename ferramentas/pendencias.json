@@ -1,35 +1,53 @@
 {
-  "_": "O que está parado esperando VOCÊ. Substituiu o roadmap na mesa: para onde o jogo vai já está no BACKLOG.md e no PRODUTO.md — o que faltava era a lista do que eu não posso decidir sozinho.",
+  "_": "O que está parado esperando VOCÊ. Substituiu o roadmap na mesa: para onde o jogo vai já está no BACKLOG.md e no PRODUTO.md — o que faltava era a lista do que eu não posso decidir sozinho. Cada item tem um campo `resposta`: escreva ali e eu leio na próxima vez. É mais confiável que o chat, porque não se perde no rolar.",
   "itens": [
     {
       "t": "O toque no vazio ainda é 65% da renda",
       "p": "decisão de jogo",
-      "n": "Medido: 414 de 631 por minuto vêm de apertar o botão sem encontrar ninguém. Enquanto pagar por ser apertado e não por alcançar alguém, tudo que a gente fizer na rua mexe só na fatia de fora — mesmo alcançando 100% das chegadas, o drop renderia 216/min. É o último item grande, e a saída passa por reduzir ou zerar o ganho do toque solto. Isso muda o ritmo do jogo inteiro e não é meu para decidir."
+      "n": "Medido: 414 de 631 por minuto vêm de apertar o botão sem encontrar ninguém. Enquanto pagar por ser apertado e não por alcançar alguém, tudo que a gente fizer na rua mexe só na fatia de fora — mesmo alcançando 100% das chegadas, o drop renderia 216/min. É o último item grande, e a saída passa por reduzir ou zerar o ganho do toque solto. Isso muda o ritmo do jogo inteiro e não é meu para decidir.",
+      "resposta": ""
     },
     {
       "t": "Andando, você ainda atende 100%",
       "p": "decisão de jogo",
-      "n": "Correr virou escolha real (+16% de renda, 0,48 de fração atendida). Mas andar continua atendendo todo mundo, então a tensão só existe se você QUISER correr. Quebrar isso exige mexer no alcance de 80 px ou na paciência de 2,4 s — os dois foram medidos e escolhidos, e mudar qualquer um é decisão sua, não ajuste."
+      "n": "Correr virou escolha real (+16% de renda, 0,48 de fração atendida). Mas andar continua atendendo todo mundo, então a tensão só existe se você QUISER correr. Quebrar isso exige mexer no alcance de 80 px ou na paciência de 2,4 s — os dois foram medidos e escolhidos, e mudar qualquer um é decisão sua, não ajuste.",
+      "resposta": "APROVADO — deixar mais difícil de completar."
     },
     {
       "t": "Ler os textos históricos e cortar o que não te representa",
       "p": "representação",
-      "n": "Escrevi os três capítulos das fontes, palavra por palavra, e nenhum agente inventou linha. Mas é o único conteúdo do jogo que AFIRMA coisas sobre gente real, e afirmar em nome de alguém não é papel meu. Estão em EPOCAS, no index.html, e no NOTES.md."
+      "n": "Escrevi os três capítulos das fontes, palavra por palavra, e nenhum agente inventou linha. Mas é o único conteúdo do jogo que AFIRMA coisas sobre gente real, e afirmar em nome de alguém não é papel meu. Estão em EPOCAS, no index.html, e no NOTES.md.",
+      "resposta": "Quer MAIS profundidade: imagens da época contextualizando, não só texto. E os itens só começam a aparecer depois que a história acaba."
     },
     {
       "t": "Sprites dos capítulos 2 e 3",
       "p": "trava de motor",
-      "n": "As 9 folhas chegaram e estão sãs — CV de 0,8% na cabeça, é a mesma pessoa nos 12 quadros. O bloqueio é o motor: HERO_B64, PASSO_PX e heroScale são singulares, então herói por capítulo exige velocidade por capítulo, cada uma fechando em PASSO × 60 / n com n inteiro. É a armadilha nº 1 do §7 e merece sessão própria. Quer que eu faça?"
+      "n": "As 9 folhas chegaram e estão sãs — CV de 0,8% na cabeça, é a mesma pessoa nos 12 quadros. O bloqueio é o motor: HERO_B64, PASSO_PX e heroScale são singulares, então herói por capítulo exige velocidade por capítulo, cada uma fechando em PASSO × 60 / n com n inteiro. É a armadilha nº 1 do §7 e merece sessão própria. Quer que eu faça?",
+      "resposta": ""
     },
     {
       "t": "A fonte pixel não tem acento maiúsculo",
       "p": "pequeno",
-      "n": "\"NOVO CAPÍTULO\" desenhava \"NOVO CAP?TULO\". Contornei virando \"NOVA ERA\", mas o problema volta em qualquer texto novo com Í, Ã, Ç maiúsculos. Consertar de verdade é embutir uma fonte pixel com acentos — algumas dezenas de KB em base64, não quebra o arquivo único nem o zero-rede. Quer?"
+      "n": "\"NOVO CAPÍTULO\" desenhava \"NOVO CAP?TULO\". Contornei virando \"NOVA ERA\", mas o problema volta em qualquer texto novo com Í, Ã, Ç maiúsculos. Consertar de verdade é embutir uma fonte pixel com acentos — algumas dezenas de KB em base64, não quebra o arquivo único nem o zero-rede. Quer?",
+      "resposta": "SIM, quero."
     },
     {
       "t": "Ler paga mais que pular",
       "p": "pequeno",
-      "n": "O mundo continua rendendo durante a caixa de fala, então quem lê a história ganha um pouco mais que quem pula. Num jogo que existe para ensinar, o incentivo está ao contrário — mas pausar o mundo durante a fala também é uma escolha de ritmo. Prefere pausar?"
+      "n": "O mundo continua rendendo durante a caixa de fala, então quem lê a história ganha um pouco mais que quem pula. Num jogo que existe para ensinar, o incentivo está ao contrário — mas pausar o mundo durante a fala também é uma escolha de ritmo. Prefere pausar?",
+      "resposta": "Exato — não deve contar progresso enquanto vê a história."
+    },
+    {
+      "t": "Supabase: desenho decidido, falta implementar",
+      "p": "decidido",
+      "n": "Entrada por CÓDIGO DE TRANSFERÊNCIA (sem conta, sem e-mail: o jogo gera um código, você digita no outro aparelho). Placar ANÔNIMO — mostra onde você está, não quem é ninguém. Público: jovens adultos, para conscientizar. Nada de criança, então não há exigência extra de consentimento.\n\nConsequência que vai junto e não é opcional: a tela de AJUSTES diz hoje 'nada sai deste aparelho'. Vira mentira no instante em que o primeiro byte sair, e tem que ser reescrita NA MESMA fase.",
+      "resposta": "1 código de transferência · 2 anônimo · 3 jovens adultos, conscientização"
+    },
+    {
+      "t": "Imagens de contexto na história",
+      "p": "representação",
+      "n": "O dono quer que a abertura de cada época mostre IMAGENS da época, não só texto — contextualizar antes de jogar. Isso é arte nova e é §2: imagem que ilustra história afirma tanto quanto texto, e o que ela mostra precisa ser decidido com ele. Provável caminho: uma imagem por fala, ou uma por época.",
+      "resposta": ""
     }
   ]
 }

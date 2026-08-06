@@ -45,6 +45,11 @@
   .s-pequeno { background: #2c3038; color: #b0aca2; }
   .rmT { font-size: 13px; color: #e8e6df; font-weight: 600; }
   .rmN { font-size: 12px; color: #8d8a80; margin-top: 5px; line-height: 1.55; }
+  .rmResp { width: 100%; box-sizing: border-box; margin-top: 9px; padding: 8px 10px;
+    background: #101218; border: 1px solid #2c3038; border-radius: 5px; color: #e8e6df;
+    font: 13px/1.5 system-ui, sans-serif; resize: vertical; min-height: 38px; }
+  .rmResp:focus { outline: none; border-color: #6fdd94; }
+  .rmResp.salvo { border-color: #38b764; }
   .resposta { margin-top: 14px; padding: 12px; border-radius: 6px; border-left: 3px solid #3a4049;
               background: #101218; }
   .resposta.vOk { border-left-color: #38b764; }
@@ -187,6 +192,19 @@ function montarPendencias() {
       l.appendChild(el("span", "rmT", i.t));
       it.appendChild(l);
       if (i.n) it.appendChild(el("div", "rmN", i.n));
+      // Campo de resposta: o dono escreve aqui e eu leio no arquivo. Mais confiavel que o
+      // chat, porque nao se perde no rolar — e fica junto da pergunta que respondeu.
+      const ta = document.createElement("textarea");
+      ta.className = "rmResp";
+      ta.placeholder = "sua resposta…";
+      ta.value = i.resposta || "";
+      ta.addEventListener("change", function () {
+        fetch("/responder", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ t: i.t, resposta: ta.value }) })
+          .then(function () { ta.classList.add("salvo");
+            setTimeout(function () { ta.classList.remove("salvo"); }, 1200); });
+      });
+      it.appendChild(ta);
       box.appendChild(it);
     });
   }).catch(function () {});
@@ -215,6 +233,7 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     bRev.disabled = true; bRev.textContent = "revisando…";
     fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
       bRev.textContent = j.n + " na fila — recarregando";
+      montarPendencias();
       setTimeout(function () { location.reload(); }, 700);
     }).catch(function () { bRev.textContent = "falhou"; bRev.disabled = false; });
   });

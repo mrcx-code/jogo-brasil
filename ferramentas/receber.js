@@ -71,6 +71,30 @@ const servidor = http.createServer(function (req, res) {
   // (assets/entrada) e repõe na fila só o que falta. Existe porque a fila vinha sendo podada
   // à mão — por mim — e mão esquece. O servidor já sabia o que tem em disco; faltava saber o
   // que o jogo consome.
+  // Guarda a resposta do dono junto da pergunta. Grava no MESMO arquivo, para a resposta e a
+  // pendencia nunca se separarem.
+  if (req.method === 'POST' && url === '/responder') {
+    const pd = [];
+    req.on('data', function (c) { pd.push(c); });
+    req.on('end', function () {
+      let corpo;
+      try { corpo = JSON.parse(Buffer.concat(pd).toString('utf8')); }
+      catch (e) { res.writeHead(400).end('json invalido'); return; }
+      const arq = path.join(__dirname, 'pendencias.json');
+      let d;
+      try { d = JSON.parse(fs.readFileSync(arq, 'utf8')); }
+      catch (e) { res.writeHead(500).end('pendencias.json ilegivel'); return; }
+      const alvo = (d.itens || []).find(function (i) { return i.t === corpo.t; });
+      if (!alvo) { res.writeHead(404).end('pendencia nao achada'); return; }
+      alvo.resposta = String(corpo.resposta || '').slice(0, 2000);
+      fs.writeFileSync(arq, JSON.stringify(d, null, 2) + "\n");
+      console.log('resposta gravada: ' + corpo.t);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
   if (req.method === 'POST' && url === '/revisar') {
     let nec;
     try { nec = JSON.parse(fs.readFileSync(path.join(__dirname, 'necessario.json'), 'utf8')); }
