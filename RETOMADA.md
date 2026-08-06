@@ -16,36 +16,43 @@ quem não é atendido faz o mundo ralear.
 | mesa de entrega | `npm run mesa` → localhost:8200 |
 | produção | <https://jogo-brasil-mrcx.vercel.app> |
 
-## O que mudou por último
+## O que mudou por último — 06/08, sessão longa
 
-- **Retratos das três eras** entraram: cada capítulo é narrado por quem viveu nele.
-  Palmares estava sendo contada pelo rosto do litoral, o que contradizia o texto lido.
-- **Ritmo da rua** ajustado: paciência 3,6 s, vão médio 78 px, janela **aleatória em pixel**.
-  O achado: quem produz "item colado no outro" é o FUNDO da janela, não a média — o pior
-  caso foi de 0,81 s para 1,33 s de caminhada.
-- **Só o cacho de fruta voa.** O erro não era o `MOB_LIFT`, era um tremor de 1 px que o motor
-  aplicava a todo mundo, herança de quando tudo que passava era fumaça.
-- **Cada capítulo apresenta os próprios itens** ao fim da abertura, sem afirmar história —
-  só nomeia o objeto desenhado e o contador que ele enche.
+Tudo abaixo está **integrado, publicado e verde**. Nada pendente de integração.
 
-**Rodando agora:** um agente portando a migração TypeScript + Capacitor para o estado atual,
-e reconstruindo a arte em WebP 0,80 (medido: 274 KB → 165 KB por peça, −40%). Se ele voltar
-com o build verde e a tela igual, integre; se a diferença aparecer, volte para 0,92.
+- **Migração TypeScript + Capacitor.** A fonte agora é `src/jogo.ts` + `src/estilo.css` +
+  molde; `npm run build` reembute num `index.html` autocontido. **A garantia de arquivo único
+  virou automática**: o build recusa escrever se o `tsc` falhar, se aparecer `src=`/`href=`
+  fora de `data:`, ou se houver mais de um `<script>`. A CSP não abriu.
+- **Uma pessoa por era**, com passada medida em cada: 6,377 (n=10) · 7,492 (n=12) · 6,918
+  (n=11); escorregamento 0,48% · 0,00% · 0,67%.
+- **Retratos de frente**, um por era, atrás da caixa de fala, só o busto.
+- **Seis imagens de contexto** na história, trocando quando o ASSUNTO muda — não a cada fala.
+  As duas últimas falas de cada capítulo ficam sem imagem de propósito: são as que descrevem
+  a tela.
+- **Som**, sintetizado com WebAudio, **zero byte de áudio**, +22,9 KB de código. Alcançar
+  anda por uma pentatônica maior — a mesma altura nunca sai duas vezes seguidas. O passo sai
+  no mesmo evento que troca o quadro do sprite, então casa com o pé por construção.
+  **Nenhum som de dano, dor ou golpe.**
+- **Em Palmares, quem chega é GENTE** e passa a andar com você, visível na tela. Sem barra de
+  vida sobre pessoa; o progresso está no anel de luz no chão. Cabem cinco; a sexta faz a da
+  frente ficar pela serra — ninguém some.
 
-**O `index.html` está em 3,91 MB.** Não é urgente, mas cada arte nova pesa. O caminho é
-qualidade de WebP ou menos cores — **nunca cortar conteúdo**, e **nunca SVG**: medido, pixel
-art em vetor vira dezenas de milhares de retângulos, maior que o WebP e mais lento.
+## Duas dívidas honestas
 
-## O que está pronto e NÃO integrado
+1. **`index.html` está em 3,7 MB**, acima do teto de 3,6 que eu mesmo dei. Medido: WebP a
+   660 px corta 22%, a 520 px corta 46%. A próxima arte exige um dos dois.
+2. **Alcançar continua sendo o gesto de BATER por baixo** — combo de cinco, `hp` decrescendo,
+   e a quinta batida vale dobrado. Sobre gente, mecânica e tela falam línguas diferentes.
+   Toda a gramática *visível* de combate saiu; o verbo do motor não. **Sessão própria, e é
+   decisão do dono.**
 
-**Só uma coisa:** a migração TypeScript + Capacitor. Um agente está portando agora; se ele
-falhar, a worktree `agent-a3040c2ea3c2db2f8` tem a versão original e o `BACKLOG.md` a lista.
+## Nada pronto e não integrado
 
-A personagem por época **já foi integrada** — as três eras têm pessoa e passada próprias.
-
-Receita de integração, que funcionou sete vezes:
-`git diff <base-do-agente> -- index.html > x.patch` e `git apply --3way x.patch`.
-Ela NÃO serve para a migração, porque essa muda a FORMA do arquivo, não o conteúdo.
+Todos os agentes voltaram e todo o trabalho está na `main`. Receita de integração, que
+funcionou onze vezes: `git diff <base> -- src/ > x.patch` e `git apply --3way x.patch`.
+Quando dois agentes tocam o mesmo lugar, resolva a favor de **manter os dois** — foi o caso
+de `som` e `grupo` no `ESQUEMA_SAVE`.
 
 ## O que o dono pediu e ainda NÃO foi feito
 
