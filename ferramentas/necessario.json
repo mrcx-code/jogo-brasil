@@ -4,6 +4,54 @@
   "_magenta": "\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra.",
   "itens": [
     {
+      "nome": "ctx-cap1-mata",
+      "titulo": "CONTEXTO cap.1 · a mata que já estava aqui",
+      "ref": "acompanha a fala sobre o que havia antes de qualquer navio europeu",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMata atlântica de litoral vista de dentro, densa e alta, luz filtrada pela copa, samambaias e palmeiras no chão, um facho de sol atravessando. Lugar habitado e cuidado, não selva intocada — uma trilha batida discreta atravessando o quadro.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
+      "nome": "ctx-cap1-rocado",
+      "titulo": "CONTEXTO cap.1 · o roçado",
+      "ref": "acompanha a fala sobre plantar mandioca, pescar e cuidar de roçados",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUm roçado aberto na mata: pés de mandioca plantados em linhas irregulares, terra revolvida, cestos de fibra apoiados no chão, o verde fechado da mata ao redor. Trabalho recente, sem ninguém na cena.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
+      "nome": "ctx-cap2-serra",
+      "titulo": "CONTEXTO cap.2 · a serra",
+      "ref": "acompanha a fala sobre quem subiu estas encostas",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nEncosta íngreme de mata atlântica no interior de Alagoas, vista de baixo: serra alta coberta de floresta, neblina entre os morros, pedra exposta, vegetação fechada. Lugar difícil de subir e fácil de defender — é isso que a imagem tem que dizer.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
+      "nome": "ctx-cap2-roca",
+      "titulo": "CONTEXTO cap.2 · a roça do quilombo",
+      "ref": "acompanha a fala sobre vilas com roça, comércio e defesa",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUma roça estabelecida numa clareira de serra: canteiros de mandioca e milho bem cuidados, cercas baixas de vara, cestos e potes de barro apoiados, caminho de terra batida. Lugar de gente que ficou, não de gente escondida. Sem pessoas na cena.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
+      "nome": "ctx-cap3-demarcada",
+      "titulo": "CONTEXTO cap.3 · a terra demarcada",
+      "ref": "acompanha a fala sobre o Censo e sobre os povos que continuam aqui",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMata atlântica preservada hoje, vista de um ponto alto: floresta contínua até o horizonte, um rio cortando, e ao longe uma clareira com roçado em linhas e algumas construções pequenas de telhado claro. Terra viva e cuidada. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
+      "nome": "ctx-cap3-disputa",
+      "titulo": "CONTEXTO cap.3 · a borda",
+      "ref": "acompanha a fala sobre a demarcação ser disputa em curso",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nO limite de uma terra indígena visto de cima do morro: de um lado floresta densa e contínua; do outro, pasto aberto e seco com tocos de árvore queimados, uma cerca de arame correndo entre os dois. O contraste é o assunto da imagem. Sem pessoas, sem máquinas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+    },
+    {
       "nome": "sprite-cap2-correr",
       "titulo": "REFAZER · cap.2 · CORRIDA · 12 quadros · grade 4x3",
       "ref": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",

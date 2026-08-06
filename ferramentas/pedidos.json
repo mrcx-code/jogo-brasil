@@ -1,26 +1,50 @@
 [
   {
-    "nome": "sprite-cap2-correr",
-    "titulo": "1 · REFAZER · cap.2 · CORRIDA · 12 quadros · grade 4x3",
-    "referencia": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
-    "tamanho": "1024×1024 · magenta",
+    "nome": "ctx-cap1-mata",
+    "titulo": "1 · CONTEXTO cap.1 · a mata que já estava aqui",
+    "referencia": "acompanha a fala sobre o que havia antes de qualquer navio europeu",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nCICLO DE CORRIDA de perfil, virada para a direita: passada longa, tronco à frente, com fase de voo em que os dois pés saem do chão.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMata atlântica de litoral vista de dentro, densa e alta, luz filtrada pela copa, samambaias e palmeiras no chão, um facho de sol atravessando. Lugar habitado e cuidado, não selva intocada — uma trilha batida discreta atravessando o quadro.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
   },
   {
-    "nome": "sprite-cap2-pular",
-    "titulo": "2 · REFAZER · cap.2 · SALTO · 6 quadros · grade 3x2",
-    "referencia": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
-    "tamanho": "1024×1024 · magenta",
+    "nome": "ctx-cap1-rocado",
+    "titulo": "2 · CONTEXTO cap.1 · o roçado",
+    "referencia": "acompanha a fala sobre plantar mandioca, pescar e cuidar de roçados",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nSALTO completo de perfil: impulso, subida, ápice, descida, aterrissagem.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUm roçado aberto na mata: pés de mandioca plantados em linhas irregulares, terra revolvida, cestos de fibra apoiados no chão, o verde fechado da mata ao redor. Trabalho recente, sem ninguém na cena.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
   },
   {
-    "nome": "sprite-cap2-alcancar",
-    "titulo": "3 · REFAZER · cap.2 · ALCANÇAR · 4 quadros · grade 4x1",
-    "referencia": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
-    "tamanho": "1024×1024 · magenta",
+    "nome": "ctx-cap2-serra",
+    "titulo": "3 · CONTEXTO cap.2 · a serra",
+    "referencia": "acompanha a fala sobre quem subiu estas encostas",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nO gesto de ALCANÇAR algo à frente, na altura do peito: o braço estende, a mão abre, pega, recolhe. NÃO é golpe, não é soco, não é ataque — é colher, pegar, acolher.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nEncosta íngreme de mata atlântica no interior de Alagoas, vista de baixo: serra alta coberta de floresta, neblina entre os morros, pedra exposta, vegetação fechada. Lugar difícil de subir e fácil de defender — é isso que a imagem tem que dizer.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+  },
+  {
+    "nome": "ctx-cap2-roca",
+    "titulo": "4 · CONTEXTO cap.2 · a roça do quilombo",
+    "referencia": "acompanha a fala sobre vilas com roça, comércio e defesa",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
+    "origem": "",
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUma roça estabelecida numa clareira de serra: canteiros de mandioca e milho bem cuidados, cercas baixas de vara, cestos e potes de barro apoiados, caminho de terra batida. Lugar de gente que ficou, não de gente escondida. Sem pessoas na cena.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+  },
+  {
+    "nome": "ctx-cap3-demarcada",
+    "titulo": "5 · CONTEXTO cap.3 · a terra demarcada",
+    "referencia": "acompanha a fala sobre o Censo e sobre os povos que continuam aqui",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
+    "origem": "",
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMata atlântica preservada hoje, vista de um ponto alto: floresta contínua até o horizonte, um rio cortando, e ao longe uma clareira com roçado em linhas e algumas construções pequenas de telhado claro. Terra viva e cuidada. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
+  },
+  {
+    "nome": "ctx-cap3-disputa",
+    "titulo": "6 · CONTEXTO cap.3 · a borda",
+    "referencia": "acompanha a fala sobre a demarcação ser disputa em curso",
+    "tamanho": "PAISAGEM ~1536×640 · sem magenta",
+    "origem": "",
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nO limite de uma terra indígena visto de cima do morro: de um lado floresta densa e contínua; do outro, pasto aberto e seco com tocos de árvore queimados, uma cerca de arame correndo entre os dois. O contraste é o assunto da imagem. Sem pessoas, sem máquinas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS. Esta imagem acompanha um texto que afirma história, e figura humana desenhada afirma junto: roupa, corpo e adorno viram afirmação sobre um povo real. Paisagem e coisa, sim; gente, não."
   }
 ]
