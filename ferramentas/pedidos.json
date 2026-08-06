@@ -1,10 +1,18 @@
 [
   {
-    "nome": "sprite-cap1-parada",
-    "titulo": "1 · SPRITE · pose PARADA de frente, cap.1",
-    "referencia": "para a caixa de fala — hoje ela conversa de perfil, no meio da passada",
-    "tamanho": "1024×1024 · 1 figura · magenta",
+    "nome": "sprite-cap3-parada",
+    "titulo": "1 · SPRITE · pose PARADA de frente, cap.3",
+    "referencia": "cada época conta a própria história — o retrato tem que ser a pessoa dela",
+    "tamanho": "1024×1024 · 1 figura de corpo inteiro · magenta",
     "origem": "",
-    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA MESMA pessoa Tupinambá do litoral atlântico das folhas de caminhada — mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados ao lado do corpo, expressão calma e atenta. É o retrato que aparece ao lado do texto quando ela conta a história — precisa parecer que ela está falando com você, não passando por você.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, século XVI.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA pessoa indígena de HOJE, séc. XXI, roupa do dia a dia contemporânea com um adorno discreto — a MESMA pessoa das folhas de caminhada deste capítulo, mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados, expressão calma e atenta. É o retrato que aparece GRANDE atrás do texto quando ela conta a história — precisa parecer que ela parou para falar com você, não que está passando.\n\nATENÇÃO: não é figura histórica nem de museu. É uma pessoa de hoje.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
+  },
+  {
+    "nome": "sprite-cap2-parada",
+    "titulo": "2 · SPRITE · pose PARADA de frente, cap.2",
+    "referencia": "cada época conta a própria história — o retrato tem que ser a pessoa dela",
+    "tamanho": "1024×1024 · 1 figura de corpo inteiro · magenta",
+    "origem": "",
+    "prompt": "PIXEL ART para jogo lateral, vista de perfil. Borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, luz quente de cima à direita, contorno marrom escuro nunca preto.\n\nA pessoa de Palmares, séc. XVII, pele retinta, cabelo crespo curto, roupa simples de algodão cru — a MESMA pessoa das folhas de caminhada deste capítulo, mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados, expressão calma e atenta. É o retrato que aparece GRANDE atrás do texto quando ela conta a história — precisa parecer que ela parou para falar com você, não que está passando.\n\nATENÇÃO: nada de safári africano genérico, nada de savana, e nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra."
   }
 ]

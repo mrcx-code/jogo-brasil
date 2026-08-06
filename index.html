@@ -405,20 +405,28 @@
      grossa embaixo, o texto revelado letra a letra. O véu escurece só o pé da tela — o
      mundo continua andando atrás, e é isso que faz a conversa parecer parte do jogo em vez
      de uma tela de menu por cima dele. */
-  #telaFala { justify-content: flex-end; padding: 0 8px 12px; text-align: left;
+  #telaFala { justify-content: flex-end; padding: 0 8px 12px 8px; text-align: left; overflow: visible;
     background: linear-gradient(180deg, rgba(10,9,6,0) 0%, rgba(10,9,6,.18) 42%,
                                         rgba(10,9,6,.62) 72%, rgba(10,9,6,.86) 100%); }
+  /* A PESSOA FICA ATRAS, GRANDE, e o texto vira LEGENDA embaixo ocupando tudo.
+     Antes o retrato era um nicho de 76 px dentro da caixa, e o texto se espremia ao lado —
+     dois elementos disputando a mesma linha, e nenhum com espaco. Agora ela se apoia sobre a
+     caixa, em pe, como quem parou para te contar uma coisa; o texto usa a largura inteira.
+     Ela precisa ser vista de FRENTE: sprite de perfil e a pose de quem passa por voce, nao
+     de quem fala com voce. Enquanto a arte de frente nao chega, o quadro de caminhada segura
+     o lugar — e e visivelmente provisorio, o que e melhor que parecer resolvido. */
+  #falaRetrato { position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: calc(100% - 18px); width: 150px; height: 210px; z-index: 1;
+    image-rendering: pixelated; object-fit: contain; object-position: bottom center;
+    background: none; box-shadow: none;
+    filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
   #falaCaixa { position: relative; width: min(560px, 100%); box-sizing: border-box;
-    background: #16130d; padding: 16px 16px 24px; display: flex; gap: 13px; align-items: flex-end;
+    background: #16130d; padding: 16px 16px 24px; display: block;
     /* os 20 px de baixo são a faixa do "toque para continuar": sem eles ele encosta na
        última linha da fala mais longa */
     box-shadow: inset 0 0 0 3px #4a3c28, inset 0 0 0 6px #16130d, 0 5px 0 #0a0806,
                 0 7px 0 rgba(0,0,0,.45); }
-  /* o retrato é a MESMA pessoa que se joga: o quadro parado da caminhada, no nicho dela */
-  #falaRetrato { flex: 0 0 auto; width: 76px; height: 104px; image-rendering: pixelated;
-    object-fit: contain; object-position: bottom center; background: #0f0d09;
-    box-shadow: inset 0 0 0 2px #3a2f20; }
-  #falaCorpo { flex: 1 1 auto; min-width: 0; }
+  #falaCorpo { min-width: 0; }
   /* O NOME DO ATO e a HISTORIA sao o foco desta tela, e estavam do tamanho de rodape. Aqui a
      pessoa nao esta jogando — esta aprendendo, e foi para isto que o dono pediu a tela. O
      nome ganha corpo e uma linha de luz embaixo que o separa da fala; o texto vai a 15 px

@@ -6,9 +6,23 @@
     {
       "nome": "sprite-cap1-parada",
       "titulo": "SPRITE · pose PARADA de frente, cap.1",
-      "ref": "para a caixa de fala — hoje ela conversa de perfil, no meio da passada",
-      "tam": "1024×1024 · 1 figura · magenta",
+      "ref": "a caixa de fala mostra ela GRANDE atrás do texto — hoje é o quadro de caminhada, de perfil",
+      "tam": "1024×1024 · 1 figura de corpo inteiro · magenta",
       "p": "A MESMA pessoa Tupinambá do litoral atlântico das folhas de caminhada — mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados ao lado do corpo, expressão calma e atenta. É o retrato que aparece ao lado do texto quando ela conta a história — precisa parecer que ela está falando com você, não passando por você.\n\nATENÇÃO: nada de iconografia indígena norte-americana — sem cocar das Planícies, sem machadinha. Litoral atlântico do Brasil, século XVI."
+    },
+    {
+      "nome": "sprite-cap3-parada",
+      "titulo": "SPRITE · pose PARADA de frente, cap.3",
+      "ref": "cada época conta a própria história — o retrato tem que ser a pessoa dela",
+      "tam": "1024×1024 · 1 figura de corpo inteiro · magenta",
+      "p": "A pessoa indígena de HOJE, séc. XXI, roupa do dia a dia contemporânea com um adorno discreto — a MESMA pessoa das folhas de caminhada deste capítulo, mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados, expressão calma e atenta. É o retrato que aparece GRANDE atrás do texto quando ela conta a história — precisa parecer que ela parou para falar com você, não que está passando.\n\nATENÇÃO: não é figura histórica nem de museu. É uma pessoa de hoje."
+    },
+    {
+      "nome": "sprite-cap2-parada",
+      "titulo": "SPRITE · pose PARADA de frente, cap.2",
+      "ref": "cada época conta a própria história — o retrato tem que ser a pessoa dela",
+      "tam": "1024×1024 · 1 figura de corpo inteiro · magenta",
+      "p": "A pessoa de Palmares, séc. XVII, pele retinta, cabelo crespo curto, roupa simples de algodão cru — a MESMA pessoa das folhas de caminhada deste capítulo, mesmo cabelo, mesma roupa, mesmas cores.\n\nUMA figura só, de CORPO INTEIRO, PARADA e virada de FRENTE para quem olha, em pé, braços relaxados, expressão calma e atenta. É o retrato que aparece GRANDE atrás do texto quando ela conta a história — precisa parecer que ela parou para falar com você, não que está passando.\n\nATENÇÃO: nada de safári africano genérico, nada de savana, e nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo."
     },
     {
       "nome": "menu-refs",
