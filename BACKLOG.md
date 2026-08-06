@@ -54,3 +54,43 @@ Regra de corte: **o que aumenta a chance de alguém voltar amanhã vale mais que
   decidir por conta é a escolha errada. 15 dúvidas abertas no `PROMPTS.md`.
 - Nenhum número inventado passando por fato. `TEXTOS` é varrido pelo smoke test contra dígitos.
 - `main` é produção. Todo push publica.
+
+## Integrar a migração TypeScript + Capacitor
+
+Feita e verde na worktree `agent-a3040c2ea3c2db2f8`, mas construída sobre `227725d` — **sete
+commits atrás** do que está na `main`. Ela corta o `index.html` em `src/jogo.ts` +
+`src/estilo.css` + molde, então os sete precisam ser **portados à mão** para os arquivos
+novos. É minucioso, não difícil, e merece contexto fresco.
+
+**Os sete a portar**, do mais novo para o mais antigo:
+
+| commit | o quê |
+|---|---|
+| `87aa465` | tela de escolha de era; menu abre sempre |
+| `508e1e5` | retrato atrás da caixa, só o busto |
+| `57b4ed7` | `RETRATO_B64` por capítulo, à esquerda |
+| `4b24193` | retrato grande, texto como legenda |
+| `3dbcb3a` | história em destaque; mundo vive sem contar |
+| `2a429cf` | história pausa o ganho; campo de resposta na mesa |
+| `ae1097b` | quinto golpe não pula |
+
+**O que a migração entrega, verificado pelo agente:**
+- build recusa escrever se o `tsc` falhar, se aparecer `src=`/`href=` que não seja `data:`,
+  ou se houver mais de um `<script>`/`<style>` — a garantia de arquivo único virou automática
+- `npm test` = build + smoke; `npm start` = build + servidor
+- **A CSP não abriu.** A ponte do Capacitor é injetada como `<script>` inline, que a política
+  já permitia, e usa `@JavascriptInterface`, não `fetch`
+- comportamento provado por **fluxo de tokens**, não por diff: 26.930 → 26.948, sete
+  diferenças, todas deliberadas
+- todas as constantes medidas conferidas no arquivo construído
+
+**Duas honestidades do agente que valem mais que o resto:**
+
+1. **Dos quatro bugs que eu disse que o TypeScript pegaria, ele pega três.** `FRENTE_SPR[-2]`
+   **não** seria pego — índice negativo é JS legal e TS legal. Só `noUncheckedIndexedAccess`
+   alcançaria, e custa 119 erros. Eu tinha exagerado o argumento de venda.
+2. **Nada rodou em Android de verdade** — não há JDK nem Android SDK nesta máquina. O APK foi
+   gerado, não executado.
+
+**Dívida que a fase deixa:** `noImplicitAny` desligado, 385 parâmetros sem tipo. É onde mora o
+próximo defeito invisível.
