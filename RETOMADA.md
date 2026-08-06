@@ -17,6 +17,26 @@ quem não é atendido faz o mundo ralear.
 | mesa de entrega | `npm run mesa` → localhost:8200 |
 | produção | <https://jogo-brasil-mrcx.vercel.app> |
 
+## ATUALIZADO em 2026-08-06
+
+- **Retratos das três eras** entraram: cada capítulo é narrado por quem viveu nele.
+  Palmares estava sendo contada pelo rosto do litoral, o que contradizia o texto lido.
+- **Ritmo da rua** ajustado: paciência 3,6 s, vão médio 78 px, janela **aleatória em pixel**.
+  O achado: quem produz "item colado no outro" é o FUNDO da janela, não a média — o pior
+  caso foi de 0,81 s para 1,33 s de caminhada.
+- **Só o cacho de fruta voa.** O erro não era o `MOB_LIFT`, era um tremor de 1 px que o motor
+  aplicava a todo mundo, herança de quando tudo que passava era fumaça.
+- **Cada capítulo apresenta os próprios itens** ao fim da abertura, sem afirmar história —
+  só nomeia o objeto desenhado e o contador que ele enche.
+
+**Rodando agora:** um agente portando a migração TypeScript + Capacitor para o estado atual,
+e reconstruindo a arte em WebP 0,80 (medido: 274 KB → 165 KB por peça, −40%). Se ele voltar
+com o build verde e a tela igual, integre; se a diferença aparecer, volte para 0,92.
+
+**O `index.html` está em 3,91 MB.** Não é urgente, mas cada arte nova pesa. O caminho é
+qualidade de WebP ou menos cores — **nunca cortar conteúdo**, e **nunca SVG**: medido, pixel
+art em vetor vira dezenas de milhares de retângulos, maior que o WebP e mais lento.
+
 ## As DUAS coisas grandes que estão prontas e NÃO integradas
 
 Ambas em worktrees, verdes, sem commit. **Integrar as duas é o primeiro trabalho.**
