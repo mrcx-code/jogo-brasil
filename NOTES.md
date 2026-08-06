@@ -1068,3 +1068,75 @@ espionando o `drawImage`), `test/shot-objetos.js` (os três objetos de cada cap�
 varrido antigo. Ninguém mediu se rua mais rala **lê como calma ou como abandono** — é a diferença
 entre o pedido ter sido atendido e o pedido ter sido cumprido ao pé da letra. Próximo passo:
 jogar os dois e decidir com o dono, ou medir tempo até o primeiro tédio.
+
+## Imagens de contexto na caixa de fala — 2026-08-06
+
+Pedido do dono: a abertura de cada época mostra **o que o texto está dizendo**, não só o texto.
+
+**Como a associação é feita.** Cada época ganhou `aberturaImg` em `EPOCAS`: uma lista do mesmo
+tamanho da `abertura`, item por item, com uma chave de `CTX_B64` ou `null`. Repetir a mesma chave
+em falas seguidas é o normal — a imagem troca quando o **assunto** muda, não quando a fala muda,
+porque trocar por trocar vira apresentação de slides no meio de uma leitura.
+
+| capítulo | fala 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| ANTES DA CHEGADA | mata | roçado | roçado | — | — |
+| PALMARES | serra | serra | roça | — | — |
+| AINDA AQUI | *(demarcada)* | *(demarcada)* | *(disputa)* | — | — |
+
+As duas últimas falas de cada capítulo ficam **sem imagem de propósito**: são as que explicam o
+que fazer e o que vem pela rua, ou seja, descrevem a TELA. Cobri-la com paisagem justo nelas
+seria esconder o que a frase manda olhar. Sem imagem, o jogo aparece — que é o estado normal
+desta tela e continua sendo.
+
+O capítulo 3 está **escrito e inerte**: as chaves existem em `EPOCAS`, a arte ainda não chegou em
+`assets/entrada`, e `trocarCtx` trata chave ausente como `null`. Quando `ctx-cap3-demarcada.png` e
+`ctx-cap3-disputa.png` caírem na pasta, `node test/inline-contexto.js` liga as duas sozinho e
+nenhuma linha de `EPOCAS` muda.
+
+**§2, e é a parte que importa mais que o código.** Estas imagens acompanham texto que AFIRMA
+história. As quatro que chegaram são **paisagem sem nenhuma figura humana**, e isso foi conferido
+olhando as quatro, não confiando no nome do arquivo. Figura humana desenhada afirma junto: roupa,
+corpo e adorno viram declaração sobre um povo real. O dono aprovou pessoas **em princípio** e
+disse que quer aprovar **cada cena** — essa aprovação não aconteceu. Regra escrita no cabeçalho de
+`test/inline-contexto.js` e de `CTX_B64`: imagem com gente **não entra**, relata-se.
+
+**Peso, medido.** Os mestres chegam com ~1.940 px de largura e a tela mostra 390. Embutir o mestre
+seriam megabytes por nada. Reencodadas em **WebP 0,80 a 780 px** (2× a tela de referência):
+
+| peça | base64 |
+|---|---|
+| cap1-mata | 84 KB |
+| cap1-rocado | 108 KB |
+| cap2-roca | 118 KB |
+| cap2-serra | 95 KB |
+| **total** | **405 KB** |
+
+`index.html`: **2,81 MB → 3,21 MB**. O teto combinado é 3,6 MB. As duas peças do capítulo 3 devem
+custar ~215 KB nesta mesma receita, o que fecha em ~3,42 MB — cabe, mas é a última folga. Medido
+em outras larguras, para quem precisar comprar espaço depois: 660 px custa 316 KB (−22%) e 520 px
+custa 219 KB (−46%). `node test/inline-contexto.js --medir` reimprime a tabela sem gravar nada.
+
+**Altura: `height: auto`, e é decisão.** A arte é paisagem de ~2,4:1. Qualquer altura fixa vira
+`cover`, e `cover` corta as beiradas — justo a parte que faz a imagem ser paisagem. A 390 px de
+tela ela ocupa 162 px no alto. Uma máscara vertical dissolve o pé da imagem no jogo; sem ela a
+foto termina numa linha reta no meio da tela e lê como banner colado por cima.
+
+**A transição, medida.** Duas `<img>` alternando papel, 0,42 s de `opacity`. Amostrado a cada
+120 ms: `0/1 → 0,29/0,71 → 0,82/0,18 → 0,97/0,03 → 1/0`. Quem entra só acende **depois do
+`decode()`** — acender antes mostra o elemento vazio subindo de opacidade e a foto aparecendo de
+estalo no fim, que é exatamente o corte seco que o esmaecimento existe para não dar. Enquanto a
+nova não decodificou a antiga continua no ar, então não há quadro em branco.
+
+**O que ficou frágil.**
+
+1. **O HUD some e volta.** A imagem é desenhada sobre a tela inteira a partir do topo, e o HUD
+   (contadores e barra do capítulo) fica atrás dela. Nas falas com imagem ele some; nas sem, volta.
+   Não é erro, mas é chrome piscando no meio de uma leitura. As saídas são esconder o HUD durante
+   toda a caixa de fala — mudança de comportamento existente, fora do escopo deste trabalho — ou
+   descer a imagem para baixo dele, o que põe uma tarja de jogo em cima de uma foto.
+2. **No meio do esmaecimento o mundo aparece por baixo.** As duas `<img>` são irmãs e a de cima
+   compõe sobre a de baixo, então na metade da troca o fundo vaza uns 20%. Dura ~0,2 s e some.
+   Resolver de verdade pediria compor as duas num canvas, o que é caro para o que se ganha.
+3. **A folga de peso acabou.** Depois do capítulo 3 não sobra espaço nesta receita. A próxima arte
+   de contexto obriga a escolher: 660 px de largura, ou qualidade abaixo de 0,80.

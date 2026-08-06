@@ -110,6 +110,14 @@
 </div>
 
 <div class="tela" id="telaFala">
+  <!-- AS IMAGENS DE CONTEXTO. Sao DUAS e nao uma: e assim que o esmaecimento existe. Uma
+       segura o que se ve, a outra recebe a proxima e sobe de opacidade por cima; na troca
+       seguinte elas invertem os papeis. Uma <img> so obrigaria a trocar o src no meio da
+       transicao, que e exatamente o corte seco que se quer evitar.
+       Sem atributo src no molde de proposito: a guarda de arquivo unico do build recusa
+       qualquer src que nao seja data:, e um src vazio pediria a pagina de novo. -->
+  <img class="falaCtx" id="falaCtxA" alt="" aria-hidden="true">
+  <img class="falaCtx" id="falaCtxB" alt="" aria-hidden="true">
   <!-- O retrato e IRMAO da caixa, nao filho. Como filho, mesmo com z-index negativo ele
        ficava na frente do fundo da caixa — dentro de um contexto de empilhamento, filho
        negativo pinta depois do fundo do pai. Fora dele, a caixa cobre de verdade. -->
