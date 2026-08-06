@@ -42,6 +42,24 @@ quinto superior da figura, e um braço erguido ou esticado entra nesse quinto e 
 número: na folha de salto ele deu `99, 157, 93, 104, 91, 92` — o 157 é o braço do quadro do
 impulso, não a cabeça. Use a mediana, não a média que ele imprime.
 
+Os capítulos 2 e 3 seguem o mesmo caminho, com as **suas** escolhas de célula — a folha do
+capítulo 1 não responde por nenhuma outra:
+
+```bash
+node test/recortar-folha.js assets/entrada/sprite-cap2-andar.png    4x3 /tmp/c2.json   0 --quadros=1,5,8
+node test/recortar-folha.js assets/entrada/sprite-cap3-andar.png    4x3 /tmp/c3.json   0 --quadros=7,11,2
+node test/recortar-folha.js assets/entrada/sprite-cap3-pular.png    3x2 /tmp/c3p.json  0
+node test/recortar-folha.js assets/entrada/sprite-cap3-alcancar.png 2x2 /tmp/c3a.json  0
+node test/reescalar.js /tmp/c3p.json 0.6436 /tmp/c3p2.json 300
+node test/reescalar.js /tmp/c3a.json 0.6280 /tmp/c3a2.json 240
+node test/embutir-heroi.js walk2=/tmp/c2.json walk3=/tmp/c3.json sp3=/tmp/c3p2.json \
+                           atk1_3=/tmp/c3a2.json atk2_3=/tmp/c3a2.json
+```
+
+As chaves com sufixo são os blocos por capítulo: sem sufixo é o capítulo 1, `2` e `3` são os
+outros. Um bloco vazio faz aquele capítulo cair na **própria caminhada dele**, nunca na de
+outro capítulo — trocar a pessoa no meio de um capítulo é o erro do CLAUDE.md §2.
+
 ### A folha nem sempre é um ciclo, e o `--quadros` é a resposta
 
 A folha de caminhada do capítulo 1 tem doze figuras da **mesma pessoa** (CV de 1,0% na
@@ -53,6 +71,10 @@ si: quatro cópias da passagem. Sobram três fases reais.
 
 Enfiar as doze num ciclo puxado pela distância deixa o pé parado por vários quadros e depois
 o faz saltar — é isso que lê como manqueira, e `PASSO_PX` certo não salva.
+
+**Cada folha tem a própria estrutura de fases.** No capítulo 1 sobram três de doze e elas são
+as células 6, 5, 2. No capítulo 2 são 1, 5, 8; no 3, 7, 11, 2. Não há como adivinhar: os
+índices repetidos de uma folha dizem quais quadros *sobram*, não quais formam o ciclo.
 
 **Como escolher, com número e não com olho:** meça a **sola**, não o centroide do pé. No
 apoio duplo o pé de trás está na ponta e o da frente chapado, e os centroides mentem sobre

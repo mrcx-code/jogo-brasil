@@ -4,6 +4,27 @@
   "_magenta": "\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra.",
   "itens": [
     {
+      "nome": "sprite-cap2-correr",
+      "titulo": "REFAZER · cap.2 · CORRIDA · 12 quadros · grade 4x3",
+      "ref": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
+      "tam": "1024×1024 · magenta",
+      "p": "A pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nCICLO DE CORRIDA de perfil, virada para a direita: passada longa, tronco à frente, com fase de voo em que os dois pés saem do chão.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo."
+    },
+    {
+      "nome": "sprite-cap2-pular",
+      "titulo": "REFAZER · cap.2 · SALTO · 6 quadros · grade 3x2",
+      "ref": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
+      "tam": "1024×1024 · magenta",
+      "p": "A pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nSALTO completo de perfil: impulso, subida, ápice, descida, aterrissagem.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo."
+    },
+    {
+      "nome": "sprite-cap2-alcancar",
+      "titulo": "REFAZER · cap.2 · ALCANÇAR · 4 quadros · grade 4x1",
+      "ref": "a folha atual mostra a PESSOA ERRADA — veio a do capítulo 1",
+      "tam": "1024×1024 · magenta",
+      "p": "A pessoa de Palmares, séc. XVII: cabelo crespo, túnica creme e calça, sandálias, cinto — A MESMA da folha sprite-cap2-andar, que está correta. As folhas de correr, pular e alcançar do capítulo 2 vieram com a pessoa do CAPÍTULO 1 por engano: tanga branca, colar de contas, braçadeiras, pés descalços. Não é diferença de pose, é outro personagem.\n\nO gesto de ALCANÇAR algo à frente, na altura do peito: o braço estende, a mão abre, pega, recolhe. NÃO é golpe, não é soco, não é ataque — é colher, pegar, acolher.\n\nFUNDO MAGENTA CHAPADO #FF00FF puro, sem linha de grade desenhada, sem texto. É a mesma pessoa em todos os quadros.\n\nATENÇÃO: nada de safári africano genérico, nada de savana. E nada de corrente, algema ou marca de violência — o capítulo é sobre a vida livre no quilombo."
+    },
+    {
       "nome": "sprite-cap1-parada",
       "titulo": "SPRITE · pose PARADA de frente, cap.1",
       "ref": "a caixa de fala mostra ela GRANDE atrás do texto — hoje é o quadro de caminhada, de perfil",
