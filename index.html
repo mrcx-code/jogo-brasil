@@ -1217,8 +1217,13 @@ function clicar(auto, naoConta, semAnim) {
   if (!auto && !semAnim) {
     // only two cast poses exist, so the four ordinary beats alternate between them
     attackType = passo % 2;
-    attackT = passo === SALTO ? JUMPF : ATKF;
-    if (passo === SALTO && jumpT <= 0) jumpT = JUMPF;   // the fifth beat: she leaps.
+    // O quinto tempo NÃO pula mais. Pular era efeito colateral de alcançar cinco vezes, e
+    // isso tirava o pulo das mãos de quem joga: a personagem saía do chão sem ninguém pedir,
+    // no meio de atender alguém. Pulo agora é só da metade esquerda da tela, que é a única
+    // parte da entrada que o jogador controla de propósito.
+    // O quinto tempo continua sendo o tempo forte — alcance 96 e dano dobrado, logo abaixo —
+    // só que ele acontece no chão.
+    attackT = ATKF;
   }
   // reach covers the whole queue (three troubles, one body-width apart) — otherwise the
   // one at the back is unhittable from the button and the road never clears
