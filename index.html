@@ -406,6 +406,7 @@
      mundo continua andando atrás, e é isso que faz a conversa parecer parte do jogo em vez
      de uma tela de menu por cima dele. */
   #telaFala { justify-content: flex-end; padding: 0 8px 12px 8px; text-align: left; overflow: visible;
+    isolation: isolate;
     background: linear-gradient(180deg, rgba(10,9,6,0) 0%, rgba(10,9,6,.18) 42%,
                                         rgba(10,9,6,.62) 72%, rgba(10,9,6,.86) 100%); }
   /* A PESSOA FICA ATRAS, GRANDE, e o texto vira LEGENDA embaixo ocupando tudo.
@@ -415,14 +416,21 @@
      Ela precisa ser vista de FRENTE: sprite de perfil e a pose de quem passa por voce, nao
      de quem fala com voce. Enquanto a arte de frente nao chega, o quadro de caminhada segura
      o lugar — e e visivelmente provisorio, o que e melhor que parecer resolvido. */
-  /* A ESQUERDA, a pedido do dono: ela fica de pe ao lado da legenda, nao centrada sobre ela.
-     Encostada na borda e apoiada sobre a caixa, como quem parou ali para contar. */
-  #falaRetrato { position: absolute; left: 6px; transform: none;
-    bottom: calc(100% - 26px); width: 128px; height: 248px; z-index: 1;
+  /* ATRAS da caixa, e so da CINTURA PRA CIMA. A figura inteira em pe ao lado ficava alta
+     demais e roubava a tela da propria historia; e de corpo inteiro so o tronco e o rosto
+     importam para quem esta ouvindo alguem falar.
+     Entao ela desce ATRAS: o `bottom` negativo enfia a metade de baixo por tras da caixa, e o
+     z-index menor faz a caixa cobri-la. O que sobra acima da moldura e exatamente o busto. */
+  /* z-index NEGATIVO, e este e o detalhe que faz funcionar: o retrato e filho da caixa, e
+     filho com z positivo fica sempre na frente do fundo do pai. So com z negativo ele vai
+     para TRAS do fundo — e ai a caixa opaca corta a figura na cintura, que era o pedido.
+     A primeira tentativa usou z-index 0 e ele ficou na frente do texto. */
+  #falaRetrato { position: absolute; left: 8px; transform: none;
+    bottom: 78px; width: 132px; height: 300px; z-index: 0;
     image-rendering: pixelated; object-fit: contain; object-position: bottom center;
     background: none; box-shadow: none;
     filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
-  #falaCaixa { position: relative; width: min(560px, 100%); box-sizing: border-box;
+  #falaCaixa { position: relative; z-index: 1; width: min(560px, 100%); box-sizing: border-box;
     background: #16130d; padding: 16px 16px 24px; display: block;
     /* os 20 px de baixo são a faixa do "toque para continuar": sem eles ele encosta na
        última linha da fala mais longa */
@@ -660,9 +668,12 @@
      antes de jogar, não escondido numa tela de menu. O texto vive em EPOCAS, que carrega
      data e procedência, e não em TEXTOS, que é ficção autoral e não pode conter dígito. -->
 <div class="tela" id="telaFala">
+  <!-- O retrato e IRMAO da caixa, nao filho. Como filho, mesmo com z-index negativo ele
+       ficava na frente do fundo da caixa — dentro de um contexto de empilhamento, filho
+       negativo pinta depois do fundo do pai. Fora dele, a caixa cobre de verdade. -->
+  <img id="falaRetrato" alt="">
   <div id="falaCaixa">
     <button id="btnFalaPular" type="button">PULAR</button>
-    <img id="falaRetrato" alt="">
     <div id="falaCorpo">
       <div id="falaTit"></div>
       <div id="falaSub"></div>
