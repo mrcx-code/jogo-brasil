@@ -80,9 +80,9 @@ instante em que o primeiro byte sair, e tem que ser reescrita **na mesma fase**.
 
 ## O que o dono ainda não respondeu
 
-- **Imagens de contexto na história**: paisagem sem gente (seguro) ou cena com pessoas
-  (mais forte, mais risco)? É §2 e não decida sozinho.
-- **Os números dos drops** acima.
+- **Quantos drops** destrancam o capítulo. Ele já decidiu que é **pelo total**, não por tipo.
+  Falta o número, e ele sai de medição, não de palpite.
+- **O verbo do motor sobre gente**, a dívida nº 2 acima. É §2 e não decida sozinho.
 
 ## Números medidos — não os re-derive, estão certos
 
@@ -96,7 +96,7 @@ instante em que o primeiro byte sair, e tem que ser reescrita **na mesma fase**.
 | o que atravessa a tela | 18,3% da renda (era 4%) |
 | toque no vazio | **65% da renda** — o último item grande |
 | do zero até ver tudo | 5 min 07 s |
-| peso do index.html | 3,91 MB |
+| peso do index.html | **3,7 MB** (teto que eu mesmo dei: 3,6) |
 
 ## Armadilhas que já custaram sessão — não repita
 
