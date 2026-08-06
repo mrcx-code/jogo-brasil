@@ -1069,74 +1069,88 @@ varrido antigo. Ninguém mediu se rua mais rala **lê como calma ou como abandon
 entre o pedido ter sido atendido e o pedido ter sido cumprido ao pé da letra. Próximo passo:
 jogar os dois e decidir com o dono, ou medir tempo até o primeiro tédio.
 
-## Imagens de contexto na caixa de fala — 2026-08-06
+### 2026-08-06 · a pessoa de Palmares ganha salto e alcance, e a corrida continua sem apoio
 
-Pedido do dono: a abertura de cada época mostra **o que o texto está dizendo**, não só o texto.
+**Primeiro a conferência que era a razão de a tarefa existir.** As três folhas do capítulo 2 que
+tinham voltado erradas — `correr`, `pular`, `alcancar` — chegaram refeitas. Abri as quatro folhas
+do capítulo lado a lado antes de cortar qualquer coisa. As novas trazem **cabelo crespo, túnica
+creme sem manga, calça na altura da panturrilha, sandálias e cinto/faixa** — a mesma pessoa que a
+folha de caminhada carrega. Nenhuma tanga branca, nenhum colar de contas, nenhuma braçadeira,
+nenhum pé descalço, que era a figura do capítulo 1 que as versões anteriores desenhavam. As
+antigas ficam como `*.ERRADA.png` e não entram em nada.
 
-**Como a associação é feita.** Cada época ganhou `aberturaImg` em `EPOCAS`: uma lista do mesmo
-tamanho da `abertura`, item por item, com uma chave de `CTX_B64` ou `null`. Repetir a mesma chave
-em falas seguidas é o normal — a imagem troca quando o **assunto** muda, não quando a fala muda,
-porque trocar por trocar vira apresentação de slides no meio de uma leitura.
+**A grade anunciada no pedido mentiu nas três.** Os `.txt` diziam `4x3` (corrida), `3x2` (salto) e
+`4x1` (alcance). As imagens têm **8 poses em 4x2**, **5 em 5x1** e **5 em 5x1**. Contei as manchas
+com o `validar-folha.js` sem passar grade — 8, 5 e 5, zero fragmento nas três. Passar a grade do
+pedido não daria erro nenhum: o cortador reparte a faixa em células erradas e devolve quadros com
+duas metades de pessoa. Ficou escrito no `test/LEIAME.md`.
 
-| capítulo | fala 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|
-| ANTES DA CHEGADA | mata | roçado | roçado | — | — |
-| PALMARES | serra | serra | roça | — | — |
-| AINDA AQUI | *(demarcada)* | *(demarcada)* | *(disputa)* | — | — |
+**Escala: medir pela MEDIANA da cabeça, nunca pela média.** A personagem é desenhada com a escala
+da CAMINHADA (`heroScale` = 44 / altura do quadro de walk), então toda folha que não seja a de
+caminhada tem de ser reamostrada para o mesmo corpo. A cabeça é a única medida que não muda com a
+pose — mas um braço esticado ou um tronco inclinado entra no quinto superior e infla o número:
 
-As duas últimas falas de cada capítulo ficam **sem imagem de propósito**: são as que explicam o
-que fazer e o que vem pela rua, ou seja, descrevem a TELA. Cobri-la com paisagem justo nelas
-seria esconder o que a frase manda olhar. Sem imagem, o jogo aparece — que é o estado normal
-desta tela e continua sendo.
+| folha | cabeça por quadro | mediana | fator | quadro final |
+|---|---|---:|---:|---|
+| caminhada (referência) | 61 · 61 · 61 | 61 | — | 191×323 |
+| salto | 88 · **110** · 90 · **105** · 88 | 90 | 0,6778 | 280×285 |
+| alcance | 93 · *201* · *215* · 93 · 91 | 93 | 0,6559 | 303×279 |
+| corrida | 90 · 90 · 90 · 89 · 87 · 85 · 85 · 88 | 88 | 0,6932 | 363×263 |
 
-O capítulo 3 está **escrito e inerte**: as chaves existem em `EPOCAS`, a arte ainda não chegou em
-`assets/entrada`, e `trocarCtx` trata chave ausente como `null`. Quando `ctx-cap3-demarcada.png` e
-`ctx-cap3-disputa.png` caírem na pasta, `node test/inline-contexto.js` liga as duas sozinho e
-nenhuma linha de `EPOCAS` muda.
+O 110 e o 105 do salto são ombro e braço nas poses inclinadas; o 201 e o 215 do alcance são o
+braço esticado, e para esses vale a medida "corrida" do `validar-folha.js` (maior trecho sem
+buraco), que dá 91–94. Depois de reamostrar, salto e alcance medem **61**, igual à caminhada: a
+mesma pessoa, do mesmo tamanho, nas três folhas.
 
-**§2, e é a parte que importa mais que o código.** Estas imagens acompanham texto que AFIRMA
-história. As quatro que chegaram são **paisagem sem nenhuma figura humana**, e isso foi conferido
-olhando as quatro, não confiando no nome do arquivo. Figura humana desenhada afirma junto: roupa,
-corpo e adorno viram declaração sobre um povo real. O dono aprovou pessoas **em princípio** e
-disse que quer aprovar **cada cena** — essa aprovação não aconteceu. Regra escrita no cabeçalho de
-`test/inline-contexto.js` e de `CTX_B64`: imagem com gente **não entra**, relata-se.
+**A ordem do alcance termina em repouso.** `--quadros=2,3,4,5,1`: esticar o braço, esticar fundo
+no avanço, receber a coisa na mão, abraçar, voltar ao parado. É a mesma lógica do `2,3,4,1` do
+capítulo 1 — a animação toca uma vez por toque, então a pose neutra vai por ÚLTIMO, senão o gesto
+começa parado e congela segurando o objeto. O salto sai na ordem da folha (agachar, impulso,
+recolher no ápice, descer, aterrissar), que já é a ordem certa, com compressão 0 porque o arco
+quem desenha é o código.
 
-**Peso, medido.** Os mestres chegam com ~1.940 px de largura e a tela mostra 390. Embutir o mestre
-seriam megabytes por nada. Reencodadas em **WebP 0,80 a 780 px** (2× a tela de referência):
+**Escorregamento.** Salto e alcance não são puxados por distância — o quadro sai do relógio do
+pulo e do toque —, então não há escorregamento a medir neles; o que precisava valer é a sola
+encostando na borda de baixo do quadro (`HERO_PISO = 0`), e vale nos dez: compressão 0 põe a tinta
+mais baixa de cada pose na linha comum e o `reescalar.js` alinha por baixo. A caminhada do
+capítulo 2 não foi tocada e continua nos calcanhares 135/80/25, laço 165, `PASSO = 7,492`,
+`n = 12`, **0,00%**. Remedindo com o meu limiar de sola leio 135/81/23, que dá 5,6% — a diferença
+é de 1 a 2 px de sprite, 0,27 px de mundo, ou seja ruído de limiar e não desacordo. Fica
+registrado para ninguém "corrigir" o número gravado com base numa releitura.
 
-| peça | base64 |
-|---|---|
-| cap1-mata | 84 KB |
-| cap1-rocado | 108 KB |
-| cap2-roca | 118 KB |
-| cap2-serra | 95 KB |
-| **total** | **405 KB** |
+**A corrida do capítulo 2 NÃO se salva, e a razão não é a pessoa.** A folha passa em tudo que
+reprovou a do capítulo 1: mesma figura nas oito poses (cabeça CV 2,3%, amplitude 5,7%), zero
+fragmento, e variação de altura de **11,2%** contra os 17% da do capítulo 1 — e essa variação
+aqui é legítima, é o corpo encolhendo no recolhimento, não degrau de grade. O que falta é
+**apoio**:
 
-`index.html`: **2,81 MB → 3,21 MB**. O teto combinado é 3,6 MB. As duas peças do capítulo 3 devem
-custar ~215 KB nesta mesma receita, o que fecha em ~3,42 MB — cabe, mas é a última folga. Medido
-em outras larguras, para quem precisar comprar espaço depois: 660 px custa 316 KB (−22%) e 520 px
-custa 219 KB (−46%). `node test/inline-contexto.js --medir` reimprime a tabela sem gravar nada.
+| | caminhada (no jogo) | corrida cap 2 |
+|---|---:|---:|
+| poses com sola chapada | 2 de 3 | 3 de 8, e duas são a mesma fase |
+| percurso do calcanhar | 112 px de sprite = 15,3 de mundo | 24 px = 3,3 de mundo |
+| passo | 22,5 px de mundo | ~31 px de mundo (abertura máxima 247 contra 181) |
+| **pé plantado** | **68% do passo** | **11% do passo** |
 
-**Altura: `height: auto`, e é decisão.** A arte é paisagem de ~2,4:1. Qualquer altura fixa vira
-`cover`, e `cover` corta as beiradas — justo a parte que faz a imagem ser paisagem. A 390 px de
-tela ela ocupa 162 px no alto. Uma máscara vertical dissolve o pé da imagem no jogo; sem ela a
-foto termina numa linha reta no meio da tela e lê como banner colado por cima.
+Ligar essa folha faria o pé arrastar 90% do passo. E ainda haveria a segunda metade do problema,
+que é do motor e não da arte: `velocidadeMundo()` usa o **mesmo** `passo` para andar e correr e só
+dobra a cadência — correr é a caminhada apressada. Uma folha de corrida de verdade exige um
+`passoCorrer` por capítulo dentro do `PASSO_CAP`, com `n` inteiro em cada um (armadilha nº 1 do
+§7). É sessão própria, exatamente como a sessão de 2026-08-05 já tinha concluído para o capítulo 1.
 
-**A transição, medida.** Duas `<img>` alternando papel, 0,42 s de `opacity`. Amostrado a cada
-120 ms: `0/1 → 0,29/0,71 → 0,82/0,18 → 0,97/0,03 → 1/0`. Quem entra só acende **depois do
-`decode()`** — acender antes mostra o elemento vazio subindo de opacidade e a foto aparecendo de
-estalo no fim, que é exatamente o corte seco que o esmaecimento existe para não dar. Enquanto a
-nova não decodificou a antiga continua no ar, então não há quadro em branco.
+**Números.** `index.html` 2,95 → **3,03 MB** (+80 KB: 69 de salto, 81 de alcance, embutido duas
+vezes porque `atk1_2` e `atk2_2` compartilham a mesma folha, como nos outros capítulos). `npm test`
+verde, 61 FPS, zero erro de console nas três eras. Prints por era em
+`tmpart/era{1,2,3}-{anda,alcanca,ar}.png`.
 
-**O que ficou frágil.**
+**Ferramentas que ficaram** (em `tmpart/`, não commitadas): `medir-sola.js` (altura, sola,
+calcanhar e discordância de silhueta quadro a quadro de um `.json` recortado — é a régua que
+escolhe quadros), `medir-pes.js` (abertura entre os dois pés, que dá o comprimento da passada),
+`folha-png.js` (os quadros de um `.json` lado a lado numa PNG, com a linha de chão), `shot-eras.js`
+(um print por era em três estados).
 
-1. **O HUD some e volta.** A imagem é desenhada sobre a tela inteira a partir do topo, e o HUD
-   (contadores e barra do capítulo) fica atrás dela. Nas falas com imagem ele some; nas sem, volta.
-   Não é erro, mas é chrome piscando no meio de uma leitura. As saídas são esconder o HUD durante
-   toda a caixa de fala — mudança de comportamento existente, fora do escopo deste trabalho — ou
-   descer a imagem para baixo dele, o que põe uma tarja de jogo em cima de uma foto.
-2. **No meio do esmaecimento o mundo aparece por baixo.** As duas `<img>` são irmãs e a de cima
-   compõe sobre a de baixo, então na metade da troca o fundo vaza uns 20%. Dura ~0,2 s e some.
-   Resolver de verdade pediria compor as duas num canvas, o que é caro para o que se ganha.
-3. **A folga de peso acabou.** Depois do capítulo 3 não sobra espaço nesta receita. A próxima arte
-   de contexto obriga a escolher: 660 px de largura, ou qualidade abaixo de 0,80.
+**Dúvida nova, e é do dono.** O alcance do capítulo 2 termina com a pessoa **abraçando um objeto
+redondo** — uma coisa que ela recebeu. No capítulo 1 o mesmo gesto era colher. Em Palmares, o §2.2
+diz que alcançar é **acolher quem chega**, e quem chega é gente, não objeto. O gesto desenhado
+continua sendo "receber uma coisa", e o `NOTES` de 2026-08-05 já tinha marcado essa trava. Não é
+erro da folha nova — ela faz o que foi pedido — mas a pergunta de representação continua aberta:
+em Palmares, o que a mão da pessoa recebe?

@@ -47,14 +47,30 @@ capítulo 1 não responde por nenhuma outra:
 
 ```bash
 node test/recortar-folha.js assets/entrada/sprite-cap2-andar.png    4x3 /tmp/c2.json   0 --quadros=1,5,8
+node test/recortar-folha.js assets/entrada/sprite-cap2-pular.png    5x1 /tmp/c2p.json  0
+node test/recortar-folha.js assets/entrada/sprite-cap2-alcancar.png 5x1 /tmp/c2a.json  0 --quadros=2,3,4,5,1
+node test/reescalar.js /tmp/c2p.json 0.6778 /tmp/c2p2.json 280
+node test/reescalar.js /tmp/c2a.json 0.6559 /tmp/c2a2.json 303
 node test/recortar-folha.js assets/entrada/sprite-cap3-andar.png    4x3 /tmp/c3.json   0 --quadros=7,11,2
 node test/recortar-folha.js assets/entrada/sprite-cap3-pular.png    3x2 /tmp/c3p.json  0
 node test/recortar-folha.js assets/entrada/sprite-cap3-alcancar.png 2x2 /tmp/c3a.json  0
 node test/reescalar.js /tmp/c3p.json 0.6436 /tmp/c3p2.json 300
 node test/reescalar.js /tmp/c3a.json 0.6280 /tmp/c3a2.json 240
 node test/embutir-heroi.js walk2=/tmp/c2.json walk3=/tmp/c3.json sp3=/tmp/c3p2.json \
+                           sp2=/tmp/c2p2.json atk1_2=/tmp/c2a2.json atk2_2=/tmp/c2a2.json \
                            atk1_3=/tmp/c3a2.json atk2_3=/tmp/c3a2.json
 ```
+
+**A grade anunciada no pedido não é a grade da folha.** As três folhas refeitas do capítulo 2
+vieram com `.txt` dizendo `4x3`, `3x2` e `4x1`; as imagens têm 8 poses em `4x2`, 5 em `5x1` e
+5 em `5x1`. Conte as manchas com o `validar-folha.js` sem passar grade nenhuma antes de cortar
+— ele diz quantas achou, e é esse número que manda. Passar a grade errada não dá erro: o
+cortador reparte a faixa em células erradas e devolve quadros com duas metades de pessoa.
+
+**A ordem de `alcancar` termina em REPOUSO.** A animação toca uma vez por toque e volta ao
+estado parado, então a pose neutra vai por último: no capítulo 1 é `--quadros=2,3,4,1`, no 2 é
+`--quadros=2,3,4,5,1` (esticar, esticar fundo, receber, abraçar, repousar). Sem isso o gesto
+começa em repouso e congela segurando a coisa.
 
 As chaves com sufixo são os blocos por capítulo: sem sufixo é o capítulo 1, `2` e `3` são os
 outros. Um bloco vazio faz aquele capítulo cair na **própria caminhada dele**, nunca na de
