@@ -2080,7 +2080,32 @@ const FONTE = {
   "?": ".###.,#...#,....#,...#.,..#..,.....,..#..",
   ":": ".....,.##..,.##..,.....,.##..,.##..,.....",
   "%": "##..#,##.#.,..#..,.#...,#..##,#..##,.....",
-  "/": "....#,...#.,..#..,..#..,.#...,#....,....."
+  "/": "....#,...#.,..#..,..#..,.#...,#....,.....",
+  // ---- as maiúsculas acentuadas ----
+  // O jogo fala português e as telas são em caixa alta: sem Á É Í Ó Ú Ã Õ Â Ê Ô Ç a fonte
+  // não serve para o próprio idioma do jogo. O acento mora em DUAS LINHAS EXTRAS acima da
+  // letra CHEIA — o glifo tem 9 linhas em vez de 7. Espremer a letra para caber o acento na
+  // célula (o truque mais comum dos 8 bits) foi tentado e descartado: num título grande, o
+  // Ó saía visivelmente mais baixo que as letras vizinhas. `glifo()` aceita as duas alturas
+  // e `pixelRotulo()` alinha tudo pela base; `texto()` (os números que flutuam na rua) só
+  // usa glifos de 7 linhas e não muda.
+  "Á": "...#.,..#..,.###.,#...#,#...#,#####,#...#,#...#,#...#",
+  "À": ".#...,..#..,.###.,#...#,#...#,#####,#...#,#...#,#...#",
+  "Â": "..#..,.#.#.,.###.,#...#,#...#,#####,#...#,#...#,#...#",
+  "Ã": ".##.#,#.##.,.###.,#...#,#...#,#####,#...#,#...#,#...#",
+  "É": "...#.,..#..,#####,#....,#....,####.,#....,#....,#####",
+  "Ê": "..#..,.#.#.,#####,#....,#....,####.,#....,#....,#####",
+  "Í": "...#.,..#..,.###.,..#..,..#..,..#..,..#..,..#..,.###.",
+  "Ó": "...#.,..#..,.###.,#...#,#...#,#...#,#...#,#...#,.###.",
+  "Ô": "..#..,.#.#.,.###.,#...#,#...#,#...#,#...#,#...#,.###.",
+  "Õ": ".##.#,#.##.,.###.,#...#,#...#,#...#,#...#,#...#,.###.",
+  "Ú": "...#.,..#..,#...#,#...#,#...#,#...#,#...#,#...#,.###.",
+  // o cedilha não ganha linhas embaixo — descer da base desalinharia a palavra inteira.
+  // O C encolhe uma linha e o rabo ocupa as duas últimas: é o único glifo que cede altura,
+  // e o cedilha marca a diferença muito antes de a altura marcar.
+  "Ç": ".####,#....,#....,#....,.####,..#..,.##..",
+  "·": ".....,.....,.....,..#..,.....,.....,.....",
+  "✓": ".....,.....,....#,...#.,#.#..,.#...,....."
 };
 const glifoCv: Record<string, HTMLCanvasElement> = {};
 function glifo(ch, cor, contorno) {
@@ -2088,15 +2113,20 @@ function glifo(ch, cor, contorno) {
   if (glifoCv[k]) return glifoCv[k];
   const linhas = (FONTE[ch] || FONTE["?"]).split(",");
   const c = document.createElement("canvas");
-  c.width = 7; c.height = 9;
+  // 7 linhas para o alfabeto base, 9 para as acentuadas: o canvas cresce junto e quem
+  // desenha alinha pela BASE (pixelRotulo) ou assume 7 (texto, que só usa números)
+  c.width = 7; c.height = linhas.length + 2;
   const g = c.getContext("2d")!;
   const marca = function (cor2, dx, dy) {
     g.fillStyle = cor2;
-    for (let r = 0; r < 7; r++) for (let q = 0; q < 5; q++) {
+    for (let r = 0; r < linhas.length; r++) for (let q = 0; q < 5; q++) {
       if (linhas[r].charAt(q) === "#") g.fillRect(q + 1 + dx, r + 1 + dy, 1, 1);
     }
   };
-  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) marca(contorno, dx, dy);
+  // contorno opcional: sobre o mundo ele é o que mantém o número legível em qualquer fundo,
+  // mas um rótulo pousado numa laje chapada não tem fundo incerto — e o aro escuro em letra
+  // escura só engordaria o glifo.
+  if (contorno) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) marca(contorno, dx, dy);
   marca(cor, 0, 0);
   glifoCv[k] = c;
   return c;
@@ -2111,6 +2141,44 @@ function texto(txt, x, y, esc, cor, contorno?) {
   }
 }
 function larguraTexto(txt, esc) { return txt.length * 6 * esc; }
+
+// ---------- a mesma fonte, no chrome ----------
+// O jogo tinha três vozes tipográficas: logo pixel pintado, fonte bitmap no mundo, e
+// Arial Black no chrome — CSS de site em cima de um jogo pixel. Este renderizador leva a
+// fonte bitmap para o DOM: desenha o rótulo UMA vez num canvas em 1× e deixa o CSS ampliar
+// com `image-rendering: pixelated`, então a letra do menu é literalmente a mesma letra que
+// flutua sobre a rua. Caixa alta sempre — é a única caixa que a fonte tem, e as telas do
+// jogo já falavam assim.
+// O canvas é recriado só quando o texto muda (`data-px` guarda a chave): `desenhar()` roda
+// cinco vezes por segundo e rótulo estático não pode custar um canvas por tique.
+function pixelRotulo(el, txt, esc, cor, contorno?) {
+  const t = String(txt).toUpperCase().replace(/—/g, "-");
+  const chave = t + "|" + esc + "|" + cor + "|" + (contorno || "");
+  if (el.dataset.px === chave) return;
+  el.dataset.px = chave;
+  const c = document.createElement("canvas");
+  // 11 de altura: as duas linhas de acento cabem sempre, e todo glifo se apoia na BASE —
+  // é o que deixa o Ó da mesma altura que as vizinhas, com o acento acima da linha delas
+  c.width = Math.max(1, t.length * 6 + 1); c.height = 11;
+  const g = c.getContext("2d")!;
+  let px = 0;
+  for (let i = 0; i < t.length; i++) {
+    const ch = t.charAt(i);
+    if (ch !== " ") {
+      const gc = glifo(ch, cor, contorno || null);
+      g.drawImage(gc, px, 11 - gc.height);
+    }
+    px += 6;
+  }
+  c.style.width = (c.width * esc) + "px"; c.style.height = (11 * esc) + "px";
+  c.style.imageRendering = "pixelated";
+  c.style.display = "block";
+  c.setAttribute("aria-hidden", "true");
+  // o texto continua existindo para quem não vê o canvas
+  el.setAttribute("aria-label", t);
+  el.textContent = "";
+  el.appendChild(c);
+}
 
 function hash01(k) { // deterministic 0..1 per world segment
   let x = Math.sin(k * 127.1 + 311.7) * 43758.5453;
@@ -4415,24 +4483,27 @@ function fmt(n) {
 }
 function desenhar() {
   verificarCenario();
-  $("energia").textContent = fmt(S.energia);
-  $("nFlor").textContent = String(S.recursos.flor | 0);
+  // os números do HUD na mesma fonte do resto: eram os últimos rótulos em Arial Black
+  pixelRotulo($("energia"), fmt(S.energia), 2, "#ffeec4", "#0a0806");
+  pixelRotulo($("nFlor"), String(S.recursos.flor | 0), 1, "#2a2418");
   // a leitura de progresso: em que época você está e quanto falta para virar
   const pc = Math.floor(progressoCena() * 100);
   // Sem a porcentagem em texto: ela ficou redundante com a barra logo abaixo, e duas leituras
   // da mesma coisa competindo pelo mesmo espaço é pior que uma boa. E não é mais "ÉPOCA 3" —
   // um capítulo com nome diz onde você está; um capítulo com número diz só quantos faltam.
-  $("rotuloEpoca").textContent = EPOCAS[epocaAtual()].nome;
+  pixelRotulo($("rotuloEpoca"), EPOCAS[epocaAtual()].nome, 1, "#d8c398", "#0a0806");
   $("barraEpocaFill").style.width = pc + "%";
-  $("nAgua").textContent = String(S.recursos.agua | 0);
-  $("nRef").textContent = String(S.recursos.refeicao | 0);
+  pixelRotulo($("nAgua"), String(S.recursos.agua | 0), 1, "#2a2418");
+  pixelRotulo($("nRef"), String(S.recursos.refeicao | 0), 1, "#2a2418");
   pintarIconesDrop();
-  $("ganhoClique").textContent = ganhoClique().toFixed(1);
+  // o rótulo do botão dourado na mesma fonte do resto do jogo — o span #ganhoClique do
+  // molde é substituído pelo canvas na primeira pintura, e ninguém mais o lê por id
+  pixelRotulo($("cliqueRotulo"), "+" + ganhoClique().toFixed(1), 2, "#221806");
 
   // the rhythm card: icon, name and colour follow S.modo. This used to live in
   // desenharRitmo(), inside the projects panel that is gone.
   const rapido = S.modo === "carvao";
-  $("modeNome").textContent = rapido ? "CORRER" : "ANDAR";
+  pixelRotulo($("modeNome"), rapido ? "CORRER" : "ANDAR", 1, rapido ? "#f2d3b0" : "#dbe7b4");
   $("modeQuick").className = "cartao " + (rapido ? "fast" : "steady");
   // O ícone do ritmo é FIXO — um pé, o mesmo nos dois modos — e é pintado uma vez pelo
   // `pintarIconesDrop()`. Quem diz qual ritmo está valendo são o nome e a cor do cartão, que
@@ -4452,7 +4523,9 @@ function desenhar() {
   [1, 2, 3, 4].forEach(function (n) {
     const custo = CFG["custoU" + n], comprado = S["u" + n];
     $("cardU" + n).classList.toggle("comprado", comprado);
-    $("btnU" + n).textContent = comprado ? "✓" : (custo === 0 ? "GRÁTIS" : fmt(custo));
+    // preço na fonte pixel; a cor acompanha o estado do botão, porque canvas não lê CSS
+    pixelRotulo($("btnU" + n), comprado ? "✓" : (custo === 0 ? "GRÁTIS" : fmt(custo)), 1,
+      comprado ? "#7d9a3c" : (n === 4 ? "#ffe6df" : "#221806"));
     ($("btnU" + n) as HTMLButtonElement).disabled = comprado || S.energia < custo;
   });
 
@@ -4563,6 +4636,11 @@ function telaAberta() {
   }
   return false;
 }
+// A CAUSA do layout parecer um Frankenstein era esta: o menu abria POR CIMA do jogo rodando,
+// com o HUD e a barra de botões emoldurando a tela — inclusive um botão MENU visível
+// enquanto se está NO menu. Tela aberta agora é um ESTADO do jogo, não um painel boiando:
+// `body.emTela` desliza o HUD para cima e os controles para baixo, e o que sobra é só a
+// tela e o mundo vivo atrás dela. Uma tela, um trabalho.
 function abrirTela(id) {
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
   // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de
@@ -4737,7 +4815,8 @@ function abrirFala(titulo, quando, linhas, depois, imgs?) {
   // Curta na altura das linhas em vez de exigir que as duas listas casem: fala sem lista de
   // imagem nenhuma continua funcionando como sempre funcionou, sem imagem em lugar nenhum.
   falaImgs = falaLinhas.map(function (_, i) { return (imgs && imgs[i]) || null; });
-  $("falaTit").textContent = titulo;
+  // tinta escura: o título agora vive sobre papel claro, não sobre caixa escura
+  pixelRotulo($("falaTit"), titulo, 2, "#5c3210");
   $("falaSub").textContent = quando || "";
   // O fantasma: todas as falas desta conversa, empilhadas invisíveis na mesma célula da
   // grade. É o que dá à caixa a altura da mais alta antes de a primeira letra aparecer.
@@ -4868,7 +4947,7 @@ function montarCapitulos() {
     b.type = "button";
     const n = document.createElement("div");
     n.className = "capNome";
-    n.textContent = livre ? ep.nome : "— ainda trancada —";
+    pixelRotulo(n, livre ? ep.nome : "AINDA TRANCADA", 2, livre ? "#2a2012" : "#7a7263");
     const q = document.createElement("div");
     q.className = "capQuando";
     q.textContent = livre ? ep.quando : "termine a era anterior";
@@ -4897,9 +4976,9 @@ function montarCompletude() {
       const h = document.createElement("div");
       h.className = "fnGrupo";
       h.style.cssText = "margin:16px 0 7px";
-      h.textContent = ep.nome;
+      pixelRotulo(h, ep.nome, 1, "#d9a441");
       const sub = document.createElement("div");
-      sub.style.cssText = "font-size:10px;color:#8d8272;letter-spacing:.06em;margin:-4px 0 7px";
+      sub.style.cssText = "font:400 10px/1.4 Verdana,'DejaVu Sans',system-ui,sans-serif;color:#8d8272;letter-spacing:.06em;margin:-4px 0 7px";
       sub.textContent = ep.quando;
       box.appendChild(h); box.appendChild(sub);
     }
@@ -4932,6 +5011,32 @@ function montarCompletude() {
     }
     box.appendChild(l);
   });
+}
+
+// Os rótulos que não mudam, pintados uma vez na carga. Depois disto o chrome inteiro fala a
+// fonte do jogo: o que era Arial Black (letra de site, presa ao que o aparelho tiver) vira a
+// mesma 5×7 que flutua sobre a rua. Os títulos das telas são lidos do próprio HTML para não
+// escrever o mesmo texto em dois lugares.
+function pintarRotulos() {
+  document.querySelectorAll<HTMLElement>(".telaTit").forEach(function (el) {
+    pixelRotulo(el, el.textContent || "", 3, "#ffd98a");
+  });
+  pixelRotulo($("menuSub"), "um jogo sobre quem já estava aqui", 1, "#efe3c2");
+  pixelRotulo($("btnJogar"), "JOGAR", 4, "#221806");
+  pixelRotulo($("btnCompletude"), "A HISTÓRIA", 2, "#d9cfae");
+  pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
+  pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
+  ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarCfg"].forEach(function (id) {
+    pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
+  });
+  pixelRotulo($("btnFalaPular"), "PULAR", 1, "#9a8a63");
+  const mel = document.querySelector<HTMLElement>("#openUpgrades .cn");
+  if (mel) pixelRotulo(mel, "MELHORIAS", 1, "#2a2418");
+  const men = document.querySelector<HTMLElement>("#abrirMenu .cn");
+  if (men) pixelRotulo(men, "MENU", 1, "#2a2418");
+  const tSheet = document.querySelector<HTMLElement>("#sheetUpgrades .sheetHead .t");
+  if (tSheet) pixelRotulo(tSheet, "MELHORIAS", 1, "#b09c72");
+  pixelRotulo($("btnU5"), "APAGAR", 1, "#ffe6df");
 }
 
 function ligarTelas() {
@@ -4975,8 +5080,8 @@ function montarConfig() {
   $("cfgInfo").textContent = "dias distintos jogados: " + d
     + " · tempo total: " + m + " min"
     + " · nada sai deste aparelho: o jogo não tem rede.";
-  $("btnSom").textContent = S.som ? "SOM: LIGADO" : "SOM: DESLIGADO";
-  $("btnApagar").textContent = "APAGAR MEU PROGRESSO";
+  pixelRotulo($("btnSom"), S.som ? "SOM: LIGADO" : "SOM: DESLIGADO", 2, "#f2e8ce");
+  pixelRotulo($("btnApagar"), "APAGAR MEU PROGRESSO", 2, "#e8a595");
 }
 
 
@@ -5019,7 +5124,7 @@ function montarFontes() {
   box.textContent = "";
   box.style.maxHeight = Math.max(220, window.innerHeight - 260) + "px";
   FONTES.forEach(function (f) {
-    if (f.g) { const h = document.createElement("div"); h.className = "fnGrupo"; h.textContent = f.g; box.appendChild(h); return; }
+    if (f.g) { const h = document.createElement("div"); h.className = "fnGrupo"; pixelRotulo(h, f.g, 1, "#d9a441"); box.appendChild(h); return; }
     const d = document.createElement("div");
     d.className = "fnItem" + (f.d ? " fnDuv" : "");
     const t = document.createElement("div"); t.className = "fnT"; t.textContent = f.t as string;
@@ -5059,6 +5164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener(ev, acordarAudio, { capture: true, passive: true });
   });
   document.querySelectorAll<HTMLCanvasElement>("canvas.pi[data-i]").forEach(function (c) { renderIcon(c, c.dataset.i); });
+  pintarRotulos();
   // Main attack: tap once, or HOLD to keep swinging — on the button *or* on the world.
   // Both surfaces share ONE repeat timer, so two thumbs cannot double the hit rate: the
   // set of surfaces being held decides whether the timer runs, never how fast it runs.
