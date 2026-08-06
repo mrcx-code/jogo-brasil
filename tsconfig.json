@@ -1,0 +1,37 @@
+{
+  // O jogo continua sendo UM arquivo. Isto aqui não muda isso: o tsc só traduz src/jogo.ts
+  // para build/jogo.js, e o ferramentas/construir.js embute esse JS, o CSS e o molde num
+  // index.html só. A saída é o que sempre foi.
+  //
+  // Duas escolhas que NÃO são gosto:
+  //  - target ES2020: é o que o jogo já escrevia à mão. Alvo mais baixo faria o tsc reescrever
+  //    classes, for-of e spread em código que ninguém mediu, e esta fase é conversão.
+  //  - o arquivo não tem import nem export, então continua sendo um SCRIPT clássico e todas as
+  //    declarações de topo seguem no escopo global. O smoke test lê `S`, `CFG`, `mobs` e
+  //    `fecharTelas` de dentro da página; virar módulo esconderia tudo isso e quebraria o teste
+  //    sem quebrar o jogo, que é o pior tipo de quebra.
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": [],
+    "strict": true,
+    // TODO tipar — `noImplicitAny` está DESLIGADO, e este é o único afrouxamento desta fase.
+    // Motivo, medido e não estimado: com ele ligado o motor acusa 547 erros, e 385 deles
+    // (TS7005/7006/7034/7053) são só "este parâmetro não tem anotação". Nenhum desses 385
+    // aponta para um defeito; são 4.300 linhas de JavaScript sem tipo nenhum pedindo anotação
+    // uma a uma, e escrever 385 anotações no mesmo passo em que se troca o build é a receita
+    // para um erro silencioso no meio delas — e esta fase é conversão, não refatoração.
+    // O que ele NÃO esconde é o que interessa: TS2304 (nome que não existe), TS2339
+    // (propriedade que o objeto não tem), TS2554 (número de argumentos) e TS2531/18047 (nulo)
+    // seguem ligados, e são exatamente as famílias dos bugs que esta migração foi paga para
+    // pegar. Ligar `noImplicitAny` é uma sessão própria, arquivo por arquivo, depois do split.
+    "noImplicitAny": false,
+    "rootDir": "src",
+    "outDir": "build",
+    "newLine": "crlf",
+    "removeComments": false,
+    "sourceMap": false,
+    "skipLibCheck": true
+  },
+  "include": ["src/jogo.ts"]
+}

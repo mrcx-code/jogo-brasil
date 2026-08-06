@@ -1,0 +1,587 @@
+
+  :root {
+    /* ---- the board's UI language ----
+       Sampled off the approved board's "UI CONCEITO" panel: warm cream type on deep olive
+       panels, olive-green cards a value lighter, a darker nav rail under them, and gold
+       reserved for the progress bar and the one action that matters. No navy anywhere —
+       the old chrome spoke a different language from the street it sat on. */
+    --ink: #14170c; --panel: #2b3320; --panel2: #3c4627;
+    --texto: #f2e8ce; --sub: #a9a184;
+    --gold: #eba748; --gold2: #da7a29;
+    /* The chrome is DARK and has depth. The poster pass made every surface flat cream and
+       against a saturated world it read washed out — and it also left the game speaking two
+       languages, cream chrome over navy sheets. One language now: a deep blue-ink fill with
+       a real vertical gradient, a 1px lit top edge, a hard ink outline and a hard offset
+       shadow. The construction the poster pass won is kept; only the fill and the value
+       changed. Gold is reserved for the one action that matters — contrast is the cheapest
+       way to say which button is the main button. */
+    --chromeA: #3c4627; --chromeB: #262d18; --chromeT: #f2e8ce; --chromeS: #a9a184;
+    --ouroA: #f3c05c; --ouroB: #da7a29;
+    --creme: #f6ecd5; --contorno: #14170c; --tinta: #1f2412; --tinta2: #6b7a82;
+    --bad: #b8503c; --good: #7d9a3c; --blue: #71a39c; --purple: #a08a4a;
+    /* the board's own furniture measurements — softened a step for a cleaner, more current
+       feel (the buttons stopped reading as chunky pixel panels) */
+    --raio: 0px; --raioSm: 0px;   /* pixel art has no soft corners */
+    --barra: #363c21; --barraOn: #eba748;
+    --navBg: #1c2010; --navOn: #313a1f;
+    /* responsive type scale — grows with the screen */
+    /* Nothing here may touch the network, so the face has to already be on the device. Arial
+       Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
+       and the rest of the chain falls back to the widest thing available rather than the
+       narrowest. Weight 900 everywhere does the rest. */
+    --ui: "Arial Black", "Segoe UI Black", "Arial Rounded MT Bold", "Trebuchet MS",
+          Verdana, system-ui, sans-serif;
+    --fs-xs: clamp(9px, 2.5vw, 12px);
+    --fs-sm: clamp(11px, 3vw, 14px);
+    --fs-md: clamp(13px, 3.6vw, 17px);
+    --fs-lg: clamp(17px, 4.8vw, 23px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  html, body { height: 100%; overflow: hidden; background: #1a1e10; }
+  /* No webfont. Press Start 2P came from Google Fonts over the network, which broke the
+     one-file rule and blocked first paint; the canvas has its own bitmap font now and
+     the chrome uses what the phone already has. */
+  body { font-family: var(--ui); color: var(--texto);
+    position: fixed; inset: 0; touch-action: manipulation; }
+
+  /* ---- the game world fills the screen ---- */
+  /* The HD painted backdrop: a separate canvas sized to the device, drawn smooth (it's a
+     painting), sitting exactly under #scene so a transparent-sky game canvas shows it through. */
+  #fundoHD { position: fixed; inset: 0; width: 100%; height: 100%;
+    image-rendering: auto; z-index: -1; display: none; }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%;
+    image-rendering: pixelated; z-index: 0; }
+  /* the hero, at device resolution — see drawHero for why she is not in #scene */
+  #heroHD { position: fixed; inset: 0; width: 100%; height: 100%;
+    image-rendering: auto; z-index: 1; pointer-events: none; }
+  /* the CRT scanlines and the CSS vignette are gone: at opacity .34 the scanlines greyed
+     down the whole frame, and the vignette stacked on the canvas one. Direction C has no
+     post-processing anywhere — the look has to hold up on form and colour alone. */
+
+  /* ---- HUD on top of the game ----
+     The board's UI CONCEITO puts the counters inside ONE dark rounded rail with a gear
+     sitting apart at its right end, not in three separate floating slabs. That is the
+     grammar copied here: a single pill, chips inside it, rounded corners, cream on deep
+     olive, and the gear as its own square at the end of the row. */
+  /* PAINEL DE JOGO, não barra de site.
+     Era um gradiente translúcido com blur — vocabulário de aplicativo, e a paisagem
+     atravessava o texto. HUD de jogo é OPACO e tem MOLDURA: o olho precisa saber onde a
+     interface começa. A borda é feita de sombras duras empilhadas, nunca de border-radius e
+     nunca de blur, porque pixel art não tem canto redondo nem desfoque. */
+  #hudTop { position: fixed; z-index: 10; left: 0; right: 0; top: 0;
+    padding-top: env(safe-area-inset-top);
+    display: flex; flex-direction: column; pointer-events: none;
+    background: #1b1610;
+    box-shadow:
+      inset 0 2px 0 #4a3c28,        /* luz na aresta de cima */
+      inset 0 -2px 0 #0a0806,       /* sombra na de baixo */
+      0 3px 0 #0a0806,              /* o degrau que separa do mundo */
+      0 5px 0 rgba(0,0,0,.45); }
+  /* a barra da época: o progresso vira coisa que se vê, não número que se lê */
+  #linhaEpoca { display: flex; align-items: center; gap: 9px; margin: 0 10px 8px;
+    padding-right: 42px; }                                   /* espaço do ≡ */
+  #rotuloEpoca { flex: 0 1 auto; min-width: 0; font-size: 9px; font-weight: 900;
+    letter-spacing: .14em; color: #d8c398; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 0 rgba(0,0,0,.7); }
+  #barraEpoca { flex: 1 1 auto; height: 7px; background: #0d0b08;
+    box-shadow: inset 0 0 0 2px #3a2f20; position: relative; overflow: hidden; }
+  /* O MENU precisa ter porta durante a partida. Sem este botão, A HISTÓRIA e DE ONDE VEM —
+     o melhor conteúdo do jogo — ficavam trancadas a partir do primeiro ponto ganho, porque o
+     menu só abria no carregamento e só com placar zerado. Eu escrevi as duas telas e as
+     tranquei; um agente de produto mediu e achou. */
+  #barraEpocaFill { height: 100%; width: 0%; background: #d9a441;
+    box-shadow: inset 0 2px 0 #ffd98a, inset 0 -2px 0 #9a6f22;
+    transition: width .35s ease-out; }
+  /* the three drop counters: small, quiet, and only as wide as their numbers */
+  /* O HUD de cima estava espremido: o placar, tres contadores e um botao de menu disputando
+     uma faixa de 40 px, e o botao ainda cobria o terceiro contador. O botao desceu para a
+     barra de controles, onde moram as outras acoes — acao com acao, leitura com leitura — e
+     o que sobrou aqui respira. */
+  #hudLinha { display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 10px 2px; gap: 10px; }
+  /* cada contador num nicho próprio, como slot de inventário */
+  #recursos { display: flex; align-items: center; gap: 7px; margin-left: 10px; }
+  /* Mesmo material dos botoes do menu, em escala menor: laje com luz em cima e sombra
+     embaixo. Antes era um retangulo preto com contorno — o unico lugar do jogo com esse
+     vocabulario, e era isso que fazia a barra parecer colada de outro jogo. */
+  .rec { display: flex; align-items: center; gap: 5px; padding: 4px 9px 4px 5px;
+    border-radius: 4px; background: #a39a83;
+    box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
+  .rec b { color: #2a2418 !important; text-shadow: 0 1px 0 rgba(255,250,235,.5) !important; }
+  .rec b { font-size: var(--fs-sm); font-weight: 900; color: #f4e3bb;
+    font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 rgba(0,0,0,.75); }
+  .pd { image-rendering: pixelated; width: 26px; height: 26px; }
+  #barraTopo { flex: 0 1 auto; min-width: 0; display: flex; align-items: center;
+    justify-content: flex-start; gap: 9px; padding: 6px 4px; }
+  /* one line, no stacking: the leaf, the number, then what the number is */
+  .chip { min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+  .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
+  /* O rótulo do capítulo saiu deste chip e foi para a linha da barra — ver #linhaEpoca.
+     Nenhum elemento usa mais `.rotulo` dentro de `.chip`. */
+  .chip .valor { font-size: var(--fs-lg); font-weight: 900; line-height: 1; color: #ffeec4;
+    font-variant-numeric: tabular-nums; letter-spacing: .02em;
+    /* a hard pixel drop shadow so the score reads over any part of the painting */
+    text-shadow: 0 2px 0 rgba(0,0,0,.8); }
+  /* removed by owner: the gear button (#openConfig) opened the metrics panel — both gone. */
+  .pi { image-rendering: pixelated; width: 20px; height: 20px; flex: 0 0 auto; }
+  #barraTopo .pi { align-self: center; transform: translateY(1px); }
+  .pi.big { width: 30px; height: 30px; }
+  #energia { color: var(--gold); } #poluicao { color: var(--bad); } #worldPct { color: #b7d16a; }
+  /* where the team is heading, not just where it is */
+  .chip .tend { margin-top: 3px; font-size: 7px; white-space: nowrap; }
+  .tend.cai { color: #e39176; } .tend.sobe { color: #b7d16a; }
+
+  /* owner: the full-frame washes (#flash) are gone. */
+  .pop { animation: estala .42s ease-out 1; }
+  @keyframes estala { 0% { transform: scale(1.14); filter: brightness(1.9) } 100% { transform: scale(1); filter: none } }
+
+  #offline { display: none; position: fixed; z-index: 12; border-radius: var(--raio); left: 50%; transform: translateX(-50%);
+    top: calc(64px + env(safe-area-inset-top)); width: min(420px, 92vw);
+    background: #35431f; border: 3px solid var(--ink); box-shadow: inset 0 0 0 2px #8aa347;
+    color: #dbe7b4; padding: 8px 10px; font-size: var(--fs-xs); line-height: 1.7; }
+
+  /* ---- chapter cards: the run gets named out loud ----
+     Thresholds are fractions of CFG.metaPrestigio, computed at fire time — nothing here
+     freezes the target. Pointer-through on purpose: the whole game is one button and a
+     card that eats a swing would be worse than no card at all. */
+  #cartao { display: none; position: fixed; z-index: 12; border-radius: var(--raio); left: 50%; transform: translateX(-50%);
+    top: 28%; width: min(420px, 92vw); text-align: center; pointer-events: none;
+    background: linear-gradient(180deg, rgba(36,50,92,.96), rgba(18,25,51,.96));
+    /* purple, not gold: REAL DATA owns the gold left edge, and a made-up line must never
+       be able to pass for a sourced one */
+    border: 3px solid var(--contorno); border-left: 5px solid var(--purple);
+    box-shadow: 0 5px 0 var(--contorno), inset 0 1px 0 rgba(255,255,255,.13);
+    padding: 12px 12px 13px; }
+  #cartao.mostra { display: block; animation: cartaoVai 5.4s ease-out 1 forwards; }
+  #cartao .cn { font-size: var(--fs-xs); color: var(--sub); letter-spacing: .2em; }
+  #cartao .ct { font-size: var(--fs-md); color: var(--gold); margin: 7px 0 9px;
+    text-shadow: 2px 2px 0 var(--ink); }
+  #cartao .cv { font-size: var(--fs-xs); color: #d9cfae; line-height: 1.75; }
+  #cartao .cv b { color: var(--gold); }
+  @keyframes cartaoVai {
+    0% { opacity: 0; transform: translateX(-50%) translateY(10px) }
+    9% { opacity: 1; transform: translateX(-50%) translateY(0) }
+    85% { opacity: 1; transform: translateX(-50%) translateY(0) }
+    100% { opacity: 0; transform: translateX(-50%) translateY(0) } }
+
+  /* ---- first-run guide: one warm line at a time, tied to game state ----
+     A neighbour pointing at the single thing you can do next — not a wall of text, not a
+     modal to click through before playing. Pointer-through like the chapter card, so a tap
+     always reaches the game underneath; only its two little buttons capture. It sits ABOVE
+     the control block (never over it) and its caret points at the thing being named. */
+  #guia { display: none; position: fixed; z-index: 13; left: 8px; right: 8px;
+    bottom: calc(var(--hControles, 150px) + 10px); pointer-events: none; }
+  #guia.mostra { display: block; animation: guiaVem .26s ease-out 1 both; }
+  .guiaBolha { position: relative; margin: 0 auto; width: min(360px, 94vw);
+    border-radius: var(--raio); background: linear-gradient(180deg, var(--panel2), var(--panel));
+    border: 3px solid var(--contorno); border-left: 5px solid var(--gold);
+    box-shadow: 0 5px 0 var(--contorno), inset 0 1px 0 rgba(255,255,255,.13);
+    padding: 10px 11px 8px; }
+  #guiaV { font-size: var(--fs-sm); color: var(--texto); line-height: 1.6; }
+  #guiaV b { color: var(--gold); }
+  .guiaRow { display: flex; justify-content: flex-end; gap: 16px; margin-top: 7px;
+    pointer-events: auto; }
+  .guiaRow button { background: none; border: none; padding: 4px 2px; cursor: pointer;
+    font-size: var(--fs-xs); letter-spacing: .09em; text-transform: uppercase; }
+  #guiaOk { color: var(--gold); font-weight: 800; }
+  #guiaSkip { color: var(--sub); }
+  .guiaCaret { position: absolute; bottom: -9px; left: 50%; width: 13px; height: 13px;
+    transform: translateX(-50%) rotate(45deg); background: var(--panel);
+    border-right: 3px solid var(--contorno); border-bottom: 3px solid var(--contorno); }
+  @keyframes guiaVem { 0% { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) } }
+  /* the thing being pointed at pulses gold so the eye finds it — outline only, no reflow */
+  .guiaAlvo { animation: guiaPulso 1.1s ease-in-out infinite;
+    outline: 3px solid var(--gold); outline-offset: 2px; }
+  @keyframes guiaPulso { 0%, 100% { outline-color: rgba(235,167,72,.30) }
+    50% { outline-color: rgba(235,167,72,.95) } }
+
+  /* ---- the wall: the only thing here that survives a reset ----
+     Painted, street, and it only ever grows. Its own localStorage key, for the same
+     reason the retention record has one: passing the torch wipes S. */
+  .btnMuro { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 8px;
+    background: linear-gradient(180deg, #5b7a2c, #2c3d16); border-color: var(--ink); color: #d3e6a2; }
+  #sheetMuro .upgrade { align-items: flex-start; }
+  /* the epilogue: same furniture as every other sheet, one beat louder */
+  #epilogoVoz { font-size: var(--fs-xs); color: #d9cfae; line-height: 1.8; margin-top: 9px;
+    border-left: 4px solid var(--gold); padding-left: 8px; }
+  #btnEpilogo { width: 100%; padding: 14px 8px; font-size: var(--fs-sm); margin-top: 10px;
+    color: #f6ecd5; background: linear-gradient(180deg, #b98a30, #6d4d15); }
+
+  /* removed by owner: the top alert strip (#alerta), the centre-screen announcement
+     (#anuncio) and the REAL DATA ticker (#fato) are gone — element, style and all. */
+  @keyframes pulsa { 0% { opacity: 1 } 50% { opacity: .62 } 100% { opacity: 1 } }
+
+  /* ---- bottom controls: the board's UI CONCEITO, mapped onto this game's real functions ----
+     The board stacks three things under the scene: a PROGRESS PANEL with a percentage and a
+     bar and a line under it; a row of FOUR ACTION CARDS, each an icon over a name over a
+     value; and a dark BOTTOM RAIL. Nothing is invented to fill them — the progress panel is
+     the street's health, the four cards are the four things this game actually lets you
+     open or toggle (the rhythm, the projects, the upgrades, the torch), and the rail holds
+     the one action the whole prototype is built around.
+     --hControles is still measured off the real block on load and on resize; the rule that
+     no panel may cover this block is what that variable exists for. */
+  #controls { position: fixed; z-index: 10; left: 50%; transform: translateX(-50%);
+    bottom: calc(8px + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px); }
+
+  /* removed by owner: the STREET vertical bar (#barraRua) is gone — element and style. */
+
+  /* the four cards — icon over name over value, exactly the board's card */
+  #cartoes { display: flex; gap: 6px; align-items: stretch; }
+  /* Mesma pedra do menu, em cartao. Antes era verde-oliva chapado com canto de 18 px — canto
+     de aplicativo, e o unico material assim no jogo. Agora a barra de baixo, os nichos de
+     recurso e os botoes do menu falam a mesma lingua. */
+  .cartao { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; padding: 11px 4px; border-radius: 5px;
+    background: #a39a83; color: #2a2418;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
+    transition: transform .06s, box-shadow .06s; }
+  .cartao:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+  .cartao .cn { font-size: 9px; font-weight: 900; letter-spacing: .08em; color: #2a2418;
+    white-space: nowrap; overflow: hidden; max-width: 100%;
+    text-shadow: 0 1px 0 rgba(255,250,235,.5); }
+  .cartao .cv { font-size: var(--fs-xs); font-weight: 800; color: var(--gold); white-space: nowrap;
+    font-variant-numeric: tabular-nums; }
+  .cartao.pronto { background: #c9a86a;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
+  /* the panel is open: this card is now the way out of it */
+  .cartao.fechando { background: #8a2f22; }
+  .cartao.fechando .cn { color: #ffd9cd; }
+  .cartao.fechando .pi { display: none; }
+  .cartao.fechando .cn::before { content: "✕"; font-size: var(--fs-md); }
+  .cartao.fechando .cn { font-size: 0; }
+
+  /* ---- buttons: clean and current, not retro-clunky ----
+     The old chrome was a heavy pixel panel — a 2px ink border and a hard 3px offset block
+     shadow. That reads dated. The construction now is softer: a hairline border, a subtle
+     drop shadow with a little blur, and a 1px lit top edge for depth. The primary action
+     keeps gold and a touch more lift; everything else stays quiet. */
+  button { font-family: inherit; font-weight: 900; letter-spacing: .04em; border: 0; border-radius: 0;
+    cursor: pointer; color: var(--chromeT); text-transform: uppercase;
+    background: var(--chromeA); box-shadow: none;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  button:disabled { color: #7d8168; cursor: default; }
+  button:not(:disabled):active { filter: brightness(1.15); }
+  /* the rhythm card: the one decision this prototype exists to measure, so it is the card
+     that is allowed to change colour and to pulse */
+  #modeQuick.fast { background: #7a3823 !important; }
+  #modeQuick.fast .cn { color: #f2d3b0; }
+  #modeQuick.steady { background: #4a6424 !important; }
+  #modeQuick.steady .cn { color: #dbe7b4; }
+  /* it is costing you right now: say so without words */
+  /* owner: the rhythm card no longer pulses when it is costing you. */
+  /* the bottom rail, and the one thing standing in it */
+  /* the middle slot: twice the share of the row that a card gets, so the action leads it */
+  #rail { flex: 2 1 0; min-width: 0; background: transparent; border: 0;
+    padding: 0; display: flex; box-shadow: none; }
+  /* THE primary action: gold, a soft inner sheen and a gentle lift so it reads as the one
+     button that matters — no hard offset block under it anymore */
+  #btnClique { flex: 1 1 auto; min-width: 0; min-height: 62px; padding: 9px 10px;
+    border-radius: 20px;
+    font-size: var(--fs-lg); font-weight: 800;
+    background: var(--ouroA);
+    color: #221806; border: 0; letter-spacing: .02em;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-weight: 900; text-shadow: 0 2px 0 rgba(255,255,255,.35); box-shadow: none;
+    position: relative; }
+  /* owner: the HOLD hint is gone from the button — holding still works. */
+  #btnClique.segurando { transform: translateY(2px);
+    background: linear-gradient(180deg, #fdeec2 0%, #f6cf7e 34%, #e8a244 100%);
+    box-shadow: 0 1px 5px rgba(120,60,0,.3), inset 0 1px 0 rgba(255,255,255,.65); }
+  /* the super's charge, on the button that swings it: one square per completed combo */
+
+  /* ---- floating sheets above the character ---- */
+  /* --hControles is measured from the real control block on load and on resize: NOTES
+     records a panel covering the menu bar once already, and a hardcoded 126px breaks
+     again the moment a button grows a line of text */
+
+  /* ===== TELAS ===== As quatro que faltavam. Todas usam o mesmo vocabulário do HUD:
+     painel opaco, moldura de sombra dura, zero canto redondo, zero blur. */
+  .tela { position: fixed; inset: 0; z-index: 40; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(12,10,7,.94); padding: 24px; text-align: center; }
+  /* O MENU é a exceção, e de propósito: o jogo já está rodando atrás dele, com as três
+     camadas de paralaxe andando. Escurecer só o suficiente para o texto ler, em vez de tapar,
+     dá movimento de graça — mata rolando, folhagem passando na frente, a personagem andando.
+     Nenhuma animação nova, nenhuma imagem nova. O véu é um gradiente vertical porque o texto
+     mora no meio: escuro onde há letra, quase limpo nas beiradas, para a paisagem respirar. */
+  #telaMenu { background:
+    linear-gradient(180deg, rgba(10,9,6,.55) 0%, rgba(10,9,6,.86) 38%,
+                            rgba(10,9,6,.86) 62%, rgba(10,9,6,.55) 100%); }
+  /* o título: placa de madeira com talho, não texto solto sobre a foto */
+  /* O logo virou imagem. Mantem o respiro lento de 4,2s que a placa de texto tinha —
+     jogo bom se mexe pouco e no ritmo certo. image-rendering pixelated porque a arte e
+     nativa no tamanho em que foi salva: suavizar apagaria a borda dura. */
+  #logoImg { image-rendering: pixelated; width: min(52vw, 210px); height: auto;
+    margin-bottom: 4px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
+    animation: respira 4.2s ease-in-out infinite; }
+  #telaMenu .telaTit { font-size: 44px; letter-spacing: .18em; color: #ffd98a;
+    padding: 10px 26px; background: #1b1610;
+    box-shadow: inset 0 3px 0 #4a3c28, inset 0 -3px 0 #0a0806, 0 6px 0 #0a0806;
+    text-shadow: 0 4px 0 #6b4a12, 0 5px 0 #0a0806; margin-bottom: 14px;
+    animation: respira 4.2s ease-in-out infinite; }
+  /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
+  @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  /* A FRASE vira faixa, não texto solto. Sobre paisagem, texto sem suporte flutua e o
+     contraste muda conforme a mata passa atrás — o que a referência faz é dar CHÃO a ele.
+     Faixa escura estreita, texto claro em versalete espaçado, e uma linha de luz no topo
+     para ela pertencer ao mesmo material dos botões. */
+  #telaMenu .telaTxt { color: #efe3c2; font-size: 9.5px; letter-spacing: .1em; white-space: nowrap;
+    font-weight: 700; text-transform: uppercase; margin: 0 0 24px;
+    padding: 7px 18px; background: #1b1610; border-radius: 3px;
+    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806;
+    text-shadow: 0 1px 0 rgba(0,0,0,.9); }
+  /* Botões com a mesma largura: na referência eles formam uma coluna, não uma escada.
+     Coluna alinhada lê como menu; larguras diferentes leem como três coisas soltas. */
+  #telaMenu .telaBtn { width: min(72vw, 300px); box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; }
+  /* JOGAR e o caminho principal e precisa ler primeiro. Na referencia ele se destaca por
+     MATERIAL, nao por tamanho — pedra mais quente, do mesmo bloco. Destacar por tamanho
+     quebraria a coluna alinhada, que e o que faz o conjunto ler como menu. */
+  #btnJogar { background: #c9a86a; color: #2a2012;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
+  #btnJogar:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 1px 0 #191510; }
+  .tela.aberta { display: flex; }
+  .telaTit { font-size: 26px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
+    text-shadow: 0 3px 0 #0a0806; margin-bottom: 6px; }
+  .telaTxt { font-size: 14px; color: #e6dcc4; line-height: 1.7; max-width: 30em;
+    margin-bottom: 22px; white-space: pre-wrap; }
+  /* BOTÃO DE PEDRA — vocabulário tirado de uma referência que o dono gerou.
+     O que estava aqui era botão de formulário com cor marrom: retângulo chapado, uma sombra,
+     zero material. Laje de pedra precisa de quatro coisas, e todas são box-shadow empilhado:
+     luz na aresta de cima, sombra na de baixo, um contorno escuro que separa do fundo, e o
+     degrau que a apoia. O canto é levemente arredondado porque pedra lascada não tem quina
+     viva — é a única curva que este jogo aceita.
+     O texto é escuro com contorno claro, não claro sobre escuro: sobre pedra clara é o que
+     lê, e é o que a referência faz. */
+  .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
+    letter-spacing: .1em; color: #2a2418; background: #b9ae95; border: 0;
+    padding: 15px 34px; margin: 5px; border-radius: 5px;
+    text-shadow: 0 1px 0 rgba(255,250,235,.55);
+    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
+                inset 0 0 0 2px #4a4234, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4);
+    transition: transform .06s, box-shadow .06s; }
+  /* afunda no toque: o degrau some e o botão desce até onde ele estava */
+  .telaBtn:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #dcd3bc, inset 0 -4px 0 #7d7460,
+                inset 0 0 0 2px #4a4234, 0 1px 0 #191510; }
+  /* o primeiro botão é o caminho principal e a referência o destaca em pedra mais quente */
+  .telaBtn.sec { background: #a39a83; color: #37301f;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.4); }
+  .telaBtn.sec:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+  /* ===== A CAIXA DE FALA ===== estilo jogo antigo: a personagem à esquerda, a moldura
+     grossa embaixo, o texto revelado letra a letra. O véu escurece só o pé da tela — o
+     mundo continua andando atrás, e é isso que faz a conversa parecer parte do jogo em vez
+     de uma tela de menu por cima dele. */
+  #telaFala { justify-content: flex-end; padding: 0 8px 12px 8px; text-align: left; overflow: visible;
+    isolation: isolate;
+    background: linear-gradient(180deg, rgba(10,9,6,0) 0%, rgba(10,9,6,.18) 42%,
+                                        rgba(10,9,6,.62) 72%, rgba(10,9,6,.86) 100%); }
+  /* A PESSOA FICA ATRAS, GRANDE, e o texto vira LEGENDA embaixo ocupando tudo.
+     Antes o retrato era um nicho de 76 px dentro da caixa, e o texto se espremia ao lado —
+     dois elementos disputando a mesma linha, e nenhum com espaco. Agora ela se apoia sobre a
+     caixa, em pe, como quem parou para te contar uma coisa; o texto usa a largura inteira.
+     Ela precisa ser vista de FRENTE: sprite de perfil e a pose de quem passa por voce, nao
+     de quem fala com voce. Enquanto a arte de frente nao chega, o quadro de caminhada segura
+     o lugar — e e visivelmente provisorio, o que e melhor que parecer resolvido. */
+  /* ATRAS da caixa, e so da CINTURA PRA CIMA. A figura inteira em pe ao lado ficava alta
+     demais e roubava a tela da propria historia; e de corpo inteiro so o tronco e o rosto
+     importam para quem esta ouvindo alguem falar.
+     Entao ela desce ATRAS: o `bottom` negativo enfia a metade de baixo por tras da caixa, e o
+     z-index menor faz a caixa cobri-la. O que sobra acima da moldura e exatamente o busto. */
+  /* z-index NEGATIVO, e este e o detalhe que faz funcionar: o retrato e filho da caixa, e
+     filho com z positivo fica sempre na frente do fundo do pai. So com z negativo ele vai
+     para TRAS do fundo — e ai a caixa opaca corta a figura na cintura, que era o pedido.
+     A primeira tentativa usou z-index 0 e ele ficou na frente do texto. */
+  #falaRetrato { position: absolute; left: 8px; transform: none;
+    bottom: 78px; width: 132px; height: 300px; z-index: 0;
+    image-rendering: pixelated; object-fit: contain; object-position: bottom center;
+    background: none; box-shadow: none;
+    filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
+  #falaCaixa { position: relative; z-index: 1; width: min(560px, 100%); box-sizing: border-box;
+    background: #16130d; padding: 16px 16px 24px; display: block;
+    /* os 20 px de baixo são a faixa do "toque para continuar": sem eles ele encosta na
+       última linha da fala mais longa */
+    box-shadow: inset 0 0 0 3px #4a3c28, inset 0 0 0 6px #16130d, 0 5px 0 #0a0806,
+                0 7px 0 rgba(0,0,0,.45); }
+  #falaCorpo { min-width: 0; }
+  /* O NOME DO ATO e a HISTORIA sao o foco desta tela, e estavam do tamanho de rodape. Aqui a
+     pessoa nao esta jogando — esta aprendendo, e foi para isto que o dono pediu a tela. O
+     nome ganha corpo e uma linha de luz embaixo que o separa da fala; o texto vai a 15 px
+     com entrelinha larga, que e tamanho de LER, nao de espiar. */
+  #falaTit { font-size: 17px; letter-spacing: .14em; font-weight: 900; color: #ffd98a;
+    text-shadow: 0 2px 0 #0a0806, 0 3px 0 rgba(0,0,0,.5); }
+  #falaSub { font-size: 10px; letter-spacing: .12em; color: #a3927a; margin: 3px 0 9px;
+    padding-bottom: 9px; border-bottom: 2px solid #3a2f20; }
+  /* Sem isto a caixa CRESCE letra a letra e a moldura pula enquanto se lê. Uma altura fixa
+     não resolve: medido, a mesma fala ocupa 5 linhas a 430 px de tela e 8 a 320, então
+     qualquer número escolhido erra numa das pontas. O palco é uma grade de uma célula só com
+     TODAS as falas da conversa empilhadas invisíveis dentro dela — a célula fica do tamanho
+     da mais alta, exatamente, em qualquer largura e sem número mágico. */
+  #falaPalco { display: grid; font-size: 15px; line-height: 1.72; color: #f6ecd4; }
+  #falaPalco > * { grid-area: 1 / 1; }
+  #falaFantasma { visibility: hidden; display: grid; }
+  #falaFantasma > div { grid-area: 1 / 1; }
+  #falaTxt { white-space: pre-wrap; }
+  /* o indicador só acende quando a fala terminou de aparecer — antes disso ele mentiria */
+  #falaSeta { position: absolute; right: 12px; bottom: 5px; font-size: 8.5px; font-weight: 700;
+    letter-spacing: .1em; color: #9a8a63; opacity: 0; transition: opacity .12s; }
+  #falaCaixa.pronta #falaSeta { opacity: 1; animation: piscaFala 1.1s steps(2, end) infinite; }
+  @keyframes piscaFala { 0%,60% { opacity: 1; } 61%,100% { opacity: .35; } }
+  /* PULAR: discreto de propósito. Quem já leu não tem que reler, e quem está lendo não pode
+     ser puxado para fora por um botão gritando ao lado do texto. */
+  #btnFalaPular { position: absolute; right: 0; top: -26px; pointer-events: auto; cursor: pointer;
+    font: 900 8.5px/1 inherit; letter-spacing: .16em; color: #9a8a63; background: #1b1610;
+    border: 0; padding: 6px 10px;
+    box-shadow: inset 0 2px 0 #3a2f20, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806; }
+  #btnFalaPular:active { transform: translateY(2px);
+    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 1px 0 #0a0806; }
+  /* completude: uma linha por cena, marcada ou não */
+  .cenaLinha { display: flex; align-items: center; gap: 10px; padding: 7px 12px; margin: 3px 0;
+    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; min-width: 16em; text-align: left; }
+  .cenaLinha .marca { font-weight: 900; width: 1.4em; }
+  .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
+  .cenaLinha.vista .marca { color: #8fd96a; }
+  .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
+  /* CAPITULOS: cada era e uma laje, como os botoes do menu. A trancada nao some — mostrar o
+     que falta e o que faz querer voltar; esconder faz o jogo parecer menor do que e. */
+  #listaCapitulos { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px;
+    width: min(78vw, 330px); }
+  .capItem { text-align: left; padding: 13px 15px; border-radius: 5px; background: #a39a83;
+    color: #2a2418; border: 0; font: inherit; cursor: pointer;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510; }
+  .capItem:active { transform: translateY(4px);
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 1px 0 #191510; }
+  .capItem.livre { background: #c9a86a;
+    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
+                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510; }
+  .capItem.preso { background: #4a463c; color: #8d8677; cursor: default;
+    box-shadow: inset 0 2px 0 #5e594c, inset 0 -3px 0 #35322a,
+                inset 0 0 0 2px #2a2720, 0 4px 0 #12100c; }
+  .capItem.preso:active { transform: none; }
+  .capNome { font-size: 15px; font-weight: 900; letter-spacing: .1em; }
+  .capQuando { font-size: 10px; letter-spacing: .06em; opacity: .8; margin-top: 3px; }
+  /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */
+  #telaFontes { justify-content: flex-start; padding-top: 30px; }
+  #listaFontes { overflow-y: auto; max-width: 34em; width: 100%; text-align: left;
+    margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+  .fnGrupo { font-size: 11px; letter-spacing: .16em; color: #d9a441; font-weight: 900;
+    margin: 16px 0 7px; }
+  .fnItem { background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; padding: 9px 12px;
+    margin-bottom: 6px; }
+  .fnT { font-size: 13px; color: #f0e4c6; line-height: 1.45; }
+  .fnQ { font-size: 11px; color: #9d9280; margin-top: 4px; line-height: 1.5; }
+  .fnDuv { box-shadow: inset 0 0 0 2px #6b5220; }
+  .fnDuv .fnT { color: #ffd98a; }
+  .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);
+    bottom: calc(var(--hControles, 120px) + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px);
+    background: rgba(26, 31, 16, .93); border: 0; border-radius: 18px; box-shadow: none;
+    /* three one-line rows: it takes only the height those need */
+    padding: 6px 8px 8px; transition: transform .22s ease, opacity .22s ease;
+    opacity: 0; pointer-events: none; }
+  .sheet.aberto { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+  .sheetHead { display: flex; align-items: center; margin-bottom: 2px; }
+  .sheetHead .t { font-size: 10px; font-weight: 900; letter-spacing: .3em; color: #b09c72;
+    text-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .fechar { display: none; }   /* closing happens on the card below, not in here */
+
+  /* Buy button and mode buttons wear the poster palette; everything below is the
+     jogabilidade pass's new UI and is kept as-is. */
+  .btnCompra { width: 100%; padding: 14px 12px; font-size: var(--fs-sm); text-align: left; line-height: 1.5;
+    color: #221806; text-shadow: 0 1px 0 rgba(255,255,255,.4); border: 1px solid rgba(120,60,0,.35);
+    background: linear-gradient(180deg, #f8d98f 0%, var(--ouroA) 34%, var(--ouroB) 100%);
+    box-shadow: 0 3px 9px rgba(120,60,0,.3), inset 0 1px 0 rgba(255,255,255,.55); }
+  /* what a project IS, in two short lines — the owner could not tell from the price alone */
+  .explica.sub { margin: 7px 0 0; }
+  /* buying is 1-or-MAX and nothing else: the gold primary buys one at the next price, the
+     compact green MAX beside it spends whatever the current energy covers. No third toggle,
+     no extra row — the owner wanted it direct. */
+  .btnMax { flex: 0 0 auto; min-width: 78px; padding: 8px 10px; font-size: var(--fs-xs); line-height: 1.25;
+    text-align: center; color: #1c2408; text-shadow: 0 1px 0 rgba(255,255,255,.4);
+    border: 1px solid rgba(60,90,10,.4); border-radius: var(--raioSm);
+    background: linear-gradient(180deg, #d8e29a 0%, #9fb45a 60%, #7f9440 100%);
+    box-shadow: 0 3px 9px rgba(60,80,10,.28), inset 0 1px 0 rgba(255,255,255,.5); }
+  .modo { display: flex; gap: 6px; margin-top: 8px; }
+  .modo button { flex: 1; padding: 13px 6px; font-size: var(--fs-sm); }
+  #modoCarvao.ativo { background: linear-gradient(180deg, #8a4028, #4a2113); color: #f2d3b0; }
+  #modoLimpo.ativo { background: linear-gradient(180deg, #5b7a2c, #2c3d16); color: #dbe7b4; }
+
+  /* the trade, side by side: what you are running now against what switching would do */
+  .rCol.quente { box-shadow: inset 0 0 0 1px var(--bad); }
+  .rCol.fria { box-shadow: inset 0 0 0 1px var(--good); }
+  .rTit { font-size: 8px; color: var(--sub); margin-bottom: 6px; white-space: nowrap;
+    overflow: hidden; text-overflow: clip; }
+  .rCol.quente .rTit { color: #eeae90; } .rCol.fria .rTit { color: #d3e6a2; }
+  .rL { display: flex; justify-content: space-between; align-items: baseline; gap: 4px;
+    font-size: 8px; color: var(--sub); line-height: 1.95; }
+  .rL b.bom { color: #b7d16a; } .rL b.ruim { color: #e39176; }
+  .avisoRampa { display: none; font-size: 8px; line-height: 1.9; margin-top: 8px; padding: 6px 7px;
+    color: #f0d4b8; background: #43241a; border: 2px solid var(--bad); }
+  .avisoRampa.mostra { display: block; }
+
+  .barra > div { height: 100%; transition: width .3s;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.25) 0 2px, transparent 2px 6px); }
+
+  /* side by side: three narrow columns, name over price */
+  #listaUp { display: flex; gap: 6px; align-items: stretch; }
+  .upgrade { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between; gap: 6px;
+    border-radius: 12px; background: rgba(255,255,255,.05); padding: 8px 6px; }
+  .upgrade .nome { font-size: 10px; font-weight: 900; line-height: 1.4; color: var(--creme);
+    text-align: center; letter-spacing: .04em; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+  .upgrade button { width: 100%; padding: 5px 4px; font-size: var(--fs-xs); color: #221806;
+    background: var(--ouroA); border-radius: 999px; }
+  /* the test switch is not one of the three: it is free, it breaks the pacing on purpose,
+     and it should never be mistaken for something the game intends you to buy */
+  .upgrade.teste { background: rgba(138, 47, 34, .35); }
+  .upgrade.teste .nome { color: #ffd9cd; }
+  .upgrade.teste button { background: #8a2f22; color: #ffe6df; }
+  .upgrade.comprado .nome { color: var(--good); }
+  .upgrade.comprado button { background: transparent; color: var(--good); }
+
+  #btnPrestigio, #btnConfirmaSim { width: 100%; padding: 14px 8px; font-size: var(--fs-sm); margin-top: 8px;
+    color: #f6ecd5; background: linear-gradient(180deg, #b98a30, #6d4d15); }
+  #btnConfirmaNao { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 7px;
+    color: #cfc4a4; background: linear-gradient(180deg, #3a4324, #242a16); }
+  .placar .r { font-size: var(--fs-xs); color: var(--sub); line-height: 1.7; }
+  .placar .v { font-size: var(--fs-sm); margin-bottom: 4px; }
+  .placar .ganha .v { color: var(--good); }
+  .placar .perde .v { color: #e39176; }
+  /* SKILLS: its own surface, in the sheet language, reached from the torch — because the
+     torch is where everything you keep lives */
+  .btnSkills { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 8px;
+    background: #3c3a1c; border-color: var(--ink); color: #e0c47a; }
+  /* SPECIAL PROJECTS: same card language as upgrades, but paid in resources not impact */
+  .recursoLinha > span { flex: 1; text-align: center; font-size: var(--fs-sm);
+    border-radius: var(--raioSm); background: linear-gradient(180deg, #232817, #171b0d);
+    border: 2px solid #000; padding: 8px 4px; }
+  .especialCard .custo { font-size: var(--fs-xs); margin-top: 4px; line-height: 1.7; }
+  .especialCard .custo b.falta { color: var(--bad); }
+  .especialCard .custo b.ok { color: var(--good); }
+  .especialCard.feito { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+  .especialCard.feito button { display: none; }
+
+  /* ---- intro / lore ---- */
+  #lore { position: fixed; inset: 0; z-index: 50; background: rgba(10,11,20,.92);
+    display: flex; align-items: center; justify-content: center; padding: 16px; }
+  #lore.escondido { display: none; }
+  .loreBox { border-radius: var(--raio); background: var(--panel); border: 4px solid var(--ink);
+    box-shadow: inset 0 0 0 2px var(--panel2), 6px 6px 0 #000; max-width: 440px; padding: 18px 16px; }
+  #loreArt { display: block; width: 100%; image-rendering: pixelated; border: 3px solid var(--ink);
+    box-shadow: inset 0 0 0 1px var(--panel2); margin-bottom: 12px; }
+  #btnBegin { width: 100%; padding: 14px; font-size: var(--fs-md); margin-top: 4px;
+    background: linear-gradient(180deg, var(--gold), var(--gold2)); color: var(--ink); }

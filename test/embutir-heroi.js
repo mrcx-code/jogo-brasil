@@ -5,7 +5,9 @@
 // entrar; e porque uma chave pode precisar ficar VAZIA — `run=` esvazia o bloco, que e como a
 // corrida volta a cair na caminhada enquanto nao houver folha de corrida aproveitavel.
 const fs = require('fs');
-const p = 'index.html';
+// ALVO: src/jogo.ts, a FONTE. O index.html da raiz virou SAIDA do build na migracao para
+// TypeScript — escrever nele funciona e some no proximo `npm run build`, sem erro nenhum.
+const p = 'src/jogo.ts';
 const raw = fs.readFileSync(p, 'utf8');
 const eol = raw.includes('\r\n') ? '\r\n' : '\n';
 let s = raw.split(/\r?\n/).join('\n');

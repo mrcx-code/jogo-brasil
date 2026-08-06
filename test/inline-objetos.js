@@ -21,7 +21,9 @@ const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const ARQ = path.join(RAIZ, 'index.html');
+// ALVO: src/jogo.ts, a FONTE. O index.html da raiz virou SAIDA do build na migracao para
+// TypeScript — escrever nele funciona e some no proximo `npm run build`, sem erro nenhum.
+const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
 const DIR = path.join(RAIZ, 'assets', 'objetos');
 
 const MOBS = {
@@ -78,12 +80,16 @@ function trocar(padrao, corpo, nome) {
   src = src.replace(re, function (_, a, b) { return a + txt + b; });
 }
 
-// sintaxe antes de gravar — contar chave na mão não serve neste arquivo
-const blocos = src.match(/<script\b[^>]*>([\s\S]*?)<\/script>/g) || [];
-for (const b of blocos) {
-  try { new Function(b.replace(/^<script\b[^>]*>/, '').replace(/<\/script>$/, '')); }
-  catch (e) { console.error('SINTAXE QUEBRADA: ' + e.message + ' — nada gravado'); process.exit(1); }
+// Sintaxe antes de gravar. O alvo é TypeScript, então varrer `<script>` não acha nada e a
+// checagem antiga passaria calada — o que este script escreve é DADO, e é isso que se verifica.
+// O resto do arquivo quem confere é o `tsc`, dentro do `npm run build`, que se recusa a
+// escrever o index.html se algo estiver quebrado.
+for (const [nome, corpo] of [['MOB_B64', '{' + mob + '}'], ['DROP_B64', '[' + drop + ']'],
+                             ['ICONE_B64', '{' + icone + '}']]) {
+  try { new Function('return ' + corpo); }
+  catch (e) { console.error('SINTAXE QUEBRADA em ' + nome + ': ' + e.message + ' — nada gravado'); process.exit(1); }
 }
 fs.writeFileSync(ARQ, src);
-console.log('arte embutida: ' + Math.round(total / 1024) + ' KB · index.html '
-  + src.split('\n').length + ' linhas, ' + (src.length / 1048576).toFixed(2) + ' MB');
+console.log('arte embutida: ' + Math.round(total / 1024) + ' KB · src/jogo.ts '
+  + src.split('\n').length + ' linhas, ' + (src.length / 1048576).toFixed(2) + ' MB'
+  + ' — rode `npm run build`');

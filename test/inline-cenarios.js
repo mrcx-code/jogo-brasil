@@ -10,7 +10,9 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = path.resolve(__dirname, '..', 'assets', 'scenarios');
-const HTML = path.resolve(__dirname, '..', 'index.html');
+// ALVO: src/jogo.ts, a FONTE. O index.html da raiz virou SAIDA do build na migracao para
+// TypeScript — escrever nele funciona e some no proximo `npm run build`, sem erro nenhum.
+const HTML = path.resolve(__dirname, '..', 'src', 'jogo.ts');
 
 const NAMES = ['cen1', 'cen2', 'cen3', 'cen4', 'cen5', 'cen6', 'cen7'];
 const parts = [];

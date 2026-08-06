@@ -98,7 +98,9 @@ const COLS = 4, LINS = 2, ALTURA = 132, CORES = 22;
   }
   await nav.close();
 
-  const arqHtml = path.join(RAIZ, 'index.html');
+  // ALVO: src/jogo.ts, a FONTE. O index.html da raiz virou SAIDA do build na migracao para
+// TypeScript — escrever nele funciona e some no proximo `npm run build`, sem erro nenhum.
+const arqHtml = path.join(RAIZ, 'src', 'jogo.ts');
   let s = fs.readFileSync(arqHtml, 'utf8');
   const bloco = '/*FRENTE_B64_START — gerado por test/cortar-pacote.js, não edite à mão*/\n'
     + '// Vegetação de frente, cortada dos PACOTES — um por capítulo, oito elementos cada,\n'
@@ -106,11 +108,11 @@ const COLS = 4, LINS = 2, ALTURA = 132, CORES = 22;
     + 'const FRENTE_B64 = [\n' + todos.map(x => '  "' + x + '"').join(',\n') + '\n];\n'
     + '/*FRENTE_B64_END*/';
   s = s.replace(/\/\*FRENTE_B64_START[\s\S]*?FRENTE_B64_END\*\//, bloco);
-  const bs = s.match(/<script\b[^>]*>([\s\S]*?)<\/script>/g) || [];
-  for (const b of bs) {
-    try { new Function(b.replace(/^<script\b[^>]*>/, '').replace(/<\/script>$/, '')); }
-    catch (e) { console.error('SINTAXE QUEBRADA: ' + e.message + ' — nada gravado'); process.exit(1); }
-  }
+  // Sintaxe antes de gravar. Varrer `<script>` não acha nada num .ts e passaria calada; o que
+  // este script escreve é uma lista de strings, e é ela que se verifica. O arquivo inteiro quem
+  // confere é o `tsc` dentro do `npm run build`, que não escreve o index.html se algo quebrar.
+  try { new Function('return [' + todos.map(x => '"' + x + '"').join(',') + ']'); }
+  catch (e) { console.error('SINTAXE QUEBRADA: ' + e.message + ' — nada gravado'); process.exit(1); }
   fs.writeFileSync(arqHtml, s);
   console.log('total ' + todos.length + ' elementos · ' + (s.length / 1048576).toFixed(2) + ' MB');
 })();

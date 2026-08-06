@@ -15,10 +15,16 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const RAIZ = path.resolve(__dirname, '..');
-const ARQ = path.join(RAIZ, 'index.html');
+// A FONTE, não o index.html. Desde a migração para TypeScript o index.html da raiz é SAÍDA:
+// quem escrevesse nele veria o próximo `npm run build` apagar tudo, sem erro nenhum.
+const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
 const DIR = path.join(RAIZ, 'assets', 'cenarios-novos');
 const CAPS = ['cap1', 'cap1v', 'cap2', 'cap2v', 'cap3', 'cap3v'];
-const QUAL = 0.92;
+// 0,80 e não 0,92. Medido peça a peça: as doze pinturas somavam 2.456 KB de base64 e passaram
+// a somar o que o console imprime abaixo. A perda não aparece na tela porque a peça é pintura
+// borrada em movimento, e o que se vê dela é uma faixa rolando — não é sprite de pixel art,
+// que é onde 0,80 morderia. Os sprites continuam nas qualidades altas de sempre.
+const QUAL = 0.80;
 
 (async () => {
   const nav = await chromium.launch();
@@ -57,13 +63,15 @@ const QUAL = 0.92;
   if (!re.test(src)) { console.error('marcadores CEN_FUNDO_B64 não encontrados'); process.exit(1); }
   src = src.replace(re, bloco);
 
-  // sintaxe antes de gravar — contar chave na mão não serve neste arquivo
-  const blocos = src.match(/<script\b[^>]*>([\s\S]*?)<\/script>/g) || [];
-  for (const b of blocos) {
-    try { new Function(b.replace(/^<script\b[^>]*>/, '').replace(/<\/script>$/, '')); }
+  // Sintaxe antes de gravar. O alvo agora é TypeScript, então `new Function` no arquivo inteiro
+  // não serve — mas o que ESTE script escreve é só dado, duas listas de strings, e isso se
+  // verifica exatamente. O resto do arquivo é conferido pelo `tsc` dentro do `npm run build`,
+  // que se recusa a escrever o index.html se algo estiver quebrado.
+  for (const lista of [saida.alto, saida.chao]) {
+    try { new Function('return [' + lista.map(s => '"' + s + '"').join(',') + ']'); }
     catch (e) { console.error('SINTAXE QUEBRADA: ' + e.message + ' — nada gravado'); process.exit(1); }
   }
   fs.writeFileSync(ARQ, src);
-  console.log('index.html: ' + src.split('\n').length + ' linhas, '
-    + (src.length / 1048576).toFixed(2) + ' MB');
+  console.log('src/jogo.ts: ' + src.split('\n').length + ' linhas, '
+    + (src.length / 1048576).toFixed(2) + ' MB — rode `npm run build`');
 })();

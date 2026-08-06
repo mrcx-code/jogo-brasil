@@ -12,7 +12,9 @@ const fs = require('fs');
 const path = require('path');
 const { PNG } = require('pngjs');
 
-const HTML = path.resolve(__dirname, '..', 'index.html');
+// ALVO: src/jogo.ts, a FONTE. O index.html da raiz virou SAIDA do build na migracao para
+// TypeScript — escrever nele funciona e some no proximo `npm run build`, sem erro nenhum.
+const HTML = path.resolve(__dirname, '..', 'src', 'jogo.ts');
 const A = function (d) { return path.resolve(__dirname, '..', 'assets', d); };
 
 // name a range helper: rng('smog', 0, 5) -> ['smog_0'..'smog_5']

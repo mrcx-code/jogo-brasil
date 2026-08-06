@@ -11,3 +11,17 @@ cruz-*.png
 board-*.png
 medida-*.png
 assets/entrada/
+
+# Saída do build. O index.html da RAIZ continua versionado — é ele que a Vercel publica e o
+# que o smoke test lê. Estes dois são intermediários e se refazem com `npm run build`.
+build/
+dist/
+
+# Android (Capacitor). A pasta é gerada por `npx cap add android` e o web dela vem de dist/.
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/

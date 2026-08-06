@@ -1,0 +1,12 @@
+{
+  "appId": "br.jogo.brasil",
+  "appName": "BRASIL",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#1a1e10",
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -66,7 +66,15 @@ Regras práticas que decorrem disso:
 > instante em que o primeiro byte sai. Afirmação de privacidade que virou falsa é pior que
 > nenhuma — reescreva a tela na MESMA fase que ligar a rede, nunca depois.
 
-1. **Um arquivo só** — até a fase do TypeScript, que mantém a saída em arquivo único.
+1. **Um arquivo de SAÍDA** — as fases 1 e 2 (Capacitor e TypeScript) foram feitas em
+   2026-08-05. A fonte agora é `src/index.html` (molde), `src/estilo.css` e `src/jogo.ts`;
+   `npm run build` compila e reembute tudo num `index.html` autocontido na raiz, com a arte em
+   base64, sem uma única referência externa — o build **recusa** escrever se achar uma. É esse
+   `index.html` que a Vercel publica, que o `npm start` serve, que o smoke test lê e que o
+   Capacitor empacota (via `dist/`, que são os mesmos bytes). **Nunca edite o `index.html` da
+   raiz**: ele é saída, e o próximo build apaga o que você escrever nele. Isso vale também para
+   as ferramentas de arte (`test/inline-*.js`, `cortar-pacote.js`, `embutir-heroi.js`,
+   `requalificar.js`): todas escrevem em `src/jogo.ts`.
 2. **Zero rede** — até a fase do Supabase. Há uma `Content-Security-Policy` no `<head>` que
    faz o navegador cobrar isso hoje. Quando ela precisar abrir, abra **só o que a fase pede**
    e escreva no commit o que passou a ser permitido; CSP relaxada por conveniência é o começo
@@ -127,9 +135,27 @@ explica o processo inteiro e o porquê de cada decisão. O que não é óbvio:
 ## 6. Como trabalhar
 
 ```bash
-node test/smoke.js     # tem que passar
+npm test               # = npm run build && node test/smoke.js — tem que passar
 git add -A && git commit -m "..." && git push
 ```
+
+**Mexeu em `src/`, rode o build.** O smoke test lê o `index.html` da RAIZ, que é saída, não
+fonte — sem `npm run build` antes você testa o arquivo de ontem e ele passa. Por isso `npm test`
+e `npm start` já constroem sozinhos; `node test/smoke.js` puro continua existindo para quando
+você quer testar exatamente os bytes que estão no disco. Para apontá-lo a outro alvo:
+`JOGO_HTML=android/app/src/main/assets/public/index.html node test/smoke.js`, ou uma URL http.
+
+O `tsc` roda dentro do build e o build **não escreve nada** se ele falhar — erro de tipo não
+chega ao `index.html`. Para só conferir tipos, sem gerar: `npm run tipos`.
+
+Para o aplicativo Android: `npm run app` (constrói e sincroniza) e `npm run app:abrir`.
+Compilar o APK exige JDK e Android SDK, que **não estão nesta máquina**.
+
+**Qualidade da arte:** as pinturas de cenário são reencodadas em WebP **0,80** direto dos PNG
+mestres (`test/inline-fundos.js`), e objetos, drops, ícones, vegetação de frente e retratos
+passaram pelo `test/requalificar.js` na mesma qualidade. Medido: 3,91 MB → 2,81 MB, com erro
+médio abaixo de 2,6 de 255 por canal e nenhuma diferença visível a 3× de ampliação. As folhas da
+personagem (`HERO_B64`) e os NPCs **não** foram mexidos.
 
 O smoke test roda headless a 390×844 e falha com erro de console, se o segurar-pra-atacar
 parar de repetir, se um upgrade não aplicar, se a metade errada da tela responder, se um

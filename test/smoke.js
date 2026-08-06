@@ -12,8 +12,20 @@ function chromiumPath() {
   return undefined;   // let playwright resolve its own download
 }
 
+// Qual arquivo testar. O padrão é o index.html da raiz, que é a SAÍDA do build (veja
+// ferramentas/construir.js) — nunca a fonte em src/. JOGO_HTML aponta para outro caminho
+// quando se quer provar os bytes de outro lugar, por exemplo os que o Capacitor copiou para
+// dentro do APK: JOGO_HTML=android/app/src/main/assets/public/index.html node test/smoke.js
+// Aceita também uma URL http(s), porque o Capacitor não serve o jogo por file:// e sim por
+// uma origem de verdade — e origem de verdade muda o que o localStorage deixa fazer.
+function alvo() {
+  const p = process.env.JOGO_HTML;
+  if (p && /^https?:\/\//i.test(p)) return p;
+  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+}
+
 (async () => {
-  const file = 'file://' + path.resolve(__dirname, '..', 'index.html');
+  const file = alvo();
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const errors = [];
