@@ -214,6 +214,14 @@ um povo, tem nome e significado. Um padrão que "parece indígena" é a versão 
 centenas de povos como uma estética só, e é o mesmo erro do §2.1. As duas finalistas eram
 natureza pura justamente por isso.
 
+**A TESE DO PRODUTO, dita pelo dono em 2026-08-07 e válida acima de qualquer plano:**
+*"Queremos algo visualmente impressionante e que seja divertido jogar enquanto você aprende
+sobre a história do Brasil."* As três pernas têm o mesmo peso — **bonito · divertido ·
+ensina** — e uma entrega que ganha numa às custas de outra não está pronta. No mesmo
+fôlego ele deu licença de arquitetura: *"fique à vontade para mexer na estrutura ou rever
+algo da forma que está planejado."* Plano é ferramenta, não compromisso: se a estrutura
+atual não serve às três pernas, mude a estrutura e escreva por quê.
+
 **Mandato de evolução, decidido pelo dono em 2026-08-07:** a evolução visual e de produto
 é **delegada e autônoma** — existe um papel de DIREÇÃO DE EVOLUÇÃO (agente dedicado) que
 pensa só nisso e CONDUZ, sem esperar o dono ("vou ajustando mas não quero que vc me
