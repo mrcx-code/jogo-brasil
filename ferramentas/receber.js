@@ -97,11 +97,22 @@ const servidor = http.createServer(function (req, res) {
       catch (e) { res.writeHead(500).end('pendencias.json ilegivel'); return; }
       const alvo = (d.itens || []).find(function (i) { return i.t === corpo.t; });
       if (!alvo) { res.writeHead(404).end('pendencia nao achada'); return; }
+      // RESPONDIDA SAI DA LISTA. O dono: "quero poder escrever no campo e enviar, fazendo
+      // com que a pendencia suma". A resposta nao se perde: vai para respondidas.json, que
+      // e o meu material de leitura. Se a resposta GERAR outra pendencia, quem a cria sou
+      // eu, com a pergunta nova escrita por inteiro.
       alvo.resposta = String(corpo.resposta || '').slice(0, 2000);
+      alvo.respondidaEm = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      d.itens = (d.itens || []).filter(function (i) { return i.t !== corpo.t; });
+      const arqLidas = path.join(__dirname, 'respondidas.json');
+      let lidas = { _: 'Respostas do dono, tiradas da fila. Leio antes de cada sessao.', itens: [] };
+      try { lidas = JSON.parse(fs.readFileSync(arqLidas, 'utf8')); } catch (e) {}
+      (lidas.itens = lidas.itens || []).unshift(alvo);
+      fs.writeFileSync(arqLidas, JSON.stringify(lidas, null, 2) + "\n");
       fs.writeFileSync(arq, JSON.stringify(d, null, 2) + "\n");
-      console.log('resposta gravada: ' + corpo.t);
+      console.log('RESPONDIDA e arquivada: ' + corpo.t);
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true }));
+      res.end(JSON.stringify({ ok: true, saiu: true, restam: d.itens.length }));
     });
     return;
   }

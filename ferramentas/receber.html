@@ -18,7 +18,7 @@
        text-shadow: 0 2px 0 var(--borda); }
   .sub { color: var(--sub); margin: 0 0 22px; font-size: 12px; }
   /* SALA DE MAQUINAS */
-  #equipe { margin-bottom: 30px; display: flex; flex-direction: column; gap: 16px; }
+  #equipe { display: flex; flex-direction: column; gap: 16px; }
   #equipe h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 0 0 9px;
     text-transform: uppercase; }
   .bloco { background: var(--painel); border: 2px solid var(--borda);
@@ -36,6 +36,13 @@
   .sVoce { background: var(--ouro); color: #221a06; }
   @keyframes pulsa { 50% { opacity: .5 } }
   @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
+  .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 0 0 9px;
+    text-transform: uppercase; display: flex; align-items: baseline; gap: 10px; }
+  #quantasFaltam { font-size: 10px; letter-spacing: .12em; padding: 2px 8px;
+    border: 2px solid var(--borda); box-shadow: 2px 2px 0 var(--borda);
+    background: var(--ouro); color: #221a06; }
+  #quantasFaltam:empty { display: none; }
+  #equipe { margin-top: 34px; }
   .pedido { border: 2px solid var(--borda); padding: 16px; margin-bottom: 16px;
             background: var(--painel); box-shadow: 0 4px 0 var(--borda); }
   .pedido.feito { border-color: var(--good); }
@@ -104,9 +111,9 @@
 <h1>SALA DE MÁQUINAS</h1>
 <p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
 Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
-<div id="equipe"></div>
-<h2 style="font-size:11px;letter-spacing:.28em;color:var(--sub);margin:0 0 9px;text-transform:uppercase">Arte que o jogo espera</h2>
+<h2 class="secao">Arte que o jogo espera <span id="quantasFaltam"></span></h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
+<div id="equipe"></div>
 <div id="pendencias"></div>
 
 <script>
@@ -202,6 +209,7 @@ function marcarRecebidas() {
       const b = c.el.querySelector(".secundario");
       if (b) b.style.opacity = "0.5";
     }
+    contarPendentes();
   }).catch(function () {});
 }
 
@@ -235,17 +243,35 @@ function montarPendencias() {
       ta.className = "rmResp";
       ta.placeholder = "sua resposta…";
       ta.value = i.resposta || "";
-      ta.addEventListener("change", function () {
+      // ENVIAR é explícito. Antes, o "change" do textarea disparava ao sair do campo — o dono
+      // nunca sabia se tinha enviado, e um clique fora mandava resposta pela metade. Agora há
+      // um botão, ele diz o que faz, e a pendência SOME quando a resposta chega ao disco.
+      const env = document.createElement("button");
+      env.textContent = "ENVIAR RESPOSTA";
+      env.disabled = true;
+      ta.addEventListener("input", function () { env.disabled = !ta.value.trim(); });
+      const mandar = function () {
+        if (!ta.value.trim()) return;
+        env.disabled = true; env.textContent = "enviando…";
         fetch("/responder", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ t: i.t, resposta: ta.value }) })
-          .then(function () {
-            ta.classList.add("salvo");
-            // Some da lista assim que responde: a pergunta foi feita e respondida, e o lugar
-            // dela agora e o meu backlog, nao a tela dele.
-            setTimeout(function () { montarPendencias(); }, 900);
-          });
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            // Sai da tela deslizando, para o gesto ter consequência visível: respondeu, sumiu.
+            it.style.transition = "opacity .35s, transform .35s";
+            it.style.opacity = "0"; it.style.transform = "translateX(18px)";
+            setTimeout(function () { montarPendencias(); }, 380);
+            if (d && d.restam === 0) console.log("fila de pendências zerada");
+          })
+          .catch(function () { env.disabled = false; env.textContent = "ENVIAR RESPOSTA"; });
+      };
+      env.addEventListener("click", mandar);
+      // Ctrl+Enter manda sem tirar a mão do teclado.
+      ta.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); mandar(); }
       });
       it.appendChild(ta);
+      it.appendChild(env);
       box.appendChild(it);
     });
   }).catch(function () {});
@@ -375,6 +401,22 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
 // A SALA DE MAQUINAS. Le ferramentas/equipe.json, que o orquestrador atualiza a cada
 // integracao. Tres blocos: quem trabalha AGORA, o que ja entrou, e o que espera — sendo
 // que o que espera VOCE vem em papel de campo, porque e a sua parte.
+// Quantas imagens ainda faltam. E o unico numero da mesa que mede TRABALHO DO DONO,
+// entao fica ao lado do titulo, em ouro, no topo da pagina.
+function contarPendentes() {
+  const n = document.querySelectorAll('#lista .pedido:not([style*="display: none"])').length;
+  const alvo = document.getElementById('quantasFaltam');
+  if (!alvo) return;
+  alvo.textContent = n ? (n === 1 ? '1 FALTANDO' : n + ' FALTANDO') : '';
+  if (!n) {
+    const l = document.getElementById('lista');
+    if (l && !l.querySelector('.vazio')) {
+      l.insertAdjacentHTML('beforeend',
+        '<p class="vazio">nada esperando você aqui — a fila de arte está limpa.</p>');
+    }
+  }
+}
+
 async function pintarEquipe() {
   let e = {};
   try { e = await (await fetch('/equipe')).json(); } catch (err) { return; }
