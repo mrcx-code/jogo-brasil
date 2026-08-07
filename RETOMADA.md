@@ -1,88 +1,57 @@
 # RETOMADA — leia isto primeiro na próxima sessão
 
-Atualizado em 2026-08-06. Existe para a sessão seguinte começar sabendo onde tudo está. **Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.**
+Atualizado na noite de 2026-08-06, início do turno autônomo de ~10 h (dono dorme, volta
+~9h de 2026-08-07). **Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.**
 
 ## Em uma frase
 
-O jogo virou um jogo sobre a história do Brasil que **ensina antes de deixar jogar**: menu →
-escolher a era → a personagem conta a história com fonte → os itens param e esperam ajuda →
-quem não é atendido faz o mundo ralear.
+O jogo tem direção de arte nova (menu-poste, papel de campo, fonte bitmap acentuada),
+linha do tempo com 8 marcos com fonte, e um **arco nacional de 10+ capítulos aprovado** —
+a noite é para: motor N-capítulos, capítulo pré-1500, Salvador, jogabilidade
+travessia+lugar-vivo, e a mesa preparada para os assets.
 
-## O que está rodando e onde
+## As decisões do dono desta noite (todas no NOTES.md, seção "Decisões do dono")
 
-| coisa | onde |
-|---|---|
-| jogo | `npm start` → localhost:8199 |
-| mesa de entrega | `npm run mesa` → localhost:8200 |
-| produção | <https://jogo-brasil-mrcx.vercel.app> |
+1. Arco de 10 capítulos aprovado, com MAIS densidade.
+2. **História profunda antes de 1500 entra** — sem virar reconexão religiosa.
+3. Branqueamento entra (Hospedaria); número da CNV entra com ressalva; pessoas reais
+   como **homenagem 8-bit** (Krenak, Conselheiro) — nunca inimigo, nunca jogável.
+4. Jogabilidade: **travessia + lugar vivo** (marcos visíveis no horizonte + lugar que se
+   enche de vida), com **pelo menos 1 capítulo no padrão atual**.
+5. Regra da fila: em qualquer ponto em que a produção parar, o jogo publicado é um arco
+   completo e equilibrado. Ordem: Salvador → Silêncio/Praça → Candangos → Belo Monte →
+   Hospedaria → Pequena África → Sete Povos (+ pré-1500 na frente quando desenhado).
+6. Operacional: rodar sempre ANTES de bater limite; perto do limite, esperar o reset em
+   vez de travar; handoff sempre atualizado; foco = conscientizar, educar.
 
-## O que mudou por último — 06/08, sessão longa
+## Trabalho em voo neste momento
 
-Tudo abaixo está **integrado, publicado e verde**. Nada pendente de integração.
+- **Historiador pré-1500** (relatório): sambaquis, Marajó, geoglifos/Amazônia antropizada,
+  expansão Tupi — com a trava anti-religião e a estante de pesquisadoras (Gaspar, Schaan,
+  Roosevelt, Neves).
+- **Motor N-capítulos** (worktree): capítulo↔cenário por dados, ESQUEMA_SAVE derivado,
+  arte com fallback, prova com 5 épocas. Integrar por patch (`git diff 52ff66c -- src/`).
 
-- **Migração TypeScript + Capacitor.** A fonte agora é `src/jogo.ts` + `src/estilo.css` +
-  molde; `npm run build` reembute num `index.html` autocontido. **A garantia de arquivo único
-  virou automática**: o build recusa escrever se o `tsc` falhar, se aparecer `src=`/`href=`
-  fora de `data:`, ou se houver mais de um `<script>`. A CSP não abriu.
-- **Uma pessoa por era**, com passada medida em cada: 6,377 (n=10) · 7,492 (n=12) · 6,918
-  (n=11); escorregamento 0,48% · 0,00% · 0,67%.
-- **Retratos de frente**, um por era, atrás da caixa de fala, só o busto.
-- **Seis imagens de contexto** na história, trocando quando o ASSUNTO muda — não a cada fala.
-  As duas últimas falas de cada capítulo ficam sem imagem de propósito: são as que descrevem
-  a tela.
-- **Som**, sintetizado com WebAudio, **zero byte de áudio**, +22,9 KB de código. Alcançar
-  anda por uma pentatônica maior — a mesma altura nunca sai duas vezes seguidas. O passo sai
-  no mesmo evento que troca o quadro do sprite, então casa com o pé por construção.
-  **Nenhum som de dano, dor ou golpe.**
-- **Em Palmares, quem chega é GENTE** e passa a andar com você, visível na tela. Sem barra de
-  vida sobre pessoa; o progresso está no anel de luz no chão. Cabem cinco; a sexta faz a da
-  frente ficar pela serra — ninguém some.
+## Fila da noite, depois dos dois acima
 
-## Duas dívidas honestas
+1. Integrar motor N-capítulos (verde + prints idênticos com 3 épocas).
+2. **SALVADOR entra como capítulo 4** — textos do relatório do historiador (rascunho
+   marcado; o texto final de EPOCAS é do dono, palavra por palavra), mecânica = alcance
+   existente. Sem arte própria ainda: usar fallback declarado do motor novo.
+3. **Mesa de entrega**: gerar em `ferramentas/necessario.json` os pedidos de arte de
+   Salvador (pintura 2 partes, sprite ganhadeira, retrato, 2 contextos, itens tabuleiro/
+   barril/trouxa, drops acarajé/pano/búzios) com prompts completos — o dono gera de manhã.
+4. **Jogabilidade travessia+lugar-vivo**: desenho técnico primeiro (como marcos aparecem
+   no horizonte SEM paralaxe nova — lembrar: chão 1:1 inegociável), depois protótipo no
+   capítulo 2 (Palmares já tem o acolher; o lugar-vivo é a extensão natural).
+5. Usabilidade: revisar os 5 primeiros minutos com o fluxo novo (menu→era→cerimônia→jogo).
+6. Se sobrar: linha do tempo ganha os marcos pré-1500 e Império do historiador.
 
-1. **`index.html` está em 3,7 MB**, acima do teto de 3,6 que eu mesmo dei. Medido: WebP a
-   660 px corta 22%, a 520 px corta 46%. A próxima arte exige um dos dois.
-2. **Alcançar continua sendo o gesto de BATER por baixo** — combo de cinco, `hp` decrescendo,
-   e a quinta batida vale dobrado. Sobre gente, mecânica e tela falam línguas diferentes.
-   Toda a gramática *visível* de combate saiu; o verbo do motor não. **Sessão própria, e é
-   decisão do dono.**
+## Regras de integração que já pagaram sessão
 
-## Nada pronto e não integrado
-
-Todos os agentes voltaram e todo o trabalho está na `main`. Receita de integração, que
-funcionou onze vezes: `git diff <base> -- src/ > x.patch` e `git apply --3way x.patch`.
-Quando dois agentes tocam o mesmo lugar, resolva a favor de **manter os dois** — foi o caso
-de `som` e `grupo` no `ESQUEMA_SAVE`.
-
-## O que o dono pediu e ainda NÃO foi feito
-
-Em ordem do que ele falou por último:
-
-1. **Revisar todos os assets** à luz do pulo e do subir.
-2. **Backgrounds na história**, trocando por fala. Barato: reaproveita as 12 peças embutidas.
-3. **Plataformas estilo Mario.** É uma SESSÃO INTEIRA: `GROUND` é constante hoje, e altura
-   variável reabre a armadilha nº 1 do §7. Avisei que o verbo do jogo é *alcançar* e
-   plataforma é *chegar* — podem competir. Ele não respondeu a isso.
-4. **Emenda dos fundos** ainda incomoda ele, mesmo com o mato na costura.
-5. **Melhorar menu, jogabilidade, HUD, textos e os botões de baixo.**
-
-## Decidido pelo dono, ainda não implementado
-
-**Drops destrancam o capítulo.** Ideia dele, e é a melhor resposta ao último item grande: o
-toque no vazio é 65% da renda, e exigir uma coleta mínima por capítulo faz o alcance virar
-obrigatório **sem mexer em nenhum valor**. Drop só existe se você alcançou alguém.
-Faltam dois números: **quantos**, e **se exige os três tipos ou só o total** (recomendei o
-total, mostrando os três contadores).
-
-**Supabase:** código de transferência sem conta, placar **anônimo**, público jovem adulto.
-Obrigação que anda junto: a tela de AJUSTES diz *"nada sai deste aparelho"* — vira mentira no
-instante em que o primeiro byte sair, e tem que ser reescrita **na mesma fase**.
-
-## O que o dono ainda não respondeu
-
-- **Quantos drops** destrancam o capítulo. Ele já decidiu que é **pelo total**, não por tipo.
-  Falta o número, e ele sai de medição, não de palpite.
-- **O verbo do motor sobre gente**, a dívida nº 2 acima. É §2 e não decida sozinho.
+- Patch por caminho explícito (`git diff <base> -- src/ > x.patch && git apply --3way`).
+- Conflito entre agentes: resolver mantendo OS DOIS lados (caso som+grupo).
+- `npm test` + OLHAR os prints antes de cada push. `main` é produção.
 
 ## Números medidos — não os re-derive, estão certos
 
