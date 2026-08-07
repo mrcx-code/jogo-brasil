@@ -94,15 +94,45 @@ cipó são composição boa, de material e lugar). É isto, em ordem de peso:
    azul-violeta — o zênite afunda enquanto o horizonte guarda o ouro, que é o que um fim
    de tarde faz. FPS 62 nas três rodadas; +8,8 KB de código; zero imagem nova.
 
+## Onda 3 — IMPLEMENTADA (2026-08-07)
+
+A cerimônia de virada de era virou cinema, medida antes e depois com um instrumento novo
+(`test/prints-onda3.js`: provoca uma virada REAL cruzando o limiar de impacto com a hora
+fixada, fotografa a cerimônia em seis marcas de tempo e mede fração do dia + luma do céu
+em cada uma; um MutationObserver mede a duração real da classe `cerimoniando`).
+
+1. **A varredura TERMINA no nascer do sol.** O ANTES media o problema: a varredura era
+   "+1 hora de onde estiver" — partindo de 0,40 a era nova abria às 0,654, ANOITECENDO
+   (céu caindo 76→67 ao longo da cerimônia); só partindo de 0,75 o amanhecer acontecia
+   por coincidência aritmética. Agora a virada de CAPÍTULO varre até a próxima manhã
+   (`max(1 hora, o que falta até fração 0)`), sempre na pintura nova, atrás da placa —
+   medido: dos dois pontos de partida a cerimônia fecha com o dia em 0,00. Entre cenas
+   do MESMO capítulo segue a hora de sempre (uma hora, sem alvo).
+2. **A varredura ganhou física** (princípio 4): decaimento exponencial com piso, em vez
+   de 220 s/s linear — parte depressa e assenta chegando. Do pior caso (quase um dia até
+   a manhã) leva ~2,3 s; da varredura mínima ~1,5 s. Sempre acaba dentro da cerimônia.
+3. **Um segundo a mais de respiro**: 2,41 s → 3,46 s medidos. É o que deixa o sol chegar
+   com a placa ainda de pé e o nome descansar assentado antes de a caixa subir. O toque
+   continua encerrando na hora.
+4. **O som do sol**: `somEra` ganhou uma voz a mais SÓ na virada de capítulo — senoide
+   alta (880 Hz) inchando em meio segundo de ataque, um segundo depois do arpejo, junto
+   com a luz. Baixa (0,07): quem não reparar não nota; quem reparar ouve o amanhecer.
+5. **O float "NOVA ERA" sai de cena na virada de capítulo** — o print do ANTES o pegou
+   atravessando a placa dizendo o que ela já diz, dois títulos disputando o quadro. Nas
+   trocas de cena sem cerimônia ele continua, porque ali é o único aviso.
+
+FPS 61/61/62 nas três rodadas (piso 58); +1,9 KB; zero imagem nova; zero rede. Prints
+`A3-*`/`D3-*` em `test/` (noite 0,75 e tarde 0,40 × seis tempos).
+
 ## Roteiro de ondas futuras
 
-- **Onda 3 — a cerimônia vira cinema**: a abertura de era hoje é véu + settle. Dar a ela
-  a varredura de luz da virada (nascer do sol na pintura nova), som e 1 s a mais de
-  respiro. Nada de arte nova. Agora que a NOITE fecha por pintura, a varredura tem mais
-  contraste para varrer — conferir a virada às 0,75 nos prints antes de mexer.
 - **Onda 4 — toque com física no canvas**: o mundo reagir ao dedo (onda de chão sutil no
   golpe, kick de câmera de 1–2 px com mola crítica). Câmera é território sensível
   (PASSO_CAP intocável) — protótipo atrás de flag antes de valer.
+  Refinado pela onda 3: o instrumento certo já existe como molde — medir ANTES com um
+  script dedicado que provoca o gesto real e fotografa em marcas de tempo, não confiar
+  no olho. E registrar o tempo REAL de cada marca (o screenshot atrasa; a onda 3 pagou
+  meia sessão até perceber que as marcas nominais mentiam ~0,5 s).
 - **Onda 5 — clima raro**: chuva fina no PÓS-CHUVA (o nome já promete), 1 vez por ciclo,
   partículas na camada da pintura. Escala com nada — clima é fato, não juízo. O teto da
   onda 2 já escurece o zênite do PÓS-CHUVA a 35% — a chuva nasce de um céu que já pesa.
@@ -112,9 +142,10 @@ cipó são composição boa, de material e lugar). É isto, em ordem de peso:
   o entardecer tímido, o botão é o `teto` da TARDE (0,55) — subir para ~0,75 aprofunda o
   zênite sem tocar o ouro.
 - **Contínuo**: medir FPS e peso a cada onda; qualquer efeito que não sobreviver ao
-  print com "isso parece 2026?" sai na onda seguinte. O medidor da onda 2
-  (`prints-onda2.js`, na raiz) fica: 6 pinturas × 2 horas, topo/céu/meio e a cor média
-  de um mob sob a noite.
+  print com "isso parece 2026?" sai na onda seguinte. Os medidores ficam em `test/`:
+  `prints-onda2.js` (6 pinturas × 2 horas, topo/céu/meio e a cor média de um mob sob a
+  noite — atenção: o caminho dele para o `index.html` precisa de ajuste desde que foi
+  movido da raiz) e `prints-onda3.js` (virada de era real, cerimônia no tempo).
 
 ## O que foi avaliado e NÃO entrou (para ninguém reabrir sem motivo)
 

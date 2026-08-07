@@ -2077,10 +2077,16 @@ function somPasso() { sopro(0.022, 0.05, 900, 0.9); }
 // VIRADA DE ERA. Um momento, não um efeito: três notas da pentatônica soando em arpejo com
 // 130 ms entre elas e decaimento de 1,1 s, então elas se sobrepõem e o que fica é um acorde
 // que abre. É o único som longo do jogo, e o único que usa mais de duas vozes.
-function somEra() {
+function somEra(amanhece) {
     [0, 2, 4].forEach(function (g, i) {
         setTimeout(function () { nota(AUD_ESCALA[g] * 0.5, 1.1, 0.20, "triangle", 0.03); }, i * 130);
     });
+    // O SOL (onda 3): só na virada de CAPÍTULO, quando a varredura de luz corre até a manhã —
+    // uma voz alta e senoidal que INCHA devagar (ataque de meio segundo) e chega junto com a
+    // luz, um segundo depois do acorde. É a luz em som — um inchar, não uma fanfarra; baixa o
+    // suficiente para quem não reparar não notar, alta o suficiente para casar com o amanhecer.
+    if (amanhece)
+        setTimeout(function () { nota(AUD_ESCALA[5], 1.6, 0.07, "sine", 0.5); }, 950);
 }
 // TIQUE DA FALA. 12 ms, onda quadrada bem baixa em 1,4 kHz, e só a cada TRÊS letras — a cada
 // letra vira metralhadora, e foi medido lendo: a 18 ms por letra, uma a uma dá 55 tiques por
@@ -5090,14 +5096,22 @@ function verificarCenario() {
     const avancar = function () {
         S.cenario = proxima;
         redesenharFundo();
-        floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58, life: 90,
-            txt: "NOVA ERA" });
+        // O float só fala quando NÃO há cerimônia: na virada de capítulo a placa grande já diz
+        // o nome da era, e o mesmo texto subindo pelo meio dela era ruído (medido no print
+        // A3-noite da onda 3 — dois títulos disputando o quadro).
+        if (!vira)
+            floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58,
+                life: 90, txt: "NOVA ERA" });
         burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
         // A VIRADA MOVE O SOL (Direção de Evolução, onda 1): atravessar o tempo é o tema do
         // jogo, e a virada de era é o momento em que mais tempo passa — então a luz conta isso.
-        // O frame loop varre ~1 hora de jogo em ~2 s; nada além do relógio é tocado.
-        saltoHora = DIA_SEG / 4;
-        somEra();
+        // ONDA 3: na virada de CAPÍTULO a varredura deixa de cair onde calhar e TERMINA no
+        // nascer do sol — a era nova abre de manhã, na pintura nova, atrás da cerimônia
+        // (medido no ANTES: partindo de 0,40 a era abria às 0,654, anoitecendo — o oposto de
+        // um começo). Sempre ao menos uma hora de luz; entre cenas do MESMO capítulo segue a
+        // hora de sempre. O frame loop consome com física (decaimento + piso), não linear.
+        saltoHora = vira ? Math.max(DIA_SEG / 4, DIA_SEG - relogio % DIA_SEG) : DIA_SEG / 4;
+        somEra(vira);
         salvar();
         if (vira)
             mostrarAbertura(); // e a fala do capítulo novo vem logo depois do fecho
@@ -6900,7 +6914,10 @@ function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
         pixelRotulo($("cerNome"), titulo, 3, "#ffd98a", "#0a0806");
         $("cerQuando").textContent = quando || "";
         $("telaFala").classList.add("cerimoniando");
-        cerTimer = setTimeout(fimCerimonia, 2400);
+        // 3,4 s (onda 3; era 2,4): o respiro extra é o que deixa a varredura de luz TERMINAR —
+        // o pior caso dela leva ~2,3 s — e o nome descansar assentado antes de a caixa subir.
+        // O toque continua encerrando na hora: cerimônia que prende é castigo.
+        cerTimer = setTimeout(fimCerimonia, 3400);
     }
     abrirTela("telaFala");
     if (!cerimonia)
@@ -7646,8 +7663,12 @@ document.addEventListener("DOMContentLoaded", () => {
         tick++;
         animT += dt;
         relogio += dt;
-        if (saltoHora > 0) { // a virada de era varre ~1 hora de luz em ~2 s
-            const p = Math.min(saltoHora, dt * 220);
+        if (saltoHora > 0) {
+            // A varredura de luz da virada, com física (onda 3): decaimento exponencial — parte
+            // depressa e ASSENTA chegando — com um piso que garante o fim. Da varredura mínima
+            // (uma hora) leva ~1,5 s; do pior caso (quase um dia inteiro até a manhã) ~2,3 s —
+            // sempre dentro da cerimônia. Linear a 220 s/s era planilha; isto é sol chegando.
+            const p = Math.min(saltoHora, Math.max(saltoHora * (1 - Math.exp(-dt * 1.9)), dt * 130));
             relogio += p;
             saltoHora -= p;
         }

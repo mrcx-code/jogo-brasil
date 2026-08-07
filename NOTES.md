@@ -1625,3 +1625,54 @@ mesmo commit que embutir arte nova. (c) O passe de sprites depende da ORDEM do d
 
 **Próximo passo:** onda 3 do `DIRECAO.md` — a cerimônia de era vira cinema (varredura
 de luz na abertura, que agora tem uma noite de verdade para varrer).
+
+### 2026-08-07 · Direção de Evolução, onda 3: a cerimônia vira cinema (worktree)
+
+O plano registrado no `DIRECAO.md` desde a onda 2, executado com o ANTES medido primeiro,
+como o próprio plano mandava ("conferir a virada às 0,75 nos prints antes de mexer").
+
+**O instrumento** (`test/prints-onda3.js`, novo): provoca uma virada de era REAL — arma a
+última cena da época 0 com o impacto encostado no limiar, fixa a hora via `setHora`,
+cruza o limiar e atravessa o fecho — e fotografa a cerimônia em seis marcas de tempo,
+medindo em cada uma a fração do dia, o `saltoHora` restante e a luma do céu no `#fundoHD`.
+Um `MutationObserver` na classe `cerimoniando` mede a duração real da cerimônia por
+dentro. Armadilha paga: o screenshot a dsf2 atrasa ~0,4 s cada marca — a primeira rodada
+imprimia o tempo NOMINAL e a cerimônia parecia fechar aos 1,8 s quando fechava aos 2,4.
+Registrar o tempo real resolveu; anotado no `DIRECAO.md` para a onda 4 não repagar.
+
+**O que o ANTES mediu:** cerimônia de 2,41 s; varredura linear (220 s/s) de exatamente
++1 hora "de onde estiver". Partindo de 0,75 (NOITE) ela terminava em 0,003 — amanhecer,
+mas por coincidência (0,75+0,25=1,0). Partindo de 0,40 terminava em 0,654: a era nova
+abria ANOITECENDO, céu caindo 76→67 ao longo da cerimônia — o momento que mais devia
+parecer um começo terminava no escuro. E o float "NOVA ERA" atravessava a placa da
+cerimônia dizendo o que ela já diz (print `A3-noite-t1.20`).
+
+**As quatro mudanças (todas em `src/jogo.ts`, ~30 linhas):**
+1. Virada de CAPÍTULO varre até a PRÓXIMA MANHÃ: `saltoHora = max(DIA_SEG/4, DIA_SEG −
+   relogio % DIA_SEG)` — sempre ao menos uma hora, sempre terminando em fração 0,00, na
+   pintura nova, atrás da placa. Troca de cena do mesmo capítulo mantém a hora de sempre.
+2. O consumo ganhou física: `p = min(resto, max(resto·(1−e^(−1,9·dt)), 130·dt))` —
+   decaimento exponencial com piso, parte depressa e assenta chegando. Pior caso (quase
+   um dia inteiro) ~2,3 s; mínimo ~1,5 s. Era linear, que é planilha (princípio 4).
+3. Cerimônia 2400 → 3400 ms — medido 3,41–3,46 s. O respiro extra é o que deixa a
+   varredura TERMINAR com a placa de pé. O toque continua encerrando na hora.
+4. `somEra(amanhece)`: uma voz a mais só na virada de capítulo — senoide de 880 Hz,
+   ataque de 0,5 s, vol 0,07, entrando 950 ms depois do arpejo, junto com a luz.
+   E o float "NOVA ERA" só nasce quando NÃO há cerimônia.
+
+**DEPOIS (mesmo protocolo):** partindo de 0,75 E de 0,40, a cerimônia fecha com o dia em
+0,00 — manhã na pintura nova nos dois casos (prints `D3-*-t2.60`/`t3.40`: o mesmo quadro
+que no ANTES fechava em lusco-fusco fecha com névoa de manhã acesa na serra). Varredura
+consumida aos ~2,4–2,7 s reais, dentro dos 3,4 s da cerimônia.
+
+**Medido:** FPS 61/61/62 em três rodadas do smoke (piso 58); `index.html` 3.908.474 →
+3.910.366 bytes (+1,9 KB, só código); zero imagem nova; zero rede; smoke verde sem tocar
+em teste nenhum (o smoke chama `somEra()` sem argumento — sem a voz do sol, por
+construção). Prints `A3-*`/`D3-*` em `test/`.
+
+**Dúvida deixada:** a cerimônia aberta pela SELEÇÃO de era no menu não varre a luz — ali
+não se atravessou tempo jogando, então decidi que o sol não anda; se o dono sentir falta
+de cinema ali, é uma linha (`saltoHora` no handler de `montarCapitulos`).
+
+**Próximo passo:** onda 4 do `DIRECAO.md` — toque com física no canvas (protótipo atrás
+de flag; câmera é território sensível).
