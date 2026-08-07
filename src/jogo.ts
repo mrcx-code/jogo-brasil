@@ -516,6 +516,12 @@ function coletarDrop(d, auto) {
   S.energia += v; S.energiaTotal += v;
   // ...and a resource of its kind piles up, no matter who picked it up
   const r = RECURSO_DE[d.type]; if (r) S.recursos[r] = (S.recursos[r] || 0) + 1;
+  // A seta da primeira espera atendida aponta O CONTADOR QUE ENCHEU, no instante em que
+  // ele enche — não antes, quando ainda não havia o que apontar.
+  if (r && dicaSetaArmada && !dicaSetaVista) {
+    dicaSetaVista = true; dicaSetaArmada = false;
+    apontarContador(r);
+  }
   const sx = Math.round(d.wx - worldX);
   // Só o que a personagem pega em mão soa. O que o U3 recolhe sozinho é 0,5/s de fundo, e um
   // tinido automático duas vezes por segundo é exatamente o som que cansa em trinta segundos.
@@ -796,6 +802,10 @@ function clicar(auto?, naoConta?, semAnim?) {
         : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
     }
     if (m.hp <= 0) {
+      // Microdica 2 (usabilidade, achado 5): a primeira espera ATENDIDA arma a seta; ela
+      // dispara quando o que ficou no chão for recolhido e o contador de cima encher —
+      // ver coletarDrop(), que é onde o alvo da seta passa a existir.
+      if (m.parado && !dicaSetaVista && dicasValem()) dicaSetaArmada = true;
       // Objeto se dissipa em oito quadros; PESSOA não se dissipa. Ela sai da rua e entra na
       // fila que anda atrás da protagonista, sem sumir de quadro em nenhum momento. `dead`
       // é o mesmo caminho que atualizarMobs já varre, e não conta nada por si.
@@ -1405,7 +1415,37 @@ function carregarRetencao() {
 // Called from the HUD tick. One card per threshold crossed, in order, never two at once.
 // owner: verificarCapitulo() removed with the chapter cards and the guide.
 
-let guiaAtual = null, guiaAlvoEl = null, guiaMostradoEm = 0;
+// owner: o guia de primeira partida foi APAGADO por inteiro (usabilidade, achado 5) —
+// estado, marcação (#guia) e CSS. No lugar dele existem as MICRODICAS contextuais, logo
+// abaixo: duas linhas efêmeras na fonte do jogo, cada uma amarrada ao primeiro gesto que
+// a torna necessária. Nenhum tour, nenhum botão de "entendi".
+// A dica só fala com quem ainda está aprendendo: abaixo deste total de impacto a partida
+// tem minutos de vida (o primeiro limiar de cena é 1500). Sessão nova de um save maduro
+// não reapresenta o óbvio — e nada disso entra no ESQUEMA_SAVE, porque dica repetida uma
+// vez por save jovem custa menos que um campo persistente novo.
+const DICA_TETO_IMPACTO = 400;
+function dicasValem() { return S.energiaTotal < DICA_TETO_IMPACTO; }
+// "ESQUERDA PULA": acesa no PRIMEIRO toque na metade direita (quem golpeou descobriu meia
+// interface; a dica entrega a outra metade). Desenhada no canvas, na fonte do mundo,
+// enquanto `relogio` não passar do prazo — efêmera por construção.
+let dicaPuloAte = 0, dicaPuloVista = false;
+// A seta do contador: armada quando a primeira ESPERA é atendida, disparada quando o que
+// a pessoa deixou no chão é recolhido e o contador de cima ENCHE — é aí que existe um
+// alvo para apontar. DOM (#dicaSeta), porque o contador é DOM.
+let dicaSetaArmada = false, dicaSetaVista = false;
+let dicaSetaTimer: ReturnType<typeof setTimeout> | null = null;
+function apontarContador(recurso) {
+  const alvoId = recurso === "flor" ? "pdFlor" : recurso === "agua" ? "pdAgua" : "pdRef";
+  const alvo = document.getElementById(alvoId);
+  const seta = document.getElementById("dicaSeta");
+  if (!alvo || !seta) return;
+  const r = alvo.getBoundingClientRect();
+  seta.style.left = Math.round(r.left + r.width / 2 - 7) + "px";
+  seta.style.top = Math.round(r.bottom + 4) + "px";
+  seta.classList.add("viva");
+  if (dicaSetaTimer) clearTimeout(dicaSetaTimer);
+  dicaSetaTimer = setTimeout(function () { seta.classList.remove("viva"); }, 2600);
+}
 // owner: marcarGuia() removed with the chapter cards and the guide.
 // owner: esconderGuia() removed with the chapter cards and the guide.
 // dismiss the step on screen (a tap anywhere, or "got it") and remember it so it never repeats
@@ -4733,11 +4773,15 @@ function desenharVidaMob(m) {
 
 function desenharMundo() {
   const pulso = 0.6 + 0.4 * Math.sin(animT * 6);
+  // Tela aberta (usabilidade, achado 2): o mundo continua VIVO atrás do véu, mas sem
+  // INSTRUMENTAÇÃO — barra de vida, anel de espera e rótulo de leitura são interface do
+  // jogo, e interface de jogo atravessando o menu é o jogo vazando sobre a tela.
+  const semLeitura = document.body.classList.contains("emTela");
   // o marco fincado no chão, na mesma camada 1:1 dos drops — nunca paralaxe nova
   desenharMarco();
   // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
   // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
-  if (moradores.length) {
+  if (moradores.length && !semLeitura) {
     const extra = (S.acolhidos[CAP_GENTE] | 0) - moradores.length;
     if (extra > 0) {
       const msg = "E MAIS " + extra + " VIVEM AQUI";
@@ -4793,7 +4837,7 @@ function desenharMundo() {
   // conta quantas pancadas essa pessoa aguenta — a linha exata do §2.2. O mesmo progresso é
   // lido no CHÃO, no anel logo abaixo: o lugar de espera vai se enchendo de luz enquanto você
   // chega até ela. Mesma informação, sem transformar ninguém em alvo com vida.
-  if (!capGente()) mobs.forEach(function (m) { desenharVidaMob(m); });
+  if (!capGente() && !semLeitura) mobs.forEach(function (m) { desenharVidaMob(m); });
   // QUEM ESTÁ ESPERANDO. Aqui havia dois tiques VERMELHOS piscando nos pés, e vermelho
   // piscando é a gramática de perigo e de erro — a gramática errada. No capítulo 2 quem chega
   // e espera é gente, e o §2.2 não admite que o jogo desenhe uma barra de aflição em cima
@@ -4802,7 +4846,7 @@ function desenharMundo() {
   // cor, não fica vermelho perto do fim. Diz "tem alguém aqui", e só. O que o tempo faz é
   // apagar a luz nos últimos instantes, o que é uma despedida e não um alarme.
   mobs.forEach(function (m) {
-    if (!m.parado || m.dying > 0) return;
+    if (semLeitura || !m.parado || m.dying > 0) return;
     const sx = Math.round(m.wx - worldX) + 5;
     // respiração lenta e igual para todas: uma rua onde cada lugar pisca no seu ritmo lê como
     // ruído. `m.wx` entra na fase só para as auras não baterem em uníssono.
@@ -4844,6 +4888,16 @@ function desenharMundo() {
     cx.restore();
     cx.globalAlpha = 1;
   });
+  // Microdica 1 (usabilidade, achado 5): "ESQUERDA PULA", na fonte do mundo, perto da
+  // personagem — acesa pelo primeiro toque na metade direita e apagada pelo relógio.
+  // Some no último meio segundo em vez de cortar seco.
+  if (!semLeitura && dicaPuloAte > relogio) {
+    const msg = "ESQUERDA PULA";
+    const x = Math.max(4, HX - larguraTexto(msg, 1) - 16);
+    cx.globalAlpha = Math.max(0, Math.min(1, (dicaPuloAte - relogio) / 0.5));
+    texto(msg, x, GROUND - 68, 1, "#f3dda6", "#241a10");
+    cx.globalAlpha = 1;
+  }
 }
 
 // ---------- HUD ----------
@@ -4869,6 +4923,18 @@ function desenhar() {
   // um capítulo com nome diz onde você está; um capítulo com número diz só quantos faltam.
   pixelRotulo($("rotuloEpoca"), EPOCAS[epocaAtual()].nome, 1, "#d8c398", "#0a0806");
   $("barraEpocaFill").style.width = pc + "%";
+  // O sussurro da barra (usabilidade, achado 10): quando a cena atual é a ÚLTIMA da era e
+  // já passou de 75%, a barra ganha voz — "falta pouco". Só quando a próxima cena pertence
+  // a OUTRA era: prometer era nova numa virada de cena interna seria mentira de interface.
+  const su = $("sussurroEra");
+  const proxCena = cenarioAtual() + 1;
+  const viraEra = proxCena < TOTAL_CENAS && epocaDoCenario(proxCena) !== epocaAtual();
+  if (viraEra && progressoCena() > 0.75) {
+    pixelRotulo(su, "FALTA POUCO PARA A PRÓXIMA ERA", 1, "#ffd98a", "#0a0806");
+    su.classList.add("vivo");
+  } else {
+    su.classList.remove("vivo");
+  }
   // O indicador discreto do marco: quantos PASSOS até a placa que já está vindo. Reusa a
   // medida que o jogo já faz — o quadro do sprite é escolhido pelo chão coberto, e um passo
   // é PASSO_CAP.passo px de mundo. Nenhum número inventado: é distância medida na rua.
@@ -5376,7 +5442,38 @@ function montarCompletude() {
     d.className = cls; d.textContent = txt;
     pai.appendChild(d); return d;
   };
+  // O FIM DA LINHA (usabilidade, achado 8): uma escada de "— ainda não —" repetidos não
+  // promete nada — conta a mesma ausência N vezes. Sequências CONSECUTIVAS de momentos
+  // não-alcançados (duas ou mais) colapsam numa placa só que diz quantos marcos vêm à
+  // frente. Um momento sozinho continua sendo o traço de sempre: um teaser lê; seis são
+  // um formulário vazio. Marcos e pontas quebram a sequência — eles têm placa própria.
+  const momentoVisto = function (no: NoLinha) {
+    return (no.cena != null ? no.cena : no.i!) <= ate;
+  };
+  const fila: NoLinha[] = [];
+  const nos: (NoLinha | { tipo: "mais"; n: number })[] = [];
+  const despejarFila = function () {
+    if (fila.length >= 2) nos.push({ tipo: "mais", n: fila.length });
+    else if (fila.length === 1) nos.push(fila[0]);
+    fila.length = 0;
+  };
   LINHA_TEMPO.forEach(function (no) {
+    if (no.tipo === "momento" && !momentoVisto(no)) { fila.push(no); return; }
+    despejarFila();
+    nos.push(no);
+  });
+  despejarFila();
+  nos.forEach(function (no) {
+    if (no.tipo === "mais") {
+      const n = (no as { n: number }).n;
+      const m = document.createElement("div");
+      m.className = "ltMais";
+      const t = document.createElement("div");
+      pixelRotulo(t, "E MAIS " + n + (n === 1 ? " MARCO" : " MARCOS") + " À FRENTE", 1, "#332a1a");
+      m.appendChild(t);
+      col.appendChild(m);
+      return;
+    }
     if (no.tipo === "antes") {
       // O trecho de cima: o fio já vem de longe. Texto do dono (abertura do capítulo um),
       // resumido sem afirmar nada novo — a redação final é do historiador.
@@ -5398,7 +5495,8 @@ function montarCompletude() {
       const m = document.createElement("div");
       m.className = "ltMarco" + (chegou ? "" : " longe");
       const t = document.createElement("div");
-      pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#7a7263");
+      // a placa longe agora é a mesma madeira, encardida (achado 8) — a tinta acompanha
+      pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#332a1a");
       m.appendChild(t);
       sub(m, "ltMarcoQuando", chegou ? ep.quando : "continue a travessia");
       col.appendChild(m);
@@ -5481,7 +5579,14 @@ function ligarTelas() {
   // jogar, que é o pedido do dono — o contexto histórico não pode ficar escondido num menu.
   // Quem já leu passa direto, porque `mostrarAbertura()` só fala uma vez por capítulo.
   $("btnJogar").addEventListener("pointerdown", function (e) {
-    e.preventDefault(); montarCapitulos(); abrirTela("telaCapitulos");
+    e.preventDefault();
+    // Com UMA era destrancada a tela de eras é uma escolha sem opções (usabilidade,
+    // achado 7): JOGAR entra direto no jogo — a abertura do capítulo 1 continua vindo
+    // primeiro, porque mostrarAbertura() só fala uma vez e sai da frente de quem já leu.
+    // O cenário NÃO é tocado: quem estava no meio da era continua de onde parou.
+    // A lista volta a existir sozinha na segunda era, que é quando há escolha de verdade.
+    if (epocaAtual() === 0) { fecharTelas(); mostrarAbertura(); return; }
+    montarCapitulos(); abrirTela("telaCapitulos");
   });
   $("btnVoltarCap").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnCompletude").addEventListener("pointerdown", function (e) { e.preventDefault(); montarCompletude(); abrirTela("telaCompletude"); });
@@ -5515,9 +5620,20 @@ function ligarTelas() {
 }
 function montarConfig() {
   const d = R.dias.length, m = Math.floor((R.segundos || 0) / 60);
-  $("cfgInfo").textContent = "dias distintos jogados: " + d
-    + " · tempo total: " + m + " min"
-    + " · nada sai deste aparelho: o jogo não tem rede.";
+  // O parágrafo era o último texto de tela em sans-serif do sistema (usabilidade, achado
+  // 9). Vira papel de campo (CSS em #telaConfig #cfgInfo) com linhas na fonte bitmap —
+  // a mesma 5×7 do resto do jogo. Os números são MEDIDOS (retenção), não inventados; a
+  // frase da privacidade continua palavra por palavra: ela é um compromisso, não decoração.
+  const box = $("cfgInfo");
+  box.textContent = "";
+  [["DIAS DISTINTOS JOGADOS: " + d, "#33240f"],
+   ["TEMPO TOTAL: " + m + " MIN", "#33240f"],
+   ["NADA SAI DESTE APARELHO:", "#5c3210"],
+   ["O JOGO NÃO TEM REDE.", "#5c3210"]].forEach(function (l) {
+    const linha = document.createElement("div");
+    pixelRotulo(linha, l[0], 1, l[1]);
+    box.appendChild(linha);
+  });
   pixelRotulo($("btnSom"), S.som ? "SOM: LIGADO" : "SOM: DESLIGADO", 2, "#f2e8ce");
   pixelRotulo($("btnApagar"), "APAGAR MEU PROGRESSO", 2, "#e8a595");
 }
@@ -5645,7 +5761,14 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     if (algumaAberta()) { fecharTudo(); return; }
     const r = cv.getBoundingClientRect();
-    if (e.clientX < r.left + r.width / 2) pular(); else clicar();
+    if (e.clientX < r.left + r.width / 2) pular();
+    else {
+      // Microdica 1 (usabilidade, achado 5): quem tocou a metade direita descobriu o golpe;
+      // nada na tela diz que a OUTRA metade pula. Uma linha efêmera perto da personagem,
+      // uma vez por sessão, e só enquanto o save é jovem.
+      if (!dicaPuloVista && dicasValem()) { dicaPuloVista = true; dicaPuloAte = relogio + 2.8; }
+      clicar();
+    }
   });
   // owner: the projects sheet is gone, and with it its buy buttons and its copy of the
   // rhythm switch. The rhythm now lives only on the card in the control block.
@@ -5671,25 +5794,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // short grace stops a tap already in flight when a step appears from killing it unread.
   ligarTelas();
   $("btnU5").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); });
-  // ACHADO DA MIGRAÇÃO, NÃO CONSERTADO AQUI. `dispensarGuia` e `pularGuia` NÃO EXISTEM: foram
-  // apagadas junto com o guia de primeira partida, e estas três chamadas ficaram para trás.
-  // Hoje são inertes — `#guia` é `display:none` no CSS, nada põe a classe `.mostra` nele, e
-  // `guiaAtual` nasce null e nunca é atribuído — então nenhum caminho chega a chamá-las. É
-  // exatamente a família de defeito que esta migração foi paga para pegar (`montarFontes is
-  // not defined`), e é a prova de que o compilador enxerga o que ninguém viu. Está SUPRIMIDO
-  // e não removido porque esta fase é conversão: apagar o guia é decisão do dono, e envolve
-  // marcação e CSS além do script. Os `@ts-expect-error` avisam sozinhos no dia em que
-  // alguém restaurar as funções — a supressão passa a ser erro.
-  // @ts-expect-error dispensarGuia() não existe; ver o comentário acima
-  $("guiaOk").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); dispensarGuia(); });
-  // @ts-expect-error pularGuia() não existe; ver o comentário acima
-  $("guiaSkip").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pularGuia(); });
-  document.addEventListener("pointerdown", function (e) {
-    if ($("guia").contains(e.target as Node | null)) return;      // its own buttons handle themselves
-    const agora = (typeof performance !== "undefined" ? performance.now() : Date.now());
-    // @ts-expect-error dispensarGuia() não existe; ver o comentário acima
-    if (guiaAtual && agora - guiaMostradoEm > 300) dispensarGuia();
-  }, true);
+  // O guia de primeira partida morreu de verdade (usabilidade, achado 5): os três ouvintes
+  // que ficaram para trás da migração — chamando dispensarGuia/pularGuia, que não existiam —
+  // saíram junto com a marcação #guia e o CSS dele. Quem ensina agora são as microdicas.
   // no zoom, no text selection: this is a game, not a website
   ["gesturestart", "gesturechange", "gestureend"].forEach(function (ev) {
     document.addEventListener(ev, function (e) { e.preventDefault(); });

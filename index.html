@@ -76,7 +76,13 @@
     image-rendering: pixelated; z-index: 0; }
   /* the hero, at device resolution — see drawHero for why she is not in #scene */
   #heroHD { position: fixed; inset: 0; width: 100%; height: 100%;
-    image-rendering: auto; z-index: 1; pointer-events: none; }
+    image-rendering: auto; z-index: 1; pointer-events: none;
+    transition: filter .3s ease; }
+  /* Tela aberta: a personagem recebe o MESMO escurecimento do véu (usabilidade, achado 2).
+     Ela vive numa camada própria em resolução de aparelho, então o véu da .tela — que cobre
+     o #scene — a deixava full-bright em cima do menu, lendo como vazamento do jogo. O mundo
+     continua vivo; ela só entra na mesma luz que ele. */
+  body.emTela #heroHD { filter: brightness(.42) saturate(.85); }
   /* the CRT scanlines and the CSS vignette are gone: at opacity .34 the scanlines greyed
      down the whole frame, and the vignette stacked on the canvas one. Direction C has no
      post-processing anywhere — the look has to hold up on form and colour alone. */
@@ -175,6 +181,13 @@
     line-height: 1; opacity: .92; }
   #marcoDist.vivo { display: flex; }
 
+  /* O sussurro da barra de época (usabilidade, achado 10): quando falta pouco para a era
+     virar, uma linha discreta embaixo da plaquinha diz que a barra está prestes a pagar.
+     Mesma gramática do #marcoDist — bitmap, quieto, e só existe enquanto for verdade. */
+  #sussurroEra { display: none; justify-content: flex-start; padding: 3px 0 0 14px;
+    line-height: 1; opacity: .88; }
+  #sussurroEra.vivo { display: flex; }
+
   /* ENQUANTO VOCÊ ESTEVE FORA — o papel de campo da volta: mesmo material da caixa de
      fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro. */
   #retorno { display: none; position: fixed; z-index: 30; left: 50%; top: 24%;
@@ -216,37 +229,18 @@
     85% { opacity: 1; transform: translateX(-50%) translateY(0) }
     100% { opacity: 0; transform: translateX(-50%) translateY(0) } }
 
-  /* ---- first-run guide: one warm line at a time, tied to game state ----
-     A neighbour pointing at the single thing you can do next — not a wall of text, not a
-     modal to click through before playing. Pointer-through like the chapter card, so a tap
-     always reaches the game underneath; only its two little buttons capture. It sits ABOVE
-     the control block (never over it) and its caret points at the thing being named. */
-  #guia { display: none; position: fixed; z-index: 13; left: 8px; right: 8px;
-    bottom: calc(var(--hControles, 150px) + 10px); pointer-events: none; }
-  #guia.mostra { display: block; animation: guiaVem .26s ease-out 1 both; }
-  .guiaBolha { position: relative; margin: 0 auto; width: min(360px, 94vw);
-    border-radius: var(--raio); background: linear-gradient(180deg, var(--panel2), var(--panel));
-    border: 3px solid var(--contorno); border-left: 5px solid var(--gold);
-    box-shadow: 0 5px 0 var(--contorno), inset 0 1px 0 rgba(255,255,255,.13);
-    padding: 10px 11px 8px; }
-  #guiaV { font-size: var(--fs-sm); color: var(--texto); line-height: 1.6; }
-  #guiaV b { color: var(--gold); }
-  .guiaRow { display: flex; justify-content: flex-end; gap: 16px; margin-top: 7px;
-    pointer-events: auto; }
-  .guiaRow button { background: none; border: none; padding: 4px 2px; cursor: pointer;
-    font-size: var(--fs-xs); letter-spacing: .09em; text-transform: uppercase; }
-  #guiaOk { color: var(--gold); font-weight: 800; }
-  #guiaSkip { color: var(--sub); }
-  .guiaCaret { position: absolute; bottom: -9px; left: 50%; width: 13px; height: 13px;
-    transform: translateX(-50%) rotate(45deg); background: var(--panel);
-    border-right: 3px solid var(--contorno); border-bottom: 3px solid var(--contorno); }
-  @keyframes guiaVem { 0% { opacity: 0; transform: translateY(8px) }
-    100% { opacity: 1; transform: translateY(0) } }
-  /* the thing being pointed at pulses gold so the eye finds it — outline only, no reflow */
-  .guiaAlvo { animation: guiaPulso 1.1s ease-in-out infinite;
-    outline: 3px solid var(--gold); outline-offset: 2px; }
-  @keyframes guiaPulso { 0%, 100% { outline-color: rgba(235,167,72,.30) }
-    50% { outline-color: rgba(235,167,72,.95) } }
+  /* ---- microdicas da primeira corrida (usabilidade, achado 5) ----
+     O guia de primeira partida (#guia) foi apagado por inteiro. No lugar, duas dicas
+     efêmeras amarradas ao primeiro gesto: "ESQUERDA PULA" é desenhada pelo próprio canvas
+     na fonte do mundo; esta seta aponta o contador do HUD que acabou de encher, na
+     primeira espera atendida. Um triângulo de ouro, sem texto — apontar é o trabalho todo. */
+  #dicaSeta { display: none; position: fixed; z-index: 11; width: 0; height: 0;
+    pointer-events: none;
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-bottom: 11px solid var(--gold);
+    filter: drop-shadow(0 2px 0 #0a0806); }
+  #dicaSeta.viva { display: block; animation: dicaAcena .5s ease-in-out infinite alternate; }
+  @keyframes dicaAcena { 0% { transform: translateY(0) } 100% { transform: translateY(5px) } }
 
   /* ---- the wall: the only thing here that survives a reset ----
      Painted, street, and it only ever grows. Its own localStorage key, for the same
@@ -443,6 +437,17 @@
                 inset 0 0 0 2px #120c06, 0 5px 0 #0a0806; }
   .telaTxt { font-size: 14px; color: #e6dcc4; line-height: 1.7; max-width: 30em;
     margin-bottom: 22px; white-space: pre-wrap; }
+  /* AJUSTES na fonte da casa (usabilidade, achado 9): o parágrafo era o último texto de
+     tela em sans-serif do sistema. Vira um papel de campo — mesmo material da caixa de
+     fala — com as linhas na fonte bitmap, montadas por montarConfig() via pixelRotulo. */
+  #telaConfig #cfgInfo { display: flex; flex-direction: column; align-items: center;
+    gap: 8px; padding: 14px 18px; border-radius: 4px; max-width: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
+                inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
+                0 7px 0 rgba(0,0,0,.45); }
   /* TÁBUA DE MADEIRA — dois materiais no jogo inteiro, cada um com um sentido: PEDRA é
      ferramenta de jogo (a barra de baixo, os nichos de contador), MADEIRA é coisa posta no
      lugar (as placas das telas). A tábua tem as mesmas quatro coisas da laje, todas em
@@ -628,11 +633,29 @@
     color: #4a2f14; letter-spacing: .06em; margin-top: 4px; }
   /* marco ainda não alcançado: madeira encardida, à distância — ver o que falta é o que
      faz querer voltar */
-  .ltMarco.longe { background: #453c30; opacity: .8;
-    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2c2418,
-                inset 0 0 0 2px #1e1810, 0 3px 0 #0e0b07; }
-  .ltMarco.longe::before { border-color: #2e281e; }
-  .ltMarco.longe .ltMarcoQuando { color: #7a7263; }
+  /* A MESMA madeira dos marcos alcançados, só encardida (usabilidade, achado 8): a chapa
+     cinza-site de antes falava outro material. Mesma construção — gradiente com veio,
+     luz em cima, sombra embaixo, contorno e degrau — em tons apagados de tempo. */
+  .ltMarco.longe { background: linear-gradient(180deg, #7d6b4b, #61513a 60%, #4e4029),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 3px 0 #93805e, inset 0 -4px 0 #352a19,
+                inset 0 0 0 2px #221a0c, 0 4px 0 #0e0b07; }
+  .ltMarco.longe::before { border-color: #3a2f1e; }
+  .ltMarco.longe .ltMarcoQuando { color: #3c3122; }
+  /* A placa que RESUME o que ainda não veio (usabilidade, achado 8): sequências de
+     momentos não-alcançados colapsam numa tábua só — mesma madeira encardida dos marcos
+     longe, pendurada no fio pelo mesmo nó dos momentos. O que falta continua sendo o
+     motivo de voltar; agora sem uma escada de "— ainda não —" repetidos. */
+  .ltMais { position: relative; padding: 9px 12px; margin: 4px 0 4px 8px; border-radius: 3px;
+    background: linear-gradient(180deg, #7d6b4b, #61513a 60%, #4e4029),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 2px 0 #93805e, inset 0 -3px 0 #352a19,
+                inset 0 0 0 2px #221a0c, 0 3px 0 #0e0b07; }
+  .ltMais::before { content: ""; position: absolute; left: -33px; top: 13px;
+    width: 9px; height: 9px; background: #4e4029;
+    box-shadow: inset 0 2px 0 #6b5a3e, inset 0 -2px 0 #221a0c, 0 0 0 2px #14100a; }
+  .ltMais::after { content: ""; position: absolute; left: -24px; top: 16px;
+    width: 24px; height: 3px; background: #3a2c16; }
   /* o MOMENTO: o mesmo nicho escuro de sempre, agora amarrado ao fio por um nó */
   .ltMomento { position: relative; padding: 8px 12px; margin: 3px 0 3px 8px;
     background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; }
@@ -839,6 +862,9 @@
     <span id="rotuloEpoca">ANTES DA CHEGADA</span>
     <div id="barraEpoca"><div id="barraEpocaFill"></div></div>
   </div>
+  <!-- O sussurro da barra (usabilidade, achado 10): quando falta pouco para a era virar,
+       esta linha acende embaixo da plaquinha. Preenchida por desenhar(), na fonte bitmap. -->
+  <div id="sussurroEra"></div>
   <!-- O indicador do marco: quantos passos até a placa que já entrou na estrada (cap. 2).
        Discreto de propósito — mora sob a barra da época e só existe enquanto há marco vindo. -->
   <div id="marcoDist"></div>
@@ -854,14 +880,10 @@
   <div id="retOk">toque para seguir ▾</div>
 </div>
 
-<div id="guia" aria-live="polite">
-  <div class="guiaBolha">
-    <div id="guiaV"></div>
-    <div class="guiaRow"><button id="guiaOk" type="button">entendi</button>
-      <button id="guiaSkip" type="button">pular</button></div>
-    <div class="guiaCaret"></div>
-  </div>
-</div>
+<!-- O guia de primeira partida foi apagado (usabilidade, achado 5). Quem ensina os
+     controles são as microdicas contextuais, desenhadas pelo próprio jogo: o rótulo
+     "ESQUERDA PULA" na cena e a seta #dicaSeta apontando o contador que encheu. -->
+<div id="dicaSeta" aria-hidden="true"></div>
 
 <!-- Four entries, four different jobs, and they used to be four identical slabs in a row.
      Now the block says what each one is: the RHYTHM you are running is a wide readout (it
@@ -1452,6 +1474,13 @@ function coletarDrop(d, auto) {
     const r = RECURSO_DE[d.type];
     if (r)
         S.recursos[r] = (S.recursos[r] || 0) + 1;
+    // A seta da primeira espera atendida aponta O CONTADOR QUE ENCHEU, no instante em que
+    // ele enche — não antes, quando ainda não havia o que apontar.
+    if (r && dicaSetaArmada && !dicaSetaVista) {
+        dicaSetaVista = true;
+        dicaSetaArmada = false;
+        apontarContador(r);
+    }
     const sx = Math.round(d.wx - worldX);
     // Só o que a personagem pega em mão soa. O que o U3 recolhe sozinho é 0,5/s de fundo, e um
     // tinido automático duas vezes por segundo é exatamente o som que cansa em trinta segundos.
@@ -1766,6 +1795,11 @@ function clicar(auto, naoConta, semAnim) {
                 : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
         }
         if (m.hp <= 0) {
+            // Microdica 2 (usabilidade, achado 5): a primeira espera ATENDIDA arma a seta; ela
+            // dispara quando o que ficou no chão for recolhido e o contador de cima encher —
+            // ver coletarDrop(), que é onde o alvo da seta passa a existir.
+            if (m.parado && !dicaSetaVista && dicasValem())
+                dicaSetaArmada = true;
             // Objeto se dissipa em oito quadros; PESSOA não se dissipa. Ela sai da rua e entra na
             // fila que anda atrás da protagonista, sem sumir de quadro em nenhum momento. `dead`
             // é o mesmo caminho que atualizarMobs já varre, e não conta nada por si.
@@ -2461,7 +2495,39 @@ function carregarRetencao() {
 // owner: mostrarCartao() removed with the chapter cards and the guide.
 // Called from the HUD tick. One card per threshold crossed, in order, never two at once.
 // owner: verificarCapitulo() removed with the chapter cards and the guide.
-let guiaAtual = null, guiaAlvoEl = null, guiaMostradoEm = 0;
+// owner: o guia de primeira partida foi APAGADO por inteiro (usabilidade, achado 5) —
+// estado, marcação (#guia) e CSS. No lugar dele existem as MICRODICAS contextuais, logo
+// abaixo: duas linhas efêmeras na fonte do jogo, cada uma amarrada ao primeiro gesto que
+// a torna necessária. Nenhum tour, nenhum botão de "entendi".
+// A dica só fala com quem ainda está aprendendo: abaixo deste total de impacto a partida
+// tem minutos de vida (o primeiro limiar de cena é 1500). Sessão nova de um save maduro
+// não reapresenta o óbvio — e nada disso entra no ESQUEMA_SAVE, porque dica repetida uma
+// vez por save jovem custa menos que um campo persistente novo.
+const DICA_TETO_IMPACTO = 400;
+function dicasValem() { return S.energiaTotal < DICA_TETO_IMPACTO; }
+// "ESQUERDA PULA": acesa no PRIMEIRO toque na metade direita (quem golpeou descobriu meia
+// interface; a dica entrega a outra metade). Desenhada no canvas, na fonte do mundo,
+// enquanto `relogio` não passar do prazo — efêmera por construção.
+let dicaPuloAte = 0, dicaPuloVista = false;
+// A seta do contador: armada quando a primeira ESPERA é atendida, disparada quando o que
+// a pessoa deixou no chão é recolhido e o contador de cima ENCHE — é aí que existe um
+// alvo para apontar. DOM (#dicaSeta), porque o contador é DOM.
+let dicaSetaArmada = false, dicaSetaVista = false;
+let dicaSetaTimer = null;
+function apontarContador(recurso) {
+    const alvoId = recurso === "flor" ? "pdFlor" : recurso === "agua" ? "pdAgua" : "pdRef";
+    const alvo = document.getElementById(alvoId);
+    const seta = document.getElementById("dicaSeta");
+    if (!alvo || !seta)
+        return;
+    const r = alvo.getBoundingClientRect();
+    seta.style.left = Math.round(r.left + r.width / 2 - 7) + "px";
+    seta.style.top = Math.round(r.bottom + 4) + "px";
+    seta.classList.add("viva");
+    if (dicaSetaTimer)
+        clearTimeout(dicaSetaTimer);
+    dicaSetaTimer = setTimeout(function () { seta.classList.remove("viva"); }, 2600);
+}
 // owner: marcarGuia() removed with the chapter cards and the guide.
 // owner: esconderGuia() removed with the chapter cards and the guide.
 // dismiss the step on screen (a tap anywhere, or "got it") and remember it so it never repeats
@@ -5988,11 +6054,15 @@ function desenharVidaMob(m) {
 // owner: desenharSuper() removed — only the strike is left.
 function desenharMundo() {
     const pulso = 0.6 + 0.4 * Math.sin(animT * 6);
+    // Tela aberta (usabilidade, achado 2): o mundo continua VIVO atrás do véu, mas sem
+    // INSTRUMENTAÇÃO — barra de vida, anel de espera e rótulo de leitura são interface do
+    // jogo, e interface de jogo atravessando o menu é o jogo vazando sobre a tela.
+    const semLeitura = document.body.classList.contains("emTela");
     // o marco fincado no chão, na mesma camada 1:1 dos drops — nunca paralaxe nova
     desenharMarco();
     // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
     // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
-    if (moradores.length) {
+    if (moradores.length && !semLeitura) {
         const extra = (S.acolhidos[CAP_GENTE] | 0) - moradores.length;
         if (extra > 0) {
             const msg = "E MAIS " + extra + " VIVEM AQUI";
@@ -6053,7 +6123,7 @@ function desenharMundo() {
     // conta quantas pancadas essa pessoa aguenta — a linha exata do §2.2. O mesmo progresso é
     // lido no CHÃO, no anel logo abaixo: o lugar de espera vai se enchendo de luz enquanto você
     // chega até ela. Mesma informação, sem transformar ninguém em alvo com vida.
-    if (!capGente())
+    if (!capGente() && !semLeitura)
         mobs.forEach(function (m) { desenharVidaMob(m); });
     // QUEM ESTÁ ESPERANDO. Aqui havia dois tiques VERMELHOS piscando nos pés, e vermelho
     // piscando é a gramática de perigo e de erro — a gramática errada. No capítulo 2 quem chega
@@ -6063,7 +6133,7 @@ function desenharMundo() {
     // cor, não fica vermelho perto do fim. Diz "tem alguém aqui", e só. O que o tempo faz é
     // apagar a luz nos últimos instantes, o que é uma despedida e não um alarme.
     mobs.forEach(function (m) {
-        if (!m.parado || m.dying > 0)
+        if (semLeitura || !m.parado || m.dying > 0)
             return;
         const sx = Math.round(m.wx - worldX) + 5;
         // respiração lenta e igual para todas: uma rua onde cada lugar pisca no seu ritmo lê como
@@ -6114,6 +6184,16 @@ function desenharMundo() {
         cx.restore();
         cx.globalAlpha = 1;
     });
+    // Microdica 1 (usabilidade, achado 5): "ESQUERDA PULA", na fonte do mundo, perto da
+    // personagem — acesa pelo primeiro toque na metade direita e apagada pelo relógio.
+    // Some no último meio segundo em vez de cortar seco.
+    if (!semLeitura && dicaPuloAte > relogio) {
+        const msg = "ESQUERDA PULA";
+        const x = Math.max(4, HX - larguraTexto(msg, 1) - 16);
+        cx.globalAlpha = Math.max(0, Math.min(1, (dicaPuloAte - relogio) / 0.5));
+        texto(msg, x, GROUND - 68, 1, "#f3dda6", "#241a10");
+        cx.globalAlpha = 1;
+    }
 }
 // ---------- HUD ----------
 // O `!` está aqui e não nas ~90 chamadas: todo id que passa por `$` é escrito à mão no mesmo
@@ -6141,6 +6221,19 @@ function desenhar() {
     // um capítulo com nome diz onde você está; um capítulo com número diz só quantos faltam.
     pixelRotulo($("rotuloEpoca"), EPOCAS[epocaAtual()].nome, 1, "#d8c398", "#0a0806");
     $("barraEpocaFill").style.width = pc + "%";
+    // O sussurro da barra (usabilidade, achado 10): quando a cena atual é a ÚLTIMA da era e
+    // já passou de 75%, a barra ganha voz — "falta pouco". Só quando a próxima cena pertence
+    // a OUTRA era: prometer era nova numa virada de cena interna seria mentira de interface.
+    const su = $("sussurroEra");
+    const proxCena = cenarioAtual() + 1;
+    const viraEra = proxCena < TOTAL_CENAS && epocaDoCenario(proxCena) !== epocaAtual();
+    if (viraEra && progressoCena() > 0.75) {
+        pixelRotulo(su, "FALTA POUCO PARA A PRÓXIMA ERA", 1, "#ffd98a", "#0a0806");
+        su.classList.add("vivo");
+    }
+    else {
+        su.classList.remove("vivo");
+    }
     // O indicador discreto do marco: quantos PASSOS até a placa que já está vindo. Reusa a
     // medida que o jogo já faz — o quadro do sprite é escolhido pelo chão coberto, e um passo
     // é PASSO_CAP.passo px de mundo. Nenhum número inventado: é distância medida na rua.
@@ -6680,7 +6773,43 @@ function montarCompletude() {
         pai.appendChild(d);
         return d;
     };
+    // O FIM DA LINHA (usabilidade, achado 8): uma escada de "— ainda não —" repetidos não
+    // promete nada — conta a mesma ausência N vezes. Sequências CONSECUTIVAS de momentos
+    // não-alcançados (duas ou mais) colapsam numa placa só que diz quantos marcos vêm à
+    // frente. Um momento sozinho continua sendo o traço de sempre: um teaser lê; seis são
+    // um formulário vazio. Marcos e pontas quebram a sequência — eles têm placa própria.
+    const momentoVisto = function (no) {
+        return (no.cena != null ? no.cena : no.i) <= ate;
+    };
+    const fila = [];
+    const nos = [];
+    const despejarFila = function () {
+        if (fila.length >= 2)
+            nos.push({ tipo: "mais", n: fila.length });
+        else if (fila.length === 1)
+            nos.push(fila[0]);
+        fila.length = 0;
+    };
     LINHA_TEMPO.forEach(function (no) {
+        if (no.tipo === "momento" && !momentoVisto(no)) {
+            fila.push(no);
+            return;
+        }
+        despejarFila();
+        nos.push(no);
+    });
+    despejarFila();
+    nos.forEach(function (no) {
+        if (no.tipo === "mais") {
+            const n = no.n;
+            const m = document.createElement("div");
+            m.className = "ltMais";
+            const t = document.createElement("div");
+            pixelRotulo(t, "E MAIS " + n + (n === 1 ? " MARCO" : " MARCOS") + " À FRENTE", 1, "#332a1a");
+            m.appendChild(t);
+            col.appendChild(m);
+            return;
+        }
         if (no.tipo === "antes") {
             // O trecho de cima: o fio já vem de longe. Texto do dono (abertura do capítulo um),
             // resumido sem afirmar nada novo — a redação final é do historiador.
@@ -6704,7 +6833,8 @@ function montarCompletude() {
             const m = document.createElement("div");
             m.className = "ltMarco" + (chegou ? "" : " longe");
             const t = document.createElement("div");
-            pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#7a7263");
+            // a placa longe agora é a mesma madeira, encardida (achado 8) — a tinta acompanha
+            pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#332a1a");
             m.appendChild(t);
             sub(m, "ltMarcoQuando", chegou ? ep.quando : "continue a travessia");
             col.appendChild(m);
@@ -6797,6 +6927,16 @@ function ligarTelas() {
     // Quem já leu passa direto, porque `mostrarAbertura()` só fala uma vez por capítulo.
     $("btnJogar").addEventListener("pointerdown", function (e) {
         e.preventDefault();
+        // Com UMA era destrancada a tela de eras é uma escolha sem opções (usabilidade,
+        // achado 7): JOGAR entra direto no jogo — a abertura do capítulo 1 continua vindo
+        // primeiro, porque mostrarAbertura() só fala uma vez e sai da frente de quem já leu.
+        // O cenário NÃO é tocado: quem estava no meio da era continua de onde parou.
+        // A lista volta a existir sozinha na segunda era, que é quando há escolha de verdade.
+        if (epocaAtual() === 0) {
+            fecharTelas();
+            mostrarAbertura();
+            return;
+        }
         montarCapitulos();
         abrirTela("telaCapitulos");
     });
@@ -6840,9 +6980,20 @@ function ligarTelas() {
 }
 function montarConfig() {
     const d = R.dias.length, m = Math.floor((R.segundos || 0) / 60);
-    $("cfgInfo").textContent = "dias distintos jogados: " + d
-        + " · tempo total: " + m + " min"
-        + " · nada sai deste aparelho: o jogo não tem rede.";
+    // O parágrafo era o último texto de tela em sans-serif do sistema (usabilidade, achado
+    // 9). Vira papel de campo (CSS em #telaConfig #cfgInfo) com linhas na fonte bitmap —
+    // a mesma 5×7 do resto do jogo. Os números são MEDIDOS (retenção), não inventados; a
+    // frase da privacidade continua palavra por palavra: ela é um compromisso, não decoração.
+    const box = $("cfgInfo");
+    box.textContent = "";
+    [["DIAS DISTINTOS JOGADOS: " + d, "#33240f"],
+        ["TEMPO TOTAL: " + m + " MIN", "#33240f"],
+        ["NADA SAI DESTE APARELHO:", "#5c3210"],
+        ["O JOGO NÃO TEM REDE.", "#5c3210"]].forEach(function (l) {
+        const linha = document.createElement("div");
+        pixelRotulo(linha, l[0], 1, l[1]);
+        box.appendChild(linha);
+    });
     pixelRotulo($("btnSom"), S.som ? "SOM: LIGADO" : "SOM: DESLIGADO", 2, "#f2e8ce");
     pixelRotulo($("btnApagar"), "APAGAR MEU PROGRESSO", 2, "#e8a595");
 }
@@ -6994,8 +7145,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const r = cv.getBoundingClientRect();
         if (e.clientX < r.left + r.width / 2)
             pular();
-        else
+        else {
+            // Microdica 1 (usabilidade, achado 5): quem tocou a metade direita descobriu o golpe;
+            // nada na tela diz que a OUTRA metade pula. Uma linha efêmera perto da personagem,
+            // uma vez por sessão, e só enquanto o save é jovem.
+            if (!dicaPuloVista && dicasValem()) {
+                dicaPuloVista = true;
+                dicaPuloAte = relogio + 2.8;
+            }
             clicar();
+        }
     });
     // owner: the projects sheet is gone, and with it its buy buttons and its copy of the
     // rhythm switch. The rhythm now lives only on the card in the control block.
@@ -7024,27 +7183,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // short grace stops a tap already in flight when a step appears from killing it unread.
     ligarTelas();
     $("btnU5").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); });
-    // ACHADO DA MIGRAÇÃO, NÃO CONSERTADO AQUI. `dispensarGuia` e `pularGuia` NÃO EXISTEM: foram
-    // apagadas junto com o guia de primeira partida, e estas três chamadas ficaram para trás.
-    // Hoje são inertes — `#guia` é `display:none` no CSS, nada põe a classe `.mostra` nele, e
-    // `guiaAtual` nasce null e nunca é atribuído — então nenhum caminho chega a chamá-las. É
-    // exatamente a família de defeito que esta migração foi paga para pegar (`montarFontes is
-    // not defined`), e é a prova de que o compilador enxerga o que ninguém viu. Está SUPRIMIDO
-    // e não removido porque esta fase é conversão: apagar o guia é decisão do dono, e envolve
-    // marcação e CSS além do script. Os `@ts-expect-error` avisam sozinhos no dia em que
-    // alguém restaurar as funções — a supressão passa a ser erro.
-    // @ts-expect-error dispensarGuia() não existe; ver o comentário acima
-    $("guiaOk").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); dispensarGuia(); });
-    // @ts-expect-error pularGuia() não existe; ver o comentário acima
-    $("guiaSkip").addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pularGuia(); });
-    document.addEventListener("pointerdown", function (e) {
-        if ($("guia").contains(e.target))
-            return; // its own buttons handle themselves
-        const agora = (typeof performance !== "undefined" ? performance.now() : Date.now());
-        // @ts-expect-error dispensarGuia() não existe; ver o comentário acima
-        if (guiaAtual && agora - guiaMostradoEm > 300)
-            dispensarGuia();
-    }, true);
+    // O guia de primeira partida morreu de verdade (usabilidade, achado 5): os três ouvintes
+    // que ficaram para trás da migração — chamando dispensarGuia/pularGuia, que não existiam —
+    // saíram junto com a marcação #guia e o CSS dele. Quem ensina agora são as microdicas.
     // no zoom, no text selection: this is a game, not a website
     ["gesturestart", "gesturechange", "gestureend"].forEach(function (ev) {
         document.addEventListener(ev, function (e) { e.preventDefault(); });

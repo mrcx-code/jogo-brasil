@@ -53,6 +53,9 @@
     <span id="rotuloEpoca">ANTES DA CHEGADA</span>
     <div id="barraEpoca"><div id="barraEpocaFill"></div></div>
   </div>
+  <!-- O sussurro da barra (usabilidade, achado 10): quando falta pouco para a era virar,
+       esta linha acende embaixo da plaquinha. Preenchida por desenhar(), na fonte bitmap. -->
+  <div id="sussurroEra"></div>
   <!-- O indicador do marco: quantos passos até a placa que já entrou na estrada (cap. 2).
        Discreto de propósito — mora sob a barra da época e só existe enquanto há marco vindo. -->
   <div id="marcoDist"></div>
@@ -68,14 +71,10 @@
   <div id="retOk">toque para seguir ▾</div>
 </div>
 
-<div id="guia" aria-live="polite">
-  <div class="guiaBolha">
-    <div id="guiaV"></div>
-    <div class="guiaRow"><button id="guiaOk" type="button">entendi</button>
-      <button id="guiaSkip" type="button">pular</button></div>
-    <div class="guiaCaret"></div>
-  </div>
-</div>
+<!-- O guia de primeira partida foi apagado (usabilidade, achado 5). Quem ensina os
+     controles são as microdicas contextuais, desenhadas pelo próprio jogo: o rótulo
+     "ESQUERDA PULA" na cena e a seta #dicaSeta apontando o contador que encheu. -->
+<div id="dicaSeta" aria-hidden="true"></div>
 
 <!-- Four entries, four different jobs, and they used to be four identical slabs in a row.
      Now the block says what each one is: the RHYTHM you are running is a wide readout (it
