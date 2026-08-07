@@ -4,6 +4,70 @@
   "_magenta": "\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra.",
   "itens": [
     {
+      "nome": "cap4-fundo-alto",
+      "titulo": "SALVADOR · pintura, parte de cima",
+      "ref": "céu e casario da ladeira — cap. 4, Bahia 1835",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nLadeira de Salvador em 1835 vista de baixo: casario colonial colorido (ocre, azul, rosa-queimado), telhados de telha, torres ao longe, a Baía de Todos-os-Santos com veleiros no fundo, céu de fim de tarde. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte."
+    },
+    {
+      "nome": "cap4-fundo-chao",
+      "titulo": "SALVADOR · pintura, parte do chão",
+      "ref": "a rua de pedra por onde a personagem anda — cap. 4",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nCalçamento de pedra irregular de ladeira de Salvador, 1835, visto de perto ao nível da rua: pedras gastas, ervas entre as juntas, sombra de casario. É o CHÃO onde a personagem pisa — textura rica mas sem nada que pareça objeto interativo. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte."
+    },
+    {
+      "nome": "cap4-sprite",
+      "titulo": "SALVADOR · folha de sprite da ganhadeira",
+      "ref": "a protagonista do cap. 4 — mulher negra ganhadeira, 1835",
+      "tam": "FOLHA horizontal, 12 células IGUAIS · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nREPRESENTAÇÃO (regra dura do projeto): dignidade absoluta. Nada de caricatura; a pessoa é protagonista e heroína da própria história. Época: Salvador, 1835.\n\nFOLHA DE SPRITE, 12 quadros em células de LARGURA IGUAL, ciclo de caminhada lateral (perfil, andando para a direita): mulher negra adulta, ganhadeira de Salvador em 1835 — vestido simples de algodão claro, pano da costa listrado sobre o ombro, torso ereto e passo firme, TABULEIRO DE MADEIRA equilibrado na cabeça (o tabuleiro é o ofício dela e deve ficar estável, dentro da célula em todos os quadros). Dignidade e força; sem sorriso forçado, sem caricatura. Traje documentado das ganhadeiras (referência: pinturas de época lidas criticamente + Cecília Moreira Soares).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap4-retrato",
+      "titulo": "SALVADOR · retrato da ganhadeira",
+      "ref": "busto de frente para a caixa de fala do cap. 4",
+      "tam": "RETRATO ~700×900 · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nREPRESENTAÇÃO (regra dura do projeto): dignidade absoluta. Nada de caricatura; a pessoa é protagonista e heroína da própria história. Época: Salvador, 1835.\n\nRETRATO de frente, da cintura para cima, da MESMA mulher da folha de sprite (mesmo rosto, mesmo traje, mesmo pano da costa): ganhadeira de Salvador, 1835. Expressão serena e decidida, olhando levemente para o espectador. Sem tabuleiro no retrato.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap4-ctx-patio",
+      "titulo": "SALVADOR · contexto: o pátio à noite",
+      "ref": "acompanha a fala sobre a organização e o ensino dos malês",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nPátio interno de sobrado colonial de Salvador à noite, iluminado por candeeiro: esteiras no chão, bancos baixos, um tecido estendido, sombras quentes. Lugar de encontro e de ensino — organizado, digno, SEM símbolo religioso de nenhum tipo (nem crescente, nem escrita árabe visível: a escrita sagrada não vira imagem de jogo). Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte."
+    },
+    {
+      "nome": "cap4-ctx-porto",
+      "titulo": "SALVADOR · contexto: o porto",
+      "ref": "acompanha a fala sobre a cidade africana e o mar",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nO porto de Salvador em 1835 visto do alto da ladeira: rampa do mercado, saveiros e canoas no mar, caixas e cestos no cais, a cidade baixa fervilhando de trabalho ao longe (vultos pequenos e anônimos permitidos SÓ à distância, sem rosto). Fim de manhã.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte."
+    },
+    {
+      "nome": "cap4-itens",
+      "titulo": "SALVADOR · os três itens que chegam",
+      "ref": "tabuleiro, barril d’água, trouxa — em UMA folha 3 células",
+      "tam": "FOLHA 3 células iguais · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nTRÊS OBJETOS em uma folha horizontal de 3 células IGUAIS, mesma escala e mesma luz: (1) tabuleiro de madeira com quitutes cobertos por pano; (2) barril pequeno de água com alça de corda; (3) trouxa de roupa amarrada em pano listrado. Objetos do trabalho de rua de Salvador, 1835. Nada religioso.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap4-drops",
+      "titulo": "SALVADOR · os três drops",
+      "ref": "acarajé, pano da costa dobrado, búzios — em UMA folha 3 células",
+      "tam": "FOLHA 3 células iguais · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nTRÊS OBJETOS PEQUENOS em folha horizontal de 3 células IGUAIS, escala de item de chão (ícone grande e legível): (1) acarajé dourado sobre folha; (2) pano da costa dobrado, listras vivas; (3) três búzios claros. Decisão do projeto: NENHUMA escrita árabe como item — escrita sagrada não é colecionável.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
       "nome": "ctx-cap1-mata",
       "titulo": "CONTEXTO cap.1 · a mata que já estava aqui",
       "ref": "acompanha a fala sobre o que havia antes de qualquer navio europeu",
