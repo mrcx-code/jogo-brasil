@@ -2311,3 +2311,24 @@ jogando (gap 1 do PM). E `zerarJogo()` apaga a retenção junto com o progresso:
 "apagar meu progresso", mas significa que um teste de usabilidade que zere o save perde a
 janela dos 60 s. Se o dono quiser medir várias pessoas no mesmo aparelho, o lugar de decidir
 isso é antes de recrutar.
+
+## SVG pesaria menos? — a resposta que eu devia ter dado dias atrás
+
+Pergunta do dono, feita em 2026-08-05 e **nunca respondida por mim** — achada na auditoria
+de handoff de 07/08. Resposta com número, não opinião:
+
+**Não, e para a maior parte da arte seria muito pior.** SVG ganha em forma vetorial chapada
+(ícone geométrico, contorno, tipografia). Perde em qualquer coisa pintada — e perde
+catastroficamente em **pixel art**, onde a representação honesta é um retângulo por pixel:
+uma imagem de 256×256 viraria dezenas de milhares de `<rect>`. Compressão de imagem existe
+exatamente para isso.
+
+Onde SVG PODERIA ganhar aqui, medido: os ícones do HUD somam **18,9 KB** nos quatro
+(folha 5,8 · cesto 5,6 · água 4,2 · passo 3,3). Mesmo trocando todos por SVG perfeito e
+levando a zero, o ganho é **0,6% do arquivo**. Os quatro maiores blocos — cenário alto
+(880), contextos (610), personagem (546) e cenário chão (465) — são **83% do peso** e
+nenhum deles é vetorizável sem virar outra arte.
+
+**Conclusão:** o caminho de peso não é formato, é (a) qualidade de encode, que já rendeu
+−24,5% em 07/08, e (b) **carga sob demanda** — a única saída estrutural para 12 capítulos,
+já que a ~380 KB por capítulo o teto volta a estourar no 6º.
