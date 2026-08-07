@@ -192,8 +192,21 @@
   #sussurroEra.vivo { display: flex; }
 
   /* ENQUANTO VOCÊ ESTEVE FORA — o papel de campo da volta: mesmo material da caixa de
-     fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro. */
-  #retorno { display: none; position: fixed; z-index: 30; left: 50%; top: 24%;
+     fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro.
+
+     A CAMADA (bug B1 do QA, 2026-08-07): este papel nascia em z-index 30, DEBAIXO das
+     `.tela` (40) — e o boot abre o menu SEMPRE. O momento mais importante da retenção
+     ficava visível pelo véu do menu e morto ao toque: "toque para seguir" não respondia
+     até a pessoa apertar JOGAR. Voltar é a primeira coisa que se vê, então o papel vem
+     ANTES do menu: z-index 60, acima de qualquer tela.
+     #retVeu é o que faz o "antes" ser lido como tal — escurece o menu atrás em vez de deixar
+     dois painéis disputando a mesma leitura — e recebe o mesmo toque de fechar, então tocar
+     em qualquer ponto da tela segue em frente. Ele é IRMÃO e não filho: filho com z-index
+     negativo pinta depois do fundo do papel e encardia o papel (medido em print). */
+  #retVeu { display: none; position: fixed; inset: 0; z-index: 59;
+    background: rgba(8, 5, 2, .58); }
+  #retVeu.aberto { display: block; }
+  #retorno { display: none; position: fixed; z-index: 60; left: 50%; top: 24%;
     transform: translateX(-50%); width: min(440px, 90vw); box-sizing: border-box;
     background:
       repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
@@ -843,6 +856,11 @@
 
 <!-- ENQUANTO VOCÊ ESTEVE FORA: o papel de campo que o lugar deixa para quem volta.
      Preenchido por mostrarRetorno() só com números da economia real; fecha num toque. -->
+<!-- O véu do retorno (bug B1): IRMÃO do papel, nunca filho. Como filho ele teria de ter
+     z-index negativo para ficar atrás, e nessa ordem ele pinta DEPOIS do fundo do próprio
+     papel — o papel saía encardido, medido no primeiro print. Irmão em z 59 escurece só o
+     que está atrás. -->
+<div id="retVeu" aria-hidden="true"></div>
 <div id="retorno" aria-hidden="true">
   <div id="retTit">ENQUANTO VOCÊ ESTEVE FORA</div>
   <div id="retLista"></div>
@@ -1133,7 +1151,7 @@ let S = {
 // hundred, so the later streets are reachable in a minute instead of half an hour.
 const forcaToque = () => (S.u1 ? CFG.forcaToqueU1 : 1) * (S.u4 ? CFG.forcaToqueU4 : 1);
 // coming back on a new day is worth something: the neighbourhood knows you now
-const bonusDias = () => 1 + CFG.bonusDia * Math.min(Math.max(0, R.dias.length - 1), CFG.diasMax);
+const bonusDias = () => 1 + CFG.bonusDia * Math.min(Math.max(0, R.dias - 1), CFG.diasMax);
 // What a tap is worth: the base, the upgrade that triples it, and the day streak. Every
 // other multiplier this used to carry belonged to a feature that no longer exists.
 const ganhoClique = () => forcaToque() * bonusDias();
@@ -2631,6 +2649,19 @@ function valida(regra, v) {
         }
         return fora;
     }
+    // CONTADOR: como "num", mas INTEIRO. Existe para a retenção (dias, aberturas de tela,
+    // toques), onde meio dia e meio toque não querem dizer nada — e onde o número vai para
+    // a tela de AJUSTES, que promete medida e não estimativa.
+    if (regra.tipo === "cont") {
+        if (typeof v !== "number" || !isFinite(v))
+            return regra.pad;
+        return Math.floor(Math.min(regra.max, Math.max(regra.min, v)));
+    }
+    // UMA DATA AAAA-MM-DD, ou nada. Sem aparar e sem consertar: "2026-13-99" não vira
+    // dezembro nem hoje, vira "" — data adivinhada é pior que data ausente.
+    if (regra.tipo === "dia") {
+        return (typeof v === "string" && /^\d{4}-\d\d-\d\d$/.test(v)) ? v : regra.pad;
+    }
     if (regra.tipo === "bool")
         return v === true;
     if (regra.tipo === "um")
@@ -2716,8 +2747,8 @@ function mostrarRetorno(dt) {
     };
     const h = Math.floor(dt / 3600), m = Math.floor((dt % 3600) / 60);
     linha("Você ficou fora por " + (h > 0 ? h + "h" + String(m).padStart(2, "0") : m + " min") + ".");
-    if (R.dias.length > 1) {
-        linha("Dia " + R.dias.length + " de travessia — o caminho te conhece: tudo vale ×"
+    if (R.dias > 1) {
+        linha("Dia " + R.dias + " de travessia — o caminho te conhece: tudo vale ×"
             + bonusDias().toFixed(2) + ".");
     }
     const fila = S.grupo | 0;
@@ -2739,8 +2770,20 @@ function mostrarRetorno(dt) {
     amanhecerPendente = diaNovo;
     el.classList.add("aberto");
     el.setAttribute("aria-hidden", "false");
+    // o véu acende junto: o menu do boot fica atrás, escurecido, e este papel é a primeira
+    // coisa que a pessoa vê e pode tocar ao voltar (bug B1)
+    const veu = document.getElementById("retVeu");
+    if (veu) {
+        veu.classList.add("aberto");
+        veu.setAttribute("aria-hidden", "false");
+    }
 }
 function fecharRetorno() {
+    const veu = document.getElementById("retVeu");
+    if (veu) {
+        veu.classList.remove("aberto");
+        veu.setAttribute("aria-hidden", "true");
+    }
     const el = document.getElementById("retorno");
     if (!el)
         return;
@@ -2777,28 +2820,68 @@ function fecharRetorno() {
 // a save from before that carries totals no version of this game could have produced.
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
-let R = { dias: [], segundos: 0, tochas: 0 };
+const RET_PADRAO = () => ({
+    dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0
+});
+let R = RET_PADRAO();
+// ===== O ESQUEMA DA RETENÇÃO (T1) =====
+// Mesma régua do ESQUEMA_SAVE, pelo mesmo motivo: `localStorage` é editável à mão, e um
+// registro torto não pode nem derrubar o jogo nem inflar a medição. Campo que não está aqui
+// não é lido nem gravado — `salvarRetencao()` escreve percorrendo ESTA tabela, não o objeto.
+//
+// As faixas são DERIVADAS, não redondas de enfeite:
+//  · `dias` 0..20000 — 54 anos de dias distintos; acima disso é save adulterado.
+//  · `segundos` 0..1e9 — 31 anos de tempo jogado, e o campo é somado em `dt` clampado.
+//  · `historia` 0..1e6 — abrir a tela custa dois toques; um milhão é fora do humano.
+//  · `toqEsq`/`toqDir` 0..5000 — a janela tem 60 s e um polegar não passa de ~20 toques/s
+//    (1200 no teto físico); 5000 dá quatro vezes a folga e ainda é um número que não mente.
+// `dia` é tipo próprio: ou é uma data AAAA-MM-DD, ou vira "" — nunca metade de uma.
+const RET_TOQUE_TETO = 5000;
+const ESQUEMA_RET = {
+    dias: { tipo: "cont", min: 0, max: 20000, pad: 0 },
+    primeiro: { tipo: "dia", pad: "" },
+    ultimo: { tipo: "dia", pad: "" },
+    segundos: { tipo: "num", min: 0, max: 1e9, pad: 0 },
+    tochas: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
+    historia: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
+    toqEsq: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
+    toqDir: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 }
+};
 function diaLocal() {
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")
         + "-" + String(d.getDate()).padStart(2, "0");
 }
 function salvarRetencao() {
+    const fora = {};
+    for (const chave in ESQUEMA_RET)
+        fora[chave] = R[chave];
     try {
-        localStorage.setItem(CHAVE_RET, JSON.stringify(R));
+        localStorage.setItem(CHAVE_RET, JSON.stringify(fora));
     }
     catch (e) { }
 }
+// UM DIA DISTINTO A MAIS — e por que isto não é mais uma lista.
+// A lista de datas crescia sem teto (um item por dia, para sempre) para responder uma
+// pergunta de UM número: quantos dias distintos. Guardar a CONTAGEM mais o último dia
+// responde igual, em espaço fixo.
+// O que a troca ganha de brinde é robustez de relógio: um dia ANTERIOR ao último já contado
+// (relógio recuado, fuso trocado no avião) não abre dia novo — com a lista, ir e voltar no
+// fuso inflava a contagem, e é ela que multiplica a economia inteira em `bonusDias()`.
 function marcarDia() {
     const d = diaLocal();
-    if (R.dias.indexOf(d) < 0) {
-        const primeira = R.dias.length === 0;
-        R.dias.push(d);
-        R.dias.sort();
-        salvarRetencao();
-        if (!primeira)
-            diaNovo = true; // a day the player came *back* — worth a welcome
-    }
+    if (d === R.ultimo)
+        return;
+    if (R.ultimo && d < R.ultimo)
+        return; // relógio andou para trás: não conta, não regrava
+    const primeira = R.dias === 0;
+    R.dias = Math.min(R.dias + 1, ESQUEMA_RET.dias.max);
+    R.ultimo = d;
+    if (primeira || !R.primeiro)
+        R.primeiro = d;
+    salvarRetencao();
+    if (!primeira)
+        diaNovo = true; // a day the player came *back* — worth a welcome
 }
 function carregarRetencao() {
     let bruto = null;
@@ -2806,21 +2889,59 @@ function carregarRetencao() {
         bruto = localStorage.getItem(CHAVE_RET);
     }
     catch (e) { }
+    let lido = null;
     if (bruto) {
         try {
-            Object.assign(R, JSON.parse(bruto));
+            lido = JSON.parse(bruto);
         }
         catch (e) { }
     }
-    // a hand-edited or half-written record must not take the game down
-    if (!Array.isArray(R.dias))
-        R.dias = [];
-    R.dias = R.dias.filter(function (d) { return typeof d === "string" && /^\d{4}-\d\d-\d\d$/.test(d); });
-    if (typeof R.segundos !== "number" || !isFinite(R.segundos) || R.segundos < 0)
-        R.segundos = 0;
-    if (typeof R.tochas !== "number" || !isFinite(R.tochas) || R.tochas < 0)
-        R.tochas = 0;
+    R = RET_PADRAO();
+    if (lido && typeof lido === "object" && !Array.isArray(lido)) {
+        // MIGRAÇÃO: até 2026-08-07 `dias` era o ARRAY de datas. Um registro antigo entra com a
+        // contagem de datas VÁLIDAS e distintas, e as pontas viram primeiro/último — ninguém
+        // perde o dia 3 que já conquistou.
+        if (Array.isArray(lido.dias)) {
+            const datas = lido.dias.filter(function (d) {
+                return typeof d === "string" && /^\d{4}-\d\d-\d\d$/.test(d);
+            }).sort().filter(function (d, i, a) { return i === 0 || d !== a[i - 1]; });
+            lido.dias = datas.length;
+            if (datas.length) {
+                lido.primeiro = datas[0];
+                lido.ultimo = datas[datas.length - 1];
+            }
+        }
+        for (const chave in ESQUEMA_RET) {
+            if (Object.prototype.hasOwnProperty.call(lido, chave)) {
+                R[chave] = valida(ESQUEMA_RET[chave], lido[chave]);
+            }
+        }
+    }
+    // COERÊNCIA entre campos, que nenhuma faixa de campo isolado pega: sem último dia não há
+    // dia nenhum contado, e com último dia há pelo menos um. Erra sempre para o lado que não
+    // inventa dia — `bonusDias()` multiplica a economia inteira e não pode nascer de um chute.
+    if (!R.ultimo) {
+        R.dias = 0;
+        R.primeiro = "";
+    }
+    else {
+        if (R.dias < 1)
+            R.dias = 1;
+        if (!R.primeiro || R.primeiro > R.ultimo)
+            R.primeiro = R.ultimo;
+    }
     marcarDia();
+}
+// A JANELA DOS PRIMEIROS 60 SEGUNDOS (hipótese H5 do PRODUTO.md: a pessoa descobre que a
+// metade ESQUERDA pula?). A janela é medida em tempo JOGADO (`R.segundos`, que só anda com o
+// jogo na frente), e não em relógio de parede: quem abre, larga e volta amanhã continua
+// dentro dos seus primeiros 60 s de jogo. Conta só o toque na RUA — o botão dourado não é
+// metade de tela nenhuma e responderia pela pergunta errada.
+function contarToque(esquerda) {
+    if (R.segundos >= 60)
+        return;
+    const c = esquerda ? "toqEsq" : "toqDir";
+    R[c] = Math.min(R[c] + 1, RET_TOQUE_TETO);
 }
 // owner: mostrarRetencao() removed with its panel.
 // ============================================================
@@ -7176,7 +7297,11 @@ function zerarJogo() {
         localStorage.removeItem(CHAVE_RET);
     }
     catch (e) { }
-    R = { dias: [], segundos: 0, tochas: 0 };
+    // A retenção volta ao padrão INTEIRA — inclusive a janela dos primeiros 60 s, que só faz
+    // sentido para um save novo, e é isso que APAGAR MEU PROGRESSO cria. `marcarDia()` recomeça
+    // a contagem em 1 no próximo carregamento (ou já agora, pelo autosave).
+    R = RET_PADRAO();
+    marcarDia();
     if (b)
         b.textContent = "apagado";
     redesenharFundo();
@@ -7794,11 +7919,14 @@ function pintarRotulos() {
     });
 }
 function ligarTelas() {
-    // o papel da volta fecha num toque em qualquer ponto dele — e o toque não vaza para o jogo
-    $("retorno").addEventListener("pointerdown", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        fecharRetorno();
+    // o papel da volta fecha num toque em qualquer ponto DELE OU DO VÉU — e o toque não vaza
+    // nem para o jogo nem para o menu que ficou atrás (bug B1)
+    ["retorno", "retVeu"].forEach(function (id) {
+        $(id).addEventListener("pointerdown", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fecharRetorno();
+        });
     });
     $("abrirMenu").addEventListener("pointerdown", function (e) {
         e.preventDefault();
@@ -7825,7 +7953,17 @@ function ligarTelas() {
         abrirTela("telaCapitulos");
     });
     $("btnVoltarCap").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
-    $("btnCompletude").addEventListener("pointerdown", function (e) { e.preventDefault(); montarCompletude(); abrirTela("telaCompletude"); });
+    // A HISTÓRIA é a tela que mede se o jogo está ENSINANDO, e não só entretendo: contar
+    // quantas vezes ela é aberta é a única leitura que o protótipo tem disso. O contador
+    // sobe aqui, no botão, e não em `montarCompletude()` — a função também é chamada por
+    // remontagem interna, e contaria abertura que ninguém pediu.
+    $("btnCompletude").addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        R.historia = Math.min(R.historia + 1, ESQUEMA_RET.historia.max);
+        salvarRetencao();
+        montarCompletude();
+        abrirTela("telaCompletude");
+    });
     $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
     $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
     $("btnFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); montarFontes(); abrirTela("telaFontes"); });
@@ -7863,17 +8001,29 @@ function ligarTelas() {
     $("btnApagar").addEventListener("pointerdown", function (e) { e.preventDefault(); zerarJogo(); montarConfig(); });
 }
 function montarConfig() {
-    const d = R.dias.length, m = Math.floor((R.segundos || 0) / 60);
+    const d = R.dias, m = Math.floor((R.segundos || 0) / 60);
     // O parágrafo era o último texto de tela em sans-serif do sistema (usabilidade, achado
     // 9). Vira papel de campo (CSS em #telaConfig #cfgInfo) com linhas na fonte bitmap —
     // a mesma 5×7 do resto do jogo. Os números são MEDIDOS (retenção), não inventados; a
     // frase da privacidade continua palavra por palavra: ela é um compromisso, não decoração.
     const box = $("cfgInfo");
     box.textContent = "";
-    [["DIAS DISTINTOS JOGADOS: " + d, "#33240f"],
+    // T1: o rodapé de retenção passa a mostrar os QUATRO números que as hipóteses do
+    // PRODUTO.md pedem. Nenhum deles é estimativa e nenhum deles sai daqui: são os campos
+    // do ESQUEMA_RET, lidos do próprio aparelho, e a frase da privacidade continua verdadeira
+    // palavra por palavra — não há rede neste jogo e a CSP do <head> cobra isso do navegador.
+    // A janela dos 60 s é dita só enquanto ela EXISTE ou já disse alguma coisa: linha zerada
+    // num save recém-criado seria ruído.
+    const linhas = [
+        ["DIAS DISTINTOS JOGADOS: " + d, "#33240f"],
         ["TEMPO TOTAL: " + m + " MIN", "#33240f"],
-        ["NADA SAI DESTE APARELHO:", "#5c3210"],
-        ["O JOGO NÃO TEM REDE.", "#5c3210"]].forEach(function (l) {
+        ["A HISTÓRIA ABERTA: " + R.historia + "X", "#33240f"]
+    ];
+    if (R.toqEsq + R.toqDir > 0) {
+        linhas.push(["PRIMEIROS 60S · ESQ " + R.toqEsq + " / DIR " + R.toqDir, "#33240f"]);
+    }
+    linhas.push(["NADA SAI DESTE APARELHO:", "#5c3210"], ["O JOGO NÃO TEM REDE.", "#5c3210"]);
+    linhas.forEach(function (l) {
         const linha = document.createElement("div");
         pixelRotulo(linha, l[0], 1, l[1]);
         box.appendChild(linha);
@@ -8027,7 +8177,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         const r = cv.getBoundingClientRect();
-        if (e.clientX < r.left + r.width / 2)
+        const esquerda = e.clientX < r.left + r.width / 2;
+        contarToque(esquerda); // H5: a pessoa descobriu que a metade esquerda pula?
+        if (esquerda)
             pular();
         else {
             // Microdica 1 (usabilidade, achado 5): quem tocou a metade direita descobriu o golpe;

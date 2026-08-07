@@ -172,8 +172,21 @@
   #sussurroEra.vivo { display: flex; }
 
   /* ENQUANTO VOCÊ ESTEVE FORA — o papel de campo da volta: mesmo material da caixa de
-     fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro. */
-  #retorno { display: none; position: fixed; z-index: 30; left: 50%; top: 24%;
+     fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro.
+
+     A CAMADA (bug B1 do QA, 2026-08-07): este papel nascia em z-index 30, DEBAIXO das
+     `.tela` (40) — e o boot abre o menu SEMPRE. O momento mais importante da retenção
+     ficava visível pelo véu do menu e morto ao toque: "toque para seguir" não respondia
+     até a pessoa apertar JOGAR. Voltar é a primeira coisa que se vê, então o papel vem
+     ANTES do menu: z-index 60, acima de qualquer tela.
+     #retVeu é o que faz o "antes" ser lido como tal — escurece o menu atrás em vez de deixar
+     dois painéis disputando a mesma leitura — e recebe o mesmo toque de fechar, então tocar
+     em qualquer ponto da tela segue em frente. Ele é IRMÃO e não filho: filho com z-index
+     negativo pinta depois do fundo do papel e encardia o papel (medido em print). */
+  #retVeu { display: none; position: fixed; inset: 0; z-index: 59;
+    background: rgba(8, 5, 2, .58); }
+  #retVeu.aberto { display: block; }
+  #retorno { display: none; position: fixed; z-index: 60; left: 50%; top: 24%;
     transform: translateX(-50%); width: min(440px, 90vw); box-sizing: border-box;
     background:
       repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),

@@ -186,7 +186,8 @@ confere, derruba, acrescenta.
 
 | ticket | estado |
 |---|---|
-| T1 retenção | aberto |
+| T1 retenção | **ENTREGUE (Dev, worktree, não commitado)** — `ESQUEMA_RET` com os quatro campos (dias distintos em contagem compacta, tempo jogado reusado de `R.segundos`, aberturas de A HISTÓRIA, toques por metade nos primeiros 60 s), rodapé de AJUSTES estendido, smoke com os campos novos + registro adulterado. A frase "nada sai deste aparelho" continua verdadeira: zero rede, CSP intocada. Números e ressalvas no `NOTES.md`. **De brinde:** a troca da lista de datas por contagem fechou parte do gap 1 do `QA.md` — dia anterior ao último já contado não conta mais (relógio recuado / fuso). |
+| B1 (bug do `QA.md`) | **CORRIGIDO (Dev)** — o painel do retorno vem ANTES do menu: z 60 + véu `#retVeu` z 59, tocável com o menu aberto. Smoke prova por `elementFromPoint` e por toque real. Print `shot-retorno.png`. |
 | T2 Salvador pronto | **ENTREGUE, e maior que o combinado** — a arte chegou no meio do sprint e o ticket virou o capítulo 4 ENTRANDO: 8 imagens processadas, época em `EPOCAS` (rascunho marcado), placa de 1835 reorganizada, `CEU_PINT` calibrada, migração de save. Números e ressalvas no `NOTES.md`. **Duas coisas para o dono:** (1) os textos são RASCUNHO e esperam a palavra dele; (2) a folha de caminhada tem 52,5% de escorregamento contra 0,48% das outras — pede folha nova de 12 poses. |
 | T3 decisão do peso | aberto — parecer da Arte pendente |
 | T4 QA nasce | aberto |

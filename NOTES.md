@@ -2229,3 +2229,85 @@ os prints que essa frente produzir, não fabrico os meus.
 **Próximo passo:** integrar este worktree; depois, gerar a próxima onda pela lente
 "volta no dia 2" com a instrumentação do T1 colhendo — ou o parecer do T3, o que chegar
 primeiro.
+
+### 2026-08-07 · Voltar vem ANTES do menu, e o jogo começa a se medir (B1 + T1, worktree)
+
+Dev, sprint 1. Dois tickets: o bug **B1** do `QA.md` (pequeno, primeiro) e o **T1** (P0 do
+sprint — instrumentação de retenção).
+
+**B1 — o papel da volta nascia debaixo do menu.** O boot abre o menu SEMPRE (`.tela`, z 40)
+e o `#retorno` vivia em z 30: o momento mais importante da retenção ficava visível pelo véu
+e **morto ao toque** — "toque para seguir" não respondia até a pessoa apertar JOGAR. A camada
+certa não é "junto", é **antes**: quem volta encontra primeiro o que o lugar guardou, e o menu
+espera. `#retorno` foi para **z 60**, acima de qualquer tela, e ganhou um véu (`#retVeu`,
+z 59) que escurece o menu atrás e fecha no mesmo toque.
+
+*Erro pago no caminho, e vale para quem for repetir o truque:* o véu nasceu como `::before` do
+próprio painel, com `z-index: -1`. Num elemento que cria contexto de empilhamento, filho de
+z negativo pinta **depois do fundo do pai** — o papel saiu encardido, e dava para ver no
+primeiro print (papel marrom-acinzentado contra o creme do papel de AJUSTES na mesma rodada).
+Véu é **irmão**, nunca filho.
+
+*Provado no smoke, não no olho:* o teste pergunta ao navegador quem está no ponto do painel
+(`elementFromPoint`) — é o que separa "está desenhado" de "está alcançável" — e depois toca de
+verdade **com o menu ainda aberto**, que é exatamente o gesto que não respondia. Também exige
+que o véu esteja sobre o JOGAR. Print: `shot-retorno.png` (papel creme na frente, menu
+escurecido atrás).
+
+**T1 — a retenção deixou de ser uma lista de datas e virou medida.** Quatro números, todos
+locais:
+
+| campo | o que responde | faixa (derivada) |
+|---|---|---|
+| `dias` | dias distintos com sessão | 0..20000 (54 anos) |
+| `segundos` | tempo REALMENTE jogado (já existia, reusado) | 0..1e9 |
+| `historia` | quantas vezes A HISTÓRIA foi aberta — se o jogo ensina | 0..1e6 |
+| `toqEsq`/`toqDir` | toques por metade da tela nos primeiros 60 s (H5) | 0..5000 |
+
+O teto dos toques é derivado: a janela tem 60 s e um polegar não passa de ~20 toques/s
+(1200 no pior caso físico); 5000 dá quatro vezes de folga sem virar número de enfeite.
+
+**A lista de dias morreu, e o brinde foi robustez de relógio.** `R.dias` era um array que
+crescia um item por dia, para sempre, para responder uma pergunta de UM número. Virou
+contagem + `primeiro` + `ultimo`, espaço fixo. Como efeito, `marcarDia()` agora **ignora um
+dia anterior ao último já contado** — relógio recuado ou fuso trocado no avião não inflam mais
+a contagem, e é ela que multiplica a economia inteira em `bonusDias()`. (Cobre parte do gap 1
+do `QA.md`; `salvoEm` no futuro continua descoberto.)
+
+**O registro de retenção passou a ter esquema.** Nasceu o `ESQUEMA_RET`, mesma régua do
+`ESQUEMA_SAVE`: campo que não está lá **não é lido nem gravado** — `salvarRetencao()` escreve
+percorrendo a tabela, não o objeto. Dois tipos novos no `valida()`: `cont` (contador inteiro,
+aparado na faixa) e `dia` (ou é `AAAA-MM-DD`, ou vira `""` — data adivinhada é pior que data
+ausente). Mais uma passada de **coerência entre campos**, que faixa isolada não pega: sem
+último dia não há dia contado; com último dia há pelo menos um. Migração: registro no formato
+antigo entra pela contagem de datas válidas e distintas, e as pontas viram primeiro/último —
+ninguém perde o dia 3 que já conquistou (o smoke semeia justamente o formato velho).
+
+**A janela dos 60 s é de tempo JOGADO, não de relógio de parede** (`R.segundos < 60`): quem
+abre, larga e volta amanhã continua dentro dos seus primeiros 60 s. Conta só o toque na RUA —
+o botão dourado não é metade de tela nenhuma e responderia pela pergunta errada.
+
+**Onde aparece:** o rodapé de AJUSTES que já existia, estendido (não é tela nova). A linha dos
+60 s só existe enquanto tem o que dizer. Print: `shot-retencao-ajustes.png`.
+
+**A frase continua verdadeira.** "NADA SAI DESTE APARELHO / O JOGO NÃO TEM REDE" segue palavra
+por palavra: os quatro campos são `localStorage` no próprio aparelho, nada é identificador de
+pessoa, e a CSP do `<head>` continua intocada.
+
+**Smoke:** entrou o bloco T1 — toques reais nas duas metades dentro da janela e um depois dela
+(2/1 contados, o quarto ignorado), A HISTÓRIA aberta por **toque no botão real** movendo o
+contador, os campos gravados conferidos contra uma lista **independente** do esquema (a mesma
+disciplina do save), e um registro adulterado campo a campo: `dias: "muitos"` → 1 (hoje),
+`primeiro: "2026-13-99"` → hoje, `segundos: -900` → 0, `historia: Infinity` → 0, `toqEsq: 9e9`
+→ 5000, `toqDir: 3,7` → 3, `tochas: NaN` → 0, campo inventado não entra. `npm test` verde,
+FPS 61, zero erro de console.
+
+**Medido:** `index.html` 4.569.608 bytes (4,36 MB) — cresceu ~1 KB com os dois tickets; o teto
+segue estourado e é assunto do T3.
+
+**Próximo passo / dúvida deixada:** com a instrumentação no ar, ninguém ainda **lê** esses
+números fora do próprio aparelho — responder H2/H5 de verdade continua dependendo de humanos
+jogando (gap 1 do PM). E `zerarJogo()` apaga a retenção junto com o progresso: é o certo para
+"apagar meu progresso", mas significa que um teste de usabilidade que zere o save perde a
+janela dos 60 s. Se o dono quiser medir várias pessoas no mesmo aparelho, o lugar de decidir
+isso é antes de recrutar.

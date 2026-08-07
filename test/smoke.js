@@ -386,21 +386,25 @@ function alvo() {
   // obsolete: the community call was removed by owner request — feature and test.
   // obsolete: the AUTO-FIRE skill was removed by owner request — feature and test.
   // ---- coming back on another day is worth something ----
+  // O registro semeado esta no formato ANTIGO (lista de datas) de proposito: prova a
+  // migracao para a contagem compacta do T1 no mesmo teste que prova o bonus de dias.
   const dias = await page.evaluate(() => {
     localStorage.setItem('jogo_brasil_retencao',
       JSON.stringify({ dias: ['2026-07-30', '2026-07-31', '2026-08-01'], segundos: 900, tochas: 0 }));
-    R = { dias: [], segundos: 0, tochas: 0 };
+    R = RET_PADRAO();
     diaNovo = false;
     carregarRetencao();
-    return { n: R.dias.length, bonus: bonusDias(), novo: diaNovo };
+    return { n: R.dias, bonus: bonusDias(), novo: diaNovo, primeiro: R.primeiro, ultimo: R.ultimo };
   });
   console.log('day streak ->', dias.n, 'days | bonus ×' + dias.bonus.toFixed(2), '| new day:', dias.novo);
   if (dias.n !== 4) errors.push('the new day was not recorded');
   if (Math.abs(dias.bonus - 1.06) > 1e-9) errors.push('the day bonus is not what CFG says');
   if (!dias.novo) errors.push('coming back on a new day was not noticed');
+  if (dias.primeiro !== '2026-07-30') errors.push('the old-format record lost its first day: ' + dias.primeiro);
+  if (!/^\d{4}-\d\d-\d\d$/.test(dias.ultimo)) errors.push('the last day is not a date: ' + dias.ultimo);
   await page.evaluate(() => {
     localStorage.removeItem('jogo_brasil_retencao');
-    R = { dias: [], segundos: 0, tochas: 0 }; carregarRetencao();
+    R = RET_PADRAO(); carregarRetencao();
     mobs.length = 0; drops.length = 0; chamada = null; mutiraoT = 0; superT = 0; superCarga = 0; superSwings = 0; superCd = 0; superFx = null;
     S.geradores = 0; S.poluicao = 0; S.modo = 'carvao';
     // the torch used to wipe these; it is a no-op now, so the test resets them itself
@@ -622,7 +626,10 @@ function alvo() {
     const ontem = new Date(Date.now() - 864e5);
     const chave = ontem.getFullYear() + '-' + String(ontem.getMonth() + 1).padStart(2, '0')
       + '-' + String(ontem.getDate()).padStart(2, '0');
-    localStorage.setItem(CHAVE_RET, JSON.stringify({ dias: [chave], segundos: 300, tochas: 0 }));
+    localStorage.setItem(CHAVE_RET, JSON.stringify({
+      dias: 1, primeiro: chave, ultimo: chave, segundos: 300, tochas: 0,
+      historia: 0, toqEsq: 0, toqDir: 0
+    }));
   });
   await page.reload();
   await page.waitForFunction(() => typeof S !== 'undefined');
@@ -631,7 +638,7 @@ function alvo() {
     const el = document.getElementById('retorno');
     const linhas = Array.from(document.querySelectorAll('#retorno .retLinha')).map(d => d.textContent);
     return { aberto: el.classList.contains('aberto'), aria: el.getAttribute('aria-hidden'),
-      linhas, dt: voltouDepoisDe, dias: R.dias.length, bonusEsperado: (1 + CFG.bonusDia).toFixed(2),
+      linhas, dt: voltouDepoisDe, dias: R.dias, bonusEsperado: (1 + CFG.bonusDia).toFixed(2),
       menuAberto: document.getElementById('telaMenu').classList.contains('aberta') };
   });
   console.log('day-2 return -> open:', volta.aberto, '| away', Math.round(volta.dt) + 's',
@@ -655,24 +662,49 @@ function alvo() {
   if (!volta.linhas.some(l => l.startsWith('2 pessoas acolhidas'))) {
     errors.push('no line matches the seeded 2 sheltered: ' + JSON.stringify(volta.linhas));
   }
-  // the boot always opens the menu (z40) OVER the panel (z30); the player meets the paper
-  // after JOGAR. Walk that real path, then close it with the tap it promises.
-  await page.tap('#btnJogar');            // chapter 1 already read (aberturas: 1) -> straight to the street
-  await page.waitForTimeout(400);
+  // ---- B1 (QA, 2026-08-07): o painel vem ANTES do menu, e responde ao toque ----
+  // Era o bug: o boot abre o menu SEMPRE (z 40) e o painel nascia em z 30 — visível pelo
+  // véu e MORTO ao toque até apertar JOGAR. Agora ele é a primeira coisa da tela. O teste
+  // pergunta ao NAVEGADOR quem está no ponto do painel (elementFromPoint), porque só isso
+  // distingue "está desenhado" de "está alcançável"; e depois toca de verdade, com o menu
+  // ainda aberto, que é exatamente o gesto que não respondia.
   await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-retorno.png') });
-  const antesTap = await page.evaluate(() => ({
-    aberto: document.getElementById('retorno').classList.contains('aberto'),
-    emTela: document.body.classList.contains('emTela') }));
-  if (!antesTap.aberto) errors.push('the return panel did not survive JOGAR to be seen over the game');
-  if (antesTap.emTela) errors.push('JOGAR did not hand the screen back to the game');
-  await page.tap('#retorno');
+  // a mesma foto fica em test/ com o nome do bug: é a prova do B1 e não se procura por ela
+  // entre os prints soltos da raiz
+  await page.screenshot({ path: path.resolve(__dirname, 'B1-retorno-antes-do-menu.png') });
+  const camada = await page.evaluate(() => {
+    const el = document.getElementById('retorno');
+    const r = el.getBoundingClientRect();
+    const topo = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    // e o menu atrás está sob o véu: um toque em JOGAR não atravessa o papel da volta
+    const b = document.getElementById('btnJogar').getBoundingClientRect();
+    const sobreBotao = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    return { menuAberto: document.getElementById('telaMenu').classList.contains('aberta'),
+      alcanca: !!topo && (topo === el || el.contains(topo)),
+      quem: topo ? (topo.id || topo.className) : null,
+      veuNoBotao: !!sobreBotao && sobreBotao.id === 'retVeu',
+      sobreBotao: sobreBotao ? (sobreBotao.id || sobreBotao.className) : null };
+  });
+  console.log('  return-before-menu -> menu open:', camada.menuAberto,
+    '| topmost at the paper:', camada.quem);
+  if (!camada.menuAberto) errors.push('the boot no longer opens the menu — flow assumption broke');
+  if (!camada.alcanca) errors.push('the return panel is buried under ' + camada.quem + ' (B1)');
+  if (!camada.veuNoBotao) errors.push('the menu is not behind the return veil: JOGAR is reachable through it (' + camada.sobreBotao + ')');
+  await page.tap('#retorno');             // o toque que antes morria: menu aberto por baixo
   await page.waitForTimeout(150);
   const dpTap = await page.evaluate(() => ({
     aberto: document.getElementById('retorno').classList.contains('aberto'),
-    aria: document.getElementById('retorno').getAttribute('aria-hidden') }));
+    aria: document.getElementById('retorno').getAttribute('aria-hidden'),
+    menu: document.getElementById('telaMenu').classList.contains('aberta') }));
   console.log('  one tap closes it -> open after tap:', dpTap.aberto, '| aria-hidden:', dpTap.aria);
-  if (dpTap.aberto) errors.push('one tap did not close the return panel');
+  if (dpTap.aberto) errors.push('one tap did not close the return panel with the menu open (B1)');
   if (dpTap.aria !== 'true') errors.push('the closed return panel still claims to be visible');
+  if (!dpTap.menu) errors.push('closing the return panel took the menu down with it');
+  // e o caminho continua: o menu que estava atrás leva à rua
+  await page.tap('#btnJogar');            // chapter 1 already read (aberturas: 1) -> straight to the street
+  await page.waitForTimeout(400);
+  const naRua = await page.evaluate(() => document.body.classList.contains('emTela'));
+  if (naRua) errors.push('JOGAR did not hand the screen back to the game');
 
   // ---- FLOW 2: the chapter-turn ceremony always ends at morning ----
   // Onda 3's contract: on a CHAPTER turn, saltoHora sweeps the light to the NEXT sunrise
@@ -832,6 +864,104 @@ function alvo() {
   if (historia.salto.primeiro > Math.max(historia.salto.normal * 3, 3)) {
     errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2) + 'px');
   }
+
+  // ============================================================
+  // T1 (SPRINT 1) — a retenção é MEDIDA, passa pelo esquema, e não sai do aparelho.
+  // O protótipo existe para responder "o loop segura alguém por três dias?" e até aqui não
+  // gravava um número sobre isso. Três coisas provadas abaixo, nesta ordem:
+  //   (1) gravou e leu de volta — os quatro números sobrevivem a um recarregamento;
+  //   (2) registro adulterado cai no padrão, campo por campo, e não derruba nada;
+  //   (3) o que é escrito no disco são os campos do ESQUEMA_RET e MAIS NENHUM.
+  // ============================================================
+  const t1 = await page.evaluate(async () => {
+    fecharTelas(); fecharTudo();
+    localStorage.removeItem(CHAVE_RET);
+    R = RET_PADRAO(); carregarRetencao();       // hoje vira o dia 1
+    R.segundos = 0;                             // abre a janela dos primeiros 60 s
+    const cv = document.getElementById('scene');
+    const r = cv.getBoundingClientRect();
+    const toque = async (fx) => {
+      cv.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true,
+        clientX: r.left + r.width * fx, clientY: r.top + r.height / 2 }));
+      cv.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+      await new Promise(rr => setTimeout(rr, 30));
+    };
+    await toque(0.25); await toque(0.25);       // duas na metade que PULA
+    await toque(0.75);                          // uma na que golpeia
+    const janela = { esq: R.toqEsq, dir: R.toqDir };
+    // e a janela FECHA: passados os 60 s de jogo, o toque não conta mais
+    R.segundos = 61; await toque(0.25);
+    const depois = { esq: R.toqEsq, dir: R.toqDir };
+    R.segundos = 42;
+    return { janela, depois, dias: R.dias, historia: R.historia };
+  });
+  // A HISTÓRIA aberta por TOQUE REAL no botão real — escrever o contador provaria a soma,
+  // não o botão (a armadilha do cartão de ritmo, já paga).
+  await page.tap('#abrirMenu');
+  await page.waitForTimeout(150);
+  await page.tap('#btnCompletude');
+  await page.waitForTimeout(200);
+  await page.screenshot({ path: path.resolve(__dirname, 'T1-historia-aberta.png') });
+  await page.tap('#btnVoltarComp');
+  await page.waitForTimeout(150);
+  await page.tap('#btnConfig');                 // AJUSTES: onde os quatro números aparecem
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: path.resolve(__dirname, 'T1-ajustes-retencao.png') });
+  const painel = await page.evaluate(() => ({
+    historia: R.historia, segundos: R.segundos,
+    linhas: Array.from(document.querySelectorAll('#cfgInfo canvas')).length,
+    gravado: JSON.parse(localStorage.getItem(CHAVE_RET) || '{}')
+  }));
+  await page.tap('#btnVoltarCfg');
+  await page.waitForTimeout(120);
+  await page.tap('#btnJogar');
+  await page.waitForTimeout(250);
+  console.log('retention -> first 60s taps L/R:', t1.janela.esq + '/' + t1.janela.dir,
+    '| after the window:', t1.depois.esq + '/' + t1.depois.dir,
+    '| days', t1.dias, '| A HISTÓRIA opened', painel.historia + 'x',
+    '| AJUSTES lines', painel.linhas);
+  if (t1.janela.esq !== 2 || t1.janela.dir !== 1) errors.push('the first-60s taps were not counted by half: ' + JSON.stringify(t1.janela));
+  if (t1.depois.esq !== t1.janela.esq) errors.push('a tap after the 60s window still counted');
+  if (t1.dias !== 1) errors.push('a brand new record did not count today as day 1: ' + t1.dias);
+  if (painel.historia !== t1.historia + 1) errors.push('opening A HISTÓRIA did not move the counter: ' + painel.historia);
+  if (painel.linhas < 6) errors.push('the AJUSTES retention footer lost lines: ' + painel.linhas);
+  // o que foi ao disco são os campos do esquema, nem um a mais (a cópia INDEPENDENTE, como
+  // a do ESQUEMA_SAVE: gerar uma da outra deixaria de pegar um campo gravado sem esquema)
+  const retEsperadas = ['dias', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'ultimo'];
+  const retChaves = Object.keys(painel.gravado).sort();
+  console.log('retention written ->', retChaves.join(', '));
+  if (retChaves.join(',') !== retEsperadas.join(',')) errors.push('the retention record carries fields the loader would discard: ' + retChaves.join(','));
+
+  // ---- e o registro de retenção também é ENTRADA NÃO CONFIÁVEL ----
+  const retSujo = await page.evaluate(() => {
+    localStorage.setItem(CHAVE_RET, JSON.stringify({
+      dias: 'muitos',            // wrong type
+      primeiro: '2026-13-99',    // a date that does not exist
+      ultimo: 42,                // not even a string
+      segundos: -900,            // out of range
+      historia: Infinity,        // not finite
+      toqEsq: 9e9, toqDir: 3.7,  // over the ceiling, and not an integer
+      tochas: NaN,
+      inventado: { a: 1 }        // not on the schema at all
+    }));
+    R = RET_PADRAO(); diaNovo = false;
+    carregarRetencao();
+    return { dias: R.dias, primeiro: R.primeiro, ultimo: R.ultimo, segundos: R.segundos,
+      historia: R.historia, toqEsq: R.toqEsq, toqDir: R.toqDir, tochas: R.tochas,
+      inventado: 'inventado' in R, bonus: bonusDias(), hoje: diaLocal() };
+  });
+  console.log('tampered retention ->', JSON.stringify(retSujo));
+  if (retSujo.dias !== 1) errors.push('a tampered day count was accepted: ' + retSujo.dias);
+  if (retSujo.ultimo !== retSujo.hoje) errors.push('a tampered last-day was accepted: ' + retSujo.ultimo);
+  if (retSujo.primeiro !== retSujo.hoje) errors.push('an impossible date got in as the first day: ' + retSujo.primeiro);
+  if (retSujo.segundos !== 0) errors.push('negative playtime was accepted: ' + retSujo.segundos);
+  if (retSujo.historia !== 0) errors.push('Infinity got into the A HISTÓRIA counter');
+  if (retSujo.toqEsq !== 5000) errors.push('the tap counter was not clamped to its ceiling: ' + retSujo.toqEsq);
+  if (retSujo.toqDir !== 3) errors.push('a fractional tap count was accepted: ' + retSujo.toqDir);
+  if (retSujo.tochas !== 0) errors.push('NaN got into the torch counter');
+  if (retSujo.inventado) errors.push('an unknown field was copied into the retention record');
+  if (!isFinite(retSujo.bonus) || retSujo.bonus < 1) errors.push('the day bonus went wrong after a tampered retention record: ' + retSujo.bonus);
+  await page.evaluate(() => { localStorage.removeItem(CHAVE_RET); R = RET_PADRAO(); carregarRetencao(); });
 
   const fps = await page.evaluate(() => new Promise(res => {
     let n = 0; const t0 = performance.now();

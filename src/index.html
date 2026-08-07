@@ -66,6 +66,11 @@
 
 <!-- ENQUANTO VOCÊ ESTEVE FORA: o papel de campo que o lugar deixa para quem volta.
      Preenchido por mostrarRetorno() só com números da economia real; fecha num toque. -->
+<!-- O véu do retorno (bug B1): IRMÃO do papel, nunca filho. Como filho ele teria de ter
+     z-index negativo para ficar atrás, e nessa ordem ele pinta DEPOIS do fundo do próprio
+     papel — o papel saía encardido, medido no primeiro print. Irmão em z 59 escurece só o
+     que está atrás. -->
+<div id="retVeu" aria-hidden="true"></div>
 <div id="retorno" aria-hidden="true">
   <div id="retTit">ENQUANTO VOCÊ ESTEVE FORA</div>
   <div id="retLista"></div>
