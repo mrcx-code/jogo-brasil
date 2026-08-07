@@ -1,13 +1,20 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "07/08 · a folha v2 chegou 15:59 e esta sendo processada",
-  "emVoo": [
-    {
-      "papel": "Dev",
-      "t": "Folha v2 da ganhadeira — medir a sola e fechar a passada de Salvador"
-    }
-  ],
+  "atualizado": "07/08 · noite · onda 6 e a passada v2 no ar",
+  "emVoo": [],
   "entregue": [
+    {
+      "q": "onda 6",
+      "t": "O papel ganha tinta de caderno — Arial Black deixa de ser voz"
+    },
+    {
+      "q": "passada",
+      "t": "Salvador: escorregamento 87,8% → 18,75% com a folha v2"
+    },
+    {
+      "q": "sprint 2",
+      "t": "O veredito medido: aceitável, não divertido — 5 decisões em 8 min"
+    },
     {
       "q": "retenção",
       "t": "O jogo passa a saber quem volta — e o painel do dia 2 fica alcançável"
@@ -31,48 +38,28 @@
     {
       "q": "invasão",
       "t": "O fecho conta o que houve — violência com sujeito"
-    },
-    {
-      "q": "chrome",
-      "t": "O menu virou régua; as telas de ler viraram papel"
-    },
-    {
-      "q": "composição",
-      "t": "Dois trilhos, tudo no chão, o número cala na leitura"
-    },
-    {
-      "q": "onda 4",
-      "t": "O gesto ganha peso — mola de câmera e onda no chão"
-    },
-    {
-      "q": "QA",
-      "t": "Três fluxos viram teste; primeiro QA.md com dois bugs e o gap-check"
-    },
-    {
-      "q": "sprint",
-      "t": "PM escreve o SPRINT.md: seis tickets com território e aceite"
-    },
-    {
-      "q": "equipe",
-      "t": "Quatro papéis permanentes e o protocolo entre eles"
     }
   ],
   "proximos": [
+    {
+      "t": "Folha v3 da ganhadeira — SÓ as poses do apoio (a v2 repete o contato)",
+      "dep": "VOCÊ · 1 folha"
+    },
     {
       "t": "Folhas de corrida com a pessoa da caminhada",
       "dep": "VOCÊ · 3 folhas"
     },
     {
-      "t": "Ler o fecho novo de PINDORAMA e cortar o que não te representa",
+      "t": "Sprint 2: o verbo de Salvador (levar palavra) — o texto promete, a mão desmente",
+      "dep": "⚠ §2"
+    },
+    {
+      "t": "Ler os textos de PINDORAMA e SALVADOR",
       "dep": "VOCÊ · ler"
     },
     {
-      "t": "Auditoria §2 do texto inteiro em workflow (exaustiva, custa tokens)",
-      "dep": "VOCÊ · ok?"
-    },
-    {
-      "t": "Simplificação geral do jogo (você pediu, fica para sessão própria)",
-      "dep": "depois"
+      "t": "Os dois capítulos pré-1500 — você disse 'bora fazer'",
+      "dep": "arte"
     }
   ]
 }

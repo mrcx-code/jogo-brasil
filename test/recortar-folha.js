@@ -35,7 +35,7 @@
 // size that are then computed over the kept frames alone — which is what they should be, since
 // a discarded pose has no business setting the canvas for the ones that ship.
 //
-// Usage: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [compressaoVertical] [--quadros=a,b,c]
+// Usage: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [compressaoVertical] [--quadros=a,b,c] [--qualidade=Q]
 //   12      12 frames side by side           (the strip, unchanged)
 //   4x3     4 columns by 3 rows, 12 frames   (reading order: left to right, top to bottom)
 //   3x3:7   the first 7 cells of a 3x3 grid  (for a grid whose last row is not full)
@@ -44,6 +44,13 @@ const { chromium } = require('playwright');
 
 const argv = process.argv.slice(2);
 const QARG = argv.find(a => a.startsWith('--quadros='));
+// QUALIDADE do WebP de saída. Era 0,92 fixo, o que era a qualidade da personagem até
+// 2026-08-07; o CLAUDE.md §6 passou a folha da personagem para 0,76 e recomprimir depois, com o
+// `requalificar.js`, seria um SEGUNDO passo de compressão em cima do primeiro — perda de geração
+// de verdade, e à toa, porque aqui a fonte ainda é o PNG mestre. Encodar já na qualidade final é
+// a única forma de a folha nova custar o mesmo que as irmãs sem pagar duas vezes.
+const QUALARG = argv.find(a => a.startsWith('--qualidade='));
+const QUAL = QUALARG === undefined ? 0.92 : parseFloat(QUALARG.slice(12));
 const pos = argv.filter(a => !a.startsWith('--'));
 const SRC = pos[0];
 const GRADE = pos[1];
@@ -52,7 +59,8 @@ const COMP = pos[3] === undefined ? 1 : parseFloat(pos[3]);
 // 1-based, in the order they should come out; repeats are allowed (a pose may serve twice)
 const QUADROS = QARG ? QARG.slice(10).split(',').map(s => parseInt(s, 10)) : null;
 
-const USO = 'uso: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [comp] [--quadros=a,b,c]';
+const USO = 'uso: recortar-folha.js <sheet> <N | CxR | CxR:N> <saida.json> [comp] [--quadros=a,b,c] [--qualidade=0.76]';
+if (!(QUAL > 0 && QUAL <= 1)) { console.error(USO); process.exit(1); }
 // "12" parses as C=12, R=1: the strip is the one-row grid, so there is nothing to keep in sync
 const gr = /^(\d+)(?:[xX](\d+))?(?::(\d+))?$/.exec(GRADE || '');
 if (!SRC || !gr || !OUT) { console.error(USO); process.exit(1); }
@@ -82,7 +90,7 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage();
   const saida = await page.evaluate(async (args) => {
-    const { src, N, COLS, ROWS, COMP, QUADROS } = args;
+    const { src, N, COLS, ROWS, COMP, QUADROS, QUAL } = args;
     const im = await new Promise((res, rej) => {
       const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
     });
@@ -223,10 +231,10 @@ const dataUrl = 'data:image/' + ext + ';base64,' + fs.readFileSync(SRC).toString
         }
       }
       fg.putImageData(img, 0, 0);
-      frames.push({ w: FW, h: FHi, b64: fc.toDataURL('image/webp', 0.92) });
+      frames.push({ w: FW, h: FHi, b64: fc.toDataURL('image/webp', QUAL) });
     }
     return { frames };
-  }, { src: dataUrl, N, COLS, ROWS, COMP, QUADROS });
+  }, { src: dataUrl, N, COLS, ROWS, COMP, QUADROS, QUAL });
   await browser.close();
 
   if (saida.erro) { console.error('ERRO:', saida.erro); process.exit(1); }

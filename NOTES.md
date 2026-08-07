@@ -2366,3 +2366,104 @@ motor antigo — folha procedural com contorno navy `#12242e` (cor proibida pela
 paleta) ao lado de contadores autorais, a VARINHA mágica do jogo de rua no botão
 dourado, e escala não-inteira 12→20/30 px (pixel desigual). Mapa de pixel é código:
 zero imagem, meio dia.
+### 2026-08-07 · A folha nova da ganhadeira: melhorou 4,7× e ainda não é um ciclo
+
+A segunda folha de caminhada de SALVADOR (`assets/entrada/cap4-sprite-v2.png`) foi pedida como
+*ciclo descrito pose a pose, 12 poses*, para consertar o defeito medido na primeira. Ela entrou
+no jogo. **Não fechou.**
+
+**O que a folha é, medido antes de cortar.** `validar-folha.js` sem grade: **8 manchas**, não
+12 — o pedido dizia doze. Grade `4x2`, `4 | 4` por linha, zero fragmentos. Fundo magenta com
+assinatura de salvamento com perdas (0,00% de `#FF00FF` exato, 81,71% a ≤48), franja média de
+0,58 px, dentro do que o desfranjamento resolve. A pessoa é a MESMA de ponta a ponta: CV de
+**0,3%** na largura do topo da figura entre os oito quadros. As figuras estão DESCENTRADAS nas
+células (a quarta cruza a linha da célula em 1330 px) e mesmo assim o corte sai inteiro,
+porque o recortador preenche a mancha na folha toda e reancora pela cabeça.
+
+**ESCALA: a largura da cabeça mentiu, como avisado.** A ganhadeira leva um TABULEIRO na cabeça,
+então o quinto superior da figura é a bandeja e o `medir-escala.js` mede a bandeja, não o
+crânio — é por isso que a "cabeça" dela dá 15 px de mundo e a do capítulo 1 dá 10. Comparada
+por CORPO (perfil de largura normalizado pela altura, 20 fatias, mediana entre quadros), a
+razão v2/v1 no tronco é **1,056**: a mesma pessoa, desenhada 6% mais robusta para a mesma
+altura. Menos de 1 px de mundo na tela. Não se reescalou nada.
+
+**O NÚMERO, que é o que interessa.** Régua: `test/medir-sola.js --ciclo`, chão 2 px, a mesma
+para todos. Medida agora, com a ferramenta, e não de memória:
+
+| | ciclo | recuos do calcanhar | escorregamento |
+|---|---|---|---|
+| cap 1 PINDORAMA | 3 quadros | 47 / 47 | **0,00%** |
+| cap 2 PALMARES | 3 quadros | 54 / 56 | **1,82%** |
+| cap 4 AINDA AQUI | 3 quadros | — / 51 | não mensurável (1 transição) |
+| SALVADOR, folha v1 (em uso até hoje) | 3, 4, 9 | 77 / 5 | **87,80%** |
+| SALVADOR, folha v2 (entrou) | 2, 3, 4 | 26 / 38 | **18,75%** |
+
+**Por que 18,75% é o teto desta folha, e não uma escolha preguiçosa.** Varridos por programa
+TODOS os ciclos que a folha permite — 42 de três quadros, 89 de quatro, 110 de seis, 2 de oito.
+Melhor de três: 18,75%. Melhor de quatro: 37,90%. A folha tem **8 poses e 2 fases**: os quadros
+1, 4, 5 e 8 são o mesmo apoio duplo (calcanhar de trás em 57 / 58 / 55 / 56 px — três px de
+amplitude entre quatro poses) e os quadros 2, 3, 6 e 7 são a mesma passagem (96 a 122). Entre
+230 px (o pé acabou de tocar à frente) e 122 px não há UMA pose. É exatamente o mesmo buraco da
+v1, com quatro poses a menos para disfarçá-lo.
+
+**O que melhorou, e é por isso que a folha entrou mesmo assim:**
+
+- escorregamento **87,80% → 18,75%** (4,7×);
+- a sola desliza **4,4 px de MUNDO por segundo** contra **28,9** da v1 — 6,6× menos. (Conta:
+  soma dos desvios do recuo ao longo do laço, incluída a costura, dividida pela duração do
+  laço. É o que a pessoa vê.);
+- a passada deixou de ser miúda: laço 96 px de sprite num quadro de 396 contra 106 num de 317.
+
+**O que NÃO fechou, dito com o número:** 18,75% contra 0,00% e 1,82%. Uma ordem de grandeza. A
+meta era a faixa das outras eras e ela não foi atingida — está escrito no `PASSO_CAP`, em cima
+dos literais, para ninguém confundir esta linha com as outras três.
+
+**O PEDIDO CIRÚRGICO PARA A PRÓXIMA FOLHA.** O que falta não é "mais poses": são **as poses do
+APOIO** — o pé plantado no chão e o CORPO passando por cima dele, entre o instante em que o
+calcanhar toca à frente e o instante em que o quadril alcança o pé. Na folha entregue esse
+trecho vale 108 px de sprite (de 230 a 122) e tem zero poses. Quatro das oito poses entregues
+são cópias do contato e **podem ser trocadas** por essas quatro sem perder nada: o pedido não
+precisa ser maior, precisa ser redistribuído.
+
+**Números do motor que mudaram junto** (`PASSO_CAP`, terceira linha, ordem de `EPOCAS`):
+`laco` 106 → **96**, `alturaQuadro` 317 → **396**, `tela` 8 → **6**, `telaCorrer` 4 → **3**.
+Velocidade 36,78 → **35,56 px/s**, −7,1% do capítulo 1 (era −3,9%). É o maior desvio das quatro
+eras e não há escolha melhor: com `passo` = 3,556, `tela` 6 dá 35,56 e `tela` 5 daria 42,67 —
+erra 2,70 contra 4,41 px/s. Fracionar o `tela` para acertar a velocidade é a armadilha nº 1 do
+§7 e não se faz.
+
+**Uma régua que se provou ruim e fica registrada.** A v1 derivou o `laco` da separação entre os
+dois calcanhares no apoio duplo, porque as recessões eram inúteis. Medida agora no capítulo 1,
+cuja caminhada é perfeita, essa separação dá 110 e 68 px enquanto o laço pelas recessões dá
+141 — erra 58% onde não há erro nenhum a medir. Ela serve para saber que existe uma passada;
+não serve para dizer o tamanho dela. O laço da folha nova saiu das **recessões**, como nas
+outras três eras.
+
+**PESO.** `index.html` **3.451.684 → 3.478.149 bytes (3.370,8 → 3.396,6 KB, +25,8 KB, +0,8%)**.
+A folha entrou em **WebP 0,76**, a qualidade nova da personagem (`CLAUDE.md` §6), encodada já
+na saída do recortador: `recortar-folha.js` ganhou `--qualidade=`, porque baixar depois com o
+`requalificar.js` seria um segundo passo de compressão em cima do primeiro, e à toa, já que
+aqui a fonte ainda é o PNG mestre. O bloco `HERO_B64.walk4` custa 48,7 KB (era ~32) — o quadro
+é 283×396 contra 159×317, e a largura vem da pose de apoio duplo, que é larga de propósito.
+
+**Ferramentas.** `montar-quadros.js` e `prints-cap4.js` **voltaram commitadas**: o `LEIAME.md`
+citava as duas desde o capítulo 4 e a pasta não tinha nenhuma — ficaram para trás na integração
+daquele worktree. `cortar-celulas.js` e `calibrar-ceu.js` continuam faltando, e agora está
+escrito no LEIAME para a próxima sessão não procurar. `prints-cap4.js` custou duas armadilhas,
+ambas anotadas nele: encher `energiaTotal` antes de escolher o capítulo faz `verificarCenario()`
+empurrar a pessoa até a ÚLTIMA cena em poucos quadros (o primeiro print saiu de AINDA AQUI
+achando que era SALVADOR), e a tela de abertura sobe UM quadro depois de o cenário mudar, o que
+para o mundo pelo portão de `historiaAberta()` e congela o `worldX` para sempre.
+
+**Medido no fim:** `npm test` verde, FPS 61, zero erro de console. Prints em `test/`:
+`C4-passada.png` (o ciclo quadro a quadro com a linha de chão e a faixa do pé),
+`C4-folha-v2.png` (as oito poses entregues, onde se vê a olho que 1/4/5/8 são a mesma),
+`C4-rua.png` e `C4-anda-1..6.png` (o capítulo JOGANDO, seis fotos ao longo de um laço inteiro,
+com o `worldX` de cada uma impresso).
+
+**Próximo passo / dúvida deixada:** a decisão é do dono e é barata de reverter — a folha v1
+continua em `assets/entrada/cap4-sprite.png` e voltar é um `--quadros=3,4,9` mais três números
+no `PASSO_CAP`. A dúvida honesta: com 3 quadros e um laço de 10,7 px de mundo, ela troca de
+pose 10 vezes por segundo, contra 6 do capítulo 1 — a cadência fica mais miúda que a das
+irmãs, e isso é consequência direta de a folha não ter o meio do apoio. Se a terceira folha
+vier com as poses de apoio, o laço cresce e a cadência se acalma sozinha.

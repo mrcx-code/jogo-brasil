@@ -96,10 +96,20 @@ as células 6, 5, 2. No capítulo 2 são 1, 5, 8; no 3, 7, 11, 2. Não há como 
 por folha. Agora:
 
 ```bash
-node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/todos.json 0
-node test/medir-sola.js /tmp/todos.json --faixa=18     # o pé quadro a quadro
-node test/montar-quadros.js /tmp/todos.json /tmp/pes.png 3 --pes=70   # e olhar
+node test/validar-folha.js assets/entrada/cap4-sprite-v2.png            # quantas manchas? 8
+node test/validar-folha.js assets/entrada/cap4-sprite-v2.png 4x2        # e batem 4|4?
+node test/recortar-folha.js assets/entrada/cap4-sprite-v2.png 4x2 /tmp/todos.json 0
+node test/medir-sola.js /tmp/todos.json --faixa=18      # o pé quadro a quadro
+node test/medir-sola.js /tmp/todos.json --ciclo=2,3,4   # e o escorregamento do ciclo
+node test/montar-quadros.js /tmp/todos.json /tmp/pes.png 0.62 --pes=18   # e olhar
 ```
+
+**A grade sem grade vem primeiro.** `validar-folha.js` sem argumento de grade conta as manchas
+e é esse número que manda; a v2 foi pedida com 12 poses e entregou 8. Só depois se confere a
+grade candidata (`4x2`), que tem de fechar `4 | 4` por linha. A folha da v2 tem as figuras
+DESCENTRADAS nas células (a quarta cruza a linha da célula em 1330 px), e mesmo assim o corte
+sai inteiro, porque o recortador preenche a mancha na folha toda e reancora pela cabeça — é
+para isso que essas duas decisões existem.
 
 `medir-sola.js` imprime duas leituras por quadro. A **SOLA** é a do parágrafo abaixo: colunas
 cuja tinta mais baixa fica a ≤ 2 px da base. Os **PÉS** são os borrões da faixa de baixo
@@ -109,13 +119,35 @@ barra do vestido ou da túnica: com 45 px a saia da ganhadeira colava os dois p�
 só, e com 18 eles se separaram. O quadro já vem ancorado pela cabeça, então x é comparável
 entre quadros.
 
-**O que fazer quando a folha não é um ciclo.** Foi o caso do capítulo 4, e o número está no
-`NOTES.md`: onze poses, mas o calcanhar do pé de apoio só aparece na chegada e na saída, sem
-nenhuma pose no meio do apoio. Nesse caso o laço NÃO sai das recessões (não há três iguais);
-sai da **separação entre os dois calcanhares no apoio duplo**, que é a mesma grandeza medida
-por outro caminho e que vários quadros confirmam entre si. Meça o escorregamento assim
-mesmo, escreva-o no `PASSO_CAP` ao lado dos outros, e peça folha nova: 52,5% contra 0,48%
-não é detalhe, e código nenhum conserta.
+**O que fazer quando a folha não é um ciclo.** Foi o caso do capítulo 4 e é o caso dele até
+hoje. A PRIMEIRA folha (`cap4-sprite.png`) tinha onze poses e o calcanhar do pé de apoio só
+aparecia na chegada e na saída, sem nenhuma pose no meio do apoio: **87,80%** de escorregamento
+pela régua do `medir-sola.js`, contra 0,00% (cap 1) e 1,82% (cap 2) medidos com esta mesma
+ferramenta. A SEGUNDA (`cap4-sprite-v2.png`, 2026-08-07), pedida como *ciclo descrito pose a
+pose*, veio com **8 poses em 4x2** e continua não sendo um ciclo — só que agora dá para provar
+com uma varredura em vez de com um argumento:
+
+- quadros 1, 4, 5, 8 → o MESMO apoio duplo, calcanhar de trás em 57 / 58 / 55 / 56 px
+  (três px de amplitude entre quatro poses);
+- quadros 2, 3, 6, 7 → a MESMA passagem, calcanhar em 96 a 122;
+- entre 230 (o pé acabou de tocar à frente) e 122, nenhuma pose. É o trecho do APOIO.
+
+Varridos os 42 ciclos de três quadros e os 89 de quatro que a folha permite, o melhor é
+**2→3→4 com 18,75%** e o melhor de quatro é 37,9%. Foi essa a folha que entrou, porque 87,80%
+→ 18,75% é 4,7× e a sola desliza 4,4 px de mundo por segundo contra 28,9 da anterior — mas
+**18,75% não é a faixa das outras eras e o `PASSO_CAP` diz isso em voz alta**. A lição de
+método, que vale para a próxima folha de qualquer capítulo: quando a folha não fecha, varra
+TODOS os ciclos possíveis antes de concluir, e diga no pedido novo **quais poses faltam** —
+aqui, as do pé plantado com o corpo passando por cima dele. Quatro das oito poses entregues
+são cópias do contato e podem ser trocadas por essas quatro. Código nenhum conserta isto.
+
+**O laço pela separação dos calcanhares é FALLBACK, e desconfie dele.** A primeira folha do
+capítulo 4 derivou o `laco` da separação entre os dois calcanhares no apoio duplo porque as
+recessões eram inúteis. Medido depois no capítulo 1, cuja caminhada é perfeita: as separações
+dão 110 e 68 px enquanto o laço pelas recessões dá 141 — a separação erra em 58% justamente
+onde não há erro nenhum a medir. Ela serve para saber que a folha tem uma passada; não serve
+para dizer o tamanho dela. **O laço sai das recessões do calcanhar** (`recuo médio × n` do
+`medir-sola.js --ciclo`), como nos capítulos 1, 2 e 4, e é o que a folha nova usa.
 
 **Como escolher, com número e não com olho:** meça a **sola**, não o centroide do pé. No
 apoio duplo o pé de trás está na ponta e o da frente chapado, e os centroides mentem sobre
@@ -166,10 +198,13 @@ A ordem que funcionou, com as oito imagens em `assets/entrada/cap4-*.png`:
 
 ```bash
 # 1. a personagem — medir antes de cortar, cortar depois de escolher o ciclo
-node test/validar-folha.js assets/entrada/cap4-sprite.png            # quantas manchas? 11
-node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/todos.json 0
+node test/validar-folha.js assets/entrada/cap4-sprite-v2.png         # quantas manchas? 8
+node test/recortar-folha.js assets/entrada/cap4-sprite-v2.png 4x2 /tmp/todos.json 0
 node test/medir-sola.js /tmp/todos.json --faixa=18                   # escolhe o ciclo
-node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/andar.json 0 --quadros=3,4,9
+# --qualidade é a do CLAUDE.md §6 para a personagem. Encodar já na qualidade final evita o
+# segundo passo de compressão que o requalificar.js faria em cima do primeiro.
+node test/recortar-folha.js assets/entrada/cap4-sprite-v2.png 4x2 /tmp/andar.json 0 \
+                            --quadros=2,3,4 --qualidade=0.76
 node test/embutir-heroi.js walk4=/tmp/andar.json atk1_4= atk2_4= sp4= run4=
 
 # 2. as pinturas (duas peças por cena)
@@ -202,6 +237,21 @@ Três armadilhas que este capítulo pagou:
   — estão na ordem de `EPOCAS`, e reordenar uma sem as outras troca a arte de dono.
 - **Capítulo que entra no MEIO da cronologia desloca índice guardado no save.** Ver
   `migrarArco()`: sem ele, quem parou no último capítulo acorda no capítulo novo.
+
+### Ferramentas que este LEIAME citava e a pasta não tinha
+
+A integração do worktree de SALVADOR trouxe o capítulo e deixou quatro ferramentas para trás:
+o texto acima as citava e o arquivo não existia. **`montar-quadros.js` e `prints-cap4.js`
+voltaram commitados em 2026-08-07**, reescritos a partir do que o LEIAME dizia deles.
+`cortar-celulas.js` e `calibrar-ceu.js` **continuam faltando** — quem precisar dos dois vai ter
+de reescrevê-los; não perca tempo procurando. A lição: ferramenta citada no LEIAME e ausente da
+pasta é pior que ferramenta não documentada, porque manda a próxima sessão procurar.
+
+`prints-cap4.js` tem duas armadilhas pagas, e as duas moram no comentário dele: encher
+`energiaTotal` ANTES de escolher o capítulo faz `verificarCenario()` empurrar a pessoa até a
+última cena em poucos quadros (o print sai do capítulo errado, sem aviso), e a tela de abertura
+sobe UM quadro depois de o cenário mudar, o que para o mundo pelo portão de `historiaAberta()`
+e congela o `worldX` para sempre.
 
 ## `inline-cenarios.js`, `inline-sheets.js`
 
