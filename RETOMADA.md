@@ -26,64 +26,29 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
 
 ## Trabalho em voo neste momento
 
-- **Historiador pré-1500** (relatório): sambaquis, Marajó, geoglifos/Amazônia antropizada,
-  expansão Tupi — com a trava anti-religião e a estante de pesquisadoras (Gaspar, Schaan,
-  Roosevelt, Neves).
-- **Motor N-capítulos** (worktree): capítulo↔cenário por dados, ESQUEMA_SAVE derivado,
-  arte com fallback, prova com 5 épocas. Integrar por patch (`git diff 52ff66c -- src/`).
+- **Lugar vivo, fase 1** (worktree, partiu de 52f45be): marcos no chão do cap. 2 +
+  S.acolhidos persistente + tela de retorno. Integrar por `git diff 52f45be -- src/`.
+- **Usabilidade dos 5 primeiros minutos** (relatório apenas): o fluxo inteiro nunca foi
+  revisado depois da direção de arte nova.
 
-## Fila da noite, depois dos dois acima
+## O que já aconteceu no turno noturno (tudo publicado)
 
-1. Integrar motor N-capítulos (verde + prints idênticos com 3 épocas).
-2. **SALVADOR entra como capítulo 4** — textos do relatório do historiador (rascunho
-   marcado; o texto final de EPOCAS é do dono, palavra por palavra), mecânica = alcance
-   existente. Sem arte própria ainda: usar fallback declarado do motor novo.
-3. **Mesa de entrega**: gerar em `ferramentas/necessario.json` os pedidos de arte de
-   Salvador (pintura 2 partes, sprite ganhadeira, retrato, 2 contextos, itens tabuleiro/
-   barril/trouxa, drops acarajé/pano/búzios) com prompts completos — o dono gera de manhã.
-4. **Jogabilidade travessia+lugar-vivo**: desenho técnico primeiro (como marcos aparecem
-   no horizonte SEM paralaxe nova — lembrar: chão 1:1 inegociável), depois protótipo no
-   capítulo 2 (Palmares já tem o acolher; o lugar-vivo é a extensão natural).
-5. Usabilidade: revisar os 5 primeiros minutos com o fluxo novo (menu→era→cerimônia→jogo).
-6. Se sobrar: linha do tempo ganha os marcos pré-1500 e Império do historiador.
+1. Decisões da noite registradas · pendências da manhã na mesa (nome do cap. Tupinambá,
+   Marajó marco×capítulo, gerar Salvador, quando fazer o pré-1500).
+2. Mesa com 8 pedidos de arte de SALVADOR prontos (travas de representação nos prompts).
+3. `JOGABILIDADE.md` — desenho técnico travessia + lugar vivo.
+4. **5 marcos pré-1500 na linha do tempo** (Luzia, montes da costa, Marajó, geoglifos,
+   expansão Tupi) + regra de nomeação escrita + palavras banidas.
+5. **Motor N-capítulos integrado** (52f45be): capítulo = objeto em EPOCAS + arte; época
+   sem arte cai na anterior com warn; save validado com faixas derivadas.
+6. **SALVADOR está pronto nos relatórios mas NÃO entrou** — decisão de esperar a arte:
+   o fallback mostraria a mata do presente sob textos de 1835, ensinando errado. Entra
+   quando o dono gerar as 8 imagens da mesa.
 
 ## Regras de integração que já pagaram sessão
 
 - Patch por caminho explícito (`git diff <base> -- src/ > x.patch && git apply --3way`).
 - Conflito entre agentes: resolver mantendo OS DOIS lados (caso som+grupo).
 - `npm test` + OLHAR os prints antes de cada push. `main` é produção.
-
-## Números medidos — não os re-derive, estão certos
-
-| | |
-|---|---|
-| passada, por era | 6,377 (n=10) · 7,492 (n=12) · 6,918 (n=11) |
-| escorregamento do pé | 0,48% · 0,00% · 0,67% |
-| paralaxe | 0,45 céu · 1,0 chão · 1,35 folhagem |
-| atendido em 60 s | andando 1,00 · correndo 0,66 · parado 0,00 |
-| renda de correr | +16% (era −5% antes do spawn por distância) |
-| o que atravessa a tela | 18,3% da renda (era 4%) |
-| toque no vazio | **65% da renda** — o último item grande |
-| do zero até ver tudo | 5 min 07 s |
-| peso do index.html | **3,7 MB** (teto que eu mesmo dei: 3,6) |
-
-## Armadilhas que já custaram sessão — não repita
-
-- **Paralaxe é fatal no horizonte e abaixo, inócua acima.** O chão é 1:1 e não se negocia.
-- **Centroide do pé MENTE.** Meça a SOLA.
-- **CSS órfão não dá erro** — só faz a coisa errada em silêncio. Mordeu duas vezes.
-- **`z-index` negativo não tira um filho de trás do fundo do pai.** Tem que virar irmão.
-- **Erro de sintaxe derruba tudo** e o sintoma aparece longe: o smoke test disse `CFG is not
-  defined` quando a causa era um `else` órfão. Bisecção acha em um minuto.
-- **`git add -A` com agente rodando** varre trabalho alheio para dentro do commit errado.
-- **`\n` em heredoc de shell vira quebra real** e quebra a string. Use `Write` ou `
-`.
-
-## Como o dono quer trabalhar
-
-Decidir sozinho, ser direto, **medir em vez de achar**, e avisar antes de quebrar algo.
-Perguntas desnecessárias ele lê como desobediência ao pedido de autonomia. A exceção é
-**representação histórica** — ali, decidir sozinho é a escolha errada.
-
-Ele pediu explicitamente: **operar no máximo a 98% do limite**, ir mais devagar ao se
-aproximar, e escrever um texto de retomada como este antes de resetar. Este arquivo é isso.
+- Números medidos, armadilhas e como o dono trabalha: ver o histórico deste arquivo no
+  git (`git log -p RETOMADA.md`) — cortados daqui por espaço, continuam valendo.
