@@ -1,9 +1,21 @@
-# DIREÇÃO DE EVOLUÇÃO — o que "moderno" significa para BRASIL
+# DIREÇÃO DE ARTE — BRASIL
 
-Mandato criado pelo dono em 2026-08-07: *"use todo o potencial para trazer o jogo para o
-futuro, esse layout parece tão velho"*. Este documento é a visão que os sprints de evolução
-seguem. Ele NÃO revoga nada do `CLAUDE.md` §2 (representação se decide com o dono), nem o
-logo, nem o nome, nem as regras técnicas, nem a regra de que economia só muda com medição.
+## A barra, definida pelo dono em 2026-08-07 (permanente, acima de qualquer onda)
+
+> *"Espero uma qualidade diferenciada e componentes que se conversem, não quero um
+> frankenstein, o jogo precisa ser bonito, use referências premiadas para se basear
+> (como o Awwwards, mas para um jogo de celular)."*
+
+Três coisas que isso obriga, e valem para toda entrega deste papel:
+
+1. **Componentes conversam ou não entram.** Nada de superfície nova que fale um dialeto
+   próprio. A régua do menu (abaixo) é lei; o que não couber nela DERIVA dela, com a
+   derivação escrita — nunca inventa.
+2. **A barra é prêmio, não "ficou ok".** Antes de entregar, a pergunta não é "quebrou?",
+   é *"isto ganharia um prêmio de jogo mobile?"*. Se a resposta for não, itera.
+3. **Referência é obrigatória, não decorativa.** Toda decisão visual grande cita a
+   referência que a sustenta e o que foi tirado dela — e por que ela serve a um jogo de
+   pixel art histórico brasileiro, e não a um portfólio.
 
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
