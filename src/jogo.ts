@@ -5786,7 +5786,9 @@ function mostrarFecho(i, depois?) {
 // TUDO abaixo veio da pesquisa registrada no NOTES.md. Nada foi inventado para preencher. Se
 // uma linha não tinha fonte, ela não entrou.
 const MOMENTOS = [
-  { q: "século XVI", t: "Antes de qualquer chegada",
+  // "Antes da chegada" saiu por decisão do dono (2026-08-07): a formulação põe a invasão no
+  // centro e faz parecer que se ESPERAVA por ela. O nome do lugar é o nome do lugar.
+  { q: "século XVI", t: "A terra tinha nome",
     d: "Os Tupinambá ocupavam a costa atlântica com agricultura, pesca e horticultura — mandioca, tubérculos, divisão do trabalho. Não eram um estágio anterior a nada.",
     f: "IBGE · Brasil: 500 anos de povoamento" },
   { q: "1554 · relato publicado em 1557", t: "O que os europeus escreveram",
