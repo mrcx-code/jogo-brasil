@@ -26,7 +26,17 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
 
 ## Trabalho em voo neste momento
 
-Nada. Todos os agentes voltaram e tudo está integrado e publicado.
+- **Direção de Evolução, onda 3** (worktree, base 05e789d): o roteiro está no DIRECAO.md,
+  escrito e refinado pelo próprio papel. Integrar por patch como sempre.
+
+## O dia 2026-08-07 até aqui (tudo publicado)
+
+Deploy da Vercel consertado (vercel.json → dist/) · PINDORAMA (nome novo do cap. 1, fonte
+Navarro/Krenak) · Marajó confirmado marco · historinha SEMPRE ao entrar na era (regressão
+que o dono pegou) · botões numa gramática só (madeira/pedra/ouro) · densidade medida e
+raleada (floats coalescem; renda ±3,4%) · Direção de Evolução ondas 1 e 2 (as horas do
+dia no jogo inteiro; noite calibrada por pintura) · 3 folhas de corrida pedidas na mesa
+(correr parecia andar rápido — o bloco run está vazio esperando arte).
 
 ## O que a manhã deve fazer, em ordem
 
