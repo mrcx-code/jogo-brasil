@@ -182,8 +182,11 @@
     <div class="upgrade" id="cardU1"><span class="nome">×3<br>por alcance</span><button id="btnU1"></button></div>
     <div class="upgrade" id="cardU2"><span class="nome">×2<br>no que pega</span><button id="btnU2"></button></div>
     <div class="upgrade" id="cardU3"><span class="nome">2/s<br>sozinhos</span><button id="btnU3"></button></div>
-    <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
-    <div class="upgrade teste" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
+    <!-- Ferramentas de TESTE, escondidas do jogador: um x100 GRÁTIS na loja quebrava a
+         economia num toque, e APAGAR ficava ao alcance do dedão (usabilidade, achado 4).
+         O smoke test continua acionando-as via .click() — display:none não bloqueia. -->
+    <div class="upgrade teste oculta" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
+    <div class="upgrade teste oculta" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>
 

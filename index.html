@@ -522,9 +522,11 @@
     background:
       repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
       linear-gradient(180deg, var(--papel), var(--papel2));
-    padding: 16px 16px 24px; display: block; border-radius: 4px;
-    /* os 20 px de baixo são a faixa do "toque para continuar": sem eles ele encosta na
-       última linha da fala mais longa */
+    /* 34px embaixo + margem de safe-area: o "toque para continuar" saía cortado pela
+       borda física da tela (usabilidade, achado 3) — é a instrução que a pessoa de
+       primeira vez mais precisa, e era o texto mais mal renderizado do jogo */
+    padding: 16px 16px 34px; display: block; border-radius: 4px;
+    margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
     box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
                 inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
                 0 7px 0 rgba(0,0,0,.45); }
@@ -548,7 +550,7 @@
   #falaFantasma > div { grid-area: 1 / 1; }
   #falaTxt { white-space: pre-wrap; }
   /* o indicador só acende quando a fala terminou de aparecer — antes disso ele mentiria */
-  #falaSeta { position: absolute; right: 12px; bottom: 5px; font-size: 8.5px; font-weight: 700;
+  #falaSeta { position: absolute; right: 13px; bottom: 10px; font-size: 8.5px; font-weight: 700;
     letter-spacing: .1em; color: #8a6b3d; opacity: 0; transition: opacity .12s; }
   #falaCaixa.pronta #falaSeta { opacity: 1; animation: piscaFala 1.1s steps(2, end) infinite; }
   @keyframes piscaFala { 0%,60% { opacity: 1; } 61%,100% { opacity: .35; } }
@@ -774,6 +776,10 @@
     box-shadow: inset 0 0 0 1px var(--panel2); margin-bottom: 12px; }
   #btnBegin { width: 100%; padding: 14px; font-size: var(--fs-md); margin-top: 4px;
     background: linear-gradient(180deg, var(--gold), var(--gold2)); color: var(--ink); }
+
+  /* ferramentas de teste fora da loja de produção (usabilidade, achado 4) — o smoke test
+     continua acionando os botões por .click(), que display:none não bloqueia */
+  .upgrade.oculta { display: none; }
 </style>
 </head>
 <body>
@@ -938,8 +944,11 @@
     <div class="upgrade" id="cardU1"><span class="nome">×3<br>por alcance</span><button id="btnU1"></button></div>
     <div class="upgrade" id="cardU2"><span class="nome">×2<br>no que pega</span><button id="btnU2"></button></div>
     <div class="upgrade" id="cardU3"><span class="nome">2/s<br>sozinhos</span><button id="btnU3"></button></div>
-    <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
-    <div class="upgrade teste" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
+    <!-- Ferramentas de TESTE, escondidas do jogador: um x100 GRÁTIS na loja quebrava a
+         economia num toque, e APAGAR ficava ao alcance do dedão (usabilidade, achado 4).
+         O smoke test continua acionando-as via .click() — display:none não bloqueia. -->
+    <div class="upgrade teste oculta" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
+    <div class="upgrade teste oculta" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>
 
@@ -5687,6 +5696,11 @@ function pipLuzPasso() {
 }
 function desenharVidaMob(m) {
     if (m.dying > 0 || !m.hpMax)
+        return;
+    // Só existe barra DEPOIS do primeiro alcance. Vazia, ela era um retângulo quase preto
+    // pousado sobre cada coisa que chega — o elemento mais chamativo do quadro, comunicando
+    // nada e lendo como sprite quebrado (revisão de usabilidade, achado nº 1).
+    if (m.hp >= m.hpMax)
         return;
     const sx = Math.round(m.wx - worldX);
     if (sx < -20 || sx > W + 20)

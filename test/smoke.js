@@ -147,8 +147,12 @@ function alvo() {
     drawScene(); desenharMundo();
     const ferido = leia();
     mobs.length = 0;
+    // Regra nova (usabilidade, achado 1): a barra INTACTA não desenha nada — vazia ela era
+    // um retângulo preto pousado sobre cada coisa que chega. Só depois do primeiro alcance
+    // ela existe. Então: cheio tem que estar LIMPO, ferido tem que ter pixels.
     return { hp, golpes, mudou: cheio.some((v, i) => v !== ferido[i]),
-      pintou: cheio.some((v, i) => i % 4 === 3 && v > 0) };
+      cheioLimpo: !cheio.some((v, i) => i % 4 === 3 && v > 0),
+      pintou: ferido.some((v, i) => i % 4 === 3 && v > 0) };
   });
   console.log('trouble health -> smog', vida.hp.smog, 'hits', vida.golpes.smog,
     '| cash', vida.hp.cash, 'hits', vida.golpes.cash,
@@ -163,6 +167,7 @@ function alvo() {
   // arms race, just at the new scale.
   if (vida.hp.barrel > 24) errors.push('the health spread grew into a damage system');
   if (!vida.pintou) errors.push('the health readout drew nothing');
+  if (!vida.cheioLimpo) errors.push('an untouched trouble is drawing an empty bar again');
   if (!vida.mudou) errors.push('the health readout does not change when a trouble is damaged');
 
   // ---- troubles walk in, block the work, and pay when they are cleared ----

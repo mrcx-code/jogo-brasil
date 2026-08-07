@@ -4500,6 +4500,10 @@ function pipLuzPasso() {
 }
 function desenharVidaMob(m) {
   if (m.dying > 0 || !m.hpMax) return;
+  // Só existe barra DEPOIS do primeiro alcance. Vazia, ela era um retângulo quase preto
+  // pousado sobre cada coisa que chega — o elemento mais chamativo do quadro, comunicando
+  // nada e lendo como sprite quebrado (revisão de usabilidade, achado nº 1).
+  if (m.hp >= m.hpMax) return;
   const sx = Math.round(m.wx - worldX);
   if (sx < -20 || sx > W + 20) return;
   pipLuzPasso();
