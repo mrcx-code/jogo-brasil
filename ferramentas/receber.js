@@ -78,6 +78,32 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
+  // O QUE CHEGOU E AINDA NAO ENTROU NO JOGO. Entregue e processado eram a mesma coisa —
+  // o pedido sumia da fila quando o arquivo caia no disco, e a mesa dizia "fila vazia"
+  // tanto para "nada pedido" quanto para "tudo entregue e ninguem olhou". Custou DUAS
+  // entregas perdidas no mesmo dia (07/08): as 11 imagens da manha e a folha v2 das 15:59.
+  // Agora o disco e comparado com o que o src/jogo.ts realmente embutiu.
+  if (req.method === 'GET' && url === '/chegadas') {
+    let tem = [], feitas = { itens: [] };
+    try { tem = fs.readdirSync(ENTRADA).filter(function (f) { return !/\.txt$/i.test(f); }); } catch (e) {}
+    // Registro EXPLICITO em processadas.json. A primeira versao adivinhava procurando o nome
+    // do arquivo no src/jogo.ts — e dava falso positivo, porque as ferramentas de arte nao
+    // gravam o nome da origem: elas escrevem base64. Adivinhar o estado da entrega e
+    // exatamente o erro que este painel existe para consertar.
+    try { feitas = JSON.parse(fs.readFileSync(path.join(__dirname, 'processadas.json'), 'utf8')); } catch (e) {}
+    const feito = new Set(feitas.itens || []);
+    const itens = tem.map(function (f) {
+      const nome = f.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+      let quando = '';
+      try { quando = fs.statSync(path.join(ENTRADA, f)).mtime.toISOString().slice(0, 16).replace('T', ' '); } catch (e) {}
+      return { nome: nome, quando: quando, processado: feito.has(nome) };
+    }).filter(function (i) { return !i.processado; })
+      .sort(function (a, b) { return a.quando < b.quando ? 1 : -1; });
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify(itens));
+    return;
+  }
+
   // REVISAR: compara o que o jogo precisa (necessario.json) com o que já chegou
   // (assets/entrada) e repõe na fila só o que falta. Existe porque a fila vinha sendo podada
   // à mão — por mim — e mão esquece. O servidor já sabia o que tem em disco; faltava saber o

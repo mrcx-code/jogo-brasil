@@ -1,7 +1,12 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "07/08 · fim da tarde · Salvador no ar, peso resolvido, retenção medindo",
-  "emVoo": [],
+  "atualizado": "07/08 · a folha v2 chegou 15:59 e esta sendo processada",
+  "emVoo": [
+    {
+      "papel": "Dev",
+      "t": "Folha v2 da ganhadeira — medir a sola e fechar a passada de Salvador"
+    }
+  ],
   "entregue": [
     {
       "q": "retenção",
@@ -53,10 +58,6 @@
     }
   ],
   "proximos": [
-    {
-      "t": "Folha nova da ganhadeira (12 poses) — a passada de Salvador não fecha",
-      "dep": "VOCÊ · 1 folha"
-    },
     {
       "t": "Folhas de corrida com a pessoa da caminhada",
       "dep": "VOCÊ · 3 folhas"

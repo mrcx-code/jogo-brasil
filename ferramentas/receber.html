@@ -111,6 +111,7 @@
 <h1>SALA DE MÁQUINAS</h1>
 <p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
 Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
+<div id="chegadas"></div>
 <h2 class="secao">Arte que o jogo espera <span id="quantasFaltam"></span></h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
 <div id="equipe"></div>
@@ -443,6 +444,27 @@ async function pintarEquipe() {
     `<p class="sub" style="margin:0">${esc(e.atualizado || '')}</p>`;
 }
 pintarEquipe();
+
+// O QUE CHEGOU E ESPERA PROCESSAMENTO. Fica no topo, em ouro, porque e o unico estado em
+// que a bola esta comigo e o dono nao tem o que fazer — mas precisa VER que chegou.
+async function pintarChegadas() {
+  let l = [];
+  try { l = await (await fetch('/chegadas')).json(); } catch (e) { return; }
+  const cx = document.getElementById('chegadas');
+  if (!cx) return;
+  if (!l.length) { cx.innerHTML = ''; return; }
+  const esc = t => String(t == null ? '' : t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  cx.innerHTML = '<h2 class="secao">Chegou e ainda não entrou no jogo</h2>' +
+    '<section class="bloco">' + l.map(i =>
+      `<div class="linha"><span class="marca">${esc(i.quando)}</span><span>${esc(i.nome)}</span>` +
+      `<span class="selo sVoo">COMIGO</span></div>`).join('') + '</section>';
+}
+pintarChegadas();
+
+// A mesa se atualiza sozinha. Antes, a fila so se repunha quando alguem apertava REVISAR e
+// o painel so mudava recarregando a pagina — o dono via "fila vazia, ninguem em voo" com
+// trabalho acontecendo e arte esperando.
+setInterval(function () { pintarChegadas(); pintarEquipe(); montarPendencias(); }, 15000);
 </script>
 </body>
 </html>
