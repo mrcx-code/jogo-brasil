@@ -1,17 +1,40 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "07/08 · a arte chegou · dois Devs em campo",
-  "emVoo": [
+  "atualizado": "07/08 · fim da tarde · Salvador no ar, peso resolvido, retenção medindo",
+  "emVoo": [],
+  "entregue": [
     {
-      "papel": "Dev",
-      "t": "SALVADOR vira capítulo 4 — as 8 imagens entram no jogo"
+      "q": "retenção",
+      "t": "O jogo passa a saber quem volta — e o painel do dia 2 fica alcançável"
     },
     {
-      "papel": "Dev",
-      "t": "A corrida vira corrida — medir a passada da sola nas 3 folhas"
-    }
-  ],
-  "entregue": [
+      "q": "onda 5",
+      "t": "Voltar é amanhecer (a Arte aceitou a proposta do PM)"
+    },
+    {
+      "q": "peso",
+      "t": "4.455 → 3.362 KB (−24,5%), sem perda visível"
+    },
+    {
+      "q": "história",
+      "t": "A história PARA o mundo — o jogo não compete mais com o texto"
+    },
+    {
+      "q": "SALVADOR",
+      "t": "O capítulo 3 entrou: 1835, a ganhadeira, a véspera do levante"
+    },
+    {
+      "q": "invasão",
+      "t": "O fecho conta o que houve — violência com sujeito"
+    },
+    {
+      "q": "chrome",
+      "t": "O menu virou régua; as telas de ler viraram papel"
+    },
+    {
+      "q": "composição",
+      "t": "Dois trilhos, tudo no chão, o número cala na leitura"
+    },
     {
       "q": "onda 4",
       "t": "O gesto ganha peso — mola de câmera e onda no chão"
@@ -27,56 +50,28 @@
     {
       "q": "equipe",
       "t": "Quatro papéis permanentes e o protocolo entre eles"
-    },
-    {
-      "q": "onda 3",
-      "t": "A virada de era termina sempre num amanhecer"
-    },
-    {
-      "q": "onda 2",
-      "t": "Tinta da hora nos sprites; céu noturno calibrado por pintura"
-    },
-    {
-      "q": "onda 1",
-      "t": "As horas do dia chegaram ao jogo (noite real, vaga-lumes)"
-    },
-    {
-      "q": "densidade",
-      "t": "Rua raleada por medição — floats somam, renda ±3,4%"
-    },
-    {
-      "q": "botões",
-      "t": "Uma gramática: madeira · pedra · um ouro"
-    },
-    {
-      "q": "história",
-      "t": "Entrar na era SEMPRE conta a historinha (regressão)"
-    },
-    {
-      "q": "nome",
-      "t": "Capítulo 1 virou PINDORAMA (Navarro; Krenak)"
-    },
-    {
-      "q": "deploy",
-      "t": "Vercel consertada — publica dist/, só o jogo"
     }
   ],
   "proximos": [
     {
-      "t": "T1 · instrumentação de retenção (o jogo não sabe quem volta)",
-      "dep": "Dev"
+      "t": "Folha nova da ganhadeira (12 poses) — a passada de Salvador não fecha",
+      "dep": "VOCÊ · 1 folha"
     },
     {
-      "t": "B1 · painel do dia 2 nasce debaixo do menu, morto ao toque",
-      "dep": "Dev"
+      "t": "Folhas de corrida com a pessoa da caminhada",
+      "dep": "VOCÊ · 3 folhas"
     },
     {
-      "t": "Onda 5 — a Arte e o PM negociam: chuva × 'voltar é amanhecer'",
-      "dep": "Arte"
-    },
-    {
-      "t": "Texto final de SALVADOR (o do historiador entra como rascunho)",
+      "t": "Ler o fecho novo de PINDORAMA e cortar o que não te representa",
       "dep": "VOCÊ · ler"
+    },
+    {
+      "t": "Auditoria §2 do texto inteiro em workflow (exaustiva, custa tokens)",
+      "dep": "VOCÊ · ok?"
+    },
+    {
+      "t": "Simplificação geral do jogo (você pediu, fica para sessão própria)",
+      "dep": "depois"
     }
   ]
 }
