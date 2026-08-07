@@ -26,10 +26,20 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
 
 ## Trabalho em voo neste momento
 
-- **Usabilidade, os 7 achados restantes** (worktree, partiu de f98c1dc): microdicas de
-  controle, herói/overlays vazando sobre telas, cerimônia com saída, JOGAR direto com 1
-  era, fim da linha do tempo colapsado, AJUSTES na fonte da casa, promessa na barra.
-  Integrar por `git diff f98c1dc -- src/ test/smoke.js`.
+Nada. Todos os agentes voltaram e tudo está integrado e publicado.
+
+## O que a manhã deve fazer, em ordem
+
+1. **Ler as respostas do dono na mesa** (`ferramentas/pendencias.json`): nome do capítulo
+   Tupinambá · Marajó marco×capítulo · quando fazer o pré-1500.
+2. **Quando as 8 imagens de SALVADOR chegarem pela mesa**: processar (converter-fundo /
+   validar-folha / requalificar), inserir a época em `EPOCAS` (textos do relatório do
+   historiador SALVADOR — rascunho a marcar; o texto final é do dono), reorganizar o marco
+   1835 da LINHA_TEMPO como placa do capítulo, `npm test`, olhar prints, publicar.
+3. **Peso**: 3,9 MB, teto 3,6 estourado — preparar comparação 660px×master para o dono
+   decidir (test/inline-fundos.js já reencoda; medido antes: 660px corta 22%).
+4. Estender o lugar-vivo (marcos+faixa+retorno) aos caps. 1 e 3 se o dono gostar do
+   protótipo do 2.
 
 ## O que já aconteceu no turno noturno (tudo publicado)
 
@@ -43,7 +53,8 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
    sem arte cai na anterior com warn; save validado com faixas derivadas.
 6. **Lugar vivo fase 1 PUBLICADO** (f98c1dc): marcos de história na estrada do cap. 2,
    S.acolhidos persistente, tela de retorno "enquanto você esteve fora".
-7. **Usabilidade: 10 achados, os 3 piores corrigidos e publicados** (95ec880).
+7. **Usabilidade: 10/10 fechados e publicados** (95ec880 + 77f1f17): controles ensinados,
+   telas sem vazamento, JOGAR direto, linha do tempo sem monotonia, AJUSTES na fonte da casa.
 8. **SALVADOR está pronto nos relatórios mas NÃO entrou** — decisão de esperar a arte:
    o fallback mostraria a mata do presente sob textos de 1835, ensinando errado. Entra
    quando o dono gerar as 8 imagens da mesa.
