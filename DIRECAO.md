@@ -178,18 +178,65 @@ silhueta 20% → **0%**; floats vivos sob tela 3 → **0** (e golpe sob tela nã
 renda/min nas seis células do `medir-poluicao.js` variou de −0,7% a +1,5% (limite ±10%);
 FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
 
+## Onda 5 — IMPLEMENTADA (2026-08-07): VOLTAR É AMANHECER
+
+**A decisão, e por que a chuva perdeu.** Meu roteiro previa chuva no PÓS-CHUVA; o PM
+propôs no `SPRINT.md` §3.3 trocar por uma onda do retorno. A decisão é minha, e decido
+**pelo retorno** — não por deferência, mas porque a chuva perde no confronto com os meus
+próprios princípios:
+
+- **Princípio 2 (propósito nomeável):** a chuva diz "está chovendo". O amanhecer do
+  retorno diz *"valeu a pena voltar"* — e essa é a frase que a pergunta aberta do
+  produto (alguém volta no dia 2?) precisa que o jogo diga.
+- **Princípio 3 (responde ao cuidado):** chuva escala com nada — eu mesma escrevi. O
+  amanhecer só existe para quem voltou, e o que ele acende — poeira de sol, mata,
+  quem foi acolhida vivendo na faixa final — já escala com `cuidadoVisto`. Zero linha
+  nova de escala; a resposta ao cuidado vem de graça.
+- **Princípio 1 (luz antes de partícula):** chuva é partícula; o retorno é luz. A onda
+  mais barata e mais moderna das duas.
+- E o custo marginal: a onda 3 já construiu a varredura, a física e a voz do sol. O
+  retorno reaproveita os três; a chuva construiria do zero.
+
+A chuva não morre: desce no roteiro como candidata (abaixo), atrás de qualquer coisa
+que mova a pergunta do dia 2.
+
+**O desenho.** Fechar o papel "ENQUANTO VOCÊ ESTEVE FORA" num **dia novo de travessia**
+(`diaNovo` — a régua da retenção, não qualquer pausa de café) dispara a varredura de luz
+até a próxima manhã, pelo MESMO canal da virada de era (`saltoHora`, com a física da
+onda 3), com a voz do sol sozinha e mais baixa (0,06, sem arpejo — não é cerimônia, é
+chegada). O menu está aberto atrás e o menu tem o mundo vivo: o lugar acorda com a
+pessoa na porta. A licença de mexer no relógio semeado pela hora real é a MESMA da onda
+3 ("era nova é dia novo"), aqui literal: dia novo É dia novo. Guardas: já é manhã
+(fração ≤ 0,04) → não fala; varredura de cerimônia em curso → não empilha. Retorno no
+mesmo dia (café, almoço) → nada, para o amanhecer não virar moeda.
+
+**Medido** (`test/prints-onda5.js`, novo — provoca o dia 2 REAL: save de 20 h atrás +
+retenção só com ontem, recarrega, fecha o papel com o toque do jogo, marca em tempo
+REAL): ANTES, fechar o papel deixava a fração do dia onde estava (0,752 / 0,402 — a
+pessoa voltava para a mesma noite parada). DEPOIS, dos dois pontos de partida a luz
+fecha em **0,001–0,002** (manhã) em ~1,8–2,0 s, assentando com a física — céu (luma
+10–30%) 71 → 101 partindo da noite. Prints `O5-A-*`/`O5-D-*` em `test/`: o D-t3.40 é o
+menu com a mata acesa de manhã e a acolhida visível na luz; o A-t3.40 é a mesma cena
+numa noite que não respondeu. FPS 61/61/61 (piso 58); `index.html` 4.560.521 →
+4.562.826 bytes LF (+2,3 KB, só código); zero imagem nova; zero rede; `npm test` verde
+(o fluxo day-2 do smoke continua passando sem ajuste).
+
+**Armadilha nova, paga e anotada no instrumento:** o jogo salva no `pagehide` — adulterar
+o save e recarregar na mesma página desfaz a adulteração. O instrumento neutraliza
+`salvar`/`salvarRetencao` antes do reload.
+
+**Fora do meu território, confirmado de passagem:** o print `O5-A-0-retorno.png` pegou o
+papel do retorno abrindo ATRÁS do logo e da tagline — é o z-index que o Dev já está
+consertando em paralelo; não toquei.
+
 ## Roteiro de ondas futuras
 
-- **Onda 4 — toque com física no canvas**: o mundo reagir ao dedo (onda de chão sutil no
-  golpe, kick de câmera de 1–2 px com mola crítica). Câmera é território sensível
-  (PASSO_CAP intocável) — protótipo atrás de flag antes de valer.
-  Refinado pela onda 3: o instrumento certo já existe como molde — medir ANTES com um
-  script dedicado que provoca o gesto real e fotografa em marcas de tempo, não confiar
-  no olho. E registrar o tempo REAL de cada marca (o screenshot atrasa; a onda 3 pagou
-  meia sessão até perceber que as marcas nominais mentiam ~0,5 s).
-- **Onda 5 — clima raro**: chuva fina no PÓS-CHUVA (o nome já promete), 1 vez por ciclo,
-  partículas na camada da pintura. Escala com nada — clima é fato, não juízo. O teto da
-  onda 2 já escurece o zênite do PÓS-CHUVA a 35% — a chuva nasce de um céu que já pesa.
+- **Onda 4 — toque com física no canvas**: FEITA — `atualizarKick` no laço, mola do
+  quadro no relógio do quadro.
+- **Clima raro (ex-onda 5, rebaixada em 2026-08-07)**: chuva fina no PÓS-CHUVA, 1 vez
+  por ciclo, partículas na camada da pintura. Perdeu a vez para o retorno (ver onda 5:
+  escala com nada, diz pouco, custa mais). Só volta ao topo quando houver medição
+  dizendo que a pergunta do dia 2 está respondida — ou pedido do dono.
 - **Dívida deixada de propósito**: o TARDE das pinturas 0 e 4 (litoral) ainda mede razão
   topo/céu 1,43–1,56 — no print lê como névoa alta acesa pelo sol baixo, que é plausível,
   então a dose ficou contida (princípio 5: quase invisível > dramático). Se o dono achar
@@ -199,8 +246,9 @@ FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
   print com "isso parece 2026?" sai na onda seguinte. Os medidores ficam em `test/`:
   `prints-onda2.js` (todas as pinturas × 2 horas, topo/céu/meio e a cor média de um mob sob
   a noite — o caminho para o `index.html` e a contagem de pinturas foram consertados em
-  2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura) e `prints-onda3.js`
-  (virada de era real, cerimônia no tempo).
+  2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura), `prints-onda3.js`
+  (virada de era real, cerimônia no tempo) e `prints-onda5.js` (retorno de dia 2 real,
+  o amanhecer no tempo).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
 

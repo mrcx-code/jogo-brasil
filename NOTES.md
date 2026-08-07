@@ -2183,3 +2183,49 @@ arquivo único. Isto comprou dois ou três capítulos de prazo para a decisão e
 sob demanda / Phaser + Supabase); não a substituiu. O gap 2 do `SPRINT.md` segue de pé.
 
 **Medido no fim:** `npm test` verde, FPS 61, zero erro de console, `index.html` 3.362 KB.
+
+### 2026-08-07 · Direção de Arte, onda 5: VOLTAR É AMANHECER (worktree, para integrar)
+
+**A negociação do `SPRINT.md` §3.3, decidida.** O PM propôs trocar a chuva do meu roteiro
+pela onda do retorno. Aceitei — e a justificativa completa está no `DIRECAO.md`, mas a
+essência é que a chuva perdia nos MEUS princípios: propósito nomeável (chuva diz "está
+chovendo"; o amanhecer diz "valeu a pena voltar"), resposta ao cuidado (chuva escala com
+nada; o que o amanhecer acende já escala com `cuidadoVisto` de graça) e luz antes de
+partícula. A chuva desceu no roteiro como candidata futura, não morreu.
+
+**Feito (src/jogo.ts, ~40 linhas na região retorno; zero imagem nova):** fechar o papel
+"ENQUANTO VOCÊ ESTEVE FORA" num dia NOVO de travessia (`diaNovo`) varre a luz até a
+próxima manhã pelo canal da onda 3 (`saltoHora`, mesma física), com a voz do sol sozinha
+a 0,06. O flag arma na ABERTURA do papel (não no fechar — `diaNovo` também vira verdadeiro
+se a meia-noite passar no meio de uma sessão, e isso não é retorno). Guardas: fração
+≤ 0,04 (já é manhã) não fala; `saltoHora` em curso não empilha; retorno no mesmo dia não
+dispara — o amanhecer não pode virar moeda.
+
+**Medido (`test/prints-onda5.js`, novo — molde da onda 3, tempo REAL nas marcas):**
+
+| partida | ANTES (fecha o papel) | DEPOIS |
+|---|---|---|
+| NOITE 0,75 | fração fica em 0,752; céu ~70 | fecha em **0,001** aos ~1,8 s; céu 71→101 |
+| TARDE 0,40 | fica em 0,402 | fecha em **0,001** aos ~2,0 s |
+
+FPS 61/61/61 (piso 58) · `index.html` 4.560.521 → 4.562.826 bytes LF (+2,3 KB, só
+código) · `npm test` verde sem ajuste em teste nenhum (o fluxo day-2 do smoke segue
+passando) · prints `O5-A-*`/`O5-D-*` em `test/` — o `O5-D-t3.40` é o menu com a mata
+acesa de manhã e a acolhida na luz; o `O5-A-t3.40` é a mesma cena numa noite parada.
+
+**Armadilha nova, paga:** o jogo salva no `pagehide` — adulterar `salvoEm`/retenção e
+recarregar desfaz a adulteração no próprio reload. O instrumento neutraliza
+`salvar`/`salvarRetencao` antes de recarregar; quem for escrever o teste de QA do dia 2
+com reload vai bater na mesma pedra.
+
+**Visto de passagem, território alheio:** `O5-A-0-retorno.png` confirma o papel do
+retorno abrindo ATRÁS do logo/tagline do menu — o z-index que o Dev já está consertando.
+Não toquei; quando o conserto dele aterrissar, o print do papel por cima sai de lá.
+
+**Pendência minha que continua:** o parecer do peso (T3) — o lado-a-lado 660px×master do
+Dev não está neste worktree e há um agente otimizando o peso agora; dou o parecer sobre
+os prints que essa frente produzir, não fabrico os meus.
+
+**Próximo passo:** integrar este worktree; depois, gerar a próxima onda pela lente
+"volta no dia 2" com a instrumentação do T1 colhendo — ou o parecer do T3, o que chegar
+primeiro.

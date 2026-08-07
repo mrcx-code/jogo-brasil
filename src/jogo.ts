@@ -637,6 +637,12 @@ let jumpT = 0, shocks: never[] = [];       // owner: both stay at rest — the l
 // ============================================================
 let drops: Drop[] = [], mutiraoT = 0, chamada = null, chamadaT = 0, mobChao = 0;
 let chamadaDobrada = false, diaNovo = false, voltouDepoisDe = 0;
+// Onda 5 (Direção de Arte): VOLTAR É AMANHECER. Armado quando a tela de retorno abre num
+// dia NOVO de travessia (diaNovo — a régua da retenção, não qualquer pausa de café) e
+// consumido quando ela fecha: a luz varre até a próxima manhã pelo MESMO canal da virada
+// de era (saltoHora). A licença é a mesma da onda 3 — "era nova é dia novo", aqui literal:
+// dia novo É dia novo. Todo outro carregamento continua nascendo da hora real do aparelho.
+let amanhecerPendente = false;
 
 // ============================================================
 // THE SUPER — three combos land, and the next swing is not a swing
@@ -1672,6 +1678,10 @@ function mostrarRetorno(dt) {
   // a verdade da economia deste jogo, dita em vez de uma produção inventada
   linha("A estrada esperou. O que chega, chega para quem está aqui.");
   pixelRotulo($("retTit"), "ENQUANTO VOCÊ ESTEVE FORA", 2, "#5c3210");
+  // O amanhecer do retorno se arma AQUI e não no fechar: `diaNovo` pode virar verdadeiro no
+  // meio de uma sessão longa (meia-noite passando), e esse caso não é um retorno — o papel
+  // da volta é a única porta pela qual "voltei num dia novo" entra no jogo.
+  amanhecerPendente = diaNovo;
   el.classList.add("aberto");
   el.setAttribute("aria-hidden", "false");
 }
@@ -1680,6 +1690,28 @@ function fecharRetorno() {
   if (!el) return;
   el.classList.remove("aberto");
   el.setAttribute("aria-hidden", "true");
+  // ===== ONDA 5 — VOLTAR É AMANHECER =====
+  // Quem fecha o papel da volta num dia novo de travessia vê a luz do mundo varrer até a
+  // manhã — a mesma varredura, a mesma física e o mesmo canal (saltoHora) da virada de era
+  // da onda 3, porque o significado é o mesmo: começo. O menu está aberto atrás, e o menu
+  // tem o mundo VIVO atrás do véu (decisão de direção) — o lugar acorda enquanto a pessoa
+  // está na porta. Propósito nomeável (princípio 2): "isto existe para dizer que valeu a
+  // pena voltar". E responde ao cuidado (princípio 3) sem uma linha nova: o que o amanhecer
+  // acende — poeira de sol, mata, quem foi acolhida vivendo na faixa final — já escala com
+  // cuidadoVisto.
+  if (amanhecerPendente) {
+    amanhecerPendente = false;
+    const f = (relogio / DIA_SEG) % 1;
+    // Já é manhã (abriu de madrugada real, a semeadura caiu no início do dia): não há noite
+    // a varrer e um dia inteiro de volta seria teatro. O amanhecer só fala quando há escuro.
+    if (f > 0.04 && saltoHora <= 0) {
+      saltoHora = DIA_SEG - relogio % DIA_SEG;
+      // A voz do sol da onda 3, sozinha e mais baixa que na cerimônia (sem arpejo aqui):
+      // um inchar de meio segundo junto com a luz. audioPronto() já respeita S.som, e o
+      // gesto que fecha o papel é o toque que destrava o áudio.
+      nota(AUD_ESCALA[5], 1.6, 0.06, "sine", 0.5);
+    }
+  }
 }
 
 // ---------- retention (this device only: no service, nothing personal) ----------
