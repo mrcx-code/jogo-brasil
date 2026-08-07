@@ -204,7 +204,12 @@ um povo, tem nome e significado. Um padrão que "parece indígena" é a versão 
 centenas de povos como uma estética só, e é o mesmo erro do §2.1. As duas finalistas eram
 natureza pura justamente por isso.
 
-Direção de arte para além disso **ainda não foi decidida — não invente sem perguntar.**
+**Mandato de evolução, decidido pelo dono em 2026-08-07:** a evolução visual e de produto
+é **delegada e autônoma** — existe um papel de DIREÇÃO DE EVOLUÇÃO (agente dedicado) que
+pensa só nisso e CONDUZ, sem esperar o dono ("vou ajustando mas não quero que vc me
+espere"). A visão vigente vive em `DIRECAO.md`. Limites que o mandato NÃO revoga: o §2
+inteiro (representação decide-se com o dono), o logo, o nome, as regras técnicas, e
+qualquer mudança de economia continua exigindo medição antes/depois.
 
 Este repositório não tem relação com o projeto de onde o motor veio. Não referencie o
 outro, não puxe dele, não empurre para ele.
