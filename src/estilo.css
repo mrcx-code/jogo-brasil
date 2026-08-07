@@ -614,7 +614,13 @@
   #telaCapitulos { background:
     linear-gradient(180deg, rgba(10,9,6,.42) 0%, rgba(10,9,6,.28) 45%, rgba(10,9,6,.55) 100%); }
   #listaCapitulos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;
-    width: min(78vw, 330px); }
+    width: min(78vw, 330px);
+    /* Com muitas eras a lista ROLA em vez de estourar a tela: o teto deixa VOLTAR visível
+       embaixo. Com as três de hoje o conteúdo fica bem abaixo do teto e nada muda. */
+    max-height: 56vh; overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch; }
+  /* dentro de um rolo, botão que encolhe deforma; a lista rola, o item não cede */
+  .capItem { flex-shrink: 0; }
   .capItem { text-align: left; padding: 13px 15px; border-radius: 3px; color: #eaD8b2;
     background: linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);

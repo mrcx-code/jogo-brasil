@@ -634,7 +634,13 @@
   #telaCapitulos { background:
     linear-gradient(180deg, rgba(10,9,6,.42) 0%, rgba(10,9,6,.28) 45%, rgba(10,9,6,.55) 100%); }
   #listaCapitulos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;
-    width: min(78vw, 330px); }
+    width: min(78vw, 330px);
+    /* Com muitas eras a lista ROLA em vez de estourar a tela: o teto deixa VOLTAR visível
+       embaixo. Com as três de hoje o conteúdo fica bem abaixo do teto e nada muda. */
+    max-height: 56vh; overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch; }
+  /* dentro de um rolo, botão que encolhe deforma; a lista rola, o item não cede */
+  .capItem { flex-shrink: 0; }
   .capItem { text-align: left; padding: 13px 15px; border-radius: 3px; color: #eaD8b2;
     background: linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
@@ -1521,7 +1527,7 @@ function atualizarMobs(dt) {
 // uma figura parada com pose de caminhada é a armadilha nº 1 do §7 vista de outro ângulo. Por
 // isso todo estado desta fila tem velocidade própria e nenhum tem zero.
 const CAP_GENTE = 1; // Palmares. Único capítulo em que isto tudo existe.
-function capGente() { return capArte() === CAP_GENTE; }
+function capGente() { return epocaAtual() === CAP_GENTE; }
 const GRUPO_MAX = 5; // cabem cinco atrás dela em 390 px de tela; ver o Diário
 const GRUPO_FRENTE = 14, GRUPO_VAO = 10; // px de mundo: a primeira atrás dela, e o vão entre elas
 let grupo = [], ficando = [];
@@ -2016,6 +2022,129 @@ function salvar() {
     }
     catch (e) { }
 }
+// ===== OS CAPÍTULOS =====
+// Cada um tem NOME (o rótulo do HUD e o título da fala), QUANDO (onde e em que século), e as
+// duas falas: a ABERTURA, que a pessoa lê ao entrar no capítulo, e o FECHO, que ela lê ao
+// completá-lo.
+//
+// Isto NÃO vive em `TEXTOS`, e a separação é a mesma que já vale para `FONTES` e `MOMENTOS`:
+// `TEXTOS` é ficção autoral e o smoke test proíbe dígito lá dentro, porque número solto numa
+// frase de jogo lê como fato. Estas falas PRECISAM de ano — 1500, 1630, 2022 — porque são
+// afirmações com procedência, e a procedência está na tela DE ONDE VEM e no NOTES.md.
+// Misturar as duas listas apagaria a regra que protege as duas.
+//
+// O texto abaixo é do dono, palavra por palavra. Não se completa, não se resume e não se
+// "melhora a transição" — falta de linha se relata, não se preenche.
+//
+// UMA EXCEÇÃO, pedida por ele: a ÚLTIMA linha de cada `abertura` apresenta os objetos daquele
+// capítulo, porque quem entrava via fruta, peixe e muda passando sem nenhuma explicação. Ela é
+// escrita sob uma regra estreita e a regra vale para quem mexer nela depois: essa linha
+// DESCREVE O QUE ESTÁ NA TELA — o que vem pela rua e o que o contador faz com aquilo — e nunca
+// afirma fato histórico novo. "Aqui vem cesto de legumes" é seguro; qualquer frase sobre o que
+// um povo comia, plantava ou usava é afirmação com procedência e exige fonte no NOTES.md.
+// Na dúvida, descreva a mecânica e não a história.
+//
+// `aberturaImg` é a associação FALA → IMAGEM DE CONTEXTO, e é uma lista do MESMO tamanho da
+// `abertura`, posição por posição. Cada item é uma chave de `CTX_B64` ou `null`.
+//
+// Três regras que se leem na lista e vale escrever por extenso:
+//  - **Repetir é normal.** Duas falas seguidas sobre o mesmo lugar ficam na mesma imagem: a
+//    troca só acontece quando o ASSUNTO muda, e trocar por trocar transforma leitura em
+//    apresentação de slides.
+//  - **`null` não é buraco.** As falas que explicam o que fazer e o que vem pela rua descrevem
+//    a TELA. Cobrir a tela com uma paisagem bonita justo nelas seria esconder o que a frase
+//    manda olhar. Nessas, a imagem sai e o jogo aparece — que é o estado normal desta tela.
+//  - **A imagem não pode afirmar mais que o texto.** Ela ilustra a frase que está sendo lida,
+//    e nada além. Paisagem sem gente é o que permite isso; ver §2 e o cabeçalho de `CTX_B64`.
+//
+// Chave que não existe em `CTX_B64` é tratada como `null` — é assim que o capítulo 3 fica
+// escrito e inerte enquanto a arte dele não chega.
+const EPOCAS = [
+    {
+        nome: "ANTES DA CHEGADA",
+        quando: "litoral atlântico · século XVI",
+        cenas: 2, lugar: "litoral",
+        abertura: [
+            "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
+            "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
+            "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
+            "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
+            "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
+        ],
+        // a mata na primeira frase, porque "este lugar" é ela; o roçado entra quando o texto fala
+        // de plantar e pescar, e fica na frase seguinte, que ainda é sobre essa vida acontecendo.
+        aberturaImg: ["cap1-mata", "cap1-rocado", "cap1-rocado", null, null],
+        fecho: [
+            "Em 1500 chegaram navios. Depois deles vieram mais.",
+            "O que os europeus escreveram sobre este lugar é quase tudo o que sobrou por escrito — e eles escreviam para leitores europeus, não para contar quem estava aqui.",
+            "Ao longo de mais de três séculos, milhões de pessoas seriam trazidas da África à força para trabalhar nesta terra.",
+            "Algumas fugiram. E o que elas construíram tem nome."
+        ]
+    },
+    {
+        nome: "PALMARES",
+        quando: "serra da Barriga, Alagoas · século XVII",
+        cenas: 2, lugar: "palmares",
+        abertura: [
+            "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
+            "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
+            "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares.",
+            "Aqui, alcançar é acolher. Quem chega vem ficar.",
+            "Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão, e são os mesmos três contadores do capítulo anterior."
+        ],
+        // a serra segura as duas primeiras: a primeira a nomeia, a segunda fala de subir estas
+        // encostas — é a mesma imagem. A roça entra em "eram vilas, com roça, comércio e defesa",
+        // que é a frase que desmonta a ideia de esconderijo, e é isso que a imagem mostra.
+        aberturaImg: ["cap2-serra", "cap2-serra", "cap2-roca", null, null],
+        fecho: [
+            "Palmares foi destruída em 1694. Zumbi foi morto em 20 de novembro de 1695 — a data é hoje o Dia da Consciência Negra.",
+            "Quase tudo que se sabe sobre a forma daquele lugar vem dos documentos de quem foi atacá-lo. Até os nomes chegaram tortos: a pesquisa recente lê \"Gana Zumba\" onde os livros escreviam \"Ganga Zumba\".",
+            "A serra da Barriga é patrimônio tombado hoje. Levou quase três séculos.",
+            "E os povos do primeiro capítulo? Continuam aqui."
+        ]
+    },
+    {
+        nome: "AINDA AQUI",
+        quando: "terra indígena demarcada · hoje",
+        cenas: 2, lugar: "hoje",
+        abertura: [
+            "Este é o presente. A mesma mata, cinco séculos depois.",
+            "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
+            "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
+            "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
+            "Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três coisas do começo, com a cara de agora."
+        ],
+        // ESCRITO E INERTE: as duas peças do capítulo 3 ainda não chegaram em `assets/entrada`,
+        // então `CTX_B64` não tem estas chaves e `trocarCtx` as trata como `null` — o capítulo
+        // roda hoje sem imagem, sem erro e sem furo. No dia em que `ctx-cap3-demarcada.png` e
+        // `ctx-cap3-disputa.png` caírem na pasta, `node test/inline-contexto.js` liga as duas
+        // sozinho e nenhuma linha aqui precisa mudar.
+        aberturaImg: ["cap3-demarcada", "cap3-demarcada", "cap3-disputa", null, null],
+        fecho: [
+            "A demarcação não é um final feliz. É uma disputa em curso, e ela continua depois que você fecha o jogo.",
+            "Se alguma coisa aqui te deu vontade de saber mais, a tela DE ONDE VEM lista as fontes de tudo o que este jogo afirma.",
+            "Inclusive onde elas discordam entre si."
+        ]
+    }
+];
+// Quantas cenas cada época ocupa é DADO da época (`cenas` acima), não aritmética espalhada.
+// Tudo que antes fazia `*2`, `/2` ou `min(2, …)` passa pelas funções abaixo — adicionar um
+// capítulo é acrescentar um objeto em EPOCAS (e a arte dele), e nenhuma conta muda.
+// Uma conta só, escrita num lugar só, para o HUD, a fala e a tela A HISTÓRIA nunca
+// discordarem sobre em que capítulo alguém está.
+const EPOCA_CENA0 = []; // primeira cena de cada época (soma-prefixo de `cenas`)
+let TOTAL_CENAS = 0;
+EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
+// A máscara cheia das falas vistas: um bit por época. O ESQUEMA_SAVE valida contra ela.
+const MASCARA_EPOCAS = (1 << EPOCAS.length) - 1;
+function cenarioDaEpoca(e) { return EPOCA_CENA0[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))]; }
+function epocaDoCenario(i) {
+    let e = EPOCAS.length - 1;
+    while (e > 0 && (i | 0) < EPOCA_CENA0[e])
+        e--;
+    return e;
+}
+function epocaAtual() { return epocaDoCenario(cenarioAtual()); }
 // Every field a save is allowed to carry, with the shape it has to be in. num() clamps into
 // a range and rejects NaN and Infinity; bool() and um() speak for themselves. A field missing
 // from this table cannot enter the game, whatever the stored JSON says.
@@ -2027,18 +2156,21 @@ const ESQUEMA_SAVE = {
     u2: { tipo: "bool", pad: false },
     u3: { tipo: "bool", pad: false },
     u4: { tipo: "bool", pad: false },
-    cenario: { tipo: "num", min: 0, max: 5, pad: 0 },
+    // O teto é o número de cenas que EPOCAS declara, não um literal: capítulo novo entra na
+    // lista e o esquema passa a aceitar a cena dele sozinho — sem relaxar nada para as demais.
+    cenario: { tipo: "num", min: 0, max: TOTAL_CENAS - 1, pad: 0 },
     // A média móvel do que você alcançou. Faixa fechada em 0..1 e padrão 1: um save adulterado
     // com -9 ou com "seco" cai no mundo INTEIRO, nunca no seco. Se um campo vai ter fallback,
     // que ele erre para o lado que não pune ninguém.
     cuidado: { tipo: "num", min: 0, max: 1, pad: 1 },
-    // As falas já vistas, um bit por capítulo — três capítulos, logo 0..7. Tipo próprio, e não
-    // "num", porque APARAR não serve aqui: 999 aparado vira 7, que é "já viu tudo", e isso
-    // trancaria o conteúdo histórico — a razão de o jogo existir — por causa de um save torto.
-    // Valor fora da faixa cai no padrão 0, que erra para o lado de MOSTRAR: no pior caso
-    // alguém relê uma fala, nunca perde uma.
-    aberturas: { tipo: "bits", min: 0, max: 7, pad: 0 },
-    fechos: { tipo: "bits", min: 0, max: 7, pad: 0 },
+    // As falas já vistas, um bit por capítulo — a máscara cheia deriva de EPOCAS.length
+    // (MASCARA_EPOCAS), então capítulo novo abre o bit dele sozinho. Tipo próprio, e não
+    // "num", porque APARAR não serve aqui: 999 aparado vira a máscara cheia, que é "já viu
+    // tudo", e isso trancaria o conteúdo histórico — a razão de o jogo existir — por causa de
+    // um save torto. Valor fora da faixa cai no padrão 0, que erra para o lado de MOSTRAR: no
+    // pior caso alguém relê uma fala, nunca perde uma.
+    aberturas: { tipo: "bits", min: 0, max: MASCARA_EPOCAS, pad: 0 },
+    fechos: { tipo: "bits", min: 0, max: MASCARA_EPOCAS, pad: 0 },
     // O interruptor de som. `bool` é o tipo mais fechado que existe aqui: qualquer coisa que não
     // seja o literal `true` cai em false. O padrão do ESQUEMA é portanto DESLIGADO, e é o lado
     // certo para errar — um save torto pode calar o jogo, nunca fazer barulho sem permissão. O
@@ -3943,7 +4075,7 @@ function heroBloco(nome) {
 const HERO_TARGET = 44; // on-canvas hero height in world px, matches the old build
 // Uma escala por capítulo: a folha de cada pessoa tem a própria altura de quadro, e uma
 // escala compartilhada faria uma delas sair maior que as outras.
-const heroScale = [0, 0, 0];
+const heroScale = HERO_CAP_B64.map(function () { return 0; });
 // ---------- AUTHORED WORLD SPRITE SHEETS ----------
 // Same pipeline as the hero (test/inline-sheets.js): authored PNGs, magenta matte knocked
 // out and trimmed, inlined here as base64, drawn HD over the low-res world. The blocks below
@@ -4003,7 +4135,20 @@ for (const k in MOB_B64)
     MOB_B64[k].forEach(function (d, i) { const im = new Image(); im.src = d; MOB_SPR[k][i] = im; });
 // Qual bloco de arte o capítulo em curso usa. Mesma conta do `desenharFrente()`: duas épocas
 // por capítulo, e o `Math.min` segura o índice se um dia houver mais épocas que capítulos.
-function capArte() { return Math.min(2, Math.floor(cenarioAtual() / 2)); }
+// A época de agora, aparada ao que EXISTE de arte por época (HERO_CAP_B64 é o censo dela:
+// folhas, retrato, objetos e vegetação andam juntos, um bloco por época). Uma época nova
+// sem arte própria roda com a arte da última que tem — avisando, nunca em tela branca.
+let capArteAvisada = -1;
+function capArte() {
+    const e = epocaAtual();
+    if (e < HERO_CAP_B64.length)
+        return e;
+    if (capArteAvisada !== e) {
+        capArteAvisada = e;
+        console.warn("EPOCAS[" + e + "] ainda não tem arte própria (HERO_CAP_B64/RETRATO/MOB/DROP/FRENTE) — usando a arte da época " + (HERO_CAP_B64.length - 1));
+    }
+    return HERO_CAP_B64.length - 1;
+}
 // m.type -> sheet key; on-canvas height in world px (heads land just under the HP bar at
 // VIDA_TOPO, which stays untouched).
 const MOB_KEY = { smog: "smog", barrel: "drum", cash: "cash" };
@@ -4532,7 +4677,11 @@ const CENARIO_CHAO_B64 = [
 // Seis CENAS em três CAPÍTULOS: duas cenas por capítulo. A cena muda enquanto você anda; o
 // capítulo, não. Duas por capítulo é o mínimo para a paisagem não denunciar que é a mesma
 // imagem espelhada — com uma só, dois minutos de caminhada bastam para perceber.
-const CAPITULOS = ["litoral", "litoral", "palmares", "palmares", "hoje", "hoje"];
+// Derivado de EPOCAS: cada época repete o `lugar` dela pelas cenas que declara. Era o
+// literal ["litoral", "litoral", "palmares", "palmares", "hoje", "hoje"].
+const CAPITULOS = [];
+EPOCAS.forEach(function (ep) { for (let c = 0; c < ep.cenas; c++)
+    CAPITULOS.push(ep.lugar); });
 function capituloAtual() { return CAPITULOS[fundoIdx()] || CAPITULOS[0]; }
 function carregarPeca(src) {
     const im = new Image();
@@ -4543,10 +4692,21 @@ function carregarPeca(src) {
 const CENARIO_ALTO = CENARIO_ALTO_B64.map(carregarPeca);
 const CENARIO_CHAO = CENARIO_CHAO_B64.map(carregarPeca);
 let fundoAtivo = -1; // -1 = deriva do capítulo; >=0 = índice forçado (depuração)
+let fundoAvisado = -1;
 function fundoIdx() {
     if (fundoAtivo >= 0)
         return Math.min(CENARIO_ALTO.length - 1, fundoAtivo);
-    return Math.max(0, Math.min(CENARIO_ALTO.length - 1, S.cenario | 0));
+    const n = Math.max(0, Math.min(TOTAL_CENAS - 1, S.cenario | 0));
+    // Cena declarada em EPOCAS mas ainda sem pintura embutida: roda com a última pintura que
+    // existe, avisando — nunca tela branca. A progressão não é afetada; só a imagem.
+    if (n >= CENARIO_ALTO.length) {
+        if (fundoAvisado !== n) {
+            fundoAvisado = n;
+            console.warn("cena " + n + " ainda não tem pintura própria (CENARIO_ALTO/CHAO_B64) — usando a da cena " + (CENARIO_ALTO.length - 1));
+        }
+        return CENARIO_ALTO.length - 1;
+    }
+    return n;
 }
 // Só desenha quando as DUAS peças chegaram. Meia paisagem — céu sem chão, ou chão sem céu —
 // é pior que nenhuma: a personagem apareceria pisando no vazio por uns quadros.
@@ -4605,15 +4765,23 @@ let fundoGeo = null;
 // a flat 3000 impact — no curve. The upgrade gate went with the old numbers: the three of them
 // cost 5050 together, so requiring them would have made the FIRST street dearer than the other
 // five put together, which is the opposite of a flat cost.
-const LIMIARES = [1500, 3000, 4500, 6000, 7500];
+// O passo é plano (1500 por cena) e a lista tem o tamanho que EPOCAS pede: uma entrada por
+// fronteira entre cenas, TOTAL_CENAS - 1 delas. Com as três épocas de hoje isso reconstrói
+// bit a bit o que era o literal [1500, 3000, 4500, 6000, 7500].
+const LIMIAR_CENA = 1500;
+const LIMIARES = [];
+for (let li = 1; li < TOTAL_CENAS; li++)
+    LIMIARES.push(LIMIAR_CENA * li);
 // A última cena não tinha linha de chegada: `proximoLimiar()` devolvia null, a barra ficava
-// cheia para sempre e o capítulo 3 nunca chegava a 100% — logo o FECHO dele, que é o fim do
-// jogo, não tinha quando disparar. Esta é a mesma distância plana entre duas cenas que as
-// outras cinco já usam, derivada delas em vez de escolhida à parte: se o passo mudar, este
-// muda junto. Não abre cena nova; só fecha a última.
-const LIMIAR_FIM = LIMIARES[LIMIARES.length - 1] + (LIMIARES[1] - LIMIARES[0]);
+// cheia para sempre e o último capítulo nunca chegava a 100% — logo o FECHO dele, que é o
+// fim do jogo, não tinha quando disparar. Mesma distância plana das outras cenas: não abre
+// cena nova; só fecha a última.
+const LIMIAR_FIM = LIMIAR_CENA * TOTAL_CENAS;
 function cenarioAtual() {
-    const n = Math.max(0, Math.min(CENARIO_ALTO.length - 1, S.cenario | 0));
+    // O teto é o que os DADOS declaram (TOTAL_CENAS), não o número de pinturas: uma cena sem
+    // pintura própria continua existindo para a progressão — é fundoIdx() quem cai na arte
+    // anterior, avisando.
+    const n = Math.max(0, Math.min(TOTAL_CENAS - 1, S.cenario | 0));
     return n;
 }
 // Quanto do CAPÍTULO atual já foi percorrido, de 0 a 1. Substitui o número absoluto de impacto
@@ -4649,10 +4817,10 @@ function verificarCenario() {
     if (S.energiaTotal < alvo)
         return;
     const proxima = cenarioAtual() + 1;
-    // Só na virada de CAPÍTULO, não a cada cena: interromper o jogo duas vezes por capítulo
-    // transforma a fala em obstáculo.
-    const vira = proxima % 2 === 0;
+    // Só na virada de CAPÍTULO, não a cada cena: interromper o jogo a cada cena transforma a
+    // fala em obstáculo. A pergunta é dos DADOS — a próxima cena pertence a outra época?
     const saindoDe = epocaAtual();
+    const vira = epocaDoCenario(proxima) !== saindoDe;
     const avancar = function () {
         S.cenario = proxima;
         redesenharFundo();
@@ -4887,7 +5055,7 @@ function matoDaEmenda(fx, g) {
         return;
     const esc = g.cw / W;
     const y = g.dy + g.dh * FUNDO_GROUND_SRC; // a linha da emenda, no destino
-    const bloco = Math.min(2, Math.floor(cenarioAtual() / 2)) * 8;
+    const bloco = Math.min(Math.floor(FRENTE_SPR.length / 8) - 1, capArte()) * 8;
     const i0 = Math.floor(worldX / MATO_PASSO) - 1;
     const quantos = Math.ceil(W / MATO_PASSO) + 3;
     for (let k = 0; k < quantos; k++) {
@@ -4940,7 +5108,7 @@ function desenharFrente(fx, g) {
         // Cada capítulo usa SÓ os seus oito. Os 24 vieram em três pacotes de oito, na ordem dos
         // capítulos, e misturá-los poria bambu de litoral em Palmares — o contrário do que os
         // pacotes existem para resolver.
-        const bloco = Math.min(2, Math.floor(cenarioAtual() / 2)) * 8;
+        const bloco = Math.min(Math.floor(FRENTE_SPR.length / 8) - 1, capArte()) * 8;
         const im = FRENTE_SPR[bloco + ((h >>> 3) % 8)];
         if (!im || !im.complete || !im.naturalWidth)
             continue;
@@ -5849,112 +6017,6 @@ function fecharTelas() {
     TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
     document.body.classList.remove("emTela");
 }
-// ===== OS CAPÍTULOS =====
-// Cada um tem NOME (o rótulo do HUD e o título da fala), QUANDO (onde e em que século), e as
-// duas falas: a ABERTURA, que a pessoa lê ao entrar no capítulo, e o FECHO, que ela lê ao
-// completá-lo.
-//
-// Isto NÃO vive em `TEXTOS`, e a separação é a mesma que já vale para `FONTES` e `MOMENTOS`:
-// `TEXTOS` é ficção autoral e o smoke test proíbe dígito lá dentro, porque número solto numa
-// frase de jogo lê como fato. Estas falas PRECISAM de ano — 1500, 1630, 2022 — porque são
-// afirmações com procedência, e a procedência está na tela DE ONDE VEM e no NOTES.md.
-// Misturar as duas listas apagaria a regra que protege as duas.
-//
-// O texto abaixo é do dono, palavra por palavra. Não se completa, não se resume e não se
-// "melhora a transição" — falta de linha se relata, não se preenche.
-//
-// UMA EXCEÇÃO, pedida por ele: a ÚLTIMA linha de cada `abertura` apresenta os objetos daquele
-// capítulo, porque quem entrava via fruta, peixe e muda passando sem nenhuma explicação. Ela é
-// escrita sob uma regra estreita e a regra vale para quem mexer nela depois: essa linha
-// DESCREVE O QUE ESTÁ NA TELA — o que vem pela rua e o que o contador faz com aquilo — e nunca
-// afirma fato histórico novo. "Aqui vem cesto de legumes" é seguro; qualquer frase sobre o que
-// um povo comia, plantava ou usava é afirmação com procedência e exige fonte no NOTES.md.
-// Na dúvida, descreva a mecânica e não a história.
-//
-// `aberturaImg` é a associação FALA → IMAGEM DE CONTEXTO, e é uma lista do MESMO tamanho da
-// `abertura`, posição por posição. Cada item é uma chave de `CTX_B64` ou `null`.
-//
-// Três regras que se leem na lista e vale escrever por extenso:
-//  - **Repetir é normal.** Duas falas seguidas sobre o mesmo lugar ficam na mesma imagem: a
-//    troca só acontece quando o ASSUNTO muda, e trocar por trocar transforma leitura em
-//    apresentação de slides.
-//  - **`null` não é buraco.** As falas que explicam o que fazer e o que vem pela rua descrevem
-//    a TELA. Cobrir a tela com uma paisagem bonita justo nelas seria esconder o que a frase
-//    manda olhar. Nessas, a imagem sai e o jogo aparece — que é o estado normal desta tela.
-//  - **A imagem não pode afirmar mais que o texto.** Ela ilustra a frase que está sendo lida,
-//    e nada além. Paisagem sem gente é o que permite isso; ver §2 e o cabeçalho de `CTX_B64`.
-//
-// Chave que não existe em `CTX_B64` é tratada como `null` — é assim que o capítulo 3 fica
-// escrito e inerte enquanto a arte dele não chega.
-const EPOCAS = [
-    {
-        nome: "ANTES DA CHEGADA",
-        quando: "litoral atlântico · século XVI",
-        abertura: [
-            "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
-            "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
-            "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
-            "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
-            "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
-        ],
-        // a mata na primeira frase, porque "este lugar" é ela; o roçado entra quando o texto fala
-        // de plantar e pescar, e fica na frase seguinte, que ainda é sobre essa vida acontecendo.
-        aberturaImg: ["cap1-mata", "cap1-rocado", "cap1-rocado", null, null],
-        fecho: [
-            "Em 1500 chegaram navios. Depois deles vieram mais.",
-            "O que os europeus escreveram sobre este lugar é quase tudo o que sobrou por escrito — e eles escreviam para leitores europeus, não para contar quem estava aqui.",
-            "Ao longo de mais de três séculos, milhões de pessoas seriam trazidas da África à força para trabalhar nesta terra.",
-            "Algumas fugiram. E o que elas construíram tem nome."
-        ]
-    },
-    {
-        nome: "PALMARES",
-        quando: "serra da Barriga, Alagoas · século XVII",
-        abertura: [
-            "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
-            "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
-            "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares.",
-            "Aqui, alcançar é acolher. Quem chega vem ficar.",
-            "Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão, e são os mesmos três contadores do capítulo anterior."
-        ],
-        // a serra segura as duas primeiras: a primeira a nomeia, a segunda fala de subir estas
-        // encostas — é a mesma imagem. A roça entra em "eram vilas, com roça, comércio e defesa",
-        // que é a frase que desmonta a ideia de esconderijo, e é isso que a imagem mostra.
-        aberturaImg: ["cap2-serra", "cap2-serra", "cap2-roca", null, null],
-        fecho: [
-            "Palmares foi destruída em 1694. Zumbi foi morto em 20 de novembro de 1695 — a data é hoje o Dia da Consciência Negra.",
-            "Quase tudo que se sabe sobre a forma daquele lugar vem dos documentos de quem foi atacá-lo. Até os nomes chegaram tortos: a pesquisa recente lê \"Gana Zumba\" onde os livros escreviam \"Ganga Zumba\".",
-            "A serra da Barriga é patrimônio tombado hoje. Levou quase três séculos.",
-            "E os povos do primeiro capítulo? Continuam aqui."
-        ]
-    },
-    {
-        nome: "AINDA AQUI",
-        quando: "terra indígena demarcada · hoje",
-        abertura: [
-            "Este é o presente. A mesma mata, cinco séculos depois.",
-            "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
-            "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
-            "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
-            "Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três coisas do começo, com a cara de agora."
-        ],
-        // ESCRITO E INERTE: as duas peças do capítulo 3 ainda não chegaram em `assets/entrada`,
-        // então `CTX_B64` não tem estas chaves e `trocarCtx` as trata como `null` — o capítulo
-        // roda hoje sem imagem, sem erro e sem furo. No dia em que `ctx-cap3-demarcada.png` e
-        // `ctx-cap3-disputa.png` caírem na pasta, `node test/inline-contexto.js` liga as duas
-        // sozinho e nenhuma linha aqui precisa mudar.
-        aberturaImg: ["cap3-demarcada", "cap3-demarcada", "cap3-disputa", null, null],
-        fecho: [
-            "A demarcação não é um final feliz. É uma disputa em curso, e ela continua depois que você fecha o jogo.",
-            "Se alguma coisa aqui te deu vontade de saber mais, a tela DE ONDE VEM lista as fontes de tudo o que este jogo afirma.",
-            "Inclusive onde elas discordam entre si."
-        ]
-    }
-];
-// Duas cenas por capítulo. Uma conta só, escrita num lugar só, para o HUD, a fala e a tela
-// A HISTÓRIA nunca discordarem sobre em que capítulo alguém está.
-function epocaDaCena(i) { return Math.min(EPOCAS.length - 1, Math.floor(i / 2)); }
-function epocaAtual() { return epocaDaCena(cenarioAtual()); }
 // ===== A CAIXA DE FALA =====
 // O que faz isto parecer jogo antigo não é a moldura: é o texto APARECENDO. Uma fala pronta
 // de uma vez é um parágrafo; uma fala que se escreve é alguém falando. Quem não quer esperar
@@ -6207,7 +6269,7 @@ const MOMENTOS = [
 function montarCapitulos() {
     const box = $("listaCapitulos");
     box.textContent = "";
-    const atual = Math.min(2, Math.floor(cenarioAtual() / 2));
+    const atual = epocaAtual();
     EPOCAS.forEach(function (ep, i) {
         const livre = i <= atual;
         const b = document.createElement("button");
@@ -6225,7 +6287,7 @@ function montarCapitulos() {
             b.addEventListener("pointerdown", function (e) {
                 e.preventDefault();
                 // Entrar numa era ja vista volta para ela; a historia so fala uma vez.
-                S.cenario = i * 2;
+                S.cenario = cenarioDaEpoca(i);
                 salvar();
                 redesenharFundo();
                 fecharTelas();
@@ -6338,7 +6400,7 @@ function montarCompletude() {
         }
         else if (no.tipo === "marco") {
             const ep = EPOCAS[no.ep];
-            const chegou = ate >= no.ep * 2;
+            const chegou = ate >= cenarioDaEpoca(no.ep);
             const m = document.createElement("div");
             m.className = "ltMarco" + (chegou ? "" : " longe");
             const t = document.createElement("div");
