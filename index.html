@@ -1203,6 +1203,108 @@ function burst(x, y, n, cores) {
         parts = parts.slice(-190);
 }
 let combo = 0, attackT = 0, attackType = 0;
+// ============================================================
+// ONDA 4 (Direção de Evolução) — o toque com física. Dois efeitos, um propósito nomeável:
+// O GESTO TEM PESO. (1) KICK DE CÂMERA: uma mola CRÍTICA (o amortecimento c = 2√k é a
+// definição — ela nunca rebate, só parte e assenta) desloca as TRÊS camadas fixas
+// (#fundoHD/#scene/#heroHD) JUNTAS, por transform CSS na GPU. É o que preserva o 1:1 do
+// chão por construção: o quadro inteiro se move como UMA coisa e nenhuma coordenada de
+// mundo é tocada — PASSO_CAP e worldX nem sabem que isto existe (o território sensível do
+// §7 fica intocado). Pico calibrado em 1–2 px, teto duro em 2,4 px. (2) ONDA DE CHÃO: uma
+// elipse que EXPANDE desacelerando (decaimento exponencial — princípio 4, física e não
+// interpolação) na gramática que a rua JÁ fala: os anéis de espera são elipses 0,32 no
+// mesmo chão e na mesma luz morna #f3dda6. Nada de vocabulário novo.
+// Duas regras valem mais que o efeito: NADA disto nasce de golpe sobre GENTE (kick e onda
+// são gramática de combate, e o §2.2 não admite gramática de combate sobre pessoa — o
+// chamador decide, como o pisca e o estilhaço já decidem) e NADA nasce de toque automático
+// (U3/U4): um telefone esquecido na mesa não sacode a própria tela.
+let kickY = 0, kickV = 0, kickAtivo = true, kickAplicado = "";
+let kickPoseAte = 0; // gancho de prints: segura a mola parada
+const KICK_W = 30; // rad/s; a crítica assenta em ~4/w ≈ 0,13 s
+let ondasChao = [];
+// v é impulso em px/s; o pico da mola crítica é v/(w·e) — 70 dá 0,86 px, 140 dá 1,7 px
+function kickCamera(v) { if (kickAtivo)
+    kickV += v; }
+function ondaChao(wx, forte) {
+    if (!kickAtivo)
+        return;
+    ondasChao.push({ wx: wx, t: 0, forte: !!forte });
+    if (ondasChao.length > 6)
+        ondasChao.shift();
+}
+function atualizarKick(dt) {
+    if (performance.now() < kickPoseAte) {
+        aplicarKick();
+        return;
+    }
+    if (kickY === 0 && kickV === 0) {
+        if (kickAplicado)
+            aplicarKick();
+        return;
+    }
+    // FORMA FECHADA, não Euler: y(t) = (y0 + (v0+w·y0)t)·e^(−wt) é a solução exata da mola
+    // crítica. O Euler explícito exige dt < 2/w ≈ 0,066 s e o quadro NÃO promete isso — um
+    // screenshot headless ou uma aba engasgada seguram o rAF e o dt clampado chega a 0,25 s.
+    // Medido antes desta linha: pico de 132 px e 56 rebates numa mola desenhada para 1 px.
+    // Exata, ela assenta para QUALQUER dt — mesma razão de o cansaço do motor antigo viver
+    // em forma fechada. E crítica de verdade nunca cruza o zero vindo de um impulso só.
+    const B = kickV + KICK_W * kickY, e = Math.exp(-KICK_W * dt), yn = kickY + B * dt;
+    kickV = (B - KICK_W * yn) * e;
+    kickY = yn * e;
+    if (kickY > 2.4)
+        kickY = 2.4;
+    else if (kickY < -2.4)
+        kickY = -2.4;
+    if (Math.abs(kickY) < 0.03 && Math.abs(kickV) < 0.8) {
+        kickY = 0;
+        kickV = 0;
+    }
+    aplicarKick();
+}
+const KICK_CAMADAS = ["fundoHD", "scene", "heroHD"];
+function aplicarKick() {
+    // O sinal é NEGATIVO de propósito: o tranco desloca o quadro para CIMA. Transladar para
+    // baixo abre uma fresta na borda de CIMA — 2 px do fundo do body contra o céu claro da
+    // MANHÃ, medido no print D4-topo-kick20 — e para cima a fresta nasce na borda de BAIXO,
+    // onde a terra pintada é escura e a barra de controles cobre o resto. Mesmo jolt, borda
+    // que perdoa.
+    const t = kickY ? "translateY(" + (-kickY).toFixed(2) + "px)" : "";
+    if (t === kickAplicado)
+        return;
+    kickAplicado = t;
+    for (let i = 0; i < KICK_CAMADAS.length; i++) {
+        const el = document.getElementById(KICK_CAMADAS[i]);
+        if (el)
+            el.style.transform = t;
+    }
+}
+// Desenhada no #scene junto com os outros sinais de chão (anéis de espera, marco): entra
+// ANTES dos drops em desenharMundo, então nunca cobre leitura — e como todo sinal, toma o
+// VALOR da hora no passe final e nunca a tinta.
+function desenharOndasChao() {
+    for (let i = ondasChao.length - 1; i >= 0; i--) {
+        const o = ondasChao[i];
+        o.t += 1 / 60;
+        const dur = o.forte ? 0.34 : 0.26;
+        if (o.t >= dur) {
+            ondasChao.splice(i, 1);
+            continue;
+        }
+        const sx = Math.round(o.wx - worldX);
+        if (sx < -34 || sx > W + 34)
+            continue;
+        const rMax = o.forte ? 26 : 17;
+        const r = Math.max(2, rMax * (1 - Math.exp(-o.t * 11)));
+        const some = 1 - o.t / dur;
+        cx.strokeStyle = "#f3dda6";
+        cx.lineWidth = 1;
+        cx.globalAlpha = some * (o.forte ? 0.34 : 0.24);
+        cx.beginPath();
+        cx.ellipse(sx, GROUND + 1, r, Math.max(1, r * 0.32), 0, 0, 6.283);
+        cx.stroke();
+        cx.globalAlpha = 1;
+    }
+}
 const JUMPF = 44; // frames of the leap — about 0.75s, was a third of a second
 // Sobra entre a sola e a base do quadro, em px de sprite. Na arte antiga era 4,6: os quadros
 // guardavam o balanço da folha, então o pé não encostava na borda de baixo. As folhas do
@@ -1763,6 +1865,13 @@ function clicar(auto, naoConta, semAnim) {
         m.hp -= dmg;
         if (!gente)
             m.flash = 5;
+        // ONDA 4: o gesto que ALCANÇOU tem peso — kick pequeno no tempo comum, maior no quinto
+        // (que já é o tempo forte: alcance 96, dano dobrado). Só a mão de quem joga (!auto),
+        // nunca sobre gente — mesma linha do pisca e do estilhaço logo acima e abaixo.
+        if (!auto && !gente) {
+            kickCamera(passo === SALTO ? 140 : 70);
+            ondaChao(m.wx + 8, passo === SALTO || m.hp <= 0);
+        }
         // O empurrão de 10 px por golpe era o que, sozinho, tornava a janela infinita: a 7
         // golpes/s ele devolve 70 px/s, mais do que os 38–77 px/s com que a caminhada afasta.
         // Nada saía do alcance enquanto estivesse apanhando. Em quem está PARADA esperando ele
@@ -4795,8 +4904,13 @@ function drawHero() {
         jumpT--; // the arc runs down; landing no longer spawns anything
     // A aterrissagem é a passagem de jumpT 1 para 0, e só existe aqui — não há outro lugar no
     // motor que saiba que ela aconteceu.
-    if (air && jumpT === 0)
+    if (air && jumpT === 0) {
         somPouso();
+        // ONDA 4: o corpo dela CHEGA no chão e o quadro assenta junto (~1 px). Isto é dela,
+        // não gramática de combate — vale em qualquer capítulo, como o som do pouso ao lado.
+        kickCamera(90);
+        ondaChao(worldX + HX, false);
+    }
     if (attackT > 0)
         attackT--;
     // poeirinha no pé a cada passo. O gatilho é a VOLTA do ciclo, e não "quadro par": com três
@@ -5732,6 +5846,30 @@ window.setHora = function (f) {
         relogio = (((f % 1) + 1) % 1) * DIA_SEG;
     return relogio;
 };
+// Ganchos da onda 4. setKick(0|1): o interruptor do protótipo do toque com física —
+// desligado, zera mola, ondas e transform no mesmo instante. kickInfo(): [y, v, ondas],
+// o que o prints-onda4.js grava quadro a quadro. kickPose(px): congela a mola em px por
+// 1,2 s, SÓ para prints — o screenshot headless atrasa ~0,3 s e a mola real assenta em
+// ~0,13 s, então sem pose nenhum print pega o pico (a armadilha do tempo nominal, onda 3).
+window.setKick = function (v) {
+    kickAtivo = !!v;
+    if (!kickAtivo) {
+        kickY = 0;
+        kickV = 0;
+        kickPoseAte = 0;
+        ondasChao.length = 0;
+        aplicarKick();
+    }
+    return kickAtivo;
+};
+window.kickInfo = function () { return [kickY, kickV, ondasChao.length]; };
+window.kickPose = function (px) {
+    kickY = +px || 0;
+    kickV = 0;
+    kickPoseAte = performance.now() + 1200;
+    aplicarKick();
+    return kickY;
+};
 // The palette is per scenario: the board's six families are the shared vocabulary and a
 // place says which words of it are on its walls. Built once per scenario, off the same
 // `desbotar()` rule, so the sick end of every place is derived and never authored twice.
@@ -6326,6 +6464,7 @@ function desenharMundo() {
     const semLeitura = document.body.classList.contains("emTela");
     // o marco fincado no chão, na mesma camada 1:1 dos drops — nunca paralaxe nova
     desenharMarco();
+    desenharOndasChao(); // onda 4: o chão sente o gesto — por baixo de toda leitura
     // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
     // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
     if (moradores.length && !semLeitura) {
@@ -7663,6 +7802,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tick++;
         animT += dt;
         relogio += dt;
+        atualizarKick(dt); // onda 4: a mola do quadro anda no relógio do quadro
         if (saltoHora > 0) {
             // A varredura de luz da virada, com física (onda 3): decaimento exponencial — parte
             // depressa e ASSENTA chegando — com um piso que garante o fim. Da varredura mínima
