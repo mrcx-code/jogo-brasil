@@ -5266,9 +5266,13 @@ function encerrarFala() {
 // não ler, e obrigar essa pessoa a reencontrar a mesma fala amanhã seria a mesma prisão que
 // o botão existe para abrir.
 function jaViu(mascara, i) { return ((mascara | 0) & (1 << i)) !== 0; }
-function mostrarAbertura(depois?) {
+// `sempre`: entrar numa era pela SELEÇÃO conta a história SEMPRE — o dono cobrou ("cadê a
+// historinha") quando a regra antiga de falar-uma-vez fazia a troca de era só mudar a
+// estética. O PULAR existe exatamente para quem já leu. O caminho automático (fim de
+// cerimônia de fronteira, JOGAR direto) continua respeitando o já-visto.
+function mostrarAbertura(depois?, sempre?) {
   const i = epocaAtual();
-  if (jaViu(S.aberturas, i)) { if (depois) depois(); return false; }
+  if (!sempre && jaViu(S.aberturas, i)) { if (depois) depois(); return false; }
   S.aberturas = ((S.aberturas | 0) | (1 << i)) >>> 0;
   salvar();
   abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg, true);
@@ -5334,9 +5338,10 @@ function montarCapitulos() {
     b.appendChild(n); b.appendChild(q);
     if (livre) b.addEventListener("pointerdown", function (e) {
       e.preventDefault();
-      // Entrar numa era ja vista volta para ela; a historia so fala uma vez.
+      // Entrar numa era conta a história SEMPRE — decisão do dono ("cadê a historinha"):
+      // escolher a era É pedir a história; quem já leu tem o PULAR.
       S.cenario = cenarioDaEpoca(i); salvar(); redesenharFundo();
-      fecharTelas(); mostrarAbertura();
+      fecharTelas(); mostrarAbertura(undefined, true);
     });
     box.appendChild(b);
   });
