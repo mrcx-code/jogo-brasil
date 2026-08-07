@@ -1888,3 +1888,122 @@ meia hora: `ciclo-corrida.js` dá o ciclo e a passada, `lacoCorrer`/`quadrosCorr
 `PASSO_CAP`, e `telaCorrer` é escolhido INTEIRO para a velocidade ficar dentro de ±10% da de hoje
 (76,5 / 74,9 / 83,0 px/s) — a economia inteira nasce por DISTÂNCIA, então velocidade mudada é
 renda/min mudada.
+### 2026-08-07 · SALVADOR entra: o capítulo 4 sai do papel (worktree, para integrar)
+
+As oito imagens do dono chegaram em `assets/entrada/cap4-*.png` e o T2 do `SPRINT.md`
+deixou de ser preparação. O capítulo está no jogo, com a arte processada pelo pipeline,
+a época em `EPOCAS`, a placa de 1835 reorganizada e a noite calibrada no mesmo commit.
+
+**A decisão que custou mais que todo o resto: SALVADOR não é o quarto índice, é o
+TERCEIRO.** 1835 vem antes de hoje, e um jogo sobre a história do Brasil que põe o levante
+depois do presente está errado antes de qualquer discussão de arte. Inserir no meio desloca
+todos os índices — era a pendência nº 4 do relatório pré-1500, e ela venceu agora:
+
+- `EPOCAS` = PINDORAMA · PALMARES · **SALVADOR** · AINDA AQUI. As cenas passaram de 6 para
+  7 (Salvador declara `cenas: 1`, porque chegou UMA pintura; duas cenas com a mesma pintura
+  custariam 260 KB para repetir o quadro, e o motor N-capítulos aceita o número declarado).
+- **Migração de save (`migrarArco`, campo `arco` novo no `ESQUEMA_SAVE`).** Quem parou em
+  HOJE estava na cena 4; no arco de agora a cena 4 é 1835. Sem migrar, essa pessoa acordava
+  no capítulo errado com a abertura dele marcada como lida — perderia para sempre a fala que
+  é a razão de o jogo existir. Tabela explícita (`ARCO0_CENA`, `ARCO0_EPOCA`), rodando DEPOIS
+  do esquema (só remapeia número que já passou pela régua) e sem gravar (`salvar()` carimba
+  `salvoEm` e mataria a tela de retorno). **Save sem o campo `arco` é arco 0 por definição** —
+  a linha que faltava na primeira versão, e sem a qual a migração nunca rodava justamente
+  para quem tinha save antigo. Coberta no smoke: quatro casos, e ele falha se alguém acordar
+  no capítulo errado, se a abertura nova vier marcada como lida, ou se as acolhidas mudarem
+  de capítulo.
+- `LINHA_TEMPO` deixou de usar índice de cena literal: `cena: cenarioDaEpoca(n)`. O próximo
+  capítulo que entrar no meio não reescreve a linha do tempo inteira.
+- `FRENTE_CAP = [0, 1, -1, 2]`: qual pacote de vegetação cada capítulo usa. O `-1` de
+  Salvador não é falta de arte — rua de pedra de cidade não tem rodapé de mata, e o índice
+  da época como índice do pacote plantaria a bananeira de hoje na ladeira de 1835.
+
+**O marco 1835 virou PLACA.** "A Bahia se levanta" era uma linha de texto entre 1888 e 1988;
+agora é capítulo. No lugar dele, dois momentos que EXPLICAM como se chega em 1835 — "A
+cidade africana" (Reis) e "As ganhadeiras" (Cecília Moreira Soares) — e o levante contado no
+FECHO, que é onde ele pode ser contado sem virar fase de jogo (§2.2).
+
+**As travas de representação, cumpridas e escritas onde se quebrariam:** os drops são
+acarajé, pano da costa e búzios (a lista está no `test/inline-objetos.js`, com a trava no
+comentário); **nenhuma escrita árabe como item, imagem ou drop**; a imagem do pátio veio sem
+símbolo religioso; a mecânica é a VÉSPERA — alcançar é levar palavra. Os textos de `EPOCAS`
+estão marcados **⚠ RASCUNHO** no código: são proposta, e o texto final é do dono, palavra por
+palavra (§2).
+
+**Fontes deste capítulo** (as duas primeiras já visíveis na linha do tempo, ao lado do texto):
+
+- João José Reis, *Rebelião escrava no Brasil: a história do levante dos malês em 1835*
+  (ed. rev. e ampl., Companhia das Letras, 2003) — a data (madrugada de 24 para 25 de
+  janeiro de 1835), a denúncia na véspera, a repressão e as leis de vigilância posteriores.
+- Cecília Moreira Soares, "As ganhadeiras: mulher e resistência negra em Salvador no século
+  XIX" (*Afro-Ásia*, 1996) — o trabalho de rua, o ganho próprio, a compra da alforria.
+- Ao lado, para consulta futura: Lisa Earl Castillo; Wlamyra Albuquerque, *O jogo da
+  dissimulação* (2009).
+
+**A MEDIÇÃO DA CAMINHADA, E A MÁ NOTÍCIA QUE ELA TRAZ.** `PASSO_CAP` do capítulo: quadros
+3, 4, 9 de 11, laço 106, quadro 317, `tela` 8 (inteiro), `telaCorrer` 4 → 4,9043 px de mundo
+por quadro de sprite e **36,78 px/s**, −3,9% do capítulo 1 (38,26 · 37,46 · 37,74 · 36,78).
+
+O laço veio da separação entre os dois calcanhares no apoio duplo: **106 / 107 / 106 / 106**
+px de sprite em quatro quadros independentes, CV 0,4%. É a única medida desta folha que
+quatro leituras confirmam — e teve de ser ela porque **a folha não é um ciclo**. Medido com
+o `test/medir-sola.js` (ferramenta nova) nos 11 quadros: o calcanhar do pé de apoio só
+aparece em 119 (o pé acabou de chegar) e em 12–28 (o pé está saindo, girando sobre a ponta).
+Entre um e outro — os ~90 px em que o pé fica plantado e o corpo passa por cima dele — não
+há UMA pose. Nove dos onze quadros são quase-cópias do contato.
+
+**Escorregamento medido pela régua da casa (`max|recuo − laço/3| ÷ laço`): 52,5%**, contra
+0,48% / 0,00% / 0,67% das três eras. Não há triplo melhor nesta folha: varridas as
+combinações, o vão entre a chegada do pé (119) e a pose mais recuada disponível trava o
+terceiro trecho em ≥ 62 px. É o mesmo defeito que fez a folha de CORRIDA do capítulo 2 ficar
+de fora em 2026-08-06 (11% de apoio) — a diferença é que ali havia a caminhada para cair, e
+aqui não: sem esta folha não há capítulo. **O conserto não é código: é uma folha de 12 poses
+com o CORPO andando entre elas.** Fica como o primeiro pedido de arte do capítulo 4 e está
+escrito no `PASSO_CAP` para ninguém confundir este número com os dos outros três.
+
+**A noite, calibrada no mesmo commit** (a dívida (b) da onda 2 do `DIRECAO.md`): o
+`prints-onda2.js` deixou de contar 6 pinturas com um literal e passa a ler
+`CENARIO_ALTO_B64.length` — instrumento com número escrito à mão mede o passado, e mediria
+seis calando justo sobre a sétima. Salvador é o segundo caso (depois da pintura 1) de
+pintura SEM faixa clara: o alto do quadro é telhado, não névoa. Varrido com o
+`test/calibrar-ceu.js` (novo): sem dose nenhuma, topo/céu à noite já dava **1,04**, dentro
+do alvo ≤ 1,1. Ficou com **0,10**, a mesma dose mínima da pintura 1 e pelo mesmo motivo — o
+zênite dela AFUNDA junto com as irmãs no entardecer em vez de ser a única parada. Medido
+depois: **1,09 na tarde, 0,99 à noite**. As sete, à noite: 1,13 · 0,84 · 1,10 · 1,11 ·
+**0,99** · 1,17 · 1,01.
+
+**O retrato tinha um defeito que só o print pegou.** A moldura da fala é 132×300 com
+`object-fit: contain` e o pé no chão da caixa; um BUSTO de 212×300 encaixa pela LARGURA e vai
+parar no fundo da moldura — atrás da caixa, invisível. As três folhas anteriores eram figuras
+INTEIRAS e por isso ninguém tinha visto. Resolvido estendendo a tela do retrato até a razão
+da moldura (212×482, figura no topo): a escala não muda (a cabeça dá 59 px na tela nos
+quatro capítulos, medida pela LARGURA DA CABEÇA como manda o §5) e a cabeça dela cai onde
+estão as outras três.
+
+**PESO — o número que o dono precisa (T3):** `index.html` **3.823 KB → 4.447 KB (+624 KB)**,
+teto de 3.600 estourado em 23%. Tudo já em WebP 0,80, o mesmo do resto. O capítulo custou:
+pintura alta 174 KB · pintura do chão 62 KB · contexto do porto 91 KB · contexto do pátio
+49 KB · caminhada (3 quadros) 55 KB · retrato 18 KB · 3 objetos ~29 KB · 3 drops ~22 KB.
+Por bloco, hoje: pinturas 1.679 KB · personagens 901 KB · contextos 739 KB · NPCs 188 KB ·
+objetos 132 KB · vegetação 76 KB · drops 74 KB · retratos 64 KB. **A conta não fecha para 12
+capítulos**: ao ritmo de ~500 KB por capítulo, o 6º passa de 6 MB. A comparação 660px×master
+do T3 ataca justamente os contextos; a decisão estrutural (carga sob demanda) segue do dono.
+
+**Ferramentas novas em `test/`** (todas no `test/LEIAME.md`): `medir-sola.js` (o pé quadro a
+quadro — a medição que o LEIAME mandava fazer à mão desde o capítulo 1), `montar-quadros.js`
+(contact sheet, com `--pes=N` para a faixa do pé), `cortar-celulas.js` (reparte folha de
+objetos em células iguais, que é o que faltava para uma folha de 3 objetos virar 3 arquivos),
+`calibrar-ceu.js` (varre doses de `CEU_PINT` numa pintura) e `prints-cap4.js` (fotografa o
+capítulo JOGANDO, não a pintura forçada). O `ferramentas/construir.js` também aprendeu a
+achar o `tsc` num worktree, onde o `node_modules` não é copiado e o caminho fixo morria.
+O `inline-objetos.js` passou a gerar também o `RETRATO_B64`, que era o único bloco de arte
+embutido à mão — "gerado" no comentário e por ninguém no código.
+
+**Medido no fim:** `npm test` verde, FPS 61, zero erro de console. Prints a 390×844 dsf2 em
+`test/`: `C4-rua.png` (o capítulo andando), `C4-abertura.png` (cerimônia, retrato e o porto
+atrás), `C4-fala-patio.png` (o pátio à noite na terceira fala), `C4-linha-placa.png` (a placa
+SALVADOR entre Palmares e hoje), `C4-noite.png` (a noite calibrada) e `O2-cap4-p4-tarde/noite.png` (a pintura de Salvador
+nas duas horas, saídas do medidor).
+
+**Próximo passo:** a folha de caminhada de 12 poses com o corpo andando (é o que separa este
+capítulo dos outros três), e a segunda pintura de Salvador se o dono quiser `cenas: 2`.

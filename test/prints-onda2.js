@@ -20,7 +20,7 @@ function chromiumPath() {
 
 (async () => {
   const pref = process.argv[2] || 'O2';
-  const file = 'file://' + path.resolve(__dirname, 'index.html');
+  const file = 'file://' + path.resolve(__dirname, '..', 'index.html');
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
   const errors = [];
@@ -33,7 +33,12 @@ function chromiumPath() {
 
   const HORAS = [[0.25, 'tarde'], [0.75, 'noite']];
   const linhas = [];
-  for (let idx = 0; idx < 6; idx++) {
+  // Quantas pinturas o jogo TEM, não um literal: quando SALVADOR entrou, o `6` daqui deixou de
+  // fora justamente a pintura nova — o instrumento mediria seis e calaria sobre a sétima, que
+  // é a única que ainda não fora calibrada. Instrumento com o número escrito à mão mede o
+  // passado. (É a fragilidade (b) da onda 2, registrada no DIRECAO.md.)
+  const N_PINT = await page.evaluate(() => CENARIO_ALTO_B64.length);
+  for (let idx = 0; idx < N_PINT; idx++) {
     for (const [f, nome] of HORAS) {
       await page.evaluate(({ idx, f }) => {
         window.setFundo(idx);

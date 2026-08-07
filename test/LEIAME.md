@@ -92,6 +92,31 @@ o faz saltar — é isso que lê como manqueira, e `PASSO_PX` certo não salva.
 as células 6, 5, 2. No capítulo 2 são 1, 5, 8; no 3, 7, 11, 2. Não há como adivinhar: os
 índices repetidos de uma folha dizem quais quadros *sobram*, não quais formam o ciclo.
 
+**A medição virou ferramenta: `medir-sola.js`.** Até o capítulo 4 isto se fazia à mão, folha
+por folha. Agora:
+
+```bash
+node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/todos.json 0
+node test/medir-sola.js /tmp/todos.json --faixa=18     # o pé quadro a quadro
+node test/montar-quadros.js /tmp/todos.json /tmp/pes.png 3 --pes=70   # e olhar
+```
+
+`medir-sola.js` imprime duas leituras por quadro. A **SOLA** é a do parágrafo abaixo: colunas
+cuja tinta mais baixa fica a ≤ 2 px da base. Os **PÉS** são os borrões da faixa de baixo
+(`--faixa`, em px acima da base) — existem porque a sola só enxerga o pé que encosta, e o
+rastro de um pé que levanta o calcanhar fica com buraco. `--faixa` tem de ficar ABAIXO da
+barra do vestido ou da túnica: com 45 px a saia da ganhadeira colava os dois pés num borrão
+só, e com 18 eles se separaram. O quadro já vem ancorado pela cabeça, então x é comparável
+entre quadros.
+
+**O que fazer quando a folha não é um ciclo.** Foi o caso do capítulo 4, e o número está no
+`NOTES.md`: onze poses, mas o calcanhar do pé de apoio só aparece na chegada e na saída, sem
+nenhuma pose no meio do apoio. Nesse caso o laço NÃO sai das recessões (não há três iguais);
+sai da **separação entre os dois calcanhares no apoio duplo**, que é a mesma grandeza medida
+por outro caminho e que vários quadros confirmam entre si. Meça o escorregamento assim
+mesmo, escreva-o no `PASSO_CAP` ao lado dos outros, e peça folha nova: 52,5% contra 0,48%
+não é detalhe, e código nenhum conserta.
+
 **Como escolher, com número e não com olho:** meça a **sola**, não o centroide do pé. No
 apoio duplo o pé de trás está na ponta e o da frente chapado, e os centroides mentem sobre
 onde cada um encosta. A sola é o trecho de colunas cuja tinta mais baixa fica a ≤ 2 px da
@@ -134,6 +159,49 @@ seja, a personagem não sobe nem desce. Achatar não perde balanço nenhum e res
 problemas de uma vez: o quadro deixa de ter 388 px de altura para ter 322 (a personagem
 renderizava a 36,6 px de mundo em vez de 44, porque `heroScale = HERO_TARGET / altura do
 quadro`), e a sola passa a encostar na borda de baixo, o que zera o `HERO_PISO`.
+
+## Um capítulo inteiro, do zero: o que SALVADOR (cap. 4) pediu
+
+A ordem que funcionou, com as oito imagens em `assets/entrada/cap4-*.png`:
+
+```bash
+# 1. a personagem — medir antes de cortar, cortar depois de escolher o ciclo
+node test/validar-folha.js assets/entrada/cap4-sprite.png            # quantas manchas? 11
+node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/todos.json 0
+node test/medir-sola.js /tmp/todos.json --faixa=18                   # escolhe o ciclo
+node test/recortar-folha.js assets/entrada/cap4-sprite.png 11x1 /tmp/andar.json 0 --quadros=3,4,9
+node test/embutir-heroi.js walk4=/tmp/andar.json atk1_4= atk2_4= sp4= run4=
+
+# 2. as pinturas (duas peças por cena)
+node test/converter-fundo.js assets/entrada/cap4-fundo-alto.png alto assets/cenarios-novos/cap4-alto.png
+node test/converter-fundo.js assets/entrada/cap4-fundo-chao.png baixo assets/cenarios-novos/cap4-baixo.png
+node test/inline-fundos.js            # CAPS, no arquivo, é a ordem das CENAS
+
+# 3. objetos e drops — a folha vem com três numa imagem só
+node test/cortar-celulas.js assets/entrada/cap4-itens.png 3x1 assets/entrada/cap4-item
+node test/converter-objeto.js assets/entrada/cap4-item-1.png assets/objetos/cap4-obj-tabuleiro.webp 120 24
+node test/converter-objeto.js assets/entrada/cap4-drop-1.png assets/objetos/drop-cap4-1.webp 104 22
+node test/inline-objetos.js           # MOBS/DROPS/RETRATOS, na ordem de EPOCAS
+
+# 4. contexto da caixa de fala — o arquivo tem de se chamar ctx-<chave>.png
+node test/inline-contexto.js          # embute TODOS os ctx-*.png da pasta
+
+# 5. a hora do dia na pintura nova, e o print de tudo
+node test/prints-onda2.js C4          # topo/céu por pintura, tarde e noite
+node test/calibrar-ceu.js 4 0,0.1,0.2,0.3 0.24     # varre a dose até topo/céu ≤ 1,1
+node test/prints-cap4.js              # o capítulo JOGANDO, não a pintura forçada
+```
+
+Três armadilhas que este capítulo pagou:
+
+- **`inline-contexto.js` reescreve o bloco INTEIRO com o que achar na pasta.** Numa pasta com
+  só as imagens novas, ele apaga em silêncio as dos outros capítulos. Tenha todas ali.
+- **O número no nome do arquivo não é o número do capítulo.** `cap4-*` é o quarto PEDIDO da
+  mesa; SALVADOR é o TERCEIRO capítulo (1835 vem antes de hoje). Todas as listas por capítulo
+  — `CAPS`, `MOBS`, `DROPS`, `RETRATOS`, `HERO_CAP_B64`, `PASSO_CAP`, `CEU_PINT`, `FRENTE_CAP`
+  — estão na ordem de `EPOCAS`, e reordenar uma sem as outras troca a arte de dono.
+- **Capítulo que entra no MEIO da cronologia desloca índice guardado no save.** Ver
+  `migrarArco()`: sem ele, quem parou no último capítulo acorda no capítulo novo.
 
 ## `inline-cenarios.js`, `inline-sheets.js`
 

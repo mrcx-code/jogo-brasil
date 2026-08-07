@@ -19,7 +19,11 @@ const RAIZ = path.resolve(__dirname, '..');
 // quem escrevesse nele veria o próximo `npm run build` apagar tudo, sem erro nenhum.
 const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
 const DIR = path.join(RAIZ, 'assets', 'cenarios-novos');
-const CAPS = ['cap1', 'cap1v', 'cap2', 'cap2v', 'cap3', 'cap3v'];
+// Uma entrada por CENA, na ordem em que `EPOCAS` as declara: os três primeiros capítulos têm
+// duas cenas cada (a segunda é a pintura `v`, variação do mesmo lugar, para a paisagem não
+// denunciar que é a mesma imagem espelhada), e SALVADOR tem UMA — chegou uma pintura só, e
+// declarar duas cenas com a mesma pintura seria pagar 260 KB para repetir o quadro.
+const CAPS = ['cap1', 'cap1v', 'cap2', 'cap2v', 'cap4', 'cap3', 'cap3v'];
 // 0,80 e não 0,92. Medido peça a peça: as doze pinturas somavam 2.456 KB de base64 e passaram
 // a somar o que o console imprime abaixo. A perda não aparece na tela porque a peça é pintura
 // borrada em movimento, e o que se vê dela é uma faixa rolando — não é sprite de pixel art,

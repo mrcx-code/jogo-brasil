@@ -529,8 +529,33 @@ function alvo() {
   // ela que pega um campo gravado sem esquema — por isso nao se gera uma da outra.
   // `acolhidos` (uma posição por época) e `marcos` (bits das placas do cap. 2) entraram com
   // o protótipo travessia+lugar-vivo — cópia deliberada, atualizada JUNTO com o ESQUEMA_SAVE.
-  const esperadas = ['aberturas', 'acolhidos', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
+  // `arco` entrou com SALVADOR: e o unico campo que existe para MIGRAR indices quando um
+  // capitulo entra no MEIO da cronologia. Ver `migrarArco()` no src/jogo.ts.
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
+
+  // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
+  // SALVADOR entrou no MEIO da cronologia, e o save guarda INDICES. Quem parou em HOJE no arco
+  // de tres capitulos estava na cena 4; no arco de agora a cena 4 e 1835. Sem `migrarArco()`
+  // essa pessoa acorda no capitulo errado, com a abertura dele ja marcada como lida — ou seja,
+  // perde para sempre a fala que e a razao de o jogo existir. Isto aqui e o que prova que nao.
+  const migrado = await page.evaluate(() => {
+    localStorage.setItem(CHAVE_JOGO, JSON.stringify({
+      energia: 100, energiaTotal: 9000, cenario: 4,   // cena 4 do arco 0 = HOJE
+      aberturas: 7, fechos: 7, acolhidos: [3, 5, 9], salvoEm: 1
+    }));
+    carregar();
+    return { arco: S.arco, epoca: EPOCAS[epocaAtual()].nome, aberturas: S.aberturas,
+             acolhidos: S.acolhidos.slice(), salvador: EPOCAS.findIndex(e => e.nome === 'SALVADOR') };
+  });
+  console.log('old-arc save ->', JSON.stringify(migrado));
+  if (migrado.epoca !== 'AINDA AQUI') errors.push('an old save woke up in the wrong chapter: ' + migrado.epoca);
+  if (migrado.salvador >= 0 && (migrado.aberturas & (1 << migrado.salvador)))
+    errors.push('an old save had the new chapter marked as already read');
+  if (migrado.salvador >= 0 && migrado.acolhidos[migrado.salvador] !== 0)
+    errors.push('people were teleported into a chapter that did not exist yet');
+  if (migrado.acolhidos[migrado.acolhidos.length - 1] !== 9)
+    errors.push('the last chapter lost the people it had welcomed');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));
 

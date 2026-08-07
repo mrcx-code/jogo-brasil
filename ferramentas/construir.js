@@ -28,7 +28,18 @@ const p = (...x) => path.join(RAIZ, ...x);
 const semTsc = process.argv.includes('--sem-tsc');
 
 if (!semTsc) {
-  const tsc = path.join(RAIZ, 'node_modules', 'typescript', 'bin', 'tsc');
+  // `require.resolve` e não um caminho montado à mão: num WORKTREE do git o `node_modules` não
+  // é copiado, e o caminho fixo `RAIZ/node_modules/...` some — o build morria com
+  // MODULE_NOT_FOUND num diretório onde `npm run tipos` funcionava, porque o Node resolve
+  // subindo a árvore e este script não resolvia. O caminho montado fica como último recurso.
+  // Resolve o PACOTE e monta o caminho do binário a partir dele — `require.resolve` do
+  // subcaminho `typescript/bin/tsc` não serve: o package.json do TypeScript declara `exports`
+  // e o Node recusa qualquer subcaminho que não esteja lá.
+  let tsc = path.join(RAIZ, 'node_modules', 'typescript', 'bin', 'tsc');
+  if (!fs.existsSync(tsc)) {
+    try { tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc'); }
+    catch (e) { /* fica o caminho de sempre, e o erro do spawn diz o que falta */ }
+  }
   const r = spawnSync(process.execPath, [tsc, '-p', p('tsconfig.json')], { stdio: 'inherit' });
   if (r.status !== 0) {
     console.error('\ntsc falhou — nada foi escrito. O index.html no disco continua o de antes.');

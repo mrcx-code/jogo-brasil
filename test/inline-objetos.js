@@ -8,9 +8,15 @@
 // cada vaga recebe um objeto POR CAPÍTULO. As chaves são herdadas do motor e não descrevem
 // mais nada — o que descreve é o recurso que a vaga alimenta (`RECURSO_DE` no index.html):
 //
-//   smog  -> "flor"      colheita: fruta (cap 1), mandioca (cap 2), muda (cap 3)
-//   drum  -> "agua"      água:     muda (cap 1, sem arte de água), pote (cap 2), galão (cap 3)
-//   cash  -> "refeicao"  comida:   peixe (cap 1), cesto (cap 2), cesto (cap 3)
+//   smog  -> "flor"      colheita: fruta, mandioca, tabuleiro de quitutes, muda
+//   drum  -> "agua"      água:     muda (sem arte de água no cap 1), pote, barril, galão
+//   cash  -> "refeicao"  comida:   peixe, cesto, trouxa de roupa, cesto
+//
+// TODAS as listas por capítulo deste arquivo estão na ordem de `EPOCAS`, que é CRONOLÓGICA:
+// litoral, Palmares, SALVADOR (1835), hoje. Os arquivos de Salvador se chamam `cap4` porque
+// foram o quarto PEDIDO da mesa, e é a única coisa neste repositório em que o número do
+// arquivo não é o número do capítulo. Reordenar uma destas listas sem reordenar as outras põe
+// o cesto de hoje na mão da ganhadeira de 1835.
 //
 // Ficaram de fora, por não haver quarta vaga: cap2-obj-3 (feixe de lenha) e cap3-obj-3
 // (enxada). Estão convertidos em assets/objetos, prontos para quando houver onde pôr.
@@ -27,15 +33,24 @@ const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
 const DIR = path.join(RAIZ, 'assets', 'objetos');
 
 const MOBS = {
-  smog: ['cap1-obj-fruta', 'cap2-obj-roca', 'cap3-obj-muda'],
-  cash: ['cap1-obj-peixe', 'cap2-obj-cesto', 'cap3-obj-cesto'],
-  drum: ['cap1-obj-muda', 'cap2-obj-agua', 'cap3-obj-agua']
+  smog: ['cap1-obj-fruta', 'cap2-obj-roca', 'cap4-obj-tabuleiro', 'cap3-obj-muda'],
+  cash: ['cap1-obj-peixe', 'cap2-obj-cesto', 'cap4-obj-trouxa', 'cap3-obj-cesto'],
+  drum: ['cap1-obj-muda', 'cap2-obj-agua', 'cap4-obj-agua', 'cap3-obj-agua']
 };
+// Os retratos de quem FALA em cada capítulo. Entraram nesta lista porque até aqui o bloco
+// RETRATO_B64 era o único pedaço de arte embutido à mão — "gerado" no comentário e por
+// ninguém no código. Um capítulo novo precisava de um base64 colado, que é exatamente o tipo
+// de passo que se esquece.
+const RETRATOS = ['retrato-cap1', 'retrato-cap2', 'retrato-cap4', 'retrato-cap3'];
 // Uma lista por capítulo. Capítulos 2 e 3 têm uma arte só, e a lista curta é lida como
 // "todo mundo deixa isto" — ver o comentário do bloco no index.html.
 const DROPS = [
   ['drop-semente', 'drop-broto', 'drop-peixe'],
   ['drop-cap2-1'],
+  // SALVADOR: acarajé, pano da costa dobrado, búzios. A lista é a trava de representação do
+  // relatório do historiador, escrita aqui porque é aqui que ela se quebraria: escrita árabe
+  // sagrada NUNCA vira item, imagem ou coisa a recolher. Nada religioso entra nesta linha.
+  ['drop-cap4-1', 'drop-cap4-2', 'drop-cap4-3'],
   ['drop-cap3-1']
 ];
 const ICONES = { folha: 'icone-folha', agua: 'icone-agua', cesto: 'icone-cesto', passo: 'icone-passo' };
@@ -61,6 +76,8 @@ console.log('ícones:');
 const icone = Object.keys(ICONES).map(function (k) {
   return '  ' + k + ': "' + uri(ICONES[k]) + '"';
 }).join(',\n');
+console.log('retratos:');
+const retrato = RETRATOS.map(function (n) { return '  "' + uri(n) + '"'; }).join(',\n');
 
 let src = fs.readFileSync(ARQ, 'utf8');
 // `\r?\n` e não `\n`: no Windows o checkout vem com CRLF, e um `\n` cru não casa com nada.
@@ -72,6 +89,8 @@ trocar('(\\/\\*DROP_B64_START[\\s\\S]*?const DROP_B64 = \\[' + NL + ')[\\s\\S]*?
   + '\\];' + NL + '\\/\\*DROP_B64_END\\*\\/)', drop, 'DROP_B64');
 trocar('(\\/\\*ICONE_B64_START[\\s\\S]*?const ICONE_B64 = \\{)[\\s\\S]*?(\\};' + NL
   + '\\/\\*ICONE_B64_END\\*\\/)', FIM + icone + FIM, 'ICONE_B64');
+trocar('(\\/\\*RETRATO_B64_START[\\s\\S]*?const RETRATO_B64 = \\[' + NL + ')[\\s\\S]*?(' + NL
+  + '\\];' + NL + ')', retrato, 'RETRATO_B64');
 
 function trocar(padrao, corpo, nome) {
   const re = new RegExp(padrao);
@@ -85,7 +104,7 @@ function trocar(padrao, corpo, nome) {
 // O resto do arquivo quem confere é o `tsc`, dentro do `npm run build`, que se recusa a
 // escrever o index.html se algo estiver quebrado.
 for (const [nome, corpo] of [['MOB_B64', '{' + mob + '}'], ['DROP_B64', '[' + drop + ']'],
-                             ['ICONE_B64', '{' + icone + '}']]) {
+                             ['ICONE_B64', '{' + icone + '}'], ['RETRATO_B64', '[' + retrato + ']']]) {
   try { new Function('return ' + corpo); }
   catch (e) { console.error('SINTAXE QUEBRADA em ' + nome + ': ' + e.message + ' — nada gravado'); process.exit(1); }
 }

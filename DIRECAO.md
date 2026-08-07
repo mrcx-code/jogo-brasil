@@ -94,6 +94,27 @@ cipó são composição boa, de material e lugar). É isto, em ordem de peso:
    azul-violeta — o zênite afunda enquanto o horizonte guarda o ouro, que é o que um fim
    de tarde faz. FPS 62 nas três rodadas; +8,8 KB de código; zero imagem nova.
 
+**A fragilidade (b) da onda 2 foi PAGA em 2026-08-07, com a chegada de SALVADOR.** Era ela:
+`CEU_PINT` é indexada por pintura, e pintura nova sem entrada cai na [0] por guarda, que é
+chute. Duas coisas mudaram e as duas ficam:
+
+- O `prints-onda2.js` deixou de contar 6 pinturas com um literal e lê
+  `CENARIO_ALTO_B64.length`. Instrumento com número escrito à mão mede o passado — este
+  mediria seis e calaria justamente sobre a sétima, a única ainda não calibrada.
+- Nasceu o `test/calibrar-ceu.js`: varre doses numa pintura e imprime topo/céu na tarde e na
+  noite, para a dose sair de uma curva e não de duas rodadas no olho.
+
+SALVADOR é o segundo caso (depois da pintura 1) de pintura **sem** faixa clara — o alto do
+quadro é telhado, não névoa. Sem dose nenhuma já media 1,04 à noite. Ficou com 0,10, a dose
+mínima da pintura 1 e pelo mesmo motivo: para o zênite dela AFUNDAR junto com as irmãs no
+entardecer, em vez de ser a única parada. Depois: 1,09 tarde, 0,99 noite. As sete, à noite:
+1,13 · 0,84 · 1,10 · 1,11 · **0,99** · 1,17 · 1,01.
+
+**Regra que fica desta rodada:** arte nova de cenário e `prints-onda2.js` no MESMO commit —
+e a ordem de `CEU_PINT` é a das CENAS, não a de chegada da arte. SALVADOR entrou entre
+Palmares e hoje porque 1835 vem antes de agora, e a lista foi reordenada junto com todas as
+outras listas por capítulo.
+
 ## Onda 3 — IMPLEMENTADA (2026-08-07)
 
 A cerimônia de virada de era virou cinema, medida antes e depois com um instrumento novo
@@ -176,9 +197,10 @@ FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
   zênite sem tocar o ouro.
 - **Contínuo**: medir FPS e peso a cada onda; qualquer efeito que não sobreviver ao
   print com "isso parece 2026?" sai na onda seguinte. Os medidores ficam em `test/`:
-  `prints-onda2.js` (6 pinturas × 2 horas, topo/céu/meio e a cor média de um mob sob a
-  noite — atenção: o caminho dele para o `index.html` precisa de ajuste desde que foi
-  movido da raiz) e `prints-onda3.js` (virada de era real, cerimônia no tempo).
+  `prints-onda2.js` (todas as pinturas × 2 horas, topo/céu/meio e a cor média de um mob sob
+  a noite — o caminho para o `index.html` e a contagem de pinturas foram consertados em
+  2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura) e `prints-onda3.js`
+  (virada de era real, cerimônia no tempo).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
 

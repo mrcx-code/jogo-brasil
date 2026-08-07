@@ -72,6 +72,12 @@ integração for por patch de caminho explícito (regra que já pagou sessão, `
   de imagem é território dela) · **Prioridade: P1** · ⚠ decisão-do-dono para publicar.
 - **Território:** `test/inline-fundos.js` (leitura/execução), prints novos em `test/`.
   **NÃO escreve em `src/jogo.ts`** — só mede e fotografa.
+- **Base atualizada em 2026-08-07 (T2):** com SALVADOR o `index.html` foi de 3.823 KB para
+  **4.447 KB** — o teto de 3.600 está estourado em 23%, e o ritmo é de ~500 KB por capítulo
+  (o 6º passa de 6 MB). Repartição atual: pinturas 1.679 KB · personagens 901 KB · contextos
+  739 KB · NPCs 188 KB · objetos 132 KB · vegetação 76 KB · drops 74 KB · retratos 64 KB.
+  Os CONTEXTOS (739 KB em 8 imagens de 780 px) são o alvo mais barato: são paisagem atrás de
+  uma caixa de texto, e o `inline-contexto.js --medir` já compara larguras.
 - **Aceite mensurável:** (a) lado-a-lado 660px × master das 6 pinturas a 3× de ampliação;
   (b) MB total e por pintura nas duas versões (medido antes: 660px corta 22%);
   (c) parecer da Arte registrado neste arquivo; (d) nada publicado.
@@ -181,7 +187,7 @@ confere, derruba, acrescenta.
 | ticket | estado |
 |---|---|
 | T1 retenção | aberto |
-| T2 Salvador pronto | aberto — após T1 |
+| T2 Salvador pronto | **ENTREGUE, e maior que o combinado** — a arte chegou no meio do sprint e o ticket virou o capítulo 4 ENTRANDO: 8 imagens processadas, época em `EPOCAS` (rascunho marcado), placa de 1835 reorganizada, `CEU_PINT` calibrada, migração de save. Números e ressalvas no `NOTES.md`. **Duas coisas para o dono:** (1) os textos são RASCUNHO e esperam a palavra dele; (2) a folha de caminhada tem 52,5% de escorregamento contra 0,48% das outras — pede folha nova de 12 poses. |
 | T3 decisão do peso | aberto — parecer da Arte pendente |
 | T4 QA nasce | aberto |
 | T5 motor da corrida | aberto — após onda 4 |
