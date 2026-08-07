@@ -67,6 +67,17 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
+  // A SALA DE MÁQUINAS: onde a equipe está. O dono pediu o painel dentro da mesa ("gosto
+  // mais do layout da sala de máquinas"), então a mesa deixou de ser só entrega de arte e
+  // virou o lugar único: quem trabalha em quê, o que já entrou, e o que espera nele.
+  if (req.method === 'GET' && url === '/equipe') {
+    let r = null;
+    try { r = fs.readFileSync(path.join(__dirname, 'equipe.json'), 'utf8'); } catch (e) {}
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(r || '{}');
+    return;
+  }
+
   // REVISAR: compara o que o jogo precisa (necessario.json) com o que já chegou
   // (assets/entrada) e repõe na fila só o que falta. Existe porque a fila vinha sendo podada
   // à mão — por mim — e mão esquece. O servidor já sabia o que tem em disco; faltava saber o

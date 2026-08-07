@@ -3,16 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mesa de entrega</title>
+<title>Sala de máquinas · BRASIL</title>
 <style>
-  :root { color-scheme: dark; }
-  body { margin: 0; padding: 24px; background: #14161c; color: #e8e6df;
-         font: 15px/1.5 system-ui, sans-serif; }
-  h1 { font-size: 19px; margin: 0 0 4px; }
-  .sub { color: #8d8a80; margin: 0 0 24px; font-size: 13px; }
-  .pedido { border: 1px solid #2c3038; border-radius: 8px; padding: 16px; margin-bottom: 16px;
-            background: #191c23; }
-  .pedido.feito { border-color: #2f5d3f; }
+  /* A MESA FALA A LINGUA DO JOGO. O dono: "gosto mais do layout da sala de maquinas".
+     Mesma gramatica do chrome: madeira = coisa posta no lugar, pedra = ferramenta,
+     papel de campo = o que espera voce, e um ouro so — o que importa agora. */
+  :root { color-scheme: dark;
+    --fundo:#1c2010; --painel:#2b3320; --painel2:#3c4627; --borda:#14170c;
+    --texto:#f2e8ce; --sub:#a9a184; --ouro:#eba748; --papel:#e9d8ae; --tinta:#33240f;
+    --good:#7d9a3c; --run:#71a39c; }
+  body { margin: 0; padding: 24px; background: var(--fundo); color: var(--texto);
+         font: 15px/1.5 "Cascadia Mono", Consolas, ui-monospace, monospace; }
+  h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: .2em; color: var(--ouro);
+       text-shadow: 0 2px 0 var(--borda); }
+  .sub { color: var(--sub); margin: 0 0 22px; font-size: 12px; }
+  /* SALA DE MAQUINAS */
+  #equipe { margin-bottom: 30px; display: flex; flex-direction: column; gap: 16px; }
+  #equipe h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 0 0 9px;
+    text-transform: uppercase; }
+  .bloco { background: var(--painel); border: 2px solid var(--borda);
+    box-shadow: 0 4px 0 var(--borda); padding: 14px 16px; }
+  .bloco.emPapel { background: var(--papel); color: var(--tinta); }
+  .bloco.emPapel h2 { color: #7a5a28; }
+  .linha { display: flex; gap: 12px; padding: 6px 0; align-items: baseline; font-size: 13px; }
+  .linha + .linha { border-top: 1px solid rgba(20,23,12,.35); }
+  .marca { color: var(--sub); font-size: 11px; min-width: 92px; flex: 0 0 auto; }
+  .emPapel .marca { color: #8a6b3d; }
+  .selo { font-size: 10px; letter-spacing: .12em; padding: 2px 8px; border: 2px solid var(--borda);
+    box-shadow: 2px 2px 0 var(--borda); flex: 0 0 auto; margin-left: auto; }
+  .sVoo { background: var(--run); color: #101b19; animation: pulsa 1.6s ease-in-out infinite; }
+  .sFeito { background: var(--good); color: #141b08; }
+  .sVoce { background: var(--ouro); color: #221a06; }
+  @keyframes pulsa { 50% { opacity: .5 } }
+  @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
+  .pedido { border: 2px solid var(--borda); padding: 16px; margin-bottom: 16px;
+            background: var(--painel); box-shadow: 0 4px 0 var(--borda); }
+  .pedido.feito { border-color: var(--good); }
   .titulo { font-weight: 600; margin-bottom: 2px; }
   .ref { color: #8d8a80; font-size: 13px; margin-bottom: 10px; }
   .prompt { background: #101218; border: 1px solid #2c3038; border-radius: 6px; padding: 10px;
@@ -21,11 +47,12 @@
   .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 22px; text-align: center;
           color: #8d8a80; cursor: text; outline: none; font-size: 14px; }
   .cola:focus { border-color: #6fdd94; color: #b8c9a8; }
-  .cola.tem { border-style: solid; border-color: #38b764; padding: 8px; }
+  .cola.tem { border-style: solid; border-color: var(--good); padding: 8px; }
   .cola img { max-width: 100%; max-height: 260px; display: block; margin: 0 auto; }
   .estado { font-size: 13px; margin-top: 8px; min-height: 18px; }
   .ok { color: #6fdd94; } .erro { color: #e0603a; }
-  button { background: #38b764; color: #0d1013; border: 0; border-radius: 6px; padding: 8px 16px;
+  button { background: var(--ouro); color: #221a06; border: 2px solid var(--borda);
+           box-shadow: 0 3px 0 var(--borda); padding: 8px 16px;
            font: 600 14px system-ui; cursor: pointer; margin-top: 10px; }
   button:disabled { background: #2c3038; color: #6b6862; cursor: default; }
   button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 12px; padding: 6px 12px;
@@ -74,9 +101,11 @@
 </style>
 </head>
 <body>
-<h1>Mesa de entrega</h1>
+<h1>SALA DE MÁQUINAS</h1>
 <p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
 Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
+<div id="equipe"></div>
+<h2 style="font-size:11px;letter-spacing:.28em;color:var(--sub);margin:0 0 9px;text-transform:uppercase">Arte que o jogo espera</h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
 <div id="pendencias"></div>
 
@@ -342,6 +371,36 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
   lista.textContent = "";
   lista.appendChild(el("p", "vazio", "o servidor não respondeu — rode: node ferramentas/receber.js"));
 });
+
+// A SALA DE MAQUINAS. Le ferramentas/equipe.json, que o orquestrador atualiza a cada
+// integracao. Tres blocos: quem trabalha AGORA, o que ja entrou, e o que espera — sendo
+// que o que espera VOCE vem em papel de campo, porque e a sua parte.
+async function pintarEquipe() {
+  let e = {};
+  try { e = await (await fetch('/equipe')).json(); } catch (err) { return; }
+  const cx = document.getElementById('equipe');
+  if (!cx) return;
+  const esc = t => String(t == null ? '' : t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const voo = (e.emVoo || []).map(a =>
+    `<div class="linha"><span class="marca">${esc(a.papel)}</span><span>${esc(a.t)}</span>` +
+    `<span class="selo sVoo">EM VOO</span></div>`).join('');
+  const feito = (e.entregue || []).slice(0, 8).map(a =>
+    `<div class="linha"><span class="marca">${esc(a.q)}</span><span>${esc(a.t)}</span>` +
+    `<span class="selo sFeito">NO AR</span></div>`).join('');
+  const prox = (e.proximos || []).map(a => {
+    const seuTurno = /VOC/i.test(a.dep || '');
+    return `<div class="linha"><span>${esc(a.t)}</span>` +
+      `<span class="selo ${seuTurno ? 'sVoce' : 'sFeito'}">${esc(a.dep)}</span></div>`;
+  }).join('');
+  cx.innerHTML =
+    (voo ? `<section class="bloco"><h2>Trabalhando agora</h2>${voo}</section>` :
+           `<section class="bloco"><h2>Trabalhando agora</h2>` +
+           `<div class="linha"><span style="color:var(--sub)">ninguém em voo — tudo integrado</span></div></section>`) +
+    `<section class="bloco emPapel"><h2>Próximo passo</h2>${prox}</section>` +
+    `<section class="bloco"><h2>Já entrou no jogo</h2>${feito}</section>` +
+    `<p class="sub" style="margin:0">${esc(e.atualizado || '')}</p>`;
+}
+pintarEquipe();
 </script>
 </body>
 </html>
