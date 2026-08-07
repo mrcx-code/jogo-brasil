@@ -5913,7 +5913,7 @@ const EPOCAS = [
         abertura: [
             "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
             "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
-            "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por quase cem anos a mais de vinte expedições militares.",
+            "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares.",
             "Aqui, alcançar é acolher. Quem chega vem ficar.",
             "Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão, e são os mesmos três contadores do capítulo anterior."
         ],
@@ -6239,12 +6239,42 @@ const LINHA_TEMPO = [
     { tipo: "marco", ep: 0 },
     { tipo: "momento", i: 0 },
     { tipo: "momento", i: 1 },
-    { tipo: "vao" }, // ← os marcos entre o séc. XVI e o XVII entram aqui
+    // O VÃO XVI→XVII — os marcos do historiador (fontes no NOTES.md, revisão de 2026-08-06).
+    // Critério dele, adotado: em cada vão, pelo menos um marco em que o SUJEITO da frase é
+    // quem resistiu — senão a linha inteira narra os povos como objeto. Aqui é o quarto.
+    // Revelam-se ao alcançar Palmares (cena 2): são a explicação de COMO se chega lá.
+    { tipo: "momento", cena: 2, q: "séculos XVI–XVII", t: "O açúcar",
+        d: "Nesta costa levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi montada, e dava lucro.",
+        f: "Schwartz · Segredos internos, 1988" },
+    { tipo: "momento", cena: 2, q: "séculos XVI–XVII", t: "A terra esvaziada à força",
+        d: "E os Tupinambá desta costa? Guerra, escravização e doença trazida nos navios os expulsaram do litoral. Não desapareceram — foram empurrados.",
+        f: "Monteiro · Negros da terra, 1994 · Cunha (org.), 1992" },
+    { tipo: "momento", cena: 2, q: "séculos XVI–XIX", t: "A travessia forçada",
+        d: "De cada dez pessoas arrancadas da África para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.",
+        f: "Trans-Atlantic Slave Trade Database · SlaveVoyages.org" },
+    { tipo: "momento", cena: 2, q: "1630–1654", t: "A guerra que abriu a serra",
+        d: "Quando os holandeses invadiram Pernambuco, a colônia virou campo de batalha — e na desordem da guerra, mais gente conseguiu fugir para a serra. Palmares cresceu.",
+        f: "Gomes · Palmares, 2005 · Documenta Palmares" },
     { tipo: "marco", ep: 1 },
     { tipo: "momento", i: 2 },
     { tipo: "momento", i: 3 },
     { tipo: "momento", i: 4 }, // Zumbi: cronologia de Palmares, revelação no cap. 3
-    { tipo: "vao" }, // ← os marcos entre o séc. XVII e hoje entram aqui
+    // O VÃO XVII→HOJE — quatro marcos, e dois deles fecham fios que o jogo deixava soltos:
+    // a Constituinte é a ponte jurídica dos DOIS fios para o capítulo 3, e o Censo dos
+    // quilombolas diz o que a linha inteira calava — quem construiu Palmares continua aqui.
+    // Revelam-se ao alcançar o presente (cena 4).
+    { tipo: "momento", cena: 4, q: "1835", t: "A Bahia se levanta",
+        d: "A resistência não acabou com Palmares. Em Salvador, africanos muçulmanos escravizados e libertos se levantaram em armas — o maior levante urbano de escravizados das Américas.",
+        f: "Reis · Rebelião escrava no Brasil, ed. 2003" },
+    { tipo: "momento", cena: 4, q: "1888", t: "A lei de dois artigos",
+        d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
+        f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
+    { tipo: "momento", cena: 4, q: "1988", t: "A Constituinte",
+        d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
+        f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987" },
+    { tipo: "momento", cena: 4, q: "2022", t: "Quilombos hoje",
+        d: "E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.",
+        f: "IBGE · Censo 2022 · Fundação Cultural Palmares" },
     { tipo: "marco", ep: 2 },
     { tipo: "momento", i: 5 },
     { tipo: "aberto" }

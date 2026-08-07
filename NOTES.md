@@ -535,10 +535,19 @@ Um agente historiador revisou tudo que o jogo afirma. Quatro correções entrara
 Palmares — Flávio dos Santos Gomes, *Palmares: escravidão e liberdade no Atlântico Sul*
 (Contexto, 2005); Fundação Cultural Palmares. O número estava no jogo sem registro aqui.
 
-**Tensão de datas que só o dono resolve (⚠):** "resistiram por quase cem anos" ao lado de
+**Tensão de datas — RESOLVIDA pelo dono em 2026-08-06:** "resistiram por quase cem anos"
+virou **"resistiram por décadas"**. Das duas leituras defensáveis (ancorar os mocambos no
+início do séc. XVII, ou encurtar a afirmação), ele escolheu a que não afirma nada além do
+que as duas fontes sustentam juntas.
+
+**Os oito marcos ENTRARAM em produção em 2026-08-06** (dono: "ok"), pendurados nos dois
+vãos da linha do tempo com `cena` de revelação (vão XVI→XVII revela ao alcançar Palmares;
+vão XVII→hoje, ao alcançar o presente). As fontes de cada um estão no parágrafo acima.
+
+~~**Tensão de datas que só o dono resolve (⚠):** "resistiram por quase cem anos" ao lado de
 "a partir de mais ou menos 1630" não fecha (64 anos). O "quase um século" conta desde as
 primeiras menções a mocambos no início do séc. XVII. Ou a abertura ancora mais cedo, ou o
-"quase cem anos" vira "por décadas".
+"quase cem anos" vira "por décadas".~~
 
 **Marcos propostos para a linha do tempo** (cada um com fonte completa, no relatório da
 sessão): vão XVI→XVII — o açúcar (Schwartz 1988), a terra esvaziada à força (Monteiro 1994;
