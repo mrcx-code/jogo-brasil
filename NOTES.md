@@ -1520,3 +1520,53 @@ bem escuro — no print leu bem (o poste é opaco), mas é o lugar a recalibrar 
 
 **Próximo passo:** onda 2 do `DIRECAO.md` — a hora alcançar os sprites do #scene com tinta,
 e calibrar entardecer/noite por capítulo, print a print.
+### 2026-08-07 · menos itens conforme o jogo anda: medido, raleado, medido de novo
+
+Pedido do dono de manhã: *"menos itens no jogo conforme ele anda"*. Antes de tocar em
+qualquer spawn, a afirmação foi medida (lente MEDIR): `test/medir-poluicao.js`, novo,
+conta objetos simultâneos visíveis (chegadas vivas + drops + folhas + floats + placa)
+por capítulo, andando e correndo, segurando o botão dourado, upgrades na progressão real
+(cap 1 = u1 · cap 2 = u1+u2 · cap 3 = u1+u2+u3), estado a 85% do vão do capítulo.
+
+**ANTES (média · pior · renda/min · médias por categoria):**
+
+| célula | média | pior | renda/min | floats | folhas | mobs | drops |
+|---|---|---|---|---|---|---|---|
+| cap1 andando | 8,26 | 11 | 1373 | 4,92 | 2,02 | 0,84 | 0,48 |
+| cap1 correndo | 8,78 | 11 | 1484 | 5,19 | 1,65 | 1,77 | 0,18 |
+| cap2 andando | 8,18 | 11 | 1471 | 4,93 | 1,78 | 0,89 | 0,58 |
+| cap2 correndo | 8,83 | 12 | 1588 | 5,18 | 2,05 | 1,36 | 0,25 |
+| cap3 andando | 8,35 | 11 | 1856 | 5,02 | 1,79 | 0,81 | 0,73 |
+| cap3 correndo | 8,91 | 11 | 1983 | 5,24 | 1,85 | 1,51 | 0,31 |
+
+Os dois maiores contribuintes, de longe: **floats de número** (~5 simultâneos, 60% da
+poluição — segurando a 7 golpes/s, cada golpe empilha um "+N" de 40 quadros sobre a
+heroína) e **folhas** (~1,8–2,0, pico 4). Mobs e drops já são baixos e bem regulados —
+teto por categoria não moveria o número, e em Palmares cortaria GENTE (§2): descartado.
+
+**O raleio, guiado por isso (duas mudanças, ambas em `src/jogo.ts`):**
+
+1. **Float do toque coalesce com u1 comprado.** Quem já entendeu que golpe paga não
+   precisa reler "+3" sete vezes por segundo: os toques em sequência alimentam UM float
+   que acumula a soma e renova a vida (28 quadros; ele sobe ~18 px e segura, para não
+   sair da tela ainda vivo). Sem u1 — os primeiros minutos — cada toque segue com o
+   próprio float: é assim que se aprende a economia. Renda: zero mudança por construção.
+2. **A mata raleia por capítulo.** O vão sorteado entre folhas multiplica por
+   `1 + 0,5 × época` (cap 1 ×1 — a mata de sempre, e é o capítulo-referência; cap 2
+   ×1,5; cap 3 ×2). Continua DISTÂNCIA, nunca relógio. O valor da folha sobe pelo MESMO
+   fator: metade das folhas valendo o dobro é a mesma renda por quilômetro para quem
+   pula — menos coisa na tela, nada tirado de ninguém.
+
+**DEPOIS (mesmo protocolo):** cap1 4,49/5,32 (pior 6–7) · cap2 3,72/4,53 (pior 6) ·
+cap3 3,74/4,22 (pior 6). A média caiu ~45–55% e agora DESCE conforme o capítulo sobe,
+que é literalmente o pedido. Renda/min: 1384/1485 · 1447/1559 · 1818/2050 — variação
+de −2,0% a +3,4% contra o antes, dentro do ±10% exigido (ruído do sorteio de mobs).
+
+**Smoke atualizado junto:** cobra 1 float segurando com u1 (e 10 sem u1), vão de folha
+~×2 no cap 3 com valor compensando no mesmo fator. Prints `D-cap{1,2,3}-{antes,depois}.png`
+na raiz — o antes é uma pilha ilegível de "+3"; o depois é um número somando.
+
+**O que NÃO se fez, e por quê:** teto de simultâneos (mobs/drops já baixos; em Palmares
+seria cota de gente), espaçamento de mob por capítulo (mobs não são o problema — média
+≤1,8), partículas (não estavam na queixa; 2 px de lado, leem como textura). Se a
+poluição voltar, o instrumento fica: `node test/medir-poluicao.js index.html 45 prefixo`.

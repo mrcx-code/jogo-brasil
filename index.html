@@ -1184,6 +1184,13 @@ function worldHealth() {
 }
 // ---------- actions ----------
 let floats = [], sprouts = [], parts = [], lastFi = 0;
+// O float do TOQUE, quando vira um só. Medido (test/medir-poluicao.js, 2026-08-07): segurando o
+// botão a ~7 golpes/s, cada golpe empilhava um "+N" de 40 quadros — 4,9 a 5,2 floats simultâneos
+// em média, 60% de toda a poluição de tela, em qualquer capítulo. Com a u1 comprada — quem já
+// entendeu que golpe paga não precisa reler isso sete vezes por segundo — os toques passam a
+// alimentar UM float que acumula a soma e renova a vida; soltar o botão o deixa desvanecer.
+// Sem u1 (os primeiros minutos), cada golpe segue com o próprio "+1": é assim que se aprende.
+let floatToque = null, floatToqueSoma = 0;
 let worldX = 0;
 function burst(x, y, n, cores) {
     for (let i = 0; i < n; i++) {
@@ -1220,7 +1227,16 @@ function pular() {
 // mata ficava mais rala quanto mais depressa se andasse, o que é o contrário do que se vê.
 // 34 + 84 px é o antigo 0,9 + 2,2 s convertido pela velocidade da caminhada (38,26 px/s), então
 // ANDANDO a mata é folha por folha a mesma de sempre.
-function sorteiaFolha() { return 34 + Math.random() * 84; }
+// E a mata RALEIA conforme o jogo anda ("menos itens no jogo conforme ele anda", pedido do
+// dono em 2026-08-07). Medido antes (test/medir-poluicao.js): as folhas eram o segundo maior
+// contribuinte de poluição — 1,8 a 2,0 simultâneas em média, pico 4, igual em todo capítulo.
+// O fator multiplica o VÃO sorteado, então continua sendo distância, nunca relógio: cap 1
+// fica na mata de sempre (é o capítulo-referência e é onde se aprende a pular), cap 2 tem
+// 1,5x o vão, cap 3 tem 2x. Quem PULA não perde renda: o valor da folha sobe pelo MESMO
+// fator lá embaixo — metade das folhas valendo o dobro é a mesma renda por quilômetro de
+// mata, só com menos coisa na tela.
+function fatorFolha() { return 1 + 0.5 * epocaAtual(); }
+function sorteiaFolha() { return (34 + Math.random() * 84) * fatorFolha(); }
 function atualizarFolhas(dt, alto) {
     folhaChao += dt * velocidadeMundo();
     if (proximaFolha < 0)
@@ -1245,7 +1261,9 @@ function atualizarFolhas(dt, alto) {
         }
         const fy = f.y + Math.sin(animT * 2 + f.fase) * 2; // a slow drift, so they read as alive
         if (Math.abs(sx - HX) < 15 && fy > cabeca - 6 && fy < pes + 4) {
-            const g = CFG.folhaValor * bonusDias();
+            // x fatorFolha: a compensação do raleio — folha mais rara vale proporcionalmente mais,
+            // e a renda de quem pula por quilômetro de mata não muda (ver sorteiaFolha).
+            const g = CFG.folhaValor * fatorFolha() * bonusDias();
             S.energia += g;
             S.energiaTotal += g;
             floats.push({ x: Math.round(sx) - 8, y: Math.round(fy) - 12, txt: "+" + g.toFixed(1), life: 34 });
@@ -1796,9 +1814,25 @@ function clicar(auto, naoConta, semAnim) {
     if (!auto)
         somAlcance(!!alvo);
     // only the player's own taps put a "+N" over the hero — auto-help at 2/s (or the wand at
-    // 10/s) used to spew a float every tick, which read as the frame twitching
-    if (!auto)
-        floats.push({ x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: 40 });
+    // 10/s) used to spew a float every tick, which read as the frame twitching.
+    // Com u1, os toques em sequência somam num float só (ver a declaração de floatToque):
+    // a vida renovada é mais curta (28) para que, solto o botão, o número saia logo de cena.
+    if (!auto) {
+        if (S.u1 && floatToque && floats.indexOf(floatToque) >= 0) {
+            floatToqueSoma += g;
+            floatToque.txt = "+" + (floatToqueSoma % 1 ? floatToqueSoma.toFixed(1) : String(floatToqueSoma));
+            floatToque.life = 28;
+            // ele sobe como todo float, mas um número que se renova por minutos subiria até sair da
+            // tela ainda vivo: sobe os primeiros ~18 px e segura ali, tiquetaqueando
+            if (floatToque.y < GROUND - 52)
+                floatToque.y = GROUND - 52;
+        }
+        else {
+            floatToqueSoma = g;
+            floatToque = { x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: S.u1 ? 28 : 40 };
+            floats.push(floatToque);
+        }
+    }
     desenhar();
 }
 // Trocar o ritmo alterna andar e correr. A faixa de texto que anunciava o que a troca custava

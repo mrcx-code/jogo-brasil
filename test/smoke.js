@@ -120,6 +120,36 @@ function alvo() {
   if (folha.aindaLa) errors.push('jumping through a leaf did not take it');
   if (!(folha.pago > 0)) errors.push('catching a leaf paid nothing');
 
+  // ---- MENOS ITENS CONFORME O JOGO ANDA (raleio medido, 2026-08-07) ----
+  // 1. Com u1, os toques em sequencia somam num FLOAT SO (antes: ~5 "+N" empilhados sobre a
+  //    heroina, 60% da poluicao de tela). Sem u1, cada toque segue com o proprio float.
+  // 2. A mata raleia por capitulo: o vao entre folhas e sorteado x1 no cap 1, x1,5 no 2 e
+  //    x2 no 3 — e o VALOR da folha sobe pelo mesmo fator, entao a renda por km nao muda.
+  const raleio = await page.evaluate(() => {
+    fecharTudo();
+    const capAntes = S.cenario, u1Antes = S.u1;
+    // floats com u1: vinte toques -> um float acumulando
+    floats.length = 0; S.u1 = true;
+    for (let i = 0; i < 20; i++) clicar();
+    const comU1 = floats.length, textoU1 = floats.length ? floats[0].txt : '';
+    // sem u1: cada toque poe o seu
+    floats.length = 0; S.u1 = false; floatToque = null;
+    for (let i = 0; i < 10; i++) clicar();
+    const semU1 = floats.length;
+    floats.length = 0; floatToque = null; S.u1 = u1Antes;
+    // folhas por capitulo: media do vao sorteado em cada epoca
+    const media = function (n) { let s = 0; for (let i = 0; i < n; i++) s += sorteiaFolha(); return s / n; };
+    S.cenario = cenarioDaEpoca(0); const vao1 = media(400), valor1 = CFG.folhaValor * fatorFolha();
+    S.cenario = cenarioDaEpoca(2); const vao3 = media(400), valor3 = CFG.folhaValor * fatorFolha();
+    S.cenario = capAntes;
+    return { comU1, textoU1, semU1, razaoVao: +(vao3 / vao1).toFixed(2), razaoValor: +(valor3 / valor1).toFixed(2) };
+  });
+  console.log('thinning -> floats while holding with u1:', raleio.comU1, '(' + raleio.textoU1 + ')',
+    '| without u1:', raleio.semU1, '| leaf gap x' + raleio.razaoVao, 'and value x' + raleio.razaoValor, 'by chapter 3');
+  if (raleio.comU1 > 2) errors.push('holding with u1 still piles up floats: got ' + raleio.comU1);
+  if (raleio.semU1 < 8) errors.push('without u1 each tap must keep its own float: got ' + raleio.semU1);
+  if (raleio.razaoVao < 1.7 || raleio.razaoVao > 2.3) errors.push('leaf gap in chapter 3 is not ~2x chapter 1: ' + raleio.razaoVao);
+  if (Math.abs(raleio.razaoValor - raleio.razaoVao) > 0.35) errors.push('leaf value does not compensate the thinner forest');
 
   // ---- how much of a trouble is left, and how much there was to begin with ----
   // The damage was always there; nothing ever showed it. Two things are checked: the
