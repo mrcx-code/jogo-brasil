@@ -5876,7 +5876,8 @@ function montarCapitulos() {
     pixelRotulo(n, livre ? ep.nome : "AINDA TRANCADA", 2, livre ? "#2a2012" : "#7a7263");
     const q = document.createElement("div");
     q.className = "capQuando";
-    q.textContent = livre ? ep.quando : "termine a era anterior";
+    // último rótulo de sistema nas tábuas de era — vai para a fonte da casa
+    pixelRotulo(q, livre ? ep.quando : "TERMINE A ERA ANTERIOR", 1, livre ? "#5c3f1e" : "#7a7263");
     b.appendChild(n); b.appendChild(q);
     if (livre) b.addEventListener("pointerdown", function (e) {
       e.preventDefault();

@@ -180,6 +180,44 @@ FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
   noite — atenção: o caminho dele para o `index.html` precisa de ajuste desde que foi
   movido da raiz) e `prints-onda3.js` (virada de era real, cerimônia no tempo).
 
+## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
+
+Mandato do dono (2026-08-07): *"o menu e botões não se conversam, todos devem seguir a
+estética do menu principal."* O MENU PRINCIPAL é o padrão-ouro; tudo se ajusta a ele,
+nunca o contrário. Medido do print `test/C-menu-antes.png` (390×844 dsf2) e do CSS que
+o produz — nenhuma tela futura tem desculpa:
+
+**Os materiais — três, cada um com UM sentido (já era lei; a régua a torna medível):**
+
+| material | onde | receita |
+|---|---|---|
+| **MADEIRA escura** | navegação e placas (tábuas do poste, títulos, PULAR, plaquinha da época) | `linear-gradient(180deg, #7c552c → #4c3016)` + veio `repeating-linear-gradient` de 2px/8px; título/placa usa a madeira mais escura `#503319 → #38220e` |
+| **MADEIRA clara** | o destaque (JOGAR, a era atual) — destaque por MATERIAL, nunca por tamanho ou ouro | `#b8834a → #7c4f24`, mesmo veio |
+| **PEDRA** | ferramenta de jogo (rodapé, nichos do HUD, bandeja de MELHORIAS) | chapada `#a39a83`; acesa `#bcb298`; encardida `#8f8770` |
+| **OURO** | SÓ a ação principal do contexto (botão de golpe) | `#f3c05c`/base `--ouroA` |
+| **PAPEL de campo** | toda superfície cuja função é LER (caixa de fala, AJUSTES-info, retorno, e — desta passada — os cartões de A HISTÓRIA e DE ONDE VEM) | pauta `repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px)` sobre `--papel → --papel2`, tinta escura `--tintaP` |
+
+**A construção — a mesma laje sempre, quatro coisas em box-shadow empilhado:**
+
+1. luz na aresta de cima: `inset 0 3px 0 <tom claro>` (2px nas peças pequenas);
+2. sombra na aresta de baixo: `inset 0 -4px 0 <tom escuro>` (−2/−3 nas pequenas);
+3. contorno escuro duro: `inset 0 0 0 2px <quase-preto do material>`;
+4. o degrau que a apoia: `0 5px 0 <#120c06|#191510>` + `0 7px 0 rgba(0,0,0,.4)`
+   (3px nas peças pequenas). Papel usa moldura de madeira no lugar de luz/sombra:
+   `inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430` (2px/5px no recorte pequeno).
+
+**Raio:** 0–5px, sempre — 2–3px em madeira, 4–5px em pedra. Canto ≥ 8px é vocabulário
+de aplicativo e não entra. **Toque:** `:active` desce `translateY(4px)` e o degrau
+some (`0 1px 0`) — a tábua afunda até onde o degrau estava. **Rótulo:** todo rótulo de
+botão e título é fonte bitmap 5×7 via `pixelRotulo` (escala 1–4); texto corrido de
+leitura pode ser a fonte do sistema, mas SEMPRE tinta escura sobre papel — nunca texto
+claro sobre painel preto, que é o vocabulário de site que esta régua existe para matar.
+**Pregos** só nas tábuas do poste. **Nada de navy, nada de painel translúcido.**
+
+A passada de consistência (prints `C-*-antes/depois.png` em `test/`) aplicou a régua a
+A HISTÓRIA e DE ONDE VEM (nichos pretos de texto claro → papel de campo com tinta) e
+removeu o CSS morto do motor antigo (`#cartao` navy, `#offline`, `.pop`, `.tend`).
+
 ## O que foi avaliado e NÃO entrou (para ninguém reabrir sem motivo)
 
 - **Grain de filme**: sobre pintura reencodada em WebP 0,80 a 390 px, grain vira ruído de
