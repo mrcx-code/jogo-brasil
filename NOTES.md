@@ -1459,3 +1459,15 @@ muito diferente, recalibrar.
    chegada dos outros e passa a se chamar pelo nome que a terra já tinha. (O smoke test
    não verifica nome de época; conferido no print.)
 3. **Marajó fica como MARCO** na linha do tempo ("gostei" à recomendação do historiador).
+
+### 2026-08-07 · os botões falam uma língua só
+
+Gramática escrita no CSS e aplicada ao jogo inteiro: MADEIRA = coisa posta no lugar
+(navegação, telas, PULAR); PEDRA = ferramenta de jogo (rodapé, MELHORIAS, nichos);
+OURO = exclusivo da única ação principal. Estado nunca troca o material — troca o valor
+e a tinta. O rodapé perdeu as quatro cores; MELHORIAS perdeu o último painel de
+aplicativo; "×" entrou na fonte bitmap.
+
+**Mudança de comportamento junto (não só visual):** `podeComprar` contava o u4 de teste
+(grátis, oculto), então MELHORIAS acendia SEMPRE — agora só conta as três da loja real.
+O aceso passou a ser honesto. ~90 linhas de CSS morto do motor antigo saíram.

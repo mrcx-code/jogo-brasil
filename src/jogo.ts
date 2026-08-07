@@ -2361,6 +2361,9 @@ const FONTE = {
   // e o cedilha marca a diferença muito antes de a altura marcar.
   "Ç": ".####,#....,#....,#....,.####,..#..,.##..",
   "·": ".....,.....,.....,..#..,.....,.....,.....",
+  // o sinal de vezes dos upgrades ("×3", "×2"): mais baixo e mais estreito que o X para
+  // ler como operador, não como letra
+  "×": ".....,.....,#...#,.#.#.,..#..,.#.#.,#...#",
   "✓": ".....,.....,....#,...#.,#.#..,.#...,....."
 };
 const glifoCv: Record<string, HTMLCanvasElement> = {};
@@ -4962,7 +4965,9 @@ function desenhar() {
   // the rhythm card: icon, name and colour follow S.modo. This used to live in
   // desenharRitmo(), inside the projects panel that is gone.
   const rapido = S.modo === "carvao";
-  pixelRotulo($("modeNome"), rapido ? "CORRER" : "ANDAR", 1, rapido ? "#f2d3b0" : "#dbe7b4");
+  // tinta escura sobre a pedra: o estado é a COR DA TINTA (terra quente / verde), nunca um
+  // cartão de outro material — ver a gramática de botão no estilo.css
+  pixelRotulo($("modeNome"), rapido ? "CORRER" : "ANDAR", 1, rapido ? "#6e2418" : "#33471e");
   $("modeQuick").className = "cartao " + (rapido ? "fast" : "steady");
   // O ícone do ritmo é FIXO — um pé, o mesmo nos dois modos — e é pintado uma vez pelo
   // `pintarIconesDrop()`. Quem diz qual ritmo está valendo são o nome e a cor do cartão, que
@@ -4970,7 +4975,10 @@ function desenhar() {
 
   // the one card left that carries a number of its own
   // owner: no note under the card — the button glows when something is affordable, that is all
-  const podeComprar = [1, 2, 3, 4].filter(function (n) {
+  // só as três da loja de verdade: o u4 é ferramenta de TESTE, grátis e oculta do jogador
+  // (usabilidade, achado 4) — contá-lo deixava o cartão "aceso" o tempo todo, e estado
+  // sempre ligado não é estado
+  const podeComprar = [1, 2, 3].filter(function (n) {
     return !S["u" + n] && S.energia >= CFG["custoU" + n];
   }).length;
   // toggle, never reassign: reassigning wiped the class that turns this card into the
@@ -5565,14 +5573,28 @@ function pintarRotulos() {
   ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarCfg"].forEach(function (id) {
     pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
   });
-  pixelRotulo($("btnFalaPular"), "PULAR", 1, "#9a8a63");
+  // a mesma tinta clara da plaquinha da época — o PULAR agora é a mesma madeira escura
+  pixelRotulo($("btnFalaPular"), "PULAR", 1, "#c9ab77");
   const mel = document.querySelector<HTMLElement>("#openUpgrades .cn");
   if (mel) pixelRotulo(mel, "MELHORIAS", 1, "#2a2418");
   const men = document.querySelector<HTMLElement>("#abrirMenu .cn");
   if (men) pixelRotulo(men, "MENU", 1, "#2a2418");
   const tSheet = document.querySelector<HTMLElement>("#sheetUpgrades .sheetHead .t");
-  if (tSheet) pixelRotulo(tSheet, "MELHORIAS", 1, "#b09c72");
+  if (tSheet) pixelRotulo(tSheet, "MELHORIAS", 1, "#423b2e");
   pixelRotulo($("btnU5"), "APAGAR", 1, "#ffe6df");
+  // Os nomes dos upgrades eram o último texto em fonte do sistema dentro do chrome de jogo:
+  // viram dois rótulos bitmap empilhados — o efeito grande, o complemento menor embaixo.
+  [["cardU1", "×3", "POR ALCANCE"], ["cardU2", "×2", "NO QUE PEGA"],
+   ["cardU3", "2/S", "SOZINHOS"], ["cardU4", "×100", "TESTE"],
+   ["cardU5", "ZERAR", "TESTE"]].forEach(function (par) {
+    const alvo = document.querySelector<HTMLElement>("#" + par[0] + " .nome");
+    if (!alvo) return;
+    alvo.textContent = "";
+    const a = document.createElement("div"), b = document.createElement("div");
+    pixelRotulo(a, par[1], 2, "#2a2418");
+    pixelRotulo(b, par[2], 1, "#4a4234");
+    alvo.appendChild(a); alvo.appendChild(b);
+  });
 }
 
 function ligarTelas() {

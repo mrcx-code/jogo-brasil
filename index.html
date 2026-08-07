@@ -242,17 +242,8 @@
   #dicaSeta.viva { display: block; animation: dicaAcena .5s ease-in-out infinite alternate; }
   @keyframes dicaAcena { 0% { transform: translateY(0) } 100% { transform: translateY(5px) } }
 
-  /* ---- the wall: the only thing here that survives a reset ----
-     Painted, street, and it only ever grows. Its own localStorage key, for the same
-     reason the retention record has one: passing the torch wipes S. */
-  .btnMuro { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 8px;
-    background: linear-gradient(180deg, #5b7a2c, #2c3d16); border-color: var(--ink); color: #d3e6a2; }
-  #sheetMuro .upgrade { align-items: flex-start; }
-  /* the epilogue: same furniture as every other sheet, one beat louder */
-  #epilogoVoz { font-size: var(--fs-xs); color: #d9cfae; line-height: 1.8; margin-top: 9px;
-    border-left: 4px solid var(--gold); padding-left: 8px; }
-  #btnEpilogo { width: 100%; padding: 14px 8px; font-size: var(--fs-sm); margin-top: 10px;
-    color: #f6ecd5; background: linear-gradient(180deg, #b98a30, #6d4d15); }
+  /* código morto do motor antigo removido na unificação dos botões: .btnMuro, #sheetMuro,
+     #epilogoVoz e #btnEpilogo — nenhum desses elementos existe mais no HTML nem no JS. */
 
   /* removed by owner: the top alert strip (#alerta), the centre-screen announcement
      (#anuncio) and the REAL DATA ticker (#fato) are gone — element, style and all. */
@@ -291,35 +282,45 @@
     text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   .cartao .cv { font-size: var(--fs-xs); font-weight: 800; color: var(--gold); white-space: nowrap;
     font-variant-numeric: tabular-nums; }
-  .cartao.pronto { background: #c9a86a;
-    box-shadow: inset 0 3px 0 #f0d79a, inset 0 -4px 0 #8a7038,
-                inset 0 0 0 2px #4a3a1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
-  /* the panel is open: this card is now the way out of it */
-  .cartao.fechando { background: #8a2f22; }
-  .cartao.fechando .cn { color: #ffd9cd; }
+  /* aceso: a MESMA pedra, um valor mais clara — não uma pedra de outra cor */
+  .cartao.pronto { background: #bcb298;
+    box-shadow: inset 0 3px 0 #ded5ba, inset 0 -4px 0 #7d7459,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
+  /* the panel is open: this card is now the way out of it — tinta vermelha, pedra igual */
+  .cartao.fechando { background: #8f8770;
+    box-shadow: inset 0 3px 0 #a89f88, inset 0 -4px 0 #5d553f,
+                inset 0 0 0 2px #6e2418, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
+  .cartao.fechando .cn { color: #7a2c18; }
   .cartao.fechando .pi { display: none; }
   .cartao.fechando .cn::before { content: "✕"; font-size: var(--fs-md); }
   .cartao.fechando .cn { font-size: 0; }
 
-  /* ---- buttons: clean and current, not retro-clunky ----
-     The old chrome was a heavy pixel panel — a 2px ink border and a hard 3px offset block
-     shadow. That reads dated. The construction now is softer: a hairline border, a subtle
-     drop shadow with a little blur, and a 1px lit top edge for depth. The primary action
-     keeps gold and a touch more lift; everything else stays quiet. */
+  /* ===== A GRAMÁTICA DE BOTÃO — uma só, para o jogo inteiro =====
+     Dois materiais e um metal, cada um com UM sentido:
+       MADEIRA  = coisa posta no lugar: navegação e telas (poste do menu, VOLTAR, SOM,
+                  APAGAR, as eras, o PULAR da fala — tabuinha escura, como a placa da época).
+       PEDRA    = ferramenta de jogo: o rodapé inteiro, os nichos do HUD, a bandeja de
+                  MELHORIAS e os botões dentro dela.
+       OURO     = exclusivo da ÚNICA ação principal do contexto: o botão de golpe. No menu
+                  o destaque de JOGAR é madeira CLARA — material, nunca ouro (decisão antiga).
+     Estado NUNCA troca o material — troca o VALOR e a TINTA:
+       aceso (pode comprar / era atual)  = a mesma pedra/madeira, um valor mais clara;
+       apagado (trancado / sem saldo)    = a mesma, encardida e afundada;
+       perigo (fechar / apagar)          = tinta vermelha sobre o mesmo material.
+     A construção é sempre a mesma laje: luz na aresta de cima, sombra na de baixo, contorno
+     escuro e um degrau embaixo; o toque afunda e o degrau some (:active). Rótulo de botão é
+     SEMPRE a fonte bitmap via pixelRotulo — nenhum rótulo em fonte do sistema. */
   button { font-family: inherit; font-weight: 900; letter-spacing: .04em; border: 0; border-radius: 0;
-    cursor: pointer; color: var(--chromeT); text-transform: uppercase;
-    background: var(--chromeA); box-shadow: none;
+    cursor: pointer; color: #2a2418; text-transform: uppercase;
+    background: #a39a83; box-shadow: none;
     touch-action: manipulation; user-select: none; -webkit-user-select: none; }
-  button:disabled { color: #7d8168; cursor: default; }
-  button:not(:disabled):active { filter: brightness(1.15); }
-  /* the rhythm card: the one decision this prototype exists to measure, so it is the card
-     that is allowed to change colour and to pulse */
-  #modeQuick.fast { background: #7a3823 !important; }
-  #modeQuick.fast .cn { color: #f2d3b0; }
-  #modeQuick.steady { background: #4a6424 !important; }
-  #modeQuick.steady .cn { color: #dbe7b4; }
-  /* it is costing you right now: say so without words */
-  /* owner: the rhythm card no longer pulses when it is costing you. */
+  button:disabled { cursor: default; }
+  /* o ritmo: o estado muda a TINTA e o calor dos vincos — nunca o material. O verde e o
+     vermelho-terra inteiros de antes eram dois botões de outro jogo dentro da barra. */
+  #modeQuick.fast { box-shadow: inset 0 3px 0 #c9b6a0, inset 0 -4px 0 #7d5140,
+                inset 0 0 0 2px #4a2c1e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
+  #modeQuick.steady { box-shadow: inset 0 3px 0 #c2c2a0, inset 0 -4px 0 #63704a,
+                inset 0 0 0 2px #35402a, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
   /* the bottom rail, and the one thing standing in it */
   /* the middle slot: twice the share of the row that a card gets, so the action leads it */
   #rail { flex: 2 1 0; min-width: 0; background: transparent; border: 0;
@@ -585,12 +586,15 @@
   @keyframes piscaFala { 0%,60% { opacity: 1; } 61%,100% { opacity: .35; } }
   /* PULAR: discreto de propósito. Quem já leu não tem que reler, e quem está lendo não pode
      ser puxado para fora por um botão gritando ao lado do texto. */
-  #btnFalaPular { position: absolute; right: 0; top: -26px; pointer-events: auto; cursor: pointer;
-    font: 900 8.5px/1 inherit; letter-spacing: .16em; color: #9a8a63; background: #1b1610;
-    border: 0; padding: 6px 10px;
-    box-shadow: inset 0 2px 0 #3a2f20, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806; }
+  /* tabuinha de MADEIRA escura — o mesmo material da placa da época; era o único botão do
+     jogo em pastilha preta, um vocabulário que não existia em mais lugar nenhum */
+  #btnFalaPular { position: absolute; right: 0; top: -28px; pointer-events: auto; cursor: pointer;
+    border: 0; padding: 7px 11px; background: linear-gradient(180deg, #503319, #38220e);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
   #btnFalaPular:active { transform: translateY(2px);
-    box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 1px 0 #0a0806; }
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }
   /* ===== A HISTÓRIA: a linha do tempo ===== Um FIO desce pela tela — cipó, o material de
      quem pendura coisa em árvore, não uma borda de software. Os capítulos são placas de
      madeira penduradas nele; os momentos, papéis menores. O fio DESVANECE nas duas pontas:
@@ -725,11 +729,15 @@
   .fnQ { font-size: 11px; color: #9d9280; margin-top: 4px; line-height: 1.5; }
   .fnDuv { box-shadow: inset 0 0 0 2px #6b5220; }
   .fnDuv .fnT { color: #ffd98a; }
+  /* a bandeja é PEDRA — a mesma laje do rodapé que a abre, pousada logo acima dele. O painel
+     olive translúcido de canto 18px era o último pedaço de aplicativo dentro do jogo. */
   .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);
     bottom: calc(var(--hControles, 120px) + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px);
-    background: rgba(26, 31, 16, .93); border: 0; border-radius: 18px; box-shadow: none;
+    background: #a39a83; border: 0; border-radius: 5px;
+    box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
     /* three one-line rows: it takes only the height those need */
-    padding: 6px 8px 8px; transition: transform .22s ease, opacity .22s ease;
+    padding: 8px 8px 11px; transition: transform .22s ease, opacity .22s ease;
     opacity: 0; pointer-events: none; }
   .sheet.aberto { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
   .sheetHead { display: flex; align-items: center; margin-bottom: 2px; }
@@ -737,92 +745,44 @@
     text-shadow: 0 2px 0 rgba(0,0,0,.5); }
   .fechar { display: none; }   /* closing happens on the card below, not in here */
 
-  /* Buy button and mode buttons wear the poster palette; everything below is the
-     jogabilidade pass's new UI and is kept as-is. */
-  .btnCompra { width: 100%; padding: 14px 12px; font-size: var(--fs-sm); text-align: left; line-height: 1.5;
-    color: #221806; text-shadow: 0 1px 0 rgba(255,255,255,.4); border: 1px solid rgba(120,60,0,.35);
-    background: linear-gradient(180deg, #f8d98f 0%, var(--ouroA) 34%, var(--ouroB) 100%);
-    box-shadow: 0 3px 9px rgba(120,60,0,.3), inset 0 1px 0 rgba(255,255,255,.55); }
-  /* what a project IS, in two short lines — the owner could not tell from the price alone */
-  .explica.sub { margin: 7px 0 0; }
-  /* buying is 1-or-MAX and nothing else: the gold primary buys one at the next price, the
-     compact green MAX beside it spends whatever the current energy covers. No third toggle,
-     no extra row — the owner wanted it direct. */
-  .btnMax { flex: 0 0 auto; min-width: 78px; padding: 8px 10px; font-size: var(--fs-xs); line-height: 1.25;
-    text-align: center; color: #1c2408; text-shadow: 0 1px 0 rgba(255,255,255,.4);
-    border: 1px solid rgba(60,90,10,.4); border-radius: var(--raioSm);
-    background: linear-gradient(180deg, #d8e29a 0%, #9fb45a 60%, #7f9440 100%);
-    box-shadow: 0 3px 9px rgba(60,80,10,.28), inset 0 1px 0 rgba(255,255,255,.5); }
-  .modo { display: flex; gap: 6px; margin-top: 8px; }
-  .modo button { flex: 1; padding: 13px 6px; font-size: var(--fs-sm); }
-  #modoCarvao.ativo { background: linear-gradient(180deg, #8a4028, #4a2113); color: #f2d3b0; }
-  #modoLimpo.ativo { background: linear-gradient(180deg, #5b7a2c, #2c3d16); color: #dbe7b4; }
+  /* código morto do motor antigo removido na unificação dos botões: .btnCompra, .btnMax,
+     .modo/#modoCarvao/#modoLimpo, .rCol/.rTit/.rL, .avisoRampa e .barra —
+     os painéis de projeto que os usavam não existem mais. */
 
-  /* the trade, side by side: what you are running now against what switching would do */
-  .rCol.quente { box-shadow: inset 0 0 0 1px var(--bad); }
-  .rCol.fria { box-shadow: inset 0 0 0 1px var(--good); }
-  .rTit { font-size: 8px; color: var(--sub); margin-bottom: 6px; white-space: nowrap;
-    overflow: hidden; text-overflow: clip; }
-  .rCol.quente .rTit { color: #eeae90; } .rCol.fria .rTit { color: #d3e6a2; }
-  .rL { display: flex; justify-content: space-between; align-items: baseline; gap: 4px;
-    font-size: 8px; color: var(--sub); line-height: 1.95; }
-  .rL b.bom { color: #b7d16a; } .rL b.ruim { color: #e39176; }
-  .avisoRampa { display: none; font-size: 8px; line-height: 1.9; margin-top: 8px; padding: 6px 7px;
-    color: #f0d4b8; background: #43241a; border: 2px solid var(--bad); }
-  .avisoRampa.mostra { display: block; }
-
-  .barra > div { height: 100%; transition: width .3s;
-    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.25) 0 2px, transparent 2px 6px); }
-
-  /* side by side: three narrow columns, name over price */
+  /* side by side: three narrow columns, name over price — cada uma é um NICHO cavado na
+     pedra da bandeja (o rebaixo: sombra na aresta de cima, luz na de baixo), e o preço é
+     uma lajinha da mesma pedra que acende quando dá para pagar e afunda quando não dá. */
   #listaUp { display: flex; gap: 6px; align-items: stretch; }
   .upgrade { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: space-between; gap: 6px;
-    border-radius: 12px; background: rgba(255,255,255,.05); padding: 8px 6px; }
-  .upgrade .nome { font-size: 10px; font-weight: 900; line-height: 1.4; color: var(--creme);
-    text-align: center; letter-spacing: .04em; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
-  .upgrade button { width: 100%; padding: 5px 4px; font-size: var(--fs-xs); color: #221806;
-    background: var(--ouroA); border-radius: 999px; }
+    align-items: center; justify-content: space-between; gap: 7px;
+    border-radius: 4px; background: #8f8770; padding: 8px 6px;
+    box-shadow: inset 0 3px 0 rgba(20,15,8,.28), inset 0 -2px 0 rgba(255,250,235,.22),
+                inset 0 0 0 2px #423b2e; }
+  /* o nome são dois rótulos bitmap empilhados, pintados por pintarRotulos() */
+  .upgrade .nome { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .upgrade button { width: 100%; padding: 7px 4px; border-radius: 4px;
+    display: flex; justify-content: center; background: #bcb298;
+    box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
+                inset 0 0 0 2px #423b2e, 0 3px 0 #191510;
+    transition: transform .06s, box-shadow .06s; }
+  .upgrade button:not(:disabled):active { transform: translateY(3px);
+    box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
+                inset 0 0 0 2px #423b2e, 0 0 0 #191510; }
+  /* sem saldo (ou já comprado): a mesma pedra, encardida e afundada no nicho */
+  .upgrade button:disabled { transform: translateY(3px); background: #877e68;
+    box-shadow: inset 0 2px 0 rgba(20,15,8,.22), inset 0 0 0 2px #423b2e; }
   /* the test switch is not one of the three: it is free, it breaks the pacing on purpose,
-     and it should never be mistaken for something the game intends you to buy */
-  .upgrade.teste { background: rgba(138, 47, 34, .35); }
-  .upgrade.teste .nome { color: #ffd9cd; }
-  .upgrade.teste button { background: #8a2f22; color: #ffe6df; }
-  .upgrade.comprado .nome { color: var(--good); }
-  .upgrade.comprado button { background: transparent; color: var(--good); }
+     and it should never be mistaken for something the game intends you to buy —
+     tinta e contorno vermelhos sobre a mesma pedra (está oculta do jogador) */
+  .upgrade.teste { box-shadow: inset 0 3px 0 rgba(20,15,8,.28),
+    inset 0 -2px 0 rgba(255,250,235,.22), inset 0 0 0 2px #6e2418; }
+  .upgrade.teste button { background: #8a2f22;
+    box-shadow: inset 0 2px 0 #a84a38, inset 0 -3px 0 #571812,
+                inset 0 0 0 2px #2e0c08, 0 3px 0 #191510; }
 
-  #btnPrestigio, #btnConfirmaSim { width: 100%; padding: 14px 8px; font-size: var(--fs-sm); margin-top: 8px;
-    color: #f6ecd5; background: linear-gradient(180deg, #b98a30, #6d4d15); }
-  #btnConfirmaNao { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 7px;
-    color: #cfc4a4; background: linear-gradient(180deg, #3a4324, #242a16); }
-  .placar .r { font-size: var(--fs-xs); color: var(--sub); line-height: 1.7; }
-  .placar .v { font-size: var(--fs-sm); margin-bottom: 4px; }
-  .placar .ganha .v { color: var(--good); }
-  .placar .perde .v { color: #e39176; }
-  /* SKILLS: its own surface, in the sheet language, reached from the torch — because the
-     torch is where everything you keep lives */
-  .btnSkills { width: 100%; padding: 12px 8px; font-size: var(--fs-sm); margin-top: 8px;
-    background: #3c3a1c; border-color: var(--ink); color: #e0c47a; }
-  /* SPECIAL PROJECTS: same card language as upgrades, but paid in resources not impact */
-  .recursoLinha > span { flex: 1; text-align: center; font-size: var(--fs-sm);
-    border-radius: var(--raioSm); background: linear-gradient(180deg, #232817, #171b0d);
-    border: 2px solid #000; padding: 8px 4px; }
-  .especialCard .custo { font-size: var(--fs-xs); margin-top: 4px; line-height: 1.7; }
-  .especialCard .custo b.falta { color: var(--bad); }
-  .especialCard .custo b.ok { color: var(--good); }
-  .especialCard.feito { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
-  .especialCard.feito button { display: none; }
-
-  /* ---- intro / lore ---- */
-  #lore { position: fixed; inset: 0; z-index: 50; background: rgba(10,11,20,.92);
-    display: flex; align-items: center; justify-content: center; padding: 16px; }
-  #lore.escondido { display: none; }
-  .loreBox { border-radius: var(--raio); background: var(--panel); border: 4px solid var(--ink);
-    box-shadow: inset 0 0 0 2px var(--panel2), 6px 6px 0 #000; max-width: 440px; padding: 18px 16px; }
-  #loreArt { display: block; width: 100%; image-rendering: pixelated; border: 3px solid var(--ink);
-    box-shadow: inset 0 0 0 1px var(--panel2); margin-bottom: 12px; }
-  #btnBegin { width: 100%; padding: 14px; font-size: var(--fs-md); margin-top: 4px;
-    background: linear-gradient(180deg, var(--gold), var(--gold2)); color: var(--ink); }
+  /* código morto do motor antigo removido na unificação dos botões: #btnPrestigio,
+     #btnConfirmaSim/Nao, .placar, .btnSkills, .recursoLinha, .especialCard e o bloco
+     inteiro do #lore — prestígio, skills, projetos especiais e a abertura antiga se foram. */
 
   /* ferramentas de teste fora da loja de produção (usabilidade, achado 4) — o smoke test
      continua acionando os botões por .click(), que display:none não bloqueia */
@@ -3484,6 +3444,9 @@ const FONTE = {
     // e o cedilha marca a diferença muito antes de a altura marcar.
     "Ç": ".####,#....,#....,#....,.####,..#..,.##..",
     "·": ".....,.....,.....,..#..,.....,.....,.....",
+    // o sinal de vezes dos upgrades ("×3", "×2"): mais baixo e mais estreito que o X para
+    // ler como operador, não como letra
+    "×": ".....,.....,#...#,.#.#.,..#..,.#.#.,#...#",
     "✓": ".....,.....,....#,...#.,#.#..,.#...,....."
 };
 const glifoCv = {};
@@ -6260,14 +6223,19 @@ function desenhar() {
     // the rhythm card: icon, name and colour follow S.modo. This used to live in
     // desenharRitmo(), inside the projects panel that is gone.
     const rapido = S.modo === "carvao";
-    pixelRotulo($("modeNome"), rapido ? "CORRER" : "ANDAR", 1, rapido ? "#f2d3b0" : "#dbe7b4");
+    // tinta escura sobre a pedra: o estado é a COR DA TINTA (terra quente / verde), nunca um
+    // cartão de outro material — ver a gramática de botão no estilo.css
+    pixelRotulo($("modeNome"), rapido ? "CORRER" : "ANDAR", 1, rapido ? "#6e2418" : "#33471e");
     $("modeQuick").className = "cartao " + (rapido ? "fast" : "steady");
     // O ícone do ritmo é FIXO — um pé, o mesmo nos dois modos — e é pintado uma vez pelo
     // `pintarIconesDrop()`. Quem diz qual ritmo está valendo são o nome e a cor do cartão, que
     // mudam logo acima; a chama e a folha eram duas leituras da mesma coisa.
     // the one card left that carries a number of its own
     // owner: no note under the card — the button glows when something is affordable, that is all
-    const podeComprar = [1, 2, 3, 4].filter(function (n) {
+    // só as três da loja de verdade: o u4 é ferramenta de TESTE, grátis e oculta do jogador
+    // (usabilidade, achado 4) — contá-lo deixava o cartão "aceso" o tempo todo, e estado
+    // sempre ligado não é estado
+    const podeComprar = [1, 2, 3].filter(function (n) {
         return !S["u" + n] && S.energia >= CFG["custoU" + n];
     }).length;
     // toggle, never reassign: reassigning wiped the class that turns this card into the
@@ -6906,7 +6874,8 @@ function pintarRotulos() {
     ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarCfg"].forEach(function (id) {
         pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
     });
-    pixelRotulo($("btnFalaPular"), "PULAR", 1, "#9a8a63");
+    // a mesma tinta clara da plaquinha da época — o PULAR agora é a mesma madeira escura
+    pixelRotulo($("btnFalaPular"), "PULAR", 1, "#c9ab77");
     const mel = document.querySelector("#openUpgrades .cn");
     if (mel)
         pixelRotulo(mel, "MELHORIAS", 1, "#2a2418");
@@ -6915,8 +6884,23 @@ function pintarRotulos() {
         pixelRotulo(men, "MENU", 1, "#2a2418");
     const tSheet = document.querySelector("#sheetUpgrades .sheetHead .t");
     if (tSheet)
-        pixelRotulo(tSheet, "MELHORIAS", 1, "#b09c72");
+        pixelRotulo(tSheet, "MELHORIAS", 1, "#423b2e");
     pixelRotulo($("btnU5"), "APAGAR", 1, "#ffe6df");
+    // Os nomes dos upgrades eram o último texto em fonte do sistema dentro do chrome de jogo:
+    // viram dois rótulos bitmap empilhados — o efeito grande, o complemento menor embaixo.
+    [["cardU1", "×3", "POR ALCANCE"], ["cardU2", "×2", "NO QUE PEGA"],
+        ["cardU3", "2/S", "SOZINHOS"], ["cardU4", "×100", "TESTE"],
+        ["cardU5", "ZERAR", "TESTE"]].forEach(function (par) {
+        const alvo = document.querySelector("#" + par[0] + " .nome");
+        if (!alvo)
+            return;
+        alvo.textContent = "";
+        const a = document.createElement("div"), b = document.createElement("div");
+        pixelRotulo(a, par[1], 2, "#2a2418");
+        pixelRotulo(b, par[2], 1, "#4a4234");
+        alvo.appendChild(a);
+        alvo.appendChild(b);
+    });
 }
 function ligarTelas() {
     // o papel da volta fecha num toque em qualquer ponto dele — e o toque não vaza para o jogo
