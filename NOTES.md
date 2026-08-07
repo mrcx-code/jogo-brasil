@@ -2007,3 +2007,78 @@ nas duas horas, saídas do medidor).
 
 **Próximo passo:** a folha de caminhada de 12 poses com o corpo andando (é o que separa este
 capítulo dos outros três), e a segunda pintura de Salvador se o dono quiser `cenas: 2`.
+
+### 2026-08-07 · O mundo PARA enquanto a história fala (worktree, para integrar)
+
+Pedido do dono: *"Agora o jogo já acontece enquanto a história passa, não deve ser assim."*
+Com uma tela narrativa aberta, o mundo seguia rodando por baixo — e quem estava lendo perdia
+coisa e ganhava coisa sem saber.
+
+**O NÚMERO DO ANTES, e ele é pior do que parecia.** `test/medir-historia.js` (ferramenta nova)
+abre uma fala de verdade e conta 5 s de leitura, com `u3` ligado:
+
+| | ANTES | DEPOIS |
+|---|---|---|
+| impacto somado em 5 s | **4,00** (0,80/s) | **0,00** |
+| chão andado | **191,9 px de mundo** | **0,0** |
+| relógio do dia | 5,0 s de jogo | 0,0 |
+| chegadas nascidas | **3** | 0 |
+| folhas nascidas | 1 | 0 |
+
+Os 4,00 de impacto **não vinham do `u3`** — ele já estava barrado pelo antigo
+`!contandoParado()`. Vinham de FOLHA colhida no caminho, dentro de `atualizarFolhas()`, que
+roda no caminho de DESENHO (chamada de `drawHero()`) e por isso nunca passou por portão
+nenhum. É a lição desta sessão: **o portão do laço de quadro não é o único caminho por onde o
+mundo anda** — `drawHero()` mexe em mata, arco de pulo, golpe, poeira e som de passo depois de
+desenhar, e precisou do mesmo portão repetido lá dentro.
+
+**A distinção que vai parecer inconsistência e está escrita em três lugares no código:** MENU
+tem o mundo vivo atrás (decisão de direção de arte, `DIRECAO.md`, "a tela é o mundo" — é o que
+faz o menu ser um LUGAR e não um modal); HISTÓRIA para o mundo. São trabalhos diferentes: no
+menu a pessoa ESCOLHE e o mundo é pano de fundo; na história a pessoa LÊ, e o mundo estava
+competindo com o texto num jogo que existe para ensinar. `contandoParado()` virou
+`historiaAberta()`, que é o nome do que ela sempre mediu.
+
+**A exceção declarada: a varredura de luz da cerimônia.** A onda 3 varre o dia até o nascer do
+sol na virada de capítulo ("era nova é dia novo"), e isso acontece exatamente com a tela de
+história aberta. Se ela caísse no portão, a única passagem de tempo que o jogo ENCENA seria a
+única que nunca rodaria. Ficou em **canal próprio**: `saltoHora` escreve em `relogio` direto,
+no `dt` real, fora do portão. Medido no smoke depois da mudança: cerimônia partindo de 0,75 e
+de 0,40 drena em 1,42 s / 1,88 s reais e fecha nas duas com a fração do dia em **0,000**.
+
+**Dois relógios, e a diferença importa.** `tick` (quadros DESENHADOS) **não** para, porque é
+dele que sai o orçamento de vozes por quadro — congelá-lo emudeceria o tique da própria fala
+depois de meia dúzia de vozes. Nasceu `tickMundo` para o que é animação de MUNDO (marcha parada
+dos NPCs, balanço do que voa). `animT` e `relogio` param.
+
+**Ela fica no ar se a fala abrir no meio do pulo, e isso é de propósito.** Congelar é congelar.
+Deixar o pulo terminar poria o pouso — com som, baque de câmera e onda de chão — por baixo do
+texto, que é o tipo de coisa que este trabalho existe para tirar de cima de quem lê.
+
+**O drop parado sob ela não gruda.** A colheita é por PASSAR POR CIMA; parada, ela não recolhe.
+Um drop que esteja sob ela quando a tela abre fica intacto e sai no primeiro quadro depois de
+fechar — nada se perde. Coberto no smoke.
+
+**A armadilha do `dt` acumulado, testada explicitamente.** O laço NUNCA para de rodar e `ultimo`
+é reposto em todo quadro; o que para é o que ele ATUALIZA. Medido: primeiro quadro depois de
+fechar anda **0,635 px** contra **0,639 px** de um quadro normal (razão 0,99). Se alguém um dia
+"otimizar" isto desligando o `requestAnimationFrame`, a asserção nova pega.
+
+**Smoke:** nenhuma asserção existente precisou de ajuste — todas as que dependem do mundo andar
+chamam `atualizarMobs`/`atualizarFolhas`/`atualizarDrops` **direto**, não pelo laço, e as de
+fluxo já abriam com `fecharTelas()`. Entrou o FLOW 4 ("com a história aberta, o mundo não
+anda"): posição, contagem de objetos, impacto e relógio iguais depois de 1 s, o drop parado que
+não é colhido e não gruda, e o primeiro quadro do retorno. `npm test` verde, FPS 61, zero erro
+de console.
+
+**Ferramentas novas em `test/`:** `medir-historia.js` (o medidor da tabela acima, aponta para
+qualquer build via `JOGO_HTML`) e `prints-historia.js` (duas fotos da MESMA fala com 3 s entre
+elas). Prints `HIST-antes-t0/t3.png` e `HIST-depois-t0/t3.png`: no ANTES a rua andou 279 px
+entre as duas fotos e a serra apareceu no horizonte; no DEPOIS o quadro atrás do texto é o
+mesmo pixel a pixel.
+
+**Próximo passo / dúvida deixada:** as partículas (`parts`) e as ondas de chão ainda decaem no
+caminho de desenho a 1/60 fixo com a história aberta. São o rastro de um gesto já feito e
+morrem em ~0,4 s, então congelá-las mostraria uma faísca pendurada — deixei correr de
+propósito. Se o dono quiser o congelamento literal, o lugar é o laço de partículas em
+`desenharMundo()`, e o preço é essa faísca parada.

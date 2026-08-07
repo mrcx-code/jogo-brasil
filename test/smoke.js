@@ -770,6 +770,69 @@ function alvo() {
   await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-menu-volta.png') });
   await page.evaluate(() => { localStorage.removeItem(CHAVE_JOGO); localStorage.removeItem(CHAVE_RET); });
 
+  // ---- FLOW 4: com a HISTÓRIA aberta, o mundo NÃO ANDA ----
+  // Pedido do dono (2026-08-07): "o jogo já acontece enquanto a história passa, não deve ser
+  // assim". Antes desta trava, 5 s de leitura rendiam 4,0 de impacto, 192 px de chão e três
+  // chegadas nascidas e desistidas atrás do texto — tudo sem a pessoa saber. Medido com
+  // test/medir-historia.js contra a build anterior; aqui fica a asserção que impede a volta.
+  //
+  // O u3 fica LIGADO de propósito: é o único ganho que não precisa de dedo, e é o que mais
+  // facilmente escapa de um portão feito às pressas.
+  //
+  // A distinção que este teste NÃO cobre porque ela é decisão de direção: sob o MENU o mundo
+  // continua vivo (DIRECAO.md, "a tela é o mundo"). Só a história para o relógio.
+  const historia = await page.evaluate(async () => {
+    fecharTelas();
+    S.u1 = S.u2 = false; S.u3 = true; S.u4 = false;
+    S.energia = 0; S.energiaTotal = 100; S.cenario = 0; S.modo = 'limpo'; saltoHora = 0;
+    mobs.length = 0; drops.length = 0; folhas.length = 0; floats.length = 0;
+    await new Promise(r => setTimeout(r, 300));
+    // uma fala de verdade, pelo mesmo caminho da abertura, do fecho e da fala dos marcos
+    abrirFala('SMOKE', 'agora', ['Uma linha, só para a tela ficar aberta.'], null);
+    await new Promise(r => requestAnimationFrame(r));
+    // um drop parado exatamente sob ela, DEPOIS de o mundo já estar parado: a colheita é por
+    // PASSAR POR CIMA, então parada ela não pode recolhê-lo — e ele também não pode ficar
+    // grudado esperando, tem de sair no primeiro quadro depois de a tela fechar
+    drops.push({ wx: worldX + HX + 2, type: 'cash', t: 0, valor: 7 });
+    const a = { worldX, total: S.energiaTotal, relogio,
+      n: mobs.length + drops.length + folhas.length, drops: drops.length };
+    await new Promise(r => setTimeout(r, 1000));
+    const d = { worldX, total: S.energiaTotal, relogio,
+      n: mobs.length + drops.length + folhas.length, drops: drops.length,
+      aberta: document.getElementById('telaFala').classList.contains('aberta') };
+    // e o retorno sem solavanco: o primeiro quadro depois de fechar anda um quadro, não um
+    // segundo inteiro de chão acumulado
+    const salto = await new Promise(res => {
+      const x0 = worldX;
+      fecharTelas();
+      requestAnimationFrame(() => {
+        const x1 = worldX;
+        requestAnimationFrame(() => res({ primeiro: x1 - x0, normal: worldX - x1 }));
+      });
+    });
+    await new Promise(r => setTimeout(r, 200));
+    const dropSaiu = drops.length === 0;
+    drops.length = 0; mobs.length = 0; folhas.length = 0; S.u3 = false;
+    return { a, d, salto, dropSaiu };
+  });
+  console.log('story open -> world moved', (historia.d.worldX - historia.a.worldX).toFixed(2), 'px |',
+    'impact', (historia.d.total - historia.a.total).toFixed(2), '| day clock',
+    (historia.d.relogio - historia.a.relogio).toFixed(2) + 's | objects',
+    historia.a.n, '->', historia.d.n, '| screen still open:', historia.d.aberta);
+  console.log('  resume -> first frame', historia.salto.primeiro.toFixed(3), 'px vs a normal frame',
+    historia.salto.normal.toFixed(3), 'px | the parked drop was taken after closing:', historia.dropSaiu);
+  if (!historia.d.aberta) errors.push('the story screen closed on its own during the freeze test');
+  if (Math.abs(historia.d.worldX - historia.a.worldX) > 1e-9) errors.push('the world kept scrolling under the story: ' + (historia.d.worldX - historia.a.worldX).toFixed(2) + 'px');
+  if (Math.abs(historia.d.total - historia.a.total) > 1e-9) errors.push('impact was earned while the story was talking: ' + (historia.d.total - historia.a.total).toFixed(2));
+  if (historia.d.n !== historia.a.n) errors.push('things were born or taken under the story: ' + historia.a.n + ' -> ' + historia.d.n);
+  if (Math.abs(historia.d.relogio - historia.a.relogio) > 1e-9) errors.push('the day clock ran under the story: ' + (historia.d.relogio - historia.a.relogio).toFixed(2) + 's');
+  if (historia.d.drops !== 1) errors.push('the drop parked under her was collected while she stood still');
+  if (!historia.dropSaiu) errors.push('the parked drop stayed glued to the ground after the story closed');
+  // um quadro a 60 fps anda ~0,64 px; um segundo acumulado andaria ~38. Três quadros de folga.
+  if (historia.salto.primeiro > Math.max(historia.salto.normal * 3, 3)) {
+    errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2) + 'px');
+  }
+
   const fps = await page.evaluate(() => new Promise(res => {
     let n = 0; const t0 = performance.now();
     (function f() { n++; performance.now() - t0 < 2000 ? requestAnimationFrame(f) : res(Math.round(n / 2)); })();

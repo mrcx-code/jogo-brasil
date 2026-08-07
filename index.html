@@ -2910,7 +2910,19 @@ function notaDeVolta() { return null; } // o texto de volta era do tema anterior
 // primeira linha que os usa, que é onde se quer errar.
 const cv = document.getElementById("scene");
 const cx = cv.getContext("2d");
-let tick = 0, animT = 0;
+// DOIS RELÓGIOS, E A DIFERENÇA ENTRE ELES É O PEDIDO DE 2026-08-07 ("o jogo já acontece
+// enquanto a história passa, não deve ser assim"). Ver o bloco grande no laço de quadro.
+//   `tick`      — quadros DESENHADOS. Nunca para, porque o laço nunca para de desenhar: é
+//                 dele que sai o orçamento de vozes por quadro (audVozesQuadro), e um `tick`
+//                 congelado emudeceria o tique da própria fala depois de meia dúzia de vozes.
+//   `tickMundo` — quadros em que o MUNDO andou. É este que anima coisa do mundo (a marcha
+//                 parada dos NPCs, o balanço do que voa), para nada bobejar sob a história.
+//   `animT`     — o mesmo, em segundos; some junto com o resto quando o mundo para.
+let tick = 0, tickMundo = 0, animT = 0;
+// Verdadeiro SÓ enquanto uma tela de HISTÓRIA está aberta (ver historiaAberta). Lido por
+// drawHero() e por atualizarFolhas(), que rodam dentro do caminho de DESENHO e por isso não
+// passam pelo portão do laço.
+let mundoParado = false;
 let W = 320, H = 180, GROUND = 108, HX = 90;
 // The hero's own layer. Its pixel size follows the device, and the world's coordinates are
 // mapped onto it, so a position computed in world px lands in the same place it always did.
@@ -4252,8 +4264,8 @@ function pessoa(nome, x, gy) {
     // idle: two frames, slow, desynced by position so a street does not bob in unison; the dog
     // steps through its four at a walking cadence
     const fr = d.fr.length > 2
-        ? d.fr[Math.floor(tick / 6 + x) % d.fr.length]
-        : d.fr[Math.floor((tick + Math.abs(Math.round(x)) * 7) / 34) % 2];
+        ? d.fr[Math.floor(tickMundo / 6 + x) % d.fr.length]
+        : d.fr[Math.floor((tickMundo + Math.abs(Math.round(x)) * 7) / 34) % 2];
     const img = NPC_SPR[d.sh][fr];
     if (img && img.complete && img.naturalWidth) {
         const sc = npcScaleFor(nome) || (d.h / img.naturalHeight);
@@ -4464,8 +4476,8 @@ function drawMobs(smog) {
         // zerada este bloco é um assento firme. O balanço senoidal em coisa apoiada é tremor,
         // não vida — guarde-o para o que flutua.
         const noAr = lifts[m.type] > 0;
-        const bob = noAr ? (Math.floor(tick / 8) % 2) * 1 : 0;
-        const voa = noAr ? Math.round(Math.sin(tick / 13 + m.wx * 0.04) * 3.5) : 0;
+        const bob = noAr ? (Math.floor(tickMundo / 8) % 2) * 1 : 0;
+        const voa = noAr ? Math.round(Math.sin(tickMundo / 13 + m.wx * 0.04) * 3.5) : 0;
         const lift = lifts[m.type] + bob + voa;
         // contact shadow like the hero: soft and wide for anything floating, firmer for whatever
         // stands on the road
@@ -5132,6 +5144,20 @@ function drawHero() {
     // her own device-resolution canvas rather than into the low-res world, so the art is scaled
     // ONCE, straight to its final size, instead of being crushed to 44px and blown back up.
     desenharHeroiHD(img, alto);
+    // O PORTÃO DA HISTÓRIA, SEGUNDA METADE. Daqui para baixo esta função deixa de DESENHAR e
+    // passa a MEXER no mundo: a mata nasce e é colhida, o arco do pulo anda, o golpe anda, o pé
+    // levanta poeira e o passo soa. Nada disso pode acontecer com uma tela de história aberta —
+    // e como `drawHero()` é chamada do caminho de desenho, ela não passa pelo portão do laço de
+    // quadro; por isso ele é repetido aqui, lendo a mesma bandeira.
+    //
+    // Um detalhe que parece bug e não é: se a fala abrir com ela no ar, ela FICA no ar até a
+    // tela fechar. Congelar é congelar. A alternativa — deixar o pulo terminar — faria o pouso
+    // acontecer sob o texto, com som, baque de câmera e onda de chão, que é justamente o tipo de
+    // coisa que este trabalho existe para tirar de cima de quem está lendo.
+    if (mundoParado) {
+        lastFi = fi;
+        return;
+    }
     atualizarFolhas(1 / 60, alto);
     // ---- state advance: identical side effects to the old procedural path ----
     if (air)
@@ -5160,9 +5186,9 @@ function drawHero() {
     // ciclo: na volta ao quadro 0 e na metade. Um ciclo de três quadros não tem metade inteira,
     // e `n >> 1` dá 1 — que é o quadro certo, o do outro pé.
     //
-    // Silencia enquanto uma tela está aberta: o mundo continua andando por baixo da caixa de
-    // fala (de propósito, ver contandoParado), mas ouvir passos durante a história é ruído em
-    // cima do texto — e o tique da fala já ocupa esse espaço.
+    // Silencia enquanto uma tela está aberta. Sob a HISTÓRIA isto virou redundante (o mundo
+    // parou e esta linha nem é alcançada), mas sob o MENU o mundo segue andando de propósito
+    // (ver historiaAberta) e ouvir os passos dela por baixo do menu é ruído.
     if (!air && attackT <= 0 && fi !== lastFi && !telaAberta()) {
         const meio = frames.length >> 1;
         if (fi === 0 || (meio > 0 && fi === meio))
@@ -7149,16 +7175,29 @@ function abrir(id) {
     SHEETS.forEach(function (s) { $(s).classList.toggle("aberto", s === id && !$(s).classList.contains("aberto")); });
 }
 // ===== AS QUATRO TELAS =====
-// Todas usam o mesmo mecanismo: uma classe. Sem framework, sem roteador, sem estado paralelo
-// — o jogo continua rodando atrás, e é isso que faz a transição parecer parte dele.
-// Verdadeiro enquanto a caixa de fala esta aberta: o mundo anda, mas nao pontua.
-function contandoParado() {
+// Todas usam o mesmo mecanismo: uma classe. Sem framework, sem roteador, sem estado paralelo.
+//
+// A DISTINÇÃO QUE VAI PARECER INCONSISTÊNCIA PARA QUEM LER DEPOIS, E NÃO É:
+//
+//   MENU (telaMenu, telaCapitulos, telaCompletude, telaConfig, telaFontes) → o mundo VIVE
+//   atrás. É decisão de direção de arte, escrita no DIRECAO.md: "a tela é o mundo". É o mundo
+//   andando atrás que faz o menu ser um LUGAR e não um modal boiando sobre um jogo pausado.
+//   Fica como está.
+//
+//   HISTÓRIA (telaFala — abertura, fecho, cerimônia e a fala dos marcos) → o mundo PARA.
+//   Pedido do dono em 2026-08-07: "o jogo já acontece enquanto a história passa, não deve ser
+//   assim". Não é a mesma situação do menu: no menu a pessoa ESCOLHE alguma coisa e o mundo é
+//   pano de fundo; na história a pessoa LÊ, e o que passa atrás está competindo com o texto
+//   num jogo que existe para ensinar. Quem lê perdia chegadas e ganhava impacto sem saber.
+//
+// Uma tela, um trabalho — e a diferença entre os dois trabalhos é esta função.
+function historiaAberta() {
     const t = document.getElementById("telaFala");
     return !!(t && t.classList.contains("aberta"));
 }
 const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes"];
-// Alguma tela cobrindo o jogo. O mundo continua vivo por baixo delas — é decisão, ver
-// contandoParado() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
+// Alguma tela cobrindo o jogo. Sob o MENU o mundo continua vivo por baixo — é decisão, ver
+// historiaAberta() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
 // vez de guardar um sinalizador porque o DOM já é a única fonte da verdade sobre isso.
 function telaAberta() {
     for (let i = 0; i < TELAS.length; i++) {
@@ -8030,43 +8069,83 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", medirControles);
     let ultimo = performance.now(), hudAcc = 0, autoAcc = 0, retAcc = 0;
     function frame(agora) {
+        // O `dt` é medido e `ultimo` é reposto em TODO quadro, inclusive nos que o mundo passa
+        // parado. É isto, e só isto, que garante que fechar a história não entregue um `dt` de
+        // trinta segundos ao primeiro quadro de volta: o laço nunca para de rodar — o que para é
+        // o que ele ATUALIZA. (A armadilha clássica é pausar desligando o rAF, ou parar de repor
+        // `ultimo`; nos dois casos a personagem dá um salto de vários metros ao voltar. O smoke
+        // mede isso: posição antes de abrir, depois de 1 s de tela e no primeiro quadro depois
+        // de fechar.)
         const dt = Math.max(0, Math.min(0.25, (agora - ultimo) / 1000));
         ultimo = agora;
-        atualizarMobs(dt);
-        atualizarGrupo(dt); // quem já foi acolhida anda junto — capítulo 2 e só ele
-        atualizarMarcos(); // as placas da linha do tempo fincadas na estrada (cap. 2)
-        atualizarMoradores(dt); // a faixa final onde as acolhidas vivem (cap. 2)
-        suavizarCuidado(dt); // o desenho persegue a média; a média anda a degraus
-        atualizarDrops(dt);
-        atualizarChamada(dt);
-        verificarAnuncios();
-        // Durante a HISTORIA o mundo continua VIVO mas nao CONTA. Ela segue caminhando, a mata
-        // segue rolando, e nada disso soma impacto — porque ler nao pode pagar mais que pular
-        // num jogo que existe para ensinar.
+        // ============================================================
+        // O MUNDO PARA ENQUANTO A HISTÓRIA FALA — e SÓ enquanto ela fala.
         //
-        // A primeira versao disto era um `return` no laco inteiro, e congelava a personagem.
-        // Errado pelo mesmo motivo que estar certo: parar de CONTAR e parar de VIVER sao coisas
-        // diferentes, e so a primeira era o pedido.
-        if (S.u3 && !contandoParado()) { // U3: neighbours keep helping on their own
-            autoAcc += dt * CFG.autoTapsPorSeg;
-            let n = Math.min(4, Math.floor(autoAcc));
-            autoAcc -= Math.floor(autoAcc);
-            while (n-- > 0) {
-                // The auto flag is what keeps these off the combo — it was added because auto-taps used to
-                // drive the whole three-beat cycle and set her leaping on her own every second. But it
-                // also suppressed the bolt, so the upgrade paid out with nothing on screen: the number
-                // moved and nothing happened. The bolt is thrown here instead, straight from the
-                // helper, so it is visible without touching the combo or the leap.
-                clicar(true, true);
-                lancarMagia(0, HX - 8, GROUND - 44);
+        // Pedido do dono (2026-08-07): "o jogo já acontece enquanto a história passa, não deve ser
+        // assim". A versão anterior deste bloco parava só de CONTAR, e a distinção era boa quando
+        // a pergunta era "ler pode pagar?". A pergunta agora é outra: quem lê estava PERDENDO
+        // coisa (chegadas nasciam, esperavam e desistiam atrás do texto) e GANHANDO coisa (drop
+        // recolhido ao passar por cima, folha colhida no caminho) sem saber de nenhuma das duas.
+        // Num jogo que existe para ensinar, o mundo não pode competir com o próprio texto.
+        //
+        // MENU CONTINUA COMO ESTÁ: sob telaMenu e irmãs o mundo vive atrás, de propósito — é o que
+        // faz o menu ser um lugar. Ver o comentário de historiaAberta(), onde a distinção mora.
+        //
+        // O QUE "PARAR" SIGNIFICA, item por item, e todos caem deste mesmo portão:
+        //   · ela para de avançar (`worldX`), e o cenário para de rolar com ela — rolarFundo()
+        //     ainda desenha todo quadro, mas de um `worldX` que não anda;
+        //   · nada nasce: chegadas (atualizarMobs), drops e folhas (atualizarFolhas, dentro de
+        //     drawHero) — todos os três nascem por DISTÂNCIA percorrida, então parar `worldX` já
+        //     os calaria; o portão torna isso explícito em vez de deixá-lo de herança;
+        //   · nada é colhido sozinho: atualizarDrops não roda, então a colheita-ao-passar-por-cima
+        //     não acontece. Um drop que estiver sob ela na hora que a tela abre FICA lá, intacto,
+        //     e é recolhido no primeiro quadro depois de fechar — nada se perde e nada gruda;
+        //   · a economia não soma, inclusive a ajuda automática do u3, que é o único ganho que
+        //     não precisa de dedo (era o `!contandoParado()` de antes, e continua valendo aqui
+        //     por estar dentro do portão);
+        //   · o relógio do dia (`relogio`) para junto. A EXCEÇÃO DECLARADA é a varredura de luz da
+        //     virada de era (`saltoHora`), que corre em canal próprio logo abaixo, no `dt` real:
+        //     a cerimônia da onda 3 varre até o nascer do sol de propósito ("era nova é dia novo")
+        //     e ela acontece exatamente com a tela de história aberta. Se ela caísse neste portão,
+        //     a única passagem de tempo que o jogo encena seria a única que nunca rodaria.
+        // Fica de fora também `R.segundos` (retenção): ler É jogar, e o tempo de leitura conta
+        // como sessão — é medida sobre a PESSOA, não sobre o mundo.
+        // ============================================================
+        mundoParado = historiaAberta();
+        if (!mundoParado) {
+            atualizarMobs(dt);
+            atualizarGrupo(dt); // quem já foi acolhida anda junto — capítulo 2 e só ele
+            atualizarMarcos(); // as placas da linha do tempo fincadas na estrada (cap. 2)
+            atualizarMoradores(dt); // a faixa final onde as acolhidas vivem (cap. 2)
+            suavizarCuidado(dt); // o desenho persegue a média; a média anda a degraus
+            atualizarDrops(dt);
+            atualizarChamada(dt);
+            verificarAnuncios();
+            if (S.u3) { // U3: neighbours keep helping on their own
+                autoAcc += dt * CFG.autoTapsPorSeg;
+                let n = Math.min(4, Math.floor(autoAcc));
+                autoAcc -= Math.floor(autoAcc);
+                while (n-- > 0) {
+                    // The auto flag is what keeps these off the combo — it was added because auto-taps used to
+                    // drive the whole three-beat cycle and set her leaping on her own every second. But it
+                    // also suppressed the bolt, so the upgrade paid out with nothing on screen: the number
+                    // moved and nothing happened. The bolt is thrown here instead, straight from the
+                    // helper, so it is visible without touching the combo or the leap.
+                    clicar(true, true);
+                    lancarMagia(0, HX - 8, GROUND - 44);
+                }
             }
+            // Um quadro de sprite tem que durar um número INTEIRO de quadros de tela, senão a cadência
+            // manca. Dez por pose andando (6 quadros/s, 38,3 px/s, 2 passos/s) e cinco correndo
+            // (12 quadros/s, 76,5 px/s) — o dobro exato, porque correr usa as mesmas poses da caminhada
+            // enquanto não houver folha de corrida, e a única coisa que muda é quanto chão passa.
+            // A conta mora em velocidadeMundo(), porque as chegadas nascem da mesma distância.
+            worldX += dt * velocidadeMundo();
+            tickMundo++;
+            animT += dt;
+            relogio += dt;
+            atualizarKick(dt); // onda 4: a mola do quadro anda no relógio do quadro
         }
-        // Um quadro de sprite tem que durar um número INTEIRO de quadros de tela, senão a cadência
-        // manca. Dez por pose andando (6 quadros/s, 38,3 px/s, 2 passos/s) e cinco correndo
-        // (12 quadros/s, 76,5 px/s) — o dobro exato, porque correr usa as mesmas poses da caminhada
-        // enquanto não houver folha de corrida, e a única coisa que muda é quanto chão passa.
-        // A conta mora em velocidadeMundo(), porque as chegadas nascem da mesma distância.
-        worldX += dt * velocidadeMundo();
         // rAF stops in a background tab and dt is clamped, so this counts time actually
         // spent playing rather than time the tab sat open
         R.segundos += dt;
@@ -8076,10 +8155,10 @@ document.addEventListener("DOMContentLoaded", () => {
             marcarDia();
             salvarRetencao();
         }
-        tick++;
-        animT += dt;
-        relogio += dt;
-        atualizarKick(dt); // onda 4: a mola do quadro anda no relógio do quadro
+        tick++; // quadros DESENHADOS: não para (orçamento de vozes; ver acima)
+        // O CANAL PRÓPRIO DA CERIMÔNIA — a exceção declarada lá em cima. Escreve em `relogio`
+        // direto, no `dt` real, e por isso a varredura de luz da virada de era continua correndo
+        // com a tela de história aberta, que é o único momento em que ela existe.
         if (saltoHora > 0) {
             // A varredura de luz da virada, com física (onda 3): decaimento exponencial — parte
             // depressa e ASSENTA chegando — com um piso que garante o fim. Da varredura mínima
