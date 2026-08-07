@@ -560,6 +560,32 @@ como faixa que continua, não ponto que acaba. As formas da linha: borda esquerd
 (havia milênios antes), Palmares como FAIXA, borda direita aberta (disputa em curso), e os
 dois fios — indígena e negro — visíveis, não achatados num traço só.
 
+### Decisões do dono — noite de 2026-08-06, antes de dormir
+
+O arco nacional de 10 capítulos foi **aprovado com mais densidade** e uma correção de
+partida: **o jogo não pode começar no século XVI** — "já tinham pessoas por aqui…
+toda a história do Brasil desde o começo, antes de mil e quinhentos, é importante".
+Um capítulo (ou mais) de história profunda entra ANTES do atual cap. 1. Cuidado
+explícito que ele pediu: **sem virar reconexão religiosa** — a espiritualidade dos
+povos não é o assunto; o assunto é gente vivendo, tecnologia, agricultura, cidade.
+
+As cinco decisões pontuais:
+1. **Branqueamento entra** (Hospedaria) — "lembre que não queremos uma visão elitista
+   ou europeia".
+2. **Pessoas reais como HOMENAGEM em 8-bit**: Krenak na Constituinte pode aparecer como
+   referência visual/retrato 8-bit em tom de homenagem — critério estendido a outras
+   figuras importantes. NUNCA como inimigo, nunca jogável, sempre com dignidade (§2).
+3. **Número da CNV entra** (8.350, com a ressalva da própria Comissão) — "são dados
+   importantes".
+4. **Conselheiro pode entrar como homenagem** (mesmo critério 8-bit do item 2).
+5. **Custo dos 10 capítulos aprovado** — com a regra da fila: em qualquer ponto em que
+   a produção parar, o jogo publicado é um arco completo e equilibrado.
+
+Instruções operacionais da mesma mensagem: trabalhar sozinho ~10 h; explorar
+jogabilidade (decisão dele: **travessia + lugar vivo**, com pelo menos 1 capítulo no
+padrão atual), usabilidade e conexões; preparar a mesa de entrega para os assets
+novos; foco permanente: **conscientizar, educar e passar conhecimento**.
+
 ### Regra de fonte do dono (2026-08-06) e a estante das pesquisadoras
 
 O dono pediu: referências como Ailton Krenak, e **as mulheres que pesquisaram cada
