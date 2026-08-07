@@ -2290,11 +2290,24 @@ const EPOCAS = [
         // a mata na primeira frase, porque "este lugar" é ela; o roçado entra quando o texto fala
         // de plantar e pescar, e fica na frase seguinte, que ainda é sobre essa vida acontecendo.
         aberturaImg: ["cap1-mata", "cap1-rocado", "cap1-rocado", null, null],
+        // FECHO REESCRITO — decisão do dono (2026-08-07): "foi uma invasão violenta e massacres
+        // aconteceram… não tem como ser algo leve ou legal". A regra de conserto, achada pelo
+        // historiador e válida para todo texto futuro: VIOLÊNCIA COM SUJEITO. O arquivo inteiro
+        // punha violência em passiva sem agente (chegaram navios, seriam trazidas, foi morto) e
+        // ação boa em voz ativa (os Tupinambá plantavam) — ninguém decidiu isso, é o modo
+        // automático da língua escolar, e ele apaga quem fez o quê.
+        // O limite oposto, e é por isso que a fala 5 é obrigatória: capítulo que termina na
+        // destruição reduz um povo a vítima, que é a outra forma de apagá-lo (§2.1). Eles
+        // continuam sendo quem FAZ — lutam, se aliam, negociam, recuam, continuam.
+        // Fontes de cada fala no NOTES.md, seção "O peso da invasão". Rascunho do historiador:
+        // o texto final é do dono, palavra por palavra.
         fecho: [
-            "Em 1500 chegaram navios. Depois deles vieram mais.",
-            "O que os europeus escreveram sobre este lugar é quase tudo o que sobrou por escrito — e eles escreviam para leitores europeus, não para contar quem estava aqui.",
-            "Ao longo de mais de três séculos, milhões de pessoas seriam trazidas da África à força para trabalhar nesta terra.",
-            "Algumas fugiram. E o que elas construíram tem nome."
+            "Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra que já tinha dono.",
+            "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa mandava escravizar. Chamavam isso de guerra justa.",
+            "O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E não foi acidente da natureza: a doença correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou.",
+            "Em poucas gerações esta costa deixou de ser deles. Foram mortos, escravizados, reunidos à força em aldeamentos e empurrados para o interior. Não sumiram. Foram expulsos.",
+            "Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capítulo.",
+            "E a terra tomada precisava de braços. Ao longo de mais de três séculos, milhões de pessoas foram traficadas da África para trabalhar nela. A escravidão não aconteceu: foi montada, e dava lucro. Algumas fugiram. E o que elas construíram tem nome."
         ]
     },
     {
@@ -2313,7 +2326,7 @@ const EPOCAS = [
         // que é a frase que desmonta a ideia de esconderijo, e é isso que a imagem mostra.
         aberturaImg: ["cap2-serra", "cap2-serra", "cap2-roca", null, null],
         fecho: [
-            "Palmares foi destruída em 1694. Zumbi foi morto em 20 de novembro de 1695 — a data é hoje o Dia da Consciência Negra.",
+            "Em 1694 as tropas da Coroa destruíram Palmares. Em 20 de novembro de 1695 mataram Zumbi — a data é hoje o Dia da Consciência Negra.",
             "Quase tudo que se sabe sobre a forma daquele lugar vem dos documentos de quem foi atacá-lo. Até os nomes chegaram tortos: a pesquisa recente lê \"Gana Zumba\" onde os livros escreviam \"Ganga Zumba\".",
             "A serra da Barriga é patrimônio tombado hoje. Levou quase três séculos.",
             "E os povos do primeiro capítulo? Continuam aqui."
@@ -2324,7 +2337,7 @@ const EPOCAS = [
         quando: "terra indígena demarcada · hoje",
         cenas: 2, lugar: "hoje",
         abertura: [
-            "Este é o presente. A mesma mata, cinco séculos depois.",
+            "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
             "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
             "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
             "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
@@ -7171,7 +7184,7 @@ const MOMENTOS = [
         d: "A documentação nomeia Macaco, Subupira, Amaro, Andalaquituche, Osenga. Quase tudo o que se sabe da forma do lugar vem de quem foi atacá-lo — e os números que essa documentação dá são hoje considerados exagerados.",
         f: "Silvia H. Lara · Afro-Ásia nº 64, 2021" },
     { q: "20 de novembro de 1695", t: "Zumbi",
-        d: "Morto após a destruição de Palmares. A data é hoje o Dia da Consciência Negra. A paleografia recente corrige nomes que a historiografia repetia: “Gana Zumba”, não “Ganga Zumba”.",
+        d: "Caçado e morto pelas tropas que destruíram Palmares. A data é hoje o Dia da Consciência Negra. A paleografia recente corrige nomes que a historiografia repetia: “Gana Zumba”, não “Ganga Zumba”.",
         f: "Fundação Cultural Palmares · Lara & Fachin, 2021" },
     { q: "hoje", t: "E eles continuam aqui",
         d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",

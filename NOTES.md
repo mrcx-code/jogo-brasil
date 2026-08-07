@@ -1676,3 +1676,74 @@ de cinema ali, é uma linha (`saltoHora` no handler de `montarCapitulos`).
 
 **Próximo passo:** onda 4 do `DIRECAO.md` — toque com física no canvas (protótipo atrás
 de flag; câmera é território sensível).
+
+## O peso da invasão — fontes do fecho reescrito (2026-08-07)
+
+Decisão do dono: *"foi uma invasão violenta e massacres aconteceram… não tem como ser algo
+leve ou legal, é pesado e triste a realidade que esses povos viveram."*
+
+**A regra que o historiador achou, e vale para TODO texto futuro: violência com sujeito.**
+O arquivo inteiro punha violência em passiva sem agente ("chegaram navios", "seriam trazidas
+à força", "foi destruída", "foi morto") e ação boa em voz ativa ("os Tupinambá plantavam").
+Ninguém decidiu isso — é o modo automático da língua escolar, e apaga quem fez o quê.
+
+**O limite oposto, marcado por ele e implementado:** capítulo que termina na destruição
+reduz um povo a vítima, que é a outra forma de apagá-lo (§2.1). A fala 5 ("estão no sul da
+Bahia agora, enquanto você joga") não é consolo: é fato com fonte, e é o que costura o
+capítulo 1 ao 3.
+
+### Fontes por fala do novo fecho de PINDORAMA
+
+1. **Invasão** — CLAUDE.md §2.3 (vocabulário); Manuela Carneiro da Cunha (org.),
+   *História dos índios no Brasil*, Companhia das Letras, 1992.
+2. **Guerra justa** — Beatriz Perrone-Moisés, "Índios livres e índios escravos: os
+   princípios da legislação indigenista do período colonial", em Cunha (org.), 1992;
+   **Lei sobre a Liberdade dos Gentios, Évora, 20/03/1570** — declara livres todos os
+   indígenas *exceto* os tomados em guerra justa. A escravização indígena não foi excesso
+   de colono: foi política legislada, e a lei que dizia "livres" abria a exceção.
+3. **Varíola de 1562–63** — cartas do padre Leonardo do Vale (Bahia, 1563); Dauril Alden &
+   Joseph C. Miller, "Out of Africa: The Slave Trade and the Transmission of Smallpox to
+   Brazil, 1560–1831", *Journal of Interdisciplinary History* 18(2), 1987. A oração final
+   ("não foi acidente da natureza") tem literatura própria: David S. Jones, "Virgin Soils
+   Revisited", *WMQ* 60(4), 2003 — a narrativa da epidemia em solo virgem funcionou
+   historicamente para absolver a colonização. **Sem número, de propósito:** os que circulam
+   são de cartas jesuíticas, o mesmo tipo de fonte que o jogo ensina a ler com desconfiança.
+4. **Expulsão do litoral** — John M. Monteiro, *Negros da terra*, 1994; Maria Regina
+   Celestino de Almeida, *Metamorfoses indígenas*, 2003.
+5. **Continuidade** — ISA/PIB, Tupinambá de Olivença; Portaria Declaratória 1075/2025;
+   IBGE, Censo 2022.
+6. **Tráfico e açúcar** — SlaveVoyages.org (Emory); Stuart B. Schwartz, *Segredos internos*,
+   1988.
+
+### Vocabulário do jogo, agora escrito
+
+**Banidos:** descobrimento/descoberta · encontro de culturas (simetria falsa: um lado veio
+armado) · pré-história/primitivo · "índio" como categoria única (Lei 14.402/2022) ·
+povoamento/colonizar a terra (exceto dentro de título de obra citada) · pacificação,
+aculturação, assimilação · dizimados (passiva, e significa "um em dez") · sumiram,
+desapareceram · tribo (use **povo**).
+
+**Os quatro casos que o dono levantou:** *chegada* pode ser o que os navios fizeram, nunca
+o que aconteceu com um povo · *contato* é termo correto da política indigenista de HOJE
+(isolamento voluntário, recente contato) e pertence ao capítulo 3, não ao 1 · *conquista*
+é honesto quando o sujeito é o colonizador, nunca como fato consumado sobre um povo ·
+*guerra justa* é a melhor peça de ensino do capítulo, sempre marcada como termo deles.
+
+**Usar:** invasão · pessoa escravizada (nunca "escravo" como identidade) · traficadas /
+arrancadas, nunca "trazidas" · a doença que chegou nos navios · povos indígenas no plural,
+e o nome do povo sempre que a fonte permitir · **PINDORAMA** era nome de TERRA, não de
+unidade política: nunca escrever como se um país chamado Pindorama tivesse sido derrotado.
+
+### O que NÃO entrou, e por quê
+
+**A cabeça de Zumbi exposta em praça pública** — o historiador propôs e marcou como *não
+verificada em fonte primária nesta sessão*. A regra da casa é fonte no mesmo commit; ficou
+de fora. Verificar em Gomes (2005) ou no *Documenta Palmares* antes de qualquer uso.
+
+### ⚠ Ainda do dono
+
+Comprimento do fecho (4 falas/370 caracteres → 6/880: mais que o dobro de caixa num momento
+em que se quer voltar a jogar; se cortar, fundir 1+2 é o mais barato) · tirar do fecho a
+fala "O que os europeus escreveram" (feito — ela continua em MOMENTOS[1]) · endurecer o
+fecho de Palmares e a abertura do cap. 2 para acompanhar, ou deixá-los (aviso de tom: se só
+o cap. 1 endurecer, o 2 fica com cara de aventura por contraste).
