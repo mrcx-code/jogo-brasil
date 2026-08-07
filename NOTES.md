@@ -1747,3 +1747,43 @@ em que se quer voltar a jogar; se cortar, fundir 1+2 é o mais barato) · tirar 
 fala "O que os europeus escreveram" (feito — ela continua em MOMENTOS[1]) · endurecer o
 fecho de Palmares e a abertura do cap. 2 para acompanhar, ou deixá-los (aviso de tom: se só
 o cap. 1 endurecer, o 2 fica com cara de aventura por contraste).
+### 2026-08-07 · Direção de Arte: a composição do quadro (worktree)
+
+Pedido do dono: "aleatório mas não desorganizado ou caótico" + "itens voando... deveriam
+estar presos ao chão". Instrumento novo (`test/prints-composicao.js`) confirmou o
+diagnóstico do PM: a quantidade já estava certa; o caos era o ONDE.
+
+**Medido ANTES (cap 1, u1, correndo, 50 s):** 34% das folhas visíveis na faixa do CORPO
+(h 30–52 — a da cabeça da personagem, dos mobs, de quem chega); 20% dos quadros com folha
+cruzando silhueta no mesmo X; drop com base em GROUND−6 ± seno; cacho do cap 1 levitando
+16 px de mundo (`MOB_LIFT` herdado do motor de rua, onde smog era FUMAÇA); float "+4.0"
+vivo e NASCENDO sobre tela aberta (3 vivos após 400 ms sob `emTela`).
+
+**As quatro mudanças (`src/jogo.ts`, região spawn/desenho/floats):**
+1. Folhas em DOIS TRILHOS: chão (16–26) e copa (56–74), peso 55/45 — o meio vazio de
+   propósito; a fração pega andando (era 55%, h<50) se preserva e a renda junto.
+2. Respiro horizontal na entrada: folha a <28 px de uma chegada entra 30 px depois.
+3. Tudo no chão: `MOB_LIFT` zerado (sombra firma sozinha via `noAr`); drop com base em
+   `GROUND`, sem balanço, com sombra de contato (sombra ANTES do alfa do item — `sombra()`
+   zera `globalAlpha` ao sair, armadilha nova, paga aqui).
+4. `novoFloat()`: sinal não aparece sobre leitura — sob `emTela` float não nasce e os
+   vivos somem no `drawScene`. Regra irmã de "sinal não toma tinta" (onda 2).
+
+**Medido DEPOIS (mesmo protocolo):** corpo 0%, colisões 0%, floats sob tela 0.
+Renda/min (`medir-poluicao.js`, 6 células, 45 s): 1374→1392 · 1474→1463 · 1465→1478 ·
+1604→1595 · 1822→1850 · 1997→1991 = −0,7% a +1,5%, dentro do ±10%. Smoke verde, FPS 61,
+zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/` (o A-silhueta pegou o cacho
+boiando na altura da cabeça; o D-cap1 mostra copa em linha, meio limpo, drop assentado).
+
+**Armadilha do instrumento, paga:** `fecharTudo()` fecha SHEETS, não TELAS — a primeira
+rodada da sonda mediu o jogo inteiro atrás do MENU aberto. `fecharTelas()` junto resolve;
+o `medir-poluicao.js` já fazia os dois.
+
+**O que NÃO fiz, de propósito:** teto/faixa para o float do toque acumulado (ele sobe até
+GROUND−52 e segura — 8 px acima da cabeça, lê como sinal do gesto, deixei); espaçamento
+entre mobs (vão médio de chão 73–78 px, mínimo 54 quando não há drop de morte — já é
+composição); nada em EPOCAS/arte/velocidades (Devs em campo lá). Vão mínimo de 5 px no
+chão é drop nascendo de mob morto — filiação, não bagunça.
+
+**Próximo passo:** QA pode querer promover a regra "float sob tela = 0" a asserção do
+smoke; o instrumento já dá o número.

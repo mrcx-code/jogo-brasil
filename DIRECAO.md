@@ -124,6 +124,39 @@ em cada uma; um MutationObserver mede a duração real da classe `cerimoniando`)
 FPS 61/61/62 nas três rodadas (piso 58); +1,9 KB; zero imagem nova; zero rede. Prints
 `A3-*`/`D3-*` em `test/` (noite 0,75 e tarde 0,40 × seis tempos).
 
+## A composição do quadro — IMPLEMENTADA (2026-08-07)
+
+Pedido do dono: *"a tela tá muito poluída com tantos elementos ao mesmo tempo, deve ser
+aleatório mas não desorganizado ou caótico"* — e, na mesma família: *"temos vários itens
+voando no jogo haha, não faz sentido, deveriam estar presos ao chão"*. O diagnóstico do PM
+estava certo e foi confirmado com instrumento novo (`test/prints-composicao.js`): a
+quantidade já estava baixa (média 4,7–5,4 objetos no pior cenário); o que lia como caos era
+o ONDE — altura sorteada em faixa contínua punha **34% das folhas visíveis na faixa do
+corpo** (h 30–52, a mesma da cabeça da personagem, dos mobs e de quem chega), e **20% dos
+quadros tinham folha cruzando uma silhueta no mesmo X**. Duas regras novas de direção:
+
+1. **Aleatório no tempo, organizado no espaço.** O QUANDO continua sorteado (a rua não pode
+   virar relógio); o ONDE anda em TRILHOS: chão (h 16–26, pega-se passando), copa (h 56–74,
+   pega-se pulando), e o meio VAZIO de propósito — é a faixa onde vivem as silhuetas.
+   Peso 55/45 entre os trilhos preserva a fração pega andando e com ela a renda. Mais um
+   respiro horizontal na entrada: folha que nasceria a <28 px de uma chegada entra 30 px
+   depois (adia, nunca rejeita — em Palmares ninguém corta cota de gente).
+2. **Sinal não aparece sobre leitura** — a regra irmã de "sinal não toma tinta" (onda 2).
+   O mundo vive atrás do véu das telas, e a personagem passava por folhas sozinha: um
+   "+4.0" subia POR CIMA da tela de história (print do dono). Todo float nasce por
+   `novoFloat()`: sob `body.emTela` não nasce (o ganho fica, o número cala) e os vivos
+   somem no desenho.
+3. **Tudo encosta no chão; só flutua o que voa por natureza.** `MOB_LIFT` do smog (herança
+   do motor de rua, onde smog era fumaça) zerado — o cacho do cap 1 boiava a 32 px de tela.
+   Drops assentados: a base do item em `GROUND` (era `GROUND−6` ± balanço senoidal, que em
+   coisa apoiada é tremor), com sombra de contato que esmaece junto. A única exceção
+   legítima é a folha ao vento.
+
+**Medido (antes → depois):** folhas na faixa do corpo 34% → **0%**; quadros com colisão de
+silhueta 20% → **0%**; floats vivos sob tela 3 → **0** (e golpe sob tela não nasce número);
+renda/min nas seis células do `medir-poluicao.js` variou de −0,7% a +1,5% (limite ±10%);
+FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
+
 ## Roteiro de ondas futuras
 
 - **Onda 4 — toque com física no canvas**: o mundo reagir ao dedo (onda de chão sutil no

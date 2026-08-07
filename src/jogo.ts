@@ -285,6 +285,17 @@ let floats: Flutuante[] = [], sprouts: never[] = [], parts: Particula[] = [], la
 // alimentar UM float que acumula a soma e renova a vida; soltar o botão o deixa desvanecer.
 // Sem u1 (os primeiros minutos), cada golpe segue com o próprio "+1": é assim que se aprende.
 let floatToque: Flutuante | null = null, floatToqueSoma = 0;
+// SINAL NÃO APARECE SOBRE LEITURA — a regra irmã de "sinal não toma tinta" (onda 2). Com uma
+// tela aberta (body.emTela) o mundo segue vivo atrás do véu, e a personagem PASSA por folhas e
+// drops sozinha: o print do dono pegou um "+4.0" subindo POR CIMA da tela de história. Número
+// de economia é instrumentação do jogo, e instrumentação atravessando texto narrativo é o jogo
+// vazando sobre a tela. Todo float nasce por AQUI: sob emTela ele não nasce (o ganho em si
+// continua — só o número cala); os já vivos somem no desenho (drawScene). O objeto volta mesmo
+// sem entrar na lista, porque floatToque guarda a referência e a testa com indexOf.
+function novoFloat(f: Flutuante): Flutuante {
+  if (!document.body.classList.contains("emTela")) floats.push(f);
+  return f;
+}
 
 let worldX = 0;
 function burst(x, y, n, cores) {
@@ -415,9 +426,23 @@ function atualizarFolhas(dt, alto) {
   if (folhaChao >= proximaFolha) {
     folhaChao = 0; proximaFolha = sorteiaFolha();
     if (folhas.length < 8) {
-      // the arc peaks at 52px, and she is 44 tall, so anything under about 80 is reachable
-      const h = 16 + Math.random() * 62;
-      folhas.push({ wx: worldX + W + 10, y: GROUND - h, fase: Math.random() * 6.283 });
+      // COMPOSIÇÃO (pedido do dono, 2026-08-07: "aleatório mas não desorganizado ou caótico"):
+      // aleatório no TEMPO, organizado no ESPAÇO. A altura era sorteada em faixa contínua
+      // (16–78) e o medidor (test/prints-composicao.js) pegou o custo disso: 34% das folhas
+      // visíveis caíam na faixa do CORPO (h 30–52) — a mesma da cabeça da personagem, dos
+      // mobs e de quem chega — e 20% dos quadros tinham folha cruzando uma silhueta no mesmo
+      // X. Dois TRILHOS, e o meio vazio de propósito:
+      //   rente ao chão (16–26): pega-se passando, lê como broto da vegetação;
+      //   copa (56–74): pega-se pulando (o arco chega a 52 e ela tem 44), lê como copa.
+      // O peso 55/45 preserva a fração que se pega andando (a faixa antiga era 55% h<50),
+      // e com ela a renda/min de quem segura o botão — medida antes/depois, ±10%.
+      const h = Math.random() < 0.55 ? 16 + Math.random() * 10 : 56 + Math.random() * 18;
+      // Respiro horizontal na ENTRADA: folha nascendo colada numa chegada é a silhueta
+      // dupla que o print do dono pegou. Vizinho de chão a menos de 28 px do ponto de
+      // entrada? A folha entra 30 px mais adiante (até duas vezes — nunca rejeita, só adia).
+      let fwx = worldX + W + 10;
+      for (let emp = 0; emp < 2 && mobs.some(function (m) { return !m.dying && Math.abs(m.wx - fwx) < 28; }); emp++) fwx += 30;
+      folhas.push({ wx: fwx, y: GROUND - h, fase: Math.random() * 6.283 });
     }
   }
   // her box while airborne: feet at GROUND - alto, head 44 above that
@@ -432,7 +457,7 @@ function atualizarFolhas(dt, alto) {
       // e a renda de quem pula por quilômetro de mata não muda (ver sorteiaFolha).
       const g = CFG.folhaValor * fatorFolha() * bonusDias();
       S.energia += g; S.energiaTotal += g;
-      floats.push({ x: Math.round(sx) - 8, y: Math.round(fy) - 12, txt: "+" + g.toFixed(1), life: 34 });
+      novoFloat({ x: Math.round(sx) - 8, y: Math.round(fy) - 12, txt: "+" + g.toFixed(1), life: 34 });
       burst(Math.round(sx), Math.round(fy), 7, ["#9bd44f", "#6fdd94", "#d8e88a"]);
       folhas.splice(i, 1);
     }
@@ -631,7 +656,7 @@ function coletarDrop(d, auto) {
   // Só o que a personagem pega em mão soa. O que o U3 recolhe sozinho é 0,5/s de fundo, e um
   // tinido automático duas vezes por segundo é exatamente o som que cansa em trinta segundos.
   if (!auto) somDrop();
-  floats.push({ x: sx - 10, y: GROUND - 30, txt: "+" + Math.round(v), life: 38 });
+  novoFloat({ x: sx - 10, y: GROUND - 30, txt: "+" + Math.round(v), life: 38 });
   burst(sx, GROUND - 16, auto ? 5 : 10, d.type === "cash" ? ["#f3a03d", "#dcbb84"]
     : d.type === "barrel" ? ["#71a39c", "#dad8c0"] : ["#f2d2dc", "#cf7d92"]);
   d.morto = true;
@@ -950,8 +975,7 @@ function clicar(auto?, naoConta?, semAnim?) {
       if (floatToque.y < GROUND - 52) floatToque.y = GROUND - 52;
     } else {
       floatToqueSoma = g;
-      floatToque = { x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: S.u1 ? 28 : 40 };
-      floats.push(floatToque);
+      floatToque = novoFloat({ x: HX + 14, y: GROUND - 34, txt: "+" + g.toFixed(1), life: S.u1 ? 28 : 40 });
     }
   }
   desenhar();
@@ -969,7 +993,7 @@ function definirModo(m) {
   // The rhythm decides how fast the street goes past and which cycle she runs. It used to
   // report a rate change, a settling rate and a team-health figure as well; those belonged to
   // the passive economy and all of them read zero now.
-  floats.push({ x: HX - 10, y: GROUND - 44, txt: rapido ? "CORRER!" : "ANDAR!", life: 52 });
+  novoFloat({ x: HX - 10, y: GROUND - 44, txt: rapido ? "CORRER!" : "ANDAR!", life: 52 });
   burst(HX + 6, GROUND - 20, 26, rapido ? ["#ff6b57", "#ffcd75", "#ffe9b0"] : ["#38b764", "#6fdd94", "#b5e08c"]);
   for (let i = 0; i < 14; i++) {   // a column of sparks going up: revving, or exhaling
     parts.push({ x: HX + 4 + (Math.random() - 0.5) * 26, y: GROUND - 4,
@@ -3109,13 +3133,11 @@ function drawMobs(smog) {
     const cxm = Math.round(m.wx - worldX) + 5;            // mob centre, same x the HP bar uses
     const key = MOB_KEY[m.type];
     const img = mobFrame(m);
-    // SÓ VOA O QUE FAZ SENTIDO VOAR. `noAr` é a única chave: quem a tem ganha a senóide de 7 px
-    // e o pisca-pisca de 1 px; quem não a tem fica PARADO no chão, sem nem o de 1 px.
-    // O de 1 px valia para todo mundo e era o resto do motor antigo, onde tudo que atravessava
-    // a rua era fumaça. Medido: pote de barro, cesto e galão de 20 L subiam e desciam 1 px de
-    // mundo a 3,75 Hz — 2,4 px de tela neste viewport, e um galão que vibra é um galão que voa
-    // devagar. Hoje o único que se mexe no ar é o cacho pendurado do capítulo 1, que é a única
-    // coisa nas nove vagas que já está pendurada no desenho.
+    // SÓ VOA O QUE FAZ SENTIDO VOAR — e desde 2026-08-07 nada aqui voa (ver MOB_LIFT: "itens
+    // deveriam estar presos ao chão", dono). `noAr` continua sendo a chave da senóide e da
+    // sombra macia para um capítulo futuro que traga algo que voe DE VERDADE; com a tabela
+    // zerada este bloco é um assento firme. O balanço senoidal em coisa apoiada é tremor,
+    // não vida — guarde-o para o que flutua.
     const noAr = lifts[m.type] > 0;
     const bob = noAr ? (Math.floor(tick / 8) % 2) * 1 : 0;
     const voa = noAr ? Math.round(Math.sin(tick / 13 + m.wx * 0.04) * 3.5) : 0;
@@ -3370,11 +3392,16 @@ const MOB_TARGET = { smog: 24, drum: 20, cash: 17 };
 //   cap 1: cacho de fruta pendurado num galho | muda com torrão | três peixes
 //   cap 2: feixe de mandioca | pote de barro | cesto de raízes
 //   cap 3: muda em vaso | galão de água | cesto de legumes
-// Um só se sustenta no ar, e é o cacho: ele já vem pendurado no próprio desenho, com o galho
-// dentro do quadro. Todo o resto é coisa colhida, carregada ou pousada — pote de barro, cesto e
-// galão de 20 L não pairam, e um objeto pesado boiando não lê como magia, lê como bug.
+// TUDO ENCOSTA NO CHÃO. O lift do smog era herança do motor de rua, onde smog era FUMAÇA e
+// fumaça flutua; aqui virou item de capítulo, e o dono viu o resultado (2026-08-07): "temos
+// vários itens voando no jogo haha, não faz sentido, deveriam estar presos ao chão". A regra
+// que fica: o que é coisa colhida encosta no chão; só flutua o que voa por natureza — e nas
+// nove vagas só a FOLHA ao vento (pega no pulo) tem essa natureza. O cacho "já pendurado no
+// desenho" foi o argumento de uma sessão anterior e o dono o derrubou: pendurado em galho
+// NENHUM, a 32 px de tela do chão, ele lia como bug, não como galho.
+// A tabela fica (capítulos novos podem indexá-la), mas zerada é o estado certo por padrão.
 const MOB_LIFT = [
-  { smog: 16, barrel: 0, cash: 0 },
+  { smog: 0, barrel: 0, cash: 0 },
   { smog: 0, barrel: 0, cash: 0 },
   { smog: 0, barrel: 0, cash: 0 }
 ];
@@ -4010,7 +4037,7 @@ function verificarCenario() {
     // O float só fala quando NÃO há cerimônia: na virada de capítulo a placa grande já diz
     // o nome da era, e o mesmo texto subindo pelo meio dela era ruído (medido no print
     // A3-noite da onda 3 — dois títulos disputando o quadro).
-    if (!vira) floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58,
+    if (!vira) novoFloat({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58,
       life: 90, txt: "NOVA ERA" });
     burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
     // A VIRADA MOVE O SOL (Direção de Evolução, onda 1): atravessar o tempo é o tema do
@@ -5030,6 +5057,10 @@ function drawScene() {
 
   // Floating numbers. At 1 world px = 3 screen px a 5x7 glyph at scale 2 covered the hero,
   // so the world text is drawn at scale 1 now: 15x21 screen px, still crisp, no longer a sign.
+  // SOB TELA, SOMEM: sinal não aparece sobre leitura (ver novoFloat). Abrir uma tela com um
+  // número no ar o apaga de vez — não pausa: um "+4" congelado atrás do véu por minutos
+  // estaria mentindo a idade do gesto quando a tela fechasse.
+  if (document.body.classList.contains("emTela")) floats.length = 0;
   floats.forEach(function (f) {
     // Física, não interpolação linear (Direção de Evolução, onda 1): o número nasce de um
     // gesto, então sobe com o impulso do gesto — rápido no primeiro instante, assentando em
@@ -5207,10 +5238,19 @@ function desenharMundo() {
   drops.forEach(function (d) {
     const sx = Math.round(d.wx - worldX);
     if (sx < -12 || sx > W + 12) return;
-    const y = GROUND - 16 + Math.round(Math.sin(animT * 5 + d.wx * 0.1) * 2);
+    // ASSENTADO: a base do item fica em GROUND, sem balanço. O desenho antigo pousava a base
+    // em GROUND-6 e somava um seno de ±2 — item colhido boiando a 12 px de tela do chão, o
+    // mesmo defeito do MOB_LIFT ("itens deveriam estar presos ao chão", dono, 2026-08-07).
+    // Balanço em coisa apoiada é tremor; o convite de "pegue-me" quem faz é o pulso dos
+    // tiques, que fica. `y` segue sendo a âncora do sinal (+ e tiques), na altura de sempre.
+    const y = GROUND - 16;
     const fim = Math.max(0, Math.min(1, (CFG.dropVida - d.t) / 2));
     // the tick colour still says which trouble left it; the authored item says what it gives you
     const cor = d.type === "cash" ? "#f3a03d" : d.type === "barrel" ? "#71a39c" : "#f2d2dc";
+    // sombra de contato no pé novo — item assentado sem sombra lê pior que item flutuando;
+    // ela esmaece junto com o item (fim). ORDEM: sombra() zera o globalAlpha ao sair, então
+    // o alfa do item entra DEPOIS dela, nunca antes.
+    sombra(sx + 2, GROUND, 10, 0.2 * fim);
     cx.globalAlpha = fim;
     const dimg = dropDe(d.type);
     if (dimg && dimg.complete && dimg.naturalWidth) {
@@ -5219,7 +5259,7 @@ function desenharMundo() {
       cx.imageSmoothingEnabled = true;                 // centred on the old icon's footprint so
       // spriteComHora: o item é coisa da rua e toma a tinta da hora (onda 2); o "+" e os
       // tiques logo abaixo são o sinal de "pegue-me" e continuam sem tinta, de propósito
-      cx.drawImage(spriteComHora(dimg), Math.round(sx + 2 - ddw / 2), Math.round(y + 10 - ddh), ddw, ddh);
+      cx.drawImage(spriteComHora(dimg), Math.round(sx + 2 - ddw / 2), GROUND - ddh, ddw, ddh);
       cx.imageSmoothingEnabled = false;                // the pickup + and ticks still frame it
     }
     // ...and a small plus beside it, so it reads as a PICKUP and not as scenery: the world is
