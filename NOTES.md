@@ -1420,3 +1420,30 @@ a linha com a barra da época; com nome de capítulo comprido pode apertar em te
 
 **Próximo passo (passo 4 do JOGABILIDADE.md):** medir — tempo de sessão e volta-no-dia-2
 mudam com marcos+faixa? Só depois estender aos outros capítulos.
+
+### 2026-08-07 · o turno da noite: o jogo aprende a ensinar e a esperar
+
+Dez horas autônomas enquanto o dono dormia. Oito publicações, `main` verde o tempo todo.
+
+**Feito:** decisões da noite registradas → mesa com os 8 pedidos de SALVADOR → desenho
+técnico da jogabilidade (`JOGABILIDADE.md`) → 5 marcos pré-1500 na linha do tempo, com a
+regra de nomear pela obra → motor N-capítulos (capítulo virou objeto em EPOCAS + arte) →
+lugar vivo fase 1 (marcos de história NA estrada, S.acolhidos persistente, tela do dia 2)
+→ usabilidade 10/10 (a revisão fria achou dez; todos fechados no mesmo turno).
+
+**Medido:** FPS 61–62 em todas as integrações; peso 3,9 MB (teto 3,6 estourado — a
+comparação 660px×master é a primeira tarefa visual da manhã); +43 KB de código somados
+na noite, zero imagem nova.
+
+**Lente usada:** volta-no-dia-2 (a tela de retorno e os marcos na estrada são exatamente
+isso) e primeiros-cinco-minutos (as microdicas). As duas lentes que as decisões do dono
+apontavam.
+
+**O que quebrou:** o smoke esperava barra de vida cheia desenhada — era o comportamento
+que o achado nº 1 derrubou; o teste inverteu a expectativa e agora cobra o contrário.
+
+**Dúvida nova:** o véu do menu é mais claro que o das telas de leitura e o brightness
+.42 do herói é único — calibrado no olho para o menu; se alguma tela nova tiver véu
+muito diferente, recalibrar.
+
+**Próximo passo:** o da RETOMADA — mesa, Salvador, peso, estender o lugar vivo.
