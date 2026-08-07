@@ -472,6 +472,29 @@
   #telaFala #falaCaixa, #telaFala #falaRetrato { transform: translateY(16px); opacity: 0;
     transition: transform .34s ease, opacity .3s ease; }
   #telaFala.aberta #falaCaixa, #telaFala.aberta #falaRetrato { transform: translateY(0); opacity: 1; }
+  /* ===== A CERIMÔNIA DE ABERTURA ===== a primeira fala de uma era chega com peso: uma
+     vinheta escurece as bordas do mundo, o NOME assenta grande na fonte bitmap — vem de um
+     passo atrás, como placa que se aproxima — e o QUANDO acende embaixo. A caixa espera.
+     Nenhum ornamento, nenhum grafismo (§2): o peso vem de tempo e luz, não de decoração. */
+  #cerimonia { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 24px; opacity: 0; transition: opacity .55s ease;
+    background: radial-gradient(ellipse 108% 82% at 50% 44%,
+      rgba(10,9,6,0) 34%, rgba(10,9,6,.55) 72%, rgba(10,9,6,.92) 100%); }
+  #telaFala.cerimoniando #cerimonia { opacity: 1; }
+  #cerNome { filter: drop-shadow(0 5px 0 rgba(0,0,0,.65));
+    transform: scale(1.14); opacity: 0;
+    transition: transform 1.9s cubic-bezier(.16,.66,.28,1), opacity .7s ease; }
+  #telaFala.cerimoniando #cerNome { transform: scale(1); opacity: 1; }
+  #cerQuando { font-size: 11px; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: #d8c398; text-shadow: 0 2px 0 rgba(0,0,0,.8);
+    text-align: center; max-width: 20em; line-height: 1.8;
+    opacity: 0; transition: opacity .7s ease .55s; }
+  #telaFala.cerimoniando #cerQuando { opacity: 1; }
+  /* enquanto o nome assenta, a caixa e quem fala esperam embaixo — depois desta regra vir
+     DEPOIS da .aberta é o que a faz valer no empate de especificidade */
+  #telaFala.cerimoniando #falaCaixa, #telaFala.cerimoniando #falaRetrato {
+    transform: translateY(16px); opacity: 0; }
   /* A caixa é a FOLHA DE PAPEL DE CAMPO presa numa moldura de madeira — veio da direção B,
      enxertada aqui porque numa tela cujo trabalho é fazer alguém LER, tinta escura sobre
      papel claro ganha de texto claro sobre caixa escura. A pauta é o repeating-gradient. */
@@ -517,13 +540,73 @@
     box-shadow: inset 0 2px 0 #3a2f20, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806; }
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 1px 0 #0a0806; }
-  /* completude: uma linha por cena, marcada ou não */
-  .cenaLinha { display: flex; align-items: center; gap: 10px; padding: 7px 12px; margin: 3px 0;
-    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; min-width: 16em; text-align: left; }
-  .cenaLinha .marca { font-weight: 900; width: 1.4em; }
-  .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
-  .cenaLinha.vista .marca { color: #8fd96a; }
-  .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
+  /* ===== A HISTÓRIA: a linha do tempo ===== Um FIO desce pela tela — cipó, o material de
+     quem pendura coisa em árvore, não uma borda de software. Os capítulos são placas de
+     madeira penduradas nele; os momentos, papéis menores. O fio DESVANECE nas duas pontas:
+     em cima porque a história não começa no século XVI — havia gente aqui muito antes — e
+     embaixo porque a disputa não acabou. Fio fechado nas pontas seria afirmação, e falsa. */
+  #telaCompletude { justify-content: flex-start; padding-top: 26px; }
+  #listaCenas { overflow-y: auto; max-width: 32em; width: 100%; text-align: left;
+    margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+  /* o fio é filho da COLUNA (altura do conteúdo), não do rolo — rola junto com os nós */
+  #ltCol { position: relative; padding: 4px 4px 4px 46px; min-height: 100%; }
+  #telaCompletude.aberta #ltCol { animation: brota .42s ease-out backwards; }
+  #ltFio { position: absolute; left: 17px; top: 0; bottom: 0; width: 7px;
+    /* cipó torcido: o veio diagonal é o que o diferencia da madeira serrada das placas */
+    background: linear-gradient(90deg, #3a2a14, #6d4b28 40%, #7c5730 60%, #3a2a14),
+      repeating-linear-gradient(168deg, rgba(0,0,0,.28) 0 3px, transparent 3px 9px);
+    box-shadow: 1px 0 0 rgba(0,0,0,.4);
+    /* as duas pontas abertas — ver o comentário do bloco */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40px,
+      #000 calc(100% - 52px), transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0, #000 40px,
+      #000 calc(100% - 52px), transparent 100%); }
+  /* as pontas: texto quieto, sem placa — o fio é quem fala ali */
+  .ltPonta { margin: 2px 0 14px; opacity: .85; }
+  .ltPonta.fim { margin: 14px 0 26px; }
+  .ltPontaSub { font: 400 10px/1.5 Verdana, "DejaVu Sans", system-ui, sans-serif;
+    color: #8d8272; letter-spacing: .05em; margin-top: 4px; max-width: 24em; }
+  /* o MARCO: placa de madeira clara pendurada no fio — a mesma madeira das tábuas do poste,
+     e a MESMA para os três capítulos: Palmares tem o peso dos outros, por regra */
+  .ltMarco { position: relative; margin: 6px 0 10px; padding: 11px 14px; border-radius: 3px;
+    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 4px 0 #120c06; }
+  /* o laço que a pendura no fio */
+  .ltMarco::before { content: ""; position: absolute; left: -32px; top: 50%; margin-top: -7px;
+    width: 26px; height: 14px; background: transparent;
+    border: 4px solid #4a3418; border-radius: 8px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+  .ltMarcoQuando { font: 400 10px/1.4 Verdana, "DejaVu Sans", system-ui, sans-serif;
+    color: #4a2f14; letter-spacing: .06em; margin-top: 4px; }
+  /* marco ainda não alcançado: madeira encardida, à distância — ver o que falta é o que
+     faz querer voltar */
+  .ltMarco.longe { background: #453c30; opacity: .8;
+    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2c2418,
+                inset 0 0 0 2px #1e1810, 0 3px 0 #0e0b07; }
+  .ltMarco.longe::before { border-color: #2e281e; }
+  .ltMarco.longe .ltMarcoQuando { color: #7a7263; }
+  /* o MOMENTO: o mesmo nicho escuro de sempre, agora amarrado ao fio por um nó */
+  .ltMomento { position: relative; padding: 8px 12px; margin: 3px 0 3px 8px;
+    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; }
+  .ltMomento::before { content: ""; position: absolute; left: -33px; top: 13px;
+    width: 9px; height: 9px; background: #6d4b28;
+    box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e, 0 0 0 2px #14100a; }
+  /* e o cordão curto que liga o nó ao papel */
+  .ltMomento::after { content: ""; position: absolute; left: -24px; top: 16px;
+    width: 24px; height: 3px; background: #503319; }
+  .ltMomento.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
+  .ltMomento.vista::before { background: #7d9a3c;
+    box-shadow: inset 0 2px 0 #a5c15e, inset 0 -2px 0 #3d5417, 0 0 0 2px #14100a; }
+  .ltCab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .ltQ { font-size: 11px; letter-spacing: .1em; color: #d9a441; font-weight: 900; }
+  .ltT { font-size: 13px; color: #e6dcc4; font-weight: 700; }
+  .ltD { font-size: 12px; color: #cfc4a8; line-height: 1.55; margin: 6px 0 5px; }
+  .ltF { font-size: 10px; color: #8d8272; letter-spacing: .04em; }
+  /* o VÃO: só o fio passando. É o espaço estrutural onde os marcos que o historiador está
+     revisando vão se pendurar — inserir um nó aqui não mexe em nada do resto */
+  .ltVao { height: 30px; }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
      esconder faz o jogo parecer menor do que e. O véu desta tela é mais leve que o das telas

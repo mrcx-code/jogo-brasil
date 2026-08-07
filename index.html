@@ -492,6 +492,29 @@
   #telaFala #falaCaixa, #telaFala #falaRetrato { transform: translateY(16px); opacity: 0;
     transition: transform .34s ease, opacity .3s ease; }
   #telaFala.aberta #falaCaixa, #telaFala.aberta #falaRetrato { transform: translateY(0); opacity: 1; }
+  /* ===== A CERIMÔNIA DE ABERTURA ===== a primeira fala de uma era chega com peso: uma
+     vinheta escurece as bordas do mundo, o NOME assenta grande na fonte bitmap — vem de um
+     passo atrás, como placa que se aproxima — e o QUANDO acende embaixo. A caixa espera.
+     Nenhum ornamento, nenhum grafismo (§2): o peso vem de tempo e luz, não de decoração. */
+  #cerimonia { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 24px; opacity: 0; transition: opacity .55s ease;
+    background: radial-gradient(ellipse 108% 82% at 50% 44%,
+      rgba(10,9,6,0) 34%, rgba(10,9,6,.55) 72%, rgba(10,9,6,.92) 100%); }
+  #telaFala.cerimoniando #cerimonia { opacity: 1; }
+  #cerNome { filter: drop-shadow(0 5px 0 rgba(0,0,0,.65));
+    transform: scale(1.14); opacity: 0;
+    transition: transform 1.9s cubic-bezier(.16,.66,.28,1), opacity .7s ease; }
+  #telaFala.cerimoniando #cerNome { transform: scale(1); opacity: 1; }
+  #cerQuando { font-size: 11px; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: #d8c398; text-shadow: 0 2px 0 rgba(0,0,0,.8);
+    text-align: center; max-width: 20em; line-height: 1.8;
+    opacity: 0; transition: opacity .7s ease .55s; }
+  #telaFala.cerimoniando #cerQuando { opacity: 1; }
+  /* enquanto o nome assenta, a caixa e quem fala esperam embaixo — depois desta regra vir
+     DEPOIS da .aberta é o que a faz valer no empate de especificidade */
+  #telaFala.cerimoniando #falaCaixa, #telaFala.cerimoniando #falaRetrato {
+    transform: translateY(16px); opacity: 0; }
   /* A caixa é a FOLHA DE PAPEL DE CAMPO presa numa moldura de madeira — veio da direção B,
      enxertada aqui porque numa tela cujo trabalho é fazer alguém LER, tinta escura sobre
      papel claro ganha de texto claro sobre caixa escura. A pauta é o repeating-gradient. */
@@ -537,13 +560,73 @@
     box-shadow: inset 0 2px 0 #3a2f20, inset 0 -2px 0 #0a0806, 0 3px 0 #0a0806; }
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #4a3c28, inset 0 -2px 0 #0a0806, 0 1px 0 #0a0806; }
-  /* completude: uma linha por cena, marcada ou não */
-  .cenaLinha { display: flex; align-items: center; gap: 10px; padding: 7px 12px; margin: 3px 0;
-    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; min-width: 16em; text-align: left; }
-  .cenaLinha .marca { font-weight: 900; width: 1.4em; }
-  .cenaLinha.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
-  .cenaLinha.vista .marca { color: #8fd96a; }
-  .cenaLinha .nm { flex: 1 1 auto; font-size: 13px; color: #e6dcc4; }
+  /* ===== A HISTÓRIA: a linha do tempo ===== Um FIO desce pela tela — cipó, o material de
+     quem pendura coisa em árvore, não uma borda de software. Os capítulos são placas de
+     madeira penduradas nele; os momentos, papéis menores. O fio DESVANECE nas duas pontas:
+     em cima porque a história não começa no século XVI — havia gente aqui muito antes — e
+     embaixo porque a disputa não acabou. Fio fechado nas pontas seria afirmação, e falsa. */
+  #telaCompletude { justify-content: flex-start; padding-top: 26px; }
+  #listaCenas { overflow-y: auto; max-width: 32em; width: 100%; text-align: left;
+    margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+  /* o fio é filho da COLUNA (altura do conteúdo), não do rolo — rola junto com os nós */
+  #ltCol { position: relative; padding: 4px 4px 4px 46px; min-height: 100%; }
+  #telaCompletude.aberta #ltCol { animation: brota .42s ease-out backwards; }
+  #ltFio { position: absolute; left: 17px; top: 0; bottom: 0; width: 7px;
+    /* cipó torcido: o veio diagonal é o que o diferencia da madeira serrada das placas */
+    background: linear-gradient(90deg, #3a2a14, #6d4b28 40%, #7c5730 60%, #3a2a14),
+      repeating-linear-gradient(168deg, rgba(0,0,0,.28) 0 3px, transparent 3px 9px);
+    box-shadow: 1px 0 0 rgba(0,0,0,.4);
+    /* as duas pontas abertas — ver o comentário do bloco */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40px,
+      #000 calc(100% - 52px), transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0, #000 40px,
+      #000 calc(100% - 52px), transparent 100%); }
+  /* as pontas: texto quieto, sem placa — o fio é quem fala ali */
+  .ltPonta { margin: 2px 0 14px; opacity: .85; }
+  .ltPonta.fim { margin: 14px 0 26px; }
+  .ltPontaSub { font: 400 10px/1.5 Verdana, "DejaVu Sans", system-ui, sans-serif;
+    color: #8d8272; letter-spacing: .05em; margin-top: 4px; max-width: 24em; }
+  /* o MARCO: placa de madeira clara pendurada no fio — a mesma madeira das tábuas do poste,
+     e a MESMA para os três capítulos: Palmares tem o peso dos outros, por regra */
+  .ltMarco { position: relative; margin: 6px 0 10px; padding: 11px 14px; border-radius: 3px;
+    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 4px 0 #120c06; }
+  /* o laço que a pendura no fio */
+  .ltMarco::before { content: ""; position: absolute; left: -32px; top: 50%; margin-top: -7px;
+    width: 26px; height: 14px; background: transparent;
+    border: 4px solid #4a3418; border-radius: 8px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+  .ltMarcoQuando { font: 400 10px/1.4 Verdana, "DejaVu Sans", system-ui, sans-serif;
+    color: #4a2f14; letter-spacing: .06em; margin-top: 4px; }
+  /* marco ainda não alcançado: madeira encardida, à distância — ver o que falta é o que
+     faz querer voltar */
+  .ltMarco.longe { background: #453c30; opacity: .8;
+    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2c2418,
+                inset 0 0 0 2px #1e1810, 0 3px 0 #0e0b07; }
+  .ltMarco.longe::before { border-color: #2e281e; }
+  .ltMarco.longe .ltMarcoQuando { color: #7a7263; }
+  /* o MOMENTO: o mesmo nicho escuro de sempre, agora amarrado ao fio por um nó */
+  .ltMomento { position: relative; padding: 8px 12px; margin: 3px 0 3px 8px;
+    background: #16130d; box-shadow: inset 0 0 0 2px #3a2f20; }
+  .ltMomento::before { content: ""; position: absolute; left: -33px; top: 13px;
+    width: 9px; height: 9px; background: #6d4b28;
+    box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e, 0 0 0 2px #14100a; }
+  /* e o cordão curto que liga o nó ao papel */
+  .ltMomento::after { content: ""; position: absolute; left: -24px; top: 16px;
+    width: 24px; height: 3px; background: #503319; }
+  .ltMomento.vista { box-shadow: inset 0 0 0 2px #4e6b32; }
+  .ltMomento.vista::before { background: #7d9a3c;
+    box-shadow: inset 0 2px 0 #a5c15e, inset 0 -2px 0 #3d5417, 0 0 0 2px #14100a; }
+  .ltCab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .ltQ { font-size: 11px; letter-spacing: .1em; color: #d9a441; font-weight: 900; }
+  .ltT { font-size: 13px; color: #e6dcc4; font-weight: 700; }
+  .ltD { font-size: 12px; color: #cfc4a8; line-height: 1.55; margin: 6px 0 5px; }
+  .ltF { font-size: 10px; color: #8d8272; letter-spacing: .04em; }
+  /* o VÃO: só o fio passando. É o espaço estrutural onde os marcos que o historiador está
+     revisando vão se pendurar — inserir um nó aqui não mexe em nada do resto */
+  .ltVao { height: 30px; }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
      esconder faz o jogo parecer menor do que e. O véu desta tela é mais leve que o das telas
@@ -806,6 +889,13 @@
       </div>
     </div>
     <div id="falaSeta">toque para continuar ▾</div>
+  </div>
+  <!-- A CERIMÔNIA: a primeira fala de uma era é um momento. O nome da era assenta grande na
+       fonte bitmap sobre o mundo escurecido, o QUANDO acende embaixo, e só então a caixa
+       sobe. O JS preenche e a classe .cerimoniando (no telaFala) rege tudo — ver estilo.css. -->
+  <div id="cerimonia" aria-hidden="true">
+    <div id="cerNome"></div>
+    <div id="cerQuando"></div>
   </div>
 </div>
 
@@ -5914,11 +6004,34 @@ function trocarCtx(chave) {
     else
         acender();
 }
+// ===== A CERIMÔNIA DE ABERTURA =====
+// A primeira fala de uma era é um momento, e entrava igual a qualquer fala. Agora o NOME da
+// era chega primeiro: grande, na fonte bitmap do jogo, assentando devagar sobre o mundo
+// escurecido por uma vinheta, com o QUANDO acendendo embaixo — e só então a caixa de papel
+// sobe e a conversa começa. Uma coisa só, sustentada: nome, vinheta, caixa. Nenhum ornamento
+// (§2: grafismo que "parece indígena" pertence a um povo e tem nome).
+// Um toque durante a cerimônia a encerra na hora — cerimônia que prende é castigo.
+let cerTimer = null;
+function emCerimonia() { return cerTimer !== null; }
+function fimCerimonia() {
+    if (cerTimer) {
+        clearTimeout(cerTimer);
+        cerTimer = null;
+    }
+    $("telaFala").classList.remove("cerimoniando");
+    if (falaViva)
+        revelarFala();
+}
 function pararFala() {
     if (falaTimer) {
         clearInterval(falaTimer);
         falaTimer = null;
     }
+    if (cerTimer) {
+        clearTimeout(cerTimer);
+        cerTimer = null;
+    }
+    $("telaFala").classList.remove("cerimoniando");
     falaViva = false;
     falaDepois = null;
     falaLinhas = [];
@@ -5926,7 +6039,7 @@ function pararFala() {
     falaImgs = [];
     trocarCtx(null);
 }
-function abrirFala(titulo, quando, linhas, depois, imgs) {
+function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
     if (!linhas || !linhas.length) {
         if (depois)
             depois();
@@ -5968,8 +6081,17 @@ function abrirFala(titulo, quando, linhas, depois, imgs) {
         || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
     if (retrato && r.getAttribute("src") !== retrato)
         r.src = retrato;
+    // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
+    // quando ela solta — senão a primeira linha se escreveria escondida.
+    if (cerimonia) {
+        pixelRotulo($("cerNome"), titulo, 3, "#ffd98a", "#0a0806");
+        $("cerQuando").textContent = quando || "";
+        $("telaFala").classList.add("cerimoniando");
+        cerTimer = setTimeout(fimCerimonia, 2400);
+    }
     abrirTela("telaFala");
-    revelarFala();
+    if (!cerimonia)
+        revelarFala();
 }
 function revelarFala() {
     const txt = falaLinhas[falaI] || "";
@@ -6034,7 +6156,7 @@ function mostrarAbertura(depois) {
     }
     S.aberturas = ((S.aberturas | 0) | (1 << i)) >>> 0;
     salvar();
-    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg);
+    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg, true);
     return true;
 }
 function mostrarFecho(i, depois) {
@@ -6112,62 +6234,109 @@ function montarCapitulos() {
         box.appendChild(b);
     });
 }
+const LINHA_TEMPO = [
+    { tipo: "antes" },
+    { tipo: "marco", ep: 0 },
+    { tipo: "momento", i: 0 },
+    { tipo: "momento", i: 1 },
+    { tipo: "vao" }, // ← os marcos entre o séc. XVI e o XVII entram aqui
+    { tipo: "marco", ep: 1 },
+    { tipo: "momento", i: 2 },
+    { tipo: "momento", i: 3 },
+    { tipo: "momento", i: 4 }, // Zumbi: cronologia de Palmares, revelação no cap. 3
+    { tipo: "vao" }, // ← os marcos entre o séc. XVII e hoje entram aqui
+    { tipo: "marco", ep: 2 },
+    { tipo: "momento", i: 5 },
+    { tipo: "aberto" }
+];
 function montarCompletude() {
     const box = $("listaCenas");
     box.textContent = "";
-    box.style.cssText = "overflow-y:auto;max-width:32em;width:100%;text-align:left;margin-bottom:14px;max-height:" + Math.max(200, window.innerHeight - 240) + "px";
     const ate = cenarioAtual();
-    MOMENTOS.forEach(function (mo, i) {
-        // Os seis momentos são dois por capítulo, e a lista corrida não dizia isso: quem abria
-        // esta tela via seis fatos em fila, sem saber quais pertenciam a onde ela esteve. O
-        // cabeçalho é o mesmo nome que o HUD mostra e o mesmo que a fala anuncia — três lugares,
-        // uma fonte só, `EPOCAS`.
-        if (i % 2 === 0) {
-            const ep = EPOCAS[epocaDaCena(i)];
-            const h = document.createElement("div");
-            h.className = "fnGrupo";
-            h.style.cssText = "margin:16px 0 7px";
-            pixelRotulo(h, ep.nome, 1, "#d9a441");
-            const sub = document.createElement("div");
-            sub.style.cssText = "font:400 10px/1.4 Verdana,'DejaVu Sans',system-ui,sans-serif;color:#8d8272;letter-spacing:.06em;margin:-4px 0 7px";
-            sub.textContent = ep.quando;
-            box.appendChild(h);
-            box.appendChild(sub);
+    // A coluna: o fio é filho DELA, não do rolo — absoluto num contêiner que tem a altura do
+    // conteúdo inteiro, para descer junto com a rolagem em vez de ficar parado no vidro.
+    const col = document.createElement("div");
+    col.id = "ltCol";
+    const fio = document.createElement("div");
+    fio.id = "ltFio";
+    col.appendChild(fio);
+    const sub = function (pai, cls, txt) {
+        const d = document.createElement("div");
+        d.className = cls;
+        d.textContent = txt;
+        pai.appendChild(d);
+        return d;
+    };
+    LINHA_TEMPO.forEach(function (no) {
+        if (no.tipo === "antes") {
+            // O trecho de cima: o fio já vem de longe. Texto do dono (abertura do capítulo um),
+            // resumido sem afirmar nada novo — a redação final é do historiador.
+            const a = document.createElement("div");
+            a.className = "ltPonta";
+            const t = document.createElement("div");
+            pixelRotulo(t, "JÁ HAVIA GENTE AQUI", 1, "#b9ad8d");
+            a.appendChild(t);
+            sub(a, "ltPontaSub", "muito antes de qualquer chegada — e o fio vem de mais longe do que esta tela alcança");
+            col.appendChild(a);
         }
-        const visto = i <= ate;
-        const l = document.createElement("div");
-        l.className = "cenaLinha" + (visto ? " vista" : "");
-        l.style.display = "block";
-        const cab = document.createElement("div");
-        cab.style.cssText = "display:flex;gap:8px;align-items:baseline";
-        const m = document.createElement("span");
-        m.className = "marca";
-        m.textContent = visto ? "✓" : "·";
-        const q = document.createElement("span");
-        q.style.cssText = "font-size:11px;letter-spacing:.1em;color:#d9a441;font-weight:900";
-        q.textContent = visto ? mo.q : "— ainda não —";
-        const n = document.createElement("span");
-        n.className = "nm";
-        n.style.fontWeight = "700";
-        n.textContent = visto ? mo.t : "";
-        cab.appendChild(m);
-        cab.appendChild(q);
-        cab.appendChild(n);
-        l.appendChild(cab);
-        // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar, e
-        // entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
-        if (visto) {
-            const d = document.createElement("div");
-            d.style.cssText = "font-size:12px;color:#cfc4a8;line-height:1.55;margin:6px 0 5px";
-            d.textContent = mo.d;
+        else if (no.tipo === "vao") {
+            // Espaço estrutural: só o fio passando. É onde os marcos futuros se penduram.
+            const v = document.createElement("div");
+            v.className = "ltVao";
+            col.appendChild(v);
+        }
+        else if (no.tipo === "marco") {
+            const ep = EPOCAS[no.ep];
+            const chegou = ate >= no.ep * 2;
+            const m = document.createElement("div");
+            m.className = "ltMarco" + (chegou ? "" : " longe");
+            const t = document.createElement("div");
+            pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#7a7263");
+            m.appendChild(t);
+            sub(m, "ltMarcoQuando", chegou ? ep.quando : "continue a travessia");
+            col.appendChild(m);
+        }
+        else if (no.tipo === "momento") {
+            // Ou um índice em MOMENTOS, ou um momento próprio (q/t/d/f no nó) — é o que permite
+            // pendurar os marcos do historiador nos vãos sem tocar em MOMENTOS nem no layout.
+            const mo = no.i != null ? MOMENTOS[no.i] : no;
+            const visto = (no.cena != null ? no.cena : no.i) <= ate;
+            const l = document.createElement("div");
+            l.className = "ltMomento" + (visto ? " vista" : "");
+            const cab = document.createElement("div");
+            cab.className = "ltCab";
+            const q = document.createElement("span");
+            q.className = "ltQ";
+            q.textContent = visto ? mo.q : "— ainda não —";
+            cab.appendChild(q);
+            if (visto) {
+                const n = document.createElement("span");
+                n.className = "ltT";
+                n.textContent = mo.t;
+                cab.appendChild(n);
+            }
+            l.appendChild(cab);
+            // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar,
+            // e entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
+            if (visto) {
+                sub(l, "ltD", mo.d);
+                sub(l, "ltF", "fonte: " + mo.f);
+            }
+            col.appendChild(l);
+        }
+        else if (no.tipo === "aberto") {
+            // O fim que não fecha: o fio segue além do último nó e some pela borda. O texto
+            // espelha o fecho do capítulo três — nenhuma afirmação nova.
             const f = document.createElement("div");
-            f.style.cssText = "font-size:10px;color:#8d8272;letter-spacing:.04em";
-            f.textContent = "fonte: " + mo.f;
-            l.appendChild(d);
-            l.appendChild(f);
+            f.className = "ltPonta fim";
+            const t = document.createElement("div");
+            pixelRotulo(t, "O FIO CONTINUA", 1, "#b9ad8d");
+            f.appendChild(t);
+            sub(f, "ltPontaSub", "a disputa está em curso — ela segue depois que você fecha o jogo");
+            col.appendChild(f);
         }
-        box.appendChild(l);
     });
+    box.appendChild(col);
 }
 // Os rótulos que não mudam, pintados uma vez na carga. Depois disto o chrome inteiro fala a
 // fonte do jogo: o que era Arial Black (letra de site, presa ao que o aparelho tiver) vira a
@@ -6221,7 +6390,15 @@ function ligarTelas() {
     $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
     // Toque em qualquer lugar da tela da fala avança — é o gesto do jogo antigo inteiro, e não
     // um botão pequeno num canto. O PULAR se defende sozinho parando o evento antes.
-    $("telaFala").addEventListener("pointerdown", function (e) { e.preventDefault(); avancarFala(); });
+    $("telaFala").addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        // durante a cerimônia, o toque a encerra — nunca engole o gesto nem pula a fala junto
+        if (emCerimonia()) {
+            fimCerimonia();
+            return;
+        }
+        avancarFala();
+    });
     $("btnFalaPular").addEventListener("pointerdown", function (e) {
         e.preventDefault();
         e.stopPropagation();

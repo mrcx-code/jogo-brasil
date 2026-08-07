@@ -4803,12 +4803,28 @@ function trocarCtx(chave: string | null) {
   } else acender();
 }
 
+// ===== A CERIMÔNIA DE ABERTURA =====
+// A primeira fala de uma era é um momento, e entrava igual a qualquer fala. Agora o NOME da
+// era chega primeiro: grande, na fonte bitmap do jogo, assentando devagar sobre o mundo
+// escurecido por uma vinheta, com o QUANDO acendendo embaixo — e só então a caixa de papel
+// sobe e a conversa começa. Uma coisa só, sustentada: nome, vinheta, caixa. Nenhum ornamento
+// (§2: grafismo que "parece indígena" pertence a um povo e tem nome).
+// Um toque durante a cerimônia a encerra na hora — cerimônia que prende é castigo.
+let cerTimer: ReturnType<typeof setTimeout> | null = null;
+function emCerimonia() { return cerTimer !== null; }
+function fimCerimonia() {
+  if (cerTimer) { clearTimeout(cerTimer); cerTimer = null; }
+  $("telaFala").classList.remove("cerimoniando");
+  if (falaViva) revelarFala();
+}
 function pararFala() {
   if (falaTimer) { clearInterval(falaTimer); falaTimer = null; }
+  if (cerTimer) { clearTimeout(cerTimer); cerTimer = null; }
+  $("telaFala").classList.remove("cerimoniando");
   falaViva = false; falaDepois = null; falaLinhas = []; falaI = 0;
   falaImgs = []; trocarCtx(null);
 }
-function abrirFala(titulo, quando, linhas, depois, imgs?) {
+function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   if (!linhas || !linhas.length) { if (depois) depois(); return; }
   pararFala();
   falaLinhas = linhas.slice(); falaI = 0; falaDepois = depois || null; falaViva = true;
@@ -4842,8 +4858,16 @@ function abrirFala(titulo, quando, linhas, depois, imgs?) {
   const retrato = (typeof RETRATO_B64 !== "undefined" && RETRATO_B64[iCap])
     || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
   if (retrato && r.getAttribute("src") !== retrato) (r as HTMLImageElement).src = retrato;
+  // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
+  // quando ela solta — senão a primeira linha se escreveria escondida.
+  if (cerimonia) {
+    pixelRotulo($("cerNome"), titulo, 3, "#ffd98a", "#0a0806");
+    $("cerQuando").textContent = quando || "";
+    $("telaFala").classList.add("cerimoniando");
+    cerTimer = setTimeout(fimCerimonia, 2400);
+  }
   abrirTela("telaFala");
-  revelarFala();
+  if (!cerimonia) revelarFala();
 }
 function revelarFala() {
   const txt = falaLinhas[falaI] || "";
@@ -4891,7 +4915,7 @@ function mostrarAbertura(depois?) {
   if (jaViu(S.aberturas, i)) { if (depois) depois(); return false; }
   S.aberturas = ((S.aberturas | 0) | (1 << i)) >>> 0;
   salvar();
-  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg);
+  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg, true);
   return true;
 }
 function mostrarFecho(i, depois?) {
@@ -4961,56 +4985,124 @@ function montarCapitulos() {
     box.appendChild(b);
   });
 }
+// ===== A LINHA DO TEMPO =====
+// A tela A HISTÓRIA deixou de ser uma lista: é um FIO vertical — um cipó, na língua de
+// materiais do jogo — que desce pela tela contando a travessia. Os capítulos são placas de
+// madeira penduradas nele (marcos), e os momentos pesquisados ficam pendurados abaixo do
+// marco a que pertencem NA CRONOLOGIA — que não é a ordem em que o jogo os revela: Zumbi
+// (século XVII) se pendura em PALMARES, embora só se revele no capítulo três. Posição é
+// cronologia; revelação continua sendo a cena alcançada, como sempre foi.
+//
+// Três decisões desta lista que são §2, não estética:
+//  - O fio NÃO começa no século XVI. Ele entra na tela já vindo de cima, desvanecido, e o
+//    primeiro nó diz que havia gente aqui muito antes de qualquer chegada — sem número,
+//    porque número sem fonte não entra. A história não começa na invasão.
+//  - O fio NÃO termina no presente: passa do último nó e sai desvanecendo pela borda de
+//    baixo. A disputa está em curso; fechar o fio seria afirmar que acabou.
+//  - PALMARES é um marco do mesmo peso dos outros dois — a mesma placa, o mesmo material.
+//
+// `vao` é o lugar estrutural entre capítulos onde marcos futuros entram (os vãos
+// XVI→XVII e XVII→hoje que o historiador está revisando): para pendurar um momento novo,
+// basta inserir `{ tipo: "momento", ... }` no vão certo — o layout não muda. Um momento
+// futuro pode vir com `q`/`t`/`d`/`f` próprios (sem índice em MOMENTOS) e `cena` dizendo
+// qual cena o revela.
+type NoLinha = { tipo: string; ep?: number; i?: number; cena?: number;
+  q?: string; t?: string; d?: string; f?: string };
+const LINHA_TEMPO: NoLinha[] = [
+  { tipo: "antes" },
+  { tipo: "marco", ep: 0 },
+  { tipo: "momento", i: 0 },
+  { tipo: "momento", i: 1 },
+  { tipo: "vao" },                    // ← os marcos entre o séc. XVI e o XVII entram aqui
+  { tipo: "marco", ep: 1 },
+  { tipo: "momento", i: 2 },
+  { tipo: "momento", i: 3 },
+  { tipo: "momento", i: 4 },          // Zumbi: cronologia de Palmares, revelação no cap. 3
+  { tipo: "vao" },                    // ← os marcos entre o séc. XVII e hoje entram aqui
+  { tipo: "marco", ep: 2 },
+  { tipo: "momento", i: 5 },
+  { tipo: "aberto" }
+];
 function montarCompletude() {
   const box = $("listaCenas");
   box.textContent = "";
-  box.style.cssText = "overflow-y:auto;max-width:32em;width:100%;text-align:left;margin-bottom:14px;max-height:" + Math.max(200, window.innerHeight - 240) + "px";
   const ate = cenarioAtual();
-  MOMENTOS.forEach(function (mo, i) {
-    // Os seis momentos são dois por capítulo, e a lista corrida não dizia isso: quem abria
-    // esta tela via seis fatos em fila, sem saber quais pertenciam a onde ela esteve. O
-    // cabeçalho é o mesmo nome que o HUD mostra e o mesmo que a fala anuncia — três lugares,
-    // uma fonte só, `EPOCAS`.
-    if (i % 2 === 0) {
-      const ep = EPOCAS[epocaDaCena(i)];
-      const h = document.createElement("div");
-      h.className = "fnGrupo";
-      h.style.cssText = "margin:16px 0 7px";
-      pixelRotulo(h, ep.nome, 1, "#d9a441");
-      const sub = document.createElement("div");
-      sub.style.cssText = "font:400 10px/1.4 Verdana,'DejaVu Sans',system-ui,sans-serif;color:#8d8272;letter-spacing:.06em;margin:-4px 0 7px";
-      sub.textContent = ep.quando;
-      box.appendChild(h); box.appendChild(sub);
-    }
-    const visto = i <= ate;
-    const l = document.createElement("div");
-    l.className = "cenaLinha" + (visto ? " vista" : "");
-    l.style.display = "block";
-    const cab = document.createElement("div");
-    cab.style.cssText = "display:flex;gap:8px;align-items:baseline";
-    const m = document.createElement("span");
-    m.className = "marca"; m.textContent = visto ? "✓" : "·";
-    const q = document.createElement("span");
-    q.style.cssText = "font-size:11px;letter-spacing:.1em;color:#d9a441;font-weight:900";
-    q.textContent = visto ? mo.q : "— ainda não —";
-    const n = document.createElement("span");
-    n.className = "nm"; n.style.fontWeight = "700";
-    n.textContent = visto ? mo.t : "";
-    cab.appendChild(m); cab.appendChild(q); cab.appendChild(n);
-    l.appendChild(cab);
-    // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar, e
-    // entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
-    if (visto) {
-      const d = document.createElement("div");
-      d.style.cssText = "font-size:12px;color:#cfc4a8;line-height:1.55;margin:6px 0 5px";
-      d.textContent = mo.d;
+  // A coluna: o fio é filho DELA, não do rolo — absoluto num contêiner que tem a altura do
+  // conteúdo inteiro, para descer junto com a rolagem em vez de ficar parado no vidro.
+  const col = document.createElement("div");
+  col.id = "ltCol";
+  const fio = document.createElement("div");
+  fio.id = "ltFio";
+  col.appendChild(fio);
+  const sub = function (pai, cls, txt) {
+    const d = document.createElement("div");
+    d.className = cls; d.textContent = txt;
+    pai.appendChild(d); return d;
+  };
+  LINHA_TEMPO.forEach(function (no) {
+    if (no.tipo === "antes") {
+      // O trecho de cima: o fio já vem de longe. Texto do dono (abertura do capítulo um),
+      // resumido sem afirmar nada novo — a redação final é do historiador.
+      const a = document.createElement("div");
+      a.className = "ltPonta";
+      const t = document.createElement("div");
+      pixelRotulo(t, "JÁ HAVIA GENTE AQUI", 1, "#b9ad8d");
+      a.appendChild(t);
+      sub(a, "ltPontaSub", "muito antes de qualquer chegada — e o fio vem de mais longe do que esta tela alcança");
+      col.appendChild(a);
+    } else if (no.tipo === "vao") {
+      // Espaço estrutural: só o fio passando. É onde os marcos futuros se penduram.
+      const v = document.createElement("div");
+      v.className = "ltVao";
+      col.appendChild(v);
+    } else if (no.tipo === "marco") {
+      const ep = EPOCAS[no.ep!];
+      const chegou = ate >= no.ep! * 2;
+      const m = document.createElement("div");
+      m.className = "ltMarco" + (chegou ? "" : " longe");
+      const t = document.createElement("div");
+      pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#7a7263");
+      m.appendChild(t);
+      sub(m, "ltMarcoQuando", chegou ? ep.quando : "continue a travessia");
+      col.appendChild(m);
+    } else if (no.tipo === "momento") {
+      // Ou um índice em MOMENTOS, ou um momento próprio (q/t/d/f no nó) — é o que permite
+      // pendurar os marcos do historiador nos vãos sem tocar em MOMENTOS nem no layout.
+      const mo = no.i != null ? MOMENTOS[no.i] : (no as { q: string; t: string; d: string; f: string });
+      const visto = (no.cena != null ? no.cena : no.i!) <= ate;
+      const l = document.createElement("div");
+      l.className = "ltMomento" + (visto ? " vista" : "");
+      const cab = document.createElement("div");
+      cab.className = "ltCab";
+      const q = document.createElement("span");
+      q.className = "ltQ"; q.textContent = visto ? mo.q : "— ainda não —";
+      cab.appendChild(q);
+      if (visto) {
+        const n = document.createElement("span");
+        n.className = "ltT"; n.textContent = mo.t;
+        cab.appendChild(n);
+      }
+      l.appendChild(cab);
+      // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar,
+      // e entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
+      if (visto) {
+        sub(l, "ltD", mo.d);
+        sub(l, "ltF", "fonte: " + mo.f);
+      }
+      col.appendChild(l);
+    } else if (no.tipo === "aberto") {
+      // O fim que não fecha: o fio segue além do último nó e some pela borda. O texto
+      // espelha o fecho do capítulo três — nenhuma afirmação nova.
       const f = document.createElement("div");
-      f.style.cssText = "font-size:10px;color:#8d8272;letter-spacing:.04em";
-      f.textContent = "fonte: " + mo.f;
-      l.appendChild(d); l.appendChild(f);
+      f.className = "ltPonta fim";
+      const t = document.createElement("div");
+      pixelRotulo(t, "O FIO CONTINUA", 1, "#b9ad8d");
+      f.appendChild(t);
+      sub(f, "ltPontaSub", "a disputa está em curso — ela segue depois que você fecha o jogo");
+      col.appendChild(f);
     }
-    box.appendChild(l);
   });
+  box.appendChild(col);
 }
 
 // Os rótulos que não mudam, pintados uma vez na carga. Depois disto o chrome inteiro fala a
@@ -5059,7 +5151,12 @@ function ligarTelas() {
   $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   // Toque em qualquer lugar da tela da fala avança — é o gesto do jogo antigo inteiro, e não
   // um botão pequeno num canto. O PULAR se defende sozinho parando o evento antes.
-  $("telaFala").addEventListener("pointerdown", function (e) { e.preventDefault(); avancarFala(); });
+  $("telaFala").addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    // durante a cerimônia, o toque a encerra — nunca engole o gesto nem pula a fala junto
+    if (emCerimonia()) { fimCerimonia(); return; }
+    avancarFala();
+  });
   $("btnFalaPular").addEventListener("pointerdown", function (e) {
     e.preventDefault(); e.stopPropagation(); encerrarFala();
   });
