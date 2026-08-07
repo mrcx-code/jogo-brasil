@@ -32,6 +32,10 @@ interface Mob {
 /** Alguém que foi acolhida e agora anda junto. `d` é a distância própria dela, pela mesma
  *  razão que a de `Mob`; `x` é posição de mundo, não de tela. */
 interface Companheira { x: number; d: number; esc: number; }
+// Quem já foi acolhida e VIVE na faixa final do capítulo — parada ou dando passos curtos.
+// `anda` nunca mistura pose e movimento: quem tem pose de caminhada está de fato cobrindo
+// chão (quadro por distância, armadilha nº 1 do §7 vista de outro ângulo).
+interface Morador { x: number; d: number; esc: number; anda: boolean; vel: number; }
 interface Magia { wx: number; y: number; vx: number; vy: number; t: number; vida: number; f: number; }
 interface MuroEntrada { n: number; nome: string; prox: string; proj: number; cauda: string; estilo: number; }
 /** O aviso de volta: `quem` nunca é escrito hoje (notaDeVolta() devolve null desde que o tema
@@ -189,6 +193,15 @@ let S = {
   // tamanho da fila que está na tela, para que ela continue lá depois de fechar o jogo. Ver o
   // bloco "QUEM CHEGA PASSA A ANDAR COM VOCÊ".
   grupo: 0,
+  // Quantas pessoas foram acolhidas em cada época, UMA POSIÇÃO POR ÉPOCA. Diferente de
+  // `grupo` (a fila visível de agora), isto é o que faz o LUGAR existir entre sessões: a
+  // faixa final do capítulo desenha até 6 delas vivendo ali, e o excedente é dito em texto
+  // — nunca multidão-textura (§2 e JOGABILIDADE.md). Preenchido com EPOCAS.length zeros
+  // logo depois de EPOCAS existir; ver o bloco abaixo de MASCARA_EPOCAS.
+  acolhidos: [] as number[],
+  // Quais marcos do chão do capítulo 2 já falaram, um bit por marco — mesma gramática de
+  // `aberturas`/`fechos`: bit ligado = já falou, e a fala curta não se repete.
+  marcos: 0,
   salvoEm: 0
 };
 
@@ -637,6 +650,12 @@ function acolherPessoa(x, esc) {
   grupo.push({ x: x, d: 0, esc: esc });
   while (grupo.length > GRUPO_MAX) { const s = grupo.shift(); if (s) ficando.push(s); }
   S.grupo = grupo.length;
+  // ...e a época lembra: é isto que a faixa final desenha e o save carrega. Não é placar —
+  // não aparece em contador nenhum; vira gente vivendo no lugar, e excedente vira texto.
+  const e = epocaAtual();
+  if (S.acolhidos[e] !== undefined) {
+    S.acolhidos[e] = Math.min(ACOLHIDOS_TETO, (S.acolhidos[e] | 0) + 1);
+  }
 }
 function atualizarGrupo(dt) {
   // Fora do capítulo 2 não há fila: a arte é a pessoa de Palmares e ela não anda nos outros
@@ -1153,6 +1172,23 @@ let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
 // A máscara cheia das falas vistas: um bit por época. O ESQUEMA_SAVE valida contra ela.
 const MASCARA_EPOCAS = (1 << EPOCAS.length) - 1;
+// `S.acolhidos` nasce vazio porque S é declarado antes de EPOCAS; aqui ele ganha o tamanho
+// certo — uma posição por época, começando em zero.
+while (S.acolhidos.length < EPOCAS.length) S.acolhidos.push(0);
+// ===== OS MARCOS NO CHÃO DO CAPÍTULO 2 (protótipo travessia+lugar-vivo, JOGABILIDADE.md) =====
+// Três placas de madeira fincadas na estrada de Palmares. Cada uma materializa um momento
+// que JÁ EXISTE na LINHA_TEMPO (o vão XVI→XVII, `cena: 2`) — nenhum texto histórico novo.
+// A escolha abaixo é ÍNDICE DENTRO DESSE VÃO: 0 = O açúcar, 2 = A travessia forçada,
+// 3 = A guerra que abriu a serra — a última com o sujeito em quem resistiu, critério do
+// historiador que a própria LINHA_TEMPO registra.
+const MARCOS_CAP2_ESCOLHA = [0, 2, 3];
+const MASCARA_MARCOS = (1 << MARCOS_CAP2_ESCOLHA.length) - 1;
+// Teto de armazenamento de `acolhidos`, derivado do ritmo real da rua e nunca relaxado:
+// uma chegada nasce a cada ≥ 51 px de mundo (0,65 × mobVao), então 9999 acolhidas exigem
+// ~510 mil px — mais de 1,8 h de corrida contínua DENTRO de um capítulo. Acima disso é
+// save adulterado, e cai no teto. O desenho nunca passa de 6 figuras (o excedente é texto),
+// então o teto não põe multidão nenhuma na tela.
+const ACOLHIDOS_TETO = 9999;
 function cenarioDaEpoca(e) { return EPOCA_CENA0[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))]; }
 function epocaDoCenario(i) {
   let e = EPOCAS.length - 1;
@@ -1195,6 +1231,15 @@ const ESQUEMA_SAVE = {
   // Quantas andam com você. Faixa fechada em 0..GRUPO_MAX e padrão 0: um save adulterado com
   // 900 não põe novecentas figuras na tela, e errar para 0 é o lado que não inventa gente.
   grupo:        { tipo: "num", min: 0, max: 5, pad: 0 },
+  // Uma posição por época, faixa fechada em 0..ACOLHIDOS_TETO (derivação no próprio teto) e
+  // padrão 0 por elemento: um save adulterado com "muitas" ou com -3 erra para o lado que
+  // não inventa gente. O tamanho vem de EPOCAS.length — capítulo novo abre a posição dele
+  // sozinho, sem relaxar as demais.
+  acolhidos:    { tipo: "lista", n: EPOCAS.length, min: 0, max: ACOLHIDOS_TETO, pad: 0 },
+  // Os marcos do chão já falados, um bit por marco. Mesmo tipo (e mesmo motivo) de
+  // `aberturas`: aparar 999 para a máscara cheia calaria as três placas — valor fora da
+  // faixa cai no padrão 0, que erra para o lado de FALAR de novo, nunca de calar.
+  marcos:       { tipo: "bits", min: 0, max: MASCARA_MARCOS, pad: 0 },
   salvoEm:      { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
 function valida(regra, v) {
@@ -1208,6 +1253,18 @@ function valida(regra, v) {
     if (typeof v !== "number" || !isFinite(v)) return regra.pad;
     const n = Math.floor(v);
     return (n >= regra.min && n <= regra.max) ? n : regra.pad;
+  }
+  // Lista de números de tamanho FIXO: cada elemento passa pela mesma régua de "num", e o
+  // que faltar, sobrar ou não for número finito vira o padrão. O comprimento é sempre
+  // `regra.n` — um save com array de 900 posições sai daqui com EPOCAS.length, nem uma a mais.
+  if (regra.tipo === "lista") {
+    const fora: number[] = [];
+    for (let i = 0; i < regra.n; i++) {
+      const el = Array.isArray(v) ? v[i] : undefined;
+      fora.push(typeof el === "number" && isFinite(el)
+        ? Math.min(regra.max, Math.max(regra.min, Math.floor(el))) : regra.pad);
+    }
+    return fora;
   }
   if (regra.tipo === "bool") return v === true;
   if (regra.tipo === "um") return regra.entre.indexOf(v) >= 0 ? v : regra.pad;
@@ -1238,35 +1295,57 @@ function carregar() {
   semearGrupo();       // a fila volta como estava: quem veio ficar continua andando junto
   const dt = Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600);
   voltouDepoisDe = dt;
-  // Built as data, not as markup: each part is either a plain line or a line with a
-  // speaker, and the renderer below puts both in as text nodes. Nothing here can carry HTML
-  // into the page, whatever ends up in one of these strings later.
-  const partes: ParteAviso[] = [];
-  if (dt > 60 && R.dias.length > 1) {
-    const h = Math.floor(dt / 3600), m = Math.floor((dt % 3600) / 60);
-    partes.push({ texto: "🌙 AWAY " + h + "h" + String(m).padStart(2, "0") + " — DAY "
-      + R.dias.length + ", the neighbourhood knows you: ×" + bonusDias().toFixed(2) });
+  mostrarRetorno(dt);
+}
+
+// ===== A TELA DE RETORNO — "enquanto você esteve fora" (JOGABILIDADE.md, passo 3) =====
+// Um papel de campo, no mesmo material da caixa de fala, que abre ao voltar com mais de um
+// minuto fora e lista o que o LUGAR tem a dizer. Regra dura: nenhum dígito inventado —
+// cada número aqui é lido do estado real (tempo medido, bônus de dias que já existe, fila
+// salva, acolhidas salvas). Não há produção offline nesta economia, e a tela não finge que
+// houve: diz que a estrada esperou. Fecha num toque.
+// Substitui a tira #offline, que era texto do tema anterior ("AWAY", "the neighbourhood").
+// Tudo entra como TEXTO, nó a nó — nada aqui pode virar marcação.
+function mostrarRetorno(dt) {
+  if (dt <= 60) return;
+  const el = document.getElementById("retorno");
+  if (!el) return;
+  const lista = document.getElementById("retLista");
+  if (!lista) return;
+  lista.textContent = "";
+  const linha = function (txt) {
+    const d = document.createElement("div");
+    d.className = "retLinha";
+    d.textContent = txt;
+    lista.appendChild(d);
+  };
+  const h = Math.floor(dt / 3600), m = Math.floor((dt % 3600) / 60);
+  linha("Você ficou fora por " + (h > 0 ? h + "h" + String(m).padStart(2, "0") : m + " min") + ".");
+  if (R.dias.length > 1) {
+    linha("Dia " + R.dias.length + " de travessia — o caminho te conhece: tudo vale ×"
+      + bonusDias().toFixed(2) + ".");
   }
-  const nota = notaDeVolta();
-  if (nota) partes.push({ texto: nota });
-  if (partes.length) {
-    const el = document.getElementById("offline")!;
-    el.textContent = "";
-    partes.forEach(function (parte, i) {
-      if (i) el.appendChild(document.createElement("br"));
-      // the speaker is bold, the line is not; both go in as TEXT, never as markup
-      if (parte.quem) {
-        const b = document.createElement("b");
-        b.textContent = parte.quem;
-        el.appendChild(b);
-        el.appendChild(document.createTextNode(" — \u201c" + parte.texto + "\u201d"));
-      } else {
-        el.appendChild(document.createTextNode(parte.texto));
-      }
-    });
-    el.style.display = "block";
-    setTimeout(function () { el.style.display = "none"; }, 12000);
+  const fila = S.grupo | 0;
+  if (fila > 0) {
+    linha(fila === 1 ? "Uma pessoa continua andando com você."
+      : fila + " pessoas continuam andando com você.");
   }
+  const vivendo = S.acolhidos.reduce(function (a, b) { return a + (b | 0); }, 0);
+  if (vivendo > 0) {
+    linha(vivendo === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
+      : vivendo + " pessoas acolhidas vivem no lugar que vocês abriram.");
+  }
+  // a verdade da economia deste jogo, dita em vez de uma produção inventada
+  linha("A estrada esperou. O que chega, chega para quem está aqui.");
+  pixelRotulo($("retTit"), "ENQUANTO VOCÊ ESTEVE FORA", 2, "#5c3210");
+  el.classList.add("aberto");
+  el.setAttribute("aria-hidden", "false");
+}
+function fecharRetorno() {
+  const el = document.getElementById("retorno");
+  if (!el) return;
+  el.classList.remove("aberto");
+  el.setAttribute("aria-hidden", "true");
 }
 
 // ---------- retention (this device only: no service, nothing personal) ----------
@@ -1440,6 +1519,13 @@ function desenharGenteHD(hc, kx, ky, escBase) {
     const p = Math.max(0.5, passo * esc);
     return walk[((Math.floor(d / p) % n) + n) % n];
   };
+  // Quem vive na faixa final vem primeiro (mais ao fundo da leitura): paradas usam a pose
+  // de pé que segura o que trouxe — gesto de quem mora, não de quem espera socorro — e as
+  // que andam usam o quadro por distância, porque estão de fato cobrindo chão.
+  for (let i = moradores.length - 1; i >= 0; i--) {
+    const c = moradores[i];
+    desenha(c.anda ? quadro(c.d, c.esc) : poseEspera, c.x, c.esc, false);
+  }
   // de trás para a frente, para quem está mais perto ficar por cima
   for (let i = ficando.length - 1; i >= 0; i--) {
     const c = ficando[i]; desenha(quadro(c.d, c.esc), c.x, c.esc, false);
@@ -3676,6 +3762,117 @@ function verificarCenario() {
   if (vira) mostrarFecho(saindoDe, avancar); else avancar();
 }
 
+// ============================================================
+// OS MARCOS NO CHÃO — a linha do tempo materializada na estrada (JOGABILIDADE.md, passo 1)
+//
+// Só no capítulo 2, como protótipo. Cada marco é um OBJETO DO MUNDO na camada 1:1 — a mesma
+// dos drops e das chegadas, NUNCA paralaxe nova (armadilha nº 1 do §7): ele entra pela borda
+// direita quando o impacto acumulado alcança o alvo dele, rola com a estrada, e quando a
+// protagonista o alcança a fala curta do momento correspondente da LINHA_TEMPO abre.
+//
+// As distâncias derivam dos LIMIARES existentes e a economia não muda um byte: o capítulo 2
+// vai de LIMIAR_CENA·cena0 até isso + LIMIAR_CENA·cenas, e os três marcos dividem esse vão
+// em quartos (25%, 50%, 75%). O marco só dá corpo ao que hoje é um número invisível.
+//
+// Auto-restaurável de propósito: se a placa passar sem falar (uma fala de capítulo estava
+// aberta na hora), ela sai de quadro sem marcar o bit — e como o alvo continua batido e o
+// bit continua solto, a próxima verificação a semeia de novo. Nada se perde, nada trava.
+let marcoAtivo: { i: number; wx: number; falado: boolean } | null = null;
+// Os momentos do vão XVI→XVII, lidos da LINHA_TEMPO — o texto mora LÁ e só lá.
+function momentosMarcoCap2() {
+  return LINHA_TEMPO.filter(function (n) { return n.tipo === "momento" && n.cena === 2; });
+}
+function marcoAlvo(i) {
+  const ini = LIMIAR_CENA * cenarioDaEpoca(CAP_GENTE);
+  const span = LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas;
+  return ini + span * (i + 1) / (MARCOS_CAP2_ESCOLHA.length + 1);
+}
+function atualizarMarcos() {
+  if (!capGente()) { marcoAtivo = null; return; }
+  if (marcoAtivo) {
+    // +24: a fala abre com a placa UM CORPO à frente dela, ainda visível — no +8 original a
+    // placa chegava exatamente sob a personagem e a caixa de fala (e o retrato) a cobriam,
+    // medido no print V-marco. Chegar "diante do marco" é a leitura certa mesmo.
+    if (!marcoAtivo.falado && marcoAtivo.wx - worldX <= HX + 24) {
+      // Alcançou a placa. Com uma tela aberta por cima, não fala nem marca: a placa segue,
+      // sai de quadro e é semeada de novo — falar por baixo de outra fala seria pior.
+      if (!falaAberta() && !telaAberta()) {
+        marcoAtivo.falado = true;
+        S.marcos = ((S.marcos | 0) | (1 << marcoAtivo.i)) >>> 0;
+        salvar();
+        const mo = momentosMarcoCap2()[MARCOS_CAP2_ESCOLHA[marcoAtivo.i]];
+        if (mo && mo.t && mo.d) abrirFala(mo.t, mo.q, [mo.d], null);
+      }
+    }
+    if (marcoAtivo.wx - worldX < -60) marcoAtivo = null;
+    return;
+  }
+  for (let i = 0; i < MARCOS_CAP2_ESCOLHA.length; i++) {
+    if (jaViu(S.marcos, i)) continue;
+    if (S.energiaTotal >= marcoAlvo(i)) {
+      marcoAtivo = { i: i, wx: worldX + W + 40, falado: false };
+    }
+    break;      // um de cada vez, na ordem da linha do tempo
+  }
+}
+// A placa desenhada: madeira nos tons da moldura do papel de campo (#241a10/#7a5430), com a
+// luz em cima que é a gramática das lajes do HUD. Silhueta ALTA e PARADA de propósito — o
+// risco declarado no JOGABILIDADE.md é competir com os itens, que são baixos e móveis.
+function desenharMarco() {
+  if (!marcoAtivo) return;
+  const sx = Math.round(marcoAtivo.wx - worldX);
+  if (sx < -30 || sx > W + 44) return;
+  const topo = GROUND - 34;
+  sombra(sx + 3, GROUND, 16, 0.16);
+  cx.fillStyle = "#241a10"; cx.fillRect(sx + 1, topo + 10, 5, 25);   // o poste, com contorno
+  cx.fillStyle = "#5c3d20"; cx.fillRect(sx + 2, topo + 11, 3, 23);
+  cx.fillStyle = "#241a10"; cx.fillRect(sx - 12, topo, 31, 14);      // a tábua
+  cx.fillStyle = "#7a5430"; cx.fillRect(sx - 11, topo + 1, 29, 12);
+  cx.fillStyle = "#a07a48"; cx.fillRect(sx - 11, topo + 1, 29, 2);   // a luz em cima
+  // veios entalhados, sem glifo: um grafismo inventado aqui seria o erro do §2/logo
+  cx.fillStyle = "#41290f";
+  cx.fillRect(sx - 8, topo + 5, 23, 1); cx.fillRect(sx - 8, topo + 8, 17, 1);
+}
+
+// ============================================================
+// A FAIXA FINAL — o lugar que se encheu de vida (JOGABILIDADE.md, passo 2)
+//
+// Nas últimas ~2 telas do capítulo 2 (o quinto final do vão de impacto, FAIXA_FRAC), quem
+// foi acolhida aparece VIVENDO ali: paradas na pose de quem segura o que trouxe, ou dando
+// passos curtos — e quem tem pose de caminhada está de fato cobrindo chão (quadro por
+// distância, sempre). No máximo 6 figuras em tela; o excedente é dito em texto no chão,
+// nunca virando multidão-textura (§2). Sprites que já existem, camada da personagem.
+let moradores: Morador[] = [];
+const FAIXA_FRAC = 0.8;
+function faixaViva() {
+  if (!capGente()) return false;
+  if ((S.acolhidos[CAP_GENTE] | 0) <= 0) return false;
+  if (jaViu(S.fechos, CAP_GENTE)) return true;   // capítulo já fechado: o lugar ficou
+  const ini = LIMIAR_CENA * cenarioDaEpoca(CAP_GENTE);
+  const span = LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas;
+  return (S.energiaTotal - ini) / span >= FAIXA_FRAC;
+}
+function atualizarMoradores(dt) {
+  if (!faixaViva()) { if (moradores.length) moradores.length = 0; return; }
+  // Semeia à frente; quando todas ficaram para trás, repovoa mais adiante — o lugar não é
+  // um ponto que se passa uma vez, é a faixa onde a travessia termina.
+  const todasAtras = moradores.length > 0 &&
+    moradores.every(function (m) { return m.x - worldX < -50; });
+  if (!moradores.length || todasAtras) {
+    moradores.length = 0;
+    const n = Math.min(6, S.acolhidos[CAP_GENTE] | 0);
+    let x = worldX + W * 0.7;
+    for (let i = 0; i < n; i++) {
+      x += 38 + hash01(i * 13.7 + Math.floor(worldX * 0.01)) * 34;
+      moradores.push({ x: x, d: Math.random() * 60, esc: 0.82 + Math.random() * 0.13,
+        anda: i % 3 === 2, vel: 9 + Math.random() * 4 });
+    }
+  }
+  moradores.forEach(function (m) {
+    if (m.anda) { const p = m.vel * dt; m.x += p; m.d += p; }
+  });
+}
+
 /*ICONE_B64_START — gerado por test/inline-objetos.js, não edite à mão*/
 // Os ícones do painel, desenhados de fora como o resto da arte. Três contadores e o ritmo.
 const ICONE_B64 = {
@@ -4536,6 +4733,22 @@ function desenharVidaMob(m) {
 
 function desenharMundo() {
   const pulso = 0.6 + 0.4 * Math.sin(animT * 6);
+  // o marco fincado no chão, na mesma camada 1:1 dos drops — nunca paralaxe nova
+  desenharMarco();
+  // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
+  // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
+  if (moradores.length) {
+    const extra = (S.acolhidos[CAP_GENTE] | 0) - moradores.length;
+    if (extra > 0) {
+      const msg = "E MAIS " + extra + " VIVEM AQUI";
+      const larg = larguraTexto(msg, 1);
+      // preso ao quadro: ancorado em quem vive ali, mas nunca cortado na borda direita —
+      // medido no print V-faixa, onde "VIVEM AQUI" saía da tela
+      let ax = Math.round(moradores[0].x - worldX) - 16;
+      ax = Math.min(ax, W - larg - 4);
+      if (ax > -larg) texto(msg, ax, GROUND - 58, 1, "#f3dda6", "#241a10");
+    }
+  }
   // what a beaten trouble left behind, waiting for a thumb
   drops.forEach(function (d) {
     const sx = Math.round(d.wx - worldX);
@@ -4656,6 +4869,19 @@ function desenhar() {
   // um capítulo com nome diz onde você está; um capítulo com número diz só quantos faltam.
   pixelRotulo($("rotuloEpoca"), EPOCAS[epocaAtual()].nome, 1, "#d8c398", "#0a0806");
   $("barraEpocaFill").style.width = pc + "%";
+  // O indicador discreto do marco: quantos PASSOS até a placa que já está vindo. Reusa a
+  // medida que o jogo já faz — o quadro do sprite é escolhido pelo chão coberto, e um passo
+  // é PASSO_CAP.passo px de mundo. Nenhum número inventado: é distância medida na rua.
+  const md = $("marcoDist");
+  if (marcoAtivo && !marcoAtivo.falado) {
+    const falta = Math.max(0, marcoAtivo.wx - worldX - HX);
+    const passos = Math.max(1, Math.ceil(falta / passoCap().passo));
+    pixelRotulo(md, "MARCO EM " + passos + (passos === 1 ? " PASSO" : " PASSOS"), 1,
+      "#d8c398", "#0a0806");
+    md.classList.add("vivo");
+  } else {
+    md.classList.remove("vivo");
+  }
   pixelRotulo($("nAgua"), String(S.recursos.agua | 0), 1, "#2a2418");
   pixelRotulo($("nRef"), String(S.recursos.refeicao | 0), 1, "#2a2418");
   pintarIconesDrop();
@@ -4743,6 +4969,8 @@ function zerarJogo() {
   S.recursos = { flor: 0, agua: 0, refeicao: 0 };
   S.cuidado = 1; cuidadoVisto = 1;
   S.grupo = 0; grupo.length = 0; ficando.length = 0;
+  S.acolhidos = EPOCAS.map(function () { return 0; });
+  S.marcos = 0; marcoAtivo = null; moradores.length = 0;
   worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
   salvar();
   try { localStorage.removeItem(CHAVE_RET); } catch (e) {}
@@ -5241,6 +5469,10 @@ function pintarRotulos() {
 }
 
 function ligarTelas() {
+  // o papel da volta fecha num toque em qualquer ponto dele — e o toque não vaza para o jogo
+  $("retorno").addEventListener("pointerdown", function (e) {
+    e.preventDefault(); e.stopPropagation(); fecharRetorno();
+  });
   $("abrirMenu").addEventListener("pointerdown", function (e) {
     e.preventDefault(); e.stopPropagation();
     fecharTudo(); abrirTela("telaMenu");
@@ -5496,6 +5728,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ultimo = agora;
     atualizarMobs(dt);
     atualizarGrupo(dt);         // quem já foi acolhida anda junto — capítulo 2 e só ele
+    atualizarMarcos();          // as placas da linha do tempo fincadas na estrada (cap. 2)
+    atualizarMoradores(dt);     // a faixa final onde as acolhidas vivem (cap. 2)
     suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
     atualizarDrops(dt);
     atualizarChamada(dt);

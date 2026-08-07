@@ -1370,3 +1370,53 @@ recebe o que quem chegou trazia. A pessoa não é recebida: ela passa a andar ju
 **Próximo passo:** decidir com o dono se o gesto de alcançar em Palmares continua sendo o combo
 de golpe (item 1 acima). É o único ponto do capítulo em que a mecânica ainda fala uma língua
 diferente do que a tela mostra.
+
+### 2026-08-06 · travessia + lugar vivo, fase 1 no capítulo 2 (worktree, para integrar)
+
+Os passos 1, 2 e 3 da ordem de implementação do `JOGABILIDADE.md`, só no capítulo 2:
+
+**1. Marcos no chão.** Três placas de madeira fincadas na estrada de Palmares — objetos do
+mundo na camada 1:1 dos drops, nunca paralaxe nova. Cada uma materializa um momento que JÁ
+existe na LINHA_TEMPO (vão XVI→XVII, `cena: 2`): O açúcar, A travessia forçada, A guerra que
+abriu a serra — a última com o sujeito em quem resistiu, critério do historiador. Alvos
+derivados dos LIMIARES (25/50/75% do vão de impacto do capítulo: 3.750, 4.500, 5.250);
+economia intocada. A placa entra pela direita quando o alvo bate, e chegar nela (um corpo à
+frente, `HX+24` — no `+8` a caixa de fala cobria a placa, medido no print) abre a fala curta
+do momento. `S.marcos` (bits, padrão 0 = fala de novo, nunca cala) no ESQUEMA_SAVE. HUD:
+`#marcoDist`, "MARCO EM N PASSOS" — N é distância medida ÷ `PASSO_CAP.passo`, o mesmo dado
+que escolhe o quadro do sprite; some quando não há placa vindo.
+
+**2. `S.acolhidos` por época.** Uma posição por época (tipo `lista` novo no esquema: tamanho
+fixo `EPOCAS.length`, elemento a elemento em 0..9999 — teto derivado: uma chegada a cada
+≥51 px de mundo ⇒ 9999 acolhidas ≈ 510 mil px ≈ 1,8 h de corrida contínua; acima é save
+adulterado). `acolherPessoa()` incrementa a época atual. A FAIXA FINAL (últimos 20% do vão
+de impacto, ou capítulo já fechado) desenha até **6** acolhidas vivendo ali — pose parada de
+quem segura o que trouxe, ou passos curtos com quadro por distância (figura parada em pose
+de caminhada é a armadilha nº 1 vista de outro ângulo). Excedente vira texto no chão
+("E MAIS N VIVEM AQUI", preso ao quadro — na primeira versão cortava na borda, medido no
+print). Ninguém vira multidão-textura.
+
+**3. Tela de retorno.** `mostrarRetorno()`: papel de campo (mesmo material da caixa de fala)
+ao voltar com >60 s fora. Só números da economia real: tempo medido, dia N × bônus
+`bonusDias()` que já existia, fila salva (`S.grupo`), acolhidas salvas. Não há produção
+offline nesta economia e a tela NÃO inventa uma — diz que a estrada esperou. Fecha num
+toque. Substitui a tira `#offline`, que ainda falava a língua do tema anterior ("AWAY",
+"the neighbourhood"). O aviso antigo saiu do `carregar()`.
+
+**Medido:** smoke verde, FPS 62 (igual ao patamar anterior). `index.html`: 3.859.391 →
+3.877.444 bytes (+17,6 KB, só código/CSS — nenhuma imagem nova; as placas são retângulos
+nos tons da moldura do papel). Prints a 390×844 dsf2 na raiz do worktree: `V-marco-antes.png`
+(placa + indicador), `V-marco.png` (fala aberta com placa em quadro), `V-faixa.png`
+(6 figuras + "E MAIS 3"), `V-retorno.png`. Gerador: `prints-fase1.js` na raiz.
+
+**O que ficou frágil:** (a) a placa continua rolando sob a fala aberta (o mundo não para —
+decisão antiga) e sai de quadro em ~3 s; se a fala do capítulo estiver aberta na hora, a
+placa passa SEM falar e é semeada de novo — auto-restaurável, mas alguém pode ver a mesma
+placa entrar duas vezes. (b) A faixa final repovoa à frente enquanto a condição vale: o
+"lugar" é uma faixa contínua, não um ponto — leitura certa para o idle, mas significa que
+não existe UM lugar fixo no mundo. (c) O teto 9999 de acolhidos é derivação de rua, não de
+design — se um capítulo futuro mudar o vão das chegadas, rederivar. (d) `marcoDist` divide
+a linha com a barra da época; com nome de capítulo comprido pode apertar em telas <360 px.
+
+**Próximo passo (passo 4 do JOGABILIDADE.md):** medir — tempo de sessão e volta-no-dia-2
+mudam com marcos+faixa? Só depois estender aos outros capítulos.

@@ -491,7 +491,9 @@ function alvo() {
   // `som` e `grupo` sao estado PERSISTIDO: o interruptor de audio dos AJUSTES e o tamanho da
   // fila que anda com voce em Palmares. Esta lista e a copia INDEPENDENTE do ESQUEMA_SAVE, e e
   // ela que pega um campo gravado sem esquema — por isso nao se gera uma da outra.
-  const esperadas = ['aberturas', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
+  // `acolhidos` (uma posição por época) e `marcos` (bits das placas do cap. 2) entraram com
+  // o protótipo travessia+lugar-vivo — cópia deliberada, atualizada JUNTO com o ESQUEMA_SAVE.
+  const esperadas = ['aberturas', 'acolhidos', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));

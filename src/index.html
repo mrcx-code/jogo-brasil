@@ -53,9 +53,20 @@
     <span id="rotuloEpoca">ANTES DA CHEGADA</span>
     <div id="barraEpoca"><div id="barraEpocaFill"></div></div>
   </div>
+  <!-- O indicador do marco: quantos passos até a placa que já entrou na estrada (cap. 2).
+       Discreto de propósito — mora sob a barra da época e só existe enquanto há marco vindo. -->
+  <div id="marcoDist"></div>
 </div>
 
 <div id="offline"></div>
+
+<!-- ENQUANTO VOCÊ ESTEVE FORA: o papel de campo que o lugar deixa para quem volta.
+     Preenchido por mostrarRetorno() só com números da economia real; fecha num toque. -->
+<div id="retorno" aria-hidden="true">
+  <div id="retTit">ENQUANTO VOCÊ ESTEVE FORA</div>
+  <div id="retLista"></div>
+  <div id="retOk">toque para seguir ▾</div>
+</div>
 
 <div id="guia" aria-live="polite">
   <div class="guiaBolha">

@@ -148,6 +148,30 @@
     background: #35431f; border: 3px solid var(--ink); box-shadow: inset 0 0 0 2px #8aa347;
     color: #dbe7b4; padding: 8px 10px; font-size: var(--fs-xs); line-height: 1.7; }
 
+  /* O indicador do marco: a mesma linha discreta da época, alinhado à direita da barra.
+     Flex e não text-align: o pixelRotulo é um canvas, e como bloco ele ignorava o align —
+     medido no print V-marco-antes, onde o rótulo saía grudado na borda esquerda. */
+  #marcoDist { display: none; justify-content: flex-end; padding: 3px 14px 0 0;
+    line-height: 1; opacity: .92; }
+  #marcoDist.vivo { display: flex; }
+
+  /* ENQUANTO VOCÊ ESTEVE FORA — o papel de campo da volta: mesmo material da caixa de
+     fala (pauta + papel + moldura de madeira), tinta escura sobre papel claro. */
+  #retorno { display: none; position: fixed; z-index: 30; left: 50%; top: 24%;
+    transform: translateX(-50%); width: min(440px, 90vw); box-sizing: border-box;
+    background:
+      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    border-radius: 4px; padding: 16px 16px 12px;
+    box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
+                inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
+                0 7px 0 rgba(0,0,0,.45); }
+  #retorno.aberto { display: block; }
+  #retTit { margin-bottom: 9px; padding-bottom: 9px; border-bottom: 2px solid #c3ac7c; }
+  .retLinha { color: var(--tintaP); font-size: 13px; line-height: 1.65; margin: 6px 0; }
+  #retOk { margin-top: 10px; text-align: right; font-size: 10px; letter-spacing: .12em;
+    color: #8a6b3d; }
+
   /* ---- chapter cards: the run gets named out loud ----
      Thresholds are fractions of CFG.metaPrestigio, computed at fire time — nothing here
      freezes the target. Pointer-through on purpose: the whole game is one button and a
