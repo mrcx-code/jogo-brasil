@@ -156,11 +156,21 @@ chega ao `index.html`. Para só conferir tipos, sem gerar: `npm run tipos`.
 Para o aplicativo Android: `npm run app` (constrói e sincroniza) e `npm run app:abrir`.
 Compilar o APK exige JDK e Android SDK, que **não estão nesta máquina**.
 
-**Qualidade da arte:** as pinturas de cenário são reencodadas em WebP **0,80** direto dos PNG
-mestres (`test/inline-fundos.js`), e objetos, drops, ícones, vegetação de frente e retratos
-passaram pelo `test/requalificar.js` na mesma qualidade. Medido: 3,91 MB → 2,81 MB, com erro
-médio abaixo de 2,6 de 255 por canal e nenhuma diferença visível a 3× de ampliação. As folhas da
-personagem (`HERO_B64`) e os NPCs **não** foram mexidos.
+**Qualidade da arte, revista em 2026-08-07** (números e prints no `NOTES.md`): fundos e
+contextos estão em WebP **0,72**; personagem, NPCs, retratos e vegetação de fundo em **0,76**;
+`MOB_B64`, `DROP_B64`, `ICONE_B64` e `FRENTE_B64` continuam em 0,80 — o `FRENTE_B64` porque
+abaixo disso ele **cresce**, os outros porque a meta de peso já estava batida sem gastá-los.
+Medido: `index.html` 4.447 KB → **3.362 KB**, com erro médio **na escala de exibição** de 2,65
+(fundos) e 2,89 (contextos), abaixo da régua de 2,6 de 255 nos dois maiores blocos, e nenhuma
+diferença visível a 3× de ampliação. Ao mexer nisso de novo: meça **na tela**, não no arquivo
+(`test/medir-na-tela.js`) — a pintura de cenário é desenhada AMPLIADA 2,53×, então reduzir a
+resolução dela é piorar o que já falta, e qualidade rende mais KB por unidade de estrago do
+que largura. **0,65 foi medida e recusada** — a mata perde a mancha fina de folha.
+
+Duas economias do pipeline são automáticas e não custam pixel nenhum: o build recolhe toda
+imagem embutida repetida num `__ART[]` (arte gerada por ferramentas diferentes se duplica
+sozinha), e o `test/tirar-icc.js` remove o perfil sRGB que o canvas do Chromium carimba em
+cada WebP. **Rode o `tirar-icc.js` por último** — qualquer reencode recarimba o perfil.
 
 O smoke test roda headless a 390×844 e falha com erro de console, se o segurar-pra-atacar
 parar de repetir, se um upgrade não aplicar, se a metade errada da tela responder, se um

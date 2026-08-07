@@ -2082,3 +2082,104 @@ caminho de desenho a 1/60 fixo com a história aberta. São o rastro de um gesto
 morrem em ~0,4 s, então congelá-las mostraria uma faísca pendurada — deixei correr de
 propósito. Se o dono quiser o congelamento literal, o lugar é o laço de partículas em
 `desenharMundo()`, e o preço é essa faísca parada.
+---
+
+## 2026-08-07 · Dev · O peso volta para debaixo do teto — 4.447 KB → 3.362 KB
+
+Pedido do dono: *"bora otimizar as imagens"*. Meta: voltar abaixo de 3.600 KB sem perda
+visível. **Fechou em 3.362 KB — 238 KB de folga, 24,4% a menos que os 4.447 de ontem.**
+
+### 1. Medir primeiro: onde o peso estava DE VERDADE
+
+`test/medir-peso.js` (novo) varre `src/jogo.ts`, atribui cada `data:` ao bloco que o contém e
+soma. `test/medir-dim.js` (novo) lê o cabeçalho WebP e diz em quantos pixels cada família foi
+guardada. A suposição do `SPRINT.md` T3 (contextos = alvo mais barato) estava **errada em
+ordem de grandeza**:
+
+| bloco | antes (KB) | depois (KB) |
+|---|---:|---:|
+| CENARIO_ALTO | 1.100 | 880 |
+| HERO (folhas da personagem) | 900 | 546 na fonte, ~400 no `index.html` (ver §2) |
+| CTX (contextos) | 739 | 610 |
+| CENARIO_CHAO | 579 | 465 |
+| NPC | 188 | 138 |
+| MOB · DROP · FRENTE · DECOR · RETRATO · ICONE | 443 | 363 |
+| **base64 total** | **3.949** | **3.002** |
+| **`index.html`** | **4.455** | **3.362** |
+
+O maior bloco isolado não era contexto: era **a personagem, 900 KB** — o único conjunto que o
+`CLAUDE.md` §6 registrava como *nunca reencodado*. Era o KB mais barato do arquivo inteiro.
+
+### 2. Duas economias SEM PERDA NENHUMA — 327 KB, zero pixel alterado
+
+**(a) Arte repetida paga uma vez só (−235 KB no `index.html`).** Medido: `atk2` é cópia byte
+a byte de `atk1` nos três capítulos, e dois quadros se repetem dentro de `atk1_3` — 12 imagens
+duplicadas. Consertar na fonte não adianta: os blocos são GERADOS, e nenhum gerador sabe o que
+outro escreveu. Então quem conserta é o **build**: `ferramentas/construir.js` agora recolhe
+toda literal `"data:image/…"` repetida no JS num `__ART[]` e troca as ocorrências por
+referência. É literal virando referência, sem tocar em byte de imagem, com a sintaxe conferida
+por `vm.Script` antes de sair. Vale para sempre e para arte que ainda nem chegou.
+
+**(b) Perfil ICC fora (−92 KB).** Cada WebP saído do canvas do Chromium carrega um sRGB
+genérico de 456 bytes; 153 imagens × ~620 bytes de base64. Sem ICCP o navegador assume sRGB —
+o mesmo espaço. `test/tirar-icc.js` (novo) remove o chunk e apaga o bit no `VP8X`, e com
+`--verificar` decodifica as 153 antes e depois no Chromium: **diferença máxima de canal 0**.
+Não é estimativa, é prova. **Roda por último**: qualquer reencode recarimba o perfil.
+
+### 3. A parte com perda: qualidade, não resolução — e o número que decidiu
+
+Medido com `test/otimizar-medir.js` (novo: grade largura × qualidade encodando dos PNG
+mestres, com o candidato reamostrado de volta à resolução de hoje antes de comparar):
+
+- **Resolução perde para qualidade.** Contextos a 660 px em 0,80 cortam 161 KB com erro médio
+  6,3; a 780 px em 0,72 cortam 144 KB com erro **4,6**. Menos estrago por KB economizado vem
+  da qualidade. As medições antigas (660 px corta 22%, 520 px corta 46%) continuam certas em
+  KB e enganosas em custo. **Resolução descartada.**
+- **A pintura de cenário já está SUB-resolvida.** `redesenharFundo()` a desenha ampliada
+  **2,53×** num aparelho 390×844 com dpr 3 (o termo `(1-gd)*ch/((1-gs)*ih)` domina a conta).
+  Reduzir os 720 px seria piorar o que já falta.
+- **Paleta:** não rendeu. As pinturas não são quantizadas de verdade, e o WebP com perda já as
+  trata melhor do que qualquer redução de paleta feita antes dele.
+
+**Aplicado:** `test/requalificar.js` **0,72** em fundos e contextos (pintura ampliada 2,5×, ou
+paisagem atrás de véu e caixa de texto) e **0,76** em personagem, NPCs, retratos e vegetação de
+fundo. `FRENTE_B64` ficou como estava: a 0,72 ele **cresce 10%** — imagens de 66×132 já estão
+abaixo do ponto em que a taxa manda. `MOB`, `DROP` e `ICONE` também ficaram: cortariam mais
+~100 KB com erro ~3,0 em sprite visto quase 1:1, e a meta já estava batida. Qualidade que não
+precisa ser gasta não se gasta.
+
+### 4. Prova de que não estragou
+
+O erro medido no ARQUIVO não é o que o olho recebe — a imagem é reamostrada antes de chegar
+lá. `test/medir-na-tela.js` (novo) refaz a conta **na escala de exibição de cada família**:
+
+| bloco | escala na tela | KB | erro no arquivo | **erro NA TELA** |
+|---|---:|---:|---:|---:|
+| CEN_FUNDO | ×2,53 | 1.679 → 1.346 | 3,24 | **2,65** |
+| CTX | ×1,50 | 739 → 610 | 3,49 | **2,89** |
+| HERO | ×0,80 | 901 → 547 | **1,16** | ~3,7 |
+| NPC · RETRATO · DECOR | — | 330 → 229 | 2,1–2,7 | ~3,5 |
+
+Os dois maiores blocos ficam **abaixo da régua da casa (2,6 de 255)** depois da ampliação: a
+suavização apaga justamente o ruído que a compressão introduziu.
+
+**E os prints, que é o que decide** (`test/olhar-antes-depois.js`, novo — reamostra para o
+tamanho de exibição e amplia 3× o mesmo recorte, antes e depois): personagem (contas do colar,
+brilho do cinto, rosto), pintura de mata a 7,6× efetivos, contexto do roçado, retrato de
+Salvador. **Olhados um a um: não distingo antes de depois em nenhum.** A 0,65, também medida,
+a mata perde a mancha fina de folha e o caminho de terra vira bloco — **0,65 foi recusada**, e
+é onde eu pararia mesmo com meta por bater.
+
+**Um caminho que não funcionou, para ninguém repetir:** comparar o QUADRO do jogo rodando,
+antes e depois. O mundo rola, dois runs param em posições diferentes, e o diff mede o
+deslocamento (erro 7 a 17), não a qualidade. Foi por isso que a medição virou por-imagem na
+escala de tela, e não por-quadro.
+
+### 5. O que isto NÃO resolve
+
+Ganho de uma vez: **1.093 KB**. Ao ritmo de ~500 KB por capítulo (agora ~380 na qualidade
+nova), o teto volta a estourar no **capítulo 6**, e 12 capítulos continuam não cabendo num
+arquivo único. Isto comprou dois ou três capítulos de prazo para a decisão estrutural (carga
+sob demanda / Phaser + Supabase); não a substituiu. O gap 2 do `SPRINT.md` segue de pé.
+
+**Medido no fim:** `npm test` verde, FPS 61, zero erro de console, `index.html` 3.362 KB.

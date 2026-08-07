@@ -49,7 +49,35 @@ if (!semTsc) {
 
 const molde = fs.readFileSync(p('src', 'index.html'), 'utf8');
 const css = fs.readFileSync(p('src', 'estilo.css'), 'utf8');
-const js = fs.readFileSync(p('build', 'jogo.js'), 'utf8');
+const jsCru = fs.readFileSync(p('build', 'jogo.js'), 'utf8');
+
+// ---- ARTE REPETIDA PAGA UMA VEZ SÓ ----
+// Os blocos de arte são GERADOS (test/inline-*.js, cortar-pacote.js), e gerador nenhum sabe
+// que a folha que ele acabou de escrever é byte a byte igual a outra já embutida. Hoje isso
+// custa 234 KB: `atk2` é cópia exata de `atk1` nos três capítulos, e dois quadros se repetem
+// dentro de `atk1_3`. Consertar na fonte seria consertar até o próximo gerador rodar.
+//
+// Então o BUILD conserta, e conserta sozinho: toda literal `"data:image/...;base64,..."` que
+// aparece mais de uma vez no JS vira uma entrada de `__ART` e todas as ocorrências viram
+// `__ART[i]`. É reescrita de literal por referência — a mesma string, um lugar só. Sem perda
+// possível: nenhum byte de imagem é reencodado.
+function pagarArteUmaVez(js) {
+  const RE = /"data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+"/g;
+  const conta = new Map();
+  for (const m of js.match(RE) || []) conta.set(m, (conta.get(m) || 0) + 1);
+  const repetidas = [...conta.entries()].filter(e => e[1] > 1).map(e => e[0]);
+  if (!repetidas.length) return { js, poupado: 0, n: 0 };
+  const idx = new Map(repetidas.map((s, i) => [s, i]));
+  const novo = 'var __ART=[' + repetidas.join(',') + '];\n'
+    + js.replace(RE, (s) => (idx.has(s) ? '__ART[' + idx.get(s) + ']' : s));
+  // Sintaxe conferida antes de deixar sair: literal trocada por referência é cirurgia em
+  // arquivo gerado, e arquivo gerado é onde ninguém olha.
+  new (require('vm').Script)(novo, { filename: 'jogo.dedup.js' });
+  return { js: novo, poupado: js.length - novo.length, n: repetidas.length };
+}
+const dedup = pagarArteUmaVez(jsCru);
+const js = dedup.js;
+if (dedup.n) console.log('arte repetida: ' + dedup.n + ' imagens pagas uma vez só — ' + Math.round(dedup.poupado / 1024) + ' KB a menos');
 
 for (const marca of ['@@CSS@@', '@@JS@@']) {
   if (molde.split(marca).length !== 2) throw new Error('o molde precisa de exatamente um ' + marca);
