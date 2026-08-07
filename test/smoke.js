@@ -180,6 +180,12 @@ function alvo() {
     // Regra nova (usabilidade, achado 1): a barra INTACTA não desenha nada — vazia ela era
     // um retângulo preto pousado sobre cada coisa que chega. Só depois do primeiro alcance
     // ela existe. Então: cheio tem que estar LIMPO, ferido tem que ter pixels.
+    // O `mobs.length = 0` acima não basta: DROPS e partículas de rodadas anteriores podem
+    // estar vivos e pintar na faixa amostrada, e aí o teste acusa barra onde não há barra.
+    // Custou um FALSO VERMELHO na main (07/08) — a faixa é estreita, qualquer coisa nela
+    // mente. Limpa-se o mundo inteiro antes de medir.
+    drops.length = 0; folhas.length = 0; parts.length = 0; floats.length = 0;
+    drawScene(); desenharMundo();
     return { hp, golpes, mudou: cheio.some((v, i) => v !== ferido[i]),
       cheioLimpo: !cheio.some((v, i) => i % 4 === 3 && v > 0),
       pintou: ferido.some((v, i) => i % 4 === 3 && v > 0) };
