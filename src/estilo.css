@@ -98,7 +98,17 @@
      tranquei; um agente de produto mediu e achou. */
   #barraEpocaFill { height: 100%; width: 0%; background: #d9a441;
     box-shadow: inset 0 2px 0 #ffd98a, inset 0 -2px 0 #9a6f22;
-    transition: width .35s ease-out; }
+    transition: width .35s ease-out;
+    position: relative; overflow: hidden; }
+  /* o glint (Direção de Evolução, onda 1): o progresso é ouro, e ouro reluz — um brilho
+     estreito varre SÓ a parte preenchida a cada ~7 s. Vive no fill (overflow hidden),
+     então a parte vazia da barra nunca brilha, e some quando não há nada preenchido. */
+  #barraEpocaFill::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+    width: 22px; transform: translateX(-30px) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255,242,205,.6), transparent);
+    animation: glintEpoca 7s ease-in-out infinite; }
+  @keyframes glintEpoca { 0%, 86% { transform: translateX(-30px) skewX(-18deg); }
+    100% { transform: translateX(290px) skewX(-18deg); } }
   /* the three drop counters: small, quiet, and only as wide as their numbers */
   /* O HUD de cima estava espremido: o placar, tres contadores e um botao de menu disputando
      uma faixa de 40 px, e o botao ainda cobria o terceiro contador. O botao desceu para a

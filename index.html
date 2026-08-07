@@ -118,7 +118,17 @@
      tranquei; um agente de produto mediu e achou. */
   #barraEpocaFill { height: 100%; width: 0%; background: #d9a441;
     box-shadow: inset 0 2px 0 #ffd98a, inset 0 -2px 0 #9a6f22;
-    transition: width .35s ease-out; }
+    transition: width .35s ease-out;
+    position: relative; overflow: hidden; }
+  /* o glint (Direção de Evolução, onda 1): o progresso é ouro, e ouro reluz — um brilho
+     estreito varre SÓ a parte preenchida a cada ~7 s. Vive no fill (overflow hidden),
+     então a parte vazia da barra nunca brilha, e some quando não há nada preenchido. */
+  #barraEpocaFill::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+    width: 22px; transform: translateX(-30px) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255,242,205,.6), transparent);
+    animation: glintEpoca 7s ease-in-out infinite; }
+  @keyframes glintEpoca { 0%, 86% { transform: translateX(-30px) skewX(-18deg); }
+    100% { transform: translateX(290px) skewX(-18deg); } }
   /* the three drop counters: small, quiet, and only as wide as their numbers */
   /* O HUD de cima estava espremido: o placar, tres contadores e um botao de menu disputando
      uma faixa de 40 px, e o botao ainda cobria o terceiro contador. O botao desceu para a
@@ -2674,6 +2684,38 @@ function desenharHeroiHD(img, alto) {
     // contra "está desenhada atrás, logo está longe". Profundidade é o que passa NA FRENTE.
     if (fundoGeo)
         desenharFrente(heroCx, { cw: heroCv.width, ch: heroCv.height });
+    aplicarHoraHeroHD();
+}
+// A HORA, NA CAMADA DA PERSONAGEM (Direção de Evolução, onda 1). Com a pintura tomando a
+// hora, a figura em cores fixas voltava a ser "recorte colado sobre o quadro" à noite — o
+// defeito que o herói procedural já tinha pago uma vez (ver o bloco de luzPersonagem). A
+// folha autoral não passa por paleta, então o passe é por composição: dois fillRect em
+// `source-atop`, que só alcançam pixels já desenhados — a protagonista, a gente do cap. 2
+// e a vegetação de frente, juntas, na mesma luz.
+// Os pisos são os que aquela direção mediu: o VALOR dela desce no máximo até 1/3 do caminho
+// de volta ao cheio (ela nunca vira silhueta), e a TINTA da hora chega a 80% da dose do
+// mundo. MANHÃ (esc 1.02, força 0.05) não paga nada — o passe sai cedo.
+function aplicarHoraHeroHD() {
+    if (!heroCx || !heroCv)
+        return;
+    const q = horaAgora();
+    const esc = lerp(lerp(q.a.escala, q.b.escala, q.f), 1, 0.33);
+    const forca = lerp(q.a.forca, q.b.forca, q.f) * 0.8;
+    if (esc >= 0.99 && forca < 0.02)
+        return;
+    heroCx.save();
+    heroCx.globalCompositeOperation = "source-atop";
+    if (esc < 0.99) {
+        heroCx.fillStyle = "rgba(0,0,0," + (1 - esc).toFixed(3) + ")";
+        heroCx.fillRect(0, 0, heroCv.width, heroCv.height);
+    }
+    if (forca >= 0.02) {
+        const t = mixA(q.a.tinta, q.b.tinta, q.f);
+        heroCx.fillStyle = "rgba(" + Math.round(t[0]) + "," + Math.round(t[1]) + ","
+            + Math.round(t[2]) + "," + forca.toFixed(3) + ")";
+        heroCx.fillRect(0, 0, heroCv.width, heroCv.height);
+    }
+    heroCx.restore();
 }
 function fitCanvas() {
     // finer world pixels (hi-bit); hero & mobs are drawn at 2x on top
@@ -2934,7 +2976,33 @@ const HORAS = [
 // now half an hour, so light is a setting rather than an event, and the step count is 4x
 // finer, so each jump is a quarter the size. Re-bakes get RARER (4.7s vs 2.5s) and smaller.
 const DIA_SEG = 1800; // one full turn of the four, in seconds
-let relogio = 0; // advanced by the frame loop, in seconds
+// O RELÓGIO NASCE DA HORA REAL DO APARELHO (Direção de Evolução, onda 1). Antes ele nascia
+// em zero, então TODA sessão abria em MANHÃ e — com sessões curtas — quase ninguém via a
+// TARDE dourada ou a NOITE. Agora abrir o jogo ao anoitecer abre a mata ao anoitecer; o
+// ciclo de 30 min continua a partir daí. O mapa é por âncoras (hora real → fração do ciclo)
+// porque a noite real dura ~10 h e a NOITE do jogo é um quarto do ciclo — linear erraria.
+// Nada disto é salvo (relogio nunca esteve no ESQUEMA_SAVE) e nada lê a economia: continua
+// sendo cenário, só que sincronizado com o dia de quem joga.
+function semearRelogio() {
+    const ag = new Date();
+    const h0 = ag.getHours() + ag.getMinutes() / 60;
+    const h = h0 < 5 ? h0 + 24 : h0; // a madrugada pertence à noite anterior
+    // [hora real, fração do ciclo]: 5h nasce MANHÃ, 11h vira TARDE, 16h PÓS-CHUVA (o fim de
+    // tarde azulado), 19h NOITE, e a NOITE segura até as 5h do dia seguinte.
+    const anc = [[5, 0], [11, 0.25], [16, 0.5], [19, 0.75], [29, 1]];
+    let f = 0;
+    for (let i = 0; i < anc.length - 1; i++) {
+        if (h >= anc[i][0] && h <= anc[i + 1][0]) {
+            f = anc[i][1] + (anc[i + 1][1] - anc[i][1]) * ((h - anc[i][0]) / (anc[i + 1][0] - anc[i][0]));
+            break;
+        }
+    }
+    return f * DIA_SEG;
+}
+let relogio = semearRelogio(); // advanced by the frame loop, in seconds
+// A varredura de hora da virada de era: segundos de relógio ainda por somar, consumidos
+// pelo frame loop a ~220 s de jogo por segundo real. Zero fora da virada.
+let saltoHora = 0;
 function horaAgora() {
     const t = (relogio / DIA_SEG) % 1 * HORAS.length;
     const i = Math.floor(t), f = t - i;
@@ -4987,6 +5055,10 @@ function verificarCenario() {
         floats.push({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58, life: 90,
             txt: "NOVA ERA" });
         burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
+        // A VIRADA MOVE O SOL (Direção de Evolução, onda 1): atravessar o tempo é o tema do
+        // jogo, e a virada de era é o momento em que mais tempo passa — então a luz conta isso.
+        // O frame loop varre ~1 hora de jogo em ~2 s; nada além do relógio é tocado.
+        saltoHora = DIA_SEG / 4;
         somEra();
         salvar();
         if (vira)
@@ -5194,15 +5266,141 @@ function pintarIconesDrop() {
 // junto também comeria a legibilidade das coisas que o jogo pede para você alcançar.
 let lavagemK = -1;
 function lavarFundo(fc) {
-    const k = Math.round(cuidadoVisto * 24); // 25 degraus: fino para o olho, barato para o CSS
+    // A HORA ENTROU AQUI (Direção de Evolução, onda 1). O filtro carregava só o cuidado, e a
+    // pintura — que hoje cobre o quadro inteiro — vivia num meio-dia eterno enquanto o motor
+    // tinha um dia de 30 min rodando por baixo sem alcançar um pixel. O VALOR da hora entra
+    // neste filtro (GPU, nenhum redesenho); a TINTA dela entra num passe de canvas em
+    // luzDaPintura(), porque filtro CSS não puxa para uma cor.
+    // 120 degraus de hora por dia (um a cada 15 s de jogo): passo pequeno demais para o olho,
+    // barato o bastante para uma string de CSS.
+    const k = Math.round(cuidadoVisto * 24) * 1024 + (horaKey() >> 3);
     if (k === lavagemK)
         return;
     lavagemK = k;
-    const q = k / 24;
-    fc.style.filter = "saturate(" + (0.42 + 0.64 * q).toFixed(3) + ")"
+    const q = Math.round(cuidadoVisto * 24) / 24;
+    const hq = horaAgora();
+    const esc = lerp(hq.a.escala, hq.b.escala, hq.f);
+    // Piso de 0,30 sobre a escala da hora: a NOITE do mundo procedural desce a 0,44, mas uma
+    // pintura afundada até lá perde a leitura do chão onde o jogo acontece. 0,44→0,61 com
+    // piso, e o resto da escuridão a tinta azul do passe de canvas entrega.
+    const escF = lerp(esc, 1, 0.24);
+    const escu = escuridao();
+    fc.style.filter = "saturate(" + ((0.42 + 0.64 * q) * lerp(1, 0.82, escu)).toFixed(3) + ")"
         + " sepia(" + (0.26 * (1 - q)).toFixed(3) + ")"
-        + " brightness(" + (1.10 - 0.10 * q).toFixed(3) + ")"
+        + " brightness(" + ((1.10 - 0.10 * q) * escF).toFixed(3) + ")"
         + " contrast(" + (0.94 + 0.08 * q).toFixed(3) + ")";
+}
+// ---------- A LUZ, A VINHETA E A VIDA AMBIENTE DA PINTURA ----------
+// Três passes por quadro sobre o #fundoHD, todos ATRÁS do #scene — nada aqui toca a camada
+// de jogo, os leitores de pixel do smoke test, nem a leitura de nada que se alcança.
+//   1. a TINTA da hora, em gradiente vertical (o céu toma mais que o chão): é o pedaço de
+//      luzDoDia() que o filtro CSS não sabe fazer — dourado na TARDE, azul na NOITE.
+//   2. a VINHETA, quase invisível (0,15 nos cantos): assenta o quadro sem comer valor.
+//      A direção C tirou a vinheta antiga por puxar o quadro "para a lama" — esta é um
+//      terço daquela dose e vive só na camada da pintura; o print decide se ela fica.
+//   3. a VIDA AMBIENTE: poeira de sol de dia, vaga-lumes ao anoitecer. Propósito nomeado:
+//      o lugar respira, e respira MAIS para quem cuidou (a contagem escala com
+//      cuidadoVisto — é a alma da economia aparecendo no ar).
+let tintaGrad = null, tintaGradK = "";
+let vinheta = null, vinhetaK = "";
+let ambiente = [], ambT = 0, ambWorldX = 0;
+function luzDaPintura(fx, g) {
+    // --- 1. a tinta da hora ---
+    const hq = horaAgora();
+    const forca = lerp(hq.a.forca, hq.b.forca, hq.f);
+    if (forca > 0.015) {
+        const tin = mixA(hq.a.tinta, hq.b.tinta, hq.f);
+        const kg = (horaKey() >> 3) + "x" + g.ch;
+        if (!tintaGrad || tintaGradK !== kg) {
+            tintaGradK = kg;
+            const r = Math.round(tin[0]), v = Math.round(tin[1]), b = Math.round(tin[2]);
+            // a dose sobe com a escuridão: o filtro de brilho tem piso (a leitura do chão manda),
+            // então é a tinta quem fecha a noite — sem ela o céu pintado lia como dia nublado
+            const escuN = escuridao();
+            const a1 = Math.min(0.62, forca * (0.85 + 0.75 * escuN)).toFixed(3);
+            const a2 = Math.min(0.40, forca * (0.42 + 0.38 * escuN)).toFixed(3);
+            tintaGrad = fx.createLinearGradient(0, 0, 0, g.ch);
+            tintaGrad.addColorStop(0, "rgba(" + r + "," + v + "," + b + "," + a1 + ")");
+            tintaGrad.addColorStop(0.62, "rgba(" + r + "," + v + "," + b + "," + a2 + ")");
+            tintaGrad.addColorStop(1, "rgba(" + r + "," + v + "," + b + "," + a2 + ")");
+        }
+        fx.fillStyle = tintaGrad;
+        fx.fillRect(0, 0, g.cw, g.ch);
+    }
+    // --- 2. a vinheta ---
+    const kv = g.cw + "x" + g.ch;
+    if (!vinheta || vinhetaK !== kv) {
+        vinhetaK = kv;
+        vinheta = fx.createRadialGradient(g.cw / 2, g.ch * 0.46, Math.min(g.cw, g.ch) * 0.42, g.cw / 2, g.ch * 0.46, Math.max(g.cw, g.ch) * 0.78);
+        vinheta.addColorStop(0, "rgba(8,8,10,0)");
+        vinheta.addColorStop(1, "rgba(8,8,10,0.15)");
+    }
+    fx.fillStyle = vinheta;
+    fx.fillRect(0, 0, g.cw, g.ch);
+    // --- 3. a vida ambiente ---
+    const agora = performance.now();
+    const dt = ambT ? Math.min(0.1, (agora - ambT) / 1000) : 0;
+    ambT = agora;
+    const escu = escuridao();
+    // 0 de dia, 1 de noite, com a passagem suave no crepúsculo
+    const nq = Math.max(0, Math.min(1, (escu - 0.30) / 0.30));
+    const noite = nq * nq * (3 - 2 * nq);
+    // a população-alvo: vaga-lumes crescem com o cuidado; a poeira de sol é mais discreta
+    const alvo = Math.round(lerp(9 * (0.45 + 0.55 * cuidadoVisto), 5 + 11 * cuidadoVisto, noite));
+    const kx = g.cw / W; // px de mundo -> px de aparelho
+    const margem = 24 * kx;
+    while (ambiente.length < alvo) {
+        ambiente.push({ x: Math.random() * (g.cw + margem * 2) - margem,
+            y: g.ch * (0.18 + Math.random() * 0.62),
+            fase: Math.random() * 6.283, vel: 0.5 + Math.random(), alt: Math.random() });
+    }
+    if (ambiente.length > alvo)
+        ambiente.length = alvo;
+    // o rolar do mundo desconta aqui: as partículas ficam ancoradas no LUGAR, não na câmera
+    const desloc = (worldX - ambWorldX) * kx;
+    ambWorldX = worldX;
+    const s = 0.5 + 0.5 * noite; // vaga-lume voa; poeira só deriva
+    for (let i = 0; i < ambiente.length; i++) {
+        const p = ambiente[i];
+        p.fase += dt * (0.7 + p.vel * 0.9);
+        p.x += dt * kx * (noite ? Math.sin(p.fase * 0.9) * 9 * s : -(3.5 + p.vel * 3)) - desloc;
+        p.y += dt * kx * (noite ? Math.cos(p.fase * 0.7) * 6 * s : (2.2 + p.vel * 2.4));
+        if (p.x < -margem) {
+            p.x += g.cw + margem * 2;
+            p.y = g.ch * (0.18 + Math.random() * 0.62);
+        }
+        if (p.x > g.cw + margem) {
+            p.x -= g.cw + margem * 2;
+            p.y = g.ch * (0.18 + Math.random() * 0.62);
+        }
+        if (p.y > g.ch * 0.88)
+            p.y = g.ch * 0.18 + (p.y - g.ch * 0.88);
+        if (p.y < g.ch * 0.12)
+            p.y = g.ch * 0.12;
+        const px = Math.round(p.x), py = Math.round(p.y);
+        const t = Math.max(1, Math.round(kx * (1.1 + p.alt * 0.9)));
+        if (noite > 0.05) {
+            // vaga-lume: pulso próprio, halo curto, verde-amarelado morno
+            const pulso = Math.max(0, Math.sin(p.fase + p.alt * 6));
+            const a = noite * pulso * pulso * 0.85;
+            if (a > 0.03) {
+                fx.globalAlpha = a * 0.22;
+                fx.fillStyle = "#d8f0a0";
+                fx.fillRect(px - t * 2, py - t * 2, t * 4 + 1, t * 4 + 1);
+                fx.globalAlpha = a;
+                fx.fillStyle = "#ffef9e";
+                fx.fillRect(px, py, t, t);
+            }
+        }
+        if (noite < 0.95) {
+            // poeira de sol: quase nada, flutuando na luz que atravessa a copa
+            const a = (1 - noite) * (0.05 + 0.09 * (0.5 + 0.5 * Math.sin(p.fase))) * (0.4 + 0.6 * p.alt);
+            fx.globalAlpha = a;
+            fx.fillStyle = "#fff6dc";
+            fx.fillRect(px, py, t, t);
+        }
+    }
+    fx.globalAlpha = 1;
 }
 function rolarFundo() {
     // A guarda vem ANTES do const: `ladrilhar()` mais abaixo é uma função aninhada, e o TS
@@ -5280,6 +5478,7 @@ function rolarFundo() {
     ladrilhar(imAlto, paralaxeLonge > 0 ? paralaxeLonge : 1, g.dy, g.dh * linha);
     ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha));
     matoDaEmenda(fx, g);
+    luzDaPintura(fx, g); // a tinta da hora, a vinheta e a vida ambiente — sempre por último
 }
 // TERCEIRA CAMADA — e a que faz a coisa virar profundidade em vez de duas imagens deslizando.
 //
@@ -5443,6 +5642,13 @@ window.setParalaxe = function (f) {
 // Debug hook: force any of the seven paintings regardless of the coded scenario. n<0 clears
 // the override and returns to deriving the painting from cenAtivo.
 window.setFundo = function (n) { fundoAtivo = (typeof n === "number" && n >= 0 && n < CENARIO_ALTO.length) ? n : -1; redesenharFundo(); return fundoAtivo; };
+// Gancho de depuração/prints: fixa a hora do dia. 0 = nascer de MANHÃ, 0.25 = TARDE,
+// 0.5 = PÓS-CHUVA, 0.75 = NOITE. Devolve o relógio resultante, em segundos.
+window.setHora = function (f) {
+    if (typeof f === "number" && isFinite(f))
+        relogio = (((f % 1) + 1) % 1) * DIA_SEG;
+    return relogio;
+};
 // The palette is per scenario: the board's six families are the shared vocabulary and a
 // place says which words of it are on its walls. Built once per scenario, off the same
 // `desbotar()` rule, so the sick end of every place is derived and never authored twice.
@@ -5873,10 +6079,17 @@ function drawScene() {
     // Floating numbers. At 1 world px = 3 screen px a 5x7 glyph at scale 2 covered the hero,
     // so the world text is drawn at scale 1 now: 15x21 screen px, still crisp, no longer a sign.
     floats.forEach(function (f) {
-        cx.globalAlpha = Math.min(1, f.life / 20);
+        // Física, não interpolação linear (Direção de Evolução, onda 1): o número nasce de um
+        // gesto, então sobe com o impulso do gesto — rápido no primeiro instante, assentando em
+        // decaimento exponencial até uma deriva quieta. Os criadores continuam empurrando só
+        // {x,y,txt,life}; a vida total é anotada aqui na primeira passada.
+        if (f.max === undefined)
+            f.max = f.life;
+        const idade = f.max - f.life;
+        cx.globalAlpha = Math.min(1, f.life / 20) * Math.min(1, 0.35 + idade * 0.25);
         texto(f.txt, f.x, f.y - 12, 1, f.txt.charAt(0) === "+" ? "#ffe488" : "#fdf6e6", "#12242e");
         cx.globalAlpha = 1;
-        f.y -= 0.7;
+        f.y -= 2.3 * Math.pow(0.86, idade) + 0.22;
         f.life--;
     });
     floats = floats.filter(function (f) { return f.life > 0; });
@@ -6161,6 +6374,25 @@ function desenharMundo() {
         texto(msg, x, GROUND - 68, 1, "#f3dda6", "#241a10");
         cx.globalAlpha = 1;
     }
+    aplicarHoraScene();
+}
+// A HORA, NA CAMADA DE JOGO — só em VALOR, nunca em tinta, e com o piso mais alto das três
+// camadas (0,5). O que vive no #scene é sinal de jogo (drops, barras, anéis, texto), e a
+// regra antiga vale: sinal não toma a tinta da hora. Mas sem descer NADA, um peixe branco
+// sobre a mata da NOITE virava a coisa mais clara do quadro inteiro — o mesmo defeito
+// medido dos pips, agora invertido. `source-atop` não cria pixel onde não há (os leitores
+// de alpha do smoke test não veem este passe) e o azul-quase-preto dá o elenco da noite
+// sem mudar o matiz de nenhum sinal.
+function aplicarHoraScene() {
+    const q = horaAgora();
+    const esc = lerp(lerp(q.a.escala, q.b.escala, q.f), 1, 0.5);
+    if (esc >= 0.99)
+        return;
+    cx.save();
+    cx.globalCompositeOperation = "source-atop";
+    cx.fillStyle = "rgba(6,10,18," + (1 - esc).toFixed(3) + ")";
+    cx.fillRect(0, 0, W, H);
+    cx.restore();
 }
 // ---------- HUD ----------
 // O `!` está aqui e não nas ~90 chamadas: todo id que passa por `$` é escrito à mão no mesmo
@@ -7260,6 +7492,11 @@ document.addEventListener("DOMContentLoaded", () => {
         tick++;
         animT += dt;
         relogio += dt;
+        if (saltoHora > 0) { // a virada de era varre ~1 hora de luz em ~2 s
+            const p = Math.min(saltoHora, dt * 220);
+            relogio += p;
+            saltoHora -= p;
+        }
         rolarFundo(); // the painted backdrop travels with him
         drawScene();
         desenharMundo();

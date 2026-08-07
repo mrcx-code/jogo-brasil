@@ -1471,3 +1471,52 @@ aplicativo; "×" entrou na fonte bitmap.
 **Mudança de comportamento junto (não só visual):** `podeComprar` contava o u4 de teste
 (grátis, oculto), então MELHORIAS acendia SEMPRE — agora só conta as três da loja real.
 O aceso passou a ser honesto. ~90 linhas de CSS morto do motor antigo saíram.
+### 2026-08-07 · Direção de Evolução, onda 1: o mundo ganhou dia (worktree, para integrar)
+
+Papel novo (mandato do dono, §8 do CLAUDE.md): a visão vive no `DIRECAO.md` novo — o
+diagnóstico de "por que lê como velho", 7 princípios, o roteiro de ondas, e o que foi
+avaliado e rejeitado (grain, scanlines, paralaxe nova). Esta entrada é a onda 1.
+
+**O achado que pagou o sprint:** o motor tem um dia completo (`HORAS`, `luzDoDia`, ciclo
+de 30 min) e as pinturas HD — que hoje cobrem o quadro inteiro — eram cegas a ele. O jogo
+inteiro vivia num meio-dia eterno; era ISSO o "estático" que o dono sentia.
+
+**Feito (tudo código, zero imagem nova):**
+1. A hora chegou à pintura: valor via filtro CSS em `lavarFundo` (piso 0,24 — a leitura do
+   chão manda), tinta via gradiente vertical no canvas (`luzDaPintura`), dose crescendo com
+   `escuridao()` para a noite fechar de verdade.
+2. A hora chegou à personagem (`aplicarHoraHeroHD`): dois fillRect `source-atop` na camada
+   dela — pisos da direção antiga (valor no máx. 1/3 de volta, tinta a 80%) — cobrindo
+   protagonista, gente do cap. 2 e vegetação de frente juntas.
+3. A hora chegou à camada de jogo (`aplicarHoraScene`): SÓ valor, piso 0,5, azul-quase-preto
+   — sinal de jogo não toma tinta, mas um drop branco não pode ser a coisa mais clara da
+   NOITE (o defeito medido dos pips, invertido).
+4. O relógio nasce da hora real do aparelho (`semearRelogio`, por âncoras: 5h→MANHÃ,
+   11h→TARDE, 16h→PÓS-CHUVA, 19h→NOITE). Abrir à noite abre a mata à noite. Nada entra no
+   save. `window.setHora(f)` para testes e prints.
+5. Vida ambiente na camada da pintura: vaga-lumes ao anoitecer e poeira de sol de dia,
+   contagem escalando com `cuidadoVisto` — o cuidado aparecendo no ar. Atrás do #scene:
+   os leitores de pixel do smoke não veem.
+6. Floats com física: impulso que decai exponencialmente + fade-in curto, em vez de
+   0,7 px/quadro constante.
+7. A virada de era varre ~1 hora de luz em ~2 s (`saltoHora`, consumido no frame loop a
+   220 s/s) — atravessar o tempo agora É a transição. Medido: 453 s de relógio em 2,6 s.
+8. Vinheta de canvas quase invisível (0,15 nos cantos, só na camada da pintura) e glint de
+   ouro na barra de época (CSS, a cada 7 s, só na parte preenchida).
+
+**Medido:** FPS 59 → 62 (smoke, três rodadas verdes); `index.html` 3.886.531 → 3.904.743
+bytes (+17,8 KB, só código); prints `E-antes-*` / `E-depois-*` na raiz do worktree
+(geradores: `prints-evolucao.js`, `prints-horas.js`, `verifica-onda1.js`). O smoke não
+depende de hora: as checagens de pixel são por alpha no #scene e os passes novos não criam
+pixel onde não há (`source-atop`).
+
+**O que ficou frágil:** (a) mobs/NPCs/drops do #scene tomam só VALOR, não tinta — matiz de
+meio-dia sob luz de noite; é a onda 2. (b) O topo do céu pintado na NOITE ainda guarda uma
+faixa clara (base ~230 de luma sob tinta 0,54) — reavaliar quando a onda 2 calibrar por
+capítulo. (c) As frações puras de hora são os INÍCIOS (0 / 0,25 / 0,5 / 0,75):
+`horaAgora()` mistura ao longo da hora inteira — print de hora "pura" se tira no início
+dela. (d) O véu do menu escurece o mundo já escurecido pela hora: à noite o menu fica
+bem escuro — no print leu bem (o poste é opaco), mas é o lugar a recalibrar se reclamarem.
+
+**Próximo passo:** onda 2 do `DIRECAO.md` — a hora alcançar os sprites do #scene com tinta,
+e calibrar entardecer/noite por capítulo, print a print.
