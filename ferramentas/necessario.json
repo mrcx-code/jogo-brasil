@@ -4,6 +4,30 @@
   "_magenta": "\n\nFUNDO MAGENTA CHAPADO #FF00FF puro. Sem texto, sem moldura, sem linha de grade — linha desenhada gruda os objetos numa mancha só e o recortador quebra.",
   "itens": [
     {
+      "nome": "cap1-corrida",
+      "titulo": "PINDORAMA · folha de CORRIDA",
+      "ref": "a corrida hoje usa as poses de andar — parece caminhada rápida (defeito apontado pelo dono)",
+      "tam": "FOLHA 8 células iguais · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual do jogo.\n\nFOLHA DE SPRITE DE CORRIDA, 8 quadros em células de LARGURA IGUAL, perfil correndo para a direita.\nO QUE FAZ CORRIDA LER COMO CORRIDA (e não caminhada rápida): tronco INCLINADO para a frente; passada LONGA com as duas pernas estendidas no quadro de maior abertura; DOIS quadros com os dois pés fora do chão (fase aérea — caminhada nunca tem); braços dobrados a 90 graus bombeando; cabelo/tecido reagindo ao vento. MESMA personagem, MESMA escala e MESMA paleta da folha de caminhada dela (compare pela largura da cabeça).\n\nPersonagem: a mulher Tupinambá do capítulo 1 (mesma da folha de caminhada existente).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap2-corrida",
+      "titulo": "PALMARES · folha de CORRIDA",
+      "ref": "mesmo defeito, era de Palmares",
+      "tam": "FOLHA 8 células iguais · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual do jogo.\n\nFOLHA DE SPRITE DE CORRIDA, 8 quadros em células de LARGURA IGUAL, perfil correndo para a direita.\nO QUE FAZ CORRIDA LER COMO CORRIDA (e não caminhada rápida): tronco INCLINADO para a frente; passada LONGA com as duas pernas estendidas no quadro de maior abertura; DOIS quadros com os dois pés fora do chão (fase aérea — caminhada nunca tem); braços dobrados a 90 graus bombeando; cabelo/tecido reagindo ao vento. MESMA personagem, MESMA escala e MESMA paleta da folha de caminhada dela (compare pela largura da cabeça).\n\nPersonagem: a mulher de Palmares do capítulo 2 (mesma da folha de caminhada existente).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap3-corrida",
+      "titulo": "AINDA AQUI · folha de CORRIDA",
+      "ref": "mesmo defeito, era do presente",
+      "tam": "FOLHA 8 células iguais · magenta",
+      "semMagenta": false,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual do jogo.\n\nFOLHA DE SPRITE DE CORRIDA, 8 quadros em células de LARGURA IGUAL, perfil correndo para a direita.\nO QUE FAZ CORRIDA LER COMO CORRIDA (e não caminhada rápida): tronco INCLINADO para a frente; passada LONGA com as duas pernas estendidas no quadro de maior abertura; DOIS quadros com os dois pés fora do chão (fase aérea — caminhada nunca tem); braços dobrados a 90 graus bombeando; cabelo/tecido reagindo ao vento. MESMA personagem, MESMA escala e MESMA paleta da folha de caminhada dela (compare pela largura da cabeça).\n\nPersonagem: a jovem do presente do capítulo 3 (mesma da folha de caminhada existente, camiseta e calça).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
       "nome": "cap4-fundo-alto",
       "titulo": "SALVADOR · pintura, parte de cima",
       "ref": "céu e casario da ladeira — cap. 4, Bahia 1835",
