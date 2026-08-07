@@ -1,29 +1,49 @@
 {
-  "_": "So o que REALMENTE depende de voce. Tudo que voce ja respondeu virou trabalho meu e saiu daqui — lista que mistura as duas coisas vira lista que ninguem le. Escreva no campo e eu leio na proxima vez.",
-  "itens": [
-    {
-      "t": "Ler os textos das tres eras e cortar o que nao te representa",
-      "p": "so voce",
-      "n": "Escrevi os tres capitulos a partir das fontes, palavra por palavra, e nenhum agente inventou linha. Mas e o unico conteudo do jogo que AFIRMA coisas sobre gente real, e afirmar em nome de alguem nao e papel meu. Estao em EPOCAS, no index.html — ou e so jogar e ler as aberturas e os fechos.",
-      "resposta": "EM REVISAO — gostou do tom provocativo, cutucando dor real da historia do pais. Coisas que abrem os olhos para o que realmente aconteceu."
-    },
-    {
-      "t": "As imagens de contexto podem ter PESSOAS?",
-      "p": "so voce",
-      "n": "As seis que estao na mesa sao todas paisagem, porque paisagem e seguro. Cena com gente e mais forte e diz mais — mas roupa, corpo e adorno desenhados viram afirmacao sobre um povo real, e nenhuma delas tem fonte. Se voce quiser, da para fazer com cuidado: uma cena por vez, voce aprova cada uma antes de entrar. So nao faco sozinho.",
-      "resposta": "SIM — pessoas e detalhes, quanto mais melhor. CUIDADO para nao ficar poluido."
-    },
-    {
-      "t": "Plataformas estilo Mario: serve a historia ou so ao jogo?",
-      "p": "so voce",
-      "n": "Voce pediu e eu ainda nao fiz, porque e uma sessao inteira: GROUND e constante hoje, e altura variavel reabre a armadilha n1 do paragrafo 7 — o pe casar com o chao foi o que mais custou aqui.\n\nMas antes da tecnica tem uma pergunta de projeto: o verbo do jogo e ALCANCAR, e a tensao e o que eu deixei passar. Plataforma e outro verbo — e conseguir chegar. Podem conviver, ou podem competir pela atencao com o que o jogo existe para dizer. Voce decide se vale.",
-      "resposta": "SERVE AO JOGO apenas — mais jogabilidade alem de andar e correr. Nao precisa servir a historia."
-    },
-    {
-      "t": "Em Palmares, o que a mao da pessoa recebe?",
-      "p": "so voce",
-      "n": "A folha de ALCANCAR do capitulo 2 chegou e esta embutida — e ela termina com a pessoa ABRACANDO UM OBJETO REDONDO.\n\nMas o que voce decidiu para Palmares foi que alcancar e ACOLHER QUEM CHEGA, e quem chega e gente, nao coisa. O paragrafo 2.2 do CLAUDE.md e explicito: nada de transformar pessoa em recurso a coletar.\n\nHoje o capitulo 2 tem cesto, agua e mandioca atravessando a tela — objetos. Isso e coerente com a arte, e e seguro. Mas nao e o que voce escreveu na decisao original, e a diferenca importa: com objetos, Palmares vira mais um capitulo de colher coisas; com gente, ele vira o que voce disse que seria.\n\nSe for gente, o desenho tem que ser outro: quem voce alcanca passa a ANDAR COM VOCE, visivel na tela, em vez de virar numero. Isso e trabalho e vale a pena — so nao decido sozinho.",
-      "resposta": ""
-    }
-  ]
+ "_": "So o que REALMENTE depende de voce. Tudo que voce ja respondeu virou trabalho meu e saiu daqui — lista que mistura as duas coisas vira lista que ninguem le. Escreva no campo e eu leio na proxima vez.",
+ "itens": [
+  {
+   "t": "Renomear o capitulo dos Tupinamba",
+   "p": "so voce",
+   "n": "ANTES DA CHEGADA vira nome errado quando os capitulos pre-1500 entrarem antes dele. Sugestoes do historiador: A COSTA DOS TUPINAMBA, ou QUANDO OS NAVIOS APARECERAM. Escreva o nome que quiser aqui."
+  },
+  {
+   "t": "Marajo: capitulo jogavel ou marco na linha do tempo?",
+   "p": "so voce",
+   "n": "Recomendacao FIRME do historiador: marco (ja esta la). Um capitulo honesto de Marajo seria sobre material funerario — e voce pediu cuidado com religiao. Capitulo evitando isso vira 'gente que fazia pote bonito': raso. Responda 'marco' ou 'capitulo'."
+  },
+  {
+   "t": "Gerar as 8 imagens de SALVADOR na mesa",
+   "p": "so voce",
+   "n": "Os prompts ja estao prontos na tabela, com as travas de representacao dentro (nada de escrita arabe como imagem; patio sem simbolo religioso). E o proximo capitulo da fila."
+  },
+  {
+   "t": "Os dois capitulos pre-1500 (sambaquis, floresta-obra): fazer quando?",
+   "p": "so voce",
+   "n": "Regra que o historiador propoe como inviolavel: so fazer quando houver arte para ficarem TAO BONS quanto o melhor capitulo — abertura feia sobre engenheiros milenares diz 'primitivo' sem usar a palavra. Custo: a maior encomenda de arte ja feita (4 pinturas, 2 folhas de sprite, 2 retratos, 4 contextos, 12 objetos)."
+  },
+  {
+   "t": "Ler os textos das tres eras e cortar o que nao te representa",
+   "p": "so voce",
+   "n": "Escrevi os tres capitulos a partir das fontes, palavra por palavra, e nenhum agente inventou linha. Mas e o unico conteudo do jogo que AFIRMA coisas sobre gente real, e afirmar em nome de alguem nao e papel meu. Estao em EPOCAS, no index.html — ou e so jogar e ler as aberturas e os fechos.",
+   "resposta": "EM REVISAO — gostou do tom provocativo, cutucando dor real da historia do pais. Coisas que abrem os olhos para o que realmente aconteceu."
+  },
+  {
+   "t": "As imagens de contexto podem ter PESSOAS?",
+   "p": "so voce",
+   "n": "As seis que estao na mesa sao todas paisagem, porque paisagem e seguro. Cena com gente e mais forte e diz mais — mas roupa, corpo e adorno desenhados viram afirmacao sobre um povo real, e nenhuma delas tem fonte. Se voce quiser, da para fazer com cuidado: uma cena por vez, voce aprova cada uma antes de entrar. So nao faco sozinho.",
+   "resposta": "SIM — pessoas e detalhes, quanto mais melhor. CUIDADO para nao ficar poluido."
+  },
+  {
+   "t": "Plataformas estilo Mario: serve a historia ou so ao jogo?",
+   "p": "so voce",
+   "n": "Voce pediu e eu ainda nao fiz, porque e uma sessao inteira: GROUND e constante hoje, e altura variavel reabre a armadilha n1 do paragrafo 7 — o pe casar com o chao foi o que mais custou aqui.\n\nMas antes da tecnica tem uma pergunta de projeto: o verbo do jogo e ALCANCAR, e a tensao e o que eu deixei passar. Plataforma e outro verbo — e conseguir chegar. Podem conviver, ou podem competir pela atencao com o que o jogo existe para dizer. Voce decide se vale.",
+   "resposta": "SERVE AO JOGO apenas — mais jogabilidade alem de andar e correr. Nao precisa servir a historia."
+  },
+  {
+   "t": "Em Palmares, o que a mao da pessoa recebe?",
+   "p": "so voce",
+   "n": "A folha de ALCANCAR do capitulo 2 chegou e esta embutida — e ela termina com a pessoa ABRACANDO UM OBJETO REDONDO.\n\nMas o que voce decidiu para Palmares foi que alcancar e ACOLHER QUEM CHEGA, e quem chega e gente, nao coisa. O paragrafo 2.2 do CLAUDE.md e explicito: nada de transformar pessoa em recurso a coletar.\n\nHoje o capitulo 2 tem cesto, agua e mandioca atravessando a tela — objetos. Isso e coerente com a arte, e e seguro. Mas nao e o que voce escreveu na decisao original, e a diferenca importa: com objetos, Palmares vira mais um capitulo de colher coisas; com gente, ele vira o que voce disse que seria.\n\nSe for gente, o desenho tem que ser outro: quem voce alcanca passa a ANDAR COM VOCE, visivel na tela, em vez de virar numero. Isso e trabalho e vale a pena — so nao decido sozinho.",
+   "resposta": ""
+  }
+ ]
 }
