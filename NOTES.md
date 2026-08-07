@@ -514,6 +514,43 @@ Impróprio para o capítulo 1 por duas razões independentes.
 - **Tombamento da Serra da Barriga:** 1985 (Fundação Palmares) × 31/01/1986 (outras fontes).
   A página do IPHAN não abriu. Verificar antes de usar.
 
+### Revisão do historiador — 2026-08-06, correções aplicadas no mesmo commit
+
+Um agente historiador revisou tudo que o jogo afirma. Quatro correções entraram em produção:
+
+1. **"Nos duzentos anos seguintes, milhões…" → "Ao longo de mais de três séculos, milhões…"**
+   O tráfico durou até c. 1850 e o total de ~4,9 milhões de desembarcados é do período inteiro;
+   até ~1700 a base registra perto de um milhão — "milhões" não se sustentava naquela janela.
+   Fonte: *Trans-Atlantic Slave Trade Database* — SlaveVoyages.org (Emory University).
+2. **"eram centenas de povos" → "E não estavam sozinhos: esta terra era de centenas de povos".**
+   O referente escorregava: a frase atribuía as centenas de povos aos próprios Tupinambá —
+   o erro do §2.1 em miniatura, dentro da frase que existe para combatê-lo.
+3. **"dezesseis anos de processo parado" → "processo que ficou parado por mais de uma década"**
+   (na abertura do cap. 3 e no momento 6). De 2009 a 2025 são dezesseis anos de *processo*,
+   não de *paralisia* — houve etapas ativas nas pontas.
+4. **Hans Staden "1554–1557" → "1554 · relato publicado em 1557".** O cativeiro durou ~9 meses;
+   1557 é a publicação da *Warhaftige Historia*. O intervalo sugeria três anos de cativeiro.
+
+**Fonte registrada para número já em produção:** "mais de vinte expedições militares" contra
+Palmares — Flávio dos Santos Gomes, *Palmares: escravidão e liberdade no Atlântico Sul*
+(Contexto, 2005); Fundação Cultural Palmares. O número estava no jogo sem registro aqui.
+
+**Tensão de datas que só o dono resolve (⚠):** "resistiram por quase cem anos" ao lado de
+"a partir de mais ou menos 1630" não fecha (64 anos). O "quase um século" conta desde as
+primeiras menções a mocambos no início do séc. XVII. Ou a abertura ancora mais cedo, ou o
+"quase cem anos" vira "por décadas".
+
+**Marcos propostos para a linha do tempo** (cada um com fonte completa, no relatório da
+sessão): vão XVI→XVII — o açúcar (Schwartz 1988), a terra esvaziada à força (Monteiro 1994;
+Cunha 1992), a travessia forçada (SlaveVoyages), a guerra holandesa (Gomes 2005); vão
+XVII→presente — Bahia de 1835 (Reis 2003), a Lei Áurea de dois artigos (Lei 3.353/1888), a
+Constituinte de 1988 (CF art. 231 e ADCT art. 68; discurso de Ailton Krenak, 04/09/1987), e
+quilombolas no Censo 2022 (IBGE: 1.327.802 pessoas, primeira contagem; Fundação Palmares).
+Beatriz Nascimento, "O conceito de quilombo…" (1985; org. Ratts, Zahar, 2021) para Palmares
+como faixa que continua, não ponto que acaba. As formas da linha: borda esquerda aberta
+(havia milênios antes), Palmares como FAIXA, borda direita aberta (disputa em curso), e os
+dois fios — indígena e negro — visíveis, não achatados num traço só.
+
 ### Lacuna de método, não de bibliografia
 
 Nenhuma fonte levantada é de **autoria indígena ou quilombola direta** — todas são de

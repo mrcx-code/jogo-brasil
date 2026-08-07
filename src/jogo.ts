@@ -4697,7 +4697,7 @@ const EPOCAS = [
     quando: "litoral atlântico · século XVI",
     abertura: [
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
-      "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria, e não eram um povo só — eram centenas de povos, com centenas de línguas.",
+      "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
       "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
       "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
       "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
@@ -4708,7 +4708,7 @@ const EPOCAS = [
     fecho: [
       "Em 1500 chegaram navios. Depois deles vieram mais.",
       "O que os europeus escreveram sobre este lugar é quase tudo o que sobrou por escrito — e eles escreviam para leitores europeus, não para contar quem estava aqui.",
-      "Nos duzentos anos seguintes, milhões de pessoas seriam trazidas da África à força para trabalhar nesta terra.",
+      "Ao longo de mais de três séculos, milhões de pessoas seriam trazidas da África à força para trabalhar nesta terra.",
       "Algumas fugiram. E o que elas construíram tem nome."
     ]
   },
@@ -4739,7 +4739,7 @@ const EPOCAS = [
     abertura: [
       "Este é o presente. A mesma mata, cinco séculos depois.",
       "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
-      "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de dezesseis anos de processo parado.",
+      "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
       "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
       "Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três coisas do começo, com a cara de agora."
     ],
@@ -4918,7 +4918,7 @@ const MOMENTOS = [
   { q: "século XVI", t: "Antes de qualquer chegada",
     d: "Os Tupinambá ocupavam a costa atlântica com agricultura, pesca e horticultura — mandioca, tubérculos, divisão do trabalho. Não eram um estágio anterior a nada.",
     f: "IBGE · Brasil: 500 anos de povoamento" },
-  { q: "1554–1557", t: "O que os europeus escreveram",
+  { q: "1554 · relato publicado em 1557", t: "O que os europeus escreveram",
     d: "Hans Staden viveu cativo entre os Tupinambá e escreveu o relato mais citado do período. Ele descreve preocupações europeias tanto quanto realidades indígenas — e a pesquisa moderna lê as duas coisas separadas.",
     f: "Carneiro da Cunha · Estudos Avançados 4(10), 1990" },
   { q: "por volta de 1630", t: "Palmares",
@@ -4931,7 +4931,7 @@ const MOMENTOS = [
     d: "Morto após a destruição de Palmares. A data é hoje o Dia da Consciência Negra. A paleografia recente corrige nomes que a historiografia repetia: “Gana Zumba”, não “Ganga Zumba”.",
     f: "Fundação Cultural Palmares · Lara & Fachin, 2021" },
   { q: "hoje", t: "E eles continuam aqui",
-    d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de dezesseis anos de processo parado.",
+    d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
     f: "IBGE · Censo 2022 · Enciclopédia Povos Indígenas no Brasil" }
 ];
 // A lista de eras. Uma era esta aberta se voce ja chegou nela; a proxima aparece trancada,
