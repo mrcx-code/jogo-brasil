@@ -74,22 +74,47 @@ cipó são composição boa, de material e lugar). É isto, em ordem de peso:
 7. **Micro-brilho na barra de época**: um glint lento (a cada ~7 s) só na parte
    preenchida. Propósito: o progresso é ouro, e ouro reluz.
 
+## Onda 2 — IMPLEMENTADA (2026-08-07)
+
+1. **A tinta da hora alcançou os sprites do `#scene`** — e a separação sinal×coisa é por
+   MOMENTO DO DESENHO, não por camada: um passe `source-atop` roda logo depois de
+   `drawMobs()`, quando o canvas só contém folha + mob + sombra; magia, faísca, float,
+   barra, anel e texto desenham depois e continuam sem tinta (a regra do sinal vale).
+   O item do drop (que desenha tarde, em `desenharMundo`) toma a hora por cópia cacheada
+   (`spriteComHora`, refeita a cada 15 s de jogo) e a placa de marco por cor cacheada
+   (`tintaCor`). Dose: 80% da do mundo, a mesma da personagem. Medido: um cacho de fruta
+   à NOITE lia RGB 136,119,65 (R−B = 71, meio-dia); agora 141,130,99 (R−B = 42) — e o
+   valor continua vindo só do passe final, para não pagar duas vezes.
+2. **O teto do céu, por pintura** (`CEU_PINT` + campo `teto` nas `HORAS`): cinco das seis
+   pinturas guardavam uma faixa CLARA no alto do quadro que à NOITE era a coisa mais
+   clara da tela — razão topo/céu medida no ANTES: 1,45 / 0,89 / 1,37 / 1,28 / 1,58 /
+   1,35 (céu noturno de verdade brilha de BAIXO; a razão certa é ≤ ~1,1). Um gradiente
+   por pintura, calibrado em duas rodadas de medição (`prints-onda2.js`), fechou em
+   1,13 / 0,84 / 1,10 / 1,11 / 1,18 / 1,12. No entardecer o mesmo teto entra a 55% com
+   azul-violeta — o zênite afunda enquanto o horizonte guarda o ouro, que é o que um fim
+   de tarde faz. FPS 62 nas três rodadas; +8,8 KB de código; zero imagem nova.
+
 ## Roteiro de ondas futuras
 
-- **Onda 2 — a hora alcança quem anda na rua**: mobs/NPCs/drops do `#scene` ainda são
-  cegos à hora (a protagonista e a gente do cap. 2 já tomam o passe da camada `#heroHD`).
-  Um passe `source-atop` por camada resolve. Junto: entardecer/noite nos prints de TODOS
-  os capítulos, calibrado um a um.
 - **Onda 3 — a cerimônia vira cinema**: a abertura de era hoje é véu + settle. Dar a ela
   a varredura de luz da virada (nascer do sol na pintura nova), som e 1 s a mais de
-  respiro. Nada de arte nova.
+  respiro. Nada de arte nova. Agora que a NOITE fecha por pintura, a varredura tem mais
+  contraste para varrer — conferir a virada às 0,75 nos prints antes de mexer.
 - **Onda 4 — toque com física no canvas**: o mundo reagir ao dedo (onda de chão sutil no
   golpe, kick de câmera de 1–2 px com mola crítica). Câmera é território sensível
   (PASSO_CAP intocável) — protótipo atrás de flag antes de valer.
 - **Onda 5 — clima raro**: chuva fina no PÓS-CHUVA (o nome já promete), 1 vez por ciclo,
-  partículas na camada da pintura. Escala com nada — clima é fato, não juízo.
+  partículas na camada da pintura. Escala com nada — clima é fato, não juízo. O teto da
+  onda 2 já escurece o zênite do PÓS-CHUVA a 35% — a chuva nasce de um céu que já pesa.
+- **Dívida deixada de propósito**: o TARDE das pinturas 0 e 4 (litoral) ainda mede razão
+  topo/céu 1,43–1,56 — no print lê como névoa alta acesa pelo sol baixo, que é plausível,
+  então a dose ficou contida (princípio 5: quase invisível > dramático). Se o dono achar
+  o entardecer tímido, o botão é o `teto` da TARDE (0,55) — subir para ~0,75 aprofunda o
+  zênite sem tocar o ouro.
 - **Contínuo**: medir FPS e peso a cada onda; qualquer efeito que não sobreviver ao
-  print com "isso parece 2026?" sai na onda seguinte.
+  print com "isso parece 2026?" sai na onda seguinte. O medidor da onda 2
+  (`prints-onda2.js`, na raiz) fica: 6 pinturas × 2 horas, topo/céu/meio e a cor média
+  de um mob sob a noite.
 
 ## O que foi avaliado e NÃO entrou (para ninguém reabrir sem motivo)
 

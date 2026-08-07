@@ -1570,3 +1570,58 @@ na raiz — o antes é uma pilha ilegível de "+3"; o depois é um número soman
 seria cota de gente), espaçamento de mob por capítulo (mobs não são o problema — média
 ≤1,8), partículas (não estavam na queixa; 2 px de lado, leem como textura). Se a
 poluição voltar, o instrumento fica: `node test/medir-poluicao.js index.html 45 prefixo`.
+### 2026-08-07 · Direção de Evolução, onda 2: a hora alcança quem anda na rua (worktree)
+
+As duas frentes que a onda 1 deixou apontadas, executadas com medição antes/depois
+(`prints-onda2.js`, novo, na raiz do worktree — 6 pinturas × TARDE/NOITE puras via
+`setHora`, luma por banda do `#fundoHD` e cor média de um mob no `#scene`).
+
+**1. A tinta da hora nos sprites do `#scene`.** A camada de jogo tomava só VALOR
+(decisão certa para sinal), então folha, mob e drop ficavam com matiz de meio-dia sob
+céu de noite — medido: cacho de fruta à NOITE em RGB 136,119,65, R−B = 71, mais quente
+que o próprio entardecer. A separação sinal×coisa agora é por MOMENTO DO DESENHO, não
+por camada: um passe `source-atop` (tinta a 80% da dose do mundo, a mesma da
+personagem) roda logo depois de `drawMobs()`, quando o canvas só contém folha + mob +
+sombra; magia, faísca, float, barra, anel e texto desenham DEPOIS e continuam sem
+tinta. O que desenha tarde e é coisa do mundo entra por outra porta: o item do drop
+por cópia cacheada (`spriteComHora`, invalidada no passo de hora, 120/dia), a placa
+de marco por cor cacheada (`tintaCor`). VALOR continua vindo só do passe final —
+dar valor no meio seria pagar duas vezes. DEPOIS: mob à noite em 141,130,99, R−B = 42.
+
+**2. O teto do céu, por pintura (`CEU_PINT` + campo `teto` em `HORAS`).** Cinco das
+seis pinturas guardam uma faixa clara no alto (névoa de horizonte, praia, céu lavado)
+que à NOITE seguia sendo a coisa mais clara do quadro — a fragilidade (b) da onda 1.
+Régua: razão topo (0–10% da altura) ÷ céu (10–30%); céu noturno brilha de baixo, então
+a razão certa é ≤ ~1,1. Medido por pintura, NOITE:
+
+| pintura | 0 | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| ANTES  | 1,45 | 0,89 | 1,37 | 1,28 | 1,58 | 1,35 |
+| DEPOIS | 1,13 | 0,84 | 1,10 | 1,11 | 1,18 | 1,12 |
+
+Duas rodadas de calibração (doses finais 0,44/0,10/0,36/0,26/0,48/0,36, faixa 0,22–0,30
+da altura). O gradiente entra DEPOIS da tinta (no alto, o teto tem a última palavra),
+em azul-violeta→azul-quase-preto conforme `escuridao()` — nunca preto, que é a lama que
+a direção C proibiu. Na TARDE o mesmo teto entra a 55%: zênite afunda, horizonte guarda
+o ouro. A régua é relativa de propósito: `getImageData` não vê o filtro CSS de brilho,
+mas o filtro é igual nas duas bandas, então a razão sobrevive; o absoluto quem julga é
+o print.
+
+**Medido:** FPS 62 nas três rodadas do smoke (piso 58); `index.html` 3.899.494 →
+3.908.474 bytes (+8,8 KB, só código e comentário — zero imagem nova; medido blob a
+blob em LF, porque o checkout em CRLF infla o número do disco); MANHÃ intocada (no
+shot-game do smoke — o passe de tinta a 0,04 é invisível e o teto é 0). Prints
+`A2-*`/`D3-*` na raiz do worktree (13+13): por pintura e hora, mais `*-sprite-noite`
+com o cacho de fruta antes neon e depois na luz da rua.
+
+**O que ficou frágil:** (a) o TARDE do litoral (pinturas 0 e 4) ainda mede 1,43–1,56 —
+no print lê como névoa alta acesa por sol baixo, plausível; ficou contido de propósito
+(princípio 5) e o botão está anotado no `DIRECAO.md`. (b) `CEU_PINT` é indexada por
+PINTURA: quando SALVADOR chegar com as 8 imagens, as pinturas novas precisam de dose
+própria — sem entrada, caem na [0] por guarda, que é chute. Rodar `prints-onda2.js` no
+mesmo commit que embutir arte nova. (c) O passe de sprites depende da ORDEM do desenho
+(só folha+mob+sombra no canvas naquele ponto); quem inserir desenho novo antes de
+`tintaSprites()` está o pondo DEBAIXO da tinta — é o contrato, está comentado no local.
+
+**Próximo passo:** onda 3 do `DIRECAO.md` — a cerimônia de era vira cinema (varredura
+de luz na abertura, que agora tem uma noite de verdade para varrer).

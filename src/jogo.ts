@@ -1923,14 +1923,18 @@ const HORAS = [
   // Every daylight ramp now falls from the top of the frame down to the rooftops, which is
   // what the board's own panel does. NOITE keeps its horizon glow: at night the light comes
   // from the street's own lamps, so there the value really does climb toward the skyline.
+  // `teto` (onda 2): quanto o CÉU PINTADO escurece no alto do quadro naquela hora — o
+  // zênite. É físico: ao entardecer o alto do céu afunda em azul enquanto o horizonte
+  // guarda o ouro; à noite o alto é o mais fundo do quadro. A dose de cada PINTURA vem
+  // de CEU_PINT (medida print a print); isto aqui é só a curva do dia.
   { nome: "MANHÃ", ceu: [[162, 208, 234], [110, 158, 192], [98, 142, 172], [92, 132, 158], [98, 130, 128]],
-    tinta: [232, 236, 214], forca: 0.05, escala: 1.02, escuro: 0 },
+    tinta: [232, 236, 214], forca: 0.05, escala: 1.02, escuro: 0, teto: 0 },
   { nome: "TARDE", ceu: [[126, 132, 168], [168, 132, 132], [196, 150, 104], [208, 164, 110], [216, 178, 132]],
-    tinta: [246, 168, 84], forca: 0.24, escala: 0.95, escuro: 0.10 },
+    tinta: [246, 168, 84], forca: 0.24, escala: 0.95, escuro: 0.10, teto: 0.55 },
   { nome: "PÓS-CHUVA", ceu: [[88, 118, 138], [96, 126, 142], [100, 128, 138], [104, 128, 134], [112, 132, 130]],
-    tinta: [150, 180, 196], forca: 0.18, escala: 0.86, escuro: 0.45 },
+    tinta: [150, 180, 196], forca: 0.18, escala: 0.86, escuro: 0.45, teto: 0.35 },
   { nome: "NOITE", ceu: [[14, 24, 44], [20, 34, 58], [32, 50, 76], [50, 72, 96], [78, 100, 112]],
-    tinta: [46, 66, 110], forca: 0.34, escala: 0.44, escuro: 1 }
+    tinta: [46, 66, 110], forca: 0.34, escala: 0.44, escuro: 1, teto: 1 }
 ];
 // BUG FIXED 2026-08-03: this was 240s with horaKey() quantised to 96 steps, so the whole
 // world re-baked its palette every 2.5s and every colour in the frame stepped at once —
@@ -3971,13 +3975,14 @@ function desenharMarco() {
   if (sx < -30 || sx > W + 44) return;
   const topo = GROUND - 34;
   sombra(sx + 3, GROUND, 16, 0.16);
-  cx.fillStyle = "#241a10"; cx.fillRect(sx + 1, topo + 10, 5, 25);   // o poste, com contorno
-  cx.fillStyle = "#5c3d20"; cx.fillRect(sx + 2, topo + 11, 3, 23);
-  cx.fillStyle = "#241a10"; cx.fillRect(sx - 12, topo, 31, 14);      // a tábua
-  cx.fillStyle = "#7a5430"; cx.fillRect(sx - 11, topo + 1, 29, 12);
-  cx.fillStyle = "#a07a48"; cx.fillRect(sx - 11, topo + 1, 29, 2);   // a luz em cima
+  // tintaCor: a placa é madeira fincada na rua, não sinal — toma a tinta da hora (onda 2)
+  cx.fillStyle = tintaCor("#241a10"); cx.fillRect(sx + 1, topo + 10, 5, 25);   // o poste, com contorno
+  cx.fillStyle = tintaCor("#5c3d20"); cx.fillRect(sx + 2, topo + 11, 3, 23);
+  cx.fillStyle = tintaCor("#241a10"); cx.fillRect(sx - 12, topo, 31, 14);      // a tábua
+  cx.fillStyle = tintaCor("#7a5430"); cx.fillRect(sx - 11, topo + 1, 29, 12);
+  cx.fillStyle = tintaCor("#a07a48"); cx.fillRect(sx - 11, topo + 1, 29, 2);   // a luz em cima
   // veios entalhados, sem glifo: um grafismo inventado aqui seria o erro do §2/logo
-  cx.fillStyle = "#41290f";
+  cx.fillStyle = tintaCor("#41290f");
   cx.fillRect(sx - 8, topo + 5, 23, 1); cx.fillRect(sx - 8, topo + 8, 17, 1);
 }
 
@@ -4111,8 +4116,18 @@ function lavarFundo(fc) {
 //      o lugar respira, e respira MAIS para quem cuidou (a contagem escala com
 //      cuidadoVisto — é a alma da economia aparecendo no ar).
 let tintaGrad: CanvasGradient | null = null, tintaGradK = "";
+let ceuGrad: CanvasGradient | null = null, ceuGradK = "";
 let vinheta: CanvasGradient | null = null, vinhetaK = "";
 let ambiente: Ambiente[] = [], ambT = 0, ambWorldX = 0;
+// O TETO DO CÉU, POR PINTURA (onda 2). As pinturas foram pintadas sob luz de dia e cinco
+// das seis guardam uma faixa CLARA no alto do quadro — névoa de horizonte alto, praia, céu
+// lavado. Sob a tinta da NOITE essa faixa continuava a coisa mais clara do quadro inteiro:
+// medido no ANTES, topo/céu 1,28–1,58 à noite (a razão certa de um céu noturno é ≤ ~1,1,
+// porque à noite o brilho vem de BAIXO, do horizonte, nunca do zênite). Cada entrada é
+// [dose no topo, fração da altura onde o teto se dissolve] — calibrada pintura a pintura,
+// print a print, com o medidor do prints-onda2.js. A pintura 1 quase não tem faixa (0,89
+// no ANTES): dose mínima, só para o zênite dela acompanhar as irmãs na virada.
+const CEU_PINT = [[0.44, 0.26], [0.10, 0.22], [0.36, 0.24], [0.26, 0.26], [0.48, 0.24], [0.36, 0.30]];
 function luzDaPintura(fx, g) {
   // --- 1. a tinta da hora ---
   const hq = horaAgora();
@@ -4135,6 +4150,26 @@ function luzDaPintura(fx, g) {
     }
     fx.fillStyle = tintaGrad!;
     fx.fillRect(0, 0, g.cw, g.ch);
+  }
+  // --- 1b. o teto do céu, por pintura ---
+  // DEPOIS da tinta de propósito: no alto do quadro é o teto quem tem a última palavra.
+  // A cor anda do azul-violeta do entardecer para o azul-quase-preto da noite — nunca
+  // preto puro, porque céu noturno preto é o que a direção chama de "lama".
+  const teto = lerp(hq.a.teto, hq.b.teto, hq.f) * (CEU_PINT[fundoIdx()] || CEU_PINT[0])[0];
+  if (teto > 0.015) {
+    const faixa = (CEU_PINT[fundoIdx()] || CEU_PINT[0])[1];
+    const kc = (horaKey() >> 3) + "p" + fundoIdx() + "x" + g.ch;
+    if (!ceuGrad || ceuGradK !== kc) {
+      ceuGradK = kc;
+      const cz = mixA([46, 52, 102], [8, 12, 28], escuridao());
+      const r = Math.round(cz[0]), v = Math.round(cz[1]), b = Math.round(cz[2]);
+      ceuGrad = fx.createLinearGradient(0, 0, 0, g.ch * faixa);
+      ceuGrad!.addColorStop(0, "rgba(" + r + "," + v + "," + b + "," + teto.toFixed(3) + ")");
+      ceuGrad!.addColorStop(0.72, "rgba(" + r + "," + v + "," + b + "," + (teto * 0.38).toFixed(3) + ")");
+      ceuGrad!.addColorStop(1, "rgba(" + r + "," + v + "," + b + ",0)");
+    }
+    fx.fillStyle = ceuGrad!;
+    fx.fillRect(0, 0, g.cw, g.ch * faixa);
   }
   // --- 2. a vinheta ---
   const kv = g.cw + "x" + g.ch;
@@ -4832,6 +4867,10 @@ function drawScene() {
   // monsters of pollution and greed roam ahead
   drawMobs(smog);
 
+  // a hora alcança quem anda na rua — folha, mob e sombra, e SÓ eles: neste ponto do
+  // quadro o canvas não tem mais nada (onda 2; magia, faísca e float vêm depois, sem tinta)
+  tintaSprites();
+
   // THE SPARK — running hero
   drawHero();
   desenharMagias();
@@ -5045,7 +5084,9 @@ function desenharMundo() {
       const dsc = dropScaleFor(dimg);
       const ddw = Math.round(dimg.naturalWidth * dsc), ddh = Math.round(dimg.naturalHeight * dsc);
       cx.imageSmoothingEnabled = true;                 // centred on the old icon's footprint so
-      cx.drawImage(dimg, Math.round(sx + 2 - ddw / 2), Math.round(y + 10 - ddh), ddw, ddh);
+      // spriteComHora: o item é coisa da rua e toma a tinta da hora (onda 2); o "+" e os
+      // tiques logo abaixo são o sinal de "pegue-me" e continuam sem tinta, de propósito
+      cx.drawImage(spriteComHora(dimg), Math.round(sx + 2 - ddw / 2), Math.round(y + 10 - ddh), ddw, ddh);
       cx.imageSmoothingEnabled = false;                // the pickup + and ticks still frame it
     }
     // ...and a small plus beside it, so it reads as a PICKUP and not as scenery: the world is
@@ -5154,6 +5195,72 @@ function aplicarHoraScene() {
   cx.fillStyle = "rgba(6,10,18," + (1 - esc).toFixed(3) + ")";
   cx.fillRect(0, 0, W, H);
   cx.restore();
+}
+// A TINTA DA HORA, NOS SPRITES DO #scene (Direção de Evolução, onda 2). A onda 1 deu à
+// camada de jogo só VALOR (aplicarHoraScene, acima), porque sinal de jogo não toma tinta —
+// e estava certo para barra, anel e texto. Mas mob, folha e drop não são sinal: são COISA
+// da rua, e ficaram com matiz de meio-dia sob luz de noite — medido no ANTES, um cacho de
+// fruta à NOITE lia RGB 136,119,65, mais quente que o próprio entardecer. A separação é
+// por MOMENTO DO DESENHO: este passe roda logo depois de drawMobs(), quando o canvas só
+// contém folha + mob + sombra (na pintura, o resto é transparente); tudo que é sinal —
+// magia, faísca, float, barra, anel, texto — desenha DEPOIS e continua sem tinta.
+// A dose é a da personagem (80% da do mundo): mesma coisa, mesma luz. O VALOR continua
+// vindo só do aplicarHoraScene do fim do quadro — dar valor aqui seria pagar duas vezes.
+function tintaSprites() {
+  if (!fundoPintado()) return;   // o mundo procedural já toma luzDoDia na própria paleta
+  const q = horaAgora();
+  const forca = lerp(q.a.forca, q.b.forca, q.f) * 0.8;
+  if (forca < 0.02) return;
+  const t = mixA(q.a.tinta, q.b.tinta, q.f);
+  cx.save();
+  cx.globalCompositeOperation = "source-atop";
+  cx.fillStyle = "rgba(" + Math.round(t[0]) + "," + Math.round(t[1]) + ","
+    + Math.round(t[2]) + "," + forca.toFixed(3) + ")";
+  cx.fillRect(0, 0, W, H);
+  cx.restore();
+}
+// O mesmo, para um sprite que desenha DEPOIS do passe (o item do drop, em desenharMundo):
+// uma cópia com a tinta assada, cacheada por imagem e refeita no passo de hora (>>3 =
+// 120 passos por dia, um a cada 15 s — mais fino que o olho entre bakes). O "+" e os
+// tiques do drop continuam por fora: aqueles são o sinal de "pegue-me", não a coisa.
+let tintaDropK = -1;
+const tintaDropCv: Map<HTMLImageElement, HTMLCanvasElement> = new Map();
+function spriteComHora(img) {
+  if (!fundoPintado()) return img;
+  const q = horaAgora();
+  const forca = lerp(q.a.forca, q.b.forca, q.f) * 0.8;
+  if (forca < 0.02) return img;
+  const k = horaKey() >> 3;
+  if (k !== tintaDropK) { tintaDropK = k; tintaDropCv.clear(); }
+  let cvT = tintaDropCv.get(img);
+  if (!cvT) {
+    cvT = document.createElement("canvas");
+    cvT.width = img.naturalWidth; cvT.height = img.naturalHeight;
+    const g = cvT.getContext("2d")!;
+    g.drawImage(img, 0, 0);
+    g.globalCompositeOperation = "source-atop";
+    const t = mixA(q.a.tinta, q.b.tinta, q.f);
+    g.fillStyle = "rgba(" + Math.round(t[0]) + "," + Math.round(t[1]) + ","
+      + Math.round(t[2]) + "," + forca.toFixed(3) + ")";
+    g.fillRect(0, 0, cvT.width, cvT.height);
+    tintaDropCv.set(img, cvT);
+  }
+  return cvT;
+}
+// ...e para uma cor chapada de coisa do mundo desenhada tarde (a placa de marco): a mesma
+// mistura, cacheada por cor e invalidada no mesmo passo. Só TINTA — o valor vem do passe
+// final, como em tudo desta camada.
+let tintaCorK = -1, tintaCorCache = {};
+function tintaCor(hex) {
+  if (!fundoPintado()) return hex;
+  const q = horaAgora();
+  const forca = lerp(q.a.forca, q.b.forca, q.f) * 0.8;
+  if (forca < 0.02) return hex;
+  const k = horaKey() >> 3;
+  if (k !== tintaCorK) { tintaCorK = k; tintaCorCache = {}; }
+  let v = tintaCorCache[hex];
+  if (!v) v = tintaCorCache[hex] = rgbS(mixA(hexA(hex), mixA(q.a.tinta, q.b.tinta, q.f), forca));
+  return v;
 }
 
 // ---------- HUD ----------
