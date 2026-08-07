@@ -5,13 +5,19 @@
       "name": "jogo",
       "runtimeExecutable": "node",
       "runtimeArgs": ["ferramentas/servir.js", "8199"],
-      "port": 8199
+      "port": 8199,
+      "autoPort": false
     },
     {
+      "//": "A mesa PRECISA da 8200: e o endereco que o dono usa (npm run mesa ->",
+      "// ": "localhost:8200) e o receber.js tem a porta fixa no codigo. autoPort false",
+      "//  ": "de proposito — porta sorteada aqui daria uma sala de maquinas em endereco",
+      "//   ": "que ninguem conhece. Se a porta estiver ocupada, e a propria mesa ja de pe.",
       "name": "mesa",
       "runtimeExecutable": "node",
       "runtimeArgs": ["ferramentas/receber.js"],
-      "port": 8200
+      "port": 8200,
+      "autoPort": false
     }
   ]
 }
