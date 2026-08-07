@@ -17,6 +17,121 @@ Três coisas que isso obriga, e valem para toda entrega deste papel:
    referência que a sustenta e o que foi tirado dela — e por que ela serve a um jogo de
    pixel art histórico brasileiro, e não a um portfólio.
 
+## As referências premiadas — o que cada uma dá a ESTE jogo (2026-08-07)
+
+Pesquisadas de verdade (Apple Design Awards, BAFTA, IGF, Peabody), com a pergunta
+certa: não "o que é bonito", mas *o que ela faz que este jogo não faz — e serve aqui?*
+Um portfólio de Awwwards e um jogo de pixel art histórico brasileiro **não têm a mesma
+régua**: Awwwards premia navegação-espetáculo em desktop (scroll cinematográfico, WebGL,
+tipografia gigante); jogo mobile premiado ganha por coerência de material, toque nativo
+e 60 fps. O que atravessa as duas réguas — e é o que o dono está pedindo — é só isto:
+**uma língua visual única e profundidade no detalhe.** Referências, da mais útil à
+mais distante:
+
+1. **Art of Fauna** (Apple Design Award 2025) — caderno naturalista de época: gravuras
+   de fauna, papel texturizado e tipografia SERIFADA de livro conduzindo tudo. O que ela
+   faz que este jogo não fazia: a voz de leitura pertence ao material (tinta de pena
+   sobre papel), não ao sistema operacional. **SERVE, e é a referência da onda 6**: o
+   nosso papel de campo já existia; a tinta dele é que ainda era Arial Black.
+2. **Florence** (ADA 2018 · BAFTA 2019 de jogo mobile) — tema sério e íntimo, zero
+   panfleto, e TODA superfície fala uma língua só; a UI é material da história (balões
+   que viram peças de quebra-cabeça). **SERVE como régua da barra do dono**: é o
+   estado-da-arte de "componentes que se conversam" num jogo de celular premiado.
+3. **Dandara: Trials of Fear** (Long Hat House, BRASIL — Palmares na origem do nome;
+   pixel art "handcrafted" elogiada pela crítica, mobile de nascença) — prova que jogo
+   brasileiro de história em pixel art lê como premium quando a direção é autoral, não
+   herdada do motor. **SERVE como irmão direto** — e como aviso: a crítica elogia a
+   beleza e cobra a fricção; beleza não compra jogabilidade.
+4. **Afterplace** (ADA 2023) — pixel art nascida PARA o telefone: uma mão, gestos, sem
+   chrome de desktop. O que faz que este jogo não faz: quase não há HUD; o mundo é a
+   interface. **SERVE em parte**: valida a entrada por metades de tela; a lente da
+   subtração de HUD fica anotada para quando houver medição pedindo.
+5. **Alto's Odyssey** (ADA 2018) — luz dinâmica e hora do dia como identidade, "polish
+   até o menor detalhe". **JÁ SERVE**: é a espinha das ondas 1–3; segue sendo a régua
+   do sistema de luz.
+6. **Never Alone (Kisima Iŋitchuŋa)** (BAFTA Best Debut · Peabody) — co-autoria
+   cultural real: "Cultural Ambassadors" Iñupiat dentro dos créditos e do processo.
+   **NÃO serve como referência visual** (3D atmosférico, outra linguagem) — serve como
+   referência de GOVERNANÇA: é a versão premiada do nosso §2 e do critério do logo
+   (grafismo tem dono; representação se decide com quem é representado).
+
+Fontes: apple.com/newsroom (ADA 2023/2025/2026), neveralonegame.com e Peabody via
+lakotatimes.com, wikipedia/Florence (premiações), minireview.io e thirdcoastreview.com
+(Dandara), altosodyssey.com. Nada disso entra no jogo — a CSP continua fechada; a
+pesquisa é de fora.
+
+## A auditoria de conversa — o que AINDA não fala a língua da casa (2026-08-07)
+
+Percorri o jogo inteiro a 390×844 dsf2 (prints `A6-*-antes.png` em `test/`), com a
+lista do PM na mão. O veredito, item a item:
+
+1. **CONFIRMO, e era o maior: a voz de leitura.** Todo texto corrido — fala, linha do
+   tempo, fontes, retorno — era **Arial Black 900**: peso de manchete em corpo de
+   parágrafo, quatro papéis tipográficos (data, título, corpo, fonte) com um peso só.
+   Hierarquia por volume não é hierarquia. É o item que a onda 6 corrige (abaixo).
+2. **CONFIRMO, e é a próxima frente: os ícones do motor antigo.** Três provas no print
+   `A6-jogo-antes.png`: (a) o chip de impacto usa uma folha PROCEDURAL 12×12 com
+   contorno **navy `#12242e`** — a cor que a própria paleta proíbe ("no navy anywhere")
+   — na mesma fileira de três contadores com arte AUTORAL 26×26: duas folhas de
+   dialetos diferentes lado a lado, dizendo coisas diferentes; (b) o botão dourado
+   desenha a **varinha mágica do motor antigo** (paleta velha `#eba748` sobre o ouro
+   novo `#f3c05c`), um objeto que não existe neste jogo; (c) MELHORIAS usa o martelo
+   12×12 do mesmo conjunto velho.
+3. **ACRESCENTO: escala não-inteira nos ícones procedurais.** `.pi` é canvas 12×12
+   exibido a **20 px (1,67×)** e `.pi.big` a **30 px (2,5×)** — pixel de tamanho
+   desigual, o pecado capital da pixel art, visível no glifo da varinha do botão
+   principal. Os autorais (26 px em canvas 26) estão em 1×, corretos.
+4. **ACRESCENTO: MENU é o único cartão do rodapé sem ícone** — quebra o ritmo
+   ícone+rótulo dos vizinhos.
+5. **DERRUBO em parte: "HUD de cima e rodapé com densidades diferentes".** A diferença
+   de densidade é por função (contadores pequenos, ações grandes) e não incomoda no
+   print; o que destoava ali era o item 2 (dialetos de ícone) e o chip de impacto mais
+   alto que os três vizinhos. Não é frente própria — resolve junto com os ícones.
+6. **Restos de sistema fora das superfícies de leitura** (menores, anotados): o
+   `#cerQuando` da cerimônia era sans espaçada (entrou na onda 6 como serifa de
+   inscrição); os fallbacks Arial de `.rec b`/`.chip .valor`/`.cartao .cn` só aparecem
+   se o bitmap falhar — ficam.
+
+**A frente escolhida — e por quê.** Entre a voz de leitura (1) e os ícones (2–4),
+escolhi a **voz de leitura**: a missão do jogo é EDUCAR, a superfície onde ele educa é
+o papel, e era exatamente ali que ele falava a língua de site; são cinco superfícies
+corrigidas por UM sistema (fala, linha do tempo, fontes, retorno, cerimônia); e é a
+maior metragem de tela do frankenstein. Os ícones são a próxima onda do roteiro — com
+o diagnóstico já medido acima, é meio dia de mapas de pixel na paleta da casa.
+
+## Onda 6 — IMPLEMENTADA (2026-08-07): A TINTA DO PAPEL
+
+A régua ganhou a linha que faltava, e ela é derivação, não invenção: **madeira e pedra
+falam bitmap 5×7; PAPEL fala serifa de caderno de campo; o mundo fala bitmap.** Arial
+Black deixa de existir como voz do jogo — vira só fallback de rótulo.
+
+1. **`--leitura`: Georgia → Iowan Old Style → Times New Roman → Noto Serif → serif.**
+   Zero rede (§3): tudo fonte do aparelho — Georgia em iOS/macOS/Windows, Noto Serif
+   no Android pelo genérico `serif`. Referência que sustenta: Art of Fauna (ADA 2025),
+   caderno naturalista com serifa de época; Florence, uma língua por jogo.
+2. **A hierarquia de um caderno de campo**, nos cinco papéis: DATA em itálico de
+   margem (`.ltQ`, `#falaSub`), TÍTULO em negrito de verbete (`.ltT`), CORPO em
+   redonda 400 (`#falaPalco` 16 px, `.ltD`/`.fnT` 13,5 px, `.retLinha` 14 px), FONTE
+   em itálico de citação (`.ltF`, `.fnQ`). Os sussurros ("toque para continuar",
+   "toque para seguir") viram itálico pequeno — voz de nota, não etiqueta.
+3. **A tinta senta na PAUTA**: corpo com entrelinha de **22 px = 2 × a pauta de 11 px**
+   do papel — cada linha de texto ocupa duas réguas, e a escrita passa a parecer NO
+   papel. É o detalhe que separa "texto sobre um fundo" de "página".
+4. **Madeira terminou de falar bitmap**: o QUANDO das placas da linha do tempo
+   (`.ltMarcoQuando`) era o último texto de sistema pregado em tábua — virou
+   `pixelRotulo` (caps 5×7), com a tinta da placa. A serifa nova é tinta de papel,
+   nunca de madeira.
+5. **`#cerQuando`** (a inscrição sob o nome da era): serifa em caixa alta espaçada —
+   lápide, não etiqueta de app.
+
+**Medido:** prints `A6-*-antes/depois.png` + `A6-historia-marco-depois.png` em `test/`,
+olhados um a um com a pergunta do dono ("isto ganharia um prêmio de jogo mobile?") — a
+linha do tempo e DE ONDE VEM agora leem como caderno de historiador, e é a primeira vez
+que uma tela de leitura deste jogo responde sim. FPS 61/62/61 em três rodadas (piso 58);
+`index.html` 3.451.684 → 3.454.226 bytes LF (**+2,5 KB, só código**); zero imagem nova;
+zero rede; `npm test` verde sem ajuste em teste nenhum. Glifos conferidos: a 5×7 cobre
+todo caractere que as placas usam (acentos, `·`, vírgula, dígitos).
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
@@ -243,6 +358,12 @@ consertando em paralelo; não toquei.
 
 ## Roteiro de ondas futuras
 
+- **Onda 7 — os ícones falam a língua da casa** (diagnóstico pronto na auditoria acima):
+  redesenhar como mapas de pixel na paleta ATUAL (tinta `#2a2418` sobre pedra, contorno
+  `#191510` — nunca o navy `#12242e` do motor antigo) os três ícones procedurais que
+  restam; aposentar a VARINHA do botão dourado por um ícone do gesto deste jogo; dar
+  ícone ao cartão MENU; e matar a escala não-inteira (12→20/30 px) desenhando em 13×13
+  exibido a 26 px (2× exato). Zero imagem: mapa de pixel é código. Meio dia.
 - **Onda 4 — toque com física no canvas**: FEITA — `atualizarKick` no laço, mola do
   quadro no relógio do quadro.
 - **Clima raro (ex-onda 5, rebaixada em 2026-08-07)**: chuva fina no PÓS-CHUVA, 1 vez

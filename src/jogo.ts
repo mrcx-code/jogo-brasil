@@ -6444,7 +6444,13 @@ function montarCompletude() {
       // a placa longe agora é a mesma madeira, encardida (achado 8) — a tinta acompanha
       pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#332a1a");
       m.appendChild(t);
-      sub(m, "ltMarcoQuando", chegou ? ep.quando : "continue a travessia");
+      // rótulo sobre MADEIRA fala bitmap (a régua) — era o único texto de sistema
+      // pregado numa placa; a serifa nova é tinta de PAPEL, não de tábua
+      const q2 = document.createElement("div");
+      q2.className = "ltMarcoQuando";
+      pixelRotulo(q2, chegou ? ep.quando : "continue a travessia", 1,
+        chegou ? "#4a2f14" : "#3c3122");
+      m.appendChild(q2);
       col.appendChild(m);
     } else if (no.tipo === "momento") {
       // Ou um índice em MOMENTOS, ou um momento próprio (q/t/d/f no nó) — é o que permite

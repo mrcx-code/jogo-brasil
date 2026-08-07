@@ -2332,3 +2332,37 @@ nenhum deles é vetorizável sem virar outra arte.
 **Conclusão:** o caminho de peso não é formato, é (a) qualidade de encode, que já rendeu
 −24,5% em 07/08, e (b) **carga sob demanda** — a única saída estrutural para 12 capítulos,
 já que a ~380 KB por capítulo o teto volta a estourar no 6º.
+### 2026-08-07 · Direção de Arte, onda 6: A TINTA DO PAPEL (worktree, para integrar)
+
+**O mandato novo do dono** ("qualidade diferenciada, componentes que se conversem, não
+quero um frankenstein, referências premiadas") está registrado no topo do `DIRECAO.md`
+como barra permanente. Este sprint respondeu a ele em três entregas, todas no
+`DIRECAO.md`: a seção de **referências premiadas** (Art of Fauna ADA 2025, Florence
+ADA+BAFTA, Dandara, Afterplace ADA 2023, Alto's Odyssey ADA 2018, Never Alone
+BAFTA+Peabody — com o que cada uma dá a ESTE jogo e por que a régua do Awwwards NÃO é a
+nossa), a **auditoria de conversa** (o que ainda não fala a língua da casa, item a item,
+com confirmo/derrubo/acrescento sobre a lista do PM), e **UMA frente funda**: a voz de
+leitura.
+
+**Feito (src/estilo.css + 1 troca em src/jogo.ts; zero imagem nova):** todo texto
+corrido era Arial Black 900 — peso de manchete em corpo de parágrafo, quatro papéis
+(data/título/corpo/fonte) num peso só. A régua ganhou a linha que faltava, por
+derivação: **madeira e pedra falam bitmap 5×7; PAPEL fala serifa de caderno de campo**
+(`--leitura`: Georgia → Noto Serif, tudo fonte do aparelho, zero rede). Hierarquia de
+caderno: data em itálico de margem, título em negrito de verbete, corpo em redonda 400
+com **entrelinha de 22 px = 2× a pauta de 11 px do papel** (a tinta senta na pauta),
+fonte em itálico de citação. O QUANDO das placas da linha do tempo era o último texto
+de sistema pregado em MADEIRA — virou `pixelRotulo` bitmap. `#cerQuando` virou serifa
+de inscrição.
+
+**Medido:** FPS 61/62/61 (piso 58) · `index.html` 3.451.684 → 3.454.226 bytes LF
+(+2,5 KB, só código) · `npm test` verde 3× sem ajuste em teste nenhum · prints
+`A6-*-antes/depois.png` + `A6-historia-marco-depois.png` em `test/`, olhados com a
+pergunta do dono — a linha do tempo e DE ONDE VEM agora leem como caderno de
+historiador; é a primeira vez que uma tela de leitura deste jogo responde sim.
+
+**Próxima frente já diagnosticada (onda 7, no roteiro do `DIRECAO.md`):** os ícones do
+motor antigo — folha procedural com contorno navy `#12242e` (cor proibida pela própria
+paleta) ao lado de contadores autorais, a VARINHA mágica do jogo de rua no botão
+dourado, e escala não-inteira 12→20/30 px (pixel desigual). Mapa de pixel é código:
+zero imagem, meio dia.
