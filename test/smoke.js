@@ -566,6 +566,179 @@ function alvo() {
   if (som.temContexto && (som.ligado < 5 || som.ligado > 6)) errors.push('the per-frame voice budget is not holding: ' + som.ligado);
   if (som.desligado !== 0) errors.push('sound is off and something still made an audio node');
 
+  // ============================================================
+  // T4 (SPRINT 1) — the three flows that cost day 07 must not regress in silence.
+  // They run AFTER the sound test on purpose: page.tap is a trusted gesture and wakes the
+  // AudioContext, so any real tap before that test would make "no context before a gesture"
+  // fail for reasons that have nothing to do with audio.
+  // ============================================================
+
+  // ---- FLOW 1: coming back on day 2 shows the return panel, with real numbers ----
+  // A save stamped 8h ago plus a retention record from yesterday must open the
+  // "ENQUANTO VOCÊ ESTEVE FORA" paper, every number on it read from live state (no invented
+  // digit), and a single tap must close it. This is the feature the mission hangs on and
+  // nothing was watching it.
+  await page.evaluate(() => {
+    // the unload handler writes BOTH stores; stub both or the seed is overwritten mid-reload
+    salvar = function () {};
+    salvarRetencao = function () {};
+    localStorage.setItem(CHAVE_JOGO, JSON.stringify({
+      energia: 500, energiaTotal: 800, cenario: 0, modo: 'limpo',
+      u1: false, u2: false, u3: false, u4: false, cuidado: 0.8, som: false,
+      aberturas: 1, fechos: 0, grupo: 3, acolhidos: [2, 0, 0], marcos: 0,
+      salvoEm: Date.now() - 8 * 3600 * 1000     // 8h away, under the 12h offline cap
+    }));
+    const ontem = new Date(Date.now() - 864e5);
+    const chave = ontem.getFullYear() + '-' + String(ontem.getMonth() + 1).padStart(2, '0')
+      + '-' + String(ontem.getDate()).padStart(2, '0');
+    localStorage.setItem(CHAVE_RET, JSON.stringify({ dias: [chave], segundos: 300, tochas: 0 }));
+  });
+  await page.reload();
+  await page.waitForFunction(() => typeof S !== 'undefined');
+  await page.waitForTimeout(600);
+  const volta = await page.evaluate(() => {
+    const el = document.getElementById('retorno');
+    const linhas = Array.from(document.querySelectorAll('#retorno .retLinha')).map(d => d.textContent);
+    return { aberto: el.classList.contains('aberto'), aria: el.getAttribute('aria-hidden'),
+      linhas, dt: voltouDepoisDe, dias: R.dias.length, bonusEsperado: (1 + CFG.bonusDia).toFixed(2),
+      menuAberto: document.getElementById('telaMenu').classList.contains('aberta') };
+  });
+  console.log('day-2 return -> open:', volta.aberto, '| away', Math.round(volta.dt) + 's',
+    '| lines:', volta.linhas.length, '| days', volta.dias);
+  if (!volta.aberto) errors.push('an 8h-old save did not open the return panel');
+  if (volta.aria !== 'false') errors.push('the return panel is open but hidden from the accessibility tree');
+  if (volta.linhas.length !== 5) errors.push('the return panel does not carry its five lines: got ' + volta.linhas.length);
+  // Every number on the paper must be the state AT BUILD TIME (the panel is built inside
+  // carregar(), synchronously on the seeded save). S.grupo is re-derived by the frame loop
+  // right after, so the panel is compared against the seed, not against later live state.
+  if (volta.dias !== 2) errors.push('yesterday + today did not make 2 distinct days: got ' + volta.dias);
+  if (!volta.linhas.some(l => /^Você ficou fora por 8h0[01]\./.test(l))) {
+    errors.push('no line says the player was away ~8h: ' + JSON.stringify(volta.linhas));
+  }
+  if (!volta.linhas.some(l => l.includes('Dia 2') && l.includes('×' + volta.bonusEsperado))) {
+    errors.push('no line carries the real day count and bonus (Dia 2, ×' + volta.bonusEsperado + '): ' + JSON.stringify(volta.linhas));
+  }
+  if (!volta.linhas.some(l => l.startsWith('3 pessoas continuam andando'))) {
+    errors.push('no line matches the seeded queue of 3: ' + JSON.stringify(volta.linhas));
+  }
+  if (!volta.linhas.some(l => l.startsWith('2 pessoas acolhidas'))) {
+    errors.push('no line matches the seeded 2 sheltered: ' + JSON.stringify(volta.linhas));
+  }
+  // the boot always opens the menu (z40) OVER the panel (z30); the player meets the paper
+  // after JOGAR. Walk that real path, then close it with the tap it promises.
+  await page.tap('#btnJogar');            // chapter 1 already read (aberturas: 1) -> straight to the street
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-retorno.png') });
+  const antesTap = await page.evaluate(() => ({
+    aberto: document.getElementById('retorno').classList.contains('aberto'),
+    emTela: document.body.classList.contains('emTela') }));
+  if (!antesTap.aberto) errors.push('the return panel did not survive JOGAR to be seen over the game');
+  if (antesTap.emTela) errors.push('JOGAR did not hand the screen back to the game');
+  await page.tap('#retorno');
+  await page.waitForTimeout(150);
+  const dpTap = await page.evaluate(() => ({
+    aberto: document.getElementById('retorno').classList.contains('aberto'),
+    aria: document.getElementById('retorno').getAttribute('aria-hidden') }));
+  console.log('  one tap closes it -> open after tap:', dpTap.aberto, '| aria-hidden:', dpTap.aria);
+  if (dpTap.aberto) errors.push('one tap did not close the return panel');
+  if (dpTap.aria !== 'true') errors.push('the closed return panel still claims to be visible');
+
+  // ---- FLOW 2: the chapter-turn ceremony always ends at morning ----
+  // Onda 3's contract: on a CHAPTER turn, saltoHora sweeps the light to the NEXT sunrise
+  // (day fraction 0.00), consumed with physics during the ceremony. Measured from two
+  // different starting hours, because the ANTES bug only showed from some of them (0.75
+  // landed on morning by coincidence; 0.40 ended at dusk). Time is recorded REAL, not
+  // nominal — the already-paid trap from prints-onda3.
+  const amanhecer = async (fHora) => {
+    await page.evaluate((f) => {
+      fecharTelas();
+      mobs.length = 0; drops.length = 0; floats.length = 0;
+      saltoHora = 0;
+      S.cenario = cenarioDaEpoca(1) - 1;         // last scene of chapter 1
+      S.energiaTotal = LIMIARES[S.cenario] - 3;  // parked just under the turn
+      S.aberturas = 1; S.fechos = 0;             // chapter 1 read, its close unseen
+      redesenharFundo();
+      window.setHora(f);
+    }, fHora);
+    await page.waitForTimeout(300);
+    await page.evaluate(() => { S.energiaTotal += 6; });   // cross the threshold
+    await page.waitForTimeout(500);                        // verificarCenario runs in the HUD loop
+    // walk through the chapter close: one tap completes the line, the next advances
+    let ceri = false;
+    for (let i = 0; i < 30 && !ceri; i++) {
+      ceri = await page.evaluate(() =>
+        document.getElementById('telaFala').classList.contains('cerimoniando'));
+      if (!ceri) { await page.evaluate(() => avancarFala()); await page.waitForTimeout(90); }
+    }
+    if (!ceri) return { ceri: false };
+    // the sweep runs behind the plaque; wait for it to drain, on a real clock
+    const t0 = Date.now();
+    let resta = 1e9;
+    while (resta > 2 && Date.now() - t0 < 6000) {
+      await page.waitForTimeout(100);
+      resta = await page.evaluate(() => saltoHora);
+    }
+    const tReal = (Date.now() - t0) / 1000;
+    await page.waitForTimeout(200);                        // let the floor finish the last seconds
+    const fim = await page.evaluate(() => ({
+      fra: (relogio / DIA_SEG) % 1, resta: saltoHora,
+      ceriAinda: document.getElementById('telaFala').classList.contains('cerimoniando') }));
+    return { ceri: true, tReal, resta: fim.resta, fra: fim.fra,
+      dist: Math.min(fim.fra, 1 - fim.fra), ceriAinda: fim.ceriAinda };
+  };
+  for (const f of [0.75, 0.40]) {
+    const m = await amanhecer(f);
+    console.log('ceremony from', f, '->', m.ceri
+      ? 'sweep drained in ' + m.tReal.toFixed(2) + 's real | day fraction ' + m.fra.toFixed(3)
+        + ' (dist to morning ' + m.dist.toFixed(3) + ') | still ceremonial: ' + m.ceriAinda
+      : 'THE CEREMONY NEVER OPENED');
+    if (!m.ceri) { errors.push('crossing the chapter threshold from hour ' + f + ' never reached the ceremony'); continue; }
+    if (m.resta > 2) errors.push('the light sweep from hour ' + f + ' did not drain within 6s real: ' + m.resta.toFixed(0) + 's of game clock left');
+    if (m.dist > 0.02) errors.push('the ceremony from hour ' + f + ' did not end at morning: day fraction ' + m.fra.toFixed(3));
+  }
+
+  // ---- FLOW 3: the in-game menu never locks the player out ----
+  // The worst product bug ever shipped had this exact shape: with a game in progress, the
+  // menu (or a screen behind it) became unreachable or would not give the game back. Real
+  // taps on the real buttons, because writing state proved nothing last time.
+  await page.evaluate(() => {
+    fecharTelas();
+    S.cenario = 0; S.energia = 500; S.energiaTotal = 800;   // mid-game, under the first turn
+    S.aberturas = 1; saltoHora = 0;
+    redesenharFundo();
+  });
+  await page.waitForTimeout(200);
+  const tela = async () => page.evaluate(() => ({
+    abertas: TELAS.filter(t => document.getElementById(t).classList.contains('aberta')),
+    emTela: document.body.classList.contains('emTela') }));
+  const passo = async (botao, esperada) => {
+    await page.tap('#' + botao);
+    await page.waitForTimeout(200);
+    const t = await tela();
+    if (esperada === null) {
+      if (t.abertas.length || t.emTela) {
+        errors.push(botao + ' did not give the game back: open=' + t.abertas.join(',') + ' emTela=' + t.emTela);
+      }
+    } else if (t.abertas.join(',') !== esperada || !t.emTela) {
+      errors.push(botao + ' should land on ' + esperada + ', landed on: ' + (t.abertas.join(',') || '(none)') + ' emTela=' + t.emTela);
+    }
+    return t;
+  };
+  await passo('abrirMenu', 'telaMenu');
+  await passo('btnCompletude', 'telaCompletude');     // A HISTÓRIA reachable mid-game
+  await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-menu-historia.png') });
+  await passo('btnVoltarComp', 'telaMenu');
+  await passo('btnFontes', 'telaFontes');             // DE ONDE VEM reachable mid-game
+  await passo('btnVoltarFontes', 'telaMenu');
+  const dentroDeNovo = await passo('btnJogar', null); // and JOGAR hands the street back, chrome and all
+  const partida = await page.evaluate(() => ({ total: S.energiaTotal, cenario: S.cenario }));
+  console.log('in-game menu walk -> back on the street:', dentroDeNovo.abertas.length === 0,
+    '| chrome back:', !dentroDeNovo.emTela, '| game kept: total', partida.total, 'scene', partida.cenario);
+  if (!(partida.total >= 800)) errors.push('walking the menu lost the game in progress: total ' + partida.total);
+  if (partida.cenario !== 0) errors.push('walking the menu moved the scenery: ' + partida.cenario);
+  await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-menu-volta.png') });
+  await page.evaluate(() => { localStorage.removeItem(CHAVE_JOGO); localStorage.removeItem(CHAVE_RET); });
+
   const fps = await page.evaluate(() => new Promise(res => {
     let n = 0; const t0 = performance.now();
     (function f() { n++; performance.now() - t0 < 2000 ? requestAnimationFrame(f) : res(Math.round(n / 2)); })();
