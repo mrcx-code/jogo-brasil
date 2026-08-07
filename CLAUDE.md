@@ -44,6 +44,11 @@ Regras práticas que decorrem disso:
   não indivíduos históricos.
 - **Na dúvida sobre representação, pare e pergunte ao dono.** É o único assunto deste
   repositório em que decidir sozinho é a escolha errada.
+- **Prioridade de fonte, decidida pelo dono em 2026-08-06:** ao afirmar história, prefira
+  (1) autoria indígena e negra — Ailton Krenak, Davi Kopenawa, Eliane Potiguara, Daniel
+  Munduruku, Beatriz Nascimento, Lélia Gonzalez, Abdias do Nascimento — e (2) as
+  pesquisadoras de cada período. Fonte institucional (IBGE, CNV, leis) continua valendo;
+  a regra é sobre QUEM narra quando há escolha. O NOTES.md mantém a lista por capítulo.
 
 ## 3. Regras técnicas
 

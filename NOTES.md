@@ -560,6 +560,28 @@ como faixa que continua, não ponto que acaba. As formas da linha: borda esquerd
 (havia milênios antes), Palmares como FAIXA, borda direita aberta (disputa em curso), e os
 dois fios — indígena e negro — visíveis, não achatados num traço só.
 
+### Regra de fonte do dono (2026-08-06) e a estante das pesquisadoras
+
+O dono pediu: referências como Ailton Krenak, e **as mulheres que pesquisaram cada
+período**. Vira critério permanente (está no CLAUDE.md §2). A estante mínima por período,
+para qualquer capítulo futuro partir dela:
+
+- **Povos originários / séc. XVI:** Manuela Carneiro da Cunha (org., *História dos índios
+  no Brasil*, 1992); Maria Regina Celestino de Almeida (*Metamorfoses indígenas*, 2003);
+  Eliane Potiguara (*Metade cara, metade máscara*, 2004 — autoria indígena).
+- **Palmares / séc. XVII:** Silvia Hunold Lara (*Palmares & Cucaú*, 2021; Afro-Ásia 64) —
+  já é a referência crítica da seção de fontes.
+- **Guarani / Sete Povos:** Lía Quarleri (*Rebelión y guerra en las fronteras del Plata*,
+  2009); Graciela Chamorro (*Terra Madura*, 2008).
+- **Bahia de 1835:** João J. Reis é a âncora; ao lado, Cecília Moreira Soares (as
+  ganhadeiras), Lisa Earl Castillo, Wlamyra Albuquerque (*O jogo da dissimulação*, 2009).
+- **Pós-abolição / Pequena África:** Beatriz Nascimento (org. Ratts, 2021); Lélia Gonzalez
+  (*Lugar de negro*, 1982); Conceição Evaristo para a voz literária.
+- **Ditadura e povos indígenas / Constituinte:** CNV vol. II; Daniel Munduruku (2012);
+  Ailton Krenak (Constituinte 1987; *Ideias para adiar o fim do mundo*, 2019); Davi
+  Kopenawa & Bruce Albert (*A queda do céu*, 2015); Célia Xakriabá e Sônia Guajajara para
+  o movimento contemporâneo (APIB).
+
 ### Lacuna de método, não de bibliografia
 
 Nenhuma fonte levantada é de **autoria indígena ou quilombola direta** — todas são de
