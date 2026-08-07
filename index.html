@@ -1470,18 +1470,49 @@ function desenharFolhas() {
 // A anotação existe porque `passo` NÃO está nos literais: ele é calculado no `map` logo abaixo,
 // e sem dizer o tipo o compilador só enxerga os quatro campos escritos à mão. A asserção não
 // muda um byte do emitido — o `passo` continua nascendo na mesma linha de sempre.
+//
+// A CORRIDA TEM O PRÓPRIO PASSO, e é por isso que `lacoCorrer` existe. Até 2026-08-07 o motor
+// usava o MESMO `passo` para andar e correr e só dobrava a cadência — o que é literalmente
+// "andar depressa", a queixa do dono. Uma folha de corrida tem outra passada (a abertura dos
+// pés é 1,3 a 1,4 vez a da caminhada nas folhas medidas), então correr com o passo da
+// caminhada faria a sola arrastar a diferença inteira.
+//
+// `lacoCorrer` = a passada da corrida em px de SPRITE, medida da arte pelo `test/ciclo-corrida.js`;
+// `quadrosCorrer` = quantos quadros tem o ciclo dela. Os DOIS em zero significam "não há folha
+// de corrida aprovada": `passoCorrer` cai no `passo` da caminhada e nada muda, que é o estado
+// de hoje. O par nunca é palpite — sem folha medida, fica zero. (§2 do CLAUDE.md: as três
+// folhas que chegaram em 2026-08-07 estão retidas, ver NOTES.md.)
+//
+// A altura do quadro da corrida NÃO entra na conta: o motor desenha a folha de corrida com a
+// escala da CAMINHADA (`heroScale` = 44 / altura do quadro de walk, ver desenharHeroiHD), então
+// um px de sprite da corrida vale exatamente o mesmo que um px da caminhada.
 const PASSO_CAP = [
-    { laco: 140, alturaQuadro: 322, tela: 10, telaCorrer: 5 },
-    { laco: 165, alturaQuadro: 323, tela: 12, telaCorrer: 6 },
-    { laco: 150, alturaQuadro: 318, tela: 11, telaCorrer: 5 }
+    { laco: 140, alturaQuadro: 322, tela: 10, telaCorrer: 5, lacoCorrer: 0, quadrosCorrer: 0 },
+    { laco: 165, alturaQuadro: 323, tela: 12, telaCorrer: 6, lacoCorrer: 0, quadrosCorrer: 0 },
+    { laco: 150, alturaQuadro: 318, tela: 11, telaCorrer: 5, lacoCorrer: 0, quadrosCorrer: 0 }
 ].map(function (c) {
     // px de MUNDO por quadro de sprite: o laço é um passo inteiro e o ciclo tem três quadros.
     // O 44 é o HERO_TARGET, declarado junto das folhas lá embaixo — aqui vai o literal porque
     // esta conta roda no carregamento, antes daquela linha.
     c.passo = c.laco * 44 / c.alturaQuadro / 3;
+    c.passoCorrer = c.lacoCorrer && c.quadrosCorrer
+        ? c.lacoCorrer * 44 / c.alturaQuadro / c.quadrosCorrer
+        : c.passo;
     return c;
 });
 function passoCap() { return PASSO_CAP[capArte()] || PASSO_CAP[0]; }
+// HÁ FOLHA DE CORRIDA NESTE CAPÍTULO? Uma pergunta, um lugar. Ela tem TRÊS clientes que não
+// podem divergir — a velocidade do mundo, o passo que escolhe o quadro e a folha que é
+// desenhada — e foi exatamente uma divergência dessas que fez `velocidadeMundo()` e `drawHero()`
+// discordarem antes: o quadro saía da corrida e o chão andava no passo da caminhada.
+// O teste é o mesmo que o `heroBloco` faz: um bloco `run` vazio devolve a caminhada.
+function temCorrida() { return heroBloco("run") !== heroBloco("walk"); }
+// O PASSO DE AGORA, em px de mundo por quadro de sprite. É ele que escolhe o quadro (por
+// DISTÂNCIA) e é ele que a velocidade multiplica — as duas contas TÊM de sair daqui.
+function passoAgora() {
+    const c = passoCap();
+    return S.modo === "carvao" && temCorrida() ? c.passoCorrer : c.passo;
+}
 // QUANTO CHÃO ELA COBRE POR SEGUNDO, no ritmo de agora. Estava escrito só dentro do laço de
 // quadro; virou função porque as chegadas passaram a nascer por DISTÂNCIA e precisam da mesma
 // conta — se as duas divergirem, andar e correr deixam de ser a mesma rua vista em ritmos
@@ -1490,10 +1521,12 @@ function passoCap() { return PASSO_CAP[capArte()] || PASSO_CAP[0]; }
 function velocidadeMundo() {
     const correndo = S.modo === "carvao";
     const c = passoCap();
-    // Enquanto não houver folha de corrida aproveitável, o bloco `run` do capítulo fica vazio e
-    // a corrida usa as poses da caminhada — o pé continua plantado, porque o quadro é escolhido
-    // pela DISTÂNCIA e o passo é o mesmo. Só a cadência dobra.
-    return c.passo * 60 / (correndo ? c.telaCorrer : c.tela);
+    // Sem folha de corrida aprovada o bloco `run` do capítulo fica vazio, `passoAgora()` devolve
+    // o passo da caminhada e a corrida continua sendo a caminhada com a cadência dobrada — o pé
+    // segue plantado porque o quadro é escolhido pela DISTÂNCIA e o passo é o mesmo dos dois
+    // lados. Com folha, o passo é o da CORRIDA e a passada muda junto com a arte, que é a única
+    // forma de correr não ser andar depressa.
+    return passoAgora() * 60 / (correndo ? c.telaCorrer : c.tela);
 }
 const ATKF = 16; // frames a cast animation is shown — long enough to READ the
 // 4 sprite frames (was 9 ≈ 0.15s, a flash the owner couldn't follow)
@@ -4916,10 +4949,13 @@ function drawHero() {
         // The frame is picked by DISTANCE covered, not by elapsed time, so the stride can never
         // drift out of step with the ground however fast the street is moving. GO FAST has its own
         // twelve poses and its own, longer stride — it is a run, not the walk hurried along.
-        const corrida = heroBloco("run");
-        const correndo = S.modo === "carvao" && corrida !== heroBloco("walk");
-        const passo = passoCap().passo;
-        frames = correndo ? corrida : heroBloco("walk");
+        const correndo = S.modo === "carvao" && temCorrida();
+        // O MESMO passo que `velocidadeMundo()` usa, pela MESMA função. Antes esta linha lia
+        // `passoCap().passo` fixo: com uma folha de corrida ligada, o quadro seria escolhido a cada
+        // passo da CAMINHADA enquanto o chão andava no passo da CORRIDA, e a sola arrastaria a
+        // diferença inteira. É a armadilha nº 1 do §7 pela porta dos fundos.
+        const passo = passoAgora();
+        frames = correndo ? heroBloco("run") : heroBloco("walk");
         // o módulo é o TAMANHO DO CICLO, não um 12 fixo: a caminhada do capítulo 1 tem três quadros
         const n = frames.length;
         fi = n ? ((Math.floor(worldX / passo) % n) + n) % n : 0;

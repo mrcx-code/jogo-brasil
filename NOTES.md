@@ -1787,3 +1787,104 @@ chão é drop nascendo de mob morto — filiação, não bagunça.
 
 **Próximo passo:** QA pode querer promover a regra "float sob tela = 0" a asserção do
 smoke; o instrumento já dá o número.
+### 2026-08-07 · T5: o motor da corrida ganha passo próprio, e as três folhas ficam retidas
+
+**O ticket.** `velocidadeMundo()` usava o MESMO `passo` para andar e correr e só dobrava a
+cadência. O dono nomeou o sintoma antes de qualquer medição: *"o correr deve ser correr, parece
+que ele tá andando rápido"*. Ele tinha razão, e a razão é aritmética — correr com o passo da
+caminhada é literalmente andar depressa.
+
+**O que entrou no motor** (vale com folha ou sem):
+
+- `PASSO_CAP` ganhou `lacoCorrer` e `quadrosCorrer`, e deriva `passoCorrer` do mesmo jeito que
+  `passo`: `laço × 44 / alturaQuadro / quadros`. Os dois em **zero** nos três capítulos, que é
+  "não há folha aprovada" — aí `passoCorrer` cai no `passo` e nada muda.
+- `temCorrida()` e `passoAgora()`: uma pergunta e uma conta, num lugar só. Elas têm três clientes
+  que não podem divergir — a velocidade do mundo, o passo que escolhe o quadro e a folha
+  desenhada. **E os três divergiam:** `drawHero()` lia `passoCap().passo` fixo, então uma folha de
+  corrida ligada faria o quadro ser escolhido pelo passo da CAMINHADA enquanto o chão andava no
+  passo da CORRIDA. É a armadilha nº 1 do §7 pela porta dos fundos, plantada esperando a folha.
+- A altura do quadro da corrida **não** entra na conta: `desenharHeroiHD` desenha a folha de
+  corrida com o `heroScale` da CAMINHADA, então um px de sprite de uma vale um px da outra.
+
+**Aceite (a), provado por número:** com os campos em zero, o smoke mede `walking 11478 px /
+running 22957 px` — os mesmos bytes de distância que a `main` mede antes da mudança. Zero
+diferença de comportamento. Renda/min medida depois (`medir-poluicao.js`): 1395/1516 ·
+1468/1627 · 1841/2008 (andando/correndo por capítulo) — inalterada por construção, porque
+`velocidadeMundo()` devolve o mesmo número e é dela que as chegadas nascem.
+
+**As três folhas (`cap{1,2,3}-corrida.png`, 2026-08-07) NÃO entraram, por DUAS razões
+independentes. A primeira é do dono, não minha.**
+
+**1. §2: a pessoa é outra.** Nas três eras a folha de corrida traz uma figura diferente da
+caminhada do mesmo capítulo. Prints em `test/look-pessoa-era{1,2,3}.png`, as duas folhas na
+escala real do motor sobre a mesma linha de chão:
+
+| era | caminhada (no jogo) | corrida (chegou) |
+|---|---|---|
+| 1 · Pindorama | homem, tanga branca, colar de contas, sem adorno de cabeça | mulher, faixa branca no busto, saia vermelha com penas, cocar de penas |
+| 2 · Palmares | pessoa de cabelo crespo, túnica creme **e calça**, cinto, sandálias | mulher de **lenço amarelo** na cabeça, blusa creme, **saia laranja**, faixa verde |
+| 3 · Ainda aqui | pessoa de camiseta creme estampada, **bermuda escura**, sandálias, cabelo solto | mulher de camiseta branca e vermelha, **jeans**, tênis vermelho, rabo de cavalo |
+
+O comentário do `heroBloco` já diz por que isso é veto e não ajuste: *"perder a animação de um
+gesto é um defeito visível e reparável; trocar a pessoa no meio do capítulo é o erro do §2, e não
+se conserta com arte melhor depois."* É o mesmo motivo que reprovou as folhas de salto e alcance
+do capítulo 2 em 2026-08-05. O §2 é explícito: representação **não se decide sozinho**.
+**Pergunta ao dono:** as folhas voltam com a pessoa da caminhada de cada era, ou a pessoa da
+caminhada é que muda? (A segunda opção custa quatro folhas por era, não uma.)
+
+**2. Mecânica: mesmo ignorando a pessoa, o escorregamento não fecha.** Régua da casa, a mesma que
+produziu os `0,48% / 0,00% / 0,67%` das caminhadas: *o maior recuo fora do passo, sobre a passada
+inteira*. Melhor ciclo que cada folha consegue formar, varrendo todos os subconjuntos:
+
+| era | poses | passada medida | melhor ciclo | escorregamento | caminhada |
+|---|---:|---:|---|---:|---:|
+| 1 | 8 | 189,0 px de sprite | 5→6→1→3 (3 apoio, 1 voo) | **3,31%** | 0,48% |
+| 2 | 8 | 217,0 | 5→6→3→4 (2 apoio, 2 voo) | **2,65%** | 0,00% |
+| 3 | 7 | 219,9 | 5→1→3→4→6 (2 apoio, 3 voo) | **7,72%** | 0,67% |
+
+Cinco a onze vezes a caminhada, e acima do 1,5% que se aceitaria sem investigar. A causa é a
+mesma da folha reprovada em 2026-08-06: as poses **não amostram a passada por igual**. O modelo
+desenha um saco de poses bonitas, não um ciclo — no capítulo 1 há sete poses de apoio e uma de
+voo, com os calcanhares amontoados em 27/34/58/72 e um vão de 65 px entre 178 e 113.
+
+**O que as folhas acertam, e é muito** (para quem for pedir as próximas): elas SÃO corrida.
+Prints `test/look-corrida-era{1,2,3}.png`, quadro a quadro com a linha de chão em vermelho: há
+fase de voo de verdade, com os dois pés fora do chão, medida em 47 / 49 / 79 px de sprite acima
+da linha (6,6 / 6,6 / 11,2 px de mundo). A abertura dos pés é 1,34 / 1,31 / 1,44 vez a da
+caminhada — passada de corredora. E a **escala está certa nas três**, sem reamostrar: as figuras
+medem 305 / 328 / 306 px contra 322 / 323 / 318 da caminhada, e a diferença é a inclinação para a
+frente, não tamanho. A grade não mentiu desta vez: 8, 8 e 7 poses em tira, contadas antes de
+cortar, e é o que o cortador achou.
+
+**Armadilha nova, e custou meia sessão: a LARGURA DA CABEÇA mente numa folha de corrida.** A
+régua de escala da casa (§5) lê o maior trecho sem buraco no quinto superior da figura. Correndo,
+o **cabelo voa** para trás e entra nesse quinto: no capítulo 1 a cabeça lê 110 a 156 px na corrida
+contra 76 fixos na caminhada, e o `validar-folha.js` conclui fator 0,58 — encolheria a personagem
+em 30%. O corpo desmente: 305 px de altura contra 322. Quando a pose faz o cabelo entrar no quinto
+superior, a cabeça deixa de ser régua e o `test/comparar-folhas.js` (novo) decide no olho, que é o
+que sobra. O `validar-folha.js` continua certo para caminhada, salto e alcance — o aviso é sobre
+corrida.
+
+**Ferramentas que voltaram, agora commitadas** (as de 2026-08-06 moravam em `tmpart/` e se
+perderam, e este arquivo cita os números delas — sem a régua, "≤ o da caminhada" vira lembrança):
+
+- `test/medir-sola.js` — contato pela LINHA DE CHÃO do quadro (não pela tinta mais baixa da
+  própria pose, que acha sola até numa pose de voo), pés em grupos, calcanhar, levantamento, vão
+  dos pés, cabeça e discordância de silhueta. Reproduz o que está gravado: a caminhada do capítulo
+  2 devolve calcanhares 135/80/25, laço **165**, `PASSO 7,49`, vão dos pés **181**.
+- `test/ciclo-corrida.js` — escolhe o ciclo de uma folha de corrida varrendo os subconjuntos. A
+  passada vem do **vão dos pés** (a única régua que sobrevive ao voo), calibrada pela caminhada do
+  mesmo capítulo; a ordem e o número de quadros vêm de minimizar o escorregamento.
+- `test/folha-png.js` — os quadros lado a lado com a linha de chão.
+- `test/comparar-folhas.js` — duas folhas na escala real do motor, para a pergunta de escala e
+  para a pergunta da pessoa.
+
+**Números.** `npm test` verde, FPS 61–62, `index.html` 3.919.750 bytes (a corrida não entrou,
+então o peso novo é só comentário). Zero imagem nova, zero rede.
+
+**Próximo passo.** Depende da resposta do dono sobre a pessoa. Se as folhas voltarem, o resto é
+meia hora: `ciclo-corrida.js` dá o ciclo e a passada, `lacoCorrer`/`quadrosCorrer` entram no
+`PASSO_CAP`, e `telaCorrer` é escolhido INTEIRO para a velocidade ficar dentro de ±10% da de hoje
+(76,5 / 74,9 / 83,0 px/s) — a economia inteira nasce por DISTÂNCIA, então velocidade mudada é
+renda/min mudada.
