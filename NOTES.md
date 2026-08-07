@@ -586,6 +586,42 @@ jogabilidade (decisão dele: **travessia + lugar vivo**, com pelo menos 1 capít
 padrão atual), usabilidade e conexões; preparar a mesa de entrega para os assets
 novos; foco permanente: **conscientizar, educar e passar conhecimento**.
 
+### A história profunda — relatório pré-1500 (2026-08-06) e o que entrou
+
+Cinco marcos entraram na LINHA_TEMPO, visíveis desde o início (são o chão de tudo, não
+recompensa). Fontes: Neves & Piló (Luzia); **Maria Dulce Gaspar**, *Sambaqui: arqueologia
+do litoral brasileiro* (Zahar, 2000); **Anna C. Roosevelt**, *Moundbuilders of the
+Amazon* (1991) e **Denise Schaan**, *The Camutins Chiefdom* (2004); Schaan, Ranzi &
+Pärssinen (Bol. Goeldi) e **Jennifer Watling** et al. (PNAS 2017) para os geoglifos e o
+manejo milenar; Noelli, "The Tupi expansion" (Handbook of South American Archaeology,
+2008). Optou-se por "mais de quinhentas" em vez do número 523 (levantamento com data —
+recomendação do historiador).
+
+**Regra de nomeação, agora escrita e permanente:** quem não deixou nome se nomeia pela
+OBRA (o povo dos sambaquis, a gente de Marajó), nunca por etnia moderna projetada no
+passado; o jogo diz que o nome se perdeu e POR QUÊ. "Pré-história" e "primitivo" são
+palavras banidas — em fala, código, asset e nestas notas. Continuidade demonstrada se
+diz como continuidade ("entraram na história dos povos que vieram depois"), nunca como
+identidade. Banida também a comparação "mais antigos que as pirâmides" — régua estrangeira.
+
+**Dois capítulos jogáveis desenhados e À ESPERA de decisão do dono:**
+- **A COSTA QUE ELES LEVANTARAM** (sambaquis) — o monte cresce no fundo com S.cuidado.
+- **A FLORESTA É OBRA** (Amazônia/geoglifos) — plantar; o capítulo "no padrão atual".
+Ambos com abertura/fecho rascunhados e a trava anti-religião cumprida por desenho (nada
+de enterramento, urna ou função cerimonial — só obra, datação e material).
+
+**⚠ Pendências do dono (pré-1500):**
+1. Renomear o atual cap. 1: "ANTES DA CHEGADA" vira nome errado como terceiro capítulo.
+   Sugestões: A COSTA DOS TUPINAMBÁ · QUANDO OS NAVIOS APARECERAM.
+2. Marajó: capítulo ou marco? Recomendação firme do historiador: MARCO — um capítulo
+   honesto de Marajó seria sobre material funerário (o corte de religião o machuca).
+3. A afirmação genômica do fecho dos sambaquis exige conferir o artigo original antes.
+4. Inserir capítulos no INÍCIO desloca todos os índices — exige migração de save
+   (S.cenario/aberturas/fechos) no mesmo commit.
+5. A regra que o historiador propõe como inviolável: se não houver arte para os dois
+   capítulos ficarem TÃO BONS quanto o melhor capítulo do jogo, é melhor não fazê-los —
+   capítulo de abertura feio sobre engenheiros milenares diz "primitivo" sem usar a palavra.
+
 ### Regra de fonte do dono (2026-08-06) e a estante das pesquisadoras
 
 O dono pediu: referências como Ailton Krenak, e **as mulheres que pesquisaram cada
