@@ -1447,3 +1447,15 @@ que o achado nº 1 derrubou; o teste inverteu a expectativa e agora cobra o cont
 muito diferente, recalibrar.
 
 **Próximo passo:** o da RETOMADA — mesa, Salvador, peso, estender o lugar vivo.
+
+### 2026-08-07 · manhã: três respostas do dono viram três fatos
+
+1. **Salvador**: ele vai gerar as 8 imagens da mesa. O capítulo 4 entra quando chegarem.
+2. **O capítulo Tupinambá chama-se PINDORAMA** — critério dele: nome tirado de
+   referências com bibliografia indígena. *Pindorama* é o nome de origem tupi para esta
+   terra ("região das palmeiras"), registrado em Eduardo Navarro, *Dicionário de Tupi
+   Antigo* (Global, 2013), e vivo no uso contemporâneo do movimento indígena — Ailton
+   Krenak o usa nomeando o país anterior à invasão. O capítulo deixa de se definir pela
+   chegada dos outros e passa a se chamar pelo nome que a terra já tinha. (O smoke test
+   não verifica nome de época; conferido no print.)
+3. **Marajó fica como MARCO** na linha do tempo ("gostei" à recomendação do historiador).
