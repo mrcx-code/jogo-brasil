@@ -26,10 +26,10 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
 
 ## Trabalho em voo neste momento
 
-- **Lugar vivo, fase 1** (worktree, partiu de 52f45be): marcos no chão do cap. 2 +
-  S.acolhidos persistente + tela de retorno. Integrar por `git diff 52f45be -- src/`.
-- **Usabilidade dos 5 primeiros minutos** (relatório apenas): o fluxo inteiro nunca foi
-  revisado depois da direção de arte nova.
+- **Usabilidade, os 7 achados restantes** (worktree, partiu de f98c1dc): microdicas de
+  controle, herói/overlays vazando sobre telas, cerimônia com saída, JOGAR direto com 1
+  era, fim da linha do tempo colapsado, AJUSTES na fonte da casa, promessa na barra.
+  Integrar por `git diff f98c1dc -- src/ test/smoke.js`.
 
 ## O que já aconteceu no turno noturno (tudo publicado)
 
@@ -41,7 +41,10 @@ travessia+lugar-vivo, e a mesa preparada para os assets.
    expansão Tupi) + regra de nomeação escrita + palavras banidas.
 5. **Motor N-capítulos integrado** (52f45be): capítulo = objeto em EPOCAS + arte; época
    sem arte cai na anterior com warn; save validado com faixas derivadas.
-6. **SALVADOR está pronto nos relatórios mas NÃO entrou** — decisão de esperar a arte:
+6. **Lugar vivo fase 1 PUBLICADO** (f98c1dc): marcos de história na estrada do cap. 2,
+   S.acolhidos persistente, tela de retorno "enquanto você esteve fora".
+7. **Usabilidade: 10 achados, os 3 piores corrigidos e publicados** (95ec880).
+8. **SALVADOR está pronto nos relatórios mas NÃO entrou** — decisão de esperar a arte:
    o fallback mostraria a mata do presente sob textos de 1835, ensinando errado. Entra
    quando o dono gerar as 8 imagens da mesa.
 
