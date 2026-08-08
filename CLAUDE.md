@@ -35,28 +35,38 @@ Três regras, e elas valem mais que qualquer decisão técnica:
 3. **O colonizador não é o herói e o "descobrimento" não existiu.** Havia gente aqui. Use
    *invasão*, *chegada* ou *contato* — nunca *descobrimento*.
 
-4. **A TRAVESSIA PODE SER CONTADA; NÃO PODE SER ENCENADA.** Proposto pelo historiador em
-   2026-08-07 e em vigor desde já — restrição erra para o lado seguro, então vale enquanto
-   o dono não disser o contrário. **Nenhuma produção sobre escravidão começa antes de o
-   dono confirmar este bloco.** As oito recusas:
-   1. **O porão não aparece** — nem interior de tumbeiro, nem gente em fileira, nem o
-      diagrama do *Brookes*. Ele foi feito por abolicionistas para chocar em 1788; num jogo
-      de 2026 ele desenha pessoas como padrão de carga.
-   2. **Nenhuma violência sobre corpo em tela** — sem açoite, tronco, ferro, corrente em
-      pulso, leilão encenado. Corrente vazia num sítio é objeto; corrente em pessoa é
-      encenação.
-   3. **O jogador nunca ocupa o lugar de quem traficou** — nem capitão, nem feitor, nem
-      comprador, nem "escolha moral" que dê poder sobre alguém escravizado.
-   4. **Nenhum minigame de sobrevivência do porão** — sem barra de água, ar ou ração.
-      Transformar a mortalidade da travessia em recurso é a definição de pornografia da dor.
-   5. **Restos humanos são trava absoluta** — o Cemitério dos Pretos Novos é fonte citável,
-      **nunca** terreno, imagem ou item. Mesma trava do material funerário de Marajó.
-   6. **Objeto ritual não é colecionável** — entra como fala, nunca como drop.
-   7. **Pessoa escravizada não é NPC alcançável** — nem para "libertar": libertar-com-o-toque
-      é o poder do senhor invertido em fantasia.
-   8. **Nenhum número sem fonte**, e nunca "escravo" como identidade.
+4. **A TRAVESSIA SE MOSTRA — e o que a mão faz continua travado.** **REVISTO PELO DONO em
+   2026-08-08**, e a decisão é dele porque representação é dele: *"nas imagens não está
+   aparecendo pessoas… falar delas como era lá, da travessia em si, mostrar esses navios como
+   foram, os maus tratos, toda essa camada, não só com imagens tipo bonitinha. Pode ser
+   imagens mais pesadas, realistas, mas que mostrem como foi essa dura realidade."*
 
-5. **A REGRA DO DOCUMENTO** — para história recente (polarização, corrupção, Covid).
+   **A IMAGEM ABRE.** Pessoas aparecem — na África antes da captura, na travessia, nos navios.
+   A violência do sistema pode ser mostrada com realismo, e a régua passa a ser a de museu
+   sério (Museu Afro Brasil, o Memorial das Vítimas da Escravidão): mostrar para que se saiba,
+   nunca para chocar por chocar. Duas coisas seguem valendo mesmo aqui: **dignidade** — as
+   pessoas são gente com rosto e nome possível, nunca massa anônima ou padrão de carga — e
+   **nada gratuito**: se a imagem não ensina nada que o texto não ensine, ela não entra.
+
+   **A MECÂNICA CONTINUA TRAVADA, e a distinção é a espinha do §2:** uma coisa é o jogo
+   MOSTRAR o que foi feito; outra é a mão da pessoa FAZER. Continuam proibidos, sem exceção:
+   1. **O jogador nunca ocupa o lugar de quem traficou** — nem capitão, nem feitor, nem
+      comprador, nem "escolha moral" que dê poder sobre alguém escravizado.
+   2. **Nenhum minigame de sobrevivência do porão** — sem barra de água, ar ou ração.
+      Transformar a mortalidade da travessia em recurso a administrar é a linha.
+   3. **Pessoa escravizada não é NPC alcançável** — nem para "libertar": libertar-com-o-toque
+      é o poder do senhor invertido em fantasia.
+   4. **Restos humanos continuam trava absoluta** — o Cemitério dos Pretos Novos é fonte
+      citável, nunca terreno, imagem ou item. Isto não é pudor: é ética arqueológica, com
+      instituição viva no assunto (Instituto Pretos Novos), e é de outra natureza.
+   5. **Objeto ritual não é colecionável** — entra como fala, nunca como drop.
+   6. **Nenhum número sem fonte**, e nunca "escravo" como identidade.
+
+   *(O bloco anterior, proposto pelo historiador em 2026-08-07, proibia a imagem também.
+   Ficou registrado no NOTES.md com o argumento dele — que continua bom e continua valendo
+   para a MECÂNICA. O dono decidiu que, para a imagem, contar sem mostrar vira omissão.)*
+
+6. **A REGRA DO DOCUMENTO** — para história recente (polarização, corrupção, Covid).
    Proposta pelo historiador em 2026-08-07, mesma condição de vigência do item 4.
    - **Só se afirma o que um documento público afirma, e o jogo mostra qual**: norma com
      número · decisão de tribunal com processo · número de órgão de registro (sempre com o

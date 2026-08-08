@@ -3142,3 +3142,46 @@ a escada do AJUSTES é a que mais destoa. (2) Ao dono: `ERA 2/3/4` no lugar de t
 "AINDA TRANCADA" iguais é chamada minha e é reversível. (3) Fica anotado que `vaso`, `banco`,
 `cadeira`, `jardineira`, `lixeira`, `bandeirinhas`, `varal` e `posteLuz` **não têm nenhum
 chamador** — herança morta do motor de rua, candidata a subtração.
+
+## O oceano como cemitério — a frase do dono, com fonte (2026-08-08)
+
+Ele pediu: *"vamos incluir uma frase sobre o oceano ser o maior cemitério de pessoas negras
+que existe. Não sei se dá pra falar que é o maior cemitério da Terra, então pesquisa e fala
+o que for mais impactante."*
+
+**Pesquisado, e a versão verificável é mais forte que a retórica.** O *Trans-Atlantic Slave
+Trade Database* (SlaveVoyages/Emory) registra **12,5 milhões de pessoas embarcadas** e
+**10,7 milhões desembarcadas**. A diferença — **cerca de 1,8 milhão, ~14,5%** — morreu na
+travessia e foi lançada ao mar. Ao longo dos ~350 anos do tráfico, isso dá **média de catorze
+corpos por dia, todos os dias**.
+
+**"O maior cemitério da Terra" não entra** — não é afirmação medível (não há como comparar
+com sepultamentos em terra), e o jogo perde mais em credibilidade do que ganha em impacto.
+**"O Atlântico é o maior cemitério de africanos do mundo" entra** — é sustentável e é como
+a bibliografia e o movimento negro brasileiro nomeiam o fato.
+
+Rascunho para o dono (o texto é dele, palavra por palavra):
+> *"Doze milhões e meio de pessoas foram embarcadas. Dez milhões e setecentos mil
+> desembarcaram. A diferença ficou no mar: cerca de um milhão e oitocentas mil. Ao longo de
+> três séculos e meio, uma média de catorze corpos por dia, todos os dias. O Atlântico é o
+> maior cemitério de africanos do mundo, e não tem uma lápide."*
+
+Fontes: [SlaveVoyages / Emory](https://www.slavevoyages.org/) · [Equal Justice Initiative,
+The Transatlantic Slave Trade](https://eji.org/report/transatlantic-slave-trade/) ·
+[NEH, The Transatlantic Slave Trade Database](https://www.neh.gov/project/transatlantic-slave-trade-database)
+
+## A revisão do §2.4 pelo dono (2026-08-08) — o que mudou e o que ficou
+
+As oito recusas eram **proposta do historiador**, e ele as escreveu bem. O dono reverteu a
+metade que trata de IMAGEM: *"pode ser imagens mais pesadas, realistas, mas que mostrem como
+foi essa dura realidade"*. A metade que trata de MECÂNICA continua inteira, e a distinção é a
+espinha do §2: **uma coisa é o jogo MOSTRAR o que foi feito; outra é a mão da pessoa FAZER.**
+
+O argumento do historiador continua registrado e continua bom — ele foi vencido na imagem,
+não refutado. Duas regras dele sobrevivem dentro da nova permissão: **dignidade** (gente com
+rosto, nunca massa nem padrão de carga) e **nada gratuito** (imagem que não ensina o que o
+texto não ensina não entra). E o diagrama do *Brookes* segue fora **por razão própria**: ele
+desenha pessoas como carga, que é justamente o que as imagens novas existem para desmentir.
+
+Cinco pedidos entraram na mesa: a vida na África antes da captura · a marcha até a costa ·
+o navio por fora · a travessia por dentro · o oceano sozinho.

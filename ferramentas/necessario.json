@@ -437,6 +437,46 @@
       "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
       "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\namanhecer sobre a terra indígena demarcada, o dia começando; sem gente.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p07-africa",
+      "titulo": "QUADRINHO · a vida na África antes da captura",
+      "semMagenta": true,
+      "tam": "VERTICAL 2:3 · sem magenta",
+      "ref": "o dono: 'falar delas como era lá'",
+      "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nUma cidade da África Ocidental no século XVII — Reino do Congo, Daomé ou terras iorubás: arquitetura de terra e palha bem construída, mercado movimentado, tecidos padronizados, metal trabalhado, gente de todas as idades vivendo o dia. Prosperidade e ordem: é um lugar com história própria, não um vazio de onde se tirou mão de obra. Luz de fim de tarde.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar."
+    },
+    {
+      "nome": "q-p08-captura",
+      "titulo": "QUADRINHO · a captura e a marcha até a costa",
+      "semMagenta": true,
+      "tam": "VERTICAL 2:3 · sem magenta",
+      "ref": "a camada que falta entre a vida e o navio",
+      "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nUma coluna de pessoas capturadas marchando pelo interior até a costa africana, guardada por homens armados. Distância longa, terra seca, o cansaço visível nos corpos. Mostre a violência do sistema pela SITUAÇÃO — a coluna, as armas, a corda — e a humanidade pelas PESSOAS: rostos individuais, idades diferentes, alguém amparando outro. Sem espetáculo de tortura.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar."
+    },
+    {
+      "nome": "q-p09-navio",
+      "titulo": "QUADRINHO · o navio negreiro",
+      "semMagenta": true,
+      "tam": "VERTICAL 2:3 · sem magenta",
+      "ref": "o dono pediu: 'mostrar esses navios como foram'",
+      "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nUm navio negreiro no alto-mar do século XVIII, visto de fora e de perto: casco pesado, velas, o convés com pessoas amontoadas ao relento sob guarda armada, mar agitado, céu carregado. A embarcação inteira lida como o que era — uma prisão flutuante, não um veleiro de aventura. As pessoas no convés são indivíduos, não massa.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar."
+    },
+    {
+      "nome": "q-p10-travessia",
+      "titulo": "QUADRINHO · a travessia e os maus-tratos",
+      "semMagenta": true,
+      "tam": "VERTICAL 2:3 · sem magenta",
+      "ref": "o dono: 'os maus tratos, toda essa camada... imagens mais pesadas, realistas'",
+      "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nO interior de um navio negreiro durante a travessia: o espaço apertado entre cobertas, a penumbra, os corpos encostados uns nos outros, correntes, a falta de ar quase visível no ar parado. Pesado e real. MAS: as pessoas são indivíduos — cada rosto é um rosto, há quem consola, quem resiste, quem reza. NÃO reproduza o diagrama do navio Brookes (a planta com corpos em fileira geométrica): ela desenha gente como carga, e é isso que a imagem existe para desmentir.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar."
+    },
+    {
+      "nome": "q-p11-oceano",
+      "titulo": "QUADRINHO · o oceano como cemitério",
+      "semMagenta": true,
+      "tam": "VERTICAL 2:3 · sem magenta",
+      "ref": "a frase do dono: o Atlântico e o 1,8 milhao que ficou nele",
+      "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nO Atlântico aberto, ao anoitecer, visto de um ponto baixo próximo à água: mar profundo, ondulação longa, horizonte vazio, luz sumindo. Nenhum navio, nenhuma pessoa. A imagem é o mar sozinho — imenso e silencioso —, e o texto por cima dirá que ele é o maior cemitério de africanos do mundo, sem uma lápide. Grave e bonito, nunca decorativo.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar."
     }
   ]
 }
