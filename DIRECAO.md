@@ -134,6 +134,12 @@ todo caractere que as placas usam (acentos, `·`, vírgula, dígitos).
 
 ## Onda 8 — IMPLEMENTADA (2026-08-07): A HISTÓRIA VIRA QUADRINHO
 
+> **Parcialmente SUBSTITUÍDA pela onda 9 (2026-08-08, abaixo):** o dono mudou a natureza
+> da tela — pelo menu, TUDO desbloqueado; o encaixe obrigatório caiu; as regras de
+> revelação ("marco não alcançado fica em página escura", teasers, "E MAIS N MARCOS")
+> valiam para a Direção e caíram para este caminho. A estrutura de páginas, o cipó, o
+> view-timeline e a voz continuam os da onda 8.
+
 Pedido do dono, palavras dele: *"vamos tentar transformar ela num quadrinho, imagens e
 texto pra ficar bem bonita… a ideia é que a pessoa role e não fique uma lista, então a
 tela toda vai se transformando de uma forma bonita, sem aparecer scroll."*
@@ -231,6 +237,84 @@ o rodapé responde sim pela primeira vez: quatro cartões, quatro ícones da mes
 FPS **62/61/62** em três rodadas (piso 58); `index.html` 3.503.451 → 3.504.101 bytes LF
 (**+650 bytes**, só código); zero imagem nova; zero rede; `npm test` verde sem ajuste em
 teste nenhum.
+
+## Onda 9 — IMPLEMENTADA (2026-08-08): O QUADRINHO ABERTO, O SCROLL LEVE E O FUNDO DE TODA FALA
+
+Três correções do dono, palavras dele: *"tem que ter sempre a imagenzinha do fundo
+mostrando o momento… não deixa só texto"* · *"o scroll tem que ser amigável e não assim
+travadão"* · *"as imagens na historinha têm que ser sempre tela cheia"*. E, no meio do
+sprint, a mudança de natureza: *"se acessar a história pelo menu, tem que estar tudo
+desbloqueado de ponta a ponta… coloca o personagenzinho pra aparecer pra comentar…
+**não tenta desenhar, e não tenta criar nada** — pede pro GPT gerar imagens no formato
+vertical. E se preocupe em achar uma boa forma de fazer sobreposição de texto."*
+
+**1. O quadrinho abriu de ponta a ponta.** Pelo menu, A HISTÓRIA é o artefato educativo,
+não a recompensa: as 26 páginas existem SEMPRE, com todo texto, toda fonte e toda imagem.
+Morreram o teaser "— ainda não —", a placa "E MAIS N MARCOS À FRENTE" e o marco "longe"
+de página escura. O que resta do progresso é um selo discreto: a placa do capítulo atual
+diz VOCÊ ESTÁ AQUI (tabuinha do mesmo material do PULAR).
+
+**2. Nenhuma página deixa o jogo aparecer atrás (B3 do QA, pago).** O rolo tem fundo
+OPACO; as duas medidas do QA que definiam o bug (prints do mesmo quadro diferindo a
+800 ms; o eixo de espelho da mata na última página) morreram com ele.
+
+**3. Toda página tem fundo de tela cheia — sem desenhar nada.** Três famílias:
+- **marco**: a pintura do capítulo sangrada, como já era — agora para todos;
+- **momento com paisagem curada**: pintura do capítulo do fio em tela cheia + a paisagem
+  de contexto abrindo o quadro + papel de legenda (PROVISÓRIO até a arte vertical);
+- **momento sem arte curada**: PÁGINA DE PAPEL — o caderno de campo em tela cheia, o
+  material de leitura da casa. É a saída neutra que a minha própria trava de §2 exige nos
+  marcos duros ("a travessia forçada" NÃO aceita paisagem que afirme clima que o texto não
+  afirma) e é PROVISÓRIA nas demais. Nada foi desenhado: pedidos de arte vertical na lista
+  do NOTES.md, um por página.
+
+**4. O personagem comenta.** A mesma pessoa que se joga aparece na página — retrato do
+capítulo dela + bilhete do mesmo papel de campo, a gramática da caixa de fala em
+miniatura. Disciplina de §2 escrita no cabeçalho de `NoLinha`: quem comenta é a pessoa
+DAQUELE tempo; falar de tempo alheio se anuncia no próprio texto ("eu leio isto hoje…");
+o balão só ECOA o que a página afirma com fonte; os marcos duros (o açúcar, a travessia
+forçada, 1888) ficam em silêncio — balão ali seria leveza sobre violência. As 11 linhas
+novas estão listadas no NOTES.md para revisão do dono e do historiador.
+
+**5. O scroll ficou leve, sem perder o assento.** `y mandatory` + `stop: always` →
+`y proximity`, sem `stop`. Medido (`test/medir-scroll.js`, antes na build da main):
+o arrasto curto de 300 px era REBOBINADO para o começo da página (o leitor que espiava a
+página seguinte era devolvido — é o "travadão" em número); agora o rolo fica onde o dedo
+deixou (285 px). E a metade que não podia morrer vive: soltar a ~90 px de uma borda
+assenta NELA (resto 0, antes e depois). Limite do instrumento, dito por inteiro: o
+headless desta máquina não produz fling de toque com momento (touchmove chega, momentum
+não), então o ganho de "gestos fortes até o fim" não é mensurável aqui — no aparelho
+real, `stop: always` parava TODO arremesso na página seguinte por construção.
+
+**6. Toda fala do jogo tem fundo de tela cheia.** `fundoDaFala()` põe a pintura do
+PRÓPRIO cenário do capítulo, parada, atrás de qualquer caixa de fala — o mundo não roda
+atrás de leitura (era o mesmo vazamento do B3, na tela mais lida do jogo). As entradas
+`null` de `aberturaImg` continuam nulas de propósito: a linha que descreve a tela mostra
+o cenário do capítulo, que agora é imagem parada, não jogo vivo. Na TRAVESSIA o fundo
+NÃO entra (`body.travessando`): lá o quadro é o mar desenhado, e paisagem de capítulo
+sobre o Atlântico afirmaria chão onde não há (§2.4).
+
+**A GRAMÁTICA DA SOBREPOSIÇÃO DE TEXTO** — o dono pediu "uma boa forma de fazer
+sobreposição de texto", e a resposta desta casa é: **texto nunca senta direto na imagem;
+senta num MATERIAL** (papel de campo opaco para leitura, madeira para rótulo), e a
+imagem trabalha para ele em três camadas: (a) a imagem reserva o terço inferior — nos
+pedidos de arte está escrito "terço inferior calmo"; (b) o VÉU de assentamento
+(`.qVeu`/`#falaVeu`) escurece de leve onde o material senta e deixa a imagem respirar em
+cima; (c) legibilidade vem do material opaco, nunca de sombra sobre texto — regra que já
+era a da caixa de fala e agora é a de TODAS as superfícies com imagem. Provado nos prints
+`QP-depois-*.png` (papel sobre papel-página, papel sobre pintura, placa sobre pintura).
+
+**Medido:** FPS **60/61/60** em três rodadas (piso 58); `index.html` 3.504.101 →
+**3.522.051 bytes** (+17,5 KB: os comentários, o fundo da fala e o CSS — zero imagem
+nova); zero rede; `node test/smoke.js` verde 3×. Prints: `Q-antes/depois-*.png`
+(quadrinho, mesmos pontos), `QP-depois-pag*.png` (página a página das famílias novas),
+`FALA-antes/depois-*.png` (fala com mundo vivo → pintura parada; travessia intocada).
+Instrumentos novos: `test/medir-scroll.js`, `test/prints-fala-fundo.js`,
+`test/prints-paginas.js`.
+
+**O que este caminho NÃO tocou:** a revelação DENTRO do jogo (aberturas, fechos,
+momentos na rua) continua por progresso; o menu continua com o mundo vivo atrás (o menu
+é a mata — decisão de pé); a aura do lugar de espera segue com o dono.
 
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 

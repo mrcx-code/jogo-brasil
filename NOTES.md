@@ -2937,3 +2937,102 @@ A (três esperando), B (a primeira alcançada), C (dois segundos depois, sem ded
 3. **Ao PM:** os 5 a 13 toques por pessoa (dívida acima), e se a portadora deve poder levar a
    palavra também a quem já DESISTIU de esperar. Hoje não pode, de propósito: "cruza com quem
    está esperando" é a frase do desenho, e quem seguiu caminho seguiu.
+
+## Diário — 2026-08-08 · Direção de Arte · Onda 9: o quadrinho aberto, o scroll leve e o fundo de toda fala
+
+**O que fiz.** As três correções do dono ("sempre a imagenzinha do fundo… não deixa só
+texto" · "scroll amigável, não travadão" · "imagens sempre tela cheia") mais a mudança de
+natureza que chegou no meio do sprint: pelo MENU, A HISTÓRIA fica **toda desbloqueada de
+ponta a ponta**, o **personagem comenta** as páginas, **nada é desenhado** (arte que falta
+vira pedido de imagem VERTICAL para a mesa) e a entrega central é a **sobreposição de
+texto**. Território: `src/estilo.css`, `montarCompletude`/`abrirFala` (+ os campos
+`com`/`quem` da `LINHA_TEMPO`) em `src/jogo.ts`. Detalhe por detalhe na seção "Onda 9"
+do `DIRECAO.md`.
+
+**O que medi.**
+- **B3 do QA, pago:** as 26 páginas têm fundo opaco; dois prints do mesmo quadro a 800 ms
+  agora são idênticos, e o eixo de espelho da mata sumiu da última página
+  (`Q-depois-cheia-0/2.png`). A fala do jogo tinha o MESMO vazamento (personagem andando
+  atrás do texto, `FALA-antes-abertura-tela.png` vs `-mexeu`) e agora abre sobre a pintura
+  do cenário, parada (`FALA-depois-*`). A travessia continua só mar e céu
+  (`FALA-depois-travessia.png`).
+- **Scroll** (`test/medir-scroll.js`, antes na build da main): arrasto curto de 300 px era
+  REBOBINADO a 0 pelo `mandatory`; agora fica onde o dedo deixou (285). Soltar a ~90 px da
+  borda assenta NELA (resto 0) antes e depois — o encaixe não morreu. Limite do
+  instrumento, declarado: este headless não produz fling de toque com momento, então o
+  ganho de "arremessos até o fim" só se verá em aparelho real (com `stop: always`, todo
+  arremesso parava na página seguinte por construção).
+- **FPS 60/61/60** em três rodadas (piso 58). Peso 3.504.101 → **3.522.051** bytes LF
+  (+17,5 KB, só código e texto — zero imagem nova). `node test/smoke.js` **PASS 3×**, sem
+  ajuste em teste nenhum do repositório.
+- Prints página a página das famílias novas: `QP-depois-pag02` (papel + comentário),
+  `pag08` (pintura em tela cheia + paisagem de contexto + comentário), `pag12` (marco duro
+  em papel, em silêncio), `pag14` (selo VOCÊ ESTÁ AQUI), `pag20` (marco SALVADOR), `pag26`
+  (ponta final opaca).
+
+**O que quebrou.** Nada no smoke — mas o primeiro `prints-paginas.js` semeou
+`energiaTotal` acima do limiar e o `verificarCenario()` disparou fecho+cerimônia POR CIMA
+da tela (o B1 do QA, reencontrado por acidente; anotado no instrumento). E as asserções de
+quadrinho que o QA descreve no `QA.md` **não estão no repositório** (a sessão dele não
+commitou) — quando chegarem, duas vão precisar de ajuste para a onda 9: o exercício do
+encaixe (rolar 3/4 de página e esperar resto 0 vale para `mandatory`; com `proximity` o
+resto 0 só é garantido soltando perto da borda) e qualquer contagem que espere 16 páginas
+no início de jogo (agora são 26 sempre, pelo menu).
+
+**As 12 linhas novas do personagem, para revisão do dono e do historiador** (§2: são
+ECOS do que a página afirma com fonte, na voz da pessoa daquele tempo; tempo alheio se
+anuncia no texto; marcos duros em silêncio):
+1. Lagoa Santa (quem: hoje) — "Eu leio isto hoje, e ainda estou aprendendo: a nossa história não começa em navio nenhum."
+2. A terra tinha nome (Pindorama) — "Esta sou eu. E isto não era o começo de nada — era a nossa vida, inteira, do nosso jeito."
+3. Hans Staden (Pindorama) — "Ele escreveu sobre nós carregando os medos dele. Leia sabendo disso."
+4. A terra esvaziada à força (Pindorama) — "Não desaparecemos. Fomos empurrados — e eu sigo aqui para te contar."
+5. A guerra que abriu a serra (Palmares) — "Foi por essa fresta na guerra deles que muita gente subiu a serra."
+6. Palmares (Palmares) — "Não era esconderijo: era casa. Roça, comércio, defesa — vida inteira."
+7. Os mocambos (Palmares) — "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler."
+8. Zumbi (Palmares) — "Vinte de novembro. Guarde a data."
+9. A cidade africana (Salvador) — "Na rua, quem fazia a cidade funcionar éramos nós."
+10. As ganhadeiras (Salvador) — "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho."
+11. A Constituinte (hoje) — "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada."
+12. E eles continuam aqui (hoje) — "Esse 'continuam' sou eu. Ainda aqui."
+Em silêncio, de propósito: o açúcar, a travessia forçada, 1888, sambaquis, Marajó,
+geoglifos, a expansão Tupi, Quilombos hoje (a protagonista do capítulo é indígena;
+comentário sobre experiência quilombola não é dela para dar — se o dono quiser voz ali,
+é pedido de retrato novo, não empréstimo).
+
+**PEDIDOS DE ARTE À MESA — imagens VERTICAIS para o quadrinho** (ordem do dono: nada
+desenhado aqui; gerar no GPT). Especificação comum a todos: formato vertical 2:3
+(ex. 1024×1536; a página é 390×844, a imagem é cortada por cima), estilo casando com as
+pinturas dos capítulos (pixel art pintada, pixels visíveis, paleta terrosa e verde, luz
+natural), **terço inferior calmo** (é onde senta a legenda de papel — a gramática da
+sobreposição), nenhum texto dentro da imagem. Regras de §2 por pedido; **imagem com
+gente só entra com aprovação do dono, cena a cena** (regra já escrita no `CTX_B64`).
+1. p1 · a mata profunda — interior de mata atlântica densa em penumbra de madrugada, sem gente, sem trilha; o quadro respira pouco céu.
+2. p2 · Lagoa Santa — a serra calcária e a boca de uma gruta, vazia. PROIBIDO: resto humano, esqueleto, urna (§2.4.5).
+3. p3 · o sambaqui — monte de conchas monumental na costa, tomado de vegetação no alto, maré baixa; sem gente.
+4. p4 · Marajó — aterros na várzea vistos DE LONGE na cheia, casas sobre eles como silhueta; PROIBIDO qualquer urna/material funerário (trava absoluta).
+5. p5 · os geoglifos — vista aérea de vala circular e quadrada concêntrica no Acre, cercada de floresta; seguir as formas FOTOGRAFADAS (registro arqueológico), nenhum ornamento inventado (regra do logo/§2).
+6. p6 · a costa dos Tupi — o litoral visto de dentro da mata, trilha descendo ao mar; sem gente (com canoas ao longe = aprovação do dono).
+7. p10 · o açúcar — canavial e engenho À DISTÂNCIA sob céu pesado; SEM gente, sem cena de trabalho encenada (§2.4.2).
+8. p11 · a terra esvaziada — aldeia tupinambá VAZIA: ocas apagadas, roçado tomado pelo mato, fim de tarde; a ausência é a imagem; sem corpos, sem violência.
+9. p12 · a travessia forçada — MAR ABERTO apenas: alto-mar pesado sob céu fechado, horizonte vazio; SEM navio, SEM gente (§2.4.1 — o porão não aparece; o mar é como o jogo já conta este trecho).
+10. p13 · a serra que abriu — a serra da Barriga alta e coberta de mata, vista da planície, trilha que some na subida; sem batalha em cena.
+11. p18 · a cidade africana — ladeira de Salvador vista de baixo: casario, pedra, roupa em varal, o mar num vão; gente = aprovação cena a cena.
+12. p19 · as ganhadeiras — o tabuleiro de venda em primeiro plano (frutas, quitutes, pano), a ladeira desfocada atrás; SE houver a ganhadeira em cena, digna e de perfil = aprovação cena a cena do dono.
+13. p21 · 1888 — a mesa com o papel da lei de duas frases, pena e tinteiro, luz baixa; nenhum rosto (pessoa real não se desenha).
+14. p22 · 1988 — o plenário da Constituinte vazio, visto do alto, com o texto como objeto (papel sobre as mesas); NENHUMA pessoa identificável (Krenak é pessoa real — não se desenha).
+15. p23 · quilombos hoje — comunidade quilombola contemporânea: casas, roça, escola, energia; viva e presente, sem estereótipo; gente à distância = aprovação.
+16. p26 · o fio continua — amanhecer sobre a terra indígena demarcada, o dia começando; sem gente.
+Segunda prioridade: versões VERTICAIS das 8 paisagens de contexto existentes (`CTX_B64`),
+para as páginas 8, 9, 15, 16, 17 e 25 saírem do provisório (hoje: pintura do capítulo +
+faixa horizontal) — mesmas cenas, mesmo estilo, reenquadradas em 2:3 com terço inferior
+calmo.
+
+**Dúvida nova.** O retrato no comentário é o de corpo inteiro encolhido a 56 px — funciona
+como "personagenzinho", mas um BUSTO desenhado para este tamanho falaria mais alto. Fica
+como pedido de segunda prioridade se o dono gostar do formato.
+
+**Próximo passo.** (1) Dono/historiador revisam as 12 linhas e a lista de pedidos; (2) a
+mesa gera as verticais e elas entram página a página no lugar do provisório (o encaixe é
+trivial: `qFundo` já aceita qualquer imagem); (3) quando as asserções de quadrinho do QA
+chegarem ao repositório, ajustar as duas apontadas acima — aviso deixado aqui e no
+relatório.

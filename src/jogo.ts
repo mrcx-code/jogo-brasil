@@ -6549,9 +6549,32 @@ function pararFala() {
   falaViva = false; falaDepois = null; falaLinhas = []; falaI = 0;
   falaImgs = []; trocarCtx(null);
 }
+// O FUNDO DA CONVERSA — pedido do dono (2026-08-08): "quando aparece a história, tem que
+// ter sempre a imagenzinha do fundo… não deixa só texto". Toda fala abre sobre uma imagem
+// de TELA CHEIA: a pintura do PRÓPRIO cenário do capítulo, parada — o mundo não roda atrás
+// de leitura (era o vazamento que o QA mediu no quadrinho, B3, e valia aqui também). Nada
+// é desenhado: é a mesma arte que o jogo já carrega. Os elementos nascem aqui (e não no
+// molde) porque a fala é a única dona deles; o véu por cima é o que assenta a leitura.
+// Na TRAVESSIA o fundo NÃO entra (CSS `body.travessando`): lá o quadro é o mar desenhado,
+// e pôr paisagem de capítulo sobre o Atlântico afirmaria chão onde não há (§2.4).
+function fundoDaFala() {
+  let f = document.getElementById("falaFundo") as HTMLImageElement | null;
+  if (!f) {
+    const tela = $("telaFala");
+    f = document.createElement("img");
+    f.id = "falaFundo"; f.alt = ""; (f as HTMLImageElement).decoding = "async";
+    const v = document.createElement("div");
+    v.id = "falaVeu";
+    tela.insertBefore(v, tela.firstChild);
+    tela.insertBefore(f, v);
+  }
+  const b64 = CENARIO_ALTO_B64[Math.max(0, Math.min(cenarioAtual(), CENARIO_ALTO_B64.length - 1))];
+  if (b64 && f.getAttribute("src") !== b64) f.src = b64;
+}
 function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   if (!linhas || !linhas.length) { if (depois) depois(); return; }
   pararFala();
+  fundoDaFala();
   falaLinhas = linhas.slice(); falaI = 0; falaDepois = depois || null; falaViva = true;
   // Curta na altura das linhas em vez de exigir que as duas listas casem: fala sem lista de
   // imagem nenhuma continua funcionando como sempre funcionou, sem imagem em lugar nenhum.
@@ -6859,8 +6882,16 @@ function montarCapitulos() {
 // basta inserir `{ tipo: "momento", ... }` no vão certo — o layout não muda. Um momento
 // futuro pode vir com `q`/`t`/`d`/`f` próprios (sem índice em MOMENTOS) e `cena` dizendo
 // qual cena o revela.
+// `com`/`quem` — O COMENTÁRIO DA PERSONAGEM no quadrinho, pedido do dono (2026-08-08:
+// "coloca o personagenzinho pra aparecer pra comentar"). Disciplina de §2, escrita antes
+// dos textos: (1) quem comenta é a pessoa DAQUELE tempo (`quem` = índice em EPOCAS →
+// RETRATO_B64), e quando alguém fala de um tempo que não é o seu, o próprio texto diz
+// isso ("eu leio isto hoje…"); (2) o comentário só ECOA o que a página já afirma com
+// fonte — nenhum fato novo entra por balão; (3) os marcos duros (o açúcar, a travessia
+// forçada, 1888) ficam em SILÊNCIO: ali balão seria leveza sobre violência. Cada linha
+// nova está listada no NOTES.md para revisão do dono e do historiador.
 type NoLinha = { tipo: string; ep?: number; i?: number; cena?: number;
-  q?: string; t?: string; d?: string; f?: string };
+  q?: string; t?: string; d?: string; f?: string; com?: string; quem?: number };
 const LINHA_TEMPO: NoLinha[] = [
   { tipo: "antes" },
   // A HISTÓRIA PROFUNDA — os milênios antes de 1500, pedidos pelo dono ("já tinham
@@ -6871,7 +6902,8 @@ const LINHA_TEMPO: NoLinha[] = [
   // início (cena 0): são o chão de tudo, não recompensa.
   { tipo: "momento", cena: 0, q: "há mais de onze mil anos", t: "Quem já estava aqui",
     d: "Em Lagoa Santa, Minas Gerais, um esqueleto de onze a doze mil anos. A pesquisa já mudou duas vezes a história de quem eram essas pessoas — e continua mudando.",
-    f: "Neves & Piló · O povo de Luzia · Jornal da USP" },
+    f: "Neves & Piló · O povo de Luzia · Jornal da USP",
+    com: "Eu leio isto hoje, e ainda estou aprendendo: a nossa história não começa em navio nenhum.", quem: 3 },
   { tipo: "momento", cena: 0, q: "por milhares de anos", t: "Os montes da costa",
     d: "Povos do litoral ergueram montes de concha, cesto a cesto, geração após geração — alguns passaram de trinta metros. O nome que davam a si mesmos não chegou até nós: ninguém escreveu. A arqueologia os chama pela obra.",
     f: "Maria Dulce Gaspar · Sambaqui, 2000" },
@@ -6885,8 +6917,10 @@ const LINHA_TEMPO: NoLinha[] = [
     d: "Grupos de língua tupi saíram da Amazônia e ocuparam a costa atlântica de norte a sul. Quando os navios apareceram, essa ocupação já era antiga — é por isso que o primeiro capítulo encontra os Tupinambá no litoral.",
     f: "Noelli · The Tupi expansion, 2008" },
   { tipo: "marco", ep: 0 },
-  { tipo: "momento", i: 0 },
-  { tipo: "momento", i: 1 },
+  { tipo: "momento", i: 0,
+    com: "Esta sou eu. E isto não era o começo de nada — era a nossa vida, inteira, do nosso jeito.", quem: 0 },
+  { tipo: "momento", i: 1,
+    com: "Ele escreveu sobre nós carregando os medos dele. Leia sabendo disso.", quem: 0 },
   // O VÃO XVI→XVII — os marcos do historiador (fontes no NOTES.md, revisão de 2026-08-06).
   // Critério dele, adotado: em cada vão, pelo menos um marco em que o SUJEITO da frase é
   // quem resistiu — senão a linha inteira narra os povos como objeto. Aqui é o quarto.
@@ -6896,17 +6930,22 @@ const LINHA_TEMPO: NoLinha[] = [
     f: "Schwartz · Segredos internos, 1988" },
   { tipo: "momento", cena: cenarioDaEpoca(1), q: "séculos XVI–XVII", t: "A terra esvaziada à força",
     d: "E os Tupinambá desta costa? Guerra, escravização e doença trazida nos navios os expulsaram do litoral. Não desapareceram — foram empurrados.",
-    f: "Monteiro · Negros da terra, 1994 · Cunha (org.), 1992" },
+    f: "Monteiro · Negros da terra, 1994 · Cunha (org.), 1992",
+    com: "Não desaparecemos. Fomos empurrados — e eu sigo aqui para te contar.", quem: 0 },
   { tipo: "momento", cena: cenarioDaEpoca(1), q: "séculos XVI–XIX", t: "A travessia forçada",
     d: "De cada dez pessoas arrancadas da África para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.",
     f: "Trans-Atlantic Slave Trade Database · SlaveVoyages.org" },
   { tipo: "momento", cena: cenarioDaEpoca(1), q: "1630–1654", t: "A guerra que abriu a serra",
     d: "Quando os holandeses invadiram Pernambuco, a colônia virou campo de batalha — e na desordem da guerra, mais gente conseguiu fugir para a serra. Palmares cresceu.",
-    f: "Gomes · Palmares, 2005 · Documenta Palmares" },
+    f: "Gomes · Palmares, 2005 · Documenta Palmares",
+    com: "Foi por essa fresta na guerra deles que muita gente subiu a serra.", quem: 1 },
   { tipo: "marco", ep: 1 },
-  { tipo: "momento", i: 2 },
-  { tipo: "momento", i: 3 },
-  { tipo: "momento", i: 4 },          // Zumbi: cronologia de Palmares, revelação no cap. 3
+  { tipo: "momento", i: 2,
+    com: "Não era esconderijo: era casa. Roça, comércio, defesa — vida inteira.", quem: 1 },
+  { tipo: "momento", i: 3,
+    com: "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler.", quem: 1 },
+  { tipo: "momento", i: 4,            // Zumbi: cronologia de Palmares, revelação no cap. 3
+    com: "Vinte de novembro. Guarde a data.", quem: 1 },
   // O VÃO XVII→HOJE — quatro marcos, e dois deles fecham fios que o jogo deixava soltos:
   // a Constituinte é a ponte jurídica dos DOIS fios para o capítulo 3, e o Censo dos
   // quilombolas diz o que a linha inteira calava — quem construiu Palmares continua aqui.
@@ -6919,57 +6958,45 @@ const LINHA_TEMPO: NoLinha[] = [
   // que EXPLICA como se chega em 1835: a cidade africana e o trabalho de rua.
   { tipo: "momento", cena: cenarioDaEpoca(2), q: "início do século XIX", t: "A cidade africana",
     d: "Salvador era uma das cidades mais africanas das Américas: boa parte de quem a fazia funcionar tinha nascido do outro lado do Atlântico e falava as línguas de lá. A cidade que a colônia chamava de sua era, na rua, deles.",
-    f: "Reis · Rebelião escrava no Brasil, ed. 2003" },
+    f: "Reis · Rebelião escrava no Brasil, ed. 2003",
+    com: "Na rua, quem fazia a cidade funcionar éramos nós.", quem: 2 },
   { tipo: "momento", cena: cenarioDaEpoca(2), q: "século XIX", t: "As ganhadeiras",
     d: "Mulheres africanas e crioulas dominavam o comércio de rua e o carrego da cidade — escravizadas e libertas, entregando parte do ganho e guardando o resto. Foi com esse resto que muitas compraram a própria alforria.",
-    f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia" },
+    f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia",
+    com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: 2 },
   { tipo: "marco", ep: 2 },
   { tipo: "momento", cena: cenarioDaEpoca(3), q: "1888", t: "A lei de dois artigos",
     d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
     f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
   { tipo: "momento", cena: cenarioDaEpoca(3), q: "1988", t: "A Constituinte",
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
-    f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987" },
+    f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
+    com: "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.", quem: 3 },
   { tipo: "momento", cena: cenarioDaEpoca(3), q: "2022", t: "Quilombos hoje",
     d: "E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.",
     f: "IBGE · Censo 2022 · Fundação Cultural Palmares" },
   { tipo: "marco", ep: 3 },
-  { tipo: "momento", i: 5 },
+  { tipo: "momento", i: 5,
+    com: "Esse “continuam” sou eu. Ainda aqui.", quem: 3 },
   { tipo: "aberto" }
 ];
 function montarCompletude() {
   const box = $("listaCenas");
   box.textContent = "";
-  const ate = cenarioAtual();
   const sub = function (pai, cls, txt) {
     const d = document.createElement("div");
     d.className = cls; d.textContent = txt;
     pai.appendChild(d); return d;
   };
-  // O FIM DA LINHA (usabilidade, achado 8): uma escada de "— ainda não —" repetidos não
-  // promete nada — conta a mesma ausência N vezes. Sequências CONSECUTIVAS de momentos
-  // não-alcançados (duas ou mais) colapsam numa placa só que diz quantos marcos vêm à
-  // frente. Um momento sozinho continua sendo o traço de sempre: um teaser lê; seis são
-  // um formulário vazio. Marcos e pontas quebram a sequência — eles têm placa própria.
-  const momentoVisto = function (no: NoLinha) {
-    return (no.cena != null ? no.cena : no.i!) <= ate;
-  };
-  const fila: NoLinha[] = [];
-  const nos: (NoLinha | { tipo: "mais"; n: number })[] = [];
-  const despejarFila = function () {
-    if (fila.length >= 2) nos.push({ tipo: "mais", n: fila.length });
-    else if (fila.length === 1) nos.push(fila[0]);
-    fila.length = 0;
-  };
-  LINHA_TEMPO.forEach(function (no) {
-    if (no.tipo === "momento" && !momentoVisto(no)) { fila.push(no); return; }
-    despejarFila();
-    nos.push(no);
-  });
-  despejarFila();
-  // O QUADRINHO (onda 8): cada nó vira uma PÁGINA de tela cheia dentro do rolo com
-  // encaixe (scroll-snap). O `vao` não vira página — página vazia é quadro sem fala.
-  const paginas = nos.filter(function (no) { return no.tipo !== "vao"; });
+  // O QUADRINHO ABERTO — decisão do dono (2026-08-08), palavras dele: "se acessar a
+  // história pelo menu, tem que estar tudo desbloqueado de ponta a ponta, desde o começo,
+  // e vai scrollando até o final". Pelo MENU, A HISTÓRIA é o artefato educativo, não a
+  // recompensa: TODA página existe, com todo texto, toda fonte e toda imagem. A regra
+  // antiga ("marco não alcançado não revela a lore") era da Direção, não dele, e caiu
+  // neste caminho — o que resta do progresso é um selo discreto: a placa do capítulo em
+  // que a pessoa está diz VOCÊ ESTÁ AQUI. Com tudo aberto, a placa "e mais N marcos à
+  // frente" e o teaser "— ainda não —" deixaram de existir.
+  const paginas = LINHA_TEMPO.filter(function (no) { return no.tipo !== "vao"; });
   const total = paginas.length;
   const quadro = function (cls) {
     const q = document.createElement("div");
@@ -6982,17 +7009,36 @@ function montarCompletude() {
     pixelRotulo(n, pag + " · " + total, 1, "#b9ad8d");
     q.appendChild(n);
   };
-  // A IMAGEM DA PÁGINA, e a regra de quem a recebe — regra de §2 tanto quanto de
-  // composição: só os momentos DOS CAPÍTULOS (índice em MOMENTOS) ganham paisagem, e a
-  // paisagem é a do capítulo sob cujo marco eles se penduram na cronologia (o `epFio`
-  // abaixo acompanha a última placa passada — Zumbi pendura em PALMARES e ganha a serra,
-  // nunca o porto de Salvador, embora só se revele no capítulo dele). Os marcos dos VÃOS
-  // (q/t próprios — o açúcar, a travessia forçada, a lei de 1888…) ficam SEM imagem, em
-  // papel sobre página escura: o jogo ainda não te levou ali, e paisagem bonita sob "a
-  // travessia forçada" afirmaria um clima que o texto não afirma. A imagem nunca pode
-  // dizer mais que o texto — e o quadro escuro é a composição certa para esses.
+  // A pintura do capítulo, sangrada na página inteira sob o véu de leitura — o fundo de
+  // TELA CHEIA que o dono pediu ("as imagens na historinha têm que ser sempre tela cheia"),
+  // feito só com arte que JÁ EXISTE: nada é desenhado aqui (ordem do dono, 2026-08-08:
+  // não desenhar; o que falta de arte vertical é PEDIDO à mesa — lista no NOTES.md).
+  const fundoPintura = function (q, cena) {
+    const b64 = CENARIO_ALTO_B64[Math.max(0, Math.min(cena, CENARIO_ALTO_B64.length - 1))];
+    if (!b64) return;
+    const f = document.createElement("div");
+    f.className = "qFundo";
+    f.style.backgroundImage = "url(" + b64 + ")";
+    q.appendChild(f);
+    const v = document.createElement("div");
+    v.className = "qVeu";
+    q.appendChild(v);
+  };
+  // O COMENTÁRIO: a mesma pessoa que se joga aparece na página e comenta — o retrato do
+  // capítulo dela (RETRATO_B64) e um bilhete do mesmo papel de campo. A disciplina de §2
+  // está no cabeçalho de NoLinha; os marcos duros ficam sem balão de propósito.
+  const comentario = function (q, no: NoLinha) {
+    if (!no.com) return;
+    const f = document.createElement("div");
+    f.className = "qFala";
+    const im = document.createElement("img");
+    im.className = "qRetrato"; im.alt = ""; im.decoding = "async";
+    im.src = RETRATO_B64[Math.max(0, Math.min(RETRATO_B64.length - 1, (no.quem || 0) | 0))];
+    const bal = document.createElement("div");
+    bal.className = "qBalao"; bal.textContent = no.com;
+    f.appendChild(im); f.appendChild(bal); q.appendChild(f);
+  };
   // As chaves vêm de `aberturaImg` da época (a associação já curada), sem mapa novo.
-  let epFio = 0;
   const ctxDaEpoca = function (ep: number, alt: number) {
     const chaves: string[] = [];
     (EPOCAS[ep].aberturaImg || []).forEach(function (k) {
@@ -7001,23 +7047,18 @@ function montarCompletude() {
     if (!chaves.length) return null;
     return CTX_B64[chaves[alt % chaves.length]];
   };
+  // `epFio` acompanha a última placa passada na CRONOLOGIA: o momento pendura no capítulo
+  // sob cujo marco ele está — Zumbi pendura em PALMARES e ganha a serra, nunca o porto de
+  // Salvador, embora o jogo o revele no capítulo três.
+  let epFio = 0;
   const altPorEp: Record<number, number> = {};
+  const epAtual = epocaAtual();
   paginas.forEach(function (no, idx) {
     const pag = idx + 1;
-    if (no.tipo === "mais") {
-      const n = (no as { n: number }).n;
-      const q = quadro("qMais");
-      const m = document.createElement("div");
-      m.className = "ltMais";
-      const t = document.createElement("div");
-      pixelRotulo(t, "E MAIS " + n + (n === 1 ? " MARCO" : " MARCOS") + " À FRENTE", 1, "#b0a487");
-      m.appendChild(t);
-      q.appendChild(m); numero(q, pag);
-      return;
-    }
     if (no.tipo === "antes") {
       // A primeira página: escura de propósito, com o fio chegando de fora do alcance.
       // Texto do dono (abertura do capítulo um), resumido sem afirmar nada novo.
+      // PROVISÓRIO até a arte vertical chegar: pedido "a mata profunda" na lista da mesa.
       const q = quadro("qPonta");
       const c = document.createElement("div");
       c.className = "qCentro";
@@ -7028,45 +7069,44 @@ function montarCompletude() {
       q.appendChild(c); numero(q, pag);
     } else if (no.tipo === "marco") {
       const ep = EPOCAS[no.ep!];
-      const chegou = ate >= cenarioDaEpoca(no.ep!);
       epFio = no.ep!;   // daqui em diante os momentos pendem deste capítulo
-      const q = quadro("qMarco" + (chegou ? "" : " longe"));
-      if (chegou) {
-        // a página É a pintura do capítulo — sangrada até as bordas, sob um véu que
-        // segura a leitura; marco não alcançado fica em página escura: a pintura é
-        // parte do que se conquista chegando lá
-        const cena = cenarioDaEpoca(no.ep!);
-        const b64 = CENARIO_ALTO_B64[Math.min(cena, CENARIO_ALTO_B64.length - 1)];
-        if (b64) {
-          const f = document.createElement("div");
-          f.className = "qFundo";
-          f.style.backgroundImage = "url(" + b64 + ")";
-          q.appendChild(f);
-          const v = document.createElement("div");
-          v.className = "qVeu";
-          q.appendChild(v);
-        }
-      }
+      const q = quadro("qMarco");
+      // a página É a pintura do capítulo — sangrada até as bordas, sob o véu que segura
+      // a leitura; a placa de madeira senta sobre ela. Tudo aberto: nenhum marco "longe".
+      fundoPintura(q, cenarioDaEpoca(no.ep!));
       const m = document.createElement("div");
-      m.className = "ltMarco" + (chegou ? "" : " longe");
+      m.className = "ltMarco";
       const t = document.createElement("div");
-      pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#332a1a");
+      pixelRotulo(t, ep.nome, 2, "#2a1a0a");
       m.appendChild(t);
       // rótulo sobre MADEIRA fala bitmap (a régua); a serifa é tinta de PAPEL
       const q2 = document.createElement("div");
       q2.className = "ltMarcoQuando";
-      pixelRotulo(q2, chegou ? ep.quando : "continue a travessia", 1,
-        chegou ? "#4a2f14" : "#3c3122");
+      pixelRotulo(q2, ep.quando, 1, "#4a2f14");
       m.appendChild(q2);
-      q.appendChild(m); numero(q, pag);
+      q.appendChild(m);
+      // o selo discreto de progresso — nada escondido, só a orientação de onde se está
+      if (no.ep === epAtual) {
+        const a = document.createElement("div");
+        a.className = "qAqui";
+        pixelRotulo(a, "VOCÊ ESTÁ AQUI", 1, "#f0dfb4");
+        q.appendChild(a);
+      }
+      numero(q, pag);
     } else if (no.tipo === "momento") {
       // Ou um índice em MOMENTOS, ou um momento próprio (q/t/d/f no nó) — é o que permite
       // pendurar os marcos do historiador nos vãos sem tocar em MOMENTOS nem no layout.
+      // Momento COM paisagem curada: a pintura do capítulo em tela cheia atrás, a paisagem
+      // de contexto abrindo o quadro, o papel de legenda embaixo. Momento SEM arte curada
+      // vira PÁGINA DE PAPEL — o caderno de campo em tela cheia, o material de leitura da
+      // casa. É a saída neutra que a trava de §2 exige nos marcos duros ("a travessia
+      // forçada" não aceita paisagem que afirme clima que o texto não afirma) e é
+      // PROVISÓRIA nas demais: cada página destas tem pedido de arte vertical na mesa.
       const mo = no.i != null ? MOMENTOS[no.i] : (no as { q: string; t: string; d: string; f: string });
-      const visto = (no.cena != null ? no.cena : no.i!) <= ate;
-      const comImg = visto && no.i != null;
-      const q = quadro("qMomento" + (comImg ? "" : " semImg"));
+      const comImg = no.i != null;
+      const q = quadro("qMomento" + (comImg ? "" : " qPapel"));
       if (comImg) {
+        fundoPintura(q, cenarioDaEpoca(epFio));
         const alt = altPorEp[epFio] || 0;
         altPorEp[epFio] = alt + 1;
         const uri = ctxDaEpoca(epFio, alt);
@@ -7077,25 +7117,20 @@ function montarCompletude() {
           q.appendChild(im);
         }
       }
+      comentario(q, no);
       const l = document.createElement("div");
-      l.className = "ltMomento" + (visto ? " vista" : "");
+      l.className = "ltMomento vista";
       const cab = document.createElement("div");
       cab.className = "ltCab";
       const qd = document.createElement("span");
-      qd.className = "ltQ"; qd.textContent = visto ? mo.q : "— ainda não —";
+      qd.className = "ltQ"; qd.textContent = mo.q;
       cab.appendChild(qd);
-      if (visto) {
-        const n = document.createElement("span");
-        n.className = "ltT"; n.textContent = mo.t;
-        cab.appendChild(n);
-      }
+      const n = document.createElement("span");
+      n.className = "ltT"; n.textContent = mo.t;
+      cab.appendChild(n);
       l.appendChild(cab);
-      // Momento não visto não revela nada além do traço: o que falta é o motivo de voltar,
-      // e entregar a lore inteira na primeira sessão gasta o jogo antes de ele começar.
-      if (visto) {
-        sub(l, "ltD", mo.d);
-        sub(l, "ltF", "fonte: " + mo.f);
-      }
+      sub(l, "ltD", mo.d);
+      sub(l, "ltF", "fonte: " + mo.f);
       q.appendChild(l); numero(q, pag);
     } else if (no.tipo === "aberto") {
       // O fim que não fecha: o fio segue além da última página e some pela borda. O texto
