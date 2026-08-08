@@ -33,7 +33,7 @@
 <div id="hudTop">
   <div id="hudLinha">
   <div id="barraTopo">
-    <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="12" height="12"></canvas>
+    <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="13" height="13"></canvas>
       <div class="cInfo"><div class="valor" id="energia">0</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
@@ -92,11 +92,12 @@
     <button id="modeQuick" class="cartao"><canvas class="pi" id="modeIcon" width="26" height="26"></canvas>
       <span class="cn" id="modeNome">CORRER</span><span class="cv" id="modeSub"></span></button>
     <div id="rail">
-      <button id="btnClique"><canvas class="pi big" data-i="sword" width="12" height="12"></canvas><span id="cliqueRotulo">+<span id="ganhoClique">1</span></span></button>
+      <button id="btnClique"><canvas class="pi big" data-i="cetro" width="13" height="13"></canvas><span id="cliqueRotulo">+<span id="ganhoClique">1</span></span></button>
     </div>
-    <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="12" height="12"></canvas>
+    <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="13" height="13"></canvas>
       <span class="cn">MELHORIAS</span></button>
-    <button class="cartao" id="abrirMenu" type="button"><span class="cn">MENU</span></button>
+    <!-- onda 7: MENU era o único cartão sem ícone — quebrava o ritmo ícone+rótulo da fileira -->
+    <button class="cartao" id="abrirMenu" type="button"><canvas class="pi" data-i="menu" width="13" height="13"></canvas><span class="cn">MENU</span></button>
 </div>
 </div>
 

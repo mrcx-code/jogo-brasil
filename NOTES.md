@@ -2792,3 +2792,42 @@ a lado no mesmo quadro.
 - **"cacho de fruta no galho"** na abertura do capítulo 1 (`EPOCAS[0]`): o texto ainda promete
   pendurado, e o dono mandou tudo encostar no chão em 2026-08-07. É uma palavra, mas `EPOCAS`
   é território de outro agente nesta rodada.
+
+## Diário — 2026-08-08 · Direção de Arte · Onda 7: os ícones falam a língua da casa
+
+**O que fiz.** Os ícones desenhados do chrome eram a última herança visível do motor de
+rua: contorno navy `#12242e` (a cor que a paleta proíbe), a varinha mágica no botão
+dourado, e escala não-inteira. Tudo trazido para a régua — detalhe por detalhe e a
+derivação escrita na seção "Onda 7 — IMPLEMENTADA" do `DIRECAO.md`. Território: só
+`src/estilo.css`, o molde `src/index.html` e a região de ícones de `src/jogo.ts`
+(`ICONS`/`renderIcon`, `texto`, `desenharFolhas`, a placa do "+"). Zero imagem nova:
+mapa de pixel é código, como a onda 1 fez com os vaga-lumes.
+
+**O que medi.** Instrumento novo `test/prints-onda7.js` (não toca nos scripts do QA):
+- ANTES: `leaf` 12→20 px (**1,67×**), varinha 12→30 (**2,5×**), `up` 12→20 (**1,67×**)
+  e — achado que a auditoria não tinha — `modeIcon` autoral de 26 px ENCOLHIDO a 20
+  (**0,77×**). DEPOIS: **oito ícones, oito razões inteiras** (1×, 2× e 3×).
+- Navy no `index.html` construído: das 5 ocorrências em desenho para **0** (sobra 1, em
+  comentário que proíbe a cor). Contornos agora `#191510`, a tinta do degrau das lajes.
+- FPS **62/61/62** em três rodadas (piso 58). Peso 3.503.451 → **3.504.101** bytes
+  (**+650 B**, só código — os 8 ícones órfãos do motor saíram junto: bolt, tired, house,
+  torch, sun, hands, gear, flame, nenhum `data-i` os chamava).
+- `npm test` verde sem ajuste em teste nenhum. Prints `O7-*-antes/depois.png` em `test/`.
+
+**O que quebrou.** Nada — mas a primeira iteração do ícone de MENU (duas tábuas num
+cabo) saiu com a MESMA silhueta em T do martelo de MELHORIAS ao lado; o print pegou,
+virou três tábuas. E o cetro da primeira passada lia como espelho de mão; as folhas do
+aro ficaram simétricas e ele assentou. Duas iterações a mais, pagas pelo print.
+
+**Decisão de direção que o Dev tinha subido para cá**: o navy do "+" de pickup. A
+gramática do sinal NÃO mudou (segue a coisa mais escura do quadro com ouro em cima);
+só a tinta da placa entrou na casa. A aura do lugar de espera continua INTOCADA — está
+com o dono; deixei uma proposta anotada no roteiro do `DIRECAO.md`, sem mexer.
+
+**Dúvida nova.** O chip de impacto e os três contadores agora têm a mesma laje e a mesma
+malha — mas o chip usa folha 2× ao lado de arte autoral 1×, e a diferença de grão é
+visível a quem procura. Se um dia incomodar no aparelho real, o caminho é arte autoral
+de 26 px para a folha do chip (pedido de mesa), não esticar o mapa.
+
+**Próximo passo.** O roteiro está sem onda aberta de ícones; a frente que o critério do
+produto pede é medir de novo a pergunta do dia 2 antes de qualquer polimento novo.

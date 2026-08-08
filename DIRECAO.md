@@ -189,6 +189,49 @@ começava no fim; o relógio certo é a timeline nomeada no QUADRO. (b) o encaix
 obrigatório re-encaixa `scrollTop` programático antes do screenshot — medição de meio de
 virada sai binária (from/to) se o snap não for solto só para a foto.
 
+## Onda 7 — IMPLEMENTADA (2026-08-08): OS ÍCONES FALAM A LÍNGUA DA CASA
+
+O diagnóstico estava na auditoria (itens 2–4) e um agente de coerência confirmou medindo.
+Instrumento novo: `test/prints-onda7.js` — mede TODO canvas de ícone do chrome (nativo ×
+exibido × razão, acusando razão não-inteira) e fotografa HUD, rodapé, drop com "+" e folha
+no ar, com recortes. O ANTES, medido: `leaf` e `up` 12 px exibidos a 20 (**1,67×**), a
+varinha a 30 (**2,5×**), e — achado novo do instrumento — o `modeIcon` autoral de 26 px
+ENCOLHIDO a 20 (**0,77×**): quatro escalas quebradas, não três. O DEPOIS: **oito ícones,
+oito razões inteiras** (1×, 2×, 3×), zero exceção.
+
+1. **A malha única: 13×13 exibido a 26 px (2×)** — 26 px é exatamente o lado dos ícones
+   autorais (`.pd`), então a fileira do HUD passa a ter UMA malha de pixel; o botão dourado
+   usa 3× (39 px). O `modeIcon` volta ao 1× nativo. Derivação escrita no cabeçalho de
+   `ICONS` em `src/jogo.ts`.
+2. **O navy morreu no desenho.** Contorno de ícone, contorno da folha no mundo, contorno
+   padrão do `texto()` dos floats e a placa do "+" de pickup: tudo era `#12242e` (a cor que
+   a paleta proíbe) e virou **`#191510`** — o quase-preto do degrau das lajes. A única
+   ocorrência de navy no `index.html` construído é o comentário que o proíbe. Decisão de
+   direção sobre o "+" que o Dev subiu para cá: a GRAMÁTICA do sinal não muda (segue a
+   coisa mais escura com ouro em cima); só a tinta entra na casa.
+3. **A varinha aposentou-se.** O botão dourado desenha o **CETRO DA VIDA** — a roda de
+   madeira com miolo aceso, folhas brotando do aro e o cristal no cordão, o objeto que a
+   mão segura NESTE jogo (os vãos entre aro e miolo ficam com o contorno: raios em
+   negativo). `data-i="sword"` → `data-i="cetro"` no molde.
+4. **MELHORIAS redesenhado como derivação do material**: a cabeça do martelo usa a
+   construção da própria laje de pedra do cartão (luz `#c4bba4` em cima, base `#a39a83`,
+   sombra `#6e6653` embaixo), cabo na madeira da casa.
+5. **MENU ganhou ícone** — o poste do menu com TRÊS tábuas. Três e não duas, medido no
+   print da primeira iteração: duas tábuas num cabo davam a MESMA silhueta em T do martelo
+   vizinho; três barras leem como "lista" e como o poste.
+6. **A folha (chip e mundo) entrou nos verdes que o jogo já fala**: corpo `--good`
+   `#7d9a3c`, luz do estouro `#9bd44f`, talo `#3e4721` — a mesma folha ao lado dos
+   contadores autorais deixa de ser de outro dialeto. E o chip alinhou a altura com os
+   três vizinhos (padding 4px, o mesmo dos `.rec`) — era o resto do item 5 da auditoria.
+7. **Subtração**: os oito ícones órfãos do motor antigo (bolt, tired, house, torch, sun,
+   hands, gear, flame) morreram — nenhum `data-i` os chamava.
+
+**Medido:** prints `O7-*-antes/depois.png` em `test/`, olhados com a pergunta da barra —
+o rodapé responde sim pela primeira vez: quatro cartões, quatro ícones da mesma mão.
+FPS **62/61/62** em três rodadas (piso 58); `index.html` 3.503.451 → 3.504.101 bytes LF
+(**+650 bytes**, só código); zero imagem nova; zero rede; `npm test` verde sem ajuste em
+teste nenhum.
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
@@ -415,12 +458,18 @@ consertando em paralelo; não toquei.
 
 ## Roteiro de ondas futuras
 
-- **Onda 7 — os ícones falam a língua da casa** (diagnóstico pronto na auditoria acima):
-  redesenhar como mapas de pixel na paleta ATUAL (tinta `#2a2418` sobre pedra, contorno
-  `#191510` — nunca o navy `#12242e` do motor antigo) os três ícones procedurais que
-  restam; aposentar a VARINHA do botão dourado por um ícone do gesto deste jogo; dar
-  ícone ao cartão MENU; e matar a escala não-inteira (12→20/30 px) desenhando em 13×13
-  exibido a 26 px (2× exato). Zero imagem: mapa de pixel é código. Meio dia.
+- **Onda 7 — os ícones falam a língua da casa**: FEITA (2026-08-08, seção própria acima).
+  A régua que fica: ícone de chrome é mapa 13×13 na paleta da casa, contorno `#191510`,
+  exibido só em razão INTEIRA — e `test/prints-onda7.js` é o instrumento que acusa
+  qualquer canvas de ícone que voltar a quebrar isso.
+- **Proposta anotada, SEM mexer (decisão com o dono ainda aberta): a aura do lugar de
+  espera.** Ela desenha em todos os capítulos e foi projetada para Palmares (§2.2: sobre
+  gente, o anel substitui a barra de vida); em Pindorama vira círculo mágico sob um pote.
+  É sinal, não cenário — não toco sem o dono. Se ele quiser diferenciar sem tocar a
+  mecânica: manter o anel EXATO onde há gente (cap. 2) e, onde o alvo é objeto, trocar o
+  desenho do MESMO sinal para quatro tiques de canto (a gramática de "pegue-me" que o
+  drop já usa), preservando o preenchimento por progresso. Mesma informação, dois
+  materiais — mas a decisão é dele.
 - **Onda 4 — toque com física no canvas**: FEITA — `atualizarKick` no laço, mola do
   quadro no relógio do quadro.
 - **Clima raro (ex-onda 5, rebaixada em 2026-08-07)**: chuva fina no PÓS-CHUVA, 1 vez
@@ -438,7 +487,8 @@ consertando em paralelo; não toquei.
   a noite — o caminho para o `index.html` e a contagem de pinturas foram consertados em
   2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura), `prints-onda3.js`
   (virada de era real, cerimônia no tempo), `prints-onda5.js` (retorno de dia 2 real,
-  o amanhecer no tempo) e `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
+  o amanhecer no tempo), `prints-onda7.js` (escala de todo ícone do chrome, acusando
+  razão não-inteira) e `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
   início de jogo e o meio de uma virada de página).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue

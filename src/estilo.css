@@ -145,8 +145,10 @@
   /* one line, no stacking: the leaf, the number, then what the number is */
   /* o placar mora num nicho de pedra igual ao dos três contadores: com a laje do topo
      removida, texto solto sobre o céu não tem chão — o nicho é o chão dele */
+  /* padding vertical igual ao dos .rec: com o ícone da folha nos mesmos 26 px dos autorais
+     (onda 7), é o que deixa o chip e os três contadores com a MESMA altura de laje */
   .chip { min-width: 0; display: flex; align-items: center; gap: 8px;
-    padding: 5px 11px 5px 7px; border-radius: 4px; background: #a39a83;
+    padding: 4px 11px 4px 7px; border-radius: 4px; background: #a39a83;
     box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
   .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
@@ -158,9 +160,14 @@
     font-variant-numeric: tabular-nums; letter-spacing: .02em;
     text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   /* removed by owner: the gear button (#openConfig) opened the metrics panel — both gone. */
-  .pi { image-rendering: pixelated; width: 20px; height: 20px; flex: 0 0 auto; }
-  #barraTopo .pi { align-self: center; transform: translateY(1px); }
-  .pi.big { width: 30px; height: 30px; }
+  /* ONDA 7 — escala INTEIRA, sem exceção: os mapas de ícone são 13×13 e saem a 26 px (2×),
+     que é exatamente o lado dos ícones autorais (.pd) — a fileira do HUD tem UMA malha de
+     pixel. Antes: 12 px esticados a 20 (1,67×) e 30 (2,5×), pixel de tamanho desigual — o
+     pecado capital da pixel art, no botão mais olhado do jogo. O modeIcon (26 nativo) cai
+     de 20 px (0,77×, ENCOLHIDO) para 26 (1×) pela mesma regra. */
+  .pi { image-rendering: pixelated; width: 26px; height: 26px; flex: 0 0 auto; }
+  #barraTopo .pi { align-self: center; }
+  .pi.big { width: 39px; height: 39px; }   /* 3× exato no botão dourado */
   #energia { color: var(--gold); }
   /* CSS morto removido na passada da régua (2026-08-07): #poluicao e #worldPct (elementos
      que não existem), .tend (nenhum nó a recebe), .pop/estala (nenhum classList a adiciona)

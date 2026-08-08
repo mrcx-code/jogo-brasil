@@ -165,8 +165,10 @@
   /* one line, no stacking: the leaf, the number, then what the number is */
   /* o placar mora num nicho de pedra igual ao dos três contadores: com a laje do topo
      removida, texto solto sobre o céu não tem chão — o nicho é o chão dele */
+  /* padding vertical igual ao dos .rec: com o ícone da folha nos mesmos 26 px dos autorais
+     (onda 7), é o que deixa o chip e os três contadores com a MESMA altura de laje */
   .chip { min-width: 0; display: flex; align-items: center; gap: 8px;
-    padding: 5px 11px 5px 7px; border-radius: 4px; background: #a39a83;
+    padding: 4px 11px 4px 7px; border-radius: 4px; background: #a39a83;
     box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
   .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
@@ -178,9 +180,14 @@
     font-variant-numeric: tabular-nums; letter-spacing: .02em;
     text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   /* removed by owner: the gear button (#openConfig) opened the metrics panel — both gone. */
-  .pi { image-rendering: pixelated; width: 20px; height: 20px; flex: 0 0 auto; }
-  #barraTopo .pi { align-self: center; transform: translateY(1px); }
-  .pi.big { width: 30px; height: 30px; }
+  /* ONDA 7 — escala INTEIRA, sem exceção: os mapas de ícone são 13×13 e saem a 26 px (2×),
+     que é exatamente o lado dos ícones autorais (.pd) — a fileira do HUD tem UMA malha de
+     pixel. Antes: 12 px esticados a 20 (1,67×) e 30 (2,5×), pixel de tamanho desigual — o
+     pecado capital da pixel art, no botão mais olhado do jogo. O modeIcon (26 nativo) cai
+     de 20 px (0,77×, ENCOLHIDO) para 26 (1×) pela mesma regra. */
+  .pi { image-rendering: pixelated; width: 26px; height: 26px; flex: 0 0 auto; }
+  #barraTopo .pi { align-self: center; }
+  .pi.big { width: 39px; height: 39px; }   /* 3× exato no botão dourado */
   #energia { color: var(--gold); }
   /* CSS morto removido na passada da régua (2026-08-07): #poluicao e #worldPct (elementos
      que não existem), .tend (nenhum nó a recebe), .pop/estala (nenhum classList a adiciona)
@@ -900,7 +907,7 @@
 <div id="hudTop">
   <div id="hudLinha">
   <div id="barraTopo">
-    <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="12" height="12"></canvas>
+    <div class="chip" id="chipTaxa"><canvas class="pi" data-i="leaf" width="13" height="13"></canvas>
       <div class="cInfo"><div class="valor" id="energia">0</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
@@ -959,11 +966,12 @@
     <button id="modeQuick" class="cartao"><canvas class="pi" id="modeIcon" width="26" height="26"></canvas>
       <span class="cn" id="modeNome">CORRER</span><span class="cv" id="modeSub"></span></button>
     <div id="rail">
-      <button id="btnClique"><canvas class="pi big" data-i="sword" width="12" height="12"></canvas><span id="cliqueRotulo">+<span id="ganhoClique">1</span></span></button>
+      <button id="btnClique"><canvas class="pi big" data-i="cetro" width="13" height="13"></canvas><span id="cliqueRotulo">+<span id="ganhoClique">1</span></span></button>
     </div>
-    <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="12" height="12"></canvas>
+    <button id="openUpgrades" class="cartao"><canvas class="pi" data-i="up" width="13" height="13"></canvas>
       <span class="cn">MELHORIAS</span></button>
-    <button class="cartao" id="abrirMenu" type="button"><span class="cn">MENU</span></button>
+    <!-- onda 7: MENU era o único cartão sem ícone — quebrava o ritmo ícone+rótulo da fileira -->
+    <button class="cartao" id="abrirMenu" type="button"><canvas class="pi" data-i="menu" width="13" height="13"></canvas><span class="cn">MENU</span></button>
 </div>
 </div>
 
@@ -1518,8 +1526,8 @@ function desenharFolhas() {
             return;
         const fy = Math.round(f.y + Math.sin(animT * 2 + f.fase) * 2);
         // a 1px dark outline first, the same trick renderIcon uses: against a painted hillside a
-        // bare green leaf simply vanishes
-        cx.fillStyle = "#12242e";
+        // bare green leaf simply vanishes. Onda 7: a tinta é a da casa (#191510), não o navy.
+        cx.fillStyle = "#191510";
         ic.map.forEach(function (row, y) {
             for (let x = 0; x < row.length; x++) {
                 if (row.charAt(x) === ".")
@@ -4265,7 +4273,9 @@ function glifo(ch, cor, contorno) {
     return c;
 }
 function texto(txt, x, y, esc, cor, contorno) {
-    const co = contorno || "#12242e";
+    // o contorno padrão do texto sobre o mundo é a tinta da casa (onda 7) — o mesmo
+    // quase-preto do degrau das lajes; o navy do motor antigo não existe mais aqui
+    const co = contorno || "#191510";
     let px = Math.round(x);
     for (let i = 0; i < txt.length; i++) {
         const ch = txt.charAt(i).toUpperCase();
@@ -4320,60 +4330,54 @@ function hash01(k) {
     return x - Math.floor(x);
 }
 // ---- pixel icons (no emoji, no text) ----
+// ONDA 7 (Direção de Arte, 2026-08-08): os ícones falam a língua da casa.
+// O conjunto veio do motor antigo com contorno NAVY #12242e (a cor que a paleta proíbe),
+// escala não-inteira (12 px exibidos a 20/30) e um objeto que não existe neste jogo (a
+// varinha do jogo de rua). A régua agora, escrita para ninguém reinventar:
+//   · 13×13 nativo, exibido a 26 px (2×) ou 39 px (3×) — pixel de ícone SEMPRE inteiro,
+//     e 26 px é exatamente o lado dos ícones autorais dos contadores (.pd), então a
+//     fileira do HUD tem UMA malha;
+//   · contorno na tinta da casa #191510 — o mesmo quase-preto do degrau das lajes —
+//     aplicado por dilatação no renderIcon, nunca dentro do mapa;
+//   · cor só do que o jogo já usa: os verdes da folha são os do estouro de folha
+//     (#9bd44f) e do --good (#7d9a3c); madeira e pedra são as dos materiais da régua.
+// Os oito ícones órfãos do motor (bolt, tired, house, torch, sun, hands, gear, flame)
+// morreram aqui: nenhum data-i os chamava — eram vocabulário de outro jogo esperando
+// alguém usar por engano.
 const ICONS = {
-    bolt: { pal: { X: "#eba748" }, map: [
-            "......XX....", ".....XXX....", "....XXX.....", "...XXXX.....", "..XXXXXXX...", ".....XXX....",
-            "....XXX.....", "...XXX......", "..XXX.......", ".XXX........", ".XX.........", "............"
+    // a folha de impacto: a MESMA folha que voa na rua (desenharFolhas usa este mapa),
+    // nos verdes vivos que o próprio jogo já fala — corpo --good, luz do estouro, talo escuro
+    leaf: { pal: { X: "#7d9a3c", W: "#9bd44f", K: "#3e4721" }, map: [
+            ".............", "........XX...", "......XXXWX..", ".....XXXWWX..", "....XXXXWWX..",
+            "...XXXXXWX...", "...XXXXXX....", "..XXXXXX.....", "..XXXXX......", "...KXX.......",
+            "...K.........", "..K..........", "............."
         ] },
-    tired: { pal: { K: "#a9a184", X: "#b8503c" }, map: [
-            "............", "............", ".KKKKKKKKK..", ".K.......K..", ".K.XX....KK.", ".K.XX....KK.",
-            ".K.......K..", ".KKKKKKKKK..", "............", "............", "............", "............"
+    // O GESTO DESTE JOGO, no botão que o dispara: o CETRO DA VIDA que a personagem carrega —
+    // roda de madeira com miolo aceso, folha brotando do aro, cristal pendurado, cabo de
+    // madeira. A varinha do jogo de rua aposentou-se; o botão dourado mostra o que a mão
+    // segura AQUI. Os vãos entre aro e miolo ficam com o contorno: são os raios em negativo.
+    cetro: { pal: { R: "#96682f", r: "#6d4620", C: "#fde79d", O: "#eba748", L: "#7d9a3c", W: "#fffbe8" }, map: [
+            ".............", ".....RRR.....", "..LLR...RLL..", "..LR.CCC.RL..", "...R.COC.R...",
+            "...R.CCC.R...", "....R...R....", ".....RRR.....", "......r.W....", "......r......",
+            "......r......", "......r......", "............."
         ] },
-    leaf: { pal: { X: "#767f34", K: "#3e4721" }, map: [
-            "............", ".......XXX..", ".....XXXXX..", "....XXXXXX..", "...XXXXXXX..", "..XXXXXXX...",
-            "..XXXXXX....", "..XXXXX.....", "...KXX......", "...K........", "..K.........", "............"
+    // MELHORIAS é "ferramenta para todos", então o ícone é a FERRAMENTA — um martelo cuja
+    // cabeça usa a construção da própria laje de pedra (luz em cima, base, sombra embaixo):
+    // o ícone é derivação do material do cartão em que ele senta.
+    up: { pal: { W: "#c4bba4", S: "#a39a83", D: "#6e6653", H: "#96682f", h: "#6d4620" }, map: [
+            ".............", "..WWWWWWWWW..", "..SSSSSSSSS..", "..SSSSSSSSS..", "..DDDDDDDDD..",
+            ".....HHH.....", ".....HhH.....", ".....HhH.....", ".....HhH.....", ".....HhH.....",
+            ".....hhh.....", ".............", "............."
         ] },
-    house: { pal: { X: "#b9732c", K: "#14170c", W: "#fde79d" }, map: [
-            "............", ".....KK.....", "....KXXK....", "...KXXXXK...", "..KXXXXXXK..", ".KKKKKKKKKK.",
-            ".KXXXXXXXXK.", ".KXWWXXWWXK.", ".KXWWXXWWXK.", ".KXXXXXXXXK.", ".KKKKKKKKKK.", "............"
-        ] },
-    // UPGRADES is "better tools for all" and four siblings — so it is the board's FERRAMENTA,
-    // a hammer with a wooden handle, and not a generic arrow pointing up. An arrow says
-    // "number goes up"; the board says what the number buys.
-    up: { pal: { S: "#a9a184", W: "#dad8c0", D: "#6f6a55", H: "#96682f", h: "#6d4620" }, map: [
-            "............", "..DDDDDDD...", ".DSSSSSSSD..", ".DSWWSSSSD..", ".DSSSSSSSD..", "..DDSSSDD...",
-            "....DHHD....", "....DHhD....", "....DHhD....", "....DHhD....", "....DDDD....", "............"
-        ] },
-    // A wooden stick with a burning rag on it is a dungeon prop, and this game is a street in
-    // 2026. The board already draws the thing you carry and hand on, on its ITENS sheet: a
-    // LANTERNA — a metal frame with warm glass inside and a ring to carry it by.
-    torch: { pal: { K: "#3a2712", G: "#6d4620", g: "#96682f", W: "#fde79d", X: "#fffbe8", O: "#da7a29" }, map: [
-            "............", ".....KK.....", "....K..K....", "...KKKKKK...", "..KGGGGGGK..", "..KGWWWWgK..",
-            "..KGWXXWgK..", "..KGWXXWgK..", "..KGWOOWgK..", "..KGWWWWgK..", "..KKKKKKKK..", "............"
-        ] },
-    // ---- the board's ÍCONES sheet: a sun, hands over a bowl, a gear ----
-    sun: { pal: { W: "#fde79d", X: "#eba748", O: "#da7a29" }, map: [
-            "............", "....O..O....", "..O.XXXX.O..", "....XWWX....", "..OXWWWWXO..", "..OXWWWWXO..",
-            "....XWWX....", "..O.XXXX.O..", "....O..O....", "............", "............", "............"
-        ] },
-    hands: { pal: { S: "#a9743f", s: "#c08a52", G: "#525d2a", W: "#767f34" }, map: [
-            "............", "...SS..ss...", "..SSSS.sss..", "..SSSS.sss..", "...SS...ss..", "..GGGGGGGG..",
-            ".GWGGGGGGWG.", ".GGGGGGGGGG.", ".GGGGGGGGGG.", "..GG....GG..", "..GG....GG..", "............"
-        ] },
-    gear: { pal: { X: "#eba748", K: "#3c4627" }, map: [
-            "............", "...X.XX.X...", "...XXXXXX...", ".XXXXKKXXXX.", "..XXXKKXXX..", ".XXKK..KKXX.",
-            ".XXKK..KKXX.", "..XXXKKXXX..", ".XXXXKKXXXX.", "...XXXXXX...", "...X.XX.X...", "............"
-        ] },
-    flame: { pal: { X: "#da7a29", W: "#eba748" }, map: [
-            "............", ".....X......", "....XX......", "....XXX.....", "...XXXXX....", "...XWXXX....",
-            "..XWWXXX....", "..XWWWXX....", "...XWWX.....", "....XX......", "............", "............"
-        ] },
-    // key stays `sword` because the markup names it; what it draws is the wand. Its star is
-    // white-cored with a green halo, the same magic colours the wand uses in the world, and
-    // green is the one hue that still reads on cream chrome AND on the yellow action button.
-    sword: { pal: { W: "#fffce8", G: "#eba748", L: "#767f34", B: "#6d4620", O: "#da7a29" }, map: [
-            "....L.......", "...LGGGL....", "..LG...GL...", "..G..W..G.L.", "..G.WWW.G.L.", "..G..W..GL..",
-            "..LG...GL...", "...LGGGL....", "....BB......", "...OB.......", "..BO........", "..B........."
+    // MENU era o único cartão do rodapé sem ícone. O desenho é o próprio destino: o POSTE
+    // do menu com as TRÊS tábuas pregadas — madeira clara na aresta de cima de cada tábua,
+    // como manda a régua, e o poste correndo para baixo como ele corre na tela. Três barras
+    // e não duas, de propósito: duas tábuas num cabo davam a MESMA silhueta em T do martelo
+    // de MELHORIAS, dois vizinhos gêmeos — três barras leem como "lista" a um palmo de olho.
+    menu: { pal: { L: "#b8834a", T: "#7c552c", P: "#4c3016" }, map: [
+            ".............", ".LLLLLLLLLLL.", ".TTTTTTTTTTT.", "......P......", ".LLLLLLLLLLL.",
+            ".TTTTTTTTTTT.", "......P......", ".LLLLLLLLLLL.", ".TTTTTTTTTTT.", "......P......",
+            "......P......", "......P......", "............."
         ] }
 };
 function renderIcon(cnv, name) {
@@ -4381,11 +4385,11 @@ function renderIcon(cnv, name) {
     if (!ic || !cnv)
         return;
     const c2 = cnv.getContext("2d");
-    c2.clearRect(0, 0, 12, 12);
-    // Every icon gets a 1px dark outline, the same way the bitmap font does. The chrome is
-    // cream now and the action button is yellow, so a gold bolt or a white wand tip with no
-    // outline simply disappeared into them. Icons are redrawn on mode change, not per frame.
-    c2.fillStyle = "#12242e";
+    c2.clearRect(0, 0, cnv.width, cnv.height);
+    // Every icon gets a 1px dark outline, the same way the bitmap font does: against stone,
+    // gold or jungle a bare glyph disappears. A tinta é a da casa — o quase-preto do degrau
+    // das lajes — nunca o navy do motor antigo. Icons are redrawn on mode change, not per frame.
+    c2.fillStyle = "#191510";
     ic.map.forEach(function (row, y) {
         for (let x = 0; x < row.length; x++) {
             if (row.charAt(x) === ".")
@@ -6021,7 +6025,7 @@ for (const k in ICONE_B64) {
     ICONE_SPR[k] = im;
 }
 // Ícones autorais são imagens, não mapas de pixel, então não passam pelo `renderIcon` — que
-// segue vivo e intocado para o `leaf`, o `sword` e o `up` da marcação. Pintados uma vez, no
+// segue vivo e intocado para o `leaf`, o `cetro`, o `up` e o `menu` da marcação. Pintados uma vez, no
 // primeiro quadro depois de carregarem.
 //
 // Os três contadores mostravam os DROPS do capítulo 1. Com o drop variando por capítulo, o
@@ -7061,7 +7065,7 @@ function drawScene() {
             f.max = f.life;
         const idade = f.max - f.life;
         cx.globalAlpha = Math.min(1, f.life / 20) * Math.min(1, 0.35 + idade * 0.25);
-        texto(f.txt, f.x, f.y - 12, 1, f.txt.charAt(0) === "+" ? "#ffe488" : "#fdf6e6", "#12242e");
+        texto(f.txt, f.x, f.y - 12, 1, f.txt.charAt(0) === "+" ? "#ffe488" : "#fdf6e6", "#191510");
         cx.globalAlpha = 1;
         f.y -= 2.3 * Math.pow(0.86, idade) + 0.22;
         f.life--;
@@ -7265,7 +7269,7 @@ function desenharMundo() {
         // which would put a pickup above the Cetro's hub (195.6) and its crystal (214.7) in a
         // night frame, and the Cetro being the brightest warm thing after dark is a rule this
         // file has held since the lighting wave. #eba748 is L 175 and unmistakably a plus.
-        cx.fillStyle = "#12242e";
+        cx.fillStyle = "#191510"; // a placa do "+" na tinta da casa (onda 7)
         cx.fillRect(sx + 6, y - 2, 5, 5);
         cx.fillStyle = "#eba748";
         cx.fillRect(sx + 8, y - 1, 1, 3);
