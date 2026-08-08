@@ -6386,13 +6386,6 @@ function montarCompletude() {
   const box = $("listaCenas");
   box.textContent = "";
   const ate = cenarioAtual();
-  // A coluna: o fio é filho DELA, não do rolo — absoluto num contêiner que tem a altura do
-  // conteúdo inteiro, para descer junto com a rolagem em vez de ficar parado no vidro.
-  const col = document.createElement("div");
-  col.id = "ltCol";
-  const fio = document.createElement("div");
-  fio.id = "ltFio";
-  col.appendChild(fio);
   const sub = function (pai, cls, txt) {
     const d = document.createElement("div");
     d.className = cls; d.textContent = txt;
@@ -6419,61 +6412,123 @@ function montarCompletude() {
     nos.push(no);
   });
   despejarFila();
-  nos.forEach(function (no) {
+  // O QUADRINHO (onda 8): cada nó vira uma PÁGINA de tela cheia dentro do rolo com
+  // encaixe (scroll-snap). O `vao` não vira página — página vazia é quadro sem fala.
+  const paginas = nos.filter(function (no) { return no.tipo !== "vao"; });
+  const total = paginas.length;
+  const quadro = function (cls) {
+    const q = document.createElement("div");
+    q.className = "qQuadro " + cls;
+    box.appendChild(q); return q;
+  };
+  const numero = function (q, pag) {
+    const n = document.createElement("div");
+    n.className = "qNum";
+    pixelRotulo(n, pag + " · " + total, 1, "#b9ad8d");
+    q.appendChild(n);
+  };
+  // A IMAGEM DA PÁGINA, e a regra de quem a recebe — regra de §2 tanto quanto de
+  // composição: só os momentos DOS CAPÍTULOS (índice em MOMENTOS) ganham paisagem, e a
+  // paisagem é a do capítulo sob cujo marco eles se penduram na cronologia (o `epFio`
+  // abaixo acompanha a última placa passada — Zumbi pendura em PALMARES e ganha a serra,
+  // nunca o porto de Salvador, embora só se revele no capítulo dele). Os marcos dos VÃOS
+  // (q/t próprios — o açúcar, a travessia forçada, a lei de 1888…) ficam SEM imagem, em
+  // papel sobre página escura: o jogo ainda não te levou ali, e paisagem bonita sob "a
+  // travessia forçada" afirmaria um clima que o texto não afirma. A imagem nunca pode
+  // dizer mais que o texto — e o quadro escuro é a composição certa para esses.
+  // As chaves vêm de `aberturaImg` da época (a associação já curada), sem mapa novo.
+  let epFio = 0;
+  const ctxDaEpoca = function (ep: number, alt: number) {
+    const chaves: string[] = [];
+    (EPOCAS[ep].aberturaImg || []).forEach(function (k) {
+      if (k && CTX_B64[k] && chaves.indexOf(k) < 0) chaves.push(k);
+    });
+    if (!chaves.length) return null;
+    return CTX_B64[chaves[alt % chaves.length]];
+  };
+  const altPorEp: Record<number, number> = {};
+  paginas.forEach(function (no, idx) {
+    const pag = idx + 1;
     if (no.tipo === "mais") {
       const n = (no as { n: number }).n;
+      const q = quadro("qMais");
       const m = document.createElement("div");
       m.className = "ltMais";
       const t = document.createElement("div");
-      pixelRotulo(t, "E MAIS " + n + (n === 1 ? " MARCO" : " MARCOS") + " À FRENTE", 1, "#332a1a");
+      pixelRotulo(t, "E MAIS " + n + (n === 1 ? " MARCO" : " MARCOS") + " À FRENTE", 1, "#b0a487");
       m.appendChild(t);
-      col.appendChild(m);
+      q.appendChild(m); numero(q, pag);
       return;
     }
     if (no.tipo === "antes") {
-      // O trecho de cima: o fio já vem de longe. Texto do dono (abertura do capítulo um),
-      // resumido sem afirmar nada novo — a redação final é do historiador.
-      const a = document.createElement("div");
-      a.className = "ltPonta";
+      // A primeira página: escura de propósito, com o fio chegando de fora do alcance.
+      // Texto do dono (abertura do capítulo um), resumido sem afirmar nada novo.
+      const q = quadro("qPonta");
+      const c = document.createElement("div");
+      c.className = "qCentro";
       const t = document.createElement("div");
       pixelRotulo(t, "JÁ HAVIA GENTE AQUI", 1, "#b9ad8d");
-      a.appendChild(t);
-      sub(a, "ltPontaSub", "muito antes de qualquer chegada — e o fio vem de mais longe do que esta tela alcança");
-      col.appendChild(a);
-    } else if (no.tipo === "vao") {
-      // Espaço estrutural: só o fio passando. É onde os marcos futuros se penduram.
-      const v = document.createElement("div");
-      v.className = "ltVao";
-      col.appendChild(v);
+      c.appendChild(t);
+      sub(c, "ltPontaSub", "muito antes de qualquer chegada — e o fio vem de mais longe do que esta tela alcança");
+      q.appendChild(c); numero(q, pag);
     } else if (no.tipo === "marco") {
       const ep = EPOCAS[no.ep!];
       const chegou = ate >= cenarioDaEpoca(no.ep!);
+      epFio = no.ep!;   // daqui em diante os momentos pendem deste capítulo
+      const q = quadro("qMarco" + (chegou ? "" : " longe"));
+      if (chegou) {
+        // a página É a pintura do capítulo — sangrada até as bordas, sob um véu que
+        // segura a leitura; marco não alcançado fica em página escura: a pintura é
+        // parte do que se conquista chegando lá
+        const cena = cenarioDaEpoca(no.ep!);
+        const b64 = CENARIO_ALTO_B64[Math.min(cena, CENARIO_ALTO_B64.length - 1)];
+        if (b64) {
+          const f = document.createElement("div");
+          f.className = "qFundo";
+          f.style.backgroundImage = "url(" + b64 + ")";
+          q.appendChild(f);
+          const v = document.createElement("div");
+          v.className = "qVeu";
+          q.appendChild(v);
+        }
+      }
       const m = document.createElement("div");
       m.className = "ltMarco" + (chegou ? "" : " longe");
       const t = document.createElement("div");
-      // a placa longe agora é a mesma madeira, encardida (achado 8) — a tinta acompanha
       pixelRotulo(t, chegou ? ep.nome : "AINDA À FRENTE", 2, chegou ? "#2a1a0a" : "#332a1a");
       m.appendChild(t);
-      // rótulo sobre MADEIRA fala bitmap (a régua) — era o único texto de sistema
-      // pregado numa placa; a serifa nova é tinta de PAPEL, não de tábua
+      // rótulo sobre MADEIRA fala bitmap (a régua); a serifa é tinta de PAPEL
       const q2 = document.createElement("div");
       q2.className = "ltMarcoQuando";
       pixelRotulo(q2, chegou ? ep.quando : "continue a travessia", 1,
         chegou ? "#4a2f14" : "#3c3122");
       m.appendChild(q2);
-      col.appendChild(m);
+      q.appendChild(m); numero(q, pag);
     } else if (no.tipo === "momento") {
       // Ou um índice em MOMENTOS, ou um momento próprio (q/t/d/f no nó) — é o que permite
       // pendurar os marcos do historiador nos vãos sem tocar em MOMENTOS nem no layout.
       const mo = no.i != null ? MOMENTOS[no.i] : (no as { q: string; t: string; d: string; f: string });
       const visto = (no.cena != null ? no.cena : no.i!) <= ate;
+      const comImg = visto && no.i != null;
+      const q = quadro("qMomento" + (comImg ? "" : " semImg"));
+      if (comImg) {
+        const alt = altPorEp[epFio] || 0;
+        altPorEp[epFio] = alt + 1;
+        const uri = ctxDaEpoca(epFio, alt);
+        if (uri) {
+          const im = document.createElement("img");
+          im.className = "qImg"; im.alt = ""; im.decoding = "async";
+          im.src = uri;
+          q.appendChild(im);
+        }
+      }
       const l = document.createElement("div");
       l.className = "ltMomento" + (visto ? " vista" : "");
       const cab = document.createElement("div");
       cab.className = "ltCab";
-      const q = document.createElement("span");
-      q.className = "ltQ"; q.textContent = visto ? mo.q : "— ainda não —";
-      cab.appendChild(q);
+      const qd = document.createElement("span");
+      qd.className = "ltQ"; qd.textContent = visto ? mo.q : "— ainda não —";
+      cab.appendChild(qd);
       if (visto) {
         const n = document.createElement("span");
         n.className = "ltT"; n.textContent = mo.t;
@@ -6486,20 +6541,21 @@ function montarCompletude() {
         sub(l, "ltD", mo.d);
         sub(l, "ltF", "fonte: " + mo.f);
       }
-      col.appendChild(l);
+      q.appendChild(l); numero(q, pag);
     } else if (no.tipo === "aberto") {
-      // O fim que não fecha: o fio segue além do último nó e some pela borda. O texto
+      // O fim que não fecha: o fio segue além da última página e some pela borda. O texto
       // espelha o fecho do capítulo três — nenhuma afirmação nova.
-      const f = document.createElement("div");
-      f.className = "ltPonta fim";
+      const q = quadro("qPonta fim");
+      const c = document.createElement("div");
+      c.className = "qCentro";
       const t = document.createElement("div");
       pixelRotulo(t, "O FIO CONTINUA", 1, "#b9ad8d");
-      f.appendChild(t);
-      sub(f, "ltPontaSub", "a disputa está em curso — ela segue depois que você fecha o jogo");
-      col.appendChild(f);
+      c.appendChild(t);
+      sub(c, "ltPontaSub", "a disputa está em curso — ela segue depois que você fecha o jogo");
+      q.appendChild(c); numero(q, pag);
     }
   });
-  box.appendChild(col);
+  box.scrollTop = 0;
 }
 
 // Os rótulos que não mudam, pintados uma vez na carga. Depois disto o chrome inteiro fala a

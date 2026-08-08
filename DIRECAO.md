@@ -132,6 +132,63 @@ que uma tela de leitura deste jogo responde sim. FPS 61/62/61 em três rodadas (
 zero rede; `npm test` verde sem ajuste em teste nenhum. Glifos conferidos: a 5×7 cobre
 todo caractere que as placas usam (acentos, `·`, vírgula, dígitos).
 
+## Onda 8 — IMPLEMENTADA (2026-08-07): A HISTÓRIA VIRA QUADRINHO
+
+Pedido do dono, palavras dele: *"vamos tentar transformar ela num quadrinho, imagens e
+texto pra ficar bem bonita… a ideia é que a pessoa role e não fique uma lista, então a
+tela toda vai se transformando de uma forma bonita, sem aparecer scroll."*
+
+**Referência que sustenta: Florence (ADA 2018 · BAFTA 2019)** — o quadrinho jogável: cada
+tela é UMA composição de imagem+texto e o gesto vira a página; nada rola como documento.
+É a mesma referência da barra do dono ("componentes que se conversam") aplicada agora à
+estrutura da tela, não só à pele. A voz continua a da onda 6 (Art of Fauna): papel de
+campo, serifa de caderno; madeira fala bitmap.
+
+**O desenho.** A linha do tempo deixou de ser lista rolável e virou **26 páginas de tela
+cheia** (no fim de jogo; 16 no início) num rolo com **encaixe obrigatório**
+(`scroll-snap-type: y mandatory`, `scroll-snap-stop: always`) e **nenhuma barra visível**
+(`scrollbar-width: none` + `::-webkit-scrollbar`). Título e VOLTAR flutuam sobre os
+quadros. Cada nó da `LINHA_TEMPO` é uma página:
+
+- **Marco alcançado**: a página É a pintura do capítulo (720×960, `CENARIO_ALTO_B64`),
+  sangrada até as bordas sob um véu de leitura; a placa de madeira senta sobre ela.
+  Marco não alcançado fica em página escura — a pintura é parte do que se conquista.
+- **Momento de capítulo** (índice em `MOMENTOS`): a paisagem de contexto (`CTX_B64`)
+  abre o quadro, sangra nas três bordas de cima e DISSOLVE (a máscara da caixa de fala);
+  o papel de campo vira a legenda no terço de baixo, um passo maior de corpo (a página
+  inteira é dele). A paisagem é a do capítulo do ÚLTIMO MARCO passado na cronologia —
+  Zumbi pendura em PALMARES e ganha a serra, nunca o porto de Salvador.
+- **Marco de VÃO** (q/t próprios — o açúcar, a travessia forçada, 1888…): papel sobre
+  página ESCURA, sem paisagem — regra de §2 tanto quanto de composição: o jogo ainda não
+  te levou ali, e paisagem bonita sob "a travessia forçada" afirmaria um clima que o
+  texto não afirma. A imagem nunca diz mais que o texto.
+- **O cipó não morreu**: atravessa cada página pela esquerda — a história continua sendo
+  UM fio; desvanece na primeira página (vem de antes do alcance) e na última (a disputa
+  não acabou). Número de página no canto (`1 · 26`) é a orientação que a barra de
+  rolagem não dá mais. Marco não alcançado continua sem lore (teasers e "E MAIS N
+  MARCOS À FRENTE" seguem valendo, agora como páginas).
+
+**A transformação é dirigida pelo PRÓPRIO rolo**, nunca por relógio: `view-timeline`
+nomeada no quadro, imagem revelando (opacity+scale) na virada inteira e papel assentando
+de 30% em diante — rolar devagar transforma devagar. Progressive enhancement dos dois
+lados: sem `view()` nada anima e o encaixe continua; com `prefers-reduced-motion` nada
+se move além do rolo.
+
+**Medido** (`test/prints-quadrinho.js`, novo — ANTES na build da main, DEPOIS na nova;
+prints `Q-antes-*`/`Q-depois-*` em `test/`, incluindo `Q-depois-meio-transicao.png` no
+meio de uma virada): ANTES a tela era um rolo de papel contínuo de 4.585 px (7,0 telas);
+DEPOIS são 26 páginas com encaixe. Interpolação confirmada com snap solto: opacity da
+imagem 0,49 → 0,98 e papel translateY 44 → 1,5 px ao longo de uma virada (4 pontos
+medidos). FPS **61** no smoke (piso 58) — `content-visibility: auto` nos quadros é o que
+segura os 60 fps com ~20 imagens grandes no rolo. Peso 3.472.301 → 3.477.734 bytes LF
+(**+5,4 KB, só código**); **zero imagem nova**; zero rede; `npm test` verde sem ajuste.
+
+**Duas armadilhas pagas e anotadas no instrumento:** (a) `view()` no FILHO termina cedo —
+a imagem (alta, no topo) completava a entrada com meia página virada e o papel (no pé) só
+começava no fim; o relógio certo é a timeline nomeada no QUADRO. (b) o encaixe
+obrigatório re-encaixa `scrollTop` programático antes do screenshot — medição de meio de
+virada sai binária (from/to) se o snap não for solto só para a foto.
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
@@ -380,8 +437,9 @@ consertando em paralelo; não toquei.
   `prints-onda2.js` (todas as pinturas × 2 horas, topo/céu/meio e a cor média de um mob sob
   a noite — o caminho para o `index.html` e a contagem de pinturas foram consertados em
   2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura), `prints-onda3.js`
-  (virada de era real, cerimônia no tempo) e `prints-onda5.js` (retorno de dia 2 real,
-  o amanhecer no tempo).
+  (virada de era real, cerimônia no tempo), `prints-onda5.js` (retorno de dia 2 real,
+  o amanhecer no tempo) e `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
+  início de jogo e o meio de uma virada de página).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
 

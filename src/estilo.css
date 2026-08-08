@@ -591,113 +591,145 @@
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }
-  /* ===== A HISTÓRIA: a linha do tempo ===== Um FIO desce pela tela — cipó, o material de
-     quem pendura coisa em árvore, não uma borda de software. Os capítulos são placas de
-     madeira penduradas nele; os momentos, papéis menores. O fio DESVANECE nas duas pontas:
-     em cima porque a história não começa no século XVI — havia gente aqui muito antes — e
-     embaixo porque a disputa não acabou. Fio fechado nas pontas seria afirmação, e falsa. */
-  #telaCompletude { justify-content: flex-start; padding-top: 26px; }
-  #listaCenas { overflow-y: auto; max-width: 32em; width: 100%; text-align: left;
-    margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
-  /* o fio é filho da COLUNA (altura do conteúdo), não do rolo — rola junto com os nós */
-  #ltCol { position: relative; padding: 4px 4px 4px 46px; min-height: 100%; }
-  #telaCompletude.aberta #ltCol { animation: brota .42s ease-out backwards; }
-  #ltFio { position: absolute; left: 17px; top: 0; bottom: 0; width: 7px;
-    /* cipó torcido: o veio diagonal é o que o diferencia da madeira serrada das placas */
+  /* ===== A HISTÓRIA: o quadrinho ===== (Direção de Arte, onda 8 — pedido do dono:
+     "vamos tentar transformar ela num quadrinho… a tela toda vai se transformando de uma
+     forma bonita, sem aparecer scroll".)
+     A linha do tempo deixa de ser uma lista rolável e vira uma SEQUÊNCIA DE QUADROS de
+     tela cheia: cada momento é uma página, o gesto de rolar vira o passar de página
+     (scroll-snap com encaixe obrigatório), a barra de rolagem não existe, e a imagem faz
+     parte da composição — a pintura do capítulo sangra até a borda atrás da placa, a
+     paisagem de contexto abre o quadro e dissolve sobre o texto.
+     Referência que sustenta (DIRECAO.md): Florence (ADA 2018 · BAFTA 2019) — o quadrinho
+     jogável; cada tela compõe imagem+texto e o gesto avança o quadro. A voz continua a da
+     onda 6 (Art of Fauna): papel de campo, serifa de caderno, madeira fala bitmap.
+     O CIPÓ NÃO MORREU: ele atravessa cada quadro pela esquerda — a história continua sendo
+     UM fio; desvanece na primeira página (vem de antes do alcance da tela) e na última
+     (a disputa não acabou). Fio fechado nas pontas seria afirmação, e falsa. */
+  #telaCompletude { padding: 0; justify-content: flex-start; }
+  /* título e VOLTAR flutuam SOBRE os quadros — a tela inteira é o quadrinho */
+  #telaCompletude .telaTit { position: absolute; z-index: 3; left: 50%;
+    transform: translateX(-50%); margin: 0;
+    top: calc(12px + env(safe-area-inset-top)); }
+  #btnVoltarComp { position: absolute; z-index: 3; left: 50%; transform: translateX(-50%);
+    margin: 0; padding: 12px 28px;
+    bottom: calc(12px + env(safe-area-inset-bottom)); }
+  #btnVoltarComp:active { transform: translateX(-50%) translateY(4px); }
+  /* o rolo: encaixe obrigatório, quadro a quadro, e NENHUMA barra visível */
+  #listaCenas { position: absolute; inset: 0; margin: 0; width: auto; max-width: none;
+    text-align: left; overflow-y: auto; overscroll-behavior: contain;
+    scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; }
+  #listaCenas::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  #telaCompletude.aberta #listaCenas { animation: brota .42s ease-out backwards; }
+  /* O QUADRO: uma tela inteira por nó. content-visibility poupa pintura dos quadros
+     longe do rolo — com ~20 páginas e imagens grandes, é o que segura os 60 fps. */
+  .qQuadro { position: relative; height: 100%; overflow: hidden;
+    scroll-snap-align: start; scroll-snap-stop: always;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding: 0 20px calc(84px + env(safe-area-inset-bottom));
+    content-visibility: auto; }
+  /* o cipó, de passagem por todo quadro (mesma receita torcida de sempre) */
+  .qQuadro::before { content: ""; position: absolute; left: 20px; top: 0; bottom: 0;
+    width: 5px; z-index: 1; opacity: .8;
     background: linear-gradient(90deg, #3a2a14, #6d4b28 40%, #7c5730 60%, #3a2a14),
       repeating-linear-gradient(168deg, rgba(0,0,0,.28) 0 3px, transparent 3px 9px);
-    box-shadow: 1px 0 0 rgba(0,0,0,.4);
-    /* as duas pontas abertas — ver o comentário do bloco */
-    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40px,
-      #000 calc(100% - 52px), transparent 100%);
-            mask-image: linear-gradient(180deg, transparent 0, #000 40px,
-      #000 calc(100% - 52px), transparent 100%); }
+    box-shadow: 1px 0 0 rgba(0,0,0,.4); }
+  .qPonta::before { -webkit-mask-image: linear-gradient(180deg, transparent 12%, #000 62%);
+            mask-image: linear-gradient(180deg, transparent 12%, #000 62%); }
+  .qPonta.fim::before { -webkit-mask-image: linear-gradient(180deg, #000 38%, transparent 88%);
+            mask-image: linear-gradient(180deg, #000 38%, transparent 88%); }
+  /* quadros de centro (pontas, marcos, placas do que falta): conteúdo no meio da página */
+  .qPonta, .qMarco, .qMais, .qMomento.semImg { justify-content: center; }
+  /* A IMAGEM DE CONTEXTO abre o quadro: sangra nas três bordas de cima e DISSOLVE para o
+     escuro — mesma máscara da caixa de fala, que é o que a costura na língua da casa. */
+  .qImg { position: absolute; left: 0; top: 0; width: 100%; height: 46%;
+    object-fit: cover; object-position: center; z-index: 0; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%);
+            mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%); }
+  /* A PINTURA DO CAPÍTULO sangra a página inteira atrás da placa do marco; o véu segura a
+     leitura sem apagar o quadro (princípio 5: o passe serve à leitura, não ao clima) */
+  .qFundo { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-size: cover; background-position: center; }
+  .qVeu { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(10,8,5,.58) 0%, rgba(10,8,5,.14) 32%,
+                                        rgba(10,8,5,.18) 68%, rgba(10,8,5,.62) 100%); }
+  /* o número da página, no canto — orientação sem barra de rolagem */
+  .qNum { position: absolute; right: 16px; z-index: 2; opacity: .55;
+    bottom: calc(22px + env(safe-area-inset-bottom)); }
   /* as pontas: texto quieto, sem placa — o fio é quem fala ali */
-  .ltPonta { margin: 2px 0 14px; opacity: .85; }
-  .ltPonta.fim { margin: 14px 0 26px; }
-  /* a fonte é a DA CASA (régua do menu): Verdana era a única família estranha do jogo —
-     duas fontes de sistema na mesma tela é falar duas línguas */
-  .ltPontaSub { font: italic 400 12px/1.6 var(--leitura);
-    color: #8d8272; letter-spacing: .03em; margin-top: 4px; max-width: 24em; }
-  /* o MARCO: placa de madeira clara pendurada no fio — a mesma madeira das tábuas do poste,
-     e a MESMA para os três capítulos: Palmares tem o peso dos outros, por regra */
-  .ltMarco { position: relative; margin: 6px 0 10px; padding: 11px 14px; border-radius: 3px;
+  .qCentro { position: relative; z-index: 2; display: flex; flex-direction: column;
+    align-items: center; text-align: center; gap: 6px; }
+  .ltPontaSub { font: italic 400 13px/1.7 var(--leitura);
+    color: #8d8272; letter-spacing: .03em; margin-top: 4px; max-width: 22em; }
+  /* o MARCO: a mesma placa de madeira clara das tábuas do poste — e a MESMA para todos os
+     capítulos: Palmares tem o peso dos outros, por regra. Agora ela senta SOBRE a pintura
+     do próprio capítulo, que é a página inteira. */
+  .ltMarco { position: relative; z-index: 2; padding: 15px 22px; border-radius: 3px;
+    text-align: center;
     background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
       repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
-                inset 0 0 0 2px #2e1c0a, 0 4px 0 #120c06; }
-  /* o laço que a pendura no fio */
-  .ltMarco::before { content: ""; position: absolute; left: -32px; top: 50%; margin-top: -7px;
-    width: 26px; height: 14px; background: transparent;
-    border: 4px solid #4a3418; border-radius: 8px;
-    box-shadow: 0 2px 0 rgba(0,0,0,.35); }
-  /* o QUANDO da placa é rótulo sobre MADEIRA — e madeira fala bitmap (a régua): o texto
-     vira canvas via pixelRotulo em montarCompletude(); aqui só o respiro */
-  .ltMarcoQuando { margin-top: 5px; }
-  /* marco ainda não alcançado: madeira encardida, à distância — ver o que falta é o que
-     faz querer voltar */
-  /* A MESMA madeira dos marcos alcançados, só encardida (usabilidade, achado 8): a chapa
-     cinza-site de antes falava outro material. Mesma construção — gradiente com veio,
-     luz em cima, sombra embaixo, contorno e degrau — em tons apagados de tempo. */
+                inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 9px 26px rgba(0,0,0,.55); }
+  .ltMarcoQuando { margin-top: 6px; }
+  /* marco ainda não alcançado: a MESMA madeira, encardida, sobre página escura — ver o que
+     falta é o que faz querer voltar; a pintura só aparece quando se chega lá */
   .ltMarco.longe { background: linear-gradient(180deg, #7d6b4b, #61513a 60%, #4e4029),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
     box-shadow: inset 0 3px 0 #93805e, inset 0 -4px 0 #352a19,
                 inset 0 0 0 2px #221a0c, 0 4px 0 #0e0b07; }
-  .ltMarco.longe::before { border-color: #3a2f1e; }
-  .ltMarco.longe .ltMarcoQuando { color: #3c3122; }
-  /* A placa que RESUME o que ainda não veio (usabilidade, achado 8): sequências de
-     momentos não-alcançados colapsam numa tábua só — mesma madeira encardida dos marcos
-     longe, pendurada no fio pelo mesmo nó dos momentos. O que falta continua sendo o
-     motivo de voltar; agora sem uma escada de "— ainda não —" repetidos. */
-  .ltMais { position: relative; padding: 9px 12px; margin: 4px 0 4px 8px; border-radius: 3px;
+  /* a placa que resume o que ainda não veio: uma página só para "e mais N marcos à frente"
+     — o que falta continua sendo o motivo de voltar, sem escada de "— ainda não —" */
+  .ltMais { position: relative; z-index: 2; padding: 12px 18px; border-radius: 3px;
     background: linear-gradient(180deg, #7d6b4b, #61513a 60%, #4e4029),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
     box-shadow: inset 0 2px 0 #93805e, inset 0 -3px 0 #352a19,
                 inset 0 0 0 2px #221a0c, 0 3px 0 #0e0b07; }
-  .ltMais::before { content: ""; position: absolute; left: -33px; top: 13px;
-    width: 9px; height: 9px; background: #4e4029;
-    box-shadow: inset 0 2px 0 #6b5a3e, inset 0 -2px 0 #221a0c, 0 0 0 2px #14100a; }
-  .ltMais::after { content: ""; position: absolute; left: -24px; top: 16px;
-    width: 24px; height: 3px; background: #3a2c16; }
-  /* o MOMENTO: um papel de campo pendurado no fio — a régua do menu manda: superfície cuja
-     função é LER é PAPEL com tinta escura, nunca nicho preto com texto claro (aquilo era o
-     último vocabulário de site dentro das telas). Derivação: a MESMA pauta e o mesmo papel
-     da caixa de fala, com a moldura de madeira em recorte pequeno (2px de contorno + 3px de
-     madeira, contra 3+7 da caixa) e o degrau curto de 3px das peças pequenas. */
-  .ltMomento { position: relative; padding: 9px 12px; margin: 4px 0 6px 8px; border-radius: 3px;
+  /* o MOMENTO: o papel de campo vira a LEGENDA da página — mesma pauta e papel da caixa de
+     fala, moldura de madeira em recorte pequeno, degrau + sombra de assentamento. A imagem
+     dissolve por trás; o papel senta no terço de baixo, como legenda de quadrinho. */
+  .ltMomento { position: relative; z-index: 2; width: min(30em, 100%);
+    padding: 13px 15px; border-radius: 3px;
     background:
       repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
       linear-gradient(180deg, var(--papel), var(--papel2));
-    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
-  .ltMomento::before { content: ""; position: absolute; left: -33px; top: 13px;
-    width: 9px; height: 9px; background: #6d4b28;
-    box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e, 0 0 0 2px #14100a; }
-  /* e o cordão curto que liga o nó ao papel */
-  .ltMomento::after { content: ""; position: absolute; left: -24px; top: 16px;
-    width: 24px; height: 3px; background: #503319; }
-  /* ainda não visto: o MESMO papel, envelhecido — mesma regra das madeiras encardidas:
-     estado nunca troca o material, troca o valor e a tinta */
-  .ltMomento:not(.vista) { background:
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430,
+                0 4px 0 #0a0806, 0 8px 22px rgba(0,0,0,.5); }
+  /* ainda não visto: o MESMO papel, envelhecido — estado nunca troca o material */
+  .ltMomento:not(.vista) { width: auto; min-width: 14em; background:
       repeating-linear-gradient(0deg, rgba(60,45,20,.08) 0 1px, transparent 1px 11px),
       linear-gradient(180deg, #b9a982, #a3906c);
     box-shadow: inset 0 0 0 2px #1e150b, inset 0 0 0 5px #5d4324, 0 3px 0 #0a0806; }
-  /* visto: o nó fica verde — o sinal continua no laço, não no material */
-  .ltMomento.vista::before { background: #7d9a3c;
-    box-shadow: inset 0 2px 0 #a5c15e, inset 0 -2px 0 #3d5417, 0 0 0 2px #14100a; }
   .ltCab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-  /* tinta sobre papel: as mesmas tintas do papel da fala (#5c3210/#8a6b3d/--tintaP) */
-  /* a hierarquia de um caderno de campo: DATA em itálico de margem, TÍTULO em negrito de
-     verbete, CORPO em redonda 400 sentada na pauta (22 = 2×11), FONTE em itálico de
-     citação. Antes tudo era Arial Black 900 — quatro papéis com um peso só não é
-     hierarquia, é volume. */
-  .ltQ { font: italic 700 11.5px/1.4 var(--leitura); letter-spacing: .02em; color: #7a4d16; }
+  /* a hierarquia de um caderno de campo (onda 6), um passo maior — agora cada papel tem
+     uma página inteira para ser lido: DATA em itálico de margem, TÍTULO em negrito de
+     verbete, CORPO em redonda sentada na pauta (22 = 2×11), FONTE em itálico de citação */
+  .ltQ { font: italic 700 12px/1.4 var(--leitura); letter-spacing: .02em; color: #7a4d16; }
   .ltMomento:not(.vista) .ltQ { color: #6e5c3c; }
-  .ltT { font: 700 14.5px/1.35 var(--leitura); color: #33240f; }
-  .ltD { font: 400 13.5px/22px var(--leitura); color: #46341c; margin: 5px 0 5px; }
-  .ltF { font: italic 400 11px/1.5 var(--leitura); color: #8a6b3d; letter-spacing: .02em; }
-  /* o VÃO: só o fio passando. É o espaço estrutural onde os marcos que o historiador está
-     revisando vão se pendurar — inserir um nó aqui não mexe em nada do resto */
-  .ltVao { height: 30px; }
+  .ltT { font: 700 16px/1.35 var(--leitura); color: #33240f; }
+  .ltD { font: 400 14.5px/22px var(--leitura); color: #46341c; margin: 6px 0 5px; }
+  .ltF { font: italic 400 11.5px/1.5 var(--leitura); color: #8a6b3d; letter-spacing: .02em; }
+  /* A TRANSFORMAÇÃO ao rolar: a imagem revela e assenta, o papel sobe e pousa — dirigidas
+     pelo PRÓPRIO rolo (view timeline), nunca por relógio: rolar devagar transforma
+     devagar. Progressive enhancement dos dois lados: sem view() nada anima e o encaixe
+     continua; com prefers-reduced-motion nada se move além do rolo. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      /* o relógio é o QUADRO, não o filho: com view() no próprio filho, a imagem (alta,
+         no topo) terminava de entrar com meia página virada e o papel (baixo, no pé) só
+         começava no fim — medido com getAnimations() no headless. A timeline nomeada no
+         painel dá aos dois o MESMO relógio: a virada inteira da página. */
+      .qQuadro { view-timeline: --quadro block; }
+      .qImg, .qFundo { animation: qRevela both ease-out; animation-timeline: --quadro;
+        animation-range: entry 0% entry 100%; }
+      .qQuadro .ltMomento, .qQuadro .ltMarco, .qQuadro .ltMais, .qQuadro .qCentro {
+        animation: qAssenta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 30% entry 100%; }
+    }
+  }
+  @keyframes qRevela { from { opacity: .08; transform: scale(1.06); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qAssenta { from { opacity: 0; transform: translateY(44px); }
+    to { opacity: 1; transform: none; } }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
      esconder faz o jogo parecer menor do que e. O véu desta tela é mais leve que o das telas

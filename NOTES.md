@@ -2563,3 +2563,53 @@ C. **Carga sob demanda vira requisito no lote B/C** — e quebra o arquivo únic
    aleatórios**, **fundos que não fazem sentido**, e **imagens que não se conversam**.
 3. Continuar o arco (lote A), manter tudo integrado e testado, e otimizar até de manhã.
 4. Operacional: não travar; handoff antes do limite de contexto e seguir rodando.
+
+## Diário — 2026-08-07 (madrugada) · Direção de Arte · Onda 8: A HISTÓRIA vira quadrinho
+
+**O que fez.** O pedido da noite do dono, item 1: a tela A HISTÓRIA deixou de ser lista
+rolável e virou quadrinho — uma página de tela cheia por nó da `LINHA_TEMPO`, rolagem com
+encaixe obrigatório (scroll-snap), barra de rolagem inexistente, e a tela se transformando
+DIRIGIDA PELO ROLO (view-timeline: imagem revela e assenta, papel sobe e pousa; rolar
+devagar transforma devagar). Composição por tipo de página: marco alcançado = a pintura do
+capítulo sangrada até as bordas com a placa de madeira por cima; momento de capítulo = a
+paisagem de contexto (`CTX_B64`) abrindo o quadro e dissolvendo sobre o papel-legenda;
+marco de vão = papel sobre página escura, SEM paisagem — decisão de §2 tanto quanto de
+composição: paisagem bonita sob "a travessia forçada" afirmaria um clima que o texto não
+afirma. A paisagem de um momento é a do capítulo do último marco passado na CRONOLOGIA
+(Zumbi → serra de Palmares, nunca o porto de Salvador, embora se revele no capítulo dele).
+O cipó continua: atravessa cada página pela esquerda e desvanece nas duas pontas, pelas
+razões de sempre. Marco não alcançado segue sem lore (teasers e "E MAIS N" viram páginas).
+Referência registrada no DIRECAO.md: Florence (ADA 2018 · BAFTA 2019), o quadrinho jogável.
+Território: `src/estilo.css` (bloco A HISTÓRIA reescrito), `montarCompletude` em
+`src/jogo.ts`, `test/prints-quadrinho.js` (instrumento novo). `EPOCAS` e o laço de quadro
+não foram tocados.
+
+**O que mediu.** ANTES: rolo de papel contínuo de 4.585 px (7,0 telas de lista). DEPOIS:
+26 páginas de tela cheia no fim de jogo, 16 no início. Interpolação da transformação
+confirmada com o snap solto: opacity da imagem 0,49→0,98 e papel translateY 44→1,5 px ao
+longo de uma virada (4 pontos, getComputedStyle). FPS 61 no smoke (piso 58);
+content-visibility: auto nos quadros. Peso 3.472.301 → 3.477.734 bytes LF (+5,4 KB, só
+código); ZERO imagem nova; zero rede; `npm test` verde sem ajuste em teste nenhum. Prints
+`Q-antes-*` e `Q-depois-*` em `test/` (páginas 8/17/19/25 do fim de jogo, início de jogo,
+e `Q-depois-meio-transicao.png` no meio de uma virada), olhados um a um com a pergunta da
+barra — a placa de PALMARES sobre a própria serra pintada e "E eles continuam aqui" sobre
+a terra demarcada vista do alto respondem sim.
+
+**O que quebrou (e foi pago).** Duas armadilhas, anotadas no instrumento: (a) `view()` no
+FILHO termina cedo — a imagem completava a entrada com meia página e o papel só começava
+no fim; o relógio certo é a view-timeline NOMEADA no quadro, os filhos escutam. (b) o
+encaixe obrigatório re-encaixa scrollTop programático antes do screenshot — medição de
+meio de virada sai binária se o snap não for solto só para a foto. E o primeiro print do
+ANTES saiu com o FECHO do último capítulo por cima da tela: `energiaTotal` no teto dispara
+o fim do jogo; o instrumento usa `LIMIAR_FIM - 200`.
+
+**Dúvida nova.** As páginas escuras dos marcos de vão (4 seguidas no vão XVI→XVII quando
+tudo estiver revelado) são deliberadas, mas quando o dono gerar imagens novas, esses vãos
+são o primeiro lugar onde arte dedicada renderia — anotar na mesa dele: "a cidade africana"
+e "as ganhadeiras" aceitariam paisagem de Salvador; "a travessia forçada" NÃO aceita
+paisagem nenhuma (§2.4). Também fica para depois: um toque na metade de baixo/cima da tela
+poderia virar página — só se alguém medir que o rolo não basta.
+
+**Próximo passo.** Onda 7 (ícones falam a língua da casa) continua na fila com diagnóstico
+pronto. QA deveria acrescentar ao smoke uma asserção de que `#listaCenas` tem
+`scroll-snap-type` e barra invisível — hoje só os prints garantem.
