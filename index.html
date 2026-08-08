@@ -6123,6 +6123,66 @@ let ambiente = [], ambT = 0, ambWorldX = 0;
 // irmãs no entardecer, em vez de ser a única que não se mexe. Medido depois: 1,09 na tarde,
 // 0,99 à noite.
 const CEU_PINT = [[0.44, 0.26], [0.10, 0.22], [0.36, 0.24], [0.26, 0.26], [0.10, 0.24], [0.48, 0.24], [0.36, 0.30]];
+// ===== COMO CADA PINTURA SE REPETE — por PINTURA, na ordem das CENAS (a de CEU_PINT) =====
+//
+// O motor tinha UMA regra para as sete: cópias alternadas espelhadas, peça de cima a 0,45 e
+// peça de baixo a 1:1. A regra nasceu de pintura ORGÂNICA (mata, praia, terra) e ali ela é
+// perfeita — o olho não tem eixo para achar numa copa de árvore. Medido em 2026-08-07, com
+// o dono dizendo "fundos que não fazem sentido":
+//
+//   · uma largura de pintura = 1,56 tela = 249 px de mundo. Como TODA junta entre cópias é
+//     um eixo de reflexão, há um eixo de simetria em cena **64% do tempo** (1/1,56), e em
+//     SALVADOR ele é uma catedral espelhada contra si mesma, com a ladeira bifurcando em
+//     duas ladeiras iguais. Arquitetura não sobrevive ao espelho: mata sim, fachada não.
+//   · em SALVADOR a peça de CIMA termina em CALÇAMENTO (a ladeira que ela pisa), não em
+//     distância. Rolando a 0,45 contra o chão a 1:1, a metade de longe da MESMA rua desliza
+//     a menos da metade da velocidade da metade de perto, com a junta reta sob o pé dela.
+//     É o §7 ("paralaxe é fatal no horizonte e abaixo") acontecendo 1 px acima da linha.
+//
+// Por isso a regra deixa de ser uma e vira dado por pintura. As seis orgânicas ficam
+// **bit por bit** como estavam; só a quinta (SALVADOR) muda, e muda pelo que a pintura é.
+// [espelhar a peça de CIMA, fração da peça de cima, costurar a emenda, espelhar a de BAIXO]
+//
+// O espelho é por PEÇA e não por pintura, e isso foi medido no print, não deduzido: em
+// SALVADOR a peça de cima é FACHADA (o espelho vira catedral impossível) e a de baixo é
+// CALÇAMENTO (textura, que o espelho repete sem deixar rastro). Desligar o espelho na
+// pintura inteira trocava a catedral por um corte vertical duro atravessando justamente o
+// primeiro plano, que é onde o olho está. Cada peça responde pelo que ela contém.
+//
+// A costura é DA PINTURA e não do capítulo de propósito. Quem esconde a emenda nas seis
+// orgânicas é o `matoDaEmenda()`, e ele pergunta ao CAPÍTULO (`frenteBloco()`) enquanto a
+// pintura vem da CENA (`fundoIdx()`). No jogo real as duas respostas coincidem; sob
+// `setFundo()` — o gancho que os instrumentos usam — divergem, e uma medida da emenda sairia
+// medindo a pintura errada. Perguntar à mesma tabela que já decide o resto tira a divergência.
+const REPETICAO_PINT = [
+    [true, 0.45, false, true], // 0 litoral — mata e mar: o espelho é invisível, distância é distância
+    [true, 0.45, false, true], // 1 litoral
+    [true, 0.45, false, true], // 2 Palmares
+    [true, 0.45, false, true], // 3 Palmares
+    [false, 1, true, true], // 4 SALVADOR — fachada não espelha, calçamento espelha; a rua
+    //   inteira anda junta (1:1) e a emenda, que aqui fica nua, é costurada
+    [true, 0.45, false, true], // 5 hoje
+    [true, 0.45, false, true] // 6 hoje
+];
+function repeticaoPint() { return REPETICAO_PINT[fundoIdx()] || REPETICAO_PINT[0]; }
+// Gancho de depuração/prints: troca a regra de repetição de UMA pintura em tempo de execução.
+// Existe porque esta escolha é um confronto de defeitos (eixo de espelho × corte vertical ×
+// rua deslizando) e ninguém decide isso sem ver as combinações lado a lado no mesmo quadro.
+window.setRepeticao = function (cena, espelhar, fracao, costurar, espelhaChao) {
+    const r = REPETICAO_PINT[cena | 0];
+    if (!r)
+        return null;
+    if (typeof espelhar === "boolean")
+        r[0] = espelhar;
+    if (typeof fracao === "number" && fracao > 0 && fracao <= 1)
+        r[1] = fracao;
+    if (typeof costurar === "boolean")
+        r[2] = costurar;
+    if (typeof espelhaChao === "boolean")
+        r[3] = espelhaChao;
+    redesenharFundo();
+    return r;
+};
 function luzDaPintura(fx, g) {
     // --- 1. a tinta da hora ---
     const hq = horaAgora();
@@ -6280,9 +6340,14 @@ function rolarFundo() {
     // `paralaxeLonge` em 0 desliga a separação e desenha a pintura inteira num passe só,
     // idêntico ao que este arquivo desenhava antes desta mudança. É o mesmo contrato que o
     // `ceu` usa: cenário que não declara nada computa bit por bit o que computava antes.
+    // A REGRA DE REPETIÇÃO É DA PINTURA, não do motor (ver REPETICAO_PINT). Um instrumento que
+    // fixou a fração pela mão (`setParalaxe`) continua mandando em todas — é o que ele existe
+    // para fazer.
+    const rep = repeticaoPint();
+    const fracAlto = paralaxeForcada ? paralaxeLonge : rep[1];
     const volta = g.dw * 2;
     const linha = FUNDO_GROUND_SRC; // onde o chão começa, na fonte e no destino
-    function ladrilhar(im, fracao, dy, dh) {
+    function ladrilhar(im, fracao, dy, dh, espelhar, sy, sh, alfa) {
         const desl = ((worldX * fracao * (g.cw / W)) % volta + volta) % volta;
         // A fatia sob a borda esquerda da tela. O laço tem que COMEÇAR aqui: ele já rodou de
         // k = -1 para cima, o que servia enquanto desl ficava dentro de uma largura de pintura,
@@ -6295,27 +6360,56 @@ function rolarFundo() {
             const x = k * g.dw - desl;
             if (x > g.cw || x + g.dw < 0)
                 continue;
-            fx.globalAlpha = 1;
+            fx.globalAlpha = alfa === undefined ? 1 : alfa;
             // Cópias alternadas espelhadas: é o espelho que elimina a emenda, porque uma borda só
-            // encontra o próprio reflexo. Junta espelhada não tem o que suavizar.
-            const espelhado = (((k % 2) + 2) % 2) === 1;
+            // encontra o próprio reflexo. Junta espelhada não tem o que suavizar. Pintura de CIDADE
+            // não aceita o truque (ver REPETICAO_PINT) e passa aqui com `espelhar` falso.
+            const espelhado = espelhar && (((k % 2) + 2) % 2) === 1;
+            // Recorte na FONTE: a costura da emenda redesenha só as primeiras linhas da peça de
+            // baixo. Sem recorte (sy/sh indefinidos) é a imagem inteira, como sempre foi.
+            const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? im.naturalHeight : sh;
             if (espelhado) {
                 fx.save();
                 fx.translate(x + g.dw, 0);
                 fx.scale(-1, 1);
-                fx.drawImage(im, 0, dy, g.dw, dh);
+                fx.drawImage(im, 0, fy, im.naturalWidth, fh, 0, dy, g.dw, dh);
                 fx.restore();
             }
             else {
-                fx.drawImage(im, x, dy, g.dw, dh);
+                fx.drawImage(im, 0, fy, im.naturalWidth, fh, x, dy, g.dw, dh);
             }
         }
+        fx.globalAlpha = 1;
     }
     // A de cima primeiro, para a de baixo cobrir a emenda se sobrar meio pixel entre elas.
     // A fração da de cima é livre; a de baixo é 1:1 e não é negociável — é ela que a
     // personagem pisa, e qualquer valor diferente de 1 faz o pé deslizar.
-    ladrilhar(imAlto, paralaxeLonge > 0 ? paralaxeLonge : 1, g.dy, g.dh * linha);
-    ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha));
+    ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
+    ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3]);
+    // A COSTURA DA EMENDA — só onde nada a cobre.
+    //
+    // As duas peças foram geradas separadas, então a de cima acaba numa coisa e a de baixo
+    // começa em outra, com um corte reto entre elas. Nos seis cenários de mata o
+    // `matoDaEmenda()` logo abaixo esconde o corte com folhagem, e por isso eles não passam
+    // por aqui — ficam bit por bit como estavam. SALVADOR é rua de pedra e não leva folhagem
+    // (`frenteBloco() < 0`, decisão certa: rodapé de mata em ladeira seria pior), então lá o
+    // corte fica NU: calçada escura em cima, calçamento claro e de outra escala embaixo,
+    // separados por uma linha de barbeiro.
+    //
+    // Sem arte nova, o que dá para fazer é o que um pintor faria: deixar a peça de cima
+    // MORRER dentro da de baixo. As últimas linhas dela são reesticadas alguns pixels abaixo
+    // da junta, esmaecendo — vira a sombra de recessão onde uma superfície encontra a outra,
+    // em vez de um corte. Nenhum pixel inventado: é tinta que já estava ali.
+    if (rep[2] && imAlto.naturalHeight) {
+        const banda = Math.max(2, Math.round(g.dh * 0.008));
+        const passos = 6;
+        const srcBanda = banda / (g.dh * linha) * imAlto.naturalHeight;
+        const y0 = g.dy + g.dh * linha;
+        for (let i = 0; i < passos; i++) {
+            const alfa = 1 - (i + 0.5) / passos;
+            ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1, y0 + banda * i / passos, banda / passos, rep[0], imAlto.naturalHeight - srcBanda + srcBanda * i / passos, srcBanda / passos, alfa);
+        }
+    }
     matoDaEmenda(fx, g);
     luzDaPintura(fx, g); // a tinta da hora, a vinheta e a vida ambiente — sempre por último
 }
@@ -6481,8 +6575,12 @@ function desenharFrente(fx, g) {
 let paralaxeLonge = 0.45;
 window.setParalaxe = function (f) {
     paralaxeLonge = (typeof f === "number" && f > 0 && f < 1) ? f : 0;
+    paralaxeForcada = true;
     return paralaxeLonge;
 };
+// Um instrumento que fixa a fração quer medir AQUELA fração em todas as pinturas; sem esta
+// marca, a tabela por pintura devolveria Salvador ao 1:1 e a medida sairia sobre outra coisa.
+let paralaxeForcada = false;
 // Debug hook: force any of the seven paintings regardless of the coded scenario. n<0 clears
 // the override and returns to deriving the painting from cenAtivo.
 window.setFundo = function (n) { fundoAtivo = (typeof n === "number" && n >= 0 && n < CENARIO_ALTO.length) ? n : -1; redesenharFundo(); return fundoAtivo; };

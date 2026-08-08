@@ -2716,3 +2716,79 @@ travessia; as duas horas de partida continuam lá.
 4. O horizonte é gradiente + vagas. Está honesto, não está impressionante. Se a Direção quiser
    a perna *bonito* no mesmo patamar dos capítulos pintados, é uma pintura de mar aberto — e
    aí o pedido volta para o dono gerar.
+## Diário — 2026-08-07 · Dev · as três queixas do dono, medidas
+
+Fui atrás das três queixas jogando e medindo, não supondo. Instrumentos novos:
+`test/medir-conversa.js` (censo de arte por capítulo + eixo de espelho e degrau da emenda no
+fundo + luma por bloco de arte contra a pintura) e `test/folha-objetos.js` (folha de contato
+de todo objeto de mundo no tamanho de tela, com luma e R−B ao pé de cada um).
+
+### O que a medida DERRUBOU
+
+**Não há índice de arte errado em capítulo nenhum.** `MOB_B64`, `DROP_B64`, `FRENTE_CAP`,
+`PASSO_CAP`, `HERO_CAP_B64`, `RETRATO` e `CEU_PINT` têm todos o comprimento certo (4, 4, 4,
+4, 4, 4 e 7) e SALVADOR recebe exatamente o que a abertura dela promete: tabuleiro, balde
+d'água e trouxa de roupa atravessando; acarajé, pano da costa e búzios no chão;
+`FRENTE_CAP[2] = −1`, sem rodapé de mata na ladeira. A hipótese do índice trocado está
+morta — o conteúdo por capítulo está certo.
+
+### O que a medida CONFIRMOU, com número
+
+| onde | medida | o que é |
+|---|---|---|
+| SALVADOR, peça de cima | eixo de reflexão em cena em **29% dos quadros**; uma largura de pintura = 1,56 tela = 249 px de mundo | o espelho que salva a mata destrói a fachada: catedral simétrica impossível, ladeira bifurcando em duas iguais |
+| SALVADOR, as duas peças | cima a 0,45 e baixo a 1:1, **com a junta reta sob o pé dela** | mais de um terço da rua VISÍVEL é peça de cima: a metade de longe da mesma ladeira deslizava a menos da metade da velocidade da de perto — o §7 acontecendo 1 px acima da linha |
+| SALVADOR, emenda | degrau de luma **26,0** entre linhas vizinhas | o `matoDaEmenda()` esconde a emenda nas seis pinturas de mata; em rua de pedra ele (certo) não roda, e o corte fica nu |
+| AINDA AQUI, `mob.drum` (galão) | **R−B = −174**, único frio entre 42 objetos (os outros 41 vão de +1 a +141) | o objeto mais fora da conversa do jogo inteiro |
+| SALVADOR, `mob.smog` (tabuleiro) | **56% da borda DIREITA do quadro opaca** | cortado pela célula (§5): na rua lê como bloco claro flutuando |
+| SALVADOR, `mob.drum` (balde) | **51% da borda ESQUERDA opaca** | mesmo corte |
+| AINDA AQUI, `mob.drum` | 25/25/26/31% nas quatro bordas | desenhado enchendo o quadro, cortado dos quatro lados |
+| todos os capítulos | aura creme `#f3dda6` (luma 219) no chão de todo objeto `parado`, raio ~2× o objeto | o "lugar de espera" foi desenhado para PALMARES, onde quem chega é gente e o anel substitui a barra de vida (§2.2) — e roda em todos, virando círculo mágico sob um pote e sob um tabuleiro |
+| drops, em todo capítulo | contorno do "+" em `#12242e` | o navy que a régua da DIREÇÃO proíbe, agora no mundo e não só no HUD |
+
+### O que consertei (código e dado, zero imagem nova)
+
+**A regra de repetição do fundo deixou de ser uma só e virou dado por pintura**
+(`REPETICAO_PINT`, ao lado de `CEU_PINT` e na mesma ordem de CENAS). Cada entrada é
+`[espelha a peça de CIMA, fração da peça de cima, costura a emenda, espelha a de BAIXO]`. As
+seis orgânicas ficam com os valores de sempre e mediram **bit por bit iguais**; só SALVADOR
+muda, e muda pelo que a pintura é:
+
+1. **O espelho é por PEÇA, não por pintura** — medido no print, não deduzido. Desligar o
+   espelho na pintura inteira trocava a catedral impossível por um corte vertical duro
+   atravessando o calçamento de PERTO, que é onde o olho está. Fachada não espelha;
+   calçamento é textura e espelha sem deixar rastro. Prints `JUNTA-*.png` (as quatro
+   combinações no pior worldX) e `CONVERSA-A/D-salvador-wx400.png`.
+2. **A ladeira inteira anda junta** (fração 1 em Salvador): some o deslize contínuo sob o
+   pé. O preço, dito por inteiro: a junta da peça de cima passa a cada 249 px de mundo
+   (~7 s) em vez de 553 (~15,5 s). Aceitei porque o deslize é permanente e a junta é
+   intermitente, e porque o §7 nomeia o deslize como o erro fatal.
+3. **A emenda ganhou costura** onde nada a cobre: as últimas linhas da peça de cima são
+   reesticadas 0,8% da altura abaixo da junta, em 6 faixas esmaecendo — vira sombra de
+   recessão, não linha de barbeiro. Nenhum pixel inventado: é tinta que já estava ali.
+   Calibrado por varredura (0,006 a 0,014 de banda × 4 a 10 faixas).
+
+**Medido, antes → depois:** eixo de reflexão em cena em SALVADOR **0,29 → 0,00** (simetria
+mínima 0,7 → 9,0); degrau da emenda **26,0 → 12,6** no perfil de linha e **46,8 → 20,5** na
+média da junta; as seis pinturas de mata inalteradas nas duas medidas. FPS 61/62 no smoke
+(piso 58); `npm test` verde sem tocar em teste nenhum; renda/min nas seis células do
+`medir-poluicao.js` variou de −3,5% a +2,9% (limite ±10%) — e não podia variar de outra
+coisa senão ruído, porque nada aqui toca spawn nem economia.
+
+**Gancho novo:** `window.setRepeticao(cena, espelhaAlto, fracao, costura, espelhaChao)`,
+porque esta escolha é um confronto de defeitos e ninguém decide sem ver as combinações lado
+a lado no mesmo quadro.
+
+### O que NÃO consertei, e por quê
+
+- **Os três objetos cortados pela célula** (tabuleiro e balde de Salvador, galão de hoje):
+  pixel que o corte comeu não existe mais. É pedido de arte.
+- **O galão azul**: o conteúdo está certo (é o que um galão de água é hoje, e é o único
+  objeto industrial do jogo); o que não conversa é o traço, liso e envernizado. Passe de cor
+  não conserta traço, e mudar a cor de um galão de água seria mentir sobre o objeto.
+- **A aura do lugar de espera fora de Palmares** e **o navy do "+"**: são SINAL, não cenário.
+  Mexer neles muda a leitura de uma mecânica e a gramática de sinal do jogo inteiro — sobe
+  para a DIREÇÃO com o número, não se decide no meio de um conserto de arte.
+- **"cacho de fruta no galho"** na abertura do capítulo 1 (`EPOCAS[0]`): o texto ainda promete
+  pendurado, e o dono mandou tudo encostar no chão em 2026-08-07. É uma palavra, mas `EPOCAS`
+  é território de outro agente nesta rodada.
