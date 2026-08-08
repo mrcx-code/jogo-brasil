@@ -35,6 +35,48 @@ Três regras, e elas valem mais que qualquer decisão técnica:
 3. **O colonizador não é o herói e o "descobrimento" não existiu.** Havia gente aqui. Use
    *invasão*, *chegada* ou *contato* — nunca *descobrimento*.
 
+4. **A TRAVESSIA PODE SER CONTADA; NÃO PODE SER ENCENADA.** Proposto pelo historiador em
+   2026-08-07 e em vigor desde já — restrição erra para o lado seguro, então vale enquanto
+   o dono não disser o contrário. **Nenhuma produção sobre escravidão começa antes de o
+   dono confirmar este bloco.** As oito recusas:
+   1. **O porão não aparece** — nem interior de tumbeiro, nem gente em fileira, nem o
+      diagrama do *Brookes*. Ele foi feito por abolicionistas para chocar em 1788; num jogo
+      de 2026 ele desenha pessoas como padrão de carga.
+   2. **Nenhuma violência sobre corpo em tela** — sem açoite, tronco, ferro, corrente em
+      pulso, leilão encenado. Corrente vazia num sítio é objeto; corrente em pessoa é
+      encenação.
+   3. **O jogador nunca ocupa o lugar de quem traficou** — nem capitão, nem feitor, nem
+      comprador, nem "escolha moral" que dê poder sobre alguém escravizado.
+   4. **Nenhum minigame de sobrevivência do porão** — sem barra de água, ar ou ração.
+      Transformar a mortalidade da travessia em recurso é a definição de pornografia da dor.
+   5. **Restos humanos são trava absoluta** — o Cemitério dos Pretos Novos é fonte citável,
+      **nunca** terreno, imagem ou item. Mesma trava do material funerário de Marajó.
+   6. **Objeto ritual não é colecionável** — entra como fala, nunca como drop.
+   7. **Pessoa escravizada não é NPC alcançável** — nem para "libertar": libertar-com-o-toque
+      é o poder do senhor invertido em fantasia.
+   8. **Nenhum número sem fonte**, e nunca "escravo" como identidade.
+
+5. **A REGRA DO DOCUMENTO** — para história recente (polarização, corrupção, Covid).
+   Proposta pelo historiador em 2026-08-07, mesma condição de vigência do item 4.
+   - **Só se afirma o que um documento público afirma, e o jogo mostra qual**: norma com
+     número · decisão de tribunal com processo · número de órgão de registro (sempre com o
+     verbo **"registrou"**) · relatório de comissão, citável como *"o que o relatório
+     concluiu"*, nunca como *"o que aconteceu"* — a mesma leitura crítica que o jogo já
+     aplica às cartas jesuíticas. **Coerência é o argumento:** desconfiar do documento do
+     séc. XVII e engolir o do XXI não é ensinar método, é escolher lado.
+   - **Nomeia** instituições, processos e leis. **Nunca nomeia** político, magistrado,
+     delator ou empresário como responsável — **nem com condenação transitada**, porque
+     sentenças mudam e o §2 já proíbe pessoa real como inimigo.
+   - **Nunca**: culpa partidária (teste: se um leitor de qualquer lado identifica um alvo,
+     o texto falhou), opinião sobre eleição, **simetria falsa de fato** (equilibrar dado
+     desigual é o "encontro de culturas" em roupa nova), e **cinismo** — "todos são iguais"
+     desmobiliza e ensina o contrário do que o dono pediu.
+   - **Régua dos cinco anos:** fato com documento fechado vira MARCO; vira CAPÍTULO só com
+     ~5 anos de distância. Nada em julgamento.
+   - **O sujeito é sempre quem sustenta, nunca quem governa.** Um capítulo cuja
+     protagonista é a agente comunitária de saúde não tem como ser lido como comício.
+   - A **homenagem 8-bit** não se estende ao pós-1985 automaticamente: cada uma vai ao dono.
+
 Regras práticas que decorrem disso:
 
 - **Nenhum número inventado passando por fato.** Se o jogo afirmar algo histórico, precisa
