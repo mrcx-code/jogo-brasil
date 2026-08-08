@@ -1,8 +1,20 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "08/08 · madrugada · quadrinho e travessia no ar",
+  "atualizado": "08/08 · madrugada · turno fechado, tudo integrado",
   "emVoo": [],
   "entregue": [
+    {
+      "q": "coerência",
+      "t": "Salvador para de ter catedral impossível — eixo de simetria 29% → 0%"
+    },
+    {
+      "q": "travessia",
+      "t": "A TRAVESSIA: 90 s em que o jogo para de ser jogo"
+    },
+    {
+      "q": "onda 8",
+      "t": "A HISTÓRIA virou quadrinho: 26 páginas, sem barra de rolagem"
+    },
     {
       "q": "travessia",
       "t": "A TRAVESSIA: 90 s em que o jogo para de ser jogo"
@@ -26,40 +38,40 @@
     {
       "q": "sprint 2",
       "t": "O veredito medido: aceitável, não divertido — 5 decisões em 8 min"
-    },
-    {
-      "q": "retenção",
-      "t": "O jogo passa a saber quem volta — e o painel do dia 2 fica alcançável"
-    },
-    {
-      "q": "onda 5",
-      "t": "Voltar é amanhecer (a Arte aceitou a proposta do PM)"
-    },
-    {
-      "q": "peso",
-      "t": "4.455 → 3.362 KB (−24,5%), sem perda visível"
     }
   ],
   "proximos": [
     {
-      "t": "Pintura do MAR para a travessia (hoje é gradiente — honesto, não impressionante)",
+      "t": "SALVADOR: pintura de cima LADRILHÁVEL (mata o corte vertical)",
       "dep": "VOCÊ · 1 imagem"
     },
     {
-      "t": "Folha v3 da ganhadeira — só as poses do apoio",
+      "t": "SALVADOR: chão refeito para casar com o de cima",
+      "dep": "VOCÊ · 1 imagem"
+    },
+    {
+      "t": "SALVADOR: os 3 itens recortados com folga (chegam picotados)",
       "dep": "VOCÊ · 1 folha"
     },
     {
-      "t": "Folhas de corrida com a pessoa da caminhada",
-      "dep": "VOCÊ · 3 folhas"
+      "t": "AINDA AQUI: o galão no traço da casa (é o único objeto frio do jogo)",
+      "dep": "VOCÊ · 1 objeto"
     },
     {
-      "t": "Carga sob demanda: o arquivo único cai no lote B/C. Aceita?",
+      "t": "Pintura do MAR para a travessia",
+      "dep": "VOCÊ · 1 imagem"
+    },
+    {
+      "t": "Folha v3 da ganhadeira + as 3 corridas",
+      "dep": "VOCÊ · 4 folhas"
+    },
+    {
+      "t": "A aura do lugar de espera aparece em TODOS os capítulos — é sinal, não cenário",
       "dep": "VOCÊ · ⚠"
     },
     {
-      "t": "Lote B: O CAIS QUE VOLTOU À LUZ (Valongo)",
-      "dep": "depois da decisão de peso"
+      "t": "Carga sob demanda: o arquivo único cai no lote B/C",
+      "dep": "VOCÊ · ⚠"
     }
   ]
 }

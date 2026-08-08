@@ -269,6 +269,38 @@
       "ref": "marco de vao na tela A HISTORIA, hoje sem imagem",
       "tam": "PAISAGEM ~1536×640 · sem magenta",
       "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nSalvador no começo do século XIX vista de um ponto alto: casario colonial descendo a encosta, telhados, a Baía de Todos-os-Santos ao fundo com saveiros. Fim de tarde. Vultos pequenos e anônimos de trabalho na cidade baixa, à distância, sem rosto.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo. Sem texto, sem moldura."
+    },
+    {
+      "nome": "cap4-fundo-alto-v2",
+      "titulo": "SALVADOR · pintura de cima LADRILHÁVEL",
+      "semMagenta": true,
+      "ref": "a pintura atual gera corte vertical a cada ~7 s; a borda esquerda precisa continuar na direita",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMesma ladeira de Salvador em 1835 que já existe (casario colonial ocre e rosa, telhados, torres de igreja, a Baía ao fundo) — é uma CORREÇÃO da mesma pintura, não um cenário novo.\n\nO QUE MUDA, e é a única coisa que importa: a imagem tem que ser LADRILHÁVEL na horizontal. A coluna de pixels da borda ESQUERDA precisa continuar exatamente a da borda DIREITA, para a imagem se repetir sem emenda e sem espelho. Nada de elemento grande cortado nas bordas: a fachada da ponta esquerda tem que casar com a da ponta direita como se fossem a mesma rua contínua.\n\nSem pessoas."
+    },
+    {
+      "nome": "cap4-fundo-chao-v2",
+      "titulo": "SALVADOR · chão refeito para casar com o de cima",
+      "semMagenta": true,
+      "ref": "hoje sao duas pedras diferentes: em cima calcamento escuro e pequeno, embaixo laje ocre grande e quente",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nO CHÃO da ladeira de Salvador, 1835, visto ao nível da rua — refazendo o que já existe para CASAR com a pintura de cima.\n\nHoje há dois problemas: a pedra de baixo é uma laje grande, ocre e quente, enquanto a de cima é calçamento escuro de pedra pequena; e a perspectiva de baixo é quase vista de topo. Pedido: MESMO tipo de pedra da parte de cima (calçamento irregular, escuro, frio), MESMA temperatura de cor, e a escala das pedras crescendo de forma CONTÍNUA da borda de cima para a de baixo — sem degrau. Ladrilhável na horizontal, como a de cima. Sem pessoas."
+    },
+    {
+      "nome": "cap4-obj-v2",
+      "titulo": "SALVADOR · os três itens, recortados com folga",
+      "semMagenta": false,
+      "ref": "o tabuleiro perde 56% da borda direita e o balde 51% da esquerda — atravessam a tela cortados",
+      "tam": "FOLHA 3 células iguais · magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nTRÊS OBJETOS em folha horizontal de 3 células IGUAIS: (1) tabuleiro de madeira com quitutes cobertos por pano; (2) balde de água com alça de corda; (3) trouxa de roupa amarrada em pano listrado.\n\nCRÍTICO, e é o motivo de refazer: cada objeto tem que caber INTEIRO dentro da sua célula, com pelo menos 4 px de vazio de cada lado. Nada encostando na borda, nada cortado. Os atuais foram desenhados sangrando e chegam picotados no jogo.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap3-obj-galao-v2",
+      "titulo": "AINDA AQUI · o galão no traço da casa",
+      "semMagenta": false,
+      "ref": "e o unico objeto FRIO do jogo (R-B = -174 contra +1 a +141 dos outros 41) e o unico com traco de vetor",
+      "tam": "OBJETO ~200×240 · magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUm galão de água de plástico azul — MANTENHA o objeto e o azul, porque ele é o único objeto industrial do jogo e isso é justamente o assunto do capítulo do presente.\n\nO QUE MUDA: o acabamento. Hoje ele é liso e envernizado, com cara de ilustração vetorial, e destoa dos outros 41 objetos do jogo. Refaça em pintura de pixel com a MESMA mancha e o MESMO contorno dos demais: poucos tons, borda dura, contorno marrom escuro. E baixe o valor geral (hoje é claro demais para a rua — deve assentar na faixa do mundo, não brilhar).\n\nObjeto INTEIRO no quadro, com folga nas quatro bordas.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
     }
   ]
 }
