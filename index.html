@@ -1328,6 +1328,20 @@ function burst(x, y, n, cores) {
     if (parts.length > 190)
         parts = parts.slice(-190);
 }
+// A LUZ MORNA — a gramática de GENTE deste arquivo, e o contrário exato do `burst` acima.
+// Nasceu no capítulo 2 para dizer "estou chegando até você" sem estilhaço, sem clarão branco e
+// sem cor de alarme: dois pontos creme subindo dos pés (`grav` negativo é o que os faz subir).
+// O capítulo 3 usa os MESMOS pontos, e é de propósito — quando a rua é feita de pessoas, o
+// vocabulário é este, e cada capítulo que o inventasse de novo seria um dialeto a mais.
+function luzMorna(sx, n) {
+    for (let i = 0; i < n; i++) {
+        parts.push({ x: sx + 4 + (Math.random() - 0.5) * 10, y: GROUND - 8,
+            vx: (Math.random() - 0.5) * 8, vy: -16 - Math.random() * 10,
+            life: 0.45 + Math.random() * 0.2, c: "#f3dda6", grav: -8 });
+    }
+    if (parts.length > 190)
+        parts = parts.slice(-190);
+}
 let combo = 0, attackT = 0, attackType = 0;
 // ============================================================
 // ONDA 4 (Direção de Evolução) — o toque com física. Dois efeitos, um propósito nomeável:
@@ -1825,7 +1839,10 @@ function atualizarMobs(dt) {
     if (mobChao >= proximoMob) {
         mobChao = 0;
         proximoMob = sorteiaEspera();
-        if (mobs.filter(function (m) { return !m.dying; }).length < CFG.mobMax) {
+        // A PORTADORA NÃO OCUPA VAGA. Ela já foi atendida e está de saída pela direita; contá-la
+        // no teto faria a corrente do capítulo 3 SECAR a rua — quanto melhor você jogasse, menos
+        // gente chegaria. O teto existe para limitar quem ainda espera, e é só isso que ele conta.
+        if (mobs.filter(function (m) { return !m.dying && !m.sabe; }).length < CFG.mobMax) {
             const r = Math.random(), mix = CFG.mobMix[S.modo] || CFG.mobMix.limpo;
             const tipo = r < mix.smog ? "smog" : r < mix.barrel ? "barrel" : "cash";
             mobs.push(novoMob(tipo, worldX + W + 12));
@@ -1856,6 +1873,25 @@ function atualizarMobs(dt) {
             }
             return; // parada é parada: o que se move é o mundo, não ela
         }
+        // A PORTADORA SOBE A LADEIRA (capítulo 3). Ela vinha descendo com a carga; recebida a
+        // palavra, volta por onde veio para contar a quem ficou. A velocidade é `mundo + o dobro
+        // do passo dela` de propósito: assim ela ganha 68 px de TELA por segundo andando ou
+        // correndo, sempre o mesmo passo visível, e cruza a fila inteira antes de sair pela
+        // direita. Fosse velocidade fixa de mundo, correr a deixaria para trás e o sinal mudaria de
+        // sentido conforme o ritmo.
+        //
+        // O DOBRO, e não o passo simples, foi MEDIDO e não escolhido: a 34 px/s de tela ela levava
+        // 8,5 s para atravessar, e a média de objetos em cena do capítulo saltava de 3,92 para 6,34
+        // correndo (pior caso 6 → 11) — a trava 3 do dono ("cuidado pra não deixar a tela muito
+        // poluída") quebrada pela mecânica nova, que é exatamente o que este sprint proíbe. A 68
+        // px/s ela atravessa em 4,2 s, a corrente continua inteira, e quem apressa o passo com um
+        // recado na boca anda apressada mesmo.
+        if (m.sabe) {
+            const p = (velocidadeMundo() + CFG.mobVel * 2) * dt;
+            m.wx += p;
+            m.d += p;
+            return;
+        }
         m.wx -= CFG.mobVel * dt; // on top of the world sliding under them
         m.d += CFG.mobVel * dt; // chão coberto por ELA: é o que escolhe o quadro da caminhada
         if (!m.desistiu && m.wx - worldX <= paraEm) {
@@ -1863,6 +1899,10 @@ function atualizarMobs(dt) {
             m.espera = CFG.mobEspera;
         }
     });
+    // A palavra corre depois que todo mundo já andou neste quadro — cruzamento se mede em
+    // posições finais, não em posições que ainda vão mudar.
+    if (capPalavra())
+        passarPalavra();
     // É AQUI que "deixou passar" acontece, e é o único lugar onde acontece. Sair de quadro ainda
     // de pé é uma chegada que ninguém alcançou; o mundo responde por isso em desenharFrente() e
     // na cor da pintura. Limpar `mobs` na mão (zerarJogo, testes) não passa por este laço e
@@ -1870,6 +1910,11 @@ function atualizarMobs(dt) {
     mobs = mobs.filter(function (m) {
         if (m.dead)
             return false; // esta foi alcançada; já contou em clicar()
+        // A PORTADORA SAI PELA DIREITA, com o recado. Ela já contou como alcançada no instante em
+        // que recebeu a palavra — deixá-la cair no laço de baixo a contaria como "deixou passar" e
+        // o cuidado do mundo despencaria justamente quando o capítulo estivesse indo bem.
+        if (m.sabe)
+            return m.wx - worldX < W + 24;
         if (m.wx - worldX > -24)
             return true;
         if (!m.dying)
@@ -1914,6 +1959,94 @@ function atualizarMobs(dt) {
 // isso todo estado desta fila tem velocidade própria e nenhum tem zero.
 const CAP_GENTE = 1; // Palmares. Único capítulo em que isto tudo existe.
 function capGente() { return epocaAtual() === CAP_GENTE; }
+// ============================================================
+// CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA
+//
+// A abertura de SALVADOR promete um verbo desde que o capítulo entrou: *"Estamos na véspera.
+// Aqui, alcançar é levar palavra: quem você alcança passa a saber o que precisa saber."* O PM
+// mediu o que a mão fazia com essa promessa: 31,2 de impacto/s contra 24,35 de PALMARES, isto
+// é, SALVADOR jogava byte a byte como o capítulo 1. O texto prometia um verbo e a mão fazia
+// outro — a perna ENSINA falhando por dentro, que é a pior das três falhas porque não aparece
+// em print nenhum.
+//
+// O DESENHO É DO HISTORIADOR e as travas dele não se negociam (ver `EPOCAS[2]`):
+//   · A mecânica é a VÉSPERA, nunca o levante. O 25 de janeiro fica no FECHO e na LINHA_TEMPO,
+//     e não se joga. Não se joga uma revolta, e não se joga o que veio depois dela.
+//   · Alcançar é LEVAR PALAVRA: quem é alcançada acena e MUDA O PASSO — a palavra seguiu.
+//   · O protagonismo é de quem resistia. Ninguém aqui é recurso, obstáculo ou coisa a recolher.
+//
+// O QUE ISSO VIRA EM CÓDIGO, e por que cada peça é a que é:
+//
+//  · QUEM É ALCANÇADA NÃO SE DISSIPA. Nos capítulos 1 e 4 o que atravessa a rua é coisa, e
+//    coisa some em oito quadros (`m.dying`). Aqui é gente — aguadeiro, carregador, outra
+//    ganhadeira — e gente não evapora quando você fala com ela. Ela vira PORTADORA e segue.
+//  · ELA VOLTA A LADEIRA. Descia com a carga; recebida a palavra, sobe de novo, no sentido da
+//    protagonista e mais depressa que ela. É o único vulto da rua que anda para a DIREITA, e é
+//    isso — não um medidor, não um ícone, não um contador — que diz quem já sabe. O sinal mora
+//    na pessoa e no passo dela, que é o que o orçamento de tela deste sprint exige.
+//  · A PALAVRA CORRE SEM O SEU DEDO. Subindo, a portadora cruza com quem ainda espera, e a
+//    espera é atendida ali, sem toque: `registrarChegada(true)`, o que a pessoa trazia fica no
+//    chão, e ELA vira portadora também. Uma corrente, não uma coleção — e a decisão que isso
+//    acrescenta é QUEM alcançar primeiro, porque a corrente sobe a rua a partir de onde nasceu.
+//  · NADA AQUI É GRAMÁTICA DE COMBATE. Pisca branco, estilhaço, empurrão de 10 px e barra de
+//    vida sobre a cabeça saem do capítulo, exatamente como saíram do 2 — é o mesmo §2, e a
+//    régua é a mesma: uma barra em cima de alguém conta quantas pancadas essa pessoa aguenta.
+//    Quem lê o progresso é o CHÃO, no anel do lugar de espera que já existia.
+//
+// A DÍVIDA, DECLARADA E NÃO ESCONDIDA: alcançar continua sendo `m.hp -= dmg` — cinco a treze
+// toques até a pessoa "passar a saber". A forma do gesto ainda é a de bater por baixo, com
+// nome novo por cima. O que este bloco pôde consertar foi tudo o que aparece (o pisca, o
+// estilhaço, o empurrão, a barra) e o que a mão faz DEPOIS de alcançar; o contador de toques
+// por pessoa é a próxima dívida, e é ticket, não conserto de meia-sessão.
+const CAP_PALAVRA = 2; // Salvador, véspera de 1835.
+function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
+// Os dois capítulos em que quem atravessa a rua é GENTE. Toda decisão de gramática — pisca,
+// estilhaço, empurrão, barra de vida, anel que enche — lê ESTA função, e não `capGente()`,
+// para que o §2 valha nos dois sem ninguém precisar lembrar de dois lugares.
+function pessoaNaRua() { return capGente() || capPalavra(); }
+// A janela do cruzamento, em px de MUNDO: uma largura de corpo. Maior que isto e a palavra
+// "salta" de longe, o que se lê como coincidência e não como encontro.
+const PALAVRA_JANELA = 14;
+// Quantas foram atendidas pela mão e quantas pela corrente. Existe para o teste e para a
+// medição — não aparece em tela nenhuma, não entra no save e não é placar de coisa alguma.
+let palavraDedo = 0, palavraCorrente = 0;
+// Ela recebeu a palavra: acena (a luz morna, a mesma do capítulo 2) e muda o passo. `desistiu`
+// fica true para que ela nunca mais pare na borda — quem leva recado não fica esperando.
+function virarPortadora(m) {
+    if (m.sabe)
+        return;
+    m.sabe = true;
+    m.parado = false;
+    m.espera = 0;
+    m.desistiu = true;
+    luzMorna(Math.round(m.wx - worldX) + 5, 3);
+}
+// O cruzamento. Roda uma vez por quadro, depois do movimento, e só no capítulo 3. É O(n²) sobre
+// `mobs`, que tem teto de CFG.mobMax + as portadoras ainda em quadro — dezenas de comparações
+// por quadro no pior caso, não milhares.
+function passarPalavra() {
+    for (let i = 0; i < mobs.length; i++) {
+        const p = mobs[i];
+        if (!p.sabe || p.dying > 0 || p.dead)
+            continue;
+        for (let j = 0; j < mobs.length; j++) {
+            const q = mobs[j];
+            // só quem ESPERA recebe: quem já seguiu caminho seguiu, e quem ainda está entrando na
+            // rua vem no mesmo passo da portadora e nunca a encontra.
+            if (q === p || q.sabe || q.dying > 0 || q.dead || !q.parado || q.hp <= 0)
+                continue;
+            if (Math.abs(q.wx - p.wx) > PALAVRA_JANELA)
+                continue;
+            // atendida SEM o dedo, e o mundo responde exatamente como responde ao dedo: o mesmo
+            // registro de cuidado e o mesmo que ela trazia ficando no chão. Nada aqui é bônus.
+            q.hp = 0;
+            registrarChegada(true);
+            soltarDrop(q, Math.round(q.wx - worldX));
+            palavraCorrente++;
+            virarPortadora(q);
+        }
+    }
+}
 const GRUPO_MAX = 5; // cabem cinco atrás dela em 390 px de tela; ver o Diário
 const GRUPO_FRENTE = 14, GRUPO_VAO = 10; // px de mundo: a primeira atrás dela, e o vão entre elas
 let grupo = [], ficando = [];
@@ -2078,16 +2211,17 @@ function clicar(auto, naoConta, semAnim) {
         // O fluxo de análise do TS não enxerga atribuição feita dentro do callback do forEach
         // acima, então para ele `alvo` ainda seria null aqui. É limite do compilador, não do código.
         const m = alvo, sx = alvoSx;
-        // No capítulo 2 quem está ali é uma PESSOA, e três coisas deste bloco são gramática de
-        // combate: o pisca branco no corpo, o estilhaço, e o empurrão. Todas ficam de fora.
-        const gente = capGente();
+        // Nos capítulos 2 e 3 quem está ali é uma PESSOA, e três coisas deste bloco são gramática
+        // de combate: o pisca branco no corpo, o estilhaço, e o empurrão. Todas ficam de fora.
+        // `gente` é só PALMARES (é lá que existe fila); `pessoa` é onde o §2 manda, nos dois.
+        const gente = capGente(), pessoa = pessoaNaRua();
         m.hp -= dmg;
-        if (!gente)
+        if (!pessoa)
             m.flash = 5;
         // ONDA 4: o gesto que ALCANÇOU tem peso — kick pequeno no tempo comum, maior no quinto
         // (que já é o tempo forte: alcance 96, dano dobrado). Só a mão de quem joga (!auto),
         // nunca sobre gente — mesma linha do pisca e do estilhaço logo acima e abaixo.
-        if (!auto && !gente) {
+        if (!auto && !pessoa) {
             kickCamera(passo === SALTO ? 140 : 70);
             ondaChao(m.wx + 8, passo === SALTO || m.hp <= 0);
         }
@@ -2095,16 +2229,12 @@ function clicar(auto, naoConta, semAnim) {
         // golpes/s ele devolve 70 px/s, mais do que os 38–77 px/s com que a caminhada afasta.
         // Nada saía do alcance enquanto estivesse apanhando. Em quem está PARADA esperando ele
         // também é a imagem errada — ninguém empurra para trás quem veio pedir ajuda.
-        if (!m.parado && !gente)
+        if (!m.parado && !pessoa)
             m.wx += 10;
-        if (gente) {
+        if (pessoa) {
             // dois pontos de luz morna subindo dos pés: diz "estou chegando até você" sem estilhaço,
-            // sem clarão e sem cor de alarme. `grav` negativo os faz subir em vez de cair.
-            for (let i = 0; i < 2; i++) {
-                parts.push({ x: sx + 4 + (Math.random() - 0.5) * 10, y: GROUND - 8,
-                    vx: (Math.random() - 0.5) * 8, vy: -16 - Math.random() * 10,
-                    life: 0.45 + Math.random() * 0.2, c: "#f3dda6", grav: -8 });
-            }
+            // sem clarão e sem cor de alarme. Ver `luzMorna()`.
+            luzMorna(sx, 2);
         }
         else {
             burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
@@ -2121,15 +2251,21 @@ function clicar(auto, naoConta, semAnim) {
             // é o mesmo caminho que atualizarMobs já varre, e não conta nada por si.
             // o +5 é o mesmo deslocamento com que ela vinha sendo desenhada: sem ele a figura
             // saltaria 5 px para a esquerda no quadro em que vira para andar junto
+            // Capítulo 3: ela não se dissipa nem entra em fila — vira PORTADORA e sobe a ladeira
+            // com o recado. Ver o bloco "CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA".
             if (gente) {
                 m.dead = true;
                 acolherPessoa(m.wx + 5, m.esc);
+            }
+            else if (capPalavra()) {
+                palavraDedo++;
+                virarPortadora(m);
             }
             else
                 m.dying = 8;
             registrarChegada(true); // alcançada: o mundo responde a isto tanto quanto ao que passa
             soltarDrop(m, sx); // o que ela TROUXE fica no chão; a pessoa, não
-            burst(sx + 8, GROUND - 14, gente ? 12 : 16, gente ? ["#f3dda6", "#fbeec4", "#e6c98a"]
+            burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
                 : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
                     : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
             if (!auto)
@@ -7317,11 +7453,11 @@ function desenharMundo() {
     // until the thing suddenly popped. It was pips for a while, on the argument that at two to
     // five hits you can count them; the owner wanted the thing every game has and he was right
     // twice over — see `desenharVidaMob`.
-    // ...mas NÃO no capítulo 2. Ali quem está ali é gente, e uma barra sobre a cabeça de alguém
+    // ...mas NÃO nos capítulos 2 e 3. Ali quem está ali é gente, e uma barra sobre a cabeça de alguém
     // conta quantas pancadas essa pessoa aguenta — a linha exata do §2.2. O mesmo progresso é
     // lido no CHÃO, no anel logo abaixo: o lugar de espera vai se enchendo de luz enquanto você
     // chega até ela. Mesma informação, sem transformar ninguém em alvo com vida.
-    if (!capGente() && !semLeitura)
+    if (!pessoaNaRua() && !semLeitura)
         mobs.forEach(function (m) { desenharVidaMob(m); });
     // QUEM ESTÁ ESPERANDO. Aqui havia dois tiques VERMELHOS piscando nos pés, e vermelho
     // piscando é a gramática de perigo e de erro — a gramática errada. No capítulo 2 quem chega
@@ -7352,11 +7488,11 @@ function desenharMundo() {
         cx.beginPath();
         cx.ellipse(sx, GROUND + 1, r0, r0 * 0.32, 0, 0, 6.283);
         cx.fill();
-        // O PROGRESSO DO ACOLHIMENTO, no capítulo 2 e só nele: o lugar vai se enchendo de luz
+        // O PROGRESSO, nos capítulos de GENTE: o lugar vai se enchendo de luz
         // conforme você chega até ela. É a leitura que substitui a barra de vida — cresce, nunca
         // encolhe, não muda de cor e não tem fim marcado. `m.hp` continua sendo quantos alcances
         // faltam; o nome interno é herdado, e o que mudou é o que a tela faz com ele.
-        if (capGente() && m.hpMax) {
+        if (pessoaNaRua() && m.hpMax) {
             const feito = Math.max(0, Math.min(1, 1 - m.hp / m.hpMax));
             if (feito > 0) {
                 const rf = r0 * (0.34 + 0.66 * feito);
@@ -7382,6 +7518,45 @@ function desenharMundo() {
         cx.restore();
         cx.globalAlpha = 1;
     });
+    // A PORTADORA — o que separa quem já recebeu a palavra de quem ainda espera, no capítulo 3.
+    //
+    // Zero elemento novo de vocabulário, que é o critério de aceite deste sprint: é a MESMA luz
+    // creme do lugar de espera, e a diferença é o que ela diz.
+    //
+    //   quem ESPERA     : DOIS anéis LARGOS (r 15 e 21), respirando devagar, com a poça por
+    //                     baixo — um lugar reservado é coisa parada e ocupa espaço no chão.
+    //   quem JÁ SABE    : UM anel APERTADO (r 9), firme, quase sem respiração — não é um lugar,
+    //                     é uma luz que ela LEVA, e ela vai junto com o passo dela.
+    //
+    // O anel é desenhado com traço e não só com mancha porque a lição já está escrita duas telas
+    // acima: a 1 px numa tela de 160 px de mundo, mancha sozinha some contra a terra pintada.
+    //
+    // O sinal mais forte, porém, não é este: é o PASSO. A portadora é o único vulto da rua que
+    // SOBE, e sobe ganhando 68 px de tela por segundo sobre todo o resto. A luz existe para que o
+    // primeiro quadro depois do alcance já diga o que aconteceu, antes de a distância dizer.
+    if (capPalavra() && !semLeitura)
+        mobs.forEach(function (m) {
+            if (!m.sabe || m.dying > 0 || m.dead)
+                return;
+            const sx = Math.round(m.wx - worldX) + 5;
+            if (sx < -20 || sx > W + 20)
+                return;
+            const resp = 0.86 + 0.14 * Math.sin(animT * 3.4 + m.wx * 0.02);
+            cx.save();
+            cx.fillStyle = "#fbeec4";
+            cx.strokeStyle = "#fbeec4";
+            cx.lineWidth = 2;
+            cx.globalAlpha = 0.26 * resp;
+            cx.beginPath();
+            cx.ellipse(sx, GROUND + 1, 9, 3, 0, 0, 6.283);
+            cx.fill();
+            cx.globalAlpha = 0.52 * resp;
+            cx.beginPath();
+            cx.ellipse(sx, GROUND + 1, 9, 3, 0, 0, 6.283);
+            cx.stroke();
+            cx.restore();
+            cx.globalAlpha = 1;
+        });
     // Microdica 1 (usabilidade, achado 5): "ESQUERDA PULA", na fonte do mundo, perto da
     // personagem — acesa pelo primeiro toque na metade direita e apagada pelo relógio.
     // Some no último meio segundo em vez de cortar seco.

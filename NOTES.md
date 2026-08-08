@@ -2831,3 +2831,109 @@ de 26 px para a folha do chip (pedido de mesa), não esticar o mapa.
 
 **Próximo passo.** O roteiro está sem onda aberta de ícones; a frente que o critério do
 produto pede é medir de novo a pergunta do dia 2 antes de qualquer polimento novo.
+## Diário — 2026-08-08 · Dev · SPRINT 2 T1: SALVADOR ganha o verbo que o texto já prometia
+
+**A dívida, medida pelo PM antes de eu tocar em nada:** SALVADOR rendia 31,2 impacto/s contra
+24,35 de PALMARES — isto é, jogava byte a byte como o capítulo 1. A abertura promete *"aqui,
+alcançar é levar palavra: quem você alcança passa a saber o que precisa saber"* e a mão fazia
+o mesmo que faz numa mata: bater até a coisa sumir. Não é queixa de diversão, é a perna
+ENSINA falhando por dentro — e é a única das três que não aparece em print nenhum.
+
+### O que passou a acontecer
+
+**Quem é alcançada não se dissipa: vira PORTADORA e sobe a ladeira.** Descia com a carga;
+recebida a palavra, acena (a luz morna do capítulo 2, a mesma) e volta por onde veio, no
+sentido da protagonista e mais depressa que ela. É o único vulto da rua que anda para a
+direita, e é isso — não um medidor — que diz quem já sabe.
+
+**A palavra corre sem o dedo.** Subindo, ela cruza com quem ainda espera (janela de 14 px de
+mundo, uma largura de corpo) e a espera é atendida ali: mesmo `registrarChegada(true)`, mesmo
+que-ela-trazia ficando no chão, e a recém-atendida vira portadora também. Corrente, não
+coleção. A decisão nova é QUEM alcançar primeiro, porque a corrente sobe a partir de onde
+nasceu — alcançar quem está no fim da fila deixa metade da rua para trás.
+
+**A gramática de combate saiu do capítulo, como saiu do 2.** Pisca branco, estilhaço, empurrão
+de 10 px e barra de vida sobre a cabeça: nada disso sobrevive onde quem atravessa a rua é
+gente. `capGente()` continua sendo só PALMARES (é lá que existe fila); a régua do §2 passou a
+ler `pessoaNaRua()`, que é PALMARES **e** SALVADOR, para ninguém precisar lembrar de dois
+lugares no próximo capítulo. O progresso é lido no CHÃO, no anel do lugar de espera enchendo —
+a mesma substituição que PALMARES já fazia.
+
+### O sinal, e por que ele é este
+
+Zero elemento novo de vocabulário (critério de aceite do sprint) e zero HUD. É a MESMA luz
+creme do lugar de espera, dizendo outra coisa pela FORMA:
+
+| quem | desenho | o que diz |
+|---|---|---|
+| espera | dois anéis LARGOS (r 15 e 21) + poça, respirando devagar | um lugar reservado, e lugar é coisa parada |
+| já sabe | UM anel APERTADO (r 9), firme, quase sem respiração | não é lugar: é luz que ela LEVA |
+
+Traço e não só mancha, pela lição que já estava escrita duas telas acima no arquivo: a 1 px
+numa tela de 160 px de mundo, mancha sozinha some contra a terra pintada. O par lado a lado,
+a 3× de ampliação, está em `test/PALAVRA-D-lado-a-lado.png` — é o print que decide, e ele
+decide a favor.
+
+### Medido, antes → depois (`test/medir-poluicao.js`, células de 60 s)
+
+| célula | renda/min antes | depois | Δ |
+|---|---:|---:|---:|
+| cap 3 andando | 1827 | 1801 | **−1,4%** |
+| cap 3 correndo | 1971 | 2030 | **+3,0%** |
+| cap 1 e cap 2 | 1386 / 1493 / 1465 / 1555 | 1369 / 1451 / 1451 / 1538 | −1,2% a −2,8% (ruído: nada os toca) |
+
+Dentro dos ±10% do contrato, e por uma razão estrutural e não por sorte: segurando o botão o
+jogador já atendia quase toda a rua, então a corrente atende quem ele atenderia — o que ela
+muda é DE QUEM é o gesto, não quantos drops nascem. Sem dedo nenhum a corrente **não nasce**
+(medido: 0 atendidas em 60 s de rua sem toque), o que era o risco real de virar renda passiva.
+
+**A corrente, em número:** 60 s segurando o botão em SALVADOR = 15 atendidas pela mão e 12 pela
+palavra. Um único alcance, com o dedo fora do vidro depois dele, atende mais 2 (asserção nova
+do smoke).
+
+**O que PIOROU, dito por inteiro:** a média de objetos em cena do cap. 3 subiu de 3,57 para
+4,23 andando e de 3,92 para 5,17 correndo; o pior caso correndo foi de 6 para 9. A portadora
+fica em quadro enquanto sobe, e isso é gasto de tela. Já foi cobrado uma vez: a 34 px/s de
+tela ela levava 8,5 s para atravessar e a média correndo batia **6,34** com pior caso **11** —
+a trava 3 do dono quebrada pela mecânica nova. Passou para 68 px/s (4,2 s de travessia) e o
+número caiu para o patamar acima, que é o do capítulo 1 (4,71 / 5,43). Fica declarado: o
+capítulo 3 deixou de ser o mais limpo dos três e virou o segundo. Se a Arte achar caro, o
+botão é a velocidade — e ela mexe nos dois números ao mesmo tempo.
+
+### A DÍVIDA QUE NÃO CONSERTEI, e ela é de representação
+
+**Alcançar continua sendo `m.hp -= dmg`:** cinco a treze toques até a pessoa "passar a saber".
+Tudo o que APARECE do combate saiu (pisca, estilhaço, empurrão, barra), e o que a mão faz
+DEPOIS de alcançar virou outra coisa — mas a forma do gesto ainda é bater por baixo, com nome
+novo por cima. Não se esconde: fica aqui e vai ao PM como ticket próprio.
+
+**E o pedido de arte que este ticket não pôde fazer sozinho:** em SALVADOR quem atravessa a
+rua é desenhado como **o objeto sozinho** — tabuleiro, balde d'água, trouxa de roupa —, sem
+pessoa. O desenho do historiador diz "aguadeiro, carregador, outra ganhadeira", e o §2 diz
+que o sinal mora na PESSOA. Hoje ele mora num tabuleiro que anda. Com arte de gente (mesmo
+molde do capítulo 2: uma folha de caminhada, magenta `#FF00FF`, célula igual), "acena e muda o
+passo" deixa de ser metáfora e o capítulo fecha as três pernas. Sem ela, o verbo está no
+código e meio no olho.
+
+### Fontes
+
+Nenhuma afirmação histórica nova entrou nesta rodada — o texto da abertura e do fecho de
+SALVADOR não mudou uma vírgula (é rascunho do dono, palavra por palavra). As fontes do
+capítulo continuam as já registradas: João José Reis, *Rebelião escrava no Brasil* (2003);
+Cecília Moreira Soares sobre as ganhadeiras; Lisa Earl Castillo; Wlamyra Albuquerque.
+
+### Instrumento novo
+
+`test/prints-palavra.js` — encena a mesma rua quatro vezes do mesmo `worldX` e na mesma hora:
+A (três esperando), B (a primeira alcançada), C (dois segundos depois, sem dedo), D (a lupa de
+3× com portadora e quem espera lado a lado). Prints `test/PALAVRA-*.png`.
+
+### Próximo passo e as dúvidas que ficam
+
+1. **Ao dono, e é o §2:** a arte de gente para SALVADOR (acima). É o que separa "o verbo existe"
+   de "o verbo se lê".
+2. **À Direção de Arte:** o anel apertado da portadora é meu risco, não o dela — o `SPRINT.md`
+   §6.2 pede UMA decisão dela sobre esse sinal. Ele está no ar e é reversível numa função.
+3. **Ao PM:** os 5 a 13 toques por pessoa (dívida acima), e se a portadora deve poder levar a
+   palavra também a quem já DESISTIU de esperar. Hoje não pode, de propósito: "cruza com quem
+   está esperando" é a frase do desenho, e quem seguiu caminho seguiu.

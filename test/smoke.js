@@ -304,6 +304,95 @@ function alvo() {
   if (duplo.mexeu) errors.push('the same arrival was counted as reached twice');
   if (duplo.drop) errors.push('the same arrival dropped twice');
 
+  // ---- SALVADOR: ALCANCAR E LEVAR PALAVRA ----
+  // A abertura do capitulo 3 promete um verbo — "quem voce alcanca passa a saber o que precisa
+  // saber" — e ate este sprint a mao nao o fazia: SALVADOR jogava byte a byte como o capitulo 1
+  // (31,2 impacto/s contra 24,35 de PALMARES, medido pelo PM). Este bloco e o que prova que a
+  // promessa virou mecanica, e ele falha se o verbo regredir para "bater ate sumir".
+  //
+  // Tres contratos, e cada um cai por um motivo diferente:
+  //   1. QUEM E ALCANCADA NAO SE DISSIPA — vira portadora, e o estado PERSISTE enquanto ela
+  //      estiver em quadro. Se alguem devolver `m.dying = 8` ao capitulo, a persistencia cai.
+  //   2. A PALAVRA CORRE SEM O DEDO — depois do ULTIMO toque, mais gente e atendida, e o
+  //      cuidado do mundo responde a isso igual ao que responde ao dedo.
+  //   3. NADA DISSO E COMBATE — sem pisca branco e sem empurrao sobre pessoa (§2).
+  const palavra = await page.evaluate(async () => {
+    const cenarioAntes = S.cenario, cuidadoAntes = S.cuidado;
+    S.cenario = cenarioDaEpoca(2);                  // SALVADOR
+    mobs.length = 0; drops.length = 0; parts.length = 0;
+    palavraDedo = 0; palavraCorrente = 0;
+    S.cuidado = 0.5; cuidadoVisto = 0.5;
+    // Uma ao alcance da mao e duas fora dele: as duas de fora so podem ser atendidas pela
+    // corrente. Todas ESPERANDO, que e a unica condicao para receber a palavra.
+    [30, 90, 130].forEach(function (dx) {
+      const m = novoMob('smog', worldX + HX + dx);
+      m.parado = true; m.espera = 999;
+      mobs.push(m);
+    });
+    const primeira = mobs[0];
+    proximoMob = 1e9;                               // ninguem novo chega durante a medida
+    let toques = 0, piscou = false, empurrou = false;
+    const wx0 = primeira.wx;
+    while (primeira.hp > 0 && toques < 40) {
+      clicar(false, true, true);
+      toques++;
+      if (primeira.flash > 0) piscou = true;
+      if (primeira.wx > wx0) empurrou = true;
+    }
+    const virouPortadora = !!primeira.sabe && !primeira.dying && !primeira.dead;
+    const dedoAoFim = palavraDedo;
+    const correnteAntes = palavraCorrente;
+    const cuidadoAposDedo = S.cuidado;
+    // A PARTIR DAQUI NINGUEM TOCA EM NADA. So o mundo andando.
+    let quadrosEmQuadro = 0, sabePersistiu = true;
+    for (let i = 0; i < 600; i++) {
+      atualizarMobs(1 / 60);
+      atualizarDrops(1 / 60);
+      worldX += velocidadeMundo() / 60;
+      if (mobs.indexOf(primeira) >= 0) {
+        quadrosEmQuadro++;
+        if (!primeira.sabe) sabePersistiu = false;
+      }
+    }
+    const r = {
+      toques: toques, virouPortadora: virouPortadora, piscou: piscou, empurrou: empurrou,
+      dedo: dedoAoFim, corrente: palavraCorrente - correnteAntes,
+      quadrosEmQuadro: quadrosEmQuadro, sabePersistiu: sabePersistiu,
+      cuidadoSubiuComDedo: S.cuidado > 0.5 && cuidadoAposDedo > 0.5,
+      cuidadoSubiuSemDedo: S.cuidado > cuidadoAposDedo
+    };
+    // ...e fora de SALVADOR nada disto existe: o capitulo 1 continua dissipando o que passa.
+    S.cenario = cenarioDaEpoca(0);
+    mobs.length = 0; drops.length = 0;
+    const outro = novoMob('smog', worldX + HX + 20);
+    outro.hp = 1; mobs.push(outro);
+    clicar(false, true, true);
+    r.vazouParaOCap1 = !!outro.sabe;
+    r.dissipaNoCap1 = outro.dying > 0;
+    S.cenario = cenarioAntes; S.cuidado = cuidadoAntes; cuidadoVisto = cuidadoAntes;
+    mobs.length = 0; drops.length = 0; parts.length = 0;
+    proximoMob = -1; mobChao = 0;
+    return r;
+  });
+  console.log('Salvador -> reaching turns her into a carrier:', palavra.virouPortadora,
+    'in', palavra.toques, 'taps | the word travelled with no finger:', palavra.corrente,
+    'more attended | she stayed on screen', palavra.quadrosEmQuadro, 'frames, state held:',
+    palavra.sabePersistiu);
+  console.log('  care answers the chain:', palavra.cuidadoSubiuSemDedo,
+    '| no combat grammar on a person -> flash:', palavra.piscou, 'shove:', palavra.empurrou,
+    '| chapter 1 untouched -> dissipates:', palavra.dissipaNoCap1, 'leaked:', palavra.vazouParaOCap1);
+  if (!palavra.virouPortadora) errors.push('reaching someone in Salvador no longer turns her into a carrier');
+  if (!(palavra.quadrosEmQuadro > 60 && palavra.sabePersistiu)) {
+    errors.push('the carrier state does not persist while she is on screen');
+  }
+  if (!(palavra.corrente >= 1)) errors.push('the word no longer travels without the player: the chain is broken');
+  if (!(palavra.dedo + palavra.corrente >= 2)) errors.push('one reach in Salvador attends fewer than two people');
+  if (!palavra.cuidadoSubiuSemDedo) errors.push('an attendance by the chain does not move S.cuidado');
+  if (palavra.piscou) errors.push('a person in Salvador is drawing the white hit-flash (§2)');
+  if (palavra.empurrou) errors.push('a person in Salvador is being shoved back by a blow (§2)');
+  if (palavra.vazouParaOCap1) errors.push('the carrier state leaked out of Salvador');
+  if (!palavra.dissipaNoCap1) errors.push('chapter 1 stopped dissipating what crosses the street');
+
   // clearing one leaves a drop; the drop is picked up with a tap on the world
   const recolha = await page.evaluate(async () => {
     drops.length = 0;
