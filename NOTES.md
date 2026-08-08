@@ -3036,3 +3036,109 @@ mesa gera as verticais e elas entram página a página no lugar do provisório (
 trivial: `qFundo` já aceita qualquer imagem); (3) quando as asserções de quadrinho do QA
 chegarem ao repositório, ajustar as duas apontadas acima — aviso deixado aqui e no
 relatório.
+## Diário — 2026-08-08 · Dev · O objeto que ainda voava tinha nome, e o menu também
+
+Duas queixas do dono, as duas ambíguas, as duas fechadas com número e print antes/depois.
+
+### Queixa 1 — "e ainda tem objeto voando"
+
+Já houve uma passada nisto (`MOB_LIFT` zerado, drops assentados). Instrumento novo para não
+voltar a supor: **`test/medir-assento.js`** espiona TODO `drawImage` das duas camadas, mede a
+**base opaca** de cada sprite (não a caixa do quadro) e devolve a distância dela até `GROUND`
+em px de mundo. Mede também a transformação corrente — sem isso, quem desenha espelhado
+(`desenharGenteHD`, quem CHEGA em Palmares) aparece levitando 156 px que não existem.
+
+**O censo derrubou quase tudo e apontou o culpado.** Assentados, gap **0,00** em todos os
+quatro capítulos: mobs (os três tipos × 4 capítulos), drops, a personagem, a gente do cap. 2
+(chegando, ficando e moradores) e as portadoras de SALVADOR. O marco está fincado
+(`GROUND+1`). O que sobrou:
+
+| o que | gap medido ANTES | depois |
+|---|---:|---:|
+| vegetação de FRENTE (`desenharFrente`) | **+12,9 a +27,6 px de mundo** (28 a 60 px de tela) | **−7,4 a +2,6** |
+| folha do trilho de baixo | **+8 a +22** de mundo, parada, para sempre | cai e **pousa** em `GROUND` |
+| mato da emenda (`matoDaEmenda`) | até 20% da própria altura acima da junta | assentado na junta |
+
+**A causa, e ela é o §5 cobrando o preço.** As 24 células de vegetação têm 132 px e a mancha
+de **16 delas acaba entre as linhas 69 e 92** — 30% a 48% de vazio embaixo; há planta que mora
+no MEIO da célula (`frente#6` pinta de 59 a 88; `frente#21`, de 66 a 91). Cortar em células
+iguais é a regra certa; ancorar pela CAIXA é que estava errado, e o vazio virava levitação.
+O print que decide é `test/FR-cap1.png`: linha **ciano** no fundo da célula, **vermelha** na
+base da tinta, **rosa** em `GROUND` — o arbusto boiava com a sombra de contato sozinha no chão.
+
+Correção: `frentePeFrac()` mede a base opaca de cada folha uma vez e as duas chamadas de
+desenho ancoram por ela. **Assenta, não redimensiona** — a altura desenhada é a mesma de
+antes, muda só a linha em que a planta pousa. De brinde, um `>>` que devia ser `>>>`: o hash
+de 32 bits com deslocamento COM sinal dava `4 + (h >> 17) % 10 = −5`, ou seja a planta era
+ERGUIDA 4 px em metade das casas em vez de afundada.
+
+**A folha:** a exceção declarada é a folha da COPA, que se pega no pulo e por isso tem que
+estar no ar — essa não mudou uma linha. O trilho de baixo (55% das folhas) nascia a 16–26 px
+do chão e ficava lá, imóvel, com um seno de ±2. Agora **cai e pousa**, e a queda anda em px de
+mundo percorrido (nunca no relógio, pela mesma razão do vão de spawn), então toca o chão
+sempre no mesmo ponto da rua, andando ou correndo; o balanço esmaece junto com a queda.
+
+**Renda/min (`test/medir-poluicao.js`, células de 60 s), antes → depois:** cap1 andando
+1395 → 1385 (−0,7%), cap1 correndo 1469 → 1488 (+1,3%), cap2 andando 1451 → 1439 (−0,8%),
+cap2 correndo 1619 → 1661 (+2,6%), cap3 andando 1805 → 1804 (−0,1%), cap3 correndo
+2021 → 2045 (+1,2%). Dentro dos ±10%, e por construção: a janela de coleta em pé vai de
+`GROUND−50` a `GROUND+4` e a queda inteira vive dentro dela. Objetos em cena: média cap1
+5,06 → 4,69; pior caso do jogo 9 → 8. FPS 61 no smoke. Zero imagem nova.
+
+### Queixa 2 — "o menu ainda está estranho ao passar de alguns itens"
+
+Percorrido por toque real (`test/percorrer-menu.js`, 13 prints `M-*`) e medido contra a
+RÉGUA DO MENU (`test/medir-menu.js`). O achado principal:
+
+**O nome da era sumia nas eras já atravessadas.** `montarCapitulos` passava UMA tinta para
+todas as tábuas — e era a tinta da tábua CLARA. Medido: nas três eras vencidas o nome saía com
+luma **33** sobre madeira de luma **80** (Δ47, escuro sobre escuro) e a linha de baixo, luma 67,
+lia **melhor que o nome** (hierarquia invertida). A CSS já sabia a regra e declarava
+`.capItem { color: #eaD8b2 }`, mas `pixelRotulo` desenha num canvas e nunca leu essa cor.
+Depois: nome **207** (Δ127) e segunda linha **161** (Δ81) na tábua escura; a atual segue com
+tinta escura na tábua clara (Δ113). A tinta agora sai do MATERIAL, que é o que o menu
+principal já pratica (`#221806` no JOGAR, `#d9cfae` nas três de baixo).
+Prints `test/MC-A-lista-cheia.png` → `test/MC-D-lista-cheia.png`.
+
+**Segunda coisa, e é do dia 1:** a lista abria com PINDORAMA e **três linhas idênticas**,
+"AINDA TRANCADA / TERMINE A ERA ANTERIOR", palavra por palavra — lê como quadro repetido por
+defeito e falha no que a tela existe para fazer. Com doze capítulos no escopo, viram onze.
+Entrou o ordinal e só ele (`ERA 2`, `ERA 3`…): nada do conteúdo vaza, e a instrução acionável
+fica só na PRÓXIMA. `test/MC-A-lista-dia1.png` → `test/MC-D-lista-dia1.png`. **Chamada de
+julgamento minha, reversível em duas linhas** — se a Direção preferir o silêncio, é só voltar.
+
+**O que MEDI e NÃO consertei, porque é CSS e não é meu território nesta rodada** — fica com
+número para quem for mexer:
+
+- **AJUSTES é uma escada de cinco larguras**: título 173, papel 187, SOM 202, APAGAR **310**,
+  VOLTAR 142 — dez bordas verticais distintas numa tela só. O menu principal tem UMA
+  (`59..332` para as quatro tábuas). A causa está numa linha: `#telaMenu .telaBtn { width:
+  min(70vw, 290px) }` — a coluna alinhada existe **só dentro do `#telaMenu`**, e a própria CSS
+  escreve o motivo dela duas linhas acima: *"a coluna alinhada é o que faz o conjunto ler como
+  um só objeto"*. Print `test/M-A-11-ajustes.png`.
+- **ESCOLHA A ERA tem três larguras**: título 281 (`55..336`), cartões 304 (`43..347`),
+  VOLTAR 142 (`124..266`) — e nenhuma bate com os 273 (`59..332`) do menu principal.
+- **DE ONDE VEM guilhotina o último cartão**: a lista termina em y 681 e o VOLTAR começa em
+  702, sem respiro nem esmaecimento, e o corte cai **no meio de uma linha de texto**.
+  Print `test/M-A-09-fontes.png`.
+
+**Suspeitas derrubadas, para ninguém reabrir:** a lista de eras **não rola** com 4 capítulos
+(conteúdo 278 contra teto de 472) e não tem barra de rolagem; o `:active` dos cartões segue a
+régua (desce 4 px, o degrau vira `0 1px`) e o trancado corretamente não afunda; a entrada
+animada só no MENU e nas ERAS é **deliberada e documentada** na CSS ("as de leitura só
+esmaecem"); e o B1 do `QA.md` (a lista rebobinando a cena) **não reproduz mais** nesta `main` —
+medido: de AINDA AQUI (cena 6) tocar PALMARES leva à cena 2 e ela FICA na 2 depois de 2,5 s.
+
+### Instrumentos novos, todos em `test/`
+
+`medir-assento.js` (gap da tinta até `GROUND`, por capítulo, + censo de vazio das folhas de
+arte), `olhar-frente.js` (o print que decide: célula × tinta × chão, sobre a vegetação),
+`prints-assento.js` (A/D dos quatro capítulos, com régua em `GROUND`; aceita `JOGO_HTML`),
+`percorrer-menu.js` (o menu por toque real, 13 prints) e `medir-menu.js` (a régua do menu em
+números, incluindo tinta × tábua).
+
+**Próximo passo / dúvidas.** (1) À Direção de Arte: as três coisas de CSS acima, com número —
+a escada do AJUSTES é a que mais destoa. (2) Ao dono: `ERA 2/3/4` no lugar de três
+"AINDA TRANCADA" iguais é chamada minha e é reversível. (3) Fica anotado que `vaso`, `banco`,
+`cadeira`, `jardineira`, `lixeira`, `bandeirinhas`, `varal` e `posteLuz` **não têm nenhum
+chamador** — herança morta do motor de rua, candidata a subtração.

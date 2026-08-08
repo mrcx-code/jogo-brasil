@@ -1499,6 +1499,24 @@ const HERO_PISO = 0;
 // the low ones are free and the high ones cost you a well-timed tap. Nothing else in the game
 // asks for timing, and this is the only thing the jump is for.
 let folhas = [], folhaChao = 0, proximaFolha = -1;
+// Onde o CENTRO da folha para quando ela pousa. O mapa do ícone tem 13 linhas, a tinta vai da
+// linha 1 à 11 e o contorno de 1 px estende isso para 12 — desenhado em `fy − 6 + y`, o pé da
+// folha é `fy + 6`. Logo `fy = GROUND − 6` põe o pé EM GROUND, que é a mesma linha em que o
+// drop assenta e em que o pé dela pisa.
+const FOLHA_POUSO = 6;
+// A altura da folha NESTE quadro, num lugar só: a queda do trilho de baixo e o balanço são
+// lidos pela coleta e pelo desenho, e duas contas separadas foi como a folha já divergiu de si
+// mesma uma vez. `q0`/`queda` só existem no trilho de baixo; sem eles, é a folha da copa e
+// nada aqui muda o que ela sempre fez.
+function folhaY(f) {
+    let base = f.y, viva = 1;
+    if (f.queda) {
+        const t = Math.max(0, Math.min(1, (worldX - (f.q0 || 0)) / f.queda));
+        base = f.y + ((f.yFim || f.y) - f.y) * t;
+        viva = 1 - t; // pousada, ela para: seno em coisa apoiada é tremor
+    }
+    return base + Math.sin(animT * 2 + f.fase) * 2 * viva;
+}
 function pular() {
     if (travessiaAtiva())
         return; // não há chão para saltar, e não há ninguém em cena
@@ -1541,14 +1559,30 @@ function atualizarFolhas(dt, alto) {
             //   copa (56–74): pega-se pulando (o arco chega a 52 e ela tem 44), lê como copa.
             // O peso 55/45 preserva a fração que se pega andando (a faixa antiga era 55% h<50),
             // e com ela a renda/min de quem segura o botão — medida antes/depois, ±10%.
-            const h = Math.random() < 0.55 ? 16 + Math.random() * 10 : 56 + Math.random() * 18;
+            const rente = Math.random() < 0.55;
+            const h = rente ? 16 + Math.random() * 10 : 56 + Math.random() * 18;
             // Respiro horizontal na ENTRADA: folha nascendo colada numa chegada é a silhueta
             // dupla que o print do dono pegou. Vizinho de chão a menos de 28 px do ponto de
             // entrada? A folha entra 30 px mais adiante (até duas vezes — nunca rejeita, só adia).
             let fwx = worldX + W + 10;
             for (let emp = 0; emp < 2 && mobs.some(function (m) { return !m.dying && Math.abs(m.wx - fwx) < 28; }); emp++)
                 fwx += 30;
-            folhas.push({ wx: fwx, y: GROUND - h, fase: Math.random() * 6.283 });
+            // O TRILHO DE BAIXO PASSA A CAIR — e é a queixa do dono, "e ainda tem objeto voando".
+            // Ele nascia a 16–26 px do chão e ficava lá, imóvel em Y, com um seno de ±2: a base da
+            // tinta parava a 8–22 px de MUNDO do chão (17 a 48 px de tela) e nunca pousava. Isso não
+            // é "folha ao vento" — a exceção que a direção declarou é a folha da COPA, que se pega
+            // no pulo e por isso TEM que estar no ar. Uma folha parada a meio palmo do chão é a
+            // definição de objeto flutuando.
+            // Agora ela desce e POUSA: a queda anda em px de MUNDO percorrido (nunca no relógio,
+            // pela mesma razão do vão de spawn), então a folha toca o chão sempre no mesmo ponto da
+            // rua, andando ou correndo. O balanço esmaece junto com a queda — seno em coisa apoiada
+            // é tremor, a mesma lição que assentou os drops.
+            // A RENDA NÃO MUDA, e isto é por construção: a janela de coleta em pé vai de GROUND−50
+            // a GROUND+4, e a queda inteira (de GROUND−26 até GROUND−5) vive dentro dela.
+            folhas.push(rente
+                ? { wx: fwx, y: GROUND - h, fase: Math.random() * 6.283,
+                    yFim: GROUND - FOLHA_POUSO, q0: worldX, queda: 78 + Math.random() * 40 }
+                : { wx: fwx, y: GROUND - h, fase: Math.random() * 6.283 });
         }
     }
     // her box while airborne: feet at GROUND - alto, head 44 above that
@@ -1560,7 +1594,7 @@ function atualizarFolhas(dt, alto) {
             folhas.splice(i, 1);
             continue;
         }
-        const fy = f.y + Math.sin(animT * 2 + f.fase) * 2; // a slow drift, so they read as alive
+        const fy = folhaY(f); // a slow drift, so they read as alive
         if (Math.abs(sx - HX) < 15 && fy > cabeca - 6 && fy < pes + 4) {
             // x fatorFolha: a compensação do raleio — folha mais rara vale proporcionalmente mais,
             // e a renda de quem pula por quilômetro de mata não muda (ver sorteiaFolha).
@@ -1581,7 +1615,7 @@ function desenharFolhas() {
         const sx = Math.round(f.wx - worldX);
         if (sx < -14 || sx > W + 14)
             return;
-        const fy = Math.round(f.y + Math.sin(animT * 2 + f.fase) * 2);
+        const fy = Math.round(folhaY(f));
         // a 1px dark outline first, the same trick renderIcon uses: against a painted hillside a
         // bare green leaf simply vanishes. Onda 7: a tinta é a da casa (#191510), não o navy.
         cx.fillStyle = "#191510";
@@ -6638,6 +6672,59 @@ function rolarFundo() {
 // sorteio a cada quadro a folhagem piscaria de lugar; com hash da posição, cada trecho da rua
 // tem sempre as mesmas plantas, e voltar para trás encontra o que estava lá.
 const FRENTE_SPR = FRENTE_B64.map(function (d) { const im = new Image(); im.src = d; return im; });
+// ============================================================
+// O PÉ DA PLANTA — onde a TINTA acaba, que não é onde a CÉLULA acaba.
+//
+// O §5 manda cortar as folhas em CÉLULAS IGUAIS, e é a regra certa: cortar por coluna vazia
+// cola um quadro no outro. O preço, que ninguém tinha cobrado até agora, é que a mancha não
+// nasce alinhada pelo pé dentro da célula. Medido nas 24 células de 66×132 (test/_topo.js,
+// e o censo de test/medir-assento.js): 16 delas acabam a tinta entre as linhas 69 e 92 —
+// de 30% a 48% da célula é vazio embaixo, e há planta que mora no MEIO da célula
+// (frente#6 pinta de 59 a 88; frente#21, de 66 a 91).
+//
+// Ancorando pela CAIXA, esse vazio vira levitação: medido 12,9 a 27,6 px de MUNDO no ar,
+// que a 390×844 são 28 a 60 px de tela — a sombra de contato ficava sozinha no chão e a
+// planta pairava acima da cabeça da personagem (print test/FR-cap1.png, com a linha ciano
+// no fundo da célula e a vermelha na base da tinta). É a queixa do dono, "e ainda tem objeto
+// voando", no maior sprite do quadro.
+//
+// A correção é ASSENTAR, NUNCA REDIMENSIONAR: a altura desenhada continua sendo exatamente a
+// de antes, e o que muda é só a linha em que a planta pousa. A mancha desce o vazio que
+// carregava; a silhueta visível não muda de tamanho em um pixel.
+const frenteFrac = [];
+function frentePeFrac(im, i) {
+    const c = frenteFrac[i];
+    if (c !== undefined)
+        return c;
+    if (!im || !im.complete || !im.naturalWidth)
+        return 1; // ainda carregando: a caixa serve
+    let f = 1;
+    try {
+        const cv = document.createElement("canvas");
+        cv.width = im.naturalWidth;
+        cv.height = im.naturalHeight;
+        const g = cv.getContext("2d");
+        g.drawImage(im, 0, 0);
+        const d = g.getImageData(0, 0, cv.width, cv.height).data;
+        for (let y = cv.height - 1; y >= 0; y--) {
+            let tinta = false;
+            for (let x = 0; x < cv.width; x++)
+                if (d[(y * cv.width + x) * 4 + 3] > 16) {
+                    tinta = true;
+                    break;
+                }
+            if (tinta) {
+                f = (y + 1) / cv.height;
+                break;
+            }
+        }
+    }
+    catch (e) {
+        f = 1;
+    }
+    frenteFrac[i] = f;
+    return f;
+}
 // O que separa cenário integrado de adesivo espalhado. Quatro coisas, e nenhuma é sobre a
 // arte em si — são sobre COMO ela é posta na tela. Jogo bom faz as quatro:
 //
@@ -6699,7 +6786,8 @@ function matoDaEmenda(fx, g) {
     for (let k = 0; k < quantos; k++) {
         const n = i0 + k;
         const h = ((n * 2246822519) >>> 0);
-        const im = FRENTE_SPR[bloco + ((h >>> 5) % 8)];
+        const iSpr = bloco + ((h >>> 5) % 8);
+        const im = FRENTE_SPR[iSpr];
         if (!im || !im.complete || !im.naturalWidth)
             continue;
         const alt = (26 + (h >>> 9) % 16) * esc; // baixo: é rodapé de mata, não árvore
@@ -6707,8 +6795,10 @@ function matoDaEmenda(fx, g) {
         const x = (n * MATO_PASSO + ((h >>> 15) % 30) - 15 - worldX) * esc;
         if (x > g.cw + 120 || x < -120)
             continue;
-        // afunda um terço abaixo da linha: a base some no chão e não sobra pé cortado
-        fx.drawImage(im, Math.round(x - larg / 2), Math.round(y - alt * 0.72), Math.round(larg), Math.round(alt));
+        // afunda um terço abaixo da linha: a base some no chão e não sobra pé cortado. E é a
+        // base da TINTA que afunda, não a da célula (ver frentePeFrac): o mato existe para tapar
+        // a emenda, e mato pairando 20% da própria altura acima dela não tapa coisa nenhuma.
+        fx.drawImage(im, Math.round(x - larg / 2), Math.round(y + alt * 0.28 - alt * frentePeFrac(im, iSpr)), Math.round(larg), Math.round(alt));
     }
 }
 function desenharFrente(fx, g) {
@@ -6750,7 +6840,8 @@ function desenharFrente(fx, g) {
         // capítulos, e misturá-los poria bambu de litoral em Palmares — o contrário do que os
         // pacotes existem para resolver.
         const bloco = blocoCap;
-        const im = FRENTE_SPR[bloco + ((h >>> 3) % 8)];
+        const iSpr = bloco + ((h >>> 3) % 8);
+        const im = FRENTE_SPR[iSpr];
         if (!im || !im.complete || !im.naturalWidth)
             continue;
         // deslocamento lateral dentro da casa: tira o alinhamento de grade que sobraria
@@ -6765,10 +6856,17 @@ function desenharFrente(fx, g) {
         const larg = alt * (im.naturalWidth / im.naturalHeight);
         // 1. CONTATO: a base afunda alguns px no chão, e ganha sombra. Sem afundar, a planta
         // parece pousada; afundando, parece plantada.
-        const base = chao + (4 + (h >> 17) % 10) * esc;
+        // `>>>` e não `>>`: `h` é um hash de 32 bits sem sinal, e o deslocamento COM sinal devolve
+        // negativo em metade das casas — `4 + (h >> 17) % 10` chegava a −5, ou seja a planta era
+        // ERGUIDA 4 px de mundo acima do chão em vez de afundada. Medido antes/depois: o pé passa
+        // de −10,6 a +4,1 para −3,3 a −10,6, sempre abaixo da linha, que é o que "plantada" quer
+        // dizer. Nada aqui mexe em tamanho nem em quantidade.
+        const base = chao + (4 + (h >>> 17) % 10) * esc;
         const sw = larg * 0.85, sh = Math.max(3, alt * 0.10);
         fx.drawImage(sombraContato(64, 24), Math.round(x - sw / 2), Math.round(base - sh / 2), Math.round(sw), Math.round(sh));
-        fx.drawImage(im, Math.round(x - larg / 2), Math.round(base - alt), Math.round(larg), Math.round(alt));
+        // ...e quem afunda é o PÉ DA TINTA, não o fundo da célula (ver frentePeFrac acima). Sem
+        // isto a sombra ficava no chão e a planta 13 a 28 px de mundo acima dela, no ar.
+        fx.drawImage(im, Math.round(x - larg / 2), Math.round(base - alt * frentePeFrac(im, iSpr)), Math.round(larg), Math.round(alt));
     }
     // 2. PERSPECTIVA ATMOSFÉRICA, aplicada à camada inteira de uma vez: um véu escuro e quente
     // só onde há tinta. `source-atop` pinta apenas sobre o que já foi desenhado, então a
@@ -8381,13 +8479,39 @@ function montarCapitulos() {
         const b = document.createElement("button");
         b.className = "capItem " + (livre ? (i === atual ? "livre" : "") : "preso");
         b.type = "button";
+        // A TINTA SAI DO MATERIAL DA TÁBUA, não de "livre" — e é por não sair que o nome da era
+        // sumia. Medido (test/_cor.js, print test/MC-A-lista-cheia.png): nas três eras já
+        // atravessadas o nome saía com luma 33 sobre madeira escura de luma 58 a 84, ou seja
+        // ESCURO SOBRE ESCURO, e a linha de baixo (luma 67) lia MELHOR que o nome — a hierarquia
+        // ao contrário. A tinta #2a2012 é a do JOGAR, que é tábua CLARA; aplicada à tábua escura
+        // ela apaga o rótulo. A CSS já sabia disso e declarava `.capItem { color: #eaD8b2 }`,
+        // mas `pixelRotulo` desenha num canvas e nunca leu essa cor.
+        // A regra que fica é a que o menu principal já pratica duzentas linhas abaixo:
+        //   tábua CLARA (a era atual)  -> tinta escura, a do JOGAR;
+        //   tábua ESCURA (era vencida) -> creme, o de A HISTÓRIA / DE ONDE VEM / AJUSTES;
+        //   plaquinha TRANCADA         -> o creme apagado que a CSS já dizia (#8d8271).
+        // E a segunda linha é sempre um degrau abaixo da primeira, para a hierarquia sobreviver.
+        const aqui = livre && i === atual;
+        const tintaNome = aqui ? "#221806" : (livre ? "#d9cfae" : "#8d8271");
+        const tintaQuando = aqui ? "#5c3f1e" : (livre ? "#a9a184" : "#7a7263");
+        // AS TRANCADAS DEIXAM DE SER A MESMA TÁBUA REPETIDA. No dia 1 a lista era PINDORAMA e
+        // depois TRÊS linhas idênticas, "AINDA TRANCADA / TERMINE A ERA ANTERIOR", palavra por
+        // palavra (print test/MC-A-lista-dia1.png) — lê como quadro repetido por defeito, e falha
+        // no que a própria tela existe para fazer ("ver o que falta é o que faz querer voltar"):
+        // três linhas iguais não mostram o que falta, mostram um travamento. Com doze capítulos
+        // no escopo isso vira ONZE linhas iguais.
+        // O que entra é o ordinal, e só ele: nada do conteúdo da era vaza (o nome e o lugar
+        // seguem escondidos), e a única informação nova é a que a pessoa já conta com o dedo —
+        // quantas tábuas há. A linha de baixo passa a dizer O QUE FAZER só na PRÓXIMA, que é a
+        // única em que a instrução é acionável; nas de trás dela, seria ruído repetido.
+        const proxima = i === atual + 1;
         const n = document.createElement("div");
         n.className = "capNome";
-        pixelRotulo(n, livre ? ep.nome : "AINDA TRANCADA", 2, livre ? "#2a2012" : "#7a7263");
+        pixelRotulo(n, livre ? ep.nome : "ERA " + (i + 1), 2, tintaNome);
         const q = document.createElement("div");
         q.className = "capQuando";
         // último rótulo de sistema nas tábuas de era — vai para a fonte da casa
-        pixelRotulo(q, livre ? ep.quando : "TERMINE A ERA ANTERIOR", 1, livre ? "#5c3f1e" : "#7a7263");
+        pixelRotulo(q, livre ? ep.quando : (proxima ? "TERMINE A ERA ANTERIOR" : "AINDA TRANCADA"), 1, tintaQuando);
         b.appendChild(n);
         b.appendChild(q);
         if (livre)
