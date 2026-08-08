@@ -1,7 +1,20 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "08/08 · madrugada · turno fechado, tudo integrado",
-  "emVoo": [],
+  "atualizado": "08/08 · três agentes em campo",
+  "emVoo": [
+    {
+      "papel": "Dev",
+      "t": "O verbo de SALVADOR: alcançar é LEVAR PALAVRA (o texto promete, a mão desmente)"
+    },
+    {
+      "papel": "QA",
+      "t": "O dia inteiro sob teste — caça a regressão depois de 9 integrações"
+    },
+    {
+      "papel": "Arte",
+      "t": "Onda 7: os ícones saem do motor antigo (contorno navy, escala não-inteira)"
+    }
+  ],
   "entregue": [
     {
       "q": "coerência",
