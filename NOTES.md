@@ -2550,3 +2550,16 @@ SEGUROU + O QUE TEM FONTE.
 **Bloqueio que a fila atropela:** o peso estoura no capítulo 6, e a fila chega a seis no lote
 C. **Carga sob demanda vira requisito no lote B/C** — e quebra o arquivo único de saída.
 ⚠ decisão do dono, ainda aberta.
+
+### Direções da noite de 2026-08-07 (o dono dorme ~9 h)
+
+1. **A HISTÓRIA vira QUADRINHO.** Palavras dele: *"vamos tentar transformar ela num
+   quadrinho, imagens e texto pra ficar bem bonita… a ideia é que a pessoa role e não fique
+   uma lista, então a tela toda vai se transformando de uma forma bonita, sem aparecer
+   scroll."* Ou seja: a linha do tempo deixa de ser lista rolável e vira **narrativa
+   visual** — a tela se transforma conforme se avança. Ele pode gerar imagens, e nós
+   também temos licença de criar.
+2. **O jogo mais fluido**, revendo três coisas que ele nomeou: **objetos que estão
+   aleatórios**, **fundos que não fazem sentido**, e **imagens que não se conversam**.
+3. Continuar o arco (lote A), manter tudo integrado e testado, e otimizar até de manhã.
+4. Operacional: não travar; handoff antes do limite de contexto e seguir rodando.
