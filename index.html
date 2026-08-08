@@ -1197,6 +1197,7 @@ let S = {
     u1: false, u2: false, u3: false,
     u4: false, // the x100 test switch, off by default
     cenario: 0, // which of the seven streets you have reached
+    fronteira: 0, // a cena mais avançada já alcançada — visitar não a move (QA B1)
     // A drop still leaves a resource of its kind — smog to flower, barrel to water, cash to
     // meal. Nothing spends them since special projects were removed, so they are a counter kept
     // for whoever builds the next thing that does.
@@ -2730,6 +2731,9 @@ const ESQUEMA_SAVE = {
     // O teto é o número de cenas que EPOCAS declara, não um literal: capítulo novo entra na
     // lista e o esquema passa a aceitar a cena dele sozinho — sem relaxar nada para as demais.
     cenario: { tipo: "num", min: 0, max: TOTAL_CENAS - 1, pad: 0 },
+    // até onde a pessoa já chegou. Visitar capítulo antigo não move a fronteira — é ela
+    // que impede o jogo de arrastar a pessoa de volta (QA B1).
+    fronteira: { tipo: "num", min: 0, max: TOTAL_CENAS - 1, pad: 0 },
     // A média móvel do que você alcançou. Faixa fechada em 0..1 e padrão 1: um save adulterado
     // com -9 ou com "seco" cai no mundo INTEIRO, nunca no seco. Se um campo vai ter fallback,
     // que ele erre para o lado que não pune ninguém.
@@ -5816,11 +5820,35 @@ function proximoLimiar() {
     const i = cenarioAtual();
     return i >= LIMIARES.length ? null : LIMIARES[i];
 }
+// VISITA: a pessoa escolheu um capítulo ANTERIOR no menu. Enquanto ela está visitando, o
+// jogo não a arrasta de volta para a fronteira.
+//
+// O bug (QA, B1, gravidade alta): `montarCapitulos` escreve `S.cenario` para trás e não toca
+// no impacto acumulado; `verificarCenario` decide só pelo impacto. Resultado medido: sair de
+// AINDA AQUI e escolher PINDORAMA levava de PINDORAMA@0 a PALMARES@3 em 12 s SEM TOCAR EM
+// NADA — 40 falas abrindo sozinhas e 25 quadros dentro da TRAVESSIA. Além de quebrar o jogo,
+// isso re-encenava a travessia como efeito colateral de um toque no menu, o que é §2.
+//
+// A correção não é travar a progressão: é lembrar até onde a pessoa já chegou. `S.fronteira`
+// guarda a cena mais avançada alcançada; visitar não a move. A progressão automática só volta
+// a valer quando ela está NA fronteira — que é onde o jogo de fato continua.
+let visitando = false;
+function irParaCena(i) {
+    S.cenario = i;
+    visitando = i < (S.fronteira | 0);
+    salvar();
+}
 function verificarCenario() {
     // Com uma fala aberta o jogo continua rodando atrás, e o impacto continua subindo. Sem esta
     // guarda a virada de capítulo dispararia de novo a cada quadro por baixo da caixa de texto.
     if (falaAberta())
         return;
+    // Visitando um capítulo já vencido: nada avança sozinho. Sair da visita é escolher o
+    // capítulo da fronteira no menu — ou tocar em VOLTAR, que já devolve para lá.
+    if (visitando)
+        return;
+    if (cenarioAtual() > (S.fronteira | 0))
+        S.fronteira = cenarioAtual();
     const alvo = proximoLimiar();
     if (alvo === null) {
         // A última cena: o que resta é o FECHO do capítulo 3, que é o fim do jogo.
@@ -8124,8 +8152,7 @@ function montarCapitulos() {
                 e.preventDefault();
                 // Entrar numa era conta a história SEMPRE — decisão do dono ("cadê a historinha"):
                 // escolher a era É pedir a história; quem já leu tem o PULAR.
-                S.cenario = cenarioDaEpoca(i);
-                salvar();
+                irParaCena(cenarioDaEpoca(i));
                 redesenharFundo();
                 fecharTelas();
                 mostrarAbertura(undefined, true);
