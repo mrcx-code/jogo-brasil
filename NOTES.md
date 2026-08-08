@@ -2613,3 +2613,106 @@ poderia virar página — só se alguém medir que o rolo não basta.
 **Próximo passo.** Onda 7 (ícones falam a língua da casa) continua na fila com diagnóstico
 pronto. QA deveria acrescentar ao smoke uma asserção de que `#listaCenas` tem
 `scroll-snap-type` e barra invisível — hoje só os prints garantem.
+## LOTE A, parte 1 — a migração por identidade e A TRAVESSIA (Dev, 2026-08-07)
+
+### 1. O presente no fim, e a migração que não se repete mais
+
+**Achado antes de mexer:** `AINDA AQUI` **já era** o último objeto de `EPOCAS` — o array está
+em ordem cronológica desde que SALVADOR entrou. O ticket pedia "mover para o fim uma vez só
+para não repetir a migração a cada capítulo", e mover não resolveria isso: capítulo novo
+inserido acima dele desloca o índice dele de qualquer jeito, e o save guarda índices. O que
+resolve é **parar de identificar capítulo por posição**.
+
+Feito: cada época ganhou um `id` imutável (`pindorama`, `palmares`, `salvador`, `hoje`), e a
+tabela de arcos deixou de ser duas listas de números escritas à mão (`ARCO0_CENA`,
+`ARCO0_EPOCA`, apagadas) para ser uma lista de **linhas de arco** — `[id, cenas]` por
+capítulo. A linha do arco de hoje **deriva de `EPOCAS`**, então não há como esquecer de
+atualizá-la, e `ARCO_ATUAL` é só o índice da última linha. `migrarArco()` continua sendo a
+única migração (foi estendida, não substituída): casa `id` com `id`, deriva a cena nova de
+`EPOCA_CENA0` + o deslocamento dentro do capítulo, e remapeia `aberturas`, `fechos` e
+`acolhidos` bit a bit / posição a posição.
+
+**Custo de acrescentar um capítulo, a partir de agora:** pôr o objeto em `EPOCAS` acima de
+AINDA AQUI e copiar para `ARCOS_ANTIGOS` a linha do arco de ontem. Nenhum número à mão. Serve
+também para época que muda de tamanho — quando a 2ª pintura de SALVADOR chegar e `cenas`
+virar 2, é o mesmo procedimento.
+
+`S.arco` deixou de ser literal em `S` e passa a ser atribuído de `ARCO_ATUAL` logo abaixo de
+`ARCOS`: literal repetido em dois lugares era uma dessincronia esperando acontecer — bastava
+esquecer de somar 1 para toda partida nova ser "migrada".
+
+**Medido (smoke, 5 casos novos além dos 4 que já existiam):** save do arco 0 no meio de
+Palmares acorda em `PALMARES@2`; na 2ª cena de Palmares, em `PALMARES@3` (o deslocamento
+dentro do capítulo sobrevive, e as 4 acolhidas viajam com ele); save já do arco atual sai
+intocado (`SALVADOR@4`, aberturas 5); save com `arco: 9` (adulterado, ou de uma versão futura)
+não é reescrito; `cenario: 99` apara em `AINDA AQUI@6`.
+
+### 2. A TRAVESSIA — o trecho em que o jogo para de ser jogo
+
+Transição entre PINDORAMA e PALMARES, disparada na virada de capítulo, na ordem
+**fecho → travessia → troca de cena → abertura**. Não é capítulo: não tem cenas, não tem
+economia, não entra em `EPOCAS`. Vive em `TRAVESSIAS`, com `de`/`para` por `id` — quando não
+há travessia declarada entre dois capítulos, o caminho é o de sempre.
+
+O que ela faz, item por item do desenho aprovado:
+
+- a estrada vira água: o quadro inteiro é `desenharTravessia()` — pintura (`#fundoHD`) e
+  personagem (`#heroHD`) limpas, mar e céu na camada pixelada do mundo;
+- **nenhuma figura humana em cena**: o retrato da caixa de fala sai (`body.travessando`), e a
+  rua é esvaziada ao entrar (chegadas, drops, folhas, fila, moradores);
+- HUD e cartões somem; **o botão dourado continua ali e não faz nada** — `clicar()` e
+  `pular()` saem na primeira linha enquanto `travessiaAtiva()`, o que vale também para o
+  segurar e para a ajuda automática do u3;
+- o texto diz isso em voz alta, na 2ª linha: *"Aqui o jogo não tem o que você fazer. Não foi
+  esquecimento."*;
+- o céu escurece pelo sistema de luz que já existe: o relógio é posto no fim da TARDE e corre
+  a 10× (~90 s reais = 2 h do ciclo), terminando dentro da NOITE — e a cerimônia de PALMARES,
+  logo depois, varre a luz até o nascer do sol. O capítulo novo abre de manhã do outro lado
+  do mar;
+- **não é pulável na primeira vez**: o bit `S.travessias` (novo no `ESQUEMA_SAVE`) esconde o
+  PULAR enquanto estiver apagado.
+
+**Sem arte nova, como pedido.** Céu por `rampaCeu`, água por duas cores passadas em
+`luzDoDia`, horizonte a 1 px e vagas como riscos horizontais com espaçamento em potência
+(perspectiva por compressão, não por câmera). Zero KB: o `index.html` continua em 3,33 MB.
+O horizonte foi posto em `0,40·H` e não em `0,52` **olhando o print** — a 0,52 sobravam 47 px
+de tela de água entre o horizonte e a caixa de texto, e a tela lia como céu com uma tira
+escura embaixo; a 0,40 sobram ~165 px e a água é o quadro. Prints:
+`test/trav-1-cerimonia.png`, `trav-2-linha1.png`, `trav-3-recusa.png`, `trav-4-fim.png`
+(o mundo voltando inteiro), e `shot-travessia.png` do próprio smoke.
+
+**⚠ O TEXTO É RASCUNHO, marcado no código.** Doze linhas, do dono palavra por palavra. Só
+dois fatos, os que este NOTES.md já sustentava: o açúcar como motivo (Schwartz, *Segredos
+internos*, 1988) e o volume — "de cada dez que atravessaram para as Américas, quase cinco
+desembarcaram aqui" (*Trans-Atlantic Slave Trade Database*, SlaveVoyages.org), a mesma frase
+que já está no marco "A travessia forçada" da LINHA_TEMPO. **Nenhum número novo entrou.** A
+linha central é a recusa nomeada em voz alta: o jogo diz que não vai mostrar o porão e diz
+por quê (a imagem de 1788 foi feita para chocar quem podia acabar com o tráfico; num jogo de
+2026 ela desenha pessoas como padrão de carga) — §2.4.1 do CLAUDE.md. E diz que não vira
+desafio: sem barra de água, ar ou ração (§2.4.4). Nunca "escravo" como identidade (§2.4.8).
+
+**Medido (smoke, bloco novo):** durante a travessia, 40 toques + 1 pulo + 900 ms de mundo
+rodando rendem **0,00 de impacto** e **0 objetos nascidos**; o botão dourado continua com área
+na tela; PULAR e retrato com `display: none`; o relógio do dia andou 9 s em 900 ms (o 10×). Ao
+terminar: o mundo volta a andar (19,8 px), o bit fica gravado, a segunda travessia já nasce
+pulável, e `fecharTelas()` não deixa estado para trás.
+
+**Um teste teve de mudar de alvo:** o FLUXO 2 (a varredura de luz da virada termina no nascer
+do sol) media a virada do capítulo 1 para o 2 partindo de duas horas diferentes. Com a
+travessia no meio, a hora de partida é apagada antes da cerimônia, e medir "de que hora se
+parte" deixaria de medir. O mesmo contrato passa a ser medido na virada 2→3, que não tem
+travessia; as duas horas de partida continuam lá.
+
+**Dúvidas deixadas, nenhuma decidida sozinha:**
+
+1. O botão dourado continua exibindo o rótulo `+1.0` durante a travessia. Mantive idêntico
+   porque "o botão continua ali" é a frase do desenho, e rótulo alterado seria uma dica — mas
+   é a única coisa na tela que promete algo que não vai acontecer. Direção de Arte decide.
+2. A travessia **repete** toda vez que se cruza a fronteira (com PULAR, da segunda em diante).
+   A alternativa seria só na primeira. É ritmo de produto, não código: PM decide.
+3. Entrar em PALMARES pela tela de seleção de capítulo **não** passa pela travessia — o
+   caminho da seleção nunca passou por fecho nem por fronteira. Se a travessia tiver de valer
+   ali também, é ticket.
+4. O horizonte é gradiente + vagas. Está honesto, não está impressionante. Se a Direção quiser
+   a perna *bonito* no mesmo patamar dos capítulos pintados, é uma pintura de mar aberto — e
+   aí o pedido volta para o dono gerar.

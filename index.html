@@ -611,6 +611,25 @@
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }
+  /* ===== A TRAVESSIA ===== o trecho em que o jogo para de ser jogo. Ver o bloco TRAVESSIAS
+     no jogo.ts para o desenho inteiro; aqui está só o que é de tela, e são quatro coisas.
+     1. NENHUMA FIGURA HUMANA (§2.4): o retrato de quem fala sai. A caixa fica sozinha
+        sobre a água, e é a voz do jogo falando, não a de uma personagem em cena. */
+  body.travessando #falaRetrato { display: none; }
+  /* 2. O BOTÃO DOURADO CONTINUA ALI E NÃO FAZ NADA. O bloco de controles é trazido de volta
+        por cima da tela de fala (`body.emTela` o havia mandado embora, como manda em toda
+        tela) — mas só ele: os cartões de ritmo, melhorias e menu somem, porque são
+        interface de jogo e aqui não há jogo. O botão fica aceso e inerte; quem toca nele
+        descobre isso com o dedo, e a segunda linha do texto explica que é de propósito. */
+  body.travessando #controls { transform: translateX(-50%); opacity: 1;
+    pointer-events: auto; z-index: 50; }
+  body.travessando #controls .cartao { visibility: hidden; }
+  /* 3. e a caixa de fala sobe acima do botão, senão o bloco de controles a cobriria */
+  body.travessando #telaFala { padding-bottom: calc(var(--hControles, 126px) + 10px); }
+  /* 4. NÃO É PULÁVEL NA PRIMEIRA VEZ. `semPular` só existe enquanto o bit desta travessia
+        estiver apagado — quem já atravessou uma vez tem o botão de volta. */
+  body.semPular #btnFalaPular { display: none; }
+
   /* ===== A HISTÓRIA: o quadrinho ===== (Direção de Arte, onda 8 — pedido do dono:
      "vamos tentar transformar ela num quadrinho… a tela toda vai se transformando de uma
      forma bonita, sem aparecer scroll".)
@@ -1198,11 +1217,16 @@ let S = {
     // Quais marcos do chão do capítulo 2 já falaram, um bit por marco — mesma gramática de
     // `aberturas`/`fechos`: bit ligado = já falou, e a fala curta não se repete.
     marcos: 0,
-    // Qual ARCO de capítulos este estado conhece. Quem nunca jogou já nasce no arco de agora,
-    // e por isso o literal e não `0`: a migração é para quem tem save antigo, e rodá-la em cima
-    // de um jogo recém-começado remapearia índices que já estão certos. O valor tem de bater
-    // com `ARCO_ATUAL` — está escrito aqui à mão porque aquela constante nasce muito abaixo.
-    arco: 1,
+    // Quais TRAVESSIAS já foram atravessadas, um bit por travessia — mesma gramática de
+    // `aberturas`. Uma travessia não é capítulo: é o trecho em que o jogo para de ser jogo
+    // entre um capítulo e o seguinte. O bit serve a uma coisa só: a primeira vez não é
+    // pulável, as seguintes são.
+    travessias: 0,
+    // Qual ARCO de capítulos este estado conhece. Quem nunca jogou já nasce no arco de agora:
+    // a migração é para quem tem save antigo, e rodá-la em cima de um jogo recém-começado
+    // remapearia índices que já estão certos. O valor é atribuído logo abaixo de `ARCOS`, e
+    // não escrito à mão aqui, porque um literal desatualizado migraria todo mundo de novo.
+    arco: 0,
     salvoEm: 0
 };
 // U1 triples the tap; U4 is the test switch and multiplies whatever that came to by a
@@ -1411,6 +1435,8 @@ const HERO_PISO = 0;
 // asks for timing, and this is the only thing the jump is for.
 let folhas = [], folhaChao = 0, proximaFolha = -1;
 function pular() {
+    if (travessiaAtiva())
+        return; // não há chão para saltar, e não há ninguém em cena
     if (jumpT > 0)
         return; // one jump at a time; no double-tapping into orbit
     jumpT = JUMPF;
@@ -1972,6 +1998,11 @@ function atualizarChamada(dt) {
 //              out identically; it just cannot charge the super, so a phone on a table
 //              never builds one.
 function clicar(auto, naoConta, semAnim) {
+    // A TRAVESSIA: o botão dourado continua ali e não faz nada. Sair aqui, na primeira linha,
+    // é o que garante as duas metades da promessa — não rende impacto e não move nada em
+    // cena. Vale para o dedo, para o segurar e para a ajuda automática do u3.
+    if (travessiaAtiva())
+        return;
     const g = ganhoClique();
     S.energia += g;
     S.energiaTotal += g;
@@ -2455,6 +2486,10 @@ const EPOCAS = [
         // bibliografia de negros ou indígenas"): o nome que as línguas tupi davam a esta terra,
         // vivo até hoje na fala do movimento indígena. O capítulo deixa de se definir pela
         // chegada dos outros. Fonte no NOTES.md (Navarro 2013; uso contemporâneo em Krenak).
+        // O `id` é a IDENTIDADE do capítulo, e é ele — nunca a posição no array — que o save usa
+        // para se reencontrar depois que a lista muda. Ver o bloco `ARCOS`/`migrarArco()`.
+        // Escolhido uma vez e imutável: renomear um `id` quebra todo save gravado antes dele.
+        id: "pindorama",
         nome: "PINDORAMA",
         quando: "litoral atlântico · século XVI",
         cenas: 2, lugar: "litoral",
@@ -2489,6 +2524,7 @@ const EPOCAS = [
         ]
     },
     {
+        id: "palmares",
         nome: "PALMARES",
         quando: "serra da Barriga, Alagoas · século XVII",
         cenas: 2, lugar: "palmares",
@@ -2526,6 +2562,7 @@ const EPOCAS = [
         //      que veio depois dela.
         // Fontes (NOTES.md, mesmo commit): João José Reis, *Rebelião escrava no Brasil* (2003);
         // Cecília Moreira Soares sobre as ganhadeiras; Lisa Earl Castillo; Wlamyra Albuquerque.
+        id: "salvador",
         nome: "SALVADOR",
         quando: "Bahia · véspera de 1835",
         // UMA cena, e não duas como as outras: chegou UMA pintura. Duas cenas com a mesma pintura
@@ -2551,6 +2588,18 @@ const EPOCAS = [
         ]
     },
     {
+        // ===== O PRESENTE FICA SEMPRE POR ÚLTIMO =====
+        // Este objeto é a ÚLTIMA posição de `EPOCAS` e continua sendo depois de cada capítulo
+        // novo. A ordem da lista é a ordem CRONOLÓGICA, e "hoje" é o fim dela por definição:
+        // capítulo novo entra ACIMA desta linha, nunca abaixo. O arco aprovado tem doze
+        // capítulos e este é o décimo segundo (NOTES.md, "O arco até hoje").
+        //
+        // Inserir capítulo no meio desloca todos os índices depois dele, e o save guarda
+        // índices — é o que custou a migração de SALVADOR. A partir de agora isso deixou de
+        // ser um problema NOVO a cada capítulo: o save é migrado por `id` (ver `ARCOS`), então
+        // acrescentar um capítulo é acrescentar um objeto aqui em cima e uma linha na tabela
+        // de arcos. Nenhum mapa escrito à mão, nunca mais.
+        id: "hoje",
         nome: "AINDA AQUI",
         quando: "terra indígena demarcada · hoje",
         cenas: 2, lugar: "hoje",
@@ -2610,6 +2659,55 @@ function epocaDoCenario(i) {
     return e;
 }
 function epocaAtual() { return epocaDoCenario(cenarioAtual()); }
+// ============================================================
+// AS TRAVESSIAS — o trecho em que o jogo PARA DE SER JOGO
+//
+// Uma travessia não é capítulo. É o que existe ENTRE dois capítulos, e existe porque há
+// coisa que este jogo se recusa a encenar (§2.4 do CLAUDE.md, as oito recusas). A recusa
+// sozinha seria omissão; dita em voz alta, com o motivo, é a melhor aula do trecho.
+//
+// O desenho, aprovado pelo dono em 2026-08-07:
+//   · a estrada vira água. Some o HUD, somem os contadores, some o que atravessa a tela;
+//   · o botão dourado CONTINUA ALI e não faz nada — e o jogo diz isso, numa linha;
+//   · a única entrada que resta é seguir em frente, e dura o que o texto durar (~90 s);
+//   · NENHUMA figura humana em cena. Nenhuma — nem a personagem que se joga;
+//   · o céu escurece pelo sistema de luz que já existe (`relogio`), sem arte nova;
+//   · não é pulável na primeira vez.
+//
+// ⚠ RASCUNHO — O TEXTO ABAIXO É DO DONO, PALAVRA POR PALAVRA. O que está escrito aqui é
+// proposta. O §2 diz que representação não se decide sozinho, e este é o trecho sobre o
+// tráfico atlântico: cada linha é reescrita pelo dono antes de virar definitiva. O que NÃO
+// é rascunho são as travas, que vêm do §2.4 e não se negociam ao reescrever:
+//   1. Nada de porão, de navio por dentro, de gente em fileira, do diagrama do *Brookes*.
+//      O texto NOMEIA essa recusa; a tela nunca a ilustra.
+//   2. Nada de sobrevivência: sem barra de água, de ar ou de ração, e sem contar mortos
+//      como placar.
+//   3. Nenhum número sem fonte. Os dois fatos abaixo são os que o NOTES.md já sustenta:
+//      o volume (SlaveVoyages) e o açúcar como motivo (Schwartz 1988). Nenhum outro entra.
+//   4. Nunca "escravo" como identidade.
+const TRAVESSIAS = [
+    {
+        id: "atlantico",
+        de: "pindorama", para: "palmares",
+        nome: "A TRAVESSIA",
+        quando: "oceano Atlântico · séculos XVI–XIX",
+        linhas: [
+            "A estrada acabou. Daqui em diante é água.",
+            "Aqui o jogo não tem o que você fazer. Não foi esquecimento.",
+            "O botão continua aí embaixo. Ele não rende nada neste trecho, e isso é de propósito: o que está sendo contado aqui não é coisa que se joga.",
+            "Do outro lado deste mar levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi montada, e dava lucro.",
+            "Ao longo de mais de três séculos, milhões de pessoas foram arrancadas da África e postas em navios.",
+            "De cada dez que atravessaram para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.",
+            "Este jogo não vai mostrar o porão desses navios. E vale dizer por quê.",
+            "A imagem que quase todo livro usa — o desenho de um navio visto de cima, com centenas de corpos encaixados lado a lado — foi feita em 1788 por quem queria acabar com o tráfico, para chocar quem podia acabar com ele. Num jogo de 2026 ela faz outra coisa: desenha pessoas como padrão de carga.",
+            "Também não vai virar desafio. Nada de barra de água, de ar ou de ração: transformar a morte de quem atravessou em placar seria o contrário de contar.",
+            "Quem foi trazido não era carga, não era número e não era \"escravo\". Escravizar foi o que fizeram com essas pessoas — não o que elas eram.",
+            "Então este trecho é só o mar, e o tempo que ele leva.",
+            "Do outro lado dele está o que essas pessoas fizeram com o que sobrou: fugir, subir a serra e construir uma vila."
+        ]
+    }
+];
+const MASCARA_TRAVESSIAS = (1 << TRAVESSIAS.length) - 1;
 // Every field a save is allowed to carry, with the shape it has to be in. num() clamps into
 // a range and rejects NaN and Infinity; bool() and um() speak for themselves. A field missing
 // from this table cannot enter the game, whatever the stored JSON says.
@@ -2653,6 +2751,11 @@ const ESQUEMA_SAVE = {
     // `aberturas`: aparar 999 para a máscara cheia calaria as três placas — valor fora da
     // faixa cai no padrão 0, que erra para o lado de FALAR de novo, nunca de calar.
     marcos: { tipo: "bits", min: 0, max: MASCARA_MARCOS, pad: 0 },
+    // As travessias já atravessadas, um bit cada. Mesmo tipo (e mesmo motivo) de `aberturas`:
+    // fora da faixa cai em 0, que erra para o lado de MOSTRAR de novo — no pior caso alguém
+    // reatravessa um trecho que já viu (e aí com o PULAR na mão), nunca perde a única vez em
+    // que o jogo explica a própria recusa.
+    travessias: { tipo: "bits", min: 0, max: MASCARA_TRAVESSIAS, pad: 0 },
     // QUAL ARCO ESTE SAVE CONHECE. Existe por uma razão só, e ela é a mais cara deste
     // repositório: capítulo novo inserido no MEIO da cronologia desloca todos os índices
     // depois dele, e o save guarda índices. SALVADOR entrou entre Palmares e hoje (1835 vem
@@ -2663,25 +2766,62 @@ const ESQUEMA_SAVE = {
     arco: { tipo: "num", min: 0, max: 9, pad: 0 },
     salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
-// O ARCO 0 é o de três capítulos: litoral(0,1) · Palmares(2,3) · hoje(4,5).
-// O ARCO 1 é este: litoral(0,1) · Palmares(2,3) · SALVADOR(4) · hoje(5,6).
-// A migração é uma tabela e nada mais — nenhuma heurística, nenhum "se parecer com".
-const ARCO_ATUAL = 1;
-const ARCO0_CENA = [0, 1, 2, 3, 5, 6]; // cena antiga -> cena nova
-const ARCO0_EPOCA = [0, 1, 3]; // época antiga -> época nova
+const ARCOS_ANTIGOS = [
+    // ARCO 0 — o de três capítulos: litoral(0,1) · Palmares(2,3) · hoje(4,5).
+    [["pindorama", 2], ["palmares", 2], ["hoje", 2]]
+];
+// A última linha é sempre a de HOJE, e ela se descreve sozinha a partir de `EPOCAS`: não há
+// como esquecer de atualizá-la.
+const ARCOS = ARCOS_ANTIGOS.concat([
+    EPOCAS.map(function (ep) { return [ep.id, ep.cenas]; })
+]);
+const ARCO_ATUAL = ARCOS.length - 1;
+// Quem nunca jogou nasce no arco de agora — ver o comentário do campo em `S`. Aqui e não lá
+// porque `ARCOS` nasce depois de `S`, e um literal repetido nos dois lugares é uma dessincronia
+// esperando acontecer: bastava esquecer de somar 1 para toda partida nova ser "migrada".
+S.arco = ARCO_ATUAL;
+// A primeira cena de cada época de uma linha de arco — a mesma soma-prefixo de EPOCA_CENA0,
+// só que sobre uma linha qualquer, inclusive as históricas.
+function cena0DoArco(linha) {
+    const fora = [];
+    let t = 0;
+    linha.forEach(function (e) { fora.push(t); t += e[1]; });
+    return fora;
+}
 function migrarArco() {
-    if ((S.arco | 0) >= ARCO_ATUAL)
+    const velho = S.arco | 0;
+    // Save do arco atual, ou de um arco que este binário nem conhece (adulterado, ou de uma
+    // versão futura que alguém abriu antes): não se mexe. Migrar para trás não existe.
+    if (velho >= ARCO_ATUAL || velho < 0 || !ARCOS[velho])
         return false;
-    const cenaVelha = Math.max(0, Math.min(ARCO0_CENA.length - 1, S.cenario | 0));
-    S.cenario = ARCO0_CENA[cenaVelha];
+    const linha = ARCOS[velho], cena0 = cena0DoArco(linha);
+    const totalVelho = linha.reduce(function (t, e) { return t + e[1]; }, 0);
+    // Onde essa pessoa estava, dito em identidade e não em número: qual capítulo, e a quantas
+    // cenas do começo dele.
+    const cenaVelha = Math.max(0, Math.min(totalVelho - 1, S.cenario | 0));
+    let epVelha = linha.length - 1;
+    while (epVelha > 0 && cenaVelha < cena0[epVelha])
+        epVelha--;
+    const desloc = cenaVelha - cena0[epVelha];
+    const novaDe = function (i) {
+        return EPOCAS.findIndex(function (ep) { return ep.id === linha[i][0]; });
+    };
+    const destino = novaDe(epVelha);
+    // Época que saiu do arco (não deve acontecer, mas o save não pode virar pó por isso):
+    // fica onde está, aparado pelo mundo de hoje.
+    S.cenario = destino < 0 ? Math.min(TOTAL_CENAS - 1, cenaVelha)
+        : EPOCA_CENA0[destino] + Math.min(desloc, EPOCAS[destino].cenas - 1);
     // Os bits de fala vista e as pessoas acolhidas andam junto com a época delas, uma a uma.
-    // Reconstruir em vez de deslocar: um shift cego acenderia o bit de SALVADOR para quem
-    // nunca o viu, e a abertura do capítulo — que é a razão de o jogo existir — não abriria.
+    // Reconstruir em vez de deslocar: um shift cego acenderia o bit de um capítulo novo para
+    // quem nunca o viu, e a abertura dele — que é a razão de o jogo existir — não abriria.
     const ab = S.aberturas | 0, fe = S.fechos | 0, ac = S.acolhidos.slice();
     S.aberturas = 0;
     S.fechos = 0;
     S.acolhidos = EPOCAS.map(function () { return 0; });
-    ARCO0_EPOCA.forEach(function (nova, velha) {
+    linha.forEach(function (_, velha) {
+        const nova = novaDe(velha);
+        if (nova < 0)
+            return;
         if (ab & (1 << velha))
             S.aberturas |= (1 << nova);
         if (fe & (1 << velha))
@@ -5716,8 +5856,17 @@ function verificarCenario() {
     };
     // O fecho é do capítulo que TERMINOU, e vem antes de a paisagem trocar: quem lê "em 1500
     // chegaram navios" ainda está na praia de onde eles foram vistos.
-    if (vira)
-        mostrarFecho(saindoDe, avancar);
+    //
+    // E ENTRE UM E OUTRO PODE HAVER TRAVESSIA. A ordem é fecho → travessia → troca de cena →
+    // abertura, e ela é a ordem do tempo: o capítulo termina onde estava, a água vem depois
+    // dele, e o capítulo seguinte abre já do outro lado. Quando não há travessia declarada
+    // entre os dois, `correrTravessia` chama o `depois` na hora e nada muda.
+    if (vira) {
+        const entra = epocaDoCenario(proxima);
+        mostrarFecho(saindoDe, function () {
+            correrTravessia(EPOCAS[saindoDe].id, EPOCAS[entra].id, avancar);
+        });
+    }
     else
         avancar();
 }
@@ -7447,6 +7596,7 @@ function abrirTela(id) {
 }
 function fecharTelas() {
     pararFala(); // uma fala fechada por fora não pode continuar se revelando escondida
+    fimTravessia(); // ...e uma travessia fechada por fora devolve o mundo e a personagem
     TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
     document.body.classList.remove("emTela");
 }
@@ -7671,6 +7821,147 @@ function mostrarFecho(i, depois) {
     salvar();
     abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois);
     return true;
+}
+// ============================================================
+// A TRAVESSIA, EM FUNCIONAMENTO — ver o bloco de dados `TRAVESSIAS` lá em cima
+//
+// O trecho todo é UMA fala do sistema que já existe (mesma caixa, mesmo revelar letra a
+// letra, mesma cerimônia de nome), com quatro diferenças, e cada uma delas é uma linha do
+// desenho aprovado:
+//   · `body.travessando` tira o retrato da caixa — a personagem é figura humana e o §2.4
+//     não admite nenhuma em cena aqui — e traz o bloco de controles de volta POR CIMA da
+//     tela de fala, sem os cartões: o que fica é o botão dourado, aceso e inerte;
+//   · `travessiaViva` faz `clicar()` e `pular()` saírem na primeira linha: o botão não
+//     rende impacto e nada nasce. É a asserção que o smoke cobra;
+//   · o quadro é desenhado por `desenharTravessia()` em vez do mundo — mar, céu e nada mais;
+//   · `body.semPular` esconde o PULAR enquanto o bit desta travessia estiver apagado.
+// Nada disso é estado novo no mundo: a rua é esvaziada ao entrar e o capítulo seguinte a
+// semeia de novo, como faz em qualquer virada.
+let travessiaViva = null;
+let travessiaT = 0;
+// Quantos segundos de relógio de jogo passam por segundo real durante a travessia. O ciclo
+// inteiro do dia são 1800 s e um quarto dele (uma HORA das quatro) são 450: a 10× a travessia
+// de ~90 s consome 900 s, que são duas horas do ciclo. Começando no fim da TARDE, ela termina
+// dentro da NOITE — e a cerimônia de PALMARES, logo depois, varre a luz até o nascer do sol
+// (`saltoHora`), então o capítulo novo abre de manhã do outro lado do mar.
+const TRAVESSIA_LUZ = 10;
+function travessiaAtiva() { return travessiaViva !== null; }
+// Existe travessia entre estes dois capítulos? Devolve o índice, ou -1.
+function travessiaEntre(deId, paraId) {
+    return TRAVESSIAS.findIndex(function (t) { return t.de === deId && t.para === paraId; });
+}
+function correrTravessia(deId, paraId, depois) {
+    const i = travessiaEntre(deId, paraId);
+    if (i < 0) {
+        if (depois)
+            depois();
+        return false;
+    }
+    const tr = TRAVESSIAS[i];
+    const primeira = !jaViu(S.travessias, i);
+    S.travessias = ((S.travessias | 0) | (1 << i)) >>> 0;
+    travessiaViva = tr;
+    travessiaT = 0;
+    // A ÁGUA COMEÇA VAZIA. Tudo o que atravessa a tela sai daqui — e sai porque cada uma
+    // destas listas é gente, coisa de gente, ou sinal sobre gente.
+    mobs = [];
+    drops = [];
+    folhas = [];
+    grupo = [];
+    ficando = [];
+    moradores = [];
+    floats = [];
+    parts = [];
+    magias = [];
+    ondasChao = [];
+    marcoAtivo = null;
+    proximoMob = -1;
+    proximaFolha = -1;
+    combo = 0;
+    attackT = 0;
+    jumpT = 0;
+    // O céu parte do fim da TARDE para escurecer durante o trecho. É a única vez em que o
+    // relógio do dia é POSTO num valor em vez de andar sozinho, e é o que faz a travessia
+    // terminar no escuro sem uma linha de arte nova.
+    relogio = DIA_SEG * 0.42;
+    document.body.classList.add("travessando");
+    document.body.classList.toggle("semPular", primeira);
+    salvar();
+    abrirFala(tr.nome, tr.quando, tr.linhas, function () {
+        fimTravessia();
+        if (depois)
+            depois();
+    }, null, true);
+    return true;
+}
+// Devolve o jogo. Idempotente de propósito: quem chama é o fim da fala E `fecharTelas()`,
+// porque uma travessia fechada por fora (o PULAR, um caminho que ainda não existe) não pode
+// deixar o mundo sem controles e a personagem apagada.
+function fimTravessia() {
+    travessiaViva = null;
+    document.body.classList.remove("travessando");
+    document.body.classList.remove("semPular");
+}
+// O QUADRO DA TRAVESSIA: horizonte, água, e o céu escurecendo. Zero KB de arte — a cor sai
+// do mesmo `rampaCeu`/`luzDoDia` que pinta o resto do jogo, então a água pertence à mesma
+// luz que a mata de onde ela saiu. As três camadas do motor continuam existindo: a pintura
+// (fundoHD) e a personagem (heroHD) são LIMPAS, e o mar mora na camada do mundo, que é a
+// pixelada — é ela que dá ao mar a mesma textura de tudo o mais.
+function desenharTravessia() {
+    const fc = document.getElementById("fundoHD");
+    if (fc) {
+        const fx2 = fc.getContext("2d");
+        fx2.clearRect(0, 0, fc.width, fc.height);
+    }
+    // A camada da personagem é limpa AQUI, no lugar de `drawHero()`, e não fora do desenho
+    // dela — a armadilha do §7. Neste quadro ninguém desenha nela, então limpar é o desenho.
+    if (heroCx && heroCv)
+        heroCx.clearRect(0, 0, heroCv.width, heroCv.height);
+    // A LINHA DO HORIZONTE fica ACIMA do meio, e o número foi escolhido no print, não no
+    // gosto: com ela em 0,52 sobravam 47 px de tela de água entre o horizonte e a caixa de
+    // texto — uma faixa fina, e a tela lia como céu com uma tira escura embaixo. Em 0,40
+    // sobram ~165 px, e aí a água é o quadro, que é o que o trecho tem a dizer.
+    const hz = Math.round(H * 0.40);
+    for (let y = 0; y < hz; y++) {
+        cx.fillStyle = rgbS(rampaCeu(1, y / hz));
+        cx.fillRect(0, y, W, 1);
+    }
+    // A água: mais clara e mais fria perto do horizonte, funda embaixo. Duas cores e uma
+    // interpolação — é o que sobra quando não se tem arte, e é honesto.
+    const perto = luzDoDia([84, 124, 138]), fundo = luzDoDia([16, 34, 54]);
+    for (let y = hz; y < H; y++) {
+        cx.fillStyle = rgbS(mixA(perto, fundo, (y - hz) / (H - hz)));
+        cx.fillRect(0, y, W, 1);
+    }
+    // A emenda do horizonte: uma linha de luz de um pixel, que é o que separa água de céu
+    // sem desenhar terra nenhuma. Terra do outro lado seria dizer que se chega — e o trecho
+    // não é sobre chegar.
+    cx.globalAlpha = 0.5;
+    cx.fillStyle = rgbS(luzDoDia([210, 196, 160]));
+    cx.fillRect(0, hz, W, 1);
+    cx.globalAlpha = 1;
+    // AS VAGAS. Riscos horizontais que descem devagar: perto do horizonte são finos e quase
+    // parados, embaixo são largos e correm. É perspectiva feita com espaçamento, não com
+    // matemática de câmera — e é a única coisa que se move no quadro.
+    const espuma = luzDoDia([176, 200, 204]);
+    const n = 34;
+    for (let k = 0; k < n; k++) {
+        // a fase de cada vaga anda com o tempo; o módulo faz ela renascer no horizonte
+        const p = ((k / n) + (travessiaT * 0.045)) % 1;
+        const prof = Math.pow(p, 2.3); // compressão perto do horizonte
+        const y = hz + Math.round(prof * (H - hz));
+        if (y <= hz || y >= H)
+            continue;
+        const s = hash01(k * 13.7 + 1.3);
+        const larg = 8 + Math.round((14 + s * 40) * (0.25 + prof));
+        const x = Math.round(((s * 2.4 + p * (0.4 + s)) % 1) * (W + larg)) - larg;
+        cx.globalAlpha = (0.16 + s * 0.24) * (0.35 + prof * 0.65);
+        cx.fillStyle = rgbS(espuma);
+        cx.fillRect(x, y, larg, 1);
+        if (prof > 0.45)
+            cx.fillRect(x + 4, y + 1, Math.max(2, larg - 9), 1);
+    }
+    cx.globalAlpha = 1;
 }
 // Os nomes das cenas. Não afirmam nada de história — são lugares, e lugar não precisa de
 // fonte. O que precisar de fonte vai para TEXTOS e para o NOTES.md, não para cá.
@@ -8491,9 +8782,20 @@ document.addEventListener("DOMContentLoaded", () => {
             relogio += p;
             saltoHora -= p;
         }
-        rolarFundo(); // the painted backdrop travels with him
-        drawScene();
-        desenharMundo();
+        // A TRAVESSIA SUBSTITUI O QUADRO INTEIRO. Nem pintura, nem mundo, nem personagem: só
+        // mar, céu e o tempo passando. O relógio do dia corre aqui em canal próprio — a mesma
+        // exceção declarada do `saltoHora` logo acima, e pelo mesmo motivo: o mundo está parado
+        // (a fala está aberta), e a única coisa que este trecho encena É a passagem do tempo.
+        if (travessiaAtiva()) {
+            travessiaT += dt;
+            relogio += dt * TRAVESSIA_LUZ;
+            desenharTravessia();
+        }
+        else {
+            rolarFundo(); // the painted backdrop travels with him
+            drawScene();
+            desenharMundo();
+        }
         hudAcc += dt;
         if (hudAcc > 0.2) {
             desenhar();

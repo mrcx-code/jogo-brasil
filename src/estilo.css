@@ -591,6 +591,25 @@
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }
+  /* ===== A TRAVESSIA ===== o trecho em que o jogo para de ser jogo. Ver o bloco TRAVESSIAS
+     no jogo.ts para o desenho inteiro; aqui está só o que é de tela, e são quatro coisas.
+     1. NENHUMA FIGURA HUMANA (§2.4): o retrato de quem fala sai. A caixa fica sozinha
+        sobre a água, e é a voz do jogo falando, não a de uma personagem em cena. */
+  body.travessando #falaRetrato { display: none; }
+  /* 2. O BOTÃO DOURADO CONTINUA ALI E NÃO FAZ NADA. O bloco de controles é trazido de volta
+        por cima da tela de fala (`body.emTela` o havia mandado embora, como manda em toda
+        tela) — mas só ele: os cartões de ritmo, melhorias e menu somem, porque são
+        interface de jogo e aqui não há jogo. O botão fica aceso e inerte; quem toca nele
+        descobre isso com o dedo, e a segunda linha do texto explica que é de propósito. */
+  body.travessando #controls { transform: translateX(-50%); opacity: 1;
+    pointer-events: auto; z-index: 50; }
+  body.travessando #controls .cartao { visibility: hidden; }
+  /* 3. e a caixa de fala sobe acima do botão, senão o bloco de controles a cobriria */
+  body.travessando #telaFala { padding-bottom: calc(var(--hControles, 126px) + 10px); }
+  /* 4. NÃO É PULÁVEL NA PRIMEIRA VEZ. `semPular` só existe enquanto o bit desta travessia
+        estiver apagado — quem já atravessou uma vez tem o botão de volta. */
+  body.semPular #btnFalaPular { display: none; }
+
   /* ===== A HISTÓRIA: o quadrinho ===== (Direção de Arte, onda 8 — pedido do dono:
      "vamos tentar transformar ela num quadrinho… a tela toda vai se transformando de uma
      forma bonita, sem aparecer scroll".)

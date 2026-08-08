@@ -535,7 +535,9 @@ function alvo() {
   // o protótipo travessia+lugar-vivo — cópia deliberada, atualizada JUNTO com o ESQUEMA_SAVE.
   // `arco` entrou com SALVADOR: e o unico campo que existe para MIGRAR indices quando um
   // capitulo entra no MEIO da cronologia. Ver `migrarArco()` no src/jogo.ts.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'u1', 'u2', 'u3', 'u4'];
+  // `travessias` entrou com A TRAVESSIA (lote A do arco): um bit por trecho em que o jogo
+  // para de ser jogo, e o que ele decide e uma coisa so — a primeira vez nao e pulavel.
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
@@ -560,6 +562,66 @@ function alvo() {
     errors.push('people were teleported into a chapter that did not exist yet');
   if (migrado.acolhidos[migrado.acolhidos.length - 1] !== 9)
     errors.push('the last chapter lost the people it had welcomed');
+
+  // ---- e os casos que a tabela por IDENTIDADE passou a ter de sustentar ----
+  // A migracao deixou de ser duas listas de numeros escritas a mao e passou a casar `id` com
+  // `id` entre a linha do arco velho e `EPOCAS` (ver ARCOS/migrarArco no src/jogo.ts). O que
+  // se cobra aqui e o que essa mudanca promete: quem estava NO MEIO de um capitulo continua
+  // no mesmo capitulo e no mesmo ponto dele, quem ja esta no arco de hoje nao e remexido, e
+  // um `arco` fora da tabela nao derruba nada.
+  const casos = await page.evaluate(() => {
+    const rodar = (save) => {
+      localStorage.setItem(CHAVE_JOGO, JSON.stringify(save));
+      // `S` e reaproveitado entre chamadas de carregar(): zera-se o que a migracao le
+      S.arco = ARCO_ATUAL; S.cenario = 0; S.aberturas = 0; S.fechos = 0;
+      S.acolhidos = EPOCAS.map(() => 0);
+      carregar();
+      fecharRetorno();   // o save e velho de proposito, e o papel de volta abriria em cada caso
+      return { arco: S.arco, cena: S.cenario, epoca: EPOCAS[epocaAtual()].nome,
+        aberturas: S.aberturas, acolhidos: S.acolhidos.slice() };
+    };
+    return {
+      // 1. arco 0, cena 2 = a PRIMEIRA cena de Palmares. Palmares continua sendo Palmares em
+      //    todo arco, e o deslocamento dentro do capitulo (0) tem de sobreviver.
+      meioDePalmares: rodar({ energia: 0, energiaTotal: 4000, cenario: 2,
+        aberturas: 3, fechos: 1, acolhidos: [1, 4, 0], salvoEm: 1 }),
+      // 2. arco 0, cena 3 = a SEGUNDA cena de Palmares. Mesmo capitulo, um degrau adiante.
+      fimDePalmares: rodar({ energia: 0, energiaTotal: 5500, cenario: 3,
+        aberturas: 3, fechos: 1, acolhidos: [1, 4, 0], salvoEm: 1 }),
+      // 3. save ja do arco de hoje: a migracao nao pode encostar nele.
+      jaAtual: rodar({ energia: 0, energiaTotal: 9000, cenario: 4, arco: ARCO_ATUAL,
+        aberturas: 5, fechos: 1, acolhidos: [1, 2, 3, 4], salvoEm: 1 }),
+      // 4. `arco` alto (adulterado, ou de uma versao futura): nada se migra e nada quebra.
+      doFuturo: rodar({ energia: 0, energiaTotal: 3000, cenario: 1, arco: 9,
+        aberturas: 1, fechos: 0, acolhidos: [7, 0, 0, 0], salvoEm: 1 }),
+      // 5. `cenario` fora da faixa do arco velho: apara, nao explode.
+      foraDaFaixa: rodar({ energia: 0, energiaTotal: 9000, cenario: 99,
+        aberturas: 7, fechos: 7, acolhidos: [1, 2, 3], salvoEm: 1 }),
+      cena0: EPOCAS.map((_, i) => cenarioDaEpoca(i)), nomes: EPOCAS.map(e => e.nome)
+    };
+  });
+  console.log('arc migration by id ->', JSON.stringify({
+    meio: casos.meioDePalmares.epoca + '@' + casos.meioDePalmares.cena,
+    fim: casos.fimDePalmares.epoca + '@' + casos.fimDePalmares.cena,
+    jaAtual: casos.jaAtual.epoca + '@' + casos.jaAtual.cena,
+    futuro: casos.doFuturo.epoca + '@' + casos.doFuturo.cena,
+    fora: casos.foraDaFaixa.epoca + '@' + casos.foraDaFaixa.cena }));
+  const palmares = casos.nomes.indexOf('PALMARES');
+  if (casos.meioDePalmares.epoca !== 'PALMARES' || casos.meioDePalmares.cena !== casos.cena0[palmares])
+    errors.push('an old save mid-chapter did not land on the same chapter, same step: '
+      + casos.meioDePalmares.epoca + '@' + casos.meioDePalmares.cena);
+  if (casos.fimDePalmares.epoca !== 'PALMARES' || casos.fimDePalmares.cena !== casos.cena0[palmares] + 1)
+    errors.push('the offset inside the chapter was lost by the migration: '
+      + casos.fimDePalmares.epoca + '@' + casos.fimDePalmares.cena);
+  if (casos.meioDePalmares.acolhidos[palmares] !== 4)
+    errors.push('the welcomed people did not travel with their chapter');
+  if (casos.jaAtual.cena !== 4 || casos.jaAtual.aberturas !== 5)
+    errors.push('a save already on the current arc was migrated anyway: @'
+      + casos.jaAtual.cena + ' aberturas ' + casos.jaAtual.aberturas);
+  if (casos.doFuturo.arco !== 9 || casos.doFuturo.cena !== 1)
+    errors.push('a save from an arc this build does not know was rewritten: @' + casos.doFuturo.cena);
+  if (casos.foraDaFaixa.epoca !== 'AINDA AQUI')
+    errors.push('an out-of-range scene did not clamp into the last chapter: ' + casos.foraDaFaixa.epoca);
 
   await page.evaluate(() => localStorage.removeItem(CHAVE_JOGO));
 
@@ -717,9 +779,16 @@ function alvo() {
       fecharTelas();
       mobs.length = 0; drops.length = 0; floats.length = 0;
       saltoHora = 0;
-      S.cenario = cenarioDaEpoca(1) - 1;         // last scene of chapter 1
+      // A VIRADA MEDIDA AQUI E A DO CAPITULO 2 PARA O 3, e nao mais a do 1 para o 2: entre
+      // PINDORAMA e PALMARES passou a existir A TRAVESSIA, que POE o relogio num valor (fim
+      // de tarde) e o corre a 10x. Com ela no meio, medir "de que hora se parte" nao mede
+      // mais nada — a hora de partida seria apagada antes da cerimonia. O contrato sob teste
+      // continua o mesmo (virada de CAPITULO termina no nascer do sol) e agora e medido numa
+      // virada sem travessia. A travessia tem bloco proprio, logo abaixo do FLUXO 3.
+      S.cenario = cenarioDaEpoca(2) - 1;         // last scene of chapter 2
       S.energiaTotal = LIMIARES[S.cenario] - 3;  // parked just under the turn
-      S.aberturas = 1; S.fechos = 0;             // chapter 1 read, its close unseen
+      S.aberturas = 3; S.fechos = 1;             // chapters 1-2 read; chapter 2's close unseen
+      S.travessias = MASCARA_TRAVESSIAS;         // the crossing behind us, so it cannot replay
       redesenharFundo();
       window.setHora(f);
     }, fHora);
@@ -801,6 +870,84 @@ function alvo() {
   if (partida.cenario !== 0) errors.push('walking the menu moved the scenery: ' + partida.cenario);
   await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-menu-volta.png') });
   await page.evaluate(() => { localStorage.removeItem(CHAVE_JOGO); localStorage.removeItem(CHAVE_RET); });
+
+  // ============================================================
+  // A TRAVESSIA — o trecho em que o jogo PARA DE SER JOGO (lote A do arco)
+  //
+  // A promessa e verificavel e por isso esta aqui: durante a travessia o botao dourado
+  // continua na tela e NAO RENDE IMPACTO, e nada nasce. Um portao esquecido nao aparece em
+  // print nenhum — aparece num numero que sobe quando nao devia.
+  // As outras tres travas cobradas aqui:
+  //   · nenhuma figura humana em cena — o retrato da caixa de fala fica fora do quadro;
+  //   · a primeira vez nao e pulavel (o PULAR nao esta na tela);
+  //   · ao terminar, o jogo volta inteiro: sem a classe, com o mundo desenhando de novo.
+  // ============================================================
+  const trav = await page.evaluate(async () => {
+    fecharTelas();
+    S.u1 = S.u2 = S.u3 = S.u4 = false;
+    S.travessias = 0;                                  // ninguem atravessou ainda
+    S.energia = 0; S.energiaTotal = 100; S.cenario = 0; saltoHora = 0;
+    mobs.length = 0; drops.length = 0; folhas.length = 0; floats.length = 0;
+    correrTravessia('pindorama', 'palmares', null);
+    await new Promise(r => setTimeout(r, 200));
+    const estiloPular = getComputedStyle(document.getElementById('btnFalaPular')).display;
+    const retrato = getComputedStyle(document.getElementById('falaRetrato')).display;
+    const botao = document.getElementById('btnClique').getBoundingClientRect();
+    const antes = { total: S.energiaTotal, mobs: mobs.length, drops: drops.length,
+      folhas: folhas.length, relogio };
+    // o dedo, do jeito que o jogo o recebe: o toque solto e o segurar (que repete `clicar`)
+    for (let i = 0; i < 40; i++) clicar();
+    pular();
+    await new Promise(r => setTimeout(r, 900));         // e quase um segundo de mundo rodando
+    const durante = { total: S.energiaTotal, mobs: mobs.length, drops: drops.length,
+      folhas: folhas.length, relogio, viva: travessiaAtiva(),
+      classe: document.body.classList.contains('travessando') };
+    return { pular: estiloPular, retrato, botao, antes, durante };
+  });
+  await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-travessia.png') });
+  console.log('crossing -> impact', (trav.durante.total - trav.antes.total).toFixed(2),
+    '| born:', trav.durante.mobs + trav.durante.drops + trav.durante.folhas,
+    '| button on screen:', trav.botao.width > 0 && trav.botao.height > 0,
+    '| SKIP hidden:', trav.pular === 'none', '| portrait hidden:', trav.retrato === 'none',
+    '| clock ran', (trav.durante.relogio - trav.antes.relogio).toFixed(0) + 's');
+  if (!trav.durante.viva || !trav.durante.classe) errors.push('the crossing did not stay open');
+  if (trav.durante.total !== trav.antes.total)
+    errors.push('the golden button paid out during the crossing: +' + (trav.durante.total - trav.antes.total));
+  if (trav.durante.mobs || trav.durante.drops || trav.durante.folhas)
+    errors.push('something was born during the crossing: ' + JSON.stringify(trav.durante));
+  if (!(trav.botao.width > 0 && trav.botao.height > 0))
+    errors.push('the golden button left the screen during the crossing — it has to be there and do nothing');
+  if (trav.pular !== 'none') errors.push('the first crossing was skippable');
+  if (trav.retrato !== 'none') errors.push('a human figure was on screen during the crossing');
+  if (!(trav.durante.relogio - trav.antes.relogio > 3))
+    errors.push('the sky did not darken during the crossing: the day clock stood still');
+  // ...e o fim dela devolve o jogo: a agua acaba, o mundo volta, a segunda vez e pulavel
+  const depoisTrav = await page.evaluate(async () => {
+    for (let i = 0; i < 60 && travessiaAtiva(); i++) {
+      if (emCerimonia()) fimCerimonia(); else avancarFala();
+      await new Promise(r => setTimeout(r, 20));
+    }
+    await new Promise(r => setTimeout(r, 300));
+    const x0 = worldX;
+    await new Promise(r => setTimeout(r, 400));
+    // e a segunda travessia ja nasce pulavel, porque o bit ficou gravado
+    correrTravessia('pindorama', 'palmares', null);
+    await new Promise(r => setTimeout(r, 150));
+    const pular2 = getComputedStyle(document.getElementById('btnFalaPular')).display;
+    fecharTelas();
+    await new Promise(r => setTimeout(r, 100));
+    return { viva: travessiaAtiva(), classe: document.body.classList.contains('travessando'),
+      andou: worldX - x0, bit: S.travessias, pular2,
+      limpou: travessiaAtiva() || document.body.classList.contains('travessando') };
+  });
+  console.log('crossing done -> world walking again:', depoisTrav.andou.toFixed(1) + 'px',
+    '| bit stored:', depoisTrav.bit, '| second time skippable:', depoisTrav.pular2 !== 'none');
+  if (depoisTrav.viva || depoisTrav.classe) errors.push('the crossing never ended');
+  if (!(depoisTrav.andou > 1)) errors.push('the world did not start walking again after the crossing');
+  if (!depoisTrav.bit) errors.push('the crossing was not recorded, so it will never be skippable');
+  if (depoisTrav.pular2 === 'none') errors.push('the second crossing is still not skippable');
+  if (depoisTrav.limpou) errors.push('closing the screens left the crossing state behind');
+  await page.evaluate(() => { fecharTelas(); S.travessias = 0; localStorage.removeItem(CHAVE_JOGO); });
 
   // ---- FLOW 4: com a HISTÓRIA aberta, o mundo NÃO ANDA ----
   // Pedido do dono (2026-08-07): "o jogo já acontece enquanto a história passa, não deve ser
