@@ -1,64 +1,78 @@
 # RETOMADA — leia isto primeiro na próxima sessão
 
-Atualizado em 2026-08-07, fim do dia, depois de uma **auditoria de handoff** que o dono
-pediu com estas palavras: *"garanta que não tenha mais nenhum pedido esquecido"*. O que
-está abaixo é o resultado dela — inclusive o que estava esquecido.
+Atualizado na madrugada de 2026-08-08, turno autônomo (o dono dorme, volta ~9 h).
+**Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.**
 
-## As três pernas, que mandam em tudo (CLAUDE.md §8)
+## As três pernas, que mandam em tudo (`CLAUDE.md` §8)
 
 **bonito · divertido · ensina**, com o mesmo peso. Entrega que ganha numa às custas de
-outra não está pronta. E há licença de arquitetura: plano é ferramenta, não compromisso.
+outra não está pronta. Há licença de arquitetura: plano é ferramenta, não compromisso.
 
-## PEDIDOS DO DONO QUE ESTAVAM ESQUECIDOS — achados nesta auditoria
+## O que o dono decidiu na noite de 07/08 e está em execução
 
-1. **Os dois capítulos pré-1500** (sambaquis "A COSTA QUE ELES LEVANTARAM", Amazônia "A
-   FLORESTA É OBRA"). Ele respondeu **"bora fazer então"** e a resposta ficou parada na
-   fila. Estão desenhados no NOTES.md com abertura, fecho, fontes e a trava anti-religião
-   cumprida por desenho. **Falta arte** (a maior encomenda já feita: 4 pinturas, 2 folhas,
-   2 retratos, 4 contextos, 12 objetos) e a regra que o historiador propôs como
-   inviolável: só fazer se ficarem TÃO BONS quanto o melhor capítulo — abertura feia sobre
-   engenheiros milenares diz "primitivo" sem usar a palavra.
-2. **Explorar jogabilidade por capítulo** (06/08): *"pode pensar em outras propostas para
-   as outras"*, mantendo um capítulo no padrão atual. Registrei e não virou trabalho.
-   **Agora está no escopo do PM**, com a trava nova: variedade não pode poluir a tela.
-3. **SVG para pesar menos** (05/08): perguntado e nunca respondido. **Respondido agora**,
-   com número, no NOTES.md — não vale (ganho máximo de 0,6%).
+1. **O escopo é a história do Brasil até hoje**, num lugar só — da escravidão e do navio
+   negreiro ao voto feminino, à ditadura, à polarização, aos escândalos e à Covid. Critério
+   dele: **cutucar a ferida, mas conscientizar e dar informação**.
+2. **A travessia entra pelas DUAS pontas** (aprovado): `A TRAVESSIA` como transição de 90 s
+   entre PINDORAMA e PALMARES — o botão dourado não faz nada e o jogo diz em voz alta que
+   não vai mostrar o porão — **e** `O CAIS QUE VOLTOU À LUZ` como capítulo (Valongo, verbo
+   **trazer à luz**).
+3. **O contemporâneo entra sob a REGRA DO DOCUMENTO** (`CLAUDE.md` §2.5).
+4. **A HISTÓRIA virou quadrinho** (publicado): 26 páginas de tela cheia, encaixe ao rolar,
+   sem barra. Se o dono gerar arte nova, o primeiro lugar onde ela rende são os marcos de
+   vão — **mas "a travessia forçada" não aceita paisagem nenhuma** (§2.4).
+5. **Fluidez**: rever objetos aleatórios, fundos que não fazem sentido e imagens que não
+   se conversam.
 
-## Decidido pelo dono e NÃO implementado (a dívida honesta)
+## Trabalho em voo (integrar por patch, como sempre)
 
-| o quê | quando ele decidiu | estado |
-|---|---|---|
-| **Drops destrancam o capítulo** (pelo total, não por tipo) | 05/08 | zero linha escrita |
-| **Supabase**: código de transferência, placar anônimo | 05/08 | zero linha — e a tela de AJUSTES promete "nada sai deste aparelho": reescrever na MESMA fase |
-| **React nas telas · Phaser no motor** | 05/08 | as fases 1–2 (Capacitor, TypeScript) foram feitas; estas não |
-| **Plataformas estilo Mario** ("serve ao jogo apenas") | 07/08 | no escopo do PM agora |
-| **APK compilado** | — | nunca executado: falta JDK e Android SDK nesta máquina |
+- **Coerência visual** (worktree): objetos/fundos/imagens por capítulo.
+- **Lote A do arco** (worktree): `AINDA AQUI` para o fim + migração de save **uma vez só** +
+  `A TRAVESSIA`.
+
+## As travas que entraram no §2 e são lei
+
+**As oito recusas da travessia** (§2.4) e a **REGRA DO DOCUMENTO** (§2.5). Estão em vigor
+como restrição ativa; o dono ainda não confirmou o bloco formalmente — restrição erra para
+o lado seguro. **Nenhuma produção sobre escravidão começa sem esse aval.**
+
+A régua que resume o arco inteiro: **o jogo nunca pede à pessoa que faça, com a mão, aquilo
+que ele está condenando.**
+
+## O gap que decide o futuro e é do dono
+
+**Peso.** 3,4 MB hoje; ~380 KB por capítulo; **o teto estoura no capítulo 6, e a fila chega
+a seis no lote C.** Carga sob demanda vira requisito ali — e quebra o arquivo único de
+saída. Sem essa decisão, o arco para no lote B.
 
 ## Esperando o dono (mesa: `npm run mesa` → localhost:8200)
 
-- **3 folhas de corrida** com a pessoa da caminhada (as que chegaram trazem outra pessoa — §2)
-- **Ler o fecho novo de PINDORAMA** e os textos de SALVADOR (o texto de EPOCAS é dele, palavra por palavra)
-- **Em Palmares, o que a mão da pessoa recebe?** (pendência antiga, sem resposta)
-- **A auditoria §2 em workflow** — oferecida, aguardando sim
+- **Folha v3 da ganhadeira** — só as poses do apoio (a v2 repete o contato; escorregamento
+  18,75% contra 0,00% do cap. 1)
+- **3 folhas de corrida** com a pessoa da caminhada
+- **Ler** o fecho de PINDORAMA e os textos de SALVADOR (o texto de `EPOCAS` é dele)
+- **Carga sob demanda**: aceita quebrar o arquivo único?
 
-## O gap estrutural que ninguém resolveu
+## Decidido e NÃO implementado (dívida antiga)
 
-**Peso.** Caiu 24,5% hoje (4.455 → 3.362 KB) mas a ~380 KB por capítulo o teto volta a
-estourar no **6º**. Com 12 capítulos planejados, **carga sob demanda é inevitável** — e
-ela quebra a regra do arquivo único, que já foi flexibilizada uma vez. É decisão do dono.
+Drops destrancam o capítulo · Supabase (e a tela de AJUSTES promete "nada sai deste
+aparelho" — reescrever na MESMA fase) · React nas telas · Phaser no motor · plataformas
+estilo Mario (no Sprint 2) · APK (falta JDK nesta máquina) · **os dois capítulos pré-1500**,
+que ele aprovou com "bora fazer então" e esperam arte.
 
-## Como trabalhar (não mude isto sem motivo)
+## Como trabalhar (não mude sem motivo)
 
-- `npm test` verde ANTES de commitar — e **leia a saída**: em 07/08 eu commitei com o teste
-  vermelho porque o encadeamento do comando seguiu adiante. `main` é produção.
-- Integração de agente: `git diff <base> -- src/ > x.patch && git apply --3way x.patch`.
-  Conflito entre agentes: **manter os dois lados**.
+- `npm test` verde **e LEIA A SAÍDA** antes de commitar — em 07/08 commitei com o teste
+  vermelho porque o encadeamento seguiu adiante. `main` é produção.
+- Integração: `git diff <base> -- src/ > x.patch && git apply --3way x.patch`. Conflito
+  entre agentes: **manter os dois lados**.
 - **Sempre olhar os prints.** O teste garante que não quebrou, não que ficou bom.
 - A mesa distingue **entregue** de **processado** — o bloco "CHEGOU E AINDA NÃO ENTROU"
-  existe porque eu perdi duas entregas em 07/08 por confundir os dois.
+  existe porque perdi duas entregas em 07/08 por confundir os dois. Marque em
+  `ferramentas/processadas.json` ao integrar arte.
 
 ## Documentos vivos
 
-`CLAUDE.md` (regras + a tese) · `DIRECAO.md` (arte, a barra premiada, ondas 1–5) ·
-`SPRINT.md` (PM) · `QA.md` (bugs e gaps) · `EQUIPE.md` (os quatro papéis e o protocolo) ·
-`JOGABILIDADE.md` · `NOTES.md` (Diário e todas as fontes).
+`CLAUDE.md` (regras, tese, as travas) · `DIRECAO.md` (arte: a barra premiada, as
+referências, ondas 1–8) · `SPRINT.md` (PM) · `QA.md` · `EQUIPE.md` · `JOGABILIDADE.md` ·
+`NOTES.md` (Diário, fontes, vocabulário, o arco aprovado).
