@@ -1203,7 +1203,51 @@ function alvo() {
     let n = 0; const t0 = performance.now();
     (function f() { n++; performance.now() - t0 < 2000 ? requestAnimationFrame(f) : res(Math.round(n / 2)); })();
   }));
-  console.log('FPS:', fps);
+    // ---- A CRONOLOGIA, capitulo por capitulo em sequencia (pedido do dono, 08/08) ----
+  // Tres regras, e as tres quebraram no mesmo dia por dois bugs meus:
+  //  1. escolher o PROPRIO capitulo RETOMA onde parou (nao rebobina) e o jogo volta a andar;
+  //  2. visitar capitulo ja vencido nao avanca sozinho, e nao move a fronteira;
+  //  3. voltar ao capitulo da fronteira DESTRAVA — e o menu continua mostrando tudo o que
+  //     ja foi alcancado, porque o destrave sai da FRONTEIRA e nao da cena atual.
+  const crono = await page.evaluate(async () => {
+    const ep = i => epocaDoCenario(i);
+    const toca = k => document.querySelectorAll('.capItem')[k]
+      .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    // A virada de capitulo tem cerimonia: 1,5 s nao bastava e o teste acusava congelamento
+    // que nao existia. 100 x 40 ms = 4 s, com folga sobre os ~2,4 s medidos.
+    // fecharTELAS, nao fecharTudo: fecharTudo fecha so as gavetas, e com a fala aberta o
+    // verificarCenario sai cedo de proposito — o teste media um jogo que nao podia andar.
+    const roda = async n => { for (let k = 0; k < n; k++) { verificarCenario(); fecharTelas(); await new Promise(r => setTimeout(r, 40)); } };
+    fecharTelas();
+    S.aberturas = 255; S.fechos = 255; S.travessias = 255;
+    S.cenario = 3; S.fronteira = 3; S.energiaTotal = LIMIARES[2] + 50;
+    montarCapitulos(); toca(ep(3));
+    const retomou = S.cenario;
+    S.energiaTotal = LIMIARES[3] + 50; await roda(100);
+    const andouDepois = S.cenario;
+    S.cenario = 4; S.fronteira = 4; S.energiaTotal = LIMIAR_FIM;
+    montarCapitulos(); toca(0);
+    const visitou = S.cenario; await roda(100);
+    const ficouParado = S.cenario, frontIntacta = S.fronteira;
+    montarCapitulos();
+    const abertos = document.querySelectorAll('.capItem:not(.preso)').length;
+    toca(ep(4));
+    const destravou = S.cenario;
+    S.energiaTotal = LIMIARES[4] + 50; await roda(100);
+    return { retomou, andouDepois, visitou, ficouParado, frontIntacta, abertos, destravou, andouNoFim: S.cenario };
+  });
+  console.log('cronologia -> retomou na', crono.retomou, '| andou para', crono.andouDepois,
+    '| visitou', crono.visitou, 'e ficou', crono.ficouParado,
+    '| capitulos abertos apos visitar:', crono.abertos, '| destravou em', crono.destravou, '->', crono.andouNoFim);
+  if (crono.retomou !== 3) errors.push('picking your own chapter rewound the scene');
+  if (crono.andouDepois !== 4) errors.push('progress froze after picking your own chapter');
+  if (crono.ficouParado !== crono.visitou) errors.push('visiting an old chapter dragged the player forward');
+  if (crono.frontIntacta !== 4) errors.push('visiting an old chapter moved the frontier back');
+  if (crono.abertos < 3) errors.push('visiting an old chapter re-locked the chapters already reached');
+  if (crono.andouNoFim !== 5) errors.push('returning to the frontier did not unfreeze progress');
+
+
+console.log('FPS:', fps);
 
   console.log(errors.length ? 'FAIL\n' + errors.join('\n') : 'PASS — no errors');
   await browser.close();

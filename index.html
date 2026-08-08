@@ -6045,9 +6045,23 @@ function proximoLimiar() {
 // guarda a cena mais avançada alcançada; visitar não a move. A progressão automática só volta
 // a valer quando ela está NA fronteira — que é onde o jogo de fato continua.
 let visitando = false;
-function irParaCena(i) {
-    S.cenario = i;
-    visitando = i < (S.fronteira | 0);
+// Entrar num CAPÍTULO pelo menu. Recebe a época, não a cena — e a diferença é o bug que eu
+// mesmo plantei em 08/08 ao consertar o B1: `irParaCena(cenarioDaEpoca(ep))` levava sempre à
+// PRIMEIRA cena do capítulo. Escolher o capítulo em que a pessoa já estava a rebobinava uma
+// cena E ligava `visitando` (porque a primeira cena é menor que a fronteira), o que congelava
+// a progressão PARA SEMPRE — nada mais avançava, em nenhum capítulo. O dono viu como "o jogo
+// está bugado entre as eras", e estava.
+//
+// A regra, que é a que o dono pediu — cronologia sempre, capítulo por capítulo em sequência:
+//  · capítulo da FRONTEIRA  → retoma exatamente onde parou, e o jogo volta a andar;
+//  · capítulo JÁ VENCIDO    → visita: entra no começo dele e nada avança sozinho;
+//  · capítulo ainda TRANCADO → não existe no menu.
+function entrarNaEpoca(ep) {
+    const front = S.fronteira | 0;
+    const primeira = cenarioDaEpoca(ep);
+    const daFronteira = epocaDoCenario(front) === ep;
+    S.cenario = daFronteira ? front : primeira; // retomar, não rebobinar
+    visitando = !daFronteira && primeira < front;
     salvar();
 }
 function verificarCenario() {
@@ -8473,11 +8487,18 @@ const MOMENTOS = [
 function montarCapitulos() {
     const box = $("listaCapitulos");
     box.textContent = "";
-    const atual = epocaAtual();
+    // O que está destrancado sai da FRONTEIRA, não da cena em que a pessoa está agora. Sair
+    // pela cena atual era a segunda metade do bug "o jogo está bugado entre as eras": visitar
+    // PINDORAMA depois de chegar a SALVADOR trancava SALVADOR — a pessoa entrava num capítulo
+    // antigo e não tinha como voltar, porque o menu passava a achar que ela nunca tinha
+    // chegado lá. A cronologia é sempre a mesma, capítulo por capítulo em sequência; o que
+    // muda é até onde já se foi, e isso é a fronteira.
+    const atual = epocaDoCenario(Math.max(cenarioAtual(), S.fronteira | 0));
+    const onde = epocaAtual(); // onde a pessoa ESTÁ, para o selo
     EPOCAS.forEach(function (ep, i) {
         const livre = i <= atual;
         const b = document.createElement("button");
-        b.className = "capItem " + (livre ? (i === atual ? "livre" : "") : "preso");
+        b.className = "capItem " + (livre ? (i === onde ? "livre" : "") : "preso");
         b.type = "button";
         // A TINTA SAI DO MATERIAL DA TÁBUA, não de "livre" — e é por não sair que o nome da era
         // sumia. Medido (test/_cor.js, print test/MC-A-lista-cheia.png): nas três eras já
@@ -8519,7 +8540,7 @@ function montarCapitulos() {
                 e.preventDefault();
                 // Entrar numa era conta a história SEMPRE — decisão do dono ("cadê a historinha"):
                 // escolher a era É pedir a história; quem já leu tem o PULAR.
-                irParaCena(cenarioDaEpoca(i));
+                entrarNaEpoca(i);
                 redesenharFundo();
                 fecharTelas();
                 mostrarAbertura(undefined, true);
