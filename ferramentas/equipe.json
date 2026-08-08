@@ -1,8 +1,20 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "07/08 · arco até hoje aprovado · lote A começando",
+  "atualizado": "08/08 · madrugada · quadrinho e travessia no ar",
   "emVoo": [],
   "entregue": [
+    {
+      "q": "travessia",
+      "t": "A TRAVESSIA: 90 s em que o jogo para de ser jogo"
+    },
+    {
+      "q": "arco",
+      "t": "Capítulo deixa de ser identificado por posição — id imutável"
+    },
+    {
+      "q": "onda 8",
+      "t": "A HISTÓRIA virou quadrinho: 26 páginas, sem barra de rolagem"
+    },
     {
       "q": "onda 6",
       "t": "O papel ganha tinta de caderno — Arial Black deixa de ser voz"
@@ -26,24 +38,12 @@
     {
       "q": "peso",
       "t": "4.455 → 3.362 KB (−24,5%), sem perda visível"
-    },
-    {
-      "q": "história",
-      "t": "A história PARA o mundo — o jogo não compete mais com o texto"
-    },
-    {
-      "q": "SALVADOR",
-      "t": "O capítulo 3 entrou: 1835, a ganhadeira, a véspera do levante"
-    },
-    {
-      "q": "invasão",
-      "t": "O fecho conta o que houve — violência com sujeito"
     }
   ],
   "proximos": [
     {
-      "t": "Carga sob demanda: o arquivo único cai no lote B/C. Aceita?",
-      "dep": "VOCÊ · ⚠"
+      "t": "Pintura do MAR para a travessia (hoje é gradiente — honesto, não impressionante)",
+      "dep": "VOCÊ · 1 imagem"
     },
     {
       "t": "Folha v3 da ganhadeira — só as poses do apoio",
@@ -54,12 +54,12 @@
       "dep": "VOCÊ · 3 folhas"
     },
     {
-      "t": "Lote A: migração + AINDA AQUI para o fim + A TRAVESSIA",
-      "dep": "Dev"
+      "t": "Carga sob demanda: o arquivo único cai no lote B/C. Aceita?",
+      "dep": "VOCÊ · ⚠"
     },
     {
-      "t": "Conferir na fonte os números do arco novo (lista no NOTES)",
-      "dep": "historiador"
+      "t": "Lote B: O CAIS QUE VOLTOU À LUZ (Valongo)",
+      "dep": "depois da decisão de peso"
     }
   ]
 }

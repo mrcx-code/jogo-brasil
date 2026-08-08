@@ -253,6 +253,22 @@
       "ref": "a v2 tem 8 poses e so 2 fases: quatro sao o mesmo apoio duplo e quatro a mesma passagem. Faltam 108 px de sprite de passada.",
       "tam": "FOLHA 8 celulas iguais · magenta",
       "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto.\n\nMESMA mulher da folha anterior (ganhadeira de Salvador, 1835: vestido claro, pano da costa listrado, TABULEIRO na cabeça), MESMA escala, MESMO estilo — é uma correção da mesma folha, não uma personagem nova.\n\nFOLHA DE CAMINHADA LATERAL, 8 quadros em células de LARGURA IGUAL, andando para a direita, com a figura CENTRADA em cada célula.\n\nO QUE ESTA FOLHA PRECISA TER, e é onde a anterior falhou: as poses do APOIO — o pé plantado no chão e o CORPO PASSANDO POR CIMA DELE. Distribua os 8 quadros ao longo do passo INTEIRO, em intervalos iguais: do calcanhar tocando à frente, passando pelo peso sobre o pé plantado (esta é a fase que faltou por completo), até o impulso do dedo atrás. NÃO repita a pose de contato: na folha anterior, quatro dos oito quadros eram o mesmo instante, e por isso o pé desliza.\n\nO tabuleiro fica ESTÁVEL na cabeça em todos os quadros — é o que ela carrega, não pode balançar."
+    },
+    {
+      "nome": "trav-mar",
+      "titulo": "A TRAVESSIA · o mar aberto",
+      "semMagenta": true,
+      "ref": "os 90 s em que o jogo para de ser jogo, entre Pindorama e Palmares. Hoje o mar e feito de gradiente em canvas — honesto, nao impressionante.",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nMar aberto visto de dentro dele, do nível da água: oceano Atlântico até o horizonte, ondulação longa e lenta, céu de fim de tarde alto e vazio, luz baixa vindo de trás. Água escura e profunda, com brilho quebrado na superfície.\n\nABSOLUTAMENTE SEM: navio, vela, mastro, embarcação de qualquer tipo, silhueta no horizonte, pessoa, ave, terra à vista. **Só água, céu e distância.** Esta imagem acompanha o trecho do jogo sobre a travessia transatlântica, e a decisão do projeto é NÃO mostrar o navio — a imagem existe para ser o vazio em que o texto fala.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo. Sem texto, sem moldura."
+    },
+    {
+      "nome": "ctx-vao-cidade-africana",
+      "titulo": "MARCO · a cidade africana (Salvador)",
+      "semMagenta": true,
+      "ref": "marco de vao na tela A HISTORIA, hoje sem imagem",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nSalvador no começo do século XIX vista de um ponto alto: casario colonial descendo a encosta, telhados, a Baía de Todos-os-Santos ao fundo com saveiros. Fim de tarde. Vultos pequenos e anônimos de trabalho na cidade baixa, à distância, sem rosto.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo. Sem texto, sem moldura."
     }
   ]
 }
