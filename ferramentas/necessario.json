@@ -301,6 +301,14 @@
       "ref": "e o unico objeto FRIO do jogo (R-B = -174 contra +1 a +141 dos outros 41) e o unico com traco de vetor",
       "tam": "OBJETO ~200×240 · magenta",
       "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nUm galão de água de plástico azul — MANTENHA o objeto e o azul, porque ele é o único objeto industrial do jogo e isso é justamente o assunto do capítulo do presente.\n\nO QUE MUDA: o acabamento. Hoje ele é liso e envernizado, com cara de ilustração vetorial, e destoa dos outros 41 objetos do jogo. Refaça em pintura de pixel com a MESMA mancha e o MESMO contorno dos demais: poucos tons, borda dura, contorno marrom escuro. E baixe o valor geral (hoje é claro demais para a rua — deve assentar na faixa do mundo, não brilhar).\n\nObjeto INTEIRO no quadro, com folga nas quatro bordas.\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão, sem vinheta."
+    },
+    {
+      "nome": "cap4-gente",
+      "titulo": "SALVADOR · a gente da rua (o que falta para o verbo se LER)",
+      "semMagenta": false,
+      "ref": "hoje quem atravessa a rua e desenhado como o OBJETO SOZINHO — um tabuleiro que anda. O verbo e 'levar palavra' e o sinal mora na PESSOA.",
+      "tam": "FOLHA horizontal, células IGUAIS · magenta",
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual do jogo.\n\nFOLHA DE CAMINHADA LATERAL de GENTE da rua de Salvador em 1835 — mesmo molde da folha de Palmares que já funciona: 8 quadros em células de LARGURA IGUAL, perfil andando para a direita, figura centrada em cada célula, distribuindo o passo INTEIRO (inclusive as poses de apoio, com o pé plantado e o corpo passando por cima dele).\n\nTRÊS PESSOAS, uma folha cada (ou três linhas na mesma folha, células iguais): (1) um aguadeiro carregando barril; (2) um carregador com fardo às costas; (3) outra ganhadeira com tabuleiro na cabeça.\n\nGente negra da Bahia de 1835, roupa de trabalho de rua — algodão claro, pano da costa, pés no chão ou sandália simples. DIGNIDADE: são trabalhadores da cidade, não figurantes; postura ereta, sem caricatura. MESMA escala da protagonista (compare pela altura do corpo, não pela cabeça — ela leva tabuleiro).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão."
     }
   ]
 }

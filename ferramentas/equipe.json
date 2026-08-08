@@ -1,21 +1,20 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "08/08 · três agentes em campo",
-  "emVoo": [
-    {
-      "papel": "Dev",
-      "t": "O verbo de SALVADOR: alcançar é LEVAR PALAVRA (o texto promete, a mão desmente)"
-    },
-    {
-      "papel": "QA",
-      "t": "O dia inteiro sob teste — caça a regressão depois de 9 integrações"
-    },
-    {
-      "papel": "Arte",
-      "t": "Onda 7: os ícones saem do motor antigo (contorno navy, escala não-inteira)"
-    }
-  ],
+  "atualizado": "08/08 · o verbo de Salvador no ar · B1 consertado",
+  "emVoo": [],
   "entregue": [
+    {
+      "q": "Salvador",
+      "t": "Alcançar virou LEVAR PALAVRA — e ela se propaga sozinha"
+    },
+    {
+      "q": "QA",
+      "t": "B1 consertado: o jogo parou de arrastar a pessoa de volta"
+    },
+    {
+      "q": "onda 7",
+      "t": "Os ícones saem do motor de rua — navy zerado, a varinha virou Cetro"
+    },
     {
       "q": "coerência",
       "t": "Salvador para de ter catedral impossível — eixo de simetria 29% → 0%"
@@ -39,52 +38,32 @@
     {
       "q": "onda 8",
       "t": "A HISTÓRIA virou quadrinho: 26 páginas, sem barra de rolagem"
-    },
-    {
-      "q": "onda 6",
-      "t": "O papel ganha tinta de caderno — Arial Black deixa de ser voz"
-    },
-    {
-      "q": "passada",
-      "t": "Salvador: escorregamento 87,8% → 18,75% com a folha v2"
-    },
-    {
-      "q": "sprint 2",
-      "t": "O veredito medido: aceitável, não divertido — 5 decisões em 8 min"
     }
   ],
   "proximos": [
     {
-      "t": "SALVADOR: pintura de cima LADRILHÁVEL (mata o corte vertical)",
-      "dep": "VOCÊ · 1 imagem"
-    },
-    {
-      "t": "SALVADOR: chão refeito para casar com o de cima",
-      "dep": "VOCÊ · 1 imagem"
-    },
-    {
-      "t": "SALVADOR: os 3 itens recortados com folga (chegam picotados)",
+      "t": "GENTE de Salvador — hoje é um tabuleiro que anda, sem pessoa",
       "dep": "VOCÊ · 1 folha"
     },
     {
-      "t": "AINDA AQUI: o galão no traço da casa (é o único objeto frio do jogo)",
-      "dep": "VOCÊ · 1 objeto"
+      "t": "SALVADOR: pintura ladrilhável + chão + os 3 itens com folga",
+      "dep": "VOCÊ · 3 imagens"
     },
     {
-      "t": "Pintura do MAR para a travessia",
-      "dep": "VOCÊ · 1 imagem"
+      "t": "Pintura do MAR, folha v3 da ganhadeira, as 3 corridas",
+      "dep": "VOCÊ · 5 imagens"
     },
     {
-      "t": "Folha v3 da ganhadeira + as 3 corridas",
-      "dep": "VOCÊ · 4 folhas"
-    },
-    {
-      "t": "A aura do lugar de espera aparece em TODOS os capítulos — é sinal, não cenário",
+      "t": "A aura do lugar de espera aparece em TODOS os capítulos",
       "dep": "VOCÊ · ⚠"
     },
     {
       "t": "Carga sob demanda: o arquivo único cai no lote B/C",
       "dep": "VOCÊ · ⚠"
+    },
+    {
+      "t": "O gesto de alcançar ainda é 'bater por baixo' com nome novo",
+      "dep": "⚠ §2"
     }
   ]
 }
