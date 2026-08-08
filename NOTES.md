@@ -2467,3 +2467,36 @@ no `PASSO_CAP`. A dúvida honesta: com 3 quadros e um laço de 10,7 px de mundo,
 pose 10 vezes por segundo, contra 6 do capítulo 1 — a cadência fica mais miúda que a das
 irmãs, e isso é consequência direta de a folha não ter o meio do apoio. Se a terceira folha
 vier com as poses de apoio, o laço cresce e a cadência se acalma sozinha.
+
+## O ESCOPO FINAL, dito pelo dono em 2026-08-07 (noite)
+
+Palavras dele: *"Quero que a gente foque no Brasil como um todo. Vamos falar da escravidão,
+do navio negreiro, da situação que foi a abolição, todo o processo que o pessoal teve que
+passar, da luta que as mulheres tiveram pra conseguir votar, pra ter voz na sociedade, todo
+o processo da ditadura, todos os momentos até hoje. Polarização, escândalos de corrupção,
+Covid. Falar da realidade do ponto de vista do Brasil desde o começo. Completar de uma forma
+que a gente consiga **cutucar a ferida, mas conscientizar as pessoas e dar informação**.
+De forma prática, ter tudo num lugar só."*
+
+O jogo deixa de ser "três retratos" e passa a ser **a história do Brasil até hoje, num lugar
+só**. O arco de 12 vira maior. A tese continua: bonito · divertido · ensina.
+
+### As duas linhas que este escopo cruza, e que NÃO se decidem sem o dono
+
+**1. O navio negreiro.** O §2.2 foi escrito exatamente sobre isto: pessoas escravizadas não
+viram recurso, inimigo, obstáculo nem coisa a coletar. Um capítulo de tumbeiro é o pedido de
+maior risco do projeto inteiro — e também o mais necessário, porque a travessia é o fato
+fundador que o país mais evita olhar. A pergunta não é *se*, é *como*: quem é o sujeito, o
+que a mão faz, e o que o jogo se recusa a encenar.
+
+**2. Política contemporânea.** Polarização, escândalos de corrupção e Covid são história
+recente com feridas abertas e partido no meio. O CLAUDE.md já proíbe pessoa real como
+inimigo, e o projeto-mãe alertava contra "cara de palanque". Dizer a verdade com fonte é
+obrigação; escolher lado partidário é o fim do jogo como ferramenta de consciência. Precisa
+de uma REGRA escrita, não de bom senso caso a caso.
+
+### O que isso custa, dito antes de começar
+
+Peso: ~380 KB por capítulo. Já estouramos o teto uma vez hoje e voltamos a 3,36 MB cortando
+24,5%. **Com 15+ capítulos, carga sob demanda deixa de ser opção e vira requisito** — e ela
+quebra a regra do arquivo único, que já foi flexibilizada uma vez. Decisão do dono.
