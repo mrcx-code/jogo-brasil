@@ -1,6 +1,6 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "07/08 · noite · onda 6 e a passada v2 no ar",
+  "atualizado": "07/08 · arco até hoje aprovado · lote A começando",
   "emVoo": [],
   "entregue": [
     {
@@ -42,7 +42,11 @@
   ],
   "proximos": [
     {
-      "t": "Folha v3 da ganhadeira — SÓ as poses do apoio (a v2 repete o contato)",
+      "t": "Carga sob demanda: o arquivo único cai no lote B/C. Aceita?",
+      "dep": "VOCÊ · ⚠"
+    },
+    {
+      "t": "Folha v3 da ganhadeira — só as poses do apoio",
       "dep": "VOCÊ · 1 folha"
     },
     {
@@ -50,16 +54,12 @@
       "dep": "VOCÊ · 3 folhas"
     },
     {
-      "t": "Sprint 2: o verbo de Salvador (levar palavra) — o texto promete, a mão desmente",
-      "dep": "⚠ §2"
+      "t": "Lote A: migração + AINDA AQUI para o fim + A TRAVESSIA",
+      "dep": "Dev"
     },
     {
-      "t": "Ler os textos de PINDORAMA e SALVADOR",
-      "dep": "VOCÊ · ler"
-    },
-    {
-      "t": "Os dois capítulos pré-1500 — você disse 'bora fazer'",
-      "dep": "arte"
+      "t": "Conferir na fonte os números do arco novo (lista no NOTES)",
+      "dep": "historiador"
     }
   ]
 }

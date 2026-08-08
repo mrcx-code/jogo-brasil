@@ -2500,3 +2500,53 @@ de uma REGRA escrita, não de bom senso caso a caso.
 Peso: ~380 KB por capítulo. Já estouramos o teto uma vez hoje e voltamos a 3,36 MB cortando
 24,5%. **Com 15+ capítulos, carga sob demanda deixa de ser opção e vira requisito** — e ela
 quebra a regra do arquivo único, que já foi flexibilizada uma vez. Decisão do dono.
+
+## O arco até hoje — aprovado pelo dono em 2026-08-07 (noite)
+
+**A travessia: as duas.** `A TRAVESSIA` como transição entre PINDORAMA e PALMARES (90 s em
+que a estrada vira água, o HUD some, o botão dourado não faz nada, e o jogo diz em voz alta
+que não vai mostrar o porão e por quê) **e** `O CAIS QUE VOLTOU À LUZ` como capítulo — o
+Valongo, escavado em 2011, patrimônio da UNESCO. Verbo: **trazer à luz**. Os três contadores
+viram *o que veio no corpo* · *o que se fez aqui* · **o que ficou escrito** — este último é
+o achado: mostra com a mão que o tráfico teve livro, imposto e lucro.
+
+**O contemporâneo: sim, sob a REGRA DO DOCUMENTO** (§2.5 do CLAUDE.md). Covid entra pelo
+registro do Ministério da Saúde, por Manaus, pela **ADPF 709** (a primeira vez que uma
+organização indígena foi parte no STF — costura o fio indígena de 1500 a 2020) e pela CPI
+**ensinada como instituição**: *pedir indiciamento não é acusar, e acusar não é condenar*.
+O vocabulário de acusação do relatório fica FORA. Corrupção começa no séc. XVIII, nomeia
+lei e órgão, nunca pessoa, e cita caso sempre com condenações **e** anulações juntas.
+
+### O arco de 12, na ordem cronológica
+
+pré-1500 (2 caps., pendentes) · **1** PINDORAMA ✅ · *A TRAVESSIA* (transição) · **2**
+PALMARES ✅ · **3** O CAIS QUE VOLTOU À LUZ · **4** SALVADOR ✅ · **5** JABAQUARA (1887–88:
+a abolição foi arrancada por quem fugiu, não concedida por quem assinou) · **6** A PEQUENA
+ÁFRICA (com o branqueamento como marco, não como capítulo — capítulo de Hospedaria teria o
+imigrante europeu como protagonista, que é a visão que o dono mandou evitar) · **7** AS
+PORTAS (o voto de 1932 valia para quem sabia ler; a exigência de alfabetização só caiu em
+1985 — a mulher negra trabalhadora esperou mais 50 anos) · **8** O QUE NÃO PODIA SER DITO ·
+**9** A PRAÇA · **10** O QUE SEGUROU (Covid) · **11** O QUE TEM FONTE · **12** AINDA AQUI ✅
+(move para o fim, com migração de save UMA VEZ SÓ).
+
+**A rima que é o achado narrativo do arco:** `levar palavra` em 1835 (cap. 4) e `fazer
+passar` em 1968 (cap. 8) são **o mesmo verbo com 230 anos de distância**. Quando a pessoa
+reconhece a mecânica na mão, aprendeu sozinha a tese do jogo — as tecnologias da resistência
+se repetem porque as da repressão também.
+
+**A frase que é a régua do arco inteiro:** o jogo nunca pede à pessoa que faça, com a mão,
+aquilo que ele está condenando. Cavar para saber, levar recado, fazer passar a folha, chegar
+na última casa, conferir de onde vem — cinco verbos, e **nenhum deles é o verbo de quem
+manda**.
+
+### Lotes de produção (parar em qualquer um deixa arco completo)
+
+**A** migração + AINDA AQUI para o fim + A TRAVESSIA + marcos de 1700–1888 · **B** O CAIS ·
+**C** JABAQUARA + PEQUENA ÁFRICA (**juntos, obrigatoriamente**: abolição sem o dia seguinte é
+a mentira que a escola conta há um século) · **D** AS PORTAS · **E** O QUE NÃO PODIA SER DITO
++ A PRAÇA (**juntos**: ditadura sem redemocratização termina o jogo na derrota) · **F** O QUE
+SEGUROU + O QUE TEM FONTE.
+
+**Bloqueio que a fila atropela:** o peso estoura no capítulo 6, e a fila chega a seis no lote
+C. **Carga sob demanda vira requisito no lote B/C** — e quebra o arquivo único de saída.
+⚠ decisão do dono, ainda aberta.
