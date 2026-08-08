@@ -309,6 +309,134 @@
       "ref": "hoje quem atravessa a rua e desenhado como o OBJETO SOZINHO — um tabuleiro que anda. O verbo e 'levar palavra' e o sinal mora na PESSOA.",
       "tam": "FOLHA horizontal, células IGUAIS · magenta",
       "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual do jogo.\n\nFOLHA DE CAMINHADA LATERAL de GENTE da rua de Salvador em 1835 — mesmo molde da folha de Palmares que já funciona: 8 quadros em células de LARGURA IGUAL, perfil andando para a direita, figura centrada em cada célula, distribuindo o passo INTEIRO (inclusive as poses de apoio, com o pé plantado e o corpo passando por cima dele).\n\nTRÊS PESSOAS, uma folha cada (ou três linhas na mesma folha, células iguais): (1) um aguadeiro carregando barril; (2) um carregador com fardo às costas; (3) outra ganhadeira com tabuleiro na cabeça.\n\nGente negra da Bahia de 1835, roupa de trabalho de rua — algodão claro, pano da costa, pés no chão ou sandália simples. DIGNIDADE: são trabalhadores da cidade, não figurantes; postura ereta, sem caricatura. MESMA escala da protagonista (compare pela altura do corpo, não pela cabeça — ela leva tabuleiro).\n\nFundo MAGENTA CHAPADO #FF00FF, sem sombra no chão."
+    },
+    {
+      "nome": "q-p1",
+      "titulo": "QUADRINHO p1 · a mata profunda",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\ninterior de mata atlântica densa em penumbra de madrugada, sem gente, sem trilha; o quadro respira pouco céu.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p2",
+      "titulo": "QUADRINHO p2 · Lagoa Santa",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\na serra calcária e a boca de uma gruta, vazia. PROIBIDO: resto humano, esqueleto, urna (§2.4.5).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p3",
+      "titulo": "QUADRINHO p3 · o sambaqui",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\nmonte de conchas monumental na costa, tomado de vegetação no alto, maré baixa; sem gente.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p4",
+      "titulo": "QUADRINHO p4 · Marajó",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\naterros na várzea vistos DE LONGE na cheia, casas sobre eles como silhueta; PROIBIDO qualquer urna/material funerário (trava absoluta).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p5",
+      "titulo": "QUADRINHO p5 · os geoglifos",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\nvista aérea de vala circular e quadrada concêntrica no Acre, cercada de floresta; seguir as formas FOTOGRAFADAS (registro arqueológico), nenhum ornamento inventado (regra do logo/§2).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p6",
+      "titulo": "QUADRINHO p6 · a costa dos Tupi",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\no litoral visto de dentro da mata, trilha descendo ao mar; sem gente (com canoas ao longe = aprovação do dono).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p10",
+      "titulo": "QUADRINHO p10 · o açúcar",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\ncanavial e engenho À DISTÂNCIA sob céu pesado; SEM gente, sem cena de trabalho encenada (§2.4.2).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p11",
+      "titulo": "QUADRINHO p11 · a terra esvaziada",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\naldeia tupinambá VAZIA: ocas apagadas, roçado tomado pelo mato, fim de tarde; a ausência é a imagem; sem corpos, sem violência.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p12",
+      "titulo": "QUADRINHO p12 · a travessia forçada",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\nMAR ABERTO apenas: alto-mar pesado sob céu fechado, horizonte vazio; SEM navio, SEM gente (§2.4.1 — o porão não aparece; o mar é como o jogo já conta este trecho).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p13",
+      "titulo": "QUADRINHO p13 · a serra que abriu",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\na serra da Barriga alta e coberta de mata, vista da planície, trilha que some na subida; sem batalha em cena.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p18",
+      "titulo": "QUADRINHO p18 · a cidade africana",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\nladeira de Salvador vista de baixo: casario, pedra, roupa em varal, o mar num vão; gente = aprovação cena a cena.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p19",
+      "titulo": "QUADRINHO p19 · as ganhadeiras",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\no tabuleiro de venda em primeiro plano (frutas, quitutes, pano), a ladeira desfocada atrás; SE houver a ganhadeira em cena, digna e de perfil = aprovação cena a cena do dono.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p21",
+      "titulo": "QUADRINHO p21 · 1888",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\na mesa com o papel da lei de duas frases, pena e tinteiro, luz baixa; nenhum rosto (pessoa real não se desenha).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p22",
+      "titulo": "QUADRINHO p22 · 1988",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\no plenário da Constituinte vazio, visto do alto, com o texto como objeto (papel sobre as mesas); NENHUMA pessoa identificável (Krenak é pessoa real — não se desenha).\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p23",
+      "titulo": "QUADRINHO p23 · quilombos hoje",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\ncomunidade quilombola contemporânea: casas, roça, escola, energia; viva e presente, sem estereótipo; gente à distância = aprovação.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
+    },
+    {
+      "nome": "q-p26",
+      "titulo": "QUADRINHO p26 · o fio continua",
+      "semMagenta": true,
+      "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
+      "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
+      "p": "PIXEL ART pintada, pixels visíveis, borda dura, sem anti-aliasing, paleta terrosa e verde, luz natural — mesmo estilo das pinturas de cenário do jogo.\n\namanhecer sobre a terra indígena demarcada, o dia começando; sem gente.\n\nFORMATO: VERTICAL 2:3 (ex. 1024×1536). É uma página de quadrinho de tela cheia.\nTERÇO INFERIOR CALMO: é onde a legenda de papel senta — nada importante ali, sem detalhe fino.\nNENHUM TEXTO dentro da imagem. Sem moldura, sem margem branca, sem magenta."
     }
   ]
 }

@@ -1,8 +1,12 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "08/08 · o verbo de Salvador no ar · B1 consertado",
+  "atualizado": "08/08 · a história abriu de ponta a ponta · 16 verticais na mesa",
   "emVoo": [],
   "entregue": [
+    {
+      "q": "onda 9",
+      "t": "A história abre inteira, o personagem comenta, e o scroll ficou leve"
+    },
     {
       "q": "Salvador",
       "t": "Alcançar virou LEVAR PALAVRA — e ela se propaga sozinha"
@@ -34,24 +38,20 @@
     {
       "q": "arco",
       "t": "Capítulo deixa de ser identificado por posição — id imutável"
-    },
-    {
-      "q": "onda 8",
-      "t": "A HISTÓRIA virou quadrinho: 26 páginas, sem barra de rolagem"
     }
   ],
   "proximos": [
     {
-      "t": "GENTE de Salvador — hoje é um tabuleiro que anda, sem pessoa",
+      "t": "16 imagens VERTICAIS do quadrinho (2:3, terço inferior calmo)",
+      "dep": "VOCÊ · 16 imagens"
+    },
+    {
+      "t": "GENTE de Salvador — hoje é um tabuleiro que anda",
       "dep": "VOCÊ · 1 folha"
     },
     {
-      "t": "SALVADOR: pintura ladrilhável + chão + os 3 itens com folga",
-      "dep": "VOCÊ · 3 imagens"
-    },
-    {
-      "t": "Pintura do MAR, folha v3 da ganhadeira, as 3 corridas",
-      "dep": "VOCÊ · 5 imagens"
+      "t": "Ler as 12 falas novas do personagem no quadrinho",
+      "dep": "VOCÊ · ler"
     },
     {
       "t": "A aura do lugar de espera aparece em TODOS os capítulos",
