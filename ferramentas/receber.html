@@ -55,6 +55,9 @@
           color: #8d8a80; cursor: text; outline: none; font-size: 14px; }
   .cola:focus { border-color: #6fdd94; color: #b8c9a8; }
   .cola.tem { border-style: solid; border-color: var(--good); padding: 8px; }
+  /* arrastando por cima: o alvo acende, para o dedo saber onde soltar */
+  .cola.sobre { border-style: solid; border-color: var(--ouro); background: rgba(235,167,72,.10);
+                color: var(--ouro); }
   .cola img { max-width: 100%; max-height: 260px; display: block; margin: 0 auto; }
   .estado { font-size: 13px; margin-top: 8px; min-height: 18px; }
   .ok { color: #6fdd94; } .erro { color: #e0603a; }
@@ -109,8 +112,8 @@
 </head>
 <body>
 <h1>SALA DE MÁQUINAS</h1>
-<p class="sub">Gere a imagem onde quiser, copie, e cole no campo do pedido.
-Ctrl+V. O arquivo cai em <code>assets/entrada/</code>.</p>
+<p class="sub">Gere a imagem onde quiser e <b>cole (Ctrl+V) ou ARRASTE</b> para o campo do pedido.
+O arquivo cai em <code>assets/entrada/</code>.</p>
 <div id="chegadas"></div>
 <h2 class="secao">Arte que o jogo espera <span id="quantasFaltam"></span></h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
@@ -327,34 +330,69 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
       cx.appendChild(bc);
     }
 
-    const alvo = el("div", "cola", "clique aqui e cole a imagem (Ctrl+V)");
+    const alvo = el("div", "cola", "cole aqui (Ctrl+V) ou ARRASTE a imagem para cá");
     alvo.tabIndex = 0;
     const estado = el("div", "estado");
     const botao = el("button", null, "Salvar");
     botao.disabled = true;
     let dados = null;
 
+    // Colar e arrastar entregam a MESMA coisa — um File — então há um caminho só. Antes o
+    // corpo do leitor vivia dentro do handler de paste e arrastar não existia; o dono pediu
+    // ("além do copiar e colar eu possa arrastar também"), e duplicar o código seria a receita
+    // para os dois comportamentos divergirem na primeira correção.
+    function receber(arq) {
+      if (!arq || !arq.type || arq.type.indexOf("image/") !== 0) {
+        estado.className = "estado erro";
+        estado.textContent = "isso não é uma imagem — arraste um png, jpg ou webp";
+        return;
+      }
+      const fr = new FileReader();
+      fr.onload = function () {
+        dados = fr.result;
+        alvo.textContent = "";
+        alvo.className = "cola tem";
+        const img = new Image();
+        img.onload = function () {
+          estado.className = "estado";
+          estado.textContent = img.naturalWidth + " × " + img.naturalHeight + " px · pronta para salvar";
+        };
+        img.src = dados;
+        alvo.appendChild(img);
+        botao.disabled = false;
+      };
+      fr.readAsDataURL(arq);
+    }
+
+    // ARRASTAR. O preventDefault no dragover é obrigatório: sem ele o navegador ABRE a imagem
+    // numa aba e a mesa some da tela. Vale para a página inteira, não só para o alvo, senão
+    // errar a mira por 10 px custa a página.
+    ["dragenter", "dragover"].forEach(function (n) {
+      alvo.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
+        alvo.classList.add("sobre"); });
+    });
+    ["dragleave", "drop"].forEach(function (n) {
+      alvo.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
+        alvo.classList.remove("sobre"); });
+    });
+    alvo.addEventListener("drop", function (ev) {
+      const dt = ev.dataTransfer;
+      if (!dt) return;
+      // arquivo do disco vem em .files; imagem arrastada de OUTRA ABA vem como item
+      if (dt.files && dt.files.length) { receber(dt.files[0]); return; }
+      for (const it of dt.items || []) {
+        if (it.kind === "file" && it.type.indexOf("image/") === 0) { receber(it.getAsFile()); return; }
+      }
+      estado.className = "estado erro";
+      estado.textContent = "não veio arquivo nenhum — tente arrastar do explorador de arquivos";
+    });
+
     alvo.addEventListener("paste", function (ev) {
       const itens = (ev.clipboardData || {}).items || [];
       for (const it of itens) {
         if (it.type && it.type.indexOf("image/") === 0) {
           ev.preventDefault();
-          const arq = it.getAsFile();
-          const fr = new FileReader();
-          fr.onload = function () {
-            dados = fr.result;
-            alvo.textContent = "";
-            alvo.className = "cola tem";
-            const img = new Image();
-            img.onload = function () {
-              estado.className = "estado";
-              estado.textContent = img.naturalWidth + " × " + img.naturalHeight + " px · pronta para salvar";
-            };
-            img.src = dados;
-            alvo.appendChild(img);
-            botao.disabled = false;
-          };
-          fr.readAsDataURL(arq);
+          receber(it.getAsFile());
           return;
         }
       }
@@ -460,6 +498,12 @@ async function pintarChegadas() {
       `<span class="selo sVoo">COMIGO</span></div>`).join('') + '</section>';
 }
 pintarChegadas();
+
+// Soltar FORA de um alvo nao pode abrir a imagem numa aba e engolir a mesa. O navegador faz
+// isso por padrao; barrar na janela inteira e a unica forma de errar a mira sair barato.
+["dragover", "drop"].forEach(function (n) {
+  window.addEventListener(n, function (ev) { ev.preventDefault(); }, false);
+});
 
 // A mesa se atualiza sozinha. Antes, a fila so se repunha quando alguem apertava REVISAR e
 // o painel so mudava recarregando a pagina — o dono via "fila vazia, ninguem em voo" com
