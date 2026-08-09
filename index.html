@@ -63,11 +63,23 @@
        Zero rede: Georgia embarca em iOS/Windows/macOS; Android cai em "serif" (Noto Serif).
        A regra fechada: MADEIRA e PEDRA falam bitmap; PAPEL fala serifa; o mundo fala bitmap.
        Nenhum texto do jogo fica em Arial Black — ela vira só o fallback de rótulo. */
+    /* DUAS VOZES DE SERIFA, e o dono achou o defeito: "essa fonte fininha pra tudo não é
+       muito legal não; acho que ela é mais pra texto mesmo, e aí título a gente pode pôr uma
+       fonte um pouquinho mais grossinha". A onda 6 pôs a serifa de caderno em TUDO que é
+       papel, e uma serifa de LER não titula: em corpo ela é elegante, em título ela some.
+       `--leitura` continua sendo a de ler; `--titulo` é a mesma família em peso de manchete,
+       com a Palatino/Bookman na frente porque a haste delas é mais grossa por desenho. */
     --leitura: Georgia, "Iowan Old Style", "Times New Roman", "Noto Serif", serif;
-    --fs-xs: clamp(9px, 2.5vw, 12px);
-    --fs-sm: clamp(11px, 3vw, 14px);
-    --fs-md: clamp(13px, 3.6vw, 17px);
-    --fs-lg: clamp(17px, 4.8vw, 23px);
+    --titulo: "Palatino Linotype", Palatino, "Bookman Old Style", Georgia, "Noto Serif", serif;
+    /* A ESCALA SUBIU UM DEGRAU. Ele: "os textos estão muito pequenos no geral". Os mínimos
+       eram de 9 a 17 px — abaixo do que se lê confortável num telefone na mão, e o mínimo é
+       o que vale, porque em 390 px o clamp já bate no piso. Cada linha subiu ~2 px no piso e
+       o vw acompanhou; a razão entre os degraus foi mantida, para a hierarquia não mudar de
+       forma junto com o tamanho. */
+    --fs-xs: clamp(11px, 2.9vw, 14px);
+    --fs-sm: clamp(13px, 3.5vw, 16px);
+    --fs-md: clamp(15px, 4.1vw, 19px);
+    --fs-lg: clamp(20px, 5.4vw, 26px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
     user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
@@ -236,7 +248,7 @@
   #retorno.aberto { display: block; }
   #retTit { margin-bottom: 9px; padding-bottom: 9px; border-bottom: 2px solid #c3ac7c; }
   /* tinta de leitura: a mesma serifa da caixa de fala, sentada na pauta de 11px (22 = 2×11) */
-  .retLinha { color: var(--tintaP); font: 400 14px/22px var(--leitura); margin: 6px 0; }
+  .retLinha { color: var(--tintaP); font: 400 16px/25px var(--leitura); margin: 6px 0; }
   #retOk { margin-top: 10px; text-align: right; font: italic 700 11px/1 var(--leitura);
     letter-spacing: .06em; color: #8a6b3d; }
 
@@ -404,13 +416,16 @@
   /* O logo virou imagem. Mantem o respiro lento de 4,2s que a placa de texto tinha —
      jogo bom se mexe pouco e no ritmo certo. image-rendering pixelated porque a arte e
      nativa no tamanho em que foi salva: suavizar apagaria a borda dura. */
-  #logoImg { image-rendering: pixelated; width: min(52vw, 210px); height: auto;
-    margin-bottom: 4px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
+  /* 52vw -> 72vw: o dono disse que o logo esta 'meio longe, pequenininho'. Ele e a primeira
+     coisa que a pessoa ve e estava ocupando pouco mais de metade da largura, com o poste e
+     as tabuas competindo. Sobe para 72vw (teto 300) e encosta mais na frase. */
+  #logoImg { image-rendering: pixelated; width: min(72vw, 300px); height: auto;
+    margin-bottom: 8px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
     animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
   @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
   /* a frase: uma tabuinha estreita pendurada sob o logo, do mesmo material do poste */
-  #telaMenu .telaTxt { color: #f0dfb4; font-size: 9.5px; letter-spacing: .1em; white-space: nowrap;
+  #telaMenu .telaTxt { color: #f0dfb4; font-size: 11.5px; letter-spacing: .1em; white-space: nowrap;
     font-weight: 700; text-transform: uppercase; margin: 0;
     padding: 7px 16px; background: linear-gradient(180deg, #6d4b28, #503319);
     border-radius: 2px;
@@ -451,7 +466,7 @@
     border-radius: 2px;
     box-shadow: inset 0 3px 0 #6d4b28, inset 0 -3px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 5px 0 #0a0806; }
-  .telaTxt { font: 400 14px/1.7 var(--leitura); color: #e6dcc4; max-width: 30em;
+  .telaTxt { font: 400 16px/1.7 var(--leitura); color: #e6dcc4; max-width: 30em;
     margin-bottom: 22px; white-space: pre-wrap; }
   /* AJUSTES na fonte da casa (usabilidade, achado 9): o parágrafo era o último texto de
      tela em sans-serif do sistema. Vira um papel de campo — mesmo material da caixa de
@@ -599,7 +614,7 @@
   #falaTit { font-size: 17px; letter-spacing: .14em; font-weight: 900; color: #5c3210;
     text-shadow: 0 1px 0 rgba(255,244,215,.6); }
   /* o QUANDO é anotação de margem: itálico de citação, não etiqueta espaçada */
-  #falaSub { font: italic 400 11.5px/1.5 var(--leitura); letter-spacing: .04em;
+  #falaSub { font: italic 400 13px/1.5 var(--leitura); letter-spacing: .04em;
     color: #8a6b3d; margin: 3px 0 9px;
     padding-bottom: 9px; border-bottom: 2px solid #c3ac7c; }
   /* Sem isto a caixa CRESCE letra a letra e a moldura pula enquanto se lê. Uma altura fixa
@@ -834,8 +849,10 @@
   /* a hierarquia de um caderno de campo (onda 6), um passo maior — agora cada papel tem
      uma página inteira para ser lido: DATA em itálico de margem, TÍTULO em negrito de
      verbete, CORPO em redonda sentada na pauta (22 = 2×11), FONTE em itálico de citação */
-  .ltQ { font: italic 700 12px/1.4 var(--leitura); letter-spacing: .02em; color: #7a4d16; }
-  .ltT { font: 700 16px/1.35 var(--leitura); color: #33240f; }
+  .ltQ { font: italic 700 13px/1.4 var(--leitura); letter-spacing: .02em; color: #7a4d16; }
+  /* O TITULO fala a voz ENCORPADA (--titulo), o corpo continua na de ler. Era a mesma serifa
+     fina nos dois, e em titulo ela some — o dono viu antes de mim. */
+  .ltT { font: 700 19px/1.3 var(--titulo); color: #33240f; letter-spacing: .005em; }
   .ltD { font: 400 14.5px/22px var(--leitura); color: #46341c; margin: 6px 0 5px; }
   .ltF { font: italic 400 11.5px/1.5 var(--leitura); color: #8a6b3d; letter-spacing: .02em; }
   /* A TRANSFORMAÇÃO ao rolar (ondas 8 e 10): dirigida pelo PRÓPRIO rolo (view timeline),
