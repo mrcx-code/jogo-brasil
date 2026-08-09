@@ -824,12 +824,34 @@
      pra comentar"): a mesma pessoa que se joga, no retrato do capítulo dela, com um
      bilhete do MESMO papel de campo — a gramática da caixa de fala, em miniatura, dentro
      do quadrinho. O balão é itálico de citação: voz de gente, não verbete. */
+  /* A FORMA MUDOU EM 09/08, e o pedido do dono foi literal: "tem que ser integrado, né, com a
+     pessoa só até a metade, como se fosse igual do jogo".
+     Era um balão AO LADO de uma figura inteira de 56 px — dois objetos flutuando um do lado do
+     outro, e a pessoa pequena demais para ter rosto. Agora é a MESMA construção da caixa de
+     fala do jogo, que é onde essa gramática já existe e funciona: a pessoa fica ATRÁS e ACIMA,
+     em pé, e o papel SOBE POR CIMA da metade de baixo dela. Ninguém corta a arte — quem corta
+     é o papel, e é por isso que o corte cai sempre na cintura em qualquer retrato, sem uma
+     medida por capítulo. É o mesmo motivo pelo qual, no jogo, `#falaRetrato` é uma figura
+     inteira de 300 px com a caixa pousada sobre as pernas dela.
+     O deslocamento à esquerda repete o `left: 8px` do jogo: quem fala não fica centralizado,
+     fica de lado, e o texto ocupa a largura. */
   .qFala { position: relative; z-index: 2; width: min(30em, 100%);
-    display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; }
-  .qRetrato { flex: 0 0 auto; width: 56px; height: 118px;
-    object-fit: contain; object-position: bottom center; image-rendering: pixelated;
-    filter: drop-shadow(0 3px 0 rgba(0,0,0,.5)); }
-  .qBalao { font: italic 400 13px/19px var(--leitura); color: var(--tintaP);
+    display: block; margin-bottom: 10px; }
+  /* O CORTE É NA ARTE, NÃO NA SOBREPOSIÇÃO — e a primeira tentativa provou por que.
+     Deixando a figura INTEIRA atrás do papel, quem decide onde ela é cortada é a ALTURA DO
+     BILHETE: um comentário de duas linhas é mais baixo que as pernas, e os pés reapareciam
+     embaixo dele. Com `cover` + `object-position: top`, o corte é da imagem e é sempre no
+     mesmo ponto do corpo. Os quatro retratos medem 112×300, 106×300, 212×482 e 105×300 —
+     razões de 2,27 a 2,86 — e numa caixa de 104×145 isso dá 52%, 49% e 61% da figura: da
+     cintura para cima nos três primeiros, do quadril no de razão mais curta. A variação é
+     do enquadramento de cada arte, não da regra.
+     O bilhete sobe 10 px sobre a linha do corte: é o que esconde a aresta reta. */
+  .qRetrato { display: block; position: relative; z-index: 1;
+    width: 104px; height: 145px; margin-left: 10px;
+    object-fit: cover; object-position: top center; image-rendering: pixelated;
+    filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); }
+  .qBalao { position: relative; z-index: 2; margin-top: -10px;
+    font: italic 400 13px/19px var(--leitura); color: var(--tintaP);
     padding: 9px 12px; border-radius: 3px;
     background:
       var(--pauta),

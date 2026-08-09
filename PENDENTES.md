@@ -124,9 +124,19 @@ uma linha.
 
 ---
 
-## 6. A TIPOGRAFIA DO QUADRINHO — parcialmente absorvida
+## 6. ~~A TIPOGRAFIA DO QUADRINHO~~ — FEITA (09/08 fechou o que faltava)
 
-A worktree conflitava com a onda 10 e morreu sem teste. **O essencial foi refeito à mão e está
-no ar** (escala um degrau acima, `--titulo` encorpada, logo maior). O que ficou de fora e vale
-conferir depois: o comentário do personagem **integrado como no jogo** — pessoa da cintura para
-cima, texto embaixo — em vez do balão flutuante ao lado.
+A escala, a `--titulo` encorpada e o logo maior já estavam no ar. Faltava o comentário do
+personagem **integrado como no jogo**, e o dono tinha dito com todas as letras: *"tem que ser
+integrado, né, com a pessoa só até a metade, como se fosse igual do jogo."*
+
+Era um balão AO LADO de uma figura inteira de 56 px — dois objetos flutuando um do lado do
+outro, e a pessoa pequena demais para ter rosto. Agora é a mesma construção da caixa de fala:
+a pessoa em cima, o papel subindo sobre a metade de baixo dela.
+
+**O que a primeira tentativa ensinou, e vale guardar:** deixar a figura INTEIRA atrás do papel
+não funciona — quem decide onde ela é cortada passa a ser a ALTURA DO BILHETE, e um comentário
+de duas linhas é mais baixo que as pernas, então os pés reapareciam embaixo dele. O corte tem
+de ser na ARTE (`cover` + `object-position: top`), e aí ele cai sempre no mesmo ponto do corpo.
+Os quatro retratos medem 112×300, 106×300, 212×482 e 105×300; numa caixa de 104×145 isso dá
+52%, 49% e 61% da figura.
