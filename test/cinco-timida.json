@@ -1,0 +1,941 @@
+{
+ "pessoa": "timida",
+ "duracao": 300000,
+ "quadroZero": {
+  "telaMenuTexto": "",
+  "botoesMenu": [
+   {
+    "id": "btnJogar",
+    "x": 59,
+    "y": 498,
+    "w": 273,
+    "h": 74,
+    "rotulo": "JOGAR"
+   },
+   {
+    "id": "btnCompletude",
+    "x": 59,
+    "y": 584,
+    "w": 273,
+    "h": 52,
+    "rotulo": "A HISTÓRIA"
+   },
+   {
+    "id": "btnFontes",
+    "x": 59,
+    "y": 648,
+    "w": 273,
+    "h": 52,
+    "rotulo": "DE ONDE VEM"
+   },
+   {
+    "id": "btnConfig",
+    "x": 59,
+    "y": 712,
+    "w": 273,
+    "h": 52,
+    "rotulo": "AJUSTES"
+   }
+  ],
+  "emPontoTimida": "telaMenu",
+  "hud": {
+   "chipTaxa": {
+    "x": 14,
+    "y": -83,
+    "w": 66,
+    "h": 34
+   },
+   "recursos": null,
+   "linhaEpoca": {
+    "x": 10,
+    "y": -35,
+    "w": 250,
+    "h": 23
+   },
+   "rotulo": "PINDORAMA"
+  },
+  "controles": {
+   "modeQuick": {
+    "x": 8,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "btnClique": {
+    "x": 88,
+    "y": 868,
+    "w": 133,
+    "h": 63
+   },
+   "openUpgrades": {
+    "x": 227,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "abrirMenu": {
+    "x": 308,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "rotuloBotao": "+1.0"
+  },
+  "cardU4Visivel": true
+ },
+ "minutos": [
+  {
+   "impacto": 16,
+   "saldo": 16,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 28,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 1
+  },
+  {
+   "impacto": 52,
+   "saldo": 52,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 57,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 2
+  },
+  {
+   "impacto": 72,
+   "saldo": 72,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 85,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 3
+  },
+  {
+   "impacto": 96,
+   "saldo": 96,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 112,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 4
+  },
+  {
+   "impacto": 112,
+   "saldo": 112,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 142,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 5
+  }
+ ],
+ "fimDaJanela": {
+  "impacto": 112,
+  "saldo": 112,
+  "falasAbertas": 0,
+  "cerimonias": 0,
+  "linhasLidas": 0,
+  "dropsSol": 0,
+  "dropsCol": 0,
+  "dropsColAuto": 0,
+  "dropsVivos": 0,
+  "mobsNasc": 142,
+  "alcancadas": 0,
+  "dicaPulo": false,
+  "dicaSeta": false,
+  "podeU1": false,
+  "us": [],
+  "telas": [
+   "telaMenu"
+  ],
+  "eventos": 2
+ },
+ "eventos": [
+  {
+   "t": 171,
+   "tipo": "estado-inicial",
+   "info": "telas=telaMenu rotulo=PINDORAMA"
+  },
+  {
+   "t": 1820,
+   "tipo": "primeira-chegada",
+   "info": "smog"
+  }
+ ],
+ "taps": [
+  {
+   "t": 936,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 3210,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 6176,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 9197,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 12229,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 15168,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 18148,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 21179,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 24144,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 27205,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 30190,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 33181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 36184,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 39160,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 42224,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 45208,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 48217,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 51226,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 54252,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 57185,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 60349,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 63237,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 66231,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 69251,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 72272,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 75210,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 78196,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 81214,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 84187,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 87259,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 90194,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 93165,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 96257,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 99250,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 102184,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 105233,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 108180,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 111222,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 114463,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 117572,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 120326,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 123214,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 126272,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 129316,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 132483,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 135241,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 138193,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 141178,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 144216,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 147193,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 150196,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 153186,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 156166,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 159166,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 162202,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 165164,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 168202,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 171210,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 174190,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 177165,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 180169,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 183212,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 186207,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 189172,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 192207,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 195151,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 198202,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 201227,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 204200,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 207177,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 210213,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 213237,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 216166,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 219184,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 222181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 225203,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 228191,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 231184,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 234167,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 237198,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 240220,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 243200,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 246171,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 249192,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 252267,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 255181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 258190,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 261238,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 264228,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 267234,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 270194,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 273183,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 276200,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 279157,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 282261,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 285194,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 288216,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 291216,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 294199,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  },
+  {
+   "t": 297297,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaMenu"
+  }
+ ],
+ "linhas": [],
+ "morto": {
+  "de": 171,
+  "ate": 1820,
+  "vao": 1649
+ },
+ "rabo": 298180,
+ "errosConsole": []
+}

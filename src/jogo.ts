@@ -1538,8 +1538,39 @@ function simularOffline(total) {
 }
 
 // ---------- save / load / offline ----------
+// ===== DUAS ABAS NÃO SE ATROPELAM =====
+//
+// O QA de robustez mediu o dano, e ele era real: aba B herda 1000 de impacto, joga até 1500,
+// salva e fecha (o disco tem 1500). A aba A continua viva atrás, com memória de 1000, e o
+// autosave de 10 s dela grava 1000 por cima. A sessão seguinte abre com 1004 — **496 de
+// energia perdidos, e 300 s de tempo jogado virando 45 s na retenção.** Última a escrever
+// vence, e a última a escrever é a que não estava sendo jogada.
+//
+// A regra, e ela é de menor dano, não de perfeição: **uma aba nunca sobrescreve um save mais
+// novo do que o que ela conhece, a menos que alguém tenha tocado NELA depois desse save.**
+//   · a aba de trás não recebe toque nenhum, então ela recua para sempre — que é o certo;
+//   · a aba da frente, em que a pessoa está jogando, escreve normalmente;
+//   · e quando a pessoa VOLTA para a aba que recuou, ela recarrega do disco (ver o
+//     `visibilitychange`), porque mostrar número velho é a mesma mentira por outro caminho.
+//
+// Não há fusão, e não deve haver: fundir dois estados de jogo inventa uma partida que ninguém
+// jogou. O que se garante é que nada regride.
+let salvoConhecido = 0;      // o `salvoEm` que ESTA aba escreveu ou leu por último
+let ultimaInteracao = 0;     // quando esta aba recebeu toque pela última vez
+function discoSalvoEm() {
+  try {
+    const bruto = localStorage.getItem(CHAVE_JOGO);
+    if (!bruto) return 0;
+    const o = JSON.parse(bruto);
+    return (o && typeof o.salvoEm === "number" && isFinite(o.salvoEm)) ? o.salvoEm : 0;
+  } catch (e) { return 0; }
+}
 function salvar() {
+  const disco = discoSalvoEm();
+  // outra aba escreveu depois da última vez que esta aqui soube de alguma coisa
+  if (disco > salvoConhecido && ultimaInteracao < disco) return;
   S.salvoEm = Date.now();
+  salvoConhecido = S.salvoEm;
   // write only what the schema will read back: a save never carries a field the loader
   // would discard, so what is on disk and what the game runs on are the same shape
   const fora = {};
@@ -1907,7 +1938,7 @@ const ESQUEMA_SAVE = {
   // A média móvel do que você alcançou. Faixa fechada em 0..1 e padrão 1: um save adulterado
   // com -9 ou com "seco" cai no mundo INTEIRO, nunca no seco. Se um campo vai ter fallback,
   // que ele erre para o lado que não pune ninguém.
-  cuidado:      { tipo: "num", min: 0, max: 1, pad: 1 },
+  cuidado:      { tipo: "num", min: 0, max: 1, pad: 1, semAparar: true },
   // As falas já vistas, um bit por capítulo — a máscara cheia deriva de EPOCAS.length
   // (MASCARA_EPOCAS), então capítulo novo abre o bit dele sozinho. Tipo próprio, e não
   // "num", porque APARAR não serve aqui: 999 aparado vira a máscara cheia, que é "já viu
@@ -1953,7 +1984,11 @@ const ESQUEMA_SAVE = {
   // "muitas" nem 1e300 no nicho. As chaves vêm de RECURSO_DE, para que um drop novo entre
   // pelo mesmo lugar por onde entra no jogo.
   recursos:     { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
-  salvoEm:      { tipo: "num", min: 0, max: 4e12, pad: 0 }
+  // `semAparar` pelo mesmo motivo, e o defeito era pior: um `salvoEm` de 5e12 era APARADO
+  // para 4e12 (ano 2096) e o "quanto tempo você ficou fora" saía em MENOS setenta anos.
+  // Hoje é inofensivo porque não há produção offline e o painel não abre com dt negativo —
+  // mas é uma bomba armada para o primeiro consumidor futuro desse número.
+  salvoEm:      { tipo: "num", min: 0, max: 4e12, pad: 0, semAparar: true }
 };
 // ===== OS ARCOS, E POR QUE ESTA TABELA DEIXOU DE CRESCER À MÃO =====
 // O save guarda ÍNDICES (a cena, os bits de fala vista, uma posição de acolhidas por época).
@@ -2039,6 +2074,13 @@ function migrarArco() {
 function valida(regra, v) {
   if (regra.tipo === "num") {
     if (typeof v !== "number" || !isFinite(v)) return regra.pad;
+    // `semAparar` existe porque APARAR e CAIR NO PADRÃO erram para lados opostos, e qual dos
+    // dois é o certo depende do campo. Para `energia`, aparar um 1e20 adulterado para o teto
+    // é melhor que zerar — zerar apagaria a partida de quem só teve o save corrompido. Para
+    // `cuidado`, o oposto: a faixa é 0..1 e o padrão é 1 porque errar para o SECO pune quem
+    // não fez nada. O comentário do esquema já prometia isso; era o código que não cumpria,
+    // e um `-1` adulterado virava 0, que é o mundo doente. Achado do QA de robustez, 09/08.
+    if (regra.semAparar && (v < regra.min || v > regra.max)) return regra.pad;
     return Math.min(regra.max, Math.max(regra.min, v));
   }
   // Máscara de bits: inteira, dentro da faixa, ou o padrão. Sem aparar — ver o comentário
@@ -2092,7 +2134,7 @@ function valida(regra, v) {
   if (regra.tipo === "um") return regra.entre.indexOf(v) >= 0 ? v : regra.pad;
   return regra.pad;
 }
-function carregar() {
+function carregar(silencioso?: boolean) {
   let bruto: string | null = null;
   try { bruto = localStorage.getItem(CHAVE_JOGO); } catch (e) {}
   if (!bruto) return;
@@ -2128,9 +2170,17 @@ function carregar() {
   // suavização existe para a transição DENTRO da partida, não para a abertura dela.
   cuidadoVisto = S.cuidado;
   semearGrupo();       // a fila volta como estava: quem veio ficar continua andando junto
-  const dt = Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600);
+  // O que ESTA aba conhece do disco. É a âncora da regra das duas abas — ver `salvar()`.
+  salvoConhecido = S.salvoEm;
+  // O `Math.max(0, …)` é cinto e suspensório: o esquema já não deixa `salvoEm` vir do futuro,
+  // mas o relógio DO APARELHO pode andar para trás sozinho (fuso, correção de hora), e aí o
+  // save é honesto e a subtração é que fica negativa. Tempo fora negativo não existe.
+  const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
   voltouDepoisDe = dt;
-  mostrarRetorno(dt);
+  // `silencioso` é a releitura feita quando a pessoa volta para uma aba que recuou: ali ela
+  // não voltou ao JOGO, voltou a esta aba — e o papel de "enquanto você esteve fora" contando
+  // as horas de novo seria uma cerimônia sobre um evento que não aconteceu.
+  if (!silencioso) mostrarRetorno(dt);
 }
 
 // ===== A TELA DE RETORNO — "enquanto você esteve fora" (JOGABILIDADE.md, passo 3) =====
@@ -2317,9 +2367,36 @@ function diaLocal() {
   return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")
     + "-" + String(d.getDate()).padStart(2, "0");
 }
+// A RETENÇÃO SE FUNDE, ELA NÃO RECUA — e aqui a resposta é melhor que a do save do jogo.
+//
+// O mesmo atropelo de duas abas apagava a medição: 300 s jogados na aba B viravam 45 s
+// quando a aba A gravava por cima. Mas a retenção não é um ESTADO, é um punhado de
+// CONTADORES, e contador só cresce: dias distintos, segundos jogados, telas abertas, tochas.
+// Para número que só cresce, fundir é trivial e não inventa nada — o maior dos dois É a
+// verdade, sempre. Por isso aqui não se recua como em `salvar()`: escreve-se o máximo.
+//
+// As duas datas seguem a mesma lógica pelo significado delas: `primeiro` é o dia mais ANTIGO
+// que qualquer aba viu, `ultimo` é o mais RECENTE. Nenhuma das duas pode andar para trás.
 function salvarRetencao() {
   const fora = {};
-  for (const chave in ESQUEMA_RET) fora[chave] = R[chave];
+  let velho: any = null;
+  try { velho = JSON.parse(localStorage.getItem(CHAVE_RET) || "null"); } catch (e) { velho = null; }
+  if (!velho || typeof velho !== "object" || Array.isArray(velho)) velho = null;
+  for (const chave in ESQUEMA_RET) {
+    const meu = R[chave], dele = velho ? velho[chave] : undefined;
+    const regra = ESQUEMA_RET[chave];
+    if (regra.tipo === "dia") {
+      // string vazia é "nunca houve"; entre duas datas, a comparação de texto AAAA-MM-DD
+      // já é a comparação cronológica
+      const a = typeof meu === "string" ? meu : "", b = typeof dele === "string" ? dele : "";
+      fora[chave] = !a ? b : !b ? a
+        : (chave === "primeiro" ? (a < b ? a : b) : (a > b ? a : b));
+    } else if (typeof dele === "number" && isFinite(dele) && typeof meu === "number") {
+      fora[chave] = Math.max(meu, dele);
+    } else {
+      fora[chave] = meu;
+    }
+  }
   try { localStorage.setItem(CHAVE_RET, JSON.stringify(fora)); } catch (e) {}
 }
 // UM DIA DISTINTO A MAIS — e por que isto não é mais uma lista.
@@ -2379,6 +2456,11 @@ function carregarRetencao() {
 // dentro dos seus primeiros 60 s de jogo. Conta só o toque na RUA — o botão dourado não é
 // metade de tela nenhuma e responderia pela pergunta errada.
 function contarToque(esquerda: boolean) {
+  // ESTA ABA ESTÁ SENDO JOGADA. É a única coisa que dá a ela o direito de sobrescrever um
+  // save mais novo que o dela — ver a regra das duas abas em `salvar()`. Fica aqui e não em
+  // `clicar()` porque `clicar` também roda pela ajuda automática, e ajuda automática não é
+  // alguém na frente do telefone.
+  ultimaInteracao = Date.now();
   if (R.segundos >= 60) return;
   const c = esquerda ? "toqEsq" : "toqDir";
   R[c] = Math.min(R[c] + 1, RET_TOQUE_TETO);
@@ -8506,6 +8588,16 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(salvar, 10000);
   window.addEventListener("beforeunload", function () { salvar(); salvarRetencao(); });
   document.addEventListener("visibilitychange", function () {
-    if (document.hidden) { salvar(); salvarRetencao(); } else { marcarDia(); }
+    if (document.hidden) { salvar(); salvarRetencao(); return; }
+    marcarDia();
+    // VOLTAR PARA UMA ABA QUE RECUOU. Se outra aba escreveu enquanto esta estava atrás, o que
+    // está na tela aqui é passado. Recarregar é a única resposta honesta — a alternativa é
+    // deixar a pessoa jogando em cima de um número que já não existe e perder o trabalho dela
+    // de novo, agora pelo outro lado. É a metade que faltava do conserto das duas abas.
+    if (discoSalvoEm() > salvoConhecido) {
+      carregar(true);
+      redesenharFundo();
+      desenhar();
+    }
   });
 });

@@ -23,9 +23,14 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
+// 'timida-dentro' foi acrescentada na 2ª rodada (QA, 09/08) e o motivo é um achado, não
+// capricho: o ponto do meio da metade direita cai em cima do MENU no boot, então a TÍMIDA
+// literal do ticket nunca chega a ver a rua. Para não perder a pergunta "ela fica presa
+// DENTRO do jogo?", esta variante dá UM toque em JOGAR e depois é idêntica à tímida — nunca
+// pula, nunca acha o botão dourado, sempre o mesmo pixel.
 const PESSOA = (process.argv[2] || '').toLowerCase();
-if (!['parada', 'timida', 'curiosa'].includes(PESSOA)) {
-  console.error('uso: node test/cinco-minutos.js parada|timida|curiosa [--rapido]');
+if (!['parada', 'timida', 'timida-dentro', 'curiosa'].includes(PESSOA)) {
+  console.error('uso: node test/cinco-minutos.js parada|timida|timida-dentro|curiosa [--rapido]');
   process.exit(2);
 }
 const RAPIDO = process.argv.includes('--rapido');
@@ -217,8 +222,14 @@ const PT_FALA = { x: 195, y: 640 };              // onde o percurso.js avança f
     }
   }
 
-  if (PESSOA === 'timida') {
+  if (PESSOA === 'timida' || PESSOA === 'timida-dentro') {
     // um toque a cada 3 s, sempre no mesmo ponto. Nunca descobre o pulo nem o botão.
+    if (PESSOA === 'timida-dentro') {
+      const b = await page.locator('#btnJogar').boundingBox();
+      await toque(b.x + b.width / 2, b.y + b.height / 2, 'JOGAR (o único toque que ela acerta de propósito)');
+      await page.waitForTimeout(1200);
+      await print('00b-entrou');
+    }
     let n = 0;
     while (Date.now() - T0 < DURACAO) {
       await toque(PT_TIMIDA.x, PT_TIMIDA.y, 'o ponto de sempre');

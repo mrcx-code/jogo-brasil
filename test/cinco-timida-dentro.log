@@ -1,0 +1,119 @@
+== A TIMIDA-DENTRO · 300 s de relógio · save limpo ==
+ponto da tímida cai em: telaMenu
+toques dados: 99
+
+-- retrato do primeiro quadro --
+{
+ "telaMenuTexto": "",
+ "botoesMenu": [
+  {
+   "id": "btnJogar",
+   "x": 59,
+   "y": 498,
+   "w": 273,
+   "h": 74,
+   "rotulo": "JOGAR"
+  },
+  {
+   "id": "btnCompletude",
+   "x": 59,
+   "y": 584,
+   "w": 273,
+   "h": 52,
+   "rotulo": "A HISTÓRIA"
+  },
+  {
+   "id": "btnFontes",
+   "x": 59,
+   "y": 648,
+   "w": 273,
+   "h": 52,
+   "rotulo": "DE ONDE VEM"
+  },
+  {
+   "id": "btnConfig",
+   "x": 59,
+   "y": 712,
+   "w": 273,
+   "h": 52,
+   "rotulo": "AJUSTES"
+  }
+ ],
+ "emPontoTimida": "telaMenu",
+ "hud": {
+  "chipTaxa": {
+   "x": 14,
+   "y": -83,
+   "w": 66,
+   "h": 34
+  },
+  "recursos": null,
+  "linhaEpoca": {
+   "x": 10,
+   "y": -35,
+   "w": 250,
+   "h": 23
+  },
+  "rotulo": "PINDORAMA"
+ },
+ "controles": {
+  "modeQuick": {
+   "x": 8,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "btnClique": {
+   "x": 88,
+   "y": 868,
+   "w": 133,
+   "h": 63
+  },
+  "openUpgrades": {
+   "x": 227,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "abrirMenu": {
+   "x": 308,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "rotuloBotao": "+1.0"
+ },
+ "cardU4Visivel": true
+}
+
+-- por minuto --
+min | impacto | telas hist. | linhas | drops rec/perd | dicas | u1?
+  1 |      24 |           2 |      5 |            0/0 |     1 | não
+  2 |      76 |           2 |      5 |            0/0 |     1 | não
+  3 |     128 |           2 |      5 |            0/0 |     1 | não
+  4 |     176 |           2 |      5 |            0/0 |     1 | sim
+  5 |     228 |           2 |      5 |            0/0 |     1 | sim
+
+-- eventos (o que aconteceu, quando) --
+     0.1s  estado-inicial     telas=telaMenu rotulo=PINDORAMA
+     1.5s  telas              telaFala
+     1.5s  cerimonia          
+     1.5s  fala-abre          PINDORAMA
+     6.2s  fala-linha         [PINDORAMA] Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.
+    12.3s  fala-linha         [PINDORAMA] Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinho
+    18.3s  fala-linha         [PINDORAMA] Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.
+    24.3s  fala-linha         [PINDORAMA] Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.
+    30.3s  fala-linha         [PINDORAMA] Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima
+    33.2s  telas              (a rua)
+    33.3s  primeira-chegada   cash
+    36.3s  microdica-pulo     ESQUERDA PULA (no canvas, 2,8 s)
+   217.0s  u1-compravel       saldo 153 >= 150
+
+-- momento morto --
+maior vão entre eventos: 180.7 s (de 36.3s a 217.0s)
+do último evento ao fim dos 5 min: 83.0 s
+
+-- erros de console --
+(nenhum)
+
+JSON: test/cinco-timida-dentro.json · prints: test/CINCO-timida-dentro-*.png

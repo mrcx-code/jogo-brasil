@@ -1,0 +1,990 @@
+{
+ "pessoa": "timida-dentro",
+ "duracao": 300000,
+ "quadroZero": {
+  "telaMenuTexto": "",
+  "botoesMenu": [
+   {
+    "id": "btnJogar",
+    "x": 59,
+    "y": 498,
+    "w": 273,
+    "h": 74,
+    "rotulo": "JOGAR"
+   },
+   {
+    "id": "btnCompletude",
+    "x": 59,
+    "y": 584,
+    "w": 273,
+    "h": 52,
+    "rotulo": "A HISTÓRIA"
+   },
+   {
+    "id": "btnFontes",
+    "x": 59,
+    "y": 648,
+    "w": 273,
+    "h": 52,
+    "rotulo": "DE ONDE VEM"
+   },
+   {
+    "id": "btnConfig",
+    "x": 59,
+    "y": 712,
+    "w": 273,
+    "h": 52,
+    "rotulo": "AJUSTES"
+   }
+  ],
+  "emPontoTimida": "telaMenu",
+  "hud": {
+   "chipTaxa": {
+    "x": 14,
+    "y": -83,
+    "w": 66,
+    "h": 34
+   },
+   "recursos": null,
+   "linhaEpoca": {
+    "x": 10,
+    "y": -35,
+    "w": 250,
+    "h": 23
+   },
+   "rotulo": "PINDORAMA"
+  },
+  "controles": {
+   "modeQuick": {
+    "x": 8,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "btnClique": {
+    "x": 88,
+    "y": 868,
+    "w": 133,
+    "h": 63
+   },
+   "openUpgrades": {
+    "x": 227,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "abrirMenu": {
+    "x": 308,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "rotuloBotao": "+1.0"
+  },
+  "cardU4Visivel": true
+ },
+ "minutos": [
+  {
+   "impacto": 24,
+   "saldo": 24,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 13,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [],
+   "eventos": 12,
+   "min": 1
+  },
+  {
+   "impacto": 76,
+   "saldo": 76,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 45,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [],
+   "eventos": 12,
+   "min": 2
+  },
+  {
+   "impacto": 128,
+   "saldo": 128,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 76,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [],
+   "eventos": 12,
+   "min": 3
+  },
+  {
+   "impacto": 176,
+   "saldo": 176,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 103,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [],
+   "telas": [],
+   "eventos": 13,
+   "min": 4
+  },
+  {
+   "impacto": 228,
+   "saldo": 228,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 132,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [],
+   "telas": [],
+   "eventos": 13,
+   "min": 5
+  }
+ ],
+ "fimDaJanela": {
+  "impacto": 228,
+  "saldo": 228,
+  "falasAbertas": 1,
+  "cerimonias": 1,
+  "linhasLidas": 5,
+  "dropsSol": 0,
+  "dropsCol": 0,
+  "dropsColAuto": 0,
+  "dropsVivos": 0,
+  "mobsNasc": 132,
+  "alcancadas": 0,
+  "dicaPulo": true,
+  "dicaSeta": false,
+  "podeU1": true,
+  "us": [],
+  "telas": [],
+  "eventos": 13
+ },
+ "eventos": [
+  {
+   "t": 123,
+   "tipo": "estado-inicial",
+   "info": "telas=telaMenu rotulo=PINDORAMA"
+  },
+  {
+   "t": 1525,
+   "tipo": "telas",
+   "info": "telaFala"
+  },
+  {
+   "t": 1525,
+   "tipo": "cerimonia",
+   "info": ""
+  },
+  {
+   "t": 1525,
+   "tipo": "fala-abre",
+   "info": "PINDORAMA"
+  },
+  {
+   "t": 6239,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui."
+  },
+  {
+   "t": 12297,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinho"
+  },
+  {
+   "t": 18304,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela."
+  },
+  {
+   "t": 24288,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder."
+  },
+  {
+   "t": 30284,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima"
+  },
+  {
+   "t": 33215,
+   "tipo": "telas",
+   "info": "(a rua)"
+  },
+  {
+   "t": 33258,
+   "tipo": "primeira-chegada",
+   "info": "cash"
+  },
+  {
+   "t": 36316,
+   "tipo": "microdica-pulo",
+   "info": "ESQUERDA PULA (no canvas, 2,8 s)"
+  },
+  {
+   "t": 216996,
+   "tipo": "u1-compravel",
+   "info": "saldo 153 >= 150"
+  }
+ ],
+ "taps": [
+  {
+   "t": 1433,
+   "x": 195,
+   "y": 535,
+   "alvo": "JOGAR (o único toque que ela acerta de propósito)",
+   "em": "CANVAS"
+  },
+  {
+   "t": 3762,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 6155,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 9189,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 12212,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 15186,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 18191,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 21212,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 24197,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 27207,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 30162,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 33132,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "telaFala"
+  },
+  {
+   "t": 36184,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 39200,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 42195,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 45188,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 48158,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 51236,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 54155,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 57260,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 60245,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 63299,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 66177,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 69215,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 72260,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 75260,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 78235,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 81177,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 84133,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 87155,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 90181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 93159,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 96205,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 99220,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 102216,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 105166,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 108201,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 111259,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 114240,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 117227,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 120267,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 123175,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 126373,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 129243,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 132197,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 135235,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 138124,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 141128,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 144221,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 147153,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 150166,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 153145,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 156157,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 159136,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 162181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 165161,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 168222,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 171216,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 174202,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 177147,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 180198,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 183284,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 186222,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 189158,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 192187,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 195242,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 198258,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 201182,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 204221,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 207152,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 210208,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 213131,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 216192,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 219167,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 222153,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 225145,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 228159,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 231191,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 234163,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 237143,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 240197,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 243159,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 246181,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 249144,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 252195,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 255162,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 258178,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 261161,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 264227,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 267270,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 270150,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 273157,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 276198,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 279251,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 282174,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 285281,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 288299,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 291246,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 294146,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  },
+  {
+   "t": 297169,
+   "x": 292,
+   "y": 422,
+   "alvo": "o ponto de sempre",
+   "em": "scene"
+  }
+ ],
+ "linhas": [
+  "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
+  "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
+  "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
+  "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
+  "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
+ ],
+ "morto": {
+  "de": 36316,
+  "ate": 216996,
+  "vao": 180680
+ },
+ "rabo": 83004,
+ "errosConsole": []
+}

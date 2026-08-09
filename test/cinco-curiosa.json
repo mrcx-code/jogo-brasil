@@ -1,6 +1,6 @@
 {
  "pessoa": "curiosa",
- "duracao": 45000,
+ "duracao": 300000,
  "quadroZero": {
   "telaMenuTexto": "",
   "botoesMenu": [
@@ -85,8 +85,8 @@
  },
  "minutos": [
   {
-   "impacto": 319,
-   "saldo": 319,
+   "impacto": 2455,
+   "saldo": 1405,
    "falasAbertas": 1,
    "cerimonias": 1,
    "linhasLidas": 5,
@@ -94,30 +94,136 @@
    "dropsCol": 0,
    "dropsColAuto": 0,
    "dropsVivos": 0,
-   "mobsNasc": 28,
+   "mobsNasc": 40,
    "alcancadas": 0,
    "dicaPulo": true,
    "dicaSeta": false,
    "podeU1": true,
    "us": [
+    1,
+    2,
     4
    ],
    "telas": [],
-   "eventos": 26,
-   "min": 0.8
+   "eventos": 39,
+   "min": 1.1
+  },
+  {
+   "impacto": 3365,
+   "saldo": 2315,
+   "falasAbertas": 2,
+   "cerimonias": 3,
+   "linhasLidas": 33,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 49,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [
+    1,
+    2,
+    4
+   ],
+   "telas": [
+    "telaCapitulos"
+   ],
+   "eventos": 76,
+   "min": 2
+  },
+  {
+   "impacto": 3437,
+   "saldo": 2387,
+   "falasAbertas": 2,
+   "cerimonias": 3,
+   "linhasLidas": 33,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 107,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [
+    1,
+    2,
+    4
+   ],
+   "telas": [
+    "telaCapitulos"
+   ],
+   "eventos": 76,
+   "min": 3
+  },
+  {
+   "impacto": 3509,
+   "saldo": 2459,
+   "falasAbertas": 2,
+   "cerimonias": 3,
+   "linhasLidas": 33,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 164,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [
+    1,
+    2,
+    4
+   ],
+   "telas": [
+    "telaCapitulos"
+   ],
+   "eventos": 76,
+   "min": 4
+  },
+  {
+   "impacto": 3575,
+   "saldo": 2525,
+   "falasAbertas": 2,
+   "cerimonias": 3,
+   "linhasLidas": 33,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 221,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [
+    1,
+    2,
+    4
+   ],
+   "telas": [
+    "telaCapitulos"
+   ],
+   "eventos": 76,
+   "min": 5
   }
  ],
  "fimDaJanela": {
   "impacto": 0,
   "saldo": 0,
-  "falasAbertas": 1,
-  "cerimonias": 1,
-  "linhasLidas": 5,
+  "falasAbertas": 2,
+  "cerimonias": 3,
+  "linhasLidas": 33,
   "dropsSol": 0,
   "dropsCol": 0,
   "dropsColAuto": 0,
   "dropsVivos": 0,
-  "mobsNasc": 35,
+  "mobsNasc": 223,
   "alcancadas": 0,
   "dicaPulo": true,
   "dicaSeta": false,
@@ -126,398 +232,2354 @@
   "telas": [
    "telaConfig"
   ],
-  "eventos": 30
+  "eventos": 81
  },
  "eventos": [
   {
-   "t": 219,
+   "t": 178,
    "tipo": "estado-inicial",
    "info": "telas=telaMenu rotulo=PINDORAMA"
   },
   {
-   "t": 830,
-   "tipo": "primeira-chegada",
-   "info": "barrel"
-  },
-  {
-   "t": 2991,
+   "t": 1517,
    "tipo": "telas",
    "info": "telaFala"
   },
   {
-   "t": 2991,
+   "t": 1517,
    "tipo": "cerimonia",
    "info": ""
   },
   {
-   "t": 2991,
+   "t": 1517,
    "tipo": "fala-abre",
    "info": "PINDORAMA"
   },
   {
-   "t": 4816,
+   "t": 3261,
    "tipo": "fala-linha",
    "info": "[PINDORAMA] Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui."
   },
   {
-   "t": 6562,
+   "t": 5077,
    "tipo": "fala-linha",
    "info": "[PINDORAMA] Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinho"
   },
   {
-   "t": 8232,
+   "t": 6787,
    "tipo": "fala-linha",
    "info": "[PINDORAMA] Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela."
   },
   {
-   "t": 10311,
+   "t": 8632,
    "tipo": "fala-linha",
    "info": "[PINDORAMA] Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder."
   },
   {
-   "t": 12496,
+   "t": 10388,
    "tipo": "fala-linha",
    "info": "[PINDORAMA] Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima"
   },
   {
-   "t": 13571,
+   "t": 11340,
    "tipo": "telas",
    "info": "(a rua)"
   },
   {
-   "t": 14577,
+   "t": 11533,
+   "tipo": "primeira-chegada",
+   "info": "smog"
+  },
+  {
+   "t": 12166,
    "tipo": "microdica-pulo",
    "info": "ESQUERDA PULA (no canvas, 2,8 s)"
   },
   {
-   "t": 18298,
+   "t": 15463,
    "tipo": "float",
    "info": "CORRER!"
   },
   {
-   "t": 18354,
+   "t": 15510,
    "tipo": "modo",
    "info": "carvao"
   },
   {
-   "t": 19781,
+   "t": 16772,
    "tipo": "sheet-melhorias",
    "info": "abriu"
   },
   {
-   "t": 24017,
+   "t": 20194,
    "tipo": "upgrade-comprado",
    "info": "0004"
   },
   {
-   "t": 25901,
+   "t": 21674,
    "tipo": "sheet-melhorias",
    "info": "fechou"
   },
   {
-   "t": 28509,
+   "t": 23474,
    "tipo": "u1-compravel",
-   "info": "saldo 207 >= 150"
+   "info": "saldo 215 >= 150"
   },
   {
-   "t": 31202,
+   "t": 25663,
    "tipo": "telas",
    "info": "telaMenu"
   },
   {
-   "t": 32797,
+   "t": 26912,
    "tipo": "telas",
    "info": "telaCompletude"
   },
   {
-   "t": 36168,
+   "t": 29373,
    "tipo": "telas",
    "info": "telaMenu"
   },
   {
-   "t": 37891,
+   "t": 30464,
    "tipo": "telas",
    "info": "telaFontes"
   },
   {
-   "t": 39348,
+   "t": 31668,
    "tipo": "telas",
    "info": "telaMenu"
   },
   {
-   "t": 40798,
+   "t": 32687,
    "tipo": "telas",
    "info": "telaConfig"
   },
   {
-   "t": 43380,
+   "t": 34620,
    "tipo": "telas",
    "info": "telaMenu"
   },
   {
-   "t": 44789,
+   "t": 35736,
    "tipo": "telas",
    "info": "(a rua)"
   },
   {
-   "t": 47401,
+   "t": 40120,
+   "tipo": "float",
+   "info": "ANDAR!"
+  },
+  {
+   "t": 40182,
+   "tipo": "modo",
+   "info": "limpo"
+  },
+  {
+   "t": 41490,
+   "tipo": "sheet-melhorias",
+   "info": "abriu"
+  },
+  {
+   "t": 42770,
+   "tipo": "upgrade-comprado",
+   "info": "1004"
+  },
+  {
+   "t": 46495,
+   "tipo": "sheet-melhorias",
+   "info": "fechou"
+  },
+  {
+   "t": 49305,
+   "tipo": "float",
+   "info": "MAIS ADIANTE"
+  },
+  {
+   "t": 50601,
    "tipo": "telas",
    "info": "telaMenu"
   },
   {
-   "t": 48591,
+   "t": 51916,
+   "tipo": "telas",
+   "info": "(a rua)"
+  },
+  {
+   "t": 57095,
+   "tipo": "float",
+   "info": "CORRER!"
+  },
+  {
+   "t": 57183,
+   "tipo": "modo",
+   "info": "carvao"
+  },
+  {
+   "t": 58385,
+   "tipo": "sheet-melhorias",
+   "info": "abriu"
+  },
+  {
+   "t": 60436,
+   "tipo": "upgrade-comprado",
+   "info": "1204"
+  },
+  {
+   "t": 63431,
+   "tipo": "sheet-melhorias",
+   "info": "fechou"
+  },
+  {
+   "t": 65336,
+   "tipo": "telas",
+   "info": "telaFala"
+  },
+  {
+   "t": 65336,
+   "tipo": "fala-abre",
+   "info": "PINDORAMA"
+  },
+  {
+   "t": 66314,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra que j"
+  },
+  {
+   "t": 68080,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei port"
+  },
+  {
+   "t": 69944,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E n"
+  },
+  {
+   "t": 71861,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Em poucas gerações esta costa deixou de ser deles. Foram mortos, escravizados, reunidos à força em aldeamentos e empurrados para"
+  },
+  {
+   "t": 73667,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capí"
+  },
+  {
+   "t": 75516,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] E a terra tomada precisava de braços. Ao longo de mais de três séculos, milhões de pessoas foram traficadas da África para traba"
+  },
+  {
+   "t": 76242,
+   "tipo": "cerimonia",
+   "info": ""
+  },
+  {
+   "t": 76242,
+   "tipo": "microdica-pulo",
+   "info": "ESQUERDA PULA (no canvas, 2,8 s)"
+  },
+  {
+   "t": 77772,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] A estrada acabou. Daqui em diante é água."
+  },
+  {
+   "t": 79337,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Aqui o jogo não tem o que você fazer. Não foi esquecimento."
+  },
+  {
+   "t": 80763,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] O botão continua aí embaixo. Ele não rende nada neste trecho, e isso é de propósito: o que está sendo contado aqui não é coisa"
+  },
+  {
+   "t": 82203,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Do outro lado deste mar levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi m"
+  },
+  {
+   "t": 83641,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Ao longo de mais de três séculos, milhões de pessoas foram arrancadas da África e postas em navios."
+  },
+  {
+   "t": 85089,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] De cada dez que atravessaram para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais."
+  },
+  {
+   "t": 86543,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Doze milhões e meio de pessoas foram embarcadas. Dez milhões e setecentos mil desembarcaram. A diferença ficou no mar: cerca d"
+  },
+  {
+   "t": 87961,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Ao longo de três séculos e meio, isso deu uma média de catorze corpos por dia. Todos os dias."
+  },
+  {
+   "t": 89408,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Um milhão e oitocentas mil pessoas é a cidade de Curitiba inteira, hoje."
+  },
+  {
+   "t": 90850,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] É quatro vezes e meia todos os mortos da Guerra do Paraguai — dos dois lados, somando civis e soldados — que foi a guerra mais"
+  },
+  {
+   "t": 92409,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] O Atlântico é o maior cemitério de africanos do mundo, e não tem uma lápide."
+  },
+  {
+   "t": 93853,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Uma imagem, porém, este jogo não vai usar — e vale dizer qual, e por quê."
+  },
+  {
+   "t": 95282,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] A imagem que quase todo livro usa — o desenho de um navio visto de cima, com centenas de corpos encaixados lado a lado — foi f"
+  },
+  {
+   "t": 96755,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Também não vai virar desafio. Nada de barra de água, de ar ou de ração: transformar a morte de quem atravessou em placar seria"
+  },
+  {
+   "t": 98171,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Quem foi trazido não era carga, não era número e não era \"escravo\". Escravizar foi o que fizeram com essas pessoas — não o que"
+  },
+  {
+   "t": 99729,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] O resto deste trecho é o mar, e o tempo que ele leva."
+  },
+  {
+   "t": 101166,
+   "tipo": "fala-linha",
+   "info": "[A TRAVESSIA] Do outro lado dele está o que essas pessoas fizeram com o que sobrou: fugir, subir a serra e construir uma vila."
+  },
+  {
+   "t": 101967,
+   "tipo": "cerimonia",
+   "info": ""
+  },
+  {
+   "t": 102185,
+   "tipo": "rotulo-epoca",
+   "info": "PALMARES"
+  },
+  {
+   "t": 103609,
+   "tipo": "fala-linha",
+   "info": "[PALMARES] Isto aqui é a serra da Barriga, no que hoje se chama Alagoas."
+  },
+  {
+   "t": 105374,
+   "tipo": "fala-linha",
+   "info": "[PALMARES] A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados."
+  },
+  {
+   "t": 107080,
+   "tipo": "fala-linha",
+   "info": "[PALMARES] Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares."
+  },
+  {
+   "t": 108813,
+   "tipo": "fala-linha",
+   "info": "[PALMARES] Aqui, alcançar é acolher. Quem chega vem ficar."
+  },
+  {
+   "t": 110813,
+   "tipo": "fala-linha",
+   "info": "[PALMARES] Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão"
+  },
+  {
+   "t": 111844,
+   "tipo": "telas",
+   "info": "(a rua)"
+  },
+  {
+   "t": 115818,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 117179,
+   "tipo": "telas",
+   "info": "telaCapitulos"
+  },
+  {
+   "t": 301094,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 301494,
    "tipo": "telas",
    "info": "telaConfig"
   },
   {
-   "t": 52250,
+   "t": 303196,
+   "tipo": "rotulo-epoca",
+   "info": "PINDORAMA"
+  },
+  {
+   "t": 303196,
    "tipo": "upgrade-comprado",
    "info": "0000"
   },
   {
-   "t": 52250,
+   "t": 303196,
    "tipo": "modo",
    "info": "limpo"
   }
  ],
  "taps": [
   {
-   "t": 2839,
+   "t": 1429,
    "x": 195,
    "y": 535,
    "alvo": "btnJogar",
    "em": "CANVAS"
   },
   {
-   "t": 3767,
+   "t": 2343,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaTit"
   },
   {
-   "t": 4670,
+   "t": 3177,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 5566,
+   "t": 4070,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 6414,
+   "t": 4951,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 7238,
+   "t": 5827,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 8089,
+   "t": 6705,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 9077,
+   "t": 7653,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 10120,
+   "t": 8543,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 11087,
+   "t": 9424,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 12281,
+   "t": 10303,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 13392,
+   "t": 11251,
    "x": 195,
    "y": 640,
    "alvo": "avançar a fala",
    "em": "falaCorpo"
   },
   {
-   "t": 14396,
+   "t": 12077,
    "x": 292,
    "y": 422,
    "alvo": "metade direita",
    "em": "scene"
   },
   {
-   "t": 15529,
+   "t": 13005,
    "x": 97,
    "y": 422,
    "alvo": "metade esquerda",
    "em": "scene"
   },
   {
-   "t": 16785,
+   "t": 14231,
    "x": 154.7890625,
    "y": 804.5,
    "alvo": "btnClique",
    "em": "CANVAS"
   },
   {
-   "t": 18192,
+   "t": 15418,
    "x": 45.1953125,
    "y": 804.5,
    "alvo": "modeQuick",
    "em": "modeIcon"
   },
   {
-   "t": 19608,
+   "t": 16681,
    "x": 264.390625,
    "y": 804.5,
    "alvo": "openUpgrades",
    "em": "pi"
   },
   {
-   "t": 21111,
+   "t": 17965,
    "x": 58.5,
    "y": 727,
    "alvo": "btnU1",
    "em": "CANVAS"
   },
   {
-   "t": 22021,
+   "t": 18669,
    "x": 149.5,
    "y": 727,
    "alvo": "btnU2",
    "em": "CANVAS"
   },
   {
-   "t": 22908,
+   "t": 19415,
    "x": 240.5,
    "y": 727,
    "alvo": "btnU3",
    "em": "CANVAS"
   },
   {
-   "t": 23866,
+   "t": 20112,
    "x": 331.5,
    "y": 724,
    "alvo": "btnU4",
    "em": "CANVAS"
   },
   {
-   "t": 25733,
+   "t": 21539,
    "x": 264.390625,
    "y": 804.5,
    "alvo": "fechar MELHORIAS",
    "em": "CANVAS"
   },
   {
-   "t": 26652,
+   "t": 22194,
    "x": 292,
    "y": 422,
    "alvo": "metade direita",
    "em": "scene"
   },
   {
-   "t": 28326,
+   "t": 23388,
    "x": 154.7890625,
    "y": 804.5,
    "alvo": "btnClique",
    "em": "CANVAS"
   },
   {
-   "t": 29450,
+   "t": 24319,
    "x": 97,
    "y": 422,
    "alvo": "metade esquerda",
    "em": "scene"
   },
   {
-   "t": 30895,
+   "t": 25520,
    "x": 344.796875,
    "y": 804.5,
    "alvo": "abrirMenu",
    "em": "pi"
   },
   {
-   "t": 32578,
+   "t": 26775,
    "x": 195,
    "y": 610,
    "alvo": "btnCompletude",
    "em": "CANVAS"
   },
   {
-   "t": 36001,
+   "t": 29291,
    "x": 195,
    "y": 809,
    "alvo": "VOLTAR da história",
    "em": "CANVAS"
   },
   {
-   "t": 37692,
+   "t": 30384,
    "x": 195,
    "y": 674,
    "alvo": "btnFontes",
    "em": "CANVAS"
   },
   {
-   "t": 39178,
+   "t": 31584,
    "x": 195,
    "y": 728,
    "alvo": "VOLTAR das fontes",
    "em": "CANVAS"
   },
   {
-   "t": 40626,
+   "t": 32558,
    "x": 195,
    "y": 738,
    "alvo": "btnConfig",
    "em": "CANVAS"
   },
   {
-   "t": 42059,
+   "t": 33719,
    "x": 195,
    "y": 471.5,
    "alvo": "SOM",
    "em": "CANVAS"
   },
   {
-   "t": 43212,
+   "t": 34532,
    "x": 195,
    "y": 595.5,
    "alvo": "VOLTAR dos ajustes",
    "em": "CANVAS"
   },
   {
-   "t": 44639,
+   "t": 35656,
    "x": 195,
    "y": 535,
    "alvo": "btnJogar",
    "em": "CANVAS"
+  },
+  {
+   "t": 36576,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 37496,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 38768,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 40104,
+   "x": 45.1953125,
+   "y": 804.5,
+   "alvo": "modeQuick",
+   "em": "modeIcon"
+  },
+  {
+   "t": 41404,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "openUpgrades",
+   "em": "pi"
+  },
+  {
+   "t": 42682,
+   "x": 58.5,
+   "y": 724,
+   "alvo": "btnU1",
+   "em": "CANVAS"
+  },
+  {
+   "t": 43418,
+   "x": 149.5,
+   "y": 727,
+   "alvo": "btnU2",
+   "em": "CANVAS"
+  },
+  {
+   "t": 44111,
+   "x": 240.5,
+   "y": 727,
+   "alvo": "btnU3",
+   "em": "CANVAS"
+  },
+  {
+   "t": 44843,
+   "x": 331.5,
+   "y": 727,
+   "alvo": "btnU4",
+   "em": "CANVAS"
+  },
+  {
+   "t": 46364,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "fechar MELHORIAS",
+   "em": "CANVAS"
+  },
+  {
+   "t": 47059,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 48292,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 49342,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 50513,
+   "x": 344.796875,
+   "y": 804.5,
+   "alvo": "abrirMenu",
+   "em": "pi"
+  },
+  {
+   "t": 51785,
+   "x": 195,
+   "y": 535,
+   "alvo": "btnJogar",
+   "em": "CANVAS"
+  },
+  {
+   "t": 52728,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 53698,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 54913,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 57051,
+   "x": 45.1953125,
+   "y": 804.5,
+   "alvo": "modeQuick",
+   "em": "modeIcon"
+  },
+  {
+   "t": 58343,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "openUpgrades",
+   "em": "pi"
+  },
+  {
+   "t": 59595,
+   "x": 58.5,
+   "y": 727,
+   "alvo": "btnU1",
+   "em": "CANVAS"
+  },
+  {
+   "t": 60353,
+   "x": 149.5,
+   "y": 724,
+   "alvo": "btnU2",
+   "em": "CANVAS"
+  },
+  {
+   "t": 61044,
+   "x": 240.5,
+   "y": 727,
+   "alvo": "btnU3",
+   "em": "CANVAS"
+  },
+  {
+   "t": 61735,
+   "x": 331.5,
+   "y": 727,
+   "alvo": "btnU4",
+   "em": "CANVAS"
+  },
+  {
+   "t": 63340,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "fechar MELHORIAS",
+   "em": "CANVAS"
+  },
+  {
+   "t": 64065,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 65255,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 66231,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 67090,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 67999,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 68922,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 69863,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 70794,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 71747,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 72658,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 73592,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 74495,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 75444,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 76185,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaSub"
+  },
+  {
+   "t": 76984,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 77710,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 78517,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 79282,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 79975,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 80683,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 81392,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 82092,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 82790,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 83547,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 84289,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 84990,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 85763,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 86479,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 87181,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 87879,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 88597,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 89289,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 90015,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 90719,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 91440,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 92342,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 93041,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 93752,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 94486,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 95191,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 95956,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 96692,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 97415,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 98107,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 98834,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 99607,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 100320,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 101033,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 101817,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTxt"
+  },
+  {
+   "t": 102660,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTit"
+  },
+  {
+   "t": 103520,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 104408,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 105289,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 106103,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 107004,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 107876,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 108733,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 109808,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 110743,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 111751,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 113300,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 115727,
+   "x": 344.796875,
+   "y": 804.5,
+   "alvo": "abrirMenu",
+   "em": "pi"
+  },
+  {
+   "t": 117066,
+   "x": 195,
+   "y": 535,
+   "alvo": "btnJogar",
+   "em": "CANVAS"
+  },
+  {
+   "t": 118273,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 119467,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 120667,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 121833,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 122946,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 124117,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 125299,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 126576,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 127818,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 129042,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 130200,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 131620,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 132844,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 134037,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 135219,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 136312,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 137418,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 138500,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 139594,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 140692,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 141792,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 142959,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 144083,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 145207,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 146315,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 147430,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 148540,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 149620,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 150741,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 151822,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 152896,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 153985,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 155082,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 156158,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 157265,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 158374,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 159445,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 160579,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 161718,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 162870,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 163973,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 165087,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 166203,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 167346,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 168511,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 169666,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 170818,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 171935,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 173110,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 174194,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 175275,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 176363,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 177446,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 178621,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 179807,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 180930,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 182198,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 183437,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 184603,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 185830,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 187011,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 188221,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 189367,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 190560,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 191734,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 192971,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 194184,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 195382,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 196573,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 197778,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 199149,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 200399,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 201539,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 202734,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 203910,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 205041,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 206165,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 207258,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 208444,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 209572,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 210762,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 211948,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 213083,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 214232,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 215341,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 216472,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 217579,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 218737,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 219885,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 221017,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 222124,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 223260,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 224365,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 225510,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 226666,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 227776,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 228915,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 230022,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 231148,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 232271,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 233394,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 234569,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 235675,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 236850,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 237942,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 239057,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 240190,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 241469,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 242674,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 243823,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 244999,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 246183,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 247337,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 248616,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 249980,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 251178,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 252446,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 253742,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 254929,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 256092,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 257287,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 258450,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 259725,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 260938,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 262165,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 263358,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 264622,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 265856,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 267105,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 268266,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 269453,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 270654,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 271857,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 273078,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 274400,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 275666,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 276947,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 278214,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 279443,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 280613,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 281846,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 283089,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 284362,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 285664,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 286894,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 288167,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 289385,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 290600,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 291824,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 293089,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 294331,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 295682,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 296979,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 298223,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
+  },
+  {
+   "t": 299371,
+   "x": 195,
+   "y": 415.5,
+   "alvo": "primeiro capítulo",
+   "em": "listaCapitulos"
   }
  ],
  "linhas": [
@@ -525,13 +2587,41 @@
   "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
   "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
   "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
-  "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
+  "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula.",
+  "Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra que já tinha dono.",
+  "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa mandava escravizar. Chamavam isso de guerra justa.",
+  "O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E não foi acidente da natureza: a doença correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou.",
+  "Em poucas gerações esta costa deixou de ser deles. Foram mortos, escravizados, reunidos à força em aldeamentos e empurrados para o interior. Não sumiram. Foram expulsos.",
+  "Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capítulo.",
+  "E a terra tomada precisava de braços. Ao longo de mais de três séculos, milhões de pessoas foram traficadas da África para trabalhar nela. A escravidão não aconteceu: foi montada, e dava lucro. Algumas fugiram. E o que elas construíram tem nome.",
+  "A estrada acabou. Daqui em diante é água.",
+  "Aqui o jogo não tem o que você fazer. Não foi esquecimento.",
+  "O botão continua aí embaixo. Ele não rende nada neste trecho, e isso é de propósito: o que está sendo contado aqui não é coisa que se joga.",
+  "Do outro lado deste mar levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi montada, e dava lucro.",
+  "Ao longo de mais de três séculos, milhões de pessoas foram arrancadas da África e postas em navios.",
+  "De cada dez que atravessaram para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.",
+  "Doze milhões e meio de pessoas foram embarcadas. Dez milhões e setecentos mil desembarcaram. A diferença ficou no mar: cerca de um milhão e oitocentas mil.",
+  "Ao longo de três séculos e meio, isso deu uma média de catorze corpos por dia. Todos os dias.",
+  "Um milhão e oitocentas mil pessoas é a cidade de Curitiba inteira, hoje.",
+  "É quatro vezes e meia todos os mortos da Guerra do Paraguai — dos dois lados, somando civis e soldados — que foi a guerra mais sangrenta da história da América do Sul.",
+  "O Atlântico é o maior cemitério de africanos do mundo, e não tem uma lápide.",
+  "Uma imagem, porém, este jogo não vai usar — e vale dizer qual, e por quê.",
+  "A imagem que quase todo livro usa — o desenho de um navio visto de cima, com centenas de corpos encaixados lado a lado — foi feita em 1788 por quem queria acabar com o tráfico, para chocar quem podia acabar com ele. Num jogo de 2026 ela faz outra coisa: desenha pessoas como padrão de carga.",
+  "Também não vai virar desafio. Nada de barra de água, de ar ou de ração: transformar a morte de quem atravessou em placar seria o contrário de contar.",
+  "Quem foi trazido não era carga, não era número e não era \"escravo\". Escravizar foi o que fizeram com essas pessoas — não o que elas eram.",
+  "O resto deste trecho é o mar, e o tempo que ele leva.",
+  "Do outro lado dele está o que essas pessoas fizeram com o que sobrou: fugir, subir a serra e construir uma vila.",
+  "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
+  "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
+  "Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares.",
+  "Aqui, alcançar é acolher. Quem chega vem ficar.",
+  "Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão, e são os mesmos três contadores do capítulo anterior."
  ],
  "morto": {
-  "de": 19781,
-  "ate": 24017,
-  "vao": 4236
+  "de": 51916,
+  "ate": 57095,
+  "vao": 5179
  },
- "rabo": 211,
+ "rabo": 182821,
  "errosConsole": []
 }

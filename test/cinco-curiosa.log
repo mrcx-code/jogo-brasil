@@ -1,0 +1,191 @@
+== A CURIOSA · 300 s de relógio · save limpo ==
+ponto da tímida cai em: telaMenu
+
+-- sonda pós-medição: APAGAR MEU PROGRESSO --
+antes: impacto 3575, upgrades [1,2,4]
+1º toque -> rótulo visível: "APAGAR MEU PROGRESSO" | o "tem certeza?" foi para o botão escondido: "tem certeza?"
+2º toque -> impacto 0, upgrades []  (apagou: true)
+
+-- retrato do primeiro quadro --
+{
+ "telaMenuTexto": "",
+ "botoesMenu": [
+  {
+   "id": "btnJogar",
+   "x": 59,
+   "y": 498,
+   "w": 273,
+   "h": 74,
+   "rotulo": "JOGAR"
+  },
+  {
+   "id": "btnCompletude",
+   "x": 59,
+   "y": 584,
+   "w": 273,
+   "h": 52,
+   "rotulo": "A HISTÓRIA"
+  },
+  {
+   "id": "btnFontes",
+   "x": 59,
+   "y": 648,
+   "w": 273,
+   "h": 52,
+   "rotulo": "DE ONDE VEM"
+  },
+  {
+   "id": "btnConfig",
+   "x": 59,
+   "y": 712,
+   "w": 273,
+   "h": 52,
+   "rotulo": "AJUSTES"
+  }
+ ],
+ "emPontoTimida": "telaMenu",
+ "hud": {
+  "chipTaxa": {
+   "x": 14,
+   "y": -83,
+   "w": 66,
+   "h": 34
+  },
+  "recursos": null,
+  "linhaEpoca": {
+   "x": 10,
+   "y": -35,
+   "w": 250,
+   "h": 23
+  },
+  "rotulo": "PINDORAMA"
+ },
+ "controles": {
+  "modeQuick": {
+   "x": 8,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "btnClique": {
+   "x": 88,
+   "y": 868,
+   "w": 133,
+   "h": 63
+  },
+  "openUpgrades": {
+   "x": 227,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "abrirMenu": {
+   "x": 308,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "rotuloBotao": "+1.0"
+ },
+ "cardU4Visivel": true
+}
+
+-- por minuto --
+min | impacto | telas hist. | linhas | drops rec/perd | dicas | u1?
+1.1 |    2455 |           2 |      5 |            0/0 |     1 | sim
+  2 |    3365 |           5 |     33 |            0/0 |     1 | sim
+  3 |    3437 |           5 |     33 |            0/0 |     1 | sim
+  4 |    3509 |           5 |     33 |            0/0 |     1 | sim
+  5 |    3575 |           5 |     33 |            0/0 |     1 | sim
+
+-- eventos (o que aconteceu, quando) --
+     0.2s  estado-inicial     telas=telaMenu rotulo=PINDORAMA
+     1.5s  telas              telaFala
+     1.5s  cerimonia          
+     1.5s  fala-abre          PINDORAMA
+     3.3s  fala-linha         [PINDORAMA] Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.
+     5.1s  fala-linha         [PINDORAMA] Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinho
+     6.8s  fala-linha         [PINDORAMA] Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.
+     8.6s  fala-linha         [PINDORAMA] Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.
+    10.4s  fala-linha         [PINDORAMA] Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima
+    11.3s  telas              (a rua)
+    11.5s  primeira-chegada   smog
+    12.2s  microdica-pulo     ESQUERDA PULA (no canvas, 2,8 s)
+    15.5s  float              CORRER!
+    15.5s  modo               carvao
+    16.8s  sheet-melhorias    abriu
+    20.2s  upgrade-comprado   0004
+    21.7s  sheet-melhorias    fechou
+    23.5s  u1-compravel       saldo 215 >= 150
+    25.7s  telas              telaMenu
+    26.9s  telas              telaCompletude
+    29.4s  telas              telaMenu
+    30.5s  telas              telaFontes
+    31.7s  telas              telaMenu
+    32.7s  telas              telaConfig
+    34.6s  telas              telaMenu
+    35.7s  telas              (a rua)
+    40.1s  float              ANDAR!
+    40.2s  modo               limpo
+    41.5s  sheet-melhorias    abriu
+    42.8s  upgrade-comprado   1004
+    46.5s  sheet-melhorias    fechou
+    49.3s  float              MAIS ADIANTE
+    50.6s  telas              telaMenu
+    51.9s  telas              (a rua)
+    57.1s  float              CORRER!
+    57.2s  modo               carvao
+    58.4s  sheet-melhorias    abriu
+    60.4s  upgrade-comprado   1204
+    63.4s  sheet-melhorias    fechou
+    65.3s  telas              telaFala
+    65.3s  fala-abre          PINDORAMA
+    66.3s  fala-linha         [PINDORAMA] Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra que j
+    68.1s  fala-linha         [PINDORAMA] Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei port
+    69.9s  fala-linha         [PINDORAMA] O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E n
+    71.9s  fala-linha         [PINDORAMA] Em poucas gerações esta costa deixou de ser deles. Foram mortos, escravizados, reunidos à força em aldeamentos e empurrados para
+    73.7s  fala-linha         [PINDORAMA] Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capí
+    75.5s  fala-linha         [PINDORAMA] E a terra tomada precisava de braços. Ao longo de mais de três séculos, milhões de pessoas foram traficadas da África para traba
+    76.2s  cerimonia          
+    76.2s  microdica-pulo     ESQUERDA PULA (no canvas, 2,8 s)
+    77.8s  fala-linha         [A TRAVESSIA] A estrada acabou. Daqui em diante é água.
+    79.3s  fala-linha         [A TRAVESSIA] Aqui o jogo não tem o que você fazer. Não foi esquecimento.
+    80.8s  fala-linha         [A TRAVESSIA] O botão continua aí embaixo. Ele não rende nada neste trecho, e isso é de propósito: o que está sendo contado aqui não é coisa
+    82.2s  fala-linha         [A TRAVESSIA] Do outro lado deste mar levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi m
+    83.6s  fala-linha         [A TRAVESSIA] Ao longo de mais de três séculos, milhões de pessoas foram arrancadas da África e postas em navios.
+    85.1s  fala-linha         [A TRAVESSIA] De cada dez que atravessaram para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.
+    86.5s  fala-linha         [A TRAVESSIA] Doze milhões e meio de pessoas foram embarcadas. Dez milhões e setecentos mil desembarcaram. A diferença ficou no mar: cerca d
+    88.0s  fala-linha         [A TRAVESSIA] Ao longo de três séculos e meio, isso deu uma média de catorze corpos por dia. Todos os dias.
+    89.4s  fala-linha         [A TRAVESSIA] Um milhão e oitocentas mil pessoas é a cidade de Curitiba inteira, hoje.
+    90.8s  fala-linha         [A TRAVESSIA] É quatro vezes e meia todos os mortos da Guerra do Paraguai — dos dois lados, somando civis e soldados — que foi a guerra mais
+    92.4s  fala-linha         [A TRAVESSIA] O Atlântico é o maior cemitério de africanos do mundo, e não tem uma lápide.
+    93.9s  fala-linha         [A TRAVESSIA] Uma imagem, porém, este jogo não vai usar — e vale dizer qual, e por quê.
+    95.3s  fala-linha         [A TRAVESSIA] A imagem que quase todo livro usa — o desenho de um navio visto de cima, com centenas de corpos encaixados lado a lado — foi f
+    96.8s  fala-linha         [A TRAVESSIA] Também não vai virar desafio. Nada de barra de água, de ar ou de ração: transformar a morte de quem atravessou em placar seria
+    98.2s  fala-linha         [A TRAVESSIA] Quem foi trazido não era carga, não era número e não era "escravo". Escravizar foi o que fizeram com essas pessoas — não o que
+    99.7s  fala-linha         [A TRAVESSIA] O resto deste trecho é o mar, e o tempo que ele leva.
+   101.2s  fala-linha         [A TRAVESSIA] Do outro lado dele está o que essas pessoas fizeram com o que sobrou: fugir, subir a serra e construir uma vila.
+   102.0s  cerimonia          
+   102.2s  rotulo-epoca       PALMARES
+   103.6s  fala-linha         [PALMARES] Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.
+   105.4s  fala-linha         [PALMARES] A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.
+   107.1s  fala-linha         [PALMARES] Não eram esconderijos. Eram vilas, com roça, comércio e defesa — e resistiram por décadas a mais de vinte expedições militares.
+   108.8s  fala-linha         [PALMARES] Aqui, alcançar é acolher. Quem chega vem ficar.
+   110.8s  fala-linha         [PALMARES] Aqui não vem coisa pela estrada: vem gente. Quem você alcança vira e passa a andar com você. O que ela trazia na mão fica no chão
+   111.8s  telas              (a rua)
+   115.8s  telas              telaMenu
+   117.2s  telas              telaCapitulos
+   301.1s  telas              telaMenu
+   301.5s  telas              telaConfig
+   303.2s  rotulo-epoca       PINDORAMA
+   303.2s  upgrade-comprado   0000
+   303.2s  modo               limpo
+
+-- momento morto --
+maior vão entre eventos: 5.2 s (de 51.9s a 57.1s)
+do último evento ao fim dos 5 min: 182.8 s
+
+-- erros de console --
+(nenhum)
+
+JSON: test/cinco-curiosa.json · prints: test/CINCO-curiosa-*.png

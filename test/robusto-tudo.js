@@ -97,8 +97,14 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
       '| energia', m.energia, '/', m.total,
       '| R.dias', m.dias, '| R.ultimo', m.ultimo, '| diaNovo', m.novo,
       '| bonus x' + m.bonus.toFixed(2), '| ganhoClique', m.ganho.toFixed(2));
-    if (!(m.volta < 0)) falhas.push('1: dt negativo era esperado e não veio: ' + m.volta);
-    if (Math.abs(m.volta + 21600) > 90) notas.push('1: dt negativo mediu ' + Math.round(m.volta) + 's (esperado ~-21600s)');
+    // CONSERTADO em 09/08: era esta a asserção que guardava o defeito. O relógio do aparelho
+    // pode andar para trás sozinho (fuso, correção de hora), e aí a subtração fica negativa
+    // com um save perfeitamente honesto. `Math.max(0, …)` em `carregar()`: tempo fora
+    // negativo não existe, e um número negativo circulando é bomba para o próximo consumidor.
+    if (m.volta !== 0) falhas.push('1: relógio para trás devia medir 0s de ausência, mediu ' + m.volta);
+    // CONSERTADO em 09/08: o dt passa por `Math.max(0, …)`, então relógio para trás mede
+    // ZERO, não um número negativo. Tempo fora negativo não existe.
+    if (Math.round(m.volta) !== 0) notas.push('1: relógio para trás devia medir 0s, mediu ' + Math.round(m.volta) + 's');
     if (m.painel !== false) falhas.push('1: o painel de retorno abriu com tempo NEGATIVO fora');
     if (m.energia !== 500 || m.total !== 1000) falhas.push('1: a energia mudou com relógio recuado: ' + m.energia + '/' + m.total);
     if (m.dias !== 3) falhas.push('1: R.dias contou dia com relógio recuado: ' + m.dias);
@@ -162,12 +168,16 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     console.log(cena, '2b: salvoEm=5e12 (fora do esquema) -> S.salvoEm aparado para',
       b.salvoEm, '| voltouDepoisDe', b.volta + 's (~-70 anos) | painel:', b.painel,
       '| energia', b.energia + '/' + b.total);
-    if (b.salvoEm !== 4e12) falhas.push('2b: o esquema não aparou salvoEm=5e12: ' + b.salvoEm);
-    if (!(b.volta < 0)) falhas.push('2b: dt de um carimbo em 2096 devia ser negativo: ' + b.volta);
-    if (b.painel !== false) falhas.push('2b: o painel abriu com dt de -70 anos');
+    // CONSERTADO em 09/08: `salvoEm` ganhou `semAparar`, então um carimbo absurdo cai no
+    // PADRÃO (0) em vez de ser aparado para 4e12. As duas asserções abaixo cobravam o
+    // comportamento COM o defeito — teste que descreve o bug vira guardião do bug.
+    // Com o conserto, 5e12 vira "nunca foi salvo", o dt bate no teto de 12 h, e o painel de
+    // retorno abre normalmente, que é o que deve acontecer para quem sumiu por muito tempo.
+    if (b.salvoEm !== 0) falhas.push('2b: salvoEm=5e12 devia cair no padrão 0, veio ' + b.salvoEm);
+    if (Math.round(b.volta) !== 43200) falhas.push('2b: dt de um carimbo absurdo devia bater no teto de 12h: ' + b.volta);
     if (b.energia !== 500 || b.total !== 1000) falhas.push('2b: a energia mudou com carimbo absurdo: ' + b.energia);
     if (!isFinite(b.ganho) || b.ganho <= 0) falhas.push('2b: ganhoClique degradou com carimbo absurdo: ' + b.ganho);
-    notas.push('2b: salvoEm=5e12 é APARADO para 4e12 (ano 2096), não derrubado para o padrão — o dt sai -70 anos, nada abre e nada soma; inofensivo porque não há produção offline, mas é clamp onde o comentário do esquema sugere queda no padrão');
+
     await page.close();
   }
 
@@ -283,8 +293,12 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
           if (typeof fecharRetorno === 'function') fecharRetorno();
           anomalias.push(...sano(campo + '<-' + ven));
           // valores LEGAIS porém dignos de nota: o clamp aceita número finito fora do bom senso
-          if (campo === 'cuidado' && ven === '-1' && S.cuidado === 0) {
-            observacoes.push('cuidado<- -1 vira 0 (mundo SECO), não o padrão 1 que o comentário do esquema promete');
+          // CONSERTADO em 09/08 (`semAparar`): `cuidado: -1` cai no padrão 1 — o mundo
+          // INTEIRO — em vez de ser aparado para 0, que é o mundo doente. Vira asserção, e
+          // não observação: o comentário do esquema prometia isso e o código não cumpria, e
+          // é justamente o tipo de coisa que volta em silêncio num refactor.
+          if (campo === 'cuidado' && ven === '-1' && S.cuidado !== 1) {
+            anomalias.push('cuidado<- -1 virou ' + S.cuidado + ' — o padrão é 1 (mundo inteiro), e errar para o SECO pune quem não fez nada');
           }
         }
       }

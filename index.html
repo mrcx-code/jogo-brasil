@@ -2201,8 +2201,26 @@ function simularOffline(total) {
     }
     return ganho;
 }
+let salvoConhecido = 0;
+let ultimaInteracao = 0;
+function discoSalvoEm() {
+    try {
+        const bruto = localStorage.getItem(CHAVE_JOGO);
+        if (!bruto)
+            return 0;
+        const o = JSON.parse(bruto);
+        return (o && typeof o.salvoEm === "number" && isFinite(o.salvoEm)) ? o.salvoEm : 0;
+    }
+    catch (e) {
+        return 0;
+    }
+}
 function salvar() {
+    const disco = discoSalvoEm();
+    if (disco > salvoConhecido && ultimaInteracao < disco)
+        return;
     S.salvoEm = Date.now();
+    salvoConhecido = S.salvoEm;
     const fora = {};
     for (const chave in ESQUEMA_SAVE)
         fora[chave] = S[chave];
@@ -2368,7 +2386,7 @@ const ESQUEMA_SAVE = {
     u4: { tipo: "bool", pad: false },
     cenario: { tipo: "num", min: 0, max: TOTAL_CENAS - 1, pad: 0 },
     fronteira: { tipo: "num", min: 0, max: TOTAL_CENAS - 1, pad: 0 },
-    cuidado: { tipo: "num", min: 0, max: 1, pad: 1 },
+    cuidado: { tipo: "num", min: 0, max: 1, pad: 1, semAparar: true },
     aberturas: { tipo: "bits", min: 0, max: MASCARA_EPOCAS, pad: 0 },
     fechos: { tipo: "bits", min: 0, max: MASCARA_EPOCAS, pad: 0 },
     som: { tipo: "bool", pad: false },
@@ -2378,7 +2396,7 @@ const ESQUEMA_SAVE = {
     travessias: { tipo: "bits", min: 0, max: MASCARA_TRAVESSIAS, pad: 0 },
     arco: { tipo: "num", min: 0, max: 9, pad: 0 },
     recursos: { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
-    salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0 }
+    salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0, semAparar: true }
 };
 const ARCOS_ANTIGOS = [
     [["pindorama", 2], ["palmares", 2], ["hoje", 2]]
@@ -2432,6 +2450,8 @@ function valida(regra, v) {
     if (regra.tipo === "num") {
         if (typeof v !== "number" || !isFinite(v))
             return regra.pad;
+        if (regra.semAparar && (v < regra.min || v > regra.max))
+            return regra.pad;
         return Math.min(regra.max, Math.max(regra.min, v));
     }
     if (regra.tipo === "bits") {
@@ -2473,7 +2493,7 @@ function valida(regra, v) {
         return regra.entre.indexOf(v) >= 0 ? v : regra.pad;
     return regra.pad;
 }
-function carregar() {
+function carregar(silencioso) {
     let bruto = null;
     try {
         bruto = localStorage.getItem(CHAVE_JOGO);
@@ -2504,9 +2524,11 @@ function carregar() {
         S.recursos = { flor: 0, agua: 0, refeicao: 0 };
     cuidadoVisto = S.cuidado;
     semearGrupo();
-    const dt = Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600);
+    salvoConhecido = S.salvoEm;
+    const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
     voltouDepoisDe = dt;
-    mostrarRetorno(dt);
+    if (!silencioso)
+        mostrarRetorno(dt);
 }
 function mostrarRetorno(dt) {
     if (dt <= 60)
@@ -2632,8 +2654,30 @@ function diaLocal() {
 }
 function salvarRetencao() {
     const fora = {};
-    for (const chave in ESQUEMA_RET)
-        fora[chave] = R[chave];
+    let velho = null;
+    try {
+        velho = JSON.parse(localStorage.getItem(CHAVE_RET) || "null");
+    }
+    catch (e) {
+        velho = null;
+    }
+    if (!velho || typeof velho !== "object" || Array.isArray(velho))
+        velho = null;
+    for (const chave in ESQUEMA_RET) {
+        const meu = R[chave], dele = velho ? velho[chave] : undefined;
+        const regra = ESQUEMA_RET[chave];
+        if (regra.tipo === "dia") {
+            const a = typeof meu === "string" ? meu : "", b = typeof dele === "string" ? dele : "";
+            fora[chave] = !a ? b : !b ? a
+                : (chave === "primeiro" ? (a < b ? a : b) : (a > b ? a : b));
+        }
+        else if (typeof dele === "number" && isFinite(dele) && typeof meu === "number") {
+            fora[chave] = Math.max(meu, dele);
+        }
+        else {
+            fora[chave] = meu;
+        }
+    }
     try {
         localStorage.setItem(CHAVE_RET, JSON.stringify(fora));
     }
@@ -2698,6 +2742,7 @@ function carregarRetencao() {
     marcarDia();
 }
 function contarToque(esquerda) {
+    ultimaInteracao = Date.now();
     if (R.segundos >= 60)
         return;
     const c = esquerda ? "toqEsq" : "toqDir";
@@ -6735,9 +6780,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (document.hidden) {
             salvar();
             salvarRetencao();
+            return;
         }
-        else {
-            marcarDia();
+        marcarDia();
+        if (discoSalvoEm() > salvoConhecido) {
+            carregar(true);
+            redesenharFundo();
+            desenhar();
         }
     });
 });
