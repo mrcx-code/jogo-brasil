@@ -126,11 +126,21 @@ fallback sob os canvas de rótulo) e nome errado.
 **Medido depois:** 5 tamanhos distintos em quatro telas, 8 combinações, cada uma numa voz
 nomeada — as três de 13 px são a mesma camada em pesos diferentes, que é o que uma camada é.
 
-### 5c · Rebarbas de uma linha
-`.telaTit` usa sombra de baixo −3px, que não é nem o degrau grande (−4) nem o pequeno (−2) da
-régua. E o `✕` do `.cartao.fechando` é o único glifo Arial Black dentro do chrome de pedra —
-a onda 7 tem malha 13×13 para isso, mas passar um `✕` pela fonte 5×7 precisa de teste, não de
-uma linha.
+### 5c · Rebarbas — uma FEITA, a outra REFUTADA pela medição
+
+**O `✕` saiu, e era o último glifo Arial Black do chrome de pedra.** Não virou um ✕ desenhado
+na malha: virou a PALAVRA "FECHAR", na mesma fonte bitmap de todos os outros rótulos. Símbolo
+que precisa ser aprendido perde para palavra que se lê — e o rótulo agora diz o que o toque
+FAZ. Medido depois: **zero** elementos em fonte de sistema no `#controls` e no `#hudTop`.
+
+**A sombra da `.telaTit` NÃO é rebarba, e a auditoria errou.** Ela dizia que o −3 px "não é nem
+o degrau grande (−4) nem o pequeno (−2)". Contei antes de mexer: a aresta de baixo tem
+**quatro** valores vivos — 1(×1), 2(×9), **3(×7)**, 4(×17). O −3 tem sete usos; é uma camada,
+não um deslize. E o único valor solitário (o `inset 0 ±1px` dos pregos) é um 1 px numa peça de
+**5×5** — a proporção certa para o tamanho dela.
+
+**A lição fica registrada: a auditoria é um relatório, não um veredito.** Este achado teria me
+feito mexer numa camada legítima de sete peças por causa de uma premissa que ninguém contou.
 
 ---
 
