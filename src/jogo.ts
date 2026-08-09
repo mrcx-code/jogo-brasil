@@ -5402,8 +5402,23 @@ function frentePeFrac(im, i) {
 //
 // Tudo determinístico por hash da posição — nunca Math.random(), senão a folhagem pisca de
 // lugar a cada quadro e voltar para trás encontra outra rua.
-const FRENTE_VEL = 1.35;
-const FRENTE_PASSO = 110;          // grade base; o hash decide se cada casa tem planta ou não
+// UM. Não 1,35, e a razão é a armadilha nº 1 do §7 entrando por uma porta nova.
+//
+// O 1,35 era paralaxe de profundidade: coisa mais perto da câmera anda mais rápido. Isso
+// funcionava enquanto a vegetação FLUTUAVA — sem contato com o chão, o olho aceitava que ela
+// estivesse noutro plano. Em 08/08 nós a assentamos em GROUND, com sombra de contato, e aí a
+// tela passou a afirmar duas coisas contrárias no mesmo quadro: a sombra diz "estou tocando
+// ESTE chão" e o deslocamento diz "não estou". O dono viu na hora — "parece que a planta está
+// desconectada do chão e ela está se mexendo".
+//
+// A regra que o §4 já escreve para a pintura vale para tudo que toca o piso: o chão rola 1:1
+// com o mundo, e QUALQUER fração diferente de 1 faz a coisa deslizar. Planta fincada no mesmo
+// chão que a personagem pisa está no mesmo plano dela — anda com ele, ponto.
+const FRENTE_VEL = 1;
+// 110 -> 168: o dono pediu menos elemento ('não tão poluído assim'). A grade é a distância
+// entre CASAS possíveis; o hash ainda decide se cada casa tem planta, então o efeito real é
+// ~35% menos vegetação por metro de rua. Medido depois em test/medir-poluicao.js.
+const FRENTE_PASSO = 168;
 // Cache de um canvas só, guardado junto com a largura que o gerou — se a largura muda, redesenha.
 let frenteSombra: { w: number; cv: HTMLCanvasElement } | null = null;
 function sombraContato(w, h) {
