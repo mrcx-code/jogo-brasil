@@ -977,6 +977,67 @@
   .capItem.preso:active { transform: none; }
   .capNome { font-size: 15px; font-weight: 900; letter-spacing: .1em; }
   .capQuando { font-size: 10px; letter-spacing: .06em; opacity: .8; margin-top: 3px; }
+  /* A CHEGADA (telaFim). Nenhum material novo: o texto é o mesmo .telaTxt de sempre e o
+     placar é o MESMO papel de campo do .fnItem — a régua do menu diz que LER é papel com
+     tinta escura, e uma tela de fim inventando a própria linguagem seria o Frankenstein que
+     três ondas de trabalho tiraram daqui. A única diferença é a linha em duas colunas.
+     `.falta` usa o âmbar do .fnDuv, e pelo mesmo motivo: o sinal vai na TINTA, não no
+     material. O que falta é convite, não erro — nada de vermelho. */
+  #telaFim { justify-content: flex-start; padding-top: 26px; }
+  #telaFim .telaTit { margin-bottom: 14px; }
+  #telaFim .telaTxt { max-width: 26em; margin-bottom: 18px; }
+  #telaFim .telaTxt div + div { margin-top: .7em; }
+  /* A COLUNA. Sem isto os três botões saíam com larguras diferentes — o de rótulo comprido
+     esticava e os outros dois encolhiam, que é exatamente o Frankenstein que o dono nomeou.
+     Mesma régua do menu (`min(70vw, 290px)`), porque é a mesma família de tábua. */
+  #telaFim .telaBtn { position: relative; width: min(76vw, 300px); box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; margin: 0 0 8px; }
+  /* A tela é a mais alta do jogo e a única que pode não caber: seis linhas de placar mais
+     dois parágrafos mais três tábuas. Em 320×568 ela transborda, então ela ROLA — e rola
+     inteira, não só o placar, senão o texto fica preso e o placar dança sozinho. */
+  #telaFim { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #fimPlacar { width: 100%; max-width: 26em; text-align: left; margin-bottom: 20px; }
+  .fimLin { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    border-radius: 3px; padding: 8px 12px; margin-bottom: 6px;
+    background:
+      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
+  .fimR { font: 400 13px/1.5 var(--leitura); color: #6b4f2a; }
+  .fimV { font: 700 14px/1.5 var(--titulo); color: #33240f; white-space: nowrap; }
+  .fimLin.falta { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
+  .fimLin.falta .fimV { color: #6e4a08; }
+  /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
+     ID — o botão nascia visível e empurrava a coluna do menu inteira para cima. O seletor
+     tem de carregar o mesmo ID para poder apagar. Custou uma reprovação do smoke: o painel
+     de volta deixou de cobrir o JOGAR, porque o JOGAR tinha subido 49 px. */
+  /* TELA CURTA. Medido: em 360×640 e 320×568 a CHEGADA transbordava e o VOLTAR PARA A RUA
+     ficava abaixo da dobra — a tela rola, então nada some, mas um botão que só existe depois
+     de um gesto que ninguém pediu é um botão que metade das pessoas não acha. Aperta-se o
+     que não custa leitura: o entrelinha do texto, o respiro do placar e as margens. */
+  @media (max-height: 720px) {
+    #telaFim { padding-top: 14px; }
+    #telaFim .telaTit { margin-bottom: 8px; }
+    #telaFim .telaTxt { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+    #telaFim .telaTxt div + div { margin-top: .5em; }
+    #fimPlacar { margin-bottom: 12px; }
+    .fimLin { padding: 5px 10px; margin-bottom: 4px; }
+    .fimR { font-size: 12px; }
+    .fimV { font-size: 13px; }
+    #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 6px; }
+  }
+  /* O PISO DO QUE AINDA SE VENDE (320×568). Com só o aperto de 720px sobravam -17 px — a
+     tela cabia por dezessete pixels de nada. Mais um degrau resolve sem cortar uma palavra.
+     Vem DEPOIS do bloco de 720px de propósito: as duas consultas casam em 568 px e têm a
+     mesma especificidade, então quem vence é quem está por último. Invertido, este bloco não
+     pinta um pixel — e foi o que aconteceu na primeira tentativa. */
+  @media (max-height: 600px) {
+    #telaFim .telaTxt { font-size: 13px; line-height: 1.45; }
+    .fimLin { padding: 4px 9px; margin-bottom: 3px; }
+    #telaFim .telaBtn { padding: 9px 18px; }
+  }
+  #telaMenu .telaBtn.oculto, .telaBtn.oculto { display: none; }
+
   /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */
   #telaFontes { justify-content: flex-start; padding-top: 30px; }
   #listaFontes { overflow-y: auto; max-width: 34em; width: 100%; text-align: left;

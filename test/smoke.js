@@ -1163,7 +1163,10 @@ function alvo() {
   if (painel.linhas < 6) errors.push('the AJUSTES retention footer lost lines: ' + painel.linhas);
   // o que foi ao disco são os campos do esquema, nem um a mais (a cópia INDEPENDENTE, como
   // a do ESQUEMA_SAVE: gerar uma da outra deixaria de pegar um campo gravado sem esquema)
-  const retEsperadas = ['dias', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo'];
+  // `fontes` e `chegou` entraram com A CHEGADA (a tela de fim, N3 do QA): `fontes` e a unica
+  // forma honesta de a tela dizer "voce nunca abriu DE ONDE VEM", e `chegou` separa quem
+  // terminou de quem esta terminando — da segunda vez a tela nao se anuncia sozinha.
+  const retEsperadas = ['chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo'];
   const retChaves = Object.keys(painel.gravado).sort();
   console.log('retention written ->', retChaves.join(', '));
   if (retChaves.join(',') !== retEsperadas.join(',')) errors.push('the retention record carries fields the loader would discard: ' + retChaves.join(','));

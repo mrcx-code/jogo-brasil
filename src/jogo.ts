@@ -64,6 +64,8 @@ interface Retencao {
   toqEsq: number;     // toques na metade ESQUERDA (pula) nos primeiros 60 s de jogo
   toqDir: number;     // toques na metade DIREITA (golpeia) nos mesmos 60 s
   turbo: number;      // dias em que o x100 foi ligado — o asterisco da medição
+  fontes: number;     // quantas vezes a tela DE ONDE VEM foi aberta
+  chegou: number;     // quantas vezes chegou ao fim do arco
 }
 /** A paleta do quadro. Ela nasce com duas chaves e ganha o resto por atribuição ao longo de
  *  pal(); só o índice de string descreve isso sem mentir. */
@@ -2156,7 +2158,8 @@ function fecharRetorno() {
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = (): Retencao => ({
-  dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0
+  dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
+  fontes: 0, chegou: 0
 });
 let R: Retencao = RET_PADRAO();
 
@@ -2186,7 +2189,13 @@ const ESQUEMA_RET = {
   // multiplica o toque por cem — sem esta marca, a retenção mediria uma partida que ninguém
   // jogou de verdade e eu não teria como saber. Dado com asterisco vale mais que dado limpo
   // e falso; a tela de AJUSTES mostra o asterisco.
-  turbo:    { tipo: "cont", min: 0, max: 20000, pad: 0 }
+  turbo:    { tipo: "cont", min: 0, max: 20000, pad: 0 },
+  // Duas contagens que a tela de CHEGADA precisa e que ninguém guardava. `fontes` é a única
+  // forma honesta de a tela dizer "você nunca abriu DE ONDE VEM" — sem ela, o convite mais
+  // importante do fim seria chute. `chegou` separa quem terminou de quem está terminando: da
+  // segunda vez em diante a tela não se anuncia sozinha, ela espera ser procurada no menu.
+  fontes:   { tipo: "cont", min: 0, max: 1e6, pad: 0 },
+  chegou:   { tipo: "cont", min: 0, max: 1e6, pad: 0 }
 };
 function diaLocal() {
   const d = new Date();
@@ -4942,8 +4951,26 @@ function verificarCenario() {
   if (cenarioAtual() > (S.fronteira | 0)) S.fronteira = cenarioAtual();
   const alvo = proximoLimiar();
   if (alvo === null) {
-    // A última cena: o que resta é o FECHO do capítulo 3, que é o fim do jogo.
-    if (S.energiaTotal >= LIMIAR_FIM) mostrarFecho(epocaAtual());
+    // A ÚLTIMA CENA. O fecho do último capítulo vem primeiro, e A CHEGADA logo depois dele.
+    // Antes de 09/08 parava no fecho: o QA mediu o que sobrava — mesma rua, barra em 100%,
+    // quarenta toques rendendo +56 e nenhum sinal de que aquilo era o fim. Um jogo que
+    // termina sem dizer que terminou não termina, ele apenas para de ter novidade.
+    //
+    // O segundo ramo existe porque o fecho tem BIT: quem já o leu (fechou o jogo antes de a
+    // CHEGADA existir, ou apagou o save pela metade) nunca mais o veria, e a chegada dele
+    // ficaria pendurada para sempre. `R.chegou` é que fecha a porta, e uma vez só.
+    //
+    // E NADA DISSO ACONTECE COM UMA TELA ABERTA. `verificarCenario` roda a cada quadro e o
+    // mundo continua vivo sob o MENU — por decisão, ver `historiaAberta()`. Sem esta guarda,
+    // a CHEGADA nascia POR CIMA do quadrinho que a pessoa estava lendo, ou do próprio menu:
+    // o smoke pegou exatamente isso (o VOLTAR do quadrinho ficou inalcançável porque a tela
+    // de fim tinha se posto na frente dele). O fim do jogo espera a pessoa voltar para a rua;
+    // ele não interrompe leitura. A guarda de `falaAberta()` lá em cima não bastava — fala é
+    // uma tela entre várias, e as outras também são lugares onde ninguém pediu companhia.
+    if (S.energiaTotal >= LIMIAR_FIM && !telaAberta()) {
+      if (mostrarFecho(epocaAtual(), chegarAoFim)) return;
+      if (!(R.chegou | 0)) chegarAoFim();
+    }
     return;
   }
   if (S.energiaTotal < alvo) return;
@@ -6794,7 +6821,7 @@ function historiaAberta() {
   const t = document.getElementById("telaFala");
   return !!(t && t.classList.contains("aberta"));
 }
-const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes"];
+const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes", "telaFim"];
 // Alguma tela cobrindo o jogo. Sob o MENU o mundo continua vivo por baixo — é decisão, ver
 // historiaAberta() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
 // vez de guardar um sinalizador porque o DOM já é a única fonte da verdade sobre isso.
@@ -6811,6 +6838,11 @@ function telaAberta() {
 // `body.emTela` desliza o HUD para cima e os controles para baixo, e o que sobra é só a
 // tela e o mundo vivo atrás dela. Uma tela, um trabalho.
 function abrirTela(id) {
+  // A porta da CHEGADA aparece no menu quando — e só quando — alguém já chegou uma vez.
+  if (id === "telaMenu") {
+    const bf = document.getElementById("btnFim");
+    if (bf) bf.classList.toggle("oculto", !(R.chegou | 0));
+  }
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
   // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de
   // controles) sai de cena deslizando. É esta classe que faz o menu deixar de ser um modal
@@ -7773,7 +7805,30 @@ function ligarTelas() {
   });
   $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
   $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
-  $("btnFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); montarFontes(); abrirTela("telaFontes"); });
+  $("btnFontes").addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    // Contado aqui e não em `montarFontes()`: a tela de CHEGADA precisa saber se a pessoa
+    // ABRIU a lista, e `montarFontes()` também é chamada por caminho que não é escolha dela.
+    R.fontes = Math.min((R.fontes | 0) + 1, ESQUEMA_RET.fontes.max); salvarRetencao();
+    montarFontes(); abrirTela("telaFontes");
+  });
+  // A CHEGADA, pelo menu — só existe para quem chegou. Uma tela de fim que aparece uma vez e
+  // some é a mesma ausência de antes com um quadro a mais: quem quiser rever o que deixou
+  // passar tem de ter onde.
+  $("btnFim").addEventListener("pointerdown", function (e) {
+    e.preventDefault(); montarFim(); abrirTela("telaFim");
+  });
+  $("btnFimHist").addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    R.historia = Math.min(R.historia + 1, ESQUEMA_RET.historia.max); salvarRetencao();
+    montarCompletude(); abrirTela("telaCompletude");
+  });
+  $("btnFimFontes").addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    R.fontes = Math.min((R.fontes | 0) + 1, ESQUEMA_RET.fontes.max); salvarRetencao();
+    montarFontes(); abrirTela("telaFontes");
+  });
+  $("btnFimVoltar").addEventListener("pointerdown", function (e) { e.preventDefault(); fecharTelas(); });
   $("btnVoltarFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   // Toque em qualquer lugar da tela da fala avança — é o gesto do jogo antigo inteiro, e não
@@ -7879,6 +7934,76 @@ function montarFontes() {
     if (f.q) { const q = document.createElement("div"); q.className = "fnQ"; q.textContent = f.q; d.appendChild(q); }
     box.appendChild(d);
   });
+}
+
+// ============================================================
+// A CHEGADA — a tela de fim (QA, relatório 3, N3)
+//
+// O achado era simples de descrever e feio de ler: "o fecho final devolve à mesma rua, barra
+// em 100%, 40 toques depois +56 e nada. Sem tela de fim, crédito ou convite."
+//
+// O QUE ELA NÃO É, e cada negativa é uma decisão:
+//  · não é vitória. O último capítulo se chama AINDA AQUI e existe para dizer que estes povos
+//    não são um estágio que a história superou (§2.1). "VOCÊ VENCEU" no fim de um jogo sobre
+//    invasão, escravidão e demarcação em curso desmentiria o jogo inteiro na última tela;
+//  · não é placar. Impacto acumulado e recursos ficam de fora: número de jogo virando nota de
+//    história é o que o §2 proíbe, e um troféu depois da travessia seria obsceno;
+//  · não é despedida. Ela abre para dentro — A HISTÓRIA de ponta a ponta e DE ONDE VEM —
+//    porque o fecho do último capítulo já manda para lá com todas as letras, e mandar sem
+//    dar o caminho é mandar para lugar nenhum.
+//
+// O QUE ELA É: o que você LEU, o que DEIXOU PASSAR, e duas portas. A coluna do que passou é a
+// que faz o trabalho — quem pulou a travessia ou nunca abriu as fontes descobre AQUI, e não
+// há outro momento no jogo em que isso caiba.
+function contarBits(m) { let n = 0, v = (m | 0) >>> 0; while (v) { n += v & 1; v >>>= 1; } return n; }
+function montarFim() {
+  const nCap = EPOCAS.length;
+  const lidas = contarBits((S.aberturas | 0) & MASCARA_EPOCAS);
+  const fechadas = contarBits((S.fechos | 0) & MASCARA_EPOCAS);
+  const trav = contarBits(S.travessias | 0);
+  const min = Math.round((R.segundos | 0) / 60);
+  const tempo = min < 60 ? min + " min" : Math.floor(min / 60) + " h " + (min % 60) + " min";
+
+  $("fimTxt").textContent = "";
+  [
+    "Este jogo acaba aqui. A história não.",
+    "O último capítulo se chama AINDA AQUI porque é isso que ele quer dizer: "
+      + "os povos que abrem esta história não são o começo dela. São contemporâneos seus, "
+      + "e a disputa que você atravessou continua depois que a tela apaga."
+  ].forEach(function (l) {
+    const d = document.createElement("div");
+    d.textContent = l;
+    $("fimTxt").appendChild(d);
+  });
+
+  // O placar. Cada linha é um par [rótulo, valor] e um sinalizador de FALTA — o que falta
+  // ganha destaque, porque é ele o convite. O que está completo é só confirmação.
+  const linhas: [string, string, boolean][] = [
+    ["aberturas de capítulo", lidas + " de " + nCap, lidas < nCap],
+    ["fechos de capítulo", fechadas + " de " + nCap, fechadas < nCap],
+    ["a travessia", trav ? "lida" : "pulada", !trav],
+    ["A HISTÓRIA", (R.historia | 0) ? (R.historia | 0) + "×" : "nunca aberta", !(R.historia | 0)],
+    ["DE ONDE VEM", (R.fontes | 0) ? (R.fontes | 0) + "×" : "nunca aberta", !(R.fontes | 0)],
+    ["no relógio", (R.dias | 0) + (((R.dias | 0) === 1) ? " dia · " : " dias · ") + tempo, false]
+  ];
+  const box = $("fimPlacar");
+  box.textContent = "";
+  linhas.forEach(function (l) {
+    const d = document.createElement("div");
+    d.className = "fimLin" + (l[2] ? " falta" : "");
+    const a = document.createElement("span"); a.className = "fimR"; a.textContent = l[0];
+    const b = document.createElement("span"); b.className = "fimV"; b.textContent = l[1];
+    d.appendChild(a); d.appendChild(b); box.appendChild(d);
+  });
+  // Da segunda chegada em diante o título muda: repetir "ATÉ AQUI" para quem já leu tudo é
+  // não ter percebido que a pessoa voltou.
+  $("fimTit").textContent = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+}
+function chegarAoFim() {
+  R.chegou = Math.min((R.chegou | 0) + 1, ESQUEMA_RET.chegou.max);
+  salvarRetencao();
+  montarFim();
+  abrirTela("telaFim");
 }
 
 function fecharTudo() {

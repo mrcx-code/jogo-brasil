@@ -389,6 +389,67 @@ const sec = t => log('\n---- ' + t);
     : 'a abertura de capítulo TAMBÉM anda sozinha — o automático vazou da travessia');
   await page.evaluate(() => fecharTudo());
 
+  // ============================================================
+  // 10 · A CHEGADA — o jogo tem de avisar que acabou, e não pode avisar por cima de ninguém
+  //
+  // O relatório 3 do QA: "o fecho final devolve à mesma rua, barra em 100%, 40 toques depois
+  // +56 e nada." Três coisas podem quebrar em silêncio aqui, e as três estão abaixo:
+  //  · a tela não nascer no fim (volta ao defeito de origem);
+  //  · a tela nascer POR CIMA de uma leitura — foi o que o smoke pegou na primeira versão,
+  //    porque `verificarCenario` roda a cada quadro e o mundo vive sob o menu;
+  //  · o placar mentir. Ele é a única parte da tela que faz afirmação, e afirmação sobre o
+  //    que a pessoa leu tem de bater com os bits que o save guarda.
+  // ============================================================
+  sec('10 · a chegada avisa, é honesta, e não atropela leitura');
+  const fim = await page.evaluate(async () => {
+    fecharTudo(); fecharTelas();
+    // a última cena, e o fecho do último capítulo JÁ LIDO — é o caminho de quem fechou o
+    // jogo antes de a CHEGADA existir, e é o que exercita o segundo ramo da guarda
+    R.chegou = 0; S.aberturas = 1; S.fechos = MASCARA_EPOCAS; S.travessias = 0;
+    R.historia = 0; R.fontes = 0; visitando = false;
+    S.cenario = TOTAL_CENAS - 1; S.fronteira = S.cenario;
+    S.energiaTotal = LIMIAR_FIM + 1; S.energia = S.energiaTotal;
+    verificarCenario();
+    await new Promise(r => setTimeout(r, 500));
+    const t = document.getElementById('telaFim');
+    const linhas = [...document.querySelectorAll('#fimPlacar .fimLin')].map(function (d) {
+      return { r: d.querySelector('.fimR').textContent, v: d.querySelector('.fimV').textContent,
+               falta: d.classList.contains('falta') };
+    });
+    return { aberta: t.classList.contains('aberta'), chegou: R.chegou | 0,
+      linhas: linhas, porta: !document.getElementById('btnFim').classList.contains('oculto') };
+  });
+  log('   ' + fim.linhas.map(l => l.r + ' = ' + l.v + (l.falta ? ' ⟵falta' : '')).join(' | '));
+  ok(fim.aberta, fim.aberta ? 'o jogo acaba e AVISA' : 'o jogo acabou e não avisou (N3)');
+  ok(fim.chegou === 1, 'a chegada ficou registrada uma vez (chegou=' + fim.chegou + ')');
+  const capAb = fim.linhas.find(l => /aberturas/.test(l.r));
+  ok(!!capAb && /^1 de /.test(capAb.v) && capAb.falta,
+    'o placar conta o que a pessoa REALMENTE leu, e marca o que falta');
+  const dv = fim.linhas.find(l => /DE ONDE VEM/.test(l.r));
+  ok(!!dv && dv.v === 'nunca aberta' && dv.falta, 'quem nunca abriu as fontes descobre aqui');
+  // e o placar NÃO pode carregar placar de jogo: impacto e recursos são número de jogo, e
+  // número de jogo virando nota de história é o que o §2 proíbe.
+  const juntos = fim.linhas.map(l => l.r + ' ' + l.v).join(' ');
+  ok(!/impacto|recurso|pontos|score/i.test(juntos),
+    'e não há pontuação nenhuma — a chegada não é troféu');
+
+  // agora com uma tela aberta: a chegada tem de ESPERAR
+  const atropelo = await page.evaluate(async () => {
+    fecharTelas(); R.chegou = 0; S.cenario = TOTAL_CENAS - 1; visitando = false;
+    montarCompletude(); abrirTela('telaCompletude');
+    S.energiaTotal = LIMIAR_FIM + 1; S.energia = S.energiaTotal;
+    verificarCenario();
+    await new Promise(r => setTimeout(r, 400));
+    const quem = document.getElementById('telaFim').classList.contains('aberta');
+    fecharTelas();
+    return { roubou: quem, chegou: R.chegou | 0 };
+  });
+  log('   com A HISTÓRIA aberta: a chegada ' + (atropelo.roubou ? 'ROUBOU' : 'esperou'));
+  ok(!atropelo.roubou, atropelo.roubou
+    ? 'a chegada nasceu por cima de uma leitura em curso'
+    : 'e ela espera a pessoa voltar para a rua em vez de interromper');
+  await page.evaluate(() => fecharTelas());
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

@@ -119,6 +119,7 @@
   <div id="poste">
     <button class="telaBtn" id="btnJogar">JOGAR</button>
     <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
+    <button class="telaBtn sec oculto" id="btnFim">ATÉ AQUI</button>
     <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
     <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
   </div>
@@ -188,6 +189,26 @@
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>
 
+
+<!-- A CHEGADA: o fim do jogo, que até 09/08 não existia.
+     O QA mediu: o fecho do último capítulo devolvia à mesma rua, barra em 100%, e daí em
+     diante quarenta toques rendiam +56 e nada. O jogo acabava e não avisava.
+
+     Não é uma tela de vitória, e a razão é o §2.1. O último capítulo se chama AINDA AQUI e
+     existe para dizer que estes povos não são um estágio que a história superou — colocar
+     "VOCÊ VENCEU" no fim de um jogo sobre invasão, escravidão e demarcação em curso seria
+     desmentir o jogo inteiro na última tela. Não há troféu, não há pontuação e não há
+     ranking: o que ela mostra é o que você LEU, o que DEIXOU PASSAR, e para onde ir.
+     O impacto acumulado e os recursos ficam de fora de propósito — número de jogo virando
+     placar de história é exatamente o que o §2 proíbe. -->
+<div class="tela" id="telaFim">
+  <div class="telaTit" id="fimTit">ATÉ AQUI</div>
+  <div class="telaTxt" id="fimTxt"></div>
+  <div id="fimPlacar"></div>
+  <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
+  <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
+  <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>
+</div>
 
 <!-- FONTES: o §2 virando interface. Se alguém inventar um fato, esta tela fica vazia. -->
 <div class="tela" id="telaFontes">
