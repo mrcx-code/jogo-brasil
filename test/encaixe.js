@@ -491,6 +491,58 @@ const sec = t => log('\n---- ' + t);
   ok(!/inventado/.test(rec.sujo) && /"agua":0/.test(rec.sujo) && /"refeicao":0/.test(rec.sujo),
     'e um save adulterado não escreve nada no nicho: chave inventada some, valor torto vira 0');
 
+  // ============================================================
+  // 12 · A PINTURA PERTENCE AO CAPÍTULO, NÃO À POSIÇÃO DELE
+  //
+  // Era o último lugar do jogo em que acrescentar um capítulo QUEBRAVA os outros, e o mais
+  // silencioso: `CENARIO_ALTO_B64` é uma lista em ordem de cena, e o índice saía direto de
+  // `S.cenario`. Um capítulo inserido no meio empurra todas as cenas depois dele — e a
+  // pintura de AINDA AQUI vai parar no capítulo errado, sem um erro no console. Mesmo modo
+  // de falha que custou §2 na travessia; mesma cura: identidade em vez de posição.
+  //
+  // A asserção SIMULA a inserção: mexe no `arte` como se um capítulo novo tivesse entrado, e
+  // cobra que ninguém se mova. Verificar só o mapeamento de hoje não prova nada — ele estava
+  // certo antes também.
+  // ============================================================
+  sec('12 · inserir capítulo não move a pintura de ninguém');
+  const arte = await page.evaluate(() => {
+    const antes = [];
+    for (let n = 0; n < TOTAL_CENAS; n++) { S.cenario = n; antes.push(fundoIdx()); }
+    // finge um capítulo novo entre SALVADOR e AINDA AQUI: uma cena a mais, sem pintura
+    const novo = { id: 'ensaio', nome: 'ENSAIO', quando: '', cenas: 1, lugar: 'hoje',
+      abertura: ['x'], fecho: ['x'] };
+    EPOCAS.splice(EPOCAS.length - 1, 0, novo);
+    EPOCA_CENA0.length = 0; const guardaTotal = TOTAL_CENAS;
+    let t = 0;
+    EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(t); t += ep.cenas; });
+    TOTAL_CENAS = t;
+    const depois = [];
+    // as cenas do capítulo novo entram no meio, então cada capítulo é conferido pelo NOME
+    const porCapitulo = {};
+    for (let n = 0; n < TOTAL_CENAS; n++) {
+      S.cenario = n;
+      const nome = EPOCAS[epocaDoCenario(n)].nome;
+      (porCapitulo[nome] = porCapitulo[nome] || []).push(fundoIdx());
+    }
+    // desfaz
+    EPOCAS.splice(EPOCAS.length - 2, 1);
+    EPOCA_CENA0.length = 0; t = 0;
+    EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(t); t += ep.cenas; });
+    TOTAL_CENAS = guardaTotal; S.cenario = 0;
+    return { antes: antes, porCapitulo: porCapitulo };
+  });
+  log('   antes da inserção, cena→pintura: ' + arte.antes.join(', '));
+  Object.keys(arte.porCapitulo).forEach(function (k) {
+    log('   depois: ' + k + ' → ' + arte.porCapitulo[k].join(', '));
+  });
+  const esperado = { PINDORAMA: '0,1', PALMARES: '2,3', SALVADOR: '4', 'AINDA AQUI': '5,6' };
+  Object.keys(esperado).forEach(function (k) {
+    const teve = (arte.porCapitulo[k] || []).join(',');
+    ok(teve === esperado[k], teve === esperado[k]
+      ? k + ' continua com a pintura dele (' + teve + ') depois de um capítulo entrar no meio'
+      : k + ' PERDEU a pintura: era ' + esperado[k] + ', virou ' + teve);
+  });
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

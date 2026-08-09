@@ -1552,7 +1552,7 @@ const EPOCAS = [
     id: "pindorama",
     nome: "PINDORAMA",
     quando: "litoral atlântico · século XVI",
-    cenas: 2, lugar: "litoral",
+    cenas: 2, lugar: "litoral", arte: [0, 1],
     abertura: [
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
       "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
@@ -1587,7 +1587,7 @@ const EPOCAS = [
     id: "palmares",
     nome: "PALMARES",
     quando: "serra da Barriga, Alagoas · século XVII",
-    cenas: 2, lugar: "palmares",
+    cenas: 2, lugar: "palmares", arte: [2, 3],
     abertura: [
       "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
       "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram estas encostas e construíram povoados.",
@@ -1628,7 +1628,7 @@ const EPOCAS = [
     // UMA cena, e não duas como as outras: chegou UMA pintura. Duas cenas com a mesma pintura
     // custariam 260 KB para repetir o quadro; o motor N-capítulos aceita o número que a época
     // declarar. Quando a segunda pintura chegar, este 1 vira 2 e nada mais muda.
-    cenas: 1, lugar: "salvador",
+    cenas: 1, lugar: "salvador", arte: [4],
     abertura: [
       "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
       "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, com o próprio ganho na mão.",
@@ -1662,7 +1662,7 @@ const EPOCAS = [
     id: "hoje",
     nome: "AINDA AQUI",
     quando: "terra indígena demarcada · hoje",
-    cenas: 2, lugar: "hoje",
+    cenas: 2, lugar: "hoje", arte: [5, 6],
     abertura: [
       "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
       "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
@@ -4890,19 +4890,39 @@ const CENARIO_ALTO = CENARIO_ALTO_B64.map(carregarPeca);
 const CENARIO_CHAO = CENARIO_CHAO_B64.map(carregarPeca);
 let fundoAtivo = -1;   // -1 = deriva do capítulo; >=0 = índice forçado (depuração)
 let fundoAvisado = -1;
+// ===== A PINTURA PERTENCE AO CAPÍTULO, NÃO À POSIÇÃO DELE =====
+//
+// Este era o último lugar do jogo em que acrescentar um capítulo QUEBRAVA os outros, e era o
+// mais silencioso de todos. `CENARIO_ALTO_B64` é uma lista em ordem de CENA, e o índice saía
+// direto de `S.cenario`. Um capítulo inserido no meio empurra todas as cenas depois dele —
+// e aí a pintura de AINDA AQUI vai parar no capítulo errado, sem erro nenhum no console. É o
+// mesmo modo de falha que custou §2 na travessia (lista curta cala e empurra), e é a mesma
+// cura: **identidade em vez de posição**, exatamente como `ARCOS` já faz com o save.
+//
+// Cada época declara `arte`: os índices da pintura de cada cena dela, na ordem das cenas.
+// Época sem `arte` (capítulo novo, ainda sem pintura própria) roda com a ÚLTIMA pintura que
+// existe e avisa — nunca tela branca, e nunca a pintura de outro capítulo por acidente de
+// aritmética. A partir daqui, inserir capítulo no meio não move a arte de ninguém.
+function arteDaCena(n) {
+  const ep = epocaDoCenario(n);
+  const lista = EPOCAS[ep] && (EPOCAS[ep] as any).arte;
+  if (!lista || !lista.length) return -1;
+  const local = n - EPOCA_CENA0[ep];
+  const i = lista[Math.max(0, Math.min(lista.length - 1, local))];
+  return (typeof i === "number" && i >= 0 && i < CENARIO_ALTO.length) ? i : -1;
+}
 function fundoIdx() {
   if (fundoAtivo >= 0) return Math.min(CENARIO_ALTO.length - 1, fundoAtivo);
   const n = Math.max(0, Math.min(TOTAL_CENAS - 1, S.cenario | 0));
-  // Cena declarada em EPOCAS mas ainda sem pintura embutida: roda com a última pintura que
-  // existe, avisando — nunca tela branca. A progressão não é afetada; só a imagem.
-  if (n >= CENARIO_ALTO.length) {
-    if (fundoAvisado !== n) {
-      fundoAvisado = n;
-      console.warn("cena " + n + " ainda não tem pintura própria (CENARIO_ALTO/CHAO_B64) — usando a da cena " + (CENARIO_ALTO.length - 1));
-    }
-    return CENARIO_ALTO.length - 1;
+  const i = arteDaCena(n);
+  if (i >= 0) return i;
+  // Cena declarada em EPOCAS mas ainda sem pintura própria: roda com a última que existe,
+  // avisando. A progressão não é afetada; só a imagem.
+  if (fundoAvisado !== n) {
+    fundoAvisado = n;
+    console.warn("cena " + n + " ainda não tem pintura própria (EPOCAS[].arte) — usando a da cena " + (CENARIO_ALTO.length - 1));
   }
-  return n;
+  return CENARIO_ALTO.length - 1;
 }
 // Só desenha quando as DUAS peças chegaram. Meia paisagem — céu sem chão, ou chão sem céu —
 // é pior que nenhuma: a personagem apareceria pisando no vazio por uns quadros.
@@ -7068,7 +7088,8 @@ function fundoDaFala() {
     tela.insertBefore(v, tela.firstChild);
     tela.insertBefore(f, v);
   }
-  const b64 = CENARIO_ALTO_B64[Math.max(0, Math.min(cenarioAtual(), CENARIO_ALTO_B64.length - 1))];
+  const iArt = arteDaCena(cenarioAtual());
+  const b64 = CENARIO_ALTO_B64[iArt >= 0 ? iArt : CENARIO_ALTO_B64.length - 1];
   if (b64 && f.getAttribute("src") !== b64) f.src = b64;
 }
 function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
@@ -7673,8 +7694,9 @@ function montarCompletude() {
   // ficam no escuro em que sempre estiveram.
   const fundoPagina = function (q, no: NoLinha, cena: number) {
     const propria = arteDaPagina(no);
+    const iArt = cena < 0 ? -1 : arteDaCena(cena);
     const b64 = propria || (cena < 0 ? ""
-      : CENARIO_ALTO_B64[Math.max(0, Math.min(cena, CENARIO_ALTO_B64.length - 1))]);
+      : CENARIO_ALTO_B64[iArt >= 0 ? iArt : CENARIO_ALTO_B64.length - 1]);
     if (!b64) return false;
     const f = document.createElement("div");
     f.className = "qFundo";
