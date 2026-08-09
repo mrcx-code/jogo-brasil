@@ -1,31 +1,20 @@
 
   :root {
-    /* ---- the board's UI language ----
-       Sampled off the approved board's "UI CONCEITO" panel: warm cream type on deep olive
-       panels, olive-green cards a value lighter, a darker nav rail under them, and gold
-       reserved for the progress bar and the one action that matters. No navy anywhere —
-       the old chrome spoke a different language from the street it sat on. */
-    --ink: #14170c; --panel: #2b3320; --panel2: #3c4627;
-    --texto: #f2e8ce; --sub: #a9a184;
-    --gold: #eba748; --gold2: #da7a29;
-    /* The chrome is DARK and has depth. The poster pass made every surface flat cream and
-       against a saturated world it read washed out — and it also left the game speaking two
-       languages, cream chrome over navy sheets. One language now: a deep blue-ink fill with
-       a real vertical gradient, a 1px lit top edge, a hard ink outline and a hard offset
-       shadow. The construction the poster pass won is kept; only the fill and the value
-       changed. Gold is reserved for the one action that matters — contrast is the cheapest
-       way to say which button is the main button. */
-    --chromeA: #3c4627; --chromeB: #262d18; --chromeT: #f2e8ce; --chromeS: #a9a184;
-    --ouroA: #f3c05c; --ouroB: #da7a29;
-    --creme: #f6ecd5; --contorno: #14170c; --tinta: #1f2412; --tinta2: #6b7a82;
+    /* ---- A LÍNGUA DO CHROME ----
+       O que sobrou depois da auditoria holística de 09/08. Estavam declaradas 37 variáveis
+       e SÓ TREZE eram consumidas — as outras 24 eram o vocabulário do motor antigo (o
+       "deep olive" com painel, trilho de navegação, barra de progresso e um par de
+       semáforo verde/vermelho), morto desde que a régua trocou madeira e pedra por olive.
+       Foram apagadas, e o motivo de apagar em vez de deixar é que variável morta não é
+       inerte: ela é convite. Quem for pintar uma tela nova encontra `--panel` declarado,
+       usa, e a tela nasce falando a língua que o jogo levou onze ondas para desaprender —
+       foi exatamente assim que a tela de CHEGADA nasceu em Arial Black.
+       Ficou o que a régua usa hoje, e ele é curto de propósito. */
+    --texto: #f2e8ce;
+    --gold: #eba748;
+    --ouroA: #f3c05c;
     /* o papel de campo da caixa de fala — enxerto da direção B */
     --papel: #e9d8ae; --papel2: #d8c391; --tintaP: #33240f;
-    --bad: #b8503c; --good: #7d9a3c; --blue: #71a39c; --purple: #a08a4a;
-    /* the board's own furniture measurements — softened a step for a cleaner, more current
-       feel (the buttons stopped reading as chunky pixel panels) */
-    --raio: 0px; --raioSm: 0px;   /* pixel art has no soft corners */
-    --barra: #363c21; --barraOn: #eba748;
-    --navBg: #1c2010; --navOn: #313a1f;
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -297,8 +286,6 @@
   .cartao .cn { font-size: 9px; font-weight: 900; letter-spacing: .08em; color: #2a2418;
     white-space: nowrap; overflow: hidden; max-width: 100%;
     text-shadow: 0 1px 0 rgba(255,250,235,.5); }
-  .cartao .cv { font-size: var(--fs-xs); font-weight: 800; color: var(--gold); white-space: nowrap;
-    font-variant-numeric: tabular-nums; }
   /* aceso: a MESMA pedra, um valor mais clara — não uma pedra de outra cor */
   .cartao.pronto { background: var(--graoPx, none) #bcb298;
     box-shadow: inset 0 3px 0 #ded5ba, inset 0 -4px 0 #7d7459,
@@ -432,10 +419,18 @@
     margin-bottom: calc(30px + env(safe-area-inset-bottom));
     display: flex; flex-direction: column; align-items: center; gap: 12px;
     padding: 18px 0 26px; }
+  /* SEIS CAMADAS QUE NUNCA RENDERAM UM PIXEL (auditoria holística, 09/08). Cada uma destas
+     receitas de madeira declarava o "veio" — um repeating-gradient de 2px/8px — DEPOIS do
+     gradiente de preenchimento. Em `background`, a primeira camada é a de cima: o gradiente
+     do meio é opaco de ponta a ponta (hex sem alfa), então o veio ficava embaixo dele, sem
+     nunca aparecer. A onda 11 tropeçou nisso de passagem e deixou para depois; é agora.
+     O grão vivo é o `--veioPx`, que entra como PRIMEIRA camada e é textura de pixel de
+     verdade. O `#poste` é o único que ficou sem grão nenhum, e é decisão registrada: o veio
+     dele seria VERTICAL (uma segunda textura rotacionada), e ninguém mediu ainda se o print
+     no aparelho pede. Enquanto não medir, sem grão é honesto; camada morta não era. */
   #poste::before { content: ""; position: absolute; left: 50%; top: 0; bottom: -60vh;
     width: 18px; transform: translateX(-50%);
-    background: linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.10) 0 3px, transparent 3px 11px);
+    background: linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16);
     box-shadow: inset 2px 0 0 #8a6236, inset -2px 0 0 #33200e, 4px 0 0 rgba(0,0,0,.35); }
   #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
     display: flex; align-items: center; justify-content: center; margin: 0; }
@@ -443,8 +438,7 @@
      mais curtidas. Destaque por MATERIAL, nunca por tamanho — a coluna alinhada é o que faz
      o conjunto ler como um só objeto. */
   #btnJogar { background: var(--veioPx, none),
-      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24);
     color: #2a1a0a;
     text-shadow: 0 1px 0 rgba(255,236,196,.5);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
@@ -481,8 +475,7 @@
   .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
     letter-spacing: .1em; color: #f2e3c0;
     background: var(--veioPx, none),
-      linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+      linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016);
     border: 0; padding: 15px 34px; margin: 5px; border-radius: 3px;
     text-shadow: 0 2px 0 rgba(0,0,0,.55);
     box-shadow: inset 0 3px 0 #9a6f3e, inset 0 -4px 0 #33200e,
@@ -805,8 +798,7 @@
   .ltMarco { position: relative; z-index: 2; padding: 15px 22px; border-radius: 3px;
     text-align: center;
     background: var(--veioPx, none),
-      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 9px 26px rgba(0,0,0,.55); }
   .ltMarcoQuando { margin-top: 6px; }
@@ -954,8 +946,7 @@
   .capItem { flex-shrink: 0; }
   .capItem { text-align: left; padding: 13px 15px; border-radius: 3px; color: #eaD8b2;
     background: var(--veioPx, none),
-      linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+      linear-gradient(180deg, #6d4b28, #503319 60%, #40270f);
     border: 0; font: inherit; cursor: pointer;
     box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
                 inset 0 0 0 2px #1c1106, 0 5px 0 #120c06;
@@ -966,8 +957,7 @@
   /* a era onde você está é a tábua nova, clara — mesma regra do JOGAR: material, não tamanho */
   .capItem.livre { color: #2a1a0a; text-shadow: 0 1px 0 rgba(255,236,196,.5);
     background: var(--veioPx, none),
-      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
-      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06; }
   /* a trancada é madeira encardida de tempo, sem contraste — ainda não é caminho */
@@ -1073,7 +1063,6 @@
   .sheetHead { display: flex; align-items: center; margin-bottom: 2px; }
   .sheetHead .t { font-size: 10px; font-weight: 900; letter-spacing: .3em; color: #b09c72;
     text-shadow: 0 2px 0 rgba(0,0,0,.5); }
-  .fechar { display: none; }   /* closing happens on the card below, not in here */
 
   /* código morto do motor antigo removido na unificação dos botões: .btnCompra, .btnMax,
      .modo/#modoCarvao/#modoLimpo, .rCol/.rTit/.rL, .avisoRampa e .barra —

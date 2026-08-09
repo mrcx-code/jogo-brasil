@@ -7771,6 +7771,15 @@ function pintarRotulos() {
   pixelRotulo($("btnCompletude"), "A HISTÓRIA", 2, "#d9cfae");
   pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
   pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
+  // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais
+  // velha: `#fimTit` e os três botões dela eram os ÚNICOS rótulos em Arial Black do jogo
+  // inteiro — cinco telas medem ZERO texto de sistema, e a que fecha o jogo media quatro.
+  // A porta do menu leva a mesma tinta das irmãs; os botões da tela levam a tinta da tábua
+  // clara (o primeiro) e a das curtidas (os outros dois), que é a hierarquia do menu.
+  pixelRotulo($("btnFim"), "ATÉ AQUI", 2, "#d9cfae");
+  pixelRotulo($("btnFimHist"), "A HISTÓRIA", 2, "#f2e3c0");
+  pixelRotulo($("btnFimFontes"), "DE ONDE VEM", 2, "#d9cfae");
+  pixelRotulo($("btnFimVoltar"), "VOLTAR PARA A RUA", 2, "#a9a184");
   ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarCfg"].forEach(function (id) {
     pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
   });
@@ -8027,7 +8036,9 @@ function montarFim() {
   });
   // Da segunda chegada em diante o título muda: repetir "ATÉ AQUI" para quem já leu tudo é
   // não ter percebido que a pessoa voltou.
-  $("fimTit").textContent = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+  // `pintarRotulos()` já pinta todo `.telaTit` no boot, mas este muda de texto — e escrever
+  // `textContent` num nó que virou canvas devolve a tela para a fonte do aparelho. Repinta.
+  pixelRotulo($("fimTit"), (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI", 3, "#ffd98a");
 }
 function chegarAoFim() {
   R.chegou = Math.min((R.chegou | 0) + 1, ESQUEMA_RET.chegou.max);
@@ -8196,9 +8207,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (folha.classList.contains("aberto")) fecharTudo(); else abrir("sheetUpgrades");
     $("openUpgrades").classList.toggle("fechando", folha.classList.contains("aberto"));
   };
-  document.querySelectorAll<HTMLElement>(".fechar").forEach(function (b) {
-    b.onclick = function () { $(b.dataset.close!).classList.remove("aberto"); };
-  });
+  // O gancho do `data-close` saiu com o botão dele (auditoria holística, 09/08): o ✕ da
+  // bandeja estava escondido por CSS desde a unificação dos botões — quem fecha é o cartão
+  // de baixo — e era o único elemento com o atributo. Varredura que não encontra nada não
+  // é inofensiva: ela documenta um caminho que não existe.
   document.addEventListener("pointerdown", function (e) {
     if (e.target === document.body || e.target === document.documentElement) fecharTudo();
   });
