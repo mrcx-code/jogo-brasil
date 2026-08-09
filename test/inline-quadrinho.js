@@ -26,9 +26,26 @@
 //    §2: o pedido de cada página no NOTES.md diz onde gente é proibida (p10, p12, p1…) e onde
 //    é "aprovação cena a cena". Se chegar uma com gente onde o pedido não previa, ela NÃO
 //    entra sem o dono — relate, não embuta.
+//
+// DUAS COISAS QUE ESTE SCRIPT APRENDEU EM 2026-08-08, e as duas custaram uma entrega:
+//
+// a) **O NOME NÃO PRECISA SER SÓ `q-p<N>.png`.** As cinco páginas da travessia chegaram como
+//    `q-p07-africa.png`…`q-p11-oceano.png`: o número ali é o do PEDIDO à mesa, não o da
+//    página do quadrinho (as páginas 7 a 11 já existiam com outro assunto). A chave passa a
+//    ser o nome do arquivo sem o `q-`, exatamente como no `inline-contexto.js` — `p07-africa`
+//    é uma chave, `p10` é outra, e nenhuma pisa na outra. Quem amarra chave a lugar continua
+//    sendo o `qi` da LINHA_TEMPO (quadrinho) ou o `imgs` da fala (travessia).
+//
+// b) **DUPLICATA ENTRA CALADA E CUSTA UMA PÁGINA.** A `q-p22.png` chegou duas vezes byte a
+//    byte igual à `q-p21.png` — a mesa mandou 1888 no lugar de 1988, e em duas entregas
+//    seguidas. Sem conferência, o jogo teria mostrado a mesa da lei duas vezes e ninguém
+//    perceberia até alguém rolar até lá. Agora o md5 do PNG de origem é comparado antes de
+//    codificar: repetiu, o script RECUSA a segunda e diz qual é a irmã. É barato e é o tipo
+//    de erro que só uma máquina pega.
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { chromium } = require('playwright');
 
 const RAIZ = path.resolve(__dirname, '..');
@@ -46,19 +63,40 @@ const medir = process.argv.includes('--medir');
 const LARGURAS = medir ? [390, 468, 546, 624, 780] : [LARGURA];
 const QUAIS = medir && process.argv.includes('--grade') ? [0.55, 0.62, 0.72] : [QUAL];
 
+// A ordem de leitura: pelo número do pedido, e com o nome desempatando (`p10` antes de
+// `p10-travessia`). É só para o log e para a ordem do bloco — quem manda no jogo é o `qi`.
+const ordem = function (a, b) {
+  const na = parseInt(a.slice(3), 10), nb = parseInt(b.slice(3), 10);
+  return na !== nb ? na - nb : (a < b ? -1 : a > b ? 1 : 0);
+};
+
 (async () => {
   const arqs = fs.existsSync(DIR)
-    ? fs.readdirSync(DIR).filter(f => /^q-p\d+\.png$/.test(f))
-        .sort(function (a, b) { return parseInt(a.slice(3), 10) - parseInt(b.slice(3), 10); })
+    ? fs.readdirSync(DIR).filter(f => /^q-p\d+(-[a-z0-9]+)*\.png$/.test(f)).sort(ordem)
     : [];
   if (!arqs.length) { console.error('nenhuma q-p*.png em assets/entrada'); process.exit(1); }
+
+  // O PORTÃO DA DUPLICATA (ver o cabeçalho, item b). Roda ANTES de abrir o navegador porque
+  // é barato e porque uma entrega repetida não deve nem custar um encode.
+  const porMd5 = {}, recusadas = {};
+  for (const a of arqs) {
+    const md5 = crypto.createHash('md5').update(fs.readFileSync(path.join(DIR, a))).digest('hex');
+    if (porMd5[md5]) {
+      recusadas[a] = porMd5[md5];
+      console.error('RECUSADA ' + a + ' — byte a byte igual a ' + porMd5[md5] + ' (md5 ' + md5.slice(0, 8) + '…)');
+    } else porMd5[md5] = a;
+  }
+  const entram = arqs.filter(function (a) { return !recusadas[a]; });
+  if (Object.keys(recusadas).length) {
+    console.error('  ' + Object.keys(recusadas).length + ' entrega(s) repetida(s) NÃO entram; peça o reenvio à mesa.\n');
+  }
 
   const nav = await chromium.launch();
   const pg = await nav.newPage();
   const feito = {};
   let somaPorLargura = {};
 
-  for (const a of arqs) {
+  for (const a of entram) {
     const chave = a.replace(/^q-|\.png$/g, '');
     await pg.goto('file:///' + path.join(DIR, a).replace(/\\/g, '/'));
     for (const L of LARGURAS) for (const Q of QUAIS) {
@@ -84,7 +122,7 @@ const QUAIS = medir && process.argv.includes('--grade') ? [0.55, 0.62, 0.72] : [
   }
   await nav.close();
   if (medir) {
-    console.log('\nTOTAL por largura (13 páginas, base64):');
+    console.log('\nTOTAL por largura (' + entram.length + ' páginas, base64):');
     Object.keys(somaPorLargura).forEach(function (k) {
       console.log('  ' + k.padEnd(10) + (somaPorLargura[k] / 1024).toFixed(2) + ' MB');
     });
@@ -92,13 +130,15 @@ const QUAIS = medir && process.argv.includes('--grade') ? [0.55, 0.62, 0.72] : [
   }
 
   const chaves = Object.keys(feito).sort(function (a, b) {
-    return parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10);
+    const na = parseInt(a.slice(1), 10), nb = parseInt(b.slice(1), 10);
+    return na !== nb ? na - nb : (a < b ? -1 : a > b ? 1 : 0);
   });
   const bloco =
     '/*QUAD_B64_START — gerado por test/inline-quadrinho.js, não edite à mão*/\n' +
-    '// A página vertical de tela cheia do quadrinho. A chave é `p<N>` — o N do arquivo\n' +
-    '// entregue (`q-pN.png`), que é o número da página no pedido; quem associa página e\n' +
-    '// imagem é o campo `qi` da LINHA_TEMPO, não este bloco.\n' +
+    '// A página vertical de tela cheia. A chave é o nome do arquivo entregue sem o `q-`:\n' +
+    '// `p<N>` para as páginas do quadrinho e `p<N>-<assunto>` para as que a mesa numerou\n' +
+    '// pelo PEDIDO (as cinco da travessia). Quem associa imagem e lugar é o campo `qi` da\n' +
+    '// LINHA_TEMPO (quadrinho) ou o `imgs` da fala (travessia), nunca este bloco.\n' +
     'const QUAD_B64: Record<string, string> = {\n'
     + chaves.map(k => '  "' + k + '": "' + feito[k] + '"').join(',\n') + '\n};\n' +
     '/*QUAD_B64_END*/';

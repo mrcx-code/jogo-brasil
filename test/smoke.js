@@ -1247,6 +1247,141 @@ function alvo() {
   if (crono.andouNoFim !== 5) errors.push('returning to the frontier did not unfreeze progress');
 
 
+  // ============================================================
+  // A SEQUENCIA — a corrente fecho -> travessia -> cerimonia -> abertura (QA, 2026-08-08)
+  //
+  // O smoke provava PECAS (a travessia roda, a cronologia anda, a fala abre). Nao provava a
+  // CORRENTE, que e o que o dono pediu para conferir: "as coisas acontecendo na sequencia".
+  // Uma virada de capitulo sem fecho, ou uma abertura que nao vem depois da travessia, e uma
+  // regressao que passa em todos os testes anteriores e destroi o percurso.
+  //
+  // A regra que este bloco fixa, e que vale para os DOZE capitulos do arco:
+  //   toda fronteira entre capitulos produz FECHO do que sai e ABERTURA do que entra, nesta
+  //   ordem, com a cerimonia no meio; e a TRAVESSIA entra so onde ela esta declarada.
+  const corrente = await page.evaluate(async () => {
+    const espera = ms => new Promise(r => setTimeout(r, ms));
+    const rot = () => document.getElementById('falaTit').getAttribute('aria-label') || '';
+    const out = [];
+    for (let i = 0; i + 1 < EPOCAS.length; i++) {
+      fecharTelas();
+      const cenaFim = EPOCA_CENA0[i] + EPOCAS[i].cenas - 1;
+      S.cenario = cenaFim; S.fronteira = cenaFim;
+      S.aberturas = 0; S.fechos = 0; S.travessias = 0;
+      S.energiaTotal = LIMIARES[cenaFim] + 5; S.energia = S.energiaTotal;
+      const passos = [];
+      verificarCenario();
+      passos.push(falaAberta() ? 'fecho(' + rot() + ')' : 'SEM-FECHO');
+      if (falaAberta()) encerrarFala();
+      await espera(80);
+      if (travessiaAtiva()) {
+        passos.push('travessia(' + travessiaViva.id + ')');
+        // e enquanto ela roda, o botao dourado nao pode render nada
+        const antes = S.energiaTotal; clicar(); pular();
+        if (S.energiaTotal !== antes) passos.push('TRAVESSIA-PAGOU');
+        encerrarFala(); await espera(80);
+      }
+      passos.push(document.getElementById('telaFala').classList.contains('cerimoniando') ? 'cerimonia' : 'SEM-CERIMONIA');
+      passos.push(falaAberta() ? 'abertura(' + EPOCAS[epocaAtual()].nome + ')' : 'SEM-ABERTURA');
+      out.push({ de: EPOCAS[i].nome, para: EPOCAS[i + 1].nome, passos, cena: S.cenario });
+      pararFala(); fimTravessia(); fecharTelas();
+    }
+    // ...e a ULTIMA cena fecha o jogo: LIMIAR_FIM dispara o fecho do ultimo capitulo
+    fecharTelas();
+    S.cenario = TOTAL_CENAS - 1; S.fronteira = TOTAL_CENAS - 1;
+    S.fechos = 0; S.aberturas = MASCARA_EPOCAS;
+    S.energiaTotal = LIMIAR_FIM + 5; S.energia = S.energiaTotal;
+    verificarCenario();
+    const fim = falaAberta() ? rot() : 'SEM-FECHO-FINAL';
+    pararFala(); fecharTelas();
+    return { out, fim, ultimo: EPOCAS[EPOCAS.length - 1].nome };
+  });
+  corrente.out.forEach(c => console.log('sequence ' + c.de + ' -> ' + c.para + ': ' + c.passos.join(' -> ')));
+  console.log('sequence end of game -> ' + corrente.fim);
+  corrente.out.forEach((c, i) => {
+    if (!/^fecho\(/.test(c.passos[0])) errors.push('no closing text at the ' + c.de + ' -> ' + c.para + ' boundary');
+    if (c.passos[0] !== 'fecho(' + c.de + ')') errors.push('the closing text at ' + c.de + ' -> ' + c.para + ' belongs to another chapter: ' + c.passos[0]);
+    if (c.passos.indexOf('SEM-CERIMONIA') >= 0) errors.push('the new chapter opened with no ceremony: ' + c.de + ' -> ' + c.para);
+    if (c.passos[c.passos.length - 1] !== 'abertura(' + c.para + ')') errors.push('the arriving chapter did not speak: ' + c.de + ' -> ' + c.para + ' ended in ' + c.passos[c.passos.length - 1]);
+    if (c.passos.indexOf('TRAVESSIA-PAGOU') >= 0) errors.push('the gold button earned during the crossing at ' + c.de + ' -> ' + c.para);
+  });
+  // a travessia mora ONDE ELA ESTA DECLARADA, e so ali — nem a mais nem a menos
+  const travEsperada = await page.evaluate(() => EPOCAS.map((e, i) =>
+    i + 1 < EPOCAS.length && travessiaEntre(e.id, EPOCAS[i + 1].id) >= 0).slice(0, EPOCAS.length - 1));
+  corrente.out.forEach((c, i) => {
+    const teve = c.passos.some(p => /^travessia\(/.test(p));
+    if (teve !== travEsperada[i]) errors.push('the crossing appeared where it is not declared (or vanished where it is): ' + c.de + ' -> ' + c.para);
+  });
+  if (corrente.fim !== corrente.ultimo) errors.push('the last scene did not close the game: ' + corrente.fim);
+
+  // ---- A HISTORIA: as 26 paginas, medidas DEPOIS de o navegador assentar ----
+  // Nunca teve asercao nenhuma. Uma pagina perdida, uma altura que deixa de resolver, uma
+  // barra de rolagem que volta: tudo isso quebra em silencio e so aparece em print.
+  // Medir com scroll importa: `content-visibility: auto` deixa `innerText` VAZIO para o que
+  // esta fora da tela, entao contar pagina vazia sem rolar ate ela conta 23 falsos vazios.
+  const quad = await page.evaluate(async () => {
+    fecharTelas(); montarCompletude(); abrirTela('telaCompletude');
+    await new Promise(r => setTimeout(r, 260));
+    const l = document.getElementById('listaCenas');
+    const n = l.children.length, h = l.clientHeight;
+    const alturas = new Set(), vazias = [];
+    for (let k = 0; k < n; k++) {
+      l.scrollTop = k * h;
+      await new Promise(r => setTimeout(r, 40));
+      const p = l.children[k];
+      alturas.add(Math.round(p.getBoundingClientRect().height));
+      const rotulos = [...p.querySelectorAll('[aria-label]')].map(e => e.getAttribute('aria-label')).join('');
+      if (!p.innerText.trim() && !rotulos.trim()) vazias.push(k + 1);
+    }
+    l.scrollTop = l.scrollHeight;
+    await new Promise(r => setTimeout(r, 120));
+    const b = document.getElementById('btnVoltarComp').getBoundingClientRect();
+    const noPonto = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
+    const dentro = !!(noPonto && document.getElementById('btnVoltarComp').contains(noPonto));
+    const r = { n, alturas: [...alturas], vazias, tela: h, rolo: l.scrollHeight,
+      barra: l.offsetWidth - l.clientWidth, voltar: dentro };
+    fecharTelas();
+    return r;
+  });
+  console.log('comic ->', quad.n, 'pages | heights', quad.alturas.join(','), 'vs viewport', quad.tela,
+    '| scroll', quad.rolo, '| scrollbar', quad.barra, '| blank pages', quad.vazias.length, '| VOLTAR reachable', quad.voltar);
+  if (quad.n < 20) errors.push('the comic lost pages: ' + quad.n);
+  if (quad.alturas.length !== 1 || quad.alturas[0] !== quad.tela) errors.push('a comic page is not exactly one screen tall: ' + quad.alturas.join(','));
+  if (Math.abs(quad.rolo - quad.n * quad.tela) > 2) errors.push('the comic scroll does not measure N pages: ' + quad.rolo);
+  if (quad.barra !== 0) errors.push('a scrollbar came back to the comic: ' + quad.barra);
+  if (quad.vazias.length) errors.push('comic pages with nothing readable: ' + quad.vazias.join(','));
+  if (!quad.voltar) errors.push('the floating VOLTAR is unreachable at the end of the comic');
+
+  // ---- A TRAVA DE VOCABULARIO DO §2 ----
+  // O CLAUDE.md nomeia palavras que NAO existem neste arquivo: descobrimento (nao houve —
+  // havia gente aqui), pre-historia, primitivo (§2.1) e "escravo" como identidade (§2.4.8).
+  // Nada cobrava isso: um texto novo escrito as pressas em qualquer capitulo passaria.
+  // Duas exclusoes, e as duas sao deliberadas:
+  //   1. o campo `f` (a fonte) nao entra — ele carrega TITULOS de obra, e "Rebeliao escrava
+  //      no Brasil" (Reis, 2003) e a referencia mais citada do capitulo de 1835;
+  //   2. trecho entre aspas nao entra — o jogo usa a palavra proibida para RECUSA-LA
+  //      ("nao era 'escravo'. Escravizar foi o que fizeram com ela"), e reprovar isso
+  //      empurraria o texto a deixar de nomear o problema.
+  const vocab = await page.evaluate(() => {
+    const falas = [];
+    EPOCAS.forEach(e => { falas.push(...e.abertura, ...e.fecho); });
+    TRAVESSIAS.forEach(t => falas.push(...t.linhas));
+    LINHA_TEMPO.forEach(n => { ['q', 't', 'd', 'com'].forEach(k => { if (n[k]) falas.push(n[k]); }); });
+    if (typeof MOMENTOS !== 'undefined') MOMENTOS.forEach(m => { ['q', 't', 'd'].forEach(k => { if (m[k]) falas.push(m[k]); }); });
+    if (typeof TEXTOS !== 'undefined') TEXTOS.forEach(t => { if (typeof t === 'string') falas.push(t); });
+    const proibidas = /(descobrimento|pr[ée].?hist[óo]ri|primitiv)/i;
+    const identidade = /\b(escravos?)\b/i;
+    const semAspas = s => s.replace(/[“"«][^”"»]*[”"»]/g, ' ').replace(/'[^']*'/g, ' ');
+    const achados = [];
+    falas.forEach(f => {
+      const limpo = semAspas(String(f));
+      if (proibidas.test(limpo)) achados.push('PROIBIDA: ' + f.slice(0, 70));
+      if (identidade.test(limpo)) achados.push('IDENTIDADE: ' + f.slice(0, 70));
+    });
+    return { n: falas.length, achados };
+  });
+  console.log('§2 vocabulary ->', vocab.n, 'authored lines checked |', vocab.achados.length, 'hits');
+  vocab.achados.forEach(a => errors.push('§2 vocabulary: ' + a));
+
 console.log('FPS:', fps);
 
   console.log(errors.length ? 'FAIL\n' + errors.join('\n') : 'PASS — no errors');

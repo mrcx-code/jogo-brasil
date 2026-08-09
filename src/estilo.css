@@ -489,8 +489,9 @@
   #falaVeu { position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(180deg, rgba(10,8,5,.32) 0%, rgba(10,8,5,.10) 30%,
                                         rgba(10,8,5,.16) 62%, rgba(10,8,5,.55) 100%); }
-  /* na TRAVESSIA o fundo NÃO entra: o quadro é o mar desenhado, e paisagem de capítulo
-     sobre o Atlântico afirmaria chão onde não há (§2.4) */
+  /* na TRAVESSIA este fundo NÃO entra: paisagem de CAPÍTULO sobre o Atlântico afirmaria chão
+     onde não há (§2.4). O que entra lá são as verticais da própria travessia, e elas vêm
+     pelas <img> de contexto — ver o item 5 do bloco da TRAVESSIA, mais abaixo. */
   body.travessando #falaFundo, body.travessando #falaVeu { display: none; }
   /* ===== A IMAGEM DE CONTEXTO ===== a paisagem do que o texto esta dizendo, na parte de cima
      da tela, ATRAS de tudo o que esta tela desenha. Ela nao tapa o jogo: fica so no alto, e o
@@ -630,6 +631,26 @@
   /* 4. NÃO É PULÁVEL NA PRIMEIRA VEZ. `semPular` só existe enquanto o bit desta travessia
         estiver apagado — quem já atravessou uma vez tem o botão de volta. */
   body.semPular #btnFalaPular { display: none; }
+  /* 5. A PÁGINA DE TELA CHEIA (2026-08-08) — a revisão do §2.4 pelo dono: a imagem abre.
+        Seis das quinze linhas ganharam uma vertical entregue por ele, e o mecanismo é o
+        MESMO das imagens de contexto: as duas <img> que já se revezavam com esmaecimento.
+        Só a FORMA muda aqui. Onde a faixa de contexto é uma paisagem larga presa no alto e
+        dissolvida por uma máscara, a página da travessia SANGRA a tela inteira — porque
+        vertical 2:3 numa tela 0,46 é o formato do próprio aparelho, e cortá-la numa faixa
+        jogaria fora justamente o que ela tem a dizer. Nas outras nove linhas nada acende e o
+        mar desenhado volta a ser o quadro, que é o estado normal deste trecho. */
+  body.travessando .falaCtx { height: 100%; object-fit: cover; object-position: center;
+    -webkit-mask-image: none; mask-image: none; }
+  /* o VÉU da página, e ele precisa ficar ACIMA da imagem — daí o pseudo-elemento em vez do
+     #falaVeu, que nasce antes das <img> e pintaria por baixo delas. Mesmo gradiente do
+     `.qVeu` do quadrinho: a mesma gramática de sobreposição, não uma segunda. Ele acende e
+     apaga junto com a imagem (`comPagina`), no mesmo tempo do esmaecimento dela — véu que
+     fica sobre o mar sem imagem nenhuma escureceria a água por engano. */
+  body.travessando #telaFala::before { content: ""; position: absolute; inset: 0; z-index: 1;
+    pointer-events: none; opacity: 0; transition: opacity .42s ease;
+    background: linear-gradient(180deg, rgba(10,8,5,.58) 0%, rgba(10,8,5,.14) 32%,
+                                        rgba(10,8,5,.18) 62%, rgba(10,8,5,.72) 100%); }
+  body.travessando.comPagina #telaFala::before { opacity: 1; }
 
   /* ===== A HISTÓRIA: o quadrinho ===== (Direção de Arte, onda 8 — pedido do dono:
      "vamos tentar transformar ela num quadrinho… a tela toda vai se transformando de uma
