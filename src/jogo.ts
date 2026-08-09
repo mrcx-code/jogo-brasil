@@ -7845,8 +7845,7 @@ function pintarRotulos() {
   });
   // a mesma tinta clara da plaquinha da época — o PULAR agora é a mesma madeira escura
   pixelRotulo($("btnFalaPular"), "PULAR", 1, "#c9ab77");
-  const mel = document.querySelector<HTMLElement>("#openUpgrades .cn");
-  if (mel) pixelRotulo(mel, "MELHORIAS", 1, "#2a2418");
+  rotuloMelhorias();
   const men = document.querySelector<HTMLElement>("#abrirMenu .cn");
   if (men) pixelRotulo(men, "MENU", 1, "#2a2418");
   const tSheet = document.querySelector<HTMLElement>("#sheetUpgrades .sheetHead .t");
@@ -8107,9 +8106,19 @@ function chegarAoFim() {
   abrirTela("telaFim");
 }
 
+// O rótulo do cartão de MELHORIAS diz o que o toque FAZ, e por isso ele muda quando a
+// bandeja está aberta. A tinta muda junto — a mesma vermelha de terra que o `.fechando`
+// usava no CSS, agora dentro da pintura, porque canvas não herda `color`.
+function rotuloMelhorias() {
+  const el = document.querySelector<HTMLElement>("#openUpgrades .cn");
+  if (!el) return;
+  const aberta = $("sheetUpgrades").classList.contains("aberto");
+  pixelRotulo(el, aberta ? "FECHAR" : "MELHORIAS", 1, aberta ? "#7a2c18" : "#2a2418");
+}
 function fecharTudo() {
   SHEETS.forEach(function (s) { $(s).classList.remove("aberto"); });
   const b = $("openUpgrades"); if (b) b.classList.remove("fechando");
+  rotuloMelhorias();          // fechar por fora também devolve a palavra
 }
 
 // The sheets float just above the controls. Measure that block instead of guessing it, so
@@ -8266,6 +8275,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const folha = $("sheetUpgrades");
     if (folha.classList.contains("aberto")) fecharTudo(); else abrir("sheetUpgrades");
     $("openUpgrades").classList.toggle("fechando", folha.classList.contains("aberto"));
+    rotuloMelhorias();
   };
   // O gancho do `data-close` saiu com o botão dele (auditoria holística, 09/08): o ✕ da
   // bandeja estava escondido por CSS desde a unificação dos botões — quem fecha é o cartão
