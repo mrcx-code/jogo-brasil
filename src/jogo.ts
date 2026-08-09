@@ -7188,10 +7188,22 @@ function trocarCtx(chave: string | null) {
   if (!uri) { els.forEach(function (e) { e.classList.remove("viva"); }); return; }
   const entra = els[1 - ctxLado], sai = els[ctxLado];
   ctxLado = 1 - ctxLado;
+  // SEQUENCIAL, NUNCA CRUZADO. A que sai apaga primeiro; a que entra acende depois. Ver o
+  // bloco `.falaCtx` no estilo.css: cruzar as duas deixa as duas meio transparentes ao mesmo
+  // tempo, e o dono apontou isso com essas palavras. Os 230 ms são o `.22s` do CSS mais um
+  // quadro de folga — se a fala avançar no meio, a guarda `ctxAtual !== uri` cancela e quem
+  // chegou por último manda, que é a mesma regra de antes.
   const acender = function () {
-    if (ctxAtual !== uri) return;      // a fala já avançou; quem chegou depois manda
-    entra.classList.add("viva");
+    if (ctxAtual !== uri) return;
+    // a pergunta tem de ser feita ANTES de apagar, senão a resposta é sempre "não havia
+    // nada aceso" e a primeira imagem da fala entraria com um atraso que não existe
+    const haviaImagem = sai.classList.contains("viva");
     sai.classList.remove("viva");
+    if (!haviaImagem) { entra.classList.add("viva"); return; }
+    setTimeout(function () {
+      if (ctxAtual !== uri) return;
+      entra.classList.add("viva");
+    }, 230);
   };
   if (entra.getAttribute("src") !== uri) {
     entra.src = uri;

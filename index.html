@@ -598,10 +598,25 @@
      imagem ser uma paisagem. Ela ocupa a largura inteira e a altura que a proporcao pedir.
      A mascara e o que a costura no jogo: sem ela a foto termina numa linha reta no meio da
      tela e le como banner colado por cima. Com ela, dissolve. */
-  .falaCtx { position: absolute; left: 0; top: 0; width: 100%; height: auto; z-index: 0;
-    opacity: 0; transition: opacity .42s ease; pointer-events: none;
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
-            mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%); }
+  /* TELA CHEIA, E UMA DE CADA VEZ — decisão do dono (2026-08-09), palavras dele: "vi alguns
+     casos de imagens grandes se sobrepondo com uma leve opacidade entre elas, não gostei
+     disso… prefiro imagens únicas que preencham a tela toda para momentos de história,
+     aparecer apenas o componente de texto com o personagem pela metade aparecendo junto".
+
+     DUAS COISAS MUDARAM, e a primeira desfaz uma decisão anterior desta casa:
+     · `height: auto` + máscara dissolvendo virou `height: 100%` + `cover`. A justificativa
+       antiga era não cortar as beiradas de uma paisagem larga — mas o resultado era uma faixa
+       no alto da tela dissolvendo no meio, e ele leu como banner, não como cena. Tela cheia
+       corta, sim; o pedido de arte já manda o assunto no centro dos 70% por causa disso.
+     · a travessia já era assim (`body.travessando`), e agora é a regra, não a exceção.
+
+     A TROCA NÃO CRUZA. Duas imagens em opacidade parcial ao mesmo tempo é exatamente o que
+     ele apontou — e não adianta pôr uma opaca embaixo da outra, porque durante a mistura você
+     continua vendo as duas. A troca passa a ser SEQUENCIAL: a que sai apaga, e só então a que
+     entra acende. O escuro entre elas é curto e lê como corte de cena, que é o que é. */
+  .falaCtx { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 0;
+    object-fit: cover; object-position: center;
+    opacity: 0; transition: opacity .22s ease; pointer-events: none; }
   .falaCtx.viva { opacity: 1; }
   /* A PESSOA FICA ATRAS, GRANDE, e o texto vira LEGENDA embaixo ocupando tudo.
      Antes o retrato era um nicho de 76 px dentro da caixa, e o texto se espremia ao lado —
@@ -5702,8 +5717,17 @@ function trocarCtx(chave) {
     const acender = function () {
         if (ctxAtual !== uri)
             return;
-        entra.classList.add("viva");
+        const haviaImagem = sai.classList.contains("viva");
         sai.classList.remove("viva");
+        if (!haviaImagem) {
+            entra.classList.add("viva");
+            return;
+        }
+        setTimeout(function () {
+            if (ctxAtual !== uri)
+                return;
+            entra.classList.add("viva");
+        }, 230);
     };
     if (entra.getAttribute("src") !== uri) {
         entra.src = uri;
