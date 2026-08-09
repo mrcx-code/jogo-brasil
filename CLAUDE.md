@@ -196,6 +196,12 @@ npm test               # = npm run build && node test/smoke.js — tem que passa
 git add -A && git commit -m "..." && git push
 ```
 
+**Reverteu algo pela metade? Escreva no `PENDENTES.md` no MESMO commit.** Regra do dono
+(2026-08-09): *"tudo bem reverter o que estiver pela metade, mas mantenha como tarefas ainda
+pendentes para continuarmos."* Código morto não entra na `main` — mas reverter sem registrar
+perde o trabalho duas vezes, porque some o código E o diagnóstico que custou a sessão. Nada
+sai do `PENDENTES.md` sem estar feito ou sem o dono descartar.
+
 **Mexeu em `src/`, rode o build.** O smoke test lê o `index.html` da RAIZ, que é saída, não
 fonte — sem `npm run build` antes você testa o arquivo de ontem e ele passa. Por isso `npm test`
 e `npm start` já constroem sozinhos; `node test/smoke.js` puro continua existindo para quando

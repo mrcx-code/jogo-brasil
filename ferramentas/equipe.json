@@ -1,8 +1,24 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "08/08 · a história abriu de ponta a ponta · 16 verticais na mesa",
+  "atualizado": "09/08 · onda 10 no ar · 6 pendentes registrados",
   "emVoo": [],
   "entregue": [
+    {
+      "q": "onda 10",
+      "t": "A saída cede o palco, e o peso vira TEMPO"
+    },
+    {
+      "q": "tipografia",
+      "t": "Escala um degrau acima; título ganha voz própria"
+    },
+    {
+      "q": "escala",
+      "t": "Mundo em escala INTEIRA — 7 de 7 telas (era 0 de 7)"
+    },
+    {
+      "q": "travessia",
+      "t": "As 5 verticais entram, ligadas linha a linha"
+    },
     {
       "q": "onda 9",
       "t": "A história abre inteira, o personagem comenta, e o scroll ficou leve"
@@ -22,48 +38,28 @@
     {
       "q": "coerência",
       "t": "Salvador para de ter catedral impossível — eixo de simetria 29% → 0%"
-    },
-    {
-      "q": "travessia",
-      "t": "A TRAVESSIA: 90 s em que o jogo para de ser jogo"
-    },
-    {
-      "q": "onda 8",
-      "t": "A HISTÓRIA virou quadrinho: 26 páginas, sem barra de rolagem"
-    },
-    {
-      "q": "travessia",
-      "t": "A TRAVESSIA: 90 s em que o jogo para de ser jogo"
-    },
-    {
-      "q": "arco",
-      "t": "Capítulo deixa de ser identificado por posição — id imutável"
     }
   ],
   "proximos": [
     {
-      "t": "16 imagens VERTICAIS do quadrinho (2:3, terço inferior calmo)",
-      "dep": "VOCÊ · 16 imagens"
+      "t": "q-p19 REFAZER — a legenda tapa o tabuleiro, que é o assunto do texto",
+      "dep": "VOCÊ · 1 imagem"
     },
     {
-      "t": "GENTE de Salvador — hoje é um tabuleiro que anda",
-      "dep": "VOCÊ · 1 folha"
+      "t": "3 folhas de corrida com a MESMA pessoa da caminhada",
+      "dep": "VOCÊ · 3 folhas"
     },
     {
-      "t": "Ler as 12 falas novas do personagem no quadrinho",
-      "dep": "VOCÊ · ler"
-    },
-    {
-      "t": "A aura do lugar de espera aparece em TODOS os capítulos",
+      "t": "PESO: 4,3 MB contra teto 3,6 — carga sob demanda ou aceitar?",
       "dep": "VOCÊ · ⚠"
     },
     {
-      "t": "Carga sob demanda: o arquivo único cai no lote B/C",
+      "t": "Deitado: travar em retrato ou compor para as duas?",
       "dep": "VOCÊ · ⚠"
     },
     {
-      "t": "O gesto de alcançar ainda é 'bater por baixo' com nome novo",
-      "dep": "⚠ §2"
+      "t": "PENDENTES.md — 6 tarefas revertidas ou pela metade, com diagnóstico",
+      "dep": "fila"
     }
   ]
 }
