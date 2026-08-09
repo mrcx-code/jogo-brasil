@@ -3557,3 +3557,81 @@ medir se alguém entende a diferença sem explicação — se não entender, vir
 ### Próximo passo
 A auditoria holística (PENDENTES 5) está rodando. Depois dela: o comentário do personagem
 integrado no quadrinho (PENDENTES 6, pedido do dono) e o que a auditoria trouxer.
+
+---
+
+## 2026-08-09 · A auditoria pegou meu defeito da manhã, e o dicionário que o causou
+
+**Lente: Medir + Subtração.** A auditoria holística (PENDENTES 5, `AUDITORIA.md`) mediu nove
+telas. O veredito de uma linha vale registrar porque contraria o medo: **o jogo NÃO é um
+frankenstein** — 4 raios de canto no jogo inteiro, 3 pesos, 3 famílias, cinco telas com ZERO
+texto de sistema, o ouro com uma superfície só.
+
+E aí veio o achado 1, que era meu, de horas antes: **a CHEGADA falava Arial Black.** A tela que
+eu tinha acabado de montar era a única do jogo com fonte de sistema — quatro rótulos.
+
+**A causa não era descuido, e é o achado que importa.** Das 37 variáveis do `:root`, **só
+treze** eram consumidas. As outras 24 eram o vocabulário do motor antigo (`--panel`, `--navBg`,
+`--barra`, `--bad`/`--good`), morto desde que a régua trocou para madeira e pedra. Variável
+morta não é inerte: **é convite.** Quem pinta uma tela nova encontra `--panel` declarado, usa,
+e a tela nasce falando a língua que o jogo levou onze ondas para desaprender. 37 → 13.
+
+**Seis camadas de veio nunca renderam um pixel** — o `repeating-gradient` declarado *abaixo* do
+gradiente opaco. Provado, não intuído: `test/prova-camada.js` desenha as duas pilhas paradas e
+compara canal a canal, **diferença máxima 0** nas quatro receitas. O print do jogo não serviria,
+porque o mundo anda atrás do menu e o relógio muda a luz.
+
+**A pauta do caderno estava copiada 7 vezes.** Virou `--pauta`, e o 11 px ganhou a explicação
+que faltava: é metade da entrelinha de 22 do corpo de leitura.
+
+### As vozes do caderno (achado 6, decidido)
+A escala `--fs-*` era decorativa: 6 referências em ~45 declarações, e **nenhum texto visível a
+usava**. O texto vivo tinha **nove corpos literais**. Decidi **nomear o que existe** em vez de
+matar ou reinventar: CORPO · CORPO SM · MARGEM · FONTE · VERBETE · VOZ. E os `--fs-*` foram
+**renomeados** para `--fb-*` — tinham trabalho real (vestir o fallback sob os canvas) e nome
+errado. **Medido depois:** 5 tamanhos, 8 combinações, cada uma numa voz nomeada.
+
+### SALVADOR tem o sol pregado na tinta (achado 8)
+Temperatura (R−B) das sete pinturas na escala EXIBIDA: −30 · −42 · −31 · −47 · **+45** · −22 ·
+−48. Saturação: 61 · 69 · 66 · 68 · **39** · 65 · 57%. Salvador está ~90 pontos mais quente:
+um entardecer pintado na tinta, enquanto o motor tinge as outras seis por cima de luz neutra.
+De manhã, seis amanhecem e uma fica presa no pôr do sol. A luminância, ao contrário, está coesa
+(100–141) — **a quebra é de temperatura, não de valor**, e é isso que diz que o defeito é a HORA
+pintada, não a peça. A régua de luz entrou no pedido que já estava na mesa.
+
+### Voltar amanhã passa a ensinar
+O painel de volta dizia o que você **deixou**. Agora dá também um momento da `LINHA_TEMPO`, com
+fonte — nenhuma afirmação nova, o texto é o mesmo que A HISTÓRIA já mostra. O índice é o DIA DE
+TRAVESSIA sobre os momentos das cenas já alcançadas: quem volta amanhã lê outro, e nada do que
+vem pela frente é entregue antes da hora.
+
+**Dois defeitos que só apareceram porque o papel cresceu, e os dois eram de 320 px:** o pé do
+painel saía 92 px abaixo da tela, e o título saía cortado no "FO". O segundo virou regra:
+`escalaQueCabe()` devolve a maior ampliação INTEIRA que serve — reduzir por fração borra.
+
+### O comentário do quadrinho virou a caixa de fala (PENDENTES 6, fechado)
+Pedido literal do dono. **O que a primeira tentativa ensinou:** deixar a figura inteira atrás do
+papel não funciona, porque quem decide onde ela é cortada passa a ser a ALTURA DO BILHETE — um
+comentário de duas linhas é mais baixo que as pernas, e os pés reapareciam. O corte tem de ser
+na ARTE. Medido: os quatro retratos são 112×300, 106×300, 212×482 e 105×300; numa caixa de
+104×145 com `cover`, isso dá 52%, 49% e 61% da figura.
+
+### O que quebrou
+Nada em produção. Mas **eu quebrei o smoke duas vezes durante o trabalho**, e as duas foram
+instrutivas: o botão do menu nascia visível porque `#telaMenu .telaBtn` tem ID e ganhava de
+`.telaBtn.oculto`; e a consulta de 600 px vinha *antes* da de 720 px, casavam as duas em 568 e
+a de baixo vencia — o bloco não pintava um pixel.
+
+E **citei dois relatórios em commits antes de gravá-los em disco.** Os dois entraram no commit
+seguinte, com a confissão no corpo. É o mesmo erro duas vezes no mesmo dia.
+
+### Dúvida nova
+A asserção do véu no smoke foi **alargada** quando o papel da volta passou a cobrir o JOGAR
+sozinho. Alargar uma asserção é sempre suspeito, mesmo quando certo — o que se cobra é que o
+toque não atravesse, e isso continua cobrado. Vale reler daqui a algumas sessões e conferir se
+ela não virou uma asserção que aceita qualquer coisa.
+
+### Próximo passo
+Os 54 pares de cor quase-idêntica (PENDENTES 5a) — começando pelos 10 com Δ≤2, que são
+mecânicos e invisíveis. Depois, o que o dono responder na mesa: o peso, a ordem dos capítulos e
+a régua da imagem do fogo estão lá esperando.

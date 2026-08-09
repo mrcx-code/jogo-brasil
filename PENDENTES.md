@@ -107,14 +107,17 @@ Os marrons somam **55** para ~16–20 que a régua legitima.
 anotar na régua as três tintas de quase-preto como as únicas válidas. Os marrons pedem uma
 passada por material, com print antes/depois.
 
-### 5b · A escala `--fs-*` é decorativa
+### 5b · ~~A escala `--fs-*` é decorativa~~ — RESOLVIDA em 09/08
 Os quatro degraus são referenciados **6 vezes em ~45 declarações**, e **nenhum texto visível
 os usa** — o texto vivo tem **9 corpos literais** (10 · 11,5 · 13 · 13,5 · 14 · 14,5 · 16 · 19
 · 22). Dentro deles, DATA (13 itálico) e FONTE (11,5 itálico) são disciplinados, mas o **corpo
 de leitura tem 4 tamanhos**: 16 (fala/retorno), 14,5 (história), 13,5 (fontes), 13 (placar).
-**A decisão:** ou os papéis do caderno viram variáveis (`--corpo`, `--corpoSm`, `--data`,
-`--fonte`) e os `font:` as consomem, ou a escala morre e a régua documenta os 9 corpos como
-derivação. Hoje há duas verdades e nenhuma manda.
+**Decidido:** nem matar a escala nem inventar outra — **nomear o que existe**. Seis vozes com
+trabalho declarado (CORPO 16/25 · CORPO SM 14,5/22 · MARGEM 13 · FONTE 11,5 it · VERBETE 19 ·
+VOZ 13 it), e os `--fs-*` **renomeados** para `--fb-*`, porque tinham trabalho real (vestir o
+fallback sob os canvas de rótulo) e nome errado.
+**Medido depois:** 5 tamanhos distintos em quatro telas, 8 combinações, cada uma numa voz
+nomeada — as três de 13 px são a mesma camada em pesos diferentes, que é o que uma camada é.
 
 ### 5c · Rebarbas de uma linha
 `.telaTit` usa sombra de baixo −3px, que não é nem o degrau grande (−4) nem o pequeno (−2) da
