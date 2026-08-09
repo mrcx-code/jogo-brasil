@@ -9,27 +9,13 @@ sem o dono descartar.** Quem reverter alguma coisa escreve aqui no mesmo commit.
 
 ---
 
-## 1. O GRÃO DO CHROME — alto valor, revertido em 09/08
+## 1. O GRÃO DO CHROME — **FEITO em 2026-08-09** (Direção de Arte, onda 11)
 
-**O diagnóstico, que é o mais valioso da fila visual:** o mundo é pixel art com grão por toda
-parte, e o HUD e o rodapé são gradiente CSS **liso** — vetor sobre pixel. É a única hipótese
-que explica a queixa do dono (*"o menu de cima e os botões de baixo não parecem do mesmo
-jogo"*) ter sobrevivido a **três** ondas de conserto que mexeram em paleta e construção e
-nunca no grão.
-
-**A solução desenhada:** três texturas de ruído determinístico (o mesmo `hash01` do mundo)
-desenhadas num canvas no boot e servidas ao CSS como `url(data:)` — veio de tábua serrada,
-grão de pedra lavrada, e o mesmo grão com metade da força para o metal do botão dourado.
-Zero byte de arte no arquivo; `var(--veioPx, none)` deixa o chrome exatamente como era se o JS
-não rodar.
-
-**Por que foi revertido:** o gerador ficou órfão — nunca chamado, e o CSS nunca consumiu as
-variáveis. Faltava a metade do trabalho.
-
-**Para retomar:** `NOTES.md`, seção "O diagnóstico do GRÃO DO CHROME". Precisa de: chamar
-`texturaChrome()` no boot, e somar cada grão como **primeira camada** de `background` nas
-superfícies da régua (madeira, pedra, ouro), em pixel de 2 px css — o mesmo passo dos ícones
-da onda 7.
+Saiu daqui porque está feito: `texturaChrome()` roda no boot, as três texturas
+(`--veioPx`/`--graoPx`/`--graoOuroPx`) são consumidas como primeira camada de `background`
+em toda superfície da régua, e a subtração do HUD foi junto (os três nichos de drop nascem
+com o primeiro item). Medição, prints `GR-*` e o registro completo: `DIRECAO.md`, onda 11.
+Instrumento que vigia: `test/prints-grao.js`.
 
 ---
 

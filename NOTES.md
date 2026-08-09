@@ -3433,3 +3433,41 @@ E uma regra de enquadramento que vale para toda vertical futura, achada na integ
 **a página corta pelos LADOS, não por cima** — `cover` casa a altura, então 390×844 sobre arte
 2:3 perde **15,4% de cada lado**. Já custou a `q-p3` (o mar e a maré que davam escala ao
 sambaqui ficaram fora). Regra: **terço inferior calmo E assunto dentro dos 70% centrais.**
+
+## Diário — 2026-08-09 · Direção de Arte · Onda 11: o grão do chrome (worktree, para integrar)
+
+**O que fiz.** O item 1 do `PENDENTES.md`, inteiro — e o código da worktree morta não
+existia em commit nenhum, então foi reescrito do zero: `texturaChrome()` no boot
+(`src/jogo.ts`, região do HUD/boot) gera três texturas de ruído determinístico com o
+`hash01` do mundo e as serve ao CSS como `url(data:)`; `src/estilo.css` as consome como
+PRIMEIRA camada de `background` em toda superfície da régua — madeira (`--veioPx`, tábua
+serrada em runs de 3–10 células), pedra (`--graoPx`, poro e cisco) e ouro (`--graoOuroPx`,
+o mesmo speckle a meia força). Grão de 2 px css, o passo dos ícones da onda 7; fallback
+`none` deixa tudo como era sem JS. E a subtração que o ticket pedia: os três nichos de
+drop saem do boot e NASCEM com o primeiro item (`recNaTela()`; síncrono no `coletarDrop`
+porque a seta da microdica mede o rect no mesmo instante) — no alto da tela ficam só o
+placar e a placa da época.
+
+**O que medi.** `test/prints-grao.js` (novo): ANTES 7 superfícies com 1ª camada SEM grão,
+DEPOIS 7 com `url(data:`; texturas 3,6/5,2/4,9 KB só em runtime. FPS 61/61/61 (piso 58);
+smoke PASS 3×; `medir-telas.js` 7 de 7; `index.html` 4.424.817 → 4.440.347 bytes
+(+15,5 KB, só código e comentário; zero imagem nova; zero rede — CSP já permitia
+`img-src data:`). Prints `GR-*-antes/depois.png`: o confronto que decide é o poste contra
+o LOGO (placa de madeira com grão pintado) e o rodapé contra a terra — antes vetor sobre
+pixel, agora o mesmo material. Verificado vivo no navegador (porta 8201 da worktree).
+
+**O que quebrou.** Nada; nenhuma asserção mudou. **Não commitei nem dei push** (regra do
+sprint).
+
+**Achado novo, pago de graça:** o "veio" das receitas de madeira (repeating-gradient
+2px/8px) estava declarado ABAIXO do gradiente opaco — nunca rendeu um pixel. As camadas
+mortas ficaram (outra passada decide se saem); o registro está na onda 11 do `DIRECAO.md`.
+
+**Dúvida nova:** a dose do veio na madeira ESCURA (placa da época) é a mais tímida das
+três no print — de propósito (placa pequena, texto em cima), mas no aparelho pode pedir
++0,03 de alfa no risco escuro. É um número, e o instrumento já fotografa.
+
+**Próximo passo:** integrar à main; depois, a exceção nomeada do poste (veio vertical é
+uma segunda textura rotacionada, se o print do aparelho pedir) e o item 2 do
+`PENDENTES.md` (o efeito de corrida), que continua sendo o mais antigo pedido do dono
+sem resposta visual.

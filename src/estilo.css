@@ -107,7 +107,13 @@
      de ponta a ponta — o progresso é coisa que se vê no lugar, não um cabeçalho */
   #linhaEpoca { display: flex; align-items: center; gap: 9px; margin: 6px auto 0 10px;
     width: min(64vw, 270px); padding: 6px 10px;
-    background: linear-gradient(180deg, #503319, #38220e); border-radius: 2px;
+    /* O GRÃO DO CHROME (2026-08-09): o mundo é pixel art com grão; o chrome era gradiente
+       liso — vetor sobre pixel. Toda superfície da régua soma agora o seu grão como
+       PRIMEIRA camada: madeira leva --veioPx (tábua serrada), pedra leva --graoPx
+       (speckle), ouro leva --graoOuroPx (o mesmo speckle a meia força). As texturas
+       nascem em texturaChrome() no boot (ruído determinístico, hash01, pixel de 2 px css,
+       zero byte de arte); o fallback `none` deixa tudo como era se o JS não rodar. */
+    background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e); border-radius: 2px;
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
   #rotuloEpoca { flex: 0 1 auto; min-width: 0; font-size: 9px; font-weight: 900;
@@ -144,8 +150,12 @@
   /* Mesmo material dos botoes do menu, em escala menor: laje com luz em cima e sombra
      embaixo. Antes era um retangulo preto com contorno — o unico lugar do jogo com esse
      vocabulario, e era isso que fazia a barra parecer colada de outro jogo. */
+  /* A SUBTRAÇÃO DO HUD (2026-08-09): nicho de drop só está na tela enquanto o contador
+     tem algo a dizer — recNaTela() (jogo.ts) o esconde a zero. No boot eram três lajes
+     segurando três zeros; agora a fileira CRESCE conforme a rua dá. */
+  .rec.oculto { display: none; }
   .rec { display: flex; align-items: center; gap: 5px; padding: 4px 9px 4px 5px;
-    border-radius: 4px; background: #a39a83;
+    border-radius: 4px; background: var(--graoPx, none) #a39a83;
     box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
   /* tinta escura sobre a pedra clara — regra única (eram duas brigando com !important) */
@@ -160,7 +170,7 @@
   /* padding vertical igual ao dos .rec: com o ícone da folha nos mesmos 26 px dos autorais
      (onda 7), é o que deixa o chip e os três contadores com a MESMA altura de laje */
   .chip { min-width: 0; display: flex; align-items: center; gap: 8px;
-    padding: 4px 11px 4px 7px; border-radius: 4px; background: #a39a83;
+    padding: 4px 11px 4px 7px; border-radius: 4px; background: var(--graoPx, none) #a39a83;
     box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
   .cInfo { min-width: 0; display: flex; align-items: baseline; gap: 9px; }
@@ -277,7 +287,7 @@
      recurso e os botoes do menu falam a mesma lingua. */
   .cartao { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;
     justify-content: center; gap: 4px; padding: 11px 4px; border-radius: 5px;
-    background: #a39a83; color: #2a2418;
+    background: var(--graoPx, none) #a39a83; color: #2a2418;
     box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
     transition: transform .06s, box-shadow .06s; }
@@ -290,11 +300,11 @@
   .cartao .cv { font-size: var(--fs-xs); font-weight: 800; color: var(--gold); white-space: nowrap;
     font-variant-numeric: tabular-nums; }
   /* aceso: a MESMA pedra, um valor mais clara — não uma pedra de outra cor */
-  .cartao.pronto { background: #bcb298;
+  .cartao.pronto { background: var(--graoPx, none) #bcb298;
     box-shadow: inset 0 3px 0 #ded5ba, inset 0 -4px 0 #7d7459,
                 inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
   /* the panel is open: this card is now the way out of it — tinta vermelha, pedra igual */
-  .cartao.fechando { background: #8f8770;
+  .cartao.fechando { background: var(--graoPx, none) #8f8770;
     box-shadow: inset 0 3px 0 #a89f88, inset 0 -4px 0 #5d553f,
                 inset 0 0 0 2px #6e2418, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
   .cartao.fechando .cn { color: #7a2c18; }
@@ -319,7 +329,7 @@
      SEMPRE a fonte bitmap via pixelRotulo — nenhum rótulo em fonte do sistema. */
   button { font-family: inherit; font-weight: 900; letter-spacing: .04em; border: 0; border-radius: 0;
     cursor: pointer; color: #2a2418; text-transform: uppercase;
-    background: #a39a83; box-shadow: none;
+    background: var(--graoPx, none) #a39a83; box-shadow: none;
     touch-action: manipulation; user-select: none; -webkit-user-select: none; }
   button:disabled { cursor: default; }
   /* o ritmo: o estado muda a TINTA e o calor dos vincos — nunca o material. O verde e o
@@ -339,7 +349,8 @@
   #btnClique { flex: 1 1 auto; min-width: 0; min-height: 62px; padding: 9px 10px;
     border-radius: 5px;
     font-size: var(--fs-lg); font-weight: 800;
-    background: var(--ouroA);
+    /* o metal leva o MESMO speckle da pedra a meia força: ouro poroso, não pedra pintada */
+    background: var(--graoOuroPx, none) var(--ouroA);
     color: #221806; border: 0; letter-spacing: .02em;
     display: flex; align-items: center; justify-content: center; gap: 10px;
     font-weight: 900; text-shadow: 0 2px 0 rgba(255,255,255,.35);
@@ -350,7 +361,8 @@
     position: relative; }
   /* owner: the HOLD hint is gone from the button — holding still works. */
   #btnClique.segurando { transform: translateY(4px);
-    background: linear-gradient(180deg, #fdeec2 0%, #f6cf7e 34%, #e8a244 100%);
+    background: var(--graoOuroPx, none),
+      linear-gradient(180deg, #fdeec2 0%, #f6cf7e 34%, #e8a244 100%);
     box-shadow: inset 0 3px 0 #f8dc96, inset 0 -4px 0 #b06a1e,
                 inset 0 0 0 2px #5a3a10, 0 1px 0 #191510; }
   /* the super's charge, on the button that swings it: one square per completed combo */
@@ -407,7 +419,7 @@
   /* a frase: uma tabuinha estreita pendurada sob o logo, do mesmo material do poste */
   #telaMenu .telaTxt { color: #f0dfb4; font-size: 11.5px; letter-spacing: .1em; white-space: nowrap;
     font-weight: 700; text-transform: uppercase; margin: 0;
-    padding: 7px 16px; background: linear-gradient(180deg, #6d4b28, #503319);
+    padding: 7px 16px; background: var(--veioPx, none), linear-gradient(180deg, #6d4b28, #503319);
     border-radius: 2px;
     box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e,
                 inset 0 0 0 2px #241605, 0 3px 0 #120c06;
@@ -430,7 +442,8 @@
   /* JOGAR é a tábua nova, de madeira clara recém-cortada; as outras três são do mesmo poste,
      mais curtidas. Destaque por MATERIAL, nunca por tamanho — a coluna alinhada é o que faz
      o conjunto ler como um só objeto. */
-  #btnJogar { background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+  #btnJogar { background: var(--veioPx, none),
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
       repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
     color: #2a1a0a;
     text-shadow: 0 1px 0 rgba(255,236,196,.5);
@@ -442,7 +455,7 @@
   /* o título de cada tela é uma placa de madeira escura, não texto solto sobre o véu */
   .telaTit { font-size: 22px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
     text-shadow: 0 3px 0 #0a0806; margin-bottom: 14px; padding: 10px 22px;
-    background: linear-gradient(180deg, #503319, #38220e);
+    background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
     border-radius: 2px;
     box-shadow: inset 0 3px 0 #6d4b28, inset 0 -3px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 5px 0 #0a0806; }
@@ -467,7 +480,8 @@
      grafismo geométrico (§2: padrão que "parece indígena" pertence a um povo e tem nome). */
   .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
     letter-spacing: .1em; color: #f2e3c0;
-    background: linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016),
+    background: var(--veioPx, none),
+      linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
     border: 0; padding: 15px 34px; margin: 5px; border-radius: 3px;
     text-shadow: 0 2px 0 rgba(0,0,0,.55);
@@ -622,7 +636,8 @@
   /* tabuinha de MADEIRA escura — o mesmo material da placa da época; era o único botão do
      jogo em pastilha preta, um vocabulário que não existia em mais lugar nenhum */
   #btnFalaPular { position: absolute; right: 0; top: -28px; pointer-events: auto; cursor: pointer;
-    border: 0; padding: 7px 11px; background: linear-gradient(180deg, #503319, #38220e);
+    border: 0; padding: 7px 11px;
+    background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
   #btnFalaPular:active { transform: translateY(2px);
@@ -779,7 +794,8 @@
      escura do selo VOCÊ ESTÁ AQUI (material da casa, não caixa nova), e a linha de baixo
      clareia porque o #8d8272 foi calibrado contra preto liso, não contra folha. */
   .qCentro.sobreArte { padding: 16px 20px 18px; border-radius: 3px; max-width: 26em;
-    background: linear-gradient(180deg, rgba(30,19,8,.90), rgba(16,11,6,.94));
+    background: var(--veioPx, none),
+      linear-gradient(180deg, rgba(30,19,8,.90), rgba(16,11,6,.94));
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #14100a,
                 inset 0 0 0 2px #120c06, 0 5px 0 rgba(0,0,0,.5), 0 10px 26px rgba(0,0,0,.55); }
   .qCentro.sobreArte .ltPontaSub { color: #b3a58c; }
@@ -788,7 +804,8 @@
      do próprio capítulo, que é a página inteira. */
   .ltMarco { position: relative; z-index: 2; padding: 15px 22px; border-radius: 3px;
     text-align: center;
-    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+    background: var(--veioPx, none),
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
       repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 9px 26px rgba(0,0,0,.55); }
@@ -796,7 +813,8 @@
   /* o selo discreto de progresso sob a placa do capítulo atual: uma tabuinha de madeira
      escura, a mesma do PULAR — orientação, não recompensa (tudo já está aberto) */
   .qAqui { position: relative; z-index: 2; margin-top: 12px; padding: 6px 10px;
-    border-radius: 2px; background: linear-gradient(180deg, #503319, #38220e);
+    border-radius: 2px;
+    background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
   /* O COMENTÁRIO DA PERSONAGEM (pedido do dono: "coloca o personagenzinho pra aparecer
@@ -935,7 +953,8 @@
   /* dentro de um rolo, botão que encolhe deforma; a lista rola, o item não cede */
   .capItem { flex-shrink: 0; }
   .capItem { text-align: left; padding: 13px 15px; border-radius: 3px; color: #eaD8b2;
-    background: linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
+    background: var(--veioPx, none),
+      linear-gradient(180deg, #6d4b28, #503319 60%, #40270f),
       repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
     border: 0; font: inherit; cursor: pointer;
     box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
@@ -946,7 +965,8 @@
                 inset 0 0 0 2px #1c1106, 0 1px 0 #120c06; }
   /* a era onde você está é a tábua nova, clara — mesma regra do JOGAR: material, não tamanho */
   .capItem.livre { color: #2a1a0a; text-shadow: 0 1px 0 rgba(255,236,196,.5);
-    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+    background: var(--veioPx, none),
+      linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
       repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06; }
@@ -982,7 +1002,7 @@
      olive translúcido de canto 18px era o último pedaço de aplicativo dentro do jogo. */
   .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);
     bottom: calc(var(--hControles, 120px) + env(safe-area-inset-bottom)); width: min(560px, 100vw - 16px);
-    background: #a39a83; border: 0; border-radius: 5px;
+    background: var(--graoPx, none) #a39a83; border: 0; border-radius: 5px;
     box-shadow: inset 0 3px 0 #c4bba4, inset 0 -4px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35);
     /* three one-line rows: it takes only the height those need */
@@ -1004,7 +1024,7 @@
   #listaUp { display: flex; gap: 6px; align-items: stretch; }
   .upgrade { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: space-between; gap: 7px;
-    border-radius: 4px; background: #8f8770; padding: 8px 6px;
+    border-radius: 4px; background: var(--graoPx, none) #8f8770; padding: 8px 6px;
     box-shadow: inset 0 3px 0 rgba(20,15,8,.28), inset 0 -2px 0 rgba(255,250,235,.22),
                 inset 0 0 0 2px #423b2e; }
   /* o nome são dois rótulos bitmap empilhados, pintados por pintarRotulos() */
@@ -1014,7 +1034,7 @@
      feito. Era o unico defeito de layout sistematico do jogo (test/medir-telas.js). */
   .upgrade button { width: 100%; padding: 7px 4px; border-radius: 4px;
     min-height: 44px; display: flex; align-items: center; justify-content: center;
-    display: flex; justify-content: center; background: #bcb298;
+    display: flex; justify-content: center; background: var(--graoPx, none) #bcb298;
     box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510;
     transition: transform .06s, box-shadow .06s; }
@@ -1022,14 +1042,14 @@
     box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
                 inset 0 0 0 2px #423b2e, 0 0 0 #191510; }
   /* sem saldo (ou já comprado): a mesma pedra, encardida e afundada no nicho */
-  .upgrade button:disabled { transform: translateY(3px); background: #877e68;
+  .upgrade button:disabled { transform: translateY(3px); background: var(--graoPx, none) #877e68;
     box-shadow: inset 0 2px 0 rgba(20,15,8,.22), inset 0 0 0 2px #423b2e; }
   /* the test switch is not one of the three: it is free, it breaks the pacing on purpose,
      and it should never be mistaken for something the game intends you to buy —
      tinta e contorno vermelhos sobre a mesma pedra (está oculta do jogador) */
   .upgrade.teste { box-shadow: inset 0 3px 0 rgba(20,15,8,.28),
     inset 0 -2px 0 rgba(255,250,235,.22), inset 0 0 0 2px #6e2418; }
-  .upgrade.teste button { background: #8a2f22;
+  .upgrade.teste button { background: var(--graoPx, none) #8a2f22;
     box-shadow: inset 0 2px 0 #a84a38, inset 0 -3px 0 #571812,
                 inset 0 0 0 2px #2e0c08, 0 3px 0 #191510; }
 

@@ -799,6 +799,9 @@ function coletarDrop(d, auto) {
   S.energia += v; S.energiaTotal += v;
   // ...and a resource of its kind piles up, no matter who picked it up
   const r = RECURSO_DE[d.type]; if (r) S.recursos[r] = (S.recursos[r] || 0) + 1;
+  // o nicho do contador nasce JUNTO com o primeiro item — antes do próximo quadro de
+  // desenhar(), porque a seta logo abaixo mede o rect dele e nicho oculto mede zero
+  if (r) recNaTela(r === "flor" ? "nFlor" : r === "agua" ? "nAgua" : "nRef", S.recursos[r]);
   // A seta da primeira espera atendida aponta O CONTADOR QUE ENCHEU, no instante em que
   // ele enche — não antes, quando ainda não havia o que apontar.
   if (r && dicaSetaArmada && !dicaSetaVista) {
@@ -6570,10 +6573,25 @@ function fmt(n) {
   if (n >= 1e4) return (n / 1e3).toFixed(1) + "K";
   return Math.floor(n).toLocaleString("pt-BR");
 }
+// A SUBTRAÇÃO DO HUD (Direção de Arte, 2026-08-09): um contador de drop só existe na tela
+// enquanto o número dele diz alguma coisa. No boot, o alto da tela eram QUATRO lajes de
+// pedra segurando quatro zeros — o placar é o jogo e fica; os três nichos de drop nascem
+// vazios e só aparecem quando a rua dá o primeiro item (e a fileira crescer é, por si,
+// o jogo dizendo "isto aqui rende"). Afterplace (ADA 2023) é a referência da lente: quase
+// não há HUD; o mundo é a interface — a DIRECAO.md anotou a subtração para quando houvesse
+// medição pedindo, e a queixa de peso do dono é essa medição. Some de novo só no APAGAR
+// MEU PROGRESSO (único caminho que zera recursos), atrás da própria tela de AJUSTES.
+function recNaTela(id: string, v: number) {
+  const b = $(id); const rec = b && b.parentElement;
+  if (rec) rec.classList.toggle("oculto", v <= 0);
+}
 function desenhar() {
   verificarCenario();
   // os números do HUD na mesma fonte do resto: eram os últimos rótulos em Arial Black
   pixelRotulo($("energia"), fmt(S.energia), 2, "#ffeec4", "#0a0806");
+  recNaTela("nFlor", S.recursos.flor | 0);
+  recNaTela("nAgua", S.recursos.agua | 0);
+  recNaTela("nRef", S.recursos.refeicao | 0);
   pixelRotulo($("nFlor"), String(S.recursos.flor | 0), 1, "#2a2418");
   // a leitura de progresso: em que época você está e quanto falta para virar
   const pc = Math.floor(progressoCena() * 100);
@@ -7828,9 +7846,74 @@ function medirControles() {
   document.documentElement.style.setProperty("--hControles", h + "px");
 }
 
+// ---------- O GRÃO DO CHROME (Direção de Arte, 2026-08-09) ----------
+// O diagnóstico que sobreviveu a três ondas de conserto: o mundo é pixel art com grão por
+// toda parte, e o chrome inteiro era gradiente CSS LISO — vetor sobre pixel. Era isso que
+// fazia HUD e rodapé lerem como "de outro jogo" com a paleta e a construção já certas.
+// A resposta: três texturas de ruído DETERMINÍSTICO (o mesmo hash01 do mundo), desenhadas
+// num canvas no boot e servidas ao CSS como url(data:) — zero byte de arte no arquivo.
+// Cada célula de grão tem 2 px css (o mesmo passo dos ícones da onda 7: pixel de chrome é
+// SEMPRE inteiro e casa com a malha do mundo). O CSS consome via var(--veioPx, none) etc.:
+// se este código não rodar, o fallback `none` deixa o chrome exatamente como era.
+// A CSP já permite img-src data: — nada disto toca a rede.
+function texturaChrome() {
+  const cel = 2;                                     // 1 grão = 2 px css = 4 px de aparelho
+  function tela(cols: number, lins: number, pinta: (g: CanvasRenderingContext2D) => void): string | null {
+    const c = document.createElement("canvas");
+    c.width = cols * cel; c.height = lins * cel;
+    const g = c.getContext("2d");
+    if (!g) return null;
+    pinta(g);
+    return "url(" + c.toDataURL("image/png") + ")";
+  }
+  // --veioPx: TÁBUA SERRADA — riscos horizontais em runs irregulares, escuro e mel.
+  // Runs de 3–10 células para o veio não virar listra; linhas maiúsculas que o repeating-
+  // gradient de 2px/8px nunca deu (e que, medido, ficava ESCONDIDO sob o gradiente opaco).
+  const veio = tela(64, 48, function (g) {
+    for (let y = 0; y < 48; y++) {
+      let x = 0;
+      while (x < 64) {
+        const run = 3 + Math.floor(hash01(y * 17.9 + x * 3.7 + 4.2) * 8);
+        const s = hash01(y * 131.7 + x * 7.3 + 9.1);
+        if (s < 0.20) {          // o risco da serra, escuro
+          g.fillStyle = "rgba(26,13,3," + (0.10 + hash01(x * 5.1 + y * 2.7 + 1.3) * 0.10).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, Math.min(run, 64 - x) * cel, cel);
+        } else if (s < 0.33) {   // o mel da madeira nova
+          g.fillStyle = "rgba(255,199,112," + (0.05 + hash01(x * 6.7 + y * 3.9 + 2.6) * 0.07).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, Math.min(run, 64 - x) * cel, cel);
+        }
+        x += run;
+      }
+    }
+  });
+  // --graoPx: PEDRA LAVRADA — speckle disperso, poro escuro e cisco claro.
+  // --graoOuroPx: o MESMO speckle com metade da força — metal poroso, não pedra.
+  function speckle(forca: number) {
+    return function (g: CanvasRenderingContext2D) {
+      for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++) {
+        const s = hash01(x * 57.7 + y * 131.3 + 5.5);
+        if (s < 0.11) {          // poro
+          g.fillStyle = "rgba(28,22,11," + ((0.09 + hash01(x * 9.1 + y * 4.3 + 3.7) * 0.11) * forca).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, cel, cel);
+        } else if (s > 0.945) {  // cisco
+          g.fillStyle = "rgba(255,250,232," + ((0.08 + hash01(x * 7.9 + y * 5.7 + 6.1) * 0.10) * forca).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, cel, cel);
+        }
+      }
+    };
+  }
+  const grao = tela(48, 48, speckle(1));
+  const graoOuro = tela(48, 48, speckle(0.5));
+  const raiz = document.documentElement.style;
+  if (veio) raiz.setProperty("--veioPx", veio);
+  if (grao) raiz.setProperty("--graoPx", grao);
+  if (graoOuro) raiz.setProperty("--graoOuroPx", graoOuro);
+}
+
 // ---------- main loop ----------
 document.addEventListener("DOMContentLoaded", () => {
   fitCanvas();
+  texturaChrome();               // o grão do chrome nasce antes de qualquer superfície ser vista
   // O ÁUDIO SÓ NASCE DEPOIS DE UM TOQUE. Navegador nenhum deixa um AudioContext tocar antes de
   // um gesto, e criar um na carga rende aviso ou erro no console — que o smoke test reprova.
   // Este ouvinte é de CAPTURA, não consome o evento e não impede nada: ele só existe para que

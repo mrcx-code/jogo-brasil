@@ -410,6 +410,54 @@ nela (resto 0). No aparelho, parar 7 vezes em 26 é pontuação; parar 26 era o 
 página é `height: 100%` do rolo, papel é `min(30em, 100%)`, fundos são `cover`, e as
 `animation-range` são frações da virada; nada quebrou com o campo de visão variável.
 
+## Onda 11 — IMPLEMENTADA (2026-08-09): O GRÃO DO CHROME, E O HUD QUE CRESCE
+
+O ticket era o item 1 do `PENDENTES.md` — o achado de uma sessão que morreu no limite, e a
+única hipótese que explicava a queixa do dono (*"o menu de cima e os botões de baixo não
+parecem do mesmo jogo"*) ter sobrevivido a TRÊS ondas que mexeram em paleta e construção:
+**o mundo é pixel art com grão por toda parte, e o chrome inteiro era gradiente CSS liso —
+vetor sobre pixel.** O código daquela sessão morreu com a worktree; foi reescrito do zero.
+
+1. **Três texturas de ruído determinístico** (`texturaChrome()` no boot de `src/jogo.ts`,
+   o mesmo `hash01` do mundo), servidas ao CSS como `url(data:)` — **zero byte de arte no
+   arquivo**: `--veioPx` (tábua serrada: riscos horizontais em runs irregulares de 3–10
+   células, escuro e mel), `--graoPx` (pedra lavrada: speckle disperso, poro escuro ~11% e
+   cisco claro ~5,5%) e `--graoOuroPx` (o MESMO speckle a meia força — metal poroso, não
+   pedra). Grão de **2 px css** — o passo dos ícones da onda 7: pixel de chrome é inteiro
+   e casa com a malha do mundo. A CSP já permitia `img-src data:`; nada toca a rede.
+2. **Cada superfície da régua soma o seu grão como PRIMEIRA camada de `background`**:
+   madeira (placa da época, tábuas do poste, JOGAR, títulos, PULAR, eras, marco do
+   quadrinho, VOCÊ ESTÁ AQUI, tabuinha sobre arte), pedra (nichos do HUD, chip, os quatro
+   cartões do rodapé, bandeja e botões de MELHORIAS, sheet) e ouro (botão dourado, nos dois
+   estados). `var(--veioPx, none)`: se o JS não rodar, o fallback deixa o chrome exatamente
+   como era — enhancement de verdade.
+3. **Achado de passagem, registrado para a régua:** o "veio" antigo das receitas de madeira
+   (o `repeating-linear-gradient` de 2px/8px) estava DECLARADO ABAIXO do gradiente opaco —
+   nunca rendeu um pixel. A madeira sempre foi lisa; só a queixa via isso. As camadas mortas
+   ficaram (mexer nelas é outra passada); o grão novo entra por CIMA, onde se vê.
+4. **A exceção nomeada:** o poste do menu (`#poste::before`) NÃO recebeu `--veioPx` — o
+   veio é horizontal e o mastro é vertical; fibra atravessada mentiria o material. Se um dia
+   valer a pena, é uma segunda textura rotacionada, não a mesma forçada.
+5. **A SUBTRAÇÃO DO HUD** — o dono pediu leve, e a lente estava anotada desde a auditoria
+   de referências: **Afterplace (ADA 2023), quase não há HUD; o mundo é a interface**. No
+   boot, o alto da tela eram QUATRO lajes de pedra segurando quatro zeros. Agora: o placar
+   (que é o jogo) e a placa da época ficam; **os três nichos de drop nascem quando a rua dá
+   o primeiro item** — a fileira crescer é o jogo dizendo "isto rende", e o céu respira
+   onde havia pedra muda. `recNaTela()` no pintor do HUD; o nicho nasce SÍNCRONO no
+   `coletarDrop` porque a seta da microdica mede o rect dele no mesmo instante. Some de
+   novo só no APAGAR MEU PROGRESSO, atrás da própria tela de AJUSTES.
+
+**Medido** (`test/prints-grao.js`, novo — mede a 1ª camada computada de cada material,
+o peso das três data URLs e fotografa menu, HUD, rodapé, ouro e MELHORIAS em zoom):
+ANTES 7 superfícies "SEM GRÃO", DEPOIS 7 com `url(data:` na 1ª camada; texturas de
+3,6/5,2/4,9 KB **em runtime** (no arquivo: zero). Prints `GR-*-antes/depois.png` em
+`test/`, olhados com a pergunta da barra — o rodapé de pedra contra o chão de terra e as
+tábuas do poste contra o LOGO (que sempre foi uma placa de madeira com grão pintado à mão)
+respondem sim: era exatamente o encontro que denunciava o vetor. FPS **61/61/61** (piso
+58); `index.html` +15,5 KB LF (só código, mais os comentários que explicam); zero imagem
+nova; zero rede; `npm test` PASS 3×; `test/medir-telas.js` **7 de 7**; verificado vivo no
+navegador (menu → cerimônia → fala → rua: nicho nasce com o primeiro drop).
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
