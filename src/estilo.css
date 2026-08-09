@@ -145,7 +145,7 @@
   #rotuloEpoca { flex: 0 1 auto; min-width: 0; font-size: 9px; font-weight: 900;
     letter-spacing: .14em; color: #d8c398; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 0 rgba(0,0,0,.7); }
-  #barraEpoca { flex: 1 1 auto; height: 7px; background: #0d0b08;
+  #barraEpoca { flex: 1 1 auto; height: 7px; background: #0e0b07;
     box-shadow: inset 0 0 0 2px #3a2f20; position: relative; overflow: hidden; }
   /* O MENU precisa ter porta durante a partida. Sem este botão, A HISTÓRIA e DE ONDE VEM —
      o melhor conteúdo do jogo — ficavam trancadas a partir do primeiro ponto ganho, porque o
@@ -391,7 +391,7 @@
     font-size: var(--fb-lg); font-weight: 800;
     /* o metal leva o MESMO speckle da pedra a meia força: ouro poroso, não pedra pintada */
     background: var(--graoOuroPx, none) var(--ouroA);
-    color: #221806; border: 0; letter-spacing: .02em;
+    color: #241605; border: 0; letter-spacing: .02em;
     display: flex; align-items: center; justify-content: center; gap: 10px;
     font-weight: 900; text-shadow: 0 2px 0 rgba(255,255,255,.35);
     /* mesma construção de laje dos cartões vizinhos, em ouro: luz em cima, sombra embaixo,
@@ -528,7 +528,7 @@
   .telaBtn { pointer-events: auto; cursor: pointer; font: 900 15px/1 inherit;
     letter-spacing: .1em; color: #f2e3c0;
     background: var(--veioPx, none),
-      linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4c3016);
+      linear-gradient(180deg, #7c552c, #5d3d1e 60%, #4a2f16);
     border: 0; padding: 15px 34px; margin: 5px; border-radius: 3px;
     text-shadow: 0 2px 0 rgba(0,0,0,.55);
     box-shadow: inset 0 3px 0 #9a6f3e, inset 0 -4px 0 #33200e,
@@ -844,7 +844,7 @@
   .qCentro.sobreArte { padding: 16px 20px 18px; border-radius: 3px; max-width: 26em;
     background: var(--veioPx, none),
       linear-gradient(180deg, rgba(30,19,8,.90), rgba(16,11,6,.94));
-    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #14100a,
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #16110a,
                 inset 0 0 0 2px #120c06, 0 5px 0 rgba(0,0,0,.5), 0 10px 26px rgba(0,0,0,.55); }
   .qCentro.sobreArte .ltPontaSub { color: #b3a58c; }
   /* o MARCO: a mesma placa de madeira clara das tábuas do poste — e a MESMA para todos os
@@ -1037,11 +1037,11 @@
       linear-gradient(180deg, #6d4b28, #503319 60%, #40270f);
     border: 0; font: inherit; cursor: pointer;
     box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
-                inset 0 0 0 2px #1c1106, 0 5px 0 #120c06;
+                inset 0 0 0 2px #1e1206, 0 5px 0 #120c06;
     transition: transform .06s, box-shadow .06s; }
   .capItem:active { transform: translateY(4px);
     box-shadow: inset 0 3px 0 #8a6236, inset 0 -4px 0 #2a1a0a,
-                inset 0 0 0 2px #1c1106, 0 1px 0 #120c06; }
+                inset 0 0 0 2px #1e1206, 0 1px 0 #120c06; }
   /* a era onde você está é a tábua nova, clara — mesma regra do JOGAR: material, não tamanho */
   .capItem.livre { color: #2a1a0a; text-shadow: 0 1px 0 rgba(255,236,196,.5);
     background: var(--veioPx, none),
@@ -1049,8 +1049,8 @@
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06; }
   /* a trancada é madeira encardida de tempo, sem contraste — ainda não é caminho */
-  .capItem.preso { background: #453c30; color: #8d8271; cursor: default;
-    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2c2418,
+  .capItem.preso { background: #453c30; color: #8d8272; cursor: default;
+    box-shadow: inset 0 2px 0 #57503f, inset 0 -3px 0 #2a2418,
                 inset 0 0 0 2px #1e1810, 0 4px 0 #0e0b07; }
   .capItem.preso:active { transform: none; }
   .capNome { font-size: 15px; font-weight: 900; letter-spacing: .1em; }

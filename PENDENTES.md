@@ -97,15 +97,22 @@ achado), o DOM sem dono, as seis camadas de veio que nunca renderam um pixel (pr
 
 **O que ficou, e cada um precisa de decisão ou de print antes/depois:**
 
-### 5a · Os 54 pares de cores quase-idênticas
+### 5a · ~~Os pares de cores quase-idênticas~~ — o degrau Δ≤2 FEITO em 09/08
 116 hex distintos no chrome; **54 pares com Δ≤6 por canal**, dos quais **10 com Δ≤2** —
 indistinguíveis a olho: `#8d8272~#8d8271` (Δ1), `#0d0b08~#0e0b07` (Δ1), `#1c2010~#1a1e10`,
 `#1e1206~#1c1106`, `#2a2418~#2c2418`, `#221806~#241605`, `#4a2f16~#4c3016`, `#16110a~#14100a`.
 O grupo "quase-preto" tem **16 membros** para um papel que a régua nomeia com três tintas.
 Os marrons somam **55** para ~16–20 que a régua legitima.
-**Próximo passo:** consolidar primeiro os 10 pares Δ≤2 (mecânico, invisível, 116 → ~105) e
-anotar na régua as três tintas de quase-preto como as únicas válidas. Os marrons pedem uma
-passada por material, com print antes/depois.
+**Feito:** `test/juntar-cores.js` acha os grupos por união-busca dentro de um limiar e faz o
+mais usado sobreviver; `test/prova-cores.js` fotografa peça por peça antes e depois. Sete
+substituições, **99 → 92 cores**, diferença máxima **2 em 255** — abaixo do que qualquer olho
+separa. (O número caiu de 116 porque a limpeza das variáveis mortas e das camadas de veio já
+tinha levado parte.)
+
+**O que ficou:** os marrons ainda somam bem mais do que os ~16–20 que a régua legitima, mas
+consolidá-los é decisão de MATERIAL, não de aritmética — dois marrons a 6 de distância podem ser
+duas madeiras diferentes de propósito. Pede uma passada de arte com print antes/depois, não um
+script. Vale também anotar na régua as três tintas de quase-preto como as únicas válidas.
 
 ### 5b · ~~A escala `--fs-*` é decorativa~~ — RESOLVIDA em 09/08
 Os quatro degraus são referenciados **6 vezes em ~45 declarações**, e **nenhum texto visível
