@@ -22,6 +22,12 @@ const fs = require("fs");
 const path = require("path");
 
 const args = process.argv.slice(2);
+// --cru: o servidor ignora o Accept-Encoding e entrega os bytes do disco. É o caso do
+// Capacitor (arquivo local, sem servidor no meio) e o caso de um host que não comprime.
+// A Vercel comprime; o Capacitor não tem o que comprimir. Os dois números importam, e o
+// relatório diz os dois.
+const CRU = args.includes("--cru");
+if (CRU) args.splice(args.indexOf("--cru"), 1);
 const iFetch = args.indexOf("--fetch");
 const fetches = iFetch >= 0 ? args.splice(iFetch, 2)[1].split(",") : [];
 const alvo = path.resolve(args[0] || path.join(__dirname, "..", "index.html"));
@@ -65,7 +71,8 @@ function chromiumPath() {
     const aceita = String(req.headers["accept-encoding"] || "");
     const tipo = arq.endsWith(".html") ? "text/html; charset=utf-8"
       : arq.endsWith(".json") ? "application/json" : "application/octet-stream";
-    const enc = /\bbr\b/.test(aceita) ? ["br", br] : /\bgzip\b/.test(aceita) ? ["gzip", gz] : [null, cru];
+    const enc = CRU ? [null, cru]
+      : /\bbr\b/.test(aceita) ? ["br", br] : /\bgzip\b/.test(aceita) ? ["gzip", gz] : [null, cru];
     const cab = { "Content-Type": tipo, "Cache-Control": "no-store" };
     if (enc[0]) cab["Content-Encoding"] = enc[0];
     res.writeHead(200, cab);
