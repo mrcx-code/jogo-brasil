@@ -65,13 +65,21 @@ Virou "MAIS ADIANTE".
 
 ---
 
-## 4. O HISTORIADOR DO CONTEMPORÂNEO — morreu no limite
+## 4. ~~O HISTORIADOR DO CONTEMPORÂNEO~~ — FEITO em 09/08 (`HISTORIA-CONTEMPORANEO.md`)
 
-O dono apontou o desequilíbrio: *"vc ta focando mto nos indígenas pensando no hoje; podemos
-tratar vários temas do Brasil também — momentos políticos, ditadura militar, Covid,
-agronegócio acabando com a natureza."* O **agronegócio** é tema que o arco de 12 não cobria e
-precisa de desenho próprio (fonte forte: INPE/PRODES, MapBiomas, IBAMA). O relatório chegou a
-baixar o PDF do INPE e morreu.
+O relatório saiu inteiro: o capítulo do **agronegócio** desenhado (O ACEIRO, no cerrado — o
+INPE registrou 7.235 km² lá contra 5.796 na Amazônia em 2025), a fila reordenada com o custo
+dito em voz alta, e a revisão dos contemporâneos. Todo número carrega estado de verificação
+e a regra nova é: **só fonte primária ou institucional vira fala.**
+
+**O que ele deixou para o dono, e nenhum item é meu:** nove decisões ⚠ no fim do arquivo.
+As três que travam trabalho:
+
+- **reordenar a fila** (ditadura → agronegócio → Covid → volta ao XIX). O custo é atravessar
+  a abolição sem jogá-la, mitigável com marcos na `LINHA_TEMPO` no mesmo lote;
+- **carga sob demanda**, que a fila nova torna bloqueante **dois lotes mais cedo**;
+- **a régua da imagem do fogo** — o §2.4 abriu a imagem para a travessia, e fogo é outra
+  conversa.
 
 ---
 
