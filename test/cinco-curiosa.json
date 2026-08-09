@@ -1,0 +1,537 @@
+{
+ "pessoa": "curiosa",
+ "duracao": 45000,
+ "quadroZero": {
+  "telaMenuTexto": "",
+  "botoesMenu": [
+   {
+    "id": "btnJogar",
+    "x": 59,
+    "y": 498,
+    "w": 273,
+    "h": 74,
+    "rotulo": "JOGAR"
+   },
+   {
+    "id": "btnCompletude",
+    "x": 59,
+    "y": 584,
+    "w": 273,
+    "h": 52,
+    "rotulo": "A HISTÓRIA"
+   },
+   {
+    "id": "btnFontes",
+    "x": 59,
+    "y": 648,
+    "w": 273,
+    "h": 52,
+    "rotulo": "DE ONDE VEM"
+   },
+   {
+    "id": "btnConfig",
+    "x": 59,
+    "y": 712,
+    "w": 273,
+    "h": 52,
+    "rotulo": "AJUSTES"
+   }
+  ],
+  "emPontoTimida": "telaMenu",
+  "hud": {
+   "chipTaxa": {
+    "x": 14,
+    "y": -83,
+    "w": 66,
+    "h": 34
+   },
+   "recursos": null,
+   "linhaEpoca": {
+    "x": 10,
+    "y": -35,
+    "w": 250,
+    "h": 23
+   },
+   "rotulo": "PINDORAMA"
+  },
+  "controles": {
+   "modeQuick": {
+    "x": 8,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "btnClique": {
+    "x": 88,
+    "y": 868,
+    "w": 133,
+    "h": 63
+   },
+   "openUpgrades": {
+    "x": 227,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "abrirMenu": {
+    "x": 308,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "rotuloBotao": "+1.0"
+  },
+  "cardU4Visivel": true
+ },
+ "minutos": [
+  {
+   "impacto": 319,
+   "saldo": 319,
+   "falasAbertas": 1,
+   "cerimonias": 1,
+   "linhasLidas": 5,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 28,
+   "alcancadas": 0,
+   "dicaPulo": true,
+   "dicaSeta": false,
+   "podeU1": true,
+   "us": [
+    4
+   ],
+   "telas": [],
+   "eventos": 26,
+   "min": 0.8
+  }
+ ],
+ "fimDaJanela": {
+  "impacto": 0,
+  "saldo": 0,
+  "falasAbertas": 1,
+  "cerimonias": 1,
+  "linhasLidas": 5,
+  "dropsSol": 0,
+  "dropsCol": 0,
+  "dropsColAuto": 0,
+  "dropsVivos": 0,
+  "mobsNasc": 35,
+  "alcancadas": 0,
+  "dicaPulo": true,
+  "dicaSeta": false,
+  "podeU1": false,
+  "us": [],
+  "telas": [
+   "telaConfig"
+  ],
+  "eventos": 30
+ },
+ "eventos": [
+  {
+   "t": 219,
+   "tipo": "estado-inicial",
+   "info": "telas=telaMenu rotulo=PINDORAMA"
+  },
+  {
+   "t": 830,
+   "tipo": "primeira-chegada",
+   "info": "barrel"
+  },
+  {
+   "t": 2991,
+   "tipo": "telas",
+   "info": "telaFala"
+  },
+  {
+   "t": 2991,
+   "tipo": "cerimonia",
+   "info": ""
+  },
+  {
+   "t": 2991,
+   "tipo": "fala-abre",
+   "info": "PINDORAMA"
+  },
+  {
+   "t": 4816,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui."
+  },
+  {
+   "t": 6562,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinho"
+  },
+  {
+   "t": 8232,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela."
+  },
+  {
+   "t": 10311,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder."
+  },
+  {
+   "t": 12496,
+   "tipo": "fala-linha",
+   "info": "[PINDORAMA] Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima"
+  },
+  {
+   "t": 13571,
+   "tipo": "telas",
+   "info": "(a rua)"
+  },
+  {
+   "t": 14577,
+   "tipo": "microdica-pulo",
+   "info": "ESQUERDA PULA (no canvas, 2,8 s)"
+  },
+  {
+   "t": 18298,
+   "tipo": "float",
+   "info": "CORRER!"
+  },
+  {
+   "t": 18354,
+   "tipo": "modo",
+   "info": "carvao"
+  },
+  {
+   "t": 19781,
+   "tipo": "sheet-melhorias",
+   "info": "abriu"
+  },
+  {
+   "t": 24017,
+   "tipo": "upgrade-comprado",
+   "info": "0004"
+  },
+  {
+   "t": 25901,
+   "tipo": "sheet-melhorias",
+   "info": "fechou"
+  },
+  {
+   "t": 28509,
+   "tipo": "u1-compravel",
+   "info": "saldo 207 >= 150"
+  },
+  {
+   "t": 31202,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 32797,
+   "tipo": "telas",
+   "info": "telaCompletude"
+  },
+  {
+   "t": 36168,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 37891,
+   "tipo": "telas",
+   "info": "telaFontes"
+  },
+  {
+   "t": 39348,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 40798,
+   "tipo": "telas",
+   "info": "telaConfig"
+  },
+  {
+   "t": 43380,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 44789,
+   "tipo": "telas",
+   "info": "(a rua)"
+  },
+  {
+   "t": 47401,
+   "tipo": "telas",
+   "info": "telaMenu"
+  },
+  {
+   "t": 48591,
+   "tipo": "telas",
+   "info": "telaConfig"
+  },
+  {
+   "t": 52250,
+   "tipo": "upgrade-comprado",
+   "info": "0000"
+  },
+  {
+   "t": 52250,
+   "tipo": "modo",
+   "info": "limpo"
+  }
+ ],
+ "taps": [
+  {
+   "t": 2839,
+   "x": 195,
+   "y": 535,
+   "alvo": "btnJogar",
+   "em": "CANVAS"
+  },
+  {
+   "t": 3767,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaTit"
+  },
+  {
+   "t": 4670,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 5566,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 6414,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 7238,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 8089,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 9077,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 10120,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 11087,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 12281,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 13392,
+   "x": 195,
+   "y": 640,
+   "alvo": "avançar a fala",
+   "em": "falaCorpo"
+  },
+  {
+   "t": 14396,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 15529,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 16785,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 18192,
+   "x": 45.1953125,
+   "y": 804.5,
+   "alvo": "modeQuick",
+   "em": "modeIcon"
+  },
+  {
+   "t": 19608,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "openUpgrades",
+   "em": "pi"
+  },
+  {
+   "t": 21111,
+   "x": 58.5,
+   "y": 727,
+   "alvo": "btnU1",
+   "em": "CANVAS"
+  },
+  {
+   "t": 22021,
+   "x": 149.5,
+   "y": 727,
+   "alvo": "btnU2",
+   "em": "CANVAS"
+  },
+  {
+   "t": 22908,
+   "x": 240.5,
+   "y": 727,
+   "alvo": "btnU3",
+   "em": "CANVAS"
+  },
+  {
+   "t": 23866,
+   "x": 331.5,
+   "y": 724,
+   "alvo": "btnU4",
+   "em": "CANVAS"
+  },
+  {
+   "t": 25733,
+   "x": 264.390625,
+   "y": 804.5,
+   "alvo": "fechar MELHORIAS",
+   "em": "CANVAS"
+  },
+  {
+   "t": 26652,
+   "x": 292,
+   "y": 422,
+   "alvo": "metade direita",
+   "em": "scene"
+  },
+  {
+   "t": 28326,
+   "x": 154.7890625,
+   "y": 804.5,
+   "alvo": "btnClique",
+   "em": "CANVAS"
+  },
+  {
+   "t": 29450,
+   "x": 97,
+   "y": 422,
+   "alvo": "metade esquerda",
+   "em": "scene"
+  },
+  {
+   "t": 30895,
+   "x": 344.796875,
+   "y": 804.5,
+   "alvo": "abrirMenu",
+   "em": "pi"
+  },
+  {
+   "t": 32578,
+   "x": 195,
+   "y": 610,
+   "alvo": "btnCompletude",
+   "em": "CANVAS"
+  },
+  {
+   "t": 36001,
+   "x": 195,
+   "y": 809,
+   "alvo": "VOLTAR da história",
+   "em": "CANVAS"
+  },
+  {
+   "t": 37692,
+   "x": 195,
+   "y": 674,
+   "alvo": "btnFontes",
+   "em": "CANVAS"
+  },
+  {
+   "t": 39178,
+   "x": 195,
+   "y": 728,
+   "alvo": "VOLTAR das fontes",
+   "em": "CANVAS"
+  },
+  {
+   "t": 40626,
+   "x": 195,
+   "y": 738,
+   "alvo": "btnConfig",
+   "em": "CANVAS"
+  },
+  {
+   "t": 42059,
+   "x": 195,
+   "y": 471.5,
+   "alvo": "SOM",
+   "em": "CANVAS"
+  },
+  {
+   "t": 43212,
+   "x": 195,
+   "y": 595.5,
+   "alvo": "VOLTAR dos ajustes",
+   "em": "CANVAS"
+  },
+  {
+   "t": 44639,
+   "x": 195,
+   "y": 535,
+   "alvo": "btnJogar",
+   "em": "CANVAS"
+  }
+ ],
+ "linhas": [
+  "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
+  "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
+  "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
+  "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
+  "Pela mata vem cacho de fruta no galho, peixe e muda de plantar — três coisas diferentes, e cada uma enche um contador lá em cima. Folha solta no ar também conta, mas essa só cai para quem pula."
+ ],
+ "morto": {
+  "de": 19781,
+  "ate": 24017,
+  "vao": 4236
+ },
+ "rabo": 211,
+ "errosConsole": []
+}

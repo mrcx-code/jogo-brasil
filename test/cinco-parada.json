@@ -1,0 +1,240 @@
+{
+ "pessoa": "parada",
+ "duracao": 300000,
+ "quadroZero": {
+  "telaMenuTexto": "",
+  "botoesMenu": [
+   {
+    "id": "btnJogar",
+    "x": 59,
+    "y": 498,
+    "w": 273,
+    "h": 74,
+    "rotulo": "JOGAR"
+   },
+   {
+    "id": "btnCompletude",
+    "x": 59,
+    "y": 584,
+    "w": 273,
+    "h": 52,
+    "rotulo": "A HISTÓRIA"
+   },
+   {
+    "id": "btnFontes",
+    "x": 59,
+    "y": 648,
+    "w": 273,
+    "h": 52,
+    "rotulo": "DE ONDE VEM"
+   },
+   {
+    "id": "btnConfig",
+    "x": 59,
+    "y": 712,
+    "w": 273,
+    "h": 52,
+    "rotulo": "AJUSTES"
+   }
+  ],
+  "emPontoTimida": "telaMenu",
+  "hud": {
+   "chipTaxa": {
+    "x": 14,
+    "y": -83,
+    "w": 66,
+    "h": 34
+   },
+   "recursos": null,
+   "linhaEpoca": {
+    "x": 10,
+    "y": -35,
+    "w": 250,
+    "h": 23
+   },
+   "rotulo": "PINDORAMA"
+  },
+  "controles": {
+   "modeQuick": {
+    "x": 8,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "btnClique": {
+    "x": 88,
+    "y": 868,
+    "w": 133,
+    "h": 63
+   },
+   "openUpgrades": {
+    "x": 227,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "abrirMenu": {
+    "x": 308,
+    "y": 868,
+    "w": 74,
+    "h": 63
+   },
+   "rotuloBotao": "+1.0"
+  },
+  "cardU4Visivel": true
+ },
+ "minutos": [
+  {
+   "impacto": 8,
+   "saldo": 8,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 29,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 1
+  },
+  {
+   "impacto": 16,
+   "saldo": 16,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 58,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 2
+  },
+  {
+   "impacto": 36,
+   "saldo": 36,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 86,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 3
+  },
+  {
+   "impacto": 40,
+   "saldo": 40,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 114,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 4
+  },
+  {
+   "impacto": 56,
+   "saldo": 56,
+   "falasAbertas": 0,
+   "cerimonias": 0,
+   "linhasLidas": 0,
+   "dropsSol": 0,
+   "dropsCol": 0,
+   "dropsColAuto": 0,
+   "dropsVivos": 0,
+   "mobsNasc": 144,
+   "alcancadas": 0,
+   "dicaPulo": false,
+   "dicaSeta": false,
+   "podeU1": false,
+   "us": [],
+   "telas": [
+    "telaMenu"
+   ],
+   "eventos": 2,
+   "min": 5
+  }
+ ],
+ "fimDaJanela": {
+  "impacto": 56,
+  "saldo": 56,
+  "falasAbertas": 0,
+  "cerimonias": 0,
+  "linhasLidas": 0,
+  "dropsSol": 0,
+  "dropsCol": 0,
+  "dropsColAuto": 0,
+  "dropsVivos": 0,
+  "mobsNasc": 144,
+  "alcancadas": 0,
+  "dicaPulo": false,
+  "dicaSeta": false,
+  "podeU1": false,
+  "us": [],
+  "telas": [
+   "telaMenu"
+  ],
+  "eventos": 2
+ },
+ "eventos": [
+  {
+   "t": 243,
+   "tipo": "estado-inicial",
+   "info": "telas=telaMenu rotulo=PINDORAMA"
+  },
+  {
+   "t": 1546,
+   "tipo": "primeira-chegada",
+   "info": "cash"
+  }
+ ],
+ "taps": [],
+ "linhas": [],
+ "morto": {
+  "de": 243,
+  "ate": 1546,
+  "vao": 1303
+ },
+ "rabo": 298454,
+ "errosConsole": []
+}

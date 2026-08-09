@@ -39,6 +39,11 @@ interface Mob {
    *  Não entra no save: ela vale enquanto a pessoa estiver na rua, e a rua se refaz a cada
    *  sessão. Ver o bloco "CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA". */
   sabe?: boolean;
+  /** CAPÍTULO 3 e só ele: segundos de CONVERSA já acumulados com esta pessoa. Nasce ausente;
+   *  o primeiro toque põe um valor > 0 e a partir daí ela só cresce ANDANDO — correndo, o
+   *  relógio congela. Ao chegar em `CONVERSA_SEG` a palavra passou. Ver o bloco
+   *  "CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA". */
+  conversa?: number;
 }
 /** Alguém que foi acolhida e agora anda junto. `d` é a distância própria dela, pela mesma
  *  razão que a de `Mob`; `x` é posição de mundo, não de tela. */
@@ -870,6 +875,26 @@ function atualizarMobs(dt) {
   const paraEm = W - 8;
   mobs.forEach(function (m) {
     if (m.dying > 0) return;
+    // ===== A CONVERSA SÓ ANDA ANDANDO =====
+    // É a decisão que o capítulo não tinha e o botão ANDAR/CORRER não pagava: o PM mediu que
+    // trocar de ritmo rendia +9%, imperceptível, num dos três botões do jogo. Aqui ele passa
+    // a decidir alguma coisa — correr alcança mais gente ladeira acima, andar é o que faz a
+    // palavra de fato passar. E não é regra inventada para dar escolha: a rede dos malês
+    // corria DENTRO do trabalho de rua, no passo de quem carregava, invisível porque tinha a
+    // cara do ganho. Conversa não se faz correndo, em 1835 nem hoje.
+    //
+    // ESTE BLOCO VEM ANTES DO `parado`, e a primeira versão errou justamente aqui: quem
+    // espera é EXATAMENTE quem se alcança, e o `return` do ramo `parado` fazia o relógio da
+    // conversa nunca andar. Medido no erro: 6,81 toques por pessoa e ZERO atendidas em 60 s —
+    // a mecânica inteira sem completar uma única vez, e sem um erro no console.
+    if (m.conversa && !m.sabe) {
+      if (S.modo !== "carvao") m.conversa += dt;
+      if (m.conversa >= CONVERSA_SEG) { concluirAlcance(m, Math.round(m.wx - worldX)); return; }
+      // e ELA NÃO DESISTE ENQUANTO SE CONVERSA. Sem isto, correr durante a conversa faria a
+      // pessoa ir embora no meio dela e o toque de quem jogou viraria nada — castigo por uma
+      // regra que o jogo não ensinou. Correr já custa o suficiente: custa o tempo parado.
+      return;
+    }
     if (m.parado) {
       m.espera -= dt;
       // Esperou o quanto tinha para esperar e ninguém veio: segue caminho. Sem estrondo, sem
@@ -996,6 +1021,35 @@ function capGente() { return epocaAtual() === CAP_GENTE; }
 // nome novo por cima. O que este bloco pôde consertar foi tudo o que aparece (o pisca, o
 // estilhaço, o empurrão, a barra) e o que a mão faz DEPOIS de alcançar; o contador de toques
 // por pessoa é a próxima dívida, e é ticket, não conserto de meia-sessão.
+// Quanto tempo de CAMINHADA a palavra leva para passar. 1,6 s, e o número é derivado, não
+// escolhido: a pessoa parada espera `CFG.mobEspera` antes de seguir caminho, e a conversa
+// precisa caber com folga dentro dessa espera para que atender alguém nunca seja uma corrida
+// contra o relógio dela. Também é o tempo em que a protagonista cobre ~61 px andando — pouco
+// mais de um corpo — então as duas terminam a conversa ainda lado a lado, que é a imagem.
+// O FECHO DO ALCANCE — o que acontece quando alguém (ou algo) foi de fato alcançado.
+// Extraído de dentro de `clicar()` porque agora há DOIS caminhos até aqui: o alcance por
+// dano (capítulos 1, 2 e 4) e a CONVERSA do capítulo 3, que termina no relógio e não no
+// toque. Um fecho só, para os dois nunca discordarem sobre o que o mundo registra.
+function concluirAlcance(m: Mob, sx: number, auto?: boolean) {
+  const gente = capGente(), pessoa = pessoaNaRua();
+  // Microdica 2 (usabilidade, achado 5): a primeira espera ATENDIDA arma a seta; ela
+  // dispara quando o que ficou no chão for recolhido e o contador de cima encher —
+  // ver coletarDrop(), que é onde o alvo da seta passa a existir.
+  if (m.parado && !dicaSetaVista && dicasValem()) dicaSetaArmada = true;
+  // Objeto se dissipa em oito quadros; PESSOA não se dissipa. Ela sai da rua e entra na
+  // fila que anda atrás da protagonista, sem sumir de quadro em nenhum momento.
+  // Capítulo 3: ela não se dissipa nem entra em fila — vira PORTADORA e sobe a ladeira.
+  if (gente) { m.dead = true; acolherPessoa(m.wx + 5, m.esc); }
+  else if (capPalavra()) { palavraDedo++; virarPortadora(m); }
+  else m.dying = 8;
+  registrarChegada(true);     // alcançada: o mundo responde a isto tanto quanto ao que passa
+  soltarDrop(m, sx);          // o que ela TROUXE fica no chão; a pessoa, não
+  burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
+    : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
+    : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+  if (!auto) somAtendida();
+}
+const CONVERSA_SEG = 1.6;
 const CAP_PALAVRA = 2;                     // Salvador, véspera de 1835.
 function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
 // Os dois capítulos em que quem atravessa a rua é GENTE. Toda decisão de gramática — pisca,
@@ -1187,6 +1241,16 @@ function clicar(auto?, naoConta?, semAnim?) {
     // de combate: o pisca branco no corpo, o estilhaço, e o empurrão. Todas ficam de fora.
     // `gente` é só PALMARES (é lá que existe fila); `pessoa` é onde o §2 manda, nos dois.
     const gente = capGente(), pessoa = pessoaNaRua();
+    // ===== CAPÍTULO 3: UM TOQUE ABRE CONVERSA. NENHUM TOQUE TIRA NADA DE NINGUÉM. =====
+    // A dívida estava declarada no cabeçalho deste capítulo e no NOTES: alcançar gente ainda
+    // era `m.hp -= dmg`, cinco a treze toques até a pessoa "passar a saber". A forma do gesto
+    // era a de bater por baixo, com nome novo por cima — e §2.2 não admite isso.
+    // Agora o primeiro toque ABRE a conversa e é o único que a mão dá. O resto é tempo, e o
+    // tempo só corre ANDANDO (ver `atualizarMobs`): conversa não se faz correndo.
+    if (capPalavra()) {
+      if (!m.conversa) { m.conversa = 1e-6; luzMorna(sx, 2); if (!auto) somAtendida(); }
+      return;
+    }
     m.hp -= dmg; if (!pessoa) m.flash = 5;
     // ONDA 4: o gesto que ALCANÇOU tem peso — kick pequeno no tempo comum, maior no quinto
     // (que já é o tempo forte: alcance 96, dano dobrado). Só a mão de quem joga (!auto),
@@ -1208,28 +1272,7 @@ function clicar(auto?, naoConta?, semAnim?) {
       burst(sx + 8, GROUND - 14, 5, m.type === "cash" ? ["#ffcd75", "#ffe9b0"]
         : m.type === "barrel" ? ["#7fb356", "#b5e08c"] : ["#9a92aa", "#7a7288"]);
     }
-    if (m.hp <= 0) {
-      // Microdica 2 (usabilidade, achado 5): a primeira espera ATENDIDA arma a seta; ela
-      // dispara quando o que ficou no chão for recolhido e o contador de cima encher —
-      // ver coletarDrop(), que é onde o alvo da seta passa a existir.
-      if (m.parado && !dicaSetaVista && dicasValem()) dicaSetaArmada = true;
-      // Objeto se dissipa em oito quadros; PESSOA não se dissipa. Ela sai da rua e entra na
-      // fila que anda atrás da protagonista, sem sumir de quadro em nenhum momento. `dead`
-      // é o mesmo caminho que atualizarMobs já varre, e não conta nada por si.
-      // o +5 é o mesmo deslocamento com que ela vinha sendo desenhada: sem ele a figura
-      // saltaria 5 px para a esquerda no quadro em que vira para andar junto
-      // Capítulo 3: ela não se dissipa nem entra em fila — vira PORTADORA e sobe a ladeira
-      // com o recado. Ver o bloco "CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA".
-      if (gente) { m.dead = true; acolherPessoa(m.wx + 5, m.esc); }
-      else if (capPalavra()) { palavraDedo++; virarPortadora(m); }
-      else m.dying = 8;
-      registrarChegada(true);     // alcançada: o mundo responde a isto tanto quanto ao que passa
-      soltarDrop(m, sx);          // o que ela TROUXE fica no chão; a pessoa, não
-      burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
-        : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
-        : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
-      if (!auto) somAtendida();
-    }
+    if (m.hp <= 0) concluirAlcance(m, sx, auto);
   }
   // O som é do GESTO DE QUEM JOGA. A ajuda automática do U3 bate 2 vezes por segundo e a mão
   // de ninguém está ali: sonorizá-la faria o jogo tocar sozinho numa mesa, que é a definição

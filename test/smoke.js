@@ -333,9 +333,21 @@ function alvo() {
     proximoMob = 1e9;                               // ninguem novo chega durante a medida
     let toques = 0, piscou = false, empurrou = false;
     const wx0 = primeira.wx;
-    while (primeira.hp > 0 && toques < 40) {
-      clicar(false, true, true);
-      toques++;
+    // ===== UM TOQUE, E O RESTO E TEMPO ANDANDO =====
+    // Este laco era `while (primeira.hp > 0 && toques < 40) clicar()` — a forma exata da
+    // divida de §2 que o capitulo carregava: bater ate a pessoa ceder. Agora o toque ABRE
+    // conversa e ela so anda ANDANDO, entao o teste anda: um toque, e o mundo rodando ate a
+    // palavra passar. O `toques` continua sendo contado e a assercao nova cobra que ele
+    // seja UM — se um dia voltar a precisar de dois, alguem reintroduziu o dano.
+    S.modo = 'limpo';
+    clicar(false, true, true);
+    toques++;
+    if (primeira.flash > 0) piscou = true;
+    if (primeira.wx > wx0) empurrou = true;
+    // 3 s de relogio, quase o dobro do CONVERSA_SEG de 1,6 — margem de aritmetica, nao de
+    // chute (a licao da assercao intermitente do encaixe 9).
+    for (let i = 0; i < 180 && !primeira.sabe; i++) {
+      atualizarMobs(1 / 60);
       if (primeira.flash > 0) piscou = true;
       if (primeira.wx > wx0) empurrou = true;
     }
@@ -354,7 +366,26 @@ function alvo() {
         if (!primeira.sabe) sabePersistiu = false;
       }
     }
+    // ===== E CORRENDO A CONVERSA CONGELA =====
+    // Vem DEPOIS da observacao da corrente, e a ordem e o conserto: na primeira versao este
+    // bloco gastava 180 quadros ANTES dela, e quando a observacao comecava a portadora ja
+    // tinha saido de quadro — "0 quadros" e "0 atendidas pela corrente" com a corrente
+    // funcionando perfeitamente. Teste que consome o mundo que outro teste vai medir mede o
+    // proprio rastro.
+    mobs.length = 0; drops.length = 0;
+    const emCorrida = novoMob('smog', worldX + HX + 20);
+    emCorrida.parado = true; emCorrida.espera = 999;
+    mobs.push(emCorrida);
+    S.modo = 'carvao';
+    clicar(false, true, true);
+    const conversaAoAbrir = emCorrida.conversa || 0;
+    for (let i = 0; i < 180; i++) atualizarMobs(1 / 60);
+    const congelouCorrendo = conversaAoAbrir > 0 && !emCorrida.sabe
+      && (emCorrida.conversa || 0) === conversaAoAbrir;
+    S.modo = 'limpo';
+
     const r = {
+      congelouCorrendo: congelouCorrendo,
       toques: toques, virouPortadora: virouPortadora, piscou: piscou, empurrou: empurrou,
       dedo: dedoAoFim, corrente: palavraCorrente - correnteAntes,
       quadrosEmQuadro: quadrosEmQuadro, sabePersistiu: sabePersistiu,
@@ -381,7 +412,14 @@ function alvo() {
   console.log('  care answers the chain:', palavra.cuidadoSubiuSemDedo,
     '| no combat grammar on a person -> flash:', palavra.piscou, 'shove:', palavra.empurrou,
     '| chapter 1 untouched -> dissipates:', palavra.dissipaNoCap1, 'leaked:', palavra.vazouParaOCap1);
+  console.log('  ACOMPANHAR -> taps to attend one person:', palavra.toques,
+    '| running freezes the conversation:', palavra.congelouCorrendo);
   if (!palavra.virouPortadora) errors.push('reaching someone in Salvador no longer turns her into a carrier');
+  // A DIVIDA DE §2, agora com assercao: um toque abre a conversa e e o unico que a mao da.
+  // Era 5 a 13 toques (`m.hp -= dmg`) — a forma de bater por baixo com nome novo por cima.
+  if (palavra.toques !== 1) errors.push('attending a person in Salvador took ' + palavra.toques + ' taps, not 1 — the damage path is back');
+  // E o ritmo continua decidindo: correndo, a conversa nao anda.
+  if (!palavra.congelouCorrendo) errors.push('the conversation advances while running — the chapter lost its only decision');
   if (!(palavra.quadrosEmQuadro > 60 && palavra.sabePersistiu)) {
     errors.push('the carrier state does not persist while she is on screen');
   }

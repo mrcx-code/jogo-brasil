@@ -1,0 +1,107 @@
+== A PARADA · 300 s de relógio · save limpo ==
+ponto da tímida cai em: telaMenu
+
+-- retrato do primeiro quadro --
+{
+ "telaMenuTexto": "",
+ "botoesMenu": [
+  {
+   "id": "btnJogar",
+   "x": 59,
+   "y": 498,
+   "w": 273,
+   "h": 74,
+   "rotulo": "JOGAR"
+  },
+  {
+   "id": "btnCompletude",
+   "x": 59,
+   "y": 584,
+   "w": 273,
+   "h": 52,
+   "rotulo": "A HISTÓRIA"
+  },
+  {
+   "id": "btnFontes",
+   "x": 59,
+   "y": 648,
+   "w": 273,
+   "h": 52,
+   "rotulo": "DE ONDE VEM"
+  },
+  {
+   "id": "btnConfig",
+   "x": 59,
+   "y": 712,
+   "w": 273,
+   "h": 52,
+   "rotulo": "AJUSTES"
+  }
+ ],
+ "emPontoTimida": "telaMenu",
+ "hud": {
+  "chipTaxa": {
+   "x": 14,
+   "y": -83,
+   "w": 66,
+   "h": 34
+  },
+  "recursos": null,
+  "linhaEpoca": {
+   "x": 10,
+   "y": -35,
+   "w": 250,
+   "h": 23
+  },
+  "rotulo": "PINDORAMA"
+ },
+ "controles": {
+  "modeQuick": {
+   "x": 8,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "btnClique": {
+   "x": 88,
+   "y": 868,
+   "w": 133,
+   "h": 63
+  },
+  "openUpgrades": {
+   "x": 227,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "abrirMenu": {
+   "x": 308,
+   "y": 868,
+   "w": 74,
+   "h": 63
+  },
+  "rotuloBotao": "+1.0"
+ },
+ "cardU4Visivel": true
+}
+
+-- por minuto --
+min | impacto | telas hist. | linhas | drops rec/perd | dicas | u1?
+  1 |       8 |           0 |      0 |            0/0 |     0 | não
+  2 |      16 |           0 |      0 |            0/0 |     0 | não
+  3 |      36 |           0 |      0 |            0/0 |     0 | não
+  4 |      40 |           0 |      0 |            0/0 |     0 | não
+  5 |      56 |           0 |      0 |            0/0 |     0 | não
+
+-- eventos (o que aconteceu, quando) --
+     0.2s  estado-inicial     telas=telaMenu rotulo=PINDORAMA
+     1.5s  primeira-chegada   cash
+
+-- momento morto --
+maior vão entre eventos: 1.3 s (de 0.2s a 1.5s)
+do último evento ao fim dos 5 min: 298.5 s
+
+-- erros de console --
+(nenhum)
+
+JSON: test/cinco-parada.json · prints: test/CINCO-parada-*.png
