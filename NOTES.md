@@ -3325,3 +3325,26 @@ de choque sem ensino). A régua foi: **a comparação tem que dar ESCALA, não c
 Fontes: [IBGE Cidades — Curitiba](https://cidades.ibge.gov.br/brasil/pr/curitiba/panorama) ·
 Francisco Doratioto, *Maldita Guerra: nova história da Guerra do Paraguai* (Companhia das
 Letras, 2002) · [Geledés — 150 anos do fim da Guerra do Paraguai](https://www.geledes.org.br/150-anos-do-fim-da-guerra-do-paraguai-a-historia-do-conflito-armado-mais-sangrento-da-america-latina/)
+
+## Correção de rumo do dono (2026-08-08, noite): o Brasil é mais que o fio indígena
+
+Palavras dele: *"Você tá focando muito nos indígenas pensando no hoje. Podemos tratar vários
+temas do Brasil também: momentos políticos, acontecimentos históricos, ditadura militar,
+Covid, agronegócio acabando com a natureza e mais."*
+
+**Ele está certo e o diagnóstico é meu.** O arco de 12 desenhado pelo historiador já prevê
+`DO SILÊNCIO À PRAÇA` (1964–88), `A PRAÇA` (Constituinte), `O QUE SEGUROU` (Covid) e
+`O QUE TEM FONTE` (a polarização pela lente de quem confere) — mas **nada disso é jogável
+ainda**, e os quatro capítulos que existem são indígena → Palmares → Salvador → indígena
+hoje. O contemporâneo ficou todo no papel, e o presente do jogo é só terra demarcada.
+
+**Tema novo que ele acrescentou e o arco NÃO cobria: o agronegócio e a destruição da
+natureza.** Não é o mesmo assunto que terra indígena — é desmatamento, queimada, garimpo,
+grilagem, e tem fonte institucional forte (INPE/PRODES para desmatamento, IBAMA, MapBiomas).
+Entra no desenho do arco como capítulo candidato próprio.
+
+**Consequência para a fila:** a ordem de produção do historiador (lote A → F) deixa o
+contemporâneo por último **de propósito**, porque ele exige a REGRA DO DOCUMENTO madura. Isso
+continua certo em método — mas o dono está dizendo que o EQUILÍBRIO do que existe hoje está
+errado, e isso é outra coisa. Reordenar é decisão dele; registrado para a próxima sessão
+começar por aqui.
