@@ -1751,6 +1751,15 @@ const TRAVESSIAS = [
       // jogo já cita duas vezes. 12,5 milhões embarcadas · 10,7 desembarcadas.
       "Doze milhões e meio de pessoas foram embarcadas. Dez milhões e setecentos mil desembarcaram. A diferença ficou no mar: cerca de um milhão e oitocentas mil.",
       "Ao longo de três séculos e meio, isso deu uma média de catorze corpos por dia. Todos os dias.",
+      // O DONO PEDIU A COMPARACAO (08/08): "tenta fazer alguma referência desse número...
+      // de guerras famosas que não morreram tantas pessoas assim". Pesquisadas duas, e as
+      // duas sao BRASILEIRAS de proposito — numero de guerra distante nao aterrissa.
+      // Curitiba: 1.773.718 (IBGE, Censo 2022). Guerra do Paraguai: ~400 mil no total,
+      // dos quais ~300 mil paraguaios (Doratioto, Maldita Guerra) — e ela e o conflito
+      // mais sangrento da historia da America do Sul. 1,8 milhao e 4,5 vezes isso.
+      "Um milhão e oitocentas mil pessoas é a cidade de Curitiba inteira, hoje.",
+      "É quatro vezes e meia todos os mortos da Guerra do Paraguai — dos dois lados, somando civis e soldados — que foi a guerra mais sangrenta da história da América do Sul.",
+
       "O Atlântico é o maior cemitério de africanos do mundo, e não tem uma lápide.",
       "Este trecho não tem imagem, e o que vem depois tem. Vale dizer por quê nos dois casos.",
       "A imagem que quase todo livro usa — o desenho de um navio visto de cima, com centenas de corpos encaixados lado a lado — foi feita em 1788 por quem queria acabar com o tráfico, para chocar quem podia acabar com ele. Num jogo de 2026 ela faz outra coisa: desenha pessoas como padrão de carga.",

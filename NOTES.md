@@ -3300,3 +3300,28 @@ Nada. Um susto próprio: a primeira passada de `qi` comeu a vírgula de doze lin
 2. **À mesa:** a p22 (1988) para reenviar, e a p19 para reenquadrar.
 3. **À Direção de Arte:** a regra dos 70% centrais vale para tudo o que for pedido daqui em
    diante — inclusive as verticais de segunda prioridade que substituiriam o `CTX_B64`.
+
+## A comparação do 1,8 milhão — pedido do dono (2026-08-08)
+
+Ele pediu referência que desse escala ao número: *"de guerras famosas que não morreram
+tantas pessoas assim, ou mais, pra dar um destaque. Valor absoluto."*
+
+Pesquisadas várias e escolhidas **duas, as duas brasileiras** — número de guerra distante
+não aterrissa em quem joga aqui:
+
+1. **Curitiba tem 1.773.718 habitantes** (IBGE, Censo 2022). O número de mortos na travessia
+   é a cidade inteira. É a comparação mais visceral porque é uma cidade que existe hoje e
+   que a pessoa consegue imaginar cheia.
+2. **A Guerra do Paraguai matou ~400 mil ao todo** — ~300 mil paraguaios (mais da metade da
+   população do país) e ~120 mil dos aliados, dos quais ~50 mil brasileiros (Francisco
+   Doratioto, *Maldita Guerra*). É **a guerra mais sangrenta da história da América do Sul**,
+   e 1,8 milhão é **quatro vezes e meia** isso.
+
+**Descartadas, e vale registrar por quê:** comparações com guerras mundiais (a ordem de
+grandeza é outra e a comparação vira minimização), com o Holocausto (comparar genocídios
+é terreno em que o jogo não tem nada a ganhar) e com Hiroshima (número disputado e efeito
+de choque sem ensino). A régua foi: **a comparação tem que dar ESCALA, não competir em dor.**
+
+Fontes: [IBGE Cidades — Curitiba](https://cidades.ibge.gov.br/brasil/pr/curitiba/panorama) ·
+Francisco Doratioto, *Maldita Guerra: nova história da Guerra do Paraguai* (Companhia das
+Letras, 2002) · [Geledés — 150 anos do fim da Guerra do Paraguai](https://www.geledes.org.br/150-anos-do-fim-da-guerra-do-paraguai-a-historia-do-conflito-armado-mais-sangrento-da-america-latina/)
