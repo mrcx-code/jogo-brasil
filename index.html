@@ -1127,7 +1127,14 @@
     <!-- Ferramentas de TESTE, escondidas do jogador: um x100 GRÁTIS na loja quebrava a
          economia num toque, e APAGAR ficava ao alcance do dedão (usabilidade, achado 4).
          O smoke test continua acionando-as via .click() — display:none não bloqueia. -->
-    <div class="upgrade teste oculta" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
+    <!-- O x100 VOLTA, a pedido do dono (08/08): "pra poder jogar o jogo mais rápido".
+           Eu o havia escondido na revisão de usabilidade porque um jogador desavisado
+           quebra a economia num toque — a preocupação continua válida e continua
+           registrada, mas quem decide o que está na tela dele é ele. O que fiz para
+           não perder a medição junto: usar o x100 MARCA a sessão em R.turbo, e a tela
+           de retenção passa a dizer quantos dias tiveram turbo. Dado com asterisco vale
+           mais que dado limpo e falso. -->
+      <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>RÁPIDO</span><button id="btnU4"></button></div>
     <div class="upgrade teste oculta" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>
@@ -2413,6 +2420,12 @@ function comprar(u, custo) {
     if (!S[u] && S.energia >= custo) {
         S.energia -= custo;
         S[u] = true;
+        // O x100 marca o DIA na retenção. Sem isso a medição contaria como partida jogada uma
+        // sessão em que o toque valia cem — e eu não teria como saber depois. Ver ESQUEMA_RET.
+        if (u === "u4") {
+            R.turbo = (R.turbo | 0) + 1;
+            salvarRetencao();
+        }
         desenhar();
     }
 }
@@ -3277,7 +3290,7 @@ function fecharRetorno() {
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = () => ({
-    dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0
+    dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0
 });
 let R = RET_PADRAO();
 // ===== O ESQUEMA DA RETENÇÃO (T1) =====
@@ -3301,7 +3314,12 @@ const ESQUEMA_RET = {
     tochas: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
     historia: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
     toqEsq: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
-    toqDir: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 }
+    toqDir: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
+    // Dias em que o x100 foi usado. O dono pediu o botão de volta para jogar rápido, e ele
+    // multiplica o toque por cem — sem esta marca, a retenção mediria uma partida que ninguém
+    // jogou de verdade e eu não teria como saber. Dado com asterisco vale mais que dado limpo
+    // e falso; a tela de AJUSTES mostra o asterisco.
+    turbo: { tipo: "cont", min: 0, max: 20000, pad: 0 }
 };
 function diaLocal() {
     const d = new Date();

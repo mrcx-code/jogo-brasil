@@ -63,6 +63,7 @@ interface Retencao {
   historia: number;   // quantas vezes a tela A HISTÓRIA foi aberta
   toqEsq: number;     // toques na metade ESQUERDA (pula) nos primeiros 60 s de jogo
   toqDir: number;     // toques na metade DIREITA (golpeia) nos mesmos 60 s
+  turbo: number;      // dias em que o x100 foi ligado — o asterisco da medição
 }
 /** A paleta do quadro. Ela nasce com duas chaves e ganha o resto por atribuição ao longo de
  *  pal(); só o índice de string descreve isso sem mentir. */
@@ -1274,7 +1275,13 @@ function definirModo(m) {
 // pop on the chips that just changed meaning
 // owner: piscar() removed — the full-frame wash is gone with the rest of the screen effects.
 function comprar(u, custo) {
-  if (!S[u] && S.energia >= custo) { S.energia -= custo; S[u] = true; desenhar(); }
+  if (!S[u] && S.energia >= custo) {
+    S.energia -= custo; S[u] = true;
+    // O x100 marca o DIA na retenção. Sem isso a medição contaria como partida jogada uma
+    // sessão em que o toque valia cem — e eu não teria como saber depois. Ver ESQUEMA_RET.
+    if (u === "u4") { R.turbo = (R.turbo | 0) + 1; salvarRetencao(); }
+    desenhar();
+  }
 }
 
 // ============================================================
@@ -2086,7 +2093,7 @@ function fecharRetorno() {
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = (): Retencao => ({
-  dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0
+  dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0
 });
 let R: Retencao = RET_PADRAO();
 
@@ -2111,7 +2118,12 @@ const ESQUEMA_RET = {
   tochas:   { tipo: "cont", min: 0, max: 1e6, pad: 0 },
   historia: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
   toqEsq:   { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
-  toqDir:   { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 }
+  toqDir:   { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
+  // Dias em que o x100 foi usado. O dono pediu o botão de volta para jogar rápido, e ele
+  // multiplica o toque por cem — sem esta marca, a retenção mediria uma partida que ninguém
+  // jogou de verdade e eu não teria como saber. Dado com asterisco vale mais que dado limpo
+  // e falso; a tela de AJUSTES mostra o asterisco.
+  turbo:    { tipo: "cont", min: 0, max: 20000, pad: 0 }
 };
 function diaLocal() {
   const d = new Date();

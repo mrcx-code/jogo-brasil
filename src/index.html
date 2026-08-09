@@ -206,7 +206,14 @@
     <!-- Ferramentas de TESTE, escondidas do jogador: um x100 GRÁTIS na loja quebrava a
          economia num toque, e APAGAR ficava ao alcance do dedão (usabilidade, achado 4).
          O smoke test continua acionando-as via .click() — display:none não bloqueia. -->
-    <div class="upgrade teste oculta" id="cardU4"><span class="nome">×100<br>TEST</span><button id="btnU4"></button></div>
+    <!-- O x100 VOLTA, a pedido do dono (08/08): "pra poder jogar o jogo mais rápido".
+           Eu o havia escondido na revisão de usabilidade porque um jogador desavisado
+           quebra a economia num toque — a preocupação continua válida e continua
+           registrada, mas quem decide o que está na tela dele é ele. O que fiz para
+           não perder a medição junto: usar o x100 MARCA a sessão em R.turbo, e a tela
+           de retenção passa a dizer quantos dias tiveram turbo. Dado com asterisco vale
+           mais que dado limpo e falso. -->
+      <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>RÁPIDO</span><button id="btnU4"></button></div>
     <div class="upgrade teste oculta" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>
