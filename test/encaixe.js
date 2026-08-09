@@ -354,6 +354,41 @@ const sec = t => log('\n---- ' + t);
                       : 'a tela AINDA promete "sem rede" e a CSP JÁ ABRIU — reescreva a tela na mesma fase')
       : 'a tela não promete mais "sem rede" (e a CSP ' + (priv.fechada ? 'continua fechada' : 'abriu') + ')');
 
+  // ============================================================
+  // 9 · A TRAVESSIA TEM DURAÇÃO PRÓPRIA
+  //
+  // O relatório 3 do QA mediu: 25 s sem tocar e a tela continuava na linha 0. Os "~90 s" do
+  // desenho eram o tempo de quem toca — e a travessia é justamente o trecho cuja tese é que
+  // não há o que a sua mão faça ali. Agora a fala anda sozinha DENTRO da travessia, e só
+  // dentro dela: abertura e fecho de capítulo continuam esperando o dedo.
+  //
+  // As duas metades são verificadas, porque uma sem a outra é um defeito diferente: se só a
+  // primeira passar, o jogo anda sozinho onde não devia; se só a segunda, voltamos ao 25 s.
+  // ============================================================
+  sec('9 · a travessia anda sozinha; a abertura de capítulo não');
+  const anda = await page.evaluate(() => new Promise(res => {
+    fecharTudo();
+    correrTravessia("pindorama", "palmares", function () { });
+    setTimeout(() => res({ i: falaI, viva: !!falaViva, n: falaLinhas.length }), 11000);
+  }));
+  log('   11 s sem encostar na tela: linha ' + anda.i + ' de ' + anda.n);
+  ok(anda.i >= 2, anda.i >= 2
+    ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 11 s)'
+    : 'a travessia PAROU na linha ' + anda.i + ' — ela não tem duração própria');
+
+  const parada = await page.evaluate(() => new Promise(res => {
+    fecharTudo();
+    // a abertura do capítulo 1, forçada a aparecer mesmo já vista
+    S.aberturas = 0; S.cenario = 0;
+    mostrarAbertura(function () { }, true);
+    setTimeout(() => res({ i: falaI, viva: !!falaViva }), 9000);
+  }));
+  log('   abertura de capítulo, 9 s sem encostar: linha ' + parada.i);
+  ok(parada.i === 0, parada.i === 0
+    ? 'e a abertura de capítulo espera o dedo, como sempre esperou'
+    : 'a abertura de capítulo TAMBÉM anda sozinha — o automático vazou da travessia');
+  await page.evaluate(() => fecharTudo());
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

@@ -6837,6 +6837,32 @@ let falaLinhas: string[] = [], falaI = 0, falaTimer: ReturnType<typeof setInterv
 let falaImgs: (string | null)[] = [];
 function falaAberta() { return falaViva; }
 
+// ===== A LEITURA QUE ANDA SOZINHA =====
+// O QA mediu e o número foi feio: 25 s sem tocar na travessia e a tela continuava na LINHA 0.
+// Os "~90 s" que o desenho promete eram o tempo de quem TOCA — o trecho não tinha duração
+// própria nenhuma. E a travessia é justamente o pedaço em que o jogo para de ser jogo: exigir
+// vinte e um toques para atravessar um trecho cuja tese é *não há o que a sua mão faça aqui*
+// contradiz o trecho com o próprio trecho.
+//
+// Então a fala anda sozinha, e só ela — abertura e fecho de capítulo continuam esperando o
+// dedo, porque ali quem lê está no comando e pode querer demorar num nome.
+//
+// A pausa é o TEMPO DE LER a linha que acabou de aparecer, não um número redondo: base de
+// 1,1 s (o tempo de os olhos voltarem ao início) mais 30 ms por letra, que a ~200 palavras
+// por minuto é a velocidade de leitura silenciosa em português. O teto de 4,6 s existe porque
+// as letras já foram aparecendo enquanto você lia — ao fim da digitação a linha longa já está
+// meio lida, e pagar o tempo cheio de novo seria contar duas vezes.
+//
+// Medido com este cálculo sobre as 17 falas da travessia (1.979 letras): 36 s de digitação e
+// 67 s de pausa = ~103 s sem encostar na tela, contra os ~90 s de quem toca. Ficar um pouco
+// mais lento que o tempo prometido é o certo: quem não toca está lendo, não esperando.
+//
+// A ÚLTIMA LINHA NÃO ANDA. O trecho se carrega sozinho até a beira, e a chegada do outro lado
+// continua sendo um ato de quem joga — voltar ao mundo sem ninguém ter pedido é despejo.
+const AUTO_BASE = 1100, AUTO_LETRA = 30, AUTO_TETO = 4600;
+let falaAuto: ReturnType<typeof setTimeout> | null = null;
+function pararAuto() { if (falaAuto) { clearTimeout(falaAuto); falaAuto = null; } }
+
 // ===== A TROCA DA IMAGEM DE CONTEXTO =====
 // Duas <img> e uma alternância. Quem entra recebe o dado, decodifica, e só então acende; quem
 // estava no ar apaga no mesmo instante. Enquanto a nova não decodificou, a antiga continua —
@@ -6894,6 +6920,7 @@ function fimCerimonia() {
 function pararFala() {
   if (falaTimer) { clearInterval(falaTimer); falaTimer = null; }
   if (cerTimer) { clearTimeout(cerTimer); cerTimer = null; }
+  pararAuto();
   $("telaFala").classList.remove("cerimoniando");
   falaViva = false; falaDepois = null; falaLinhas = []; falaI = 0;
   falaImgs = []; trocarCtx(null);
@@ -6979,6 +7006,7 @@ function revelarFala() {
   let n = 0;
   $("falaTxt").textContent = "";
   $("falaCaixa").classList.remove("pronta");
+  pararAuto();
   if (falaTimer) clearInterval(falaTimer);
   falaTimer = setInterval(function () {
     n++;
@@ -6992,11 +7020,19 @@ function revelarFala() {
 }
 function terminarLinha() {
   if (falaTimer) { clearInterval(falaTimer); falaTimer = null; }
-  $("falaTxt").textContent = falaLinhas[falaI] || "";
+  const txt = falaLinhas[falaI] || "";
+  $("falaTxt").textContent = txt;
   $("falaCaixa").classList.add("pronta");   // só agora o "toque para continuar" acende
+  // E, na travessia, o relógio da próxima linha começa a correr aqui.
+  pararAuto();
+  if (travessiaViva && falaI < falaLinhas.length - 1) {
+    falaAuto = setTimeout(avancarFala,
+      Math.min(AUTO_TETO, AUTO_BASE + txt.length * AUTO_LETRA));
+  }
 }
 function avancarFala() {
   if (!falaViva) return;
+  pararAuto();
   if (falaTimer) { terminarLinha(); return; }   // o primeiro toque completa a revelação
   falaI++;
   if (falaI < falaLinhas.length) { revelarFala(); return; }
