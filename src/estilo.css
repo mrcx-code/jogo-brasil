@@ -15,6 +15,15 @@
     --ouroA: #f3c05c;
     /* o papel de campo da caixa de fala — enxerto da direção B */
     --papel: #e9d8ae; --papel2: #d8c391; --tintaP: #33240f;
+    /* A PAUTA DO CADERNO. A mesma receita estava COPIADA em sete lugares (a caixa de fala, o
+       painel de volta, os AJUSTES, o balão do quadrinho, o momento da linha do tempo, a
+       linha do placar da chegada e o verbete de fonte) — auditoria holística, 09/08. O
+       vocabulário estava certo: é UMA gramática, e sete superfícies dizendo "isto é papel
+       para ler" é o que se quer. Errado era estar colado em vez de derivado: mudar a pauta
+       eram sete edições, e a sétima é a que alguém esquece.
+       O 11px não é escolha solta — é metade da entrelinha de 22 do corpo de leitura, e é o
+       que faz a linha de texto pousar na pauta em vez de flutuar sobre ela. */
+    --pauta: repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px);
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -218,7 +227,7 @@
   #retorno { display: none; position: fixed; z-index: 60; left: 50%; top: 24%;
     transform: translateX(-50%); width: min(440px, 90vw); box-sizing: border-box;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     border-radius: 4px; padding: 16px 16px 12px;
     box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
@@ -461,7 +470,7 @@
   #telaConfig #cfgInfo { display: flex; flex-direction: column; align-items: center;
     gap: 8px; padding: 14px 18px; border-radius: 4px; max-width: none;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
                 inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
@@ -583,7 +592,7 @@
      papel claro ganha de texto claro sobre caixa escura. A pauta é o repeating-gradient. */
   #falaCaixa { position: relative; z-index: 1; width: min(560px, 100%); box-sizing: border-box;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     /* 34px embaixo + margem de safe-area: o "toque para continuar" saía cortado pela
        borda física da tela (usabilidade, achado 3) — é a instrução que a pessoa de
@@ -629,7 +638,9 @@
   /* tabuinha de MADEIRA escura — o mesmo material da placa da época; era o único botão do
      jogo em pastilha preta, um vocabulário que não existia em mais lugar nenhum */
   #btnFalaPular { position: absolute; right: 0; top: -28px; pointer-events: auto; cursor: pointer;
-    border: 0; padding: 7px 11px;
+    /* 2px como os outros irmãos de madeira pequena (#linhaEpoca, .qAqui, a tabuinha do menu):
+       ele era o único com canto vivo, e canto é material — auditoria holística, 09/08. */
+    border: 0; padding: 7px 11px; border-radius: 2px;
     background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
@@ -821,7 +832,7 @@
   .qBalao { font: italic 400 13px/19px var(--leitura); color: var(--tintaP);
     padding: 9px 12px; border-radius: 3px;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430,
                 0 3px 0 #0a0806, 0 6px 16px rgba(0,0,0,.4); }
@@ -831,7 +842,7 @@
   .ltMomento { position: relative; z-index: 2; width: min(30em, 100%);
     padding: 13px 15px; border-radius: 3px;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430,
                 0 4px 0 #0a0806, 0 8px 22px rgba(0,0,0,.5); }
@@ -990,7 +1001,7 @@
   .fimLin { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
     border-radius: 3px; padding: 8px 12px; margin-bottom: 6px;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
   .fimR { font: 400 13px/1.5 var(--leitura); color: #6b4f2a; }
@@ -1039,7 +1050,7 @@
      era o mesmo nicho preto de site que a linha do tempo tinha. */
   .fnItem { border-radius: 3px; padding: 10px 12px; margin-bottom: 8px;
     background:
-      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
   /* a mesma tinta de caderno da linha do tempo: verbete em serifa, procedência em itálico */
