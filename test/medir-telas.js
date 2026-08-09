@@ -91,6 +91,22 @@ const ALVO_MIN = 44;   // px de dedo — o mínimo que Apple e Google recomendam
         }
       });
 
+      // 5b. RÓTULO BITMAP MAIOR QUE A CAIXA. Este buraco deixou passar o título do papel da
+      //     volta, que saía cortado no "FO" em 320 px e passava verde aqui: a checagem 5 usa
+      //     `scrollWidth > clientWidth`, e um <canvas> não faz o pai transbordar — ele
+      //     simplesmente é desenhado por fora e o navegador recorta. Rótulo do jogo é canvas,
+      //     então metade da tipografia da tela estava fora da medição.
+      const estourados = [];
+      document.querySelectorAll('canvas').forEach(function (c) {
+        const pai = c.parentElement;
+        if (!pai || pai.id === 'app' || c.id) return;      // só os rótulos, não os canvas do jogo
+        if (!vis(c)) return;
+        const a = c.getBoundingClientRect(), b = pai.getBoundingClientRect();
+        if (a.width > b.width + 1) {
+          estourados.push((pai.id || pai.className) + ' ' + Math.round(a.width) + '>' + Math.round(b.width));
+        }
+      });
+
       // 6. O MUNDO: o canvas cobre a tela inteira? Pixel art esticada em fração quebrada
       //    borra — a régua do §4 vale em qualquer largura, não só em 390.
       const cv = document.getElementById('scene');
@@ -101,7 +117,8 @@ const ALVO_MIN = 44;   // px de dedo — o mínimo que Apple e Google recomendam
       } : null;
 
       return { W, H, transborda, fora: fora.slice(0, 4), colide,
-               miudos: miudos.slice(0, 4), cortados: cortados.slice(0, 4), mundo };
+               miudos: miudos.slice(0, 4), cortados: cortados.slice(0, 4),
+               estourados: estourados.slice(0, 6), mundo };
     }, ALVO_MIN);
 
     await pg.screenshot({ path: path.join(__dirname, 'TELA-' + t.w + 'x' + t.h + '.png') });
@@ -113,6 +130,7 @@ const ALVO_MIN = 44;   // px de dedo — o mínimo que Apple e Google recomendam
     if (r.fora.length) problemas.push('fora da tela: ' + r.fora.join(', '));
     if (r.miudos.length) problemas.push('alvo < ' + ALVO_MIN + 'px: ' + r.miudos.join(', '));
     if (r.cortados.length) problemas.push('texto cortado: ' + r.cortados.join(', '));
+    if (r.estourados.length) problemas.push('rótulo bitmap fora da caixa: ' + r.estourados.join(', '));
     if (r.mundo && !r.mundo.cobre) problemas.push('o mundo não cobre a tela');
     if (erros.length) problemas.push('ERRO: ' + erros[0]);
 
