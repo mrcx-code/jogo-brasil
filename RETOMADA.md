@@ -52,17 +52,25 @@ peso vira tempo com 7 pontos finais) · as **5 verticais da travessia** ligadas 
 a frase do oceano com a comparação (Curitiba inteira, 4,5 Guerras do Paraguai) · o ×100 de
 volta com marca na retenção · a planta andando **1:1 com o chão**.
 
-## Fila de trabalho, em ordem
+## Fila de trabalho, em ordem — e o `PENDENTES.md` é a fonte
 
-1. **O grão do chrome** (acima) — refazer inteiro, gerador + consumo no CSS.
-2. **O efeito de corrida** — correr dobra a cadência e não tem nenhuma resposta visual. O
-   sprite continua o da caminhada (as folhas foram recusadas), então o efeito é por cima.
-3. **QA da sequência inteira** — o agente morreu antes de escrever; o jogo do zero ao fim
-   nunca foi percorrido depois das últimas 15 integrações.
-4. **O historiador do contemporâneo** — o dono pediu ditadura, Covid, polarização e
-   **agronegócio** (tema que o arco não cobria); o relatório morreu no limite.
-5. **A auditoria holística do Fable** — morreu no limite; o roteiro das ondas 10+ ficou só
-   com a 10 feita.
+**Regra nova do dono (09/08), já no `CLAUDE.md` §6:** *reverter o que está pela metade é
+certo, mas registra no `PENDENTES.md` no mesmo commit.* Código morto não entra na `main`;
+reverter sem registrar perde o trabalho duas vezes, porque some o código E o diagnóstico.
+
+1. **O grão do chrome** (`PENDENTES.md` 1) — EM VOO agora. É a única hipótese que explica a
+   queixa "não parecem do mesmo jogo" sobreviver a três ondas: o mundo tem grão, o chrome é
+   gradiente liso. Vetor sobre pixel.
+2. ~~O efeito de corrida~~ — **FEITO** (o vento da corrida, 09/08).
+3. **QA da sequência inteira** — o jogo do zero ao fim nunca foi percorrido depois de ~15
+   integrações. O critério é a tese: *a abertura promete um verbo; a mão faz o que o texto
+   promete?*
+4. **O historiador do contemporâneo** — ditadura, Covid, polarização e **agronegócio** (tema
+   que o arco de 12 não cobria). Fonte forte: INPE/PRODES, MapBiomas, IBAMA.
+5. **A auditoria holística** — o que só se vê no conjunto: paleta entre capítulos, vocabulário
+   visual duplicado, quantos tamanhos de texto existem de verdade.
+6. **O comentário do personagem integrado** — da cintura para cima como no jogo, em vez do
+   balão flutuante ao lado (`PENDENTES.md` 6).
 
 ## Como trabalhar (não mude sem motivo)
 

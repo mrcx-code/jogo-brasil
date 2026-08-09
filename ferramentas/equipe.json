@@ -1,8 +1,17 @@
 {
   "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
-  "atualizado": "09/08 · onda 10 no ar · 6 pendentes registrados",
-  "emVoo": [],
+  "atualizado": "09/08 · o vento da corrida no ar · grão do chrome em voo",
+  "emVoo": [
+    {
+      "papel": "Arte",
+      "t": "O grão do chrome — vetor sobre pixel, o achado de 3 ondas"
+    }
+  ],
   "entregue": [
+    {
+      "q": "corrida",
+      "t": "O vento da corrida: correr passa a se sentir (1638 px × 0)"
+    },
     {
       "q": "onda 10",
       "t": "A saída cede o palco, e o peso vira TEMPO"
@@ -34,10 +43,6 @@
     {
       "q": "onda 7",
       "t": "Os ícones saem do motor de rua — navy zerado, a varinha virou Cetro"
-    },
-    {
-      "q": "coerência",
-      "t": "Salvador para de ter catedral impossível — eixo de simetria 29% → 0%"
     }
   ],
   "proximos": [
