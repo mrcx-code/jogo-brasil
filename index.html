@@ -74,10 +74,38 @@
        o que vale, porque em 390 px o clamp já bate no piso. Cada linha subiu ~2 px no piso e
        o vw acompanhou; a razão entre os degraus foi mantida, para a hierarquia não mudar de
        forma junto com o tamanho. */
-    --fs-xs: clamp(11px, 2.9vw, 14px);
-    --fs-sm: clamp(13px, 3.5vw, 16px);
-    --fs-md: clamp(15px, 4.1vw, 19px);
-    --fs-lg: clamp(20px, 5.4vw, 26px);
+    /* ===== AS QUATRO VOZES DO CADERNO =====
+       A auditoria holística de 09/08 mediu e o veredito foi duro: a escala `--fs-*` era
+       DECORATIVA. Os quatro degraus eram referenciados 6 vezes em ~45 declarações de fonte,
+       e NENHUM texto visível os usava — o texto vivo tinha nove corpos literais, e o corpo
+       de LEITURA sozinho tinha quatro (16 · 14,5 · 13,5 · 13). Duas verdades, nenhuma
+       mandando.
+       A decisão não foi matar a escala nem inventar outra: foi NOMEAR o que existe. Um
+       caderno de campo tem quatro vozes e cada uma tem um trabalho —
+         · CORPO    o que se lê numa página inteira (a fala, o papel da volta);
+         · CORPO SM o que se lê num papel menor (o verbete do quadrinho, a lista de fontes);
+         · MARGEM   a data em itálico, e o rótulo de um par rótulo/valor;
+         · FONTE    a procedência, em itálico de citação.
+       Quem tem quatro vozes com nome tem escala; quem tem nove tamanhos tem acaso. */
+    --corpo:   400 16px/25px var(--leitura);
+    --corpoSm: 400 14.5px/22px var(--leitura);
+    --margem:  italic 700 13px/1.4 var(--leitura);
+    --fonte:   italic 400 11.5px/1.5 var(--leitura);
+    /* e duas que não são de LER, são de NOMEAR — separadas por isso, não por tamanho:
+         · VERBETE  o título de uma entrada de caderno, na serifa encorpada;
+         · VOZ      a personagem comentando, em itálico de fala — a única voz de GENTE nos
+                    papéis, e por isso ela não pode cair em nenhuma das outras. */
+    --verbete: 700 19px/1.3 var(--titulo);
+    --voz:     italic 400 13px/19px var(--leitura);
+    /* ===== A ESCADA DE RECURSO =====
+       Estes quatro NÃO vestem texto de leitura, e o nome antigo (`--fs-*`, "font size")
+       fingia que sim. Eles vestem o FALLBACK de rótulo: cada lugar onde há um canvas 5×7 por
+       cima, e onde o texto do DOM só aparece se a pintura não acontecer. Trabalho real,
+       nome errado — agora é `--fb-`, de fallback. `--fs-xs` saiu porque perdeu o último
+       consumidor (o `#modeSub` que nunca foi preenchido). */
+    --fb-sm: clamp(13px, 3.5vw, 16px);
+    --fb-md: clamp(15px, 4.1vw, 19px);
+    --fb-lg: clamp(20px, 5.4vw, 26px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
     user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
@@ -177,7 +205,7 @@
     box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
   /* tinta escura sobre a pedra clara — regra única (eram duas brigando com !important) */
-  .rec b { font-size: var(--fs-sm); font-weight: 900; color: #2a2418;
+  .rec b { font-size: var(--fb-sm); font-weight: 900; color: #2a2418;
     font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   .pd { image-rendering: pixelated; width: 26px; height: 26px; }
   #barraTopo { flex: 0 1 auto; min-width: 0; display: flex; align-items: center;
@@ -196,7 +224,7 @@
      Nenhum elemento usa mais `.rotulo` dentro de `.chip`.
      O placar em si é um canvas bitmap (pixelRotulo); a regra abaixo é o fallback de texto,
      em tinta escura sobre a pedra clara — regra única (eram duas brigando com !important). */
-  .chip .valor { font-size: var(--fs-lg); font-weight: 900; line-height: 1; color: #2a2418;
+  .chip .valor { font-size: var(--fb-lg); font-weight: 900; line-height: 1; color: #2a2418;
     font-variant-numeric: tabular-nums; letter-spacing: .02em;
     text-shadow: 0 1px 0 rgba(255,250,235,.5); }
   /* removed by owner: the gear button (#openConfig) opened the metrics panel — both gone. */
@@ -263,7 +291,7 @@
   #retorno.aberto { display: block; }
   #retTit { margin-bottom: 9px; padding-bottom: 9px; border-bottom: 2px solid #c3ac7c; }
   /* tinta de leitura: a mesma serifa da caixa de fala, sentada na pauta de 11px (22 = 2×11) */
-  .retLinha { color: var(--tintaP); font: 400 16px/25px var(--leitura); margin: 6px 0; }
+  .retLinha { color: var(--tintaP); font: var(--corpo); margin: 6px 0; }
   #retOk { margin-top: 10px; text-align: right; font: italic 700 11px/1 var(--leitura);
     letter-spacing: .06em; color: #8a6b3d; }
 
@@ -341,7 +369,7 @@
                 inset 0 0 0 2px #6e2418, 0 5px 0 #191510, 0 7px 0 rgba(0,0,0,.35); }
   .cartao.fechando .cn { color: #7a2c18; }
   .cartao.fechando .pi { display: none; }
-  .cartao.fechando .cn::before { content: "✕"; font-size: var(--fs-md); }
+  .cartao.fechando .cn::before { content: "✕"; font-size: var(--fb-md); }
   .cartao.fechando .cn { font-size: 0; }
 
   /* ===== A GRAMÁTICA DE BOTÃO — uma só, para o jogo inteiro =====
@@ -380,7 +408,7 @@
      20px — vocabulário de aplicativo destoando dentro do próprio rodapé */
   #btnClique { flex: 1 1 auto; min-width: 0; min-height: 62px; padding: 9px 10px;
     border-radius: 5px;
-    font-size: var(--fs-lg); font-weight: 800;
+    font-size: var(--fb-lg); font-weight: 800;
     /* o metal leva o MESMO speckle da pedra a meia força: ouro poroso, não pedra pintada */
     background: var(--graoOuroPx, none) var(--ouroA);
     color: #221806; border: 0; letter-spacing: .02em;
@@ -827,7 +855,7 @@
   /* as pontas: texto quieto, sem placa — o fio é quem fala ali */
   .qCentro { position: relative; z-index: 2; display: flex; flex-direction: column;
     align-items: center; text-align: center; gap: 6px; }
-  .ltPontaSub { font: italic 400 13px/1.7 var(--leitura);
+  .ltPontaSub { font: var(--voz); line-height: 1.7;
     color: #8d8272; letter-spacing: .03em; margin-top: 4px; max-width: 22em; }
   /* PONTA COM PINTURA ATRÁS: a gramática da sobreposição não abre exceção para as pontas —
      sobre a mata em penumbra, letra solta some no galho. O texto ganha a mesma tabuinha
@@ -887,7 +915,7 @@
     object-fit: cover; object-position: top center; image-rendering: pixelated;
     filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); }
   .qBalao { position: relative; z-index: 2; margin-top: -10px;
-    font: italic 400 13px/19px var(--leitura); color: var(--tintaP);
+    font: var(--voz); color: var(--tintaP);
     padding: 9px 12px; border-radius: 3px;
     background:
       var(--pauta),
@@ -919,12 +947,12 @@
   /* a hierarquia de um caderno de campo (onda 6), um passo maior — agora cada papel tem
      uma página inteira para ser lido: DATA em itálico de margem, TÍTULO em negrito de
      verbete, CORPO em redonda sentada na pauta (22 = 2×11), FONTE em itálico de citação */
-  .ltQ { font: italic 700 13px/1.4 var(--leitura); letter-spacing: .02em; color: #7a4d16; }
+  .ltQ { font: var(--margem); letter-spacing: .02em; color: #7a4d16; }
   /* O TITULO fala a voz ENCORPADA (--titulo), o corpo continua na de ler. Era a mesma serifa
      fina nos dois, e em titulo ela some — o dono viu antes de mim. */
-  .ltT { font: 700 19px/1.3 var(--titulo); color: #33240f; letter-spacing: .005em; }
-  .ltD { font: 400 14.5px/22px var(--leitura); color: #46341c; margin: 6px 0 5px; }
-  .ltF { font: italic 400 11.5px/1.5 var(--leitura); color: #8a6b3d; letter-spacing: .02em; }
+  .ltT { font: var(--verbete); color: #33240f; letter-spacing: .005em; }
+  .ltD { font: var(--corpoSm); color: #46341c; margin: 6px 0 5px; }
+  .ltF { font: var(--fonte); color: #8a6b3d; letter-spacing: .02em; }
   /* A TRANSFORMAÇÃO ao rolar (ondas 8 e 10): dirigida pelo PRÓPRIO rolo (view timeline),
      nunca por relógio — rolar devagar transforma devagar, e voltar desfaz. A onda 10 muda
      O QUE se transforma: a transição deixa de ser do CONTAINER e passa a ser do CONTEÚDO —
@@ -1073,8 +1101,9 @@
       var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
-  .fimR { font: 400 13px/1.5 var(--leitura); color: #6b4f2a; }
-  .fimV { font: 700 14px/1.5 var(--titulo); color: #33240f; white-space: nowrap; }
+  /* rótulo/valor: voz de MARGEM, não de corpo — o par é uma anotação, não um parágrafo */
+  .fimR { font: var(--margem); font-weight: 400; font-style: normal; color: #6b4f2a; }
+  .fimV { font: var(--margem); font-style: normal; font-family: var(--titulo); color: #33240f; white-space: nowrap; }
   .fimLin.falta { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
   .fimLin.falta .fimV { color: #6e4a08; }
   /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
@@ -1123,8 +1152,8 @@
       linear-gradient(180deg, var(--papel), var(--papel2));
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
   /* a mesma tinta de caderno da linha do tempo: verbete em serifa, procedência em itálico */
-  .fnT { font: 400 13.5px/22px var(--leitura); color: #33240f; }
-  .fnQ { font: italic 400 11.5px/1.55 var(--leitura); color: #6b4f2a; margin-top: 4px; }
+  .fnT { font: var(--corpoSm); color: #33240f; }
+  .fnQ { font: var(--fonte); color: #6b4f2a; margin-top: 4px; }
   /* a fonte em dúvida: o mesmo papel, com a moldura interna em âmbar — sinal na tinta,
      não no material */
   .fnDuv { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
