@@ -316,6 +316,100 @@ Instrumentos novos: `test/medir-scroll.js`, `test/prints-fala-fundo.js`,
 momentos na rua) continua por progresso; o menu continua com o mundo vivo atrás (o menu
 é a mata — decisão de pé); a aura do lugar de espera segue com o dono.
 
+## A LEI DO RITMO (2026-08-09) — permanente, e rege cada capítulo novo
+
+A tensão é do dono, palavras dele: *"Não está uma experiência fluida e prazerosa de
+scrollar (apesar de serem histórias tristes)."* O parêntese é a metade importante — ele
+está perguntando se dá para o percurso ser bom quando o assunto dói.
+
+**A resposta desta casa: dá, e o que faz isso é RITMO, não alívio.** Um bom documentário
+sobre a travessia atlântica é doloroso e ainda assim bom de assistir — não porque
+suaviza (isso o §2 proíbe, e proibiria mesmo se não proibisse: suavizar é mentir), mas
+porque a montagem respira: nem toda cena pede o mesmo tempo, nem tudo fala ao mesmo
+tempo, e o silêncio é uma nota, não um buraco. Alívio mexe no CONTEÚDO; ritmo mexe no
+TEMPO. O conteúdo não é meu; o tempo é.
+
+Cinco regras, e elas valem para toda superfície de leitura nova — capítulo, página,
+travessia, fecho:
+
+1. **O gesto é o relógio.** Toda transição é dirigida pelo gesto da pessoa (o rolo, o
+   toque), nunca por cronômetro — rolar devagar transforma devagar, voltar desfaz.
+   Exceção única e nomeada: a capa, uma vez, ao abrir.
+2. **Um palco, uma coisa acesa.** A página que sai cede o palco à que chega; duas
+   superfícies disputando o mesmo quadro com a mesma luz é o erro que a medição do
+   meio-de-virada acusou.
+3. **A ordem de chegada é a ordem de leitura.** Data/título → corpo → fonte; a voz da
+   personagem comenta DEPOIS do lido. Material que chega em bloco não é lido, é visto.
+4. **Peso é tempo, e se paga em tempo.** Página dura é ponto final: para o arremesso,
+   chega em silêncio (o quadro sozinho um instante) e o texto vem depois. Ponto final é
+   raro por definição — se toda página parar, nenhuma pesa; era o travadão. A régua de
+   hoje: 7 em 26.
+5. **O prazer do percurso vem da variação de andamento, não de enfeite.** Marco, papel,
+   momento e ponta têm andamentos DIFERENTES da mesma língua — é a alternância que faz
+   26 páginas parecerem uma viagem e não uma lista. Efeito novo que não muda o andamento
+   de nada não entra (princípio 2 de sempre: propósito nomeável).
+
+**Aplicação a capítulo novo, operacional:** toda página nova nasce com FAMÍLIA e
+ANDAMENTO decididos (qual das quatro, e se é vírgula ou ponto final); página dura nova
+entra na lista `DURAS` de `montarCompletude` e na regra do silêncio do balão JUNTAS —
+são a mesma decisão, e a amarra é pelo nó (`qi`), nunca pela posição.
+
+## Onda 10 — IMPLEMENTADA (2026-08-09): O RITMO DO ROLO
+
+O desenho veio do diagnóstico medido da sessão anterior (o meio-de-virada do ANTES: a
+página que sai ficava 100% acesa até o último pixel; o material chegava em bloco; Marajó
+pedia o mesmo tempo que a travessia forçada) e é a primeira aplicação da LEI DO RITMO.
+Referência que sustenta: **Florence** (ADA 2018 · BAFTA 2019), de novo e mais fundo — lá
+cada virada tem um andamento próprio (as peças do quebra-cabeça chegam mais devagar
+quando a conversa pesa), e é isso que separa "páginas que passam" de "história que anda".
+Território: `src/estilo.css` e `montarCompletude` (`src/jogo.ts`). Zero imagem nova.
+
+1. **A saída cede o palco.** Todo quadro ganhou um véu de penumbra (`.qQuadro::after`,
+   `#0a0806`) dirigido pelo próprio rolo: `exit 0% → 100%`, opacity 0 → 0,85. A página
+   que fica para trás escurece enquanto sai; a que chega é a única acesa. Reversível ao
+   voltar por construção (scroll-driven). Sem `view()`, o véu fica em 0.
+2. **A transição é do CONTEÚDO, não do container.** Os containers assentam cedo
+   (entry 24–62%) e a tinta chega escalonada DENTRO do papel: data/título (34–64) →
+   corpo (44–78) → fonte (54–90); o balão da personagem por último (66–100) — a voz
+   comenta depois do lido. Keyframe novo `qTinta` (7 px, não os 44 do papel: tinta
+   pousa, não cai).
+3. **Cada família tem um andamento.** MARCO revela do escuro (`qRevelaEscuro`, opacity
+   0) e a placa POUSA COM BAQUE (`qPousa`: cai de −56 px, toca com 5 px de sobra,
+   assenta; o selo VOCÊ ESTÁ AQUI chega depois do pouso, 78–100). PAPEL abre como
+   caderno (`qCaderno`: rotateX −12° com origem no topo). Ponta e momento seguem leves.
+4. **O peso pede tempo.** As três páginas duras (o açúcar, a travessia forçada, 1888 —
+   as MESMAS que ficam sem balão por §2) + os 4 marcos ganharam `scroll-snap-stop:
+   always`: 7 pontos finais em 26 páginas, o resto corre leve. Nas duras o material
+   chega mais tarde (papel 52–84, fonte 76–100): o quadro fica sozinho um instante —
+   o mar da travessia abre a página em silêncio. A classe `qDura` nasce em
+   `montarCompletude`, amarrada ao nó (`qi: p10/p12/p21`), nunca à posição.
+5. **A capa abre.** A única transição POR TEMPO da tela: ao abrir (a classe `.aberta`
+   renasce a cada abertura), a pintura da primeira página revela em 1,6 s e a tabuinha
+   chega 0,7 s depois — `animation-timeline: auto` explícito para vencer o empate com a
+   timeline do rolo. `prefers-reduced-motion` cobre tudo: os pontos finais (que não são
+   movimento) valem sempre; nenhuma animação nova vaza.
+
+**Medido** (`test/prints-onda10.js`, novo — fotografa o MEIO das viradas com snap solto,
+armadilha da onda 8, e a capa em três tempos): véu da página que sai a meio-exit
+**opacity 0,51 interpolada** (ANTES: pseudo inexistente); `scroll-snap-stop` computado
+**always nos 7, normal nos 19**; animações scroll-driven por página 3 → 7 (comum com
+balão) e 2 → 6 (dura). Prints `O10-antes/depois-*.png`: na virada comum a mata que sai
+apaga enquanto a ensolarada chega; no marco a placa PALMARES aparece no meio do pouso;
+na dura a f60 o mar está sozinho e a f90 a fonte ainda está chegando. FPS **61/61/61**
+(piso 58); `index.html` 4.023.521 → **4.029.942 bytes LF** (+6,4 KB, só código); zero
+rede; smoke PASS 3×, nenhuma asserção precisou mudar (o smoke só afirma alcançabilidade
+da tela; os instrumentos de scroll continuam medindo o que mediam).
+
+**Limite dito por inteiro (o mesmo da onda 9):** o headless não produz fling com
+momento, então o efeito do `stop: always` em arremesso real não é mensurável aqui — o
+que se mediu é o estilo computado nos 7 quadros certos e as duas metades que não podiam
+morrer: arrasto curto fica onde o dedo deixou (285 px) e soltar perto da borda assenta
+nela (resto 0). No aparelho, parar 7 vezes em 26 é pontuação; parar 26 era o travadão.
+
+**Escala inteira, revisada de propósito:** a composição do quadrinho não supunha 390 —
+página é `height: 100%` do rolo, papel é `min(30em, 100%)`, fundos são `cover`, e as
+`animation-range` são frações da virada; nada quebrou com o campo de visão variável.
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
@@ -572,8 +666,10 @@ consertando em paralelo; não toquei.
   2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura), `prints-onda3.js`
   (virada de era real, cerimônia no tempo), `prints-onda5.js` (retorno de dia 2 real,
   o amanhecer no tempo), `prints-onda7.js` (escala de todo ícone do chrome, acusando
-  razão não-inteira) e `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
-  início de jogo e o meio de uma virada de página).
+  razão não-inteira), `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
+  início de jogo e o meio de uma virada de página) e `prints-onda10.js` (o ritmo do
+  rolo: capa por tempo, meio de virada comum/marco/dura, opacity do véu de saída e
+  snap-stop computado nos 7 pontos finais).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
 

@@ -7400,6 +7400,14 @@ function montarCompletude() {
   // frente" e o teaser "— ainda não —" deixaram de existir.
   const paginas = LINHA_TEMPO.filter(function (no) { return no.tipo !== "vao"; });
   const total = paginas.length;
+  // O PESO PEDE TEMPO (onda 10, DIRECAO.md): as três páginas que o conteúdo já trata como
+  // duras — as MESMAS que ficam sem balão por regra de §2 (o açúcar, a travessia forçada,
+  // 1888) — viram PONTO FINAL do rolo: classe `qDura` = scroll-snap-stop: always (junto
+  // com os 4 marcos: 7 pontos finais em 26 páginas) e o texto chegando mais tarde (o
+  // quadro fica sozinho um instante). A amarra é pelo NÓ (`qi`), nunca pela posição —
+  // inserir página nova renumera tudo e não muda o que é duro. Página dura nova entra
+  // aqui e na regra de silêncio do balão JUNTAS: são a mesma decisão.
+  const DURAS: Record<string, 1> = { p10: 1, p12: 1, p21: 1 };
   const quadro = function (cls) {
     const q = document.createElement("div");
     q.className = "qQuadro " + cls;
@@ -7523,7 +7531,8 @@ function montarCompletude() {
       const mo = no.i != null ? MOMENTOS[no.i] : (no as { q: string; t: string; d: string; f: string });
       const propria = !!arteDaPagina(no);
       const comImg = propria || no.i != null;
-      const q = quadro("qMomento" + (comImg ? "" : " qPapel"));
+      const dura = !!(no.qi && DURAS[no.qi]);
+      const q = quadro("qMomento" + (comImg ? "" : " qPapel") + (dura ? " qDura" : ""));
       if (comImg) {
         fundoPagina(q, no, cenarioDaEpoca(epFio));
         if (!propria) {

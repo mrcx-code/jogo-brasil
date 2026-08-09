@@ -701,6 +701,10 @@
      metade boa do encaixe (perto de uma borda, a página assenta sozinha) e devolve a
      outra: um gesto forte atravessa várias páginas, como um feed. Medido no
      test/medir-scroll.js, antes e depois.
+     A onda 10 devolve o `stop: always` a SETE páginas só (os 4 marcos + as 3 duras, a
+     classe .qDura nasce em montarCompletude) — não é a volta do travadão: lá toda página
+     parava o dedo; aqui o rolo corre leve e ganha PONTUAÇÃO — Marajó é vírgula, a
+     travessia forçada é ponto final. Ritmo, não alívio (DIRECAO.md, onda 10).
      O FUNDO OPACO é a correção do B3 do QA (12% do jogo vivo atravessava o véu da .tela
      nas páginas sem imagem): nenhuma página do quadrinho deixa o jogo aparecer atrás. */
   #listaCenas { position: absolute; inset: 0; margin: 0; width: auto; max-width: none;
@@ -723,6 +727,18 @@
     background: linear-gradient(90deg, #3a2a14, #6d4b28 40%, #7c5730 60%, #3a2a14),
       repeating-linear-gradient(168deg, rgba(0,0,0,.28) 0 3px, transparent 3px 9px);
     box-shadow: 1px 0 0 rgba(0,0,0,.4); }
+  /* A PENUMBRA DA SAÍDA (onda 10): a página que fica para trás APAGA enquanto sai — o
+     meio-de-virada do ANTES mostrava o problema central: a página que sai ficava 100%
+     acesa até o último pixel, competindo com a que chega. O véu é um ::after acima de
+     tudo no quadro (z 3), dirigido pelo PRÓPRIO rolo (exit 0%→100%, na regra lá embaixo):
+     reversível ao voltar, e nada acontece por relógio. Sem view() fica em 0 e não existe. */
+  .qQuadro::after { content: ""; position: absolute; inset: 0; z-index: 3;
+    pointer-events: none; background: #0a0806; opacity: 0; }
+  /* O PESO PEDE TEMPO (onda 10): sete PONTOS FINAIS em 26 páginas — os quatro marcos e
+     as três duras param qualquer arremesso NELAS; o resto corre leve (ver o comentário
+     do #listaCenas). Fora do bloco de movimento de propósito: parar não é animação, e
+     vale igual sob prefers-reduced-motion. */
+  .qMarco, .qDura { scroll-snap-stop: always; }
   .qPonta::before { -webkit-mask-image: linear-gradient(180deg, transparent 12%, #000 62%);
             mask-image: linear-gradient(180deg, transparent 12%, #000 62%); }
   .qPonta.fim::before { -webkit-mask-image: linear-gradient(180deg, #000 38%, transparent 88%);
@@ -822,27 +838,90 @@
   .ltT { font: 700 16px/1.35 var(--leitura); color: #33240f; }
   .ltD { font: 400 14.5px/22px var(--leitura); color: #46341c; margin: 6px 0 5px; }
   .ltF { font: italic 400 11.5px/1.5 var(--leitura); color: #8a6b3d; letter-spacing: .02em; }
-  /* A TRANSFORMAÇÃO ao rolar: a imagem revela e assenta, o papel sobe e pousa — dirigidas
-     pelo PRÓPRIO rolo (view timeline), nunca por relógio: rolar devagar transforma
-     devagar. Progressive enhancement dos dois lados: sem view() nada anima e o encaixe
-     continua; com prefers-reduced-motion nada se move além do rolo. */
+  /* A TRANSFORMAÇÃO ao rolar (ondas 8 e 10): dirigida pelo PRÓPRIO rolo (view timeline),
+     nunca por relógio — rolar devagar transforma devagar, e voltar desfaz. A onda 10 muda
+     O QUE se transforma: a transição deixa de ser do CONTAINER e passa a ser do CONTEÚDO —
+     dentro do papel, data/título → corpo → fonte chegam escalonados, e o balão da
+     personagem chega por último (a voz comenta DEPOIS do lido); cada família tem um
+     andamento (o marco revela do escuro e a placa pousa com baque; o papel abre como
+     caderno; ponta e momento seguem leves); nas páginas duras o material chega mais tarde
+     e o quadro fica sozinho um instante; e a página que sai cede o palco (a penumbra).
+     Progressive enhancement dos dois lados: sem view() nada anima e o encaixe continua;
+     com prefers-reduced-motion nada se move além do rolo. */
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
       /* o relógio é o QUADRO, não o filho: com view() no próprio filho, a imagem (alta,
          no topo) terminava de entrar com meia página virada e o papel (baixo, no pé) só
          começava no fim — medido com getAnimations() no headless. A timeline nomeada no
-         painel dá aos dois o MESMO relógio: a virada inteira da página. */
+         painel dá a todos o MESMO relógio: a virada inteira da página. */
       .qQuadro { view-timeline: --quadro block; }
       .qImg, .qFundo { animation: qRevela both ease-out; animation-timeline: --quadro;
         animation-range: entry 0% entry 100%; }
-      .qQuadro .ltMomento, .qQuadro .ltMarco, .qQuadro .qFala, .qQuadro .qCentro {
+      /* a penumbra da saída: SÓ na saída — a chegada já tem a revelação da imagem */
+      .qQuadro::after { animation: qPenumbra both linear; animation-timeline: --quadro;
+        animation-range: exit 0% exit 100%; }
+      /* os CONTAINERS assentam cedo — a página chega e abre espaço para a tinta… */
+      .qQuadro .ltMomento, .qQuadro .ltMarco, .qQuadro .qCentro {
         animation: qAssenta both ease-out; animation-timeline: --quadro;
-        animation-range: entry 30% entry 100%; }
+        animation-range: entry 24% entry 62%; }
+      /* …e DENTRO do papel a tinta chega escalonada: data/título → corpo → fonte */
+      .qQuadro .ltCab { animation: qTinta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 34% entry 64%; }
+      .qQuadro .ltD { animation: qTinta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 44% entry 78%; }
+      .qQuadro .ltF { animation: qTinta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 54% entry 90%; }
+      /* o balão da personagem por último: a voz comenta depois do lido */
+      .qQuadro .qFala { animation: qAssenta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 66% entry 100%; }
+      /* MARCO — a virada de século: a pintura revela do ESCURO… */
+      .qMarco .qFundo { animation-name: qRevelaEscuro; }
+      /* …e a placa POUSA COM BAQUE: cai, toca com meio-passo de sobra, assenta */
+      .qQuadro .ltMarco { animation-name: qPousa;
+        animation-range: entry 30% entry 74%; }
+      /* o selo VOCÊ ESTÁ AQUI chega depois de a placa pousar */
+      .qQuadro .qAqui { animation: qAssenta both ease-out; animation-timeline: --quadro;
+        animation-range: entry 78% entry 100%; }
+      /* PAPEL — o caderno ABRE: a página inclina de leve, como folha virada, e deita */
+      .qPapel .ltMomento { animation-name: qCaderno; transform-origin: 50% 0; }
+      /* O PESO PEDE TEMPO — nas duras (.qDura, ver montarCompletude) o quadro fica
+         SOZINHO um instante: o papel chega mais tarde e a fonte fecha a página */
+      .qQuadro.qDura .ltMomento { animation-range: entry 52% entry 84%; }
+      .qDura .ltCab { animation-range: entry 58% entry 84%; }
+      .qDura .ltD { animation-range: entry 66% entry 94%; }
+      .qDura .ltF { animation-range: entry 76% entry 100%; }
     }
+    /* A CAPA ABRE (onda 10): a única transição POR TEMPO da tela — uma vez, ao abrir
+       (.aberta renasce a cada abertura em abrirTela). A pintura da primeira página revela
+       devagar e o título chega depois dela. `animation-timeline: auto` EXPLÍCITO: a regra
+       de .qFundo acima declara a timeline em longhand, e o empate se decide aqui. Fora do
+       @supports de propósito: animação por tempo não depende de view(). */
+    #telaCompletude.aberta .qQuadro:first-child .qFundo {
+      animation: qCapa 1.6s ease-out both;
+      animation-timeline: auto; animation-range: normal; }
+    #telaCompletude.aberta .qQuadro:first-child .qCentro {
+      animation: qCapaTexto .9s ease-out .7s both;
+      animation-timeline: auto; animation-range: normal; }
   }
   @keyframes qRevela { from { opacity: .08; transform: scale(1.06); }
     to { opacity: 1; transform: none; } }
+  @keyframes qRevelaEscuro { from { opacity: 0; transform: scale(1.07); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qPenumbra { from { opacity: 0; } to { opacity: .85; } }
   @keyframes qAssenta { from { opacity: 0; transform: translateY(44px); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qTinta { from { opacity: 0; transform: translateY(7px); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qPousa { 0% { opacity: 0; transform: translateY(-56px); }
+    58% { opacity: 1; transform: translateY(5px); }
+    80% { transform: translateY(-2px); }
+    100% { opacity: 1; transform: none; } }
+  @keyframes qCaderno { from { opacity: 0;
+      transform: perspective(1100px) rotateX(-12deg) translateY(26px); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qCapa { from { opacity: 0; transform: scale(1.05); }
+    to { opacity: 1; transform: none; } }
+  @keyframes qCapaTexto { from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: none; } }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
@@ -8954,6 +9033,14 @@ function montarCompletude() {
     // frente" e o teaser "— ainda não —" deixaram de existir.
     const paginas = LINHA_TEMPO.filter(function (no) { return no.tipo !== "vao"; });
     const total = paginas.length;
+    // O PESO PEDE TEMPO (onda 10, DIRECAO.md): as três páginas que o conteúdo já trata como
+    // duras — as MESMAS que ficam sem balão por regra de §2 (o açúcar, a travessia forçada,
+    // 1888) — viram PONTO FINAL do rolo: classe `qDura` = scroll-snap-stop: always (junto
+    // com os 4 marcos: 7 pontos finais em 26 páginas) e o texto chegando mais tarde (o
+    // quadro fica sozinho um instante). A amarra é pelo NÓ (`qi`), nunca pela posição —
+    // inserir página nova renumera tudo e não muda o que é duro. Página dura nova entra
+    // aqui e na regra de silêncio do balão JUNTAS: são a mesma decisão.
+    const DURAS = { p10: 1, p12: 1, p21: 1 };
     const quadro = function (cls) {
         const q = document.createElement("div");
         q.className = "qQuadro " + cls;
@@ -9090,7 +9177,8 @@ function montarCompletude() {
             const mo = no.i != null ? MOMENTOS[no.i] : no;
             const propria = !!arteDaPagina(no);
             const comImg = propria || no.i != null;
-            const q = quadro("qMomento" + (comImg ? "" : " qPapel"));
+            const dura = !!(no.qi && DURAS[no.qi]);
+            const q = quadro("qMomento" + (comImg ? "" : " qPapel") + (dura ? " qDura" : ""));
             if (comImg) {
                 fundoPagina(q, no, cenarioDaEpoca(epFio));
                 if (!propria) {

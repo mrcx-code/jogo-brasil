@@ -3348,3 +3348,51 @@ contemporâneo por último **de propósito**, porque ele exige a REGRA DO DOCUME
 continua certo em método — mas o dono está dizendo que o EQUILÍBRIO do que existe hoje está
 errado, e isso é outra coisa. Reordenar é decisão dele; registrado para a próxima sessão
 começar por aqui.
+
+## Diário — 2026-08-09 · Direção de Arte · Onda 10: o ritmo do rolo (worktree, para integrar)
+
+O desenho veio pronto de uma sessão minha que morreu no limite antes do código; olhei
+antes de executar e **concordo com ele inteiro** — o diagnóstico (página que sai 100%
+acesa, material em bloco, Marajó pesando igual à travessia) bate com o que os prints do
+ANTES mostram. Executei os cinco itens sem desvio. Território respeitado: `src/estilo.css`
+e `montarCompletude` em `src/jogo.ts`; nenhum bloco de arte, TRAVESSIAS, HUD ou rodapé.
+
+**O que fiz** (detalhe completo na seção "Onda 10" do `DIRECAO.md`, junto com a **LEI DO
+RITMO** — a resposta à tensão do dono "fluida e prazerosa apesar de tristes", que ele
+pediu registrada e que passa a reger capítulo novo):
+
+1. Penumbra de saída: `.qQuadro::after` dirigido pelo rolo (`exit 0→100%`, 0→0,85) — a
+   página que fica para trás apaga; reversível ao voltar.
+2. Transição do CONTEÚDO: containers cedo (entry 24–62%), tinta escalonada dentro do
+   papel (cab 34–64 → corpo 44–78 → fonte 54–90), balão por último (66–100).
+3. Andamento por família: marco revela do escuro + placa pousa com baque (`qPousa`, e o
+   selo VOCÊ ESTÁ AQUI chega depois do pouso); papel abre como caderno (`qCaderno`);
+   ponta e momento leves.
+4. `scroll-snap-stop: always` nos 4 marcos + 3 duras (`qDura` nasce em montarCompletude,
+   amarrada por `qi` p10/p12/p21 — os MESMOS nós sem balão por §2): 7 pontos finais em
+   26 páginas; nas duras o quadro fica sozinho um instante (papel 52–84, fonte 76–100).
+5. A capa abre por tempo, uma vez por abertura (1,6 s + tabuinha a 0,7 s), timeline
+   `auto` explícita.
+
+**O que medi** (`test/prints-onda10.js`, novo; prints `O10-antes/depois-*.png`):
+
+- Véu da página que sai a meio-exit: **opacity 0,51 interpolada** (ANTES: pseudo não
+  existia). Snap-stop computado: **always nos 7 certos, normal nos 19**.
+- Animações scroll-driven por página: 3 → 7 (comum com balão), 2 → 6 (dura).
+- `medir-scroll.js` DEPOIS: arrasto curto fica onde o dedo deixou (**285 px**), soltar
+  perto da borda assenta (**resto 0**) — as duas metades do pedido do dono vivem. Limite
+  igual ao da onda 9: o headless não produz fling com momento, então o `stop: always`
+  em arremesso real só se prova no aparelho; aqui provei o estilo computado.
+- FPS **61/61/61** (piso 58); smoke **PASS 3×**; `index.html` 4.023.521 → **4.029.942
+  bytes LF** (+6,4 KB, só código); zero imagem nova; zero rede; nenhuma asserção de
+  teste mudou de significado (smoke só afirma alcançabilidade da tela).
+- Escala inteira revisada: o quadrinho não supunha 390 px (página 100%, papel
+  `min(30em,100%)`, `cover`, ranges em fração de virada) — nada a corrigir.
+
+**O que quebrou:** nada. **Não commitei nem dei push** (regra do sprint); prints e
+instrumento ficam em `test/`.
+
+**Dúvida nova:** a dose do véu (0,85 no fim da saída) foi escolhida para ler no print;
+no aparelho, com o dedo na tela, pode pedir menos (0,7?) — é ajuste de um número, e o
+instrumento já mede. **Próximo passo:** integrar à main; depois, no aparelho real,
+sentir os 7 pontos finais com o polegar — é a única metade que o headless não prova.
