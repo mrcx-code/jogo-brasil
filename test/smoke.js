@@ -836,7 +836,11 @@ function alvo() {
     return { menuAberto: document.getElementById('telaMenu').classList.contains('aberta'),
       alcanca: !!topo && (topo === el || el.contains(topo)),
       quem: topo ? (topo.id || topo.className) : null,
-      veuNoBotao: !!sobreBotao && sobreBotao.id === 'retVeu',
+      // o que se cobra e que o toque em JOGAR NAO ATRAVESSE. Era `id === 'retVeu'`, e isso
+      // passou a reprovar quando o papel da volta centralizou e ficou ELE por cima do botao
+      // — protecao melhor, nao pior. Vale o veu ou o proprio papel.
+      veuNoBotao: !!sobreBotao && (sobreBotao.id === 'retVeu'
+        || sobreBotao.id === 'retorno' || !!el.contains(sobreBotao)),
       sobreBotao: sobreBotao ? (sobreBotao.id || sobreBotao.className) : null };
   });
   console.log('  return-before-menu -> menu open:', camada.menuAberto,

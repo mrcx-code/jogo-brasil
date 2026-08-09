@@ -224,8 +224,15 @@
   #retVeu { display: none; position: fixed; inset: 0; z-index: 59;
     background: rgba(8, 5, 2, .58); }
   #retVeu.aberto { display: block; }
-  #retorno { display: none; position: fixed; z-index: 60; left: 50%; top: 24%;
-    transform: translateX(-50%); width: min(440px, 90vw); box-sizing: border-box;
+  /* O `top: 24%` era gordura de tela grande: o papel cresceu quando ganhou a NOTA DA VOLTA
+     e, em 320×568, o pé dele saía 92 px abaixo da tela — medido. Agora o papel se CENTRA
+     (translate nos dois eixos) e tem teto de altura com rolagem própria: em tela larga nada
+     muda de lugar visível, e em tela pequena ele encolhe em vez de sair pela borda. O
+     `overscroll-behavior` impede que o embalo da rolagem interna passe para a página. */
+  #retorno { display: none; position: fixed; z-index: 60; left: 50%; top: 50%;
+    transform: translate(-50%, -50%); width: min(440px, 90vw); box-sizing: border-box;
+    max-height: calc(100vh - 28px); overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     background:
       var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));
@@ -869,6 +876,17 @@
     box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430,
                 0 4px 0 #0a0806, 0 8px 22px rgba(0,0,0,.5); }
   .ltCab { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  /* A NOTA DA VOLTA. Nenhum material novo: o papel da volta JÁ É papel de campo, e a nota
+     mora dentro dele — um verbete do mesmo caderno, separado por uma régua fina em vez de
+     por uma segunda moldura. Papel dentro de papel seria a construção duplicada que a
+     auditoria caça; a régua é o que os cadernos de verdade usam. As classes são as MESMAS
+     do momento do quadrinho (`.ltQ` `.ltT` `.ltD` `.ltF`), e isso é a gramática funcionando:
+     "isto é um verbete datado com fonte" já tem forma, e ela não se reinventa por tela. */
+  .retNota { margin-top: 12px; padding-top: 11px; padding-bottom: 4px; text-align: left;
+    border-top: 2px solid rgba(90,62,26,.30); }
+  .retNota .ltT { font-size: 16px; }
+  .retNota .ltD { font-size: 13.5px; line-height: 22px; }
+
   /* a hierarquia de um caderno de campo (onda 6), um passo maior — agora cada papel tem
      uma página inteira para ser lido: DATA em itálico de margem, TÍTULO em negrito de
      verbete, CORPO em redonda sentada na pauta (22 = 2×11), FONTE em itálico de citação */

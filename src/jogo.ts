@@ -2129,17 +2129,66 @@ function mostrarRetorno(dt) {
   }
   // a verdade da economia deste jogo, dita em vez de uma produção inventada
   linha("A estrada esperou. O que chega, chega para quem está aqui.");
-  pixelRotulo($("retTit"), "ENQUANTO VOCÊ ESTEVE FORA", 2, "#5c3210");
+  notaDaVolta(lista);
   // O amanhecer do retorno se arma AQUI e não no fechar: `diaNovo` pode virar verdadeiro no
   // meio de uma sessão longa (meia-noite passando), e esse caso não é um retorno — o papel
   // da volta é a única porta pela qual "voltei num dia novo" entra no jogo.
   amanhecerPendente = diaNovo;
   el.classList.add("aberto");
   el.setAttribute("aria-hidden", "false");
+  // O TÍTULO É PINTADO DEPOIS DE ABRIR, e a ordem é o conserto: `#retorno` é `display:none`
+  // até ganhar `.aberto`, então medir a caixa antes devolvia zero e a escala caía no padrão.
+  // Era por isso que "ENQUANTO VOCÊ ESTEVE FORA" saía cortado no "FO" em 320 px.
+  const tit = "ENQUANTO VOCÊ ESTEVE FORA";
+  pixelRotulo($("retTit"), tit,
+    escalaQueCabe(tit, 2, $("retTit").getBoundingClientRect().width), "#5c3210");
   // o véu acende junto: o menu do boot fica atrás, escurecido, e este papel é a primeira
   // coisa que a pessoa vê e pode tocar ao voltar (bug B1)
   const veu = document.getElementById("retVeu");
   if (veu) { veu.classList.add("aberto"); veu.setAttribute("aria-hidden", "false"); }
+}
+// ===== A NOTA DA VOLTA — o que a pessoa GANHA por ter voltado =====
+//
+// A lente "volta no dia 2" perguntava: o que se encontra de novo ao voltar? A resposta era
+// "o que você deixou" — tempo fora, quem continua andando junto, quem foi acolhida. Tudo
+// verdadeiro, e tudo sobre ONTEM. Num jogo cujas três pernas são bonito · divertido · ensina,
+// voltar não dava nada da terceira.
+//
+// Agora dá uma coisa, e a coisa é história com fonte: um momento da LINHA_TEMPO, inteiro,
+// com o de-onde-vem embaixo. Nenhuma afirmação nova entra por aqui — o texto é o MESMO que
+// A HISTÓRIA já mostra, curado e com procedência, e é por isso que esta função não escreve
+// uma palavra própria. §2: onde há fonte, ela aparece; onde não há, não há nota.
+//
+// QUAL momento, e a regra é deliberadamente sem estado novo: o índice é o DIA DE TRAVESSIA
+// (`R.dias`) sobre os momentos das cenas que a pessoa já alcançou. Três consequências, e as
+// três são o desenho: quem volta amanhã lê outro; quem já andou mais tem mais de onde tirar;
+// e nada do que vem pela frente é entregue antes da hora — a fronteira é o teto, como é para
+// o menu de eras. Ao dar a volta na lista, ela recomeça: reler uma nota não é castigo, e um
+// campo de save a mais para evitar isso custaria mais do que resolve.
+function notaDaVolta(lista) {
+  const teto = S.fronteira | 0;
+  const notas = LINHA_TEMPO.filter(function (n) {
+    return n.tipo === "momento" && ((n.cena || 0) | 0) <= teto && !!n.t && !!n.d && !!n.f;
+  });
+  if (!notas.length) return;
+  const mo = notas[Math.max(0, (R.dias | 0) - 1) % notas.length];
+  const bl = document.createElement("div");
+  bl.className = "retNota";
+  const cab = document.createElement("div");
+  cab.className = "ltCab";
+  const q = document.createElement("span");
+  q.className = "ltQ"; q.textContent = mo.q || "";
+  const t = document.createElement("span");
+  t.className = "ltT"; t.textContent = mo.t!;
+  cab.appendChild(q); cab.appendChild(t);
+  bl.appendChild(cab);
+  const d = document.createElement("div");
+  d.className = "ltD"; d.textContent = mo.d!;
+  bl.appendChild(d);
+  const f = document.createElement("div");
+  f.className = "ltF"; f.textContent = "fonte: " + mo.f;
+  bl.appendChild(f);
+  lista.appendChild(bl);
 }
 function fecharRetorno() {
   const veu = document.getElementById("retVeu");
@@ -3440,6 +3489,17 @@ function larguraTexto(txt, esc) { return txt.length * 6 * esc; }
 // jogo já falavam assim.
 // O canvas é recriado só quando o texto muda (`data-px` guarda a chave): `desenhar()` roda
 // cinco vezes por segundo e rótulo estático não pode custar um canvas por tique.
+// A MAIOR ESCALA INTEIRA QUE CABE. A fonte 5x7 é desenhada em canvas e ampliada por número
+// INTEIRO — reduzir por fração borra, que é o oposto do que a régua quer. Então quando o
+// rótulo não cabe, quem cede é a AMPLIAÇÃO, não o texto: `esc` vira o maior inteiro cujo
+// desenho cabe na largura disponível, com piso em 1.
+// Nasceu do papel da volta a 320 px, onde "ENQUANTO VOCÊ ESTEVE FORA" saía cortado no "FO" —
+// e o defeito era invisível em 390, que é onde tudo é testado.
+function escalaQueCabe(txt, esc, larg) {
+  const w = String(txt).length * 6 + 1;
+  if (!larg || w * esc <= larg) return esc;
+  return Math.max(1, Math.floor(larg / w));
+}
 function pixelRotulo(el, txt, esc, cor, contorno?) {
   const t = String(txt).toUpperCase().replace(/—/g, "-");
   const chave = t + "|" + esc + "|" + cor + "|" + (contorno || "");
