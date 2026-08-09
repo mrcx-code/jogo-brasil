@@ -3396,3 +3396,40 @@ instrumento ficam em `test/`.
 no aparelho, com o dedo na tela, pode pedir menos (0,7?) — é ajuste de um número, e o
 instrumento já mede. **Próximo passo:** integrar à main; depois, no aparelho real,
 sentir os 7 pontos finais com o polegar — é a única metade que o headless não prova.
+
+## O diagnóstico do GRÃO DO CHROME — recuperado de uma worktree morta (2026-08-09)
+
+Uma sessão da Direção de Arte morreu no limite depois de achar isto, e o achado vale mais
+que o código que ela alcançou escrever:
+
+> *"O mundo é pixel art com grão por toda parte, e o chrome inteiro era gradiente CSS LISO —
+> vetor sobre pixel. É isso que fazia HUD e rodapé lerem como 'de outro jogo' por mais que a
+> paleta e a construção estivessem certas."*
+
+É a explicação que faltava para a queixa do dono (*"o menu de cima e os botões de baixo estão
+meio estranhos, não parecem do mesmo jogo"*) sobreviver a três ondas de conserto de paleta e
+construção. Nenhuma delas atacou o **grão**.
+
+A solução que ela desenhou, e que só chegou pela metade: três texturas de ruído determinístico
+(o mesmo `hash01` do mundo) desenhadas num canvas no boot e entregues ao CSS como
+`url(data:)` — veio de tábua serrada, grão de pedra lavrada, e o mesmo grão com metade da
+força para o metal do botão dourado. Zero byte de arte, e `var(--veioPx, none)` faz o chrome
+ficar exatamente como era se o JS não rodar.
+
+**Por que revertida:** o gerador ficou órfão — nunca chamado, e o CSS nunca consumiu as
+variáveis. Código morto não entra na `main`. **O ticket continua aberto, e é de alto valor:
+é a única hipótese que explica a queixa depois de três tentativas.**
+
+## Aviso de fila para o dono: o que precisa ser gerado de novo
+
+Perguntado por ele. Duas coisas, e as duas já estão na mesa:
+
+1. **`q-p19` — as ganhadeiras.** A legenda cobre o **tabuleiro inteiro**, e o texto da página
+   fala justamente do tabuleiro. Pede a mesa no meio do quadro, não na base.
+2. **As três folhas de CORRIDA** (`cap1/2/3-corrida`) continuam **recusadas por §2**: trazem
+   pessoa diferente da caminhada da mesma era. Precisam voltar com a MESMA pessoa.
+
+E uma regra de enquadramento que vale para toda vertical futura, achada na integração das 13:
+**a página corta pelos LADOS, não por cima** — `cover` casa a altura, então 390×844 sobre arte
+2:3 perde **15,4% de cada lado**. Já custou a `q-p3` (o mar e a maré que davam escala ao
+sambaqui ficaram fora). Regra: **terço inferior calmo E assunto dentro dos 70% centrais.**
