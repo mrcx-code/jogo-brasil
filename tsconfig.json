@@ -29,7 +29,14 @@
     "rootDir": "src",
     "outDir": "build",
     "newLine": "crlf",
-    "removeComments": false,
+    // O COMENTARIO E FONTE, NAO PRODUTO. Medido em 09/08 pelo `test/peso-composicao.js`:
+    // 365 KB do `index.html` publicado — 8,4% do arquivo — eram comentario. Este repositorio
+    // comenta muito de proposito (e a memoria do projeto: cada armadilha paga esta escrita ao
+    // lado do codigo que a pagou), e nada disso muda: o `src/jogo.ts` continua com cada linha.
+    // O que muda e que quem baixa o jogo no celular nao paga por elas.
+    // Quem tira e o COMPILADOR, nunca uma expressao regular: `//` dentro de string e de regex
+    // e exatamente onde um strip caseiro corrompe o arquivo em silencio.
+    "removeComments": true,
     "sourceMap": false,
     "skipLibCheck": true
   },
