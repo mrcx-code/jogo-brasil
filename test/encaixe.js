@@ -450,6 +450,33 @@ const sec = t => log('\n---- ' + t);
     : 'e ela espera a pessoa voltar para a rua em vez de interromper');
   await page.evaluate(() => fecharTelas());
 
+  // ============================================================
+  // 11 · O QUE FOI RECOLHIDO CONTINUA RECOLHIDO
+  //
+  // Os três contadores de drop eram estado de SESSÃO por esquecimento, não por decisão:
+  // `recursos` nunca esteve no ESQUEMA_SAVE, e campo que não está lá não é lido nem gravado.
+  // Ficou invisível enquanto os nichos existiam sempre; a onda 11 os fez nascer com o
+  // primeiro item, e aí a perda apareceu — a fileira encolhia de volta a nada no dia
+  // seguinte, como se nada tivesse sido recolhido. Num jogo cujo critério é dar motivo para
+  // voltar amanhã, perder o que a pessoa juntou é o defeito mais caro que existe.
+  // ============================================================
+  sec('11 · os recursos sobrevivem ao dia seguinte');
+  await page.evaluate(() => { S.recursos = { flor: 7, agua: 3, refeicao: 2 }; salvar(); });
+  await page.reload();
+  await page.waitForTimeout(900);
+  const rec = await page.evaluate(() => ({
+    vivo: JSON.stringify(S.recursos),
+    // e a régua do §3: chave inventada não entra, valor fora da faixa não passa
+    sujo: JSON.stringify(valida(ESQUEMA_SAVE.recursos,
+      { flor: 5e9, agua: 'muitas', refeicao: -5, inventado: 9 }))
+  }));
+  log('   depois de recarregar: ' + rec.vivo);
+  log('   um save adulterado vira: ' + rec.sujo);
+  ok(rec.vivo === '{"flor":7,"agua":3,"refeicao":2}',
+    'o que foi recolhido continua recolhido depois do recarregamento');
+  ok(!/inventado/.test(rec.sujo) && /"agua":0/.test(rec.sujo) && /"refeicao":0/.test(rec.sujo),
+    'e um save adulterado não escreve nada no nicho: chave inventada some, valor torto vira 0');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

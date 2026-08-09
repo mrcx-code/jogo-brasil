@@ -1903,6 +1903,13 @@ const ESQUEMA_SAVE = {
   // como vista. `pad: 0` é o valor de todo save gravado antes desta linha existir; ver
   // `migrarArco()`, que roda uma vez e grava 1.
   arco:         { tipo: "num", min: 0, max: 9, pad: 0 },
+  // OS TRÊS CONTADORES DE DROP. Eram estado de sessão por esquecimento, não por decisão:
+  // a fileira de nichos mostrava folha, água e cesto recolhidos e, no dia seguinte, zero.
+  // O teto de 1e9 é o mesmo espírito das outras faixas — folgado o bastante para nunca
+  // aparar quem joga de verdade, fechado o bastante para um save adulterado não escrever
+  // "muitas" nem 1e300 no nicho. As chaves vêm de RECURSO_DE, para que um drop novo entre
+  // pelo mesmo lugar por onde entra no jogo.
+  recursos:     { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
   salvoEm:      { tipo: "num", min: 0, max: 4e12, pad: 0 }
 };
 // ===== OS ARCOS, E POR QUE ESTA TABELA DEIXOU DE CRESCER À MÃO =====
@@ -2021,6 +2028,22 @@ function valida(regra, v) {
   // dezembro nem hoje, vira "" — data adivinhada é pior que data ausente.
   if (regra.tipo === "dia") {
     return (typeof v === "string" && /^\d{4}-\d\d-\d\d$/.test(v)) ? v : regra.pad;
+  }
+  // MAPA DE CHAVES FIXAS: um objeto cujas chaves são declaradas AQUI, cada valor pela régua
+  // de "cont". Chave que o save traz e o esquema não declara é descartada; chave declarada
+  // que o save não traz nasce no padrão. É o tipo que faltava para `recursos` — os três
+  // contadores de drop eram os únicos números do jogo que não sobreviviam ao recarregamento,
+  // e a onda 11 (nichos que nascem com o primeiro item) tornou a perda VISÍVEL: a fileira
+  // encolhia de volta a nada no dia seguinte, como se nada tivesse sido recolhido.
+  if (regra.tipo === "mapa") {
+    const fora: Record<string, number> = {};
+    const o = (v && typeof v === "object" && !Array.isArray(v)) ? v : {};
+    regra.chaves.forEach(function (k) {
+      const el = o[k];
+      fora[k] = (typeof el === "number" && isFinite(el))
+        ? Math.floor(Math.min(regra.max, Math.max(regra.min, el))) : regra.pad;
+    });
+    return fora;
   }
   if (regra.tipo === "bool") return v === true;
   if (regra.tipo === "um") return regra.entre.indexOf(v) >= 0 ? v : regra.pad;

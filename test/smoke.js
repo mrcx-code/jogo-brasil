@@ -626,7 +626,10 @@ function alvo() {
   // capitulo entra no MEIO da cronologia. Ver `migrarArco()` no src/jogo.ts.
   // `travessias` entrou com A TRAVESSIA (lote A do arco): um bit por trecho em que o jogo
   // para de ser jogo, e o que ele decide e uma coisa so — a primeira vez nao e pulavel.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
+  // `recursos` entrou em 09/08: os tres contadores de drop eram estado de SESSAO por
+  // esquecimento — a fileira de nichos zerava no dia seguinte, e a onda 11 tornou a perda
+  // visivel. Tipo `mapa`, chaves fixas, cada valor pela regua de `cont`.
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
