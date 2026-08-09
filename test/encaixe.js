@@ -369,8 +369,16 @@ const sec = t => log('\n---- ' + t);
   const anda = await page.evaluate(() => new Promise(res => {
     fecharTudo();
     correrTravessia("pindorama", "palmares", function () { });
-    setTimeout(() => res({ i: falaI, viva: !!falaViva, n: falaLinhas.length }), 11000);
+    setTimeout(() => res({ i: falaI, viva: !!falaViva, n: falaLinhas.length,
+      // e o rótulo do botão dourado, que continuava prometendo "+1,0" num trecho em que
+      // `clicar()` sai na primeira linha: a interface anunciando o que o jogo recusa
+      rotulo: (document.querySelector('#cliqueRotulo') || {}).getAttribute
+        ? document.querySelector('#cliqueRotulo').getAttribute('aria-label') : null }), 11000);
   }));
+  log('   o botão dourado, durante a travessia, diz: "' + anda.rotulo + '"');
+  ok(!/\+/.test(anda.rotulo || ''), /\+/.test(anda.rotulo || '')
+    ? 'o botão promete "' + anda.rotulo + '" num trecho em que ele não rende nada'
+    : 'e o botão aceso não promete ganho nenhum (QA relatório 3)');
   log('   11 s sem encostar na tela: linha ' + anda.i + ' de ' + anda.n);
   ok(anda.i >= 2, anda.i >= 2
     ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 11 s)'

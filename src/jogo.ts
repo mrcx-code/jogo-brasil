@@ -6693,7 +6693,14 @@ function desenhar() {
   pintarIconesDrop();
   // o rótulo do botão dourado na mesma fonte do resto do jogo — o span #ganhoClique do
   // molde é substituído pelo canvas na primeira pintura, e ninguém mais o lê por id
-  pixelRotulo($("cliqueRotulo"), "+" + ganhoClique().toFixed(1), 2, "#221806");
+  // NA TRAVESSIA O BOTÃO NÃO PROMETE NADA. Ele continua na tela, aceso e inerte — é assim
+  // que o trecho diz "não há o que a sua mão faça aqui" sem tirar o botão e sem explicar.
+  // Mas o rótulo continuava anunciando "+1,0", ou seja, a interface prometia um ganho que o
+  // próprio jogo se recusa a dar (`travessiaViva` faz `clicar()` sair na primeira linha).
+  // Achado do QA no relatório 3. O traço é o que se põe onde não há valor — não é zero,
+  // porque zero é um ganho, e ali não há ganho: há recusa.
+  pixelRotulo($("cliqueRotulo"),
+    travessiaAtiva() ? "—" : "+" + ganhoClique().toFixed(1), 2, "#221806");
 
   // the rhythm card: icon, name and colour follow S.modo. This used to live in
   // desenharRitmo(), inside the projects panel that is gone.
