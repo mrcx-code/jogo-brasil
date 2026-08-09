@@ -83,11 +83,44 @@ As três que travam trabalho:
 
 ---
 
-## 5. A AUDITORIA HOLÍSTICA — morreu no limite
+## 5. ~~A AUDITORIA HOLÍSTICA~~ — FEITA em 09/08 (`AUDITORIA.md`)
 
-O que só se vê no conjunto: coerência de paleta entre capítulos, vocabulário visual duplicado,
-quantos tamanhos de texto existem de verdade, densidade de informação entre telas. O roteiro
-das ondas 10+ ficou com só a onda 10 feita.
+Nove telas medidas, instrumentos em `test/aud-*.js`, prints em `test/AUD-*.png`.
+**Veredito de uma linha: o jogo NÃO é um frankenstein** — as onze ondas fizeram das telas de
+jogo uma língua só, e ela é medível (4 raios de canto no jogo inteiro, 3 pesos, 3 famílias,
+cinco telas com ZERO texto de sistema, o ouro com uma superfície só).
+
+**Consertado no mesmo dia:** a CHEGADA falando Arial Black (a tela mais nova falando a língua
+mais velha), as 24 variáveis mortas do `:root` (37 → 13, e elas eram a CAUSA do primeiro
+achado), o DOM sem dono, as seis camadas de veio que nunca renderam um pixel (provado a 0 por
+`test/prova-camada.js`), a pauta do caderno colada sete vezes, e o canto do PULAR.
+
+**O que ficou, e cada um precisa de decisão ou de print antes/depois:**
+
+### 5a · Os 54 pares de cores quase-idênticas
+116 hex distintos no chrome; **54 pares com Δ≤6 por canal**, dos quais **10 com Δ≤2** —
+indistinguíveis a olho: `#8d8272~#8d8271` (Δ1), `#0d0b08~#0e0b07` (Δ1), `#1c2010~#1a1e10`,
+`#1e1206~#1c1106`, `#2a2418~#2c2418`, `#221806~#241605`, `#4a2f16~#4c3016`, `#16110a~#14100a`.
+O grupo "quase-preto" tem **16 membros** para um papel que a régua nomeia com três tintas.
+Os marrons somam **55** para ~16–20 que a régua legitima.
+**Próximo passo:** consolidar primeiro os 10 pares Δ≤2 (mecânico, invisível, 116 → ~105) e
+anotar na régua as três tintas de quase-preto como as únicas válidas. Os marrons pedem uma
+passada por material, com print antes/depois.
+
+### 5b · A escala `--fs-*` é decorativa
+Os quatro degraus são referenciados **6 vezes em ~45 declarações**, e **nenhum texto visível
+os usa** — o texto vivo tem **9 corpos literais** (10 · 11,5 · 13 · 13,5 · 14 · 14,5 · 16 · 19
+· 22). Dentro deles, DATA (13 itálico) e FONTE (11,5 itálico) são disciplinados, mas o **corpo
+de leitura tem 4 tamanhos**: 16 (fala/retorno), 14,5 (história), 13,5 (fontes), 13 (placar).
+**A decisão:** ou os papéis do caderno viram variáveis (`--corpo`, `--corpoSm`, `--data`,
+`--fonte`) e os `font:` as consomem, ou a escala morre e a régua documenta os 9 corpos como
+derivação. Hoje há duas verdades e nenhuma manda.
+
+### 5c · Rebarbas de uma linha
+`.telaTit` usa sombra de baixo −3px, que não é nem o degrau grande (−4) nem o pequeno (−2) da
+régua. E o `✕` do `.cartao.fechando` é o único glifo Arial Black dentro do chrome de pedra —
+a onda 7 tem malha 13×13 para isso, mas passar um `✕` pela fonte 5×7 precisa de teste, não de
+uma linha.
 
 ---
 
