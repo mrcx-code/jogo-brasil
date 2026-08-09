@@ -892,7 +892,11 @@
                 inset 0 0 0 2px #423b2e; }
   /* o nome são dois rótulos bitmap empilhados, pintados por pintarRotulos() */
   .upgrade .nome { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  /* 44 px de altura minima: e o alvo de dedo que Apple e Google recomendam, e estes botoes
+     tinham 25 px em TODAS as sete telas medidas — inclusive na de 390, em que o jogo foi
+     feito. Era o unico defeito de layout sistematico do jogo (test/medir-telas.js). */
   .upgrade button { width: 100%; padding: 7px 4px; border-radius: 4px;
+    min-height: 44px; display: flex; align-items: center; justify-content: center;
     display: flex; justify-content: center; background: #bcb298;
     box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
                 inset 0 0 0 2px #423b2e, 0 3px 0 #191510;

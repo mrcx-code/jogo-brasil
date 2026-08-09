@@ -2453,10 +2453,24 @@ function aplicarHoraHeroHD() {
 }
 
 function fitCanvas() {
-  // finer world pixels (hi-bit); hero & mobs are drawn at 2x on top
-  const SCALE = 3;
-  W = Math.max(160, Math.ceil(window.innerWidth / SCALE));
-  H = Math.max(220, Math.ceil(window.innerHeight / SCALE));
+  // ESCALA INTEIRA, e é o conserto de pixel art mais importante do jogo.
+  //
+  // Era `SCALE = 3` com `Math.max(160, ...)`, e o piso é que estragava: em qualquer telefone
+  // abaixo de 480 px de largura o clamp entrava, W travava em 160, e a tela exibia esses 160
+  // px esticados na largura real. Medido em sete aparelhos (test/medir-telas.js): 2,4375 a
+  // 390 · 2,575 a 412 · 2,688 a 430 — nenhuma inteira. Com `image-rendering: pixelated`,
+  // fração quebrada faz UM pixel de mundo virar 2 px de tela e o vizinho virar 3. É o mesmo
+  // defeito que a onda 7 consertou nos ícones, e estava no jogo inteiro, o tempo todo.
+  //
+  // Agora a escala é escolhida INTEIRA e a largura do mundo sai dela: k = floor(tela / 160),
+  // no mínimo 2, e W = tela / k. O piso de 160 vira o que sempre devia ter sido — o mínimo de
+  // mundo visível, não um valor fixo que a tela estica. Campo de visão passa a variar com o
+  // aparelho, que é o que todo jogo 2D faz: tela maior vê mais rua.
+  const kx = Math.max(2, Math.floor(window.innerWidth / 160));
+  const ky = Math.max(2, Math.floor(window.innerHeight / 220));
+  const SCALE = Math.max(2, Math.min(kx, ky));   // um k só, senão o pixel sai retangular
+  W = Math.round(window.innerWidth / SCALE);
+  H = Math.round(window.innerHeight / SCALE);
   GROUND = Math.round(H * 0.68);
   HX = Math.round(W * 0.26);
   cv.width = W; cv.height = H;
