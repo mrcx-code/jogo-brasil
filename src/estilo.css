@@ -722,6 +722,15 @@
     align-items: center; text-align: center; gap: 6px; }
   .ltPontaSub { font: italic 400 13px/1.7 var(--leitura);
     color: #8d8272; letter-spacing: .03em; margin-top: 4px; max-width: 22em; }
+  /* PONTA COM PINTURA ATRÁS: a gramática da sobreposição não abre exceção para as pontas —
+     sobre a mata em penumbra, letra solta some no galho. O texto ganha a mesma tabuinha
+     escura do selo VOCÊ ESTÁ AQUI (material da casa, não caixa nova), e a linha de baixo
+     clareia porque o #8d8272 foi calibrado contra preto liso, não contra folha. */
+  .qCentro.sobreArte { padding: 16px 20px 18px; border-radius: 3px; max-width: 26em;
+    background: linear-gradient(180deg, rgba(30,19,8,.90), rgba(16,11,6,.94));
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #14100a,
+                inset 0 0 0 2px #120c06, 0 5px 0 rgba(0,0,0,.5), 0 10px 26px rgba(0,0,0,.55); }
+  .qCentro.sobreArte .ltPontaSub { color: #b3a58c; }
   /* o MARCO: a mesma placa de madeira clara das tábuas do poste — e a MESMA para todos os
      capítulos: Palmares tem o peso dos outros, por regra. Agora ela senta SOBRE a pintura
      do próprio capítulo, que é a página inteira. */

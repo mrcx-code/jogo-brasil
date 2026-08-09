@@ -253,6 +253,31 @@ pasta é pior que ferramenta não documentada, porque manda a próxima sessão p
 sobe UM quadro depois de o cenário mudar, o que para o mundo pelo portão de `historiaAberta()`
 e congela o `worldX` para sempre.
 
+## As páginas VERTICAIS do quadrinho — `inline-quadrinho.js` e `medir-quadrinho.js`
+
+A tela A HISTÓRIA tem 26 páginas de tela cheia. A mesa entrega uma imagem 2:3 por página, em
+`assets/entrada/q-p<N>.png`, sem magenta (é imagem de fundo, não sprite — o caminho é o do
+`inline-contexto.js`, nunca o do recortador).
+
+```bash
+node test/medir-quadrinho.js          # quanto custa e quanto estraga cada largura
+node test/inline-quadrinho.js --medir # só os KB, em cinco larguras
+node test/inline-quadrinho.js --largura=390   # embute (padrão: 780, qualidade 0,72)
+node test/tirar-icc.js && npm run build
+```
+
+Duas coisas que este pipeline aprendeu e que não estão em nenhum outro lugar:
+
+- **Bloco próprio, `QUAD_B64`, e não o `CTX_B64`.** As duas ferramentas reescrevem o bloco
+  INTEIRO com o que acharem na pasta — é a armadilha do capítulo 4, três seções acima. Blocos
+  separados com filtros disjuntos (`^ctx-` e `^q-p\d+`) fazem com que rodar uma nunca apague a
+  outra. Ao criar a próxima família de arte, copie esta decisão, não a outra.
+- **A página corta pelos LADOS, não por cima.** `.qFundo` usa `background-size: cover`; a tela
+  é 390×844 (0,462) e a arte é 2:3 (0,667), então `cover` casa a ALTURA e a imagem entra com
+  563×844 css, perdendo **15,4% de cada lado**. O pedido de arte de 08/08 dizia "a imagem é
+  cortada por cima" e isso está errado. O enquadramento a pedir tem DUAS regras: terço
+  inferior calmo (é onde senta a legenda) **e** assunto dentro dos 70% centrais da largura.
+
 ## `inline-cenarios.js`, `inline-sheets.js`
 
 Embutem os 7 cenários e as folhas do mundo (monstros, NPCs, itens, decoração) a partir de

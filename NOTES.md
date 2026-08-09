@@ -3185,3 +3185,118 @@ desenha pessoas como carga, que é justamente o que as imagens novas existem par
 
 Cinco pedidos entraram na mesa: a vida na África antes da captura · a marcha até a costa ·
 o navio por fora · a travessia por dentro · o oceano sozinho.
+
+## Diário — 2026-08-08 · Dev · As treze verticais entram: o quadrinho sai do papel provisório
+
+A mesa entregou 13 imagens verticais 2:3 (`assets/entrada/q-p*.png`) e elas estão no jogo.
+Território: `test/inline-quadrinho.js` e `test/medir-quadrinho.js` (novos), o bloco `QUAD_B64`
+e o campo `qi` da `LINHA_TEMPO` em `src/jogo.ts`, `.qCentro.sobreArte` em `src/estilo.css`,
+mais `ferramentas/processadas.json` e o `test/LEIAME.md`.
+
+### O que entrou, e o que continua provisório
+
+Treze páginas saíram do fundo de papel: **1** a mata profunda · **2** Lagoa Santa · **3** o
+sambaqui · **4** Marajó · **5** os geoglifos · **6** a costa dos Tupi · **10** o açúcar ·
+**11** a terra esvaziada · **12** a travessia forçada · **13** a serra que abriu · **18** a
+cidade africana · **19** as ganhadeiras · **21** 1888. Prints em `test/QART-arte-p*.png`.
+
+Continuam no provisório, sem invenção nenhuma para tapar buraco: **22** (1988) e **23**
+(quilombos hoje) no papel de campo; **8, 9, 15, 16, 17, 25** na pintura do capítulo com faixa
+de contexto; **7, 14, 20, 24** são marcos; **26** é a ponta escura. Prints de controle em
+`test/QART-resto-p*.png` — nenhuma delas mudou de aparência.
+
+**A p22 NÃO foi entregue.** O arquivo `q-p22.png` é byte a byte idêntico ao `q-p21.png`
+(md5 `7f6ec176…`): a mesa mandou a imagem de 1888 duas vezes. O plenário da Constituinte
+continua faltando, e por isso a página 22 segue em papel.
+
+### O que medi
+
+**Peso, e ele estoura.** `index.html` **3.448 KB → 3.924 KB** (bytes LF), **+476 KB**. O teto
+declarado é 3.600 KB: **estourado em 324 KB, 9,0%**. Isso já é com as duas economias
+automáticas: o `__ART[]` do build pagou 12 imagens repetidas (−146 KB) e o `tirar-icc.js`
+tirou 9,7 KB de perfil sRGB de 16 WebP.
+
+**O cardápio inteiro, medido** (`test/medir-quadrinho.js`, novo — erro NA TELA, no tamanho em
+que a página aparece, que é a régua do §6):
+
+| largura embutida | total base64 | erro médio na tela | ampliação css |
+|---:|---:|---:|---:|
+| **390 (escolhida)** | **0,47 MB** | **5,68** | ×1,44 |
+| 468 | 0,60 MB | 5,35 | ×1,20 |
+| 546 | 0,94 MB | 4,63 | ×1,03 |
+| 780 | 1,48 MB | 3,79 | ×0,72 |
+| 1024 (o mestre inteiro) | 2,31 MB | 2,95 | ×0,55 |
+
+Escolhi 390 e a razão é aritmética: **nenhuma linha desta tabela cabe no teto.** A folga era
+de ~152 KB e a linha mais barata custa 481 KB. Não havia opção "cabe"; havia opção "estoura
+9%" e opção "estoura 22%". Peguei a menor e trouxe a conta para cá em vez de mexer no teto
+sozinho — o teto é decisão de produto.
+
+Duas leituras que a tabela dá de graça: (a) **o piso de erro desta arte é 2,95**, não 2,6 — a
+qualidade 0,72 sozinha custa isso neste conteúdo, mesmo guardando o mestre inteiro; a régua da
+casa foi calibrada em famílias que se exibem perto de 1:1, e esta não é uma delas. (b) de 1024
+para 390 o erro anda 2,95 → 5,68 e o arquivo cai 1,84 MB: **o KB mais caro do quadrinho é o de
+resolução**, o inverso do que a otimização de 07/08 achou nos fundos. Ali a arte já estava
+sub-resolvida; aqui o mestre é grande e a tela pede mais do que qualquer largura que caiba.
+
+**FPS 61**, `node test/smoke.js` **PASS**, zero erro de console nas 19 páginas fotografadas.
+
+### A descoberta que muda o próximo pedido de arte
+
+**A página corta pelos LADOS, não por cima.** O `.qFundo` usa `background-size: cover`; a tela
+é 390×844 (proporção 0,462) e a arte é 2:3 (0,667), ou seja a arte é proporcionalmente mais
+larga. `cover` casa a ALTURA: a imagem entra com 563×844 css e perde **15,4% de cada lado**.
+O pedido de 08/08 dizia "a imagem é cortada por cima" — está errado, nada some em cima e some
+quase um terço da largura. Já custou uma composição: na **p3** o mar e a maré baixa que davam
+a escala do sambaqui ficam fora do quadro, e sobra o monte preenchendo a tela.
+
+**O enquadramento a pedir tem duas regras, não uma:** terço inferior calmo **e** assunto dentro
+dos 70% centrais da largura. Está escrito no `test/LEIAME.md` e no cabeçalho do `QUAD_B64`.
+
+### O terço de baixo — o que a legenda tapa, olhado print a print
+
+Não recortei nem reenquadrei nada: composição é de quem desenha, e mexer nisso aqui seria
+decidir no lugar da mesa. O que vi:
+
+1. **p19 · as ganhadeiras — o caso grave.** A legenda + o balão cobrem o **tabuleiro inteiro**:
+   as frutas, os quitutes, o pano. Sobra uma fresta de fruta verde na borda esquerda. A
+   ganhadeira lê lindamente — rosto, torso, o perfil digno que o pedido pediu —, mas o texto
+   da página fala do *tabuleiro* e o tabuleiro é o que some. É pedido de regeração com a
+   mesa mais alta, no meio do quadro, e a ladeira ocupando o terço de baixo.
+2. **p18 · a cidade africana.** A legenda cobre a criança que desce a ladeira e a vendedora
+   sentada com o cesto de laranjas (essa, em parte, já sai no corte lateral). O que continua
+   lendo é o casario, a roupa no varal, o mar no vão e a mulher de pé à direita, meio atrás
+   do balão. Perda menor que a da p19, mas é gente e vale dizer.
+3. **p21 · 1888.** A legenda come a ponta da pena e o tinteiro; o papel da lei, que é o
+   assunto, fica inteiro acima dela. Aceitável.
+4. As outras dez reservam o terço de baixo direito (chão de mata, terra, água, canavial,
+   mar) e a legenda pousa em cima sem tapar nada. Nada a pedir.
+
+### §2 — o que embuti e o que levo ao dono
+
+**p18 e p19 têm gente.** O pedido dizia "gente = aprovação cena a cena do dono", e quem gerou
+as imagens foi ele. Embuti entendendo que gerar e entregar é a aprovação; digo em voz alta
+para que vetar custe uma linha. As duas passam nas duas regras que sobreviveram à revisão do
+§2.4: **dignidade** (pessoas com rosto, em pé ou sentadas no próprio trabalho, nunca massa) e
+**nada gratuito** (a p19 é o trabalho que o texto descreve). **p6** tem canoas ao longe, sem
+gente — o pedido marcava isso como aprovação do dono, e fica registrado.
+
+**p12 · a travessia forçada.** A CSS dizia que esta página exigia papel neutro porque
+"paisagem afirmaria clima que o texto não afirma". O mar aberto sem navio e sem gente é
+exatamente o que o pedido do dono especificou, e é como o jogo já conta este trecho na
+travessia jogável. Trocada, com a nota registrada.
+
+### O que quebrou
+
+Nada. Um susto próprio: a primeira passada de `qi` comeu a vírgula de doze linhas
+(`t: "X" qi: "p2"`), e o `tsc` pegou antes do build — o portão do §6 funcionando.
+
+### Próximo passo e as dúvidas
+
+1. **Ao dono/produto, e é a decisão que eu não tomo:** o teto de 3.600 KB. Ou ele sobe, ou as
+   páginas descem de qualidade, ou o arquivo único acaba aqui e a carga sob demanda entra —
+   que é o gap 2 do `SPRINT.md`, adiado desde 07/08. Faltam 13 verticais das 26 páginas e mais
+   os cinco pedidos da travessia: no ritmo desta entrega são ~+400 KB por lote.
+2. **À mesa:** a p22 (1988) para reenviar, e a p19 para reenquadrar.
+3. **À Direção de Arte:** a regra dos 70% centrais vale para tudo o que for pedido daqui em
+   diante — inclusive as verticais de segunda prioridade que substituiriam o `CTX_B64`.
