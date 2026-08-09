@@ -33,16 +33,23 @@ da onda 7.
 
 ---
 
-## 2. O EFEITO DE CORRIDA — nunca implementado
+## 2. ~~O EFEITO DE CORRIDA~~ — FEITO em 09/08 (o vento da corrida)
 
 Correr dobra a cadência e muda a tinta do rótulo, e **não há nenhuma resposta visual de
 velocidade**. O dono pediu: *"quando tiver correndo, tem que ter algum efeitinho como se fosse
 uma corrida de velocidade, pra dar a impressão de fato."*
 
-**Trava:** as folhas de corrida foram recusadas por §2 (pessoa diferente da caminhada), então
-**o sprite continua o da caminhada** — o efeito tem que fazer a corrida se ler mesmo com a
-pose de andar. Isso é parte do problema, não desculpa. E não se toca na velocidade nem na
-cadência: elas são `PASSO × 60 / n` com `n` inteiro, medido.
+**Como ficou:** o ar cortado — riscos horizontais finos passando pela personagem, nascidos do
+MUNDO ANDADO (a fase vem de `worldX`, a mesma fonte que escolhe o quadro do sprite, então
+parar de andar para o vento no mesmo instante). Sobe e desce em ~0,45 s, porque ligar e
+desligar seco lê como falha de desenho e a rampa é justamente o que dá a arrancada. Mora na
+metade de cima e na barra do pé — **passa longe da faixa de leitura**, a mesma que a passada
+de composição esvaziou. Medido: 1638 px acesos correndo, 0 andando, 0 ao voltar a andar.
+
+**A trava foi o que desenhou a solução:** as folhas de corrida foram recusadas por §2 (pessoa diferente da caminhada), então
+**o sprite continua o da caminhada**. Não dava para vender velocidade pela POSE — então ela
+teve que vir do AR. É por isso que o efeito é o ar cortado e não rastro colado na personagem,
+que exigiria pose. A velocidade e a cadência não foram tocadas.
 
 ---
 

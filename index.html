@@ -3832,7 +3832,56 @@ function desenharHeroiHD(img, alto) {
     // contra "está desenhada atrás, logo está longe". Profundidade é o que passa NA FRENTE.
     if (fundoGeo)
         desenharFrente(heroCx, { cw: heroCv.width, ch: heroCv.height });
+    desenharVento(heroCx, heroCv.width, heroCv.height);
     aplicarHoraHeroHD();
+}
+// O VENTO DA CORRIDA (PENDENTES.md item 2). O dono: "quando tiver correndo, tem que ter algum
+// efeitinho como se fosse uma corrida de velocidade, pra dar a impressão de fato". Até aqui
+// correr dobrava a cadência e trocava a tinta de um rótulo — nenhuma resposta visual.
+//
+// A TRAVA QUE DESENHA A SOLUÇÃO: as folhas de corrida foram recusadas pelo §2 (traziam pessoa
+// diferente da caminhada), então o SPRITE CONTINUA O DA CAMINHADA. Não dá para vender
+// velocidade pela pose; ela tem que vir do AR. Por isso o efeito é o ar cortado — riscos
+// horizontais finos passando pela personagem — e não rastro colado nela, que exigiria pose.
+//
+// Três regras que o mantêm honesto:
+//  · Nasce do MUNDO ANDADO, não do relógio: a fase vem de `worldX`, a mesma fonte que escolhe
+//    o quadro do sprite. Parar de andar para o vento no mesmo instante, sem inércia falsa.
+//  · SOBE E DESCE em ~0,45 s. Ligar e desligar seco lê como falha de desenho; o que dá a
+//    impressão de arrancada é justamente a rampa.
+//  · Passa LONGE da faixa de leitura. A composição reserva o meio da tela (a faixa do corpo,
+//    onde as folhas foram proibidas de nascer na passada de composição) — os riscos moram na
+//    metade de cima e na barra do pé, e nunca sobre o que chega.
+let ventoT = 0, ventoT0 = 0;
+function desenharVento(g, cw, ch) {
+    // dt próprio: esta função roda no caminho de DESENHO, e o dt do laço de quadro não chega
+    // aqui. Tetado em 0,1 s pelo mesmo motivo do laço — voltar de uma aba em segundo plano não
+    // pode entregar um salto de rampa.
+    const ag = performance.now();
+    const dtV = ventoT0 ? Math.min(0.1, (ag - ventoT0) / 1000) : 0;
+    ventoT0 = ag;
+    const alvoV = (S.modo === "carvao" && !mundoParado) ? 1 : 0;
+    // rampa: ~0,45 s para encher e para esvaziar, no dt real do quadro
+    ventoT += (alvoV - ventoT) * Math.min(1, dtV * 4.5);
+    if (ventoT < 0.02)
+        return;
+    const dpr = cw / Math.max(1, window.innerWidth);
+    g.save();
+    g.globalCompositeOperation = "lighter";
+    const fase = worldX * 2.2; // do mundo andado, nunca do relógio
+    for (let i = 0; i < 14; i++) {
+        const h = hash01(i * 977);
+        // duas bandas: céu alto e rasteira no pé — o meio da tela fica livre para a leitura
+        const y = (h < 0.62 ? 0.06 + h * 0.42 : 0.86 + (h - 0.62) * 0.28) * ch;
+        const vel = 0.55 + hash01(i * 131) * 0.9;
+        const comp = (26 + hash01(i * 313) * 74) * dpr;
+        const x = cw - (((fase * vel) + hash01(i * 517) * 900) % (cw + comp + 40));
+        const a = (0.05 + hash01(i * 733) * 0.09) * ventoT;
+        g.globalAlpha = a;
+        g.fillStyle = "#fff6df";
+        g.fillRect(Math.round(x), Math.round(y), Math.round(comp), Math.max(1, Math.round(dpr)));
+    }
+    g.restore();
 }
 // A HORA, NA CAMADA DA PERSONAGEM (Direção de Evolução, onda 1). Com a pintura tomando a
 // hora, a figura em cores fixas voltava a ser "recorte colado sobre o quadro" à noite — o
