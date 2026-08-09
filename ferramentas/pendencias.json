@@ -11,6 +11,24 @@
       "t": "Ler os textos das tres eras e cortar o que nao te representa",
       "p": "so voce",
       "n": "Escrevi os tres capitulos a partir das fontes, palavra por palavra, e nenhum agente inventou linha. Mas e o unico conteudo do jogo que AFIRMA coisas sobre gente real, e afirmar em nome de alguem nao e papel meu. Estao em EPOCAS, no index.html — ou e so jogar e ler as aberturas e os fechos."
+    },
+    {
+      "t": "O peso: 4,24 MB contra os 3,6 MB de teto — e isso trava o capítulo 6",
+      "p": "só você",
+      "n": "O jogo é um arquivo só, e esse arquivo já tem 4,24 MB. Cada capítulo novo traz pintura, e o próximo já não cabe.\n\nSão dois caminhos e eu não escolho entre eles:\n\n1) CARREGAR SOB DEMANDA — a arte de cada capítulo chega quando você entra nele, em vez de vir tudo de uma vez. Abre mais rápido, aguenta os doze capítulos. O preço: quebra a regra do arquivo único de saída, que é o que faz o jogo rodar clicando duas vezes, sem servidor, em qualquer lugar.\n\n2) ACEITAR O ARQUIVO GRANDE — não muda nada da estrutura. O preço é a primeira abertura demorando mais em rede ruim, e o teto chegando de vez em algum capítulo mais adiante.\n\nA decisão ficou mais urgente porque o historiador propôs antecipar os capítulos contemporâneos: a fila nova chega a sete capítulos antes de qualquer plano anterior.",
+      "resposta": ""
+    },
+    {
+      "t": "A ordem dos capítulos: trazer a ditadura e o agronegócio para a frente?",
+      "p": "só você",
+      "n": "Você disse: 'vc ta focando mto nos indígenas pensando no hoje, podemos tratar vários temas do Brasil tbm — momentos políticos, ditadura militar, covid, agronegócio acabando com a natureza'.\n\nO historiador te dá razão com número: dos quatro capítulos que existem, três são colônia/escravidão e o quarto é indígena. De 1888 até hoje: zero. E propõe a ordem nova — ditadura + redemocratização, depois o agronegócio, depois Covid.\n\nO CUSTO, e ele é real: quem jogar essa ordem vai de 1835 direto para 1968. Atravessa a abolição SEM JOGAR a abolição. A regra do próprio arco diz que abolição sem o dia seguinte é a mentira que a escola conta há um século.\n\nDá para remendar pondo os marcos de 1888–1964 na linha do tempo no mesmo lote — mas é remendo, e você é quem diz se serve. O desenho inteiro está em HISTORIA-CONTEMPORANEO.md.",
+      "resposta": ""
+    },
+    {
+      "t": "A régua da imagem do fogo (capítulo do agronegócio)",
+      "p": "só você",
+      "n": "Você abriu a imagem da travessia com uma régua clara: mostrar como foi, sem enfeitar, do jeito que um museu sério mostra.\n\nFogo é outra conversa, e eu não estico a sua régua sozinho. Três perguntas:\n\n1) Quanto se mostra? Fumaça no horizonte, ou a frente de fogo de perto?\n2) Pode aparecer casa, roça ou bicho na frente do fogo?\n3) A brigadista é de comunidade geraizeira, quilombola de cerrado, apanhadora de sempre-vivas — ou do lugar, sem se rotular?\n\nMinha recomendação nas três: paisagem sem gente e sem animal, e ela do lugar sem rótulo — o fecho diz que as brigadas são feitas de quem conhece o terreno, e isso honra sem transformar identidade em enfeite. Mas representação se decide com você, sempre.",
+      "resposta": ""
     }
   ]
 }
