@@ -373,15 +373,21 @@ const sec = t => log('\n---- ' + t);
       // e o rótulo do botão dourado, que continuava prometendo "+1,0" num trecho em que
       // `clicar()` sai na primeira linha: a interface anunciando o que o jogo recusa
       rotulo: (document.querySelector('#cliqueRotulo') || {}).getAttribute
-        ? document.querySelector('#cliqueRotulo').getAttribute('aria-label') : null }), 11000);
+        ? document.querySelector('#cliqueRotulo').getAttribute('aria-label') : null }), 15000);
   }));
+  // 15 s, e o número é ARITMÉTICA, não chute — com 11 s este bloco falhava uma vez a cada
+  // sete rodadas, e uma asserção intermitente é uma asserção que se aprende a ignorar.
+  // A conta até a linha 2: 3,4 s de cerimônia do nome + (0,74 s de digitação + 2,33 s de
+  // pausa) da linha 0 + (1,06 + 2,87) da linha 1 = **10,4 s**. Com 11 s a margem era de 600
+  // ms — menos que um engasgo de GC no headless. Com 15 s ela é de 4,6 s, e o teto de pausa
+  // (4,6 s) garante que nem a linha mais longa estica isso.
   log('   o botão dourado, durante a travessia, diz: "' + anda.rotulo + '"');
   ok(!/\+/.test(anda.rotulo || ''), /\+/.test(anda.rotulo || '')
     ? 'o botão promete "' + anda.rotulo + '" num trecho em que ele não rende nada'
     : 'e o botão aceso não promete ganho nenhum (QA relatório 3)');
-  log('   11 s sem encostar na tela: linha ' + anda.i + ' de ' + anda.n);
+  log('   15 s sem encostar na tela: linha ' + anda.i + ' de ' + anda.n);
   ok(anda.i >= 2, anda.i >= 2
-    ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 11 s)'
+    ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 15 s)'
     : 'a travessia PAROU na linha ' + anda.i + ' — ela não tem duração própria');
 
   const parada = await page.evaluate(() => new Promise(res => {
