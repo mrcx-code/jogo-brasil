@@ -39,12 +39,29 @@ que exigiria pose. A velocidade e a cadência não foram tocadas.
 
 ---
 
-## 3. QA DA SEQUÊNCIA INTEIRA — morreu antes de escrever
+## 3. ~~QA DA SEQUÊNCIA INTEIRA~~ — FEITO em 09/08 (Relatório 3 no `QA.md`)
 
-O jogo do zero ao fim nunca foi percorrido depois das últimas ~15 integrações. O pedido do
-dono era claro: *"se as coisas estão encaixadas certinho, o passo a passo, os capítulos, as
-coisas acontecendo na sequência"* — com o critério que é a tese do produto: **em cada
-capítulo, a abertura promete um verbo; a mão faz o que o texto promete?**
+Percorrido. **Os verbos são cumpridos** — PALMARES +13 acolhidas em 30 s, SALVADOR 7 pela mão
+e **9 pela corrente** —, os nichos e a seta da microdica estão perfeitos (erro horizontal 0 px),
+e os bugs B1 e B3 do relatório anterior estão corrigidos.
+
+**Dois consertos entraram no mesmo dia**, os dois de bugs que o QA achou: a lista de imagens
+da travessia (ver abaixo) e o float que dizia "NOVA ERA" na virada de CENA — `!vira` é
+justamente o caso em que a era NÃO mudou; a guarda estava certa, a palavra é que mentia.
+Virou "MAIS ADIANTE".
+
+**Fica pendente do relatório 3, e é fila nova:**
+- **N2 · a travessia não anda sozinha** — 25 s sem tocar e ela fica na linha 0. Os "~90 s"
+  são o tempo de quem toca; o trecho não tem duração própria.
+- **N3 · o jogo acaba e não avisa** — o fecho final devolve à mesma rua, barra em 100%, e
+  nada. Sem tela de fim, sem crédito, sem convite.
+- SALVADOR tem um corte vertical de 122/255 no meio da tela (os outros capítulos ficam em
+  45–64) — espera a pintura ladrilhável que está na mesa.
+- O `+1.0` do botão inerte segue na travessia · os recursos não persistem, e a onda 11 tornou
+  a perda **visível** (a fileira de nichos encolhe no dia 2) · três folhas na tela para três
+  significados · fecho+abertura viram um bloco de 9 falas quando não há travessia.
+- **Gap de forma, e é do dono:** o 4º capítulo repete a mecânica do 1º **de propósito**, e
+  ninguém decidiu se isso lê como fecho ou como anticlímax.
 
 ---
 

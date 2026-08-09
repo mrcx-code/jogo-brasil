@@ -1820,6 +1820,16 @@ const TRAVESSIAS = [
       "p09-navio",          // "de cada dez que atravessaram" — o navio
       "p10-travessia",      // "a diferença ficou no mar" — a travessia por dentro
       "p11-oceano",         // "catorze corpos por dia"
+      // AS DUAS COMPARAÇÕES (Curitiba e a Guerra do Paraguai) ficam no MESMO mar. O bloco
+      // inteiro fala do mesmo assunto — quantos ficaram — e trocar de imagem por trocar
+      // transforma leitura em apresentação de slides. Estas duas posições FALTAVAM: as falas
+      // entraram em 08/08 e a lista não acompanhou, e lista curta não dá erro — ela CALA as
+      // últimas e EMPURRA todas as imagens depois do buraco. O preço foi de §2: `p07-africa`
+      // (a cidade africana viva, que existe para ser a PROVA de "não o que elas eram") caía
+      // em cheio na fala que descreve o diagrama do Brookes — a única imagem que este jogo se
+      // recusa a usar. Achado pelo QA percorrendo o jogo fala por fala.
+      "p11-oceano",         // "é a cidade de Curitiba inteira"
+      "p11-oceano",         // "quatro vezes e meia a Guerra do Paraguai"
       "p11-oceano",         // "o maior cemitério de africanos do mundo" — mesmo assunto
       null,                 // a recusa começa a ser dita: a tela volta ao mar
       null,                 // o Brookes
@@ -4945,11 +4955,14 @@ function verificarCenario() {
   const avancar = function () {
     S.cenario = proxima;
     redesenharFundo();
-    // O float só fala quando NÃO há cerimônia: na virada de capítulo a placa grande já diz
-    // o nome da era, e o mesmo texto subindo pelo meio dela era ruído (medido no print
-    // A3-noite da onda 3 — dois títulos disputando o quadro).
-    if (!vira) novoFloat({ x: Math.max(4, Math.round(W / 2) - 46), y: GROUND - 58,
-      life: 90, txt: "NOVA ERA" });
+    // O float só fala quando NÃO há cerimônia — e por isso ele não pode dizer "NOVA ERA":
+    // `!vira` é exatamente o caso em que a era NÃO mudou, só a cena dentro do mesmo capítulo.
+    // O texto dizia o oposto do que tinha acontecido (achado pelo QA na passada de encaixe:
+    // "a cena mudou dentro de PINDORAMA e o jogo anunciou NOVA ERA"). Na virada de capítulo
+    // a placa da cerimônia já diz o nome da era, e dois títulos disputando o quadro era o
+    // ruído que a onda 3 tinha medido — a guarda estava certa, a palavra é que mentia.
+    if (!vira) novoFloat({ x: Math.max(4, Math.round(W / 2) - 62), y: GROUND - 58,
+      life: 90, txt: "MAIS ADIANTE" });
     burst(Math.round(W / 2), GROUND - 24, 30, ["#6fdd94", "#ffe08a", "#fffbe8"]);
     // A VIRADA MOVE O SOL (Direção de Evolução, onda 1): atravessar o tempo é o tema do
     // jogo, e a virada de era é o momento em que mais tempo passa — então a luz conta isso.

@@ -582,8 +582,13 @@ function nota(grav, txt) { achados.push({ grav, txt }); console.log('   [' + gra
     const posF = await page.evaluate(() => ({ c: S.cenario, v: visitando, fala: falaAberta(), tit: document.getElementById('falaTit').getAttribute('aria-label') }));
     log('   escolher o capítulo DA FRONTEIRA -> cena ' + antes.c + ' → ' + posF.c + ' | visitando:', posF.v, '| abriu fala:', posF.fala, posF.tit);
     await T.print('26-dia2-fronteira');
-    // fecha a fala e mede se o jogo anda
+    // fecha a fala e mede se o jogo anda.
+    // ⚠ A ESPERA NÃO É FRESCURA: `body.emTela` translada `#controls` para fora da tela e a
+    // volta tem transição. Medir a caixa do botão dourado no MESMO instante em que a classe
+    // sai devolve a posição de FORA — e os 30 toques seguintes caem no vazio. Duas rodadas
+    // deste arquivo mediram "+0 de impacto no dia 2" por causa disso, e não havia bug nenhum.
     await page.evaluate(() => { fecharTelas(); });
+    await page.waitForTimeout(500);
     const a1 = await page.evaluate(() => ({ t: S.energiaTotal, c: S.cenario }));
     const bt = await page.locator('#btnClique').boundingBox();
     for (let i = 0; i < 30; i++) { await page.touchscreen.tap(bt.x + bt.width / 2, bt.y + bt.height / 2); await page.waitForTimeout(50); }
@@ -600,7 +605,7 @@ function nota(grav, txt) { achados.push({ grav, txt }); console.log('   [' + gra
     const vis = await page.evaluate(() => ({ c: S.cenario, f: S.fronteira, v: visitando, fala: falaAberta(), tit: document.getElementById('falaTit').getAttribute('aria-label') }));
     log('   VISITAR PINDORAMA -> cena ' + vis.c + ' (fronteira ' + vis.f + ') | visitando:', vis.v, '| fala:', vis.fala, vis.tit);
     await page.evaluate(() => { fecharTelas(); });
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(600);   // ver a nota acima: a barra de controles volta com transição
     const vHud = await page.evaluate(() => ({
       rotulo: document.getElementById('rotuloEpoca').getAttribute('aria-label'),
       prog: +(progressoCena() * 100).toFixed(0),
