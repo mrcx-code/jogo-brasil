@@ -3471,3 +3471,89 @@ três no print — de propósito (placa pequena, texto em cima), mas no aparelho
 uma segunda textura rotacionada, se o print do aparelho pedir) e o item 2 do
 `PENDENTES.md` (o efeito de corrida), que continua sendo o mais antigo pedido do dono
 sem resposta visual.
+
+---
+
+## 2026-08-09 · A noite em que o jogo passou a acabar
+
+**Lente: Fim de partida + Robustez.** O relatório 3 do QA tinha deixado dois HIGH sem
+conserto, e os dois eram sobre o mesmo defeito de fundo — o jogo não sabia terminar nada.
+
+### A travessia não tinha duração própria
+O QA mediu: **25 s sem tocar e a tela continuava na linha 0.** Os "~90 s" que eu venho
+repetindo eram o tempo de quem TOCA; o trecho não tinha duração nenhuma. E ele é justamente
+o pedaço cuja tese é *não há o que a sua mão faça aqui* — exigir vinte e um toques para
+atravessar um trecho sobre não poder fazer nada contradiz o trecho com o próprio trecho.
+
+A fala passa a andar sozinha DENTRO da travessia, e só dentro dela. A pausa é o **tempo de
+ler**, não um número redondo: 1,1 s de base + 30 ms por letra, teto de 4,6 s. O teto existe
+porque as letras foram aparecendo enquanto você lia — ao fim da digitação a linha longa já
+está meio lida, e pagar o tempo cheio de novo conta duas vezes.
+
+**MEDIDO** sobre as 17 falas (1.979 letras): 36 s de digitação + 67 s de pausa = **~103 s
+sem encostar na tela**, contra os ~90 s de quem toca. Mais lento que o prometido é o certo:
+quem não toca está lendo, não esperando. **A última linha não anda** — a chegada do outro
+lado continua sendo ato de quem joga.
+
+### O jogo acabava e não avisava — A CHEGADA
+Palavras do QA: *"o fecho final devolve à mesma rua, barra em 100%, 40 toques depois +56 e
+nada. Sem tela de fim, crédito ou convite."*
+
+Ela não é vitória (o §2.1: o último capítulo se chama AINDA AQUI), não é placar (impacto e
+recursos ficam FORA — número de jogo virando nota de história é o que o §2 proíbe, e o
+encaixe 10 cobra isso por regex) e não é despedida: abre para dentro, A HISTÓRIA e DE ONDE
+VEM. Mostra o que você LEU, o que DEIXOU PASSAR, e duas portas. `fontes` e `chegou` entram
+no ESQUEMA_RET porque sem eles a tela chutaria.
+
+**Três defeitos achados pelo próprio teste**, e os três são de aula:
+- a chegada nascia **por cima do quadrinho** que a pessoa lia — `verificarCenario` roda a
+  cada quadro e o mundo vive sob o menu. A guarda de `falaAberta()` não bastava: fala é uma
+  tela entre várias. Agora ela espera a rua;
+- o botão do menu **nascia visível**: `#telaMenu .telaBtn` tem ID e ganhava de
+  `.telaBtn.oculto`. A coluna do menu subia 49 px e o painel de volta deixava de cobrir o
+  JOGAR — o smoke pegou pelo caminho mais indireto possível;
+- a consulta de 600 px vinha **antes** da de 720 px: casavam as duas em 568 e a de baixo
+  vencia. O bloco não pintava um pixel.
+
+**MEDIDO em cinco telas:** colunas de botão iguais (243/243/243 a 300/300/300), zero
+transbordo, e a tela inteira cabe em 320×568 com **47 px de sobra** depois de dois degraus
+de aperto. Prints `test/FIM-*.png`.
+
+### O que foi recolhido continua recolhido
+`recursos` **nunca esteve no ESQUEMA_SAVE** — os três contadores de drop eram estado de
+sessão por esquecimento. Ficou invisível enquanto os nichos existiam sempre; a onda 11 os
+fez nascer com o primeiro item e a perda **apareceu**: a fileira encolhia de volta a nada no
+dia seguinte. Num jogo cujo critério é dar motivo para voltar amanhã, esse é o defeito mais
+caro que existe.
+
+Tipo novo no validador, `mapa`: chaves fixas declaradas no esquema, cada valor pela régua de
+`cont`. **MEDIDO:** 7/3/2 sobrevivem ao recarregamento, e `{flor:5e9, agua:"muitas",
+refeicao:-5, inventado:9}` sai como `{flor:1e9, agua:0, refeicao:0}`.
+
+### E o botão parou de prometer o que a travessia recusa
+`+1,0` virou traço. Não zero — zero é um ganho, e ali não há ganho: há recusa.
+
+### O que quebrou
+**Commitei 52 worktrees de agente por descuido** (`git add -A` na raiz). Removidos do índice
+no commit seguinte e `.claude/worktrees/` foi para o `.gitignore`. E **descrevi o relatório
+do historiador num commit antes de tê-lo gravado em disco** — o arquivo entrou no commit
+seguinte, com a confissão no corpo.
+
+### O historiador do contemporâneo (PENDENTES 4, fechado)
+`HISTORIA-CONTEMPORANEO.md`: o capítulo do agronegócio desenhado por inteiro — **O ACEIRO**,
+no cerrado e não na Amazônia, porque o INPE registrou 7.235 km² lá contra 5.796 na Amazônia
+em 2025 — a fila reordenada com o custo dito em voz alta, e a revisão dos contemporâneos.
+Todo número carrega estado de verificação; **só fonte primária ou institucional vira fala.**
+
+**Nove decisões ⚠ esperam o dono.** As três que travam trabalho: reordenar a fila (o custo é
+atravessar a abolição sem jogá-la), a carga sob demanda (que a fila nova torna bloqueante
+dois lotes mais cedo) e a régua da imagem do fogo.
+
+### Dúvida nova
+A CHEGADA mostra "aberturas de capítulo" e "fechos de capítulo" como duas linhas quase
+iguais. São conteúdos diferentes de verdade, mas no print elas leem como repetição. Vale
+medir se alguém entende a diferença sem explicação — se não entender, viram uma linha só.
+
+### Próximo passo
+A auditoria holística (PENDENTES 5) está rodando. Depois dela: o comentário do personagem
+integrado no quadrinho (PENDENTES 6, pedido do dono) e o que a auditoria trouxer.
