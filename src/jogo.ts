@@ -2500,6 +2500,23 @@ function dicasValem() { return S.energiaTotal < DICA_TETO_IMPACTO; }
 // interface; a dica entrega a outra metade). Desenhada no canvas, na fonte do mundo,
 // enquanto `relogio` não passar do prazo — efêmera por construção.
 let dicaPuloAte = 0, dicaPuloVista = false;
+// ===== "SEGURE PARA ALCANÇAR" — a dica que faltava, e ela era a mais cara de todas =====
+//
+// O QA dos cinco minutos mediu o que ninguém tinha medido: uma pessoa que TOCA — cem toques,
+// um a cada três segundos, cinco minutos inteiros — consegue **zero alcances em 132 vultos**.
+// Zero drops, zero contadores, e a seta do nicho nunca dispara porque nunca há o que apontar.
+// Não é azar: `CFG.mobHp` é 5, 8 ou 13, e um toque solto tira 1. Contraprova, medida na mesma
+// sessão: SEGURANDO o botão, 40 s rendem 20 chegadas, 19 drops e 358 de impacto.
+//
+// Ou seja: **o jogo só acontece para quem segura, e nada na tela dizia isso.** Toda a
+// instrumentação de retenção, todo o arco de doze capítulos e as três pernas do produto
+// estavam atrás de um gesto que a interface não ensinava.
+//
+// A dica nasce no TERCEIRO toque solto na metade direita, e o três é derivado: um toque pode
+// ser exploração, dois podem ser teimosia, três é alguém tentando jogar do jeito que acha que
+// se joga. Aparece uma vez por sessão, só enquanto o save é jovem (a mesma régua da dica do
+// pulo), e MORRE NA HORA em que a pessoa segura — quem já descobriu não precisa de aviso.
+let dicaSegurarAte = 0, dicaSegurarVista = false, toquesSoltos = 0;
 // A seta do contador: armada quando a primeira ESPERA é atendida, disparada quando o que
 // a pessoa deixou no chão é recolhido e o contador de cima ENCHE — é aí que existe um
 // alvo para apontar. DOM (#dicaSeta), porque o contador é DOM.
@@ -6744,6 +6761,17 @@ function desenharMundo() {
     texto(msg, x, GROUND - 68, 1, "#f3dda6", "#241a10");
     cx.globalAlpha = 1;
   }
+  // "SEGURE PARA ALCANÇAR" — do lado DIREITO da personagem e um degrau acima da outra, porque
+  // as duas podem estar no ar ao mesmo tempo e duas linhas empilhadas no mesmo ponto seriam
+  // uma mancha. Fica mais tempo (4,2 s contra 2,8): esta pede uma MUDANÇA DE GESTO, e mudar
+  // de gesto leva mais que ler.
+  if (!semLeitura && dicaSegurarAte > relogio) {
+    const msg = "SEGURE PARA ALCANÇAR";
+    const x = Math.min(W - larguraTexto(msg, 1) - 4, HX + 18);
+    cx.globalAlpha = Math.max(0, Math.min(1, (dicaSegurarAte - relogio) / 0.6));
+    texto(msg, x, GROUND - 86, 1, "#f3dda6", "#241a10");
+    cx.globalAlpha = 1;
+  }
   aplicarHoraScene();
 }
 // A HORA, NA CAMADA DE JOGO — só em VALOR, nunca em tinta, e com o piso mais alto das três
@@ -6893,6 +6921,7 @@ function desenhar() {
   } else {
     md.classList.remove("vivo");
   }
+  revelarTurbo();   // aqui e nao em `pintarRotulos`: aquela roda UMA vez, no boot
   pixelRotulo($("nAgua"), String(S.recursos.agua | 0), 1, "#2a2418");
   pixelRotulo($("nRef"), String(S.recursos.refeicao | 0), 1, "#2a2418");
   pintarIconesDrop();
@@ -8256,6 +8285,19 @@ function chegarAoFim() {
 // O rótulo do cartão de MELHORIAS diz o que o toque FAZ, e por isso ele muda quando a
 // bandeja está aberta. A tinta muda junto — a mesma vermelha de terra que o `.fechando`
 // usava no CSS, agora dentro da pintura, porque canvas não herda `color`.
+// O ×100 aparece quando a PRIMEIRA melhoria de verdade fica ao alcance, e nunca antes.
+// Ele é ferramenta de teste, é grátis, e estando visível no segundo zero ele é a primeira
+// coisa que um curioso aperta — o QA mediu: comprado aos 20,2 s, PINDORAMA liquidado aos 76.
+// Um interruptor que trivializa o jogo inteiro não pode ser a porta de entrada dele.
+// O limiar é o preço de `u1` (150), e não um número redondo: quem já juntou o suficiente para
+// a primeira melhoria entendeu o laço, e é para essa pessoa que o atalho faz sentido.
+// Idempotente e chamado de `desenhar()`: uma vez revelado, revelado fica na sessão.
+function revelarTurbo() {
+  const c = document.getElementById("cardU4");
+  if (!c) return;
+  const merece = S.energiaTotal >= CFG["custoU1"] || S.u4;
+  c.classList.toggle("oculta", !merece);
+}
 function rotuloMelhorias() {
   const el = document.querySelector<HTMLElement>("#openUpgrades .cn");
   if (!el) return;
@@ -8366,6 +8408,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const segurando = new Set();
   let holdT: ReturnType<typeof setInterval> | null = null;
   function comecarHold(src) {
+    // Quem segurou descobriu. A dica morre na hora, e nunca mais nesta sessão: aviso que
+    // continua depois de aprendido vira ruído, e ruído é o que o dono chamou de tela poluída.
+    dicaSegurarVista = true; dicaSegurarAte = 0;
     segurando.add(src);
     if (!holdT) holdT = setInterval(clicar, 145);   // ~7 hits per second while held
     if (src === "btn") bc.classList.add("segurando");
@@ -8409,6 +8454,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // nada na tela diz que a OUTRA metade pula. Uma linha efêmera perto da personagem,
       // uma vez por sessão, e só enquanto o save é jovem.
       if (!dicaPuloVista && dicasValem()) { dicaPuloVista = true; dicaPuloAte = relogio + 2.8; }
+      // e o terceiro toque SOLTO acende a dica que faltava — ver o bloco dela.
+      toquesSoltos++;
+      if (toquesSoltos >= 3 && !dicaSegurarVista && dicasValem()) {
+        dicaSegurarVista = true; dicaSegurarAte = relogio + 4.2;
+      }
       clicar();
     }
   });

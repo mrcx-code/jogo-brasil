@@ -543,6 +543,61 @@ const sec = t => log('\n---- ' + t);
       : k + ' PERDEU a pintura: era ' + esperado[k] + ', virou ' + teve);
   });
 
+  // ============================================================
+  // 13 · O PRIMEIRO MINUTO — o gesto que o jogo exige e não ensinava
+  //
+  // O QA dos cinco minutos mediu o pior número que este repositório já produziu: uma pessoa
+  // que TOCA (cem toques, um a cada três segundos, cinco minutos) consegue **zero alcances em
+  // 132 vultos**. `CFG.mobHp` é 5/8/13 e um toque solto tira 1. Segurando, 40 s rendem 20
+  // chegadas. O jogo só acontece para quem segura, e nada dizia isso.
+  //
+  // E o `×100 TESTE` era grátis e visível no segundo zero: comprado aos 20,2 s, PINDORAMA
+  // liquidado aos 76. Um interruptor que trivializa o jogo não pode ser a porta de entrada.
+  // ============================================================
+  sec('13 · o primeiro minuto: a dica de segurar, e o ×100 fora da porta');
+  const inicio = await page.evaluate(async () => {
+    localStorage.clear();
+    fecharTelas(); fecharTudo();
+    S.aberturas = MASCARA_EPOCAS; S.energiaTotal = 0; S.energia = 0; S.u4 = false;
+    dicaSegurarVista = false; dicaSegurarAte = 0; toquesSoltos = 0;
+    desenhar();
+    // um toque na metade DIREITA da rua, pelo mesmo caminho que o dedo usa
+    const cv = document.getElementById('scene');
+    const cr = cv.getBoundingClientRect();
+    const tocarDireita = function () {
+      cv.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 1,
+        clientX: cr.left + cr.width * 0.75, clientY: cr.top + cr.height * 0.7 }));
+    };
+    const card = document.getElementById('cardU4');
+    const noBoot = getComputedStyle(card).display;
+    // dois toques soltos: ainda não é teimosia o bastante
+    tocarDireita(); tocarDireita();
+    const doisToques = dicaSegurarAte > relogio;
+    tocarDireita();
+    const tresToques = dicaSegurarAte > relogio;
+    // e segurar mata a dica na hora
+    document.getElementById('btnClique').dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }));
+    await new Promise(r => setTimeout(r, 60));
+    const depoisDeSegurar = dicaSegurarAte > relogio;
+    document.getElementById('btnClique').dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, pointerId: 1 }));
+    S.energiaTotal = 149; desenhar();
+    const com149 = getComputedStyle(card).display;
+    S.energiaTotal = 150; desenhar();
+    const com150 = getComputedStyle(card).display;
+    return { noBoot: noBoot, doisToques: doisToques, tresToques: tresToques,
+      depoisDeSegurar: depoisDeSegurar, com149: com149, com150: com150 };
+  });
+  log('   dica de segurar: 2 toques → ' + inicio.doisToques + ' | 3 toques → ' + inicio.tresToques +
+    ' | depois de segurar → ' + inicio.depoisDeSegurar);
+  log('   ×100 no boot: ' + inicio.noBoot + ' | com 149: ' + inicio.com149 + ' | com 150: ' + inicio.com150);
+  ok(!inicio.doisToques && inicio.tresToques,
+    'o terceiro toque solto acende "SEGURE PARA ALCANÇAR" (e o segundo ainda não)');
+  ok(!inicio.depoisDeSegurar, 'e segurar apaga a dica na hora — quem descobriu não precisa de aviso');
+  ok(inicio.noBoot === 'none' && inicio.com149 === 'none' && inicio.com150 !== 'none',
+    'o ×100 só aparece quando a primeira melhoria de verdade fica ao alcance (150)');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;
