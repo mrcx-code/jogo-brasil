@@ -3936,6 +3936,43 @@ arte volta **no lugar certo** em todos os capítulos que pedem um — endereço 
 imagem no capítulo errado e não dá erro nenhum; (3) enquanto espera, a pintura em uso tem 720 px
 de largura, não 1; e (4) um pacote que nunca chega deixa o jogo desenhando e é tentado de novo.
 
+### O efeito colateral que quase passou: quarenta instrumentos medindo a arte errada
+
+O relatório previa **um** custo escondido, o smoke test. Ele estava certo sobre o teste e curto
+sobre o número: **quase quarenta instrumentos** deste repositório abrem o jogo por `file://`
+(`encaixe.js`, `robusto-tudo.js`, os `medir-*`, os `prints-*`, os `cinco-*`, `prova-cores`…).
+Sob `file://` cada um deles continuaria rodando lindamente e medindo a arte do capítulo 1
+achando que media a do capítulo 3 — **print bonito, número errado, nenhum aviso**. Deixar assim
+seria fabricar quarenta medições silenciosamente falsas.
+
+`test/abrir.js` resolve os quarenta de uma vez, e a forma é o que faz isso ser barato: em vez
+de reescrever o corpo de cada ferramenta, **envolve-se a expressão que ela já monta**.
+
+```js
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
+```
+
+Devolve `http://127.0.0.1:8198/<caminho>` para qualquer `.html` **dentro** do repositório e
+devolve o que recebeu, intocado, para todo o resto — por isso as ferramentas de arte que abrem
+um PNG de `assets/entrada` passam por ali sem mudar de comportamento. Foram 51 aberturas em 51
+arquivos. A **porta é fixa** de propósito: um `listen(0)` daria porta livre garantida, mas só a
+informa num callback, e aí a função teria de ser assíncrona — o que obrigaria a mexer no CORPO
+das quarenta em vez de envolver uma expressão.
+
+### E o `encaixe.js` pegou duas coisas de verdade — que é para isso que ele existe
+
+1. **A tela de AJUSTES ainda prometia "NADA SAI DESTE APARELHO / O JOGO NÃO TEM REDE".** O
+   `CLAUDE.md` §3 previa exatamente isto e mandava reescrever a tela **na mesma fase** que ligar
+   a rede. O bloco 8 do `encaixe.js` existia justamente para amarrar as duas — e cobrou.
+   Passou a dizer **"SEU JOGO FICA NESTE APARELHO / O JOGO SÓ BAIXA A ARTE DELE"**, que é o que
+   é verdade e é o que a pessoa quer saber: o save, o tempo jogado, os toques e os dias
+   continuam sem ter para onde ir. A asserção virou de **três estados** (fechada · só o próprio
+   site · qualquer outra coisa) e **recusa** a terceira, em vez de deixá-la passar calada.
+2. **"PALMARES PERDEU a pintura: era 2,3, virou 0,0"** — falso positivo, e útil. O bloco media
+   `fundoIdx()` antes de os pacotes chegarem, ou seja, media o **recuo**. Agora espera a arte
+   toda chegar antes de medir o mapeamento. **Lição que vale para o próximo instrumento:** desde
+   10/08, medir arte de capítulo sem esperar o pacote mede o recuo, não a arte.
+
 ### A dúvida que fica
 
 O relatório aponta uma variante que economiza mais 25% do arquivo **cru** (o que importa para o
