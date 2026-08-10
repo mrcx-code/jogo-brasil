@@ -598,6 +598,40 @@ const sec = t => log('\n---- ' + t);
   ok(inicio.noBoot === 'none' && inicio.com149 === 'none' && inicio.com150 !== 'none',
     'o ×100 só aparece quando a primeira melhoria de verdade fica ao alcance (150)');
 
+  // ============================================================
+  // 14 · O CARTÃO DO LINK — a única coisa fora do arquivo único
+  //
+  // Um jogo web sem prévia vira retângulo cinza no WhatsApp, que é por onde ele vai circular
+  // no Brasil. As tags og: não são carregadas pelo jogo (quem as lê é o robô da rede social),
+  // e por isso ninguém percebe quando elas quebram — robô não reclama, só mostra o cinza.
+  // Três coisas podem apodrecer em silêncio, e as três estão abaixo:
+  //  · as URLs desencontrarem quando o domínio próprio chegar (elas mudam JUNTAS ou nada);
+  //  · a imagem sumir de `dist/`, que é de onde a Vercel publica;
+  //  · o tamanho declarado deixar de bater com o arquivo, e o cartão sair cortado.
+  // ============================================================
+  sec('14 · o cartão do link não apodrece em silêncio');
+  const cartao = await page.evaluate(() => {
+    const m = function (sel) { const e = document.querySelector(sel); return e ? e.content : null; };
+    return { titulo: document.title, desc: m('meta[name="description"]'),
+      ogT: m('meta[property="og:title"]'), ogD: m('meta[property="og:description"]'),
+      ogU: m('meta[property="og:url"]'), ogI: m('meta[property="og:image"]'),
+      w: m('meta[property="og:image:width"]'), h: m('meta[property="og:image:height"]'),
+      tw: m('meta[name="twitter:card"]') };
+  });
+  const dominio = (cartao.ogU || '').replace(/\/$/, '');
+  log('   ' + cartao.titulo + ' → ' + cartao.ogI);
+  ok(!!cartao.ogT && !!cartao.ogD && !!cartao.ogI && cartao.tw === 'summary_large_image',
+    'o link tem título, descrição, imagem e cartão grande');
+  ok(!!dominio && (cartao.ogI || '').indexOf(dominio + '/') === 0,
+    'a imagem mora no MESMO endereço da página (as URLs mudam juntas ou a prévia quebra)');
+  ok(cartao.w === '1200' && cartao.h === '630',
+    'o tamanho declarado é o que WhatsApp, Twitter e Facebook usam');
+  const previa = fs.existsSync(path.resolve(__dirname, '..', 'dist', 'compartilhar.jpg'));
+  const kb = previa ? Math.round(fs.statSync(path.resolve(__dirname, '..', 'dist', 'compartilhar.jpg')).size / 1024) : 0;
+  log('   dist/compartilhar.jpg: ' + (previa ? kb + ' KB' : 'AUSENTE'));
+  ok(previa, 'a imagem está em dist/, que é de onde a Vercel publica');
+  ok(kb > 0 && kb < 400, 'e ela pesa ' + kb + ' KB — o robô da prévia desiste de imagem grande');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

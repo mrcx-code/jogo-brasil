@@ -17,7 +17,25 @@
      logs a warning. Clickjacking protection has to come from an HTTP header, so if this is
      ever hosted somewhere that matters, set X-Frame-Options or frame-ancestors there. -->
 <meta name="apple-mobile-web-app-title" content="BRASIL">
-<title>BRASIL</title>
+<title>BRASIL — um jogo sobre a história do Brasil</title>
+<!-- O CARTÃO DO LINK. Sem isto, o jogo vira um retângulo cinza no WhatsApp — que é por onde
+     ele vai circular. Estas tags NÃO são carregadas pelo jogo: quem as lê é o robô que monta
+     a prévia do link, e por isso a imagem apontada aqui é a única coisa fora do arquivo único
+     (o `construir.js` a copia para `dist/`). A regra do §3.1 continua valendo para o JOGO.
+     ⚠ O ENDEREÇO É PROVISÓRIO. Enquanto não houver domínio próprio, aponta para a Vercel; no
+     dia em que o domínio existir, estas três URLs mudam JUNTAS ou a prévia quebra em silêncio
+     — robô de rede social não avisa, só mostra o retângulo cinza de volta. -->
+<meta name="description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRASIL">
+<meta property="og:title" content="BRASIL — um jogo sobre a história do Brasil">
+<meta property="og:description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
+<meta property="og:url" content="https://jogo-brasil-mrcx.vercel.app">
+<meta property="og:image" content="https://jogo-brasil-mrcx.vercel.app/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
 <style>@@CSS@@</style>
 </head>
 <body>

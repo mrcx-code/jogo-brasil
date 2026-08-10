@@ -89,6 +89,11 @@ const saida = molde.replace('@@CSS@@', () => css).replace('@@JS@@', () => js);
 // de fetch, e uma tag <script> e uma <style> apenas.
 const externo = saida.match(/(?:src|href)\s*=\s*["'](?!data:)[^"']+["']/gi) || [];
 if (externo.length) throw new Error('referência externa na saída: ' + externo.slice(0, 3).join(' , '));
+// A PRÉVIA DO LINK. `compartilhar.png` é a ÚNICA coisa que sai do arquivo único, e ela não é
+// carregada pelo jogo em momento nenhum: quem a lê é o robô que monta o cartão do link no
+// WhatsApp e no Twitter, a partir das tags og: do <head>. Vai para `dist/` porque é de lá que
+// a Vercel publica (ver vercel.json). Sem esta cópia, as tags apontam para um 404 e a prévia
+// volta a ser o retângulo cinza — em silêncio, porque robô de rede social não reclama.
 const nScript = (saida.match(/<script/gi) || []).length;
 const nStyle = (saida.match(/<style/gi) || []).length;
 if (nScript !== 1 || nStyle !== 1) throw new Error('esperava 1 <script> e 1 <style>, achei ' + nScript + ' e ' + nStyle);
@@ -96,6 +101,7 @@ if (nScript !== 1 || nStyle !== 1) throw new Error('esperava 1 <script> e 1 <sty
 fs.writeFileSync(p('index.html'), saida);
 fs.mkdirSync(p('dist'), { recursive: true });
 fs.writeFileSync(p('dist', 'index.html'), saida);
+if (fs.existsSync(p('compartilhar.jpg'))) fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
 
 const mb = (saida.length / 1048576).toFixed(2);
 console.log('index.html e dist/index.html escritos — ' + saida.length + ' bytes (' + mb + ' MB)');
