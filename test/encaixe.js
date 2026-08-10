@@ -1165,6 +1165,62 @@ const sec = t => log('\n---- ' + t);
     ok(pp.sessao <= 60, 'e a sessão é a desta carga de página, não a vida inteira do save (' + pp.sessao + 's)');
   }
 
+  // ============================================================
+  // 21 · O TELEFONE DEITADO — e o defeito mais caro que este repositório já teve em silêncio
+  //
+  // Ninguém nunca decidiu o que acontece quando a pessoa vira o aparelho. Medido em 844×390
+  // antes desta passada: o poste do menu saía 270 px abaixo da borda, o JOGAR era cortado
+  // 52 px (zero pixel tocável) e as outras três tábuas NASCIAM fora — topos em 454, 518 e 582
+  // numa tela de 390. Deitado, o jogo não podia nem ser começado.
+  //
+  // E ele passava verde em tudo: o smoke roda numa medida só (390×844) e o `medir-telas.js`,
+  // que já rodava `deitado 844×390`, só olhava para os LADOS — nunca para baixo. Deitado o
+  // lado curto é a ALTURA, então o único eixo que quebra era o único que ninguém media.
+  //
+  // Este bloco é a trava. Ele não mede beleza: mede que TODA tábua do menu está inteira
+  // dentro da tela e recebe o dedo, nas duas medidas que o `LANCAMENTO.md` chama de deitado.
+  // ============================================================
+  sec('21 · deitado, o menu inteiro cabe na tela e o JOGAR recebe o dedo');
+  for (const vp of [{ w: 844, h: 390, nome: 'telefone deitado 844×390' },
+                    { w: 1024, h: 768, nome: 'tablet deitado 1024×768' }]) {
+    await page.setViewportSize({ width: vp.w, height: vp.h });
+    await page.evaluate(() => { fecharTelas(); abrirTela('telaMenu'); });
+    await page.waitForTimeout(600);
+    const menu = await page.evaluate(() => {
+      const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
+      const r = [];
+      document.querySelectorAll('#poste .telaBtn').forEach(function (b) {
+        if (getComputedStyle(b).display === 'none') return;
+        const c = b.getBoundingClientRect();
+        // "no dedo" é mais que "na tela": o ponto que o toque vai acertar é o CENTRO, e
+        // `elementFromPoint` é quem sabe se alguma coisa está por cima dele.
+        const alvo = document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2);
+        r.push({
+          nome: b.id, topo: Math.round(c.top), pe: Math.round(c.bottom),
+          alt: Math.round(c.height),
+          dentro: c.top >= -1 && c.bottom <= H + 1 && c.left >= -1 && c.right <= W + 1,
+          recebe: !!(alvo && (alvo === b || b.contains(alvo))),
+        });
+      });
+      return r;
+    });
+    log('   ' + vp.nome + ': ' + menu.map(m => m.nome + ' ' + m.topo + '..' + m.pe).join(' | '));
+    ok(menu.length >= 4, vp.nome + ': o menu tem as tábuas todas (' + menu.length + ')');
+    const fora = menu.filter(m => !m.dentro);
+    ok(!fora.length, vp.nome + ': toda tábua do menu está inteira dentro da tela' +
+      (fora.length ? ' — FORA: ' + fora.map(m => m.nome + ' pé em ' + m.pe + ' numa tela de ' + vp.h).join(', ') : ''));
+    const surda = menu.filter(m => !m.recebe);
+    ok(!surda.length, vp.nome + ': e o centro de cada uma recebe o toque' +
+      (surda.length ? ' — SURDAS: ' + surda.map(m => m.nome).join(', ') : ''));
+    const baixa = menu.filter(m => m.alt < 44);
+    ok(!baixa.length, vp.nome + ': nenhuma tábua abaixo dos 44 px de dedo' +
+      (baixa.length ? ' — ' + baixa.map(m => m.nome + ' ' + m.alt).join(', ') : ''));
+  }
+  // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => { fecharTelas(); });
+  await page.waitForTimeout(400);
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

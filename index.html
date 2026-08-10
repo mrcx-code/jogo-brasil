@@ -603,6 +603,53 @@
     box-shadow: inset 0 -1px 0 #000, inset 0 1px 0 #8a6236; }
   #poste .telaBtn::before { left: 9px; }
   #poste .telaBtn::after { right: 9px; }
+
+  /* ===== O TELEFONE DEITADO ===== decisão do dono (2026-08-10): *"jogabilidade e
+     usabilidade são pontos importantíssimos"* — em vez de travar em retrato, o jogo compõe
+     para os dois. Este é o primeiro dos blocos deitados, e é o que estava PIOR: medido em
+     844×390, o poste saía 270 px abaixo da borda, o JOGAR era cortado 52 px (zero pixel
+     tocável) e as outras três tábuas NASCIAM fora da tela — topos em 454, 518 e 582 numa
+     tela de 390. Ou seja: deitado o jogo não podia nem ser começado, e o `medir-telas.js`
+     dava verde porque só olhava para os lados.
+
+     A conta que explica por que apertar não resolvia: quatro tábuas de ~52 px com 12 de vão
+     dão 244 px, e o poste ainda pede o próprio respiro. Sobrariam ~70 px para o logo — que é
+     a primeira coisa que alguém vê. Empilhar numa coluna só é o layout errado para uma tela
+     que tem 844 px de largura e 390 de altura, não uma questão de tamanho de fonte.
+
+     Então a coluna vira DUAS: a marca (logo + a frase pendurada nele) à esquerda, o poste
+     com as tábuas à direita. Nada de material novo, nada de vocabulário novo — é a mesma
+     mata, o mesmo poste fincado, a mesma tabuinha. Só o arranjo muda, e ele muda porque a
+     tela mudou de forma. O mastro continua atravessando a borda de baixo (o `bottom: -60vh`
+     do ::before), que é o que planta o poste em vez de deixá-lo boiando. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #telaMenu { display: grid; grid-template-columns: 1fr auto;
+      align-content: center; justify-items: center; column-gap: 4vw;
+      padding: 10px max(18px, env(safe-area-inset-left)) 10px max(18px, env(safe-area-inset-right)); }
+    /* a marca ocupa a coluna da esquerda em duas linhas: o logo assenta em cima da frase,
+       exatamente como em retrato — o que some é o espaço morto entre ela e as tábuas */
+    #logoImg { grid-area: 1 / 1; align-self: end; margin-bottom: 8px;
+      /* a régua passa a ser a ALTURA, e é a virada inteira desta tela: em retrato o logo é
+         limitado pela largura (72vw) porque largura é o que falta; deitado falta altura. */
+      height: min(52vh, 250px); width: auto; max-width: 44vw; }
+    #menuSub { grid-area: 2 / 1; align-self: start; }
+    #telaMenu .telaTxt { margin-bottom: 0; }
+    /* o poste ocupa a coluna da direita inteira. O `margin-top: auto` que o ancorava no pé
+       da tela sai: em grade ele empurraria as tábuas para fora de novo. */
+    #poste { grid-area: 1 / 2 / span 2 / auto; margin: 0; padding: 8px 0 14px; gap: 9px; }
+    #telaMenu .telaBtn { width: min(42vw, 280px); padding: 13px 26px; }
+  }
+  /* E A OUTRA PONTA DA MESMA MEDIÇÃO: em RETRATO curto (320×568, o piso do que ainda se
+     vende) o poste já saía 32 px abaixo da borda e o AJUSTES 6 px — pré-existente, e achado
+     pela mesma checagem nova. Aqui duas colunas seriam pior que o problema: 320 px de
+     largura não comportam logo e tábua lado a lado. Quem cede é o RESPIRO, a mesma régua das
+     duas consultas de altura que a CHEGADA já usa. */
+  @media (orientation: portrait) and (max-height: 600px) {
+    #telaMenu { padding-top: 12px; }
+    #logoImg { width: min(58vw, 230px); margin-bottom: 4px; }
+    #poste { margin-bottom: calc(14px + env(safe-area-inset-bottom)); padding: 10px 0 14px; gap: 9px; }
+    #telaMenu .telaBtn { padding: 12px 26px; }
+  }
   /* ===== A CAIXA DE FALA ===== estilo jogo antigo: a personagem à esquerda, a moldura
      grossa embaixo, o texto revelado letra a letra. O véu escurece só o pé da tela — o
      mundo continua andando atrás, e é isso que faz a conversa parecer parte do jogo em vez
