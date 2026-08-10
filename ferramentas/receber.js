@@ -100,16 +100,20 @@ function atividade() {
   const agora = Date.now();
 
   const bruto = git(['log', '-40', '--date=iso-strict',
-    '--pretty=format:' + SEP + '%h' + UN + '%ad' + UN + '%s', '--name-only']);
+    '--pretty=format:' + SEP + '%h' + UN + '%ad' + UN + '%s' + UN + '%p', '--name-only']);
   const commits = bruto.split(SEP).filter(function (b) { return b.trim(); }).map(function (b) {
     const linhas = b.split('\n');
     const cab = linhas[0].split(UN);
     const arquivos = linhas.slice(1).map(function (s) { return s.trim(); }).filter(Boolean);
     const d = new Date(cab[1]);
+    // JUNCAO (merge) sai do `--name-only` com ZERO arquivos — o git so lista diferenca contra
+    // um pai, e a juncao tem dois. Sem marcar, a linha lê "0 arquivos" e parece commit vazio,
+    // que e justamente o tipo de numero errado que faz o painel perder a confianca.
+    const juncao = String(cab[3] || '').trim().indexOf(' ') > 0;
     return {
       h: cab[0], quando: dataLocal(d), hora: dataLocal(d).slice(11),
       dia: dataLocal(d).slice(5, 10).split('-').reverse().join('/'),
-      assunto: cab[2] || '', n: arquivos.length, pastas: pastasDe(arquivos),
+      assunto: cab[2] || '', n: arquivos.length, pastas: pastasDe(arquivos), juncao: juncao,
       ha: haQuanto(agora - d.getTime()), minutos: Math.round((agora - d.getTime()) / 60000)
     };
   });

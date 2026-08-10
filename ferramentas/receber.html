@@ -347,8 +347,13 @@ function montarFila() {
   // mexe, e nao a 800 px de distancia.
   const placar = document.getElementById("revisarPlacar");
   if (placar) {
+    // A CONTAGEM SOMA AS SOLTAS. O bloco do fim lista manifesto + fora do manifesto juntos; se a
+    // linha do topo contasse so o manifesto, o dono leria "17" aqui e contaria 18 la embaixo —
+    // e numero que nao fecha e a forma mais barata de uma tela perder a confianca.
     placar.textContent =
-      c.gerar + " para voce gerar · " + c.chegou + " chegaram e esperam entrar no jogo · " +
+      c.gerar + " para voce gerar · " + (c.chegou + c.soltas) +
+      " chegaram e esperam entrar no jogo" +
+      (c.soltas ? " (" + c.soltas + " fora do manifesto)" : "") + " · " +
       c.pronto + " ja estao no jogo · " + c.total + " no manifesto";
   }
   // A lista alimenta o campo de subir imagem do topo: sem isso, o campo geral nao sabe para
@@ -511,9 +516,275 @@ function montarFila() {
 montarFila();
 setInterval(puxar, 3000);
 
-// A SALA DE MAQUINAS. Le ferramentas/equipe.json, que o orquestrador atualiza a cada
-// integracao. Tres blocos: quem trabalha AGORA, o que ja entrou, e o que espera — sendo
-// que o que espera VOCE vem em papel de campo, porque e a sua parte.
+// ===========================================================================
+// 1) REVISAR — o primeiro bloco da pagina, por pedido do dono.
+// A acao e idempotente: recomputa a fila a partir do manifesto e do que ha em disco, nao
+// acumula nada. Por isso pode ficar sempre visivel e ser apertada a vontade.
+// NAO RECARREGA MAIS A PAGINA. O `location.reload()` de antes jogava fora uma imagem colada
+// e ainda nao salva — e o dono aperta REVISAR justamente quando esta com imagem na mao.
+const btRevisar = document.getElementById("btRevisar");
+btRevisar.addEventListener("click", function () {
+  btRevisar.disabled = true; btRevisar.textContent = "revisando…";
+  fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
+    btRevisar.textContent = j.n + " na fila";
+    montarFila(); montarPendencias(); pintarChegadas(); pintarAtividade();
+    setTimeout(function () {
+      btRevisar.textContent = "REVISAR O QUE FALTA"; btRevisar.disabled = false;
+    }, 1800);
+  }).catch(function () { btRevisar.textContent = "falhou"; btRevisar.disabled = false; });
+});
+
+// ===========================================================================
+// 2) SUBIR IMAGEM — um campo so, no topo, que serve QUALQUER pedido.
+// Os campos de dentro de cada card continuam existindo e funcionando; este aqui existe porque
+// o dono pediu a area de subir imagem no TOPO, e no topo nao ha card nenhum. O alvo (qual
+// pedido a imagem atende) vira uma escolha explicita — e o nome do arquivo arrastado ja
+// seleciona sozinho quando bate com um item do manifesto, que e o caso comum.
+const subCola = document.getElementById("subirCola");
+const subEstado = document.getElementById("subirEstado");
+const subSalvar = document.getElementById("subirSalvar");
+const subAlvo = document.getElementById("subirAlvo");
+const subNome = document.getElementById("subirNome");
+const subLinhaNome = document.getElementById("subirLinhaNome");
+let subDados = null, subNomeArquivo = "";
+
+function encherAlvos(fila) {
+  const itens = fila.itens || [];
+  const antes = subAlvo.value;
+  subAlvo.textContent = "";
+  // PLACEHOLDER PRIMEIRO, e nao e enfeite: sem ele o alvo comeca no primeiro item da lista, e
+  // um Salvar distraido GRAVA POR CIMA de uma arte ja entregue com o nome dela. O campo do topo
+  // serve qualquer pedido — entao qual pedido tem de ser escolha, nunca sorteio da ordem.
+  const vazio = document.createElement("option");
+  vazio.value = ""; vazio.textContent = "escolha o pedido…";
+  subAlvo.appendChild(vazio);
+  const grupo = function (rotulo, lista, prefixo) {
+    if (!lista.length) return;
+    const g = document.createElement("optgroup");
+    g.label = rotulo;
+    lista.forEach(function (i) {
+      const o = document.createElement("option");
+      o.value = i.nome;
+      o.textContent = prefixo + i.nome + " — " + (i.titulo || "");
+      g.appendChild(o);
+    });
+    subAlvo.appendChild(g);
+  };
+  grupo("falta gerar", itens.filter(i => i.estado === "gerar"), "▲ ");
+  grupo("ja entregue (subir de novo substitui)",
+    itens.filter(i => i.estado !== "gerar"), "· ");
+  const outro = document.createElement("option");
+  outro.value = "__outro__";
+  outro.textContent = "outro nome (fora do manifesto)…";
+  subAlvo.appendChild(outro);
+  if (antes && subAlvo.querySelector('option[value="' + CSS.escape(antes) + '"]')) subAlvo.value = antes;
+  mostrarCampoNome();
+}
+subAlvo.addEventListener("change", mostrarCampoNome);
+function mostrarCampoNome() {
+  subLinhaNome.style.display = subAlvo.value === "__outro__" ? "" : "none";
+  conferirSalvar();
+}
+function conferirSalvar() {
+  const nome = subAlvo.value === "__outro__" ? subNome.value.trim() : subAlvo.value;
+  subSalvar.disabled = !(subDados && nome);
+}
+subNome.addEventListener("input", conferirSalvar);
+
+// Colar e arrastar entregam a MESMA coisa — um File — entao ha um caminho so.
+function subReceber(arq) {
+  if (!arq || !arq.type || arq.type.indexOf("image/") !== 0) {
+    subEstado.className = "estado erro";
+    subEstado.textContent = "isso nao e uma imagem — arraste um png, jpg ou webp";
+    return;
+  }
+  subNomeArquivo = arq.name || "";
+  // O NOME DO ARQUIVO ESCOLHE O PEDIDO. Quem gera fora salva com o nome que a mesa pediu;
+  // reconhecer isso evita o erro caro: subir a imagem certa no pedido errado.
+  const base = subNomeArquivo.replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+  const casa = subAlvo.querySelector('option[value="' + (window.CSS && CSS.escape ? CSS.escape(base) : base) + '"]');
+  if (casa) subAlvo.value = base;
+  mostrarCampoNome();
+  const fr = new FileReader();
+  fr.onload = function () {
+    subDados = fr.result;
+    subCola.textContent = "";
+    subCola.className = "cola tem";
+    const img = new Image();
+    img.onload = function () {
+      subEstado.className = "estado";
+      subEstado.textContent = img.naturalWidth + " × " + img.naturalHeight + " px" +
+        (subNomeArquivo ? " · " + subNomeArquivo : "") +
+        (casa ? " · pedido reconhecido pelo nome" : "") + " · pronta para salvar";
+    };
+    img.src = subDados;
+    subCola.appendChild(img);
+    conferirSalvar();
+  };
+  fr.readAsDataURL(arq);
+}
+
+["dragenter", "dragover"].forEach(function (n) {
+  subCola.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
+    subCola.classList.add("sobre"); });
+});
+["dragleave", "drop"].forEach(function (n) {
+  subCola.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
+    subCola.classList.remove("sobre"); });
+});
+subCola.addEventListener("drop", function (ev) {
+  const dt = ev.dataTransfer;
+  if (!dt) return;
+  if (dt.files && dt.files.length) { subReceber(dt.files[0]); return; }
+  for (const it of dt.items || []) {
+    if (it.kind === "file" && it.type.indexOf("image/") === 0) { subReceber(it.getAsFile()); return; }
+  }
+  subEstado.className = "estado erro";
+  subEstado.textContent = "nao veio arquivo nenhum — tente arrastar do explorador de arquivos";
+});
+subCola.addEventListener("paste", function (ev) {
+  const itens = (ev.clipboardData || {}).items || [];
+  for (const it of itens) {
+    if (it.type && it.type.indexOf("image/") === 0) {
+      ev.preventDefault(); subReceber(it.getAsFile()); return;
+    }
+  }
+  subEstado.className = "estado erro";
+  subEstado.textContent = "nao vi imagem na area de transferencia — copie a imagem, nao o link";
+});
+// Ctrl+V EM QUALQUER LUGAR cai aqui. Antes era preciso CLICAR no campo antes de colar, e nada
+// na tela dizia isso — a queixa "colei e nao aconteceu nada" era exatamente isto. Os campos
+// dos cards continuam com prioridade: eles dao preventDefault e este handler sai fora.
+document.addEventListener("paste", function (ev) {
+  if (ev.defaultPrevented) return;
+  const alvo = ev.target;
+  if (alvo && alvo.closest && alvo.closest(".cola, textarea, input")) return;
+  const itens = (ev.clipboardData || {}).items || [];
+  for (const it of itens) {
+    if (it.type && it.type.indexOf("image/") === 0) {
+      ev.preventDefault(); subReceber(it.getAsFile());
+      subCola.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
+  }
+});
+
+subSalvar.addEventListener("click", function () {
+  const nome = subAlvo.value === "__outro__" ? subNome.value.trim() : subAlvo.value;
+  if (!subDados || !nome) return;
+  subSalvar.disabled = true;
+  subEstado.className = "estado";
+  subEstado.textContent = "salvando…";
+  fetch("/salvar", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome: nome, pedido: nome, origem: "mesa · campo do topo", dados: subDados })
+  }).then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(function (r) {
+    if (!r.ok || !r.j.ok) throw new Error("recusado");
+    subEstado.className = "estado ok";
+    subEstado.textContent = "salva em " + r.j.arquivo + " (" + r.j.bytes + " bytes)";
+    subDados = null;
+    subCola.textContent = "cole aqui (Ctrl+V) ou ARRASTE a imagem para ca";
+    subCola.className = "cola";
+    // O ESTADO MUDA NA HORA, nos tres lugares: a fila perde o item, a contagem do topo cai e o
+    // bloco do fim ganha a linha. Sem isso, o dono sobe a imagem e a mesa continua pedindo ela.
+    montarFila(); pintarChegadas(); pintarAtividade();
+  }).catch(function () {
+    subEstado.className = "estado erro";
+    subEstado.textContent = "falhou ao salvar";
+    subSalvar.disabled = false;
+  });
+});
+
+// ===========================================================================
+// 3) TRABALHANDO AGORA — lido do git, nunca de arquivo escrito a mao.
+//
+// O painel anterior lia `equipe.json`, escrito a mao, e por isso mostrava para sempre a ultima
+// frase que alguem digitou: em 10/08 ainda dizia "o grao do chrome em voo", de 09/08, com
+// dezenas de commits no meio. Um painel de atividade que nao e alimentado pela atividade e
+// pior que painel nenhum — foi essa classe de mentira que escondeu a fila de arte por dias.
+//
+// Agora a fonte e o proprio trabalho: `git log` (o que aconteceu, com hora), `git status` (o
+// que esta aberto neste minuto) e a data do `index.html` construido. E quando nao ha nada
+// acontecendo, o painel DIZ que nao ha. "Nada em curso" e informacao; "trabalhando" congelado
+// e mentira.
+let lidoEmMs = 0;
+const escX = t => String(t == null ? "" : t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+async function pintarAtividade() {
+  const cx = document.getElementById("atividade");
+  if (!cx) return;
+  let a;
+  try { a = await (await fetch("/atividade", { cache: "no-store" })).json(); }
+  catch (e) {
+    cx.innerHTML = '<section class="bloco"><h2>Trabalhando agora</h2>' +
+      '<div class="linha"><span style="color:var(--sub)">o servidor nao respondeu — ' +
+      'rode: node ferramentas/receber.js</span></div></section>';
+    return;
+  }
+  lidoEmMs = Date.now();
+  const curso = a.emCurso || [];
+  const selo = a.trabalhando
+    ? '<span class="selo sVoo">EM CURSO</span>'
+    : (curso.length ? '<span class="selo sFrio">PARADO</span>'
+                    : '<span class="selo sParado">NADA EM CURSO</span>');
+
+  let linhas;
+  if (curso.length) {
+    linhas = curso.map(i =>
+      '<div class="linha"><span class="marca">ha ' + escX(i.ha) + '</span>' +
+      '<span class="assunto">' + escX(i.arquivo) + '</span>' +
+      '<span class="selo sParado">' + escX(i.estado) + '</span></div>').join('') +
+      (a.totalEmCurso > curso.length
+        ? '<div class="linha"><span class="marca"></span><span class="assunto" style="color:var(--sub)">' +
+          '+ ' + (a.totalEmCurso - curso.length) + ' outros arquivos abertos</span></div>' : '');
+    if (!a.trabalhando) {
+      linhas += '<div class="linha"><span class="assunto" style="color:var(--sub)">' +
+        'nenhum desses arquivos foi tocado nos ultimos 20 min — a arvore esta suja, mas parada' +
+        '</span></div>';
+    }
+  } else {
+    linhas = '<div class="linha"><span class="assunto" style="color:var(--sub)">' +
+      'nada aberto na arvore de trabalho' +
+      (a.ultimo ? ' — o ultimo commit foi ha ' + escX(a.ultimo.ha) : '') +
+      '</span></div>';
+  }
+
+  const commits = (a.commits || []).map(function (c) {
+    const hoje = (a.lidoEm || '').slice(0, 10) === ((c.quando || '').slice(0, 10));
+    return '<div class="linha"><span class="marca">' +
+      escX(hoje ? c.hora : c.dia + ' ' + c.hora) + '</span>' +
+      '<span class="assunto">' + escX(c.assunto) + '</span>' +
+      '<span class="selo sFeito">' + (c.juncao ? 'juncao'
+        : escX((c.pastas || []).join(' ') || '(raiz)') + ' · ' + c.n) + '</span></div>';
+  }).join('') || '<div class="linha"><span class="assunto" style="color:var(--sub)">' +
+    'nenhum commit no historico</span></div>';
+
+  cx.innerHTML = '<section class="bloco">' +
+    '<h2>Trabalhando agora ' + selo + '</h2>' + linhas +
+    '<hr class="divisa"><h2>Ultimas horas de trabalho</h2>' + commits +
+    '<p class="rodape" id="atvRodape">' +
+      'lido do git as ' + escX((a.lidoEm || '').slice(11)) +
+      (a.build ? ' · index.html construido ha ' + escX(a.build.ha) + ' (' + a.build.kb + ' KB)' : '') +
+      ' · <span id="atvIdade">agora</span></p>' +
+    '</section>';
+}
+pintarAtividade();
+
+// A IDADE DO DADO, contando na tela. Um painel que se atualiza sozinho e um painel travado sao
+// visualmente identicos ate voce ver o relogio parar — este segundo contador e a prova de vida,
+// e foi exatamente o que faltou para o painel de antes ser pego mentindo por um dia inteiro.
+setInterval(function () {
+  const alvo = document.getElementById("atvIdade");
+  if (!alvo || !lidoEmMs) return;
+  const s = Math.round((Date.now() - lidoEmMs) / 1000);
+  alvo.textContent = s < 5 ? "lido agora" : "lido ha " + (s < 90 ? s + " s" : Math.round(s / 60) + " min");
+  alvo.style.color = s > 60 ? "#e0a03a" : "";
+}, 1000);
+setInterval(pintarAtividade, 10000);
+
+// O PLANO ESCRITO A MAO. Le ferramentas/equipe.json. Fica no FIM da pagina e nao fala mais em
+// atividade — quem trabalha agora e medido do git, no topo. Aqui so mora o que e legitimamente
+// escrito a mao (o proximo passo, os marcos), com a data do arquivo a vista.
 // Quantas imagens ainda faltam. E o unico numero da mesa que mede TRABALHO DO DONO,
 // entao fica ao lado do titulo, em ouro, no topo da pagina.
 function contarPendentes() {
@@ -536,9 +807,6 @@ async function pintarEquipe() {
   const cx = document.getElementById('equipe');
   if (!cx) return;
   const esc = t => String(t == null ? '' : t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-  const voo = (e.emVoo || []).map(a =>
-    `<div class="linha"><span class="marca">${esc(a.papel)}</span><span>${esc(a.t)}</span>` +
-    `<span class="selo sVoo">EM VOO</span></div>`).join('');
   const feito = (e.entregue || []).slice(0, 8).map(a =>
     `<div class="linha"><span class="marca">${esc(a.q)}</span><span>${esc(a.t)}</span>` +
     `<span class="selo sFeito">NO AR</span></div>`).join('');
@@ -547,13 +815,16 @@ async function pintarEquipe() {
     return `<div class="linha"><span>${esc(a.t)}</span>` +
       `<span class="selo ${seuTurno ? 'sVoce' : 'sFeito'}">${esc(a.dep)}</span></div>`;
   }).join('');
+  // O BLOCO "TRABALHANDO AGORA" SAIU DAQUI, e a razao esta no comentario de `pintarAtividade`:
+  // ele lia `e.emVoo`, que e texto escrito a mao neste JSON, e por isso ficou um dia inteiro
+  // dizendo "em voo" sobre trabalho ja entregue. Atividade agora vem do git, no topo da pagina.
+  // O que sobra aqui e PLANO, nao atividade — plano escrito a mao esta certo em ser escrito a
+  // mao, desde que a tela diga que e isso e de quando e.
   cx.innerHTML =
-    (voo ? `<section class="bloco"><h2>Trabalhando agora</h2>${voo}</section>` :
-           `<section class="bloco"><h2>Trabalhando agora</h2>` +
-           `<div class="linha"><span style="color:var(--sub)">ninguém em voo — tudo integrado</span></div></section>`) +
     `<section class="bloco emPapel"><h2>Próximo passo</h2>${prox}</section>` +
-    `<section class="bloco"><h2>Já entrou no jogo</h2>${feito}</section>` +
-    `<p class="sub" style="margin:0">${esc(e.atualizado || '')}</p>`;
+    `<section class="bloco"><h2>Marcos anotados à mão</h2>${feito}</section>` +
+    `<p class="sub" style="margin:0">escrito à mão em ferramentas/equipe.json · ` +
+    `${esc(e.atualizado || 'sem data')}</p>`;
 }
 pintarEquipe();
 

@@ -1,5 +1,5 @@
 {
-  "_": "Estado da equipe, mostrado no topo da mesa. Atualizado pelo orquestrador a cada integração.",
+  "_": "PLANO escrito à mão, mostrado NO FIM da mesa. ATENÇÃO: `emVoo` NÃO é mais exibido — o painel TRABALHANDO AGORA passou a ler o git (log + status + data do index.html) em 10/08, porque este arquivo ficou um dia inteiro dizendo 'em voo' sobre trabalho já entregue e ninguém percebeu. Não volte a anunciar atividade aqui: atividade se mede, não se declara. O que ainda vale escrever à mão é `proximos` (o que espera decisão) e `entregue` (marcos), e a tela mostra a data de `atualizado` ao lado, para o leitor saber a idade do que está lendo.",
   "atualizado": "09/08 · o vento da corrida no ar · grão do chrome em voo",
   "emVoo": [
     {
