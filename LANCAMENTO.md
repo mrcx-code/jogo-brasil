@@ -74,7 +74,9 @@ endereço para nada (o único caminho de rede dele é relativo), então ele roda
 - **Salvar de verdade.** O progresso mora no navegador; limpou o histórico, perdeu tudo.
   Recomendação: **um código de seis letras** que a pessoa anota para recuperar em outro
   aparelho — sem e-mail, sem senha, sem cadastro. Conta é atrito.
-- **Erro visível.** Se quebrar no telefone de outra pessoa, ninguém fica sabendo.
+- ~~**Erro visível.**~~ **FEITO em 10/08.** `window.onerror` e `unhandledrejection` mandam a
+  mensagem, o arquivo e a linha — nada do estado da partida —, agrupados por mensagem e com teto
+  de três por carga, para uma exceção presa no laço de quadro não virar 60 pedidos por segundo.
 - **A régua de luz de SALVADOR.** Ela é ~90 pontos mais quente que as seis irmãs — um
   entardecer pintado na tinta, enquanto o motor tinge as outras por cima. Depende de arte nova,
   e o pedido já leva a régua.
@@ -102,7 +104,9 @@ Android · som novo · conquistas · ranking · tradução · os capítulos 5 a 
 - **Doze capítulos existem**, oito honestamente em obra, sem uma afirmação sem fonte.
 - **O link tem prévia** — título, descrição e imagem de 166 KB.
 - **A sala de máquinas tem 18 pedidos** com prompt pronto para copiar.
-- **`npm test` verde · `encaixe.js` 16 blocos · `robusto-tudo.js` 6 de 6 · FPS 61.**
+- **A CHEGADA pergunta uma linha**: *"você voltaria amanhã?"*, com VOLTO · TALVEZ · NÃO. Uma vez
+  na vida do save, sem pedágio, e a resposta é a única coisa que o jogo pede a quem o joga.
+- **`npm test` verde · `encaixe.js` 20 blocos · `robusto-tudo.js` 6 de 6 · FPS 61.**
 
 ---
 

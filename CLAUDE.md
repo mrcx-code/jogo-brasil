@@ -157,17 +157,23 @@ Regras práticas que decorrem disso:
 2. **A rede alcança o próprio domínio e UM host, e nada mais.** A `Content-Security-Policy` no
    `<head>` faz o navegador cobrar isso. Ela mudou duas vezes, as duas em 10/08, e as duas estão
    escritas por extenso no `<head>` e no commit que as fez:
-   `connect-src 'self' https://eu.i.posthog.com` — `'self'` para os pacotes de arte, e o host
-   para a contagem anônima. Escrito inteiro, com esquema: **nenhum curinga, nunca**. Quando ela
+   `connect-src 'self' https://us.i.posthog.com` — `'self'` para os pacotes de arte, e o host
+   para a contagem anônima. **A região é US**, que é onde o projeto do dono está, e errar nela
+   falha em SILÊNCIO: os dois endereços respondem 200 OK a qualquer chave, e o sintoma seria um
+   painel vazio semanas depois. Escrito inteiro, com esquema: **nenhum curinga, nunca**. Quando ela
    precisar abrir de novo, abra **só o que a fase pede** e escreva no commit o que passou a ser
    permitido; CSP relaxada por conveniência é o começo de não ter CSP. A tabela pregada em
    `ferramentas/construir.js` recusa construir se a CSP mudar sem ela — é de propósito que seja
    chata de mudar por acidente —, e o host sai de **uma constante só** (`MEDIDA_HOST`), que
    alimenta a CSP e a cobrança do endereço que o jogo chama.
 
-   **A contagem, e os limites dela.** Sete eventos anônimos respondem a pergunta de três dias:
+   **A contagem, e os limites dela.** Nove eventos anônimos respondem a pergunta de três dias:
    abriu · voltou (com o número do dia) · chegou no capítulo X · terminou · abriu A HISTÓRIA ·
-   abriu DE ONDE VEM · onde parou. Sem nome, sem e-mail, **sem IP** (`$ip: null`), sem perfil de
+   abriu DE ONDE VEM · onde parou (com o tempo daquela sessão) · **o jogo quebrou** (mensagem,
+   arquivo e linha, e nada do estado da partida — teto de três mensagens distintas por carga,
+   agrupadas por mensagem, para uma exceção presa no laço de quadro não virar 60 pedidos por
+   segundo) · **a resposta de "você voltaria amanhã?"**, a pergunta de uma linha da CHEGADA.
+   Sem nome, sem e-mail, **sem IP** (`$ip: null`), sem perfil de
    pessoa (`$process_person_profile: false`), sem cookie (`fetch` com `credentials: "omit"`; a
    biblioteca do PostHog **não** é usada, e a CSP nem a deixaria carregar), sem autocapture e sem
    gravação de sessão. A chave é a **publicável** (`phc_`) e o build **recusa construir** se ela

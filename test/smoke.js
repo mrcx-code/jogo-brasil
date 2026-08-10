@@ -1344,7 +1344,10 @@ async function alvo() {
   // `fontes` e `chegou` entraram com A CHEGADA (a tela de fim, N3 do QA): `fontes` e a unica
   // forma honesta de a tela dizer "voce nunca abriu DE ONDE VEM", e `chegou` separa quem
   // terminou de quem esta terminando — da segunda vez a tela nao se anuncia sozinha.
-  const retEsperadas = ['chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo'];
+  // `volta` entrou com a pergunta de uma linha da CHEGADA ("você voltaria amanhã?"): 0 nunca
+  // perguntada, 1 perguntada e calada, 2/3/4 a resposta. Sem ela no esquema, a pergunta
+  // voltaria a ser feita em toda chegada — e uma pergunta que insiste deixa de medir intenção.
+  const retEsperadas = ['chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo', 'volta'];
   const retChaves = Object.keys(painel.gravado).sort();
   console.log('retention written ->', retChaves.join(', '));
   if (retChaves.join(',') !== retEsperadas.join(',')) errors.push('the retention record carries fields the loader would discard: ' + retChaves.join(','));

@@ -71,6 +71,7 @@ interface Retencao {
   turbo: number;      // dias em que o x100 foi ligado — o asterisco da medição
   fontes: number;     // quantas vezes a tela DE ONDE VEM foi aberta
   chegou: number;     // quantas vezes chegou ao fim do arco
+  volta: number;      // a pergunta da CHEGADA: 0 nunca feita · 1 feita e calada · 2/3/4 respondida
 }
 /** A paleta do quadro. Ela nasce com duas chaves e ganha o resto por atribuição ao longo de
  *  pal(); só o índice de string descreve isso sem mentir. */
@@ -2565,7 +2566,7 @@ const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = (): Retencao => ({
   dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
-  fontes: 0, chegou: 0
+  fontes: 0, chegou: 0, volta: 0
 });
 let R: Retencao = RET_PADRAO();
 
@@ -2601,7 +2602,18 @@ const ESQUEMA_RET = {
   // importante do fim seria chute. `chegou` separa quem terminou de quem está terminando: da
   // segunda vez em diante a tela não se anuncia sozinha, ela espera ser procurada no menu.
   fontes:   { tipo: "cont", min: 0, max: 1e6, pad: 0 },
-  chegou:   { tipo: "cont", min: 0, max: 1e6, pad: 0 }
+  chegou:   { tipo: "cont", min: 0, max: 1e6, pad: 0 },
+  // A PERGUNTA DA CHEGADA, guardada em UM campo porque ela é feita UMA vez na vida do save.
+  // 0 nunca foi feita · 1 foi feita e a pessoa não respondeu · 2 volto · 3 talvez · 4 não volto.
+  // Guardar QUAL resposta e não só "já respondeu" não custa um byte a mais e evita a única
+  // pergunta idiota que eu poderia querer fazer depois ao próprio aparelho.
+  //
+  // A FUSÃO DE DUAS ABAS PEGA ESTE CAMPO PELO MAIOR, como todos os outros — e aqui isso é
+  // aproximação, não verdade, porque 2/3/4 não são graus de nada. Está certo assim e a razão
+  // é o que o campo FAZ: localmente ele só decide "já perguntei?", e para essa pergunta
+  // qualquer valor diferente de zero responde igual. A resposta que vale é a que foi MEDIDA,
+  // e essa saiu no evento no instante do toque, sem passar por aqui.
+  volta:    { tipo: "cont", min: 0, max: 4, pad: 0 }
 };
 function diaLocal() {
   const d = new Date();
@@ -2696,13 +2708,19 @@ function carregarRetencao() {
 }
 
 // ============================================================
-// A MEDIÇÃO — sete perguntas, nenhuma sobre você
+// A MEDIÇÃO — nove perguntas, nenhuma sobre você
 //
 // O jogo existe para responder UMA coisa: *o loop segura alguém por três dias?* Até hoje
 // quem respondia era o `localStorage` de um aparelho só — o meu. Isso não é medição, é
-// anedota com número. Daqui em diante o jogo manda sete avisos para o PostHog (região EU) e
-// eles são a resposta inteira: abriu · voltou (com o número do dia) · chegou no capítulo X ·
-// terminou · abriu A HISTÓRIA · abriu DE ONDE VEM · onde parou.
+// anedota com número. Daqui em diante o jogo manda nove avisos para o PostHog e eles são a
+// resposta inteira: abriu · voltou (com o número do dia) · chegou no capítulo X · terminou ·
+// abriu A HISTÓRIA · abriu DE ONDE VEM · onde parou (com o tempo daquela sessão) · o jogo
+// quebrou (mensagem, arquivo e linha) · a resposta de "você voltaria amanhã?".
+//
+// Os dois últimos entraram depois dos sete primeiros e são de outra natureza — um é defeito,
+// o outro é uma frase escolhida por alguém —, então os dois estão escritos NA TELA DE AJUSTES
+// nas palavras de quem lê, e não só aqui. É o §3: afirmação de privacidade que virou falsa é
+// pior que nenhuma, e "uma contagem" deixaria de descrever os dois no dia em que entraram.
 //
 // O QUE ELE **NÃO** MANDA, e cada negativa é uma escolha, não um esquecimento:
 //  · nada que identifique alguém. Sem nome, sem e-mail, sem login, sem formulário — o jogo
@@ -2835,6 +2853,10 @@ function medir(nome: string, props?: Record<string, any>, chave?: string) {
 // Sai UMA vez por afastamento e volta a poder sair quando a pessoa volta, senão uma tarde de
 // alternar entre abas viraria trinta eventos dizendo a mesma coisa.
 let medirParouArmado = true;
+// SEGUNDOS DESTA CARGA DE PÁGINA. Cresce exatamente onde `R.segundos` cresce (no laço de
+// quadro, com o `dt` clampado), então mede tempo JOGADO e não tempo de aba aberta: uma noite
+// com o jogo esquecido numa aba de fundo não conta um segundo, porque o `rAF` não roda.
+let sessaoSeg = 0;
 function medirParou() {
   if (!medirParouArmado) return;
   medirParouArmado = false;
@@ -2842,9 +2864,96 @@ function medirParou() {
     capitulo: epocaAtual(),
     nome: EPOCAS[epocaAtual()] ? EPOCAS[epocaAtual()].nome : "",
     minutos: Math.round((R.segundos | 0) / 60),
+    // O PEDAÇO DE HOJE, e não só a vida inteira do save. "Parou no capítulo 3 com 40 s de
+    // sessão" e "parou no capítulo 3 com 25 min de sessão" são duas pessoas opostas com o
+    // mesmo capítulo: a primeira abriu e desistiu, a segunda jogou uma tarde e foi jantar.
+    // Sem esta linha, a pergunta "onde as pessoas desistem" não tem como ser respondida —
+    // o capítulo sozinho diz onde ELA ESTAVA, nunca se ela estava indo embora ou saindo.
+    // Em SEGUNDOS de propósito: a sessão que interessa é justamente a curta, e ela some
+    // inteira se for arredondada para minuto.
+    sessao: Math.round(sessaoSeg),
     dia: R.dias | 0
   });
 }
+// ============================================================
+// ERRO VISÍVEL — a única pergunta da medição que não é sobre retenção
+//
+// Até aqui, se o jogo explodisse no telefone de outra pessoa, o defeito morria ali: ninguém
+// joga com o console aberto, ninguém abre chamado, a pessoa fecha a aba e some — e do lado de
+// cá o sintoma é indistinguível de "ninguém quis jogar". É o modo de falha mais caro que
+// existe num protótipo cuja pergunta inteira é sobre gente voltando.
+//
+// O QUE SAI: a MENSAGEM, o ARQUIVO e a LINHA. Nada mais. Nem o estado do jogo, nem em que
+// capítulo estava, nem quanto tinha de impacto — um relatório de erro é o lugar clássico onde
+// dado de gente vaza de carona, porque parece técnico e ninguém o lê como dado pessoal. O
+// arquivo é reduzido ao último pedaço do caminho, sem `?` e sem `#`: consulta em URL é o
+// outro esconderijo de dado, e este jogo não tem uma só, mas a regra vale contra o futuro.
+//
+// O TETO É TRÊS MENSAGENS DISTINTAS POR CARGA, e o três é derivado, não redondo:
+//  · uma exceção dentro do laço de quadro dispara SESSENTA VEZES POR SEGUNDO. Sem agrupar,
+//    um defeito de dez minutos são trinta e seis mil pedidos saindo do telefone de alguém —
+//    o jogo virava um ataque ao próprio servidor de medição, pago com a bateria da pessoa;
+//  · por isso se agrupa POR MENSAGEM primeiro: a segunda ocorrência do mesmo texto não
+//    ensina nada que a primeira não tenha ensinado;
+//  · e ainda assim três, e não trinta, porque mensagem que carrega um número variável
+//    ("... at frame 1234") escapa do agrupamento e volta a ser tempestade. Três deixa ler
+//    uma cascata (A derruba B derruba C), que é o caso em que a primeira mensagem sozinha
+//    engana, e para aí;
+//  · e três de um orçamento de quarenta (`MEDIDA_TETO`) é o que garante que um jogo quebrado
+//    não gaste a cota inteira gritando e leve junto o "voltou no dia 3" — que é a razão de a
+//    medição existir. O relatório de erro é hóspede aqui, nunca dono.
+//
+// E ELE NÃO PODE QUEBRAR O JOGO: o corpo inteiro está num `try` e o envio é o mesmo `medir()`
+// de sempre, com o `catch` vazio. Um defeito no relatório de defeito é a piada que fica.
+// O `addEventListener` também NÃO engole o erro (nada de `preventDefault`): o console do
+// navegador continua mostrando tudo, e o smoke test continua reprovando por erro de console.
+// ============================================================
+const MEDIDA_ERRO_TETO = 3;
+let medirErros = 0;
+const medirErroVisto: Record<string, number> = {};
+// O CAMINHO, sem consulta, sem âncora e sem o domínio. Duas decisões aqui:
+//  · corta-se o `?` e o `#` porque consulta em URL é o outro esconderijo clássico de dado de
+//    gente. Este jogo não tem uma só consulta hoje; a regra vale contra o amanhã;
+//  · guarda-se o CAMINHO e não só o nome do arquivo. Numa página que é UM arquivo servido na
+//    raiz, o nome vem VAZIO — e campo que chega vazio no painel lê como defeito do relatório
+//    em vez de "é a própria página". `/` diz a mesma coisa sem parecer quebrado, e continua
+//    sabendo distinguir a página de um `/pack-*.json` no dia em que houver um segundo arquivo.
+function medirArquivo(u: any) {
+  const s = String(u == null ? "" : u).split("?")[0].split("#")[0];
+  const m = s.match(/^[a-z][a-z0-9+.-]*:\/\/[^/]*(\/.*)?$/i);
+  return String((m ? (m[1] || "/") : s) || "").slice(0, 60);
+}
+function medirErro(msg: any, arquivo: any, linha: any) {
+  try {
+    if (medirErros >= MEDIDA_ERRO_TETO) return;
+    const texto = String(msg == null ? "" : msg).slice(0, 180);
+    // `error` no `window` também dispara por recurso que não carregou, e aí `message` vem
+    // vazia e o alvo é o elemento. Não é exceção e não tem o que relatar.
+    if (!texto) return;
+    if (medirErroVisto[texto]) return;
+    medirErroVisto[texto] = 1;
+    medirErros++;
+    medir("erro", { msg: texto, arquivo: medirArquivo(arquivo), linha: (linha | 0) || 0 });
+  } catch (e) {}
+}
+window.addEventListener("error", function (e: any) {
+  medirErro(e && e.message, e && e.filename, e && e.lineno);
+});
+// Promessa recusada sem `catch` não passa pelo `onerror` — é outro canal, e é justamente o
+// canal do `fetch` do pacote de arte e do áudio. O prefixo diz de qual dos dois veio, porque
+// no painel "TypeError: Failed to fetch" das duas origens é a mesma linha e são dois defeitos.
+window.addEventListener("unhandledrejection", function (e: any) {
+  const r = e ? e.reason : null;
+  let texto = "", arquivo = "", linha = 0;
+  if (r && typeof r === "object" && typeof r.message === "string") {
+    texto = r.message;
+    const m = typeof r.stack === "string" ? r.stack.match(/(https?:\/\/[^\s)]+?):(\d+):\d+/) : null;
+    if (m) { arquivo = m[1]; linha = parseInt(m[2], 10) || 0; }
+  } else {
+    texto = String(r);
+  }
+  medirErro("promessa: " + texto, arquivo, linha);
+});
 // A JANELA DOS PRIMEIROS 60 SEGUNDOS (hipótese H5 do PRODUTO.md: a pessoa descobre que a
 // metade ESQUERDA pula?). A janela é medida em tempo JOGADO (`R.segundos`, que só anda com o
 // jogo na frente), e não em relógio de parede: quem abre, larga e volta amanhã continua
@@ -8841,6 +8950,14 @@ function ligarTelas() {
     medir("fontes", { vez: R.fontes | 0, dia: R.dias | 0, daChegada: true });
     montarFontes(); abrirTela("telaFontes");
   });
+  // As três respostas da pergunta de uma linha. `pointerdown` como todo o resto da casa —
+  // um `click` aqui responderia depois do dedo já ter saído, e a tela toda usa o outro tempo.
+  for (let i = 1; i <= 3; i++) {
+    (function (n) {
+      const b = document.getElementById("btnVolta" + n);
+      if (b) b.addEventListener("pointerdown", function (e) { e.preventDefault(); responderVolta(n); });
+    })(i);
+  }
   $("btnFimVoltar").addEventListener("pointerdown", function (e) { e.preventDefault(); fecharTelas(); });
   $("btnVoltarFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
@@ -8918,9 +9035,17 @@ function montarConfig() {
   linhas.push(["O QUE VOCÊ JOGOU FICA NESTE APARELHO.", "#5c3210"],
               ["O JOGO SÓ BAIXA A ARTE DELE.", "#5c3210"]);
   if (medirLigado) {
+    // AS DUAS LINHAS DO MEIO ENTRARAM COM O QUE PASSOU A SAIR, no mesmo commit — que é a
+    // regra do §3 e o motivo de esta tela existir. Sem elas, a frase continuaria verdadeira
+    // ao pé da letra ("uma contagem") e falsa no que importa: a mensagem de um erro e a
+    // palavra que a pessoa escolheu no fim não são "contagem" em português nenhum.
     linhas.push(["E MANDA UMA CONTAGEM ANÔNIMA:", "#5c3210"],
                 ["QUE ALGUÉM ABRIU, ATÉ QUE CAPÍTULO", "#5c3210"],
                 ["FOI, E SE VOLTOU NO DIA SEGUINTE.", "#5c3210"],
+                ["SE O JOGO QUEBRAR, A MENSAGEM", "#5c3210"],
+                ["DO ERRO — NADA DA SUA PARTIDA.", "#5c3210"],
+                ["E A SUA RESPOSTA À PERGUNTA DO FIM,", "#5c3210"],
+                ["SE VOCÊ RESPONDER.", "#5c3210"],
                 ["SEM NOME, SEM E-MAIL, SEM IP,", "#5c3210"],
                 ["SEM COOKIE E SEM ANÚNCIO.", "#5c3210"]);
   } else {
@@ -9055,6 +9180,71 @@ function montarFim() {
   // `pintarRotulos()` já pinta todo `.telaTit` no boot, mas este muda de texto — e escrever
   // `textContent` num nó que virou canvas devolve a tela para a fonte do aparelho. Repinta.
   pixelRotulo($("fimTit"), (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI", 3, "#ffd98a");
+  montarPergunta();
+}
+// ============================================================
+// "VOCÊ VOLTARIA AMANHÃ?" — a única pergunta que o jogo faz a quem o joga
+//
+// A pergunta do repositório inteiro é se o laço segura alguém por três dias. Toda a
+// instrumentação responde isso por FORA (voltou no dia 2, parou no capítulo 3), e é a leitura
+// certa — mas ela só existe depois, e só para quem já foi embora. Uma linha, feita à pessoa
+// que acabou de chegar ao fim, é o único jeito de ouvir a intenção antes de o dia acabar.
+//
+// TRÊS COISAS QUE ELA NÃO PODE SER, e cada uma é uma decisão:
+//  · NÃO É AVALIAÇÃO. Nada de estrelas, nada de nota, nada de "o que você achou". A CHEGADA
+//    não é troféu (§2.1) e uma caixa de nota depois da travessia seria obscena pelo mesmo
+//    motivo que "VOCÊ VENCEU" seria. A pergunta é sobre a INTENÇÃO de quem responde — o que
+//    ela vai fazer amanhã —, nunca sobre a qualidade do que leu;
+//  · NÃO É PEDÁGIO. As duas portas e o VOLTAR PARA A RUA continuam ali, do mesmo tamanho,
+//    funcionando. Fechar a tela sem tocar em nada é uma resposta válida, e é a resposta que
+//    mais gente vai dar;
+//  · NÃO INSISTE. Feita uma vez na vida do save. Quem calou, calou — voltar a perguntar é
+//    transformar um convite em cobrança, e a segunda vez já não mede intenção, mede paciência.
+//
+// O QUE SAI DAQUI é a palavra escolhida e mais nada, e a tela de AJUSTES diz isso com todas
+// as letras, ao lado do interruptor que a desliga.
+// ============================================================
+const VOLTA_RESPOSTAS = ["volto", "talvez", "nao"];
+// "NÃO VOLTO" foi medido e recusado: a tábua mais larga é a tela dividida por três, e o rótulo
+// dele dava 110 px numa tábua de 87 em 320×568 — a letra saía pela borda da madeira. "NÃO"
+// responde a mesma pergunta na mesma voz (a pergunta logo acima já traz o verbo) e o rótulo
+// mais largo passa a ser TALVEZ, com 74 px. Três respostas, nenhuma delas uma nota.
+const VOLTA_ROTULOS = ["VOLTO", "TALVEZ", "NÃO"];
+function montarPergunta() {
+  const cx = document.getElementById("fimPergunta");
+  if (!cx) return;
+  // JÁ FOI FEITA é qualquer valor diferente de zero — inclusive o 1, que é "foi feita e a
+  // pessoa não respondeu". É de propósito: silêncio também é resposta, e é a mais comum.
+  if ((R.volta | 0) > 0) { cx.classList.add("oculto"); return; }
+  cx.classList.remove("oculto");
+  const linha = document.getElementById("fimPerguntaTxt")!;
+  linha.classList.remove("anotado");
+  linha.textContent = "você voltaria amanhã?";
+  const botoes = document.getElementById("fimPerguntaBotoes")!;
+  botoes.classList.remove("oculto");
+  for (let i = 0; i < 3; i++) {
+    const b = document.getElementById("btnVolta" + (i + 1));
+    if (b) pixelRotulo(b, VOLTA_ROTULOS[i], 2, "#e3d2ac");
+  }
+  // A MARCA DE "PERGUNTADA" É POSTA AGORA, no instante em que a linha aparece, e não no
+  // toque. Se ela fosse posta só na resposta, quem fechasse a tela em silêncio seria
+  // perguntado de novo em toda chegada — que é exatamente a cobrança que ela não é.
+  R.volta = 1;
+  salvarRetencao();
+}
+function responderVolta(i: number) {
+  // 2, 3 ou 4 — e o 1 fica reservado para o silêncio, que já foi gravado ao mostrar a linha.
+  R.volta = Math.min(1 + i, ESQUEMA_RET.volta.max);
+  salvarRetencao();
+  medir("volta", { resposta: VOLTA_RESPOSTAS[i - 1], dia: R.dias | 0,
+    minutos: Math.round((R.segundos | 0) / 60), vez: R.chegou | 0 }, "volta");
+  // A CONFIRMAÇÃO É O PRÓPRIO PAPEL, como o interruptor dos AJUSTES: nada de alerta, nada de
+  // "obrigado pela sua avaliação". A linha vira anotação de margem e as tábuas somem, porque
+  // botão que não faz mais nada é botão que engana.
+  const linha = document.getElementById("fimPerguntaTxt");
+  if (linha) { linha.textContent = "anotado."; linha.classList.add("anotado"); }
+  const botoes = document.getElementById("fimPerguntaBotoes");
+  if (botoes) botoes.classList.add("oculto");
 }
 function chegarAoFim() {
   R.chegou = Math.min((R.chegou | 0) + 1, ESQUEMA_RET.chegou.max);
@@ -9406,7 +9596,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // rAF stops in a background tab and dt is clamped, so this counts time actually
     // spent playing rather than time the tab sat open
-    R.segundos += dt; retAcc += dt;
+    R.segundos += dt; sessaoSeg += dt; retAcc += dt;
     if (retAcc > 30) { retAcc = 0; marcarDia(); salvarRetencao(); }
     tick++;                     // quadros DESENHADOS: não para (orçamento de vozes; ver acima)
     // O CANAL PRÓPRIO DA CERIMÔNIA — a exceção declarada lá em cima. Escreve em `relogio`
@@ -9440,6 +9630,11 @@ document.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(frame);
   setInterval(salvar, 10000);
   window.addEventListener("beforeunload", function () { salvar(); salvarRetencao(); medirParou(); });
+  // O TERCEIRO GANCHO, e no celular ele é O gancho. `beforeunload` não é garantido no iOS e
+  // não dispara quando a aba entra no cache de volta-para-trás (bfcache); `pagehide` dispara
+  // nos dois casos. Não vira evento em dobro: os três chamam a MESMA função, que se desarma na
+  // primeira passada e só rearma quando a pessoa volta para a aba.
+  window.addEventListener("pagehide", function () { salvar(); salvarRetencao(); medirParou(); });
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) { salvar(); salvarRetencao(); medirParou(); return; }
     // Voltou para a aba: o "onde parou" volta a poder sair. Sem este rearme, uma tarde de

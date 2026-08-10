@@ -1106,6 +1106,31 @@
   .fimV { font: var(--margem); font-style: normal; font-family: var(--titulo); color: #33240f; white-space: nowrap; }
   .fimLin.falta { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
   .fimLin.falta .fimV { color: #6e4a08; }
+  /* A PERGUNTA DE UMA LINHA. Nenhum material novo, e isso é a decisão inteira: o papel é o
+     MESMO `.fimLin` (pauta + papel de campo + moldura de dois tons) e as respostas são a
+     MESMA tábua `.telaBtn` do resto do jogo. Uma caixa de pesquisa com visual próprio seria
+     exatamente o Frankenstein que a régua do menu existe para impedir — e, pior aqui, ela
+     leria como formulário de site colado num jogo pintado.
+     A pergunta em `--corpo`: ela é uma frase para LER, não um rótulo. As três respostas em
+     bitmap, porque são madeira — e em linha, não em coluna: empilhadas elas teriam o mesmo
+     peso das duas portas logo abaixo e a tela viraria seis botões iguais. */
+  #fimPergunta { width: 100%; max-width: 26em; margin: 0 0 20px; }
+  #fimPergunta.oculto { display: none; }
+  #fimPerguntaTxt { font: var(--corpo); color: var(--tintaP); text-align: left;
+    border-radius: 3px; padding: 9px 12px; margin-bottom: 8px;
+    background:
+      var(--pauta),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
+  /* respondida, o papel é só a confirmação — a moldura âmbar do `.falta` seria convite, e
+     não há mais nada a convidar aqui */
+  #fimPerguntaTxt.anotado { font: var(--margem); font-style: italic; color: #6b4f2a; }
+  #fimPerguntaBotoes { display: flex; gap: 6px; width: 100%; }
+  /* `#telaFim .telaBtn` prega 300 px de largura em toda tábua desta tela; as três respostas
+     dividem a linha, então elas precisam desfazer isso — ID mais classe, para ganhar dele. */
+  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 0; min-width: 0;
+    padding: 12px 4px; margin: 0; }
+  #fimPerguntaBotoes.oculto { display: none; }
   /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
      ID — o botão nascia visível e empurrava a coluna do menu inteira para cima. O seletor
      tem de carregar o mesmo ID para poder apagar. Custou uma reprovação do smoke: o painel
@@ -1114,16 +1139,25 @@
      ficava abaixo da dobra — a tela rola, então nada some, mas um botão que só existe depois
      de um gesto que ninguém pediu é um botão que metade das pessoas não acha. Aperta-se o
      que não custa leitura: o entrelinha do texto, o respiro do placar e as margens. */
+  /* E A PERGUNTA PAGA O ALUGUEL DELA. Medido ao pô-la aqui: em 360×640 o VOLTAR PARA A RUA
+     caía 17 px abaixo da dobra e em 320×568 caía 37 px — exatamente o defeito que estas duas
+     consultas existem para não ter. Os apertos abaixo foram medidos um a um e nenhum deles
+     corta palavra: o que encolhe é RESPIRO (margem entre linhas do placar, margem entre as
+     tábuas, o topo da tela), nunca corpo de texto nem alvo de dedo. Depois deles as duas
+     telas voltam a mostrar o VOLTAR inteiro. */
   @media (max-height: 720px) {
-    #telaFim { padding-top: 14px; }
+    #telaFim { padding-top: 12px; }
     #telaFim .telaTit { margin-bottom: 8px; }
-    #telaFim .telaTxt { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+    #telaFim .telaTxt { font-size: 14px; line-height: 1.45; margin-bottom: 8px; }
     #telaFim .telaTxt div + div { margin-top: .5em; }
-    #fimPlacar { margin-bottom: 12px; }
-    .fimLin { padding: 5px 10px; margin-bottom: 4px; }
+    #fimPlacar { margin-bottom: 8px; }
+    .fimLin { padding: 5px 10px; margin-bottom: 3px; }
     .fimR { font-size: 12px; }
     .fimV { font-size: 13px; }
-    #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 6px; }
+    #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 5px; }
+    #fimPergunta { margin-bottom: 8px; }
+    #fimPerguntaTxt { font-size: 14px; line-height: 1.4; padding: 6px 10px; margin-bottom: 5px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 9px 3px; }
   }
   /* O PISO DO QUE AINDA SE VENDE (320×568). Com só o aperto de 720px sobravam -17 px — a
      tela cabia por dezessete pixels de nada. Mais um degrau resolve sem cortar uma palavra.
@@ -1131,9 +1165,20 @@
      mesma especificidade, então quem vence é quem está por último. Invertido, este bloco não
      pinta um pixel — e foi o que aconteceu na primeira tentativa. */
   @media (max-height: 600px) {
-    #telaFim .telaTxt { font-size: 13px; line-height: 1.45; }
-    .fimLin { padding: 4px 9px; margin-bottom: 3px; }
-    #telaFim .telaBtn { padding: 9px 18px; }
+    #telaFim { padding-top: 8px; }
+    #telaFim .telaTit { margin-bottom: 6px; }
+    #telaFim .telaTxt { font-size: 13px; line-height: 1.4; margin-bottom: 7px; }
+    #fimPlacar { margin-bottom: 6px; }
+    .fimLin { padding: 4px 9px; margin-bottom: 2px; }
+    #telaFim .telaBtn { padding: 9px 18px; margin-bottom: 3px; }
+    /* O PISO. Aqui a pergunta é o inquilino mais novo da tela mais alta do jogo, e ela paga o
+       aluguel dela: fonte de leitura no menor degrau que o caderno tem, papel rente à linha, e
+       a tábua com o mínimo de degrau que ainda dá alvo de dedo (~36 px de altura tocável).
+       O que NÃO encolheu, nas três larguras: o entrelinha do texto de leitura. Aperta-se
+       respiro, nunca palavra — é a régua que estas duas consultas já traziam. */
+    #fimPergunta { margin-bottom: 5px; }
+    #fimPerguntaTxt { font-size: 13px; line-height: 1.35; padding: 4px 8px; margin-bottom: 3px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 7px 3px; }
   }
   #telaMenu .telaBtn.oculto, .telaBtn.oculto { display: none; }
 

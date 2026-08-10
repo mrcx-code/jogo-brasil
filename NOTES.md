@@ -4125,3 +4125,124 @@ Android e para a memória): servir `.webp` de verdade em vez de base64 dentro de
 uma segunda diretiva de CSP (`img-src data: 'self'`) e uma reescrita do pipeline de arte. Não
 foi feita, e a pergunta honesta é se vale: no fio comprimido a diferença é pequena, porque o
 brotli já devolve quase todo o inchaço do base64. **Só se decide com medição própria.**
+
+---
+
+## Diário — 2026-08-10 · A MEDIÇÃO GANHA A TERCEIRA PERNA: o erro, a pergunta, e onde se para
+
+Três coisas aprovadas pelo dono, todas pelo MESMO `fetch` de vinte linhas que entrou hoje de
+manhã. **A biblioteca do PostHog continua fora**, e essa é a decisão que sustenta as três: a
+abertura acabou de cair de 19,2 s para 6,3 s num 3G, com a porta de entrada em 1,51 MB, e o SDK
+do navegador desfaria parte do ganho para fazer o que quarenta linhas já fazem. A CSP **não
+abriu nem uma diretiva** — tudo viaja pelo host que já estava aberto (`https://us.i.posthog.com`,
+região **US**, que é onde o projeto do dono está).
+
+### 1 · ERRO VISÍVEL — e o teto é TRÊS, por quatro razões somadas
+
+`window.onerror` e `unhandledrejection` mandam um evento `erro` com **a mensagem, o arquivo e a
+linha, e nada mais**. Nem capítulo, nem impacto, nem estado: relatório de defeito é o esconderijo
+clássico de dado de gente, porque parece técnico e ninguém o lê como dado pessoal. O arquivo sai
+como CAMINHO, sem domínio, sem `?` e sem `#` — consulta em URL é o outro esconderijo, e o jogo
+não tem nenhuma hoje, mas a regra vale contra o amanhã.
+
+**`MEDIDA_ERRO_TETO = 3`, e o três é derivado:**
+
+1. uma exceção presa no laço de quadro dispara **60×/s** — dez minutos de defeito seriam trinta
+   e seis mil pedidos saindo do telefone de alguém, pagos com a bateria dela;
+2. por isso agrupa-se **por mensagem** primeiro: a segunda ocorrência do mesmo texto não ensina
+   nada que a primeira não tenha ensinado. Medido: **201 exceções, 1 evento**;
+3. e ainda assim três, e não trinta, porque mensagem com número variável (`... at frame 1234`)
+   escapa do agrupamento e volta a ser tempestade. Três deixa ler uma **cascata** (A derruba B
+   derruba C), que é o caso em que a primeira mensagem sozinha engana, e para aí. Medido:
+   **40 mensagens diferentes → 3 eventos**;
+4. e três de um orçamento de quarenta (`MEDIDA_TETO`) garante que um jogo quebrado **não gaste a
+   cota gritando** e leve junto o "voltou no dia 3", que é a razão de a medição existir.
+
+Medido também: **201 exceções e a partida seguiu inteira** — a rua andou e A HISTÓRIA abriu.
+
+**A armadilha que custou duas voltas do teste:** exceção jogada de um `page.evaluate`, ou de um
+`<script>` criado por `createElement`, chega com `e.filename` **VAZIO** — o Chromium só dá
+`filename` a script que veio do ANALISADOR da página. O teste acusava o jogo de não saber dizer
+o arquivo quando quem não sabia era o Playwright. O bloco 18 passou a **injetar o defeito no HTML
+servido**, antes de `</body>`; aí o campo veio `/` e a linha `7502`, que é uma linha de verdade
+do arquivo único.
+
+### 2 · "VOCÊ VOLTARIA AMANHÃ?" — a única pergunta que o jogo faz a quem o joga
+
+Na CHEGADA, entre o placar e as duas portas. Papel de campo para a pergunta (PAPEL fala serifa),
+três tábuas para as respostas (MADEIRA fala bitmap) — **nenhum material novo**, que é a decisão
+inteira: uma caixa de pesquisa com visual próprio seria o Frankenstein que a régua do menu
+existe para impedir, e aqui leria como formulário de site colado num jogo pintado.
+
+- **Uma vez, e só uma.** `ESQUEMA_RET.volta`: 0 nunca feita · 1 feita e calada · 2/3/4 a
+  resposta. A marca de "perguntada" é posta ao MOSTRAR, não ao responder — senão quem fecha em
+  silêncio é perguntado de novo em toda chegada, e aí o convite virou cobrança.
+- **Não é pedágio**: as duas portas e o VOLTAR seguem do mesmo tamanho, e sair sem responder sai.
+- **Não é avaliação.** Nada de estrela, nota ou "gostou" — o §2.1 diz que a CHEGADA não é troféu,
+  e o bloco 19 cobra o vocabulário por regex, como o bloco 10 já fazia com o placar.
+- A confirmação é o **próprio papel** virando "anotado." em voz de margem, e as tábuas somem —
+  mesma gramática do interruptor dos AJUSTES: a confirmação é o texto, nunca um alerta.
+
+**"NÃO VOLTO" foi medido e recusado:** a tábua é a tela dividida por três, e o rótulo dava
+**110 px numa tábua de 87** em 320×568 — letra saindo pela borda da madeira. Virou **"NÃO"**, que
+responde a mesma pergunta na mesma voz porque a pergunta logo acima já traz o verbo; o rótulo
+mais largo passou a ser TALVEZ, com 74 px, e a folga mínima virou 13 px.
+
+**E a pergunta pagou o aluguel dela.** Medido ao pô-la na tela: o VOLTAR PARA A RUA caía **17 px
+abaixo da dobra em 360×640 e 37 px em 320×568** — exatamente o defeito que as duas consultas de
+altura da CHEGADA existem para não ter. Apertou-se **respiro, nunca palavra**: margem entre
+linhas do placar, margem entre tábuas, topo da tela. Depois:
+
+| tela | VOLTAR em relação à dobra | alvo de dedo da resposta |
+|---|---|---|
+| 430×932 | −91 px | 46 px |
+| 412×915 | −74 px | 46 px |
+| 390×844 | −3 px | 46 px |
+| 360×640 | −5 px | 40 px |
+| 320×568 | −4 px | 36 px |
+
+(negativo = acima da dobra, inteiro na tela). `test/prints-pergunta.js` refaz as três larguras.
+
+### 3 · ONDE A PESSOA PAROU — o evento existia e estava meio cego
+
+O `parou` já saía no `visibilitychange` e no `beforeunload`, com o capítulo. Faltavam duas coisas:
+
+- **`pagehide`**, que no celular é O gancho: o iOS não garante o `beforeunload`, e ele não dispara
+  quando a aba entra no cache de volta-para-trás. Os três chamam a MESMA função armada uma vez —
+  medido: **1 evento**, não três;
+- **`sessao`**, os segundos DESTA carga de página. "Parou no capítulo 3 com 40 s" e "parou no
+  capítulo 3 com meia hora" são duas pessoas opostas com o mesmo capítulo, e sem esse número o
+  capítulo sozinho diz onde ela ESTAVA, nunca se ela estava indo embora. Em segundos de
+  propósito: a sessão que interessa é a curta, e ela some inteira arredondada para minuto.
+
+### A tela de AJUSTES mudou no MESMO commit — é o §3, e não é formalidade
+
+"UMA CONTAGEM ANÔNIMA" continuaria verdadeiro ao pé da letra e falso no que importa: a mensagem
+de um erro e a palavra que a pessoa escolheu no fim **não são "contagem" em português nenhum**.
+É a forma mais elegante de uma tela mentir sem uma palavra falsa. Entraram quatro linhas:
+
+> SE O JOGO QUEBRAR, A MENSAGEM / DO ERRO — NADA DA SUA PARTIDA. / E A SUA RESPOSTA À PERGUNTA
+> DO FIM, / SE VOCÊ RESPONDER.
+
+As cinco negativas (sem nome, sem e-mail, sem IP, sem cookie, sem anúncio) e o interruptor
+continuam onde estavam. O bloco 8 do `encaixe.js` passou a cobrar as duas frases novas.
+
+### O que o `encaixe.js` ganhou
+
+Três blocos, um por entrega — **18** (o erro: chega, agrupa, para no teto, não derruba a
+partida), **19** (a pergunta: uma vez, sem pedágio, sem avaliação, e a resposta vai), **20** (o
+`pagehide` manda o "onde parou" com o tempo da sessão). A lista branca do bloco 17 ganhou
+`msg`, `arquivo`, `linha`, `resposta` e `sessao` — e é ela o portão: propriedade que ninguém
+aprovou reprova ali.
+
+### A dúvida que fica
+
+O `arquivo` vai sair `/` para todo mundo enquanto o jogo for um arquivo só servido na raiz —
+ou seja, hoje ele custa nada e ensina nada, e quem ensina é a linha. Ele fica porque a fase do
+Phaser/Supabase traz um segundo arquivo e aí a distinção passa a existir. Se aquela fase não
+vier, é campo para tirar.
+
+### Estado
+
+`npm test` verde · `encaixe.js` **20 blocos** verdes · `robusto-tudo.js` 6 de 6 · FPS 61 ·
+`index.html` 1,52 MB.

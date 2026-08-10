@@ -245,6 +245,22 @@
   <div class="telaTit" id="fimTit">ATÉ AQUI</div>
   <div class="telaTxt" id="fimTxt"></div>
   <div id="fimPlacar"></div>
+  <!-- A PERGUNTA DE UMA LINHA. O jogo existe para responder "o loop segura alguém por três
+       dias?" e até aqui quem respondia era um bot. Ela vive DEPOIS do placar e ANTES das duas
+       portas, e não é pedágio: quem sair sem tocar sai igual, e ela não volta a perguntar.
+       Não é avaliação e não pode virar uma — nada de estrelas, nada de nota, nada de "gostou?".
+       A CHEGADA não é troféu (§2.1) e uma caixa de nota no fim de um jogo sobre invasão e
+       escravidão seria a mesma tela de vitória que três ondas tiraram daqui, com outra roupa.
+       O material é o que já existe: papel de campo para a pergunta (PAPEL fala serifa) e
+       tábua para as respostas (MADEIRA fala bitmap) — a régua da casa, sem vocabulário novo. -->
+  <div id="fimPergunta" class="oculto">
+    <div id="fimPerguntaTxt"></div>
+    <div id="fimPerguntaBotoes">
+      <button class="telaBtn perguntaBtn" id="btnVolta1"></button>
+      <button class="telaBtn perguntaBtn" id="btnVolta2"></button>
+      <button class="telaBtn perguntaBtn" id="btnVolta3"></button>
+    </div>
+  </div>
   <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
   <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>

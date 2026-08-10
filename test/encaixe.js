@@ -423,6 +423,19 @@ const sec = t => log('\n---- ' + t);
     ok(conta, conta ? 'a tela diz, em português de gente, que uma contagem sai daqui'
                     : 'a CSP abriu um host e a tela não diz que algo sai — a omissão É a mentira seguinte');
     ok(negativas.length === 5, 'e diz o que NÃO sai, uma coisa por vez: ' + negativas.join(' · '));
+    // 3b. E DIZ AS DUAS COISAS QUE NÃO SÃO "CONTAGEM". O relatório de erro e a resposta da
+    //     pergunta do fim entraram depois dos sete eventos de retenção e são de outra
+    //     natureza — um é um defeito, o outro é uma frase que alguém escolheu. "Uma contagem
+    //     anônima" continuaria verdadeiro ao pé da letra e falso no que importa, que é a
+    //     forma mais elegante de a tela mentir sem uma palavra falsa. §3 do CLAUDE.md.
+    const dizErro = /A MENSAGEM/.test(priv.txt) && /DO ERRO/.test(priv.txt);
+    const dizResposta = /RESPOSTA À PERGUNTA DO FIM/.test(priv.txt);
+    ok(dizErro, dizErro
+      ? 'a tela diz que, se o jogo quebrar, a mensagem do erro sai daqui'
+      : 'o jogo manda relatório de erro e a tela não conta — "uma contagem" não descreve isso');
+    ok(dizResposta, dizResposta
+      ? 'e diz que a resposta da pergunta do fim sai junto, se a pessoa responder'
+      : 'a pergunta do fim manda a resposta para fora e a tela não conta que manda');
     // 4. afirmação sem interruptor é aviso, não escolha
     ok(priv.temBotao && /LIGADA/.test(priv.rot || ''),
       'existe um interruptor na própria tela, e ele diz que está ligado');
@@ -822,13 +835,17 @@ const sec = t => log('\n---- ' + t);
   sec('17 · a medição some sem levar o jogo junto, e não carrega ninguém consigo');
   const HTML = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
   const ORIGEM = 'https://encaixe.local/';
-  async function rodarMedida(modo) {
+  // `op.esperado` é a válvula dos blocos 18 e 20: eles PROVOCAM um defeito de propósito, e sem
+  // ela o próprio erro encenado seria contado como erro do jogo. `op.provocar` roda com a
+  // página já viva, depois da espera, e antes da conferência de que a partida seguiu.
+  async function rodarMedida(modo, op) {
+    op = op || {};
     const pg = await browser.newPage({
       viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2
     });
     const pedidos = [];
     const ruins = [];
-    pg.on('pageerror', e => ruins.push('PAGEERROR: ' + e.message));
+    pg.on('pageerror', e => { if (op.esperado && op.esperado.test(e.message)) return; ruins.push('PAGEERROR: ' + e.message); });
     pg.on('console', m => {
       if (m.type() !== 'error') return;
       const t = m.text();
@@ -836,6 +853,7 @@ const sec = t => log('\n---- ' + t);
       // bloco está encenando, e um adblock de verdade escreve a mesma linha. O que não pode
       // aparecer é qualquer outro erro: esse seria do jogo.
       if (/posthog|Failed to load resource|ERR_/i.test(t)) return;
+      if (op.esperado && op.esperado.test(t)) return;
       ruins.push('CONSOLE: ' + t);
     });
     await pg.route('**/*', async (route) => {
@@ -848,7 +866,15 @@ const sec = t => log('\n---- ' + t);
         return route.fulfill({ status: 503, body: 'fora do ar' });
       }
       if (u === ORIGEM || u === ORIGEM.slice(0, -1)) {
-        return route.fulfill({ contentType: 'text/html; charset=utf-8', body: HTML });
+        // `op.injetar` entra no HTML SERVIDO, como último script do corpo — depois do jogo,
+        // que registra os ganchos de erro no topo do módulo. Tem de ser assim e não por
+        // `createElement('script')`: o Chromium só dá `filename` a script que veio do
+        // ANALISADOR da página. Script criado por código, ou jogado por `page.evaluate`,
+        // chega com o campo vazio — e o teste acusaria o jogo de não saber dizer o arquivo.
+        const corpo = op.injetar
+          ? HTML.replace('</body>', () => '<script>' + op.injetar + '</scr' + 'ipt></body>')
+          : HTML;
+        return route.fulfill({ contentType: 'text/html; charset=utf-8', body: corpo });
       }
       const pack = u.match(/\/(pack-[\w-]+\.json)$/);
       if (pack) {
@@ -870,6 +896,8 @@ const sec = t => log('\n---- ' + t);
       await pg.reload();
     }
     await pg.waitForTimeout(1400);
+    let colhido = null;
+    if (op.provocar) { colhido = await op.provocar(pg); await pg.waitForTimeout(600); }
     // e o jogo continua sendo jogado: a rua anda e a leitura abre
     const vivo = await pg.evaluate(async () => {
       fecharTudo();
@@ -880,8 +908,10 @@ const sec = t => log('\n---- ' + t);
     });
     const ms = Date.now() - t0;
     await pg.close();
-    return { modo, pedidos, ruins, vivo, ms };
+    return { modo, pedidos, ruins, vivo, ms, colhido };
   }
+  // os eventos que saíram, abertos — é assim que os blocos 18/19/20 leem o que foi medido
+  const eventos = r => r.pedidos.map(p => { try { return JSON.parse(p.corpo || '{}'); } catch (e) { return {}; } });
   // O marcador de "o jogo já responde" é a RUA TER ANDADO: não há relógio melhor, porque o
   // laço de quadro só existe depois de o jogo estar inteiro de pé.
   for (const modo of ['adblock', 'mudo', '503']) {
@@ -912,8 +942,14 @@ const sec = t => log('\n---- ' + t);
         'e o pedido vai sem cookie nenhum (credentials: "omit")');
       // A LISTA BRANCA. Qualquer propriedade nova aparece aqui como falha, e é de propósito:
       // o jeito de vazar algo é acrescentar um campo achando que ele é inofensivo.
-      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'capitulo', 'daChegada',
-        'dia', 'minutos', 'n', 'nome', 'terminou', 'vez'];
+      // `msg`, `arquivo` e `linha` entraram com o relatório de erro (bloco 18) — as três, e
+      // nada além delas: relatório de defeito é o esconderijo clássico de dado de gente,
+      // porque parece técnico e ninguém o lê como dado pessoal.
+      // `resposta` entrou com a pergunta da CHEGADA (bloco 19) e `sessao` com o "onde parou"
+      // (bloco 20).
+      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'capitulo',
+        'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta', 'sessao',
+        'terminou', 'vez'];
       const estranhas = props.filter(p => PERMITIDAS.indexOf(p) < 0);
       ok(estranhas.length === 0, estranhas.length === 0
         ? 'e nenhuma propriedade fora da lista branca — nada de tela, idioma, fuso ou navegador'
@@ -933,6 +969,200 @@ const sec = t => log('\n---- ' + t);
         ? 'com a contagem desligada não sai UM byte — nem no boot, nem ao abrir A HISTÓRIA'
         : 'a contagem está desligada e ainda saíram ' + desl.pedidos.length + ' pedido(s)');
     ok(desl.vivo.andou > 1 && desl.vivo.tela, 'e o jogo desligado continua sendo o mesmo jogo');
+  }
+
+  // ============================================================
+  // 18 · O JOGO QUEBRA E ALGUÉM FICA SABENDO — sem virar tempestade
+  //
+  // O defeito que este bloco protege é o mais barato de introduzir e o mais caro de perceber:
+  // uma exceção dentro do laço de quadro dispara SESSENTA VEZES POR SEGUNDO. Sem agrupamento e
+  // sem teto, um jogo quebrado no telefone de outra pessoa vira trinta e seis mil pedidos por
+  // dez minutos — pagos com a bateria dela e com a cota que o "voltou no dia 3" precisa.
+  //
+  // Três medidas, e nenhuma delas se conserva sozinha num refactor:
+  //  (a) a exceção CHEGA, com mensagem, arquivo e linha, e NADA além disso;
+  //  (b) a mesma mensagem repetida duzentas vezes vale UM evento;
+  //  (c) mensagens todas diferentes param no teto que o próprio jogo declara.
+  // ============================================================
+  sec('18 · o jogo quebra, o aviso sai uma vez, e a tempestade não sai');
+  const tempestade = await rodarMedida('mudo', {
+    esperado: /encaixe-/,
+    // O DEFEITO NASCE DENTRO DA PÁGINA, do mesmo lugar de onde um defeito do jogo nasceria.
+    injetar: [
+      // um defeito, uma vez — e depois o MESMO defeito duzentas vezes, que é o formato exato
+      // de uma exceção presa no laço de quadro
+      'setTimeout(function(){ throw new Error("encaixe-defeito-unico"); }, 0);',
+      'for (var i = 0; i < 200; i++) setTimeout(function(){ throw new Error("encaixe-tempestade"); }, 0);',
+      // e uma promessa recusada sem catch, que não passa pelo `onerror` — é outro canal, e é
+      // justamente o canal do fetch do pacote de arte
+      'setTimeout(function(){ Promise.reject(new Error("encaixe-promessa")); }, 0);'
+    ].join('\n'),
+    provocar: async (pg) => pg.evaluate(() => (typeof MEDIDA_ERRO_TETO === 'number' ? MEDIDA_ERRO_TETO : null))
+  }).catch(e => ({ erro: String(e) }));
+  if (tempestade.erro) { ok(false, 'o bloco 18 explodiu — ' + tempestade.erro); }
+  else {
+    const errs = eventos(tempestade).filter(c => c.event === 'erro');
+    const msgs = errs.map(c => (c.properties || {}).msg || '');
+    log('   teto declarado pelo jogo: ' + tempestade.colhido + ' | eventos "erro": ' + errs.length);
+    log('   ' + msgs.map(m => '"' + m.slice(0, 46) + '"').join(' | '));
+    ok(errs.length > 0, errs.length > 0
+      ? 'o jogo quebrou e o aviso saiu — o defeito parou de morrer no telefone de outra pessoa'
+      : 'o jogo quebrou e ninguém ficou sabendo (é o estado anterior, e é o mais caro que existe)');
+    // (b) 201 exceções, duas mensagens distintas: uma vez cada
+    const daTempestade = msgs.filter(m => /encaixe-tempestade/.test(m));
+    ok(daTempestade.length === 1,
+      daTempestade.length === 1
+        ? 'duzentas exceções da MESMA mensagem valeram um evento só — o agrupamento é por mensagem'
+        : 'a mesma mensagem saiu ' + daTempestade.length + ' vezes: o laço de quadro vira tempestade');
+    ok(msgs.some(m => /promessa: .*encaixe-promessa/.test(m)),
+      'promessa recusada sem catch também é relatada, e diz que veio do outro canal');
+    // (a) o corpo: três propriedades e nada de estado de jogo
+    const p = (errs[0] || {}).properties || {};
+    const extras = Object.keys(p).filter(k => ['$ip', '$lib', '$process_person_profile', 'msg', 'arquivo', 'linha'].indexOf(k) < 0);
+    log('   corpo do erro: ' + Object.keys(p).sort().join(', ') + ' | linha ' + p.linha + ' | arquivo "' + p.arquivo + '"');
+    ok(extras.length === 0, extras.length === 0
+      ? 'e o corpo leva a mensagem, o arquivo e a linha — nada do estado do jogo foi de carona'
+      : 'o relatório de erro levou junto: ' + extras.join(', '));
+    ok(typeof p.linha === 'number' && p.linha > 0, 'a linha veio preenchida (' + p.linha + ')');
+    ok(!!p.arquivo && !/\?|#|:\/\//.test(String(p.arquivo)),
+      'e o arquivo é um caminho preenchido, sem domínio, sem consulta e sem âncora ("'
+        + p.arquivo + '") — URL é o outro esconderijo de dado de gente');
+    ok(tempestade.vivo.andou > 1 && tempestade.vivo.tela,
+      'e a partida seguiu inteira depois de 201 exceções — o relatório não derruba quem ele relata');
+  }
+  // (c) o TETO, medido com mensagens todas diferentes: é o caso que escapa do agrupamento
+  const distintas = await rodarMedida('mudo', {
+    esperado: /encaixe-/,
+    injetar: 'for (var i = 0; i < 40; i++) (function(n){ setTimeout(function(){'
+      + ' throw new Error("encaixe-distinta-" + n); }, 0); })(i);',
+    provocar: async (pg) => pg.evaluate(() => (typeof MEDIDA_ERRO_TETO === 'number' ? MEDIDA_ERRO_TETO : null))
+  }).catch(e => ({ erro: String(e) }));
+  if (distintas.erro) { ok(false, 'o teto do bloco 18 explodiu — ' + distintas.erro); }
+  else {
+    const n = eventos(distintas).filter(c => c.event === 'erro').length;
+    log('   40 mensagens DIFERENTES -> ' + n + ' evento(s), com teto ' + distintas.colhido);
+    ok(n === distintas.colhido,
+      n === distintas.colhido
+        ? 'quarenta mensagens diferentes pararam no teto de ' + distintas.colhido + ' — o agrupamento tem fundo'
+        : 'quarenta mensagens diferentes renderam ' + n + ' eventos: o teto de ' + distintas.colhido + ' não segura');
+    ok(distintas.vivo.andou > 1, 'e o jogo continua andando com o teto batido');
+  }
+
+  // ============================================================
+  // 19 · A PERGUNTA DE UMA LINHA — feita uma vez, sem pedágio, sem nota
+  //
+  // O repositório existe para responder se o laço segura alguém por três dias, e até aqui só
+  // um bot respondia. A pergunta na CHEGADA é a única vez em que o jogo fala com quem o joga.
+  // Três coisas a protegem, e as três somem no primeiro refactor sem asserção:
+  //  (a) ela aparece UMA vez e não insiste — nem com quem respondeu, nem com quem calou;
+  //  (b) ela não é pedágio: as portas continuam do outro lado dela, funcionando;
+  //  (c) ela não é avaliação. Nada de estrela, nota ou "gostou" — §2.1, a CHEGADA não é troféu.
+  // ============================================================
+  sec('19 · a pergunta do fim: uma vez, sem pedágio, e sem virar avaliação');
+  const perg = await page.evaluate(async () => {
+    fecharTudo(); fecharTelas();
+    R.volta = 0; R.chegou = 1;
+    montarFim(); abrirTela('telaFim');
+    await new Promise(r => setTimeout(r, 200));
+    const cx = document.getElementById('fimPergunta');
+    const txt = document.getElementById('fimPerguntaTxt');
+    const bts = [...document.querySelectorAll('#fimPerguntaBotoes .perguntaBtn')]
+      .map(b => b.getAttribute('aria-label') || '');
+    const visivel = !cx.classList.contains('oculto');
+    const marcada = R.volta | 0;                    // perguntar já marca: o silêncio é resposta
+    // (b) as portas do fim continuam alcançáveis com a pergunta em pé
+    const portas = ['btnFimHist', 'btnFimFontes', 'btnFimVoltar'].map(function (id) {
+      const e = document.getElementById(id), r = e.getBoundingClientRect();
+      return { id: id, ok: r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none' };
+    });
+    // e fechar a tela sem tocar em nada funciona
+    document.getElementById('btnFimVoltar').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 200));
+    const fechou = !document.getElementById('telaFim').classList.contains('aberta');
+    // (a) reabrir: quem calou não é perguntado de novo
+    montarFim(); abrirTela('telaFim');
+    await new Promise(r => setTimeout(r, 150));
+    const insiste = !document.getElementById('fimPergunta').classList.contains('oculto');
+    fecharTelas();
+    return { visivel, marcada, pergunta: txt.textContent, bts, portas, fechou, insiste,
+      // (c) o vocabulário inteiro do bloco, para a mesma régua do bloco 10
+      vocab: (txt.textContent + ' ' + bts.join(' ')) };
+  });
+  log('   "' + perg.pergunta + '" -> ' + perg.bts.join(' · '));
+  ok(perg.visivel && /voltaria amanhã/i.test(perg.pergunta),
+    'a CHEGADA faz a pergunta que o repositório inteiro existe para responder');
+  ok(perg.bts.length === 3 && perg.bts.every(t => t.length > 0),
+    'e oferece três respostas, todas com rótulo: ' + perg.bts.join(' · '));
+  ok(perg.marcada > 0 && !perg.insiste,
+    perg.marcada > 0 && !perg.insiste
+      ? 'perguntada uma vez, ela não volta a perguntar — nem para quem não respondeu'
+      : 'a pergunta reaparece: convite feito duas vezes é cobrança, e cobrança não mede intenção');
+  ok(perg.portas.every(p => p.ok) && perg.fechou,
+    'e ela não é pedágio: as duas portas e o VOLTAR seguem lá, e sair sem responder sai');
+  ok(!/estrela|nota|avali|gost|pontos|score|impacto/i.test(perg.vocab),
+    'nenhuma palavra de avaliação na pergunta nem nas respostas — a CHEGADA não é troféu (§2.1)');
+  // e a resposta VAI para a medição, com a palavra escolhida e mais nada
+  const resp = await rodarMedida('mudo', {
+    provocar: async (pg) => pg.evaluate(async () => {
+      fecharTudo(); fecharTelas();
+      R.volta = 0; R.chegou = 1;
+      montarFim(); abrirTela('telaFim');
+      await new Promise(r => setTimeout(r, 150));
+      document.getElementById('btnVolta2').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 150));
+      return { volta: R.volta | 0,
+        papel: (document.getElementById('fimPerguntaTxt') || {}).textContent,
+        botoes: document.getElementById('fimPerguntaBotoes').classList.contains('oculto') };
+    })
+  }).catch(e => ({ erro: String(e) }));
+  if (resp.erro) { ok(false, 'o bloco 19 explodiu — ' + resp.erro); }
+  else {
+    const v = eventos(resp).filter(c => c.event === 'volta');
+    const pv = (v[0] || {}).properties || {};
+    log('   toque em TALVEZ -> evento "volta" ' + v.length + 'x | resposta "' + pv.resposta
+      + '" | R.volta ' + resp.colhido.volta + ' | o papel diz "' + resp.colhido.papel + '"');
+    ok(v.length === 1 && typeof pv.resposta === 'string' && pv.resposta.length > 0,
+      'responder manda UM evento, com a palavra escolhida (' + pv.resposta + ')');
+    ok(resp.colhido.volta > 1, 'e o aparelho guarda que foi respondida (volta=' + resp.colhido.volta + ')');
+    ok(/anotado/i.test(resp.colhido.papel || '') && resp.colhido.botoes,
+      'a confirmação é o próprio papel mudando, e as tábuas somem — botão que não faz mais nada engana');
+  }
+
+  // ============================================================
+  // 20 · ONDE A PESSOA PAROU — o inverso de "chegou no capítulo X"
+  //
+  // "Chegou no capítulo 3" e "parou no capítulo 3" são a mesma pessoa lida por lados opostos,
+  // e só o segundo responde "onde as pessoas desistem". Ele sai quando a aba se esconde ou a
+  // página se despede — e no celular é `pagehide` quem manda, porque o `beforeunload` não é
+  // garantido no iOS. Junto vai o tempo DAQUELA sessão: parar no capítulo 3 com 40 s e parar
+  // no capítulo 3 com meia hora são duas pessoas opostas com o mesmo capítulo.
+  // ============================================================
+  sec('20 · o "onde parou" sai no pagehide, e leva o tempo daquela sessão');
+  const parou = await rodarMedida('mudo', {
+    provocar: async (pg) => {
+      const antes = await pg.evaluate(() => { fecharTudo(); return { cap: epocaAtual() }; });
+      await pg.waitForTimeout(1200);   // deixa a sessão acumular segundos de jogo de verdade
+      await pg.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+      await pg.evaluate(() => { medirParouArmado = true; });   // rearma como a volta à aba faria
+      return antes;
+    }
+  }).catch(e => ({ erro: String(e) }));
+  if (parou.erro) { ok(false, 'o bloco 20 explodiu — ' + parou.erro); }
+  else {
+    const ps = eventos(parou).filter(c => c.event === 'parou');
+    const pp = (ps[0] || {}).properties || {};
+    log('   pagehide -> ' + ps.length + ' evento(s) "parou" | capítulo ' + pp.capitulo
+      + ' "' + pp.nome + '" | sessão ' + pp.sessao + 's | vida ' + pp.minutos + 'min');
+    ok(ps.length === 1, ps.length === 1
+      ? 'esconder a página manda o "onde parou" — e uma vez só'
+      : '"parou" saiu ' + ps.length + ' vezes: os três ganchos viraram três eventos');
+    ok(typeof pp.capitulo === 'number' && typeof pp.nome === 'string' && pp.nome.length > 0,
+      'e ele diz em que capítulo ela estava quando foi embora (' + pp.capitulo + ' · ' + pp.nome + ')');
+    ok(typeof pp.sessao === 'number' && pp.sessao >= 1,
+      typeof pp.sessao === 'number' && pp.sessao >= 1
+        ? 'com o tempo DAQUELA sessão junto, em segundos (' + pp.sessao + ')'
+        : 'o "onde parou" foi sem o tempo da sessão (' + pp.sessao + ') — o capítulo sozinho não diz se ela desistiu');
+    ok(pp.sessao <= 60, 'e a sessão é a desta carga de página, não a vida inteira do save (' + pp.sessao + 's)');
   }
 
   sec('ERROS DE CONSOLE');

@@ -1162,6 +1162,31 @@
   .fimV { font: var(--margem); font-style: normal; font-family: var(--titulo); color: #33240f; white-space: nowrap; }
   .fimLin.falta { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
   .fimLin.falta .fimV { color: #6e4a08; }
+  /* A PERGUNTA DE UMA LINHA. Nenhum material novo, e isso é a decisão inteira: o papel é o
+     MESMO `.fimLin` (pauta + papel de campo + moldura de dois tons) e as respostas são a
+     MESMA tábua `.telaBtn` do resto do jogo. Uma caixa de pesquisa com visual próprio seria
+     exatamente o Frankenstein que a régua do menu existe para impedir — e, pior aqui, ela
+     leria como formulário de site colado num jogo pintado.
+     A pergunta em `--corpo`: ela é uma frase para LER, não um rótulo. As três respostas em
+     bitmap, porque são madeira — e em linha, não em coluna: empilhadas elas teriam o mesmo
+     peso das duas portas logo abaixo e a tela viraria seis botões iguais. */
+  #fimPergunta { width: 100%; max-width: 26em; margin: 0 0 20px; }
+  #fimPergunta.oculto { display: none; }
+  #fimPerguntaTxt { font: var(--corpo); color: var(--tintaP); text-align: left;
+    border-radius: 3px; padding: 9px 12px; margin-bottom: 8px;
+    background:
+      var(--pauta),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806; }
+  /* respondida, o papel é só a confirmação — a moldura âmbar do `.falta` seria convite, e
+     não há mais nada a convidar aqui */
+  #fimPerguntaTxt.anotado { font: var(--margem); font-style: italic; color: #6b4f2a; }
+  #fimPerguntaBotoes { display: flex; gap: 6px; width: 100%; }
+  /* `#telaFim .telaBtn` prega 300 px de largura em toda tábua desta tela; as três respostas
+     dividem a linha, então elas precisam desfazer isso — ID mais classe, para ganhar dele. */
+  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 0; min-width: 0;
+    padding: 12px 4px; margin: 0; }
+  #fimPerguntaBotoes.oculto { display: none; }
   /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
      ID — o botão nascia visível e empurrava a coluna do menu inteira para cima. O seletor
      tem de carregar o mesmo ID para poder apagar. Custou uma reprovação do smoke: o painel
@@ -1170,16 +1195,25 @@
      ficava abaixo da dobra — a tela rola, então nada some, mas um botão que só existe depois
      de um gesto que ninguém pediu é um botão que metade das pessoas não acha. Aperta-se o
      que não custa leitura: o entrelinha do texto, o respiro do placar e as margens. */
+  /* E A PERGUNTA PAGA O ALUGUEL DELA. Medido ao pô-la aqui: em 360×640 o VOLTAR PARA A RUA
+     caía 17 px abaixo da dobra e em 320×568 caía 37 px — exatamente o defeito que estas duas
+     consultas existem para não ter. Os apertos abaixo foram medidos um a um e nenhum deles
+     corta palavra: o que encolhe é RESPIRO (margem entre linhas do placar, margem entre as
+     tábuas, o topo da tela), nunca corpo de texto nem alvo de dedo. Depois deles as duas
+     telas voltam a mostrar o VOLTAR inteiro. */
   @media (max-height: 720px) {
-    #telaFim { padding-top: 14px; }
+    #telaFim { padding-top: 12px; }
     #telaFim .telaTit { margin-bottom: 8px; }
-    #telaFim .telaTxt { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+    #telaFim .telaTxt { font-size: 14px; line-height: 1.45; margin-bottom: 8px; }
     #telaFim .telaTxt div + div { margin-top: .5em; }
-    #fimPlacar { margin-bottom: 12px; }
-    .fimLin { padding: 5px 10px; margin-bottom: 4px; }
+    #fimPlacar { margin-bottom: 8px; }
+    .fimLin { padding: 5px 10px; margin-bottom: 3px; }
     .fimR { font-size: 12px; }
     .fimV { font-size: 13px; }
-    #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 6px; }
+    #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 5px; }
+    #fimPergunta { margin-bottom: 8px; }
+    #fimPerguntaTxt { font-size: 14px; line-height: 1.4; padding: 6px 10px; margin-bottom: 5px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 9px 3px; }
   }
   /* O PISO DO QUE AINDA SE VENDE (320×568). Com só o aperto de 720px sobravam -17 px — a
      tela cabia por dezessete pixels de nada. Mais um degrau resolve sem cortar uma palavra.
@@ -1187,9 +1221,20 @@
      mesma especificidade, então quem vence é quem está por último. Invertido, este bloco não
      pinta um pixel — e foi o que aconteceu na primeira tentativa. */
   @media (max-height: 600px) {
-    #telaFim .telaTxt { font-size: 13px; line-height: 1.45; }
-    .fimLin { padding: 4px 9px; margin-bottom: 3px; }
-    #telaFim .telaBtn { padding: 9px 18px; }
+    #telaFim { padding-top: 8px; }
+    #telaFim .telaTit { margin-bottom: 6px; }
+    #telaFim .telaTxt { font-size: 13px; line-height: 1.4; margin-bottom: 7px; }
+    #fimPlacar { margin-bottom: 6px; }
+    .fimLin { padding: 4px 9px; margin-bottom: 2px; }
+    #telaFim .telaBtn { padding: 9px 18px; margin-bottom: 3px; }
+    /* O PISO. Aqui a pergunta é o inquilino mais novo da tela mais alta do jogo, e ela paga o
+       aluguel dela: fonte de leitura no menor degrau que o caderno tem, papel rente à linha, e
+       a tábua com o mínimo de degrau que ainda dá alvo de dedo (~36 px de altura tocável).
+       O que NÃO encolheu, nas três larguras: o entrelinha do texto de leitura. Aperta-se
+       respiro, nunca palavra — é a régua que estas duas consultas já traziam. */
+    #fimPergunta { margin-bottom: 5px; }
+    #fimPerguntaTxt { font-size: 13px; line-height: 1.35; padding: 4px 8px; margin-bottom: 3px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 7px 3px; }
   }
   #telaMenu .telaBtn.oculto, .telaBtn.oculto { display: none; }
 
@@ -1466,6 +1511,22 @@
   <div class="telaTit" id="fimTit">ATÉ AQUI</div>
   <div class="telaTxt" id="fimTxt"></div>
   <div id="fimPlacar"></div>
+  <!-- A PERGUNTA DE UMA LINHA. O jogo existe para responder "o loop segura alguém por três
+       dias?" e até aqui quem respondia era um bot. Ela vive DEPOIS do placar e ANTES das duas
+       portas, e não é pedágio: quem sair sem tocar sai igual, e ela não volta a perguntar.
+       Não é avaliação e não pode virar uma — nada de estrelas, nada de nota, nada de "gostou?".
+       A CHEGADA não é troféu (§2.1) e uma caixa de nota no fim de um jogo sobre invasão e
+       escravidão seria a mesma tela de vitória que três ondas tiraram daqui, com outra roupa.
+       O material é o que já existe: papel de campo para a pergunta (PAPEL fala serifa) e
+       tábua para as respostas (MADEIRA fala bitmap) — a régua da casa, sem vocabulário novo. -->
+  <div id="fimPergunta" class="oculto">
+    <div id="fimPerguntaTxt"></div>
+    <div id="fimPerguntaBotoes">
+      <button class="telaBtn perguntaBtn" id="btnVolta1"></button>
+      <button class="telaBtn perguntaBtn" id="btnVolta2"></button>
+      <button class="telaBtn perguntaBtn" id="btnVolta3"></button>
+    </div>
+  </div>
   <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
   <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>
@@ -2856,7 +2917,7 @@ const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = () => ({
     dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
-    fontes: 0, chegou: 0
+    fontes: 0, chegou: 0, volta: 0
 });
 let R = RET_PADRAO();
 const RET_TOQUE_TETO = 5000;
@@ -2871,7 +2932,8 @@ const ESQUEMA_RET = {
     toqDir: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
     turbo: { tipo: "cont", min: 0, max: 20000, pad: 0 },
     fontes: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
-    chegou: { tipo: "cont", min: 0, max: 1e6, pad: 0 }
+    chegou: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
+    volta: { tipo: "cont", min: 0, max: 4, pad: 0 }
 };
 function diaLocal() {
     const d = new Date();
@@ -3068,6 +3130,7 @@ function medir(nome, props, chave) {
     catch (e) { }
 }
 let medirParouArmado = true;
+let sessaoSeg = 0;
 function medirParou() {
     if (!medirParouArmado)
         return;
@@ -3076,9 +3139,52 @@ function medirParou() {
         capitulo: epocaAtual(),
         nome: EPOCAS[epocaAtual()] ? EPOCAS[epocaAtual()].nome : "",
         minutos: Math.round((R.segundos | 0) / 60),
+        sessao: Math.round(sessaoSeg),
         dia: R.dias | 0
     });
 }
+const MEDIDA_ERRO_TETO = 3;
+let medirErros = 0;
+const medirErroVisto = {};
+function medirArquivo(u) {
+    const s = String(u == null ? "" : u).split("?")[0].split("#")[0];
+    const m = s.match(/^[a-z][a-z0-9+.-]*:\/\/[^/]*(\/.*)?$/i);
+    return String((m ? (m[1] || "/") : s) || "").slice(0, 60);
+}
+function medirErro(msg, arquivo, linha) {
+    try {
+        if (medirErros >= MEDIDA_ERRO_TETO)
+            return;
+        const texto = String(msg == null ? "" : msg).slice(0, 180);
+        if (!texto)
+            return;
+        if (medirErroVisto[texto])
+            return;
+        medirErroVisto[texto] = 1;
+        medirErros++;
+        medir("erro", { msg: texto, arquivo: medirArquivo(arquivo), linha: (linha | 0) || 0 });
+    }
+    catch (e) { }
+}
+window.addEventListener("error", function (e) {
+    medirErro(e && e.message, e && e.filename, e && e.lineno);
+});
+window.addEventListener("unhandledrejection", function (e) {
+    const r = e ? e.reason : null;
+    let texto = "", arquivo = "", linha = 0;
+    if (r && typeof r === "object" && typeof r.message === "string") {
+        texto = r.message;
+        const m = typeof r.stack === "string" ? r.stack.match(/(https?:\/\/[^\s)]+?):(\d+):\d+/) : null;
+        if (m) {
+            arquivo = m[1];
+            linha = parseInt(m[2], 10) || 0;
+        }
+    }
+    else {
+        texto = String(r);
+    }
+    medirErro("promessa: " + texto, arquivo, linha);
+});
 function contarToque(esquerda) {
     ultimaInteracao = Date.now();
     if (R.segundos >= 60)
@@ -6914,6 +7020,13 @@ function ligarTelas() {
         montarFontes();
         abrirTela("telaFontes");
     });
+    for (let i = 1; i <= 3; i++) {
+        (function (n) {
+            const b = document.getElementById("btnVolta" + n);
+            if (b)
+                b.addEventListener("pointerdown", function (e) { e.preventDefault(); responderVolta(n); });
+        })(i);
+    }
     $("btnFimVoltar").addEventListener("pointerdown", function (e) { e.preventDefault(); fecharTelas(); });
     $("btnVoltarFontes").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
     $("btnVoltarCfg").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
@@ -6961,7 +7074,7 @@ function montarConfig() {
     }
     linhas.push(["O QUE VOCÊ JOGOU FICA NESTE APARELHO.", "#5c3210"], ["O JOGO SÓ BAIXA A ARTE DELE.", "#5c3210"]);
     if (medirLigado) {
-        linhas.push(["E MANDA UMA CONTAGEM ANÔNIMA:", "#5c3210"], ["QUE ALGUÉM ABRIU, ATÉ QUE CAPÍTULO", "#5c3210"], ["FOI, E SE VOLTOU NO DIA SEGUINTE.", "#5c3210"], ["SEM NOME, SEM E-MAIL, SEM IP,", "#5c3210"], ["SEM COOKIE E SEM ANÚNCIO.", "#5c3210"]);
+        linhas.push(["E MANDA UMA CONTAGEM ANÔNIMA:", "#5c3210"], ["QUE ALGUÉM ABRIU, ATÉ QUE CAPÍTULO", "#5c3210"], ["FOI, E SE VOLTOU NO DIA SEGUINTE.", "#5c3210"], ["SE O JOGO QUEBRAR, A MENSAGEM", "#5c3210"], ["DO ERRO — NADA DA SUA PARTIDA.", "#5c3210"], ["E A SUA RESPOSTA À PERGUNTA DO FIM,", "#5c3210"], ["SE VOCÊ RESPONDER.", "#5c3210"], ["SEM NOME, SEM E-MAIL, SEM IP,", "#5c3210"], ["SEM COOKIE E SEM ANÚNCIO.", "#5c3210"]);
     }
     else {
         linhas.push(["A CONTAGEM ESTÁ DESLIGADA:", "#5c3210"], ["NÃO SAI UM BYTE DAQUI.", "#5c3210"]);
@@ -7073,6 +7186,45 @@ function montarFim() {
         box.appendChild(d);
     });
     pixelRotulo($("fimTit"), (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI", 3, "#ffd98a");
+    montarPergunta();
+}
+const VOLTA_RESPOSTAS = ["volto", "talvez", "nao"];
+const VOLTA_ROTULOS = ["VOLTO", "TALVEZ", "NÃO"];
+function montarPergunta() {
+    const cx = document.getElementById("fimPergunta");
+    if (!cx)
+        return;
+    if ((R.volta | 0) > 0) {
+        cx.classList.add("oculto");
+        return;
+    }
+    cx.classList.remove("oculto");
+    const linha = document.getElementById("fimPerguntaTxt");
+    linha.classList.remove("anotado");
+    linha.textContent = "você voltaria amanhã?";
+    const botoes = document.getElementById("fimPerguntaBotoes");
+    botoes.classList.remove("oculto");
+    for (let i = 0; i < 3; i++) {
+        const b = document.getElementById("btnVolta" + (i + 1));
+        if (b)
+            pixelRotulo(b, VOLTA_ROTULOS[i], 2, "#e3d2ac");
+    }
+    R.volta = 1;
+    salvarRetencao();
+}
+function responderVolta(i) {
+    R.volta = Math.min(1 + i, ESQUEMA_RET.volta.max);
+    salvarRetencao();
+    medir("volta", { resposta: VOLTA_RESPOSTAS[i - 1], dia: R.dias | 0,
+        minutos: Math.round((R.segundos | 0) / 60), vez: R.chegou | 0 }, "volta");
+    const linha = document.getElementById("fimPerguntaTxt");
+    if (linha) {
+        linha.textContent = "anotado.";
+        linha.classList.add("anotado");
+    }
+    const botoes = document.getElementById("fimPerguntaBotoes");
+    if (botoes)
+        botoes.classList.add("oculto");
 }
 function chegarAoFim() {
     R.chegou = Math.min((R.chegou | 0) + 1, ESQUEMA_RET.chegou.max);
@@ -7310,6 +7462,7 @@ document.addEventListener("DOMContentLoaded", () => {
             atualizarKick(dt);
         }
         R.segundos += dt;
+        sessaoSeg += dt;
         retAcc += dt;
         if (retAcc > 30) {
             retAcc = 0;
@@ -7342,6 +7495,7 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(frame);
     setInterval(salvar, 10000);
     window.addEventListener("beforeunload", function () { salvar(); salvarRetencao(); medirParou(); });
+    window.addEventListener("pagehide", function () { salvar(); salvarRetencao(); medirParou(); });
     document.addEventListener("visibilitychange", function () {
         if (document.hidden) {
             salvar();
