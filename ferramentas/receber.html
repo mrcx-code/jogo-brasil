@@ -6,22 +6,34 @@
 <title>A mesa · BRASIL</title>
 <style>
   /* A MESA FALA A LINGUA DO JOGO — a linguagem visual não mudou: madeira = coisa posta no
-     lugar, pedra = ferramenta, papel de campo = o que espera você, e um ouro só, para o que
-     importa agora. O que mudou em 10/08 foi a QUANTIDADE de coisa, por pedido do dono:
-     "as imagens na mesa estão confusas, essa estrutura nova não gostei não. Prefiro só o
-     que tá pendente e boas. Tem coisa repetida também, evite isso."
-     A página tem DUAS listas — o que gerar e o que decidir — e mais nada. */
+     lugar, pedra = ferramenta, e um ouro só, para o que importa agora. O que mudou em 10/08
+     foi a QUANTIDADE de coisa e a ORDEM, em três correções do dono no mesmo dia:
+       · "prefiro só o que tá pendente e boas. Tem coisa repetida também, evite isso."
+       · "a sessão subir imagem pode sair, e a 'o que gerar' deve vir logo depois do revisar"
+       · "quero a 'O que gerar' e 'O que decidir' sempre no topo, para resolver pendências"
+     A página abre nas DUAS LISTAS. Tudo que não é "faça isto" nem "decida isto" desceu para
+     o fim: o painel de atividade e a contagem do que está comigo. */
   :root { color-scheme: dark;
     --fundo:#1c2010; --painel:#2b3320; --painel2:#3c4627; --borda:#14170c;
     --texto:#f2e8ce; --sub:#a9a184; --ouro:#eba748; --papel:#e9d8ae; --tinta:#33240f;
     --good:#7d9a3c; --run:#71a39c; }
-  body { margin: 0; padding: 24px; background: var(--fundo); color: var(--texto);
+  body { margin: 0; padding: 16px 24px 24px; background: var(--fundo); color: var(--texto);
          font: 15px/1.5 "Cascadia Mono", Consolas, ui-monospace, monospace; }
-  h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: .2em; color: var(--ouro);
-       text-shadow: 0 2px 0 var(--borda); }
-  .sub { color: var(--sub); margin: 0 0 22px; font-size: 12px; }
+  /* A BARRA DO TOPO É FINA DE PROPÓSITO. O REVISAR é um botão, não uma seção: ele existe
+     para recontar a fila, não para ser lido. Título, botão e placar cabem numa faixa só,
+     e a primeira lista começa logo abaixo — o critério do dono é que a primeira coisa que
+     ele vê ao abrir seja uma coisa que ele pode RESOLVER agora. */
+  .barra { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+           border-bottom: 2px solid var(--borda); padding-bottom: 10px; margin-bottom: 4px; }
+  .barra h1 { font-size: 15px; margin: 0; letter-spacing: .22em; color: var(--ouro);
+       text-shadow: 0 2px 0 var(--borda); flex: 0 0 auto; }
+  .barra button { margin: 0; padding: 5px 12px; font-size: 12px; }
+  .barra .placar { color: var(--sub); font-size: 12px; flex: 1 1 auto; }
+  .sub { color: var(--sub); font-size: 12px; }
   .bloco { background: var(--painel); border: 2px solid var(--borda);
     box-shadow: 0 4px 0 var(--borda); padding: 14px 16px; }
+  .bloco h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub);
+    margin: 0 0 9px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
   .linha { display: flex; gap: 12px; padding: 6px 0; align-items: baseline; font-size: 13px; }
   .linha + .linha { border-top: 1px solid rgba(20,23,12,.35); }
   .marca { color: var(--sub); font-size: 11px; min-width: 92px; flex: 0 0 auto; }
@@ -35,14 +47,18 @@
   .sFrio { background: #4a3a1a; color: #ffcd75; }
   @keyframes pulsa { 50% { opacity: .5 } }
   @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
-  .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 34px 0 9px;
+  .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 26px 0 9px;
     text-transform: uppercase; display: flex; align-items: baseline; gap: 10px; }
+  .secao.primeira { margin-top: 14px; }   /* a lista de cima cola na barra: nada rouba o topo */
   .conta { font-size: 10px; letter-spacing: .12em; padding: 2px 8px;
     border: 2px solid var(--borda); box-shadow: 2px 2px 0 var(--borda);
     background: var(--ouro); color: #221a06; }
   .conta:empty { display: none; }
   .pedido { border: 2px solid var(--borda); padding: 16px; margin-bottom: 16px;
             background: var(--painel); box-shadow: 0 4px 0 var(--borda); }
+  /* Piscada de ouro quando o Ctrl+V da página inteira escolhe este cartão: sem ela, colar
+     fora do campo parece não ter acontecido — ou pior, ter acontecido no pedido errado. */
+  .pedido.recebeu { outline: 3px solid var(--ouro); outline-offset: 2px; }
   .titulo { font-weight: 600; margin-bottom: 2px; }
   .ref { color: #8d8a80; font-size: 13px; margin-bottom: 10px; }
   /* O PROMPT VEM DOBRADO. O dono pediu "o prompt pronto para copiar em um toque" — quem
@@ -57,7 +73,7 @@
   .prompt { background: #101218; border: 1px solid #2c3038; border-radius: 6px; padding: 10px;
             font: 12px/1.45 ui-monospace, monospace; color: #b8c9a8; white-space: pre-wrap;
             max-height: 260px; overflow: auto; }
-  .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 22px; text-align: center;
+  .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 18px; text-align: center;
           color: #8d8a80; cursor: text; outline: none; font-size: 14px; }
   .cola:focus { border-color: #6fdd94; color: #b8c9a8; }
   .cola.tem { border-style: solid; border-color: var(--good); padding: 8px; }
@@ -74,16 +90,6 @@
   button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 10px; padding: 6px 12px;
                       font-size: 13px; }
   .vazio { color: #8d8a80; font-size: 14px; }
-  #topo { display: flex; flex-direction: column; gap: 16px; }
-  #topo h2, #atividade h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub);
-    margin: 0 0 9px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-  #topo .bloco > button { margin-top: 0; }
-  select, .subNome { background: var(--painel2); color: var(--texto); border: 2px solid var(--borda);
-    padding: 6px 8px; font: 13px "Cascadia Mono", Consolas, ui-monospace, monospace;
-    max-width: 100%; }
-  .subLinha { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
-  .subLinha select { flex: 1 1 340px; }
-  .subNome { flex: 1 1 240px; }
   .rodape { color: var(--sub); font-size: 11px; margin: 10px 0 0; letter-spacing: .04em; }
   .divisa { border: 0; border-top: 1px solid rgba(20,23,12,.55); margin: 14px 0 10px; }
   /* UMA LINHA POR COMMIT. Um assunto de vinte palavras quebrava em seis linhas e um único
@@ -92,17 +98,16 @@
      ele o filho flex não encolhe abaixo do conteúdo e o corte nunca acontece. */
   .assunto { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
              white-space: nowrap; }
-  /* A LINHA DO QUE ESTÁ COMIGO. Era um bloco com 12 nomes e saiu por decisão do dono: lista
-     o que está na MINHA mão, não na dele. Fica a contagem, apagada, e mais nada. */
-  #comigo { color: var(--sub); font-size: 12px; margin: 8px 0 0; }
+  /* A LINHA DO QUE ESTÁ COMIGO. Era um bloco com 12 nomes; virou contagem, e desceu para o
+     fim junto com o resto — lista o que está na MINHA mão, não na dele. */
+  #comigo { color: var(--sub); font-size: 12px; margin: 14px 0 0; }
   /* PERGUNTAS: o que está parado esperando ele decidir. */
   .rmItem { background: #191c23; border: 1px solid #2c3038; border-radius: 6px;
             padding: 9px 12px; margin-bottom: 6px; }
   /* O TÍTULO DE CADA PERGUNTA JÁ É A PERGUNTA, então ele é o que fica à vista e o corpo
      dobra atrás dele. Doze perguntas abertas davam 4.159 px de rolagem — mais que as duas
      outras seções somadas, e ninguém decide doze coisas de uma vez. Dobrado, ele vê a lista
-     inteira de uma olhada e abre a que vai responder. O campo de resposta NÃO dobra: a ação
-     tem de estar visível, senão a dobra vira esconderijo. */
+     inteira de uma olhada e abre a que vai responder. */
   .rmT { font-size: 13px; color: #e8e6df; font-weight: 600; cursor: pointer;
          list-style: none; padding: 2px 0; }
   .rmT::-webkit-details-marker { display: none; }
@@ -116,48 +121,29 @@
 </style>
 </head>
 <body>
-<h1>A MESA</h1>
-<p class="sub">Só o que está pendente: <b>o que gerar</b> e <b>o que decidir</b>.
-Gere a imagem onde quiser e <b>cole (Ctrl+V) ou ARRASTE</b> — no campo de cima, para qualquer
-pedido, ou no campo do próprio pedido. O arquivo cai em <code>assets/entrada/</code>.</p>
 
-<!-- OS TRÊS BLOCOS DO TOPO SÃO PEDIDO EXPLÍCITO DO DONO e ficam: revisar · subir imagem ·
-     trabalhando agora. O que saiu daqui em 10/08 foi tudo o que não é "faça isto" nem
-     "decida isto": a lista do que chegou e espera por mim (virou a linha de contagem logo
-     abaixo do placar), o PRÓXIMO PASSO e os MARCOS escritos à mão em equipe.json — que eram
-     a repetição mais cara da página, porque diziam com outras palavras o que as duas listas
-     já diziam com dado, e só as listas se atualizam sozinhas. -->
-<div id="topo">
-  <section class="bloco" id="blocoRevisar">
-    <h2>Revisar</h2>
-    <div id="revisarPlacar" class="sub" style="margin:0">lendo a fila…</div>
-    <div id="comigo"></div>
-    <button id="btRevisar" style="margin-top:12px">REVISAR O QUE FALTA</button>
-  </section>
-
-  <section class="bloco" id="blocoSubir">
-    <h2>Subir imagem</h2>
-    <div class="subLinha">
-      <span class="marca">para o pedido</span>
-      <select id="subirAlvo"><option value="">carregando…</option></select>
-    </div>
-    <div class="subLinha" id="subirLinhaNome" style="display:none">
-      <span class="marca">nome do arquivo</span>
-      <input class="subNome" id="subirNome" placeholder="sem-extensao-assim" autocomplete="off">
-    </div>
-    <div class="cola" id="subirCola" tabindex="0">cole aqui (Ctrl+V) ou ARRASTE a imagem para cá</div>
-    <div class="estado" id="subirEstado"></div>
-    <button id="subirSalvar" disabled>Salvar</button>
-  </section>
-
-  <div id="atividade"></div>
+<!-- A BARRA. Título, o botão REVISAR e o placar numa faixa só. O que já foi seção e saiu:
+     o bloco global de SUBIR IMAGEM, retirado a pedido do dono em 10/08. Ele era um SEGUNDO
+     jeito de fazer o que o campo de cada cartão já faz — e as cinco entregas daquela tarde
+     (cap2-corrida, cap4-fundo-chao-v2, q-p22, cap3-corrida, cap4-fundo-alto-v2) foram todas
+     pelo campo do cartão: os .txt de `assets/entrada` registram "mesa · campo do pedido" nas
+     cinco. O Ctrl+V da página inteira NÃO se perdeu junto: ele agora entrega ao cartão em
+     que ele tocou por último (veja `cartaoParaColar`). -->
+<div class="barra">
+  <h1>A MESA</h1>
+  <button id="btRevisar">REVISAR</button>
+  <span class="placar" id="revisarPlacar">lendo a fila…</span>
 </div>
 
-<h2 class="secao">O que gerar <span class="conta" id="quantasFaltam"></span></h2>
+<h2 class="secao primeira">O que gerar <span class="conta" id="quantasFaltam"></span></h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
 
 <h2 class="secao">O que decidir <span class="conta" id="quantasPerguntas"></span></h2>
 <div id="pendencias"></div>
+
+<hr class="divisa" style="margin-top:34px">
+<div id="atividade"></div>
+<p id="comigo"></p>
 
 <script>
 // A página é burra de propósito: lê o que o servidor calculou, recebe uma colagem, e manda o
@@ -172,97 +158,30 @@ function el(tag, cls, txt) {
   return e;
 }
 
-// SAIU DAQUI EM 10/08: `pintarResposta()` e o laço `puxar()` que relia /pedidos de 3 em 3
-// segundos para mostrar um veredito sobre a imagem colada, com barra de progresso. A barra
-// subia sozinha até 95% por uma curva de tempo — ela não media nada, e o veredito só existia
-// se eu editasse o pedidos.json à mão. Painel que não é alimentado pelo que ele diz medir é
-// a mesma mentira do "trabalhando agora" que lia equipe.json. Depois de salvar, a mesa agora
-// diz só o que ela sabe: o arquivo, o tamanho e que chegou.
-
 // =========================================================================
-// LISTA 2 — O QUE DECIDIR. As perguntas que só ele responde.
-function montarPendencias() {
-  fetch("/pendencias").then(r => r.json()).then(function (pd) {
-    const box = document.getElementById("pendencias");
-    const conta = document.getElementById("quantasPerguntas");
-    box.textContent = "";
-    // SÓ O QUE AINDA NÃO FOI RESPONDIDO. Item respondido deixou de ser pendência e virou
-    // trabalho MEU — mantê-lo aqui faz a lista só crescer, e lista que só cresce ninguém lê.
-    const abertos = ((pd && pd.itens) || []).filter(function (i) { return !String(i.resposta || "").trim(); });
-    conta.textContent = abertos.length ? abertos.length + " ESPERANDO" : "";
-    if (!abertos.length) {
-      box.appendChild(el("p", "vazio", "Nada esperando você aqui — tudo que eu precisava foi respondido."));
-      return;
-    }
-    abertos.forEach(function (i) {
-      const it = el("div", "rmItem");
-      const d = document.createElement("details");
-      const s = document.createElement("summary");
-      s.className = "rmT";
-      s.textContent = i.t;
-      d.appendChild(s);
-      if (i.n) d.appendChild(el("div", "rmN", i.n));
-      it.appendChild(d);
-      // Campo de resposta: ele escreve aqui e eu leio no arquivo. Mais confiável que o chat,
-      // porque não se perde no rolar — e fica junto da pergunta que respondeu.
-      const ta = document.createElement("textarea");
-      ta.className = "rmResp";
-      ta.placeholder = "sua resposta…";
-      ta.value = i.resposta || "";
-      // ENVIAR é explícito. Antes, o "change" do textarea disparava ao sair do campo — ele
-      // nunca sabia se tinha enviado, e um clique fora mandava resposta pela metade.
-      const env = document.createElement("button");
-      env.textContent = "ENVIAR RESPOSTA";
-      env.disabled = true;
-      ta.addEventListener("input", function () { env.disabled = !ta.value.trim(); });
-      const mandar = function () {
-        if (!ta.value.trim()) return;
-        env.disabled = true; env.textContent = "enviando…";
-        fetch("/responder", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ t: i.t, resposta: ta.value }) })
-          .then(function (r) { return r.json(); })
-          .then(function () {
-            // Sai da tela deslizando, para o gesto ter consequência visível: respondeu, sumiu.
-            it.style.transition = "opacity .35s, transform .35s";
-            it.style.opacity = "0"; it.style.transform = "translateX(18px)";
-            setTimeout(montarPendencias, 380);
-          })
-          .catch(function () { env.disabled = false; env.textContent = "ENVIAR RESPOSTA"; });
-      };
-      env.addEventListener("click", mandar);
-      // Ctrl+Enter manda sem tirar a mão do teclado.
-      ta.addEventListener("keydown", function (e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); mandar(); }
-      });
-      // A RESPOSTA MORA DENTRO DA DOBRA, junto da pergunta que ela responde. Doze campos de
-      // resposta abertos ao mesmo tempo davam 2.046 px de caixa vazia — e ninguém responde
-      // uma pergunta sem ter lido. Fechado, cada pendência é UMA LINHA: a lista inteira cabe
-      // de uma olhada, que é o que ele pediu ao dizer "prefiro só o que tá pendente".
-      d.appendChild(ta);
-      d.appendChild(env);
-      box.appendChild(it);
-    });
-  }).catch(function () {});
-}
-montarPendencias();
-
-// =========================================================================
-// LISTA 1 — O QUE GERAR. Lê /fila, que é o ÚNICO lugar onde o cruzamento acontece: manifesto
-// contra registro do que entrou no jogo, contra recusas, contra o que há em disco. A ORDEM é
-// a de aparição no jogo e vem pronta do servidor, que a deriva de EPOCAS no src/jogo.ts —
-// nada de ordenar por número de nome, que poria o capítulo do presente (cap3) antes de
-// SALVADOR (cap4), ou seja, antes do que ele mesmo comenta.
+// LISTA 1 — O QUE GERAR. Primeira coisa da página, por decisão do dono ("quero a 'O que
+// gerar' e 'O que decidir' sempre no topo, para resolver pendências").
+//
+// Lê /fila, que é o ÚNICO lugar onde o cruzamento acontece: manifesto contra registro do que
+// entrou no jogo, contra recusas, contra o que há em disco. A ORDEM é a de aparição no jogo e
+// vem pronta do servidor, que a deriva de EPOCAS no src/jogo.ts — nada de ordenar por número
+// de nome, que poria o capítulo do presente (cap3) antes de SALVADOR (cap4), ou seja, antes
+// do que ele mesmo comenta.
 let ultimaContagem = -1;
+let cartaoAlvo = null;      // o último cartão em que ele tocou; é para lá que o Ctrl+V vai
+
 function montarFila() {
   return fetch("/fila").then(r => r.json()).then(function (fila) {
   lista.textContent = "";
+  cartaoAlvo = null;
   const c = fila.contagem || {};
   ultimaContagem = c.gerar;
   const placar = document.getElementById("revisarPlacar");
   if (placar) placar.textContent = c.gerar + " para você gerar · " + c.pronto + " já estão no jogo";
-  // O QUE ESTÁ COMIGO, EM UMA LINHA. Era um bloco com um nome por linha; o dono: "prefiro só
-  // o que tá pendente". Ele precisa saber que existe — não ler. A contagem SOMA as soltas
-  // (o que chegou sem estar no manifesto), senão o número da tela não fecha com o do console.
+  // O QUE ESTÁ COMIGO, EM UMA LINHA, NO FIM DA PÁGINA. Era um bloco com um nome por linha; o
+  // dono: "prefiro só o que tá pendente". Ele precisa saber que existe — não ler. A contagem
+  // SOMA as soltas (o que chegou sem estar no manifesto), senão o número da tela não fecha
+  // com o do console.
   const comigo = document.getElementById("comigo");
   if (comigo) {
     const n = (c.chegou || 0) + (c.soltas || 0);
@@ -271,7 +190,6 @@ function montarFila() {
                      : " imagens já chegaram e estão comigo, esperando entrar no jogo")
       : "nada esperando do meu lado";
   }
-  encherAlvos(fila);
   const pedidos = (fila.itens || []).filter(function (i) { return i.estado === "gerar"; });
   document.getElementById("quantasFaltam").textContent = pedidos.length ? pedidos.length + " FALTANDO" : "";
   if (!pedidos.length) {
@@ -345,6 +263,11 @@ function montarFila() {
       };
       fr.readAsDataURL(arq);
     }
+    // O cartão publica o próprio `receber` para o Ctrl+V da página inteira poder entregar
+    // aqui sem duplicar uma linha de leitura de arquivo.
+    cx._receber = receber;
+    // Tocar em qualquer lugar do cartão o elege como destino da próxima colagem solta.
+    cx.addEventListener("mousedown", function () { cartaoAlvo = cx; });
 
     // ARRASTAR. O preventDefault no dragover é obrigatório: sem ele o navegador ABRE a imagem
     // numa aba e a mesa some da tela.
@@ -359,6 +282,7 @@ function montarFila() {
     alvo.addEventListener("drop", function (ev) {
       const dt = ev.dataTransfer;
       if (!dt) return;
+      cartaoAlvo = cx;
       // arquivo do disco vem em .files; imagem arrastada de OUTRA ABA vem como item
       if (dt.files && dt.files.length) { receber(dt.files[0]); return; }
       for (const it of dt.items || []) {
@@ -373,6 +297,7 @@ function montarFila() {
       for (const it of itens) {
         if (it.type && it.type.indexOf("image/") === 0) {
           ev.preventDefault();
+          cartaoAlvo = cx;
           receber(it.getAsFile());
           return;
         }
@@ -394,7 +319,7 @@ function montarFila() {
         if (!r.ok || !r.j.ok) throw new Error("recusado");
         // O ITEM SAI DA LISTA NA HORA: o arquivo em disco passou a ser mais novo que a recusa,
         // então o servidor já o classifica como CHEGOU — e a linha do "está comigo" o pega.
-        montarFila();
+        montarFila(); pintarAtividade();
       }).catch(function () {
         estado.className = "estado erro";
         estado.textContent = "falhou ao salvar";
@@ -414,6 +339,73 @@ function montarFila() {
 }
 montarFila();
 
+// =========================================================================
+// LISTA 2 — O QUE DECIDIR. As perguntas que só ele responde.
+function montarPendencias() {
+  fetch("/pendencias").then(r => r.json()).then(function (pd) {
+    const box = document.getElementById("pendencias");
+    const conta = document.getElementById("quantasPerguntas");
+    box.textContent = "";
+    // SÓ O QUE AINDA NÃO FOI RESPONDIDO. Item respondido deixou de ser pendência e virou
+    // trabalho MEU — mantê-lo aqui faz a lista só crescer, e lista que só cresce ninguém lê.
+    const abertos = ((pd && pd.itens) || []).filter(function (i) { return !String(i.resposta || "").trim(); });
+    conta.textContent = abertos.length ? abertos.length + " ESPERANDO" : "";
+    if (!abertos.length) {
+      box.appendChild(el("p", "vazio", "Nada esperando você aqui — tudo que eu precisava foi respondido."));
+      return;
+    }
+    abertos.forEach(function (i) {
+      const it = el("div", "rmItem");
+      const d = document.createElement("details");
+      const s = document.createElement("summary");
+      s.className = "rmT";
+      s.textContent = i.t;
+      d.appendChild(s);
+      if (i.n) d.appendChild(el("div", "rmN", i.n));
+      it.appendChild(d);
+      // Campo de resposta: ele escreve aqui e eu leio no arquivo. Mais confiável que o chat,
+      // porque não se perde no rolar — e fica junto da pergunta que respondeu.
+      const ta = document.createElement("textarea");
+      ta.className = "rmResp";
+      ta.placeholder = "sua resposta…";
+      ta.value = i.resposta || "";
+      // ENVIAR é explícito. Antes, o "change" do textarea disparava ao sair do campo — ele
+      // nunca sabia se tinha enviado, e um clique fora mandava resposta pela metade.
+      const env = document.createElement("button");
+      env.textContent = "ENVIAR RESPOSTA";
+      env.disabled = true;
+      ta.addEventListener("input", function () { env.disabled = !ta.value.trim(); });
+      const mandar = function () {
+        if (!ta.value.trim()) return;
+        env.disabled = true; env.textContent = "enviando…";
+        fetch("/responder", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ t: i.t, resposta: ta.value }) })
+          .then(function (r) { return r.json(); })
+          .then(function () {
+            // Sai da tela deslizando, para o gesto ter consequência visível: respondeu, sumiu.
+            it.style.transition = "opacity .35s, transform .35s";
+            it.style.opacity = "0"; it.style.transform = "translateX(18px)";
+            setTimeout(montarPendencias, 380);
+          })
+          .catch(function () { env.disabled = false; env.textContent = "ENVIAR RESPOSTA"; });
+      };
+      env.addEventListener("click", mandar);
+      // Ctrl+Enter manda sem tirar a mão do teclado.
+      ta.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); mandar(); }
+      });
+      // A RESPOSTA MORA DENTRO DA DOBRA, junto da pergunta que ela responde. Doze campos de
+      // resposta abertos ao mesmo tempo davam 2.046 px de caixa vazia — e ninguém responde
+      // uma pergunta sem ter lido. Fechado, cada pendência é UMA LINHA: a lista inteira cabe
+      // de uma olhada, que é o que ele pediu ao dizer "prefiro só o que tá pendente".
+      d.appendChild(ta);
+      d.appendChild(env);
+      box.appendChild(it);
+    });
+  }).catch(function () {});
+}
+montarPendencias();
+
 // ===========================================================================
 // REVISAR. A ação é idempotente: recomputa a fila a partir do manifesto e do que há em disco,
 // não acumula nada. Por isso pode ficar sempre visível e ser apertada à vontade.
@@ -426,175 +418,68 @@ btRevisar.addEventListener("click", function () {
     btRevisar.textContent = j.n + " na fila";
     montarFila(); montarPendencias(); pintarAtividade();
     setTimeout(function () {
-      btRevisar.textContent = "REVISAR O QUE FALTA"; btRevisar.disabled = false;
+      btRevisar.textContent = "REVISAR"; btRevisar.disabled = false;
     }, 1800);
   }).catch(function () { btRevisar.textContent = "falhou"; btRevisar.disabled = false; });
 });
 
 // ===========================================================================
-// SUBIR IMAGEM — um campo só, no topo, que serve qualquer pedido. Os campos de dentro de cada
-// cartão continuam existindo; este existe porque no topo não há cartão nenhum.
+// Ctrl+V EM QUALQUER LUGAR DA PÁGINA. Antes era preciso CLICAR no campo antes de colar, e
+// nada na tela dizia isso — a queixa "colei e não aconteceu nada" era exatamente isto.
 //
-// A LISTA DO ALVO SÓ TEM O QUE FALTA GERAR, e isso é a correção de uma repetição real: ela
-// listava os 75 itens do manifesto em dois grupos, então TODO item da página aparecia
-// também aqui — cada pedido duas vezes, cada chegada duas vezes. Quem precisa subir por
-// cima de uma arte já entregue continua podendo: o nome do arquivo arrastado que não casar
-// com nenhum pedido cai sozinho em "outro nome", já preenchido.
-const subCola = document.getElementById("subirCola");
-const subEstado = document.getElementById("subirEstado");
-const subSalvar = document.getElementById("subirSalvar");
-const subAlvo = document.getElementById("subirAlvo");
-const subNome = document.getElementById("subirNome");
-const subLinhaNome = document.getElementById("subirLinhaNome");
-let subDados = null, subNomeArquivo = "";
-
-function encherAlvos(fila) {
-  const antes = subAlvo.value;
-  subAlvo.textContent = "";
-  // PLACEHOLDER PRIMEIRO, e não é enfeite: sem ele o alvo começa no primeiro item da lista, e
-  // um Salvar distraído GRAVA POR CIMA de uma arte já entregue com o nome dela.
-  const vazio = document.createElement("option");
-  vazio.value = ""; vazio.textContent = "escolha o pedido…";
-  subAlvo.appendChild(vazio);
-  (fila.itens || []).filter(i => i.estado === "gerar").forEach(function (i) {
-    const o = document.createElement("option");
-    o.value = i.nome;
-    o.textContent = i.nome + " — " + (i.titulo || "");
-    subAlvo.appendChild(o);
+// O bloco global de subir imagem saiu, mas este ouvinte NÃO foi junto: ele deixou de mandar
+// para um campo próprio e passou a entregar a um CARTÃO. Qual: o último em que ele tocou; se
+// ainda não tocou em nenhum, o primeiro que estiver visível na tela; e, se nem isso, o
+// primeiro da lista. O cartão pisca em ouro e rola até ficar à vista, porque colar no pedido
+// errado é o erro caro desta ferramenta — e ver a imagem no cartão certo ANTES de apertar
+// Salvar é o que torna o erro reversível.
+function cartaoParaColar() {
+  const todos = Array.prototype.slice.call(document.querySelectorAll("#lista .pedido"));
+  if (!todos.length) return null;
+  if (cartaoAlvo && todos.indexOf(cartaoAlvo) >= 0) return cartaoAlvo;
+  const visivel = todos.filter(function (c) {
+    const r = c.getBoundingClientRect();
+    return r.bottom > 0 && r.top < (window.innerHeight || 0);
   });
-  const outro = document.createElement("option");
-  outro.value = "__outro__";
-  outro.textContent = "outro nome (fora da fila)…";
-  subAlvo.appendChild(outro);
-  if (antes && subAlvo.querySelector('option[value="' + CSS.escape(antes) + '"]')) subAlvo.value = antes;
-  mostrarCampoNome();
-}
-subAlvo.addEventListener("change", mostrarCampoNome);
-function mostrarCampoNome() {
-  subLinhaNome.style.display = subAlvo.value === "__outro__" ? "" : "none";
-  conferirSalvar();
-}
-function conferirSalvar() {
-  const nome = subAlvo.value === "__outro__" ? subNome.value.trim() : subAlvo.value;
-  subSalvar.disabled = !(subDados && nome);
-}
-subNome.addEventListener("input", conferirSalvar);
-
-function subReceber(arq) {
-  if (!arq || !arq.type || arq.type.indexOf("image/") !== 0) {
-    subEstado.className = "estado erro";
-    subEstado.textContent = "isso não é uma imagem — arraste um png, jpg ou webp";
-    return;
-  }
-  subNomeArquivo = arq.name || "";
-  // O NOME DO ARQUIVO ESCOLHE O PEDIDO. Quem gera fora salva com o nome que a mesa pediu;
-  // reconhecer isso evita o erro caro: subir a imagem certa no pedido errado. E quando o nome
-  // NÃO está na fila, ele vai para o campo livre já preenchido, em vez de sumir.
-  const base = subNomeArquivo.replace(/\.[a-z0-9]+$/i, "").toLowerCase();
-  const casa = base && subAlvo.querySelector('option[value="' + (window.CSS && CSS.escape ? CSS.escape(base) : base) + '"]');
-  if (casa) { subAlvo.value = base; }
-  else if (base) { subAlvo.value = "__outro__"; subNome.value = base; }
-  mostrarCampoNome();
-  const fr = new FileReader();
-  fr.onload = function () {
-    subDados = fr.result;
-    subCola.textContent = "";
-    subCola.className = "cola tem";
-    const img = new Image();
-    img.onload = function () {
-      subEstado.className = "estado";
-      subEstado.textContent = img.naturalWidth + " × " + img.naturalHeight + " px" +
-        (subNomeArquivo ? " · " + subNomeArquivo : "") +
-        (casa ? " · pedido reconhecido pelo nome" : "") + " · pronta para salvar";
-    };
-    img.src = subDados;
-    subCola.appendChild(img);
-    conferirSalvar();
-  };
-  fr.readAsDataURL(arq);
+  return visivel[0] || todos[0];
 }
 
-["dragenter", "dragover"].forEach(function (n) {
-  subCola.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
-    subCola.classList.add("sobre"); });
-});
-["dragleave", "drop"].forEach(function (n) {
-  subCola.addEventListener(n, function (ev) { ev.preventDefault(); ev.stopPropagation();
-    subCola.classList.remove("sobre"); });
-});
-subCola.addEventListener("drop", function (ev) {
-  const dt = ev.dataTransfer;
-  if (!dt) return;
-  if (dt.files && dt.files.length) { subReceber(dt.files[0]); return; }
-  for (const it of dt.items || []) {
-    if (it.kind === "file" && it.type.indexOf("image/") === 0) { subReceber(it.getAsFile()); return; }
-  }
-  subEstado.className = "estado erro";
-  subEstado.textContent = "não veio arquivo nenhum — tente arrastar do explorador de arquivos";
-});
-subCola.addEventListener("paste", function (ev) {
-  const itens = (ev.clipboardData || {}).items || [];
-  for (const it of itens) {
-    if (it.type && it.type.indexOf("image/") === 0) {
-      ev.preventDefault(); subReceber(it.getAsFile()); return;
-    }
-  }
-  subEstado.className = "estado erro";
-  subEstado.textContent = "não vi imagem na área de transferência — copie a imagem, não o link";
-});
-// Ctrl+V EM QUALQUER LUGAR cai aqui. Antes era preciso CLICAR no campo antes de colar, e nada
-// na tela dizia isso — a queixa "colei e não aconteceu nada" era exatamente isto. Os campos
-// dos cartões continuam com prioridade: eles dão preventDefault e este handler sai fora.
 document.addEventListener("paste", function (ev) {
   if (ev.defaultPrevented) return;
-  const alvo = ev.target;
-  if (alvo && alvo.closest && alvo.closest(".cola, textarea, input")) return;
+  const onde = ev.target;
+  if (onde && onde.closest && onde.closest(".cola, textarea, input")) return;
   const itens = (ev.clipboardData || {}).items || [];
   for (const it of itens) {
     if (it.type && it.type.indexOf("image/") === 0) {
-      ev.preventDefault(); subReceber(it.getAsFile());
-      subCola.scrollIntoView({ block: "center", behavior: "smooth" });
+      ev.preventDefault();
+      const cx = cartaoParaColar();
+      if (!cx) {
+        // Fila vazia: não há pedido para receber a imagem, e ficar em silêncio seria a mesma
+        // queixa de antes com outro nome.
+        const v = lista.querySelector(".vazio");
+        if (v) v.textContent = "colei uma imagem, mas não há pedido aberto para recebê-la — " +
+          "aperte REVISAR, ou espere um pedido novo aparecer aqui.";
+        return;
+      }
+      cartaoAlvo = cx;
+      cx._receber(it.getAsFile());
+      cx.classList.add("recebeu");
+      setTimeout(function () { cx.classList.remove("recebeu"); }, 1500);
+      cx.scrollIntoView({ block: "center", behavior: "smooth" });
       return;
     }
   }
 });
 
-subSalvar.addEventListener("click", function () {
-  const nome = subAlvo.value === "__outro__" ? subNome.value.trim() : subAlvo.value;
-  if (!subDados || !nome) return;
-  subSalvar.disabled = true;
-  subEstado.className = "estado";
-  subEstado.textContent = "salvando…";
-  fetch("/salvar", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome: nome, pedido: nome, origem: "mesa · campo do topo", dados: subDados })
-  }).then(r => r.json().then(j => ({ ok: r.ok, j: j }))).then(function (r) {
-    if (!r.ok || !r.j.ok) throw new Error("recusado");
-    subEstado.className = "estado ok";
-    subEstado.textContent = "salva em " + r.j.arquivo + " (" + r.j.bytes + " bytes)";
-    subDados = null;
-    subCola.textContent = "cole aqui (Ctrl+V) ou ARRASTE a imagem para cá";
-    subCola.className = "cola";
-    // O ESTADO MUDA NA HORA, nos dois lugares: a fila perde o item e a linha do "está comigo"
-    // sobe. Sem isso, ele sobe a imagem e a mesa continua pedindo ela.
-    montarFila(); pintarAtividade();
-  }).catch(function () {
-    subEstado.className = "estado erro";
-    subEstado.textContent = "falhou ao salvar";
-    subSalvar.disabled = false;
-  });
-});
-
 // ===========================================================================
-// TRABALHANDO AGORA — lido do git, nunca de arquivo escrito à mão.
+// TRABALHANDO AGORA — lido do git, nunca de arquivo escrito à mão. FICA NO FIM DA PÁGINA:
+// ele nunca pediu este painel por importância, pediu porque a fila estava travada e ele
+// queria acompanhar. Acima dele só mora coisa que ELE resolve.
 //
 // O painel anterior lia `equipe.json` e por isso mostrava para sempre a última frase que
 // alguém digitou: em 10/08 ainda dizia "o grão do chrome em voo", de 09/08, com dezenas de
 // commits no meio. Um painel de atividade que não é alimentado pela atividade é pior que
 // painel nenhum — foi essa classe de mentira que escondeu a fila de arte por dias.
-//
-// Agora a fonte é o próprio trabalho: `git log`, `git status` e a data do index.html
-// construído. E quando não há nada acontecendo, o painel DIZ que não há.
 let lidoEmMs = 0;
 const escX = t => String(t == null ? "" : t).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
