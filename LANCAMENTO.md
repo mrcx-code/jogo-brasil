@@ -61,7 +61,7 @@ endereço para nada (o único caminho de rede dele é relativo), então ele roda
 | | o quê | de quem | saída |
 |---|---|---|---|
 | 7 | **A tela que abre não diz o que o jogo é** | eu | Quem chega por link vê um menu e não sabe o que é isso, quem fez, nem por quê. Uma linha antes do JOGAR resolve. |
-| 8 | **Telefone deitado** | dono decide, eu faço | Ninguém decidiu. Hoje estica e fica errado. Travar em retrato é uma linha; compor para os dois é uma sessão. |
+| 8 | ~~**Telefone deitado**~~ **FEITO em 2026-08-10** | — | O dono decidiu **deitado**, não travar em retrato: *"jogabilidade e usabilidade são pontos importantíssimos"*. Era pior do que "estica": o JOGAR do menu nascia **52 px abaixo da borda**, ou seja o jogo não podia nem ser começado — e o `medir-telas.js` dava verde, porque só media a horizontal. Menu, CHEGADA e AJUSTES viraram colunas, o rodapé encostou na ponta direita (deitado o polegar não está no meio), o quadrinho alargou o papel em vez de encolher a letra, e a escala do mundo virou inteira de verdade. **10 de 10 telas sem problema**, de 320×568 a 1024×768. Diário no `NOTES.md`. |
 | 9 | **Som só depois do primeiro toque** | eu | O navegador exige gesto. Se a pessoa começar lendo a abertura, ela lê em silêncio e pode achar que o jogo não tem som. |
 | 10 | **Momento morto de 180,7 s** | eu (em curso) | Três minutos sem nada novo, no começo. É onde a pessoa fecha. |
 

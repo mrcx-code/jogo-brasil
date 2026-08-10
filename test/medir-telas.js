@@ -126,9 +126,12 @@ const ESTADOS = [
     // ---- e agora estado por estado ----
     for (const est of ESTADOS) {
       await pg.evaluate(est.abre);
-      // a fala se revela letra a letra e o quadrinho monta 26 páginas: dar tempo é o que
-      // separa medir a tela de medir a animação dela
-      await pg.waitForTimeout(est.id === 'fala' ? 1500 : 500);
+      // A fala se revela letra a letra e o quadrinho monta 26 páginas de tela cheia: dar tempo
+      // é o que separa medir a TELA de medir a animação dela. O quadrinho pede o dobro por um
+      // motivo concreto — `#listaCenas` entra com o `brota` de 0,42 s (translateY 18px), e num
+      // tablet a montagem das páginas atrasa o início dela o bastante para a medição pegar o
+      // rolo dois pixels fora do lugar. Foi exatamente o falso positivo que apareceu aqui.
+      await pg.waitForTimeout(est.id === 'fala' || est.id === 'historia' ? 1500 : 500);
 
       const r = await pg.evaluate(({ ALVO_MIN, estado }) => {
         const vis = e => {

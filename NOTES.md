@@ -4392,3 +4392,98 @@ linha e vira uma tabela de vigências. Por ora são dois; vale olhar quando fore
 Ler a Lei nº 601/1850 em fonte pública e pendurar o marco de 1850 **antes** do de 1888 (é o
 lugar cronológico dele) — incremento de dez minutos no dia em que a rede alcançar o Planalto.
 Depois, os números da CNV, que são o portão de O QUE NÃO PODIA SER DITO.
+
+---
+
+## Diário — 2026-08-10 · Dev · O TELEFONE DEITADO PASSA A EXISTIR
+
+**A decisão é do dono.** Perguntei se travava em retrato ou fazia funcionar deitado. Ele
+respondeu **deitado**, e justificou: *"jogabilidade e usabilidade são pontos importantíssimos"*.
+É o item 8 do `LANCAMENTO.md`, que dizia "ninguém decidiu; hoje estica e fica errado".
+
+### O que eu medi antes de tocar em qualquer coisa
+
+O `test/medir-telas.js` **já rodava `deitado 844×390` e dava verde**. Então o defeito não era o
+que ele media — era ele. Três buracos:
+
+1. **Só media a horizontal.** `b.right > W` e `b.left < 0`, nunca `b.bottom > H`. Deitado o lado
+   curto é a ALTURA: o único eixo que quebra era o único que ninguém olhava.
+2. **Só media o estado de arranque**, que é sempre o menu. A HISTÓRIA, a CHEGADA, a fala,
+   AJUSTES, as ERAS, as FONTES, MELHORIAS e o jogo rodando nunca foram medidos em largura
+   nenhuma. Agora são **dez estados × dez viewports**.
+3. **Imprimia a escala e não a cobrava.** A linha dizia `escala do mundo 3.003` e chamava a tela
+   de boa.
+
+Com os três tapados, o estrago em **844×390**:
+
+| onde | o quê |
+|---|---|
+| MENU | poste 270 px abaixo da borda · **JOGAR cortado 52 px — zero pixel tocável** · as outras três tábuas NASCEM fora (topos 454, 518, 582) |
+| JOGO | rodapé come **16,2%** da altura (7,5% em retrato) · ação principal a **43%** da largura |
+| A HISTÓRIA | **12 de 26 páginas** com conteúdo maior que o quadro; a pior 365 num espaço de 306 |
+| CHEGADA | última tábua **86 px abaixo da dobra** · tábuas de 40 px |
+| AJUSTES | título **116 px ACIMA** da tela — e AJUSTES não rola |
+
+**Deitado, o jogo não podia nem ser começado.** A 640×360 nem o JOGAR aparecia.
+
+### O que fiz, em cinco incrementos
+
+- **A pilha vira COLUNAS.** Menu (marca à esquerda, poste à direita), CHEGADA (o que você leu ·
+  o placar · as portas) e AJUSTES (papel · tábuas). Não é aperto de fonte: quatro tábuas de
+  52 px com 12 de vão dão 244, e sobrariam 70 px para o logo. Coluna única é o layout errado
+  para 844×390 — e do lado há 844 px vazios.
+- **O rodapé encosta na ponta direita** e o botão dourado vai para o fim da fileira. Deitado as
+  duas mãos seguram as PONTAS: o meio da borda de baixo, que em retrato é o melhor lugar que
+  existe, vira o ponto mais LONGE dos dois polegares. E o canto de baixo à esquerda fica sem
+  botão, porque a metade esquerda é a que PULA.
+- **O papel do quadrinho ALARGA** (30em → 40em, ~72 caracteres por linha) em vez de encolher a
+  letra: papel mais largo é papel mais baixo com o mesmo corpo de texto.
+- **A escala do mundo passa a ser inteira de verdade.** Escolher `k` inteiro não bastava:
+  `W = round(tela/k)` quebra sempre que a tela não é múltipla de `k`. Vira `ceil`, e a caixa das
+  três camadas passa a ser `W×k` por `H×k` — sangra no máximo `k−1` px para fora. **O chão não
+  levita** porque as TRÊS camadas usam a MESMA caixa.
+
+### O que ficou medido depois
+
+`medir-telas.js`: **10 de 10 telas sem um problema** (era 0 de 10). Rodapé 12,6% da altura, ação
+a 86,8% da largura, canto do pulo livre até 33,1%. Escala **2×2** em oito telas e **3×3** no
+tablet deitado. Chão pintado vs GROUND entre −1,6 e +1,8 px de aparelho em seis viewports — o
+mesmo arredondamento de `round(H×0,68)` que já existia. `npm test` verde, FPS 61.
+`encaixe.js` ganhou o **bloco 21**, com 17 asserções por viewport deitado.
+
+### Três coisas que a medição nova achou e que não eram de orientação nenhuma
+
+- **`escala 2×1,9978` no Pixel 412×915 — em RETRATO.** O conserto de escala inteira estava pela
+  metade desde que foi feito, em todo aparelho cuja altura não é múltipla da escala.
+- **`btnFalaPular` tinha 53×25 px em TODA tela.** É o botão que quem já leu procura, e estava
+  abaixo do mínimo de dedo desde sempre. Vira 44.
+- **Em retrato curto (320×568)** o poste do menu já saía 32 px abaixo e os AJUSTES pelas duas
+  bordas. Pré-existentes.
+
+### O defeito de instrumento que custou meia sessão, e que era do repositório inteiro
+
+Uma regra de CSS recém-construída "não aplicava": o media query casava, a regra estava no
+`index.html`, e o computed style era o antigo. **Ela aplicava — o navegador estava lendo o
+`index.html` de outra árvore.** O `abrir.js` sobe um servidor na porta fixa 8198 e, se ela
+estiver ocupada, engole o erro com um aviso, porque *"o mais provável de longe é que seja outro
+instrumento deste repositório servindo esta mesma pasta"*. A premissa morreu quando apareceu
+`.claude/worktrees/`: são dezenas de cópias do repo no disco, cada uma com `index.html` próprio,
+todas pedindo a mesma porta. Quem chega depois mede o arquivo de outra pessoa, sem erro, sem
+aviso, com print bonito — o mesmo modo de falha que tirou o smoke test do `file://`.
+**A porta passa a sair de um hash do caminho da raiz** (8201 + hash % 254; nesta árvore, 8321).
+A API continua síncrona, que era a razão inteira de a porta ser fixa.
+
+### Dúvida nova
+
+A CHEGADA deitada usa `align-content: start` com `align-content: safe center` logo abaixo, para
+se centrar onde couber e cair no topo onde não couber. `safe` é recente; onde não houver, a tela
+fica encostada no topo com o pé vazio — que é feio, não quebrado. Vale um print em aparelho de
+verdade antes de confiar.
+
+### Próximo passo
+
+O jogo **nunca foi visto girando**: tudo o que medi é viewport fixo. Falta exercitar a TROCA de
+orientação com a partida viva — `orientationchange` chama `fitCanvas` e `medirControles`, mas
+uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
+atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
+desses estados.
