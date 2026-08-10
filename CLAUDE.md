@@ -123,19 +123,36 @@ Regras práticas que decorrem disso:
 > instante em que o primeiro byte sai. Afirmação de privacidade que virou falsa é pior que
 > nenhuma — reescreva a tela na MESMA fase que ligar a rede, nunca depois.
 
-1. **Um arquivo de SAÍDA** — as fases 1 e 2 (Capacitor e TypeScript) foram feitas em
-   2026-08-05. A fonte agora é `src/index.html` (molde), `src/estilo.css` e `src/jogo.ts`;
-   `npm run build` compila e reembute tudo num `index.html` autocontido na raiz, com a arte em
-   base64, sem uma única referência externa — o build **recusa** escrever se achar uma. É esse
-   `index.html` que a Vercel publica, que o `npm start` serve, que o smoke test lê e que o
-   Capacitor empacota (via `dist/`, que são os mesmos bytes). **Nunca edite o `index.html` da
-   raiz**: ele é saída, e o próximo build apaga o que você escrever nele. Isso vale também para
-   as ferramentas de arte (`test/inline-*.js`, `cortar-pacote.js`, `embutir-heroi.js`,
-   `requalificar.js`): todas escrevem em `src/jogo.ts`.
-2. **Zero rede** — até a fase do Supabase. Há uma `Content-Security-Policy` no `<head>` que
-   faz o navegador cobrar isso hoje. Quando ela precisar abrir, abra **só o que a fase pede**
-   e escreva no commit o que passou a ser permitido; CSP relaxada por conveniência é o começo
-   de não ter CSP.
+1. **Um arquivo de SAÍDA, mais os pacotes de arte** — as fases 1 e 2 (Capacitor e TypeScript)
+   foram feitas em 2026-08-05. A fonte é `src/index.html` (molde), `src/estilo.css` e
+   `src/jogo.ts`; `npm run build` compila e reembute tudo num `index.html` autocontido na raiz,
+   com a arte em base64, sem uma única referência externa por `src=`/`href=` — o build **recusa**
+   escrever se achar uma.
+
+   **A partir de 2026-08-10 há uma exceção, e ela é a única**: a arte dos capítulos 2+ sai para
+   `pack-*.json` ao lado do `index.html` e o jogo a busca quando a pessoa **chega no capítulo**.
+   Aprovado pelo dono depois de ler o `RELATORIO-PESO.md`: o jogo levava **16,65 s** para aceitar
+   o primeiro toque num celular em 3G, e passou a levar **6,30 s** — e, o que decidiu, a porta de
+   entrada **parou de crescer** com cada capítulo novo. Três coisas não se negociam nessa
+   exceção, e as três são cobradas por teste: **(a)** o jogo nunca fica sem chão — enquanto o
+   pacote não chega, o capítulo roda com a arte do capítulo 1, que nunca sai da abertura;
+   **(b)** pacote que falha de baixar não quebra a partida e é tentado de novo na próxima
+   entrada; **(c)** o único endereço alcançável é o pacote do próprio domínio, e o build cobra
+   a forma da função que o monta. Ao acrescentar arte, veja `ferramentas/pacotes.js` — é lá que
+   se decide o que viaja e o que fica.
+
+   É esse `index.html` (mais os pacotes) que a Vercel publica, que o `npm start` serve, que o
+   smoke test lê e que o Capacitor empacota — via `dist/`, que são os mesmos bytes. **Nunca
+   edite o `index.html` nem os `pack-*.json` da raiz**: são saída, e o próximo build apaga o que
+   você escrever neles. Isso vale também para as ferramentas de arte (`test/inline-*.js`,
+   `cortar-pacote.js`, `embutir-heroi.js`, `requalificar.js`): todas escrevem em `src/jogo.ts`.
+2. **A rede alcança o próprio domínio, e nada mais** — até a fase do Supabase. A
+   `Content-Security-Policy` no `<head>` faz o navegador cobrar isso: `connect-src 'self'` desde
+   10/08 (era `'none'`; abriu para os pacotes de arte, e **só** eles). Quando ela precisar abrir
+   de novo, abra **só o que a fase pede** e escreva no commit o que passou a ser permitido; CSP
+   relaxada por conveniência é o começo de não ter CSP. A tabela pregada em
+   `ferramentas/construir.js` recusa construir se a CSP mudar sem ela — é de propósito que seja
+   chata de mudar por acidente.
 3. **O save é entrada não confiável.** `localStorage` é editável à mão. O carregamento passa
    por `ESQUEMA_SAVE`: lista fixa de campos, cada um com tipo e faixa. **Ao adicionar estado
    persistente, adicione ao esquema** — se não estiver lá, não é lido nem gravado. O smoke
@@ -207,6 +224,13 @@ fonte — sem `npm run build` antes você testa o arquivo de ontem e ele passa. 
 e `npm start` já constroem sozinhos; `node test/smoke.js` puro continua existindo para quando
 você quer testar exatamente os bytes que estão no disco. Para apontá-lo a outro alvo:
 `JOGO_HTML=android/app/src/main/assets/public/index.html node test/smoke.js`, ou uma URL http.
+
+O smoke test **sobe um servidor próprio** e abre o jogo por `http://127.0.0.1` — não mais por
+`file://`, e não é gosto: sob `file://` o Chromium recusa o `fetch` do pacote de arte vizinho
+(provado em `test/peso-file-fetch.js`), então um teste em `file://` continuaria **passando**
+enquanto exercitava só o caminho de recuo. Nenhum dos três lugares onde o jogo roda de verdade
+usa `file://`. Consequência aceita e registrada: abrir o `index.html` da raiz com dois cliques
+mostra a arte do capítulo 1 em todo lugar — o jogo roda, só não busca os pacotes.
 
 O `tsc` roda dentro do build e o build **não escreve nada** se ele falhar — erro de tipo não
 chega ao `index.html`. Para só conferir tipos, sem gerar: `npm run tipos`.

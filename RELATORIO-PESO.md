@@ -1,5 +1,23 @@
 # RELATÓRIO DO PESO
 
+> ## ✅ FEITO em 10/08/2026 — e o que aconteceu foi melhor que a projeção
+>
+> A recomendação do §7 foi executada inteira: pacote por capítulo **com os sprites da época
+> dentro**, `connect-src 'none'` → `'self'` e o smoke test fora do `file://`.
+>
+> | | projetado aqui | **medido depois** |
+> |---|---|---|
+> | abertura em Fast 3G | 8,7 s | **6,30 s** |
+> | abertura em Slow 4G | 7,3 s | **5,30 s** |
+> | arquivo | 1,96 MB | **1,51 MB** |
+> | no fio | 1,33 MB | **0,98 MB** |
+> | entrar em PALMARES | 3,2 s | 3,66 s |
+>
+> Melhor que a projeção porque o protótipo desta medição deixava os sprites de cada época no
+> arquivo de abertura; a entrega os levou junto, que era exatamente o que o §3 pedia. O texto
+> abaixo fica **como foi escrito em 09/08**, com o estado de então — é ele que explica por quê.
+> O que se aprendeu FAZENDO está no `NOTES.md`, diário de 10/08.
+
 **Medido em 09/08/2026.** Tudo aqui é número tirado da máquina, não estimativa.
 Os instrumentos ficaram no repositório: `test/peso-composicao.js`, `test/peso-abrir.js`,
 `test/peso-prototipo.js`, `test/peso-qualidade.js`, `test/peso-restante.js`,

@@ -182,3 +182,31 @@ sem uma linha de afirmação histórica sem fonte. Registro completo no `NOTES.m
 - **Os oito capítulos ainda não têm nó na `LINHA_TEMPO`**, de propósito: A HISTÓRIA só mostra o
   que tem fonte. Cada marco entra junto com a pesquisa do capítulo dele.
 - **Verbo por escolher em quatro:** JABAQUARA · A PEQUENA ÁFRICA · AS PORTAS · A PRAÇA.
+
+---
+
+## 8. CARGA SOB DEMANDA — o que ficou de fora, de propósito (10/08, Plataforma)
+
+Feito: a arte dos capítulos 2+ sai para `pack-*.json` e chega quando a pessoa chega no
+capítulo. Medido **16,65 s → 6,30 s** em Fast 3G. Diário completo no `NOTES.md` (10/08). Estas
+três coisas foram consideradas e **não** feitas — nenhuma delas é dívida, mas nenhuma se perde:
+
+- **Pré-busca do capítulo seguinte.** Baixar o pacote de `época + 1` enquanto a pessoa joga a
+  atual tornaria a virada instantânea (hoje ela custa 3,66 s em 3G, dentro da cerimônia). O que
+  segura: baixa 753 KB para quem talvez nunca chegue lá, e em rede medida isso é um custo que a
+  pessoa não pediu. **Decidir com medição:** quantos jogadores atravessam o primeiro capítulo?
+  Sem esse número, a pré-busca é palpite. Custo de fazer: quatro linhas em `garantirEpoca`.
+- **Servir `.webp` de verdade em vez de base64 dentro de JSON.** Economiza ~25% do arquivo
+  **cru** — o que importa para o APK e para a memória, não para o fio, porque o brotli já
+  devolve quase todo o inchaço do base64. Custa uma segunda diretiva de CSP
+  (`img-src data: 'self'`) e uma reescrita do pipeline de arte. Achado do `RELATORIO-PESO.md`,
+  §4. **Só se decide com medição própria.**
+- **Comentário do CSS e do molde fora da saída.** 54,8 KB crus, **22,8 KB no fio, 0,12 s**. É de
+  graça e a varredura correta (que respeita as fronteiras de `<script>` e `<style>` — um
+  `.replace()` cego produz arquivo que não abre) já está escrita e testada em
+  `test/peso-restante.js`. Não entrou aqui para não misturar duas mudanças no mesmo build.
+
+**E uma perda registrada e aceita, que não tem conserto dentro deste desenho:** abrir o
+`index.html` da raiz com dois cliques (`file://`) mostra a arte do capítulo 1 em todo lugar. O
+Chromium recusa o `fetch` sob `file://` e o jogo nem tenta. O jogo roda inteiro assim; só a arte
+dos capítulos 2+ não aparece. Para ver o jogo como ele é: `npm start`.
