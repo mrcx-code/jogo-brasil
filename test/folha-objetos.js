@@ -8,6 +8,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
@@ -19,7 +20,7 @@ const SAI = process.argv[3] || path.resolve(__dirname, 'OBJ-folha.png');
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 1180, height: 760 }, deviceScaleFactor: 2 });
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
-  await page.goto('file://' + path.resolve(ARQ));
+  await page.goto(ABRIR('file://' + path.resolve(ARQ)));
   await page.waitForTimeout(1200);
 
   const dados = await page.evaluate(() => {

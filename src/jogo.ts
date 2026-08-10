@@ -4576,12 +4576,20 @@ const HERO_SPR_CAP = HERO_CAP_B64.map(function (bloco) {
 // Um capítulo cujo bloco está vazio cai na PRÓPRIA caminhada dele, nunca na de outro
 // capítulo: perder a animação de um gesto é um defeito visível e reparável; trocar a pessoa
 // no meio do capítulo é o erro do §2, e não se conserta com arte melhor depois.
+// E o mesmo recuo vale enquanto o pacote da época está a caminho: as folhas existem, mas
+// valem o pixel de espera. `temArte` no primeiro quadro é o que separa "esta folha não foi
+// desenhada" de "esta folha ainda não chegou" — e as duas caem no mesmo lugar seguro.
 function heroBloco(nome) {
   const c = HERO_SPR_CAP[capArte()] || HERO_SPR_CAP[0];
-  const b = c[nome];
-  if (b && b.length) return b;
-  if (c.walk && c.walk.length) return c.walk;
-  return HERO_SPR_CAP[0].walk;
+  const serve = function (l) { return !!(l && l.length && !esperando(l[0])); };
+  if (serve(c[nome])) return c[nome];
+  if (serve(c.walk)) return c.walk;
+  // O bloco desta época ainda vale o pixel de espera: o pacote está a caminho. Cai no bloco 0,
+  // que nunca sai da abertura — pior que ver a pessoa de outro capítulo por alguns segundos é
+  // ver a rua andando com ninguém em cima dela.
+  const zero = HERO_SPR_CAP[0];
+  if (serve(zero[nome])) return zero[nome];
+  return zero.walk;
 }
 const HERO_TARGET = 44;            // on-canvas hero height in world px, matches the old build
 // Uma escala por capítulo: a folha de cada pessoa tem a própria altura de quadro, e uma
@@ -4627,7 +4635,9 @@ const MOB_B64 = {
 /*MOB_B64_END*/
 // A shared white-flash copy of any authored frame, baked once, so a hit still whitens the
 // sprite the way the old cell-by-cell flash did. Pure paint (game signal), no logic.
-const flashCv = new WeakMap<HTMLImageElement, HTMLCanvasElement>();
+// `let` e não `const`: quando um pacote de arte chega, a folha assada aqui é a do PIXEL DE
+// ESPERA, e a única forma de esquecê-la em bloco é trocar o mapa (ver esquecerMedidasDaArte).
+let flashCv = new WeakMap<HTMLImageElement, HTMLCanvasElement>();
 function whiteFlash(img) {
   let c = flashCv.get(img);
   if (c) return c;
@@ -4699,7 +4709,10 @@ function mobScaleFor(key, cap) {
 // nome de animação. m.parado/m.dying/hp/spawn continuam só de leitura, nunca escritos aqui.
 function mobFrame(m) {
   const set = MOB_SPR[MOB_KEY[m.type]];
-  return set[capArte()] || set[0];
+  const meu = set[capArte()];
+  // Pacote a caminho: o objeto desta época vale o pixel de espera, e um objeto invisível
+  // atravessando a rua é uma coisa que não dá para alcançar. Vale o do capítulo 1 até chegar.
+  return (meu && !esperando(meu)) ? meu : (set[0] || meu);
 }
 
 // ---- drops: what a beaten trouble leaves on the ground for a thumb ----
@@ -4716,7 +4729,12 @@ const FRENTE_CAP = [0, 1, -1, 2];
 function frenteBloco() {
   const i = FRENTE_CAP[capArte()];
   if (i == null || i < 0) return -1;
-  return Math.min(Math.floor(FRENTE_SPR.length / 8) - 1, i) * 8;
+  const b = Math.min(Math.floor(FRENTE_SPR.length / 8) - 1, i) * 8;
+  // Pacote a caminho: a vegetação desta época vale o pixel de espera. Aqui o recuo é para a
+  // oitava 0 e não para "sem vegetação", porque a folhagem tem trabalho a fazer — é ela que
+  // tapa a emenda entre a peça de cima e a de baixo da pintura (ver matoDaEmenda).
+  if (esperando(FRENTE_SPR[b])) return 0;
+  return b;
 }
 /*FRENTE_B64_START — gerado por test/cortar-pacote.js, não edite à mão*/
 // Vegetação de frente, cortada dos PACOTES — um por capítulo, oito elementos cada,
@@ -4869,14 +4887,16 @@ const DROP_IDX = { smog: 0, barrel: 1, cash: 2 };   // d.type -> drop_0 flower /
 // objeto de ~8,5, e o resto era vazio. Mesmo tamanho na tela, sem o vazio.
 const DROP_TARGET = 9;
 function dropDe(tipo) {
-  const lista = DROP_SPR[capArte()] || DROP_SPR[0];
+  let lista = DROP_SPR[capArte()] || DROP_SPR[0];
+  // Mesmo recuo do mobFrame: o que fica no chão tem de ser visível para ser recolhido.
+  if (lista && lista.length && esperando(lista[0])) lista = DROP_SPR[0] || lista;
   if (!lista || !lista.length) return null;
   const i = DROP_IDX[tipo];
   return lista[i === undefined || i >= lista.length ? 0 : i];
 }
 // Escala por imagem, não uma só para todas: com o recorte justo cada drop tem a própria
 // altura de quadro, e uma escala compartilhada faria uns saírem maiores que os outros.
-const dropScale = new WeakMap<HTMLImageElement, number>();
+let dropScale = new WeakMap<HTMLImageElement, number>();   // `let` — ver esquecerMedidasDaArte()
 function dropScaleFor(img) {
   if (!img || !img.naturalHeight) return 0;
   let s = dropScale.get(img);
@@ -5313,18 +5333,32 @@ function arteDaCena(n) {
   const i = lista[Math.max(0, Math.min(lista.length - 1, local))];
   return (typeof i === "number" && i >= 0 && i < CENARIO_ALTO.length) ? i : -1;
 }
+// A PINTURA QUE EXISTE AGORA. Duas coisas podem faltar aqui, e o recuo é o mesmo para as
+// duas: capítulo que ainda não tem pintura própria (o caso antigo) e pintura que está a
+// caminho dentro de um pacote (o caso novo). Em nenhum dos dois o jogo pode mostrar uma tela
+// vazia: `#scene` fica transparente quando há pintura, então uma pintura de 1×1 seria um
+// quadro preto com a personagem no meio dele. Enquanto o pacote não chega, roda a pintura que
+// já está aqui — a do capítulo 1 nunca sai da abertura, justamente para ser esse chão.
+function fundoComArte(i) {
+  if (i < 0) return i;
+  if (!esperando(CENARIO_ALTO[i]) && !esperando(CENARIO_CHAO[i])) return i;
+  for (let k = 0; k < CENARIO_ALTO.length; k++) {
+    if (temArte(CENARIO_ALTO[k]) && temArte(CENARIO_CHAO[k])) return k;
+  }
+  return i;   // nada carregou ainda (os primeiros quadros): segue o que foi pedido
+}
 function fundoIdx() {
   if (fundoAtivo >= 0) return Math.min(CENARIO_ALTO.length - 1, fundoAtivo);
   const n = Math.max(0, Math.min(TOTAL_CENAS - 1, S.cenario | 0));
   const i = arteDaCena(n);
-  if (i >= 0) return i;
+  if (i >= 0) return fundoComArte(i);
   // Cena declarada em EPOCAS mas ainda sem pintura própria: roda com a última que existe,
   // avisando. A progressão não é afetada; só a imagem.
   if (fundoAvisado !== n) {
     fundoAvisado = n;
     console.warn("cena " + n + " ainda não tem pintura própria (EPOCAS[].arte) — usando a da cena " + (CENARIO_ALTO.length - 1));
   }
-  return CENARIO_ALTO.length - 1;
+  return fundoComArte(CENARIO_ALTO.length - 1);
 }
 // Só desenha quando as DUAS peças chegaram. Meia paisagem — céu sem chão, ou chão sem céu —
 // é pior que nenhuma: a personagem apareceria pisando no vazio por uns quadros.
@@ -5469,6 +5503,10 @@ function entrarNaEpoca(ep) {
   const daFronteira = epocaDoCenario(front) === ep;
   S.cenario = daFronteira ? front : primeira;   // retomar, não rebobinar
   visitando = !daFronteira && primeira < front;
+  // Pular direto para um capítulo pela tábua das eras é o caminho mais brusco que existe: não
+  // há fecho nem travessia para cobrir a espera, e a abertura começa a falar na hora. Pedir o
+  // pacote AQUI dá a ele o tempo da cerimônia; se não der, o recuo cobre e ele entra durante.
+  garantirEpoca(ep);
   salvar();
 }
 function verificarCenario() {
@@ -5542,6 +5580,12 @@ function verificarCenario() {
   // entre os dois, `correrTravessia` chama o `depois` na hora e nada muda.
   if (vira) {
     const entra = epocaDoCenario(proxima);
+    // A ARTE DO CAPÍTULO QUE VEM É PEDIDA AGORA, e é aqui e não depois porque daqui até a
+    // primeira tela do capítulo novo há o fecho inteiro (cinco falas), a travessia quando ela
+    // existe, e a cerimônia. Medido em Fast 3G, o pacote leva ~3 s: ele chega dentro de um
+    // trecho em que a pessoa está lendo, que é exatamente onde este custo devia cair.
+    garantirEpoca(entra);
+    if (travessiaEntre(EPOCAS[saindoDe].id, EPOCAS[entra].id) >= 0) garantirPacote("travessia");
     mostrarFecho(saindoDe, function () {
       correrTravessia(EPOCAS[saindoDe].id, EPOCAS[entra].id, avancar);
     });
@@ -6138,6 +6182,167 @@ function frentePeFrac(im, i) {
   frenteFrac[i] = f;
   return f;
 }
+
+// ============================================================
+// A ARTE DE CADA CAPÍTULO CHEGA QUANDO A PESSOA CHEGA NELE
+//
+// O NÚMERO QUE MANDOU FAZER ISTO (RELATORIO-PESO.md, medido em 09/08): o jogo levava **16,6
+// segundos** para aceitar o primeiro toque num celular em Fast 3G, e a primeira tinta aparecia
+// em 1,25 s — ou seja, quinze segundos olhando uma tela que não responde, que é pior que uma
+// tela preta honesta. Não era lentidão de código: abrir custa 0,34 s quando o arquivo já está
+// na máquina. Os 16,6 s eram espera de download, e 91% do peso é imagem. O jogo trazia a arte
+// dos DOZE capítulos antes de deixar alguém tocar no primeiro.
+//
+// Com a arte de capítulo saindo para pacotes, o arquivo de abertura cai pela metade — e, o que
+// importa mais, PARA DE CRESCER: capítulo novo passa a custar zero na porta de entrada. O
+// preço aparece na virada de capítulo, que é onde o jogo já tem cerimônia e texto para ler.
+//
+// DUAS REGRAS QUE NÃO SE NEGOCIAM AQUI:
+//
+//  1. **O jogo nunca fica sem chão.** Enquanto o pacote não chegou, o capítulo roda com a arte
+//     que já está aqui — a do capítulo 1, que nunca sai da abertura. Sem tela branca, sem erro
+//     de console, sem progressão travada. É o mesmo contrato que `arteDaCena()` já tinha para
+//     capítulo sem pintura própria, agora valendo também para pintura que ainda vem vindo.
+//  2. **Pacote que não chega não quebra a partida.** A falha é anotada, o capítulo segue com o
+//     recuo, e a tentativa é REENCENADA quando a pessoa entrar no capítulo de novo. Nada de
+//     laço de repetição: se a rede caiu, insistir em quadro nenhum ajuda.
+//
+// E o que o pacote traz é a pintura E OS SPRITES da época (personagem, objetos, drops,
+// vegetação, retrato). Foi medido: só a pintura deixaria ~225 KB por capítulo na abertura, e
+// aí ela voltaria a crescer — 8,7 s no capítulo 4 virariam 15,7 s no 12. Com os sprites
+// dentro, fica em 8,7 s nos dois.
+// ============================================================
+
+// O ÚNICO caminho de rede do jogo, e ele é relativo de propósito: sem host, sem protocolo,
+// sem barra inicial — não há como este endereço sair do próprio domínio. O
+// `ferramentas/construir.js` cobra a forma desta função byte a byte, e a CSP
+// (`connect-src 'self'`) faz o navegador cobrar o resto.
+function caminhoPacote(nome) { return "pack-" + nome + ".json"; }
+
+// Onde cada imagem que viajou volta a morar. Os nomes são os mesmos que o
+// `ferramentas/pacotes.js` lista em `CONTAINERS` — uma tabela só, dois leitores.
+const ARTE_CONTAINERS: Record<string, any> = {
+  CENARIO_ALTO_B64: CENARIO_ALTO_B64, CENARIO_CHAO_B64: CENARIO_CHAO_B64,
+  HERO_B64: HERO_B64, MOB_B64: MOB_B64, DROP_B64: DROP_B64, FRENTE_B64: FRENTE_B64,
+  RETRATO_B64: RETRATO_B64, CTX_B64: CTX_B64, QUAD_B64: QUAD_B64, TRAV_B64: TRAV_B64,
+};
+
+// O SINAL DE "AINDA NÃO CHEGOU". Toda imagem que viajou fica valendo um GIF 1×1 transparente
+// (escrito pelo build), então `naturalWidth === 1` é exatamente "o pacote ainda não chegou".
+// Uma só função responde isso, e é ela que todo recuo abaixo consulta.
+function temArte(im) { return !!(im && im.complete && im.naturalWidth > 1); }
+// E o contrário dela, que NÃO é a negação: `esperando` é "já carregou, e o que carregou é o
+// pixel de espera". Uma imagem que ainda está decodificando não é nenhum dos dois, e essa
+// distinção é a que evita o recuo errado no primeiro segundo de jogo — sem ela, os primeiros
+// quadros trocariam a arte do capítulo pela do capítulo 1 só porque nada acabou de carregar.
+function esperando(im) { return !!(im && im.complete && im.naturalWidth <= 1); }
+
+// Reatribuir `src` de uma lista de imagens a partir da lista de dados paralela a ela. É a
+// operação inteira: os objetos `Image` continuam os mesmos, então nada que guarde referência
+// a eles fica pendurado num objeto órfão — só o conteúdo troca.
+function sincronizarArte(fonte, imgs) {
+  if (!fonte || !imgs) return;
+  for (let i = 0; i < fonte.length; i++) {
+    if (imgs[i] && typeof fonte[i] === "string" && imgs[i].src !== fonte[i]) imgs[i].src = fonte[i];
+  }
+}
+
+// AS CACHES QUE PRECISAM ESQUECER. Este é o custo escondido da troca e ele não é óbvio: meia
+// dúzia de números são medidos DA IMAGEM na primeira vez que ela é desenhada e guardados para
+// sempre. Medidos no pixel de espera, eles ficam errados quando a arte de verdade chega — e o
+// sintoma seria a personagem do capítulo 2 saindo com o tamanho de um pixel esticado, sem erro
+// nenhum no console. Cada linha abaixo é uma cache que aprendeu com o placeholder.
+function esquecerMedidasDaArte() {
+  heroScale.fill(0);                                        // altura do quadro da caminhada
+  for (const k in mobScale) delete mobScale[k];              // altura de cada objeto da rua
+  frenteFrac.length = 0;                                     // onde a tinta da planta acaba
+  dropScale = new WeakMap<HTMLImageElement, number>();        // altura de cada drop
+  flashCv = new WeakMap<HTMLImageElement, HTMLCanvasElement>(); // o pisca branco assado
+  travMarIm = null;                                          // a pintura do mar, cacheada uma vez
+}
+
+function reatribuirArte() {
+  sincronizarArte(CENARIO_ALTO_B64, CENARIO_ALTO);
+  sincronizarArte(CENARIO_CHAO_B64, CENARIO_CHAO);
+  sincronizarArte(FRENTE_B64, FRENTE_SPR);
+  sincronizarArte(RETRATO_B64, RETRATO_SPR);
+  for (const k in MOB_B64) sincronizarArte(MOB_B64[k], MOB_SPR[k]);
+  DROP_B64.forEach(function (lista, i) { sincronizarArte(lista, DROP_SPR[i]); });
+  // O herói é o único de dois níveis: `HERO_CAP_B64[c][slot]` é a MESMA lista que
+  // `HERO_B64[chave]`, por referência, então sincronizar por aqui alcança as duas.
+  HERO_CAP_B64.forEach(function (bloco, c) {
+    for (const slot in bloco) sincronizarArte(bloco[slot], HERO_SPR_CAP[c][slot]);
+  });
+  // CTX_B64, QUAD_B64 e TRAV_B64 não têm lista de imagens paralela: quem os lê monta a
+  // imagem na hora de desenhar, então devolver a string ao objeto já basta.
+  esquecerMedidasDaArte();
+  if (typeof redesenharFundo === "function") redesenharFundo();
+}
+
+// APLICAR UM PACOTE. O conteúdo vem da rede, e rede é ENTRADA NÃO CONFIÁVEL — a mesma régua
+// do `ESQUEMA_SAVE` (§3.3 do CLAUDE.md), pelo mesmo motivo: nada que chegue de fora escreve no
+// jogo sem passar por uma lista fechada. Aqui isso é: o container tem de estar em
+// `ARTE_CONTAINERS`, a chave tem de JÁ EXISTIR lá dentro, e o valor tem de ser uma `data:` de
+// imagem. Chave nova, caminho inventado ou URI que aponte para fora não entram.
+function aplicarPacote(dados) {
+  if (!dados || !Array.isArray(dados.arte) || !Array.isArray(dados.itens)) return 0;
+  let postas = 0;
+  for (const item of dados.itens) {
+    if (!Array.isArray(item) || !Array.isArray(item[0]) || item[0].length < 2) continue;
+    const caminho = item[0];
+    const uri = dados.arte[item[1]];
+    if (typeof uri !== "string" || uri.slice(0, 11) !== "data:image/") continue;
+    let alvo = ARTE_CONTAINERS[caminho[0]];
+    for (let i = 1; i < caminho.length - 1 && alvo; i++) alvo = alvo[caminho[i]];
+    const chave = caminho[caminho.length - 1];
+    if (alvo && typeof alvo === "object" && typeof alvo[chave] === "string") { alvo[chave] = uri; postas++; }
+  }
+  if (postas) reatribuirArte();
+  return postas;
+}
+
+// "vindo" enquanto o fetch está no ar, "aqui" depois de aplicado. Quem falhou SAI da tabela —
+// é isso que faz a próxima entrada no capítulo reencenar a tentativa.
+const pacoteEstado: Record<string, string> = {};
+function garantirPacote(nome) {
+  if (!nome || pacoteEstado[nome]) return;
+  // Sob `file://` o Chromium recusa buscar o arquivo vizinho (provado em
+  // test/peso-file-fetch.js). Nenhum dos lugares onde o jogo roda de verdade usa `file://` —
+  // a Vercel serve por https, o `npm start` por http, o Capacitor por `https://localhost`.
+  // Quem abre o `index.html` com dois cliques cai aqui, e o certo é NÃO TENTAR: o jogo roda
+  // inteiro com a arte do capítulo 1, em silêncio, em vez de encher o console de erro por uma
+  // tentativa que o navegador já decidiu recusar.
+  if (location.protocol === "file:") return;
+  pacoteEstado[nome] = "vindo";
+  fetch(caminhoPacote(nome)).then(function (r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  }).then(function (d) {
+    pacoteEstado[nome] = "aqui";
+    aplicarPacote(d);
+  })["catch"](function (e) {
+    delete pacoteEstado[nome];
+    console.warn("o pacote de arte `" + nome + "` não chegou (" + e
+      + ") — o capítulo roda com a arte que já está aqui, e o jogo tenta de novo na próxima entrada");
+  });
+}
+
+// De uma ÉPOCA para os pacotes que ela pede. Sai dos próprios dados do capítulo — `arte` (as
+// pinturas), `arteCap` (o bloco de sprites) e `aberturaImg` (as paisagens da fala) — cruzados
+// com as tabelas que o build embutiu. Capítulo novo não precisa de linha nenhuma aqui: se ele
+// declarar `arte` e `arteCap`, o pacote dele já é encontrado.
+function pacotesDaEpoca(e) {
+  const T = (window as any).__PACOTES;
+  const fora: string[] = [];
+  const ep: any = EPOCAS[e];
+  if (!T || !ep) return fora;
+  const põe = function (n) { if (n && fora.indexOf(n) < 0) fora.push(n); };
+  (ep.arte || []).forEach(function (i) { põe(T.cena && T.cena[i]); });
+  põe(T.bloco && T.bloco[ep.arteCap]);
+  (ep.aberturaImg || []).forEach(function (k) { if (k) põe(T.ctx && T.ctx[k]); });
+  return fora;
+}
+function garantirEpoca(e) { pacotesDaEpoca(e).forEach(garantirPacote); }
 
 // O que separa cenário integrado de adesivo espalhado. Quatro coisas, e nenhuma é sobre a
 // arte em si — são sobre COMO ela é posta na tela. Jogo bom faz as quatro:
@@ -7737,6 +7942,11 @@ function travessiaEntre(deId, paraId) {
 function correrTravessia(deId, paraId, depois) {
   const i = travessiaEntre(deId, paraId);
   if (i < 0) { if (depois) depois(); return false; }
+  // De novo, e de propósito: quem chega aqui pela virada de capítulo já pediu o pacote lá
+  // atrás e esta linha não faz nada. Quem chega por um caminho que não passou por lá — e eles
+  // existem — pede agora. `garantirPacote` é idempotente justamente para poder ser chamada
+  // dos dois lugares sem que ninguém precise lembrar de qual é o primeiro.
+  garantirPacote("travessia");
   const tr = TRAVESSIAS[i];
   const primeira = !jaViu(S.travessias, i);
   S.travessias = ((S.travessias | 0) | (1 << i)) >>> 0;
@@ -8148,6 +8358,11 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "aberto", qi: "p26" }
 ];
 function montarCompletude() {
+  // As páginas verticais da linha do tempo (`qi`) são 347 KB e não existem em nenhum outro
+  // lugar do jogo — quem nunca abre A HISTÓRIA nunca as baixa. As seis primeiras ficam na
+  // abertura de propósito: são as que aparecem antes de qualquer rolagem, e uma tela que abre
+  // vazia esperando a rede não convida ninguém a rolar.
+  garantirPacote("historia");
   const box = $("listaCenas");
   box.textContent = "";
   const sub = function (pai, cls, txt) {
@@ -8506,7 +8721,16 @@ function montarConfig() {
   if (R.toqEsq + R.toqDir > 0) {
     linhas.push(["PRIMEIROS 60S · ESQ " + R.toqEsq + " / DIR " + R.toqDir, "#33240f"]);
   }
-  linhas.push(["NADA SAI DESTE APARELHO:", "#5c3210"], ["O JOGO NÃO TEM REDE.", "#5c3210"]);
+  // A FRASE MUDOU EM 10/08, E TINHA DE MUDAR NO MESMO DIA. Ela dizia "NADA SAI DESTE APARELHO
+  // / O JOGO NÃO TEM REDE", e isso deixou de ser verdade no instante em que a arte dos
+  // capítulos passou a chegar por `fetch`. O CLAUDE.md §3 manda reescrever a tela NA MESMA FASE
+  // que ligar a rede, e o motivo é duro: afirmação de privacidade que virou falsa é pior que
+  // nenhuma. O que continua verdade — e é o que a pessoa quer saber — é que nada DELA sai
+  // daqui: o save, o tempo jogado, os toques e os dias vivem no `localStorage` e não têm para
+  // onde ir. O que o jogo busca é a arte dele mesmo, no mesmo endereço de onde veio, e a CSP
+  // (`connect-src 'self'`) proíbe qualquer outro. O `test/encaixe.js` amarra esta frase à CSP
+  // e falha se uma andar sem a outra.
+  linhas.push(["SEU JOGO FICA NESTE APARELHO:", "#5c3210"], ["O JOGO SÓ BAIXA A ARTE DELE.", "#5c3210"]);
   linhas.forEach(function (l) {
     const linha = document.createElement("div");
     pixelRotulo(linha, l[0], 1, l[1]);
@@ -8857,6 +9081,11 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarRetencao();   // before the save: the night that just passed is paid at today's rate
   carregarMuro();       // ...and before carregar(), so the wall count is right on the first draw
   carregar();
+  // A ARTE DO CAPÍTULO EM QUE A PESSOA PAROU. Vem logo depois de `carregar()` porque é ele que
+  // diz qual é esse capítulo — pedir antes seria pedir o do capítulo 1 para todo mundo. Este é
+  // o único pedido que acontece na abertura, e é por isso que a abertura parou de crescer: ela
+  // paga UM capítulo, nunca doze.
+  garantirEpoca(epocaAtual());
   // Coming back is an event, not a cold start: after a night away — or on a day you had
   // not played yet — the kitchen has kept a call for you, and it is worth double.
   if (diaNovo || voltouDepoisDe >= CFG.chamadaVolta) {

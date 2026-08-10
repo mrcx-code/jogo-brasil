@@ -9,6 +9,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
@@ -18,7 +19,7 @@ const dir = __dirname;
 let passo = 0;
 
 (async () => {
-  const file = 'file://' + path.resolve(process.env.JOGO_HTML || path.join(dir, '..', 'index.html'));
+  const file = ABRIR('file://' + path.resolve(process.env.JOGO_HTML || path.join(dir, '..', 'index.html')));
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   const erros = [];

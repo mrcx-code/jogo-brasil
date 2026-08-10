@@ -22,6 +22,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 // 'timida-dentro' foi acrescentada na 2ª rodada (QA, 09/08) e o motivo é um achado, não
 // capricho: o ponto do meio da metade direita cai em cima do MENU no boot, então a TÍMIDA
@@ -43,7 +44,7 @@ function chromiumPath() {
   }
   return undefined;
 }
-const ALVO = 'file://' + path.resolve(DIR, '..', process.env.JOGO_HTML || 'index.html');
+const ALVO = ABRIR('file://' + path.resolve(DIR, '..', process.env.JOGO_HTML || 'index.html'));
 
 // o ponto da TÍMIDA: o centro da metade direita da tela 390×844
 const PT_TIMIDA = { x: 292, y: 422 };

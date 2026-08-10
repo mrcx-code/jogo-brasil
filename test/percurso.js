@@ -14,6 +14,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -24,7 +25,7 @@ function chromiumPath() {
 function alvo() {
   const p = process.env.JOGO_HTML;
   if (p && /^https?:\/\//i.test(p)) return p;
-  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+  return ABRIR('file://' + path.resolve(__dirname, '..', p || 'index.html'));
 }
 const SO = process.argv.slice(2).filter(a => /^\d+$/.test(a)).map(Number);
 const quer = n => SO.length === 0 || SO.includes(n);

@@ -47,6 +47,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
@@ -98,7 +99,7 @@ const ordem = function (a, b) {
 
   for (const a of entram) {
     const chave = a.replace(/^q-|\.png$/g, '');
-    await pg.goto('file:///' + path.join(DIR, a).replace(/\\/g, '/'));
+    await pg.goto(ABRIR('file:///' + path.join(DIR, a).replace(/\\/g, '/')));
     for (const L of LARGURAS) for (const Q of QUAIS) {
       const r = await pg.evaluate(async function (d) {
         const im = document.querySelector('img');

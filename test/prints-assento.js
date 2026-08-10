@@ -6,6 +6,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
@@ -17,7 +18,7 @@ const CENAS = [
 ];
 (async () => {
   // JOGO_HTML aponta o alvo — o ANTES sai de um build guardado, nao do arquivo de agora.
-  const file = 'file://' + path.resolve(process.env.JOGO_HTML || path.join(__dirname, '..', 'index.html'));
+  const file = ABRIR('file://' + path.resolve(process.env.JOGO_HTML || path.join(__dirname, '..', 'index.html')));
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   // dsf 3: a lupa precisa de pixel de sobra para o olho decidir se a base encosta. O mundo
   // (W/H/GROUND) sai de innerWidth/innerHeight e nao muda com isto — so a camada HD engorda.

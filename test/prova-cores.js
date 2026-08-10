@@ -10,10 +10,11 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 const DIR = __dirname;
 const modo = process.argv[2] || 'gravar';
-const ALVO = 'file:///' + path.resolve(DIR, '..', 'index.html').split(path.sep).join('/');
+const ALVO = ABRIR('file:///' + path.resolve(DIR, '..', 'index.html').split(path.sep).join('/'));
 
 // cada entrada: [nome, o que preparar na página, o seletor]
 const PECAS = [

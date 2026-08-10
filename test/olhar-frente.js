@@ -6,13 +6,14 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
 }
 const CENAS = [{ cena: 0, nome: 'cap1' }, { cena: 2, nome: 'cap2' }, { cena: 5, nome: 'cap4' }];
 (async () => {
-  const file = 'file://' + path.resolve(__dirname, '..', 'index.html');
+  const file = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   page.on('pageerror', e => console.log('PAGEERROR', e.message));

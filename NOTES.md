@@ -3772,9 +3772,9 @@ uma virada de contexto não perca o estado. Se você é a sessão seguinte: leia
 começo do arquivo.
 
 ### O que está APROVADO e pode ser feito sem perguntar
-- **Carga sob demanda da arte** (ele disse "não entendi muito bem, mas pode seguir"). É a #1:
-  o jogo abre em **16,6 s no 3G** e a carga sob demanda leva para **8,7 s**, medido em jogo
-  vivo. Quebra a regra do arquivo único de SAÍDA, e ele autorizou.
+- ~~**Carga sob demanda da arte**~~ — **FEITA em 2026-08-10.** Medido: **16,65 s → 6,30 s** em
+  Fast 3G (melhor que os 8,7 s projetados, porque os sprites de cada época foram no pacote
+  também). Diário completo no fim deste arquivo.
 - **Começar a medir com PostHog** — mas depende da conta dele. Ver pergunta 7.
 - **Placeholder para tudo**: os doze capítulos existem, oito em obra.
 - **Foco é WEB.** Android saiu da frente da fila.
@@ -3808,7 +3808,8 @@ começo do arquivo.
   cobravam o comportamento COM o defeito.
 
 ### O estado, em número
-12 capítulos (4 escritos, 8 em obra) · 15 cenas · `index.html` **3,97 MB** · fim da partida
+12 capítulos (4 escritos, 8 em obra) · 15 cenas · `index.html` **1,51 MB** + 2,47 MB em cinco
+pacotes sob demanda · abre em **6,30 s** no Fast 3G (era 16,65 s) · fim da partida
 **11.700** · FPS 61 · `npm test` PASS · `encaixe.js` 16 blocos · `robusto-tudo.js` 6 de 6 ·
 mesa com **18 para gerar**, 9 chegados, 48 prontos.
 
@@ -3939,3 +3940,188 @@ que fica na mesa do dono e que eu não decido: **+0,51 s de abertura por capítu
 até doze?** Se for, o arquivo único chega perto de 5,1 MB e 21 s no 3G. Se não for, a conversa
 deixa de ser sobre qualidade de WebP e passa a ser sobre carregar a pintura do capítulo **sob
 demanda** — e isso é arquitetura, não compressão.
+## Diário — 2026-08-10 · Plataforma · A ARTE DE CADA CAPÍTULO CHEGA QUANDO A PESSOA CHEGA NELE
+
+A mudança #1 do `RELATORIO-PESO.md`, aprovada pelo dono ("pode seguir"). Ela está feita, e
+abaixo estão os números medidos, o que quebrou no caminho e o que ficou de fora.
+
+### O antes e o depois, medido na mesma máquina (`test/peso-abrir.js`)
+
+| | arquivo | no fio | **Fast 3G** | Slow 4G | 1ª tinta |
+|---|---|---|---|---|---|
+| antes (comprimido, como a Vercel serve) | 3,97 MB | 2,83 MB | **16,65 s** | 14,69 s | 1,54 s |
+| **depois** | **1,51 MB** | **0,98 MB** | **6,30 s** | **5,30 s** | 1,54 s |
+| antes (cru, como o Capacitor empacota) | 3,96 MB | — | 23,3 s | 20,8 s | 1,52 s |
+| **depois (cru)** | **1,51 MB** | — | **9,18 s** | **7,94 s** | 1,21 s |
+
+**16,65 s → 6,30 s.** É melhor que os 8,7 s que o relatório projetava, e a razão é conhecida:
+o protótipo dele deixava os sprites de cada época no arquivo de abertura, e aqui eles vão no
+pacote também — que era exatamente a recomendação do §7 do relatório.
+
+**O custo, e ele é real:** entrar em PALMARES cobra **3,66 s em Fast 3G** (2,96 s em Slow 4G)
+para buscar os 753 KB do pacote. Esses segundos são gastos dentro do fecho do capítulo
+anterior, da travessia e da cerimônia — segundos em que a pessoa está lendo — porque o pedido
+é disparado no início da virada, não na hora de desenhar. Na porta de entrada, onde a pessoa
+ainda não investiu nada e vai embora, o custo é zero.
+
+**E, o que importa mais que o número de hoje:** a porta de entrada **parou de crescer**. Um
+capítulo novo com pintura e sprites próprios custa 0 KB nela. O caminho antigo entregava
+38,5 s no capítulo 12.
+
+### Os pacotes
+
+```
+pack-palmares  753 KB    pack-hoje      741 KB    pack-salvador  426 KB
+pack-historia  347 KB    pack-travessia 263 KB              index.html  1,51 MB
+```
+
+`pack-historia` só é pedido quando alguém abre A HISTÓRIA; `pack-travessia`, só quando há
+travessia entre os dois capítulos. Quem joga o capítulo 1 e fecha nunca baixa nenhum dos dois.
+
+### O que foi decidido, e por quê
+
+- **O pacote leva a pintura E os sprites da época.** Medido no relatório: só a pintura deixaria
+  ~225 KB por capítulo na abertura, e ela voltaria a crescer (8,7 s no capítulo 4 virariam
+  15,7 s no 12).
+- **A CSP abriu UMA diretiva:** `connect-src 'none'` → `'self'`. Nada além. `img-src data:`
+  **não** mudou, porque a arte continua chegando como `data:` de dentro do pacote.
+- **A tabela de partição vive num arquivo só** (`ferramentas/pacotes.js`), lido pelo build E
+  embutido no jogo (`var __PACOTES`). Duas cópias divergiriam em silêncio, e o sintoma seria a
+  pintura de um capítulo nascendo vazia.
+- **Capítulo novo não precisa de linha nenhuma no jogo.** `pacotesDaEpoca()` deriva o que pedir
+  dos próprios dados do capítulo — `arte`, `arteCap` e `aberturaImg` — cruzados com a tabela.
+- **Sem pré-busca especulativa do capítulo seguinte.** Ela tornaria a virada instantânea, mas
+  baixa 753 KB para quem talvez nunca chegue lá. A virada já tem cerimônia suficiente para
+  cobrir 3,7 s. Fica anotado no `PENDENTES.md` como opção medível, não como dívida.
+
+### O jogo nunca fica sem chão — e o que isso custou de verdade
+
+Toda imagem que viajou vale um **GIF 1×1 transparente** até o pacote chegar. Cinco lugares
+recuam para a arte do capítulo 1, que nunca sai da abertura: `fundoComArte` (pintura),
+`heroBloco` (personagem), `mobFrame` (o que atravessa a rua), `dropDe` (o que fica no chão) e
+`frenteBloco` (vegetação). Um pacote que falha de baixar não quebra a partida: é anotado com
+`console.warn`, o capítulo segue com o recuo, e a tentativa é **reencenada** na próxima entrada.
+
+**A distinção que custou uma releitura e sem a qual isto estaria errado:** `temArte()` (carregou
+e é imagem de verdade) e `esperando()` (carregou e é o pixel de espera) **não são a negação uma
+da outra**. Uma imagem ainda decodificando não é nenhuma das duas. Sem essa terceira condição,
+os primeiros quadros de toda partida trocariam a arte certa pela de recuo, só porque nada tinha
+acabado de carregar ainda — e o sintoma seria a pessoa do capítulo 1 aparecendo por meio segundo
+no capítulo 3, que é falha de §2 vinda por uma porta técnica.
+
+### O custo escondido que ninguém tinha somado
+
+Seis caches medem números **da imagem** na primeira vez que a desenham: `heroScale` (altura do
+quadro da caminhada), `mobScale`, `frenteFrac` (onde a tinta da planta acaba), `dropScale`,
+`flashCv` (o pisca branco assado) e `travMarIm`. Medidos no pixel de espera, ficam **errados
+para sempre** quando a arte chega — e o sintoma seria a personagem saindo do tamanho de um pixel
+esticado, **sem erro nenhum no console**. `esquecerMedidasDaArte()` zera as seis a cada pacote
+aplicado; `dropScale` e `flashCv` deixaram de ser `const` só por isso.
+
+### As quatro coisas que liam "um arquivo", conferidas uma a uma
+
+| quem | o que precisou mudar |
+|---|---|
+| **Vercel** | nada — o `vercel.json` já publica `dist/`, e o build passou a escrever os pacotes lá |
+| **Capacitor** | nada — empacota `dist/` inteiro, e `androidScheme: https` faz o `fetch` funcionar |
+| **`npm start`** | nada — o `servir.js` já conhece o tipo `.json` |
+| **smoke test** | **abria por `file://`, e ali o Chromium recusa o fetch.** Agora sobe um servidor próprio |
+
+O smoke test foi o único custo real, como o relatório previa, e era do tipo perigoso: sem
+trocar, ele continuaria **passando** enquanto exercitava só o caminho de recuo.
+
+### A trava do build aprendeu o contrato novo
+
+A trava antiga cobrava `src=` e `href=` e **não via um `fetch()`**. Agora ela cobra quatro
+coisas, e a quarta é a que impede o resto de virar teatro:
+
+1. nenhuma outra porta de rede (`XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon`, `import()`);
+2. todo `fetch(` tem a forma exata `fetch(caminhoPacote(nome))` — contagem contra contagem;
+3. `caminhoPacote()` é cobrada byte a byte: `return "pack-" + nome + ".json"`, relativo, sem host;
+4. a **CSP é pregada diretiva por diretiva** contra uma tabela dentro do próprio `construir.js`.
+
+Provado nas duas pontas: trocar `connect-src` por um host derruba o build, e fazer
+`caminhoPacote` devolver `https://…` também.
+
+### O que se perdeu, e está aceito
+
+**Abrir o `index.html` da raiz com dois cliques (`file://`) passa a mostrar a arte do capítulo 1
+em todo lugar.** O Chromium recusa o `fetch` sob `file://` e o jogo **nem tenta** — em silêncio,
+porque encher o console de erro por uma tentativa que o navegador já decidiu recusar não ajuda
+ninguém. O jogo continua inteiramente jogável assim; só a arte dos capítulos 2+ não aparece. Os
+três lugares onde o jogo roda de verdade (Vercel, `npm start`, Capacitor) não usam `file://`.
+
+### O que o smoke test passou a cobrar
+
+Um bloco novo, e ele roda **antes de tudo** de propósito: precisa de uma página recém-aberta,
+em que nenhum pacote foi pedido. Ele prova, em jogo vivo, que (1) na abertura a arte do
+capítulo 1 é real e a dos outros é o pixel de espera — é o único aviso de que a porta de entrada
+voltou a crescer, porque o jogo continuaria funcionando perfeitamente; (2) depois do pacote a
+arte volta **no lugar certo** em todos os capítulos que pedem um — endereço errado devolve a
+imagem no capítulo errado e não dá erro nenhum; (3) enquanto espera, a pintura em uso tem 720 px
+de largura, não 1; e (4) um pacote que nunca chega deixa o jogo desenhando e é tentado de novo.
+
+### O efeito colateral que quase passou: quarenta instrumentos medindo a arte errada
+
+O relatório previa **um** custo escondido, o smoke test. Ele estava certo sobre o teste e curto
+sobre o número: **quase quarenta instrumentos** deste repositório abrem o jogo por `file://`
+(`encaixe.js`, `robusto-tudo.js`, os `medir-*`, os `prints-*`, os `cinco-*`, `prova-cores`…).
+Sob `file://` cada um deles continuaria rodando lindamente e medindo a arte do capítulo 1
+achando que media a do capítulo 3 — **print bonito, número errado, nenhum aviso**. Deixar assim
+seria fabricar quarenta medições silenciosamente falsas.
+
+`test/abrir.js` resolve os quarenta de uma vez, e a forma é o que faz isso ser barato: em vez
+de reescrever o corpo de cada ferramenta, **envolve-se a expressão que ela já monta**.
+
+```js
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
+```
+
+Devolve `http://127.0.0.1:8198/<caminho>` para qualquer `.html` **dentro** do repositório e
+devolve o que recebeu, intocado, para todo o resto — por isso as ferramentas de arte que abrem
+um PNG de `assets/entrada` passam por ali sem mudar de comportamento. Foram 51 aberturas em 51
+arquivos. A **porta é fixa** de propósito: um `listen(0)` daria porta livre garantida, mas só a
+informa num callback, e aí a função teria de ser assíncrona — o que obrigaria a mexer no CORPO
+das quarenta em vez de envolver uma expressão.
+
+### E o `encaixe.js` pegou duas coisas de verdade — que é para isso que ele existe
+
+1. **A tela de AJUSTES ainda prometia "NADA SAI DESTE APARELHO / O JOGO NÃO TEM REDE".** O
+   `CLAUDE.md` §3 previa exatamente isto e mandava reescrever a tela **na mesma fase** que ligar
+   a rede. O bloco 8 do `encaixe.js` existia justamente para amarrar as duas — e cobrou.
+   Passou a dizer **"SEU JOGO FICA NESTE APARELHO / O JOGO SÓ BAIXA A ARTE DELE"**, que é o que
+   é verdade e é o que a pessoa quer saber: o save, o tempo jogado, os toques e os dias
+   continuam sem ter para onde ir. A asserção virou de **três estados** (fechada · só o próprio
+   site · qualquer outra coisa) e **recusa** a terceira, em vez de deixá-la passar calada.
+2. **"PALMARES PERDEU a pintura: era 2,3, virou 0,0"** — falso positivo, e útil. O bloco media
+   `fundoIdx()` antes de os pacotes chegarem, ou seja, media o **recuo**. Agora espera a arte
+   toda chegar antes de medir o mapeamento. **Lição que vale para o próximo instrumento:** desde
+   10/08, medir arte de capítulo sem esperar o pacote mede o recuo, não a arte.
+
+### O aviso que o build ganhou — e o defeito que ele achou na primeira volta
+
+`pacoteDoEndereco` devolve `null` para o que não sabe classificar, e isso é de propósito: o pior
+caso é a arte pesar na porta de entrada, nunca sumir do jogo. Mas **"de propósito" e "esquecido"
+ficam idênticos em silêncio** — pintura nova entra, ninguém acrescenta a linha em
+`ferramentas/pacotes.js`, e a abertura volta a crescer capítulo a capítulo sem que nada diga
+nada. É exatamente o modo de falha que este trabalho existe para acabar. Então o build passou a
+CONTAR e FALAR: aviso, nunca build vermelho — quem integra arte no meio de uma sessão merece uma
+linha dizendo o que falta, não um build quebrado.
+
+**E ele achou um defeito na primeira vez que rodou.** A regra do sufixo do herói era "o último
+dígito da chave", e isso classificava `atk2` — a folha de ALCANCE do **capítulo 1** — como sendo
+do capítulo 2. Não virou defeito visível por puro acidente: `atk2` é byte a byte igual a `atk1`,
+que fica na abertura, e a regra "literal já paga na abertura não viaja" a segurou. Acidente não
+é projeto, e nenhum teste pegaria isto, porque a arte do capítulo 1 é justamente a que ninguém
+confere depois de aplicar um pacote. Agora as chaves são lidas pela forma delas: `walk`, `sp` e
+`run` levam o sufixo colado; `atk1` e `atk2` já terminam em dígito e o sufixo do capítulo vem
+depois de `_`. A saída do build ficou **byte a byte idêntica**, que é a prova de que a fuga era
+mesmo pelo acidente.
+
+### A dúvida que fica
+
+O relatório aponta uma variante que economiza mais 25% do arquivo **cru** (o que importa para o
+Android e para a memória): servir `.webp` de verdade em vez de base64 dentro de JSON. Ela custa
+uma segunda diretiva de CSP (`img-src data: 'self'`) e uma reescrita do pipeline de arte. Não
+foi feita, e a pergunta honesta é se vale: no fio comprimido a diferença é pequena, porque o
+brotli já devolve quase todo o inchaço do base64. **Só se decide com medição própria.**

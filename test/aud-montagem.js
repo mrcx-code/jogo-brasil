@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
-const ALVO = 'file://' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/');
+const ABRIR = require('./abrir.js');
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/'));
 (async () => {
   const nav = await chromium.launch();
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });

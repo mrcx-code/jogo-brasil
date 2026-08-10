@@ -14,6 +14,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
     if (p && fs.existsSync(p)) return p;
@@ -21,7 +22,7 @@ function chromiumPath() {
   return undefined;
 }
 const TAG = process.env.TAG || 'depois';
-const ALVO = 'file://' + path.resolve(__dirname, '..', process.env.ALVO || 'index.html');
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', process.env.ALVO || 'index.html'));
 const shot = (p, nome) => p.screenshot({ path: path.resolve(__dirname, 'FALA-' + TAG + '-' + nome + '.png') });
 (async () => {
   const b = await chromium.launch({ executablePath: chromiumPath() });

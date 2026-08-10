@@ -11,6 +11,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -21,7 +22,7 @@ function chromiumPath() {
 function alvo() {
   const p = process.env.JOGO_HTML;
   if (p && /^https?:\/\//i.test(p)) return p;
-  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+  return ABRIR('file://' + path.resolve(__dirname, '..', p || 'index.html'));
 }
 const DIR = __dirname;
 let falhas = 0;
@@ -343,16 +344,31 @@ const sec = t => log('\n---- ' + t);
     const csp = meta ? meta.getAttribute('content') : '';
     const txt = [...document.querySelectorAll('#cfgInfo div')].map(d => d.getAttribute('aria-label') || '').join(' ');
     return { csp: csp, txt: txt,
+      // TRÊS estados, e não dois — a CSP deixou de ser um interruptor em 10/08. `fechada` é
+      // "nenhuma rede"; `soPropria` é "só o próprio site", que é o que a carga sob demanda da
+      // arte precisou abrir; e qualquer outra coisa é uma terceira fase que ninguém escreveu
+      // ainda, e que esta asserção tem de recusar em vez de deixar passar calada.
       fechada: /connect-src\s+'none'/.test(csp) && /default-src\s+'none'/.test(csp),
-      promete: /NADA SAI DESTE APARELHO/.test(txt) && /NÃO TEM REDE/.test(txt) };
+      soPropria: /connect-src\s+'self'/.test(csp) && !/connect-src[^;]*(https?:|\*)/.test(csp),
+      prometeSemRede: /NADA SAI DESTE APARELHO/.test(txt) || /NÃO TEM REDE/.test(txt),
+      dizArtePropria: /FICA NESTE APARELHO/.test(txt) && /SÓ BAIXA A ARTE DELE/.test(txt) };
   });
   log('   AJUSTES diz: "' + priv.txt.slice(-60) + '"');
   log('   CSP: ' + priv.csp);
-  ok(priv.promete === priv.fechada,
-    priv.promete
-      ? (priv.fechada ? 'a tela promete "sem rede" e a CSP fecha a rede'
-                      : 'a tela AINDA promete "sem rede" e a CSP JÁ ABRIU — reescreva a tela na mesma fase')
-      : 'a tela não promete mais "sem rede" (e a CSP ' + (priv.fechada ? 'continua fechada' : 'abriu') + ')');
+  if (priv.fechada) {
+    ok(priv.prometeSemRede, priv.prometeSemRede
+      ? 'a tela promete "sem rede" e a CSP fecha a rede'
+      : 'a CSP não deixa nada sair e a tela deixou de dizer isso — a promessa mais forte foi perdida de graça');
+  } else if (priv.soPropria) {
+    ok(!priv.prometeSemRede && priv.dizArtePropria,
+      !priv.prometeSemRede && priv.dizArtePropria
+        ? 'a CSP abriu só para o próprio site e a tela diz exatamente isso'
+        : (priv.prometeSemRede
+            ? 'a tela AINDA promete "sem rede" e a CSP JÁ ABRIU — reescreva a tela na mesma fase'
+            : 'a CSP abriu para o próprio site e a tela não conta o que o jogo busca — diga, ou a omissão vira a mentira seguinte'));
+  } else {
+    ok(false, 'a CSP abriu para ALÉM do próprio site (' + priv.csp + ') e ninguém reescreveu esta asserção junto');
+  }
 
   // ============================================================
   // 9 · A TRAVESSIA TEM DURAÇÃO PRÓPRIA
@@ -505,7 +521,16 @@ const sec = t => log('\n---- ' + t);
   // certo antes também.
   // ============================================================
   sec('12 · inserir capítulo não move a pintura de ninguém');
-  const arte = await page.evaluate(() => {
+  const arte = await page.evaluate(async () => {
+    // A ARTE TEM DE ESTAR TODA AQUI ANTES DE MEDIR. Desde a carga sob demanda (10/08) a
+    // pintura dos capítulos 2+ chega por pacote, e `fundoIdx()` RECUA para uma pintura que já
+    // carregou enquanto o pacote viaja — de propósito, para o jogo nunca ficar sem chão. Medir
+    // antes de os pacotes chegarem media o recuo, não o mapeamento: PALMARES aparecia como
+    // "0,0" e a asserção acusava uma regressão que não existia.
+    for (let e = 0; e < EPOCAS.length; e++) garantirEpoca(e);
+    for (let t = 0; t < 400 && Object.keys(pacoteEstado).some(n => pacoteEstado[n] !== 'aqui'); t++) {
+      await new Promise(r => setTimeout(r, 25));
+    }
     const antes = [];
     for (let n = 0; n < TOTAL_CENAS; n++) { S.cenario = n; antes.push(fundoIdx()); }
     // finge um capítulo novo entre SALVADOR e AINDA AQUI: uma cena a mais, sem pintura

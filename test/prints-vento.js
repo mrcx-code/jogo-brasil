@@ -2,10 +2,11 @@
 //   node test/prints-vento.js
 const { chromium } = require('playwright');
 const path = require('path');
+const ABRIR = require('./abrir.js');
 (async () => {
   const nav = await chromium.launch();
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
-  await pg.goto('file:///' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/'));
+  await pg.goto(ABRIR('file:///' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/')));
   await pg.waitForTimeout(1800);
   const foto = async (modo, nome, espera) => {
     await pg.evaluate(m => { fecharTelas(); S.modo = m; }, modo);

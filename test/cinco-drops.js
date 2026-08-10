@@ -12,12 +12,13 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
 }
-const ALVO = 'file://' + path.resolve(__dirname, '..', process.env.JOGO_HTML || 'index.html');
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', process.env.JOGO_HTML || 'index.html'));
 
 (async () => {
   const browser = await chromium.launch({ executablePath: chromiumPath() });

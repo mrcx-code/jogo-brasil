@@ -13,13 +13,14 @@
 //      medição. ±10% em impacto por minuto.
 const { chromium } = require('playwright');
 const path = require('path');
+const ABRIR = require('./abrir.js');
 
 const SEG = 60;
 
 function alvo() {
   const p = process.env.JOGO_HTML;
   if (p && /^https?:\/\//i.test(p)) return p;
-  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+  return ABRIR('file://' + path.resolve(__dirname, '..', p || 'index.html'));
 }
 
 // Uma célula: prepara SALVADOR, roda `SEG` segundos com a estratégia dada, devolve os números.

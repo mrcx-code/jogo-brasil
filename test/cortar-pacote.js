@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const PACOTES = ['pacote-cap1-frente', 'pacote-cap2-frente', 'pacote-cap3-frente'];
@@ -27,7 +28,7 @@ const COLS = 4, LINS = 2, ALTURA = 132, CORES = 22;
   for (const nome of PACOTES) {
     const arq = path.join(RAIZ, 'assets', 'entrada', nome + '.png');
     if (!fs.existsSync(arq)) { console.log(nome + ': não está na pasta, pulando'); continue; }
-    await pg.goto('file:///' + arq.split(path.sep).join('/'));
+    await pg.goto(ABRIR('file:///' + arq.split(path.sep).join('/')));
     const cels = await pg.evaluate(async function (a) {
       const im = document.querySelector('img');
       await im.decode();

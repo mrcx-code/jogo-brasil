@@ -2,7 +2,8 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const ALVO = 'file://' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/');
+const ABRIR = require('./abrir.js');
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/'));
 (async () => {
   // quase-duplicatas na paleta declarada
   const css = fs.readFileSync(path.join(__dirname, '..', 'src', 'estilo.css'), 'utf8');
