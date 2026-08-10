@@ -7,12 +7,22 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- The game is one file and reaches for nothing. This makes the browser hold it to that:
-     no script, style, image or connection may come from anywhere but this document, and
-     there is no way to open a socket or fetch a URL even if code tried. 'unsafe-inline' is
-     required because the script and the styles live in the page itself, and data: is
-     required because every sprite is a base64 URI. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<!-- The game is one file and reaches for nothing but its own art packs. This makes the browser
+     hold it to that: no script, style or image may come from anywhere but this document, and
+     the only address it may open is one on this very site. 'unsafe-inline' is required because
+     the script and the styles live in the page itself, and data: is required because every
+     sprite is a base64 URI — including the ones that arrive inside a pack.
+
+     UMA DIRETIVA MUDOU, e está escrita por extenso porque §3.2 do CLAUDE.md manda:
+     `connect-src` era 'none' e passou a ser 'self' em 10/08, quando a arte de cada capítulo
+     saiu do arquivo de abertura para `pack-*.json` (o jogo levava 16,6 s para aceitar o
+     primeiro toque em 3G; ver RELATORIO-PESO.md). 'self' é "só o próprio site": o jogo pode
+     buscar arquivos que ele mesmo publicou e continua proibido de falar com qualquer outro
+     endereço do mundo. `img-src data:` NÃO mudou, porque a arte continua chegando como data:
+     de dentro do pacote. Nada além disso abriu — nem host, nem '*', nem default-src — e o
+     ferramentas/construir.js recusa construir se esta linha mudar sem a tabela dele mudar
+     junto. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <!-- frame-ancestors is deliberately absent: a browser ignores it in a <meta> element and
      logs a warning. Clickjacking protection has to come from an HTTP header, so if this is
      ever hosted somewhere that matters, set X-Frame-Options or frame-ancestors there. -->

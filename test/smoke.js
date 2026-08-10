@@ -76,6 +76,101 @@ async function alvo() {
     if (typeof fecharTelas === 'function') fecharTelas();
   });
   await page.waitForTimeout(150);
+
+  // ---- A ARTE QUE CHEGA SOB DEMANDA ----
+  // Este bloco vem ANTES de tudo de propósito: ele precisa de uma página recém-aberta, em que
+  // nenhum pacote foi pedido ainda. É a única janela em que dá para provar que a arte dos
+  // capítulos 2+ realmente NÃO está no arquivo de abertura — depois que o teste caminha pelas
+  // eras, tudo já chegou e a asserção passaria mesmo com o mecanismo desligado.
+  //
+  // Três coisas são cobradas, e cada uma cai por um motivo diferente:
+  //   1. NA ABERTURA a arte do capítulo 1 é real e a dos outros é o pixel de espera. Se alguém
+  //      devolver um bloco para dentro do index.html, isto acusa — e é o único aviso de que a
+  //      porta de entrada voltou a crescer, porque o jogo continuaria funcionando perfeitamente.
+  //   2. DEPOIS DO PACOTE a arte é real: pintura, personagem, objeto e drop daquela época. É o
+  //      que prova que o endereço de cada imagem sobreviveu à viagem — endereço errado devolve
+  //      a imagem no lugar errado e NÃO dá erro nenhum no console.
+  //   3. ENQUANTO ESPERA o jogo não fica sem chão: a pintura em uso é uma que carregou.
+  const espera = await page.evaluate(() => {
+    const eDeEspera = (im) => !!(im && im.complete && im.naturalWidth <= 1);
+    const cap1 = (EPOCAS[0].arte || []).every(i => CENARIO_ALTO[i] && CENARIO_ALTO[i].naturalWidth > 1);
+    // um capítulo cujo pacote ninguém pediu ainda
+    const outro = EPOCAS.findIndex((e, i) => i > 0 && pacotesDaEpoca(i).length);
+    const arteOutro = outro < 0 ? [] : (EPOCAS[outro].arte || []);
+    return {
+      tabela: !!window.__PACOTES, pacotes: (window.__PACOTES || {}).nomes || [],
+      cap1Real: cap1, outro, pedeOutro: outro < 0 ? [] : pacotesDaEpoca(outro),
+      outroEmEspera: arteOutro.length > 0 && arteOutro.every(i => eDeEspera(CENARIO_ALTO[i])),
+      // e o recuo: mandar o jogo para lá NÃO pode deixar a tela sem pintura
+      fundoDoRecuo: (() => {
+        const antes = S.cenario;
+        S.cenario = cenarioDaEpoca(outro < 0 ? 0 : outro);
+        const i = fundoIdx(), larg = CENARIO_ALTO[i] ? CENARIO_ALTO[i].naturalWidth : 0;
+        S.cenario = antes;
+        return larg;
+      })(),
+    };
+  });
+  console.log('art packs ->', espera.pacotes.join(', '), '| chapter 1 art inline:', espera.cap1Real,
+    '| chapter', espera.outro, 'waiting on', espera.pedeOutro.join('+'), ':', espera.outroEmEspera,
+    '| painting used while waiting:', espera.fundoDoRecuo, 'px wide');
+  if (!espera.tabela) errors.push('the art-pack table (__PACOTES) did not reach the game');
+  if (!espera.pacotes.length) errors.push('the build produced no art packs at all');
+  if (!espera.cap1Real) errors.push('chapter 1 art is not inline any more: the first screen now waits on the network');
+  if (espera.outro < 0) errors.push('no chapter asks for a pack: the on-demand path is dead code');
+  if (!espera.outroEmEspera) errors.push('chapter ' + espera.outro + ' art is still inside index.html: the opening file is growing again');
+  if (!(espera.fundoDoRecuo > 1)) errors.push('a chapter whose pack has not arrived draws no painting at all');
+
+  // ...e agora o pacote chega, e a arte fica de verdade — em TODOS os capítulos que pedem um.
+  const chegou = await page.evaluate(async () => {
+    const real = (im) => !!(im && im.complete && im.naturalWidth > 1);
+    const faltas = [];
+    for (let e = 0; e < EPOCAS.length; e++) {
+      const quais = pacotesDaEpoca(e);
+      if (!quais.length) continue;
+      garantirEpoca(e);
+      for (let t = 0; t < 200 && quais.some(n => pacoteEstado[n] !== 'aqui'); t++) {
+        await new Promise(r => setTimeout(r, 25));
+      }
+      const antes = S.cenario;
+      S.cenario = cenarioDaEpoca(e);
+      const cap = capArte();
+      (EPOCAS[e].arte || []).forEach(i => {
+        if (!real(CENARIO_ALTO[i]) || !real(CENARIO_CHAO[i])) faltas.push(EPOCAS[e].id + ': pintura ' + i);
+      });
+      if (!real(heroBloco('walk')[0])) faltas.push(EPOCAS[e].id + ': a caminhada da personagem');
+      if (!real(MOB_SPR.smog[cap])) faltas.push(EPOCAS[e].id + ': o que atravessa a rua');
+      if (!real(dropDe('smog'))) faltas.push(EPOCAS[e].id + ': o que fica no chão');
+      (EPOCAS[e].aberturaImg || []).forEach(k => {
+        if (k && CTX_B64[k] && CTX_B64[k].length < 200) faltas.push(EPOCAS[e].id + ': a paisagem ' + k);
+      });
+      S.cenario = antes;
+    }
+    return { faltas, estado: Object.keys(pacoteEstado).sort() };
+  });
+  console.log('  packs applied ->', chegou.estado.join(', '), '| missing art:', chegou.faltas.length || 'none');
+  chegou.faltas.forEach(f => errors.push('art did not come back from its pack — ' + f));
+
+  // ...e um pacote que NÃO chega não quebra a partida, e é tentado de novo depois.
+  // O fetch é trocado por um que recusa, em vez de pedir um arquivo que não existe: um 404 de
+  // verdade escreve um erro no console do navegador e este teste falha por causa dele, o que
+  // esconderia justamente o que se quer medir aqui.
+  const falhou = await page.evaluate(async () => {
+    const original = window.fetch;
+    window.fetch = () => Promise.reject(new Error('rede caiu (de propósito, no teste)'));
+    const antes = S.cenario, vivo = () => { desenhar(); return true; };
+    garantirPacote('inexistente');
+    await new Promise(r => setTimeout(r, 120));
+    const podeTentarDeNovo = !('inexistente' in pacoteEstado);
+    window.fetch = original;
+    S.cenario = antes;
+    return { podeTentarDeNovo, jogoVivo: vivo() };
+  });
+  console.log('  a pack that never arrives -> game still draws:', falhou.jogoVivo,
+    '| will be tried again on the next entry:', falhou.podeTentarDeNovo);
+  if (!falhou.jogoVivo) errors.push('a failed art pack stopped the game from drawing');
+  if (!falhou.podeTentarDeNovo) errors.push('a failed art pack is never retried: the chapter loses its art for good');
+
   // read the tuning out of the page instead of restating it here
   const CFG_TIROS = await page.evaluate(() => CFG.autoFogoTiros);
   const CFG_COMBOS = await page.evaluate(() => CFG.superCombos);
