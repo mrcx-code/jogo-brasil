@@ -154,13 +154,31 @@ Regras práticas que decorrem disso:
    edite o `index.html` nem os `pack-*.json` da raiz**: são saída, e o próximo build apaga o que
    você escrever neles. Isso vale também para as ferramentas de arte (`test/inline-*.js`,
    `cortar-pacote.js`, `embutir-heroi.js`, `requalificar.js`): todas escrevem em `src/jogo.ts`.
-2. **A rede alcança o próprio domínio, e nada mais** — até a fase do Supabase. A
-   `Content-Security-Policy` no `<head>` faz o navegador cobrar isso: `connect-src 'self'` desde
-   10/08 (era `'none'`; abriu para os pacotes de arte, e **só** eles). Quando ela precisar abrir
-   de novo, abra **só o que a fase pede** e escreva no commit o que passou a ser permitido; CSP
-   relaxada por conveniência é o começo de não ter CSP. A tabela pregada em
+2. **A rede alcança o próprio domínio e UM host, e nada mais.** A `Content-Security-Policy` no
+   `<head>` faz o navegador cobrar isso. Ela mudou duas vezes, as duas em 10/08, e as duas estão
+   escritas por extenso no `<head>` e no commit que as fez:
+   `connect-src 'self' https://eu.i.posthog.com` — `'self'` para os pacotes de arte, e o host
+   para a contagem anônima. Escrito inteiro, com esquema: **nenhum curinga, nunca**. Quando ela
+   precisar abrir de novo, abra **só o que a fase pede** e escreva no commit o que passou a ser
+   permitido; CSP relaxada por conveniência é o começo de não ter CSP. A tabela pregada em
    `ferramentas/construir.js` recusa construir se a CSP mudar sem ela — é de propósito que seja
-   chata de mudar por acidente.
+   chata de mudar por acidente —, e o host sai de **uma constante só** (`MEDIDA_HOST`), que
+   alimenta a CSP e a cobrança do endereço que o jogo chama.
+
+   **A contagem, e os limites dela.** Sete eventos anônimos respondem a pergunta de três dias:
+   abriu · voltou (com o número do dia) · chegou no capítulo X · terminou · abriu A HISTÓRIA ·
+   abriu DE ONDE VEM · onde parou. Sem nome, sem e-mail, **sem IP** (`$ip: null`), sem perfil de
+   pessoa (`$process_person_profile: false`), sem cookie (`fetch` com `credentials: "omit"`; a
+   biblioteca do PostHog **não** é usada, e a CSP nem a deixaria carregar), sem autocapture e sem
+   gravação de sessão. A chave é a **publicável** (`phc_`) e o build **recusa construir** se ela
+   deixar de ser — chave de serviço num arquivo que roda no navegador de outra pessoa é a conta
+   inteira entregue a quem abrir o código-fonte. Ao acrescentar evento ou propriedade: a lista
+   branca do `encaixe.js` bloco 17 reprova o que ninguém aprovou, e é ela o portão.
+
+   **Duas coisas valem mais que a medição inteira, e o `encaixe.js` bloco 17 mede as duas:** o
+   jogo **nunca depende** dela (adblock, servidor mudo, 503 — medido: zero erro, zero espera), e
+   **desligar desliga de verdade** (medido: zero pedidos). O interruptor está na tela de AJUSTES,
+   ao lado da frase que ele torna verdadeira.
 3. **O save é entrada não confiável.** `localStorage` é editável à mão. O carregamento passa
    por `ESQUEMA_SAVE`: lista fixa de campos, cada um com tipo e faixa. **Ao adicionar estado
    persistente, adicione ao esquema** — se não estiver lá, não é lido nem gravado. O smoke
@@ -288,11 +306,24 @@ Cada uma custou uma sessão no projeto anterior:
 
 ## 8. Infraestrutura e nome
 
-Produção: <https://jogo-brasil-mrcx.vercel.app> · Repo: `mrcx-code/jogo-brasil`
-Push na `main` publica sozinho.
-Não há segredo, variável de ambiente nem backend **ainda**. O Supabase traz os três, e a
-chave publicável dele pode ficar no cliente — mas nenhuma chave de serviço, nunca, num jogo
-que roda no navegador de outra pessoa.
+Produção: <https://matheusferreira.cc> — o domínio do dono, decidido por ele em 2026-08-10
+("tenho meu domínio matheusferreira.cc, quero usar ele por enquanto"). O jogo mora na **raiz**.
+Enquanto o DNS não estiver apontado, `jogo-brasil-mrcx.vercel.app` continua no ar e funcionando;
+o que fica errado nesse meio-tempo é só a prévia do link. O que falta fazer na Vercel está em
+uma tela só no `LANCAMENTO.md`, seção **O DOMÍNIO**.
+
+**O endereço mora numa linha só**, `ferramentas/dominio.js`. O molde `src/index.html` escreve
+uma marca e o build a troca nas duas tags `og:` — trocar de domínio, de subdomínio ou de
+subcaminho é trocar essa linha e rodar `npm run build`. As URLs do cartão do link **não têm mais
+como desencontrar**, que era o jeito antigo de a prévia do WhatsApp quebrar em silêncio.
+
+Repo: `mrcx-code/jogo-brasil` · Push na `main` publica sozinho.
+
+Não há variável de ambiente nem backend. Há **uma** credencial no cliente, e ela é publicável
+por construção: a chave `phc_` do PostHog, que só serve para MANDAR evento. **Nenhuma chave de
+serviço, nunca**, num jogo que roda no navegador de outra pessoa — e isto deixou de ser só uma
+frase: o `ferramentas/construir.js` recusa construir se a chave embutida não começar com `phc_`.
+O mesmo vale para o Supabase quando ele chegar.
 
 O nome do jogo é **BRASIL**, decidido pelo dono em 2026-08-05. O repositório continua se
 chamando `jogo-brasil`, o que é só o slug.
