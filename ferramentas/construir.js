@@ -89,6 +89,72 @@ const saida = molde.replace('@@CSS@@', () => css).replace('@@JS@@', () => js);
 // de fetch, e uma tag <script> e uma <style> apenas.
 const externo = saida.match(/(?:src|href)\s*=\s*["'](?!data:)[^"']+["']/gi) || [];
 if (externo.length) throw new Error('referência externa na saída: ' + externo.slice(0, 3).join(' , '));
+
+// ---- O CONTRATO DA REDE, COBRADO ----
+// A trava acima cobra `src=` e `href=`. Ela NÃO vê um `fetch()`, e por isso ela sozinha virou
+// uma garantia que só parecia existir no dia em que o jogo passou a buscar os pacotes de arte
+// (achado do RELATORIO-PESO.md, §5). Trava que não acompanha o contrato dá falsa segurança.
+//
+// O contrato NOVO, escrito por extenso: o jogo pode alcançar EXATAMENTE o pacote de arte do
+// próprio domínio, e nada mais. Um caminho relativo, montado por uma função só, a partir de um
+// nome de pacote. Sem host, sem protocolo, sem barra inicial — nada que possa apontar para
+// fora. Três cobranças, e cada uma pega um jeito diferente de furar isto:
+verificarRede(saida);
+function verificarRede(txt) {
+  // 1. Nenhuma OUTRA porta para a rede. `fetch` é a única, e as abaixo não existem no jogo.
+  const outrasPortas = txt.match(/\b(XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts|navigator\.connection)\b|\bimport\s*\(/g) || [];
+  if (outrasPortas.length) throw new Error('porta de rede que o contrato não prevê: ' + outrasPortas.slice(0, 3).join(' , '));
+
+  // 2. Todo `fetch(` é O fetch do pacote. Conta as chamadas e conta as que casam com a forma
+  //    exata; se os dois números divergirem, apareceu uma chamada com outro argumento.
+  const chamadas = (txt.match(/\bfetch\s*\(/g) || []).length;
+  const doPacote = (txt.match(/\bfetch\(caminhoPacote\([A-Za-z_$][\w$]*\)\)/g) || []).length;
+  if (chamadas !== doPacote) {
+    throw new Error('há ' + chamadas + ' chamada(s) a fetch() e só ' + doPacote
+      + ' com a forma do contrato `fetch(caminhoPacote(nome))` — o resto alcança algo que não é o pacote de arte');
+  }
+
+  // 3. E a função que monta o caminho é literalmente esta, ou o item 2 vira teatro: bastaria
+  //    `caminhoPacote` devolver "https://qualquer.coisa" para o contrato estar furado com a
+  //    trava verde. A forma é cobrada byte a byte sobre a SAÍDA do tsc.
+  if (doPacote) {
+    const f = txt.match(/function caminhoPacote\([^)]*\)\s*\{[^{}]*\}/);
+    if (!f) throw new Error('há fetch(caminhoPacote(...)) mas nenhuma função caminhoPacote() na saída');
+    if (!/^function caminhoPacote\(([A-Za-z_$][\w$]*)\)\s*\{\s*return "pack-" \+ \1 \+ "\.json";\s*\}$/.test(f[0])) {
+      throw new Error('caminhoPacote() deixou de montar um caminho relativo do próprio domínio:\n' + f[0]);
+    }
+  }
+
+  // 4. E a CSP é PREGADA, diretiva por diretiva. É ela que faz o navegador cobrar tudo o que
+  //    está acima mesmo que o código mude; relaxá-la por conveniência é o começo de não ter
+  //    CSP (§3.2 do CLAUDE.md). Mudar esta tabela é a forma de dizer, no commit, o que passou
+  //    a ser permitido — e é deliberadamente chata de mudar por acidente.
+  const CSP_ESPERADA = {
+    'default-src': "'none'",        // nada, por padrão
+    'script-src': "'unsafe-inline'",// o script mora na página
+    'style-src': "'unsafe-inline'", // o estilo também
+    'img-src': 'data:',             // toda arte é data: — inclusive a que vem dentro do pacote
+    'connect-src': "'none'",        // NENHUMA rede. Vira 'self' no dia do pacote de arte.
+    'base-uri': "'none'",
+    'form-action': "'none'",
+  };
+  const m = txt.match(/http-equiv="Content-Security-Policy"\s+content="([^"]*)"/);
+  if (!m) throw new Error('a Content-Security-Policy sumiu do <head>');
+  const achada = {};
+  m[1].split(';').forEach(function (d) {
+    const t = d.trim(); if (!t) return;
+    const i = t.indexOf(' ');
+    achada[i < 0 ? t : t.slice(0, i)] = i < 0 ? '' : t.slice(i + 1).trim();
+  });
+  const nomes = Object.keys(CSP_ESPERADA).concat(Object.keys(achada));
+  for (const d of nomes) {
+    if (achada[d] !== CSP_ESPERADA[d]) {
+      throw new Error('a CSP mudou e a trava do build não sabe disso: `' + d + '` está "'
+        + (achada[d] === undefined ? '(ausente)' : achada[d]) + '" e a tabela em ferramentas/construir.js espera "'
+        + (CSP_ESPERADA[d] === undefined ? '(ausente)' : CSP_ESPERADA[d]) + '"');
+    }
+  }
+}
 // A PRÉVIA DO LINK. `compartilhar.png` é a ÚNICA coisa que sai do arquivo único, e ela não é
 // carregada pelo jogo em momento nenhum: quem a lê é o robô que monta o cartão do link no
 // WhatsApp e no Twitter, a partir das tags og: do <head>. Vai para `dist/` porque é de lá que
