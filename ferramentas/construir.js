@@ -33,7 +33,7 @@ const semTsc = process.argv.includes('--sem-tsc');
 // saem daqui. Região EU, escolhida e não herdada. Trocar de região ou de serviço é trocar
 // esta linha, e aí a CSP e o jogo ficam errados juntos até que os três digam o mesmo — que é
 // exatamente o barulho que uma mudança dessas tem de fazer.
-const MEDIDA_HOST = 'https://eu.i.posthog.com';
+const MEDIDA_HOST = 'https://us.i.posthog.com';
 
 if (!semTsc) {
   // `require.resolve` e não um caminho montado à mão: num WORKTREE do git o `node_modules` não

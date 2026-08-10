@@ -2740,7 +2740,14 @@ const MEDIDA_CHAVE = "phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG";
 // Região EU, escolhida e não herdada: o jogo é sobre o Brasil e quem o joga é brasileiro, e
 // a UE é a única jurisdição que obriga o processador a tratar isso com regra. O host desta
 // linha é o ÚNICO que a CSP abre, e o build cobra que os dois digam o mesmo host.
-const ENDERECO_MEDIDA = "https://eu.i.posthog.com/i/v0/e/";
+// A REGIÃO É A DO PROJETO, E ERRAR NELA FALHA EM SILÊNCIO. Este endereço apontava para a UE
+// porque foi ela que eu recomendei — e o projeto que o dono criou está nos EUA
+// (`us.posthog.com/project/550996`). Os dois endereços respondem **200 OK** a qualquer coisa:
+// o PostHog valida a chave depois, longe da resposta. Ou seja, a medição inteira ficaria
+// mandando eventos para lugar nenhum sem um erro em canto nenhum, e a primeira vez que
+// alguém notaria seria olhando um painel vazio dali a semanas e achando que ninguém jogou.
+// Se um dia o projeto mudar de região, esta linha e a CSP mudam JUNTAS.
+const ENDERECO_MEDIDA = "https://us.i.posthog.com/i/v0/e/";
 const CHAVE_MEDIR = "jogo_brasil_medir";
 const CHAVE_ANON = "jogo_brasil_anon";
 // O teto por carga de página. Não é medo de custo: é que qualquer defeito futuro que puser

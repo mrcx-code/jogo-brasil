@@ -18,7 +18,7 @@
        1. `connect-src` era 'none' e ganhou 'self' em 10/08, quando a arte de cada capítulo
           saiu do arquivo de abertura para `pack-*.json` (o jogo levava 16,6 s para aceitar o
           primeiro toque em 3G; ver RELATORIO-PESO.md). 'self' é "só o próprio site".
-       2. E ganhou UM host, no mesmo 10/08: `https://eu.i.posthog.com`, para onde vai a
+       2. E ganhou UM host, no mesmo 10/08: `https://us.i.posthog.com`, para onde vai a
           contagem anônima que a tela de AJUSTES descreve e permite desligar. Um host, escrito
           inteiro, com esquema — não um curinga, não um `*.posthog.com`, não um `https:` solto.
           Este é o endereço exato do `ENDERECO_MEDIDA` no jogo, e o ferramentas/construir.js
@@ -27,7 +27,7 @@
      chega como data: de dentro do pacote), e não há `script-src` de host nenhum — ou seja, a
      biblioteca do PostHog não teria como ser carregada nem que alguém tentasse. É de propósito:
      o que fala com o PostHog são ~20 linhas neste arquivo, e não um script de terceiro. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self' https://eu.i.posthog.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self' https://us.i.posthog.com; base-uri 'none'; form-action 'none'">
 <!-- frame-ancestors is deliberately absent: a browser ignores it in a <meta> element and
      logs a warning. Clickjacking protection has to come from an HTTP header, so if this is
      ever hosted somewhere that matters, set X-Frame-Options or frame-ancestors there. -->
