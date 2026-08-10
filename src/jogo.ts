@@ -1916,6 +1916,45 @@ const EPOCAS = [
     ]
   },
   {
+    // O ACEIRO — APROVADO PELO DONO em 2026-08-10, respondendo à pergunta 4 do handoff ("O
+    // ACEIRO entra no arco de doze?"). O capítulo inteiro está desenhado, com fonte por fala e
+    // estado de verificação, no `HISTORIA-CONTEMPORANEO.md` (Parte 1). NADA daquele texto entra
+    // aqui hoje: ele espera a arte e a revisão, e três decisões de §2 continuam com o dono (a
+    // identidade da brigadista, quanto do fogo a imagem mostra, e se há homenagem 8-bit).
+    //
+    // POR QUE AQUI, e não no fim da lista: `EPOCAS` é ordem CRONOLÓGICA. O ACEIRO é do agora,
+    // como O QUE TEM FONTE e AINDA AQUI — dentro do "agora" a ordem é de leitura, e ela tem
+    // razão: o capítulo do método (O QUE TEM FONTE) usa como exemplo trabalhado o INPE e o
+    // MapBiomas medindo a mesma floresta com réguas diferentes. Quem chega ao método já tem de
+    // ter visto as duas réguas. Por isso O ACEIRO vem ANTES dele, e depois de O QUE SEGUROU.
+    //
+    // O QUE ESTE CAPÍTULO TRAZ DE NOVO PARA O ARCO, e vale escrito porque muda manutenção: é o
+    // primeiro capítulo com conteúdo PERECÍVEL. Todos os outros têm número congelado — 1500,
+    // 1694, 1835, o Censo de 2022. O dado de desmatamento sai todo ano. Quando ele for escrito,
+    // toda fala carrega a data DENTRO da frase ("em tal ano o órgão registrou…"), nunca no
+    // presente, e o `NOTES.md` ganha uma linha de manutenção anual.
+    id: "aceiro",
+    nome: "O ACEIRO",
+    quando: "cerrado · hoje",
+    emObra: true,
+    arteCap: 3,
+    // pintura do capítulo anterior, como todo capítulo em obra — e aqui ela desencaixa mais que
+    // nos outros, porque o lugar é cerrado e a tinta é rua. Está no PENDENTES.md junto com as
+    // outras duas heranças de paisagem.
+    cenas: 1, lugar: "aceiro", arte: [10],
+    abertura: [
+      "Este capítulo se chama O ACEIRO, e ele ainda está sendo escrito.",
+      "O nome é uma palavra de trabalho: aceiro é a faixa de chão que se limpa para o fogo não passar. O verbo dele já tem nome — abafar — e quem ele acompanha é quem segura a linha, não quem manda.",
+      "O que ele vai afirmar depende de registro de órgão, e esse é o primeiro capítulo do jogo cujo número tem prazo: sai um novo todo ano. Enquanto não estiver conferido e datado, ele não diz.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null, null],
+    fecho: [
+      "Fim do trecho. Ele ainda não te deu um mapa nem uma hora — e é isso que ele promete ser quando abrir: um mapa e uma hora, nunca um culpado.",
+      "Até lá ele fica quieto. Número de desmatamento sem a data e o órgão do lado não é fato: é boato com cara de fato."
+    ]
+  },
+  {
     id: "temfonte",
     nome: "O QUE TEM FONTE",
     quando: "hoje",
@@ -2256,7 +2295,15 @@ const ARCOS_ANTIGOS: LinhaArco[] = [
   // OITO capítulos em obra do arco de doze: quem parou em AINDA AQUI na cena 5 do arco 1
   // acordaria em JABAQUARA sem ela. É exatamente o procedimento descrito acima, e a
   // primeira vez que ele foi exercido de verdade.
-  [["pindorama", 2], ["palmares", 2], ["salvador", 1], ["hoje", 2]]
+  [["pindorama", 2], ["palmares", 2], ["salvador", 1], ["hoje", 2]],
+  // ARCO 2 — o de DOZE, os oito esqueletos já dentro e ainda sem O ACEIRO. Copiada para cá em
+  // 2026-08-10, ao o dono aprovar o capítulo do agronegócio ("O ACEIRO entra no arco"). Sem
+  // esta linha, quem parou em O QUE TEM FONTE (cena 13 do arco 2) acordaria em O ACEIRO, e
+  // quem parou em AINDA AQUI acordaria uma cena antes do fim. Segunda vez que o procedimento
+  // do cabeçalho é exercido, e a primeira em que ele foi exercido ANTES de mexer em `EPOCAS`.
+  [["pindorama", 2], ["palmares", 2], ["cais", 1], ["salvador", 1], ["jabaquara", 1],
+   ["pequenaafrica", 1], ["portas", 1], ["naodito", 1], ["praca", 1], ["segurou", 1],
+   ["temfonte", 1], ["hoje", 2]]
 ];
 // A última linha é sempre a de HOJE, e ela se descreve sozinha a partir de `EPOCAS`: não há
 // como esquecer de atualizá-la.
@@ -8616,6 +8663,50 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1888", t: "A lei de dois artigos", qi: "p21",
     d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
     f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
+  // ============================================================
+  // O BURACO DE 1888 A 1964 — decisão do dono, 2026-08-10
+  //
+  // Perguntado se queria ANTECIPAR ditadura e agronegócio na fila de capítulos, ele respondeu:
+  // *"fiquei entre A e B, quero incluir esses marcos na linha do tempo mas mantendo a ordem
+  // cronológica."* Ou seja: nenhum capítulo se reordena; o que entra são MARCOS, para o salto
+  // de 1888 a 1964 deixar de ser mudo. A regra do arco que isto cumpre está no NOTES.md e é
+  // dura: *abolição sem o dia seguinte é a mentira que a escola conta há um século.*
+  //
+  // A RÉGUA DESTES SEIS, e ela é o §2.6 (A REGRA DO DOCUMENTO) exercida pela primeira vez em
+  // texto de jogo. Cada um deles é UMA NORMA COM NÚMERO, lida em fonte pública, e a frase só
+  // afirma o que a norma afirma. Nenhum político, magistrado ou empresário é nomeado — nem os
+  // que a historiografia nomeia sem hesitar. Nenhum partido, nenhum governo, nenhuma eleição.
+  // O que sobra é o que o documento diz de si mesmo, e é mais duro que qualquer adjetivo.
+  //
+  // SEM BALÃO, os seis. A regra de silêncio do quadrinho vale para marco duro — e há um motivo
+  // a mais aqui: `quem` é a pessoa DAQUELE tempo, e nenhum capítulo deste intervalo foi escrito
+  // ainda. Balão com o retrato de AINDA AQUI comentando 1890 seria pôr palavra na boca errada.
+  //
+  // SEM `qi`, os seis: caem na PÁGINA DE PAPEL do quadrinho (o caderno de campo), que é a saída
+  // neutra e honesta. Vertical própria só quando a mesa entregar — nada se inventa para tapar.
+  //
+  // `cena` é só QUANDO O JOGO REVELA (a nota da volta usa isso; o menu abre tudo): cada marco
+  // pendura na cena do capítulo em obra que o contém na cronologia. O que faltou fonte NÃO
+  // ENTROU, e está listado no NOTES.md com o motivo — a Lei de Terras de 1850 é a maior falta.
+  // ============================================================
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("pequenaafrica")), q: "1890", t: "O código de dois anos depois",
+    d: "Dois anos depois da abolição, o Código Penal da República fez crime não ter ocupação (art. 399) e fez crime a capoeira, chamada pelo nome: “exercícios de agilidade e destreza corporal conhecidos pela denominação capoeiragem” (art. 402). A lei não escreveu cor nenhuma. Escreveu rua, ofício e corpo.",
+    f: "Decreto nº 847, de 11 de outubro de 1890, arts. 399 e 402" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("pequenaafrica")), q: "1891", t: "Quem podia votar",
+    d: "A primeira Constituição da República listou quem NÃO podia alistar-se eleitor: “os mendigos; os analfabetos; as praças de pré”. A exigência de saber ler já vinha da Lei Saraiva, de 1881, e atravessaria inteira a República.",
+    f: "Constituição de 1891, art. 70, § 1º · Lei Saraiva, 1881 · TSE" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1930", t: "O decreto que dissolveu o Congresso",
+    d: "Em 11 de novembro de 1930 um decreto deu ao governo provisório, “discricionariamente, em toda sua plenitude”, as funções do Poder Executivo e também do Legislativo, e confirmou dissolvidos o Congresso Nacional, as assembleias dos estados e as câmaras municipais. É por isso que a lei eleitoral seguinte veio como decreto, e não votada.",
+    f: "Decreto nº 19.398, de 11 de novembro de 1930, arts. 1º e 2º" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1932 → 1985", t: "O voto, e a porta que ficou fechada",
+    d: "O primeiro Código Eleitoral criou a Justiça Eleitoral, trouxe o voto secreto e escreveu que é eleitor o cidadão maior de 21 anos “sem distinção de sexo”. A mesma norma manteve fora quem não soubesse ler — e essa exigência só caiu com a Emenda Constitucional nº 25, de 15 de maio de 1985. Cento e quatro anos depois de 1881.",
+    f: "Decreto nº 21.076, de 24 de fevereiro de 1932, art. 2º · EC nº 25/1985 · TSE · Senado Federal" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1943 → 2015", t: "A lei do trabalho e quem ficou de fora",
+    d: "A Consolidação das Leis do Trabalho diz, logo no art. 7º, a quem ela NÃO se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. A Constituição de 1988 deu à categoria doméstica nove dos direitos que os outros já tinham. A igualdade veio com a Emenda Constitucional nº 72, de 2013, e a Lei Complementar nº 150, de 2015. Do primeiro texto ao último, setenta e dois anos.",
+    f: "Decreto-Lei nº 5.452, de 1º de maio de 1943, art. 7º · EC nº 72/2013 · LC nº 150/2015 · Senado Federal" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("naodito")), q: "1964", t: "O ato que tirou o juiz do caminho",
+    d: "Em 9 de abril de 1964 um ato institucional autorizou os comandantes que o editaram a “suspender os direitos políticos pelo prazo de dez anos e cassar os mandatos legislativos federais, estaduais e municipais, excluída a apreciação judicial desses atos”. A última oração é a que decide o resto.",
+    f: "Ato Institucional de 9 de abril de 1964, art. 10" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1988", t: "A Constituinte",
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
     f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
@@ -9093,6 +9184,27 @@ const FONTES = [
     q: "Cartografia dos mocambos a partir da documentação primária: Macaco, Subupira, Amaro, Andalaquituche, Osenga." },
   { t: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678 — Chão Editora, 2021",
     q: "Paleografia que corrige nomes: “Gana Zumba”, não “Ganga Zumba” — em quimbundo, gana é senhor e ganga é sacerdote." },
+  // ===== O INTERVALO DE 1888 A 1964, E POR QUE ESTE GRUPO É SÓ DE NORMA =====
+  // Os seis marcos que fecham o buraco entre a abolição e 1964 são o §2.6 (A REGRA DO
+  // DOCUMENTO) em exercício: cada frase afirma o que uma norma com número afirma, e nada além.
+  // Por isso a lista abaixo não traz um único autor — ela traz o DOCUMENTO, que é o que a
+  // pessoa pode ir conferir sozinha. A bibliografia de cada período entra quando o capítulo
+  // dela for escrito, e aí valendo a prioridade de fonte do §2 (autoria negra e indígena, e as
+  // pesquisadoras de cada tempo). Fonte de norma e fonte de interpretação são coisas
+  // diferentes, e misturá-las aqui faria a tela prometer leitura onde só há texto legal.
+  { g: "DE 1888 A 1964 — A NORMA, PELO NÚMERO" },
+  { t: "Decreto nº 847, de 11 de outubro de 1890 — Código Penal da República, arts. 399 e 402",
+    q: "Dois anos depois da abolição: o art. 399 fez crime não ter ocupação; o art. 402 nomeou a capoeira e a fez crime. Nenhum dos dois escreve cor — e é justamente isso que se aprende ao ler o texto." },
+  { t: "Constituição de 1891, art. 70, § 1º",
+    q: "“Não podem alistar-se eleitores… os mendigos; os analfabetos; as praças de pré.” A exigência de leitura vinha da Lei Saraiva, de 1881, e o TSE registra que ela durou até 1985." },
+  { t: "Decreto nº 19.398, de 11 de novembro de 1930, arts. 1º e 2º",
+    q: "O governo provisório recebe “discricionariamente, em toda sua plenitude” as funções do Executivo e do Legislativo, e o Congresso, as assembleias e as câmaras são confirmados dissolvidos. É o documento que explica por que a lei eleitoral de 1932 veio por decreto." },
+  { t: "Decreto nº 21.076, de 24 de fevereiro de 1932 — primeiro Código Eleitoral, art. 2º · Emenda Constitucional nº 25, de 15 de maio de 1985",
+    q: "“É eleitor o cidadão maior de 21 anos, sem distinção de sexo.” A mesma norma manteve fora quem não soubesse ler; a emenda de 1985 desfez isso. Duas normas, cento e quatro anos, uma porta." },
+  { t: "Decreto-Lei nº 5.452, de 1º de maio de 1943 — CLT, art. 7º · EC nº 72/2013 · Lei Complementar nº 150/2015",
+    q: "O art. 7º diz a quem a CLT não se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. O Senado Federal registra o caminho até a igualdade de direitos, em 2013 e 2015." },
+  { t: "Ato Institucional de 9 de abril de 1964, art. 10",
+    q: "Suspender direitos políticos por dez anos e cassar mandatos, “excluída a apreciação judicial desses atos”. O que o próprio ato diz de si mesmo dispensa comentário — e é por isso que o jogo não acrescenta nenhum." },
   { g: "ONDE AS FONTES DISCORDAM", d: 1 },
   { t: "Quanta gente vivia aqui em 1500?", d: 1,
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
