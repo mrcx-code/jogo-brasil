@@ -99,7 +99,8 @@ interface PassoCap {
   lacoCorrer: number; quadrosCorrer: number; passoCorrer: number;
 }
 /** Ganchos de depuração pendurados no window por setParalaxe()/setFundo(). */
-interface Window { setParalaxe?: (v: number) => number; setFundo?: (i: number) => number;
+interface Window { posthog?: { capture: (event: string, properties?: Record<string, string | number | boolean>) => void };
+  setParalaxe?: (v: number) => number; setFundo?: (i: number) => number;
   setHora?: (f: number) => number;
   setKick?: (v: any) => boolean; kickInfo?: () => number[]; kickPose?: (px: number) => number;
   setRepeticao?: (cena: number, espelhar?: boolean, fracao?: number, costurar?: boolean,
@@ -262,6 +263,10 @@ const bonusDias = () => 1 + CFG.bonusDia * Math.min(Math.max(0, R.dias - 1), CFG
 // What a tap is worth: the base, the upgrade that triples it, and the day streak. Every
 // other multiplier this used to carry belonged to a feature that no longer exists.
 const ganhoClique = () => forcaToque() * bonusDias();
+
+function capturarEvento(evento: string, propriedades?: Record<string, string | number | boolean>) {
+  if (window.posthog) window.posthog.capture(evento, propriedades);
+}
 
 // ---------- O MUNDO RESPONDE ----------
 //
@@ -1340,6 +1345,7 @@ function comprar(u, custo) {
     // O x100 marca o DIA na retenção. Sem isso a medição contaria como partida jogada uma
     // sessão em que o toque valia cem — e eu não teria como saber depois. Ver ESQUEMA_RET.
     if (u === "u4") { R.turbo = (R.turbo | 0) + 1; salvarRetencao(); }
+    capturarEvento("upgrade_purchased", { upgrade: u, cost: custo });
     desenhar();
   }
 }
@@ -5549,6 +5555,7 @@ function verificarCenario() {
   const vira = epocaDoCenario(proxima) !== saindoDe;
   const avancar = function () {
     S.cenario = proxima;
+    if (vira) capturarEvento("chapter_completed", { chapter: EPOCAS[saindoDe].id });
     redesenharFundo();
     // O float só fala quando NÃO há cerimônia — e por isso ele não pode dizer "NOVA ERA":
     // `!vira` é exatamente o caso em que a era NÃO mudou, só a cena dentro do mesmo capítulo.
@@ -8630,6 +8637,7 @@ function ligarTelas() {
   // Quem já leu passa direto, porque `mostrarAbertura()` só fala uma vez por capítulo.
   $("btnJogar").addEventListener("pointerdown", function (e) {
     e.preventDefault();
+    capturarEvento("game_started", { resumed: S.energiaTotal > 0 });
     // Com UMA era destrancada a tela de eras é uma escolha sem opções (usabilidade,
     // achado 7): JOGAR entra direto no jogo — a abertura do capítulo 1 continua vindo
     // primeiro, porque mostrarAbertura() só fala uma vez e sai da frente de quem já leu.
@@ -8646,6 +8654,7 @@ function ligarTelas() {
   $("btnCompletude").addEventListener("pointerdown", function (e) {
     e.preventDefault();
     R.historia = Math.min(R.historia + 1, ESQUEMA_RET.historia.max); salvarRetencao();
+    capturarEvento("history_opened", { source: "main_menu" });
     montarCompletude(); abrirTela("telaCompletude");
   });
   $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
@@ -8655,6 +8664,7 @@ function ligarTelas() {
     // Contado aqui e não em `montarFontes()`: a tela de CHEGADA precisa saber se a pessoa
     // ABRIU a lista, e `montarFontes()` também é chamada por caminho que não é escolha dela.
     R.fontes = Math.min((R.fontes | 0) + 1, ESQUEMA_RET.fontes.max); salvarRetencao();
+    capturarEvento("sources_opened", { source: "main_menu" });
     montarFontes(); abrirTela("telaFontes");
   });
   // A CHEGADA, pelo menu — só existe para quem chegou. Uma tela de fim que aparece uma vez e
@@ -8666,11 +8676,13 @@ function ligarTelas() {
   $("btnFimHist").addEventListener("pointerdown", function (e) {
     e.preventDefault();
     R.historia = Math.min(R.historia + 1, ESQUEMA_RET.historia.max); salvarRetencao();
+    capturarEvento("history_opened", { source: "game_ending" });
     montarCompletude(); abrirTela("telaCompletude");
   });
   $("btnFimFontes").addEventListener("pointerdown", function (e) {
     e.preventDefault();
     R.fontes = Math.min((R.fontes | 0) + 1, ESQUEMA_RET.fontes.max); salvarRetencao();
+    capturarEvento("sources_opened", { source: "game_ending" });
     montarFontes(); abrirTela("telaFontes");
   });
   $("btnFimVoltar").addEventListener("pointerdown", function (e) { e.preventDefault(); fecharTelas(); });
@@ -8857,6 +8869,7 @@ function montarFim() {
 }
 function chegarAoFim() {
   R.chegou = Math.min((R.chegou | 0) + 1, ESQUEMA_RET.chegou.max);
+  capturarEvento("game_completed", { chapters_reached: EPOCAS.length });
   salvarRetencao();
   montarFim();
   abrirTela("telaFim");
@@ -9044,7 +9057,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   // owner: the projects sheet is gone, and with it its buy buttons and its copy of the
   // rhythm switch. The rhythm now lives only on the card in the control block.
-  $("modeQuick").onclick = () => { definirModo(S.modo === "carvao" ? "limpo" : "carvao"); };
+  $("modeQuick").onclick = () => {
+    const mode = S.modo === "carvao" ? "limpo" : "carvao";
+    definirModo(mode);
+    capturarEvento("game_mode_changed", { mode: mode });
+  };
   [1, 2, 3, 4].forEach(function (n) { $("btnU" + n).onclick = () => comprar("u" + n, CFG["custoU" + n]); });
   // owner: the torch, the wall, the epilogue, the projects sheet and the special projects
   // are gone — every button that opened them went with them.
