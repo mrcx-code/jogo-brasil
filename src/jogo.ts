@@ -3164,6 +3164,14 @@ let tick = 0, tickMundo = 0, animT = 0;
 // passam pelo portão do laço.
 let mundoParado = false;
 let W = 320, H = 180, GROUND = 108, HX = 90;
+// ===== A CAIXA DAS TRÊS CAMADAS, EM PX DE TELA =====
+// `TELA_W`/`TELA_H` são W×ESCALA e H×ESCALA — a caixa que as três camadas (#fundoHD, #scene
+// e #heroHD) ocupam. Elas existem porque a caixa deixou de ser a janela: ver o bloco grande
+// em `fitCanvas`. Enquanto `fitCanvas` não rodou uma vez elas valem 0, e quem as lê cai na
+// janela — é o que mantém qualquer chamada de boot fora de ordem funcionando como antes.
+let ESCALA = 2, TELA_W = 0, TELA_H = 0;
+function telaW() { return TELA_W || window.innerWidth; }
+function telaH() { return TELA_H || window.innerHeight; }
 // The hero's own layer. Its pixel size follows the device, and the world's coordinates are
 // mapped onto it, so a position computed in world px lands in the same place it always did.
 let heroCv: HTMLCanvasElement | null = null, heroCx: CanvasRenderingContext2D | null = null;
@@ -3171,8 +3179,12 @@ function ajustarHeroHD() {
   heroCv = document.getElementById("heroHD") as HTMLCanvasElement | null;
   if (!heroCv) return;
   const dpr = Math.min(3, window.devicePixelRatio || 1);
-  heroCv.width = Math.max(1, Math.round(window.innerWidth * dpr));
-  heroCv.height = Math.max(1, Math.round(window.innerHeight * dpr));
+  // A caixa é a do MUNDO, não a da janela — as três camadas têm de cobrir exatamente o mesmo
+  // retângulo, ou a linha do chão pintado deixa de bater com o GROUND e a personagem levita.
+  heroCv.style.width = telaW() + "px";
+  heroCv.style.height = telaH() + "px";
+  heroCv.width = Math.max(1, Math.round(telaW() * dpr));
+  heroCv.height = Math.max(1, Math.round(telaH() * dpr));
   heroCx = heroCv.getContext("2d");
 }
 // ---------- CAPÍTULO 2: as pessoas, na camada da personagem ----------
@@ -3290,7 +3302,7 @@ function desenharVento(g, cw, ch) {
   // rampa: ~0,45 s para encher e para esvaziar, no dt real do quadro
   ventoT += (alvoV - ventoT) * Math.min(1, dtV * 4.5);
   if (ventoT < 0.02) return;
-  const dpr = cw / Math.max(1, window.innerWidth);
+  const dpr = cw / Math.max(1, telaW());
   g.save();
   g.globalCompositeOperation = "lighter";
   const fase = worldX * 2.2;                    // do mundo andado, nunca do relógio
@@ -3352,14 +3364,39 @@ function fitCanvas() {
   // no mínimo 2, e W = tela / k. O piso de 160 vira o que sempre devia ter sido — o mínimo de
   // mundo visível, não um valor fixo que a tela estica. Campo de visão passa a variar com o
   // aparelho, que é o que todo jogo 2D faz: tela maior vê mais rua.
+  // E FALTAVA A METADE DE BAIXO DELE, que só apareceu quando a medição passou a cobrar em vez
+  // de imprimir (2026-08-10). Escolher `k` inteiro não basta: `W = round(tela / k)` volta a
+  // quebrar a escala sempre que a tela não for múltipla de `k`, porque o CSS `width: 100%`
+  // estica esses W px de canvas na largura REAL. Medido: 412×915 dava 2 × 1,9978 (458 px de
+  // canvas exibidos em 915) e o tablet deitado 1024×768 dava 3,0029 × 3 (341 em 1024). O erro
+  // é de um pixel na tela inteira — e é exatamente o defeito que este bloco existe para não
+  // ter: com `pixelated`, uma coluna de pixels no meio da tela sai com um pixel a menos.
+  //
+  // A conta muda de `round` para `ceil` e a caixa deixa de ser a janela: o mundo passa a
+  // medir W×ESCALA por H×ESCALA px de tela, o que é sempre >= a janela, e a sobra (no máximo
+  // ESCALA−1 px, ou seja 5 px no pior caso deste jogo) SANGRA para fora da borda direita e de
+  // baixo. Escala inteira exata em qualquer aparelho, ao preço de dois a cinco pixels que
+  // ninguém vê.
+  //
+  // O CHÃO NÃO LEVITA POR CAUSA DISSO, e é a armadilha nº 1 do §7: as TRÊS camadas passam a
+  // usar a mesma caixa (TELA_W/TELA_H). O `redesenharFundo` põe a linha do chão pintado em
+  // 0,68 da altura da caixa DELE, e o GROUND está em 0,68 da altura do mundo — se uma camada
+  // usasse a janela e a outra a caixa, a diferença seria de até 0,68 × 5 px de flutuação.
   const kx = Math.max(2, Math.floor(window.innerWidth / 160));
   const ky = Math.max(2, Math.floor(window.innerHeight / 220));
   const SCALE = Math.max(2, Math.min(kx, ky));   // um k só, senão o pixel sai retangular
-  W = Math.round(window.innerWidth / SCALE);
-  H = Math.round(window.innerHeight / SCALE);
+  ESCALA = SCALE;
+  W = Math.ceil(window.innerWidth / SCALE);
+  H = Math.ceil(window.innerHeight / SCALE);
+  TELA_W = W * SCALE;
+  TELA_H = H * SCALE;
   GROUND = Math.round(H * 0.68);
   HX = Math.round(W * 0.26);
   cv.width = W; cv.height = H;
+  // A caixa em px de tela, escrita à mão: o `width: 100%` do CSS mediria a JANELA, que é a
+  // fração quebrada que este bloco acabou de eliminar.
+  cv.style.width = TELA_W + "px";
+  cv.style.height = TELA_H + "px";
   cx.imageSmoothingEnabled = false;
   ajustarHeroHD();
   if (typeof redesenharFundo === "function") redesenharFundo();
@@ -5689,7 +5726,12 @@ function redesenharFundo() {
   if (!fundoPintado()) { fc.style.display = "none"; fx.clearRect(0, 0, fc.width, fc.height); return; }
   fc.style.display = "block";
   const dpr = Math.min(3, window.devicePixelRatio || 1);
-  const cw = Math.max(1, Math.round(window.innerWidth * dpr)), ch = Math.max(1, Math.round(window.innerHeight * dpr));
+  // A CAIXA É A DO MUNDO, não a da janela — a mesma de #scene e #heroHD. A linha do chão
+  // pintado sai de `gd * ch` logo abaixo, e o GROUND sai de `0,68 * H`: se esta camada
+  // medisse a janela e o mundo medisse a caixa, o chão pintado e o chão do jogo ficariam
+  // separados por até 0,68 x (ESCALA-1) px, que é a personagem levitando (armadilha nº 1).
+  fc.style.width = telaW() + "px"; fc.style.height = telaH() + "px";
+  const cw = Math.max(1, Math.round(telaW() * dpr)), ch = Math.max(1, Math.round(telaH() * dpr));
   fc.width = cw; fc.height = ch;
   fx.imageSmoothingEnabled = true;
   fx.clearRect(0, 0, cw, ch);

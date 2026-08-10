@@ -1218,7 +1218,44 @@ const sec = t => log('\n---- ' + t);
 
     // ---- e o rodapé, que é onde o polegar muda de lugar quando o aparelho vira ----
     await page.evaluate(() => { fecharTelas(); });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(700);
+
+    // ---- A ESCALA INTEIRA E O CHÃO, que é a armadilha nº 1 do §7 ----
+    // A escala do mundo tem de ser um INTEIRO igual nos dois eixos: com `pixelated`, uma
+    // fração faz um pixel de mundo virar 2 px de tela e o vizinho 3. Medido antes desta
+    // passada: 3,0029 × 3 no tablet deitado e 2 × 1,9978 no Pixel — em RETRATO.
+    // E o preço do conserto (a caixa do mundo passou a ser W×ESCALA, que SANGRA alguns px
+    // para fora da janela) é exatamente o que pode fazer a personagem levitar: se as três
+    // camadas deixarem de cobrir o MESMO retângulo, a linha do chão pintado desencontra do
+    // GROUND. As duas coisas são medidas juntas de propósito — são a mesma decisão.
+    const mundo = await page.evaluate(() => {
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      const cv = document.getElementById('scene').getBoundingClientRect();
+      const hd = document.getElementById('heroHD').getBoundingClientRect();
+      const fd = document.getElementById('fundoHD').getBoundingClientRect();
+      const cvEl = document.getElementById('scene');
+      return {
+        ex: +(cv.width / cvEl.width).toFixed(4), ey: +(cv.height / cvEl.height).toFixed(4),
+        cobre: cv.width >= innerWidth - 1 && cv.height >= innerHeight - 1,
+        mesmaCaixa: Math.abs(cv.width - hd.width) < 0.6 && Math.abs(cv.height - hd.height) < 0.6
+                 && Math.abs(cv.width - fd.width) < 0.6 && Math.abs(cv.height - fd.height) < 0.6,
+        // FUNDO_GROUND_SRC = 0.75: onde o chão começa DENTRO da pintura.
+        difChao: fundoGeo ? +((fundoGeo.dy + 0.75 * fundoGeo.dh) - GROUND * ESCALA * dpr).toFixed(1) : null,
+        caixas: Math.round(cv.width) + '×' + Math.round(cv.height) + ' · ' +
+                Math.round(hd.width) + '×' + Math.round(hd.height) + ' · ' +
+                Math.round(fd.width) + '×' + Math.round(fd.height),
+      };
+    });
+    log('   ' + vp.nome + ': escala ' + mundo.ex + '×' + mundo.ey + ' | caixas ' + mundo.caixas
+      + ' | chão pintado − GROUND = ' + mundo.difChao + ' px de aparelho');
+    const inteiro = v => Math.abs(v - Math.round(v)) < 0.002;
+    ok(inteiro(mundo.ex) && inteiro(mundo.ey) && Math.abs(mundo.ex - mundo.ey) < 0.002,
+      vp.nome + ': a escala do mundo é um inteiro, igual nos dois eixos (' + mundo.ex + '×' + mundo.ey + ')');
+    ok(mundo.cobre, vp.nome + ': e o mundo cobre a tela inteira');
+    ok(mundo.mesmaCaixa, vp.nome + ': as três camadas ocupam a MESMA caixa (' + mundo.caixas + ')');
+    ok(mundo.difChao !== null && Math.abs(mundo.difChao) <= 2,
+      vp.nome + ': o chão pintado bate com o GROUND — a personagem não levita (' + mundo.difChao + ' px)');
+
     const rod = await page.evaluate(() => {
       const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
       const c = document.getElementById('controls').getBoundingClientRect();
