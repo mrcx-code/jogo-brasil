@@ -13,18 +13,21 @@ bloqueia** — item que não bloqueia nada mora no `PENDENTES.md`, não aqui.
 | | o quê | de quem | por quê |
 |---|---|---|---|
 | 1 | **Abertura de 16,6 s no 3G** | eu (aprovado) | Quinze desses segundos são tela morta. Ninguém espera. A carga sob demanda leva para **8,7 s** e mantém lá nos doze capítulos, contra **38,5 s** do caminho atual. Medido em jogo vivo. |
-| 2 | ~~**Domínio próprio**~~ **FEITO no código — falta um clique na Vercel** | **só o dono** (5 min) | Ver **"O DOMÍNIO"** logo abaixo. O código já aponta para `matheusferreira.cc`. |
-| 3 | ~~**Conta do PostHog**~~ **FEITO** | — | Chave publicável no código desde 10/08. Ver **"A MEDIÇÃO"** abaixo. |
+| 2 | ~~**Domínio próprio**~~ **NO AR em 2026-08-10** | — | `matheusferreira.cc` serve o jogo. Verificado: raiz 200 · capa do link 200 (169 KB) · `pack-palmares.json` 200 (a carga sob demanda funciona no domínio, não só na máquina) · `www` 307. O redirecionamento para `www` foi DESMARCADO de propósito: assim a raiz é o site e bate exatamente com o `og:url`. |
+| 3 | ~~**Conta do PostHog**~~ **NO AR** | — | Chave publicável no código desde 10/08. ⚠ **A região era EU e o projeto é US** — os dois endpoints respondem 200 OK à mesma chave, então a medição inteira ia para lugar nenhum sem um erro em canto nenhum. Consertado no mesmo dia; achado pelo PR do assistente do PostHog, que foi fechado. |
 | 4 | **Quem representa cada capítulo** | **só o dono** (§2) | Oito capítulos existem sem rosto de propósito: o primeiro print mostrava a protagonista indígena do presente anunciando JABAQUARA. Trava todos os pedidos de sprite e retrato — é o que mais enche a sala de máquinas. |
 | 5 | **Ninguém de fora jogou** | **só o dono** | Zero pessoas além dele. Todo número que existe é de bot. Cinco adolescentes de verdade valem mais que dez sessões minhas. |
 | 6 | **A pintura dos oito capítulos** | dono gera, eu integro | Hoje cada capítulo em obra veste a pintura do anterior — JABAQUARA sobre a ladeira de Salvador. **18 pedidos estão na mesa**, prontos para copiar. |
 
 ---
 
-## O DOMÍNIO — `matheusferreira.cc`
+## O DOMÍNIO — `matheusferreira.cc` · **FEITO**
 
-O jogo já se anuncia como `https://matheusferreira.cc` (título, descrição e imagem do cartão
-do WhatsApp). **Falta você ligar o endereço ao projeto.** É uma tela só:
+O jogo está no ar em `https://matheusferreira.cc`. O que está escrito abaixo virou histórico —
+fica porque é o procedimento, e o dia em que o endereço mudar ele vale de novo.
+
+O DNS já apontava para a Vercel antes de tudo; o que faltava era o domínio estar ligado a
+ESTE projeto. Foi uma tela só:
 
 > **Vercel → o projeto `jogo-brasil` → Settings → Domains → Add → digite `matheusferreira.cc`
 > → e no seu registrador (onde comprou o `.cc`) copie o registro DNS que a própria tela da
