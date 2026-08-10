@@ -13,11 +13,43 @@ bloqueia** — item que não bloqueia nada mora no `PENDENTES.md`, não aqui.
 | | o quê | de quem | por quê |
 |---|---|---|---|
 | 1 | **Abertura de 16,6 s no 3G** | eu (aprovado) | Quinze desses segundos são tela morta. Ninguém espera. A carga sob demanda leva para **8,7 s** e mantém lá nos doze capítulos, contra **38,5 s** do caminho atual. Medido em jogo vivo. |
-| 2 | **Domínio próprio** | **só o dono** | `jogo-brasil-mrcx.vercel.app` não é endereço de jogo. É a única coisa desta lista que custa dinheiro. Quando existir, **três URLs mudam juntas** (`og:url`, `og:image`, e a base) ou a prévia do link quebra em silêncio — o `encaixe.js` bloco 14 cobra isso. |
-| 3 | **Conta do PostHog** | **só o dono** | Sem a chave pública não se mede nada, e lançar sem saber se alguém volta no dia 2 é lançar cego — sendo que o dia 2 é a razão do jogo existir. Grátis, dois minutos. |
+| 2 | ~~**Domínio próprio**~~ **FEITO no código — falta um clique na Vercel** | **só o dono** (5 min) | Ver **"O DOMÍNIO"** logo abaixo. O código já aponta para `matheusferreira.cc`. |
+| 3 | ~~**Conta do PostHog**~~ **FEITO** | — | Chave publicável no código desde 10/08. Ver **"A MEDIÇÃO"** abaixo. |
 | 4 | **Quem representa cada capítulo** | **só o dono** (§2) | Oito capítulos existem sem rosto de propósito: o primeiro print mostrava a protagonista indígena do presente anunciando JABAQUARA. Trava todos os pedidos de sprite e retrato — é o que mais enche a sala de máquinas. |
 | 5 | **Ninguém de fora jogou** | **só o dono** | Zero pessoas além dele. Todo número que existe é de bot. Cinco adolescentes de verdade valem mais que dez sessões minhas. |
 | 6 | **A pintura dos oito capítulos** | dono gera, eu integro | Hoje cada capítulo em obra veste a pintura do anterior — JABAQUARA sobre a ladeira de Salvador. **18 pedidos estão na mesa**, prontos para copiar. |
+
+---
+
+## O DOMÍNIO — `matheusferreira.cc`
+
+O jogo já se anuncia como `https://matheusferreira.cc` (título, descrição e imagem do cartão
+do WhatsApp). **Falta você ligar o endereço ao projeto.** É uma tela só:
+
+> **Vercel → o projeto `jogo-brasil` → Settings → Domains → Add → digite `matheusferreira.cc`
+> → e no seu registrador (onde comprou o `.cc`) copie o registro DNS que a própria tela da
+> Vercel mostrar.** Ela dá o valor certo e fica verde sozinha quando o DNS propaga.
+
+Três avisos que economizam uma tarde:
+
+- **Se `matheusferreira.cc` já estiver no seu site pessoal**, a Vercel vai recusar: um domínio
+  pertence a um projeto só. Aí a resposta é subdomínio ou subcaminho — veja a linha abaixo.
+- Adicione também `www.matheusferreira.cc` e deixe a Vercel redirecionar para o sem-www.
+  Muita gente digita o `www` e um 404 aí parece jogo quebrado.
+- **Enquanto o DNS não propaga, o jogo continua no ar em `jogo-brasil-mrcx.vercel.app`** e roda
+  perfeitamente. O que fica errado nesse meio-tempo é só a prévia do link no WhatsApp.
+
+**E se não for a raiz?** Muda **uma linha**, em `ferramentas/dominio.js`, e um `npm run build`:
+
+| onde o jogo vai morar | a linha vira |
+|---|---|
+| raiz (é o que está) | `const BASE = 'https://matheusferreira.cc';` |
+| subdomínio | `const BASE = 'https://brasil.matheusferreira.cc';` |
+| subcaminho | `const BASE = 'https://matheusferreira.cc/brasil';` |
+
+Sem barra no fim, sempre. As duas tags do cartão saem dessa linha só — elas não podem mais
+desencontrar, que era o jeito antigo de a prévia quebrar em silêncio. O jogo em si não usa esse
+endereço para nada (o único caminho de rede dele é relativo), então ele roda igual nos três.
 
 ---
 

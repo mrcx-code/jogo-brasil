@@ -12,6 +12,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ENTRADA = path.join(RAIZ, 'assets', 'entrada');
@@ -45,6 +46,114 @@ function dataLocal(d) {
 function lerJson(nome, vazio) {
   try { return JSON.parse(fs.readFileSync(path.join(__dirname, nome), 'utf8')); }
   catch (e) { return vazio; }
+}
+
+// ---------------------------------------------------------------------------
+// A ATIVIDADE, LIDA DO GIT — e por que ela NÃO vem mais de `equipe.json`.
+//
+// O painel "trabalhando agora" lia um JSON escrito à mão. Ninguém atualiza um arquivo desses
+// no meio do trabalho, então ele mostrava para sempre a última frase que alguém digitou: em
+// 10/08 ele ainda dizia "o grão do chrome em voo", de 09/08, com dezenas de commits depois.
+// Painel de atividade que não é alimentado pela atividade é PIOR que painel nenhum — foi
+// esse tipo de mentira que fez a fila de arte ficar dias invisível.
+//
+// A fonte nova não depende de ninguém lembrar de escrever:
+//   · `git log`    — o que aconteceu, com hora e arquivos tocados. Nunca desatualiza.
+//   · `git status` — o que está aberto na árvore NESTE minuto.
+//   · mtime do `index.html` — quando o jogo publicado foi construído pela última vez.
+// Se as três estiverem paradas, o painel DIZ que está parado. "Nada em curso" é informação.
+function git(args) {
+  try {
+    return execFileSync('git', args, {
+      cwd: RAIZ, encoding: 'utf8', timeout: 5000, windowsHide: true,
+      maxBuffer: 4 * 1024 * 1024
+    });
+  } catch (e) { return ''; }
+}
+
+function haQuanto(ms) {
+  if (!(ms >= 0)) return '';
+  const m = Math.round(ms / 60000);
+  if (m < 1) return 'agora';
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : '');
+  return Math.floor(h / 24) + ' d';
+}
+
+// Uma linha por commit é o pedido; a PASTA é o que faz a linha valer alguma coisa. "4 arquivos"
+// não diz nada, "src · 4 arquivos" diz que alguém mexeu no jogo e não na papelada.
+function pastasDe(arquivos) {
+  const p = [];
+  arquivos.forEach(function (a) {
+    const t = a.indexOf('/') > 0 ? a.slice(0, a.indexOf('/')) : '(raiz)';
+    if (p.indexOf(t) < 0) p.push(t);
+  });
+  return p.slice(0, 3);
+}
+
+// Separadores de controle, nunca virgula nem barra: assunto de commit tem de tudo, e um
+// separador que pode aparecer no dado e um parser quebrado esperando a hora.
+const SEP = '\x01', UN = '\x1f';
+
+function atividade() {
+  const agora = Date.now();
+
+  const bruto = git(['log', '-40', '--date=iso-strict',
+    '--pretty=format:' + SEP + '%h' + UN + '%ad' + UN + '%s', '--name-only']);
+  const commits = bruto.split(SEP).filter(function (b) { return b.trim(); }).map(function (b) {
+    const linhas = b.split('\n');
+    const cab = linhas[0].split(UN);
+    const arquivos = linhas.slice(1).map(function (s) { return s.trim(); }).filter(Boolean);
+    const d = new Date(cab[1]);
+    return {
+      h: cab[0], quando: dataLocal(d), hora: dataLocal(d).slice(11),
+      dia: dataLocal(d).slice(5, 10).split('-').reverse().join('/'),
+      assunto: cab[2] || '', n: arquivos.length, pastas: pastasDe(arquivos),
+      ha: haQuanto(agora - d.getTime()), minutos: Math.round((agora - d.getTime()) / 60000)
+    };
+  });
+
+  // O QUE ESTÁ ABERTO AGORA. `git status --porcelain` tem os dois códigos nas colunas 0-1 e o
+  // caminho a partir da 3 — cortar por posição, nunca por espaço, senão nome com espaço quebra.
+  const emCurso = git(['status', '--porcelain']).split('\n').filter(function (l) {
+    return l.length > 3;
+  }).map(function (l) {
+    const cod = l.slice(0, 2), arq = l.slice(3).replace(/^"|"$/g, '');
+    let ha = '', min = 1e9;
+    try {
+      const st = fs.statSync(path.join(RAIZ, arq));
+      min = Math.round((agora - st.mtimeMs) / 60000);
+      ha = haQuanto(agora - st.mtimeMs);
+    } catch (e) {}
+    return {
+      arquivo: arq, ha: ha, minutos: min,
+      estado: /\?\?/.test(cod) ? 'novo' : /D/.test(cod) ? 'apagado'
+        : /^[MARC]/.test(cod) ? 'em fila' : 'mexido'
+    };
+  }).sort(function (a, b) { return a.minutos - b.minutos; });
+
+  let build = null;
+  try {
+    const st = fs.statSync(path.join(RAIZ, 'index.html'));
+    build = { quando: dataLocal(st.mtime), ha: haQuanto(agora - st.mtimeMs),
+      kb: Math.round(st.size / 1024) };
+  } catch (e) {}
+
+  // "Mexido nos últimos 20 min" é o que separa trabalho de árvore suja esquecida de ontem.
+  const quentes = emCurso.filter(function (a) { return a.minutos <= 20; }).length;
+  const ultimo = commits[0] || null;
+
+  return {
+    lidoEm: dataLocal(new Date(agora)),
+    trabalhando: quentes > 0 || !!(ultimo && ultimo.minutos <= 20),
+    quentes: quentes,
+    emCurso: emCurso.slice(0, 12),
+    totalEmCurso: emCurso.length,
+    commits: commits.slice(0, 14),
+    ultimo: ultimo,
+    build: build
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +336,16 @@ const servidor = http.createServer(function (req, res) {
     try { r = fs.readFileSync(path.join(__dirname, 'pendencias.json'), 'utf8'); } catch (e) {}
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(r || '{}');
+    return;
+  }
+
+  // TRABALHANDO AGORA, medido — não declarado. Ver o comentário de `atividade()`.
+  if (req.method === 'GET' && url === '/atividade') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store'    // painel de atividade em cache é painel congelado de novo
+    });
+    res.end(JSON.stringify(atividade()));
     return;
   }
 

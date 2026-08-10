@@ -168,8 +168,17 @@ if (dedup.n) console.log('arte repetida: ' + dedup.n + ' imagens pagas uma vez s
 for (const marca of ['@@CSS@@', '@@JS@@']) {
   if (molde.split(marca).length !== 2) throw new Error('o molde precisa de exatamente um ' + marca);
 }
+// O ENDEREÇO PÚBLICO, de uma linha só. O molde escreve `@@BASE@@` nas duas tags og: que
+// carregam o endereço; aqui as duas recebem a MESMA string, vinda de ferramentas/dominio.js.
+// Antes elas eram dois literais escritos à mão, e "mudam juntas ou a prévia quebra em
+// silêncio" era um aviso em comentário — que é a forma mais fraca de garantia que existe.
+const { BASE } = require('./dominio.js');
+const nBase = molde.split('@@BASE@@').length - 1;
+if (nBase < 1) throw new Error('o molde perdeu o @@BASE@@ — as tags og: voltaram a ter o endereço escrito à mão');
 // () => x para o $& e o $' de String.replace não morderem base64 nenhum.
-const saida = molde.replace('@@CSS@@', () => css).replace('@@JS@@', () => js);
+const saida = molde.split('@@BASE@@').join(BASE).replace('@@CSS@@', () => css).replace('@@JS@@', () => js);
+console.log('endereço público: ' + BASE + ' (' + nBase + ' tags og:, uma linha em ferramentas/dominio.js)');
+if (/@@[A-Z]+@@/.test(saida)) throw new Error('sobrou marca por trocar na saída: ' + saida.match(/@@[A-Z]+@@/)[0]);
 
 // A garantia de arquivo único, cobrada aqui e não na boa-fé: nada de src/href externo, nada
 // de fetch, e uma tag <script> e uma <style> apenas.

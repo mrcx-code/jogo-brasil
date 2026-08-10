@@ -34,6 +34,10 @@
   .sVoo { background: var(--run); color: #101b19; animation: pulsa 1.6s ease-in-out infinite; }
   .sFeito { background: var(--good); color: #141b08; }
   .sVoce { background: var(--ouro); color: #221a06; }
+  /* PARADO É UM ESTADO, e ele tem selo próprio de propósito: apagado, sem pulso, sem ouro.
+     O painel só grita quando há o que gritar — senão "trabalhando" perde o significado. */
+  .sParado { background: var(--painel2); color: var(--sub); }
+  .sFrio { background: #4a3a1a; color: #ffcd75; }
   @keyframes pulsa { 50% { opacity: .5 } }
   @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
   .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 0 0 9px;
@@ -69,6 +73,21 @@
   button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 12px; padding: 6px 12px;
                       font-size: 13px; }
   .vazio { color: #8d8a80; font-size: 14px; }
+  /* OS TRES BLOCOS DO TOPO, na ordem que o dono pediu: revisar · subir imagem · atividade.
+     Mesma madeira e mesma pedra do resto — nenhuma linguagem visual nova. */
+  #topo { display: flex; flex-direction: column; gap: 16px; margin-bottom: 26px; }
+  #topo h2, #atividade h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub);
+    margin: 0 0 9px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+  #topo .bloco > button { margin-top: 0; }
+  select, .subNome { background: var(--painel2); color: var(--texto); border: 2px solid var(--borda);
+    padding: 6px 8px; font: 13px "Cascadia Mono", Consolas, ui-monospace, monospace;
+    max-width: 100%; }
+  .subLinha { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .subLinha select { flex: 1 1 340px; }
+  .subNome { flex: 1 1 240px; }
+  .rodape { color: var(--sub); font-size: 11px; margin: 10px 0 0; letter-spacing: .04em; }
+  .divisa { border: 0; border-top: 1px solid rgba(20,23,12,.55); margin: 14px 0 10px; }
+  .assunto { flex: 1 1 auto; }
   /* PENDÊNCIAS: o que está parado esperando o dono. */
   #pendencias { margin-top: 40px; border-top: 1px solid #2c3038; padding-top: 22px; }
   #pendencias h2 { font-size: 15px; margin: 0 0 4px; }
@@ -113,13 +132,46 @@
 </head>
 <body>
 <h1>SALA DE MÁQUINAS</h1>
-<p class="sub">Gere a imagem onde quiser e <b>cole (Ctrl+V) ou ARRASTE</b> para o campo do pedido.
-O arquivo cai em <code>assets/entrada/</code>.</p>
-<div id="chegadas"></div>
+<p class="sub">Gere a imagem onde quiser e <b>cole (Ctrl+V) ou ARRASTE</b> — no campo de cima, para
+qualquer pedido, ou no campo do próprio pedido lá embaixo. O arquivo cai em <code>assets/entrada/</code>.</p>
+
+<!-- A ORDEM DO TOPO É PEDIDO DO DONO (10/08): revisar · subir imagem · trabalhando agora.
+     Antes o topo era "chegou e ainda não entrou no jogo" — informação que é MINHA bola. As três
+     coisas que ele faz ou acompanha vêm primeiro; o resto desce. -->
+<div id="topo">
+  <section class="bloco" id="blocoRevisar">
+    <h2>Revisar</h2>
+    <div id="revisarPlacar" class="sub" style="margin:0 0 10px">lendo a fila…</div>
+    <button id="btRevisar">REVISAR O QUE FALTA</button>
+  </section>
+
+  <section class="bloco" id="blocoSubir">
+    <h2>Subir imagem</h2>
+    <div class="subLinha">
+      <span class="marca">para o pedido</span>
+      <select id="subirAlvo"><option value="">carregando…</option></select>
+    </div>
+    <div class="subLinha" id="subirLinhaNome" style="display:none">
+      <span class="marca">nome do arquivo</span>
+      <input class="subNome" id="subirNome" placeholder="sem-extensao-assim" autocomplete="off">
+    </div>
+    <div class="cola" id="subirCola" tabindex="0">cole aqui (Ctrl+V) ou ARRASTE a imagem para cá</div>
+    <div class="estado" id="subirEstado"></div>
+    <button id="subirSalvar" disabled>Salvar</button>
+  </section>
+
+  <div id="atividade"></div>
+</div>
+
 <h2 class="secao">Arte que o jogo espera <span id="quantasFaltam"></span></h2>
 <div id="lista"><p class="vazio">carregando…</p></div>
-<div id="equipe"></div>
 <div id="pendencias"></div>
+<!-- CHEGOU E AINDA NAO ENTROU NO JOGO fica NO FIM, por decisão do dono (10/08): "não gosto de
+     ver essa seção logo no começo". O raciocínio é dele e é bom — esse bloco lista o que está
+     na MINHA mão, não na dele, e 17 itens que ele não pode resolver ocupavam o lugar mais caro
+     da página. A CONTAGEM continua no topo, na linha do placar, para ele saber que existe. -->
+<div id="chegadas"></div>
+<div id="equipe"></div>
 
 <script>
 // A página é burra de propósito: lê a lista de pedidos que o Claude escreveu, recebe uma
@@ -291,25 +343,20 @@ function montarFila() {
   ultimaContagem = c.gerar;
   // O placar, em uma linha. Antes a mesa so sabia dizer "fila vazia", que valia tanto para
   // "nada pedido" quanto para "tudo entregue e ninguem olhou".
-  lista.appendChild(el("p", "sub",
-    c.gerar + " para voce gerar · " + c.chegou + " chegaram e esperam entrar no jogo · " +
-    c.pronto + " ja estao no jogo · " + c.total + " no manifesto"));
+  // Ele mora no BLOCO REVISAR, no topo — quem aperta o botao precisa ver o numero que o botao
+  // mexe, e nao a 800 px de distancia.
+  const placar = document.getElementById("revisarPlacar");
+  if (placar) {
+    placar.textContent =
+      c.gerar + " para voce gerar · " + c.chegou + " chegaram e esperam entrar no jogo · " +
+      c.pronto + " ja estao no jogo · " + c.total + " no manifesto";
+  }
+  // A lista alimenta o campo de subir imagem do topo: sem isso, o campo geral nao sabe para
+  // que pedido a imagem vai, e "subir imagem" vira "subir imagem para lugar nenhum".
+  encherAlvos(fila);
   lista.appendChild(el("p", "sub",
     "Ordem: a de APARICAO NO JOGO, derivada do nome — o manifesto nao tem campo de ordem. " +
     "Cuidado ja pago: cap4 e SALVADOR e vem ANTES do cap3, que e o presente."));
-  // REVISAR fica SEMPRE visivel. Eu tinha escondido com fila cheia, achando que so faria
-  // sentido no vazio — errado: o dono precisa poder conferir quando quiser, e a acao e
-  // idempotente (recomputa a fila a partir do manifesto e do que ha em disco, nao acumula).
-  const bRev = el("button", "secundario", "REVISAR O QUE FALTA");
-  bRev.addEventListener("click", function () {
-    bRev.disabled = true; bRev.textContent = "revisando…";
-    fetch("/revisar", { method: "POST" }).then(r => r.json()).then(function (j) {
-      bRev.textContent = j.n + " na fila — recarregando";
-      montarPendencias();
-      setTimeout(function () { location.reload(); }, 700);
-    }).catch(function () { bRev.textContent = "falhou"; bRev.disabled = false; });
-  });
-  lista.appendChild(bRev);
   const pedidos = (fila.itens || []).filter(function (i) { return i.estado === "gerar"; });
   if (!pedidos.length) {
     lista.appendChild(el("p", "vazio",

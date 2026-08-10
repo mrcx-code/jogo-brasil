@@ -59,6 +59,14 @@ Três regras, e elas valem mais que qualquer decisão técnica:
    4. **Restos humanos continuam trava absoluta** — o Cemitério dos Pretos Novos é fonte
       citável, nunca terreno, imagem ou item. Isto não é pudor: é ética arqueológica, com
       instituição viva no assunto (Instituto Pretos Novos), e é de outra natureza.
+      **LEVANTADA E REAFIRMADA em 2026-08-10.** O dono chegou a dizer "pode mostrar restos sim,
+      a realidade é e foi dura" — lendo a trava como pudor, que é como ela parece à primeira
+      vista. Apresentada a distinção (sítio EM ESCAVAÇÃO hoje, instituto vivo trabalhando nele,
+      descendentes vivos; osso escavado de gente real como cenário de jogo é outra CATEGORIA,
+      não uma dose menor de dureza), ele respondeu: *"concordo com o que você trouxe, sensato"*.
+      Fica registrado para nenhuma sessão futura reabrir isto do zero — e para a próxima, se
+      houver, ser uma decisão nova e não a mesma conversa de novo. **Tudo o mais da travessia
+      continua aberto e pesado:** navio, corrente, maus-tratos, a dureza inteira.
    5. **Objeto ritual não é colecionável** — entra como fala, nunca como drop.
    6. **Nenhum número sem fonte**, e nunca "escravo" como identidade.
 
