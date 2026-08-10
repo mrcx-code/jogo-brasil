@@ -1215,6 +1215,38 @@ const sec = t => log('\n---- ' + t);
     const baixa = menu.filter(m => m.alt < 44);
     ok(!baixa.length, vp.nome + ': nenhuma tábua abaixo dos 44 px de dedo' +
       (baixa.length ? ' — ' + baixa.map(m => m.nome + ' ' + m.alt).join(', ') : ''));
+
+    // ---- e o rodapé, que é onde o polegar muda de lugar quando o aparelho vira ----
+    await page.evaluate(() => { fecharTelas(); });
+    await page.waitForTimeout(400);
+    const rod = await page.evaluate(() => {
+      const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
+      const c = document.getElementById('controls').getBoundingClientRect();
+      const a = document.getElementById('btnClique').getBoundingClientRect();
+      const cartoes = [];
+      document.querySelectorAll('#controls .cartao, #btnClique').forEach(function (b) {
+        const r = b.getBoundingClientRect();
+        cartoes.push({ nome: b.id || b.className, alt: Math.round(r.height) });
+      });
+      return {
+        pctAltura: +((c.height / H) * 100).toFixed(1),
+        acaoPctX: +((((a.left + a.right) / 2) / W) * 100).toFixed(1),
+        // A metade que PULA é a esquerda, e o polegar esquerdo pousa exatamente em cima do
+        // gesto dele. O canto onde ele descansa é o que precisa ficar livre — não a metade
+        // inteira: o alcance de um polegar a partir do canto de baixo de uma tela deitada é
+        // de uns 60 a 75 mm, que num aparelho de 844 px (~146 mm) dá perto de 30% da largura.
+        // É esse pedaço que não pode ter botão, e é ele que este número cobra.
+        comecaEmPct: +((c.left / W) * 100).toFixed(1),
+        baixos: cartoes.filter(x => x.alt < 44),
+      };
+    });
+    log('   ' + vp.nome + ': rodapé ' + rod.pctAltura + '% da altura | ação a ' + rod.acaoPctX
+      + '% da largura | começa a ' + rod.comecaEmPct + '%');
+    ok(rod.pctAltura <= 14, vp.nome + ': o rodapé não come mais de 14% da altura (' + rod.pctAltura + '%)');
+    ok(rod.acaoPctX >= 67, vp.nome + ': deitado, a ação principal fica na ponta, não no meio da borda (' + rod.acaoPctX + '%)');
+    ok(rod.comecaEmPct >= 30, vp.nome + ': o canto onde o polegar que PULA descansa fica sem botão (o rodapé começa a ' + rod.comecaEmPct + '%)');
+    ok(!rod.baixos.length, vp.nome + ': nenhum alvo do rodapé abaixo de 44 px' +
+      (rod.baixos.length ? ' — ' + rod.baixos.map(x => x.nome + ' ' + x.alt).join(', ') : ''));
   }
   // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
   await page.setViewportSize({ width: 390, height: 844 });
