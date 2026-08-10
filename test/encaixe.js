@@ -1247,6 +1247,30 @@ const sec = t => log('\n---- ' + t);
     ok(rod.comecaEmPct >= 30, vp.nome + ': o canto onde o polegar que PULA descansa fica sem botão (o rodapé começa a ' + rod.comecaEmPct + '%)');
     ok(!rod.baixos.length, vp.nome + ': nenhum alvo do rodapé abaixo de 44 px' +
       (rod.baixos.length ? ' — ' + rod.baixos.map(x => x.nome + ' ' + x.alt).join(', ') : ''));
+
+    // ---- e A HISTÓRIA, que é a tela em que o jogo ENSINA ----
+    // `.qQuadro` é `overflow: hidden`: conteúdo mais alto que o quadro não transborda, não
+    // rola e não avisa — é recortado. Medido antes desta passada, em 844×390: DOZE das 26
+    // páginas cortavam texto, a pior com 365 px de papel num espaço de 306. Um verbete com
+    // fonte perdendo a linha da fonte é o §2 sendo apagado por CSS.
+    await page.evaluate(() => { fecharTelas(); montarCompletude(); abrirTela('telaCompletude'); });
+    await page.waitForTimeout(900);
+    const comic = await page.evaluate(() => {
+      const apertadas = [];
+      const paginas = document.querySelectorAll('.qQuadro');
+      paginas.forEach(function (q, i) {
+        let alt = 0;
+        q.querySelectorAll(':scope > .ltMomento, :scope > .ltMarco, :scope > .qCentro, :scope > .qFala')
+          .forEach(function (f) { alt += f.getBoundingClientRect().height; });
+        const esp = q.getBoundingClientRect().height - parseFloat(getComputedStyle(q).paddingBottom);
+        if (alt > esp + 1) apertadas.push(i + ' (' + Math.round(alt) + '>' + Math.round(esp) + ')');
+      });
+      return { n: paginas.length, apertadas };
+    });
+    log('   ' + vp.nome + ': quadrinho com ' + comic.n + ' páginas, ' + comic.apertadas.length + ' apertada(s)');
+    ok(comic.n > 20, vp.nome + ': o quadrinho montou as páginas (' + comic.n + ')');
+    ok(!comic.apertadas.length, vp.nome + ': nenhuma página do quadrinho corta o próprio texto' +
+      (comic.apertadas.length ? ' — ' + comic.apertadas.slice(0, 6).join(', ') : ''));
   }
   // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
   await page.setViewportSize({ width: 390, height: 844 });

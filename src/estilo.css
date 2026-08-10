@@ -1085,6 +1085,46 @@
     to { opacity: 1; transform: none; } }
   @keyframes qCapaTexto { from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: none; } }
+  /* ===== O QUADRINHO DEITADO ===== terceira peça da passada do telefone virado, e a que
+     mais custa se ficar quebrada: esta é a tela em que o jogo ENSINA.
+     Medido antes, em 844×390: DOZE das 26 páginas tinham conteúdo mais alto que o quadro —
+     a pior com 365 px de papel num espaço de 306. E `.qQuadro` é `overflow: hidden`, então
+     isso não transborda, não rola e não avisa: o texto é simplesmente recortado. Um verbete
+     com fonte perdendo a linha da fonte é exatamente o §2 sendo cortado por CSS.
+     A saída NÃO é encolher a letra. Deitado sobra largura — 844 px contra 390 de altura —,
+     e papel mais LARGO é papel mais BAIXO com o mesmo corpo de texto: o que muda é o número
+     de linhas. 30em viram 40em, que dá ~72 caracteres por linha, dentro da faixa de leitura
+     confortável (45 a 75) e ainda assim corta um terço da altura.
+     O resto é respiro: o VOLTAR sai do meio da borda de baixo — mesmo argumento do rodapé,
+     deitado o meio é o ponto mais longe dos polegares — e vai para a ponta direita, e com
+     ele sai a reserva de 84 px que o quadro guardava embaixo. O número da página troca de
+     canto para não brigar com a tábua. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .ltMomento, .qFala, .qCentro.sobreArte { width: min(40em, 100%); max-width: none; }
+    .qQuadro { padding: 0 20px calc(58px + env(safe-area-inset-bottom)); }
+    #telaCompletude .telaTit { top: calc(6px + env(safe-area-inset-top));
+      padding: 7px 18px; font-size: 18px; margin-bottom: 0; }
+    #btnVoltarComp { left: auto; transform: none;
+      right: max(12px, env(safe-area-inset-right));
+      bottom: calc(8px + env(safe-area-inset-bottom)); padding: 11px 24px; }
+    #btnVoltarComp:active { transform: translateY(4px); }
+    .qNum { right: auto; left: 36px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  }
+  /* E UM DEGRAU A MAIS ONDE A ALTURA É O PIOR CASO (640×360, o pequeno virado). Ali sobravam
+     15 px: 317 de conteúdo num espaço de 302. Alargar o papel já tinha feito o que podia — o
+     que restou é a parte que NÃO encolhe com a largura, que é a figura de quem comenta
+     (145 px de retrato + o bilhete por cima). Ela cede, na mesma razão de recorte (104/145 =
+     76/106), então o corte continua caindo na cintura como cai em toda tela. */
+  @media (orientation: landscape) and (max-height: 400px) {
+    .qRetrato { width: 76px; height: 106px; }
+  }
+  /* A OUTRA PONTA, de novo: em retrato curto (320×568) UMA página já não cabia — 494 num
+     espaço de 484. Aqui não há largura sobrando para gastar, então cede a reserva que o
+     quadro guarda embaixo para o VOLTAR: 84 px para uma tábua de 44 mais 12 de margem era
+     folga de 28. Setenta e dois continuam sendo folga, e devolvem os doze que faltavam. */
+  @media (orientation: portrait) and (max-height: 600px) {
+    .qQuadro { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
      esconder faz o jogo parecer menor do que e. O véu desta tela é mais leve que o das telas
