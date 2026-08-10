@@ -979,7 +979,11 @@ function atualizarMobs(dt) {
 // Ninguém para nunca: o quadro do sprite é escolhido pela DISTÂNCIA que cada uma percorreu, e
 // uma figura parada com pose de caminhada é a armadilha nº 1 do §7 vista de outro ângulo. Por
 // isso todo estado desta fila tem velocidade própria e nenhum tem zero.
-const CAP_GENTE = 1;                       // Palmares. Único capítulo em que isto tudo existe.
+// `let` e não `const`, e o valor de verdade é atribuído logo abaixo de `EPOCAS` por `iEp()`:
+// com doze capítulos na lista, POSIÇÃO deixou de ser identidade — inserir O CAIS antes de
+// SALVADOR empurra todo mundo, e um literal aqui apontaria para o capítulo errado em silêncio.
+// O literal que sobrou é só o valor de partida antes de `EPOCAS` existir; ninguém o lê.
+let CAP_GENTE = 1;                         // Palmares. Único capítulo em que isto tudo existe.
 function capGente() { return epocaAtual() === CAP_GENTE; }
 
 // ============================================================
@@ -1050,7 +1054,7 @@ function concluirAlcance(m: Mob, sx: number, auto?: boolean) {
   if (!auto) somAtendida();
 }
 const CONVERSA_SEG = 1.6;
-const CAP_PALAVRA = 2;                     // Salvador, véspera de 1835.
+let CAP_PALAVRA = 2;                       // Salvador, véspera de 1835. Ver a nota em CAP_GENTE.
 function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
 // Os dois capítulos em que quem atravessa a rua é GENTE. Toda decisão de gramática — pisca,
 // estilhaço, empurrão, barra de vida, anel que enche — lê ESTA função, e não `capGente()`,
@@ -1626,6 +1630,12 @@ const EPOCAS = [
     id: "pindorama",
     nome: "PINDORAMA",
     quando: "litoral atlântico · século XVI",
+    // `arteCap` é o BLOCO DE ARTE de personagem/objetos que este capítulo usa (índice em
+    // HERO_CAP_B64 · RETRATO_B64 · MOB_B64 · DROP_B64 · FRENTE_B64 · PASSO_CAP — todos na
+    // mesma ordem). Era a posição da época, e deixou de poder ser: com capítulo em obra no
+    // meio da cronologia, posição e bloco de arte descolam. Quem tem arte própria aponta
+    // para o bloco dela; quem está em obra aponta para o do capítulo de que herda o motor.
+    arteCap: 0,
     cenas: 2, lugar: "litoral", arte: [0, 1],
     abertura: [
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
@@ -1661,6 +1671,7 @@ const EPOCAS = [
     id: "palmares",
     nome: "PALMARES",
     quando: "serra da Barriga, Alagoas · século XVII",
+    arteCap: 1,
     cenas: 2, lugar: "palmares", arte: [2, 3],
     abertura: [
       "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
@@ -1702,6 +1713,7 @@ const EPOCAS = [
     // UMA cena, e não duas como as outras: chegou UMA pintura. Duas cenas com a mesma pintura
     // custariam 260 KB para repetir o quadro; o motor N-capítulos aceita o número que a época
     // declarar. Quando a segunda pintura chegar, este 1 vira 2 e nada mais muda.
+    arteCap: 2,
     cenas: 1, lugar: "salvador", arte: [4],
     abertura: [
       "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
@@ -1736,6 +1748,7 @@ const EPOCAS = [
     id: "hoje",
     nome: "AINDA AQUI",
     quando: "terra indígena demarcada · hoje",
+    arteCap: 3,
     cenas: 2, lugar: "hoje", arte: [5, 6],
     abertura: [
       "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
@@ -1762,6 +1775,29 @@ const EPOCAS = [
 // capítulo é acrescentar um objeto em EPOCAS (e a arte dele), e nenhuma conta muda.
 // Uma conta só, escrita num lugar só, para o HUD, a fala e a tela A HISTÓRIA nunca
 // discordarem sobre em que capítulo alguém está.
+// ===== IDENTIDADE > POSIÇÃO, E AGORA VALE PARA O CÓDIGO TAMBÉM =====
+// `ARCOS` já migrava o SAVE por `id`. O CÓDIGO continuava escrito em números — `CAP_PALAVRA = 2`,
+// `cenarioDaEpoca(2)`, `{ ep: 3 }` na LINHA_TEMPO, `quem: 1` no balão do quadrinho. Com quatro
+// capítulos os números coincidiam com as posições e ninguém notava; com doze, inserir O CAIS
+// antes de SALVADOR reapontaria cada um desses literais para o capítulo errado, sem erro de
+// console e sem tela em branco — a mesma família de falha silenciosa do §1 do encaixe.
+// A partir daqui, nenhum índice de época se escreve à mão: escreve-se o `id`.
+function iEp(id: string) {
+  const i = EPOCAS.findIndex(function (e) { return e.id === id; });
+  // -1 nunca deve acontecer (os ids são literais deste arquivo), mas devolver -1 viraria
+  // `EPOCAS[-1]` mais adiante. Cair no primeiro capítulo é o pior caso que ainda é um jogo.
+  return i < 0 ? 0 : i;
+}
+// O bloco de arte de uma época, aparado pelo que EXISTE — ver `arteCap` no cabeçalho de EPOCAS.
+function blocoArte(e: number) {
+  const ep = EPOCAS[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))] as { arteCap?: number };
+  const n = (ep && ep.arteCap != null) ? ep.arteCap | 0 : 0;
+  return Math.max(0, Math.min(HERO_CAP_B64.length - 1, n));
+}
+// Os dois capítulos que têm mecânica própria, ditos por identidade (declarados lá em cima
+// como `let` justamente para isto).
+CAP_GENTE = iEp("palmares");
+CAP_PALAVRA = iEp("salvador");
 const EPOCA_CENA0: number[] = [];      // primeira cena de cada época (soma-prefixo de `cenas`)
 let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
@@ -4405,12 +4441,17 @@ for (const k in MOB_B64) MOB_B64[k].forEach(function (d, i) { const im = new Ima
 let capArteAvisada = -1;
 function capArte() {
   const e = epocaAtual();
-  if (e < HERO_CAP_B64.length) return e;
-  if (capArteAvisada !== e) {
+  // A ÉPOCA DECLARA O BLOCO (`arteCap`), e não é mais a posição dela na lista: com capítulos
+  // em obra no meio da cronologia, SALVADOR passou a ser a quarta época com o terceiro bloco
+  // de arte. Um capítulo em obra aponta, de propósito, para o bloco de quem lhe empresta o
+  // motor — é o mesmo empréstimo que a abertura dele diz em voz alta.
+  const b = blocoArte(e);
+  const declarado = (EPOCAS[e] as { arteCap?: number }).arteCap;
+  if (declarado == null && capArteAvisada !== e) {
     capArteAvisada = e;
-    console.warn("EPOCAS[" + e + "] ainda não tem arte própria (HERO_CAP_B64/RETRATO/MOB/DROP/FRENTE) — usando a arte da época " + (HERO_CAP_B64.length - 1));
+    console.warn("EPOCAS[" + e + "] não declara `arteCap` — usando a arte da época " + b);
   }
-  return HERO_CAP_B64.length - 1;
+  return b;
 }
 // m.type -> sheet key; on-canvas height in world px (heads land just under the HP bar at
 // VIDA_TOPO, which stays untouched).
@@ -7730,7 +7771,7 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: 0, q: "há mais de onze mil anos", t: "Quem já estava aqui", qi: "p2",
     d: "Em Lagoa Santa, Minas Gerais, um esqueleto de onze a doze mil anos. A pesquisa já mudou duas vezes a história de quem eram essas pessoas — e continua mudando.",
     f: "Neves & Piló · O povo de Luzia · Jornal da USP",
-    com: "Eu leio isto hoje, e ainda estou aprendendo: a nossa história não começa em navio nenhum.", quem: 3 },
+    com: "Eu leio isto hoje, e ainda estou aprendendo: a nossa história não começa em navio nenhum.", quem: iEp("hoje") },
   { tipo: "momento", cena: 0, q: "por milhares de anos", t: "Os montes da costa", qi: "p3",
     d: "Povos do litoral ergueram montes de concha, cesto a cesto, geração após geração — alguns passaram de trinta metros. O nome que davam a si mesmos não chegou até nós: ninguém escreveu. A arqueologia os chama pela obra.",
     f: "Maria Dulce Gaspar · Sambaqui, 2000" },
@@ -7743,68 +7784,68 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: 0, q: "séculos antes dos navios", t: "Os Tupi chegam ao litoral", qi: "p6",
     d: "Grupos de língua tupi saíram da Amazônia e ocuparam a costa atlântica de norte a sul. Quando os navios apareceram, essa ocupação já era antiga — é por isso que o primeiro capítulo encontra os Tupinambá no litoral.",
     f: "Noelli · The Tupi expansion, 2008" },
-  { tipo: "marco", ep: 0 },
+  { tipo: "marco", ep: iEp("pindorama") },
   { tipo: "momento", i: 0,
-    com: "Esta sou eu. E isto não era o começo de nada — era a nossa vida, inteira, do nosso jeito.", quem: 0 },
+    com: "Esta sou eu. E isto não era o começo de nada — era a nossa vida, inteira, do nosso jeito.", quem: iEp("pindorama") },
   { tipo: "momento", i: 1,
-    com: "Ele escreveu sobre nós carregando os medos dele. Leia sabendo disso.", quem: 0 },
+    com: "Ele escreveu sobre nós carregando os medos dele. Leia sabendo disso.", quem: iEp("pindorama") },
   // O VÃO XVI→XVII — os marcos do historiador (fontes no NOTES.md, revisão de 2026-08-06).
   // Critério dele, adotado: em cada vão, pelo menos um marco em que o SUJEITO da frase é
   // quem resistiu — senão a linha inteira narra os povos como objeto. Aqui é o quarto.
   // Revelam-se ao alcançar Palmares (cena 2): são a explicação de COMO se chega lá.
-  { tipo: "momento", cena: cenarioDaEpoca(1), q: "séculos XVI–XVII", t: "O açúcar", qi: "p10",
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("palmares")), q: "séculos XVI–XVII", t: "O açúcar", qi: "p10",
     d: "Nesta costa levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi montada, e dava lucro.",
     f: "Schwartz · Segredos internos, 1988" },
-  { tipo: "momento", cena: cenarioDaEpoca(1), q: "séculos XVI–XVII", t: "A terra esvaziada à força", qi: "p11",
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("palmares")), q: "séculos XVI–XVII", t: "A terra esvaziada à força", qi: "p11",
     d: "E os Tupinambá desta costa? Guerra, escravização e doença trazida nos navios os expulsaram do litoral. Não desapareceram — foram empurrados.",
     f: "Monteiro · Negros da terra, 1994 · Cunha (org.), 1992",
-    com: "Não desaparecemos. Fomos empurrados — e eu sigo aqui para te contar.", quem: 0 },
-  { tipo: "momento", cena: cenarioDaEpoca(1), q: "séculos XVI–XIX", t: "A travessia forçada", qi: "p12",
+    com: "Não desaparecemos. Fomos empurrados — e eu sigo aqui para te contar.", quem: iEp("pindorama") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("palmares")), q: "séculos XVI–XIX", t: "A travessia forçada", qi: "p12",
     d: "De cada dez pessoas arrancadas da África para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.",
     f: "Trans-Atlantic Slave Trade Database · SlaveVoyages.org" },
-  { tipo: "momento", cena: cenarioDaEpoca(1), q: "1630–1654", t: "A guerra que abriu a serra", qi: "p13",
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("palmares")), q: "1630–1654", t: "A guerra que abriu a serra", qi: "p13",
     d: "Quando os holandeses invadiram Pernambuco, a colônia virou campo de batalha — e na desordem da guerra, mais gente conseguiu fugir para a serra. Palmares cresceu.",
     f: "Gomes · Palmares, 2005 · Documenta Palmares",
-    com: "Foi por essa fresta na guerra deles que muita gente subiu a serra.", quem: 1 },
-  { tipo: "marco", ep: 1 },
+    com: "Foi por essa fresta na guerra deles que muita gente subiu a serra.", quem: iEp("palmares") },
+  { tipo: "marco", ep: iEp("palmares") },
   { tipo: "momento", i: 2,
-    com: "Não era esconderijo: era casa. Roça, comércio, defesa — vida inteira.", quem: 1 },
+    com: "Não era esconderijo: era casa. Roça, comércio, defesa — vida inteira.", quem: iEp("palmares") },
   { tipo: "momento", i: 3,
-    com: "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler.", quem: 1 },
+    com: "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler.", quem: iEp("palmares") },
   { tipo: "momento", i: 4,            // Zumbi: cronologia de Palmares, revelação no cap. 3
-    com: "Vinte de novembro. Guarde a data.", quem: 1 },
+    com: "Vinte de novembro. Guarde a data.", quem: iEp("palmares") },
   // O VÃO XVII→HOJE — quatro marcos, e dois deles fecham fios que o jogo deixava soltos:
   // a Constituinte é a ponte jurídica dos DOIS fios para o capítulo 3, e o Censo dos
   // quilombolas diz o que a linha inteira calava — quem construiu Palmares continua aqui.
   // Revelam-se ao alcançar o presente (cena 4).
   // O 1835 SAIU DAQUI E VIROU PLACA. Enquanto Salvador era só um marco pendurado no vão, "A
   // Bahia se levanta" era uma linha de texto entre 1888 e 1988. Agora é um CAPÍTULO, e o
-  // levante tem o lugar certo: a placa `{ tipo: "marco", ep: 2 }` logo abaixo, com o nome e o
+  // levante tem o lugar certo: a placa `{ tipo: "marco", ep: iEp("salvador") }` logo abaixo, com o nome e o
   // quando que a própria época declara, e o levante contado no FECHO do capítulo — que é onde
   // ele pode ser contado sem virar fase de jogo (§2.2). O que fica no vão antes da placa é o
   // que EXPLICA como se chega em 1835: a cidade africana e o trabalho de rua.
-  { tipo: "momento", cena: cenarioDaEpoca(2), q: "início do século XIX", t: "A cidade africana", qi: "p18",
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("salvador")), q: "início do século XIX", t: "A cidade africana", qi: "p18",
     d: "Salvador era uma das cidades mais africanas das Américas: boa parte de quem a fazia funcionar tinha nascido do outro lado do Atlântico e falava as línguas de lá. A cidade que a colônia chamava de sua era, na rua, deles.",
     f: "Reis · Rebelião escrava no Brasil, ed. 2003",
-    com: "Na rua, quem fazia a cidade funcionar éramos nós.", quem: 2 },
-  { tipo: "momento", cena: cenarioDaEpoca(2), q: "século XIX", t: "As ganhadeiras", qi: "p19",
+    com: "Na rua, quem fazia a cidade funcionar éramos nós.", quem: iEp("salvador") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("salvador")), q: "século XIX", t: "As ganhadeiras", qi: "p19",
     d: "Mulheres africanas e crioulas dominavam o comércio de rua e o carrego da cidade — escravizadas e libertas, entregando parte do ganho e guardando o resto. Foi com esse resto que muitas compraram a própria alforria.",
     f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia",
-    com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: 2 },
-  { tipo: "marco", ep: 2 },
-  { tipo: "momento", cena: cenarioDaEpoca(3), q: "1888", t: "A lei de dois artigos", qi: "p21",
+    com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: iEp("salvador") },
+  { tipo: "marco", ep: iEp("salvador") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1888", t: "A lei de dois artigos", qi: "p21",
     d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
     f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
-  { tipo: "momento", cena: cenarioDaEpoca(3), q: "1988", t: "A Constituinte",
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1988", t: "A Constituinte",
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
     f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
-    com: "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.", quem: 3 },
-  { tipo: "momento", cena: cenarioDaEpoca(3), q: "2022", t: "Quilombos hoje", qi: "p23",
+    com: "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.", quem: iEp("hoje") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "2022", t: "Quilombos hoje", qi: "p23",
     d: "E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.",
     f: "IBGE · Censo 2022 · Fundação Cultural Palmares" },
-  { tipo: "marco", ep: 3 },
+  { tipo: "marco", ep: iEp("hoje") },
   { tipo: "momento", i: 5,
-    com: "Esse “continuam” sou eu. Ainda aqui.", quem: 3 },
+    com: "Esse “continuam” sou eu. Ainda aqui.", quem: iEp("hoje") },
   { tipo: "aberto", qi: "p26" }
 ];
 function montarCompletude() {
@@ -7882,7 +7923,11 @@ function montarCompletude() {
     f.className = "qFala";
     const im = document.createElement("img");
     im.className = "qRetrato"; im.alt = ""; im.decoding = "async";
-    im.src = RETRATO_B64[Math.max(0, Math.min(RETRATO_B64.length - 1, (no.quem || 0) | 0))];
+    // `quem` é ÍNDICE DE ÉPOCA (por `iEp`), e o retrato é BLOCO DE ARTE — as duas coisas
+    // coincidiam enquanto toda época tinha arte própria, e descolaram no dia em que entrou
+    // capítulo em obra. Traduzir aqui, e não guardar o número da arte no nó, mantém a
+    // LINHA_TEMPO falando só de história.
+    im.src = RETRATO_B64[Math.max(0, Math.min(RETRATO_B64.length - 1, blocoArte((no.quem || 0) | 0)))];
     const bal = document.createElement("div");
     bal.className = "qBalao"; bal.textContent = no.com;
     f.appendChild(im); f.appendChild(bal); q.appendChild(f);
