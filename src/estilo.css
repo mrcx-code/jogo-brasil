@@ -1257,16 +1257,116 @@
     #telaFim .telaTxt { font-size: 13px; line-height: 1.4; margin-bottom: 7px; }
     #fimPlacar { margin-bottom: 6px; }
     .fimLin { padding: 4px 9px; margin-bottom: 2px; }
-    #telaFim .telaBtn { padding: 9px 18px; margin-bottom: 3px; }
+    #telaFim .telaBtn { padding: 11px 18px; margin-bottom: 3px; }
     /* O PISO. Aqui a pergunta é o inquilino mais novo da tela mais alta do jogo, e ela paga o
        aluguel dela: fonte de leitura no menor degrau que o caderno tem, papel rente à linha, e
-       a tábua com o mínimo de degrau que ainda dá alvo de dedo (~36 px de altura tocável).
+       a tábua com o mínimo de degrau que ainda dá alvo de dedo.
        O que NÃO encolheu, nas três larguras: o entrelinha do texto de leitura. Aperta-se
-       respiro, nunca palavra — é a régua que estas duas consultas já traziam. */
+       respiro, nunca palavra — é a régua que estas duas consultas já traziam.
+       O PISO DO PISO MUDOU EM 10/08. Estas duas consultas levavam a tábua a 40 px de altura,
+       e o comentário antigo aceitava "~36 px de altura tocável" como o mínimo. Não é: o
+       mínimo é 44, é o que Apple e Google pedem, é o que a própria bandeja de MELHORIAS
+       respeita desde a passada de usabilidade, e a medição nova cobra. Os quatro pixels
+       voltam e cabem — medido nas três telas curtas depois de a CHEGADA deitada virar
+       colunas, que é quem tinha criado a pressão de altura em primeiro lugar. */
     #fimPergunta { margin-bottom: 5px; }
     #fimPerguntaTxt { font-size: 13px; line-height: 1.35; padding: 4px 8px; margin-bottom: 3px; }
     #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 7px 3px; }
   }
+
+  /* ===== A CHEGADA E OS AJUSTES, DEITADOS ===== quarta peça do telefone virado. As duas
+     telas são pilhas verticais longas, e as duas quebravam do mesmo jeito: em 844×390 a
+     última tábua da CHEGADA terminava 86 px abaixo da dobra (116 px a 640×360) e o título
+     dos AJUSTES ficava 116 px ACIMA da tela — e AJUSTES não rola, então ele simplesmente
+     não existia.
+     As duas consultas de altura que já moram aqui apertaram tudo o que dava apertar sem
+     cortar palavra, e não bastaram: o problema não é tamanho, é ARRANJO. Uma pilha de seis
+     coisas não cabe em 390 px de altura por mais que se encolha o respiro — e não precisa,
+     porque do lado há 844 px vazios. A pilha vira COLUNAS, a mesma decisão do menu.
+     Na CHEGADA são três, e a ordem é a leitura: o que você leu (texto e a pergunta de uma
+     linha) · o placar do que ficou · as portas. As portas na ponta direita pelo mesmo motivo
+     do rodapé: deitado é ali que o polegar está.
+     E as tábuas voltam aos 44 px de dedo — a consulta de 600px as tinha levado a 40, que era
+     o preço de caber empilhadas. Em colunas esse preço não precisa mais ser pago. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    #telaFim { display: grid; justify-items: center;
+      /* `start` primeiro e `safe center` depois: onde o navegador entender o `safe`, a
+         composição se centra; onde ela NÃO couber, o `safe` vira `start` sozinho e o topo
+         continua alcançável. Um `center` seco cortaria o título por cima, e para cima não
+         existe rolagem. Quem não entende `safe center` descarta a linha e fica com `start`. */
+      align-content: start; align-content: safe center;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      column-gap: 2.4vw; row-gap: 2px;
+      padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
+    #telaFim .telaTit { grid-column: 1 / -1; grid-row: 1; margin-bottom: 6px; }
+    /* OS DOIS BLOCOS DE LEITURA ATRAVESSAM AS TRÊS LINHAS DAS TÁBUAS, e isso não é enfeite
+       de grade: sem o `span`, a linha 2 ficava do tamanho do texto inteiro (207 px a 640 de
+       largura) e as três tábuas empurravam a última 23 px para fora. Atravessando, a altura
+       do texto se reparte pelas três linhas e a coluna das portas encontra o próprio ritmo. */
+    #telaFim .telaTxt { grid-column: 1; grid-row: 2 / span 2; margin-bottom: 6px; }
+    #fimPergunta { grid-column: 1; grid-row: 4; align-self: start; }
+    #fimPlacar   { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-bottom: 0; }
+    #btnFimHist   { grid-column: 3; grid-row: 2; }
+    #btnFimFontes { grid-column: 3; grid-row: 3; }
+    #btnFimVoltar { grid-column: 3; grid-row: 4; }
+    /* `min-width` e não `width`, e o motivo é o rótulo: ele é um CANVAS bitmap de largura
+       fixa, não texto que quebra. Com largura pregada em 30vw, "VOLTAR PARA A RUA" desenhava
+       206 px dentro de uma tábua de 192 e o navegador recortava por fora, sem transbordo e
+       sem aviso (é o buraco 5b desta medição). Com `auto` + piso, a coluna cresce até o
+       rótulo caber e as duas colunas de leitura cedem a largura — que é a que sobra deitado. */
+    #telaFim .telaBtn { width: auto; min-width: min(30vw, 250px); align-self: start;
+      padding: 12px 16px; margin: 0 0 5px; }
+
+    /* AS DUAS COLUNAS SÃO `auto` porque as duas são feitas de rótulo bitmap: as linhas do
+       papel de AJUSTES e as tábuas são canvas de largura fixa, e uma coluna em `fr` os
+       recortaria em silêncio. `justify-content: center` é quem centra o par. */
+    #telaConfig { display: grid; justify-items: center;
+      align-content: start; align-content: safe center;
+      grid-template-columns: auto auto; justify-content: center; column-gap: 3vw;
+      padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
+    #telaConfig .telaTit { grid-column: 1 / -1; margin-bottom: 8px; }
+    /* o papel ocupa a coluna da esquerda inteira, ao lado das quatro tábuas */
+    #telaConfig #cfgInfo { grid-column: 1; grid-row: 2 / span 4; align-self: center;
+      gap: 5px; padding: 10px 14px; }
+    #telaConfig .telaBtn { grid-column: 2; width: auto; min-width: min(34vw, 260px);
+      padding: 12px 18px; margin: 0 0 6px; }
+  }
+  /* A OUTRA PONTA: em retrato curto (320×568) os AJUSTES já saíam pelas duas bordas — o
+     título 27 px acima e o VOLTAR 23 px abaixo. Ali coluna dupla não cabe (320 px de
+     largura), então cede o respiro do papel e o degrau das tábuas, que é a régua que a
+     CHEGADA já usa duas consultas acima. */
+  @media (orientation: portrait) and (max-height: 600px) {
+    #telaConfig { padding: 12px 16px; }
+    #telaConfig .telaTit { margin-bottom: 8px; }
+    #telaConfig #cfgInfo { gap: 4px; padding: 9px 13px; }
+    #telaConfig .telaBtn { padding: 11px 22px; margin: 3px; }
+  }
+
+  /* E O DEGRAU DO PIOR CASO DE ALTURA (640×360). Depois das colunas sobravam 23 px na
+     CHEGADA — as três tábuas voltaram aos 44 px de dedo e o título dela é uma placa de
+     22 px com 10 de respiro em cima e embaixo. Quem cede é a PLACA, não a tábua: título é
+     leitura de um segundo, alvo de dedo é o dedo. */
+  @media (orientation: landscape) and (max-height: 400px) {
+    #telaFim { padding-top: 6px; padding-bottom: 6px; }
+    #telaFim .telaTit { font-size: 18px; padding: 6px 16px; margin-bottom: 4px; }
+    #telaFim .telaBtn { margin-bottom: 3px; }
+  }
+
+  /* A CAIXA DE FALA DEITADA. Duas correções, e as duas são de altura:
+     · quem fala tem 300 px de figura ancorada a 78 px do pé. Numa tela de 360 isso põe a
+       cabeça 18 px ACIMA da borda — medido — e a pessoa perde justamente o rosto de quem
+       está falando com ela. A figura cede na mesma razão (132/300 = 101/230), então o corte
+       na cintura que a caixa faz continua caindo onde caía.
+     · o PULAR tinha 53×25 px em TODA tela medida, retrato incluído: abaixo dos 44 px que
+       Apple e Google pedem, e é o botão que quem já leu procura. Vira 44 de altura e sobe o
+       que cresceu, para continuar pousado na quina de cima da caixa. */
+  @media (orientation: landscape) and (max-height: 480px) {
+    #falaRetrato { width: 101px; height: 230px; bottom: 70px; }
+    #falaCaixa { padding-bottom: 26px; }
+  }
+  #btnFalaPular { min-height: 44px; padding: 0 14px; top: -52px;
+    display: flex; align-items: center; justify-content: center; }
+
   #telaMenu .telaBtn.oculto, .telaBtn.oculto { display: none; }
 
   /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */

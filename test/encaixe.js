@@ -1271,6 +1271,46 @@ const sec = t => log('\n---- ' + t);
     ok(comic.n > 20, vp.nome + ': o quadrinho montou as páginas (' + comic.n + ')');
     ok(!comic.apertadas.length, vp.nome + ': nenhuma página do quadrinho corta o próprio texto' +
       (comic.apertadas.length ? ' — ' + comic.apertadas.slice(0, 6).join(', ') : ''));
+
+    // ---- A CHEGADA e os AJUSTES: as duas pilhas verticais longas do jogo ----
+    // A CHEGADA rola por dentro, e é justamente por isso que ela precisa desta asserção: a
+    // checagem genérica de "fora da tela" pula tudo o que mora num rolo, e o CSS desta casa
+    // já registrou por que rolar não basta — "um botão que só existe depois de um gesto que
+    // ninguém pediu é um botão que metade das pessoas não acha". Medido antes: a última
+    // tábua terminava 86 px abaixo da dobra a 844×390 e 116 px a 640×360.
+    // AJUSTES é pior e mais simples: ela NÃO rola, e o título dela ficava 116 px ACIMA da
+    // borda de cima — para cima não existe rolagem, então ele simplesmente não existia.
+    for (const t of [{ id: 'telaFim', mostra: 'montarFim(); montarPergunta();', ult: 'btnFimVoltar', nome: 'CHEGADA' },
+                     { id: 'telaConfig', mostra: 'montarConfig();', ult: 'btnVoltarCfg', nome: 'AJUSTES' }]) {
+      await page.evaluate(function (t) {
+        fecharTelas(); eval(t.mostra); abrirTela(t.id);
+      }, t);
+      await page.waitForTimeout(500);
+      const r = await page.evaluate(function (t) {
+        const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
+        const tela = document.getElementById(t.id);
+        const fora = [], baixos = [];
+        tela.querySelectorAll('.telaBtn, .telaTit, .telaTxt, #fimPlacar, #cfgInfo').forEach(function (e) {
+          const s = getComputedStyle(e);
+          if (s.display === 'none' || s.visibility === 'hidden') return;
+          const b = e.getBoundingClientRect();
+          if (b.width <= 0 || b.height <= 0) return;
+          const id = e.id || e.className.split(' ')[0];
+          if (b.top < -1 || b.bottom > H + 1 || b.left < -1 || b.right > W + 1) {
+            fora.push(id + ' ' + Math.round(b.top) + '..' + Math.round(b.bottom) +
+                      ' x ' + Math.round(b.left) + '..' + Math.round(b.right));
+          }
+          if (e.classList.contains('telaBtn') && !e.classList.contains('perguntaBtn') && b.height < 44) {
+            baixos.push(id + ' ' + Math.round(b.height));
+          }
+        });
+        return { fora, baixos, rola: tela.scrollHeight - tela.clientHeight };
+      }, t);
+      ok(!r.fora.length, vp.nome + ' · ' + t.nome + ': tudo dentro da tela, sem precisar rolar' +
+        (r.fora.length ? ' — FORA: ' + r.fora.slice(0, 4).join(' | ') : ''));
+      ok(!r.baixos.length, vp.nome + ' · ' + t.nome + ': toda tábua com 44 px de dedo' +
+        (r.baixos.length ? ' — ' + r.baixos.join(', ') : ''));
+    }
   }
   // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
   await page.setViewportSize({ width: 390, height: 844 });
