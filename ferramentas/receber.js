@@ -116,16 +116,28 @@ function estadoDaFila() {
   try { disco = fs.readdirSync(ENTRADA); } catch (e) {}
   disco.filter(function (f) { return !/\.txt$/i.test(f); }).forEach(function (f) {
     const nome = f.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-    let quando = '';
-    try { quando = dataLocal(fs.statSync(path.join(ENTRADA, f)).mtime); } catch (e) {}
-    if (!arquivo[nome] || arquivo[nome].quando < quando) arquivo[nome] = { f: f, quando: quando };
+    let quando = '', bytes = 0;
+    try {
+      const st = fs.statSync(path.join(ENTRADA, f));
+      quando = dataLocal(st.mtime); bytes = st.size;   // o tamanho é a impressão digital barata
+    } catch (e) {}
+    if (!arquivo[nome] || arquivo[nome].quando < quando) arquivo[nome] = { f: f, quando: quando, bytes: bytes };
   });
 
   const itens = (nec.itens || []).map(function (i) {
     const arq = arquivo[i.nome] || null;
     const r = recusa[i.nome] || null;
     // Recusa só vale enquanto for MAIS NOVA que o arquivo: colar por cima resolve.
-    const recusadoAgora = !!(r && (!arq || arq.quando <= r.em));
+    // A RECUSA VALE PELOS BYTES, NÃO PELA DATA — e a data quase custou a fila de novo.
+    // A regra original era "a recusa vale enquanto for mais nova que o arquivo". Bastou um
+    // teste encostar nos quatro arquivos recusados para as mtimes irem para agora, e as
+    // quatro artes que §2 tinha reprovado voltaram a aparecer como ENTREGUES — o defeito
+    // exato que este registro existe para consertar, ressuscitado por um `touch`.
+    // Com `bytes`, só uma imagem DIFERENTE levanta a recusa. Tocar no arquivo não muda nada,
+    // que é o certo: quem não redesenhou não resolveu. A data continua valendo para as
+    // recusas antigas que não têm o campo, e para elas o comportamento é o de antes.
+    const recusadoAgora = !!(r && (!arq
+      || (typeof r.bytes === "number" ? arq.bytes === r.bytes : arq.quando <= r.em)));
     const emProc = feito.has(i.nome);
     // Re-entrega: o arquivo é mais novo que a data em que o nome entrou no registro.
     const reentrega = !!(emProc && arq && procEm[i.nome] && arq.quando > procEm[i.nome]);

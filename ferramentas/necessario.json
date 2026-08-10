@@ -477,6 +477,118 @@
       "tam": "VERTICAL 2:3 · sem magenta",
       "ref": "a frase do dono: o Atlântico e o 1,8 milhao que ficou nele",
       "p": "ILUSTRAÇÃO HISTÓRICA, pixel art pintada em alta resolução, pixels visíveis, borda dura, sem anti-aliasing. Registro sério e realista — a régua é a de museu histórico (Museu Afro Brasil, Memorial das Vítimas da Escravidão), não a de jogo infantil.\n\nO Atlântico aberto, ao anoitecer, visto de um ponto baixo próximo à água: mar profundo, ondulação longa, horizonte vazio, luz sumindo. Nenhum navio, nenhuma pessoa. A imagem é o mar sozinho — imenso e silencioso —, e o texto por cima dirá que ele é o maior cemitério de africanos do mundo, sem uma lápide. Grave e bonito, nunca decorativo.\n\nFORMATO: VERTICAL 2:3 (~1024×1536), página de quadrinho de tela cheia. TERÇO INFERIOR CALMO — é onde a legenda de papel senta. Sem texto na imagem, sem moldura.\n\nDIGNIDADE, e é a regra que não se negocia: as pessoas retratadas são GENTE, com rosto, corpo e presença — nunca massa anônima, nunca padrão de carga, nunca silhueta decorativa. Mostrar para que se saiba, jamais chocar por chocar.\n\nREPRESENTATIVIDADE — pedido explícito do dono (08/08): quanto mais gente, melhor. Povoe a cena com PESSOAS de idades e feições variadas, e mostre COSTUME e VESTIMENTA com especificidade histórica: tecidos e padrões da região e do período, penteados e adornos de cabelo, joalheria, ferramentas de ofício, gestos de trabalho e de convívio. Nada de figurante genérico e nada de multidão borrada — cada pessoa em primeiro plano tem rosto e tem o que está fazendo. Onde o povo é nomeável, siga a cultura material DOCUMENTADA daquele povo; onde não for, prefira o genérico honesto a inventar padrão — grafismo que 'parece' de um povo é o erro que este projeto já pagou (§2.1).\n\nA RÉGUA DE ARTE, dita pelo dono em 2026-08-09 e válida para toda imagem deste jogo:\n**bonita e impactante, artística mas educadora, e RESPEITOSA apesar dos massacres.**\nNa prática, quatro coisas: (1) composição de ilustração de verdade — luz com direção, profundidade, um assunto claro —, não registro chapado; (2) o que a imagem ENSINA tem que estar visível: se o texto fala de tabuleiro, o tabuleiro se vê; (3) dignidade sempre — rosto individual, postura inteira, gesto próprio, nunca massa anônima nem corpo exposto como espetáculo; (4) o peso vem da SITUAÇÃO e da luz, não do sangue: o que faz doer é reconhecer gente, não ver ferida.\nENQUADRAMENTO (medido na integração das 13 primeiras): a página corta pelos LADOS — perde 15,4% de CADA lado —, então o assunto tem que caber nos **70% centrais**, e o **terço inferior fica calmo** porque é onde a legenda senta."
+    },
+    {
+      "nome": "cap-jabaquara-fundo-alto",
+      "titulo": "JABAQUARA · pintura, parte de cima",
+      "ref": "céu e distância — Santos, São Paulo · 1887–1888",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nEncosta de morro na Baixada Santista vista de baixo: mata atlântica densa subindo, clareiras com casas simples de madeira e sapé espalhadas entre as árvores, ao longe o mar e o porto de Santos com mastros de navio, céu aberto. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-jabaquara-fundo-chao",
+      "titulo": "JABAQUARA · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — Santos, São Paulo · 1887–1888",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nTrilha de terra batida de morro, barro avermelhado, raízes atravessando, folhas caídas, poças rasas. É o CHÃO onde a personagem pisa — textura rica, nada que pareça objeto interativo. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-pequenaafrica-fundo-alto",
+      "titulo": "A PEQUENA ÁFRICA · pintura, parte de cima",
+      "ref": "céu e distância — Rio de Janeiro · começo do século XX",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nRua de sobrados do Rio antigo vista de baixo: casario de dois andares colado, janelas de guilhotina, sacadas de ferro, roupa no varal atravessando entre as fachadas, morro com vegetação ao fundo, céu limpo. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-pequenaafrica-fundo-chao",
+      "titulo": "A PEQUENA ÁFRICA · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — Rio de Janeiro · começo do século XX",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nCalçada de pedra portuguesa e paralelepípedo gasto, trilho de bonde embutido, poeira nas juntas. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-portas-fundo-alto",
+      "titulo": "AS PORTAS · pintura, parte de cima",
+      "ref": "céu e distância — 1932–1985",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nFachada de escola pública brasileira de meados do século XX vista de baixo: prédio modernista simples de dois andares, janelas grandes de esquadria, pátio com árvore, muro baixo, céu aberto. Sem pessoas, sem bandeira, sem faixa, sem cartaz.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-portas-fundo-chao",
+      "titulo": "AS PORTAS · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — 1932–1985",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nPiso de cimento queimado de pátio de escola, junta de dilatação, pó de giz, folha seca de amendoeira. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-naodito-fundo-alto",
+      "titulo": "O QUE NÃO PODIA SER DITO · pintura, parte de cima",
+      "ref": "céu e distância — 1964–1985",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nRua de centro urbano brasileiro dos anos 1970 vista de baixo: prédios de concreto de quatro a seis andares, marquises, letreiros apagados sem texto legível, fios cruzando, céu de dia claro. Sem pessoas, sem viatura, sem farda, sem cartaz.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-naodito-fundo-chao",
+      "titulo": "O QUE NÃO PODIA SER DITO · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — 1964–1985",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nCalçada de ladrilho hidráulico desgastado com desenho geométrico simples, meio-fio de granito, bueiro de ferro. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-praca-fundo-alto",
+      "titulo": "A PRAÇA · pintura, parte de cima",
+      "ref": "céu e distância — 1984–1988",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nPraça pública brasileira vista de baixo: palanque de madeira vazio, postes altos, árvores de copa larga, prédios da cidade ao fundo, céu amplo. VAZIA — sem pessoas, sem faixa, sem bandeira, sem cartaz, sem palavra escrita em lugar nenhum.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-praca-fundo-chao",
+      "titulo": "A PRAÇA · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — 1984–1988",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nPiso de mosaico português de praça, ondulado em preto e branco desgastado, com poças rasas e folhas. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-segurou-fundo-alto",
+      "titulo": "O QUE SEGUROU · pintura, parte de cima",
+      "ref": "céu e distância — 2020–2022",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nRua de bairro periférico brasileiro vista de baixo: casas de alvenaria sem reboco coladas subindo a encosta, caixas d'água, antenas, fios cruzando, laje com plantas em lata, céu de dia. Sem pessoas, sem máscara, sem cartaz, sem hospital.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-segurou-fundo-chao",
+      "titulo": "O QUE SEGUROU · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — 2020–2022",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nRua de concreto batido com escadaria lateral, canaleta de água no meio, capim nas frestas. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-temfonte-fundo-alto",
+      "titulo": "O QUE TEM FONTE · pintura, parte de cima",
+      "ref": "céu e distância — hoje",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nSala de leitura de um arquivo público brasileiro vista de dentro: estantes altas de metal com caixas-arquivo, mesas longas de madeira, janelas grandes de vidro com luz entrando, ventilador de teto. Sem pessoas, sem texto legível em papel nenhum.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
+    },
+    {
+      "nome": "cap-temfonte-fundo-chao",
+      "titulo": "O QUE TEM FONTE · pintura, parte do chão",
+      "ref": "a rua por onde a personagem anda — hoje",
+      "tam": "PAISAGEM ~1536×640 · sem magenta",
+      "semMagenta": true,
+      "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem visual dos cenários do jogo.\n\nPiso de granilite cinza-claro de prédio público, com faixas de latão dividindo as placas. É o CHÃO onde a personagem pisa. Sem pessoas.\n\nFORMATO: PAISAGEM larga, ~1536×640, SEM magenta — é imagem de fundo, não recorte. Sem texto, sem moldura.\n\nSEM PESSOAS: esta imagem acompanha texto que afirma história; figura humana desenhada afirma junto, e nenhuma tem fonte.\n\nLUZ: pinte em LUZ NEUTRA DE MEIO-DIA. Nada de entardecer, nada de dourado, nada de hora do dia pintada na tinta — o jogo tem um relógio próprio que tinge a pintura por cima. Alvos medidos, para a peça conversar com as irmãs: média de VERMELHO menor ou igual à média de AZUL, e saturação média de 55% para cima.\n\nENQUADRAMENTO: o assunto principal nos 70% centrais e o terço de baixo calmo. A tela do telefone é mais estreita que esta imagem e corta as laterais."
     }
   ]
 }

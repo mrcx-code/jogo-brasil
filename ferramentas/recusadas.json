@@ -1,30 +1,34 @@
 {
   "_": "ARTE ENTREGUE QUE FOI RECUSADA — e por isso volta a FALTAR. Existe porque a mesa considerava um pedido resolvido assim que um arquivo com aquele nome caía em assets/entrada. Uma folha entregue e recusada tinha arquivo em disco, logo sumia da fila para sempre: foi assim que as três folhas de corrida e o refazer da p19 ficaram invisíveis, e o dono abriu a mesa e não viu nada para gerar.",
-  "_regra": "A recusa vale enquanto a data dela for MAIS NOVA que a data do arquivo em assets/entrada. Colar uma imagem nova por cima resolve sozinho — o arquivo passa a ser mais novo que a recusa e o item sai da fila. Nada aqui é adivinhado: cada entrada cita onde a recusa está escrita.",
+  "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
   "itens": [
     {
       "n": "cap1-corrida",
       "em": "2026-08-09 00:00",
       "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada. Precisa da MESMA pessoa, MESMA escala, MESMA paleta (compare pela largura da cabeça).",
-      "onde": "PENDENTES.md §2 · equipe.json próximos ('3 folhas de corrida com a MESMA pessoa da caminhada')"
+      "onde": "PENDENTES.md §2 · equipe.json próximos ('3 folhas de corrida com a MESMA pessoa da caminhada')",
+      "bytes": 1241398
     },
     {
       "n": "cap2-corrida",
       "em": "2026-08-09 00:00",
       "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada de Palmares.",
-      "onde": "PENDENTES.md §2 · equipe.json próximos"
+      "onde": "PENDENTES.md §2 · equipe.json próximos",
+      "bytes": 1323993
     },
     {
       "n": "cap3-corrida",
       "em": "2026-08-09 00:00",
       "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada do presente.",
-      "onde": "PENDENTES.md §2 · equipe.json próximos"
+      "onde": "PENDENTES.md §2 · equipe.json próximos",
+      "bytes": 1255233
     },
     {
       "n": "q-p19",
       "em": "2026-08-09 00:00",
       "porque": "REFAZER: a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras). A página entrou no jogo assim mesmo — o pedido é a versão sem a tarja.",
-      "onde": "equipe.json próximos ('q-p19 REFAZER — a legenda tapa o tabuleiro') · título do item em necessario.json"
+      "onde": "equipe.json próximos ('q-p19 REFAZER — a legenda tapa o tabuleiro') · título do item em necessario.json",
+      "bytes": 2476179
     }
   ]
 }
