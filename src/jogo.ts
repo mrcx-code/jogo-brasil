@@ -9184,6 +9184,18 @@ const FONTES = [
     q: "Cartografia dos mocambos a partir da documentação primária: Macaco, Subupira, Amaro, Andalaquituche, Osenga." },
   { t: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678 — Chão Editora, 2021",
     q: "Paleografia que corrige nomes: “Gana Zumba”, não “Ganga Zumba” — em quimbundo, gana é senhor e ganga é sacerdote." },
+  // ===== SALVADOR — A PROMESSA QUE O JOGO JÁ TINHA FEITO =====
+  // Este grupo faltava, e a falta era de um tipo que o repositório inteiro existe para não ter:
+  // o FECHO do capítulo diz, com todas as letras, *"Quem reconstruiu esta noite documento por
+  // documento foi João José Reis. Quem tirou as ganhadeiras da margem da história foi Cecília
+  // Moreira Soares. A tela DE ONDE VEM traz as duas."* — e ela não trazia. As duas já eram
+  // citadas no campo `f` da LINHA_TEMPO, então nunca foi falta de pesquisa: era falta de duas
+  // linhas aqui. Achado do historiador em 10/08, ao encostar na tela por outro motivo.
+  { g: "SALVADOR, 1835" },
+  { t: "João José Reis, “Rebelião escrava no Brasil”, ed. 2003",
+    q: "A madrugada de 24 para 25 de janeiro reconstruída documento por documento, a partir dos autos de quem julgou o levante. É de lá que vem tudo o que o capítulo afirma sobre aquela noite — inclusive a denúncia da véspera." },
+  { t: "Cecília Moreira Soares, “As ganhadeiras: mulher e resistência negra em Salvador no século XIX”, Afro-Ásia nº 17, 1996 — UFBA",
+    q: "As mulheres que faziam a cidade andar deixam de ser fundo e viram sujeito: o trabalho de rua, o acerto do ganho, e o resto que muitas guardaram até comprar a própria alforria." },
   // ===== O INTERVALO DE 1888 A 1964, E POR QUE ESTE GRUPO É SÓ DE NORMA =====
   // Os seis marcos que fecham o buraco entre a abolição e 1964 são o §2.6 (A REGRA DO
   // DOCUMENTO) em exercício: cada frase afirma o que uma norma com número afirma, e nada além.

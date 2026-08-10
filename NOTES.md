@@ -4362,14 +4362,23 @@ E o print da abertura de O ACEIRO mostra o desencaixe que o `PENDENTES.md` agora
 capítulo cujo `quando` diz *cerrado* rodando sobre uma rua de cidade, porque a pintura é herdada
 do capítulo anterior.
 
-### Uma coisa que achei e não é minha para consertar
+### Uma coisa que achei por acidente, e consertei no mesmo dia
 
-A tela **DE ONDE VEM não tem grupo de SALVADOR** — e o fecho daquele capítulo promete, com todas
-as letras: *"Quem reconstruiu esta noite documento por documento foi João José Reis. Quem tirou
-as ganhadeiras da margem da história foi Cecília Moreira Soares. A tela DE ONDE VEM traz as
-duas."* Ela não traz. É promessa quebrada de um capítulo **escrito**, e é mais grave que qualquer
-coisa desta sessão porque o jogo já a fez a quem jogou. As duas obras estão citadas na
-`LINHA_TEMPO` (campo `f`), então não é falta de pesquisa: é falta de duas entradas em `FONTES`.
+A tela **DE ONDE VEM não tinha grupo de SALVADOR** — e o fecho daquele capítulo promete, com
+todas as letras: *"Quem reconstruiu esta noite documento por documento foi João José Reis. Quem
+tirou as ganhadeiras da margem da história foi Cecília Moreira Soares. A tela DE ONDE VEM traz
+as duas."* Ela não trazia. Promessa quebrada de um capítulo **escrito** é mais grave que qualquer
+coisa desta sessão, porque o jogo já a fez a quem jogou.
+
+Não era falta de pesquisa: as duas já estavam citadas na `LINHA_TEMPO` (campo `f`). Era falta de
+duas linhas em `FONTES`, e elas entraram — a de Cecília Moreira Soares com o número e o ano
+conferidos no próprio periódico (*As ganhadeiras: mulher e resistência negra em Salvador no
+século XIX*, **Afro-Ásia nº 17, 1996**, UFBA), que é mais do que o jogo dizia antes.
+
+**A lição de método, e ela vale para todo capítulo futuro:** escrever no FECHO que a tela DE ONDE
+VEM traz uma fonte e não pô-la lá é o modo mais silencioso de este jogo mentir — nenhum teste
+olha para isso hoje. Vale um bloco de `encaixe.js`: **toda obra citada num `f` da `LINHA_TEMPO`
+de capítulo escrito tem de ter entrada em `FONTES`.**
 
 ### Dúvida nova
 
