@@ -207,10 +207,14 @@ node test/recortar-folha.js assets/entrada/cap4-sprite-v2.png 4x2 /tmp/andar.jso
                             --quadros=2,3,4 --qualidade=0.76
 node test/embutir-heroi.js walk4=/tmp/andar.json atk1_4= atk2_4= sp4= run4=
 
-# 2. as pinturas (duas peças por cena)
-node test/converter-fundo.js assets/entrada/cap4-fundo-alto.png alto assets/cenarios-novos/cap4-alto.png
-node test/converter-fundo.js assets/entrada/cap4-fundo-chao.png baixo assets/cenarios-novos/cap4-baixo.png
-node test/inline-fundos.js            # CAPS, no arquivo, é a ordem das CENAS
+# 2. as pinturas (duas peças por cena) — DESDE 10/08 ESTES DOIS PASSOS SUMIRAM.
+#    O inline-fundos.js aceita as DUAS convenções de nome: o mestre pronto em
+#    assets/cenarios-novos/<cap>-alto.png e a entrega crua em
+#    assets/entrada/cap-<slug>-fundo-alto.png (repare: -chao, não -baixo). Ele converte,
+#    GRAVA o mestre em assets/cenarios-novos (que é versionada — a entrada não é) e embute.
+#    Acrescente o slug ao fim de CAPS e rode. Peça sem fonte no disco é preservada.
+node test/medir-luz.js assets/entrada/cap-<slug>-fundo-alto.png   # R≤B e sat≥55%, ANTES de embutir
+node test/inline-fundos.js            # CAPS, no arquivo, é a ordem dos índices de EPOCAS[].arte
 
 # 3. objetos e drops — a folha vem com três numa imagem só
 node test/cortar-celulas.js assets/entrada/cap4-itens.png 3x1 assets/entrada/cap4-item

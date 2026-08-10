@@ -3811,3 +3811,131 @@ começo do arquivo.
 12 capítulos (4 escritos, 8 em obra) · 15 cenas · `index.html` **3,97 MB** · fim da partida
 **11.700** · FPS 61 · `npm test` PASS · `encaixe.js` 16 blocos · `robusto-tudo.js` 6 de 6 ·
 mesa com **18 para gerar**, 9 chegados, 48 prontos.
+
+---
+
+## 2026-08-10 · CINCO CAPÍTULOS EM OBRA GANHAM A PAISAGEM DELES
+
+**Lente:** *Medir* — o ticket era peso, e peso é a única coisa aqui que ninguém pode estimar
+de cabeça.
+
+Sete capítulos em obra vestiam a ladeira de SALVADOR (`arte: [4]`), o que o `PENDENTES.md` já
+apontava como problema de §2: **pintura afirma lugar**, e JABAQUARA rodava sobre a Bahia de
+1835. Chegaram catorze pinturas em `assets/entrada`. Cinco capítulos passaram a ter a
+paisagem própria; dois não, e o motivo está no `PENDENTES.md` item 8.
+
+### A auditoria, antes de tocar em qualquer coisa
+
+**Nenhuma das catorze tem figura humana.** Conferido peça a peça, olhando, não deduzindo — é
+a trava do §2 e a única razão que faria a integração parar antes de começar.
+
+Régua de luz do pedido (R ≤ B, saturação ≥ 55%), medida com um instrumento novo,
+`test/medir-luz.js`. O que ele mostra, e que muda como a régua deve ser lida:
+
+| peça de CIMA | R−B | saturação | | peça de CHÃO | R−B | saturação |
+|---|---|---|---|---|---|---|
+| jabaquara | **−21,5** | **56,4%** | | jabaquara | +56,8 | 65,0% |
+| naodito | −9,0 | 31,4% | | naodito | +41,8 | 31,6% |
+| portas | −3,7 | 36,7% | | portas | +73,3 | 47,4% |
+| praça | −6,0 | 47,2% | | praça | +4,1 | 42,7% |
+| segurou | −9,7 | 47,9% | | segurou | +34,7 | 39,4% |
+| pequena áfrica | +5,5 | 31,2% | | pequena áfrica | +54,8 | 39,8% |
+| tem fonte | +37,1 | 43,7% | | tem fonte | +16,2 | 11,2% |
+
+**A régua de R ≤ B só vale para a peça de CIMA, e o número prova.** As sete peças de chão que
+já estão no jogo há meses medem de **+50,5 a +116,9** — terra é marrom, e marrom é vermelho
+maior que azul por definição. Cobrar R ≤ B de um chão é cobrar que ele não seja chão. O
+`medir-luz.js` imprime as duas colunas e o julgamento; quem ler a saída precisa saber disto,
+e por isso está escrito aqui e no cabeçalho do instrumento.
+
+**O caso SALVADOR não se repetiu**, que era o medo: a pintura 4 tem R−B **+47,1** com saturação
+38,6% e ficou presa num entardecer. Das novas peças de cima, cinco estão entre −21,5 e −3,7.
+**A única a repetir o defeito é O QUE TEM FONTE (+37,1)** — e ela tem desculpa que SALVADOR não
+tinha: é a **primeira pintura de interior do jogo**, madeira, latão e luminária de arquivo. Não
+há céu para ser azul. Entrou assim, consciente.
+
+O que ficou fora da régua sem desculpa é a **saturação**: as sete peças de cima já embutidas
+vivem entre **56,2% e 66,3%**, e das cinco novas só JABAQUARA (56,4%) alcança. As outras ficam
+entre 31% e 48% — vão ler mais lavadas que as irmãs. Não é defeito que impeça de entrar; é
+número para o próximo pedido.
+
+### O que quebrou a premissa do inline-fundos.js, e por que ele mudou
+
+1. A entrega vem em `assets/entrada` com **outro nome** (`cap-<slug>-fundo-chao`, e não
+   `<cap>-baixo`). Renomear catorze arquivos à mão a cada leva é o tipo de erro que não dá
+   console: peça trocada põe a paisagem do capítulo errado na tela, calada.
+2. **`assets/entrada` é ignorada pelo git.** Quem converteu SALVADOR converteu direto de lá e
+   nunca commitou o mestre de 720×959 — **a pintura 4 não tem fonte no repositório hoje**, e
+   este script, rodado como estava, morreria procurando `cenarios-novos/cap4-alto.png`. Agora
+   converter **grava o mestre em `assets/cenarios-novos`**, que é versionada.
+3. Por causa de (2), peça sem fonte é **preservada byte a byte** do `src/jogo.ts`. Conferido:
+   7 de 7 antigas idênticas depois de rodar.
+
+### O achado que economizou peso e salvou as pinturas: NÃO QUANTIZAR
+
+O `converter-fundo.js` corta a paleta em 48 cores porque a **primeira** leva chegou como
+ilustração de gradiente macio. A leva de 10/08 já vem com borda dura. Quantizar de novo faz
+duas coisas ruins ao mesmo tempo, e a segunda eu não esperava:
+
+```
+jabaquara-alto   sem quantizar   75,7 KB   erro 0,00
+                 48 cores        89,0 KB   erro 12,59   ← MAIOR e muito pior
+                 96 cores        82,9 KB   erro  4,54
+                 256 cores       80,7 KB   erro  2,98
+```
+
+**Banda chapada com degrau duro custa mais bits em WebP que o degradê original**, porque o
+degrau é uma borda e borda é o que o codec paga caro. A primeira rodada saiu com a mata em
+três verdes chapados e o casario em manchas laranja — e 13 KB mais gorda. `CORES = 0`.
+
+### O peso, que era o assunto
+
+| | antes | depois | conta |
+|---|---|---|---|
+| `index.html` no disco | 3,97 MB | **4,54 MB** | +0,57 MB (+14,4%) |
+| no fio (brotli q5) | 2,83 MB | **3,26 MB** | +0,43 MB |
+| Fast 3G · tela desenhada | 16,63 s | **19,17 s** | **+2,54 s** |
+| Slow 4G · tela desenhada | 14,67 s | 16,90 s | +2,23 s |
+
+**Meia décima de segundo de abertura por capítulo** (2,54 s ÷ 5 = 0,51 s). É o preço, dito
+sem maquiagem: cinco capítulos deixam de mentir sobre onde se passam, e todo mundo espera
+meio segundo a mais por cada um deles. Qualidade WebP **0,72**, a régua do §6 — o
+`inline-fundos.js` ainda dizia 0,80, número anterior à revisão de 07/08, e regerá-lo assim
+teria *engordado* o arquivo desfazendo uma medição já feita.
+
+Testado e recusado: **regerar as sete antigas do PNG mestre** em vez de manter o reencode
+duplo do `requalificar.js`. Devolveu **8 KB** em 1.939 e mexeria em doze peças estáveis.
+`tirar-icc.js` rodou por último e tirou 18,7 KB com diferença máxima de canal **0**.
+
+### As duas tabelas por pintura
+
+- **`REPETICAO_PINT`** — quatro das cinco são arquitetura, e três delas (8, 10, 11) têm ponto
+  de fuga central, o que é *pior* que SALVADOR: espelhada, a rua vira duas ruas convergindo
+  para lugar nenhum. Levam o tratamento de SALVADOR (`[false, 1, true, true]`). Comparado nos
+  prints `REP-*`, não deduzido. JABAQUARA é mata subindo encosta e fica na regra orgânica.
+- **`CEU_PINT`** — medido com `prints-onda2.js` (que lê quantas pinturas o jogo tem, em vez
+  de trazer o número escrito à mão, e por isso cobriu as doze sozinho). Topo/céu à noite:
+  **7 → 0,96 · 8 → 0,86 · 9 → 0,88 · 10 → 0,82 · 11 → 0,91**, todas dentro do alvo de ≤ 1,1 na
+  primeira tentativa. Motivo: a leva nova tem **céu azul cheio**, e não a névoa clara de
+  horizonte das seis primeiras — era a névoa que sobrevivia à noite e obrigava a calibrar
+  peça a peça.
+
+### O que o print mostra e o teste não mostraria
+
+- **JABAQUARA:** o recorte ao centro (607 de 1.942 px, a conta do pipeline) **come o porto de
+  Santos e o mar**, que eram metade do assunto do pedido. Sobra a encosta com as casas, que
+  é boa — mas quem pedir a próxima pintura larga precisa saber que só os 31% centrais entram.
+- **A emenda alto/chão de JABAQUARA fica nua**: a peça de cima termina em clareira clara de
+  areia e a de baixo começa em mata escura com barro. O `matoDaEmenda()` disfarça, mas o
+  degrau de tom se vê. As irmãs orgânicas não têm isso porque foram pintadas em par.
+- **O QUE TEM FONTE** é um interior visto de dentro, e a personagem anda na frente de uma mesa
+  enorme. Lê-se como arquivo — mas a escala é estranha, e é o candidato número um a ser
+  refeito quando o capítulo for escrito.
+
+### Próximo passo
+
+As duas peças de chão de A PRAÇA e O QUE SEGUROU (`PENDENTES.md` 8). Depois disso, a pergunta
+que fica na mesa do dono e que eu não decido: **+0,51 s de abertura por capítulo é aceitável
+até doze?** Se for, o arquivo único chega perto de 5,1 MB e 21 s no 3G. Se não for, a conversa
+deixa de ser sobre qualidade de WebP e passa a ser sobre carregar a pintura do capítulo **sob
+demanda** — e isso é arquitetura, não compressão.

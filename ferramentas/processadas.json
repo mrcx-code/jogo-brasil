@@ -1,6 +1,16 @@
 {
   "_": "O que ja entrou no jogo. A mesa compara com assets/entrada para mostrar o que CHEGOU e ainda espera processamento — entregue e processado nao sao a mesma coisa, e confundi-los custou duas entregas perdidas em 07/08.",
   "itens": [
+    "cap-jabaquara-fundo-alto",
+    "cap-jabaquara-fundo-chao",
+    "cap-naodito-fundo-alto",
+    "cap-naodito-fundo-chao",
+    "cap-pequenaafrica-fundo-alto",
+    "cap-pequenaafrica-fundo-chao",
+    "cap-portas-fundo-alto",
+    "cap-portas-fundo-chao",
+    "cap-temfonte-fundo-alto",
+    "cap-temfonte-fundo-chao",
     "cap1-det-palmeira",
     "cap1-det-pedra",
     "cap1-fundo-alto",

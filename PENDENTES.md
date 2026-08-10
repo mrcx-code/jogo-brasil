@@ -182,3 +182,32 @@ sem uma linha de afirmação histórica sem fonte. Registro completo no `NOTES.m
 - **Os oito capítulos ainda não têm nó na `LINHA_TEMPO`**, de propósito: A HISTÓRIA só mostra o
   que tem fonte. Cada marco entra junto com a pesquisa do capítulo dele.
 - **Verbo por escolher em quatro:** JABAQUARA · A PEQUENA ÁFRICA · AS PORTAS · A PRAÇA.
+
+---
+
+## 8. AS DUAS PINTURAS QUE VIERAM COM O CHÃO TROCADO (10/08, Dev)
+
+Das catorze pinturas entregues em 10/08 para os sete capítulos em obra, **dez entraram** e
+quatro não. Duas peças de CHÃO não são chão:
+
+- **`cap-praca-fundo-chao.png`** — o pedido era *piso de mosaico português de praça, ondulado
+  em preto e branco desgastado*. O que chegou é uma **rua de periferia inteira**, com casario,
+  poste, encosta e céu. Como pintura de cima seria boa; como chão é impossível.
+- **`cap-segurou-fundo-chao.png`** — o pedido era *rua de concreto batido com escadaria
+  lateral e canaleta*. O que chegou é a **sala de leitura do arquivo público**, que é o
+  assunto da peça de cima de O QUE TEM FONTE (e essa já veio, e já entrou).
+
+Consequência: **A PRAÇA e O QUE SEGUROU continuam sem pintura própria** e herdam a de O QUE
+NÃO PODIA SER DITO (era a de SALVADOR — a herança melhorou, mas continua sendo herança). Não
+dá para integrar meia paisagem: `fundoPintado()` recusa céu sem chão de propósito, porque
+sem chão a personagem apareceria pisando no vazio por alguns quadros.
+
+**O que resolve:** duas pinturas de chão, com o mesmo pedido que já está em
+`ferramentas/necessario.json` (itens `cap-praca-fundo-chao` e `cap-segurou-fundo-chao`).
+As peças de CIMA das duas já chegaram e estão certas — só o chão falta. Os arquivos errados
+continuam em `assets/entrada`; a mesa vai continuar oferecendo os dois itens porque eles não
+entraram em `processadas.json`.
+
+**E um achado que vale para toda entrega futura:** o pedido de chão precisa dizer, em voz
+alta, *sem céu e sem horizonte* — as duas peças erradas obedecem à letra de "o chão onde a
+personagem pisa" e ainda assim não servem, porque trouxeram o mundo inteiro junto.
