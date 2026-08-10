@@ -240,6 +240,32 @@ explica o processo inteiro e o porquê de cada decisão. O que não é óbvio:
 
 ## 6. Como trabalhar
 
+### O CHECK — quando o dono escrever `check` e nada mais
+
+É um comando, definido por ele em 2026-08-10. Significa: **pare de produzir e faça o balanço.**
+Não é relatório de status ("fiz A, B e C") — é uma mesa de decisão. O que ele quer ver:
+
+- **o que está pendente**, e de quem é cada coisa;
+- **as dúvidas** que apareceram e ainda não têm resposta;
+- **as ideias e os caminhos possíveis**, inclusive os que eu não seguiria.
+
+**A forma é obrigatória e ele repetiu duas vezes: LISTA ORDENADA, com OPÇÕES, e a melhor
+opção marcada.** Ele responde por número — "1. C, 2. A" — e isso só funciona se cada item for
+uma pergunta fechada com saídas nomeadas.
+
+Regras que fazem o check valer alguma coisa:
+
+1. **Toda opção precisa de consequência dita.** "(a) faz agora / (b) faz depois" não é opção;
+   "(a) faz agora e o capítulo 6 destrava / (b) faz depois e a arte fica parada" é.
+2. **Recomende.** Marcar a melhor com ⭐ é parte do trabalho — devolver cinco opções sem
+   preferência é empurrar a decisão de volta para quem pediu ajuda.
+3. **Separe o que é dele do que é meu.** Item que eu posso resolver sozinho não vai para a
+   lista dele; vai para a minha fila e para o Diário.
+4. **Item resolvido SAI.** Lista que só cresce é lista que ninguém lê — foi por isso que a
+   mesa acumulou 17 itens invisíveis por dias.
+5. **Nada de check com item inventado para engordar a lista.** Se só há três coisas, são três.
+
+
 ```bash
 npm test               # = npm run build && node test/smoke.js — tem que passar
 git add -A && git commit -m "..." && git push
