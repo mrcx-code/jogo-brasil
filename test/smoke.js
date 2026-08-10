@@ -3,6 +3,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 
 // Use the sandbox chromium when it is there, otherwise whatever playwright installed.
 function chromiumPath() {
@@ -16,16 +17,49 @@ function chromiumPath() {
 // ferramentas/construir.js) — nunca a fonte em src/. JOGO_HTML aponta para outro caminho
 // quando se quer provar os bytes de outro lugar, por exemplo os que o Capacitor copiou para
 // dentro do APK: JOGO_HTML=android/app/src/main/assets/public/index.html node test/smoke.js
-// Aceita também uma URL http(s), porque o Capacitor não serve o jogo por file:// e sim por
-// uma origem de verdade — e origem de verdade muda o que o localStorage deixa fazer.
-function alvo() {
+// Aceita também uma URL http(s) já no ar.
+//
+// ===== POR QUE ISTO NÃO ABRE MAIS POR `file://` =====
+// Custou meia sessão e é o tipo de coisa que fica verde testando o caminho errado. Desde a
+// CARGA SOB DEMANDA (09/08) a arte dos capítulos 2+ chega por `fetch("pack-*.json")`, e o
+// Chromium RECUSA esse fetch sob `file://` — a prova está em `test/peso-file-fetch.js`. Nenhum
+// dos três lugares onde o jogo roda de verdade usa `file://`: a Vercel serve por https, o
+// `npm start` por http, e o Capacitor por `https://localhost`. Um teste que abrisse por
+// `file://` continuaria PASSANDO enquanto exercitava só o caminho de recuo (arte do capítulo 1
+// em toda parte) e nunca o caminho que a produção usa. Teste verde sobre o arquivo errado é
+// pior que teste vermelho.
+//
+// Então o teste sobe um servidor estático próprio, na origem `http://127.0.0.1:<porta>`, com o
+// DIRETÓRIO do alvo como raiz — é assim que os `pack-*.json` que o build escreveu ao lado do
+// index.html ficam alcançáveis, exatamente como ficam na Vercel e dentro do APK.
+function servirAlvo(arquivo) {
+  const DIR = path.dirname(arquivo), NOME = path.basename(arquivo);
+  const TIPOS = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
+    '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg' };
+  const servidor = http.createServer(function (req, res) {
+    const rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\//, '') || NOME;
+    const alvo = path.normalize(path.join(DIR, rel));
+    if (!alvo.startsWith(DIR) || !fs.existsSync(alvo)) { res.writeHead(404).end('404'); return; }
+    res.writeHead(200, { 'Content-Type': TIPOS[path.extname(alvo).toLowerCase()] || 'application/octet-stream',
+      'Cache-Control': 'no-store' });
+    res.end(fs.readFileSync(alvo));
+  });
+  return new Promise(function (r) {
+    servidor.listen(0, '127.0.0.1', function () {
+      r({ servidor: servidor, url: 'http://127.0.0.1:' + servidor.address().port + '/' + NOME });
+    });
+  });
+}
+async function alvo() {
   const p = process.env.JOGO_HTML;
-  if (p && /^https?:\/\//i.test(p)) return p;
-  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+  if (p && /^https?:\/\//i.test(p)) return { servidor: null, url: p };
+  return servirAlvo(path.resolve(__dirname, '..', p || 'index.html'));
 }
 
 (async () => {
-  const file = alvo();
+  const posto = await alvo();
+  const file = posto.url;
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const errors = [];
@@ -1438,5 +1472,6 @@ console.log('FPS:', fps);
 
   console.log(errors.length ? 'FAIL\n' + errors.join('\n') : 'PASS — no errors');
   await browser.close();
+  if (posto.servidor) posto.servidor.close();
   process.exit(errors.length ? 1 : 0);
 })();
