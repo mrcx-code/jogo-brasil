@@ -3635,3 +3635,130 @@ ela não virou uma asserção que aceita qualquer coisa.
 Os 54 pares de cor quase-idêntica (PENDENTES 5a) — começando pelos 10 com Δ≤2, que são
 mecânicos e invisíveis. Depois, o que o dono responder na mesa: o peso, a ordem dos capítulos e
 a régua da imagem do fogo estão lá esperando.
+
+## Diário — 2026-08-09 · Dev · OS DOZE CAPÍTULOS PASSAM A EXISTIR (placeholder honesto)
+
+Ticket do dono, palavras dele: *"Ainda não vamos lançar sem ter tudo, então garantir que tudo
+já exista e tenha como placeholder até construirmos cada item."* O arco aprovado tem doze
+capítulos e o jogo tinha quatro. Os oito que faltavam entraram em `EPOCAS`, na posição
+cronológica definitiva, marcados `emObra: true`.
+
+### O que fez — em duas passadas, cada uma com `npm test` e `node test/encaixe.js` verdes
+
+**Passada 1 — posição deixa de ser identidade.** A tabela `ARCOS` já migrava o SAVE por `id`;
+o CÓDIGO continuava escrito em números, e com quatro capítulos os números coincidiam com as
+posições. `CAP_PALAVRA = 2`, `cenarioDaEpoca(2)`, `{ ep: 3 }` na `LINHA_TEMPO`, `quem: 1` no
+balão do quadrinho: cada um desses literais reapontaria para o capítulo errado assim que O CAIS
+entrasse antes de SALVADOR — **sem erro de console e sem tela em branco**, a mesma família de
+falha silenciosa que o bloco 1 do `encaixe.js` existe para pegar. Entraram `iEp(id)` (identidade
+→ índice) e `blocoArte(e)` (época → bloco de arte), e nenhum índice de época se escreve mais à
+mão. `EPOCAS` ganhou o campo **`arteCap`**, porque *posição na lista* e *bloco de arte de
+personagem/objetos* descolaram no dia em que entrou capítulo sem arte própria.
+
+**Passada 2 — os oito capítulos.** A linha do arco de HOJE foi copiada para o fim de
+`ARCOS_ANTIGOS` ANTES de mexer em `EPOCAS` (o procedimento escrito no comentário da tabela, e
+esta foi a primeira vez que ele foi exercido de verdade). `ARCO_ATUAL` andou sozinho, de 1 para
+2. Ordem final, com as cenas de cada um:
+
+| # | capítulo | quando | cenas | estado |
+|---|---|---|---|---|
+| 1 | PINDORAMA | litoral atlântico · séc. XVI | 2 | pronto |
+| 2 | PALMARES | serra da Barriga · séc. XVII | 2 | pronto |
+| 3 | O CAIS QUE VOLTOU À LUZ | Rio de Janeiro · séc. XIX | 1 | **em obra** — verbo já escolhido: *cavar para saber* |
+| 4 | SALVADOR | Bahia · véspera de 1835 | 1 | pronto |
+| 5 | JABAQUARA | Santos · 1887–1888 | 1 | **em obra** — verbo por escolher; par obrigatório do 6 |
+| 6 | A PEQUENA ÁFRICA | Rio · começo do séc. XX | 1 | **em obra** — verbo por escolher |
+| 7 | AS PORTAS | 1932–1985 | 1 | **em obra** — verbo por escolher |
+| 8 | O QUE NÃO PODIA SER DITO | 1964–1985 | 1 | **em obra** — verbo já escolhido: *fazer passar* |
+| 9 | A PRAÇA | 1984–1988 | 1 | **em obra** — verbo por escolher; par obrigatório do 8 |
+| 10 | O QUE SEGUROU | 2020–2022 | 1 | **em obra** — verbo já escolhido: *chegar na última casa* |
+| 11 | O QUE TEM FONTE | hoje | 1 | **em obra** — verbo já escolhido: *conferir de onde vem* |
+| 12 | AINDA AQUI | terra indígena demarcada · hoje | 2 | pronto — **e continua sendo o último** |
+
+**A regra que governa um capítulo em obra, e ela é §2:** ele **não afirma história nenhuma**.
+Diz o nome, o quando (que é o RECORTE do arco aprovado, não um fato solto), o verbo quando já
+foi escolhido, e que ainda está sendo escrito — em voz de jogo, não de aviso de erro. Nenhum
+dos oito objetos carrega um dígito, um nome de pessoa ou um acontecimento. **O `encaixe.js`
+passou a cobrar isso** (bloco 15: nenhum dígito na fala de capítulo em obra).
+
+**O que acontece com quem chega num capítulo em obra jogando** — decidido e documentado no
+código: ele é **jogável**, com o motor genérico, e o mundo nunca fica sem chão. Três heranças,
+cada uma com razão própria:
+
+- **`arteCap: 3`** — personagem, objetos da rua e retrato vêm de AINDA AQUI, o único bloco cuja
+  rua é feita de **coisas**. É §2 e não estética: PALMARES e SALVADOR são os capítulos em que
+  quem atravessa a tela é **gente**, e isso só se sustenta com o texto que explica por quê.
+- **`arte: [...]`** — a PINTURA é a do capítulo anterior. O mundo não se teletransporta: a rua
+  continua a rua, que é o que a abertura diz em voz alta.
+- **O capítulo em obra fala SEM ROSTO.** O primeiro print mostrou o custo de não decidir isto:
+  a protagonista indígena do presente anunciando JABAQUARA. Escalar quem representa um capítulo
+  é decisão do dono (§2); emprestar um rosto por conveniência técnica é decidir sem perguntar.
+  Então ninguém é escalado — `#falaRetrato.oculta`, e a caixa fala sozinha.
+
+### O que mediu
+
+- **12 capítulos · 15 cenas** (eram 4 e 7). `MASCARA_EPOCAS` 15 → **4095** (cabe folgado: o
+  limite do campo `bits` é 31 capítulos). `S.acolhidos` 4 → **12 posições**. `ARCOS` 2 → 3
+  linhas.
+- **Peso: 4.150.252 → 4.166.618 bytes (+16,0 KB, +0,39%)**, e **zero imagem nova** — os oito
+  capítulos reaproveitam pintura e bloco de arte que já estavam no arquivo.
+- **FPS 61** no smoke (piso 58). `npm test` e `node test/encaixe.js` verdes, zero erro de
+  console em todas as telas percorridas.
+- **Migração conferida pelo smoke:** save do arco 0 (três capítulos, cena 4) acorda em AINDA
+  AQUI com `acolhidos` inteiro e sem nenhum bit de capítulo novo aceso.
+- Prints: `test/DOZE-eras-tudo.png` (a lista com os doze, rolando, 854 px de rolo em 473 de
+  janela, sem barra), `test/DOZE-eras-dia1.png` (o dia 1), `test/DOZE-jabaquara-rua.png` e
+  `test/DOZE-jabaquara-fala.png` (a abertura honesta, sem rosto).
+
+### O que quebrou pelo caminho — três achados que só apareceram com doze
+
+1. **O meio-risco não tem glifo.** `pixelRotulo` normalizava só o travessão `—`; o `–` de
+   intervalo (o de "1964–1985") saía como **`?`** na tábua da era — `1887–1888` virava
+   `1887?1888` no print, sem um erro de console. Corrigido na fonte (`/[—–]/`), não no texto.
+2. **A parede de tábuas iguais.** O comentário de `montarCapitulos` já previa ("com doze
+   capítulos isso vira ONZE linhas iguais") e o código não cumpria a própria promessa: escrevia
+   "AINDA TRANCADA" em todas. O print do dia 1 mostrou dez tábuas idênticas. Agora só a PRÓXIMA
+   instrui; as de trás dela são o ordinal, e só.
+3. **O raleio da mata ia explodir em silêncio.** `fatorFolha()` era `1 + 0,5 × posição da
+   época`: com doze capítulos, ×6,5 — a folha praticamente sumiria da tela, e nenhum teste
+   pegaria porque a renda por km é compensada. Passou a contar `blocoArte()`, o que deixa os
+   quatro capítulos existentes **exatamente** com os fatores medidos em 07/08 (×1 · ×1,5 · ×2 ·
+   ×2,5) e adia a decisão para quando os doze forem construídos.
+
+### ⚠ O QUE NÃO DECIDI, E POR QUÊ — vai para a mesa do dono
+
+1. **A PARTIDA FICOU 2,14× MAIS LONGA, e isso é ECONOMIA.** `LIMIAR_FIM` = `LIMIAR_CENA ×
+   TOTAL_CENAS` foi de **10.500 para 22.500** de impacto, porque os oito capítulos ocupam oito
+   cenas. É consequência aritmética de "os doze existem", não uma escolha minha — e é grande
+   demais para eu escolher sozinho. **O botão é de uma linha** (`LIMIAR_CENA = 1500`), e as
+   opções são três: aceitar a partida mais longa; baixar `LIMIAR_CENA` para ~700 e manter o
+   tempo total de hoje; ou dar aos capítulos em obra um passo mais curto que o dos prontos.
+   **Nada medido ainda** — quando o dono escolher, vai com medição antes/depois, como manda a
+   regra.
+2. **A pintura de um capítulo em obra é a do capítulo anterior**, e pintura é afirmação de
+   lugar: JABAQUARA (Santos) rodando sobre a ladeira de Salvador. O texto diz em voz alta que o
+   capítulo está em construção, e a alternativa (mundo sem chão) é pior — mas isto é §2 de
+   representação e fica registrado como pendência, não como decisão.
+3. **O ACEIRO ficou de fora, de propósito.** O `HISTORIA-CONTEMPORANEO.md` desenha o capítulo
+   do agronegócio inteiro e ele responde a um pedido literal do dono (2026-08-08). Mas ele
+   **não está no arco de doze** aprovado em 07/08, e pô-lo na cronologia é (a) fazer treze e
+   (b) reordenar a fila — que é o **item 1 das nove decisões ⚠** do próprio relatório do
+   historiador. A estrutura está pronta para recebê-lo: acrescentar um objeto acima de AINDA
+   AQUI e copiar a linha de hoje para `ARCOS_ANTIGOS`. É tudo.
+4. **A `LINHA_TEMPO` não ganhou nó nenhum** dos oito. Coerente com a regra: a tela A HISTÓRIA
+   só mostra o que tem fonte, e um marco em obra afirmaria por existir. O quadrinho continua
+   com **26 páginas** e os **7 pontos de parada** intactos. Quando um capítulo for escrito, o
+   marco dele entra junto com as fontes.
+
+### Como preencher um capítulo em obra (o procedimento, escrito uma vez)
+
+Trocar o texto por texto com fonte · dar a ele `arte`/`arteCap` próprios · ajustar `cenas` se
+ele merecer mais de uma · apagar `emObra` · pendurar os nós dele na `LINHA_TEMPO` com a fonte
+junto · e, **se `cenas` mudar**, copiar a linha de hoje para o fim de `ARCOS_ANTIGOS` antes de
+mexer. O `encaixe.js` bloco 15 e o bloco 4 cobram o resultado.
+
+### Próximo passo
+A resposta do dono ao item 1 (a duração da partida) trava a próxima medição de economia. Sem
+ela, o trabalho que anda sozinho é preencher um capítulo em obra de cada vez — e o primeiro da
+fila do arco é **O CAIS QUE VOLTOU À LUZ**, que já tem verbo, tem instituição viva no assunto e
+é o único dos oito cuja pesquisa não esbarra na régua dos cinco anos.

@@ -160,3 +160,25 @@ de duas linhas é mais baixo que as pernas, então os pés reapareciam embaixo d
 de ser na ARTE (`cover` + `object-position: top`), e aí ele cai sempre no mesmo ponto do corpo.
 Os quatro retratos medem 112×300, 106×300, 212×482 e 105×300; numa caixa de 104×145 isso dá
 52%, 49% e 61% da figura.
+
+---
+
+## 7. OS DOZE CAPÍTULOS EXISTEM — o que ficou aberto neles (09/08, Dev)
+
+Feito: os oito capítulos que faltavam entraram em `EPOCAS` marcados `emObra: true`, jogáveis,
+sem uma linha de afirmação histórica sem fonte. Registro completo no `NOTES.md`, diário de
+09/08 ("OS DOZE CAPÍTULOS PASSAM A EXISTIR"). O que **não** está feito, e é do dono:
+
+- **⚠ A partida ficou 2,14× mais longa.** `LIMIAR_FIM` foi de 10.500 para 22.500 de impacto,
+  porque oito capítulos novos ocupam oito cenas. É ECONOMIA, e economia não se decide sem o
+  dono nem sem medição antes/depois. O botão é uma linha (`LIMIAR_CENA = 1500`); três opções
+  na mesa (aceitar · baixar o passo para ~700 · passo mais curto só para os capítulos em obra).
+- **⚠ A pintura de um capítulo em obra é a do anterior**, e pintura afirma lugar: JABAQUARA
+  (Santos) roda sobre a ladeira de Salvador. §2 de representação. A alternativa é mundo sem
+  chão, que é pior — mas a decisão é dele.
+- **⚠ O ACEIRO fora do arco.** Desenhado inteiro no `HISTORIA-CONTEMPORANEO.md` e pedido pelo
+  dono em 08/08, mas não está no arco de doze aprovado em 07/08. Entrar exige reordenar a fila
+  — item 1 das nove decisões ⚠ do historiador. A estrutura já o recebe em dois passos.
+- **Os oito capítulos ainda não têm nó na `LINHA_TEMPO`**, de propósito: A HISTÓRIA só mostra o
+  que tem fonte. Cada marco entra junto com a pesquisa do capítulo dele.
+- **Verbo por escolher em quatro:** JABAQUARA · A PEQUENA ÁFRICA · AS PORTAS · A PRAÇA.
