@@ -13,31 +13,53 @@
        · "quero a 'O que gerar' e 'O que decidir' sempre no topo, para resolver pendências"
      A página abre nas DUAS LISTAS. Tudo que não é "faça isto" nem "decida isto" desceu para
      o fim: o painel de atividade e a contagem do que está comigo. */
+  /* ===================================================================
+     A ESCALA DE TEXTO, REFEITA EM 10/08. O dono: "a mesa tá tão pequena, não consigo ler".
+     Não era impressão: varri os `font-size` computados de todo elemento-folha visível e a
+     mesa tinha 79 de 93 ABAIXO de 14 px, e nada acima de 15.
+
+     A CAUSA: ela nasceu com a escala do JOGO, e o jogo é calibrado para um telefone na mão,
+     a uns 30 cm, com densidade de pixel dobrada. A mesa é lida num monitor, a 60 cm, sem
+     ampliação nenhuma. O mesmo número de pixels é confortável num caso e ilegível no outro —
+     copiar a escala de um para o outro foi o erro.
+
+     A RÉGUA, e ela vale para qualquer coisa que entrar aqui depois:
+       · corpo de leitura (pergunta, prompt, descrição) ....... 17 px
+       · rótulo, nome de arquivo, data, selo .................. 15–16 px
+       · título das duas listas .............................. 21 px
+       · NADA abaixo de 14 px, em lugar nenhum.
+     (A fonte bitmap 5×7 do jogo, que só amplia por número inteiro, NÃO existe nesta página —
+     a mesa é toda Cascadia Mono. Aqui não há degrau inteiro a respeitar.)
+
+     O EFEITO COLATERAL FOI PAGO COM RESPIRO, NUNCA COM PALAVRA: texto maior estica o cartão,
+     e o cartão precisa continuar cabendo inteiro numa tela de 800. O que encolheu foi
+     entrelinha de rótulo, `padding` do cartão e da área de colar, e o espaçamento entre
+     letras dos títulos — nenhum texto foi cortado nem abreviado. */
   :root { color-scheme: dark;
     --fundo:#1c2010; --painel:#2b3320; --painel2:#3c4627; --borda:#14170c;
     --texto:#f2e8ce; --sub:#a9a184; --ouro:#eba748; --papel:#e9d8ae; --tinta:#33240f;
     --good:#7d9a3c; --run:#71a39c; }
-  body { margin: 0; padding: 16px 24px 24px; background: var(--fundo); color: var(--texto);
-         font: 15px/1.5 "Cascadia Mono", Consolas, ui-monospace, monospace; }
+  body { margin: 0; padding: 14px 22px 24px; background: var(--fundo); color: var(--texto);
+         font: 17px/1.5 "Cascadia Mono", Consolas, ui-monospace, monospace; }
   /* A BARRA DO TOPO É FINA DE PROPÓSITO. O REVISAR é um botão, não uma seção: ele existe
      para recontar a fila, não para ser lido. Título, botão e placar cabem numa faixa só,
      e a primeira lista começa logo abaixo — o critério do dono é que a primeira coisa que
      ele vê ao abrir seja uma coisa que ele pode RESOLVER agora. */
   .barra { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-           border-bottom: 2px solid var(--borda); padding-bottom: 10px; margin-bottom: 4px; }
-  .barra h1 { font-size: 15px; margin: 0; letter-spacing: .22em; color: var(--ouro);
+           border-bottom: 2px solid var(--borda); padding-bottom: 9px; margin-bottom: 4px; }
+  .barra h1 { font-size: 19px; margin: 0; letter-spacing: .18em; color: var(--ouro);
        text-shadow: 0 2px 0 var(--borda); flex: 0 0 auto; }
-  .barra button { margin: 0; padding: 5px 12px; font-size: 12px; }
-  .barra .placar { color: var(--sub); font-size: 12px; flex: 1 1 auto; }
-  .sub { color: var(--sub); font-size: 12px; }
+  .barra button { margin: 0; padding: 5px 13px; font-size: 15px; }
+  .barra .placar { color: var(--sub); font-size: 16px; flex: 1 1 auto; }
+  .sub { color: var(--sub); font-size: 16px; }
   .bloco { background: var(--painel); border: 2px solid var(--borda);
     box-shadow: 0 4px 0 var(--borda); padding: 14px 16px; }
-  .bloco h2 { font-size: 11px; letter-spacing: .28em; color: var(--sub);
+  .bloco h2 { font-size: 16px; letter-spacing: .16em; color: var(--sub);
     margin: 0 0 9px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-  .linha { display: flex; gap: 12px; padding: 6px 0; align-items: baseline; font-size: 13px; }
+  .linha { display: flex; gap: 12px; padding: 5px 0; align-items: baseline; font-size: 16px; }
   .linha + .linha { border-top: 1px solid rgba(20,23,12,.35); }
-  .marca { color: var(--sub); font-size: 11px; min-width: 92px; flex: 0 0 auto; }
-  .selo { font-size: 10px; letter-spacing: .12em; padding: 2px 8px; border: 2px solid var(--borda);
+  .marca { color: var(--sub); font-size: 15px; min-width: 108px; flex: 0 0 auto; }
+  .selo { font-size: 14px; letter-spacing: .08em; padding: 1px 8px; border: 2px solid var(--borda);
     box-shadow: 2px 2px 0 var(--borda); flex: 0 0 auto; margin-left: auto; }
   .sVoo { background: var(--run); color: #101b19; animation: pulsa 1.6s ease-in-out infinite; }
   .sFeito { background: var(--good); color: #141b08; }
@@ -47,50 +69,54 @@
   .sFrio { background: #4a3a1a; color: #ffcd75; }
   @keyframes pulsa { 50% { opacity: .5 } }
   @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
-  .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 26px 0 9px;
-    text-transform: uppercase; display: flex; align-items: baseline; gap: 10px; }
-  .secao.primeira { margin-top: 14px; }   /* a lista de cima cola na barra: nada rouba o topo */
-  .conta { font-size: 10px; letter-spacing: .12em; padding: 2px 8px;
+  /* O TÍTULO DAS DUAS LISTAS É O MAIOR TEXTO DA PÁGINA, e é o único lugar onde tamanho vale
+     por si: ele separa as seções de longe, sem que ninguém precise ler. */
+  .secao { font-size: 21px; letter-spacing: .12em; color: var(--texto); margin: 24px 0 9px;
+    text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+  .secao.primeira { margin-top: 12px; }   /* a lista de cima cola na barra: nada rouba o topo */
+  .conta { font-size: 14px; letter-spacing: .08em; padding: 2px 8px;
     border: 2px solid var(--borda); box-shadow: 2px 2px 0 var(--borda);
     background: var(--ouro); color: #221a06; }
   .conta:empty { display: none; }
-  .pedido { border: 2px solid var(--borda); padding: 16px; margin-bottom: 16px;
+  /* O `padding` do cartão e o da área de colar são o RESPIRO que pagou o texto maior: 16 -> 13
+     e 18 -> 12. Nenhuma palavra saiu para o cartão continuar cabendo inteiro numa tela de 800. */
+  .pedido { border: 2px solid var(--borda); padding: 13px 14px; margin-bottom: 14px;
             background: var(--painel); box-shadow: 0 4px 0 var(--borda); }
   /* Piscada de ouro quando o Ctrl+V da página inteira escolhe este cartão: sem ela, colar
      fora do campo parece não ter acontecido — ou pior, ter acontecido no pedido errado. */
   .pedido.recebeu { outline: 3px solid var(--ouro); outline-offset: 2px; }
-  .titulo { font-weight: 600; margin-bottom: 2px; }
-  .ref { color: #8d8a80; font-size: 13px; margin-bottom: 10px; }
+  .titulo { font-weight: 600; font-size: 19px; margin-bottom: 3px; line-height: 1.35; }
+  .ref { color: #a09c92; font-size: 15px; margin-bottom: 8px; line-height: 1.4; }
   /* O PROMPT VEM DOBRADO. O dono pediu "o prompt pronto para copiar em um toque" — quem
      copia não precisa ler, e um quadro de texto por cartão era metade da altura da página.
      O botão de copiar é a ação principal; o texto abre por baixo para quem quiser conferir. */
-  details.dobra { margin: 0 0 10px; }
-  details.dobra > summary { cursor: pointer; color: var(--sub); font-size: 12px;
-    letter-spacing: .06em; list-style: none; padding: 4px 0; }
+  details.dobra { margin: 0 0 9px; }
+  details.dobra > summary { cursor: pointer; color: var(--sub); font-size: 16px;
+    letter-spacing: .04em; list-style: none; padding: 3px 0; }
   details.dobra > summary::-webkit-details-marker { display: none; }
   details.dobra > summary::before { content: "▸ "; }
   details.dobra[open] > summary::before { content: "▾ "; }
   .prompt { background: #101218; border: 1px solid #2c3038; border-radius: 6px; padding: 10px;
-            font: 12px/1.45 ui-monospace, monospace; color: #b8c9a8; white-space: pre-wrap;
-            max-height: 260px; overflow: auto; }
-  .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 18px; text-align: center;
-          color: #8d8a80; cursor: text; outline: none; font-size: 14px; }
-  .cola:focus { border-color: #6fdd94; color: #b8c9a8; }
+            font: 17px/1.45 ui-monospace, monospace; color: #c3d4b3; white-space: pre-wrap;
+            max-height: 320px; overflow: auto; }
+  .cola { border: 2px dashed #3a4049; border-radius: 6px; padding: 12px; text-align: center;
+          color: #a09c92; cursor: text; outline: none; font-size: 17px; }
+  .cola:focus { border-color: #6fdd94; color: #c3d4b3; }
   .cola.tem { border-style: solid; border-color: var(--good); padding: 8px; }
   /* arrastando por cima: o alvo acende, para o dedo saber onde soltar */
   .cola.sobre { border-style: solid; border-color: var(--ouro); background: rgba(235,167,72,.10);
                 color: var(--ouro); }
   .cola img { max-width: 100%; max-height: 260px; display: block; margin: 0 auto; }
-  .estado { font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .estado { font-size: 16px; margin-top: 7px; min-height: 20px; }
   .ok { color: #6fdd94; } .erro { color: #e0603a; }
   button { background: var(--ouro); color: #221a06; border: 2px solid var(--borda);
            box-shadow: 0 3px 0 var(--borda); padding: 8px 16px;
-           font: 600 14px system-ui; cursor: pointer; margin-top: 10px; }
+           font: 600 16px system-ui; cursor: pointer; margin-top: 9px; }
   button:disabled { background: #2c3038; color: #6b6862; cursor: default; }
-  button.secundario { background: #2c3038; color: #d8d5cc; margin: 0 0 10px; padding: 6px 12px;
-                      font-size: 13px; }
-  .vazio { color: #8d8a80; font-size: 14px; }
-  .rodape { color: var(--sub); font-size: 11px; margin: 10px 0 0; letter-spacing: .04em; }
+  button.secundario { background: #2c3038; color: #e0ddd4; margin: 0 0 9px; padding: 6px 13px;
+                      font-size: 15px; }
+  .vazio { color: #a09c92; font-size: 17px; }
+  .rodape { color: var(--sub); font-size: 15px; margin: 10px 0 0; letter-spacing: .02em; }
   .divisa { border: 0; border-top: 1px solid rgba(20,23,12,.55); margin: 14px 0 10px; }
   /* UMA LINHA POR COMMIT. Um assunto de vinte palavras quebrava em seis linhas e um único
      commit ocupava mais altura que os quatro arquivos abertos acima dele — o painel dizia
@@ -100,23 +126,31 @@
              white-space: nowrap; }
   /* A LINHA DO QUE ESTÁ COMIGO. Era um bloco com 12 nomes; virou contagem, e desceu para o
      fim junto com o resto — lista o que está na MINHA mão, não na dele. */
-  #comigo { color: var(--sub); font-size: 12px; margin: 14px 0 0; }
+  #comigo { color: var(--sub); font-size: 16px; margin: 14px 0 0; }
   /* PERGUNTAS: o que está parado esperando ele decidir. */
   .rmItem { background: #191c23; border: 1px solid #2c3038; border-radius: 6px;
-            padding: 9px 12px; margin-bottom: 6px; }
+            padding: 8px 12px; margin-bottom: 6px; }
   /* O TÍTULO DE CADA PERGUNTA JÁ É A PERGUNTA, então ele é o que fica à vista e o corpo
      dobra atrás dele. Doze perguntas abertas davam 4.159 px de rolagem — mais que as duas
      outras seções somadas, e ninguém decide doze coisas de uma vez. Dobrado, ele vê a lista
      inteira de uma olhada e abre a que vai responder. */
-  .rmT { font-size: 13px; color: #e8e6df; font-weight: 600; cursor: pointer;
-         list-style: none; padding: 2px 0; }
+  .rmT { font-size: 17px; color: #f0eee7; font-weight: 600; cursor: pointer;
+         list-style: none; padding: 2px 0; line-height: 1.35; }
   .rmT::-webkit-details-marker { display: none; }
-  .rmT::before { content: "▸ "; color: var(--sub); }
-  details[open] > .rmT::before { content: "▾ "; }
-  .rmN { font-size: 12px; color: #8d8a80; margin-top: 5px; line-height: 1.55; white-space: pre-wrap; }
-  .rmResp { width: 100%; box-sizing: border-box; margin-top: 9px; padding: 8px 10px;
+  /* A SETA SÓ EM QUEM ABRE. A caixa de recusa dentro do cartão reaproveita `.rmT` para ter o
+     mesmo peso de título, mas ela não dobra — e com o texto maior a seta virou uma promessa
+     visível de um clique que não existe. Escopo em `summary` e o problema some. */
+  summary.rmT::before { content: "▸ "; color: var(--sub); }
+  details[open] > summary.rmT::before { content: "▾ "; }
+  .rmT { cursor: default; }
+  summary.rmT { cursor: pointer; }
+  /* O corpo da pergunta é o texto mais LIDO da mesa: é o que ele precisa entender para
+     decidir. Fica em 17 px e num cinza mais claro que o de antes — contraste e tamanho são
+     a mesma queixa vista de dois lados. */
+  .rmN { font-size: 17px; color: #a8a49a; margin-top: 6px; line-height: 1.55; white-space: pre-wrap; }
+  .rmResp { width: 100%; box-sizing: border-box; margin-top: 9px; padding: 9px 11px;
     background: #101218; border: 1px solid #2c3038; border-radius: 5px; color: #e8e6df;
-    font: 13px/1.5 system-ui, sans-serif; resize: vertical; min-height: 38px; }
+    font: 17px/1.5 system-ui, sans-serif; resize: vertical; min-height: 44px; }
   .rmResp:focus { outline: none; border-color: #6fdd94; }
 </style>
 </head>
