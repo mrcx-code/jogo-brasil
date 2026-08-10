@@ -632,6 +632,49 @@ const sec = t => log('\n---- ' + t);
   ok(previa, 'a imagem está em dist/, que é de onde a Vercel publica');
   ok(kb > 0 && kb < 400, 'e ela pesa ' + kb + ' KB — o robô da prévia desiste de imagem grande');
 
+  // ============================================================
+  // 15 · O CAPÍTULO EM OBRA NÃO AFIRMA HISTÓRIA
+  //
+  // Os doze capítulos do arco existem na estrutura desde 09/08 (decisão do dono: "garantir
+  // que tudo já exista e tenha como placeholder"). O risco que isso cria é UM só e é §2:
+  // alguém preenche um placeholder com "uma frase só para não ficar vazio", e o jogo passa a
+  // afirmar história sem fonte — em silêncio, porque nenhum teste olhava para o texto de um
+  // capítulo em obra. Aqui se cobra o mínimo verificável por máquina: NENHUM DÍGITO na fala
+  // de um capítulo em obra. Data, quantidade e ano são o que exige fonte, e o `quando` (que
+  // é o RECORTE do arco, não uma afirmação solta) fica de fora da varredura de propósito.
+  //
+  // E mais duas amarras estruturais que, quebradas, não dão erro nenhum: AINDA AQUI tem de
+  // continuar sendo o ÚLTIMO (a tela de CHEGADA diz o nome dele em voz alta), e todo capítulo
+  // tem de apontar para um bloco de arte que existe.
+  // ============================================================
+  sec('15 · capítulo em obra: existe, é jogável, e não afirma nada');
+  const obra = await page.evaluate(() => ({
+    n: EPOCAS.length,
+    ultimo: EPOCAS[EPOCAS.length - 1].nome,
+    emObra: EPOCAS.filter(e => e.emObra).map(e => e.nome),
+    comDigito: EPOCAS.filter(e => e.emObra)
+      .filter(e => [...e.abertura, ...e.fecho].some(l => /\d/.test(l))).map(e => e.nome),
+    arteFora: EPOCAS.filter(e => e.arteCap == null || e.arteCap < 0 || e.arteCap >= HERO_CAP_B64.length)
+      .map(e => e.nome),
+    cenaFora: EPOCAS.filter(e => (e.arte || []).some(i => i < 0 || i >= CENARIO_ALTO_B64.length))
+      .map(e => e.nome),
+    mascara: MASCARA_EPOCAS, acolhidos: S.acolhidos.length, cenas: TOTAL_CENAS, fim: LIMIAR_FIM
+  }));
+  log('   ' + obra.n + ' capítulos, ' + obra.emObra.length + ' em obra | ' + obra.cenas +
+    ' cenas | LIMIAR_FIM ' + obra.fim + ' | máscara ' + obra.mascara);
+  log('   em obra: ' + obra.emObra.join(' · '));
+  ok(obra.ultimo === 'AINDA AQUI', 'AINDA AQUI continua sendo o último capítulo (a CHEGADA depende disso)');
+  ok(!obra.comDigito.length, obra.comDigito.length
+    ? 'capítulo em obra escrevendo número: ' + obra.comDigito.join(', ')
+    : 'nenhum capítulo em obra escreve dígito na fala — sem fonte, não se afirma');
+  ok(!obra.arteFora.length, 'todo capítulo aponta para um bloco de arte que existe' +
+    (obra.arteFora.length ? ' — fora: ' + obra.arteFora.join(', ') : ''));
+  ok(!obra.cenaFora.length, 'toda cena declarada tem pintura' +
+    (obra.cenaFora.length ? ' — fora: ' + obra.cenaFora.join(', ') : ''));
+  ok(obra.acolhidos === obra.n, 'S.acolhidos tem uma posição por capítulo (' + obra.acolhidos + ')');
+  ok(obra.mascara === (Math.pow(2, obra.n) - 1) && obra.n < 31,
+    'a máscara de bits das falas cabe nos ' + obra.n + ' capítulos');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

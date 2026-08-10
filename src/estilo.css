@@ -713,6 +713,9 @@
      1. NENHUMA FIGURA HUMANA (§2.4): o retrato de quem fala sai. A caixa fica sozinha
         sobre a água, e é a voz do jogo falando, não a de uma personagem em cena. */
   body.travessando #falaRetrato { display: none; }
+  /* E pelo MESMO motivo — ninguém é escalado sem decisão de representação — o retrato sai na
+     abertura e no fecho de um capítulo EM OBRA. A regra mora em `mostrarFala()`, no jogo.ts. */
+  #falaRetrato.oculta { display: none; }
   /* 2. O BOTÃO DOURADO CONTINUA ALI E NÃO FAZ NADA. O bloco de controles é trazido de volta
         por cima da tela de fala (`body.emTela` o havia mandado embora, como manda em toda
         tela) — mas só ele: os cartões de ritmo, melhorias e menu somem, porque são

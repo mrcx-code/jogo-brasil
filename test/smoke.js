@@ -140,7 +140,7 @@ function alvo() {
     // folhas por capitulo: media do vao sorteado em cada epoca
     const media = function (n) { let s = 0; for (let i = 0; i < n; i++) s += sorteiaFolha(); return s / n; };
     S.cenario = cenarioDaEpoca(0); const vao1 = media(400), valor1 = CFG.folhaValor * fatorFolha();
-    S.cenario = cenarioDaEpoca(2); const vao3 = media(400), valor3 = CFG.folhaValor * fatorFolha();
+    S.cenario = cenarioDaEpoca(CAP_PALAVRA); const vao3 = media(400), valor3 = CFG.folhaValor * fatorFolha();
     S.cenario = capAntes;
     return { comU1, textoU1, semU1, razaoVao: +(vao3 / vao1).toFixed(2), razaoValor: +(valor3 / valor1).toFixed(2) };
   });
@@ -318,7 +318,10 @@ function alvo() {
   //   3. NADA DISSO E COMBATE — sem pisca branco e sem empurrao sobre pessoa (§2).
   const palavra = await page.evaluate(async () => {
     const cenarioAntes = S.cenario, cuidadoAntes = S.cuidado;
-    S.cenario = cenarioDaEpoca(2);                  // SALVADOR
+    // POR IDENTIDADE, nunca por posicao: SALVADOR deixou de ser a epoca 2 no dia em que os
+    // capitulos em obra entraram na cronologia (O CAIS vem antes dele). `CAP_PALAVRA` e o
+    // proprio motor dizendo qual capitulo tem a corrente.
+    S.cenario = cenarioDaEpoca(CAP_PALAVRA);          // SALVADOR
     mobs.length = 0; drops.length = 0; parts.length = 0;
     palavraDedo = 0; palavraCorrente = 0;
     S.cuidado = 0.5; cuidadoVisto = 0.5;
@@ -919,7 +922,8 @@ function alvo() {
       // mais nada — a hora de partida seria apagada antes da cerimonia. O contrato sob teste
       // continua o mesmo (virada de CAPITULO termina no nascer do sol) e agora e medido numa
       // virada sem travessia. A travessia tem bloco proprio, logo abaixo do FLUXO 3.
-      S.cenario = cenarioDaEpoca(2) - 1;         // last scene of chapter 2
+      // a ultima cena do capitulo ANTERIOR ao terceiro da lista, dita por identidade
+      S.cenario = cenarioDaEpoca(iEp('cais')) - 1;   // last scene of PALMARES
       S.energiaTotal = LIMIARES[S.cenario] - 3;  // parked just under the turn
       S.aberturas = 3; S.fechos = 1;             // chapters 1-2 read; chapter 2's close unseen
       S.travessias = MASCARA_TRAVESSIAS;         // the crossing behind us, so it cannot replay

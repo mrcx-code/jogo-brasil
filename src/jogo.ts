@@ -491,7 +491,15 @@ function pular() {
 // 1,5x o vão, cap 3 tem 2x. Quem PULA não perde renda: o valor da folha sobe pelo MESMO
 // fator lá embaixo — metade das folhas valendo o dobro é a mesma renda por quilômetro de
 // mata, só com menos coisa na tela.
-function fatorFolha() { return 1 + 0.5 * epocaAtual(); }
+// O RALEIO DA MATA — e por que ele conta BLOCO DE ARTE e não posição na lista.
+// A regra medida em 2026-08-07 é "a mata raleia por capítulo, e o valor da folha sobe pelo
+// mesmo fator, então a renda por km não muda": ×1 no primeiro, ×1,5, ×2, ×2,5. Com a posição
+// crua, os doze capítulos do arco levariam o fator a ×6,5 — a folha praticamente sumiria da
+// tela — e ninguém mediu isso. Contando `blocoArte()`, os quatro capítulos que existem ficam
+// EXATAMENTE com os fatores medidos e um capítulo em obra herda o do bloco que ele empresta.
+// ⚠ A escala continua aberta para quando os doze forem construídos de verdade: aí ela é
+// decisão de ECONOMIA, com medição antes/depois, e está registrada no NOTES.md como tal.
+function fatorFolha() { return 1 + 0.5 * blocoArte(epocaAtual()); }
 function sorteiaFolha() { return (34 + Math.random() * 84) * fatorFolha(); }
 function atualizarFolhas(dt, alto) {
   folhaChao += dt * velocidadeMundo();
@@ -1635,7 +1643,7 @@ const EPOCAS = [
     // mesma ordem). Era a posição da época, e deixou de poder ser: com capítulo em obra no
     // meio da cronologia, posição e bloco de arte descolam. Quem tem arte própria aponta
     // para o bloco dela; quem está em obra aponta para o do capítulo de que herda o motor.
-    arteCap: 0,
+    emObra: false, arteCap: 0,
     cenas: 2, lugar: "litoral", arte: [0, 1],
     abertura: [
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
@@ -1671,7 +1679,7 @@ const EPOCAS = [
     id: "palmares",
     nome: "PALMARES",
     quando: "serra da Barriga, Alagoas · século XVII",
-    arteCap: 1,
+    emObra: false, arteCap: 1,
     cenas: 2, lugar: "palmares", arte: [2, 3],
     abertura: [
       "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
@@ -1689,6 +1697,53 @@ const EPOCAS = [
       "Quase tudo que se sabe sobre a forma daquele lugar vem dos documentos de quem foi atacá-lo. Até os nomes chegaram tortos: a pesquisa recente lê \"Gana Zumba\" onde os livros escreviam \"Ganga Zumba\".",
       "A serra da Barriga é patrimônio tombado hoje. Levou quase três séculos.",
       "E os povos do primeiro capítulo? Continuam aqui."
+    ]
+  },
+  // ============================================================
+  // OS CAPÍTULOS EM OBRA — `emObra: true`
+  //
+  // Decisão do dono (2026-08-09): *"ainda não vamos lançar sem ter tudo, então garantir que
+  // tudo já exista e tenha como placeholder até construirmos cada item."* Os doze capítulos do
+  // arco aprovado (NOTES.md, "O arco até hoje") passam a EXISTIR na estrutura desde já, na
+  // posição cronológica definitiva, para que a integração se descubra agora e não no fim.
+  //
+  // A REGRA QUE OS GOVERNA, E ELA É §2: **um capítulo em obra não afirma história nenhuma.**
+  // Ele pode dizer o nome, o quando (o RECORTE do arco aprovado, não um fato solto), o verbo
+  // do motor quando já foi escolhido, e que ainda está sendo escrito. Uma linha de afirmação
+  // histórica sem fonte conferida vale menos que um capítulo vazio — porque um capítulo vazio
+  // se preenche, e uma frase errada já foi lida. Nenhum destes objetos carrega número, nome
+  // de pessoa ou acontecimento.
+  //
+  // O QUE ACONTECE COM QUEM CHEGA AQUI JOGANDO (decisão registrada no NOTES.md): o capítulo é
+  // JOGÁVEL, com o motor genérico — o mundo nunca fica sem chão. Duas heranças, e cada uma tem
+  // razão própria:
+  //   · `arteCap: 3` — a personagem, os objetos da rua e o retrato vêm de AINDA AQUI, o único
+  //     bloco de arte cuja rua é feita de COISAS. É §2 e não estética: PALMARES e SALVADOR são
+  //     os capítulos em que quem atravessa a tela é GENTE, e isso só se sustenta com o texto
+  //     que explica por quê. Sem esse texto escrito, pessoa na rua não entra.
+  //   · `arte: [...]` — a PINTURA é a do capítulo anterior. O mundo não se teletransporta: a
+  //     rua continua a rua, que é exatamente o que a abertura diz em voz alta.
+  //
+  // Ao construir um destes capítulos: troque o texto, dê a ele `arte`/`arteCap` próprios,
+  // ajuste `cenas` se ele merecer mais de uma, apague `emObra` — e copie a linha de hoje para
+  // o fim de `ARCOS_ANTIGOS` se `cenas` mudar (o procedimento está escrito lá).
+  // ============================================================
+  {
+    id: "cais",
+    nome: "O CAIS QUE VOLTOU À LUZ",
+    quando: "Rio de Janeiro · século XIX",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "cais", arte: [3],
+    abertura: [
+      "Este capítulo se chama O CAIS QUE VOLTOU À LUZ, e ele ainda está sendo escrito.",
+      "O lugar dele na travessia já está marcado, e o verbo que ele vai pedir da sua mão também: cavar para saber. O que ele tem para contar, não — enquanto cada frase não tiver fonte conferida, este capítulo não afirma nada.",
+      "Até lá a rua continua a rua, com o trabalho que você já sabe fazer. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho — e ele não te contou história nenhuma. Isso foi de propósito: este jogo não inventa passado para tapar buraco.",
+      "Quando a pesquisa estiver conferida, o capítulo volta com o que tem a dizer, e a tela DE ONDE VEM vai dizer de onde veio."
     ]
   },
   {
@@ -1713,7 +1768,7 @@ const EPOCAS = [
     // UMA cena, e não duas como as outras: chegou UMA pintura. Duas cenas com a mesma pintura
     // custariam 260 KB para repetir o quadro; o motor N-capítulos aceita o número que a época
     // declarar. Quando a segunda pintura chegar, este 1 vira 2 e nada mais muda.
-    arteCap: 2,
+    emObra: false, arteCap: 2,
     cenas: 1, lugar: "salvador", arte: [4],
     abertura: [
       "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
@@ -1734,6 +1789,132 @@ const EPOCAS = [
     ]
   },
   {
+    id: "jabaquara",
+    nome: "JABAQUARA",
+    quando: "Santos, São Paulo · 1887–1888",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "jabaquara", arte: [4],
+    abertura: [
+      "Este capítulo se chama JABAQUARA, e ele ainda está sendo escrito.",
+      "O verbo dele ainda não foi escolhido, e o que ele tem para contar ainda não passou pela conferência de fonte. Até que passe, ele não diz — dizer sem saber seria o oposto do que este jogo faz.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. Ele calou o que não podia afirmar ainda, e é assim que se conserta um jogo que promete ensinar.",
+      "Ele e o próximo vêm juntos quando vierem: um sem o outro contaria metade, e metade aqui é engano."
+    ]
+  },
+  {
+    id: "pequenaafrica",
+    nome: "A PEQUENA ÁFRICA",
+    quando: "Rio de Janeiro · começo do século XX",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "pequenaafrica", arte: [4],
+    abertura: [
+      "Este capítulo se chama A PEQUENA ÁFRICA, e ele ainda está sendo escrito.",
+      "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido; a pesquisa ainda não fechou. Nada aqui vai ser afirmado antes disso.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho, e outra vez sem história: o que não tem fonte conferida não vira fala.",
+      "O espaço dele está guardado. É só isso que este capítulo afirma hoje."
+    ]
+  },
+  {
+    id: "portas",
+    nome: "AS PORTAS",
+    quando: "1932–1985",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "portas", arte: [4],
+    abertura: [
+      "Este capítulo se chama AS PORTAS, e ele ainda está sendo escrito.",
+      "O recorte de tempo dele já está decidido; o verbo, não. E nenhuma linha entra aqui sem norma, número de processo ou registro de órgão para sustentá-la.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. Um capítulo em obra prefere ficar em silêncio a te contar coisa que ninguém conferiu.",
+      "Quando ele abrir, abre com a fonte junto — como todos os outros."
+    ]
+  },
+  {
+    id: "naodito",
+    nome: "O QUE NÃO PODIA SER DITO",
+    quando: "1964–1985",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "naodito", arte: [4],
+    abertura: [
+      "Este capítulo se chama O QUE NÃO PODIA SER DITO, e ele ainda está sendo escrito.",
+      "O verbo dele já tem nome — fazer passar — e é de propósito que ele rime com o que a rua de SALVADOR já te pôs na mão, muito tempo antes. O resto espera a leitura dos documentos.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. Este é dos capítulos em que dizer errado custa mais caro, e por isso ele fica quieto até ter o documento na mão.",
+      "Ele e o próximo vêm juntos quando vierem: terminar aqui deixaria o jogo parado na parte pior."
+    ]
+  },
+  {
+    id: "praca",
+    nome: "A PRAÇA",
+    quando: "1984–1988",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "praca", arte: [4],
+    abertura: [
+      "Este capítulo se chama A PRAÇA, e ele ainda está sendo escrito.",
+      "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido, e nada será afirmado antes da conferência.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. O espaço está guardado, e guardar espaço é a única promessa que um capítulo em obra pode cumprir.",
+      "O que ele vai dizer, ele ainda vai ter de provar."
+    ]
+  },
+  {
+    id: "segurou",
+    nome: "O QUE SEGUROU",
+    quando: "2020–2022",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "segurou", arte: [4],
+    abertura: [
+      "Este capítulo se chama O QUE SEGUROU, e ele ainda está sendo escrito.",
+      "O verbo dele já tem nome: chegar na última casa. Quem ele acompanha é quem sustenta, não quem governa. O que ele vai afirmar depende de registro de órgão e de decisão com número de processo — e nada disso está conferido ainda.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. Este é história recente, e história recente sem documento na mesa é opinião com roupa de fato.",
+      "Ele volta quando o documento estiver na mesa."
+    ]
+  },
+  {
+    id: "temfonte",
+    nome: "O QUE TEM FONTE",
+    quando: "hoje",
+    emObra: true,
+    arteCap: 3,
+    cenas: 1, lugar: "temfonte", arte: [4],
+    abertura: [
+      "Este capítulo se chama O QUE TEM FONTE, e ele ainda está sendo escrito.",
+      "O verbo dele já tem nome: conferir de onde vem. Ele é a tela DE ONDE VEM virando capítulo — e seria estranho justamente ele estrear sem ter conferido o que diz.",
+      "A rua continua a rua. O que passa precisa de alguém."
+    ],
+    aberturaImg: [null, null, null],
+    fecho: [
+      "Fim do trecho. Enquanto ele não abre, a tela DE ONDE VEM continua fazendo o trabalho dele no menu.",
+      "Ela lista tudo o que este jogo afirma — inclusive onde as fontes discordam entre si."
+    ]
+  },
+  {
     // ===== O PRESENTE FICA SEMPRE POR ÚLTIMO =====
     // Este objeto é a ÚLTIMA posição de `EPOCAS` e continua sendo depois de cada capítulo
     // novo. A ordem da lista é a ordem CRONOLÓGICA, e "hoje" é o fim dela por definição:
@@ -1748,7 +1929,7 @@ const EPOCAS = [
     id: "hoje",
     nome: "AINDA AQUI",
     quando: "terra indígena demarcada · hoje",
-    arteCap: 3,
+    emObra: false, arteCap: 3,
     cenas: 2, lugar: "hoje", arte: [5, 6],
     abertura: [
       "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
@@ -2050,7 +2231,13 @@ const ESQUEMA_SAVE = {
 type LinhaArco = [string, number][];      // [id da época, quantas cenas ela tinha]
 const ARCOS_ANTIGOS: LinhaArco[] = [
   // ARCO 0 — o de três capítulos: litoral(0,1) · Palmares(2,3) · hoje(4,5).
-  [["pindorama", 2], ["palmares", 2], ["hoje", 2]]
+  [["pindorama", 2], ["palmares", 2], ["hoje", 2]],
+  // ARCO 1 — o de quatro, com SALVADOR já no meio: litoral(0,1) · Palmares(2,3) ·
+  // Salvador(4) · hoje(5,6). Esta linha foi copiada para cá em 2026-08-09, ao entrarem os
+  // OITO capítulos em obra do arco de doze: quem parou em AINDA AQUI na cena 5 do arco 1
+  // acordaria em JABAQUARA sem ela. É exatamente o procedimento descrito acima, e a
+  // primeira vez que ele foi exercido de verdade.
+  [["pindorama", 2], ["palmares", 2], ["salvador", 1], ["hoje", 2]]
 ];
 // A última linha é sempre a de HOJE, e ela se descreve sozinha a partir de `EPOCAS`: não há
 // como esquecer de atualizá-la.
@@ -3679,7 +3866,11 @@ function escalaQueCabe(txt, esc, larg) {
   return Math.max(1, Math.floor(larg / w));
 }
 function pixelRotulo(el, txt, esc, cor, contorno?) {
-  const t = String(txt).toUpperCase().replace(/—/g, "-");
+  // O TRAVESSÃO E O MEIO-RISCO CAEM NO HÍFEN. Só o `—` era normalizado; o `–` (o traço de
+  // intervalo, o que se usa em "1964–1985") não tem glifo e saía como "?" na tábua da era —
+  // a fonte inventando pontuação no meio de uma data. Achado ao pôr os doze capítulos na
+  // lista: `1887–1888` virou `1887?1888` no print, sem erro nenhum de console.
+  const t = String(txt).toUpperCase().replace(/[—–]/g, "-");
   const chave = t + "|" + esc + "|" + cor + "|" + (contorno || "");
   if (el.dataset.px === chave) return;
   el.dataset.px = chave;
@@ -7333,7 +7524,16 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   const arte = HERO_CAP_B64[iCap] || HERO_CAP_B64[0];
   const retrato = (typeof RETRATO_B64 !== "undefined" && RETRATO_B64[iCap])
     || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
-  if (retrato && r.getAttribute("src") !== retrato) (r as HTMLImageElement).src = retrato;
+  // CAPÍTULO EM OBRA FALA SEM ROSTO — e isto é §2, não layout.
+  // O retrato é "a pessoa daquela época". Um capítulo em obra empresta o bloco de arte de
+  // AINDA AQUI (ver o cabeçalho de `emObra`), e o print da primeira montagem mostrou o custo
+  // disso na cara: a protagonista indígena do presente anunciando JABAQUARA. Escalar quem
+  // representa um capítulo é decisão do dono (§2, "na dúvida sobre representação, pare e
+  // pergunte"), e emprestar um rosto por conveniência técnica é decidir sem perguntar.
+  // Então ninguém é escalado: enquanto o capítulo não tem a pessoa dele, a caixa fala sozinha.
+  const semRosto = !!(EPOCAS[epocaAtual()] as { emObra?: boolean }).emObra;
+  r.classList.toggle("oculta", semRosto);
+  if (!semRosto && retrato && r.getAttribute("src") !== retrato) (r as HTMLImageElement).src = retrato;
   // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
   // quando ela solta — senão a primeira linha se escreveria escondida.
   if (cerimonia) {
@@ -7707,12 +7907,23 @@ function montarCapitulos() {
     const n = document.createElement("div");
     n.className = "capNome";
     pixelRotulo(n, livre ? ep.nome : "ERA " + (i + 1), 2, tintaNome);
+    // A LINHA DE BAIXO SÓ EXISTE QUANDO TEM O QUE DIZER. O comentário acima já prometia isso
+    // ("nas de trás dela, seria ruído repetido") e o código não cumpria: escrevia "AINDA
+    // TRANCADA" em TODAS. Com quatro capítulos era uma linha repetida; com doze, o print do
+    // dia 1 mostrou DEZ tábuas idênticas — a tela que existe para mostrar o que falta virando
+    // uma parede. Agora só a PRÓXIMA instrui; as de trás dela são o ordinal, e só.
+    const dizer = livre ? "" : (proxima ? "TERMINE A ERA ANTERIOR" : "");
     const q = document.createElement("div");
     q.className = "capQuando";
+    // EM OBRA, e dito na tábua. O dono pediu que os doze capítulos EXISTAM antes de estarem
+    // prontos; uma tábua que existe e não avisa que está em obra é pior que ausência, porque
+    // quem entra acha que o jogo quebrou. O quando continua na frente — ele é o lugar do
+    // capítulo na travessia, que é justamente o que a estrutura já garante.
+    const obra = livre && !!(ep as { emObra?: boolean }).emObra;
     // último rótulo de sistema nas tábuas de era — vai para a fonte da casa
-    pixelRotulo(q, livre ? ep.quando : (proxima ? "TERMINE A ERA ANTERIOR" : "AINDA TRANCADA"),
-      1, tintaQuando);
-    b.appendChild(n); b.appendChild(q);
+    const linha2 = livre ? (ep.quando + (obra ? " · EM OBRAS" : "")) : dizer;
+    if (linha2) pixelRotulo(q, linha2, 1, tintaQuando);
+    b.appendChild(n); if (linha2) b.appendChild(q);
     if (livre) b.addEventListener("pointerdown", function (e) {
       e.preventDefault();
       // Entrar numa era conta a história SEMPRE — decisão do dono ("cadê a historinha"):

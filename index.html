@@ -17,7 +17,25 @@
      logs a warning. Clickjacking protection has to come from an HTTP header, so if this is
      ever hosted somewhere that matters, set X-Frame-Options or frame-ancestors there. -->
 <meta name="apple-mobile-web-app-title" content="BRASIL">
-<title>BRASIL</title>
+<title>BRASIL — um jogo sobre a história do Brasil</title>
+<!-- O CARTÃO DO LINK. Sem isto, o jogo vira um retângulo cinza no WhatsApp — que é por onde
+     ele vai circular. Estas tags NÃO são carregadas pelo jogo: quem as lê é o robô que monta
+     a prévia do link, e por isso a imagem apontada aqui é a única coisa fora do arquivo único
+     (o `construir.js` a copia para `dist/`). A regra do §3.1 continua valendo para o JOGO.
+     ⚠ O ENDEREÇO É PROVISÓRIO. Enquanto não houver domínio próprio, aponta para a Vercel; no
+     dia em que o domínio existir, estas três URLs mudam JUNTAS ou a prévia quebra em silêncio
+     — robô de rede social não avisa, só mostra o retângulo cinza de volta. -->
+<meta name="description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRASIL">
+<meta property="og:title" content="BRASIL — um jogo sobre a história do Brasil">
+<meta property="og:description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
+<meta property="og:url" content="https://jogo-brasil-mrcx.vercel.app">
+<meta property="og:image" content="https://jogo-brasil-mrcx.vercel.app/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root {
     /* ---- A LÍNGUA DO CHROME ----
@@ -733,6 +751,9 @@
      1. NENHUMA FIGURA HUMANA (§2.4): o retrato de quem fala sai. A caixa fica sozinha
         sobre a água, e é a voz do jogo falando, não a de uma personagem em cena. */
   body.travessando #falaRetrato { display: none; }
+  /* E pelo MESMO motivo — ninguém é escalado sem decisão de representação — o retrato sai na
+     abertura e no fecho de um capítulo EM OBRA. A regra mora em `mostrarFala()`, no jogo.ts. */
+  #falaRetrato.oculta { display: none; }
   /* 2. O BOTÃO DOURADO CONTINUA ALI E NÃO FAZ NADA. O bloco de controles é trazido de volta
         por cima da tela de fala (`body.emTela` o havia mandado embora, como manda em toda
         tela) — mas só ele: os cartões de ritmo, melhorias e menu somem, porque são
@@ -1655,7 +1676,7 @@ function pular() {
     somPulo();
     clicar(false, false, true);
 }
-function fatorFolha() { return 1 + 0.5 * epocaAtual(); }
+function fatorFolha() { return 1 + 0.5 * blocoArte(epocaAtual()); }
 function sorteiaFolha() { return (34 + Math.random() * 84) * fatorFolha(); }
 function atualizarFolhas(dt, alto) {
     folhaChao += dt * velocidadeMundo();
@@ -2256,7 +2277,7 @@ const EPOCAS = [
         id: "pindorama",
         nome: "PINDORAMA",
         quando: "litoral atlântico · século XVI",
-        arteCap: 0,
+        emObra: false, arteCap: 0,
         cenas: 2, lugar: "litoral", arte: [0, 1],
         abertura: [
             "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
@@ -2279,7 +2300,7 @@ const EPOCAS = [
         id: "palmares",
         nome: "PALMARES",
         quando: "serra da Barriga, Alagoas · século XVII",
-        arteCap: 1,
+        emObra: false, arteCap: 1,
         cenas: 2, lugar: "palmares", arte: [2, 3],
         abertura: [
             "Isto aqui é a serra da Barriga, no que hoje se chama Alagoas.",
@@ -2297,10 +2318,28 @@ const EPOCAS = [
         ]
     },
     {
+        id: "cais",
+        nome: "O CAIS QUE VOLTOU À LUZ",
+        quando: "Rio de Janeiro · século XIX",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "cais", arte: [3],
+        abertura: [
+            "Este capítulo se chama O CAIS QUE VOLTOU À LUZ, e ele ainda está sendo escrito.",
+            "O lugar dele na travessia já está marcado, e o verbo que ele vai pedir da sua mão também: cavar para saber. O que ele tem para contar, não — enquanto cada frase não tiver fonte conferida, este capítulo não afirma nada.",
+            "Até lá a rua continua a rua, com o trabalho que você já sabe fazer. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho — e ele não te contou história nenhuma. Isso foi de propósito: este jogo não inventa passado para tapar buraco.",
+            "Quando a pesquisa estiver conferida, o capítulo volta com o que tem a dizer, e a tela DE ONDE VEM vai dizer de onde veio."
+        ]
+    },
+    {
         id: "salvador",
         nome: "SALVADOR",
         quando: "Bahia · véspera de 1835",
-        arteCap: 2,
+        emObra: false, arteCap: 2,
         cenas: 1, lugar: "salvador", arte: [4],
         abertura: [
             "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
@@ -2318,10 +2357,136 @@ const EPOCAS = [
         ]
     },
     {
+        id: "jabaquara",
+        nome: "JABAQUARA",
+        quando: "Santos, São Paulo · 1887–1888",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "jabaquara", arte: [4],
+        abertura: [
+            "Este capítulo se chama JABAQUARA, e ele ainda está sendo escrito.",
+            "O verbo dele ainda não foi escolhido, e o que ele tem para contar ainda não passou pela conferência de fonte. Até que passe, ele não diz — dizer sem saber seria o oposto do que este jogo faz.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. Ele calou o que não podia afirmar ainda, e é assim que se conserta um jogo que promete ensinar.",
+            "Ele e o próximo vêm juntos quando vierem: um sem o outro contaria metade, e metade aqui é engano."
+        ]
+    },
+    {
+        id: "pequenaafrica",
+        nome: "A PEQUENA ÁFRICA",
+        quando: "Rio de Janeiro · começo do século XX",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "pequenaafrica", arte: [4],
+        abertura: [
+            "Este capítulo se chama A PEQUENA ÁFRICA, e ele ainda está sendo escrito.",
+            "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido; a pesquisa ainda não fechou. Nada aqui vai ser afirmado antes disso.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho, e outra vez sem história: o que não tem fonte conferida não vira fala.",
+            "O espaço dele está guardado. É só isso que este capítulo afirma hoje."
+        ]
+    },
+    {
+        id: "portas",
+        nome: "AS PORTAS",
+        quando: "1932–1985",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "portas", arte: [4],
+        abertura: [
+            "Este capítulo se chama AS PORTAS, e ele ainda está sendo escrito.",
+            "O recorte de tempo dele já está decidido; o verbo, não. E nenhuma linha entra aqui sem norma, número de processo ou registro de órgão para sustentá-la.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. Um capítulo em obra prefere ficar em silêncio a te contar coisa que ninguém conferiu.",
+            "Quando ele abrir, abre com a fonte junto — como todos os outros."
+        ]
+    },
+    {
+        id: "naodito",
+        nome: "O QUE NÃO PODIA SER DITO",
+        quando: "1964–1985",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "naodito", arte: [4],
+        abertura: [
+            "Este capítulo se chama O QUE NÃO PODIA SER DITO, e ele ainda está sendo escrito.",
+            "O verbo dele já tem nome — fazer passar — e é de propósito que ele rime com o que a rua de SALVADOR já te pôs na mão, muito tempo antes. O resto espera a leitura dos documentos.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. Este é dos capítulos em que dizer errado custa mais caro, e por isso ele fica quieto até ter o documento na mão.",
+            "Ele e o próximo vêm juntos quando vierem: terminar aqui deixaria o jogo parado na parte pior."
+        ]
+    },
+    {
+        id: "praca",
+        nome: "A PRAÇA",
+        quando: "1984–1988",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "praca", arte: [4],
+        abertura: [
+            "Este capítulo se chama A PRAÇA, e ele ainda está sendo escrito.",
+            "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido, e nada será afirmado antes da conferência.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. O espaço está guardado, e guardar espaço é a única promessa que um capítulo em obra pode cumprir.",
+            "O que ele vai dizer, ele ainda vai ter de provar."
+        ]
+    },
+    {
+        id: "segurou",
+        nome: "O QUE SEGUROU",
+        quando: "2020–2022",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "segurou", arte: [4],
+        abertura: [
+            "Este capítulo se chama O QUE SEGUROU, e ele ainda está sendo escrito.",
+            "O verbo dele já tem nome: chegar na última casa. Quem ele acompanha é quem sustenta, não quem governa. O que ele vai afirmar depende de registro de órgão e de decisão com número de processo — e nada disso está conferido ainda.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. Este é história recente, e história recente sem documento na mesa é opinião com roupa de fato.",
+            "Ele volta quando o documento estiver na mesa."
+        ]
+    },
+    {
+        id: "temfonte",
+        nome: "O QUE TEM FONTE",
+        quando: "hoje",
+        emObra: true,
+        arteCap: 3,
+        cenas: 1, lugar: "temfonte", arte: [4],
+        abertura: [
+            "Este capítulo se chama O QUE TEM FONTE, e ele ainda está sendo escrito.",
+            "O verbo dele já tem nome: conferir de onde vem. Ele é a tela DE ONDE VEM virando capítulo — e seria estranho justamente ele estrear sem ter conferido o que diz.",
+            "A rua continua a rua. O que passa precisa de alguém."
+        ],
+        aberturaImg: [null, null, null],
+        fecho: [
+            "Fim do trecho. Enquanto ele não abre, a tela DE ONDE VEM continua fazendo o trabalho dele no menu.",
+            "Ela lista tudo o que este jogo afirma — inclusive onde as fontes discordam entre si."
+        ]
+    },
+    {
         id: "hoje",
         nome: "AINDA AQUI",
         quando: "terra indígena demarcada · hoje",
-        arteCap: 3,
+        emObra: false, arteCap: 3,
         cenas: 2, lugar: "hoje", arte: [5, 6],
         abertura: [
             "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
@@ -2436,7 +2601,8 @@ const ESQUEMA_SAVE = {
     salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0, semAparar: true }
 };
 const ARCOS_ANTIGOS = [
-    [["pindorama", 2], ["palmares", 2], ["hoje", 2]]
+    [["pindorama", 2], ["palmares", 2], ["hoje", 2]],
+    [["pindorama", 2], ["palmares", 2], ["salvador", 1], ["hoje", 2]]
 ];
 const ARCOS = ARCOS_ANTIGOS.concat([
     EPOCAS.map(function (ep) { return [ep.id, ep.cenas]; })
@@ -3453,7 +3619,7 @@ function escalaQueCabe(txt, esc, larg) {
     return Math.max(1, Math.floor(larg / w));
 }
 function pixelRotulo(el, txt, esc, cor, contorno) {
-    const t = String(txt).toUpperCase().replace(/—/g, "-");
+    const t = String(txt).toUpperCase().replace(/[—–]/g, "-");
     const chave = t + "|" + esc + "|" + cor + "|" + (contorno || "");
     if (el.dataset.px === chave)
         return;
@@ -5828,7 +5994,9 @@ function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
     const arte = HERO_CAP_B64[iCap] || HERO_CAP_B64[0];
     const retrato = (typeof RETRATO_B64 !== "undefined" && RETRATO_B64[iCap])
         || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
-    if (retrato && r.getAttribute("src") !== retrato)
+    const semRosto = !!EPOCAS[epocaAtual()].emObra;
+    r.classList.toggle("oculta", semRosto);
+    if (!semRosto && retrato && r.getAttribute("src") !== retrato)
         r.src = retrato;
     if (cerimonia) {
         pixelRotulo($("cerNome"), titulo, 3, "#ffd98a", "#0a0806");
@@ -6092,11 +6260,16 @@ function montarCapitulos() {
         const n = document.createElement("div");
         n.className = "capNome";
         pixelRotulo(n, livre ? ep.nome : "ERA " + (i + 1), 2, tintaNome);
+        const dizer = livre ? "" : (proxima ? "TERMINE A ERA ANTERIOR" : "");
         const q = document.createElement("div");
         q.className = "capQuando";
-        pixelRotulo(q, livre ? ep.quando : (proxima ? "TERMINE A ERA ANTERIOR" : "AINDA TRANCADA"), 1, tintaQuando);
+        const obra = livre && !!ep.emObra;
+        const linha2 = livre ? (ep.quando + (obra ? " · EM OBRAS" : "")) : dizer;
+        if (linha2)
+            pixelRotulo(q, linha2, 1, tintaQuando);
         b.appendChild(n);
-        b.appendChild(q);
+        if (linha2)
+            b.appendChild(q);
         if (livre)
             b.addEventListener("pointerdown", function (e) {
                 e.preventDefault();
