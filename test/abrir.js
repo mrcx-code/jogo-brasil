@@ -18,19 +18,38 @@
 // é seguro em bloco: as ferramentas de arte que abrem um PNG de `assets/entrada` passam por
 // aqui sem mudar de comportamento, e uma URL http já pronta também.
 //
-// A PORTA É FIXA (8198) e isso é uma escolha, não descuido. Um `listen(0)` daria porta livre
+// A PORTA É SÍNCRONA, e isso é uma escolha, não descuido. Um `listen(0)` daria porta livre
 // garantida, mas só a informa num callback — e aí esta função teria de ser assíncrona, o que
 // obrigaria a mexer no corpo de cada um dos quarenta instrumentos em vez de envolver uma
-// expressão. 8198 é a porta ao lado das duas que este projeto já usa (8199 o jogo, 8200 a
-// mesa), ou seja, é nossa. Se ela já estiver ocupada, o mais provável de longe é que seja
-// OUTRO instrumento deste repositório servindo esta mesma pasta — e nesse caso seguir em frente
-// é exatamente o certo. Por isso o EADDRINUSE é engolido com um aviso, e não com um estouro.
+// expressão. Então a porta é calculada, não sorteada, e o EADDRINUSE é engolido com um aviso.
+//
+// ELA DEIXOU DE SER 8198 FIXA EM 2026-08-10, E O MOTIVO CUSTOU MEIA SESSÃO. O comentário
+// antigo dizia: "se ela já estiver ocupada, o mais provável de longe é que seja OUTRO
+// instrumento deste repositório servindo esta mesma pasta — e nesse caso seguir em frente é
+// exatamente o certo". A premissa é falsa desde que passou a haver `.claude/worktrees/`: são
+// dezenas de cópias do repositório no disco, cada uma com um `index.html` PRÓPRIO, e todas
+// pedindo a mesma 8198. Quem chega depois encontra a porta ocupada, aceita o servidor de
+// outra pasta e mede o arquivo de outra pessoa — sem erro, sem aviso, com print bonito.
+//
+// Aconteceu de verdade nesta sessão: uma regra de CSS recém-construída "não aplicava". Ela
+// aplicava; o navegador estava lendo o `index.html` de outra árvore. É o mesmo modo de falha
+// que tirou o smoke test do `file://` — instrumento que mede a coisa errada e passa.
+//
+// A correção mantém a API síncrona: a porta sai de um HASH DO CAMINHO DA RAIZ. Duas cópias
+// diferentes nunca pedem a mesma porta; duas execuções da MESMA cópia pedem, e aí reaproveitar
+// continua sendo exatamente o certo — que era a intenção original.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const PORTA = 8198;
+// 8192..8447: 256 portas acima do bloco que este projeto já usa (8199 o jogo, 8200 a mesa),
+// e as duas ficam de fora da faixa por construção — o hash roda em 254 e soma 8201.
+const PORTA = 8201 + (function (s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % 254;
+})(RAIZ.toLowerCase());
 const TIPOS = {
   '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
