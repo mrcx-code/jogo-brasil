@@ -28,10 +28,6 @@ function nomeSeguro(s) {
     .replace(/[^a-z0-9._-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '').slice(0, 60) || 'sem-nome';
 }
 
-function lerPedidos() {
-  try { return JSON.parse(fs.readFileSync(PEDIDOS, 'utf8')); } catch (e) { return []; }
-}
-
 // HORA LOCAL, sempre. As datas de `processadas.json` vieram do histórico do git, que são
 // locais; `mtime.toISOString()` é UTC. Misturar as duas dá três horas de diferença nesta
 // máquina — e três horas bastavam para TODA entrega da noite parecer "re-entrega", que é
@@ -154,47 +150,143 @@ function atividade() {
     quentes: quentes,
     emCurso: emCurso.slice(0, 12),
     totalEmCurso: emCurso.length,
-    commits: commits.slice(0, 14),
+    // OITO COMMITS, não catorze. O painel responde "o que está acontecendo agora"; catorze
+    // linhas eram meia página de história para uma pergunta de uma linha, e o dono pediu
+    // menos coisa na mesa, não mais. Quem quer o histórico inteiro tem o `git log`.
+    commits: commits.slice(0, 8),
     ultimo: ultimo,
     build: build
   };
 }
 
 // ---------------------------------------------------------------------------
-// A ORDEM DE APARIÇÃO NO JOGO — e por que ela NÃO é a ordem do nome do arquivo.
+// A ORDEM DE APARIÇÃO NO JOGO — LIDA DO JOGO, nunca de uma tabela escrita à mão.
 //
-// O manifesto não tem campo de ordem, então ela é DERIVADA do nome. Mas derivar
-// "cap1 → cap2 → cap3 → cap4" estaria errado: os nomes de arte foram criados numa
-// ordem e as épocas do jogo estão em outra. `EPOCAS` no src/jogo.ts é
-// PINDORAMA(0) · PALMARES(1) · SALVADOR(2) · AINDA AQUI(3) — e a arte de SALVADOR
-// se chama `cap4-*`, a do presente `cap3-*`. Ordenar pelo número do nome poria o
-// capítulo do presente antes de Salvador, ou seja, antes do que ele mesmo comenta.
+// O manifesto não tem campo de ordem, então ela é DERIVADA do nome. A versão anterior
+// derivava por uma tabela fixa, `{1:0, 2:1, 3:3, 4:2}`, escrita quando o jogo tinha QUATRO
+// capítulos. O jogo passou a ter TREZE e a tabela não ficou sabendo: os sete capítulos novos
+// (`cap-jabaquara-*`, `cap-praca-*`, `cap-segurou-*`…) não casavam com nenhuma regra e caíam
+// todos no balde "sem ordem derivável", ordem 9000, empilhados no fim da página — justamente
+// os capítulos cuja arte a fila está pedindo AGORA. É a mesma classe de defeito do painel de
+// atividade que lia `equipe.json`: não erra alto, erra em silêncio.
 //
-// As páginas do quadrinho (`q-p*`) entram junto da época que contam, não num bloco
-// separado: a tela A HISTÓRIA abre desde o começo, e a p2 (Lagoa Santa) é dos
-// primeiros cinco minutos enquanto a p26 é do fim. A faixa de página por época vem
-// da própria LINHA_TEMPO.
-const ERA_DO_CAP = { 1: 0, 2: 1, 3: 3, 4: 2 };     // número no nome  ->  índice de EPOCAS
+// Agora a ordem sai de `EPOCAS` no `src/jogo.ts`, que é a ordem em que a pessoa atravessa os
+// capítulos, e o nome de cada época sai de lá junto. SÓ LEITURA — esta ferramenta nunca
+// escreve em `src/`. Cache pela mtime: o arquivo tem 5 MB e ninguém precisa relê-lo a cada
+// pedido, mas ele muda toda sessão e um cache eterno seria a tabela à mão de novo.
+//
+// O que continua sendo convenção e não tem como ser derivado: qual capítulo cada NÚMERO de
+// nome de arquivo quer dizer. A arte foi batizada antes de a ordem existir, e por isso
+// `cap4-*` é SALVADOR e `cap3-*` é o presente. A tabela abaixo mapeia número → `id`, e o id
+// é que vira posição — assim, quando um capítulo se move em EPOCAS, a mesa se move junto.
+const FONTE_JOGO = path.join(RAIZ, 'src', 'jogo.ts');
+const ID_DO_CAP = { 1: 'pindorama', 2: 'palmares', 3: 'hoje', 4: 'salvador' };
+
+let epocasCache = { mtime: -1, lista: [], depoisDe: '' };
+
+function epocas() {
+  let st;
+  try { st = fs.statSync(FONTE_JOGO); } catch (e) { return epocasCache; }
+  if (st.mtimeMs === epocasCache.mtime) return epocasCache;
+  let js = '';
+  try { js = fs.readFileSync(FONTE_JOGO, 'utf8'); } catch (e) { return epocasCache; }
+  const ini = js.indexOf('const EPOCAS = [');
+  const fim = js.indexOf('const TRAVESSIAS = [');
+  const bloco = ini < 0 ? '' : js.slice(ini, fim > ini ? fim : ini + 200000);
+  const lista = [];
+  // Indentação de quatro espaços = campo de primeiro nível de uma entrada de EPOCAS. Casar
+  // `id:` solto pegaria id de qualquer objeto aninhado e embaralharia a ordem inteira.
+  const re = /\n    id:\s*"([\w-]+)"/g;
+  let m;
+  while ((m = re.exec(bloco))) {
+    const nm = /\n    nome:\s*"([^"]*)"/.exec(bloco.slice(m.index, m.index + 800));
+    lista.push({ id: m[1], nome: nm ? nm[1] : m[1] });
+  }
+  // A TRAVESSIA é interstício: está em EPOCAS mas não tem cena própria — roda ENTRE dois
+  // capítulos, e é `TRAVESSIAS` quem diz entre quais. Ler dali é o que mantém a arte do mar
+  // no lugar certo se um dia a travessia mudar de lugar.
+  const t = fim > 0 ? /\bde:\s*"([\w-]+)"\s*,\s*para:\s*"([\w-]+)"/.exec(js.slice(fim, fim + 6000)) : null;
+  epocasCache = { mtime: st.mtimeMs, lista: lista, depoisDe: t ? t[1] : '' };
+  return epocasCache;
+}
+
+function posDaEpoca(id) {
+  const l = epocas().lista;
+  for (let i = 0; i < l.length; i++) if (l[i].id === id) return i;
+  return -1;
+}
+function nomeDaEpoca(id) {
+  const l = epocas().lista;
+  for (let i = 0; i < l.length; i++) if (l[i].id === id) return l[i].nome;
+  return id;
+}
+// Meia posição: a travessia cabe no vão entre o capítulo de onde se sai e o seguinte.
+function posDaTravessia() {
+  const p = posDaEpoca(epocas().depoisDe);
+  return p < 0 ? 0.5 : p + 0.5;
+}
 
 function ordemDe(nome) {
   const n = String(nome || '');
+  const em = function (pos, sub, onde) { return { ordem: Math.round(pos * 1000) + sub, onde: onde }; };
   if (/^(menu|logo)/.test(n)) return { ordem: -1000, onde: 'menu · antes de tudo' };
-  // páginas do quadrinho: a faixa numérica diz de que época a página fala
-  const q = /^q-p0?(\d+)/.exec(n);
+
+  // DUAS FAMÍLIAS DE PÁGINA, e confundi-las era repetição visível na tela:
+  //   `q-p<N>`           — página da tela A HISTÓRIA, numerada pela LINHA_TEMPO
+  //   `q-p<N>-<assunto>` — página da TRAVESSIA, numerada por onde ela se encaixa
+  // A regra antiga lia só o número, então `q-p10` (o açúcar) e `q-p10-travessia` (os
+  // maus-tratos) saíam com o MESMO rótulo, "A HISTÓRIA · página 10", e no mesmo ponto da
+  // ordem: duas artes diferentes que a mesa jurava serem o mesmo lugar. O sufixo é o que
+  // separa as duas, e ele existe desde que a travessia entrou (bloco QUAD_B64 do jogo).
+  const q = /^q-p0?(\d+)(-[a-z]+)?$/.exec(n);
   if (q) {
     const p = parseInt(q[1], 10);
-    const era = p <= 6 ? 0 : p <= 13 ? 1 : p <= 19 ? 2 : 3;
-    return { ordem: era * 1000 + p, onde: 'A HISTÓRIA · página ' + p };
+    if (q[2]) return em(posDaTravessia(), p, 'A TRAVESSIA · página ' + p);
+    // A faixa de página por época vem da LINHA_TEMPO: a p2 (Lagoa Santa) é dos primeiros
+    // cinco minutos, a p26 é do fim.
+    const id = p <= 6 ? 'pindorama' : p <= 13 ? 'palmares' : p <= 19 ? 'salvador' : 'hoje';
+    return em(Math.max(0, posDaEpoca(id)), p, 'A HISTÓRIA · página ' + p);
   }
-  if (/^trav-/.test(n)) return { ordem: 1 * 1000 - 1, onde: 'A TRAVESSIA · antes de Palmares' };
-  if (/vao-cidade-africana/.test(n)) return { ordem: 2 * 1000 - 1, onde: 'marco do vão · antes de Salvador' };
+  if (/^trav-/.test(n)) return em(posDaTravessia(), 100, 'A TRAVESSIA · o interstício');
+  if (/vao-cidade-africana/.test(n)) {
+    return em(Math.max(0, posDaEpoca('salvador')), -1, 'marco do vão · antes de ' + nomeDaEpoca('salvador'));
+  }
+  // Convenção nova: `cap-<id>-…` e `ctx-<id>-…`, com o id igual ao de EPOCAS.
+  const novo = /^(?:cap|ctx)-([a-z]+)-/.exec(n);
+  if (novo && posDaEpoca(novo[1]) >= 0) {
+    return em(posDaEpoca(novo[1]), 100, 'capítulo ' + nomeDaEpoca(novo[1]));
+  }
+  // Convenção antiga: um número no meio do nome (`cap4-sprite`, `ctx-cap1-mata`, `drop-cap3-1`).
   const c = /cap(\d)/.exec(n);
-  if (c) {
-    const era = ERA_DO_CAP[c[1]];
-    const nomes = ['PINDORAMA', 'PALMARES', 'SALVADOR', 'AINDA AQUI'];
-    if (era !== undefined) return { ordem: era * 1000 + 100, onde: 'capítulo ' + nomes[era] };
+  if (c && ID_DO_CAP[c[1]] && posDaEpoca(ID_DO_CAP[c[1]]) >= 0) {
+    return em(posDaEpoca(ID_DO_CAP[c[1]]), 100, 'capítulo ' + nomeDaEpoca(ID_DO_CAP[c[1]]));
   }
-  return { ordem: 9000, onde: 'sem ordem derivável do nome' };
+  return { ordem: 99000, onde: 'sem ordem derivável do nome' };
+}
+
+// ---------------------------------------------------------------------------
+// O GUARDA DA REPETIÇÃO. Um refazer costuma entrar no manifesto como nome NOVO (`-v2`,
+// `-v3`) em vez de corrigir o pedido que já existe — e aí a MESMA arte passa a existir duas
+// vezes: `cap4-fundo-alto` e `cap4-fundo-alto-v2` eram o mesmo quadro, `cap4-sprite`,
+// `-v2` e `-v3` a mesma folha. Isso nunca dá erro; só enche a mesa de coisa repetida, que foi
+// a queixa do dono em 10/08. Cinco pares foram juntados à mão nesse dia (o campo `substitui`
+// de cada sobrevivente diz quais eram); daqui para a frente o servidor reclama sozinho.
+// Ele não decide nada — só não deixa passar em silêncio, que é como isto se acumulou.
+function repetidosNoManifesto(nec) {
+  const itens = (nec && nec.itens) || [];
+  const nomes = {};
+  itens.forEach(function (i) { nomes[i.nome] = true; });
+  const avisos = [];
+  itens.forEach(function (i) {
+    (i.substitui || []).forEach(function (v) {
+      if (nomes[v]) avisos.push(i.nome + ' diz substituir ' + v + ' — e os dois ainda estão no manifesto');
+    });
+    const base = i.nome.replace(/-v\d+$/, '');
+    if (base !== i.nome && nomes[base] && (i.substitui || []).indexOf(base) < 0) {
+      avisos.push(i.nome + ' e ' + base + ' são o mesmo alvo — junte num só e anote em `substitui`');
+    }
+  });
+  return avisos;
 }
 
 // ---------------------------------------------------------------------------
@@ -319,19 +411,13 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
-  if (req.method === 'GET' && url === '/pedidos') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(lerPedidos()));
-    return;
-  }
-
-  if (req.method === 'GET' && url === '/recebidas') {
-    let f = [];
-    try { f = fs.readdirSync(ENTRADA); } catch (e) {}
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(f));
-    return;
-  }
+  // AQUI MORAVAM `/pedidos` E `/recebidas`, E ELES SAÍRAM COM A PÁGINA QUE OS LIA.
+  // `/pedidos` servia o retrato em disco que o botão REVISAR grava, e a mesa o relia de três
+  // em três segundos para pintar um veredito sobre a imagem colada — com barra de progresso
+  // que subia sozinha até 95% sem ter como saber de nada. `/recebidas` devolvia os nomes
+  // crus de `assets/entrada`, e quem cruza disco com manifesto é `/fila` desde 09/08.
+  // O `pedidos.json` continua sendo escrito pelo REVISAR: ele é o que EU leio entre sessões,
+  // e nunca foi para a tela do dono.
 
   // O que está parado esperando o dono. Substituiu o roadmap: para onde o jogo vai já mora
   // no BACKLOG.md e no PRODUTO.md — o que faltava era a lista do que eu não decido sozinho.
@@ -353,45 +439,20 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
-  // A SALA DE MÁQUINAS: onde a equipe está. O dono pediu o painel dentro da mesa ("gosto
-  // mais do layout da sala de máquinas"), então a mesa deixou de ser só entrega de arte e
-  // virou o lugar único: quem trabalha em quê, o que já entrou, e o que espera nele.
-  if (req.method === 'GET' && url === '/equipe') {
-    let r = null;
-    try { r = fs.readFileSync(path.join(__dirname, 'equipe.json'), 'utf8'); } catch (e) {}
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(r || '{}');
-    return;
-  }
-
-  // O QUE CHEGOU E AINDA NAO ENTROU NO JOGO. Entregue e processado eram a mesma coisa —
-  // o pedido sumia da fila quando o arquivo caia no disco, e a mesa dizia "fila vazia"
-  // tanto para "nada pedido" quanto para "tudo entregue e ninguem olhou". Custou DUAS
-  // entregas perdidas no mesmo dia (07/08): as 11 imagens da manha e a folha v2 das 15:59.
-  // Agora o disco e comparado com o que o src/jogo.ts realmente embutiu.
-  // O QUE CHEGOU E AINDA NAO ENTROU NO JOGO. Entregue e processado eram a mesma coisa —
-  // o pedido sumia da fila quando o arquivo caia no disco, e a mesa dizia "fila vazia"
-  // tanto para "nada pedido" quanto para "tudo entregue e ninguem olhou". Custou DUAS
-  // entregas perdidas no mesmo dia (07/08): as 11 imagens da manha e a folha v2 das 15:59.
-  // O registro do que entrou e EXPLICITO (processadas.json): a primeira versao adivinhava
-  // procurando o nome do arquivo no src/jogo.ts e dava falso positivo, porque as ferramentas
-  // de arte nao gravam o nome da origem — elas escrevem base64.
-  // Agora sai do mesmo `estadoDaFila()` que alimenta a lista do que falta, para os dois
-  // blocos nunca poderem discordar.
-  if (req.method === 'GET' && url === '/chegadas') {
-    const e = estadoDaFila();
-    const itens = e.itens.filter(function (i) { return i.estado === 'chegou'; })
-      .map(function (i) {
-        return { nome: i.nome, quando: i.quandoChegou, titulo: i.titulo, reentrega: i.reentrega };
-      })
-      .concat(e.soltas.map(function (s) {
-        return { nome: s.nome, quando: s.quando, titulo: '(fora do manifesto)', reentrega: false };
-      }))
-      .sort(function (a, b) { return a.quando < b.quando ? 1 : -1; });
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(itens));
-    return;
-  }
+  // AQUI MORAVAM `/equipe` E `/chegadas`, E OS DOIS BLOCOS QUE ELES ALIMENTAVAM SAÍRAM DA
+  // PÁGINA EM 10/08, a pedido do dono: "prefiro só o que tá pendente e boas. Tem coisa
+  // repetida também".
+  //
+  // `/equipe` servia `equipe.json`, escrito à mão: PRÓXIMO PASSO e MARCOS. Era o pior caso
+  // de repetição da mesa, porque dizia com outras palavras o que as listas já diziam com
+  // dado — "q-p19 REFAZER" estava no bloco do que chegou, "3 folhas de corrida" eram três
+  // cartões da fila, "deitado: travar em retrato" era uma pergunta da lista dele. Três
+  // lugares, uma informação, e só um deles se atualiza sozinho.
+  //
+  // `/chegadas` listava o que está em disco e ainda não entrou no jogo. Não sumiu de
+  // verdade: virou UMA LINHA com a contagem, no bloco REVISAR, tirada de `/fila`. A bola
+  // desses itens é MINHA — o dono precisa saber que existem, não ler os nomes um a um.
+  // O arquivo `equipe.json` fica onde está; deixou de ser servido, e é só isso.
 
   // REVISAR: compara o que o jogo precisa (necessario.json) com o que já chegou
   // (assets/entrada) e repõe na fila só o que falta. Existe porque a fila vinha sendo podada
@@ -450,6 +511,7 @@ const servidor = http.createServer(function (req, res) {
     fs.writeFileSync(PEDIDOS, JSON.stringify(faltam, null, 2) + "\n");
     console.log('revisao: ' + faltam.length + ' a gerar · ' + e.contagem.chegou +
       ' chegaram e esperam · ' + e.contagem.pronto + ' no jogo');
+    avisarRepetidos();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, n: faltam.length, contagem: e.contagem }));
     return;
@@ -493,7 +555,22 @@ const servidor = http.createServer(function (req, res) {
   res.writeHead(404).end('404');
 });
 
+// O aviso vai para o CONSOLE e não para a tela, de propósito: pedido repetido é defeito da
+// papelada, não trabalho do dono, e a mesa dele agora só mostra o que ele faz ou decide.
+function avisarRepetidos() {
+  const avisos = repetidosNoManifesto(lerJson('necessario.json', { itens: [] }));
+  avisos.forEach(function (a) { console.log('REPETIDO no necessario.json: ' + a); });
+  return avisos.length;
+}
+
 servidor.listen(PORTA, '127.0.0.1', function () {
   console.log('mesa de entrega em http://localhost:' + PORTA);
   console.log('salvando em ' + ENTRADA);
+  const e = epocas();
+  console.log('ordem lida de src/jogo.ts: ' + e.lista.length + ' épocas' +
+    (e.depoisDe ? ' · travessia depois de ' + e.depoisDe : ''));
+  if (!e.lista.length) {
+    console.log('AVISO: não achei EPOCAS no src/jogo.ts — a ordem de aparição vai sair errada');
+  }
+  if (!avisarRepetidos()) console.log('nenhum pedido repetido no manifesto');
 });
