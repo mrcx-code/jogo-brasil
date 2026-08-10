@@ -27,6 +27,14 @@ const p = (...x) => path.join(RAIZ, ...x);
 
 const semTsc = process.argv.includes('--sem-tsc');
 
+// O ÚNICO HOST DE FORA QUE ESTE JOGO PODE ALCANÇAR, escrito uma vez. Ele aparece em dois
+// lugares que TÊM de concordar — a `connect-src` da CSP (que o navegador cobra) e o
+// `ENDERECO_MEDIDA` do src/jogo.ts (que é quem de fato chama) — e as duas cobranças abaixo
+// saem daqui. Região EU, escolhida e não herdada. Trocar de região ou de serviço é trocar
+// esta linha, e aí a CSP e o jogo ficam errados juntos até que os três digam o mesmo — que é
+// exatamente o barulho que uma mudança dessas tem de fazer.
+const MEDIDA_HOST = 'https://eu.i.posthog.com';
+
 if (!semTsc) {
   // `require.resolve` e não um caminho montado à mão: num WORKTREE do git o `node_modules` não
   // é copiado, e o caminho fixo `RAIZ/node_modules/...` some — o build morria com
@@ -190,23 +198,34 @@ if (externo.length) throw new Error('referência externa na saída: ' + externo.
 // uma garantia que só parecia existir no dia em que o jogo passou a buscar os pacotes de arte
 // (achado do RELATORIO-PESO.md, §5). Trava que não acompanha o contrato dá falsa segurança.
 //
-// O contrato NOVO, escrito por extenso: o jogo pode alcançar EXATAMENTE o pacote de arte do
-// próprio domínio, e nada mais. Um caminho relativo, montado por uma função só, a partir de um
-// nome de pacote. Sem host, sem protocolo, sem barra inicial — nada que possa apontar para
-// fora. Três cobranças, e cada uma pega um jeito diferente de furar isto:
+// O contrato, escrito por extenso. O jogo pode alcançar DUAS coisas e nada mais:
+//   (a) o pacote de arte do PRÓPRIO domínio. Um caminho relativo, montado por uma função só, a
+//       partir de um nome de pacote. Sem host, sem protocolo, sem barra inicial — nada que
+//       possa apontar para fora;
+//   (b) UM endereço de fora, que é o da contagem anônima (PostHog, região EU), escrito por
+//       extenso numa constante e em nenhum outro lugar. Ele entrou em 10/08 e é a segunda vez
+//       na vida deste arquivo que a rede abre — a primeira foi a carga sob demanda da arte.
+// Cinco cobranças, e cada uma pega um jeito diferente de furar isto:
 verificarRede(saida);
 function verificarRede(txt) {
   // 1. Nenhuma OUTRA porta para a rede. `fetch` é a única, e as abaixo não existem no jogo.
+  //    `sendBeacon` continua na lista mesmo agora que há medição: seria o jeito "natural" de
+  //    mandar o "onde parou" de uma aba fechando, e é justamente por ser natural que ele tem
+  //    de continuar exigindo uma decisão — `fetch` com `keepalive` faz o mesmo e passa por
+  //    todas as cobranças abaixo, que `sendBeacon` não tem como passar.
   const outrasPortas = txt.match(/\b(XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts|navigator\.connection)\b|\bimport\s*\(/g) || [];
   if (outrasPortas.length) throw new Error('porta de rede que o contrato não prevê: ' + outrasPortas.slice(0, 3).join(' , '));
 
-  // 2. Todo `fetch(` é O fetch do pacote. Conta as chamadas e conta as que casam com a forma
-  //    exata; se os dois números divergirem, apareceu uma chamada com outro argumento.
+  // 2. Todo `fetch(` é UMA DAS DUAS formas. Conta as chamadas e conta as que casam com cada
+  //    forma exata; se a soma divergir, apareceu uma chamada com outro argumento — que é
+  //    exatamente como uma terceira porta entraria sem ninguém notar.
   const chamadas = (txt.match(/\bfetch\s*\(/g) || []).length;
   const doPacote = (txt.match(/\bfetch\(caminhoPacote\([A-Za-z_$][\w$]*\)\)/g) || []).length;
-  if (chamadas !== doPacote) {
-    throw new Error('há ' + chamadas + ' chamada(s) a fetch() e só ' + doPacote
-      + ' com a forma do contrato `fetch(caminhoPacote(nome))` — o resto alcança algo que não é o pacote de arte');
+  const daMedida = (txt.match(/\bfetch\(ENDERECO_MEDIDA,\s*\{/g) || []).length;
+  if (chamadas !== doPacote + daMedida) {
+    throw new Error('há ' + chamadas + ' chamada(s) a fetch(), ' + doPacote
+      + ' com a forma `fetch(caminhoPacote(nome))` e ' + daMedida
+      + ' com a forma `fetch(ENDERECO_MEDIDA, {...})` — o resto alcança algo que o contrato não prevê');
   }
 
   // 3. E a função que monta o caminho é literalmente esta, ou o item 2 vira teatro: bastaria
@@ -220,6 +239,27 @@ function verificarRede(txt) {
     }
   }
 
+  // 3b. E pelo mesmo motivo, o endereço da medição é cobrado byte a byte — `ENDERECO_MEDIDA`
+  //     ser uma variável não vale nada se ela puder virar qualquer coisa. Junto com ele vai a
+  //     cobrança que MAIS importa neste arquivo inteiro: a chave tem de começar com `phc_`.
+  //     `phc_` é o prefixo da chave PUBLICÁVEL do PostHog, a que só serve para MANDAR evento.
+  //     Uma chave pessoal ou de serviço (`phx_`, `phs_`) num jogo que roda no navegador de
+  //     outra pessoa é a conta inteira entregue a quem abrir o "ver código-fonte" — e é o tipo
+  //     de erro que passa despercebido para sempre porque tudo continua funcionando.
+  if (daMedida) {
+    const c = txt.match(/const ENDERECO_MEDIDA = "[^"]*";/);
+    if (!c || c[0] !== 'const ENDERECO_MEDIDA = "' + MEDIDA_HOST + '/i/v0/e/";') {
+      throw new Error('ENDERECO_MEDIDA deixou de ser o endereço que a CSP abre:\n  achei: '
+        + (c ? c[0] : '(nenhuma constante)') + '\n  espero: const ENDERECO_MEDIDA = "' + MEDIDA_HOST + '/i/v0/e/";');
+    }
+    const k = txt.match(/const MEDIDA_CHAVE = "([^"]*)";/);
+    if (!k) throw new Error('há medição e nenhuma constante MEDIDA_CHAVE na saída');
+    if (!/^phc_[A-Za-z0-9]{20,}$/.test(k[1])) {
+      throw new Error('MEDIDA_CHAVE não é uma chave PUBLICÁVEL do PostHog (prefixo `phc_`): "'
+        + k[1].slice(0, 8) + '…" — chave de serviço NUNCA entra num arquivo que roda no navegador de outra pessoa');
+    }
+  }
+
   // 4. E a CSP é PREGADA, diretiva por diretiva. É ela que faz o navegador cobrar tudo o que
   //    está acima mesmo que o código mude; relaxá-la por conveniência é o começo de não ter
   //    CSP (§3.2 do CLAUDE.md). Mudar esta tabela é a forma de dizer, no commit, o que passou
@@ -229,10 +269,14 @@ function verificarRede(txt) {
     'script-src': "'unsafe-inline'",// o script mora na página
     'style-src': "'unsafe-inline'", // o estilo também
     'img-src': 'data:',             // toda arte é data: — inclusive a que vem dentro do pacote
-    // A ÚNICA diretiva que já mudou desde que esta tabela existe: era 'none' e virou 'self' em
-    // 10/08, com a carga sob demanda. 'self' é o próprio site e nada mais — nenhum host,
-    // nenhum '*'. É o que deixa `fetch("pack-x.json")` passar e continua barrando o mundo.
-    'connect-src': "'self'",
+    // A ÚNICA diretiva que já mudou desde que esta tabela existe, e ela mudou duas vezes, as
+    // duas em 10/08: era 'none', virou 'self' com a carga sob demanda da arte, e ganhou UM
+    // host com a contagem anônima. 'self' é o próprio site; o host é escrito inteiro, com
+    // esquema — nenhum curinga, nenhum '*', nenhum `https:` solto. Nada mais passa.
+    // O host sai de MEDIDA_HOST, que é a MESMA constante que cobra o ENDERECO_MEDIDA do jogo:
+    // duas cópias do endereço divergiriam em silêncio, e o sintoma seria a medição parar de
+    // chegar sem nada quebrar — o pior tipo de defeito para uma ferramenta de medição.
+    'connect-src': "'self' " + MEDIDA_HOST,
     'base-uri': "'none'",
     'form-action': "'none'",
   };

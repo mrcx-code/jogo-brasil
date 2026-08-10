@@ -330,11 +330,25 @@ const sec = t => log('\n---- ' + t);
   // ============================================================
   // 8 · A ÚNICA AFIRMAÇÃO DO JOGO COM DATA DE VALIDADE
   //
-  // A tela de AJUSTES diz ao jogador "NADA SAI DESTE APARELHO · O JOGO NÃO TEM REDE". Hoje é
-  // verdade e quem a cobra é a CSP do <head>. O CLAUDE.md §3 avisa que a fase do Supabase abre
-  // a rede e manda reescrever a tela NA MESMA FASE — "afirmação de privacidade que virou falsa
-  // é pior que nenhuma". Ninguém vigiava as duas juntas: abrir a CSP é uma linha, e a frase
-  // continuaria na tela dizendo o contrário. Este bloco amarra uma à outra.
+  // A tela de AJUSTES faz uma afirmação sobre o que sai do aparelho de quem joga, e quem a
+  // cobra do navegador é a CSP do <head>. O CLAUDE.md §3 manda reescrever a tela NA MESMA FASE
+  // que ligar a rede — "afirmação de privacidade que virou falsa é pior que nenhuma". Ninguém
+  // vigiava as duas juntas: abrir a CSP é uma linha, e a frase continuaria na tela dizendo o
+  // contrário. Este bloco amarra uma à outra, e ele já cobrou duas vezes.
+  //
+  // QUATRO ESTADOS, e não dois — a CSP deixou de ser um interruptor em 10/08 e mudou duas
+  // vezes no mesmo dia. Um estado que ninguém escreveu aqui é REPROVADO, nunca ignorado: é o
+  // que impede que a próxima abertura de rede passe calada por esta asserção.
+  //   · `fechada`   — nenhuma rede. A promessa mais forte que este jogo já pôde fazer.
+  //   · `soPropria` — só o próprio site (carga sob demanda da arte).
+  //   · `comMedida` — o próprio site MAIS um host, escrito inteiro: a contagem anônima.
+  //   · qualquer outra coisa — uma fase que ninguém escreveu.
+  //
+  // E no estado `comMedida` a cobrança fica MAIS dura, não menos, porque agora sai dado de
+  // quem joga: a tela tem de dizer o que sai, tem de dizer o que NÃO sai, tem de ter um
+  // interruptor, e o interruptor tem de mudar a própria frase. O host que a CSP abre tem de
+  // ser o host que o jogo de fato chama — duas cópias divergentes deixariam a CSP autorizando
+  // um endereço e o jogo falando com outro.
   // ============================================================
   sec('8 · a promessa de privacidade e a CSP contam a mesma história');
   const priv = await page.evaluate(() => {
@@ -342,19 +356,42 @@ const sec = t => log('\n---- ' + t);
     if (typeof montarConfig === 'function') montarConfig();
     const meta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
     const csp = meta ? meta.getAttribute('content') : '';
-    const txt = [...document.querySelectorAll('#cfgInfo div')].map(d => d.getAttribute('aria-label') || '').join(' ');
-    return { csp: csp, txt: txt,
-      // TRÊS estados, e não dois — a CSP deixou de ser um interruptor em 10/08. `fechada` é
-      // "nenhuma rede"; `soPropria` é "só o próprio site", que é o que a carga sob demanda da
-      // arte precisou abrir; e qualquer outra coisa é uma terceira fase que ninguém escreveu
-      // ainda, e que esta asserção tem de recusar em vez de deixar passar calada.
-      fechada: /connect-src\s+'none'/.test(csp) && /default-src\s+'none'/.test(csp),
-      soPropria: /connect-src\s+'self'/.test(csp) && !/connect-src[^;]*(https?:|\*)/.test(csp),
-      prometeSemRede: /NADA SAI DESTE APARELHO/.test(txt) || /NÃO TEM REDE/.test(txt),
-      dizArtePropria: /FICA NESTE APARELHO/.test(txt) && /SÓ BAIXA A ARTE DELE/.test(txt) };
+    const dir = {};
+    csp.split(';').forEach(function (d) {
+      const t = d.trim(); if (!t) return;
+      const i = t.indexOf(' ');
+      dir[i < 0 ? t : t.slice(0, i)] = i < 0 ? [] : t.slice(i + 1).trim().split(/\s+/);
+    });
+    const conectar = dir['connect-src'] || [];
+    const ler = function () {
+      return [...document.querySelectorAll('#cfgInfo div')].map(d => d.getAttribute('aria-label') || '').join(' ');
+    };
+    const bt = document.getElementById('btnMedir');
+    const txtLigado = ler();
+    const rotLigado = bt ? bt.getAttribute('aria-label') : null;
+    // O INTERRUPTOR MUDA A FRASE. Um botão que não muda o texto que a pessoa acabou de ler é
+    // um botão que ninguém tem como saber se funcionou.
+    let txtDesligado = null, rotDesligado = null;
+    if (bt) {
+      bt.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      txtDesligado = ler();
+      rotDesligado = bt.getAttribute('aria-label');
+      bt.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));  // devolve como estava
+    }
+    return { csp: csp, conectar: conectar, txt: txtLigado, txtOff: txtDesligado,
+      rot: rotLigado, rotOff: rotDesligado, temBotao: !!bt,
+      // o endereço que o JOGO chama, lido do próprio jogo e não de uma segunda cópia no teste
+      endereco: typeof ENDERECO_MEDIDA === 'string' ? ENDERECO_MEDIDA : null,
+      chave: typeof MEDIDA_CHAVE === 'string' ? MEDIDA_CHAVE : null,
+      fechada: conectar.length === 1 && conectar[0] === "'none'",
+      soPropria: conectar.length === 1 && conectar[0] === "'self'",
+      comMedida: conectar.length === 2 && conectar[0] === "'self'" && /^https:\/\/[a-z0-9.-]+$/.test(conectar[1]),
+      prometeSemRede: /NADA SAI DESTE APARELHO/.test(txtLigado) || /NÃO TEM REDE/.test(txtLigado)
+        || /NÃO SAI UM BYTE/.test(txtLigado),
+      dizArtePropria: /FICA NESTE APARELHO/.test(txtLigado) && /SÓ BAIXA A ARTE DELE/.test(txtLigado) };
   });
-  log('   AJUSTES diz: "' + priv.txt.slice(-60) + '"');
-  log('   CSP: ' + priv.csp);
+  log('   AJUSTES diz: "' + priv.txt + '"');
+  log('   CSP connect-src: ' + priv.conectar.join(' '));
   if (priv.fechada) {
     ok(priv.prometeSemRede, priv.prometeSemRede
       ? 'a tela promete "sem rede" e a CSP fecha a rede'
@@ -366,8 +403,41 @@ const sec = t => log('\n---- ' + t);
         : (priv.prometeSemRede
             ? 'a tela AINDA promete "sem rede" e a CSP JÁ ABRIU — reescreva a tela na mesma fase'
             : 'a CSP abriu para o próprio site e a tela não conta o que o jogo busca — diga, ou a omissão vira a mentira seguinte'));
+  } else if (priv.comMedida) {
+    const host = priv.conectar[1];
+    log('   host aberto: ' + host + ' | o jogo chama: ' + priv.endereco);
+    log('   botão: "' + priv.rot + '" -> um toque -> "' + priv.rotOff + '"');
+    log('   e a frase vira: "' + (priv.txtOff || '').slice(-70) + '"');
+    // 1. a tela não pode mais prometer o que a CSP já não garante
+    ok(!priv.prometeSemRede,
+      !priv.prometeSemRede
+        ? 'a CSP abriu um host de fora e a tela parou de prometer que nada sai'
+        : 'a tela AINDA promete que nada sai e a CSP JÁ ABRIU um host — reescreva a tela na mesma fase');
+    // 2. e continua dizendo o que continua verdade, que é a parte que a pessoa quer ouvir
+    ok(priv.dizArtePropria,
+      'a tela continua dizendo que o PROGRESSO fica no aparelho e que o jogo baixa a arte dele');
+    // 3. o que sai, dito em palavras de gente — e o que NÃO sai, item por item
+    const conta = /MANDA UMA CONTAGEM/.test(priv.txt);
+    const negativas = ['SEM NOME', 'SEM E-MAIL', 'SEM IP', 'SEM COOKIE', 'SEM ANÚNCIO']
+      .filter(n => new RegExp(n).test(priv.txt));
+    ok(conta, conta ? 'a tela diz, em português de gente, que uma contagem sai daqui'
+                    : 'a CSP abriu um host e a tela não diz que algo sai — a omissão É a mentira seguinte');
+    ok(negativas.length === 5, 'e diz o que NÃO sai, uma coisa por vez: ' + negativas.join(' · '));
+    // 4. afirmação sem interruptor é aviso, não escolha
+    ok(priv.temBotao && /LIGADA/.test(priv.rot || ''),
+      'existe um interruptor na própria tela, e ele diz que está ligado');
+    ok(/DESLIGADA/.test(priv.rotOff || '') && /NÃO SAI UM BYTE/.test(priv.txtOff || ''),
+      'um toque desliga, e a FRASE muda junto — a confirmação é o texto, não um alerta');
+    // 5. a CSP autoriza exatamente o endereço que o jogo chama, e não um parecido
+    ok(!!priv.endereco && priv.endereco.indexOf(host + '/') === 0,
+      'o host que a CSP abre é o host que o jogo chama (' + host + ')');
+    // 6. e a chave é a PUBLICÁVEL. O build já reprova isso, mas o build lê o disco e este teste
+    //    lê o jogo VIVO — e é o jogo vivo que vai para o navegador de outra pessoa.
+    ok(/^phc_/.test(priv.chave || ''),
+      'a chave embutida é a publicável do PostHog (phc_), nunca uma de serviço');
   } else {
-    ok(false, 'a CSP abriu para ALÉM do próprio site (' + priv.csp + ') e ninguém reescreveu esta asserção junto');
+    ok(false, 'a CSP `connect-src` está "' + priv.conectar.join(' ')
+      + '" — nenhum dos estados que esta asserção conhece. Escreva o estado novo aqui junto.');
   }
 
   // ============================================================
@@ -729,6 +799,141 @@ const sec = t => log('\n---- ' + t);
     'um capítulo em obra custa no máximo um quarto do que custa um escrito');
   ok(JSON.stringify(eco.primeiros) === JSON.stringify([1500, 3000, 4500, 6000]),
     'e os limiares dos capítulos escritos continuam onde foram medidos');
+
+  // ============================================================
+  // 17 · A MEDIÇÃO NÃO PODE ATRAPALHAR NINGUÉM — e não pode levar ninguém junto
+  //
+  // Duas promessas foram feitas na tela de AJUSTES e no CLAUDE.md, e as duas são do tipo que
+  // ninguém percebe quando quebra, porque quebram no aparelho de outra pessoa:
+  //
+  //  (a) **O JOGO NUNCA DEPENDE DISTO.** PostHog fora do ar, endereço bloqueado por adblock,
+  //      servidor que aceita a conexão e nunca responde — o jogo tem de rodar igual, sem erro
+  //      e sem espera. É a promessa mais fácil de quebrar do repositório: basta um `await`.
+  //  (b) **NÃO SAI NADA QUE IDENTIFIQUE NINGUÉM.** A tela lista cinco negativas (sem nome, sem
+  //      e-mail, sem IP, sem cookie, sem anúncio). Aqui elas param de ser texto e viram
+  //      medida: o corpo do pedido é aberto e conferido campo a campo, e o cabeçalho é lido
+  //      atrás de cookie.
+  //
+  // COMO: o `index.html` do disco é servido a partir de uma origem https falsa, por
+  // interceptação — porque sob `file://` o jogo não manda nada (guarda deliberada, mesma de
+  // `garantirPacote`) e o teste passaria sem exercitar uma linha. Quatro cenários, cada um em
+  // sua própria página, e o quarto é o interruptor.
+  // ============================================================
+  sec('17 · a medição some sem levar o jogo junto, e não carrega ninguém consigo');
+  const HTML = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
+  const ORIGEM = 'https://encaixe.local/';
+  async function rodarMedida(modo) {
+    const pg = await browser.newPage({
+      viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2
+    });
+    const pedidos = [];
+    const ruins = [];
+    pg.on('pageerror', e => ruins.push('PAGEERROR: ' + e.message));
+    pg.on('console', m => {
+      if (m.type() !== 'error') return;
+      const t = m.text();
+      // Pedido de rede que o NAVEGADOR recusou não é defeito do jogo — é exatamente o que este
+      // bloco está encenando, e um adblock de verdade escreve a mesma linha. O que não pode
+      // aparecer é qualquer outro erro: esse seria do jogo.
+      if (/posthog|Failed to load resource|ERR_/i.test(t)) return;
+      ruins.push('CONSOLE: ' + t);
+    });
+    await pg.route('**/*', async (route) => {
+      const req = route.request();
+      const u = req.url();
+      if (/posthog/.test(u)) {
+        pedidos.push({ url: u, corpo: req.postData(), cabecalhos: req.headers() });
+        if (modo === 'adblock') return route.abort('blockedbyclient');
+        if (modo === 'mudo') return;                       // aceita e nunca responde
+        return route.fulfill({ status: 503, body: 'fora do ar' });
+      }
+      if (u === ORIGEM || u === ORIGEM.slice(0, -1)) {
+        return route.fulfill({ contentType: 'text/html; charset=utf-8', body: HTML });
+      }
+      const pack = u.match(/\/(pack-[\w-]+\.json)$/);
+      if (pack) {
+        const f = path.resolve(__dirname, '..', pack[1]);
+        if (fs.existsSync(f)) return route.fulfill({ contentType: 'application/json', body: fs.readFileSync(f) });
+      }
+      return route.abort();
+    });
+    const t0 = Date.now();
+    await pg.goto(ORIGEM);
+    if (modo === 'desligado') {
+      // desliga pelo BOTÃO da tela, como a pessoa desligaria, e recarrega
+      await pg.waitForTimeout(600);
+      await pg.evaluate(() => {
+        fecharTudo(); abrirTela('telaConfig'); montarConfig();
+        document.getElementById('btnMedir').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      });
+      pedidos.length = 0;
+      await pg.reload();
+    }
+    await pg.waitForTimeout(1400);
+    // e o jogo continua sendo jogado: a rua anda e a leitura abre
+    const vivo = await pg.evaluate(async () => {
+      fecharTudo();
+      const antes = worldX;
+      document.getElementById('btnCompletude').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 500));
+      return { andou: worldX - antes, tela: document.getElementById('telaCompletude').classList.contains('aberta') };
+    });
+    const ms = Date.now() - t0;
+    await pg.close();
+    return { modo, pedidos, ruins, vivo, ms };
+  }
+  // O marcador de "o jogo já responde" é a RUA TER ANDADO: não há relógio melhor, porque o
+  // laço de quadro só existe depois de o jogo estar inteiro de pé.
+  for (const modo of ['adblock', 'mudo', '503']) {
+    const r = await rodarMedida(modo).catch(e => ({ modo, erro: String(e) }));
+    if (r.erro) { ok(false, modo + ': o teste explodiu — ' + r.erro); continue; }
+    log('   [' + modo + '] ' + r.pedidos.length + ' pedido(s) à medição | a rua andou '
+      + r.vivo.andou.toFixed(1) + ' px | ' + r.ruins.length + ' erro(s) do jogo | carga em ' + r.ms + ' ms');
+    ok(r.pedidos.length > 0, 'com o endereço ' + modo + ', o jogo TENTOU medir (' + r.pedidos.length + ' pedido)');
+    ok(r.ruins.length === 0, r.ruins.length === 0
+      ? 'e não soltou um erro sequer: ' + modo + ' não é problema do jogador'
+      : 'o jogo reclamou por causa da medição: ' + r.ruins[0]);
+    ok(r.vivo.andou > 1 && r.vivo.tela,
+      'e a partida seguiu inteira — a rua andou e A HISTÓRIA abriu (' + modo + ')');
+    // O CORPO, ABERTO. Só no primeiro cenário: é o mesmo corpo nos três.
+    if (modo === 'adblock') {
+      const c = JSON.parse(r.pedidos[0].corpo || '{}');
+      const props = Object.keys(c.properties || {}).sort();
+      log('   corpo: evento "' + c.event + '" | distinct_id ' + String(c.distinct_id).slice(0, 8)
+        + '… | propriedades: ' + props.join(', '));
+      ok(/^phc_/.test(c.api_key || ''), 'o corpo leva a chave publicável, e é a única credencial nele');
+      ok(/^[0-9a-f]{32}$/.test(c.distinct_id || ''),
+        'o identificador é um número sorteado de 32 dígitos hex — não veio de nada seu');
+      ok(c.properties && c.properties.$ip === null,
+        'o corpo manda `$ip: null` — o PostHog descarta o endereço em vez de guardar e geolocalizar');
+      ok(c.properties && c.properties.$process_person_profile === false,
+        'e `$process_person_profile: false` — o evento é contado sem abrir ficha de ninguém');
+      ok(!r.pedidos[0].cabecalhos.cookie,
+        'e o pedido vai sem cookie nenhum (credentials: "omit")');
+      // A LISTA BRANCA. Qualquer propriedade nova aparece aqui como falha, e é de propósito:
+      // o jeito de vazar algo é acrescentar um campo achando que ele é inofensivo.
+      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'capitulo', 'daChegada',
+        'dia', 'minutos', 'n', 'nome', 'terminou', 'vez'];
+      const estranhas = props.filter(p => PERMITIDAS.indexOf(p) < 0);
+      ok(estranhas.length === 0, estranhas.length === 0
+        ? 'e nenhuma propriedade fora da lista branca — nada de tela, idioma, fuso ou navegador'
+        : 'propriedade que ninguém aprovou no corpo do evento: ' + estranhas.join(', '));
+      ok(!/nome|email|e-mail|ip|user|agent/i.test(JSON.stringify(c).replace(/"(nome|\$ip)":/g, '""')),
+        'e o corpo inteiro não carrega palavra de identificação escondida');
+    }
+  }
+  // O INTERRUPTOR. Não é "menos dados": é nenhum.
+  const desl = await rodarMedida('desligado').catch(e => ({ modo: 'desligado', erro: String(e) }));
+  if (desl.erro) { ok(false, 'desligado: o teste explodiu — ' + desl.erro); }
+  else {
+    log('   [desligado] ' + desl.pedidos.length + ' pedido(s) à medição | a rua andou '
+      + desl.vivo.andou.toFixed(1) + ' px');
+    ok(desl.pedidos.length === 0,
+      desl.pedidos.length === 0
+        ? 'com a contagem desligada não sai UM byte — nem no boot, nem ao abrir A HISTÓRIA'
+        : 'a contagem está desligada e ainda saíram ' + desl.pedidos.length + ' pedido(s)');
+    ok(desl.vivo.andou > 1 && desl.vivo.tela, 'e o jogo desligado continua sendo o mesmo jogo');
+  }
 
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
