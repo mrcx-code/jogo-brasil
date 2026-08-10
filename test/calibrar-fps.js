@@ -5,11 +5,12 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
   return undefined;
 }
-const alvo = () => 'file://' + path.resolve(__dirname, '..', process.env.JOGO_HTML || 'index.html');
+const alvo = () => ABRIR('file://' + path.resolve(__dirname, '..', process.env.JOGO_HTML || 'index.html'));
 
 async function medir(page) {
   return page.evaluate(async () => {

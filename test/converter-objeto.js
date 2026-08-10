@@ -13,6 +13,7 @@
 
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const ENT = process.argv[2], SAI = process.argv[3];
 const ALT = parseInt(process.argv[4] || '120', 10);
@@ -22,7 +23,7 @@ if (!ENT || !SAI) { console.error('uso: converter-objeto.js <entrada> <saida.png
 (async () => {
   const nav = await chromium.launch();
   const pg = await nav.newPage();
-  await pg.goto('file:///' + path.resolve(ENT).replace(/\\/g, '/'));
+  await pg.goto(ABRIR('file:///' + path.resolve(ENT).replace(/\\/g, '/')));
 
   const r = await pg.evaluate(async function (args) {
     const im = document.querySelector('img');

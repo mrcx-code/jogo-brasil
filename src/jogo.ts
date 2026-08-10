@@ -8658,7 +8658,16 @@ function montarConfig() {
   if (R.toqEsq + R.toqDir > 0) {
     linhas.push(["PRIMEIROS 60S · ESQ " + R.toqEsq + " / DIR " + R.toqDir, "#33240f"]);
   }
-  linhas.push(["NADA SAI DESTE APARELHO:", "#5c3210"], ["O JOGO NÃO TEM REDE.", "#5c3210"]);
+  // A FRASE MUDOU EM 10/08, E TINHA DE MUDAR NO MESMO DIA. Ela dizia "NADA SAI DESTE APARELHO
+  // / O JOGO NÃO TEM REDE", e isso deixou de ser verdade no instante em que a arte dos
+  // capítulos passou a chegar por `fetch`. O CLAUDE.md §3 manda reescrever a tela NA MESMA FASE
+  // que ligar a rede, e o motivo é duro: afirmação de privacidade que virou falsa é pior que
+  // nenhuma. O que continua verdade — e é o que a pessoa quer saber — é que nada DELA sai
+  // daqui: o save, o tempo jogado, os toques e os dias vivem no `localStorage` e não têm para
+  // onde ir. O que o jogo busca é a arte dele mesmo, no mesmo endereço de onde veio, e a CSP
+  // (`connect-src 'self'`) proíbe qualquer outro. O `test/encaixe.js` amarra esta frase à CSP
+  // e falha se uma andar sem a outra.
+  linhas.push(["SEU JOGO FICA NESTE APARELHO:", "#5c3210"], ["O JOGO SÓ BAIXA A ARTE DELE.", "#5c3210"]);
   linhas.forEach(function (l) {
     const linha = document.createElement("div");
     pixelRotulo(linha, l[0], 1, l[1]);

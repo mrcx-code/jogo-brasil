@@ -13,6 +13,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
 // O cardápio: os aparelhos que existem de verdade, não potências de dois.
 const TELAS = [
@@ -28,7 +29,7 @@ const TELAS = [
 const ALVO_MIN = 44;   // px de dedo — o mínimo que Apple e Google recomendam
 
 (async () => {
-  const alvo = 'file:///' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/');
+  const alvo = ABRIR('file:///' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/'));
   const nav = await chromium.launch();
   const linhas = [];
 

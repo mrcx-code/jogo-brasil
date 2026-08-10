@@ -22,6 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
@@ -45,7 +46,7 @@ const LARGURAS = medir ? [520, 660, 780, 900, 1100] : [LARGURA];
 
   for (const a of arqs) {
     const chave = a.replace(/^ctx-|\.png$/g, '');
-    await pg.goto('file:///' + path.join(DIR, a).replace(/\\/g, '/'));
+    await pg.goto(ABRIR('file:///' + path.join(DIR, a).replace(/\\/g, '/')));
     for (const L of LARGURAS) {
       const r = await pg.evaluate(async function (d) {
         const im = document.querySelector('img');

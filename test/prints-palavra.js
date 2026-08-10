@@ -13,6 +13,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
     if (p && fs.existsSync(p)) return p;
@@ -51,7 +52,7 @@ const CENAS = [
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
-  await page.goto('file://' + path.resolve(ARQ));
+  await page.goto(ABRIR('file://' + path.resolve(ARQ)));
   await page.waitForTimeout(900);
 
   await page.evaluate(() => {
@@ -90,7 +91,7 @@ const CENAS = [
   // jeito de olhar o sinal em vez de olhar o borrão. Um anel apertado × dois anéis largos.
   const lupa = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
   lupa.on('pageerror', e => console.log('PAGEERROR', e.message));
-  await lupa.goto('file://' + path.resolve(ARQ));
+  await lupa.goto(ABRIR('file://' + path.resolve(ARQ)));
   await lupa.waitForTimeout(900);
   await lupa.evaluate(() => {
     if (typeof fecharTelas === 'function') fecharTelas();

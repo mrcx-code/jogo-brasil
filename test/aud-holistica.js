@@ -14,8 +14,9 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 
-const ALVO = 'file://' + path.resolve(__dirname, '..', process.env.ALVO || 'index.html').split(path.sep).join('/');
+const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', process.env.ALVO || 'index.html').split(path.sep).join('/'));
 const OUT = (n) => path.join(__dirname, 'AUD-' + n + '.png');
 
 // ---------- parte offline: a paleta declarada no CSS ----------

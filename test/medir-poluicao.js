@@ -13,6 +13,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
     if (p && fs.existsSync(p)) return p;
@@ -27,7 +28,7 @@ const PREFIXO = process.argv[4] || 'D';
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
-  await page.goto('file://' + path.resolve(ARQ));
+  await page.goto(ABRIR('file://' + path.resolve(ARQ)));
   await page.waitForTimeout(900);
   await page.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof fecharTudo === 'function') fecharTudo(); });
   await page.waitForTimeout(200);

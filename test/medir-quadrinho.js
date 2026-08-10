@@ -23,6 +23,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const DIR = path.join(RAIZ, 'assets', 'entrada');
@@ -38,7 +39,7 @@ const TELA_W = 1126, TELA_H = 1688;   // 563×844 css a dpr 2
   console.log('página  largura   KB b64   erro médio   erro máx   (erro na tela ' + TELA_W + 'x' + TELA_H + ')');
   const soma = {}, kbs = {};
   for (const a of arqs) {
-    await pg.goto('file:///' + path.join(DIR, a).replace(/\\/g, '/'));
+    await pg.goto(ABRIR('file:///' + path.join(DIR, a).replace(/\\/g, '/')));
     for (const L of LARGURAS) {
       const r = await pg.evaluate(async function (d) {
         const im = document.querySelector('img');

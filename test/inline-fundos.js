@@ -13,6 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 // A FONTE, não o index.html. Desde a migração para TypeScript o index.html da raiz é SAÍDA:
@@ -38,7 +39,7 @@ const QUAL = 0.80;
   for (const cap of CAPS) {
     for (const peca of [['alto', 'alto'], ['baixo', 'chao']]) {
       const arq = path.join(DIR, cap + '-' + peca[0] + '.png');
-      await pg.goto('file:///' + arq.replace(/\\/g, '/'));
+      await pg.goto(ABRIR('file:///' + arq.replace(/\\/g, '/')));
       const uri = await pg.evaluate(async function (q) {
         const im = document.querySelector('img');
         await im.decode();

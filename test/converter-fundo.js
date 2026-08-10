@@ -21,6 +21,7 @@
 
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const ENT = process.argv[2];
 const PECA = process.argv[3];
@@ -37,7 +38,7 @@ const ALVO = PECA === 'alto' ? { w: 720, h: 959 } : { w: 720, h: 320 };
 (async () => {
   const nav = await chromium.launch();
   const pg = await nav.newPage();
-  await pg.goto('file:///' + path.resolve(ENT).replace(/\\/g, '/'));
+  await pg.goto(ABRIR('file:///' + path.resolve(ENT).replace(/\\/g, '/')));
 
   const r = await pg.evaluate(async function (args) {
     const im = document.querySelector('img');
