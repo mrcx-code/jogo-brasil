@@ -66,7 +66,16 @@ const ESTADOS = [
                 e.aberturaImg ? e.aberturaImg.slice(0, 3) : null, false);
     } },
   { id: 'historia', abre: () => { fecharTelas(); montarCompletude(); abrirTela('telaCompletude'); } },
-  { id: 'chegada', abre: () => { fecharTelas(); montarFim(); montarPergunta(); abrirTela('telaFim'); } },
+  // A pergunta de uma linha NASCE OCULTA (`.oculto`), e um save que já respondeu a mantém
+  // oculta para sempre. Medir a CHEGADA sem forçá-la é medir a tela sem o inquilino mais
+  // novo dela — foi assim que três tábuas de resposta com o rótulo estourando a caixa
+  // passaram despercebidas em toda medida deitada.
+  { id: 'chegada', abre: () => {
+      fecharTelas(); montarFim(); montarPergunta();
+      document.getElementById('fimPergunta').classList.remove('oculto');
+      document.getElementById('fimPerguntaBotoes').classList.remove('oculto');
+      abrirTela('telaFim');
+    } },
   { id: 'fontes', abre: () => { fecharTelas(); montarFontes(); abrirTela('telaFontes'); } },
   { id: 'ajustes', abre: () => { fecharTelas(); montarConfig(); abrirTela('telaConfig'); } },
   { id: 'volta', abre: () => { fecharTelas(); mostrarRetorno(3600 * 6); } },
@@ -242,12 +251,21 @@ const ESTADOS = [
         //      CLAUDE/CSS já registra por que isso não basta: "um botão que só existe depois
         //      de um gesto que ninguém pediu é um botão que metade das pessoas não acha".
         //      Como a tela rola, a checagem 2 não a alcança — esta a alcança.
+        //      E ela olha TODO alvo da tela, não só a última tábua da coluna das portas: a
+        //      pergunta de uma linha quebra em duas fileiras quando as três palavras não
+        //      cabem, e foi assim que o NÃO saiu pela borda de baixo com a medição verde.
         let chegada = null;
         if (estado === 'chegada') {
           const t = document.getElementById('telaFim');
-          const v = document.getElementById('btnFimVoltar');
-          chegada = { rola: Math.round(t.scrollHeight - t.clientHeight),
-                      abaixo: Math.round(v.getBoundingClientRect().bottom - H) };
+          const fora = [];
+          t.querySelectorAll('.telaBtn, .telaTit, .fimLin, #fimPerguntaTxt').forEach(function (e) {
+            if (!vis(e)) return;
+            const b = e.getBoundingClientRect();
+            if (b.bottom > H + 1 || b.top < -1 || b.right > W + 1 || b.left < -1) {
+              fora.push(nome(e) + ' ' + Math.round(b.top) + '..' + Math.round(b.bottom));
+            }
+          });
+          chegada = { rola: Math.round(t.scrollHeight - t.clientHeight), fora: fora.slice(0, 5) };
         }
 
         // 9 · A PÁGINA DO QUADRINHO CABE NA PÁGINA. `.qQuadro` é `overflow: hidden`, então
@@ -278,8 +296,8 @@ const ESTADOS = [
       if (r.miudos.length) p('alvo < ' + ALVO_MIN + 'px: ' + r.miudos.join(', '));
       if (r.cortados.length) p('texto cortado: ' + r.cortados.join(', '));
       if (r.estourados.length) p('rótulo bitmap fora da caixa: ' + r.estourados.join(', '));
-      if (r.chegada && r.chegada.abaixo > 0) {
-        p('a última tábua da CHEGADA termina ' + r.chegada.abaixo + 'px abaixo da dobra (a tela rola ' + r.chegada.rola + 'px)');
+      if (r.chegada && r.chegada.fora.length) {
+        p('a CHEGADA passa da dobra (a tela rola ' + r.chegada.rola + 'px): ' + r.chegada.fora.join(', '));
       }
       if (r.comic && r.comic.length) {
         p(r.comic.length + ' de 26 páginas com conteúdo maior que o quadro — ' + r.comic.slice(0, 6).join(', '));

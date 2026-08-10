@@ -1268,11 +1268,18 @@
   /* respondida, o papel é só a confirmação — a moldura âmbar do `.falta` seria convite, e
      não há mais nada a convidar aqui */
   #fimPerguntaTxt.anotado { font: var(--margem); font-style: italic; color: #6b4f2a; }
-  #fimPerguntaBotoes { display: flex; gap: 6px; width: 100%; }
+  /* AS TRÊS RESPOSTAS QUEBRAM DE LINHA EM VEZ DE CORTAR A PALAVRA, e o motivo é o de sempre
+     nesta casa: o rótulo é um CANVAS bitmap de largura fixa, não texto que reflui. Com
+     `min-width: 0` numa coluna estreita — a da CHEGADA deitada a 640 de largura — "VOLTO" e
+     "TALVEZ" desenhavam 62 e 74 px dentro de tábuas de 53 e escorriam uma por cima da outra.
+     Medido, e escondido da medição até agora porque a pergunta nasce `oculta`.
+     `fit-content` é o piso: a tábua nunca fica menor que a palavra que ela carrega, e quando
+     as três não couberem na linha elas descem. Uma linha a mais é barata; nome cortado não. */
+  #fimPerguntaBotoes { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
   /* `#telaFim .telaBtn` prega 300 px de largura em toda tábua desta tela; as três respostas
      dividem a linha, então elas precisam desfazer isso — ID mais classe, para ganhar dele. */
-  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 0; min-width: 0;
-    padding: 12px 4px; margin: 0; }
+  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 auto; min-width: fit-content;
+    min-height: 44px; padding: 10px 8px; margin: 0; }
   #fimPerguntaBotoes.oculto { display: none; }
   /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
      ID — o botão nascia visível e empurrava a coluna do menu inteira para cima. O seletor
@@ -1300,7 +1307,7 @@
     #telaFim .telaBtn { padding: 11px 20px; margin-bottom: 5px; }
     #fimPergunta { margin-bottom: 8px; }
     #fimPerguntaTxt { font-size: 14px; line-height: 1.4; padding: 6px 10px; margin-bottom: 5px; }
-    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 9px 3px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 8px 6px; }
   }
   /* O PISO DO QUE AINDA SE VENDE (320×568). Com só o aperto de 720px sobravam -17 px — a
      tela cabia por dezessete pixels de nada. Mais um degrau resolve sem cortar uma palavra.
@@ -1308,12 +1315,12 @@
      mesma especificidade, então quem vence é quem está por último. Invertido, este bloco não
      pinta um pixel — e foi o que aconteceu na primeira tentativa. */
   @media (max-height: 600px) {
-    #telaFim { padding-top: 8px; }
-    #telaFim .telaTit { margin-bottom: 6px; }
-    #telaFim .telaTxt { font-size: 13px; line-height: 1.4; margin-bottom: 7px; }
-    #fimPlacar { margin-bottom: 6px; }
-    .fimLin { padding: 4px 9px; margin-bottom: 2px; }
-    #telaFim .telaBtn { padding: 11px 18px; margin-bottom: 3px; }
+    #telaFim { padding-top: 6px; }
+    #telaFim .telaTit { margin-bottom: 4px; }
+    #telaFim .telaTxt { font-size: 13px; line-height: 1.4; margin-bottom: 4px; }
+    #fimPlacar { margin-bottom: 5px; }
+    .fimLin { padding: 4px 9px; margin-bottom: 1px; }
+    #telaFim .telaBtn { padding: 11px 18px; margin-bottom: 2px; }
     /* O PISO. Aqui a pergunta é o inquilino mais novo da tela mais alta do jogo, e ela paga o
        aluguel dela: fonte de leitura no menor degrau que o caderno tem, papel rente à linha, e
        a tábua com o mínimo de degrau que ainda dá alvo de dedo.
@@ -1325,9 +1332,9 @@
        respeita desde a passada de usabilidade, e a medição nova cobra. Os quatro pixels
        voltam e cabem — medido nas três telas curtas depois de a CHEGADA deitada virar
        colunas, que é quem tinha criado a pressão de altura em primeiro lugar. */
-    #fimPergunta { margin-bottom: 5px; }
-    #fimPerguntaTxt { font-size: 13px; line-height: 1.35; padding: 4px 8px; margin-bottom: 3px; }
-    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 7px 3px; }
+    #fimPergunta { margin-bottom: 3px; }
+    #fimPerguntaTxt { font-size: 13px; line-height: 1.35; padding: 4px 8px; margin-bottom: 2px; }
+    #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 7px 6px; }
   }
 
   /* ===== A CHEGADA E OS AJUSTES, DEITADOS ===== quarta peça do telefone virado. As duas
@@ -1343,8 +1350,12 @@
      linha) · o placar do que ficou · as portas. As portas na ponta direita pelo mesmo motivo
      do rodapé: deitado é ali que o polegar está.
      E as tábuas voltam aos 44 px de dedo — a consulta de 600px as tinha levado a 40, que era
-     o preço de caber empilhadas. Em colunas esse preço não precisa mais ser pago. */
-  @media (orientation: landscape) and (max-height: 600px) {
+     o preço de caber empilhadas. Em colunas esse preço não precisa mais ser pago.
+     A CONSULTA NÃO TEM TETO DE ALTURA, e isso foi medido: com a pergunta de uma linha na tela
+     a pilha estourava 46 px também no TABLET deitado (1024×768), que passa longe dos 600. O
+     argumento aqui nunca foi altura escassa — é que uma pilha vertical numa tela deitada
+     desperdiça a largura que ela tem de sobra. Vale em qualquer tela deitada. */
+  @media (orientation: landscape) {
     #telaFim { display: grid; justify-items: center;
       /* `start` primeiro e `safe center` depois: onde o navegador entender o `safe`, a
          composição se centra; onde ela NÃO couber, o `safe` vira `start` sozinho e o topo
@@ -1360,8 +1371,14 @@
        largura) e as três tábuas empurravam a última 23 px para fora. Atravessando, a altura
        do texto se reparte pelas três linhas e a coluna das portas encontra o próprio ritmo. */
     #telaFim .telaTxt { grid-column: 1; grid-row: 2 / span 2; margin-bottom: 6px; }
-    #fimPergunta { grid-column: 1; grid-row: 4; align-self: start; }
-    #fimPlacar   { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-bottom: 0; }
+    #fimPlacar   { grid-column: 2; grid-row: 2 / span 2; align-self: start; margin-bottom: 0; }
+    /* A PERGUNTA ATRAVESSA AS DUAS COLUNAS DE LEITURA, e isso é o conserto de um defeito que
+       só apareceu com a medição olhando para ela: as três respostas são rótulos BITMAP de
+       largura fixa (74, 62 e 38 px), e numa coluna de 171 px elas quebram em duas fileiras —
+       o "NÃO" ia parar 33 px abaixo da borda de baixo a 640×360. Espremer a tábua não é opção
+       (o rótulo não reflui) e afinar a coluna empurra o problema para o placar. Atravessando,
+       a linha inteira tem ~370 px e as três cabem lado a lado em qualquer tela deitada. */
+    #fimPergunta { grid-column: 1 / 3; grid-row: 4; align-self: start; }
     #btnFimHist   { grid-column: 3; grid-row: 2; }
     #btnFimFontes { grid-column: 3; grid-row: 3; }
     #btnFimVoltar { grid-column: 3; grid-row: 4; }

@@ -1317,8 +1317,15 @@ const sec = t => log('\n---- ' + t);
     // tábua terminava 86 px abaixo da dobra a 844×390 e 116 px a 640×360.
     // AJUSTES é pior e mais simples: ela NÃO rola, e o título dela ficava 116 px ACIMA da
     // borda de cima — para cima não existe rolagem, então ele simplesmente não existia.
-    for (const t of [{ id: 'telaFim', mostra: 'montarFim(); montarPergunta();', ult: 'btnFimVoltar', nome: 'CHEGADA' },
-                     { id: 'telaConfig', mostra: 'montarConfig();', ult: 'btnVoltarCfg', nome: 'AJUSTES' }]) {
+    // A pergunta de uma linha NASCE `oculta` e um save que já respondeu a esconde para
+    // sempre — então ela tem de ser forçada, ou a CHEGADA é medida sem o inquilino mais novo
+    // dela. Foi assim que três tábuas de resposta com o rótulo estourando a caixa (e o "NÃO"
+    // 33 px abaixo da borda a 640×360) passaram por toda medida deitada sem uma reprovação.
+    for (const t of [{ id: 'telaFim', nome: 'CHEGADA',
+                       mostra: 'montarFim(); montarPergunta();' +
+                               'document.getElementById("fimPergunta").classList.remove("oculto");' +
+                               'document.getElementById("fimPerguntaBotoes").classList.remove("oculto");' },
+                     { id: 'telaConfig', mostra: 'montarConfig();', nome: 'AJUSTES' }]) {
       await page.evaluate(function (t) {
         fecharTelas(); eval(t.mostra); abrirTela(t.id);
       }, t);
@@ -1327,7 +1334,7 @@ const sec = t => log('\n---- ' + t);
         const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
         const tela = document.getElementById(t.id);
         const fora = [], baixos = [];
-        tela.querySelectorAll('.telaBtn, .telaTit, .telaTxt, #fimPlacar, #cfgInfo').forEach(function (e) {
+        tela.querySelectorAll('.telaBtn, .telaTit, .telaTxt, #fimPlacar, #cfgInfo, #fimPerguntaTxt').forEach(function (e) {
           const s = getComputedStyle(e);
           if (s.display === 'none' || s.visibility === 'hidden') return;
           const b = e.getBoundingClientRect();
@@ -1337,7 +1344,9 @@ const sec = t => log('\n---- ' + t);
             fora.push(id + ' ' + Math.round(b.top) + '..' + Math.round(b.bottom) +
                       ' x ' + Math.round(b.left) + '..' + Math.round(b.right));
           }
-          if (e.classList.contains('telaBtn') && !e.classList.contains('perguntaBtn') && b.height < 44) {
+          // as tábuas de resposta entram na conta: elas tinham 36 px e a exceção que as
+          // dispensava era o preço de caberem empilhadas, que a coluna dupla acabou de pagar
+          if (e.classList.contains('telaBtn') && b.height < 44) {
             baixos.push(id + ' ' + Math.round(b.height));
           }
         });
