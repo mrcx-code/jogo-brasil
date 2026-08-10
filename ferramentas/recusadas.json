@@ -4,31 +4,60 @@
   "itens": [
     {
       "n": "cap1-corrida",
-      "em": "2026-08-09 00:00",
-      "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada. Precisa da MESMA pessoa, MESMA escala, MESMA paleta (compare pela largura da cabeça).",
+      "em": "2026-08-10 11:30",
+      "porque": "TERCEIRA recusa por §2: continua não sendo a mesma pessoa da caminhada. Desta vez com número que não depende da pose — ALTURA/CABEÇA, que o validar-folha.js mede e que só muda quando o modelo troca o CORPO, nunca o zoom: a caminhada (sprite-cap1-andar-v2) dá 4,4 cabeças de altura e esta folha dá 2,3. Uma pessoa não perde metade da própria altura em cabeças por estar correndo — são dois cânones de corpo diferentes. Some-se o óbvio: a caminhada é um homem de cabelo curto, torso nu e tanga; esta folha é uma mulher de cabelo longo solto, cocar de penas, faixa no peito e saia franjada. A LARGURA DA CABEÇA (§5) não serve de régua aqui e por isso não foi usada: numa folha de corrida o cabelo voa para dentro do quinto superior e infla a medida (é o que o test/comparar-folhas.js documenta).",
       "onde": "PENDENTES.md §2 · equipe.json próximos ('3 folhas de corrida com a MESMA pessoa da caminhada')",
-      "bytes": 1241398
+      "medido": { "alturaPorCabecaCaminhada": 4.4, "alturaPorCabecaCorrida": 2.3, "razao": 1.9 },
+      "bytes": 1281568
     },
     {
       "n": "cap2-corrida",
-      "em": "2026-08-09 00:00",
-      "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada de Palmares.",
+      "em": "2026-08-10 11:30",
+      "porque": "TERCEIRA recusa por §2, mesma medida: a caminhada de PALMARES (sprite-cap2-andar) dá 5,2 cabeças de altura e esta folha dá 2,8 — 1,9x de diferença de proporção de corpo. A caminhada é um homem de túnica clara sem manga e calça na canela; esta folha é uma mulher com penteado alto preso por faixa amarela, argolas e conjunto dourado de faixa e saia. Não é a mesma pessoa em ritmo diferente: é outra pessoa.",
       "onde": "PENDENTES.md §2 · equipe.json próximos",
-      "bytes": 1323993
+      "medido": { "alturaPorCabecaCaminhada": 5.2, "alturaPorCabecaCorrida": 2.8, "razao": 1.9 },
+      "bytes": 1272473
     },
     {
       "n": "cap3-corrida",
-      "em": "2026-08-09 00:00",
-      "porque": "Recusada por §2: a pessoa da folha de corrida não é a mesma da folha de caminhada do presente.",
+      "em": "2026-08-10 11:30",
+      "porque": "TERCEIRA recusa por §2, mesma medida: a caminhada de AINDA AQUI (sprite-cap3-andar) dá 4,9 cabeças de altura e esta folha dá 2,2 — 2,2x. A caminhada é um homem de camiseta clara com barra padronada, bermuda escura e chinelo; esta folha é uma mulher de rabo de cavalo, camiseta branca, jeans e tênis. Outra pessoa.",
       "onde": "PENDENTES.md §2 · equipe.json próximos",
-      "bytes": 1255233
+      "medido": { "alturaPorCabecaCaminhada": 4.9, "alturaPorCabecaCorrida": 2.2, "razao": 2.2 },
+      "bytes": 1271174
     },
     {
+      "n": "cap4-fundo-alto-v2",
+      "em": "2026-08-10 11:30",
+      "porque": "A REPINTURA PIORA JUSTAMENTE O QUE ELA VEIO CONSERTAR. A pintura de SALVADOR foi mandada refazer porque tem um entardecer assado na tinta, e o jogo tinge a pintura pelo relógio dele: pintura que já é entardecer vira entardecer duas vezes e nunca vira meio-dia (é o cabeçalho do test/medir-luz.js). Medido nos DOIS arquivos crus, com a mesma ferramenta: a atual dá R-B +59,4 e saturação 48,7%; esta v2 dá R-B +84,5 e saturação 62,0%. A saturação melhorou e passa a régua (>=55%), mas a TEMPERATURA — o defeito — piorou em 25,1. E a imagem explica o número: a v2 não é uma rua com luz dourada, é um poente com o disco do sol pousado no horizonte e o céu inteiro laranja. As irmãs embutidas ficam entre -10 e -55 de R-B. O pedido novo tem de dizer o alvo em número: LUZ NEUTRA DE MEIO-DIA, R-B <= 0 e saturação >= 55%, sol ALTO e fora do quadro.",
+      "onde": "PENDENTES.md · pedido de v3 da pintura de SALVADOR",
+      "medido": { "atual": { "RmenosB": 59.4, "saturacao": 48.7 }, "v2": { "RmenosB": 84.5, "saturacao": 62.0 }, "irmasEmbutidas": "R-B de -10 a -55" },
+      "bytes": 3185337
+    },
+    {
+      "n": "cap4-fundo-chao-v2",
+      "em": "2026-08-10 11:30",
+      "porque": "Cai junto com o alto-v2, e por dependência declarada: o próprio pedido dela diz 'chão refeito para casar com o de cima'. Entrar sozinha poria um calçamento iluminado por poente debaixo de um céu de meio-dia, que é pior que o defeito de hoje. Dois números à parte, para o pedido novo: ela vem em 2172x724 (proporção 3,00) enquanto todas as irmãs vêm em 1942x809 (2,40), e sua saturação é 17,5% contra 40,5% a 79,4% das outras peças de chão embutidas — pedra quase cinza. Quando a v3 do ALTO chegar com luz de meio-dia, o chão vem com ela e na proporção das irmãs.",
+      "onde": "PENDENTES.md · pedido de v3 da pintura de SALVADOR",
+      "medido": { "dimensao": "2172x724", "irmas": "1942x809", "saturacao": 17.5, "irmasChaoEmbutidas": "40,5% a 79,4%" },
+      "bytes": 2753020
+    },
+    {
+      "n": "q-p22",
+      "em": "2026-08-10 11:30",
+      "porque": "SÉCULO ERRADO. A página 22 é o marco de 1988 na linha do tempo — 'A Constituinte', cujo texto no src/jogo.ts diz: 'Foi escrita com gente indígena falando no plenário — não só sendo falada' (fontes CF/88 art. 231, ADCT art. 68, Ailton Krenak na Constituinte, 1987). A imagem entregue é uma escrivaninha à luz de VELA, com pena de ave, tinteiro, pergaminho lacrado a cera e janela de vidro chumbado sobre uma silhueta de igreja colonial: iconografia pré-industrial, três séculos fora do assunto. Além do erro de data, ela apaga exatamente o que a entrada celebra — a Constituinte de 1988 foi um plenário com gente, e a imagem não tem uma pessoa. O pedido novo: o plenário, 1988, e a presença indígena dentro dele; enquadramento com terço inferior calmo e assunto nos 70% centrais da largura (test/LEIAME.md).",
+      "onde": "src/jogo.ts LINHA_TEMPO, entrada q:'1988' t:'A Constituinte' (hoje sem campo qi) · necessario.json",
+      "bytes": 2263997
+    }
+  ],
+  "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
+  "resolvidas": [
+    {
       "n": "q-p19",
-      "em": "2026-08-09 00:00",
-      "porque": "REFAZER: a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras). A página entrou no jogo assim mesmo — o pedido é a versão sem a tarja.",
-      "onde": "equipe.json próximos ('q-p19 REFAZER — a legenda tapa o tabuleiro') · título do item em necessario.json",
-      "bytes": 2476179
+      "em": "2026-08-10 11:30",
+      "porque": "RESOLVIDO. A recusa era 'a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras)'. Na versão nova o tabuleiro — a mesa carregada de fruta, cuia, cesto e panela, com as duas mulheres negociando por cima dele — ocupa a FAIXA DO MEIO, e o terço inferior é um chão de areia liso, sem assunto nenhum: é exatamente onde a legenda senta. A segunda régua do LEIAME também fecha: a imagem corta 15,4% de cada lado (cover casa a altura), e o tabuleiro e as duas mulheres estão dentro dos 70% centrais. Bytes mudaram de 2476179 para 2388770, então a recusa já tinha caducado pela regra deste arquivo.",
+      "bytes": 2388770,
+      "estado": "APROVADA, ainda NÃO EMBUTIDA — ver PENDENTES.md (a mesa de arte parou por colisão com outra sessão em 10/08)"
     }
   ]
 }

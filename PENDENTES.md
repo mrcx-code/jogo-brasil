@@ -236,3 +236,178 @@ três coisas foram consideradas e **não** feitas — nenhuma delas é dívida, 
 `index.html` da raiz com dois cliques (`file://`) mostra a arte do capítulo 1 em todo lugar. O
 Chromium recusa o `fetch` sob `file://` e o jogo nem tenta. O jogo roda inteiro assim; só a arte
 dos capítulos 2+ não aparece. Para ver o jogo como ele é: `npm start`.
+
+---
+
+## 10. A LEVA DE 17 ARTES DE 10/08 — o que a triagem decidiu, e por que ela parou (10/08, Dev)
+
+Dezessete arquivos chegaram em `assets/entrada` e a mesa passou a bola. A triagem foi feita
+inteira e cada item tem número; **a integração parou no primeiro embutimento** por uma colisão
+de sessão descrita no fim desta seção. Nada aqui é opinião pendurada: o que não entrou tem
+medida, e as medidas estão em `ferramentas/recusadas.json`.
+
+### Entrou (1 de 17), e está NO DISCO mas NÃO COMMITADO
+
+- **`cap4-sprite-v3`** — a caminhada da ganhadeira de SALVADOR, terceira tentativa, e desta vez
+  a folha fecha. A anterior escorregava **18,75%** (o melhor ciclo de três que as oito poses
+  permitiam); esta dá **1,23%** no ciclo **4 → 7 → 1**, que é **15,2x melhor** e põe SALVADOR na
+  faixa das irmãs (capítulo 1: 0,00%; capítulo 2: 1,82%). O pedido tinha sido "SÓ AS POSES DO
+  APOIO" e foi exatamente isso que faltava: o calcanhar do pé plantado agora recua **41 e 40 px**
+  de sprite em duas transições seguidas — o mesmo pé, andando para trás em passos iguais, que é
+  a definição de pé plantado. Varridos os 617 ciclos válidos de três e quatro quadros que as oito
+  poses permitem; o melhor de quatro é 4,8,3,7 com 2,67%.
+  - `laco` passa de **96 para 121,5** px de sprite e `alturaQuadro` de **396 para 421**, o que dá
+    `passo` = **4,23** px de mundo por quadro (era 3,56).
+  - **`tela` precisa passar de 6 para 7** e `telaCorrer` fica em 3. Com n = 7 a caminhada anda a
+    **36,3 px/s**, dentro da família das irmãs (35,6 · 37,5 · 37,7 · 38,3); a corrida fica em
+    84,6 px/s, ao lado dos 83,0 de AINDA AQUI. **Esta linha do `PASSO_CAP` ainda NÃO foi
+    escrita** — é a primeira coisa a fazer quando esta seção for retomada, porque a folha nova
+    já está embutida e sem ela a passada fica 19% rápida demais para a arte.
+  - Ferramenta nova, commitada: **`test/separar-encosto.js`**. A folha vem com as duas últimas
+    figuras encostadas e o `recortar-folha.js` aborta (e faz bem — mancha colada vira quadro com
+    duas metades de pessoa). O script pinta uma coluna de magenta na coluna MENOS entintada da
+    faixa indicada; aqui escolheu x=1526, com 16 px de tinta. `node test/separar-encosto.js
+    assets/entrada/cap4-sprite-v3.png saida.png 1500 1600 3`.
+
+### Aprovado pela triagem, ainda NÃO embutido (5)
+
+Nenhum destes tem defeito conhecido — só não chegaram a entrar porque a integração parou.
+
+- **`q-p19`** — o refazer resolveu. Detalhe em `recusadas.json`, lista `resolvidas`.
+- **`cap4-obj-v2`** — os três itens de SALVADOR (tabuleiro, balde d'água, trouxa de roupa)
+  recortados com folga, em magenta limpo. São OBJETOS, que é o que a §2 exige do que a mão
+  alcança: a frase de abertura do capítulo já promete exatamente estes três.
+- **`cap3-obj-galao-v2`** — o galão de 20 L de AINDA AQUI, centrado e com contorno duro.
+- **`ctx-vao-cidade-africana`** — a Salvador panorâmica do marco "A cidade africana". **Atenção
+  de peso:** o prefixo do arquivo é `vao`, e `PACK_DO_CTX_PREFIXO` (`ferramentas/pacotes.js`) só
+  conhece `cap1..cap4`. Sem uma linha nova ali, `pacoteDoEndereco` devolve `null`, a imagem cai
+  na PORTA DE ENTRADA e o build avisa. Ela é de marco, não de capítulo: o pacote provável é
+  `salvador`, e a decisão tem de ser escrita na tabela, não deixada no silêncio.
+- **`trav-mar`** — o mar aberto da TRAVESSIA, sem navio e sem gente. Vai para `TRAV_B64`, que
+  inteiro já viaja no pacote `travessia`.
+
+### Não entrou (10), com o número em `recusadas.json`
+
+- **`cap1-corrida`, `cap2-corrida`, `cap3-corrida`** — §2, **terceira** recusa. Ver abaixo.
+- **`cap4-fundo-alto-v2` + `cap4-fundo-chao-v2`** — a repintura piora a temperatura que veio
+  consertar: R−B de **+59,4 para +84,5** (as irmãs ficam entre −10 e −55). A saturação melhora e
+  passa (48,7% → 62,0%), mas o ganho é o laranja do poente. A v2 é literalmente um pôr do sol com
+  o disco no horizonte, e o jogo tinge a pintura pelo relógio dele.
+- **`q-p22`** — vela, pena de ave e pergaminho lacrado para o marco de **1988**.
+- **`cap-praca-fundo-alto/chao`, `cap-segurou-fundo-alto/chao`** — nada novo: são os mesmos
+  quatro arquivos já triados na **§8 acima**, e a inspeção desta sessão confirma o diagnóstico
+  dela. As duas peças de CIMA estão certas; as duas de CHÃO trazem céu e teto e não servem, e
+  `fundoPintado()` recusa meia paisagem. Continuam esperando as duas pinturas de chão.
+
+### As folhas de corrida, e a régua que finalmente decide
+
+Elas foram recusadas duas vezes por "não é a mesma pessoa" e voltaram uma terceira vez com
+outra pessoa de novo. O que faltava era um número que não dependesse da pose, porque a régua da
+casa — **largura da cabeça** (§5) — mente justamente aqui: numa folha de corrida o cabelo voa
+para dentro do quinto superior e entra na medida (é o que o `test/comparar-folhas.js` documenta).
+
+A régua que serve é **ALTURA / CABEÇA**, que o `validar-folha.js` já imprime e que, nas palavras
+dele, *"muda quando o modelo troca o corpo, não o zoom"*:
+
+| capítulo | caminhada | corrida | razão |
+|---|---|---|---|
+| 1 · PINDORAMA | **4,4** cabeças | **2,3** | 1,9× |
+| 2 · PALMARES | **5,2** | **2,8** | 1,9× |
+| 3 · AINDA AQUI | **4,9** | **2,2** | 2,2× |
+
+Ninguém perde metade da própria altura em cabeças por estar correndo: são dois cânones de corpo
+diferentes, um realista de cinco cabeças e um de cabeça grande. E o resto é visível sem medir —
+as três caminhadas são homens, as três corridas são mulheres, com outro cabelo e outra roupa.
+
+**O pedido novo tem de mudar de forma, não de adjetivo.** Pedir "a mesma pessoa" já falhou três
+vezes. O que muda o resultado é dar a régua junto: *altura entre 4,4 e 5,2 cabeças* (por capítulo),
+e a folha de caminhada correspondente como referência anexa.
+
+### POR QUE ISTO PAROU: duas sessões escrevendo no mesmo `src/jogo.ts`
+
+Ao commitar o primeiro embutimento, a árvore apareceu com **outra sessão em pleno voo no mesmo
+arquivo**: `ferramentas/construir.js`, `src/index.html` e catorze blocos do `src/jogo.ts` ganharam,
+entre 11:16 e 11:22 de 10/08, a **medição anônima por PostHog** — `ENDERECO_MEDIDA`,
+`connect-src https://eu.i.posthog.com` na CSP, interruptor na tela de AJUSTES e cobranças novas no
+build. Trabalho coerente e que compila (`npm run tipos` passa), mas **não é meu e não está
+commitado**, e abrir a rede é item da lista de "pare e pergunte" do CLAUDE.md §3.2.
+
+Continuar seria destruir trabalho: **todo `inline-*.js` reescreve um BLOCO INTEIRO** do
+`src/jogo.ts` (`inline-contexto.js` e `inline-quadrinho.js` dizem isso em voz alta). Duas sessões
+regravando blocos do mesmo arquivo de 5 MB perdem o trabalho de uma das duas, em silêncio e sem
+erro nenhum. Por isso esta sessão parou no primeiro item e commitou **só o que é dela e não
+encosta em arquivo compartilhado**: este registro, o `recusadas.json` e o `test/separar-encosto.js`.
+
+**O que retomar, em ordem, quando a outra sessão tiver pousado:** (1) a linha do `PASSO_CAP` de
+SALVADOR (`laco` 121,5 · `alturaQuadro` 421 · `tela` 7); (2) `npm test` e `node test/encaixe.js`;
+(3) os cinco aprovados acima, um incremento por vez, com `node test/peso-abrir.js` antes e depois
+e `node test/tirar-icc.js` por último; (4) `processadas.json` recebendo o que entrou.
+
+---
+
+## 11. `cap4-gente` — A PERGUNTA DE REPRESENTAÇÃO QUE É DO DONO (10/08, Dev)
+
+**Não embutida, e não porque tenha defeito.** O CLAUDE.md §2 diz que este é o único assunto do
+repositório em que decidir sozinho é a escolha errada. Aqui está tudo o que a triagem apurou,
+para que a decisão seja de quem tem de tomá-la.
+
+### O que a imagem é
+
+Três ciclos de caminhada de oito poses, em magenta, das pessoas que trabalham na rua de
+Salvador: um homem carregando um **barril** nas costas, um homem com uma **trouxa** amarrada, e
+uma **ganhadeira** com tabuleiro de comida na cabeça. Sem corrente, sem tronco, sem feitor. De
+pé, de rosto inteiro e de perfil individual — roupas, brincos, pano de cintura diferentes um do
+outro. O nome do pedido era *"a gente da rua (o que falta para o verbo se LER)"*.
+
+### O que joga a favor de ela entrar
+
+1. **O capítulo já diz quem elas são, com fonte.** A abertura de SALVADOR, no `src/jogo.ts`,
+   afirma: *"Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que
+   vendem, carregam e negociam de sol a sol — escravizadas e libertas, com o próprio ganho na
+   mão"*, e depois *"Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da
+   rua"*. A folha entrega **exatamente esses três carregos**: foi desenhada para essa frase.
+   As fontes já estão creditadas (João José Reis; Cecília Moreira Soares).
+2. **A protagonista é uma delas.** Quem a pessoa joga em SALVADOR é a ganhadeira de tabuleiro
+   (`cap4-sprite-v3`). Estas não são "outras pessoas ao fundo": são as iguais dela.
+3. **NPC neste motor é cenário puro, por construção.** O bloco `NPC_B64` diz por extenso: *"THEY
+   ARE SCENERY. They carry no state, no hitbox and no entity… Nothing here can be tapped, damaged,
+   or collected… never stand in the road"*. Ou seja, a trava §2.4.3 — *pessoa escravizada não é
+   NPC alcançável* — continuaria valendo: não há como alcançá-las.
+4. **O que a mão alcança em SALVADOR são OBJETOS**, não gente: tabuleiro, balde e trouxa
+   (`cap4-obj-v2`). Isso já está resolvido e certo.
+5. **É o que o dono pediu em 2026-08-08**, quando reviu o §2.4: *"nas imagens não está aparecendo
+   pessoas… mostrem como foi essa dura realidade"*. Uma Salvador de 1835 com a rua VAZIA é a
+   cidade cuja economia inteira dependia de trabalho negro desenhada sem uma pessoa negra.
+
+### O que joga contra, e é por isso que a pergunta sobe
+
+1. **O próprio texto do capítulo diz "escravizadas e libertas".** Logo, pelo que o jogo afirma,
+   parte destas figuras é gente em situação de escravidão — e elas entrariam como **cenário
+   ambiente**, andando de um lado ao outro sem nome e sem fala. A pergunta é literal: *mostrar
+   trabalho escravizado como paisagem de fundo honra ou naturaliza?* A resposta não é técnica.
+2. **O homem do barril às costas** é iconografia reconhecível de Debret e Rugendas, inclusive do
+   barril de dejetos. Pode ser exatamente o realismo que o dono pediu, ou pode ser a imagem mais
+   pesada do lote entrando sem uma linha de texto que a explique.
+3. **Elas não têm voz.** Todo o resto do capítulo nomeia e credita; estas figuras passariam
+   caladas. Se entrarem, provavelmente devem entrar **com uma fala de rua ou uma legenda** — e
+   isso é conteúdo histórico novo, que é decisão de quem escreve o capítulo.
+
+### E um impedimento TÉCNICO, que existe mesmo se o dono disser sim
+
+Hoje **não há caminho para NPC por capítulo**. `NPC_B64` é global: um só elenco
+(`avental`, `chapeu`, `crianca`, `avo`, `bone`, `cadeira`, mais o cachorro) desenhado em TODOS os
+doze capítulos, sem índice por `arteCap` — diferente de `HERO_CAP_B64`, `MOB_B64`, `DROP_B64` e
+`RETRATO_B64`, que já são por bloco de arte. Embutir esta folha como está poria carregadores de
+1835 andando em **PINDORAMA (antes de 1500)** e em **AINDA AQUI (hoje)** — o que seria um erro de
+§2 muito maior que qualquer um discutido acima. Além disso o contrato de quadro não bate: os NPCs
+atuais são **2 poses de parada, 11×22 px de mundo**, e esta folha traz **8 poses de caminhada**.
+
+**Portanto, mesmo com um "sim", o trabalho é:** dar `arteCap` ao `NPC_B64` (tabela em
+`ferramentas/pacotes.js` junto), abrir um caminho de NPC que ANDA, e só então embutir. Estimativa
+honesta: um incremento próprio, não um embutimento.
+
+### A pergunta, em uma linha
+
+**As pessoas da rua de Salvador entram como cenário que caminha — e, se entram, entram caladas ou
+com uma fala?** Enquanto não houver resposta, a folha fica em `assets/entrada` e fora de
+`processadas.json`, para a mesa continuar mostrando que ela existe.
