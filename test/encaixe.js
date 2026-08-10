@@ -675,6 +675,36 @@ const sec = t => log('\n---- ' + t);
   ok(obra.mascara === (Math.pow(2, obra.n) - 1) && obra.n < 31,
     'a máscara de bits das falas cabe nos ' + obra.n + ' capítulos');
 
+  // ============================================================
+  // 16 · CAPÍTULO VAZIO NÃO COBRA PEDÁGIO
+  //
+  // Os oito capítulos-esqueleto entraram para a estrutura existir antes do conteúdo. Com o
+  // passo plano (`LIMIAR_CENA * li`), a partida inteira ficou **2,14× mais longa** de um
+  // commit para o outro — 10.500 viraram 22.500. Doze mil de impacto cobrados para atravessar
+  // capítulos que ainda não têm uma frase para ler, que é o contrário do que foi pedido.
+  //
+  // Duas coisas são cobradas aqui, e a segunda é a que protege o que já estava medido: o
+  // capítulo em obra custa uma fração, E os limiares dos capítulos ESCRITOS não se movem.
+  // Sem a segunda, um conserto de comprimento vira uma mudança de economia por tabela.
+  // ============================================================
+  sec('16 · capítulo em obra custa uma fração, e os escritos não se movem');
+  const eco = await page.evaluate(() => ({
+    fim: LIMIAR_FIM, cena: LIMIAR_CENA, obra: LIMIAR_OBRA,
+    primeiros: LIMIARES.slice(0, 4),
+    obras: EPOCAS.filter(function (e) { return e.emObra; }).length,
+    total: EPOCAS.length
+  }));
+  log('   ' + eco.obras + ' de ' + eco.total + ' capítulos em obra | fim em ' + eco.fim +
+    ' | primeiros limiares ' + eco.primeiros.join(', '));
+  // 10.500 é o fim do jogo com os QUATRO capítulos escritos, e é a régua: os oito esqueletos
+  // podem acrescentar um tanto, nunca dobrar.
+  ok(eco.fim < 10500 * 1.25,
+    'os capítulos em obra somam menos de um quarto do jogo (fim em ' + eco.fim + ', régua 13.125)');
+  ok(eco.obra * 4 <= eco.cena,
+    'um capítulo em obra custa no máximo um quarto do que custa um escrito');
+  ok(JSON.stringify(eco.primeiros) === JSON.stringify([1500, 3000, 4500, 6000]),
+    'e os limiares dos capítulos escritos continuam onde foram medidos');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

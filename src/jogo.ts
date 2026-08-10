@@ -5354,13 +5354,38 @@ let fundoGeo: { dw: number; dh: number; dy: number; cw: number; ch: number } | n
 // fronteira entre cenas, TOTAL_CENAS - 1 delas. Com as três épocas de hoje isso reconstrói
 // bit a bit o que era o literal [1500, 3000, 4500, 6000, 7500].
 const LIMIAR_CENA = 1500;
+// ===== CAPÍTULO EM OBRA CUSTA UM DÉCIMO =====
+//
+// Os oito capítulos-esqueleto entraram para que a estrutura exista antes do conteúdo (decisão
+// do dono: "garantir que tudo já exista e tenha como placeholder"). Mas o passo era plano —
+// `LIMIAR_CENA * li` — e isso fez a partida inteira ficar **2,14× mais longa** de um commit
+// para o outro: 10.500 viraram 22.500. Doze mil de impacto de enchimento, cobrados para
+// atravessar capítulos que ainda não têm uma frase para ler.
+//
+// Enchimento é o oposto do que o dono pediu. Um capítulo em obra passa por 150 — um décimo —
+// e o dia em que ele ganhar texto e arte, tirar o `emObra` devolve o preço cheio sozinho.
+// Nenhum número escrito à mão em lugar nenhum: o custo sai do DADO do capítulo.
+//
+// A lista deixa de ser multiplicação e vira SOMA CORRIDA, e é o mesmo contrato de antes —
+// `LIMIARES[i]` continua sendo "quanto para sair da cena i", e a fatia de cada capítulo
+// continua saindo da diferença entre dois vizinhos. Com os quatro capítulos escritos custando
+// o de sempre, os limiares deles não se movem um ponto.
+const LIMIAR_OBRA = 150;
+function custoDaCena(n: number) {
+  const ep = EPOCAS[epocaDoCenario(n)];
+  return (ep && (ep as any).emObra) ? LIMIAR_OBRA : LIMIAR_CENA;
+}
 const LIMIARES: number[] = [];
-for (let li = 1; li < TOTAL_CENAS; li++) LIMIARES.push(LIMIAR_CENA * li);
+let somaLimiar = 0;
+for (let li = 0; li < TOTAL_CENAS; li++) {
+  somaLimiar += custoDaCena(li);
+  if (li < TOTAL_CENAS - 1) LIMIARES.push(somaLimiar);
+}
 // A última cena não tinha linha de chegada: `proximoLimiar()` devolvia null, a barra ficava
 // cheia para sempre e o último capítulo nunca chegava a 100% — logo o FECHO dele, que é o
 // fim do jogo, não tinha quando disparar. Mesma distância plana das outras cenas: não abre
 // cena nova; só fecha a última.
-const LIMIAR_FIM = LIMIAR_CENA * TOTAL_CENAS;
+const LIMIAR_FIM = somaLimiar;
 function cenarioAtual() {
   // O teto é o que os DADOS declaram (TOTAL_CENAS), não o número de pinturas: uma cena sem
   // pintura própria continua existindo para a progressão — é fundoIdx() quem cai na arte

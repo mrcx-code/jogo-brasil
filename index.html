@@ -4597,10 +4597,19 @@ function redesenharFundo() {
 }
 let fundoGeo = null;
 const LIMIAR_CENA = 1500;
+const LIMIAR_OBRA = 150;
+function custoDaCena(n) {
+    const ep = EPOCAS[epocaDoCenario(n)];
+    return (ep && ep.emObra) ? LIMIAR_OBRA : LIMIAR_CENA;
+}
 const LIMIARES = [];
-for (let li = 1; li < TOTAL_CENAS; li++)
-    LIMIARES.push(LIMIAR_CENA * li);
-const LIMIAR_FIM = LIMIAR_CENA * TOTAL_CENAS;
+let somaLimiar = 0;
+for (let li = 0; li < TOTAL_CENAS; li++) {
+    somaLimiar += custoDaCena(li);
+    if (li < TOTAL_CENAS - 1)
+        LIMIARES.push(somaLimiar);
+}
+const LIMIAR_FIM = somaLimiar;
 function cenarioAtual() {
     const n = Math.max(0, Math.min(TOTAL_CENAS - 1, S.cenario | 0));
     return n;
