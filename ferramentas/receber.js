@@ -31,6 +31,17 @@ function lerPedidos() {
   try { return JSON.parse(fs.readFileSync(PEDIDOS, 'utf8')); } catch (e) { return []; }
 }
 
+// HORA LOCAL, sempre. As datas de `processadas.json` vieram do histórico do git, que são
+// locais; `mtime.toISOString()` é UTC. Misturar as duas dá três horas de diferença nesta
+// máquina — e três horas bastavam para TODA entrega da noite parecer "re-entrega", que é
+// justamente o alarme que este painel usa para chamar a atenção. Um alarme que toca sempre
+// não é alarme.
+function dataLocal(d) {
+  const z = function (n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) +
+    ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+}
+
 function lerJson(nome, vazio) {
   try { return JSON.parse(fs.readFileSync(path.join(__dirname, nome), 'utf8')); }
   catch (e) { return vazio; }
@@ -106,7 +117,7 @@ function estadoDaFila() {
   disco.filter(function (f) { return !/\.txt$/i.test(f); }).forEach(function (f) {
     const nome = f.replace(/\.(png|jpg|jpeg|webp)$/i, '');
     let quando = '';
-    try { quando = fs.statSync(path.join(ENTRADA, f)).mtime.toISOString().slice(0, 16).replace('T', ' '); } catch (e) {}
+    try { quando = dataLocal(fs.statSync(path.join(ENTRADA, f)).mtime); } catch (e) {}
     if (!arquivo[nome] || arquivo[nome].quando < quando) arquivo[nome] = { f: f, quando: quando };
   });
 

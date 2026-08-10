@@ -38,9 +38,10 @@
   @media (prefers-reduced-motion: reduce) { .sVoo { animation: none } }
   .secao { font-size: 11px; letter-spacing: .28em; color: var(--sub); margin: 0 0 9px;
     text-transform: uppercase; display: flex; align-items: baseline; gap: 10px; }
-  #quantasFaltam { font-size: 10px; letter-spacing: .12em; padding: 2px 8px;
+  #quantasFaltam, #quantasChegaram { font-size: 10px; letter-spacing: .12em; padding: 2px 8px;
     border: 2px solid var(--borda); box-shadow: 2px 2px 0 var(--borda);
     background: var(--ouro); color: #221a06; }
+  #quantasChegaram { background: var(--run); color: #101b19; }
   #quantasFaltam:empty { display: none; }
   #equipe { margin-top: 34px; }
   .pedido { border: 2px solid var(--borda); padding: 16px; margin-bottom: 16px;
@@ -190,32 +191,11 @@ function pintarResposta(cx, p) {
   }
 }
 
-// A mesa era burra: listava o pedido mesmo depois do arquivo ter chegado, e eu ficava
-// pedindo coisa já entregue. O servidor sempre soube o que tem em disco (/recebidas); a
-// página é que não perguntava. Agora pergunta, e marca sozinha.
-function marcarRecebidas() {
-  fetch("/recebidas").then(r => r.json()).then(function (arquivos) {
-    const chegou = {};
-    arquivos.forEach(function (f) { chegou[f.replace(/\.(png|jpg|jpeg|webp)$/i, "")] = f; });
-    for (const nome in cards) {
-      const c = cards[nome];
-      if (!chegou[nome] || c.marcado) continue;
-      c.marcado = true;
-      // SOME da lista, não fica marcado. Card marcado ainda ocupa espaço e ainda LÊ como
-      // pedido — o dono achou que a fila estava repetindo quando na verdade estava só
-      // mostrando o que já tinha entregue. A lista é uma fila de trabalho, não um histórico.
-      c.el.style.display = "none";
-      c.el.className = "pedido feito";
-      const t = c.el.querySelector(".titulo");
-      if (t && t.textContent.indexOf("✓") !== 0) t.textContent = "✓ " + t.textContent;
-      const alvo = c.el.querySelector(".cola");
-      if (alvo) alvo.textContent = "já recebida (" + chegou[nome] + ") — cole de novo só se for refazer";
-      const b = c.el.querySelector(".secundario");
-      if (b) b.style.opacity = "0.5";
-    }
-    contarPendentes();
-  }).catch(function () {});
-}
+// AQUI MORAVA `marcarRecebidas()`, E ELA ERA METADE DO BUG. A página perguntava ao servidor
+// que arquivos existem em `assets/entrada` e escondia todo card com nome batendo. Para a arte
+// ENTREGUE E RECUSADA — as tres folhas de corrida, o refazer da p19 — isso significava sumir
+// da tela justamente quando voltava a ser trabalho do dono. Quem decide agora e o servidor,
+// em /fila, cruzando DATA e registro: a pagina so desenha o que ele classificou como GERAR.
 
 // O roadmap vive abaixo da fila porque fila sem destino e so lista de tarefas: da para
 // entregar os cinco pedidos e nao saber para onde o jogo esta indo.
@@ -283,7 +263,6 @@ function montarPendencias() {
 montarPendencias();
 
 function puxar() {
-  marcarRecebidas();
   fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     pedidos.forEach(function (p) {
       const c = cards[p.nome];
@@ -294,8 +273,30 @@ function puxar() {
   }).catch(function () {});
 }
 
-fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
+// A FILA DO DONO. Le /fila, que e o UNICO lugar onde o cruzamento acontece — manifesto
+// contra registro do que entrou no jogo, contra recusas, contra o que ha em disco.
+//
+// A VERSAO ANTERIOR LIA /pedidos, que era um arquivo escrito pelo botao REVISAR. Dois
+// defeitos, e juntos eles esvaziaram a mesa: (1) sem clicar em REVISAR a pagina mostrava o
+// retrato de outro dia — e o arquivo estava com uma lista VAZIA gravada; (2) o proprio
+// REVISAR considerava um pedido resolvido so por existir um arquivo com aquele nome em
+// disco, entao arte ENTREGUE E RECUSADA sumia para sempre. As tres folhas de corrida
+// recusadas por §2 e o refazer da p19 eram exatamente esse caso: trabalho do dono,
+// invisivel. Agora nada e resolvido por "o arquivo existe" — e por DATA e por registro.
+let ultimaContagem = -1;
+function montarFila() {
+  return fetch("/fila").then(r => r.json()).then(function (fila) {
   lista.textContent = "";
+  const c = fila.contagem || {};
+  ultimaContagem = c.gerar;
+  // O placar, em uma linha. Antes a mesa so sabia dizer "fila vazia", que valia tanto para
+  // "nada pedido" quanto para "tudo entregue e ninguem olhou".
+  lista.appendChild(el("p", "sub",
+    c.gerar + " para voce gerar · " + c.chegou + " chegaram e esperam entrar no jogo · " +
+    c.pronto + " ja estao no jogo · " + c.total + " no manifesto"));
+  lista.appendChild(el("p", "sub",
+    "Ordem: a de APARICAO NO JOGO, derivada do nome — o manifesto nao tem campo de ordem. " +
+    "Cuidado ja pago: cap4 e SALVADOR e vem ANTES do cap3, que e o presente."));
   // REVISAR fica SEMPRE visivel. Eu tinha escondido com fila cheia, achando que so faria
   // sentido no vazio — errado: o dono precisa poder conferir quando quiser, e a acao e
   // idempotente (recomputa a fila a partir do manifesto e do que ha em disco, nao acumula).
@@ -309,15 +310,33 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     }).catch(function () { bRev.textContent = "falhou"; bRev.disabled = false; });
   });
   lista.appendChild(bRev);
+  const pedidos = (fila.itens || []).filter(function (i) { return i.estado === "gerar"; });
   if (!pedidos.length) {
-    lista.appendChild(el("p", "vazio", "Fila vazia — nada falta que o manifesto conheca."));
+    lista.appendChild(el("p", "vazio",
+      "Nada para gerar agora — os " + c.total + " itens do manifesto ou ja estao no jogo ou " +
+      "estao comigo. Quando eu escrever um pedido novo em ferramentas/necessario.json, ele " +
+      "aparece aqui sozinho."));
+    contarPendentes();
     return;
   }
   pedidos.forEach(function (p) {
     const cx = el("div", "pedido");
     cards[p.nome] = { el: cx, rodada: (p.resposta && p.resposta.rodada) || 0 };
     cx.appendChild(el("div", "titulo", p.titulo || p.nome));
+    // O NOME DO ARQUIVO QUE ELE ESPERA RECEBER. A mesa salva com este nome sozinha ao colar,
+    // mas quem gera fora precisa saber qual e — é a chave que liga tudo.
+    cx.appendChild(el("div", "ref",
+      "→ " + p.arquivoEsperado + "  ·  " + (p.onde || "")));
     cx.appendChild(el("div", "ref", (p.referencia || "") + (p.tamanho ? " · " + p.tamanho : "")));
+    // POR QUE VOLTOU A FALTAR. Sem esta linha, um pedido que reaparece depois de entregue
+    // lê como bug da mesa, e o dono gera de novo a mesma coisa que foi recusada.
+    if (p.recusa) {
+      const r = el("div", "rmItem");
+      r.appendChild(el("div", "rmT", "Voltou a faltar — a entrega anterior foi recusada"));
+      r.appendChild(el("div", "rmN", p.recusa.porque));
+      if (p.recusa.onde) r.appendChild(el("div", "rmN", "registrado em: " + p.recusa.onde));
+      cx.appendChild(r);
+    }
     if (p.prompt) {
       cx.appendChild(el("div", "prompt", p.prompt));
       const bc = el("button", "secundario", "Copiar prompt");
@@ -414,6 +433,12 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
         estado.className = "estado ok";
         estado.textContent = "salva em " + r.j.arquivo + " (" + r.j.bytes + " bytes)";
         cx.className = "pedido feito";
+        // O ITEM SAI DA LISTA DE FALTANTES NA HORA. O arquivo em disco passou a ser mais novo
+        // que a recusa, entao o servidor ja o classifica como CHEGOU — e o bloco de cima
+        // (o que chegou e nao entrou no jogo) o pega no mesmo instante.
+        cx.style.display = "none";
+        contarPendentes();
+        pintarChegadas();
         // A partir daqui a bola é do Claude: a página passa a esperar o veredito dele.
         pintarResposta(cx, { resposta: { estado: "esperando",
           texto: "Recebi. O Claude vai medir o arquivo e responder aqui — pode deixar esta aba aberta." } });
@@ -430,12 +455,14 @@ fetch("/pedidos").then(r => r.json()).then(function (pedidos) {
     pintarResposta(cx, p);
     lista.appendChild(cx);
   });
-  marcarRecebidas();
-  setInterval(puxar, 3000);
-}).catch(function () {
-  lista.textContent = "";
-  lista.appendChild(el("p", "vazio", "o servidor não respondeu — rode: node ferramentas/receber.js"));
-});
+  contarPendentes();
+  }).catch(function () {
+    lista.textContent = "";
+    lista.appendChild(el("p", "vazio", "o servidor não respondeu — rode: node ferramentas/receber.js"));
+  });
+}
+montarFila();
+setInterval(puxar, 3000);
 
 // A SALA DE MAQUINAS. Le ferramentas/equipe.json, que o orquestrador atualiza a cada
 // integracao. Tres blocos: quem trabalha AGORA, o que ja entrou, e o que espera — sendo
@@ -492,10 +519,13 @@ async function pintarChegadas() {
   if (!cx) return;
   if (!l.length) { cx.innerHTML = ''; return; }
   const esc = t => String(t == null ? '' : t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  cx.innerHTML = '<h2 class="secao">Chegou e ainda não entrou no jogo</h2>' +
+  cx.innerHTML = '<h2 class="secao">Chegou e ainda não entrou no jogo <span id="quantasChegaram">' +
+    l.length + ' COMIGO</span></h2>' +
     '<section class="bloco">' + l.map(i =>
-      `<div class="linha"><span class="marca">${esc(i.quando)}</span><span>${esc(i.nome)}</span>` +
-      `<span class="selo sVoo">COMIGO</span></div>`).join('') + '</section>';
+      `<div class="linha"><span class="marca">${esc(i.quando)}</span>` +
+      `<span>${esc(i.nome)}${i.titulo && i.titulo !== i.nome ? ' — ' + esc(i.titulo) : ''}</span>` +
+      `<span class="selo sVoo">${i.reentrega ? 'RE-ENTREGA' : 'COMIGO'}</span></div>`).join('') +
+    '</section>';
 }
 pintarChegadas();
 
@@ -509,6 +539,17 @@ pintarChegadas();
 // o painel so mudava recarregando a pagina — o dono via "fila vazia, ninguem em voo" com
 // trabalho acontecendo e arte esperando.
 setInterval(function () { pintarChegadas(); pintarEquipe(); montarPendencias(); }, 15000);
+
+// A FILA TAMBEM SE ATUALIZA — mas nunca por cima de trabalho em andamento. Se ha uma imagem
+// colada e ainda nao salva num card (`.cola.tem`), remontar a lista jogaria fora a colagem.
+// So remonta quando o numero muda E o campo esta limpo.
+setInterval(function () {
+  if (document.querySelector('.cola.tem')) return;
+  fetch('/fila').then(r => r.json()).then(function (f) {
+    if (!f.contagem || f.contagem.gerar === ultimaContagem) return;
+    montarFila();
+  }).catch(function () {});
+}, 15000);
 </script>
 </body>
 </html>
