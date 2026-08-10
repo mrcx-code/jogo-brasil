@@ -120,6 +120,30 @@ function separarPacotes(js) {
 
 const separado = separarPacotes(jsCru);
 
+// ---- E AVISA QUANDO ENTRA ARTE QUE A TABELA NÃO CONHECE ----
+// `pacoteDoEndereco` devolve `null` para o que não sabe classificar, e isso é de propósito: o
+// pior caso é a arte pesar na porta de entrada, nunca sumir do jogo. Mas "de propósito" e
+// "esquecido" ficam idênticos em silêncio — uma pintura nova entra, ninguém acrescenta a linha
+// em `ferramentas/pacotes.js`, e a abertura volta a crescer capítulo a capítulo sem que nada
+// diga nada. É exatamente o modo de falha que este trabalho inteiro existe para acabar. Então
+// o build CONTA e FALA. Não derruba: quem está integrando arte nova no meio de uma sessão não
+// merece um build vermelho por causa de uma tabela — merece uma linha dizendo o que falta.
+{
+  const fora = new Map();
+  for (const a of separado.achados) {
+    if (PACOTES.conhecido(a.caminho)) continue;
+    const nome = a.caminho[0] + '[' + a.caminho.slice(1).join('][') + ']';
+    fora.set(nome, (fora.get(nome) || 0) + (a.fim - a.ini));
+  }
+  if (fora.size) {
+    let bytes = 0;
+    for (const v of fora.values()) bytes += v;
+    console.warn('AVISO: ' + fora.size + ' imagem(ns) de arte NOVA não estão em nenhum pacote e pesam '
+      + Math.round(bytes / 1024) + ' KB na porta de entrada — acrescente a linha em ferramentas/pacotes.js:\n  '
+      + [...fora.keys()].slice(0, 12).join(', '));
+  }
+}
+
 // A TABELA, EMBUTIDA. O jogo precisa saber, em tempo de jogo, qual pacote o capítulo em que a
 // pessoa está pede. Ele deriva isso de EPOCAS (`arte`, `arteCap`, `aberturaImg`) cruzado com
 // estas três tabelas — as mesmas que acabaram de decidir o corte, e não uma segunda cópia.

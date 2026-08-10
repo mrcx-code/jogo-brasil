@@ -39,6 +39,21 @@ const PACK_DO_BLOCO = [null, "palmares", "salvador", "hoje"];
 // ordem: sem sufixo → 0, `2` → 1, `4` → 2 (SALVADOR), `3` → 3 (AINDA AQUI).
 const HERO_SUFIXO_BLOCO = { "": 0, "2": 1, "4": 2, "3": 3 };
 
+// E O SUFIXO NÃO É "O ÚLTIMO DÍGITO DA CHAVE" — esta função existe porque a primeira versão
+// achou que era, e isso classificava `atk2` (a folha de ALCANCE do capítulo 1) como sendo do
+// capítulo 2. Só não virou defeito visível por acidente: `atk2` é byte a byte igual a `atk1`,
+// que fica na abertura, e a regra "literal que já está paga na abertura não viaja" a segurou.
+// Acidente não é projeto. Aqui os dois grupos de chave são lidos pela forma DELES:
+//   · `walk` `sp` `run` levam o sufixo colado — `walk2`, `sp3`, `run4`
+//   · `atk1` e `atk2` já terminam em dígito, e o sufixo do capítulo vem depois de `_`
+function blocoDaChaveDoHeroi(chave) {
+  let m = String(chave).match(/^(?:walk|sp|run)(\d?)$/);
+  if (m) return HERO_SUFIXO_BLOCO[m[1]];
+  m = String(chave).match(/^atk[12](?:_(\d))?$/);
+  if (m) return HERO_SUFIXO_BLOCO[m[1] || ""];
+  return undefined;   // chave que esta tabela não conhece — o build avisa
+}
+
 // ---- de qual bloco de arte é cada oitava de FRENTE_B64 ----
 // A vegetação vem em pacotes de OITO elementos, um pacote por capítulo que tem vegetação.
 // `FRENTE_CAP = [0, 1, -1, 2]` no src/jogo.ts diz qual pacote cada bloco usa (SALVADOR não
@@ -74,8 +89,7 @@ function pacoteDoEndereco(caminho) {
   const c = caminho[0];
   if (c === "CENARIO_ALTO_B64" || c === "CENARIO_CHAO_B64") return PACK_DA_CENA[caminho[1]] || null;
   if (c === "HERO_B64") {
-    const m = String(caminho[1]).match(/(\d)$/);
-    const bloco = HERO_SUFIXO_BLOCO[m ? m[1] : ""];
+    const bloco = blocoDaChaveDoHeroi(caminho[1]);
     return bloco == null ? null : (PACK_DO_BLOCO[bloco] || null);
   }
   // MOB_B64.smog[i] e RETRATO_B64[i] e DROP_B64[i][j]: o índice do capítulo é o `arteCap`.
@@ -91,9 +105,35 @@ function pacoteDoEndereco(caminho) {
   return null;
 }
 
+// "FICA NA ABERTURA" TEM DUAS CAUSAS, e confundi-las é como a porta de entrada volta a crescer
+// em silêncio. Uma é DELIBERADA — a arte do capítulo 1, as páginas que abrem a linha do tempo,
+// o que todas as eras usam. A outra é ESQUECIMENTO: pintura nova entrou, ninguém acrescentou a
+// linha aqui, e `pacoteDoEndereco` devolveu `null` sem ter opinião nenhuma. As duas produzem
+// exatamente o mesmo resultado e nenhuma mensagem.
+//
+// Esta função separa as duas: `true` quer dizer "eu reconheço este endereço e a resposta foi
+// pensada". O build avisa (sem derrubar) sobre tudo que der `false`. O saber de qual índice
+// significa o quê fica AQUI, junto das tabelas — no build ele erraria: o índice do `FRENTE_B64`
+// é por ELEMENTO (oito por capítulo) e não por capítulo, e essa confusão já produziu um aviso
+// falso na primeira versão.
+function conhecido(caminho) {
+  const c = caminho[0];
+  if (c === "CENARIO_ALTO_B64" || c === "CENARIO_CHAO_B64") return caminho[1] < PACK_DA_CENA.length;
+  if (c === "HERO_B64") return blocoDaChaveDoHeroi(caminho[1]) != null;
+  if (c === "MOB_B64") return caminho[2] < PACK_DO_BLOCO.length;
+  if (c === "RETRATO_B64" || c === "DROP_B64") return caminho[1] < PACK_DO_BLOCO.length;
+  if (c === "FRENTE_B64") return Math.floor(caminho[1] / 8) < FRENTE_OITAVA_BLOCO.length;
+  if (c === "CTX_B64") {
+    const m = String(caminho[1]).match(/^(cap\d)/);
+    return !!(m && Object.prototype.hasOwnProperty.call(PACK_DO_CTX_PREFIXO, m[1]));
+  }
+  if (c === "QUAD_B64" || c === "TRAV_B64") return true;
+  return false;
+}
+
 // Os containers cujo conteúdo pode viajar em pacote. O jogo declara os mesmos nomes em
 // `ARTE_CONTAINERS` (src/jogo.ts) para saber onde devolver cada imagem quando ela chegar.
 const CONTAINERS = ["CENARIO_ALTO_B64", "CENARIO_CHAO_B64", "HERO_B64", "MOB_B64",
   "DROP_B64", "FRENTE_B64", "RETRATO_B64", "CTX_B64", "QUAD_B64", "TRAV_B64"];
 
-module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, CONTAINERS, pacoteDoEndereco };
+module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, CONTAINERS, pacoteDoEndereco, conhecido };

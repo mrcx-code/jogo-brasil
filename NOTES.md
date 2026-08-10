@@ -3973,6 +3973,26 @@ das quarenta em vez de envolver uma expressão.
    toda chegar antes de medir o mapeamento. **Lição que vale para o próximo instrumento:** desde
    10/08, medir arte de capítulo sem esperar o pacote mede o recuo, não a arte.
 
+### O aviso que o build ganhou — e o defeito que ele achou na primeira volta
+
+`pacoteDoEndereco` devolve `null` para o que não sabe classificar, e isso é de propósito: o pior
+caso é a arte pesar na porta de entrada, nunca sumir do jogo. Mas **"de propósito" e "esquecido"
+ficam idênticos em silêncio** — pintura nova entra, ninguém acrescenta a linha em
+`ferramentas/pacotes.js`, e a abertura volta a crescer capítulo a capítulo sem que nada diga
+nada. É exatamente o modo de falha que este trabalho existe para acabar. Então o build passou a
+CONTAR e FALAR: aviso, nunca build vermelho — quem integra arte no meio de uma sessão merece uma
+linha dizendo o que falta, não um build quebrado.
+
+**E ele achou um defeito na primeira vez que rodou.** A regra do sufixo do herói era "o último
+dígito da chave", e isso classificava `atk2` — a folha de ALCANCE do **capítulo 1** — como sendo
+do capítulo 2. Não virou defeito visível por puro acidente: `atk2` é byte a byte igual a `atk1`,
+que fica na abertura, e a regra "literal já paga na abertura não viaja" a segurou. Acidente não
+é projeto, e nenhum teste pegaria isto, porque a arte do capítulo 1 é justamente a que ninguém
+confere depois de aplicar um pacote. Agora as chaves são lidas pela forma delas: `walk`, `sp` e
+`run` levam o sufixo colado; `atk1` e `atk2` já terminam em dígito e o sufixo do capítulo vem
+depois de `_`. A saída do build ficou **byte a byte idêntica**, que é a prova de que a fuga era
+mesmo pelo acidente.
+
 ### A dúvida que fica
 
 O relatório aponta uma variante que economiza mais 25% do arquivo **cru** (o que importa para o
