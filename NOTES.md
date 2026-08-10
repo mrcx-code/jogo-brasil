@@ -3762,3 +3762,52 @@ A resposta do dono ao item 1 (a duração da partida) trava a próxima medição
 ela, o trabalho que anda sozinho é preencher um capítulo em obra de cada vez — e o primeiro da
 fila do arco é **O CAIS QUE VOLTOU À LUZ**, que já tem verbo, tem instituição viva no assunto e
 é o único dos oito cuja pesquisa não esbarra na régua dos cinco anos.
+
+---
+
+## 2026-08-09 · HANDOFF DA MADRUGADA — leia isto antes de qualquer coisa
+
+O dono foi dormir e autorizou **nove horas** de trabalho sozinho. Este bloco existe para que
+uma virada de contexto não perca o estado. Se você é a sessão seguinte: leia daqui, não do
+começo do arquivo.
+
+### O que está APROVADO e pode ser feito sem perguntar
+- **Carga sob demanda da arte** (ele disse "não entendi muito bem, mas pode seguir"). É a #1:
+  o jogo abre em **16,6 s no 3G** e a carga sob demanda leva para **8,7 s**, medido em jogo
+  vivo. Quebra a regra do arquivo único de SAÍDA, e ele autorizou.
+- **Começar a medir com PostHog** — mas depende da conta dele. Ver pergunta 7.
+- **Placeholder para tudo**: os doze capítulos existem, oito em obra.
+- **Foco é WEB.** Android saiu da frente da fila.
+
+### O que ele PEDIU e ainda não foi feito
+- Uma tela dizendo o que o jogo é **antes do JOGAR** (quem chega por link não sabe o que é).
+- Os três consertos do `CINCO-MINUTOS.md` — o terceiro (estado do `rotuloMelhorias`) e o
+  **momento morto de 180,7 s** continuam abertos.
+- A régua de luz de SALVADOR (depende de arte nova).
+
+### As OITO perguntas que estão com ele (nada aqui se decide sozinho)
+1. Quem aparece em cada capítulo novo (§2 — trava os pedidos de sprite e retrato dos oito)
+2. O CAIS pode ter imagem? (§2.4, Valongo vizinho do Cemitério dos Pretos Novos)
+3. Capítulo em obra veste a pintura do anterior, ou tela neutra?
+4. O ACEIRO entra no arco de doze?
+5. Antecipar ditadura e agronegócio? (custo: atravessar a abolição sem jogá-la)
+6. Domínio próprio (só ele compra)
+7. Conta do PostHog + chave pública (sem isso não se mede nada)
+8. Telefone deitado: travar em retrato ou compor para os dois?
+
+### Armadilhas frescas, todas pagas hoje
+- **Matei o servidor da mesa com a página dele aberta**, duas vezes, e ele viu "erro ao
+  salvar". O servidor estava certo. Se precisar reiniciar a mesa, avise antes.
+- **Rodar teste que encosta em arquivo de `assets/entrada` caduca recusas** — por isso a
+  recusa passou a valer pelos BYTES, não pela data.
+- **Duas instâncias da mesa na 8200**: a antiga continua respondendo e você mede o estado
+  errado. Mate por porta (PowerShell `Get-NetTCPConnection`), não por `pkill`.
+- **Citei três relatórios em commits antes de gravá-los.** Confira a escrita ANTES de escrever
+  o commit que fala dela.
+- **Teste que descreve o bug vira guardião do bug** — quatro asserções do `robusto-tudo.js`
+  cobravam o comportamento COM o defeito.
+
+### O estado, em número
+12 capítulos (4 escritos, 8 em obra) · 15 cenas · `index.html` **3,97 MB** · fim da partida
+**11.700** · FPS 61 · `npm test` PASS · `encaixe.js` 16 blocos · `robusto-tudo.js` 6 de 6 ·
+mesa com **18 para gerar**, 9 chegados, 48 prontos.
