@@ -176,12 +176,22 @@ sem uma linha de afirmação histórica sem fonte. Registro completo no `NOTES.m
 - **⚠ A pintura de um capítulo em obra é a do anterior**, e pintura afirma lugar: JABAQUARA
   (Santos) roda sobre a ladeira de Salvador. §2 de representação. A alternativa é mundo sem
   chão, que é pior — mas a decisão é dele.
-- **⚠ O ACEIRO fora do arco.** Desenhado inteiro no `HISTORIA-CONTEMPORANEO.md` e pedido pelo
-  dono em 08/08, mas não está no arco de doze aprovado em 07/08. Entrar exige reordenar a fila
-  — item 1 das nove decisões ⚠ do historiador. A estrutura já o recebe em dois passos.
-- **Os oito capítulos ainda não têm nó na `LINHA_TEMPO`**, de propósito: A HISTÓRIA só mostra o
-  que tem fonte. Cada marco entra junto com a pesquisa do capítulo dele.
+- ~~**⚠ O ACEIRO fora do arco.**~~ **RESOLVIDO em 10/08:** o dono disse **sim**. O capítulo
+  entrou em `EPOCAS` como o décimo terceiro, `emObra: true`, na posição cronológica (depois de
+  O QUE SEGUROU, antes de O QUE TEM FONTE) — **sem reordenar capítulo nenhum**, porque o pedido
+  dele foi explícito: *"quero incluir esses marcos na linha do tempo mas mantendo a ordem
+  cronológica."* O texto com fonte continua guardado no `HISTORIA-CONTEMPORANEO.md`.
+- **Os capítulos em obra ainda não têm PLACA na `LINHA_TEMPO`** (`{ tipo: "marco" }`), e isso
+  continua de propósito: a placa é do capítulo, e capítulo em obra não tem o que afirmar. O que
+  entrou em 10/08 foram **seis momentos** cobrindo o vão de 1888 a 1964 — normas com número,
+  conferidas — para o salto deixar de ser mudo. Ver o diário de 10/08.
 - **Verbo por escolher em quatro:** JABAQUARA · A PEQUENA ÁFRICA · AS PORTAS · A PRAÇA.
+- **⚠ A pintura de O ACEIRO é a de O QUE SEGUROU** — uma rua urbana num capítulo cujo `quando`
+  diz "cerrado". É a mesma pendência de herança de paisagem do item 8, e nele ela desencaixa
+  mais que nos outros, porque o lugar não é cidade. O pedido de pintura de cerrado (seca, borda
+  queimada, fumaça no horizonte) ainda não foi à mesa, e o §2 dele é decisão do dono: **quanto
+  do fogo a imagem mostra, e se pode aparecer casa, roça ou bicho na frente dele**
+  (recomendação do historiador: paisagem sem gente e sem animal).
 
 ---
 

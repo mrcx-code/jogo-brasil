@@ -4246,3 +4246,149 @@ vier, é campo para tirar.
 
 `npm test` verde · `encaixe.js` **20 blocos** verdes · `robusto-tudo.js` 6 de 6 · FPS 61 ·
 `index.html` 1,52 MB.
+
+---
+
+## Diário — 2026-08-10 · Historiador · O BURACO DE 1888 A 1964 SE FECHA, E O ACEIRO ENTRA NO ARCO
+
+**Lente:** *Medir*, aplicada a texto — que afirmação eu estava aceitando sem documento? A
+resposta era constrangedora: **todas as de 1888 a 1964**, porque não havia nenhuma. O jogo ia
+de `1888 · A lei de dois artigos` direto para `1988 · A Constituinte`, e o `PENDENTES.md`
+chamava isso de "salto jogado".
+
+### As duas decisões do dono, ditas nesta sessão
+
+1. **Os marcos entram, a fila NÃO se reordena.** Perguntado se queria antecipar ditadura e
+   agronegócio na fila de capítulos: *"fiquei entre A e B, quero incluir esses marcos na linha
+   do tempo mas mantendo a ordem cronológica."* Ou seja: nenhum capítulo muda de lugar; o que
+   entra são **momentos na `LINHA_TEMPO`**.
+2. **O ACEIRO entra no arco** — resposta à pergunta 4 do handoff de 09/08.
+
+### O que entrou: SEIS MARCOS, e cada um é uma norma com número
+
+Todos conferidos **nesta sessão**, em texto público, e cada um está agora também na tela DE
+ONDE VEM, num grupo próprio (`DE 1888 A 1964 — A NORMA, PELO NÚMERO`).
+
+| marco | o que a norma diz | onde conferi |
+|---|---|---|
+| **1890** · O código de dois anos depois | Código Penal da República: o art. 399 faz crime não ter ocupação; o art. 402 nomeia a capoeira e a faz crime | Decreto nº 847, de 11/10/1890 — texto **literal** dos dois artigos (transcrição integral do decreto), com o ato registrado na Câmara (`legin`) e no Planalto |
+| **1891** · Quem podia votar | *"Não podem alistar-se eleitores… os mendigos; os analfabetos; as praças de pré"* | CF/1891, art. 70 §1º — **literal**; o caput conferido também em página da **Câmara dos Deputados** |
+| **1930** · O decreto que dissolveu o Congresso | governo provisório com as funções do Executivo **e** do Legislativo *"discricionariamente, em toda sua plenitude"*; Congresso, assembleias e câmaras confirmados dissolvidos | Decreto nº 19.398, de 11/11/1930, arts. 1º e 2º — **literal** |
+| **1932 → 1985** · O voto, e a porta que ficou fechada | *"É eleitor o cidadão maior de 21 anos, sem distinção de sexo"*; a exigência de saber ler permanece, e só cai com a **EC nº 25, de 15/05/1985** | Decreto nº 21.076, de 24/02/1932, art. 2º (**Câmara dos Deputados**); a exclusão dos analfabetos e o fim dela em 1985, no **TSE** e no **Senado Federal** |
+| **1943 → 2015** · A lei do trabalho e quem ficou de fora | CLT art. 7º: não se aplica *"aos empregados domésticos"* e *"aos trabalhadores rurais"*; a CF/88 dá nove direitos à categoria doméstica; a igualdade vem com **EC nº 72/2013** e **LC nº 150/2015** | art. 7º da CLT; o caminho até 2013/2015 no **Senado Federal** |
+| **1964** · O ato que tirou o juiz do caminho | *"suspender os direitos políticos pelo prazo de dez anos e cassar os mandatos legislativos federais, estaduais e municipais, excluída a apreciação judicial desses atos"* | Ato Institucional de 9 de abril de 1964, art. 10 — **literal** |
+
+**A régua que governou as seis frases, e ela é o §2.6 exercido pela primeira vez em texto de
+jogo:** cada uma afirma **o que a norma afirma**, e nada além. Nenhum político, magistrado ou
+empresário nomeado — nem os que a historiografia nomeia sem hesitar. Nenhum partido, nenhum
+governo, nenhuma eleição. Duas frases inteiras foram cortadas por serem interpretação minha
+disfarçada de fato (*"a rua sabia de quem a lei falava"*, *"a leitura tinha dono"*); o que
+ficou no lugar delas é a arquitetura do documento, dita seca — *"A lei não escreveu cor
+nenhuma. Escreveu rua, ofício e corpo."* É mais duro que o adjetivo que eu ia usar.
+
+**O que a série ensina, e não é acidente da seleção:** o intervalo inteiro se conta por normas
+que dizem **quem fica de fora**. Sem rua, sem voto, sem parlamento, sem lei do trabalho, sem
+juiz. Cada uma tem número, data e um artigo que se pode ir ler. É o oposto do cinismo: não é
+"sempre foi assim", é "foi escrito assim, nesta data, neste artigo — e parte disso foi desfeita,
+em 1985, em 2013 e em 2015".
+
+Os seis ficam **sem balão** (a regra de silêncio do quadrinho para marco duro) e há um motivo a
+mais: `quem` é a pessoa DAQUELE tempo, e nenhum capítulo deste intervalo foi escrito. Balão com
+o retrato de AINDA AQUI comentando 1890 seria pôr palavra na boca errada.
+
+### O QUE EU RECUSEI POR FALTA DE FONTE — e uma das faltas é grande
+
+- **A Lei de Terras (Lei nº 601, de 18 de setembro de 1850).** É o marco que eu mais queria, e é
+  o que explica a frase que o jogo já diz em 1888 (*"a liberdade veio sem chão"*): trinta e oito
+  anos ANTES da abolição, uma lei fecha o único caminho para a terra que não fosse a compra.
+  Consegui a **ementa oficial** (LexML) e o registro do ato — e **não consegui ler o art. 1º em
+  fonte pública**: o `planalto.gov.br` recusou toda conexão desta máquina (`ECONNRESET`, oito
+  tentativas, dois hosts), o `www2.camara.leg.br` devolveu 429 em todas, os PDFs (ITERPA, TSE)
+  vieram sem camada de texto e o `web.archive.org` está fora do alcance da ferramenta. Ler a
+  redação por buscador não é ler a fonte, e o marco não entra por citação de segunda mão.
+  **Fica como a primeira tarefa de quem tiver rede para o Planalto.**
+- **Os números da CNV.** Conferi na página institucional (`gov.br/memoriasreveladas`) o que
+  basta para o capítulo futuro: criada pela **Lei nº 12.528/2011**, instituída em 16/05/2012,
+  apurando violações entre **18/09/1946 e 05/10/1988**. O número que circula — 434 mortos e
+  desaparecidos políticos no volume 3 — aparece em três resultados que apontam para o site da
+  própria CNV, mas o servidor dela devolve **certificado inválido** e eu não o li. Continua
+  ✖N e **não entrou em fala nenhuma**. É o primeiro item da pesquisa de O QUE NÃO PODIA SER
+  DITO.
+- **O Decreto nº 528/1890** (o que condicionava a entrada de imigrantes) e qualquer número de
+  florestas públicas não destinadas: não conferidos, não entraram.
+
+### O ACEIRO, o décimo terceiro
+
+Entrou como **capítulo em obra**, na posição cronológica: depois de O QUE SEGUROU (2020–2022) e
+**antes** de O QUE TEM FONTE. A ordem dentro do "hoje" tem razão, e ela é de ensino — O QUE TEM
+FONTE usa como exemplo trabalhado *o INPE e o MapBiomas medindo a mesma floresta com réguas
+diferentes*, e quem chega ao capítulo do método precisa já ter visto as duas réguas.
+
+Nenhuma linha do `HISTORIA-CONTEMPORANEO.md` entrou. A abertura diz o nome, explica a palavra
+*aceiro* (definição de dicionário, não afirmação histórica — a mesma licença que PINDORAMA teve
+para ensinar o próprio nome), diz o verbo (**abafar**), diz que quem ele acompanha é quem segura
+a linha e não quem manda, e **avisa que o número dele tem prazo**: é o primeiro capítulo do jogo
+com conteúdo perecível, porque o dado de desmatamento sai todo ano. Zero dígito nas falas — o
+bloco 15 do `encaixe.js` cobra isso e passou.
+
+**O procedimento de `ARCOS_ANTIGOS` foi cumprido ANTES de mexer em `EPOCAS`**, que é a ordem que
+o comentário manda e a primeira vez que ela foi respeitada de verdade: a linha do arco de doze
+está gravada, então quem parou em O QUE TEM FONTE não acorda em O ACEIRO.
+
+### O que medi
+
+| | antes | depois |
+|---|---|---|
+| capítulos | 12 (4 escritos) | **13** (4 escritos, 9 em obra) |
+| cenas | 15 | **16** |
+| `LIMIAR_FIM` | 11.700 | **11.850** (régua do bloco 16: 13.125) |
+| páginas do quadrinho | 26 | **32** |
+| pontos finais do rolo | 7 | **7** — a amarra é por `qi`, e nenhum marco novo tem imagem própria |
+| linhas autorais varridas pelo §2 | 172 | **190**, 0 achado |
+| `index.html` | 1,52 MB | **1,52 MB** — nenhuma arte nova |
+
+`npm test` verde e `encaixe.js` **20 blocos** verdes nos dois incrementos. Prints:
+`test/ACEIRO-eras-fim-da-lista.png`, `test/ACEIRO-abertura-1.png`, `test/MARCO-1890.png`,
+`test/MARCO-1943-2015.png`, `test/MARCO-1964.png`, `test/MARCO-fontes.png`.
+
+### O que os prints mostraram e o teste não mostraria
+
+Os seis marcos caem na **página de papel** do quadrinho (sem `qi`, sem índice em `MOMENTOS`),
+que é a saída neutra — e seis páginas de papel seguidas depois de 1888 leem como um caderno de
+anotações no meio do álbum. É honesto e é o estado certo hoje (nada se inventa para tapar
+buraco), mas é **pedido de arte**: seis verticais, uma por marco. Fica para a mesa.
+
+E o print da abertura de O ACEIRO mostra o desencaixe que o `PENDENTES.md` agora nomeia: um
+capítulo cujo `quando` diz *cerrado* rodando sobre uma rua de cidade, porque a pintura é herdada
+do capítulo anterior.
+
+### Uma coisa que achei por acidente, e consertei no mesmo dia
+
+A tela **DE ONDE VEM não tinha grupo de SALVADOR** — e o fecho daquele capítulo promete, com
+todas as letras: *"Quem reconstruiu esta noite documento por documento foi João José Reis. Quem
+tirou as ganhadeiras da margem da história foi Cecília Moreira Soares. A tela DE ONDE VEM traz
+as duas."* Ela não trazia. Promessa quebrada de um capítulo **escrito** é mais grave que qualquer
+coisa desta sessão, porque o jogo já a fez a quem jogou.
+
+Não era falta de pesquisa: as duas já estavam citadas na `LINHA_TEMPO` (campo `f`). Era falta de
+duas linhas em `FONTES`, e elas entraram — a de Cecília Moreira Soares com o número e o ano
+conferidos no próprio periódico (*As ganhadeiras: mulher e resistência negra em Salvador no
+século XIX*, **Afro-Ásia nº 17, 1996**, UFBA), que é mais do que o jogo dizia antes.
+
+**A lição de método, e ela vale para todo capítulo futuro:** escrever no FECHO que a tela DE ONDE
+VEM traz uma fonte e não pô-la lá é o modo mais silencioso de este jogo mentir — nenhum teste
+olha para isso hoje. Vale um bloco de `encaixe.js`: **toda obra citada num `f` da `LINHA_TEMPO`
+de capítulo escrito tem de ter entrada em `FONTES`.**
+
+### Dúvida nova
+
+O `q` de dois marcos é um INTERVALO (`1932 → 1985`, `1943 → 2015`), o que nenhum nó tinha antes.
+Ficou bom no papel e resolve o que eu queria dizer — *a norma e o que aconteceu com ela* —, mas
+cria uma cronologia com nós que se sobrepõem. Se virar padrão, a linha do tempo deixa de ser uma
+linha e vira uma tabela de vigências. Por ora são dois; vale olhar quando forem seis.
+
+### Próximo passo
+
+Ler a Lei nº 601/1850 em fonte pública e pendurar o marco de 1850 **antes** do de 1888 (é o
+lugar cronológico dele) — incremento de dez minutos no dia em que a rede alcançar o Planalto.
+Depois, os números da CNV, que são o portão de O QUE NÃO PODIA SER DITO.

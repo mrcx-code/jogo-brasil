@@ -1262,6 +1262,48 @@
     opacity: 0; pointer-events: none; }
   .sheet.aberto { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
   .sheetHead { display: flex; align-items: center; margin-bottom: 2px; }
+
+  /* ===== O RODAPÉ DEITADO ===== o segundo bloco da passada do telefone virado, e o que
+     mudou de resposta e não só de tamanho.
+     Duas coisas medidas em 844×390 antes desta regra:
+       · o bloco de controles ocupava 16,2% da ALTURA (17,5% a 640×360). Em retrato os mesmos
+         63 px são 7,5%. A mesma barra passou a valer o dobro da composição sem ninguém ter
+         decidido isso — deitado, quem é escasso é a altura.
+       · a ação principal ficava a 43% da largura, ou seja no MEIO da borda de baixo. Em
+         retrato esse é o melhor lugar que existe: a mão segura o aparelho e o polegar cai
+         ali. Deitado é o contrário — as duas mãos seguram as PONTAS, e o meio da borda de
+         baixo é o ponto mais LONGE dos dois polegares que a tela tem.
+     Então o rodapé encosta na ponta DIREITA e o botão dourado vai para o fim da fileira
+     (`order`, uma linha) — polegar direito. E a metade ESQUERDA da tela, que é a que PULA,
+     fica livre de botão: o polegar esquerdo pousa em cima do gesto dele. Medido depois: a
+     ação a ~86% da largura e o bloco em 49 px (12,6% a 390 de altura, 13,6% a 360).
+     Nenhum material muda: mesma pedra, mesmo ouro, mesma construção de laje. */
+  /* A ÂNCORA vale em QUALQUER tela deitada, tablet incluído: o argumento é de mão, não de
+     altura — quem segura na horizontal segura pelas pontas. */
+  @media (orientation: landscape) {
+    #controls { left: auto; transform: none;
+      right: max(8px, env(safe-area-inset-right)); width: min(560px, 66vw);
+      bottom: calc(6px + env(safe-area-inset-bottom)); }
+    /* as duas regras que MOVEM o bloco carregam classe no body e ganham de `#controls` sozinho
+       na especificidade — elas têm de ser reescritas aqui, ou o rodapé volta para o meio */
+    body.emTela #controls { transform: translateY(150%); }
+    body.travessando #controls { transform: none; }
+    /* o botão dourado por último na fileira: a ação principal debaixo do polegar direito */
+    #rail { order: 1; }
+    /* a bandeja mora em cima do rodapé e tem de mudar de âncora junto, senão ela abre no meio
+       e o cartão que a fecha fica na outra ponta da tela */
+    .sheet { left: auto; right: max(8px, env(safe-area-inset-right));
+      width: min(560px, 66vw); transform: translateY(110%); }
+    .sheet.aberto { transform: translateY(0); }
+  }
+  /* O EMAGRECIMENTO é só onde a altura é escassa — num tablet deitado (768 de altura) o
+     rodapé de 63 px já são 8,2% e não há nada a economizar. O que cede é RESPIRO, nunca alvo
+     de dedo: 47 px continua acima dos 44 que Apple e Google pedem, e o ícone continua em
+     escala inteira (26 px = o mapa de 13 a 2×), que é a régua da onda 7. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .cartao { padding: 4px 4px; gap: 1px; }
+    #btnClique { min-height: 47px; padding: 5px 10px; }
+  }
   .sheetHead .t { font-size: 10px; font-weight: 900; letter-spacing: .3em; color: #b09c72;
     text-shadow: 0 2px 0 rgba(0,0,0,.5); }
 
