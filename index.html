@@ -1865,6 +1865,7 @@ let S = {
     grupo: 0,
     acolhidos: [],
     marcos: 0,
+    marcosN: 0,
     travessias: 0,
     arco: 0,
     salvoEm: 0
@@ -2869,8 +2870,48 @@ EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.
 const MASCARA_EPOCAS = (1 << EPOCAS.length) - 1;
 while (S.acolhidos.length < EPOCAS.length)
     S.acolhidos.push(0);
-const MARCOS_CAP2_ESCOLHA = [0, 2, 3];
-const MASCARA_MARCOS = (1 << MARCOS_CAP2_ESCOLHA.length) - 1;
+let MARCOS = [];
+let MASCARA_MARCOS = 0;
+function espacoMarco() { return LIMIAR_CENA / 2; }
+function tetoMarcos(e) {
+    const vao = LIMIAR_CENA * EPOCAS[e].cenas;
+    return Math.max(0, Math.round(vao / espacoMarco()) - 1);
+}
+function escolherMarcos(m, n) {
+    const fora = [];
+    if (m <= 0 || n <= 0)
+        return fora;
+    if (n >= m) {
+        for (let i = 0; i < m; i++)
+            fora.push(i);
+        return fora;
+    }
+    if (n === 1) {
+        fora.push(m - 1);
+        return fora;
+    }
+    for (let i = 0; i < n; i++)
+        fora.push(Math.round(i * (m - 1) / (n - 1)));
+    return fora;
+}
+function derivarMarcos() {
+    const fora = [];
+    const porEp = EPOCAS.map(function () { return []; });
+    LINHA_TEMPO.forEach(function (no) {
+        if (no.tipo !== "momento" || !no.t || !no.d || !no.f)
+            return;
+        const e = epocaDoCenario((no.cena || 0) | 0);
+        if (e >= 0 && e < porEp.length)
+            porEp[e].push(no);
+    });
+    porEp.forEach(function (lista, e) {
+        const esc = escolherMarcos(lista.length, tetoMarcos(e));
+        esc.forEach(function (iNo, k) {
+            fora.push({ bit: fora.length, ep: e, k: k, n: esc.length, no: lista[iNo] });
+        });
+    });
+    return fora;
+}
 const ACOLHIDOS_TETO = 9999;
 function cenarioDaEpoca(e) { return EPOCA_CENA0[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))]; }
 function epocaDoCenario(i) {
@@ -2943,7 +2984,8 @@ const ESQUEMA_SAVE = {
     som: { tipo: "bool", pad: false },
     grupo: { tipo: "num", min: 0, max: 5, pad: 0 },
     acolhidos: { tipo: "lista", n: EPOCAS.length, min: 0, max: ACOLHIDOS_TETO, pad: 0 },
-    marcos: { tipo: "bits", min: 0, max: MASCARA_MARCOS, pad: 0 },
+    marcos: { tipo: "bits", min: 0, get max() { return MASCARA_MARCOS; }, pad: 0 },
+    marcosN: { tipo: "num", min: 0, max: 64, pad: 0 },
     travessias: { tipo: "bits", min: 0, max: MASCARA_TRAVESSIAS, pad: 0 },
     arco: { tipo: "num", min: 0, max: 9, pad: 0 },
     recursos: { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
@@ -3067,12 +3109,18 @@ function carregar(silencioso) {
         return;
     if (!Object.prototype.hasOwnProperty.call(lido, "arco"))
         S.arco = 0;
+    if (!Object.prototype.hasOwnProperty.call(lido, "marcosN"))
+        S.marcosN = 0;
     for (const chave in ESQUEMA_SAVE) {
         if (Object.prototype.hasOwnProperty.call(lido, chave)) {
             S[chave] = valida(ESQUEMA_SAVE[chave], lido[chave]);
         }
     }
     migrarArco();
+    if ((S.marcosN | 0) !== MARCOS.length) {
+        S.marcos = 0;
+        S.marcosN = MARCOS.length;
+    }
     if (S.energiaTotal < S.energia)
         S.energiaTotal = S.energia;
     if (!S.recursos || typeof S.recursos !== "object")
@@ -5238,26 +5286,27 @@ function verificarCenario() {
         avancar();
 }
 let marcoAtivo = null;
-function momentosMarcoCap2() {
-    return LINHA_TEMPO.filter(function (n) { return n.tipo === "momento" && n.cena === 2; });
+function marcosDoCap(e) {
+    return MARCOS.filter(function (m) { return m.ep === e; });
 }
-function marcoAlvo(i) {
-    const ini = LIMIAR_CENA * cenarioDaEpoca(CAP_GENTE);
-    const span = LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas;
-    return ini + span * (i + 1) / (MARCOS_CAP2_ESCOLHA.length + 1);
+function marcoAlvo(m) {
+    const ini = LIMIAR_CENA * cenarioDaEpoca(m.ep);
+    const span = LIMIAR_CENA * EPOCAS[m.ep].cenas;
+    return ini + span * (m.k + 1) / (m.n + 1);
 }
 function atualizarMarcos() {
-    if (!capGente()) {
-        marcoAtivo = null;
-        return;
-    }
+    const ep = epocaAtual();
     if (marcoAtivo) {
+        if (marcoAtivo.ep !== ep) {
+            marcoAtivo = null;
+            return;
+        }
         if (!marcoAtivo.falado && marcoAtivo.wx - worldX <= HX + 24) {
             if (!falaAberta() && !telaAberta()) {
                 marcoAtivo.falado = true;
                 S.marcos = ((S.marcos | 0) | (1 << marcoAtivo.i)) >>> 0;
                 salvar();
-                const mo = momentosMarcoCap2()[MARCOS_CAP2_ESCOLHA[marcoAtivo.i]];
+                const mo = MARCOS[marcoAtivo.i] && MARCOS[marcoAtivo.i].no;
                 if (mo && mo.t && mo.d)
                     abrirFala(mo.t, mo.q, [mo.d], null);
             }
@@ -5266,11 +5315,12 @@ function atualizarMarcos() {
             marcoAtivo = null;
         return;
     }
-    for (let i = 0; i < MARCOS_CAP2_ESCOLHA.length; i++) {
-        if (jaViu(S.marcos, i))
+    const lista = marcosDoCap(ep);
+    for (let i = 0; i < lista.length; i++) {
+        if (jaViu(S.marcos, lista[i].bit))
             continue;
-        if (S.energiaTotal >= marcoAlvo(i)) {
-            marcoAtivo = { i: i, wx: worldX + W + 40, falado: false };
+        if (S.energiaTotal >= marcoAlvo(lista[i])) {
+            marcoAtivo = { i: lista[i].bit, ep: ep, wx: worldX + W + 40, falado: false };
         }
         break;
     }
@@ -7049,6 +7099,9 @@ const LINHA_TEMPO = [
         com: "Esse “continuam” sou eu. Ainda aqui.", quem: iEp("hoje") },
     { tipo: "aberto", qi: "p26" }
 ];
+MARCOS = derivarMarcos();
+MASCARA_MARCOS = Math.pow(2, Math.min(30, MARCOS.length)) - 1;
+S.marcosN = MARCOS.length;
 function montarCompletude() {
     garantirPacote("historia");
     const box = $("listaCenas");

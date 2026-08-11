@@ -28,6 +28,15 @@ percorrida para o sprite; reusar o contador é custo zero e é o mesmo dado).
 continua custando o mesmo impacto; o marco só dá corpo ao que hoje é um número invisível.
 Nenhuma mudança de economia nesta fase.
 
+> **FEITO, E EM TODO CAPÍTULO — 2026-08-11.** Os marcos deixaram de ser protótipo do capítulo 2.
+> A lista de placas se DERIVA da `LINHA_TEMPO` (momento com título, texto e fonte no próprio nó),
+> cada uma pertence ao capítulo que contém a `cena` dela, e os `n` marcos de um capítulo dividem
+> o vão de impacto dele em `n+1` partes iguais — os quartos do protótipo quando são três, a
+> metade quando é um. Quantos cabem sai de **um marco a cada 750 de impacto**, que é o
+> espaçamento que o capítulo 2 já tinha e que foi o que se mediu. Hoje: **13 placas em 7
+> capítulos**; seis capítulos ficam sem porque não têm momento com fonte. Números, prints e a
+> resposta sobre os seis marcos de 1888–1964 no `NOTES.md`.
+
 ## Parte 2 — o lugar vivo
 
 **O que é:** cada capítulo tem um LUGAR (o arraial, o pátio da hospedaria, o canteiro, a
@@ -52,13 +61,21 @@ esteve fora") lista em texto o que o lugar fez — barata e forte.
 ## O que NÃO muda
 
 - Cap. 1 fica no padrão atual (decisão do dono) — e vira o termo de comparação honesto.
+  **PONTO EM ABERTO desde 2026-08-11, e é do dono:** o ticket "leve os marcos para TODOS os
+  capítulos" foi cumprido ao pé da letra e o capítulo 1 ganhou três placas. O que ele guardou
+  do padrão antigo continua guardado — a estrada dele não tem fim, não tem marco de fecho e
+  não tem faixa viva (isso é só o cap. 2) —, mas a decisão de 06/08 dizia "pelo menos um
+  capítulo no padrão atual" e placa de história na estrada é parte 1 desta mesma reforma. Se o
+  termo de comparação tiver de voltar a ser puro, é **uma linha** em `derivarMarcos`: pular o
+  capítulo. Fica registrado para ele decidir, e não para uma sessão futura descobrir sozinha.
 - Economia, custos de upgrade, LIMIARES: intocados nesta fase. Uma mudança de cada vez,
   medida.
 - Motor de renderização (§7): marcos e lugar são objetos do mundo, camada existente.
 
 ## Ordem de implementação
 
-1. Marcos no chão + indicador de distância (só cap. 2, como protótipo).
+1. ~~Marcos no chão + indicador de distância (só cap. 2, como protótipo).~~ **Feito, e
+   generalizado para todo capítulo em 2026-08-11 — ver o quadro na Parte 1.**
 2. `S.acolhidos` por época no esquema + faixa final com os acolhidos visíveis (cap. 2).
 3. Tela de retorno "enquanto você esteve fora".
 4. Medir: o tempo de sessão e a taxa de volta-no-dia-2 mudam? (instrumentação local já

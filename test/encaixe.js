@@ -1363,6 +1363,179 @@ const sec = t => log('\n---- ' + t);
   await page.evaluate(() => { fecharTelas(); });
   await page.waitForTimeout(400);
 
+  // ============================================================
+  // 23 · OS MARCOS NO CHÃO EM TODO CAPÍTULO — e as três coisas que quebram em silêncio
+  //
+  // A lista de placas deixou de ser `[0, 2, 3]` escrito à mão e passou a se derivar da
+  // LINHA_TEMPO. Uma derivação erra sem fazer barulho: um capítulo com momento com fonte
+  // que fica sem placa não dá erro nenhum — só some da estrada uma história que existe.
+  // Um capítulo SEM momento que ganha placa é pior: seria uma placa muda, ou uma placa
+  // afirmando o momento do capítulo vizinho. E a máscara de bits, que era de 3, hoje é de
+  // treze: se ela estourar a faixa do ESQUEMA_SAVE, o save inteiro cai no padrão em silêncio.
+  //
+  // O quarto item é a trava do dono: a placa é UM objeto a mais em cena, e a média de
+  // objetos não pode passar a do capítulo 1. Aqui ela é medida ao vivo, com a máscara zerada
+  // — que a 85% do vão comprime o orçamento inteiro de placas do capítulo dentro da célula, e
+  // é portanto um teto e não uma amostra.
+  //
+  // A TRAVA É RELATIVA, E NÃO PODIA SER OUTRA COISA — descoberto medindo, em 11/08. O número
+  // "4,7 / 5,4" que o NOTES.md registra NÃO se reproduz entre sessões: o `medir-poluicao.js`
+  // rodado no MESMO build de ontem devolveu 5,25 e 5,18 andando, contra os 4,43 medidos horas
+  // antes, e a diferença inteira estava em `folhas` (1,09 → 2,17), que nenhuma mudança de
+  // código tocou. Quantas folhas ficam em quadro depende de quantas a personagem colhe, e isso
+  // anda com o orçamento de quadro da máquina. Comparar uma medição de hoje com um número
+  // gravado ontem mede o computador, não o jogo. Então este bloco mede a RÉGUA (o capítulo 1)
+  // na mesma sessão, com a mesma célula, e cobra os outros contra ela — e mede o custo da
+  // placa por subtração DENTRO do mesmo quadro, que é a única forma imune a isso.
+  // ============================================================
+  sec('23 · marco em capítulo que tem momento, e em nenhum outro');
+  const mk = await page.evaluate(() => {
+    const caps = EPOCAS.map(function (e, i) {
+      const momentos = LINHA_TEMPO.filter(function (n) {
+        return n.tipo === 'momento' && n.t && n.d && n.f && epocaDoCenario((n.cena || 0) | 0) === i;
+      });
+      const meus = MARCOS.filter(function (m) { return m.ep === i; });
+      const ini = LIMIAR_CENA * cenarioDaEpoca(i), vao = LIMIAR_CENA * e.cenas;
+      return {
+        id: e.id, nome: e.nome, cenas: e.cenas, momentos: momentos.length,
+        marcos: meus.length, teto: tetoMarcos(i),
+        titulos: meus.map(function (m) { return m.no.t; }),
+        semFonte: meus.filter(function (m) { return !m.no.f; }).length,
+        alvos: meus.map(function (m) { return marcoAlvo(m); }),
+        ini: ini, fim: ini + vao
+      };
+    });
+    return {
+      caps: caps, total: MARCOS.length, mascara: MASCARA_MARCOS,
+      maxEsq: ESQUEMA_SAVE.marcos.max, espaco: espacoMarco(),
+      // a prova de que a derivação não inventou nada: aplicada ao vão de Palmares ela tem de
+      // devolver a MESMA escolha que o historiador tinha feito à mão
+      palmares: (function () {
+        const i = iEp('palmares');
+        const todos = LINHA_TEMPO.filter(function (n) {
+          return n.tipo === 'momento' && n.t && n.d && n.f && epocaDoCenario((n.cena || 0) | 0) === i;
+        });
+        return MARCOS.filter(function (m) { return m.ep === i; })
+          .map(function (m) { return todos.indexOf(m.no); });
+      })()
+    };
+  });
+  mk.caps.forEach(function (c) {
+    log('   ' + c.nome.padEnd(26) + c.cenas + ' cena(s) · ' + c.momentos + ' momento(s) com fonte · teto ' +
+      c.teto + ' · ' + c.marcos + ' marco(s)' + (c.titulos.length ? ' — ' + c.titulos.join(' | ') : ''));
+  });
+  mk.caps.forEach(function (c) {
+    if (c.momentos > 0) {
+      ok(c.marcos > 0, c.nome + ' tem momento com fonte e ganhou placa na estrada (' + c.marcos + ')');
+      ok(c.marcos <= c.teto, c.nome + ': ' + c.marcos + ' placa(s) para um teto de ' + c.teto +
+        ' — o espaçamento medido no cap. 2 não foi apertado');
+    } else {
+      ok(c.marcos === 0, c.nome + ' não tem momento com fonte e ficou SEM placa — placa muda não existe');
+    }
+    ok(!c.semFonte, c.nome + ': nenhuma placa sem fonte (§2)');
+    ok(c.alvos.every(function (a) { return a > c.ini && a < c.fim; }),
+      c.nome + ': todo alvo cai DENTRO do vão do capítulo (' + c.ini + '..' + c.fim + ')');
+  });
+  log('   total ' + mk.total + ' marcos · máscara ' + mk.mascara + ' · espaçamento mínimo ' + mk.espaco);
+  ok(mk.total > 0 && mk.total <= 30,
+    'a lista derivada cabe numa máscara de bits (' + mk.total + ' marcos, teto 30)');
+  ok(mk.mascara === Math.pow(2, mk.total) - 1,
+    'MASCARA_MARCOS deriva do dado, não de um literal (' + mk.mascara + ')');
+  ok(mk.maxEsq === mk.mascara,
+    'e o ESQUEMA_SAVE aceita a faixa nova — max ' + mk.maxEsq + ' para uma máscara de ' + mk.mascara);
+  ok(mk.caps.filter(function (c) { return c.marcos > 0; }).length >= 5,
+    'a estrada tem placa em ' + mk.caps.filter(function (c) { return c.marcos > 0; }).length +
+    ' capítulos — deixou de ser protótipo de um só');
+  ok(JSON.stringify(mk.palmares) === '[0,2,3]',
+    'a derivação devolve em PALMARES a mesma escolha que o historiador fez à mão: [' +
+    mk.palmares.join(',') + '] (o último do vão, com o sujeito em quem resistiu, fica)');
+
+  // ---- a máscara de um save antigo não cala placa nenhuma
+  const velho = await page.evaluate(() => {
+    // um save gravado quando só Palmares tinha placa: três bits ligados, sem `marcosN`
+    const bruto = JSON.parse(localStorage.getItem(CHAVE_JOGO) || '{}');
+    // SEM o campo `marcosN`, que é como um save de verdade daquela época está no disco. Escrever
+    // `marcosN: 3` aqui esconderia o defeito: `S.marcosN` já nasce valendo o número de hoje, e o
+    // laço do `carregar` só sobrescreve campo que EXISTE no JSON — sem esta ausência o teste
+    // passava e o jogo calava as placas novas de quem já tinha jogado.
+    bruto.marcos = 7; delete bruto.marcosN; bruto.arco = S.arco;
+    localStorage.setItem(CHAVE_JOGO, JSON.stringify(bruto));
+    S.marcos = 7;
+    carregar(true);
+    return { marcos: S.marcos, n: S.marcosN };
+  });
+  ok(velho.marcos === 0 && velho.n > 3,
+    'save de quando só Palmares tinha placa (marcos=7) não cala as placas novas — zerou e regravou para ' +
+    velho.n + ' marcos');
+
+  // ---- e a trava do dono, medida ao vivo: um marco a mais é UM objeto a mais
+  sec('23b · a placa não estourou o teto de tela poluída (a régua é o cap. 1, medido agora)');
+  // UMA célula por capítulo, com DOIS acumuladores: o total em cena e o mesmo total sem a
+  // placa. Medir "com" e "sem" em células separadas parecia mais honesto e é o contrário:
+  // duas amostras independentes de 12 s diferem sozinhas em ~0,4 objeto só pelo sorteio dos
+  // spawns, e a diferença medida (1,22) dizia mais sobre o sorteio que sobre a placa. No
+  // mesmo quadro, a subtração é exata e a asserção passa a cobrar o que quer cobrar.
+  const celula = async function (cap) {
+    return await page.evaluate(async (a) => {
+      fecharTudo();
+      const c0 = cenarioDaEpoca(a.cap);
+      S.cenario = c0; S.fronteira = TOTAL_CENAS - 1;
+      const ini = LIMIAR_CENA * c0, vao = LIMIAR_CENA * EPOCAS[a.cap].cenas;
+      S.energiaTotal = ini + vao * 0.85; S.energia = 1e6;
+      S.aberturas = MASCARA_EPOCAS; S.fechos = 0;
+      // Máscara zerada e o impacto a 85% do vão: todos os alvos do capítulo já batidos, ou
+      // seja, o orçamento INTEIRO de placas dele comprimido nesta célula. Em jogo essas
+      // mesmas placas se espalham pelo capítulo todo; isto é teto, não amostra.
+      S.marcos = 0;
+      marcoAtivo = null; S.u1 = S.u2 = S.u3 = true;
+      S.modo = 'carvao';
+      mobs.length = 0; drops.length = 0; folhas.length = 0; floats.length = 0;
+      verificarCenario = function () {};
+      abrirFala = function () {};        // fala aberta PARA o mundo; aqui só se mede a rua
+      let n = 0, soma = 0, somaSem = 0, pior = 0, placas = 0;
+      await new Promise(function (pronto) {
+        const t = setInterval(function () {
+          // contagem e não booleano: se um dia `marcoAtivo` virar lista, esta linha conta
+          // duas placas e a asserção quebra — que é exatamente o serviço dela
+          const placaN = marcoAtivo ? (Array.isArray(marcoAtivo) ? marcoAtivo.length : 1) : 0;
+          const semPlaca = mobs.filter(function (m) { return !m.dying && !m.dead; }).length +
+            drops.filter(function (d) { return !d.morto; }).length +
+            folhas.length + floats.length;
+          if (placaN) placas++;
+          n++; soma += semPlaca + placaN; somaSem += semPlaca;
+          if (semPlaca + placaN > pior) pior = semPlaca + placaN;
+          if (n >= 60) { clearInterval(t); pronto(); }
+        }, 200);
+      });
+      return { media: soma / Math.max(1, n), mediaSem: somaSem / Math.max(1, n),
+        pior: pior, placas: placas, n: n, nome: EPOCAS[a.cap].nome };
+    }, { cap: cap });
+  };
+  // O capítulo 1 primeiro: é ele a régua, e ela é medida agora, nesta máquina, nesta célula.
+  const regua = await celula(0);
+  log('   RÉGUA · ' + regua.nome + ': a mesma rua sem a placa ' + regua.mediaSem.toFixed(2) +
+    ' · com ela ' + regua.media.toFixed(2) + ' (placa em cena em ' + regua.placas + ' de ' +
+    regua.n + ' amostras) · pior ' + regua.pior);
+  ok(regua.media - regua.mediaSem <= 1.0, regua.nome + ': a placa custou ' +
+    (regua.media - regua.mediaSem).toFixed(2) +
+    ' objeto de média — um marco é UM objeto, nunca dois');
+  // 1 = PALMARES (3 placas + a gente que anda junto) · 6 = AS PORTAS (capítulo em obra, 1 placa)
+  for (const alvoCap of [1, 6]) {
+    const c = await celula(alvoCap);
+    log('   ' + c.nome + ': a mesma rua sem a placa ' + c.mediaSem.toFixed(2) + ' · com ela ' +
+      c.media.toFixed(2) + ' (placa em cena em ' + c.placas + ' de ' + c.n +
+      ' amostras) · pior ' + c.pior);
+    // +0,3 de folga: duas células de 12 s da MESMA rua diferem sozinhas nessa ordem, e a
+    // trava é "não passa do capítulo 1", não "é mais limpo por decimais".
+    ok(c.media <= regua.media + 0.3, c.nome + ': média de objetos ' + c.media.toFixed(2) +
+      ' não passou a do capítulo 1 medida agora (' + regua.media.toFixed(2) + ')');
+    ok(c.media - c.mediaSem <= 1.0, c.nome + ': a placa custou ' +
+      (c.media - c.mediaSem).toFixed(2) + ' objeto de média — um marco é UM objeto, nunca dois');
+  }
+  await page.evaluate(() => { localStorage.clear(); });
+  await page.reload();
+  await page.waitForTimeout(600);
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

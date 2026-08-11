@@ -4487,3 +4487,186 @@ orientação com a partida viva — `orientationchange` chama `fitCanvas` e `med
 uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
 atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
 desses estados.
+
+---
+
+## Diário — 2026-08-11 · Dev · AS PLACAS SAEM DE PALMARES E VÃO PARA A ESTRADA INTEIRA
+
+**O diagnóstico que o dono aprovou:** *a história do jogo acontece ENTRE o jogo, não NO jogo.*
+As falas e o quadrinho são bonitos e são **intervalo de leitura**. Os marcos no chão do
+capítulo 2 foram o único momento em que a história aconteceu **na mão de quem joga** — e a
+ideia parou ali, como protótipo de um capítulo só, desde 06/08.
+
+### O que mudou, em uma frase
+
+`MARCOS_CAP2_ESCOLHA = [0, 2, 3]` — três índices escritos à mão — deixou de existir. A lista de
+placas **se deriva da `LINHA_TEMPO`**, e acrescentar um momento com fonte passa a acrescentar
+uma placa na estrada sem tocar em uma linha de código.
+
+### A derivação, e ela é o trabalho todo
+
+1. **Quem pode virar placa:** todo nó `tipo: "momento"` com título, texto e fonte **no próprio
+   nó** (`t`, `d`, `f`) — a mesma peneira que a `notaDaVolta` já usava. Nenhum texto novo entra:
+   a placa mostra o que a linha do tempo já diz, com a fonte que ela já tem (§2).
+   **Os seis nós que apontam para `MOMENTOS` por índice ficam de fora**, e por dois motivos
+   independentes: (a) eles não têm `cena`, logo não sabem de que capítulo são — adivinhar pela
+   posição é o erro que o bloco IDENTIDADE > POSIÇÃO custou uma sessão para consertar, e daria
+   a placa "Palmares" fincada na estrada do capítulo 1; (b) eles são a história **do** capítulo,
+   que a abertura e o fecho já contam. A estrada é do **vão** entre capítulos.
+2. **De quem ele é:** `epocaDoCenario(no.cena)` — o mesmo dado que já decide quando o jogo o
+   revela. Capítulo sem momento com fonte fica **sem placa**, e isso é resposta, não buraco.
+3. **Quantos cabem:** a única constante nova, e ela é medida, não escolhida. O protótipo do
+   capítulo 2 punha 3 placas num vão de 3.000 de impacto, em quartos — **750 de impacto entre
+   uma e outra**. É esse espaçamento que vira regra (`espacoMarco()`): vão de 2 cenas cabe 3,
+   vão de 1 cena cabe 1. A densidade é constante em **impacto**, não em contagem, que é a mesma
+   régua da trava de tela poluída.
+4. **Quando sobra momento, qual fica:** `round(i·(m−1)/(n−1))` sobre os disponíveis, o que
+   **sempre guarda o primeiro e o último**. Não é estética: o critério do historiador,
+   registrado aqui em 06/08, é que em cada vão pelo menos um marco tenha como SUJEITO quem
+   resistiu — e é o último de cada vão que carrega isso. Com um lugar só, fica o último, pelo
+   mesmo critério e pelo §2.6 ("o sujeito é sempre quem sustenta").
+   **A prova de que a regra não inventou nada:** aplicada ao capítulo 2 ela devolve exatamente
+   `[0, 2, 3]`, a escolha que estava escrita à mão. O `encaixe.js` cobra essa igualdade.
+
+### O que a estrada tem hoje: 13 placas em 7 capítulos
+
+| capítulo | cenas | momentos com fonte | teto | placas |
+|---|---:|---:|---:|---|
+| PINDORAMA | 2 | 5 | 3 | Quem já estava aqui · Marajó · Os Tupi chegam ao litoral |
+| PALMARES | 2 | 4 | 3 | O açúcar · A travessia forçada · A guerra que abriu a serra |
+| O CAIS QUE VOLTOU À LUZ | 1 | 0 | 1 | — |
+| SALVADOR | 1 | 2 | 1 | As ganhadeiras |
+| JABAQUARA | 1 | 0 | 1 | — |
+| A PEQUENA ÁFRICA | 1 | 2 | 1 | Quem podia votar (1891) |
+| AS PORTAS | 1 | 3 | 1 | A lei do trabalho e quem ficou de fora (1943 → 2015) |
+| O QUE NÃO PODIA SER DITO | 1 | 1 | 1 | O ato que tirou o juiz do caminho (1964) |
+| A PRAÇA · O QUE SEGUROU · O ACEIRO · O QUE TEM FONTE | 1 | 0 | 1 | — |
+| AINDA AQUI | 2 | 3 | 3 | A lei de dois artigos · A Constituinte · Quilombos hoje |
+
+**Os seis capítulos sem placa são os seis sem momento com fonte**, e é assim que se diz o que
+falta: O CAIS, JABAQUARA, A PRAÇA, O QUE SEGUROU, O ACEIRO e O QUE TEM FONTE. No dia em que um
+momento com fonte for pendurado na cena de qualquer um deles, a placa aparece sozinha.
+
+### Os seis marcos de 1888–1964 tinham casa — e a casa é onde a `LINHA_TEMPO` já os pôs
+
+A pergunta era: eles esperam o capítulo existir, ou aparecem no capítulo mais próximo?
+**Nenhum dos dois — eles já estão no capítulo certo e ele já é jogável.** Cada um declara
+`cena: cenarioDaEpoca(iEp(...))` desde 10/08, e um capítulo em obra é **jogável com o motor
+genérico** (decisão de 09/08): hoje ele é um trecho de estrada mudo, e a placa é a única
+história com fonte que existe nele. Movê-los para o capítulo vizinho quebraria a única coisa
+que o dono pediu nominalmente ao aprová-los — *"mantendo a ordem cronológica"*.
+
+Isso não fere "capítulo em obra não afirma história nenhuma": a afirmação **não é do capítulo**,
+é da `LINHA_TEMPO`, com fonte, e o capítulo continua sem uma linha própria.
+
+**Três dos seis não couberam na estrada, e o motivo é o espaçamento, não o capítulo:** 1890,
+1930 e 1932→1985 caem em capítulos de UMA cena, que só comportam uma placa. Eles continuam
+inteiros no quadrinho e na nota da volta. E entram na estrada **sozinhos**, sem código nenhum,
+no dia em que esses capítulos ganharem a segunda cena — que é o que acontece quando a arte
+deles chega.
+
+### `S.marcos` cabe, e ganhou o que faltava para nunca calar uma placa
+
+Treze marcos, máscara `8191`, teto de 30 bits cobrado por asserção — a folga é grande e o
+`ESQUEMA_SAVE` a lê por `get max()`, porque a máscara deriva da `LINHA_TEMPO`, que mora no fim
+do arquivo. **Um defeito real quase passou, e ele é o motivo do campo novo `marcosN`:** o bit de
+um marco é a POSIÇÃO dele na lista derivada. Um save gravado quando só Palmares tinha placa
+guarda os bits 0, 1 e 2 — que **hoje são as três placas do capítulo 1**. Quem já tinha jogado
+nunca mais veria a primeira placa do jogo, em silêncio, e o §3 diz de que lado se erra: falar de
+novo, nunca calar.
+
+`marcosN` guarda para quantos marcos a máscara foi escrita; quando o número não bate, o
+`carregar()` zera a máscara **uma vez**. Vale para qualquer mudança futura da lista, sem tabela
+de migração. E a armadilha dentro da armadilha, que só apareceu ao escrever a asserção: `S`
+já nasce com o `marcosN` de hoje e o laço do `carregar` só toca em campo que EXISTE no JSON —
+sem `if (!hasOwnProperty("marcosN")) S.marcosN = 0`, o save antigo passava dizendo "bate". É o
+mesmo remédio que o campo `arco` já tinha, duas linhas acima.
+
+### A TRAVA DE TELA POLUÍDA — e o achado que quase me fez responder errado
+
+**A trava do dono:** a média de objetos em cena não pode passar a do capítulo 1. Medi antes e
+depois com `test/medir-poluicao.js`, células de 45 s, segurando o botão, a 85% do vão de cada
+capítulo — e com uma correção no instrumento, porque **ele não via a placa**: punha
+`S.marcos = MASCARA_MARCOS` ("já falei todas"), então `marcoAtivo` nunca nascia e a coluna
+`placa` media zero por construção. Agora põe `0`, o que comprime o orçamento inteiro de placas
+do capítulo dentro da célula — teto, não amostra. (E `abrirFala` vira no-op na página medida:
+fala aberta PARA o mundo, e a primeira tentativa congelou no primeiro marco e devolveu zero em
+tudo depois dele.)
+
+**Antes → depois, média de objetos (andando / correndo), com o custo da placa entre parênteses:**
+
+| capítulo | antes | depois | placa |
+|---|---:|---:|---:|
+| 1 · PINDORAMA | 4,43 / 5,01 | **6,04 / 5,68** | 0,45 / 0,22 |
+| 2 · PALMARES | 4,40 / 5,10 | 4,71 / 5,27 | 0,46 / 0,23 |
+| 3 · O CAIS (sem placa) | 3,79 / 4,67 | 3,76 / 4,61 | 0 / 0 |
+| 4 · SALVADOR | 4,10 / 3,80 | 4,46 / 3,92 | 0,16 / 0,08 |
+| 6 · A PEQUENA ÁFRICA | 3,79 / 4,52 | 4,05 / 4,76 | 0,16 / 0,06 |
+| 7 · AS PORTAS | 3,85 / 4,66 | 4,18 / 4,68 | 0,15 / 0,06 |
+| 8 · O QUE NÃO PODIA SER DITO | 3,88 / 4,65 | 3,91 / 4,55 | 0,15 / 0,06 |
+| 13 · AINDA AQUI | 3,68 / 4,65 | 4,35 / 4,78 | 0,46 / 0,21 |
+
+O 6,04 do capítulo 1 parecia estouro do teto. **Não é, e a investigação é o achado desta
+sessão.** A placa vale 0,45; o resto do salto estava em `folhas` (1,09 → 2,12), que nenhuma
+linha desta mudança toca. Fui medir: **o build de ONTEM, sem uma linha do que fiz, rodado agora
+neste mesmo computador, dá 5,25 e 5,18 andando** — não 4,43. E o build de hoje, rodado três
+vezes seguidas, dá 5,40 · 5,20 · 5,31. A diferença toda é `folhas` (2,16–2,17 no build velho de
+agora, 1,66–1,84 no novo), ou seja, ruído de máquina, não de código.
+
+**O número de poluição não se compara entre sessões**, e agora está escrito no cabeçalho do
+instrumento. Quantas folhas ficam em quadro depende de quantas a personagem colhe ao passar, e
+isso anda com o orçamento de quadro da máquina. Comparar um "antes" gravado no NOTES.md com um
+"depois" medido hoje compara computadores.
+
+**O que se pode afirmar, medido do jeito certo:**
+
+- **Controle no mesmo instante de máquina** (capítulo 1, células de 45 s, alternando os dois
+  builds): **sem a mudança 5,25 / 5,18 (andando) e 5,63 / 5,84 (correndo); com ela 5,40 · 5,20 ·
+  5,31 e 5,89 · 6,08 · 6,15.** A subida é de 0,08 andando e 0,30 correndo — dentro da faixa em
+  que o próprio controle varia sozinho.
+- **O custo da placa, por subtração dentro do mesmo quadro** (imune ao ruído): **0,45 andando /
+  0,22 correndo** num capítulo de três placas; 0,15 / 0,06 num de uma. Nunca duas em cena:
+  `marcoAtivo` é um lugar só, e é essa a razão estrutural de o sistema inteiro custar no máximo
+  **um** objeto no pior instante possível.
+- **A trava continua valendo na forma em que o dono a escreveu:** o capítulo 1 segue sendo o
+  mais cheio do jogo, e todo capítulo com placa fica de 0,5 a 1,3 objeto abaixo dele.
+
+**A asserção nova do `encaixe.js` (bloco 23b) é relativa por causa disso**: mede o capítulo 1 na
+mesma execução e cobra os outros contra ele, e mede o custo da placa por subtração no mesmo
+quadro. Um teto absoluto copiado do NOTES.md quebraria sozinho na primeira máquina lenta.
+
+### Prints — sempre olhe os prints
+
+- `test/M-pindorama-placa.png` e `test/M-portas-placa.png`: a placa vindo pela estrada no
+  capítulo 1 e num capítulo **em obra**. Silhueta alta e parada contra os itens baixos e móveis,
+  que era o risco declarado no `JOGABILIDADE.md`; o HUD diz "MARCO EM N PASSOS".
+- `test/M-pindorama-fala.png`: a fala de "Quem já estava aqui" abrindo no capítulo 1 — o momento
+  em que o quadrinho vira estrada.
+- `test/M-poluicao-pindorama.png`: o instante mais cheio do capítulo 1 correndo, com placa.
+  Duas folhas, dois números, a placa. Não parece poluído, e é isso que o número diz.
+- Gerador novo: `node test/prints-marcos.js index.html 0,1,6,12`. Ele bate no `#btnJogar` antes
+  de tudo, e isso é bug pago: o jogo abre no MENU, com o menu aberto `telaAberta()` é true e a
+  placa passa sem falar **de propósito** — a primeira rodada saiu com três prints sem fala.
+
+### O que ficou em aberto
+
+- **O capítulo 1 era o termo de comparação do dono** ("mantendo pelo menos um capítulo no padrão
+  atual", 06/08) e agora tem três placas. Está anotado no `JOGABILIDADE.md`, na seção "O que NÃO
+  muda", com o custo de desfazer: uma linha em `derivarMarcos`.
+- **Três dos seis marcos de 1888–1964 não couberam** (1890, 1930, 1932→1985) porque os capítulos
+  deles têm uma cena só. Entram sozinhos quando esses capítulos crescerem.
+- **`marcosDoCap` roda um `filter` por quadro** quando não há placa ativa. São 13 elementos e não
+  apareceu em FPS (61 no smoke), mas é alocação em laço de quadro e vale lembrar se um dia a
+  lista crescer muito.
+
+### Para quem for integrar isto (feito em árvore isolada, a partir de `e72e3a7`)
+
+Enquanto isto era escrito, a `main` andou com o verbo de PALMARES (`2d81e36`). As regiões de
+`src/jogo.ts` são **disjuntas** — o outro trabalho mexe em `atualizarMobs`, `capPalavra` e
+`clicar`; este mexe em `S`, no `ESQUEMA_SAVE`, no `carregar` e no bloco dos marcos. Os dois
+lugares em que o rebase encosta são mecânicos e os dois são "os dois anexaram no fim":
+o **`NOTES.md`** (uma entrada nova cada) e o **`test/encaixe.js`** (um bloco novo cada, os dois
+logo antes de `ERROS DE CONSOLE`). O bloco daqui já nasce numerado **23** justamente porque a
+`main` levou o 22 — é só manter os dois, nessa ordem.
+
+

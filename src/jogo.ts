@@ -239,9 +239,14 @@ let S = {
   // — nunca multidão-textura (§2 e JOGABILIDADE.md). Preenchido com EPOCAS.length zeros
   // logo depois de EPOCAS existir; ver o bloco abaixo de MASCARA_EPOCAS.
   acolhidos: [] as number[],
-  // Quais marcos do chão do capítulo 2 já falaram, um bit por marco — mesma gramática de
-  // `aberturas`/`fechos`: bit ligado = já falou, e a fala curta não se repete.
+  // Quais marcos do chão já falaram, um bit por marco — mesma gramática de
+  // `aberturas`/`fechos`: bit ligado = já falou, e a fala curta não se repete. Não é mais só
+  // o capítulo 2: a lista de marcos deriva da LINHA_TEMPO e atravessa o jogo inteiro.
   marcos: 0,
+  // Para quantos marcos a máscara acima foi escrita. Ver o comentário no ESQUEMA_SAVE: é o
+  // que impede um save antigo de calar uma placa nova. Recebe o valor de verdade logo
+  // depois de `MARCOS` existir — o literal aqui é só o de quem nunca jogou.
+  marcosN: 0,
   // Quais TRAVESSIAS já foram atravessadas, um bit por travessia — mesma gramática de
   // `aberturas`. Uma travessia não é capítulo: é o trecho em que o jogo para de ser jogo
   // entre um capítulo e o seguinte. O bit serve a uma coisa só: a primeira vez não é
@@ -2045,14 +2050,83 @@ const MASCARA_EPOCAS = (1 << EPOCAS.length) - 1;
 // `S.acolhidos` nasce vazio porque S é declarado antes de EPOCAS; aqui ele ganha o tamanho
 // certo — uma posição por época, começando em zero.
 while (S.acolhidos.length < EPOCAS.length) S.acolhidos.push(0);
-// ===== OS MARCOS NO CHÃO DO CAPÍTULO 2 (protótipo travessia+lugar-vivo, JOGABILIDADE.md) =====
-// Três placas de madeira fincadas na estrada de Palmares. Cada uma materializa um momento
-// que JÁ EXISTE na LINHA_TEMPO (o vão XVI→XVII, `cena: 2`) — nenhum texto histórico novo.
-// A escolha abaixo é ÍNDICE DENTRO DESSE VÃO: 0 = O açúcar, 2 = A travessia forçada,
-// 3 = A guerra que abriu a serra — a última com o sujeito em quem resistiu, critério do
-// historiador que a própria LINHA_TEMPO registra.
-const MARCOS_CAP2_ESCOLHA = [0, 2, 3];
-const MASCARA_MARCOS = (1 << MARCOS_CAP2_ESCOLHA.length) - 1;
+// ===== OS MARCOS NO CHÃO, EM TODO CAPÍTULO (JOGABILIDADE.md, passo 1 — generalizado) =====
+//
+// Era `MARCOS_CAP2_ESCOLHA = [0, 2, 3]`: três índices escritos à mão, e a coisa toda dura no
+// capítulo 2. Deixou de ser. A lista de placas agora SE DERIVA da LINHA_TEMPO, e é por isso
+// que acrescentar um momento com fonte acrescenta uma placa na estrada sem tocar em código.
+//
+// COMO SE DERIVA, em três passos e nenhum literal:
+//  1. **QUEM pode virar placa.** Todo nó `tipo: "momento"` que tem título, texto E fonte
+//     (`t`, `d`, `f`) NO PRÓPRIO NÓ — a mesma peneira que a `notaDaVolta` já usa. Momento sem
+//     fonte não vira placa (§2). NENHUM TEXTO NOVO ENTRA POR AQUI: a placa mostra o que a
+//     LINHA_TEMPO já diz, com a fonte que ela já tem.
+//     **Os seis nós que apontam para `MOMENTOS` por índice (`i`) ficam de fora, e é decisão,
+//     não descuido.** Dois motivos, e cada um sozinho bastaria: (a) eles não têm `cena`, então
+//     não sabem de que capítulo são — adivinhar pela posição na lista é exatamente o erro que
+//     o bloco IDENTIDADE > POSIÇÃO deste arquivo custou uma sessão para consertar, e o
+//     resultado seria a placa "Palmares" fincada na estrada do capítulo 1; (b) eles são a
+//     história DO capítulo, que a abertura e o fecho dele já contam. A estrada é para o VÃO
+//     entre capítulos — a explicação de COMO se chega no próximo.
+//  2. **DE QUEM ele é.** Do capítulo que contém a `cena` dele — `epocaDoCenario(no.cena)`,
+//     que é o mesmo dado que já decide quando o jogo o revela. Capítulo sem momento fica
+//     sem placa, e isso é resposta, não buraco: hoje são O CAIS, JABAQUARA, A PRAÇA,
+//     O QUE SEGUROU, O ACEIRO e O QUE TEM FONTE.
+//  3. **QUANTOS cabem.** Aqui está a única constante nova, e ela é medida, não escolhida:
+//     `ESPACO_MARCO`. O protótipo do capítulo 2 punha 3 placas num vão de 3.000 de impacto
+//     divididas em quartos — 750 de impacto entre uma e outra. Esse espaçamento é o que foi
+//     jogado e medido, então é ele que vira regra: nenhum capítulo aperta as placas mais que
+//     isso. Um vão de 2 cenas cabe 3; um de 1 cena cabe 1. A densidade é constante em
+//     IMPACTO, não em contagem — que é exatamente a régua da trava de tela poluída.
+//
+// QUANDO SOBRA MOMENTO, QUAL FICA: os `n` escolhidos são espalhados por igual sobre os `m`
+// disponíveis, `round(i·(m−1)/(n−1))`, o que **sempre guarda o primeiro e o último**. Não é
+// estética: o critério do historiador, registrado no NOTES.md, é que em cada vão pelo menos
+// um marco tenha como SUJEITO quem resistiu — e é o último de cada vão que carrega isso
+// ("A guerra que abriu a serra", "As ganhadeiras", a CLT e quem ficou de fora). Com um só
+// lugar, é o último que fica, pela mesma razão e pelo §2.6 ("o sujeito é sempre quem
+// sustenta"). Prova de que a regra não inventou nada: aplicada ao capítulo 2 ela devolve
+// exatamente `[0, 2, 3]`, a escolha que o historiador tinha feito à mão. O `encaixe.js`
+// cobra isso.
+type Marco = { bit: number; ep: number; k: number; n: number; no: NoLinha };
+// Preenchidos logo depois da LINHA_TEMPO (que mora lá embaixo, e mover 130 linhas de texto
+// histórico só para satisfazer a ordem de declaração seria caro e arriscado). Nada os lê
+// antes disso: `atualizarMarcos` roda no laço de quadro e o ESQUEMA_SAVE lê a máscara por
+// getter, no `carregar()`.
+let MARCOS: Marco[] = [];
+let MASCARA_MARCOS = 0;
+// Função e não `const` porque `LIMIAR_CENA` é declarado bem mais abaixo neste arquivo, e um
+// `const` aqui leria a zona morta. 750 de impacto: metade de uma cena, o espaçamento medido.
+function espacoMarco() { return LIMIAR_CENA / 2; }
+function tetoMarcos(e: number) {
+  const vao = LIMIAR_CENA * EPOCAS[e].cenas;
+  return Math.max(0, Math.round(vao / espacoMarco()) - 1);
+}
+// `n` de `m`, espalhados por igual, guardando sempre a primeira e a última.
+function escolherMarcos(m: number, n: number) {
+  const fora: number[] = [];
+  if (m <= 0 || n <= 0) return fora;
+  if (n >= m) { for (let i = 0; i < m; i++) fora.push(i); return fora; }
+  if (n === 1) { fora.push(m - 1); return fora; }
+  for (let i = 0; i < n; i++) fora.push(Math.round(i * (m - 1) / (n - 1)));
+  return fora;
+}
+function derivarMarcos() {
+  const fora: Marco[] = [];
+  const porEp: NoLinha[][] = EPOCAS.map(function () { return []; });
+  LINHA_TEMPO.forEach(function (no) {
+    if (no.tipo !== "momento" || !no.t || !no.d || !no.f) return;
+    const e = epocaDoCenario((no.cena || 0) | 0);
+    if (e >= 0 && e < porEp.length) porEp[e].push(no);
+  });
+  porEp.forEach(function (lista, e) {
+    const esc = escolherMarcos(lista.length, tetoMarcos(e));
+    esc.forEach(function (iNo, k) {
+      fora.push({ bit: fora.length, ep: e, k: k, n: esc.length, no: lista[iNo] });
+    });
+  });
+  return fora;
+}
 // Teto de armazenamento de `acolhidos`, derivado do ritmo real da rua e nunca relaxado:
 // uma chegada nasce a cada ≥ 51 px de mundo (0,65 × mobVao), então 9999 acolhidas exigem
 // ~510 mil px — mais de 1,8 h de corrida contínua DENTRO de um capítulo. Acima disso é
@@ -2236,9 +2310,18 @@ const ESQUEMA_SAVE = {
   // sozinho, sem relaxar as demais.
   acolhidos:    { tipo: "lista", n: EPOCAS.length, min: 0, max: ACOLHIDOS_TETO, pad: 0 },
   // Os marcos do chão já falados, um bit por marco. Mesmo tipo (e mesmo motivo) de
-  // `aberturas`: aparar 999 para a máscara cheia calaria as três placas — valor fora da
+  // `aberturas`: aparar 999 para a máscara cheia calaria as placas — valor fora da
   // faixa cai no padrão 0, que erra para o lado de FALAR de novo, nunca de calar.
-  marcos:       { tipo: "bits", min: 0, max: MASCARA_MARCOS, pad: 0 },
+  // `get max()` e não um valor: a máscara deriva da LINHA_TEMPO, que mora no fim do arquivo,
+  // e o getter adia a leitura para o `carregar()` — que roda depois de tudo estar montado.
+  marcos:       { tipo: "bits", min: 0, get max() { return MASCARA_MARCOS; }, pad: 0 },
+  // PARA QUANTOS MARCOS ESTA MÁSCARA FOI ESCRITA. Existe porque o bit de um marco é a POSIÇÃO
+  // dele na lista derivada, e a lista muda quando um momento com fonte entra na LINHA_TEMPO:
+  // um save gravado quando só Palmares tinha placa guarda os bits 0,1,2 — que hoje são as três
+  // placas do capítulo 1. Sem esta linha, quem já tinha jogado nunca mais veria a primeira
+  // placa do jogo, e o §3 diz qual é o lado certo de errar: FALAR DE NOVO, nunca calar.
+  // Quando o número não bate, `carregar()` zera a máscara uma vez. Custa reler uma fala.
+  marcosN:      { tipo: "num", min: 0, max: 64, pad: 0 },
   // As travessias já atravessadas, um bit cada. Mesmo tipo (e mesmo motivo) de `aberturas`:
   // fora da faixa cai em 0, que erra para o lado de MOSTRAR de novo — no pior caso alguém
   // reatravessa um trecho que já viu (e aí com o PULAR na mão), nunca perde a única vez em
@@ -2435,6 +2518,12 @@ function carregar(silencioso?: boolean) {
   // já nasce valendo 1 (é o padrão de quem nunca jogou). Sem esta linha a migração nunca
   // rodava para quem mais precisa dela — exatamente quem tem save antigo.
   if (!Object.prototype.hasOwnProperty.call(lido, "arco")) S.arco = 0;
+  // Mesma armadilha, mesmo remédio, e ela quase passou: `S.marcosN` já nasce valendo o número
+  // de marcos de HOJE (é o padrão de quem nunca jogou), e o laço abaixo só toca nos campos que
+  // EXISTEM no JSON. Um save gravado antes deste campo existir — ou seja, exatamente o save de
+  // quem tem os bits antigos de Palmares — passaria pela conferência lá embaixo dizendo "bate",
+  // e as placas novas nasceriam caladas. Sem campo é zero, por definição.
+  if (!Object.prototype.hasOwnProperty.call(lido, "marcosN")) S.marcosN = 0;
   for (const chave in ESQUEMA_SAVE) {
     if (Object.prototype.hasOwnProperty.call(lido, chave)) {
       S[chave] = valida(ESQUEMA_SAVE[chave], lido[chave]);
@@ -2448,6 +2537,13 @@ function carregar(silencioso?: boolean) {
   // ao disco no primeiro save do jogo; se a aba fechar antes, ela roda de novo na próxima
   // visita, sobre os mesmos números guardados, e dá o mesmo resultado.
   migrarArco();
+  // A MÁSCARA DE MARCOS SÓ VALE PARA A LISTA QUE A ESCREVEU. O bit de um marco é a posição
+  // dele na lista derivada da LINHA_TEMPO; um momento com fonte a mais, em qualquer capítulo,
+  // reordena tudo depois dele. Quando o número guardado não bate com o de agora, a máscara é
+  // lixo — e lixo aqui CALA placa, que é o único erro que este campo não pode cometer. Zera
+  // uma vez, e no pior caso alguém relê uma fala. Vale para sempre e para qualquer mudança
+  // futura da lista, sem tabela de migração nenhuma.
+  if ((S.marcosN | 0) !== MARCOS.length) { S.marcos = 0; S.marcosN = MARCOS.length; }
   // impact can never be less than what is in hand: a save claiming otherwise is inconsistent
   if (S.energiaTotal < S.energia) S.energiaTotal = S.energia;
   // A save from before the cleanup still carries a project count and the tiredness those
@@ -5955,31 +6051,41 @@ function verificarCenario() {
 // ============================================================
 // OS MARCOS NO CHÃO — a linha do tempo materializada na estrada (JOGABILIDADE.md, passo 1)
 //
-// Só no capítulo 2, como protótipo. Cada marco é um OBJETO DO MUNDO na camada 1:1 — a mesma
-// dos drops e das chegadas, NUNCA paralaxe nova (armadilha nº 1 do §7): ele entra pela borda
-// direita quando o impacto acumulado alcança o alvo dele, rola com a estrada, e quando a
-// protagonista o alcança a fala curta do momento correspondente da LINHA_TEMPO abre.
+// Em TODO capítulo que tem momento com fonte, desde 2026-08-11 — era protótipo de um só. Cada
+// marco é um OBJETO DO MUNDO na camada 1:1 — a mesma dos drops e das chegadas, NUNCA paralaxe
+// nova (armadilha nº 1 do §7): ele entra pela borda direita quando o impacto acumulado alcança
+// o alvo dele, rola com a estrada, e quando a protagonista o alcança a fala curta do momento
+// correspondente da LINHA_TEMPO abre.
 //
-// As distâncias derivam dos LIMIARES existentes e a economia não muda um byte: o capítulo 2
-// vai de LIMIAR_CENA·cena0 até isso + LIMIAR_CENA·cenas, e os três marcos dividem esse vão
-// em quartos (25%, 50%, 75%). O marco só dá corpo ao que hoje é um número invisível.
+// As distâncias derivam dos LIMIARES existentes e a economia não muda um byte: o capítulo vai
+// de LIMIAR_CENA·cena0 até isso + LIMIAR_CENA·cenas, e os `n` marcos dividem esse vão em
+// `n+1` partes iguais — com três marcos são os quartos do protótipo, com um é a metade. O
+// marco só dá corpo ao que hoje é um número invisível. Quem escolhe o `n` é `tetoMarcos`,
+// lá em cima, junto da derivação da lista.
+//
+// UMA PLACA DE CADA VEZ, e isto é a trava de tela poluída em forma de código: `marcoAtivo` é
+// um lugar só. Enquanto uma placa está em quadro nenhuma outra nasce, então o custo em tela
+// de todo este sistema é, no pior instante possível, UM objeto — em qualquer capítulo, com
+// qualquer número de marcos.
 //
 // Auto-restaurável de propósito: se a placa passar sem falar (uma fala de capítulo estava
 // aberta na hora), ela sai de quadro sem marcar o bit — e como o alvo continua batido e o
 // bit continua solto, a próxima verificação a semeia de novo. Nada se perde, nada trava.
-let marcoAtivo: { i: number; wx: number; falado: boolean } | null = null;
-// Os momentos do vão XVI→XVII, lidos da LINHA_TEMPO — o texto mora LÁ e só lá.
-function momentosMarcoCap2() {
-  return LINHA_TEMPO.filter(function (n) { return n.tipo === "momento" && n.cena === 2; });
+let marcoAtivo: { i: number; ep: number; wx: number; falado: boolean } | null = null;
+function marcosDoCap(e: number) {
+  return MARCOS.filter(function (m) { return m.ep === e; });
 }
-function marcoAlvo(i) {
-  const ini = LIMIAR_CENA * cenarioDaEpoca(CAP_GENTE);
-  const span = LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas;
-  return ini + span * (i + 1) / (MARCOS_CAP2_ESCOLHA.length + 1);
+function marcoAlvo(m: Marco) {
+  const ini = LIMIAR_CENA * cenarioDaEpoca(m.ep);
+  const span = LIMIAR_CENA * EPOCAS[m.ep].cenas;
+  return ini + span * (m.k + 1) / (m.n + 1);
 }
 function atualizarMarcos() {
-  if (!capGente()) { marcoAtivo = null; return; }
+  const ep = epocaAtual();
   if (marcoAtivo) {
+    // Trocou de capítulo com placa em quadro: ela some com o capítulo dela. O bit continua
+    // solto, então ao voltar o marco é semeado de novo — nada se perde.
+    if (marcoAtivo.ep !== ep) { marcoAtivo = null; return; }
     // +24: a fala abre com a placa UM CORPO à frente dela, ainda visível — no +8 original a
     // placa chegava exatamente sob a personagem e a caixa de fala (e o retrato) a cobriam,
     // medido no print V-marco. Chegar "diante do marco" é a leitura certa mesmo.
@@ -5990,17 +6096,18 @@ function atualizarMarcos() {
         marcoAtivo.falado = true;
         S.marcos = ((S.marcos | 0) | (1 << marcoAtivo.i)) >>> 0;
         salvar();
-        const mo = momentosMarcoCap2()[MARCOS_CAP2_ESCOLHA[marcoAtivo.i]];
+        const mo = MARCOS[marcoAtivo.i] && MARCOS[marcoAtivo.i].no;
         if (mo && mo.t && mo.d) abrirFala(mo.t, mo.q, [mo.d], null);
       }
     }
     if (marcoAtivo.wx - worldX < -60) marcoAtivo = null;
     return;
   }
-  for (let i = 0; i < MARCOS_CAP2_ESCOLHA.length; i++) {
-    if (jaViu(S.marcos, i)) continue;
-    if (S.energiaTotal >= marcoAlvo(i)) {
-      marcoAtivo = { i: i, wx: worldX + W + 40, falado: false };
+  const lista = marcosDoCap(ep);
+  for (let i = 0; i < lista.length; i++) {
+    if (jaViu(S.marcos, lista[i].bit)) continue;
+    if (S.energiaTotal >= marcoAlvo(lista[i])) {
+      marcoAtivo = { i: lista[i].bit, ep: ep, wx: worldX + W + 40, falado: false };
     }
     break;      // um de cada vez, na ordem da linha do tempo
   }
@@ -8761,6 +8868,18 @@ const LINHA_TEMPO: NoLinha[] = [
     com: "Esse “continuam” sou eu. Ainda aqui.", quem: iEp("hoje") },
   { tipo: "aberto", qi: "p26" }
 ];
+// AS PLACAS DA ESTRADA NASCEM AQUI, e é aqui porque é o primeiro ponto do arquivo em que a
+// LINHA_TEMPO existe. `derivarMarcos()` e a explicação inteira estão lá em cima, junto de
+// EPOCAS; o que se faz nesta linha é só acender. `S.marcosN` recebe o número de agora para
+// que uma partida NOVA nasça sem a re-fala do `carregar()` — quem tem save é que passa pela
+// conferência, e ela é o que impede uma placa nova de nascer calada.
+MARCOS = derivarMarcos();
+// `Math.pow` e não `1 << n`: com 13 marcos dá na mesma, mas `1 << 31` vira NEGATIVO em
+// silêncio e a faixa do ESQUEMA passaria a recusar toda máscara válida. O `min(30, …)` é o
+// teto de onde um bit ainda cabe num inteiro de 32 com sinal; o `encaixe.js` cobra que a
+// lista derivada nunca chegue lá, para o teto ser um alarme e não um corte mudo.
+MASCARA_MARCOS = Math.pow(2, Math.min(30, MARCOS.length)) - 1;
+S.marcosN = MARCOS.length;
 function montarCompletude() {
   // As páginas verticais da linha do tempo (`qi`) são 347 KB e não existem em nenhum outro
   // lugar do jogo — quem nunca abre A HISTÓRIA nunca as baixa. As seis primeiras ficam na
@@ -9731,7 +9850,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!mundoParado) {
       atualizarMobs(dt);
       atualizarGrupo(dt);         // quem já foi acolhida anda junto — capítulo 2 e só ele
-      atualizarMarcos();          // as placas da linha do tempo fincadas na estrada (cap. 2)
+      atualizarMarcos();          // as placas da linha do tempo fincadas na estrada de todo capítulo
       atualizarMoradores(dt);     // a faixa final onde as acolhidas vivem (cap. 2)
       suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
       atualizarDrops(dt);
