@@ -3234,8 +3234,10 @@ function mostrarRetorno(dt) {
     }
     const ergueu = relatoObra && relatoObra.pontos > 0;
     if (ergueu) {
-        relatoObra.estagios.forEach(function (e) {
-            linha("O mutirão trabalhou: " + NOME_ESTAGIO[e.canteiro][e.estagio - 1] + ".");
+        relatoObra.estagios.forEach(function (e, i) {
+            const nome = NOME_ESTAGIO[e.canteiro][e.estagio - 1];
+            linha(i === 0 ? "O mutirão trabalhou: " + nome + "."
+                : nome.charAt(0).toUpperCase() + nome.slice(1) + ".");
         });
         if (!relatoObra.estagios.length) {
             let maior = "roca";

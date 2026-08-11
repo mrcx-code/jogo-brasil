@@ -1181,7 +1181,7 @@ const sec = t => log('\n---- ' + t);
   // dentro da tela e recebe o dedo, nas duas medidas que o `LANCAMENTO.md` chama de deitado.
   // ============================================================
   // ============================================================
-  // 22 · A OBRA DO LUGAR — o mutirão avança com gente, não avança sem, e ninguém é gasto
+  // 24 · A OBRA DO LUGAR — o mutirão avança com gente, não avança sem, e ninguém é gasto
   //
   // Três coisas que desencaixam em SILÊNCIO ABSOLUTO, que é o critério deste arquivo:
   //
@@ -1196,7 +1196,7 @@ const sec = t => log('\n---- ' + t);
   //       Aqui ela é medida NA GEOMETRIA, não em 90 s de amostra: é a mesma conta que o
   //       `medir-poluicao.js` observa, sem o ruído das folhas por cima.
   // ============================================================
-  sec('22 · a obra avança com gente, não avança sem, e ninguém é gasto nela');
+  sec('24 · a obra avança com gente, não avança sem, e ninguém é gasto nela');
   const oMutirao = await page.evaluate(() => {
     fecharTelas(); fecharTudo();
     const medir = (a) => {

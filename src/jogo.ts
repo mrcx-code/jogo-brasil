@@ -2711,8 +2711,13 @@ function mostrarRetorno(dt) {
   // Sem gente acolhida a taxa é zero, o relato vem vazio e nenhuma linha nasce.
   const ergueu = relatoObra && relatoObra.pontos > 0;
   if (ergueu) {
-    relatoObra.estagios.forEach(function (e) {
-      linha("O mutirão trabalhou: " + NOME_ESTAGIO[e.canteiro][e.estagio - 1] + ".");
+    // O "O mutirão trabalhou:" abre UMA vez, e as outras entram como frase própria. Com o
+    // prefixo em todas — e uma noite no teto ergue até três estágios — o papel virava uma
+    // ladainha de três linhas idênticas, o que o print mostrou na hora.
+    relatoObra.estagios.forEach(function (e, i) {
+      const nome = NOME_ESTAGIO[e.canteiro][e.estagio - 1];
+      linha(i === 0 ? "O mutirão trabalhou: " + nome + "."
+                    : nome.charAt(0).toUpperCase() + nome.slice(1) + ".");
     });
     if (!relatoObra.estagios.length) {
       // Nenhum estágio fechou, mas a obra andou: diz-se qual canteiro, nunca quanto.

@@ -4713,3 +4713,19 @@ Rebasear contra a `main` quando a outra sessão de PALMARES pousar: ela mexe em 
 `acolherPessoa` (gente atravessando a tela, acolher a um toque), que é exatamente a entrada de
 `taxaMutirao`. O encontro é benigno no papel — a obra lê só o NÚMERO de acolhidas — mas
 `atualizarMoradores` e `faixaViva` são vizinhos de linha e vão conflitar em texto.
+
+### Adendo — a tela de retorno, olhada, e a numeração do bloco novo
+
+O print da tela de retorno (OBRA-7) mostrou três linhas com o MESMO prefixo empilhadas: uma
+noite no teto ergue até três estágios, e "O mutirão trabalhou:" três vezes vira ladainha. O
+prefixo passa a abrir UMA vez e as outras entram como frase própria:
+
+> O mutirão trabalhou: a roça já tem as leiras abertas.
+> A paliçada já tem as primeiras estacas.
+> A casa já tem os esteios.
+
+Medido no mesmo print: **zero dígitos** nas linhas da obra, que é a regra dura daquela tela.
+
+O bloco novo do `encaixe.js` nasce como **24** e não 22: a sessão de PALMARES ocupou 22, 23 e
+23b na main, e dois blocos com o mesmo número num arquivo que se lê por número é o tipo de
+confusão que não custa nada evitar antes de existir.

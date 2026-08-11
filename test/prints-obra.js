@@ -109,5 +109,34 @@ const ARQ = process.argv[2] || path.resolve(__dirname, '..', 'index.html');
   }));
   await page.mouse.up();
   console.log('OBRA-6-trabalhando.png          10 s de dedo ->', JSON.stringify(trab));
+
+  // ...e a TELA DE RETORNO com o que o mutirão ergueu durante a noite. É a superfície pela qual
+  // o "fica evoluindo com o tempo" chega a quem voltou, e ela não pode carregar um dígito.
+  await page.evaluate(() => {
+    salvar = function () {}; salvarRetencao = function () {};
+    localStorage.setItem(CHAVE_JOGO, JSON.stringify({
+      energia: 500, energiaTotal: 5800, cenario: 3, arco: ARCO_ATUAL, modo: 'limpo',
+      cuidado: 0.9, som: false, aberturas: MASCARA_EPOCAS, fechos: 0, grupo: 3,
+      acolhidos: [4, 26, 0, 0], marcos: 7, obra: { roca: 0, palicada: 0, casa: 0 },
+      recursos: { flor: 60, agua: 70, refeicao: 90 },
+      salvoEm: Date.now() - 11 * 3600 * 1000
+    }));
+    const ontem = new Date(Date.now() - 864e5);
+    const chave = ontem.getFullYear() + '-' + String(ontem.getMonth() + 1).padStart(2, '0')
+      + '-' + String(ontem.getDate()).padStart(2, '0');
+    localStorage.setItem(CHAVE_RET, JSON.stringify({ dias: 2, primeiro: chave, ultimo: chave,
+      segundos: 900, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0 }));
+  });
+  await page.reload();
+  await page.waitForTimeout(1000);
+  await page.screenshot({ path: path.join(__dirname, 'OBRA-7-retorno.png') });
+  const volta = await page.evaluate(() => ({
+    linhas: Array.from(document.querySelectorAll('#retorno .retLinha')).map(d => d.textContent),
+    obra: JSON.stringify(S.obra), rec: JSON.stringify(S.recursos)
+  }));
+  console.log('OBRA-7-retorno.png              obra depois da noite:', volta.obra, '| sobrou:', volta.rec);
+  volta.linhas.forEach(l => console.log('   | ' + l));
+  const comDigito = volta.linhas.filter(l => /\d/.test(l) && !/^Você ficou fora|^Dia |pessoas/.test(l));
+  console.log('   linhas da obra com dígito:', comDigito.length, comDigito.join(' / '));
   await browser.close();
 })();
