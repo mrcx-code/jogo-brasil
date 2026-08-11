@@ -5394,3 +5394,17 @@ Medido no mesmo print: **zero dígitos** nas linhas da obra, que é a regra dura
 O bloco novo do `encaixe.js` nasce como **24** e não 22: a sessão de PALMARES ocupou 22, 23 e
 23b na main, e dois blocos com o mesmo número num arquivo que se lê por número é o tipo de
 confusão que não custa nada evitar antes de existir.
+
+---
+
+## 2026-08-11 · Decisões do dono no check da tarde
+
+- **PR do Mac (glossário):** ele vai pedir o ajuste. O `COLABORAR.md` nasceu para ir junto.
+- **Os quatro textos das eras:** ele lê **quando os treze estiverem prontos**, não agora.
+  Consequência aceita e dita: o tom que ele ainda não aprovou vai ser replicado em mais seis
+  capítulos, e a correção, se vier, será sobre treze em vez de quatro.
+- **Capítulo 1 fica com as três placas.** O que ele guardou do padrão antigo era a estrada sem
+  fim, não a ausência de história.
+- **Palmares é para andar.** Correr não compra nada ali, e está certo assim: o capítulo é sobre
+  ficar e construir. Inventar uma razão histórica para correr seria inventar história para
+  servir mecânica — a pergunta aberta desde 05/08 fecha aqui, para este capítulo.
