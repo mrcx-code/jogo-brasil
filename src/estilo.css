@@ -1407,6 +1407,599 @@
      não no material */
   .fnDuv { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320, 0 3px 0 #0a0806; }
   .fnDuv .fnT { color: #6e4a08; }
+  /* ===== GLOSSÁRIO ===== o dicionário de campo. Pedido do dono (2026-08-08): explicar os
+     termos do jogo e da história, "e de onde vem", com a cara do jogo.
+
+     O DONO REPROVOU A PRIMEIRA VERSÃO (2026-08-08): "meio brega, meio antigo… as letras não
+     estejam em diferentes tamanhos feios, mas que façam sentido esteticamente". Ele tinha
+     razão e o diagnóstico é medível: o cartão tinha CINCO vozes tipográficas sem razão
+     declarada entre elas (19 / 16 / 14 / 12,5 / 11,5 px, mais o bitmap da placa), e os 52
+     cartões nasciam TODOS ABERTOS — dois enchiam a tela de 812 px e nada ficava na cabeça
+     (medido: 17.165 px de conteúdo em 621 px de janela, dois verbetes visíveis).
+
+     ---------------------------------------------------------------------------------------
+     A ESCALA. Um número só manda nesta tela: a PAUTA de 11 px, que é a linha do próprio
+     papel de campo (o `repeating-linear-gradient` de 11 px que a casa usa desde a onda 6).
+     Dela sai tudo, por uma razão escrita: 1,25 — a terça maior.
+
+         t0 = 11 × 1,25⁰ = 11,00 px   /  16,5 (1,5 pauta)
+         t1 = 11 × 1,25¹ = 13,75 px   /  22   (2 pautas)
+         t2 = 11 × 1,25² = 17,19 px   /  22   (2 pautas)
+         t3 = 11 × 1,25³ = 21,48 px   —  RESERVADO, não entra: neste tamanho quem fala é a
+                                         placa de madeira em bitmap, não a serifa.
+
+     TRÊS TAMANHOS, e nenhum outro número de fonte existe nesta tela. As funções que dividem
+     um tamanho se separam por TRABALHO, nunca por "itálico marrom":
+
+         t2  o TERMO          serifa 700, caixa alta, a tinta mais escura — a cabeça do verbete
+         t1  a ORIGEM         serifa 400 âmbar, atrás de um FIO VERTICAL: é nota de margem
+         t1  a DEFINIÇÃO      serifa 400 na tinta do papel, sem adorno nenhum — é o corpo
+         t0  os RELACIONADOS  versalete âmbar sublinhado: remissão de dicionário
+         t0  a PROCEDÊNCIA    o ÚNICO itálico do cartão, atrás de um fio horizontal, e a
+                              tinta mais clara — procedência recua, não grita
+         —   a MOBÍLIA        placa de grupo, abas, vazio: fonte BITMAP, via pixelRotulo
+
+     Uma exceção, e ela é imposta, não escolhida: `#glCampo` é o primeiro <input> do jogo e
+     abaixo de 16 px o Safari do iPhone dá zoom ao focar. Ele fica em t2 (17,19), que é o
+     degrau da escala que passa dos 16 — a régua não abriu exceção, o degrau já servia.
+
+     ---------------------------------------------------------------------------------------
+     A CONTA FECHADA — os sete elementos que o dono cobrou, com o número e a razão. Medido no
+     navegador, não deduzido do código (`getComputedStyle`, 375×812 e 320×568, iguais nas duas):
+
+         elemento     tamanho     é          entrelinha   razão para o vizinho de baixo
+         .glT         17,19 px    t2 = t1×1,25   22 (2 pautas)   ×1,25 sobre .glD
+         #glCampo     17,19 px    t2             22 (2 pautas)   — mesmo degrau que .glT
+         .glD         13,75 px    t1 = t0×1,25   22 (2 pautas)   ×1,25 sobre .glF
+         .glO         13,75 px    t1             16,5 (1,5)      mesmo degrau que .glD
+         .glF         11,00 px    t0 = a pauta   16,5 (1,5)      o piso: t0 É o papel
+         .glLink      11,00 px    t0             16,5 (1,5)      mesmo degrau que .glF
+         .glGrupo     — sem tamanho de fonte —   canvas 11 px    MOBÍLIA: não está na escala
+         .glFiltro    — sem tamanho de fonte —   canvas 11 px    MOBÍLIA: não está na escala
+
+     São TRÊS números (11 · 13,75 · 17,19), razão CONSTANTE de 1,25 entre degraus vizinhos, e
+     11 é a pauta do papel — a escala inteira sai de uma medida que já estava desenhada na
+     tela. Os dois últimos não têm número porque não têm letra: são canvas, e `font-size: 0`
+     em cada um é a declaração disso (ver `.glGrupo` e `.glFiltro`). Era daí que vinha o
+     "tamanhos diferentes feios": a versão reprovada tinha 19 / 16 / 14 / 12,5 / 11,5 — cinco
+     números sem razão nenhuma entre eles, e nenhum deles era o 11 do papel.
+
+     ---------------------------------------------------------------------------------------
+     A PAUTA MANDA NA ALTURA, e não só no tamanho da letra — foi a metade que faltava fechar.
+     A folha tem uma linha a cada 11 px; se as caixas não andarem em múltiplos de 11, a linha
+     do papel CRUZA cada verbete numa altura diferente e a página inteira parece torta sem que
+     se saiba dizer por quê. A linha do índice tinha 45 px (11 + 22 + 12): a fase caminhava
+     1 px por linha e dava uma volta completa a cada 11 verbetes — com o fio do índice e a
+     pauta do papel ora colados, ora 5 px separados, em cima da mesma tela. Agora:
+
+         linha do índice recolhida   11 + 22 + 11 = 44  (4 pautas, e 44 é o alvo do dedo)
+         placa de seção              5 + 11 + 6   = 22  (2 pautas)  · pegada 55 entre seções
+         cartão aberto, margem       9 + 13       = 22  (2 pautas)  · devolve a folha à régua
+         topo/pé do rolo             11 / 22          (1 e 2 pautas)
+
+     O que NÃO fecha em 11, e é escolha: `.glO` e `.glF` andam em 16,5 (1,5 pauta), então em
+     número ímpar de linhas terminam 5,5 px fora da régua. Isso vale só DENTRO do cartão
+     aberto, que é um objeto só, lido de cima a baixo, onde a pauta é textura. No índice — que
+     é onde onze linhas se empilham e qualquer desvio vira sujeira — a régua é exata.
+
+     ---------------------------------------------------------------------------------------
+     POR QUE O TERMO NÃO É BITMAP, e isto é uma discordância por escrito. A régua da casa
+     ("madeira e pedra falam bitmap, papel fala serifa") foi consultada e ela é justamente o
+     argumento CONTRA: o termo mora no papel. E há dois números que fecham a porta:
+
+       1. `pixelRotulo` desenha um CANVAS de largura fixa `n × 6 + 1` px, e canvas não
+          quebra linha. O verbete mais longo é "A DOENÇA QUE CHEGOU NOS NAVIOS": 30 letras,
+          362 px em escala 2×. A tela mais estreita que o jogo atende tem 320 px de largura
+          e o cartão tem ~230 px úteis. O termo sairia da tela — sem reflow possível.
+       2. Escala 1× resolveria a largura (181 px) e quebraria a onda 7, que acabou de pôr
+          TODO bitmap do jogo na mesma malha 2× ("pixel de tamanho desigual — o pecado
+          capital da pixel art"). Trocar um pecado por outro não é decidir.
+
+     O que a ideia por trás do bitmap queria — DUAS vozes com função, em vez de cinco sem —
+     está entregue de outro jeito: a MOBÍLIA (placa de grupo, abas, estado vazio) é bitmap,
+     e tudo que se LÊ é a serifa em três degraus. A fronteira ficou material, não decorativa.
+
+     ---------------------------------------------------------------------------------------
+     A LISTA É DE TERMOS RECOLHIDOS (mudança de estrutura aprovada pelo dono). O Dev monta o
+     DOM inteiro e só alterna `.aberto`; QUEM DECIDE o que se vê recolhido e o que se vê
+     aberto é esta folha. E a moldura dupla + degrau que empilhava ruído em 52 cartões some
+     do estado recolhido e vira o SINAL do estado aberto: a lista é UMA folha de papel pautado
+     com fios de régua, e o verbete que você abriu é o único que levanta dela — moldura de
+     madeira, degrau e sombra. A moldura deixou de ser enfeite e virou informação.
+
+     Referência que sustenta: Art of Fauna (ADA 2025) — o caderno naturalista, em que a voz de
+     leitura pertence ao material; e a página de dicionário impresso, de onde vêm a ordem
+     cabeça → etimologia → corpo → remissão → procedência e o fio de régua entre verbetes. */
+  #telaGlossario { justify-content: flex-start; padding: 26px 12px 18px;
+    /* a pauta e os três degraus — nenhum tamanho desta tela nasce fora daqui */
+    --glPauta: 11px;
+    --glT0: 11px; --glT1: 13.75px; --glT2: 17.19px;
+    --glTinta: #33240f;      /* a tinta do corpo */
+    --glAmbar: #7a4d16;      /* a nota de margem */
+    --glFio: rgba(58,40,16,.16); }
+
+  /* ---- A BUSCA. Ela é FERRAMENTA, e ferramenta nesta casa é PEDRA (a barra de baixo, os
+     nichos de contador) — não papel, que é superfície de ler. É essa distinção de material
+     que faz a barra não ser lida como o primeiro verbete da lista. O campo é um NICHO cavado
+     na laje: sombra na aresta de cima, luz na de baixo, contorno duro — o mesmo rebaixo dos
+     `.upgrade`. ---- */
+  #glBusca { flex: 0 0 auto; width: 100%; max-width: 34em;
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 4px 5px; margin-bottom: 8px; border-radius: 4px; background: #9d947e;
+    box-shadow: inset 0 2px 0 #c4bba4, inset 0 -3px 0 #6e6653,
+                inset 0 0 0 2px #423b2e, 0 3px 0 #191510; }
+  /* AS DUAS ARMADILHAS DO PRIMEIRO <input> DO JOGO, e as duas se pagam aqui.
+     1. O `*` global desliga a seleção de texto no jogo inteiro (§3.4 "sem seleção de texto").
+        Num campo de digitação isso não é asseio, é uma porta trancada: sem seleção não se
+        corrige o que se digitou, não se posiciona o cursor, não se apaga uma palavra. O campo
+        é ISENTO — e é o único elemento do jogo que precisa ser.
+     2. `font-size` abaixo de 16 px faz o Safari do iPhone dar ZOOM ao focar, e a tela inteira
+        se desmonta (o jogo é `position: fixed` com `user-scalable=no`, e o zoom de foco passa
+        por cima disso). t2 = 17,19 px resolve sem sair da escala. */
+  #glCampo { flex: 1 1 auto; min-width: 0; border: 0; outline: 0; border-radius: 3px;
+    padding: 6px 10px 7px; text-align: left; background: #8a8269;
+    box-shadow: inset 0 3px 0 rgba(20,15,8,.30), inset 0 -2px 0 rgba(255,250,235,.20),
+                inset 0 0 0 2px #423b2e;
+    font: 400 var(--glT2)/22px var(--leitura); color: #211d10;
+    -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+    transition: box-shadow .14s ease; }
+  #glCampo::placeholder { color: #5e5744; font-style: italic; opacity: 1; }
+  /* focado, o nicho acende em âmbar: é a mesma tinta que o resto da tela usa para "atenção
+     está aqui" (a aba ativa, o realce do salto) */
+  #glCampo:focus { box-shadow: inset 0 3px 0 rgba(20,15,8,.30),
+                inset 0 -2px 0 rgba(255,250,235,.20), inset 0 0 0 2px #423b2e,
+                inset 0 0 0 4px rgba(217,164,65,.55); }
+  /* as duas teclas: lajinhas da mesma pedra, com o degrau que afunda no toque */
+  #glBusca button { flex: 0 0 auto; width: 34px; height: 34px; border: 0; border-radius: 3px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    background: #bcb298; box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
+                inset 0 0 0 2px #423b2e, 0 2px 0 #191510;
+    font: 400 var(--glT1)/1 var(--leitura); color: #2a2418; letter-spacing: 0;
+    transition: transform .06s, box-shadow .06s, opacity .16s; }
+  #glBusca button:active { transform: translateY(2px);
+    box-shadow: inset 0 2px 0 #ded5ba, inset 0 -3px 0 #7d7459,
+                inset 0 0 0 2px #423b2e, 0 0 0 #191510; }
+  /* O DADO DO "AO ACASO" — cinco pintas de aresta dura sobre a pedra da tecla. Desenhado aqui
+     e não escrito no molde porque as faces de dado do Unicode (⚀..⚅) caem numa fonte de
+     símbolo que não é a da casa e mudam de desenho em cada aparelho; e não como imagem porque
+     o peso do arquivo é o gargalo da vez. São seis retângulos de tinta em posição inteira —
+     face 20×20, pinta 4×4 nos oitavos — então ele fica quadrado em qualquer densidade de tela,
+     que é a única maneira de um dado conviver com pixel art.
+     A face é a de CINCO: é a única que se lê à primeira vista neste tamanho (a de seis vira
+     duas colunas borradas, a de um vira um ponto sem sentido).
+
+     Os números têm de fechar exatos ou o dado vira tabuleiro de xadrez: face 26 (4 px de folga
+     dentro da tecla de 34), pinta 4, cantos em 5 e 17, centro em 11 — que é o centro de 26
+     menos meia pinta, inteiro. Sobram 2 px entre a pinta do canto e a do meio. Na primeira
+     tentativa a face era 20 e as pintas se ENCOSTAVAM na diagonal: cinco quadrados grudados
+     não são um dado, são um xadrez. */
+  #glSorte::before { content: ""; width: 26px; height: 26px; border-radius: 2px;
+    box-shadow: inset 0 0 0 2px #2a2418;
+    background:
+      linear-gradient(#2a2418, #2a2418)  5px  5px / 4px 4px no-repeat,
+      linear-gradient(#2a2418, #2a2418) 17px  5px / 4px 4px no-repeat,
+      linear-gradient(#2a2418, #2a2418) 11px 11px / 4px 4px no-repeat,
+      linear-gradient(#2a2418, #2a2418)  5px 17px / 4px 4px no-repeat,
+      linear-gradient(#2a2418, #2a2418) 17px 17px / 4px 4px no-repeat; }
+
+  /* O ✕ só existe quando há o que limpar, e isso não custa JS nenhum: `:placeholder-shown` é
+     verdadeiro exatamente enquanto o campo está vazio. Botão morto na tela é pior que botão
+     ausente — ele promete uma ação que não acontece. */
+  #glCampo:placeholder-shown + #glLimpar { opacity: .3; pointer-events: none; }
+
+  /* ---- AS ABAS. Sete não cabem em 375 px, então a fileira ROLA na horizontal e as bordas
+     DISSOLVEM — a mesma frase que o rolo vertical da lista e a costura da imagem de contexto
+     já usam. O padding de 10 px existe POR CAUSA da máscara: ele tira a primeira e a última
+     aba da faixa que esmaece, senão a fileira abre com a aba de "TUDO" meio apagada.
+     A tinta do rótulo é canvas e não responde a CSS (o Dev pinta todas em #d9a441). Quem diz
+     qual está ativa é o MATERIAL: as dormentes são tábua escura e rebaixada, a ativa é a
+     tábua do poste com luz na aresta de cima e um FIO DE OURO na de baixo. ---- */
+  #glFiltros { flex: 0 0 auto; width: 100%; max-width: 34em;
+    display: flex; gap: 6px; align-items: stretch;
+    padding: 2px 10px 7px; margin-bottom: 9px; }
+  /* `font-size: 0` pela mesma razão da placa de grupo: a aba é mobília bitmap, o rótulo é um
+     canvas, e sem isto ela ficava com os 13,333 px que o navegador dá a um <button> — um
+     número que não é da escala, que ninguém escolheu e que só não aparecia por sorte. */
+  /* ---- A BARRA VAZIA. No estado "assuntos" a tela inteira já é a escolha, então a barra não
+     tem trabalho: ela recolhe para zero em vez de deixar uma faixa de ar sem função. ---- */
+  #glFiltros.vazia { padding: 0; margin: 0; min-height: 0; }
+  /* O CAMINHO DE VOLTA. Tábua escura como as abas eram, mas sem o estado ativo: ela não é uma
+     escolha entre várias, é a única saída para trás — o VOLTAR do rodapé sai do glossário
+     inteiro, que é um degrau grande demais para "quero ver os outros assuntos". */
+  .glVolta { flex: 0 0 auto; border: 0; cursor: pointer; border-radius: 2px; font-size: 0;
+    display: flex; align-items: center; gap: 9px; padding: 8px 13px 9px;
+    background: linear-gradient(180deg, #3b2b18, #2a1d0e);
+    box-shadow: inset 0 0 0 2px #120c06;
+    transition: transform .06s, box-shadow .06s; }
+  /* A SETA É DESENHO, NÃO LETRA. O "◀" não existe na fonte bitmap da casa, e o `pixelRotulo`
+     devolve o glifo de "?" para todo caractere que não conhece — na tela saía "? ASSUNTOS",
+     que promete ajuda e não volta. Triângulo em borda: 8×10 px, lados inteiros, quadrado em
+     qualquer densidade. Mesmo caminho do dado do sorteio: sem Unicode, sem imagem, peso zero. */
+  .glVolta::before { content: ""; flex: 0 0 auto; width: 0; height: 0;
+    border-style: solid; border-width: 5px 8px 5px 0;
+    border-color: transparent #d9a441 transparent transparent; }
+  .glVolta:active { transform: translateY(2px); }
+
+  /* ================= A TELA DE ASSUNTOS =================
+     A primeira coisa que a pessoa vê ao abrir o glossário. Cada grupo é uma PORTA, e a porta
+     traz as três coisas que decidem se vale entrar: o nome, a frase que explica o que há lá
+     dentro, e quantos verbetes são.
+
+     O material é o mesmo do verbete — papel de campo com tinta escura — porque isto também é
+     LEITURA: a frase é para ser lida, não é rótulo de botão. O que muda em relação ao cartão de
+     verbete é a cabeça, que aqui é a placa de madeira, para dizer "seção" e não "palavra".
+
+     Tamanhos saem da escala da casa (11 / 13,75 / 17,19, razão 1,25, ancorada na pauta de 11):
+     o nome é canvas bitmap 2×, a frase é t1 e a contagem é t0. */
+  /* ---- A CAPA: UM CONJUNTO DE DIVISÓRIAS, NÃO UMA PILHA DE CARTÕES ----
+     O que o dono reprovou ("o layout não ficou legal, pode ser mais criativo") não era o
+     cartão: era a REPETIÇÃO sem ritmo — dezesseis retângulos idênticos empilhados leem como
+     sumário, e sumário não dá vontade de abrir.
+
+     A resposta sai do próprio objeto que o glossário já é: um FICHÁRIO. Cada assunto é uma
+     divisória, com a aba de madeira saindo pelo topo da folha, e as abas ESCALONAM em três
+     posições — que é como um conjunto de divisórias de verdade é fabricado, para que se leiam
+     todas de uma vez com a pasta fechada. O escalonamento não é enfeite: é o que deixa correr
+     o olho pela coluna das abas sem ler cartão nenhum.
+
+     O TUDO fica fora da malha porque não é divisória: é a capa, e capa é de outro material. */
+  .glAssunto { position: relative; display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    grid-template-areas: "aba aba" "sub arte";
+    align-items: end; column-gap: 14px;
+    width: 100%; border: 0; cursor: pointer; text-align: left;
+    padding: 0 14px 13px; border-radius: 2px; margin: 16px 0 0; flex-shrink: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px),
+      linear-gradient(180deg, var(--papel), var(--papel2));
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 3px 0 #0a0806;
+    transition: transform .06s, box-shadow .06s; }
+  .glAssunto:active { transform: translateY(2px);
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430, 0 1px 0 #0a0806; }
+
+  /* A ABA sobe 11 px acima da folha — uma pauta inteira, para o degrau ser o mesmo em que o
+     resto da tela anda. Ela é a MESMA tabuinha da placa de seção: madeira fala bitmap. */
+  .glAssuntoNome { grid-area: aba; justify-self: start; display: block;
+    margin: -11px 0 0; padding: 5px 10px 6px; border-radius: 2px 2px 0 0; line-height: 0;
+    background: linear-gradient(180deg, #503319, #38220e),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 2px 0 0 rgba(109,75,40,.5),
+                inset -2px 0 0 rgba(30,18,6,.5), inset 0 0 0 2px #120c06; }
+  /* O DESLOCAMENTO DA ABA VEM DO JS, medido — ver `glEscalonarAbas`. Em porcentagem, que foi
+     a primeira tentativa, a aba mais longa saía 27 px para fora da folha em 375 px: a regra
+     de CSS não conhece a largura da aba, e é ela que decide se cabe. */
+
+  .glAssuntoSub { grid-area: sub; margin-top: 11px;
+    text-transform: none; font: 400 var(--glT0)/16.5px var(--leitura);
+    letter-spacing: 0; color: #5a441f; }
+
+  /* O NICHO DA ARTE. Quadrado de 55 px (5 pautas), rebaixado na folha como um selo colado.
+     Hoje ele carrega a contagem; quando as dezesseis imagens chegarem, elas ocupam este lugar
+     exato e nada mais na tela precisa mudar. Ver BACKLOG.md, "Arte pendente do GLOSSÁRIO". */
+  .glAssuntoArte { grid-area: arte; align-self: end; display: flex;
+    align-items: center; justify-content: center;
+    width: 55px; height: 55px; margin-bottom: 3px; border-radius: 2px;
+    background: linear-gradient(180deg, rgba(90,64,26,.13), rgba(90,64,26,.05));
+    box-shadow: inset 0 0 0 1px rgba(122,84,48,.45), inset 0 2px 4px rgba(90,64,26,.14); }
+  .glAssuntoN { display: block; opacity: .9; }
+
+  /* ---- TUDO É A CAPA, e capa não é divisória: madeira clara de ponta a ponta, a mesma do
+     JOGAR e da era atual. Destaque por MATERIAL, nunca por tamanho. Sem aba, porque capa não
+     tem aba, e é essa ausência que o separa das quinze divisórias sem precisar de rótulo. ---- */
+  .glAssunto.tudo { grid-template-areas: "aba arte" "sub sub"; align-items: center;
+    padding: 13px 14px 14px; margin-top: 0;
+    background: linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06; }
+  .glAssunto.tudo:active { box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
+                inset 0 0 0 2px #2e1c0a, 0 1px 0 #120c06; }
+  .glAssunto.tudo .glAssuntoNome { margin: 0; padding: 0; background: none; box-shadow: none; }
+  .glAssunto.tudo .glAssuntoSub { color: #3a250e; margin-top: 8px; }
+  .glAssunto.tudo .glAssuntoArte { width: auto; height: auto; margin: 0;
+    background: none; box-shadow: none; }
+
+  /* ---- A FOLHA. A lista inteira é UM papel de campo pautado, não 52 cartões — é o que
+     tira o ruído empilhado de moldura+degrau e o que faz o rolo parecer uma página virando.
+     `background-attachment: local` é o que amarra a pauta ao CONTEÚDO: sem ele a linha do
+     papel ficaria parada enquanto o texto desliza por cima, que é o efeito de tapete rolante.
+     A altura vem do FLEX (`flex: 1 1 auto; min-height: 0`) e nunca de um `max-height` escrito
+     por JS: é o que garante que a busca e as abas fiquem paradas em cima, que só a lista role,
+     e que o VOLTAR nunca saia da tela por conta de uma lista que cresceu. ---- */
+  #listaGlossario { flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    width: 100%; max-width: 34em; text-align: left; margin-bottom: 10px;
+    display: flex; flex-direction: column;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    /* 1 pauta em cima, 2 embaixo — e não 10/20, que era o número redondo de quem ainda não
+       tinha amarrado a folha à régua. Ver A PAUTA MANDA NA ALTURA, acima. */
+    padding: 11px 0 22px; scrollbar-width: none;
+    background:
+      /* 180deg e não 0deg: a 0deg o gradiente corre de BAIXO para cima, e a fase da pauta
+         passava a depender da ALTURA TOTAL do conteúdo — mudava de lugar a cada filtro e a
+         cada verbete aberto. A 180deg ela ancora no TOPO do papel, que não se move. */
+      repeating-linear-gradient(180deg, rgba(120,90,40,.07) 0 1px, transparent 1px 11px),
+      linear-gradient(90deg, rgba(90,64,26,.13), rgba(90,64,26,0) 24px,
+                             rgba(90,64,26,0) calc(100% - 24px), rgba(90,64,26,.13)),
+      linear-gradient(180deg, var(--papel), var(--papel));
+    background-attachment: local;
+    /* sem barra de rolagem visível e, no lugar dela, o que a barra dizia: as bordas do rolo
+       dissolvem, então a página sempre anuncia que continua. O papel dissolve junto — a folha
+       não tem borda desenhada, ela some no escuro em cima e embaixo. */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 10px,
+                                        #000 calc(100% - 18px), transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0, #000 10px,
+                                        #000 calc(100% - 18px), transparent 100%); }
+  #listaGlossario::-webkit-scrollbar { width: 0; height: 0; }
+  /* dentro de um rolo, item que encolhe deforma — armadilha já paga em .capItem */
+  .glGrupo, .glItem, .glSug, .glVazio { flex-shrink: 0; }
+
+  /* O GRUPO é uma PLACA DE MADEIRA pousada na folha — a divisória do fichário. A derivação é
+     a mais curta possível: é a MESMA placa do título da tela (.telaTit), em recorte pequeno e
+     encostada à esquerda. Placa grande = a tela; placa pequena = a seção. Sem pregos: prego é
+     só do poste. O rótulo é bitmap — madeira fala bitmap, papel fala serifa.
+
+     A PLACA TAMBÉM ANDA NA PAUTA, e ela é a peça que mais estragava a régua: com 45 px de
+     pegada (16 + 24 + 5) ela empurrava TODA a seção seguinte 1 px para fora da linha. Agora o
+     rótulo de 11 px (o canvas tem exatamente a altura da pauta) mora numa caixa de 22 (2
+     pautas) e a pegada fecha em 55 (5 pautas) entre seções e 33 (3) na primeira. Uma seção
+     custa exatamente cinco linhas do papel.
+     `font-size: 0` no lugar de `line-height: 0`: as duas zeram o strut, mas esta diz a coisa
+     certa — a placa NÃO TEM tamanho de fonte, o rótulo é canvas (`pixelRotulo` apaga o
+     `textContent` e pendura um `<canvas>`; não há texto para dimensionar). É o que impede um
+     número da escala serifa de vazar para a mobília por herança do navegador. */
+  /* O NOME NA MADEIRA, A EXPLICAÇÃO NO PAPEL — e a divisão sai da régua da casa, não do gosto:
+     "madeira fala bitmap, papel fala serifa". A frase que explica o grupo é PROSA, e prosa em
+     bitmap dentro de uma tabuinha viraria uma placa de trânsito. Então a placa continua sendo
+     só o NOME (a aba do fichário) e a frase é escrita na folha logo abaixo dela, que é onde
+     alguém escreveria à mão o que aquela divisória separa.
+     A frase anda em 22 (2 pautas) e não em 16,5: ela mora no PAPEL, junto com as linhas do
+     índice, e não dentro de um cartão. Pegada do cabeçalho: 22 de margem + 22 de placa + 22
+     por linha de frase + 11 = 77 com uma linha, 99 com duas — múltiplos de 11 nos dois casos.
+     `.glGrupo:not(:has(.glGNome))` é a PONTE: enquanto o Dev não trocar o DOM, o grupo ainda
+     é a placa direta e continua desenhado; quando `.glGNome` chegar, a madeira migra para ele
+     sozinha e este braço do seletor pode ser apagado. */
+  .glGrupo { align-self: stretch; margin: 22px 14px 11px; font-size: 0;
+    display: flex; flex-direction: column; align-items: flex-start; }
+  .glGrupo:not(:has(.glGNome)), .glGNome {
+    display: block; padding: 5px 12px 6px; border-radius: 2px;
+    background: linear-gradient(180deg, #503319, #38220e),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 3px 0 #0a0806; }
+  /* A placa direta (DOM antigo) não estica na folha inteira. `justify-self` além de
+     `align-self` porque na tela larga a lista é uma GRADE, e lá quem controla a largura de uma
+     célula é o `justify-self` — sem ele a tabuinha virava uma trave de 992 px com o rótulo
+     perdido no canto esquerdo. */
+  .glGrupo:not(:has(.glGNome)) { align-self: flex-start; justify-self: start;
+    display: inline-block; }
+  /* A frase: t0, redonda, na tinta que RECUA — ela orienta, não é um verbete. Nem o âmbar do
+     `.glLink` (que promete um toque) nem o itálico da procedência (que é outra camada de
+     fala): redonda e mais clara é o que sobra, e é o certo para uma legenda. */
+  .glGSub { display: block; font: 400 var(--glT0)/22px var(--leitura); color: #6f5a38;
+    letter-spacing: .02em; max-width: 46em; }
+  .glGrupo:first-child { margin-top: 0; }
+
+  /* ---- O VERBETE. Recolhido ele é UMA LINHA da folha; aberto ele levanta do papel.
+     A abertura é feita com `grid-template-rows: 0fr → 1fr`, que é a única forma de animar
+     "até a altura que o conteúdo pedir" sem número mágico e sem JS medindo nada. Onde a
+     transição não existe, `0fr` continua valendo como zero: recolhe igual, só não desliza.
+
+     UMA COISA SÓ ANIMA, e o número mandou. A primeira versão animava também a MARGEM do
+     cartão aberto, e no caminho caro — rolar os 52 verbetes e só então abrir um atrás do
+     outro — o piso caía para 48 fps. Margem lateral é a pior das duas: ela muda a LARGURA da
+     linha, o que obriga a recompor o texto de todo o cartão a cada quadro. Sem ela e com a
+     margem vertical fora da transição, o mesmo caminho mede 59-61. A folga em volta do cartão
+     aberto continua existindo; ela só chega de uma vez, no primeiro quadro, onde ninguém a vê
+     porque o cartão ainda está fechado. (Medido em 6 voltas por variante — ver o relatório.) */
+  .glItem { position: relative; display: grid; grid-template-rows: auto 0fr;
+    transition: grid-template-rows .26s cubic-bezier(.2,.72,.28,1); }
+  /* A cabeça é o alvo do dedo E a linha da pauta, e os dois números são o MESMO número:
+     11 + 22 + 11 = 44 px = 4 pautas = o mínimo que um dedo acerta. O `min-height` deixou de
+     ser um piso que sobrescrevia a conta e virou a conta. */
+  .glCabeca { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+    text-align: left; border: 0; background: none; cursor: pointer; appearance: none;
+    padding: 11px 14px; color: inherit;
+    box-shadow: inset 0 -1px 0 var(--glFio);
+    transition: background-color .16s ease; }
+  .glCabeca:active { background-color: rgba(169,121,58,.14); }
+  .glT { flex: 1 1 auto; min-width: 0;
+    font: 700 var(--glT2)/22px var(--leitura); letter-spacing: .035em; color: #2f2110; }
+  /* O SINAL DE ABRIR: duas barrinhas de tinta, e a de pé encolhe até sumir quando o verbete
+     abre — um "+" que vira "−". Duas barras retas e não uma seta girando, porque girar um
+     triângulo de 11 px em tela de pixel art só produz borda borrada. */
+  .glCabeca::after { content: ""; flex: 0 0 auto; align-self: center; width: 11px; height: 11px;
+    background: linear-gradient(#a9793a, #a9793a) center / 11px 2px no-repeat,
+                linear-gradient(#a9793a, #a9793a) center / 2px 11px no-repeat;
+    transition: background-size .26s cubic-bezier(.2,.72,.28,1); }
+  .glItem.aberto .glCabeca::after { background-size: 11px 2px, 2px 0; }
+  /* O CORPO. Sem padding próprio, de propósito: numa faixa de altura zero o padding de um
+     `border-box` não some junto e vazaria como uma tira de papel entre as linhas. Quem
+     recua o texto são os filhos. */
+  .glCorpo { grid-row: 2; overflow: hidden; min-height: 0; opacity: 0;
+    transition: opacity .14s ease; }
+  .glItem.aberto .glCorpo { opacity: 1; transition: opacity .3s ease .06s; }
+  .glCorpo > * { padding-left: 14px; padding-right: 14px; }
+  .glCorpo > :last-child { padding-bottom: 11px; }   /* 1 pauta, como todo fecho de bloco */
+
+  /* O VERBETE ABERTO levanta da folha: ganha a moldura de madeira em recorte pequeno (2 px de
+     tinta + 3 px de moldura), o degrau que o apoia e uma sombra macia. Toda a moldura que
+     antes se repetia 52 vezes vive AQUI, uma vez, e por isso ela informa em vez de enfeitar.
+
+     A margem 9/13 é assimétrica de propósito e não é sobra: o degrau (`0 4px 0`) é desenhado
+     PARA FORA da caixa, então 13 embaixo menos 4 de degrau dá os mesmos 9 de cima. E 9 + 13 =
+     22 = 2 pautas, que é o que devolve a folha à régua depois do cartão. */
+  .glItem.aberto { grid-template-rows: auto 1fr;
+    z-index: 1; border-radius: 3px; margin: 9px 8px 13px;
+    background:
+      /* 180deg pelo mesmo motivo do rolo: a pauta do cartão ancora no topo dele, que é onde o
+         termo está, e não no pé, que se move com o tamanho da definição. */
+      repeating-linear-gradient(180deg, rgba(120,90,40,.08) 0 1px, transparent 1px 11px),
+      linear-gradient(180deg, #f3e5c0, #e3d0a4);
+    box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #7a5430,
+                0 4px 0 #0a0806, 0 8px 18px rgba(0,0,0,.42); }
+  /* A CABEÇA NÃO MUDA DE ALTURA AO ABRIR — só perde o fio de baixo. Antes ela trocava
+     `11px/12px` por `13px/2px`, e o termo que a pessoa ACABOU de tocar dava um pulo de 2 px
+     debaixo do dedo. Mesma caixa de 44 nos dois estados: o que anuncia a abertura é a moldura
+     e o corpo que desce, não o texto se mexendo. */
+  .glItem.aberto .glCabeca { box-shadow: none; }
+  .glItem.aberto .glT { color: var(--glTinta); }
+
+  /* A ORIGEM — a etimologia, que é o campo que o dono pediu por nome ("de onde vem"). Ela se
+     distingue por FUNÇÃO e não por "itálico marrom", que é o recurso mais gasto que existe:
+     ela é uma NOTA DE MARGEM, e o que diz isso é o fio vertical de pena à esquerda dela, o
+     mesmo gesto de quem marca uma linha no caderno. Redonda, não itálica — o itálico desta
+     tela ficou reservado para a citação, que é uma coisa só.
+
+     E a nota é COMPOSTA APERTADA — 16,5 (1,5 pauta) contra os 22 (2 pautas) do corpo. Esse é
+     o segundo eixo da escala e ele carrega sentido sozinho: nesta tela, NOTA anda em 1,5
+     pauta e TEXTO CORRIDO anda em 2. A origem e a procedência compartilham o compasso curto;
+     só a definição respira. */
+  .glO { font: 400 var(--glT1)/16.5px var(--leitura); color: var(--glAmbar);
+    margin: 0 0 11px; padding-left: 25px;
+    background: linear-gradient(#c2934e, #c2934e) 14px 4px / 2px calc(100% - 8px) no-repeat; }
+  /* A DEFINIÇÃO — o corpo, e o único bloco da tela sem adorno nenhum: é o texto que se lê.
+     Sentado na pauta, 22 px de entrelinha = 2 × os 11 px do papel. */
+  .glD { font: 400 var(--glT1)/22px var(--leitura); color: #3a2b16; margin: 0 0 11px; }
+  /* AS REMISSÕES — "ver também", em versalete âmbar sublinhado, que é como um dicionário
+     impresso remete. Não são botões de aplicativo: são palavras do texto que respondem ao
+     dedo, e por isso não ganham caixa, cor de fundo nem canto arredondado. */
+  .glRel { display: flex; flex-wrap: wrap; gap: 0 16px; margin: 0 0 11px; }
+  .glLink { border: 0; background: none; cursor: pointer; padding: 5px 0 6px;
+    font: 400 var(--glT0)/16.5px var(--leitura); letter-spacing: .14em;
+    text-transform: uppercase; color: #8a5a18;
+    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
+    text-decoration-color: rgba(138,90,24,.45);
+    transition: color .14s ease, text-decoration-color .14s ease; }
+  .glLink:active { color: #5e3b0c; text-decoration-color: #5e3b0c; }
+  /* A PROCEDÊNCIA — o rodapé do verbete, atrás de um fio de tinta. Ela RECUA: o degrau mais
+     baixo da escala, a tinta mais clara do cartão, e o único itálico que sobrou aqui. O fio é
+     o que diz "isto não é mais a definição" — procedência é outra camada de fala. */
+  .glF { font: italic 400 var(--glT0)/16.5px var(--leitura); color: #7d6444;
+    letter-spacing: .01em; margin-top: 0; padding-top: 11px;
+    border-top: 1px solid rgba(58,40,16,.18); }
+
+  /* O VERBETE DISPUTADO — as fontes discordam. Mesmo sinal que a tela DE ONDE VEM já ensinou
+     (.fnDuv): o material não muda, o ÂMBAR marca. Recolhido, o âmbar é um fio na cabeça da
+     linha (é tudo o que cabe numa linha de índice); aberto, ele toma a moldura inteira. */
+  .glItem.dv > .glCabeca { box-shadow: inset 0 -1px 0 var(--glFio), inset 3px 0 0 #c08a1e; }
+  .glItem.dv .glT { color: #6e4a08; }
+  .glItem.dv.aberto { box-shadow: inset 0 0 0 2px #241a10, inset 0 0 0 5px #8a6320,
+                0 4px 0 #0a0806, 0 8px 18px rgba(0,0,0,.42); }
+  .glItem.dv.aberto > .glCabeca { box-shadow: none; }
+  .glItem.dv .glF { color: #7a5410; }
+
+  /* O REALCE DO SALTO — depois de a busca levar até um verbete, um aro âmbar diz "é este" e
+     sai de cena. Vive numa camada própria e não na `box-shadow` do cartão, senão ele teria de
+     brigar com a moldura do estado aberto e com a do disputado, que são três regras para o
+     mesmo pixel. Realce permanente viraria item marcado dentro de uma lista de leitura. */
+  .glItem.alvo::before { content: ""; position: absolute; inset: 0; z-index: 2;
+    pointer-events: none; border-radius: 3px; box-shadow: inset 0 0 0 2px #e0a93c;
+    animation: glAlvo 2.6s ease-out forwards; }
+  @keyframes glAlvo { 0% { opacity: 0; } 10% { opacity: 1; } 62% { opacity: 1; }
+    100% { opacity: 0; } }
+
+  /* A SUGESTÃO DE BUSCA é a mesma linha de índice do estado recolhido — a busca não inventa
+     um segundo desenho de lista, ela peneira a que já existe. */
+  .glSug { display: flex; align-items: center; min-height: 44px; cursor: pointer;
+    padding: 11px 14px; box-shadow: inset 0 -1px 0 var(--glFio);
+    font: 700 var(--glT2)/22px var(--leitura); letter-spacing: .035em; color: #2f2110;
+    transition: background-color .16s ease; }
+  .glSug:active { background-color: rgba(169,121,58,.14); }
+  /* O VAZIO fala BITMAP porque é MOBÍLIA, não leitura — e por isso vem na mesma placa de
+     madeira do grupo: é o único material em que a tinta ouro do rótulo tem contraste.
+     (Ouro sobre o papel creme seria uma frase quase ilegível.) */
+  .glVazio { align-self: center; margin: 22px 14px; padding: 8px 14px 9px;
+    border-radius: 2px; font-size: 0;
+    background: linear-gradient(180deg, #503319, #38220e),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 8px);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 3px 0 #0a0806; }
+
+  /* ---- TELA LARGA. Mobile first é a ordem: tudo acima desta linha é o telefone, e é o que
+     manda. Mas a 1280 px o que existia era uma tira de 544 px no meio de 736 px de escuro —
+     não era o telefone esticado (o `max-width: 34em` impedia), era pior: era uma tela grande
+     tratada como um telefone com moldura. E numa folha de dicionário isso é desperdício de um
+     tipo específico, porque o dicionário é o objeto que MAIS sabe o que fazer com largura.
+
+     A resposta é a que o próprio objeto dá: **duas colunas de índice e o verbete aberto
+     ocupando a folha inteira**, que é a página dupla de um dicionário impresso. Ganha-se o
+     dobro de termos por tela sem esticar UMA linha de texto — e a medida de leitura, que é o
+     que estraga layout largo, fica MENOR do que era, não maior.
+
+     Por que 900 px e não 768: a 768 (tablet em pé) duas colunas dariam ~360 px cada, que é
+     estreito demais para o termo mais longo do array sem quebrar em duas linhas em quase toda
+     a lista. A 900 cada coluna passa de 420 e as quebras somem. O corte é medido, não redondo.
+
+     NADA AQUI PEDE JS. O acordeão continua sendo o mesmo: um aberto por vez, e o que muda é
+     que o aberto atravessa as duas colunas em vez de empurrar a coluna dele. */
+  @media (min-width: 900px) {
+    /* A FOLHA CRESCE; O CAMPO DE BUSCA, NÃO — e essa é a única exceção da largura. Um campo de
+       digitação de 950 px para uma palavra de oito letras é exatamente o "telefone esticado"
+       que esta media query existe para evitar: a caixa não fica melhor por ser maior, fica
+       vazia. Ele continua na medida do telefone, centrado sobre a folha. As ABAS crescem
+       (são sete e querem caber) e a LISTA cresce (é o assunto). */
+    #telaGlossario #glFiltros, #listaGlossario { max-width: 62em; }
+    /* as sete abas cabem em duas fileiras: numa tela com mouse, rolagem horizontal escondida
+       é a pior gaveta que existe — aqui elas ficam TODAS visíveis, e a máscara sai junto */
+    #glFiltros { flex-wrap: wrap; row-gap: 6px; overflow-x: visible;
+      -webkit-mask-image: none; mask-image: none; }
+
+    #listaGlossario { display: grid; grid-template-columns: 1fr 1fr;
+      column-gap: 34px; align-content: start; }
+    /* o que não é verbete atravessa a folha: cabeçalho de seção, o vazio, e o verbete ABERTO —
+       a página dupla se abre no meio para receber o que se está lendo */
+    .glGrupo, .glVazio, .glItem.aberto { grid-column: 1 / -1; }
+    /* A BUSCA NÃO É ÍNDICE: a lista de sugestões é uma coluna só, porque ela é curta e porque
+       espalhar 3 resultados em 2 colunas obriga a varrer a folha inteira para achar 3 palavras. */
+    .glSug { grid-column: 1 / -1; }
+
+    /* O FIO PASSA DA CABEÇA PARA O ITEM, e isto é o que impede o defeito clássico da grade:
+       numa fileira de duas células, a mais alta (um termo que quebrou em duas linhas) manda na
+       altura das duas, e o fio desenhado sob a CABEÇA terminaria a 44 px de um lado e a 66 do
+       outro — dois riscos tortos na mesma linha do papel. No ITEM, ele fecha sempre no pé da
+       célula, que a grade já igualou. */
+    .glItem { box-shadow: inset 0 -1px 0 var(--glFio); }
+    .glCabeca { box-shadow: none; }
+    .glItem.dv { box-shadow: inset 0 -1px 0 var(--glFio), inset 3px 0 0 #c08a1e; }
+    .glItem.dv > .glCabeca { box-shadow: none; }
+
+    /* O VERBETE ABERTO VIRA PÁGINA DUPLA. A definição fica na coluna da esquerda, na MESMA
+       medida de leitura do telefone; a nota de etimologia, as remissões e a procedência vão
+       para a direita — que é, literalmente, a margem. A "nota de margem" que no telefone só
+       podia ser uma promessa (um fio vertical à esquerda de um bloco que ocupava a largura
+       toda) aqui é a coisa mesma. Ordem do DOM intacta: quem reordena é a grade. */
+    .glItem.aberto .glCorpo { display: grid; grid-template-columns: 1fr 1fr;
+      column-gap: 34px; align-content: start; }
+    .glItem.aberto .glD { grid-column: 1; grid-row: 1 / span 3; }
+    .glItem.aberto .glO,
+    .glItem.aberto .glRel,
+    .glItem.aberto .glF { grid-column: 2; }
+    /* na página dupla a procedência não precisa de fio: a coluna já a separou */
+    .glItem.aberto .glF { border-top: 0; padding-top: 0; }
+    /* o padding lateral vira da grade, senão as duas colunas ganham 28 px de recuo cada */
+    .glItem.aberto .glCorpo { padding: 0 14px; }
+    .glItem.aberto .glCorpo > * { padding-left: 0; padding-right: 0; }
+    .glItem.aberto .glO { padding-left: 25px; }
+  }
+
+  /* TELA BAIXA. A 320×568 a coluna tem título + busca + abas + lista + VOLTAR, e a lista é a
+     única que pode ceder — mas ela é o assunto. Então quem cede é a MOBÍLIA em volta, um
+     passo, e nada muda em 812 ou 844. Mesma decisão já tomada para o poste do menu. */
+  @media (max-height: 660px) {
+    #telaGlossario { padding: 12px 8px 12px; }
+    #telaGlossario .telaTit { margin-bottom: 8px; padding: 6px 16px; }
+    #telaGlossario .telaBtn { padding: 11px 30px; }
+    #glBusca { margin-bottom: 6px; }
+    #glFiltros { margin-bottom: 6px; padding-bottom: 5px; }
+    #listaGlossario { margin-bottom: 7px; }
+  }
+  /* Quem pediu menos movimento recebe menos movimento: o verbete continua abrindo e fechando,
+     só que sem deslizar. Nada aqui depende da transição para funcionar. */
+  @media (prefers-reduced-motion: reduce) {
+    .glItem, .glCorpo, .glCabeca, .glCabeca::after, .glAssunto, #glCampo { transition: none; }
+    .glItem.alvo::before { animation: none; opacity: 1; }
+  }
+
   /* a bandeja é PEDRA — a mesma laje do rodapé que a abre, pousada logo acima dele. O painel
      olive translúcido de canto 18px era o último pedaço de aplicativo dentro do jogo. */
   .sheet { position: fixed; z-index: 20; left: 50%; transform: translateX(-50%) translateY(110%);

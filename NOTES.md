@@ -5395,16 +5395,860 @@ O bloco novo do `encaixe.js` nasce como **24** e não 22: a sessão de PALMARES 
 23b na main, e dois blocos com o mesmo número num arquivo que se lê por número é o tipo de
 confusão que não custa nada evitar antes de existir.
 
+
 ---
 
-## 2026-08-11 · Decisões do dono no check da tarde
+## O GLOSSÁRIO — 52 verbetes, fonte por fonte (2026-08-08)
 
-- **PR do Mac (glossário):** ele vai pedir o ajuste. O `COLABORAR.md` nasceu para ir junto.
-- **Os quatro textos das eras:** ele lê **quando os treze estiverem prontos**, não agora.
-  Consequência aceita e dita: o tom que ele ainda não aprovou vai ser replicado em mais seis
-  capítulos, e a correção, se vier, será sobre treze em vez de quatro.
-- **Capítulo 1 fica com as três placas.** O que ele guardou do padrão antigo era a estrada sem
-  fim, não a ausência de história.
-- **Palmares é para andar.** Correr não compra nada ali, e está certo assim: o capítulo é sobre
-  ficar e construir. Inventar uma razão histórica para correr seria inventar história para
-  servir mecânica — a pergunta aberta desde 05/08 fecha aqui, para este capítulo.
+Pedido do dono: *"explicar todos os termos que a gente usa no jogo, ou na história ou enfim,
+pra poder dar contexto, e de onde vem. exemplo é por exemplo Pindorama, Palmares, povos
+originários"*. O campo que ele pediu explicitamente é **de onde vem** — por isso cada verbete
+tem `o` (origem da palavra) antes de `d` (o que é). Estrutura igual à de `FONTES`: `g` é
+cabeçalho de grupo e vem sozinho no objeto.
+
+**A regra do §2 aplicada:** todo verbete que afirma história tem `f`. Nenhum entrou sem fonte;
+os que não fecharam ficaram de fora e estão listados no fim desta seção. O `f` **não** traz o
+rótulo "fonte:" — quem escreve o rótulo é a tela, como já fazem `MOMENTOS` e a `LINHA_TEMPO`.
+
+**`dv: 1`** é o irmão do `d: 1` de `FONTES`: marca verbete em que as fontes divergem ou em que
+falta atestação. Nove verbetes o carregam. Verbete falsamente liso ensina menos que verbete
+costurado à vista — é a mesma tese da tela DE ONDE VEM.
+
+### Por que o glossário é o melhor lugar da tese
+
+O §2 do CLAUDE.md **manda** usar *invasão*, *pessoa escravizada* e *povos indígenas no plural*.
+Até aqui o jogo obedecia sem explicar. O grupo `AS PALAVRAS QUE ESTE JOGO ESCOLHE` (12
+verbetes) é onde ele finalmente diz **por quê** — e diz também o que recusa, com o motivo:
+*descobrimento*, *encontro de culturas*, *tribo*, *pré-história*, *índio*. Os verbetes de recusa
+citam a palavra proibida para explicá-la; é menção, não uso, e é a única exceção que a regra de
+vocabulário do NOTES.md comporta sem se contradizer.
+
+### Cobertura — o que o glossário fecha
+
+Varridos `EPOCAS`, `MOMENTOS`, `LINHA_TEMPO`, `TRAVESSIAS` e `FONTES` inteiros. Todo termo
+histórico que o jogo hoje pronuncia tem verbete, com uma exceção declarada mais abaixo.
+
+| grupo | verbetes |
+|---|---|
+| AS PALAVRAS QUE ESTE JOGO ESCOLHE | invasão · descobrimento · pessoa escravizada · povos originários · indígena · índio · guerra justa · encontro de culturas · tribo · pré-história · contato · conquista |
+| A TERRA E QUEM JÁ ESTAVA AQUI | Pindorama · tupi · Tupinambá · mandioca · manto Tupinambá · aldeamento · etnia · demarcação · sambaqui · geoglifo · Marajó · a doença que chegou nos navios |
+| PALMARES E OS MOCAMBOS | quilombo · quilombola · mocambo · Palmares · serra da Barriga · Zumbi · Gana Zumba · Aca Inene · Angola Janga |
+| A TRAVESSIA E O TRÁFICO | travessia · tráfico atlântico · engenho · Valongo · degredo |
+| SALVADOR, 1835 | ganhadeira · malê · levante dos malês · crioulo/crioula · liberto/liberta · alforria · acarajé · pano da costa · búzios |
+| AS DATAS, AS LEIS E OS ÓRGÃOS | Dia da Consciência Negra · Lei Áurea · Constituição de 1988 · Dia dos Povos Indígenas · Fundação Cultural Palmares |
+
+### Fonte por fonte — o que cada uma sustenta
+
+**Autoria negra e indígena primeiro (§2, prioridade de fonte do dono).**
+
+- **Beatriz Nascimento**, "O conceito de quilombo e a resistência cultural negra" (1985), em
+  *Uma história feita por mãos negras*, org. Alex Ratts, Zahar, 2021 — sustenta **QUILOMBO**.
+  É ela quem desmonta "quilombo = esconderijo" e recupera o kilombo como instituição.
+- **Abdias do Nascimento**, *O genocídio do negro brasileiro*, Paz e Terra, 1978 — sustenta
+  **PESSOA ESCRAVIZADA**, ao lado de Reis. Entra porque o argumento do particípio é dele e do
+  movimento negro antes de ser da academia.
+- **Nei Lopes**, *Novo dicionário banto do Brasil*, Pallas, 2003 — sustenta **ZUMBI** (raiz
+  quimbundo *nzumbi*, ligada à ideia de imortalidade) e entra como segunda fonte de **MOCAMBO**.
+- **Ailton Krenak**, discurso na Constituinte, 04/09/1987 — citado dentro de **CONSTITUIÇÃO DE
+  1988** (o jenipapo no rosto durante a fala). A afirmação jurídica do verbete é da CF/88.
+
+**As pesquisadoras de cada período.**
+
+- **Manuela Carneiro da Cunha** (org.), *História dos índios no Brasil*, Companhia das Letras,
+  1992 — **INVASÃO**, **TRIBO**, **ENCONTRO DE CULTURAS**, e segunda fonte de **MANDIOCA**.
+- **Manuela Carneiro da Cunha**, "Imagens de índios do Brasil: o século XVI", *Estudos
+  Avançados* 4(10), 1990, USP — **DESCOBRIMENTO**. Já estava em `FONTES`.
+- **Beatriz Perrone-Moisés**, "Índios livres e índios escravos", em Cunha (org.), 1992, junto da
+  **Lei sobre a Liberdade dos Gentios (Évora, 20/03/1570)** — **GUERRA JUSTA**. As duas juntas
+  são o ponto: a lei que dizia "livres" abria a exceção que legalizou escravizar.
+- **Maria Regina Celestino de Almeida**, *Metamorfoses indígenas*, 2003, com **John M.
+  Monteiro**, *Negros da terra*, Companhia das Letras, 1994 — **ALDEAMENTO**. Monteiro sozinho
+  sustenta **CONQUISTA**.
+- **Maria Dulce Gaspar**, *Sambaqui: arqueologia do litoral brasileiro*, Zahar, 2000 —
+  **SAMBAQUI** e **PRÉ-HISTÓRIA**. A regra de nomeação pela obra, já escrita no NOTES.md, é dela.
+- **Silvia Hunold Lara**, "O território dos Palmares", *Afro-Ásia* nº 64, 2021, UFBA —
+  **MOCAMBO**, **ANGOLA JANGA**, e a divergência de **FUNDAÇÃO CULTURAL PALMARES**.
+- **Silvia H. Lara & Fernando Fachin**, *Guerra contra Palmares: o manuscrito de 1678*, Chão
+  Editora, 2021 — **GANA ZUMBA** e **ACA INENE**. Paleografia, não opinião.
+- **Cecília Moreira Soares**, "As ganhadeiras: mulher e resistência negra em Salvador no século
+  XIX", *Afro-Ásia* nº 17, 1996, UFBA — **GANHADEIRA** e segunda fonte de **ALFORRIA**.
+  **Referência completa localizada nesta sessão** (o NOTES.md a citava sem número e sem ano):
+  Afro-Ásia n. 17, 1996, p. 57-71, DOI 10.9771/aa.v0i17.20856.
+- **Wlamyra Albuquerque**, *O jogo da dissimulação*, Companhia das Letras, 2009 — segunda fonte
+  de **LIBERTO · LIBERTA**.
+- **Denise Schaan**, *The Camutins Chiefdom*, 2004, com **Anna C. Roosevelt**, *Moundbuilders of
+  the Amazon*, 1991 — **MARAJÓ**. Schaan, Ranzi & Pärssinen mais **Watling et al.**, PNAS 2017 —
+  **GEOGLIFO**.
+
+**Os demais pesquisadores.**
+
+- **João José Reis**, *Rebelião escrava no Brasil*, Companhia das Letras, ed. rev. 2003 — é a
+  âncora do grupo de Salvador: **MALÊ**, **LEVANTE DOS MALÊS**, **CRIOULO · CRIOULA**,
+  **LIBERTO · LIBERTA**, **DEGREDO**, **ALFORRIA**, e segunda fonte de **PESSOA ESCRAVIZADA**.
+- **Stuart B. Schwartz**, *Segredos internos*, Companhia das Letras, 1988 — **ENGENHO**.
+- **Flávio dos Santos Gomes**, *Palmares*, Contexto, 2005, com o **Documenta Palmares**
+  (Unicamp) — **PALMARES**.
+- **Eduardo de Almeida Navarro**, *Dicionário de tupi antigo*, Global, 2013 — **PINDORAMA**,
+  **TUPI**, **MANDIOCA**. É a fonte de etimologia tupi da casa.
+- **Francisco Noelli**, "The Tupi expansion", em *Handbook of South American Archaeology*, 2008
+  — **TUPI**.
+- **Dauril Alden & Joseph C. Miller**, *Journal of Interdisciplinary History* 18(2), 1987, e
+  **David S. Jones**, "Virgin Soils Revisited", *WMQ* 60(4), 2003 — **A DOENÇA QUE CHEGOU NOS
+  NAVIOS**. Jones é quem sustenta a oração final ("não foi acidente da natureza").
+- **Jan Hogendorn & Marion Johnson**, *The Shell Money of the Slave Trade*, Cambridge University
+  Press, 1986 — **BÚZIOS**. Fonte nova nesta sessão; é a obra de referência sobre o cauri como
+  moeda do tráfico.
+- **Raul Lody** (2003), via **Fundação Joaquim Nabuco**, Pesquisa Escolar, verbete "Panos da
+  Costa" — **PANO DA COSTA**. Cito a Fundaj e não o título do livro porque não confirmei a
+  referência bibliográfica exata do Lody nesta sessão.
+
+**Fonte institucional (vale, mas nunca no lugar de quem narra).**
+
+- **IBGE, Censo 2022** — **INDÍGENA**, **ÍNDIO**, **ETNIA**, **QUILOMBOLA**.
+- **Planalto** — **Lei nº 14.402/2022** (POVOS ORIGINÁRIOS, INDÍGENA, ÍNDIO, DIA DOS POVOS
+  INDÍGENAS) · **Lei nº 3.353/1888** (LEI ÁUREA) · **CF/88 art. 231 e ADCT art. 68**
+  (DEMARCAÇÃO, QUILOMBOLA, CONSTITUIÇÃO DE 1988) · **Decreto nº 1.775/1996** (DEMARCAÇÃO,
+  as etapas do rito) · **Lei nº 12.519/2011** e **Lei nº 14.759/2023** (DIA DA CONSCIÊNCIA
+  NEGRA — a segunda é a que o transforma em feriado nacional) · **Lei nº 7.668/1988**
+  (FUNDAÇÃO CULTURAL PALMARES). Todas verificadas nesta sessão.
+- **ISA / Enciclopédia Povos Indígenas no Brasil** e **Portaria Declaratória nº 1.075/2025** —
+  **TUPINAMBÁ**, **POVOS ORIGINÁRIOS**, **CONTATO**.
+- **FUNAI**, Coordenação-Geral de Índios Isolados e de Recente Contato — **CONTATO**.
+- **IPHAN** — **SERRA DA BARRIGA** (tombamento) e **ACARAJÉ** (Ofício das Baianas de Acarajé,
+  Livro dos Saberes, 2005).
+- **UNESCO**, Cais do Valongo, 2017, e a escavação de **Tania Andrade Lima** (Museu Nacional/
+  UFRJ), 2011 — **VALONGO**.
+- **Museu Nacional / UFRJ**, cerimônia de 12/09/2024 — **MANTO TUPINAMBÁ**.
+- **SlaveVoyages.org** (Emory) — **TRAVESSIA** e **TRÁFICO ATLÂNTICO**.
+- **Fundação Cultural Palmares** — **ZUMBI**, **SERRA DA BARRIGA**, **DIA DA CONSCIÊNCIA NEGRA**.
+
+### Os nove verbetes marcados `dv: 1`, e a divergência exata de cada um
+
+1. **PINDORAMA** — a etimologia (*pindó* + *-rama/retama*, "região das palmeiras") é sólida em
+   Navarro. **O que não se sustenta** é a ideia corrente de que a palavra nomeava "o Brasil
+   inteiro" para os povos tupi: isso é popularização moderna. O verbete afirma a etimologia e
+   nega a extensão — coerente com a regra já escrita no NOTES.md ("PINDORAMA era nome de TERRA,
+   não de unidade política").
+2. **TUPINAMBÁ** — a tradução do etnônimo ("os primeiros", "os mais antigos") circula muito e
+   **não achei atestação**. Declarada como atribuída, e o verbete não a repete como fato.
+3. **MOCAMBO** — quimbundo *mu'kambu* ("cumeeira") é a derivação mais registrada; parte das
+   fontes deriva do quicongo *mukambu*. Sentido igual, língua de origem em disputa.
+4. **SERRA DA BARRIGA** — **a pendência antiga do NOTES.md ficou quase resolvida.** As páginas
+   do IPHAN e da Fundação Cultural Palmares convergem em **31/01/1986**, e as contagens de
+   aniversário publicadas batem com 1986. O 1985 continua circulando. O verbete diz 1986 e
+   registra a outra data — recomendo **manter o `dv`** até alguém abrir o processo do IPHAN.
+5. **ANGOLA JANGA** — sem novidade: mantida a correção já registrada no NOTES.md. O verbete
+   existe justamente para o jogo poder dizer por que **não** usa o nome.
+6. **VALONGO** — a derivação de "vale longo" é **atribuída, sem atestação firme**. Os fatos
+   (cais de 1811, escavação de 2011, UNESCO 2017) são sólidos; a etimologia é que fica marcada.
+7. **MALÊ** — iorubá *ìmàle* ("muçulmano") é a derivação mais citada, e é a de Reis; há
+   derivação concorrente do hauçá *malami* ("mestre, professor"). O verbete diz as duas.
+8. **ACARAJÉ** — origem iorubá é consenso (*àkàrà* + *jẹ*); **as glosas variam** entre fontes
+   ("comer akara", "bolinho de comer", e leituras mais livres). O verbete fica na parte firme.
+9. **FUNDAÇÃO CULTURAL PALMARES** — o `dv` não é sobre o órgão, é sobre a divergência que o
+   jogo já registra: a FCP afirma "cerca de 20 mil" habitantes em Palmares e Silvia Lara
+   classifica os números da documentação seiscentista como exagerados.
+
+### O que NÃO entrou, e por quê
+
+- **"Angola Janga" como nome de Palmares** — entrou só como verbete de recusa, nunca como nome.
+- **Etimologia de "Tupinambá"**, **de "Valongo"** e **glosa fechada de "acarajé"** — declaradas
+  atribuídas dentro do próprio verbete, em vez de afirmadas.
+- **"Senzala", "capoeira", "orixá", "irmandade", "tumbeiro"** — o jogo não pronuncia nenhuma
+  hoje. Ficam para quando o capítulo que as usar existir; glossário que explica o que o jogo não
+  diz é enciclopédia, não glossário.
+- **O diagrama do navio *Brookes*** — o texto da TRAVESSIA o descreve para recusá-lo. Um verbete
+  sobre ele seria dar-lhe uma segunda vida numa tela onde ninguém pediu. **Fica de fora, e a
+  decisão é de representação: se o dono quiser, ele entra.**
+- **Número de habitantes de Palmares, população indígena em 1500** — continuam fora de qualquer
+  verbete, pela mesma razão de sempre (`FONTES` já os trata como disputa).
+
+### ⚠ Do dono — três coisas que o historiador não decide sozinho (§2)
+
+1. **BÚZIOS e ACARAJÉ são drops no chão do capítulo 4** (`EPOCAS[2].abertura`, fala 5: *"No chão
+   ficam acarajé, pano da costa e búzios"*). O §2.4 item 5 diz que **objeto ritual não é
+   colecionável**. O búzio é moeda do tráfico **e** instrumento de adivinhação no candomblé; o
+   acarajé é comida de rua **e** oferenda — e é a própria ficha do IPHAN que diz isso, ao ligar
+   o ofício das baianas ao culto dos orixás. **O verbete escrito não menciona a dimensão
+   religiosa de nenhum dos dois**, e há uma versão alternativa pronta que menciona. Duas
+   decisões, e as duas são dele: (a) o verbete diz ou não diz? (b) o drop continua ou troca?
+2. **PANO DA COSTA** — mesmo caso, menor: o uso do pano nas casas de culto e a correspondência
+   com as cores dos orixás ficaram **fora** do verbete. Ele fala do tecido, da rota e da rua.
+3. **O verbete "PESSOA ESCRAVIZADA" cita a palavra que o §2 proíbe**, para poder explicá-la
+   ("Neste jogo ninguém é chamado de escravo"). Menção, não uso — mas é a única linha do jogo
+   em que a palavra aparece fora de título de obra, e vale o olho do dono.
+
+
+---
+
+## O glossário ganha vizinhos, um verbete e uma correção — Historiador, 2026-08-09
+
+Três entregas, todas **propostas**, nenhuma aplicada: `src/` estava com o Dev e a Direção de
+Arte nesta rodada. Os arquivos estão no scratchpad da sessão (`glossario-rel.ts`,
+`glossario-brookes.ts`, `glossario-pano.ts`).
+
+### 1. Termos relacionados — 52 de 52, 173 ligações
+
+Cada verbete recebe de 3 a 4 vizinhos (o teto era 4 e o piso, 2), escolhidos por um critério
+só: **o vizinho muda o
+entendimento do verbete de onde a pessoa veio.** Não é "mesmo assunto" nem "mesma época" —
+isso o filtro de grupo já faz. O teto de quatro é o conteúdo: lista longa é lista que ninguém
+segue.
+
+Os pares que se corrigem andam nos **dois sentidos** — ÍNDIO ↔ INDÍGENA, DESCOBRIMENTO ↔
+INVASÃO, GANA ZUMBA ↔ ZUMBI, TRIBO ↔ ETNIA, QUILOMBO ↔ QUILOMBOLA, SAMBAQUI ↔ PRÉ-HISTÓRIA.
+É neles que o glossário deixa de ensinar fato e passa a ensinar método.
+
+Conferido por script: todas as 52 chaves e os 173 valores existem no array, letra por letra;
+nenhum verbete ficou sem vizinho e nenhum ficou sem ser apontado por alguém.
+
+**Nenhuma afirmação histórica nova entrou aqui** — o mapa só liga texto que já está em
+produção, com as fontes que ele já carrega.
+
+**Cinco trilhas apareceram sozinhas ao ligar tudo, e elas podem virar produto.** Não são
+invenção de quem escreveu: são caminhos que já existem no mapa e que contam uma história
+inteira sem sair do glossário. Ficam registradas como material para uma tela de PERCURSOS, se
+o dono quiser:
+
+1. **Como uma palavra vira política** — DESCOBRIMENTO → INVASÃO → GUERRA JUSTA → ALDEAMENTO →
+   DEMARCAÇÃO. Palavra, lei, política de terra, e a lei de hoje que ainda arbitra a mesma
+   terra. É a trilha que sozinha explica por que o jogo escolhe vocabulário.
+2. **O que o documento faz com o nome** — ANGOLA JANGA → ACA INENE → GANA ZUMBA → ZUMBI →
+   DIA DA CONSCIÊNCIA NEGRA. Um nome sem atestação, dois nomes que a releitura do manuscrito
+   de 1678 corrigiu, e a data que o movimento negro escolheu. Ensina a diferença entre "o
+   livro repetia errado" e "não há fonte", que não é a mesma coisa.
+3. **A palavra banida e as três obras que a derrubam** — PRÉ-HISTÓRIA → SAMBAQUI → GEOGLIFO →
+   MARAJÓ → TRIBO.
+4. **O dinheiro, a rota e o lucro** — BÚZIOS → TRÁFICO ATLÂNTICO → TRAVESSIA → VALONGO →
+   ENGENHO. Começa numa concha e termina numa contabilidade: é a trilha que mostra o tráfico
+   como empresa, que é a tese do verbete TRÁFICO ATLÂNTICO.
+5. **A liberdade que veio sem chão** — ALFORRIA → LIBERTO · LIBERTA → DEGREDO → LEI ÁUREA →
+   DIA DA CONSCIÊNCIA NEGRA. Comprar a liberdade, não ser livre, ser deportado, receber dois
+   artigos de lei e nada mais — e o calendário respondendo a isso 123 anos depois.
+
+Uma sexta costura os dois fios do jogo e é a mais curta: MANTO TUPINAMBÁ → VALONGO →
+CONSTITUIÇÃO DE 1988 → DEMARCAÇÃO · QUILOMBOLA. Duas peças de memória que voltaram por decisão
+de instituição, e o artigo que reconhece os dois territórios.
+
+### 2. Verbete novo: DIAGRAMA DO BROOKES (grupo "A TRAVESSIA E O TRÁFICO")
+
+Escrever foi **aprovado pelo dono em 2026-08-08**. O verbete conta de onde vem a imagem que a
+fala de A TRAVESSIA já descreve para recusar: comitê de Plymouth da Sociedade pela Abolição do
+Tráfico, fim de 1788, refeita em Londres em 1789 para as mãos dos parlamentares. **A imagem
+continua fora** — a decisão registrada acima nesta mesma folha não é reaberta —, e o verbete
+diz isso na última linha. Explicar a recusa é o que a transforma em aula em vez de silêncio.
+
+O §2.4 foi conferido item a item antes de escrever: o texto fala do DOCUMENTO e de quem o
+produziu, não descreve o porão, não toca em restos humanos e não usa "escravo" como
+identidade. **O único número é a razão legal — 1,67 pessoa por tonelada — e ela é atribuída a
+quem a escreveu**, o Parlamento britânico, em lei, em 1788. Contar gente por tonelada é a
+acusação do verbete, não a descrição dele. Se o dono quiser essa oração fora, ela sai sem
+derrubar o resto.
+
+`dv: 1`. O verbete carrega no texto a divergência da **grafia** — Lloyd's registrou *Brook* e
+depois *Brooks*; *Brookes* é a variante do sobrenome do armador que o pôster fixou. Outras
+duas ficaram **fora do verbete, por espaço, e ficam registradas aqui**: a **autoria e a data**
+(parte da bibliografia, inclusive brasileira, credita a estampa a Thomas Clarkson em 1787; o
+registro das impressões põe a primeira no comitê de Plymouth, fim de 1788, e a refeita em
+Londres em 1789, distribuída aos parlamentares) e **quantas figuras a estampa traz** — as
+fontes dão contagens diferentes, e essa divergência é, ela mesma, o argumento do verbete.
+
+Fontes novas (as quatro primeiras estão no campo `f` do verbete; as duas últimas sustentam o
+texto e ficam só aqui, para o `f` não virar bibliografia):
+
+- Cheryl Finley, *Committed to Memory: The Art of the Slave Ship Icon*, Princeton University
+  Press, 2018 — o estudo de fundo sobre a estampa e sobre a retomada dela por artistas negros.
+- Saulo Castilho Pereira, "Idas e vindas do navio negreiro Brookes: arte como ação política na
+  apropriação de um ícone do abolicionismo britânico", *Faces de Clio* 7(13), 2021, UFJF —
+  [periodicos.ufjf.br](https://periodicos.ufjf.br/index.php/facesdeclio/article/view/32176)
+- Marcus Wood, *Blind Memory: Visual Representations of Slavery in England and America,
+  1780–1865*, Manchester University Press, 2000.
+- *Slave Trade Act* 1788 (Lei Dolben) — a lei que fixou a razão por tonelada.
+- Royal Museums Greenwich, ficha do objeto "Plan and Sections of a Slave Ship [the 'Brooks'
+  sometimes 'Brookes']" — [rmg.co.uk](https://www.rmg.co.uk/collections/objects/rmgc-object-254967)
+  (é a fonte da grafia e de que o navio foi um dos nove medidos pelo capitão Parrey).
+- *1807 Commemorated*, IHR — [archives.history.ac.uk](https://archives.history.ac.uk/1807commemorated/exhibitions/museums/brookes.html)
+  (registra a crítica de que a estampa põe quem foi escravizado como vítima passiva).
+
+### 3. PANO DA COSTA passa a dizer o culto — a mesma correção de BÚZIOS e ACARAJÉ
+
+O dono decidiu que BÚZIOS e ACARAJÉ dissessem a dimensão de culto, e os dois dizem. **PANO DA
+COSTA ficou de fora e é o mesmo caso**, com um agravante: as três peças são a mesma cena — o
+tabuleiro, o pano, a concha — e deixar uma só falando de tecido faz o pano parecer o traje
+pitoresco ao lado de duas coisas sagradas.
+
+A versão proposta acrescenta quatro coisas, cada uma com fonte: **o nome de dentro** (nos
+terreiros a peça é o *alaká*; "pano da costa" é nome de fora e genérico), **o uso** (enrolado
+no peito e na cintura, é peça de proteção, não adorno), **a cor** (segue o orixá de quem veste)
+e **a continuidade** (a Casa do Alaká, dentro do Ilê Axé Opô Afonjá, em Salvador, tece até
+hoje; o ofício foi ensinado ali pelo mestre Abdias do Sacramento Nobre e pela filha, Lourdes
+Nobre, em 1986).
+
+`dv: 1`, com duas divergências: **qual cor cabe a qual orixá muda de nação para nação e de casa
+para casa** — que a cor segue o orixá é consenso, a tabela concreta não é, e as listas que
+circulam se contradizem —, e a derivação de *alaká* (registrada como fon, em terreiros de
+tradição iorubá). O verbete afirma a regra e recusa a tabela, pelo mesmo critério do PINDORAMA.
+
+Fontes novas:
+
+- Aline Santiago, *O sacrifício dos fios do Alaká! Tecidos e cultura do vestir afrodiaspórica
+  na historiografia da arte brasileira*, dissertação, PPGAV/EBA-UFRJ — apresentada em
+  [Conexão UFRJ](https://conexao.ufrj.br/2025/06/do-pano-da-costa-ao-alaka/), 2025.
+- Raul Lody, *Pano da costa*, Cadernos de Folclore nº 15, Funarte, Rio de Janeiro, 1977 — a
+  monografia sobre este objeto.
+- *Dicionário de Belas Artes*, UFBA, verbete "Mestre Abdias e o pano da costa" — mestre Abdias
+  do Sacramento Nobre (1910–1994), o convênio IPAC/Funarte de 1985 e as oficinas de setembro
+  de 1986 no Ilê Axé Opô Afonjá.
+
+**Correção de citação, de graça:** o `f` atual do PANO DA COSTA traz "Raul Lody, 2003" sem
+título. É o *Dicionário de arte sacra e técnicas afro-brasileiras*, Pallas, 2003. A versão
+proposta prefere a monografia de 1977, que é sobre esta peça; se o Dev mantiver a de 2003, que
+seja com o título escrito.
+
+**O que eu NÃO consegui fechar:** o dossiê do IPHAN do Ofício das Baianas de Acarajé descreve a
+indumentária (saia, bata, pano da costa, ojá) como a mesma do candomblé, e seria a citação
+institucional que fecharia o verbete com o documento que o ACARAJÉ já usa. A Biblioteca Digital
+do IPHAN e o PDF do portal estiveram **fora do ar** nesta sessão. Não citei página que não li.
+
+### Dívida aberta: as fontes do glossário nunca entraram neste arquivo
+
+O §2 do CLAUDE.md manda que a fonte entre no `NOTES.md` no mesmo commit da afirmação. Os **52
+verbetes carregam ~45 obras distintas nos campos `f`** e **nenhuma delas está neste arquivo** —
+uma busca por "glossário" ou "verbete" no `NOTES.md` não devolve o glossário.
+
+**E o texto existe.** A sessão de 2026-08-08 escreveu o bloco completo — "O GLOSSÁRIO — 52
+verbetes, fonte por fonte", com a cobertura, a fonte por fonte, os nove `dv` explicados, o que
+não entrou e as três perguntas ao dono — e ele ficou no scratchpad (`glossario-notes.md`, 13 KB)
+**sem nunca ser colado aqui**. O verbete entrou em produção; o registro da fonte não. Não é
+trabalho a fazer, é um `cat` a fazer: colar aquele bloco antes deste fecha a dívida inteira, e
+enquanto ele não for colado o jogo afirma 52 vezes coisas cuja fonte só existe dentro do array.
+
+
+---
+
+## O GLOSSÁRIO, LEVA 2 — o Brasil inteiro (2026-08-10)
+
+Pedido do dono: *"siga evoluindo o glossário adicionando mais itens **independente do jogo**,
+pensando no Brasil como um todo, em diversas camadas e momentos históricos."* O glossário
+deixa de se limitar ao que o jogo pronuncia e passa a ser material de referência.
+
+**33 verbetes novos, 53 → 86. Quatro grupos novos, 6 → 10.** As remissões vão de 178 a 295,
+e nenhum verbete ficou sem vizinho.
+
+> **NÃO ESTÁ APROVADO PELO DONO.** Está escrito, com fonte e testado — mas os grupos
+> O DIA SEGUINTE DA ABOLIÇÃO e O QUE NÃO PODIA SER DITO tratam de escravidão e de violência
+> de Estado, e o §2 diz que representação se decide com ele. Ele pediu o trabalho enquanto
+> estava fora; a leitura dele continua sendo a condição.
+
+### Os quatro grupos novos
+
+- **O ESTADO QUE SE FORMOU** — *"Independência, Império e República: quem podia votar, quem
+  podia mandar, e quem ficou de fora."*
+- **O DIA SEGUINTE DA ABOLIÇÃO** — *"13 de maio libertou e não deu chão: o que o país fez com
+  quem acabara de libertar."*
+- **O QUE NÃO PODIA SER DITO** — *"1964–1985: a censura, o que o Estado fez, e o que as
+  comissões oficiais concluíram depois."*
+- **OS DIREITOS QUE FORAM CONQUISTADOS** — *"Nenhuma dessas leis caiu do céu: cada uma tem um
+  movimento por trás e uma data."*
+
+O critério dos nomes é o mesmo da leva anterior: **assunto, nunca episódio ou forma jurídica**,
+e legível por quem nunca jogou. E nenhum grupo termina no passado.
+
+### O buraco que esta leva fecha, e era o mais grave
+
+**SENHOR.** O verbete PESSOA ESCRAVIZADA argumenta que o particípio *"devolve o verbo e devolve
+o sujeito"* — e o sujeito não tinha verbete. O grupo COMO A ESCRAVIDÃO FOI MONTADA tinha a
+rota, a conta, o porto e o lucro, e ninguém montando. Entram junto TUMBEIRO (o navio, citado o
+tempo todo e sem verbete) e NAÇÃO (a contraparte exata de CRIOULO · CRIOULA).
+
+E a **escada da abolição**: com só a Lei Áurea, o grupo O QUE CHAMARAM DE LIBERDADE fazia a
+abolição parecer uma lei única. Entram VENTRE LIVRE (1871) e SEXAGENÁRIOS (1885) — a primeira
+libertou quem ainda podia ser tutelado até os 21 anos, a segunda quem já não rendia.
+
+### Fontes por verbete
+
+**Leis e documentos primários** (todos no Planalto ou na Câmara, com número e data):
+Lei nº 581, de 4/09/1850 (Eusébio de Queirós) · Lei nº 601, de 18/09/1850 (Terras) ·
+Lei nº 2.040, de 28/09/1871 (Ventre Livre) · Lei nº 3.270, de 28/09/1885 (Sexagenários) ·
+Constituição do Império, 25/03/1824, art. 98 (Poder Moderador) · Constituição de 1891 ·
+Decreto nº 528, de 28/06/1890 (imigração e branqueamento) · Decreto nº 847, de 11/10/1890
+(Código Penal), arts. 399 e 402 (vadiagem e capoeira) · Decreto nº 21.076, de 24/02/1932
+(Código Eleitoral, voto feminino) · Decreto-Lei nº 5.452, de 1/05/1943 (CLT) ·
+Decreto-Lei nº 37, de 2/12/1937 (extinção dos partidos) · AI-1, de 9/04/1964 · AI-2, de
+27/10/1965 · AI-5, de 13/12/1968 · Lei nº 6.683, de 28/08/1979 (Anistia) · Lei nº 8.080, de
+19/09/1990 (SUS) · Lei nº 10.639/2003 e Lei nº 11.645/2008 · Lei nº 12.288/2010 · Lei nº
+12.528/2011 (CNV) · Lei nº 12.711/2012 e Lei nº 14.723/2023 (cotas) · Lei Complementar nº
+150/2015 (domésticas) · Lei nº 14.701, de 20/10/2023 (marco temporal) · CF/88, arts. 196 e 231.
+
+**Decisões e relatórios:** STF, ADPF 186, 26/04/2012 (cotas) · STF, ADPF 153, 2010 (anistia) ·
+Corte IDH, *Gomes Lund e outros vs. Brasil*, 24/11/2010 · STF, RE 1.017.365, Tema 1.031,
+21/09/2023 (marco temporal) · Relatório Figueiredo, 1967, Museu do Índio/Funai · Comissão
+Nacional da Verdade, relatório final, 3 vols., dezembro de 2014 · 8ª Conferência Nacional de
+Saúde, relatório final, 1986 · Parecer CNE/CP 3/2004.
+
+**Autoria negra e indígena, na prioridade do §2:** Abdias do Nascimento, *O genocídio do negro
+brasileiro* (Paz e Terra, 1978) — sustenta BRANQUEAMENTO, FRENTE NEGRA BRASILEIRA e DEMOCRACIA
+RACIAL · Lélia Gonzalez, *Racismo e sexismo na cultura brasileira* (1984) — DEMOCRACIA RACIAL ·
+Sueli Carneiro, *Dispositivo de racialidade* (Zahar, 2023) — RACISMO CIENTÍFICO ·
+Petrônio Domingues, *Uma história não contada* (Senac, 2004) — IMPRENSA NEGRA e FRENTE NEGRA.
+
+**Pesquisa do período:** Emília Viotti da Costa, *Da senzala à colônia* (Unesp, 4ª ed. 1998) —
+SENHOR e SEXAGENÁRIOS · Sidney Chalhoub, *Visões da liberdade* (1990), *A força da escravidão*
+(2012) e *Trabalho, lar e botequim* (3ª ed. 2012) — SENHOR, EUSÉBIO DE QUEIRÓS, VADIAGEM ·
+Jaime Rodrigues, *De costa a costa* (Companhia das Letras, 2005) — TUMBEIRO · Mariza de
+Carvalho Soares, *Devotos da cor* (Civilização Brasileira, 2000) — NAÇÃO · Joseli Mendonça,
+*Entre a mão e os anéis* (Unicamp, 1999) — VENTRE LIVRE · José Murilo de Carvalho, *A
+construção da ordem / Teatro de sombras* (2003) e *Cidadania no Brasil* (2001) — PODER
+MODERADOR, VOTO CENSITÁRIO · Ligia Osorio Silva, *Terras devolutas e latifúndio* (Unicamp, 2ª
+ed. 2008) — LEI DE TERRAS · Victor Nunes Leal, *Coronelismo, enxada e voto* (orig. 1949) ·
+Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
+Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
+Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
+Belo Monte* (2001) e Euclides da Cunha, *Os sertões* (1902) — CANUDOS · Carlos Eugênio Líbano
+Soares, *A capoeira escrava* (Unicamp, 2004) · Lilian Fessler Vaz, *Dos cortiços às favelas*
+(Cadernos IPPUR, 1994) — FAVELA · Ângela de Castro Gomes, *A invenção do trabalhismo* (FGV, 3ª
+ed. 2005) — CLT · Céli Regina Jardim Pinto, *Uma história do feminismo no Brasil* (2003) ·
+Florestan Fernandes, *A integração do negro na sociedade de classes* (1964) · Robert Conrad,
+*Os últimos anos da escravatura no Brasil* (1975).
+
+**Institucional:** IBGE, *Desigualdades sociais por cor ou raça* (2019 e 2022) · IBGE, Censo
+2022, nota técnica sobre favelas e comunidades urbanas (2024) · IPHAN, *Roda de capoeira*,
+registro de 2008, e UNESCO, 2014 · Arquivo Público do Estado de São Paulo, acervo da Imprensa
+Negra Paulista.
+
+### Os seis `dv: 1` desta leva, e por que cada um
+
+- **NAÇÃO** — a classificação era do escravizador e foi reapropriada por quem a carregava; as
+  fontes divergem sobre quanto de cada coisa há em cada uso.
+- **GUERRA DO PARAGUAI** — as estimativas de mortos paraguaios variam enormemente entre as
+  fontes, e o verbete recusa escolher um número.
+- **CAPOEIRA** — a etimologia é disputada (hipótese tupi × hipóteses bantas) e nenhuma é
+  consensual.
+- **CANUDOS** — a leitura do arraial como ameaça monárquica já era disputada na própria época.
+- **FAVELA** — a derivação pelo morro da Favella é a corrente; há divergência sobre o percurso.
+- **LEI DA ANISTIA** — o STF (ADPF 153, 2010) e a Corte Interamericana (*Gomes Lund*, 2010)
+  decidiram em sentidos opostos no mesmo ano, e as duas decisões seguem em vigor.
+- **MARCO TEMPORAL** — o STF declarou a tese inconstitucional em 2023 e o Congresso a
+  reinstituiu em lei semanas depois; a disputa segue em curso.
+
+### A REGRA DO DOCUMENTO (§2.5) aplicada, e o que ela custou
+
+Todo verbete posterior a 1930 nomeia **a lei, o processo e o órgão — nunca a pessoa
+responsável**. GOLPE DE 1964, AI-5, RELATÓRIO FIGUEIREDO e COMISSÃO NACIONAL DA VERDADE dizem
+*"o que o relatório concluiu"*, e não *"o que aconteceu"*: é a mesma leitura crítica que o jogo
+já aplica às cartas jesuíticas, e a coerência é o argumento.
+
+**O que ficou de fora por causa dessa régua, e é registro deliberado:** corrupção, operações
+policiais-judiciais recentes e polarização **não entraram**. Não porque não importem — o dono
+os listou no escopo do arco —, mas porque escrevê-los sem alvo partidário exige mais espaço do
+que um verbete tem, e a régua dos cinco anos derruba o que ainda está em julgamento. Entram
+quando houver documento fechado e uma formulação que não permita a nenhum leitor identificar um
+lado. Enquanto não houver, a ausência é honesta e a presença não seria.
+
+### O que esta leva revelou e continua faltando
+
+Os buracos que a leva anterior apontou e que **seguem abertos**: TERREIRO / CANDOMBLÉ
+(representação de religião — §2, decisão do dono, e ele estava fora), o acordo de 1678 de que a
+definição de GANA ZUMBA depende, e a origem africana por nação nas festas e irmandades. Novos,
+que esta leva tornou visíveis: falta o **Movimento Negro Unificado (1978)**, que é a ponte entre
+a Frente Negra e as leis dos anos 2000; falta a **Amazônia** como assunto próprio; faltam os
+**povos indígenas nomeados um a um** (o glossário fala de 391 etnias e nomeia duas); e falta
+tudo o que atravessa o tempo sem caber numa data — samba, língua, território, sertão.
+
+
+---
+
+---
+
+## O GLOSSÁRIO, LEVA 3 — o que atravessa o tempo (2026-08-10)
+
+A leva 2 cobriu as ERAS. Esta cobre **a camada que não cabe numa data**: os povos indígenas com
+nome próprio, a Amazônia como assunto, a língua, a cultura afro-brasileira, o território, e as
+palavras que o país usa sem examinar.
+
+**35 verbetes novos, 86 → 121. Cinco grupos novos, 10 → 15.** As remissões vão de 295 a 462
+(138 novas + 29 de volta, dos verbetes antigos para os novos). Nenhum verbete novo ficou sem
+vizinho e nenhum ficou sem ser apontado — conferido por script contra o `GLOSSARIO` em produção,
+grafia por grafia.
+
+> **NÃO ESTÁ APROVADO PELO DONO**, pela mesma razão das levas anteriores: povos originários e
+> cultura afro-brasileira são §2, e representação decide-se com ele. E há um bloco inteiro que
+> nem foi escrito na lista — religião de matriz africana e indígena —, que está proposto no fim
+> desta seção e depende exclusivamente da leitura dele.
+
+### O buraco que esta leva fecha, e era o mais grave
+
+**O glossário estava desobedecendo à regra que ele mesmo ensina.** O §2.1 do CLAUDE.md manda
+nomear o povo em vez de tratar "índio" como categoria única. O verbete ÍNDIO afirmava que a
+palavra "espreme 391 povos com 295 línguas numa coisa só" — e o glossário inteiro nomeava
+**dois** (Tupinambá e, de raspão, os povos dos sambaquis). O grupo **CADA POVO TEM NOME** nomeia
+oito, com língua, território e o que cada um enfrenta agora, mais TRONCO LINGUÍSTICO, que é o
+argumento linguístico contra a categoria única.
+
+### Os cinco grupos novos
+
+- **CADA POVO TEM NOME** — *"São 391 etnias e 295 línguas. Um glossário que diz isso e nomeia
+  duas está desobedecendo à regra que ensina."*
+- **A LÍNGUA QUE SE FALA AQUI** — *"O português do Brasil foi feito de tupi, de línguas
+  africanas e de proibição — e ainda está sendo feito."*
+- **A FLORESTA QUE É OBRA DE GENTE** — *"A Amazônia não é intocada: é resultado de milênios de
+  manejo, e continua dependendo de quem a defende."*
+- **O TERRITÓRIO E QUEM O HABITA** — *"Sertão, beira de rio, beira de mar: onde o país mora, e
+  as categorias que o Estado só criou depois."*
+- **O TAMBOR, A FESTA E A COZINHA** — *"O que a lei proibiu, a lei depois registrou como
+  patrimônio — e que continua sendo feito toda semana."*
+
+Mesmo critério de nome das levas anteriores: **assunto, nunca episódio**, legível por quem nunca
+jogou, e **nenhum termina no passado** — cada um fecha num verbete do presente (marco temporal,
+nheengatu cooficial em 2002, PRODES 2025, titulação de território, patrimônio revalidado).
+
+### Fonte por verbete
+
+**Autoria indígena e negra primeiro (§2, prioridade do dono).**
+
+- **Davi Kopenawa e Bruce Albert**, *A queda do céu*, Companhia das Letras, 2015 — **YANOMAMI**.
+- **Ailton Krenak**, *Ideias para adiar o fim do mundo*, Companhia das Letras, 2019, e a posse
+  na cadeira 5 da **Academia Brasileira de Letras** em 05/04/2024 — **KRENAK**.
+- **Daniel Munduruku**, *Meu vô Apolinário*, Studio Nobel, 2001 — **MUNDURUKU**.
+- **Antônio Bispo dos Santos**, *Colonização, quilombos: modos e significações*, INCTI/UnB, 2015
+  — **POVOS E COMUNIDADES TRADICIONAIS** (a "confluência" contra a colonização é dele).
+- **Nei Lopes**, *Novo dicionário banto do Brasil*, Pallas, 2003, e *Enciclopédia brasileira da
+  diáspora africana*, Selo Negro, 2004 — **BANTO**, **SAMBA**, **JONGO**, **TAMBOR**, **IORUBÁ**.
+- **Muniz Sodré**, *Samba, o dono do corpo*, Codecri, 1979 — **TAMBOR** e **SAMBA**. É dele a
+  tese de que o tambor organiza o corpo e o grupo, e não acompanha nada.
+- **Lélia Gonzalez**, "Racismo e sexismo na cultura brasileira", *Ciências Sociais Hoje*,
+  ANPOCS, 1984, e "A categoria político-cultural de amefricanidade", *Tempo Brasileiro* nº 92/93,
+  1988; com **Carlos Hasenbalg**, *Lugar de negro*, Marco Zero, 1982 — **MESTIÇAGEM**,
+  **COLORISMO**, **LUGAR DE FALA**, **MOVIMENTO NEGRO UNIFICADO** (ela foi uma das fundadoras).
+- **Sueli Carneiro**, "Enegrecer o feminismo", 2003, e *Dispositivo de racialidade*, Zahar, 2023
+  — **MESTIÇAGEM** e **RACISMO ESTRUTURAL**.
+- **Silvio Almeida**, *Racismo estrutural*, Pólen, 2019 (1ª ed. Letramento, 2018) —
+  **RACISMO ESTRUTURAL**.
+- **Djamila Ribeiro**, *O que é lugar de fala?*, Letramento/Justificando, 2017 — **LUGAR DE FALA**.
+- **Yeda Pessoa de Castro**, *Falares africanos na Bahia: um vocabulário afro-brasileiro*,
+  Topbooks / Academia Brasileira de Letras, 2001 — **BANTO** e **IORUBÁ**.
+- **José Ribamar Bessa Freire**, *Rio Babel: a história das línguas na Amazônia*, EdUERJ, 2004 —
+  **NHEENGATU**.
+- **Chico Mendes**, em *Chico Mendes por ele mesmo*, org. Cândido Grzybowski, FASE, 1989 —
+  **EMPATE**. Escolhido de propósito no lugar da bibliografia sobre ele: quem conta o empate é
+  quem o fez.
+- **Petrônio Domingues**, "Movimento negro brasileiro: alguns apontamentos históricos", *Tempo*
+  12(23), 2007, UFF, e *Uma história não contada*, Senac, 2004 — **MOVIMENTO NEGRO UNIFICADO**
+  e **PARDO**.
+
+**As pesquisadoras e os pesquisadores de cada campo.**
+
+- **Aryon Dall'Igna Rodrigues**, *Línguas brasileiras: para o conhecimento das línguas
+  indígenas*, Loyola, 1986 — **TRONCO LINGUÍSTICO**, **KAYAPÓ**. É a classificação da casa para
+  troncos e famílias.
+- **Elisa Frühauf Garcia**, "O projeto pombalino de imposição da língua portuguesa aos índios e
+  a sua aplicação na América meridional", *Tempo* 12(23), 2007, UFF — **LÍNGUA GERAL**.
+  *(Localizada nesta sessão: eu havia atribuído o artigo a Bessa Freire; a autoria é dela.)*
+- **Carolina Levis et al.**, "Persistent effects of pre-Columbian plant domestication on
+  Amazonian forest composition", *Science* 355(6328), 2017, com **Watling et al.**, *PNAS*, 2017,
+  e **William Balée**, *Cultural Forests of the Amazon*, Alabama, 2013 — **FLORESTA CULTIVADA**.
+- **Schmidt, Neves et al.**, "Intentional creation of carbon-rich dark earth soils in the
+  Amazon", *Science Advances* 9(38), 2023, contra **Silva et al.**, *Nature Communications* 12,
+  2021, com **Eduardo Góes Neves** em *Amazonian Dark Earths*, Kluwer, 2003 — **TERRA PRETA DE
+  ÍNDIO**. As três juntas são a divergência, e é por isso que as três estão no `f`.
+- **Barbara Weinstein**, *A borracha na Amazônia: expansão e decadência, 1850–1920*,
+  Hucitec/Edusp, 1993 — **SERINGUEIRO**.
+- **Antonio Carlos Diegues**, *O mito moderno da natureza intocada*, Hucitec, 1996 —
+  **RIBEIRINHO** e **POVOS E COMUNIDADES TRADICIONAIS**.
+- **Durval Muniz de Albuquerque Jr.**, *A invenção do Nordeste e outras artes*, Cortez /
+  Fundação Joaquim Nabuco–Massangana, 1999 (tese, Unicamp, 1994) — **NORDESTE**, **SERTÃO**,
+  **RETIRANTE**. É a obra que sustenta o grupo do território inteiro.
+- **Celso Furtado**, *Formação econômica do Brasil*, 1959, e *A fantasia desfeita*, Paz e Terra,
+  1989, com o relatório do **GTDN**, *Uma política de desenvolvimento econômico para o Nordeste*,
+  1959 — **A INDÚSTRIA DA SECA** e **RETIRANTE**.
+- **Antônio Callado**, *Os industriais da sêca e os "galileus" de Pernambuco*, Civilização
+  Brasileira, 1960 — **A INDÚSTRIA DA SECA**. É a reportagem que firmou a expressão.
+- **Guerra-Peixe**, *Maracatus do Recife*, Irmãos Vitale, 2ª ed. 1980 (orig. 1955), e **Katarina
+  Real**, *O folclore no carnaval do Recife*, 1967 — **MARACATU**.
+- **Luís da Câmara Cascudo**, *História da alimentação no Brasil*, 1967 (ed. Global, 2004), e
+  **Carlos Alberto Dória**, *Formação da culinária brasileira*, Três Estrelas, 2014 —
+  **FEIJOADA**. São os dois que derrubam o mito da senzala, com sessenta anos de distância.
+- **Carlos Eugênio Líbano Soares**, *A capoeira escrava*, Editora Unicamp, 2004 — **TAMBOR**
+  (já estava no glossário, em CAPOEIRA).
+- **Euclides da Cunha**, *Os sertões*, 1902, e **Graciliano Ramos**, *Vidas secas*, 1938 —
+  **SERTÃO** e **RETIRANTE**. Entram como **literatura**, e o verbete diz que a palavra se
+  firmou na literatura: é fonte da PALAVRA, não do fato.
+- **Alice Walker**, *In Search of Our Mothers' Gardens*, Harcourt, 1983 — **COLORISMO** (é onde
+  o termo é cunhado).
+
+**Documentos primários, leis e decisões.**
+
+Diretório dos índios do Pará e do Maranhão, 03/05/1757, e alvará de 17/08/1758 (LÍNGUA GERAL) ·
+Decreto-Lei nº 5.813, de 14/09/1943, e **ADCT art. 54 da CF/88** (SERINGUEIRO — a pensão dos
+soldados da borracha, 45 anos depois) · Lei municipal nº 145, de 11/12/2002, de São Gabriel da
+Cachoeira (AM), regulamentada pela Lei nº 210/2006 (NHEENGATU) · Decreto nº 6.040, de 07/02/2007
+(RIBEIRINHO, POVOS E COMUNIDADES TRADICIONAIS) · Lei nº 9.985, de 18/07/2000 (SNUC), art. 18
+(EMPATE — as reservas extrativistas como categoria legal) · Lei nº 12.288, de 20/07/2010,
+Estatuto da Igualdade Racial (RACISMO ESTRUTURAL) · Portaria MJSP nº 779, de 25/09/2024
+(MUNDURUKU — TI Sawré Muybu, 178.173 ha, dezessete anos de processo).
+
+**Institucional (vale, mas nunca no lugar de quem narra).**
+
+**IBGE, Censo 2022, *Etnias e línguas indígenas*** (divulgado em outubro de 2025) — GUARANI,
+YANOMAMI, TIKUNA, TRONCO LINGUÍSTICO. Os números publicados: 1.694.836 indígenas, 391 etnias,
+295 línguas, 474.856 falantes; Tikuna é a etnia mais populosa (74.061) e a língua com mais
+falantes (51.978); guarani kaiowá é a segunda língua (38.658); Yanomami é a etnia com mais de
+dez mil pessoas com maior proporção vivendo em terra indígena (94,34%) · **IBGE, Censo 2022, cor
+ou raça** e **Desigualdades sociais por cor ou raça, 2022** — MESTIÇAGEM, PARDO, COLORISMO
+(45,3% pardos, 43,5% brancos, 10,2% pretos; 92,1 milhões de pardos; pretos e pardos somam 55,5%)
+· **ISA, Enciclopédia Povos Indígenas no Brasil** — os oito povos · **Funai** — TI Yanomami
+(homologada em 1992, cerca de 9,6 milhões de ha) e Sawré Muybu · **Comissão Nacional da
+Verdade**, relatório final, vol. II, texto 5, 2014 — XAVANTE e PATAXÓ · **INPE, PRODES**, nota
+técnica da estimativa de 2025 (outubro de 2025) — DESMATAMENTO: 5.796 km² na Amazônia Legal, a
+menor em onze anos, numa série que começa em 1988 · **IPHAN** — Samba de Roda do Recôncavo
+(2004) e UNESCO (2005), Jongo no Sudeste (15/12/2005), Matrizes do Samba no Rio de Janeiro
+(2007), Maracatu Nação (2014) · **ICMBio** — Parque Nacional do Monte Pascoal (1961) ·
+**Arquivo Nacional / Memórias Reveladas** — Movimento Negro Unificado · **Câmara dos Deputados**
+— legislatura 1983–1987 (Mário Juruna) · **Ministério do Meio Ambiente** — bioma Caatinga.
+
+### Os seis `dv: 1` desta leva, e a divergência exata de cada um
+
+1. **TERRA PRETA DE ÍNDIO** — que o solo é antropogênico é consenso. **Se ele foi produzido de
+   propósito ou é subproduto de morar muito tempo no mesmo lugar, não é**: Silva et al. (*Nature
+   Communications*, 2021) propuseram origem em parte não intencional; Schmidt, Neves et al.
+   (*Science Advances*, 2023) mediram criação intencional entre os Kuikuro. O verbete afirma o
+   solo e recusa a intenção, e diz que recusa.
+2. **SAMBA** — duas divergências. A **glosa** de *semba* varia entre autores (a raiz banto é
+   consenso, o sentido exato não), e o **"primeiro samba"** é disputado: "Pelo Telefone" tem
+   registro datado (27/11/1916, Biblioteca Nacional) e teve a autoria contestada na época,
+   porque era criação coletiva de roda. O verbete afirma o registro e chama o resto de tratamento
+   ("é tratado como"), que é diferente de afirmar.
+3. **JONGO** — a etimologia banto é aceita, **a forma exata de que deriva não**. As fontes dão
+   raízes diferentes, e o verbete não escolhe. Mesmo critério do MOCAMBO da leva 1.
+4. **MARACATU** — duas coisas. A **etimologia** não tem derivação consensual, e a **origem nas
+   coroações de reis negros das irmandades é ATRIBUÍDA**, não documentada linha a linha: é a
+   hipótese de Guerra-Peixe e de Katarina Real, repetida desde os anos 1950, e o verbete escreve
+   "atribuída" com todas as letras.
+5. **FEIJOADA** — o `dv` aqui é **de outro tipo, e é o mais útil da lista**: não marca fontes que
+   discordam, marca uma **origem popular que a pesquisa derruba**. O que o verbete afirma, com
+   documento: (a) orelha, pé, rabo e língua eram cortes apreciados e comercializados, não
+   descarte; (b) a alimentação registrada nas fazendas era farinha, feijão e carne-seca, não este
+   prato; (c) as primeiras descrições da feijoada como ela é hoje estão em restaurantes do Rio no
+   século XIX, como comida cara. A lenda da senzala é **consagração modernista**, que precisava
+   de um prato-símbolo da mistura. Cascudo já a chamava de insustentável em 1967.
+6. **COLORISMO** — o termo é **recente e o uso brasileiro é disputado**; foi cunhado nos Estados
+   Unidos em 1983 e entrou aqui nos anos 2010. O fenômeno que ele descreve é sólido nos dados do
+   IBGE e foi observado por Lélia Gonzalez décadas antes de haver palavra. O verbete afirma o
+   fenômeno e declara que o termo é disputado.
+
+### O que é ATRIBUÍDO e não atestado — declarado dentro do próprio verbete
+
+- **MARACATU**, origem nas coroações de reis negros — atribuída (ver `dv` 4 acima).
+- **KAYAPÓ / XAVANTE / TIKUNA**, as glosas dos autodenominativos (Mebêngôkre, A'uwẽ, Magüta) —
+  **cortadas**. As traduções circulam, não fechei atestação para nenhuma, e o verbete diz o nome
+  e não traduz. Mesmo critério do TUPINAMBÁ da leva 1.
+- **MUNDURUKU**, origem do etnônimo — declarada "de origem discutida" no próprio `o`.
+- **TIKUNA**, língua isolada — escrito como "não tem parentesco **consensual**", porque há
+  proposta de família tikuna-yuri que não é consenso.
+- **SAMBA**, "primeiro samba gravado" — escrito como "é tratado como", nunca como fato.
+
+### O que ficou de fora, e por quê
+
+- **RELIGIÃO DE MATRIZ AFRICANA E INDÍGENA** — bloco inteiro, ver a seção seguinte. **É a maior
+  ausência desta leva e é deliberada.**
+- **DIRETÓRIO DOS ÍNDIOS como verbete próprio** — cabia, e ficou dentro de LÍNGUA GERAL com data,
+  número e alvará. Vira verbete próprio quando o glossário tiver espaço para o pombalino inteiro
+  (nome português imposto, fim do poder temporal dos missionários, casamento misto incentivado).
+- **CAATINGA, CERRADO e CAIÇARA como verbetes próprios** — a caatinga está dentro de SERTÃO e o
+  caiçara dentro de POVOS E COMUNIDADES TRADICIONAIS. Corte por orçamento de verbetes, não por
+  falta de fonte: os três têm.
+- **CONGADA e AFOXÉ** — congada saiu por orçamento (está citada dentro de TAMBOR); **afoxé saiu
+  por ser religião de rua**, e está proposto na seção do dono.
+- **RESERVA EXTRATIVISTA como verbete próprio** — está dentro de EMPATE, com a lei do SNUC.
+- **EMBRANQUECIMENTO** — **não entrou porque seria duplicata**: o verbete BRANQUEAMENTO já existe
+  e já traz o Decreto nº 528/1890. As duas palavras nomeiam a mesma política.
+- **Número de palavras do português que vêm do tupi ou de línguas africanas** — os números que
+  circulam ("dez mil palavras", "três mil") não têm fonte que eu tenha conseguido fechar. Os
+  verbetes BANTO, IORUBÁ e TUPI **listam palavras** em vez de contá-las, que é o que a fonte
+  sustenta.
+- **Pico histórico do PRODES** — o verbete dá a série (desde 1988) e a estimativa de 2025, e não
+  o pico, porque a taxa mais alta da série depende de qual ano se toma como referência e eu não
+  fechei a checagem. Só entra número que eu li na nota técnica.
+- **Nome da empresa responsável pelo rompimento da barragem de Fundão** (verbete KRENAK) —
+  deixado de fora pelo §2.5: o verbete nomeia a barragem, o município e a data, que é o que o
+  documento sustenta, e o assunto do verbete é o povo, não a atribuição de culpa.
+
+### ⚠ PRECISA DO AVAL DO DONO — e a maior parte é o mesmo assunto de sempre
+
+**1. RELIGIÃO DE MATRIZ AFRICANA E INDÍGENA. Uma sessão anterior já parou aqui, e esta parou de
+novo.** O §2 diz que representação se decide com o dono. Os verbetes estão pesquisados e **não
+foram escritos na lista**; a proposta é um grupo próprio, com fonte de dentro do campo (Muniz
+Sodré, Nei Lopes, Reginaldo Prandi, Vagner Gonçalves da Silva, Roger Bastide, os registros do
+IPHAN e os dossiês de tombamento de terreiro). Termos propostos: **TERREIRO** (a casa e o
+território, com o tombamento da Casa Branca do Engenho Velho pelo IPHAN em 1984 — o primeiro
+tombamento de um bem de matriz africana no Brasil), **CANDOMBLÉ**, **UMBANDA**, **ORIXÁ**,
+**AXÉ**, **IRMANDADE** (as confrarias católicas negras, que são a ponte com CONGADA e MARACATU),
+**AFOXÉ**, **PAJÉ** e **XAMANISMO**. **Nada disso está no arquivo.**
+
+O que a ausência custa hoje, verbete por verbete, para ele decidir com o preço na mão:
+
+- **IORUBÁ** diz "boa parte do vocabulário religioso afro-brasileiro também é" e não dá um
+  exemplo sequer, quando os exemplos são a metade da força do verbete.
+- **TAMBOR** lista jongo, samba, maracatu e congado como o que se organizou em torno dele —
+  **e omite a casa de culto**, que é onde o tambor nunca parou de tocar e a razão de proibi-lo.
+- **SAMBA** diz "as casas das tias baianas" sem dizer o que aquelas casas eram, e a casa de Tia
+  Ciata é a informação que explica por que o samba nasceu ali e não em outro lugar.
+- **MARACATU** fica sem a calunga e sem o vínculo das nações com as casas de culto.
+- **YANOMAMI** chama Davi Kopenawa de "liderança e porta-voz". **O subtítulo do próprio livro
+  dele o chama de xamã yanomami.** Estou usando um rótulo mais fraco que o da capa da obra que
+  cito, e isso é o oposto de respeito — mas é xamanismo, e a trava é a trava.
+
+**Observação para a decisão, e é só o registro de um fato do repositório:** ACARAJÉ, BÚZIOS e
+PANO DA COSTA **já dizem** a dimensão de culto em produção, por decisão dele em 2026-08-08 e
+2026-08-09. O glossário está hoje num meio-termo: fala de orixá em três verbetes de objeto e não
+tem nenhum verbete sobre a fé em si.
+
+**2. Duas remissões estouram o teto de 4.** `DEMOCRACIA RACIAL` e `BRANQUEAMENTO` ficam com 5
+vizinhos ao ganhar MESTIÇAGEM. São pares corretivos de mão dupla, e o `GLOSSARIO_REL` já tem
+entradas com 5 em produção; se o teto for para ser duro, cortar estas duas é a mudança mais
+barata e custa só a volta do par.
+
+**3. Um grupo antigo ficou sem porta para o novo: O QUE CHAMARAM DE LIBERDADE.** Deliberado. O
+assunto daquele grupo são as leis de 1871, 1885 e 1888, e nenhum dos 35 verbetes muda o
+entendimento delas. Forçar um link ali seria a remissão "do mesmo assunto" que o próprio mapa
+proíbe. Fica registrado como escolha, não como esquecimento.
+
+**4. MOVIMENTO NEGRO UNIFICADO cita o Estado Novo e a ditadura de 1978.** Está dentro da REGRA DO
+DOCUMENTO (§2.5): nomeia o decreto-lei, a data, o local e a organização, e nenhuma pessoa como
+responsável. Mas é história de repressão de Estado, e os grupos que tratam disso já estão na fila
+da leitura dele.
+
+
+---
+
+## O GLOSSÁRIO, LEVA 5 — as pessoas e a fé (2026-08-10)
+
+**121 → 157 verbetes. 15 → 17 grupos. 462 → 605 remissões.** Dois grupos novos.
+
+### QUEM ABRIU CAMINHO — 22 verbetes
+
+Pedido do dono, palavra dele: *"importantíssimo citarmos quem foram referências do povo."*
+Corrige um defeito de fundo — o glossário tinha sistemas, leis e processos e quase nenhuma
+gente, e história contada só por estruturas apaga quem agiu dentro delas. É o mesmo erro em
+que o §2 já pegou este arquivo antes (violência em passiva, sem agente).
+
+**A trava que decide a qualidade deste grupo, e é o que o separa de um livro escolar:** para
+DANDARA, AQUALTUNE e LUIZA MAHIN a documentação é fina ou ausente, e a figura vive na tradição
+e no movimento negro. Os três verbetes **dizem isso**, com `dv: 1`, em vez de fingir biografia.
+A régua já existia no arquivo: é a que se aplica a "Angola Janga". O verbete de DANDARA
+formula o princípio: *"a memória é uma forma de história quando os arquivos foram escritos só
+por um lado"* — e o glossário separa as duas coisas em vez de fundi-las.
+
+Fontes principais: Elciene Azevedo (*Orfeu de carapinha*, Unicamp, 1999) e Ligia Fonseca
+Ferreira (org., *Lições de resistência*, Sesc, 2020) para LUIZ GAMA e LUIZA MAHIN · Maria Alice
+Rezende de Carvalho (*O quinto século*, 1998) para ANDRÉ REBOUÇAS · Ângela Alonso (*Flores,
+votos e balas*, 2015) para JOSÉ DO PATROCÍNIO · Eduardo de Assis Duarte (*Machado de Assis
+afro-descendente*, 2007) e Sidney Chalhoub (*Machado de Assis, historiador*, 2003) · Alex Ratts
+(*Eu sou atlântica*, 2006) para BEATRIZ NASCIMENTO · Edinha Diniz (*Chiquinha Gonzaga*, Zahar,
+2009) · Lei nº 12.987/2014 para TEREZA DE BENGUELA · Comissão Nacional da Verdade, vol. II,
+para MARÇAL DE SOUZA TUPÃ'I · e as obras dos próprios: Abdias do Nascimento, Lélia Gonzalez,
+Clóvis Moura, Milton Santos, Carolina Maria de Jesus, Krenak, Kopenawa, Potiguara.
+
+**MARIELLE FRANCO sob o §2.5:** o verbete é sobre a obra e o mandato; sobre a morte, afirma o
+que o Judiciário estabeleceu (condenação dos executores em 31/10/2024) **sem nomear ninguém**
+como responsável, e registra que a apuração seguiu em curso. `dv: 1`.
+
+### A FÉ, E QUEM TENTOU PROIBI-LA — 14 verbetes
+
+Aprovado pelo dono em 2026-08-10, depois de duas sessões pararem no assunto. O argumento que
+convenceu: **a ausência já custava caro e o glossário estava nos dois lados** — ACARAJÉ, BÚZIOS
+e PANO DA COSTA já falavam de orixá em produção, e não havia verbete sobre a fé.
+
+A régua da escrita foi *descrever de dentro*: um praticante reconheceria a descrição? Nada de
+curiosidade exótica, "religião" onde caberia "crença", nem prática viva tratada como folclore.
+
+**Três decisões que valem registro:**
+- **EXU entrou, e é o verbete mais necessário do grupo.** A tradução como "diabo" foi obra de
+  missionários do século XIX, e não é engano ingênuo: foi ela que serviu de justificativa para
+  a perseguição, e ainda serve.
+- **INTOLERÂNCIA RELIGIOSA documenta o Estado dos dois lados:** o Código Penal de 1890
+  (arts. 156–158) criminalizou, a polícia apreendeu objetos de culto em invasões de terreiro, e
+  em 2020 o IPHAN tombou essa mesma coleção como patrimônio. O Estado que confiscou passou a
+  proteger, 130 anos depois.
+- **"O QUE NÃO SE CONTA" é um verbete sobre o limite do próprio glossário.** Boa parte do que
+  sustenta uma casa é reservada a quem foi iniciado e não está em livro. Escrever isso é mais
+  honesto que a lacuna silenciosa — um glossário que fingisse contar o resto estaria mentindo,
+  ou repetindo o que alguém não devia ter contado.
+
+`dv: 1` em CANDOMBLÉ (derivação da palavra disputada), UMBANDA (o relato de fundação única de
+1908 é contestado pela pesquisa, que descreve formação difusa) e SINCRETISMO (o manifesto das
+ialorixás baianas de 1983, com Mãe Stella de Oxóssi, pediu o fim da mistura; e quais
+correspondências valem muda de nação para nação).
+
+Fontes: Muniz Sodré (*O terreiro e a cidade*, 1988; *Pensar nagô*, 2017) · Juana Elbein dos
+Santos (*Os nagô e a morte*, 1976) · Pierre Verger (*Orixás*, 1981) · Reginaldo Prandi
+(*Mitologia dos orixás*, 2001) · Vagner Gonçalves da Silva (*Candomblé e umbanda*, 2005) ·
+Lisa Earl Castillo (*Entre a oralidade e a escrita*, 2008) · Ruth Landes (*A cidade das
+mulheres*, orig. 1947) · Diana Brown (*Umbanda*, 1986) · Nei Lopes · IPHAN (tombamento da Casa
+Branca do Engenho Velho, 1984; Coleção do Museu da Polícia, 2020) · CF/88, art. 5º, VI.
+
+### Quatro verbetes antigos corrigidos — eles mentiam por omissão
+
+O grupo da fé existir permitiu consertar o que sem ele não tinha conserto:
+
+- **IORUBÁ** prometia que "boa parte do vocabulário religioso também é" e **não dava um exemplo
+  sequer**. Agora dá: orixá, axé, exu, ialorixá, ojá.
+- **TAMBOR** listava jongo, samba, maracatu e congado e **omitia a casa de culto** — que é onde
+  o tambor nunca parou e a razão de terem tentado proibi-lo.
+- **SAMBA** falava das "casas das tias baianas" **sem dizer o que aquelas casas eram**: terreiro,
+  cozinha e ponto de encontro ao mesmo tempo.
+- **YANOMAMI** chamava Davi Kopenawa de "liderança e porta-voz" quando **o subtítulo do livro
+  que o próprio verbete cita o chama de xamã yanomami** — rótulo mais fraco que o da capa da
+  obra citada.
+
+### Continua faltando
+
+As duas eras pela metade (República Velha e Vargas/JK), a Covid, o acordo de 1678, as
+irmandades negras e as revoltas regionais do Império. E corrupção/polarização, que exigem a
+REGRA DO DOCUMENTO e ainda não foram tentadas.
+
+
+---
+
+## O GLOSSÁRIO, LEVA 6 — os capítulos que o glossário não conhecia (2026-08-11)
+
+O glossário foi escrito contra um jogo de quatro capítulos e encontrou um de **treze**. JABAQUARA
+e A PEQUENA ÁFRICA já estavam inteiros na `main` e o glossário não tinha uma palavra deles.
+
+**157 → 167 verbetes. 605 → 644 remissões.** Dez verbetes, nenhum grupo novo.
+
+**A regra desta leva:** todo verbete se ancora no que o CAPÍTULO já afirma, e usa as mesmas
+fontes que ele. Inclusive as recusas — o fecho de JABAQUARA diz que os números de quanta gente
+passou por lá ("mais de três mil", "dez mil") são tratados como exagerados pela pesquisa e não
+os adota, e o verbete também não os adota.
+
+**Os dez:** JABAQUARA · QUINTINO DE LACERDA · CAIFAZES · PEQUENA ÁFRICA · TIA CIATA ·
+DIÁSPORA BAIANA · PRAÇA ONZE · PEDRA DO SAL · PARTIDO-ALTO · IYAKEKERÊ.
+
+**Três decisões que valem registro:**
+
+- **CAIFAZES entrou com `dv: 1` e com a inversão dita.** A historiografia mais antiga os pôs no
+  centro, como se a fuga fosse obra deles; a pesquisa recente lê ao contrário, e o próprio fecho
+  do capítulo já traz a armadilha da fonte — o memorialista de Santos que chamou o Jabaquara de
+  "a suprema criação do branco em favor do negro". O verbete diz que o mérito de quem ajudou não
+  substitui o de quem foi.
+- **PEDRA DO SAL separa certificar de titular.** É comunidade remanescente certificada pela
+  Fundação Cultural Palmares desde a portaria de 20/01/2006, e o relatório técnico de 2010 contou
+  25 famílias — **e a terra continua sem título.** A diferença entre as duas coisas é a espera, e
+  ela é o assunto.
+- **IYAKEKERÊ liga a fé ao samba pelo cargo, e não pela festa.** Tia Ciata era mãe pequena no
+  terreiro de João Alabá; é esse posto, e não a fama das rodas, que explica a autoridade dela
+  sobre o que acontecia na casa. Sem o grupo da fé, este verbete não teria onde morar.
+
+**Fontes:** Maria Helena Machado, *O plano e o pânico: os movimentos sociais na década da
+abolição* (Edusp, 2ª ed. 2010) — é ela que o próprio capítulo credita por ler a década pondo
+quem era escravizado como agente da própria história · Roberto Moura, *Tia Ciata e a Pequena
+África no Rio de Janeiro* (Funarte, 1983) · Nei Lopes, *Sambeabá* (2003) · Hermano Vianna,
+*O mistério do samba* (1995) · Ângela Alonso, *Flores, votos e balas* (2015) · Correio
+Paulistano, 1º/05/1888 · Fundação Cultural Palmares, portaria de 2006 · INCRA, relatório de 2010
+· Registro de "Pelo Telefone", Biblioteca Nacional nº 3.295, 27/11/1916.
+
+**Continua faltando:** os cinco capítulos que ainda são esqueleto (AS PORTAS, A PRAÇA, O QUE
+SEGUROU, O ACEIRO, O QUE TEM FONTE) não têm verbete porque **ainda não afirmam nada** — o texto
+deles diz literalmente "este capítulo ainda está sendo escrito". Quando ganharem conteúdo, o
+glossário os acompanha.

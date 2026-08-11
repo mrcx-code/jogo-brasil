@@ -8756,7 +8756,7 @@ function historiaAberta() {
   const t = document.getElementById("telaFala");
   return !!(t && t.classList.contains("aberta"));
 }
-const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes", "telaFim"];
+const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes", "telaGlossario", "telaFim"];
 // Alguma tela cobrindo o jogo. Sob o MENU o mundo continua vivo por baixo — é decisão, ver
 // historiaAberta() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
 // vez de guardar um sinalizador porque o DOM já é a única fonte da verdade sobre isso.
@@ -9806,6 +9806,8 @@ function pintarRotulos() {
   pixelRotulo($("btnJogar"), "JOGAR", 4, "#221806");
   pixelRotulo($("btnCompletude"), "A HISTÓRIA", 2, "#d9cfae");
   pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
+  // O molde pode nao ter o botao ainda (integracao entre maquinas): id sem markup nao pode lancar.
+  { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 2, "#d9cfae"); }
   pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
   // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais
   // velha: `#fimTit` e os três botões dela eram os ÚNICOS rótulos em Arial Black do jogo
@@ -9816,7 +9818,7 @@ function pintarRotulos() {
   pixelRotulo($("btnFimHist"), "A HISTÓRIA", 2, "#f2e3c0");
   pixelRotulo($("btnFimFontes"), "DE ONDE VEM", 2, "#d9cfae");
   pixelRotulo($("btnFimVoltar"), "VOLTAR PARA A RUA", 2, "#a9a184");
-  ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarCfg"].forEach(function (id) {
+  ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarGloss", "btnVoltarCfg"].forEach(function (id) {
     pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
   });
   // a mesma tinta clara da plaquinha da época — o PULAR agora é a mesma madeira escura
@@ -9890,6 +9892,16 @@ function ligarTelas() {
     medir("fontes", { vez: R.fontes | 0, dia: R.dias | 0 });
     montarFontes(); abrirTela("telaFontes");
   });
+  // GLOSSARIO — o par do DE ONDE VEM. Defensivo nos dois ids porque o molde e o JS podem
+  // chegar em commits diferentes quando o trabalho vem de duas maquinas.
+  {
+    const bG = document.getElementById("btnGlossario");
+    if (bG) bG.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); montarGlossario(); abrirTela("telaGlossario");
+    });
+    const bV = document.getElementById("btnVoltarGloss");
+    if (bV) bV.addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+  }
   // A CHEGADA, pelo menu — só existe para quem chegou. Uma tela de fim que aparece uma vez e
   // some é a mesma ausência de antes com um quadro a mais: quem quiser rever o que deixou
   // passar tem de ter onde.
@@ -10164,6 +10176,1951 @@ function montarFontes() {
     box.appendChild(d);
   });
 }
+
+// ===== GLOSSÁRIO =====
+// A tela irmã de DE ONDE VEM, e ela responde a OUTRA pergunta. `FONTES` diz de quem o jogo
+// tirou o que afirma; o GLOSSÁRIO diz o que as PALAVRAS querem dizer — Pindorama, Palmares,
+// ganhadeira, malê — e de onde cada uma vem. Um jogo que existe para ensinar não pode usar um
+// vocabulário que só entende quem já sabe: palavra não explicada é a forma educada de deixar
+// alguém de fora, e o jogo passou a usar muitas delas de propósito (o vocabulário está escrito
+// no NOTES.md, "Vocabulário do jogo, agora escrito").
+//
+// Esta lista NÃO vive em `TEXTOS`, e a separação é a mesma que já vale para `EPOCAS`,
+// `MOMENTOS` e `FONTES`: `TEXTOS` é ficção autoral e o smoke test proíbe dígito lá dentro,
+// porque número solto numa frase de jogo lê como fato. Um verbete é o contrário — ele PRECISA
+// de ano, de número de lei, de volume de periódico, e por isso carrega a fonte junto, dentro
+// do próprio item. Misturar as duas listas apagaria a regra que protege as duas.
+//
+// Forma de cada item:
+//   { g: "GRUPO" }                                       → cabeçalho de bloco
+//   { t: termo, o: de onde vem, d: definição, f: fonte, dv?: 1 }
+// `o` e `f` não são a mesma coisa e a distinção é o coração da tela: `o` é a PROCEDÊNCIA DA
+// PALAVRA (de que língua vem, quem a usava, por qual documento ela chega até nós) e `f` é a
+// fonte bibliográfica onde conferir. `dv` marca o verbete em que as fontes DISCORDAM — existe
+// pelo mesmo motivo que a seção de dúvida das FONTES: história tem disputa, e fingir que ela é
+// lisa é pior que mostrar a costura.
+//
+// OS VERBETES SÃO DO HISTORIADOR (2026-08-08) e a pesquisa é dele, não minha: cada um tem
+// `f`, e o que não fechou fonte ficou de fora em vez de entrar arredondado. Nove deles
+// carregam `dv` — divergência entre fontes ou falta de atestação —, e eles são a melhor
+// parte da lista: um glossário que nunca hesita ensina que história é lisa, e ela não é.
+//
+// ⚠ REPRESENTAÇÃO NÃO É MINHA E NÃO FOI APROVADA. O §2 do CLAUDE.md diz que este assunto
+// se decide com o DONO, sempre. Isto está em vigor como conteúdo escrito e testado, não
+// como texto aprovado: os grupos de PALMARES, da TRAVESSIA e de SALVADOR falam de
+// escravidão, e a leitura dele é a única que fecha a questão. Se ele cortar ou reescrever,
+// muda-se este array e nada mais — `montarGlossario()` não conhece o conteúdo.
+const GLOSSARIO = [
+  { g: "AS PALAVRAS QUE ESTE JOGO ESCOLHE", curto: "AS PALAVRAS",
+    sub: "As que ele usa, as que recusa, e por quê. Comece por aqui." },
+
+  { t: "INVASÃO",
+    o: "Do latim invasio, “entrada à força”. É a palavra que este jogo usa onde a escola escreve “descobrimento”.",
+    d: "O que os navios fizeram a partir de 1500 foi tomar terra que já tinha dono, com gente armada, e a lei portuguesa acompanhou a mão. Não foi visita, não foi encontro e não foi achado.",
+    f: "Manuela Carneiro da Cunha (org.), História dos índios no Brasil, Companhia das Letras, 1992" },
+
+  { t: "DESCOBRIMENTO",
+    o: "Do português descobrir, “tirar a cobertura”. Consagrada pela historiografia oficial do Império e repetida no calendário escolar por mais de um século.",
+    d: "É a palavra que este jogo não usa. Ela põe o europeu como sujeito e a terra como coisa achada, e para isso precisa esvaziar de gente o que estava cheio: eram centenas de povos, com línguas, agricultura e política próprias. Descobrir só faz sentido para quem chega.",
+    f: "Manuela Carneiro da Cunha, “Imagens de índios do Brasil: o século XVI”, Estudos Avançados 4(10), 1990, USP" },
+
+  { t: "ENCONTRO DE CULTURAS",
+    o: "Fórmula de manual escolar e de discurso comemorativo, muito usada nas efemérides do descobrimento.",
+    d: "O jogo não usa. “Encontro” sugere dois lados chegando ao mesmo tempo e nas mesmas condições. Um deles veio armado, com lei própria, com projeto de lucro e com a doença junto. Equilibrar um dado desigual não é neutralidade: é escolher um lado em voz baixa.",
+    f: "regra de vocabulário deste jogo · Manuela Carneiro da Cunha (org.), História dos índios no Brasil, 1992" },
+
+  { t: "CONQUISTA",
+    o: "Do latim conquirere, “buscar e tomar”. Era assim que a própria Coroa portuguesa chamava o que fazia: “as conquistas” eram os territórios tomados.",
+    d: "É honesta quando o sujeito da frase é o colonizador — ele conquistava, e sabia disso. Vira mentira quando escrita como fato consumado sobre um povo, como se a conquista tivesse terminado. Não terminou: há terra em disputa hoje.",
+    f: "John M. Monteiro, Negros da terra, Companhia das Letras, 1994" },
+
+  { t: "GUERRA JUSTA",
+    o: "Do latim bellum iustum, doutrina teológica e jurídica europeia. Chegou aqui como termo de lei portuguesa: é vocabulário deles, e o jogo sempre o marca como tal.",
+    d: "A Lei sobre a Liberdade dos Gentios, de 20 de março de 1570, declarou livres todos os indígenas — exceto os capturados em “guerra justa”. A exceção virou a porta. Escravizar indígena não foi excesso de colono: foi política escrita em lei, pela lei que dizia liberdade.",
+    f: "Lei sobre a Liberdade dos Gentios, Évora, 20/03/1570 · Beatriz Perrone-Moisés, “Índios livres e índios escravos”, em Cunha (org.), 1992" },
+
+  { t: "CONTATO",
+    o: "Termo técnico da política indigenista brasileira de hoje: “povos isolados” e “povos de recente contato” são categorias oficiais do Estado.",
+    d: "É palavra correta para o presente, não para 1500 — no século XVI o que houve foi invasão. O jogo guarda “contato” para o capítulo de hoje, que é onde ele significa alguma coisa.",
+    f: "FUNAI, Coordenação-Geral de Índios Isolados e de Recente Contato · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "POVOS ORIGINÁRIOS",
+    o: "Corresponde ao castelhano pueblos originarios, corrente no movimento indígena latino-americano; firmou-se em português com a organização do movimento indígena brasileiro, dos anos 1970 em diante.",
+    d: "Nomeia quem já estava aqui antes de qualquer colonização — e vem no plural porque nunca foi um povo só. O Estado brasileiro adotou o plural em lei em 2022, ao instituir o Dia dos Povos Indígenas e revogar o “Dia do Índio” de 1943.",
+    f: "Lei nº 14.402/2022, Planalto · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "INDÍGENA",
+    o: "Do latim indigena, “nascido ali, natural da terra”. Não tem nenhuma relação com a Índia — essa é a outra palavra.",
+    d: "É o termo correto, e na prática é sempre plural: o Censo de 2022 registrou 391 etnias e 295 línguas indígenas no Brasil, 1,69 milhão de pessoas. Por isso este jogo escreve o nome do povo sempre que a fonte permite.",
+    f: "IBGE, Censo 2022 · Lei nº 14.402/2022, Planalto" },
+
+  { t: "ÍNDIO",
+    o: "Do erro de navegação de Colombo, que julgou ter chegado às Índias, e da administração colonial, que precisava de uma palavra só para cobrar tributo, distribuir gente e legislar sobre todo mundo de uma vez.",
+    d: "É categoria de quem chegou, não autodenominação: espreme 391 povos com 295 línguas numa coisa só. Parte do movimento indígena a reivindica em contexto político, como identidade de luta — mas como descrição ela apaga, e o jogo prefere o nome do povo.",
+    f: "IBGE, Censo 2022 · Lei nº 14.402/2022, Planalto" },
+
+  { t: "ETNIA",
+    o: "Do grego ethnos, “povo”. Entrou na língua administrativa brasileira para nomear pertencimento a um povo, e é o termo que o Censo usa.",
+    d: "É a unidade que o IBGE conta: 391 etnias indígenas no Brasil em 2022, com 295 línguas. É o número que derruba de vez tratar tudo isso como categoria única — e ele vem do Estado, não de opinião.",
+    f: "IBGE, Censo 2022" },
+
+  { t: "TRIBO",
+    o: "Do latim tribus, as divisões do povo romano. Entrou na antropologia do século XIX como degrau de uma escada que ia do “selvagem” ao “civilizado”.",
+    d: "O jogo escreve povo. A palavra antiga carrega a ideia de estágio anterior — e gente com língua, agricultura, astronomia, arquitetura e política próprias não é estágio de coisa nenhuma.",
+    f: "Manuela Carneiro da Cunha (org.), História dos índios no Brasil, Companhia das Letras, 1992" },
+
+  { t: "PRÉ-HISTÓRIA",
+    o: "Do grego pro- (“antes”) + historia. Literalmente: antes do que está escrito. É régua europeia — mede o passado dos outros pela ausência de escrita alfabética.",
+    d: "Palavra banida deste jogo, junto com “primitivo”. Quem ergueu montes de conchas de mais de trinta metros e abriu valas geométricas de centenas de metros tinha engenharia, calendário e organização. Não ter deixado documento escrito não põe ninguém antes da história.",
+    f: "Maria Dulce Gaspar, Sambaqui: arqueologia do litoral brasileiro, Zahar, 2000" },
+
+  { t: "PESSOA ESCRAVIZADA",
+    o: "Particípio de escravizar: “que foi feita escrava por alguém”. A forma se firmou no português do Brasil pela pressão do movimento negro e da historiografia, contra o substantivo seco.",
+    d: "Escravizar é o que fizeram com essas pessoas, não o que elas eram. O substantivo transforma uma violência sofrida em identidade de quem sofreu, e some com quem a praticou; o particípio devolve o verbo e devolve o sujeito. Neste jogo ninguém é chamado de escravo.",
+    f: "Abdias do Nascimento, O genocídio do negro brasileiro, Paz e Terra, 1978 · João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003" },
+
+  { t: "DEMOCRACIA RACIAL",
+    o: "Expressão popularizada a partir da recepção de Casa-grande & senzala (Gilberto Freyre, 1933), que descreveu a formação brasileira como mistura e convivência. O próprio Freyre não usou a fórmula nesse livro; ela se firmou depois, na boca do Estado.",
+    d: "É a palavra que este jogo não usa como descrição. A ideia de que aqui não haveria racismo por haver mestiçagem serviu por décadas para tornar indizível a desigualdade que os dados mostram. O IBGE registra a diferença em renda, escolaridade e mortalidade; um país sem racismo não produziria esses números.",
+    f: "Florestan Fernandes, A integração do negro na sociedade de classes, 1964 · Lélia Gonzalez, Racismo e sexismo na cultura brasileira, 1984 · Abdias do Nascimento, O genocídio do negro brasileiro, Paz e Terra, 1978 · IBGE, Desigualdades sociais por cor ou raça, 2022" },
+
+  { t: "MESTIÇAGEM",
+    o: "De mestiço, do latim mixticius, “misturado”. A palavra descreve um fato demográfico e, no século XX, virou também uma tese sobre o caráter do país.",
+    d: "Que a população brasileira é majoritariamente mista é dado: o Censo de 2022 registrou 45,3% de pardos, 43,5% de brancos e 10,2% de pretos. O que este jogo não aceita é o passo seguinte, dado pelo pensamento social dos anos 1930 — transformar mistura em prova de harmonia. Boa parte dessa mistura veio de violência sexual dentro de um sistema de propriedade sobre pessoas, e Lélia Gonzalez mostrou que a figura elogiosa da “mulata” é a forma cordial de seguir tratando mulher negra como corpo disponível.",
+    f: "IBGE, Censo 2022, cor ou raça · Lélia Gonzalez, “Racismo e sexismo na cultura brasileira”, Ciências Sociais Hoje, ANPOCS, 1984 · Sueli Carneiro, “Enegrecer o feminismo”, 2003" },
+
+  { t: "PARDO",
+    o: "Vem da cor do pano pardo, e entra nos registros brasileiros como categoria administrativa antes de ser categoria de gente. Chega ao recenseamento nacional em 1872 e nunca mais saiu.",
+    d: "É uma das cinco opções de cor ou raça do IBGE — branca, preta, parda, amarela, indígena — e a mais numerosa: 45,3% da população em 2022, 92,1 milhões de pessoas. Quase ninguém se apresenta como pardo na rua; é palavra de formulário, não de identidade. O movimento negro trabalha com a soma de pretos e pardos como população negra, 55,5% do país, e é essa soma que sustenta as estatísticas de desigualdade e as políticas de reparação.",
+    f: "IBGE, Censo 2022, cor ou raça · IBGE, Desigualdades sociais por cor ou raça no Brasil, 2022 · Petrônio Domingues, Uma história não contada, Senac, 2004" },
+
+  { t: "COLORISMO",
+    o: "Tradução de colorism, termo cunhado pela escritora Alice Walker nos Estados Unidos em 1983. Entrou no debate brasileiro nos anos 2010, e o uso ainda é disputado.",
+    d: "Nomeia o fato de o racismo não pesar igual sobre todas as pessoas negras: quanto mais escura a pele e mais marcados os traços, pior o tratamento — em emprego, em abordagem policial, em sala de aula. É o que explica por que os números de renda e de violência mudam quando se separam pretos e pardos, mesmo os dois somando a mesma população negra. O termo é recente; o que ele descreve foi observado por Lélia Gonzalez e outros autores décadas antes de haver palavra.",
+    f: "Alice Walker, In Search of Our Mothers' Gardens, Harcourt, 1983 · Lélia Gonzalez, “Racismo e sexismo na cultura brasileira”, 1984 · IBGE, Desigualdades sociais por cor ou raça no Brasil, 2022",
+    dv: 1 },
+
+  { t: "RACISMO ESTRUTURAL",
+    o: "Formulação sistematizada por Silvio Almeida em 2018, dentro de um debate mais antigo que distingue racismo individual, institucional e estrutural.",
+    d: "A tese é que o racismo não é desvio de caráter de algumas pessoas nem falha de algumas instituições: é o modo normal de funcionamento de uma sociedade formada pela escravidão, e reproduz desigualdade mesmo sem ninguém querer. Por isso combatê-lo não é punir ofensa: é mudar regra, orçamento e critério de acesso. É a diferença entre pedir que as pessoas sejam boas e mudar o que produz o resultado.",
+    f: "Silvio Almeida, Racismo estrutural, Pólen, 2019 (1ª ed. Letramento, 2018) · Sueli Carneiro, Dispositivo de racialidade, Zahar, 2023 · Lei nº 12.288, de 20/07/2010 (Estatuto da Igualdade Racial), Planalto" },
+
+  { t: "LUGAR DE FALA",
+    o: "Formulação do feminismo negro, sistematizada no Brasil por Djamila Ribeiro em 2017 a partir da teoria do ponto de vista feminista e de autoras como Lélia Gonzalez e Patricia Hill Collins.",
+    d: "Não quer dizer que só quem viveu uma coisa pode falar dela. Quer dizer que todo mundo fala de algum lugar social, e que esse lugar determina o que a pessoa vê, o que não vê e quanto ela é ouvida — inclusive quem nunca precisou pensar no próprio. Reconhecer o lugar de onde se fala é o contrário de calar: é o que este glossário faz ao trazer a fonte junto de cada verbete.",
+    f: "Djamila Ribeiro, O que é lugar de fala?, Letramento / Justificando, 2017 · Lélia Gonzalez, “A categoria político-cultural de amefricanidade”, Tempo Brasileiro nº 92/93, 1988" },
+
+  { g: "QUEM JÁ ESTAVA AQUI — E CONTINUA", curto: "QUEM JÁ ESTAVA AQUI",
+    sub: "Povos, línguas e obras anteriores a 1500 — e a terra em disputa agora." },
+
+  { t: "PINDORAMA",
+    o: "Do tupi antigo pindó (“palmeira”) somado a -rama / retama (“região, terra”): região das palmeiras. Voltou à boca do movimento indígena no século XX e dá nome ao primeiro capítulo.",
+    d: "Nomeava a TERRA, não um país: não havia nenhuma unidade política chamada Pindorama que pudesse ser derrotada em 1500. A etimologia é sólida; a ideia de que a palavra designava “o Brasil inteiro” é popularização moderna, e o jogo não a afirma.",
+    f: "Eduardo de Almeida Navarro, Dicionário de tupi antigo, Global, 2013",
+    dv: 1 },
+
+  { t: "SAMBAQUI",
+    o: "Do tupi tamba (“concha”) + ki (“amontoado”): monte de conchas. O nome é dos que vieram depois — quem construiu não deixou escrito como se chamava.",
+    d: "Montes erguidos cesto a cesto no litoral, por milhares de anos, alguns passando de trinta metros. A arqueologia nomeia esses povos pela OBRA, e o jogo faz o mesmo: dizer “o povo dos sambaquis” é dizer que o nome próprio se perdeu, e por quê.",
+    f: "Maria Dulce Gaspar, Sambaqui: arqueologia do litoral brasileiro, Zahar, 2000" },
+
+  { t: "GEOGLIFO",
+    o: "Do grego geo (“terra”) + glyphein (“gravar”): desenho feito no próprio solo. Palavra da arqueologia, não dos que os abriram.",
+    d: "No Acre, valas em círculo e em quadrado abertas na terra firme há uns dois mil anos — mais de quinhentas já registradas. A floresta em volta já era manejada havia milênios: a Amazônia intocada nunca existiu.",
+    f: "Schaan, Ranzi & Pärssinen, Boletim do Museu Paraense Emílio Goeldi · Watling et al., PNAS, 2017" },
+
+  { t: "MARAJÓ",
+    o: "Nome da ilha na foz do Amazonas. “Marajoara” é o nome que a arqueologia deu à cultura cerâmica encontrada lá, não uma autodenominação de quem a fez.",
+    d: "Entre os séculos IV e XIV, sociedades ergueram aterros para morar acima da cheia e produziram uma das maiores artes cerâmicas das Américas. Engenharia de terra e de água, feita para durar.",
+    f: "Anna C. Roosevelt, Moundbuilders of the Amazon, 1991 · Denise Schaan, The Camutins Chiefdom, 2004" },
+
+  { t: "TUPI",
+    o: "Nome de uma família linguística e do conjunto de povos que a falam. “Tupi antigo” é a língua da costa no século XVI, base da língua geral que se falou no Brasil colonial por séculos.",
+    d: "Grupos de língua tupi saíram da Amazônia e ocuparam a costa atlântica de norte a sul séculos antes de qualquer navio: quando os europeus chegaram, essa ocupação já era antiga. Milhares de palavras do português do Brasil vêm dessa língua, e a maior parte dos nomes de lugar.",
+    f: "Francisco Noelli, “The Tupi expansion”, em Handbook of South American Archaeology, 2008 · Navarro, Dicionário de tupi antigo, 2013" },
+
+  { t: "TUPINAMBÁ",
+    o: "Etnônimo em língua tupi. A tradução que circula (“os primeiros”, “os mais antigos”) é atribuída e não tem atestação segura — por isso o jogo não a repete.",
+    d: "Povo que ocupava a costa atlântica quando os navios apareceram: plantavam mandioca, pescavam, cuidavam de roçados, tinham língua e política próprias. E não são passado — os Tupinambá de Olivença, no sul da Bahia, têm terra em processo de demarcação agora.",
+    f: "Enciclopédia Povos Indígenas no Brasil, ISA · Portaria Declaratória nº 1.075/2025",
+    dv: 1 },
+
+  { t: "MANDIOCA",
+    o: "Do tupi mandi'oka. A planta foi domesticada na América do Sul, e a técnica de tirar o veneno da variedade brava — ralar, prensar no tipiti, torrar — é invenção indígena.",
+    d: "Era a base alimentar da costa quando os navios chegaram, e virou a base alimentar da colônia inteira. Quem invadiu comeu do roçado de quem já estava aqui, com a técnica de quem já estava aqui.",
+    f: "Navarro, Dicionário de tupi antigo, Global, 2013 · Carneiro da Cunha (org.), História dos índios no Brasil, 1992" },
+
+  { t: "MANTO TUPINAMBÁ",
+    o: "Peça de penas de guará costuradas em rede de fibra, feita pelos Tupinambá. Os poucos que sobraram foram levados para a Europa nos séculos XVI e XVII e ficaram lá.",
+    d: "Um deles estava na Dinamarca desde 1644. Foi reconhecido em 2000 pela anciã Nivalda Amaral, do povo Tupinambá de Olivença, e recebido pelo Museu Nacional da UFRJ em 12 de setembro de 2024. É o objeto que costura o primeiro capítulo ao último.",
+    f: "Museu Nacional / UFRJ, cerimônia de 12/09/2024" },
+
+  { t: "ALDEAMENTO",
+    o: "Do português aldeia (que veio do árabe ad-day'a, “a povoação”). No Brasil colonial a palavra virou nome de política: reunir à força povos diferentes num mesmo lugar, sob administração religiosa ou militar.",
+    d: "Não era abrigo. Era instrumento de controle de terra e de mão de obra — juntava povos inimigos, misturava línguas e liberava o litoral para quem chegava. E também foi usado pelos próprios povos, que negociaram dentro dele e sobreviveram por ele: a história não é só do que fizeram com eles.",
+    f: "Maria Regina Celestino de Almeida, Metamorfoses indígenas, 2003 · John M. Monteiro, Negros da terra, 1994" },
+
+  { t: "A DOENÇA QUE CHEGOU NOS NAVIOS",
+    o: "Formulação deste jogo, no lugar de “dizimados” — palavra banida aqui, porque é passiva sem agente e porque significa, ao pé da letra, um em cada dez.",
+    d: "Em 1562 e 1563 a varíola varreu a costa da Bahia e esvaziou aldeias inteiras. Não foi acidente da natureza: correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou. O jogo não dá número de propósito — os que circulam vêm de cartas jesuíticas, o mesmo tipo de fonte que ele ensina a ler com desconfiança.",
+    f: "Dauril Alden & Joseph C. Miller, Journal of Interdisciplinary History 18(2), 1987 · David S. Jones, “Virgin Soils Revisited”, William and Mary Quarterly 60(4), 2003" },
+
+  { t: "DEMARCAÇÃO",
+    o: "Do português demarcar, “pôr marcos”. Aqui é termo jurídico: o procedimento pelo qual o Estado RECONHECE — não concede — a terra que um povo já ocupava.",
+    d: "A Constituição chama esses direitos de originários, isto é, anteriores ao próprio Estado. O rito tem etapas: estudo, delimitação, portaria declaratória do Ministério da Justiça, demarcação física, homologação e registro. Pode levar décadas, e é por isso que o capítulo de hoje ainda é sobre isso.",
+    f: "CF/88, art. 231 · Decreto nº 1.775/1996, Planalto" },
+
+  { t: "CONSTITUIÇÃO DE 1988",
+    o: "Escrita pela Assembleia Nacional Constituinte de 1987–88. Ailton Krenak discursou no plenário em 4 de setembro de 1987 pintando o rosto de jenipapo enquanto falava.",
+    d: "Reconheceu aos povos indígenas os direitos originários sobre as terras que ocupam (art. 231) e às comunidades remanescentes de quilombos a propriedade de seus territórios (ADCT, art. 68). É a ponte jurídica que liga os dois fios deste jogo ao presente — e foi escrita com gente indígena falando dentro do plenário, não só sendo falada.",
+    f: "CF/88, art. 231 · ADCT, art. 68, Planalto" },
+
+  { t: "DIA DOS POVOS INDÍGENAS",
+    o: "Lei nº 14.402, de 8 de julho de 2022. Ela institui o Dia dos Povos Indígenas e revoga o decreto-lei de 1943 que criara o “Dia do Índio”.",
+    d: "É o Estado brasileiro, em lei, trocando o singular pelo plural. Mudança de calendário é pouca coisa; mudança de palavra em lei federal é o reconhecimento de que nunca houve um povo só.",
+    f: "Lei nº 14.402/2022, Planalto" },
+
+  { t: "MARCO TEMPORAL",
+    o: "Tese jurídica segundo a qual um povo só teria direito à terra que ocupasse em 5 de outubro de 1988, data da promulgação da Constituição.",
+    d: "O STF julgou a tese inconstitucional em setembro de 2023 (RE 1.017.365, com repercussão geral), entendendo que o art. 231 reconhece direitos originários, anteriores ao Estado. Semanas depois o Congresso aprovou a Lei nº 14.701/2023, que a reinstituiu em texto legal; a disputa segue em curso no Judiciário. É o assunto indígena mais litigado do país hoje.",
+    f: "Constituição Federal de 1988, art. 231 · STF, RE 1.017.365, Tema 1.031, 21/09/2023 · Lei nº 14.701, de 20/10/2023, Planalto",
+    dv: 1 },
+
+  { g: "COMO A ESCRAVIDÃO FOI MONTADA", curto: "A ESCRAVIDÃO",
+    sub: "O comércio de gente que cruzou o Atlântico: a rota, a conta, o porto, o lucro." },
+
+  { t: "TRÁFICO ATLÂNTICO",
+    o: "Tráfico é palavra de comércio, e é essa a exatidão dela: havia contrato, imposto, seguro, livro-caixa e lucro. O sistema tinha contabilidade, e é por isso que existe base de dados hoje.",
+    d: "De cada dez pessoas arrancadas da África para as Américas, quase cinco desembarcaram no Brasil — nenhum lugar do mundo recebeu mais. Durou mais de três séculos, até por volta de 1850.",
+    f: "Trans-Atlantic Slave Trade Database, SlaveVoyages.org, Emory University" },
+
+  { t: "TRAVESSIA",
+    o: "Do português atravessar. Em inglês o mesmo trecho se chama Middle Passage, “passagem do meio” da rota triangular — nome dado pelo comércio, do ponto de vista de quem organizava a viagem, nunca de quem ia dentro.",
+    d: "É o trecho de mar entre a captura na África e o desembarque nas Américas. A base SlaveVoyages registra 12,5 milhões de pessoas embarcadas e 10,7 milhões desembarcadas: a diferença, cerca de 1,8 milhão, ficou no oceano.",
+    f: "Trans-Atlantic Slave Trade Database, SlaveVoyages.org, Emory University" },
+
+  // O BROOKES entra aqui, logo depois de TRAVESSIA, porque quem acabou de ler "travessia" é
+  // quem está com a pergunta na mão. Ele fala do DOCUMENTO, nunca da cena: não há uma linha de
+  // dentro do navio, restos humanos continuam intocados (§2.4 item 4) e "escravo" não ocorre
+  // como identidade. A IMAGEM CONTINUA FORA e a última frase do verbete diz isso — ele explica
+  // uma recusa já tomada, não a reabre.
+  // A oração de 1,67 pessoa por tonelada foi ao dono e ele aprovou (2026-08-09). É a REGRA DO
+  // DOCUMENTO do §2.5 funcionando: nomeia a lei, atribui o número a quem o escreveu, e não
+  // descreve pessoa nenhuma. Contar gente por tonelada é a ACUSAÇÃO do verbete.
+
+  { t: "DIAGRAMA DO BROOKES",
+    o: "Brookes é o nome do navio de Liverpool que o desenho mede, e chega torto: o Lloyd's registrou Brook, depois Brooks, sobrenome do armador. A grafia que o pôster fixou, e que os livros repetem há dois séculos, é variante do nome da família dona do navio.",
+    d: "Desenho de um navio negreiro visto de cima, feito em 1788 por abolicionistas ingleses para chocar quem podia acabar com o tráfico. Não é retrato: ilustra uma conta — a lei inglesa daquele ano permitia 1,67 pessoa por tonelada de navio. Documento é sempre feito por alguém, para alguém, com um objetivo, inclusive quando o objetivo é justo. Este jogo o cita e não o mostra.",
+    f: "Cheryl Finley, Committed to Memory: The Art of the Slave Ship Icon, Princeton University Press, 2018 · Saulo Castilho Pereira, “Idas e vindas do navio negreiro Brookes”, Faces de Clio 7(13), 2021, UFJF · Marcus Wood, Blind Memory, Manchester University Press, 2000 · Slave Trade Act 1788 (Lei Dolben)",
+    dv: 1 },
+
+  { t: "VALONGO",
+    o: "Nome do sítio na região portuária do Rio de Janeiro; a derivação corrente de “vale longo” é atribuída e não tem atestação firme. O cais foi construído em 1811.",
+    d: "Foi o maior porto de desembarque de africanos escravizados das Américas. Aterrado no século XIX, voltou à luz numa escavação arqueológica em 2011 e entrou na lista de Patrimônio Mundial da UNESCO em 2017 — como lugar de memória sensível, categoria que a UNESCO reserva a sítios de crimes contra a humanidade.",
+    f: "UNESCO, Cais do Valongo, inscrição de 2017 · escavação coordenada por Tania Andrade Lima, Museu Nacional / UFRJ, 2011",
+    dv: 1 },
+
+  { t: "ENGENHO",
+    o: "Do latim ingenium, “invenção, máquina”. Nomeava a moenda e, por extensão, a propriedade inteira: canavial, moenda, casa-grande, senzala.",
+    d: "Foi para os engenhos de açúcar que se traficou gente. A escravidão no Brasil não aconteceu: foi montada, com projeto econômico e cálculo de retorno, e dava lucro.",
+    f: "Stuart B. Schwartz, Segredos internos: engenhos e escravos na sociedade colonial, Companhia das Letras, 1988" },
+
+  { t: "SENHOR",
+    o: "Do latim senior, “o mais velho”. Era o termo legal: a pessoa aparecia nos inventários como propriedade de alguém, e esse alguém tinha nome, endereço e livro-caixa.",
+    d: "Quem escravizava. A palavra atravessou os séculos sem constrangimento, enquanto quem era escravizado virava “escravo” — o particípio devolve o verbo, mas o verbo precisa de sujeito. A escravidão não aconteceu: foi feita por pessoas identificáveis, com lucro registrado em cartório.",
+    f: "Emília Viotti da Costa, Da senzala à colônia, Editora Unesp, 4ª ed. 1998 · Sidney Chalhoub, Visões da liberdade, Companhia das Letras, 1990" },
+
+  { t: "TUMBEIRO",
+    o: "De tumba. Era como se chamavam no Brasil os navios do tráfico — o nome popular já dizia o que a viagem era.",
+    d: "O navio negreiro. Uma travessia durava de trinta a cinquenta dias, e a mortalidade a bordo era contabilizada como perda comercial, com seguro e livro de bordo. O nome que a rua deu ao navio é mais honesto que o que os registros usavam.",
+    f: "Jaime Rodrigues, De costa a costa: escravos, marinheiros e intermediários do tráfico, Companhia das Letras, 2005 · Trans-Atlantic Slave Trade Database, SlaveVoyages.org, Emory University" },
+
+  { t: "NAÇÃO",
+    o: "Do latim natio, “nascimento”. No Brasil colonial e imperial virou termo de registro: nagô, jeje, angola, mina, benguela — a categoria pela qual a documentação classificava quem chegava.",
+    d: "Era a contraparte de “crioulo”: crioulo era quem nascia aqui, e a nação dizia de onde a pessoa tinha sido arrancada. A classificação era do escravizador, mas foi reapropriada — as irmandades, os terreiros e as festas se organizaram por nação, e o termo virou identidade de quem o carregava.",
+    f: "Mariza de Carvalho Soares, Devotos da cor, Civilização Brasileira, 2000 · João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003",
+    dv: 1 },
+
+  { t: "LEI EUSÉBIO DE QUEIRÓS",
+    o: "Lei nº 581, de 4 de setembro de 1850. Levou o nome do ministro da Justiça que a apresentou, e veio depois de o Parlamento britânico aprovar em 1845 o Bill Aberdeen, que autorizava a Marinha inglesa a apreender navios negreiros brasileiros.",
+    d: "Proibiu o tráfico atlântico para o Brasil — não a escravidão, que durou mais 38 anos. O efeito imediato foi o tráfico INTERNO: quem tinha capital passou a comprar gente do Nordeste para o café do Sudeste, e famílias foram separadas por dentro do país.",
+    f: "Lei nº 581, de 4/09/1850, Planalto · Robert Conrad, Os últimos anos da escravatura no Brasil, Civilização Brasileira, 1975 · Sidney Chalhoub, A força da escravidão, Companhia das Letras, 2012" },
+
+  { g: "OS QUILOMBOS E QUEM OS ERGUEU", curto: "OS QUILOMBOS",
+    sub: "As vilas erguidas por quem fugiu da escravidão — e quem vive nelas hoje." },
+
+  { t: "QUILOMBO",
+    o: "Do quimbundo kilombo. No século XVII, entre os Imbangala de Angola, designava um acampamento de guerra fortificado e a sociedade de iniciação que o formava; em umbundo, ochilombo é associação de homens.",
+    d: "No Brasil a palavra passou a nomear a comunidade formada por quem fugia da escravidão. Não é sinônimo de esconderijo: kilombo já era, na origem, instituição política e militar — o que explica por que Palmares tinha roça, comércio e defesa.",
+    f: "Beatriz Nascimento, “O conceito de quilombo e a resistência cultural negra” (1985), em Uma história feita por mãos negras, org. Alex Ratts, Zahar, 2021" },
+
+  { t: "MOCAMBO",
+    o: "Do quimbundo mu'kambu, “cumeeira” — a viga alta do telhado, e daí o abrigo inteiro. Parte das fontes deriva do quicongo mukambu; o sentido chega igual, a língua de origem é que fica em disputa.",
+    d: "É a palavra que a documentação colonial usa para cada povoado de Palmares. Palmares não era um lugar só: era um conjunto de mocambos — Macaco, Subupira, Amaro, Andalaquituche, Osenga, entre outros.",
+    f: "Silvia H. Lara, “O território dos Palmares”, Afro-Ásia nº 64, 2021, UFBA · Nei Lopes, Novo dicionário banto do Brasil, Pallas, 2003",
+    dv: 1 },
+
+  { t: "PALMARES",
+    o: "Português mesmo: “os palmares”, as matas de palmeira daquela região. Nos documentos o nome aparece quase sempre no plural — e o plural é literal, porque eram muitos povoados.",
+    d: "A partir de mais ou menos 1630, milhares de pessoas que fugiram da escravidão subiram a serra e ergueram vilas com roça, comércio e defesa. Resistiram por décadas a mais de vinte expedições militares, e a Coroa só as destruiu em 1694.",
+    f: "Documenta Palmares, Silvia H. Lara, Unicamp · Flávio dos Santos Gomes, Palmares: escravidão e liberdade no Atlântico Sul, Contexto, 2005" },
+
+  { t: "SERRA DA BARRIGA",
+    o: "Topônimo português, no atual município de União dos Palmares, Alagoas. É onde ficava o Macaco, o maior dos mocambos.",
+    d: "Está tombada pelo IPHAN desde 1986 e abriga o Parque Memorial Quilombo dos Palmares. Entre a destruição e o tombamento passaram-se quase três séculos. Parte das fontes data o tombamento de 1985, e o jogo não escolhe entre as duas.",
+    f: "IPHAN · Fundação Cultural Palmares",
+    dv: 1 },
+
+  { t: "GANA ZUMBA",
+    o: "Em quimbundo, gana é “senhor” e ganga é “sacerdote”. A paleografia recente do manuscrito de 1678 lê Gana Zumba onde os livros repetiram por gerações “Ganga Zumba”: é correção de leitura de documento, não troca de opinião.",
+    d: "Foi o líder de Palmares que negociou com o governo de Pernambuco o acordo de 1678. Nomes chegam tortos quando quase tudo o que sobrou foi escrito pela mão de quem veio atacar.",
+    f: "Silvia H. Lara & Fernando Fachin, Guerra contra Palmares: o manuscrito de 1678, Chão Editora, 2021" },
+
+  { t: "ACA INENE",
+    o: "Grafia estabelecida pela paleografia do manuscrito de 1678. A forma “Acotirene”, repetida por gerações de livros, é leitura equivocada do mesmo documento.",
+    d: "Nome que a documentação de Palmares registra. É o exemplo mais limpo do método que este jogo defende: quase tudo o que se sabe da forma daquele lugar chegou pela letra de quem foi destruí-lo — e reler essa letra muda o que se sabe.",
+    f: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678, Chão Editora, 2021" },
+
+  { t: "ANGOLA JANGA",
+    o: "Circula como o nome que os próprios palmaristas dariam ao lugar. As ocorrências conhecidas vêm de dicionários do século XX — Clóvis Moura lê “pequena Angola”, Nei Lopes lê “minha Angola”, e os dois divergem — e da popularização pela graphic novel Angola Janga, de Marcelo D'Salete (2017), que é pesquisa séria, mas é ficção histórica.",
+    d: "Não localizamos atestação do termo em documento colonial do século XVII, e o estudo mais completo da toponímia de Palmares a partir das fontes primárias não o menciona em momento nenhum. Por isso o jogo não usa o nome como fato — e conta por quê, que é mais honesto do que escolher calado.",
+    f: "Silvia H. Lara, “O território dos Palmares”, Afro-Ásia nº 64, 2021, UFBA",
+    dv: 1 },
+
+  { t: "ZUMBI",
+    o: "Do quimbundo nzumbi: espírito, alma do morto. Nei Lopes registra que a raiz se liga à ideia de imortalidade. É nome de gente, e não tem parentesco com o morto-vivo do cinema, que chegou ao português pelo Caribe muito depois.",
+    d: "Último líder de Palmares. As tropas da Coroa destruíram o quilombo em 1694 e o mataram em 20 de novembro de 1695. A data é hoje o Dia da Consciência Negra.",
+    f: "Nei Lopes, Novo dicionário banto do Brasil, Pallas, 2003 · Fundação Cultural Palmares" },
+
+  { t: "DIA DA CONSCIÊNCIA NEGRA",
+    o: "A data — 20 de novembro, dia da morte de Zumbi — foi proposta por militantes do Grupo Palmares, em Porto Alegre, no início dos anos 1970, e assumida pelo Movimento Negro Unificado em 1978. Veio do movimento negro, não do Estado.",
+    d: "É escolha de calendário com argumento dentro: em vez do 13 de maio, dia em que alguém assinou uma lei, o 20 de novembro marca o dia em que mataram quem tinha construído a própria liberdade. Virou data nacional em 2011 e feriado nacional em 2023.",
+    f: "Lei nº 12.519/2011 · Lei nº 14.759/2023, Planalto · Fundação Cultural Palmares" },
+
+  { t: "QUILOMBOLA",
+    o: "Quilombo mais o sufixo -ola. É palavra do presente: nomeia quem vive hoje em comunidade descendente de quilombo, e virou categoria jurídica em 1988.",
+    d: "A Constituição reconhece às comunidades remanescentes de quilombos a propriedade definitiva de seus territórios. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas: quem construiu Palmares continua aqui.",
+    f: "ADCT, art. 68, CF/88 · IBGE, Censo 2022" },
+
+  { t: "FUNDAÇÃO CULTURAL PALMARES",
+    o: "Órgão federal criado pela Lei nº 7.668, de 22 de agosto de 1988, ligado ao Ministério da Cultura. Leva o nome do quilombo, no ano em que a Constituição reconheceu os territórios quilombolas.",
+    d: "Certifica comunidades quilombolas e promove a cultura negra brasileira, e é fonte institucional citada por este jogo. Onde ela diverge da pesquisa acadêmica — como no número de habitantes de Palmares — o jogo mostra as duas e não escolhe.",
+    f: "Lei nº 7.668/1988, Planalto · Silvia H. Lara, Afro-Ásia nº 64, 2021",
+    dv: 1 },
+
+  { t: "JABAQUARA",
+    o: "Morro de Santos, no litoral paulista. O nome é de origem tupi; o quilombo que ali se organizou a partir de 1882 ficou conhecido pelo nome do morro.",
+    d: "Reduto de quem abandonou em massa as fazendas de café do interior e desceu a serra a pé nos anos 1880 — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas. Não foi refúgio concedido: quem descia a serra vinha antes de qualquer plano de quem os recebeu.",
+    f: "Maria Helena Machado, O plano e o pânico: os movimentos sociais na década da abolição, Edusp, 2ª ed. 2010 · Correio Paulistano, relatório do presidente da província de São Paulo, 1º/05/1888" },
+
+  { t: "PEDRA DO SAL",
+    o: "Laje de pedra no morro da Conceição, na zona portuária do Rio, onde se descarregava o sal dos navios. Foi ponto de trabalho, de encontro e de roda.",
+    d: "É comunidade remanescente de quilombo certificada pela Fundação Cultural Palmares desde a portaria publicada em 20 de janeiro de 2006; o relatório técnico de 2010 contou 25 famílias. **A terra continua sem título** — certificar não é titular, e a diferença entre as duas coisas é a espera.",
+    f: "Fundação Cultural Palmares, portaria publicada no Diário Oficial da União, 20/01/2006 · INCRA, relatório técnico de identificação e delimitação, 2010" },
+
+  { g: "O TRABALHO, A FÉ E A REVOLTA", curto: "TRABALHO E REVOLTA",
+    sub: "Nas ruas do século XIX: o ganho, o tabuleiro, o terreiro e o levante de 1835." },
+
+  { t: "GANHADEIRA",
+    o: "Do português ganho. O “trabalho de ganho” era o regime em que a pessoa escravizada trabalhava na rua por conta própria e entregava uma quantia fixa ao senhor, guardando o que passasse disso. No feminino, ganhadeira.",
+    d: "Mulheres africanas e crioulas dominavam o comércio e o carrego de rua em Salvador — escravizadas e libertas, com o próprio ganho na mão. Foi com o que sobrava do ganho que muitas compraram a própria alforria. Quem as tirou da margem da história foi Cecília Moreira Soares.",
+    f: "Cecília Moreira Soares, “As ganhadeiras: mulher e resistência negra em Salvador no século XIX”, Afro-Ásia nº 17, 1996, UFBA" },
+
+  { t: "ACARAJÉ",
+    o: "Do iorubá àkàrà (bolinho de feijão-fradinho frito no dendê) somado a jẹ, “comer”. As glosas variam de fonte para fonte; a origem iorubá é consenso.",
+    d: "Comida vendida no tabuleiro das ganhadeiras desde o século XIX, e comida de santo: o ofício das baianas de acarajé é patrimônio cultural imaterial do Brasil desde 2005, e a própria ficha do IPHAN o registra ligado ao culto dos orixás. Trabalho e fé na mesma bandeja.",
+    f: "IPHAN, Ofício das Baianas de Acarajé, Livro dos Saberes, 2005",
+    dv: 1 },
+
+  // O CULTO ENTRA AQUI TAMBÉM, e a razão é a mesma que valeu para BÚZIOS e ACARAJÉ (decisão do
+  // dono, 2026-08-08): as três peças são a MESMA cena — o tabuleiro, o pano, a concha — e deixar
+  // só esta falando de tecido fazia o pano parecer o traje pitoresco ao lado de duas coisas
+  // sagradas. Sobrava a roupa e sumia o motivo dela, que é o esvaziamento que o §2 proíbe.
+  // O `o` ganha o NOME DE DENTRO (alaká): "pano da costa" é nome de fora e genérico, e apaga os
+  // povos distintos que teciam panos distintos — é a melhor coisa que o verbete ganha.
+  // `dv: 1` porque o historiador RECUSOU publicar a tabela de cores: que a cor segue o orixá é
+  // consenso, QUAL cor cabe a qual orixá não é — muda de nação para nação e de casa para casa,
+  // e as listas que circulam se contradizem. O verbete afirma a regra e recusa a tabela, pelo
+  // mesmo critério do PINDORAMA. Publicar a tabela seria inventar consenso onde há prática de
+  // cada casa. A segunda divergência é a origem do nome (fon × iorubá), no NOTES.md.
+
+  { t: "PANO DA COSTA",
+    o: "“Costa” aqui é a costa da África Ocidental — a Costa da Mina —, de onde o tecido vinha. Nos terreiros ele tem outro nome: alaká. “Pano da costa” é o nome de fora, e é genérico: apaga os povos distintos que teciam panos distintos.",
+    d: "Tecido retangular usado sobre os ombros, parte da indumentária das baianas no século XIX. Nas casas de culto é peça de proteção, não adorno: a cor e a padronagem seguem o orixá de quem o veste, e qual cor cabe a qual orixá muda de nação para nação. Chegava pelas rotas do tráfico e passou a ser tecido aqui — a Casa do Alaká, no Ilê Axé Opô Afonjá, em Salvador, tece até hoje.",
+    f: "Aline Santiago, O sacrifício dos fios do Alaká, dissertação, PPGAV/EBA-UFRJ · Raul Lody, Pano da costa, Cadernos de Folclore nº 15, Funarte, 1977 · Dicionário de Belas Artes, UFBA, verbete “Mestre Abdias e o pano da costa” · Fundação Joaquim Nabuco, Pesquisa Escolar, verbete “Panos da Costa”",
+    dv: 1 },
+
+  { t: "BÚZIOS",
+    o: "Do latim bucina, “trombeta” — algumas conchas serviam de instrumento de sopro. O búzio do tráfico é o cauri (Cypraea moneta), colhido nas Maldivas, no Índico.",
+    d: "O cauri foi moeda: europeus compravam conchas no Índico e pagavam com elas por pessoas na África Ocidental. A mesma concha atravessou o Atlântico com quem foi traficado — e nas casas de culto da Bahia ela é, até hoje, instrumento de consulta, não enfeite.",
+    f: "Jan Hogendorn & Marion Johnson, The Shell Money of the Slave Trade, Cambridge University Press, 1986 · IPHAN" },
+
+  { t: "CRIOULO · CRIOULA",
+    o: "Do português criar (pelo castelhano criollo): “criado aqui”. Na documentação do século XIX é categoria de NASCIMENTO, não de cor — distingue a pessoa negra nascida no Brasil da nascida na África.",
+    d: "É por isso que o jogo escreve “mulheres africanas e crioulas”: são duas origens diferentes na mesma rua, e a diferença tinha peso jurídico, religioso e político. Fora desse uso documental a palavra tem hoje emprego racista no Brasil, e o jogo não a usa assim em nenhum lugar.",
+    f: "João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003" },
+
+  { t: "MALÊ",
+    o: "Do iorubá ìmàle, “muçulmano”. Há uma derivação concorrente a partir do hauçá malami, “mestre, professor”: as fontes divergem, e o jogo diz que divergem.",
+    d: "Malês eram os africanos muçulmanos da Bahia. Liam e escreviam em árabe, ensinavam uns aos outros à noite, e formaram o núcleo que organizou o levante de 1835 — o que desmontou, na hora, a ideia de que quem carregava os fardos da cidade não sabia ler.",
+    f: "João José Reis, Rebelião escrava no Brasil: a história do levante dos malês em 1835, Companhia das Letras, ed. rev. 2003",
+    dv: 1 },
+
+  { t: "LEVANTE DOS MALÊS",
+    o: "“Levante”, e não “desordem” ou “motim”, que era como os jornais e os autos da época chamavam: quem se levantou tinha plano, hora marcada e escrita própria. A historiografia também o registra como Revolta dos Malês.",
+    d: "Na madrugada de 24 para 25 de janeiro de 1835, centenas de africanos saíram armados às ruas de Salvador. O plano foi denunciado na véspera e eles enfrentaram a tropa antes de amanhecer. Perderam aquela noite — e o levante foi lido no império inteiro.",
+    f: "João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003" },
+
+  { g: "O QUE CHAMARAM DE LIBERDADE", curto: "CHAMARAM DE LIBERDADE",
+    sub: "Alforria, carta, Lei Áurea: sair da escravidão não era o mesmo que ser livre." },
+
+  { t: "ALFORRIA",
+    o: "Do árabe al-hurriyya, “a liberdade”, entrado no português nos séculos de presença muçulmana na Península Ibérica. A palavra que nomeia a saída da escravidão no Brasil é, ela mesma, palavra de fora.",
+    d: "Era a libertação registrada em carta — concedida ou, muitas vezes, comprada com o próprio trabalho, como faziam as ganhadeiras. Continuava sendo ato do senhor: medida individual dentro de um sistema que seguia inteiro. Comprar a liberdade não é ser livre.",
+    f: "Cecília Moreira Soares, Afro-Ásia nº 17, 1996 · João José Reis, Rebelião escrava no Brasil, ed. rev. 2003" },
+
+  { t: "LIBERTO · LIBERTA",
+    o: "Do latim libertus: em Roma já era o estatuto de quem havia sido escravizado e foi alforriado. Chegou ao Brasil com a mesma função — nomear quem saiu da escravidão sem entrar na condição de quem nasceu livre.",
+    d: "Liberto não era igual a livre. Depois de 1835 a Bahia criou leis, impostos e vigilância feitos especificamente para controlar africanos libertos, e muitos foram deportados. A liberdade era um documento, e o documento não protegia de tudo.",
+    f: "João José Reis, Rebelião escrava no Brasil, ed. rev. 2003 · Wlamyra Albuquerque, O jogo da dissimulação, Companhia das Letras, 2009" },
+
+  { t: "DEGREDO",
+    o: "Do latim decretum, “decisão, decreto”. Em português virou o nome da pena: ser arrancado por sentença do lugar onde se vive e mandado para a borda mais distante do império.",
+    d: "Foi uma das punições aplicadas depois do levante de 1835 na Bahia, ao lado de açoites, prisão e execução. Muitos africanos foram deportados para a África — o mesmo mar, no sentido contrário, e outra vez sem escolha.",
+    f: "João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003" },
+
+  { t: "LEI ÁUREA",
+    o: "Lei nº 3.353, de 13 de maio de 1888. “Áurea” — dourada — é apelido posterior; no papel ela não tem nome nenhum, tem número.",
+    d: "Coube em dois artigos: declara extinta a escravidão e revoga as disposições em contrário. Nada sobre terra, casa, trabalho, escola ou reparação para quem tinha sido escravizado. A liberdade veio sem chão, e o dia seguinte foi por conta de quem já não tinha nada.",
+    f: "Lei nº 3.353, de 13 de maio de 1888, Planalto" },
+
+  { t: "LEI DO VENTRE LIVRE",
+    o: "Lei nº 2.040, de 28 de setembro de 1871. Ficou conhecida pelo que prometia, e o apelido pegou melhor que o texto.",
+    d: "Declarou livres os filhos de mulheres escravizadas nascidos dali em diante — mas o senhor podia mantê-los sob sua tutela até os 21 anos, ou entregá-los ao Estado em troca de indenização. Na prática a maioria continuou trabalhando na mesma casa. Liberdade declarada não é liberdade entregue.",
+    f: "Lei nº 2.040, de 28/09/1871, Planalto · Joseli Maria Nunes Mendonça, Entre a mão e os anéis, Editora Unicamp, 1999" },
+
+  { t: "LEI DOS SEXAGENÁRIOS",
+    o: "Lei nº 3.270, de 28 de setembro de 1885, também chamada Saraiva-Cotegipe. “Sexagenário” é quem tem mais de sessenta anos.",
+    d: "Libertou as pessoas escravizadas com mais de 60 anos — que ainda deviam ao senhor três anos de trabalho gratuito, ou até completarem 65. Alforriou justamente quem já não rendia, e a expectativa de vida de quem era escravizado raramente chegava lá. É a lei que mostra que a abolição foi negociada aos pedaços, cada pedaço cuidando do proprietário.",
+    f: "Lei nº 3.270, de 28/09/1885, Planalto · Emília Viotti da Costa, Da senzala à colônia, Editora Unesp, 4ª ed. 1998" },
+
+  { t: "CAIFAZES",
+    o: "Nome adotado pelo grupo abolicionista paulista que organizou as fugas em massa nos anos 1880, numa referência bíblica escolhida por eles mesmos.",
+    d: "Articulavam a descida da serra: rotas, esconderijos e a cumplicidade de ferroviários. A historiografia mais antiga os pôs no centro da história, como se a fuga fosse obra deles; a pesquisa recente inverte a leitura — a debandada já estava em curso, e o mérito de quem ajudou não substitui o de quem foi.",
+    f: "Maria Helena Machado, O plano e o pânico, Edusp, 2ª ed. 2010 · Ângela Alonso, Flores, votos e balas, Companhia das Letras, 2015",
+    dv: 1 },
+
+  { g: "O ESTADO QUE SE FORMOU", curto: "O ESTADO",
+    sub: "Independência, Império e República: quem podia votar, quem podia mandar, e quem ficou de fora." },
+
+  { t: "INDEPENDÊNCIA",
+    o: "De independente. A data celebrada é 7 de setembro de 1822; o reconhecimento internacional veio em 1825, e o Brasil pagou por ele — dois milhões de libras a Portugal, em empréstimo tomado com bancos ingleses.",
+    d: "O Brasil deixou de ser colônia sem deixar de ser escravista: o país nasceu monarquia, com a mesma dinastia, os mesmos proprietários e o tráfico funcionando. Trocou-se quem mandava, não quem trabalhava. As províncias que resistiram — Bahia, Pará, Piauí — foram submetidas por guerra.",
+    f: "Lilia Moritz Schwarcz e Heloisa Starling, Brasil: uma biografia, Companhia das Letras, 2015 · Emília Viotti da Costa, Da monarquia à república, Editora Unesp, 2007" },
+
+  { t: "PODER MODERADOR",
+    o: "Da Constituição de 1824, art. 98, que o chamou de “a chave de toda a organização política”. A ideia vem do publicista francês Benjamin Constant.",
+    d: "Um quarto poder, exclusivo do imperador, acima do Executivo, do Legislativo e do Judiciário: permitia dissolver a Câmara, nomear senadores vitalícios e suspender magistrados. A primeira Constituição do país foi outorgada, não votada — o imperador dissolveu a Assembleia que a escrevia e mandou redigir outra.",
+    f: "Constituição Política do Império do Brasil, 25/03/1824, Planalto · José Murilo de Carvalho, A construção da ordem / Teatro de sombras, Civilização Brasileira, 2003" },
+
+  { t: "VOTO CENSITÁRIO",
+    o: "De censo, no sentido de renda declarada. O voto dependia de quanto a pessoa ganhava por ano, em mil-réis.",
+    d: "Votava quem tinha renda mínima; mulheres não votavam; quem era escravizado não existia como cidadão. Depois da República, a Constituição de 1891 acabou com a renda mas manteve a exclusão de analfabetos — num país onde a escola tinha sido negada a quase todos, isso deixou de fora a maioria da população até 1985.",
+    f: "Constituição de 1824 e Constituição de 1891, Planalto · José Murilo de Carvalho, Cidadania no Brasil: o longo caminho, Civilização Brasileira, 2001" },
+
+  { t: "LEI DE TERRAS",
+    o: "Lei nº 601, de 18 de setembro de 1850 — assinada duas semanas depois da lei que proibiu o tráfico. As duas datas juntas são o argumento.",
+    d: "Determinou que terra devoluta só se adquirisse por COMPRA, encerrando a posse por ocupação. Foi votada quando ficou claro que a escravidão acabaria: se a terra não pudesse mais ser tomada, quem fosse libertado sem dinheiro continuaria dependendo de quem já a tinha. A concentração fundiária brasileira tem data de nascimento.",
+    f: "Lei nº 601, de 18/09/1850, Planalto · Ligia Osorio Silva, Terras devolutas e latifúndio, Editora Unicamp, 2ª ed. 2008" },
+
+  { t: "GUERRA DO PARAGUAI",
+    o: "1864–1870. No Paraguai chama-se Guerra Guasú (“guerra grande”); na Argentina e no Uruguai, Guerra da Tríplice Aliança — cada nome carrega um ponto de vista.",
+    d: "O maior conflito armado da América do Sul. O Brasil recrutou à força os chamados Voluntários da Pátria e prometeu alforria a homens escravizados que servissem — muitos foram enviados no lugar dos filhos de proprietários. O Paraguai perdeu uma parcela devastadora de sua população, e as estimativas variam muito entre as fontes.",
+    f: "Francisco Doratioto, Maldita guerra, Companhia das Letras, 2002 · Ricardo Salles, Guerra do Paraguai: escravidão e cidadania na formação do exército, Paz e Terra, 1990",
+    dv: 1 },
+
+  { t: "CORONELISMO",
+    o: "De coronel, patente da Guarda Nacional criada em 1831 que era comprada, não conquistada. Virou o nome do chefe político local, dono de terra e de votos.",
+    d: "O sistema que sustentou a República Velha: o coronel entregava os votos da sua região ao governo estadual, e recebia em troca cargos, obras e o direito de mandar. Como o voto era aberto até 1932, quem dependia do coronel para trabalhar votava com ele olhando — é o “voto de cabresto”.",
+    f: "Victor Nunes Leal, Coronelismo, enxada e voto, Companhia das Letras, ed. 2012 (orig. 1949) · Boris Fausto, História do Brasil, Edusp, 2012" },
+
+  { g: "O DIA SEGUINTE DA ABOLIÇÃO", curto: "O DIA SEGUINTE",
+    sub: "13 de maio libertou e não deu chão: o que o país fez com quem acabara de libertar." },
+
+  { t: "BRANQUEAMENTO",
+    o: "De branquear. Foi política de Estado explícita: o Decreto nº 528, de 28 de junho de 1890, abriu a imigração a europeus e exigiu autorização do Congresso para a entrada de africanos e asiáticos.",
+    d: "A ideia de que o país “melhoraria” tornando-se mais branco, geração após geração. O Estado subsidiou a passagem de milhões de europeus para as lavouras de café ao mesmo tempo em que negava trabalho a quem tinha acabado de ser libertado. Não era preconceito difuso: estava escrito em decreto e defendido em congresso científico.",
+    f: "Decreto nº 528, de 28/06/1890, Planalto · Abdias do Nascimento, O genocídio do negro brasileiro, Paz e Terra, 1978 · Lilia Moritz Schwarcz, O espetáculo das raças, Companhia das Letras, 1993" },
+
+  { t: "RACISMO CIENTÍFICO",
+    o: "Do prestígio da ciência do século XIX, que emprestou método e vocabulário a uma conclusão decidida antes: medir crânios, classificar “tipos”, hierarquizar povos.",
+    d: "Museus, faculdades de medicina e de direito brasileiras produziram, entre 1870 e 1930, a justificativa erudita para a desigualdade que a abolição não desfez. É a razão de o racismo brasileiro ter vindo com diploma — e de a antropologia do século XX ter precisado desmontar aquilo peça por peça.",
+    f: "Lilia Moritz Schwarcz, O espetáculo das raças: cientistas, instituições e questão racial no Brasil, Companhia das Letras, 1993 · Sueli Carneiro, Dispositivo de racialidade, Zahar, 2023" },
+
+  { t: "VADIAGEM",
+    o: "De vadio. Virou crime no Código Penal de 1890, art. 399: não exercer profissão nem ter meios de subsistência era contravenção, com pena de prisão.",
+    d: "Dois anos depois da abolição, estar sem trabalho passou a ser crime — num país que acabara de recusar trabalho a quem libertara. O mesmo Código criminalizou a capoeira em artigo próprio. A liberdade de 1888 foi seguida de leis que devolveram à polícia o controle sobre os mesmos corpos.",
+    f: "Decreto nº 847, de 11/10/1890 (Código Penal), arts. 399 e 402, Câmara dos Deputados · Sidney Chalhoub, Trabalho, lar e botequim, Editora Unicamp, 3ª ed. 2012" },
+
+  { t: "CAPOEIRA",
+    o: "A origem da palavra é disputada: há a hipótese tupi (ko’o pwera, “mato que foi roçado”) e as que apontam para línguas bantas. Nenhuma é consensual, e as fontes divergem.",
+    d: "Luta, dança e jogo desenvolvidos por africanos e afro-brasileiros. Foi crime tipificado no Código Penal de 1890, art. 402, com pena de prisão e degredo; deixou de ser em 1937, e hoje a roda de capoeira é patrimônio cultural imaterial do Brasil e da humanidade. O mesmo país que a proibiu por meio século hoje a registra como patrimônio.",
+    f: "Decreto nº 847, de 11/10/1890, art. 402 · IPHAN, Roda de capoeira, registro de 2008 · UNESCO, 2014 · Carlos Eugênio Líbano Soares, A capoeira escrava, Editora Unicamp, 2004",
+    dv: 1 },
+
+  { t: "IMPRENSA NEGRA",
+    o: "Nome dado ao conjunto de jornais feitos por pessoas negras, para leitores negros, sobretudo em São Paulo entre 1910 e 1930 — O Menelik, O Clarim d’Alvorada, A Voz da Raça.",
+    d: "Enquanto a grande imprensa tratava a população negra como caso de polícia, esses jornais noticiavam casamentos, formaturas, clubes e denúncias de discriminação. São a prova documental de que houve organização, letramento e vida associativa negra logo depois da abolição — e a base de onde saiu a Frente Negra Brasileira.",
+    f: "Petrônio Domingues, Uma história não contada: negro, racismo e branqueamento em São Paulo no pós-abolição, Senac, 2004 · Acervo da Imprensa Negra Paulista, Arquivo Público do Estado de São Paulo" },
+
+  { t: "FRENTE NEGRA BRASILEIRA",
+    o: "Fundada em São Paulo em 16 de setembro de 1931. Virou partido político registrado em 1936.",
+    d: "A maior organização negra da história do país até então: tinha escola, ambulatório, jornal e milhares de associados. Foi extinta em 1937, junto com todos os partidos, pelo Estado Novo. Quarenta anos depois, o Movimento Negro Unificado retomaria o fio.",
+    f: "Petrônio Domingues, Uma história não contada, Senac, 2004 · Abdias do Nascimento, O genocídio do negro brasileiro, Paz e Terra, 1978 · Decreto-Lei nº 37, de 2/12/1937" },
+
+  { t: "CANUDOS",
+    o: "Arraial no sertão da Bahia, às margens do rio Vaza-Barris, fundado em 1893 e chamado por seus moradores de Belo Monte.",
+    d: "Um povoado de milhares de sertanejos pobres, muitos deles negros e libertos recentes, destruído em 1897 por quatro expedições do Exército da República. Foi tratado como ameaça monárquica — a leitura que a própria época já disputava. O que ali existia era gente sem terra vivendo junto.",
+    f: "Euclides da Cunha, Os sertões, 1902 · Walnice Nogueira Galvão, O império do Belo Monte, Fundação Perseu Abramo, 2001 · José Calasans, Canudos: origem e desenvolvimento de um arraial messiânico, 1997",
+    dv: 1 },
+
+  { t: "FAVELA",
+    o: "Favela é o nome de uma planta do sertão baiano (Cnidoscolus quercifolius), que cobria o morro da Favela, em Canudos. Soldados que voltaram da guerra sem receber soldo se instalaram num morro do Rio e o chamaram pelo nome daquele.",
+    d: "A palavra nasceu de uma guerra e de uma dívida do Estado com seus próprios soldados. O que ela nomeia — moradia autoconstruída sem título de propriedade — é o efeito direto de uma abolição sem terra e de cidades que nunca planejaram onde essa população moraria. O IBGE hoje as chama de favelas e comunidades urbanas.",
+    f: "Lilian Fessler Vaz, Dos cortiços às favelas e aos edifícios de apartamentos, Cadernos IPPUR, 1994 · IBGE, Censo 2022, nota técnica sobre favelas e comunidades urbanas, 2024",
+    dv: 1 },
+
+  { g: "O QUE NÃO PODIA SER DITO", curto: "NÃO PODIA SER DITO",
+    sub: "1964–1985: a censura, o que o Estado fez, e o que as comissões oficiais concluíram depois." },
+
+  { t: "GOLPE DE 1964",
+    o: "31 de março e 1º de abril de 1964. Foi chamado de “revolução” pelos atos oficiais do período; a Comissão Nacional da Verdade, criada por lei, o trata como golpe de Estado.",
+    d: "A deposição do presidente eleito e a instalação de um regime militar que durou 21 anos. O Congresso continuou funcionando, com partidos dissolvidos e substituídos por dois criados por decreto — a forma da democracia sem o conteúdo dela.",
+    f: "Relatório final da Comissão Nacional da Verdade, Lei nº 12.528/2011, dezembro de 2014 · Ato Institucional nº 1, de 9/04/1964 · Ato Institucional nº 2, de 27/10/1965, Planalto" },
+
+  { t: "AI-5",
+    o: "Ato Institucional nº 5, de 13 de dezembro de 1968. “Ato institucional” é norma que o próprio regime editava acima da Constituição, e que ele declarava não sujeita a apreciação judicial.",
+    d: "Fechou o Congresso, suspendeu o habeas corpus para crimes políticos, autorizou cassar mandatos e demitir servidores sem processo, e instituiu censura prévia. É o marco do endurecimento: o período mais violento do regime começa aqui, e o próprio texto do ato dizia que seus efeitos não seriam apreciados pelo Judiciário.",
+    f: "Ato Institucional nº 5, de 13/12/1968, Planalto · Relatório final da Comissão Nacional da Verdade, 2014" },
+
+  { t: "RELATÓRIO FIGUEIREDO",
+    o: "Relatório de 1967 do procurador Jader de Figueiredo Correia, encomendado pelo Ministério do Interior para apurar denúncias contra o Serviço de Proteção aos Índios. Mais de sete mil páginas, dado como perdido em incêndio e reencontrado em 2013 no Museu do Índio.",
+    d: "O que o relatório concluiu: funcionários do próprio órgão de proteção participaram de assassinatos, torturas e entrega de terras indígenas. O SPI foi extinto no ano seguinte e substituído pela Funai. A Comissão Nacional da Verdade estimou, com base nele e em outras fontes, que ao menos 8.350 indígenas foram mortos por ação ou omissão do Estado entre 1946 e 1988.",
+    f: "Relatório Figueiredo, 1967, Museu do Índio/Funai · Comissão Nacional da Verdade, relatório final, vol. II, texto 5, 2014" },
+
+  { t: "LEI DA ANISTIA",
+    o: "Lei nº 6.683, de 28 de agosto de 1979. Anistia vem do grego amnestía, “esquecimento”.",
+    d: "Concedeu anistia a quem cometeu crimes políticos “e conexos” no período — fórmula que passou a ser lida como perdão também a agentes do Estado. O STF a manteve nessa leitura em 2010 (ADPF 153); a Corte Interamericana de Direitos Humanos, no caso Gomes Lund, decidiu no mesmo ano que essa interpretação viola a Convenção Americana. As duas decisões seguem em vigor e em conflito.",
+    f: "Lei nº 6.683, de 28/08/1979, Planalto · STF, ADPF 153, 2010 · Corte IDH, Gomes Lund e outros vs. Brasil, 24/11/2010",
+    dv: 1 },
+
+  { t: "DIRETAS JÁ",
+    o: "Nome do movimento de 1983–1984 pela emenda que restabeleceria a eleição direta para presidente — a Emenda Dante de Oliveira.",
+    d: "Levou multidões às ruas de todo o país, e a emenda foi rejeitada na Câmara em abril de 1984. A eleição seguinte ainda foi indireta; o voto direto para presidente só voltou em 1989, depois de 29 anos. O movimento perdeu a votação e mudou o país — as duas coisas são verdade ao mesmo tempo.",
+    f: "PEC nº 5/1983 (Emenda Dante de Oliveira), Câmara dos Deputados · Lilia Schwarcz e Heloisa Starling, Brasil: uma biografia, Companhia das Letras, 2015" },
+
+  { t: "COMISSÃO NACIONAL DA VERDADE",
+    o: "Criada pela Lei nº 12.528, de 18 de novembro de 2011, instalada em 2012 e encerrada com relatório final em 10 de dezembro de 2014.",
+    d: "Apurou graves violações de direitos humanos praticadas entre 1946 e 1988. O relatório listou 434 mortos e desaparecidos políticos, identificou 377 agentes do Estado como responsáveis e recomendou que fossem responsabilizados — recomendação que não foi cumprida. Vale como “o que a comissão concluiu”, que é diferente e mais honesto que “o que aconteceu”.",
+    f: "Lei nº 12.528, de 18/11/2011, Planalto · Comissão Nacional da Verdade, relatório final, 3 volumes, dezembro de 2014" },
+
+  { g: "OS DIREITOS QUE FORAM CONQUISTADOS", curto: "OS DIREITOS",
+    sub: "Nenhuma dessas leis caiu do céu: cada uma tem um movimento por trás e uma data." },
+
+  { t: "VOTO FEMININO",
+    o: "Decreto nº 21.076, de 24 de fevereiro de 1932, o Código Eleitoral. Veio depois de quatro décadas de campanha, organizada desde 1922 pela Federação Brasileira pelo Progresso Feminino.",
+    d: "As mulheres passaram a votar — inicialmente só as casadas com autorização do marido e as solteiras com renda própria, restrições retiradas em 1934. Como o voto seguiu vedado a analfabetos até 1985, a conquista chegou primeiro a quem tinha tido escola, o que no Brasil daquele ano queria dizer poucas.",
+    f: "Decreto nº 21.076, de 24/02/1932, Planalto · Céli Regina Jardim Pinto, Uma história do feminismo no Brasil, Fundação Perseu Abramo, 2003" },
+
+  { t: "CLT",
+    o: "Consolidação das Leis do Trabalho, Decreto-Lei nº 5.452, de 1º de maio de 1943. “Consolidação” é a palavra exata: reuniu num texto só normas que já vinham sendo editadas desde os anos 1930.",
+    d: "Jornada, férias, carteira assinada e salário mínimo num código único. Foi apresentada como dádiva do governo, e a data escolhida — 1º de maio — ajudou a firmar essa leitura; a historiografia mostra que boa parte daquilo vinha de décadas de greve e organização operária. Trabalhadores domésticos, em maioria mulheres negras, só tiveram direitos equiparados em 2015.",
+    f: "Decreto-Lei nº 5.452, de 1/05/1943, Planalto · Lei Complementar nº 150, de 1/06/2015 · Ângela de Castro Gomes, A invenção do trabalhismo, FGV, 3ª ed. 2005" },
+
+  { t: "SUS",
+    o: "Sistema Único de Saúde. Nasce do art. 196 da Constituição de 1988 — “a saúde é direito de todos e dever do Estado” — e foi regulamentado pela Lei nº 8.080, de 19 de setembro de 1990.",
+    d: "Atendimento universal e gratuito, do posto de bairro ao transplante. Veio do movimento da reforma sanitária, construído por profissionais e usuários ao longo da ditadura e consolidado na 8ª Conferência Nacional de Saúde, em 1986. É um dos maiores sistemas públicos de saúde do mundo e a razão de a vacinação ter alcance nacional.",
+    f: "Constituição Federal de 1988, art. 196 · Lei nº 8.080, de 19/09/1990, Planalto · Relatório final da 8ª Conferência Nacional de Saúde, 1986, Ministério da Saúde" },
+
+  { t: "LEI 10.639",
+    o: "Lei nº 10.639, de 9 de janeiro de 2003, ampliada pela Lei nº 11.645, de 10 de março de 2008, que incluiu a história e a cultura indígenas.",
+    d: "Tornou obrigatório o ensino de história e cultura afro-brasileira, africana e indígena na educação básica. Foi pauta do movimento negro por décadas antes de virar lei — e é a razão de este glossário poder existir numa sala de aula. Sua aplicação é desigual e depende de formação de professores, que a própria lei não garantiu.",
+    f: "Lei nº 10.639, de 9/01/2003, e Lei nº 11.645, de 10/03/2008, Planalto · Parecer CNE/CP 3/2004, Diretrizes Curriculares Nacionais para a Educação das Relações Étnico-Raciais" },
+
+  { t: "COTAS",
+    o: "Ação afirmativa de reserva de vagas. A Lei nº 12.711, de 29 de agosto de 2012, as tornou obrigatórias nas universidades e institutos federais; a Lei nº 14.723/2023 as revisou e manteve.",
+    d: "Reserva de vagas para estudantes de escola pública, de baixa renda, pretos, pardos, indígenas e pessoas com deficiência. O STF julgou o modelo constitucional por unanimidade em 2012 (ADPF 186). O IBGE registrou que, entre 2010 e 2019, a proporção de pretos e pardos no ensino superior mais que dobrou.",
+    f: "Lei nº 12.711, de 29/08/2012, e Lei nº 14.723, de 13/11/2023, Planalto · STF, ADPF 186, 26/04/2012 · IBGE, Desigualdades sociais por cor ou raça no Brasil, 2019 e 2022" },
+
+  { t: "MOVIMENTO NEGRO UNIFICADO",
+    o: "Fundado em assembleia em 18 de junho de 1978 e lançado em ato público nas escadarias do Teatro Municipal de São Paulo em 7 de julho do mesmo ano, em plena ditadura. Nasceu como Movimento Unificado Contra a Discriminação Racial e adotou o nome atual no congresso de dezembro daquele ano.",
+    d: "É a organização que retomou o fio interrompido em 1937, quando o Estado Novo extinguiu a Frente Negra Brasileira, e a que fez do racismo assunto público num país que se dizia democracia racial. Dele vieram a adoção nacional do 20 de novembro, a campanha pelo quesito cor nos registros públicos e as pautas que viraram a Lei 10.639 e as cotas. As leis dos anos 2000 têm essa assembleia de 1978 como origem documentada.",
+    f: "Arquivo Nacional / Memórias Reveladas, Movimento Negro Unificado · Lélia Gonzalez e Carlos Hasenbalg, Lugar de negro, Marco Zero, 1982 · Petrônio Domingues, “Movimento negro brasileiro: alguns apontamentos históricos”, Tempo 12(23), 2007, UFF" },
+
+  { g: "CADA POVO TEM NOME", curto: "CADA POVO TEM NOME",
+    sub: "São 391 etnias e 295 línguas. Um glossário que diz isso e nomeia duas está desobedecendo à regra que ensina." },
+
+  { t: "GUARANI",
+    o: "Etnônimo em língua guarani, da família tupi-guarani. No Brasil o povo se divide em subgrupos que usam o próprio nome antes dele: Kaiowá, Ñandeva e Mbya.",
+    d: "Vivem no Sul, no Sudeste e sobretudo em Mato Grosso do Sul, e também no Paraguai, na Argentina e na Bolívia. O guarani kaiowá é a segunda língua indígena mais falada do país: 38.658 falantes no Censo de 2022. Em Mato Grosso do Sul boa parte do território tradicional — o tekoha — ficou fora das terras demarcadas, e as retomadas são a forma que as comunidades encontraram de voltar a ele.",
+    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2025 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "YANOMAMI",
+    o: "Do yanomami yanomamɨ, “ser humano”. Nomeia um conjunto de povos e de línguas aparentados, no norte de Roraima e do Amazonas e do outro lado da fronteira, na Venezuela.",
+    d: "A Terra Indígena Yanomami foi homologada em 1992, com cerca de 9,6 milhões de hectares, e é onde vive 94,34% da etnia — a maior proporção entre os povos com mais de dez mil pessoas, segundo o Censo de 2022. Davi Kopenawa, xamã e porta-voz do povo, escreveu com o antropólogo Bruce Albert A queda do céu, ao mesmo tempo autobiografia, cosmologia e denúncia do garimpo. Não é livro sobre eles: é livro deles.",
+    f: "Davi Kopenawa e Bruce Albert, A queda do céu, Companhia das Letras, 2015 · IBGE, Censo 2022, Etnias e línguas indígenas · Funai, TI Yanomami, homologação de 1992" },
+
+  { t: "KAYAPÓ",
+    o: "“Kayapó” é nome dado de fora, provavelmente por povos tupi vizinhos. Eles se autodenominam Mebêngôkre e falam uma língua do tronco macro-jê.",
+    d: "Vivem no sul do Pará e no norte do Mato Grosso, num conjunto de terras indígenas contíguas que forma um dos maiores blocos de floresta protegida do mundo. Foram protagonistas do I Encontro dos Povos Indígenas do Xingu, em Altamira, em fevereiro de 1989, que barrou por anos o projeto de barragens no rio. O nome que os livros usam não é o nome que eles usam, e essa distância é o assunto deste grupo.",
+    f: "Enciclopédia Povos Indígenas no Brasil, ISA · Aryon Dall'Igna Rodrigues, Línguas brasileiras, Loyola, 1986" },
+
+  { t: "XAVANTE",
+    o: "“Xavante” é grafia da administração colonial. O povo se autodenomina A'uwẽ, e a língua é do tronco macro-jê.",
+    d: "Vivem no cerrado de Mato Grosso, em terras hoje cercadas por lavoura de soja. Nos anos 1960 e 1970 parte deles foi removida à força do próprio território, e a Comissão Nacional da Verdade apurou o episódio no capítulo sobre violações contra povos indígenas. Mário Juruna, xavante, foi o primeiro indígena eleito deputado federal do Brasil, com mandato de 1983 a 1987, e ficou conhecido por andar com um gravador para registrar o que lhe prometiam.",
+    f: "Comissão Nacional da Verdade, relatório final, vol. II, texto 5, 2014 · Enciclopédia Povos Indígenas no Brasil, ISA · Câmara dos Deputados, legislatura 1983–1987" },
+
+  { t: "KRENAK",
+    o: "Krenak é o nome do povo e da língua, do tronco macro-jê. “Botocudo”, como a documentação do século XIX os chamava, é apelido dado pelos invasores a partir dos discos labiais, e o jogo não o usa.",
+    d: "Vivem no vale do rio Doce, em Minas Gerais; na língua deles o rio é o Watu, que é parente e não recurso. Em 5 de novembro de 2015 o rompimento da barragem de Fundão, em Mariana, despejou rejeito de mineração que percorreu o rio Doce até a foz e atingiu o território Krenak. Ailton Krenak, escritor e uma das vozes indígenas da Constituinte de 1987, foi eleito em 2023 o primeiro indígena da Academia Brasileira de Letras e tomou posse em 5 de abril de 2024.",
+    f: "Ailton Krenak, Ideias para adiar o fim do mundo, Companhia das Letras, 2019 · Academia Brasileira de Letras, cadeira 5, posse em 05/04/2024 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "PATAXÓ",
+    o: "Etnônimo registrado desde o século XIX no extremo sul da Bahia. A língua patxohã vem sendo reconstituída pelo próprio povo desde os anos 1990, a partir da memória de falantes e de registros escritos.",
+    d: "Vivem exatamente onde os navios de 1500 aportaram, no entorno do monte Pascoal — a primeira terra avistada, que virou parque nacional em 1961 sobre área que eles ocupavam. Em 1951 um episódio conhecido como “o Fogo de 51” levou à queima de aldeias e à dispersão de famílias inteiras, e está registrado no relatório da Comissão Nacional da Verdade. O povo do lugar onde a invasão começou continua disputando aquele lugar.",
+    f: "Comissão Nacional da Verdade, relatório final, vol. II, texto 5, 2014 · Enciclopédia Povos Indígenas no Brasil, ISA · ICMBio, Parque Nacional do Monte Pascoal, criado em 1961" },
+
+  { t: "MUNDURUKU",
+    o: "Etnônimo de origem discutida; o povo também se autodenomina Wuy Jugu. A língua é do tronco tupi, família munduruku.",
+    d: "Vivem na bacia do Tapajós, no Pará e no Mato Grosso, e enfrentam o garimpo de ouro e projetos de hidrelétrica e de hidrovia. Cansados de esperar pelo Estado, marcaram eles próprios os limites do território — a autodemarcação —, e a Terra Indígena Sawré Muybu recebeu portaria declaratória em 25 de setembro de 2024, com 178.173 hectares, dezessete anos depois de aberto o processo. Daniel Munduruku, escritor do mesmo povo, publicou dezenas de livros para crianças e jovens.",
+    f: "Portaria MJSP nº 779, de 25/09/2024, Ministério da Justiça e Segurança Pública · Funai · Daniel Munduruku, Meu vô Apolinário, Studio Nobel, 2001" },
+
+  { t: "TIKUNA",
+    o: "Tikuna (também Ticuna) é o nome do povo e da língua; eles se autodenominam Magüta. A língua não tem parentesco consensual com nenhuma outra família — é tratada como isolada.",
+    d: "Vivem no Alto Solimões, no Amazonas, e também no Peru e na Colômbia. São o povo indígena mais numeroso do Brasil, com 74.061 pessoas no Censo de 2022, e o tikuna é a língua indígena com mais falantes do país: 51.978. O povo mais numeroso do país é também um dos que a escola brasileira menos nomeia.",
+    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2025 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "TRONCO LINGUÍSTICO",
+    o: "Termo da linguística histórica: agrupamento de famílias de línguas que descendem de um mesmo ancestral remoto. Foi Aryon Dall'Igna Rodrigues quem o firmou para as línguas faladas no Brasil.",
+    d: "As 295 línguas indígenas do país não formam uma família só: há dois grandes troncos — o tupi e o macro-jê —, mais de uma dezena de famílias que não se encaixam em nenhum deles, como aruák, karib, pano, tukano e yanomami, e línguas isoladas, sem parente conhecido. Quem fala uma língua de um tronco não entende a de outro, do mesmo modo que um falante de português não entende russo. É a razão linguística de “índio” não descrever coisa nenhuma.",
+    f: "Aryon Dall'Igna Rodrigues, Línguas brasileiras: para o conhecimento das línguas indígenas, Loyola, 1986 · IBGE, Censo 2022, Etnias e línguas indígenas" },
+
+  { g: "A LÍNGUA QUE SE FALA AQUI", curto: "A LÍNGUA",
+    sub: "O português do Brasil foi feito de tupi, de línguas africanas e de proibição — e ainda está sendo feito." },
+
+  { t: "LÍNGUA GERAL",
+    o: "Nome que os próprios colonizadores davam à língua franca de base tupi falada no Brasil colonial. Houve duas: a língua geral paulista, do planalto, e a língua geral amazônica, que virou o nheengatu.",
+    d: "Por mais de dois séculos foi a língua do dia a dia em boa parte da colônia — nos aldeamentos, nas expedições, no comércio e dentro de casa se falava tupi, não português. O Diretório dos Índios, de 3 de maio de 1757, transformado em lei pelo alvará de 17 de agosto de 1758, proibiu as línguas indígenas e a língua geral e impôs o português. O português não venceu por ser mais útil: venceu por decreto.",
+    f: "Diretório que se deve observar nas povoações dos índios do Pará e do Maranhão, 03/05/1757, e alvará de 17/08/1758 · Elisa Frühauf Garcia, “O projeto pombalino de imposição da língua portuguesa aos índios”, Tempo 12(23), 2007, UFF" },
+
+  { t: "NHEENGATU",
+    o: "Do tupi nhe'enga (“fala, língua”) somado a katu (“bom”): língua boa. É a língua geral amazônica, a que sobreviveu à proibição de 1757.",
+    d: "É falada no rio Negro, no Amazonas, inclusive por povos que perderam a língua própria e adotaram esta. Em 2002 o município de São Gabriel da Cachoeira tornou o nheengatu, o tukano e o baniwa cooficiais ao lado do português — o primeiro do país a fazê-lo. Uma língua que o Estado proibiu em 1757 é hoje língua oficial de um município brasileiro.",
+    f: "Lei municipal nº 145, de 11/12/2002, São Gabriel da Cachoeira (AM), regulamentada pela Lei nº 210/2006 · José Ribamar Bessa Freire, Rio Babel: a história das línguas na Amazônia, EdUERJ, 2004" },
+
+  { t: "BANTO",
+    o: "Nomeia um conjunto de centenas de línguas da África central e austral — entre elas o quimbundo e o quicongo —, faladas nas regiões de onde partiu a maior parte das pessoas traficadas para o Brasil. Bantu é, nessas línguas, o plural de “pessoa”.",
+    d: "Palavras banto entraram no português do Brasil e ficaram no uso comum: quilombo, mocambo, senzala, samba, cafuné, moleque, caçula, fubá, quitanda, marimbondo. Não são exotismo de dicionário: são vocabulário corrente, e quase ninguém que as usa sabe de onde vieram. Uma língua não empresta tanto sem que muita gente a tenha falado aqui, por muito tempo.",
+    f: "Nei Lopes, Novo dicionário banto do Brasil, Pallas, 2003 · Yeda Pessoa de Castro, Falares africanos na Bahia: um vocabulário afro-brasileiro, Topbooks / Academia Brasileira de Letras, 2001" },
+
+  { t: "IORUBÁ",
+    o: "Língua da África Ocidental, falada sobretudo na atual Nigéria e no Benim. A documentação brasileira chamava seus falantes de nagôs.",
+    d: "Acarajé, abará, vatapá e caruru são palavras iorubá — e o vocabulário religioso inteiro também: orixá, axé, exu, ialorixá, ojá. O tráfico da Costa da Mina para a Bahia foi intenso no fim do século XVIII e no XIX, o que explica por que a marca do iorubá é mais forte em Salvador do que no resto do país. É língua que chegou tarde e concentrada, e por isso se ouve tão bem onde chegou.",
+    f: "Yeda Pessoa de Castro, Falares africanos na Bahia: um vocabulário afro-brasileiro, Topbooks / Academia Brasileira de Letras, 2001 · Nei Lopes, Enciclopédia brasileira da diáspora africana, Selo Negro, 2004" },
+
+  { g: "A FLORESTA QUE É OBRA DE GENTE", curto: "A FLORESTA",
+    sub: "A Amazônia não é intocada: é resultado de milênios de manejo, e continua dependendo de quem a defende." },
+
+  { t: "TERRA PRETA DE ÍNDIO",
+    o: "Nome popular, usado por ribeirinhos e agricultores da Amazônia muito antes de a ciência estudá-la. Na literatura técnica aparece como terra preta arqueológica ou solo antropogênico.",
+    d: "Manchas de solo escuro e fértil, cheias de carvão, cacos de cerâmica e restos de cozinha, espalhadas por centenas de sítios da Amazônia — fertilidade rara numa região de solos pobres. São registro material de aldeias grandes e demoradas: onde há terra preta, houve gente morando por séculos. Se ela foi produzida de propósito ou é subproduto de habitar o mesmo lugar por muito tempo é discussão aberta entre pesquisadores, e o jogo não escolhe.",
+    f: "Schmidt, Neves et al., “Intentional creation of carbon-rich dark earth soils in the Amazon”, Science Advances 9(38), 2023 · Silva et al., Nature Communications 12, 2021 · Eduardo Góes Neves, em Amazonian Dark Earths: Origin, Properties, Management, Kluwer, 2003",
+    dv: 1 },
+
+  { t: "FLORESTA CULTIVADA",
+    o: "Formulação da arqueologia e da ecologia histórica amazônicas, no lugar de “floresta virgem” ou “intocada”. É o mesmo movimento de vocabulário que este jogo faz com “descobrimento”.",
+    d: "Espécies úteis — castanheira, açaizeiro, pupunheira, cacaueiro, tucumã — aparecem na Amazônia em frequência muito acima do que o acaso explicaria, e se concentram perto de sítios arqueológicos: foram plantadas, favorecidas e cuidadas por gente, ao longo de milhares de anos. Chamar a floresta de intocada apaga esse trabalho e serve a quem argumenta que ali não havia ninguém. O que hoje se ensina como sistema agroflorestal moderno é, na Amazônia, prática antiga.",
+    f: "Carolina Levis et al., “Persistent effects of pre-Columbian plant domestication on Amazonian forest composition”, Science 355(6328), 2017 · Watling et al., PNAS, 2017 · William Balée, Cultural Forests of the Amazon, University of Alabama Press, 2013" },
+
+  { t: "SERINGUEIRO",
+    o: "De seringa — nome que o português deu à árvore Hevea brasiliensis pela seringa de borracha que dela se fazia. Seringueiro é quem corta a casca e recolhe o látex.",
+    d: "Entre 1879 e 1912, e de novo nos anos 1940, centenas de milhares de nordestinos foram levados para a Amazônia para tirar borracha, presos ao sistema de barracão: o patrão vendia comida e ferramenta a crédito, e a dívida nunca fechava. Na Segunda Guerra o Estado recrutou os chamados soldados da borracha, por acordo com os Estados Unidos, e só a Constituição de 1988 lhes reconheceu pensão, no art. 54 do ADCT. Foi dos seringais que saiu o movimento que inventou outra forma de proteger a floresta.",
+    f: "Barbara Weinstein, A borracha na Amazônia: expansão e decadência, 1850–1920, Hucitec/Edusp, 1993 · Decreto-Lei nº 5.813, de 14/09/1943 · ADCT, art. 54, CF/88, Planalto" },
+
+  { t: "EMPATE",
+    o: "Do português empatar no sentido antigo de “impedir, estorvar”. No Acre virou nome de tática: chegar antes da motosserra e ficar na frente dela.",
+    d: "Seringueiros, com mulheres e crianças à frente, cercavam a área a ser derrubada e se punham desarmados entre as árvores e as equipes de desmatamento. A tática saiu do sindicato rural de Xapuri e foi organizada nacionalmente a partir do 1º Encontro Nacional dos Seringueiros, em Brasília, em outubro de 1985, que criou o Conselho Nacional dos Seringueiros e propôs as reservas extrativistas — hoje uma categoria legal de unidade de conservação, no art. 18 da Lei do SNUC. Chico Mendes, seringueiro e sindicalista de Xapuri, articulou a proposta e foi assassinado em 22 de dezembro de 1988.",
+    f: "Chico Mendes por ele mesmo, org. Cândido Grzybowski, FASE, 1989 · Lei nº 9.985, de 18/07/2000 (SNUC), art. 18, Planalto · Conselho Nacional das Populações Extrativistas" },
+
+  { t: "DESMATAMENTO",
+    o: "De desmatar. Este jogo prefere a palavra a “conversão de uso do solo”, que é a fórmula do relatório técnico e não diz o que aconteceu com as árvores.",
+    d: "O Brasil mede o próprio desmatamento por satélite desde 1988: é o PRODES, do Instituto Nacional de Pesquisas Espaciais, que fecha o ano em 31 de julho e publica a taxa. A estimativa do INPE para 2025 na Amazônia Legal foi de 5.796 km², a menor em onze anos. Ter número público, comparável e antigo é o que permite discutir isso com dado em vez de com opinião — e é por isso que o instrumento de medida também é disputado.",
+    f: "INPE, PRODES / Programa de Monitoramento da Amazônia, nota técnica de estimativa da taxa de 2025, outubro de 2025" },
+
+  { g: "O TERRITÓRIO E QUEM O HABITA", curto: "O TERRITÓRIO",
+    sub: "Sertão, beira de rio, beira de mar: onde o país mora, e as categorias que o Estado só criou depois." },
+
+  { t: "SERTÃO",
+    o: "Palavra portuguesa antiga para “interior distante”, usada no plural desde os primeiros documentos coloniais: “os sertões” era tudo o que ficava longe da costa. Não é sinônimo de Nordeste nem de caatinga.",
+    d: "Nomeia o interior semiárido, coberto em boa parte pela caatinga — o único bioma inteiramente brasileiro, adaptado à chuva irregular. Foi ali que se instalou a pecuária colonial, que se ergueu Canudos, e de onde saíram as maiores migrações internas do país. “Sertão” mede distância do litoral, e o litoral é o ponto de vista de quem chegou de navio.",
+    f: "Euclides da Cunha, Os sertões, 1902 · Ministério do Meio Ambiente, bioma Caatinga · Durval Muniz de Albuquerque Jr., A invenção do Nordeste e outras artes, Cortez/Massangana, 1999" },
+
+  { t: "A INDÚSTRIA DA SECA",
+    o: "Expressão que circula na imprensa e na política desde meados do século XX; o jornalista Antônio Callado a firmou em reportagens reunidas em livro em 1960.",
+    d: "Nomeia o arranjo em que a verba pública contra a seca — açude, poço, frente de trabalho, carro-pipa — beneficiava sobretudo os donos das terras onde a obra era feita, e sustentava o poder local que decidia quem recebia. O Estado criou a Inspetoria de Obras Contra as Secas em 1909, depois DNOCS; em 1959 o relatório do Grupo de Trabalho para o Desenvolvimento do Nordeste, coordenado por Celso Furtado, mudou o diagnóstico — o problema não era a falta de chuva, era a estrutura da propriedade da terra. A seca é fenômeno natural; a fome que vinha com ela, não.",
+    f: "Antônio Callado, Os industriais da sêca e os “galileus” de Pernambuco, Civilização Brasileira, 1960 · GTDN, Uma política de desenvolvimento econômico para o Nordeste, 1959 · Celso Furtado, A fantasia desfeita, Paz e Terra, 1989" },
+
+  { t: "RETIRANTE",
+    o: "De retirar-se: quem sai da própria terra por causa da seca. A palavra se firmou na literatura e na imprensa do século XX, e carrega saída forçada, não escolha.",
+    d: "Da seca de 1877–79 em diante, milhões de nordestinos deixaram o interior: para os seringais da Amazônia, para as obras e as lavouras do Sudeste, para São Paulo no pau de arara. Foi essa migração que ergueu boa parte das cidades do Sul e do Sudeste, e quem chegou foi recebido com apelido. Retirante não descreve um povo: descreve o que uma estrutura de terra faz com quem não tem terra.",
+    f: "Celso Furtado, Formação econômica do Brasil, Fundo de Cultura, 1959 · Durval Muniz de Albuquerque Jr., A invenção do Nordeste e outras artes, Cortez/Massangana, 1999 · Graciliano Ramos, Vidas secas, 1938" },
+
+  { t: "NORDESTE",
+    o: "Como nome de região é recente: aparece na administração federal a partir dos anos 1910–1920, ligado à área atendida pelas obras contra a seca. Antes disso o país se dividia entre Norte e Sul.",
+    d: "O historiador Durval Muniz de Albuquerque Jr. mostrou que o Nordeste não foi encontrado no mapa: foi construído em discurso — na literatura, na política, na música e na pintura — como a região da seca, da falta e da tradição, em oposição a um Sudeste do progresso. Isso não torna a desigualdade menos real; torna visível quem pintou o retrato e para quê. Região também é coisa que alguém inventa.",
+    f: "Durval Muniz de Albuquerque Jr., A invenção do Nordeste e outras artes, Cortez / Fundação Joaquim Nabuco–Massangana, 1999 (tese, Unicamp, 1994)" },
+
+  { t: "RIBEIRINHO",
+    o: "De ribeira, a margem do rio. Nomeia quem vive na beira dos rios amazônicos e organiza a vida pelo ciclo da cheia e da seca.",
+    d: "As comunidades ribeirinhas descendem de indígenas, de migrantes nordestinos dos seringais e de quem ficou depois do fim da borracha; vivem de pesca, roça de várzea, extrativismo, e do rio como estrada. São categoria reconhecida pela Política Nacional de Desenvolvimento Sustentável dos Povos e Comunidades Tradicionais, de 2007. Quando a cheia sobe ou a seca fecha o rio, é a estrada deles que deixa de existir.",
+    f: "Decreto nº 6.040, de 07/02/2007, Planalto · Antonio Carlos Diegues, O mito moderno da natureza intocada, Hucitec, 1996" },
+
+  { t: "POVOS E COMUNIDADES TRADICIONAIS",
+    o: "Categoria jurídica brasileira, definida pelo Decreto nº 6.040, de 7 de fevereiro de 2007. Ela existe porque o país tinha gente com território e modo de vida próprios e nenhuma palavra legal para nomeá-la.",
+    d: "O decreto define grupos culturalmente diferenciados, que se reconhecem como tais e ocupam territórios de forma própria: quilombolas, ribeirinhos, caiçaras, pescadores artesanais, quebradeiras de coco-babaçu, geraizeiros, faxinalenses, pantaneiros, ciganos, entre dezenas de segmentos. Antônio Bispo dos Santos, quilombola do Piauí, chamou esse modo de viver de confluência e o opôs ao que ele nomeia colonização: povos que se juntam sem virar um só. Reconhecer no papel é o primeiro passo e não é o último — a titulação do território continua sendo o gargalo.",
+    f: "Decreto nº 6.040, de 07/02/2007, Planalto · Antônio Bispo dos Santos, Colonização, quilombos: modos e significações, INCTI/UnB, 2015 · Antonio Carlos Diegues, O mito moderno da natureza intocada, Hucitec, 1996" },
+
+  { t: "PEQUENA ÁFRICA",
+    o: "Nome dado pelo compositor Heitor dos Prazeres ao pedaço do Rio entre a Saúde, a Gamboa e a Praça Onze, no começo do século XX. O apelido pegou e virou o nome do lugar.",
+    d: "Foi onde a migração baiana, o porto e o terreiro se encontraram — e onde o samba se organizou como coisa urbana. Não era bairro oficial nem gueto imposto: era um território construído por quem chegou, com casa, festa, trabalho e culto no mesmo quarteirão.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Museu de Arte do Rio, Circuito Histórico e Arqueológico da Celebração da Herança Africana" },
+
+  { t: "DIÁSPORA BAIANA",
+    o: "Nome dado ao êxodo de baianos para o Rio de Janeiro entre o fim do século XIX e o começo do XX. “Diáspora” é palavra grega de dispersão, e aqui ela nomeia uma segunda mudança forçada pela economia, depois da primeira, que foi forçada pelo tráfico.",
+    d: "Com a decadência do açúcar no Recôncavo e a promessa de trabalho no porto da capital, milhares saíram da Bahia. Levaram junto a comida, o culto e o toque — e é por isso que o samba carioca tem sotaque baiano na origem.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Hermano Vianna, O mistério do samba, Zahar/UFRJ, 1995" },
+
+  { t: "PRAÇA ONZE",
+    o: "Praça Onze de Junho, no centro do Rio. Era o coração da Pequena África — onde as tias moravam e onde as escolas de samba desfilavam antes de haver avenida para desfilar.",
+    d: "As obras da Avenida Presidente Vargas duraram três anos, derrubaram 525 imóveis e a levaram junto; a avenida foi inaugurada em 1944. O samba perdeu seu chão e ganhou uma passarela oficial décadas depois — a troca não foi combinada com quem morava lá.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Prefeitura do Rio de Janeiro, documentação das obras da Avenida Presidente Vargas, 1941–1944" },
+
+  { g: "O TAMBOR, A FESTA E A COZINHA", curto: "TAMBOR E FESTA",
+    sub: "O que a lei proibiu, a lei depois registrou como patrimônio — e que continua sendo feito toda semana." },
+
+  { t: "TAMBOR",
+    o: "Palavra de origem árabe, ṭanbūr, chegada ao português pela Península Ibérica. Aqui ela cobre instrumentos de feitios muito diferentes — atabaque, tambu, alfaia, ilú, caixa —, e o nome genérico esconde essa variedade.",
+    d: "O batuque de tambor foi proibido por posturas municipais e reprimido pela polícia ao longo do século XIX e do início do XX, com o mesmo argumento usado contra a capoeira: desordem. É em torno dele que se organizaram o jongo, o samba, o maracatu e o congado — e, antes de todos, o terreiro, onde cada toque de atabaque chama um orixá e onde o tambor nunca parou. Proibi-lo era proibir a reunião e o culto, não o barulho. Muniz Sodré descreveu o tambor como forma de organizar o corpo e o grupo, não como acompanhamento.",
+    f: "Muniz Sodré, Samba, o dono do corpo, Codecri, 1979 · Nei Lopes, Enciclopédia brasileira da diáspora africana, Selo Negro, 2004 · Carlos Eugênio Líbano Soares, A capoeira escrava, Editora Unicamp, 2004" },
+
+  { t: "SAMBA",
+    o: "Do quimbundo semba, a umbigada que convida à dança na roda; a palavra circula no Brasil nomeando o ajuntamento antes de nomear o gênero. Nei Lopes registra a raiz banto, e as glosas variam entre autores.",
+    d: "Formou-se no encontro entre o samba de roda vindo do Recôncavo baiano e as casas das tias baianas na Pequena África do Rio, no começo do século XX — casas que eram terreiro, cozinha e ponto de encontro ao mesmo tempo, e onde a roda acontecia sob a proteção de quem mandava ali. “Pelo Telefone”, registrado por Donga na Biblioteca Nacional em 27 de novembro de 1916, é tratado como o primeiro samba gravado — e a autoria foi disputada na hora, porque aquilo era criação coletiva de roda. O Samba de Roda do Recôncavo é patrimônio do Brasil desde 2004 e da humanidade desde 2005; as matrizes do samba carioca — partido-alto, samba de terreiro e samba-enredo — desde 2007.",
+    f: "IPHAN, Samba de Roda do Recôncavo Baiano, registro de 2004, e UNESCO, 2005 · IPHAN, Matrizes do Samba no Rio de Janeiro, registro de 2007 · Muniz Sodré, Samba, o dono do corpo, Codecri, 1979 · Nei Lopes, Novo dicionário banto do Brasil, Pallas, 2003",
+    dv: 1 },
+
+  { t: "JONGO",
+    o: "Palavra de origem banto; as fontes divergem sobre a forma exata de que deriva. Também é chamado de caxambu e de tambu, pelo nome do tambor que o conduz.",
+    d: "Dança de roda com tambores e canto em versos, feita pelos africanos de língua banto levados para as fazendas de café do vale do Paraíba, no Sudeste. Os versos — os pontos — eram cantados em linguagem cifrada, que quem estava de fora não decifrava: era canto e era comunicação. É Patrimônio Cultural do Brasil desde 15 de dezembro de 2005 e é reconhecido como uma das matrizes de que o samba saiu.",
+    f: "IPHAN, Jongo no Sudeste, registro de 2005, Livro das Formas de Expressão · Nei Lopes, Novo dicionário banto do Brasil, Pallas, 2003",
+    dv: 1 },
+
+  { t: "MARACATU",
+    o: "A origem da palavra é disputada e nenhuma derivação é consensual. Há duas expressões distintas com o mesmo nome: o maracatu nação, ou de baque virado, do Recife, e o maracatu rural, ou de baque solto, da zona da mata pernambucana.",
+    d: "O maracatu nação é cortejo com rainha, corte e batalha de alfaias, e sua origem é atribuída às coroações de reis negros que as irmandades realizavam desde o século XVII — atribuída, não documentada linha a linha. Foi registrado como Patrimônio Cultural do Brasil pelo IPHAN em 2014, e o Brasil levou sua candidatura à lista da UNESCO em 2025. O que a polícia perseguia como desordem no começo do século XX é o que o Estado hoje leva a organismo internacional.",
+    f: "IPHAN, Maracatu Nação, registro de 2014, Livro das Formas de Expressão · Guerra-Peixe, Maracatus do Recife, Irmãos Vitale, 2ª ed. 1980 (orig. 1955) · Katarina Real, O folclore no carnaval do Recife, 1967",
+    dv: 1 },
+
+  { t: "FEIJOADA",
+    o: "De feijão, com o sufixo dos pratos de panela — o mesmo de caldeirada. A palavra existe em português antes do prato brasileiro atual, nomeando cozidos de feijão em geral.",
+    d: "A história de que teria nascido nas senzalas, com as sobras que o senhor descartava, não se sustenta em documento: orelha, pé, rabo e língua eram cortes apreciados e vendidos, não descarte, e a comida registrada nas fazendas era farinha, feijão e carne-seca. As primeiras descrições do prato como ele é hoje vêm de restaurantes do Rio no século XIX, e a lenda da senzala se consagrou depois, no modernismo, que queria um prato-símbolo da mistura brasileira. Desmontar a lenda não diminui a cozinha negra: mostra que ela foi apagada por uma história que parecia elogiá-la.",
+    f: "Luís da Câmara Cascudo, História da alimentação no Brasil, 1967 (ed. Global, 2004) · Carlos Alberto Dória, Formação da culinária brasileira, Três Estrelas, 2014",
+    dv: 1 },
+
+  { t: "PARTIDO-ALTO",
+    o: "Nome de uma forma de samba de improviso, cantada em versos respondidos pela roda. A origem da expressão é atribuída e disputada entre autores.",
+    d: "Um puxa o verso, a roda responde o refrão, e o próximo tem que improvisar em cima — quem não acompanha, sai. Era o que se cantava nas rodas da casa de Tia Ciata, e é uma das formas de onde o samba urbano saiu, antes de existir gravação para provar qualquer coisa.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Nei Lopes, Sambeabá: o samba que não se aprende na escola, Casa da Palavra, 2003",
+    dv: 1 },
+
+  { g: "QUEM ABRIU CAMINHO", curto: "QUEM ABRIU CAMINHO",
+    sub: "Gente que fez, escreveu e lutou — e o que a documentação sustenta sobre cada uma." },
+
+  { t: "LUIZ GAMA",
+    o: "1830–1882, Salvador. Nasceu livre, filho de uma africana livre e de um português; aos dez anos foi vendido como escravizado pelo próprio pai, o que era ilegal.",
+    d: "Aprendeu a ler aos dezessete, virou rábula — advogado sem diploma — e libertou centenas de pessoas nos tribunais, sustentando que todo africano trazido depois de 1831 era juridicamente livre. A OAB lhe deu o título de advogado em 2015, 133 anos depois da morte.",
+    f: "Elciene Azevedo, Orfeu de carapinha, Editora Unicamp, 1999 · Ligia Fonseca Ferreira (org.), Lições de resistência: artigos de Luiz Gama, Edições Sesc, 2020 · OAB, Conselho Federal, 2015" },
+
+  { t: "MARIA FIRMINA DOS REIS",
+    o: "1822–1917, Maranhão. Professora concursada, publicou assinando “Uma Maranhense” — nome de mulher em capa de romance era escândalo bastante.",
+    d: "Escreveu Úrsula (1859), tido como o primeiro romance de autoria de uma mulher negra no Brasil, e nele dá voz e memória a personagens africanos — a travessia contada por quem a sofreu, três décadas antes da abolição. Morreu cega e pobre; a obra foi reencontrada nos anos 1970.",
+    f: "Eduardo de Assis Duarte (org.), Literatura afro-brasileira: 100 autores, Pallas, 2014 · Zahidé Lupinacci Muzart, Escritoras brasileiras do século XIX, Editora Mulheres, 1999" },
+
+  { t: "ANDRÉ REBOUÇAS",
+    o: "1838–1898, Bahia. Engenheiro, filho e neto de homens negros livres; projetou docas, ferrovias e o abastecimento de água de várias capitais.",
+    d: "Defendia que a abolição sem terra não seria abolição: propunha a “democracia rural”, com divisão de terra para quem fosse libertado. Perdeu essa disputa, e a Lei de Terras de 1850 já tinha decidido o contrário. Morreu no exílio, na Ilha da Madeira.",
+    f: "Maria Alice Rezende de Carvalho, O quinto século: André Rebouças e a construção do Brasil, Revan/IUPERJ, 1998" },
+
+  { t: "JOSÉ DO PATROCÍNIO",
+    o: "1853–1905, Campos dos Goytacazes. Filho de um padre e de uma quitandeira negra. Jornalista; ficou conhecido como “o Tigre da Abolição”.",
+    d: "Comprou jornal para ter tribuna, fundou a Confederação Abolicionista em 1883 e transformou a imprensa em máquina de campanha. Escreveu que a Lei Áurea libertava sem reparar, e a década seguinte lhe deu razão.",
+    f: "Lilia Moritz Schwarcz e Heloisa Starling, Brasil: uma biografia, Companhia das Letras, 2015 · Ângela Alonso, Flores, votos e balas: o movimento abolicionista brasileiro, Companhia das Letras, 2015" },
+
+  { t: "MACHADO DE ASSIS",
+    o: "1839–1908, Rio de Janeiro. Neto de pessoas escravizadas alforriadas, criado no morro do Livramento; fundou e presidiu a Academia Brasileira de Letras.",
+    d: "O maior escritor do país era um homem negro, e o século XX passou a tratá-lo como se não fosse — retratos clarearam sua pele e a crítica leu como “universal” o que era também escrita sobre escravidão e cor. A releitura que devolve isso ao texto é recente.",
+    f: "Eduardo de Assis Duarte, Machado de Assis afro-descendente, Pallas/Crisálida, 2ª ed. 2007 · Sidney Chalhoub, Machado de Assis, historiador, Companhia das Letras, 2003" },
+
+  { t: "CAROLINA MARIA DE JESUS",
+    o: "1914–1977, Minas Gerais e São Paulo. Catadora de papel na favela do Canindé; escrevia em cadernos que recolhia do lixo.",
+    d: "Quarto de despejo (1960) vendeu dezenas de milhares de exemplares e foi traduzido em mais de dez línguas — o primeiro relato de dentro da favela escrito por quem morava nela, sem intermediário. Morreu esquecida, e sua obra voltou ao debate décadas depois.",
+    f: "Carolina Maria de Jesus, Quarto de despejo: diário de uma favelada, Livraria Francisco Alves, 1960 · Joel Rufino dos Santos, Carolina Maria de Jesus: uma escritora improvável, Garamond, 2009" },
+
+  { t: "ABDIAS DO NASCIMENTO",
+    o: "1914–2011, São Paulo. Fundou o Teatro Experimental do Negro em 1944, foi deputado federal e senador.",
+    d: "Deu nome ao que via: chamou de genocídio a política brasileira em relação à população negra, e sustentou a tese contra a ideia de democracia racial. É fonte central deste glossário, e não por deferência — vários verbetes daqui se apoiam no que ele documentou.",
+    f: "Abdias do Nascimento, O genocídio do negro brasileiro: processo de um racismo mascarado, Paz e Terra, 1978 · Abdias do Nascimento, O quilombismo, Vozes, 1980" },
+
+  { t: "LÉLIA GONZALEZ",
+    o: "1935–1994, Minas Gerais. Filósofa e antropóloga, fundadora do Movimento Negro Unificado em 1978.",
+    d: "Mostrou que racismo e sexismo não se somam, se entrelaçam — e criou o conceito de amefricanidade para nomear o que a América negra e indígena tem de próprio, em vez de lida como cópia atrasada da Europa. Levou o “pretuguês” a sério como categoria de análise, não como piada.",
+    f: "Lélia Gonzalez, Racismo e sexismo na cultura brasileira, 1984 · Lélia Gonzalez e Carlos Hasenbalg, Lugar de negro, Marco Zero, 1982" },
+
+  { t: "BEATRIZ NASCIMENTO",
+    o: "1942–1995, Sergipe. Historiadora, professora e roteirista; assassinada aos 52 anos ao defender uma amiga de uma agressão.",
+    d: "Tirou o quilombo do passado: mostrou que ele é uma forma social contínua, que não terminou em 1695 e reaparece no bairro, no terreiro e na favela. É a leitura que sustenta o grupo dos quilombos neste glossário.",
+    f: "Beatriz Nascimento, O conceito de quilombo e a resistência cultural negra, Afrodiáspora, 1985 · Alex Ratts, Eu sou atlântica: sobre a trajetória de vida de Beatriz Nascimento, Imprensa Oficial, 2006" },
+
+  { t: "CLÓVIS MOURA",
+    o: "1925–2003, Piauí. Sociólogo e jornalista, autodidata em boa parte da formação.",
+    d: "Rebeliões da senzala (1959) desmontou a ideia de que a escravidão foi aceita passivamente: catalogou quilombos, revoltas e fugas como um sistema de resistência permanente, não como episódios isolados. Escreveu contra a corrente da sua época e foi lido depois dela.",
+    f: "Clóvis Moura, Rebeliões da senzala: quilombos, insurreições, guerrilhas, Edições Zumbi, 1959" },
+
+  { t: "MILTON SANTOS",
+    o: "1926–2001, Bahia. Geógrafo; exilado pela ditadura em 1964, lecionou em universidades de três continentes antes de voltar.",
+    d: "Recebeu o prêmio Vautrin Lud, o mais importante da geografia mundial, em 1994 — único não europeu ou norte-americano a recebê-lo até então. Escreveu que a globalização é vivida como fábula por uns e como perversidade por outros, e que existe outra possível.",
+    f: "Milton Santos, Por uma outra globalização, Record, 2000 · Milton Santos, O espaço do cidadão, Nobel, 1987 · Prix international de géographie Vautrin Lud, 1994" },
+
+  { t: "CHIQUINHA GONZAGA",
+    o: "1847–1935, Rio de Janeiro. Filha de um oficial branco e de uma mulher negra; deixou o casamento para viver de música, o que lhe custou a família.",
+    d: "Primeira mulher a reger uma orquestra no Brasil e primeira maestrina de teatro musical do país. Compôs “Ó abre alas” (1899), o primeiro carnavalesco de autoria conhecida, e foi abolicionista atuante — vendia partituras para comprar alforrias.",
+    f: "Edinha Diniz, Chiquinha Gonzaga: uma história de vida, Zahar, 2ª ed. 2009" },
+
+  { t: "TEREZA DE BENGUELA",
+    o: "Século XVIII, vale do Guaporé, Mato Grosso. Chamada rainha Tereza na documentação colonial que registra o quilombo do Quariterê.",
+    d: "Liderou o quilombo do Quariterê depois da morte do companheiro, e a própria documentação dos que o atacaram descreve ali conselho, roça, forja e comércio de armas. O 25 de julho é, por lei, o Dia Nacional de Tereza de Benguela e da Mulher Negra. O que se sabe vem dos relatórios de quem foi destruí-lo — a mesma limitação de Palmares.",
+    f: "Lei nº 12.987, de 2/06/2014, Planalto · Documentação da capitania de Mato Grosso, séc. XVIII, citada em Flávio dos Santos Gomes, Mocambos e quilombos, Claro Enigma, 2015",
+    dv: 1 },
+
+  { t: "DANDARA",
+    o: "Século XVII, Palmares. Nomeada na tradição oral e no movimento negro como companheira de Zumbi e guerreira do quilombo.",
+    d: "Não há, até onde as pesquisas alcançam, documento colonial que a mencione — e isso não é motivo para calar: é motivo para dizer o que ela é. Dandara é uma figura da memória, e a memória é uma forma de história quando os arquivos foram escritos só por um lado. Este glossário separa as duas coisas em vez de fundi-las.",
+    f: "Silvia Hunold Lara, Palmares e Cucaú, Edusp, 2021 (sobre os limites da documentação palmarina) · Fundação Cultural Palmares",
+    dv: 1 },
+
+  { t: "AQUALTUNE",
+    o: "Século XVII. Na tradição, princesa do reino do Congo, capturada em guerra, trazida ao Brasil e avó de Zumbi.",
+    d: "Como Dandara, é figura da tradição e não do arquivo: não localizamos atestação em documento do período. Vale pelo que ela organiza — a lembrança de que quem foi traficado tinha linhagem, título e reino antes do navio, e não começou a existir no porto.",
+    f: "Nei Lopes, Enciclopédia brasileira da diáspora africana, Selo Negro, 4ª ed. 2011 · Silvia Hunold Lara, Palmares e Cucaú, Edusp, 2021",
+    dv: 1 },
+
+  { t: "LUIZA MAHIN",
+    o: "Século XIX, Bahia. Africana liberta, quitandeira; apontada na tradição como articuladora do levante dos malês de 1835.",
+    d: "Quem mais escreveu sobre ela foi o próprio filho, Luiz Gama, em carta de 1880 — e é dele quase tudo o que se repete desde então. A documentação do levante não a nomeia. O jogo a mantém porque a lacuna também ensina: a história de quem organizou por baixo raramente foi escrita por quem tinha papel e tinta.",
+    f: "Carta de Luiz Gama a Lúcio de Mendonça, 1880, em Ligia Fonseca Ferreira (org.), Lições de resistência, Edições Sesc, 2020 · João José Reis, Rebelião escrava no Brasil, Companhia das Letras, ed. rev. 2003",
+    dv: 1 },
+
+  { t: "AILTON KRENAK",
+    o: "1953–, vale do rio Doce. Do povo Krenak; eleito para a Academia Brasileira de Letras em 2023, o primeiro indígena a ocupar uma cadeira.",
+    d: "Na Assembleia Constituinte de 1987, pintou o rosto com jenipapo durante o próprio discurso, em silêncio calculado, e o gesto entrou na história do artigo 231. Escreve que a humanidade que se imagina separada da natureza é a ficção que está nos matando.",
+    f: "Ailton Krenak, Ideias para adiar o fim do mundo, Companhia das Letras, 2019 · Ailton Krenak, A vida não é útil, Companhia das Letras, 2020 · Academia Brasileira de Letras, 2023" },
+
+  { t: "DAVI KOPENAWA",
+    o: "1956–, terra indígena Yanomami. Xamã e porta-voz do povo Yanomami; presidente da Hutukara Associação Yanomami.",
+    d: "A queda do céu, escrito com o antropólogo Bruce Albert ao longo de trinta anos, é ao mesmo tempo autobiografia, cosmologia yanomami e acusação — chama de “povo da mercadoria” quem consome a floresta. A demarcação da terra Yanomami, em 1992, veio de campanha que ele conduziu.",
+    f: "Davi Kopenawa e Bruce Albert, A queda do céu: palavras de um xamã yanomami, Companhia das Letras, 2015 (orig. francês 2010) · Right Livelihood Award, 2019" },
+
+  { t: "MARÇAL DE SOUZA TUPÃ'I",
+    o: "1920–1983, Mato Grosso do Sul. Guarani-Ñandeva, enfermeiro e professor; Tupã'i é o nome que carregava do próprio povo.",
+    d: "Em 1980 falou diretamente ao papa João Paulo II, em Manaus, denunciando a expulsão dos Guarani de suas terras — discurso que correu o mundo. Foi assassinado em casa três anos depois, em novembro de 1983. A Comissão Nacional da Verdade tratou do caso em seu relatório.",
+    f: "Comissão Nacional da Verdade, relatório final, vol. II, texto 5, 2014 · Conselho Indigenista Missionário, documentação do caso" },
+
+  { t: "SÔNIA GUAJAJARA",
+    o: "1974–, terra indígena Araribóia, Maranhão. Do povo Guajajara; coordenou a Articulação dos Povos Indígenas do Brasil.",
+    d: "Assumiu em 2023 o Ministério dos Povos Indígenas, criado naquele ano — a primeira vez que a política indigenista federal ficou sob comando indígena, depois de mais de um século de órgãos dirigidos por não indígenas.",
+    f: "Medida Provisória nº 1.154, de 1/01/2023, e Lei nº 14.600/2023, Planalto · Articulação dos Povos Indígenas do Brasil (APIB)" },
+
+  { t: "ELIANE POTIGUARA",
+    o: "1950–, Rio de Janeiro, do povo Potiguara. Fundou em 1988 o Grupo Mulher-Educação Indígena, primeira organização de mulheres indígenas do país.",
+    d: "Escritora e educadora, foi das primeiras a tratar por escrito a violência específica contra a mulher indígena — a que vem de fora e a que se esconde dentro. Metade da vovó (2018) e Metade cara, metade máscara (2004) são referência em escola e universidade.",
+    f: "Eliane Potiguara, Metade cara, metade máscara, Global Editora, 2004 · GRUMIN, documentação institucional" },
+
+  { t: "MARIELLE FRANCO",
+    o: "1979–2018, Maré, Rio de Janeiro. Socióloga, mestre em administração pública; vereadora eleita em 2016 com a quinta maior votação da cidade.",
+    d: "Sua dissertação estudou as UPPs por dentro, e o mandato acompanhou a intervenção federal na segurança do Rio. Foi assassinada a tiros em 14 de março de 2018, junto do motorista Anderson Gomes. Em 2024 o Judiciário condenou os dois executores, e a apuração sobre quem os contratou seguiu em curso.",
+    f: "Marielle Franco, UPP: a redução da favela a três letras, dissertação, UFF, 2014 · Tribunal do Júri do Rio de Janeiro, sentença de 31/10/2024",
+    dv: 1 },
+
+  { t: "QUINTINO DE LACERDA",
+    o: "Sergipano, escravizado em Santos como cozinheiro de ganho; ficou livre na década de 1880 e liderou o quilombo do Jabaquara.",
+    d: "Depois de 13 de maio ninguém ali ganhou terra: em 1893 os moradores foram à justiça para ficar nas roças que tinham aberto antes da lei, e se declararam no processo “todos de profissão roceiros”. Ele virou vereador de Santos em 1895 — a luta mudou de lugar, não acabou.",
+    f: "Maria Helena Machado, O plano e o pânico, Edusp, 2ª ed. 2010 · Autos do processo de 1893, citados na mesma obra" },
+
+  { t: "TIA CIATA",
+    o: "Hilária Batista de Almeida, nascida em Santo Amaro da Purificação, Bahia, em 1854; veio para o Rio aos 22 anos. “Tia” era o tratamento das mulheres mais velhas e de autoridade da comunidade baiana no Rio.",
+    d: "Quituteira e iyakekerê no terreiro de João Alabá, foi na casa dela que as rodas de partido-alto aconteciam — e foi numa delas que nasceu “Pelo Telefone”. As casas das tias eram, ao mesmo tempo, cozinha, terreiro e ponto de encontro: o samba se organizou sob a proteção de quem mandava ali.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Registro de “Pelo Telefone”, Biblioteca Nacional, nº 3.295, 27/11/1916" },
+
+  { g: "A FÉ, E QUEM TENTOU PROIBI-LA", curto: "A FÉ",
+    sub: "As religiões que atravessaram o Atlântico e as que já estavam aqui — e a lei que as caçou." },
+
+  { t: "TERREIRO",
+    o: "Do português terreiro, o chão batido em volta da casa. Nomeia ao mesmo tempo o lugar, a comunidade que o mantém e a casa de culto inteira — em iorubá, ilê, casa.",
+    d: "Não é templo no sentido de prédio: é terra, árvore, casa e gente juntas, com hierarquia própria e função social que atravessou séculos. A Casa Branca do Engenho Velho, em Salvador, foi tombada pelo IPHAN em 1984 — o primeiro terreiro reconhecido como patrimônio no país.",
+    f: "Muniz Sodré, O terreiro e a cidade: a forma social negro-brasileira, Vozes, 1988 · IPHAN, processo de tombamento nº 1.067, Casa Branca do Engenho Velho, 1984" },
+
+  { t: "CANDOMBLÉ",
+    o: "A origem da palavra é atribuída ao quimbundo kandombele ou a formas próximas, com o sentido de culto e de louvor com tambor. As fontes divergem sobre a derivação exata.",
+    d: "Religião formada no Brasil a partir de tradições da África Ocidental e Central, organizada em nações e transmitida por iniciação. Não é sincretismo nem sobrevivência: é sistema próprio, com teologia, calendário, música e língua ritual — e continua sendo praticado por gente viva, não por folclore.",
+    f: "Juana Elbein dos Santos, Os nagô e a morte, Vozes, 1976 · Reginaldo Prandi, Mitologia dos orixás, Companhia das Letras, 2001 · Nei Lopes, Enciclopédia brasileira da diáspora africana, Selo Negro, 4ª ed. 2011",
+    dv: 1 },
+
+  { t: "NAÇÃO DE CANDOMBLÉ",
+    o: "Herda a palavra nação da classificação colonial de africanos, e a reaproveita: aqui ela nomeia a tradição ritual de cada casa, não a origem de cada pessoa.",
+    d: "Ketu ou nagô, jeje, angola e outras: cada nação tem língua de culto, repertório de cantigas, toques de tambor e detalhes de rito próprios. Falar em “o candomblé” no singular achata isso — é o mesmo erro que tratar 391 povos indígenas como um só.",
+    f: "Vagner Gonçalves da Silva, Candomblé e umbanda: caminhos da devoção brasileira, Selo Negro, 2005 · Lisa Earl Castillo, Entre a oralidade e a escrita, EDUFBA, 2008" },
+
+  { t: "ORIXÁ",
+    o: "Do iorubá òrìṣà. Chegou com quem foi traficado da região do golfo do Benim e se manteve, com repertório e nomes reconhecíveis, dos dois lados do Atlântico.",
+    d: "Forças da natureza e ancestrais divinizados, cada um com domínio, cor, comida, toque e história próprios. Não são santos com outro nome, nem “deuses” num panteão de manual: a relação com eles é de pertencimento e obrigação, e cada pessoa iniciada tem o seu.",
+    f: "Pierre Verger, Orixás: deuses iorubás na África e no Novo Mundo, Corrupio, 1981 · Reginaldo Prandi, Mitologia dos orixás, Companhia das Letras, 2001" },
+
+  { t: "EXU",
+    o: "Do iorubá Èṣù. A tradução como “diabo” foi obra de missionários cristãos do século XIX, que precisavam de um equivalente e escolheram o pior possível.",
+    d: "É o orixá do movimento, da comunicação e do caminho: nada chega aos outros orixás sem passar por ele, e por isso é o primeiro a ser saudado. A confusão com o demônio cristão não é engano ingênuo — foi ela que serviu de justificativa para a perseguição, e ainda serve.",
+    f: "Reginaldo Prandi, Mitologia dos orixás, Companhia das Letras, 2001 · Muniz Sodré, Pensar nagô, Vozes, 2017 · Nei Lopes, Enciclopédia brasileira da diáspora africana, Selo Negro, 4ª ed. 2011" },
+
+  { t: "AXÉ",
+    o: "Do iorubá àṣẹ, que também significa “assim seja”. A palavra saiu do terreiro para a fala comum brasileira, e de lá para o nome de um gênero musical.",
+    d: "Força vital que circula e se transmite — entre pessoas, objetos, comida e lugar. Não é energia abstrata: é algo que se recebe, se guarda e se repõe por meio de obrigações concretas, e é o que faz uma casa de culto ser mais que um prédio.",
+    f: "Juana Elbein dos Santos, Os nagô e a morte, Vozes, 1976 · Muniz Sodré, O terreiro e a cidade, Vozes, 1988" },
+
+  { t: "IALORIXÁ · BABALORIXÁ",
+    o: "Do iorubá ìyá (mãe) e bàbá (pai), somados a orixá. Em português: mãe de santo e pai de santo.",
+    d: "Quem dirige uma casa de culto, inicia, ensina e responde por ela. Em terreiros de matriz iorubá a autoridade feminina é central e antiga, o que fez de mulheres negras chefes de instituição num país que lhes negava qualquer outra chefia — Mãe Aninha, Mãe Menininha, Mãe Stella.",
+    f: "Ruth Landes, A cidade das mulheres, Editora UFRJ, ed. 2002 (orig. 1947) · Lisa Earl Castillo, Entre a oralidade e a escrita, EDUFBA, 2008" },
+
+  { t: "UMBANDA",
+    o: "A origem da palavra é atribuída a línguas banto, com sentido ligado à arte de curar. A narrativa fundadora corrente situa 1908, no Rio de Janeiro, com Zélio Fernandino de Moraes.",
+    d: "Religião nascida no Brasil, que junta orixás, entidades como pretos-velhos e caboclos, espiritismo kardecista e catolicismo popular. O relato de fundação única é contestado pela pesquisa, que descreve formação difusa em várias cidades ao mesmo tempo.",
+    f: "Diana Brown, Umbanda: religion and politics in urban Brazil, Columbia University Press, 1986 · Vagner Gonçalves da Silva, Candomblé e umbanda, Selo Negro, 2005",
+    dv: 1 },
+
+  { t: "ATABAQUE",
+    o: "Do árabe at-tabaq, pela via do português. São três, com nomes próprios — rum, rumpi e lé —, do maior ao menor.",
+    d: "O tambor da casa de culto, e não um instrumento entre outros: cada toque chama um orixá específico, e quem toca ocupa função reconhecida na hierarquia. É a razão de tantas leis de polícia terem tratado “batuque” como caso de ordem pública — proibir o tambor era proibir o culto.",
+    f: "Pierre Verger, Orixás, Corrupio, 1981 · Vagner Gonçalves da Silva, Candomblé e umbanda, Selo Negro, 2005" },
+
+  { t: "AFOXÉ",
+    o: "Do iorubá àfọ̀ṣẹ, “a palavra que faz acontecer”. É o candomblé saindo à rua no carnaval, com o repertório e o respeito da casa.",
+    d: "Bloco de carnaval ligado a terreiro, que sai depois de rito próprio. O Filhos de Gandhy, fundado em Salvador em 1949 por estivadores em greve, é o maior deles — e sua existência já foi, ela mesma, uma afirmação: sair à rua tocando o que a polícia proibia.",
+    f: "IPHAN, Ofício das Baianas de Acarajé, dossiê, 2005 · Antonio Risério, Carnaval Ijexá, Corrupio, 1981" },
+
+  { t: "SINCRETISMO",
+    o: "Do grego synkretismós, união. No Brasil nomeia a correspondência entre orixás e santos católicos — Iemanjá e Nossa Senhora, Ogum e São Jorge, entre outras.",
+    d: "Foi estratégia de sobrevivência sob perseguição: cultuar por trás do santo permitido. Mas parte das casas o recusa hoje como disfarce que já cumpriu seu papel — em 1983, um manifesto assinado por ialorixás baianas, entre elas Mãe Stella de Oxóssi, pediu o fim da mistura. Quais correspondências valem varia de nação para nação e de casa para casa.",
+    f: "Manifesto das ialorixás baianas, 2º Congresso Mundial da Tradição dos Orixás, Salvador, 1983 · Roger Bastide, As religiões africanas no Brasil, Edusp, ed. 1985 · Vagner Gonçalves da Silva, Candomblé e umbanda, Selo Negro, 2005",
+    dv: 1 },
+
+  { t: "INTOLERÂNCIA RELIGIOSA",
+    o: "Nome contemporâneo para o que a lei brasileira já chamou de “espiritismo”, “curandeirismo” e “magia”: os artigos 156, 157 e 158 do Código Penal de 1890.",
+    d: "Praticar religião de matriz africana foi crime tipificado, e a polícia apreendia objetos de culto em invasões de terreiro. A maior dessas apreensões virou acervo do Museu da Polícia do Rio e, em 2020, o IPHAN a tombou como patrimônio — o mesmo Estado que confiscou passou a proteger, 130 anos depois. A Constituição de 1988 garante o culto no art. 5º, VI.",
+    f: "Decreto nº 847, de 11/10/1890, arts. 156 a 158, Câmara dos Deputados · IPHAN, tombamento da Coleção do Museu da Polícia, 2020 · Constituição Federal de 1988, art. 5º, VI" },
+
+  { t: "PAJÉ",
+    o: "Do tupi pa'ê. Virou palavra guarda-chuva em português para funções que cada povo nomeia de um jeito — xapiri e xamã entre os Yanomami, wai'á entre os Xavante, e assim por diante.",
+    d: "Quem cura, sonha, conduz rito e negocia com o que não se vê. São centenas de práticas distintas, com formação, restrição e função diferentes em cada povo: falar de “o pajé” no singular é o mesmo apagamento que este glossário recusa em ÍNDIO. Nomeie o povo.",
+    f: "Davi Kopenawa e Bruce Albert, A queda do céu, Companhia das Letras, 2015 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+
+  { t: "O QUE NÃO SE CONTA",
+    o: "Não é um termo do culto: é o limite deste glossário, escrito aqui de propósito para que ninguém o confunda com lacuna.",
+    d: "Boa parte do que sustenta uma casa de culto é reservada a quem foi iniciado, e não está em livro. O que você lê nestes verbetes é o que a bibliografia pública já publicou e o que a instituição já registrou — e isso é uma fração. Um glossário que fingisse contar o resto estaria mentindo, ou repetindo o que alguém não devia ter contado.",
+    f: "Juana Elbein dos Santos, Os nagô e a morte, Vozes, 1976 · Muniz Sodré, Pensar nagô, Vozes, 2017" },
+
+  { t: "IYAKEKERÊ",
+    o: "Do iorubá ìyá kékeré, “mãe pequena”. É o posto imediatamente abaixo da ialorixá numa casa de candomblé.",
+    d: "Responde pela casa na ausência da mãe de santo e cuida da formação de quem está sendo iniciado. Tia Ciata era iyakekerê no terreiro de João Alabá — e é esse cargo, e não só a fama das festas, que explica a autoridade que ela tinha sobre o que acontecia na casa dela.",
+    f: "Roberto Moura, Tia Ciata e a Pequena África no Rio de Janeiro, Funarte, 1983 · Juana Elbein dos Santos, Os nagô e a morte, Vozes, 1976" },
+];
+// Espelha `montarFontes()`, e as duas diferenças são de propósito.
+//
+// 1. A caixa é procurada com `getElementById` e a função SAI CALADA se ela não existir. O
+//    molde HTML é território da Direção de Arte e chega em commit próprio: até lá `$()`
+//    devolveria null e o `.textContent` seguinte derrubaria a carga. Erro de console reprova
+//    o smoke test inteiro, e uma tela que ainda não existe não pode quebrar o jogo que existe.
+// 2. **NÃO se escreve `style.maxHeight` aqui, e isso é decisão da Direção de Arte**, escrita
+//    no estilo.css junto de `#listaGlossario`: a altura do rolo vem do FLEX (`flex: 1 1 auto`
+//    com `min-height: 0`), que toma o que sobra entre o título e o VOLTAR. `montarFontes()`
+//    calcula `window.innerHeight - 260` porque a tela dele é mais velha que essa correção —
+//    e o defeito é real: lista montada por qualquer outro caminho, ou uma janela cuja conta
+//    não bate, empurra o botão VOLTAR para fora da tela. Medir a janela aqui seria reintroduzir
+//    o bug e ainda brigar com o CSS, capando o rolo antes do fim do espaço disponível.
+//
+// `textContent`, nunca `innerHTML` — é o padrão do arquivo e é o que impede que um verbete
+// com “<” vire marcação. Verbete é texto; texto entra como texto.
+
+
+
+// ===== OS TERMOS RELACIONADOS — O MAPA DO HISTORIADOR (2026-08-09) =====
+// A pesquisa e os pares são DELE, e os comentários abaixo são o texto dele, copiado inteiro:
+// o critério de escolha é a parte do trabalho que o código não guarda sozinho, e um mapa de
+// remissões sem o porquê de cada uma vira, na primeira revisão, uma lista que ninguém ousa
+// mexer. Se um par for reescrito, reescreve-se o comentário junto.
+//
+// POR QUE UM MAPA À PARTE, e não um campo `rel` dentro de cada verbete — decisão minha, do
+// Dev, e é sobre quem edita o quê. O `GLOSSARIO` é a mesa do historiador: 53 verbetes com
+// origem, definição e fonte, e ele volta lá toda vez que a pesquisa muda. As remissões são
+// outra camada, de outra rodada, e enfiá-las no meio do array obrigaria a abrir 52 objetos
+// para mexer numa teia que só se lê inteira — é aqui, com tudo em duas telas, que se enxerga
+// um verbete que ninguém aponta ou um par corretivo que ficou de mão única.
+// `glRelacionados()` aceita as DUAS formas: um `rel: [...]` escrito dentro de um verbete
+// vence este mapa, para o dia em que um verbete novo chegar com as remissões já embutidas.
+//
+// O ELO É CONFERIDO PELO SMOKE TEST, e é o que sustenta a promessa do parágrafo seguinte:
+// chave ou valor que não case com nenhum `t` do `GLOSSARIO` some CALADO da tela (link morto
+// é pior que link ausente) e REPROVA o teste, que é onde um erro de digitação tem que doer.
+//
+// O QUE ESTE MAPA É, e o que ele deliberadamente não é. Ele não lista "verbetes do mesmo
+// assunto" nem "verbetes da mesma época" — isso um filtro de grupo já faz, e o glossário já
+// tem filtro de grupo. Cada vizinho aqui foi escolhido por um critério só: **ele muda o
+// entendimento do verbete de onde a pessoa veio.** O par que ensina é INVASÃO → GUERRA JUSTA
+// (a lei que transformou a violência em política); INVASÃO → PINDORAMA seria só coincidência
+// de século.
+//
+// DE 2 A 4, NUNCA MAIS. Lista longa é lista que ninguém segue: se tudo é relacionado, nada é.
+// O teto de quatro é o que obriga a escolher, e a escolha é o conteúdo.
+//
+// OS PARES QUE SE CORRIGEM ANDAM NOS DOIS SENTIDOS — ÍNDIO ↔ INDÍGENA, DESCOBRIMENTO ↔
+// INVASÃO, GANA ZUMBA ↔ ZUMBI, TRIBO ↔ ETNIA. É neles que o glossário deixa de ensinar fato e
+// passa a ensinar método: quem cai no verbete errado tem que poder ser levado ao certo, e quem
+// já está no certo tem que ver de onde veio o erro. Um par corretivo de mão única ensina
+// metade.
+//
+// CHAVE = o `t` EXATO do verbete, letra por letra e acento por acento. O casamento é por
+// igualdade de string; "INVASAO" ou "Invasão" viram link morto e silencioso. Atenção especial
+// a "CRIOULO · CRIOULA" e "LIBERTO · LIBERTA": o separador é U+00B7 (·) COM espaço dos dois
+// lados. Todos os 53 verbetes têm entrada, e todo valor existe no array — conferido um a um.
+const GLOSSARIO_REL: { [t: string]: string[] } = {
+
+  // — AS PALAVRAS QUE ESTE JOGO ESCOLHE —
+  // O grupo do vocabulário é o único em que quase todo verbete tem um ANTÔNIMO de método:
+  // a palavra que ele recusa, ou a que o recusa. É esse par que vai em primeiro lugar.
+  "INVASÃO":               ["DESCOBRIMENTO", "GUERRA JUSTA", "CONQUISTA", "PATAXÓ"],
+  "DESCOBRIMENTO":         ["INVASÃO", "ENCONTRO DE CULTURAS", "POVOS ORIGINÁRIOS"],
+  // A ligação com o BROOKES é a que faz aquele verbete render: o diagrama é o caso extremo da
+  // coisa que ESTE verbete recusa — gente virando quantidade — e desta vez quem reduziu estava
+  // do lado de quem queria acabar com o tráfico. É onde o glossário ensina que intenção boa não
+  // isenta o documento de leitura.
+  "PESSOA ESCRAVIZADA":    ["LIBERTO · LIBERTA", "DIAGRAMA DO BROOKES", "ALFORRIA", "TRÁFICO ATLÂNTICO", "SENHOR"],
+  "POVOS ORIGINÁRIOS":     ["INDÍGENA", "ÍNDIO", "ETNIA", "DIA DOS POVOS INDÍGENAS"],
+  "INDÍGENA":              ["ÍNDIO", "ETNIA", "POVOS ORIGINÁRIOS", "GUARANI"],
+  "ÍNDIO":                 ["INDÍGENA", "POVOS ORIGINÁRIOS", "ETNIA", "DIA DOS POVOS INDÍGENAS"],
+  "GUERRA JUSTA":          ["INVASÃO", "ALDEAMENTO", "CONQUISTA"],
+  "ENCONTRO DE CULTURAS":  ["DESCOBRIMENTO", "INVASÃO", "A DOENÇA QUE CHEGOU NOS NAVIOS"],
+  "TRIBO":                 ["ETNIA", "POVOS ORIGINÁRIOS", "PRÉ-HISTÓRIA", "TRONCO LINGUÍSTICO"],
+  "PRÉ-HISTÓRIA":          ["SAMBAQUI", "GEOGLIFO", "MARAJÓ", "TRIBO", "RACISMO CIENTÍFICO"],
+  "CONTATO":               ["INVASÃO", "DEMARCAÇÃO", "POVOS ORIGINÁRIOS", "YANOMAMI"],
+  "CONQUISTA":             ["INVASÃO", "GUERRA JUSTA", "DEMARCAÇÃO"],
+
+  // — QUEM JÁ ESTAVA AQUI — E CONTINUA —
+  // Aqui o vizinho que muda o entendimento é quase sempre o do PRESENTE: TUPINAMBÁ manda para
+  // DEMARCAÇÃO porque a terra de Olivença está em processo agora, e é isso que desfaz a leitura
+  // de que o capítulo trata de gente que acabou.
+  "PINDORAMA":             ["TUPI", "TUPINAMBÁ", "POVOS ORIGINÁRIOS"],
+  "TUPI":                  ["TUPINAMBÁ", "PINDORAMA", "MANDIOCA", "TRONCO LINGUÍSTICO"],
+  "TUPINAMBÁ":             ["MANTO TUPINAMBÁ", "TUPI", "DEMARCAÇÃO", "A DOENÇA QUE CHEGOU NOS NAVIOS"],
+  "MANDIOCA":              ["TUPI", "TUPINAMBÁ", "INVASÃO", "FLORESTA CULTIVADA"],
+  // O MANTO puxa VALONGO de propósito, e é o link mais longo do mapa: são as duas peças de
+  // memória que voltaram por decisão de instituição — um museu em 2024, a UNESCO em 2017 —, e
+  // vê-las lado a lado ensina que memória aqui é ato institucional, não acaso.
+  "MANTO TUPINAMBÁ":       ["TUPINAMBÁ", "DEMARCAÇÃO", "VALONGO"],
+  "ALDEAMENTO":            ["GUERRA JUSTA", "A DOENÇA QUE CHEGOU NOS NAVIOS", "DEMARCAÇÃO", "LÍNGUA GERAL"],
+  "ETNIA":                 ["INDÍGENA", "ÍNDIO", "TRIBO", "TRONCO LINGUÍSTICO"],
+  "DEMARCAÇÃO":            ["CONSTITUIÇÃO DE 1988", "CONTATO", "TUPINAMBÁ", "CONQUISTA", "MARCO TEMPORAL", "SÔNIA GUAJAJARA"],
+  // Os três sítios se apontam entre si E apontam para PRÉ-HISTÓRIA. Não é preguiça: são
+  // exatamente as três obras que derrubam a palavra, e a palavra é o que se quer derrubar.
+  "SAMBAQUI":              ["PRÉ-HISTÓRIA", "GEOGLIFO", "MARAJÓ"],
+  "GEOGLIFO":              ["PRÉ-HISTÓRIA", "MARAJÓ", "SAMBAQUI", "TERRA PRETA DE ÍNDIO"],
+  "MARAJÓ":                ["PRÉ-HISTÓRIA", "GEOGLIFO", "SAMBAQUI", "FLORESTA CULTIVADA"],
+  "A DOENÇA QUE CHEGOU NOS NAVIOS": ["ENCONTRO DE CULTURAS", "INVASÃO", "ALDEAMENTO", "TUPINAMBÁ"],
+
+  // — OS QUILOMBOS E QUEM OS ERGUEU —
+  "QUILOMBO":              ["MOCAMBO", "PALMARES", "QUILOMBOLA", "BANTO", "BEATRIZ NASCIMENTO", "JABAQUARA"],
+  "QUILOMBOLA":            ["QUILOMBO", "CONSTITUIÇÃO DE 1988", "FUNDAÇÃO CULTURAL PALMARES", "DIA DA CONSCIÊNCIA NEGRA", "LEI DE TERRAS", "PEDRA DO SAL"],
+  "MOCAMBO":               ["QUILOMBO", "PALMARES", "SERRA DA BARRIGA"],
+  "PALMARES":              ["MOCAMBO", "ZUMBI", "GANA ZUMBA", "SERRA DA BARRIGA"],
+  "SERRA DA BARRIGA":      ["PALMARES", "MOCAMBO", "FUNDAÇÃO CULTURAL PALMARES"],
+  "ZUMBI":                 ["GANA ZUMBA", "PALMARES", "DIA DA CONSCIÊNCIA NEGRA", "DANDARA"],
+  // A trinca da PALEOGRAFIA — GANA ZUMBA, ACA INENE, ANGOLA JANGA — é o coração do método
+  // deste glossário: dois nomes que a releitura do manuscrito de 1678 CORRIGIU e um nome que
+  // a documentação NÃO sustenta. Quem andar pelos três aprende a diferença entre "o livro
+  // repetia errado" e "não há fonte", que não é a mesma coisa.
+  "GANA ZUMBA":            ["ZUMBI", "ACA INENE", "PALMARES"],
+  "ACA INENE":             ["GANA ZUMBA", "ANGOLA JANGA", "PALMARES"],
+  "ANGOLA JANGA":          ["ACA INENE", "MOCAMBO", "PALMARES", "DANDARA"],
+
+  // — COMO A ESCRAVIDÃO FOI MONTADA —
+  "TRAVESSIA":             ["TRÁFICO ATLÂNTICO", "DIAGRAMA DO BROOKES", "VALONGO", "ENGENHO", "TUMBEIRO"],
+  "DIAGRAMA DO BROOKES":   ["TRAVESSIA", "TRÁFICO ATLÂNTICO", "PESSOA ESCRAVIZADA", "TUMBEIRO"],
+  // BÚZIOS entra aqui porque é a prova material da frase do verbete: tráfico é palavra de
+  // comércio, e havia MOEDA. A concha é o preço.
+  "TRÁFICO ATLÂNTICO":     ["TRAVESSIA", "ENGENHO", "VALONGO", "BÚZIOS", "LEI EUSÉBIO DE QUEIRÓS"],
+  "ENGENHO":               ["TRÁFICO ATLÂNTICO", "PESSOA ESCRAVIZADA", "PALMARES", "SENHOR"],
+  "VALONGO":               ["TRAVESSIA", "TRÁFICO ATLÂNTICO", "SERRA DA BARRIGA"],
+  "DEGREDO":               ["LEVANTE DOS MALÊS", "LIBERTO · LIBERTA", "TRAVESSIA"],
+
+  // — O TRABALHO, A FÉ E A REVOLTA —
+  "GANHADEIRA":            ["ALFORRIA", "ACARAJÉ", "PANO DA COSTA", "CRIOULO · CRIOULA", "LUIZA MAHIN"],
+  "MALÊ":                  ["LEVANTE DOS MALÊS", "CRIOULO · CRIOULA", "DEGREDO", "IORUBÁ"],
+  "LEVANTE DOS MALÊS":     ["MALÊ", "DEGREDO", "LIBERTO · LIBERTA", "GANHADEIRA", "LUIZA MAHIN"],
+  "CRIOULO · CRIOULA":     ["MALÊ", "LIBERTO · LIBERTA", "PESSOA ESCRAVIZADA", "GANHADEIRA", "NAÇÃO"],
+  // LIBERTO puxa LEI ÁUREA, e esse é o par mais duro do glossário: "liberto não era igual a
+  // livre" em 1835 e "a liberdade veio sem chão" em 1888 são a mesma frase com 53 anos de
+  // distância.
+  "LIBERTO · LIBERTA":     ["ALFORRIA", "DEGREDO", "LEVANTE DOS MALÊS", "LEI ÁUREA"],
+  "ALFORRIA":              ["LIBERTO · LIBERTA", "GANHADEIRA", "LEI ÁUREA", "LEI DO VENTRE LIVRE", "LUIZ GAMA"],
+  "ACARAJÉ":               ["GANHADEIRA", "BÚZIOS", "PANO DA COSTA", "IORUBÁ", "AXÉ"],
+  "PANO DA COSTA":         ["GANHADEIRA", "ACARAJÉ", "BÚZIOS", "TRÁFICO ATLÂNTICO", "ORIXÁ"],
+  "BÚZIOS":                ["TRÁFICO ATLÂNTICO", "ACARAJÉ", "PANO DA COSTA", "ORIXÁ"],
+
+  // — O QUE CHAMARAM DE LIBERDADE (e o que sobrou das datas) —
+  // Este grupo é o que menos se explica sozinho: uma lei só significa alguma coisa ao lado do
+  // que ela deixou de fazer. Por isso todo verbete daqui aponta para FORA do grupo.
+  "DIA DA CONSCIÊNCIA NEGRA":   ["ZUMBI", "LEI ÁUREA", "PALMARES", "QUILOMBOLA", "FRENTE NEGRA BRASILEIRA"],
+  "LEI ÁUREA":                  ["DIA DA CONSCIÊNCIA NEGRA", "LIBERTO · LIBERTA", "ALFORRIA", "QUILOMBOLA", "LEI DO VENTRE LIVRE", "JOSÉ DO PATROCÍNIO", "JABAQUARA"],
+  "CONSTITUIÇÃO DE 1988":       ["DEMARCAÇÃO", "QUILOMBOLA", "POVOS ORIGINÁRIOS", "MARCO TEMPORAL", "AILTON KRENAK"],
+  "DIA DOS POVOS INDÍGENAS":    ["ÍNDIO", "POVOS ORIGINÁRIOS", "INDÍGENA", "ETNIA", "LEI 10.639"],
+  "FUNDAÇÃO CULTURAL PALMARES": ["QUILOMBOLA", "PALMARES", "SERRA DA BARRIGA"],
+
+
+  // ===== A LEVA DE 2026-08-10 — o glossario passa a falar do Brasil inteiro =====
+  // Mesmo criterio das 178 anteriores: 2 a 4 por verbete, e o vizinho escolhido e o que MUDA
+  // O ENTENDIMENTO do verbete atual, e nao o que apenas coincide na epoca. Os pares que se
+  // corrigem andam nos dois sentidos, e SENHOR <-> PESSOA ESCRAVIZADA e o mais importante
+  // deles: aquele verbete argumenta que o participio "devolve o verbo e devolve o sujeito",
+  // e ate esta leva o sujeito nao tinha para onde apontar.
+  "SENHOR": ["PESSOA ESCRAVIZADA", "ENGENHO", "LEI DE TERRAS", "ALFORRIA"],
+  "TUMBEIRO": ["TRAVESSIA", "DIAGRAMA DO BROOKES", "TRÁFICO ATLÂNTICO"],
+  "NAÇÃO": ["CRIOULO · CRIOULA", "MALÊ", "TRÁFICO ATLÂNTICO", "MARACATU"],
+  "LEI EUSÉBIO DE QUEIRÓS": ["TRÁFICO ATLÂNTICO", "LEI DE TERRAS", "LEI ÁUREA"],
+  "LEI DO VENTRE LIVRE": ["LEI DOS SEXAGENÁRIOS", "LEI ÁUREA", "ALFORRIA"],
+  "LEI DOS SEXAGENÁRIOS": ["LEI DO VENTRE LIVRE", "LEI ÁUREA", "SENHOR"],
+  "INDEPENDÊNCIA": ["PODER MODERADOR", "VOTO CENSITÁRIO", "TRÁFICO ATLÂNTICO"],
+  "PODER MODERADOR": ["INDEPENDÊNCIA", "VOTO CENSITÁRIO", "CONSTITUIÇÃO DE 1988"],
+  "VOTO CENSITÁRIO": ["PODER MODERADOR", "CORONELISMO", "VOTO FEMININO"],
+  "LEI DE TERRAS": ["LEI EUSÉBIO DE QUEIRÓS", "FAVELA", "QUILOMBOLA", "SENHOR", "ANDRÉ REBOUÇAS"],
+  "GUERRA DO PARAGUAI": ["ALFORRIA", "INDEPENDÊNCIA", "CANUDOS"],
+  "CORONELISMO": ["VOTO CENSITÁRIO", "CANUDOS", "LEI DE TERRAS", "A INDÚSTRIA DA SECA"],
+  "BRANQUEAMENTO": ["RACISMO CIENTÍFICO", "DEMOCRACIA RACIAL", "LEI ÁUREA", "IMPRENSA NEGRA", "MESTIÇAGEM"],
+  "RACISMO CIENTÍFICO": ["BRANQUEAMENTO", "DEMOCRACIA RACIAL", "PRÉ-HISTÓRIA", "RACISMO ESTRUTURAL"],
+  "VADIAGEM": ["CAPOEIRA", "LEI ÁUREA", "BRANQUEAMENTO", "SAMBA", "INTOLERÂNCIA RELIGIOSA"],
+  "CAPOEIRA": ["VADIAGEM", "NAÇÃO", "DIA DA CONSCIÊNCIA NEGRA", "TAMBOR", "INTOLERÂNCIA RELIGIOSA"],
+  "IMPRENSA NEGRA": ["FRENTE NEGRA BRASILEIRA", "BRANQUEAMENTO", "DEMOCRACIA RACIAL", "LUGAR DE FALA", "JOSÉ DO PATROCÍNIO"],
+  "FRENTE NEGRA BRASILEIRA": ["IMPRENSA NEGRA", "COTAS", "DIA DA CONSCIÊNCIA NEGRA", "MOVIMENTO NEGRO UNIFICADO", "ABDIAS DO NASCIMENTO"],
+  "CANUDOS": ["FAVELA", "CORONELISMO", "LEI DE TERRAS", "SERTÃO"],
+  "FAVELA": ["CANUDOS", "LEI DE TERRAS", "QUILOMBOLA", "RETIRANTE", "CAROLINA MARIA DE JESUS"],
+  "DEMOCRACIA RACIAL": ["BRANQUEAMENTO", "RACISMO CIENTÍFICO", "COTAS", "PESSOA ESCRAVIZADA", "MESTIÇAGEM", "ABDIAS DO NASCIMENTO"],
+  "GOLPE DE 1964": ["AI-5", "COMISSÃO NACIONAL DA VERDADE", "LEI DA ANISTIA"],
+  "AI-5": ["GOLPE DE 1964", "DIRETAS JÁ", "COMISSÃO NACIONAL DA VERDADE"],
+  "RELATÓRIO FIGUEIREDO": ["COMISSÃO NACIONAL DA VERDADE", "DEMARCAÇÃO", "POVOS ORIGINÁRIOS", "XAVANTE"],
+  "LEI DA ANISTIA": ["COMISSÃO NACIONAL DA VERDADE", "GOLPE DE 1964", "DIRETAS JÁ"],
+  "DIRETAS JÁ": ["AI-5", "CONSTITUIÇÃO DE 1988", "VOTO CENSITÁRIO"],
+  "COMISSÃO NACIONAL DA VERDADE": ["RELATÓRIO FIGUEIREDO", "LEI DA ANISTIA", "GOLPE DE 1964"],
+  "VOTO FEMININO": ["VOTO CENSITÁRIO", "CLT", "CONSTITUIÇÃO DE 1988"],
+  "CLT": ["VOTO FEMININO", "GANHADEIRA", "SUS", "SERINGUEIRO"],
+  "SUS": ["CONSTITUIÇÃO DE 1988", "CLT", "COTAS"],
+  "LEI 10.639": ["COTAS", "DIA DOS POVOS INDÍGENAS", "DIA DA CONSCIÊNCIA NEGRA", "MOVIMENTO NEGRO UNIFICADO"],
+  "COTAS": ["LEI 10.639", "DEMOCRACIA RACIAL", "FRENTE NEGRA BRASILEIRA", "MOVIMENTO NEGRO UNIFICADO"],
+  "MARCO TEMPORAL": ["DEMARCAÇÃO", "CONSTITUIÇÃO DE 1988", "RELATÓRIO FIGUEIREDO", "GUARANI"],
+
+  // ===== A LEVA DE 2026-08-10 — o glossario passa a falar do Brasil inteiro =====
+  // Mesmo criterio das 178 anteriores: 2 a 4 por verbete, e o vizinho escolhido e o que MUDA
+  // O ENTENDIMENTO do verbete atual, e nao o que apenas coincide na epoca. Os pares que se
+  // corrigem andam nos dois sentidos, e SENHOR <-> PESSOA ESCRAVIZADA e o mais importante
+  // deles: aquele verbete argumenta que o participio "devolve o verbo e devolve o sujeito",
+  // e ate esta leva o sujeito nao tinha para onde apontar.
+  "GUARANI": ["TRONCO LINGUÍSTICO", "TUPI", "DEMARCAÇÃO", "MARCO TEMPORAL", "MARÇAL DE SOUZA TUPÃ'I"],
+  "YANOMAMI": ["TRONCO LINGUÍSTICO", "DEMARCAÇÃO", "DESMATAMENTO", "CONTATO", "DAVI KOPENAWA"],
+  "KAYAPÓ": ["TRONCO LINGUÍSTICO", "ÍNDIO", "FLORESTA CULTIVADA", "DEMARCAÇÃO"],
+  "XAVANTE": ["TRONCO LINGUÍSTICO", "RELATÓRIO FIGUEIREDO", "CONSTITUIÇÃO DE 1988"],
+  "KRENAK": ["TRONCO LINGUÍSTICO", "CONSTITUIÇÃO DE 1988", "RIBEIRINHO", "POVOS ORIGINÁRIOS", "AILTON KRENAK"],
+  "PATAXÓ": ["INVASÃO", "TUPINAMBÁ", "DEMARCAÇÃO", "RELATÓRIO FIGUEIREDO"],
+  "MUNDURUKU": ["TRONCO LINGUÍSTICO", "DEMARCAÇÃO", "DESMATAMENTO", "MARCO TEMPORAL"],
+  "TIKUNA": ["TRONCO LINGUÍSTICO", "ETNIA", "ÍNDIO", "NHEENGATU"],
+  "TRONCO LINGUÍSTICO": ["TUPI", "TRIBO", "ETNIA", "LÍNGUA GERAL"],
+  "LÍNGUA GERAL": ["NHEENGATU", "TUPI", "ALDEAMENTO", "TRONCO LINGUÍSTICO"],
+  "NHEENGATU": ["LÍNGUA GERAL", "TUPI", "TIKUNA", "DIA DOS POVOS INDÍGENAS"],
+  "BANTO": ["QUILOMBO", "MOCAMBO", "SAMBA", "NAÇÃO"],
+  "IORUBÁ": ["ACARAJÉ", "MALÊ", "NAÇÃO", "PANO DA COSTA", "ORIXÁ"],
+  "TERRA PRETA DE ÍNDIO": ["FLORESTA CULTIVADA", "GEOGLIFO", "MARAJÓ", "PRÉ-HISTÓRIA"],
+  "FLORESTA CULTIVADA": ["TERRA PRETA DE ÍNDIO", "KAYAPÓ", "MANDIOCA", "DESMATAMENTO"],
+  "SERINGUEIRO": ["EMPATE", "RETIRANTE", "RIBEIRINHO", "CLT"],
+  "EMPATE": ["SERINGUEIRO", "DESMATAMENTO", "POVOS E COMUNIDADES TRADICIONAIS", "DEMARCAÇÃO"],
+  "DESMATAMENTO": ["FLORESTA CULTIVADA", "EMPATE", "MUNDURUKU", "MARCO TEMPORAL"],
+  "SERTÃO": ["CANUDOS", "A INDÚSTRIA DA SECA", "NORDESTE", "RETIRANTE"],
+  "A INDÚSTRIA DA SECA": ["SERTÃO", "CORONELISMO", "LEI DE TERRAS", "RETIRANTE"],
+  "RETIRANTE": ["SERTÃO", "SERINGUEIRO", "FAVELA", "A INDÚSTRIA DA SECA"],
+  "NORDESTE": ["SERTÃO", "A INDÚSTRIA DA SECA", "CANUDOS", "DEMOCRACIA RACIAL"],
+  "RIBEIRINHO": ["POVOS E COMUNIDADES TRADICIONAIS", "SERINGUEIRO", "TERRA PRETA DE ÍNDIO", "KRENAK"],
+  "POVOS E COMUNIDADES TRADICIONAIS": ["QUILOMBOLA", "RIBEIRINHO", "DEMARCAÇÃO", "EMPATE"],
+  "TAMBOR": ["SAMBA", "JONGO", "MARACATU", "CAPOEIRA", "ATABAQUE"],
+  "SAMBA": ["TAMBOR", "JONGO", "BANTO", "VADIAGEM", "TERREIRO", "TIA CIATA"],
+  "JONGO": ["SAMBA", "TAMBOR", "BANTO", "LEI EUSÉBIO DE QUEIRÓS"],
+  "MARACATU": ["TAMBOR", "NAÇÃO", "SAMBA", "CAPOEIRA"],
+  "FEIJOADA": ["MESTIÇAGEM", "DEMOCRACIA RACIAL", "ACARAJÉ", "PESSOA ESCRAVIZADA"],
+  "MOVIMENTO NEGRO UNIFICADO": ["FRENTE NEGRA BRASILEIRA", "DIA DA CONSCIÊNCIA NEGRA", "COTAS", "LEI 10.639", "LÉLIA GONZALEZ"],
+  "MESTIÇAGEM": ["DEMOCRACIA RACIAL", "BRANQUEAMENTO", "PARDO", "FEIJOADA"],
+  "PARDO": ["MESTIÇAGEM", "COLORISMO", "ETNIA", "COTAS"],
+  "COLORISMO": ["PARDO", "RACISMO ESTRUTURAL", "DEMOCRACIA RACIAL"],
+  "RACISMO ESTRUTURAL": ["RACISMO CIENTÍFICO", "DEMOCRACIA RACIAL", "COLORISMO", "COTAS"],
+  "LUGAR DE FALA": ["IMPRENSA NEGRA", "MOVIMENTO NEGRO UNIFICADO", "RACISMO ESTRUTURAL", "ÍNDIO"],
+
+  // ===== A LEVA DE 2026-08-10 — o glossario passa a falar do Brasil inteiro =====
+  // Mesmo criterio das 178 anteriores: 2 a 4 por verbete, e o vizinho escolhido e o que MUDA
+  // O ENTENDIMENTO do verbete atual, e nao o que apenas coincide na epoca. Os pares que se
+  // corrigem andam nos dois sentidos, e SENHOR <-> PESSOA ESCRAVIZADA e o mais importante
+  // deles: aquele verbete argumenta que o participio "devolve o verbo e devolve o sujeito",
+  // e ate esta leva o sujeito nao tinha para onde apontar.
+  "LUIZ GAMA": ["LUIZA MAHIN", "ALFORRIA", "LEI EUSÉBIO DE QUEIRÓS", "JOSÉ DO PATROCÍNIO"],
+  "MARIA FIRMINA DOS REIS": ["MACHADO DE ASSIS", "TRAVESSIA", "IMPRENSA NEGRA"],
+  "ANDRÉ REBOUÇAS": ["LEI DE TERRAS", "LEI ÁUREA", "JOSÉ DO PATROCÍNIO"],
+  "JOSÉ DO PATROCÍNIO": ["LUIZ GAMA", "IMPRENSA NEGRA", "LEI ÁUREA"],
+  "MACHADO DE ASSIS": ["BRANQUEAMENTO", "MARIA FIRMINA DOS REIS", "DEMOCRACIA RACIAL"],
+  "CAROLINA MARIA DE JESUS": ["FAVELA", "LÉLIA GONZALEZ", "RETIRANTE"],
+  "ABDIAS DO NASCIMENTO": ["DEMOCRACIA RACIAL", "FRENTE NEGRA BRASILEIRA", "MOVIMENTO NEGRO UNIFICADO", "BRANQUEAMENTO"],
+  "LÉLIA GONZALEZ": ["MOVIMENTO NEGRO UNIFICADO", "DEMOCRACIA RACIAL", "ABDIAS DO NASCIMENTO", "LUGAR DE FALA"],
+  "BEATRIZ NASCIMENTO": ["QUILOMBO", "QUILOMBOLA", "FAVELA", "PEDRA DO SAL"],
+  "CLÓVIS MOURA": ["QUILOMBO", "PALMARES", "ABDIAS DO NASCIMENTO"],
+  "MILTON SANTOS": ["FAVELA", "GOLPE DE 1964", "RACISMO ESTRUTURAL"],
+  "CHIQUINHA GONZAGA": ["SAMBA", "ALFORRIA", "JOSÉ DO PATROCÍNIO"],
+  "TEREZA DE BENGUELA": ["QUILOMBO", "DANDARA", "MOCAMBO"],
+  "DANDARA": ["ZUMBI", "AQUALTUNE", "ANGOLA JANGA", "PALMARES"],
+  "AQUALTUNE": ["DANDARA", "ZUMBI", "NAÇÃO"],
+  "LUIZA MAHIN": ["LUIZ GAMA", "LEVANTE DOS MALÊS", "GANHADEIRA"],
+  "AILTON KRENAK": ["CONSTITUIÇÃO DE 1988", "DEMARCAÇÃO", "POVOS ORIGINÁRIOS", "KRENAK"],
+  "DAVI KOPENAWA": ["YANOMAMI", "PAJÉ", "DEMARCAÇÃO"],
+  "MARÇAL DE SOUZA TUPÃ'I": ["GUARANI", "COMISSÃO NACIONAL DA VERDADE", "DEMARCAÇÃO"],
+  "SÔNIA GUAJAJARA": ["DEMARCAÇÃO", "MARCO TEMPORAL", "POVOS ORIGINÁRIOS"],
+  "ELIANE POTIGUARA": ["POVOS ORIGINÁRIOS", "AILTON KRENAK", "LUGAR DE FALA"],
+  "MARIELLE FRANCO": ["FAVELA", "RACISMO ESTRUTURAL", "LUGAR DE FALA"],
+  "TERREIRO": ["CANDOMBLÉ", "INTOLERÂNCIA RELIGIOSA", "AXÉ", "IALORIXÁ · BABALORIXÁ"],
+  "CANDOMBLÉ": ["TERREIRO", "ORIXÁ", "NAÇÃO DE CANDOMBLÉ", "INTOLERÂNCIA RELIGIOSA"],
+  "NAÇÃO DE CANDOMBLÉ": ["CANDOMBLÉ", "NAÇÃO", "IORUBÁ"],
+  "ORIXÁ": ["EXU", "SINCRETISMO", "CANDOMBLÉ", "BÚZIOS"],
+  "EXU": ["ORIXÁ", "INTOLERÂNCIA RELIGIOSA", "IORUBÁ"],
+  "AXÉ": ["TERREIRO", "ORIXÁ", "ACARAJÉ"],
+  "IALORIXÁ · BABALORIXÁ": ["TERREIRO", "SINCRETISMO", "GANHADEIRA", "IYAKEKERÊ"],
+  "UMBANDA": ["CANDOMBLÉ", "ORIXÁ", "INTOLERÂNCIA RELIGIOSA"],
+  "ATABAQUE": ["TAMBOR", "INTOLERÂNCIA RELIGIOSA", "CANDOMBLÉ"],
+  "AFOXÉ": ["CANDOMBLÉ", "TAMBOR", "GANHADEIRA"],
+  "SINCRETISMO": ["ORIXÁ", "CANDOMBLÉ", "IALORIXÁ · BABALORIXÁ"],
+  "INTOLERÂNCIA RELIGIOSA": ["VADIAGEM", "TERREIRO", "CAPOEIRA", "CONSTITUIÇÃO DE 1988"],
+  "PAJÉ": ["ÍNDIO", "DAVI KOPENAWA", "INDÍGENA"],
+  "O QUE NÃO SE CONTA": ["TERREIRO", "CANDOMBLÉ", "AXÉ"],
+
+  // ===== A LEVA DE 2026-08-10 — o glossario passa a falar do Brasil inteiro =====
+  // Mesmo criterio das 178 anteriores: 2 a 4 por verbete, e o vizinho escolhido e o que MUDA
+  // O ENTENDIMENTO do verbete atual, e nao o que apenas coincide na epoca. Os pares que se
+  // corrigem andam nos dois sentidos, e SENHOR <-> PESSOA ESCRAVIZADA e o mais importante
+  // deles: aquele verbete argumenta que o participio "devolve o verbo e devolve o sujeito",
+  // e ate esta leva o sujeito nao tinha para onde apontar.
+  "JABAQUARA": ["QUINTINO DE LACERDA", "CAIFAZES", "QUILOMBO", "LEI ÁUREA"],
+  "QUINTINO DE LACERDA": ["JABAQUARA", "LEI DE TERRAS", "ALFORRIA"],
+  "CAIFAZES": ["JABAQUARA", "LEI ÁUREA", "JOSÉ DO PATROCÍNIO"],
+  "PEQUENA ÁFRICA": ["TIA CIATA", "DIÁSPORA BAIANA", "PRAÇA ONZE", "SAMBA"],
+  "TIA CIATA": ["PEQUENA ÁFRICA", "IYAKEKERÊ", "SAMBA", "PARTIDO-ALTO"],
+  "DIÁSPORA BAIANA": ["PEQUENA ÁFRICA", "GANHADEIRA", "RETIRANTE"],
+  "PRAÇA ONZE": ["PEQUENA ÁFRICA", "SAMBA", "FAVELA"],
+  "PEDRA DO SAL": ["QUILOMBOLA", "PEQUENA ÁFRICA", "BEATRIZ NASCIMENTO"],
+  "PARTIDO-ALTO": ["SAMBA", "TIA CIATA", "TAMBOR"],
+  "IYAKEKERÊ": ["IALORIXÁ · BABALORIXÁ", "TERREIRO", "TIA CIATA"],
+};
+
+
+// O adendo condicional do BROOKES que vivia aqui foi APLICADO em 2026-08-09, quando o dono
+// aprovou o verbete: as três linhas estão no mapa acima e o comentário do critério foi junto
+// com elas, ao lado de PESSOA ESCRAVIZADA. Nada a colar.
+
+
+// ===== A NAVEGAÇÃO DO GLOSSÁRIO — RECOLHER, SEGMENTOS, BUSCA E O SALTO =====
+// Cinco peças, e todas as cinco servem à mesma frase: um glossário de 53 verbetes só ensina se
+// der para CHEGAR na palavra. Uma parede de 52 definições abertas é um arquivo, não uma tela.
+//   1. o verbete RECOLHE — a lista vira um índice de termos, e o corpo abre ao toque;
+//   2. as ABAS peneiram por assunto (TUDO + um por grupo, tirados do próprio array);
+//   3. a BUSCA acha por prefixo e por conteúdo, sem exigir acento nem caixa;
+//   4. o SALTO leva a pessoa até o verbete DENTRO da lista inteira — o item abaixo;
+//   5. os RELACIONADOS e o SORTEIO são as duas portas de quem não sabe o que procurar.
+//
+// O MOLDE É CONTRATO COM A DIREÇÃO DE ARTE, e as duas pontas receberam o mesmo texto. Ela monta
+// `#glBusca` (com `#glCampo`, `#glLimpar`, `#glSorte`), `#glFiltros` e `#listaGlossario`; eu
+// monto, dentro da lista, `.glItem[data-t] > .glCabeca > .glT` e `.glCorpo` com `.glO`, `.glD`,
+// `.glRel > .glLink` e `.glF`, mais `.glFiltro`, `.glSug` e `.glVazio`. **A fronteira dentro do
+// contrato: eu ponho e tiro CLASSES, ela decide o que uma classe faz aparecer.** Nenhuma linha
+// daqui escreve `style.display` — ver o comentário de `glCartao()`.
+//
+// TUDO AQUI É DEFENSIVO por obrigação, não por capricho: o molde dela chega em commit próprio e
+// pode não ter aterrissado quando este código rodar. Faltando `#glCampo`, `#glFiltros`,
+// `#glLimpar` ou `#glSorte`, cada função sai calada e a lista continua funcionando — um erro de
+// console reprova o smoke test inteiro, e uma tela que ainda não existe não pode derrubar o
+// jogo que existe.
+//
+// Pedido do dono (2026-08-08): *"no glossário, segmentar os assuntos pra que seja mais fácil
+// aplicar um filtro prático — seja por ordem alfabética, ou por similaridade de assunto. E
+// também ter uma opção de busca: quando vier, mostrar as palavras em comum que tenham com essa
+// busca, e quando a pessoa clicar, vai pra essa parte do glossário e pode navegar entre os
+// outros assuntos também."*
+//
+// A ÚLTIMA ORAÇÃO É A MECÂNICA INTEIRA, e é o que separa isto de um filtro comum: clicar numa
+// sugestão NÃO deixa a pessoa numa lista de um item só. Ela cai NAQUELE verbete DENTRO do
+// glossário inteiro, com os vizinhos acima e abaixo — busca aqui é um ATALHO PARA UM LUGAR, não
+// uma peneira. Um glossário existe para ensinar, e quem chega em "MOCAMBO" precisa esbarrar em
+// "QUILOMBO" logo ao lado; uma lista filtrada de um item entrega a resposta e esconde o assunto.
+// É por isso que `glSaltar()` limpa a busca ANTES de rolar, e por isso que ele desfaz um filtro
+// de grupo que estivesse escondendo o destino: o estado que impede a pessoa de ver o vizinho é
+// o estado errado.
+//
+// **O ESTADO É DA SESSÃO E NÃO ENTRA NO SAVE, de propósito.** O §3.3 do CLAUDE.md manda que
+// todo estado persistente passe pelo `ESQUEMA_SAVE`, e o preço disso é certo: mais um campo a
+// validar num save que é entrada não confiável. Filtro, busca e o verbete que estava aberto não
+// são progresso — são onde o dedo estava há dez segundos. Persistir isso tem custo pior que o do
+// esquema: a tela REABRIRIA peneirada, e a pessoa que voltasse uma semana depois veria
+// "O TRABALHO, A FÉ E A REVOLTA" com 7 verbetes e concluiria que o glossário encolheu. E um
+// verbete que reabrisse aberto sozinho seria o único aberto de 53 — parece defeito, não memória.
+// O padrão de uma tela de referência é ela
+// INTEIRA. Se o dono quiser lembrar o último segmento, é decisão dele e aí entra no esquema.
+//
+// Chaves de segmento: `"*"` é TUDO e qualquer outro valor é o NOME de um grupo do `GLOSSARIO`.
+// Não há colisão possível — os grupos são frases em caixa alta ("OS QUILOMBOS E QUEM OS ERGUEU"),
+// nunca "*".
+//
+// **A ABA A–Z FOI CORTADA PELO DONO (2026-08-09), e o argumento dele fica registrado porque
+// vale para o próximo que sentir falta dela:** ordenar 53 verbetes por letra DUPLICA a busca —
+// quem sabe a palavra digita e chega em dois toques — e não carrega significado nenhum, ao
+// contrário dos grupos, que dizem de que ASSUNTO a palavra é. Uma aba que só reordena ensina
+// que o alfabeto é uma classificação da história. O código dela (`glPintarAZ`) saiu inteiro;
+// não é para ressuscitar sem falar com ele.
+let glSeg = "*";
+let glTermo = "";
+// ===== A VISTA: A TELA ABRE PELOS ASSUNTOS, NÃO PELA LISTA =====
+// Decisão do dono (2026-08-10), tomada sobre um número: a fileira de abas tinha 16 abas,
+// 3.014 px de largura contra 415 visíveis — SETE TELAS E MEIA de rolagem horizontal para
+// alcançar o último grupo. A segmentação existia para facilitar a navegação e virou o que mais
+// atrapalhava, e ia piorar: o glossário continua crescendo e cada grupo novo é mais uma aba.
+//
+// A troca resolve DOIS problemas com uma peça, e o segundo é o que importa mais. O primeiro é
+// a rolagem, que simplesmente deixa de existir. O segundo é uma reclamação anterior dele —
+// *"não entendi quais são essas separações do glossário"* — porque a frase que explica cada
+// grupo era uma legenda perdida no meio do rolo, vista só por quem já tinha rolado até lá.
+// Como PORTA, ela é a primeira coisa que se lê. O glossário passa a se apresentar.
+//
+// Dois estados, e um só decide o que `glPintar()` desenha:
+//   "assuntos" — a lista dos grupos, cada um com nome, a frase e quantos verbetes tem
+//   "lista"    — os verbetes (de um grupo, ou todos)
+// A busca atravessa os dois: digitar mostra sugestões venha de onde vier, e o salto sempre
+// aterrissa em "lista", porque quem tocou numa sugestão quer LER.
+let glVista: "assuntos" | "lista" = "assuntos";
+let glAlvoT: ReturnType<typeof setTimeout> | null = null;
+// O último verbete sorteado pelo `#glSorte`, só para que o botão não repita a mesma palavra
+// duas vezes seguidas — sorteio que repete lê como botão quebrado, não como acaso.
+let glUltimoSorteio = -1;
+
+// A NORMALIZAÇÃO EXISTE POR CAUSA DO TECLADO DE CELULAR, e não por elegância. Metade dos
+// verbetes desta lista carrega acento — BÚZIOS, TRÁFICO ATLÂNTICO, MALÊ, DEMARCAÇÃO — e
+// ninguém digita acento procurando no celular: digita-se "buzios". Uma busca que exige o acento
+// que a pessoa foi buscar aprender é uma porta trancada com a chave do lado de dentro.
+// `normalize("NFD")` separa a letra do sinal e o `replace` joga fora a faixa de diacríticos
+// combinantes (U+0300–U+036F) — o Ç entra junto, porque a cedilha é U+0327. A caixa alta no fim
+// resolve o outro eixo: o jogo escreve verbete em maiúscula e a pessoa digita em minúscula.
+function glNorm(s) {
+  return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+}
+
+// O índice plano dos verbetes: posição no `GLOSSARIO` (é ela que o salto usa como endereço),
+// termo, termo normalizado e o GRUPO a que ele pertence — que no array não é um campo do item,
+// e sim o último cabeçalho visto antes dele. Calculado UMA vez: o `GLOSSARIO` é constante e
+// normalizar 52 termos a cada tecla digitada seria trabalho jogado fora.
+let glCache: { i: number; t: string; tn: string; g: string }[] | null = null;
+function glVerbetes() {
+  if (glCache) return glCache;
+  const out: { i: number; t: string; tn: string; g: string }[] = [];
+  let g = "";
+  GLOSSARIO.forEach(function (v, i) {
+    if (v.g) { g = v.g as string; return; }
+    const t = String(v.t);
+    out.push({ i: i, t: t, tn: glNorm(t), g: g });
+  });
+  glCache = out;
+  return out;
+}
+
+// O ENDEREÇO POR TERMO — é o que faz os `rel` do historiador virarem ligação clicável. Ele
+// escreve `rel: ["QUILOMBO", "MOCAMBO"]`, texto puro, porque a lista tem que continuar legível
+// e editável por quem pesquisa e não programa; a resolução de nome para índice é trabalho meu.
+// Normalizado pela mesma `glNorm` da busca, então "búzios", "BUZIOS" e "Búzios" chegam no mesmo
+// verbete e um acento esquecido não apaga uma ligação em silêncio.
+let glMapa: Record<string, number> | null = null;
+function glAcharTermo(nome): number {
+  if (!glMapa) {
+    glMapa = {};
+    glVerbetes().forEach(function (v) { glMapa![v.tn] = v.i; });
+  }
+  const k = glNorm(String(nome).trim());
+  return (k && Object.prototype.hasOwnProperty.call(glMapa, k)) ? glMapa[k] : -1;
+}
+
+// Os relacionados de um verbete, já resolvidos e já sem os becos sem saída: nome que não
+// existe no `GLOSSARIO` some, e o próprio verbete some da própria lista. Sumir CALADO é
+// deliberado na tela — um "termo não encontrado" impresso seria erro de redação vazando para
+// quem veio aprender —, mas não é para passar batido no time: o smoke test confere que toda
+// remissão resolve, e é lá que um erro de digitação do historiador aparece.
+//
+// Duas fontes, nesta ordem: um `rel: [...]` escrito dentro do próprio verbete vence, e o
+// `GLOSSARIO_REL` é o padrão. Ver o comentário do mapa para o porquê de ele viver à parte.
+function glRelacionados(v, i: number) {
+  const out: { i: number; t: string }[] = [];
+  const lista = (v && v.rel) || (v && GLOSSARIO_REL[String(v.t)]);
+  if (!lista || !lista.length) return out;
+  lista.forEach(function (nome) {
+    const j = glAcharTermo(nome);
+    if (j < 0 || j === i) return;
+    if (out.some(function (x) { return x.i === j; })) return;   // rel repetido não vira dois botões
+    out.push({ i: j, t: String(GLOSSARIO[j].t) });              // o rótulo é o termo CANÔNICO
+  });
+  return out;
+}
+
+// As abas saem do próprio conteúdo: grupo novo no `GLOSSARIO` vira aba sozinho, e ninguém
+// precisa lembrar de uma segunda lista. É a mesma promessa do comentário do array —
+// "muda-se este array e nada mais".
+
+// Os achados de uma busca, em DUAS ondas e nesta ordem: quem COMEÇA com o que foi digitado vem
+// antes de quem só CONTÉM. Digitar "MAL" deve pôr "MALÊ" no topo, não "ANIMAL"; prefixo é o que
+// a pessoa quis dizer, conteúdo é a rede de segurança. Só o TERMO é comparado — casar contra a
+// definição encheria a lista de verbetes que só mencionam a palavra de passagem, que é o
+// contrário de "as palavras em comum que tenham com essa busca".
+function glAchados() {
+  const q = glNorm(glTermo.trim());
+  if (!q) return [];
+  const pre: { i: number; t: string; tn: string; g: string }[] = [];
+  const dentro: { i: number; t: string; tn: string; g: string }[] = [];
+  glVerbetes().forEach(function (v) {
+    const p = v.tn.indexOf(q);
+    if (p === 0) pre.push(v); else if (p > 0) dentro.push(v);
+  });
+  return pre.concat(dentro);
+}
+
+// O CARTÃO DO VERBETE, agora em duas partes: a CABEÇA — o termo, sempre visível, e é ela que
+// se toca — e o CORPO, com origem, definição, relacionados e fonte. É o molde que a Direção de
+// Arte recebeu palavra por palavra, e a divisão de trabalho dentro dele é a regra que faz a
+// entrega fechar dos dois lados:
+//
+//   **EU MONTO O DOM INTEIRO, SEMPRE. QUEM ESCONDE E REVELA É A CSS DELA.** Os 52 corpos
+//   existem no documento desde a primeira pintura; a única coisa que o toque muda é a classe
+//   `.aberto` no `.glItem`. Nada de `style.display` aqui, e não é preferência: `display` posto
+//   por JS atropela qualquer transição que ela escreva e transfere para o Dev a decisão de
+//   como o verbete abre, que não é deste território. Montar tudo também é o que mantém o salto
+//   simples — um endereço `data-i` acha o elemento esteja ele aberto ou fechado.
+//
+// `data-t` carrega o TERMO e está no contrato: é por ele que a Arte (e o teste) endereçam um
+// verbete pelo nome sem depender da posição no array. `data-i` é o endereço interno do salto.
+// Os dois textos entram por `textContent` — verbete com "<" é texto, não marcação.
+function glCartao(v, i: number) {
+  const d = document.createElement("div");
+  d.className = "glItem" + (v.dv ? " dv" : "");
+  d.dataset.i = String(i);
+  d.dataset.t = String(v.t);
+
+  // A CABEÇA é um <button> de verdade, não uma div que finge: ela é o alvo do dedo, e um botão
+  // já chega com foco, tecla Enter/Espaço e leitura de tela sem eu remendar nada.
+  const cab = document.createElement("button");
+  cab.type = "button";
+  cab.className = "glCabeca";
+  cab.setAttribute("aria-expanded", "false");
+  const t = document.createElement("span"); t.className = "glT"; t.textContent = String(v.t);
+  cab.appendChild(t);
+  // `click`, e não `pointerdown` como o resto do chrome — a diferença importa AQUI e só aqui:
+  // este botão mora dentro de um rolo. Em `pointerdown`, começar a arrastar a lista com o dedo
+  // pousado num termo abriria o verbete no meio da rolagem. O `click` do navegador já sabe a
+  // diferença entre um toque e o início de um arrasto, e não dispara no segundo caso.
+  // O `glDaqui` é a outra metade: o clique também precisa ter COMEÇADO aqui (ver acima).
+  glCarimbar(cab);
+  cab.addEventListener("click", function (e) { if (glDaqui(cab, e)) glAlternar(d); });
+  d.appendChild(cab);
+
+  const corpo = document.createElement("div");
+  corpo.className = "glCorpo";
+  if (v.o) { const o = document.createElement("div"); o.className = "glO"; o.textContent = v.o; corpo.appendChild(o); }
+  if (v.d) { const de = document.createElement("div"); de.className = "glD"; de.textContent = v.d; corpo.appendChild(de); }
+
+  // OS RELACIONADOS — a parte que transforma ler um verbete em ler quatro. Quem cai em
+  // "MOCAMBO" precisa esbarrar em "QUILOMBO" sem voltar para a busca, porque a relação entre as
+  // duas palavras É o conteúdo. Cada ligação faz o MESMO salto da sugestão de busca: a pessoa
+  // continua dentro do glossário inteiro, com os vizinhos por perto. Verbete sem `rel` não
+  // ganha `.glRel` nenhuma — a fileira vazia seria uma promessa de caminho que não existe.
+  const rel = glRelacionados(v, i);
+  if (rel.length) {
+    const cx = document.createElement("div");
+    cx.className = "glRel";
+    rel.forEach(function (r) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "glLink";
+      b.textContent = r.t;
+      glCarimbar(b);
+      b.addEventListener("click", function (e) { if (glDaqui(b, e)) glSaltar(r.i); });
+      cx.appendChild(b);
+    });
+    corpo.appendChild(cx);
+  }
+
+  if (v.f) { const f = document.createElement("div"); f.className = "glF"; f.textContent = v.f; corpo.appendChild(f); }
+  d.appendChild(corpo);
+  return d;
+}
+
+// O TOQUE QUE ABRE A TELA NÃO PODE ABRIR UM VERBETE JUNTO — e isto não é paranoia, é um
+// defeito que o smoke test pegou em flagrante ("collapsed by default: false", um verbete já
+// aberto na primeira pintura). O caminho: o botão GLOSSÁRIO do menu age no `pointerdown`, a
+// tela sobe DEBAIXO do dedo que ainda não levantou, e o `click` que fecha aquele mesmo toque
+// vai parar no elemento que agora ocupa aquele pixel — que é uma `.glCabeca`. A pessoa toca
+// uma vez e o glossário abre já com um verbete escancarado, sempre o mesmo, o que parece
+// escolha editorial e não é.
+//
+// A regra que conserta: **a lista só responde a um gesto que COMEÇOU dentro dela.** O
+// `pointerdown` carimba qual elemento recebeu o dedo e o `click` só age se o carimbo for o
+// dele. `detail === 0` é a exceção necessária — é como o navegador marca o clique sintético
+// que o TECLADO gera no Enter/Espaço de um <button>, e esse não tem gesto para conferir.
+// O carimbo é consumido na leitura para não sobrar valendo para um clique futuro.
+let glGesto: HTMLElement | null = null;
+function glDaqui(el: HTMLElement, e): boolean {
+  if (e && e.detail === 0) return true;
+  const ok = glGesto === el;
+  glGesto = null;
+  return ok;
+}
+// Sem `preventDefault`: este ouvinte só observa. Consumir o `pointerdown` aqui mataria a
+// rolagem da lista, que é o gesto mais usado da tela.
+function glCarimbar(el: HTMLElement) {
+  el.addEventListener("pointerdown", function () { glGesto = el; });
+}
+
+// ABRIR UM FECHA OS OUTROS, e a decisão é do dono por via indireta: 53 verbetes abertos ao
+// mesmo tempo é EXATAMENTE a tela que ele reprovou, e um acordeão que acumula abertos volta
+// para lá em 52 toques. Um só aberto também dá à rolagem um significado — o que está na tela
+// é o verbete que se está lendo, não um trecho aleatório de uma parede de texto.
+// A varredura é no `.parentElement`, que é o `#listaGlossario`: quem fecha os irmãos é o
+// container onde eles estão AGORA, não uma referência guardada de uma pintura anterior.
+function glAbrirItem(el: HTMLElement) {
+  const pai = el.parentElement;
+  if (pai) pai.querySelectorAll<HTMLElement>(".glItem.aberto").forEach(function (o) {
+    if (o === el) return;
+    o.classList.remove("aberto");
+    const c = o.querySelector(".glCabeca");
+    if (c) c.setAttribute("aria-expanded", "false");
+  });
+  el.classList.add("aberto");
+  const c = el.querySelector(".glCabeca");
+  if (c) c.setAttribute("aria-expanded", "true");
+}
+function glAlternar(el: HTMLElement) {
+  if (el.classList.contains("aberto")) {
+    el.classList.remove("aberto");
+    const c = el.querySelector(".glCabeca");
+    if (c) c.setAttribute("aria-expanded", "false");
+    return;
+  }
+  glAbrirItem(el);
+}
+// O CABEÇALHO DE GRUPO CARREGA DUAS INFORMAÇÕES, e a segunda é metade da solução de um
+// problema que o dono relatou em 2026-08-09: "não entendi quais são essas separações do
+// glossário". Duas causas, e esta função responde às duas.
+//
+// A primeira era o NOME: dois grupos se chamavam PALMARES E OS MOCAMBOS e SALVADOR, 1835 —
+// nomes de CAPÍTULO, que só significam alguma coisa para quem já jogou aquele capítulo. O
+// glossário estava organizado pela cabeça de quem construiu o jogo, não pela de quem chega
+// nele. Os grupos foram renomeados pelo ASSUNTO (ver o `GLOSSARIO`).
+//
+// A segunda é esta: o grupo era um rótulo PELADO. Mesmo um nome bom se explica melhor com uma
+// frase — e a frase custa uma linha. O `sub` de cada grupo diz o que há ali dentro, e é ele
+// que faz a tela funcionar para quem nunca jogou, que é o teste que o dono pediu.
+//
+// A frase é SERIFA e não bitmap, e a razão é a régua de materiais da casa: madeira fala
+// bitmap (o nome, que é a placa), papel fala serifa (a frase, que é texto que se lê). Ela
+// entra por `textContent` como todo o resto — nada aqui interpola HTML.
+function glPlaca(box: HTMLElement, txt: string, sub?: string) {
+  const h = document.createElement("div");
+  h.className = "glGrupo";
+  const n = document.createElement("span");
+  n.className = "glGNome";
+  // 2×, NUNCA 1×: a malha de pixel da tela é uma só. O título é 3×, o VOLTAR é 2×, e rótulo
+  // desenhado em escala menor que os vizinhos é o "pixel de tamanho desigual" que a régua da
+  // casa (onda 7) proíbe. Foi por isso que os grupos ganharam o campo `curto`: em 2× o nome
+  // inteiro não cabe na coluna de 351 px — "AS PALAVRAS QUE ESTE JOGO ESCOLHE" daria 398 —,
+  // e o curto cabe com folga. O nome inteiro (`g`) continua sendo a identidade e a chave do
+  // filtro; quem carrega o sentido que ele tinha é o `sub`, a frase que explica o grupo.
+  pixelRotulo(n, txt, 2, "#d9a441");
+  h.appendChild(n);
+  // `sub` é opcional de propósito: os cabeçalhos de LETRA e os de busca não têm frase, e um
+  // elemento vazio ali deixaria um degrau de espaçamento sem conteúdo.
+  if (sub) {
+    const s = document.createElement("span");
+    s.className = "glGSub";
+    s.textContent = sub;
+    h.appendChild(s);
+  }
+  box.appendChild(h);
+}
+
+// A FILEIRA DE ABAS. Todas pintadas na MESMA tinta, e isso é deliberado: o rótulo é um canvas,
+// então a cor da letra fica congelada no pixel e não responde a CSS. Quem diz qual está ativa é
+// pode garantir contraste contra o material que ela mesma escolher. Se ela quiser duas tintas,
+// é uma linha aqui e a conversa é com ela.
+// A BARRA ACIMA DA LISTA. Ela era a FILEIRA DE ABAS e deixou de ser: com dezesseis abas a
+// fileira media 3.014 px contra 415 visiveis, e navegar quinze assuntos custava sete telas e
+// meia de rolagem horizontal. Quem escolhe assunto agora e a tela de assuntos (glPintarAssuntos).
+//
+// O que sobra aqui e uma peca so, e ela so existe no estado "lista": o caminho de volta. Sem
+// ele a pessoa entra num assunto e fica presa — o VOLTAR do rodape sai do glossario inteiro,
+// que e outra coisa e um degrau grande demais para "quero ver os outros assuntos".
+//
+// A barra some no estado "assuntos" de proposito: ali a tela inteira JA e a escolha, e um
+// botao de voltar para onde ja se esta e ruido.
+function glPintarFiltros() {
+  const cx = document.getElementById("glFiltros");
+  if (!cx) return;                       // a Arte ainda nao aterrissou: a lista funciona sem
+  const naLista = glVista === "lista";
+  cx.classList.toggle("vazia", !naLista);
+  const jaTem = cx.querySelector(".glVolta");
+  if (!naLista) { cx.textContent = ""; return; }
+  if (jaTem) { glRotuloVolta(jaTem as HTMLElement); return; }
+  cx.textContent = "";
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "glVolta";
+  glRotuloVolta(b);
+  b.addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    glVista = "assuntos";
+    glSeg = "*";
+    // Voltar aos assuntos ABANDONA a busca pelo mesmo motivo que a aba abandonava: enquanto ha
+    // texto no campo a lista mostra sugestoes, e o botao pareceria morto.
+    glTermo = "";
+    const c = document.getElementById("glCampo") as HTMLInputElement | null;
+    if (c) c.value = "";
+    glPintar();
+    const box = document.getElementById("listaGlossario");
+    if (box) box.scrollTop = 0;
+  });
+  cx.appendChild(b);
+}
+
+// O ROTULO DIZ PARA ONDE SE VAI, e nao onde se esta. Duas razoes, e as duas foram vistas na
+// tela: o nome do grupo ja esta na PLACA logo abaixo, entao repeti-lo aqui era dize-lo duas
+// vezes; e botao de voltar que anuncia a origem obriga a pessoa a deduzir o destino.
+//
+// A SETA NAO E TEXTO. O caractere "\u25c0" nao existe na fonte bitmap da casa e `pixelRotulo`
+// devolve o glifo de "?" para tudo o que nao conhece — na tela saiu literalmente "? A
+// ESCRAVIDAO", que promete ajuda e nao volta. Ela virou desenho em CSS (.glVolta::before),
+// pelo mesmo caminho que o dado do sorteio: sem glifo Unicode e sem imagem, peso zero.
+function glRotuloVolta(b: HTMLElement) {
+  pixelRotulo(b, "ASSUNTOS", 2, "#d9a441");
+}
+
+// Repinta `#listaGlossario` a partir do estado. Dois caminhos, e só um vale por vez: busca
+// ativa vence tudo (é o modo "atalho"), e sem busca vêm os blocos editoriais — a lista de
+// sempre, inteira em TUDO ou peneirada por um grupo. É também o estado inicial.
+//
+// Repintar SEMPRE do zero, e não remendar o que está na tela, é o que mantém isto entendível:
+// o DOM é uma função do par (`glSeg`, `glTermo`) e de mais nada. O preço é os `.aberto` se
+// perderem a cada repinte — e isso é a resposta certa, não um efeito colateral: trocar de aba
+// ou digitar na busca é mudar de assunto, e um verbete que continuasse aberto do assunto
+// anterior seria lixo de estado. Quem precisa de um aberto depois do repinte — o salto — pede.
+// Quantos verbetes cada grupo tem. A contagem existe porque ela muda a decisão de onde entrar:
+// um assunto com 13 verbetes e outro com 4 pedem expectativas diferentes, e sem o número a
+// pessoa descobre isso depois de já ter entrado.
+function glContagem() {
+  const n: { [g: string]: number } = {};
+  let g = "";
+  GLOSSARIO.forEach(function (v) {
+    if (v.g) { g = v.g as string; n[g] = 0; return; }
+    if (g) n[g]++;
+  });
+  return n;
+}
+
+// A LISTA DE ASSUNTOS. Cada grupo é uma porta: o nome na fonte da casa, a frase que explica
+// embaixo, e a contagem. A primeira porta é TUDO — quem quer o índice inteiro não deve ter de
+// atravessar a segmentação para chegar nele.
+function glPintarAssuntos(box: HTMLElement) {
+  const cont = glContagem();
+  const total = Object.keys(cont).reduce(function (s, k) { return s + cont[k]; }, 0);
+  const portas: { k: string; nome: string; sub: string; n: number }[] = [
+    { k: "*", nome: "TUDO", sub: "O índice inteiro, na ordem em que a história aconteceu.", n: total }
+  ];
+  GLOSSARIO.forEach(function (v) {
+    if (!v.g) return;
+    portas.push({ k: v.g as string, nome: (v.curto || v.g) as string, sub: (v.sub || "") as string, n: cont[v.g as string] || 0 });
+  });
+  portas.forEach(function (p, idx) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "glAssunto" + (p.k === "*" ? " tudo" : "");
+    b.dataset.seg = p.k;
+    // A FILA DA ABA. Dezesseis cartões idênticos empilhados era o que o dono reprovou — "não
+    // ficou legal, pode ser mais criativo" —, e o defeito não era o cartão: era a REPETIÇÃO
+    // sem ritmo. A aba de cada assunto anda um degrau para a direita e volta a cada três,
+    // como o conjunto de divisórias de um fichário, onde as abas são escalonadas justamente
+    // para se poder ler todas de uma vez com a pasta fechada. O escalonamento não é enfeite:
+    // é o que permite correr o olho pela coluna das abas sem ler cartão nenhum.
+    // O TUDO fica fora da conta porque ele não é divisória, é a capa.
+    if (p.k !== "*") b.dataset.fila = String((idx - 1) % 3);
+    const n = document.createElement("span");
+    n.className = "glAssuntoNome";
+    // A TINTA SAI DO MATERIAL DA TÁBUA, e é a mesma armadilha que já custou o nome das eras
+    // sumindo na tela ESCOLHA A ERA: `pixelRotulo` desenha num canvas e nunca lê a cor do CSS.
+    // TUDO é tábua CLARA (madeira nova, o destaque por material) e pede tinta escura, a do
+    // JOGAR; as outras são tábua escura e pedem o âmbar.
+    pixelRotulo(n, p.nome, 2, p.k === "*" ? "#221806" : "#d9a441");
+    b.appendChild(n);
+    if (p.sub) {
+      const s = document.createElement("span");
+      s.className = "glAssuntoSub";
+      s.textContent = p.sub;
+      b.appendChild(s);
+    }
+    // O LUGAR DA IMAGEM, reservado antes de a imagem existir. O dono aprovou uma arte por
+    // assunto e vai gerá-las em outra máquina (a especificação está no BACKLOG.md); desenhar
+    // a tela agora sem o encaixe obrigaria a refazê-la depois. Enquanto a arte não chega, o
+    // nicho não fica vazio nem ganha enfeite: ele mostra a CONTAGEM, que é dado e não
+    // decoração — quantos verbetes há ali muda a decisão de entrar. Quando a imagem chegar,
+    // ela ocupa o nicho e o número desce para o canto.
+    const arte = document.createElement("span");
+    arte.className = "glAssuntoArte";
+    const q = document.createElement("span");
+    q.className = "glAssuntoN";
+    // De novo a tinta saindo do MATERIAL: no nicho de papel o número é sépia; sobre a madeira
+    // clara da capa ele tem de ser escuro, ou some — foi o que aconteceu na primeira volta.
+    pixelRotulo(q, String(p.n), 2, p.k === "*" ? "#5c3f1e" : "#8a6b3d");
+    arte.appendChild(q);
+    b.appendChild(arte);
+    b.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      glSeg = p.k;
+      glVista = "lista";
+      glPintar();
+      const cx = document.getElementById("listaGlossario");
+      if (cx) cx.scrollTop = 0;
+    });
+    box.appendChild(b);
+  });
+  glEscalonarAbas(box);
+}
+
+// O ESCALONAMENTO DAS ABAS, MEDIDO — e não em porcentagem, que foi a primeira tentativa e
+// falhou na tela: em 375 px a aba "CHAMARAM DE LIBERDADE" (a mais longa, 21 caracteres) saía
+// 27 px PARA FORA da folha na terceira posição. Porcentagem não sabe o tamanho da aba, e o
+// tamanho da aba é o que decide se ela cabe.
+//
+// A conta certa usa as duas medidas reais: o quanto sobra de folha depois da aba é o quanto
+// ela pode andar, e o degrau pedido é limitado por isso. Uma aba longa anda pouco ou não anda;
+// uma curta anda o degrau inteiro. O ritmo se mantém onde há espaço e cede onde não há —
+// que é o comportamento certo, porque o ritmo é enfeite e a legibilidade não é.
+//
+// Roda uma vez por pintura da capa, depois de tudo no DOM: são dezesseis leituras de layout
+// numa tela que não anima, e a alternativa (adivinhar a largura) é o defeito que isto conserta.
+function glEscalonarAbas(box: HTMLElement) {
+  const DEGRAU = 46;                       // ~4 pautas: visível sem empurrar a aba longa
+  box.querySelectorAll<HTMLElement>(".glAssunto[data-fila]").forEach(function (b) {
+    const aba = b.querySelector<HTMLElement>(".glAssuntoNome");
+    if (!aba) return;
+    const folga = b.clientWidth - aba.offsetWidth - 28;   // 28 = o recuo dos dois lados
+    const pedido = (parseInt(b.dataset.fila || "0", 10) || 0) * DEGRAU;
+    aba.style.marginLeft = Math.max(0, Math.min(pedido, folga)) + "px";
+  });
+}
+
+function glPintar() {
+  const box = document.getElementById("listaGlossario");
+  if (!box) return;
+  glPintarFiltros();
+  box.textContent = "";
+  if (glTermo.trim()) { glPintarSugestoes(box); return; }
+  if (glVista === "assuntos") { glPintarAssuntos(box); return; }
+  // TUDO, ou um grupo só. O cabeçalho do grupo continua aparecendo mesmo filtrado: ele é o
+  // que nomeia o que está na tela, e uma lista sem título é uma lista sem assunto.
+  let g = "";
+  GLOSSARIO.forEach(function (v, i) {
+    if (v.g) { g = v.g as string; if (glSeg === "*" || glSeg === g) glPlaca(box, (v.curto || v.g) as string, v.sub as string); return; }
+    if (glSeg === "*" || glSeg === g) box.appendChild(glCartao(v, i));
+  });
+}
+
+// AS SUGESTÕES. O que foi digitado NUNCA é reescrito na tela — nem no realce do trecho que
+// casou, nem numa frase do tipo "nada encontrado para X". É `textContent` no arquivo inteiro
+// (§ o comentário acima), mas aqui a regra vale em dobro, porque este é o único texto do jogo
+// que vem do teclado de outra pessoa: o caminho mais curto entre um campo de busca e uma
+// injeção é uma mensagem de erro que repete a busca. A frase do vazio é FIXA.
+function glPintarSugestoes(box: HTMLElement) {
+  const achados = glAchados();
+  if (!achados.length) {
+    const z = document.createElement("div");
+    z.className = "glVazio";
+    pixelRotulo(z, "NENHUM VERBETE COM ESSA PALAVRA", 1, "#d9a441");
+    box.appendChild(z);
+    return;
+  }
+  achados.forEach(function (v) {
+    const s = document.createElement("div");
+    s.className = "glSug";
+    s.dataset.i = String(v.i);
+    s.setAttribute("role", "button");
+    s.setAttribute("tabindex", "0");
+    s.textContent = v.t;                 // o TERMO do glossário, não o que foi digitado
+    // `click` pelo mesmo motivo da cabeça do verbete: a lista de sugestões rola, e em
+    // `pointerdown` o arrasto viraria salto. O `keydown` está aqui porque isto é uma div com
+    // `role="button"` — botão de verdade responde a Enter e Espaço sozinho, div nenhuma
+    // responde, e quem chegou até aqui pelo teclado não pode ficar sem porta.
+    glCarimbar(s);
+    s.addEventListener("click", function (e) { if (glDaqui(s, e)) glSaltar(v.i); });
+    s.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); glSaltar(v.i); }
+    });
+    box.appendChild(s);
+  });
+}
+
+// O SALTO — a oração final do pedido do dono, e a única parte disto que não é filtro nenhum.
+function glSaltar(i: number) {
+  glTermo = "";
+  const c = document.getElementById("glCampo") as HTMLInputElement | null;
+  if (c) { c.value = ""; c.blur(); }     // o blur fecha o teclado do celular, que ocupa meia tela
+  // O destino tem que estar VISÍVEL no segmento corrente. Se uma aba de grupo o estivesse
+  // escondendo, ela cede: TUDO. Rolar para um elemento que o filtro não pintou é rolar para
+  // lugar nenhum, e obrigar a pessoa a adivinhar em que aba mora o verbete que ela ACABOU de
+  // achar seria devolver a ela o trabalho que a busca existe para fazer.
+  const v = glVerbetes().filter(function (x) { return x.i === i; })[0];
+  if (glSeg !== "*" && (!v || v.g !== glSeg)) glSeg = "*";
+  // Quem tocou numa sugestao, num link de remissao ou no dado quer LER: o salto aterrissa
+  // sempre na lista, venha da tela de assuntos ou de onde for.
+  glVista = "lista";
+  glPintar();
+  const box = document.getElementById("listaGlossario");
+  if (!box) return;
+  const el = box.querySelector<HTMLElement>('.glItem[data-i="' + i + '"]');
+  if (!el) return;
+  // ABRE ANTES DE MEDIR, e a ordem não é escolha: o corpo do verbete entra no fluxo ao ganhar
+  // `.aberto`, então medir fechado e abrir depois deixaria a rolagem parada num lugar que já
+  // não é mais o mesmo. Abrir também é metade do que o salto promete — quem tocou numa
+  // sugestão quer LER o verbete, não olhar o termo dele fechado.
+  glAbrirItem(el);
+  // NADA de `scrollIntoView()`. Ele rola TODOS os ancestrais roláveis, inclusive o documento, e
+  // arrastaria a tela do jogo atrás do glossário — a tela é `position: fixed` sobre um mundo que
+  // continua vivo. Aqui a conta é local ao rolo: a distância entre o topo do cartão e o topo da
+  // caixa, somada ao que já está rolado. Medida por `getBoundingClientRect` e não por
+  // `offsetTop` pelo mesmo motivo que ela é medida dentro do container — `offsetTop` é relativo
+  // ao `offsetParent`, que aqui é a tela e não a caixa, e a diferença é o cabeçalho inteiro.
+  // Os 12 px de folga tiram o cartão de baixo da máscara que dissolve a borda de cima do rolo
+  // (estilo.css, `#listaGlossario`): sem eles o verbete de destino chega meio apagado.
+  const r = el.getBoundingClientRect(), rb = box.getBoundingClientRect();
+  box.scrollTop += (r.top - rb.top) - 12;
+  // O REALCE É TEMPORÁRIO de propósito: ele responde "é este aqui" e sai de cena, porque o que
+  // fica é a leitura. Realce permanente viraria um item marcado dentro de uma lista de leitura.
+  if (glAlvoT) { clearTimeout(glAlvoT); glAlvoT = null; }
+  el.classList.add("alvo");
+  glAlvoT = setTimeout(function () {
+    glAlvoT = null;
+    const b2 = document.getElementById("listaGlossario");
+    if (b2) b2.querySelectorAll(".alvo").forEach(function (e2) { e2.classList.remove("alvo"); });
+  }, 2600);
+}
+
+function glLimparBusca() {
+  glTermo = "";
+  const c = document.getElementById("glCampo") as HTMLInputElement | null;
+  if (c) c.value = "";
+  glPintar();
+}
+
+// O SORTEIO. Ele existe por uma razão que não é enfeite: a busca só serve a quem JÁ TEM a
+// palavra na cabeça, e quem abre um glossário sem saber o que procurar é justamente a pessoa
+// que este jogo foi feito para ensinar. Um dado que entrega um verbete inteiro — com a origem
+// da palavra e a fonte — é a porta de quem não sabe formular a pergunta. Cai no mesmo salto de
+// sempre, dentro da lista inteira, com os vizinhos por perto.
+function glSortear() {
+  const vs = glVerbetes();
+  if (!vs.length) return;
+  let i = vs[Math.floor(Math.random() * vs.length)].i;
+  // Uma segunda tirada quando repete o anterior. Uma só, e não um laço: com 53 verbetes a
+  // chance de repetir duas vezes é de 1 em 2.700, e laço sobre sorteio é como se escreve um
+  // travamento por engano no dia em que a lista tiver um item só.
+  if (i === glUltimoSorteio && vs.length > 1) i = vs[Math.floor(Math.random() * vs.length)].i;
+  glUltimoSorteio = i;
+  glSaltar(i);
+}
+
+// A LIGAÇÃO É IDEMPOTENTE E ACONTECE NA ABERTURA, não na carga — e as duas coisas são a mesma
+// decisão. `ligarTelas()` roda uma vez no DOMContentLoaded; se a busca fosse ligada lá, o molde
+// da Direção de Arte teria que existir NAQUELE instante, e ele chega em commit próprio. Ligando
+// aqui, o dia em que o `#glCampo` aparecer no molde ele passa a funcionar sozinho, sem ninguém
+// lembrar de religar nada. O `data-lig` é o que impede a segunda abertura de empilhar um
+// segundo ouvinte sobre o mesmo campo — dois ouvintes de `input` repintariam a lista duas vezes
+// por tecla.
+function glLigar() {
+  const c = document.getElementById("glCampo") as HTMLInputElement | null;
+  if (c && c.dataset.lig !== "1") {
+    c.dataset.lig = "1";
+    c.addEventListener("input", function () { glTermo = c.value; glPintar(); });
+    c.addEventListener("keydown", function (e) {
+      // Enter salta para o primeiro achado (é o que o teclado do celular oferece como "ir") e
+      // Esc devolve a lista. Nenhum dos dois é a única porta: o dedo continua sendo.
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const a = glAchados();
+        if (a.length) glSaltar(a[0].i);
+      } else if (e.key === "Escape") { e.preventDefault(); glLimparBusca(); }
+    });
+  }
+  const b = document.getElementById("glLimpar");
+  if (b && b.dataset.lig !== "1") {
+    b.dataset.lig = "1";
+    b.addEventListener("pointerdown", function (e) { e.preventDefault(); glLimparBusca(); });
+  }
+  const d = document.getElementById("glSorte");
+  if (d && d.dataset.lig !== "1") {
+    d.dataset.lig = "1";
+    d.addEventListener("pointerdown", function (e) { e.preventDefault(); glSortear(); });
+  }
+}
+
+// A PORTA DA TELA. Ela ZERA o estado — ver o bloco sobre sessão lá em cima: o glossário sempre
+// abre inteiro. Continua se chamando `montarGlossario()` porque é o nome que o botão do menu
+// conhece, e trocá-lo só renomearia a mesma coisa.
+function montarGlossario() {
+  glSeg = "*";
+  glTermo = "";
+  // Abre pelos ASSUNTOS, sempre. E a primeira coisa que a pessoa ve, e e ela que apresenta o
+  // glossario em vez de despejar 121 termos sem dizer de que eles sao.
+  glVista = "assuntos";
+  const c = document.getElementById("glCampo") as HTMLInputElement | null;
+  if (c) c.value = "";
+  if (glAlvoT) { clearTimeout(glAlvoT); glAlvoT = null; }
+  glLigar();
+  glPintar();
+  const box = document.getElementById("listaGlossario");
+  if (box) box.scrollTop = 0;
+}
+
 
 // ============================================================
 // A CHEGADA — a tela de fim (QA, relatório 3, N3)
