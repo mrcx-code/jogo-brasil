@@ -1180,6 +1180,84 @@ const sec = t => log('\n---- ' + t);
   // Este bloco é a trava. Ele não mede beleza: mede que TODA tábua do menu está inteira
   // dentro da tela e recebe o dedo, nas duas medidas que o `LANCAMENTO.md` chama de deitado.
   // ============================================================
+  // ============================================================
+  // 22 · A OBRA DO LUGAR — o mutirão avança com gente, não avança sem, e ninguém é gasto
+  //
+  // Três coisas que desencaixam em SILÊNCIO ABSOLUTO, que é o critério deste arquivo:
+  //
+  //   (a) `taxaMutirao(0)` deixar de devolver zero. O jogo não daria erro nenhum: a obra
+  //       simplesmente passaria a crescer para quem nunca acolheu ninguém, e a frase que
+  //       sustenta a mecânica inteira — *é a gente que ele acolheu trabalhando junto* —
+  //       viraria mentira sem um pixel fora do lugar. É o §2 escrito como asserção.
+  //   (b) uma acolhida ser consumida. `S.acolhidos` e `S.recursos` são os dois números que a
+  //       obra toca, e só UM deles pode descer. Gente nunca é recurso.
+  //   (c) o vão entre canteiros encolher. A média de objetos em cena é pura geometria —
+  //       (W + largura) / (vão do nascer ao nascer) — e ela é a trava de composição do dono.
+  //       Aqui ela é medida NA GEOMETRIA, não em 90 s de amostra: é a mesma conta que o
+  //       `medir-poluicao.js` observa, sem o ruído das folhas por cima.
+  // ============================================================
+  sec('22 · a obra avança com gente, não avança sem, e ninguém é gasto nela');
+  const oMutirao = await page.evaluate(() => {
+    fecharTelas(); fecharTudo();
+    const medir = (a) => {
+      S.obra = { roca: 0, palicada: 0, casa: 0 };
+      S.recursos = { flor: 500, agua: 500, refeicao: 500 };
+      S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = a;
+      const gasto0 = 1500;
+      // uma NOITE inteira no teto de ausência, pelo mesmo caminho que `carregar()` usa
+      const seg = CFG.capOfflineHoras * 3600;
+      const r = avancarObra(Math.floor(seg / 3600 * taxaMutirao(S.acolhidos[CAP_GENTE])));
+      return { pontos: r.pontos, gente: S.acolhidos[CAP_GENTE],
+        gasto: gasto0 - (S.recursos.flor + S.recursos.agua + S.recursos.refeicao),
+        obra: S.obra.roca + S.obra.palicada + S.obra.casa };
+    };
+    const zero = medir(0), poucas = medir(3), muitas = medir(60);
+    // A TRAVA DE COMPOSIÇÃO, VARRIDA E NÃO ESTIMADA: 20 mil px de estrada pelo MESMO
+    // `atualizarCanteiros()` que o laço de quadro chama, contando quantos canteiros ficam em
+    // quadro a cada 5 px. É a mesma conta que o `medir-poluicao.js` observa em 90 s de amostra,
+    // só que sem o ruído das folhas e das chegadas por cima — aqui o número é do canteiro e de
+    // mais nada, e é ele que precisa caber nos 0,4 de folga do capítulo 2.
+    S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 12;
+    S.cenario = cenarioDaEpoca(CAP_GENTE);
+    S.energiaTotal = LIMIAR_CENA * S.cenario + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.9;
+    const x0 = worldX;
+    canteiros.length = 0; proximoCanteiro = 0;
+    let soma = 0, amostras = 0, pior = 0;
+    for (let i = 0; i < 4000; i++) {
+      worldX += 5;
+      atualizarCanteiros();
+      const n = canteiros.filter(function (c) {
+        const sx = c.wx - worldX;
+        return sx < W && sx + OBRA_LARGURA[c.tipo] > 0;
+      }).length;
+      soma += n; amostras++; if (n > pior) pior = n;
+    }
+    worldX = x0; canteiros.length = 0;
+    return { zero, poucas, muitas, mediaCanteiros: +(soma / amostras).toFixed(3), pior,
+      teto: OBRA_MAX, derivado: OBRA_PONTOS_ESTAGIO * OBRA_ESTAGIOS };
+  });
+  log('   sem ninguém acolhido: ' + JSON.stringify(oMutirao.zero));
+  log('   com 3 acolhidas:      ' + JSON.stringify(oMutirao.poucas));
+  log('   com 60 acolhidas:     ' + JSON.stringify(oMutirao.muitas));
+  log('   canteiros em cena, varrendo 20 mil px: média ' + oMutirao.mediaCanteiros
+    + ' | pior momento ' + oMutirao.pior);
+  ok(oMutirao.zero.pontos === 0 && oMutirao.zero.obra === 0,
+    'ZERO acolhidas = ZERO avanço da obra (a frase que sustenta a mecânica)');
+  ok(oMutirao.zero.gasto === 0,
+    'e zero acolhidas não gasta um grão de mantimento — não existe upkeep, ninguém "come o estoque"');
+  ok(oMutirao.poucas.pontos > 0 && oMutirao.muitas.pontos > 0,
+    'com gente acolhida a obra anda (' + oMutirao.poucas.pontos + ' e ' + oMutirao.muitas.pontos + ' pontos numa noite)');
+  ok(oMutirao.muitas.pontos > oMutirao.poucas.pontos,
+    'mais gente adianta mais — mas a taxa satura, e o smoke cobra a saturação');
+  ok(oMutirao.poucas.gente === 3 && oMutirao.muitas.gente === 60,
+    'NENHUMA acolhida é consumida pela obra: gente não é recurso (§2)');
+  ok(oMutirao.muitas.gasto > 0, 'o que a obra consome é mantimento, e só ele (' + oMutirao.muitas.gasto + ')');
+  ok(oMutirao.mediaCanteiros <= 0.4,
+    'o vão entre canteiros mantém a média em cena em ' + oMutirao.mediaCanteiros + ' (teto de projeto 0,40)');
+  ok(oMutirao.pior <= 1,
+    'e NUNCA há dois canteiros no mesmo quadro (pior momento em 20 mil px: ' + oMutirao.pior + ')');
+  ok(oMutirao.teto === oMutirao.derivado, 'OBRA_MAX continua derivado de estágio × estágios, nunca literal');
+
   sec('21 · deitado, o menu inteiro cabe na tela e o JOGAR recebe o dedo');
   for (const vp of [{ w: 844, h: 390, nome: 'telefone deitado 844×390' },
                     { w: 1024, h: 768, nome: 'tablet deitado 1024×768' }]) {

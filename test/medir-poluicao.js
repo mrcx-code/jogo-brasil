@@ -76,10 +76,15 @@ const PREFIXO = process.argv[4] || 'D';
         // O CANTEIRO É UM OBJETO, e entra na conta (MUTIRAO.md §3.3). O `typeof` deixa este
         // instrumento medir também o binário de ANTES da obra, para os dois lados da régua
         // saírem do MESMO código — sem ele, o "antes" mediria um contador a menos.
+        //
+        // A JANELA É A CAIXA DELE, não uma folga: conta-se o canteiro quando qualquer pixel
+        // da caixa está em quadro. A primeira versão usava ±60 px fora da tela dos dois lados
+        // e inflava a categoria em ~0,12 — 120 px de estrada em que o canteiro simplesmente
+        // não está na tela. Isto é conserto do instrumento, não do jogo.
         const canteirosN = (typeof canteiros !== 'undefined' && canteiros)
           ? canteiros.filter(function (c) {
               const sx = c.wx - worldX;
-              return sx <= W + 60 && sx >= -60;
+              return sx < W && sx + OBRA_LARGURA[c.tipo] > 0;
             }).length : 0;
         const gente = grupo.length + ficando.length + moradores.length;
         const total = mobsN + dropsN + folhasN + floatsN + placaN + canteirosN;

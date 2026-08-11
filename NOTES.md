@@ -4562,3 +4562,154 @@ o vão entre canteiros, que é o que a parte 2 vai calibrar.
 
 Os canteiros no mundo, desenhados por código, com o vão calibrado para caber nos 0,42 — e depois
 o gesto.
+
+## Diário — 2026-08-11 · Dev · O MUTIRÃO, partes 2 e 3: a obra aparece, e a mão a ergue
+
+Os canteiros no mundo (desenhados por código) e o gesto. Com isto o `MUTIRAO.md` está
+implementado. O ticket do dono é uma frase e ela é a régua: *"gosto da construção, fica evoluindo
+com um tempo né, pode engajar para construir mais e querer voltar."*
+
+### O gesto, e a coisa que só apareceu com ele pronto
+
+Segurar o dedo em QUALQUER ponto do mundo. O toque continua instantâneo (a metade faz o que
+sempre fez); passados 300 ms, se houver um canteiro em quadro, a obra começa e **a personagem
+para**. Trabalhar é literalmente parar de andar: nada nasce (mob, drop e folha nascem por chão
+coberto), e o custo de erguer é a estrada que não passou.
+
+**O achado que fecha o desenho, e que eu não tinha previsto:** como a condição é reavaliada a
+cada quadro, segurar o dedo numa estrada vazia não faz nada — ela **anda até o próximo canteiro
+e começa a trabalhar sozinha**. Ou seja: um polegar só, sem mirar, sem timing. E, como ela PARA
+enquanto trabalha, o canteiro não vai embora — alcançar um canteiro uma vez basta para uma
+sessão inteira de obra. Isso é o que torna o vão largo entre canteiros barato em jogo e caro
+só em composição, que é a troca certa.
+
+O golpe não vira rajada: o mundo nunca repetiu golpe (só o botão dourado, que fica intocado).
+Medido no smoke: 2,6 s de dedo no mundo = **2 pontos de obra e EXATAMENTE 1 golpe**, e 0 px
+andados depois de armar. Fora da faixa: 0 pontos, 27 px andados — a rua é a de sempre.
+
+### Três coisas que os PRINTS pegaram e nenhum teste pegaria
+
+1. **A roça lia como TÁBUA.** A receita do `MUTIRAO.md` §3.2 (retângulos empilhados de larguras
+   decrescentes) desenha um terraço que, a 2×, é indistinguível de madeira — e a paliçada de
+   madeira está do lado. Virou **leira de terra**: duas fiadas, a de cima mais estreita, crista
+   clara e emenda escura entre uma e a vizinha. E a crista foi para `#7a5430` e não para o
+   `#5c3d20` do resto: a leira nasce exatamente na linha em que a mata escura encontra a terra,
+   e fiada escura sobre fundo escuro simplesmente não existia no print.
+2. **A microdica acendia sobre estrada vazia.** Com zero unidades nada era desenhado, então
+   "SEGURE PARA AJUDAR NA OBRA" aparecia sem obra nenhuma à vista. Entrou a **marca do canteiro**
+   — terra raspada e dois piquetes, igual nos três: um canteiro com zero peças ainda é um
+   canteiro, e "é aqui" é a informação que o gesto precisa.
+3. **Dez segundos de dedo sem nada acontecendo.** Uma peça nova só aparece a cada 10 pontos.
+   Entraram **dois grãos por ponto** (além do punhado por parcela): o pequeno diz "está
+   trabalhando", o grande diz "uma peça ficou de pé". Nenhum float de número, nunca — obra não
+   é placar.
+
+### A COMPOSIÇÃO — os dois números que o ticket pediu
+
+`test/medir-poluicao.js`, 90 s por célula, 390×844, segurando o botão dourado. O instrumento
+passou a contar **canteiro como objeto** e a janela dele é a CAIXA do canteiro (a primeira
+versão usava ±60 px fora da tela dos dois lados e inflava a categoria em ~0,12 — conserto do
+instrumento, não do jogo).
+
+| célula | ANTES | DEPOIS | canteiros | renda/min ANTES → DEPOIS |
+|---|---:|---:|---:|---|
+| cap1 andando | 4,92 | 5,56 | 0 | 1.362 → 1.379 |
+| cap1 correndo | 6,00 | 6,19 | 0 | 1.466 → 1.460 |
+| **cap2 andando** | **4,31** | **4,77** | 0,28 | 1.442 → 1.467 (+1,7%) |
+| **cap2 correndo** | **4,98** | **5,56** | 0,29 | 1.546 → 1.528 (−1,2%) |
+| cap3 andando | 4,03 | 4,10 | 0 | 1.800 → 1.835 |
+| cap3 correndo | 4,49 | 4,71 | 0 | 2.005 → 1.999 |
+
+**A leitura honesta, e ela tem três partes:**
+
+- **O que a obra acrescenta é 0,28 (andando) e 0,29 (correndo)** — medido na própria categoria,
+  isolado. É o número do meu trabalho, e é o único comparável entre rodadas.
+- **Todo o resto do delta é ruído do instrumento, e a prova está na própria tabela:** o capítulo
+  1, que não tem canteiro nenhum, subiu 4,92 → 5,56 andando entre as duas rodadas, quase tudo em
+  `folhas` (1,65 → 2,41). Comparar TOTAIS entre rodadas diferentes deste instrumento não diz
+  nada; comparar dentro da MESMA rodada, sim.
+- **Pelo critério do ticket** — *"a média não passa a do capítulo 1"* —, na mesma rodada:
+  cap2 andando **4,77 < 5,56**, cap2 correndo **5,56 < 6,19**. Passa nos dois ritmos.
+  **Pelo número absoluto herdado (5,4)**: andando passa; correndo fica **0,16 acima**. E vale
+  dizer que, nessa mesma rodada, o capítulo 1 ANDANDO já está em 5,56 sem canteiro nenhum — o
+  5,4 escrito no `MUTIRAO.md` descreve uma medição antiga, não este binário.
+
+Confirmação independente, sem ruído nenhum, no `encaixe.js` bloco 22: varrendo **20 mil px** de
+estrada pelo mesmo `atualizarCanteiros()` do laço de quadro, a média de canteiros em quadro é
+**0,290** e o pior momento é **1** — nunca dois na mesma tela.
+
+**A válvula que existe é o vão, e não a declarada.** O `MUTIRAO.md` §3.3 dizia que, estourando,
+se cortaria os moradores visíveis de 6 para 4. Isso **não moveria o número**: o `medir-poluicao.js`
+soma chegadas+drops+folhas+floats+placa e deixa `gente` FORA de propósito. A válvula real é
+`OBRA_ESTRADA_FRAC`. Foi calibrada com medição: **1,9 tela rendeu 0,45/0,50 e o cap2 correndo
+bateu 5,80** — recusado. **2,8 tela rende 0,28/0,29**, que é o que está no ar.
+
+### O PESO — zero imagem nova
+
+`index.html` **1.617.842 → 1.630.873 bytes: +13.031, +0,81%.** Nenhum byte de imagem: os três
+canteiros são retângulos na gramática de materiais que o chrome já falava (madeira da placa de
+marco, taipa das lajes, verdes da folha, terra). Nenhum pacote novo, nenhuma requisição nova.
+A porta de entrada não se move de forma perceptível e os 6,30 s do 3G continuam 6,30 s.
+
+### O TEMPO ATÉ A OBRA COMPLETA, por estratégia
+
+O `MUTIRAO.md` §1.5 pedia um `test/medir-mutirao.js --simular`. Ele não foi escrito, e a razão é
+que ele duplicaria as tabelas do jogo para reproduzir uma conta fechada: as taxas de coleta já
+estão medidas (NOTES 06/08) e o custo é linear. A conta, direto das tabelas:
+
+| estratégia | rua | dedo | total |
+|---|---:|---:|---:|
+| só a mão, **andando** (gargalo: água) | 28,1 min | 9,0 min | **37,1 min** |
+| só a mão, **correndo** (gargalo: refeição) | 15,8 min | 9,0 min | **24,8 min** |
+| misto ótimo (0,4 andando + 15,1 correndo) | 15,5 min | 9,0 min | **24,5 min** |
+| só o mutirão, 30+ acolhidas | 216 pontos por noite de 12 h | — | 3 noites, e o estoque trava antes |
+
+**Uma afirmação do `MUTIRAO.md` NÃO se sustenta, e fica registrada em vez de consertada.** O
+§1.3 item 2 diz que *"nenhum ritmo sozinho abastece bem — misturar ritmos é a jogada boa"*. Não
+é: **correr sozinho custa 15,8 min e o misto ótimo custa 15,5 — 2%.** A razão é simples e o
+documento não a viu: correr rende 38 drops/min contra 28 andando, então a vantagem bruta de
+correr engole a diferença de repartição. Andar sozinho é 1,8× pior. **Não mexi na tabela** — o
+ticket manda não reinventar a economia, e mudar `CUSTO_OBRA` é mudança de economia com medição
+própria. O conserto mínimo, se a Direção quiser a decisão de volta, é **subir a refeição e baixar
+a água** nos três E3 (a refeição é 58% do que a caminhada entrega e só 25% do que a corrida
+entrega): é o único par que faz o gargalo trocar de lado conforme o ritmo.
+
+### O que MEDIU, além disso
+
+| medida | valor |
+|---|---|
+| segurar 2,6 s no mundo, na faixa | 2 pontos de obra · **1 golpe** · 0 px andados depois de armar |
+| segurar 1,2 s no mundo, fora da faixa | 0 pontos · não arma · 27 px andados (a rua de sempre) |
+| canteiros em cena (varredura de 20 mil px) | média **0,290** · pior **1** |
+| altura da silhueta, pronta | roça 10 px · paliçada 18 px · casa 30 px (a protagonista tem 44) |
+| 10 s de dedo | 1 peça de pé · flor −1, água −2, refeição −3 (a parcela E1 da paliçada) |
+| FPS | 61 (3 rodadas: 61, 61, 61) |
+
+### Onde eu me afastei do `MUTIRAO.md`, e por quê
+
+1. **Um canteiro de cada vez, e não três semeados juntos a uma tela de distância** (§3.1). Três
+   em ciclo curto poriam ~1,4 objetos em cena; o teto real são 0,4. Prints e medição.
+2. **A obra só arma com um canteiro em quadro.** Trabalhar num canteiro fora da tela seria
+   trabalho sem retorno visível, e o retorno visível é a coisa inteira. Não custa jogabilidade:
+   ver o achado do gesto acima.
+3. **A receita da roça mudou** (leira de terra, não terraço de retângulos). Print.
+4. **A marca do canteiro e o grão por ponto** não estavam no documento. Prints.
+5. **`avancarObra` ganhou alvo fixo opcional.** O documento descrevia os dois comportamentos —
+   a mão trabalha onde ELA está, o mutirão acode onde falta mais — como uma função só.
+6. **`recNaTela` precisou de metade a mais do conserto:** o `oculto` foi para a MARCAÇÃO. Sem
+   isso o nicho nascia visível no boot, e quem pegou foi o bloco 3 do `encaixe.js`.
+
+### Dúvida nova
+
+O `medir-poluicao.js` mede `folhas` com uma dispersão de +46% entre rodadas do MESMO binário
+(1,65 → 2,41 no cap1 andando, em três rodadas, subindo sempre). Isso é maior que qualquer coisa
+que este trabalho acrescentou, e torna a trava de composição inútil como número absoluto. Ou a
+contagem de folhas tem viés de carga da máquina, ou o instrumento precisa de N rodadas e mediana.
+**Enquanto isso não for entendido, a única comparação que vale é dentro da mesma rodada.**
+
+### Próximo passo
+
+Rebasear contra a `main` quando a outra sessão de PALMARES pousar: ela mexe em `S.acolhidos` e em
+`acolherPessoa` (gente atravessando a tela, acolher a um toque), que é exatamente a entrada de
+`taxaMutirao`. O encontro é benigno no papel — a obra lê só o NÚMERO de acolhidas — mas
+`atualizarMoradores` e `faixaViva` são vizinhos de linha e vão conflitar em texto.

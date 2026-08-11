@@ -882,6 +882,7 @@ async function alvo() {
   if (obraEspera.pontos !== 27) errors.push('the obra did not freeze at the parcel boundary: ' + obraEspera.pontos);
   if (!obraEspera.parouPor) errors.push('the obra froze without saying what ran out');
 
+
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
   // SALVADOR entrou no MEIO da cronologia, e o save guarda INDICES. Quem parou em HOJE no arco
   // de tres capitulos estava na cena 4; no arco de agora a cena 4 e 1835. Sem `migrarArco()`
@@ -1004,6 +1005,71 @@ async function alvo() {
   // que o som EXISTA e que o teto segure — nunca que os nove passem.
   if (som.temContexto && (som.ligado < 5 || som.ligado > 6)) errors.push('the per-frame voice budget is not holding: ' + som.ligado);
   if (som.desligado !== 0) errors.push('sound is off and something still made an audio node');
+
+  // ---- O GESTO: segurar o MUNDO na faixa final ergue a obra, e nunca vira rajada ----
+  // Tres coisas de uma vez, e as tres sao promessas do MUTIRAO.md:
+  //   · segurar em QUALQUER ponto do mundo trabalha (sem alvo, sem metade certa, sem timing);
+  //   · a personagem PARA — trabalhar e literalmente parar de andar, e e esse o custo;
+  //   · o golpe NAO dispara durante a obra: no maximo UM, o do toque que iniciou o gesto.
+  // E a regressao que importa: FORA da faixa, segurar o mundo continua sendo o que sempre foi.
+  async function segurarOMundo(seg) {
+    const r = await page.evaluate(() => {
+      const b = document.getElementById('scene').getBoundingClientRect();
+      return { x: b.left + b.width * 0.75, y: b.top + b.height * 0.45 };   // metade DIREITA
+    });
+    const antes = await page.evaluate(() => ({ obra: S.obra.roca + S.obra.palicada + S.obra.casa,
+      total: S.energiaTotal, x: worldX }));
+    await page.mouse.move(r.x, r.y);
+    await page.mouse.down();
+    // O primeiro meio segundo e a JANELA DE ARMAR (MUTIRAO_HOLD_MS = 300 ms): ali a rua anda
+    // mesmo, de proposito — o toque continua instantaneo e quem so toca nao perde nada. O que
+    // se mede e o depois, e por isso ha uma segunda amostra.
+    await new Promise(res => setTimeout(res, 500));
+    const armado = await page.evaluate(() => ({ x: worldX }));
+    await new Promise(res => setTimeout(res, Math.max(0, seg * 1000 - 500)));
+    const meio = await page.evaluate(() => ({ obra: S.obra.roca + S.obra.palicada + S.obra.casa,
+      total: S.energiaTotal, x: worldX, trabalhando: obraTrabalhando }));
+    await page.mouse.up();
+    return { pontos: meio.obra - antes.obra, ganho: meio.total - antes.total,
+      andou: Math.round(meio.x - antes.x), andouDepoisDeArmar: Math.round(meio.x - armado.x),
+      trabalhando: meio.trabalhando };
+  }
+  await page.evaluate(() => {
+    fecharTelas(); fecharTudo();
+    const c0 = cenarioDaEpoca(CAP_GENTE);
+    S.cenario = c0; S.fronteira = Math.max(S.fronteira | 0, c0);
+    S.energiaTotal = LIMIAR_CENA * c0 + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.9;
+    S.energia = 1e6; S.u3 = false; S.u4 = false;
+    S.aberturas = MASCARA_EPOCAS; S.fechos = 0; S.marcos = MASCARA_MARCOS;
+    S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 20;
+    S.recursos = { flor: 200, agua: 200, refeicao: 200 };
+    S.obra = { roca: 0, palicada: 0, casa: 0 };
+    mobs.length = 0; drops.length = 0; folhas.length = 0; floats.length = 0;
+    canteiros.length = 0; canteiros.push({ tipo: 'roca', wx: worldX + HX + 20 });
+  });
+  await page.waitForTimeout(300);
+  const naFaixa = await segurarOMundo(2.6);
+  const umGolpe = await page.evaluate(() => ganhoClique());
+  console.log('holding the world in the faixa ->', JSON.stringify(naFaixa),
+    '| one swing is worth', umGolpe.toFixed(2));
+  if (naFaixa.pontos < 2) errors.push('holding the world in the faixa built nothing: ' + naFaixa.pontos);
+  if (naFaixa.ganho > umGolpe * 2)
+    errors.push('holding the world in the faixa turned into a volley of swings: +' + naFaixa.ganho);
+  if (Math.abs(naFaixa.andouDepoisDeArmar) > 4)
+    errors.push('she kept walking while working the obra: ' + naFaixa.andouDepoisDeArmar + 'px');
+
+  // ...e FORA da faixa nada disso existe: a rua anda como sempre andou
+  await page.evaluate(() => {
+    S.cenario = 0; S.energiaTotal = 300; S.energia = 1e6;
+    S.acolhidos = EPOCAS.map(() => 0);
+    canteiros.length = 0; mobs.length = 0; drops.length = 0;
+  });
+  await page.waitForTimeout(200);
+  const foraDaFaixa = await segurarOMundo(1.2);
+  console.log('holding the world outside the faixa ->', JSON.stringify(foraDaFaixa));
+  if (foraDaFaixa.trabalhando) errors.push('the obra armed outside the faixa');
+  if (foraDaFaixa.pontos !== 0) errors.push('the obra advanced by hand outside the faixa');
+  if (foraDaFaixa.andou < 20) errors.push('the street stopped outside the faixa: ' + foraDaFaixa.andou + 'px');
 
   // ============================================================
   // T4 (SPRINT 1) — the three flows that cost day 07 must not regress in silence.

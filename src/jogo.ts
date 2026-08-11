@@ -709,6 +709,11 @@ function passoAgora() {
 // diferentes. A forma `PASSO × 60 / n` com n INTEIRO é a armadilha nº 1 do §7 e não é
 // negociável: 10 quadros de tela por pose andando, 5 correndo, o dobro exato.
 function velocidadeMundo() {
+  // TRABALHAR É PARAR DE ANDAR. Uma linha, e ela paga tudo: a rua não corre, nada nasce (mob,
+  // drop e folha nascem por chão coberto), a fila para junto, e o custo de segurar o dedo na
+  // obra é exatamente a estrada que deixou de passar. O flag é resolvido uma vez por quadro em
+  // `trabalharNaObra`, antes de qualquer coisa ler esta função.
+  if (obraTrabalhando) return 0;
   const correndo = S.modo === "carvao";
   const c = passoCap();
   // Sem folha de corrida aprovada o bloco `run` do capítulo fica vazio, `passoAgora()` devolve
@@ -2156,7 +2161,7 @@ function faltaEm(c) {
 // O RELÓGIO ÚNICO da obra: um só caminho, e é por ele que passam o dedo, o laço de quadro e
 // a ausência. Devolve o RELATO — o que a tela de retorno lê, e a única coisa que ela pode
 // dizer (nenhum dígito inventado; aqui, nenhum dígito, ponto).
-function avancarObra(pontos) {
+function avancarObra(pontos, fixo?: Canteiro | null) {
   const relato = {
     pontos: 0, parcelas: 0,
     estagios: [] as { canteiro: Canteiro; estagio: number }[],
@@ -2170,12 +2175,20 @@ function avancarObra(pontos) {
   n = Math.min(n, OBRA_MAX * OBRA_CANTEIROS.length);
   const travado: Record<string, boolean> = {};
   while (n > 0) {
-    // O mutirão acode ONDE FALTA MAIS, e ninguém o comanda: o canteiro com menos pontos,
-    // empatando na ordem da sobrevivência. Não existe interface de alocação, e é de propósito.
+    // DOIS ALVOS POSSÍVEIS, E A DIFERENÇA ENTRE ELES É O §2 INTEIRO:
+    //  · `fixo` — a MÃO da pessoa, que trabalha no canteiro em que ELA está. É a única escolha
+    //    que o jogador faz, e ela é sobre onde ele põe o próprio corpo.
+    //  · sem `fixo` — o MUTIRÃO, que acode ONDE FALTA MAIS (o canteiro com menos pontos,
+    //    empatando na ordem da sobrevivência). Ninguém o comanda: não existe interface de
+    //    alocação, nenhuma acolhida é tocável, selecionável ou posicionável.
     let alvo: Canteiro | null = null;
-    for (const c of OBRA_CANTEIROS) {
-      if (travado[c] || (S.obra[c] | 0) >= OBRA_MAX) continue;
-      if (alvo === null || (S.obra[c] | 0) < (S.obra[alvo] | 0)) alvo = c;
+    if (fixo) {
+      if (!travado[fixo] && (S.obra[fixo] | 0) < OBRA_MAX) alvo = fixo;
+    } else {
+      for (const c of OBRA_CANTEIROS) {
+        if (travado[c] || (S.obra[c] | 0) >= OBRA_MAX) continue;
+        if (alvo === null || (S.obra[c] | 0) < (S.obra[alvo] | 0)) alvo = c;
+      }
     }
     if (alvo === null) break;      // tudo pronto ou tudo esperando: o resto se perde
     const p = S.obra[alvo] | 0;
@@ -5629,6 +5642,13 @@ function drawHero() {
   } else if (attackT > 0 && attackType === 1) {
     frames = heroBloco("atk2");
     fi = Math.max(0, Math.min(frames.length - 1, Math.floor((1 - attackT / ATKF) * frames.length)));
+  } else if (obraTrabalhando) {
+    // A POSE DE QUEM TRABALHA é a MESMA de quem mora na faixa (atk1, quadro 3): gesto de quem
+    // segura o que trouxe, nunca de quem golpeia — e essa distinção é o §2, não estética.
+    // Sem este ramo a caminhada CONGELARIA no quadro em que estava, porque o quadro é escolhido
+    // por distância e a distância parou: meia passada parada no ar, que lê como travamento.
+    frames = heroBloco("atk1");
+    fi = Math.min(3, frames.length - 1);
   } else {
     // The frame is picked by DISTANCE covered, not by elapsed time, so the stride can never
     // drift out of step with the ground however fast the street is moving. GO FAST has its own
@@ -6267,6 +6287,228 @@ function atualizarMoradores(dt) {
     if (m.anda) { const p = m.vel * dt; m.x += p; m.d += p; }
   });
 }
+
+// ============================================================
+// OS CANTEIROS NO CHÃO — a obra desenhada, e o desenho É o progresso
+//
+// Nenhuma barra, nenhum número, nenhum placar: cada parcela debitada acrescenta UMA unidade
+// visível (uma leira, uma estaca, uma fiada), 6 por estágio, 18 por canteiro. Quem olha o
+// canteiro sabe onde a obra está sem que o jogo diga um dígito — e é por isso que o
+// `MUTIRAO.md` proíbe a barra: barra sobre obra vira placar, e placar sobre trabalho coletivo
+// é a gramática errada.
+//
+// ZERO IMAGEM NOVA. Tudo abaixo é retângulo na gramática de materiais que o chrome já fala —
+// a madeira da placa de marco, a taipa das lajes, os verdes da folha, a terra. Nenhum glifo,
+// nenhum grafismo inventado: a mesma regra do logo e do §2.1.
+//
+// UM DE CADA VEZ, E O VÃO É A VÁLVULA DE COMPOSIÇÃO. A trava herdada é média ≤ 5,4 objetos em
+// cena e o capítulo 2 correndo já mede 4,98 — sobram 0,42, medidos, não estimados. A média de
+// canteiros em cena é pura geometria: (W + largura) / (vão do nascer ao nascer). Com um só vivo
+// e `OBRA_ESTRADA_FRAC` de tela vazia entre eles, dá ~0,39 — e é este número, e não o número de
+// figuras, que a válvula tem de mover (o `medir-poluicao.js` deixa `gente` FORA da soma).
+// ============================================================
+interface ObraNoChao { tipo: Canteiro; wx: number; }
+let canteiros: ObraNoChao[] = [];
+let proximoCanteiro = 0;
+const OBRA_LARGURA: Record<Canteiro, number> = { roca: 48, palicada: 40, casa: 56 };
+// Quanto de estrada vazia entre um canteiro e o seguinte, em telas. Ver o cabeçalho: é a
+// única válvula que move a média medida, e mexer nela é mexer em composição — mede-se de novo.
+//
+// 1,9 FOI MEDIDO E RECUSADO: rendeu 0,45 (andando) e 0,50 (correndo) de canteiro em cena, e o
+// capítulo 2 correndo bateu 5,80 — acima do teto herdado de 5,4. 2,8 põe a média de canteiros
+// em ~0,30. E o vão maior custa MENOS jogo do que parece, por uma razão que só apareceu depois
+// do gesto pronto: enquanto se trabalha a personagem PARA, então o canteiro não vai embora —
+// alcançar um site uma vez basta para uma sessão inteira de obra.
+const OBRA_ESTRADA_FRAC = 2.8;
+function atualizarCanteiros() {
+  if (!faixaViva()) { if (canteiros.length) canteiros.length = 0; return; }
+  // sai de cena quando a caixa inteira ficou para trás
+  canteiros = canteiros.filter(function (c) {
+    return c.wx - worldX > -(OBRA_LARGURA[c.tipo] + 4);
+  });
+  if (canteiros.length) return;
+  const tipo = OBRA_CANTEIROS[proximoCanteiro % OBRA_CANTEIROS.length];
+  proximoCanteiro++;
+  // O sorteio é DETERMINÍSTICO pela posição (o mesmo `hash01` que semeia a vegetação): o vão
+  // não pode ser metronômico, e também não pode mudar a cada quadro de desenho.
+  const vao = Math.round(W * OBRA_ESTRADA_FRAC) + Math.round(hash01(proximoCanteiro * 7.3) * 40);
+  canteiros.push({ tipo: tipo, wx: worldX + W + vao });
+}
+// O canteiro que a MÃO alcança: o que está em quadro. Não existe "trabalhar no que não se vê" —
+// seria trabalho sem retorno visível, e o retorno visível é a coisa inteira aqui.
+function canteiroNaTela(): ObraNoChao | null {
+  for (const c of canteiros) {
+    const sx = c.wx - worldX;
+    if (sx + OBRA_LARGURA[c.tipo] > -8 && sx < W + 8) return c;
+  }
+  return null;
+}
+// Quantas UNIDADES visíveis um canteiro já tem: exatamente as parcelas debitadas. Deriva dos
+// pontos, como tudo aqui.
+function unidadesObra(c: Canteiro) { return Math.floor((S.obra[c] | 0) / OBRA_PARCELA); }
+function retObra(x, y, w, h, cor) {
+  if (w <= 0 || h <= 0) return;
+  // tintaCor: canteiro é coisa da rua e toma a tinta da hora (onda 2). Nunca é sinal.
+  cx.fillStyle = tintaCor(cor);
+  cx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+}
+function desenharCanteiro(c: ObraNoChao) {
+  const sx = Math.round(c.wx - worldX);
+  const larg = OBRA_LARGURA[c.tipo];
+  if (sx > W + 8 || sx + larg < -8) return;
+  const u = unidadesObra(c.tipo);
+  // as unidades de cada estágio, na ordem: os 6 primeiros são E1, os 6 seguintes E2, e assim
+  const e1 = Math.min(u, 6), e2 = Math.max(0, Math.min(u - 6, 6)), e3 = Math.max(0, Math.min(u - 12, 6));
+  sombra(sx + larg / 2, GROUND, larg - 6, 0.16);
+  // A MARCA DO CANTEIRO — o lugar existe ANTES de a obra existir, e este desenho foi pago por
+  // um print: com zero unidades nada era desenhado, e a microdica "SEGURE PARA AJUDAR NA OBRA"
+  // acendia sobre estrada vazia. Um canteiro com zero peças ainda é um canteiro: a terra
+  // raspada e dois piquetes dizem "é aqui", que é a informação que o gesto precisa.
+  retObra(sx, GROUND - 2, larg, 2, "#41290f");
+  retObra(sx, GROUND - 2, larg, 1, "#5c3d20");
+  [sx - 1, sx + larg - 1].forEach(function (x) {
+    retObra(x, GROUND - 9, 2, 9, "#241a10");
+    retObra(x, GROUND - 9, 1, 8, "#5c3d20");
+  });
+  if (c.tipo === "roca") {
+    // A LEIRA É TERRA, e tem de LER como terra: duas fiadas, a de cima mais estreita, com a
+    // crista clara em cima e uma emenda escura entre uma leira e a vizinha. A primeira versão
+    // eram retângulos empilhados de larguras decrescentes — no print isso lia como TÁBUA, que
+    // é exatamente o material errado (e o da paliçada logo ao lado). Achado no print, não no teste.
+    // A crista vai no #7a5430 e não no #5c3d20 do resto da madeira: a leira nasce EXATAMENTE
+    // na linha em que a mata escura encontra a terra, e no print a fiada escura sobre fundo
+    // escuro simplesmente não existia. É contraste, não gosto.
+    for (let j = 0; j < e1; j++) {
+      const x = sx + 1 + j * 8;
+      retObra(x, GROUND - 3, 7, 3, "#41290f");
+      retObra(x + 1, GROUND - 5, 5, 2, "#41290f");
+      retObra(x + 1, GROUND - 5, 5, 1, "#7a5430");
+      retObra(x + 7, GROUND - 3, 1, 3, "#241a10");
+    }
+    // E2 e E3 crescem NA leira, não ao lado dela: a mesma posição j, uma coisa de cada vez.
+    for (let j = 0; j < 6; j++) {
+      const x = sx + 1 + j * 8;
+      if (j < e3) {                       // a touceira crescida
+        retObra(x + 3, GROUND - 7, 1, 2, "#3e4721");
+        retObra(x + 1, GROUND - 13, 5, 6, "#7d9a3c");
+        retObra(x + 1, GROUND - 13, 5, 1, "#9bd44f");
+        retObra(x + 1, GROUND - 8, 5, 1, "#3e4721");
+      } else if (j < e2) {                // a muda na terra
+        retObra(x + 3, GROUND - 8, 1, 3, "#3e4721");
+        retObra(x + 2, GROUND - 10, 3, 2, "#7d9a3c");
+        retObra(x + 2, GROUND - 10, 3, 1, "#9bd44f");
+      }
+    }
+  } else if (c.tipo === "palicada") {
+    // A estaca, desenhada uma vez e usada pelas duas fileiras: silhueta escura, corpo com a
+    // luz à esquerda e a ponta clara em cima. Veio de madeira é risco horizontal, como na placa.
+    const estaca = function (x, alt) {
+      retObra(x, GROUND - alt, 3, alt, "#241a10");
+      retObra(x, GROUND - alt + 1, 2, alt - 1, "#5c3d20");
+      retObra(x, GROUND - alt, 3, 1, "#a07a48");
+    };
+    for (let j = 0; j < e1; j++) estaca(sx + j * 6, j < e3 ? 22 : 14);        // E1 (e E3 as levanta)
+    for (let j = 0; j < e2; j++) estaca(sx + 3 + j * 6, j < e3 ? 22 : 18);    // E2, intercalada
+    if (e2 >= 6) {                                                            // a tranca
+      retObra(sx, GROUND - 13, 38, 3, "#241a10");
+      retObra(sx + 1, GROUND - 12, 36, 1, "#7a5430");
+    }
+    if (e3 >= 6) {                                                            // e a segunda
+      retObra(sx, GROUND - 20, 38, 3, "#241a10");
+      retObra(sx + 1, GROUND - 19, 36, 1, "#7a5430");
+    }
+  } else {
+    // A CASA: primeiro o esqueleto, depois a taipa entre os esteios, depois a cobertura.
+    const poste = function (x) {
+      retObra(x, GROUND - 24, 3, 24, "#241a10");
+      retObra(x, GROUND - 23, 2, 23, "#5c3d20");
+    };
+    const px = [sx + 2, sx + 17, sx + 34, sx + 51];
+    for (let j = 0; j < Math.min(e1, 4); j++) poste(px[j]);
+    if (e1 >= 5) {                       // o frechal, a peça que amarra os quatro
+      retObra(sx + 2, GROUND - 26, 52, 3, "#241a10");
+      retObra(sx + 3, GROUND - 25, 50, 1, "#7a5430");
+    }
+    if (e1 >= 6) {                       // e a cumeeira com os dois caibros
+      retObra(sx + 12, GROUND - 30, 32, 3, "#241a10");
+      retObra(sx + 13, GROUND - 29, 30, 1, "#7a5430");
+      retObra(sx + 7, GROUND - 28, 6, 2, "#5c3d20");
+      retObra(sx + 43, GROUND - 28, 6, 2, "#5c3d20");
+    }
+    for (let j = 0; j < e2; j++) {       // os painéis de taipa, da esquerda para a direita
+      const x = sx + 4 + j * 8;
+      retObra(x, GROUND - 20, 8, 18, "#191510");
+      retObra(x, GROUND - 19, 7, 17, "#a39a83");
+      retObra(x, GROUND - 19, 7, 1, "#c4bba4");
+      retObra(x + 6, GROUND - 19, 1, 17, "#8f8770");
+    }
+    // A palha para em GROUND-40, e o número não é de enfeite: a casa completa tem de ficar
+    // ABAIXO da protagonista (44 px de mundo). É a mesma régua de silhueta da placa de marco.
+    for (let j = 0; j < e3; j++) {       // e a palha, fiada a fiada, subindo em degraus
+      const w = 52 - j * 8, x = sx + 2 + j * 4, y = GROUND - 30 - j * 2;
+      retObra(x, y, w, 2, "#7c4f24");
+      retObra(x, y, w, 1, "#b8834a");
+    }
+  }
+}
+function desenharCanteiros() { canteiros.forEach(desenharCanteiro); }
+
+// ============================================================
+// O GESTO — segurar em QUALQUER ponto do mundo trabalha na obra
+//
+// Sem alvo, sem metade certa, sem timing: um polegar só, na mão errada, no ônibus. O toque
+// dispara a ação da metade como sempre (a resposta imediata não pode ganhar 300 ms de atraso);
+// se o dedo FICA, a obra começa.
+//
+// E A PERSONAGEM PARA. Trabalhar é, literalmente, parar de andar: parada por distância = zero
+// chegadas novas (tudo nasce por chão coberto), e o custo de oportunidade é a rua que não anda.
+// É o jogo medindo a mesma tensão de sempre, com um verbo novo.
+//
+// O GOLPE NÃO DISPARA DURANTE A OBRA. Segurar o mundo nunca vira rajada — o mundo nunca
+// repetiu golpe, só o botão dourado, e ele fica intocado (é DOM, fora do canvas). A separação
+// entre trabalhar e golpear é ESPACIAL (canvas × botão) e de ESTADO (na obra, a pose é a de
+// quem segura, nunca a de quem bate). É a contramedida do R4: o gesto de erguer é o oposto
+// do gesto de atacar, e nada no jogo ataca a obra.
+// ============================================================
+const MUTIRAO_HOLD_MS = 300;
+const OBRA_MAO_POR_SEG = 1;        // 1 ponto/s: a obra inteira são 540 pontos = 9 min de dedo
+let obraDedo = 0;                  // quando o dedo pousou no mundo (0 = solto)
+let obraTrabalhando = false;       // resolvido UMA vez por quadro; `velocidadeMundo` lê isto
+let dicaObraAte = 0, dicaObraVista = false;
+function obraPodeArmar() {
+  return faixaViva() && !obraCompleta() && !telaAberta() && !falaAberta()
+      && !travessiaAtiva() && jumpT <= 0 && !!canteiroNaTela();
+}
+function trabalharNaObra(dt) {
+  // A MICRODICA, no padrão das duas que já existem: uma linha efêmera na fonte do mundo, uma
+  // vez por sessão, e MORRE na hora em que a pessoa segura. Não passa por `dicasValem()` de
+  // propósito — aquele portão é `energiaTotal < 400` e a faixa final mora em 5.400: usá-lo
+  // aqui seria escrever uma dica que ninguém veria nunca.
+  if (!dicaObraVista && !obraCompleta() && faixaViva() && canteiroNaTela() && !obraDedo) {
+    dicaObraVista = true; dicaObraAte = relogio + 4.2;
+  }
+  obraTrabalhando = obraDedo > 0 && (performance.now() - obraDedo) >= MUTIRAO_HOLD_MS
+    && obraPodeArmar();
+  if (!obraTrabalhando) { obraMaoFrac = 0; return; }
+  dicaObraAte = 0;                 // quem segurou descobriu
+  const c = canteiroNaTela();
+  if (!c) { obraTrabalhando = false; obraMaoFrac = 0; return; }
+  obraMaoFrac += dt * OBRA_MAO_POR_SEG;
+  while (obraMaoFrac >= 1) {
+    obraMaoFrac -= 1;
+    const r = avancarObra(1, c.tipo);
+    if (r.pontos === 0) break;     // este canteiro espera mantimentos: não gira em falso
+    // O estilhaço é do MATERIAL do canteiro, nunca um float de número: obra não é placar.
+    // DOIS TAMANHOS, e o menor foi pago por um print: uma peça nova só aparece a cada dez
+    // pontos, e dez segundos de dedo sem nada acontecendo lê como botão quebrado. Dois grãos
+    // por segundo dizem "está trabalhando"; o punhado diz "uma peça ficou de pé".
+    const cores = c.tipo === "roca" ? ["#41290f", "#7a5430"]
+      : c.tipo === "palicada" ? ["#7a5430", "#a07a48"] : ["#7a5430", "#a39a83"];
+    const sx = Math.round(c.wx - worldX) + Math.round(OBRA_LARGURA[c.tipo] / 2);
+    burst(sx, GROUND - 8, r.parcelas > 0 ? 8 : 2, cores);
+  }
+}
+function soltarObra() { obraDedo = 0; obraTrabalhando = false; obraMaoFrac = 0; }
 
 /*ICONE_B64_START — gerado por test/inline-objetos.js, não edite à mão*/
 // Os ícones do painel, desenhados de fora como o resto da arte. Três contadores e o ritmo.
@@ -7689,6 +7931,7 @@ function desenharMundo() {
   const semLeitura = document.body.classList.contains("emTela");
   // o marco fincado no chão, na mesma camada 1:1 dos drops — nunca paralaxe nova
   desenharMarco();
+  desenharCanteiros();          // ...e a obra do lugar, na mesma camada e pela mesma razão
   desenharOndasChao();          // onda 4: o chão sente o gesto — por baixo de toda leitura
   // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
   // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
@@ -7859,6 +8102,17 @@ function desenharMundo() {
     const x = Math.min(W - larguraTexto(msg, 1) - 4, HX + 18);
     cx.globalAlpha = Math.max(0, Math.min(1, (dicaSegurarAte - relogio) / 0.6));
     texto(msg, x, GROUND - 86, 1, "#f3dda6", "#241a10");
+    cx.globalAlpha = 1;
+  }
+  // "SEGURE PARA AJUDAR NA OBRA" — a terceira e última microdica, e a única que nasce lá no
+  // fim do capítulo 2. Mesma fonte, mesmo desvanecer, mesma vida das outras; centrada, porque
+  // o gesto que ela ensina não tem metade certa. Uma vez por sessão, e morre ao primeiro
+  // segurar (ver `trabalharNaObra`).
+  if (!semLeitura && dicaObraAte > relogio) {
+    const msg = "SEGURE PARA AJUDAR NA OBRA";
+    const x = Math.max(2, Math.round((W - larguraTexto(msg, 1)) / 2));
+    cx.globalAlpha = Math.max(0, Math.min(1, (dicaObraAte - relogio) / 0.6));
+    texto(msg, x, GROUND - 76, 1, "#f3dda6", "#241a10");
     cx.globalAlpha = 1;
   }
   aplicarHoraScene();
@@ -8126,7 +8380,7 @@ function zerarJogo() {
   // A obra volta ao chão junto com quem a tocava. É o ÚNICO lugar do arquivo em que `S.obra`
   // deixa de crescer, e ele não é o jogo: é a pessoa apagando a própria partida.
   S.obra = { roca: 0, palicada: 0, casa: 0 };
-  obraFrac = 0; obraMaoFrac = 0; relatoObra = avancarObra(0);
+  obraFrac = 0; obraMaoFrac = 0; relatoObra = avancarObra(0); canteiros.length = 0;
   S.marcos = 0; marcoAtivo = null; moradores.length = 0;
   worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
   salvar();
@@ -9787,7 +10041,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
     bc.addEventListener(ev, function () { soltar("btn"); });
   });
-  window.addEventListener("blur", function () { soltar(); });
+  window.addEventListener("blur", function () { soltar(); soltarObra(); });
 
   // The world is the other half of the same button. A tap on the scene swings exactly
   // like the CTA does — same combo, same leap, same sprout — and on the way there it
@@ -9820,6 +10074,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       clicar();
     }
+    // ...e o relógio da obra começa a contar AQUI, depois de a metade ter feito o que faz.
+    // O toque continua instantâneo: quem só toca não perde nada, quem FICA ergue a obra.
+    obraDedo = performance.now();
+  });
+  // O mesmo trio que solta o botão dourado, e pelo mesmo motivo: dedo que sai da tela, gesto
+  // cancelado pelo sistema e aba que perde o foco têm de soltar a obra igual.
+  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
+    cv.addEventListener(ev, function () { soltarObra(); });
   });
   // owner: the projects sheet is gone, and with it its buy buttons and its copy of the
   // rhythm switch. The rhythm now lives only on the card in the control block.
@@ -9949,11 +10211,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // ============================================================
     mundoParado = historiaAberta();
     if (!mundoParado) {
+      // OS DOIS PRIMEIROS, E A ORDEM É OBRIGATÓRIA: os canteiros decidem o que a mão alcança, e
+      // a mão decide se o mundo anda. `velocidadeMundo()` lê `obraTrabalhando`, e quem o escreve
+      // é `trabalharNaObra` — se ele corresse depois de `atualizarMobs`, a rua andaria um quadro
+      // a mais por toque, que é exatamente o tipo de erro que não aparece em print nenhum.
+      atualizarCanteiros();
+      trabalharNaObra(dt);
       atualizarMobs(dt);
       atualizarGrupo(dt);         // quem já foi acolhida anda junto — capítulo 2 e só ele
       atualizarMarcos();          // as placas da linha do tempo fincadas na estrada (cap. 2)
       atualizarMoradores(dt);     // a faixa final onde as acolhidas vivem (cap. 2)
-      correrMutirao(dt);          // e a obra que elas tocam, devagar, esteja onde estiver
+      correrMutirao(dt);          // e o relógio da obra, devagar, esteja a pessoa onde estiver
       suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
       atualizarDrops(dt);
       atualizarChamada(dt);
