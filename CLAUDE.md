@@ -264,6 +264,15 @@ Regras que fazem o check valer alguma coisa:
 4. **Item resolvido SAI.** Lista que só cresce é lista que ninguém lê — foi por isso que a
    mesa acumulou 17 itens invisíveis por dias.
 5. **Nada de check com item inventado para engordar a lista.** Se só há três coisas, são três.
+6. **A FORMA É A INTERATIVA, quando couber** (pedido dele em 2026-08-11: *"tem como trazer
+   daquela forma interativa de assinalar alternativas? se sim prefiro"*). Use a ferramenta de
+   pergunta com alternativas assinaláveis para as decisões — é mais rápido para ele que digitar
+   "1. C, 2. A".
+   **O limite dela é real e não se contorna: no máximo QUATRO perguntas por vez, com até quatro
+   opções cada.** Então o check passa a ter duas partes: as **quatro decisões que mais travam**
+   vão na forma interativa, e o resto continua em lista escrita, abaixo. Escolher quais quatro
+   é trabalho, não sorteio — vai o que trava outra pessoa, o que trava arte, e o que fica pior
+   quanto mais se espera.
 
 
 ```bash
