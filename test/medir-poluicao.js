@@ -10,6 +10,31 @@
 // capítulo não virar no meio da célula — instrumentação, nada disso toca o jogo.
 //
 // node test/medir-poluicao.js [index.html] [segundos-por-celula] [prefixo-prints]
+//
+// ⚠ ESTE NÚMERO NÃO SE COMPARA ENTRE SESSÕES. Provado em 11/08, e custou uma medição inteira:
+// o MESMO build, medido com horas de diferença na mesma máquina, deu **4,43** e depois **5,25**
+// de média no capítulo 1 andando. A diferença toda estava em `folhas` (1,09 → 2,17). Quantas
+// folhas ficam em quadro depende de quantas a personagem colhe ao passar, e isso anda com o
+// orçamento de quadro da máquina — nada disso é o jogo. Um "antes" gravado no NOTES.md e um
+// "depois" medido hoje comparam computadores.
+// **Sempre meça o controle na MESMA execução**: rode o build antigo e o novo em seguida (o
+// antigo sai com `git show HEAD:index.html > test/_antes.html`), ou repita o capítulo na mesma
+// chamada — `CAPS=0,0,0` roda o capítulo 1 três vezes e dá a faixa de ruído de graça.
+// A coluna `placa` é a exceção: ela é subtração dentro do MESMO quadro e por isso é honesta
+// sozinha. O `encaixe.js` bloco 23b usa essa propriedade.
+//
+// DUAS CORREÇÕES DE 2026-08-11, e as duas existem porque o instrumento não via a placa:
+//   · `S.marcos` era posto em MASCARA_MARCOS ("já falei todas"), então `marcoAtivo` NUNCA
+//     nascia e a coluna `placa` media zero por construção. Passa a ser 0 — e a 85% do vão,
+//     com TODOS os alvos do capítulo já batidos, isso comprime o orçamento inteiro de placas
+//     do capítulo dentro da célula medida. É um teto honesto: em jogo essas mesmas placas se
+//     espalham pelo capítulo inteiro, nunca em 45 s.
+//     `abrirFala` vira no-op NA PÁGINA MEDIDA porque a fala PARA o mundo: na primeira
+//     tentativa a medição congelou no primeiro marco e devolveu zero em tudo depois dele.
+//   · Media só os capítulos 1, 2 e 3. Com marco em todo capítulo que tem momento, os
+//     capítulos medidos saem de `CAPS` (índices de EPOCAS, separados por vírgula):
+//       CAPS=0,1,2,3,5,6,7,12 node test/medir-poluicao.js index.html 45 D
+//     O padrão continua sendo 0,1,2 para não mudar o que os relatórios antigos comparam.
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
@@ -23,11 +48,20 @@ function chromiumPath() {
 const ARQ = process.argv[2] || path.resolve(__dirname, '..', 'index.html');
 const SEG = +(process.argv[3] || 90);
 const PREFIXO = process.argv[4] || 'D';
-// 5º argumento: SÓ ESTES CAPÍTULOS (1, 2 ou 3, separados por vírgula). Existe porque comparar
-// antes/depois exige as duas rodadas coladas uma na outra — a rodada inteira leva ~15 min, e
-// medido nela: o capítulo 1, que não tinha mudado UMA LINHA, oscilou 6% de renda entre duas
-// rodadas distantes. Esse é o ruído da máquina, e ele é da ordem do efeito que se quer medir.
-const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +s.trim() - 1; });
+// SÓ ESTES CAPÍTULOS. Existe porque comparar antes/depois exige as duas rodadas coladas uma
+// na outra — a rodada inteira leva ~15 min, e medido nela: o capítulo 1, que não tinha mudado
+// UMA LINHA, oscilou 6% de renda entre duas rodadas distantes. Esse é o ruído da máquina, e
+// ele é da ordem do efeito que se quer medir.
+//
+// DUAS FORMAS, e as duas ficam porque duas sessões escreveram uma cada e as duas têm razão:
+// o 5º ARGUMENTO conta capítulo como gente conta (1, 2, 3) e a variável de ambiente `CAPS`
+// conta como o código conta (0, 1, 2). Unificar agora quebraria em silêncio o comando que
+// alguém já tem anotado — e o custo de aceitar as duas é esta linha.
+// O teto NÃO é mais 3: com treze capítulos declarados, medir o capítulo 9 é legítimo.
+const CAPS = (process.argv[5]
+  ? process.argv[5].split(',').map(function (s) { return +s.trim() - 1; })
+  : (process.env.CAPS || '0,1,2').split(',').map(function (s) { return +s.trim(); })
+).filter(function (n) { return n >= 0; });
 
 (async () => {
   const browser = await chromium.launch({ executablePath: chromiumPath() });
@@ -43,6 +77,9 @@ const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +
     { u1: true, u2: true, u3: false },
     { u1: true, u2: true, u3: true }
   ];
+  // Capítulo 4 em diante: quem chegou lá comprou tudo. `UPS` continua sendo a progressão
+  // real dos três primeiros, que é o que os relatórios antigos compararam.
+  const ups = function (c) { return UPS[Math.min(c, UPS.length - 1)]; };
 
   async function celula(cap, modo, tirarPrint) {
     await page.evaluate(function (a) {
@@ -53,7 +90,13 @@ const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +
       const ini = LIMIAR_CENA * c0, span = LIMIAR_CENA * EPOCAS[a.cap].cenas;
       S.energiaTotal = ini + span * 0.85;
       S.energia = 1e6;
-      S.aberturas = MASCARA_EPOCAS; S.fechos = 0; S.marcos = MASCARA_MARCOS;
+      S.aberturas = MASCARA_EPOCAS; S.fechos = 0;
+      // 0, não a máscara cheia: com os bits apagados e o impacto a 85% do vão, TODOS os
+      // alvos de marco já estão batidos, e as placas entram em fila. É o pior caso que a
+      // placa consegue produzir — e era exatamente o que o instrumento não media antes.
+      S.marcos = 0; marcoAtivo = null;
+      abrirFala = function () {};      // instrumentação: fala aberta congela o mundo
+      S.fronteira = TOTAL_CENAS - 1;
       S.u1 = a.ups.u1; S.u2 = a.ups.u2; S.u3 = a.ups.u3;
       S.acolhidos = S.acolhidos.map(function () { return 0; }); S.acolhidos[1] = 40;
       S.grupo = 0; grupo.length = 0; ficando.length = 0; moradores.length = 0;
@@ -92,7 +135,7 @@ const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +
         if (p.janelas[j] === undefined || total > p.janelas[j]) p.janelas[j] = total;
         window.__totalAgora = total;
       }, 200);
-    }, { cap: cap, modo: modo, ups: UPS[cap] });
+    }, { cap: cap, modo: modo, ups: ups(cap) });
 
     const box = await page.evaluate(() => {
       const b = document.getElementById('btnClique');
@@ -140,7 +183,6 @@ const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +
 
   const tudo = [];
   for (const cap of CAPS) {
-    if (!(cap >= 0 && cap < 3)) continue;
     tudo.push(await celula(cap, 'limpo', null));
     tudo.push(await celula(cap, 'carvao', PREFIXO + '-cap' + (cap + 1) + '.png'));
   }

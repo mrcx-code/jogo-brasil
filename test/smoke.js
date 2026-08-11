@@ -790,8 +790,11 @@ async function alvo() {
   // `som` e `grupo` sao estado PERSISTIDO: o interruptor de audio dos AJUSTES e o tamanho da
   // fila que anda com voce em Palmares. Esta lista e a copia INDEPENDENTE do ESQUEMA_SAVE, e e
   // ela que pega um campo gravado sem esquema — por isso nao se gera uma da outra.
-  // `acolhidos` (uma posição por época) e `marcos` (bits das placas do cap. 2) entraram com
+  // `acolhidos` (uma posição por época) e `marcos` (bits das placas) entraram com
   // o protótipo travessia+lugar-vivo — cópia deliberada, atualizada JUNTO com o ESQUEMA_SAVE.
+  // `marcosN` entrou em 11/08, quando as placas saíram do capítulo 2 e passaram a se derivar
+  // da LINHA_TEMPO: guarda PARA QUANTOS marcos a máscara foi escrita, e é o que impede um
+  // save antigo (bits 0,1,2 = Palmares) de calar as placas novas do capítulo 1.
   // `arco` entrou com SALVADOR: e o unico campo que existe para MIGRAR indices quando um
   // capitulo entra no MEIO da cronologia. Ver `migrarArco()` no src/jogo.ts.
   // `travessias` entrou com A TRAVESSIA (lote A do arco): um bit por trecho em que o jogo
@@ -799,7 +802,7 @@ async function alvo() {
   // `recursos` entrou em 09/08: os tres contadores de drop eram estado de SESSAO por
   // esquecimento — a fileira de nichos zerava no dia seguinte, e a onda 11 tornou a perda
   // visivel. Tipo `mapa`, chaves fixas, cada valor pela regua de `cont`.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'marcosN', 'modo', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
@@ -1104,6 +1107,12 @@ async function alvo() {
     fecharTelas();
     S.cenario = 0; S.energia = 500; S.energiaTotal = 800;   // mid-game, under the first turn
     S.aberturas = 1; saltoHora = 0;
+    // As placas do chão já falaram TODAS. Sem esta linha o teste do MENU vira teste da
+    // estrada: 800 de impacto no capítulo 1 já passou do alvo do primeiro marco (750), a
+    // placa entra, alcança a personagem e abre a fala dela — e o JOGAR "não devolve o jogo"
+    // por uma razão que não tem nada a ver com o menu. Mesma providência que
+    // `medir-menu.js`, `percorrer-menu.js` e `olhar-frente.js` já tomavam.
+    if (typeof MASCARA_MARCOS !== 'undefined') { S.marcos = MASCARA_MARCOS; marcoAtivo = null; }
     redesenharFundo();
   });
   await page.waitForTimeout(200);
