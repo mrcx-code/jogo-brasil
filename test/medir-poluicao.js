@@ -109,7 +109,7 @@ const CAPS = (process.argv[5]
       window.__p = {
         t0: performance.now(), e0: S.energiaTotal,
         n: 0, soma: 0, pior: 0,
-        cat: { mobs: 0, drops: 0, folhas: 0, floats: 0, placa: 0, parts: 0, gente: 0 },
+        cat: { mobs: 0, drops: 0, folhas: 0, floats: 0, placa: 0, canteiros: 0, parts: 0, gente: 0 },
         piorCat: null, janelas: []
       };
       if (window.__amostraPol) clearInterval(window.__amostraPol);
@@ -121,15 +121,29 @@ const CAPS = (process.argv[5]
         const floatsN = floats.length;
         const placaN = (typeof marcoAtivo !== 'undefined' && marcoAtivo &&
           marcoAtivo.wx - worldX <= W + 44 && marcoAtivo.wx - worldX >= -30) ? 1 : 0;
+        // O CANTEIRO É UM OBJETO, e entra na conta (MUTIRAO.md §3.3). O `typeof` deixa este
+        // instrumento medir também o binário de ANTES da obra, para os dois lados da régua
+        // saírem do MESMO código — sem ele, o "antes" mediria um contador a menos.
+        //
+        // A JANELA É A CAIXA DELE, não uma folga: conta-se o canteiro quando qualquer pixel
+        // da caixa está em quadro. A primeira versão usava ±60 px fora da tela dos dois lados
+        // e inflava a categoria em ~0,12 — 120 px de estrada em que o canteiro simplesmente
+        // não está na tela. Isto é conserto do instrumento, não do jogo.
+        const canteirosN = (typeof canteiros !== 'undefined' && canteiros)
+          ? canteiros.filter(function (c) {
+              const sx = c.wx - worldX;
+              return sx < W && sx + OBRA_LARGURA[c.tipo] > 0;
+            }).length : 0;
         const gente = grupo.length + ficando.length + moradores.length;
-        const total = mobsN + dropsN + folhasN + floatsN + placaN;
+        const total = mobsN + dropsN + folhasN + floatsN + placaN + canteirosN;
         p.n++; p.soma += total;
         p.cat.mobs += mobsN; p.cat.drops += dropsN; p.cat.folhas += folhasN;
         p.cat.floats += floatsN; p.cat.placa += placaN; p.cat.parts += parts.length;
+        p.cat.canteiros += canteirosN;
         p.cat.gente += gente;
         if (total > p.pior) {
           p.pior = total;
-          p.piorCat = { mobs: mobsN, drops: dropsN, folhas: folhasN, floats: floatsN, placa: placaN, parts: parts.length, gente: gente };
+          p.piorCat = { mobs: mobsN, drops: dropsN, folhas: folhasN, floats: floatsN, placa: placaN, canteiros: canteirosN, parts: parts.length, gente: gente };
         }
         const j = Math.floor((performance.now() - p.t0) / 10000);
         if (p.janelas[j] === undefined || total > p.janelas[j]) p.janelas[j] = total;
@@ -171,7 +185,8 @@ const CAPS = (process.argv[5]
       mediaCat: {
         mobs: +(m.cat.mobs / m.n).toFixed(2), drops: +(m.cat.drops / m.n).toFixed(2),
         folhas: +(m.cat.folhas / m.n).toFixed(2), floats: +(m.cat.floats / m.n).toFixed(2),
-        placa: +(m.cat.placa / m.n).toFixed(2), parts: +(m.cat.parts / m.n).toFixed(1),
+        placa: +(m.cat.placa / m.n).toFixed(2), canteiros: +(m.cat.canteiros / m.n).toFixed(2),
+        parts: +(m.cat.parts / m.n).toFixed(1),
         gente: +(m.cat.gente / m.n).toFixed(2)
       },
       janelas10s: m.janelas,
@@ -186,7 +201,7 @@ const CAPS = (process.argv[5]
     tudo.push(await celula(cap, 'limpo', null));
     tudo.push(await celula(cap, 'carvao', PREFIXO + '-cap' + (cap + 1) + '.png'));
   }
-  console.log('\nRESUMO (objetos = chegadas+drops+folhas+floats+placa; gente fora da conta)');
+  console.log('\nRESUMO (objetos = chegadas+drops+folhas+floats+placa+canteiros; gente fora da conta)');
   tudo.forEach(function (r) {
     console.log('cap' + r.cap, r.modo.padEnd(8), 'media', String(r.media).padEnd(6),
       'pior', String(r.pior).padEnd(3), 'renda/min', r.rendaMin,
