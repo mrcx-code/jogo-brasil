@@ -39,6 +39,12 @@ interface Mob {
    *  Não entra no save: ela vale enquanto a pessoa estiver na rua, e a rua se refaz a cada
    *  sessão. Ver o bloco "CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA". */
   sabe?: boolean;
+  /** CAPÍTULO 2 (PALMARES) e só ele: segundos de ACOLHIMENTO já acumulados com esta pessoa.
+   *  Nasce ausente; o primeiro (e único) toque põe um valor > 0 e a partir daí ela cresce
+   *  sozinha, no relógio, em qualquer ritmo. Ao chegar em `ACOLHER_SEG` a pessoa fica —
+   *  entra na fila que anda junto. Não entra no save: vale enquanto ela estiver na rua.
+   *  Ver o bloco "CAPÍTULO 2 — QUEM CHEGA PASSA A ANDAR COM VOCÊ". */
+  acolhida?: number;
   /** CAPÍTULO 3 e só ele: segundos de CONVERSA já acumulados com esta pessoa. Nasce ausente;
    *  o primeiro toque põe um valor > 0 e a partir daí ela só cresce ANDANDO — correndo, o
    *  relógio congela. Ao chegar em `CONVERSA_SEG` a palavra passou. Ver o bloco
@@ -904,6 +910,16 @@ function atualizarMobs(dt) {
       // regra que o jogo não ensinou. Correr já custa o suficiente: custa o tempo parado.
       return;
     }
+    // ===== O ACOLHIMENTO CORRE NO RELÓGIO (capítulo 2) =====
+    // Mesmo lugar e mesma razão do bloco da conversa acima: quem espera é exatamente quem se
+    // acolhe, e o `return` do ramo `parado` faria o relógio nunca andar. Duas diferenças do
+    // capítulo 3, as duas justificadas no cabeçalho de `ACOLHER_SEG`: ele anda nos DOIS ritmos,
+    // e ela não desiste enquanto está sendo acolhida — o relógio da espera dela para aqui.
+    if (m.acolhida && !m.dead) {
+      m.acolhida += dt;
+      if (m.acolhida >= ACOLHER_SEG) { concluirAlcance(m, Math.round(m.wx - worldX)); return; }
+      return;
+    }
     if (m.parado) {
       m.espera -= dt;
       // Esperou o quanto tinha para esperar e ninguém veio: segue caminho. Sem estrondo, sem
@@ -994,6 +1010,45 @@ function atualizarMobs(dt) {
 // O literal que sobrou é só o valor de partida antes de `EPOCAS` existir; ninguém o lê.
 let CAP_GENTE = 1;                         // Palmares. Único capítulo em que isto tudo existe.
 function capGente() { return epocaAtual() === CAP_GENTE; }
+// ===== UM TOQUE ACOLHE. A DÍVIDA DE §2 QUE ESTE CAPÍTULO CARREGAVA DESDE 2026-08-06 =====
+//
+// O Diário daquele dia já a declarou por extenso e ela nunca foi paga aqui: tirada toda a
+// gramática VISÍVEL de combate (pisca, estilhaço, empurrão, barra de vida), o gesto por baixo
+// continuava sendo `m.hp -= dmg` com hp 5, 8 ou 13 — de cinco a treze toques até uma PESSOA
+// "ser acolhida". Bater até alguém ceder, com nome novo por cima. O capítulo 3 pagou a mesma
+// dívida com a CONVERSA; aqui ela se paga com o ACOLHIMENTO, e a forma é a mesma de propósito:
+// **o primeiro toque é o único que a mão dá.**
+//
+// O VERBO É ACOLHER, e a palavra foi escolhida pelo dono com o §2.4 na mão: quem chega a
+// Palmares já se libertou por conta própria, e acolher é dar lugar, comida e água a quem
+// chegou. Nunca libertar, nunca resgatar, nunca salvar — libertar-com-o-toque é o poder do
+// senhor invertido em fantasia, e é exatamente o que o §2.4.3 proíbe. Nada aqui, nem no
+// código, nem no texto, nem neste comentário, pode sugerir que a mão de quem joga deu
+// liberdade a alguém.
+//
+// E O RESTO É TEMPO, não é nada — a escolha entre as duas foi feita e vale escrever por quê:
+//   · TEMPO, e não instantâneo, porque um toque que resolve na hora é o gesto de RECOLHER:
+//     encostar e a pessoa entra na fila lê como catar do chão, que é a linha do §2.2. Acolher
+//     alguém tem duração; o que se dá são lugar, comida e água, e isso leva um momento.
+//   · TEMPO também porque a tensão medida do capítulo mora aí. Com o acolhimento correndo, a
+//     mão fica com aquela pessoa (o toque seguinte cai nela e não faz nada) e a rua continua
+//     andando: quem espera atrás pode ir embora. Instantâneo, segurar o botão limparia a fila
+//     inteira de graça e a decisão sumiria — a mesma medição de 2026-08-05 que fez o golpe
+//     atender UMA de cada vez.
+//   · E o relógio corre nos DOIS RITMOS, ao contrário do capítulo 3. Lá a conversa congela
+//     correndo, e há razão histórica escrita para isso (a rede dos malês corria dentro do
+//     trabalho de rua, no passo de quem carregava). Palmares não tem essa razão, e inventar
+//     uma para dar decisão ao botão seria inventar história para servir mecânica — o oposto
+//     do §2. Aqui quem decide continua sendo a geometria: correndo, a rua leva quem espera
+//     antes de o acolhimento fechar. Medido depois desta mudança: fração acolhida 1,00 andando
+//     contra 0,25–0,40 correndo (era 0,85 × 0,47 quando cada pessoa custava de 5 a 13 toques).
+//
+// 1,6 s, e o número é derivado, não escolhido: é o mesmo de `CONVERSA_SEG` e pela mesma conta —
+// a pessoa parada espera `CFG.mobEspera` (2,4 s) antes de seguir caminho, e o gesto tem de
+// caber com folga dentro dessa espera para atender alguém nunca ser corrida contra o relógio
+// dela. Enquanto está sendo acolhida ela não desiste e não recua: o relógio dela para, o
+// mundo é que anda.
+const ACOLHER_SEG = 1.6;
 
 // ============================================================
 // CAPÍTULO 3 — ALCANÇAR É LEVAR PALAVRA
@@ -1069,6 +1124,17 @@ function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
 // estilhaço, empurrão, barra de vida, anel que enche — lê ESTA função, e não `capGente()`,
 // para que o §2 valha nos dois sem ninguém precisar lembrar de dois lugares.
 function pessoaNaRua() { return capGente() || capPalavra(); }
+// QUANTO JÁ SE CHEGOU ATÉ ESTA PESSOA, de 0 a 1. É o que o CHÃO desenha no lugar da barra de
+// vida (ver o anel em desenharMundo) e existe numa função só porque cada capítulo mede esse
+// caminho com um relógio diferente — e porque a leitura MORREU EM SILÊNCIO uma vez já: quando
+// o capítulo 3 trocou o dano pela conversa, `1 − hp/hpMax` passou a valer zero para sempre e o
+// anel parou de encher sem um erro, sem um print e sem um teste reprovar. Um lugar só, e as
+// três contas ao lado uma da outra, é o que impede a terceira vez.
+function fracAlcance(m: Mob) {
+  if (capGente()) return Math.max(0, Math.min(1, (m.acolhida || 0) / ACOLHER_SEG));
+  if (capPalavra()) return Math.max(0, Math.min(1, (m.conversa || 0) / CONVERSA_SEG));
+  return m.hpMax ? Math.max(0, Math.min(1, 1 - m.hp / m.hpMax)) : 0;
+}
 // A janela do cruzamento, em px de MUNDO: uma largura de corpo. Maior que isto e a palavra
 // "salta" de longe, o que se lê como coincidência e não como encontro.
 const PALAVRA_JANELA = 14;
@@ -1262,6 +1328,42 @@ function clicar(auto?, naoConta?, semAnim?) {
     // tempo só corre ANDANDO (ver `atualizarMobs`): conversa não se faz correndo.
     if (capPalavra()) {
       if (!m.conversa) { m.conversa = 1e-6; luzMorna(sx, 2); if (!auto) somAtendida(); }
+      return;
+    }
+    // ===== CAPÍTULO 2: UM TOQUE ACOLHE. NENHUM TOQUE TIRA NADA DE NINGUÉM. =====
+    // A mesma dívida do capítulo 3, paga do mesmo jeito e pelo mesmo §2 — ver o cabeçalho de
+    // `ACOLHER_SEG`. O primeiro toque abre o acolhimento e é o único que a mão dá; o resto é o
+    // relógio. O toque seguinte cai nesta mesma pessoa (ela continua sendo a mais próxima) e
+    // NÃO faz nada: é assim que "um par de mãos atende uma de cada vez" continua sendo verdade
+    // sem que ninguém apanhe por isso.
+    if (gente) {
+      // UMA DE CADA VEZ, e aqui isso é literal: enquanto um acolhimento corre, a mão está com
+      // aquela pessoa e o toque não abre outro. Não é regra nova — é a de 2026-08-05 ("o golpe
+      // atende a mais próxima"), que existe porque atender a fila inteira de graça não é
+      // escolha nenhuma; é ela que faz o capítulo perguntar QUEM, e não quantos.
+      //
+      // A MEDIÇÃO escolheu esta forma entre três, e as outras duas ficam escritas porque cada
+      // uma quebrava o capítulo por um lado (60 s por célula, bot segurando, sem melhorias):
+      //   · SEM trava nenhuma: correndo a fração acolhida vai de 0,47 para 0,98 e correr passa
+      //     a ser melhor que andar nas DUAS contas (49 acolhidas/min contra 27, e +16% de renda
+      //     na célula de poluição) — "segura o botão e ignora o ritmo", que é a morte da decisão.
+      //   · Trava só enquanto ela está À SUA FRENTE: dá quase no mesmo (0,94), e o motivo é fino
+      //     e vale saber — o toque atende a MAIS PRÓXIMA, então ele cai na pessoa que já está
+      //     quase saindo do alcance, e uma trava que solta ao passar por você solta na hora.
+      //   · Trava enquanto ela existir (esta): correndo 0,25–0,40 contra 1,00 andando, e a renda
+      //     da célula de poluição fica em +2,4% andando e −2,1% correndo — dentro dos ±10% que
+      //     esta casa exige de qualquer mexida em economia.
+      const ocupada = mobs.some(function (o) { return !!o.acolhida && !o.dead && !(o.dying > 0); });
+      if (!m.acolhida && !ocupada) {
+        m.acolhida = 1e-6;
+        // e ela PARA de vez, mesmo que já tivesse desistido e voltado a andar. Duas razões, e
+        // a segunda é a armadilha nº 7: quem está sendo acolhida não cobre mais chão, e o
+        // quadro do sprite é escolhido pela distância percorrida — sem isto ela ficaria
+        // congelada numa pose de CAMINHADA. `parado` também é o que acende o lugar no chão,
+        // que é onde esta mecânica mostra o progresso (ver `fracAlcance`).
+        m.parado = true;
+        luzMorna(sx, 2); if (!auto) somAtendida();
+      }
       return;
     }
     m.hp -= dmg; if (!pessoa) m.flash = 5;
@@ -7582,10 +7684,11 @@ function desenharMundo() {
     cx.beginPath(); cx.ellipse(sx, GROUND + 1, r0, r0 * 0.32, 0, 0, 6.283); cx.fill();
     // O PROGRESSO, nos capítulos de GENTE: o lugar vai se enchendo de luz
     // conforme você chega até ela. É a leitura que substitui a barra de vida — cresce, nunca
-    // encolhe, não muda de cor e não tem fim marcado. `m.hp` continua sendo quantos alcances
-    // faltam; o nome interno é herdado, e o que mudou é o que a tela faz com ele.
-    if (pessoaNaRua() && m.hpMax) {
-      const feito = Math.max(0, Math.min(1, 1 - m.hp / m.hpMax));
+    // encolhe, não muda de cor e não tem fim marcado. Quem sabe quanto falta é `fracAlcance`,
+    // e ela sabe porque cada capítulo mede esse caminho com um relógio diferente: o
+    // ACOLHIMENTO em Palmares, a CONVERSA em Salvador, e o hp só onde o que passa é coisa.
+    if (pessoaNaRua()) {
+      const feito = fracAlcance(m);
       if (feito > 0) {
         const rf = r0 * (0.34 + 0.66 * feito);
         // no creme mais claro do bloco, e não no mesmo tom da poça: medido no print, a 0,30 do

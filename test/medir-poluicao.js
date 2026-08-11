@@ -23,6 +23,11 @@ function chromiumPath() {
 const ARQ = process.argv[2] || path.resolve(__dirname, '..', 'index.html');
 const SEG = +(process.argv[3] || 90);
 const PREFIXO = process.argv[4] || 'D';
+// 5º argumento: SÓ ESTES CAPÍTULOS (1, 2 ou 3, separados por vírgula). Existe porque comparar
+// antes/depois exige as duas rodadas coladas uma na outra — a rodada inteira leva ~15 min, e
+// medido nela: o capítulo 1, que não tinha mudado UMA LINHA, oscilou 6% de renda entre duas
+// rodadas distantes. Esse é o ruído da máquina, e ele é da ordem do efeito que se quer medir.
+const CAPS = (process.argv[5] || '1,2,3').split(',').map(function (s) { return +s.trim() - 1; });
 
 (async () => {
   const browser = await chromium.launch({ executablePath: chromiumPath() });
@@ -134,7 +139,8 @@ const PREFIXO = process.argv[4] || 'D';
   }
 
   const tudo = [];
-  for (let cap = 0; cap < 3; cap++) {
+  for (const cap of CAPS) {
+    if (!(cap >= 0 && cap < 3)) continue;
     tudo.push(await celula(cap, 'limpo', null));
     tudo.push(await celula(cap, 'carvao', PREFIXO + '-cap' + (cap + 1) + '.png'));
   }

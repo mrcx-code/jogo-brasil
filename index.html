@@ -2170,6 +2170,14 @@ function atualizarMobs(dt) {
             }
             return;
         }
+        if (m.acolhida && !m.dead) {
+            m.acolhida += dt;
+            if (m.acolhida >= ACOLHER_SEG) {
+                concluirAlcance(m, Math.round(m.wx - worldX));
+                return;
+            }
+            return;
+        }
         if (m.parado) {
             m.espera -= dt;
             if (m.espera <= 0) {
@@ -2207,6 +2215,7 @@ function atualizarMobs(dt) {
 }
 let CAP_GENTE = 1;
 function capGente() { return epocaAtual() === CAP_GENTE; }
+const ACOLHER_SEG = 1.6;
 function concluirAlcance(m, sx, auto) {
     const gente = capGente(), pessoa = pessoaNaRua();
     if (m.parado && !dicaSetaVista && dicasValem())
@@ -2233,6 +2242,13 @@ const CONVERSA_SEG = 1.6;
 let CAP_PALAVRA = 2;
 function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
 function pessoaNaRua() { return capGente() || capPalavra(); }
+function fracAlcance(m) {
+    if (capGente())
+        return Math.max(0, Math.min(1, (m.acolhida || 0) / ACOLHER_SEG));
+    if (capPalavra())
+        return Math.max(0, Math.min(1, (m.conversa || 0) / CONVERSA_SEG));
+    return m.hpMax ? Math.max(0, Math.min(1, 1 - m.hp / m.hpMax)) : 0;
+}
 const PALAVRA_JANELA = 14;
 let palavraDedo = 0, palavraCorrente = 0;
 function virarPortadora(m) {
@@ -2358,6 +2374,17 @@ function clicar(auto, naoConta, semAnim) {
         if (capPalavra()) {
             if (!m.conversa) {
                 m.conversa = 1e-6;
+                luzMorna(sx, 2);
+                if (!auto)
+                    somAtendida();
+            }
+            return;
+        }
+        if (gente) {
+            const ocupada = mobs.some(function (o) { return !!o.acolhida && !o.dead && !(o.dying > 0); });
+            if (!m.acolhida && !ocupada) {
+                m.acolhida = 1e-6;
+                m.parado = true;
                 luzMorna(sx, 2);
                 if (!auto)
                     somAtendida();
@@ -6262,8 +6289,8 @@ function desenharMundo() {
         cx.beginPath();
         cx.ellipse(sx, GROUND + 1, r0, r0 * 0.32, 0, 0, 6.283);
         cx.fill();
-        if (pessoaNaRua() && m.hpMax) {
-            const feito = Math.max(0, Math.min(1, 1 - m.hp / m.hpMax));
+        if (pessoaNaRua()) {
+            const feito = fracAlcance(m);
             if (feito > 0) {
                 const rf = r0 * (0.34 + 0.66 * feito);
                 cx.fillStyle = "#fbeec4";

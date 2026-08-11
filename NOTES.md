@@ -4606,6 +4606,16 @@ mesmo anel enche em SALVADOR. Prints em `test/ACOLHER-*.png` (o instrumento é
 `test/prints-acolher.js`; ele congela o laço de quadro, e a camada da gente é do laço, então a
 foto do "ela ficou" espera o laço voltar).
 
+### Uma intermitência do `encaixe.js` que vi uma vez e entendi — bloco 6
+
+Numa das rodadas, `o impacto voltou inteiro (89 -> 92)` reprovou; em quatro rodadas seguintes,
+passou. Não é do capítulo 2 (o bloco joga em PINDORAMA) e não é do que este commit mexeu. É uma
+corrida real e pequena: o teste chama `salvar()`, fotografa o total e **só então** recarrega — e o
+`beforeunload` grava de novo, alguns quadros depois, com um drop que caiu no chão nesse meio-tempo
+já recolhido. O que voltou é mais novo que o que foi comparado, não menor. O conserto honesto é o
+teste parar o mundo (ou zerar `salvar`) entre a foto e o `reload`; fica anotado, não feito, porque
+mexer em asserção alheia no commit de outra coisa é como se perde a confiança no teste.
+
 ### Dúvidas novas
 
 1. **O botão de ritmo trocou de sinal em PALMARES.** Antes, correr acolhia um pouco mais

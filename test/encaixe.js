@@ -1358,6 +1358,125 @@ const sec = t => log('\n---- ' + t);
         (r.baixos.length ? ' — ' + r.baixos.join(', ') : ''));
     }
   }
+  // devolve a medida da casa antes do bloco 22, que mede JOGO e não tela
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => { fecharTelas(); });
+  await page.waitForTimeout(400);
+
+  // ============================================================
+  // 22 · PALMARES: UM TOQUE ACOLHE — e nada ali é gramática de combate
+  //
+  // O verbo do capítulo 2 é ACOLHER: quem chega a Palmares já se libertou por conta própria, e
+  // acolher é dar lugar, comida e água a quem chegou. Nunca libertar, nunca resgatar — o §2.4.3
+  // é explícito, e libertar-com-o-toque é o poder do senhor invertido em fantasia.
+  //
+  // Por baixo, porém, o gesto foi `m.hp -= dmg` até 2026-08-11: de cinco a treze toques até uma
+  // PESSOA "ser acolhida", que é bater até alguém ceder com nome novo por cima. A dívida estava
+  // declarada no Diário desde 2026-08-06 e o capítulo 3 já a tinha pago com a conversa.
+  //
+  // Este bloco é a trava. Ele falha se o dano voltar por qualquer porta — e cada asserção cai
+  // por um motivo diferente, porque o dano volta de jeitos diferentes: contando dois toques,
+  // baixando hp, piscando branco, empurrando, ou pendurando uma barra de vida sobre a cabeça
+  // de alguém (uma barra conta quantas pancadas essa pessoa aguenta: a linha exata do §2.2).
+  // ============================================================
+  sec('22 · em PALMARES um toque acolhe, e nada ali é combate');
+  const acolher = await page.evaluate(async () => {
+    const cenarioAntes = S.cenario, cuidadoAntes = S.cuidado;
+    // POR IDENTIDADE, nunca por posição: `CAP_GENTE` é o próprio motor dizendo qual capítulo
+    // tem fila. PALMARES deixou de ser a época 1 no dia em que os capítulos em obra entraram.
+    S.cenario = cenarioDaEpoca(CAP_GENTE);
+    mobs.length = 0; drops.length = 0; parts.length = 0;
+    grupo.length = 0; ficando.length = 0; S.grupo = 0;
+    S.acolhidos = S.acolhidos.map(function () { return 0; });
+    S.cuidado = 0.5; cuidadoVisto = 0.5;
+    proximoMob = 1e9;                                  // ninguém novo chega durante a medida
+    // `cash` é o hp 8 do jeito velho — o valor do meio, para o "um toque" não passar por acaso
+    const m = novoMob('cash', worldX + HX + 30);
+    m.parado = true; m.espera = 999;
+    mobs.push(m);
+    const hp0 = m.hp, wx0 = m.wx, drops0 = drops.length;
+    // A BARRA DE VIDA, cobrada na porta em que ela apareceria: `desenharVidaMob` é chamada num
+    // laço guardado por `!pessoaNaRua()`. Se alguém tirar a guarda, o contador acusa.
+    let barras = 0;
+    const barraOriginal = window.desenharVidaMob;
+    window.desenharVidaMob = function () { barras++; return barraOriginal.apply(null, arguments); };
+    let toques = 0, piscou = false, empurrou = false, hpCaiu = false;
+    const fracAntes = fracAlcance(m);
+    clicar(false, true, true); toques++;
+    desenhar();
+    // SEM arredondar: o toque abre o acolhimento com 1e-6 s, e `toFixed(3)` disso é "0.000" —
+    // a primeira versão desta asserção reprovou o código certo por causa da própria régua.
+    const fracAoAbrir = fracAlcance(m);
+    // 4 s de relógio, duas vezes e meia o ACOLHER_SEG de 1,6 — margem de aritmética, não chute
+    let fracMeio = 0;
+    for (let i = 0; i < 240 && !m.dead; i++) {
+      atualizarMobs(1 / 60);
+      if (i === 40) { fracMeio = fracAlcance(m); desenhar(); }
+      if (m.flash > 0) piscou = true;
+      if (m.wx > wx0) empurrou = true;
+      if (m.hp < hp0) hpCaiu = true;
+    }
+    window.desenharVidaMob = barraOriginal;
+    const r = {
+      toques: toques, ficou: grupo.length, acolhidos: S.acolhidos[CAP_GENTE] | 0,
+      dropsNovos: drops.length - drops0,
+      dropDoTipo: drops.length ? drops[drops.length - 1].type : null,
+      hpCaiu: hpCaiu, piscou: piscou, empurrou: empurrou, barras: barras,
+      fracAntes: fracAntes, fracAoAbrir: fracAoAbrir, fracMeio: fracMeio,
+      cuidadoSubiu: S.cuidado > 0.5
+    };
+    S.cenario = cenarioAntes; S.cuidado = cuidadoAntes; cuidadoVisto = cuidadoAntes;
+    mobs.length = 0; drops.length = 0; parts.length = 0;
+    grupo.length = 0; ficando.length = 0; S.grupo = 0;
+    proximoMob = -1; mobChao = 0;
+    return r;
+  });
+  log('   um toque -> ' + acolher.toques + ' toque(s), ela ficou (fila ' + acolher.ficou +
+    ', acolhidas ' + acolher.acolhidos + ') | o que trazia caiu: ' + acolher.dropsNovos +
+    ' (' + acolher.dropDoTipo + ') | anel ' + acolher.fracAntes.toFixed(3) + ' -> ' +
+    acolher.fracAoAbrir.toExponential(1) + ' -> ' + acolher.fracMeio.toFixed(3));
+  ok(acolher.toques === 1 && acolher.ficou === 1,
+    acolher.toques === 1 && acolher.ficou === 1
+      ? 'UM toque acolhe, e quem foi acolhida entra na fila que anda junto'
+      : 'foram ' + acolher.toques + ' toque(s) e ' + acolher.ficou + ' na fila — se virar dois, o dano voltou');
+  ok(acolher.acolhidos === 1, 'e a época lembra dela (S.acolhidos[' + 'CAP_GENTE' + '] = ' + acolher.acolhidos + ')');
+  ok(!acolher.hpCaiu, acolher.hpCaiu
+    ? 'o hp de uma PESSOA caiu: `m.hp -= dmg` voltou ao capítulo 2 (§2.2)'
+    : 'nenhum toque tirou nada de ninguém — o hp da pessoa não se move');
+  ok(acolher.dropsNovos === 1, 'o que ela TRAZIA fica no chão, e é uma coisa só (' + acolher.dropsNovos + ')');
+  ok(!acolher.piscou, 'sem pisca branco sobre uma pessoa (§2)');
+  ok(!acolher.empurrou, 'sem empurrão: ninguém empurra para trás quem veio ficar (§2)');
+  ok(acolher.barras === 0,
+    acolher.barras === 0
+      ? 'e nenhuma barra de vida sobre a cabeça de alguém — a barra conta pancadas (§2.2)'
+      : 'desenharVidaMob rodou ' + acolher.barras + 'x em PALMARES: alguém pendurou uma barra sobre uma pessoa');
+  // O CHÃO É QUEM LÊ O PROGRESSO, e essa leitura já morreu em silêncio uma vez: quando o
+  // capítulo 3 trocou o dano pela conversa, `1 − hp/hpMax` virou zero para sempre e o anel
+  // parou de encher sem um erro no console. `fracAlcance` é o lugar único das três contas.
+  ok(acolher.fracAntes === 0 && acolher.fracAoAbrir > 0 && acolher.fracMeio > 0.2,
+    'o lugar no chão está vazio antes do toque e enche enquanto ela é acolhida (' +
+    acolher.fracAntes.toFixed(3) + ' -> ' + acolher.fracMeio.toFixed(3) + ')');
+  ok(acolher.cuidadoSubiu, 'e o mundo responde ao acolhimento como sempre respondeu (S.cuidado subiu)');
+
+  // e o mesmo anel no capítulo 3, que é o outro capítulo de gente e o que perdeu a leitura
+  const anelPalavra = await page.evaluate(async () => {
+    const cenarioAntes = S.cenario;
+    S.cenario = cenarioDaEpoca(CAP_PALAVRA);
+    mobs.length = 0; proximoMob = 1e9;
+    const m = novoMob('cash', worldX + HX + 30);
+    m.parado = true; m.espera = 999; mobs.push(m);
+    S.modo = 'limpo';
+    clicar(false, true, true);
+    const a = fracAlcance(m);
+    for (let i = 0; i < 40; i++) atualizarMobs(1 / 60);
+    const b = fracAlcance(m);
+    S.cenario = cenarioAntes; mobs.length = 0; proximoMob = -1; mobChao = 0;
+    return { a: a, b: b };
+  });
+  log('   SALVADOR: o mesmo anel, ' + anelPalavra.a.toExponential(1) + ' -> ' + anelPalavra.b.toFixed(3));
+  ok(anelPalavra.a > 0 && anelPalavra.b > 0.2,
+    'e em SALVADOR o anel também enche com a conversa, pela mesma função');
+
   // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
