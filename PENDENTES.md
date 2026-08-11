@@ -184,8 +184,10 @@ sem uma linha de afirmação histórica sem fonte. Registro completo no `NOTES.m
 - **Os capítulos em obra ainda não têm PLACA na `LINHA_TEMPO`** (`{ tipo: "marco" }`), e isso
   continua de propósito: a placa é do capítulo, e capítulo em obra não tem o que afirmar. O que
   entrou em 10/08 foram **seis momentos** cobrindo o vão de 1888 a 1964 — normas com número,
-  conferidas — para o salto deixar de ser mudo. Ver o diário de 10/08.
-- **Verbo por escolher em quatro:** JABAQUARA · A PEQUENA ÁFRICA · AS PORTAS · A PRAÇA.
+  conferidas — para o salto deixar de ser mudo. Ver o diário de 10/08. **Os três do século XIX
+  ganharam a placa deles em 11/08**, ao deixarem de ser esqueleto: sobram seis sem placa.
+- ~~**Verbo por escolher em quatro**~~ — **DOIS RESOLVIDOS em 11/08**, com o texto dos capítulos:
+  JABAQUARA é **abrir caminho** e A PEQUENA ÁFRICA é **guardar o lugar**. Faltam AS PORTAS e A PRAÇA.
 - **⚠ A pintura de O ACEIRO é a de O QUE SEGUROU** — uma rua urbana num capítulo cujo `quando`
   diz "cerrado". É a mesma pendência de herança de paisagem do item 8, e nele ela desencaixa
   mais que nos outros, porque o lugar não é cidade. O pedido de pintura de cerrado (seca, borda
@@ -421,3 +423,41 @@ honesta: um incremento próprio, não um embutimento.
 **As pessoas da rua de Salvador entram como cenário que caminha — e, se entram, entram caladas ou
 com uma fala?** Enquanto não houver resposta, a folha fica em `assets/entrada` e fora de
 `processadas.json`, para a mesa continuar mostrando que ela existe.
+
+
+---
+
+## 12. O LOTE DO SÉCULO XIX TEM TEXTO E NÃO TEM ARTE (11/08, Historiador)
+
+**Feito em 11/08:** `O CAIS QUE VOLTOU À LUZ`, `JABAQUARA` e `A PEQUENA ÁFRICA` deixaram de ser
+esqueleto — abertura de 5 falas e fecho de 6 em cada um, com fonte conferida por fala, `emObra`
+removido, placa na `LINHA_TEMPO`, e 17 entradas novas em DE ONDE VEM. Diários no `NOTES.md`.
+O que **não** está feito é tudo visual, e três coisas são do dono:
+
+- **⚠ QUEM REPRESENTA CADA UM DOS TRÊS.** Os três falam **sem rosto**, e agora por regra de
+  código: `DONO_DO_BLOCO` faz o retrato aparecer só para o capítulo DONO do bloco de arte que
+  veste (antes a condição era `emObra`, e tirar o `emObra` devolveu a cara de AINDA AQUI narrando
+  o Valongo — achado de print, não de teste). Escalar quem aparece é §2 e é dele. Enquanto não
+  houver resposta, ninguém é escalado, e o `encaixe.js` bloco 15 cobra isso.
+- **⚠ A ARTE DE RUA DOS TRÊS.** O que atravessa a tela e o que fica no chão continuam
+  emprestados de AINDA AQUI — muda, galão e cesto num cais de 1811. A última fala da abertura de
+  cada capítulo **diz isso em voz alta** em vez de fingir, o que é honesto e é feio. É a maior
+  dívida visual do lote, e ela depende do item acima: definida a gente, definem-se as coisas.
+- **⚠ A PINTURA DE O CAIS é a de SALVADOR** (`arte: [4]`). Era a de PALMARES — serra, mata
+  fechada — e isso ficou insustentável quando o texto passou a dizer *"isto é o Rio de Janeiro"*:
+  pintura afirma lugar. Cidade colonial de pedra com mar é a menos falsa que existe hoje, e
+  continua sendo **outra cidade**. `cap-cais-fundo-alto` e `cap-cais-fundo-chao` estão pedidos.
+
+E quatro pedidos de **imagem de contexto** na fila de `ferramentas/necessario.json`, todos
+paisagem 1536×640 sem gente, os capítulos já escritos com as chaves à espera (chave que não
+existe em `CTX_B64` é tratada como `null`, então nada quebra enquanto não chegam):
+`ctx-cap5-cais` · `ctx-cap5-coberto` · `ctx-cap6-serra` · `ctx-cap6-morro` · `ctx-cap7-praca` ·
+`ctx-cap7-casa`. O de `ctx-cap5-*` carrega uma linha que não é enfeite e não se apaga: **nada de
+osso, restos humanos ou sepultura — este é o CAIS, não é cemitério** (§2.4.4).
+
+### E um achado de tela que não é do lote, mas apareceu nele
+
+**O nome do capítulo não cabe na cerimônia.** "O CAIS QUE VOLTOU À LUZ" sangra pelas duas bordas
+na tela do nome, a 390 px de largura (print `test/CAP-cais-ab1.png`). Vale igual para "O QUE NÃO
+PODIA SER DITO". É anterior a 11/08 — nenhum nome mudou —, e encolher a fonte da cerimônia é
+decisão de Arte, não de conteúdo. Fica registrado para não se descobrir de novo.

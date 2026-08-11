@@ -4490,7 +4490,6 @@ desses estados.
 
 ---
 
-<<<<<<< HEAD
 ## Diário — 2026-08-11 · Dev · EM PALMARES, UM TOQUE ACOLHE
 
 **A decisão é do dono, e a palavra é dela.** A pergunta era *"em Palmares, o que a mão da pessoa
@@ -4710,7 +4709,6 @@ gerando as três folhas de corrida na **quarta** tentativa — agora com a régu
   telefone na mão a 30 cm com densidade dobrada; mesa é monitor a 60 cm. Dois problemas.
 - **A região do PostHog falha em SILÊNCIO** — os dois endpoints respondem 200 OK a qualquer
   chave. Estava EU, o projeto é US.
-=======
 ## Diário — 2026-08-11 · Dev · AS PLACAS SAEM DE PALMARES E VÃO PARA A ESTRADA INTEIRA
 
 **O diagnóstico que o dono aprovou:** *a história do jogo acontece ENTRE o jogo, não NO jogo.*
@@ -4891,4 +4889,267 @@ logo antes de `ERROS DE CONSOLE`). O bloco daqui já nasce numerado **23** justa
 `main` levou o 22 — é só manter os dois, nessa ordem.
 
 
->>>>>>> worktree-agent-ae161b5ae42d4fde2
+## Diário — 2026-08-11 · Historiador · O CAIS QUE VOLTOU À LUZ deixa de ser esqueleto
+
+**Mandato do dono:** *"Vai evoluindo até os dias de hoje, pode usar placeholders em construção
+caso precise."* O lote é o **século XIX**: três capítulos que eram esqueleto. Este é o primeiro.
+
+### A régua desta sessão, e ela é mais dura que a de sempre
+
+**Nenhuma afirmação sem fonte lida NESTA sessão.** Não vale ementa, não vale resumo de
+buscador, não vale lembrança. Onde a fonte não abriu, a linha não entrou — e o que ficou de
+fora está listado abaixo, que é a parte do diário que costuma sumir.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | cais do Valongo, construído em **1811**, por ordem do príncipe regente; o Rio como **principal porta de entrada** de africanos escravizados nas Américas | Lima, Sene & Souza, *Em busca do Cais do Valongo, Rio de Janeiro, século XIX*, **Anais do Museu Paulista 24(1), 2016** — literal: *"construído em 1811 pela Intendência Geral de Polícia, por ordem do Príncipe Regente"*, *"fazendo do Rio de Janeiro o principal porto de entrada desses cativos nas Américas"* |
+| ab.2 | **cerca de 550 mil** africanos chegados ao Rio entre **1811 e 1831**, o período conhecido de funcionamento | mesma, literal: *"Durante o período conhecido de funcionamento do Cais do Valongo, entre 1811 e 1831, o Rio de Janeiro recebeu cerca de 550 mil africanos para serem escravizados"* |
+| ab.3 | **1843**: outro cais por cima, para o desembarque de uma princesa; o Valongo **coberto**, não destruído | mesma: o Cais da Imperatriz para a princesa das Duas Sicílias, e *"as obras de construção do Cais da Imperatriz tão somente recobriram o velho Cais do Valongo"* |
+| ab.4 | o verbo — **cavar para saber** | ficção autoral, sem fato. Era a promessa que o próprio esqueleto já fazia |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | **2011**, a pedra achada de novo, *duzentos anos depois*; escavação dirigida por **Tânia Andrade Lima** | mesma: *"E o Valongo foi trazido de volta, exatamente duzentos anos depois, em 2011"*; a autoria do relatório é dela |
+| fe.2 | **10 de julho de 2017**, Patrimônio Mundial, **critério vi** | ONU Brasil, página da inscrição: a data e o critério *"acontecimentos e tradições vivas, ideias ou crenças, obras artísticas e literárias de significação universal excepcional"* |
+| fe.3 | os dois números não batem: **500 mil a 1 milhão** (ONU) × **550 mil** (escavação, e do Rio inteiro) | as duas acima. É a fala mais importante do capítulo, e é de MÉTODO, não de conteúdo |
+| fe.4 | **Lei de 7 de novembro de 1831**, art. 1º, literal | Câmara dos Deputados, Legislação Informatizada, publicação original: *"Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres."* |
+| fe.5 | **Lei nº 581, de 4 de setembro de 1850**, e o art. 1º dela remetendo à de 1831 | Câmara, publicação original: ementa *"Estabelece medidas para a repressão do trafico de africanos neste Imperio"* e o art. 1º citando *"a Lei de sete de Novembro de mil oitocentos trinta e hum"* |
+| fe.6 | o **Cemitério dos Pretos Novos**: 1772–1830, achado em 1996, escavado até hoje — **citado, nunca encenado** | site do próprio Instituto Pretos Novos: *"Ele funcionou de 1772 a 1830, no Valongo"*, achado em 1996, campanhas seguintes em 2010–2012, 2014 e 2017 |
+
+**A fala 5 não conclui nada, de propósito.** A frase óbvia — *"logo a lei não estava sendo
+cumprida"* — é inferência, e o §2 não pede inferência: pede documento. Duas datas lado a lado
+fazem o trabalho, e quem lê tira a conclusão sozinho. É a mesma disciplina das cartas
+jesuíticas.
+
+### O que RECUSEI, e por quê
+
+- **O Decreto municipal que criou o Circuito Histórico e Arqueológico da Celebração da Herança
+  Africana.** O número circula (34.803, de 29/11/2011) e o Circuito existe — o site do próprio
+  IPN o cita. **Não li o texto do decreto**, e número de norma é justamente o que a REGRA DO
+  DOCUMENTO manda ler antes de escrever. Fora do capítulo, inclusive de `FONTES`.
+- **"O tráfico continuou ilegal até 1850."** É consenso e eu não tenho fonte lida que o AFIRME —
+  tenho as duas leis. Então o jogo mostra as duas leis e cala o resto.
+- **Os objetos achados na escavação** (amuletos, búzios, contas, anéis, cachimbos). O artigo que
+  li menciona só um fragmento de cachimbo; e mesmo com fonte, o §2.4.5 proíbe objeto ritual como
+  item. Nem no texto entrou, porque a linha ficaria dizendo menos do que promete.
+- **O número de pessoas enterradas no Cemitério dos Pretos Novos.** Circula como 20 a 30 mil; a
+  página do próprio instituto não o traz. Sem ele.
+
+### O que mudou no código, e três coisas quebraram no caminho
+
+**1 · O rosto emprestado voltou — e ninguém teria visto.** A condição de esconder o retrato na
+caixa de fala era `emObra`. Tirar o `emObra` do capítulo **devolveu o retrato**, e o retrato do
+bloco 3 é o de AINDA AQUI: a protagonista indígena do presente narrando o Valongo. Zero erro de
+console, zero teste reclamando — **foi um print que mostrou**. Ter texto e ter pessoa são coisas
+diferentes, e a segunda continua sendo decisão do dono (§2). A condição agora sai do dado, por
+uma tabela nova `DONO_DO_BLOCO`: **o rosto só aparece para quem é dono do bloco de arte que
+veste.** O `encaixe.js` bloco 15 passou a abrir a fala dos treze capítulos e olhar o elemento.
+
+**2 · A fala de 382 caracteres.** A caixa revela letra a letra a ~14 caracteres por segundo. As
+quatro épocas escritas até ontem tinham no máximo **251**; o primeiro fecho que escrevi saiu com
+**382, 319 e 302** — quatro segundos e meio de revelação chegavam a *"Em 7 de nove"*. Quem não lê
+aperta PULAR, e o que se perde é justo a frase com fonte. O fecho virou **seis falas**, todas
+abaixo de 260, e o `encaixe.js` passou a cobrar o teto.
+
+**3 · Duas asserções reprovaram por CRESCIMENTO, não por defeito.** O bloco 16 comparava
+`LIMIAR_FIM` com o literal **10.500** (o fim do jogo com quatro capítulos escritos): escrever
+capítulo faz esse número subir, e o teste diria "os capítulos em obra passaram de um quarto"
+justamente quando a fatia deles **encolheu**. Agora a régua sai dos capítulos escritos de hoje.
+O bloco 7 exigia `=== 7` pontos de parada no rolo do quadrinho — 4 placas + 3 páginas duras, a
+conta de 09/08. Agora ele compara com quem TEM `qMarco` ou `qDura`, que é a regra que o próprio
+código já escrevia: a amarra é pelo nó, nunca pela contagem.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 4 de 13 | **5 de 13** |
+| `LIMIAR_FIM` | 11.850 | **13.200** (régua derivada: 15.000) |
+| fatia dos capítulos em obra | 11,4% | **9,1%** |
+| páginas do quadrinho | 32 | **33** (a placa de O CAIS) |
+| pontos de parada do rolo | 7 | **8** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 223) |
+| `index.html` | 1.622.072 B | **1.622.072 B** — nenhuma arte nova |
+| `pack-hoje.json` | 1.361 KB | **1.067 KB** (JABAQUARA e A PEQUENA ÁFRICA saíram para pacote próprio) |
+| linhas autorais varridas pelo §2 | 190 | **196**, 0 achado |
+
+`npm test` verde (FPS 61) e `encaixe.js` **21 blocos** verdes. Prints: `test/CAP-cais-ab1.png`,
+`-ab4`, `-ab5`, `-fe4`, `-fe6`.
+
+### Instrumento novo: `test/ver-capitulo.js`
+
+Não havia como **olhar** um capítulo do meio do arco: o percurso anda do começo, o smoke
+fotografa a rua do capítulo 1. `node test/ver-capitulo.js cais` abre a abertura e o fecho por
+identidade e salva um print por fala. Foi ele que achou o rosto emprestado e a fala de 382.
+
+### O que ficou registrado como pendência, não como decisão
+
+- **A pintura de O CAIS é a de SALVADOR** (`arte: [4]`). Era a de PALMARES — serra, mata fechada
+  —, o que ficou insustentável quando o texto passou a dizer *"isto é o Rio de Janeiro"*: pintura
+  afirma lugar (§2). Cidade colonial de pedra com mar é a menos falsa que existe hoje, e continua
+  sendo **outra cidade**. `cap-cais-fundo-alto` e `-chao` estão pedidos em `necessario.json`.
+- **O nome não cabe na cerimônia.** "O CAIS QUE VOLTOU À LUZ" sangra pelas duas bordas na tela do
+  nome, a 390 px. É anterior a esta sessão (o nome não mudou) e vale para "O QUE NÃO PODIA SER
+  DITO" também. Não mexi: encolher a fonte da cerimônia é decisão de Arte.
+
+### Próximo passo
+JABAQUARA, com a mesma régua.
+
+---
+
+## Diário — 2026-08-11 · Historiador · JABAQUARA, e a abolição que foi arrancada
+
+Segundo dos três do século XIX. Mesma régua: **nenhuma afirmação sem fonte lida nesta sessão.**
+
+### A tese do capítulo, em uma frase
+
+**1888 não foi um presente.** A versão que a escola repete — o Jabaquara como obra de
+abolicionistas brancos de Santos — está literalmente escrita nos memorialistas da cidade, e o
+capítulo a cita **entre aspas, para desmontar**. Quem fez a coisa acontecer descia a serra.
+
+### As falas e a fonte de cada uma
+
+A base é **Matheus Serva Pereira, *Uma viagem possível: da escravidão à cidadania. Quintino de
+Lacerda e as possibilidades de integração dos ex-escravos no Brasil*, dissertação de mestrado,
+PPGH/UFF, 2011** — 292 páginas, lidas nesta sessão (extraí o texto do PDF do site do PPGH/UFF).
+
+| onde | o que afirma | onde está na dissertação |
+|---|---|---|
+| ab.1 | Santos ao pé da serra, e o porto | a rota descrita nela: descer *"a serra Paranapiacaba"*, a estrada, a Ponte do Casqueiro, e daí a Santos |
+| ab.2 | fugas em massa das fazendas de café do interior nos anos 1880; a descida **pela estrada que margeia a linha férrea**, às vezes **dentro dos vagões, com consentimento de ferroviários abolicionistas** | literal: *"Aproveitando-se das estradas que margeavam a linha férrea ou ocupando vagões com consentimento de funcionários abolicionistas das companhias ferroviárias… as ondas sucessivas de escravos fugidos de diversas regiões da província de São Paulo em direção a Santos avolumaram-se"* |
+| ab.3 | o reduto organizado desde **1882**; **Quintino de Lacerda**, sergipano, escravizado em Santos como **cozinheiro de ganho**, livre naquela década | *"a data correta da formação do Jabaquara seja mesmo no ano de 1882"*; *"o sergipano Quintino de Lacerda teria trabalhado em Santos como escravo de ganho"*; *"escravo de ganho doméstico – cozinheiro – dos irmãos republicanos Antonio e Joaquim Lacerda"*; *"adquiriu sua liberdade"* na década de 1880 |
+| ab.4 | o verbo — **abrir caminho** | autoral. Escolhido por caber nos dois sentidos que a dissertação documenta: o caminho da serra e as **roças abertas** no morro |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1–2 | **1º de maio de 1888**, doze dias antes da lei: relatório do **presidente da província de São Paulo** no *Correio Paulistano* — *"os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos"* | citado na dissertação com a referência do jornal e do acervo (BN) |
+| fe.3 | ninguém sabe quantos passaram: *"mais de três mil"* (memorialista, para 1886) e **dez mil**; a pesquisa trata os números como exagerados | literal: *"Sem dúvida exagerando nos números, alguns autores chegam a afirmar que o Jabaquara teria albergado até 10 mil escravos fugidos"* |
+| fe.4 | a armadilha da fonte: *"a suprema criação do branco em favor do negro"*, e a leitura inversa | a citação é de Francisco Martins dos Santos (1940) e está na dissertação; a leitura inversa é dela: *"o elevado número de cativos em fuga permite questionar a apontada ausência de sua participação na formação do reduto"* |
+| fe.5 | **1893**: moradores na justiça para ficar nas roças abertas antes da lei, *"todos de profissão roceiros"* | a petição está transcrita na dissertação |
+| fe.6 | **1895**: Quintino vereador de Santos; e **Maria Helena Machado** como quem leu a década assim | *"chegando a assumir uma cadeira como vereador da Câmara Municipal republicana de Santos, em 1895"*; a caracterização de Machado é da própria nota 186 da dissertação |
+
+### O que RECUSEI
+
+- **Qualquer número de gente no Jabaquara.** É o achado mais útil do capítulo, e virou entrada
+  em ONDE AS FONTES DISCORDAM em vez de virar fala afirmativa. Duzentos, três mil, dez mil, vinte
+  mil: cada fonte diz um, e a acadêmica diz que os grandes são exagero.
+- **O nome do presidente da província.** O §2 proíbe pessoa real como inimigo e o jogo já não
+  nomeia colonizador nenhum. O cargo diz tudo o que a frase precisa — e diz mais, porque é o
+  cargo que dá peso ao documento.
+- **Antônio Bento e os caifazes.** Aparecem na literatura e não nesta dissertação com o detalhe
+  que eu precisaria para uma linha honesta. Sem fonte lida, sem fala.
+- **A data de morte de Quintino e o inventário dos bens dele.** Estão na dissertação, mas são
+  biografia, e o capítulo é sobre o que a rua fez.
+
+### O que mudou na LINHA_TEMPO
+
+A placa de JABAQUARA entrou **antes** do nó de 1888 — o quilombo é de 1882 a 1888 e a lei chega
+no fim dele. E o `cena` do nó *"1888 · A lei de dois artigos"* **desceu de AINDA AQUI para
+JABAQUARA**: revelar a lei da abolição só no último capítulo era guardá-la longe do único
+capítulo que existe para contar de onde ela veio. Efeito colateral bom: a página de 1888 passa a
+vestir a pintura da encosta de Santos.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 5 de 13 | **6 de 13** |
+| `LIMIAR_FIM` | 13.200 | **14.550** (régua derivada: 16.875) |
+| fatia dos capítulos em obra | 9,1% | **7,2%** |
+| páginas do quadrinho | 33 | **34** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 226) |
+| linhas autorais varridas pelo §2 | 196 | **202**, 0 achado |
+
+`npm test` verde (FPS 59), `encaixe.js` verde. Prints: `test/CAP-jabaquara-ab1.png`, `-ab3`,
+`-ab4`, `-fe2`, `-fe4`, `-fe6`. A pintura própria do capítulo (encosta de mata com barracão e
+roça em terraço) casa com o texto sem nenhum ajuste — foi a melhor surpresa da sessão.
+
+### Próximo passo
+A PEQUENA ÁFRICA.
+
+---
+
+## Diário — 2026-08-11 · Historiador · A PEQUENA ÁFRICA fecha o lote do século XIX
+
+Terceiro e último do lote. É o **par obrigatório de JABAQUARA**: abolição sem o dia seguinte é a
+mentira que a escola repete há um século, e aqui o dia seguinte tem endereço.
+
+### Por que este capítulo é feito de três documentos
+
+A REGRA DO DOCUMENTO (§2.6) foi escrita para história recente e cai neste capítulo sem forçar —
+e o resultado é o mais limpo do lote, porque nenhuma das três afirmações centrais depende de
+interpretação de ninguém:
+
+1. **um registro de órgão** — o número 3.295 da Biblioteca Nacional, 27/11/1916;
+2. **uma obra pública com número** — 525 imóveis derrubados para a Avenida Presidente Vargas;
+3. **uma certidão que existe ao lado de um título que não existe** — a Pedra do Sal.
+
+O terceiro é o que fecha o arco do lote inteiro: **1888 deu liberdade sem chão, e em 2026 a
+Pedra do Sal ainda não tem título.** Nenhuma frase precisa dizer isso; as duas datas dizem.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | Saúde, Gamboa, Praça Onze; o nome **Pequena África** vem de **Heitor dos Prazeres** | Sesc SP (*"Heitor dos Prazeres (1898-1966)… usou este termo"*, e a área da zona portuária) e Observatório do Patrimônio (*"cunhado segundo consta pelo sambista e pintor, Heitor dos Prazeres"*). As duas apontam o livro de Roberto Moura como o que popularizou |
+| ab.2 | a **diáspora baiana**; **Hilária Batista de Almeida**, nascida em **Santo Amaro da Purificação em 1854**, veio ao Rio **aos 22 anos** | Biblioteca Florestan Fernandes, FFLCH-USP, literal: *"nasceu em 1854 em Santo Amaro da Purificação, Bahia"*, *"Aos 22 anos, mudou-se para o Rio de Janeiro, no êxodo que ficou conhecido como diáspora baiana"* |
+| ab.3 | **Tia Ciata**, quituteira, **iyakekerê no terreiro de João Alabá**; as **rodas de partido-alto** na casa dela | mesma página, literal: *"era grande quituteira"*, *"era Iyakekerê no terreiro de João Alabá"*, *"Em sua casa, as festas eram famosas"*, *"se destacavam as rodas de partido-alto"* |
+| ab.4 | o verbo — **guardar o lugar** | autoral, e escolhido pelo que o capítulo documenta: um território que a cidade derrubou e que continua sendo disputado |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1–2 | **“Pelo Telefone”**: pedido em **6/11/1916**, partitura de piano da mão de **Pixinguinha**, atestado de primeira execução em **25/10/1916**, registro em **27/11/1916** sob o **nº 3.295**, em nome de **Ernesto Joaquim Maria dos Santos, o Donga**; concebido numa roda na casa de Tia Ciata | Agência Brasil, matéria sobre a exposição do centenário na própria Biblioteca Nacional, com as datas e o número |
+| fe.3 | o **Código Penal de 1890**, vinte e seis anos antes: crime não ter ocupação e crime a capoeira | já estava no jogo, com o Decreto nº 847/1890, arts. 399 e 402, na LINHA_TEMPO. O capítulo só põe as duas datas na mesma frase |
+| fe.4 | **525 imóveis** derrubados, três anos de obra, avenida inaugurada em **1944**, e a **Praça Onze** entre o que caiu | MultiRio (Prefeitura do Rio), literal: *"Foram derrubados 525 imóveis em brevíssimo período de tempo"*, a inauguração em 1944 depois de três anos, e a Praça Onze como berço do desfile, onde moravam as tias |
+| fe.5–6 | **Pedra do Sal**: Portaria nº 2 da Fundação Cultural Palmares no **D.O.U. de 20/01/2006**; RTID no **D.O.U. de 30/11/2010**, **25 famílias**; **não titulada**. E **Beatriz Nascimento** | Observatório Terras Quilombolas / CPISP, com o processo 54180.001957/2005-44. Beatriz Nascimento: bibliografia e a citação *"durante sua trajetória o quilombo serve de símbolo que abrange conotação de resistência étnica e política"* (NASCIMENTO, 2021, p. 166), lidas num trabalho da ANPUH-SC de 2022 |
+
+### O que RECUSEI
+
+- **Qualquer coisa sobre religião além do que a página da USP diz.** *Iyakekerê no terreiro de
+  João Alabá* entrou porque é o que a fonte diz e é **fala**; nada além. O §2.4.5 vale inteiro: a
+  arte pedida diz, com todas as letras, **nenhum símbolo religioso de nenhum tipo**.
+- **A autoria de Mauro de Almeida em “Pelo Telefone”**, e a disputa de autoria em volta do samba.
+  Existe e é conhecida; o que eu li com data e número foi o registro. O jogo afirma o registro.
+- **Beatriz Nascimento escrevendo sobre a Pequena África.** Não achei fonte de que ela tenha
+  escrito sobre este território especificamente. A fala afirma o que li: o conceito dela de
+  quilombo como símbolo de resistência que continua.
+- **Lélia Gonzalez e Abdias do Nascimento em `FONTES`.** Verifiquei os dados bibliográficos dos
+  dois (*Lugar de negro*, Marco Zero, 1982; *O quilombismo*, Vozes, 1980) e **não os pus na
+  tela**: nenhuma fala se apoia neles, e encher a lista de bibliografia que o texto não usa é o
+  contrário do que aquela tela existe para fazer. Ficam registrados aqui para quando houver
+  fala que os peça.
+- **O número de pessoas desalojadas pela avenida.** A página da Prefeitura não o traz.
+
+### O que mudou na LINHA_TEMPO
+
+A placa de A PEQUENA ÁFRICA entrou antes dos nós de 1890 e 1891 — que já pendiam da cena dela
+desde 10/08. Com `epFio` no capítulo, as duas páginas passam a vestir a pintura dele.
+
+### O que mediu, no lote inteiro
+
+| | antes do lote | depois |
+|---|---|---|
+| capítulos escritos | 4 de 13 | **7 de 13** |
+| `LIMIAR_FIM` | 11.850 | **15.900** (régua derivada: 18.750) |
+| fatia dos capítulos em obra | 11,4% | **5,7%** |
+| páginas do quadrinho | 32 | **35** |
+| pontos de parada do rolo | 7 | **10** |
+| entradas em DE ONDE VEM | 17 | **34** |
+| falas autorais varridas pelo §2 | 190 | **208**, 0 achado |
+| `pack-hoje.json` | 1.361 KB | **1.067 KB** |
+| `index.html` | 1,55 MB | **1,55 MB** — nenhuma arte nova |
+
+`npm test` verde (FPS 61) e `encaixe.js` verde nos três incrementos.
+
+### O que fica para o dono, e é o único assunto que eu não decido
+
+1. **Quem representa cada um dos três capítulos.** Os três falam **sem rosto** — de propósito, e
+   agora por regra de código (`DONO_DO_BLOCO`). O CAIS, JABAQUARA e A PEQUENA ÁFRICA não têm
+   personagem, NPC nem retrato, e escalar quem aparece é decisão dele (§2).
+2. **A arte de rua dos três.** O que atravessa a tela e o que fica no chão continuam emprestados
+   de AINDA AQUI, e a última fala da abertura de cada um **diz isso em voz alta** em vez de
+   fingir. É honesto e é feio: é a maior dívida visual do lote.
+3. **A pintura de O CAIS** ainda é a de SALVADOR. `cap-cais-fundo-alto` e `-chao` pedidos.
+
+### Próximo passo
+
+Os pedidos de arte de contexto dos três (`ctx-cap5-*`, `ctx-cap6-*`, `ctx-cap7-*`) estão na fila
+de `necessario.json`. Assim que a mesa entregar, `node test/inline-contexto.js` liga tudo sozinho
+— os capítulos já estão escritos com as chaves certas, à espera. Depois deles, o lote seguinte
+do arco é AS PORTAS.

@@ -39,8 +39,18 @@
 // não existe): viajam no pacote `hoje`, que é o mais tardio do arco e o mais provável de já
 // ter sido baixado quando alguém chegar num deles. Quando um capítulo desses ganhar texto e
 // virar capítulo de verdade, ele ganha o pacote dele e sai daqui.
+//
+// E FOI O QUE ACONTECEU em 2026-08-11 com as pinturas 7 e 8: JABAQUARA e A PEQUENA ÁFRICA
+// deixaram de ser esqueleto, então saíram do pacote coletivo e ganharam o pacote de cada um.
+// Não é arrumação: quem chega em JABAQUARA passa a baixar a pintura de JABAQUARA, e não os
+// 1,3 MB de tudo o que ainda está em obra.
+//
+// O CAIS não aparece aqui e a ausência é a informação: ele veste a pintura `[4]`, de SALVADOR,
+// até a dele chegar (o porquê está no objeto dele em src/jogo.ts). No dia em que
+// `cap-cais-fundo-alto`/`-chao` entrarem, a pintura nova ganha o índice 12 e a linha dela vem
+// para cá apontando `"cais"` — que é o pacote que as imagens de contexto dele já criam.
 const PACK_DA_CENA = [null, null, "palmares", "palmares", "salvador", "hoje", "hoje",
-  "hoje", "hoje", "hoje", "hoje", "hoje"];
+  "jabaquara", "pequenaafrica", "hoje", "hoje", "hoje"];
 
 // ---- os sprites da época, por BLOCO DE ARTE (o campo `arteCap` de EPOCAS) ----
 // Índice = arteCap. É este número que HERO_CAP_B64, MOB_B64, DROP_B64, RETRATO_B64 e
@@ -77,7 +87,19 @@ const FRENTE_OITAVA_BLOCO = [0, 1, 3];
 // ---- as imagens de contexto de fala, pelo prefixo do arquivo entregue ----
 // A numeração dos arquivos é anterior à reordenação das épocas: cap3-* é AINDA AQUI e cap4-*
 // é SALVADOR. Mesma tabela que o test/peso-composicao.js já carregava.
-const PACK_DO_CTX_PREFIXO = { cap1: null, cap2: "palmares", cap3: "hoje", cap4: "salvador" };
+//
+// `cap5`, `cap6` e `cap7` entraram em 2026-08-11 com os três capítulos do século XIX. O número
+// continua sendo ORDEM DE PEDIDO, não posição no arco — é o que a linha acima já dizia, e vale
+// repetir para ninguém tentar "consertar" a numeração e quebrar o casamento com os arquivos
+// que a mesa entrega. cap5 = O CAIS · cap6 = JABAQUARA · cap7 = A PEQUENA ÁFRICA.
+//
+// As três chaves apontam para o pacote do PRÓPRIO capítulo, e é de propósito que O CAIS tenha
+// um `pack-cais.json` antes de ter pintura própria: quando `cap-cais-fundo-alto`/`-chao`
+// chegarem, eles entram nesse mesmo pacote e nada aqui muda. Enquanto a arte de contexto não
+// existe, o build simplesmente não escreve o pacote e `mapaCtx` fica sem a chave — o jogo não
+// pede nada e não há 404 nenhum (ver `mapaCtx` em ferramentas/construir.js).
+const PACK_DO_CTX_PREFIXO = { cap1: null, cap2: "palmares", cap3: "hoje", cap4: "salvador",
+  cap5: "cais", cap6: "jabaquara", cap7: "pequenaafrica" };
 
 // ---- as páginas verticais (QUAD_B64) ----
 // `p1`..`p6` abrem a linha do tempo e ficam na abertura — são as primeiras coisas que alguém

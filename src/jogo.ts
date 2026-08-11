@@ -1837,21 +1837,51 @@ const EPOCAS = [
   // o fim de `ARCOS_ANTIGOS` se `cenas` mudar (o procedimento está escrito lá).
   // ============================================================
   {
+    // ESCRITO em 2026-08-11, e com isso deixou de ser esqueleto. Cada fala abaixo tem fonte
+    // conferida na sessão que a escreveu — nenhuma ementa, nenhum resumo de buscador — e a
+    // lista delas está no NOTES.md, no diário do mesmo commit, junto com o que ficou de FORA
+    // por falta de fonte (o Decreto municipal que criou o Circuito da Herança Africana: o
+    // número circula, o texto não foi lido, e por isso ele não entrou).
+    //
+    // O QUE ESTE CAPÍTULO NÃO FAZ, e é §2.4.4 do CLAUDE.md, reafirmado pelo dono em 10/08: o
+    // **Cemitério dos Pretos Novos é fonte citável, nunca terreno, imagem ou item.** É outro
+    // sítio, a poucas ruas daqui, em escavação HOJE, com instituto vivo trabalhando nele e
+    // descendentes vivos. A última fala do fecho o cita em voz alta e diz que o cita — a
+    // recusa é dita, não escondida, do mesmo jeito que A TRAVESSIA diz que não mostra o porão.
+    // O que se cava aqui é a PEDRA: o calçamento, o ferro, a água. Osso não.
     id: "cais",
     nome: "O CAIS QUE VOLTOU À LUZ",
     quando: "Rio de Janeiro · século XIX",
-    emObra: true,
     arteCap: 3,
-    cenas: 1, lugar: "cais", arte: [3],
+    // A PINTURA AINDA É EMPRESTADA, e mudou de dono neste commit: era `[3]` — a serra da
+    // Barriga, mata fechada — porque a regra do capítulo em obra manda vestir a pintura do
+    // capítulo ANTERIOR, e o anterior é PALMARES. Essa regra vale para quem não afirma nada;
+    // a partir do momento em que o texto diz "isto é o Rio de Janeiro, e este chão de pedra é
+    // o cais do Valongo", pintura vira afirmação de lugar (§2) e a escolha passa a ser "qual
+    // a MENOS falsa que existe hoje". É a `[4]`, de SALVADOR: cidade colonial de pedra, ladeira
+    // e mar. Continua sendo outra cidade, e por isso `cap-cais-fundo-alto`/`-chao` estão
+    // pedidos em ferramentas/necessario.json. Enquanto não chegam, as duas primeiras falas
+    // são cobertas pela imagem de contexto (quando ELA chegar) e o desencaixe fica só no jogo.
+    cenas: 1, lugar: "cais", arte: [4],
     abertura: [
-      "Este capítulo se chama O CAIS QUE VOLTOU À LUZ, e ele ainda está sendo escrito.",
-      "O lugar dele na travessia já está marcado, e o verbo que ele vai pedir da sua mão também: cavar para saber. O que ele tem para contar, não — enquanto cada frase não tiver fonte conferida, este capítulo não afirma nada.",
-      "Até lá a rua continua a rua, com o trabalho que você já sabe fazer. O que passa precisa de alguém."
+      "Isto é o Rio de Janeiro, e este chão de pedra tem nome: cais do Valongo. Foi construído em 1811, por ordem do príncipe regente, e fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas.",
+      "Entre 1811 e 1831 — o período em que se sabe que ele funcionou — o Rio recebeu cerca de 550 mil africanos para serem escravizados. É o número da pesquisa que escavou esta pedra.",
+      "Em 1843 mandaram construir outro cais por cima deste, para o desembarque de uma princesa. O Valongo não foi destruído: foi coberto. E ficou embaixo do chão por quase dois séculos.",
+      "Aqui, alcançar é cavar para saber. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo: a arte deste cais não chegou, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a pedra segura as duas primeiras — a primeira a nomeia, a segunda conta quanta gente
+    // passou por ela. A terceira fala de ser COBERTA, e é outro assunto: o chão de cima, sem
+    // marca nenhuma. As duas últimas são o verbo e a tela, e nelas a imagem sai (ver o
+    // cabeçalho: `null` não é buraco).
+    aberturaImg: ["cap5-cais", "cap5-cais", "cap5-coberto", null, null],
     fecho: [
-      "Fim do trecho — e ele não te contou história nenhuma. Isso foi de propósito: este jogo não inventa passado para tapar buraco.",
-      "Quando a pesquisa estiver conferida, o capítulo volta com o que tem a dizer, e a tela DE ONDE VEM vai dizer de onde veio."
+      "Em 2011, obras na zona portuária acharam a pedra de novo — exatamente duzentos anos depois de ela ter sido posta. Quem dirigiu a escavação foi a arqueóloga Tânia Andrade Lima.",
+      "Em 10 de julho de 2017 o sítio entrou na lista do Patrimônio Mundial da UNESCO, pelo critério dos lugares ligados a acontecimentos e tradições vivas de significação universal excepcional.",
+      "Quanta gente desembarcou aqui? A ONU registra estimativas de 500 mil a 1 milhão. A escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831. São réguas diferentes, e a tela DE ONDE VEM mostra as duas.",
+      "Agora duas datas, para guardar juntas. Em 7 de novembro de 1831 uma lei do Império escreveu: “Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” Está assim, com essas palavras.",
+      "Em 4 de setembro de 1850 veio outra lei, para reprimir o tráfico de africanos, e o primeiro artigo dela se refere à de 1831. Dezenove anos entre uma proibição e a lei que veio proibir de novo.",
+      "E uma recusa. A poucas ruas daqui há outro sítio, o Cemitério dos Pretos Novos, que funcionou de 1772 a 1830 e é escavado até hoje, com instituto vivo e descendentes vivos. Este jogo o cita como fonte e não o encena."
     ]
   },
   {
@@ -1897,10 +1927,18 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-11. A trava deste capítulo é uma só e vale mais que qualquer outra
+    // coisa nele: **1888 não foi um presente.** A versão memorialista de Santos — que o
+    // capítulo cita entre aspas para desmontar — chama o Jabaquara de "suprema criação do
+    // branco em favor do negro", e é ela que a escola repete há um século. Aqui o protagonismo
+    // é de quem descia a serra: as fugas em massa vieram ANTES do plano, e é o relatório do
+    // próprio presidente da província, publicado doze dias antes da lei, que diz isso.
+    // Nenhum abolicionista da elite é herói deste capítulo, e a lei de 13 de maio entra como
+    // o que ela foi — duas frases, sem terra —, exatamente como a LINHA_TEMPO já dizia.
+    // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "jabaquara",
     nome: "JABAQUARA",
     quando: "Santos, São Paulo · 1887–1888",
-    emObra: true,
     arteCap: 3,
     // A PAISAGEM É DELE desde 2026-08-10. `arteCap` continua 3 — a personagem e os objetos da
     // rua seguem herdados de AINDA AQUI, porque isso é §2 e depende de texto escrito —, mas a
@@ -1910,32 +1948,63 @@ const EPOCAS = [
     // de ter a sua gente, e é exatamente onde estes estão.
     cenas: 1, lugar: "jabaquara", arte: [7],
     abertura: [
-      "Este capítulo se chama JABAQUARA, e ele ainda está sendo escrito.",
-      "O verbo dele ainda não foi escolhido, e o que ele tem para contar ainda não passou pela conferência de fonte. Até que passe, ele não diz — dizer sem saber seria o oposto do que este jogo faz.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é Santos, no litoral de São Paulo, nos últimos anos da escravidão. A serra fica lá em cima; aqui embaixo, o porto.",
+      "Nos anos 1880, gente escravizada abandonou em massa as fazendas de café do interior e desceu a serra a pé, pela estrada que margeia a linha férrea — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas.",
+      "No morro do Jabaquara havia um reduto — um quilombo — organizado desde 1882. Quem o liderava era Quintino de Lacerda, sergipano, que fora escravizado em Santos como cozinheiro de ganho e ficou livre naquela mesma década.",
+      "Aqui, alcançar é abrir caminho: o da serra, para quem ainda está descendo, e o da roça, para quem já chegou.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — a gente e as coisas daqui não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a serra segura as duas primeiras: a primeira a nomeia, a segunda é a descida por ela.
+    // O morro entra quando o texto chega no reduto, que é o outro assunto — e é o lugar, nunca
+    // a reunião. As duas últimas são o verbo e a tela, e nelas a imagem sai.
+    aberturaImg: ["cap6-serra", "cap6-serra", "cap6-morro", null, null],
     fecho: [
-      "Fim do trecho. Ele calou o que não podia afirmar ainda, e é assim que se conserta um jogo que promete ensinar.",
-      "Ele e o próximo vêm juntos quando vierem: um sem o outro contaria metade, e metade aqui é engano."
+      "Em 1º de maio de 1888 — doze dias antes da abolição — o Correio Paulistano publicou um relatório do presidente da província de São Paulo.",
+      "Ele dizia que, em vastos municípios ao mesmo tempo, “os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos”. Está escrito no jornal, antes da lei.",
+      "Quanta gente passou por aqui, ninguém sabe. Memorialistas escreveram “mais de três mil”; outros, dez mil. A pesquisa trata esses números como exagerados e não os adota — este jogo também não.",
+      "E há uma armadilha na fonte. Um memorialista de Santos escreveu que o Jabaquara foi “a suprema criação do branco em favor do negro”. A pesquisa recente lê ao contrário: quem descia a serra vinha antes de qualquer plano.",
+      "Depois de 13 de maio ninguém ganhou terra. Em 1893, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei, e se declararam no processo “todos de profissão roceiros”.",
+      "Quintino de Lacerda virou vereador de Santos em 1895. A luta mudou de lugar; não acabou. Quem leu esta década pondo quem era escravizado como agente da própria história foi Maria Helena Machado."
     ]
   },
   {
+    // ESCRITO em 2026-08-11, e é o par obrigatório de JABAQUARA: um sem o outro conta metade,
+    // porque abolição sem o dia seguinte é a mentira que a escola repete. Aqui o dia seguinte
+    // tem endereço — a zona portuária do Rio — e o capítulo se pendura em TRÊS DOCUMENTOS, na
+    // ordem em que a REGRA DO DOCUMENTO gosta: um registro de órgão (o número 3.295 da
+    // Biblioteca Nacional), uma obra pública com número (525 imóveis derrubados), e uma
+    // certidão que existe ao lado de um título que não existe (Pedra do Sal).
+    //
+    // A prioridade de fonte do §2 pesa mais neste capítulo do que em qualquer outro, e por isso
+    // ele NOMEIA quem escreveu de dentro: o nome do território vem de um sambista (Heitor dos
+    // Prazeres), a matriarca é nomeada pelo nome de batismo antes do apelido, e a última fala é
+    // de Beatriz Nascimento. Fontes por fala no NOTES.md, no diário do mesmo commit.
+    //
+    // §2.4.5 respeitado sem esforço: Tia Ciata era iyakekerê no terreiro de João Alabá, e isso
+    // é FALA. Nada de terreiro, de assentamento ou de objeto de santo vira imagem ou item.
     id: "pequenaafrica",
     nome: "A PEQUENA ÁFRICA",
     quando: "Rio de Janeiro · começo do século XX",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "pequenaafrica", arte: [8],
     abertura: [
-      "Este capítulo se chama A PEQUENA ÁFRICA, e ele ainda está sendo escrito.",
-      "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido; a pesquisa ainda não fechou. Nada aqui vai ser afirmado antes disso.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é o Rio de Janeiro no começo do século XX, entre a Saúde, a Gamboa e a Praça Onze. O compositor Heitor dos Prazeres chamava este pedaço de cidade de Pequena África, e o nome ficou.",
+      "Muita gente daqui tinha vindo da Bahia, no êxodo que ficou conhecido como diáspora baiana. Uma delas era Hilária Batista de Almeida, nascida em Santo Amaro da Purificação em 1854, que veio para o Rio aos 22 anos.",
+      "Ficou conhecida como Tia Ciata. Era quituteira e iyakekerê no terreiro de João Alabá, e na casa dela as festas eram famosas — sobretudo as rodas de partido-alto.",
+      "Aqui, alcançar é guardar o lugar: o pedaço de cidade, a casa, e a roda que acontece dentro dela.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a rua da Praça Onze segura as duas primeiras: a primeira nomeia o território, a segunda é
+    // quem chegou nele. A casa entra quando o texto chega na casa — e mostra o LUGAR, nunca a
+    // festa, pela mesma razão que o pátio de SALVADOR mostra o pátio vazio.
+    aberturaImg: ["cap7-praca", "cap7-praca", "cap7-casa", null, null],
     fecho: [
-      "Fim do trecho, e outra vez sem história: o que não tem fonte conferida não vira fala.",
-      "O espaço dele está guardado. É só isso que este capítulo afirma hoje."
+      "Numa roda na casa dela nasceu “Pelo Telefone”. Em 6 de novembro de 1916, Donga — Ernesto Joaquim Maria dos Santos — entrou com o pedido de registro na Biblioteca Nacional.",
+      "Anexou uma partitura de piano da mão de Pixinguinha e um atestado de que a música tinha sido tocada pela primeira vez em 25 de outubro daquele ano. O registro saiu em 27 de novembro, com o número 3.295.",
+      "Vinte e seis anos antes, o Código Penal da República tinha feito crime não ter ocupação e feito crime a capoeira, chamada pelo nome. Mesma cidade. A linha do tempo traz os dois artigos.",
+      "As obras da Avenida Presidente Vargas duraram três anos e derrubaram 525 imóveis. Um deles era a Praça Onze, onde as tias moravam e onde as escolas de samba desfilavam. A avenida foi inaugurada em 1944.",
+      "Nem tudo caiu. A Pedra do Sal, ali ao lado, é comunidade remanescente de quilombo certificada pela Fundação Cultural Palmares desde a portaria publicada no Diário Oficial da União em 20 de janeiro de 2006.",
+      "O relatório técnico saiu em 2010 e contou 25 famílias. A terra continua sem título. Quem pensou o quilombo como símbolo de resistência que continua, e não como coisa do passado, foi Beatriz Nascimento."
     ]
   },
   {
@@ -2140,6 +2209,17 @@ function blocoArte(e: number) {
   const n = (ep && ep.arteCap != null) ? ep.arteCap | 0 : 0;
   return Math.max(0, Math.min(HERO_CAP_B64.length - 1, n));
 }
+// ===== DE QUEM É CADA BLOCO DE ARTE — a tabela ao contrário, e ela é §2 =====
+// `arteCap` diz que bloco um capítulo VESTE. Isto diz de quem o bloco É. As duas coisas
+// coincidem em quatro capítulos e divergem em nove, e a divergência tem nome: capítulo que
+// veste o bloco de outro não tem pessoa própria — tem uma emprestada.
+//
+// Por que uma tabela e não uma dedução: "o primeiro capítulo da lista que declara o bloco N"
+// daria o bloco 3 a O CAIS, porque ele vem antes de AINDA AQUI na cronologia. Dono é dado, não
+// ordem. O índice é o mesmo de HERO_CAP_B64 / RETRATO_B64 / MOB_B64 / DROP_B64 / PASSO_CAP e o
+// mesmo de `PACK_DO_BLOCO` em ferramentas/pacotes.js — quando um capítulo ganhar bloco próprio,
+// as duas linhas mudam juntas.
+const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 // Os dois capítulos que têm mecânica própria, ditos por identidade (declarados lá em cima
 // como `let` justamente para isto).
 CAP_GENTE = iEp("palmares");
@@ -2200,9 +2280,26 @@ let MASCARA_MARCOS = 0;
 // Função e não `const` porque `LIMIAR_CENA` é declarado bem mais abaixo neste arquivo, e um
 // `const` aqui leria a zona morta. 750 de impacto: metade de uma cena, o espaçamento medido.
 function espacoMarco() { return LIMIAR_CENA / 2; }
+// UM CAPÍTULO QUE JÁ TEM GENTE NA RUA CARREGA MENOS PLACA — e este número não é gosto, é a
+// trava do dono medida na junção de dois trabalhos que nasceram separados.
+//
+// As placas e o verbo de PALMARES chegaram no mesmo dia, de agentes diferentes, e nenhum dos
+// dois podia ver o efeito do outro: sozinha, a placa custa 0,95 de média; sozinho, o acolher
+// BAIXOU a média de 4,19 para 3,59. Juntos deram 4,80 contra 4,27 do capítulo 1 — e a régua
+// que o dono escreveu é que nenhum capítulo passa o capítulo 1.
+//
+// O que muda de capítulo para capítulo não é a placa, é a RUA: onde o que atravessa é GENTE
+// (`capGente()`), quem foi acolhida continua em quadro andando junto, e são objetos que a rua
+// do capítulo 1 não tem. Então esses capítulos ganham uma placa a menos, e a `escolherMarcos`
+// continua guardando a primeira e a última — some uma do meio, que é a que menos custa perder.
+//
+// Preferi tirar placa a afrouxar a asserção: teste que cede quando reprova vira teste que
+// aprova qualquer coisa, e essa é a lição mais cara desta semana.
 function tetoMarcos(e: number) {
   const vao = LIMIAR_CENA * EPOCAS[e].cenas;
-  return Math.max(0, Math.round(vao / espacoMarco()) - 1);
+  const bruto = Math.max(0, Math.round(vao / espacoMarco()) - 1);
+  const comGente = EPOCAS[e] && EPOCAS[e].id === "palmares";
+  return comGente ? Math.max(1, bruto - 1) : bruto;
 }
 // `n` de `m`, espalhados por igual, guardando sempre a primeira e a última.
 function escolherMarcos(m: number, n: number) {
@@ -8387,14 +8484,23 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   const arte = HERO_CAP_B64[iCap] || HERO_CAP_B64[0];
   const retrato = (typeof RETRATO_B64 !== "undefined" && RETRATO_B64[iCap])
     || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
-  // CAPÍTULO EM OBRA FALA SEM ROSTO — e isto é §2, não layout.
-  // O retrato é "a pessoa daquela época". Um capítulo em obra empresta o bloco de arte de
-  // AINDA AQUI (ver o cabeçalho de `emObra`), e o print da primeira montagem mostrou o custo
-  // disso na cara: a protagonista indígena do presente anunciando JABAQUARA. Escalar quem
+  // QUEM NÃO TEM A PESSOA DELE FALA SEM ROSTO — e isto é §2, não layout.
+  // O retrato é "a pessoa daquela época". Um capítulo que empresta o bloco de arte de outro
+  // (ver o cabeçalho de `emObra`) não tem pessoa: o print da primeira montagem mostrou o custo
+  // disso na cara — a protagonista indígena do presente anunciando JABAQUARA. Escalar quem
   // representa um capítulo é decisão do dono (§2, "na dúvida sobre representação, pare e
   // pergunte"), e emprestar um rosto por conveniência técnica é decidir sem perguntar.
   // Então ninguém é escalado: enquanto o capítulo não tem a pessoa dele, a caixa fala sozinha.
-  const semRosto = !!(EPOCAS[epocaAtual()] as { emObra?: boolean }).emObra;
+  //
+  // A CONDIÇÃO ERA `emObra`, E ISSO ERA UM ACIDENTE FELIZ que quebrou em 2026-08-11. Os três
+  // capítulos do século XIX ganharam texto com fonte e perderam o `emObra` — e a cara de AINDA
+  // AQUI voltou a narrar o Valongo, sem erro nenhum, sem teste nenhum reclamando. Ter texto e
+  // ter pessoa são coisas DIFERENTES, e a segunda continua sendo decisão do dono. Agora a
+  // condição é a certa e sai do dado: **o rosto só aparece para quem é DONO do bloco de arte
+  // que veste.** Um capítulo novo com bloco próprio entra em `DONO_DO_BLOCO` e ganha rosto no
+  // mesmo commit em que ganha a arte; enquanto isso, fala sozinho. O `encaixe.js` cobra.
+  const epFala = EPOCAS[epocaAtual()] as { emObra?: boolean; id: string; arteCap?: number };
+  const semRosto = !!epFala.emObra || DONO_DO_BLOCO[iCap] !== epFala.id;
   r.classList.toggle("oculta", semRosto);
   if (!semRosto && retrato && r.getAttribute("src") !== retrato) (r as HTMLImageElement).src = retrato;
   // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
@@ -8893,6 +8999,12 @@ const LINHA_TEMPO: NoLinha[] = [
     com: "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler.", quem: iEp("palmares") },
   { tipo: "momento", i: 4,            // Zumbi: cronologia de Palmares, revelação no cap. 3
     com: "Vinte de novembro. Guarde a data.", quem: iEp("palmares") },
+  // A PLACA DO CAIS entrou em 2026-08-11, junto com o texto do capítulo. Ela vem AQUI, e não
+  // depois dos dois momentos abaixo, porque a cronologia manda: o Valongo é de 1811 e os dois
+  // momentos seguintes explicam como se chega à Bahia de 1835. Efeito colateral bem-vindo: com
+  // `epFio` apontando para O CAIS, essas duas páginas passam a vestir a pintura `[4]` — cidade
+  // colonial de pedra e mar — em vez da serra de PALMARES, que era o que herdavam antes.
+  { tipo: "marco", ep: iEp("cais") },
   // O VÃO XVII→HOJE — quatro marcos, e dois deles fecham fios que o jogo deixava soltos:
   // a Constituinte é a ponte jurídica dos DOIS fios para o capítulo 3, e o Censo dos
   // quilombolas diz o que a linha inteira calava — quem construiu Palmares continua aqui.
@@ -8912,7 +9024,14 @@ const LINHA_TEMPO: NoLinha[] = [
     f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia",
     com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: iEp("salvador") },
   { tipo: "marco", ep: iEp("salvador") },
-  { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1888", t: "A lei de dois artigos", qi: "p21",
+  // A PLACA DE JABAQUARA entrou em 2026-08-11 com o texto do capítulo, e ela vem ANTES do nó
+  // de 1888 porque o quilombo é de 1882 a 1888 — a lei chega no fim dele, não antes. Com
+  // `epFio` em JABAQUARA, a página de 1888 passa a vestir a pintura DELE: a encosta de Santos,
+  // que é o lugar de onde a lei foi arrancada. E o `cena` do nó de 1888 desceu de AINDA AQUI
+  // para JABAQUARA: revelar a lei da abolição só no último capítulo era guardá-la longe do
+  // capítulo que existe para contar de onde ela veio.
+  { tipo: "marco", ep: iEp("jabaquara") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("jabaquara")), q: "1888", t: "A lei de dois artigos", qi: "p21",
     d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
     f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
   // ============================================================
@@ -8941,6 +9060,11 @@ const LINHA_TEMPO: NoLinha[] = [
   // pendura na cena do capítulo em obra que o contém na cronologia. O que faltou fonte NÃO
   // ENTROU, e está listado no NOTES.md com o motivo — a Lei de Terras de 1850 é a maior falta.
   // ============================================================
+  // A PLACA DA PEQUENA ÁFRICA entrou em 2026-08-11 com o texto do capítulo, e ela vem AQUI
+  // porque os dois nós seguintes — o Código Penal de 1890 e o voto de 1891 — já eram o começo
+  // do século XX dela: pendem da cena dela desde 10/08. Com `epFio` apontando para o capítulo,
+  // as duas páginas passam a vestir a pintura dele em vez da de JABAQUARA.
+  { tipo: "marco", ep: iEp("pequenaafrica") },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("pequenaafrica")), q: "1890", t: "O código de dois anos depois",
     d: "Dois anos depois da abolição, o Código Penal da República fez crime não ter ocupação (art. 399) e fez crime a capoeira, chamada pelo nome: “exercícios de agilidade e destreza corporal conhecidos pela denominação capoeiragem” (art. 402). A lei não escreveu cor nenhuma. Escreveu rua, ofício e corpo.",
     f: "Decreto nº 847, de 11 de outubro de 1890, arts. 399 e 402" },
@@ -9448,6 +9572,24 @@ const FONTES = [
     q: "Cartografia dos mocambos a partir da documentação primária: Macaco, Subupira, Amaro, Andalaquituche, Osenga." },
   { t: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678 — Chão Editora, 2021",
     q: "Paleografia que corrige nomes: “Gana Zumba”, não “Ganga Zumba” — em quimbundo, gana é senhor e ganga é sacerdote." },
+  // ===== O CAIS DO VALONGO =====
+  // Entrou em 2026-08-11 com o texto do capítulo, no MESMO commit — a lição que o grupo de
+  // SALVADOR custou (fecho prometendo a tela e a tela sem a fonte) virou procedimento aqui.
+  // Duas coisas a notar na lista: a primeira entrada é a ESCAVAÇÃO, e ela é de uma arqueóloga
+  // — a prioridade de fonte do §2 pede a pesquisadora do período, e aqui ela é também quem
+  // dirigiu o trabalho de campo; e a última é o INSTITUTO PRETOS NOVOS, que entra como fonte
+  // e só como fonte, que é exatamente o que o §2.4.4 permite e o limite que ele impõe.
+  { g: "O CAIS DO VALONGO" },
+  { t: "Tânia Andrade Lima, G. M. Sene e M. A. T. de Souza, “Em busca do Cais do Valongo, Rio de Janeiro, século XIX”, Anais do Museu Paulista 24(1), 2016",
+    q: "O relatório da escavação que achou a pedra, escrito por quem a dirigiu. É de lá que sai tudo o que o capítulo afirma: 1811 e a Intendência Geral de Polícia, o Rio como principal porto de entrada nas Américas, as cerca de 550 mil chegadas entre 1811 e 1831, o Cais da Imperatriz recobrindo o Valongo em 1843, e o reaparecimento em 2011 — duzentos anos depois." },
+  { t: "Lei de 7 de novembro de 1831, art. 1º — Câmara dos Deputados, Legislação Informatizada",
+    q: "“Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” A ementa publicada diz o resto: declara livres os vindos de fora e impõe penas a quem os importasse." },
+  { t: "Lei nº 581, de 4 de setembro de 1850 — Câmara dos Deputados, Legislação Informatizada",
+    q: "“Estabelece medidas para a repressão do trafico de africanos neste Imperio.” O art. 1º se refere à lei de 1831 pelo nome. Dezenove anos entre uma proibição e a lei que veio proibir de novo — o jogo põe as duas datas lado a lado e não acrescenta adjetivo nenhum." },
+  { t: "ONU Brasil — inscrição do Cais do Valongo na Lista do Patrimônio Mundial, 10 de julho de 2017",
+    q: "O critério é o sexto: lugares associados a acontecimentos e tradições vivas, ideias ou crenças, obras artísticas e literárias de significação universal excepcional. A mesma página registra estimativas de 500 mil a 1 milhão de pessoas desembarcadas ali." },
+  { t: "Instituto de Pesquisa e Memória Pretos Novos (IPN) — Rio de Janeiro",
+    q: "O cemitério funcionou de 1772 a 1830, foi encontrado em 1996 e continua sendo escavado — as campanhas seguintes são de 2010 a 2012, de 2014 e de 2017. Está aqui como fonte, e o jogo não o encena: é sítio em escavação hoje, com instituição viva e descendentes vivos." },
   // ===== SALVADOR — A PROMESSA QUE O JOGO JÁ TINHA FEITO =====
   // Este grupo faltava, e a falta era de um tipo que o repositório inteiro existe para não ter:
   // o FECHO do capítulo diz, com todas as letras, *"Quem reconstruiu esta noite documento por
@@ -9460,6 +9602,42 @@ const FONTES = [
     q: "A madrugada de 24 para 25 de janeiro reconstruída documento por documento, a partir dos autos de quem julgou o levante. É de lá que vem tudo o que o capítulo afirma sobre aquela noite — inclusive a denúncia da véspera." },
   { t: "Cecília Moreira Soares, “As ganhadeiras: mulher e resistência negra em Salvador no século XIX”, Afro-Ásia nº 17, 1996 — UFBA",
     q: "As mulheres que faziam a cidade andar deixam de ser fundo e viram sujeito: o trabalho de rua, o acerto do ganho, e o resto que muitas guardaram até comprar a própria alforria." },
+  // ===== JABAQUARA =====
+  // A prioridade de fonte do §2 pede as pesquisadoras do período e a autoria negra, e aqui as
+  // duas cabem sem esforço: Maria Helena Machado é quem leu a década da abolição pondo quem era
+  // escravizado como agente da própria história, e Clóvis Moura é a referência de quilombo como
+  // luta. A dissertação de Matheus Serva Pereira é a base factual do capítulo inteiro — e é ela
+  // também que traz o jornal e o processo, que são os dois documentos que o texto cita.
+  { g: "JABAQUARA — SANTOS, 1887–1888" },
+  { t: "Matheus Serva Pereira, “Uma viagem possível: da escravidão à cidadania. Quintino de Lacerda e as possibilidades de integração dos ex-escravos no Brasil”, dissertação de mestrado, PPGH/UFF, 2011",
+    q: "De onde vem tudo o que o capítulo afirma: a formação do reduto em 1882, Quintino de Lacerda sergipano e escravizado em Santos como cozinheiro de ganho, a descida da serra pela estrada da linha férrea e dentro dos vagões, a vereança de 1895, e a crítica à versão memorialista que fez do Jabaquara uma obra de brancos." },
+  { t: "Relatório do presidente da província de São Paulo, publicado no Correio Paulistano em 1º de maio de 1888",
+    q: "“Os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos.” Doze dias antes da lei, e escrito por quem governava a província: é o documento que desmonta sozinho a ideia de abolição concedida." },
+  { t: "Ação judicial de 1893, moradores do sítio do Jabaquara",
+    q: "“Todos de profissão roceiros… houveram por aforamento… e aí edificaram casas para seus domicílios, fizeram outras benfeitorias, entre as quais muitas plantações de cujo produto vivem.” Cinco anos depois da abolição, na justiça, para ficar no que já era deles." },
+  { t: "Maria Helena P. T. Machado, “O plano e o pânico: movimentos sociais na década da Abolição”, Editora UFRJ/Edusp, 1994",
+    q: "A leitura que entende quem era escravizado como agente da própria história no desmonte do sistema — e não como quem esperou receber. É a chave do capítulo." },
+  { t: "Clóvis Moura, “Rebeliões da senzala: quilombos, insurreições, guerrilhas”, Livraria Editora Ciências Humanas, 1981",
+    q: "O quilombo lido como forma de luta, e não como refúgio passivo. Fio que liga PALMARES a JABAQUARA sem precisar de nenhuma ponte inventada." },
+  // ===== A PEQUENA ÁFRICA =====
+  // Este é o grupo em que a prioridade de fonte do §2 mais pesa, e ele foi montado por ela: o
+  // nome do território vem de um sambista, o registro de 1916 é de um compositor negro num
+  // órgão do Estado, e a última entrada é de uma historiadora negra que pensou o quilombo como
+  // coisa viva. As três institucionais (USP, Prefeitura do Rio, CPISP) entram como o que são —
+  // onde os dados foram conferidos —, e não como quem narra.
+  { g: "A PEQUENA ÁFRICA" },
+  { t: "Roberto Moura, “Tia Ciata e a Pequena África no Rio de Janeiro”, 1ª ed. Funarte, 1983",
+    q: "O livro que fixou o nome do território. A expressão é de Heitor dos Prazeres (1898–1966), sambista e pintor, e cobre a zona portuária: Saúde, Gamboa, Santo Cristo, os morros e a Praça Onze." },
+  { t: "Biblioteca Nacional — registro de “Pelo Telefone”, nº 3.295, de 27 de novembro de 1916",
+    q: "Donga entrou com o pedido em 6 de novembro, anexando uma partitura de piano da mão de Pixinguinha e um atestado de que a música fora tocada pela primeira vez em 25 de outubro daquele ano, no Cine-Theatro Velho. O registro é do dia 27." },
+  { t: "Biblioteca Florestan Fernandes, FFLCH-USP — Tia Ciata",
+    q: "Hilária Batista de Almeida nasceu em 1854 em Santo Amaro da Purificação, na Bahia, e mudou-se para o Rio aos 22 anos, no êxodo que ficou conhecido como diáspora baiana. Era quituteira e iyakekerê no terreiro de João Alabá; na casa dela se destacavam as rodas de partido-alto." },
+  { t: "MultiRio, Prefeitura do Rio de Janeiro — a abertura da Avenida Presidente Vargas",
+    q: "“Foram derrubados 525 imóveis em brevíssimo período de tempo.” Três anos de obra, avenida inaugurada em 1944, e entre o que caiu estava a Praça Onze — o lugar onde moravam as tias e onde nasceu o desfile das escolas de samba." },
+  { t: "Observatório Terras Quilombolas / CPISP — Terra Quilombola Pedra do Sal",
+    q: "Certificada pela Fundação Cultural Palmares na Portaria nº 2, publicada no Diário Oficial da União em 20 de janeiro de 2006. O relatório técnico de identificação saiu no D.O.U. em 30 de novembro de 2010 e contou 25 famílias. Situação hoje: não titulada." },
+  { t: "Beatriz Nascimento, “Uma história feita por mãos negras”, organização de Alex Ratts — Zahar, 2021",
+    q: "Reúne os ensaios em que ela pensa o quilombo para além do passado: “durante sua trajetória o quilombo serve de símbolo que abrange conotação de resistência étnica e política”. É por isso que a Pedra do Sal, no meio da cidade, é a mesma história de PALMARES." },
   // ===== O INTERVALO DE 1888 A 1964, E POR QUE ESTE GRUPO É SÓ DE NORMA =====
   // Os seis marcos que fecham o buraco entre a abolição e 1964 são o §2.6 (A REGRA DO
   // DOCUMENTO) em exercício: cada frase afirma o que uma norma com número afirma, e nada além.
@@ -9486,6 +9664,10 @@ const FONTES = [
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
   { t: "Quantos viviam em Palmares?", d: 1,
     q: "A Fundação Cultural Palmares, órgão federal, afirma cerca de 20 mil. Silvia Lara classifica os números da documentação seiscentista como exagerados." },
+  { t: "Quantas pessoas o Jabaquara abrigou?", d: 1,
+    q: "Não se sabe. Memorialistas de Santos escreveram “mais de três mil” para 1886, e outros chegaram a dez mil. A pesquisa acadêmica classifica esses números como exagerados e não os adota — e o jogo, por isso, não afirma nenhum. O que está documentado é a fuga, não a contagem." },
+  { t: "Quanta gente desembarcou no Cais do Valongo?", d: 1,
+    q: "Depende do que se conta. A ONU registra estimativas de 500 mil a 1 milhão de pessoas desembarcadas naquele cais; a escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831, que é o período em que se sabe que ele funcionou. São réguas diferentes, e o jogo mostra as duas em vez de escolher." },
   { t: "“Angola Janga” era mesmo o nome?", d: 1,
     q: "Circula como o nome que os palmaristas usavam, mas não localizamos atestação em documento colonial. O estudo mais completo da toponímia não menciona o termo. Por isso o jogo não o usa." }
 ];
