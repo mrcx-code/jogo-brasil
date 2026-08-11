@@ -4646,7 +4646,7 @@ bateu 5,80** — recusado. **2,8 tela rende 0,28/0,29**, que é o que está no a
 
 ### O PESO — zero imagem nova
 
-`index.html` **1.617.842 → 1.630.873 bytes: +13.031, +0,81%.** Nenhum byte de imagem: os três
+`index.html` **1.617.842 → 1.630.988 bytes: +13.146, +0,81%.** Nenhum byte de imagem: os três
 canteiros são retângulos na gramática de materiais que o chrome já falava (madeira da placa de
 marco, taipa das lajes, verdes da folha, terra). Nenhum pacote novo, nenhuma requisição nova.
 A porta de entrada não se move de forma perceptível e os 6,30 s do 3G continuam 6,30 s.
