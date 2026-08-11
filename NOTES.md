@@ -4595,3 +4595,73 @@ identidade e salva um print por fala. Foi ele que achou o rosto emprestado e a f
 
 ### Próximo passo
 JABAQUARA, com a mesma régua.
+
+---
+
+## Diário — 2026-08-11 · Historiador · JABAQUARA, e a abolição que foi arrancada
+
+Segundo dos três do século XIX. Mesma régua: **nenhuma afirmação sem fonte lida nesta sessão.**
+
+### A tese do capítulo, em uma frase
+
+**1888 não foi um presente.** A versão que a escola repete — o Jabaquara como obra de
+abolicionistas brancos de Santos — está literalmente escrita nos memorialistas da cidade, e o
+capítulo a cita **entre aspas, para desmontar**. Quem fez a coisa acontecer descia a serra.
+
+### As falas e a fonte de cada uma
+
+A base é **Matheus Serva Pereira, *Uma viagem possível: da escravidão à cidadania. Quintino de
+Lacerda e as possibilidades de integração dos ex-escravos no Brasil*, dissertação de mestrado,
+PPGH/UFF, 2011** — 292 páginas, lidas nesta sessão (extraí o texto do PDF do site do PPGH/UFF).
+
+| onde | o que afirma | onde está na dissertação |
+|---|---|---|
+| ab.1 | Santos ao pé da serra, e o porto | a rota descrita nela: descer *"a serra Paranapiacaba"*, a estrada, a Ponte do Casqueiro, e daí a Santos |
+| ab.2 | fugas em massa das fazendas de café do interior nos anos 1880; a descida **pela estrada que margeia a linha férrea**, às vezes **dentro dos vagões, com consentimento de ferroviários abolicionistas** | literal: *"Aproveitando-se das estradas que margeavam a linha férrea ou ocupando vagões com consentimento de funcionários abolicionistas das companhias ferroviárias… as ondas sucessivas de escravos fugidos de diversas regiões da província de São Paulo em direção a Santos avolumaram-se"* |
+| ab.3 | o reduto organizado desde **1882**; **Quintino de Lacerda**, sergipano, escravizado em Santos como **cozinheiro de ganho**, livre naquela década | *"a data correta da formação do Jabaquara seja mesmo no ano de 1882"*; *"o sergipano Quintino de Lacerda teria trabalhado em Santos como escravo de ganho"*; *"escravo de ganho doméstico – cozinheiro – dos irmãos republicanos Antonio e Joaquim Lacerda"*; *"adquiriu sua liberdade"* na década de 1880 |
+| ab.4 | o verbo — **abrir caminho** | autoral. Escolhido por caber nos dois sentidos que a dissertação documenta: o caminho da serra e as **roças abertas** no morro |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1–2 | **1º de maio de 1888**, doze dias antes da lei: relatório do **presidente da província de São Paulo** no *Correio Paulistano* — *"os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos"* | citado na dissertação com a referência do jornal e do acervo (BN) |
+| fe.3 | ninguém sabe quantos passaram: *"mais de três mil"* (memorialista, para 1886) e **dez mil**; a pesquisa trata os números como exagerados | literal: *"Sem dúvida exagerando nos números, alguns autores chegam a afirmar que o Jabaquara teria albergado até 10 mil escravos fugidos"* |
+| fe.4 | a armadilha da fonte: *"a suprema criação do branco em favor do negro"*, e a leitura inversa | a citação é de Francisco Martins dos Santos (1940) e está na dissertação; a leitura inversa é dela: *"o elevado número de cativos em fuga permite questionar a apontada ausência de sua participação na formação do reduto"* |
+| fe.5 | **1893**: moradores na justiça para ficar nas roças abertas antes da lei, *"todos de profissão roceiros"* | a petição está transcrita na dissertação |
+| fe.6 | **1895**: Quintino vereador de Santos; e **Maria Helena Machado** como quem leu a década assim | *"chegando a assumir uma cadeira como vereador da Câmara Municipal republicana de Santos, em 1895"*; a caracterização de Machado é da própria nota 186 da dissertação |
+
+### O que RECUSEI
+
+- **Qualquer número de gente no Jabaquara.** É o achado mais útil do capítulo, e virou entrada
+  em ONDE AS FONTES DISCORDAM em vez de virar fala afirmativa. Duzentos, três mil, dez mil, vinte
+  mil: cada fonte diz um, e a acadêmica diz que os grandes são exagero.
+- **O nome do presidente da província.** O §2 proíbe pessoa real como inimigo e o jogo já não
+  nomeia colonizador nenhum. O cargo diz tudo o que a frase precisa — e diz mais, porque é o
+  cargo que dá peso ao documento.
+- **Antônio Bento e os caifazes.** Aparecem na literatura e não nesta dissertação com o detalhe
+  que eu precisaria para uma linha honesta. Sem fonte lida, sem fala.
+- **A data de morte de Quintino e o inventário dos bens dele.** Estão na dissertação, mas são
+  biografia, e o capítulo é sobre o que a rua fez.
+
+### O que mudou na LINHA_TEMPO
+
+A placa de JABAQUARA entrou **antes** do nó de 1888 — o quilombo é de 1882 a 1888 e a lei chega
+no fim dele. E o `cena` do nó *"1888 · A lei de dois artigos"* **desceu de AINDA AQUI para
+JABAQUARA**: revelar a lei da abolição só no último capítulo era guardá-la longe do único
+capítulo que existe para contar de onde ela veio. Efeito colateral bom: a página de 1888 passa a
+vestir a pintura da encosta de Santos.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 5 de 13 | **6 de 13** |
+| `LIMIAR_FIM` | 13.200 | **14.550** (régua derivada: 16.875) |
+| fatia dos capítulos em obra | 9,1% | **7,2%** |
+| páginas do quadrinho | 33 | **34** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 226) |
+| linhas autorais varridas pelo §2 | 196 | **202**, 0 achado |
+
+`npm test` verde (FPS 59), `encaixe.js` verde. Prints: `test/CAP-jabaquara-ab1.png`, `-ab3`,
+`-ab4`, `-fe2`, `-fe4`, `-fe6`. A pintura própria do capítulo (encosta de mata com barracão e
+roça em terraço) casa com o texto sem nenhum ajuste — foi a melhor surpresa da sessão.
+
+### Próximo passo
+A PEQUENA ÁFRICA.

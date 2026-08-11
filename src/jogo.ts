@@ -1820,10 +1820,18 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-11. A trava deste capítulo é uma só e vale mais que qualquer outra
+    // coisa nele: **1888 não foi um presente.** A versão memorialista de Santos — que o
+    // capítulo cita entre aspas para desmontar — chama o Jabaquara de "suprema criação do
+    // branco em favor do negro", e é ela que a escola repete há um século. Aqui o protagonismo
+    // é de quem descia a serra: as fugas em massa vieram ANTES do plano, e é o relatório do
+    // próprio presidente da província, publicado doze dias antes da lei, que diz isso.
+    // Nenhum abolicionista da elite é herói deste capítulo, e a lei de 13 de maio entra como
+    // o que ela foi — duas frases, sem terra —, exatamente como a LINHA_TEMPO já dizia.
+    // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "jabaquara",
     nome: "JABAQUARA",
     quando: "Santos, São Paulo · 1887–1888",
-    emObra: true,
     arteCap: 3,
     // A PAISAGEM É DELE desde 2026-08-10. `arteCap` continua 3 — a personagem e os objetos da
     // rua seguem herdados de AINDA AQUI, porque isso é §2 e depende de texto escrito —, mas a
@@ -1833,14 +1841,23 @@ const EPOCAS = [
     // de ter a sua gente, e é exatamente onde estes estão.
     cenas: 1, lugar: "jabaquara", arte: [7],
     abertura: [
-      "Este capítulo se chama JABAQUARA, e ele ainda está sendo escrito.",
-      "O verbo dele ainda não foi escolhido, e o que ele tem para contar ainda não passou pela conferência de fonte. Até que passe, ele não diz — dizer sem saber seria o oposto do que este jogo faz.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é Santos, no litoral de São Paulo, nos últimos anos da escravidão. A serra fica lá em cima; aqui embaixo, o porto.",
+      "Nos anos 1880, gente escravizada abandonou em massa as fazendas de café do interior e desceu a serra a pé, pela estrada que margeia a linha férrea — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas.",
+      "No morro do Jabaquara havia um reduto — um quilombo — organizado desde 1882. Quem o liderava era Quintino de Lacerda, sergipano, que fora escravizado em Santos como cozinheiro de ganho e ficou livre naquela mesma década.",
+      "Aqui, alcançar é abrir caminho: o da serra, para quem ainda está descendo, e o da roça, para quem já chegou.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — a gente e as coisas daqui não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a serra segura as duas primeiras: a primeira a nomeia, a segunda é a descida por ela.
+    // O morro entra quando o texto chega no reduto, que é o outro assunto — e é o lugar, nunca
+    // a reunião. As duas últimas são o verbo e a tela, e nelas a imagem sai.
+    aberturaImg: ["cap6-serra", "cap6-serra", "cap6-morro", null, null],
     fecho: [
-      "Fim do trecho. Ele calou o que não podia afirmar ainda, e é assim que se conserta um jogo que promete ensinar.",
-      "Ele e o próximo vêm juntos quando vierem: um sem o outro contaria metade, e metade aqui é engano."
+      "Em 1º de maio de 1888 — doze dias antes da abolição — o Correio Paulistano publicou um relatório do presidente da província de São Paulo.",
+      "Ele dizia que, em vastos municípios ao mesmo tempo, “os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos”. Está escrito no jornal, antes da lei.",
+      "Quanta gente passou por aqui, ninguém sabe. Memorialistas escreveram “mais de três mil”; outros, dez mil. A pesquisa trata esses números como exagerados e não os adota — este jogo também não.",
+      "E há uma armadilha na fonte. Um memorialista de Santos escreveu que o Jabaquara foi “a suprema criação do branco em favor do negro”. A pesquisa recente lê ao contrário: quem descia a serra vinha antes de qualquer plano.",
+      "Depois de 13 de maio ninguém ganhou terra. Em 1893, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei, e se declararam no processo “todos de profissão roceiros”.",
+      "Quintino de Lacerda virou vereador de Santos em 1895. A luta mudou de lugar; não acabou. Quem leu esta década pondo quem era escravizado como agente da própria história foi Maria Helena Machado."
     ]
   },
   {
@@ -8758,7 +8775,14 @@ const LINHA_TEMPO: NoLinha[] = [
     f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia",
     com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: iEp("salvador") },
   { tipo: "marco", ep: iEp("salvador") },
-  { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1888", t: "A lei de dois artigos", qi: "p21",
+  // A PLACA DE JABAQUARA entrou em 2026-08-11 com o texto do capítulo, e ela vem ANTES do nó
+  // de 1888 porque o quilombo é de 1882 a 1888 — a lei chega no fim dele, não antes. Com
+  // `epFio` em JABAQUARA, a página de 1888 passa a vestir a pintura DELE: a encosta de Santos,
+  // que é o lugar de onde a lei foi arrancada. E o `cena` do nó de 1888 desceu de AINDA AQUI
+  // para JABAQUARA: revelar a lei da abolição só no último capítulo era guardá-la longe do
+  // capítulo que existe para contar de onde ela veio.
+  { tipo: "marco", ep: iEp("jabaquara") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("jabaquara")), q: "1888", t: "A lei de dois artigos", qi: "p21",
     d: "A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.",
     f: "Lei nº 3.353, de 13 de maio de 1888 · Planalto" },
   // ============================================================
@@ -9312,6 +9336,23 @@ const FONTES = [
     q: "A madrugada de 24 para 25 de janeiro reconstruída documento por documento, a partir dos autos de quem julgou o levante. É de lá que vem tudo o que o capítulo afirma sobre aquela noite — inclusive a denúncia da véspera." },
   { t: "Cecília Moreira Soares, “As ganhadeiras: mulher e resistência negra em Salvador no século XIX”, Afro-Ásia nº 17, 1996 — UFBA",
     q: "As mulheres que faziam a cidade andar deixam de ser fundo e viram sujeito: o trabalho de rua, o acerto do ganho, e o resto que muitas guardaram até comprar a própria alforria." },
+  // ===== JABAQUARA =====
+  // A prioridade de fonte do §2 pede as pesquisadoras do período e a autoria negra, e aqui as
+  // duas cabem sem esforço: Maria Helena Machado é quem leu a década da abolição pondo quem era
+  // escravizado como agente da própria história, e Clóvis Moura é a referência de quilombo como
+  // luta. A dissertação de Matheus Serva Pereira é a base factual do capítulo inteiro — e é ela
+  // também que traz o jornal e o processo, que são os dois documentos que o texto cita.
+  { g: "JABAQUARA — SANTOS, 1887–1888" },
+  { t: "Matheus Serva Pereira, “Uma viagem possível: da escravidão à cidadania. Quintino de Lacerda e as possibilidades de integração dos ex-escravos no Brasil”, dissertação de mestrado, PPGH/UFF, 2011",
+    q: "De onde vem tudo o que o capítulo afirma: a formação do reduto em 1882, Quintino de Lacerda sergipano e escravizado em Santos como cozinheiro de ganho, a descida da serra pela estrada da linha férrea e dentro dos vagões, a vereança de 1895, e a crítica à versão memorialista que fez do Jabaquara uma obra de brancos." },
+  { t: "Relatório do presidente da província de São Paulo, publicado no Correio Paulistano em 1º de maio de 1888",
+    q: "“Os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos.” Doze dias antes da lei, e escrito por quem governava a província: é o documento que desmonta sozinho a ideia de abolição concedida." },
+  { t: "Ação judicial de 1893, moradores do sítio do Jabaquara",
+    q: "“Todos de profissão roceiros… houveram por aforamento… e aí edificaram casas para seus domicílios, fizeram outras benfeitorias, entre as quais muitas plantações de cujo produto vivem.” Cinco anos depois da abolição, na justiça, para ficar no que já era deles." },
+  { t: "Maria Helena P. T. Machado, “O plano e o pânico: movimentos sociais na década da Abolição”, Editora UFRJ/Edusp, 1994",
+    q: "A leitura que entende quem era escravizado como agente da própria história no desmonte do sistema — e não como quem esperou receber. É a chave do capítulo." },
+  { t: "Clóvis Moura, “Rebeliões da senzala: quilombos, insurreições, guerrilhas”, Livraria Editora Ciências Humanas, 1981",
+    q: "O quilombo lido como forma de luta, e não como refúgio passivo. Fio que liga PALMARES a JABAQUARA sem precisar de nenhuma ponte inventada." },
   // ===== O INTERVALO DE 1888 A 1964, E POR QUE ESTE GRUPO É SÓ DE NORMA =====
   // Os seis marcos que fecham o buraco entre a abolição e 1964 são o §2.6 (A REGRA DO
   // DOCUMENTO) em exercício: cada frase afirma o que uma norma com número afirma, e nada além.
@@ -9338,6 +9379,8 @@ const FONTES = [
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
   { t: "Quantos viviam em Palmares?", d: 1,
     q: "A Fundação Cultural Palmares, órgão federal, afirma cerca de 20 mil. Silvia Lara classifica os números da documentação seiscentista como exagerados." },
+  { t: "Quantas pessoas o Jabaquara abrigou?", d: 1,
+    q: "Não se sabe. Memorialistas de Santos escreveram “mais de três mil” para 1886, e outros chegaram a dez mil. A pesquisa acadêmica classifica esses números como exagerados e não os adota — e o jogo, por isso, não afirma nenhum. O que está documentado é a fuga, não a contagem." },
   { t: "Quanta gente desembarcou no Cais do Valongo?", d: 1,
     q: "Depende do que se conta. A ONU registra estimativas de 500 mil a 1 milhão de pessoas desembarcadas naquele cais; a escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831, que é o período em que se sabe que ele funcionou. São réguas diferentes, e o jogo mostra as duas em vez de escolher." },
   { t: "“Angola Janga” era mesmo o nome?", d: 1,
