@@ -4665,3 +4665,92 @@ roça em terraço) casa com o texto sem nenhum ajuste — foi a melhor surpresa 
 
 ### Próximo passo
 A PEQUENA ÁFRICA.
+
+---
+
+## Diário — 2026-08-11 · Historiador · A PEQUENA ÁFRICA fecha o lote do século XIX
+
+Terceiro e último do lote. É o **par obrigatório de JABAQUARA**: abolição sem o dia seguinte é a
+mentira que a escola repete há um século, e aqui o dia seguinte tem endereço.
+
+### Por que este capítulo é feito de três documentos
+
+A REGRA DO DOCUMENTO (§2.6) foi escrita para história recente e cai neste capítulo sem forçar —
+e o resultado é o mais limpo do lote, porque nenhuma das três afirmações centrais depende de
+interpretação de ninguém:
+
+1. **um registro de órgão** — o número 3.295 da Biblioteca Nacional, 27/11/1916;
+2. **uma obra pública com número** — 525 imóveis derrubados para a Avenida Presidente Vargas;
+3. **uma certidão que existe ao lado de um título que não existe** — a Pedra do Sal.
+
+O terceiro é o que fecha o arco do lote inteiro: **1888 deu liberdade sem chão, e em 2026 a
+Pedra do Sal ainda não tem título.** Nenhuma frase precisa dizer isso; as duas datas dizem.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | Saúde, Gamboa, Praça Onze; o nome **Pequena África** vem de **Heitor dos Prazeres** | Sesc SP (*"Heitor dos Prazeres (1898-1966)… usou este termo"*, e a área da zona portuária) e Observatório do Patrimônio (*"cunhado segundo consta pelo sambista e pintor, Heitor dos Prazeres"*). As duas apontam o livro de Roberto Moura como o que popularizou |
+| ab.2 | a **diáspora baiana**; **Hilária Batista de Almeida**, nascida em **Santo Amaro da Purificação em 1854**, veio ao Rio **aos 22 anos** | Biblioteca Florestan Fernandes, FFLCH-USP, literal: *"nasceu em 1854 em Santo Amaro da Purificação, Bahia"*, *"Aos 22 anos, mudou-se para o Rio de Janeiro, no êxodo que ficou conhecido como diáspora baiana"* |
+| ab.3 | **Tia Ciata**, quituteira, **iyakekerê no terreiro de João Alabá**; as **rodas de partido-alto** na casa dela | mesma página, literal: *"era grande quituteira"*, *"era Iyakekerê no terreiro de João Alabá"*, *"Em sua casa, as festas eram famosas"*, *"se destacavam as rodas de partido-alto"* |
+| ab.4 | o verbo — **guardar o lugar** | autoral, e escolhido pelo que o capítulo documenta: um território que a cidade derrubou e que continua sendo disputado |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1–2 | **“Pelo Telefone”**: pedido em **6/11/1916**, partitura de piano da mão de **Pixinguinha**, atestado de primeira execução em **25/10/1916**, registro em **27/11/1916** sob o **nº 3.295**, em nome de **Ernesto Joaquim Maria dos Santos, o Donga**; concebido numa roda na casa de Tia Ciata | Agência Brasil, matéria sobre a exposição do centenário na própria Biblioteca Nacional, com as datas e o número |
+| fe.3 | o **Código Penal de 1890**, vinte e seis anos antes: crime não ter ocupação e crime a capoeira | já estava no jogo, com o Decreto nº 847/1890, arts. 399 e 402, na LINHA_TEMPO. O capítulo só põe as duas datas na mesma frase |
+| fe.4 | **525 imóveis** derrubados, três anos de obra, avenida inaugurada em **1944**, e a **Praça Onze** entre o que caiu | MultiRio (Prefeitura do Rio), literal: *"Foram derrubados 525 imóveis em brevíssimo período de tempo"*, a inauguração em 1944 depois de três anos, e a Praça Onze como berço do desfile, onde moravam as tias |
+| fe.5–6 | **Pedra do Sal**: Portaria nº 2 da Fundação Cultural Palmares no **D.O.U. de 20/01/2006**; RTID no **D.O.U. de 30/11/2010**, **25 famílias**; **não titulada**. E **Beatriz Nascimento** | Observatório Terras Quilombolas / CPISP, com o processo 54180.001957/2005-44. Beatriz Nascimento: bibliografia e a citação *"durante sua trajetória o quilombo serve de símbolo que abrange conotação de resistência étnica e política"* (NASCIMENTO, 2021, p. 166), lidas num trabalho da ANPUH-SC de 2022 |
+
+### O que RECUSEI
+
+- **Qualquer coisa sobre religião além do que a página da USP diz.** *Iyakekerê no terreiro de
+  João Alabá* entrou porque é o que a fonte diz e é **fala**; nada além. O §2.4.5 vale inteiro: a
+  arte pedida diz, com todas as letras, **nenhum símbolo religioso de nenhum tipo**.
+- **A autoria de Mauro de Almeida em “Pelo Telefone”**, e a disputa de autoria em volta do samba.
+  Existe e é conhecida; o que eu li com data e número foi o registro. O jogo afirma o registro.
+- **Beatriz Nascimento escrevendo sobre a Pequena África.** Não achei fonte de que ela tenha
+  escrito sobre este território especificamente. A fala afirma o que li: o conceito dela de
+  quilombo como símbolo de resistência que continua.
+- **Lélia Gonzalez e Abdias do Nascimento em `FONTES`.** Verifiquei os dados bibliográficos dos
+  dois (*Lugar de negro*, Marco Zero, 1982; *O quilombismo*, Vozes, 1980) e **não os pus na
+  tela**: nenhuma fala se apoia neles, e encher a lista de bibliografia que o texto não usa é o
+  contrário do que aquela tela existe para fazer. Ficam registrados aqui para quando houver
+  fala que os peça.
+- **O número de pessoas desalojadas pela avenida.** A página da Prefeitura não o traz.
+
+### O que mudou na LINHA_TEMPO
+
+A placa de A PEQUENA ÁFRICA entrou antes dos nós de 1890 e 1891 — que já pendiam da cena dela
+desde 10/08. Com `epFio` no capítulo, as duas páginas passam a vestir a pintura dele.
+
+### O que mediu, no lote inteiro
+
+| | antes do lote | depois |
+|---|---|---|
+| capítulos escritos | 4 de 13 | **7 de 13** |
+| `LIMIAR_FIM` | 11.850 | **15.900** (régua derivada: 18.750) |
+| fatia dos capítulos em obra | 11,4% | **5,7%** |
+| páginas do quadrinho | 32 | **35** |
+| pontos de parada do rolo | 7 | **10** |
+| entradas em DE ONDE VEM | 17 | **34** |
+| falas autorais varridas pelo §2 | 190 | **208**, 0 achado |
+| `pack-hoje.json` | 1.361 KB | **1.067 KB** |
+| `index.html` | 1,55 MB | **1,55 MB** — nenhuma arte nova |
+
+`npm test` verde (FPS 61) e `encaixe.js` verde nos três incrementos.
+
+### O que fica para o dono, e é o único assunto que eu não decido
+
+1. **Quem representa cada um dos três capítulos.** Os três falam **sem rosto** — de propósito, e
+   agora por regra de código (`DONO_DO_BLOCO`). O CAIS, JABAQUARA e A PEQUENA ÁFRICA não têm
+   personagem, NPC nem retrato, e escalar quem aparece é decisão dele (§2).
+2. **A arte de rua dos três.** O que atravessa a tela e o que fica no chão continuam emprestados
+   de AINDA AQUI, e a última fala da abertura de cada um **diz isso em voz alta** em vez de
+   fingir. É honesto e é feio: é a maior dívida visual do lote.
+3. **A pintura de O CAIS** ainda é a de SALVADOR. `cap-cais-fundo-alto` e `-chao` pedidos.
+
+### Próximo passo
+
+Os pedidos de arte de contexto dos três (`ctx-cap5-*`, `ctx-cap6-*`, `ctx-cap7-*`) estão na fila
+de `necessario.json`. Assim que a mesa entregar, `node test/inline-contexto.js` liga tudo sozinho
+— os capítulos já estão escritos com as chaves certas, à espera. Depois deles, o lote seguinte
+do arco é AS PORTAS.

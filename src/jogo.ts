@@ -1861,21 +1861,43 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-11, e é o par obrigatório de JABAQUARA: um sem o outro conta metade,
+    // porque abolição sem o dia seguinte é a mentira que a escola repete. Aqui o dia seguinte
+    // tem endereço — a zona portuária do Rio — e o capítulo se pendura em TRÊS DOCUMENTOS, na
+    // ordem em que a REGRA DO DOCUMENTO gosta: um registro de órgão (o número 3.295 da
+    // Biblioteca Nacional), uma obra pública com número (525 imóveis derrubados), e uma
+    // certidão que existe ao lado de um título que não existe (Pedra do Sal).
+    //
+    // A prioridade de fonte do §2 pesa mais neste capítulo do que em qualquer outro, e por isso
+    // ele NOMEIA quem escreveu de dentro: o nome do território vem de um sambista (Heitor dos
+    // Prazeres), a matriarca é nomeada pelo nome de batismo antes do apelido, e a última fala é
+    // de Beatriz Nascimento. Fontes por fala no NOTES.md, no diário do mesmo commit.
+    //
+    // §2.4.5 respeitado sem esforço: Tia Ciata era iyakekerê no terreiro de João Alabá, e isso
+    // é FALA. Nada de terreiro, de assentamento ou de objeto de santo vira imagem ou item.
     id: "pequenaafrica",
     nome: "A PEQUENA ÁFRICA",
     quando: "Rio de Janeiro · começo do século XX",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "pequenaafrica", arte: [8],
     abertura: [
-      "Este capítulo se chama A PEQUENA ÁFRICA, e ele ainda está sendo escrito.",
-      "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido; a pesquisa ainda não fechou. Nada aqui vai ser afirmado antes disso.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é o Rio de Janeiro no começo do século XX, entre a Saúde, a Gamboa e a Praça Onze. O compositor Heitor dos Prazeres chamava este pedaço de cidade de Pequena África, e o nome ficou.",
+      "Muita gente daqui tinha vindo da Bahia, no êxodo que ficou conhecido como diáspora baiana. Uma delas era Hilária Batista de Almeida, nascida em Santo Amaro da Purificação em 1854, que veio para o Rio aos 22 anos.",
+      "Ficou conhecida como Tia Ciata. Era quituteira e iyakekerê no terreiro de João Alabá, e na casa dela as festas eram famosas — sobretudo as rodas de partido-alto.",
+      "Aqui, alcançar é guardar o lugar: o pedaço de cidade, a casa, e a roda que acontece dentro dela.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a rua da Praça Onze segura as duas primeiras: a primeira nomeia o território, a segunda é
+    // quem chegou nele. A casa entra quando o texto chega na casa — e mostra o LUGAR, nunca a
+    // festa, pela mesma razão que o pátio de SALVADOR mostra o pátio vazio.
+    aberturaImg: ["cap7-praca", "cap7-praca", "cap7-casa", null, null],
     fecho: [
-      "Fim do trecho, e outra vez sem história: o que não tem fonte conferida não vira fala.",
-      "O espaço dele está guardado. É só isso que este capítulo afirma hoje."
+      "Numa roda na casa dela nasceu “Pelo Telefone”. Em 6 de novembro de 1916, Donga — Ernesto Joaquim Maria dos Santos — entrou com o pedido de registro na Biblioteca Nacional.",
+      "Anexou uma partitura de piano da mão de Pixinguinha e um atestado de que a música tinha sido tocada pela primeira vez em 25 de outubro daquele ano. O registro saiu em 27 de novembro, com o número 3.295.",
+      "Vinte e seis anos antes, o Código Penal da República tinha feito crime não ter ocupação e feito crime a capoeira, chamada pelo nome. Mesma cidade. A linha do tempo traz os dois artigos.",
+      "As obras da Avenida Presidente Vargas duraram três anos e derrubaram 525 imóveis. Um deles era a Praça Onze, onde as tias moravam e onde as escolas de samba desfilavam. A avenida foi inaugurada em 1944.",
+      "Nem tudo caiu. A Pedra do Sal, ali ao lado, é comunidade remanescente de quilombo certificada pela Fundação Cultural Palmares desde a portaria publicada no Diário Oficial da União em 20 de janeiro de 2006.",
+      "O relatório técnico saiu em 2010 e contou 25 famílias. A terra continua sem título. Quem pensou o quilombo como símbolo de resistência que continua, e não como coisa do passado, foi Beatriz Nascimento."
     ]
   },
   {
@@ -8811,6 +8833,11 @@ const LINHA_TEMPO: NoLinha[] = [
   // pendura na cena do capítulo em obra que o contém na cronologia. O que faltou fonte NÃO
   // ENTROU, e está listado no NOTES.md com o motivo — a Lei de Terras de 1850 é a maior falta.
   // ============================================================
+  // A PLACA DA PEQUENA ÁFRICA entrou em 2026-08-11 com o texto do capítulo, e ela vem AQUI
+  // porque os dois nós seguintes — o Código Penal de 1890 e o voto de 1891 — já eram o começo
+  // do século XX dela: pendem da cena dela desde 10/08. Com `epFio` apontando para o capítulo,
+  // as duas páginas passam a vestir a pintura dele em vez da de JABAQUARA.
+  { tipo: "marco", ep: iEp("pequenaafrica") },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("pequenaafrica")), q: "1890", t: "O código de dois anos depois",
     d: "Dois anos depois da abolição, o Código Penal da República fez crime não ter ocupação (art. 399) e fez crime a capoeira, chamada pelo nome: “exercícios de agilidade e destreza corporal conhecidos pela denominação capoeiragem” (art. 402). A lei não escreveu cor nenhuma. Escreveu rua, ofício e corpo.",
     f: "Decreto nº 847, de 11 de outubro de 1890, arts. 399 e 402" },
@@ -9353,6 +9380,25 @@ const FONTES = [
     q: "A leitura que entende quem era escravizado como agente da própria história no desmonte do sistema — e não como quem esperou receber. É a chave do capítulo." },
   { t: "Clóvis Moura, “Rebeliões da senzala: quilombos, insurreições, guerrilhas”, Livraria Editora Ciências Humanas, 1981",
     q: "O quilombo lido como forma de luta, e não como refúgio passivo. Fio que liga PALMARES a JABAQUARA sem precisar de nenhuma ponte inventada." },
+  // ===== A PEQUENA ÁFRICA =====
+  // Este é o grupo em que a prioridade de fonte do §2 mais pesa, e ele foi montado por ela: o
+  // nome do território vem de um sambista, o registro de 1916 é de um compositor negro num
+  // órgão do Estado, e a última entrada é de uma historiadora negra que pensou o quilombo como
+  // coisa viva. As três institucionais (USP, Prefeitura do Rio, CPISP) entram como o que são —
+  // onde os dados foram conferidos —, e não como quem narra.
+  { g: "A PEQUENA ÁFRICA" },
+  { t: "Roberto Moura, “Tia Ciata e a Pequena África no Rio de Janeiro”, 1ª ed. Funarte, 1983",
+    q: "O livro que fixou o nome do território. A expressão é de Heitor dos Prazeres (1898–1966), sambista e pintor, e cobre a zona portuária: Saúde, Gamboa, Santo Cristo, os morros e a Praça Onze." },
+  { t: "Biblioteca Nacional — registro de “Pelo Telefone”, nº 3.295, de 27 de novembro de 1916",
+    q: "Donga entrou com o pedido em 6 de novembro, anexando uma partitura de piano da mão de Pixinguinha e um atestado de que a música fora tocada pela primeira vez em 25 de outubro daquele ano, no Cine-Theatro Velho. O registro é do dia 27." },
+  { t: "Biblioteca Florestan Fernandes, FFLCH-USP — Tia Ciata",
+    q: "Hilária Batista de Almeida nasceu em 1854 em Santo Amaro da Purificação, na Bahia, e mudou-se para o Rio aos 22 anos, no êxodo que ficou conhecido como diáspora baiana. Era quituteira e iyakekerê no terreiro de João Alabá; na casa dela se destacavam as rodas de partido-alto." },
+  { t: "MultiRio, Prefeitura do Rio de Janeiro — a abertura da Avenida Presidente Vargas",
+    q: "“Foram derrubados 525 imóveis em brevíssimo período de tempo.” Três anos de obra, avenida inaugurada em 1944, e entre o que caiu estava a Praça Onze — o lugar onde moravam as tias e onde nasceu o desfile das escolas de samba." },
+  { t: "Observatório Terras Quilombolas / CPISP — Terra Quilombola Pedra do Sal",
+    q: "Certificada pela Fundação Cultural Palmares na Portaria nº 2, publicada no Diário Oficial da União em 20 de janeiro de 2006. O relatório técnico de identificação saiu no D.O.U. em 30 de novembro de 2010 e contou 25 famílias. Situação hoje: não titulada." },
+  { t: "Beatriz Nascimento, “Uma história feita por mãos negras”, organização de Alex Ratts — Zahar, 2021",
+    q: "Reúne os ensaios em que ela pensa o quilombo para além do passado: “durante sua trajetória o quilombo serve de símbolo que abrange conotação de resistência étnica e política”. É por isso que a Pedra do Sal, no meio da cidade, é a mesma história de PALMARES." },
   // ===== O INTERVALO DE 1888 A 1964, E POR QUE ESTE GRUPO É SÓ DE NORMA =====
   // Os seis marcos que fecham o buraco entre a abolição e 1964 são o §2.6 (A REGRA DO
   // DOCUMENTO) em exercício: cada frase afirma o que uma norma com número afirma, e nada além.
