@@ -4487,3 +4487,215 @@ orientação com a partida viva — `orientationchange` chama `fitCanvas` e `med
 uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
 atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
 desses estados.
+
+---
+
+## Diário — 2026-08-11 · Dev · EM PALMARES, UM TOQUE ACOLHE
+
+**A decisão é do dono, e a palavra é dela.** A pergunta era *"em Palmares, o que a mão da pessoa
+recebe?"*, e ele respondeu: o verbo é **ACOLHER** — dar lugar, comida, água, e a pessoa fica. Ele
+tinha escrito "ajudá-las ou libertá-las"; apontado que o §2.4.3 proíbe pessoa escravizada como NPC
+alcançável **nem para libertar** (libertar-com-o-toque é o poder do senhor invertido em fantasia),
+e que Palmares é outro caso porque **quem chega ali já se libertou por conta própria**, ele aceitou
+a distinção. Fica registrado para não se refazer a conversa: **acolher, nunca libertar, nunca
+resgatar, nunca salvar** — e isso vale para o código, para o texto e para os comentários.
+
+### O que já estava feito, e o que faltava
+
+Quem atravessa a tela em PALMARES **já era gente** desde 2026-08-06 (`desenharGenteHD`), sem barra
+de vida, sem pisca, sem estilhaço, sem empurrão. O que faltava era a dívida que o Diário daquele
+dia declarou por extenso e nunca foi paga aqui: **por baixo, alcançar continuava sendo
+`m.hp -= dmg`** com hp 5, 8 ou 13 — de cinco a treze toques até uma PESSOA "ser acolhida". Bater
+até alguém ceder, com nome novo por cima. O capítulo 3 pagou a mesma dívida em 09/08 com a
+CONVERSA; este commit paga a de Palmares com o **ACOLHIMENTO**, na mesma forma: **o primeiro toque
+é o único que a mão dá.**
+
+### O resto é TEMPO, e não "nada" — por quê
+
+`ACOLHER_SEG = 1,6 s`, o mesmo número de `CONVERSA_SEG` e pela mesma derivação (cabe com folga
+dentro dos 2,4 s de `CFG.mobEspera`, então atender alguém nunca é corrida contra o relógio dela).
+
+- **Instantâneo seria o gesto de RECOLHER.** Encostar e a pessoa entrar na fila lê como catar do
+  chão, que é a linha do §2.2. Acolher tem duração.
+- **É no tempo que mora a tensão.** Com o acolhimento correndo, a mão está com aquela pessoa e a
+  rua continua andando: quem espera atrás pode ir embora.
+- **O relógio corre nos DOIS ritmos**, ao contrário do capítulo 3. Lá a conversa congela correndo,
+  e há razão histórica escrita para isso (a rede dos malês corria dentro do trabalho de rua).
+  Palmares não tem essa razão, e inventar uma para dar decisão ao botão seria inventar história
+  para servir mecânica. Aqui quem decide é a geometria, que já era medida.
+
+Enquanto está sendo acolhida ela **para e não desiste**: o relógio da espera dela para, o mundo é
+que anda. `m.parado` passa a true mesmo se ela já tivesse voltado a andar — sem isso ela ficaria
+congelada numa pose de CAMINHADA, que é a armadilha nº 7 do CLAUDE.md vista de outro ângulo.
+
+### A trava que a MEDIÇÃO escolheu, entre três
+
+Com um toque só, o que limita passa a ser quantos acolhimentos podem correr ao mesmo tempo. Medi as
+três formas (60 s por célula, bot segurando a 145 ms, sem melhorias):
+
+| | andando | correndo |
+|---|---|---|
+| **sem trava** (paralelo) | 27/min · fração 1,00 | 49/min · fração **0,98** |
+| trava só enquanto ela está **à sua frente** | 27/min · 1,00 | 49/min · **0,94** |
+| **trava enquanto ela existir** (a que ficou) | 26/min · 1,00 | 14/min · **0,25** |
+
+As duas primeiras entregam a fila inteira de graça — "segura o botão e ignora o ritmo", que é a
+morte da decisão. A segunda quase empata com a primeira por um motivo fino e que vale guardar: **o
+toque atende a MAIS PRÓXIMA**, então ele cai na pessoa que já está quase saindo do alcance, e uma
+trava que solta ao passar por você solta na hora. A que ficou é a regra de 2026-08-05 levada a
+sério: **um par de mãos atende uma de cada vez**.
+
+### Os números, antes e depois
+
+`test/medir-acolher.js` (novo, irmão do `medir-acompanhar.js`), PALMARES, 60 s por célula:
+
+| | ANTES | DEPOIS |
+|---|---:|---:|
+| toques **úteis** por pessoa, andando | 6,78 (pior 11) | **1,00** |
+| toques **úteis** por pessoa, correndo | 4,20 (pior 6) | **1,00** |
+| acolhidas/min · fração, andando | 21,9 · 0,85 | **26,0 · 1,00** |
+| acolhidas/min · fração, correndo | 24,9 · 0,47 | 14,0 · 0,25 |
+| impacto por toque, andando | 1,30 | 1,33 |
+| impacto por toque, correndo | 1,40 | 1,21 |
+
+`test/medir-poluicao.js`, capítulo 2, 60 s por célula, **botão segurado de verdade** com u1+u2 a
+85% do vão (a célula que representa como se joga):
+
+| | ANTES | DEPOIS | Δ |
+|---|---:|---:|---:|
+| média de objetos em cena, andando | 4,19 | **3,59** | −14% |
+| renda/min, andando | 1376 | 1409 | **+2,4%** |
+| média de objetos em cena, correndo | 4,97 | **4,46** | −10% |
+| renda/min, correndo | 1401 | 1371 | **−2,1%** |
+| pior momento (andando · correndo) | 6 · 7 | 5 · 7 | |
+
+**A trava do dono está respeitada com folga**: a média do capítulo 1 é 4,7–5,4 e é o teto; o
+capítulo 2 ficou em 3,59 e 4,46, **abaixo do que já era**. A tela ficou mais limpa por duas
+subtrações que vieram junto: os **floats** caíram (1,76→1,22 andando, 2,31→0,90 correndo), porque o
+toque que cai numa pessoa não põe mais "+N" sobre ela — pessoa não vira número, e é o mesmo caminho
+do capítulo 3 —, e as **partículas** caíram pela metade ou mais (25,8→13,7 e 45,3→9,2), porque a
+luz morna acendia a CADA toque e agora acende UMA vez, no toque que acolhe. Em compensação há mais
+gente esperando em quadro (mobs 1,19→1,44 e 1,89→2,73), que é exatamente o que a mecânica quer
+dizer: **há mais gente chegando do que mão para atender**.
+
+**E a renda ficou dentro dos ±10%** que esta casa exige de qualquer mexida em economia.
+
+### O defeito de instrumento que quase me fez concluir errado
+
+A primeira comparação foi feita entre uma rodada de 15 min e outra de 15 min, separadas por meia
+hora. Nela o capítulo 2 correndo aparecia com **−16% de renda** — e o capítulo 1, que **não tinha
+mudado uma linha**, aparecia com −6,4% de renda e −14% de objetos. Isto é: o ruído da máquina é da
+ordem do efeito. `medir-poluicao.js` ganhou um **5º argumento** (quais capítulos medir), e as duas
+rodadas passaram a ser coladas uma na outra, com `git stash` no meio. É a mesma lição da porta do
+`abrir.js` de 10/08: instrumento que mede o próprio rastro não mede nada.
+
+### Um conserto que veio junto, e ele estava morto em silêncio
+
+O anel do chão — a leitura que substitui a barra de vida nos capítulos de gente — lia
+`1 − hp/hpMax`. Quando o capítulo 3 trocou o dano pela conversa, em 09/08, essa conta virou **zero
+para sempre**: o lugar de espera parou de encher e ninguém viu, porque não há erro de console nem
+print que denuncie. Agora existe `fracAlcance(m)`, com as três contas (acolhimento · conversa ·
+dano) no mesmo lugar, e o `encaixe.js` cobra as duas leituras.
+
+### O que o `encaixe.js` ganhou — bloco 22
+
+Onze asserções: **um toque** acolhe (se virar dois, o dano voltou), ela entra na fila, a época
+lembra dela, o hp da pessoa **não se move**, o que ela trazia cai no chão e é uma coisa só, sem
+pisca, sem empurrão, **`desenharVidaMob` não roda nenhuma vez em PALMARES**, o anel enche, e o
+mesmo anel enche em SALVADOR. Prints em `test/ACOLHER-*.png` (o instrumento é
+`test/prints-acolher.js`; ele congela o laço de quadro, e a camada da gente é do laço, então a
+foto do "ela ficou" espera o laço voltar).
+
+### Dúvidas novas
+
+1. **O botão de ritmo trocou de sinal em PALMARES.** Antes, correr acolhia um pouco mais
+   (24,9/min contra 21,9) e secava o mundo (fração 0,47); agora **andar domina** para acolher (26
+   contra 14). Correr continua trazendo o dobro de gente e continua rendendo o mesmo impacto — ou
+   seja, ele segue sem comprar nada, que é a pergunta aberta desde 2026-08-05 ("dar motivo para
+   correr é o que falta para a tensão morder"), agora com o sinal invertido. **É decisão de dono.**
+2. **A microdica "SEGURE PARA ALCANÇAR" nasceu de uma premissa que hoje só vale em metade do
+   jogo.** Ela existe porque `CFG.mobHp` é 5/8/13 e um toque solto tirava 1 — nos capítulos 2 e 3
+   um toque agora basta. A dica continua certa (segurar é como se ganha impacto e como se alcança a
+   fila inteira), mas a frase que a justifica no código precisa ser relida quando alguém mexer nela.
+3. **`CFG.mobHp` deixou de significar alguma coisa em PALMARES e em SALVADOR.** Continua vivo e
+   correto nos capítulos de objeto (1 e 4+). Não mexi: o campo é lido por `novoMob` para todo mundo,
+   e apagá-lo dos capítulos de gente é uma limpeza que atravessa o motor inteiro.
+
+### Próximo passo
+
+O capítulo 4 (AINDA AQUI) e os capítulos em obra repetem a mecânica de objeto do capítulo 1 — e o
+`PENDENTES.md` já registra que ninguém decidiu se isso lê como fecho ou como anticlímax. Com dois
+capítulos de gente pagos, a pergunta ganha forma melhor: **o verbo de cada capítulo é o que o
+distingue**, e quatro dos capítulos em obra ainda não têm verbo escolhido.
+
+---
+
+## 2026-08-10 · O dia em que o dono perguntou por que eu não estava pensando sozinho
+
+Registro do estado no meio de quatro frentes abertas, para uma virada de contexto não perder
+o fio. **Se você é a sessão seguinte: leia daqui.**
+
+### A pergunta que mudou o dia
+Ele escreveu: *"mas pq vc n ta pensando na evolucao do jogo alem do que eu te peco"*. Estava
+certo. As últimas rodadas foram a lista dele, os defeitos que o QA achou e as perguntas que
+eu devolvia. Quase nada tinha saído de mim. **Consertar defeito medido é seguro e legível;
+propor direção é arriscado, e eu fui para o lado seguro sem perceber.**
+
+O conserto não foi prometer que penso mais — foi levar cinco buracos que ninguém pediu:
+
+1. **Não existe dia 3.** O jogo existe para responder "o loop segura alguém por três dias?" e
+   ninguém desenhou o terceiro. Dia 1 é novidade, dia 2 ganhou o bilhete de história, dia 3 é
+   idêntico ao dia 2.
+2. **O jogo prega coletivo e é jogado sozinho.** Quilombo, mutirão, ganhadeiras, brigada — e a
+   pessoa joga offline, sem ninguém.
+3. **Nada se perde.** Todo verbo é *alcançou, ficou*. História tem perda. *(E eu tinha dito
+   isso errado: `S.cuidado` já desce e já governa `worldHealth()`. Falta o INSTANTE, não a
+   perda.)*
+4. **A história acontece ENTRE o jogo, não NO jogo.** Falas e quadrinho são intervalo de
+   leitura; os marcos no chão do capítulo 2 foram o único momento em que ela aconteceu na mão,
+   e a ideia parou ali como protótipo de um capítulo só.
+5. **A protagonista não quer nada.** Sem nome, sem desejo — uma câmera com pernas.
+
+**Ele aprovou os cinco**, e expandiu dois: quer explorar mais o coletivo, e quer que a
+personagem *"passe por dificuldades dado a época que essas pessoas viviam"*.
+
+### A linha do §2 que o DIA-3.md fixou, e ela é a coisa mais importante deste diário
+> **O jogo pode MOSTRAR a dureza; a mão de quem joga nunca ADMINISTRA o sofrimento de ninguém.**
+
+Operada por três testes (mostrador · sujeito · fonte) e um corolário: **dureza entra como CHÃO
+e como TEMPO, nunca como mostrador.** A razão de a trava §2.4.2 (nada de barra de água, ar ou
+ração) valer fora do porão é a **forma**, não o navio.
+
+### O que está em voo agora — quatro agentes
+1. **PALMARES vira gente** — quem atravessa a tela deixa de ser objeto; um toque acolhe; sem
+   gramática de combate. Modelo: o capítulo 3, que já pagou essa dívida.
+2. **Marcos em todos os capítulos** — o mecanismo do cap. 2 sai de código duro e vira dado.
+   Seis marcos de 1888–1964 estão sem casa: pertencem a capítulos ainda em obra.
+3. **O século XIX** — O CAIS, JABAQUARA e A PEQUENA ÁFRICA, escritos com fonte lida.
+4. **O mutirão** — o `MUTIRAO.md` estava pronto desde 09/08 e **o pedido nunca chegou ao
+   dono**; um agente achou isso sozinho. Ele aprovou depois de eu explicar em português.
+
+### O que ele decidiu hoje, e não se reabre
+- **Palmares é ACOLHER, nunca libertar.** Ele tinha escrito "libertá-las"; apresentei o §2.4
+  (libertar-com-o-toque é o poder do senhor invertido em fantasia) e a distinção de que quem
+  chega em Palmares **já se libertou**. Aceitou.
+- **`cap4-gente`: entram, e COM FALA.** Figura muda em 1835 é decoração.
+- **Restos humanos: trava mantida** depois de levantada — está no `CLAUDE.md` §2.4 com a
+  frase dele.
+- **Marcos de 1888–1964 na linha do tempo, SEM reordenar capítulo.**
+- **O ACEIRO entra no arco.** 13 capítulos.
+- **Deitado funciona** (10 de 10 telas), **domínio no ar**, **medição no ar**.
+
+### O que ele está fazendo
+Lendo os quatro textos das eras na mesa (a dívida mais antiga desta lista, paga hoje) e
+gerando as três folhas de corrida na **quarta** tentativa — agora com a régua medida:
+**altura em cabeças**, caminhada 4,4/5,2/4,9 contra corrida 2,3/2,8/2,2.
+
+### Armadilhas frescas
+- **Quatro agentes em `src/jogo.ts` ao mesmo tempo** é o risco desta fase. Três estão em
+  cópias isoladas; o rebase do mutirão em cima do acolher vai ser o encontro mais feio,
+  porque os dois mexem em `S.acolhidos`.
+- **A mesa herdou a escala do jogo** e ficou ilegível: 79 de 93 textos abaixo de 14 px. Jogo é
+  telefone na mão a 30 cm com densidade dobrada; mesa é monitor a 60 cm. Dois problemas.
+- **A região do PostHog falha em SILÊNCIO** — os dois endpoints respondem 200 OK a qualquer
+  chave. Estava EU, o projeto é US.
