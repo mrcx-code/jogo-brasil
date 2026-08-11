@@ -308,6 +308,9 @@ const sec = t => log('\n---- ' + t);
       n: pgs.length,
       snap: getComputedStyle(l).scrollSnapType,
       sempre: paradas.filter(p => p.stop === 'always').map(p => p.i),
+      // quem DEVE parar, lido dos dados e não contado à mão: uma placa por capítulo escrito
+      // (`qMarco`) mais as páginas que o conteúdo trata como duras (`qDura`).
+      devem: paradas.filter(p => /\bqMarco\b|\bqDura\b/.test(p.cls)).map(p => p.i),
       align: [...new Set(paradas.map(p => p.align))],
       veu: (function () {
         // o ::after de cada quadro é o véu; sem ele a página que sai não apaga
@@ -315,11 +318,19 @@ const sec = t => log('\n---- ' + t);
         return { conteudo: s.content, cor: s.backgroundColor, z: s.zIndex };
       })()
     };
-  }) : { n: 0, snap: '?', sempre: [], align: [], veu: { conteudo: 'none', cor: '?', z: '?' } };
+  }) : { n: 0, snap: '?', sempre: [], devem: [], align: [], veu: { conteudo: 'none', cor: '?', z: '?' } };
   log('   snap do rolo: "' + rolo.snap + '" | alinhamento das páginas: ' + rolo.align.join(','));
   log('   páginas com ponto final: ' + rolo.sempre.join(',') + ' (' + rolo.sempre.length + ' de ' + rolo.n + ')');
+  log('   deviam ter (placa de capítulo + página dura): ' + rolo.devem.join(','));
   log('   véu da saída: content ' + rolo.veu.conteudo + ' | cor ' + rolo.veu.cor + ' | z ' + rolo.veu.z);
-  ok(rolo.sempre.length === 7, 'sete pontos finais em ' + rolo.n + ' páginas (onda 10)');
+  // ERA `=== 7`, E O 7 ERA A CONTA DE UM DIA — quatro placas de capítulo mais três páginas
+  // duras, o quadrinho de 09/08. Escrever um capítulo acrescenta uma placa, e a asserção
+  // reprovava por isso: dizia "o ritmo do rolo quebrou" quando o que houve foi o arco crescer.
+  // A regra de verdade é a que o comentário de `montarCompletude` já escreve — a amarra é pelo
+  // NÓ, nunca pela posição nem pela contagem: **para quem tem `qMarco` ou `qDura`, e só.**
+  ok(rolo.sempre.length && JSON.stringify(rolo.sempre) === JSON.stringify(rolo.devem),
+    'param exatamente as placas de capítulo e as páginas duras (' + rolo.sempre.length +
+    ' de ' + rolo.n + ')');
   ok(rolo.align.length === 1 && rolo.align[0] === 'start', 'toda página encaixa pelo topo');
   ok(rolo.veu.conteudo !== 'none', 'o véu da saída existe em cada quadro');
   // o rolo DECLARADO no comentário do CSS e no DIRECAO.md é "encaixe obrigatório"; o que está
@@ -783,6 +794,58 @@ const sec = t => log('\n---- ' + t);
   ok(obra.mascara === (Math.pow(2, obra.n) - 1) && obra.n < 31,
     'a máscara de bits das falas cabe nos ' + obra.n + ' capítulos');
 
+  // ---- E NENHUMA FALA MAIS COMPRIDA DO QUE A CAIXA SABE ESCREVER ----
+  // A caixa revela letra a letra. Os quatro capítulos escritos até 10/08 tinham no máximo
+  // 251 caracteres por fala; a primeira versão do fecho de O CAIS saiu com 382 — e o print
+  // mostrou o que isso é na prática: passados quatro segundos e meio, a linha ia em "Em 7 de
+  // nove". Ninguém lê uma fala que leva vinte e cinco segundos para acabar de aparecer, e
+  // quem não lê aperta PULAR — perdendo justamente a frase com fonte. O teto é 260, um pouco
+  // acima da maior já medida, e existe para a próxima sessão descobrir isto aqui e não no
+  // telefone de alguém. Fala grande não se aperta com fonte menor: parte-se em duas.
+  const compridas = await page.evaluate(() => {
+    const fora = [];
+    EPOCAS.forEach(function (e) {
+      e.abertura.concat(e.fecho).forEach(function (l, i) {
+        if (l.length > 260) fora.push(e.id + '#' + i + ' (' + l.length + ')');
+      });
+    });
+    const todas = EPOCAS.reduce(function (a, e) { return a.concat(e.abertura, e.fecho); }, []);
+    return { fora: fora, max: Math.max.apply(null, todas.map(function (l) { return l.length; })) };
+  });
+  log('   fala mais comprida do jogo: ' + compridas.max + ' caracteres (teto 260)');
+  ok(!compridas.fora.length, compridas.fora.length
+    ? 'fala comprida demais para a revelação letra a letra: ' + compridas.fora.join(', ')
+    : 'nenhuma fala passa dos 260 caracteres — a caixa consegue escrever todas antes de cansar');
+
+  // ---- E QUEM NÃO TEM A PESSOA DELE FALA SEM ROSTO (§2) ----
+  // A condição de mostrar o retrato era `emObra`, e isso funcionou por acidente enquanto os
+  // únicos capítulos de bloco emprestado eram os esqueletos. No dia em que três deles ganharam
+  // texto e perderam o `emObra`, a cara de AINDA AQUI voltou a narrar o Valongo — sem erro de
+  // console, sem tela em branco, e nenhum teste olhava. Escalar quem representa um capítulo é
+  // decisão do dono; o código não pode tomá-la por omissão. A regra, agora cobrada aqui: o
+  // rosto aparece só para quem é DONO do bloco (`DONO_DO_BLOCO`), e nunca para quem o veste
+  // emprestado. Medido de fora, abrindo a fala de CADA capítulo e olhando o elemento.
+  const rostos = await page.evaluate(async () => {
+    const fora = [];
+    for (let i = 0; i < EPOCAS.length; i++) {
+      fecharTudo();
+      entrarNaEpoca(i); fecharTelas(); mostrarAbertura(undefined, true);
+      await new Promise(r => setTimeout(r, 30));
+      const r = document.getElementById('falaRetrato');
+      const visivel = !!r && !r.classList.contains('oculta');
+      const dono = DONO_DO_BLOCO[blocoArte(i)] === EPOCAS[i].id;
+      fora.push({ nome: EPOCAS[i].nome, visivel: visivel, dono: dono, ok: visivel === dono });
+    }
+    fecharTudo();
+    return fora;
+  });
+  log('   com rosto: ' + rostos.filter(r => r.visivel).map(r => r.nome).join(' · '));
+  log('   sem rosto: ' + rostos.filter(r => !r.visivel).map(r => r.nome).join(' · '));
+  const rostoErrado = rostos.filter(r => !r.ok).map(r => r.nome + (r.visivel ? ' (rosto emprestado!)' : ' (rosto próprio escondido)'));
+  ok(!rostoErrado.length, rostoErrado.length
+    ? '§2: ' + rostoErrado.join(', ')
+    : 'o rosto só aparece para o capítulo DONO do bloco de arte — ninguém empresta cara');
+
   // ============================================================
   // 16 · CAPÍTULO VAZIO NÃO COBRA PEDÁGIO
   //
@@ -800,14 +863,22 @@ const sec = t => log('\n---- ' + t);
     fim: LIMIAR_FIM, cena: LIMIAR_CENA, obra: LIMIAR_OBRA,
     primeiros: LIMIARES.slice(0, 4),
     obras: EPOCAS.filter(function (e) { return e.emObra; }).length,
+    // o que os capítulos ESCRITOS custam sozinhos — é contra isto que a fração se mede
+    escritos: EPOCAS.filter(function (e) { return !e.emObra; })
+      .reduce(function (s, e) { return s + LIMIAR_CENA * e.cenas; }, 0),
     total: EPOCAS.length
   }));
   log('   ' + eco.obras + ' de ' + eco.total + ' capítulos em obra | fim em ' + eco.fim +
-    ' | primeiros limiares ' + eco.primeiros.join(', '));
-  // 10.500 é o fim do jogo com os QUATRO capítulos escritos, e é a régua: os oito esqueletos
-  // podem acrescentar um tanto, nunca dobrar.
-  ok(eco.fim < 10500 * 1.25,
-    'os capítulos em obra somam menos de um quarto do jogo (fim em ' + eco.fim + ', régua 13.125)');
+    ' | escritos somam ' + eco.escritos + ' | primeiros limiares ' + eco.primeiros.join(', '));
+  // A RÉGUA SAI DO DADO, e passou a sair em 2026-08-11. Ela era o literal 10.500 — o fim do
+  // jogo com os QUATRO capítulos escritos daquele dia — e isso a fazia reprovar por MOTIVO
+  // ERRADO no dia em que um esqueleto virasse capítulo: escrever três capítulos levou o fim a
+  // 15.900, e a asserção teria dito "os capítulos em obra passaram de um quarto do jogo"
+  // quando o que aconteceu foi o contrário — a fatia deles ENCOLHEU, de 11,4% para 5,7%.
+  // O que se quer cobrar é a FRAÇÃO, e ela agora se compara com o que os escritos somam hoje.
+  ok(eco.fim < eco.escritos * 1.25,
+    'os capítulos em obra somam menos de um quarto do jogo (fim em ' + eco.fim +
+    ', régua ' + Math.round(eco.escritos * 1.25) + ')');
   ok(eco.obra * 4 <= eco.cena,
     'um capítulo em obra custa no máximo um quarto do que custa um escrito');
   ok(JSON.stringify(eco.primeiros) === JSON.stringify([1500, 3000, 4500, 6000]),

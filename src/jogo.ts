@@ -1730,21 +1730,51 @@ const EPOCAS = [
   // o fim de `ARCOS_ANTIGOS` se `cenas` mudar (o procedimento está escrito lá).
   // ============================================================
   {
+    // ESCRITO em 2026-08-11, e com isso deixou de ser esqueleto. Cada fala abaixo tem fonte
+    // conferida na sessão que a escreveu — nenhuma ementa, nenhum resumo de buscador — e a
+    // lista delas está no NOTES.md, no diário do mesmo commit, junto com o que ficou de FORA
+    // por falta de fonte (o Decreto municipal que criou o Circuito da Herança Africana: o
+    // número circula, o texto não foi lido, e por isso ele não entrou).
+    //
+    // O QUE ESTE CAPÍTULO NÃO FAZ, e é §2.4.4 do CLAUDE.md, reafirmado pelo dono em 10/08: o
+    // **Cemitério dos Pretos Novos é fonte citável, nunca terreno, imagem ou item.** É outro
+    // sítio, a poucas ruas daqui, em escavação HOJE, com instituto vivo trabalhando nele e
+    // descendentes vivos. A última fala do fecho o cita em voz alta e diz que o cita — a
+    // recusa é dita, não escondida, do mesmo jeito que A TRAVESSIA diz que não mostra o porão.
+    // O que se cava aqui é a PEDRA: o calçamento, o ferro, a água. Osso não.
     id: "cais",
     nome: "O CAIS QUE VOLTOU À LUZ",
     quando: "Rio de Janeiro · século XIX",
-    emObra: true,
     arteCap: 3,
-    cenas: 1, lugar: "cais", arte: [3],
+    // A PINTURA AINDA É EMPRESTADA, e mudou de dono neste commit: era `[3]` — a serra da
+    // Barriga, mata fechada — porque a regra do capítulo em obra manda vestir a pintura do
+    // capítulo ANTERIOR, e o anterior é PALMARES. Essa regra vale para quem não afirma nada;
+    // a partir do momento em que o texto diz "isto é o Rio de Janeiro, e este chão de pedra é
+    // o cais do Valongo", pintura vira afirmação de lugar (§2) e a escolha passa a ser "qual
+    // a MENOS falsa que existe hoje". É a `[4]`, de SALVADOR: cidade colonial de pedra, ladeira
+    // e mar. Continua sendo outra cidade, e por isso `cap-cais-fundo-alto`/`-chao` estão
+    // pedidos em ferramentas/necessario.json. Enquanto não chegam, as duas primeiras falas
+    // são cobertas pela imagem de contexto (quando ELA chegar) e o desencaixe fica só no jogo.
+    cenas: 1, lugar: "cais", arte: [4],
     abertura: [
-      "Este capítulo se chama O CAIS QUE VOLTOU À LUZ, e ele ainda está sendo escrito.",
-      "O lugar dele na travessia já está marcado, e o verbo que ele vai pedir da sua mão também: cavar para saber. O que ele tem para contar, não — enquanto cada frase não tiver fonte conferida, este capítulo não afirma nada.",
-      "Até lá a rua continua a rua, com o trabalho que você já sabe fazer. O que passa precisa de alguém."
+      "Isto é o Rio de Janeiro, e este chão de pedra tem nome: cais do Valongo. Foi construído em 1811, por ordem do príncipe regente, e fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas.",
+      "Entre 1811 e 1831 — o período em que se sabe que ele funcionou — o Rio recebeu cerca de 550 mil africanos para serem escravizados. É o número da pesquisa que escavou esta pedra.",
+      "Em 1843 mandaram construir outro cais por cima deste, para o desembarque de uma princesa. O Valongo não foi destruído: foi coberto. E ficou embaixo do chão por quase dois séculos.",
+      "Aqui, alcançar é cavar para saber. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo: a arte deste cais não chegou, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a pedra segura as duas primeiras — a primeira a nomeia, a segunda conta quanta gente
+    // passou por ela. A terceira fala de ser COBERTA, e é outro assunto: o chão de cima, sem
+    // marca nenhuma. As duas últimas são o verbo e a tela, e nelas a imagem sai (ver o
+    // cabeçalho: `null` não é buraco).
+    aberturaImg: ["cap5-cais", "cap5-cais", "cap5-coberto", null, null],
     fecho: [
-      "Fim do trecho — e ele não te contou história nenhuma. Isso foi de propósito: este jogo não inventa passado para tapar buraco.",
-      "Quando a pesquisa estiver conferida, o capítulo volta com o que tem a dizer, e a tela DE ONDE VEM vai dizer de onde veio."
+      "Em 2011, obras na zona portuária acharam a pedra de novo — exatamente duzentos anos depois de ela ter sido posta. Quem dirigiu a escavação foi a arqueóloga Tânia Andrade Lima.",
+      "Em 10 de julho de 2017 o sítio entrou na lista do Patrimônio Mundial da UNESCO, pelo critério dos lugares ligados a acontecimentos e tradições vivas de significação universal excepcional.",
+      "Quanta gente desembarcou aqui? A ONU registra estimativas de 500 mil a 1 milhão. A escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831. São réguas diferentes, e a tela DE ONDE VEM mostra as duas.",
+      "Agora duas datas, para guardar juntas. Em 7 de novembro de 1831 uma lei do Império escreveu: “Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” Está assim, com essas palavras.",
+      "Em 4 de setembro de 1850 veio outra lei, para reprimir o tráfico de africanos, e o primeiro artigo dela se refere à de 1831. Dezenove anos entre uma proibição e a lei que veio proibir de novo.",
+      "E uma recusa. A poucas ruas daqui há outro sítio, o Cemitério dos Pretos Novos, que funcionou de 1772 a 1830 e é escavado até hoje, com instituto vivo e descendentes vivos. Este jogo o cita como fonte e não o encena."
     ]
   },
   {
@@ -2033,6 +2063,17 @@ function blocoArte(e: number) {
   const n = (ep && ep.arteCap != null) ? ep.arteCap | 0 : 0;
   return Math.max(0, Math.min(HERO_CAP_B64.length - 1, n));
 }
+// ===== DE QUEM É CADA BLOCO DE ARTE — a tabela ao contrário, e ela é §2 =====
+// `arteCap` diz que bloco um capítulo VESTE. Isto diz de quem o bloco É. As duas coisas
+// coincidem em quatro capítulos e divergem em nove, e a divergência tem nome: capítulo que
+// veste o bloco de outro não tem pessoa própria — tem uma emprestada.
+//
+// Por que uma tabela e não uma dedução: "o primeiro capítulo da lista que declara o bloco N"
+// daria o bloco 3 a O CAIS, porque ele vem antes de AINDA AQUI na cronologia. Dono é dado, não
+// ordem. O índice é o mesmo de HERO_CAP_B64 / RETRATO_B64 / MOB_B64 / DROP_B64 / PASSO_CAP e o
+// mesmo de `PACK_DO_BLOCO` em ferramentas/pacotes.js — quando um capítulo ganhar bloco próprio,
+// as duas linhas mudam juntas.
+const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 // Os dois capítulos que têm mecânica própria, ditos por identidade (declarados lá em cima
 // como `let` justamente para isto).
 CAP_GENTE = iEp("palmares");
@@ -8177,14 +8218,23 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   const arte = HERO_CAP_B64[iCap] || HERO_CAP_B64[0];
   const retrato = (typeof RETRATO_B64 !== "undefined" && RETRATO_B64[iCap])
     || (arte.walk && arte.walk[0]) || HERO_CAP_B64[0].walk[0];
-  // CAPÍTULO EM OBRA FALA SEM ROSTO — e isto é §2, não layout.
-  // O retrato é "a pessoa daquela época". Um capítulo em obra empresta o bloco de arte de
-  // AINDA AQUI (ver o cabeçalho de `emObra`), e o print da primeira montagem mostrou o custo
-  // disso na cara: a protagonista indígena do presente anunciando JABAQUARA. Escalar quem
+  // QUEM NÃO TEM A PESSOA DELE FALA SEM ROSTO — e isto é §2, não layout.
+  // O retrato é "a pessoa daquela época". Um capítulo que empresta o bloco de arte de outro
+  // (ver o cabeçalho de `emObra`) não tem pessoa: o print da primeira montagem mostrou o custo
+  // disso na cara — a protagonista indígena do presente anunciando JABAQUARA. Escalar quem
   // representa um capítulo é decisão do dono (§2, "na dúvida sobre representação, pare e
   // pergunte"), e emprestar um rosto por conveniência técnica é decidir sem perguntar.
   // Então ninguém é escalado: enquanto o capítulo não tem a pessoa dele, a caixa fala sozinha.
-  const semRosto = !!(EPOCAS[epocaAtual()] as { emObra?: boolean }).emObra;
+  //
+  // A CONDIÇÃO ERA `emObra`, E ISSO ERA UM ACIDENTE FELIZ que quebrou em 2026-08-11. Os três
+  // capítulos do século XIX ganharam texto com fonte e perderam o `emObra` — e a cara de AINDA
+  // AQUI voltou a narrar o Valongo, sem erro nenhum, sem teste nenhum reclamando. Ter texto e
+  // ter pessoa são coisas DIFERENTES, e a segunda continua sendo decisão do dono. Agora a
+  // condição é a certa e sai do dado: **o rosto só aparece para quem é DONO do bloco de arte
+  // que veste.** Um capítulo novo com bloco próprio entra em `DONO_DO_BLOCO` e ganha rosto no
+  // mesmo commit em que ganha a arte; enquanto isso, fala sozinho. O `encaixe.js` cobra.
+  const epFala = EPOCAS[epocaAtual()] as { emObra?: boolean; id: string; arteCap?: number };
+  const semRosto = !!epFala.emObra || DONO_DO_BLOCO[iCap] !== epFala.id;
   r.classList.toggle("oculta", semRosto);
   if (!semRosto && retrato && r.getAttribute("src") !== retrato) (r as HTMLImageElement).src = retrato;
   // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
@@ -8683,6 +8733,12 @@ const LINHA_TEMPO: NoLinha[] = [
     com: "Quase tudo que sobrou no papel foi escrito por quem veio nos atacar. Lembre disso ao ler.", quem: iEp("palmares") },
   { tipo: "momento", i: 4,            // Zumbi: cronologia de Palmares, revelação no cap. 3
     com: "Vinte de novembro. Guarde a data.", quem: iEp("palmares") },
+  // A PLACA DO CAIS entrou em 2026-08-11, junto com o texto do capítulo. Ela vem AQUI, e não
+  // depois dos dois momentos abaixo, porque a cronologia manda: o Valongo é de 1811 e os dois
+  // momentos seguintes explicam como se chega à Bahia de 1835. Efeito colateral bem-vindo: com
+  // `epFio` apontando para O CAIS, essas duas páginas passam a vestir a pintura `[4]` — cidade
+  // colonial de pedra e mar — em vez da serra de PALMARES, que era o que herdavam antes.
+  { tipo: "marco", ep: iEp("cais") },
   // O VÃO XVII→HOJE — quatro marcos, e dois deles fecham fios que o jogo deixava soltos:
   // a Constituinte é a ponte jurídica dos DOIS fios para o capítulo 3, e o Censo dos
   // quilombolas diz o que a linha inteira calava — quem construiu Palmares continua aqui.
@@ -9226,6 +9282,24 @@ const FONTES = [
     q: "Cartografia dos mocambos a partir da documentação primária: Macaco, Subupira, Amaro, Andalaquituche, Osenga." },
   { t: "Lara & Fachin, Guerra contra Palmares: o manuscrito de 1678 — Chão Editora, 2021",
     q: "Paleografia que corrige nomes: “Gana Zumba”, não “Ganga Zumba” — em quimbundo, gana é senhor e ganga é sacerdote." },
+  // ===== O CAIS DO VALONGO =====
+  // Entrou em 2026-08-11 com o texto do capítulo, no MESMO commit — a lição que o grupo de
+  // SALVADOR custou (fecho prometendo a tela e a tela sem a fonte) virou procedimento aqui.
+  // Duas coisas a notar na lista: a primeira entrada é a ESCAVAÇÃO, e ela é de uma arqueóloga
+  // — a prioridade de fonte do §2 pede a pesquisadora do período, e aqui ela é também quem
+  // dirigiu o trabalho de campo; e a última é o INSTITUTO PRETOS NOVOS, que entra como fonte
+  // e só como fonte, que é exatamente o que o §2.4.4 permite e o limite que ele impõe.
+  { g: "O CAIS DO VALONGO" },
+  { t: "Tânia Andrade Lima, G. M. Sene e M. A. T. de Souza, “Em busca do Cais do Valongo, Rio de Janeiro, século XIX”, Anais do Museu Paulista 24(1), 2016",
+    q: "O relatório da escavação que achou a pedra, escrito por quem a dirigiu. É de lá que sai tudo o que o capítulo afirma: 1811 e a Intendência Geral de Polícia, o Rio como principal porto de entrada nas Américas, as cerca de 550 mil chegadas entre 1811 e 1831, o Cais da Imperatriz recobrindo o Valongo em 1843, e o reaparecimento em 2011 — duzentos anos depois." },
+  { t: "Lei de 7 de novembro de 1831, art. 1º — Câmara dos Deputados, Legislação Informatizada",
+    q: "“Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” A ementa publicada diz o resto: declara livres os vindos de fora e impõe penas a quem os importasse." },
+  { t: "Lei nº 581, de 4 de setembro de 1850 — Câmara dos Deputados, Legislação Informatizada",
+    q: "“Estabelece medidas para a repressão do trafico de africanos neste Imperio.” O art. 1º se refere à lei de 1831 pelo nome. Dezenove anos entre uma proibição e a lei que veio proibir de novo — o jogo põe as duas datas lado a lado e não acrescenta adjetivo nenhum." },
+  { t: "ONU Brasil — inscrição do Cais do Valongo na Lista do Patrimônio Mundial, 10 de julho de 2017",
+    q: "O critério é o sexto: lugares associados a acontecimentos e tradições vivas, ideias ou crenças, obras artísticas e literárias de significação universal excepcional. A mesma página registra estimativas de 500 mil a 1 milhão de pessoas desembarcadas ali." },
+  { t: "Instituto de Pesquisa e Memória Pretos Novos (IPN) — Rio de Janeiro",
+    q: "O cemitério funcionou de 1772 a 1830, foi encontrado em 1996 e continua sendo escavado — as campanhas seguintes são de 2010 a 2012, de 2014 e de 2017. Está aqui como fonte, e o jogo não o encena: é sítio em escavação hoje, com instituição viva e descendentes vivos." },
   // ===== SALVADOR — A PROMESSA QUE O JOGO JÁ TINHA FEITO =====
   // Este grupo faltava, e a falta era de um tipo que o repositório inteiro existe para não ter:
   // o FECHO do capítulo diz, com todas as letras, *"Quem reconstruiu esta noite documento por
@@ -9264,6 +9338,8 @@ const FONTES = [
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
   { t: "Quantos viviam em Palmares?", d: 1,
     q: "A Fundação Cultural Palmares, órgão federal, afirma cerca de 20 mil. Silvia Lara classifica os números da documentação seiscentista como exagerados." },
+  { t: "Quanta gente desembarcou no Cais do Valongo?", d: 1,
+    q: "Depende do que se conta. A ONU registra estimativas de 500 mil a 1 milhão de pessoas desembarcadas naquele cais; a escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831, que é o período em que se sabe que ele funcionou. São réguas diferentes, e o jogo mostra as duas em vez de escolher." },
   { t: "“Angola Janga” era mesmo o nome?", d: 1,
     q: "Circula como o nome que os palmaristas usavam, mas não localizamos atestação em documento colonial. O estudo mais completo da toponímia não menciona o termo. Por isso o jogo não o usa." }
 ];

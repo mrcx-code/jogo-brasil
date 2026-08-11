@@ -4487,3 +4487,111 @@ orientação com a partida viva — `orientationchange` chama `fitCanvas` e `med
 uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
 atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
 desses estados.
+
+---
+
+## Diário — 2026-08-11 · Historiador · O CAIS QUE VOLTOU À LUZ deixa de ser esqueleto
+
+**Mandato do dono:** *"Vai evoluindo até os dias de hoje, pode usar placeholders em construção
+caso precise."* O lote é o **século XIX**: três capítulos que eram esqueleto. Este é o primeiro.
+
+### A régua desta sessão, e ela é mais dura que a de sempre
+
+**Nenhuma afirmação sem fonte lida NESTA sessão.** Não vale ementa, não vale resumo de
+buscador, não vale lembrança. Onde a fonte não abriu, a linha não entrou — e o que ficou de
+fora está listado abaixo, que é a parte do diário que costuma sumir.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | cais do Valongo, construído em **1811**, por ordem do príncipe regente; o Rio como **principal porta de entrada** de africanos escravizados nas Américas | Lima, Sene & Souza, *Em busca do Cais do Valongo, Rio de Janeiro, século XIX*, **Anais do Museu Paulista 24(1), 2016** — literal: *"construído em 1811 pela Intendência Geral de Polícia, por ordem do Príncipe Regente"*, *"fazendo do Rio de Janeiro o principal porto de entrada desses cativos nas Américas"* |
+| ab.2 | **cerca de 550 mil** africanos chegados ao Rio entre **1811 e 1831**, o período conhecido de funcionamento | mesma, literal: *"Durante o período conhecido de funcionamento do Cais do Valongo, entre 1811 e 1831, o Rio de Janeiro recebeu cerca de 550 mil africanos para serem escravizados"* |
+| ab.3 | **1843**: outro cais por cima, para o desembarque de uma princesa; o Valongo **coberto**, não destruído | mesma: o Cais da Imperatriz para a princesa das Duas Sicílias, e *"as obras de construção do Cais da Imperatriz tão somente recobriram o velho Cais do Valongo"* |
+| ab.4 | o verbo — **cavar para saber** | ficção autoral, sem fato. Era a promessa que o próprio esqueleto já fazia |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | **2011**, a pedra achada de novo, *duzentos anos depois*; escavação dirigida por **Tânia Andrade Lima** | mesma: *"E o Valongo foi trazido de volta, exatamente duzentos anos depois, em 2011"*; a autoria do relatório é dela |
+| fe.2 | **10 de julho de 2017**, Patrimônio Mundial, **critério vi** | ONU Brasil, página da inscrição: a data e o critério *"acontecimentos e tradições vivas, ideias ou crenças, obras artísticas e literárias de significação universal excepcional"* |
+| fe.3 | os dois números não batem: **500 mil a 1 milhão** (ONU) × **550 mil** (escavação, e do Rio inteiro) | as duas acima. É a fala mais importante do capítulo, e é de MÉTODO, não de conteúdo |
+| fe.4 | **Lei de 7 de novembro de 1831**, art. 1º, literal | Câmara dos Deputados, Legislação Informatizada, publicação original: *"Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres."* |
+| fe.5 | **Lei nº 581, de 4 de setembro de 1850**, e o art. 1º dela remetendo à de 1831 | Câmara, publicação original: ementa *"Estabelece medidas para a repressão do trafico de africanos neste Imperio"* e o art. 1º citando *"a Lei de sete de Novembro de mil oitocentos trinta e hum"* |
+| fe.6 | o **Cemitério dos Pretos Novos**: 1772–1830, achado em 1996, escavado até hoje — **citado, nunca encenado** | site do próprio Instituto Pretos Novos: *"Ele funcionou de 1772 a 1830, no Valongo"*, achado em 1996, campanhas seguintes em 2010–2012, 2014 e 2017 |
+
+**A fala 5 não conclui nada, de propósito.** A frase óbvia — *"logo a lei não estava sendo
+cumprida"* — é inferência, e o §2 não pede inferência: pede documento. Duas datas lado a lado
+fazem o trabalho, e quem lê tira a conclusão sozinho. É a mesma disciplina das cartas
+jesuíticas.
+
+### O que RECUSEI, e por quê
+
+- **O Decreto municipal que criou o Circuito Histórico e Arqueológico da Celebração da Herança
+  Africana.** O número circula (34.803, de 29/11/2011) e o Circuito existe — o site do próprio
+  IPN o cita. **Não li o texto do decreto**, e número de norma é justamente o que a REGRA DO
+  DOCUMENTO manda ler antes de escrever. Fora do capítulo, inclusive de `FONTES`.
+- **"O tráfico continuou ilegal até 1850."** É consenso e eu não tenho fonte lida que o AFIRME —
+  tenho as duas leis. Então o jogo mostra as duas leis e cala o resto.
+- **Os objetos achados na escavação** (amuletos, búzios, contas, anéis, cachimbos). O artigo que
+  li menciona só um fragmento de cachimbo; e mesmo com fonte, o §2.4.5 proíbe objeto ritual como
+  item. Nem no texto entrou, porque a linha ficaria dizendo menos do que promete.
+- **O número de pessoas enterradas no Cemitério dos Pretos Novos.** Circula como 20 a 30 mil; a
+  página do próprio instituto não o traz. Sem ele.
+
+### O que mudou no código, e três coisas quebraram no caminho
+
+**1 · O rosto emprestado voltou — e ninguém teria visto.** A condição de esconder o retrato na
+caixa de fala era `emObra`. Tirar o `emObra` do capítulo **devolveu o retrato**, e o retrato do
+bloco 3 é o de AINDA AQUI: a protagonista indígena do presente narrando o Valongo. Zero erro de
+console, zero teste reclamando — **foi um print que mostrou**. Ter texto e ter pessoa são coisas
+diferentes, e a segunda continua sendo decisão do dono (§2). A condição agora sai do dado, por
+uma tabela nova `DONO_DO_BLOCO`: **o rosto só aparece para quem é dono do bloco de arte que
+veste.** O `encaixe.js` bloco 15 passou a abrir a fala dos treze capítulos e olhar o elemento.
+
+**2 · A fala de 382 caracteres.** A caixa revela letra a letra a ~14 caracteres por segundo. As
+quatro épocas escritas até ontem tinham no máximo **251**; o primeiro fecho que escrevi saiu com
+**382, 319 e 302** — quatro segundos e meio de revelação chegavam a *"Em 7 de nove"*. Quem não lê
+aperta PULAR, e o que se perde é justo a frase com fonte. O fecho virou **seis falas**, todas
+abaixo de 260, e o `encaixe.js` passou a cobrar o teto.
+
+**3 · Duas asserções reprovaram por CRESCIMENTO, não por defeito.** O bloco 16 comparava
+`LIMIAR_FIM` com o literal **10.500** (o fim do jogo com quatro capítulos escritos): escrever
+capítulo faz esse número subir, e o teste diria "os capítulos em obra passaram de um quarto"
+justamente quando a fatia deles **encolheu**. Agora a régua sai dos capítulos escritos de hoje.
+O bloco 7 exigia `=== 7` pontos de parada no rolo do quadrinho — 4 placas + 3 páginas duras, a
+conta de 09/08. Agora ele compara com quem TEM `qMarco` ou `qDura`, que é a regra que o próprio
+código já escrevia: a amarra é pelo nó, nunca pela contagem.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 4 de 13 | **5 de 13** |
+| `LIMIAR_FIM` | 11.850 | **13.200** (régua derivada: 15.000) |
+| fatia dos capítulos em obra | 11,4% | **9,1%** |
+| páginas do quadrinho | 32 | **33** (a placa de O CAIS) |
+| pontos de parada do rolo | 7 | **8** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 223) |
+| `index.html` | 1.622.072 B | **1.622.072 B** — nenhuma arte nova |
+| `pack-hoje.json` | 1.361 KB | **1.067 KB** (JABAQUARA e A PEQUENA ÁFRICA saíram para pacote próprio) |
+| linhas autorais varridas pelo §2 | 190 | **196**, 0 achado |
+
+`npm test` verde (FPS 61) e `encaixe.js` **21 blocos** verdes. Prints: `test/CAP-cais-ab1.png`,
+`-ab4`, `-ab5`, `-fe4`, `-fe6`.
+
+### Instrumento novo: `test/ver-capitulo.js`
+
+Não havia como **olhar** um capítulo do meio do arco: o percurso anda do começo, o smoke
+fotografa a rua do capítulo 1. `node test/ver-capitulo.js cais` abre a abertura e o fecho por
+identidade e salva um print por fala. Foi ele que achou o rosto emprestado e a fala de 382.
+
+### O que ficou registrado como pendência, não como decisão
+
+- **A pintura de O CAIS é a de SALVADOR** (`arte: [4]`). Era a de PALMARES — serra, mata fechada
+  —, o que ficou insustentável quando o texto passou a dizer *"isto é o Rio de Janeiro"*: pintura
+  afirma lugar (§2). Cidade colonial de pedra com mar é a menos falsa que existe hoje, e continua
+  sendo **outra cidade**. `cap-cais-fundo-alto` e `-chao` estão pedidos em `necessario.json`.
+- **O nome não cabe na cerimônia.** "O CAIS QUE VOLTOU À LUZ" sangra pelas duas bordas na tela do
+  nome, a 390 px. É anterior a esta sessão (o nome não mudou) e vale para "O QUE NÃO PODIA SER
+  DITO" também. Não mexi: encolher a fonte da cerimônia é decisão de Arte.
+
+### Próximo passo
+JABAQUARA, com a mesma régua.
