@@ -242,6 +242,10 @@ let S = {
   // Quais marcos do chão do capítulo 2 já falaram, um bit por marco — mesma gramática de
   // `aberturas`/`fechos`: bit ligado = já falou, e a fala curta não se repete.
   marcos: 0,
+  // A OBRA DO LUGAR: pontos acumulados em cada um dos três canteiros da faixa final do
+  // capítulo 2. Estágio e parcelas debitadas DERIVAM daqui (`floor(p/60)` e `floor(p/10)`),
+  // então três números são o save inteiro da obra. Só cresce — ver o bloco de OBRA_*.
+  obra: { roca: 0, palicada: 0, casa: 0 },
   // Quais TRAVESSIAS já foram atravessadas, um bit por travessia — mesma gramática de
   // `aberturas`. Uma travessia não é capítulo: é o trecho em que o jogo para de ser jogo
   // entre um capítulo e o seguinte. O bit serve a uma coisa só: a primeira vez não é
@@ -2059,6 +2063,163 @@ const MASCARA_MARCOS = (1 << MARCOS_CAP2_ESCOLHA.length) - 1;
 // save adulterado, e cai no teto. O desenho nunca passa de 6 figuras (o excedente é texto),
 // então o teto não põe multidão nenhuma na tela.
 const ACOLHIDOS_TETO = 9999;
+
+// ============================================================
+// A OBRA DO LUGAR — o MUTIRÃO da faixa final do capítulo 2 (MUTIRAO.md, aprovado pelo dono)
+//
+// Três canteiros — a roça, a paliçada e a casa — que a mão da pessoa ergue segurando o dedo
+// em qualquer ponto do mundo, e que avançam um pouco sozinhos com o jogo fechado, porque
+// quem foi acolhida vive ali e segue tocando a obra. **Zero acolhidas = zero avanço.**
+//
+// AS TRÊS TRAVAS DO §2, e elas são estruturais, não são frases:
+//  1. GENTE NUNCA É RECURSO. As acolhidas não são gastas, alocadas nem arrastadas: não há
+//     interface que toque numa delas. O jogador só decide onde ELE trabalha (o canteiro mais
+//     perto do corpo dele). Elas escolhem sozinhas, pela regra "acode onde falta mais".
+//     A taxa SATURA em 30 acolhidas e nunca aparece como número por pessoa em lugar nenhum.
+//     O custo é INVARIANTE ao número de gente e não existe upkeep — com zero acolhidas nada
+//     avança E nada é consumido, então ninguém "come o estoque".
+//  2. NÃO É CITY-BUILDER. Três canteiros e nunca mais um: sem grid, sem lote novo, sem
+//     expansão, sem otimização. A obra não rende NADA — nenhum multiplicador, nenhuma renda,
+//     nenhum número na tela. O progresso é o desenho.
+//  3. A PALIÇADA NÃO CHAMA A GUERRA PARA DENTRO. `S.obra` só CRESCE: nenhuma função deste
+//     arquivo a decrementa, o esquema tem `min: 0`, nada no jogo ataca, testa ou ameaça a
+//     obra, e o gesto de trabalhar é o oposto do golpe (a personagem PARA; o golpe fica
+//     desarmado). "Cada estágio fica de pé para sempre" não é feature: é a trava.
+//
+// A UNIDADE. `OBRA_PONTOS_ESTAGIO` pontos por estágio, três estágios por canteiro, e o teto
+// (`OBRA_MAX`) é DERIVADO dos dois — nenhum literal 180 solto. A cada `OBRA_PARCELA` pontos
+// cruzados o canteiro debita uma parcela de recursos; se o estoque não paga, os pontos
+// congelam na fronteira e a obra espera mantimentos, on-line e off-line igual. Parcela é o
+// que torna tudo INTEIRO (o validador `mapa` faz `floor`) e o que faz o débito ser retomável
+// sem estado extra: `parcelas debitadas = floor(pontos / OBRA_PARCELA)` deriva dos próprios
+// pontos, e nada mais entra no save.
+// ============================================================
+const OBRA_PONTOS_ESTAGIO = 60;
+const OBRA_ESTAGIOS = 3;
+const OBRA_PARCELA = 10;
+const OBRA_MAX = OBRA_PONTOS_ESTAGIO * OBRA_ESTAGIOS;
+// A ORDEM É A DA SOBREVIVÊNCIA — comer, proteger, morar —, e ela é também o desempate de
+// "quem tem menos pontos". Os três são os canteiros documentados dos quilombos; não há um
+// quarto e não haverá.
+const OBRA_CANTEIROS = ["roca", "palicada", "casa"] as const;
+type Canteiro = typeof OBRA_CANTEIROS[number];
+// O CUSTO POR PARCELA, por canteiro e por estágio (× OBRA_PARCELA... não: × 6 parcelas = o
+// estágio). Somando os três canteiros inteiros: 120 flor · 174 água · 150 refeição = 444.
+// Duas contas sustentam esta tabela, e as duas foram feitas contra a rua MEDIDA:
+//  · o total é ~1,6–1,9× o estoque típico de quem chega à faixa pela primeira vez (240–290),
+//    então o primeiro dia não termina a obra com o que trouxe — a metade que falta é o motivo
+//    de voltar amanhã, que é a coisa que este trabalho existe para produzir;
+//  · o GARGALO É A ÁGUA, de propósito. Ela é o recurso mais magro nos dois ritmos (6,2/min
+//    andando, 11,4/min correndo, de `CFG.mobMix`), e nenhum ritmo sozinho abastece bem:
+//    andando sobra refeição e falta flor, correndo sobra flor e falta refeição. Misturar
+//    ritmos é a jogada boa — que é exatamente a decisão que o jogo já existe para medir.
+// Mexer aqui é mexer em economia, e economia neste repositório exige medição antes/depois.
+const CUSTO_OBRA: Record<Canteiro, { flor: number; agua: number; refeicao: number }[]> = {
+  roca:     [{ flor: 2, agua: 3, refeicao: 1 }, { flor: 3, agua: 4, refeicao: 1 }, { flor: 4, agua: 5, refeicao: 2 }],
+  palicada: [{ flor: 1, agua: 2, refeicao: 3 }, { flor: 1, agua: 3, refeicao: 4 }, { flor: 2, agua: 3, refeicao: 5 }],
+  casa:     [{ flor: 2, agua: 2, refeicao: 2 }, { flor: 2, agua: 3, refeicao: 3 }, { flor: 3, agua: 4, refeicao: 4 }]
+};
+// O NOME DE CADA ESTÁGIO, porque a tela de retorno diz o que avançou SEM UM DÍGITO. A obra
+// não é placar: ela não tem número em lugar nenhum do jogo, e é por isso que os estágios
+// precisam de nome.
+const NOME_ESTAGIO: Record<Canteiro, string[]> = {
+  roca:     ["a roça já tem as leiras abertas", "a roça já tem as mudas na terra", "a roça cresceu"],
+  palicada: ["a paliçada já tem as primeiras estacas", "a paliçada ganhou a tranca", "a paliçada está cerrada"],
+  casa:     ["a casa já tem os esteios", "a casa ganhou as paredes de taipa", "a casa está coberta"]
+};
+const NOME_CANTEIRO: Record<Canteiro, string> = { roca: "da roça", palicada: "da paliçada", casa: "da casa" };
+function estagioObra(c: Canteiro) { return Math.floor((S.obra[c] | 0) / OBRA_PONTOS_ESTAGIO); }
+function obraCompleta() { return OBRA_CANTEIROS.every(function (c) { return (S.obra[c] | 0) >= OBRA_MAX; }); }
+// QUANTOS PONTOS POR HORA O MUTIRÃO RENDE, e a fórmula tem três propriedades que são o §2:
+//  · `a = 0` devolve 0 — sem gente, sem obra. É a exigência do ticket, e ela é literal.
+//  · as SEIS primeiras valem 2/h cada: são as seis figuras que a faixa desenha vivendo ali,
+//    e quem se vê trabalha mais no desenho da conta.
+//  · da 7ª à 30ª, 0,25/h cada, SATURANDO em 18/h. Acima de 30 acolhidas, mais gente não rende
+//    mais obra — gente não é motor a escalar, e um save adulterado com 9999 acolhidas não
+//    teleporta a obra.
+function taxaMutirao(a) {
+  const n = Math.max(0, a | 0);
+  return 2 * Math.min(n, 6) + 0.25 * Math.min(Math.max(n - 6, 0), 24);
+}
+// Quantas acolhidas tocam a obra: só a posição de PALMARES. A obra é de lá, não da tela em
+// que a pessoa está — ela avança com o jogo aberto em qualquer capítulo.
+function genteDaObra() { return S.acolhidos[CAP_GENTE] | 0; }
+function podePagar(c) {
+  return (S.recursos.flor | 0) >= c.flor && (S.recursos.agua | 0) >= c.agua
+      && (S.recursos.refeicao | 0) >= c.refeicao;
+}
+function faltaEm(c) {
+  if ((S.recursos.flor | 0) < c.flor) return "flor";
+  if ((S.recursos.agua | 0) < c.agua) return "agua";
+  return "refeicao";
+}
+// O RELÓGIO ÚNICO da obra: um só caminho, e é por ele que passam o dedo, o laço de quadro e
+// a ausência. Devolve o RELATO — o que a tela de retorno lê, e a única coisa que ela pode
+// dizer (nenhum dígito inventado; aqui, nenhum dígito, ponto).
+function avancarObra(pontos) {
+  const relato = {
+    pontos: 0, parcelas: 0,
+    estagios: [] as { canteiro: Canteiro; estagio: number }[],
+    porCanteiro: { roca: 0, palicada: 0, casa: 0 } as Record<Canteiro, number>,
+    parouPor: null as string | null
+  };
+  let n = Math.max(0, Math.floor(pontos));
+  if (!isFinite(n) || n <= 0) return relato;
+  // Teto de segurança: mais que a obra inteira em parcelas nunca é preciso, e um `dt`
+  // absurdo (relógio do aparelho mexido) não pode virar um laço de milhões de voltas.
+  n = Math.min(n, OBRA_MAX * OBRA_CANTEIROS.length);
+  const travado: Record<string, boolean> = {};
+  while (n > 0) {
+    // O mutirão acode ONDE FALTA MAIS, e ninguém o comanda: o canteiro com menos pontos,
+    // empatando na ordem da sobrevivência. Não existe interface de alocação, e é de propósito.
+    let alvo: Canteiro | null = null;
+    for (const c of OBRA_CANTEIROS) {
+      if (travado[c] || (S.obra[c] | 0) >= OBRA_MAX) continue;
+      if (alvo === null || (S.obra[c] | 0) < (S.obra[alvo] | 0)) alvo = c;
+    }
+    if (alvo === null) break;      // tudo pronto ou tudo esperando: o resto se perde
+    const p = S.obra[alvo] | 0;
+    if ((p + 1) % OBRA_PARCELA === 0) {
+      const custo = CUSTO_OBRA[alvo][Math.floor(p / OBRA_PONTOS_ESTAGIO)];
+      if (!podePagar(custo)) {
+        travado[alvo] = true;
+        if (!relato.parouPor) relato.parouPor = faltaEm(custo);
+        continue;                  // este espera mantimentos; o alvo passa ao próximo
+      }
+      S.recursos.flor -= custo.flor;
+      S.recursos.agua -= custo.agua;
+      S.recursos.refeicao -= custo.refeicao;
+      relato.parcelas++;
+    }
+    S.obra[alvo] = p + 1;
+    relato.pontos++; relato.porCanteiro[alvo]++;
+    n--;
+    if ((p + 1) % OBRA_PONTOS_ESTAGIO === 0) {
+      relato.estagios.push({ canteiro: alvo, estagio: (p + 1) / OBRA_PONTOS_ESTAGIO });
+    }
+  }
+  return relato;
+}
+// O que a ausência rendeu, lido UMA vez pela tela de retorno. Nasce vazio para que uma
+// abertura sem ausência (ou sem gente) não diga nada.
+let relatoObra = avancarObra(0);
+// A FRAÇÃO DE PONTO fica na MEMÓRIA e nunca no save: `S.obra` só recebe inteiro. Meio ponto
+// perdido no fechamento da aba não é perda que alguém veja, e um campo a mais custaria mais
+// do que resolve. Dois acumuladores porque são dois relógios com naturezas diferentes: o do
+// mutirão (gente que vive ali, ~1 ponto a cada 3,3 min) e o da mão (1 ponto/s segurando).
+let obraFrac = 0, obraMaoFrac = 0;
+// O relógio ao vivo do mutirão. Máximo: 18 pontos/h = 1 ponto a cada 3,3 min — imperceptível
+// de propósito. A obra ao vivo é da MÃO; o mutirão é o que acontece enquanto você não está.
+function correrMutirao(dt) {
+  const t = taxaMutirao(genteDaObra());
+  if (t <= 0 || obraCompleta()) { obraFrac = 0; return; }
+  obraFrac += dt * t / 3600;
+  if (obraFrac >= 1) {
+    const n = Math.floor(obraFrac);
+    obraFrac -= n;
+    avancarObra(n);
+  }
+}
 function cenarioDaEpoca(e) { return EPOCA_CENA0[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))]; }
 function epocaDoCenario(i) {
   let e = EPOCAS.length - 1;
@@ -2259,6 +2420,18 @@ const ESQUEMA_SAVE = {
   // "muitas" nem 1e300 no nicho. As chaves vêm de RECURSO_DE, para que um drop novo entre
   // pelo mesmo lugar por onde entra no jogo.
   recursos:     { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
+  // A OBRA DO LUGAR (cap. 2): pontos por canteiro, e nada mais — estágio e parcelas debitadas
+  // derivam deles. Teto = OBRA_MAX, derivado de OBRA_PONTOS_ESTAGIO × OBRA_ESTAGIOS, nunca um
+  // literal. `min: 0` porque NENHUM caminho de código decrementa pontos: a obra não sofre dano,
+  // e o esquema é a segunda metade dessa trava (um save recarregado nunca regride).
+  //
+  // POR QUE APARAR, AQUI, É O LADO CERTO DO ERRO — e é o único campo do jogo em que é. Em
+  // `aberturas` aparar CALARIA conteúdo, e em `acolhidos` INVENTARIA gente; por isso os dois
+  // caem no padrão. Aqui, no pior caso, um save adulterado ganha um cenário — porque a obra
+  // não multiplica NADA: não há bônus, não há renda, não há número. Save torto pode ganhar
+  // desenho; nunca ganha economia. Chave que o save traz e o esquema não declara morre na
+  // porta, como em `recursos`.
+  obra:         { tipo: "mapa", chaves: ["roca", "palicada", "casa"], min: 0, max: OBRA_MAX, pad: 0 },
   // `semAparar` pelo mesmo motivo, e o defeito era pior: um `salvoEm` de 5e12 era APARADO
   // para 4e12 (ano 2096) e o "quanto tempo você ficou fora" saía em MENOS setenta anos.
   // Hoje é inofensivo porque não há produção offline e o painel não abre com dt negativo —
@@ -2466,6 +2639,16 @@ function carregar(silencioso?: boolean) {
   // save é honesto e a subtração é que fica negativa. Tempo fora negativo não existe.
   const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
   voltouDepoisDe = dt;
+  // ===== O MUTIRÃO DA AUSÊNCIA =====
+  // O MESMO `dt` já capado que a tela de retorno usa, e o MESMO `avancarObra` do dedo e do
+  // laço de quadro — um relógio só. Não é renda de graça: é a gente que a pessoa acolheu
+  // seguindo a obra, e com `acolhidos = 0` a taxa é ZERO e nada acontece (nem avanço, nem
+  // consumo). Sob `silencioso` não roda: aquela releitura é uma aba que recuou, não alguém
+  // que voltou ao jogo — aplicar ali contaria a mesma ausência duas vezes.
+  if (!silencioso) {
+    relatoObra = avancarObra(Math.floor(dt / 3600 * taxaMutirao(genteDaObra())));
+    if (relatoObra.pontos > 0) salvar();
+  }
   // `silencioso` é a releitura feita quando a pessoa volta para uma aba que recuou: ali ela
   // não voltou ao JOGO, voltou a esta aba — e o papel de "enquanto você esteve fora" contando
   // as horas de novo seria uma cerimônia sobre um evento que não aconteceu.
@@ -2509,8 +2692,29 @@ function mostrarRetorno(dt) {
     linha(vivendo === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
       : vivendo + " pessoas acolhidas vivem no lugar que vocês abriram.");
   }
-  // a verdade da economia deste jogo, dita em vez de uma produção inventada
-  linha("A estrada esperou. O que chega, chega para quem está aqui.");
+  // ===== O QUE O MUTIRÃO ERGUEU ENQUANTO VOCÊ NÃO ESTAVA =====
+  // Lê SÓ o relato, e a regra dura da tela vale em dobro aqui: nenhum dígito inventado — e,
+  // como a obra não é placar, nenhum dígito, ponto. Os estágios têm NOME, e é o nome que sai.
+  // Sem gente acolhida a taxa é zero, o relato vem vazio e nenhuma linha nasce.
+  const ergueu = relatoObra && relatoObra.pontos > 0;
+  if (ergueu) {
+    relatoObra.estagios.forEach(function (e) {
+      linha("O mutirão trabalhou: " + NOME_ESTAGIO[e.canteiro][e.estagio - 1] + ".");
+    });
+    if (!relatoObra.estagios.length) {
+      // Nenhum estágio fechou, mas a obra andou: diz-se qual canteiro, nunca quanto.
+      let maior: Canteiro = "roca";
+      OBRA_CANTEIROS.forEach(function (c) {
+        if (relatoObra.porCanteiro[c] > relatoObra.porCanteiro[maior]) maior = c;
+      });
+      linha("O mutirão adiantou a obra " + NOME_CANTEIRO[maior] + ".");
+    }
+    if (relatoObra.parouPor) linha("Os mantimentos acabaram — a obra esperou por você.");
+  } else {
+    // a verdade da economia deste jogo, dita em vez de uma produção inventada. Só continua
+    // valendo inteira quando a obra NÃO andou: com o mutirão de pé, ela mentiria.
+    linha("A estrada esperou. O que chega, chega para quem está aqui.");
+  }
   notaDaVolta(lista);
   // O amanhecer do retorno se arma AQUI e não no fechar: `diaNovo` pode virar verdadeiro no
   // meio de uma sessão longa (meia-noite passando), e esse caso não é um retorno — o papel
@@ -7762,9 +7966,15 @@ function fmt(n) {
 // não há HUD; o mundo é a interface — a DIRECAO.md anotou a subtração para quando houvesse
 // medição pedindo, e a queixa de peso do dono é essa medição. Some de novo só no APAGAR
 // MEU PROGRESSO (único caminho que zera recursos), atrás da própria tela de AJUSTES.
+//
+// O NICHO REVELA E NÃO RE-ESCONDE, e este conserto é obrigatório desde que a obra CONSOME.
+// Enquanto nada gastava recurso, `v <= 0` era indistinguível de "nunca rendeu" e um `toggle`
+// bastava. Com o mutirão pagando parcelas, um contador volta legitimamente a zero — e o nicho
+// sumindo no meio da partida contradiria o próprio comentário acima. Quem esconde é uma coisa
+// só: `zerarJogo()`, que passou a adicionar `oculto` explicitamente.
 function recNaTela(id: string, v: number) {
   const b = $(id); const rec = b && b.parentElement;
-  if (rec) rec.classList.toggle("oculto", v <= 0);
+  if (rec && v > 0) rec.classList.remove("oculto");
 }
 function desenhar() {
   verificarCenario();
@@ -7904,9 +8114,19 @@ function zerarJogo() {
   S.u1 = S.u2 = S.u3 = S.u4 = false;
   S.modo = "limpo";
   S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+  // ...e os três nichos voltam a se esconder AQUI, explicitamente. É o único caminho que os
+  // esconde desde que `recNaTela` virou pegajoso — ver o comentário dela.
+  ["nFlor", "nAgua", "nRef"].forEach(function (id) {
+    const b = document.getElementById(id), rec = b && b.parentElement;
+    if (rec) rec.classList.add("oculto");
+  });
   S.cuidado = 1; cuidadoVisto = 1;
   S.grupo = 0; grupo.length = 0; ficando.length = 0;
   S.acolhidos = EPOCAS.map(function () { return 0; });
+  // A obra volta ao chão junto com quem a tocava. É o ÚNICO lugar do arquivo em que `S.obra`
+  // deixa de crescer, e ele não é o jogo: é a pessoa apagando a própria partida.
+  S.obra = { roca: 0, palicada: 0, casa: 0 };
+  obraFrac = 0; obraMaoFrac = 0; relatoObra = avancarObra(0);
   S.marcos = 0; marcoAtivo = null; moradores.length = 0;
   worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
   salvar();
@@ -9733,6 +9953,7 @@ document.addEventListener("DOMContentLoaded", () => {
       atualizarGrupo(dt);         // quem já foi acolhida anda junto — capítulo 2 e só ele
       atualizarMarcos();          // as placas da linha do tempo fincadas na estrada (cap. 2)
       atualizarMoradores(dt);     // a faixa final onde as acolhidas vivem (cap. 2)
+      correrMutirao(dt);          // e a obra que elas tocam, devagar, esteja onde estiver
       suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
       atualizarDrops(dt);
       atualizarChamada(dt);

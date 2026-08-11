@@ -1585,9 +1585,14 @@
       <div class="cInfo"><div class="valor" id="energia">0</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
-      <span class="rec"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
-      <span class="rec"><canvas class="pd" id="pdAgua" width="26" height="26"></canvas><b id="nAgua">0</b></span>
-      <span class="rec"><canvas class="pd" id="pdRef" width="26" height="26"></canvas><b id="nRef">0</b></span>
+      <!-- OS TRÊS NASCEM OCULTOS AQUI, NA MARCAÇÃO, e é isto que mudou quando a obra passou a
+           CONSUMIR recurso. Antes o esconderijo era o próprio `recNaTela`, que fazia
+           `toggle(oculto, v <= 0)` a cada quadro; com o mutirão pagando parcelas, um contador
+           volta legitimamente a zero e o nicho sumiria no meio da partida. Hoje `recNaTela` só
+           REVELA — quem esconde é este atributo no boot e o APAGAR MEU PROGRESSO. -->
+      <span class="rec oculto"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
+      <span class="rec oculto"><canvas class="pd" id="pdAgua" width="26" height="26"></canvas><b id="nAgua">0</b></span>
+      <span class="rec oculto"><canvas class="pd" id="pdRef" width="26" height="26"></canvas><b id="nRef">0</b></span>
     </div>
     <!-- owner: the third chip (world %) is gone — the top row is impact and team only. -->
   </div>
@@ -1865,6 +1870,7 @@ let S = {
     grupo: 0,
     acolhidos: [],
     marcos: 0,
+    obra: { roca: 0, palicada: 0, casa: 0 },
     travessias: 0,
     arco: 0,
     salvoEm: 0
@@ -2872,6 +2878,101 @@ while (S.acolhidos.length < EPOCAS.length)
 const MARCOS_CAP2_ESCOLHA = [0, 2, 3];
 const MASCARA_MARCOS = (1 << MARCOS_CAP2_ESCOLHA.length) - 1;
 const ACOLHIDOS_TETO = 9999;
+const OBRA_PONTOS_ESTAGIO = 60;
+const OBRA_ESTAGIOS = 3;
+const OBRA_PARCELA = 10;
+const OBRA_MAX = OBRA_PONTOS_ESTAGIO * OBRA_ESTAGIOS;
+const OBRA_CANTEIROS = ["roca", "palicada", "casa"];
+const CUSTO_OBRA = {
+    roca: [{ flor: 2, agua: 3, refeicao: 1 }, { flor: 3, agua: 4, refeicao: 1 }, { flor: 4, agua: 5, refeicao: 2 }],
+    palicada: [{ flor: 1, agua: 2, refeicao: 3 }, { flor: 1, agua: 3, refeicao: 4 }, { flor: 2, agua: 3, refeicao: 5 }],
+    casa: [{ flor: 2, agua: 2, refeicao: 2 }, { flor: 2, agua: 3, refeicao: 3 }, { flor: 3, agua: 4, refeicao: 4 }]
+};
+const NOME_ESTAGIO = {
+    roca: ["a roça já tem as leiras abertas", "a roça já tem as mudas na terra", "a roça cresceu"],
+    palicada: ["a paliçada já tem as primeiras estacas", "a paliçada ganhou a tranca", "a paliçada está cerrada"],
+    casa: ["a casa já tem os esteios", "a casa ganhou as paredes de taipa", "a casa está coberta"]
+};
+const NOME_CANTEIRO = { roca: "da roça", palicada: "da paliçada", casa: "da casa" };
+function estagioObra(c) { return Math.floor((S.obra[c] | 0) / OBRA_PONTOS_ESTAGIO); }
+function obraCompleta() { return OBRA_CANTEIROS.every(function (c) { return (S.obra[c] | 0) >= OBRA_MAX; }); }
+function taxaMutirao(a) {
+    const n = Math.max(0, a | 0);
+    return 2 * Math.min(n, 6) + 0.25 * Math.min(Math.max(n - 6, 0), 24);
+}
+function genteDaObra() { return S.acolhidos[CAP_GENTE] | 0; }
+function podePagar(c) {
+    return (S.recursos.flor | 0) >= c.flor && (S.recursos.agua | 0) >= c.agua
+        && (S.recursos.refeicao | 0) >= c.refeicao;
+}
+function faltaEm(c) {
+    if ((S.recursos.flor | 0) < c.flor)
+        return "flor";
+    if ((S.recursos.agua | 0) < c.agua)
+        return "agua";
+    return "refeicao";
+}
+function avancarObra(pontos) {
+    const relato = {
+        pontos: 0, parcelas: 0,
+        estagios: [],
+        porCanteiro: { roca: 0, palicada: 0, casa: 0 },
+        parouPor: null
+    };
+    let n = Math.max(0, Math.floor(pontos));
+    if (!isFinite(n) || n <= 0)
+        return relato;
+    n = Math.min(n, OBRA_MAX * OBRA_CANTEIROS.length);
+    const travado = {};
+    while (n > 0) {
+        let alvo = null;
+        for (const c of OBRA_CANTEIROS) {
+            if (travado[c] || (S.obra[c] | 0) >= OBRA_MAX)
+                continue;
+            if (alvo === null || (S.obra[c] | 0) < (S.obra[alvo] | 0))
+                alvo = c;
+        }
+        if (alvo === null)
+            break;
+        const p = S.obra[alvo] | 0;
+        if ((p + 1) % OBRA_PARCELA === 0) {
+            const custo = CUSTO_OBRA[alvo][Math.floor(p / OBRA_PONTOS_ESTAGIO)];
+            if (!podePagar(custo)) {
+                travado[alvo] = true;
+                if (!relato.parouPor)
+                    relato.parouPor = faltaEm(custo);
+                continue;
+            }
+            S.recursos.flor -= custo.flor;
+            S.recursos.agua -= custo.agua;
+            S.recursos.refeicao -= custo.refeicao;
+            relato.parcelas++;
+        }
+        S.obra[alvo] = p + 1;
+        relato.pontos++;
+        relato.porCanteiro[alvo]++;
+        n--;
+        if ((p + 1) % OBRA_PONTOS_ESTAGIO === 0) {
+            relato.estagios.push({ canteiro: alvo, estagio: (p + 1) / OBRA_PONTOS_ESTAGIO });
+        }
+    }
+    return relato;
+}
+let relatoObra = avancarObra(0);
+let obraFrac = 0, obraMaoFrac = 0;
+function correrMutirao(dt) {
+    const t = taxaMutirao(genteDaObra());
+    if (t <= 0 || obraCompleta()) {
+        obraFrac = 0;
+        return;
+    }
+    obraFrac += dt * t / 3600;
+    if (obraFrac >= 1) {
+        const n = Math.floor(obraFrac);
+        obraFrac -= n;
+        avancarObra(n);
+    }
+}
 function cenarioDaEpoca(e) { return EPOCA_CENA0[Math.max(0, Math.min(EPOCAS.length - 1, e | 0))]; }
 function epocaDoCenario(i) {
     let e = EPOCAS.length - 1;
@@ -2947,6 +3048,7 @@ const ESQUEMA_SAVE = {
     travessias: { tipo: "bits", min: 0, max: MASCARA_TRAVESSIAS, pad: 0 },
     arco: { tipo: "num", min: 0, max: 9, pad: 0 },
     recursos: { tipo: "mapa", chaves: ["flor", "agua", "refeicao"], min: 0, max: 1e9, pad: 0 },
+    obra: { tipo: "mapa", chaves: ["roca", "palicada", "casa"], min: 0, max: OBRA_MAX, pad: 0 },
     salvoEm: { tipo: "num", min: 0, max: 4e12, pad: 0, semAparar: true }
 };
 const ARCOS_ANTIGOS = [
@@ -3082,6 +3184,11 @@ function carregar(silencioso) {
     salvoConhecido = S.salvoEm;
     const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
     voltouDepoisDe = dt;
+    if (!silencioso) {
+        relatoObra = avancarObra(Math.floor(dt / 3600 * taxaMutirao(genteDaObra())));
+        if (relatoObra.pontos > 0)
+            salvar();
+    }
     if (!silencioso)
         mostrarRetorno(dt);
 }
@@ -3117,7 +3224,25 @@ function mostrarRetorno(dt) {
         linha(vivendo === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
             : vivendo + " pessoas acolhidas vivem no lugar que vocês abriram.");
     }
-    linha("A estrada esperou. O que chega, chega para quem está aqui.");
+    const ergueu = relatoObra && relatoObra.pontos > 0;
+    if (ergueu) {
+        relatoObra.estagios.forEach(function (e) {
+            linha("O mutirão trabalhou: " + NOME_ESTAGIO[e.canteiro][e.estagio - 1] + ".");
+        });
+        if (!relatoObra.estagios.length) {
+            let maior = "roca";
+            OBRA_CANTEIROS.forEach(function (c) {
+                if (relatoObra.porCanteiro[c] > relatoObra.porCanteiro[maior])
+                    maior = c;
+            });
+            linha("O mutirão adiantou a obra " + NOME_CANTEIRO[maior] + ".");
+        }
+        if (relatoObra.parouPor)
+            linha("Os mantimentos acabaram — a obra esperou por você.");
+    }
+    else {
+        linha("A estrada esperou. O que chega, chega para quem está aqui.");
+    }
     notaDaVolta(lista);
     amanhecerPendente = diaNovo;
     el.classList.add("aberto");
@@ -6410,8 +6535,8 @@ function fmt(n) {
 function recNaTela(id, v) {
     const b = $(id);
     const rec = b && b.parentElement;
-    if (rec)
-        rec.classList.toggle("oculto", v <= 0);
+    if (rec && v > 0)
+        rec.classList.remove("oculto");
 }
 function desenhar() {
     verificarCenario();
@@ -6482,12 +6607,21 @@ function zerarJogo() {
     S.u1 = S.u2 = S.u3 = S.u4 = false;
     S.modo = "limpo";
     S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+    ["nFlor", "nAgua", "nRef"].forEach(function (id) {
+        const b = document.getElementById(id), rec = b && b.parentElement;
+        if (rec)
+            rec.classList.add("oculto");
+    });
     S.cuidado = 1;
     cuidadoVisto = 1;
     S.grupo = 0;
     grupo.length = 0;
     ficando.length = 0;
     S.acolhidos = EPOCAS.map(function () { return 0; });
+    S.obra = { roca: 0, palicada: 0, casa: 0 };
+    obraFrac = 0;
+    obraMaoFrac = 0;
+    relatoObra = avancarObra(0);
     S.marcos = 0;
     marcoAtivo = null;
     moradores.length = 0;
@@ -7758,6 +7892,7 @@ document.addEventListener("DOMContentLoaded", () => {
             atualizarGrupo(dt);
             atualizarMarcos();
             atualizarMoradores(dt);
+            correrMutirao(dt);
             suavizarCuidado(dt);
             atualizarDrops(dt);
             atualizarChamada(dt);

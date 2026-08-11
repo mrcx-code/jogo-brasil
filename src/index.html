@@ -73,9 +73,14 @@
       <div class="cInfo"><div class="valor" id="energia">0</div></div></div>
     <!-- what the street has given you, counted. The sprites are the drops themselves. -->
     <div id="recursos">
-      <span class="rec"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
-      <span class="rec"><canvas class="pd" id="pdAgua" width="26" height="26"></canvas><b id="nAgua">0</b></span>
-      <span class="rec"><canvas class="pd" id="pdRef" width="26" height="26"></canvas><b id="nRef">0</b></span>
+      <!-- OS TRÊS NASCEM OCULTOS AQUI, NA MARCAÇÃO, e é isto que mudou quando a obra passou a
+           CONSUMIR recurso. Antes o esconderijo era o próprio `recNaTela`, que fazia
+           `toggle(oculto, v <= 0)` a cada quadro; com o mutirão pagando parcelas, um contador
+           volta legitimamente a zero e o nicho sumiria no meio da partida. Hoje `recNaTela` só
+           REVELA — quem esconde é este atributo no boot e o APAGAR MEU PROGRESSO. -->
+      <span class="rec oculto"><canvas class="pd" id="pdFlor" width="26" height="26"></canvas><b id="nFlor">0</b></span>
+      <span class="rec oculto"><canvas class="pd" id="pdAgua" width="26" height="26"></canvas><b id="nAgua">0</b></span>
+      <span class="rec oculto"><canvas class="pd" id="pdRef" width="26" height="26"></canvas><b id="nRef">0</b></span>
     </div>
     <!-- owner: the third chip (world %) is gone — the top row is impact and team only. -->
   </div>

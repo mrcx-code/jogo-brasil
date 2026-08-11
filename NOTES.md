@@ -4487,3 +4487,78 @@ orientação com a partida viva — `orientationchange` chama `fitCanvas` e `med
 uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
 atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
 desses estados.
+
+## Diário — 2026-08-11 · Dev · O MUTIRÃO, parte 1: a economia da obra, cega
+
+Implementação do `MUTIRAO.md`, aprovado pelo dono ("gosto da construção, fica evoluindo com um
+tempo né, pode engajar para construir mais e querer voltar"). **As duas coisas que ele grifou
+são o desenho:** a obra evolui com o tempo, e isso faz querer voltar.
+
+Esta parte é a economia **sem desenho e sem gesto** — nada muda na tela ainda, de propósito: é
+a única forma de a medição de composição da parte 2 medir só o que a parte 2 acrescentou.
+
+### O que entrou
+
+- `OBRA_PONTOS_ESTAGIO` 60 · `OBRA_ESTAGIOS` 3 · `OBRA_PARCELA` 10 · `OBRA_MAX` **derivado**
+  (nenhum literal 180 solto; o smoke cobra a derivação).
+- `CUSTO_OBRA` — a tabela do `MUTIRAO.md` §1.3 inteira, conferida contra o jogo de hoje:
+  **120 flor · 174 água · 150 refeição = 444** para as três obras completas. A repartição de
+  drop que a sustenta (`CFG.mobMix`) confere: andando flor 20% · água 22% · refeição 58%;
+  correndo flor 45% · água 30% · refeição 25%. A água é o gargalo nos dois ritmos, de propósito.
+- `taxaMutirao(a) = 2·min(a,6) + 0,25·min(max(a-6,0),24)` — **0 com zero acolhidas**, satura em
+  **18 pontos/h** a partir de 30. Medido no smoke: `taxaMutirao(6)=12`, `(30)=18`, `(9999)=18`.
+- `avancarObra(pontos)` — o relógio ÚNICO (dedo, laço de quadro e ausência passam por ele).
+  Alvo = o canteiro com menos pontos, desempate na ordem da sobrevivência. Debita a parcela ao
+  cruzar múltiplo de 10; parcela impagável **congela na fronteira** e o alvo passa ao próximo.
+- `S.obra` + entrada no `ESQUEMA_SAVE` (tipo `mapa`, `min 0`, `max OBRA_MAX`).
+- Off-line em `carregar()`, com o MESMO `dt` já capado da tela de retorno; on-line em
+  `correrMutirao(dt)`, no laço, ao lado de `atualizarMoradores`.
+- A tela de retorno passa a dizer o que avançou, **sem um dígito** — os estágios têm nome. E a
+  linha-verdade ("A estrada esperou...") só continua sendo dita quando a obra NÃO andou: com o
+  mutirão de pé ela mentiria.
+
+### O conserto que o consumo tornou obrigatório
+
+`recNaTela` escondia o nicho sempre que o contador era <= 0 — indistinguível de "nunca rendeu"
+porque **nada gastava**. Com a obra pagando parcelas um contador volta legitimamente a zero, e o
+nicho sumiria no meio da partida. Agora o nicho **revela e não re-esconde**; quem esconde são
+duas coisas só: a classe `oculto` na marcação (o boot) e o APAGAR MEU PROGRESSO. O bloco 3 do
+`encaixe.js` continua verde — e foi ele que pegou a metade que faltava do conserto.
+
+### O que foi MEDIDO (números, não impressão)
+
+| medida | valor |
+|---|---|
+| 12 h de ausência com **0 acolhidas** | 0 pontos, **0 recursos gastos** (não existe upkeep) |
+| 12 h de ausência com **40 acolhidas** | 216 pontos (= 3,6 estágios), 132 recursos gastos |
+| acolhidas consumidas pela obra | **0**, em qualquer cenário — gente não é recurso |
+| obra sem estoque nenhum | congela em 9+9+9 = **27 pontos**, **0 parcelas pagas**, e diz o que faltou |
+| save adulterado `{roca:5e9, palicada:"muitas", casa:-3, x:9}` | `{roca:180, palicada:0, casa:0}` |
+| `S.obra` num recarregamento | não regride (a trava do R4: a obra só cresce) |
+| `index.html` | 1.617.842 -> **1.623.433 bytes** (+5.591, **+0,35%**), zero imagem nova |
+| FPS | 60 |
+
+### A régua ANTES, colhida na `main` de hoje (`test/medir-poluicao.js`, 90 s/célula)
+
+O instrumento passou a contar **canteiro como objeto** (com `typeof`, para medir também o
+binário de antes — os dois lados da régua saem do mesmo código).
+
+| célula | média de objetos | pior | renda/min |
+|---|---:|---:|---:|
+| cap1 andando | 4,92 | 7 | 1.362 |
+| cap1 correndo | 6,00 | 9 | 1.466 |
+| **cap2 andando** (faixa final) | **4,31** | 6 | 1.442 |
+| **cap2 correndo** (faixa final) | **4,98** | 7 | 1.546 |
+| cap3 andando | 4,03 | 6 | 1.800 |
+| cap3 correndo | 4,49 | 7 | 2.005 |
+
+**Achado que muda a conta da parte 2:** o teto herdado é 5,4, e o cap2 correndo já está em
+4,98 — sobram **0,42** de folga, não uma unidade inteira. E a válvula declarada no `MUTIRAO.md`
+3.3 (moradores 6 -> 4) **não moveria este número**: `medir-poluicao.js` conta
+chegadas+drops+folhas+floats+placa e deixa `gente` FORA da soma de propósito. A válvula real é
+o vão entre canteiros, que é o que a parte 2 vai calibrar.
+
+### Próximo passo
+
+Os canteiros no mundo, desenhados por código, com o vão calibrado para caber nos 0,42 — e depois
+o gesto.

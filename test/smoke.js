@@ -799,8 +799,88 @@ async function alvo() {
   // `recursos` entrou em 09/08: os tres contadores de drop eram estado de SESSAO por
   // esquecimento — a fileira de nichos zerava no dia seguinte, e a onda 11 tornou a perda
   // visivel. Tipo `mapa`, chaves fixas, cada valor pela regua de `cont`.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
+  // `obra` entrou com o MUTIRAO (11/08): tres numeros, um por canteiro da faixa final do cap. 2.
+  // Estagio e parcelas debitadas DERIVAM dos pontos, entao nao ha mais nada a guardar.
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'obra', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
+
+  // ---- A OBRA DO LUGAR: um save adulterado, e a promessa de que ela SO CRESCE ----
+  // `obra` e o unico campo do jogo em que APARAR e o lado certo do erro (a obra nao multiplica
+  // nada: no pior caso um save torto ganha cenario). O que nao pode e valor de outro tipo, chave
+  // inventada, ou negativo — e o que MENOS pode e regredir num recarregamento, porque "cada
+  // estagio fica de pe para sempre" e a trava estrutural contra a palicada chamar a guerra para
+  // dentro da mecanica (§2 / MUTIRAO.md R4).
+  const obraSuja = await page.evaluate(() => ({
+    sujo: JSON.stringify(valida(ESQUEMA_SAVE.obra,
+      { roca: 5e9, palicada: 'muitas', casa: -3, x: 9 })),
+    max: OBRA_MAX, derivado: OBRA_PONTOS_ESTAGIO * OBRA_ESTAGIOS
+  }));
+  console.log('tampered obra ->', obraSuja.sujo, '| OBRA_MAX', obraSuja.max);
+  if (obraSuja.sujo !== JSON.stringify({ roca: obraSuja.max, palicada: 0, casa: 0 }))
+    errors.push('a tampered obra was accepted: ' + obraSuja.sujo);
+  if (obraSuja.max !== obraSuja.derivado) errors.push('OBRA_MAX stopped being derived');
+
+  const obraFirme = await page.evaluate(async () => {
+    localStorage.setItem(CHAVE_JOGO, JSON.stringify({
+      energia: 0, energiaTotal: 5800, cenario: 3, arco: ARCO_ATUAL,
+      acolhidos: [0, 40, 0, 0], obra: { roca: 75, palicada: 62, casa: 61 },
+      recursos: { flor: 0, agua: 0, refeicao: 0 }, salvoEm: Date.now() - 1000
+    }));
+    carregar(); fecharRetorno();
+    const depois = JSON.stringify(S.obra);
+    // ...e recarregar de novo nao pode fazer um ponto voltar
+    salvar(); carregar(); fecharRetorno();
+    return { depois, denovo: JSON.stringify(S.obra) };
+  });
+  console.log('obra reloaded ->', obraFirme.depois, '->', obraFirme.denovo);
+  if (obraFirme.depois !== '{"roca":75,"palicada":62,"casa":61}')
+    errors.push('the obra changed on a plain reload: ' + obraFirme.depois);
+  if (obraFirme.denovo !== obraFirme.depois) errors.push('the obra regressed on reload: ' + obraFirme.denovo);
+
+  // ---- ZERO ACOLHIDAS = ZERO AVANCO, e a gente nunca e consumida ----
+  // As duas metades do §2 que este trabalho tem de sustentar, e as duas sao medidas: sem gente
+  // nada avanca E nada e consumido (nao existe upkeep — ninguem "come o estoque"); com gente a
+  // obra anda e nenhuma acolhida some, porque acolhida nao e recurso.
+  const mutirao = await page.evaluate(() => {
+    const rodar = (a, horas) => {
+      S.obra = { roca: 0, palicada: 0, casa: 0 };
+      S.recursos = { flor: 300, agua: 300, refeicao: 300 };
+      S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = a;
+      const r = avancarObra(Math.floor(horas * taxaMutirao(S.acolhidos[CAP_GENTE])));
+      return { pontos: r.pontos, obra: S.obra.roca + S.obra.palicada + S.obra.casa,
+        gente: S.acolhidos[CAP_GENTE],
+        gasto: 900 - (S.recursos.flor + S.recursos.agua + S.recursos.refeicao) };
+    };
+    const semGente = rodar(0, 12);
+    const comGente = rodar(40, 12);
+    // e a taxa satura: 40 acolhidas e 9999 rendem o mesmo (gente nao e motor a escalar)
+    return { semGente, comGente, t6: taxaMutirao(6), t30: taxaMutirao(30), tMuita: taxaMutirao(9999) };
+  });
+  console.log('mutirao -> sem gente', JSON.stringify(mutirao.semGente),
+    '| com gente', JSON.stringify(mutirao.comGente),
+    '| taxa 6/30/9999:', mutirao.t6, mutirao.t30, mutirao.tMuita);
+  if (mutirao.semGente.pontos !== 0 || mutirao.semGente.obra !== 0)
+    errors.push('the obra advanced with nobody welcomed: ' + JSON.stringify(mutirao.semGente));
+  if (mutirao.semGente.gasto !== 0)
+    errors.push('the obra ate supplies with nobody welcomed (that would be upkeep): ' + mutirao.semGente.gasto);
+  if (mutirao.comGente.pontos <= 0) errors.push('the obra did not advance with people welcomed');
+  if (mutirao.comGente.gente !== 40) errors.push('a welcomed person was consumed by the obra');
+  if (mutirao.semGente.gente !== 0) errors.push('the obra invented people');
+  if (mutirao.tMuita !== mutirao.t30) errors.push('the mutirao rate did not saturate at 30');
+
+  // ---- A OBRA ESPERA MANTIMENTOS: sem estoque, os pontos congelam na fronteira da parcela ----
+  const obraEspera = await page.evaluate(() => {
+    S.obra = { roca: 0, palicada: 0, casa: 0 };
+    S.recursos = { flor: 0, agua: 0, refeicao: 0 };
+    S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 40;
+    const r = avancarObra(200);
+    return { pontos: r.pontos, parouPor: r.parouPor, obra: JSON.stringify(S.obra),
+      parcelas: r.parcelas };
+  });
+  console.log('obra with no supplies ->', JSON.stringify(obraEspera));
+  if (obraEspera.parcelas !== 0) errors.push('a parcel was paid out of an empty larder');
+  if (obraEspera.pontos !== 27) errors.push('the obra did not freeze at the parcel boundary: ' + obraEspera.pontos);
+  if (!obraEspera.parouPor) errors.push('the obra froze without saying what ran out');
 
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
   // SALVADOR entrou no MEIO da cronologia, e o save guarda INDICES. Quem parou em HOJE no arco
