@@ -7,53 +7,17 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- The game is one file and reaches for nothing but its own art packs. This makes the browser
-     hold it to that: no script, style or image may come from anywhere but this document, and
-     the only address it may open is one on this very site. 'unsafe-inline' is required because
-     the script and the styles live in the page itself, and data: is required because every
-     sprite is a base64 URI — including the ones that arrive inside a pack.
-
-     UMA DIRETIVA MUDOU DUAS VEZES, e as duas estão escritas por extenso porque §3.2 do
-     CLAUDE.md manda dizer no commit o que passou a ser permitido:
-       1. `connect-src` era 'none' e ganhou 'self' em 10/08, quando a arte de cada capítulo
-          saiu do arquivo de abertura para `pack-*.json` (o jogo levava 16,6 s para aceitar o
-          primeiro toque em 3G; ver RELATORIO-PESO.md). 'self' é "só o próprio site".
-       2. E ganhou UM host, no mesmo 10/08: `https://us.i.posthog.com`, para onde vai a
-          contagem anônima que a tela de AJUSTES descreve e permite desligar. Um host, escrito
-          inteiro, com esquema — não um curinga, não um `*.posthog.com`, não um `https:` solto.
-          Este é o endereço exato do `ENDERECO_MEDIDA` no jogo, e o ferramentas/construir.js
-          recusa construir se os dois deixarem de dizer o mesmo host.
-     Nada MAIS abriu: `default-src` continua 'none', `img-src` continua só `data:` (a arte
-     chega como data: de dentro do pacote), e não há `script-src` de host nenhum — ou seja, a
-     biblioteca do PostHog não teria como ser carregada nem que alguém tentasse. É de propósito:
-     o que fala com o PostHog são ~20 linhas neste arquivo, e não um script de terceiro. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self' https://us.i.posthog.com; base-uri 'none'; form-action 'none'">
+<!-- The game is one file and reaches for nothing. This makes the browser hold it to that:
+     no script, style, image or connection may come from anywhere but this document, and
+     there is no way to open a socket or fetch a URL even if code tried. 'unsafe-inline' is
+     required because the script and the styles live in the page itself, and data: is
+     required because every sprite is a base64 URI. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <!-- frame-ancestors is deliberately absent: a browser ignores it in a <meta> element and
      logs a warning. Clickjacking protection has to come from an HTTP header, so if this is
      ever hosted somewhere that matters, set X-Frame-Options or frame-ancestors there. -->
 <meta name="apple-mobile-web-app-title" content="BRASIL">
-<title>BRASIL — um jogo sobre a história do Brasil</title>
-<!-- O CARTÃO DO LINK. Sem isto, o jogo vira um retângulo cinza no WhatsApp — que é por onde
-     ele vai circular. Estas tags NÃO são carregadas pelo jogo: quem as lê é o robô que monta
-     a prévia do link, e por isso a imagem apontada aqui é a única coisa fora do arquivo único
-     (o `construir.js` a copia para `dist/`). A regra do §3.1 continua valendo para o JOGO.
-     O ENDEREÇO NÃO SE ESCREVE AQUI. As duas URLs abaixo trazem a marca da base, e o
-     `ferramentas/construir.js` troca as duas pela mesma linha de `ferramentas/dominio.js` —
-     porque elas mudam JUNTAS com a base de onde a página é servida, ou a prévia quebra em
-     silêncio (robô de rede social não avisa, só mostra o retângulo cinza de volta). Trocar de
-     domínio, de subdomínio ou de subcaminho é trocar UMA linha lá. -->
-<!-- domínio do dono desde 10/08/2026: matheusferreira.cc, na RAIZ. -->
-<meta name="description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="BRASIL">
-<meta property="og:title" content="BRASIL — um jogo sobre a história do Brasil">
-<meta property="og:description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
-<meta property="og:url" content="@@BASE@@">
-<meta property="og:image" content="@@BASE@@/compartilhar.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:locale" content="pt_BR">
-<meta name="twitter:card" content="summary_large_image">
+<title>BRASIL</title>
 <style>@@CSS@@</style>
 </head>
 <body>
@@ -126,7 +90,7 @@
 <div id="controls">
   <div id="cartoes">
     <button id="modeQuick" class="cartao"><canvas class="pi" id="modeIcon" width="26" height="26"></canvas>
-      <span class="cn" id="modeNome">CORRER</span></button>
+      <span class="cn" id="modeNome">CORRER</span><span class="cv" id="modeSub"></span></button>
     <div id="rail">
       <!-- A FOLHA, nao o Cetro. Decisao do dono (08/08): o icone da acao principal tem que
            ser "o mais facil que tem". O Cetro era desenho novo e bonito, mas pedia ser
@@ -155,7 +119,10 @@
   <div id="poste">
     <button class="telaBtn" id="btnJogar">JOGAR</button>
     <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
-    <button class="telaBtn sec oculto" id="btnFim">ATÉ AQUI</button>
+    <!-- GLOSSÁRIO entra AQUI, entre a história e a procedência, porque é o que há entre as
+         duas: A HISTÓRIA conta, o GLOSSÁRIO explica a palavra, DE ONDE VEM prova. A quinta
+         tábua encurta a folga do poste em telas baixas — ver a média de altura no estilo.css. -->
+    <button class="telaBtn sec" id="btnGlossario">GLOSSÁRIO</button>
     <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
     <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
   </div>
@@ -221,50 +188,10 @@
   <!-- O interruptor do som. Primeiro botão da tela porque é o único ajuste que alguém procura
        com pressa — quem está no ônibus quer calar o jogo agora, não depois de ler. -->
   <button class="telaBtn sec" id="btnSom">SOM</button>
-  <!-- O interruptor da contagem anônima (10/08). Ele não é enfeite de conformidade: a linha
-       acima dele afirma o que sai do aparelho, e afirmação sem interruptor é aviso, não
-       escolha. Desligado, `medir()` sai na primeira linha e não sai um byte. -->
-  <button class="telaBtn sec" id="btnMedir">CONTAGEM</button>
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>
 
-
-<!-- A CHEGADA: o fim do jogo, que até 09/08 não existia.
-     O QA mediu: o fecho do último capítulo devolvia à mesma rua, barra em 100%, e daí em
-     diante quarenta toques rendiam +56 e nada. O jogo acabava e não avisava.
-
-     Não é uma tela de vitória, e a razão é o §2.1. O último capítulo se chama AINDA AQUI e
-     existe para dizer que estes povos não são um estágio que a história superou — colocar
-     "VOCÊ VENCEU" no fim de um jogo sobre invasão, escravidão e demarcação em curso seria
-     desmentir o jogo inteiro na última tela. Não há troféu, não há pontuação e não há
-     ranking: o que ela mostra é o que você LEU, o que DEIXOU PASSAR, e para onde ir.
-     O impacto acumulado e os recursos ficam de fora de propósito — número de jogo virando
-     placar de história é exatamente o que o §2 proíbe. -->
-<div class="tela" id="telaFim">
-  <div class="telaTit" id="fimTit">ATÉ AQUI</div>
-  <div class="telaTxt" id="fimTxt"></div>
-  <div id="fimPlacar"></div>
-  <!-- A PERGUNTA DE UMA LINHA. O jogo existe para responder "o loop segura alguém por três
-       dias?" e até aqui quem respondia era um bot. Ela vive DEPOIS do placar e ANTES das duas
-       portas, e não é pedágio: quem sair sem tocar sai igual, e ela não volta a perguntar.
-       Não é avaliação e não pode virar uma — nada de estrelas, nada de nota, nada de "gostou?".
-       A CHEGADA não é troféu (§2.1) e uma caixa de nota no fim de um jogo sobre invasão e
-       escravidão seria a mesma tela de vitória que três ondas tiraram daqui, com outra roupa.
-       O material é o que já existe: papel de campo para a pergunta (PAPEL fala serifa) e
-       tábua para as respostas (MADEIRA fala bitmap) — a régua da casa, sem vocabulário novo. -->
-  <div id="fimPergunta" class="oculto">
-    <div id="fimPerguntaTxt"></div>
-    <div id="fimPerguntaBotoes">
-      <button class="telaBtn perguntaBtn" id="btnVolta1"></button>
-      <button class="telaBtn perguntaBtn" id="btnVolta2"></button>
-      <button class="telaBtn perguntaBtn" id="btnVolta3"></button>
-    </div>
-  </div>
-  <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
-  <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
-  <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>
-</div>
 
 <!-- FONTES: o §2 virando interface. Se alguém inventar um fato, esta tela fica vazia. -->
 <div class="tela" id="telaFontes">
@@ -273,9 +200,49 @@
   <button class="telaBtn" id="btnVoltarFontes">VOLTAR</button>
 </div>
 
+<!-- GLOSSÁRIO: o dicionário de campo do jogo. Pedido do dono (2026-08-08): "explicar todos os
+     termos que a gente usa no jogo, ou na história — pra dar contexto, e de onde vem".
+     A lista é preenchida por JS (o Dev), NUNCA por marcação escrita aqui: quem escreve verbete
+     escreve com fonte, e fonte mora no código junto do texto. As classes que a Direção de Arte
+     estiliza estão no estilo.css, na seção GLOSSÁRIO. -->
+<!-- A LISTA É DE TERMOS RECOLHIDOS, e o verbete abre ao toque (decisão do dono, 2026-08-08).
+     Antes eram 52 cartões abertos empilhados: dois enchiam a tela e nada ficava na cabeça.
+     Recolhida, a lista mostra o campo inteiro antes de a pessoa escolher onde entrar.
+     A DIVISÃO DE TRABALHO: o Dev monta o DOM inteiro e só alterna a classe `.aberto` no
+     toque; QUEM DECIDE o que aparece recolhido e o que aparece aberto é a CSS. Nenhuma
+     altura é calculada em JS — nem aqui, nem no rolo (ver #listaGlossario no estilo.css).
+     A ORDEM DA COLUNA é o que faz a barra de busca e as abas NÃO rolarem com a lista: o
+     `.tela` é um flex vertical, e só `#listaGlossario` tem `flex: 1 1 auto; min-height: 0`. -->
+<div class="tela" id="telaGlossario">
+  <div class="telaTit">GLOSSÁRIO</div>
+  <!-- O PRIMEIRO <input> DO JOGO. Duas armadilhas, e as duas moram no estilo.css:
+       1. a régua §3.4 é "sem zoom, sem seleção de texto", e o `user-select: none` global do
+          `*` impede EDITAR o que se digitou — o campo é isentado por regra própria;
+       2. `font-size` abaixo de 16 px faz o Safari do iPhone dar zoom ao focar e desmontar a
+          tela; o corpo do campo é o degrau 17,2 da escala, que passa dos 16 com folga. -->
+  <div id="glBusca">
+    <input id="glCampo" type="text" inputmode="search" autocomplete="off"
+           autocorrect="off" spellcheck="false" placeholder="buscar termo">
+    <button id="glLimpar" type="button" aria-label="limpar busca">✕</button>
+    <!-- O DADO. Era um "?", e um "?" ao lado de um campo de busca promete AJUDA ("como isto
+         funciona") — não "me mostra um termo qualquer", que é o que o botão faz. O dado não
+         precisa de tradução e não promete outra coisa. Ele é desenhado no estilo.css, em
+         quadrados de aresta dura sobre a pedra da tecla: sem glifo (a face de dado do Unicode
+         cai numa fonte de símbolo que não é da casa) e sem imagem nova (peso zero).
+         O rótulo de verdade continua no `aria-label`, que já dizia a coisa certa. -->
+    <button id="glSorte" type="button" aria-label="mostrar um verbete ao acaso"></button>
+  </div>
+  <!-- As abas saem do próprio conteúdo (o Dev as pinta a partir dos grupos do GLOSSARIO).
+       Sete não cabem em 375 px: a fileira rola na horizontal e as bordas dissolvem, que é o
+       mesmo recurso do rolo vertical da lista — a casa já tem essa frase. -->
+  <div id="glFiltros"></div>
+  <div id="listaGlossario"></div>
+  <button class="telaBtn" id="btnVoltarGloss">VOLTAR</button>
+</div>
+
 <div class="sheet" id="sheetUpgrades">
   <div class="sheetHead"><div class="t">MELHORIAS</div>
-    </div>
+    <button class="fechar" data-close="sheetUpgrades">✕</button></div>
   <div id="listaUp">
     <div class="upgrade" id="cardU1"><span class="nome">×3<br>por alcance</span><button id="btnU1"></button></div>
     <div class="upgrade" id="cardU2"><span class="nome">×2<br>no que pega</span><button id="btnU2"></button></div>
@@ -290,14 +257,7 @@
            não perder a medição junto: usar o x100 MARCA a sessão em R.turbo, e a tela
            de retenção passa a dizer quantos dias tiveram turbo. Dado com asterisco vale
            mais que dado limpo e falso. -->
-      <!-- NASCE OCULTA, e a razão é o QA dos cinco minutos: ela é GRÁTIS e estava visível no
-           segundo zero. O bot curioso comprou aos 20,2 s, o botão dourado passou a +300,0 e
-           ele liquidou PINDORAMA aos 76 s — o jogo inteiro trivializado antes de a pessoa
-           entender o que ele é. O dono a pediu de volta para poder testar depressa, e ela
-           continua ali para isso: aparece assim que o impacto acumulado alcança o preço da
-           PRIMEIRA melhoria de verdade (150). Quem segura o botão chega lá em segundos —
-           quem está aprendendo chega depois de ter entendido o laço. Ver `revelarTurbo()`. -->
-      <div class="upgrade teste oculta" id="cardU4"><span class="nome">×100<br>RÁPIDO</span><button id="btnU4"></button></div>
+      <div class="upgrade teste" id="cardU4"><span class="nome">×100<br>RÁPIDO</span><button id="btnU4"></button></div>
     <div class="upgrade teste oculta" id="cardU5"><span class="nome">ZERAR<br>TEST</span><button id="btnU5">apagar</button></div>
   </div>
 </div>

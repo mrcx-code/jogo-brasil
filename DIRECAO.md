@@ -316,147 +316,234 @@ Instrumentos novos: `test/medir-scroll.js`, `test/prints-fala-fundo.js`,
 momentos na rua) continua por progresso; o menu continua com o mundo vivo atrás (o menu
 é a mata — decisão de pé); a aura do lugar de espera segue com o dono.
 
-## A LEI DO RITMO (2026-08-09) — permanente, e rege cada capítulo novo
+## Onda 10 — IMPLEMENTADA (2026-08-08): O GLOSSÁRIO, E O POSTE COM CINCO TÁBUAS
 
-A tensão é do dono, palavras dele: *"Não está uma experiência fluida e prazerosa de
-scrollar (apesar de serem histórias tristes)."* O parêntese é a metade importante — ele
-está perguntando se dá para o percurso ser bom quando o assunto dói.
+Pedido do dono: *"explicar todos os termos que a gente usa no jogo, ou na história — pra dar
+contexto, e de onde vem… deixa bem bonito, com a cara do jogo, mesma estética."*
 
-**A resposta desta casa: dá, e o que faz isso é RITMO, não alívio.** Um bom documentário
-sobre a travessia atlântica é doloroso e ainda assim bom de assistir — não porque
-suaviza (isso o §2 proíbe, e proibiria mesmo se não proibisse: suavizar é mentir), mas
-porque a montagem respira: nem toda cena pede o mesmo tempo, nem tudo fala ao mesmo
-tempo, e o silêncio é uma nota, não um buraco. Alívio mexe no CONTEÚDO; ritmo mexe no
-TEMPO. O conteúdo não é meu; o tempo é.
+**Onde ele entra na régua, e por que não é um segundo DE ONDE VEM.** A função é LER, então o
+material é PAPEL de campo com tinta escura e serifa `--leitura` — o parentesco é com `.fnItem`
+e `.ltMomento`, não com madeira nem pedra. Mas DE ONDE VEM é uma **bibliografia** (uma linha
+de procedência por item, um papel tipográfico e meio) e isto é um **verbete**, que tem quatro
+papéis empilhados. A hierarquia interna do cartão foi o trabalho da onda:
 
-Cinco regras, e elas valem para toda superfície de leitura nova — capítulo, página,
-travessia, fecho:
+> **Esta tabela é HISTÓRICA — foi ela que o dono reprovou.** Os cinco tamanhos abaixo
+> (19/16/14/12,5/11,5) são exatamente o "letras em tamanhos diferentes feios" da crítica.
+> A escala que vale hoje está na Onda 11, logo abaixo. Mantida aqui para ninguém
+> reintroduzir estes números achando que são a régua.
 
-1. **O gesto é o relógio.** Toda transição é dirigida pelo gesto da pessoa (o rolo, o
-   toque), nunca por cronômetro — rolar devagar transforma devagar, voltar desfaz.
-   Exceção única e nomeada: a capa, uma vez, ao abrir.
-2. **Um palco, uma coisa acesa.** A página que sai cede o palco à que chega; duas
-   superfícies disputando o mesmo quadro com a mesma luz é o erro que a medição do
-   meio-de-virada acusou.
-3. **A ordem de chegada é a ordem de leitura.** Data/título → corpo → fonte; a voz da
-   personagem comenta DEPOIS do lido. Material que chega em bloco não é lido, é visto.
-4. **Peso é tempo, e se paga em tempo.** Página dura é ponto final: para o arremesso,
-   chega em silêncio (o quadro sozinho um instante) e o texto vem depois. Ponto final é
-   raro por definição — se toda página parar, nenhuma pesa; era o travadão. A régua de
-   hoje: 7 em 26.
-5. **O prazer do percurso vem da variação de andamento, não de enfeite.** Marco, papel,
-   momento e ponta têm andamentos DIFERENTES da mesma língua — é a alternância que faz
-   26 páginas parecerem uma viagem e não uma lista. Efeito novo que não muda o andamento
-   de nada não entra (princípio 2 de sempre: propósito nomeável).
+| classe | papel | tinta |
+|---|---|---|
+| `.glT` | cabeça de verbete, serifa 700 19/22 | `#33240f`, a mais escura do papel |
+| (filete) | o traço de pena sob a cabeça, 26×2 px | `#a9793a` |
+| `.glO` | a nota de etimologia — "de onde vem", que o dono pediu por nome | `#7a4d16`, itálico, a voz de margem (a mesma do `.ltQ`) |
+| `.glD` | o corpo, redonda 400 sentada na pauta (22 = 2 × 11) | `#46341c` |
+| `.glF` | rodapé do verbete, atrás de um fio de tinta | `#8a6b3d`, itálico |
 
-**Aplicação a capítulo novo, operacional:** toda página nova nasce com FAMÍLIA e
-ANDAMENTO decididos (qual das quatro, e se é vírgula ou ponto final); página dura nova
-entra na lista `DURAS` de `montarCompletude` e na regra do silêncio do balão JUNTAS —
-são a mesma decisão, e a amarra é pelo nó (`qi`), nunca pela posição.
+**O detalhe que faz a página ser página:** todo ritmo vertical dentro do cartão anda em
+múltiplos de 11 px — a pauta do próprio papel (espaço entre blocos = 1 pauta; entrelinha do
+corpo = 2 pautas, a regra da onda 6). É o que assenta a tinta NO papel em vez de sobre ele.
 
-## Onda 10 — IMPLEMENTADA (2026-08-09): O RITMO DO ROLO
+**Três derivações, nenhuma invenção.** (a) `.glGrupo` deixou de ser texto solto sobre o véu
+(como em DE ONDE VEM) e virou a MESMA placa do título da tela (`.telaTit`, madeira escura
+`#503319→#38220e`) em recorte pequeno, encostada à esquerda: **placa grande = a tela, placa
+pequena = a seção**, e madeira fala bitmap. Sem pregos — prego é só do poste. (b) `.glItem.dv`
+usa o sinal que a tela DE ONDE VEM já ensinou (`.fnDuv`): o material não muda, a moldura vira
+âmbar e a tinta da cabeça escurece. Quem viu lá reconhece aqui. (c) As bordas do rolo
+DISSOLVEM no lugar da barra de rolagem (a decisão da onda 8), com a mesma máscara que costura
+a imagem de contexto na fala; o `padding` de 12/22 px existe por causa dela, para a página não
+abrir com a aba meio apagada nem fechar com o último verbete pela metade.
 
-O desenho veio do diagnóstico medido da sessão anterior (o meio-de-virada do ANTES: a
-página que sai ficava 100% acesa até o último pixel; o material chegava em bloco; Marajó
-pedia o mesmo tempo que a travessia forçada) e é a primeira aplicação da LEI DO RITMO.
-Referência que sustenta: **Florence** (ADA 2018 · BAFTA 2019), de novo e mais fundo — lá
-cada virada tem um andamento próprio (as peças do quebra-cabeça chegam mais devagar
-quando a conversa pesa), e é isso que separa "páginas que passam" de "história que anda".
-Território: `src/estilo.css` e `montarCompletude` (`src/jogo.ts`). Zero imagem nova.
+**O rolo não depende de JS.** `#listaFontes` toma a altura de um `max-height` escrito por
+`montarFontes()`; `#listaGlossario` toma do flex (`flex: 1 1 auto; min-height: 0`), então o
+VOLTAR não sai da tela por caminho nenhum. `flex-shrink: 0` nos cartões — a armadilha do
+`.capItem` ("dentro de um rolo, botão que encolhe deforma") vale igual aqui.
 
-1. **A saída cede o palco.** Todo quadro ganhou um véu de penumbra (`.qQuadro::after`,
-   `#0a0806`) dirigido pelo próprio rolo: `exit 0% → 100%`, opacity 0 → 0,85. A página
-   que fica para trás escurece enquanto sai; a que chega é a única acesa. Reversível ao
-   voltar por construção (scroll-driven). Sem `view()`, o véu fica em 0.
-2. **A transição é do CONTEÚDO, não do container.** Os containers assentam cedo
-   (entry 24–62%) e a tinta chega escalonada DENTRO do papel: data/título (34–64) →
-   corpo (44–78) → fonte (54–90); o balão da personagem por último (66–100) — a voz
-   comenta depois do lido. Keyframe novo `qTinta` (7 px, não os 44 do papel: tinta
-   pousa, não cai).
-3. **Cada família tem um andamento.** MARCO revela do escuro (`qRevelaEscuro`, opacity
-   0) e a placa POUSA COM BAQUE (`qPousa`: cai de −56 px, toca com 5 px de sobra,
-   assenta; o selo VOCÊ ESTÁ AQUI chega depois do pouso, 78–100). PAPEL abre como
-   caderno (`qCaderno`: rotateX −12° com origem no topo). Ponta e momento seguem leves.
-4. **O peso pede tempo.** As três páginas duras (o açúcar, a travessia forçada, 1888 —
-   as MESMAS que ficam sem balão por §2) + os 4 marcos ganharam `scroll-snap-stop:
-   always`: 7 pontos finais em 26 páginas, o resto corre leve. Nas duras o material
-   chega mais tarde (papel 52–84, fonte 76–100): o quadro fica sozinho um instante —
-   o mar da travessia abre a página em silêncio. A classe `qDura` nasce em
-   `montarCompletude`, amarrada ao nó (`qi: p10/p12/p21`), nunca à posição.
-5. **A capa abre.** A única transição POR TEMPO da tela: ao abrir (a classe `.aberta`
-   renasce a cada abertura), a pintura da primeira página revela em 1,6 s e a tabuinha
-   chega 0,7 s depois — `animation-timeline: auto` explícito para vencer o empate com a
-   timeline do rolo. `prefers-reduced-motion` cobre tudo: os pontos finais (que não são
-   movimento) valem sempre; nenhuma animação nova vaza.
+**O POSTE COM CINCO TÁBUAS — medido, e era risco real.** O poste ancora embaixo por
+`margin-top: auto`; quando o conteúdo passa da altura, o `auto` vira 0 e a coluna transborda
+pelo PÉ, sem barra de rolagem — a última tábua simplesmente sai da tela. A medida que importa
+não é "coube?", é a FOLGA entre o pé da tagline e o topo da primeira tábua. Com QUATRO tábuas:
+375×812 **178** · 390×844 **201** · 360×640 **26** · 320×568 **0**. A quinta custa 64 px em
+tela alta — as duas telas baixas iriam a −38 e −64, com a placa por cima da tagline. A resposta
+foi uma média de `max-height: 730px` que anda o conjunto um passo mais junto (logo 44vw, gap 8,
+tábua secundária 11 px de respiro; **JOGAR não encolhe**, o destaque é dele). DEPOIS: 375×812
+**114** · 390×844 **137** · 360×640 **90** · 320×568 **37**, e nada fora da tela em nenhuma.
 
-**Medido** (`test/prints-onda10.js`, novo — fotografa o MEIO das viradas com snap solto,
-armadilha da onda 8, e a capa em três tempos): véu da página que sai a meio-exit
-**opacity 0,51 interpolada** (ANTES: pseudo inexistente); `scroll-snap-stop` computado
-**always nos 7, normal nos 19**; animações scroll-driven por página 3 → 7 (comum com
-balão) e 2 → 6 (dura). Prints `O10-antes/depois-*.png`: na virada comum a mata que sai
-apaga enquanto a ensolarada chega; no marco a placa PALMARES aparece no meio do pouso;
-na dura a f60 o mar está sozinho e a f90 a fonte ainda está chegando. FPS **61/61/61**
-(piso 58); `index.html` 4.023.521 → **4.029.942 bytes LF** (+6,4 KB, só código); zero
-rede; smoke PASS 3×, nenhuma asserção precisou mudar (o smoke só afirma alcançabilidade
-da tela; os instrumentos de scroll continuam medindo o que mediam).
+**Achado de passagem, e feio: o menu DEITADO já estava quebrado antes desta onda.** A 812×375 a
+folga era 0 e o pé do poste caía 82 px abaixo da borda **com quatro tábuas** — ninguém tinha
+desenhado o menu em paisagem e o jogo não trava orientação em lugar nenhum. Como a quinta tábua
+piorava o número, corrigi com os MESMOS dois objetos lado a lado (placa à esquerda, poste à
+direita, mastro seguindo para fora da tela por baixo) numa média de `max-height: 520px` e
+aspecto ≥ 4/3; a tabuinha da frase sai, porque deitada ela vira uma terceira coluna disputando
+a linha. DEPOIS: poste 31..345 em 375, folga 31, sobra 30 — a 812×375 e a 667×375.
 
-**Limite dito por inteiro (o mesmo da onda 9):** o headless não produz fling com
-momento, então o efeito do `stop: always` em arremesso real não é mensurável aqui — o
-que se mediu é o estilo computado nos 7 quadros certos e as duas metades que não podiam
-morrer: arrasto curto fica onde o dedo deixou (285 px) e soltar perto da borda assenta
-nela (resto 0). No aparelho, parar 7 vezes em 26 é pontuação; parar 26 era o travadão.
+**Medido:** instrumento novo `test/prints-glossario.js` — mede o poste em cinco viewports,
+isola o custo exato da quinta tábua removendo-a do DOM sob o MESMO CSS, e fotografa a tela com
+o conteúdo REAL assim que `montarGlossario()` existe (cai numa amostra própria enquanto não).
+Prints `GL-antes/depois-*.png` em `test/`. FPS **61** no smoke; `npm test` verde sem ajuste em
+teste nenhum; zero imagem nova; zero rede; `src/estilo.css` +9,9 KB e `src/index.html` +1,0 KB,
+só código e comentário.
 
-**Escala inteira, revisada de propósito:** a composição do quadrinho não supunha 390 —
-página é `height: 100%` do rolo, papel é `min(30em, 100%)`, fundos são `cover`, e as
-`animation-range` são frações da virada; nada quebrou com o campo de visão variável.
+**O que ficou pendente com o Dev:** a tinta do rótulo de `.glGrupo` ainda é o ouro `#d9a441`
+herdado de `.fnGrupo`, escolhido quando o grupo era texto solto. Sobre a placa escura a
+separação é fraca (Δluma 121) e o ouro é reservado à ação principal; a tinta certa é a do
+título, **`#ffd98a`** (Δluma 172) — recortes `GL-aba-ouro.png` e `GL-aba-creme.png` em `test/`.
 
-## Onda 11 — IMPLEMENTADA (2026-08-09): O GRÃO DO CHROME, E O HUD QUE CRESCE
+## Onda 11 — IMPLEMENTADA (2026-08-09): A ESCALA DO GLOSSÁRIO, A PAUTA E A PÁGINA DUPLA
 
-O ticket era o item 1 do `PENDENTES.md` — o achado de uma sessão que morreu no limite, e a
-única hipótese que explicava a queixa do dono (*"o menu de cima e os botões de baixo não
-parecem do mesmo jogo"*) ter sobrevivido a TRÊS ondas que mexeram em paleta e construção:
-**o mundo é pixel art com grão por toda parte, e o chrome inteiro era gradiente CSS liso —
-vetor sobre pixel.** O código daquela sessão morreu com a worktree; foi reescrito do zero.
+Reprovação do dono sobre a Onda 10: *"meio brega, meio antigo… que as letras não estejam em
+diferentes tamanhos feios, mas que façam sentido esteticamente"*, e depois *"a usabilidade pode
+melhorar, talvez deixar mais visual"* e *"o layout deve ser sempre mobile first, mas deve ser
+responsivo e se adaptar para telas grandes"*.
 
-1. **Três texturas de ruído determinístico** (`texturaChrome()` no boot de `src/jogo.ts`,
-   o mesmo `hash01` do mundo), servidas ao CSS como `url(data:)` — **zero byte de arte no
-   arquivo**: `--veioPx` (tábua serrada: riscos horizontais em runs irregulares de 3–10
-   células, escuro e mel), `--graoPx` (pedra lavrada: speckle disperso, poro escuro ~11% e
-   cisco claro ~5,5%) e `--graoOuroPx` (o MESMO speckle a meia força — metal poroso, não
-   pedra). Grão de **2 px css** — o passo dos ícones da onda 7: pixel de chrome é inteiro
-   e casa com a malha do mundo. A CSP já permitia `img-src data:`; nada toca a rede.
-2. **Cada superfície da régua soma o seu grão como PRIMEIRA camada de `background`**:
-   madeira (placa da época, tábuas do poste, JOGAR, títulos, PULAR, eras, marco do
-   quadrinho, VOCÊ ESTÁ AQUI, tabuinha sobre arte), pedra (nichos do HUD, chip, os quatro
-   cartões do rodapé, bandeja e botões de MELHORIAS, sheet) e ouro (botão dourado, nos dois
-   estados). `var(--veioPx, none)`: se o JS não rodar, o fallback deixa o chrome exatamente
-   como era — enhancement de verdade.
-3. **Achado de passagem, registrado para a régua:** o "veio" antigo das receitas de madeira
-   (o `repeating-linear-gradient` de 2px/8px) estava DECLARADO ABAIXO do gradiente opaco —
-   nunca rendeu um pixel. A madeira sempre foi lisa; só a queixa via isso. As camadas mortas
-   ficaram (mexer nelas é outra passada); o grão novo entra por CIMA, onde se vê.
-4. **A exceção nomeada:** o poste do menu (`#poste::before`) NÃO recebeu `--veioPx` — o
-   veio é horizontal e o mastro é vertical; fibra atravessada mentiria o material. Se um dia
-   valer a pena, é uma segunda textura rotacionada, não a mesma forçada.
-5. **A SUBTRAÇÃO DO HUD** — o dono pediu leve, e a lente estava anotada desde a auditoria
-   de referências: **Afterplace (ADA 2023), quase não há HUD; o mundo é a interface**. No
-   boot, o alto da tela eram QUATRO lajes de pedra segurando quatro zeros. Agora: o placar
-   (que é o jogo) e a placa da época ficam; **os três nichos de drop nascem quando a rua dá
-   o primeiro item** — a fileira crescer é o jogo dizendo "isto rende", e o céu respira
-   onde havia pedra muda. `recNaTela()` no pintor do HUD; o nicho nasce SÍNCRONO no
-   `coletarDrop` porque a seta da microdica mede o rect dele no mesmo instante. Some de
-   novo só no APAGAR MEU PROGRESSO, atrás da própria tela de AJUSTES.
+### A escala — três números, uma razão, e ela sai do papel
 
-**Medido** (`test/prints-grao.js`, novo — mede a 1ª camada computada de cada material,
-o peso das três data URLs e fotografa menu, HUD, rodapé, ouro e MELHORIAS em zoom):
-ANTES 7 superfícies "SEM GRÃO", DEPOIS 7 com `url(data:` na 1ª camada; texturas de
-3,6/5,2/4,9 KB **em runtime** (no arquivo: zero). Prints `GR-*-antes/depois.png` em
-`test/`, olhados com a pergunta da barra — o rodapé de pedra contra o chão de terra e as
-tábuas do poste contra o LOGO (que sempre foi uma placa de madeira com grão pintado à mão)
-respondem sim: era exatamente o encontro que denunciava o vetor. FPS **61/61/61** (piso
-58); `index.html` +15,5 KB LF (só código, mais os comentários que explicam); zero imagem
-nova; zero rede; `npm test` PASS 3×; `test/medir-telas.js` **7 de 7**; verificado vivo no
-navegador (menu → cerimônia → fala → rua: nicho nasce com o primeiro drop).
+Um número manda: a **PAUTA de 11 px**, a linha do próprio papel de campo (o
+`repeating-linear-gradient` que a casa usa desde a onda 6). A razão entre degraus é **1,25 — a
+terça maior**, constante. Nada nesta tela nasce fora daqui.
+
+| elemento | tamanho | é | entrelinha | função |
+|---|---|---|---|---|
+| `.glT` | **17,19** | t2 = 11 × 1,25² | 22 (2 pautas) | o TERMO, serifa 700 |
+| `#glCampo` | **17,19** | t2 | 22 (2 pautas) | o campo de busca |
+| `.glD` | **13,75** | t1 = 11 × 1,25¹ | 22 (2 pautas) | a DEFINIÇÃO — o corpo |
+| `.glO` | **13,75** | t1 | 16,5 (1,5 pauta) | a ORIGEM — nota de margem |
+| `.glF` | **11,00** | t0 = a pauta | 16,5 (1,5 pauta) | a PROCEDÊNCIA, o único itálico |
+| `.glLink` | **11,00** | t0 | 16,5 (1,5 pauta) | as REMISSÕES, versalete |
+| `.glGSub` | **11,00** | t0 | 22 (2 pautas) | a frase que explica o grupo |
+| `.glGrupo` / `.glGNome` | **sem tamanho** | — | canvas 11 px | MOBÍLIA: bitmap, não está na escala |
+| `.glFiltro` | **sem tamanho** | — | canvas 11 px | MOBÍLIA: bitmap, não está na escala |
+
+`t3 = 21,48` existe e fica **RESERVADO**: neste tamanho quem fala é a placa de madeira em
+bitmap, não a serifa. Os dois últimos não têm número porque **não têm letra** — são canvas, e
+`font-size: 0` em cada um é a declaração disso. Sem essa linha a aba ficava com os 13,333 px que
+o navegador dá a um `<button>`: um número fora da escala, que ninguém escolheu, e que só não
+aparecia por sorte. **A exceção é imposta, não escolhida:** `#glCampo` precisa de ≥16 px ou o
+Safari do iPhone dá zoom ao focar (§3.4) — t2 = 17,19 já passava dos 16, a régua não abriu
+exceção nenhuma.
+
+### A metade que faltava: a pauta manda na ALTURA, não só no tamanho da letra
+
+A escala tipográfica estava declarada mas **a régua vertical não fechava**, e era isso que ainda
+fazia a página parecer torta sem que se soubesse dizer por quê. A linha do índice tinha **45 px**
+(11 + 22 + 12) contra uma pauta de 11: a fase caminhava **1 px por linha** e dava uma volta
+completa a cada 11 verbetes. O efeito visível era um **risco duplo** em cada linha — o fio do
+índice e a linha do papel ora colados, ora 5 px separados, na mesma tela. Agora:
+
+| caixa | conta | pautas |
+|---|---|---|
+| linha do índice recolhida | 11 + 22 + 11 = **44** | 4 — e 44 é o alvo do dedo |
+| linha de termo que quebra em duas | **66** | 6 |
+| placa de seção | 5 + 11 + 6 = **22** | 2 (pegada 55 entre seções, 33 na primeira) |
+| cabeçalho de grupo com frase | 22 + 22 + 11 + 22 = **77** | 7 (99 com duas linhas) |
+| cartão aberto, margem | 9 + 13 = **22** | 2 — devolve a folha à régua |
+| topo / pé do rolo | **11 / 22** | 1 e 2 |
+
+**Medido:** fase 0,00 em todas as 14 primeiras linhas, inclusive atravessando placa de seção
+(antes: 8, 9, 10, 0, 1, 2, 3… uma volta completa). O `min-height: 44px` do alvo do dedo deixou
+de ser um piso que sobrescrevia a conta e **virou** a conta.
+
+Três consequências de graça: (a) o gradiente da pauta passou de `0deg` para **`180deg`** — a
+0deg ele corre de baixo para cima e a fase dependia da ALTURA TOTAL do conteúdo, mudando de
+lugar a cada filtro e a cada verbete aberto; (b) a cabeça **não muda mais de altura ao abrir**
+(era `11/12` → `13/2`, e o termo dava um pulo de 2 px debaixo do dedo que acabou de tocá-lo);
+(c) o verbete mais longo do array (DIAGRAMA DO BROOKES, 968 caracteres) passou a **caber inteiro
+numa tela de 375×812** — 529 px num rolo de 531.
+
+### O que NÃO fecha em 11, e é escolha
+
+`.glO` e `.glF` andam em 16,5 (1,5 pauta), então em número ímpar de linhas terminam 5,5 px fora
+da régua. Isso vale **só dentro do cartão aberto**, que é um objeto único lido de cima a baixo,
+onde a pauta é textura. No índice — onde onze linhas se empilham e qualquer desvio vira sujeira
+— a régua é exata. Nesta tela **NOTA anda em 1,5 pauta e TEXTO CORRIDO anda em 2**: é o segundo
+eixo da escala e ele carrega sentido sozinho.
+
+### Tela larga: a página dupla do dicionário (a partir de 900 px)
+
+Mobile first é a ordem — tudo acima é o telefone e é o que manda. Mas a 1280 px o que existia
+era uma tira de 544 px no meio de 736 px de escuro: não era o telefone esticado (o `max-width:
+34em` impedia), era pior — uma tela grande tratada como um telefone com moldura, com a fileira
+de abas escondendo 4 das 7 atrás de uma rolagem horizontal que sobrava espaço para não ter.
+
+A resposta é a que o próprio objeto dá: **duas colunas de índice, e o verbete aberto atravessando
+a folha inteira** — a página dupla de um dicionário impresso.
+
+- **A folha cresce para 62em (992 px); o campo de busca NÃO.** Um campo de digitação de 950 px
+  para uma palavra de oito letras é exatamente o "telefone esticado" que a media query existe
+  para evitar: a caixa não fica melhor por ser maior, fica vazia. Ele fica na medida do telefone.
+- **As sete abas cabem em duas fileiras** e a máscara sai: numa tela com mouse, rolagem
+  horizontal escondida é a pior gaveta que existe.
+- **O verbete aberto vira página dupla:** a definição na coluna da esquerda, na MESMA medida de
+  leitura do telefone; a nota de etimologia, as remissões e a procedência na direita — que é,
+  literalmente, a margem. A "nota de margem" que no telefone só podia ser uma promessa (um fio
+  vertical à esquerda de um bloco de largura inteira) **aqui é a coisa mesma**. Ordem do DOM
+  intacta: quem reordena é a grade.
+- **Por que 900 e não 768:** a 768 as duas colunas dariam ~360 px, estreito demais para o termo
+  mais longo sem quebrar em duas linhas em quase toda a lista. A 900 cada coluna passa de 420 e
+  as quebras somem. O corte é medido, não redondo.
+- **O fio passou da cabeça para o item**, e isso é o que impede o defeito clássico da grade: numa
+  fileira de duas células, a mais alta manda na altura das duas, e o fio desenhado sob a CABEÇA
+  terminaria a 44 px de um lado e a 66 do outro — dois riscos tortos na mesma linha do papel.
+
+**Ganho medido a 1280×800:** 12 termos por tela contra 11, num rolo que caiu de 2.673 px para
+1.573; as 7 abas visíveis de uma vez; e **nenhuma linha de texto esticada** — a medida de leitura
+ficou MENOR do que era, não maior. **Nada disto pede JS.** O acordeão continua igual: um aberto
+por vez, e o que muda é que o aberto atravessa as duas colunas em vez de empurrar a coluna dele.
+
+### O botão do acaso deixou de ser um enigma
+
+O `#glSorte` era um **"?"**, e um "?" ao lado de um campo de busca promete AJUDA ("como isto
+funciona") — não "me mostra um termo qualquer", que é o que ele faz. Virou um **dado**, desenhado
+em CSS: não como glifo (as faces do Unicode ⚀..⚅ caem numa fonte de símbolo que não é da casa e
+mudam em cada aparelho) e não como imagem (peso é o gargalo da vez). Seis retângulos de tinta em
+posição inteira — face 26, pinta 4, cantos em 5 e 17, centro em 11 — então ele fica quadrado em
+qualquer densidade de tela, que é a única maneira de um dado conviver com pixel art. A face é a
+de **cinco**: a de seis vira duas colunas borradas neste tamanho, a de um vira um ponto sem
+sentido. Na primeira tentativa a face era 20 e as pintas se encostavam na diagonal — cinco
+quadrados grudados não são um dado, são um xadrez. **Medido a 320×568: o campo de busca não
+perdeu um pixel** (216 px antes e depois), então o ícone não custou digitação.
+
+### O cabeçalho de grupo: nome na madeira, explicação no papel
+
+O dono não entendeu a divisão em grupos, e tinha razão — dois dos seis eram nomes de capítulo,
+que só significam algo para quem já jogou. Cada grupo passa a ter **nome + uma frase curta**, e a
+divisão entre os dois sai da régua da casa, não do gosto: *"madeira fala bitmap, papel fala
+serifa"*. Prosa em bitmap dentro de uma tabuinha viraria placa de trânsito. Então **a placa
+continua sendo só o NOME** (a aba do fichário) e **a frase é escrita na folha logo abaixo dela**,
+que é onde alguém escreveria à mão o que aquela divisória separa. A frase é t0 redonda em `#6f5a38`
+— nem o âmbar do `.glLink` (que promete um toque) nem o itálico da procedência (que é outra
+camada de fala): redonda e mais clara é o certo para uma legenda. Ela anda em **22 (2 pautas)**
+porque mora no PAPEL, junto com as linhas do índice, e não dentro de um cartão.
+
+Contrato do DOM: `<div class="glGrupo"><span class="glGNome">NOME</span><span class="glGSub">a
+frase</span></div>`. O seletor `.glGrupo:not(:has(.glGNome))` é a **ponte**: enquanto o Dev não
+troca o DOM o grupo ainda é a placa direta e continua desenhado; quando `.glGNome` chegar, a
+madeira migra sozinha e aquele braço do seletor pode ser apagado.
+
+### Medido
+
+`npm test` **verde**, FPS **61** (piso 58) — e o 53 que apareceu numa medição intermediária era
+**contenção de máquina, não regressão**: o A/B interleaved entre o CSS de HEAD e este, sete voltas
+alternadas, deu distribuições sobrepostas (rua: HEAD 28 / novo 38; glossário: HEAD 37 / novo 34)
+com `load average` variando de 11 a 19 durante a medição. A métrica de FPS deste projeto é
+sensível à carga da máquina; **medir A e depois B em sequência é um erro** — quando a carga sobe,
+quem foi medido por último perde sempre.
+
+Prints `test/GL11-{indice,verbete}-{375x812,320x568,1280x800}.png`, com o `localStorage` limpo
+antes de cada foto (senão o painel "ENQUANTO VOCÊ ESTEVE FORA" cobre a tela). Zero imagem nova,
+zero rede, zero JS.
+
+### A armadilha que matou a sessão anterior, e que me pegou TRÊS vezes
+
+O defeito que a sessão anterior deixou foi um comentário fechado no meio, com sete linhas de prosa
+soltas dentro do CSS e um `*/` órfão: o navegador engolia a regra `.glItem` inteira e o verbete
+recolhido ficava com 334 px em vez de 45. **O `npm test` passava verde** — a checagem confere a
+classe, não a altura. Reproduzi o mesmo erro três vezes nesta onda (ancorando uma edição na regra
+e prependendo prosa ao comentário que já estava fechado), e nas três vezes quem pegou foi um
+verificador de 8 linhas que conta `/*` e `*/`, não o teste. Uma das três apagou o dado inteiro do
+botão e o print mostrou uma tecla vazia. **Recomendação para o QA:** um passo de lint de
+comentário no `npm test` — é barato e cobre uma classe de defeito que o smoke não vê por
+construção.
 
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
@@ -714,10 +801,8 @@ consertando em paralelo; não toquei.
   2026-08-07), `calibrar-ceu.js` (varredura de dose numa pintura), `prints-onda3.js`
   (virada de era real, cerimônia no tempo), `prints-onda5.js` (retorno de dia 2 real,
   o amanhecer no tempo), `prints-onda7.js` (escala de todo ícone do chrome, acusando
-  razão não-inteira), `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
-  início de jogo e o meio de uma virada de página) e `prints-onda10.js` (o ritmo do
-  rolo: capa por tempo, meio de virada comum/marco/dura, opacity do véu de saída e
-  snap-stop computado nos 7 pontos finais).
+  razão não-inteira) e `prints-quadrinho.js` (A HISTÓRIA em quadrinho: fim de jogo,
+  início de jogo e o meio de uma virada de página).
 
 ## A RÉGUA DO MENU — a especificação que toda superfície de UI segue
 

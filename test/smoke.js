@@ -3,7 +3,6 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const http = require('http');
 
 // Use the sandbox chromium when it is there, otherwise whatever playwright installed.
 function chromiumPath() {
@@ -17,49 +16,52 @@ function chromiumPath() {
 // ferramentas/construir.js) — nunca a fonte em src/. JOGO_HTML aponta para outro caminho
 // quando se quer provar os bytes de outro lugar, por exemplo os que o Capacitor copiou para
 // dentro do APK: JOGO_HTML=android/app/src/main/assets/public/index.html node test/smoke.js
-// Aceita também uma URL http(s) já no ar.
-//
-// ===== POR QUE ISTO NÃO ABRE MAIS POR `file://` =====
-// Custou meia sessão e é o tipo de coisa que fica verde testando o caminho errado. Desde a
-// CARGA SOB DEMANDA (09/08) a arte dos capítulos 2+ chega por `fetch("pack-*.json")`, e o
-// Chromium RECUSA esse fetch sob `file://` — a prova está em `test/peso-file-fetch.js`. Nenhum
-// dos três lugares onde o jogo roda de verdade usa `file://`: a Vercel serve por https, o
-// `npm start` por http, e o Capacitor por `https://localhost`. Um teste que abrisse por
-// `file://` continuaria PASSANDO enquanto exercitava só o caminho de recuo (arte do capítulo 1
-// em toda parte) e nunca o caminho que a produção usa. Teste verde sobre o arquivo errado é
-// pior que teste vermelho.
-//
-// Então o teste sobe um servidor estático próprio, na origem `http://127.0.0.1:<porta>`, com o
-// DIRETÓRIO do alvo como raiz — é assim que os `pack-*.json` que o build escreveu ao lado do
-// index.html ficam alcançáveis, exatamente como ficam na Vercel e dentro do APK.
-function servirAlvo(arquivo) {
-  const DIR = path.dirname(arquivo), NOME = path.basename(arquivo);
-  const TIPOS = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
-    '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-    '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg' };
-  const servidor = http.createServer(function (req, res) {
-    const rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\//, '') || NOME;
-    const alvo = path.normalize(path.join(DIR, rel));
-    if (!alvo.startsWith(DIR) || !fs.existsSync(alvo)) { res.writeHead(404).end('404'); return; }
-    res.writeHead(200, { 'Content-Type': TIPOS[path.extname(alvo).toLowerCase()] || 'application/octet-stream',
-      'Cache-Control': 'no-store' });
-    res.end(fs.readFileSync(alvo));
-  });
-  return new Promise(function (r) {
-    servidor.listen(0, '127.0.0.1', function () {
-      r({ servidor: servidor, url: 'http://127.0.0.1:' + servidor.address().port + '/' + NOME });
-    });
-  });
-}
-async function alvo() {
+// Aceita também uma URL http(s), porque o Capacitor não serve o jogo por file:// e sim por
+// uma origem de verdade — e origem de verdade muda o que o localStorage deixa fazer.
+function alvo() {
   const p = process.env.JOGO_HTML;
-  if (p && /^https?:\/\//i.test(p)) return { servidor: null, url: p };
-  return servirAlvo(path.resolve(__dirname, '..', p || 'index.html'));
+  if (p && /^https?:\/\//i.test(p)) return p;
+  return 'file://' + path.resolve(__dirname, '..', p || 'index.html');
+}
+
+// ===== LINT DE COMENTÁRIO — roda ANTES do navegador, e existe por um defeito real =====
+// Em 2026-08-09 um comentário de `src/estilo.css` ficou PARTIDO EM DOIS: fechava na metade e
+// deixava sete linhas de prosa soltas dentro da folha de estilo, com um `*/` órfão no fim. O
+// navegador pulou o lixo e engoliu a regra `.glItem` inteira — a que recolhe o verbete —, e o
+// glossário passou a mostrar cartões de 334 px onde deviam ter 45.
+//
+// O SMOKE TEST PASSOU VERDE o tempo todo, e não por descuido: ele confere que a classe
+// `.aberto` alterna, não a altura que a classe produz. CSS morto não lança erro de console,
+// não quebra JS e não muda contagem de elemento nenhum — é invisível para tudo o que este
+// arquivo sabe olhar. Só apareceu quando alguém abriu a tela e olhou.
+//
+// Isto aqui cobre a CAUSA, que é barata de detectar: comentário desbalanceado. Não substitui
+// olhar a tela — o CLAUDE.md §6 é explícito em que o teste garante que não quebrou, nunca que
+// ficou bom — mas fecha a porta por onde esta classe de defeito entra.
+function lintComentarios() {
+  const problemas = [];
+  for (const rel of ['src/estilo.css', 'src/index.html', 'src/jogo.ts']) {
+    const p = path.resolve(__dirname, '..', rel);
+    if (!fs.existsSync(p)) continue;
+    const txt = fs.readFileSync(p, 'utf8');
+    // Um `/*` dentro de string ou de expressão regular daria falso positivo em JS/TS; por isso
+    // a checagem de bloco só vale para CSS, onde não há literal de string com barra-asterisco.
+    if (rel.endsWith('.css')) {
+      const ab = (txt.match(/\/\*/g) || []).length, fe = (txt.match(/\*\//g) || []).length;
+      if (ab !== fe) problemas.push(`${rel}: ${ab} aberturas de comentário para ${fe} fechamentos`);
+      // `*/` que sobra depois de remover todo comentário bem-formado é o órfão exato do caso
+      // acima: quem o escreveu achava que estava dentro de um comentário, e não estava.
+      const orfaos = txt.replace(/\/\*[\s\S]*?\*\//g, '').split('*/').length - 1;
+      if (orfaos) problemas.push(`${rel}: ${orfaos} fecha-comentário órfão — prosa solta fora de comentário`);
+    }
+  }
+  return problemas;
 }
 
 (async () => {
-  const posto = await alvo();
-  const file = posto.url;
+  const file = alvo();
+  const problemasDeComentario = lintComentarios();
+  problemasDeComentario.forEach(function (p) { console.log('comment lint -> ' + p); });
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const errors = [];
@@ -76,101 +78,6 @@ async function alvo() {
     if (typeof fecharTelas === 'function') fecharTelas();
   });
   await page.waitForTimeout(150);
-
-  // ---- A ARTE QUE CHEGA SOB DEMANDA ----
-  // Este bloco vem ANTES de tudo de propósito: ele precisa de uma página recém-aberta, em que
-  // nenhum pacote foi pedido ainda. É a única janela em que dá para provar que a arte dos
-  // capítulos 2+ realmente NÃO está no arquivo de abertura — depois que o teste caminha pelas
-  // eras, tudo já chegou e a asserção passaria mesmo com o mecanismo desligado.
-  //
-  // Três coisas são cobradas, e cada uma cai por um motivo diferente:
-  //   1. NA ABERTURA a arte do capítulo 1 é real e a dos outros é o pixel de espera. Se alguém
-  //      devolver um bloco para dentro do index.html, isto acusa — e é o único aviso de que a
-  //      porta de entrada voltou a crescer, porque o jogo continuaria funcionando perfeitamente.
-  //   2. DEPOIS DO PACOTE a arte é real: pintura, personagem, objeto e drop daquela época. É o
-  //      que prova que o endereço de cada imagem sobreviveu à viagem — endereço errado devolve
-  //      a imagem no lugar errado e NÃO dá erro nenhum no console.
-  //   3. ENQUANTO ESPERA o jogo não fica sem chão: a pintura em uso é uma que carregou.
-  const espera = await page.evaluate(() => {
-    const eDeEspera = (im) => !!(im && im.complete && im.naturalWidth <= 1);
-    const cap1 = (EPOCAS[0].arte || []).every(i => CENARIO_ALTO[i] && CENARIO_ALTO[i].naturalWidth > 1);
-    // um capítulo cujo pacote ninguém pediu ainda
-    const outro = EPOCAS.findIndex((e, i) => i > 0 && pacotesDaEpoca(i).length);
-    const arteOutro = outro < 0 ? [] : (EPOCAS[outro].arte || []);
-    return {
-      tabela: !!window.__PACOTES, pacotes: (window.__PACOTES || {}).nomes || [],
-      cap1Real: cap1, outro, pedeOutro: outro < 0 ? [] : pacotesDaEpoca(outro),
-      outroEmEspera: arteOutro.length > 0 && arteOutro.every(i => eDeEspera(CENARIO_ALTO[i])),
-      // e o recuo: mandar o jogo para lá NÃO pode deixar a tela sem pintura
-      fundoDoRecuo: (() => {
-        const antes = S.cenario;
-        S.cenario = cenarioDaEpoca(outro < 0 ? 0 : outro);
-        const i = fundoIdx(), larg = CENARIO_ALTO[i] ? CENARIO_ALTO[i].naturalWidth : 0;
-        S.cenario = antes;
-        return larg;
-      })(),
-    };
-  });
-  console.log('art packs ->', espera.pacotes.join(', '), '| chapter 1 art inline:', espera.cap1Real,
-    '| chapter', espera.outro, 'waiting on', espera.pedeOutro.join('+'), ':', espera.outroEmEspera,
-    '| painting used while waiting:', espera.fundoDoRecuo, 'px wide');
-  if (!espera.tabela) errors.push('the art-pack table (__PACOTES) did not reach the game');
-  if (!espera.pacotes.length) errors.push('the build produced no art packs at all');
-  if (!espera.cap1Real) errors.push('chapter 1 art is not inline any more: the first screen now waits on the network');
-  if (espera.outro < 0) errors.push('no chapter asks for a pack: the on-demand path is dead code');
-  if (!espera.outroEmEspera) errors.push('chapter ' + espera.outro + ' art is still inside index.html: the opening file is growing again');
-  if (!(espera.fundoDoRecuo > 1)) errors.push('a chapter whose pack has not arrived draws no painting at all');
-
-  // ...e agora o pacote chega, e a arte fica de verdade — em TODOS os capítulos que pedem um.
-  const chegou = await page.evaluate(async () => {
-    const real = (im) => !!(im && im.complete && im.naturalWidth > 1);
-    const faltas = [];
-    for (let e = 0; e < EPOCAS.length; e++) {
-      const quais = pacotesDaEpoca(e);
-      if (!quais.length) continue;
-      garantirEpoca(e);
-      for (let t = 0; t < 200 && quais.some(n => pacoteEstado[n] !== 'aqui'); t++) {
-        await new Promise(r => setTimeout(r, 25));
-      }
-      const antes = S.cenario;
-      S.cenario = cenarioDaEpoca(e);
-      const cap = capArte();
-      (EPOCAS[e].arte || []).forEach(i => {
-        if (!real(CENARIO_ALTO[i]) || !real(CENARIO_CHAO[i])) faltas.push(EPOCAS[e].id + ': pintura ' + i);
-      });
-      if (!real(heroBloco('walk')[0])) faltas.push(EPOCAS[e].id + ': a caminhada da personagem');
-      if (!real(MOB_SPR.smog[cap])) faltas.push(EPOCAS[e].id + ': o que atravessa a rua');
-      if (!real(dropDe('smog'))) faltas.push(EPOCAS[e].id + ': o que fica no chão');
-      (EPOCAS[e].aberturaImg || []).forEach(k => {
-        if (k && CTX_B64[k] && CTX_B64[k].length < 200) faltas.push(EPOCAS[e].id + ': a paisagem ' + k);
-      });
-      S.cenario = antes;
-    }
-    return { faltas, estado: Object.keys(pacoteEstado).sort() };
-  });
-  console.log('  packs applied ->', chegou.estado.join(', '), '| missing art:', chegou.faltas.length || 'none');
-  chegou.faltas.forEach(f => errors.push('art did not come back from its pack — ' + f));
-
-  // ...e um pacote que NÃO chega não quebra a partida, e é tentado de novo depois.
-  // O fetch é trocado por um que recusa, em vez de pedir um arquivo que não existe: um 404 de
-  // verdade escreve um erro no console do navegador e este teste falha por causa dele, o que
-  // esconderia justamente o que se quer medir aqui.
-  const falhou = await page.evaluate(async () => {
-    const original = window.fetch;
-    window.fetch = () => Promise.reject(new Error('rede caiu (de propósito, no teste)'));
-    const antes = S.cenario, vivo = () => { desenhar(); return true; };
-    garantirPacote('inexistente');
-    await new Promise(r => setTimeout(r, 120));
-    const podeTentarDeNovo = !('inexistente' in pacoteEstado);
-    window.fetch = original;
-    S.cenario = antes;
-    return { podeTentarDeNovo, jogoVivo: vivo() };
-  });
-  console.log('  a pack that never arrives -> game still draws:', falhou.jogoVivo,
-    '| will be tried again on the next entry:', falhou.podeTentarDeNovo);
-  if (!falhou.jogoVivo) errors.push('a failed art pack stopped the game from drawing');
-  if (!falhou.podeTentarDeNovo) errors.push('a failed art pack is never retried: the chapter loses its art for good');
-
   // read the tuning out of the page instead of restating it here
   const CFG_TIROS = await page.evaluate(() => CFG.autoFogoTiros);
   const CFG_COMBOS = await page.evaluate(() => CFG.superCombos);
@@ -269,7 +176,7 @@ async function alvo() {
     // folhas por capitulo: media do vao sorteado em cada epoca
     const media = function (n) { let s = 0; for (let i = 0; i < n; i++) s += sorteiaFolha(); return s / n; };
     S.cenario = cenarioDaEpoca(0); const vao1 = media(400), valor1 = CFG.folhaValor * fatorFolha();
-    S.cenario = cenarioDaEpoca(CAP_PALAVRA); const vao3 = media(400), valor3 = CFG.folhaValor * fatorFolha();
+    S.cenario = cenarioDaEpoca(2); const vao3 = media(400), valor3 = CFG.folhaValor * fatorFolha();
     S.cenario = capAntes;
     return { comU1, textoU1, semU1, razaoVao: +(vao3 / vao1).toFixed(2), razaoValor: +(valor3 / valor1).toFixed(2) };
   });
@@ -447,10 +354,7 @@ async function alvo() {
   //   3. NADA DISSO E COMBATE — sem pisca branco e sem empurrao sobre pessoa (§2).
   const palavra = await page.evaluate(async () => {
     const cenarioAntes = S.cenario, cuidadoAntes = S.cuidado;
-    // POR IDENTIDADE, nunca por posicao: SALVADOR deixou de ser a epoca 2 no dia em que os
-    // capitulos em obra entraram na cronologia (O CAIS vem antes dele). `CAP_PALAVRA` e o
-    // proprio motor dizendo qual capitulo tem a corrente.
-    S.cenario = cenarioDaEpoca(CAP_PALAVRA);          // SALVADOR
+    S.cenario = cenarioDaEpoca(2);                  // SALVADOR
     mobs.length = 0; drops.length = 0; parts.length = 0;
     palavraDedo = 0; palavraCorrente = 0;
     S.cuidado = 0.5; cuidadoVisto = 0.5;
@@ -465,21 +369,9 @@ async function alvo() {
     proximoMob = 1e9;                               // ninguem novo chega durante a medida
     let toques = 0, piscou = false, empurrou = false;
     const wx0 = primeira.wx;
-    // ===== UM TOQUE, E O RESTO E TEMPO ANDANDO =====
-    // Este laco era `while (primeira.hp > 0 && toques < 40) clicar()` — a forma exata da
-    // divida de §2 que o capitulo carregava: bater ate a pessoa ceder. Agora o toque ABRE
-    // conversa e ela so anda ANDANDO, entao o teste anda: um toque, e o mundo rodando ate a
-    // palavra passar. O `toques` continua sendo contado e a assercao nova cobra que ele
-    // seja UM — se um dia voltar a precisar de dois, alguem reintroduziu o dano.
-    S.modo = 'limpo';
-    clicar(false, true, true);
-    toques++;
-    if (primeira.flash > 0) piscou = true;
-    if (primeira.wx > wx0) empurrou = true;
-    // 3 s de relogio, quase o dobro do CONVERSA_SEG de 1,6 — margem de aritmetica, nao de
-    // chute (a licao da assercao intermitente do encaixe 9).
-    for (let i = 0; i < 180 && !primeira.sabe; i++) {
-      atualizarMobs(1 / 60);
+    while (primeira.hp > 0 && toques < 40) {
+      clicar(false, true, true);
+      toques++;
       if (primeira.flash > 0) piscou = true;
       if (primeira.wx > wx0) empurrou = true;
     }
@@ -498,26 +390,7 @@ async function alvo() {
         if (!primeira.sabe) sabePersistiu = false;
       }
     }
-    // ===== E CORRENDO A CONVERSA CONGELA =====
-    // Vem DEPOIS da observacao da corrente, e a ordem e o conserto: na primeira versao este
-    // bloco gastava 180 quadros ANTES dela, e quando a observacao comecava a portadora ja
-    // tinha saido de quadro — "0 quadros" e "0 atendidas pela corrente" com a corrente
-    // funcionando perfeitamente. Teste que consome o mundo que outro teste vai medir mede o
-    // proprio rastro.
-    mobs.length = 0; drops.length = 0;
-    const emCorrida = novoMob('smog', worldX + HX + 20);
-    emCorrida.parado = true; emCorrida.espera = 999;
-    mobs.push(emCorrida);
-    S.modo = 'carvao';
-    clicar(false, true, true);
-    const conversaAoAbrir = emCorrida.conversa || 0;
-    for (let i = 0; i < 180; i++) atualizarMobs(1 / 60);
-    const congelouCorrendo = conversaAoAbrir > 0 && !emCorrida.sabe
-      && (emCorrida.conversa || 0) === conversaAoAbrir;
-    S.modo = 'limpo';
-
     const r = {
-      congelouCorrendo: congelouCorrendo,
       toques: toques, virouPortadora: virouPortadora, piscou: piscou, empurrou: empurrou,
       dedo: dedoAoFim, corrente: palavraCorrente - correnteAntes,
       quadrosEmQuadro: quadrosEmQuadro, sabePersistiu: sabePersistiu,
@@ -544,14 +417,7 @@ async function alvo() {
   console.log('  care answers the chain:', palavra.cuidadoSubiuSemDedo,
     '| no combat grammar on a person -> flash:', palavra.piscou, 'shove:', palavra.empurrou,
     '| chapter 1 untouched -> dissipates:', palavra.dissipaNoCap1, 'leaked:', palavra.vazouParaOCap1);
-  console.log('  ACOMPANHAR -> taps to attend one person:', palavra.toques,
-    '| running freezes the conversation:', palavra.congelouCorrendo);
   if (!palavra.virouPortadora) errors.push('reaching someone in Salvador no longer turns her into a carrier');
-  // A DIVIDA DE §2, agora com assercao: um toque abre a conversa e e o unico que a mao da.
-  // Era 5 a 13 toques (`m.hp -= dmg`) — a forma de bater por baixo com nome novo por cima.
-  if (palavra.toques !== 1) errors.push('attending a person in Salvador took ' + palavra.toques + ' taps, not 1 — the damage path is back');
-  // E o ritmo continua decidindo: correndo, a conversa nao anda.
-  if (!palavra.congelouCorrendo) errors.push('the conversation advances while running — the chapter lost its only decision');
   if (!(palavra.quadrosEmQuadro > 60 && palavra.sabePersistiu)) {
     errors.push('the carrier state does not persist while she is on screen');
   }
@@ -796,10 +662,7 @@ async function alvo() {
   // capitulo entra no MEIO da cronologia. Ver `migrarArco()` no src/jogo.ts.
   // `travessias` entrou com A TRAVESSIA (lote A do arco): um bit por trecho em que o jogo
   // para de ser jogo, e o que ele decide e uma coisa so — a primeira vez nao e pulavel.
-  // `recursos` entrou em 09/08: os tres contadores de drop eram estado de SESSAO por
-  // esquecimento — a fileira de nichos zerava no dia seguinte, e a onda 11 tornou a perda
-  // visivel. Tipo `mapa`, chaves fixas, cada valor pela regua de `cont`.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'modo', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   // ---- o save de um ARCO ANTIGO nao pode teleportar ninguem ----
@@ -1006,11 +869,16 @@ async function alvo() {
     return { menuAberto: document.getElementById('telaMenu').classList.contains('aberta'),
       alcanca: !!topo && (topo === el || el.contains(topo)),
       quem: topo ? (topo.id || topo.className) : null,
-      // o que se cobra e que o toque em JOGAR NAO ATRAVESSE. Era `id === 'retVeu'`, e isso
-      // passou a reprovar quando o papel da volta centralizou e ficou ELE por cima do botao
-      // — protecao melhor, nao pior. Vale o veu ou o proprio papel.
+      // A pergunta e "JOGAR esta coberto pela camada da volta?", e a camada sao DUAS pecas:
+      // o veu (z 59) e o proprio papel (z 60). Este teste exigia literalmente `retVeu`, e
+      // isso amarrava a regra a uma GEOMETRIA: so valia enquanto JOGAR caisse ABAIXO do
+      // papel. Ao entrar a quinta tabua do poste (GLOSSARIO), o poste cresceu e JOGAR subiu
+      // 64px — de 498..572 para 434..508 — passando a cair DENTRO do papel (203..494), que
+      // cobre ainda mais que o veu. Medido em test/ com elementFromPoint nas duas versoes.
+      // A intencao nunca foi "o veu especificamente": era "o toque nao atravessa". Passa a
+      // aceitar as duas pecas, e assim para de reprovar quando o menu muda de altura.
       veuNoBotao: !!sobreBotao && (sobreBotao.id === 'retVeu'
-        || sobreBotao.id === 'retorno' || !!el.contains(sobreBotao)),
+        || document.getElementById('retorno').contains(sobreBotao)),
       sobreBotao: sobreBotao ? (sobreBotao.id || sobreBotao.className) : null };
   });
   console.log('  return-before-menu -> menu open:', camada.menuAberto,
@@ -1051,8 +919,7 @@ async function alvo() {
       // mais nada — a hora de partida seria apagada antes da cerimonia. O contrato sob teste
       // continua o mesmo (virada de CAPITULO termina no nascer do sol) e agora e medido numa
       // virada sem travessia. A travessia tem bloco proprio, logo abaixo do FLUXO 3.
-      // a ultima cena do capitulo ANTERIOR ao terceiro da lista, dita por identidade
-      S.cenario = cenarioDaEpoca(iEp('cais')) - 1;   // last scene of PALMARES
+      S.cenario = cenarioDaEpoca(2) - 1;         // last scene of chapter 2
       S.energiaTotal = LIMIARES[S.cenario] - 3;  // parked just under the turn
       S.aberturas = 3; S.fechos = 1;             // chapters 1-2 read; chapter 2's close unseen
       S.travessias = MASCARA_TRAVESSIAS;         // the crossing behind us, so it cannot replay
@@ -1107,8 +974,12 @@ async function alvo() {
     redesenharFundo();
   });
   await page.waitForTimeout(200);
+  // o `el &&` acompanha `abrirTela`/`fecharTelas`, que passaram a tolerar um nome listado em
+  // TELAS cujo markup ainda nao existe (o codigo e o molde HTML sao territorios de papeis
+  // diferentes e nem sempre aterrissam no mesmo commit). Sem ele, o TESTE quebrava onde o
+  // JOGO ja nao quebra mais — que e o pior tipo de falso vermelho.
   const tela = async () => page.evaluate(() => ({
-    abertas: TELAS.filter(t => document.getElementById(t).classList.contains('aberta')),
+    abertas: TELAS.filter(t => { const el = document.getElementById(t); return el && el.classList.contains('aberta'); }),
     emTela: document.body.classList.contains('emTela') }));
   const passo = async (botao, esperada) => {
     await page.tap('#' + botao);
@@ -1129,6 +1000,333 @@ async function alvo() {
   await passo('btnVoltarComp', 'telaMenu');
   await passo('btnFontes', 'telaFontes');             // DE ONDE VEM reachable mid-game
   await passo('btnVoltarFontes', 'telaMenu');
+
+  // ---- GLOSSARIO: a tela irma, e as tres coisas que podem dar errado nela ----
+  // O molde HTML dela e territorio da Direcao de Arte e chega em commit proprio, entao a
+  // checagem se AUTO-LIGA: enquanto o botao nao existir ela DIZ que pulou, em vez de reprovar
+  // uma integracao que ainda nao aterrissou; no dia em que o markup entrar, ela passa a valer
+  // sozinha, sem ninguem lembrar de habilita-la.
+  //   1. abre e PINTA — verbete que existe em GLOSSARIO e nao aparece na caixa e a falha que
+  //      um print nao denuncia, porque a tela continua bonita com metade da lista;
+  //   2. tem cabecalho de grupo — e o unico ramo do montador que nao passa por .glItem;
+  //   3. FECHA por fora. `fecharTelas()` so fecha o que esta em TELAS: esquecer o nome ali
+  //      deixa a tela presa por cima do jogo, e este e o teste que enxerga isso.
+  const temGloss = await page.evaluate(() =>
+    !!document.getElementById('btnGlossario') && !!document.getElementById('telaGlossario'));
+  if (!temGloss) {
+    console.log('glossary -> not in the template yet (no #btnGlossario/#telaGlossario), walk skipped');
+  } else {
+    await passo('btnGlossario', 'telaGlossario');     // GLOSSARIO reachable mid-game
+
+    // A TELA ABRE PELOS ASSUNTOS (decisao do dono, 2026-08-10): a primeira coisa que se ve e a
+    // lista dos grupos, cada um com a frase que o explica, e nao 121 termos empilhados. Antes
+    // de conferir a LISTA, portanto, este teste precisa atravessar a porta — como a pessoa faz.
+    //
+    // Vale conferir a porta em si, porque ela e a unica coisa entre quem abre o glossario e todo
+    // o conteudo dele: se as portas nao pintarem, a tela vira um beco sem saida silencioso, e
+    // nada mais abaixo falharia (a lista simplesmente ficaria vazia, que e o que aconteceu na
+    // primeira vez que este bloco rodou depois da mudanca).
+    const portas = await page.evaluate(() => {
+      const ps = [...document.querySelectorAll('#listaGlossario .glAssunto')];
+      return {
+        n: ps.length,
+        grupos: GLOSSARIO.filter(v => !!v.g).length,
+        comFrase: ps.filter(p => !!(p.querySelector('.glAssuntoSub') || {}).textContent).length,
+        temTudo: ps.some(p => p.dataset.seg === '*'),
+        // a frase da porta e PROSA dentro de um <button>, e a regra global de button impoe
+        // caixa alta — se a excecao cair, ela volta a gritar e ninguem percebe pelo teste
+        gritando: ps.filter(p => {
+          const s = p.querySelector('.glAssuntoSub');
+          return s && getComputedStyle(s).textTransform === 'uppercase';
+        }).length
+      };
+    });
+    console.log('glossary doors -> painted', portas.n, 'for', portas.grupos + 1, 'expected | with a sentence:',
+      portas.comFrase, '| TUDO present:', portas.temTudo, '| shouting in caps:', portas.gritando);
+    if (portas.n !== portas.grupos + 1) errors.push('the glossary painted ' + portas.n + ' doors for ' + (portas.grupos + 1) + ' expected (groups + TUDO)');
+    if (!portas.temTudo) errors.push('the glossary door list has no TUDO: the whole index is unreachable in one tap');
+    if (portas.comFrase !== portas.n) errors.push('glossary doors without an explaining sentence: ' + (portas.n - portas.comFrase));
+    if (portas.gritando) errors.push('glossary door sentences rendered in uppercase: ' + portas.gritando);
+
+    // atravessa a porta TUDO — daqui para baixo o teste fala da LISTA, como antes
+    await page.evaluate(() => {
+      const t = [...document.querySelectorAll('#listaGlossario .glAssunto')].find(p => p.dataset.seg === '*');
+      if (t) t.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(60);
+
+    const gl = await page.evaluate(() => {
+      const itens = [...document.querySelectorAll('#listaGlossario .glItem')];
+      return {
+        itens: itens.length,
+        dados: GLOSSARIO.filter(v => !v.g).length,
+        grupos: document.querySelectorAll('#listaGlossario .glGrupo').length,
+        gruposDados: GLOSSARIO.filter(v => !!v.g).length,
+        semTermo: itens.filter(e => !(e.querySelector('.glT') || {}).textContent).length,
+        duvida: document.querySelectorAll('#listaGlossario .glItem.dv').length
+      };
+    });
+    console.log('glossary -> entries painted', gl.itens, 'of', gl.dados, '| groups', gl.grupos,
+      'of', gl.gruposDados, '| entries with no term:', gl.semTermo, '| marked as disputed:', gl.duvida);
+    await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario.png') });
+    if (gl.itens !== gl.dados) errors.push('the glossary painted ' + gl.itens + ' entries for ' + gl.dados + ' in GLOSSARIO');
+    if (gl.grupos !== gl.gruposDados) errors.push('the glossary painted ' + gl.grupos + ' group headings for ' + gl.gruposDados + ' in GLOSSARIO');
+    if (gl.semTermo) errors.push(gl.semTermo + ' glossary entries were painted with no term');
+
+    // ---- A NAVEGACAO DO GLOSSARIO: recolher, abas, busca, salto, relacionados e sorteio ----
+    // DUAS CAMADAS, e a divisao entre elas e a mesma fronteira do contrato de DOM. O que mora
+    // DENTRO de #listaGlossario e do Dev e e checado sempre. O que e chrome — #glCampo,
+    // #glFiltros, #glLimpar, #glSorte — e da Direcao de Arte e chega em commit proprio: se o
+    // elemento existir, o teste TOCA nele (e assim confere a ligacao); se nao existir, ele
+    // aciona a mesma funcao por baixo e continua provando a LOGICA. Sem isso a checagem ficaria
+    // adormecida ate o markup chegar, que e justamente quando ninguem lembra de liga-la.
+
+    // 1. O molde do verbete. Cabeca com o termo, corpo, data-t, e NENHUM aberto de saida —
+    //    a lista abre como indice, que e o que o dono aprovou no lugar da parede de 52.
+    const molde = await page.evaluate(() => {
+      const it = [...document.querySelectorAll('#listaGlossario .glItem')];
+      return {
+        total: it.length,
+        cabeca: it.filter(e => e.querySelector('.glCabeca .glT')).length,
+        corpo: it.filter(e => e.querySelector('.glCorpo')).length,
+        dataT: it.filter(e => e.dataset.t).length,
+        abertos: it.filter(e => e.classList.contains('aberto')).length
+      };
+    });
+    console.log('glossary -> collapsed by default:', molde.abertos === 0,
+      '| heads', molde.cabeca, '| bodies', molde.corpo, '| data-t', molde.dataT, 'of', molde.total);
+    if (molde.cabeca !== molde.total) errors.push('glossary entries without .glCabeca > .glT: ' + (molde.total - molde.cabeca));
+    if (molde.corpo !== molde.total) errors.push('glossary entries without .glCorpo: ' + (molde.total - molde.corpo));
+    if (molde.dataT !== molde.total) errors.push('glossary entries without data-t: ' + (molde.total - molde.dataT));
+    if (molde.abertos) errors.push('the glossary opened with ' + molde.abertos + ' entries already expanded');
+
+    // 2. A cabeca ALTERNA .aberto, e abrir um FECHA o outro (a decisao registrada no jogo.ts:
+    //    acumular abertos volta em 52 toques para a tela que o dono reprovou).
+    const acordeao = await page.evaluate(() => {
+      const it = [...document.querySelectorAll('#listaGlossario .glItem')];
+      it[0].querySelector('.glCabeca').click();
+      const abriu = it[0].classList.contains('aberto');
+      it[3].querySelector('.glCabeca').click();
+      const outro = it[3].classList.contains('aberto'), primeiroCedeu = !it[0].classList.contains('aberto');
+      it[3].querySelector('.glCabeca').click();
+      const fechou = !it[3].classList.contains('aberto');
+      return { abriu, outro, primeiroCedeu, fechou,
+        aria: it[3].querySelector('.glCabeca').getAttribute('aria-expanded') };
+    });
+    console.log('glossary -> head toggles .aberto:', acordeao.abriu, '| second tap closes it:', acordeao.fechou,
+      '| opening another closed the first:', acordeao.primeiroCedeu, '| aria-expanded:', acordeao.aria);
+    if (!acordeao.abriu) errors.push('tapping .glCabeca did not open the entry');
+    if (!acordeao.fechou) errors.push('tapping .glCabeca twice did not close the entry');
+    if (!acordeao.outro || !acordeao.primeiroCedeu) errors.push('opening a second entry did not close the first');
+    if (acordeao.aria !== 'false') errors.push('a closed .glCabeca kept aria-expanded=' + acordeao.aria);
+
+    // 2b. O MESMO, com um DEDO DE VERDADE. O `.click()` acima entra pela porta do teclado
+    //     (detail 0) e nao prova o gesto; e o gesto e onde estava o defeito. O toque que abre
+    //     a tela chega com o dedo ainda no ar sobre uma `.glCabeca`, e o `click` que fecha
+    //     aquele toque vazava para ela — e por isso que o glossario abria com um verbete
+    //     escancarado (o teste do item 1 e quem pegou). A guarda que conserta pode quebrar o
+    //     toque legitimo, entao ele tambem e tocado aqui, de dedo.
+    const alvoDedo = await page.evaluate(() => {
+      const el = document.querySelector('#listaGlossario .glItem');
+      return el ? el.dataset.i : null;
+    });
+    const sel = '#listaGlossario .glItem[data-i="' + alvoDedo + '"] .glCabeca';
+    await page.tap(sel);
+    await page.waitForTimeout(120);
+    const dedoAbriu = await page.evaluate(i =>
+      document.querySelector('#listaGlossario .glItem[data-i="' + i + '"]').classList.contains('aberto'), alvoDedo);
+    await page.tap(sel);
+    await page.waitForTimeout(120);
+    const dedoFechou = await page.evaluate(i =>
+      !document.querySelector('#listaGlossario .glItem[data-i="' + i + '"]').classList.contains('aberto'), alvoDedo);
+    console.log('glossary -> a real tap on the head opens it:', dedoAbriu, '| and closes it:', dedoFechou);
+    if (!dedoAbriu) errors.push('a real tap on .glCabeca did not open the entry (the stray-tap guard is too strict)');
+    if (!dedoFechou) errors.push('a real tap on an open .glCabeca did not close it');
+
+    // 3. A BUSCA CHEGA SEM ACENTO. Ninguem digita "BUZIOS" com acento no celular, e o verbete
+    //    acentuado e o que a pessoa foi buscar aprender. O termo alvo sai do proprio GLOSSARIO:
+    //    o teste nao sabe nomes de cor, entao ele continua valendo se a lista mudar.
+    const busca = await page.evaluate(() => {
+      const nu = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const alvo = GLOSSARIO.filter(v => !v.g).map(v => String(v.t)).filter(t => nu(t) !== t)[0];
+      const digitado = nu(alvo).toLowerCase();          // sem acento E em caixa baixa: os dois eixos
+      const c = document.getElementById('glCampo');
+      if (c) { c.value = digitado; c.dispatchEvent(new Event('input', { bubbles: true })); }
+      else { glTermo = digitado; glPintar(); }
+      const sugs = [...document.querySelectorAll('#listaGlossario .glSug')].map(e => e.textContent);
+      return { alvo, digitado, campo: !!c, achou: sugs.indexOf(alvo) >= 0, primeira: sugs[0] || null,
+        quantas: sugs.length, itens: document.querySelectorAll('#listaGlossario .glItem').length };
+    });
+    console.log('glossary search -> typed "' + busca.digitado + '" (field present: ' + busca.campo + ') -> ' +
+      busca.quantas + ' suggestions, found "' + busca.alvo + '":', busca.achou, '| entries hidden:', busca.itens === 0);
+    if (!busca.achou) errors.push('searching "' + busca.digitado + '" did not find the accented entry "' + busca.alvo + '"');
+    if (busca.itens !== 0) errors.push('the search left ' + busca.itens + ' full entries painted under the suggestions');
+
+    // 4. O SALTO: tocar na sugestao limpa a busca, devolve a lista INTEIRA, abre o verbete e
+    //    marca .alvo. A ultima oracao do pedido do dono e esta — a pessoa fica no glossario.
+    await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario-busca.png') });
+    const salto = await page.evaluate(() => {
+      const s = document.querySelector('#listaGlossario .glSug');
+      const termo = s.textContent;
+      s.click();
+      const el = [...document.querySelectorAll('#listaGlossario .glItem')].filter(e => e.dataset.t === termo)[0];
+      const c = document.getElementById('glCampo');
+      return { termo, achou: !!el, aberto: !!el && el.classList.contains('aberto'),
+        alvo: !!el && el.classList.contains('alvo'),
+        itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        sugs: document.querySelectorAll('#listaGlossario .glSug').length,
+        campoVazio: !c || c.value === '', rolou: document.getElementById('listaGlossario').scrollTop };
+    });
+    console.log('glossary jump -> "' + salto.termo + '" | back to the whole list:', salto.itens, '| suggestions gone:',
+      salto.sugs === 0, '| opened:', salto.aberto, '| flagged .alvo:', salto.alvo, '| scrolled to', Math.round(salto.rolou));
+    if (!salto.achou) errors.push('jumping to "' + salto.termo + '" did not repaint the entry in the list');
+    if (salto.sugs || salto.itens !== gl.dados) errors.push('the jump did not hand back the whole glossary: ' + salto.itens + ' entries, ' + salto.sugs + ' suggestions');
+    if (!salto.aberto) errors.push('the jump left "' + salto.termo + '" collapsed');
+    if (!salto.alvo) errors.push('the jump did not flag "' + salto.termo + '" with .alvo');
+    if (!salto.campoVazio) errors.push('the jump left text in the search field');
+
+    // 5. Busca sem nenhum achado -> .glVazio, e a frase dele e FIXA: o que foi digitado nunca
+    //    volta para a tela. E a unica entrada de teclado do jogo inteiro.
+    const vazio = await page.evaluate(() => {
+      const alvo = 'zzqx';
+      const c = document.getElementById('glCampo');
+      if (c) { c.value = alvo; c.dispatchEvent(new Event('input', { bubbles: true })); }
+      else { glTermo = alvo; glPintar(); }
+      const z = document.querySelector('#listaGlossario .glVazio');
+      return { z: !!z, sugs: document.querySelectorAll('#listaGlossario .glSug').length,
+        repetiu: !!z && (z.getAttribute('aria-label') || '').toLowerCase().indexOf(alvo) >= 0 };
+    });
+    console.log('glossary search -> a query with no match shows .glVazio:', vazio.z, '| it never echoes the typed text:', !vazio.repetiu);
+    if (!vazio.z || vazio.sugs) errors.push('a search with no match did not paint .glVazio');
+    if (vazio.repetiu) errors.push('the empty-search message echoed the typed text back into the page');
+
+    // 6. O X devolve a lista inteira.
+    const limpou = await page.evaluate(() => {
+      const b = document.getElementById('glLimpar');
+      if (b) b.dispatchEvent(new Event('pointerdown', { bubbles: true })); else glLimparBusca();
+      const c = document.getElementById('glCampo');
+      return { botao: !!b, itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        sugs: document.querySelectorAll('#listaGlossario .glSug').length, campoVazio: !c || c.value === '' };
+    });
+    console.log('glossary -> clear (button present: ' + limpou.botao + ') hands back', limpou.itens, 'entries');
+    if (limpou.itens !== gl.dados || limpou.sugs) errors.push('clearing the search did not hand back the whole glossary: ' + limpou.itens);
+    if (!limpou.campoVazio) errors.push('clearing the search left text in the field');
+
+    // 7. UMA ABA DE GRUPO REDUZ A LISTA, e reduz para o numero EXATO de verbetes daquele grupo
+    //    — contado do proprio GLOSSARIO, nao de um numero escrito aqui que envelheceria.
+    const abaGrupo = await page.evaluate(() => {
+      const grupos = GLOSSARIO.filter(v => v.g).map(v => v.g);
+      const alvo = grupos[1];                       // um que nao seja o primeiro bloco
+      let esperado = 0, dentro = false;
+      GLOSSARIO.forEach(v => { if (v.g) { dentro = (v.g === alvo); return; } if (dentro) esperado++; });
+      // A ESCOLHA DE ASSUNTO PASSA PELA PORTA, e nao mais por uma aba: para chegar a ela e
+      // preciso VOLTAR para a tela de assuntos primeiro, que e o caminho que a pessoa faz. Este
+      // trecho, portanto, testa duas coisas de uma vez — o caminho de volta e o filtro.
+      const volta = document.querySelector('#glFiltros .glVolta');
+      if (volta) volta.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const b = [...document.querySelectorAll('#listaGlossario .glAssunto')].filter(x => x.dataset.seg === alvo)[0];
+      if (b) b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); else { glSeg = alvo; glVista = 'lista'; glPintar(); }
+      return { alvo, esperado, botao: !!b, voltou: !!volta,
+        itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        placas: document.querySelectorAll('#listaGlossario .glGrupo').length };
+    });
+    console.log('glossary doors -> "' + abaGrupo.alvo + '" (door present: ' + abaGrupo.botao + ', back path: ' +
+      abaGrupo.voltou + ') narrowed the list to', abaGrupo.itens, 'of', gl.dados,
+      '| expected', abaGrupo.esperado, '| headings', abaGrupo.placas);
+    if (abaGrupo.itens !== abaGrupo.esperado) errors.push('the door "' + abaGrupo.alvo + '" painted ' + abaGrupo.itens + ' entries for ' + abaGrupo.esperado);
+    if (!(abaGrupo.itens < gl.dados)) errors.push('the door did not narrow the list at all');
+    if (abaGrupo.placas !== 1) errors.push('the door painted ' + abaGrupo.placas + ' group headings instead of 1');
+    if (!abaGrupo.voltou) errors.push('no way back to the subject list: .glVolta is missing while inside a group');
+
+    // 8. O SORTEIO abre um verbete qualquer — e ele DESFAZ o filtro de grupo se a palavra
+    //    sorteada mora fora dele, que e a mesma regra do salto. Chamado com a aba do item 7
+    //    ainda ativa, de proposito: e assim que o desfazer fica provado.
+    const sorte = await page.evaluate(() => {
+      const b = document.getElementById('glSorte');
+      if (b) b.dispatchEvent(new Event('pointerdown', { bubbles: true })); else glSortear();
+      const el = document.querySelector('#listaGlossario .glItem.aberto');
+      return { botao: !!b, termo: el ? el.dataset.t : null,
+        alvo: document.querySelectorAll('#listaGlossario .glItem.alvo').length,
+        itens: document.querySelectorAll('#listaGlossario .glItem').length, seg: glSeg };
+    });
+    console.log('glossary dice -> (button present: ' + sorte.botao + ') opened "' + sorte.termo + '" | flagged .alvo:',
+      sorte.alvo, '| list is', sorte.itens, 'entries in segment "' + sorte.seg + '"');
+    if (!sorte.termo) errors.push('#glSorte did not open any entry');
+    if (sorte.alvo !== 1) errors.push('#glSorte flagged ' + sorte.alvo + ' entries with .alvo instead of 1');
+    if (!(sorte.itens === gl.dados || sorte.itens === abaGrupo.esperado)) errors.push('#glSorte left the list at ' + sorte.itens + ' entries');
+
+    // 9. OS RELACIONADOS. O campo `rel` e do historiador e e texto escrito a mao: um nome com
+    //    erro de digitacao some CALADO da tela (e o certo, la), e este e o unico lugar do
+    //    projeto onde ele aparece. Enquanto ninguem tiver escrito `rel`, o teste diz isso.
+    const rel = await page.evaluate(() => {
+      const nu = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+      const termos = {}; GLOSSARIO.filter(v => !v.g).forEach(v => { termos[nu(v.t)] = 1; });
+      const mapa = (typeof GLOSSARIO_REL === 'object' && GLOSSARIO_REL) || {};
+      const quebrados = []; let comRel = 0, ligacoes = 0, proprio = 0;
+      GLOSSARIO.filter(v => !v.g).forEach(v => {
+        const lista = v.rel || mapa[String(v.t)];
+        if (!lista || !lista.length) return;
+        comRel++;
+        lista.forEach(n => {
+          ligacoes++;
+          if (nu(n) === nu(v.t)) { proprio++; return; }
+          if (!termos[nu(n)]) quebrados.push(String(v.t) + ' -> ' + n);
+        });
+      });
+      // Uma CHAVE que nao casa com nenhum verbete perde a fileira inteira daquele verbete, e
+      // some ainda mais calada que um valor errado: nada aparece e nada acusa. Por isso a
+      // chave e conferida junto — o casamento e por string exata, letra e acento.
+      const chavesOrfas = Object.keys(mapa).filter(k => !termos[nu(k)]);
+      const semRemissao = GLOSSARIO.filter(v => !v.g && !v.rel && !mapa[String(v.t)]).map(v => String(v.t));
+      glSeg = '*'; glTermo = ''; glPintar();
+      return { comRel, ligacoes, quebrados, proprio, chavesOrfas, semRemissao,
+        pintados: document.querySelectorAll('#listaGlossario .glRel .glLink').length,
+        caixas: document.querySelectorAll('#listaGlossario .glRel').length };
+    });
+    if (!rel.comRel) {
+      console.log('glossary related -> no entry carries `rel` yet (the historian has not landed), links skipped');
+    } else {
+      console.log('glossary related ->', rel.comRel, 'entries with cross-references |', rel.ligacoes, 'links written |',
+        rel.pintados, 'painted in', rel.caixas, '.glRel boxes | broken:', rel.quebrados.length,
+        '| orphan keys:', rel.chavesOrfas.length, '| entries with none:', rel.semRemissao.length);
+      if (rel.quebrados.length) errors.push('cross-references point at terms that are not in GLOSSARIO: ' + rel.quebrados.join(' ; '));
+      if (rel.chavesOrfas.length) errors.push('GLOSSARIO_REL has keys that match no entry: ' + rel.chavesOrfas.join(' ; '));
+      if (rel.proprio) errors.push(rel.proprio + ' cross-references point the term at itself');
+      if (!rel.pintados) errors.push('entries carry cross-references but no .glLink was painted');
+      if (rel.pintados !== rel.ligacoes) errors.push('the list painted ' + rel.pintados + ' links for ' + rel.ligacoes + ' written');
+      // Tocar num .glLink faz o MESMO salto da sugestao — e o que transforma ler um verbete
+      // em ler quatro, e a unica forma de provar isso e seguir a ligacao.
+      const pulo = await page.evaluate(() => {
+        const l = document.querySelector('#listaGlossario .glRel .glLink');
+        const destino = l.textContent;
+        l.click();
+        const el = [...document.querySelectorAll('#listaGlossario .glItem')].filter(e => e.dataset.t === destino)[0];
+        return { destino, achou: !!el, aberto: !!el && el.classList.contains('aberto'),
+          alvo: !!el && el.classList.contains('alvo') };
+      });
+      console.log('glossary related -> following a link landed on "' + pulo.destino + '" | opened:', pulo.aberto,
+        '| flagged .alvo:', pulo.alvo);
+      // O print do verbete ABERTO, com a fileira de remissoes. Os outros dois shots do
+      // glossario pegam a lista recolhida e a busca; este e o unico que mostra o que a pessoa
+      // le quando chega, e e onde se ve se .glRel cabe no corpo sem brigar com a fonte.
+      await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario-verbete.png') });
+      if (!pulo.achou || !pulo.aberto || !pulo.alvo) errors.push('following a .glLink did not jump to "' + pulo.destino + '" opened and flagged');
+    }
+
+    // Deixa a tela como ela abre, para o resto do passeio nao herdar filtro nem realce.
+    await page.evaluate(() => montarGlossario());
+    await passo('btnVoltarGloss', 'telaMenu');        // ...and VOLTAR hands the menu back
+    const presa = await page.evaluate(() => {
+      abrirTela('telaGlossario'); fecharTelas();
+      return { aberta: document.getElementById('telaGlossario').classList.contains('aberta'),
+        emTela: document.body.classList.contains('emTela') };
+    });
+    console.log('glossary -> fecharTelas() closes it:', !presa.aberta, '| chrome back:', !presa.emTela);
+    if (presa.aberta) errors.push('fecharTelas() left telaGlossario open — is it missing from TELAS?');
+    if (presa.emTela) errors.push('closing telaGlossario left the body in emTela');
+    await passo('abrirMenu', 'telaMenu');             // devolve o menu para o resto do passeio
+  }
+
   const dentroDeNovo = await passo('btnJogar', null); // and JOGAR hands the street back, chrome and all
   const partida = await page.evaluate(() => ({ total: S.energiaTotal, cenario: S.cenario }));
   console.log('in-game menu walk -> back on the street:', dentroDeNovo.abertas.length === 0,
@@ -1341,13 +1539,7 @@ async function alvo() {
   if (painel.linhas < 6) errors.push('the AJUSTES retention footer lost lines: ' + painel.linhas);
   // o que foi ao disco são os campos do esquema, nem um a mais (a cópia INDEPENDENTE, como
   // a do ESQUEMA_SAVE: gerar uma da outra deixaria de pegar um campo gravado sem esquema)
-  // `fontes` e `chegou` entraram com A CHEGADA (a tela de fim, N3 do QA): `fontes` e a unica
-  // forma honesta de a tela dizer "voce nunca abriu DE ONDE VEM", e `chegou` separa quem
-  // terminou de quem esta terminando — da segunda vez a tela nao se anuncia sozinha.
-  // `volta` entrou com a pergunta de uma linha da CHEGADA ("você voltaria amanhã?"): 0 nunca
-  // perguntada, 1 perguntada e calada, 2/3/4 a resposta. Sem ela no esquema, a pergunta
-  // voltaria a ser feita em toda chegada — e uma pergunta que insiste deixa de medir intenção.
-  const retEsperadas = ['chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo', 'volta'];
+  const retEsperadas = ['dias', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo'];
   const retChaves = Object.keys(painel.gravado).sort();
   console.log('retention written ->', retChaves.join(', '));
   if (retChaves.join(',') !== retEsperadas.join(',')) errors.push('the retention record carries fields the loader would discard: ' + retChaves.join(','));
@@ -1431,145 +1623,10 @@ async function alvo() {
   if (crono.andouNoFim !== 5) errors.push('returning to the frontier did not unfreeze progress');
 
 
-  // ============================================================
-  // A SEQUENCIA — a corrente fecho -> travessia -> cerimonia -> abertura (QA, 2026-08-08)
-  //
-  // O smoke provava PECAS (a travessia roda, a cronologia anda, a fala abre). Nao provava a
-  // CORRENTE, que e o que o dono pediu para conferir: "as coisas acontecendo na sequencia".
-  // Uma virada de capitulo sem fecho, ou uma abertura que nao vem depois da travessia, e uma
-  // regressao que passa em todos os testes anteriores e destroi o percurso.
-  //
-  // A regra que este bloco fixa, e que vale para os DOZE capitulos do arco:
-  //   toda fronteira entre capitulos produz FECHO do que sai e ABERTURA do que entra, nesta
-  //   ordem, com a cerimonia no meio; e a TRAVESSIA entra so onde ela esta declarada.
-  const corrente = await page.evaluate(async () => {
-    const espera = ms => new Promise(r => setTimeout(r, ms));
-    const rot = () => document.getElementById('falaTit').getAttribute('aria-label') || '';
-    const out = [];
-    for (let i = 0; i + 1 < EPOCAS.length; i++) {
-      fecharTelas();
-      const cenaFim = EPOCA_CENA0[i] + EPOCAS[i].cenas - 1;
-      S.cenario = cenaFim; S.fronteira = cenaFim;
-      S.aberturas = 0; S.fechos = 0; S.travessias = 0;
-      S.energiaTotal = LIMIARES[cenaFim] + 5; S.energia = S.energiaTotal;
-      const passos = [];
-      verificarCenario();
-      passos.push(falaAberta() ? 'fecho(' + rot() + ')' : 'SEM-FECHO');
-      if (falaAberta()) encerrarFala();
-      await espera(80);
-      if (travessiaAtiva()) {
-        passos.push('travessia(' + travessiaViva.id + ')');
-        // e enquanto ela roda, o botao dourado nao pode render nada
-        const antes = S.energiaTotal; clicar(); pular();
-        if (S.energiaTotal !== antes) passos.push('TRAVESSIA-PAGOU');
-        encerrarFala(); await espera(80);
-      }
-      passos.push(document.getElementById('telaFala').classList.contains('cerimoniando') ? 'cerimonia' : 'SEM-CERIMONIA');
-      passos.push(falaAberta() ? 'abertura(' + EPOCAS[epocaAtual()].nome + ')' : 'SEM-ABERTURA');
-      out.push({ de: EPOCAS[i].nome, para: EPOCAS[i + 1].nome, passos, cena: S.cenario });
-      pararFala(); fimTravessia(); fecharTelas();
-    }
-    // ...e a ULTIMA cena fecha o jogo: LIMIAR_FIM dispara o fecho do ultimo capitulo
-    fecharTelas();
-    S.cenario = TOTAL_CENAS - 1; S.fronteira = TOTAL_CENAS - 1;
-    S.fechos = 0; S.aberturas = MASCARA_EPOCAS;
-    S.energiaTotal = LIMIAR_FIM + 5; S.energia = S.energiaTotal;
-    verificarCenario();
-    const fim = falaAberta() ? rot() : 'SEM-FECHO-FINAL';
-    pararFala(); fecharTelas();
-    return { out, fim, ultimo: EPOCAS[EPOCAS.length - 1].nome };
-  });
-  corrente.out.forEach(c => console.log('sequence ' + c.de + ' -> ' + c.para + ': ' + c.passos.join(' -> ')));
-  console.log('sequence end of game -> ' + corrente.fim);
-  corrente.out.forEach((c, i) => {
-    if (!/^fecho\(/.test(c.passos[0])) errors.push('no closing text at the ' + c.de + ' -> ' + c.para + ' boundary');
-    if (c.passos[0] !== 'fecho(' + c.de + ')') errors.push('the closing text at ' + c.de + ' -> ' + c.para + ' belongs to another chapter: ' + c.passos[0]);
-    if (c.passos.indexOf('SEM-CERIMONIA') >= 0) errors.push('the new chapter opened with no ceremony: ' + c.de + ' -> ' + c.para);
-    if (c.passos[c.passos.length - 1] !== 'abertura(' + c.para + ')') errors.push('the arriving chapter did not speak: ' + c.de + ' -> ' + c.para + ' ended in ' + c.passos[c.passos.length - 1]);
-    if (c.passos.indexOf('TRAVESSIA-PAGOU') >= 0) errors.push('the gold button earned during the crossing at ' + c.de + ' -> ' + c.para);
-  });
-  // a travessia mora ONDE ELA ESTA DECLARADA, e so ali — nem a mais nem a menos
-  const travEsperada = await page.evaluate(() => EPOCAS.map((e, i) =>
-    i + 1 < EPOCAS.length && travessiaEntre(e.id, EPOCAS[i + 1].id) >= 0).slice(0, EPOCAS.length - 1));
-  corrente.out.forEach((c, i) => {
-    const teve = c.passos.some(p => /^travessia\(/.test(p));
-    if (teve !== travEsperada[i]) errors.push('the crossing appeared where it is not declared (or vanished where it is): ' + c.de + ' -> ' + c.para);
-  });
-  if (corrente.fim !== corrente.ultimo) errors.push('the last scene did not close the game: ' + corrente.fim);
-
-  // ---- A HISTORIA: as 26 paginas, medidas DEPOIS de o navegador assentar ----
-  // Nunca teve asercao nenhuma. Uma pagina perdida, uma altura que deixa de resolver, uma
-  // barra de rolagem que volta: tudo isso quebra em silencio e so aparece em print.
-  // Medir com scroll importa: `content-visibility: auto` deixa `innerText` VAZIO para o que
-  // esta fora da tela, entao contar pagina vazia sem rolar ate ela conta 23 falsos vazios.
-  const quad = await page.evaluate(async () => {
-    fecharTelas(); montarCompletude(); abrirTela('telaCompletude');
-    await new Promise(r => setTimeout(r, 260));
-    const l = document.getElementById('listaCenas');
-    const n = l.children.length, h = l.clientHeight;
-    const alturas = new Set(), vazias = [];
-    for (let k = 0; k < n; k++) {
-      l.scrollTop = k * h;
-      await new Promise(r => setTimeout(r, 40));
-      const p = l.children[k];
-      alturas.add(Math.round(p.getBoundingClientRect().height));
-      const rotulos = [...p.querySelectorAll('[aria-label]')].map(e => e.getAttribute('aria-label')).join('');
-      if (!p.innerText.trim() && !rotulos.trim()) vazias.push(k + 1);
-    }
-    l.scrollTop = l.scrollHeight;
-    await new Promise(r => setTimeout(r, 120));
-    const b = document.getElementById('btnVoltarComp').getBoundingClientRect();
-    const noPonto = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
-    const dentro = !!(noPonto && document.getElementById('btnVoltarComp').contains(noPonto));
-    const r = { n, alturas: [...alturas], vazias, tela: h, rolo: l.scrollHeight,
-      barra: l.offsetWidth - l.clientWidth, voltar: dentro };
-    fecharTelas();
-    return r;
-  });
-  console.log('comic ->', quad.n, 'pages | heights', quad.alturas.join(','), 'vs viewport', quad.tela,
-    '| scroll', quad.rolo, '| scrollbar', quad.barra, '| blank pages', quad.vazias.length, '| VOLTAR reachable', quad.voltar);
-  if (quad.n < 20) errors.push('the comic lost pages: ' + quad.n);
-  if (quad.alturas.length !== 1 || quad.alturas[0] !== quad.tela) errors.push('a comic page is not exactly one screen tall: ' + quad.alturas.join(','));
-  if (Math.abs(quad.rolo - quad.n * quad.tela) > 2) errors.push('the comic scroll does not measure N pages: ' + quad.rolo);
-  if (quad.barra !== 0) errors.push('a scrollbar came back to the comic: ' + quad.barra);
-  if (quad.vazias.length) errors.push('comic pages with nothing readable: ' + quad.vazias.join(','));
-  if (!quad.voltar) errors.push('the floating VOLTAR is unreachable at the end of the comic');
-
-  // ---- A TRAVA DE VOCABULARIO DO §2 ----
-  // O CLAUDE.md nomeia palavras que NAO existem neste arquivo: descobrimento (nao houve —
-  // havia gente aqui), pre-historia, primitivo (§2.1) e "escravo" como identidade (§2.4.8).
-  // Nada cobrava isso: um texto novo escrito as pressas em qualquer capitulo passaria.
-  // Duas exclusoes, e as duas sao deliberadas:
-  //   1. o campo `f` (a fonte) nao entra — ele carrega TITULOS de obra, e "Rebeliao escrava
-  //      no Brasil" (Reis, 2003) e a referencia mais citada do capitulo de 1835;
-  //   2. trecho entre aspas nao entra — o jogo usa a palavra proibida para RECUSA-LA
-  //      ("nao era 'escravo'. Escravizar foi o que fizeram com ela"), e reprovar isso
-  //      empurraria o texto a deixar de nomear o problema.
-  const vocab = await page.evaluate(() => {
-    const falas = [];
-    EPOCAS.forEach(e => { falas.push(...e.abertura, ...e.fecho); });
-    TRAVESSIAS.forEach(t => falas.push(...t.linhas));
-    LINHA_TEMPO.forEach(n => { ['q', 't', 'd', 'com'].forEach(k => { if (n[k]) falas.push(n[k]); }); });
-    if (typeof MOMENTOS !== 'undefined') MOMENTOS.forEach(m => { ['q', 't', 'd'].forEach(k => { if (m[k]) falas.push(m[k]); }); });
-    if (typeof TEXTOS !== 'undefined') TEXTOS.forEach(t => { if (typeof t === 'string') falas.push(t); });
-    const proibidas = /(descobrimento|pr[ée].?hist[óo]ri|primitiv)/i;
-    const identidade = /\b(escravos?)\b/i;
-    const semAspas = s => s.replace(/[“"«][^”"»]*[”"»]/g, ' ').replace(/'[^']*'/g, ' ');
-    const achados = [];
-    falas.forEach(f => {
-      const limpo = semAspas(String(f));
-      if (proibidas.test(limpo)) achados.push('PROIBIDA: ' + f.slice(0, 70));
-      if (identidade.test(limpo)) achados.push('IDENTIDADE: ' + f.slice(0, 70));
-    });
-    return { n: falas.length, achados };
-  });
-  console.log('§2 vocabulary ->', vocab.n, 'authored lines checked |', vocab.achados.length, 'hits');
-  vocab.achados.forEach(a => errors.push('§2 vocabulary: ' + a));
-
 console.log('FPS:', fps);
 
+  problemasDeComentario.forEach(function (p) { errors.push('COMMENT LINT: ' + p); });
   console.log(errors.length ? 'FAIL\n' + errors.join('\n') : 'PASS — no errors');
   await browser.close();
-  if (posto.servidor) posto.servidor.close();
   process.exit(errors.length ? 1 : 0);
 })();

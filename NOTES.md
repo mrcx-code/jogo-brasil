@@ -3349,1353 +3349,814 @@ continua certo em método — mas o dono está dizendo que o EQUILÍBRIO do que 
 errado, e isso é outra coisa. Reordenar é decisão dele; registrado para a próxima sessão
 começar por aqui.
 
-## Diário — 2026-08-09 · Direção de Arte · Onda 10: o ritmo do rolo (worktree, para integrar)
-
-O desenho veio pronto de uma sessão minha que morreu no limite antes do código; olhei
-antes de executar e **concordo com ele inteiro** — o diagnóstico (página que sai 100%
-acesa, material em bloco, Marajó pesando igual à travessia) bate com o que os prints do
-ANTES mostram. Executei os cinco itens sem desvio. Território respeitado: `src/estilo.css`
-e `montarCompletude` em `src/jogo.ts`; nenhum bloco de arte, TRAVESSIAS, HUD ou rodapé.
-
-**O que fiz** (detalhe completo na seção "Onda 10" do `DIRECAO.md`, junto com a **LEI DO
-RITMO** — a resposta à tensão do dono "fluida e prazerosa apesar de tristes", que ele
-pediu registrada e que passa a reger capítulo novo):
-
-1. Penumbra de saída: `.qQuadro::after` dirigido pelo rolo (`exit 0→100%`, 0→0,85) — a
-   página que fica para trás apaga; reversível ao voltar.
-2. Transição do CONTEÚDO: containers cedo (entry 24–62%), tinta escalonada dentro do
-   papel (cab 34–64 → corpo 44–78 → fonte 54–90), balão por último (66–100).
-3. Andamento por família: marco revela do escuro + placa pousa com baque (`qPousa`, e o
-   selo VOCÊ ESTÁ AQUI chega depois do pouso); papel abre como caderno (`qCaderno`);
-   ponta e momento leves.
-4. `scroll-snap-stop: always` nos 4 marcos + 3 duras (`qDura` nasce em montarCompletude,
-   amarrada por `qi` p10/p12/p21 — os MESMOS nós sem balão por §2): 7 pontos finais em
-   26 páginas; nas duras o quadro fica sozinho um instante (papel 52–84, fonte 76–100).
-5. A capa abre por tempo, uma vez por abertura (1,6 s + tabuinha a 0,7 s), timeline
-   `auto` explícita.
-
-**O que medi** (`test/prints-onda10.js`, novo; prints `O10-antes/depois-*.png`):
-
-- Véu da página que sai a meio-exit: **opacity 0,51 interpolada** (ANTES: pseudo não
-  existia). Snap-stop computado: **always nos 7 certos, normal nos 19**.
-- Animações scroll-driven por página: 3 → 7 (comum com balão), 2 → 6 (dura).
-- `medir-scroll.js` DEPOIS: arrasto curto fica onde o dedo deixou (**285 px**), soltar
-  perto da borda assenta (**resto 0**) — as duas metades do pedido do dono vivem. Limite
-  igual ao da onda 9: o headless não produz fling com momento, então o `stop: always`
-  em arremesso real só se prova no aparelho; aqui provei o estilo computado.
-- FPS **61/61/61** (piso 58); smoke **PASS 3×**; `index.html` 4.023.521 → **4.029.942
-  bytes LF** (+6,4 KB, só código); zero imagem nova; zero rede; nenhuma asserção de
-  teste mudou de significado (smoke só afirma alcançabilidade da tela).
-- Escala inteira revisada: o quadrinho não supunha 390 px (página 100%, papel
-  `min(30em,100%)`, `cover`, ranges em fração de virada) — nada a corrigir.
-
-**O que quebrou:** nada. **Não commitei nem dei push** (regra do sprint); prints e
-instrumento ficam em `test/`.
-
-**Dúvida nova:** a dose do véu (0,85 no fim da saída) foi escolhida para ler no print;
-no aparelho, com o dedo na tela, pode pedir menos (0,7?) — é ajuste de um número, e o
-instrumento já mede. **Próximo passo:** integrar à main; depois, no aparelho real,
-sentir os 7 pontos finais com o polegar — é a única metade que o headless não prova.
-
-## O diagnóstico do GRÃO DO CHROME — recuperado de uma worktree morta (2026-08-09)
-
-Uma sessão da Direção de Arte morreu no limite depois de achar isto, e o achado vale mais
-que o código que ela alcançou escrever:
-
-> *"O mundo é pixel art com grão por toda parte, e o chrome inteiro era gradiente CSS LISO —
-> vetor sobre pixel. É isso que fazia HUD e rodapé lerem como 'de outro jogo' por mais que a
-> paleta e a construção estivessem certas."*
-
-É a explicação que faltava para a queixa do dono (*"o menu de cima e os botões de baixo estão
-meio estranhos, não parecem do mesmo jogo"*) sobreviver a três ondas de conserto de paleta e
-construção. Nenhuma delas atacou o **grão**.
-
-A solução que ela desenhou, e que só chegou pela metade: três texturas de ruído determinístico
-(o mesmo `hash01` do mundo) desenhadas num canvas no boot e entregues ao CSS como
-`url(data:)` — veio de tábua serrada, grão de pedra lavrada, e o mesmo grão com metade da
-força para o metal do botão dourado. Zero byte de arte, e `var(--veioPx, none)` faz o chrome
-ficar exatamente como era se o JS não rodar.
-
-**Por que revertida:** o gerador ficou órfão — nunca chamado, e o CSS nunca consumiu as
-variáveis. Código morto não entra na `main`. **O ticket continua aberto, e é de alto valor:
-é a única hipótese que explica a queixa depois de três tentativas.**
-
-## Aviso de fila para o dono: o que precisa ser gerado de novo
-
-Perguntado por ele. Duas coisas, e as duas já estão na mesa:
-
-1. **`q-p19` — as ganhadeiras.** A legenda cobre o **tabuleiro inteiro**, e o texto da página
-   fala justamente do tabuleiro. Pede a mesa no meio do quadro, não na base.
-2. **As três folhas de CORRIDA** (`cap1/2/3-corrida`) continuam **recusadas por §2**: trazem
-   pessoa diferente da caminhada da mesma era. Precisam voltar com a MESMA pessoa.
-
-E uma regra de enquadramento que vale para toda vertical futura, achada na integração das 13:
-**a página corta pelos LADOS, não por cima** — `cover` casa a altura, então 390×844 sobre arte
-2:3 perde **15,4% de cada lado**. Já custou a `q-p3` (o mar e a maré que davam escala ao
-sambaqui ficaram fora). Regra: **terço inferior calmo E assunto dentro dos 70% centrais.**
-
-## Diário — 2026-08-09 · Direção de Arte · Onda 11: o grão do chrome (worktree, para integrar)
-
-**O que fiz.** O item 1 do `PENDENTES.md`, inteiro — e o código da worktree morta não
-existia em commit nenhum, então foi reescrito do zero: `texturaChrome()` no boot
-(`src/jogo.ts`, região do HUD/boot) gera três texturas de ruído determinístico com o
-`hash01` do mundo e as serve ao CSS como `url(data:)`; `src/estilo.css` as consome como
-PRIMEIRA camada de `background` em toda superfície da régua — madeira (`--veioPx`, tábua
-serrada em runs de 3–10 células), pedra (`--graoPx`, poro e cisco) e ouro (`--graoOuroPx`,
-o mesmo speckle a meia força). Grão de 2 px css, o passo dos ícones da onda 7; fallback
-`none` deixa tudo como era sem JS. E a subtração que o ticket pedia: os três nichos de
-drop saem do boot e NASCEM com o primeiro item (`recNaTela()`; síncrono no `coletarDrop`
-porque a seta da microdica mede o rect no mesmo instante) — no alto da tela ficam só o
-placar e a placa da época.
-
-**O que medi.** `test/prints-grao.js` (novo): ANTES 7 superfícies com 1ª camada SEM grão,
-DEPOIS 7 com `url(data:`; texturas 3,6/5,2/4,9 KB só em runtime. FPS 61/61/61 (piso 58);
-smoke PASS 3×; `medir-telas.js` 7 de 7; `index.html` 4.424.817 → 4.440.347 bytes
-(+15,5 KB, só código e comentário; zero imagem nova; zero rede — CSP já permitia
-`img-src data:`). Prints `GR-*-antes/depois.png`: o confronto que decide é o poste contra
-o LOGO (placa de madeira com grão pintado) e o rodapé contra a terra — antes vetor sobre
-pixel, agora o mesmo material. Verificado vivo no navegador (porta 8201 da worktree).
-
-**O que quebrou.** Nada; nenhuma asserção mudou. **Não commitei nem dei push** (regra do
-sprint).
-
-**Achado novo, pago de graça:** o "veio" das receitas de madeira (repeating-gradient
-2px/8px) estava declarado ABAIXO do gradiente opaco — nunca rendeu um pixel. As camadas
-mortas ficaram (outra passada decide se saem); o registro está na onda 11 do `DIRECAO.md`.
-
-**Dúvida nova:** a dose do veio na madeira ESCURA (placa da época) é a mais tímida das
-três no print — de propósito (placa pequena, texto em cima), mas no aparelho pode pedir
-+0,03 de alfa no risco escuro. É um número, e o instrumento já fotografa.
-
-**Próximo passo:** integrar à main; depois, a exceção nomeada do poste (veio vertical é
-uma segunda textura rotacionada, se o print do aparelho pedir) e o item 2 do
-`PENDENTES.md` (o efeito de corrida), que continua sendo o mais antigo pedido do dono
-sem resposta visual.
 
 ---
 
-## 2026-08-09 · A noite em que o jogo passou a acabar
+## O GLOSSÁRIO — 52 verbetes, fonte por fonte (2026-08-08)
 
-**Lente: Fim de partida + Robustez.** O relatório 3 do QA tinha deixado dois HIGH sem
-conserto, e os dois eram sobre o mesmo defeito de fundo — o jogo não sabia terminar nada.
+Pedido do dono: *"explicar todos os termos que a gente usa no jogo, ou na história ou enfim,
+pra poder dar contexto, e de onde vem. exemplo é por exemplo Pindorama, Palmares, povos
+originários"*. O campo que ele pediu explicitamente é **de onde vem** — por isso cada verbete
+tem `o` (origem da palavra) antes de `d` (o que é). Estrutura igual à de `FONTES`: `g` é
+cabeçalho de grupo e vem sozinho no objeto.
 
-### A travessia não tinha duração própria
-O QA mediu: **25 s sem tocar e a tela continuava na linha 0.** Os "~90 s" que eu venho
-repetindo eram o tempo de quem TOCA; o trecho não tinha duração nenhuma. E ele é justamente
-o pedaço cuja tese é *não há o que a sua mão faça aqui* — exigir vinte e um toques para
-atravessar um trecho sobre não poder fazer nada contradiz o trecho com o próprio trecho.
+**A regra do §2 aplicada:** todo verbete que afirma história tem `f`. Nenhum entrou sem fonte;
+os que não fecharam ficaram de fora e estão listados no fim desta seção. O `f` **não** traz o
+rótulo "fonte:" — quem escreve o rótulo é a tela, como já fazem `MOMENTOS` e a `LINHA_TEMPO`.
 
-A fala passa a andar sozinha DENTRO da travessia, e só dentro dela. A pausa é o **tempo de
-ler**, não um número redondo: 1,1 s de base + 30 ms por letra, teto de 4,6 s. O teto existe
-porque as letras foram aparecendo enquanto você lia — ao fim da digitação a linha longa já
-está meio lida, e pagar o tempo cheio de novo conta duas vezes.
+**`dv: 1`** é o irmão do `d: 1` de `FONTES`: marca verbete em que as fontes divergem ou em que
+falta atestação. Nove verbetes o carregam. Verbete falsamente liso ensina menos que verbete
+costurado à vista — é a mesma tese da tela DE ONDE VEM.
 
-**MEDIDO** sobre as 17 falas (1.979 letras): 36 s de digitação + 67 s de pausa = **~103 s
-sem encostar na tela**, contra os ~90 s de quem toca. Mais lento que o prometido é o certo:
-quem não toca está lendo, não esperando. **A última linha não anda** — a chegada do outro
-lado continua sendo ato de quem joga.
+### Por que o glossário é o melhor lugar da tese
 
-### O jogo acabava e não avisava — A CHEGADA
-Palavras do QA: *"o fecho final devolve à mesma rua, barra em 100%, 40 toques depois +56 e
-nada. Sem tela de fim, crédito ou convite."*
+O §2 do CLAUDE.md **manda** usar *invasão*, *pessoa escravizada* e *povos indígenas no plural*.
+Até aqui o jogo obedecia sem explicar. O grupo `AS PALAVRAS QUE ESTE JOGO ESCOLHE` (12
+verbetes) é onde ele finalmente diz **por quê** — e diz também o que recusa, com o motivo:
+*descobrimento*, *encontro de culturas*, *tribo*, *pré-história*, *índio*. Os verbetes de recusa
+citam a palavra proibida para explicá-la; é menção, não uso, e é a única exceção que a regra de
+vocabulário do NOTES.md comporta sem se contradizer.
 
-Ela não é vitória (o §2.1: o último capítulo se chama AINDA AQUI), não é placar (impacto e
-recursos ficam FORA — número de jogo virando nota de história é o que o §2 proíbe, e o
-encaixe 10 cobra isso por regex) e não é despedida: abre para dentro, A HISTÓRIA e DE ONDE
-VEM. Mostra o que você LEU, o que DEIXOU PASSAR, e duas portas. `fontes` e `chegou` entram
-no ESQUEMA_RET porque sem eles a tela chutaria.
+### Cobertura — o que o glossário fecha
 
-**Três defeitos achados pelo próprio teste**, e os três são de aula:
-- a chegada nascia **por cima do quadrinho** que a pessoa lia — `verificarCenario` roda a
-  cada quadro e o mundo vive sob o menu. A guarda de `falaAberta()` não bastava: fala é uma
-  tela entre várias. Agora ela espera a rua;
-- o botão do menu **nascia visível**: `#telaMenu .telaBtn` tem ID e ganhava de
-  `.telaBtn.oculto`. A coluna do menu subia 49 px e o painel de volta deixava de cobrir o
-  JOGAR — o smoke pegou pelo caminho mais indireto possível;
-- a consulta de 600 px vinha **antes** da de 720 px: casavam as duas em 568 e a de baixo
-  vencia. O bloco não pintava um pixel.
+Varridos `EPOCAS`, `MOMENTOS`, `LINHA_TEMPO`, `TRAVESSIAS` e `FONTES` inteiros. Todo termo
+histórico que o jogo hoje pronuncia tem verbete, com uma exceção declarada mais abaixo.
 
-**MEDIDO em cinco telas:** colunas de botão iguais (243/243/243 a 300/300/300), zero
-transbordo, e a tela inteira cabe em 320×568 com **47 px de sobra** depois de dois degraus
-de aperto. Prints `test/FIM-*.png`.
-
-### O que foi recolhido continua recolhido
-`recursos` **nunca esteve no ESQUEMA_SAVE** — os três contadores de drop eram estado de
-sessão por esquecimento. Ficou invisível enquanto os nichos existiam sempre; a onda 11 os
-fez nascer com o primeiro item e a perda **apareceu**: a fileira encolhia de volta a nada no
-dia seguinte. Num jogo cujo critério é dar motivo para voltar amanhã, esse é o defeito mais
-caro que existe.
-
-Tipo novo no validador, `mapa`: chaves fixas declaradas no esquema, cada valor pela régua de
-`cont`. **MEDIDO:** 7/3/2 sobrevivem ao recarregamento, e `{flor:5e9, agua:"muitas",
-refeicao:-5, inventado:9}` sai como `{flor:1e9, agua:0, refeicao:0}`.
-
-### E o botão parou de prometer o que a travessia recusa
-`+1,0` virou traço. Não zero — zero é um ganho, e ali não há ganho: há recusa.
-
-### O que quebrou
-**Commitei 52 worktrees de agente por descuido** (`git add -A` na raiz). Removidos do índice
-no commit seguinte e `.claude/worktrees/` foi para o `.gitignore`. E **descrevi o relatório
-do historiador num commit antes de tê-lo gravado em disco** — o arquivo entrou no commit
-seguinte, com a confissão no corpo.
-
-### O historiador do contemporâneo (PENDENTES 4, fechado)
-`HISTORIA-CONTEMPORANEO.md`: o capítulo do agronegócio desenhado por inteiro — **O ACEIRO**,
-no cerrado e não na Amazônia, porque o INPE registrou 7.235 km² lá contra 5.796 na Amazônia
-em 2025 — a fila reordenada com o custo dito em voz alta, e a revisão dos contemporâneos.
-Todo número carrega estado de verificação; **só fonte primária ou institucional vira fala.**
-
-**Nove decisões ⚠ esperam o dono.** As três que travam trabalho: reordenar a fila (o custo é
-atravessar a abolição sem jogá-la), a carga sob demanda (que a fila nova torna bloqueante
-dois lotes mais cedo) e a régua da imagem do fogo.
-
-### Dúvida nova
-A CHEGADA mostra "aberturas de capítulo" e "fechos de capítulo" como duas linhas quase
-iguais. São conteúdos diferentes de verdade, mas no print elas leem como repetição. Vale
-medir se alguém entende a diferença sem explicação — se não entender, viram uma linha só.
-
-### Próximo passo
-A auditoria holística (PENDENTES 5) está rodando. Depois dela: o comentário do personagem
-integrado no quadrinho (PENDENTES 6, pedido do dono) e o que a auditoria trouxer.
-
----
-
-## 2026-08-09 · A auditoria pegou meu defeito da manhã, e o dicionário que o causou
-
-**Lente: Medir + Subtração.** A auditoria holística (PENDENTES 5, `AUDITORIA.md`) mediu nove
-telas. O veredito de uma linha vale registrar porque contraria o medo: **o jogo NÃO é um
-frankenstein** — 4 raios de canto no jogo inteiro, 3 pesos, 3 famílias, cinco telas com ZERO
-texto de sistema, o ouro com uma superfície só.
-
-E aí veio o achado 1, que era meu, de horas antes: **a CHEGADA falava Arial Black.** A tela que
-eu tinha acabado de montar era a única do jogo com fonte de sistema — quatro rótulos.
-
-**A causa não era descuido, e é o achado que importa.** Das 37 variáveis do `:root`, **só
-treze** eram consumidas. As outras 24 eram o vocabulário do motor antigo (`--panel`, `--navBg`,
-`--barra`, `--bad`/`--good`), morto desde que a régua trocou para madeira e pedra. Variável
-morta não é inerte: **é convite.** Quem pinta uma tela nova encontra `--panel` declarado, usa,
-e a tela nasce falando a língua que o jogo levou onze ondas para desaprender. 37 → 13.
-
-**Seis camadas de veio nunca renderam um pixel** — o `repeating-gradient` declarado *abaixo* do
-gradiente opaco. Provado, não intuído: `test/prova-camada.js` desenha as duas pilhas paradas e
-compara canal a canal, **diferença máxima 0** nas quatro receitas. O print do jogo não serviria,
-porque o mundo anda atrás do menu e o relógio muda a luz.
-
-**A pauta do caderno estava copiada 7 vezes.** Virou `--pauta`, e o 11 px ganhou a explicação
-que faltava: é metade da entrelinha de 22 do corpo de leitura.
-
-### As vozes do caderno (achado 6, decidido)
-A escala `--fs-*` era decorativa: 6 referências em ~45 declarações, e **nenhum texto visível a
-usava**. O texto vivo tinha **nove corpos literais**. Decidi **nomear o que existe** em vez de
-matar ou reinventar: CORPO · CORPO SM · MARGEM · FONTE · VERBETE · VOZ. E os `--fs-*` foram
-**renomeados** para `--fb-*` — tinham trabalho real (vestir o fallback sob os canvas) e nome
-errado. **Medido depois:** 5 tamanhos, 8 combinações, cada uma numa voz nomeada.
-
-### SALVADOR tem o sol pregado na tinta (achado 8)
-Temperatura (R−B) das sete pinturas na escala EXIBIDA: −30 · −42 · −31 · −47 · **+45** · −22 ·
-−48. Saturação: 61 · 69 · 66 · 68 · **39** · 65 · 57%. Salvador está ~90 pontos mais quente:
-um entardecer pintado na tinta, enquanto o motor tinge as outras seis por cima de luz neutra.
-De manhã, seis amanhecem e uma fica presa no pôr do sol. A luminância, ao contrário, está coesa
-(100–141) — **a quebra é de temperatura, não de valor**, e é isso que diz que o defeito é a HORA
-pintada, não a peça. A régua de luz entrou no pedido que já estava na mesa.
-
-### Voltar amanhã passa a ensinar
-O painel de volta dizia o que você **deixou**. Agora dá também um momento da `LINHA_TEMPO`, com
-fonte — nenhuma afirmação nova, o texto é o mesmo que A HISTÓRIA já mostra. O índice é o DIA DE
-TRAVESSIA sobre os momentos das cenas já alcançadas: quem volta amanhã lê outro, e nada do que
-vem pela frente é entregue antes da hora.
-
-**Dois defeitos que só apareceram porque o papel cresceu, e os dois eram de 320 px:** o pé do
-painel saía 92 px abaixo da tela, e o título saía cortado no "FO". O segundo virou regra:
-`escalaQueCabe()` devolve a maior ampliação INTEIRA que serve — reduzir por fração borra.
-
-### O comentário do quadrinho virou a caixa de fala (PENDENTES 6, fechado)
-Pedido literal do dono. **O que a primeira tentativa ensinou:** deixar a figura inteira atrás do
-papel não funciona, porque quem decide onde ela é cortada passa a ser a ALTURA DO BILHETE — um
-comentário de duas linhas é mais baixo que as pernas, e os pés reapareciam. O corte tem de ser
-na ARTE. Medido: os quatro retratos são 112×300, 106×300, 212×482 e 105×300; numa caixa de
-104×145 com `cover`, isso dá 52%, 49% e 61% da figura.
-
-### O que quebrou
-Nada em produção. Mas **eu quebrei o smoke duas vezes durante o trabalho**, e as duas foram
-instrutivas: o botão do menu nascia visível porque `#telaMenu .telaBtn` tem ID e ganhava de
-`.telaBtn.oculto`; e a consulta de 600 px vinha *antes* da de 720 px, casavam as duas em 568 e
-a de baixo vencia — o bloco não pintava um pixel.
-
-E **citei dois relatórios em commits antes de gravá-los em disco.** Os dois entraram no commit
-seguinte, com a confissão no corpo. É o mesmo erro duas vezes no mesmo dia.
-
-### Dúvida nova
-A asserção do véu no smoke foi **alargada** quando o papel da volta passou a cobrir o JOGAR
-sozinho. Alargar uma asserção é sempre suspeito, mesmo quando certo — o que se cobra é que o
-toque não atravesse, e isso continua cobrado. Vale reler daqui a algumas sessões e conferir se
-ela não virou uma asserção que aceita qualquer coisa.
-
-### Próximo passo
-Os 54 pares de cor quase-idêntica (PENDENTES 5a) — começando pelos 10 com Δ≤2, que são
-mecânicos e invisíveis. Depois, o que o dono responder na mesa: o peso, a ordem dos capítulos e
-a régua da imagem do fogo estão lá esperando.
-
-## Diário — 2026-08-09 · Dev · OS DOZE CAPÍTULOS PASSAM A EXISTIR (placeholder honesto)
-
-Ticket do dono, palavras dele: *"Ainda não vamos lançar sem ter tudo, então garantir que tudo
-já exista e tenha como placeholder até construirmos cada item."* O arco aprovado tem doze
-capítulos e o jogo tinha quatro. Os oito que faltavam entraram em `EPOCAS`, na posição
-cronológica definitiva, marcados `emObra: true`.
-
-### O que fez — em duas passadas, cada uma com `npm test` e `node test/encaixe.js` verdes
-
-**Passada 1 — posição deixa de ser identidade.** A tabela `ARCOS` já migrava o SAVE por `id`;
-o CÓDIGO continuava escrito em números, e com quatro capítulos os números coincidiam com as
-posições. `CAP_PALAVRA = 2`, `cenarioDaEpoca(2)`, `{ ep: 3 }` na `LINHA_TEMPO`, `quem: 1` no
-balão do quadrinho: cada um desses literais reapontaria para o capítulo errado assim que O CAIS
-entrasse antes de SALVADOR — **sem erro de console e sem tela em branco**, a mesma família de
-falha silenciosa que o bloco 1 do `encaixe.js` existe para pegar. Entraram `iEp(id)` (identidade
-→ índice) e `blocoArte(e)` (época → bloco de arte), e nenhum índice de época se escreve mais à
-mão. `EPOCAS` ganhou o campo **`arteCap`**, porque *posição na lista* e *bloco de arte de
-personagem/objetos* descolaram no dia em que entrou capítulo sem arte própria.
-
-**Passada 2 — os oito capítulos.** A linha do arco de HOJE foi copiada para o fim de
-`ARCOS_ANTIGOS` ANTES de mexer em `EPOCAS` (o procedimento escrito no comentário da tabela, e
-esta foi a primeira vez que ele foi exercido de verdade). `ARCO_ATUAL` andou sozinho, de 1 para
-2. Ordem final, com as cenas de cada um:
-
-| # | capítulo | quando | cenas | estado |
-|---|---|---|---|---|
-| 1 | PINDORAMA | litoral atlântico · séc. XVI | 2 | pronto |
-| 2 | PALMARES | serra da Barriga · séc. XVII | 2 | pronto |
-| 3 | O CAIS QUE VOLTOU À LUZ | Rio de Janeiro · séc. XIX | 1 | **em obra** — verbo já escolhido: *cavar para saber* |
-| 4 | SALVADOR | Bahia · véspera de 1835 | 1 | pronto |
-| 5 | JABAQUARA | Santos · 1887–1888 | 1 | **em obra** — verbo por escolher; par obrigatório do 6 |
-| 6 | A PEQUENA ÁFRICA | Rio · começo do séc. XX | 1 | **em obra** — verbo por escolher |
-| 7 | AS PORTAS | 1932–1985 | 1 | **em obra** — verbo por escolher |
-| 8 | O QUE NÃO PODIA SER DITO | 1964–1985 | 1 | **em obra** — verbo já escolhido: *fazer passar* |
-| 9 | A PRAÇA | 1984–1988 | 1 | **em obra** — verbo por escolher; par obrigatório do 8 |
-| 10 | O QUE SEGUROU | 2020–2022 | 1 | **em obra** — verbo já escolhido: *chegar na última casa* |
-| 11 | O QUE TEM FONTE | hoje | 1 | **em obra** — verbo já escolhido: *conferir de onde vem* |
-| 12 | AINDA AQUI | terra indígena demarcada · hoje | 2 | pronto — **e continua sendo o último** |
-
-**A regra que governa um capítulo em obra, e ela é §2:** ele **não afirma história nenhuma**.
-Diz o nome, o quando (que é o RECORTE do arco aprovado, não um fato solto), o verbo quando já
-foi escolhido, e que ainda está sendo escrito — em voz de jogo, não de aviso de erro. Nenhum
-dos oito objetos carrega um dígito, um nome de pessoa ou um acontecimento. **O `encaixe.js`
-passou a cobrar isso** (bloco 15: nenhum dígito na fala de capítulo em obra).
-
-**O que acontece com quem chega num capítulo em obra jogando** — decidido e documentado no
-código: ele é **jogável**, com o motor genérico, e o mundo nunca fica sem chão. Três heranças,
-cada uma com razão própria:
-
-- **`arteCap: 3`** — personagem, objetos da rua e retrato vêm de AINDA AQUI, o único bloco cuja
-  rua é feita de **coisas**. É §2 e não estética: PALMARES e SALVADOR são os capítulos em que
-  quem atravessa a tela é **gente**, e isso só se sustenta com o texto que explica por quê.
-- **`arte: [...]`** — a PINTURA é a do capítulo anterior. O mundo não se teletransporta: a rua
-  continua a rua, que é o que a abertura diz em voz alta.
-- **O capítulo em obra fala SEM ROSTO.** O primeiro print mostrou o custo de não decidir isto:
-  a protagonista indígena do presente anunciando JABAQUARA. Escalar quem representa um capítulo
-  é decisão do dono (§2); emprestar um rosto por conveniência técnica é decidir sem perguntar.
-  Então ninguém é escalado — `#falaRetrato.oculta`, e a caixa fala sozinha.
-
-### O que mediu
-
-- **12 capítulos · 15 cenas** (eram 4 e 7). `MASCARA_EPOCAS` 15 → **4095** (cabe folgado: o
-  limite do campo `bits` é 31 capítulos). `S.acolhidos` 4 → **12 posições**. `ARCOS` 2 → 3
-  linhas.
-- **Peso: 4.150.252 → 4.166.618 bytes (+16,0 KB, +0,39%)**, e **zero imagem nova** — os oito
-  capítulos reaproveitam pintura e bloco de arte que já estavam no arquivo.
-- **FPS 61** no smoke (piso 58). `npm test` e `node test/encaixe.js` verdes, zero erro de
-  console em todas as telas percorridas.
-- **Migração conferida pelo smoke:** save do arco 0 (três capítulos, cena 4) acorda em AINDA
-  AQUI com `acolhidos` inteiro e sem nenhum bit de capítulo novo aceso.
-- Prints: `test/DOZE-eras-tudo.png` (a lista com os doze, rolando, 854 px de rolo em 473 de
-  janela, sem barra), `test/DOZE-eras-dia1.png` (o dia 1), `test/DOZE-jabaquara-rua.png` e
-  `test/DOZE-jabaquara-fala.png` (a abertura honesta, sem rosto).
-
-### O que quebrou pelo caminho — três achados que só apareceram com doze
-
-1. **O meio-risco não tem glifo.** `pixelRotulo` normalizava só o travessão `—`; o `–` de
-   intervalo (o de "1964–1985") saía como **`?`** na tábua da era — `1887–1888` virava
-   `1887?1888` no print, sem um erro de console. Corrigido na fonte (`/[—–]/`), não no texto.
-2. **A parede de tábuas iguais.** O comentário de `montarCapitulos` já previa ("com doze
-   capítulos isso vira ONZE linhas iguais") e o código não cumpria a própria promessa: escrevia
-   "AINDA TRANCADA" em todas. O print do dia 1 mostrou dez tábuas idênticas. Agora só a PRÓXIMA
-   instrui; as de trás dela são o ordinal, e só.
-3. **O raleio da mata ia explodir em silêncio.** `fatorFolha()` era `1 + 0,5 × posição da
-   época`: com doze capítulos, ×6,5 — a folha praticamente sumiria da tela, e nenhum teste
-   pegaria porque a renda por km é compensada. Passou a contar `blocoArte()`, o que deixa os
-   quatro capítulos existentes **exatamente** com os fatores medidos em 07/08 (×1 · ×1,5 · ×2 ·
-   ×2,5) e adia a decisão para quando os doze forem construídos.
-
-### ⚠ O QUE NÃO DECIDI, E POR QUÊ — vai para a mesa do dono
-
-1. **A PARTIDA FICOU 2,14× MAIS LONGA, e isso é ECONOMIA.** `LIMIAR_FIM` = `LIMIAR_CENA ×
-   TOTAL_CENAS` foi de **10.500 para 22.500** de impacto, porque os oito capítulos ocupam oito
-   cenas. É consequência aritmética de "os doze existem", não uma escolha minha — e é grande
-   demais para eu escolher sozinho. **O botão é de uma linha** (`LIMIAR_CENA = 1500`), e as
-   opções são três: aceitar a partida mais longa; baixar `LIMIAR_CENA` para ~700 e manter o
-   tempo total de hoje; ou dar aos capítulos em obra um passo mais curto que o dos prontos.
-   **Nada medido ainda** — quando o dono escolher, vai com medição antes/depois, como manda a
-   regra.
-2. **A pintura de um capítulo em obra é a do capítulo anterior**, e pintura é afirmação de
-   lugar: JABAQUARA (Santos) rodando sobre a ladeira de Salvador. O texto diz em voz alta que o
-   capítulo está em construção, e a alternativa (mundo sem chão) é pior — mas isto é §2 de
-   representação e fica registrado como pendência, não como decisão.
-3. **O ACEIRO ficou de fora, de propósito.** O `HISTORIA-CONTEMPORANEO.md` desenha o capítulo
-   do agronegócio inteiro e ele responde a um pedido literal do dono (2026-08-08). Mas ele
-   **não está no arco de doze** aprovado em 07/08, e pô-lo na cronologia é (a) fazer treze e
-   (b) reordenar a fila — que é o **item 1 das nove decisões ⚠** do próprio relatório do
-   historiador. A estrutura está pronta para recebê-lo: acrescentar um objeto acima de AINDA
-   AQUI e copiar a linha de hoje para `ARCOS_ANTIGOS`. É tudo.
-4. **A `LINHA_TEMPO` não ganhou nó nenhum** dos oito. Coerente com a regra: a tela A HISTÓRIA
-   só mostra o que tem fonte, e um marco em obra afirmaria por existir. O quadrinho continua
-   com **26 páginas** e os **7 pontos de parada** intactos. Quando um capítulo for escrito, o
-   marco dele entra junto com as fontes.
-
-### Como preencher um capítulo em obra (o procedimento, escrito uma vez)
-
-Trocar o texto por texto com fonte · dar a ele `arte`/`arteCap` próprios · ajustar `cenas` se
-ele merecer mais de uma · apagar `emObra` · pendurar os nós dele na `LINHA_TEMPO` com a fonte
-junto · e, **se `cenas` mudar**, copiar a linha de hoje para o fim de `ARCOS_ANTIGOS` antes de
-mexer. O `encaixe.js` bloco 15 e o bloco 4 cobram o resultado.
-
-### Próximo passo
-A resposta do dono ao item 1 (a duração da partida) trava a próxima medição de economia. Sem
-ela, o trabalho que anda sozinho é preencher um capítulo em obra de cada vez — e o primeiro da
-fila do arco é **O CAIS QUE VOLTOU À LUZ**, que já tem verbo, tem instituição viva no assunto e
-é o único dos oito cuja pesquisa não esbarra na régua dos cinco anos.
-
----
-
-## 2026-08-09 · HANDOFF DA MADRUGADA — leia isto antes de qualquer coisa
-
-O dono foi dormir e autorizou **nove horas** de trabalho sozinho. Este bloco existe para que
-uma virada de contexto não perca o estado. Se você é a sessão seguinte: leia daqui, não do
-começo do arquivo.
-
-### O que está APROVADO e pode ser feito sem perguntar
-- ~~**Carga sob demanda da arte**~~ — **FEITA em 2026-08-10.** Medido: **16,65 s → 6,30 s** em
-  Fast 3G (melhor que os 8,7 s projetados, porque os sprites de cada época foram no pacote
-  também). Diário completo no fim deste arquivo.
-- **Começar a medir com PostHog** — mas depende da conta dele. Ver pergunta 7.
-- **Placeholder para tudo**: os doze capítulos existem, oito em obra.
-- **Foco é WEB.** Android saiu da frente da fila.
-
-### O que ele PEDIU e ainda não foi feito
-- Uma tela dizendo o que o jogo é **antes do JOGAR** (quem chega por link não sabe o que é).
-- Os três consertos do `CINCO-MINUTOS.md` — o terceiro (estado do `rotuloMelhorias`) e o
-  **momento morto de 180,7 s** continuam abertos.
-- A régua de luz de SALVADOR (depende de arte nova).
-
-### As OITO perguntas que estão com ele (nada aqui se decide sozinho)
-1. Quem aparece em cada capítulo novo (§2 — trava os pedidos de sprite e retrato dos oito)
-2. O CAIS pode ter imagem? (§2.4, Valongo vizinho do Cemitério dos Pretos Novos)
-3. Capítulo em obra veste a pintura do anterior, ou tela neutra?
-4. O ACEIRO entra no arco de doze?
-5. Antecipar ditadura e agronegócio? (custo: atravessar a abolição sem jogá-la)
-6. Domínio próprio (só ele compra)
-7. Conta do PostHog + chave pública (sem isso não se mede nada)
-8. Telefone deitado: travar em retrato ou compor para os dois?
-
-### Armadilhas frescas, todas pagas hoje
-- **Matei o servidor da mesa com a página dele aberta**, duas vezes, e ele viu "erro ao
-  salvar". O servidor estava certo. Se precisar reiniciar a mesa, avise antes.
-- **Rodar teste que encosta em arquivo de `assets/entrada` caduca recusas** — por isso a
-  recusa passou a valer pelos BYTES, não pela data.
-- **Duas instâncias da mesa na 8200**: a antiga continua respondendo e você mede o estado
-  errado. Mate por porta (PowerShell `Get-NetTCPConnection`), não por `pkill`.
-- **Citei três relatórios em commits antes de gravá-los.** Confira a escrita ANTES de escrever
-  o commit que fala dela.
-- **Teste que descreve o bug vira guardião do bug** — quatro asserções do `robusto-tudo.js`
-  cobravam o comportamento COM o defeito.
-
-### O estado, em número
-12 capítulos (4 escritos, 8 em obra) · 15 cenas · `index.html` **1,51 MB** + 2,47 MB em cinco
-pacotes sob demanda · abre em **6,30 s** no Fast 3G (era 16,65 s) · fim da partida
-**11.700** · FPS 61 · `npm test` PASS · `encaixe.js` 16 blocos · `robusto-tudo.js` 6 de 6 ·
-mesa com **18 para gerar**, 9 chegados, 48 prontos.
-
----
-
-## 2026-08-10 · CINCO CAPÍTULOS EM OBRA GANHAM A PAISAGEM DELES
-
-**Lente:** *Medir* — o ticket era peso, e peso é a única coisa aqui que ninguém pode estimar
-de cabeça.
-
-Sete capítulos em obra vestiam a ladeira de SALVADOR (`arte: [4]`), o que o `PENDENTES.md` já
-apontava como problema de §2: **pintura afirma lugar**, e JABAQUARA rodava sobre a Bahia de
-1835. Chegaram catorze pinturas em `assets/entrada`. Cinco capítulos passaram a ter a
-paisagem própria; dois não, e o motivo está no `PENDENTES.md` item 8.
-
-### A auditoria, antes de tocar em qualquer coisa
-
-**Nenhuma das catorze tem figura humana.** Conferido peça a peça, olhando, não deduzindo — é
-a trava do §2 e a única razão que faria a integração parar antes de começar.
-
-Régua de luz do pedido (R ≤ B, saturação ≥ 55%), medida com um instrumento novo,
-`test/medir-luz.js`. O que ele mostra, e que muda como a régua deve ser lida:
-
-| peça de CIMA | R−B | saturação | | peça de CHÃO | R−B | saturação |
-|---|---|---|---|---|---|---|
-| jabaquara | **−21,5** | **56,4%** | | jabaquara | +56,8 | 65,0% |
-| naodito | −9,0 | 31,4% | | naodito | +41,8 | 31,6% |
-| portas | −3,7 | 36,7% | | portas | +73,3 | 47,4% |
-| praça | −6,0 | 47,2% | | praça | +4,1 | 42,7% |
-| segurou | −9,7 | 47,9% | | segurou | +34,7 | 39,4% |
-| pequena áfrica | +5,5 | 31,2% | | pequena áfrica | +54,8 | 39,8% |
-| tem fonte | +37,1 | 43,7% | | tem fonte | +16,2 | 11,2% |
-
-**A régua de R ≤ B só vale para a peça de CIMA, e o número prova.** As sete peças de chão que
-já estão no jogo há meses medem de **+50,5 a +116,9** — terra é marrom, e marrom é vermelho
-maior que azul por definição. Cobrar R ≤ B de um chão é cobrar que ele não seja chão. O
-`medir-luz.js` imprime as duas colunas e o julgamento; quem ler a saída precisa saber disto,
-e por isso está escrito aqui e no cabeçalho do instrumento.
-
-**O caso SALVADOR não se repetiu**, que era o medo: a pintura 4 tem R−B **+47,1** com saturação
-38,6% e ficou presa num entardecer. Das novas peças de cima, cinco estão entre −21,5 e −3,7.
-**A única a repetir o defeito é O QUE TEM FONTE (+37,1)** — e ela tem desculpa que SALVADOR não
-tinha: é a **primeira pintura de interior do jogo**, madeira, latão e luminária de arquivo. Não
-há céu para ser azul. Entrou assim, consciente.
-
-O que ficou fora da régua sem desculpa é a **saturação**: as sete peças de cima já embutidas
-vivem entre **56,2% e 66,3%**, e das cinco novas só JABAQUARA (56,4%) alcança. As outras ficam
-entre 31% e 48% — vão ler mais lavadas que as irmãs. Não é defeito que impeça de entrar; é
-número para o próximo pedido.
-
-### O que quebrou a premissa do inline-fundos.js, e por que ele mudou
-
-1. A entrega vem em `assets/entrada` com **outro nome** (`cap-<slug>-fundo-chao`, e não
-   `<cap>-baixo`). Renomear catorze arquivos à mão a cada leva é o tipo de erro que não dá
-   console: peça trocada põe a paisagem do capítulo errado na tela, calada.
-2. **`assets/entrada` é ignorada pelo git.** Quem converteu SALVADOR converteu direto de lá e
-   nunca commitou o mestre de 720×959 — **a pintura 4 não tem fonte no repositório hoje**, e
-   este script, rodado como estava, morreria procurando `cenarios-novos/cap4-alto.png`. Agora
-   converter **grava o mestre em `assets/cenarios-novos`**, que é versionada.
-3. Por causa de (2), peça sem fonte é **preservada byte a byte** do `src/jogo.ts`. Conferido:
-   7 de 7 antigas idênticas depois de rodar.
-
-### O achado que economizou peso e salvou as pinturas: NÃO QUANTIZAR
-
-O `converter-fundo.js` corta a paleta em 48 cores porque a **primeira** leva chegou como
-ilustração de gradiente macio. A leva de 10/08 já vem com borda dura. Quantizar de novo faz
-duas coisas ruins ao mesmo tempo, e a segunda eu não esperava:
-
-```
-jabaquara-alto   sem quantizar   75,7 KB   erro 0,00
-                 48 cores        89,0 KB   erro 12,59   ← MAIOR e muito pior
-                 96 cores        82,9 KB   erro  4,54
-                 256 cores       80,7 KB   erro  2,98
-```
-
-**Banda chapada com degrau duro custa mais bits em WebP que o degradê original**, porque o
-degrau é uma borda e borda é o que o codec paga caro. A primeira rodada saiu com a mata em
-três verdes chapados e o casario em manchas laranja — e 13 KB mais gorda. `CORES = 0`.
-
-### O peso, que era o assunto
-
-| | antes | depois | conta |
-|---|---|---|---|
-| `index.html` no disco | 3,97 MB | **4,54 MB** | +0,57 MB (+14,4%) |
-| no fio (brotli q5) | 2,83 MB | **3,26 MB** | +0,43 MB |
-| Fast 3G · tela desenhada | 16,63 s | **19,17 s** | **+2,54 s** |
-| Slow 4G · tela desenhada | 14,67 s | 16,90 s | +2,23 s |
-
-**Meia décima de segundo de abertura por capítulo** (2,54 s ÷ 5 = 0,51 s). É o preço, dito
-sem maquiagem: cinco capítulos deixam de mentir sobre onde se passam, e todo mundo espera
-meio segundo a mais por cada um deles. Qualidade WebP **0,72**, a régua do §6 — o
-`inline-fundos.js` ainda dizia 0,80, número anterior à revisão de 07/08, e regerá-lo assim
-teria *engordado* o arquivo desfazendo uma medição já feita.
-
-Testado e recusado: **regerar as sete antigas do PNG mestre** em vez de manter o reencode
-duplo do `requalificar.js`. Devolveu **8 KB** em 1.939 e mexeria em doze peças estáveis.
-`tirar-icc.js` rodou por último e tirou 18,7 KB com diferença máxima de canal **0**.
-
-### As duas tabelas por pintura
-
-- **`REPETICAO_PINT`** — quatro das cinco são arquitetura, e três delas (8, 10, 11) têm ponto
-  de fuga central, o que é *pior* que SALVADOR: espelhada, a rua vira duas ruas convergindo
-  para lugar nenhum. Levam o tratamento de SALVADOR (`[false, 1, true, true]`). Comparado nos
-  prints `REP-*`, não deduzido. JABAQUARA é mata subindo encosta e fica na regra orgânica.
-- **`CEU_PINT`** — medido com `prints-onda2.js` (que lê quantas pinturas o jogo tem, em vez
-  de trazer o número escrito à mão, e por isso cobriu as doze sozinho). Topo/céu à noite:
-  **7 → 0,96 · 8 → 0,86 · 9 → 0,88 · 10 → 0,82 · 11 → 0,91**, todas dentro do alvo de ≤ 1,1 na
-  primeira tentativa. Motivo: a leva nova tem **céu azul cheio**, e não a névoa clara de
-  horizonte das seis primeiras — era a névoa que sobrevivia à noite e obrigava a calibrar
-  peça a peça.
-
-### O que o print mostra e o teste não mostraria
-
-- **JABAQUARA:** o recorte ao centro (607 de 1.942 px, a conta do pipeline) **come o porto de
-  Santos e o mar**, que eram metade do assunto do pedido. Sobra a encosta com as casas, que
-  é boa — mas quem pedir a próxima pintura larga precisa saber que só os 31% centrais entram.
-- **A emenda alto/chão de JABAQUARA fica nua**: a peça de cima termina em clareira clara de
-  areia e a de baixo começa em mata escura com barro. O `matoDaEmenda()` disfarça, mas o
-  degrau de tom se vê. As irmãs orgânicas não têm isso porque foram pintadas em par.
-- **O QUE TEM FONTE** é um interior visto de dentro, e a personagem anda na frente de uma mesa
-  enorme. Lê-se como arquivo — mas a escala é estranha, e é o candidato número um a ser
-  refeito quando o capítulo for escrito.
-
-### Próximo passo
-
-As duas peças de chão de A PRAÇA e O QUE SEGUROU (`PENDENTES.md` 8). Depois disso, a pergunta
-que fica na mesa do dono e que eu não decido: **+0,51 s de abertura por capítulo é aceitável
-até doze?** Se for, o arquivo único chega perto de 5,1 MB e 21 s no 3G. Se não for, a conversa
-deixa de ser sobre qualidade de WebP e passa a ser sobre carregar a pintura do capítulo **sob
-demanda** — e isso é arquitetura, não compressão.
-## Diário — 2026-08-10 · Plataforma · A ARTE DE CADA CAPÍTULO CHEGA QUANDO A PESSOA CHEGA NELE
-
-A mudança #1 do `RELATORIO-PESO.md`, aprovada pelo dono ("pode seguir"). Ela está feita, e
-abaixo estão os números medidos, o que quebrou no caminho e o que ficou de fora.
-
-### O antes e o depois, medido na mesma máquina (`test/peso-abrir.js`)
-
-| | arquivo | no fio | **Fast 3G** | Slow 4G | 1ª tinta |
-|---|---|---|---|---|---|
-| antes (comprimido, como a Vercel serve) | 3,97 MB | 2,83 MB | **16,65 s** | 14,69 s | 1,54 s |
-| **depois** | **1,51 MB** | **0,98 MB** | **6,30 s** | **5,30 s** | 1,54 s |
-| antes (cru, como o Capacitor empacota) | 3,96 MB | — | 23,3 s | 20,8 s | 1,52 s |
-| **depois (cru)** | **1,51 MB** | — | **9,18 s** | **7,94 s** | 1,21 s |
-
-**16,65 s → 6,30 s.** É melhor que os 8,7 s que o relatório projetava, e a razão é conhecida:
-o protótipo dele deixava os sprites de cada época no arquivo de abertura, e aqui eles vão no
-pacote também — que era exatamente a recomendação do §7 do relatório.
-
-**O custo, e ele é real:** entrar em PALMARES cobra **3,66 s em Fast 3G** (2,96 s em Slow 4G)
-para buscar os 753 KB do pacote. Esses segundos são gastos dentro do fecho do capítulo
-anterior, da travessia e da cerimônia — segundos em que a pessoa está lendo — porque o pedido
-é disparado no início da virada, não na hora de desenhar. Na porta de entrada, onde a pessoa
-ainda não investiu nada e vai embora, o custo é zero.
-
-**E, o que importa mais que o número de hoje:** a porta de entrada **parou de crescer**. Um
-capítulo novo com pintura e sprites próprios custa 0 KB nela. O caminho antigo entregava
-38,5 s no capítulo 12.
-
-### Os pacotes
-
-```
-pack-palmares  753 KB    pack-hoje      741 KB    pack-salvador  426 KB
-pack-historia  347 KB    pack-travessia 263 KB              index.html  1,51 MB
-```
-
-`pack-historia` só é pedido quando alguém abre A HISTÓRIA; `pack-travessia`, só quando há
-travessia entre os dois capítulos. Quem joga o capítulo 1 e fecha nunca baixa nenhum dos dois.
-
-### O que foi decidido, e por quê
-
-- **O pacote leva a pintura E os sprites da época.** Medido no relatório: só a pintura deixaria
-  ~225 KB por capítulo na abertura, e ela voltaria a crescer (8,7 s no capítulo 4 virariam
-  15,7 s no 12).
-- **A CSP abriu UMA diretiva:** `connect-src 'none'` → `'self'`. Nada além. `img-src data:`
-  **não** mudou, porque a arte continua chegando como `data:` de dentro do pacote.
-- **A tabela de partição vive num arquivo só** (`ferramentas/pacotes.js`), lido pelo build E
-  embutido no jogo (`var __PACOTES`). Duas cópias divergiriam em silêncio, e o sintoma seria a
-  pintura de um capítulo nascendo vazia.
-- **Capítulo novo não precisa de linha nenhuma no jogo.** `pacotesDaEpoca()` deriva o que pedir
-  dos próprios dados do capítulo — `arte`, `arteCap` e `aberturaImg` — cruzados com a tabela.
-- **Sem pré-busca especulativa do capítulo seguinte.** Ela tornaria a virada instantânea, mas
-  baixa 753 KB para quem talvez nunca chegue lá. A virada já tem cerimônia suficiente para
-  cobrir 3,7 s. Fica anotado no `PENDENTES.md` como opção medível, não como dívida.
-
-### O jogo nunca fica sem chão — e o que isso custou de verdade
-
-Toda imagem que viajou vale um **GIF 1×1 transparente** até o pacote chegar. Cinco lugares
-recuam para a arte do capítulo 1, que nunca sai da abertura: `fundoComArte` (pintura),
-`heroBloco` (personagem), `mobFrame` (o que atravessa a rua), `dropDe` (o que fica no chão) e
-`frenteBloco` (vegetação). Um pacote que falha de baixar não quebra a partida: é anotado com
-`console.warn`, o capítulo segue com o recuo, e a tentativa é **reencenada** na próxima entrada.
-
-**A distinção que custou uma releitura e sem a qual isto estaria errado:** `temArte()` (carregou
-e é imagem de verdade) e `esperando()` (carregou e é o pixel de espera) **não são a negação uma
-da outra**. Uma imagem ainda decodificando não é nenhuma das duas. Sem essa terceira condição,
-os primeiros quadros de toda partida trocariam a arte certa pela de recuo, só porque nada tinha
-acabado de carregar ainda — e o sintoma seria a pessoa do capítulo 1 aparecendo por meio segundo
-no capítulo 3, que é falha de §2 vinda por uma porta técnica.
-
-### O custo escondido que ninguém tinha somado
-
-Seis caches medem números **da imagem** na primeira vez que a desenham: `heroScale` (altura do
-quadro da caminhada), `mobScale`, `frenteFrac` (onde a tinta da planta acaba), `dropScale`,
-`flashCv` (o pisca branco assado) e `travMarIm`. Medidos no pixel de espera, ficam **errados
-para sempre** quando a arte chega — e o sintoma seria a personagem saindo do tamanho de um pixel
-esticado, **sem erro nenhum no console**. `esquecerMedidasDaArte()` zera as seis a cada pacote
-aplicado; `dropScale` e `flashCv` deixaram de ser `const` só por isso.
-
-### As quatro coisas que liam "um arquivo", conferidas uma a uma
-
-| quem | o que precisou mudar |
+| grupo | verbetes |
 |---|---|
-| **Vercel** | nada — o `vercel.json` já publica `dist/`, e o build passou a escrever os pacotes lá |
-| **Capacitor** | nada — empacota `dist/` inteiro, e `androidScheme: https` faz o `fetch` funcionar |
-| **`npm start`** | nada — o `servir.js` já conhece o tipo `.json` |
-| **smoke test** | **abria por `file://`, e ali o Chromium recusa o fetch.** Agora sobe um servidor próprio |
+| AS PALAVRAS QUE ESTE JOGO ESCOLHE | invasão · descobrimento · pessoa escravizada · povos originários · indígena · índio · guerra justa · encontro de culturas · tribo · pré-história · contato · conquista |
+| A TERRA E QUEM JÁ ESTAVA AQUI | Pindorama · tupi · Tupinambá · mandioca · manto Tupinambá · aldeamento · etnia · demarcação · sambaqui · geoglifo · Marajó · a doença que chegou nos navios |
+| PALMARES E OS MOCAMBOS | quilombo · quilombola · mocambo · Palmares · serra da Barriga · Zumbi · Gana Zumba · Aca Inene · Angola Janga |
+| A TRAVESSIA E O TRÁFICO | travessia · tráfico atlântico · engenho · Valongo · degredo |
+| SALVADOR, 1835 | ganhadeira · malê · levante dos malês · crioulo/crioula · liberto/liberta · alforria · acarajé · pano da costa · búzios |
+| AS DATAS, AS LEIS E OS ÓRGÃOS | Dia da Consciência Negra · Lei Áurea · Constituição de 1988 · Dia dos Povos Indígenas · Fundação Cultural Palmares |
 
-O smoke test foi o único custo real, como o relatório previa, e era do tipo perigoso: sem
-trocar, ele continuaria **passando** enquanto exercitava só o caminho de recuo.
+### Fonte por fonte — o que cada uma sustenta
 
-### A trava do build aprendeu o contrato novo
+**Autoria negra e indígena primeiro (§2, prioridade de fonte do dono).**
 
-A trava antiga cobrava `src=` e `href=` e **não via um `fetch()`**. Agora ela cobra quatro
-coisas, e a quarta é a que impede o resto de virar teatro:
+- **Beatriz Nascimento**, "O conceito de quilombo e a resistência cultural negra" (1985), em
+  *Uma história feita por mãos negras*, org. Alex Ratts, Zahar, 2021 — sustenta **QUILOMBO**.
+  É ela quem desmonta "quilombo = esconderijo" e recupera o kilombo como instituição.
+- **Abdias do Nascimento**, *O genocídio do negro brasileiro*, Paz e Terra, 1978 — sustenta
+  **PESSOA ESCRAVIZADA**, ao lado de Reis. Entra porque o argumento do particípio é dele e do
+  movimento negro antes de ser da academia.
+- **Nei Lopes**, *Novo dicionário banto do Brasil*, Pallas, 2003 — sustenta **ZUMBI** (raiz
+  quimbundo *nzumbi*, ligada à ideia de imortalidade) e entra como segunda fonte de **MOCAMBO**.
+- **Ailton Krenak**, discurso na Constituinte, 04/09/1987 — citado dentro de **CONSTITUIÇÃO DE
+  1988** (o jenipapo no rosto durante a fala). A afirmação jurídica do verbete é da CF/88.
 
-1. nenhuma outra porta de rede (`XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon`, `import()`);
-2. todo `fetch(` tem a forma exata `fetch(caminhoPacote(nome))` — contagem contra contagem;
-3. `caminhoPacote()` é cobrada byte a byte: `return "pack-" + nome + ".json"`, relativo, sem host;
-4. a **CSP é pregada diretiva por diretiva** contra uma tabela dentro do próprio `construir.js`.
+**As pesquisadoras de cada período.**
 
-Provado nas duas pontas: trocar `connect-src` por um host derruba o build, e fazer
-`caminhoPacote` devolver `https://…` também.
+- **Manuela Carneiro da Cunha** (org.), *História dos índios no Brasil*, Companhia das Letras,
+  1992 — **INVASÃO**, **TRIBO**, **ENCONTRO DE CULTURAS**, e segunda fonte de **MANDIOCA**.
+- **Manuela Carneiro da Cunha**, "Imagens de índios do Brasil: o século XVI", *Estudos
+  Avançados* 4(10), 1990, USP — **DESCOBRIMENTO**. Já estava em `FONTES`.
+- **Beatriz Perrone-Moisés**, "Índios livres e índios escravos", em Cunha (org.), 1992, junto da
+  **Lei sobre a Liberdade dos Gentios (Évora, 20/03/1570)** — **GUERRA JUSTA**. As duas juntas
+  são o ponto: a lei que dizia "livres" abria a exceção que legalizou escravizar.
+- **Maria Regina Celestino de Almeida**, *Metamorfoses indígenas*, 2003, com **John M.
+  Monteiro**, *Negros da terra*, Companhia das Letras, 1994 — **ALDEAMENTO**. Monteiro sozinho
+  sustenta **CONQUISTA**.
+- **Maria Dulce Gaspar**, *Sambaqui: arqueologia do litoral brasileiro*, Zahar, 2000 —
+  **SAMBAQUI** e **PRÉ-HISTÓRIA**. A regra de nomeação pela obra, já escrita no NOTES.md, é dela.
+- **Silvia Hunold Lara**, "O território dos Palmares", *Afro-Ásia* nº 64, 2021, UFBA —
+  **MOCAMBO**, **ANGOLA JANGA**, e a divergência de **FUNDAÇÃO CULTURAL PALMARES**.
+- **Silvia H. Lara & Fernando Fachin**, *Guerra contra Palmares: o manuscrito de 1678*, Chão
+  Editora, 2021 — **GANA ZUMBA** e **ACA INENE**. Paleografia, não opinião.
+- **Cecília Moreira Soares**, "As ganhadeiras: mulher e resistência negra em Salvador no século
+  XIX", *Afro-Ásia* nº 17, 1996, UFBA — **GANHADEIRA** e segunda fonte de **ALFORRIA**.
+  **Referência completa localizada nesta sessão** (o NOTES.md a citava sem número e sem ano):
+  Afro-Ásia n. 17, 1996, p. 57-71, DOI 10.9771/aa.v0i17.20856.
+- **Wlamyra Albuquerque**, *O jogo da dissimulação*, Companhia das Letras, 2009 — segunda fonte
+  de **LIBERTO · LIBERTA**.
+- **Denise Schaan**, *The Camutins Chiefdom*, 2004, com **Anna C. Roosevelt**, *Moundbuilders of
+  the Amazon*, 1991 — **MARAJÓ**. Schaan, Ranzi & Pärssinen mais **Watling et al.**, PNAS 2017 —
+  **GEOGLIFO**.
 
-### O que se perdeu, e está aceito
+**Os demais pesquisadores.**
 
-**Abrir o `index.html` da raiz com dois cliques (`file://`) passa a mostrar a arte do capítulo 1
-em todo lugar.** O Chromium recusa o `fetch` sob `file://` e o jogo **nem tenta** — em silêncio,
-porque encher o console de erro por uma tentativa que o navegador já decidiu recusar não ajuda
-ninguém. O jogo continua inteiramente jogável assim; só a arte dos capítulos 2+ não aparece. Os
-três lugares onde o jogo roda de verdade (Vercel, `npm start`, Capacitor) não usam `file://`.
+- **João José Reis**, *Rebelião escrava no Brasil*, Companhia das Letras, ed. rev. 2003 — é a
+  âncora do grupo de Salvador: **MALÊ**, **LEVANTE DOS MALÊS**, **CRIOULO · CRIOULA**,
+  **LIBERTO · LIBERTA**, **DEGREDO**, **ALFORRIA**, e segunda fonte de **PESSOA ESCRAVIZADA**.
+- **Stuart B. Schwartz**, *Segredos internos*, Companhia das Letras, 1988 — **ENGENHO**.
+- **Flávio dos Santos Gomes**, *Palmares*, Contexto, 2005, com o **Documenta Palmares**
+  (Unicamp) — **PALMARES**.
+- **Eduardo de Almeida Navarro**, *Dicionário de tupi antigo*, Global, 2013 — **PINDORAMA**,
+  **TUPI**, **MANDIOCA**. É a fonte de etimologia tupi da casa.
+- **Francisco Noelli**, "The Tupi expansion", em *Handbook of South American Archaeology*, 2008
+  — **TUPI**.
+- **Dauril Alden & Joseph C. Miller**, *Journal of Interdisciplinary History* 18(2), 1987, e
+  **David S. Jones**, "Virgin Soils Revisited", *WMQ* 60(4), 2003 — **A DOENÇA QUE CHEGOU NOS
+  NAVIOS**. Jones é quem sustenta a oração final ("não foi acidente da natureza").
+- **Jan Hogendorn & Marion Johnson**, *The Shell Money of the Slave Trade*, Cambridge University
+  Press, 1986 — **BÚZIOS**. Fonte nova nesta sessão; é a obra de referência sobre o cauri como
+  moeda do tráfico.
+- **Raul Lody** (2003), via **Fundação Joaquim Nabuco**, Pesquisa Escolar, verbete "Panos da
+  Costa" — **PANO DA COSTA**. Cito a Fundaj e não o título do livro porque não confirmei a
+  referência bibliográfica exata do Lody nesta sessão.
 
-### O que o smoke test passou a cobrar
+**Fonte institucional (vale, mas nunca no lugar de quem narra).**
 
-Um bloco novo, e ele roda **antes de tudo** de propósito: precisa de uma página recém-aberta,
-em que nenhum pacote foi pedido. Ele prova, em jogo vivo, que (1) na abertura a arte do
-capítulo 1 é real e a dos outros é o pixel de espera — é o único aviso de que a porta de entrada
-voltou a crescer, porque o jogo continuaria funcionando perfeitamente; (2) depois do pacote a
-arte volta **no lugar certo** em todos os capítulos que pedem um — endereço errado devolve a
-imagem no capítulo errado e não dá erro nenhum; (3) enquanto espera, a pintura em uso tem 720 px
-de largura, não 1; e (4) um pacote que nunca chega deixa o jogo desenhando e é tentado de novo.
+- **IBGE, Censo 2022** — **INDÍGENA**, **ÍNDIO**, **ETNIA**, **QUILOMBOLA**.
+- **Planalto** — **Lei nº 14.402/2022** (POVOS ORIGINÁRIOS, INDÍGENA, ÍNDIO, DIA DOS POVOS
+  INDÍGENAS) · **Lei nº 3.353/1888** (LEI ÁUREA) · **CF/88 art. 231 e ADCT art. 68**
+  (DEMARCAÇÃO, QUILOMBOLA, CONSTITUIÇÃO DE 1988) · **Decreto nº 1.775/1996** (DEMARCAÇÃO,
+  as etapas do rito) · **Lei nº 12.519/2011** e **Lei nº 14.759/2023** (DIA DA CONSCIÊNCIA
+  NEGRA — a segunda é a que o transforma em feriado nacional) · **Lei nº 7.668/1988**
+  (FUNDAÇÃO CULTURAL PALMARES). Todas verificadas nesta sessão.
+- **ISA / Enciclopédia Povos Indígenas no Brasil** e **Portaria Declaratória nº 1.075/2025** —
+  **TUPINAMBÁ**, **POVOS ORIGINÁRIOS**, **CONTATO**.
+- **FUNAI**, Coordenação-Geral de Índios Isolados e de Recente Contato — **CONTATO**.
+- **IPHAN** — **SERRA DA BARRIGA** (tombamento) e **ACARAJÉ** (Ofício das Baianas de Acarajé,
+  Livro dos Saberes, 2005).
+- **UNESCO**, Cais do Valongo, 2017, e a escavação de **Tania Andrade Lima** (Museu Nacional/
+  UFRJ), 2011 — **VALONGO**.
+- **Museu Nacional / UFRJ**, cerimônia de 12/09/2024 — **MANTO TUPINAMBÁ**.
+- **SlaveVoyages.org** (Emory) — **TRAVESSIA** e **TRÁFICO ATLÂNTICO**.
+- **Fundação Cultural Palmares** — **ZUMBI**, **SERRA DA BARRIGA**, **DIA DA CONSCIÊNCIA NEGRA**.
 
-### O efeito colateral que quase passou: quarenta instrumentos medindo a arte errada
+### Os nove verbetes marcados `dv: 1`, e a divergência exata de cada um
 
-O relatório previa **um** custo escondido, o smoke test. Ele estava certo sobre o teste e curto
-sobre o número: **quase quarenta instrumentos** deste repositório abrem o jogo por `file://`
-(`encaixe.js`, `robusto-tudo.js`, os `medir-*`, os `prints-*`, os `cinco-*`, `prova-cores`…).
-Sob `file://` cada um deles continuaria rodando lindamente e medindo a arte do capítulo 1
-achando que media a do capítulo 3 — **print bonito, número errado, nenhum aviso**. Deixar assim
-seria fabricar quarenta medições silenciosamente falsas.
+1. **PINDORAMA** — a etimologia (*pindó* + *-rama/retama*, "região das palmeiras") é sólida em
+   Navarro. **O que não se sustenta** é a ideia corrente de que a palavra nomeava "o Brasil
+   inteiro" para os povos tupi: isso é popularização moderna. O verbete afirma a etimologia e
+   nega a extensão — coerente com a regra já escrita no NOTES.md ("PINDORAMA era nome de TERRA,
+   não de unidade política").
+2. **TUPINAMBÁ** — a tradução do etnônimo ("os primeiros", "os mais antigos") circula muito e
+   **não achei atestação**. Declarada como atribuída, e o verbete não a repete como fato.
+3. **MOCAMBO** — quimbundo *mu'kambu* ("cumeeira") é a derivação mais registrada; parte das
+   fontes deriva do quicongo *mukambu*. Sentido igual, língua de origem em disputa.
+4. **SERRA DA BARRIGA** — **a pendência antiga do NOTES.md ficou quase resolvida.** As páginas
+   do IPHAN e da Fundação Cultural Palmares convergem em **31/01/1986**, e as contagens de
+   aniversário publicadas batem com 1986. O 1985 continua circulando. O verbete diz 1986 e
+   registra a outra data — recomendo **manter o `dv`** até alguém abrir o processo do IPHAN.
+5. **ANGOLA JANGA** — sem novidade: mantida a correção já registrada no NOTES.md. O verbete
+   existe justamente para o jogo poder dizer por que **não** usa o nome.
+6. **VALONGO** — a derivação de "vale longo" é **atribuída, sem atestação firme**. Os fatos
+   (cais de 1811, escavação de 2011, UNESCO 2017) são sólidos; a etimologia é que fica marcada.
+7. **MALÊ** — iorubá *ìmàle* ("muçulmano") é a derivação mais citada, e é a de Reis; há
+   derivação concorrente do hauçá *malami* ("mestre, professor"). O verbete diz as duas.
+8. **ACARAJÉ** — origem iorubá é consenso (*àkàrà* + *jẹ*); **as glosas variam** entre fontes
+   ("comer akara", "bolinho de comer", e leituras mais livres). O verbete fica na parte firme.
+9. **FUNDAÇÃO CULTURAL PALMARES** — o `dv` não é sobre o órgão, é sobre a divergência que o
+   jogo já registra: a FCP afirma "cerca de 20 mil" habitantes em Palmares e Silvia Lara
+   classifica os números da documentação seiscentista como exagerados.
 
-`test/abrir.js` resolve os quarenta de uma vez, e a forma é o que faz isso ser barato: em vez
-de reescrever o corpo de cada ferramenta, **envolve-se a expressão que ela já monta**.
+### O que NÃO entrou, e por quê
 
-```js
-const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
-```
+- **"Angola Janga" como nome de Palmares** — entrou só como verbete de recusa, nunca como nome.
+- **Etimologia de "Tupinambá"**, **de "Valongo"** e **glosa fechada de "acarajé"** — declaradas
+  atribuídas dentro do próprio verbete, em vez de afirmadas.
+- **"Senzala", "capoeira", "orixá", "irmandade", "tumbeiro"** — o jogo não pronuncia nenhuma
+  hoje. Ficam para quando o capítulo que as usar existir; glossário que explica o que o jogo não
+  diz é enciclopédia, não glossário.
+- **O diagrama do navio *Brookes*** — o texto da TRAVESSIA o descreve para recusá-lo. Um verbete
+  sobre ele seria dar-lhe uma segunda vida numa tela onde ninguém pediu. **Fica de fora, e a
+  decisão é de representação: se o dono quiser, ele entra.**
+- **Número de habitantes de Palmares, população indígena em 1500** — continuam fora de qualquer
+  verbete, pela mesma razão de sempre (`FONTES` já os trata como disputa).
 
-Devolve `http://127.0.0.1:8198/<caminho>` para qualquer `.html` **dentro** do repositório e
-devolve o que recebeu, intocado, para todo o resto — por isso as ferramentas de arte que abrem
-um PNG de `assets/entrada` passam por ali sem mudar de comportamento. Foram 51 aberturas em 51
-arquivos. A **porta é fixa** de propósito: um `listen(0)` daria porta livre garantida, mas só a
-informa num callback, e aí a função teria de ser assíncrona — o que obrigaria a mexer no CORPO
-das quarenta em vez de envolver uma expressão.
+### ⚠ Do dono — três coisas que o historiador não decide sozinho (§2)
 
-### E o `encaixe.js` pegou duas coisas de verdade — que é para isso que ele existe
+1. **BÚZIOS e ACARAJÉ são drops no chão do capítulo 4** (`EPOCAS[2].abertura`, fala 5: *"No chão
+   ficam acarajé, pano da costa e búzios"*). O §2.4 item 5 diz que **objeto ritual não é
+   colecionável**. O búzio é moeda do tráfico **e** instrumento de adivinhação no candomblé; o
+   acarajé é comida de rua **e** oferenda — e é a própria ficha do IPHAN que diz isso, ao ligar
+   o ofício das baianas ao culto dos orixás. **O verbete escrito não menciona a dimensão
+   religiosa de nenhum dos dois**, e há uma versão alternativa pronta que menciona. Duas
+   decisões, e as duas são dele: (a) o verbete diz ou não diz? (b) o drop continua ou troca?
+2. **PANO DA COSTA** — mesmo caso, menor: o uso do pano nas casas de culto e a correspondência
+   com as cores dos orixás ficaram **fora** do verbete. Ele fala do tecido, da rota e da rua.
+3. **O verbete "PESSOA ESCRAVIZADA" cita a palavra que o §2 proíbe**, para poder explicá-la
+   ("Neste jogo ninguém é chamado de escravo"). Menção, não uso — mas é a única linha do jogo
+   em que a palavra aparece fora de título de obra, e vale o olho do dono.
 
-1. **A tela de AJUSTES ainda prometia "NADA SAI DESTE APARELHO / O JOGO NÃO TEM REDE".** O
-   `CLAUDE.md` §3 previa exatamente isto e mandava reescrever a tela **na mesma fase** que ligar
-   a rede. O bloco 8 do `encaixe.js` existia justamente para amarrar as duas — e cobrou.
-   Passou a dizer **"SEU JOGO FICA NESTE APARELHO / O JOGO SÓ BAIXA A ARTE DELE"**, que é o que
-   é verdade e é o que a pessoa quer saber: o save, o tempo jogado, os toques e os dias
-   continuam sem ter para onde ir. A asserção virou de **três estados** (fechada · só o próprio
-   site · qualquer outra coisa) e **recusa** a terceira, em vez de deixá-la passar calada.
-2. **"PALMARES PERDEU a pintura: era 2,3, virou 0,0"** — falso positivo, e útil. O bloco media
-   `fundoIdx()` antes de os pacotes chegarem, ou seja, media o **recuo**. Agora espera a arte
-   toda chegar antes de medir o mapeamento. **Lição que vale para o próximo instrumento:** desde
-   10/08, medir arte de capítulo sem esperar o pacote mede o recuo, não a arte.
-
-### O aviso que o build ganhou — e o defeito que ele achou na primeira volta
-
-`pacoteDoEndereco` devolve `null` para o que não sabe classificar, e isso é de propósito: o pior
-caso é a arte pesar na porta de entrada, nunca sumir do jogo. Mas **"de propósito" e "esquecido"
-ficam idênticos em silêncio** — pintura nova entra, ninguém acrescenta a linha em
-`ferramentas/pacotes.js`, e a abertura volta a crescer capítulo a capítulo sem que nada diga
-nada. É exatamente o modo de falha que este trabalho existe para acabar. Então o build passou a
-CONTAR e FALAR: aviso, nunca build vermelho — quem integra arte no meio de uma sessão merece uma
-linha dizendo o que falta, não um build quebrado.
-
-**E ele achou um defeito na primeira vez que rodou.** A regra do sufixo do herói era "o último
-dígito da chave", e isso classificava `atk2` — a folha de ALCANCE do **capítulo 1** — como sendo
-do capítulo 2. Não virou defeito visível por puro acidente: `atk2` é byte a byte igual a `atk1`,
-que fica na abertura, e a regra "literal já paga na abertura não viaja" a segurou. Acidente não
-é projeto, e nenhum teste pegaria isto, porque a arte do capítulo 1 é justamente a que ninguém
-confere depois de aplicar um pacote. Agora as chaves são lidas pela forma delas: `walk`, `sp` e
-`run` levam o sufixo colado; `atk1` e `atk2` já terminam em dígito e o sufixo do capítulo vem
-depois de `_`. A saída do build ficou **byte a byte idêntica**, que é a prova de que a fuga era
-mesmo pelo acidente.
-
-### A dúvida que fica
-
-O relatório aponta uma variante que economiza mais 25% do arquivo **cru** (o que importa para o
-Android e para a memória): servir `.webp` de verdade em vez de base64 dentro de JSON. Ela custa
-uma segunda diretiva de CSP (`img-src data: 'self'`) e uma reescrita do pipeline de arte. Não
-foi feita, e a pergunta honesta é se vale: no fio comprimido a diferença é pequena, porque o
-brotli já devolve quase todo o inchaço do base64. **Só se decide com medição própria.**
-
----
-
-## Diário — 2026-08-10 · A MEDIÇÃO GANHA A TERCEIRA PERNA: o erro, a pergunta, e onde se para
-
-Três coisas aprovadas pelo dono, todas pelo MESMO `fetch` de vinte linhas que entrou hoje de
-manhã. **A biblioteca do PostHog continua fora**, e essa é a decisão que sustenta as três: a
-abertura acabou de cair de 19,2 s para 6,3 s num 3G, com a porta de entrada em 1,51 MB, e o SDK
-do navegador desfaria parte do ganho para fazer o que quarenta linhas já fazem. A CSP **não
-abriu nem uma diretiva** — tudo viaja pelo host que já estava aberto (`https://us.i.posthog.com`,
-região **US**, que é onde o projeto do dono está).
-
-### 1 · ERRO VISÍVEL — e o teto é TRÊS, por quatro razões somadas
-
-`window.onerror` e `unhandledrejection` mandam um evento `erro` com **a mensagem, o arquivo e a
-linha, e nada mais**. Nem capítulo, nem impacto, nem estado: relatório de defeito é o esconderijo
-clássico de dado de gente, porque parece técnico e ninguém o lê como dado pessoal. O arquivo sai
-como CAMINHO, sem domínio, sem `?` e sem `#` — consulta em URL é o outro esconderijo, e o jogo
-não tem nenhuma hoje, mas a regra vale contra o amanhã.
-
-**`MEDIDA_ERRO_TETO = 3`, e o três é derivado:**
-
-1. uma exceção presa no laço de quadro dispara **60×/s** — dez minutos de defeito seriam trinta
-   e seis mil pedidos saindo do telefone de alguém, pagos com a bateria dela;
-2. por isso agrupa-se **por mensagem** primeiro: a segunda ocorrência do mesmo texto não ensina
-   nada que a primeira não tenha ensinado. Medido: **201 exceções, 1 evento**;
-3. e ainda assim três, e não trinta, porque mensagem com número variável (`... at frame 1234`)
-   escapa do agrupamento e volta a ser tempestade. Três deixa ler uma **cascata** (A derruba B
-   derruba C), que é o caso em que a primeira mensagem sozinha engana, e para aí. Medido:
-   **40 mensagens diferentes → 3 eventos**;
-4. e três de um orçamento de quarenta (`MEDIDA_TETO`) garante que um jogo quebrado **não gaste a
-   cota gritando** e leve junto o "voltou no dia 3", que é a razão de a medição existir.
-
-Medido também: **201 exceções e a partida seguiu inteira** — a rua andou e A HISTÓRIA abriu.
-
-**A armadilha que custou duas voltas do teste:** exceção jogada de um `page.evaluate`, ou de um
-`<script>` criado por `createElement`, chega com `e.filename` **VAZIO** — o Chromium só dá
-`filename` a script que veio do ANALISADOR da página. O teste acusava o jogo de não saber dizer
-o arquivo quando quem não sabia era o Playwright. O bloco 18 passou a **injetar o defeito no HTML
-servido**, antes de `</body>`; aí o campo veio `/` e a linha `7502`, que é uma linha de verdade
-do arquivo único.
-
-### 2 · "VOCÊ VOLTARIA AMANHÃ?" — a única pergunta que o jogo faz a quem o joga
-
-Na CHEGADA, entre o placar e as duas portas. Papel de campo para a pergunta (PAPEL fala serifa),
-três tábuas para as respostas (MADEIRA fala bitmap) — **nenhum material novo**, que é a decisão
-inteira: uma caixa de pesquisa com visual próprio seria o Frankenstein que a régua do menu
-existe para impedir, e aqui leria como formulário de site colado num jogo pintado.
-
-- **Uma vez, e só uma.** `ESQUEMA_RET.volta`: 0 nunca feita · 1 feita e calada · 2/3/4 a
-  resposta. A marca de "perguntada" é posta ao MOSTRAR, não ao responder — senão quem fecha em
-  silêncio é perguntado de novo em toda chegada, e aí o convite virou cobrança.
-- **Não é pedágio**: as duas portas e o VOLTAR seguem do mesmo tamanho, e sair sem responder sai.
-- **Não é avaliação.** Nada de estrela, nota ou "gostou" — o §2.1 diz que a CHEGADA não é troféu,
-  e o bloco 19 cobra o vocabulário por regex, como o bloco 10 já fazia com o placar.
-- A confirmação é o **próprio papel** virando "anotado." em voz de margem, e as tábuas somem —
-  mesma gramática do interruptor dos AJUSTES: a confirmação é o texto, nunca um alerta.
-
-**"NÃO VOLTO" foi medido e recusado:** a tábua é a tela dividida por três, e o rótulo dava
-**110 px numa tábua de 87** em 320×568 — letra saindo pela borda da madeira. Virou **"NÃO"**, que
-responde a mesma pergunta na mesma voz porque a pergunta logo acima já traz o verbo; o rótulo
-mais largo passou a ser TALVEZ, com 74 px, e a folga mínima virou 13 px.
-
-**E a pergunta pagou o aluguel dela.** Medido ao pô-la na tela: o VOLTAR PARA A RUA caía **17 px
-abaixo da dobra em 360×640 e 37 px em 320×568** — exatamente o defeito que as duas consultas de
-altura da CHEGADA existem para não ter. Apertou-se **respiro, nunca palavra**: margem entre
-linhas do placar, margem entre tábuas, topo da tela. Depois:
-
-| tela | VOLTAR em relação à dobra | alvo de dedo da resposta |
-|---|---|---|
-| 430×932 | −91 px | 46 px |
-| 412×915 | −74 px | 46 px |
-| 390×844 | −3 px | 46 px |
-| 360×640 | −5 px | 40 px |
-| 320×568 | −4 px | 36 px |
-
-(negativo = acima da dobra, inteiro na tela). `test/prints-pergunta.js` refaz as três larguras.
-
-### 3 · ONDE A PESSOA PAROU — o evento existia e estava meio cego
-
-O `parou` já saía no `visibilitychange` e no `beforeunload`, com o capítulo. Faltavam duas coisas:
-
-- **`pagehide`**, que no celular é O gancho: o iOS não garante o `beforeunload`, e ele não dispara
-  quando a aba entra no cache de volta-para-trás. Os três chamam a MESMA função armada uma vez —
-  medido: **1 evento**, não três;
-- **`sessao`**, os segundos DESTA carga de página. "Parou no capítulo 3 com 40 s" e "parou no
-  capítulo 3 com meia hora" são duas pessoas opostas com o mesmo capítulo, e sem esse número o
-  capítulo sozinho diz onde ela ESTAVA, nunca se ela estava indo embora. Em segundos de
-  propósito: a sessão que interessa é a curta, e ela some inteira arredondada para minuto.
-
-### A tela de AJUSTES mudou no MESMO commit — é o §3, e não é formalidade
-
-"UMA CONTAGEM ANÔNIMA" continuaria verdadeiro ao pé da letra e falso no que importa: a mensagem
-de um erro e a palavra que a pessoa escolheu no fim **não são "contagem" em português nenhum**.
-É a forma mais elegante de uma tela mentir sem uma palavra falsa. Entraram quatro linhas:
-
-> SE O JOGO QUEBRAR, A MENSAGEM / DO ERRO — NADA DA SUA PARTIDA. / E A SUA RESPOSTA À PERGUNTA
-> DO FIM, / SE VOCÊ RESPONDER.
-
-As cinco negativas (sem nome, sem e-mail, sem IP, sem cookie, sem anúncio) e o interruptor
-continuam onde estavam. O bloco 8 do `encaixe.js` passou a cobrar as duas frases novas.
-
-### O que o `encaixe.js` ganhou
-
-Três blocos, um por entrega — **18** (o erro: chega, agrupa, para no teto, não derruba a
-partida), **19** (a pergunta: uma vez, sem pedágio, sem avaliação, e a resposta vai), **20** (o
-`pagehide` manda o "onde parou" com o tempo da sessão). A lista branca do bloco 17 ganhou
-`msg`, `arquivo`, `linha`, `resposta` e `sessao` — e é ela o portão: propriedade que ninguém
-aprovou reprova ali.
-
-### A dúvida que fica
-
-O `arquivo` vai sair `/` para todo mundo enquanto o jogo for um arquivo só servido na raiz —
-ou seja, hoje ele custa nada e ensina nada, e quem ensina é a linha. Ele fica porque a fase do
-Phaser/Supabase traz um segundo arquivo e aí a distinção passa a existir. Se aquela fase não
-vier, é campo para tirar.
-
-### Estado
-
-`npm test` verde · `encaixe.js` **20 blocos** verdes · `robusto-tudo.js` 6 de 6 · FPS 61 ·
-`index.html` 1,52 MB.
 
 ---
 
-## Diário — 2026-08-10 · Historiador · O BURACO DE 1888 A 1964 SE FECHA, E O ACEIRO ENTRA NO ARCO
+## O glossário ganha vizinhos, um verbete e uma correção — Historiador, 2026-08-09
 
-**Lente:** *Medir*, aplicada a texto — que afirmação eu estava aceitando sem documento? A
-resposta era constrangedora: **todas as de 1888 a 1964**, porque não havia nenhuma. O jogo ia
-de `1888 · A lei de dois artigos` direto para `1988 · A Constituinte`, e o `PENDENTES.md`
-chamava isso de "salto jogado".
+Três entregas, todas **propostas**, nenhuma aplicada: `src/` estava com o Dev e a Direção de
+Arte nesta rodada. Os arquivos estão no scratchpad da sessão (`glossario-rel.ts`,
+`glossario-brookes.ts`, `glossario-pano.ts`).
 
-### As duas decisões do dono, ditas nesta sessão
+### 1. Termos relacionados — 52 de 52, 173 ligações
 
-1. **Os marcos entram, a fila NÃO se reordena.** Perguntado se queria antecipar ditadura e
-   agronegócio na fila de capítulos: *"fiquei entre A e B, quero incluir esses marcos na linha
-   do tempo mas mantendo a ordem cronológica."* Ou seja: nenhum capítulo muda de lugar; o que
-   entra são **momentos na `LINHA_TEMPO`**.
-2. **O ACEIRO entra no arco** — resposta à pergunta 4 do handoff de 09/08.
+Cada verbete recebe de 3 a 4 vizinhos (o teto era 4 e o piso, 2), escolhidos por um critério
+só: **o vizinho muda o
+entendimento do verbete de onde a pessoa veio.** Não é "mesmo assunto" nem "mesma época" —
+isso o filtro de grupo já faz. O teto de quatro é o conteúdo: lista longa é lista que ninguém
+segue.
 
-### O que entrou: SEIS MARCOS, e cada um é uma norma com número
+Os pares que se corrigem andam nos **dois sentidos** — ÍNDIO ↔ INDÍGENA, DESCOBRIMENTO ↔
+INVASÃO, GANA ZUMBA ↔ ZUMBI, TRIBO ↔ ETNIA, QUILOMBO ↔ QUILOMBOLA, SAMBAQUI ↔ PRÉ-HISTÓRIA.
+É neles que o glossário deixa de ensinar fato e passa a ensinar método.
 
-Todos conferidos **nesta sessão**, em texto público, e cada um está agora também na tela DE
-ONDE VEM, num grupo próprio (`DE 1888 A 1964 — A NORMA, PELO NÚMERO`).
+Conferido por script: todas as 52 chaves e os 173 valores existem no array, letra por letra;
+nenhum verbete ficou sem vizinho e nenhum ficou sem ser apontado por alguém.
 
-| marco | o que a norma diz | onde conferi |
-|---|---|---|
-| **1890** · O código de dois anos depois | Código Penal da República: o art. 399 faz crime não ter ocupação; o art. 402 nomeia a capoeira e a faz crime | Decreto nº 847, de 11/10/1890 — texto **literal** dos dois artigos (transcrição integral do decreto), com o ato registrado na Câmara (`legin`) e no Planalto |
-| **1891** · Quem podia votar | *"Não podem alistar-se eleitores… os mendigos; os analfabetos; as praças de pré"* | CF/1891, art. 70 §1º — **literal**; o caput conferido também em página da **Câmara dos Deputados** |
-| **1930** · O decreto que dissolveu o Congresso | governo provisório com as funções do Executivo **e** do Legislativo *"discricionariamente, em toda sua plenitude"*; Congresso, assembleias e câmaras confirmados dissolvidos | Decreto nº 19.398, de 11/11/1930, arts. 1º e 2º — **literal** |
-| **1932 → 1985** · O voto, e a porta que ficou fechada | *"É eleitor o cidadão maior de 21 anos, sem distinção de sexo"*; a exigência de saber ler permanece, e só cai com a **EC nº 25, de 15/05/1985** | Decreto nº 21.076, de 24/02/1932, art. 2º (**Câmara dos Deputados**); a exclusão dos analfabetos e o fim dela em 1985, no **TSE** e no **Senado Federal** |
-| **1943 → 2015** · A lei do trabalho e quem ficou de fora | CLT art. 7º: não se aplica *"aos empregados domésticos"* e *"aos trabalhadores rurais"*; a CF/88 dá nove direitos à categoria doméstica; a igualdade vem com **EC nº 72/2013** e **LC nº 150/2015** | art. 7º da CLT; o caminho até 2013/2015 no **Senado Federal** |
-| **1964** · O ato que tirou o juiz do caminho | *"suspender os direitos políticos pelo prazo de dez anos e cassar os mandatos legislativos federais, estaduais e municipais, excluída a apreciação judicial desses atos"* | Ato Institucional de 9 de abril de 1964, art. 10 — **literal** |
+**Nenhuma afirmação histórica nova entrou aqui** — o mapa só liga texto que já está em
+produção, com as fontes que ele já carrega.
 
-**A régua que governou as seis frases, e ela é o §2.6 exercido pela primeira vez em texto de
-jogo:** cada uma afirma **o que a norma afirma**, e nada além. Nenhum político, magistrado ou
-empresário nomeado — nem os que a historiografia nomeia sem hesitar. Nenhum partido, nenhum
-governo, nenhuma eleição. Duas frases inteiras foram cortadas por serem interpretação minha
-disfarçada de fato (*"a rua sabia de quem a lei falava"*, *"a leitura tinha dono"*); o que
-ficou no lugar delas é a arquitetura do documento, dita seca — *"A lei não escreveu cor
-nenhuma. Escreveu rua, ofício e corpo."* É mais duro que o adjetivo que eu ia usar.
+**Cinco trilhas apareceram sozinhas ao ligar tudo, e elas podem virar produto.** Não são
+invenção de quem escreveu: são caminhos que já existem no mapa e que contam uma história
+inteira sem sair do glossário. Ficam registradas como material para uma tela de PERCURSOS, se
+o dono quiser:
 
-**O que a série ensina, e não é acidente da seleção:** o intervalo inteiro se conta por normas
-que dizem **quem fica de fora**. Sem rua, sem voto, sem parlamento, sem lei do trabalho, sem
-juiz. Cada uma tem número, data e um artigo que se pode ir ler. É o oposto do cinismo: não é
-"sempre foi assim", é "foi escrito assim, nesta data, neste artigo — e parte disso foi desfeita,
-em 1985, em 2013 e em 2015".
+1. **Como uma palavra vira política** — DESCOBRIMENTO → INVASÃO → GUERRA JUSTA → ALDEAMENTO →
+   DEMARCAÇÃO. Palavra, lei, política de terra, e a lei de hoje que ainda arbitra a mesma
+   terra. É a trilha que sozinha explica por que o jogo escolhe vocabulário.
+2. **O que o documento faz com o nome** — ANGOLA JANGA → ACA INENE → GANA ZUMBA → ZUMBI →
+   DIA DA CONSCIÊNCIA NEGRA. Um nome sem atestação, dois nomes que a releitura do manuscrito
+   de 1678 corrigiu, e a data que o movimento negro escolheu. Ensina a diferença entre "o
+   livro repetia errado" e "não há fonte", que não é a mesma coisa.
+3. **A palavra banida e as três obras que a derrubam** — PRÉ-HISTÓRIA → SAMBAQUI → GEOGLIFO →
+   MARAJÓ → TRIBO.
+4. **O dinheiro, a rota e o lucro** — BÚZIOS → TRÁFICO ATLÂNTICO → TRAVESSIA → VALONGO →
+   ENGENHO. Começa numa concha e termina numa contabilidade: é a trilha que mostra o tráfico
+   como empresa, que é a tese do verbete TRÁFICO ATLÂNTICO.
+5. **A liberdade que veio sem chão** — ALFORRIA → LIBERTO · LIBERTA → DEGREDO → LEI ÁUREA →
+   DIA DA CONSCIÊNCIA NEGRA. Comprar a liberdade, não ser livre, ser deportado, receber dois
+   artigos de lei e nada mais — e o calendário respondendo a isso 123 anos depois.
 
-Os seis ficam **sem balão** (a regra de silêncio do quadrinho para marco duro) e há um motivo a
-mais: `quem` é a pessoa DAQUELE tempo, e nenhum capítulo deste intervalo foi escrito. Balão com
-o retrato de AINDA AQUI comentando 1890 seria pôr palavra na boca errada.
+Uma sexta costura os dois fios do jogo e é a mais curta: MANTO TUPINAMBÁ → VALONGO →
+CONSTITUIÇÃO DE 1988 → DEMARCAÇÃO · QUILOMBOLA. Duas peças de memória que voltaram por decisão
+de instituição, e o artigo que reconhece os dois territórios.
 
-### O QUE EU RECUSEI POR FALTA DE FONTE — e uma das faltas é grande
+### 2. Verbete novo: DIAGRAMA DO BROOKES (grupo "A TRAVESSIA E O TRÁFICO")
 
-- **A Lei de Terras (Lei nº 601, de 18 de setembro de 1850).** É o marco que eu mais queria, e é
-  o que explica a frase que o jogo já diz em 1888 (*"a liberdade veio sem chão"*): trinta e oito
-  anos ANTES da abolição, uma lei fecha o único caminho para a terra que não fosse a compra.
-  Consegui a **ementa oficial** (LexML) e o registro do ato — e **não consegui ler o art. 1º em
-  fonte pública**: o `planalto.gov.br` recusou toda conexão desta máquina (`ECONNRESET`, oito
-  tentativas, dois hosts), o `www2.camara.leg.br` devolveu 429 em todas, os PDFs (ITERPA, TSE)
-  vieram sem camada de texto e o `web.archive.org` está fora do alcance da ferramenta. Ler a
-  redação por buscador não é ler a fonte, e o marco não entra por citação de segunda mão.
-  **Fica como a primeira tarefa de quem tiver rede para o Planalto.**
-- **Os números da CNV.** Conferi na página institucional (`gov.br/memoriasreveladas`) o que
-  basta para o capítulo futuro: criada pela **Lei nº 12.528/2011**, instituída em 16/05/2012,
-  apurando violações entre **18/09/1946 e 05/10/1988**. O número que circula — 434 mortos e
-  desaparecidos políticos no volume 3 — aparece em três resultados que apontam para o site da
-  própria CNV, mas o servidor dela devolve **certificado inválido** e eu não o li. Continua
-  ✖N e **não entrou em fala nenhuma**. É o primeiro item da pesquisa de O QUE NÃO PODIA SER
-  DITO.
-- **O Decreto nº 528/1890** (o que condicionava a entrada de imigrantes) e qualquer número de
-  florestas públicas não destinadas: não conferidos, não entraram.
+Escrever foi **aprovado pelo dono em 2026-08-08**. O verbete conta de onde vem a imagem que a
+fala de A TRAVESSIA já descreve para recusar: comitê de Plymouth da Sociedade pela Abolição do
+Tráfico, fim de 1788, refeita em Londres em 1789 para as mãos dos parlamentares. **A imagem
+continua fora** — a decisão registrada acima nesta mesma folha não é reaberta —, e o verbete
+diz isso na última linha. Explicar a recusa é o que a transforma em aula em vez de silêncio.
 
-### O ACEIRO, o décimo terceiro
+O §2.4 foi conferido item a item antes de escrever: o texto fala do DOCUMENTO e de quem o
+produziu, não descreve o porão, não toca em restos humanos e não usa "escravo" como
+identidade. **O único número é a razão legal — 1,67 pessoa por tonelada — e ela é atribuída a
+quem a escreveu**, o Parlamento britânico, em lei, em 1788. Contar gente por tonelada é a
+acusação do verbete, não a descrição dele. Se o dono quiser essa oração fora, ela sai sem
+derrubar o resto.
 
-Entrou como **capítulo em obra**, na posição cronológica: depois de O QUE SEGUROU (2020–2022) e
-**antes** de O QUE TEM FONTE. A ordem dentro do "hoje" tem razão, e ela é de ensino — O QUE TEM
-FONTE usa como exemplo trabalhado *o INPE e o MapBiomas medindo a mesma floresta com réguas
-diferentes*, e quem chega ao capítulo do método precisa já ter visto as duas réguas.
+`dv: 1`. O verbete carrega no texto a divergência da **grafia** — Lloyd's registrou *Brook* e
+depois *Brooks*; *Brookes* é a variante do sobrenome do armador que o pôster fixou. Outras
+duas ficaram **fora do verbete, por espaço, e ficam registradas aqui**: a **autoria e a data**
+(parte da bibliografia, inclusive brasileira, credita a estampa a Thomas Clarkson em 1787; o
+registro das impressões põe a primeira no comitê de Plymouth, fim de 1788, e a refeita em
+Londres em 1789, distribuída aos parlamentares) e **quantas figuras a estampa traz** — as
+fontes dão contagens diferentes, e essa divergência é, ela mesma, o argumento do verbete.
 
-Nenhuma linha do `HISTORIA-CONTEMPORANEO.md` entrou. A abertura diz o nome, explica a palavra
-*aceiro* (definição de dicionário, não afirmação histórica — a mesma licença que PINDORAMA teve
-para ensinar o próprio nome), diz o verbo (**abafar**), diz que quem ele acompanha é quem segura
-a linha e não quem manda, e **avisa que o número dele tem prazo**: é o primeiro capítulo do jogo
-com conteúdo perecível, porque o dado de desmatamento sai todo ano. Zero dígito nas falas — o
-bloco 15 do `encaixe.js` cobra isso e passou.
+Fontes novas (as quatro primeiras estão no campo `f` do verbete; as duas últimas sustentam o
+texto e ficam só aqui, para o `f` não virar bibliografia):
 
-**O procedimento de `ARCOS_ANTIGOS` foi cumprido ANTES de mexer em `EPOCAS`**, que é a ordem que
-o comentário manda e a primeira vez que ela foi respeitada de verdade: a linha do arco de doze
-está gravada, então quem parou em O QUE TEM FONTE não acorda em O ACEIRO.
+- Cheryl Finley, *Committed to Memory: The Art of the Slave Ship Icon*, Princeton University
+  Press, 2018 — o estudo de fundo sobre a estampa e sobre a retomada dela por artistas negros.
+- Saulo Castilho Pereira, "Idas e vindas do navio negreiro Brookes: arte como ação política na
+  apropriação de um ícone do abolicionismo britânico", *Faces de Clio* 7(13), 2021, UFJF —
+  [periodicos.ufjf.br](https://periodicos.ufjf.br/index.php/facesdeclio/article/view/32176)
+- Marcus Wood, *Blind Memory: Visual Representations of Slavery in England and America,
+  1780–1865*, Manchester University Press, 2000.
+- *Slave Trade Act* 1788 (Lei Dolben) — a lei que fixou a razão por tonelada.
+- Royal Museums Greenwich, ficha do objeto "Plan and Sections of a Slave Ship [the 'Brooks'
+  sometimes 'Brookes']" — [rmg.co.uk](https://www.rmg.co.uk/collections/objects/rmgc-object-254967)
+  (é a fonte da grafia e de que o navio foi um dos nove medidos pelo capitão Parrey).
+- *1807 Commemorated*, IHR — [archives.history.ac.uk](https://archives.history.ac.uk/1807commemorated/exhibitions/museums/brookes.html)
+  (registra a crítica de que a estampa põe quem foi escravizado como vítima passiva).
 
-### O que medi
+### 3. PANO DA COSTA passa a dizer o culto — a mesma correção de BÚZIOS e ACARAJÉ
 
-| | antes | depois |
-|---|---|---|
-| capítulos | 12 (4 escritos) | **13** (4 escritos, 9 em obra) |
-| cenas | 15 | **16** |
-| `LIMIAR_FIM` | 11.700 | **11.850** (régua do bloco 16: 13.125) |
-| páginas do quadrinho | 26 | **32** |
-| pontos finais do rolo | 7 | **7** — a amarra é por `qi`, e nenhum marco novo tem imagem própria |
-| linhas autorais varridas pelo §2 | 172 | **190**, 0 achado |
-| `index.html` | 1,52 MB | **1,52 MB** — nenhuma arte nova |
+O dono decidiu que BÚZIOS e ACARAJÉ dissessem a dimensão de culto, e os dois dizem. **PANO DA
+COSTA ficou de fora e é o mesmo caso**, com um agravante: as três peças são a mesma cena — o
+tabuleiro, o pano, a concha — e deixar uma só falando de tecido faz o pano parecer o traje
+pitoresco ao lado de duas coisas sagradas.
 
-`npm test` verde e `encaixe.js` **20 blocos** verdes nos dois incrementos. Prints:
-`test/ACEIRO-eras-fim-da-lista.png`, `test/ACEIRO-abertura-1.png`, `test/MARCO-1890.png`,
-`test/MARCO-1943-2015.png`, `test/MARCO-1964.png`, `test/MARCO-fontes.png`.
+A versão proposta acrescenta quatro coisas, cada uma com fonte: **o nome de dentro** (nos
+terreiros a peça é o *alaká*; "pano da costa" é nome de fora e genérico), **o uso** (enrolado
+no peito e na cintura, é peça de proteção, não adorno), **a cor** (segue o orixá de quem veste)
+e **a continuidade** (a Casa do Alaká, dentro do Ilê Axé Opô Afonjá, em Salvador, tece até
+hoje; o ofício foi ensinado ali pelo mestre Abdias do Sacramento Nobre e pela filha, Lourdes
+Nobre, em 1986).
 
-### O que os prints mostraram e o teste não mostraria
+`dv: 1`, com duas divergências: **qual cor cabe a qual orixá muda de nação para nação e de casa
+para casa** — que a cor segue o orixá é consenso, a tabela concreta não é, e as listas que
+circulam se contradizem —, e a derivação de *alaká* (registrada como fon, em terreiros de
+tradição iorubá). O verbete afirma a regra e recusa a tabela, pelo mesmo critério do PINDORAMA.
 
-Os seis marcos caem na **página de papel** do quadrinho (sem `qi`, sem índice em `MOMENTOS`),
-que é a saída neutra — e seis páginas de papel seguidas depois de 1888 leem como um caderno de
-anotações no meio do álbum. É honesto e é o estado certo hoje (nada se inventa para tapar
-buraco), mas é **pedido de arte**: seis verticais, uma por marco. Fica para a mesa.
+Fontes novas:
 
-E o print da abertura de O ACEIRO mostra o desencaixe que o `PENDENTES.md` agora nomeia: um
-capítulo cujo `quando` diz *cerrado* rodando sobre uma rua de cidade, porque a pintura é herdada
-do capítulo anterior.
+- Aline Santiago, *O sacrifício dos fios do Alaká! Tecidos e cultura do vestir afrodiaspórica
+  na historiografia da arte brasileira*, dissertação, PPGAV/EBA-UFRJ — apresentada em
+  [Conexão UFRJ](https://conexao.ufrj.br/2025/06/do-pano-da-costa-ao-alaka/), 2025.
+- Raul Lody, *Pano da costa*, Cadernos de Folclore nº 15, Funarte, Rio de Janeiro, 1977 — a
+  monografia sobre este objeto.
+- *Dicionário de Belas Artes*, UFBA, verbete "Mestre Abdias e o pano da costa" — mestre Abdias
+  do Sacramento Nobre (1910–1994), o convênio IPAC/Funarte de 1985 e as oficinas de setembro
+  de 1986 no Ilê Axé Opô Afonjá.
 
-### Uma coisa que achei por acidente, e consertei no mesmo dia
+**Correção de citação, de graça:** o `f` atual do PANO DA COSTA traz "Raul Lody, 2003" sem
+título. É o *Dicionário de arte sacra e técnicas afro-brasileiras*, Pallas, 2003. A versão
+proposta prefere a monografia de 1977, que é sobre esta peça; se o Dev mantiver a de 2003, que
+seja com o título escrito.
 
-A tela **DE ONDE VEM não tinha grupo de SALVADOR** — e o fecho daquele capítulo promete, com
-todas as letras: *"Quem reconstruiu esta noite documento por documento foi João José Reis. Quem
-tirou as ganhadeiras da margem da história foi Cecília Moreira Soares. A tela DE ONDE VEM traz
-as duas."* Ela não trazia. Promessa quebrada de um capítulo **escrito** é mais grave que qualquer
-coisa desta sessão, porque o jogo já a fez a quem jogou.
+**O que eu NÃO consegui fechar:** o dossiê do IPHAN do Ofício das Baianas de Acarajé descreve a
+indumentária (saia, bata, pano da costa, ojá) como a mesma do candomblé, e seria a citação
+institucional que fecharia o verbete com o documento que o ACARAJÉ já usa. A Biblioteca Digital
+do IPHAN e o PDF do portal estiveram **fora do ar** nesta sessão. Não citei página que não li.
 
-Não era falta de pesquisa: as duas já estavam citadas na `LINHA_TEMPO` (campo `f`). Era falta de
-duas linhas em `FONTES`, e elas entraram — a de Cecília Moreira Soares com o número e o ano
-conferidos no próprio periódico (*As ganhadeiras: mulher e resistência negra em Salvador no
-século XIX*, **Afro-Ásia nº 17, 1996**, UFBA), que é mais do que o jogo dizia antes.
+### Dívida aberta: as fontes do glossário nunca entraram neste arquivo
 
-**A lição de método, e ela vale para todo capítulo futuro:** escrever no FECHO que a tela DE ONDE
-VEM traz uma fonte e não pô-la lá é o modo mais silencioso de este jogo mentir — nenhum teste
-olha para isso hoje. Vale um bloco de `encaixe.js`: **toda obra citada num `f` da `LINHA_TEMPO`
-de capítulo escrito tem de ter entrada em `FONTES`.**
+O §2 do CLAUDE.md manda que a fonte entre no `NOTES.md` no mesmo commit da afirmação. Os **52
+verbetes carregam ~45 obras distintas nos campos `f`** e **nenhuma delas está neste arquivo** —
+uma busca por "glossário" ou "verbete" no `NOTES.md` não devolve o glossário.
 
-### Dúvida nova
+**E o texto existe.** A sessão de 2026-08-08 escreveu o bloco completo — "O GLOSSÁRIO — 52
+verbetes, fonte por fonte", com a cobertura, a fonte por fonte, os nove `dv` explicados, o que
+não entrou e as três perguntas ao dono — e ele ficou no scratchpad (`glossario-notes.md`, 13 KB)
+**sem nunca ser colado aqui**. O verbete entrou em produção; o registro da fonte não. Não é
+trabalho a fazer, é um `cat` a fazer: colar aquele bloco antes deste fecha a dívida inteira, e
+enquanto ele não for colado o jogo afirma 52 vezes coisas cuja fonte só existe dentro do array.
 
-O `q` de dois marcos é um INTERVALO (`1932 → 1985`, `1943 → 2015`), o que nenhum nó tinha antes.
-Ficou bom no papel e resolve o que eu queria dizer — *a norma e o que aconteceu com ela* —, mas
-cria uma cronologia com nós que se sobrepõem. Se virar padrão, a linha do tempo deixa de ser uma
-linha e vira uma tabela de vigências. Por ora são dois; vale olhar quando forem seis.
-
-### Próximo passo
-
-Ler a Lei nº 601/1850 em fonte pública e pendurar o marco de 1850 **antes** do de 1888 (é o
-lugar cronológico dele) — incremento de dez minutos no dia em que a rede alcançar o Planalto.
-Depois, os números da CNV, que são o portão de O QUE NÃO PODIA SER DITO.
-
----
-
-## Diário — 2026-08-10 · Dev · O TELEFONE DEITADO PASSA A EXISTIR
-
-**A decisão é do dono.** Perguntei se travava em retrato ou fazia funcionar deitado. Ele
-respondeu **deitado**, e justificou: *"jogabilidade e usabilidade são pontos importantíssimos"*.
-É o item 8 do `LANCAMENTO.md`, que dizia "ninguém decidiu; hoje estica e fica errado".
-
-### O que eu medi antes de tocar em qualquer coisa
-
-O `test/medir-telas.js` **já rodava `deitado 844×390` e dava verde**. Então o defeito não era o
-que ele media — era ele. Três buracos:
-
-1. **Só media a horizontal.** `b.right > W` e `b.left < 0`, nunca `b.bottom > H`. Deitado o lado
-   curto é a ALTURA: o único eixo que quebra era o único que ninguém olhava.
-2. **Só media o estado de arranque**, que é sempre o menu. A HISTÓRIA, a CHEGADA, a fala,
-   AJUSTES, as ERAS, as FONTES, MELHORIAS e o jogo rodando nunca foram medidos em largura
-   nenhuma. Agora são **dez estados × dez viewports**.
-3. **Imprimia a escala e não a cobrava.** A linha dizia `escala do mundo 3.003` e chamava a tela
-   de boa.
-
-Com os três tapados, o estrago em **844×390**:
-
-| onde | o quê |
-|---|---|
-| MENU | poste 270 px abaixo da borda · **JOGAR cortado 52 px — zero pixel tocável** · as outras três tábuas NASCEM fora (topos 454, 518, 582) |
-| JOGO | rodapé come **16,2%** da altura (7,5% em retrato) · ação principal a **43%** da largura |
-| A HISTÓRIA | **12 de 26 páginas** com conteúdo maior que o quadro; a pior 365 num espaço de 306 |
-| CHEGADA | última tábua **86 px abaixo da dobra** · tábuas de 40 px |
-| AJUSTES | título **116 px ACIMA** da tela — e AJUSTES não rola |
-
-**Deitado, o jogo não podia nem ser começado.** A 640×360 nem o JOGAR aparecia.
-
-### O que fiz, em cinco incrementos
-
-- **A pilha vira COLUNAS.** Menu (marca à esquerda, poste à direita), CHEGADA (o que você leu ·
-  o placar · as portas) e AJUSTES (papel · tábuas). Não é aperto de fonte: quatro tábuas de
-  52 px com 12 de vão dão 244, e sobrariam 70 px para o logo. Coluna única é o layout errado
-  para 844×390 — e do lado há 844 px vazios.
-- **O rodapé encosta na ponta direita** e o botão dourado vai para o fim da fileira. Deitado as
-  duas mãos seguram as PONTAS: o meio da borda de baixo, que em retrato é o melhor lugar que
-  existe, vira o ponto mais LONGE dos dois polegares. E o canto de baixo à esquerda fica sem
-  botão, porque a metade esquerda é a que PULA.
-- **O papel do quadrinho ALARGA** (30em → 40em, ~72 caracteres por linha) em vez de encolher a
-  letra: papel mais largo é papel mais baixo com o mesmo corpo de texto.
-- **A escala do mundo passa a ser inteira de verdade.** Escolher `k` inteiro não bastava:
-  `W = round(tela/k)` quebra sempre que a tela não é múltipla de `k`. Vira `ceil`, e a caixa das
-  três camadas passa a ser `W×k` por `H×k` — sangra no máximo `k−1` px para fora. **O chão não
-  levita** porque as TRÊS camadas usam a MESMA caixa.
-
-### O que ficou medido depois
-
-`medir-telas.js`: **10 de 10 telas sem um problema** (era 0 de 10). Rodapé 12,6% da altura, ação
-a 86,8% da largura, canto do pulo livre até 33,1%. Escala **2×2** em oito telas e **3×3** no
-tablet deitado. Chão pintado vs GROUND entre −1,6 e +1,8 px de aparelho em seis viewports — o
-mesmo arredondamento de `round(H×0,68)` que já existia. `npm test` verde, FPS 61.
-`encaixe.js` ganhou o **bloco 21**, com 17 asserções por viewport deitado.
-
-### Três coisas que a medição nova achou e que não eram de orientação nenhuma
-
-- **`escala 2×1,9978` no Pixel 412×915 — em RETRATO.** O conserto de escala inteira estava pela
-  metade desde que foi feito, em todo aparelho cuja altura não é múltipla da escala.
-- **`btnFalaPular` tinha 53×25 px em TODA tela.** É o botão que quem já leu procura, e estava
-  abaixo do mínimo de dedo desde sempre. Vira 44.
-- **Em retrato curto (320×568)** o poste do menu já saía 32 px abaixo e os AJUSTES pelas duas
-  bordas. Pré-existentes.
-
-### O defeito de instrumento que custou meia sessão, e que era do repositório inteiro
-
-Uma regra de CSS recém-construída "não aplicava": o media query casava, a regra estava no
-`index.html`, e o computed style era o antigo. **Ela aplicava — o navegador estava lendo o
-`index.html` de outra árvore.** O `abrir.js` sobe um servidor na porta fixa 8198 e, se ela
-estiver ocupada, engole o erro com um aviso, porque *"o mais provável de longe é que seja outro
-instrumento deste repositório servindo esta mesma pasta"*. A premissa morreu quando apareceu
-`.claude/worktrees/`: são dezenas de cópias do repo no disco, cada uma com `index.html` próprio,
-todas pedindo a mesma porta. Quem chega depois mede o arquivo de outra pessoa, sem erro, sem
-aviso, com print bonito — o mesmo modo de falha que tirou o smoke test do `file://`.
-**A porta passa a sair de um hash do caminho da raiz** (8201 + hash % 254; nesta árvore, 8321).
-A API continua síncrona, que era a razão inteira de a porta ser fixa.
-
-### Dúvida nova
-
-A CHEGADA deitada usa `align-content: start` com `align-content: safe center` logo abaixo, para
-se centrar onde couber e cair no topo onde não couber. `safe` é recente; onde não houver, a tela
-fica encostada no topo com o pé vazio — que é feio, não quebrado. Vale um print em aparelho de
-verdade antes de confiar.
-
-### Próximo passo
-
-O jogo **nunca foi visto girando**: tudo o que medi é viewport fixo. Falta exercitar a TROCA de
-orientação com a partida viva — `orientationchange` chama `fitCanvas` e `medirControles`, mas
-uma bandeja aberta, uma fala no meio da revelação ou o quadrinho na página 14 não foram testados
-atravessando o giro. É o próximo instrumento, e é barato: `setViewportSize` no meio de cada um
-desses estados.
 
 ---
 
-## Diário — 2026-08-11 · Dev · EM PALMARES, UM TOQUE ACOLHE
+## O GLOSSÁRIO, LEVA 2 — o Brasil inteiro (2026-08-10)
 
-**A decisão é do dono, e a palavra é dela.** A pergunta era *"em Palmares, o que a mão da pessoa
-recebe?"*, e ele respondeu: o verbo é **ACOLHER** — dar lugar, comida, água, e a pessoa fica. Ele
-tinha escrito "ajudá-las ou libertá-las"; apontado que o §2.4.3 proíbe pessoa escravizada como NPC
-alcançável **nem para libertar** (libertar-com-o-toque é o poder do senhor invertido em fantasia),
-e que Palmares é outro caso porque **quem chega ali já se libertou por conta própria**, ele aceitou
-a distinção. Fica registrado para não se refazer a conversa: **acolher, nunca libertar, nunca
-resgatar, nunca salvar** — e isso vale para o código, para o texto e para os comentários.
+Pedido do dono: *"siga evoluindo o glossário adicionando mais itens **independente do jogo**,
+pensando no Brasil como um todo, em diversas camadas e momentos históricos."* O glossário
+deixa de se limitar ao que o jogo pronuncia e passa a ser material de referência.
 
-### O que já estava feito, e o que faltava
+**33 verbetes novos, 53 → 86. Quatro grupos novos, 6 → 10.** As remissões vão de 178 a 295,
+e nenhum verbete ficou sem vizinho.
 
-Quem atravessa a tela em PALMARES **já era gente** desde 2026-08-06 (`desenharGenteHD`), sem barra
-de vida, sem pisca, sem estilhaço, sem empurrão. O que faltava era a dívida que o Diário daquele
-dia declarou por extenso e nunca foi paga aqui: **por baixo, alcançar continuava sendo
-`m.hp -= dmg`** com hp 5, 8 ou 13 — de cinco a treze toques até uma PESSOA "ser acolhida". Bater
-até alguém ceder, com nome novo por cima. O capítulo 3 pagou a mesma dívida em 09/08 com a
-CONVERSA; este commit paga a de Palmares com o **ACOLHIMENTO**, na mesma forma: **o primeiro toque
-é o único que a mão dá.**
+> **NÃO ESTÁ APROVADO PELO DONO.** Está escrito, com fonte e testado — mas os grupos
+> O DIA SEGUINTE DA ABOLIÇÃO e O QUE NÃO PODIA SER DITO tratam de escravidão e de violência
+> de Estado, e o §2 diz que representação se decide com ele. Ele pediu o trabalho enquanto
+> estava fora; a leitura dele continua sendo a condição.
 
-### O resto é TEMPO, e não "nada" — por quê
+### Os quatro grupos novos
 
-`ACOLHER_SEG = 1,6 s`, o mesmo número de `CONVERSA_SEG` e pela mesma derivação (cabe com folga
-dentro dos 2,4 s de `CFG.mobEspera`, então atender alguém nunca é corrida contra o relógio dela).
+- **O ESTADO QUE SE FORMOU** — *"Independência, Império e República: quem podia votar, quem
+  podia mandar, e quem ficou de fora."*
+- **O DIA SEGUINTE DA ABOLIÇÃO** — *"13 de maio libertou e não deu chão: o que o país fez com
+  quem acabara de libertar."*
+- **O QUE NÃO PODIA SER DITO** — *"1964–1985: a censura, o que o Estado fez, e o que as
+  comissões oficiais concluíram depois."*
+- **OS DIREITOS QUE FORAM CONQUISTADOS** — *"Nenhuma dessas leis caiu do céu: cada uma tem um
+  movimento por trás e uma data."*
 
-- **Instantâneo seria o gesto de RECOLHER.** Encostar e a pessoa entrar na fila lê como catar do
-  chão, que é a linha do §2.2. Acolher tem duração.
-- **É no tempo que mora a tensão.** Com o acolhimento correndo, a mão está com aquela pessoa e a
-  rua continua andando: quem espera atrás pode ir embora.
-- **O relógio corre nos DOIS ritmos**, ao contrário do capítulo 3. Lá a conversa congela correndo,
-  e há razão histórica escrita para isso (a rede dos malês corria dentro do trabalho de rua).
-  Palmares não tem essa razão, e inventar uma para dar decisão ao botão seria inventar história
-  para servir mecânica. Aqui quem decide é a geometria, que já era medida.
+O critério dos nomes é o mesmo da leva anterior: **assunto, nunca episódio ou forma jurídica**,
+e legível por quem nunca jogou. E nenhum grupo termina no passado.
 
-Enquanto está sendo acolhida ela **para e não desiste**: o relógio da espera dela para, o mundo é
-que anda. `m.parado` passa a true mesmo se ela já tivesse voltado a andar — sem isso ela ficaria
-congelada numa pose de CAMINHADA, que é a armadilha nº 7 do CLAUDE.md vista de outro ângulo.
+### O buraco que esta leva fecha, e era o mais grave
 
-### A trava que a MEDIÇÃO escolheu, entre três
+**SENHOR.** O verbete PESSOA ESCRAVIZADA argumenta que o particípio *"devolve o verbo e devolve
+o sujeito"* — e o sujeito não tinha verbete. O grupo COMO A ESCRAVIDÃO FOI MONTADA tinha a
+rota, a conta, o porto e o lucro, e ninguém montando. Entram junto TUMBEIRO (o navio, citado o
+tempo todo e sem verbete) e NAÇÃO (a contraparte exata de CRIOULO · CRIOULA).
 
-Com um toque só, o que limita passa a ser quantos acolhimentos podem correr ao mesmo tempo. Medi as
-três formas (60 s por célula, bot segurando a 145 ms, sem melhorias):
+E a **escada da abolição**: com só a Lei Áurea, o grupo O QUE CHAMARAM DE LIBERDADE fazia a
+abolição parecer uma lei única. Entram VENTRE LIVRE (1871) e SEXAGENÁRIOS (1885) — a primeira
+libertou quem ainda podia ser tutelado até os 21 anos, a segunda quem já não rendia.
 
-| | andando | correndo |
-|---|---|---|
-| **sem trava** (paralelo) | 27/min · fração 1,00 | 49/min · fração **0,98** |
-| trava só enquanto ela está **à sua frente** | 27/min · 1,00 | 49/min · **0,94** |
-| **trava enquanto ela existir** (a que ficou) | 26/min · 1,00 | 14/min · **0,25** |
+### Fontes por verbete
 
-As duas primeiras entregam a fila inteira de graça — "segura o botão e ignora o ritmo", que é a
-morte da decisão. A segunda quase empata com a primeira por um motivo fino e que vale guardar: **o
-toque atende a MAIS PRÓXIMA**, então ele cai na pessoa que já está quase saindo do alcance, e uma
-trava que solta ao passar por você solta na hora. A que ficou é a regra de 2026-08-05 levada a
-sério: **um par de mãos atende uma de cada vez**.
+**Leis e documentos primários** (todos no Planalto ou na Câmara, com número e data):
+Lei nº 581, de 4/09/1850 (Eusébio de Queirós) · Lei nº 601, de 18/09/1850 (Terras) ·
+Lei nº 2.040, de 28/09/1871 (Ventre Livre) · Lei nº 3.270, de 28/09/1885 (Sexagenários) ·
+Constituição do Império, 25/03/1824, art. 98 (Poder Moderador) · Constituição de 1891 ·
+Decreto nº 528, de 28/06/1890 (imigração e branqueamento) · Decreto nº 847, de 11/10/1890
+(Código Penal), arts. 399 e 402 (vadiagem e capoeira) · Decreto nº 21.076, de 24/02/1932
+(Código Eleitoral, voto feminino) · Decreto-Lei nº 5.452, de 1/05/1943 (CLT) ·
+Decreto-Lei nº 37, de 2/12/1937 (extinção dos partidos) · AI-1, de 9/04/1964 · AI-2, de
+27/10/1965 · AI-5, de 13/12/1968 · Lei nº 6.683, de 28/08/1979 (Anistia) · Lei nº 8.080, de
+19/09/1990 (SUS) · Lei nº 10.639/2003 e Lei nº 11.645/2008 · Lei nº 12.288/2010 · Lei nº
+12.528/2011 (CNV) · Lei nº 12.711/2012 e Lei nº 14.723/2023 (cotas) · Lei Complementar nº
+150/2015 (domésticas) · Lei nº 14.701, de 20/10/2023 (marco temporal) · CF/88, arts. 196 e 231.
 
-### Os números, antes e depois
+**Decisões e relatórios:** STF, ADPF 186, 26/04/2012 (cotas) · STF, ADPF 153, 2010 (anistia) ·
+Corte IDH, *Gomes Lund e outros vs. Brasil*, 24/11/2010 · STF, RE 1.017.365, Tema 1.031,
+21/09/2023 (marco temporal) · Relatório Figueiredo, 1967, Museu do Índio/Funai · Comissão
+Nacional da Verdade, relatório final, 3 vols., dezembro de 2014 · 8ª Conferência Nacional de
+Saúde, relatório final, 1986 · Parecer CNE/CP 3/2004.
 
-`test/medir-acolher.js` (novo, irmão do `medir-acompanhar.js`), PALMARES, 60 s por célula:
+**Autoria negra e indígena, na prioridade do §2:** Abdias do Nascimento, *O genocídio do negro
+brasileiro* (Paz e Terra, 1978) — sustenta BRANQUEAMENTO, FRENTE NEGRA BRASILEIRA e DEMOCRACIA
+RACIAL · Lélia Gonzalez, *Racismo e sexismo na cultura brasileira* (1984) — DEMOCRACIA RACIAL ·
+Sueli Carneiro, *Dispositivo de racialidade* (Zahar, 2023) — RACISMO CIENTÍFICO ·
+Petrônio Domingues, *Uma história não contada* (Senac, 2004) — IMPRENSA NEGRA e FRENTE NEGRA.
 
-| | ANTES | DEPOIS |
-|---|---:|---:|
-| toques **úteis** por pessoa, andando | 6,78 (pior 11) | **1,00** |
-| toques **úteis** por pessoa, correndo | 4,20 (pior 6) | **1,00** |
-| acolhidas/min · fração, andando | 21,9 · 0,85 | **26,0 · 1,00** |
-| acolhidas/min · fração, correndo | 24,9 · 0,47 | 14,0 · 0,25 |
-| impacto por toque, andando | 1,30 | 1,33 |
-| impacto por toque, correndo | 1,40 | 1,21 |
+**Pesquisa do período:** Emília Viotti da Costa, *Da senzala à colônia* (Unesp, 4ª ed. 1998) —
+SENHOR e SEXAGENÁRIOS · Sidney Chalhoub, *Visões da liberdade* (1990), *A força da escravidão*
+(2012) e *Trabalho, lar e botequim* (3ª ed. 2012) — SENHOR, EUSÉBIO DE QUEIRÓS, VADIAGEM ·
+Jaime Rodrigues, *De costa a costa* (Companhia das Letras, 2005) — TUMBEIRO · Mariza de
+Carvalho Soares, *Devotos da cor* (Civilização Brasileira, 2000) — NAÇÃO · Joseli Mendonça,
+*Entre a mão e os anéis* (Unicamp, 1999) — VENTRE LIVRE · José Murilo de Carvalho, *A
+construção da ordem / Teatro de sombras* (2003) e *Cidadania no Brasil* (2001) — PODER
+MODERADOR, VOTO CENSITÁRIO · Ligia Osorio Silva, *Terras devolutas e latifúndio* (Unicamp, 2ª
+ed. 2008) — LEI DE TERRAS · Victor Nunes Leal, *Coronelismo, enxada e voto* (orig. 1949) ·
+Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
+Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
+Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
+Belo Monte* (2001) e Euclides da Cunha, *Os sertões* (1902) — CANUDOS · Carlos Eugênio Líbano
+Soares, *A capoeira escrava* (Unicamp, 2004) · Lilian Fessler Vaz, *Dos cortiços às favelas*
+(Cadernos IPPUR, 1994) — FAVELA · Ângela de Castro Gomes, *A invenção do trabalhismo* (FGV, 3ª
+ed. 2005) — CLT · Céli Regina Jardim Pinto, *Uma história do feminismo no Brasil* (2003) ·
+Florestan Fernandes, *A integração do negro na sociedade de classes* (1964) · Robert Conrad,
+*Os últimos anos da escravatura no Brasil* (1975).
 
-`test/medir-poluicao.js`, capítulo 2, 60 s por célula, **botão segurado de verdade** com u1+u2 a
-85% do vão (a célula que representa como se joga):
+**Institucional:** IBGE, *Desigualdades sociais por cor ou raça* (2019 e 2022) · IBGE, Censo
+2022, nota técnica sobre favelas e comunidades urbanas (2024) · IPHAN, *Roda de capoeira*,
+registro de 2008, e UNESCO, 2014 · Arquivo Público do Estado de São Paulo, acervo da Imprensa
+Negra Paulista.
 
-| | ANTES | DEPOIS | Δ |
-|---|---:|---:|---:|
-| média de objetos em cena, andando | 4,19 | **3,59** | −14% |
-| renda/min, andando | 1376 | 1409 | **+2,4%** |
-| média de objetos em cena, correndo | 4,97 | **4,46** | −10% |
-| renda/min, correndo | 1401 | 1371 | **−2,1%** |
-| pior momento (andando · correndo) | 6 · 7 | 5 · 7 | |
+### Os seis `dv: 1` desta leva, e por que cada um
 
-**A trava do dono está respeitada com folga**: a média do capítulo 1 é 4,7–5,4 e é o teto; o
-capítulo 2 ficou em 3,59 e 4,46, **abaixo do que já era**. A tela ficou mais limpa por duas
-subtrações que vieram junto: os **floats** caíram (1,76→1,22 andando, 2,31→0,90 correndo), porque o
-toque que cai numa pessoa não põe mais "+N" sobre ela — pessoa não vira número, e é o mesmo caminho
-do capítulo 3 —, e as **partículas** caíram pela metade ou mais (25,8→13,7 e 45,3→9,2), porque a
-luz morna acendia a CADA toque e agora acende UMA vez, no toque que acolhe. Em compensação há mais
-gente esperando em quadro (mobs 1,19→1,44 e 1,89→2,73), que é exatamente o que a mecânica quer
-dizer: **há mais gente chegando do que mão para atender**.
+- **NAÇÃO** — a classificação era do escravizador e foi reapropriada por quem a carregava; as
+  fontes divergem sobre quanto de cada coisa há em cada uso.
+- **GUERRA DO PARAGUAI** — as estimativas de mortos paraguaios variam enormemente entre as
+  fontes, e o verbete recusa escolher um número.
+- **CAPOEIRA** — a etimologia é disputada (hipótese tupi × hipóteses bantas) e nenhuma é
+  consensual.
+- **CANUDOS** — a leitura do arraial como ameaça monárquica já era disputada na própria época.
+- **FAVELA** — a derivação pelo morro da Favella é a corrente; há divergência sobre o percurso.
+- **LEI DA ANISTIA** — o STF (ADPF 153, 2010) e a Corte Interamericana (*Gomes Lund*, 2010)
+  decidiram em sentidos opostos no mesmo ano, e as duas decisões seguem em vigor.
+- **MARCO TEMPORAL** — o STF declarou a tese inconstitucional em 2023 e o Congresso a
+  reinstituiu em lei semanas depois; a disputa segue em curso.
 
-**E a renda ficou dentro dos ±10%** que esta casa exige de qualquer mexida em economia.
+### A REGRA DO DOCUMENTO (§2.5) aplicada, e o que ela custou
 
-### O defeito de instrumento que quase me fez concluir errado
+Todo verbete posterior a 1930 nomeia **a lei, o processo e o órgão — nunca a pessoa
+responsável**. GOLPE DE 1964, AI-5, RELATÓRIO FIGUEIREDO e COMISSÃO NACIONAL DA VERDADE dizem
+*"o que o relatório concluiu"*, e não *"o que aconteceu"*: é a mesma leitura crítica que o jogo
+já aplica às cartas jesuíticas, e a coerência é o argumento.
 
-A primeira comparação foi feita entre uma rodada de 15 min e outra de 15 min, separadas por meia
-hora. Nela o capítulo 2 correndo aparecia com **−16% de renda** — e o capítulo 1, que **não tinha
-mudado uma linha**, aparecia com −6,4% de renda e −14% de objetos. Isto é: o ruído da máquina é da
-ordem do efeito. `medir-poluicao.js` ganhou um **5º argumento** (quais capítulos medir), e as duas
-rodadas passaram a ser coladas uma na outra, com `git stash` no meio. É a mesma lição da porta do
-`abrir.js` de 10/08: instrumento que mede o próprio rastro não mede nada.
+**O que ficou de fora por causa dessa régua, e é registro deliberado:** corrupção, operações
+policiais-judiciais recentes e polarização **não entraram**. Não porque não importem — o dono
+os listou no escopo do arco —, mas porque escrevê-los sem alvo partidário exige mais espaço do
+que um verbete tem, e a régua dos cinco anos derruba o que ainda está em julgamento. Entram
+quando houver documento fechado e uma formulação que não permita a nenhum leitor identificar um
+lado. Enquanto não houver, a ausência é honesta e a presença não seria.
 
-### Um conserto que veio junto, e ele estava morto em silêncio
+### O que esta leva revelou e continua faltando
 
-O anel do chão — a leitura que substitui a barra de vida nos capítulos de gente — lia
-`1 − hp/hpMax`. Quando o capítulo 3 trocou o dano pela conversa, em 09/08, essa conta virou **zero
-para sempre**: o lugar de espera parou de encher e ninguém viu, porque não há erro de console nem
-print que denuncie. Agora existe `fracAlcance(m)`, com as três contas (acolhimento · conversa ·
-dano) no mesmo lugar, e o `encaixe.js` cobra as duas leituras.
+Os buracos que a leva anterior apontou e que **seguem abertos**: TERREIRO / CANDOMBLÉ
+(representação de religião — §2, decisão do dono, e ele estava fora), o acordo de 1678 de que a
+definição de GANA ZUMBA depende, e a origem africana por nação nas festas e irmandades. Novos,
+que esta leva tornou visíveis: falta o **Movimento Negro Unificado (1978)**, que é a ponte entre
+a Frente Negra e as leis dos anos 2000; falta a **Amazônia** como assunto próprio; faltam os
+**povos indígenas nomeados um a um** (o glossário fala de 391 etnias e nomeia duas); e falta
+tudo o que atravessa o tempo sem caber numa data — samba, língua, território, sertão.
 
-### O que o `encaixe.js` ganhou — bloco 22
-
-Onze asserções: **um toque** acolhe (se virar dois, o dano voltou), ela entra na fila, a época
-lembra dela, o hp da pessoa **não se move**, o que ela trazia cai no chão e é uma coisa só, sem
-pisca, sem empurrão, **`desenharVidaMob` não roda nenhuma vez em PALMARES**, o anel enche, e o
-mesmo anel enche em SALVADOR. Prints em `test/ACOLHER-*.png` (o instrumento é
-`test/prints-acolher.js`; ele congela o laço de quadro, e a camada da gente é do laço, então a
-foto do "ela ficou" espera o laço voltar).
-
-### Dúvidas novas
-
-1. **O botão de ritmo trocou de sinal em PALMARES.** Antes, correr acolhia um pouco mais
-   (24,9/min contra 21,9) e secava o mundo (fração 0,47); agora **andar domina** para acolher (26
-   contra 14). Correr continua trazendo o dobro de gente e continua rendendo o mesmo impacto — ou
-   seja, ele segue sem comprar nada, que é a pergunta aberta desde 2026-08-05 ("dar motivo para
-   correr é o que falta para a tensão morder"), agora com o sinal invertido. **É decisão de dono.**
-2. **A microdica "SEGURE PARA ALCANÇAR" nasceu de uma premissa que hoje só vale em metade do
-   jogo.** Ela existe porque `CFG.mobHp` é 5/8/13 e um toque solto tirava 1 — nos capítulos 2 e 3
-   um toque agora basta. A dica continua certa (segurar é como se ganha impacto e como se alcança a
-   fila inteira), mas a frase que a justifica no código precisa ser relida quando alguém mexer nela.
-3. **`CFG.mobHp` deixou de significar alguma coisa em PALMARES e em SALVADOR.** Continua vivo e
-   correto nos capítulos de objeto (1 e 4+). Não mexi: o campo é lido por `novoMob` para todo mundo,
-   e apagá-lo dos capítulos de gente é uma limpeza que atravessa o motor inteiro.
-
-### Próximo passo
-
-O capítulo 4 (AINDA AQUI) e os capítulos em obra repetem a mecânica de objeto do capítulo 1 — e o
-`PENDENTES.md` já registra que ninguém decidiu se isso lê como fecho ou como anticlímax. Com dois
-capítulos de gente pagos, a pergunta ganha forma melhor: **o verbo de cada capítulo é o que o
-distingue**, e quatro dos capítulos em obra ainda não têm verbo escolhido.
 
 ---
 
-## 2026-08-10 · O dia em que o dono perguntou por que eu não estava pensando sozinho
+---
 
-Registro do estado no meio de quatro frentes abertas, para uma virada de contexto não perder
-o fio. **Se você é a sessão seguinte: leia daqui.**
+## O GLOSSÁRIO, LEVA 3 — o que atravessa o tempo (2026-08-10)
 
-### A pergunta que mudou o dia
-Ele escreveu: *"mas pq vc n ta pensando na evolucao do jogo alem do que eu te peco"*. Estava
-certo. As últimas rodadas foram a lista dele, os defeitos que o QA achou e as perguntas que
-eu devolvia. Quase nada tinha saído de mim. **Consertar defeito medido é seguro e legível;
-propor direção é arriscado, e eu fui para o lado seguro sem perceber.**
+A leva 2 cobriu as ERAS. Esta cobre **a camada que não cabe numa data**: os povos indígenas com
+nome próprio, a Amazônia como assunto, a língua, a cultura afro-brasileira, o território, e as
+palavras que o país usa sem examinar.
 
-O conserto não foi prometer que penso mais — foi levar cinco buracos que ninguém pediu:
+**35 verbetes novos, 86 → 121. Cinco grupos novos, 10 → 15.** As remissões vão de 295 a 462
+(138 novas + 29 de volta, dos verbetes antigos para os novos). Nenhum verbete novo ficou sem
+vizinho e nenhum ficou sem ser apontado — conferido por script contra o `GLOSSARIO` em produção,
+grafia por grafia.
 
-1. **Não existe dia 3.** O jogo existe para responder "o loop segura alguém por três dias?" e
-   ninguém desenhou o terceiro. Dia 1 é novidade, dia 2 ganhou o bilhete de história, dia 3 é
-   idêntico ao dia 2.
-2. **O jogo prega coletivo e é jogado sozinho.** Quilombo, mutirão, ganhadeiras, brigada — e a
-   pessoa joga offline, sem ninguém.
-3. **Nada se perde.** Todo verbo é *alcançou, ficou*. História tem perda. *(E eu tinha dito
-   isso errado: `S.cuidado` já desce e já governa `worldHealth()`. Falta o INSTANTE, não a
-   perda.)*
-4. **A história acontece ENTRE o jogo, não NO jogo.** Falas e quadrinho são intervalo de
-   leitura; os marcos no chão do capítulo 2 foram o único momento em que ela aconteceu na mão,
-   e a ideia parou ali como protótipo de um capítulo só.
-5. **A protagonista não quer nada.** Sem nome, sem desejo — uma câmera com pernas.
+> **NÃO ESTÁ APROVADO PELO DONO**, pela mesma razão das levas anteriores: povos originários e
+> cultura afro-brasileira são §2, e representação decide-se com ele. E há um bloco inteiro que
+> nem foi escrito na lista — religião de matriz africana e indígena —, que está proposto no fim
+> desta seção e depende exclusivamente da leitura dele.
 
-**Ele aprovou os cinco**, e expandiu dois: quer explorar mais o coletivo, e quer que a
-personagem *"passe por dificuldades dado a época que essas pessoas viviam"*.
+### O buraco que esta leva fecha, e era o mais grave
 
-### A linha do §2 que o DIA-3.md fixou, e ela é a coisa mais importante deste diário
-> **O jogo pode MOSTRAR a dureza; a mão de quem joga nunca ADMINISTRA o sofrimento de ninguém.**
+**O glossário estava desobedecendo à regra que ele mesmo ensina.** O §2.1 do CLAUDE.md manda
+nomear o povo em vez de tratar "índio" como categoria única. O verbete ÍNDIO afirmava que a
+palavra "espreme 391 povos com 295 línguas numa coisa só" — e o glossário inteiro nomeava
+**dois** (Tupinambá e, de raspão, os povos dos sambaquis). O grupo **CADA POVO TEM NOME** nomeia
+oito, com língua, território e o que cada um enfrenta agora, mais TRONCO LINGUÍSTICO, que é o
+argumento linguístico contra a categoria única.
 
-Operada por três testes (mostrador · sujeito · fonte) e um corolário: **dureza entra como CHÃO
-e como TEMPO, nunca como mostrador.** A razão de a trava §2.4.2 (nada de barra de água, ar ou
-ração) valer fora do porão é a **forma**, não o navio.
+### Os cinco grupos novos
 
-### O que está em voo agora — quatro agentes
-1. **PALMARES vira gente** — quem atravessa a tela deixa de ser objeto; um toque acolhe; sem
-   gramática de combate. Modelo: o capítulo 3, que já pagou essa dívida.
-2. **Marcos em todos os capítulos** — o mecanismo do cap. 2 sai de código duro e vira dado.
-   Seis marcos de 1888–1964 estão sem casa: pertencem a capítulos ainda em obra.
-3. **O século XIX** — O CAIS, JABAQUARA e A PEQUENA ÁFRICA, escritos com fonte lida.
-4. **O mutirão** — o `MUTIRAO.md` estava pronto desde 09/08 e **o pedido nunca chegou ao
-   dono**; um agente achou isso sozinho. Ele aprovou depois de eu explicar em português.
+- **CADA POVO TEM NOME** — *"São 391 etnias e 295 línguas. Um glossário que diz isso e nomeia
+  duas está desobedecendo à regra que ensina."*
+- **A LÍNGUA QUE SE FALA AQUI** — *"O português do Brasil foi feito de tupi, de línguas
+  africanas e de proibição — e ainda está sendo feito."*
+- **A FLORESTA QUE É OBRA DE GENTE** — *"A Amazônia não é intocada: é resultado de milênios de
+  manejo, e continua dependendo de quem a defende."*
+- **O TERRITÓRIO E QUEM O HABITA** — *"Sertão, beira de rio, beira de mar: onde o país mora, e
+  as categorias que o Estado só criou depois."*
+- **O TAMBOR, A FESTA E A COZINHA** — *"O que a lei proibiu, a lei depois registrou como
+  patrimônio — e que continua sendo feito toda semana."*
 
-### O que ele decidiu hoje, e não se reabre
-- **Palmares é ACOLHER, nunca libertar.** Ele tinha escrito "libertá-las"; apresentei o §2.4
-  (libertar-com-o-toque é o poder do senhor invertido em fantasia) e a distinção de que quem
-  chega em Palmares **já se libertou**. Aceitou.
-- **`cap4-gente`: entram, e COM FALA.** Figura muda em 1835 é decoração.
-- **Restos humanos: trava mantida** depois de levantada — está no `CLAUDE.md` §2.4 com a
-  frase dele.
-- **Marcos de 1888–1964 na linha do tempo, SEM reordenar capítulo.**
-- **O ACEIRO entra no arco.** 13 capítulos.
-- **Deitado funciona** (10 de 10 telas), **domínio no ar**, **medição no ar**.
+Mesmo critério de nome das levas anteriores: **assunto, nunca episódio**, legível por quem nunca
+jogou, e **nenhum termina no passado** — cada um fecha num verbete do presente (marco temporal,
+nheengatu cooficial em 2002, PRODES 2025, titulação de território, patrimônio revalidado).
 
-### O que ele está fazendo
-Lendo os quatro textos das eras na mesa (a dívida mais antiga desta lista, paga hoje) e
-gerando as três folhas de corrida na **quarta** tentativa — agora com a régua medida:
-**altura em cabeças**, caminhada 4,4/5,2/4,9 contra corrida 2,3/2,8/2,2.
+### Fonte por verbete
 
-### Armadilhas frescas
-- **Quatro agentes em `src/jogo.ts` ao mesmo tempo** é o risco desta fase. Três estão em
-  cópias isoladas; o rebase do mutirão em cima do acolher vai ser o encontro mais feio,
-  porque os dois mexem em `S.acolhidos`.
-- **A mesa herdou a escala do jogo** e ficou ilegível: 79 de 93 textos abaixo de 14 px. Jogo é
-  telefone na mão a 30 cm com densidade dobrada; mesa é monitor a 60 cm. Dois problemas.
-- **A região do PostHog falha em SILÊNCIO** — os dois endpoints respondem 200 OK a qualquer
-  chave. Estava EU, o projeto é US.
+**Autoria indígena e negra primeiro (§2, prioridade do dono).**
+
+- **Davi Kopenawa e Bruce Albert**, *A queda do céu*, Companhia das Letras, 2015 — **YANOMAMI**.
+- **Ailton Krenak**, *Ideias para adiar o fim do mundo*, Companhia das Letras, 2019, e a posse
+  na cadeira 5 da **Academia Brasileira de Letras** em 05/04/2024 — **KRENAK**.
+- **Daniel Munduruku**, *Meu vô Apolinário*, Studio Nobel, 2001 — **MUNDURUKU**.
+- **Antônio Bispo dos Santos**, *Colonização, quilombos: modos e significações*, INCTI/UnB, 2015
+  — **POVOS E COMUNIDADES TRADICIONAIS** (a "confluência" contra a colonização é dele).
+- **Nei Lopes**, *Novo dicionário banto do Brasil*, Pallas, 2003, e *Enciclopédia brasileira da
+  diáspora africana*, Selo Negro, 2004 — **BANTO**, **SAMBA**, **JONGO**, **TAMBOR**, **IORUBÁ**.
+- **Muniz Sodré**, *Samba, o dono do corpo*, Codecri, 1979 — **TAMBOR** e **SAMBA**. É dele a
+  tese de que o tambor organiza o corpo e o grupo, e não acompanha nada.
+- **Lélia Gonzalez**, "Racismo e sexismo na cultura brasileira", *Ciências Sociais Hoje*,
+  ANPOCS, 1984, e "A categoria político-cultural de amefricanidade", *Tempo Brasileiro* nº 92/93,
+  1988; com **Carlos Hasenbalg**, *Lugar de negro*, Marco Zero, 1982 — **MESTIÇAGEM**,
+  **COLORISMO**, **LUGAR DE FALA**, **MOVIMENTO NEGRO UNIFICADO** (ela foi uma das fundadoras).
+- **Sueli Carneiro**, "Enegrecer o feminismo", 2003, e *Dispositivo de racialidade*, Zahar, 2023
+  — **MESTIÇAGEM** e **RACISMO ESTRUTURAL**.
+- **Silvio Almeida**, *Racismo estrutural*, Pólen, 2019 (1ª ed. Letramento, 2018) —
+  **RACISMO ESTRUTURAL**.
+- **Djamila Ribeiro**, *O que é lugar de fala?*, Letramento/Justificando, 2017 — **LUGAR DE FALA**.
+- **Yeda Pessoa de Castro**, *Falares africanos na Bahia: um vocabulário afro-brasileiro*,
+  Topbooks / Academia Brasileira de Letras, 2001 — **BANTO** e **IORUBÁ**.
+- **José Ribamar Bessa Freire**, *Rio Babel: a história das línguas na Amazônia*, EdUERJ, 2004 —
+  **NHEENGATU**.
+- **Chico Mendes**, em *Chico Mendes por ele mesmo*, org. Cândido Grzybowski, FASE, 1989 —
+  **EMPATE**. Escolhido de propósito no lugar da bibliografia sobre ele: quem conta o empate é
+  quem o fez.
+- **Petrônio Domingues**, "Movimento negro brasileiro: alguns apontamentos históricos", *Tempo*
+  12(23), 2007, UFF, e *Uma história não contada*, Senac, 2004 — **MOVIMENTO NEGRO UNIFICADO**
+  e **PARDO**.
+
+**As pesquisadoras e os pesquisadores de cada campo.**
+
+- **Aryon Dall'Igna Rodrigues**, *Línguas brasileiras: para o conhecimento das línguas
+  indígenas*, Loyola, 1986 — **TRONCO LINGUÍSTICO**, **KAYAPÓ**. É a classificação da casa para
+  troncos e famílias.
+- **Elisa Frühauf Garcia**, "O projeto pombalino de imposição da língua portuguesa aos índios e
+  a sua aplicação na América meridional", *Tempo* 12(23), 2007, UFF — **LÍNGUA GERAL**.
+  *(Localizada nesta sessão: eu havia atribuído o artigo a Bessa Freire; a autoria é dela.)*
+- **Carolina Levis et al.**, "Persistent effects of pre-Columbian plant domestication on
+  Amazonian forest composition", *Science* 355(6328), 2017, com **Watling et al.**, *PNAS*, 2017,
+  e **William Balée**, *Cultural Forests of the Amazon*, Alabama, 2013 — **FLORESTA CULTIVADA**.
+- **Schmidt, Neves et al.**, "Intentional creation of carbon-rich dark earth soils in the
+  Amazon", *Science Advances* 9(38), 2023, contra **Silva et al.**, *Nature Communications* 12,
+  2021, com **Eduardo Góes Neves** em *Amazonian Dark Earths*, Kluwer, 2003 — **TERRA PRETA DE
+  ÍNDIO**. As três juntas são a divergência, e é por isso que as três estão no `f`.
+- **Barbara Weinstein**, *A borracha na Amazônia: expansão e decadência, 1850–1920*,
+  Hucitec/Edusp, 1993 — **SERINGUEIRO**.
+- **Antonio Carlos Diegues**, *O mito moderno da natureza intocada*, Hucitec, 1996 —
+  **RIBEIRINHO** e **POVOS E COMUNIDADES TRADICIONAIS**.
+- **Durval Muniz de Albuquerque Jr.**, *A invenção do Nordeste e outras artes*, Cortez /
+  Fundação Joaquim Nabuco–Massangana, 1999 (tese, Unicamp, 1994) — **NORDESTE**, **SERTÃO**,
+  **RETIRANTE**. É a obra que sustenta o grupo do território inteiro.
+- **Celso Furtado**, *Formação econômica do Brasil*, 1959, e *A fantasia desfeita*, Paz e Terra,
+  1989, com o relatório do **GTDN**, *Uma política de desenvolvimento econômico para o Nordeste*,
+  1959 — **A INDÚSTRIA DA SECA** e **RETIRANTE**.
+- **Antônio Callado**, *Os industriais da sêca e os "galileus" de Pernambuco*, Civilização
+  Brasileira, 1960 — **A INDÚSTRIA DA SECA**. É a reportagem que firmou a expressão.
+- **Guerra-Peixe**, *Maracatus do Recife*, Irmãos Vitale, 2ª ed. 1980 (orig. 1955), e **Katarina
+  Real**, *O folclore no carnaval do Recife*, 1967 — **MARACATU**.
+- **Luís da Câmara Cascudo**, *História da alimentação no Brasil*, 1967 (ed. Global, 2004), e
+  **Carlos Alberto Dória**, *Formação da culinária brasileira*, Três Estrelas, 2014 —
+  **FEIJOADA**. São os dois que derrubam o mito da senzala, com sessenta anos de distância.
+- **Carlos Eugênio Líbano Soares**, *A capoeira escrava*, Editora Unicamp, 2004 — **TAMBOR**
+  (já estava no glossário, em CAPOEIRA).
+- **Euclides da Cunha**, *Os sertões*, 1902, e **Graciliano Ramos**, *Vidas secas*, 1938 —
+  **SERTÃO** e **RETIRANTE**. Entram como **literatura**, e o verbete diz que a palavra se
+  firmou na literatura: é fonte da PALAVRA, não do fato.
+- **Alice Walker**, *In Search of Our Mothers' Gardens*, Harcourt, 1983 — **COLORISMO** (é onde
+  o termo é cunhado).
+
+**Documentos primários, leis e decisões.**
+
+Diretório dos índios do Pará e do Maranhão, 03/05/1757, e alvará de 17/08/1758 (LÍNGUA GERAL) ·
+Decreto-Lei nº 5.813, de 14/09/1943, e **ADCT art. 54 da CF/88** (SERINGUEIRO — a pensão dos
+soldados da borracha, 45 anos depois) · Lei municipal nº 145, de 11/12/2002, de São Gabriel da
+Cachoeira (AM), regulamentada pela Lei nº 210/2006 (NHEENGATU) · Decreto nº 6.040, de 07/02/2007
+(RIBEIRINHO, POVOS E COMUNIDADES TRADICIONAIS) · Lei nº 9.985, de 18/07/2000 (SNUC), art. 18
+(EMPATE — as reservas extrativistas como categoria legal) · Lei nº 12.288, de 20/07/2010,
+Estatuto da Igualdade Racial (RACISMO ESTRUTURAL) · Portaria MJSP nº 779, de 25/09/2024
+(MUNDURUKU — TI Sawré Muybu, 178.173 ha, dezessete anos de processo).
+
+**Institucional (vale, mas nunca no lugar de quem narra).**
+
+**IBGE, Censo 2022, *Etnias e línguas indígenas*** (divulgado em outubro de 2025) — GUARANI,
+YANOMAMI, TIKUNA, TRONCO LINGUÍSTICO. Os números publicados: 1.694.836 indígenas, 391 etnias,
+295 línguas, 474.856 falantes; Tikuna é a etnia mais populosa (74.061) e a língua com mais
+falantes (51.978); guarani kaiowá é a segunda língua (38.658); Yanomami é a etnia com mais de
+dez mil pessoas com maior proporção vivendo em terra indígena (94,34%) · **IBGE, Censo 2022, cor
+ou raça** e **Desigualdades sociais por cor ou raça, 2022** — MESTIÇAGEM, PARDO, COLORISMO
+(45,3% pardos, 43,5% brancos, 10,2% pretos; 92,1 milhões de pardos; pretos e pardos somam 55,5%)
+· **ISA, Enciclopédia Povos Indígenas no Brasil** — os oito povos · **Funai** — TI Yanomami
+(homologada em 1992, cerca de 9,6 milhões de ha) e Sawré Muybu · **Comissão Nacional da
+Verdade**, relatório final, vol. II, texto 5, 2014 — XAVANTE e PATAXÓ · **INPE, PRODES**, nota
+técnica da estimativa de 2025 (outubro de 2025) — DESMATAMENTO: 5.796 km² na Amazônia Legal, a
+menor em onze anos, numa série que começa em 1988 · **IPHAN** — Samba de Roda do Recôncavo
+(2004) e UNESCO (2005), Jongo no Sudeste (15/12/2005), Matrizes do Samba no Rio de Janeiro
+(2007), Maracatu Nação (2014) · **ICMBio** — Parque Nacional do Monte Pascoal (1961) ·
+**Arquivo Nacional / Memórias Reveladas** — Movimento Negro Unificado · **Câmara dos Deputados**
+— legislatura 1983–1987 (Mário Juruna) · **Ministério do Meio Ambiente** — bioma Caatinga.
+
+### Os seis `dv: 1` desta leva, e a divergência exata de cada um
+
+1. **TERRA PRETA DE ÍNDIO** — que o solo é antropogênico é consenso. **Se ele foi produzido de
+   propósito ou é subproduto de morar muito tempo no mesmo lugar, não é**: Silva et al. (*Nature
+   Communications*, 2021) propuseram origem em parte não intencional; Schmidt, Neves et al.
+   (*Science Advances*, 2023) mediram criação intencional entre os Kuikuro. O verbete afirma o
+   solo e recusa a intenção, e diz que recusa.
+2. **SAMBA** — duas divergências. A **glosa** de *semba* varia entre autores (a raiz banto é
+   consenso, o sentido exato não), e o **"primeiro samba"** é disputado: "Pelo Telefone" tem
+   registro datado (27/11/1916, Biblioteca Nacional) e teve a autoria contestada na época,
+   porque era criação coletiva de roda. O verbete afirma o registro e chama o resto de tratamento
+   ("é tratado como"), que é diferente de afirmar.
+3. **JONGO** — a etimologia banto é aceita, **a forma exata de que deriva não**. As fontes dão
+   raízes diferentes, e o verbete não escolhe. Mesmo critério do MOCAMBO da leva 1.
+4. **MARACATU** — duas coisas. A **etimologia** não tem derivação consensual, e a **origem nas
+   coroações de reis negros das irmandades é ATRIBUÍDA**, não documentada linha a linha: é a
+   hipótese de Guerra-Peixe e de Katarina Real, repetida desde os anos 1950, e o verbete escreve
+   "atribuída" com todas as letras.
+5. **FEIJOADA** — o `dv` aqui é **de outro tipo, e é o mais útil da lista**: não marca fontes que
+   discordam, marca uma **origem popular que a pesquisa derruba**. O que o verbete afirma, com
+   documento: (a) orelha, pé, rabo e língua eram cortes apreciados e comercializados, não
+   descarte; (b) a alimentação registrada nas fazendas era farinha, feijão e carne-seca, não este
+   prato; (c) as primeiras descrições da feijoada como ela é hoje estão em restaurantes do Rio no
+   século XIX, como comida cara. A lenda da senzala é **consagração modernista**, que precisava
+   de um prato-símbolo da mistura. Cascudo já a chamava de insustentável em 1967.
+6. **COLORISMO** — o termo é **recente e o uso brasileiro é disputado**; foi cunhado nos Estados
+   Unidos em 1983 e entrou aqui nos anos 2010. O fenômeno que ele descreve é sólido nos dados do
+   IBGE e foi observado por Lélia Gonzalez décadas antes de haver palavra. O verbete afirma o
+   fenômeno e declara que o termo é disputado.
+
+### O que é ATRIBUÍDO e não atestado — declarado dentro do próprio verbete
+
+- **MARACATU**, origem nas coroações de reis negros — atribuída (ver `dv` 4 acima).
+- **KAYAPÓ / XAVANTE / TIKUNA**, as glosas dos autodenominativos (Mebêngôkre, A'uwẽ, Magüta) —
+  **cortadas**. As traduções circulam, não fechei atestação para nenhuma, e o verbete diz o nome
+  e não traduz. Mesmo critério do TUPINAMBÁ da leva 1.
+- **MUNDURUKU**, origem do etnônimo — declarada "de origem discutida" no próprio `o`.
+- **TIKUNA**, língua isolada — escrito como "não tem parentesco **consensual**", porque há
+  proposta de família tikuna-yuri que não é consenso.
+- **SAMBA**, "primeiro samba gravado" — escrito como "é tratado como", nunca como fato.
+
+### O que ficou de fora, e por quê
+
+- **RELIGIÃO DE MATRIZ AFRICANA E INDÍGENA** — bloco inteiro, ver a seção seguinte. **É a maior
+  ausência desta leva e é deliberada.**
+- **DIRETÓRIO DOS ÍNDIOS como verbete próprio** — cabia, e ficou dentro de LÍNGUA GERAL com data,
+  número e alvará. Vira verbete próprio quando o glossário tiver espaço para o pombalino inteiro
+  (nome português imposto, fim do poder temporal dos missionários, casamento misto incentivado).
+- **CAATINGA, CERRADO e CAIÇARA como verbetes próprios** — a caatinga está dentro de SERTÃO e o
+  caiçara dentro de POVOS E COMUNIDADES TRADICIONAIS. Corte por orçamento de verbetes, não por
+  falta de fonte: os três têm.
+- **CONGADA e AFOXÉ** — congada saiu por orçamento (está citada dentro de TAMBOR); **afoxé saiu
+  por ser religião de rua**, e está proposto na seção do dono.
+- **RESERVA EXTRATIVISTA como verbete próprio** — está dentro de EMPATE, com a lei do SNUC.
+- **EMBRANQUECIMENTO** — **não entrou porque seria duplicata**: o verbete BRANQUEAMENTO já existe
+  e já traz o Decreto nº 528/1890. As duas palavras nomeiam a mesma política.
+- **Número de palavras do português que vêm do tupi ou de línguas africanas** — os números que
+  circulam ("dez mil palavras", "três mil") não têm fonte que eu tenha conseguido fechar. Os
+  verbetes BANTO, IORUBÁ e TUPI **listam palavras** em vez de contá-las, que é o que a fonte
+  sustenta.
+- **Pico histórico do PRODES** — o verbete dá a série (desde 1988) e a estimativa de 2025, e não
+  o pico, porque a taxa mais alta da série depende de qual ano se toma como referência e eu não
+  fechei a checagem. Só entra número que eu li na nota técnica.
+- **Nome da empresa responsável pelo rompimento da barragem de Fundão** (verbete KRENAK) —
+  deixado de fora pelo §2.5: o verbete nomeia a barragem, o município e a data, que é o que o
+  documento sustenta, e o assunto do verbete é o povo, não a atribuição de culpa.
+
+### ⚠ PRECISA DO AVAL DO DONO — e a maior parte é o mesmo assunto de sempre
+
+**1. RELIGIÃO DE MATRIZ AFRICANA E INDÍGENA. Uma sessão anterior já parou aqui, e esta parou de
+novo.** O §2 diz que representação se decide com o dono. Os verbetes estão pesquisados e **não
+foram escritos na lista**; a proposta é um grupo próprio, com fonte de dentro do campo (Muniz
+Sodré, Nei Lopes, Reginaldo Prandi, Vagner Gonçalves da Silva, Roger Bastide, os registros do
+IPHAN e os dossiês de tombamento de terreiro). Termos propostos: **TERREIRO** (a casa e o
+território, com o tombamento da Casa Branca do Engenho Velho pelo IPHAN em 1984 — o primeiro
+tombamento de um bem de matriz africana no Brasil), **CANDOMBLÉ**, **UMBANDA**, **ORIXÁ**,
+**AXÉ**, **IRMANDADE** (as confrarias católicas negras, que são a ponte com CONGADA e MARACATU),
+**AFOXÉ**, **PAJÉ** e **XAMANISMO**. **Nada disso está no arquivo.**
+
+O que a ausência custa hoje, verbete por verbete, para ele decidir com o preço na mão:
+
+- **IORUBÁ** diz "boa parte do vocabulário religioso afro-brasileiro também é" e não dá um
+  exemplo sequer, quando os exemplos são a metade da força do verbete.
+- **TAMBOR** lista jongo, samba, maracatu e congado como o que se organizou em torno dele —
+  **e omite a casa de culto**, que é onde o tambor nunca parou de tocar e a razão de proibi-lo.
+- **SAMBA** diz "as casas das tias baianas" sem dizer o que aquelas casas eram, e a casa de Tia
+  Ciata é a informação que explica por que o samba nasceu ali e não em outro lugar.
+- **MARACATU** fica sem a calunga e sem o vínculo das nações com as casas de culto.
+- **YANOMAMI** chama Davi Kopenawa de "liderança e porta-voz". **O subtítulo do próprio livro
+  dele o chama de xamã yanomami.** Estou usando um rótulo mais fraco que o da capa da obra que
+  cito, e isso é o oposto de respeito — mas é xamanismo, e a trava é a trava.
+
+**Observação para a decisão, e é só o registro de um fato do repositório:** ACARAJÉ, BÚZIOS e
+PANO DA COSTA **já dizem** a dimensão de culto em produção, por decisão dele em 2026-08-08 e
+2026-08-09. O glossário está hoje num meio-termo: fala de orixá em três verbetes de objeto e não
+tem nenhum verbete sobre a fé em si.
+
+**2. Duas remissões estouram o teto de 4.** `DEMOCRACIA RACIAL` e `BRANQUEAMENTO` ficam com 5
+vizinhos ao ganhar MESTIÇAGEM. São pares corretivos de mão dupla, e o `GLOSSARIO_REL` já tem
+entradas com 5 em produção; se o teto for para ser duro, cortar estas duas é a mudança mais
+barata e custa só a volta do par.
+
+**3. Um grupo antigo ficou sem porta para o novo: O QUE CHAMARAM DE LIBERDADE.** Deliberado. O
+assunto daquele grupo são as leis de 1871, 1885 e 1888, e nenhum dos 35 verbetes muda o
+entendimento delas. Forçar um link ali seria a remissão "do mesmo assunto" que o próprio mapa
+proíbe. Fica registrado como escolha, não como esquecimento.
+
+**4. MOVIMENTO NEGRO UNIFICADO cita o Estado Novo e a ditadura de 1978.** Está dentro da REGRA DO
+DOCUMENTO (§2.5): nomeia o decreto-lei, a data, o local e a organização, e nenhuma pessoa como
+responsável. Mas é história de repressão de Estado, e os grupos que tratam disso já estão na fila
+da leitura dele.
+
+
+---
+
+## O GLOSSÁRIO, LEVA 5 — as pessoas e a fé (2026-08-10)
+
+**121 → 157 verbetes. 15 → 17 grupos. 462 → 605 remissões.** Dois grupos novos.
+
+### QUEM ABRIU CAMINHO — 22 verbetes
+
+Pedido do dono, palavra dele: *"importantíssimo citarmos quem foram referências do povo."*
+Corrige um defeito de fundo — o glossário tinha sistemas, leis e processos e quase nenhuma
+gente, e história contada só por estruturas apaga quem agiu dentro delas. É o mesmo erro em
+que o §2 já pegou este arquivo antes (violência em passiva, sem agente).
+
+**A trava que decide a qualidade deste grupo, e é o que o separa de um livro escolar:** para
+DANDARA, AQUALTUNE e LUIZA MAHIN a documentação é fina ou ausente, e a figura vive na tradição
+e no movimento negro. Os três verbetes **dizem isso**, com `dv: 1`, em vez de fingir biografia.
+A régua já existia no arquivo: é a que se aplica a "Angola Janga". O verbete de DANDARA
+formula o princípio: *"a memória é uma forma de história quando os arquivos foram escritos só
+por um lado"* — e o glossário separa as duas coisas em vez de fundi-las.
+
+Fontes principais: Elciene Azevedo (*Orfeu de carapinha*, Unicamp, 1999) e Ligia Fonseca
+Ferreira (org., *Lições de resistência*, Sesc, 2020) para LUIZ GAMA e LUIZA MAHIN · Maria Alice
+Rezende de Carvalho (*O quinto século*, 1998) para ANDRÉ REBOUÇAS · Ângela Alonso (*Flores,
+votos e balas*, 2015) para JOSÉ DO PATROCÍNIO · Eduardo de Assis Duarte (*Machado de Assis
+afro-descendente*, 2007) e Sidney Chalhoub (*Machado de Assis, historiador*, 2003) · Alex Ratts
+(*Eu sou atlântica*, 2006) para BEATRIZ NASCIMENTO · Edinha Diniz (*Chiquinha Gonzaga*, Zahar,
+2009) · Lei nº 12.987/2014 para TEREZA DE BENGUELA · Comissão Nacional da Verdade, vol. II,
+para MARÇAL DE SOUZA TUPÃ'I · e as obras dos próprios: Abdias do Nascimento, Lélia Gonzalez,
+Clóvis Moura, Milton Santos, Carolina Maria de Jesus, Krenak, Kopenawa, Potiguara.
+
+**MARIELLE FRANCO sob o §2.5:** o verbete é sobre a obra e o mandato; sobre a morte, afirma o
+que o Judiciário estabeleceu (condenação dos executores em 31/10/2024) **sem nomear ninguém**
+como responsável, e registra que a apuração seguiu em curso. `dv: 1`.
+
+### A FÉ, E QUEM TENTOU PROIBI-LA — 14 verbetes
+
+Aprovado pelo dono em 2026-08-10, depois de duas sessões pararem no assunto. O argumento que
+convenceu: **a ausência já custava caro e o glossário estava nos dois lados** — ACARAJÉ, BÚZIOS
+e PANO DA COSTA já falavam de orixá em produção, e não havia verbete sobre a fé.
+
+A régua da escrita foi *descrever de dentro*: um praticante reconheceria a descrição? Nada de
+curiosidade exótica, "religião" onde caberia "crença", nem prática viva tratada como folclore.
+
+**Três decisões que valem registro:**
+- **EXU entrou, e é o verbete mais necessário do grupo.** A tradução como "diabo" foi obra de
+  missionários do século XIX, e não é engano ingênuo: foi ela que serviu de justificativa para
+  a perseguição, e ainda serve.
+- **INTOLERÂNCIA RELIGIOSA documenta o Estado dos dois lados:** o Código Penal de 1890
+  (arts. 156–158) criminalizou, a polícia apreendeu objetos de culto em invasões de terreiro, e
+  em 2020 o IPHAN tombou essa mesma coleção como patrimônio. O Estado que confiscou passou a
+  proteger, 130 anos depois.
+- **"O QUE NÃO SE CONTA" é um verbete sobre o limite do próprio glossário.** Boa parte do que
+  sustenta uma casa é reservada a quem foi iniciado e não está em livro. Escrever isso é mais
+  honesto que a lacuna silenciosa — um glossário que fingisse contar o resto estaria mentindo,
+  ou repetindo o que alguém não devia ter contado.
+
+`dv: 1` em CANDOMBLÉ (derivação da palavra disputada), UMBANDA (o relato de fundação única de
+1908 é contestado pela pesquisa, que descreve formação difusa) e SINCRETISMO (o manifesto das
+ialorixás baianas de 1983, com Mãe Stella de Oxóssi, pediu o fim da mistura; e quais
+correspondências valem muda de nação para nação).
+
+Fontes: Muniz Sodré (*O terreiro e a cidade*, 1988; *Pensar nagô*, 2017) · Juana Elbein dos
+Santos (*Os nagô e a morte*, 1976) · Pierre Verger (*Orixás*, 1981) · Reginaldo Prandi
+(*Mitologia dos orixás*, 2001) · Vagner Gonçalves da Silva (*Candomblé e umbanda*, 2005) ·
+Lisa Earl Castillo (*Entre a oralidade e a escrita*, 2008) · Ruth Landes (*A cidade das
+mulheres*, orig. 1947) · Diana Brown (*Umbanda*, 1986) · Nei Lopes · IPHAN (tombamento da Casa
+Branca do Engenho Velho, 1984; Coleção do Museu da Polícia, 2020) · CF/88, art. 5º, VI.
+
+### Quatro verbetes antigos corrigidos — eles mentiam por omissão
+
+O grupo da fé existir permitiu consertar o que sem ele não tinha conserto:
+
+- **IORUBÁ** prometia que "boa parte do vocabulário religioso também é" e **não dava um exemplo
+  sequer**. Agora dá: orixá, axé, exu, ialorixá, ojá.
+- **TAMBOR** listava jongo, samba, maracatu e congado e **omitia a casa de culto** — que é onde
+  o tambor nunca parou e a razão de terem tentado proibi-lo.
+- **SAMBA** falava das "casas das tias baianas" **sem dizer o que aquelas casas eram**: terreiro,
+  cozinha e ponto de encontro ao mesmo tempo.
+- **YANOMAMI** chamava Davi Kopenawa de "liderança e porta-voz" quando **o subtítulo do livro
+  que o próprio verbete cita o chama de xamã yanomami** — rótulo mais fraco que o da capa da
+  obra citada.
+
+### Continua faltando
+
+As duas eras pela metade (República Velha e Vargas/JK), a Covid, o acordo de 1678, as
+irmandades negras e as revoltas regionais do Império. E corrupção/polarização, que exigem a
+REGRA DO DOCUMENTO e ainda não foram tentadas.
