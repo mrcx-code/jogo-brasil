@@ -6252,3 +6252,329 @@ Paulistano, 1º/05/1888 · Fundação Cultural Palmares, portaria de 2006 · INC
 SEGUROU, O ACEIRO, O QUE TEM FONTE) não têm verbete porque **ainda não afirmam nada** — o texto
 deles diz literalmente "este capítulo ainda está sendo escrito". Quando ganharem conteúdo, o
 glossário os acompanha.
+
+---
+
+## Diário — 2026-08-12 · Historiador · AS PORTAS, e a REGRA DO DOCUMENTO exercida pela primeira vez
+
+**O lote é o SÉCULO XX**: três capítulos que eram esqueleto — AS PORTAS, O QUE NÃO PODIA SER
+DITO e A PRAÇA. Este é o primeiro. A régua é a mesma dos três do século XIX, e continua sendo a
+mais dura do repositório: **nenhuma afirmação sem fonte lida NESTA sessão** — sem ementa, sem
+resumo de buscador, sem lembrança. O que não abriu, não entrou, e está listado abaixo.
+
+A diferença deste lote está no §2.6 do CLAUDE.md, **A REGRA DO DOCUMENTO**. Ela foi escrita em
+07/08 para a história recente e até aqui só tinha sido exercida nos seis marcos de 1888→1964 da
+`LINHA_TEMPO` — nunca num capítulo. Agora é capítulo, e ela custa o que prometia custar: nenhum
+político nomeado (nem os que a historiografia nomeia sem hesitar), nenhum partido, nenhuma
+eleição, nenhum adjetivo sobre nenhum dos três.
+
+### A tese, e por que ela não é interpretação minha
+
+**Cada porta que este meio século abriu trazia, no MESMO papel, escrito quem ficava do lado de
+fora.** Isso é literal duas vezes, e as duas foram lidas na fonte nesta sessão:
+
+1. A **Constituição de 1934** abre o voto no art. 108 — *"os brasileiros de um e de outro sexo,
+   maiores de 18 annos"* — e o fecha no **parágrafo único do mesmo artigo**: *"Não se podem
+   alistar eleitores: a) os que não saibam ler e escrever"*.
+2. A **Emenda Constitucional nº 25, de 15/05/1985** manda a lei dizer *"a forma pela qual possam
+   os analfabetos alistar-se eleitores e exercer o direito de voto"* (art. 147, § 4º) e, **três
+   artigos adiante**, escreve *"São inelegíveis os inalistáveis e os analfabetos"* (art. 150).
+
+Nenhum adjetivo precisa ser acrescentado, e nenhum foi. É a mesma disciplina do fecho de O CAIS,
+onde duas datas ficam lado a lado e quem lê conclui sozinho.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar (pátio de escola pública) e a tese do capítulo | ficção autoral de enquadramento; nenhum fato |
+| ab.2 | CF/1934, art. 108 e o parágrafo único dele, os dois literais | **✅P** Câmara dos Deputados, Legislação Informatizada, publicação original da Constituição de 16/07/1934 |
+| ab.3 | CF/1934, art. 150, parágrafo único, a), literal; e **56,8%** de analfabetismo em 1940 | **✅P** a mesma publicação · **◑I** IBGE, divulgação do estudo *Tendências Demográficas… Censos de 1940 e 2000*: *"a taxa de analfabetismo de pessoas de 10 anos ou mais de idade foi reduzida em cinco vezes, passando de 56,8% para 12,1%"* |
+| ab.4 | o verbo — **abrir a porta** | autoral. Escolhido pelo que o capítulo documenta, e nomeia o próprio capítulo |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | EC 25/1985, art. 147, § 4º, literal | **✅P** Câmara, Legislação Informatizada, publicação original |
+| fe.2 | EC 25/1985, art. 150, literal; e a **CF/88 repetindo a frase no art. 14, § 4º** | **✅P** a mesma · **✅P** Câmara, publicação original da CF/88: *"§ 4º São inelegíveis os inalistáveis e os analfabetos"* (e o § 1º, II, a, que torna o voto facultativo para eles) |
+| fe.3 | a CLT de 1943 excluindo a categoria; a **Lei nº 5.859, de 11/12/1972**, e o *"atestado de boa conduta"* do art. 2º, II | **✅P** Câmara, publicação original da Lei nº 5.859/1972. A CLT já estava no jogo, na `LINHA_TEMPO`, com o art. 7º |
+| fe.4 | *"férias anuais remuneradas de 20 (vinte) dias úteis"* (art. 3º); a igualdade com a **LC nº 150, de 1º/06/2015** | **✅P** a mesma lei · a LC 150/2015 já está no jogo pela `LINHA_TEMPO` |
+| fe.5–6 | **Laudelina de Campos Mello**: 1936, Santos, Associação das Empregadas Domésticas do Brasil; fechada pelo Estado Novo em 1942; outra em Campinas em 1961; as entidades seguintes dando origem ao Sindicato dos Trabalhadores Domésticos em 1988 | **◑I** Senado Federal, matéria de 27/04/2010, literal: *"Em 1936 cria a Associação das Empregadas Domésticas do Brasil, que é fechada pelo Estado Novo em 1942. Em 1961, morando em Campinas (SP) a essa altura, funda a Associação Profissional Beneficente das Empregadas Domésticas."* |
+
+**O SUJEITO É QUEM SUSTENTA (§2.6), e ele fecha o capítulo.** Laudelina não é político nem
+governante: é trabalhadora doméstica desde os sete anos, e organizou a categoria **sete anos
+antes** de a CLT dizer que a lei do trabalho não era para ela. Um capítulo sobre normas que
+terminasse em norma seria uma aula de direito; terminando nela, é história de quem não esperou.
+
+### O que RECUSEI, e por quê
+
+- **Qualquer político, de qualquer lado.** Inclusive os que propuseram dar o voto aos analfabetos
+  antes de 1985 — a matéria do Senado que li nomeia dois presidentes, um de cada campo, e é
+  material tentador justamente por parecer equilibrado. O §2.6 não abre exceção para o nome
+  simpático, e um texto que nomeia "os dois lados" convida a leitura partidária que a regra
+  existe para impedir.
+- **O MOBRAL e qualquer política de alfabetização com nome.** Não li a norma que o criou, e
+  política educacional de governo é exatamente onde a leitura de crédito partidário mora.
+- **A taxa de analfabetismo censo a censo (1950, 1960, 1970, 1980).** Os números circulam e são
+  provavelmente certos; **o PDF do INEP e o `download.inep.gov.br` recusaram a conexão nesta
+  sessão** e o `brasilemsintese` do IBGE só traz de 2007 em diante. Entrou só o par 1940/2000,
+  que veio da divulgação do próprio IBGE, com a faixa etária dita dentro da frase (10 anos ou
+  mais, e não 15, que é a faixa que os resumos costumam trocar).
+- **A Emenda Constitucional nº 72, de 2013.** Ela está no jogo pela `LINHA_TEMPO` com fonte do
+  Senado, mas eu não a li nesta sessão — então a fala do capítulo cita só a LC 150/2015, que é a
+  que fecha a conta, e a linha do tempo continua carregando as duas.
+- **O primeiro voto feminino e as primeiras eleitas.** É o fato mais citado de 1932 e ele exige
+  nomear políticas. Fora.
+- **A grafia do sobrenome.** A página do Senado escreve **Mello**; outras fontes escrevem *Melo*.
+  O jogo usa a grafia da fonte que eu li. Se algum dia entrar uma segunda fonte lida, isto vira
+  entrada de ONDE AS FONTES DISCORDAM.
+- **O `planalto.gov.br` inteiro.** Recusou conexão desta máquina a sessão toda (`ECONNREFUSED`,
+  e o `curl` estoura o tempo). Tudo o que seria lido lá foi lido na **Legislação Informatizada da
+  Câmara dos Deputados**, em publicação original — que é fonte melhor, porque traz a grafia do
+  Diário Oficial da época. Fica registrado como via preferencial para as próximas sessões.
+
+### O que mudou no código
+
+- `emObra` removido de AS PORTAS. Efeito automático e bem-vindo: os dois marcos da `LINHA_TEMPO`
+  que já pendiam da cena dele (1930 e 1932→1985) passam a poder virar **placa na estrada**, e o
+  `encaixe.js` bloco 23b já a mediu — 0,28 objeto de média, bem abaixo da régua do capítulo 1.
+- `ferramentas/pacotes.js`: a pintura **9** saiu do pacote coletivo `hoje` e ganhou o pacote
+  `portas`. Quem chega em AS PORTAS deixa de baixar 1 MB do que ainda está em obra.
+- **Um defeito silencioso encontrado e consertado antes de morder:** o recorte do prefixo das
+  imagens de contexto era `^(cap\d)` — **um dígito só**. Com o décimo capítulo, `cap10-*` casaria
+  como `cap1`, cairia no `null` do capítulo 1 e a imagem viajaria na PORTA DE ENTRADA, sem erro,
+  sem aviso e sem ninguém notar até o arquivo inicial engordar. Virou `\d+`, nos dois lugares que
+  leem o prefixo (`pacoteDoEndereco` e `conhecido`).
+- Dois pedidos de arte de contexto em `ferramentas/necessario.json`: `ctx-cap8-patio` (o pátio da
+  escola, com o portão entreaberto no centro) e `ctx-cap8-noturno` (a mesma sala à noite, com
+  carteiras de tamanho adulto e a lousa **sem uma palavra escrita**). Os dois com a cauda medida
+  que as peças novas já carregam: luz neutra de meio-dia, assunto no terço central, saturação
+  de 55% para cima, e sem gente.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 7 de 13 | **8 de 13** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 230) |
+| falas autorais varridas pelo §2 | 208 | **214**, 0 achado |
+| entradas em DE ONDE VEM | 34 | **39** |
+| placa nova na estrada | — | AS PORTAS, 0,28 objeto de média (régua do cap. 1: 4,75) |
+
+`node test/encaixe.js` **verde, 25 blocos**.
+
+### ⚠ ACHADO QUE NÃO É MEU E PRECISA DE DONO — o `npm test` está INTERMITENTE na `main`
+
+O bloco do MUTIRÃO do `test/smoke.js` (*"holding the world in the faixa"*) **falha em cerca de
+metade das execuções, e já falhava antes de eu encostar em qualquer arquivo** — confirmei com
+`git stash`, rodando a árvore limpa. Quando falha, os dois lados falham ao mesmo tempo e **ao
+contrário**: dentro da faixa a personagem continua andando (79 px) e fora da faixa a rua para
+(1 px), o que cheira a vazamento de estado entre as duas metades do bloco, não a defeito do
+gesto. Diagnóstico até onde eu fui: com o estado que o teste semeia, `obraPodeArmar()` é `true`
+e o canteiro está na tela — mas `obraDedo` continua `0` depois do `mouse.down()`, e logo depois
+`obraPodeArmar()` vira `false`. A hipótese mais provável é que o `S.energia = 1e6` do próprio
+setup faz o mundo cruzar a fronteira de cena durante o gesto, abrindo uma fala que solta a obra.
+**Não mexi**: é código do MUTIRÃO, de outra frente, e mexer nele seria consertar economia sem
+medição. Está no `PENDENTES.md`.
+
+### Próximo passo
+
+O QUE NÃO PODIA SER DITO, com a mesma régua.
+
+---
+
+## Diário — 2026-08-12 · Historiador · O QUE NÃO PODIA SER DITO, e a censura que vem depois
+
+Segundo dos três do século XX. Mesma régua: **nenhuma afirmação sem fonte lida nesta sessão.**
+
+### As duas travas do capítulo
+
+**1 · Ele não pode ser só censura cultural.** Essa é a versão simpática da ditadura — a que cabe
+numa piada sobre música proibida e não incomoda ninguém. Por isso a ORDEM das falas é o
+argumento: a abertura começa pelo **art. 10 do AI-5** (habeas corpus suspenso) e pelo **art. 11**
+(tudo fora do alcance de juiz), e só então chega ao decreto que mandava conferir livro. Quem lê
+recebe a censura como *consequência* de um regime sem juiz, e não como o assunto.
+
+**2 · O sujeito é quem sustenta, e aqui ele é quem copiou papel.** O fecho inteiro é o projeto
+**Brasil: Nunca Mais**, e ele não ilustra o verbo `fazer passar` — ele **é** o verbo, literal e
+documentado: advogados usaram as vinte e quatro horas de custódia de autos que o próprio
+Superior Tribunal Militar concedia, e fotocopiaram os processos. A defesa fez passar o que a
+acusação tinha escrito. Nenhum general, nenhum presidente, nenhum partido é nomeado no capítulo.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar (rua de centro, anos 1970) e a tese: a proibição estava no Diário Oficial, não na parede | ficção autoral de enquadramento; o "Diário Oficial" é onde as duas normas citadas foram de fato publicadas |
+| ab.2 | **AI-5, 13/12/1968**: art. 2º (recesso do Congresso) e art. 10, literal | **✅P** Câmara dos Deputados, Legislação Informatizada, publicação original |
+| ab.3 | **AI-5, art. 11**, literal (*"qualquer apreciação judicial"*); e o **Decreto-Lei nº 1.077, de 26/01/1970**, art. 2º e art. 5º | **✅P** as duas, Câmara, publicação original |
+| ab.4 | o verbo — **fazer passar** — e a rima com SALVADOR (1835) | autoral. A rima é o achado do arco e estava prometida desde o esqueleto |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | *"serão incinerados a sua custa"* (DL 1.077/1970, art. 5º, II), literal; e as 24 horas de custódia de autos no STM | **✅P** o decreto · **◑I** MPF, *Brasil: Nunca Mais Digit@l*, página "História (1979-1985)", literal: *"aproveitando-se do prazo de 24 horas facultado pelo Tribunal para a custódia provisória de autos"* |
+| fe.2 | 1979; a sala alugada em Brasília com três copiadoras; os funcionários que achavam que era copiadora comum | **◑I** a mesma, literal: *"acreditavam estar trabalhando para uma empresa copiadora ‘normal’"* |
+| fe.3 | ônibus noturnos e carga desacompanhada de avião; **seis anos**, **710 processos**, **~850 mil cópias**, **543 rolos de microfilme** | **◑I** a mesma |
+| fe.4 | **Eny Raimundo Moreira** entre quem percebeu a brecha; o livro em **15/07/1985** | **◑I** a mesma, que a destaca nominalmente entre os mentores |
+| fe.5 | **Lei nº 9.140, de 4/12/1995**, art. 1º, literal | **✅P** Câmara, publicação original |
+| fe.6 | que os números da **CNV** NÃO entraram, e por quê | é a declaração da falta — ver abaixo |
+
+### O que RECUSEI, e o mais grave é o primeiro
+
+- **⚠ TODOS OS NÚMEROS DA COMISSÃO NACIONAL DA VERDADE.** O ticket pedia que o fecho carregasse
+  *"o que a CNV concluiu"*. Não carrega. **O site `cnv.memoriasreveladas.gov.br` responde por trás
+  de um CAPTCHA** — a página do relatório final devolve a tela de verificação, e resolver CAPTCHA
+  não é coisa que se faça. A sessão anterior tinha batido em certificado inválido; esta bateu em
+  outra parede. Os números circulam em jornal e em enciclopédia, e **nenhum deles entrou**: o §2
+  não aceita fonte secundária para número, e este é o assunto em que aceitar seria pior.
+  **A última fala do capítulo declara a falta em voz alta**, do mesmo jeito que O CAIS declara que
+  cita o cemitério e não o encena. O lugar da CNV está guardado; o número, não inventado.
+  **Para a próxima sessão:** o relatório existe em PDF fora daquele servidor (o próprio MPF e
+  bibliotecas universitárias o espelham). Achar um espelho institucional legível é o caminho.
+- **A Lei de Anistia (Lei nº 6.683/1979) e a definição de "crimes conexos".** É o documento mais
+  tentador do capítulo e ele está **em julgamento** — a ADPF 320 discute o alcance dela no STF, e
+  a régua do §2.6 diz *"nada em julgamento"*. Citar só a metade que me convém seria escolher lado
+  com aparência de literalidade. Fora inteiro.
+- **Os nomes do projeto Brasil: Nunca Mais que viraram políticos depois.** A página do MPF nomeia
+  vários; dois deles ocuparam cargo público mais tarde, e o §2.6 proíbe nomear político. Ficou
+  **uma pessoa só, a advogada Eny Raimundo Moreira**, que é quem a própria fonte destaca por ter
+  percebido a brecha, e que nunca foi política. O cardeal e o pastor que comandaram a operação
+  entram como "religiosos", sem nome: a operação foi ecumênica e o capítulo não precisa de santo.
+- **O Relatório Figueiredo (1967) e o que a CNV concluiu sobre povos indígenas.** Mesmo problema
+  da CNV: sem o relatório lido, nada entra. É a maior falta do capítulo depois dos números.
+- **A divergência 707 × 710 processos.** A página do MPF que li diz **710**; um texto do governo
+  de São Paulo fala em 707 microfilmados. Só li a do MPF — então o jogo usa 710 e a divergência
+  fica registrada aqui, não na tela, porque afirmar divergência também exige ler as duas.
+
+### O que mudou no código
+
+- `emObra` removido. A pintura **10** saiu do pacote coletivo `hoje` e ganhou o pacote `naodito`
+  em `ferramentas/pacotes.js`. **Consequência escrita na tabela:** A PRAÇA, O QUE SEGUROU e
+  O ACEIRO vestem essa mesma pintura emprestada e passam a puxar o pacote `naodito` — é o mesmo
+  desenho de O CAIS, que veste a `[4]` e puxa `salvador`. Quem veste paga o pacote de quem é dono.
+- Dois pedidos de arte: `ctx-cap9-rua` (esquina de centro dos anos 1970, **a normalidade é o
+  assunto**) e `ctx-cap9-banca` (banca de jornal fechada ao amanhecer). Os dois com a mesma
+  exigência dura, e ela é de conteúdo e não de estilo: **nenhuma palavra legível em lugar nenhum**
+  — num capítulo sobre o que podia ser impresso, uma manchete inventada seria uma afirmação
+  histórica desenhada.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 8 de 13 | **9 de 13** |
+| falas autorais varridas pelo §2 | 214 | **220**, 0 achado |
+| entradas em DE ONDE VEM | 39 | **44** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 238) |
+
+`node test/encaixe.js` verde. O `npm test` continua com a intermitência do MUTIRÃO descrita no
+diário anterior e no `PENDENTES.md` item 13 — todo o resto do smoke passa.
+
+### Próximo passo
+
+A PRAÇA, que é o par deste e fecha o lote.
+
+---
+
+## Diário — 2026-08-12 · Historiador · A PRAÇA, e a melhor aula do lote é uma derrota
+
+Terceiro e último do século XX. Mesma régua.
+
+### A tese, em uma frase
+
+**A proposta das eleições diretas foi REJEITADA, e o país mudou assim mesmo.** Em 25 de abril de
+1984 a PEC nº 5, de 1983, teve 298 votos a favor, 65 contra e 3 abstenções — e faltaram **22 para
+o quórum**. Treze meses depois a Emenda Constitucional nº 25 escreveu na Constituição exatamente
+o que a emenda derrotada pedia.
+
+Ensinar isso é melhor história e melhor vacina que qualquer versão triunfal, e a razão é
+pedagógica: a versão em que a rua ganha o comício e por isso ganha o país ensina **"protesto =
+vitória"**, que é falso e desmobiliza na primeira derrota. O que atravessou os quatro anos não
+foi o comício — foi o trabalho de juntar assinatura, e é ele que o fecho conta com número.
+
+E a frase final foi escrita com cuidado para não cair no oposto, que é o cinismo proibido pelo
+§2.6: *"Comício não vira lei sozinho, e perder uma votação não é o fim."* As duas metades juntas,
+nessa ordem. Uma sozinha ensina errado nos dois sentidos.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar e a tese | ficção autoral de enquadramento |
+| ab.2 | a **PEC nº 5, de 1983**, apresentada em **18/04/1983**, sobre eleição direta para Presidente e Vice | **◑I** Câmara dos Deputados, página "Diretas Já — 30 anos do Movimento", com a tramitação da matéria |
+| ab.3 | **25/04/1984**: 298 sim, 65 não, 3 abstenções, 22 votos a menos que o quórum, rejeitada, sem ir ao Senado | **◑I** a mesma, literal: *"deixando de ser submetida ao Senado Federal"* |
+| ab.4 | o verbo — **juntar** | autoral. Cobre as duas metades: juntar gente em 1984, juntar assinatura em 1987 |
+| ab.5 | descreve a tela, e diz que a pintura é emprestada | descreve a tela |
+| fe.1 | **EC nº 25, de 15/05/1985, art. 74**, literal | **✅P** Câmara, Legislação Informatizada, publicação original |
+| fe.2 | a mesma emenda devolvendo o voto a quem não sabia ler; a **EC nº 26, de 27/11/1985**, convocando a Constituinte *"livre e soberana"* | **✅P** a EC 25 · **◑I** Câmara, "Panorama da Constituinte", que cita o art. 1º da EC 26 |
+| fe.3 | **três entidades e trinta mil assinaturas** para uma emenda popular | **◑I** Senado Federal, exposição "A Participação Popular nos 25 Anos da Constituição Cidadã", literal |
+| fe.4 | **122 emendas populares**, algumas com mais de 1 milhão de assinaturas, **12 milhões** no total; e **mais de 72 mil cartas** pelos correios | **◑I** Câmara, "Panorama da Constituinte" (as emendas) · **◑I** Senado, a exposição (as cartas do projeto *Constituição – a voz do cidadão*, 1986) |
+| fe.5 | promulgação em **5/10/1988**; **art. 5º, XLII** literal; e o XLIII pondo a tortura entre os crimes sem anistia | **✅P** Câmara, publicação original da CF/88 |
+| fe.6 | a lição, dita nas duas direções | autoral, e é conclusão dos fatos acima, não afirmação nova |
+
+### O que RECUSEI, e a primeira é a que mais custou
+
+- **⚠ O NOME PELO QUAL TODO MUNDO CONHECE A EMENDA.** Ele é o nome do deputado que a apresentou,
+  e o §2.6 diz **"nunca nomeia político"**, sem exceção para o nome simpático — a regra existe
+  porque nomear pessoa real puxa leitura partidária, e ela não distingue herói de vilão. A emenda
+  entra pelo NÚMERO, que é como o próprio Congresso a identifica: **Proposta de Emenda à
+  Constituição nº 5, de 1983**. Fica registrado como DECISÃO, com o argumento, para nenhuma
+  sessão futura "consertar" isto achando que foi esquecimento. **Se o dono quiser o nome, é
+  decisão dele** — é o único ponto do lote em que eu ficaria confortável com as duas respostas,
+  porque aqui o nome identifica um documento e não acusa ninguém.
+- **A eleição de 15 de janeiro de 1985 no Colégio Eleitoral, e tudo em volta dela.** Não dá para
+  contar sem nomear candidatos e partidos, e o §2.6 proíbe as duas coisas e ainda proíbe opinião
+  sobre eleição. O capítulo pula de 1984 para a norma de maio de 1985, que diz a mesma coisa sem
+  citar ninguém — e diz melhor, porque é o texto que ficou valendo.
+- **A Convenção Nacional do Negro pela Constituinte (1986) e a emenda popular do movimento
+  negro.** É o que eu mais queria neste capítulo, pela prioridade de fonte do §2: seria a ponte
+  entre quem juntou assinatura e o inciso que criminalizou o racismo. **Não entrou por falta de
+  fonte lida**: a página do Senado que a documenta está atrás de verificação de segurança, o
+  manifesto digitalizado na Biblioteca Nacional não abriu nesta máquina, e o resto é secundário.
+  Fica como a **primeira pendência de pesquisa** deste capítulo: com uma fonte institucional
+  legível, entra uma fala e o capítulo melhora de verdade.
+- **"Constituição Cidadã".** É apelido consagrado e a própria Câmara o usa, mas é um juízo, não
+  um fato — e o capítulo já está cheio de coisa que se prova.
+- **A conta de "quantos por cento do eleitorado" os 12 milhões representavam.** Circula como
+  ~10%; a página que li não traz, e eu não vou dividir número de uma fonte pelo de outra.
+
+### O que mudou no código
+
+- `emObra` removido dos três do lote. **A PRAÇA continua sem pintura própria** (o
+  `cap-praca-fundo-chao` que chegou é uma rua de periferia inteira, não um chão — `PENDENTES.md`
+  item 8) e por isso veste a de O QUE NÃO PODIA SER DITO. A **quinta fala da abertura diz isso em
+  voz alta**, como as de O CAIS, JABAQUARA e A PEQUENA ÁFRICA: o jogo prefere declarar o
+  empréstimo a fingir que a paisagem é dele.
+- Dois pedidos de arte que são um par de antes/depois do MESMO ponto de vista:
+  `ctx-cap10-comicio` (a praça armada e ainda vazia) e `ctx-cap10-depois` (a mesma praça na manhã
+  seguinte, palanque meio desmontado, papel picado no mosaico). A segunda é a imagem inteira do
+  capítulo. Os dois pedidos proíbem, com todas as letras, **qualquer palavra, sigla ou símbolo
+  escrito** — bandeirola com sigla seria escolher partido com tinta.
+
+### O que mediu, no lote inteiro
+
+| | antes do lote | depois |
+|---|---|---|
+| capítulos escritos | 7 de 13 | **10 de 13** |
+| capítulos em obra | 6 | **3** (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE) |
+| século XX jogável | **zero capítulos** | **três** |
+| falas autorais varridas pelo §2 | 208 | **226**, 0 achado |
+| entradas em DE ONDE VEM | 34 | **50** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 238) |
+| normas citadas literalmente no lote | — | **9**, todas em publicação original |
+
+`npm test` **verde** nesta execução (FPS 58) e `node test/encaixe.js` verde. A intermitência do
+MUTIRÃO (`PENDENTES.md` item 13) continua aparecendo em cerca de metade das execuções e não tem
+relação com o conteúdo.
+
+### O que fica para o dono
+
+1. **O nome da emenda de 1983** — usar o nome consagrado ou continuar no número. Recomendação:
+   continuar no número; mas é o caso mais defensável de exceção do arco inteiro.
+2. **Quem representa os três capítulos.** Os três falam **sem rosto**, por regra de código
+   (`DONO_DO_BLOCO`), e escalar quem aparece é decisão dele (§2). São dez capítulos escritos e só
+   quatro têm pessoa.
+3. **A arte de rua dos três.** O que atravessa a tela continua emprestado de AINDA AQUI, e a
+   última fala de cada abertura diz isso. É a maior dívida visual do jogo agora.
+
+### Próximo passo
+
+Os pedidos `ctx-cap8-*`, `ctx-cap9-*` e `ctx-cap10-*` estão na fila da mesa; quando chegarem,
+`node test/inline-contexto.js` liga tudo sozinho, porque os três capítulos já estão escritos com
+as chaves certas. Depois disso, o que resta do arco são os três contemporâneos — e o primeiro
+deles, O ACEIRO, já está desenhado inteiro no `HISTORIA-CONTEMPORANEO.md`.

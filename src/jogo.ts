@@ -2023,46 +2023,115 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-11/12, e é o primeiro capítulo do jogo construído inteiro sob a
+    // REGRA DO DOCUMENTO (§2.6 do CLAUDE.md). Ela foi escrita para a história recente e nunca
+    // tinha sido exercida em texto de jogo — só nos seis marcos de 1888→1964 da LINHA_TEMPO.
+    // Aqui ela vira capítulo, e a consequência prática é dura: **toda frase afirma o que uma
+    // norma com número afirma, entre aspas, e nada além.** Nenhum político, nenhum partido,
+    // nenhuma eleição, nenhuma opinião sobre nenhuma das duas.
+    //
+    // A TESE, e ela é o que faz o capítulo não ser uma lista de leis: **cada porta que este
+    // meio século abriu trazia, no MESMO papel, escrito quem ficava do lado de fora.** Não é
+    // interpretação minha — é literal duas vezes, e as duas foram lidas na fonte: a
+    // Constituição de 1934 abre o voto a "um e de outro sexo" no art. 108 e fecha para quem
+    // não sabe ler no parágrafo único DO MESMO ARTIGO; a Emenda Constitucional nº 25/1985
+    // manda a lei dizer como o analfabeto vota e, três artigos adiante, escreve que ele é
+    // inelegível. Nenhum adjetivo precisa ser acrescentado, e nenhum foi.
+    //
+    // O SUJEITO É QUEM SUSTENTA (§2.6), e ele fecha o capítulo: Laudelina de Campos Mello,
+    // que organizou as empregadas domésticas SETE ANOS ANTES de a CLT dizer que a lei do
+    // trabalho não era para elas. Não é político nem governante — é trabalhadora, e a
+    // associação dela foi fechada pelo Estado. Fontes por fala no NOTES.md, mesmo commit.
     id: "portas",
     nome: "AS PORTAS",
     quando: "1932–1985",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "portas", arte: [9],
     abertura: [
-      "Este capítulo se chama AS PORTAS, e ele ainda está sendo escrito.",
-      "O recorte de tempo dele já está decidido; o verbo, não. E nenhuma linha entra aqui sem norma, número de processo ou registro de órgão para sustentá-la.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é o pátio de uma escola pública brasileira, em algum ponto entre 1932 e 1985. Meio século em que o país escreveu porta atrás de porta — e escreveu, no mesmo papel, quem ia ficar do lado de fora.",
+      "A Constituição de 1934 abriu uma: eleitores eram “os brasileiros de um e de outro sexo, maiores de 18 annos”. No parágrafo seguinte, o mesmo artigo fechou outra: não podiam se alistar “os que não saibam ler e escrever”.",
+      "A chave estava prometida ali perto, na mesma Constituição: “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. Em 1940 o IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais.",
+      "Aqui, alcançar é abrir a porta. E este capítulo conta as duas metades de cada uma: a que se abriu, e a que continuou trancada no mesmo papel.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta escola não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // o pátio segura as duas primeiras: a primeira o nomeia, a segunda é a porta do voto, e
+    // o lugar não muda enquanto o assunto é a norma. A sala à noite entra quando o texto
+    // chega no ensino "extensivo aos adultos" — é o lugar da chave, e é lugar, nunca aula.
+    aberturaImg: ["cap8-patio", "cap8-patio", "cap8-noturno", null, null],
     fecho: [
-      "Fim do trecho. Um capítulo em obra prefere ficar em silêncio a te contar coisa que ninguém conferiu.",
-      "Quando ele abrir, abre com a fonte junto — como todos os outros."
+      "A exigência de saber ler durou até 1985. Em 15 de maio daquele ano, a Emenda Constitucional nº 25 escreveu que a lei diria “a forma pela qual possam os analfabetos alistar-se eleitores e exercer o direito de voto”.",
+      "Três artigos adiante, a mesma emenda escreveu: “São inelegíveis os inalistáveis e os analfabetos.” Mesmo dia, mesmo papel: pode votar, não pode ser votado. A Constituição de 1988 repetiu a frase, no art. 14, § 4º.",
+      "Outra porta, a do trabalho. Em 1943 a CLT disse a quem ela não se aplicava. A profissão de empregado doméstico só ganhou lei própria em 11 de dezembro de 1972 — e essa lei exigia, para admitir alguém, “atestado de boa conduta”.",
+      "Ela deu vinte dias úteis de férias por ano. A igualdade de direitos chegou com a Lei Complementar nº 150, de 2015: quarenta e três anos depois daquela lei, setenta e dois depois da CLT.",
+      "E quem não esperou por nenhuma delas: em 1936, em Santos, Laudelina de Campos Mello fundou a Associação das Empregadas Domésticas do Brasil. O Estado Novo a fechou em 1942. Em 1961, em Campinas, ela fundou outra.",
+      "As entidades que vieram depois dela deram origem, em 1988, ao Sindicato dos Trabalhadores Domésticos. Cinquenta e dois anos entre a primeira associação e o sindicato — e ela viu os dois."
     ]
   },
   {
+    // ESCRITO em 2026-08-12. Duas travas, e a primeira é a razão de o capítulo existir.
+    //
+    // 1. **NÃO PODE SER SÓ CENSURA CULTURAL**, que é a versão simpática da ditadura — a que
+    //    cabe numa piada sobre música proibida e não incomoda ninguém. Por isso a abertura
+    //    começa pelo art. 10 e pelo art. 11 do AI-5 (habeas corpus suspenso, tudo fora do
+    //    alcance de juiz) e só DEPOIS chega à censura de livro. A ordem é o argumento.
+    // 2. **O SUJEITO É QUEM SUSTENTA (§2.6), e aqui ele é quem copiou papel.** O fecho
+    //    inteiro é o projeto Brasil: Nunca Mais — advogados e religiosos que usaram as 24
+    //    horas de custódia de autos que o próprio tribunal concedia para fotocopiar os
+    //    processos. Isso não é ilustração do verbo `fazer passar`: é o verbo, literalmente,
+    //    documentado. E fecha a rima de 130 anos com a rua de SALVADOR.
+    //
+    // ⚠ O QUE ESTE CAPÍTULO NÃO DIZ, e diz que não diz: **nenhum número da Comissão Nacional
+    // da Verdade.** O servidor dela responde por trás de um CAPTCHA, e resolver CAPTCHA não é
+    // coisa que se faça — então o relatório não foi lido, e o que não se lê não se afirma. A
+    // última fala do fecho declara a falta em voz alta, do mesmo jeito que O CAIS declara que
+    // não encena o cemitério. O lugar da CNV está guardado; o número, não inventado.
+    // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "naodito",
     nome: "O QUE NÃO PODIA SER DITO",
     quando: "1964–1985",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "naodito", arte: [10],
     abertura: [
-      "Este capítulo se chama O QUE NÃO PODIA SER DITO, e ele ainda está sendo escrito.",
-      "O verbo dele já tem nome — fazer passar — e é de propósito que ele rime com o que a rua de SALVADOR já te pôs na mão, muito tempo antes. O resto espera a leitura dos documentos.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é uma rua de centro de cidade brasileira, entre 1964 e 1985. Nada nela parece proibido, e é esse o assunto: o que não podia ser dito não estava escrito na parede. Estava escrito no Diário Oficial.",
+      "Em 13 de dezembro de 1968 um ato institucional deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
+      "O art. 11 pôs fora de “qualquer apreciação judicial” tudo o que fosse feito com ele. Em 1970 um decreto-lei mandou a Polícia Federal conferir livros e revistas antes de saírem — e quem publicasse o não liberado perdia todos os exemplares.",
+      "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a rua segura as duas primeiras: a primeira a nomeia, a segunda é a norma, e norma não
+    // tem paisagem. A banca entra quando o texto chega no que se imprime e no que se vende —
+    // é o lugar por onde a palavra passava, e é lugar, nunca a leitura.
+    aberturaImg: ["cap9-rua", "cap9-rua", "cap9-banca", null, null],
     fecho: [
-      "Fim do trecho. Este é dos capítulos em que dizer errado custa mais caro, e por isso ele fica quieto até ter o documento na mão.",
-      "Ele e o próximo vêm juntos quando vierem: terminar aqui deixaria o jogo parado na parte pior."
+      "Os exemplares apreendidos, dizia o decreto, “serão incinerados a sua custa”. Mas o mesmo Estado que mandava queimar papel também guardava papel: o Superior Tribunal Militar deixava o advogado levar os autos por vinte e quatro horas.",
+      "Em 1979, advogados e religiosos viram a brecha. Vinte e quatro horas dão para copiar. Alugaram uma sala e três máquinas de xerox em Brasília, e os funcionários contratados achavam que era uma copiadora comum.",
+      "As cópias seguiam para São Paulo em ônibus noturnos e, depois, como carga desacompanhada de avião. Seis anos em sigilo: setecentos e dez processos, cerca de 850 mil cópias em papel, 543 rolos de microfilme.",
+      "Entre quem percebeu a brecha, a fonte destaca a advogada Eny Raimundo Moreira. Em 15 de julho de 1985 aquilo virou livro: “Brasil: Nunca Mais”, montado com o papel do próprio tribunal que julgava.",
+      "E o Estado acabou escrevendo o dele. A Lei nº 9.140, de 4 de dezembro de 1995, reconhece “como mortas, para todos os efeitos legais”, pessoas detidas por agentes públicos entre 1961 e 1979 e desaparecidas desde então.",
+      "Falta uma peça aqui, e o jogo prefere dizer. Os números desta história estão no relatório da Comissão Nacional da Verdade, de 2014, e nenhum deles entrou: não foi possível ler o documento. Sem fonte na mão, o jogo cala."
     ]
   },
   {
+    // ESCRITO em 2026-08-12, e fecha o lote do século XX. **A tese deste capítulo é a melhor
+    // aula do lote, e ela é uma DERROTA:** a proposta de emenda das eleições diretas foi
+    // REJEITADA em 25 de abril de 1984 — 298 a favor, 22 votos a menos que o quórum — e o país
+    // mudou assim mesmo. Ensinar que um movimento de rua perdeu a votação e ainda assim virou o
+    // jogo é melhor história, e melhor vacina contra "protesto = vitória", que qualquer versão
+    // triunfal. O que atravessou os quatro anos não foi o comício: foi o trabalho de juntar
+    // assinatura, que é o que o regimento da Constituinte passou a aceitar.
+    //
+    // O verbo é **juntar**, e ele cobre as duas metades sem forçar: juntar gente na praça em
+    // 1984, juntar assinatura no papel em 1987. A distância entre as duas coisas é o capítulo.
+    //
+    // §2.6 respeitado ao pé da letra, e custou: **a emenda não é chamada pelo nome pelo qual
+    // todo mundo a conhece.** Esse nome é o de um deputado, e a REGRA DO DOCUMENTO proíbe
+    // nomear político — inclusive o que fez coisa boa, porque a regra não abre exceção para o
+    // nome simpático. Ela entra pelo número, que é como o próprio Congresso a identifica:
+    // Proposta de Emenda à Constituição nº 5, de 1983. Registrado no NOTES.md como decisão, e
+    // não como esquecimento, para nenhuma sessão futura "consertar" isto.
     id: "praca",
     nome: "A PRAÇA",
     quando: "1984–1988",
-    emObra: true,
     arteCap: 3,
     // SEM PINTURA PRÓPRIA AINDA, e a herança mudou de dono: era `[4]` (SALVADOR, 1835) só
     // porque SALVADOR era a última pintura que existia quando este esqueleto foi escrito.
@@ -2074,14 +2143,23 @@ const EPOCAS = [
     // Está no PENDENTES.md.
     cenas: 1, lugar: "praca", arte: [10],
     abertura: [
-      "Este capítulo se chama A PRAÇA, e ele ainda está sendo escrito.",
-      "Ele é o par do anterior e chega com ele. O verbo ainda não foi escolhido, e nada será afirmado antes da conferência.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é uma praça, em algum ponto entre 1984 e 1988. Neste capítulo o país perde uma votação e muda assim mesmo — e é justamente essa parte que quase nunca se conta.",
+      "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
+      "Em 25 de abril de 1984 ela foi a voto: 298 sim, 65 não, 3 abstenções. Faltaram 22 para o quórum, e a Câmara registrou o resultado como rejeição. A proposta nem chegou a ser apreciada pelo Senado.",
+      "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra.",
+      "A pintura desta praça e o que atravessa a tela ainda são emprestados do capítulo anterior — a rua continua a rua, e a arte daqui não chegou. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a praça armada segura as duas primeiras: a primeira a nomeia, a segunda é ela enchendo.
+    // A praça vazia da manhã seguinte entra na fala da derrota, e é a imagem inteira do
+    // capítulo — o lugar depois, nunca a multidão, que é gente e gente não entra (§2).
+    aberturaImg: ["cap10-comicio", "cap10-comicio", "cap10-depois", null, null],
     fecho: [
-      "Fim do trecho. O espaço está guardado, e guardar espaço é a única promessa que um capítulo em obra pode cumprir.",
-      "O que ele vai dizer, ele ainda vai ter de provar."
+      "A praça perdeu a votação. Treze meses depois, em 15 de maio de 1985, a Emenda Constitucional nº 25 escreveu na Constituição que o Presidente e o Vice seriam eleitos “por sufrágio universal e voto direto e secreto, em todo o País”.",
+      "Foi a mesma emenda que devolveu o voto a quem não sabia ler — a porta do capítulo anterior. E em 27 de novembro de 1985 outra emenda convocou uma Assembleia Nacional Constituinte “livre e soberana”.",
+      "O regimento dela abriu o que nenhuma constituinte brasileira tinha aberto: proposta apresentada por três entidades, com trinta mil assinaturas de eleitores, entrava para ser votada como emenda popular.",
+      "Foram 122 emendas populares, algumas com mais de um milhão de assinaturas — doze milhões ao todo, colhidas de mão em mão. Antes disso, o Senado já tinha recebido mais de 72 mil cartas deixadas em agências dos correios.",
+      "A Constituição foi promulgada em 5 de outubro de 1988. No art. 5º ela escreveu que “a prática do racismo constitui crime inafiançável e imprescritível”. No inciso seguinte pôs a tortura entre os crimes que não admitem anistia.",
+      "Guarde as duas coisas juntas: a emenda das diretas foi rejeitada em 1984, e em 1988 estava tudo escrito. Comício não vira lei sozinho, e perder uma votação não é o fim. O que atravessou os quatro anos foi o trabalho de juntar."
     ]
   },
   {
@@ -10365,6 +10443,61 @@ const FONTES = [
     q: "O art. 7º diz a quem a CLT não se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. O Senado Federal registra o caminho até a igualdade de direitos, em 2013 e 2015." },
   { t: "Ato Institucional de 9 de abril de 1964, art. 10",
     q: "Suspender direitos políticos por dez anos e cassar mandatos, “excluída a apreciação judicial desses atos”. O que o próprio ato diz de si mesmo dispensa comentário — e é por isso que o jogo não acrescenta nenhum." },
+  // ===== AS PORTAS =====
+  // O primeiro grupo do jogo em que a REGRA DO DOCUMENTO (§2.6) manda sozinha: quatro normas
+  // com número, um registro de órgão e uma entidade de trabalhadoras. Nenhum político é
+  // nomeado, e isso não é omissão — é a regra. A única pessoa nomeada no capítulo é quem
+  // SUSTENTA, e ela entra pela página do Senado, que é onde os dados dela foram conferidos.
+  //
+  // As duas normas de 1934 estão aqui numa entrada só, de propósito: o que o capítulo afirma
+  // é justamente que as duas frases moram no MESMO documento, e separá-las em duas linhas
+  // desfaria a lição.
+  { g: "AS PORTAS — 1932 A 1985" },
+  { t: "Constituição de 16 de julho de 1934, art. 108 e art. 150, parágrafo único — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“São eleitores os brasileiros de um e de outro sexo, maiores de 18 annos”; e, no parágrafo único do mesmo artigo, “Não se podem alistar eleitores: a) os que não saibam ler e escrever”. O art. 149 diz que “a educação é direito de todos”, e o art. 150 promete “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. A porta e a chave, no mesmo texto." },
+  { t: "IBGE — “Tendências Demográficas: uma análise da população com base nos resultados dos Censos Demográficos de 1940 e 2000”",
+    q: "“A taxa de analfabetismo de pessoas de 10 anos ou mais de idade foi reduzida em cinco vezes, passando de 56,8% para 12,1%.” A mesma divulgação registra que, em 1940, menos de um terço das pessoas de 7 a 14 anos frequentava escola." },
+  { t: "Emenda Constitucional nº 25, de 15 de maio de 1985 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "No art. 147, § 4º: “A Lei disporá sobre a forma pela qual possam os analfabetos alistar-se eleitores e exercer o direito de voto.” Três artigos adiante, no art. 150: “São inelegíveis os inalistáveis e os analfabetos.” A Constituição de 1988 manteve as duas coisas — art. 14, § 1º, II, a, e art. 14, § 4º." },
+  { t: "Lei nº 5.859, de 11 de dezembro de 1972 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“Dispõe sobre a profissão de empregado doméstico.” O art. 2º lista o que se exigia para admissão: Carteira de Trabalho, “atestado de boa conduta” e atestado de saúde. O art. 3º dá “férias anuais remuneradas de 20 (vinte) dias úteis”. Vinte e nove anos depois de a CLT dizer, no art. 7º, que não se aplicava a essa categoria." },
+  { t: "Senado Federal — Laudelina de Campos Mello (1904–1991)",
+    q: "“Em 1936 cria a Associação das Empregadas Domésticas do Brasil, que é fechada pelo Estado Novo em 1942. Em 1961, morando em Campinas (SP) a essa altura, funda a Associação Profissional Beneficente das Empregadas Domésticas.” As entidades que ela inspirou dão origem, em 1988, ao Sindicato dos Trabalhadores Domésticos." },
+  // ===== O QUE NÃO PODIA SER DITO =====
+  // Três normas e um acervo, e a ordem é o argumento do capítulo: primeiro o que o ato fez com
+  // o habeas corpus e com os juízes, só DEPOIS o que ele fez com os livros. Censura cultural
+  // sozinha é a versão simpática da ditadura, e um capítulo que parasse nela ensinaria errado.
+  //
+  // A última entrada é o acervo do Brasil: Nunca Mais, e ela é o fecho inteiro do capítulo —
+  // o §2.6 pede o sujeito que SUSTENTA, e aqui ele é quem copiou papel. Note o que a lista NÃO
+  // traz: **nenhum número da Comissão Nacional da Verdade.** O site dela responde por trás de
+  // um CAPTCHA e o relatório não foi lido; a última fala do capítulo declara essa falta em voz
+  // alta, que é o que este jogo faz com o que não conferiu.
+  { g: "O QUE NÃO PODIA SER DITO — 1964 A 1985" },
+  { t: "Ato Institucional nº 5, de 13 de dezembro de 1968, arts. 2º, 10 e 11 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "O art. 2º dá ao Presidente da República o poder de decretar o recesso do Congresso Nacional, das Assembleias e das Câmaras de Vereadores, “em estado de sitio ou fora dêle”. O art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos, contra a segurança nacional, a ordem econômica e social e a economia popular.” O art. 11: “Excluem-se de qualquer apreciação judicial todos os atos praticados de acôrdo com este Ato Institucional e seus Atos Complementares, bem como os respectivos efeitos.”" },
+  { t: "Decreto-Lei nº 1.077, de 26 de janeiro de 1970 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "O art. 2º manda o Ministério da Justiça, pelo Departamento de Polícia Federal, verificar “antes da divulgação de livros e periódicos” a existência de matéria proibida. O art. 5º, II, diz o que acontece com quem divulgar o que não foi liberado: “À perda de todos os exemplares da publicação, que serão incinerados a sua custa.”" },
+  { t: "Ministério Público Federal — Brasil: Nunca Mais Digit@l, página “História (1979-1985)”",
+    q: "De onde vem o fecho inteiro do capítulo. Os advogados perceberam que os processos “poderiam ser reproduzidos, aproveitando-se do prazo de 24 horas facultado pelo Tribunal para a custódia provisória de autos” — e a página destaca, entre eles, a advogada Eny Raimundo Moreira. A sala alugada em Brasília com três copiadoras, os funcionários que “acreditavam estar trabalhando para uma empresa copiadora ‘normal’”, os ônibus noturnos, os seis anos em sigilo, os 710 processos, as cerca de 850 mil cópias em papel, os 543 rolos de microfilme e o lançamento do livro em 15 de julho de 1985 estão todos ali." },
+  { t: "Lei nº 9.140, de 4 de dezembro de 1995, art. 1º — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“São reconhecidas como mortas, para todos os efeitos legais, as pessoas relacionadas no Anexo I desta Lei, por terem participado, ou terem sido acusadas de participação, em atividades políticas, no período de 2 de setembro de 1961 a 15 de agosto de 1979, e que, por este motivo, tenham sido detidas por agentes públicos, achando-se, desde então, desaparecidas, sem que delas haja notícias.” É o Estado brasileiro escrevendo isso em lei." },
+  // ===== A PRAÇA =====
+  // O grupo em que a REGRA DO DOCUMENTO mais custou, e vale registrar na própria tela por quê:
+  // a emenda das diretas é conhecida pelo nome do deputado que a apresentou, e o §2.6 proíbe
+  // nomear político — inclusive o que fez coisa boa, porque a regra não abre exceção para o
+  // nome simpático. Ela entra aqui pelo NÚMERO, que é como o Congresso a identifica.
+  { g: "A PRAÇA — 1984 A 1988" },
+  { t: "Câmara dos Deputados — “Diretas Já: 30 anos do Movimento”, tramitação da Proposta de Emenda à Constituição nº 5, de 1983",
+    q: "A PEC, apresentada em 18 de abril de 1983, “dispõe sobre a eleição direta para Presidente e Vice-Presidente da República”. Situação: rejeitada em 25 de abril de 1984, na Câmara, por sim=298, não=65 e abstenção=3 — faltaram 22 votos para o quórum constitucional —, “deixando de ser submetida ao Senado Federal”. A mesma página registra manifestações de cerca de 1 milhão de pessoas no Rio e 1,7 milhão em São Paulo." },
+  { t: "Emenda Constitucional nº 25, de 15 de maio de 1985, art. 74 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“O Presidente e o Vice-Presidente da República serão eleitos simultaneamente… por sufrágio universal e voto direto e secreto, em todo o País.” Treze meses depois da rejeição, a mesma coisa que a emenda derrotada pedia entrou na Constituição — e por isso o capítulo pode ensinar que perder uma votação não é o fim." },
+  { t: "Câmara dos Deputados — “Panorama da Constituinte”",
+    q: "Cita o art. 1º da Emenda Constitucional nº 26, de 27 de novembro de 1985, que convoca a Assembleia Nacional Constituinte “livre e soberana”; registra que a Constituinte funcionou de 1º de fevereiro de 1987 a 5 de outubro de 1988; e que “foram apreciadas e votadas 122 emendas populares, algumas com mais de 1 milhão de assinaturas (no total foram colhidos 12 milhões de assinaturas)”." },
+  { t: "Senado Federal — exposição “A Participação Popular nos 25 Anos da Constituição Cidadã”",
+    q: "“Para serem aceitas, as emendas deveriam ser propostas por três entidades e apresentar assinaturas de 30 mil eleitores.” E, antes disso, o projeto Constituição – a voz do cidadão pôs formulários nas agências dos correios de todos os municípios: “Foram recebidas mais de 72.000 cartas.”" },
+  { t: "Constituição de 5 de outubro de 1988, art. 5º, XLII e XLIII — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“XLII - a prática do racismo constitui crime inafiançável e imprescritível, sujeito à pena de reclusão, nos termos da lei”; e, no inciso seguinte, a tortura entre os crimes “inafiançáveis e insuscetíveis de graça ou anistia”. O capítulo anterior termina exatamente onde este inciso começa." },
   { g: "ONDE AS FONTES DISCORDAM", d: 1 },
   { t: "Quanta gente vivia aqui em 1500?", d: 1,
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },

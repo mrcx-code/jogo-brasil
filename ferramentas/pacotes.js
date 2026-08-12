@@ -49,8 +49,14 @@
 // até a dele chegar (o porquê está no objeto dele em src/jogo.ts). No dia em que
 // `cap-cais-fundo-alto`/`-chao` entrarem, a pintura nova ganha o índice 12 e a linha dela vem
 // para cá apontando `"cais"` — que é o pacote que as imagens de contexto dele já criam.
+// E DE NOVO em 2026-08-12, com o lote do século XX: as pinturas 9 e 10 saíram do pacote
+// coletivo. A 9 é de AS PORTAS e a 10 é de O QUE NÃO PODIA SER DITO — os dois deixaram de ser
+// esqueleto. **A PRAÇA, O QUE SEGUROU e O ACEIRO vestem a pintura 10 emprestada**, e por isso
+// passam a puxar o pacote `naodito`: é o mesmo desenho de O CAIS, que veste a `[4]` e puxa
+// `salvador`. Quem VESTE paga o pacote de quem é DONO — não há terceira opção, porque a
+// pintura é uma só e o pacote é dela.
 const PACK_DA_CENA = [null, null, "palmares", "palmares", "salvador", "hoje", "hoje",
-  "jabaquara", "pequenaafrica", "hoje", "hoje", "hoje"];
+  "jabaquara", "pequenaafrica", "portas", "naodito", "hoje"];
 
 // ---- os sprites da época, por BLOCO DE ARTE (o campo `arteCap` de EPOCAS) ----
 // Índice = arteCap. É este número que HERO_CAP_B64, MOB_B64, DROP_B64, RETRATO_B64 e
@@ -98,8 +104,18 @@ const FRENTE_OITAVA_BLOCO = [0, 1, 3];
 // chegarem, eles entram nesse mesmo pacote e nada aqui muda. Enquanto a arte de contexto não
 // existe, o build simplesmente não escreve o pacote e `mapaCtx` fica sem a chave — o jogo não
 // pede nada e não há 404 nenhum (ver `mapaCtx` em ferramentas/construir.js).
+// `cap8`, `cap9` e `cap10` entraram em 2026-08-12 com o lote do século XX:
+// cap8 = AS PORTAS · cap9 = O QUE NÃO PODIA SER DITO · cap10 = A PRAÇA.
+//
+// ⚠ E COM O `cap10` O PADRÃO DE LEITURA MUDOU, porque ele tinha um defeito silencioso
+// esperando: o recorte do prefixo era `^(cap\d)` — UM dígito. Com dez capítulos, `cap10-praca`
+// casaria como `cap1`, cairia no `null` do capítulo 1 e a imagem viajaria na PORTA DE ENTRADA,
+// sem erro, sem aviso e sem ninguém notar até o arquivo inicial engordar. Agora é `\d+`, nos
+// dois lugares que leem o prefixo (`pacoteDoEndereco` e `conhecido`). Se um dia houver `cap100`,
+// a mesma forma continua valendo.
 const PACK_DO_CTX_PREFIXO = { cap1: null, cap2: "palmares", cap3: "hoje", cap4: "salvador",
-  cap5: "cais", cap6: "jabaquara", cap7: "pequenaafrica" };
+  cap5: "cais", cap6: "jabaquara", cap7: "pequenaafrica",
+  cap8: "portas", cap9: "naodito", cap10: "praca" };
 
 // ---- as páginas verticais (QUAD_B64) ----
 // `p1`..`p6` abrem a linha do tempo e ficam na abertura — são as primeiras coisas que alguém
@@ -133,7 +149,7 @@ function pacoteDoEndereco(caminho) {
   if (c === "RETRATO_B64" || c === "DROP_B64") return PACK_DO_BLOCO[caminho[1]] || null;
   if (c === "FRENTE_B64") return PACK_DO_BLOCO[FRENTE_OITAVA_BLOCO[Math.floor(caminho[1] / 8)]] || null;
   if (c === "CTX_B64") {
-    const m = String(caminho[1]).match(/^(cap\d)/);
+    const m = String(caminho[1]).match(/^(cap\d+)/);
     return (m && PACK_DO_CTX_PREFIXO[m[1]]) || null;
   }
   if (c === "QUAD_B64") return packDaPagina(String(caminho[1]));
@@ -160,7 +176,7 @@ function conhecido(caminho) {
   if (c === "RETRATO_B64" || c === "DROP_B64") return caminho[1] < PACK_DO_BLOCO.length;
   if (c === "FRENTE_B64") return Math.floor(caminho[1] / 8) < FRENTE_OITAVA_BLOCO.length;
   if (c === "CTX_B64") {
-    const m = String(caminho[1]).match(/^(cap\d)/);
+    const m = String(caminho[1]).match(/^(cap\d+)/);
     return !!(m && Object.prototype.hasOwnProperty.call(PACK_DO_CTX_PREFIXO, m[1]));
   }
   if (c === "QUAD_B64" || c === "TRAV_B64") return true;
