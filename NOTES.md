@@ -6578,3 +6578,87 @@ Os pedidos `ctx-cap8-*`, `ctx-cap9-*` e `ctx-cap10-*` estão na fila da mesa; qu
 `node test/inline-contexto.js` liga tudo sozinho, porque os três capítulos já estão escritos com
 as chaves certas. Depois disso, o que resta do arco são os três contemporâneos — e o primeiro
 deles, O ACEIRO, já está desenhado inteiro no `HISTORIA-CONTEMPORANEO.md`.
+
+---
+
+## Diário — 2026-08-12 · O LUGAR: a obra sai da estrada e ganha uma página
+
+**Lente: primeiros cinco minutos / volta no dia 2.** O ticket é um redirecionamento do dono, e
+ele é a coisa toda: o MUTIRÃO foi construído, funciona e foi medido — e **o dono não entendeu o
+que era duas vezes**, mesmo depois de explicação em português e prints. Ao ver a casa de pé ele
+disse: *"Talvez algo no menu do jogo que vá evoluindo… no jogo em si achei meio estranho."*
+
+**O diagnóstico é de LEITURA, não de código.** Na estrada, a obra pronta lê como CENÁRIO —
+indistinguível do fundo pintado, que é exatamente o que ela precisa parecer para não estourar a
+trava de composição. Quem a construiu não percebe que construiu. Uma coisa que ninguém vê que fez
+não dá vontade de voltar, e voltar era o critério de aceitação inteiro.
+
+### O que foi feito
+
+**1. A obra CONTINUA na estrada — e essa é uma decisão, não uma omissão.** É lá que a mão
+trabalha: o gesto de segurar mira `canteiroNaTela()`, e tirar o canteiro da rua mataria o verbo e
+deixaria um relógio idle sem ação nenhuma do jogador. A obra é feita na rua e LIDA na página —
+a mesma divisão que o jogo já pratica entre A HISTÓRIA (lê) e a rua (joga).
+
+**2. Nasceu O LUGAR (`telaObra`), uma tábua nova no poste**, oculta como a ATÉ AQUI e revelada
+quando PALMARES tem gente acolhida (que é quando a obra pode andar). Quatro blocos, na ordem em
+que importam a quem acabou de abrir o jogo: o que cresceu **desde a última visita** · os três
+canteiros **desenhados** · **quem está lá** · o caminho de volta.
+
+**3. Zero imagem nova e zero material novo.** Papel de campo com pauta e moldura de madeira (a
+receita do `.fimLin`/`.fnItem`), cabeçalho `.fnGrupo` da tela de fontes, as quatro vozes do
+caderno. A única coisa que a tela acrescenta é a CHAPA escura em que o canteiro é pintado — pela
+**mesma `desenharCanteiro` da rua**, colada na página como a prancha de um caderno naturalista
+(a referência da onda 6, Art of Fauna). Não é uma cópia da receita: é um ponteiro de contexto
+(`obraCtx`), para que no dia em que a leira mudar de forma ela mude nos dois lugares.
+
+**4. Na rua, o estágio que fica de pé passa a ter NOME.** Era a metade que faltava: a peça tinha
+estilhaço, e o estágio — o único momento que merece ser notado — era mudo. Sessenta segundos de
+dedo sem nada com nome. A palavra é a MESMA das outras duas superfícies (`ESTAGIO_CURTO`).
+
+**5. Estado novo no save: `obraVista`**, a fotografia da obra na última visita, com a mesma régua
+de `obra` no `ESQUEMA_SAVE`. Carimbada no FIM de montar a página, nunca ao abri-la — carimbar
+cedo apagaria a própria frase que a tela existe para dizer.
+
+### O que foi medido
+
+| medida | número |
+|---|---|
+| poluição de tela, **mesma execução**, 60 s por célula | cap 1 (a régua) **5,86** andando · **6,45** correndo; **cap 2 4,31 · 5,20** — abaixo da régua nos dois ritmos |
+| canteiros em cena (média) | **0,25** andando · **0,30** correndo — o número de projeto, intocado (nenhum objeto novo entrou no mundo) |
+| renda/min | 1.388 / 1.504 (cap 1) · 1.450 / 1.454 (cap 2) |
+| o desenho é o placar | a casa pintada na página tem **2.304 → 15.280 → 24.960** pixels de pé, vazia → meia → cheia |
+| dígitos da obra na página | **zero** (asserção) |
+| peso | `index.html` 1.854.643 → **1.870.445 bytes** (só código; parte disso é o lote do século XX, que entrou na mesma árvore) |
+| FPS | **61** no smoke |
+
+### O que quebrou, e o que aprendi com isso
+
+- **Duas sessões trabalhavam na MESMA árvore.** Um `git add -A` meu levou junto trabalho em
+  andamento de outra sessão, e uma restauração de backup minha apagou o bloco 28 do `encaixe.js`
+  e o incremento da rua que ainda não tinha commit. **Regra que fica: nesta árvore, `git add` com
+  caminhos explícitos, e commit a cada incremento — não a cada duas.** O bloco 28 foi
+  reconstruído a partir da saída do teste, com nota no cabeçalho dele pedindo revisão.
+- **O `relogio` não serve de cronômetro de UI.** É o relógio do DIA, e a varredura de luz da
+  virada de era o adianta em bloco: num print ele andou 6,5 s enquanto o mundo andava 0,1 s. As
+  microdicas existentes têm a mesma fragilidade, e ela só não aparece porque elas vivem no começo
+  do jogo. O `animT` é o relógio certo para coisa pousada no mundo.
+- **Um defeito visível que estava na `main` há dias e nenhum teste via:** o commit do glossário
+  DUPLICOU a tábua DE ONDE VEM, e o menu a mostrava duas vezes — a segunda em Arial Black, porque
+  `pixelRotulo` pinta o primeiro nó com o id. Achado no print, não em teste. O bloco 27 passa a
+  cobrar que nenhum id se repita no poste.
+
+### A dúvida que fica
+
+A página resolve a LEITURA — o dono vê o que levantou, com nome, e vê o que cresceu desde ontem.
+O que ela **não** resolve é a pergunta anterior: *o mutirão devia existir?* Ele não rende nada
+(por §2, e isso está certo), então o único motivo de voltar que ele produz é *ver a obra crescer*.
+Se, com a página no ar, o dono ainda achar estranho, a resposta honesta é cortar o mutirão
+inteiro — e essa saída continua na mesa.
+
+### Próximo passo
+
+Mostrar os prints `test/LG-depois-*.png` ao dono, nesta ordem: `menu-meio` (a tábua nova),
+`lugar-meio`, `lugar-pronta` (a casa coberta, que é a imagem que o trabalho produz) e
+`estrada-nome` (a rua deixando de ser muda). A pergunta para ele é uma só: *agora dá para ver o
+que você levantou?*
