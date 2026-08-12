@@ -6468,3 +6468,113 @@ diário anterior e no `PENDENTES.md` item 13 — todo o resto do smoke passa.
 ### Próximo passo
 
 A PRAÇA, que é o par deste e fecha o lote.
+
+---
+
+## Diário — 2026-08-12 · Historiador · A PRAÇA, e a melhor aula do lote é uma derrota
+
+Terceiro e último do século XX. Mesma régua.
+
+### A tese, em uma frase
+
+**A proposta das eleições diretas foi REJEITADA, e o país mudou assim mesmo.** Em 25 de abril de
+1984 a PEC nº 5, de 1983, teve 298 votos a favor, 65 contra e 3 abstenções — e faltaram **22 para
+o quórum**. Treze meses depois a Emenda Constitucional nº 25 escreveu na Constituição exatamente
+o que a emenda derrotada pedia.
+
+Ensinar isso é melhor história e melhor vacina que qualquer versão triunfal, e a razão é
+pedagógica: a versão em que a rua ganha o comício e por isso ganha o país ensina **"protesto =
+vitória"**, que é falso e desmobiliza na primeira derrota. O que atravessou os quatro anos não
+foi o comício — foi o trabalho de juntar assinatura, e é ele que o fecho conta com número.
+
+E a frase final foi escrita com cuidado para não cair no oposto, que é o cinismo proibido pelo
+§2.6: *"Comício não vira lei sozinho, e perder uma votação não é o fim."* As duas metades juntas,
+nessa ordem. Uma sozinha ensina errado nos dois sentidos.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar e a tese | ficção autoral de enquadramento |
+| ab.2 | a **PEC nº 5, de 1983**, apresentada em **18/04/1983**, sobre eleição direta para Presidente e Vice | **◑I** Câmara dos Deputados, página "Diretas Já — 30 anos do Movimento", com a tramitação da matéria |
+| ab.3 | **25/04/1984**: 298 sim, 65 não, 3 abstenções, 22 votos a menos que o quórum, rejeitada, sem ir ao Senado | **◑I** a mesma, literal: *"deixando de ser submetida ao Senado Federal"* |
+| ab.4 | o verbo — **juntar** | autoral. Cobre as duas metades: juntar gente em 1984, juntar assinatura em 1987 |
+| ab.5 | descreve a tela, e diz que a pintura é emprestada | descreve a tela |
+| fe.1 | **EC nº 25, de 15/05/1985, art. 74**, literal | **✅P** Câmara, Legislação Informatizada, publicação original |
+| fe.2 | a mesma emenda devolvendo o voto a quem não sabia ler; a **EC nº 26, de 27/11/1985**, convocando a Constituinte *"livre e soberana"* | **✅P** a EC 25 · **◑I** Câmara, "Panorama da Constituinte", que cita o art. 1º da EC 26 |
+| fe.3 | **três entidades e trinta mil assinaturas** para uma emenda popular | **◑I** Senado Federal, exposição "A Participação Popular nos 25 Anos da Constituição Cidadã", literal |
+| fe.4 | **122 emendas populares**, algumas com mais de 1 milhão de assinaturas, **12 milhões** no total; e **mais de 72 mil cartas** pelos correios | **◑I** Câmara, "Panorama da Constituinte" (as emendas) · **◑I** Senado, a exposição (as cartas do projeto *Constituição – a voz do cidadão*, 1986) |
+| fe.5 | promulgação em **5/10/1988**; **art. 5º, XLII** literal; e o XLIII pondo a tortura entre os crimes sem anistia | **✅P** Câmara, publicação original da CF/88 |
+| fe.6 | a lição, dita nas duas direções | autoral, e é conclusão dos fatos acima, não afirmação nova |
+
+### O que RECUSEI, e a primeira é a que mais custou
+
+- **⚠ O NOME PELO QUAL TODO MUNDO CONHECE A EMENDA.** Ele é o nome do deputado que a apresentou,
+  e o §2.6 diz **"nunca nomeia político"**, sem exceção para o nome simpático — a regra existe
+  porque nomear pessoa real puxa leitura partidária, e ela não distingue herói de vilão. A emenda
+  entra pelo NÚMERO, que é como o próprio Congresso a identifica: **Proposta de Emenda à
+  Constituição nº 5, de 1983**. Fica registrado como DECISÃO, com o argumento, para nenhuma
+  sessão futura "consertar" isto achando que foi esquecimento. **Se o dono quiser o nome, é
+  decisão dele** — é o único ponto do lote em que eu ficaria confortável com as duas respostas,
+  porque aqui o nome identifica um documento e não acusa ninguém.
+- **A eleição de 15 de janeiro de 1985 no Colégio Eleitoral, e tudo em volta dela.** Não dá para
+  contar sem nomear candidatos e partidos, e o §2.6 proíbe as duas coisas e ainda proíbe opinião
+  sobre eleição. O capítulo pula de 1984 para a norma de maio de 1985, que diz a mesma coisa sem
+  citar ninguém — e diz melhor, porque é o texto que ficou valendo.
+- **A Convenção Nacional do Negro pela Constituinte (1986) e a emenda popular do movimento
+  negro.** É o que eu mais queria neste capítulo, pela prioridade de fonte do §2: seria a ponte
+  entre quem juntou assinatura e o inciso que criminalizou o racismo. **Não entrou por falta de
+  fonte lida**: a página do Senado que a documenta está atrás de verificação de segurança, o
+  manifesto digitalizado na Biblioteca Nacional não abriu nesta máquina, e o resto é secundário.
+  Fica como a **primeira pendência de pesquisa** deste capítulo: com uma fonte institucional
+  legível, entra uma fala e o capítulo melhora de verdade.
+- **"Constituição Cidadã".** É apelido consagrado e a própria Câmara o usa, mas é um juízo, não
+  um fato — e o capítulo já está cheio de coisa que se prova.
+- **A conta de "quantos por cento do eleitorado" os 12 milhões representavam.** Circula como
+  ~10%; a página que li não traz, e eu não vou dividir número de uma fonte pelo de outra.
+
+### O que mudou no código
+
+- `emObra` removido dos três do lote. **A PRAÇA continua sem pintura própria** (o
+  `cap-praca-fundo-chao` que chegou é uma rua de periferia inteira, não um chão — `PENDENTES.md`
+  item 8) e por isso veste a de O QUE NÃO PODIA SER DITO. A **quinta fala da abertura diz isso em
+  voz alta**, como as de O CAIS, JABAQUARA e A PEQUENA ÁFRICA: o jogo prefere declarar o
+  empréstimo a fingir que a paisagem é dele.
+- Dois pedidos de arte que são um par de antes/depois do MESMO ponto de vista:
+  `ctx-cap10-comicio` (a praça armada e ainda vazia) e `ctx-cap10-depois` (a mesma praça na manhã
+  seguinte, palanque meio desmontado, papel picado no mosaico). A segunda é a imagem inteira do
+  capítulo. Os dois pedidos proíbem, com todas as letras, **qualquer palavra, sigla ou símbolo
+  escrito** — bandeirola com sigla seria escolher partido com tinta.
+
+### O que mediu, no lote inteiro
+
+| | antes do lote | depois |
+|---|---|---|
+| capítulos escritos | 7 de 13 | **10 de 13** |
+| capítulos em obra | 6 | **3** (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE) |
+| século XX jogável | **zero capítulos** | **três** |
+| falas autorais varridas pelo §2 | 208 | **226**, 0 achado |
+| entradas em DE ONDE VEM | 34 | **50** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 238) |
+| normas citadas literalmente no lote | — | **9**, todas em publicação original |
+
+`npm test` **verde** nesta execução (FPS 58) e `node test/encaixe.js` verde. A intermitência do
+MUTIRÃO (`PENDENTES.md` item 13) continua aparecendo em cerca de metade das execuções e não tem
+relação com o conteúdo.
+
+### O que fica para o dono
+
+1. **O nome da emenda de 1983** — usar o nome consagrado ou continuar no número. Recomendação:
+   continuar no número; mas é o caso mais defensável de exceção do arco inteiro.
+2. **Quem representa os três capítulos.** Os três falam **sem rosto**, por regra de código
+   (`DONO_DO_BLOCO`), e escalar quem aparece é decisão dele (§2). São dez capítulos escritos e só
+   quatro têm pessoa.
+3. **A arte de rua dos três.** O que atravessa a tela continua emprestado de AINDA AQUI, e a
+   última fala de cada abertura diz isso. É a maior dívida visual do jogo agora.
+
+### Próximo passo
+
+Os pedidos `ctx-cap8-*`, `ctx-cap9-*` e `ctx-cap10-*` estão na fila da mesa; quando chegarem,
+`node test/inline-contexto.js` liga tudo sozinho, porque os três capítulos já estão escritos com
+as chaves certas. Depois disso, o que resta do arco são os três contemporâneos — e o primeiro
+deles, O ACEIRO, já está desenhado inteiro no `HISTORIA-CONTEMPORANEO.md`.
