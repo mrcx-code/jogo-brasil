@@ -2125,6 +2125,46 @@ const sec = t => log('\n---- ' + t);
       + loop.antes.e.toFixed(1) + ' -> ' + loop.depois.e.toFixed(1) + ', '
       + (loop.depois.mobs + loop.depois.drops + loop.depois.folhas) + ' coisas de volta)');
 
+  // ============================================================
+  // 29 · NENHUMA TÁBUA REPETIDA NO POSTE, E NENHUMA SEM TINTA
+  //
+  // Isto existe por um defeito REAL, que o dono viu antes de qualquer teste: "o menu tá com um
+  // segundo DE ONDE VEM estranho". Estava — o print `test/LG-antes-menu-zero.png` guarda a
+  // cena: duas tábuas DE ONDE VEM, a segunda em Arial Black. O commit do glossário v2 duplicou
+  // a linha do molde, e o modo de falha é o pior que existe: **id repetido não dá erro**. O
+  // navegador aceita, `pixelRotulo` pinta o PRIMEIRO nó com aquele id e o segundo fica com o
+  // texto cru do molde — nenhum erro de console, nenhuma tela quebrada, nenhuma asserção
+  // vermelha. Só apareceu porque alguém olhou.
+  //
+  // As três asserções são as três metades do defeito: id repetido, rótulo repetido, e tábua
+  // sem bitmap (que é o que denuncia a tinta do sistema). `dataset.px` é a chave que o
+  // `pixelRotulo` deixa gravada no elemento — é dela que sai o rótulo de cada tábua.
+  // ============================================================
+  sec('29 · o poste não tem tábua repetida nem tábua sem tinta');
+  const poste = await page.evaluate(() => {
+    fecharTelas(); abrirTela('telaMenu');
+    const tabuas = Array.from(document.querySelectorAll('#poste .telaBtn')).map(function (b) {
+      return { id: b.id, px: b.dataset.px ? String(b.dataset.px).split('|')[0] : null,
+        cru: (b.textContent || '').trim(), canvas: !!b.querySelector('canvas'),
+        oculta: b.classList.contains('oculto') };
+    });
+    const ids = {}, repetidos = [];
+    document.querySelectorAll('[id]').forEach(function (e) {
+      if (ids[e.id]) repetidos.push(e.id); else ids[e.id] = 1;
+    });
+    return { tabuas: tabuas, repetidos: repetidos };
+  });
+  log('   tábuas: ' + poste.tabuas.map(t => t.px + (t.oculta ? '(oculta)' : '')).join(' · '));
+  const semTinta = poste.tabuas.filter(t => !t.px || !t.canvas);
+  const rotulos = poste.tabuas.map(t => t.px);
+  const repetidoRot = rotulos.filter((r, i) => rotulos.indexOf(r) !== i);
+  ok(poste.repetidos.length === 0, 'nenhum id repetido no documento (' +
+    (poste.repetidos.join(', ') || 'nenhum') + ')');
+  ok(repetidoRot.length === 0, 'nenhuma tábua do poste repete o rótulo de outra (' +
+    (repetidoRot.join(', ') || 'nenhuma') + ')');
+  ok(semTinta.length === 0, 'toda tábua do poste tem rótulo em bitmap, nenhuma caiu na fonte do sistema (' +
+    (semTinta.map(t => t.id + ': "' + t.cru + '"').join(', ') || 'nenhuma') + ')');
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;
