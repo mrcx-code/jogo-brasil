@@ -458,6 +458,60 @@ respondem sim: era exatamente o encontro que denunciava o vetor. FPS **61/61/61*
 nova; zero rede; `npm test` PASS 3×; `test/medir-telas.js` **7 de 7**; verificado vivo no
 navegador (menu → cerimônia → fala → rua: nicho nasce com o primeiro drop).
 
+## Onda 12 — IMPLEMENTADA (2026-08-12): O LUGAR, ou o que fazer quando o jogo não é lido
+
+O ticket veio do dono e é um redirecionamento, não um pedido: o MUTIRÃO foi construído, medido e
+está de pé, e **ele não entendeu o que era duas vezes** — depois de explicação e de prints. Ao ver
+a casa pronta: *"Talvez algo no menu do jogo que vá evoluindo… no jogo em si achei meio estranho."*
+
+**Ele tem razão, e o diagnóstico não é de código: é de LEITURA.** Na estrada, a obra pronta lê
+como CENÁRIO — indistinguível da pintura de fundo, que é exatamente o que ela precisa parecer
+para caber na trava de composição (0,30 de canteiro em cena). Quem a construiu não percebe que
+construiu. É a versão mais dura do princípio 2 desta casa: um efeito que não completa a frase
+*"isto existe para dizer que ___"* na cabeça de quem joga não existe, por mais bem medido que seja.
+
+**A regra que fica, e ela é nova aqui:** *coisa que a pessoa FAZ precisa de um lugar onde ela é
+LIDA.* O jogo já praticava isso e não tinha percebido — A HISTÓRIA lê o que a rua fez, DE ONDE VEM
+lê o que a história afirma, a CHEGADA lê a partida inteira. A obra era a única coisa que se fazia
+sem ter onde ser lida. A resposta não foi mexer no mundo: foi dar a ela a quarta página.
+
+1. **A obra FICA na estrada, e isso é decisão.** É lá que a mão trabalha — o gesto mira
+   `canteiroNaTela()`, e tirar o canteiro de lá mataria o verbo. Faz-se na rua, lê-se na página.
+2. **O LUGAR (`telaObra`)**, tábua nova no poste, oculta como a ATÉ AQUI e revelada quando há
+   lugar. Quatro blocos, na ordem em que importam a quem acabou de abrir o jogo: **o que cresceu
+   desde a última visita** (é isto que faz voltar) · os três canteiros **desenhados** · **quem
+   está lá** · o caminho de volta.
+3. **Zero material novo, e a chapa é a única coisa que a tela acrescenta.** Papel de campo com
+   pauta e moldura de madeira (`.fimLin`/`.fnItem`), cabeçalho `.fnGrupo`, as quatro vozes do
+   caderno. O canteiro é pintado pela **mesma `desenharCanteiro` da rua** — por ponteiro de
+   contexto (`obraCtx`), nunca por cópia da receita — e colado na página como a prancha de um
+   caderno naturalista. **Referência: Art of Fauna (ADA 2025)**, a mesma da onda 6, agora aplicada
+   à ilustração e não só à tinta: no caderno de campo, a gravura é o argumento e o texto é a nota.
+4. **A rua deixou de ser muda no único instante que merecia palavra.** A peça tinha estilhaço; o
+   ESTÁGIO inteiro, nada. Agora o mundo diz o nome — e é a MESMA palavra da página e do papel da
+   volta (`ESTAGIO_CURTO`). Duas colisões pagas em print mudaram o desenho duas vezes: centrada
+   ela caía em "E MAIS N VIVEM AQUI"; mais alta, caía no float "MAIS ADIANTE". **A pista livre não
+   era uma altura, era um LUGAR**: ela pousa sobre o canteiro de que fala, e a linha das acolhidas
+   cede o palco enquanto ela vive (lei do ritmo, regra 2).
+
+**Medido** (`test/prints-lugar.js`, novo — menu, três estados da página, a rua e o instante em que
+um estágio fica de pé sob a mão): poluição na MESMA execução, 60 s por célula — régua do capítulo
+1 **5,86 andando / 6,45 correndo**, capítulo 2 **4,31 / 5,20**, abaixo da régua nos dois ritmos;
+canteiros em cena **0,25 / 0,30**, o número de projeto intocado (nenhum objeto novo entrou no
+mundo). O desenho é o placar, e ele cresce: **2.304 → 15.280 → 24.960** pixels de pé na casa
+vazia, meia e cheia. **Zero dígito da obra na página** (asserção). FPS **61**; `npm test` PASS e
+`node test/encaixe.js` verde, com o bloco 27 novo (11 asserções).
+
+**Achado de passagem, e ele estava na `main` há dias:** o commit do glossário duplicou a tábua
+DE ONDE VEM — o menu a mostrava DUAS VEZES, a segunda em Arial Black, porque `pixelRotulo` pinta
+o primeiro nó com o id. Nenhum teste via; id repetido não dá erro. Achado no print. O bloco 27
+passa a cobrar id único no poste.
+
+**A dúvida que fica, e ela é maior que a onda:** a página resolve a leitura, não a pergunta
+anterior — *o mutirão devia existir?* Ele não rende nada (por §2, e está certo), então o único
+motivo de voltar que produz é ver a obra crescer. Se, com a página no ar, o dono ainda achar
+estranho, a saída honesta é cortar o mutirão inteiro. Ela continua na mesa.
+
 ## O diagnóstico — por que o jogo lê como velho, medido no jogo real
 
 Joguei a build a 390×844 dsf2 e olhei com olho de 2026. O que envelhece o jogo NÃO é a
