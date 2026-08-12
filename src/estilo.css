@@ -504,8 +504,22 @@
      meia tela de rolagem. */
   #poste::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
     width: 18px; transform: translateX(-50%);
-    background: linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16);
+    /* A FIBRA DE PÉ (12/08). O mastro era a única madeira do jogo sem grão — degradê liso, e o
+       dono viu ("a madeira atrás das opções tá estranho"). A onda 11 tinha deixado a exceção
+       registrada COM a condição de conserto: segunda textura rotacionada, nunca a horizontal
+       forçada. `--veioVertPx` é ela (ver texturaChrome no jogo.ts). O degradê fica embaixo,
+       porque é ele que dá a curva do tronco; o grão entra por cima, que é onde se vê. */
+    background: var(--veioVertPx, none),
+      linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16);
     box-shadow: inset 2px 0 0 #8a6236, inset -2px 0 0 #33200e, 4px 0 0 rgba(0,0,0,.35); }
+  /* O TOPO SERRADO. Em retrato o alto do mastro aparece, e ele terminava num corte reto e
+     escuro — pau cortado não tem tampa, tem MIOLO: a face de cima pega luz e é mais clara que
+     as laterais. Quatro px de cerne claro com o anel escuro em volta, na mesma malha de 2 px
+     dos ícones. Deitado o mastro atravessa a borda de cima e este topo não existe (abaixo). */
+  #poste::after { content: ""; position: absolute; left: 50%; top: 0;
+    width: 18px; height: 4px; transform: translateX(-50%);
+    background: linear-gradient(90deg, #7c5730, #a97f4a 40%, #96683a 70%, #5c3d20);
+    box-shadow: inset 0 2px 0 #c39a5e, inset 0 0 0 2px rgba(36,22,5,.55); }
   #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
     display: flex; align-items: center; justify-content: center; margin: 0; }
   /* JOGAR é a tábua nova, de madeira clara recém-cortada; as outras três são do mesmo poste,
@@ -626,6 +640,9 @@
        em `bottom: 0` sem sobrar um pixel de rolagem. */
     #poste { grid-area: 1 / 2 / -1 / auto; align-self: stretch; justify-content: center;
       margin: 0; padding: 8px 0 14px; gap: 9px; }
+    /* deitado o mastro atravessa as DUAS bordas: desenhar o miolo cortado na borda de cima
+       diria que ele acaba ali, e ele não acaba. */
+    #poste::after { display: none; }
     /* 9 px de respiro e 13 de recheio couberam com QUATRO tábuas. Com a quinta, a coluna
        mede 380 px numa tela de 390 e o AJUSTES sai por 7 px.
        APERTAR O RECHEIO SOZINHO TROCA UM DEFEITO POR OUTRO, e foi o que aconteceu na primeira

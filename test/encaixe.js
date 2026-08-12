@@ -1967,9 +1967,16 @@ const sec = t => log('\n---- ' + t);
     log('   ' + c.nome + ': a mesma rua sem a placa ' + c.mediaSem.toFixed(2) + ' · com ela ' +
       c.media.toFixed(2) + ' (placa em cena em ' + c.placas + ' de ' + c.n +
       ' amostras) · pior ' + c.pior);
-    // +0,3 de folga: duas células de 12 s da MESMA rua diferem sozinhas nessa ordem, e a
-    // trava é "não passa do capítulo 1", não "é mais limpo por decimais".
-    ok(c.media <= regua.media + 0.3, c.nome + ': média de objetos ' + c.media.toFixed(2) +
+    // A FOLGA SUBIU DE 0,3 PARA 0,8 EM 12/08, E FOI MEDIDA — não afrouxada por conveniência.
+    // O instrumento novo `test/medir-celula-poluicao.js` roda esta mesma célula fora do bloco,
+    // alternando os dois capítulos: PINDORAMA deu 4,15 · 4,42 · 4,28 · 5,22 e PALMARES
+    // 4,40 · 4,43 · 4,12 · 4,10 em builds diferentes — ou seja, o MESMO capítulo varia ~1,0
+    // entre amostras de 12 s, porque o vão entre chegadas é sorteado. Uma folga de 0,3 é MENOR
+    // que o ruído do instrumento: a asserção estava tirando cara ou coroa, e falhou sozinha em
+    // 12/08 com a rua intacta. 0,8 continua abaixo do que a trava existe para pegar — uma
+    // placa a mais custa ~1,0 objeto, e é a asserção logo abaixo, medida no MESMO quadro, que
+    // cobra isso com precisão.
+    ok(c.media <= regua.media + 0.8, c.nome + ': média de objetos ' + c.media.toFixed(2) +
       ' não passou a do capítulo 1 medida agora (' + regua.media.toFixed(2) + ')');
     ok(c.media - c.mediaSem <= 1.0, c.nome + ': a placa custou ' +
       (c.media - c.mediaSem).toFixed(2) + ' objeto de média — um marco é UM objeto, nunca dois');
@@ -2108,8 +2115,15 @@ const sec = t => log('\n---- ' + t);
   ok(naRua === 0, 'nada alcançável fica em cena atrás do menu (' + naRua + ' coisas)');
   ok(loop.dentro.x - loop.antes.x > 30,
     'o cenário continua rodando: a rua andou ' + (loop.dentro.x - loop.antes.x).toFixed(1) + ' px em 3 s');
-  ok(Math.abs(loop.depois.e - loop.antes.e) < 0.01,
-    'ao fechar, a partida volta inteira — nada foi perdido no caminho');
+  // NADA FOI PERDIDO — e "perdido" é para MENOS, nunca para mais: ao fechar o menu a partida
+  // recomeça, e a ajuda automática (`u3`, ligada no preparo) rende nos 120 ms de espera. A
+  // primeira versão desta linha exigia impacto IDÊNTICO e reprovava conforme o tique caísse
+  // dentro ou fora da janela — medido, +3 numa execução e 0 na seguinte.
+  ok(loop.depois.e >= loop.antes.e - 0.01
+     && loop.depois.mobs + loop.depois.drops + loop.depois.folhas > 0,
+    'ao fechar, a partida volta inteira — nada foi perdido no caminho ('
+      + loop.antes.e.toFixed(1) + ' -> ' + loop.depois.e.toFixed(1) + ', '
+      + (loop.depois.mobs + loop.depois.drops + loop.depois.folhas) + ' coisas de volta)');
 
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');

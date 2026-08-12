@@ -2144,7 +2144,7 @@ const EPOCAS = [
     cenas: 1, lugar: "praca", arte: [10],
     abertura: [
       "Isto é uma praça, em algum ponto entre 1984 e 1988. Neste capítulo o país perde uma votação e muda assim mesmo — e é justamente essa parte que quase nunca se conta.",
-      "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
+      "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5 — a Emenda Dante de Oliveira —, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
       "Em 25 de abril de 1984 ela foi a voto: 298 sim, 65 não, 3 abstenções. Faltaram 22 para o quórum, e a Câmara registrou o resultado como rejeição. A proposta nem chegou a ser apreciada pelo Senado.",
       "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra.",
       "A pintura desta praça e o que atravessa a tela ainda são emprestados do capítulo anterior — a rua continua a rua, e a arte daqui não chegou. Os três contadores lá em cima são os mesmos de sempre."
@@ -12896,6 +12896,32 @@ function texturaChrome() {
       }
     }
   });
+  // --veioVertPx: O MESMO VEIO, DE PÉ — e ele existe por uma queixa do dono (12/08): "a
+  // madeira atrás das opções tá estranho". Estava: o mastro do poste era a ÚNICA superfície de
+  // madeira do jogo sem grão nenhum — um degradê CSS liso, vetor puro no meio de uma tela em
+  // que tudo o mais é pixel. A onda 11 o deixou de fora de propósito e escreveu o porquê e a
+  // condição: "o veio é horizontal e o mastro é vertical; fibra atravessada mentiria o
+  // material. Se um dia valer a pena, é uma segunda textura ROTACIONADA, não a mesma forçada."
+  // É esta. Mesmo hash, mesmas doses, mesmas células de 2 px — só o eixo do run muda, que é a
+  // diferença entre uma tábua serrada de través e um tronco fincado em pé.
+  // 9 células de largura = 18 px = a largura exata do mastro, então a fibra não repete de lado.
+  const veioVert = tela(9, 64, function (g) {
+    for (let x = 0; x < 9; x++) {
+      let y = 0;
+      while (y < 64) {
+        const run = 3 + Math.floor(hash01(x * 17.9 + y * 3.7 + 4.2) * 8);
+        const s = hash01(x * 131.7 + y * 7.3 + 9.1);
+        if (s < 0.20) {          // a fibra escura, correndo no sentido do tronco
+          g.fillStyle = "rgba(26,13,3," + (0.10 + hash01(y * 5.1 + x * 2.7 + 1.3) * 0.12).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, cel, Math.min(run, 64 - y) * cel);
+        } else if (s < 0.33) {   // e o mel da madeira nova, do mesmo jeito
+          g.fillStyle = "rgba(255,199,112," + (0.05 + hash01(y * 6.7 + x * 3.9 + 2.6) * 0.07).toFixed(3) + ")";
+          g.fillRect(x * cel, y * cel, cel, Math.min(run, 64 - y) * cel);
+        }
+        y += run;
+      }
+    }
+  });
   // --graoPx: PEDRA LAVRADA — speckle disperso, poro escuro e cisco claro.
   // --graoOuroPx: o MESMO speckle com metade da força — metal poroso, não pedra.
   function speckle(forca: number) {
@@ -12916,6 +12942,7 @@ function texturaChrome() {
   const graoOuro = tela(48, 48, speckle(0.5));
   const raiz = document.documentElement.style;
   if (veio) raiz.setProperty("--veioPx", veio);
+  if (veioVert) raiz.setProperty("--veioVertPx", veioVert);
   if (grao) raiz.setProperty("--graoPx", grao);
   if (graoOuro) raiz.setProperty("--graoOuroPx", graoOuro);
 }
