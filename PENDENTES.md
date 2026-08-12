@@ -461,3 +461,41 @@ osso, restos humanos ou sepultura — este é o CAIS, não é cemitério** (§2.
 na tela do nome, a 390 px de largura (print `test/CAP-cais-ab1.png`). Vale igual para "O QUE NÃO
 PODIA SER DITO". É anterior a 11/08 — nenhum nome mudou —, e encolher a fonte da cerimônia é
 decisão de Arte, não de conteúdo. Fica registrado para não se descobrir de novo.
+
+---
+
+## 13. O `npm test` FALHA EM METADE DAS EXECUÇÕES, E É O BLOCO DO MUTIRÃO (12/08, Historiador)
+
+**Não foi revertido nada; isto é um achado.** Encontrado ao rodar o portão obrigatório antes do
+primeiro incremento do lote do século XX, e **confirmado na árvore limpa com `git stash`** — não
+tem relação com o conteúdo novo.
+
+**O sintoma.** O bloco *"O GESTO: segurar o MUNDO na faixa final ergue a obra"* do
+`test/smoke.js` passa e falha alternadamente, com o mesmo binário e o mesmo arquivo. Quando
+falha, **os dois lados falham juntos e ao contrário**:
+
+```
+holding the world in the faixa built nothing: 0
+she kept walking while working the obra: 79px
+the street stopped outside the faixa: 1px
+```
+
+Dentro da faixa a personagem continua andando; **fora** dela a rua para. Estados trocados, não
+gesto quebrado.
+
+**O que já foi medido, para a próxima sessão não recomeçar do zero.** Reproduzindo o setup do
+teste num instrumento à parte, no instante do `page.evaluate`: `capGente` `true`, `faixaViva`
+`true`, `canteiroNaTela()` **não nulo**, `obraPodeArmar()` **`true`** — ou seja, o estado semeado
+está certo. Depois do `mouse.down()`, porém, **`obraDedo` continua `0`** e `obraPodeArmar()`
+passa a `false`, com o canteiro ainda na tela e a faixa ainda viva.
+
+**A hipótese mais provável, não confirmada:** o próprio setup escreve `S.energia = 1e6`, e o
+`clicar()` que o `pointerdown` dispara antes de `obraDedo = performance.now()` empurra o mundo
+por cima de uma fronteira de cena durante o gesto; a fala que abre aí solta a obra
+(`falaAberta()` derruba `obraPodeArmar()`). A corrida entre a virada de cena e os 300 ms de
+`MUTIRAO_HOLD_MS` explicaria a alternância. Se for isso, o conserto é do TESTE e não do jogo:
+semear energia suficiente para a faixa sem sobrar para virar cena.
+
+**Por que não consertei:** é código do MUTIRÃO, de outra frente, e a régua do repositório diz que
+mudança de economia exige medição antes/depois. Um historiador ajustando o teto de energia de um
+teste de economia é exatamente o tipo de conserto que passa despercebido e muda o que se mede.

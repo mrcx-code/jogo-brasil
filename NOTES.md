@@ -6252,3 +6252,128 @@ Paulistano, 1º/05/1888 · Fundação Cultural Palmares, portaria de 2006 · INC
 SEGUROU, O ACEIRO, O QUE TEM FONTE) não têm verbete porque **ainda não afirmam nada** — o texto
 deles diz literalmente "este capítulo ainda está sendo escrito". Quando ganharem conteúdo, o
 glossário os acompanha.
+
+---
+
+## Diário — 2026-08-12 · Historiador · AS PORTAS, e a REGRA DO DOCUMENTO exercida pela primeira vez
+
+**O lote é o SÉCULO XX**: três capítulos que eram esqueleto — AS PORTAS, O QUE NÃO PODIA SER
+DITO e A PRAÇA. Este é o primeiro. A régua é a mesma dos três do século XIX, e continua sendo a
+mais dura do repositório: **nenhuma afirmação sem fonte lida NESTA sessão** — sem ementa, sem
+resumo de buscador, sem lembrança. O que não abriu, não entrou, e está listado abaixo.
+
+A diferença deste lote está no §2.6 do CLAUDE.md, **A REGRA DO DOCUMENTO**. Ela foi escrita em
+07/08 para a história recente e até aqui só tinha sido exercida nos seis marcos de 1888→1964 da
+`LINHA_TEMPO` — nunca num capítulo. Agora é capítulo, e ela custa o que prometia custar: nenhum
+político nomeado (nem os que a historiografia nomeia sem hesitar), nenhum partido, nenhuma
+eleição, nenhum adjetivo sobre nenhum dos três.
+
+### A tese, e por que ela não é interpretação minha
+
+**Cada porta que este meio século abriu trazia, no MESMO papel, escrito quem ficava do lado de
+fora.** Isso é literal duas vezes, e as duas foram lidas na fonte nesta sessão:
+
+1. A **Constituição de 1934** abre o voto no art. 108 — *"os brasileiros de um e de outro sexo,
+   maiores de 18 annos"* — e o fecha no **parágrafo único do mesmo artigo**: *"Não se podem
+   alistar eleitores: a) os que não saibam ler e escrever"*.
+2. A **Emenda Constitucional nº 25, de 15/05/1985** manda a lei dizer *"a forma pela qual possam
+   os analfabetos alistar-se eleitores e exercer o direito de voto"* (art. 147, § 4º) e, **três
+   artigos adiante**, escreve *"São inelegíveis os inalistáveis e os analfabetos"* (art. 150).
+
+Nenhum adjetivo precisa ser acrescentado, e nenhum foi. É a mesma disciplina do fecho de O CAIS,
+onde duas datas ficam lado a lado e quem lê conclui sozinho.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar (pátio de escola pública) e a tese do capítulo | ficção autoral de enquadramento; nenhum fato |
+| ab.2 | CF/1934, art. 108 e o parágrafo único dele, os dois literais | **✅P** Câmara dos Deputados, Legislação Informatizada, publicação original da Constituição de 16/07/1934 |
+| ab.3 | CF/1934, art. 150, parágrafo único, a), literal; e **56,8%** de analfabetismo em 1940 | **✅P** a mesma publicação · **◑I** IBGE, divulgação do estudo *Tendências Demográficas… Censos de 1940 e 2000*: *"a taxa de analfabetismo de pessoas de 10 anos ou mais de idade foi reduzida em cinco vezes, passando de 56,8% para 12,1%"* |
+| ab.4 | o verbo — **abrir a porta** | autoral. Escolhido pelo que o capítulo documenta, e nomeia o próprio capítulo |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | EC 25/1985, art. 147, § 4º, literal | **✅P** Câmara, Legislação Informatizada, publicação original |
+| fe.2 | EC 25/1985, art. 150, literal; e a **CF/88 repetindo a frase no art. 14, § 4º** | **✅P** a mesma · **✅P** Câmara, publicação original da CF/88: *"§ 4º São inelegíveis os inalistáveis e os analfabetos"* (e o § 1º, II, a, que torna o voto facultativo para eles) |
+| fe.3 | a CLT de 1943 excluindo a categoria; a **Lei nº 5.859, de 11/12/1972**, e o *"atestado de boa conduta"* do art. 2º, II | **✅P** Câmara, publicação original da Lei nº 5.859/1972. A CLT já estava no jogo, na `LINHA_TEMPO`, com o art. 7º |
+| fe.4 | *"férias anuais remuneradas de 20 (vinte) dias úteis"* (art. 3º); a igualdade com a **LC nº 150, de 1º/06/2015** | **✅P** a mesma lei · a LC 150/2015 já está no jogo pela `LINHA_TEMPO` |
+| fe.5–6 | **Laudelina de Campos Mello**: 1936, Santos, Associação das Empregadas Domésticas do Brasil; fechada pelo Estado Novo em 1942; outra em Campinas em 1961; as entidades seguintes dando origem ao Sindicato dos Trabalhadores Domésticos em 1988 | **◑I** Senado Federal, matéria de 27/04/2010, literal: *"Em 1936 cria a Associação das Empregadas Domésticas do Brasil, que é fechada pelo Estado Novo em 1942. Em 1961, morando em Campinas (SP) a essa altura, funda a Associação Profissional Beneficente das Empregadas Domésticas."* |
+
+**O SUJEITO É QUEM SUSTENTA (§2.6), e ele fecha o capítulo.** Laudelina não é político nem
+governante: é trabalhadora doméstica desde os sete anos, e organizou a categoria **sete anos
+antes** de a CLT dizer que a lei do trabalho não era para ela. Um capítulo sobre normas que
+terminasse em norma seria uma aula de direito; terminando nela, é história de quem não esperou.
+
+### O que RECUSEI, e por quê
+
+- **Qualquer político, de qualquer lado.** Inclusive os que propuseram dar o voto aos analfabetos
+  antes de 1985 — a matéria do Senado que li nomeia dois presidentes, um de cada campo, e é
+  material tentador justamente por parecer equilibrado. O §2.6 não abre exceção para o nome
+  simpático, e um texto que nomeia "os dois lados" convida a leitura partidária que a regra
+  existe para impedir.
+- **O MOBRAL e qualquer política de alfabetização com nome.** Não li a norma que o criou, e
+  política educacional de governo é exatamente onde a leitura de crédito partidário mora.
+- **A taxa de analfabetismo censo a censo (1950, 1960, 1970, 1980).** Os números circulam e são
+  provavelmente certos; **o PDF do INEP e o `download.inep.gov.br` recusaram a conexão nesta
+  sessão** e o `brasilemsintese` do IBGE só traz de 2007 em diante. Entrou só o par 1940/2000,
+  que veio da divulgação do próprio IBGE, com a faixa etária dita dentro da frase (10 anos ou
+  mais, e não 15, que é a faixa que os resumos costumam trocar).
+- **A Emenda Constitucional nº 72, de 2013.** Ela está no jogo pela `LINHA_TEMPO` com fonte do
+  Senado, mas eu não a li nesta sessão — então a fala do capítulo cita só a LC 150/2015, que é a
+  que fecha a conta, e a linha do tempo continua carregando as duas.
+- **O primeiro voto feminino e as primeiras eleitas.** É o fato mais citado de 1932 e ele exige
+  nomear políticas. Fora.
+- **A grafia do sobrenome.** A página do Senado escreve **Mello**; outras fontes escrevem *Melo*.
+  O jogo usa a grafia da fonte que eu li. Se algum dia entrar uma segunda fonte lida, isto vira
+  entrada de ONDE AS FONTES DISCORDAM.
+- **O `planalto.gov.br` inteiro.** Recusou conexão desta máquina a sessão toda (`ECONNREFUSED`,
+  e o `curl` estoura o tempo). Tudo o que seria lido lá foi lido na **Legislação Informatizada da
+  Câmara dos Deputados**, em publicação original — que é fonte melhor, porque traz a grafia do
+  Diário Oficial da época. Fica registrado como via preferencial para as próximas sessões.
+
+### O que mudou no código
+
+- `emObra` removido de AS PORTAS. Efeito automático e bem-vindo: os dois marcos da `LINHA_TEMPO`
+  que já pendiam da cena dele (1930 e 1932→1985) passam a poder virar **placa na estrada**, e o
+  `encaixe.js` bloco 23b já a mediu — 0,28 objeto de média, bem abaixo da régua do capítulo 1.
+- `ferramentas/pacotes.js`: a pintura **9** saiu do pacote coletivo `hoje` e ganhou o pacote
+  `portas`. Quem chega em AS PORTAS deixa de baixar 1 MB do que ainda está em obra.
+- **Um defeito silencioso encontrado e consertado antes de morder:** o recorte do prefixo das
+  imagens de contexto era `^(cap\d)` — **um dígito só**. Com o décimo capítulo, `cap10-*` casaria
+  como `cap1`, cairia no `null` do capítulo 1 e a imagem viajaria na PORTA DE ENTRADA, sem erro,
+  sem aviso e sem ninguém notar até o arquivo inicial engordar. Virou `\d+`, nos dois lugares que
+  leem o prefixo (`pacoteDoEndereco` e `conhecido`).
+- Dois pedidos de arte de contexto em `ferramentas/necessario.json`: `ctx-cap8-patio` (o pátio da
+  escola, com o portão entreaberto no centro) e `ctx-cap8-noturno` (a mesma sala à noite, com
+  carteiras de tamanho adulto e a lousa **sem uma palavra escrita**). Os dois com a cauda medida
+  que as peças novas já carregam: luz neutra de meio-dia, assunto no terço central, saturação
+  de 55% para cima, e sem gente.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 7 de 13 | **8 de 13** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 230) |
+| falas autorais varridas pelo §2 | 208 | **214**, 0 achado |
+| entradas em DE ONDE VEM | 34 | **39** |
+| placa nova na estrada | — | AS PORTAS, 0,28 objeto de média (régua do cap. 1: 4,75) |
+
+`node test/encaixe.js` **verde, 25 blocos**.
+
+### ⚠ ACHADO QUE NÃO É MEU E PRECISA DE DONO — o `npm test` está INTERMITENTE na `main`
+
+O bloco do MUTIRÃO do `test/smoke.js` (*"holding the world in the faixa"*) **falha em cerca de
+metade das execuções, e já falhava antes de eu encostar em qualquer arquivo** — confirmei com
+`git stash`, rodando a árvore limpa. Quando falha, os dois lados falham ao mesmo tempo e **ao
+contrário**: dentro da faixa a personagem continua andando (79 px) e fora da faixa a rua para
+(1 px), o que cheira a vazamento de estado entre as duas metades do bloco, não a defeito do
+gesto. Diagnóstico até onde eu fui: com o estado que o teste semeia, `obraPodeArmar()` é `true`
+e o canteiro está na tela — mas `obraDedo` continua `0` depois do `mouse.down()`, e logo depois
+`obraPodeArmar()` vira `false`. A hipótese mais provável é que o `S.energia = 1e6` do próprio
+setup faz o mundo cruzar a fronteira de cena durante o gesto, abrindo uma fala que solta a obra.
+**Não mexi**: é código do MUTIRÃO, de outra frente, e mexer nele seria consertar economia sem
+medição. Está no `PENDENTES.md`.
+
+### Próximo passo
+
+O QUE NÃO PODIA SER DITO, com a mesma régua.

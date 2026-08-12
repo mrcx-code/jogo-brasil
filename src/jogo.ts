@@ -2017,21 +2017,48 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-11/12, e é o primeiro capítulo do jogo construído inteiro sob a
+    // REGRA DO DOCUMENTO (§2.6 do CLAUDE.md). Ela foi escrita para a história recente e nunca
+    // tinha sido exercida em texto de jogo — só nos seis marcos de 1888→1964 da LINHA_TEMPO.
+    // Aqui ela vira capítulo, e a consequência prática é dura: **toda frase afirma o que uma
+    // norma com número afirma, entre aspas, e nada além.** Nenhum político, nenhum partido,
+    // nenhuma eleição, nenhuma opinião sobre nenhuma das duas.
+    //
+    // A TESE, e ela é o que faz o capítulo não ser uma lista de leis: **cada porta que este
+    // meio século abriu trazia, no MESMO papel, escrito quem ficava do lado de fora.** Não é
+    // interpretação minha — é literal duas vezes, e as duas foram lidas na fonte: a
+    // Constituição de 1934 abre o voto a "um e de outro sexo" no art. 108 e fecha para quem
+    // não sabe ler no parágrafo único DO MESMO ARTIGO; a Emenda Constitucional nº 25/1985
+    // manda a lei dizer como o analfabeto vota e, três artigos adiante, escreve que ele é
+    // inelegível. Nenhum adjetivo precisa ser acrescentado, e nenhum foi.
+    //
+    // O SUJEITO É QUEM SUSTENTA (§2.6), e ele fecha o capítulo: Laudelina de Campos Mello,
+    // que organizou as empregadas domésticas SETE ANOS ANTES de a CLT dizer que a lei do
+    // trabalho não era para elas. Não é político nem governante — é trabalhadora, e a
+    // associação dela foi fechada pelo Estado. Fontes por fala no NOTES.md, mesmo commit.
     id: "portas",
     nome: "AS PORTAS",
     quando: "1932–1985",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "portas", arte: [9],
     abertura: [
-      "Este capítulo se chama AS PORTAS, e ele ainda está sendo escrito.",
-      "O recorte de tempo dele já está decidido; o verbo, não. E nenhuma linha entra aqui sem norma, número de processo ou registro de órgão para sustentá-la.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é o pátio de uma escola pública brasileira, em algum ponto entre 1932 e 1985. Meio século em que o país escreveu porta atrás de porta — e escreveu, no mesmo papel, quem ia ficar do lado de fora.",
+      "A Constituição de 1934 abriu uma: eleitores eram “os brasileiros de um e de outro sexo, maiores de 18 annos”. No parágrafo seguinte, o mesmo artigo fechou outra: não podiam se alistar “os que não saibam ler e escrever”.",
+      "A chave estava prometida ali perto, na mesma Constituição: “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. Em 1940 o IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais.",
+      "Aqui, alcançar é abrir a porta. E este capítulo conta as duas metades de cada uma: a que se abriu, e a que continuou trancada no mesmo papel.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta escola não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // o pátio segura as duas primeiras: a primeira o nomeia, a segunda é a porta do voto, e
+    // o lugar não muda enquanto o assunto é a norma. A sala à noite entra quando o texto
+    // chega no ensino "extensivo aos adultos" — é o lugar da chave, e é lugar, nunca aula.
+    aberturaImg: ["cap8-patio", "cap8-patio", "cap8-noturno", null, null],
     fecho: [
-      "Fim do trecho. Um capítulo em obra prefere ficar em silêncio a te contar coisa que ninguém conferiu.",
-      "Quando ele abrir, abre com a fonte junto — como todos os outros."
+      "A exigência de saber ler durou até 1985. Em 15 de maio daquele ano, a Emenda Constitucional nº 25 escreveu que a lei diria “a forma pela qual possam os analfabetos alistar-se eleitores e exercer o direito de voto”.",
+      "Três artigos adiante, a mesma emenda escreveu: “São inelegíveis os inalistáveis e os analfabetos.” Mesmo dia, mesmo papel: pode votar, não pode ser votado. A Constituição de 1988 repetiu a frase, no art. 14, § 4º.",
+      "Outra porta, a do trabalho. Em 1943 a CLT disse a quem ela não se aplicava. A profissão de empregado doméstico só ganhou lei própria em 11 de dezembro de 1972 — e essa lei exigia, para admitir alguém, “atestado de boa conduta”.",
+      "Ela deu vinte dias úteis de férias por ano. A igualdade de direitos chegou com a Lei Complementar nº 150, de 2015: quarenta e três anos depois daquela lei, setenta e dois depois da CLT.",
+      "E quem não esperou por nenhuma delas: em 1936, em Santos, Laudelina de Campos Mello fundou a Associação das Empregadas Domésticas do Brasil. O Estado Novo a fechou em 1942. Em 1961, em Campinas, ela fundou outra.",
+      "As entidades que vieram depois dela deram origem, em 1988, ao Sindicato dos Trabalhadores Domésticos. Cinquenta e dois anos entre a primeira associação e o sindicato — e ela viu os dois."
     ]
   },
   {
@@ -10150,6 +10177,26 @@ const FONTES = [
     q: "O art. 7º diz a quem a CLT não se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. O Senado Federal registra o caminho até a igualdade de direitos, em 2013 e 2015." },
   { t: "Ato Institucional de 9 de abril de 1964, art. 10",
     q: "Suspender direitos políticos por dez anos e cassar mandatos, “excluída a apreciação judicial desses atos”. O que o próprio ato diz de si mesmo dispensa comentário — e é por isso que o jogo não acrescenta nenhum." },
+  // ===== AS PORTAS =====
+  // O primeiro grupo do jogo em que a REGRA DO DOCUMENTO (§2.6) manda sozinha: quatro normas
+  // com número, um registro de órgão e uma entidade de trabalhadoras. Nenhum político é
+  // nomeado, e isso não é omissão — é a regra. A única pessoa nomeada no capítulo é quem
+  // SUSTENTA, e ela entra pela página do Senado, que é onde os dados dela foram conferidos.
+  //
+  // As duas normas de 1934 estão aqui numa entrada só, de propósito: o que o capítulo afirma
+  // é justamente que as duas frases moram no MESMO documento, e separá-las em duas linhas
+  // desfaria a lição.
+  { g: "AS PORTAS — 1932 A 1985" },
+  { t: "Constituição de 16 de julho de 1934, art. 108 e art. 150, parágrafo único — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“São eleitores os brasileiros de um e de outro sexo, maiores de 18 annos”; e, no parágrafo único do mesmo artigo, “Não se podem alistar eleitores: a) os que não saibam ler e escrever”. O art. 149 diz que “a educação é direito de todos”, e o art. 150 promete “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. A porta e a chave, no mesmo texto." },
+  { t: "IBGE — “Tendências Demográficas: uma análise da população com base nos resultados dos Censos Demográficos de 1940 e 2000”",
+    q: "“A taxa de analfabetismo de pessoas de 10 anos ou mais de idade foi reduzida em cinco vezes, passando de 56,8% para 12,1%.” A mesma divulgação registra que, em 1940, menos de um terço das pessoas de 7 a 14 anos frequentava escola." },
+  { t: "Emenda Constitucional nº 25, de 15 de maio de 1985 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "No art. 147, § 4º: “A Lei disporá sobre a forma pela qual possam os analfabetos alistar-se eleitores e exercer o direito de voto.” Três artigos adiante, no art. 150: “São inelegíveis os inalistáveis e os analfabetos.” A Constituição de 1988 manteve as duas coisas — art. 14, § 1º, II, a, e art. 14, § 4º." },
+  { t: "Lei nº 5.859, de 11 de dezembro de 1972 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“Dispõe sobre a profissão de empregado doméstico.” O art. 2º lista o que se exigia para admissão: Carteira de Trabalho, “atestado de boa conduta” e atestado de saúde. O art. 3º dá “férias anuais remuneradas de 20 (vinte) dias úteis”. Vinte e nove anos depois de a CLT dizer, no art. 7º, que não se aplicava a essa categoria." },
+  { t: "Senado Federal — Laudelina de Campos Mello (1904–1991)",
+    q: "“Em 1936 cria a Associação das Empregadas Domésticas do Brasil, que é fechada pelo Estado Novo em 1942. Em 1961, morando em Campinas (SP) a essa altura, funda a Associação Profissional Beneficente das Empregadas Domésticas.” As entidades que ela inspirou dão origem, em 1988, ao Sindicato dos Trabalhadores Domésticos." },
   { g: "ONDE AS FONTES DISCORDAM", d: 1 },
   { t: "Quanta gente vivia aqui em 1500?", d: 1,
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },
