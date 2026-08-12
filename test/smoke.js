@@ -57,11 +57,47 @@ async function alvo() {
   return servirAlvo(path.resolve(__dirname, '..', p || 'index.html'));
 }
 
+// ===== LINT DE COMENTÁRIO — roda ANTES do navegador, e existe por um defeito real =====
+// Em 2026-08-09 um comentário de `src/estilo.css` ficou PARTIDO EM DOIS: fechava na metade e
+// deixava sete linhas de prosa soltas dentro da folha de estilo, com um `*/` órfão no fim. O
+// navegador pulou o lixo e engoliu a regra `.glItem` inteira — a que recolhe o verbete —, e o
+// glossário passou a mostrar cartões de 334 px onde deviam ter 45.
+//
+// O SMOKE TEST PASSOU VERDE o tempo todo, e não por descuido: ele confere que a classe
+// `.aberto` alterna, não a altura que a classe produz. CSS morto não lança erro de console,
+// não quebra JS e não muda contagem de elemento nenhum — é invisível para tudo o que este
+// arquivo sabe olhar. Só apareceu quando alguém abriu a tela e olhou.
+//
+// Isto aqui cobre a CAUSA, que é barata de detectar: comentário desbalanceado. Não substitui
+// olhar a tela — o CLAUDE.md §6 é explícito em que o teste garante que não quebrou, nunca que
+// ficou bom — mas fecha a porta por onde esta classe de defeito entra.
+function lintComentarios() {
+  const problemas = [];
+  for (const rel of ['src/estilo.css', 'src/index.html', 'src/jogo.ts']) {
+    const p = path.resolve(__dirname, '..', rel);
+    if (!fs.existsSync(p)) continue;
+    const txt = fs.readFileSync(p, 'utf8');
+    // Um `/*` dentro de string ou de expressão regular daria falso positivo em JS/TS; por isso
+    // a checagem de bloco só vale para CSS, onde não há literal de string com barra-asterisco.
+    if (rel.endsWith('.css')) {
+      const ab = (txt.match(/\/\*/g) || []).length, fe = (txt.match(/\*\//g) || []).length;
+      if (ab !== fe) problemas.push(`${rel}: ${ab} aberturas de comentário para ${fe} fechamentos`);
+      // `*/` que sobra depois de remover todo comentário bem-formado é o órfão exato do caso
+      // acima: quem o escreveu achava que estava dentro de um comentário, e não estava.
+      const orfaos = txt.replace(/\/\*[\s\S]*?\*\//g, '').split('*/').length - 1;
+      if (orfaos) problemas.push(`${rel}: ${orfaos} fecha-comentário órfão — prosa solta fora de comentário`);
+    }
+  }
+  return problemas;
+}
+
 (async () => {
   const posto = await alvo();
   const file = posto.url;
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const problemasDeComentario = lintComentarios();
+  problemasDeComentario.forEach(function (p) { console.log('comment lint -> ' + p); });
   const errors = [];
   page.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && !/ERR_(TUNNEL|NAME|CONNECTION)/.test(m.text())) errors.push('CONSOLE: ' + m.text()); });
@@ -1286,6 +1322,394 @@ async function alvo() {
   await passo('btnVoltarComp', 'telaMenu');
   await passo('btnFontes', 'telaFontes');             // DE ONDE VEM reachable mid-game
   await passo('btnVoltarFontes', 'telaMenu');
+
+  // ---- GLOSSARIO: a tela irma, e as tres coisas que podem dar errado nela ----
+  // O molde HTML dela e territorio da Direcao de Arte e chega em commit proprio, entao a
+  // checagem se AUTO-LIGA: enquanto o botao nao existir ela DIZ que pulou, em vez de reprovar
+  // uma integracao que ainda nao aterrissou; no dia em que o markup entrar, ela passa a valer
+  // sozinha, sem ninguem lembrar de habilita-la.
+  //   1. abre e PINTA — verbete que existe em GLOSSARIO e nao aparece na caixa e a falha que
+  //      um print nao denuncia, porque a tela continua bonita com metade da lista;
+  //   2. tem cabecalho de grupo — e o unico ramo do montador que nao passa por .glItem;
+  //   3. FECHA por fora. `fecharTelas()` so fecha o que esta em TELAS: esquecer o nome ali
+  //      deixa a tela presa por cima do jogo, e este e o teste que enxerga isso.
+  const temGloss = await page.evaluate(() =>
+    !!document.getElementById('btnGlossario') && !!document.getElementById('telaGlossario'));
+  if (!temGloss) {
+    console.log('glossary -> not in the template yet (no #btnGlossario/#telaGlossario), walk skipped');
+  } else {
+    await passo('btnGlossario', 'telaGlossario');     // GLOSSARIO reachable mid-game
+
+    // A TELA ABRE PELOS ASSUNTOS (decisao do dono, 2026-08-10): a primeira coisa que se ve e a
+    // lista dos grupos, cada um com a frase que o explica, e nao 121 termos empilhados. Antes
+    // de conferir a LISTA, portanto, este teste precisa atravessar a porta — como a pessoa faz.
+    //
+    // Vale conferir a porta em si, porque ela e a unica coisa entre quem abre o glossario e todo
+    // o conteudo dele: se as portas nao pintarem, a tela vira um beco sem saida silencioso, e
+    // nada mais abaixo falharia (a lista simplesmente ficaria vazia, que e o que aconteceu na
+    // primeira vez que este bloco rodou depois da mudanca).
+    const portas = await page.evaluate(() => {
+      const ps = [...document.querySelectorAll('#listaGlossario .glAssunto')];
+      return {
+        n: ps.length,
+        grupos: GLOSSARIO.filter(v => !!v.g).length,
+        comFrase: ps.filter(p => !!(p.querySelector('.glAssuntoSub') || {}).textContent).length,
+        temTudo: ps.some(p => p.dataset.seg === '*'),
+        // a frase da porta e PROSA dentro de um <button>, e a regra global de button impoe
+        // caixa alta — se a excecao cair, ela volta a gritar e ninguem percebe pelo teste
+        gritando: ps.filter(p => {
+          const s = p.querySelector('.glAssuntoSub');
+          return s && getComputedStyle(s).textTransform === 'uppercase';
+        }).length
+      };
+    });
+    console.log('glossary doors -> painted', portas.n, 'for', portas.grupos + 1, 'expected | with a sentence:',
+      portas.comFrase, '| TUDO present:', portas.temTudo, '| shouting in caps:', portas.gritando);
+    if (portas.n !== portas.grupos + 1) errors.push('the glossary painted ' + portas.n + ' doors for ' + (portas.grupos + 1) + ' expected (groups + TUDO)');
+    if (!portas.temTudo) errors.push('the glossary door list has no TUDO: the whole index is unreachable in one tap');
+    if (portas.comFrase !== portas.n) errors.push('glossary doors without an explaining sentence: ' + (portas.n - portas.comFrase));
+    if (portas.gritando) errors.push('glossary door sentences rendered in uppercase: ' + portas.gritando);
+
+    // atravessa a porta TUDO — daqui para baixo o teste fala da LISTA, como antes
+    await page.evaluate(() => {
+      const t = [...document.querySelectorAll('#listaGlossario .glAssunto')].find(p => p.dataset.seg === '*');
+      if (t) t.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(60);
+
+    const gl = await page.evaluate(() => {
+      const itens = [...document.querySelectorAll('#listaGlossario .glItem')];
+      return {
+        itens: itens.length,
+        dados: GLOSSARIO.filter(v => !v.g).length,
+        grupos: document.querySelectorAll('#listaGlossario .glGrupo').length,
+        gruposDados: GLOSSARIO.filter(v => !!v.g).length,
+        semTermo: itens.filter(e => !(e.querySelector('.glT') || {}).textContent).length,
+        duvida: document.querySelectorAll('#listaGlossario .glItem.dv').length
+      };
+    });
+    console.log('glossary -> entries painted', gl.itens, 'of', gl.dados, '| groups', gl.grupos,
+      'of', gl.gruposDados, '| entries with no term:', gl.semTermo, '| marked as disputed:', gl.duvida);
+    await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario.png') });
+    if (gl.itens !== gl.dados) errors.push('the glossary painted ' + gl.itens + ' entries for ' + gl.dados + ' in GLOSSARIO');
+    if (gl.grupos !== gl.gruposDados) errors.push('the glossary painted ' + gl.grupos + ' group headings for ' + gl.gruposDados + ' in GLOSSARIO');
+    if (gl.semTermo) errors.push(gl.semTermo + ' glossary entries were painted with no term');
+
+    // ---- A NAVEGACAO DO GLOSSARIO: recolher, abas, busca, salto, relacionados e sorteio ----
+    // DUAS CAMADAS, e a divisao entre elas e a mesma fronteira do contrato de DOM. O que mora
+    // DENTRO de #listaGlossario e do Dev e e checado sempre. O que e chrome — #glCampo,
+    // #glFiltros, #glLimpar, #glSorte — e da Direcao de Arte e chega em commit proprio: se o
+    // elemento existir, o teste TOCA nele (e assim confere a ligacao); se nao existir, ele
+    // aciona a mesma funcao por baixo e continua provando a LOGICA. Sem isso a checagem ficaria
+    // adormecida ate o markup chegar, que e justamente quando ninguem lembra de liga-la.
+
+    // 1. O molde do verbete. Cabeca com o termo, corpo, data-t, e NENHUM aberto de saida —
+    //    a lista abre como indice, que e o que o dono aprovou no lugar da parede de 52.
+    const molde = await page.evaluate(() => {
+      const it = [...document.querySelectorAll('#listaGlossario .glItem')];
+      return {
+        total: it.length,
+        cabeca: it.filter(e => e.querySelector('.glCabeca .glT')).length,
+        corpo: it.filter(e => e.querySelector('.glCorpo')).length,
+        dataT: it.filter(e => e.dataset.t).length,
+        abertos: it.filter(e => e.classList.contains('aberto')).length
+      };
+    });
+    console.log('glossary -> collapsed by default:', molde.abertos === 0,
+      '| heads', molde.cabeca, '| bodies', molde.corpo, '| data-t', molde.dataT, 'of', molde.total);
+    if (molde.cabeca !== molde.total) errors.push('glossary entries without .glCabeca > .glT: ' + (molde.total - molde.cabeca));
+    if (molde.corpo !== molde.total) errors.push('glossary entries without .glCorpo: ' + (molde.total - molde.corpo));
+    if (molde.dataT !== molde.total) errors.push('glossary entries without data-t: ' + (molde.total - molde.dataT));
+    if (molde.abertos) errors.push('the glossary opened with ' + molde.abertos + ' entries already expanded');
+
+    // 2. A cabeca ALTERNA .aberto, e abrir um FECHA o outro (a decisao registrada no jogo.ts:
+    //    acumular abertos volta em 52 toques para a tela que o dono reprovou).
+    const acordeao = await page.evaluate(() => {
+      const it = [...document.querySelectorAll('#listaGlossario .glItem')];
+      it[0].querySelector('.glCabeca').click();
+      const abriu = it[0].classList.contains('aberto');
+      it[3].querySelector('.glCabeca').click();
+      const outro = it[3].classList.contains('aberto'), primeiroCedeu = !it[0].classList.contains('aberto');
+      it[3].querySelector('.glCabeca').click();
+      const fechou = !it[3].classList.contains('aberto');
+      return { abriu, outro, primeiroCedeu, fechou,
+        aria: it[3].querySelector('.glCabeca').getAttribute('aria-expanded') };
+    });
+    console.log('glossary -> head toggles .aberto:', acordeao.abriu, '| second tap closes it:', acordeao.fechou,
+      '| opening another closed the first:', acordeao.primeiroCedeu, '| aria-expanded:', acordeao.aria);
+    if (!acordeao.abriu) errors.push('tapping .glCabeca did not open the entry');
+    if (!acordeao.fechou) errors.push('tapping .glCabeca twice did not close the entry');
+    if (!acordeao.outro || !acordeao.primeiroCedeu) errors.push('opening a second entry did not close the first');
+    if (acordeao.aria !== 'false') errors.push('a closed .glCabeca kept aria-expanded=' + acordeao.aria);
+
+    // 2b. O MESMO, com um DEDO DE VERDADE. O `.click()` acima entra pela porta do teclado
+    //     (detail 0) e nao prova o gesto; e o gesto e onde estava o defeito. O toque que abre
+    //     a tela chega com o dedo ainda no ar sobre uma `.glCabeca`, e o `click` que fecha
+    //     aquele toque vazava para ela — e por isso que o glossario abria com um verbete
+    //     escancarado (o teste do item 1 e quem pegou). A guarda que conserta pode quebrar o
+    //     toque legitimo, entao ele tambem e tocado aqui, de dedo.
+    const alvoDedo = await page.evaluate(() => {
+      const el = document.querySelector('#listaGlossario .glItem');
+      return el ? el.dataset.i : null;
+    });
+    const sel = '#listaGlossario .glItem[data-i="' + alvoDedo + '"] .glCabeca';
+    await page.tap(sel);
+    await page.waitForTimeout(120);
+    const dedoAbriu = await page.evaluate(i =>
+      document.querySelector('#listaGlossario .glItem[data-i="' + i + '"]').classList.contains('aberto'), alvoDedo);
+    await page.tap(sel);
+    await page.waitForTimeout(120);
+    const dedoFechou = await page.evaluate(i =>
+      !document.querySelector('#listaGlossario .glItem[data-i="' + i + '"]').classList.contains('aberto'), alvoDedo);
+    console.log('glossary -> a real tap on the head opens it:', dedoAbriu, '| and closes it:', dedoFechou);
+    if (!dedoAbriu) errors.push('a real tap on .glCabeca did not open the entry (the stray-tap guard is too strict)');
+    if (!dedoFechou) errors.push('a real tap on an open .glCabeca did not close it');
+
+    // 3. A BUSCA CHEGA SEM ACENTO. Ninguem digita "BUZIOS" com acento no celular, e o verbete
+    //    acentuado e o que a pessoa foi buscar aprender. O termo alvo sai do proprio GLOSSARIO:
+    //    o teste nao sabe nomes de cor, entao ele continua valendo se a lista mudar.
+    const busca = await page.evaluate(() => {
+      const nu = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const alvo = GLOSSARIO.filter(v => !v.g).map(v => String(v.t)).filter(t => nu(t) !== t)[0];
+      const digitado = nu(alvo).toLowerCase();          // sem acento E em caixa baixa: os dois eixos
+      const c = document.getElementById('glCampo');
+      if (c) { c.value = digitado; c.dispatchEvent(new Event('input', { bubbles: true })); }
+      else { glTermo = digitado; glPintar(); }
+      const sugs = [...document.querySelectorAll('#listaGlossario .glSug')].map(e => e.textContent);
+      return { alvo, digitado, campo: !!c, achou: sugs.indexOf(alvo) >= 0, primeira: sugs[0] || null,
+        quantas: sugs.length, itens: document.querySelectorAll('#listaGlossario .glItem').length };
+    });
+    console.log('glossary search -> typed "' + busca.digitado + '" (field present: ' + busca.campo + ') -> ' +
+      busca.quantas + ' suggestions, found "' + busca.alvo + '":', busca.achou, '| entries hidden:', busca.itens === 0);
+    if (!busca.achou) errors.push('searching "' + busca.digitado + '" did not find the accented entry "' + busca.alvo + '"');
+    if (busca.itens !== 0) errors.push('the search left ' + busca.itens + ' full entries painted under the suggestions');
+
+    // 4. O SALTO: tocar na sugestao limpa a busca, devolve a lista INTEIRA, abre o verbete e
+    //    marca .alvo. A ultima oracao do pedido do dono e esta — a pessoa fica no glossario.
+    await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario-busca.png') });
+    const salto = await page.evaluate(() => {
+      const s = document.querySelector('#listaGlossario .glSug');
+      const termo = s.textContent;
+      s.click();
+      const el = [...document.querySelectorAll('#listaGlossario .glItem')].filter(e => e.dataset.t === termo)[0];
+      const c = document.getElementById('glCampo');
+      return { termo, achou: !!el, aberto: !!el && el.classList.contains('aberto'),
+        alvo: !!el && el.classList.contains('alvo'),
+        itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        sugs: document.querySelectorAll('#listaGlossario .glSug').length,
+        campoVazio: !c || c.value === '', rolou: document.getElementById('listaGlossario').scrollTop };
+    });
+    console.log('glossary jump -> "' + salto.termo + '" | back to the whole list:', salto.itens, '| suggestions gone:',
+      salto.sugs === 0, '| opened:', salto.aberto, '| flagged .alvo:', salto.alvo, '| scrolled to', Math.round(salto.rolou));
+    if (!salto.achou) errors.push('jumping to "' + salto.termo + '" did not repaint the entry in the list');
+    if (salto.sugs || salto.itens !== gl.dados) errors.push('the jump did not hand back the whole glossary: ' + salto.itens + ' entries, ' + salto.sugs + ' suggestions');
+    if (!salto.aberto) errors.push('the jump left "' + salto.termo + '" collapsed');
+    if (!salto.alvo) errors.push('the jump did not flag "' + salto.termo + '" with .alvo');
+    if (!salto.campoVazio) errors.push('the jump left text in the search field');
+
+    // 5. Busca sem nenhum achado -> .glVazio, e a frase dele e FIXA: o que foi digitado nunca
+    //    volta para a tela. E a unica entrada de teclado do jogo inteiro.
+    const vazio = await page.evaluate(() => {
+      const alvo = 'zzqx';
+      const c = document.getElementById('glCampo');
+      if (c) { c.value = alvo; c.dispatchEvent(new Event('input', { bubbles: true })); }
+      else { glTermo = alvo; glPintar(); }
+      const z = document.querySelector('#listaGlossario .glVazio');
+      return { z: !!z, sugs: document.querySelectorAll('#listaGlossario .glSug').length,
+        repetiu: !!z && (z.getAttribute('aria-label') || '').toLowerCase().indexOf(alvo) >= 0 };
+    });
+    console.log('glossary search -> a query with no match shows .glVazio:', vazio.z, '| it never echoes the typed text:', !vazio.repetiu);
+    if (!vazio.z || vazio.sugs) errors.push('a search with no match did not paint .glVazio');
+    if (vazio.repetiu) errors.push('the empty-search message echoed the typed text back into the page');
+
+    // 6. O X devolve a lista inteira.
+    const limpou = await page.evaluate(() => {
+      const b = document.getElementById('glLimpar');
+      if (b) b.dispatchEvent(new Event('pointerdown', { bubbles: true })); else glLimparBusca();
+      const c = document.getElementById('glCampo');
+      return { botao: !!b, itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        sugs: document.querySelectorAll('#listaGlossario .glSug').length, campoVazio: !c || c.value === '' };
+    });
+    console.log('glossary -> clear (button present: ' + limpou.botao + ') hands back', limpou.itens, 'entries');
+    if (limpou.itens !== gl.dados || limpou.sugs) errors.push('clearing the search did not hand back the whole glossary: ' + limpou.itens);
+    if (!limpou.campoVazio) errors.push('clearing the search left text in the field');
+
+    // 7. UMA ABA DE GRUPO REDUZ A LISTA, e reduz para o numero EXATO de verbetes daquele grupo
+    //    — contado do proprio GLOSSARIO, nao de um numero escrito aqui que envelheceria.
+    const abaGrupo = await page.evaluate(() => {
+      const grupos = GLOSSARIO.filter(v => v.g).map(v => v.g);
+      const alvo = grupos[1];                       // um que nao seja o primeiro bloco
+      let esperado = 0, dentro = false;
+      GLOSSARIO.forEach(v => { if (v.g) { dentro = (v.g === alvo); return; } if (dentro) esperado++; });
+      // A ESCOLHA DE ASSUNTO PASSA PELA PORTA, e nao mais por uma aba: para chegar a ela e
+      // preciso VOLTAR para a tela de assuntos primeiro, que e o caminho que a pessoa faz. Este
+      // trecho, portanto, testa duas coisas de uma vez — o caminho de volta e o filtro.
+      const volta = document.querySelector('#glFiltros .glVolta');
+      if (volta) volta.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const b = [...document.querySelectorAll('#listaGlossario .glAssunto')].filter(x => x.dataset.seg === alvo)[0];
+      if (b) b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); else { glSeg = alvo; glVista = 'lista'; glPintar(); }
+      return { alvo, esperado, botao: !!b, voltou: !!volta,
+        itens: document.querySelectorAll('#listaGlossario .glItem').length,
+        placas: document.querySelectorAll('#listaGlossario .glGrupo').length };
+    });
+    console.log('glossary doors -> "' + abaGrupo.alvo + '" (door present: ' + abaGrupo.botao + ', back path: ' +
+      abaGrupo.voltou + ') narrowed the list to', abaGrupo.itens, 'of', gl.dados,
+      '| expected', abaGrupo.esperado, '| headings', abaGrupo.placas);
+    if (abaGrupo.itens !== abaGrupo.esperado) errors.push('the door "' + abaGrupo.alvo + '" painted ' + abaGrupo.itens + ' entries for ' + abaGrupo.esperado);
+    if (!(abaGrupo.itens < gl.dados)) errors.push('the door did not narrow the list at all');
+    if (abaGrupo.placas !== 1) errors.push('the door painted ' + abaGrupo.placas + ' group headings instead of 1');
+    if (!abaGrupo.voltou) errors.push('no way back to the subject list: .glVolta is missing while inside a group');
+
+    // 8. O SORTEIO abre um verbete qualquer — e ele DESFAZ o filtro de grupo se a palavra
+    //    sorteada mora fora dele, que e a mesma regra do salto. Chamado com a aba do item 7
+    //    ainda ativa, de proposito: e assim que o desfazer fica provado.
+    const sorte = await page.evaluate(() => {
+      const b = document.getElementById('glSorte');
+      if (b) b.dispatchEvent(new Event('pointerdown', { bubbles: true })); else glSortear();
+      const el = document.querySelector('#listaGlossario .glItem.aberto');
+      return { botao: !!b, termo: el ? el.dataset.t : null,
+        alvo: document.querySelectorAll('#listaGlossario .glItem.alvo').length,
+        itens: document.querySelectorAll('#listaGlossario .glItem').length, seg: glSeg };
+    });
+    console.log('glossary dice -> (button present: ' + sorte.botao + ') opened "' + sorte.termo + '" | flagged .alvo:',
+      sorte.alvo, '| list is', sorte.itens, 'entries in segment "' + sorte.seg + '"');
+    if (!sorte.termo) errors.push('#glSorte did not open any entry');
+    if (sorte.alvo !== 1) errors.push('#glSorte flagged ' + sorte.alvo + ' entries with .alvo instead of 1');
+    if (!(sorte.itens === gl.dados || sorte.itens === abaGrupo.esperado)) errors.push('#glSorte left the list at ' + sorte.itens + ' entries');
+
+    // 9. OS RELACIONADOS. O campo `rel` e do historiador e e texto escrito a mao: um nome com
+    //    erro de digitacao some CALADO da tela (e o certo, la), e este e o unico lugar do
+    //    projeto onde ele aparece. Enquanto ninguem tiver escrito `rel`, o teste diz isso.
+    const rel = await page.evaluate(() => {
+      const nu = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+      const termos = {}; GLOSSARIO.filter(v => !v.g).forEach(v => { termos[nu(v.t)] = 1; });
+      const mapa = (typeof GLOSSARIO_REL === 'object' && GLOSSARIO_REL) || {};
+      const quebrados = []; let comRel = 0, ligacoes = 0, proprio = 0;
+      GLOSSARIO.filter(v => !v.g).forEach(v => {
+        const lista = v.rel || mapa[String(v.t)];
+        if (!lista || !lista.length) return;
+        comRel++;
+        lista.forEach(n => {
+          ligacoes++;
+          if (nu(n) === nu(v.t)) { proprio++; return; }
+          if (!termos[nu(n)]) quebrados.push(String(v.t) + ' -> ' + n);
+        });
+      });
+      // Uma CHAVE que nao casa com nenhum verbete perde a fileira inteira daquele verbete, e
+      // some ainda mais calada que um valor errado: nada aparece e nada acusa. Por isso a
+      // chave e conferida junto — o casamento e por string exata, letra e acento.
+      const chavesOrfas = Object.keys(mapa).filter(k => !termos[nu(k)]);
+      const semRemissao = GLOSSARIO.filter(v => !v.g && !v.rel && !mapa[String(v.t)]).map(v => String(v.t));
+      glSeg = '*'; glTermo = ''; glPintar();
+      return { comRel, ligacoes, quebrados, proprio, chavesOrfas, semRemissao,
+        pintados: document.querySelectorAll('#listaGlossario .glRel .glLink').length,
+        caixas: document.querySelectorAll('#listaGlossario .glRel').length };
+    });
+    if (!rel.comRel) {
+      console.log('glossary related -> no entry carries `rel` yet (the historian has not landed), links skipped');
+    } else {
+      console.log('glossary related ->', rel.comRel, 'entries with cross-references |', rel.ligacoes, 'links written |',
+        rel.pintados, 'painted in', rel.caixas, '.glRel boxes | broken:', rel.quebrados.length,
+        '| orphan keys:', rel.chavesOrfas.length, '| entries with none:', rel.semRemissao.length);
+      if (rel.quebrados.length) errors.push('cross-references point at terms that are not in GLOSSARIO: ' + rel.quebrados.join(' ; '));
+      if (rel.chavesOrfas.length) errors.push('GLOSSARIO_REL has keys that match no entry: ' + rel.chavesOrfas.join(' ; '));
+      if (rel.proprio) errors.push(rel.proprio + ' cross-references point the term at itself');
+      if (!rel.pintados) errors.push('entries carry cross-references but no .glLink was painted');
+      if (rel.pintados !== rel.ligacoes) errors.push('the list painted ' + rel.pintados + ' links for ' + rel.ligacoes + ' written');
+      // Tocar num .glLink faz o MESMO salto da sugestao — e o que transforma ler um verbete
+      // em ler quatro, e a unica forma de provar isso e seguir a ligacao.
+      const pulo = await page.evaluate(() => {
+        const l = document.querySelector('#listaGlossario .glRel .glLink');
+        const destino = l.textContent;
+        l.click();
+        const el = [...document.querySelectorAll('#listaGlossario .glItem')].filter(e => e.dataset.t === destino)[0];
+        return { destino, achou: !!el, aberto: !!el && el.classList.contains('aberto'),
+          alvo: !!el && el.classList.contains('alvo') };
+      });
+      console.log('glossary related -> following a link landed on "' + pulo.destino + '" | opened:', pulo.aberto,
+        '| flagged .alvo:', pulo.alvo);
+      // O print do verbete ABERTO, com a fileira de remissoes. Os outros dois shots do
+      // glossario pegam a lista recolhida e a busca; este e o unico que mostra o que a pessoa
+      // le quando chega, e e onde se ve se .glRel cabe no corpo sem brigar com a fonte.
+      await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-glossario-verbete.png') });
+      if (!pulo.achou || !pulo.aberto || !pulo.alvo) errors.push('following a .glLink did not jump to "' + pulo.destino + '" opened and flagged');
+    }
+
+    // ===== GEOMETRIA — as assercoes que este arquivo nao tinha e por isso deixou passar =====
+    // Este bloco existe por causa de um defeito real, e a licao vale para o arquivo inteiro:
+    // um comentario de CSS fechou na metade, o navegador engoliu a regra `.glItem` (a que
+    // recolhe o verbete), e o verbete "recolhido" passou a ocupar 334 px em vez de 45. A tela
+    // virou um vao gigante entre termos — e o SMOKE PASSOU VERDE, porque conferia a CLASSE
+    // `.aberto` e nunca a altura que a classe produz. So apareceu porque alguem abriu e olhou.
+    //
+    // O CLAUDE.md §6 ja avisa que o teste garante que nao quebrou, nunca que ficou bom, e isso
+    // continua verdade: print nenhum se substitui por numero. Mas HA uma familia inteira de
+    // defeito — CSS morto, regra sobrescrita, unidade errada — que nao lanca erro de console,
+    // nao quebra JS, nao muda contagem de elemento, e portanto e invisivel para tudo o mais
+    // que este arquivo sabe olhar. Contra ela, tres numeros custam quase nada.
+    //
+    // Sao MEDIDAS DE RELACAO, nao pixels absolutos: "o recolhido e muito menor que o aberto"
+    // sobrevive a Direcao de Arte mudar o desenho; "o recolhido tem 44 px" viraria um teste
+    // que reprova design novo em vez de reprovar defeito.
+    const geo = await page.evaluate(() => {
+      montarGlossario();
+      const porta = document.querySelector('#listaGlossario .glAssunto');
+      const rp = porta ? porta.getBoundingClientRect() : null;
+      // a aba do fichario nao pode sair da folha: foi o defeito do escalonamento em porcentagem
+      const abas = [...document.querySelectorAll('#listaGlossario .glAssunto')].map(b => {
+        const n = b.querySelector('.glAssuntoNome');
+        return n ? Math.round(b.getBoundingClientRect().right - n.getBoundingClientRect().right) : 999;
+      });
+      // entra na lista para medir o verbete recolhido contra o aberto
+      const tudo = [...document.querySelectorAll('#listaGlossario .glAssunto')].find(p => p.dataset.seg === '*');
+      if (tudo) tudo.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const itens = [...document.querySelectorAll('#listaGlossario .glItem')];
+      const fechado = itens[0] ? itens[0].getBoundingClientRect().height : 0;
+      const cabeca = itens[0] ? itens[0].querySelector('.glCabeca').getBoundingClientRect().height : 0;
+      // ABRE AQUI E MEDE DEPOIS, noutra chamada: a abertura e uma transicao de
+      // `grid-template-rows` de 260 ms, e medir no mesmo quadro do clique devolve a altura
+      // FECHADA — foi o primeiro resultado deste bloco, e o "defeito" era do teste.
+      if (itens[1]) itens[1].querySelector('.glCabeca').click();
+      // ninguem pode transbordar a folha na horizontal — a tela e mobile-first
+      const rolo = document.getElementById('listaGlossario');
+      const vazaH = rolo ? Math.round(rolo.scrollWidth - rolo.clientWidth) : 0;
+      return { portaH: rp ? Math.round(rp.height) : 0, sobraDaAba: Math.min.apply(null, abas),
+        fechado: Math.round(fechado), cabeca: Math.round(cabeca), vazaH };
+    });
+    await page.waitForTimeout(420);                 // 260 ms de transicao, com folga
+    geo.aberto = await page.evaluate(() => {
+      const a = document.querySelector('#listaGlossario .glItem.aberto');
+      return a ? Math.round(a.getBoundingClientRect().height) : 0;
+    });
+    console.log('glossary geometry -> collapsed entry', geo.fechado + 'px (head ' + geo.cabeca + 'px)',
+      '| opened', geo.aberto + 'px | door', geo.portaH + 'px | tab slack', geo.sobraDaAba + 'px | h-overflow', geo.vazaH + 'px');
+    // 1. o recolhido e a CABECA e mais nada. Tolera 4 px de moldura; 334 contra 45 nao passa.
+    if (geo.fechado > geo.cabeca + 4)
+      errors.push('a collapsed glossary entry is ' + geo.fechado + 'px tall for a ' + geo.cabeca +
+        'px head — the body is still taking space (is the .glItem rule being dropped?)');
+    // 2. abrir tem que crescer de verdade, senao o corpo nunca aparece
+    if (!(geo.aberto > geo.fechado * 1.5))
+      errors.push('opening an entry grew it from ' + geo.fechado + ' to only ' + geo.aberto + 'px');
+    // 3. a aba do fichario nao sai da folha (o escalonamento em % ja a botou 27px para fora)
+    if (geo.sobraDaAba < 0)
+      errors.push('a subject tab overflows its card by ' + (-geo.sobraDaAba) + 'px');
+    // 4. nada de rolagem horizontal: a tela e mobile-first
+    if (geo.vazaH > 1)
+      errors.push('the glossary list overflows horizontally by ' + geo.vazaH + 'px');
+
+    // Deixa a tela como ela abre, para o resto do passeio nao herdar filtro nem realce.
+    await page.evaluate(() => montarGlossario());
+    await passo('btnVoltarGloss', 'telaMenu');        // ...and VOLTAR hands the menu back
+    const presa = await page.evaluate(() => {
+      abrirTela('telaGlossario'); fecharTelas();
+      return { aberta: document.getElementById('telaGlossario').classList.contains('aberta'),
+        emTela: document.body.classList.contains('emTela') };
+    });
+    console.log('glossary -> fecharTelas() closes it:', !presa.aberta, '| chrome back:', !presa.emTela);
+    if (presa.aberta) errors.push('fecharTelas() left telaGlossario open — is it missing from TELAS?');
+    if (presa.emTela) errors.push('closing telaGlossario left the body in emTela');
+    await passo('abrirMenu', 'telaMenu');             // devolve o menu para o resto do passeio
+  }
   const dentroDeNovo = await passo('btnJogar', null); // and JOGAR hands the street back, chrome and all
   const partida = await page.evaluate(() => ({ total: S.energiaTotal, cenario: S.cenario }));
   console.log('in-game menu walk -> back on the street:', dentroDeNovo.abertas.length === 0,
@@ -1725,6 +2149,7 @@ async function alvo() {
 
 console.log('FPS:', fps);
 
+  problemasDeComentario.forEach(function (p) { errors.push('COMMENT LINT: ' + p); });
   console.log(errors.length ? 'FAIL\n' + errors.join('\n') : 'PASS — no errors');
   await browser.close();
   if (posto.servidor) posto.servidor.close();
