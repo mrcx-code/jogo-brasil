@@ -1086,9 +1086,20 @@ function lintComentarios() {
     S.recursos = { flor: 200, agua: 200, refeicao: 200 };
     S.obra = { roca: 0, palicada: 0, casa: 0 };
     mobs.length = 0; drops.length = 0; folhas.length = 0; floats.length = 0;
-    canteiros.length = 0; canteiros.push({ tipo: 'roca', wx: worldX + HX + 20 });
   });
   await page.waitForTimeout(300);
+  // O CANTEIRO E POSTO DEPOIS DA ESPERA, E ISSO CONSERTA UMA INTERMITENCIA REAL.
+  // Antes ele era criado JUNTO com o resto do preparo e a medida so comecava 300 ms depois.
+  // Nesses 300 ms duas coisas acontecem: o mundo anda (`worldX` avanca), e a propria faixa
+  // re-semeia `canteiros` pela regra dela. Resultado: em algumas rodadas ela comecava ATRAS
+  // do canteiro ou ele nem existia mais, e o teste acusava "segurar nao construiu nada" com
+  // a mecanica perfeita. Falhou 3 vezes em 8 rodadas — nao e raro, e teste que falha 1 em 3
+  // e teste que se aprende a ignorar.
+  // Posto agora, EXATAMENTE onde ela esta, o gesto comeca dentro do canteiro.
+  await page.evaluate(() => {
+    canteiros.length = 0;
+    canteiros.push({ tipo: 'roca', wx: worldX + HX });
+  });
   const naFaixa = await segurarOMundo(2.6);
   const umGolpe = await page.evaluate(() => ganhoClique());
   console.log('holding the world in the faixa ->', JSON.stringify(naFaixa),

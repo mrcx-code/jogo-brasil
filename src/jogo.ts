@@ -257,6 +257,12 @@ let S = {
   // capítulo 2. Estágio e parcelas debitadas DERIVAM daqui (`floor(p/60)` e `floor(p/10)`),
   // então três números são o save inteiro da obra. Só cresce — ver o bloco de OBRA_*.
   obra: { roca: 0, palicada: 0, casa: 0 },
+  // O QUE A PESSOA JÁ VIU DA OBRA — a fotografia de `obra` no instante em que ela fechou a
+  // tela O LUGAR pela última vez. Existe para uma frase só, e é a frase que faz voltar:
+  // *o que cresceu desde a sua última visita*. Nunca entra em conta nenhuma do jogo; se um
+  // save adulterado o puser à frente de `obra`, o pior que acontece é a página dizer que
+  // nada mudou (a diferença é aparada em zero na leitura).
+  obraVista: { roca: 0, palicada: 0, casa: 0 },
   // Quais TRAVESSIAS já foram atravessadas, um bit por travessia — mesma gramática de
   // `aberturas`. Uma travessia não é capítulo: é o trecho em que o jogo para de ser jogo
   // entre um capítulo e o seguinte. O bit serve a uma coisa só: a primeira vez não é
@@ -2406,6 +2412,27 @@ const NOME_ESTAGIO: Record<Canteiro, string[]> = {
   casa:     ["a casa já tem os esteios", "a casa ganhou as paredes de taipa", "a casa está coberta"]
 };
 const NOME_CANTEIRO: Record<Canteiro, string> = { roca: "da roça", palicada: "da paliçada", casa: "da casa" };
+// O MESMO estágio, dito CURTO — para a página de O LUGAR, onde o nome do canteiro já está
+// escrito acima e repeti-lo em cada linha ("a roça já tem as leiras abertas", debaixo do
+// título ROÇA) é ladainha. É vocabulário paralelo de propósito e não derivado por corte de
+// string: partir "a roça já tem as leiras abertas" no verbo daria um conserto silencioso
+// errado no dia em que uma frase mudar de forma. Os dois arrays andam juntos; mexer num é
+// mexer nos dois.
+const ESTAGIO_CURTO: Record<Canteiro, string[]> = {
+  roca:     ["as leiras abertas", "as mudas na terra", "a roça crescida"],
+  palicada: ["as primeiras estacas", "a tranca", "a paliçada cerrada"],
+  casa:     ["os esteios", "as paredes de taipa", "a casa coberta"]
+};
+const TITULO_CANTEIRO: Record<Canteiro, string> = { roca: "ROÇA", palicada: "PALIÇADA", casa: "CASA" };
+// O que ainda não começou. Um por canteiro porque "ainda por começar" três vezes seguidas é
+// a mesma parede de linhas repetidas que a tela de eras já pagou uma vez.
+const ESTAGIO_ZERO: Record<Canteiro, string> = {
+  roca: "a terra marcada, ainda por abrir",
+  palicada: "os piquetes fincados, e nada mais",
+  casa: "o chão batido, à espera dos esteios"
+};
+// Como se diz cada recurso numa frase. O rótulo do HUD é um ícone; aqui é palavra.
+const NOME_RECURSO: Record<string, string> = { flor: "flor", agua: "água", refeicao: "comida" };
 function estagioObra(c: Canteiro) { return Math.floor((S.obra[c] | 0) / OBRA_PONTOS_ESTAGIO); }
 function obraCompleta() { return OBRA_CANTEIROS.every(function (c) { return (S.obra[c] | 0) >= OBRA_MAX; }); }
 // QUANTOS PONTOS POR HORA O MUTIRÃO RENDE, e a fórmula tem três propriedades que são o §2:
@@ -2727,6 +2754,10 @@ const ESQUEMA_SAVE = {
   // desenho; nunca ganha economia. Chave que o save traz e o esquema não declara morre na
   // porta, como em `recursos`.
   obra:         { tipo: "mapa", chaves: ["roca", "palicada", "casa"], min: 0, max: OBRA_MAX, pad: 0 },
+  // A fotografia da última visita a O LUGAR. MESMA régua do campo acima, e pelo mesmo motivo
+  // reforçado: ele não alimenta economia nenhuma — só a frase "o que cresceu desde a última
+  // vez". Aparado no mesmo teto para que a subtração nunca possa dar um número que não existe.
+  obraVista:    { tipo: "mapa", chaves: ["roca", "palicada", "casa"], min: 0, max: OBRA_MAX, pad: 0 },
   // `semAparar` pelo mesmo motivo, e o defeito era pior: um `salvoEm` de 5e12 era APARADO
   // para 4e12 (ano 2096) e o "quanto tempo você ficou fora" saía em MENOS setenta anos.
   // Hoje é inofensivo porque não há produção offline e o painel não abre com dt negativo —
@@ -6657,11 +6688,21 @@ function canteiroNaTela(): ObraNoChao | null {
 // Quantas UNIDADES visíveis um canteiro já tem: exatamente as parcelas debitadas. Deriva dos
 // pontos, como tudo aqui.
 function unidadesObra(c: Canteiro) { return Math.floor((S.obra[c] | 0) / OBRA_PARCELA); }
+// O MESMO DESENHO, DOIS DESTINOS. Não-nulo enquanto a obra está sendo desenhada na PÁGINA de
+// O LUGAR, e nulo o resto do tempo (que é sempre, menos os poucos milissegundos de `montarObra`).
+// É um ponteiro e não uma cópia da receita porque a rua e a página têm de mostrar A MESMA
+// COISA: no dia em que a leira mudar de forma, ela muda nos dois lugares ou o jogo passa a
+// mentir sobre o que a pessoa levantou. Trocar aqui é seguro por construção — JS é uma linha
+// só de execução, e a troca abre e fecha dentro da mesma chamada síncrona.
+let obraCtx: CanvasRenderingContext2D | null = null;
 function retObra(x, y, w, h, cor) {
   if (w <= 0 || h <= 0) return;
+  const c = obraCtx || cx;
   // tintaCor: canteiro é coisa da rua e toma a tinta da hora (onda 2). Nunca é sinal.
-  cx.fillStyle = tintaCor(cor);
-  cx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  // NA PÁGINA NÃO HÁ HORA DO DIA: papel de campo não anoitece, e uma gravura colada no
+  // caderno com a luz das 3 da manhã leria como bug, não como noite.
+  c.fillStyle = obraCtx ? cor : tintaCor(cor);
+  c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
 }
 function desenharCanteiro(c: ObraNoChao) {
   const sx = Math.round(c.wx - worldX);
@@ -6670,7 +6711,9 @@ function desenharCanteiro(c: ObraNoChao) {
   const u = unidadesObra(c.tipo);
   // as unidades de cada estágio, na ordem: os 6 primeiros são E1, os 6 seguintes E2, e assim
   const e1 = Math.min(u, 6), e2 = Math.max(0, Math.min(u - 6, 6)), e3 = Math.max(0, Math.min(u - 12, 6));
-  sombra(sx + larg / 2, GROUND, larg - 6, 0.16);
+  // A sombra de contato é da RUA: ela desenha em `cx` direto (é a mesma dos pés da personagem)
+  // e, na página, seria uma mancha preta no meio do papel sem sol nenhum para justificá-la.
+  if (!obraCtx) sombra(sx + larg / 2, GROUND, larg - 6, 0.16);
   // A MARCA DO CANTEIRO — o lugar existe ANTES de a obra existir, e este desenho foi pago por
   // um print: com zero unidades nada era desenhado, e a microdica "SEGURE PARA AJUDAR NA OBRA"
   // acendia sobre estrada vazia. Um canteiro com zero peças ainda é um canteiro: a terra
@@ -6763,6 +6806,36 @@ function desenharCanteiro(c: ObraNoChao) {
   }
 }
 function desenharCanteiros() { canteiros.forEach(desenharCanteiro); }
+// ===== A MESMA OBRA, COLADA NA PÁGINA =====
+// A chapa que a página de O LUGAR mostra. A caixa é a MAIOR das três (a casa: 56 de largo por
+// 40 de alto mais os piquetes), e as três usam a mesma — é a caixa igual que faz a roça baixa
+// LER como baixa ao lado da casa alta. Ampliação 2×, razão INTEIRA, régua da onda 7; o dpr
+// entra na resolução do canvas e não na escala do desenho, então o pixel continua quadrado e
+// do mesmo tamanho em qualquer aparelho.
+const OBRA_PAG_W = 60, OBRA_PAG_H = 46, OBRA_PAG_ESC = 2;
+function pintarCanteiroNaPagina(alvo: HTMLCanvasElement, tipo: Canteiro) {
+  const dpr = Math.min(3, Math.max(1, Math.round(window.devicePixelRatio || 1)));
+  const esc = OBRA_PAG_ESC * dpr;
+  alvo.width = OBRA_PAG_W * esc; alvo.height = OBRA_PAG_H * esc;
+  alvo.style.width = (OBRA_PAG_W * OBRA_PAG_ESC) + "px";
+  alvo.style.height = (OBRA_PAG_H * OBRA_PAG_ESC) + "px";
+  const c = alvo.getContext("2d");
+  if (!c) return;
+  c.imageSmoothingEnabled = false;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  // o fundo da chapa: o quase-preto do degrau das lajes, que é o escuro que a casa já fala.
+  // Escuro para a madeira e o verde renderem — a página é clara, e a mesma pintura sobre
+  // papel some (medido na primeira rodada de print, antes de a chapa existir).
+  c.fillStyle = "#191510"; c.fillRect(0, 0, alvo.width, alvo.height);
+  const chao = OBRA_PAG_H - 3;
+  c.setTransform(esc, 0, 0, esc, 0, (chao - GROUND) * esc);
+  // a linha de chão, em px de mundo — sem ela o canteiro boia no meio da chapa
+  c.fillStyle = "#2a1c0c"; c.fillRect(0, GROUND, OBRA_PAG_W, 3);
+  const ox = Math.round((OBRA_PAG_W - OBRA_LARGURA[tipo]) / 2);
+  obraCtx = c;
+  try { desenharCanteiro({ tipo: tipo, wx: worldX + ox }); } finally { obraCtx = null; }
+  c.setTransform(1, 0, 0, 1, 0, 0);
+}
 
 // ============================================================
 // O GESTO — segurar em QUALQUER ponto do mundo trabalha na obra

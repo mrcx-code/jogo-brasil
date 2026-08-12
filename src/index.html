@@ -159,13 +159,22 @@
        pertence a um povo e tem nome — é a regra do §2 e do logo. -->
   <div id="poste">
     <button class="telaBtn" id="btnJogar">JOGAR</button>
+    <!-- O LUGAR. Nasce OCULTA, como a ATÉ AQUI ao lado: uma porta para uma coisa que ainda
+         não existe é uma porta que decepciona. Ela aparece no instante em que PALMARES tem
+         gente acolhida — que é o instante em que a obra passa a poder andar. Logo abaixo do
+         JOGAR de propósito: é a tábua que responde "o que mudou desde ontem", e essa é a
+         pergunta de quem acabou de abrir o jogo. -->
+    <button class="telaBtn sec oculto" id="btnLugar">O LUGAR</button>
     <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
     <button class="telaBtn sec oculto" id="btnFim">ATÉ AQUI</button>
     <!-- GLOSSÁRIO entra AQUI, entre a história e a procedência, porque é o que há entre as
          duas: A HISTÓRIA conta, o GLOSSÁRIO explica a palavra, DE ONDE VEM prova. A quinta
          tábua encurta a folga do poste em telas baixas — ver a média de altura no estilo.css. -->
     <button class="telaBtn sec" id="btnGlossario">GLOSSÁRIO</button>
-    <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
+    <!-- UMA tábua, e não duas: o `db51b90` (glossário v2) duplicou esta linha e o menu passou
+         a mostrar DE ONDE VEM DUAS VEZES — a segunda em Arial Black, porque `pixelRotulo`
+         pinta o primeiro nó com o id e o segundo ficava com o texto cru do molde. Achado no
+         print `test/LG-antes-menu-zero.png`, não em teste nenhum: id repetido não dá erro. -->
     <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
     <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
   </div>
@@ -274,6 +283,34 @@
   <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
   <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>
+</div>
+
+<!-- O LUGAR: a obra do mutirão, num lugar que se VISITA.
+     O dono viu a casa de pé na estrada e disse *"no jogo em si achei meio estranho… talvez
+     algo no menu do jogo que vá evoluindo"*. Ele tem razão, e o diagnóstico é de LEITURA: na
+     estrada a obra pronta lê como cenário — indistinguível da pintura de fundo. Quem a
+     construiu não percebe que construiu, e uma coisa que ninguém vê que fez não dá vontade
+     de voltar, que era o critério dele.
+
+     Então a obra ganha página. Nenhum material novo e nenhuma imagem nova: é o caderno de
+     campo da casa (papel de campo com pauta, moldura de madeira em dois tons), e o desenho
+     de cada canteiro é a MESMA função que o desenha na rua, colada na página como a gravura
+     de um caderno naturalista — a referência da onda 6 (Art of Fauna) aplicada ao que já
+     existia. A lista inteira é montada por `montarObra()`: nada aqui é marcação escrita à
+     mão, porque tudo depende do estado.
+
+     §2, e esta tela é onde ele é mais fácil de trair: ela CONTA quem trabalha, nunca COMANDA.
+     Não há uma acolhida tocável, arrastável ou alocável; não há "rende X por hora"; não há
+     um dígito da obra em lugar nenhum — o progresso é o desenho, como na rua. -->
+<div class="tela" id="telaObra">
+  <div class="telaTit">O LUGAR</div>
+  <div id="obraCorpo">
+    <div id="obraNovo"></div>
+    <div id="obraCanteiros"></div>
+    <div id="obraGente"></div>
+  </div>
+  <button class="telaBtn" id="btnObraIr">IR ATÉ LÁ</button>
+  <button class="telaBtn sec" id="btnVoltarObra">VOLTAR</button>
 </div>
 
 <!-- FONTES: o §2 virando interface. Se alguém inventar um fato, esta tela fica vazia. -->
