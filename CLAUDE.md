@@ -85,6 +85,14 @@ Três regras, e elas valem mais que qualquer decisão técnica:
    - **Nomeia** instituições, processos e leis. **Nunca nomeia** político, magistrado,
      delator ou empresário como responsável — **nem com condenação transitada**, porque
      sentenças mudam e o §2 já proíbe pessoa real como inimigo.
+     **UMA EXCEÇÃO, aberta pelo dono em 2026-08-11:** quando o nome de alguém virou o **nome
+     POPULAR de uma lei ou emenda**, ele pode ser usado — porque ali ele deixou de ser pessoa
+     e virou o jeito como o país chama aquele texto. Foi decidido sobre a Emenda Dante de
+     Oliveira, que o capítulo A PRAÇA citava só pelo número da PEC e ficava irreconhecível.
+     **O limite da exceção é estreito e não se estica:** vale para NOMEAR O TEXTO, nunca para
+     narrar a pessoa. "A Emenda Dante de Oliveira foi rejeitada" entra; "o deputado Dante de
+     Oliveira propôs" não entra, porque aí ele voltou a ser sujeito de uma ação — e é disso
+     que a regra protege. Na dúvida entre as duas formas, use a que não tem gente agindo.
    - **Nunca**: culpa partidária (teste: se um leitor de qualquer lado identifica um alvo,
      o texto falhou), opinião sobre eleição, **simetria falsa de fato** (equilibrar dado
      desigual é o "encontro de culturas" em roupa nova), e **cinismo** — "todos são iguais"
