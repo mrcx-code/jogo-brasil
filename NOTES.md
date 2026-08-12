@@ -6662,3 +6662,102 @@ Mostrar os prints `test/LG-depois-*.png` ao dono, nesta ordem: `menu-meio` (a t�
 `lugar-meio`, `lugar-pronta` (a casa coberta, que é a imagem que o trabalho produz) e
 `estrada-nome` (a rua deixando de ser muda). A pergunta para ele é uma só: *agora dá para ver o
 que você levantou?*
+
+## Diário — 2026-08-12 · O menu vira cenário: o mundo roda em círculo e a partida espera
+
+**Lente: Medir.** Quatro coisas apontadas pelo dono olhando a tela, e a maior delas reverte uma
+decisão registrada. Palavras dele: *"O menu tá com um segundo DE ONDE VEM estranho e a madeira
+atrás das opções tá estranho… tem um scroll estranho também. E o jogo não deveria rodar enquanto
+está no menu, deve aparecer apenas o personagem andando e o cenário em si — sem itens, sem
+pessoas, sem as folhas para coletar, sem as placas de história… talvez valha ficar num loop para
+não bugar o jogo."*
+
+### 1. O LOOP — o mundo atrás do menu vira cenário, não partida
+
+O `DIRECAO.md` dizia "o menu é a mata; o mundo vive atrás", e o comentário de `historiaAberta()`
+carregava a distinção: história para o mundo, menu não. **O dono reverteu, e a razão dele é
+melhor que a que estava escrita**: o que passava atrás do menu era exatamente o que a mão *não
+podia alcançar*. Quem abria o menu perdia chegadas e ganhava impacto sem ver nenhum dos dois.
+
+Como está feito, e a palavra "loop" dele é a chave: `worldX` **continua andando** (é o que casa
+a passada com o chão — o quadro do sprite é escolhido por distância) e tudo o que a mão alcança
+**sai de cena guardado** (mobs, drops, folhas, canteiros, fila, moradores, placa de marco). Ao
+fechar, cada coisa volta somada do mesmo tanto que a rua andou, isto é, no MESMO ponto da tela.
+O portão nasce do DOM (`telaAberta()`), não de quem abriu a tela, então todo caminho que abre ou
+fecha uma tela está coberto — inclusive os que ainda não existem. Guarda vencida por duas
+perguntas (a cena mudou? a lista viva foi povoada por outro?), e `esquecerMundoGuardado()` nos
+dois lugares que remontam o mundo do zero (travessia e APAGAR).
+
+**Medido** (`test/medir-loop-menu.js`, novo — 12 s de menu aberto, capítulo 2, u1/u2/u3 ligados):
+
+| | antes | depois |
+|---|---|---|
+| impacto somado atrás do menu | **+120,00** | **0,00** |
+| pessoas acolhidas sem ninguém olhando | **5** (7 → 12) | **0** |
+| coisas alcançáveis em cena | mobs, folhas, canteiro, 6 moradores, placa | **0** |
+| a rua andou | 480 px | 478 px |
+| ao fechar, dispersão da posição na tela | placa perdida, canteiro 480 px fora | **0,00 px** (0,67 nos moradores) |
+
+⚠ **É mudança de economia, e está dita por inteiro:** a ajuda automática do `u3` e a folha
+colhida de passagem param de render com o menu aberto. Nenhuma fórmula foi tocada — elas só
+deixaram de correr numa tela onde não há jogo. Fica **fora** do loop, de propósito: `R.segundos`
+(ler é jogar, e a medida é sobre a pessoa), `correrMutirao` (18 pontos/h no teto: 0,005 ponto num
+menu de um minuto — e ela é, por definição, o que anda enquanto você não está) e a varredura de
+luz da virada de era, que já corria em canal próprio.
+
+Asserção nova: **encaixe bloco 28** — com o menu aberto, nada é contado, nada fica em cena, a rua
+anda, e ao fechar a partida volta.
+
+### 2. O "segundo DE ONDE VEM": já estava consertado, e agora tem trava
+
+Era real e o print `test/LG-antes-menu-zero.png` guarda a cena: duas tábuas DE ONDE VEM, a
+segunda em Arial Black, do commit do glossário v2. Já corrigido no HEAD. O que faltava era a
+trava, porque **id repetido não dá erro**: `pixelRotulo` pinta o primeiro nó e o segundo fica com
+o texto cru do molde, sem erro de console e sem teste vermelho. **Encaixe bloco 29**: nenhum id
+repetido, nenhum rótulo repetido, nenhuma tábua sem bitmap.
+
+### 3. A madeira do poste
+
+O zoom (`test/zoom-menu.js`, novo — a 3×, porque um mastro de 18 px não se julga a olho) mostrou
+o que ele viu: o mastro era a única madeira do jogo **sem grão** — degradê CSS liso, vetor no meio
+de uma tela de pixel — e terminava num corte reto e escuro, sem miolo. A onda 11 tinha deixado a
+exceção registrada COM a condição de conserto ("segunda textura ROTACIONADA, não a mesma
+forçada"), e é ela que entra: `--veioVertPx`, mesmo `hash01`, mesmas doses, mesmas células de
+2 px, só o eixo do run muda; 9 células = 18 px = a largura do mastro, então a fibra não repete de
+lado. Mais um topo serrado (`#poste::after`): 4 px de cerne claro com anel escuro. Zero byte de
+arte no arquivo. Prints `Z-poste-antes/depois-*.png`.
+
+### 4. A rolagem fantasma, e ela era o próprio mastro
+
+Medida antes: **457 px** de rolagem em 390×844, **208** em 844×390, **323** em 320×568 — com
+todas as tábuas dentro da tela nos três. Causa: o mastro descia `-60vh` abaixo da caixa do poste
+para atravessar a borda, e elemento posicionado que passa do pé entra na área rolável. Conserto:
+margem vira **recheio** (a caixa do poste encosta na borda da tela, o mastro fecha em `bottom: 0`)
+e, deitado, a grade ganha uma terceira linha para o poste ir de borda a borda. Depois: **0 px nos
+três tamanhos, com as sete tábuas visíveis**. A rolagem continua declarada, para o dia em que uma
+tábua nova não couber.
+
+### O que quebrou no caminho, e vale como aviso
+
+**O `encaixe` bloco 23b passou a reprovar, e a causa não era o capítulo — era o instrumento.** A
+célula que mede poluição de tela chamava só `fecharTudo()`, que fecha bandejas e **não fecha
+telas**; com o menu virando loop, medir a rua com uma tela aberta passou a medir uma rua VAZIA, e
+a régua (o capítulo 1 medido agora) caía por isso. Uma linha (`fecharTelas()`) e a régua voltou
+ao lugar. Junto, a folga da comparação entre capítulos subiu de 0,3 para 0,8 — **medida**, não
+afrouxada: o instrumento novo `test/medir-celula-poluicao.js` mostra o MESMO capítulo variando
+~1,0 entre amostras de 12 s (PINDORAMA 4,15 · 4,42 · 4,28 · 5,22). Folga menor que o ruído é cara
+ou coroa.
+
+### A dúvida que fica
+
+O mastro, deitado, atravessa as **duas** bordas (topo e pé) porque o poste ocupa a tela inteira;
+em retrato o topo serrado aparece. São duas leituras do mesmo objeto e as duas se sustentam, mas
+não são a mesma imagem. Se incomodar no aparelho, o conserto é dar ao deitado um topo visível —
+e aí é decisão de composição, não de código.
+
+### Próximo passo
+
+Olhar `test/M-loop-depois-menu-390.png` e `-844.png` com a pergunta da barra, e medir no aparelho
+se o menu ainda tem qualquer arrasto sobrando. Depois disso, a lente Medir continua apontada para
+a mesma pergunta que este ticket levantou de raspão: **quanto do impacto de uma sessão vem de
+tela aberta?** Agora que a resposta é zero, dá para medir o resto.
