@@ -1855,6 +1855,38 @@ const sec = t => log('\n---- ' + t);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => fecharTelas());
 
+  // ============================================================
+  // 26 · NA TRAVESSIA, A LEITURA ENCOSTA NO PÉ DA TELA E NÃO HÁ BOTÃO
+  //
+  // O botão dourado ficava aceso e inerte durante a travessia, de propósito: a ideia era que
+  // quem tocasse nele descobrisse com o dedo que ali não há o que fazer. **O dono leu como
+  // defeito** ("o botão não deveria aparecer aqui, né"), e um sinal que precisa de nota de
+  // rodapé não é sinal. Saiu — `travessiaViva` já fazia `clicar()` sair na primeira linha, e a
+  // segunda fala do trecho diz com todas as letras que o jogo aqui não tem o que você faça.
+  //
+  // E com ele saiu o recuo que existia para a caixa não ficar atrás dele — que era a outra
+  // metade do que ele apontou no mesmo print: a leitura flutuava no meio do quadro.
+  // ============================================================
+  sec('26 · na travessia a leitura encosta no pé, e não há botão');
+  for (const larg of [390, 680]) {
+    await page.setViewportSize({ width: larg, height: 844 });
+    const tv = await page.evaluate(async () => {
+      fecharTelas();
+      correrTravessia('pindorama', 'palmares', function () { });
+      await new Promise(r => setTimeout(r, 4200));
+      const c = document.getElementById('falaCaixa').getBoundingClientRect();
+      const ctl = document.getElementById('controls');
+      const r = { folga: Math.round(window.innerHeight - c.bottom),
+        botao: getComputedStyle(ctl).display !== 'none' };
+      fecharTelas();
+      return r;
+    });
+    log('   ' + larg + ' px: a caixa para a ' + tv.folga + ' px do pé | botão visível: ' + tv.botao);
+    ok(tv.folga <= 24, larg + ' px: a leitura encosta no pé da tela (' + tv.folga + ' px)');
+    ok(!tv.botao, larg + ' px: e não há botão de jogo numa tela em que não há jogo');
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

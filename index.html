@@ -859,15 +859,22 @@
      abertura e no fecho de um capítulo EM OBRA. A regra mora em `mostrarFala()`, no jogo.ts. */
   #falaRetrato.oculta { display: none; }
   /* 2. O BOTÃO DOURADO CONTINUA ALI E NÃO FAZ NADA. O bloco de controles é trazido de volta
-        por cima da tela de fala (`body.emTela` o havia mandado embora, como manda em toda
-        tela) — mas só ele: os cartões de ritmo, melhorias e menu somem, porque são
-        interface de jogo e aqui não há jogo. O botão fica aceso e inerte; quem toca nele
-        descobre isso com o dedo, e a segunda linha do texto explica que é de propósito. */
-  body.travessando #controls { transform: translateX(-50%); opacity: 1;
-    pointer-events: auto; z-index: 50; }
-  body.travessando #controls .cartao { visibility: hidden; }
-  /* 3. e a caixa de fala sobe acima do botão, senão o bloco de controles a cobriria */
-  body.travessando #telaFala { padding-bottom: calc(var(--hControles, 126px) + 10px); }
+        por cima da tela de fala — mas só ele: os cartões somem, porque são interface de jogo
+        e aqui não há jogo. O botão ficava aceso e inerte, e a ideia era que quem tocasse nele
+        descobrisse isso com o dedo.
+
+        ELE SAIU EM 11/08, POR DECISÃO DO DONO, e a razão vale mais que a regra: ele viu a
+        tela e disse *"o botão não deveria aparecer aqui, né"*. Se a pessoa que desenhou o
+        jogo lê o botão como erro, ele não está dizendo "não há o que fazer" — está dizendo
+        "isto está quebrado". Um sinal que precisa de nota de rodapé para ser entendido não é
+        sinal. O que restou continua fazendo o mesmo trabalho, melhor: `travessiaViva` já faz
+        `clicar()` e `pular()` saírem na primeira linha, e a segunda fala do trecho diz com
+        todas as letras que aqui o jogo não tem o que você faça. */
+  body.travessando #controls { display: none; }
+  /* 3. e a caixa de fala volta a encostar no pé da tela. O recuo existia para ela não ficar
+        atrás do botão; sem botão, ele só empurrava a leitura para o meio do quadro — que foi
+        a outra metade do que o dono apontou no mesmo print. */
+  body.travessando #telaFala { padding-bottom: 12px; }
   /* 4. NÃO É PULÁVEL NA PRIMEIRA VEZ. `semPular` só existe enquanto o bit desta travessia
         estiver apagado — quem já atravessou uma vez tem o botão de volta. */
   body.semPular #btnFalaPular { display: none; }
