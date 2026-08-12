@@ -80,6 +80,10 @@
        O 11px não é escolha solta — é metade da entrelinha de 22 do corpo de leitura, e é o
        que faz a linha de texto pousar na pauta em vez de flutuar sobre ela. */
     --pauta: repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px);
+    /* A LARGURA DA CAIXA DE FALA, num lugar só. Ela existe porque o retrato de quem fala se
+       posiciona em relação a ELA, não à tela — e duas regras com o mesmo número escrito à mão
+       desencontram no dia em que alguém muda uma. Ver `#falaRetrato`. */
+    --fCaixa: min(560px, 100%);
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -740,8 +744,20 @@
      filho com z positivo fica sempre na frente do fundo do pai. So com z negativo ele vai
      para TRAS do fundo — e ai a caixa opaca corta a figura na cintura, que era o pedido.
      A primeira tentativa usou z-index 0 e ele ficou na frente do texto. */
-  #falaRetrato { position: absolute; left: 8px; transform: none;
-    bottom: 78px; width: 132px; height: 300px; z-index: 0;
+  /* QUEM FALA FICA COLADA NA CAIXA, NUNCA NA BORDA DA TELA — e este era um defeito visível
+     que ninguém tinha medido. O `left: 8px` prendia o retrato à borda física; a caixa, porém,
+     tem `width: min(560px, 100%)` e CENTRALIZA. Em telefone estreito os dois coincidem por
+     acidente e parece certo; em qualquer tela mais larga que 560 px a caixa recua para o meio
+     e a pessoa fica sozinha na beirada, com as pernas de fora, ao lado do texto em vez de
+     atrás dele. O dono apontou num print de ~680 px.
+     Agora o retrato é ancorado ao MEIO e deslocado meia caixa para a esquerda: ele acompanha
+     a caixa em qualquer largura, e as duas coisas que fazem a imagem funcionar voltam a valer
+     sempre — ela nasce ATRÁS (z-index 0 contra 1) e o papel a corta na cintura, que é a mesma
+     construção do comentário do quadrinho.
+     `--fCaixa` é a largura da caixa num lugar só, para as duas regras não desencontrarem. */
+  #falaRetrato { position: absolute; z-index: 0;
+    left: 50%; margin-left: calc(var(--fCaixa) / -2 + 4px); transform: none;
+    bottom: 78px; width: 132px; height: 300px;
     image-rendering: pixelated; object-fit: contain; object-position: bottom center;
     background: none; box-shadow: none;
     filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
@@ -777,7 +793,7 @@
   /* A caixa é a FOLHA DE PAPEL DE CAMPO presa numa moldura de madeira — veio da direção B,
      enxertada aqui porque numa tela cujo trabalho é fazer alguém LER, tinta escura sobre
      papel claro ganha de texto claro sobre caixa escura. A pauta é o repeating-gradient. */
-  #falaCaixa { position: relative; z-index: 1; width: min(560px, 100%); box-sizing: border-box;
+  #falaCaixa { position: relative; z-index: 1; width: var(--fCaixa); box-sizing: border-box;
     background:
       var(--pauta),
       linear-gradient(180deg, var(--papel), var(--papel2));

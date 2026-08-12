@@ -1825,6 +1825,36 @@ const sec = t => log('\n---- ' + t);
   await page.reload();
   await page.waitForTimeout(600);
 
+  // ============================================================
+  // 25 · QUEM FALA FICA COLADA NA CAIXA, EM QUALQUER LARGURA
+  //
+  // O retrato estava preso à BORDA DA TELA (`left: 8px`) e a caixa CENTRALIZA
+  // (`width: min(560px, 100%)`). Em telefone estreito os dois coincidem por acidente e parece
+  // certo — em qualquer tela mais larga que 560 px a caixa recua para o meio e a pessoa fica
+  // sozinha na beirada, com as pernas de fora, AO LADO do texto em vez de atrás dele.
+  // O dono apontou num print. Nenhum teste via, porque todos mediam 390.
+  // ============================================================
+  sec('25 · quem fala fica colada na caixa, em qualquer largura');
+  for (const larg of [390, 680, 1024]) {
+    await page.setViewportSize({ width: larg, height: 844 });
+    const fa = await page.evaluate(async () => {
+      fecharTelas(); S.aberturas = 0; S.cenario = 0;
+      mostrarAbertura(function () { }, true);
+      await new Promise(r => setTimeout(r, 3900));
+      const c = document.getElementById('falaCaixa').getBoundingClientRect();
+      const q = document.getElementById('falaRetrato').getBoundingClientRect();
+      return { dif: Math.round(q.left - c.left), pernas: q.bottom <= c.bottom + 1,
+        atras: +getComputedStyle(document.getElementById('falaRetrato')).zIndex
+             < +getComputedStyle(document.getElementById('falaCaixa')).zIndex };
+    });
+    log('   ' + larg + ' px: retrato a ' + fa.dif + ' px da borda da caixa');
+    ok(Math.abs(fa.dif) <= 12, larg + ' px: quem fala nasce colada na caixa (' + fa.dif + ' px)');
+    ok(fa.pernas, larg + ' px: e o papel cobre as pernas — ela é cortada na cintura');
+    ok(fa.atras, larg + ' px: e ela fica ATRÁS do papel, nunca ao lado dele');
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => fecharTelas());
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;
