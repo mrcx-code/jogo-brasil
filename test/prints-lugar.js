@@ -74,24 +74,50 @@ const alvo = ABRIR('file://' + path.resolve(DIR, '..', process.env.JOGO_HTML || 
     console.log('  (ainda não existe #telaObra — só o menu)');
   }
 
-  // ---- e a obra na estrada, que é onde a mão trabalha
-  await page.evaluate(() => {
+  // ---- e a obra na estrada, que é onde a mão trabalha. Tudo NUMA evaluate só: o laço de
+  // quadro continua rodando entre uma chamada e outra, e ele virou a cena no meio da
+  // preparação mais de uma vez — a faixa morria e o canteiro sumia sem aviso.
+  const naRua = await page.evaluate(() => {
     fecharTelas(); fecharTudo();
     S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 9;
     S.obra = { roca: 180, palicada: 120, casa: 60 };
+    S.recursos = { flor: 90, agua: 90, refeicao: 90 };
     S.cenario = cenarioDaEpoca(CAP_GENTE);
-    S.energiaTotal = LIMIAR_CENA * S.cenario + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.95;
+    // a faixa pelo capítulo FECHADO, e não por uma fração do vão: o impacto sobe sozinho
+    // enquanto o print é montado, e a 95% do vão a cena virava no meio da preparação
+    S.fechos = (S.fechos | 0) | (1 << CAP_GENTE);
+    S.energiaTotal = LIMIAR_CENA * S.cenario + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.5;
     canteiros.length = 0; proximoCanteiro = 0;
+    // anda até o canteiro entrar em quadro e PARA com ele no meio da tela: o laço de quadro
+    // continua andando ~40 px enquanto o print espera, e semeá-lo colado na borda esquerda o
+    // punha fora do quadro na hora da foto.
+    for (let k = 0; k < 4000; k++) {
+      worldX += 4; atualizarCanteiros();
+      const v = canteiroNaTela();
+      if (v && v.wx - worldX <= W * 0.42) break;
+    }
+    const c = canteiroNaTela();
+    return c ? { tipo: c.tipo, sx: Math.round(c.wx - worldX) } : null;
   });
-  // anda até um canteiro entrar em quadro e para nele
-  for (let i = 0; i < 60; i++) {
-    const perto = await page.evaluate(() => {
-      for (let k = 0; k < 40; k++) { worldX += 8; atualizarCanteiros(); }
-      const c = canteiroNaTela();
-      return c ? Math.round(c.wx - worldX) : -999;
-    });
-    if (perto > 60 && perto < 200) break;
-  }
+  console.log('  canteiro em quadro: ' + JSON.stringify(naRua));
   await tira('estrada');
+
+  // ---- e o momento em que a estrada era MUDA: um estágio inteiro ficando de pé sob a mão
+  const nome = await page.evaluate(() => {
+    const c = canteiroNaTela();
+    if (!c) return '(nenhum canteiro em quadro)';
+    // um ponto antes de fechar um estágio, no canteiro que está em quadro — é ele que a mão
+    // alcança, e é o tipo dele que decide a palavra
+    S.obra[c.tipo] = 59;
+    jumpT = 0;
+    // o dedo, do jeito que o jogo o recebe: pousado há mais que o `MUTIRAO_HOLD_MS`. E ele
+    // FICA pousado de propósito: segurando, a personagem PARA e o canteiro não vai embora —
+    // que é a cena real de quem está trabalhando.
+    obraDedo = performance.now() - 600;
+    trabalharNaObra(1.1);
+    return nomeObraTxt || '(sem a linha)';
+  });
+  console.log('  a rua diz: ' + JSON.stringify(nome));
+  await tira('estrada-nome');
   await browser.close();
 })();
