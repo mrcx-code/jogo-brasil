@@ -1722,9 +1722,16 @@ function lintComentarios() {
   // ============================================================
   // A TRAVESSIA — o trecho em que o jogo PARA DE SER JOGO (lote A do arco)
   //
-  // A promessa e verificavel e por isso esta aqui: durante a travessia o botao dourado
-  // continua na tela e NAO RENDE IMPACTO, e nada nasce. Um portao esquecido nao aparece em
-  // print nenhum — aparece num numero que sobe quando nao devia.
+  // A promessa e verificavel e por isso esta aqui: durante a travessia NADA RENDE IMPACTO e
+  // nada nasce. Um portao esquecido nao aparece em print nenhum — aparece num numero que sobe
+  // quando nao devia. O `clicar()` continua sendo chamado 40 vezes aqui de proposito: o portao
+  // que ele tem que atravessar e o de `travessiaViva`, e ele so e testado se for chamado.
+  //
+  // O BOTAO DOURADO SAIU DA TELA EM 11/08, POR DECISAO DO DONO ("o botao nao deveria aparecer
+  // aqui, ne"), e esta linha era a metade do commit que ficou para tras: ate 12/08 o smoke
+  // ainda exigia o botao NA tela enquanto o `encaixe.js` (bloco 26) ja exigia o contrario —
+  // dois testes da mesma casa cobrando o oposto um do outro. Agora os dois cobram a mesma
+  // coisa: durante a travessia nao ha botao.
   // As outras tres travas cobradas aqui:
   //   · nenhuma figura humana em cena — o retrato da caixa de fala fica fora do quadro;
   //   · a primeira vez nao e pulavel (o PULAR nao esta na tela);
@@ -1755,7 +1762,7 @@ function lintComentarios() {
   await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-travessia.png') });
   console.log('crossing -> impact', (trav.durante.total - trav.antes.total).toFixed(2),
     '| born:', trav.durante.mobs + trav.durante.drops + trav.durante.folhas,
-    '| button on screen:', trav.botao.width > 0 && trav.botao.height > 0,
+    '| no button on screen:', !(trav.botao.width > 0 && trav.botao.height > 0),
     '| SKIP hidden:', trav.pular === 'none', '| portrait hidden:', trav.retrato === 'none',
     '| clock ran', (trav.durante.relogio - trav.antes.relogio).toFixed(0) + 's');
   if (!trav.durante.viva || !trav.durante.classe) errors.push('the crossing did not stay open');
@@ -1763,8 +1770,8 @@ function lintComentarios() {
     errors.push('the golden button paid out during the crossing: +' + (trav.durante.total - trav.antes.total));
   if (trav.durante.mobs || trav.durante.drops || trav.durante.folhas)
     errors.push('something was born during the crossing: ' + JSON.stringify(trav.durante));
-  if (!(trav.botao.width > 0 && trav.botao.height > 0))
-    errors.push('the golden button left the screen during the crossing — it has to be there and do nothing');
+  if (trav.botao.width > 0 && trav.botao.height > 0)
+    errors.push('the golden button was on screen during the crossing — the owner took it out on 11/08');
   if (trav.pular !== 'none') errors.push('the first crossing was skippable');
   if (trav.retrato !== 'none') errors.push('a human figure was on screen during the crossing');
   if (!(trav.durante.relogio - trav.antes.relogio > 3))
