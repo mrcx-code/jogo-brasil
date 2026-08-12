@@ -2062,21 +2062,47 @@ const EPOCAS = [
     ]
   },
   {
+    // ESCRITO em 2026-08-12. Duas travas, e a primeira é a razão de o capítulo existir.
+    //
+    // 1. **NÃO PODE SER SÓ CENSURA CULTURAL**, que é a versão simpática da ditadura — a que
+    //    cabe numa piada sobre música proibida e não incomoda ninguém. Por isso a abertura
+    //    começa pelo art. 10 e pelo art. 11 do AI-5 (habeas corpus suspenso, tudo fora do
+    //    alcance de juiz) e só DEPOIS chega à censura de livro. A ordem é o argumento.
+    // 2. **O SUJEITO É QUEM SUSTENTA (§2.6), e aqui ele é quem copiou papel.** O fecho
+    //    inteiro é o projeto Brasil: Nunca Mais — advogados e religiosos que usaram as 24
+    //    horas de custódia de autos que o próprio tribunal concedia para fotocopiar os
+    //    processos. Isso não é ilustração do verbo `fazer passar`: é o verbo, literalmente,
+    //    documentado. E fecha a rima de 130 anos com a rua de SALVADOR.
+    //
+    // ⚠ O QUE ESTE CAPÍTULO NÃO DIZ, e diz que não diz: **nenhum número da Comissão Nacional
+    // da Verdade.** O servidor dela responde por trás de um CAPTCHA, e resolver CAPTCHA não é
+    // coisa que se faça — então o relatório não foi lido, e o que não se lê não se afirma. A
+    // última fala do fecho declara a falta em voz alta, do mesmo jeito que O CAIS declara que
+    // não encena o cemitério. O lugar da CNV está guardado; o número, não inventado.
+    // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "naodito",
     nome: "O QUE NÃO PODIA SER DITO",
     quando: "1964–1985",
-    emObra: true,
     arteCap: 3,
     cenas: 1, lugar: "naodito", arte: [10],
     abertura: [
-      "Este capítulo se chama O QUE NÃO PODIA SER DITO, e ele ainda está sendo escrito.",
-      "O verbo dele já tem nome — fazer passar — e é de propósito que ele rime com o que a rua de SALVADOR já te pôs na mão, muito tempo antes. O resto espera a leitura dos documentos.",
-      "A rua continua a rua. O que passa precisa de alguém."
+      "Isto é uma rua de centro de cidade brasileira, entre 1964 e 1985. Nada nela parece proibido, e é esse o assunto: o que não podia ser dito não estava escrito na parede. Estava escrito no Diário Oficial.",
+      "Em 13 de dezembro de 1968 um ato institucional deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
+      "O art. 11 pôs fora de “qualquer apreciação judicial” tudo o que fosse feito com ele. Em 1970 um decreto-lei mandou a Polícia Federal conferir livros e revistas antes de saírem — e quem publicasse o não liberado perdia todos os exemplares.",
+      "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais.",
+      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
     ],
-    aberturaImg: [null, null, null],
+    // a rua segura as duas primeiras: a primeira a nomeia, a segunda é a norma, e norma não
+    // tem paisagem. A banca entra quando o texto chega no que se imprime e no que se vende —
+    // é o lugar por onde a palavra passava, e é lugar, nunca a leitura.
+    aberturaImg: ["cap9-rua", "cap9-rua", "cap9-banca", null, null],
     fecho: [
-      "Fim do trecho. Este é dos capítulos em que dizer errado custa mais caro, e por isso ele fica quieto até ter o documento na mão.",
-      "Ele e o próximo vêm juntos quando vierem: terminar aqui deixaria o jogo parado na parte pior."
+      "Os exemplares apreendidos, dizia o decreto, “serão incinerados a sua custa”. Mas o mesmo Estado que mandava queimar papel também guardava papel: o Superior Tribunal Militar deixava o advogado levar os autos por vinte e quatro horas.",
+      "Em 1979, advogados e religiosos viram a brecha. Vinte e quatro horas dão para copiar. Alugaram uma sala e três máquinas de xerox em Brasília, e os funcionários contratados achavam que era uma copiadora comum.",
+      "As cópias seguiam para São Paulo em ônibus noturnos e, depois, como carga desacompanhada de avião. Seis anos em sigilo: setecentos e dez processos, cerca de 850 mil cópias em papel, 543 rolos de microfilme.",
+      "Entre quem percebeu a brecha, a fonte destaca a advogada Eny Raimundo Moreira. Em 15 de julho de 1985 aquilo virou livro: “Brasil: Nunca Mais”, montado com o papel do próprio tribunal que julgava.",
+      "E o Estado acabou escrevendo o dele. A Lei nº 9.140, de 4 de dezembro de 1995, reconhece “como mortas, para todos os efeitos legais”, pessoas detidas por agentes públicos entre 1961 e 1979 e desaparecidas desde então.",
+      "Falta uma peça aqui, e o jogo prefere dizer. Os números desta história estão no relatório da Comissão Nacional da Verdade, de 2014, e nenhum deles entrou: não foi possível ler o documento. Sem fonte na mão, o jogo cala."
     ]
   },
   {
@@ -10197,6 +10223,25 @@ const FONTES = [
     q: "“Dispõe sobre a profissão de empregado doméstico.” O art. 2º lista o que se exigia para admissão: Carteira de Trabalho, “atestado de boa conduta” e atestado de saúde. O art. 3º dá “férias anuais remuneradas de 20 (vinte) dias úteis”. Vinte e nove anos depois de a CLT dizer, no art. 7º, que não se aplicava a essa categoria." },
   { t: "Senado Federal — Laudelina de Campos Mello (1904–1991)",
     q: "“Em 1936 cria a Associação das Empregadas Domésticas do Brasil, que é fechada pelo Estado Novo em 1942. Em 1961, morando em Campinas (SP) a essa altura, funda a Associação Profissional Beneficente das Empregadas Domésticas.” As entidades que ela inspirou dão origem, em 1988, ao Sindicato dos Trabalhadores Domésticos." },
+  // ===== O QUE NÃO PODIA SER DITO =====
+  // Três normas e um acervo, e a ordem é o argumento do capítulo: primeiro o que o ato fez com
+  // o habeas corpus e com os juízes, só DEPOIS o que ele fez com os livros. Censura cultural
+  // sozinha é a versão simpática da ditadura, e um capítulo que parasse nela ensinaria errado.
+  //
+  // A última entrada é o acervo do Brasil: Nunca Mais, e ela é o fecho inteiro do capítulo —
+  // o §2.6 pede o sujeito que SUSTENTA, e aqui ele é quem copiou papel. Note o que a lista NÃO
+  // traz: **nenhum número da Comissão Nacional da Verdade.** O site dela responde por trás de
+  // um CAPTCHA e o relatório não foi lido; a última fala do capítulo declara essa falta em voz
+  // alta, que é o que este jogo faz com o que não conferiu.
+  { g: "O QUE NÃO PODIA SER DITO — 1964 A 1985" },
+  { t: "Ato Institucional nº 5, de 13 de dezembro de 1968, arts. 2º, 10 e 11 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "O art. 2º dá ao Presidente da República o poder de decretar o recesso do Congresso Nacional, das Assembleias e das Câmaras de Vereadores, “em estado de sitio ou fora dêle”. O art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos, contra a segurança nacional, a ordem econômica e social e a economia popular.” O art. 11: “Excluem-se de qualquer apreciação judicial todos os atos praticados de acôrdo com este Ato Institucional e seus Atos Complementares, bem como os respectivos efeitos.”" },
+  { t: "Decreto-Lei nº 1.077, de 26 de janeiro de 1970 — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "O art. 2º manda o Ministério da Justiça, pelo Departamento de Polícia Federal, verificar “antes da divulgação de livros e periódicos” a existência de matéria proibida. O art. 5º, II, diz o que acontece com quem divulgar o que não foi liberado: “À perda de todos os exemplares da publicação, que serão incinerados a sua custa.”" },
+  { t: "Ministério Público Federal — Brasil: Nunca Mais Digit@l, página “História (1979-1985)”",
+    q: "De onde vem o fecho inteiro do capítulo. Os advogados perceberam que os processos “poderiam ser reproduzidos, aproveitando-se do prazo de 24 horas facultado pelo Tribunal para a custódia provisória de autos” — e a página destaca, entre eles, a advogada Eny Raimundo Moreira. A sala alugada em Brasília com três copiadoras, os funcionários que “acreditavam estar trabalhando para uma empresa copiadora ‘normal’”, os ônibus noturnos, os seis anos em sigilo, os 710 processos, as cerca de 850 mil cópias em papel, os 543 rolos de microfilme e o lançamento do livro em 15 de julho de 1985 estão todos ali." },
+  { t: "Lei nº 9.140, de 4 de dezembro de 1995, art. 1º — Câmara dos Deputados, Legislação Informatizada (publicação original)",
+    q: "“São reconhecidas como mortas, para todos os efeitos legais, as pessoas relacionadas no Anexo I desta Lei, por terem participado, ou terem sido acusadas de participação, em atividades políticas, no período de 2 de setembro de 1961 a 15 de agosto de 1979, e que, por este motivo, tenham sido detidas por agentes públicos, achando-se, desde então, desaparecidas, sem que delas haja notícias.” É o Estado brasileiro escrevendo isso em lei." },
   { g: "ONDE AS FONTES DISCORDAM", d: 1 },
   { t: "Quanta gente vivia aqui em 1500?", d: 1,
     q: "Não há consenso. Rosenblat estimou 1 milhão; Hemming, 2,4 milhões — e chamou o próprio número de “pure guess-work”; Denevan, 4,8 milhões. O jogo não escolhe um." },

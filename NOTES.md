@@ -6377,3 +6377,94 @@ medição. Está no `PENDENTES.md`.
 ### Próximo passo
 
 O QUE NÃO PODIA SER DITO, com a mesma régua.
+
+---
+
+## Diário — 2026-08-12 · Historiador · O QUE NÃO PODIA SER DITO, e a censura que vem depois
+
+Segundo dos três do século XX. Mesma régua: **nenhuma afirmação sem fonte lida nesta sessão.**
+
+### As duas travas do capítulo
+
+**1 · Ele não pode ser só censura cultural.** Essa é a versão simpática da ditadura — a que cabe
+numa piada sobre música proibida e não incomoda ninguém. Por isso a ORDEM das falas é o
+argumento: a abertura começa pelo **art. 10 do AI-5** (habeas corpus suspenso) e pelo **art. 11**
+(tudo fora do alcance de juiz), e só então chega ao decreto que mandava conferir livro. Quem lê
+recebe a censura como *consequência* de um regime sem juiz, e não como o assunto.
+
+**2 · O sujeito é quem sustenta, e aqui ele é quem copiou papel.** O fecho inteiro é o projeto
+**Brasil: Nunca Mais**, e ele não ilustra o verbo `fazer passar` — ele **é** o verbo, literal e
+documentado: advogados usaram as vinte e quatro horas de custódia de autos que o próprio
+Superior Tribunal Militar concedia, e fotocopiaram os processos. A defesa fez passar o que a
+acusação tinha escrito. Nenhum general, nenhum presidente, nenhum partido é nomeado no capítulo.
+
+### As falas e a fonte de cada uma
+
+| onde | o que afirma | fonte lida |
+|---|---|---|
+| ab.1 | o lugar (rua de centro, anos 1970) e a tese: a proibição estava no Diário Oficial, não na parede | ficção autoral de enquadramento; o "Diário Oficial" é onde as duas normas citadas foram de fato publicadas |
+| ab.2 | **AI-5, 13/12/1968**: art. 2º (recesso do Congresso) e art. 10, literal | **✅P** Câmara dos Deputados, Legislação Informatizada, publicação original |
+| ab.3 | **AI-5, art. 11**, literal (*"qualquer apreciação judicial"*); e o **Decreto-Lei nº 1.077, de 26/01/1970**, art. 2º e art. 5º | **✅P** as duas, Câmara, publicação original |
+| ab.4 | o verbo — **fazer passar** — e a rima com SALVADOR (1835) | autoral. A rima é o achado do arco e estava prometida desde o esqueleto |
+| ab.5 | descreve a tela | descreve a tela |
+| fe.1 | *"serão incinerados a sua custa"* (DL 1.077/1970, art. 5º, II), literal; e as 24 horas de custódia de autos no STM | **✅P** o decreto · **◑I** MPF, *Brasil: Nunca Mais Digit@l*, página "História (1979-1985)", literal: *"aproveitando-se do prazo de 24 horas facultado pelo Tribunal para a custódia provisória de autos"* |
+| fe.2 | 1979; a sala alugada em Brasília com três copiadoras; os funcionários que achavam que era copiadora comum | **◑I** a mesma, literal: *"acreditavam estar trabalhando para uma empresa copiadora ‘normal’"* |
+| fe.3 | ônibus noturnos e carga desacompanhada de avião; **seis anos**, **710 processos**, **~850 mil cópias**, **543 rolos de microfilme** | **◑I** a mesma |
+| fe.4 | **Eny Raimundo Moreira** entre quem percebeu a brecha; o livro em **15/07/1985** | **◑I** a mesma, que a destaca nominalmente entre os mentores |
+| fe.5 | **Lei nº 9.140, de 4/12/1995**, art. 1º, literal | **✅P** Câmara, publicação original |
+| fe.6 | que os números da **CNV** NÃO entraram, e por quê | é a declaração da falta — ver abaixo |
+
+### O que RECUSEI, e o mais grave é o primeiro
+
+- **⚠ TODOS OS NÚMEROS DA COMISSÃO NACIONAL DA VERDADE.** O ticket pedia que o fecho carregasse
+  *"o que a CNV concluiu"*. Não carrega. **O site `cnv.memoriasreveladas.gov.br` responde por trás
+  de um CAPTCHA** — a página do relatório final devolve a tela de verificação, e resolver CAPTCHA
+  não é coisa que se faça. A sessão anterior tinha batido em certificado inválido; esta bateu em
+  outra parede. Os números circulam em jornal e em enciclopédia, e **nenhum deles entrou**: o §2
+  não aceita fonte secundária para número, e este é o assunto em que aceitar seria pior.
+  **A última fala do capítulo declara a falta em voz alta**, do mesmo jeito que O CAIS declara que
+  cita o cemitério e não o encena. O lugar da CNV está guardado; o número, não inventado.
+  **Para a próxima sessão:** o relatório existe em PDF fora daquele servidor (o próprio MPF e
+  bibliotecas universitárias o espelham). Achar um espelho institucional legível é o caminho.
+- **A Lei de Anistia (Lei nº 6.683/1979) e a definição de "crimes conexos".** É o documento mais
+  tentador do capítulo e ele está **em julgamento** — a ADPF 320 discute o alcance dela no STF, e
+  a régua do §2.6 diz *"nada em julgamento"*. Citar só a metade que me convém seria escolher lado
+  com aparência de literalidade. Fora inteiro.
+- **Os nomes do projeto Brasil: Nunca Mais que viraram políticos depois.** A página do MPF nomeia
+  vários; dois deles ocuparam cargo público mais tarde, e o §2.6 proíbe nomear político. Ficou
+  **uma pessoa só, a advogada Eny Raimundo Moreira**, que é quem a própria fonte destaca por ter
+  percebido a brecha, e que nunca foi política. O cardeal e o pastor que comandaram a operação
+  entram como "religiosos", sem nome: a operação foi ecumênica e o capítulo não precisa de santo.
+- **O Relatório Figueiredo (1967) e o que a CNV concluiu sobre povos indígenas.** Mesmo problema
+  da CNV: sem o relatório lido, nada entra. É a maior falta do capítulo depois dos números.
+- **A divergência 707 × 710 processos.** A página do MPF que li diz **710**; um texto do governo
+  de São Paulo fala em 707 microfilmados. Só li a do MPF — então o jogo usa 710 e a divergência
+  fica registrada aqui, não na tela, porque afirmar divergência também exige ler as duas.
+
+### O que mudou no código
+
+- `emObra` removido. A pintura **10** saiu do pacote coletivo `hoje` e ganhou o pacote `naodito`
+  em `ferramentas/pacotes.js`. **Consequência escrita na tabela:** A PRAÇA, O QUE SEGUROU e
+  O ACEIRO vestem essa mesma pintura emprestada e passam a puxar o pacote `naodito` — é o mesmo
+  desenho de O CAIS, que veste a `[4]` e puxa `salvador`. Quem veste paga o pacote de quem é dono.
+- Dois pedidos de arte: `ctx-cap9-rua` (esquina de centro dos anos 1970, **a normalidade é o
+  assunto**) e `ctx-cap9-banca` (banca de jornal fechada ao amanhecer). Os dois com a mesma
+  exigência dura, e ela é de conteúdo e não de estilo: **nenhuma palavra legível em lugar nenhum**
+  — num capítulo sobre o que podia ser impresso, uma manchete inventada seria uma afirmação
+  histórica desenhada.
+
+### O que mediu
+
+| | antes | depois |
+|---|---|---|
+| capítulos escritos | 8 de 13 | **9 de 13** |
+| falas autorais varridas pelo §2 | 214 | **220**, 0 achado |
+| entradas em DE ONDE VEM | 39 | **44** |
+| fala mais comprida do jogo | 251 | **251** (as minhas ficaram em 238) |
+
+`node test/encaixe.js` verde. O `npm test` continua com a intermitência do MUTIRÃO descrita no
+diário anterior e no `PENDENTES.md` item 13 — todo o resto do smoke passa.
+
+### Próximo passo
+
+A PRAÇA, que é o par deste e fecha o lote.
