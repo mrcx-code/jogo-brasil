@@ -6543,6 +6543,7 @@ const OBRA_MAO_POR_SEG = 1;
 let obraDedo = 0;
 let obraTrabalhando = false;
 let dicaObraAte = 0, dicaObraVista = false;
+let nomeObraAte = 0, nomeObraTxt = "";
 function obraPodeArmar() {
     return faixaViva() && !obraCompleta() && !telaAberta() && !falaAberta()
         && !travessiaAtiva() && jumpT <= 0 && !!canteiroNaTela();
@@ -6571,6 +6572,10 @@ function trabalharNaObra(dt) {
         const r = avancarObra(1, c.tipo);
         if (r.pontos === 0)
             break;
+        if (r.estagios.length) {
+            nomeObraTxt = ESTAGIO_CURTO[c.tipo][r.estagios[0].estagio - 1].toUpperCase();
+            nomeObraAte = animT + 3.4;
+        }
         const cores = c.tipo === "roca" ? ["#41290f", "#7a5430"]
             : c.tipo === "palicada" ? ["#7a5430", "#a07a48"] : ["#7a5430", "#a39a83"];
         const sx = Math.round(c.wx - worldX) + Math.round(OBRA_LARGURA[c.tipo] / 2);
@@ -7445,7 +7450,7 @@ function desenharMundo() {
     desenharMarco();
     desenharCanteiros();
     desenharOndasChao();
-    if (moradores.length && !semLeitura) {
+    if (moradores.length && !semLeitura && !(nomeObraAte > animT && nomeObraTxt)) {
         const extra = (S.acolhidos[CAP_GENTE] | 0) - moradores.length;
         if (extra > 0) {
             const msg = "E MAIS " + extra + " VIVEM AQUI";
@@ -7569,6 +7574,15 @@ function desenharMundo() {
         const x = Math.max(2, Math.round((W - larguraTexto(msg, 1)) / 2));
         cx.globalAlpha = Math.max(0, Math.min(1, (dicaObraAte - relogio) / 0.6));
         texto(msg, x, GROUND - 76, 1, "#f3dda6", "#241a10");
+        cx.globalAlpha = 1;
+    }
+    if (!semLeitura && nomeObraAte > animT && nomeObraTxt) {
+        const c = canteiroNaTela();
+        const larg = larguraTexto(nomeObraTxt, 1);
+        const meio = c ? Math.round(c.wx - worldX) + OBRA_LARGURA[c.tipo] / 2 : W / 2;
+        const x = Math.max(2, Math.min(W - larg - 2, Math.round(meio - larg / 2)));
+        cx.globalAlpha = Math.max(0, Math.min(1, (nomeObraAte - animT) / 0.8));
+        texto(nomeObraTxt, x, Math.max(4, GROUND - 52), 1, "#f3dda6", "#241a10");
         cx.globalAlpha = 1;
     }
     aplicarHoraScene();

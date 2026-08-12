@@ -1401,13 +1401,51 @@ const sec = t => log('\n---- ' + t);
     const vazia = dePe({ roca: 0, palicada: 0, casa: 0 });
     const meia = dePe({ roca: 0, palicada: 0, casa: 90 });
     const cheia = dePe({ roca: 0, palicada: 0, casa: OBRA_MAX });
+    // (g) A OUTRA METADE DO MESMO TICKET: na RUA, um estágio inteiro ficando de pé sob a mão
+    // era MUDO — o estilhaço dizia "trabalhou", e a coisa que merecia nome não tinha nome.
+    // Aqui se cobra que a palavra nasce, que ela é a MESMA das outras superfícies
+    // (`ESTAGIO_CURTO`), e que nenhuma vogal acentuada entra nela: `texto()` desenha todo
+    // glifo numa caixa de 7×9 e as acentuadas têm 9 linhas de mapa — sairiam espremidas.
+    fecharTelas(); fecharTudo();
+    S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 9;
+    S.cenario = cenarioDaEpoca(CAP_GENTE);
+    // A FAIXA PELO CAPÍTULO FECHADO, e não por uma fração do vão: o laço de quadro continua
+    // rodando durante este bloco, o impacto sobe sozinho e uma medida "a 88% do vão" virava a
+    // cena no meio da preparação — a faixa morria e a asserção reprovava uma vez sim, uma não.
+    // `faixaViva()` devolve verdadeiro para sempre num capítulo já fechado, e é a única forma
+    // estável de estar na faixa.
+    S.fechos = (S.fechos | 0) | (1 << CAP_GENTE);
+    S.energiaTotal = LIMIAR_CENA * S.cenario + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.5;
+    S.recursos = { flor: 90, agua: 90, refeicao: 90 };
+    canteiros.length = 0; proximoCanteiro = 0;
+    for (let k = 0; k < 4000; k++) {
+      worldX += 4; atualizarCanteiros();
+      const v = canteiroNaTela();
+      if (v && v.wx - worldX <= W * 0.42) break;
+    }
+    const naRuaC = canteiroNaTela();
+    let dito = '(nenhum canteiro em quadro)';
+    if (naRuaC) {
+      S.obra = { roca: 180, palicada: 180, casa: 180 };
+      S.obra[naRuaC.tipo] = 59;
+      nomeObraTxt = ''; nomeObraAte = 0; jumpT = 0;
+      obraDedo = performance.now() - 600;
+      trabalharNaObra(1.1);
+      dito = nomeObraTxt;
+      soltarObra();
+    }
+    const podeArmar = obraPodeArmar();
+    const curtos = [].concat(ESTAGIO_CURTO.roca, ESTAGIO_CURTO.palicada, ESTAGIO_CURTO.casa)
+      .map(s => s.toUpperCase());
+    const acentoRuim = curtos.filter(s => /[ÁÀÂÃÉÊÍÓÔÕÚ]/.test(s));
     // (b) a tela fecha com todas as outras
     fecharTelas();
     const presa = document.getElementById('telaObra').classList.contains('aberta');
     const emTela = document.body.classList.contains('emTela');
     return { repetidos, semGente, comGente, mexeu: antes !== depois, primeira, segunda,
       carimbo, digitos: (textoCanteiros.match(/[0-9]/g) || []).join(''),
-      vazia, meia, cheia, presa, emTela, naLista: TELAS.indexOf('telaObra') >= 0 };
+      vazia, meia, cheia, presa, emTela, naLista: TELAS.indexOf('telaObra') >= 0,
+      dito, curtos, acentoRuim, podeArmar, naFaixa: faixaViva() };
   });
   log('   ids repetidos no poste: ' + (oLugar.repetidos.length ? oLugar.repetidos.join(', ') : '(nenhum)'));
   log('   1ª visita diz: ' + JSON.stringify(oLugar.primeira));
@@ -1430,6 +1468,13 @@ const sec = t => log('\n---- ' + t);
     'nenhum dígito da obra na página: o progresso é o desenho, nunca um placar');
   ok(oLugar.meia > oLugar.vazia && oLugar.cheia > oLugar.meia,
     'e o desenho CRESCE com a obra — é a mesma `desenharCanteiro` da rua, e é ela o placar');
+  log('   na rua, o estágio que ficou de pé diz: ' + JSON.stringify(oLugar.dito)
+    + ' (faixa viva: ' + oLugar.naFaixa + ', gesto armável: ' + oLugar.podeArmar + ')');
+  ok(!!oLugar.dito && oLugar.curtos.indexOf(oLugar.dito) >= 0,
+    'na RUA, fechar um estágio com a mão acende o NOME dele — e é a mesma palavra da página');
+  ok(!oLugar.acentoRuim.length,
+    'e nenhuma dessas palavras tem vogal acentuada, que a fonte do mundo espremeria'
+      + (oLugar.acentoRuim.length ? ' — ' + oLugar.acentoRuim.join(', ') : ''));
 
   sec('21 · deitado, o menu inteiro cabe na tela e o JOGAR recebe o dedo');
   for (const vp of [{ w: 844, h: 390, nome: 'telefone deitado 844×390' },
@@ -1869,6 +1914,12 @@ const sec = t => log('\n---- ' + t);
   const celula = async function (cap) {
     return await page.evaluate(async (a) => {
       fecharTudo();
+      // ...E AS TELAS TAMBÉM, que `fecharTudo` não fecha (ele fecha as bandejas). Esta linha
+      // entrou em 12/08 e a célula mede outra coisa sem ela: desde que o MENU virou LOOP (o
+      // mundo roda, a partida não), medir a rua com uma tela ainda aberta mede uma rua VAZIA —
+      // e a régua do bloco, que é o capítulo 1 medido agora, saía baixa por esse motivo e não
+      // pelo capítulo. Antes do loop a mesma sujeira só deslocava o número um pouco.
+      fecharTelas();
       const c0 = cenarioDaEpoca(a.cap);
       S.cenario = c0; S.fronteira = TOTAL_CENAS - 1;
       const ini = LIMIAR_CENA * c0, vao = LIMIAR_CENA * EPOCAS[a.cap].cenas;
@@ -1988,6 +2039,77 @@ const sec = t => log('\n---- ' + t);
     ok(!tv.botao, larg + ' px: e não há botão de jogo numa tela em que não há jogo');
   }
   await page.setViewportSize({ width: 390, height: 844 });
+
+  // ============================================================
+  // 28 · O MENU É CENÁRIO, NÃO PARTIDA
+  //
+  // Decisão do dono (2026-08-12): com o menu aberto o mundo roda em LOOP — a personagem anda e
+  // a estrada rola, mas nada nasce, nada é contado e nada é perdido. É o tipo de coisa que
+  // desencaixa em silêncio absoluto: basta uma função nova entrar do lado errado do portão do
+  // laço de quadro e o jogo volta a render atrás do menu sem um erro de console, sem um print
+  // diferente e sem ninguém perceber por semanas. Por isso as três metades são cobradas aqui.
+  //
+  // ⚠ ESTE BLOCO FOI RECONSTRUÍDO em 12/08 pela Direção de Evolução, e a nota fica porque a
+  // reconstrução merece revisão de quem o escreveu: duas sessões trabalhavam nesta MESMA
+  // árvore, e eu restaurei um backup deste arquivo por cima da versão que já tinha o bloco —
+  // o texto abaixo foi remontado a partir da saída do teste e das linhas que eu tinha lido.
+  // A INTENÇÃO e as cinco asserções são as originais; a linha de `aberturas`/`fechos` no
+  // preparo é minha, e resolve a única coisa que o bloco não tinha: vindo logo depois do 26
+  // (a travessia), a ABERTURA do capítulo seguinte reabria sozinha durante os 5 s de espera e
+  // a pré-condição "sem tela aberta" reprovava — medido três vezes, sempre igual.
+  // ============================================================
+  sec('28 · com o menu aberto, o cenário roda e a partida não');
+  const loop = await page.evaluate(async () => {
+    // O estado importa: com o jogo no fim (que é onde os blocos anteriores o deixam) a CHEGADA
+    // se põe na frente sozinha e a rua nunca enche — o teste passaria medindo uma tela aberta
+    // atrás da outra. Volta para o meio do capítulo 1, com a rua livre.
+    S.cenario = 0; S.fronteira = 0; S.energiaTotal = LIMIAR_CENA * 0.4; S.energia = 300;
+    S.u1 = 1; S.u2 = 1; S.u3 = 1;        // a ajuda automática é a renda que não precisa de dedo
+    // ...e com toda abertura e todo fecho JÁ LIDOS: o bloco anterior é a travessia, e a
+    // abertura do capítulo do outro lado dela sobe sozinha no meio da espera.
+    S.aberturas = MASCARA_EPOCAS; S.fechos = MASCARA_EPOCAS; S.marcos = MASCARA_MARCOS;
+    redesenharFundo();
+    fecharTelas();
+    await new Promise(r => setTimeout(r, 5000));   // a rua enche: chegadas, drops, folhas
+    // E FECHA DE NOVO ANTES DE MEDIR. Os blocos anteriores deixam gatilhos armados no estado
+    // (um deles reabre a fala da travessia sozinho neste intervalo), e uma tela de HISTÓRIA
+    // aberta aqui pararia o mundo por OUTRO motivo — o teste passaria medindo o portão errado.
+    fecharTelas();
+    await new Promise(r => setTimeout(r, 400));
+    const antes = { e: S.energiaTotal, x: worldX,
+      tela: TELAS.filter(function (t) {
+        const n = document.getElementById(t);
+        return n && n.classList.contains('aberta');
+      }).join(',') || '(nenhuma)',
+      mobs: mobs.length, drops: drops.length, folhas: folhas.length };
+    abrirTela('telaMenu');
+    await new Promise(r => setTimeout(r, 3000));
+    const dentro = { e: S.energiaTotal, x: worldX, marcos: S.marcos | 0,
+      mobs: mobs.length, drops: drops.length, folhas: folhas.length,
+      grupo: grupo.length, moradores: moradores.length, canteiros: canteiros.length,
+      marco: marcoAtivo ? 1 : 0 };
+    fecharTelas();
+    await new Promise(r => setTimeout(r, 120));
+    const depois = { e: S.energiaTotal, mobs: mobs.length, drops: drops.length, folhas: folhas.length };
+    return { antes, dentro, depois };
+  });
+  const naRua = loop.dentro.mobs + loop.dentro.drops + loop.dentro.folhas +
+    loop.dentro.grupo + loop.dentro.moradores + loop.dentro.canteiros + loop.dentro.marco;
+  log('   antes do menu: impacto ' + loop.antes.e.toFixed(1) + ' | ' + loop.antes.mobs + ' chegadas, ' +
+    loop.antes.drops + ' itens, ' + loop.antes.folhas + ' folhas | tela aberta: ' + loop.antes.tela);
+  log('   com o menu aberto: impacto ' + loop.dentro.e.toFixed(1) + ' | ' + naRua + ' coisas alcançáveis em cena | a rua andou ' +
+    (loop.dentro.x - loop.antes.x).toFixed(1) + ' px');
+  log('   ao fechar: impacto ' + loop.depois.e.toFixed(1) + ' | ' + loop.depois.mobs + ' chegadas, ' +
+    loop.depois.drops + ' itens, ' + loop.depois.folhas + ' folhas');
+  ok(loop.antes.tela === '(nenhuma)' && loop.antes.mobs + loop.antes.folhas > 0,
+    'a medida vale: a rua estava viva e sem tela aberta antes do menu (tela: ' + loop.antes.tela + ')');
+  ok(Math.abs(loop.dentro.e - loop.antes.e) < 0.01,
+    'nada é contado atrás do menu (Δ impacto ' + (loop.dentro.e - loop.antes.e).toFixed(2) + ')');
+  ok(naRua === 0, 'nada alcançável fica em cena atrás do menu (' + naRua + ' coisas)');
+  ok(loop.dentro.x - loop.antes.x > 30,
+    'o cenário continua rodando: a rua andou ' + (loop.dentro.x - loop.antes.x).toFixed(1) + ' px em 3 s');
+  ok(Math.abs(loop.depois.e - loop.antes.e) < 0.01,
+    'ao fechar, a partida volta inteira — nada foi perdido no caminho');
 
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');

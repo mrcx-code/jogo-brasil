@@ -6947,6 +6947,28 @@ const OBRA_MAO_POR_SEG = 1;        // 1 ponto/s: a obra inteira são 540 pontos 
 let obraDedo = 0;                  // quando o dedo pousou no mundo (0 = solto)
 let obraTrabalhando = false;       // resolvido UMA vez por quadro; `velocidadeMundo` lê isto
 let dicaObraAte = 0, dicaObraVista = false;
+// ===== O QUE FICOU DE PÉ, DITO NA RUA =====
+// A queixa do dono ("no jogo em si achei meio estranho") tem uma segunda metade, e é esta: na
+// estrada, quando uma PEÇA sobe, o estilhaço diz "trabalhou"; quando um ESTÁGIO INTEIRO fica
+// de pé — o único momento da obra que merece ser notado — o jogo ficava mudo. Sessenta
+// segundos de dedo e nada com nome. Então o mundo diz o nome, uma vez, na fonte dele e na
+// gramática das microdicas que já existem: some sozinho, não pede toque, não é placar.
+//
+// A PALAVRA É A MESMA das outras duas superfícies (a página de O LUGAR e o papel da volta) —
+// `ESTAGIO_CURTO`, e não um texto próprio. Três vozes dizendo a mesma coisa com palavras
+// diferentes seriam três coisas na cabeça de quem lê, e a queixa era justamente de leitura.
+//
+// SEM VOGAL ACENTUADA, e não é gosto: `texto()` desenha todo glifo numa caixa de 7×9, e as
+// vogais acentuadas têm 9 linhas de mapa — sairiam espremidas. As três famílias de
+// `ESTAGIO_CURTO` foram escritas dentro dessa régua; o Ç cabe, que é o único acento de 7
+// linhas da fonte, e o `encaixe.js` bloco 27 cobra isso para as nove frases.
+//
+// O RELÓGIO É O `animT`, E NÃO O `relogio` DAS OUTRAS DUAS MICRODICAS — medido, não escolhido.
+// `relogio` é o relógio do DIA, e a varredura de luz da virada de era o adianta em bloco
+// (`relogio += p`, no laço de quadro): num print de teste ele andou 6,5 s enquanto o mundo
+// andava 0,1 s, e a linha morreu antes de aparecer. `animT` conta segundos de MUNDO e para
+// junto com ele — que é exatamente a vida que uma frase pousada na rua deve ter.
+let nomeObraAte = 0, nomeObraTxt = "";
 function obraPodeArmar() {
   return faixaViva() && !obraCompleta() && !telaAberta() && !falaAberta()
       && !travessiaAtiva() && jumpT <= 0 && !!canteiroNaTela();
@@ -6970,6 +6992,12 @@ function trabalharNaObra(dt) {
     obraMaoFrac -= 1;
     const r = avancarObra(1, c.tipo);
     if (r.pontos === 0) break;     // este canteiro espera mantimentos: não gira em falso
+    // UM ESTÁGIO INTEIRO FICOU DE PÉ — o único momento da obra que merece nome na rua.
+    // A peça tem o estilhaço; o estágio tem a palavra. Ver o bloco de `nomeObraAte`.
+    if (r.estagios.length) {
+      nomeObraTxt = ESTAGIO_CURTO[c.tipo][r.estagios[0].estagio - 1].toUpperCase();
+      nomeObraAte = animT + 3.4;
+    }
     // O estilhaço é do MATERIAL do canteiro, nunca um float de número: obra não é placar.
     // DOIS TAMANHOS, e o menor foi pago por um print: uma peça nova só aparece a cada dez
     // pontos, e dez segundos de dedo sem nada acontecendo lê como botão quebrado. Dois grãos
@@ -8407,7 +8435,11 @@ function desenharMundo() {
   desenharOndasChao();          // onda 4: o chão sente o gesto — por baixo de toda leitura
   // O excedente da faixa final, dito em texto: quem não coube nas 6 figuras não vira
   // multidão — vira uma linha no chão do lugar, perto de quem está vivendo ali.
-  if (moradores.length && !semLeitura) {
+  // ...e ela CEDE O PALCO enquanto o nome do que acabou de ficar de pé está no ar. É a lei do
+  // ritmo do DIRECAO.md ("um palco, uma coisa acesa") aplicada às duas únicas linhas fixas
+  // desta faixa: medido num print, as duas juntas leem como mancha e não como duas notícias.
+  // A que sai é a permanente; a que fica dura 3,4 s e não se repete igual.
+  if (moradores.length && !semLeitura && !(nomeObraAte > animT && nomeObraTxt)) {
     const extra = (S.acolhidos[CAP_GENTE] | 0) - moradores.length;
     if (extra > 0) {
       const msg = "E MAIS " + extra + " VIVEM AQUI";
@@ -8586,6 +8618,23 @@ function desenharMundo() {
     const x = Math.max(2, Math.round((W - larguraTexto(msg, 1)) / 2));
     cx.globalAlpha = Math.max(0, Math.min(1, (dicaObraAte - relogio) / 0.6));
     texto(msg, x, GROUND - 76, 1, "#f3dda6", "#241a10");
+    cx.globalAlpha = 1;
+  }
+  // O NOME DO QUE FICOU DE PÉ. Mesma fonte, mesmo desvanecer das microdicas — e DUAS COLISÕES
+  // pagas em print, que mudaram o desenho duas vezes:
+  //  · centrada em GROUND−56 ela caiu em cima de "E MAIS N VIVEM AQUI" (GROUND−58);
+  //  · levada para GROUND−96 ela caiu em cima do float "MAIS ADIANTE", que sobe pelo meio.
+  // A pista livre não era uma ALTURA: era um LUGAR. A frase é sobre AQUELE canteiro, então ela
+  // pousa SOBRE ele — acima do telhado da casa completa (40 px), presa ao quadro para não sair
+  // pela borda. O meio da tela fica para os floats, que são de quem bate; a obra fala de onde
+  // a obra está. E a linha das acolhidas cede o palco enquanto esta vive (ver desenharMundo).
+  if (!semLeitura && nomeObraAte > animT && nomeObraTxt) {
+    const c = canteiroNaTela();
+    const larg = larguraTexto(nomeObraTxt, 1);
+    const meio = c ? Math.round(c.wx - worldX) + OBRA_LARGURA[c.tipo] / 2 : W / 2;
+    const x = Math.max(2, Math.min(W - larg - 2, Math.round(meio - larg / 2)));
+    cx.globalAlpha = Math.max(0, Math.min(1, (nomeObraAte - animT) / 0.8));
+    texto(nomeObraTxt, x, Math.max(4, GROUND - 52), 1, "#f3dda6", "#241a10");
     cx.globalAlpha = 1;
   }
   aplicarHoraScene();
