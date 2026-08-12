@@ -2424,12 +2424,15 @@ const ESTAGIO_CURTO: Record<Canteiro, string[]> = {
   casa:     ["os esteios", "as paredes de taipa", "a casa coberta"]
 };
 const TITULO_CANTEIRO: Record<Canteiro, string> = { roca: "ROÇA", palicada: "PALIÇADA", casa: "CASA" };
+// O nome nu, com artigo e sem preposição — o `NOME_CANTEIRO` acima já vem colado no "da",
+// que serve à frase do papel da volta e não serve a mais nenhuma.
+const NOME_SIMPLES: Record<Canteiro, string> = { roca: "a roça", palicada: "a paliçada", casa: "a casa" };
 // O que ainda não começou. Um por canteiro porque "ainda por começar" três vezes seguidas é
 // a mesma parede de linhas repetidas que a tela de eras já pagou uma vez.
 const ESTAGIO_ZERO: Record<Canteiro, string> = {
-  roca: "a terra marcada, ainda por abrir",
-  palicada: "os piquetes fincados, e nada mais",
-  casa: "o chão batido, à espera dos esteios"
+  roca: "a terra ainda por abrir",
+  palicada: "os piquetes, e nada mais",
+  casa: "o chão batido, à espera"
 };
 // Como se diz cada recurso numa frase. O rótulo do HUD é um ícone; aqui é palavra.
 const NOME_RECURSO: Record<string, string> = { flor: "flor", agua: "água", refeicao: "comida" };
@@ -3711,6 +3714,9 @@ let tick = 0, tickMundo = 0, animT = 0;
 // drawHero() e por atualizarFolhas(), que rodam dentro do caminho de DESENHO e por isso não
 // passam pelo portão do laço.
 let mundoParado = false;
+// ...e o SEGUNDO estado, que é o do MENU: o cenário roda, a partida não. Ver o bloco grande em
+// `guardarMundoDoMenu()`. Lido pelos mesmos dois clientes de desenho, pela mesma razão.
+let mundoEmLoop = false;
 let W = 320, H = 180, GROUND = 108, HX = 90;
 // ===== A CAIXA DAS TRÊS CAMADAS, EM PX DE TELA =====
 // `TELA_W`/`TELA_H` são W×ESCALA e H×ESCALA — a caixa que as três camadas (#fundoHD, #scene
@@ -6024,7 +6030,11 @@ function drawHero() {
   // coisa que este trabalho existe para tirar de cima de quem está lendo.
   if (mundoParado) { lastFi = fi; return; }
 
-  atualizarFolhas(1 / 60, alto);
+  // ...e o portão do MENU, pela mesma razão de estar repetido aqui: a folha nasce e é COLHIDA
+  // dentro de `atualizarFolhas` (é ela que soma impacto ao passar por cima), e é a única renda
+  // do jogo que não passa pelo laço de quadro. Tudo o mais desta função é o corpo dela — pulo,
+  // golpe, poeira do pé — e continua andando, porque a personagem continua andando.
+  if (!mundoEmLoop) atualizarFolhas(1 / 60, alto);
 
   // ---- state advance: identical side effects to the old procedural path ----
   if (air) jumpT--;              // the arc runs down; landing no longer spawns anything
@@ -8765,9 +8775,13 @@ function zerarJogo() {
   // A obra volta ao chão junto com quem a tocava. É o ÚNICO lugar do arquivo em que `S.obra`
   // deixa de crescer, e ele não é o jogo: é a pessoa apagando a própria partida.
   S.obra = { roca: 0, palicada: 0, casa: 0 };
+  S.obraVista = { roca: 0, palicada: 0, casa: 0 };
+  { const b = document.getElementById("btnLugar"); if (b) b.classList.add("oculto"); }
   obraFrac = 0; obraMaoFrac = 0; relatoObra = avancarObra(0); canteiros.length = 0;
   S.marcos = 0; marcoAtivo = null; moradores.length = 0;
   worldX = 0; mobs.length = 0; drops.length = 0; floats.length = 0;
+  esquecerMundoGuardado();     // APAGAR roda com a tela de AJUSTES aberta: o mundo guardado
+                               // pelo menu é da partida que acabou de deixar de existir.
   salvar();
   try { localStorage.removeItem(CHAVE_RET); } catch (e) {}
   // A retenção volta ao padrão INTEIRA — inclusive a janela dos primeiros 60 s, que só faz
@@ -8813,10 +8827,12 @@ function abrir(id) {
 //
 // A DISTINÇÃO QUE VAI PARECER INCONSISTÊNCIA PARA QUEM LER DEPOIS, E NÃO É:
 //
-//   MENU (telaMenu, telaCapitulos, telaCompletude, telaConfig, telaFontes) → o mundo VIVE
-//   atrás. É decisão de direção de arte, escrita no DIRECAO.md: "a tela é o mundo". É o mundo
-//   andando atrás que faz o menu ser um LUGAR e não um modal boiando sobre um jogo pausado.
-//   Fica como está.
+//   MENU (telaMenu, telaCapitulos, telaCompletude, telaConfig, telaFontes) → o CENÁRIO vive
+//   atrás, a PARTIDA não. A tela continua sendo o mundo — a personagem anda, a estrada rola, o
+//   dia passa —, mas nada nasce, nada é contado e nada é perdido. Ver `guardarMundoDoMenu()`.
+//   (Até 12/08 a partida inteira corria aqui, e era decisão registrada. O dono a reverteu
+//   olhando a tela, com uma razão melhor: o que passava atrás do menu era justamente o que a
+//   mão não podia alcançar. O texto antigo desta linha está no commit que a mudou.)
 //
 //   HISTÓRIA (telaFala — abertura, fecho, cerimônia e a fala dos marcos) → o mundo PARA.
 //   Pedido do dono em 2026-08-07: "o jogo já acontece enquanto a história passa, não deve ser
@@ -8829,7 +8845,7 @@ function historiaAberta() {
   const t = document.getElementById("telaFala");
   return !!(t && t.classList.contains("aberta"));
 }
-const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes", "telaGlossario", "telaFim"];
+const TELAS = ["telaMenu", "telaCapitulos", "telaFala", "telaCompletude", "telaConfig", "telaFontes", "telaGlossario", "telaObra", "telaFim"];
 // Alguma tela cobrindo o jogo. Sob o MENU o mundo continua vivo por baixo — é decisão, ver
 // historiaAberta() — mas os sons DELE não devem competir com o que está por cima. Lê o DOM em
 // vez de guardar um sinalizador porque o DOM já é a única fonte da verdade sobre isso.
@@ -8850,6 +8866,10 @@ function abrirTela(id) {
   if (id === "telaMenu") {
     const bf = document.getElementById("btnFim");
     if (bf) bf.classList.toggle("oculto", !(R.chegou | 0));
+    // ...e a porta de O LUGAR aparece quando há lugar: PALMARES com gente acolhida. Mesma
+    // gramática da tábua acima — porta para o que ainda não existe é porta que decepciona.
+    const bl = document.getElementById("btnLugar");
+    if (bl) bl.classList.toggle("oculto", !lugarExiste());
   }
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
   // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de
@@ -8863,6 +8883,104 @@ function fecharTelas() {
   TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
   document.body.classList.remove("emTela");
 }
+
+// ============================================================
+// O MENU É CENÁRIO, NÃO PARTIDA — o LOOP
+//
+// Pedido do dono (2026-08-12), olhando a tela: *"o jogo não deveria rodar enquanto está no
+// menu, deve aparecer apenas o personagem andando e o cenário em si — sem itens, sem pessoas,
+// sem as folhas para coletar, sem as placas de história… talvez valha ficar num loop para não
+// bugar o jogo."*
+//
+// A razão dele é a que decide: atrás do menu passavam chegadas, drops, folhas, gente acolhida e
+// placas de marco — coisas que a mão NÃO PODE alcançar dali. Quem abria o menu e voltava tinha
+// perdido o que passou, e ganhado impacto que não viu. Mundo vivo atrás de tela era bonito
+// enquanto ninguém somou o que ele custava.
+//
+// O QUE O LOOP É, e a palavra é dele: o cenário roda em círculo. A personagem anda, a estrada
+// rola, o dia passa, a poeira de sol e os vaga-lumes continuam — e nada mais. Ao fechar, a
+// partida volta EXATAMENTE de onde estava.
+//
+// COMO, e por que assim:
+//   · `worldX` CONTINUA ANDANDO. É a única forma de a passada casar com o chão (o quadro do
+//     sprite é escolhido por DISTÂNCIA percorrida, §4 do CLAUDE.md) e de as três camadas de
+//     cenário rolarem juntas. Congelar `worldX` e inventar um deslocamento só para o desenho
+//     seria uma segunda verdade sobre onde ela está — e há oitenta lugares lendo a primeira.
+//   · o que a mão alcança sai de cena, GUARDADO: mobs, drops, folhas, canteiros, a fila, quem
+//     vive na faixa e a placa do marco. Guardar (e não apagar) é o que atende ao "nada é
+//     perdido"; esvaziar as listas é o que atende ao "sem itens, sem pessoas" sem espalhar um
+//     `if` por cada uma das seis funções de desenho.
+//   · ao voltar, cada coisa é somada do MESMO tanto que a rua andou (`dx`), então ela reaparece
+//     no mesmo ponto DA TELA em que estava. É isto que faz o círculo fechar sem pulo: o cenário
+//     não rebobina (rebobinar `worldX` daria um salto de meia tela na pintura) e a partida não
+//     escorrega.
+//   · nada nasce porque nenhum dos que nascem roda: mob, drop, folha e canteiro nascem por chão
+//     coberto, e os acumuladores (`mobChao`, `folhaChao`) ficam onde estavam — a cadência
+//     retoma do ponto exato.
+//
+// O QUE FICA DE FORA DO LOOP, dito por inteiro:
+//   · `R.segundos` (retenção) — ler o menu é estar no jogo; é medida sobre a PESSOA.
+//   · `correrMutirao` — a obra do mutirão é, por definição, o que anda enquanto você NÃO está
+//     (18 pontos/h no teto: 0,005 ponto num menu de um minuto). Pará-la aqui contradiria o
+//     próprio relógio dela, e travaria a obra justo na tela que mostra a obra.
+//   · a varredura de luz da virada de era (`saltoHora`), que já corre em canal próprio.
+//
+// ⚠ MUDANÇA DE ECONOMIA, medida antes e depois (`test/medir-loop-menu.js`): a ajuda automática
+// do u3 e a folha colhida de passagem PARAM de render atrás do menu. Medido em 12 s de menu
+// aberto, com u1/u2/u3 ligados: +120,00 de impacto antes, +0,00 depois — e cinco pessoas
+// acolhidas sem ninguém olhando viraram zero. A renda de quem está JOGANDO não muda em nada:
+// nenhuma fórmula foi tocada, só deixou de correr numa tela onde não há jogo.
+// ============================================================
+interface MundoGuardado {
+  x: number; cena: number;
+  mobs: Mob[]; drops: Drop[]; folhas: Folha[]; canteiros: ObraNoChao[];
+  grupo: Companheira[]; ficando: Companheira[]; moradores: Morador[];
+  marco: { i: number; ep: number; wx: number; falado: boolean } | null;
+}
+let mundoGuardado: MundoGuardado | null = null;
+function guardarMundoDoMenu() {
+  mundoGuardado = { x: worldX, cena: cenarioAtual(),
+    mobs: mobs, drops: drops, folhas: folhas, canteiros: canteiros,
+    grupo: grupo, ficando: ficando, moradores: moradores, marco: marcoAtivo };
+  // Listas NOVAS, não esvaziadas: quem guardou ficou com a de verdade, e nenhum `forEach` de
+  // desenho em curso encontra o tapete puxado no meio da passada.
+  mobs = []; drops = []; folhas = []; canteiros = [];
+  grupo = []; ficando = []; moradores = []; marcoAtivo = null;
+  // A MÃO SOLTA A OBRA AO ENTRAR NO MENU, e esta linha não é zelo: `velocidadeMundo()` devolve
+  // ZERO enquanto `obraTrabalhando` é verdadeiro, e quem o desliga é `trabalharNaObra`, que
+  // deixou de rodar. Sem isto, abrir o menu com o dedo no canteiro deixaria a personagem
+  // plantada no meio do cenário parado — o oposto exato do que o dono pediu.
+  soltarObra();
+}
+// A GUARDA VENCE — e vencer é a coisa certa a fazer. Entre guardar e devolver cabe trocar de
+// era pela tábua das eras, atravessar o Atlântico e apagar o save inteiro: os três remontam o
+// mundo do zero, e devolver por cima repovoaria a rua nova com a gente da rua velha. Duas
+// perguntas bastam para separar os casos, e as duas são baratas: a cena é a mesma? e as listas
+// vivas continuam vazias (ninguém as encheu enquanto estávamos fora)?
+function devolverMundoDoMenu() {
+  const g = mundoGuardado;
+  mundoGuardado = null;
+  if (!g) return;
+  if (g.cena !== cenarioAtual()) return;
+  const dx = worldX - g.x;
+  const põe = function <T>(vivo: T[], guardado: T[], mexe: (o: T) => void) {
+    if (vivo.length) return vivo;      // outra coisa povoou a rua: o guardado envelheceu
+    guardado.forEach(mexe);
+    return guardado;
+  };
+  const px = function (o: { wx: number }) { o.wx += dx; };
+  const pxX = function (o: { x: number }) { o.x += dx; };
+  mobs = põe(mobs, g.mobs, px); drops = põe(drops, g.drops, px);
+  folhas = põe(folhas, g.folhas, function (f) { f.wx += dx; if (f.q0 !== undefined) f.q0 += dx; });
+  canteiros = põe(canteiros, g.canteiros, px);
+  grupo = põe(grupo, g.grupo, pxX); ficando = põe(ficando, g.ficando, pxX);
+  moradores = põe(moradores, g.moradores, pxX);
+  if (!marcoAtivo && g.marco) { g.marco.wx += dx; marcoAtivo = g.marco; }
+}
+// Quem remonta o mundo do zero chama isto: o que estava guardado não pertence mais a lugar
+// nenhum. (A guarda de cena acima já cobriria a troca de era; esta linha cobre o resto e diz
+// a intenção em voz alta, que é o que uma sessão futura vai ler.)
+function esquecerMundoGuardado() { mundoGuardado = null; }
 
 
 
@@ -9183,6 +9301,7 @@ function correrTravessia(deId, paraId, depois) {
   // destas listas é gente, coisa de gente, ou sinal sobre gente.
   mobs = []; drops = []; folhas = []; grupo = []; ficando = []; moradores = [];
   floats = []; parts = []; magias = []; ondasChao = []; marcoAtivo = null;
+  esquecerMundoGuardado();     // e o que o menu tiver guardado morre com a rua que o gerou
   proximoMob = -1; proximaFolha = -1; combo = 0; attackT = 0; jumpT = 0;
   // O céu parte do fim da TARDE para escurecer durante o trecho. É a única vez em que o
   // relógio do dia é POSTO num valor em vez de andar sozinho, e é o que faz a travessia
@@ -9881,6 +10000,7 @@ function pintarRotulos() {
   pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
   // O molde pode nao ter o botao ainda (integracao entre maquinas): id sem markup nao pode lancar.
   { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 2, "#d9cfae"); }
+  { const b = document.getElementById("btnLugar"); if (b) pixelRotulo(b, "O LUGAR", 2, "#d9cfae"); }
   pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
   // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais
   // velha: `#fimTit` e os três botões dela eram os ÚNICOS rótulos em Arial Black do jogo
@@ -9891,8 +10011,10 @@ function pintarRotulos() {
   pixelRotulo($("btnFimHist"), "A HISTÓRIA", 2, "#f2e3c0");
   pixelRotulo($("btnFimFontes"), "DE ONDE VEM", 2, "#d9cfae");
   pixelRotulo($("btnFimVoltar"), "VOLTAR PARA A RUA", 2, "#a9a184");
-  ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarGloss", "btnVoltarCfg"].forEach(function (id) {
-    pixelRotulo($(id), "VOLTAR", 2, "#a9a184");
+  ["btnVoltarCap", "btnVoltarComp", "btnVoltarFontes", "btnVoltarGloss", "btnVoltarCfg",
+   "btnVoltarObra"].forEach(function (id) {
+    const b = document.getElementById(id);
+    if (b) pixelRotulo(b, "VOLTAR", 2, "#a9a184");
   });
   // a mesma tinta clara da plaquinha da época — o PULAR agora é a mesma madeira escura
   pixelRotulo($("btnFalaPular"), "PULAR", 1, "#c9ab77");
@@ -9956,6 +10078,26 @@ function ligarTelas() {
     montarCompletude(); abrirTela("telaCompletude");
   });
   $("btnConfig").addEventListener("pointerdown", function (e) { e.preventDefault(); montarConfig(); abrirTela("telaConfig"); });
+  // O LUGAR — a obra do mutirão lida como página. Defensivo nos ids pelo mesmo motivo do
+  // GLOSSÁRIO: molde e script podem chegar em commits diferentes.
+  {
+    const bL = document.getElementById("btnLugar");
+    if (bL) bL.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); montarObra(); abrirTela("telaObra");
+    });
+    const bV = document.getElementById("btnVoltarObra");
+    if (bV) bV.addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+    const bI = document.getElementById("btnObraIr");
+    if (bI) bI.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      // Já em PALMARES: a rua está logo atrás desta página, e é para ela que se volta.
+      if (capGente()) { fecharTelas(); fecharTudo(); return; }
+      // Fora dele: o MESMO caminho da tela de eras, linha por linha. Entrar num capítulo conta
+      // a história dele (decisão do dono), e quem já leu tem o PULAR.
+      entrarNaEpoca(CAP_GENTE); redesenharFundo();
+      fecharTelas(); mostrarAbertura(undefined, true);
+    });
+  }
   $("btnVoltarComp").addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
   $("btnFontes").addEventListener("pointerdown", function (e) {
     e.preventDefault();
@@ -12215,6 +12357,167 @@ function montarGlossario() {
 // que faz o trabalho — quem pulou a travessia ou nunca abriu as fontes descobre AQUI, e não
 // há outro momento no jogo em que isso caiba.
 function contarBits(m) { let n = 0, v = (m | 0) >>> 0; while (v) { n += v & 1; v >>>= 1; } return n; }
+// ============================================================
+// O LUGAR — a obra num lugar que se VISITA
+//
+// O TICKET, e ele é do dono: ele viu a casa de pé na estrada e disse *"talvez algo no menu do
+// jogo que vá evoluindo… no jogo em si achei meio estranho"*. O diagnóstico é de LEITURA e não
+// de código: na rua, a obra pronta lê como CENÁRIO — indistinguível do fundo pintado, que é
+// justamente o que ela deveria parecer para não poluir o quadro. Quem a construiu não percebe
+// que construiu. Uma coisa que ninguém vê que fez não dá vontade de voltar, e voltar era o
+// critério de aceitação inteiro.
+//
+// A resposta desta casa: a obra CONTINUA na rua (é lá que a mão trabalha, e tirá-la de lá
+// mataria o verbo) e ganha uma PÁGINA — o lugar onde ela é lida, nomeada e comparada com
+// ontem. Quatro coisas, na ordem em que importam a quem acabou de abrir o jogo:
+//   1. o que cresceu desde a última visita  — é isto que faz voltar;
+//   2. os três canteiros, desenhados        — o progresso é o desenho, aqui como na rua;
+//   3. quem trabalha nela                   — as acolhidas, contadas, nunca comandadas;
+//   4. o caminho de volta para a faixa      — a página não é um beco.
+//
+// §2, E ESTA É A TELA MAIS FÁCIL DE TRAIR DO JOGO. Ela CONTA quem trabalha; não COMANDA
+// ninguém. Não há uma acolhida tocável, arrastável, selecionável ou alocável; não existe
+// "rende X por hora" em lugar nenhum (nem por pessoa, nem no total); não há um dígito da obra
+// nesta página — o desenho é o placar, como manda o MUTIRAO.md. O único número da tela é
+// quantas pessoas vivem ali, que é a MESMA frase que o papel da volta já dizia.
+//
+// ZERO IMAGEM NOVA e zero material novo: papel de campo com pauta e moldura de madeira (a
+// receita do `.fimLin`), cabeçalho `.fnGrupo` da tela de fontes, e a gravura de cada canteiro
+// pintada pela MESMA `desenharCanteiro` da rua. A referência é a da onda 6 (Art of Fauna): a
+// prancha colada na página do caderno naturalista.
+// ============================================================
+function somaObra(o) { return (o.roca | 0) + (o.palicada | 0) + (o.casa | 0); }
+// A obra é de PALMARES, e a porta dela só existe para quem tem gente lá — que é a mesma
+// condição de a obra poder andar (`taxaMutirao(0) === 0`). Antes disso a tábua seria uma
+// promessa sobre uma coisa que não existe.
+function lugarExiste() { return (S.acolhidos[CAP_GENTE] | 0) > 0 || somaObra(S.obra) > 0; }
+function montarObra() {
+  const novo = $("obraNovo"), lista = $("obraCanteiros"), gente = $("obraGente");
+  novo.textContent = ""; lista.textContent = ""; gente.textContent = "";
+  const cab = function (caixa: HTMLElement, txt: string) {
+    const h = document.createElement("div");
+    h.className = "fnGrupo";
+    pixelRotulo(h, txt, 1, "#d9a441");
+    caixa.appendChild(h);
+    return h;
+  };
+  const papel = function (caixa: HTMLElement, txt: string, cls?: string) {
+    const d = document.createElement("div");
+    d.className = "obLinha" + (cls ? " " + cls : "");
+    d.textContent = txt;
+    caixa.appendChild(d);
+    return d;
+  };
+
+  // ===== 1 · O QUE CRESCEU =====
+  // Lido de `S.obraVista`, a fotografia da última visita. Sem um dígito: o que se diz é o
+  // NOME do que ficou de pé — o mesmo vocabulário do papel da volta, para a pessoa reconhecer
+  // a frase que leu de manhã.
+  const jaVisitou = somaObra(S.obraVista) > 0;
+  const ergueu: string[] = [];
+  const avancou: Canteiro[] = [];
+  OBRA_CANTEIROS.forEach(function (c) {
+    const agora = S.obra[c] | 0, antes = Math.min(S.obraVista[c] | 0, agora);
+    if (agora <= antes) return;
+    const de = Math.floor(antes / OBRA_PONTOS_ESTAGIO), ate = Math.floor(agora / OBRA_PONTOS_ESTAGIO);
+    for (let e = de + 1; e <= ate; e++) ergueu.push(NOME_ESTAGIO[c][e - 1]);
+    if (ate === de) avancou.push(c);
+  });
+  const mudou = ergueu.length + avancou.length > 0;
+  if (mudou) {
+    cab(novo, jaVisitou ? "DESDE A SUA ÚLTIMA VISITA" : "O QUE JÁ FICOU DE PÉ");
+    ergueu.forEach(function (n) {
+      papel(novo, n.charAt(0).toUpperCase() + n.slice(1) + ".", "obNovo");
+    });
+    // OS "ANDOU UM POUCO" SAEM NUMA LINHA SÓ, e o motivo já foi pago uma vez no papel da volta:
+    // três linhas com a mesma forma seguidas leem como defeito de repetição, não como três
+    // notícias. A obra tem três canteiros e uma noite mexe nos três com frequência.
+    if (avancou.length) {
+      const nomes = avancou.map(function (c) { return "n" + NOME_SIMPLES[c]; });
+      papel(novo, "A obra andou um pouco " + (nomes.length === 1 ? nomes[0]
+        : nomes.slice(0, -1).join(", ") + " e " + nomes[nomes.length - 1]) + ".", "obNovo");
+    }
+  } else if (somaObra(S.obra) > 0) {
+    cab(novo, "DESDE A SUA ÚLTIMA VISITA");
+    papel(novo, "Nada mudou. A obra está como você a deixou.");
+  }
+
+  // ===== 2 · OS TRÊS CANTEIROS =====
+  cab(lista, "OS CANTEIROS");
+  OBRA_CANTEIROS.forEach(function (c) {
+    const est = estagioObra(c);
+    const cartao = document.createElement("div");
+    cartao.className = "obItem";
+    const chapa = document.createElement("canvas");
+    chapa.className = "obArte";
+    // `aria-hidden`: a chapa é a mesma informação que as duas linhas ao lado dizem em
+    // palavras. Quem lê por leitor de tela não perde nada, e não ouve "canvas" por nada.
+    chapa.setAttribute("aria-hidden", "true");
+    cartao.appendChild(chapa);
+    const col = document.createElement("div");
+    col.className = "obTxt";
+    const nome = document.createElement("div");
+    nome.className = "obNome";
+    nome.textContent = TITULO_CANTEIRO[c];
+    col.appendChild(nome);
+    const agora = document.createElement("div");
+    agora.className = "obEstado";
+    agora.textContent = est > 0 ? ESTAGIO_CURTO[c][est - 1] : ESTAGIO_ZERO[c];
+    col.appendChild(agora);
+    // O QUE FALTA PARA O PRÓXIMO, e ele se diz sem número — porque a obra não tem número em
+    // lugar nenhum. Duas informações, e são as duas que a mão precisa: o NOME do que vem a
+    // seguir, e se os mantimentos pagam a próxima peça. Quanto falta DENTRO do estágio já
+    // está dito pelo desenho ao lado, uma peça por parcela.
+    const dep = document.createElement("div");
+    dep.className = "obProx";
+    if (est >= OBRA_ESTAGIOS) {
+      dep.textContent = "de pé — e fica de pé.";
+    } else {
+      const custo = CUSTO_OBRA[c][est];
+      dep.textContent = podePagar(custo)
+        ? "a seguir: " + ESTAGIO_CURTO[c][est] + "."
+        : "espera " + NOME_RECURSO[faltaEm(custo)] + " para seguir.";
+      if (!podePagar(custo)) dep.classList.add("obEspera");
+    }
+    col.appendChild(dep);
+    cartao.appendChild(col);
+    lista.appendChild(cartao);
+    // pintada DEPOIS de entrar na página: o canvas precisa do dpr, e o dpr não muda, mas a
+    // ordem mantém a função com um só jeito de ser chamada.
+    pintarCanteiroNaPagina(chapa, c);
+  });
+
+  // ===== 3 · QUEM TRABALHA NELA =====
+  // A MESMA frase do papel da volta, de propósito — uma voz por assunto. E a linha seguinte é
+  // a trava do §2 dita em português: elas seguem a obra por conta própria. Nunca "cada uma
+  // rende", nunca "aloque", nunca um número por pessoa.
+  const n = S.acolhidos[CAP_GENTE] | 0;
+  cab(gente, "QUEM ESTÁ LÁ");
+  if (n > 0) {
+    papel(gente, n === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
+                         : n + " pessoas acolhidas vivem no lugar que vocês abriram.");
+    papel(gente, obraCompleta()
+      ? "A obra está inteira. O que elas tocam agora é a vida do lugar, e essa não cabe numa tela."
+      : "Elas seguem a obra quando você não está. Ninguém as manda: acodem onde falta mais.");
+  } else {
+    papel(gente, "Ninguém foi acolhida ainda.");
+    papel(gente, "Enquanto for assim, a obra só anda com a sua mão — quem toca o lugar é quem vive nele.");
+  }
+
+  // ===== 4 · O CAMINHO DE VOLTA =====
+  // A página não é beco: ou ela devolve à rua onde a mão trabalha, ou ela leva ao capítulo
+  // em que a obra está. O caminho é o MESMO que a tela de eras usa — nenhum atalho novo.
+  const ir = $("btnObraIr");
+  const alcanca = epocaDoCenario(Math.max(cenarioAtual(), S.fronteira | 0)) >= CAP_GENTE;
+  ir.classList.toggle("oculto", !alcanca);
+  pixelRotulo(ir, capGente() ? "VOLTAR PARA A RUA" : "IR PARA PALMARES", 2, "#221806");
+
+  // A FOTOGRAFIA SÓ É CARIMBADA AQUI, no fim de montar — depois de a diferença já ter virado
+  // texto na tela. Carimbá-la na abertura da tela apagaria a própria frase que a tela existe
+  // para dizer, e o defeito seria invisível: a página abriria sempre dizendo "nada mudou".
+  OBRA_CANTEIROS.forEach(function (c) { S.obraVista[c] = S.obra[c] | 0; });
+  salvar();
+}
 function montarFim() {
   const nCap = EPOCAS.length;
   const lidas = contarBits((S.aberturas | 0) & MASCARA_EPOCAS);
@@ -12625,8 +12928,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // recolhido ao passar por cima, folha colhida no caminho) sem saber de nenhuma das duas.
     // Num jogo que existe para ensinar, o mundo não pode competir com o próprio texto.
     //
-    // MENU CONTINUA COMO ESTÁ: sob telaMenu e irmãs o mundo vive atrás, de propósito — é o que
-    // faz o menu ser um lugar. Ver o comentário de historiaAberta(), onde a distinção mora.
+    // E O MENU TEM O SEU PRÓPRIO PORTÃO, LOGO ABAIXO: lá o cenário roda e a partida não. As
+    // duas telas param coisas diferentes e é de propósito — ver `guardarMundoDoMenu()`.
     //
     // O QUE "PARAR" SIGNIFICA, item por item, e todos caem deste mesmo portão:
     //   · ela para de avançar (`worldX`), e o cenário para de rolar com ela — rolarFundo()
@@ -12649,7 +12952,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // como sessão — é medida sobre a PESSOA, não sobre o mundo.
     // ============================================================
     mundoParado = historiaAberta();
-    if (!mundoParado) {
+    // O PORTÃO DO MENU. Uma borda, dois gestos: ao entrar, a partida sai de cena guardada; ao
+    // sair, ela volta somada do chão que a rua andou. O estado nasce do DOM (telaAberta()), e
+    // não de quem abriu a tela, porque assim TODO caminho que abre ou fecha uma tela está
+    // coberto — inclusive os que ainda não existem.
+    const emLoop = !mundoParado && telaAberta();
+    if (emLoop !== mundoEmLoop) {
+      mundoEmLoop = emLoop;
+      if (emLoop) guardarMundoDoMenu(); else devolverMundoDoMenu();
+    }
+    if (!mundoParado && !mundoEmLoop) {
       // OS DOIS PRIMEIROS, E A ORDEM É OBRIGATÓRIA: os canteiros decidem o que a mão alcança, e
       // a mão decide se o mundo anda. `velocidadeMundo()` lê `obraTrabalhando`, e quem o escreve
       // é `trabalharNaObra` — se ele corresse depois de `atualizarMobs`, a rua andaria um quadro
@@ -12660,8 +12972,6 @@ document.addEventListener("DOMContentLoaded", () => {
       atualizarGrupo(dt);         // quem já foi acolhida anda junto — capítulo 2 e só ele
       atualizarMarcos();          // as placas da linha do tempo fincadas na estrada de todo capítulo
       atualizarMoradores(dt);     // a faixa final onde as acolhidas vivem (cap. 2)
-      correrMutirao(dt);          // e o relógio da obra, devagar, esteja a pessoa onde estiver
-      suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
       atualizarDrops(dt);
       atualizarChamada(dt);
       verificarAnuncios();
@@ -12679,6 +12989,15 @@ document.addEventListener("DOMContentLoaded", () => {
           lancarMagia(0, HX - 8, GROUND - 44);
         }
       }
+    }
+    // ===== O CENÁRIO, QUE RODA NOS DOIS ESTADOS DE JOGO =====
+    // Daqui para baixo até o fim do bloco está o que o MENU não para: a rua andando, o relógio
+    // do dia, a mola do quadro, o relógio do mutirão e a média do cuidado. É esta metade que
+    // faz o menu continuar sendo um lugar — a personagem anda, a estrada rola, o dia passa —
+    // sem que nada da partida aconteça. Só a HISTÓRIA para tudo (`mundoParado`).
+    if (!mundoParado) {
+      correrMutirao(dt);          // e o relógio da obra, devagar, esteja a pessoa onde estiver
+      suavizarCuidado(dt);        // o desenho persegue a média; a média anda a degraus
       // Um quadro de sprite tem que durar um número INTEIRO de quadros de tela, senão a cadência
       // manca. Dez por pose andando (6 quadros/s, 38,3 px/s, 2 passos/s) e cinco correndo
       // (12 quadros/s, 76,5 px/s) — o dobro exato, porque correr usa as mesmas poses da caminhada

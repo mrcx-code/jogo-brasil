@@ -1329,6 +1329,108 @@ const sec = t => log('\n---- ' + t);
     'e NUNCA há dois canteiros no mesmo quadro (pior momento em 20 mil px: ' + oMutirao.pior + ')');
   ok(oMutirao.teto === oMutirao.derivado, 'OBRA_MAX continua derivado de estágio × estágios, nunca literal');
 
+  // ============================================================
+  // 27 · O LUGAR — a página da obra conta, e não comanda
+  //
+  // A tela nasceu de um defeito de LEITURA: na estrada a obra pronta lê como cenário, e quem
+  // a construiu não percebe que construiu. A página é a resposta. Seis coisas que, se
+  // quebrarem, quebram em silêncio absoluto — que é o critério deste arquivo:
+  //
+  //   (a) ID REPETIDO NO POSTE. Este bloco nasce com uma cicatriz: o commit do glossário
+  //       duplicou a tábua DE ONDE VEM e o menu ficou DIAS mostrando-a duas vezes, a segunda
+  //       em Arial Black — porque `pixelRotulo` pinta o primeiro nó com o id e o segundo
+  //       ficava com o texto cru do molde. Nenhum teste viu; id repetido não dá erro.
+  //   (b) a tela fora de `TELAS`. Ela ficaria aberta para sempre atrás do jogo, e o `emTela`
+  //       preso — o chrome nunca voltaria. É o modo de falha de toda tela nova.
+  //   (c) `montarObra` ESCREVER no jogo. Uma página que se lê não pode mexer em `obra`,
+  //       `recursos` nem `acolhidos`. A única coisa que ela grava é a própria fotografia.
+  //   (d) a fotografia carimbada CEDO. Se `obraVista` fosse carimbada ao ABRIR a tela e não
+  //       no fim de montá-la, a página diria "nada mudou" para sempre, e o defeito seria
+  //       invisível — é justamente a frase que faz voltar.
+  //   (e) UM DÍGITO DA OBRA na página. O MUTIRAO.md é literal: a obra não tem número em lugar
+  //       nenhum, o progresso é o desenho. Um "3/6" que alguém acrescente por gentileza
+  //       transforma trabalho coletivo em placar.
+  //   (f) o DESENHO parar de crescer. Se a chapa da página deixar de responder a `S.obra`, a
+  //       tela vira decoração: é o desenho que é o placar, e ele tem de ter MAIS pixel de pé
+  //       numa obra maior. É a asserção que amarra a página à rua — as duas passam pela
+  //       MESMA `desenharCanteiro`.
+  // ============================================================
+  sec('27 · O LUGAR: a página da obra conta o que cresceu, e não comanda ninguém');
+  const oLugar = await page.evaluate(async () => {
+    fecharTelas(); fecharTudo();
+    // (a) nenhum id repetido no poste do menu
+    const ids = Array.from(document.querySelectorAll('#poste [id]')).map(e => e.id);
+    const repetidos = ids.filter((x, i) => ids.indexOf(x) !== i);
+    // a porta só existe quando há lugar
+    S.acolhidos = EPOCAS.map(() => 0);
+    S.obra = { roca: 0, palicada: 0, casa: 0 };
+    S.obraVista = { roca: 0, palicada: 0, casa: 0 };
+    abrirTela('telaMenu');
+    const semGente = document.getElementById('btnLugar').classList.contains('oculto');
+    S.acolhidos[CAP_GENTE] = 7;
+    abrirTela('telaMenu');
+    const comGente = !document.getElementById('btnLugar').classList.contains('oculto');
+    // (c) e (d): um estado conhecido, uma visita, e o que a página diz
+    S.obra = { roca: 65, palicada: 30, casa: 0 };
+    S.obraVista = { roca: 55, palicada: 30, casa: 0 };
+    S.recursos = { flor: 50, agua: 50, refeicao: 50 };
+    const antes = JSON.stringify([S.obra, S.recursos, S.acolhidos]);
+    montarObra(); abrirTela('telaObra');
+    const depois = JSON.stringify([S.obra, S.recursos, S.acolhidos]);
+    const primeira = document.getElementById('obraNovo').textContent;
+    const carimbo = JSON.stringify(S.obraVista);
+    // (e) nenhum dígito na área dos canteiros
+    const textoCanteiros = document.getElementById('obraCanteiros').textContent;
+    // segunda visita, sem nada ter mudado: a página tem de dizer isso
+    montarObra();
+    const segunda = document.getElementById('obraNovo').textContent;
+    // (f) o desenho cresce com a obra — mesma chapa, dois estados, pixels de pé contados
+    const dePe = (o) => {
+      S.obra = o;
+      const c = document.createElement('canvas');
+      pintarCanteiroNaPagina(c, 'casa');
+      const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      let n = 0;
+      // tudo que não é o fundo da chapa (#191510) nem a linha de chão (#2a1c0c)
+      for (let i = 0; i < d.length; i += 4) {
+        const k = (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
+        if (k !== 0x191510 && k !== 0x2a1c0c) n++;
+      }
+      return n;
+    };
+    const vazia = dePe({ roca: 0, palicada: 0, casa: 0 });
+    const meia = dePe({ roca: 0, palicada: 0, casa: 90 });
+    const cheia = dePe({ roca: 0, palicada: 0, casa: OBRA_MAX });
+    // (b) a tela fecha com todas as outras
+    fecharTelas();
+    const presa = document.getElementById('telaObra').classList.contains('aberta');
+    const emTela = document.body.classList.contains('emTela');
+    return { repetidos, semGente, comGente, mexeu: antes !== depois, primeira, segunda,
+      carimbo, digitos: (textoCanteiros.match(/[0-9]/g) || []).join(''),
+      vazia, meia, cheia, presa, emTela, naLista: TELAS.indexOf('telaObra') >= 0 };
+  });
+  log('   ids repetidos no poste: ' + (oLugar.repetidos.length ? oLugar.repetidos.join(', ') : '(nenhum)'));
+  log('   1ª visita diz: ' + JSON.stringify(oLugar.primeira));
+  log('   2ª visita diz: ' + JSON.stringify(oLugar.segunda));
+  log('   casa desenhada, pixels de pé: vazia ' + oLugar.vazia + ' | meia ' + oLugar.meia
+    + ' | cheia ' + oLugar.cheia);
+  ok(!oLugar.repetidos.length, 'nenhum id se repete no poste do menu — a tábua duplicada não volta');
+  ok(oLugar.semGente && oLugar.comGente,
+    'a porta O LUGAR só existe quando há lugar: some sem gente acolhida, aparece com ela');
+  ok(oLugar.naLista && !oLugar.presa && !oLugar.emTela,
+    'a tela está em TELAS e `fecharTelas()` a devolve, com o chrome do jogo junto');
+  ok(!oLugar.mexeu, 'abrir a página não move obra, recursos nem acolhidas — ela LÊ o jogo (§2)');
+  ok(/roça|paliçada|casa/i.test(oLugar.primeira),
+    'a primeira visita diz o que cresceu desde a última vez');
+  ok(/nada mudou/i.test(oLugar.segunda),
+    'e a segunda, sem nada ter mudado, diz que nada mudou — a fotografia é carimbada no fim');
+  ok(oLugar.carimbo === JSON.stringify({ roca: 65, palicada: 30, casa: 0 }),
+    'a fotografia guardada é a obra do momento da visita (' + oLugar.carimbo + ')');
+  ok(oLugar.digitos === '',
+    'nenhum dígito da obra na página: o progresso é o desenho, nunca um placar');
+  ok(oLugar.meia > oLugar.vazia && oLugar.cheia > oLugar.meia,
+    'e o desenho CRESCE com a obra — é a mesma `desenharCanteiro` da rua, e é ela o placar');
+
   sec('21 · deitado, o menu inteiro cabe na tela e o JOGAR recebe o dedo');
   for (const vp of [{ w: 844, h: 390, nome: 'telefone deitado 844×390' },
                     { w: 1024, h: 768, nome: 'tablet deitado 1024×768' }]) {

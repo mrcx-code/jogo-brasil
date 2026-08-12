@@ -842,7 +842,9 @@ function lintComentarios() {
   // diferentes, e cada uma escreveu esta lista sem a outra. A lista e copia INDEPENDENTE do
   // ESQUEMA_SAVE de proposito (gerar uma da outra deixaria de pegar campo gravado sem
   // esquema), e por isso ela e exatamente onde duas sessoes se atropelam. Ficam os dois.
-  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'marcosN', 'modo', 'obra', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
+  // `obraVista` entrou com a tela O LUGAR: e a fotografia da obra na ultima visita, e a unica
+  // coisa que ela alimenta e a frase "o que cresceu desde a ultima vez". Mesma regua de `obra`.
+  const esperadas = ['aberturas', 'acolhidos', 'arco', 'cenario', 'cuidado', 'energia', 'energiaTotal', 'fechos', 'fronteira', 'grupo', 'marcos', 'marcosN', 'modo', 'obra', 'obraVista', 'recursos', 'salvoEm', 'som', 'travessias', 'u1', 'u2', 'u3', 'u4'];
   if (chaves.join(',') !== esperadas.join(',')) errors.push('the save carries fields the loader would discard');
 
   // ---- A OBRA DO LUGAR: um save adulterado, e a promessa de que ela SO CRESCE ----
