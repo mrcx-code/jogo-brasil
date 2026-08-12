@@ -134,7 +134,10 @@ function comparaLista(nome, antes, depois, dx, out) {
   await page.setViewportSize({ width: 844, height: 390 });
   await page.waitForTimeout(500);
   await page.evaluate(() => { abrirTela('telaMenu'); });
-  await page.waitForTimeout(400);
+  // 900 ms e não 400: a mobília do menu BROTA (translateY 18 → 0, .42 s com até .12 s de
+  // atraso), e transform entra na área rolável — medir antes do fim da animação acusa 3 px de
+  // rolagem que não existem meio segundo depois.
+  await page.waitForTimeout(900);
   const rolDeit = await page.evaluate(() => {
     const t = document.getElementById('telaMenu');
     return { sobra: t.scrollHeight - t.clientHeight, y: getComputedStyle(t).overflowY };

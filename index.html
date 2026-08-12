@@ -506,7 +506,11 @@
   #telaMenu { background:
     linear-gradient(180deg, rgba(10,9,6,.30) 0%, rgba(10,9,6,.06) 34%,
                             rgba(10,9,6,.10) 62%, rgba(10,9,6,.52) 100%);
-    justify-content: flex-start; padding-top: max(7vh, 34px); }
+    justify-content: flex-start; padding-top: max(7vh, 34px);
+    /* O PÉ DA TELA É DO POSTE, e o respiro dele passou a ser recheio do próprio poste. É o que
+       permite ao mastro terminar EXATAMENTE na borda de baixo em vez de atravessá-la — ver o
+       `bottom: 0` do `#poste::before` e a rolagem fantasma que ele criava. */
+    padding-bottom: 0; }
   /* O logo virou imagem. Mantem o respiro lento de 4,2s que a placa de texto tinha —
      jogo bom se mexe pouco e no ritmo certo. image-rendering pixelated porque a arte e
      nativa no tamanho em que foi salva: suavizar apagaria a borda dura. */
@@ -530,10 +534,17 @@
      e é isso que o planta no lugar em vez de deixá-lo boiando no centro. As tábuas são os
      botões, pregadas nele. O vazio morto entre o último botão e o rodapé morreu aqui: o
      conjunto se ancora embaixo, e o que sobra de céu fica em cima, onde céu deve estar. */
-  #poste { position: relative; margin-top: auto;
-    margin-bottom: calc(30px + env(safe-area-inset-bottom));
+  /* O RESPIRO DO PÉ É RECHEIO, NUNCA MARGEM — e a troca vale uma linha de explicação, porque
+     ela consertou a "rolagem estranha" que o dono sentiu no menu (12/08). Com margem, a caixa
+     do poste terminava 30 px acima da borda da tela e o mastro precisava atravessar essa
+     distância por fora (`bottom: -60vh`); um elemento posicionado que passa da borda de baixo
+     ENTRA na área rolável do `#telaMenu`, e o menu passou a rolar 457 px (390×844), 208 (deitado)
+     e 323 (320×568) sem ter uma única tábua fora da tela. Rolagem fantasma, medida.
+     Com recheio, a caixa do poste vai até a borda, o mastro fecha em `bottom: 0` e o menu só
+     rola quando alguma coisa de verdade não couber — que é para isso que a rolagem existe. */
+  #poste { position: relative; margin-top: auto; margin-bottom: 0;
     display: flex; flex-direction: column; align-items: center; gap: 12px;
-    padding: 18px 0 26px; }
+    padding: 18px 0 calc(56px + env(safe-area-inset-bottom)); }
   /* SEIS CAMADAS QUE NUNCA RENDERAM UM PIXEL (auditoria holística, 09/08). Cada uma destas
      receitas de madeira declarava o "veio" — um repeating-gradient de 2px/8px — DEPOIS do
      gradiente de preenchimento. Em `background`, a primeira camada é a de cima: o gradiente
@@ -543,7 +554,11 @@
      verdade. O `#poste` é o único que ficou sem grão nenhum, e é decisão registrada: o veio
      dele seria VERTICAL (uma segunda textura rotacionada), e ninguém mediu ainda se o print
      no aparelho pede. Enquanto não medir, sem grão é honesto; camada morta não era. */
-  #poste::before { content: ""; position: absolute; left: 50%; top: 0; bottom: -60vh;
+  /* `bottom: 0` e não `-60vh`: o mastro termina na borda de baixo da caixa do poste, que é a
+     borda de baixo da TELA (o recheio acima é que a estica até lá). Continua "atravessando" a
+     tela aos olhos — o que ficava fora da tela nunca foi visto por ninguém — e para de inventar
+     meia tela de rolagem. */
+  #poste::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
     width: 18px; transform: translateX(-50%);
     background: linear-gradient(90deg, #4a2f16, #6d4b28 30%, #7c5730 55%, #4a2f16);
     box-shadow: inset 2px 0 0 #8a6236, inset -2px 0 0 #33200e, 4px 0 0 rgba(0,0,0,.35); }
@@ -639,20 +654,34 @@
      muda — não há o que rolar. */
   #telaMenu { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   @media (orientation: landscape) {
+    /* TRÊS LINHAS, E A DO MEIO É A MARCA. Era `align-content: center` com duas linhas de
+       altura automática, e aí a grade inteira ficava do tamanho do conteúdo, centrada — o que
+       deixava o poste boiando com folga em cima e embaixo, e obrigava o mastro a atravessar
+       essa folga por fora (a mesma rolagem fantasma do retrato). Com `1fr auto 1fr` as linhas
+       preenchem a tela, a marca continua exatamente no centro (fica entre as duas frações) e o
+       poste PODE ir de borda a borda — que é o que planta o mastro. */
     #telaMenu { display: grid; grid-template-columns: 1fr auto;
-      align-content: center; justify-items: center; column-gap: 4vw;
-      padding: 10px max(18px, env(safe-area-inset-left)) 10px max(18px, env(safe-area-inset-right)); }
+      grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+      justify-items: center; column-gap: 4vw;
+      padding: 10px max(18px, env(safe-area-inset-left)) 0 max(18px, env(safe-area-inset-right)); }
     /* a marca ocupa a coluna da esquerda em duas linhas: o logo assenta em cima da frase,
        exatamente como em retrato — o que some é o espaço morto entre ela e as tábuas */
     #logoImg { grid-area: 1 / 1; align-self: end; margin-bottom: 8px;
       /* a régua passa a ser a ALTURA, e é a virada inteira desta tela: em retrato o logo é
          limitado pela largura (72vw) porque largura é o que falta; deitado falta altura. */
-      height: min(52vh, 250px); width: auto; max-width: 44vw; }
+      /* `max-height: 100%` é o que mantém a marca CENTRADA com as três linhas novas: as duas
+         frações valem o mesmo (mínimo zero), e o logo passa a caber na de cima em vez de
+         esticá-la e empurrar o par para o alto da tela. */
+      height: min(52vh, 250px); width: auto; max-width: 44vw; max-height: 100%; }
     #menuSub { grid-area: 2 / 1; align-self: start; }
     #telaMenu .telaTxt { margin-bottom: 0; }
     /* o poste ocupa a coluna da direita inteira. O `margin-top: auto` que o ancorava no pé
        da tela sai: em grade ele empurraria as tábuas para fora de novo. */
-    #poste { grid-area: 1 / 2 / span 2 / auto; margin: 0; padding: 8px 0 14px; gap: 9px; }
+    /* de borda a borda (1 / -1) e esticado: a caixa do poste passa a ser a altura da tela, as
+       tábuas ficam centradas dentro dela (`justify-content: center` do flex) e o mastro fecha
+       em `bottom: 0` sem sobrar um pixel de rolagem. */
+    #poste { grid-area: 1 / 2 / -1 / auto; align-self: stretch; justify-content: center;
+      margin: 0; padding: 8px 0 14px; gap: 9px; }
     /* 9 px de respiro e 13 de recheio couberam com QUATRO tábuas. Com a quinta, a coluna
        mede 380 px numa tela de 390 e o AJUSTES sai por 7 px.
        APERTAR O RECHEIO SOZINHO TROCA UM DEFEITO POR OUTRO, e foi o que aconteceu na primeira
@@ -674,7 +703,9 @@
     /* Mesma história do deitado, e o piso de dedo vale igual: com a quinta tábua o respiro
        aperta, mas 44 px é o mínimo de um polegar em qualquer orientação. Medido em 320×568:
        sem o piso, o DE ONDE VEM saía com 43. */
-    #poste { margin-bottom: calc(10px + env(safe-area-inset-bottom)); padding: 8px 0 10px; gap: 6px; }
+    /* mesma troca de margem por recheio do bloco de cima, com o pé mais curto: em 320×568 cada
+       pixel do poste conta, e o respiro do pé cai de 30 para 10. */
+    #poste { margin-bottom: 0; padding: 8px 0 calc(20px + env(safe-area-inset-bottom)); gap: 6px; }
     #telaMenu .telaBtn { padding: 11px 26px; min-height: 44px; }
   }
   /* ===== A CAIXA DE FALA ===== estilo jogo antigo: a personagem à esquerda, a moldura
