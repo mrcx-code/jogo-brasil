@@ -28,3 +28,12 @@ android/capacitor-cordova-android-plugins/
 
 # worktrees isolados dos agentes — cada um e um repositorio git proprio, descartavel
 .claude/worktrees/
+
+
+# Prints de verificacao do GLOSSARIO e da capa. Sao saida descartavel das bancadas visuais —
+# 12 MB deles entraram por engano num PR, num repositorio onde peso e o gap que decide o arco.
+test/GL*.png
+test/CAPA*.png
+
+# Config local da sessao de ferramenta — nao pertence ao repositorio.
+.claude/settings.local.json
