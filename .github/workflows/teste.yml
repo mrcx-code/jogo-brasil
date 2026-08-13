@@ -1,0 +1,40 @@
+# O PORTÃO ENTRE UM ERRO E O AR.
+#
+# `main` é produção: push nela publica sozinho na Vercel. Até aqui, nada rodava o teste antes
+# disso — e o RETOMADA.md registra o dia em que alguém commitou com o teste vermelho porque o
+# encadeamento seguiu adiante. Esta ação existe para que isso não dependa de ninguém lembrar.
+#
+# Roda o `npm test`, que é `npm run build && node test/smoke.js`: o build recusa escrever se o
+# tsc falhar, e o smoke abre o jogo num Chromium de verdade e reprova erro de console, upgrade
+# que não aplica, save adulterado que vaza, e a bateria do glossário.
+name: teste
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` e não `npm install`: o package-lock.json está no .gitignore deste projeto, então
+      # o `ci` falharia por não achar o lock. Fica o `install` mesmo, com o registro do porquê —
+      # se um dia o lock passar a ser versionado, troque, porque `ci` é reprodutível e `install`
+      # não é.
+      - run: npm install
+
+      # O smoke test precisa de um navegador de verdade. `--with-deps` traz as bibliotecas de
+      # sistema que o Chromium pede no runner do Ubuntu; sem elas ele instala e não abre.
+      - run: npx playwright install --with-deps chromium
+
+      # O teste imprime muita coisa e o valor está NA SAÍDA, não só no código de saída — é a
+      # regra do CLAUDE.md §6, e vale para quem for ler o log aqui também.
+      - run: npm test
