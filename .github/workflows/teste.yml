@@ -20,18 +20,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # SEM cache do setup-node, e a ausência é a correção de um erro que esta ação já cometeu
+      # na primeira versão: o cache EXIGE um arquivo de lock, e o package-lock.json está no
+      # .gitignore deste projeto. A primeira execução morreu em 24 s com "Dependencies lock
+      # file is not found". É a MESMA razão pela qual abaixo se usa npm install e não npm ci —
+      # a armadilha é uma só e pega em dois lugares.
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
 
-      # `npm ci` e não `npm install`: o package-lock.json está no .gitignore deste projeto, então
-      # o `ci` falharia por não achar o lock. Fica o `install` mesmo, com o registro do porquê —
-      # se um dia o lock passar a ser versionado, troque, porque `ci` é reprodutível e `install`
-      # não é.
+      # npm install e não npm ci: o ci falharia por não achar o lock. Se um dia o lock passar a
+      # ser versionado, troque os dois de uma vez (o install aqui e o cache acima), porque o ci
+      # é reprodutível e o install não é.
       - run: npm install
 
-      # O smoke test precisa de um navegador de verdade. `--with-deps` traz as bibliotecas de
+      # O smoke test precisa de um navegador de verdade. --with-deps traz as bibliotecas de
       # sistema que o Chromium pede no runner do Ubuntu; sem elas ele instala e não abre.
       - run: npx playwright install --with-deps chromium
 
