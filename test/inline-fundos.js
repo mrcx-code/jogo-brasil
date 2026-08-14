@@ -97,9 +97,27 @@ const TUDO = process.argv.includes('--tudo');
 function fonte(cap, qual) {
   const mestre = path.join(DIR_MESTRE, cap + '-' + (qual === 'alto' ? 'alto' : 'baixo') + '.png');
   if (fs.existsSync(mestre)) return { tipo: 'mestre', arq: mestre, destino: mestre };
+  const sufixo = 'fundo-' + (qual === 'alto' ? 'alto' : 'chao');
   // convenção de `assets/entrada`: cap-<slug>-fundo-alto.png / cap-<slug>-fundo-chao.png
-  const cru = path.join(DIR_ENTRADA, 'cap-' + cap + '-fundo-' + (qual === 'alto' ? 'alto' : 'chao') + '.png');
+  const cru = path.join(DIR_ENTRADA, 'cap-' + cap + '-' + sufixo + '.png');
   if (fs.existsSync(cru)) return { tipo: 'cru', arq: cru, destino: mestre };
+  // E A SEGUNDA CONVENÇÃO, que custou quatro dias de arte parada (14/08): os capítulos
+  // numerados chegam SEM o prefixo `cap-` e COM sufixo de versão — `cap4-fundo-alto-v2.png`.
+  // O `necessario.json` sempre pediu com esse nome; era só este resolvedor que não o conhecia,
+  // e o sintoma foi o pior possível: nenhum erro. A peça simplesmente não entrava, o script
+  // dizia "preservada" (que é o comportamento certo para peça sem fonte) e a pintura refeita
+  // ficou no disco, aprovada e invisível. Vence sempre a versão de MAIOR número.
+  let melhor = null, maior = -1;
+  const re = new RegExp('^' + cap + '-' + sufixo + '(?:-v(\\d+))?\\.png$', 'i');
+  let lista = [];
+  try { lista = fs.readdirSync(DIR_ENTRADA); } catch (e) {}
+  for (const f of lista) {
+    const m = f.match(re);
+    if (!m) continue;
+    const v = m[1] ? parseInt(m[1], 10) : 1;
+    if (v > maior) { maior = v; melhor = path.join(DIR_ENTRADA, f); }
+  }
+  if (melhor) return { tipo: 'cru', arq: melhor, destino: mestre };
   return null;
 }
 

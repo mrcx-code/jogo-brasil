@@ -6761,3 +6761,111 @@ Olhar `test/M-loop-depois-menu-390.png` e `-844.png` com a pergunta da barra, e 
 se o menu ainda tem qualquer arrasto sobrando. Depois disso, a lente Medir continua apontada para
 a mesma pergunta que este ticket levantou de raspão: **quanto do impacto de uma sessão vem de
 tela aberta?** Agora que a resposta é zero, dá para medir o resto.
+
+---
+
+## Diário — 2026-08-14 · A mesa estava mentindo, e SALVADOR ganhou meio-dia
+
+**Lente: Medir.** O dono pediu `check`. Fui levantar o estado para a mesa de decisão e o
+levantamento virou o ticket.
+
+### O achado: uma recusa levantada não avisa ninguém
+
+A fila de arte dizia `0 a gerar · 31 chegaram · 52 prontos`. Dentro dos 31 estavam **seis
+peças que o registro dava como recusadas por §2 e devolvidas ao dono** — as três folhas de
+corrida, os dois fundos de SALVADOR e a página 22 do quadrinho. Os bytes em disco eram outros:
+`cap1-corrida` saiu de 1.281.568 para 1.255.063.
+
+Ou seja: **ele refez as seis em 10/08 e ninguém olhou por quatro dias.** A regra que levanta
+uma recusa quando os bytes mudam funciona exatamente como projetada — o defeito é que ela
+levanta em silêncio. A peça troca de coluna numa página que só existe enquanto alguém roda
+`npm run mesa`. Não há aviso, não há teste, não há nada que grite. É o mesmo gênero de defeito
+que este repositório já pagou duas vezes ("entregue não é aceito, e aceito não é integrado") e
+desta vez apareceu um nível acima: *recusado deixou de ser recusado e ninguém soube*.
+
+### O instrumento errado, descartado antes de virar conclusão
+
+Para provar "as três folhas de corrida são a mesma figura", escrevi um comparador pixel a pixel
+entre folhas. Ele deu **88% dos pixels de tinta diferentes** — entre desenhos que a olho são
+obviamente a mesma pessoa. A causa é boba e fatal: cada folha põe as poses em posições
+diferentes, então o instrumento media deslocamento, não figura. Descartado sem ser usado.
+
+O que serviu foi **histograma de cor da tinta**, que não depende de posição:
+
+| folha | cor dominante | a caminhada do mesmo capítulo |
+|---|---|---|
+| `cap1-corrida` | `208,112,16` 15,2% | `208,112,16` 19,2% — bate |
+| `cap2-corrida` | `208,112,16` 17,3% | `144,80,16` + túnica `240,208,112` 11,7% — **não bate** |
+| `cap3-corrida` | `208,112,16` 17,3% | `208,112,16` 13,1% — bate |
+
+### As três corridas: um diagnóstico por folha, não um "não é a mesma pessoa"
+
+As três recusas anteriores diziam a mesma frase com a razão altura/cabeça. Essa parte está
+**resolvida** — o cânone de corpo agora bate. O que sobrou é diferente em cada uma:
+
+1. **PINDORAMA** — mesma pessoa, sem as marcas. Faltam as três pelas quais alguém a reconhece a
+   44 px: a chanfrada reta na altura do queixo (virou onda solta), as faixas de tornozelo
+   branca e vermelha (sumiram), e o galão vermelho em zigue-zague da tanga franjada (virou pano
+   liso). A 44 px o rosto não se lê; as marcas sim.
+2. **PALMARES** — pessoa errada, e é §2. Chegou a figura de PINDORAMA. Quem caminha em PALMARES
+   é pessoa negra de túnica e calça creme, cordão na cintura e sandálias. Desenhar a
+   protagonista quilombola com a figura do capítulo 1 apaga de quem é o capítulo, e apaga na
+   imagem que fica na tela em todo quadro.
+3. **AINDA AQUI** — a mesma pessoa despida de um século, e é §2.1 com nome. A caminhada usa
+   camiseta, bermuda, chinelo, pingente e bracelete **de propósito**: é o argumento do capítulo.
+   A corrida devolve tanga e pés descalços, isto é, desenha a tese que o texto passa o capítulo
+   inteiro negando.
+
+**A causa é estrutural e vale para as três:** as folhas estão sendo geradas a partir de uma
+descrição ("a pessoa do capítulo N, correndo") em vez de a partir da folha de caminhada.
+
+### SALVADOR: o defeito de luz morreu, e a régua que o media estava quebrada
+
+`cap4-fundo-alto-v2` **aprovada e embutida**. A recusa era de temperatura — entardecer assado na
+tinta, e o jogo tinge por cima pelo relógio dele, então ela nunca viraria meio-dia. Medido:
+
+| | R−B | saturação |
+|---|---|---|
+| a que estava no jogo | **+47,1** | 38,6% |
+| a v2 recusada em 10/08 | +84,5 | 62,0% |
+| **a v2 nova, embutida** | **−21,1** | 33,6% |
+
+SALVADOR passa a sentar entre `alto 5` (−20,7) e `alto 7` (−20,4). A dívida do `LANCAMENTO.md`
+— *"~90 pontos mais quente que as seis irmãs"* — fechou.
+
+**E a segunda metade da régua foi descartada, com número e não por conveniência.** O pedido
+exigia saturação ≥ 55%. Medindo as doze pinturas **já aceitas e embutidas**: três reprovam
+nesse critério (`alto 8` 35,4% · `alto 9` 38,5% · `alto 10` 38,4%) e **os doze chãos reprovam na
+temperatura** (+16 a +117). Régua que a própria arte aceita não cumpre não é régua — e reprovar
+justamente a pintura que consertou o defeito real seria o instrumento mandando na arte. O chão
+cinza entrou pelo mesmo motivo: 8,3% de saturação é **o assunto** (pedra), não um defeito; as
+onze irmãs são terra e mata, saturadas por natureza.
+
+Junto entrou um buraco que não era deste ticket: **SALVADOR não tinha mestre versionado**. A
+entrega crua vive em `assets/entrada`, que o git ignora, e quem converteu em 07/08 nunca
+commitou o PNG. Agora `assets/cenarios-novos/cap4-alto.png` e `cap4-baixo.png` existem.
+
+### O `inline-fundos.js` não conhecia o nome que a arte usa
+
+E este é o motivo real de a pintura ter ficado quatro dias parada depois de aprovada. O
+resolvedor procurava `cap-cap4-fundo-alto.png`; o `necessario.json` sempre pediu
+`cap4-fundo-alto-v2.png`. **O sintoma foi o pior possível: nenhum erro.** A peça não entrava, o
+script dizia "preservada" — que é o comportamento certo para peça sem fonte — e pronto. Agora
+ele conhece as duas convenções e escolhe sempre a versão de maior número.
+
+### O que a mesa diz agora
+
+`4 a gerar · 25 chegaram · 54 prontos`, contra `0 · 31 · 52` de manhã. Os quatro do dono são as
+três corridas e a `q-p22`, cada um com o que mudar escrito por extenso.
+
+### A dúvida que fica
+
+**Recusa levantada precisa avisar.** Hoje a única forma de descobrir que uma peça voltou é
+alguém abrir a mesa. O conserto barato é o `encaixe.js` reprovar quando existir peça em
+`recusadas.json` cujos bytes em disco já são outros — transforma "ninguém olhou" em teste
+vermelho. Não fiz agora para não misturar com o lote de arte.
+
+### Próximo passo
+
+A mesa dos sete rostos, que é o que destrava o dono — ele respondeu *"pode propor, queremos
+rosto em todos"* e escolheu receber os sete de uma vez, em uma passada.

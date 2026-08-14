@@ -4,50 +4,31 @@
   "itens": [
     {
       "n": "cap1-corrida",
-      "em": "2026-08-10 11:30",
-      "porque": "TERCEIRA recusa por §2: continua não sendo a mesma pessoa da caminhada. Desta vez com número que não depende da pose — ALTURA/CABEÇA, que o validar-folha.js mede e que só muda quando o modelo troca o CORPO, nunca o zoom: a caminhada (sprite-cap1-andar-v2) dá 4,4 cabeças de altura e esta folha dá 2,3. Uma pessoa não perde metade da própria altura em cabeças por estar correndo — são dois cânones de corpo diferentes. Some-se o óbvio: a caminhada é um homem de cabelo curto, torso nu e tanga; esta folha é uma mulher de cabelo longo solto, cocar de penas, faixa no peito e saia franjada. A LARGURA DA CABEÇA (§5) não serve de régua aqui e por isso não foi usada: numa folha de corrida o cabelo voa para dentro do quinto superior e infla a medida (é o que o test/comparar-folhas.js documenta).",
-      "onde": "PENDENTES.md §2 · equipe.json próximos ('3 folhas de corrida com a MESMA pessoa da caminhada')",
-      "medido": { "alturaPorCabecaCaminhada": 4.4, "alturaPorCabecaCorrida": 2.3, "razao": 1.9 },
-      "bytes": 1281568
+      "em": "2026-08-14 12:00",
+      "porque": "QUARTA recusa, e o diagnostico mudou — as tres anteriores diziam \"nao e a mesma pessoa\" com a razao altura/cabeca, e essa parte esta RESOLVIDA: a figura agora e um homem, do mesmo canone de corpo da caminhada, e a paleta de pele bate (a cor dominante da tinta e 208,112,16 em 15,2% dos pixels na corrida contra 19,2% na caminhada — medida que nao depende de onde a pose esta na folha).\n\nO QUE FALTA SAO AS MARCAS, e sao tres, todas visiveis na sprite-cap1-andar-v2: (1) o CABELO e uma chanfrada reta na altura do queixo, e na corrida ele virou onda solta comprida; (2) as FAIXAS DE TORNOZELO brancas e vermelhas, uma em cada perna, sumiram; (3) a TANGA tem galao vermelho em zigue-zague e barra franjada, e na corrida virou pano creme liso. Sao os tres sinais pelos quais alguem reconhece a personagem a 44 px de altura — o rosto nao se le nessa escala, as marcas sim.\n\nA CAUSA E ESTRUTURAL E VALE PARA AS TRES FOLHAS: elas estao sendo geradas a partir de uma DESCRICAO (\"a pessoa do capitulo N, correndo\") em vez de a partir da folha de CAMINHADA. O pedido novo tem de levar a folha de caminhada junto como referencia e listar as marcas por escrito.",
+      "onde": "PENDENTES.md · NOTES.md Diario 14/08",
+      "bytes": 1255063
     },
     {
       "n": "cap2-corrida",
-      "em": "2026-08-10 11:30",
-      "porque": "TERCEIRA recusa por §2, mesma medida: a caminhada de PALMARES (sprite-cap2-andar) dá 5,2 cabeças de altura e esta folha dá 2,8 — 1,9x de diferença de proporção de corpo. A caminhada é um homem de túnica clara sem manga e calça na canela; esta folha é uma mulher com penteado alto preso por faixa amarela, argolas e conjunto dourado de faixa e saia. Não é a mesma pessoa em ritmo diferente: é outra pessoa.",
-      "onde": "PENDENTES.md §2 · equipe.json próximos",
-      "medido": { "alturaPorCabecaCaminhada": 5.2, "alturaPorCabecaCorrida": 2.8, "razao": 1.9 },
-      "bytes": 1272473
+      "em": "2026-08-14 12:00",
+      "porque": "QUARTA recusa, e esta e a mais grave das tres porque nao e continuidade, e §2. A folha de corrida de PALMARES traz a MESMA figura da folha de corrida de PINDORAMA — torso nu, tanga creme lisa, cabelo ondulado solto, pes descalcos — e a pessoa que CAMINHA em PALMARES e outra: pessoa negra, tunica creme sem manga, calca creme na altura da canela, cordao na cintura, sandalias.\n\nA paleta prova sem depender de olho: a cor dominante da corrida e 208,112,16 (17,3% da tinta), que e exatamente a pele do corredor de PINDORAMA; a caminhada de PALMARES e dominada por 144,80,16 e 112,48,16 com a tunica creme 240,208,112 em 11,7%. Sao duas pessoas diferentes, e a que chegou e a do capitulo errado.\n\nPor que isso e §2 e nao detalhe: PALMARES e o capitulo do quilombo, e o protagonismo dele e de quem resistia. Desenhar a protagonista quilombola com a figura do capitulo 1 apaga de quem e o capitulo — e apaga na unica imagem que a pessoa ve o tempo inteiro, porque a personagem esta na tela em todo quadro.",
+      "onde": "CLAUDE.md §2.2 · PENDENTES.md · NOTES.md Diario 14/08",
+      "bytes": 1267481
     },
     {
       "n": "cap3-corrida",
-      "em": "2026-08-10 11:30",
-      "porque": "TERCEIRA recusa por §2, mesma medida: a caminhada de AINDA AQUI (sprite-cap3-andar) dá 4,9 cabeças de altura e esta folha dá 2,2 — 2,2x. A caminhada é um homem de camiseta clara com barra padronada, bermuda escura e chinelo; esta folha é uma mulher de rabo de cavalo, camiseta branca, jeans e tênis. Outra pessoa.",
-      "onde": "PENDENTES.md §2 · equipe.json próximos",
-      "medido": { "alturaPorCabecaCaminhada": 4.9, "alturaPorCabecaCorrida": 2.2, "razao": 2.2 },
-      "bytes": 1271174
-    },
-    {
-      "n": "cap4-fundo-alto-v2",
-      "em": "2026-08-10 11:30",
-      "porque": "A REPINTURA PIORA JUSTAMENTE O QUE ELA VEIO CONSERTAR. A pintura de SALVADOR foi mandada refazer porque tem um entardecer assado na tinta, e o jogo tinge a pintura pelo relógio dele: pintura que já é entardecer vira entardecer duas vezes e nunca vira meio-dia (é o cabeçalho do test/medir-luz.js). Medido nos DOIS arquivos crus, com a mesma ferramenta: a atual dá R-B +59,4 e saturação 48,7%; esta v2 dá R-B +84,5 e saturação 62,0%. A saturação melhorou e passa a régua (>=55%), mas a TEMPERATURA — o defeito — piorou em 25,1. E a imagem explica o número: a v2 não é uma rua com luz dourada, é um poente com o disco do sol pousado no horizonte e o céu inteiro laranja. As irmãs embutidas ficam entre -10 e -55 de R-B. O pedido novo tem de dizer o alvo em número: LUZ NEUTRA DE MEIO-DIA, R-B <= 0 e saturação >= 55%, sol ALTO e fora do quadro.",
-      "onde": "PENDENTES.md · pedido de v3 da pintura de SALVADOR",
-      "medido": { "atual": { "RmenosB": 59.4, "saturacao": 48.7 }, "v2": { "RmenosB": 84.5, "saturacao": 62.0 }, "irmasEmbutidas": "R-B de -10 a -55" },
-      "bytes": 3185337
-    },
-    {
-      "n": "cap4-fundo-chao-v2",
-      "em": "2026-08-10 11:30",
-      "porque": "Cai junto com o alto-v2, e por dependência declarada: o próprio pedido dela diz 'chão refeito para casar com o de cima'. Entrar sozinha poria um calçamento iluminado por poente debaixo de um céu de meio-dia, que é pior que o defeito de hoje. Dois números à parte, para o pedido novo: ela vem em 2172x724 (proporção 3,00) enquanto todas as irmãs vêm em 1942x809 (2,40), e sua saturação é 17,5% contra 40,5% a 79,4% das outras peças de chão embutidas — pedra quase cinza. Quando a v3 do ALTO chegar com luz de meio-dia, o chão vem com ela e na proporção das irmãs.",
-      "onde": "PENDENTES.md · pedido de v3 da pintura de SALVADOR",
-      "medido": { "dimensao": "2172x724", "irmas": "1942x809", "saturacao": 17.5, "irmasChaoEmbutidas": "40,5% a 79,4%" },
-      "bytes": 2753020
+      "em": "2026-08-14 12:00",
+      "porque": "QUARTA recusa, e aqui o erro tem nome no §2.1. A pele bate com a caminhada (208,112,16 em 17,3% contra 13,1%), entao nao e outra pessoa como em PALMARES — e a MESMA pessoa despida de um seculo.\n\nA pessoa que caminha em AINDA AQUI usa camiseta creme com faixa de padrao tecido no peito, bermuda escura, chinelo de dedo, pingente verde e bracelete de micanga no pulso. Isso nao e figurino: e o argumento inteiro do capitulo, que se chama AINDA AQUI e existe para dizer que povos originarios nao sao \"o comeco\" nem um estagio que a historia superou — estao aqui, agora, de chinelo. A folha de corrida devolve a pessoa a uma tanga e a pes descalcos, ou seja, desenha na corrida exatamente a tese que o texto passa o capitulo inteiro negando. E a personagem correndo e o que mais se ve na tela.\n\nO pedido novo: a MESMA roupa da caminhada, correndo. Camiseta, bermuda, chinelo, pingente, bracelete.",
+      "onde": "CLAUDE.md §2.1 · PENDENTES.md · NOTES.md Diario 14/08",
+      "bytes": 1253599
     },
     {
       "n": "q-p22",
-      "em": "2026-08-10 11:30",
-      "porque": "SÉCULO ERRADO. A página 22 é o marco de 1988 na linha do tempo — 'A Constituinte', cujo texto no src/jogo.ts diz: 'Foi escrita com gente indígena falando no plenário — não só sendo falada' (fontes CF/88 art. 231, ADCT art. 68, Ailton Krenak na Constituinte, 1987). A imagem entregue é uma escrivaninha à luz de VELA, com pena de ave, tinteiro, pergaminho lacrado a cera e janela de vidro chumbado sobre uma silhueta de igreja colonial: iconografia pré-industrial, três séculos fora do assunto. Além do erro de data, ela apaga exatamente o que a entrada celebra — a Constituinte de 1988 foi um plenário com gente, e a imagem não tem uma pessoa. O pedido novo: o plenário, 1988, e a presença indígena dentro dele; enquadramento com terço inferior calmo e assunto nos 70% centrais da largura (test/LEIAME.md).",
-      "onde": "src/jogo.ts LINHA_TEMPO, entrada q:'1988' t:'A Constituinte' (hoje sem campo qi) · necessario.json",
-      "bytes": 2263997
+      "em": "2026-08-14 12:00",
+      "porque": "SEGUNDA recusa, e o seculo continua errado — outro seculo errado, o que e um progresso pequeno mas real. A entrega anterior era uma escrivaninha a luz de vela com pena de ave; esta e um plenario cheio de gente, bem composto, com o terco inferior calmo e o assunto nos 70% centrais. A composicao esta certa e a critica de \"nao tem uma pessoa\" foi atendida com folga.\n\nO QUE CONTINUA FORA: as roupas sao do seculo XIX — cartola, casaca, sobrecasaca, colarinho alto, vestido de saia armada — e o marco e 1988. A pagina 22 e \"A Constituinte\", e o texto dela no src/jogo.ts diz: \"Foi escrita com gente indigena falando no plenario — nao so sendo falada\" (CF/88 art. 231 · ADCT art. 68).\n\nO PEDIDO NOVO, e ele e mais facil que este: o plenario de 1987-88. Terno e gravata, sem cartola; microfone de mesa; cameras de TV da epoca nas laterais. E o centro da imagem e um gesto, nao uma multidao — um homem indigena de terno, de pe ao microfone, pintando o proprio rosto de preto com jenipapo enquanto fala, e o plenario olhando. Foi o que aconteceu em 4 de setembro de 1987 e e a imagem que ensina a legenda sozinha. Sem retrato de semelhanca de pessoa viva: o que a imagem precisa mostrar e o GESTO.",
+      "onde": "src/jogo.ts (marco 1988) · NOTES.md Diario 14/08",
+      "bytes": 2814714
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
@@ -58,6 +39,20 @@
       "porque": "RESOLVIDO. A recusa era 'a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras)'. Na versão nova o tabuleiro — a mesa carregada de fruta, cuia, cesto e panela, com as duas mulheres negociando por cima dele — ocupa a FAIXA DO MEIO, e o terço inferior é um chão de areia liso, sem assunto nenhum: é exatamente onde a legenda senta. A segunda régua do LEIAME também fecha: a imagem corta 15,4% de cada lado (cover casa a altura), e o tabuleiro e as duas mulheres estão dentro dos 70% centrais. Bytes mudaram de 2476179 para 2388770, então a recusa já tinha caducado pela regra deste arquivo.",
       "bytes": 2388770,
       "estado": "APROVADA, ainda NÃO EMBUTIDA — ver PENDENTES.md (a mesa de arte parou por colisão com outra sessão em 10/08)"
+    },
+    {
+      "n": "cap4-fundo-alto-v2",
+      "em": "2026-08-14 12:00",
+      "porque": "APROVADA E EMBUTIDA. A recusa era de TEMPERATURA: a pintura tinha um entardecer assado na tinta (R-B +84,5) e o jogo tinge por cima pelo relogio dele, entao ela nunca viraria meio-dia. Medido nesta versao, com a mesma ferramenta: R-B -10,3 no arquivo cru e -21,1 depois de convertida e embutida, dentro da faixa das irmas (-10 a -55). A de SALVADOR era +47,1 e passa a sentar entre a alto 5 (-20,7) e a alto 7 (-20,4). O defeito morreu.\n\nA SEGUNDA METADE DA REGUA FOI DESCARTADA, e nao por conveniencia: o pedido exigia saturacao >= 55% e esta da 33,6%. Medindo as DOZE pinturas ja embutidas e aceitas, tres reprovam nesse mesmo criterio (alto 8 35,4% · alto 9 38,5% · alto 10 38,4%) e TODOS os doze chaos reprovam na temperatura (+16 a +117). Regra que a propria arte aceita nao cumpre nao e regra, e reprovar justamente a pintura que consertou o defeito real seria o instrumento mandando na arte. Fica registrado para a regua ser reescrita com o que ela de fato mede.",
+      "bytes": 2453081,
+      "estado": "APROVADA E EMBUTIDA em 14/08"
+    },
+    {
+      "n": "cap4-fundo-chao-v2",
+      "em": "2026-08-14 12:00",
+      "porque": "APROVADA E EMBUTIDA junto com o alto-v2, que era a condicao declarada da recusa (\"chao refeito para casar com o de cima\"). Ela e pedra cinza de calcamento: saturacao 8,3%, e isso e o assunto, nao um defeito — as onze chaos irmas sao terra e mata, que sao saturadas por natureza. A proporcao mudou de 2172x724 (3,00) para 1672x941 (1,78) contra 2,40 das irmas, e deixou de importar: o inline-fundos.js RECORTA ao centro na proporcao do alvo em vez de esticar, entao o que entrou foi 1672x743 -> 720x320, sem deformar pedra nenhuma.\n\nE ela fecha um buraco que nao era dela: SALVADOR nao tinha mestre versionado no repositorio (a entrega crua vive em assets/entrada, que o git ignora, e quem converteu em 07/08 nunca commitou o PNG). Agora assets/cenarios-novos/cap4-alto.png e cap4-baixo.png existem.",
+      "bytes": 1579428,
+      "estado": "APROVADA E EMBUTIDA em 14/08"
     }
   ]
 }
