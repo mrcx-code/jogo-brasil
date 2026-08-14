@@ -10378,7 +10378,9 @@ function contarBits(m) { let n = 0, v = (m | 0) >>> 0; while (v) {
     v >>>= 1;
 } return n; }
 function somaObra(o) { return (o.roca | 0) + (o.palicada | 0) + (o.casa | 0); }
-function lugarExiste() { return (S.acolhidos[CAP_GENTE] | 0) > 0 || somaObra(S.obra) > 0; }
+function lugarExiste() {
+    return (S.fronteira | 0) >= CAP_GENTE || (S.acolhidos[CAP_GENTE] | 0) > 0 || somaObra(S.obra) > 0;
+}
 function montarObra() {
     const novo = $("obraNovo"), lista = $("obraCanteiros"), gente = $("obraGente");
     novo.textContent = "";
@@ -10426,6 +10428,12 @@ function montarObra() {
     else if (somaObra(S.obra) > 0) {
         cab(novo, "DESDE A SUA ÚLTIMA VISITA");
         papel(novo, "Nada mudou. A obra está como você a deixou.");
+    }
+    else {
+        cab(novo, "AINDA NÃO COMEÇOU");
+        papel(novo, "Ninguém ergueu nada aqui ainda — e é assim que todo lugar começa.");
+        papel(novo, "Quem acolhe alguém em Palmares fica. E quem fica trabalha, mesmo com o " +
+            "jogo fechado: a roça, a paliçada e a casa avançam sozinhas com a gente que você acolheu.");
     }
     cab(lista, "OS CANTEIROS");
     OBRA_CANTEIROS.forEach(function (c) {

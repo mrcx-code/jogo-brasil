@@ -3,32 +3,67 @@
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
   "itens": [
     {
+      "n": "ctx-cap1-mata",
+      "em": "2026-08-14 18:00",
+      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
+      "onde": "NOTES.md Diario 14/08 · check do dono",
+      "bytes": 2821825
+    },
+    {
+      "n": "ctx-cap1-rocado",
+      "em": "2026-08-14 18:00",
+      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
+      "onde": "NOTES.md Diario 14/08 · check do dono",
+      "bytes": 3258327
+    },
+    {
+      "n": "ctx-cap2-serra",
+      "em": "2026-08-14 18:00",
+      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
+      "onde": "NOTES.md Diario 14/08 · check do dono",
+      "bytes": 3101539
+    },
+    {
+      "n": "ctx-cap2-roca",
+      "em": "2026-08-14 18:00",
+      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
+      "onde": "NOTES.md Diario 14/08 · check do dono",
+      "bytes": 3375855
+    },
+    {
+      "n": "trav-mar",
+      "em": "2026-08-14 18:00",
+      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
+      "onde": "NOTES.md Diario 14/08 · check do dono",
+      "bytes": 2318748
+    },
+    {
       "n": "cap1-corrida",
-      "em": "2026-08-14 12:00",
-      "porque": "QUARTA recusa, e o diagnostico mudou — as tres anteriores diziam \"nao e a mesma pessoa\" com a razao altura/cabeca, e essa parte esta RESOLVIDA: a figura agora e um homem, do mesmo canone de corpo da caminhada, e a paleta de pele bate (a cor dominante da tinta e 208,112,16 em 15,2% dos pixels na corrida contra 19,2% na caminhada — medida que nao depende de onde a pose esta na folha).\n\nO QUE FALTA SAO AS MARCAS, e sao tres, todas visiveis na sprite-cap1-andar-v2: (1) o CABELO e uma chanfrada reta na altura do queixo, e na corrida ele virou onda solta comprida; (2) as FAIXAS DE TORNOZELO brancas e vermelhas, uma em cada perna, sumiram; (3) a TANGA tem galao vermelho em zigue-zague e barra franjada, e na corrida virou pano creme liso. Sao os tres sinais pelos quais alguem reconhece a personagem a 44 px de altura — o rosto nao se le nessa escala, as marcas sim.\n\nA CAUSA E ESTRUTURAL E VALE PARA AS TRES FOLHAS: elas estao sendo geradas a partir de uma DESCRICAO (\"a pessoa do capitulo N, correndo\") em vez de a partir da folha de CAMINHADA. O pedido novo tem de levar a folha de caminhada junto como referencia e listar as marcas por escrito.",
-      "onde": "PENDENTES.md · NOTES.md Diario 14/08",
-      "bytes": 1255063
+      "em": "2026-08-14 18:00",
+      "bytes": 1397581,
+      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
+      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
     },
     {
       "n": "cap2-corrida",
-      "em": "2026-08-14 12:00",
-      "porque": "QUARTA recusa, e esta e a mais grave das tres porque nao e continuidade, e §2. A folha de corrida de PALMARES traz a MESMA figura da folha de corrida de PINDORAMA — torso nu, tanga creme lisa, cabelo ondulado solto, pes descalcos — e a pessoa que CAMINHA em PALMARES e outra: pessoa negra, tunica creme sem manga, calca creme na altura da canela, cordao na cintura, sandalias.\n\nA paleta prova sem depender de olho: a cor dominante da corrida e 208,112,16 (17,3% da tinta), que e exatamente a pele do corredor de PINDORAMA; a caminhada de PALMARES e dominada por 144,80,16 e 112,48,16 com a tunica creme 240,208,112 em 11,7%. Sao duas pessoas diferentes, e a que chegou e a do capitulo errado.\n\nPor que isso e §2 e nao detalhe: PALMARES e o capitulo do quilombo, e o protagonismo dele e de quem resistia. Desenhar a protagonista quilombola com a figura do capitulo 1 apaga de quem e o capitulo — e apaga na unica imagem que a pessoa ve o tempo inteiro, porque a personagem esta na tela em todo quadro.",
-      "onde": "CLAUDE.md §2.2 · PENDENTES.md · NOTES.md Diario 14/08",
-      "bytes": 1267481
+      "em": "2026-08-14 18:00",
+      "bytes": 1395852,
+      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
+      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
     },
     {
       "n": "cap3-corrida",
-      "em": "2026-08-14 12:00",
-      "porque": "QUARTA recusa, e aqui o erro tem nome no §2.1. A pele bate com a caminhada (208,112,16 em 17,3% contra 13,1%), entao nao e outra pessoa como em PALMARES — e a MESMA pessoa despida de um seculo.\n\nA pessoa que caminha em AINDA AQUI usa camiseta creme com faixa de padrao tecido no peito, bermuda escura, chinelo de dedo, pingente verde e bracelete de micanga no pulso. Isso nao e figurino: e o argumento inteiro do capitulo, que se chama AINDA AQUI e existe para dizer que povos originarios nao sao \"o comeco\" nem um estagio que a historia superou — estao aqui, agora, de chinelo. A folha de corrida devolve a pessoa a uma tanga e a pes descalcos, ou seja, desenha na corrida exatamente a tese que o texto passa o capitulo inteiro negando. E a personagem correndo e o que mais se ve na tela.\n\nO pedido novo: a MESMA roupa da caminhada, correndo. Camiseta, bermuda, chinelo, pingente, bracelete.",
-      "onde": "CLAUDE.md §2.1 · PENDENTES.md · NOTES.md Diario 14/08",
-      "bytes": 1253599
+      "em": "2026-08-14 18:00",
+      "bytes": 1368765,
+      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
+      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
     },
     {
       "n": "q-p22",
-      "em": "2026-08-14 12:00",
-      "porque": "SEGUNDA recusa, e o seculo continua errado — outro seculo errado, o que e um progresso pequeno mas real. A entrega anterior era uma escrivaninha a luz de vela com pena de ave; esta e um plenario cheio de gente, bem composto, com o terco inferior calmo e o assunto nos 70% centrais. A composicao esta certa e a critica de \"nao tem uma pessoa\" foi atendida com folga.\n\nO QUE CONTINUA FORA: as roupas sao do seculo XIX — cartola, casaca, sobrecasaca, colarinho alto, vestido de saia armada — e o marco e 1988. A pagina 22 e \"A Constituinte\", e o texto dela no src/jogo.ts diz: \"Foi escrita com gente indigena falando no plenario — nao so sendo falada\" (CF/88 art. 231 · ADCT art. 68).\n\nO PEDIDO NOVO, e ele e mais facil que este: o plenario de 1987-88. Terno e gravata, sem cartola; microfone de mesa; cameras de TV da epoca nas laterais. E o centro da imagem e um gesto, nao uma multidao — um homem indigena de terno, de pe ao microfone, pintando o proprio rosto de preto com jenipapo enquanto fala, e o plenario olhando. Foi o que aconteceu em 4 de setembro de 1987 e e a imagem que ensina a legenda sozinha. Sem retrato de semelhanca de pessoa viva: o que a imagem precisa mostrar e o GESTO.",
+      "em": "2026-08-14 18:00",
+      "bytes": 2432631,
       "onde": "src/jogo.ts (marco 1988) · NOTES.md Diario 14/08",
-      "bytes": 2814714
+      "porque": "TERCEIRA, E FALTA UMA COISA SO. A sala agora esta CERTA e isso e progresso de verdade: e o plenario moderno, arquitetura do seculo XX, cadeiras verdes, bancadas em semicirculo, terco inferior calmo, assunto nos 70% centrais. A primeira entrega era uma escrivaninha a luz de vela e a segunda um plenario de cartola e casaca; as duas criticas de seculo estao atendidas.\n\nO QUE FALTA: a sala esta VAZIA. O texto desta pagina diz \"Foi escrita com gente indigena falando no plenario — nao so sendo falada\" (CF/88 art. 231 · ADCT art. 68). Uma sala vazia nao e falsa, e MUDA — e num quadrinho a imagem e quem carrega; a legenda so confirma.\n\nO PEDIDO, e ele e o mais facil dos tres: MESMA SALA, agora cheia. Bancadas ocupadas, gente de terno e gravata de 1987-88 (sem cartola), microfones de mesa, cameras de TV da epoca nas laterais. E o centro da imagem e um GESTO, nao uma multidao: um homem indigena de terno, de pe ao microfone, pintando o proprio rosto de preto com jenipapo enquanto fala, e o plenario olhando. Aconteceu em 4 de setembro de 1987 e ensina a legenda sozinho. Sem retrato de semelhanca de pessoa viva — o que a imagem precisa mostrar e o gesto, nao o rosto de alguem."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",

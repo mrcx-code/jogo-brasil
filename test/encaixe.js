@@ -1361,12 +1361,24 @@ const sec = t => log('\n---- ' + t);
     // (a) nenhum id repetido no poste do menu
     const ids = Array.from(document.querySelectorAll('#poste [id]')).map(e => e.id);
     const repetidos = ids.filter((x, i) => ids.indexOf(x) !== i);
-    // a porta só existe quando há lugar
+    // A PORTA APARECE QUANDO A OBRA PASSA A EXISTIR NO JOGO DA PESSOA — e este contrato MUDOU
+    // em 14/08. Ele era "só aparece depois de acolher alguém", e o dono achou o defeito do jeito
+    // mais direto que existe: pediu para olhar a página nova do mutirão e não conseguiu achá-la.
+    // A página que explica o mutirão estava trancada atrás de já ter usado o mutirão, e ele já
+    // tinha dito DUAS vezes que nunca entendeu o que o mutirão faz. Este teste cobrava a trava.
+    // Agora: antes de chegar em Palmares a tábua não existe (não há obra nenhuma no seu jogo);
+    // ao chegar, ela aparece mesmo com tudo zerado, e a página é que convida.
     S.acolhidos = EPOCAS.map(() => 0);
     S.obra = { roca: 0, palicada: 0, casa: 0 };
     S.obraVista = { roca: 0, palicada: 0, casa: 0 };
+    const fronteiraGuardada = S.fronteira;
+    S.fronteira = 0;                       // ainda no primeiro capítulo, antes de Palmares
     abrirTela('telaMenu');
     const semGente = document.getElementById('btnLugar').classList.contains('oculto');
+    S.fronteira = CAP_GENTE;               // chegou em Palmares, e ainda não acolheu ninguém
+    abrirTela('telaMenu');
+    const soDeChegar = !document.getElementById('btnLugar').classList.contains('oculto');
+    S.fronteira = fronteiraGuardada;
     S.acolhidos[CAP_GENTE] = 7;
     abrirTela('telaMenu');
     const comGente = !document.getElementById('btnLugar').classList.contains('oculto');
@@ -1442,7 +1454,7 @@ const sec = t => log('\n---- ' + t);
     fecharTelas();
     const presa = document.getElementById('telaObra').classList.contains('aberta');
     const emTela = document.body.classList.contains('emTela');
-    return { repetidos, semGente, comGente, mexeu: antes !== depois, primeira, segunda,
+    return { repetidos, semGente, comGente, soDeChegar, mexeu: antes !== depois, primeira, segunda,
       carimbo, digitos: (textoCanteiros.match(/[0-9]/g) || []).join(''),
       vazia, meia, cheia, presa, emTela, naLista: TELAS.indexOf('telaObra') >= 0,
       dito, curtos, acentoRuim, podeArmar, naFaixa: faixaViva() };
@@ -1453,8 +1465,10 @@ const sec = t => log('\n---- ' + t);
   log('   casa desenhada, pixels de pé: vazia ' + oLugar.vazia + ' | meia ' + oLugar.meia
     + ' | cheia ' + oLugar.cheia);
   ok(!oLugar.repetidos.length, 'nenhum id se repete no poste do menu — a tábua duplicada não volta');
-  ok(oLugar.semGente && oLugar.comGente,
-    'a porta O LUGAR só existe quando há lugar: some sem gente acolhida, aparece com ela');
+  ok(oLugar.semGente && oLugar.soDeChegar && oLugar.comGente,
+    'a porta O LUGAR abre ao CHEGAR em Palmares, não depois de já ter usado o mutirão' +
+    ' (antes de Palmares oculta: ' + oLugar.semGente + ' · só de chegar: ' + oLugar.soDeChegar +
+    ' · com gente: ' + oLugar.comGente + ')');
   ok(oLugar.naLista && !oLugar.presa && !oLugar.emTela,
     'a tela está em TELAS e `fecharTelas()` a devolve, com o chrome do jogo junto');
   ok(!oLugar.mexeu, 'abrir a página não move obra, recursos nem acolhidas — ela LÊ o jogo (§2)');

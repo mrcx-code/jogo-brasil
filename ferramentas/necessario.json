@@ -5,7 +5,7 @@
   "itens": [
     {
       "nome": "cap1-corrida",
-      "titulo": "PINDORAMA · folha de CORRIDA  ⚠ QUINTA — cole a folha de caminhada junto",
+      "titulo": "PINDORAMA · folha de CORRIDA  ⏸ ADIADO pelo dono em 14/08",
       "ref": "as três anteriores vieram com outro corpo e outra pessoa — a régua está no texto",
       "tam": "FOLHA 8 células iguais · magenta",
       "semMagenta": false,
@@ -13,7 +13,7 @@
     },
     {
       "nome": "cap2-corrida",
-      "titulo": "PALMARES · folha de CORRIDA  ⚠ QUINTA — cole a folha de caminhada junto",
+      "titulo": "PALMARES · folha de CORRIDA  ⏸ ADIADO pelo dono em 14/08",
       "ref": "as três anteriores vieram com outro corpo e outra pessoa — a régua está no texto",
       "tam": "FOLHA 8 células iguais · magenta",
       "semMagenta": false,
@@ -24,7 +24,7 @@
     },
     {
       "nome": "cap3-corrida",
-      "titulo": "AINDA AQUI · folha de CORRIDA  ⚠ QUINTA — cole a folha de caminhada junto",
+      "titulo": "AINDA AQUI · folha de CORRIDA  ⏸ ADIADO pelo dono em 14/08",
       "ref": "as três anteriores vieram com outro corpo e outra pessoa — a régua está no texto",
       "tam": "FOLHA 8 células iguais · magenta",
       "semMagenta": false,
@@ -64,7 +64,7 @@
     },
     {
       "nome": "ctx-cap1-mata",
-      "titulo": "CONTEXTO cap.1 · a mata que já estava aqui",
+      "titulo": "CONTEXTO cap.1 · a mata que já estava aqui  ⚠ REFAZER EM RETRATO (primeiros 5 min)",
       "ref": "acompanha a fala sobre o que havia antes de qualquer navio europeu",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
       "semMagenta": true,
@@ -72,7 +72,7 @@
     },
     {
       "nome": "ctx-cap1-rocado",
-      "titulo": "CONTEXTO cap.1 · o roçado",
+      "titulo": "CONTEXTO cap.1 · o roçado  ⚠ REFAZER EM RETRATO (primeiros 5 min)",
       "ref": "acompanha a fala sobre plantar mandioca, pescar e cuidar de roçados",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
       "semMagenta": true,
@@ -80,7 +80,7 @@
     },
     {
       "nome": "ctx-cap2-serra",
-      "titulo": "CONTEXTO cap.2 · a serra",
+      "titulo": "CONTEXTO cap.2 · a serra  ⚠ REFAZER EM RETRATO (primeiros 5 min)",
       "ref": "acompanha a fala sobre quem subiu estas encostas",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
       "semMagenta": true,
@@ -88,7 +88,7 @@
     },
     {
       "nome": "ctx-cap2-roca",
-      "titulo": "CONTEXTO cap.2 · a roça do quilombo",
+      "titulo": "CONTEXTO cap.2 · a roça do quilombo  ⚠ REFAZER EM RETRATO (primeiros 5 min)",
       "ref": "acompanha a fala sobre vilas com roça, comércio e defesa",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
       "semMagenta": true,
@@ -217,7 +217,7 @@
     },
     {
       "nome": "trav-mar",
-      "titulo": "A TRAVESSIA · o mar aberto",
+      "titulo": "A TRAVESSIA · o mar aberto  ⚠ REFAZER EM RETRATO (primeiros 5 min)",
       "semMagenta": true,
       "ref": "os 90 s em que o jogo para de ser jogo, entre Pindorama e Palmares. Hoje o mar e feito de gradiente em canvas — honesto, nao impressionante.",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",
@@ -386,7 +386,7 @@
     },
     {
       "nome": "q-p22",
-      "titulo": "QUADRINHO p22 · 1988",
+      "titulo": "QUADRINHO p22 · 1988  ⚠ TERCEIRA — a sala esta certa, falta a gente",
       "semMagenta": true,
       "ref": "página do quadrinho A HISTÓRIA — hoje em fundo de papel provisório",
       "tam": "VERTICAL 2:3 (~1024×1536) · sem magenta",

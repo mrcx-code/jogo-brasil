@@ -12572,7 +12572,17 @@ function somaObra(o) { return (o.roca | 0) + (o.palicada | 0) + (o.casa | 0); }
 // A obra é de PALMARES, e a porta dela só existe para quem tem gente lá — que é a mesma
 // condição de a obra poder andar (`taxaMutirao(0) === 0`). Antes disso a tábua seria uma
 // promessa sobre uma coisa que não existe.
-function lugarExiste() { return (S.acolhidos[CAP_GENTE] | 0) > 0 || somaObra(S.obra) > 0; }
+// A TÁBUA APARECE QUANDO A OBRA PASSA A EXISTIR NO SEU JOGO, não depois que você já a usou.
+// Isto era o contrário até 14/08, e o dono achou o defeito da forma mais direta possível: ele
+// pediu para olhar a página nova do mutirão e não conseguiu encontrá-la. A condição exigia
+// `acolhidos > 0` ou `obra > 0` — ou seja, **a página que existe para explicar o mutirão estava
+// trancada atrás de já ter entendido o mutirão**. Ele disse duas vezes que nunca entendeu o que
+// o mutirão faz; a explicação estava do outro lado da porta que ela deveria abrir.
+// A página aguenta o estado zero — os três canteiros já têm texto próprio para "ainda não
+// começou" (`ESTAGIO_ZERO`), e é justamente esse texto que convida.
+function lugarExiste() {
+  return (S.fronteira | 0) >= CAP_GENTE || (S.acolhidos[CAP_GENTE] | 0) > 0 || somaObra(S.obra) > 0;
+}
 function montarObra() {
   const novo = $("obraNovo"), lista = $("obraCanteiros"), gente = $("obraGente");
   novo.textContent = ""; lista.textContent = ""; gente.textContent = "";
@@ -12622,6 +12632,15 @@ function montarObra() {
   } else if (somaObra(S.obra) > 0) {
     cab(novo, "DESDE A SUA ÚLTIMA VISITA");
     papel(novo, "Nada mudou. A obra está como você a deixou.");
+  } else {
+    // A PRIMEIRA VEZ, e ela passou a existir junto com a tábua destrancada (14/08). Antes, quem
+    // chegasse aqui sem nada erguido lia "a obra está como você a deixou" — e não tinha deixado
+    // nada. Pior que feio: mentia sobre a própria história da pessoa. Esta é a única tela do
+    // jogo que responde "o que é o mutirão", então a primeira linha dela tem de responder isso.
+    cab(novo, "AINDA NÃO COMEÇOU");
+    papel(novo, "Ninguém ergueu nada aqui ainda — e é assim que todo lugar começa.");
+    papel(novo, "Quem acolhe alguém em Palmares fica. E quem fica trabalha, mesmo com o " +
+      "jogo fechado: a roça, a paliçada e a casa avançam sozinhas com a gente que você acolheu.");
   }
 
   // ===== 2 · OS TRÊS CANTEIROS =====
