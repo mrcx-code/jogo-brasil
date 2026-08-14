@@ -6869,3 +6869,85 @@ vermelho. Não fiz agora para não misturar com o lote de arte.
 
 A mesa dos sete rostos, que é o que destrava o dono — ele respondeu *"pode propor, queremos
 rosto em todos"* e escolheu receber os sete de uma vez, em uma passada.
+
+---
+
+## Diário — 2026-08-14 · O menu tinha uma faixa morta de 211 px, e eu errei três vezes achando ela
+
+**Lente: Robustez.** O dono disse: *"o menu responsivo ficou um pouco estranho, dá uma revisada
+nos breakpoints e garanta que esteja bonito sem dar a impressão de quebrado."*
+
+### O defeito, e por que ninguém tinha visto
+
+Ferramenta nova, `test/escada-menu.js`: o menu medido numa escada densa de tamanhos, incluindo
+o valor e o valor+1 de cada `@media`, porque o defeito de um breakpoint não mora num aparelho —
+mora no **degrau entre dois**. Um pixel decidia:
+
+| altura | última tábua | rolagem |
+|---|---|---|
+| 390×600 | 20 px acima do pé | 0 |
+| 390×**601** | **87 px abaixo da borda** | **143** |
+| 390×640 | 51 px abaixo | 107 |
+| 390×720 | cabe | 32 |
+| 390×812 | inteiro | 0 |
+
+A causa não era o degrau estar no lugar errado: **não havia desenho nenhum entre os dois.** A
+versão inteira precisa de 744 px de altura, a apertada cabe em 568, e 196 px de diferença
+estavam separados por 1 px de consulta. A faixa 601–811 ficava sem dono — e é onde mora meio
+celular do mundo com a barra do navegador aberta (360×640, 375×667, 412×732).
+
+**As três telas que este repositório media — 390×844, 844×390 e 320×568 — passam todas POR FORA
+da faixa.** Testar os aparelhos que se tem à mão não cobre a travessia entre eles.
+
+O conserto: sete variáveis no `:root`, cada uma uma reta entre o valor apertado (568) e o
+inteiro (812), presa pelos dois extremos por `clamp()`. O alvo de dedo de 44 px **não entra na
+escada** — quem cede é o respiro.
+
+E o defeito **inverso**, deitado: num tablet 1024×768 as tábuas ficavam no mínimo de dedo com o
+respiro mínimo e sobravam **244 px de coluna vazia acima e 248 abaixo**, porque os dois números
+do deitado foram calculados para um telefone de 390 px de altura e ficaram fixos. As mesmas
+variáveis servem às duas orientações.
+
+### Os três erros meus, que valem mais que o conserto
+
+**1. Medi o caso fácil.** O menu tem DOIS tamanhos: cinco tábuas na estreia e **sete** depois
+(`DE ONDE VEM` aparece com `R.chegou`, `O LUGAR` com `lugarExiste()`). Calibrei com cinco, deu
+tudo verde, e o `encaixe.js` — que roda com a partida destravada — acusava 19 px de rolagem em
+**390×844**, a tela mais comum que existe. Medir o caso fácil é pior que não medir: dá licença
+por escrito para o caso difícil quebrar.
+
+**2. Um comentário meu comeu uma variável.** O bloco novo começava **sem abrir `/*`**: ele
+fechava um comentário já fechado. O parser tratou o texto como declaração inválida e engoliu
+tudo até o primeiro `;` — que era a `--mTopo`. Sintoma: o `padding-top` do menu virou 0 e o logo
+encostou na borda de cima, **sem erro em lugar nenhum**. É a mesma família do banner comido por
+regex em 12/08: num arquivo em que texto e código convivem, a costura entre os dois é onde o
+silêncio mora.
+
+**3. Persegui três pixels que não existem.** Economizei 10 px de respiro e a rolagem caiu 1 —
+a assinatura de um defeito que não é o que parece. Fiz a asserção imprimir a própria pilha e
+ela respondeu: `logoImg 120 + menuSub 25 + poste 366` = 511, mais 4 de topo = **515 numa tela de
+568**. São 53 px de folga. O `scrollHeight` sobe 2 a 3 assim mesmo, idêntico em três execuções:
+arredondamento de subpixel (`deviceScaleFactor: 2`, `gap: 4,0028px`, margem `auto` de flex). A
+folga do teste virou 4 px, **medida**. Quatro pixels não escondem defeito — o que este bloco
+existe para pegar valia 143.
+
+### O que fica de trava
+
+`encaixe.js` bloco 30 cobra oito alturas com o menu destravado, e **imprime a pilha quando
+falha** — sem isso, "rola 2 px" manda alguém procurar dois pixels no arquivo inteiro, que foi
+exatamente o que aconteceu comigo.
+
+Uma exceção nomeada: **568×320 deitado com sete tábuas é aritmética, não desenho** — 7 × 44 px
+de dedo são 308 numa tela de 320. Nenhuma escada resolve; o que teria de ceder é o piso do
+polegar, e ele não cede. Ali o menu usa a rolagem que já declara desde 12/08.
+
+### A dúvida que fica
+
+Uma tábua mede **66 px** enquanto as outras medem 44, e eu não fui atrás de qual nem por quê —
+apareceu no diagnóstico e não atrapalhava. Provavelmente é rótulo que quebra em duas linhas.
+Vale olhar: se for isso, o menu tem uma tábua com o dobro do peso visual das irmãs sem que
+ninguém tenha decidido isso.
+
+### Próximo passo
+
+A mesa dos sete rostos, que continua sendo o que destrava o dono.

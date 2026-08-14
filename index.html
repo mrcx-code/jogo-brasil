@@ -84,6 +84,58 @@
        posiciona em relação a ELA, não à tela — e duas regras com o mesmo número escrito à mão
        desencontram no dia em que alguém muda uma. Ver `#falaRetrato`. */
     --fCaixa: min(560px, 100%);
+    /* ===================================================================================
+       A ESCADA DO MENU — a altura da tela vira número, e ela existe por um defeito medido.
+       ===================================================================================
+       O menu tinha UM degrau: `@media (orientation: portrait) and (max-height: 600px)`.
+       Abaixo dele, a versão apertada; acima, a versão inteira. Medido em 14/08 com o
+       `test/escada-menu.js`, um pixel decidia:
+
+           390×600  →  última tábua 20 px ACIMA do pé,  rolagem   0
+           390×601  →  última tábua 87 px ABAIXO da borda, rolagem 143
+           390×640  →  51 px abaixo, rolagem 107
+           390×720  →  cabe, mas rolagem 32
+           390×812  →  inteiro
+
+       A causa não é o degrau estar no lugar errado: é não haver desenho nenhum entre os
+       dois. A versão inteira precisa de **744 px** de altura e a apertada cabe em 568 —
+       196 px de diferença separados por 1 px de consulta. A faixa 601–811 ficava sem dono,
+       e é onde mora meio celular do mundo com a barra do navegador aberta (360×640,
+       375×667, 412×732). As três telas que o Diário registrava como consertadas — 390×844,
+       844×390 e 320×568 — passam todas POR FORA da faixa. Por isso ninguém tinha visto.
+
+       O conserto é interpolar em vez de saltar. Cada medida abaixo é uma reta entre o valor
+       apertado (a 568 px de altura) e o inteiro (a 812), na forma `calc(K·vh − C)` presa
+       entre os dois extremos por `clamp()`. Fora da faixa nada muda: abaixo de 568 dá o
+       valor apertado que já existia, acima de 812 dá o inteiro que já existia — as telas
+       que estavam boas continuam byte a byte iguais.
+
+       O QUE NÃO ENTRA NA ESCADA: a altura da tábua. 44 px é o mínimo de um polegar, Apple e
+       Google pedem isso, e este repositório já trocou um defeito por outro uma vez ao
+       apertar recheio até a tábua cair para 42. Quem cede é o respiro; o dedo não negocia.
+       (Deitado, o bloco de `orientation: landscape` continua mandando e sobrescreve tudo
+       isto — lá a régua é a largura, não a altura.)
+
+       O ALVO DA ESCADA É O MENU DE SETE TÁBUAS, e isto foi um erro meu de meia hora que vale
+       registrar: a primeira calibragem mediu o menu de ESTREIA, que tem CINCO — o DE ONDE VEM
+       só aparece com `R.chegou` e O LUGAR com `lugarExiste()`. Deu tudo verde, e o `encaixe.js`,
+       que roda com a partida destravada, achava 19 px de rolagem em 390×844. Medir o caso fácil
+       é pior que não medir: dá licença por escrito para o caso difícil quebrar. As retas abaixo
+       fecham com SETE, e com cinco sobra folga — que é o lado certo de errar. */
+    --mTopo:      clamp(4px, calc(21.31vh - 117.05px), max(7vh, 34px)); /*  4 → 56  respiro do topo */
+    /* O LOGO DESCE MAIS FUNDO QUE AS OUTRAS, e o teto de cima é o VALOR ANTIGO de propósito:
+       `clamp` com uma reta no meio e a curva velha como limite superior faz o piso baixar de
+       150 para 120 px sem mover um pixel das telas altas (a 812 as duas retas dão 210, a 932
+       ganha a antiga, 239). Num 390×568 com as sete tábuas faltavam 3 px, e havia duas formas
+       de achá-los: raspar respiro em todo mundo ou encolher a primeira coisa que a pessoa vê
+       — numa tela de 568 px um logo menor não custa nada, e 30 px de folga é margem de sobra
+       para a oitava tábua não recomeçar esta conversa. */
+    --mLogoAlt:   clamp(120px, calc(36.89vh - 89.5px), calc(24.6vh + 10.2px));
+    --mLogoBaixo: clamp(2px, calc(2.46vh - 11.97px), 8px);              /*  2 → 8   logo → frase */
+    --mVao:       clamp(4px, calc(2.46vh - 9.97px), 10px);              /*  4 → 10  entre tábuas */
+    --mPosteTopo: clamp(8px, calc(4.1vh - 15.3px), 18px);               /*  8 → 18  ombro do poste */
+    --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 48px);            /*  4 → 48  pé do poste */
+    --mTabua:     clamp(11px, calc(1.23vh + 4.02px), 14px);             /* 11 → 14  recheio da tábua */
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -506,7 +558,7 @@
   #telaMenu { background:
     linear-gradient(180deg, rgba(10,9,6,.30) 0%, rgba(10,9,6,.06) 34%,
                             rgba(10,9,6,.10) 62%, rgba(10,9,6,.52) 100%);
-    justify-content: flex-start; padding-top: max(7vh, 34px);
+    justify-content: flex-start; padding-top: var(--mTopo);
     /* O PÉ DA TELA É DO POSTE, e o respiro dele passou a ser recheio do próprio poste. É o que
        permite ao mastro terminar EXATAMENTE na borda de baixo em vez de atravessá-la — ver o
        `bottom: 0` do `#poste::before` e a rolagem fantasma que ele criava. */
@@ -517,8 +569,14 @@
   /* 52vw -> 72vw: o dono disse que o logo esta 'meio longe, pequenininho'. Ele e a primeira
      coisa que a pessoa ve e estava ocupando pouco mais de metade da largura, com o poste e
      as tabuas competindo. Sobe para 72vw (teto 300) e encosta mais na frase. */
+  /* A ALTURA MÁXIMA É O QUE FAZ O LOGO OBEDECER À TELA CURTA, e ela é nova (14/08). A largura
+     sozinha não responde a altura nenhuma: num 390×640 o logo continuava com os mesmos 281 px
+     de largura de um 390×932, e era ele o inquilino mais caro da faixa que não fechava.
+     Com `height: auto` mais um teto de altura fluido, ele encolhe proporcional sem deformar —
+     e nas telas altas o teto nunca é alcançado, então nada muda onde já estava bom. */
   #logoImg { image-rendering: pixelated; width: min(72vw, 300px); height: auto;
-    margin-bottom: 8px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
+    max-height: var(--mLogoAlt); object-fit: contain;
+    margin-bottom: var(--mLogoBaixo); filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
     animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
   @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
@@ -543,8 +601,8 @@
      Com recheio, a caixa do poste vai até a borda, o mastro fecha em `bottom: 0` e o menu só
      rola quando alguma coisa de verdade não couber — que é para isso que a rolagem existe. */
   #poste { position: relative; margin-top: auto; margin-bottom: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 12px;
-    padding: 18px 0 calc(56px + env(safe-area-inset-bottom)); }
+    display: flex; flex-direction: column; align-items: center; gap: var(--mVao);
+    padding: var(--mPosteTopo) 0 calc(var(--mPosteBase) + env(safe-area-inset-bottom)); }
   /* SEIS CAMADAS QUE NUNCA RENDERAM UM PIXEL (auditoria holística, 09/08). Cada uma destas
      receitas de madeira declarava o "veio" — um repeating-gradient de 2px/8px — DEPOIS do
      gradiente de preenchimento. Em `background`, a primeira camada é a de cima: o gradiente
@@ -577,7 +635,8 @@
     background: linear-gradient(90deg, #7c5730, #a97f4a 40%, #96683a 70%, #5c3d20);
     box-shadow: inset 0 2px 0 #c39a5e, inset 0 0 0 2px rgba(36,22,5,.55); }
   #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center; margin: 0; }
+    display: flex; align-items: center; justify-content: center; margin: 0;
+    padding: var(--mTabua) 26px; min-height: 44px; }
   /* JOGAR é a tábua nova, de madeira clara recém-cortada; as outras três são do mesmo poste,
      mais curtidas. Destaque por MATERIAL, nunca por tamanho — a coluna alinhada é o que faz
      o conjunto ler como um só objeto. */
@@ -695,7 +754,7 @@
        tábuas ficam centradas dentro dela (`justify-content: center` do flex) e o mastro fecha
        em `bottom: 0` sem sobrar um pixel de rolagem. */
     #poste { grid-area: 1 / 2 / -1 / auto; align-self: stretch; justify-content: center;
-      margin: 0; padding: 8px 0 14px; gap: 9px; }
+      margin: 0; padding: 8px 0 14px; gap: var(--mVao); }
     /* deitado o mastro atravessa as DUAS bordas: desenhar o miolo cortado na borda de cima
        diria que ele acaba ali, e ele não acaba. */
     #poste::after { display: none; }
@@ -706,24 +765,36 @@
        de dedo que Apple e Google pedem. Então quem cede é o RESPIRO entre elas, e a altura
        ganha um PISO explícito — 44 px é o mínimo de um polegar, e ele não se negocia por
        caber. Cinco tábuas de 44 mais quatro respiros de 6 dão 244 numa tela de 390. */
-    #telaMenu .telaBtn { width: min(42vw, 280px); padding: 11px 26px; min-height: 44px; }
-    #poste { gap: 6px; padding: 6px 0 10px; }
+    /* A ESCADA VALE DEITADO TAMBÉM, e aqui ela conserta o defeito INVERSO (medido em 14/08).
+       Estes dois números — 11 px de recheio e 6 px de respiro — foram calculados para um
+       telefone deitado de 390 px de altura, e ficaram fixos. Num tablet a conta não muda mas
+       a tela sim: em 1024×768 as cinco tábuas continuavam no mínimo de dedo com o respiro
+       mínimo, e sobravam **244 px de coluna vazia acima e 248 abaixo**. Não é "não cabe", é
+       sobrar tela — e lê como um menu de telefone esticado dentro de um poste de tablet.
+       As variáveis do `:root` já são função da altura da tela, então elas servem às duas
+       orientações sem uma linha nova: em 844×390 dão exatamente 11 e 6, que é o que estava
+       escrito aqui à mão; em 1024×768 dão 14 e 11. O telefone não muda um pixel. */
+    #telaMenu .telaBtn { width: min(42vw, 280px); min-height: 44px; }
+    #poste { padding: 6px 0 10px; }
   }
   /* E A OUTRA PONTA DA MESMA MEDIÇÃO: em RETRATO curto (320×568, o piso do que ainda se
      vende) o poste já saía 32 px abaixo da borda e o AJUSTES 6 px — pré-existente, e achado
      pela mesma checagem nova. Aqui duas colunas seriam pior que o problema: 320 px de
      largura não comportam logo e tábua lado a lado. Quem cede é o RESPIRO, a mesma régua das
      duas consultas de altura que a CHEGADA já usa. */
+  /* O BLOCO DE `max-height: 600px` QUE MORAVA AQUI VIROU O PISO DA ESCADA (14/08). Ele fazia
+     exatamente o que as variáveis `--m*` do `:root` fazem agora — topo 12, logo 58vw, respiro
+     6, poste 8/20, tábua 11 —, só que de uma vez e só abaixo de 600 px. Era ele o degrau: em
+     601 px de altura tudo voltava ao tamanho inteiro de uma vez e a última tábua caía 87 px
+     abaixo da borda. Os mesmos números continuam valendo como extremo de baixo da escada,
+     agora alcançados por interpolação e não por salto. O comentário que ele carregava, e que
+     continua verdadeiro, era: em retrato curto duas colunas seriam pior que o problema — 320 px
+     de largura não comportam logo e tábua lado a lado —, então quem cede é o RESPIRO. */
   @media (orientation: portrait) and (max-height: 600px) {
-    #telaMenu { padding-top: 12px; }
-    #logoImg { width: min(58vw, 230px); margin-bottom: 4px; }
-    /* Mesma história do deitado, e o piso de dedo vale igual: com a quinta tábua o respiro
-       aperta, mas 44 px é o mínimo de um polegar em qualquer orientação. Medido em 320×568:
-       sem o piso, o DE ONDE VEM saía com 43. */
-    /* mesma troca de margem por recheio do bloco de cima, com o pé mais curto: em 320×568 cada
-       pixel do poste conta, e o respiro do pé cai de 30 para 10. */
-    #poste { margin-bottom: 0; padding: 8px 0 calc(20px + env(safe-area-inset-bottom)); gap: 6px; }
-    #telaMenu .telaBtn { padding: 11px 26px; min-height: 44px; }
+    /* o que sobra é só o que NÃO é escala: em 320×568 o logo dividia a largura com nada, e
+       58vw é largura, não altura. O teto de altura da escada já o segura; este limite é o de
+       LARGURA, que nenhuma variável de altura alcança. */
+    #logoImg { width: min(58vw, 230px); }
   }
   /* ===== A CAIXA DE FALA ===== estilo jogo antigo: a personagem à esquerda, a moldura
      grossa embaixo, o texto revelado letra a letra. O véu escurece só o pé da tela — o
