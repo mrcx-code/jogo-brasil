@@ -11,7 +11,8 @@
     "servir": "node ferramentas/servir.js 8199",
     "mesa": "node ferramentas/receber.js",
     "app": "npm run build && cap sync android",
-    "app:abrir": "cap open android"
+    "app:abrir": "cap open android",
+    "copiar": "node ferramentas/copiar.js"
   },
   "devDependencies": {
     "@capacitor/android": "^8.5.0",
