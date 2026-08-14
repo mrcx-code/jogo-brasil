@@ -58,14 +58,28 @@
        Google pedem isso, e este repositório já trocou um defeito por outro uma vez ao
        apertar recheio até a tábua cair para 42. Quem cede é o respiro; o dedo não negocia.
        (Deitado, o bloco de `orientation: landscape` continua mandando e sobrescreve tudo
-       isto — lá a régua é a largura, não a altura.) */
-    --mTopo:      clamp(12px, calc(18.03vh - 90.4px), max(7vh, 34px));  /* 12 → 56  respiro do topo */
-    --mLogoAlt:   clamp(150px, calc(24.6vh + 10.2px), 260px);           /* teto de altura do logo */
-    --mLogoBaixo: clamp(4px, calc(1.64vh - 5.3px), 8px);                /*  4 → 8   logo → frase */
-    --mVao:       clamp(6px, calc(2.46vh - 7.9px), 12px);               /*  6 → 12  entre tábuas */
+       isto — lá a régua é a largura, não a altura.)
+
+       O ALVO DA ESCADA É O MENU DE SETE TÁBUAS, e isto foi um erro meu de meia hora que vale
+       registrar: a primeira calibragem mediu o menu de ESTREIA, que tem CINCO — o DE ONDE VEM
+       só aparece com `R.chegou` e O LUGAR com `lugarExiste()`. Deu tudo verde, e o `encaixe.js`,
+       que roda com a partida destravada, achava 19 px de rolagem em 390×844. Medir o caso fácil
+       é pior que não medir: dá licença por escrito para o caso difícil quebrar. As retas abaixo
+       fecham com SETE, e com cinco sobra folga — que é o lado certo de errar. */
+    --mTopo:      clamp(4px, calc(21.31vh - 117.05px), max(7vh, 34px)); /*  4 → 56  respiro do topo */
+    /* O LOGO DESCE MAIS FUNDO QUE AS OUTRAS, e o teto de cima é o VALOR ANTIGO de propósito:
+       `clamp` com uma reta no meio e a curva velha como limite superior faz o piso baixar de
+       150 para 120 px sem mover um pixel das telas altas (a 812 as duas retas dão 210, a 932
+       ganha a antiga, 239). Num 390×568 com as sete tábuas faltavam 3 px, e havia duas formas
+       de achá-los: raspar respiro em todo mundo ou encolher a primeira coisa que a pessoa vê
+       — numa tela de 568 px um logo menor não custa nada, e 30 px de folga é margem de sobra
+       para a oitava tábua não recomeçar esta conversa. */
+    --mLogoAlt:   clamp(120px, calc(36.89vh - 89.5px), calc(24.6vh + 10.2px));
+    --mLogoBaixo: clamp(2px, calc(2.46vh - 11.97px), 8px);              /*  2 → 8   logo → frase */
+    --mVao:       clamp(4px, calc(2.46vh - 9.97px), 10px);              /*  4 → 10  entre tábuas */
     --mPosteTopo: clamp(8px, calc(4.1vh - 15.3px), 18px);               /*  8 → 18  ombro do poste */
-    --mPosteBase: clamp(20px, calc(14.75vh - 63.8px), 56px);            /* 20 → 56  pé do poste */
-    --mTabua:     clamp(11px, calc(1.64vh + 1.7px), 15px);              /* 11 → 15  recheio da tábua */
+    --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 48px);            /*  4 → 48  pé do poste */
+    --mTabua:     clamp(11px, calc(1.23vh + 4.02px), 14px);             /* 11 → 14  recheio da tábua */
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,

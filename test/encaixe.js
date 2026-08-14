@@ -2165,6 +2165,67 @@ const sec = t => log('\n---- ' + t);
   ok(semTinta.length === 0, 'toda tábua do poste tem rótulo em bitmap, nenhuma caiu na fonte do sistema (' +
     (semTinta.map(t => t.id + ': "' + t.cru + '"').join(', ') || 'nenhuma') + ')');
 
+  sec('30 · o menu fecha em TODA altura, e não só nas três que alguém já olhou');
+  // O DEFEITO QUE ESTE BLOCO EXISTE PARA NÃO TER DE NOVO (14/08). O menu tinha um degrau só,
+  // `max-height: 600px`, e entre 601 e 811 px de altura não havia desenho nenhum: a versão
+  // inteira precisa de 744 px, a apertada cabe em 568, e as duas estavam separadas por 1 px de
+  // consulta. Em 390×601 a última tábua caía 87 px ABAIXO da borda e o menu rolava 143 px.
+  //
+  // Por que ninguém tinha visto, e é a parte que importa: as três telas que o repositório
+  // media — 390×844, 844×390 e 320×568 — passam todas POR FORA da faixa quebrada. Testar os
+  // aparelhos que se tem à mão não cobre a TRAVESSIA entre eles, e é na travessia que um
+  // @media mal posto aparece. As alturas abaixo são justamente as que ninguém olhava, mais os
+  // dois degraus antigos (600/601) para o salto não poder voltar sem o teste ficar vermelho.
+  for (const h of [568, 600, 601, 640, 700, 720, 812, 932]) {
+    await page.setViewportSize({ width: 390, height: h });
+    await page.evaluate(() => { fecharTelas(); abrirTela('telaMenu'); });
+    await page.waitForTimeout(420);
+    const m = await page.evaluate(() => {
+      const H = document.documentElement.clientHeight;
+      const tela = document.getElementById('telaMenu');
+      const t = [];
+      document.querySelectorAll('#poste .telaBtn').forEach(function (b) {
+        if (getComputedStyle(b).display === 'none') return;
+        const c = b.getBoundingClientRect();
+        t.push({ id: b.id, pe: Math.round(c.bottom), alt: Math.round(c.height), fora: c.bottom > H + 1 || c.top < -1 });
+      });
+      return { n: t.length, fora: t.filter(x => x.fora), baixa: t.filter(x => x.alt < 44),
+        menorAlt: t.length ? Math.min.apply(null, t.map(x => x.alt)) : 0,
+        maiorAlt: t.length ? Math.max.apply(null, t.map(x => x.alt)) : 0,
+        // QUEM OCUPA A ALTURA, para a falha explicar a si mesma. Sem isto, "rola 2 px" manda
+        // alguém procurar os dois pixels no arquivo inteiro — e foi o que aconteceu comigo.
+        pilha: [...tela.children].map(function (e) {
+          const r = e.getBoundingClientRect(); return e.id + ' ' + Math.round(r.height);
+        }).join(' + '),
+        rolagem: tela ? Math.max(0, tela.scrollHeight - tela.clientHeight) : 0 };
+    });
+    log('   390×' + h + ': ' + m.n + ' tábuas · ' + m.menorAlt + '–' + m.maiorAlt + 'px · rolagem ' +
+      m.rolagem + 'px' + (m.rolagem ? '  [' + m.pilha + ']' : ''));
+    ok(!m.fora.length, '390×' + h + ': nenhuma tábua fora da tela' +
+      (m.fora.length ? ' — ' + m.fora.map(x => x.id + ' com o pé em ' + x.pe).join(', ') : ''));
+    // A rolagem do menu continua DECLARADA de propósito, para o dia em que uma tábua nova não
+    // couber. O que não pode é ela aparecer com todas as tábuas dentro da tela: isso não é
+    // rolagem, é composição estourando por baixo — foi assim que o mastro escondeu 457 px em
+    // 12/08 e assim que a faixa morta se anunciou em 14/08.
+    //
+    // A FOLGA É DE 4 px E FOI MEDIDA, não afrouxada — e a medição é a parte que importa.
+    // Perseguindo "3 px de rolagem" em 390×568 eu economizei 10 px de respiro e o número caiu
+    // 1, que é a assinatura de um defeito que não existe. A pilha ali soma sempre o mesmo, em
+    // três execuções seguidas: `logoImg 120 + menuSub 25 + poste 366` = 511, mais 4 px de topo
+    // = **515 numa tela de 568**. São 53 px de FOLGA, e mesmo assim o `scrollHeight` sobe 2 a
+    // 3 px — `deviceScaleFactor: 2` com `gap: 4,0028px` fracionário e uma margem `auto` de
+    // flex arredondam para cima. Régua mais fina que o instrumento é cara ou coroa, que é a
+    // mesma lição do teto de poluição (0,3 → 0,8 em 12/08). E 4 px não escondem defeito: a
+    // faixa morta que este bloco existe para pegar valia 143.
+    ok(m.rolagem <= 4, '390×' + h + ': o menu não rola com todas as tábuas dentro (' + m.rolagem +
+      'px, folga de 4 para arredondamento de subpixel)');
+    ok(!m.baixa.length, '390×' + h + ': nenhuma tábua abaixo dos 44 px de dedo' +
+      (m.baixa.length ? ' — ' + m.baixa.map(x => x.id + ' ' + x.alt).join(', ') : ''));
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => { fecharTelas(); });
+  await page.waitForTimeout(400);
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

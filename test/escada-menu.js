@@ -29,6 +29,16 @@ const DIR = __dirname;
 const LARGURAS = [320, 340, 341, 360, 375, 390, 412, 430, 480, 540, 600, 768, 820, 900, 901, 1024];
 const ALTURAS = [568, 600, 601, 640, 641, 720, 721, 812, 844, 915, 932];
 
+// O MENU TEM DOIS TAMANHOS, E O QUE IMPORTA É O MAIOR. Quem acaba de chegar vê CINCO tábuas;
+// quem já jogou vê SETE — o DE ONDE VEM aparece com `R.chegou` e O LUGAR com `lugarExiste()`.
+// A primeira versão desta ferramenta media o menu de estreia e dava tudo verde enquanto o
+// `encaixe.js`, que roda com a partida destravada, achava 19 px de rolagem em 390×844. Medir o
+// caso fácil é pior que não medir: dá licença por escrito para o caso difícil quebrar.
+const REVELAR = `
+  window.revelarTudo = function () {
+    document.querySelectorAll('#poste .telaBtn').forEach(function (b) { b.classList.remove('oculto'); });
+  };`;
+
 async function medir(pg) {
   return pg.evaluate(() => {
     const cx = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
@@ -68,8 +78,9 @@ async function medir(pg) {
     const pg = await nav.newPage({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
     pg.on('pageerror', e => erros.push(w + 'x844: ' + e.message));
     await pg.goto(alvo);
+    await pg.addScriptTag({ content: REVELAR });
     await pg.waitForTimeout(900);
-    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); });
+    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); revelarTudo(); });
     await pg.waitForTimeout(350);
     const m = await medir(pg);
     linhas.push({ chave: w + 'x844', eixo: 'w', v: w, m });
@@ -83,8 +94,9 @@ async function medir(pg) {
     const pg = await nav.newPage({ viewport: { width: 390, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
     pg.on('pageerror', e => erros.push('390x' + h + ': ' + e.message));
     await pg.goto(alvo);
+    await pg.addScriptTag({ content: REVELAR });
     await pg.waitForTimeout(900);
-    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); });
+    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); revelarTudo(); });
     await pg.waitForTimeout(350);
     const m = await medir(pg);
     linhas.push({ chave: '390x' + h, eixo: 'h', v: h, m });
@@ -101,8 +113,9 @@ async function medir(pg) {
     const pg = await nav.newPage({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
     pg.on('pageerror', e => erros.push(w + 'x' + h + ': ' + e.message));
     await pg.goto(alvo);
+    await pg.addScriptTag({ content: REVELAR });
     await pg.waitForTimeout(900);
-    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); });
+    await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); revelarTudo(); });
     await pg.waitForTimeout(350);
     const m = await medir(pg);
     linhas.push({ chave: w + 'x' + h, eixo: 'd', v: h, m });
@@ -159,8 +172,16 @@ async function medir(pg) {
   if (!bruscos) console.log('  (nenhum salto brusco entre vizinhos)');
 
   console.log('\n=== O QUE REPROVA ===');
+  // A ÚNICA EXCEÇÃO, e ela é aritmética e não desenho: com as SETE tábuas de quem já jogou,
+  // 7 × 44 px de dedo = 308 px, e um telefone deitado de 320 px de altura não tem os 12 px
+  // restantes para respiro nenhum. Nenhuma escada resolve isso — o que teria de ceder é o
+  // piso de 44 px, e ele não cede. Aqui o menu usa a saída que ele já declara desde 12/08:
+  // ROLA. É o único conserto que não tem número para estourar quando a oitava tábua chegar.
+  // Fica nomeado para não virar "verde por acidente" nem "vermelho eterno que ninguém lê".
+  const EXCECAO = { '568x320': 'sete tábuas de 44 px não cabem em 320 px de altura — o menu rola, por projeto' };
   let ruim = 0;
   for (const l of linhas) {
+    if (EXCECAO[l.chave]) { console.log('  ~ ' + l.chave.padEnd(10) + EXCECAO[l.chave]); continue; }
     const m = l.m;
     const p = [];
     if (m.forade.length) p.push('tábua fora da tela: ' + m.forade.join(','));
