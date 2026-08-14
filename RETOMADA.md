@@ -168,7 +168,9 @@ reescreva função vizinha no `src/jogo.ts`.
 npm test
 ```
 
-É `npm run build` + smoke test, e **tem que passar**. Rode também `node test/encaixe.js` ao
+É `npm run build` + smoke test, e **tem que passar**. Desde 14/08 há um **portão de CI**
+(`.github/workflows/`) que roda o mesmo `npm test` em todo PR e em todo push para a `main` —
+ou seja, empurrar com o teste vermelho deixou de ser silencioso. Rode também `node test/encaixe.js` ao
 mexer em jogo ou tela — são as asserções sobre o que desencaixa **em silêncio** (texto e imagem
 desalinhados, uma promessa de privacidade que a CSP desmente, um capítulo que perde a pintura).
 
