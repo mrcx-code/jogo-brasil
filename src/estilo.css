@@ -1609,6 +1609,27 @@
     display: flex; align-items: center; justify-content: center; }
 
   #telaMenu .telaBtn.oculto, .telaBtn.oculto { display: none; }
+  /* A TÁBUA TRANCADA (15/08). Ela existe, ocupa o lugar dela no poste e não recebe o dedo — é a
+     madeira ainda por cortar, não um botão apagado. Por isso o tratamento é de MATERIAL e não de
+     opacidade: a tábua fica acinzentada e afundada no poste, sem o alto-relevo das irmãs, e o
+     rótulo perde o brilho. Baixar a opacidade do conjunto apagaria também o veio, e aí ela leria
+     como defeito de renderização em vez de porta fechada.
+     O cadeado é um pino de ferro no lugar em que as outras tábuas têm o prego — mesmo vocabulário,
+     estado diferente. Zero byte de arte: é sombra e gradiente, como todo o resto do poste. */
+  #telaMenu .telaBtn.travada {
+    cursor: default;
+    background: var(--veioPx, none), linear-gradient(180deg, #5a4a37, #4a3c2b 60%, #3d3123);
+    box-shadow: inset 0 2px 0 #6b5941, inset 0 -3px 0 #2a2118,
+                inset 0 0 0 2px #241d14, 0 2px 0 #14100a;
+    color: #9a8a72; text-shadow: 0 1px 0 rgba(0,0,0,.6);
+    transform: translateY(2px);   /* afundada: o poste continua na frente dela */
+  }
+  #telaMenu .telaBtn.travada canvas { opacity: .62; }
+  /* o pino: um ferrolho redondo escuro onde as outras têm o prego claro */
+  #poste .telaBtn.travada::before, #poste .telaBtn.travada::after {
+    background: radial-gradient(circle at 40% 35%, #6f6252 0 40%, #3a3128 60%, #1d1811 100%);
+    box-shadow: inset 0 0 0 1px #15110b, 0 1px 0 rgba(255,240,200,.10); }
+  #telaMenu .telaBtn.travada:active { transform: translateY(2px); }
 
   /* FONTES: a única tela que rola, porque é a única cuja lista cresce. */
   #telaFontes { justify-content: flex-start; padding-top: 30px; }

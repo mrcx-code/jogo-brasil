@@ -9004,10 +9004,26 @@ function abrirTela(id) {
   if (id === "telaMenu") {
     const bf = document.getElementById("btnFim");
     if (bf) bf.classList.toggle("oculto", !(R.chegou | 0));
-    // ...e a porta de O LUGAR aparece quando há lugar: PALMARES com gente acolhida. Mesma
-    // gramática da tábua acima — porta para o que ainda não existe é porta que decepciona.
+    // ...e a de O LUGAR NÃO SOME MAIS: fica no poste sempre, com CADEADO enquanto não houver
+    // lugar. Decisão do dono em 15/08 — *"deixa o botão no menu mesmo, depois irmos colocar um
+    // cadeado e deixar o botão desabilitado"* —, e ela corrige o mesmo defeito duas vezes.
+    // Primeiro: a tábua aparecia do nada no meio da partida, e menu que muda de tamanho sozinho
+    // é a queixa que ele já tinha feito do poste. Segundo, e é o que importa: **porta escondida
+    // não ensina que existe.** Ele passou dias sem entender o mutirão e a única tela que o
+    // explica estava invisível — a versão anterior deste comentário dizia que "porta para o que
+    // ainda não existe é porta que decepciona", e a prática mostrou o contrário: porta trancada
+    // à vista promete, porta ausente não conta nem que há o que esperar.
     const bl = document.getElementById("btnLugar");
-    if (bl) bl.classList.toggle("oculto", !lugarExiste());
+    if (bl) {
+      const temLugar = lugarExiste();
+      bl.classList.remove("oculto");
+      bl.classList.toggle("travada", !temLugar);
+      (bl as HTMLButtonElement).disabled = !temLugar;
+      // O cadeado é do rótulo, não um ícone à parte: a tábua é desenhada em bitmap e um glifo
+      // solto ao lado sairia na fonte do sistema, que é o defeito que o encaixe bloco 29 cobra.
+      bl.setAttribute("aria-disabled", temLugar ? "false" : "true");
+      bl.title = temLugar ? "" : "Abre quando você chegar em Palmares";
+    }
   }
   TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
   // A tela É o lugar: enquanto qualquer uma está aberta, o chrome do jogo (HUD e barra de

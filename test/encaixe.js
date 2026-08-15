@@ -1374,14 +1374,23 @@ const sec = t => log('\n---- ' + t);
     const fronteiraGuardada = S.fronteira;
     S.fronteira = 0;                       // ainda no primeiro capítulo, antes de Palmares
     abrirTela('telaMenu');
-    const semGente = document.getElementById('btnLugar').classList.contains('oculto');
+    const bl0 = document.getElementById('btnLugar');
+    // A TÁBUA NÃO SOME MAIS, ELA TRANCA (15/08, decisão do dono). O contrato mudou de "aparece
+    // quando há lugar" para "está sempre no poste, com cadeado até haver". A razão é a mesma que
+    // fez a página aparecer: porta escondida não ensina que existe, e ele passou dias sem
+    // entender o mutirão porque a única tela que o explica era invisível. Porta trancada à vista
+    // promete; porta ausente não conta nem que há o que esperar. E, de quebra, o menu para de
+    // mudar de tamanho sozinho no meio da partida.
+    const semGente = !bl0.classList.contains('oculto') && bl0.classList.contains('travada') && bl0.disabled;
     S.fronteira = CAP_GENTE;               // chegou em Palmares, e ainda não acolheu ninguém
     abrirTela('telaMenu');
-    const soDeChegar = !document.getElementById('btnLugar').classList.contains('oculto');
+    const bl1 = document.getElementById('btnLugar');
+    const soDeChegar = !bl1.classList.contains('oculto') && !bl1.classList.contains('travada') && !bl1.disabled;
     S.fronteira = fronteiraGuardada;
     S.acolhidos[CAP_GENTE] = 7;
     abrirTela('telaMenu');
-    const comGente = !document.getElementById('btnLugar').classList.contains('oculto');
+    const blG = document.getElementById('btnLugar');
+    const comGente = !blG.classList.contains('oculto') && !blG.classList.contains('travada');
     // (c) e (d): um estado conhecido, uma visita, e o que a página diz
     S.obra = { roca: 65, palicada: 30, casa: 0 };
     S.obraVista = { roca: 55, palicada: 30, casa: 0 };
@@ -1475,9 +1484,9 @@ const sec = t => log('\n---- ' + t);
     + ' | cheia ' + oLugar.cheia);
   ok(!oLugar.repetidos.length, 'nenhum id se repete no poste do menu — a tábua duplicada não volta');
   ok(oLugar.semGente && oLugar.soDeChegar && oLugar.comGente,
-    'a porta O LUGAR abre ao CHEGAR em Palmares, não depois de já ter usado o mutirão' +
-    ' (antes de Palmares oculta: ' + oLugar.semGente + ' · só de chegar: ' + oLugar.soDeChegar +
-    ' · com gente: ' + oLugar.comGente + ')');
+    'a tábua O LUGAR fica sempre no poste e DESTRANCA ao chegar em Palmares' +
+    ' (antes: presente e trancada = ' + oLugar.semGente + ' · só de chegar: destrancada = ' +
+    oLugar.soDeChegar + ' · com gente: ' + oLugar.comGente + ')');
   ok(oLugar.naLista && !oLugar.presa && !oLugar.emTela,
     'a tela está em TELAS e `fecharTelas()` a devolve, com o chrome do jogo junto');
   ok(!oLugar.mexeu, 'abrir a página não move obra, recursos nem acolhidas — ela LÊ o jogo (§2)');
