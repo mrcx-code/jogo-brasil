@@ -9002,8 +9002,21 @@ function telaAberta() {
 function abrirTela(id) {
   // A porta da CHEGADA aparece no menu quando — e só quando — alguém já chegou uma vez.
   if (id === "telaMenu") {
-    const bf = document.getElementById("btnFim");
-    if (bf) bf.classList.toggle("oculto", !(R.chegou | 0));
+    // A porta da CHEGADA segue a MESMA gramática de O LUGAR desde 15/08: fica no poste sempre,
+    // trancada até alguém ter chegado ao fim uma vez. O dono estendeu a decisão a ela no mesmo
+    // dia, e o ganho aqui é maior que o de O LUGAR: hoje o jogo não promete um fim em lugar
+    // nenhum. Uma tábua trancada chamada ATÉ AQUI, visível no primeiro minuto, diz que existe
+    // um fim e que ele se alcança — e isso é motivo para continuar, que é a pergunta de três
+    // dias inteira. O rótulo aparece de propósito: o que ela guarda não é segredo, é distância.
+    const bf = document.getElementById("btnFim") as HTMLButtonElement | null;
+    if (bf) {
+      const chegou = !!(R.chegou | 0);
+      bf.classList.remove("oculto");
+      bf.classList.toggle("travada", !chegou);
+      bf.disabled = !chegou;
+      bf.setAttribute("aria-disabled", chegou ? "false" : "true");
+      bf.title = chegou ? "" : "Abre quando você chegar ao fim uma vez";
+    }
     // ...e a de O LUGAR NÃO SOME MAIS: fica no poste sempre, com CADEADO enquanto não houver
     // lugar. Decisão do dono em 15/08 — *"deixa o botão no menu mesmo, depois irmos colocar um
     // cadeado e deixar o botão desabilitado"* —, e ela corrige o mesmo defeito duas vezes.

@@ -7972,8 +7972,14 @@ function telaAberta() {
 function abrirTela(id) {
     if (id === "telaMenu") {
         const bf = document.getElementById("btnFim");
-        if (bf)
-            bf.classList.toggle("oculto", !(R.chegou | 0));
+        if (bf) {
+            const chegou = !!(R.chegou | 0);
+            bf.classList.remove("oculto");
+            bf.classList.toggle("travada", !chegou);
+            bf.disabled = !chegou;
+            bf.setAttribute("aria-disabled", chegou ? "false" : "true");
+            bf.title = chegou ? "" : "Abre quando você chegar ao fim uma vez";
+        }
         const bl = document.getElementById("btnLugar");
         if (bl) {
             const temLugar = lugarExiste();
