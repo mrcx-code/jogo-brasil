@@ -52,7 +52,7 @@ capítulo é sobre uma casa que virou o lugar onde uma música nasceu.
 
 ---
 
-## 4 · AS PORTAS · pátio de escola pública, 1932–1985
+## 4 · AS PORTAS · pátio de escola pública, 1932–1985  ✅ APROVADO em 15/08
 
 **Quem:** uma mulher adulta na turma de alfabetização da noite.
 **De onde:** trabalha o dia inteiro e estuda depois — é por isso que a turma é à noite.
@@ -61,7 +61,7 @@ abria com a leitura, porque quem não lia não votava.
 
 ---
 
-## 5 · O QUE NÃO PODIA SER DITO · rua de centro, 1964–1985
+## 5 · O QUE NÃO PODIA SER DITO · rua de centro, 1964–1985  ✅ APROVADO em 15/08
 
 **Quem:** uma tipógrafa de gráfica pequena.
 **De onde:** do mesmo centro de cidade em que o capítulo se passa.
@@ -70,7 +70,7 @@ capítulo diz que nada na rua *parece* proibido — a mão dela é o que não ap
 
 ---
 
-## 6 · A PRAÇA · 1984–1988
+## 6 · A PRAÇA · 1984–1988  ✅ APROVADO em 15/08
 
 **Quem:** uma mulher que colhe assinatura para emenda popular.
 **De onde:** de bairro, com prancheta, na praça do capítulo.
@@ -103,7 +103,7 @@ fogo não passar; a mão dela limpa e abafa.
 
 ---
 
-## 9 · O QUE TEM FONTE · método
+## 9 · O QUE TEM FONTE · método  ✅ APROVADO em 15/08
 
 **Quem:** uma estudante de ensino médio.
 **De onde:** de escola pública — é a idade de quem o jogo quer alcançar.
@@ -112,25 +112,18 @@ dela abre a fonte antes de aceitar a frase.
 
 ---
 
-## O estado, em 15/08
+## O estado, fechado em 15/08
 
-**Dois aprovados** — 7 (O QUE SEGUROU) e 8 (O ACEIRO). O dono escolheu "começo pelos dois
-óbvios", e a razão de serem os óbvios é que os dois já tinham o **verbo escrito na abertura do
-próprio capítulo**: *chegar na última casa* e *abafar*. A pessoa quase se escrevia sozinha.
+**OS NOVE ESTÃO DECIDIDOS**, e nenhum precisou de alternativa — as propostas passaram inteiras,
+três por check na forma clicável, que foi o formato que destravou (nove fichas de uma vez era o
+atrito, e o dono nomeou isso).
 
-Os dois já viraram pedido de **retrato** (`cap-segurou-retrato`, `cap-aceiro-retrato`), porque a
-segunda decisão do mesmo check foi **retratos antes de caminhadas**: o retrato aparece toda vez
-que alguém fala, que é onde o capítulo ensina, e uma imagem parada é muito mais barata de acertar
-que oito quadros — as folhas de corrida levaram cinco tentativas por causa de identidade.
+Todos os nove têm pedido de RETRATO na mesa. A ordem retratos-antes-de-caminhadas também foi
+decisão dele: o retrato aparece toda vez que alguém fala, que é onde o capítulo ensina, e imagem
+parada é mais barata de acertar que oito quadros.
 
-**CINCO APROVADOS**, e os cinco já têm pedido de retrato escrito: 1 (O CAIS), 2 (JABAQUARA),
-3 (A PEQUENA ÁFRICA), 7 (O QUE SEGUROU), 8 (O ACEIRO).
-
-**Quatro esperando:** 4 (AS PORTAS) · 5 (O QUE NÃO PODIA SER DITO) · 6 (A PRAÇA) · 9 (O QUE TEM
-FONTE). O dono pediu para receber **três por check, na forma clicável** — nove fichas de uma vez
-era o atrito, e ele nomeou isso. As três primeiras foram decididas em segundos assim.
-
----
+Quatro retratos já chegaram e foram APROVADOS (cais, jabaquara, pequenaafrica, segurou); o da
+brigadista voltou por uma coisa só (pintura facial inventada — rosto limpo e está pronto).
 
 ## Como responder
 
