@@ -1403,7 +1403,11 @@ function lintComentarios() {
   await passo('btnCompletude', 'telaCompletude');     // A HISTÓRIA reachable mid-game
   await page.screenshot({ path: path.resolve(__dirname, '..', 'shot-menu-historia.png') });
   await passo('btnVoltarComp', 'telaMenu');
-  await passo('btnFontes', 'telaFontes');             // DE ONDE VEM reachable mid-game
+  // DE ONDE VEM mudou-se para dentro de CONFIGURACOES em 15/08 (decisao do dono), entao o
+  // caminho ate ela passou a ter um degrau a mais — e o teste anda o caminho REAL de proposito:
+  // se a porta sumir de la, isto quebra, que e o trabalho dele.
+  await passo('btnConfig', 'telaConfig');
+  await passo('btnFontes', 'telaFontes');             // DE ONDE VEM reachable via CONFIGURACOES
   await passo('btnVoltarFontes', 'telaMenu');
 
   // ---- GLOSSARIO: a tela irma, e as tres coisas que podem dar errado nela ----
