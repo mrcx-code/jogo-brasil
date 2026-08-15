@@ -179,8 +179,12 @@
          a mostrar DE ONDE VEM DUAS VEZES — a segunda em Arial Black, porque `pixelRotulo`
          pinta o primeiro nó com o id e o segundo ficava com o texto cru do molde. Achado no
          print `test/LG-antes-menu-zero.png`, não em teste nenhum: id repetido não dá erro. -->
-    <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
-    <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
+    <!-- CONFIGURAÇÕES, e não mais AJUSTES (15/08, decisão do dono) — e DE ONDE VEM mudou-se
+         para dentro dela na mesma decisão. Os dois motivos se somam: "configurações" é a palavra
+         que todo aplicativo usa e ninguém precisa aprender, e a procedência é leitura de quem
+         quer conferir, não porta de entrada. De quebra o poste volta a SETE tábuas: a oitava
+         tinha acabado de obrigar a apertar o respiro de todas. -->
+    <button class="telaBtn sec" id="btnConfig">CONFIGURAÇÕES</button>
   </div>
 </div>
 
@@ -239,7 +243,7 @@
 
 <!-- AJUSTES -->
 <div class="tela" id="telaConfig">
-  <div class="telaTit">AJUSTES</div>
+  <div class="telaTit">CONFIGURAÇÕES</div>
   <div class="telaTxt" id="cfgInfo"></div>
   <!-- O interruptor do som. Primeiro botão da tela porque é o único ajuste que alguém procura
        com pressa — quem está no ônibus quer calar o jogo agora, não depois de ler. -->
@@ -248,6 +252,11 @@
        acima dele afirma o que sai do aparelho, e afirmação sem interruptor é aviso, não
        escolha. Desligado, `medir()` sai na primeira linha e não sai um byte. -->
   <button class="telaBtn sec" id="btnMedir">CONTAGEM</button>
+  <!-- DE ONDE VEM, que morava no poste. Fica ANTES de apagar e depois dos interruptores:
+       é leitura, não ajuste, mas é a leitura que sustenta tudo o que o jogo afirma — e num
+       menu de configurações a procedência tem exatamente a mesma natureza da linha que diz o
+       que sai do aparelho. As duas respondem "o que este jogo faz com a verdade". -->
+  <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>

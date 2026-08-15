@@ -10398,7 +10398,7 @@ function pintarRotulos() {
   // O molde pode nao ter o botao ainda (integracao entre maquinas): id sem markup nao pode lancar.
   { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 2, "#d9cfae"); }
   { const b = document.getElementById("btnLugar"); if (b) pixelRotulo(b, "O LUGAR", 2, "#d9cfae"); }
-  pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
+  pixelRotulo($("btnConfig"), "CONFIGURAÇÕES", 2, "#d9cfae");
   // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais
   // velha: `#fimTit` e os três botões dela eram os ÚNICOS rótulos em Arial Black do jogo
   // inteiro — cinco telas medem ZERO texto de sistema, e a que fecha o jogo media quatro.

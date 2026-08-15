@@ -123,12 +123,15 @@
        é pior que não medir: dá licença por escrito para o caso difícil quebrar. As retas abaixo
        fecham com SETE, e com cinco sobra folga — que é o lado certo de errar.
 
-       REVISTO EM 15/08 PARA OITO: a tábua ONDE FOI entrou no poste e a escada de sete deixou de
+       REVISTO DUAS VEZES EM 15/08, E VOLTOU. A tábua ONDE FOI entrou e a escada de sete deixou de
        fechar — 9 px de rolagem em 390×640, 20 em 700, 24 em 720. Oito tábuas de dedo são 352 px
        de altura antes de qualquer respiro, e é o respiro que cede: vão 4→3 no piso e 10→8 no
        teto, recheio 11→10 e 14→12. O piso de 44 px continua intocado, que é a única linha que
-       não se negocia aqui. A conta de quem cresce o poste é sempre esta — e a nona tábua vai
-       precisar de outra conversa, porque o respiro já está perto do osso. */
+       não se negocia aqui. A conta de quem cresce o poste é sempre esta.
+       E no mesmo dia o poste voltou a SETE: o dono mudou DE ONDE VEM para dentro de
+       CONFIGURAÇÕES, então os números voltaram aos de sete. Fica registrado o ciclo inteiro
+       porque ele mostra a régua: **oito tábuas só cabem apertando o respiro de todas**, e a
+       resposta certa não foi apertar — foi tirar uma tábua da rua e pôr onde ela pertence. */
     --mTopo:      clamp(4px, calc(21.31vh - 117.05px), max(7vh, 34px)); /*  4 → 56  respiro do topo */
     /* O LOGO DESCE MAIS FUNDO QUE AS OUTRAS, e o teto de cima é o VALOR ANTIGO de propósito:
        `clamp` com uma reta no meio e a curva velha como limite superior faz o piso baixar de
@@ -139,10 +142,10 @@
        para a oitava tábua não recomeçar esta conversa. */
     --mLogoAlt:   clamp(120px, calc(36.89vh - 89.5px), calc(24.6vh + 10.2px));
     --mLogoBaixo: clamp(2px, calc(2.46vh - 11.97px), 8px);              /*  2 → 8   logo → frase */
-    --mVao:       clamp(3px, calc(2.05vh - 8.64px), 8px);               /*  3 → 8   entre tábuas */
+    --mVao:       clamp(3px, calc(2.87vh - 13.3px), 10px);              /*  3 → 10  entre tábuas (piso 3: CONFIGURAÇÕES somou um botão à pilha de 568) */
     --mPosteTopo: clamp(8px, calc(4.1vh - 15.3px), 18px);               /*  8 → 18  ombro do poste */
     --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 48px);            /*  4 → 48  pé do poste */
-    --mTabua:     clamp(10px, calc(0.82vh + 5.35px), 12px);             /* 10 → 12  recheio da tábua */
+    --mTabua:     clamp(11px, calc(1.23vh + 4.02px), 14px);             /* 11 → 14  recheio da tábua */
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -1644,7 +1647,7 @@
       padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
     #telaConfig .telaTit { grid-column: 1 / -1; margin-bottom: 8px; }
     /* o papel ocupa a coluna da esquerda inteira, ao lado das quatro tábuas */
-    #telaConfig #cfgInfo { grid-column: 1; grid-row: 2 / span 4; align-self: center;
+    #telaConfig #cfgInfo { grid-column: 1; grid-row: 2 / span 5; align-self: center;
       gap: 5px; padding: 10px 14px; }
     #telaConfig .telaBtn { grid-column: 2; width: auto; min-width: min(34vw, 260px);
       padding: 12px 18px; margin: 0 0 6px; }
@@ -1657,7 +1660,11 @@
     #telaConfig { padding: 12px 16px; }
     #telaConfig .telaTit { margin-bottom: 8px; }
     #telaConfig #cfgInfo { gap: 4px; padding: 9px 13px; }
-    #telaConfig .telaBtn { padding: 11px 22px; margin: 3px; }
+    /* margem 2 e recheio 9: o DE ONDE VEM mudou-se para cá (15/08) e a coluna de CINCO botões
+       passou a estourar a tela deitada. O grid também ganhou uma linha (`span 5`) — sem ela o
+       quinto botão caía FORA da área do texto e descia sozinho. 44 px de dedo continuam: 9+9+
+       linha de 26 do bitmap = 44. */
+    #telaConfig .telaBtn { padding: 9px 22px; margin: 2px; min-height: 44px; box-sizing: border-box; }
   }
 
   /* E O DEGRAU DO PIOR CASO DE ALTURA (640×360). Depois das colunas sobravam 23 px na
@@ -2577,8 +2584,12 @@
          a mostrar DE ONDE VEM DUAS VEZES — a segunda em Arial Black, porque `pixelRotulo`
          pinta o primeiro nó com o id e o segundo ficava com o texto cru do molde. Achado no
          print `test/LG-antes-menu-zero.png`, não em teste nenhum: id repetido não dá erro. -->
-    <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
-    <button class="telaBtn sec" id="btnConfig">AJUSTES</button>
+    <!-- CONFIGURAÇÕES, e não mais AJUSTES (15/08, decisão do dono) — e DE ONDE VEM mudou-se
+         para dentro dela na mesma decisão. Os dois motivos se somam: "configurações" é a palavra
+         que todo aplicativo usa e ninguém precisa aprender, e a procedência é leitura de quem
+         quer conferir, não porta de entrada. De quebra o poste volta a SETE tábuas: a oitava
+         tinha acabado de obrigar a apertar o respiro de todas. -->
+    <button class="telaBtn sec" id="btnConfig">CONFIGURAÇÕES</button>
   </div>
 </div>
 
@@ -2637,7 +2648,7 @@
 
 <!-- AJUSTES -->
 <div class="tela" id="telaConfig">
-  <div class="telaTit">AJUSTES</div>
+  <div class="telaTit">CONFIGURAÇÕES</div>
   <div class="telaTxt" id="cfgInfo"></div>
   <!-- O interruptor do som. Primeiro botão da tela porque é o único ajuste que alguém procura
        com pressa — quem está no ônibus quer calar o jogo agora, não depois de ler. -->
@@ -2646,6 +2657,11 @@
        acima dele afirma o que sai do aparelho, e afirmação sem interruptor é aviso, não
        escolha. Desligado, `medir()` sai na primeira linha e não sai um byte. -->
   <button class="telaBtn sec" id="btnMedir">CONTAGEM</button>
+  <!-- DE ONDE VEM, que morava no poste. Fica ANTES de apagar e depois dos interruptores:
+       é leitura, não ajuste, mas é a leitura que sustenta tudo o que o jogo afirma — e num
+       menu de configurações a procedência tem exatamente a mesma natureza da linha que diz o
+       que sai do aparelho. As duas respondem "o que este jogo faz com a verdade". -->
+  <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>
@@ -8999,7 +9015,7 @@ function pintarRotulos() {
         if (b)
             pixelRotulo(b, "O LUGAR", 2, "#d9cfae");
     }
-    pixelRotulo($("btnConfig"), "AJUSTES", 2, "#d9cfae");
+    pixelRotulo($("btnConfig"), "CONFIGURAÇÕES", 2, "#d9cfae");
     pixelRotulo($("btnFim"), "ATÉ AQUI", 2, "#d9cfae");
     pixelRotulo($("btnFimHist"), "A HISTÓRIA", 2, "#f2e3c0");
     pixelRotulo($("btnFimFontes"), "DE ONDE VEM", 2, "#d9cfae");
