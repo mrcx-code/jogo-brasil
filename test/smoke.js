@@ -1068,17 +1068,49 @@ function lintComentarios() {
     // mesmo, de proposito — o toque continua instantaneo e quem so toca nao perde nada. O que
     // se mede e o depois, e por isso ha uma segunda amostra.
     await new Promise(res => setTimeout(res, 500));
-    const armado = await page.evaluate(() => ({ x: worldX }));
+    // O RETRATO DO INSTANTE DE ARMAR. Sem ele, "built nothing: 0" manda alguem procurar a causa
+    // no jogo inteiro — e foi o que custou duas sessoes. Cada campo aqui e uma das clausulas de
+    // `obraPodeArmar()`, para a falha nomear qual delas disse nao.
+    const armado = await page.evaluate(() => ({
+      x: worldX, pode: obraPodeArmar(), faixa: faixaViva(), cant: !!canteiroNaTela(),
+      fala: falaAberta(), tela: telaAberta(), trav: travessiaAtiva(), pulo: jumpT > 0,
+      dedo: obraDedo > 0, trab: obraTrabalhando
+    }));
     await new Promise(res => setTimeout(res, Math.max(0, seg * 1000 - 500)));
     const meio = await page.evaluate(() => ({ obra: S.obra.roca + S.obra.palicada + S.obra.casa,
       total: S.energiaTotal, x: worldX, trabalhando: obraTrabalhando }));
     await page.mouse.up();
+    const porque = Object.keys({ faixa: 0, cant: 0, fala: 0, tela: 0, trav: 0, pulo: 0 })
+      .filter(k => (k === 'faixa' || k === 'cant') ? !armado[k] : armado[k]);
     return { pontos: meio.obra - antes.obra, ganho: meio.total - antes.total,
       andou: Math.round(meio.x - antes.x), andouDepoisDeArmar: Math.round(meio.x - armado.x),
-      trabalhando: meio.trabalhando };
+      trabalhando: meio.trabalhando,
+      // o porque, em uma palavra: qual clausula de `obraPodeArmar()` estava dizendo nao
+      travou: armado.pode ? '' : (porque.join('+') || 'nenhuma clausula — olhar obraDedo') };
   }
   await page.evaluate(() => {
     fecharTelas(); fecharTudo();
+    // ===== O PREPARO PASSA A ZERAR O QUE VAZA, e isto conserta a intermitencia de ~50% =====
+    // Medido em 15/08 com `test/repro-obra.js`: rodado SOZINHO, este bloco passa 16 de 16 e a
+    // cena nunca vira. Ou seja, o defeito nunca esteve na mecanica — esta no estado que os
+    // blocos ANTERIORES do smoke deixam para tras, e que o preparo nao tocava.
+    //
+    // A hipotese herdada (PENDENTES.md §13) era outra e o numero a derruba: dizia que o clique
+    // do gesto empurraria `energiaTotal` por cima da fronteira de cena. Um golpe vale 1,0 e
+    // faltam 300 para a fronteira. Nao da, nem em cem gestos.
+    //
+    // O que de fato bloqueia `obraPodeArmar()` e sobrevive ao `fecharTelas()`:
+    //   · `jumpT > 0` — um pulo herdado. Bloqueia armar e NAO para o mundo, que e exatamente
+    //     o sintoma "built nothing" junto com "she kept walking 79px". Os blocos anteriores
+    //     tocam a metade esquerda o tempo todo, e a metade esquerda pula.
+    //   · `falaViva` — uma fala aberta. Bloqueia armar e PARA o mundo, que e o outro sintoma,
+    //     "the street stopped outside the faixa: 1px".
+    //   · `travessiaViva` — mesma familia.
+    // Sao dois vazamentos diferentes com sintomas opostos, e e por isso que o par falhava
+    // "ao contrario": nao era um estado trocado, eram duas causas distintas.
+    pararFala();
+    jumpT = 0; attackT = 0; combo = 0;
+    obraDedo = 0; obraTrabalhando = false;
     const c0 = cenarioDaEpoca(CAP_GENTE);
     S.cenario = c0; S.fronteira = Math.max(S.fronteira | 0, c0);
     S.energiaTotal = LIMIAR_CENA * c0 + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.9;
@@ -1106,14 +1138,23 @@ function lintComentarios() {
   const umGolpe = await page.evaluate(() => ganhoClique());
   console.log('holding the world in the faixa ->', JSON.stringify(naFaixa),
     '| one swing is worth', umGolpe.toFixed(2));
-  if (naFaixa.pontos < 2) errors.push('holding the world in the faixa built nothing: ' + naFaixa.pontos);
+  if (naFaixa.pontos < 2) errors.push('holding the world in the faixa built nothing: ' + naFaixa.pontos +
+    (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou : ' — obraPodeArmar() estava true'));
   if (naFaixa.ganho > umGolpe * 2)
     errors.push('holding the world in the faixa turned into a volley of swings: +' + naFaixa.ganho);
   if (Math.abs(naFaixa.andouDepoisDeArmar) > 4)
-    errors.push('she kept walking while working the obra: ' + naFaixa.andouDepoisDeArmar + 'px');
+    errors.push('she kept walking while working the obra: ' + naFaixa.andouDepoisDeArmar + 'px' +
+      (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou : ''));
 
   // ...e FORA da faixa nada disso existe: a rua anda como sempre andou
   await page.evaluate(() => {
+    // O MESMO CUIDADO DA IDA VALE NA VOLTA. Voltar `S.cenario` para 0 com `energiaTotal` em 300
+    // e andar para tras na cronologia, e a virada pode abrir fala ou cerimonia — e fala aberta
+    // PARA O MUNDO, que e literalmente o que a assercao seguinte mede ("a rua anda como sempre
+    // andou"). O bloco cobrava a rua andando e podia, ele mesmo, ter mandado a rua parar.
+    pararFala();
+    jumpT = 0; attackT = 0; combo = 0;
+    obraDedo = 0; obraTrabalhando = false;
     S.cenario = 0; S.energiaTotal = 300; S.energia = 1e6;
     S.acolhidos = EPOCAS.map(() => 0);
     canteiros.length = 0; mobs.length = 0; drops.length = 0;
@@ -1123,7 +1164,8 @@ function lintComentarios() {
   console.log('holding the world outside the faixa ->', JSON.stringify(foraDaFaixa));
   if (foraDaFaixa.trabalhando) errors.push('the obra armed outside the faixa');
   if (foraDaFaixa.pontos !== 0) errors.push('the obra advanced by hand outside the faixa');
-  if (foraDaFaixa.andou < 20) errors.push('the street stopped outside the faixa: ' + foraDaFaixa.andou + 'px');
+  if (foraDaFaixa.andou < 20) errors.push('the street stopped outside the faixa: ' + foraDaFaixa.andou + 'px' +
+    ' — fala/tela/travessia no instante: ' + JSON.stringify({ travou: foraDaFaixa.travou }));
 
   // ============================================================
   // T4 (SPRINT 1) — the three flows that cost day 07 must not regress in silence.

@@ -464,38 +464,40 @@ decisão de Arte, não de conteúdo. Fica registrado para não se descobrir de n
 
 ---
 
-## 13. O `npm test` FALHA EM METADE DAS EXECUÇÕES, E É O BLOCO DO MUTIRÃO (12/08, Historiador)
+## 13. ~~O `npm test` falha em metade das execuções~~ — **RESOLVIDO em 2026-08-15**
 
-**Não foi revertido nada; isto é um achado.** Encontrado ao rodar o portão obrigatório antes do
-primeiro incremento do lote do século XX, e **confirmado na árvore limpa com `git stash`** — não
-tem relação com o conteúdo novo.
+Fica o registro porque a **hipótese que estava aqui era falsa**, e uma sessão futura poderia
+gastar o mesmo dia perseguindo-a de novo.
 
-**O sintoma.** O bloco *"O GESTO: segurar o MUNDO na faixa final ergue a obra"* do
-`test/smoke.js` passa e falha alternadamente, com o mesmo binário e o mesmo arquivo. Quando
-falha, **os dois lados falham juntos e ao contrário**:
+**O que este item dizia (12/08, e estava errado):** que o preparo do teste escreve
+`S.energia = 1e6` e que o `clicar()` do gesto empurraria `energiaTotal` por cima de uma fronteira
+de cena, abrindo uma fala que derrubaria `obraPodeArmar()`.
 
-```
-holding the world in the faixa built nothing: 0
-she kept walking while working the obra: 79px
-the street stopped outside the faixa: 1px
-```
+**O número que a derrubou.** Ferramenta nova, `test/repro-obra.js`, que roda só este bloco N vezes
+no mesmo navegador — dezenas de amostras no tempo de uma execução do smoke. Rodado sozinho, o
+bloco passou **16 de 16**, a cena nunca virou (3→3), e fala e tela nunca abriram. E a aritmética
+fecha a porta: **um golpe vale 1,0 ponto e faltam 300 para a fronteira de cena.** Não dá, nem em
+cem gestos.
 
-Dentro da faixa a personagem continua andando; **fora** dela a rua para. Estados trocados, não
-gesto quebrado.
+**A causa real: o bloco é limpo, o que suja é o que vem antes dele.** O preparo chamava
+`fecharTelas(); fecharTudo()` e não tocava em três coisas que bloqueiam `obraPodeArmar()` e
+sobrevivem a isso:
 
-**O que já foi medido, para a próxima sessão não recomeçar do zero.** Reproduzindo o setup do
-teste num instrumento à parte, no instante do `page.evaluate`: `capGente` `true`, `faixaViva`
-`true`, `canteiroNaTela()` **não nulo**, `obraPodeArmar()` **`true`** — ou seja, o estado semeado
-está certo. Depois do `mouse.down()`, porém, **`obraDedo` continua `0`** e `obraPodeArmar()`
-passa a `false`, com o canteiro ainda na tela e a faixa ainda viva.
+- **`jumpT > 0`** (um pulo herdado) — bloqueia armar e **não** para o mundo. É exatamente o par de
+  sintomas *"built nothing: 0"* + *"she kept walking: 79px"*. Os blocos anteriores tocam a metade
+  esquerda o tempo todo, e a metade esquerda pula.
+- **`falaViva`** (uma fala aberta) — bloqueia armar e **para** o mundo. É o outro sintoma,
+  *"the street stopped outside the faixa: 1px"*.
+- **`travessiaViva`** — mesma família.
 
-**A hipótese mais provável, não confirmada:** o próprio setup escreve `S.energia = 1e6`, e o
-`clicar()` que o `pointerdown` dispara antes de `obraDedo = performance.now()` empurra o mundo
-por cima de uma fronteira de cena durante o gesto; a fala que abre aí solta a obra
-(`falaAberta()` derruba `obraPodeArmar()`). A corrida entre a virada de cena e os 300 ms de
-`MUTIRAO_HOLD_MS` explicaria a alternância. Se for isso, o conserto é do TESTE e não do jogo:
-semear energia suficiente para a faixa sem sobrar para virar cena.
+**Eram dois vazamentos diferentes com sintomas opostos** — por isso o par parecia falhar "ao
+contrário" e por isso a leitura de "estados trocados" não levava a lugar nenhum. Não era um estado
+trocado; eram duas causas distintas na mesma execução.
 
-**Por que não consertei:** é código do MUTIRÃO, de outra frente, e a régua do repositório diz que
-mudança de economia exige medição antes/depois. Um historiador ajustando o teto de energia de um
-teste de economia é exatamente o tipo de conserto que passa despercebido e muda o que se mede.
+**O conserto** é do teste, não do jogo, como a sessão anterior suspeitava — só que por outras
+portas. Os dois preparos passaram a chamar `pararFala()` e a zerar `jumpT`, `attackT`, `combo`,
+`obraDedo` e `obraTrabalhando`. E cada asserção passou a **imprimir qual cláusula de
+`obraPodeArmar()` disse não**, porque `built nothing: 0` sem isso manda alguém procurar a causa no
+jogo inteiro — que foi o que custou duas sessões.
+
+**Medido depois:** 5 de 5 verdes de imediato, contra ~50% antes.
