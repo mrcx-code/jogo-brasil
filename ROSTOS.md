@@ -81,7 +81,7 @@ mesmo — e o que mudou foram 12 milhões de assinaturas em 122 emendas populare
 
 ---
 
-## 7 · O QUE SEGUROU · pandemia
+## 7 · O QUE SEGUROU · pandemia  ✅ APROVADO em 15/08
 
 **Quem:** uma agente comunitária de saúde.
 **De onde:** do próprio bairro que ela atende — é a definição do cargo.
@@ -93,7 +93,7 @@ a pessoa.
 
 ---
 
-## 8 · O ACEIRO · fogo e fronteira agrícola
+## 8 · O ACEIRO · fogo e fronteira agrícola  ✅ APROVADO em 15/08
 
 **Quem:** uma brigadista florestal indígena.
 **De onde:** de terra indígena, em brigada de combate a incêndio — as brigadas existem e são
@@ -109,6 +109,21 @@ fogo não passar; a mão dela limpa e abafa.
 **De onde:** de escola pública — é a idade de quem o jogo quer alcançar.
 **A mão faz:** **conferir de onde vem.** O capítulo é a tela DE ONDE VEM virando jogo; a mão
 dela abre a fonte antes de aceitar a frase.
+
+---
+
+## O estado, em 15/08
+
+**Dois aprovados** — 7 (O QUE SEGUROU) e 8 (O ACEIRO). O dono escolheu "começo pelos dois
+óbvios", e a razão de serem os óbvios é que os dois já tinham o **verbo escrito na abertura do
+próprio capítulo**: *chegar na última casa* e *abafar*. A pessoa quase se escrevia sozinha.
+
+Os dois já viraram pedido de **retrato** (`cap-segurou-retrato`, `cap-aceiro-retrato`), porque a
+segunda decisão do mesmo check foi **retratos antes de caminhadas**: o retrato aparece toda vez
+que alguém fala, que é onde o capítulo ensina, e uma imagem parada é muito mais barata de acertar
+que oito quadros — as folhas de corrida levaram cinco tentativas por causa de identidade.
+
+**Sete esperando:** 1 · 2 · 3 · 4 · 5 · 6 · 9.
 
 ---
 
