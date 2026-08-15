@@ -9,10 +9,13 @@
 //
 // DUAS decisões que valem mais que o código:
 //
-// 1. **Largura de embutir, não largura de origem.** As peças chegam com ~1940 px de largura e
-//    a tela mostra 390. Embutir o mestre custaria megabytes por nada. `LARGURA` é 2× a tela
-//    de referência — o suficiente para telas de densidade alta, e o dobro do que se vê. Meça
-//    com `--medir` antes de mudar: o arquivo é único e cada KB é tela branca no celular.
+// 1. **Recorta primeiro, reamostra depois** (revisto em 15/08 — antes era só reamostrar, e a
+//    frase que morava aqui dizia que `LARGURA` era "2× a tela", o que virou mentira e pior:
+//    escondia o defeito). A peça é desenhada em tela cheia com `object-fit: cover`, então o
+//    que sobra da proporção da tela é jogado fora na exibição. Reamostrar a imagem INTEIRA para
+//    780 px fazia a faixa visível de uma entrega deitada de 1942 px nascer de 150 px reais,
+//    esticados por 780 de tela. `LARGURA` agora é a largura da TELA e o recorte vem antes.
+//    Meça com `--medir` antes de mudar: o arquivo é único e cada KB é tela branca no celular.
 //
 // 2. **Nenhuma figura humana.** Estas imagens acompanham texto que AFIRMA história, e uma
 //    pessoa desenhada afirma junto: roupa, corpo e adorno viram declaração sobre um povo real
@@ -28,7 +31,16 @@ const RAIZ = path.resolve(__dirname, '..');
 const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
 const DIR = path.join(RAIZ, 'assets', 'entrada');
 
-const LARGURA = 780;    // 2× os 390 px da tela de referência
+// A LARGURA DO ALVO, E ELA MUDOU DE SIGNIFICADO EM 15/08. Era 780 = "2x a tela", aplicado
+// sobre a imagem INTEIRA — e como a peca e recortada pelo `cover` na hora de exibir, a faixa
+// que realmente aparecia numa entrega deitada de 1942 px vinha de 780 x (374/1942) = **150 px
+// reais esticados por 780 de tela**. Era essa a moleza das imagens de historia, e ela nunca
+// foi de qualidade de WebP: era resolucao jogada fora no recorte.
+// Agora o recorte vem ANTES da reamostragem, entao 390 e a largura da tela de referencia e
+// significa 1 px por px de CSS — o mesmo que as 17 pecas deitadas ja entregavam na pratica,
+// e 2,5x mais do que elas entregavam de verdade. O numero e igual para toda peca, deitada ou
+// retrato: quem manda no tamanho e a TELA, nunca a forma do arquivo que chegou.
+const LARGURA = 390;
 const QUAL = 0.80;      // a mesma qualidade das pinturas de cenário, medida e aprovada
 
 const medir = process.argv.includes('--medir');
@@ -51,15 +63,32 @@ const LARGURAS = medir ? [520, 660, 780, 900, 1100] : [LARGURA];
       const r = await pg.evaluate(async function (d) {
         const im = document.querySelector('img');
         await im.decode();
-        const W = Math.min(d.L, im.naturalWidth);
-        const H = Math.round(im.naturalHeight * W / im.naturalWidth);
+        const iw = im.naturalWidth, ih = im.naturalHeight;
+        // ===== NÃO SE EMBUTE O QUE A TELA NÃO MOSTRA (15/08) =====
+        // A peça é desenhada em TELA CHEIA com `object-fit: cover`, então tudo o que sobra da
+        // proporção da tela é recortado fora na hora de exibir — e até hoje viajava mesmo assim.
+        // Só importou quando as entregas viraram RETRATO: uma peça deitada pesava 84 KB e a
+        // primeira retrato pesou 288, e a porta de entrada saltou de 1.837 para 2.122 KB por
+        // causa de UMA imagem. São bytes que ninguém nunca vê.
+        // Aqui a peça é recortada ao CENTRO na proporção da tela de referência antes de
+        // reamostrar. Nenhum pixel visível se perde em retrato: é exatamente a mesma região que
+        // o `cover` escolheria. O que se perde é o que já era descartado.
+        // O CUSTO, dito por extenso: deitado, o `cover` recortaria diferente e passa a ter menos
+        // material nas laterais. É a mesma troca do §3.4 — mobile primeiro —, e a saída barata
+        // continua sendo a régua do LEIAME: assunto nos 70% centrais.
+        const pAlvo = d.pw / d.ph;
+        let cx = 0, cy = 0, cw = iw, ch = ih;
+        if (iw / ih > pAlvo) { cw = Math.round(ih * pAlvo); cx = Math.round((iw - cw) / 2); }
+        else { ch = Math.round(iw / pAlvo); cy = Math.round((ih - ch) / 2); }
+        const W = Math.min(d.L, cw);
+        const H = Math.round(ch * W / cw);
         const c = document.createElement('canvas');
         c.width = W; c.height = H;
         const g = c.getContext('2d');
         g.imageSmoothingQuality = 'high';
-        g.drawImage(im, 0, 0, W, H);
-        return { uri: c.toDataURL('image/webp', d.q), w: W, h: H, ow: im.naturalWidth };
-      }, { L, q: QUAL });
+        g.drawImage(im, cx, cy, cw, ch, 0, 0, W, H);
+        return { uri: c.toDataURL('image/webp', d.q), w: W, h: H, ow: iw, oh: ih };
+      }, { L, q: QUAL, pw: 390, ph: 844 });
       console.log(chave.padEnd(14) + String(r.w).padStart(5) + 'x' + r.h
         + ' · ' + (r.uri.length / 1024).toFixed(0) + ' KB base64'
         + (medir ? '' : ' (mestre ' + r.ow + ' px)'));

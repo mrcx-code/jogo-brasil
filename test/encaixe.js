@@ -1419,6 +1419,15 @@ const sec = t => log('\n---- ' + t);
     // (`ESTAGIO_CURTO`), e que nenhuma vogal acentuada entra nela: `texto()` desenha todo
     // glifo numa caixa de 7×9 e as acentuadas têm 9 linhas de mapa — sairiam espremidas.
     fecharTelas(); fecharTudo();
+    // O MESMO SANEAMENTO QUE O smoke.js PASSOU A FAZER EM 15/08, e aqui é prevenção e não
+    // conserto: este bloco arma a obra à mão (`obraDedo` + `trabalharNaObra`), então ele passa
+    // pelo mesmo `obraPodeArmar()` e é vulnerável ao mesmo vazamento. `fecharTelas()` não zera
+    // um pulo herdado nem uma fala viva, e as duas dizem não ali — o pulo sem parar o mundo, a
+    // fala parando. Duas causas, sintomas opostos, e foi isso que fez o bloco irmão do smoke
+    // piscar em metade das execuções por dois dias.
+    pararFala();
+    jumpT = 0; attackT = 0; combo = 0;
+    obraDedo = 0; obraTrabalhando = false;
     S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 9;
     S.cenario = cenarioDaEpoca(CAP_GENTE);
     // A FAIXA PELO CAPÍTULO FECHADO, e não por uma fração do vão: o laço de quadro continua
@@ -2239,6 +2248,42 @@ const sec = t => log('\n---- ' + t);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
   await page.waitForTimeout(400);
+
+  sec('31 · arte recusada que foi refeita não pode esperar em silêncio');
+  // O DEFEITO QUE ISTO EXISTE PARA NÃO TER DE NOVO (14/08). Seis artes recusadas por §2 foram
+  // refeitas pelo dono em 10/08 e **ficaram quatro dias paradas sem ninguém saber**. A regra que
+  // levanta uma recusa quando os bytes do arquivo mudam funciona exatamente como projetada — o
+  // problema é que ela levanta em SILÊNCIO: a peça troca de coluna numa página que só existe
+  // enquanto alguém roda `npm run mesa`. Não havia aviso, não havia teste, não havia nada.
+  // Enquanto isso ele continuava gerando, e uma delas era a pintura que consertava a única
+  // dívida de luz que o jogo tinha.
+  // Agora "ninguém olhou" é teste vermelho. É a única asserção deste arquivo que não olha o
+  // jogo — olha a fila —, e ela mora aqui porque é aqui que se cobra o que desencaixa calado.
+  {
+    const fsN = require('fs');
+    const pathN = require('path');
+    const raiz = pathN.resolve(__dirname, '..');
+    const lerJ = (n) => { try { return JSON.parse(fsN.readFileSync(pathN.join(raiz, 'ferramentas', n), 'utf8')); } catch (e) { return null; } };
+    const recJ = lerJ('recusadas.json');
+    if (!recJ) {
+      log('   (recusadas.json não encontrado — nada a cobrar)');
+    } else {
+      const ressuscitadas = [];
+      (recJ.itens || []).forEach(function (r) {
+        if (typeof r.bytes !== 'number') return;      // recusa antiga, sem impressão digital
+        const arq = pathN.join(raiz, 'assets', 'entrada', r.n + '.png');
+        if (!fsN.existsSync(arq)) return;             // nunca foi entregue: continua com o dono
+        const agora = fsN.statSync(arq).size;
+        if (agora !== r.bytes) ressuscitadas.push(r.n + ' (' + r.bytes + ' → ' + agora + ' bytes)');
+      });
+      log('   recusas ativas: ' + ((recJ.itens || []).length || 0) +
+        ' · refeitas e ainda não revistas: ' + ressuscitadas.length);
+      ok(ressuscitadas.length === 0,
+        'nenhuma peça recusada foi refeita sem alguém olhar' +
+        (ressuscitadas.length ? ' — ESPERANDO REVISÃO: ' + ressuscitadas.join(', ') +
+          '. Olhe a arte e resolva a recusa (aprovar e embutir, ou recusar de novo com o motivo novo).' : ''));
+    }
+  }
 
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');

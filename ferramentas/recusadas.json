@@ -10,32 +10,11 @@
       "bytes": 2821825
     },
     {
-      "n": "ctx-cap1-rocado",
-      "em": "2026-08-14 18:00",
-      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
-      "onde": "NOTES.md Diario 14/08 · check do dono",
-      "bytes": 3258327
-    },
-    {
       "n": "ctx-cap2-serra",
       "em": "2026-08-14 18:00",
       "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
       "onde": "NOTES.md Diario 14/08 · check do dono",
       "bytes": 3101539
-    },
-    {
-      "n": "ctx-cap2-roca",
-      "em": "2026-08-14 18:00",
-      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
-      "onde": "NOTES.md Diario 14/08 · check do dono",
-      "bytes": 3375855
-    },
-    {
-      "n": "trav-mar",
-      "em": "2026-08-14 18:00",
-      "porque": "FORMATO, NAO DESENHO — e o desenho continua aprovado. Esta peca aparece em TELA CHEIA, e o alvo dela e o retrato de um celular (390x844 = 0,46). Ela chegou em 1942x809 (2,40), deitada. O build recorta ao CENTRO na proporcao do alvo, entao o que chega na tela e uma tira de 374 px de largura: **19,3% da imagem**. Os outros quatro quintos sao descartados sem erro em canto nenhum. E a tira ainda e esticada 2,1x para encher a tela, o que e macio de perto.\n\nO manifesto e que estava errado, nao a geracao: 31 pedidos diziam PAISAGEM ~1536x640 para pecas de alvo retrato, e foram corrigidos em 14/08. Em 1024x1536 o aproveitamento sobe de 19% para 69%.\n\nDECISAO DO DONO NO CHECK DE 14/08: refazer so as que aparecem nos PRIMEIROS CINCO MINUTOS — que sao estas cinco. As outras 25 ficam como estao e eu escolho o recorte de cada uma a mao, em vez de deixar no centro.",
-      "onde": "NOTES.md Diario 14/08 · check do dono",
-      "bytes": 2318748
     },
     {
       "n": "cap1-corrida",
@@ -52,18 +31,11 @@
       "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
     },
     {
-      "n": "cap3-corrida",
-      "em": "2026-08-14 18:00",
-      "bytes": 1368765,
-      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
-      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
-    },
-    {
       "n": "q-p22",
-      "em": "2026-08-14 18:00",
-      "bytes": 2432631,
-      "onde": "src/jogo.ts (marco 1988) · NOTES.md Diario 14/08",
-      "porque": "TERCEIRA, E FALTA UMA COISA SO. A sala agora esta CERTA e isso e progresso de verdade: e o plenario moderno, arquitetura do seculo XX, cadeiras verdes, bancadas em semicirculo, terco inferior calmo, assunto nos 70% centrais. A primeira entrega era uma escrivaninha a luz de vela e a segunda um plenario de cartola e casaca; as duas criticas de seculo estao atendidas.\n\nO QUE FALTA: a sala esta VAZIA. O texto desta pagina diz \"Foi escrita com gente indigena falando no plenario — nao so sendo falada\" (CF/88 art. 231 · ADCT art. 68). Uma sala vazia nao e falsa, e MUDA — e num quadrinho a imagem e quem carrega; a legenda so confirma.\n\nO PEDIDO, e ele e o mais facil dos tres: MESMA SALA, agora cheia. Bancadas ocupadas, gente de terno e gravata de 1987-88 (sem cartola), microfones de mesa, cameras de TV da epoca nas laterais. E o centro da imagem e um GESTO, nao uma multidao: um homem indigena de terno, de pe ao microfone, pintando o proprio rosto de preto com jenipapo enquanto fala, e o plenario olhando. Aconteceu em 4 de setembro de 1987 e ensina a legenda sozinho. Sem retrato de semelhanca de pessoa viva — o que a imagem precisa mostrar e o gesto, nao o rosto de alguem."
+      "em": "2026-08-15 09:30",
+      "bytes": 2650406,
+      "onde": "src/jogo.ts (marco 1988)",
+      "porque": "QUARTA, e a sala continua certa e continua VAZIA. Agora e o plenario da Camara com a arquitetura certa, bancadas em semicirculo, mesa diretora, bandeira e terco inferior calmo — a composicao esta resolvida. Falta a mesma coisa das duas anteriores: GENTE. O texto da pagina diz \"Foi escrita com gente indigena falando no plenario — nao so sendo falada\". Uma sala vazia nao e falsa, e muda, e num quadrinho a imagem e quem carrega. O pedido: MESMA SALA, bancadas ocupadas, terno e gravata de 1987-88 sem cartola, e no centro um GESTO — um homem indigena de terno, de pe ao microfone, pintando o proprio rosto de preto com jenipapo enquanto fala, e o plenario olhando."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
@@ -88,6 +60,34 @@
       "porque": "APROVADA E EMBUTIDA junto com o alto-v2, que era a condicao declarada da recusa (\"chao refeito para casar com o de cima\"). Ela e pedra cinza de calcamento: saturacao 8,3%, e isso e o assunto, nao um defeito — as onze chaos irmas sao terra e mata, que sao saturadas por natureza. A proporcao mudou de 2172x724 (3,00) para 1672x941 (1,78) contra 2,40 das irmas, e deixou de importar: o inline-fundos.js RECORTA ao centro na proporcao do alvo em vez de esticar, entao o que entrou foi 1672x743 -> 720x320, sem deformar pedra nenhuma.\n\nE ela fecha um buraco que nao era dela: SALVADOR nao tinha mestre versionado no repositorio (a entrega crua vive em assets/entrada, que o git ignora, e quem converteu em 07/08 nunca commitou o PNG). Agora assets/cenarios-novos/cap4-alto.png e cap4-baixo.png existem.",
       "bytes": 1579428,
       "estado": "APROVADA E EMBUTIDA em 14/08"
+    },
+    {
+      "n": "ctx-cap1-rocado",
+      "em": "2026-08-15 09:00",
+      "bytes": 3048463,
+      "estado": "APROVADA E EMBUTIDA em 15/08",
+      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+    },
+    {
+      "n": "ctx-cap2-roca",
+      "em": "2026-08-15 09:00",
+      "bytes": 3108181,
+      "estado": "APROVADA E EMBUTIDA em 15/08",
+      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+    },
+    {
+      "n": "trav-mar",
+      "em": "2026-08-15 09:00",
+      "bytes": 2032437,
+      "estado": "APROVADA E EMBUTIDA em 15/08",
+      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+    },
+    {
+      "n": "cap3-corrida",
+      "em": "2026-08-15 09:30",
+      "bytes": 1430560,
+      "estado": "APROVADA — falta medir o ciclo e ligar no motor",
+      "porque": "A PRIMEIRA FOLHA DE CORRIDA QUE PASSA, na quinta tentativa e na primeira em que a folha de CAMINHADA foi junto como referencia. Traz a mesma pessoa de AINDA AQUI correndo, com as cinco marcas: camiseta creme com faixa de padrao tecido no peito, bermuda escura, chinelo de dedo, pingente verde e bracelete de micanga. O erro de §2.1 — devolver a pessoa do presente a uma tanga, desenhando na corrida a tese que o texto passa o capitulo negando — acabou. 8 quadros, magenta chapado, correndo para a direita. Confirma o diagnostico: o problema nunca foi o desenho nem o texto do pedido, era identidade nao caber em palavra."
     }
   ]
 }
