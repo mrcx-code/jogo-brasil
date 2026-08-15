@@ -110,7 +110,23 @@
     "sprite-cap3-pular",
     "cap4-fundo-alto-v2",
     "cap4-fundo-chao-v2",
-    "trav-mar"
+    "trav-mar",
+    "cap3-corrida",
+    "ctx-vao-cidade-africana",
+    "ctx-cap5-cais",
+    "ctx-cap5-coberto",
+    "ctx-cap6-serra",
+    "ctx-cap6-morro",
+    "ctx-cap7-praca",
+    "ctx-cap7-casa",
+    "ctx-cap8-patio",
+    "ctx-cap8-noturno",
+    "ctx-cap9-rua",
+    "ctx-cap9-banca",
+    "ctx-cap10-comicio",
+    "ctx-cap10-depois",
+    "cap-cais-fundo-alto",
+    "cap-cais-fundo-chao"
   ],
   "_quando": "Quando o nome entrou NESTE registro. A mesa compara esta data com a data do arquivo em assets/entrada: arquivo MAIS NOVO que a data aqui e uma RE-ENTREGA, e volta a aparecer como chegada. Sem isso, recolar uma imagem sobre uma ja processada sumia da tela. Datas anteriores a 09/08 foram lidas do historico do git deste arquivo.",
   "quando": {
@@ -213,6 +229,22 @@
     "q-p26": "2026-08-09 08:02",
     "cap4-fundo-alto-v2": "2026-08-14 12:00",
     "cap4-fundo-chao-v2": "2026-08-14 12:00",
-    "trav-mar": "2026-08-15 09:00"
+    "trav-mar": "2026-08-15 09:00",
+    "cap3-corrida": "2026-08-15 15:00",
+    "ctx-vao-cidade-africana": "2026-08-15 15:00",
+    "ctx-cap5-cais": "2026-08-15 15:00",
+    "ctx-cap5-coberto": "2026-08-15 15:00",
+    "ctx-cap6-serra": "2026-08-15 15:00",
+    "ctx-cap6-morro": "2026-08-15 15:00",
+    "ctx-cap7-praca": "2026-08-15 15:00",
+    "ctx-cap7-casa": "2026-08-15 15:00",
+    "ctx-cap8-patio": "2026-08-15 15:00",
+    "ctx-cap8-noturno": "2026-08-15 15:00",
+    "ctx-cap9-rua": "2026-08-15 15:00",
+    "ctx-cap9-banca": "2026-08-15 15:00",
+    "ctx-cap10-comicio": "2026-08-15 15:00",
+    "ctx-cap10-depois": "2026-08-15 15:00",
+    "cap-cais-fundo-alto": "2026-08-15 15:00",
+    "cap-cais-fundo-chao": "2026-08-15 15:00"
   }
 }

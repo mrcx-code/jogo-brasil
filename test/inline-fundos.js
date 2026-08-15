@@ -61,7 +61,12 @@ const DIR_ENTRADA = path.join(RAIZ, 'assets', 'entrada');        // ignorada —
 // quadro. Da 7 em diante são os capítulos que estavam vestindo a pintura de SALVADOR.
 const CAPS = [
   'cap1', 'cap1v', 'cap2', 'cap2v', 'cap4', 'cap3', 'cap3v',
-  'jabaquara', 'pequenaafrica', 'portas', 'naodito', 'temfonte'
+  'jabaquara', 'pequenaafrica', 'portas', 'naodito', 'temfonte',
+  // O CAIS entra no FIM (15/08), que e a unica posicao segura: mexer no meio reaponta a
+  // pintura de todo mundo em silencio. Ele vestia a de SALVADOR (`arte: [4]`) e isso era
+  // divida de §2 registrada — o texto dele diz "isto e o Rio de Janeiro" e a pintura mostrava
+  // outra cidade. Pintura afirma lugar.
+  'cais'
 ];
 // A PRAÇA e O QUE SEGUROU ficaram de fora de propósito: as peças de CHÃO que chegaram para as
 // duas não são chão (uma é uma rua de periferia inteira, com céu; a outra é a sala do arquivo).
