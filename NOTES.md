@@ -6951,3 +6951,77 @@ ninguém tenha decidido isso.
 ### Próximo passo
 
 A mesa dos sete rostos, que continua sendo o que destrava o dono.
+
+---
+
+## Diário — 2026-08-15 · Três defeitos que se escondiam atrás uns dos outros
+
+**Lente: Robustez, depois Medir.** O dono saiu e pediu para não parar. A fila dele era: teste
+instável → recortes → integrar arte.
+
+### 1. O teste que piscava: a hipótese herdada era falsa
+
+Ferramenta nova, `test/repro-obra.js`, que roda **só** o bloco do mutirão N vezes no mesmo
+navegador — dezenas de amostras no tempo de uma execução do smoke. Rodado sozinho, o bloco
+passou **16 de 16**, a cena nunca virou (3→3), fala e tela nunca abriram.
+
+E a aritmética fechou a porta da hipótese que estava no `PENDENTES.md` §13: ela dizia que o
+clique do gesto empurraria `energiaTotal` por cima de uma fronteira de cena. **Um golpe vale 1,0
+e faltam 300 para a fronteira.** Não dá, nem em cem gestos.
+
+**A causa real: o bloco é limpo; suja o que vem antes dele.** O preparo chamava `fecharTelas()` e
+`fecharTudo()` e não tocava em três coisas que bloqueiam `obraPodeArmar()` e sobrevivem a isso:
+
+- **`jumpT > 0`** — bloqueia armar e **não** para o mundo. É o par de sintomas *"built nothing:
+  0"* + *"she kept walking: 79px"*. Os blocos anteriores tocam a metade esquerda o tempo todo, e
+  a metade esquerda pula.
+- **`falaViva`** — bloqueia armar e **para** o mundo. É o outro sintoma, *"the street stopped: 1px"*.
+- **`travessiaViva`** — mesma família.
+
+**Eram dois vazamentos com sintomas opostos**, e é por isso que o par parecia falhar "ao
+contrário". Ler como um estado trocado não levava a lugar nenhum: eram duas causas distintas na
+mesma execução. **Medido: 9 de 9 verdes, contra ~50% antes.**
+
+### 2. A trava que faltava: recusa levantada não avisava ninguém
+
+`encaixe.js` bloco 31. Seis artes recusadas foram refeitas em 10/08 e **ficaram quatro dias
+paradas**, porque a regra que levanta uma recusa quando os bytes mudam levanta **em silêncio** —
+a peça troca de coluna numa página que só existe enquanto alguém roda `npm run mesa`.
+
+Na primeira execução ela pegou **cinco** peças esperando revisão. Fez o trabalho no minuto em que
+nasceu.
+
+### 3. O peso levou a um defeito de nitidez que ninguém tinha visto
+
+Ao embutir os três contextos novos em retrato, a porta de entrada saltou de **1.837 para 2.122
+KB por causa de uma imagem**. Fui atrás do peso e achei coisa maior.
+
+O `inline-contexto.js` reamostrava a imagem **inteira** para 780 px, e só na exibição o
+`object-fit: cover` recortava. Numa entrega deitada de 1942 px isso significa que a faixa
+realmente visível nascia de **780 × (374/1942) = 150 px reais, esticados por 780 px de tela**.
+
+Era essa a moleza das imagens de história — e ela nunca foi de qualidade de WebP; era resolução
+jogada fora no recorte. Agora o recorte vem **antes** da reamostragem e o alvo é a **tela**,
+igual para peça deitada ou retrato. **As 17 deitadas ganharam 2,5× de resolução real.**
+
+Peso: **2.122 → 1.958 KB** com as três novas dentro; +121 KB contra o começo do lote.
+
+### 4. A primeira folha de corrida que passa
+
+`cap3-corrida`, **quinta tentativa** — e a primeira em que a folha de **caminhada** foi junto como
+imagem de referência. Camiseta creme com a faixa tecida, bermuda, chinelo, pingente, bracelete: é
+a mesma pessoa de AINDA AQUI correndo, e o erro de §2.1 acabou. Confirma o diagnóstico de 14/08:
+o problema nunca foi o desenho nem o texto do pedido — **identidade não cabe em palavra.**
+
+### O que quebrou no caminho
+
+**Crases na mensagem de commit.** `object-fit: cover` entre crases virou substituição de comando
+no bash e a frase sumiu do registro publicado. Não reescrevi história já empurrada por isso; o
+conteúdo está inteiro no comentário do código. **Aspas simples ou nada de crase em mensagem de
+commit** — a mesma família do banner comido por regex.
+
+### Próximo passo
+
+Medir o ciclo de `cap3-corrida` (`test/ciclo-corrida.js`) e ligar `lacoCorrer`/`quadrosCorrer` do
+capítulo 3. Hoje os dois são zero e correr é a caminhada com a cadência dobrada — é a queixa do
+dono de 07/08, e pela primeira vez existe arte para respondê-la.
