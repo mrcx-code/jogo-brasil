@@ -1061,7 +1061,11 @@ function lintComentarios() {
       return { x: b.left + b.width * 0.75, y: b.top + b.height * 0.45 };   // metade DIREITA
     });
     const antes = await page.evaluate(() => ({ obra: S.obra.roca + S.obra.palicada + S.obra.casa,
-      total: S.energiaTotal, x: worldX }));
+      total: S.energiaTotal, x: worldX,
+      // ANTES do dedo encostar: se a tela ja estava aberta aqui, a causa e anterior ao gesto.
+      qualTela: TELAS.filter(function (t) { const e = document.getElementById(t);
+        return e && e.classList.contains('aberta'); }).join(',') || '(nenhuma)',
+      cant: canteiros.length }));
     await page.mouse.move(r.x, r.y);
     await page.mouse.down();
     // O primeiro meio segundo e a JANELA DE ARMAR (MUTIRAO_HOLD_MS = 300 ms): ali a rua anda
@@ -1074,6 +1078,12 @@ function lintComentarios() {
     const armado = await page.evaluate(() => ({
       x: worldX, pode: obraPodeArmar(), faixa: faixaViva(), cant: !!canteiroNaTela(),
       fala: falaAberta(), tela: telaAberta(), trav: travessiaAtiva(), pulo: jumpT > 0,
+      // QUAL tela, e nao so "uma tela": sem o nome, "tela" manda alguem procurar entre catorze.
+      qualTela: TELAS.filter(function (t) { const e = document.getElementById(t);
+        return e && e.classList.contains('aberta'); }).join(',') || '(nenhuma)',
+      // e onde esta o canteiro, para separar "sumiu" de "esta fora de quadro"
+      canteirosVivos: canteiros.length,
+      canteiroX: canteiros.length ? Math.round(canteiros[0].wx - worldX) : null,
       dedo: obraDedo > 0, trab: obraTrabalhando
     }));
     await new Promise(res => setTimeout(res, Math.max(0, seg * 1000 - 500)));
@@ -1086,7 +1096,10 @@ function lintComentarios() {
       andou: Math.round(meio.x - antes.x), andouDepoisDeArmar: Math.round(meio.x - armado.x),
       trabalhando: meio.trabalhando,
       // o porque, em uma palavra: qual clausula de `obraPodeArmar()` estava dizendo nao
-      travou: armado.pode ? '' : (porque.join('+') || 'nenhuma clausula — olhar obraDedo') };
+      travou: armado.pode ? '' : (porque.join('+') || 'nenhuma clausula — olhar obraDedo'),
+      detalhe: armado.pode ? '' : (' [ANTES tela=' + antes.qualTela + ' cant=' + antes.cant +
+        ' | AO ARMAR tela=' + armado.qualTela + ' canteiros=' + armado.canteirosVivos +
+        ' x=' + armado.canteiroX + ']') };
   }
   await page.evaluate(() => {
     fecharTelas(); fecharTudo();
@@ -1113,9 +1126,20 @@ function lintComentarios() {
     obraDedo = 0; obraTrabalhando = false;
     const c0 = cenarioDaEpoca(CAP_GENTE);
     S.cenario = c0; S.fronteira = Math.max(S.fronteira | 0, c0);
-    S.energiaTotal = LIMIAR_CENA * c0 + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.9;
+    // A FAIXA PELO CAPITULO FECHADO, NAO POR UMA FRACAO DO VAO (15/08, segunda passada).
+    // Semear "a 90% do vao" deixa a cena a 300 pontos de virar, e o laco de quadro continua
+    // rodando durante o preparo inteiro: uma folha apanhada no ar, um drop que renasce, e a
+    // virada dispara no meio da medida. Quando ela dispara abre CERIMONIA, e tela aberta faz
+    // `obraPodeArmar()` dizer nao — que e exatamente o que o diagnostico novo imprimiu quando
+    // isto falhou: `cant+tela`.
+    // `faixaViva()` devolve verdadeiro PARA SEMPRE num capitulo ja fechado. O `encaixe.js`
+    // bloco 27 ja tinha chegado nesta mesma conclusao e deixou escrito o porque; a primeira
+    // passada de hoje consertou os vazamentos de estado (jumpT, falaViva) e nao este, entao o
+    // teste caiu de ~50% de falha para raro em vez de zero. Raro e pior: passa a ser ignorado.
+    S.fechos = (S.fechos | 0) | (1 << CAP_GENTE);
+    S.energiaTotal = LIMIAR_CENA * c0 + LIMIAR_CENA * EPOCAS[CAP_GENTE].cenas * 0.5;
     S.energia = 1e6; S.u3 = false; S.u4 = false;
-    S.aberturas = MASCARA_EPOCAS; S.fechos = 0; S.marcos = MASCARA_MARCOS;
+    S.aberturas = MASCARA_EPOCAS; S.marcos = MASCARA_MARCOS;
     S.acolhidos = EPOCAS.map(() => 0); S.acolhidos[CAP_GENTE] = 20;
     S.recursos = { flor: 200, agua: 200, refeicao: 200 };
     S.obra = { roca: 0, palicada: 0, casa: 0 };
@@ -1131,6 +1155,10 @@ function lintComentarios() {
   // e teste que se aprende a ignorar.
   // Posto agora, EXATAMENTE onde ela esta, o gesto comeca dentro do canteiro.
   await page.evaluate(() => {
+    // e a ultima palavra antes do gesto: qualquer tela que tenha nascido nos 300 ms de espera
+    // morre aqui. Tela aberta e uma das clausulas de `obraPodeArmar()`, e a espera e justamente
+    // onde ela aparecia.
+    fecharTelas(); fecharTudo(); pararFala();
     canteiros.length = 0;
     canteiros.push({ tipo: 'roca', wx: worldX + HX });
   });
@@ -1139,12 +1167,12 @@ function lintComentarios() {
   console.log('holding the world in the faixa ->', JSON.stringify(naFaixa),
     '| one swing is worth', umGolpe.toFixed(2));
   if (naFaixa.pontos < 2) errors.push('holding the world in the faixa built nothing: ' + naFaixa.pontos +
-    (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou : ' — obraPodeArmar() estava true'));
+    (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou + naFaixa.detalhe : ' — obraPodeArmar() estava true'));
   if (naFaixa.ganho > umGolpe * 2)
     errors.push('holding the world in the faixa turned into a volley of swings: +' + naFaixa.ganho);
   if (Math.abs(naFaixa.andouDepoisDeArmar) > 4)
     errors.push('she kept walking while working the obra: ' + naFaixa.andouDepoisDeArmar + 'px' +
-      (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou : ''));
+      (naFaixa.travou ? ' — obraPodeArmar() disse nao por: ' + naFaixa.travou + naFaixa.detalhe : ''));
 
   // ...e FORA da faixa nada disso existe: a rua anda como sempre andou
   await page.evaluate(() => {

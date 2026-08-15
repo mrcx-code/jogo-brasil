@@ -541,6 +541,20 @@
     transition: opacity .3s ease, visibility 0s linear .3s; }
   .tela.aberta { opacity: 1; visibility: visible; pointer-events: auto;
     transition: opacity .3s ease; }
+  /* ===== A TELA FECHADA NÃO PODE SER TOCADA, E O `none` DE CIMA NÃO BASTAVA (15/08) =====
+     `pointer-events: none` no pai NÃO desliga o filho que pede `auto` — e `.telaBtn` pede. Some-se
+     a isso que a `visibility: hidden` só entra depois de 300 ms (é o `transition: visibility 0s
+     linear .3s` logo acima, que existe para o desvanecer ser visto), e o resultado é uma janela
+     de 300 ms depois de FECHAR qualquer tela em que as tábuas dela ainda recebem o dedo, por
+     cima do jogo, invisíveis.
+     Não é teoria: é a causa do bloco do mutirão falhar por sorteio há três dias. O teste toca a
+     75% da largura — exatamente onde fica o JOGAR — logo depois de `fecharTelas()`, e o
+     `pointerdown` do JOGAR abria a tela de capítulos no meio do gesto. O diagnóstico só apareceu
+     quando a asserção passou a imprimir QUAL tela (`tela=telaCapitulos`).
+     E é defeito de jogo, não de teste: quem fecha o menu e toca na rua no terço de segundo
+     seguinte dispara o botão que estava ali. O `*` é de propósito — quem quiser ser tocável
+     numa tela fechada tem de dizer isso depois desta regra, e ninguém quer. */
+  .tela:not(.aberta), .tela:not(.aberta) * { pointer-events: none !important; }
   /* o chrome desliza para fora quando uma tela assume, e volta quando o jogo retoma */
   #hudTop, #controls { transition: transform .34s ease, opacity .3s ease; }
   body.emTela #hudTop { transform: translateY(-115%); opacity: 0; pointer-events: none; }
