@@ -239,14 +239,15 @@ function montarFila() {
     // mas quem gera fora precisa saber qual é — é a chave que liga tudo.
     cx.appendChild(el("div", "ref", "→ " + p.arquivoEsperado + "  ·  " + (p.onde || "")));
     cx.appendChild(el("div", "ref", (p.referencia || "") + (p.tamanho ? " · " + p.tamanho : "")));
-    // POR QUE VOLTOU A FALTAR. Sem esta linha, um pedido que reaparece depois de entregue
-    // lê como bug da mesa, e ele gera de novo a mesma coisa que foi recusada.
-    if (p.recusa) {
-      const r = el("div", "rmItem");
-      r.appendChild(el("div", "rmT", "Voltou a faltar — a entrega anterior foi recusada"));
-      r.appendChild(el("div", "rmN", p.recusa.porque));
-      cx.appendChild(r);
-    }
+    // O MOTIVO DA RECUSA SAIU DAQUI (15/08), e é a segunda vez que o dono pede: a mesa é onde
+    // ele GERA, e ali o texto de recusa é parede. Ele chega a três parágrafos, empurra o botão
+    // COPIAR PROMPT para fora da tela e gasta a atenção no problema que já acabou.
+    // O motivo continua existindo inteiro em `recusadas.json`, que é o registro — e é de lá que
+    // o `encaixe.js` bloco 31 cobra que ninguém deixe uma peça refeita esperando em silêncio.
+    // O que fica no cartão é uma linha: que ela VOLTOU, para o pedido reaparecido não ler como
+    // defeito da mesa. O porquê já está dentro do prompt, escrito como instrução do que fazer —
+    // que é a forma que serve a quem vai gerar.
+    if (p.recusa) cx.appendChild(el("div", "ref", "↺ pedido refeito"));
     if (p.prompt) {
       // COPIAR EM UM TOQUE é a ação principal; o texto fica dobrado atrás dela.
       const bc = el("button", "secundario", "COPIAR PROMPT");
