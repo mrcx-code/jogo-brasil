@@ -166,6 +166,10 @@
          pergunta de quem acabou de abrir o jogo. -->
     <button class="telaBtn sec oculto" id="btnLugar">O LUGAR</button>
     <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
+    <!-- ONDE FOI. Logo depois de A HISTÓRIA porque é a mesma pergunta noutro eixo: aquela conta
+         QUANDO, esta conta ONDE. Não nasce oculta nem trancada — o mapa é legível vazio, e
+         vazio ele diz uma coisa verdadeira: o país é grande e o jogo ainda cobre seis pontos. -->
+    <button class="telaBtn sec" id="btnMapa">ONDE FOI</button>
     <button class="telaBtn sec oculto" id="btnFim">ATÉ AQUI</button>
     <!-- GLOSSÁRIO entra AQUI, entre a história e a procedência, porque é o que há entre as
          duas: A HISTÓRIA conta, o GLOSSÁRIO explica a palavra, DE ONDE VEM prova. A quinta
@@ -311,6 +315,19 @@
   </div>
   <button class="telaBtn" id="btnObraIr">IR ATÉ LÁ</button>
   <button class="telaBtn sec" id="btnVoltarObra">VOLTAR</button>
+</div>
+
+<!-- O MAPA. Pedido do dono em 2026-08-15: "seria legal ter um mapa interativo do Brasil para
+     ver dados de cada estado". A forma foi decidida por ele no mesmo dia: mapa de PINOS,
+     estilizado, sem fronteiras de estado — porque desenhar 27 fronteiras de memória é inventar
+     geografia, e fronteira de palpite num jogo sobre história do Brasil é pior que não ter mapa.
+     O contorno é desenhado em canvas, na mesma linguagem do resto: pixel, madeira e papel. -->
+<div class="tela" id="telaMapa">
+  <div class="telaTit">ONDE FOI</div>
+  <canvas id="mapaCv" aria-label="Mapa do Brasil com os lugares dos capítulos"></canvas>
+  <div id="mapaFicha"></div>
+  <div id="mapaRodape"></div>
+  <button class="telaBtn sec" id="btnVoltarMapa">VOLTAR</button>
 </div>
 
 <!-- FONTES: o §2 virando interface. Se alguém inventar um fato, esta tela fica vazia. -->

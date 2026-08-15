@@ -126,7 +126,8 @@
     "ctx-cap10-comicio",
     "ctx-cap10-depois",
     "cap-cais-fundo-alto",
-    "cap-cais-fundo-chao"
+    "cap-cais-fundo-chao",
+    "q-p22"
   ],
   "_quando": "Quando o nome entrou NESTE registro. A mesa compara esta data com a data do arquivo em assets/entrada: arquivo MAIS NOVO que a data aqui e uma RE-ENTREGA, e volta a aparecer como chegada. Sem isso, recolar uma imagem sobre uma ja processada sumia da tela. Datas anteriores a 09/08 foram lidas do historico do git deste arquivo.",
   "quando": {
@@ -165,10 +166,10 @@
     "cap4-itens": "2026-08-07 16:34",
     "cap4-retrato": "2026-08-07 16:34",
     "cap4-sprite": "2026-08-07 16:34",
-    "ctx-cap1-mata": "2026-08-07 16:34",
+    "ctx-cap1-mata": "2026-08-15 18:00",
     "ctx-cap1-rocado": "2026-08-15 09:00",
     "ctx-cap2-roca": "2026-08-15 09:00",
-    "ctx-cap2-serra": "2026-08-07 16:34",
+    "ctx-cap2-serra": "2026-08-15 18:00",
     "ctx-cap3-demarcada": "2026-08-07 16:34",
     "ctx-cap3-disputa": "2026-08-07 16:34",
     "drop-broto": "2026-08-07 16:34",
@@ -245,6 +246,7 @@
     "ctx-cap10-comicio": "2026-08-15 15:00",
     "ctx-cap10-depois": "2026-08-15 15:00",
     "cap-cais-fundo-alto": "2026-08-15 15:00",
-    "cap-cais-fundo-chao": "2026-08-15 15:00"
+    "cap-cais-fundo-chao": "2026-08-15 15:00",
+    "q-p22": "2026-08-15 18:00"
   }
 }

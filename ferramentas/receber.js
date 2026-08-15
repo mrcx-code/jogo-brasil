@@ -304,6 +304,18 @@ function repetidosNoManifesto(nec) {
 // folhas de corrida recusadas por §2 e para o refazer da p19, que continuavam sendo
 // trabalho do dono. Entregue não é aceito, e aceito não é integrado: agora são três
 // estados, cruzados por DATA e por registro explícito, nunca por "o arquivo existe".
+// O anexo de um pedido, deduzido do texto dele. Mesma regra do ferramentas/copiar.js: se o
+// prompt manda anexar referencia, a folha de CAMINHADA daquele capitulo e o anexo.
+function anexoDe(nome, prompt) {
+  if (!/IMAGEM ANEXA|ANEXE A IMAGEM|imagem de referencia|imagem de refer\u00eancia/i.test(prompt)) return null;
+  const cap = (nome.match(/^cap(\d+)/) || [])[1];
+  if (!cap) return null;
+  const cands = ['sprite-cap' + cap + '-andar-v2.png', 'sprite-cap' + cap + '-andar.png'];
+  for (let k = 0; k < cands.length; k++) {
+    if (fs.existsSync(path.join(ENTRADA, cands[k]))) return cands[k];
+  }
+  return null;
+}
 function estadoDaFila() {
   const nec = lerJson('necessario.json', { itens: [] });
   const proc = lerJson('processadas.json', { itens: [], quando: {} });
@@ -362,7 +374,10 @@ function estadoDaFila() {
       reentrega: reentrega,
       ordem: o.ordem,
       onde: o.onde,
-      prompt: (nec._estilo || '') + "\n\n" + i.p + (i.semMagenta ? "" : (nec._magenta || ''))
+      prompt: (nec._estilo || '') + "\n\n" + i.p + (i.semMagenta ? "" : (nec._magenta || '')),
+      // QUAL IMAGEM VAI JUNTO. Sai do proprio prompt — se ele pede referencia, a folha de
+      // caminhada daquele capitulo e o anexo. Sem lista a mao, sem chance de desencontrar.
+      anexo: anexoDe(i.nome, i.p || '')
     };
   }).sort(function (a, b) { return a.ordem - b.ordem || (a.nome < b.nome ? -1 : 1); });
 
@@ -405,6 +420,26 @@ const servidor = http.createServer(function (req, res) {
   // quem tem o disco. Antes a página lia /pedidos (um arquivo escrito à mão pelo REVISAR) e
   // /recebidas (nomes crus), e remontava o estado no navegador — três fontes para uma
   // verdade, e a verdade ficou perdida entre elas.
+  // O ANEXO, SERVIDO (15/08). Pedido do dono: *"sempre que pedir pra gerar baseado em outra
+  // imagem ou dizendo que tem algo anexado, me mostre a imagem tambem para eu enviar junto do
+  // prompt"*. Antes disso a mesa DIZIA "anexe a folha de caminhada" e nao tinha como mostra-la —
+  // ele teria de sair da mesa, achar o arquivo em assets/entrada e voltar. Pedido que manda
+  // anexar sem entregar o anexo e pedido pela metade.
+  // So serve de assets/entrada, e so PNG: a mesa e local, mas caminho vindo de URL sem cerca
+  // vira leitura de disco inteiro no dia em que alguem a expuser.
+  if (req.method === 'GET' && url.indexOf('/anexo/') === 0) {
+    const nome = path.basename(decodeURIComponent(url.slice(7)));
+    if (!/^[\w.-]+\.png$/i.test(nome)) { res.writeHead(400).end('nome invalido'); return; }
+    const arq = path.join(ENTRADA, nome);
+    if (!arq.startsWith(ENTRADA)) { res.writeHead(400).end('fora da pasta'); return; }
+    fs.readFile(arq, function (e, buf) {
+      if (e) { res.writeHead(404).end('sem anexo'); return; }
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+      res.end(buf);
+    });
+    return;
+  }
+
   if (req.method === 'GET' && url === '/fila') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(estadoDaFila()));

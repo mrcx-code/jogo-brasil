@@ -65,7 +65,14 @@
        só aparece com `R.chegou` e O LUGAR com `lugarExiste()`. Deu tudo verde, e o `encaixe.js`,
        que roda com a partida destravada, achava 19 px de rolagem em 390×844. Medir o caso fácil
        é pior que não medir: dá licença por escrito para o caso difícil quebrar. As retas abaixo
-       fecham com SETE, e com cinco sobra folga — que é o lado certo de errar. */
+       fecham com SETE, e com cinco sobra folga — que é o lado certo de errar.
+
+       REVISTO EM 15/08 PARA OITO: a tábua ONDE FOI entrou no poste e a escada de sete deixou de
+       fechar — 9 px de rolagem em 390×640, 20 em 700, 24 em 720. Oito tábuas de dedo são 352 px
+       de altura antes de qualquer respiro, e é o respiro que cede: vão 4→3 no piso e 10→8 no
+       teto, recheio 11→10 e 14→12. O piso de 44 px continua intocado, que é a única linha que
+       não se negocia aqui. A conta de quem cresce o poste é sempre esta — e a nona tábua vai
+       precisar de outra conversa, porque o respiro já está perto do osso. */
     --mTopo:      clamp(4px, calc(21.31vh - 117.05px), max(7vh, 34px)); /*  4 → 56  respiro do topo */
     /* O LOGO DESCE MAIS FUNDO QUE AS OUTRAS, e o teto de cima é o VALOR ANTIGO de propósito:
        `clamp` com uma reta no meio e a curva velha como limite superior faz o piso baixar de
@@ -76,10 +83,10 @@
        para a oitava tábua não recomeçar esta conversa. */
     --mLogoAlt:   clamp(120px, calc(36.89vh - 89.5px), calc(24.6vh + 10.2px));
     --mLogoBaixo: clamp(2px, calc(2.46vh - 11.97px), 8px);              /*  2 → 8   logo → frase */
-    --mVao:       clamp(4px, calc(2.46vh - 9.97px), 10px);              /*  4 → 10  entre tábuas */
+    --mVao:       clamp(3px, calc(2.05vh - 8.64px), 8px);               /*  3 → 8   entre tábuas */
     --mPosteTopo: clamp(8px, calc(4.1vh - 15.3px), 18px);               /*  8 → 18  ombro do poste */
     --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 48px);            /*  4 → 48  pé do poste */
-    --mTabua:     clamp(11px, calc(1.23vh + 4.02px), 14px);             /* 11 → 14  recheio da tábua */
+    --mTabua:     clamp(10px, calc(0.82vh + 5.35px), 12px);             /* 10 → 12  recheio da tábua */
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -2362,3 +2369,30 @@
   /* ferramentas de teste fora da loja de produção (usabilidade, achado 4) — o smoke test
      continua acionando os botões por .click(), que display:none não bloqueia */
   .upgrade.oculta { display: none; }
+
+  /* ===== O MAPA — "ONDE FOI" ===== o país como índice do que se leu.
+     O canvas é quadrado por construção (o Brasil cabe num quadrado quase perfeito: 39,0° de
+     latitude por 39,2° de longitude), então `aspect-ratio: 1` evita esticar o país para caber
+     numa caixa de outra forma — que é o jeito mais fácil de um mapa mentir sem número nenhum. */
+  #telaMapa { justify-content: flex-start; padding-top: var(--mTopo); gap: 10px;
+    overflow-y: auto; overscroll-behavior: contain; }
+  #mapaCv { width: min(86vw, 380px); aspect-ratio: 1; flex: 0 0 auto;
+    background: rgba(24,18,10,.45); border-radius: 4px;
+    box-shadow: inset 0 0 0 2px #241605, 0 3px 0 #120c06;
+    touch-action: manipulation; }
+  #mapaFicha { width: min(86vw, 380px); min-height: 66px; box-sizing: border-box;
+    background: var(--pauta), #e8dcc0; border-radius: 3px; padding: 8px 12px; text-align: left;
+    box-shadow: inset 0 0 0 2px #8a6236, 0 3px 0 #120c06; }
+  .mpNome { font: var(--verbete); color: #33240f; letter-spacing: .04em; }
+  .mpDica { font: var(--verbete); color: #6b4f2a; }
+  .mpOnde { font: var(--corpoSm); color: var(--tintaP); margin-top: 3px; }
+  .mpQuando { font: var(--fonte); color: #6b4f2a; margin-top: 4px; }
+  .mpConta { font: var(--fonte); color: #6b4f2a; margin-top: 4px; }
+  #mapaRodape { width: min(86vw, 380px); text-align: left; }
+  .mpCenso { background: var(--pauta), #e8dcc0; border-radius: 3px; padding: 6px 10px;
+    box-shadow: inset 0 0 0 2px #8a6236, 0 3px 0 #120c06; }
+  .mpLin { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    padding: 2px 0; }
+  .mpR { font: var(--fonte); color: var(--tintaP); }
+  .mpV { font: var(--verbete); color: #33240f; }
+  .mpFonte { font: var(--fonte); color: #cbb488; margin-top: 6px; line-height: 1.4; }
