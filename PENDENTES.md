@@ -501,3 +501,21 @@ portas. Os dois preparos passaram a chamar `pararFala()` e a zerar `jumpT`, `att
 jogo inteiro — que foi o que custou duas sessões.
 
 **Medido depois:** 5 de 5 verdes de imediato, contra ~50% antes.
+
+---
+
+## 14. Duas coisas ficaram pela metade em 15/08
+
+**(a) Print da corrida nova.** Liguei a folha de corrida do bloco de arte 3 e medi tudo o que
+importa (passada, ciclo, velocidade, renda), mas **não consegui uma foto limpa dela correndo**.
+Todo caminho de entrar num capítulo pelo estado abre alguma tela: entrar em AINDA AQUI dispara a
+CHEGADA (é o último capítulo, e é por projeto), e entrar em O QUE SEGUROU abre a fala de fecho do
+capítulo anterior. Insistir custou seis tentativas e parei.
+O que falta é um jeito de instrumentação de "me põe na rua deste capítulo, sem tela nenhuma" —
+provavelmente uma função de teste que sele `aberturas`, `fechos` e a fala de uma vez. Vale porque
+**toda** medição visual futura vai precisar disso, não só esta.
+
+**(b) O `encaixe.js` falhou uma vez e não reproduz.** Uma execução deu `FALHOU em 1 asserção` e as
+quatro seguintes passaram; não capturei qual bloco. Fica registrado para não virar "eu acho que vi
+uma falha" daqui a uma semana. Se voltar, o caminho é o mesmo que resolveu o bloco do mutirão:
+fazer a asserção imprimir a causa em vez de só o resultado.
