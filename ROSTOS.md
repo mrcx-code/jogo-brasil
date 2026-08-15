@@ -19,7 +19,7 @@ SALVADOR e AINDA AQUI — e os nove abaixo não têm nenhuma.
 
 ---
 
-## 1 · O CAIS QUE VOLTOU À LUZ · Rio de Janeiro
+## 1 · O CAIS QUE VOLTOU À LUZ · Rio de Janeiro  ✅ APROVADO em 15/08
 
 **Quem:** uma mulher negra carioca, hoje, que trabalha no circuito histórico da região portuária.
 **De onde:** da própria Saúde/Gamboa — mora onde trabalha, que é o ponto.
@@ -31,7 +31,7 @@ SALVADOR e AINDA AQUI — e os nove abaixo não têm nenhuma.
 
 ---
 
-## 2 · JABAQUARA · Santos, anos 1880
+## 2 · JABAQUARA · Santos, anos 1880  ✅ APROVADO em 15/08
 
 **Quem:** um homem que abandonou uma fazenda de café do interior e desceu a serra a pé.
 **De onde:** do Vale do Paraíba, a pé pela estrada que margeia a linha férrea.
@@ -43,7 +43,7 @@ próximo. O quilombo do morro do Jabaquara existe no texto e é para onde ele le
 
 ---
 
-## 3 · A PEQUENA ÁFRICA · Rio, começo do século XX
+## 3 · A PEQUENA ÁFRICA · Rio, começo do século XX  ✅ APROVADO em 15/08
 
 **Quem:** uma jovem baiana recém-chegada na diáspora baiana, que trabalha na casa de Tia Ciata.
 **De onde:** do Recôncavo, como Hilária Batista de Almeida.
@@ -123,7 +123,12 @@ segunda decisão do mesmo check foi **retratos antes de caminhadas**: o retrato 
 que alguém fala, que é onde o capítulo ensina, e uma imagem parada é muito mais barata de acertar
 que oito quadros — as folhas de corrida levaram cinco tentativas por causa de identidade.
 
-**Sete esperando:** 1 · 2 · 3 · 4 · 5 · 6 · 9.
+**CINCO APROVADOS**, e os cinco já têm pedido de retrato escrito: 1 (O CAIS), 2 (JABAQUARA),
+3 (A PEQUENA ÁFRICA), 7 (O QUE SEGUROU), 8 (O ACEIRO).
+
+**Quatro esperando:** 4 (AS PORTAS) · 5 (O QUE NÃO PODIA SER DITO) · 6 (A PRAÇA) · 9 (O QUE TEM
+FONTE). O dono pediu para receber **três por check, na forma clicável** — nove fichas de uma vez
+era o atrito, e ele nomeou isso. As três primeiras foram decididas em segundos assim.
 
 ---
 
