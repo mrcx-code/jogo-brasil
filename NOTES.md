@@ -7025,3 +7025,38 @@ commit** — a mesma família do banner comido por regex.
 Medir o ciclo de `cap3-corrida` (`test/ciclo-corrida.js`) e ligar `lacoCorrer`/`quadrosCorrer` do
 capítulo 3. Hoje os dois são zero e correr é a caminhada com a cadência dobrada — é a queixa do
 dono de 07/08, e pela primeira vez existe arte para respondê-la.
+
+---
+
+## Diário — 2026-08-15/16 · O dia em que a fila zerou
+
+**Lente: nenhuma — o dia foi guiado pelo dono, em tempo real.** Treze entregas de arte dele,
+sete decisões de check, três pedidos diretos (mapa, telas feias, mesa com anexo).
+
+### O que entrou
+
+O MAPA (ONDE FOI): pinos com lat/lon reais sobre contorno estilizado, honestidade escrita na
+tela, Censo só nacional, Rio agrupado num pino de dois capítulos. · AS TRÊS CORRIDAS aprovadas e
+ligadas (sexta tentativa da 1ª — a primeira com a folha de caminhada ANEXADA; ciclos medidos,
+renda no contrato). · OS NOVE ROSTOS decididos e os NOVE RETRATOS aprovados (quase todos de
+primeira: pedido detalhado com travas escritas passa; descrição sem referência levou seis
+voltas). · CONFIGURAÇÕES com DE ONDE VEM dentro (poste volta a 7). · Coluna única em toda tela.
+· Papel de ler à esquerda. · Mesa mostra o anexo e esconde a parede de recusa. · O CAIS com
+pintura própria. · Dois flakes mortos por leitura (beforeunload regravava o save; telaCapitulos
+recebia toque fechada).
+
+### O que fica para a próxima sessão, NA ORDEM DO DONO
+
+1. **RETRATOS NO MOTOR** — meio corpo como SALVADOR, nos 13. Hoje `RETRATO_B64` indexa por
+   bloco de arte (4 entradas); precisa indexar por capítulo. As 9 imagens estão em
+   `assets/entrada/cap-*-retrato.png`, aprovadas, esperando o pipeline (recortar não precisa:
+   são peça única; desfranjar magenta e embutir).
+2. Slides da história: imagem em todo slide + o rosto novo falando (pedido do dono).
+3. Mapa vira a lista de eras. 4. O QUE SEGUROU com fonte. 5. As 3 perguntas na CHEGADA.
+
+**E o dono vai JOGAR esta semana** — do zero ao fim, anotando onde trava. Primeira pessoa real.
+
+### A regra nova do check, terceira correção
+
+TODO check leva a forma clicável — SEMPRE, mesmo sem decisão óbvia. Está na memória e já
+custou três correções dele.
