@@ -1164,7 +1164,18 @@ function concluirAlcance(m: Mob, sx: number, auto?: boolean) {
 }
 const CONVERSA_SEG = 1.6;
 let CAP_PALAVRA = 2;                       // Salvador, véspera de 1835. Ver a nota em CAP_GENTE.
-function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
+// A CONVERSA VIROU FAMÍLIA (16/08, os três verbos aprovados pelo dono no check): o mesmo
+// gesto — um toque abre, e o tempo só corre ANDANDO — serve a quatro capítulos com quatro
+// sentidos. Em SALVADOR a palavra passa; em AS PORTAS ela é LIDA em voz alta; n'A PRAÇA a
+// caneta é oferecida e a assinatura sai andando JUNTO; em O QUE NÃO PODIA SER DITO o
+// impresso passa adiante — e ali correr nem ABRE a entrega: a discrição é o próprio ritmo,
+// porque nada na rua pode parecer proibido. Nenhum número novo de economia: é o motor de
+// SALVADOR, já medido (1 toque/pessoa; alternar +120%), com outra palavra em cada rua.
+let CAPS_VERBO: number[] = [];
+CAPS_VERBO = [];                            // preenchido junto de CAP_PALAVRA, por id
+function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
+// correr fecha a MÃO em NAODITO: o toque só abre a entrega andando (aprovado: "discrição é andar")
+function verboExigeAndarNoToque() { return EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id === "naodito"; }
 // Os dois capítulos em que quem atravessa a rua é GENTE. Toda decisão de gramática — pisca,
 // estilhaço, empurrão, barra de vida, anel que enche — lê ESTA função, e não `capGente()`,
 // para que o §2 valha nos dois sem ninguém precisar lembrar de dois lugares.
@@ -1377,7 +1388,9 @@ function clicar(auto?, naoConta?, semAnim?) {
     // Agora o primeiro toque ABRE a conversa e é o único que a mão dá. O resto é tempo, e o
     // tempo só corre ANDANDO (ver `atualizarMobs`): conversa não se faz correndo.
     if (capPalavra()) {
-      if (!m.conversa) { m.conversa = 1e-6; luzMorna(sx, 2); if (!auto) somAtendida(); }
+      // NAODITO: o toque correndo não abre — quem corre chama atenção, e a pessoa segue reto.
+      if (verboExigeAndarNoToque() && S.modo === "carvao") { /* nada: a rua continua comum */ }
+      else if (!m.conversa) { m.conversa = 1e-6; luzMorna(sx, 2); if (!auto) somAtendida(); }
       return;
     }
     // ===== CAPÍTULO 2: UM TOQUE ACOLHE. NENHUM TOQUE TIRA NADA DE NINGUÉM. =====
@@ -2419,6 +2432,7 @@ const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 // como `let` justamente para isto).
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
 const EPOCA_CENA0: number[] = [];      // primeira cena de cada época (soma-prefixo de `cenas`)
 let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });

@@ -3297,7 +3297,10 @@ function concluirAlcance(m, sx, auto) {
 }
 const CONVERSA_SEG = 1.6;
 let CAP_PALAVRA = 2;
-function capPalavra() { return epocaAtual() === CAP_PALAVRA; }
+let CAPS_VERBO = [];
+CAPS_VERBO = [];
+function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
+function verboExigeAndarNoToque() { return EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id === "naodito"; }
 function pessoaNaRua() { return capGente() || capPalavra(); }
 function fracAlcance(m) {
     if (capGente())
@@ -3430,7 +3433,8 @@ function clicar(auto, naoConta, semAnim) {
         const m = alvo, sx = alvoSx;
         const gente = capGente(), pessoa = pessoaNaRua();
         if (capPalavra()) {
-            if (!m.conversa) {
+            if (verboExigeAndarNoToque() && S.modo === "carvao") { }
+            else if (!m.conversa) {
                 m.conversa = 1e-6;
                 luzMorna(sx, 2);
                 if (!auto)
@@ -4000,6 +4004,7 @@ function blocoArte(e) {
 const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
 const EPOCA_CENA0 = [];
 let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
