@@ -7060,3 +7060,7 @@ recebia toque fechada).
 
 TODO check leva a forma clicável — SEMPRE, mesmo sem decisão óbvia. Está na memória e já
 custou três correções dele.
+
+**Duas decisões do check de 16/08:** os 9 retratos viajam NOS PACOTES por capítulo (porta de
+entrada não cresce um byte; sem pacote, fala sem retrato como sempre foi) · e o dono joga a
+semana SEM instrumentação extra — anota de cabeça, que é o teste honesto.
