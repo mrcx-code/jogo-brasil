@@ -519,3 +519,26 @@ provavelmente uma função de teste que sele `aberturas`, `fechos` e a fala de u
 quatro seguintes passaram; não capturei qual bloco. Fica registrado para não virar "eu acho que vi
 uma falha" daqui a uma semana. Se voltar, o caminho é o mesmo que resolveu o bloco do mutirão:
 fazer a asserção imprimir a causa em vez de só o resultado.
+
+---
+
+## 15. O mapa como lista de eras esbarra no §2.1, e a saída é decisão de projeto (16/08)
+
+Aprovado no check de 15/08: "o mapa vira a lista de eras". Ao começar, o bloqueio: **PINDORAMA
+e AINDA AQUI não têm pino DE PROPÓSITO** — os dois falam de povos em muitos territórios, e
+fincar um pino num deles diria que a história é de um lugar só (foi decisão registrada no
+próprio mapa, e é §2.1). Um mapa que SUBSTITUI a lista não tem como alcançar os dois primeiros
+e o último capítulo do arco.
+
+Saídas possíveis, para o próximo check (com a minha recomendação):
+
+- **(a) ⭐ O mapa entra na tela de eras, não no lugar dela**: a lista continua sendo a escolha,
+  e o mapa vira o corpo visual dela — os capítulos com lugar aparecem como pinos, e PINDORAMA /
+  AINDA AQUI como faixas que atravessam o país inteiro (que é literalmente o que eles dizem).
+  Custa mais desenho e é o único que representa os dois sem mentir.
+- **(b) Mapa + prateleira**: o mapa em cima, e abaixo dele uma fileira de tábuas para os
+  capítulos sem lugar único. Barato, mas cria duas classes de capítulo na mesma tela.
+- **(c) Fica como está**: mapa é índice (ONDE FOI), lista é escolha. Zero trabalho, e as duas
+  telas seguem contando histórias diferentes.
+
+Não comecei a construir para não meio-fazer uma decisão de representação.
