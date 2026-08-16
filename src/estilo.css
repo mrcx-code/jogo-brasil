@@ -2434,3 +2434,8 @@
      linha curta ancorava à esquerda da comprida e o letreiro saía capenga. */
   #cerNome > div { display: flex; justify-content: center; }
   #cerNome > div + div { margin-top: 4px; }
+
+  /* O país acima da lista de eras: baixo o bastante para as tábuas continuarem mandando. */
+  /* 170 de altura: o país desenha no QUADRADO central (o código recusa esmagar a silhueta),
+     então a altura é quem manda no tamanho dele — 170 lê bem e deixa as sete tábuas em pé. */
+  #erasMapa { width: min(80vw, 340px); height: 170px; flex: 0 0 auto; margin-bottom: 6px; }

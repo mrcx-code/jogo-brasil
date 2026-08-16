@@ -2490,6 +2490,11 @@
      linha curta ancorava à esquerda da comprida e o letreiro saía capenga. */
   #cerNome > div { display: flex; justify-content: center; }
   #cerNome > div + div { margin-top: 4px; }
+
+  /* O país acima da lista de eras: baixo o bastante para as tábuas continuarem mandando. */
+  /* 170 de altura: o país desenha no QUADRADO central (o código recusa esmagar a silhueta),
+     então a altura é quem manda no tamanho dele — 170 lê bem e deixa as sete tábuas em pé. */
+  #erasMapa { width: min(80vw, 340px); height: 170px; flex: 0 0 auto; margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -2632,6 +2637,11 @@
      que daqui se veja o que ja se abriu e o que falta — a lista de eras E o mapa do jogo. -->
 <div class="tela" id="telaCapitulos">
   <div class="telaTit">ESCOLHA A ERA</div>
+  <!-- O PAÍS ACIMA DA LISTA (16/08, decisão do dono): a lista continua sendo a escolha; o mapa
+       é o corpo visual dela. Capítulos com lugar são pinos; PINDORAMA e AINDA AQUI são FAIXAS
+       atravessando o país inteiro — porque é isso que os dois dizem (§2.1: fincar um pino
+       diria que a história deles é de um lugar só). -->
+  <canvas id="erasMapa" aria-hidden="true"></canvas>
   <div id="listaCapitulos"></div>
   <button class="telaBtn sec" id="btnVoltarCap">VOLTAR</button>
 </div>
@@ -8888,7 +8898,97 @@ const MOMENTOS = [
         d: "O Censo 2022 conta 391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória de sua terra assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
         f: "IBGE · Censo 2022 · Enciclopédia Povos Indígenas no Brasil" }
 ];
+function desenharMapaEras() {
+    const cv = document.getElementById("erasMapa");
+    if (!cv || !cv.clientWidth)
+        return;
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    cv.width = Math.round(cv.clientWidth * dpr);
+    cv.height = Math.round(cv.clientHeight * dpr);
+    const g = cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, cv.clientWidth, cv.clientHeight);
+    const m = 8;
+    const lado = Math.min(cv.clientWidth, cv.clientHeight) - m * 2;
+    const ox = (cv.clientWidth - lado) / 2, oy = (cv.clientHeight - lado) / 2;
+    const L = lado, A = lado;
+    const pt = function (lat, lon) {
+        const q = mapaXY(lat, lon);
+        return { x: ox + q.x * L, y: oy + q.y * A };
+    };
+    g.beginPath();
+    for (let i = 0; i < MAPA_CONTORNO.length; i++) {
+        const q = pt(MAPA_CONTORNO[i][0], MAPA_CONTORNO[i][1]);
+        if (i === 0)
+            g.moveTo(q.x, q.y);
+        else
+            g.lineTo(q.x, q.y);
+    }
+    g.closePath();
+    const grad = g.createLinearGradient(0, oy, 0, oy + A);
+    grad.addColorStop(0, "#e6d5ac");
+    grad.addColorStop(1, "#c4b083");
+    g.save();
+    g.shadowColor = "rgba(0,0,0,.5)";
+    g.shadowBlur = 10;
+    g.shadowOffsetY = 4;
+    g.fillStyle = grad;
+    g.fill();
+    g.restore();
+    g.lineWidth = 2;
+    g.strokeStyle = "#3b2a12";
+    g.lineJoin = "round";
+    g.stroke();
+    const atual = epocaDoCenario(Math.max(cenarioAtual(), S.fronteira | 0));
+    const estadoDe = function (id) {
+        const i = EPOCAS.findIndex(function (e) { return e.id === id; });
+        return { livre: i <= atual, aqui: i === atual };
+    };
+    g.save();
+    g.clip();
+    const faixa = function (id, y0, y1) {
+        const e = estadoDe(id);
+        g.fillStyle = e.aqui ? "rgba(240,195,104,.5)" : e.livre ? "rgba(200,137,47,.38)" : "rgba(90,80,60,.25)";
+        g.fillRect(0, oy + A * y0, cv.clientWidth, A * (y1 - y0));
+    };
+    faixa("pindorama", 0.04, 0.16);
+    faixa("hoje", 0.84, 0.96);
+    g.restore();
+    for (let i = 0; i < MAPA_PONTOS.length; i++) {
+        const l = MAPA_PONTOS[i];
+        const q = pt(l.lat, l.lon);
+        const est = l.eps.map(estadoDe);
+        const livre = est.some(function (e) { return e.livre; });
+        const aqui = est.some(function (e) { return e.aqui; });
+        g.save();
+        g.shadowColor = "rgba(0,0,0,.35)";
+        g.shadowBlur = 3;
+        g.shadowOffsetY = 1;
+        g.beginPath();
+        g.arc(q.x, q.y, aqui ? 7 : 5, 0, Math.PI * 2);
+        g.fillStyle = livre ? (aqui ? "#f0c368" : "#c8892f") : "#8c7c5e";
+        g.fill();
+        g.restore();
+        g.lineWidth = 2;
+        g.strokeStyle = "#2a1c08";
+        g.stroke();
+        if (!livre) {
+            g.beginPath();
+            g.arc(q.x, q.y, 2, 0, Math.PI * 2);
+            g.fillStyle = "#d9c79b";
+            g.fill();
+        }
+        if (aqui) {
+            g.beginPath();
+            g.arc(q.x, q.y, 10, 0, Math.PI * 2);
+            g.lineWidth = 2;
+            g.strokeStyle = "rgba(240,195,104,.6)";
+            g.stroke();
+        }
+    }
+}
 function montarCapitulos() {
+    desenharMapaEras();
     const box = $("listaCapitulos");
     box.textContent = "";
     const atual = epocaDoCenario(Math.max(cenarioAtual(), S.fronteira | 0));
