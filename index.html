@@ -3895,20 +3895,22 @@ const EPOCAS = [
     {
         id: "aceiro",
         nome: "O ACEIRO",
-        quando: "cerrado · hoje",
-        emObra: true,
+        quando: "cerrado · agosto, hoje",
+        emObra: false,
         arteCap: 3,
         cenas: 1, lugar: "aceiro", arte: [10],
         abertura: [
-            "Este capítulo se chama O ACEIRO, e ele ainda está sendo escrito.",
-            "O nome é uma palavra de trabalho: aceiro é a faixa de chão que se limpa para o fogo não passar. O verbo dele já tem nome — abafar — e quem ele acompanha é quem segura a linha, não quem manda.",
-            "O que ele vai afirmar depende de registro de órgão, e esse é o primeiro capítulo do jogo cujo número tem prazo: sai um novo todo ano. Enquanto não estiver conferido e datado, ele não diz.",
-            "A rua continua a rua. O que passa precisa de alguém."
+            "Isto é cerrado, em agosto — o meio da estação seca. Aceiro é a faixa de chão que se limpa para o fogo não passar. Quem abre o aceiro trabalha antes do fogo, e este capítulo é esse verbo.",
+            "Não é a floresta dos cartões-postais — e é aqui que a fronteira avança: no relatório de 2024 do MapBiomas, o Cerrado foi o bioma com maior área desmatada pelo segundo ano seguido: 652.197 hectares, 52,5% do total do país.",
+            "Antes de qualquer frase sobre pressão, a aritmética do Censo Agropecuário de 2017: três quartos de quem planta no Brasil (76,8% dos estabelecimentos) ocupam menos de um quarto da terra (23%).",
+            "E o que o MapBiomas concluiu, entre aspas e com o nome do relatório: “mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos seis anos ocorreram por pressão da agropecuária” — lido como este jogo lê toda fonte: é o que quem mediu concluiu.",
+            "Quem segura a linha é a brigadista — moradora do lugar, contratada para a temporada seca. O número que ela defende já subiu e já caiu: ele depende de decisão, não de destino."
         ],
-        aberturaImg: [null, null, null, null],
+        aberturaImg: [null, null, null, null, null],
         fecho: [
-            "Fim do trecho. Ele ainda não te deu um mapa nem uma hora — e é isso que ele promete ser quando abrir: um mapa e uma hora, nunca um culpado.",
-            "Até lá ele fica quieto. Número de desmatamento sem a data e o órgão do lado não é fato: é boato com cara de fato."
+            "Fim do trecho. Entre 2024 e 2025, o INPE registrou queda no desmatamento em oito dos nove estados da Amazônia Legal — e alta em um. Mesmo país, mesmo ano, direções opostas: decisão, não destino.",
+            "A lei diz quanto fica em pé (Lei nº 12.651, art. 12) — e diz também, com todas as letras, que cadastro não é título de posse (art. 29, §2º).",
+            "As brigadas são feitas de gente que conhece o terreno. O aceiro se abre antes do fogo — e é isso que fica."
         ]
     },
     {
@@ -9421,6 +9423,14 @@ const FONTES = [
         q: "Regulamenta as atividades de Agente Comunitário de Saúde e de Agente de Combate às Endemias — o cargo de quem este capítulo acompanha." },
     { t: "Anvisa — uso emergencial das primeiras vacinas, 17 de janeiro de 2021",
         q: "A diretoria colegiada aprovou, em reunião pública extraordinária, o uso emergencial das duas primeiras vacinas contra a covid-19 no Brasil; a primeira dose foi aplicada no mesmo dia." },
+    { t: "MapBiomas — Relatório Anual do Desmatamento (RAD) 2024",
+        q: "Registra o Cerrado como o bioma com maior área desmatada pelo segundo ano seguido — 652.197 ha, 52,5% do total do país — e conclui que “mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos seis anos ocorreram por pressão da agropecuária”. Citado como conclusão do relatório, nunca como “o que aconteceu”." },
+    { t: "INPE — Nota Técnica do PRODES, 2025",
+        q: "Registrou 7.235 km² desmatados no Cerrado contra 5.796 km² na Amazônia Legal; a Tabela 2 mostra queda em oito dos nove estados da Amazônia Legal entre 2024 e 2025, e alta em um. Cita a Portaria GM/MMA nº 1.202/2024, com a lista de 81 municípios prioritários de fiscalização." },
+    { t: "IBGE — Censo Agropecuário 2017 (SIDRA, tabela 6754)",
+        q: "Registrou 5.073.324 estabelecimentos agropecuários em 351.289.816 ha; a agricultura familiar é 76,8% dos estabelecimentos em 23,0% da área." },
+    { t: "Lei nº 12.651, de 25 de maio de 2012 (Código Florestal)",
+        q: "O art. 12 fixa a reserva legal (80% em imóvel de floresta na Amazônia Legal; 35% em cerrado dentro dela; 20% nas demais regiões). O art. 29, §2º, diz com todas as letras que o cadastramento (CAR) “não será considerado título para fins de reconhecimento do direito de propriedade ou posse”." },
     { t: "Senado Federal — exposição “A Participação Popular nos 25 Anos da Constituição Cidadã”",
         q: "“Para serem aceitas, as emendas deveriam ser propostas por três entidades e apresentar assinaturas de 30 mil eleitores.” E, antes disso, o projeto Constituição – a voz do cidadão pôs formulários nas agências dos correios de todos os municípios: “Foram recebidas mais de 72.000 cartas.”" },
     { t: "Constituição de 5 de outubro de 1988, art. 5º, XLII e XLIII — Câmara dos Deputados, Legislação Informatizada (publicação original)",

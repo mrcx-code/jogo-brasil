@@ -7127,3 +7127,32 @@ tinta. As seis fontes entraram no DE ONDE VEM no mesmo commit. Portões verdes.
 
 **Faltam 2:** O ACEIRO (material pronto no HISTORIA-CONTEMPORANEO.md, número perecível anual)
 e O QUE TEM FONTE (o método; alimentado pelo ACEIRO — INPE × MapBiomas).
+
+---
+
+## Diário — 2026-08-16 · O ACEIRO — 12 de 13, e o primeiro capítulo perecível
+
+Escrito pelo desenho do `HISTORIA-CONTEMPORANEO.md` (Parte 1), com os cinco movimentos: fogo
+sem rosto · sistema nomeado por onde falta · o Censo ANTES da pressão · a pressão entre aspas
+com o nome de quem mediu · e a tese do INPE (o número já subiu e já caiu — decisão, não
+destino).
+
+**Fontes no DE ONDE VEM (mesmo commit):** MapBiomas RAD 2024 (652.197 ha no Cerrado, 52,5%;
+"mais de 97%… por pressão da agropecuária", citado como conclusão) · INPE/PRODES 2025 (7.235
+km² Cerrado × 5.796 Amazônia; Tabela 2, 8 de 9 estados em queda; Portaria GM/MMA 1.202/2024,
+81 municípios) · Censo Agropecuário 2017/SIDRA 6754 (76,8% dos estabelecimentos em 23% da
+área) · Lei 12.651/2012, arts. 12 e 29 §2º (reserva legal; "cadastro não é título").
+
+### ⚠ MANUTENÇÃO ANUAL — o primeiro lembrete do tipo no repositório
+
+O PRODES sai TODO ANO (nota técnica ~novembro) e o RAD do MapBiomas ~maio. As falas carregam
+a data dentro da frase, então **não ficam falsas** ao envelhecer — ficam datadas. Uma vez por
+ano, atualizar: a fala 2 (RAD), o fecho 1 (Tabela 2 do PRODES) e as duas fontes. Se ninguém
+atualizar, o capítulo continua verdadeiro e passa a ser história de 2024/2025 — que é
+exatamente o comportamento certo de um capítulo com REGRA DO DOCUMENTO.
+
+A identidade da brigadista ficou como aprovado: do lugar, sem se rotular na abertura — e o
+fecho diz que as brigadas são feitas de gente que conhece o terreno.
+
+**Falta 1:** O QUE TEM FONTE — o método, alimentado por este (INPE × MapBiomas medindo a
+mesma floresta com réguas diferentes é o exemplo trabalhado).
