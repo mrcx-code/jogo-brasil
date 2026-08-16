@@ -2471,6 +2471,16 @@
   .mpR { font: var(--fonte); color: var(--tintaP); }
   .mpV { font: var(--verbete); color: #33240f; }
   .mpFonte { font: var(--fonte); color: #cbb488; margin-top: 6px; line-height: 1.4; }
+
+  /* ===== O QUE FICA (a conferência da CHEGADA) ===== papel de campo, como o placar. */
+  #fimConfere { width: 100%; max-width: 26em; text-align: left; margin-bottom: 14px; }
+  .cfItem { margin-bottom: 8px; padding: 8px 12px; }
+  .cfQ { font: var(--corpoSm); color: #33240f; }
+  .cfOps { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .cfOp { flex: 1 1 auto; min-height: 44px; }
+  .cfOp:disabled { opacity: .55; }
+  .cfRev { font: var(--fonte); color: #5c3f1e; margin-top: 6px; line-height: 1.45; }
+  .cfRev.oculto { display: none; }
 </style>
 </head>
 <body>
@@ -2702,7 +2712,12 @@
        escravidão seria a mesma tela de vitória que três ondas tiraram daqui, com outra roupa.
        O material é o que já existe: papel de campo para a pergunta (PAPEL fala serifa) e
        tábua para as respostas (MADEIRA fala bitmap) — a régua da casa, sem vocabulário novo. -->
-  <div id="fimPergunta" class="oculto">
+  <!-- O QUE FICA: três afirmações do jogo para CONFERIR — cada uma abre a resposta com a
+     fonte. Não é prova: nada marca acerto, nada conta, e as palavras de avaliação são
+     proibidas pelo encaixe 19. É a perna "ensina" da tese ganhando o único medidor que
+     ela não tinha: se a pessoa toca, ela quer saber — e sai sabendo DE ONDE vem. -->
+<div id="fimConfere"></div>
+<div id="fimPergunta" class="oculto">
     <div id="fimPerguntaTxt"></div>
     <div id="fimPerguntaBotoes">
       <button class="telaBtn perguntaBtn" id="btnVolta1"></button>
@@ -10893,7 +10908,56 @@ function montarObra() {
     OBRA_CANTEIROS.forEach(function (c) { S.obraVista[c] = S.obra[c] | 0; });
     salvar();
 }
+const FIM_CONFERE = [
+    { q: "O cais do Valongo foi construído em…",
+        ops: ["1811", "1888", "1943"],
+        frase: "1811 — e coberto em 1843, para o desembarque de uma princesa. Não foi destruído: ficou embaixo.",
+        fonte: "O CAIS QUE VOLTOU À LUZ · fonte na fala e em DE ONDE VEM" },
+    { q: "Na votação da Emenda Dante de Oliveira, faltaram quantos votos para o quórum?",
+        ops: ["22", "5", "120"],
+        frase: "22 — 298 sim, 65 não. Rejeitada. E o país mudou assim mesmo, por 12 milhões de assinaturas.",
+        fonte: "A PRAÇA · Câmara dos Deputados, Panorama da Constituinte" },
+    { q: "O Censo de 2022 foi o primeiro a contar a população…",
+        ops: ["quilombola", "indígena", "urbana"],
+        frase: "quilombola: 1.327.802 pessoas — 134 anos depois da abolição, o país as contou pela primeira vez.",
+        fonte: "IBGE, Censo Demográfico 2022" }
+];
+function montarConfere() {
+    const cx = $("fimConfere");
+    if (!cx)
+        return;
+    cx.textContent = "";
+    FIM_CONFERE.forEach(function (c) {
+        const item = document.createElement("div");
+        item.className = "fnItem cfItem";
+        const q = document.createElement("div");
+        q.className = "cfQ";
+        q.textContent = c.q;
+        item.appendChild(q);
+        const ops = document.createElement("div");
+        ops.className = "cfOps";
+        const rev = document.createElement("div");
+        rev.className = "cfRev oculto";
+        c.ops.forEach(function (op) {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "perguntaBtn cfOp";
+            b.textContent = op;
+            b.addEventListener("pointerdown", function (e) {
+                e.preventDefault();
+                rev.textContent = c.frase + "  —  " + c.fonte;
+                rev.classList.remove("oculto");
+                ops.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+            });
+            ops.appendChild(b);
+        });
+        item.appendChild(ops);
+        item.appendChild(rev);
+        cx.appendChild(item);
+    });
+}
 function montarFim() {
+    montarConfere();
     const nCap = EPOCAS.length;
     const lidas = contarBits((S.aberturas | 0) & MASCARA_EPOCAS);
     const fechadas = contarBits((S.fechos | 0) & MASCARA_EPOCAS);

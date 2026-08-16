@@ -2415,3 +2415,13 @@
   .mpR { font: var(--fonte); color: var(--tintaP); }
   .mpV { font: var(--verbete); color: #33240f; }
   .mpFonte { font: var(--fonte); color: #cbb488; margin-top: 6px; line-height: 1.4; }
+
+  /* ===== O QUE FICA (a conferência da CHEGADA) ===== papel de campo, como o placar. */
+  #fimConfere { width: 100%; max-width: 26em; text-align: left; margin-bottom: 14px; }
+  .cfItem { margin-bottom: 8px; padding: 8px 12px; }
+  .cfQ { font: var(--corpoSm); color: #33240f; }
+  .cfOps { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .cfOp { flex: 1 1 auto; min-height: 44px; }
+  .cfOp:disabled { opacity: .55; }
+  .cfRev { font: var(--fonte); color: #5c3f1e; margin-top: 6px; line-height: 1.45; }
+  .cfRev.oculto { display: none; }

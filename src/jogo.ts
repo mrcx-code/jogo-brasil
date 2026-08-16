@@ -13056,7 +13056,59 @@ function montarObra() {
   OBRA_CANTEIROS.forEach(function (c) { S.obraVista[c] = S.obra[c] | 0; });
   salvar();
 }
+// ===== O QUE FICA — as três conferências da CHEGADA (16/08, aprovado no check) =====
+// Três afirmações que o jogo FEZ, cada uma com uma lacuna e três saídas. Tocar qualquer uma
+// revela a frase inteira E A FONTE — sem marcar acerto, sem contar, sem uma palavra de
+// avaliação (o encaixe 19 proíbe o vocabulário). O medidor da perna "ensina" é este: quem
+// toca quer saber, e sai sabendo de onde vem. Os três números JÁ SÃO afirmados pelo jogo com
+// fonte — nada aqui nasce novo; é releitura, que é o que uma despedida faz.
+const FIM_CONFERE = [
+  { q: "O cais do Valongo foi construído em…",
+    ops: ["1811", "1888", "1943"],
+    frase: "1811 — e coberto em 1843, para o desembarque de uma princesa. Não foi destruído: ficou embaixo.",
+    fonte: "O CAIS QUE VOLTOU À LUZ · fonte na fala e em DE ONDE VEM" },
+  { q: "Na votação da Emenda Dante de Oliveira, faltaram quantos votos para o quórum?",
+    ops: ["22", "5", "120"],
+    frase: "22 — 298 sim, 65 não. Rejeitada. E o país mudou assim mesmo, por 12 milhões de assinaturas.",
+    fonte: "A PRAÇA · Câmara dos Deputados, Panorama da Constituinte" },
+  { q: "O Censo de 2022 foi o primeiro a contar a população…",
+    ops: ["quilombola", "indígena", "urbana"],
+    frase: "quilombola: 1.327.802 pessoas — 134 anos depois da abolição, o país as contou pela primeira vez.",
+    fonte: "IBGE, Censo Demográfico 2022" }
+];
+function montarConfere() {
+  const cx = $("fimConfere");
+  if (!cx) return;
+  cx.textContent = "";
+  FIM_CONFERE.forEach(function (c) {
+    const item = document.createElement("div");
+    item.className = "fnItem cfItem";
+    const q = document.createElement("div");
+    q.className = "cfQ"; q.textContent = c.q;
+    item.appendChild(q);
+    const ops = document.createElement("div");
+    ops.className = "cfOps";
+    const rev = document.createElement("div");
+    rev.className = "cfRev oculto";
+    c.ops.forEach(function (op) {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "perguntaBtn cfOp"; b.textContent = op;
+      b.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        // QUALQUER toque revela — não há acerto a marcar. A escolha não é gravada nem medida:
+        // o que se mede (se um dia se medir) seria só "tocou", nunca "qual".
+        rev.textContent = c.frase + "  —  " + c.fonte;
+        rev.classList.remove("oculto");
+        ops.querySelectorAll("button").forEach(function (x) { (x as HTMLButtonElement).disabled = true; });
+      });
+      ops.appendChild(b);
+    });
+    item.appendChild(ops); item.appendChild(rev);
+    cx.appendChild(item);
+  });
+}
 function montarFim() {
+  montarConfere();
   const nCap = EPOCAS.length;
   const lidas = contarBits((S.aberturas | 0) & MASCARA_EPOCAS);
   const fechadas = contarBits((S.fechos | 0) & MASCARA_EPOCAS);
