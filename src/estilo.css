@@ -857,7 +857,11 @@
   #falaRetrato { position: absolute; z-index: 0;
     left: 50%; margin-left: calc(var(--fCaixa) / -2 + 4px); transform: none;
     bottom: 78px; width: 132px; height: 300px;
-    image-rendering: pixelated; object-fit: contain; object-position: bottom center;
+    /* `cover` ancorado no TOPO, e não mais `contain` no pé (16/08): os quatro retratos
+       antigos eram 112×300 e cabiam inteiros; os nove novos são mais largos (~150–190×300) e
+       o `contain` os encolhia até só a testa aparecer por trás da caixa. Com `cover` a cabeça
+       e o busto ficam do tamanho de gente e o que se corta é o pé — que a caixa já cobria. */
+    image-rendering: pixelated; object-fit: cover; object-position: top center;
     background: none; box-shadow: none;
     filter: drop-shadow(0 4px 0 rgba(0,0,0,.55)); pointer-events: none; }
   /* a caixa e quem fala CHEGAM pelo pé da tela quando a conversa abre — mesma regra das
