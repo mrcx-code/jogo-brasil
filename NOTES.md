@@ -7156,3 +7156,23 @@ fecho diz que as brigadas são feitas de gente que conhece o terreno.
 
 **Falta 1:** O QUE TEM FONTE — o método, alimentado por este (INPE × MapBiomas medindo a
 mesma floresta com réguas diferentes é o exemplo trabalhado).
+
+---
+
+## Diário — 2026-08-16 · O QUE TEM FONTE fecha o arco: 13 DE 13
+
+O último capítulo é o método — a tela DE ONDE VEM virando rua, pela revisão de escopo do
+`HISTORIA-CONTEMPORANEO.md` (nunca "polarização", que encosta em opinião de eleição). O exemplo
+trabalhado vem do capítulo anterior: INPE × MapBiomas, réguas diferentes publicadas, 100%
+verificável e 0% partidário. O método em três perguntas (quem mediu? como? onde está?), a
+coerência com as cartas jesuíticas dita em voz alta, e a estudante — retrato já aprovado —
+como quem acompanha.
+
+**O arco de 13 está completo.** `emObra` restante: zero. Nenhuma fala sem fonte; as fontes dos
+três contemporâneos entraram no DE ONDE VEM nos mesmos commits. As pinturas de A PRAÇA e
+O QUE SEGUROU continuam emprestadas (PENDENTES §12 — o chão que chegou não é chão), e isso é
+tinta, não texto.
+
+O que o dono encontra ao voltar: o jogo INTEIRO — 13 capítulos escritos, 13 pessoas com rosto,
+corrida de verdade, mapa, e a leitura dele agora destrava (ele disse que leria os textos de
+era "quando os 13 estiverem prontos". Estão.)
