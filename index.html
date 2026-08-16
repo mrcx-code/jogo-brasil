@@ -8598,7 +8598,7 @@ function mostrarFecho(i, depois) {
     }
     S.fechos = ((S.fechos | 0) | (1 << i)) >>> 0;
     salvar();
-    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois);
+    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois, EPOCAS[i].aberturaImg);
     return true;
 }
 let travessiaViva = null;

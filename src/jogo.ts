@@ -9695,7 +9695,12 @@ function mostrarFecho(i, depois?) {
   if (i < 0 || i >= EPOCAS.length || jaViu(S.fechos, i)) { if (depois) depois(); return false; }
   S.fechos = ((S.fechos | 0) | (1 << i)) >>> 0;
   salvar();
-  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois);
+  // O FECHO REUSA AS PAISAGENS DA ABERTURA (16/08, pedido do dono: "várias imagens faltando
+  // na história"). Nenhum fecho tinha imagem — a auditoria deu 0 em treze — e a saída sem arte
+  // nova é a certa aqui: o fecho fala do MESMO lugar que a abertura apresentou, e rever a
+  // paisagem na despedida é composição, não economia. A ordem é a da abertura; as linhas a
+  // mais seguram a última imagem, que é a regra que a abertura já usa.
+  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois, EPOCAS[i].aberturaImg);
   return true;
 }
 
