@@ -7099,3 +7099,31 @@ os três em obra.
 fala inteiro sem imagem) · JOGAR do zero ao fim. **Minha, na ordem dele:** mapa vira lista de
 eras · O QUE SEGUROU com fonte · 3 perguntas na CHEGADA · slides com os rostos (metade feita:
 falar já falam; falta revisar linha a linha).
+
+---
+
+## Diário — 2026-08-16 · O QUE SEGUROU deixa de ser esqueleto — 11 de 13
+
+**A REGRA DO DOCUMENTO no caso mais difícil dela.** O capítulo da pandemia está escrito, e cada
+afirmação é o que um documento público afirma, com número e data dentro da frase:
+
+| afirmação | documento |
+|---|---|
+| o vocabulário (isolamento, quarentena) veio antes do 1º caso | Lei nº 13.979, 6/2/2020 · art. 2º |
+| calamidade pública reconhecida | Decreto Legislativo nº 6, 20/3/2020 |
+| auxílio emergencial de R$ 600 | Lei nº 13.982, 2/4/2020 |
+| saúde é competência também de estados e municípios | STF, ADI 6341, referendada 15/4/2020 |
+| o cargo da protagonista | Lei nº 11.350, 5/10/2006 |
+| uso emergencial das vacinas, 1ª dose no mesmo dia | Anvisa, 17/1/2021 |
+
+**O que NÃO entra, por decisão:** nenhum número de mortes ou casos — painel muda, e o capítulo
+só afirma o que está fechado em norma ou ato publicado. Nenhuma pessoa de governo nomeada.
+O teste do alvo: se um leitor de qualquer lado achar aqui um culpado, o texto falhou e volta.
+A ADPF 709 desce a MARCO (decisão do HISTORIA-CONTEMPORANEO.md — a espinha é a agente, não o
+fio indígena, senão Covid vira o quarto capítulo indígena).
+
+A pintura continua emprestada (o chão que chegou não é chão — PENDENTES §12): texto não espera
+tinta. As seis fontes entraram no DE ONDE VEM no mesmo commit. Portões verdes.
+
+**Faltam 2:** O ACEIRO (material pronto no HISTORIA-CONTEMPORANEO.md, número perecível anual)
+e O QUE TEM FONTE (o método; alimentado pelo ACEIRO — INPE × MapBiomas).
