@@ -254,6 +254,13 @@ const sec = t => log('\n---- ' + t);
   }
   const antes = await page.evaluate(() => {
     salvar();
+    // E O SAVE FICA CONGELADO AQUI (15/08): o `reload` logo abaixo dispara `beforeunload`, que
+    // grava DE NOVO — com o estado de ~100 ms depois deste snapshot. Nesse vão o mundo anda e a
+    // personagem recolhe um drop, e o teste comparava o snapshot com um save mais novo que ele:
+    // "o impacto voltou inteiro (79 -> 82)", falhando só quando havia drop no caminho — 1 em 4.
+    // Neutralizar `salvar` depois do snapshot faz a asserção medir exatamente o que promete:
+    // o que foi salvo é o que volta.
+    window.salvar = function () {};
     return { total: Math.round(S.energiaTotal), energia: Math.round(S.energia), cena: S.cenario,
       fronteira: S.fronteira, rec: JSON.stringify(S.recursos), aber: S.aberturas };
   });
