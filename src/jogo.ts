@@ -9756,7 +9756,32 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   // A cerimônia segura a caixa embaixo enquanto o nome assenta; `revelarFala()` só dispara
   // quando ela solta — senão a primeira linha se escreveria escondida.
   if (cerimonia) {
-    pixelRotulo($("cerNome"), titulo, 3, "#ffd98a", "#0a0806");
+    // O NOME QUEBRA EM DUAS LINHAS QUANDO NÃO CABE (decisão do dono em 14/08: "nenhum nome
+    // muda e o tamanho da letra continua o mesmo em todos os treze"). "O CAIS QUE VOLTOU À
+    // LUZ" sangrava pelas duas bordas a 390 px — encolher a fonte faria os onze nomes curtos
+    // pagarem pelos dois compridos, e é o que um letreiro de cinema faz: quebra.
+    // A conta: cada glifo custa 6 px × escala 3 = 18 px; a tela útil é a largura menos as
+    // margens da cerimônia. A quebra procura o ESPAÇO mais perto do meio, nunca corta palavra.
+    const cer = $("cerNome");
+    const cabe = Math.floor((Math.min(W, window.innerWidth) - 32) / 18);
+    if (titulo.length > cabe && titulo.indexOf(" ") > 0) {
+      const meio = Math.floor(titulo.length / 2);
+      let corte = -1;
+      for (let k = 0; k < titulo.length; k++) {
+        if (titulo.charAt(k) !== " ") continue;
+        if (corte < 0 || Math.abs(k - meio) < Math.abs(corte - meio)) corte = k;
+      }
+      cer.textContent = "";
+      cer.dataset.px = "";                        // a chave de cache é por elemento; duas linhas moram em filhos
+      const l1 = document.createElement("div"), l2 = document.createElement("div");
+      cer.appendChild(l1); cer.appendChild(l2);
+      pixelRotulo(l1, titulo.slice(0, corte), 3, "#ffd98a", "#0a0806");
+      pixelRotulo(l2, titulo.slice(corte + 1), 3, "#ffd98a", "#0a0806");
+    } else {
+      // nome curto: uma linha, como sempre — e limpa os filhos de uma cerimônia anterior
+      if (cer.firstElementChild) { cer.textContent = ""; cer.dataset.px = ""; }
+      pixelRotulo(cer, titulo, 3, "#ffd98a", "#0a0806");
+    }
     $("cerQuando").textContent = quando || "";
     $("telaFala").classList.add("cerimoniando");
     // 3,4 s (onda 3; era 2,4): o respiro extra é o que deixa a varredura de luz TERMINAR —

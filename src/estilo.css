@@ -2425,3 +2425,8 @@
   .cfOp:disabled { opacity: .55; }
   .cfRev { font: var(--fonte); color: #5c3f1e; margin-top: 6px; line-height: 1.45; }
   .cfRev.oculto { display: none; }
+
+  /* As duas linhas do nome quebrado (14→16/08) centram cada uma o próprio canvas — sem isto a
+     linha curta ancorava à esquerda da comprida e o letreiro saía capenga. */
+  #cerNome > div { display: flex; justify-content: center; }
+  #cerNome > div + div { margin-top: 4px; }
