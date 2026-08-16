@@ -7064,3 +7064,38 @@ custou três correções dele.
 **Duas decisões do check de 16/08:** os 9 retratos viajam NOS PACOTES por capítulo (porta de
 entrada não cresce um byte; sem pacote, fala sem retrato como sempre foi) · e o dono joga a
 semana SEM instrumentação extra — anota de cabeça, que é o teste honesto.
+
+---
+
+## Diário — 2026-08-16 · Treze pessoas, e a história inteira com paisagem
+
+**Madrugada autônoma (o dono volta em ~10h).** Três incrementos, cada um verde e empurrado.
+
+### 1. Os retratos entraram no motor — por época, viajando nos pacotes
+
+`RETRATO_B64` deixou de indexar por bloco de arte (4) e indexa por ÉPOCA (13). O gate
+`DONO_DO_BLOCO` morreu — existia para impedir rosto emprestado, e virou contrato mais forte no
+`encaixe`: **o src mostrado tem de ser o da própria época**. `PACK_DO_RETRATO` particiona
+(quem veste pintura emprestada leva o rosto no mesmo embrulho); pindorama e hoje ficam na porta.
+Ferramenta nova `test/converter-retrato.js`: dez mestres = **185 KB** contra 17 MB dos PNG.
+De brinde: o mestre de SALVADOR versionado pela primeira vez, e `PACK_DA_CENA[12]` ("cais") —
+a pintura de O CAIS estava caindo na porta de entrada em silêncio desde a véspera.
+
+### 2. Todo fecho ganhou a paisagem do próprio capítulo
+
+Auditoria: **nenhum** fecho tinha imagem (0 em treze). Conserto de uma linha: o fecho reusa as
+paisagens da abertura — fala do mesmo lugar, rever o lugar na despedida fecha o arco. Sem um
+byte de arte nova. Ficam sem: SALVADOR (as duas ctx dele nunca chegaram — pedidos na mesa) e
+os três em obra.
+
+### 3. O flake do impacto morreu por leitura (madrugada anterior)
+
+`beforeunload` regravava o save ~100 ms depois do snapshot; um drop recolhido no vão fazia
+79→82. Uma linha (neutralizar `salvar` após o snapshot), 5 de 5.
+
+### Fila de quando o dono voltar
+
+**Dele:** gerar `cap4-ctx-porto` e `cap4-ctx-patio` (SALVADOR é o único capítulo escrito que
+fala inteiro sem imagem) · JOGAR do zero ao fim. **Minha, na ordem dele:** mapa vira lista de
+eras · O QUE SEGUROU com fonte · 3 perguntas na CHEGADA · slides com os rostos (metade feita:
+falar já falam; falta revisar linha a linha).
