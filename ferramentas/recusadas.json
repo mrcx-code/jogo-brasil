@@ -1,7 +1,15 @@
 {
   "_": "ARTE ENTREGUE QUE FOI RECUSADA — e por isso volta a FALTAR. Existe porque a mesa considerava um pedido resolvido assim que um arquivo com aquele nome caía em assets/entrada. Uma folha entregue e recusada tinha arquivo em disco, logo sumia da fila para sempre: foi assim que as três folhas de corrida e o refazer da p19 ficaram invisíveis, e o dono abriu a mesa e não viu nada para gerar.",
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
-  "itens": [],
+  "itens": [
+    {
+      "n": "cap4-sprite-v3",
+      "em": "2026-08-16 07:50",
+      "bytes": 1977729,
+      "onde": "test/LEIAME.md (celulas iguais)",
+      "porque": "TECNICA, nao de desenho — o desenho esta certo: a mesma ganhadeira, oito poses todas apoiadas, como o pedido exigia. O problema e que AS FIGURAS SE SOBREPOEM na folha: medido coluna a coluna, ate os vales de tinta entre figuras carregam 60 a 180 linhas de pixel — o tabuleiro de uma invade a vizinha. Nao existe corte vertical que nao decepe um tabuleiro ou um calcanhar. O pedido novo e o mesmo desenho com RESPIRO: 8 celulas de largura IGUAL, cada figura INTEIRA dentro da sua, com vao de magenta puro (20px ou mais) entre uma e outra."
+    }
+  ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
   "resolvidas": [
     {

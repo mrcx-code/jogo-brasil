@@ -542,3 +542,27 @@ Saídas possíveis, para o próximo check (com a minha recomendação):
   telas seguem contando histórias diferentes.
 
 Não comecei a construir para não meio-fazer uma decisão de representação.
+
+---
+
+## 16. A rua de SALVADOR: a gente cortada, o motor por ligar (16/08)
+
+`cap4-gente` chegou LIMPA (grade 8×3, três pessoas de 1835: o do barril, o do fardo, a
+quituteira do tabuleiro — todas as células separadas) e está cortada em `test/cap4-gente.json`
+(24 quadros, 189×299, 243 KB). **O que falta é MOTOR, não arte:** hoje o que atravessa a tela
+em SALVADOR é desenhado como OBJETO parado (a dívida "muda, galão e cesto num cais de 1811").
+A folha existe para trocar objeto por PESSOA ANDANDO.
+
+O desenho da ligação, para a próxima sessão não redescobrir:
+- Um bloco novo (`GENTE4_B64`, 3 pessoas × 8 quadros) embutido pelo mesmo caminho do herói;
+  viaja no `pack-salvador` (regra dos retratos: quem veste paga o pacote de quem é dono).
+- No desenho do mob, quando `capArte() === 2` e o bloco estiver no aparelho: sortear uma das 3
+  pessoas por mob e escolher o quadro pela DISTÂNCIA percorrida (a regra da casa — pé não
+  desliza), não pelo tempo. Altura alvo = a mesma dos mobs de hoje.
+- Recuo seguro: sem bloco (pacote não chegou), continua o objeto de hoje — mesmo padrão do
+  retrato que fala sozinho.
+- Medir DEPOIS: renda/min (contrato ±10%) e poluição — pessoa é maior que objeto na tela.
+
+E `cap4-sprite-v3` foi RECUSADA por sobreposição (as figuras invadem as células vizinhas — não
+há corte vertical possível; medido coluna a coluna). O desenho em si está certo; o pedido novo
+exige vão de magenta puro ≥20px entre figuras.
