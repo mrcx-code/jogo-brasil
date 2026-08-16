@@ -7176,3 +7176,27 @@ tinta, não texto.
 O que o dono encontra ao voltar: o jogo INTEIRO — 13 capítulos escritos, 13 pessoas com rosto,
 corrida de verdade, mapa, e a leitura dele agora destrava (ele disse que leria os textos de
 era "quando os 13 estiverem prontos". Estão.)
+
+---
+
+## Diário — 2026-08-16 · A rua de SALVADOR vira gente
+
+`cap4-gente` ligada: três pessoas de 1835 (barril, fardo, tabuleiro), 8 quadros cada, no bloco
+`GENTE4_B64` — e o mapeamento é SEMÂNTICO, não sorteio: a carga do mob escolhe a pessoa
+(barril→drum, fardo→cash, tabuleiro→smog). O quadro sai de `m.d`, o acumulador cuja
+linha de comentário já dizia "é o que escolhe o quadro da caminhada" antes de haver caminhada.
+Passada medida da folha: vão máximo 141 px de sprite → ~35 px por quadro na escala de alvo 42.
+
+**Viaja no pack-salvador** (247→477 KB) e a porta de entrada não mexeu (2.125 KB). Recuo: sem
+pacote, o objeto de sempre — mesmo padrão do retrato.
+
+**Renda medida (contrato ±10%):** anda 311→324 (+4,2%) · corre 359→375 (+4,5%) · alterna
+352→359 (+2%) — dentro do ruído do instrumento (~4%).
+
+**Print `test/GENTE4-rua3.png`:** a quituteira e o carregador de barril na ladeira, poses de
+meio-passo, escala certa.
+
+**Ferrugem achada no instrumento:** `medir-acompanhar.js` lê `palavraDedo`/`palavraCorrente`
+que não existem mais (imprime "atendidas 0") e o toques/pessoa deu 7,58 — ou o instrumento
+apodreceu, ou o ACOMPANHAR regrediu. Fica registrado para a próxima sessão MEDIR qual dos dois
+antes de acreditar em qualquer número dele.
