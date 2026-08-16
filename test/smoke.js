@@ -443,7 +443,15 @@ function lintComentarios() {
   console.log('the road is a place -> walking', chao.andando.mob, 'arrivals /', chao.andando.folha,
     'leaves in', chao.andando.px, 'px | running', chao.correndo.mob, '/', chao.correndo.folha,
     'in', chao.correndo.px, 'px | ratios', chao.razaoMob, chao.razaoFolha, '(ground', chao.razaoPx + ')');
-  if (Math.abs(chao.razaoPx - 2) > 0.02) errors.push('running no longer covers exactly twice the ground');
+  // ATE 15/08 a razao era EXATAMENTE 2: correr era a caminhada com a cadencia dobrada. Com as
+  // folhas de corrida aprovadas a razao passou a vir da ARTE (passoCorrer/telaCorrer), entao o
+  // contrato novo e: o chao coberto correndo bate com o que PASSO_CAP promete, com 2% de folga.
+  const esperado = await page.evaluate(() => {
+    const c = PASSO_CAP[0];
+    return (c.passoCorrer * 60 / c.telaCorrer) / (c.passo * 60 / c.tela);
+  });
+  if (Math.abs(chao.razaoPx - esperado) > 0.04)
+    errors.push('running ground ratio ' + chao.razaoPx + ' does not match the art (' + esperado.toFixed(3) + ')');
   if (chao.razaoMob < 1.6) errors.push('running does not meet more arrivals than walking: the road is back on a clock');
   if (chao.razaoFolha < 1.6) errors.push('running does not pass more leaves than walking: the forest is back on a clock');
   if (chao.andando.mob / (chao.andando.px / 60) > 1.6 || chao.andando.mob / (chao.andando.px / 60) < 0.6) {

@@ -1,29 +1,7 @@
 {
   "_": "ARTE ENTREGUE QUE FOI RECUSADA — e por isso volta a FALTAR. Existe porque a mesa considerava um pedido resolvido assim que um arquivo com aquele nome caía em assets/entrada. Uma folha entregue e recusada tinha arquivo em disco, logo sumia da fila para sempre: foi assim que as três folhas de corrida e o refazer da p19 ficaram invisíveis, e o dono abriu a mesa e não viu nada para gerar.",
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
-  "itens": [
-    {
-      "n": "cap1-corrida",
-      "em": "2026-08-14 18:00",
-      "bytes": 1397581,
-      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
-      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
-    },
-    {
-      "n": "cap2-corrida",
-      "em": "2026-08-14 18:00",
-      "bytes": 1395852,
-      "onde": "PENDENTES.md · decisao do dono no check de 14/08",
-      "porque": "ADIADO PELO DONO, nao recusado — e a diferenca importa. Cinco entregas, e nenhuma falhou por desenho ruim: a proporcao esta certa, o movimento le como corrida de verdade, o traco esta bom. O que falta sao as MARCAS de identidade da personagem, e o pedido foi reescrito em 14/08 para mandar colar a folha de caminhada como imagem de referencia — mas a quinta entrega chegou ANTES dessa reescrita, entao o pedido novo nunca foi testado.\n\nPor que para agora: a corrida e POLIMENTO, nao bloqueio. O motor toca a folha de caminhada com a cadencia dobrada quando nao ha folha de corrida (lacoCorrer e quadrosCorrer ficam em zero e passoCorrer cai no passo da caminhada), e o pe nao desliza porque o quadro e escolhido pela DISTANCIA. Cinco rodadas foram gastas nela enquanto 29 desenhos que o jogo usa de verdade esperavam integracao.\n\nQUANDO VOLTAR: uma tentativa so, a do capitulo 1, com sprite-cap1-andar-v2.png colada junto do prompt. Se as marcas vierem, as outras duas valem; se nao vierem, o problema nao e o texto do pedido e a resposta e certeza em vez de palpite."
-    },
-    {
-      "n": "cap-aceiro-retrato",
-      "em": "2026-08-15 20:00",
-      "bytes": 1888085,
-      "onde": "ROSTOS.md item 8 · CLAUDE.md §2.1",
-      "porque": "UMA COISA SO, e o resto esta pronto: uniforme sem marca, capacete, abafador no ombro, luvas, fuligem, olhar direto — tudo como pedido. O que volta e a PINTURA FACIAL: os tracos nas bochechas sao inventados, nao pertencem a povo nenhum. O pedido dizia por extenso: sem um padrao especifico e nomeavel para copiar, o rosto vai SEM pintura. Padrao que parece indigena e a versao grafica de tratar centenas de povos como uma estetica so — e o mesmo criterio que escolheu o logo do jogo. O pedido novo: EXATAMENTE a mesma imagem, rosto limpo (a fuligem pode ficar)."
-    }
-  ],
+  "itens": [],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
   "resolvidas": [
     {
@@ -95,6 +73,27 @@
       "bytes": 2476984,
       "estado": "APROVADA em 15/08",
       "porque": "APROVADA na QUARTA. A sala esta certa desde a terceira e agora esta CHEIA: bancadas ocupadas, roupa de fim do seculo XX sem cartola, gente lendo documento, alguem falando de pe. A critica central das tres recusas anteriores — seculo errado, depois sala vazia — esta respondida. O gesto do jenipapo que o pedido descrevia NAO veio, e fica registrado: a legenda carrega sozinha essa parte. Exigir a quarta correcao numa imagem que ja sustenta a afirmacao da pagina seria perfeccionismo pago com o tempo do dono."
+    },
+    {
+      "n": "cap1-corrida",
+      "em": "2026-08-15 22:00",
+      "bytes": 1297907,
+      "estado": "APROVADA em 15/08",
+      "porque": "APROVADA E EMBUTIDA na SEXTA — a primeira com a folha de caminhada anexada. Chanfrada reta, faixas de tornozelo, galao em zigue-zague com franja, bracadeira, colar: a mesma pessoa da caminhada. Ciclo medido: passada 189,8 px, 4 quadros, escorregamento 0,82%."
+    },
+    {
+      "n": "cap2-corrida",
+      "em": "2026-08-15 22:00",
+      "bytes": 1269620,
+      "estado": "APROVADA em 15/08",
+      "porque": "APROVADA E EMBUTIDA junto. Pessoa negra de tunica e calca creme, cordao, sandalias, cabelo crespo curto — a pessoa de PALMARES, correndo. Ciclo: passada 231,5 px, 4 quadros, escorregamento 2,11%."
+    },
+    {
+      "n": "cap-aceiro-retrato",
+      "em": "2026-08-15 22:00",
+      "bytes": 1848067,
+      "estado": "APROVADA em 15/08",
+      "porque": "APROVADA na TERCEIRA: rosto limpo, so a fuligem do trabalho. O resto ja estava certo desde a primeira. As duas voltas custaram um defeito MEU: a regra do rosto limpo morava na recusa e nao no prompt que se copia — corrigido na segunda volta."
     }
   ]
 }

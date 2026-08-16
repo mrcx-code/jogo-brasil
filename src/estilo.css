@@ -602,6 +602,15 @@
     width: 18px; height: 4px; transform: translateX(-50%);
     background: linear-gradient(90deg, #7c5730, #a97f4a 40%, #96683a 70%, #5c3d20);
     box-shadow: inset 0 2px 0 #c39a5e, inset 0 0 0 2px rgba(36,22,5,.55); }
+  /* A COLUNA VALE PARA TODA TELA, não só para o menu (15/08, "algumas telas do menu estão tão
+     feinhas"). O defeito era um só, repetido: cada tábua com a largura do próprio rótulo,
+     centrada, e o conjunto lia como zigue-zague — CONTAGEM mais larga que SOM, APAGAR maior
+     que tudo. O menu principal já tinha pago essa lição ("a coluna alinhada é o que faz o
+     conjunto ler como um só objeto"); as telas internas nunca ganharam a regra. Uma linha, e
+     as telas passam a ser a MESMA marcenaria. Quem precisa de outra largura (a CHEGADA em
+     colunas, o deitado) sobrescreve depois, como já fazia. */
+  .tela .telaBtn { width: min(70vw, 290px); box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; }
   #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
     display: flex; align-items: center; justify-content: center; margin: 0;
     padding: var(--mTabua) 26px; min-height: 44px; }
@@ -629,7 +638,10 @@
   /* AJUSTES na fonte da casa (usabilidade, achado 9): o parágrafo era o último texto de
      tela em sans-serif do sistema. Vira um papel de campo — mesmo material da caixa de
      fala — com as linhas na fonte bitmap, montadas por montarConfig() via pixelRotulo. */
-  #telaConfig #cfgInfo { display: flex; flex-direction: column; align-items: center;
+  /* O papel deixa de ser parede: texto à ESQUERDA, como todo papel de ler do jogo. Dezesseis
+     linhas centradas leem como lápide; a mesma tinta alinhada lê como caderno. */
+  #telaConfig #cfgInfo { display: flex; flex-direction: column; align-items: flex-start;
+    text-align: left;
     gap: 8px; padding: 14px 18px; border-radius: 4px; max-width: none;
     background:
       var(--pauta),
