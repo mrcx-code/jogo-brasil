@@ -1848,7 +1848,11 @@ const EPOCAS = [
     ]
   },
   // ============================================================
-  // OS CAPÍTULOS EM OBRA — `emObra: true`
+  // OS CAPÍTULOS EM OBRA — `emObra: true` — E NÃO HÁ MAIS NENHUM (16/08)
+  //
+  // O arco fechou em 13 de 13: os três últimos (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE)
+  // foram escritos sob a REGRA DO DOCUMENTO em 16/08. O cabeçalho fica porque a REGRA fica:
+  // o próximo capítulo novo nasce em obra, sob as mesmas cláusulas abaixo.
   //
   // Decisão do dono (2026-08-09): *"ainda não vamos lançar sem ter tudo, então garantir que
   // tudo já exista e tenha como placeholder até construirmos cada item."* Os doze capítulos do
