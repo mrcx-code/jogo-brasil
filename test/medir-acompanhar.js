@@ -30,7 +30,13 @@ async function celula(pg, nome, estrategia) {
     localStorage.clear();
     fecharTelas(); fecharTudo();
     S.aberturas = MASCARA_EPOCAS; S.fechos = MASCARA_EPOCAS;
-    S.cenario = 4; S.fronteira = 4; visitando = false;
+    // POR IDENTIDADE, NUNCA POR POSIÇÃO (16/08). O 4 fixo era SALVADOR quando este arquivo
+    // nasceu; O CAIS entrou na cronologia em 11/08 e empurrou SALVADOR para a cena 5 — e este
+    // instrumento passou a medir O CAIS, um capítulo SEM a mecânica de conversa, em silêncio:
+    // "7,58 toques/pessoa" e "atendidas 0" eram o capítulo errado, não uma regressão. É a
+    // mesma família do bug de ARCOS/arteCap, e a cura é a mesma da casa.
+    const cenaSalvador = cenarioDaEpoca(EPOCAS.findIndex(function (e) { return e.id === "salvador"; }));
+    S.cenario = cenaSalvador; S.fronteira = cenaSalvador; visitando = false;
     S.energia = 0; S.energiaTotal = 0;
     S.u1 = false; S.u2 = false; S.u3 = false; S.u4 = false;
     S.recursos = { flor: 0, agua: 0, refeicao: 0 };
@@ -51,7 +57,10 @@ async function celula(pg, nome, estrategia) {
         mobs.forEach(function (m) {
           if (m.dying > 0 || m.dead || m.hp <= 0 || m.sabe) return;
           const sx = m.wx - worldX;
-          if (sx > HX - 6 && sx < HX + 96 && sx < d) { d = sx; perto = m; }
+          // 80, não 96: o alcance normal do jogo é 80 px (96 é só a quinta batida do combo).
+          // Com 96 o wrapper contava como útil um toque na faixa 80–96 que o jogo NÃO
+          // convertia — e a pessoa "custava 2 toques" por régua larga, não por mecânica.
+          if (sx > HX - 6 && sx < HX + 80 && sx < d) { d = sx; perto = m; }
         });
         // SÓ CONTA O TOQUE QUE FAZ ALGUMA COISA. A primeira versão contava todo toque que
         // caísse com alguém ao alcance — inclusive os que o bot dá enquanto a conversa já
@@ -94,8 +103,10 @@ async function celula(pg, nome, estrategia) {
     const soma = contagens.reduce(function (a, b) { return a + b; }, 0);
     return {
       impacto: Math.round(S.energiaTotal),
-      atendidas: (typeof palavraDedo === 'number' ? palavraDedo : 0),
-      correntes: (typeof palavraCorrente === 'number' ? palavraCorrente : 0),
+      // pela janela __acompanhar: `let` de topo de script nunca foi alcançável do evaluate —
+      // o typeof antigo devolvia undefined SEMPRE, e o "atendidas 0" era só isso.
+      atendidas: (window.__acompanhar ? window.__acompanhar().dedo : 0),
+      correntes: (window.__acompanhar ? window.__acompanhar().corrente : 0),
       toques: toques, uteis: uteis,
       pessoasTocadas: contagens.length,
       toquesPorPessoa: contagens.length ? +(soma / contagens.length).toFixed(2) : 0,

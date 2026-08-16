@@ -1186,6 +1186,11 @@ const PALAVRA_JANELA = 14;
 // Quantas foram atendidas pela mão e quantas pela corrente. Existe para o teste e para a
 // medição — não aparece em tela nenhuma, não entra no save e não é placar de coisa alguma.
 let palavraDedo = 0, palavraCorrente = 0;
+// Janela de leitura para instrumentação: `let` de topo de script não aparece no `window`, e o
+// `page.evaluate` dos instrumentos roda em escopo próprio — o medir-acompanhar.js leu
+// `typeof palavraDedo` como undefined por meses e imprimiu "atendidas 0" sem que nada
+// estivesse errado no jogo. Só leitura, nada escreve por aqui.
+(window as any).__acompanhar = function () { return { dedo: palavraDedo, corrente: palavraCorrente }; };
 // Ela recebeu a palavra: acena (a luz morna, a mesma do capítulo 2) e muda o passo. `desistiu`
 // fica true para que ela nunca mais pare na borda — quem leva recado não fica esperando.
 function virarPortadora(m) {

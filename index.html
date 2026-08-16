@@ -3289,6 +3289,7 @@ function fracAlcance(m) {
 }
 const PALAVRA_JANELA = 14;
 let palavraDedo = 0, palavraCorrente = 0;
+window.__acompanhar = function () { return { dedo: palavraDedo, corrente: palavraCorrente }; };
 function virarPortadora(m) {
     if (m.sabe)
         return;
