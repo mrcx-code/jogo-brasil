@@ -3670,6 +3670,7 @@ function salvar() {
 const EPOCAS = [
     {
         id: "pindorama",
+        querer: "Quero o que a roça dá e o rio traz — e que a tarde chegue com todo mundo em casa.",
         nome: "PINDORAMA",
         quando: "litoral atlântico · século XVI",
         emObra: false, arteCap: 0,
@@ -3693,6 +3694,7 @@ const EPOCAS = [
     },
     {
         id: "palmares",
+        querer: "Quero que este lugar fique de pé. Que quem chegar cansado encontre comida, nome e lugar na roda.",
         nome: "PALMARES",
         quando: "serra da Barriga, Alagoas · século XVII",
         emObra: false, arteCap: 1,
@@ -3714,6 +3716,7 @@ const EPOCAS = [
     },
     {
         id: "cais",
+        querer: "Quero que esta pedra fique à vista. O que cobriram, eu descubro — todo dia, de novo.",
         nome: "O CAIS QUE VOLTOU À LUZ",
         quando: "Rio de Janeiro · século XIX",
         arteCap: 3,
@@ -3737,6 +3740,7 @@ const EPOCAS = [
     },
     {
         id: "salvador",
+        querer: "Quero vender o meu tabuleiro em paz — e que o que eu ganho seja meu.",
         nome: "SALVADOR",
         quando: "Bahia · véspera de 1835",
         emObra: false, arteCap: 2,
@@ -3758,6 +3762,7 @@ const EPOCAS = [
     },
     {
         id: "jabaquara",
+        querer: "Quero ver quem vem atrás chegar. A serra eu já desci; agora eu volto e mostro o caminho.",
         nome: "JABAQUARA",
         quando: "Santos, São Paulo · 1887–1888",
         arteCap: 3,
@@ -3781,6 +3786,7 @@ const EPOCAS = [
     },
     {
         id: "pequenaafrica",
+        querer: "Quero casa cheia. Mesa posta, roda formada — e ninguém na porta sem entrar.",
         nome: "A PEQUENA ÁFRICA",
         quando: "Rio de Janeiro · começo do século XX",
         arteCap: 3,
@@ -3804,6 +3810,7 @@ const EPOCAS = [
     },
     {
         id: "portas",
+        querer: "Quero ler sem soletrar. Ler alto, ler rápido — e assinar o meu nome onde ele abre porta.",
         nome: "AS PORTAS",
         quando: "1932–1985",
         arteCap: 3,
@@ -3827,6 +3834,7 @@ const EPOCAS = [
     },
     {
         id: "naodito",
+        querer: "Quero imprimir o que é preciso e entregar na mão certa — e que ninguém precise saber o meu nome.",
         nome: "O QUE NÃO PODIA SER DITO",
         quando: "1964–1985",
         arteCap: 3,
@@ -3850,6 +3858,7 @@ const EPOCAS = [
     },
     {
         id: "praca",
+        querer: "Quero mais uma assinatura. E depois mais uma. A caneta está aqui na minha mão.",
         nome: "A PRAÇA",
         quando: "1984–1988",
         arteCap: 3,
@@ -3873,6 +3882,7 @@ const EPOCAS = [
     },
     {
         id: "segurou",
+        querer: "Quero chegar na última casa antes de escurecer — e encontrar todo mundo respirando.",
         nome: "O QUE SEGUROU",
         quando: "2020–2022",
         emObra: false,
@@ -3894,6 +3904,7 @@ const EPOCAS = [
     },
     {
         id: "aceiro",
+        querer: "Quero que o fogo pare onde eu parei ele. O aceiro está aberto; hoje ele segura.",
         nome: "O ACEIRO",
         quando: "cerrado · agosto, hoje",
         emObra: false,
@@ -3915,6 +3926,7 @@ const EPOCAS = [
     },
     {
         id: "temfonte",
+        querer: "Quero acreditar — por isso eu confiro. Me mostra de onde veio, que eu levo adiante.",
         nome: "O QUE TEM FONTE",
         quando: "o método · agora",
         emObra: false,
@@ -3936,6 +3948,7 @@ const EPOCAS = [
     },
     {
         id: "hoje",
+        querer: "Quero que saibam que a gente está aqui. Não no passado: aqui, agora, nesta rua.",
         nome: "AINDA AQUI",
         quando: "terra indígena demarcada · hoje",
         emObra: false, arteCap: 3,
@@ -8610,7 +8623,10 @@ function mostrarAbertura(depois, sempre) {
     }
     S.aberturas = ((S.aberturas | 0) | (1 << i)) >>> 0;
     salvar();
-    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg, true);
+    const querer = EPOCAS[i].querer;
+    const falas = querer ? EPOCAS[i].abertura.concat(["“" + querer + "”"]) : EPOCAS[i].abertura;
+    const imgs = querer ? (EPOCAS[i].aberturaImg || []).concat([null]) : EPOCAS[i].aberturaImg;
+    abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, falas, depois, imgs, true);
     return true;
 }
 function mostrarFecho(i, depois) {

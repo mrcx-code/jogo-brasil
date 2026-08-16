@@ -1784,6 +1784,9 @@ const EPOCAS = [
     // para se reencontrar depois que a lista muda. Ver o bloco `ARCOS`/`migrarArco()`.
     // Escolhido uma vez e imutável: renomear um `id` quebra todo save gravado antes dele.
     id: "pindorama",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero o que a roça dá e o rio traz — e que a tarde chegue com todo mundo em casa.",
     nome: "PINDORAMA",
     quando: "litoral atlântico · século XVI",
     // `arteCap` é o BLOCO DE ARTE de personagem/objetos que este capítulo usa (índice em
@@ -1825,6 +1828,9 @@ const EPOCAS = [
   },
   {
     id: "palmares",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero que este lugar fique de pé. Que quem chegar cansado encontre comida, nome e lugar na roda.",
     nome: "PALMARES",
     quando: "serra da Barriga, Alagoas · século XVII",
     emObra: false, arteCap: 1,
@@ -1894,6 +1900,9 @@ const EPOCAS = [
     // recusa é dita, não escondida, do mesmo jeito que A TRAVESSIA diz que não mostra o porão.
     // O que se cava aqui é a PEDRA: o calçamento, o ferro, a água. Osso não.
     id: "cais",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero que esta pedra fique à vista. O que cobriram, eu descubro — todo dia, de novo.",
     nome: "O CAIS QUE VOLTOU À LUZ",
     quando: "Rio de Janeiro · século XIX",
     arteCap: 3,
@@ -1949,6 +1958,9 @@ const EPOCAS = [
     // Fontes (NOTES.md, mesmo commit): João José Reis, *Rebelião escrava no Brasil* (2003);
     // Cecília Moreira Soares sobre as ganhadeiras; Lisa Earl Castillo; Wlamyra Albuquerque.
     id: "salvador",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero vender o meu tabuleiro em paz — e que o que eu ganho seja meu.",
     nome: "SALVADOR",
     quando: "Bahia · véspera de 1835",
     // UMA cena, e não duas como as outras: chegou UMA pintura. Duas cenas com a mesma pintura
@@ -1985,6 +1997,9 @@ const EPOCAS = [
     // o que ela foi — duas frases, sem terra —, exatamente como a LINHA_TEMPO já dizia.
     // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "jabaquara",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero ver quem vem atrás chegar. A serra eu já desci; agora eu volto e mostro o caminho.",
     nome: "JABAQUARA",
     quando: "Santos, São Paulo · 1887–1888",
     arteCap: 3,
@@ -2031,6 +2046,9 @@ const EPOCAS = [
     // §2.4.5 respeitado sem esforço: Tia Ciata era iyakekerê no terreiro de João Alabá, e isso
     // é FALA. Nada de terreiro, de assentamento ou de objeto de santo vira imagem ou item.
     id: "pequenaafrica",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero casa cheia. Mesa posta, roda formada — e ninguém na porta sem entrar.",
     nome: "A PEQUENA ÁFRICA",
     quando: "Rio de Janeiro · começo do século XX",
     arteCap: 3,
@@ -2076,6 +2094,9 @@ const EPOCAS = [
     // trabalho não era para elas. Não é político nem governante — é trabalhadora, e a
     // associação dela foi fechada pelo Estado. Fontes por fala no NOTES.md, mesmo commit.
     id: "portas",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero ler sem soletrar. Ler alto, ler rápido — e assinar o meu nome onde ele abre porta.",
     nome: "AS PORTAS",
     quando: "1932–1985",
     arteCap: 3,
@@ -2120,6 +2141,9 @@ const EPOCAS = [
     // não encena o cemitério. O lugar da CNV está guardado; o número, não inventado.
     // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "naodito",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero imprimir o que é preciso e entregar na mão certa — e que ninguém precise saber o meu nome.",
     nome: "O QUE NÃO PODIA SER DITO",
     quando: "1964–1985",
     arteCap: 3,
@@ -2163,6 +2187,9 @@ const EPOCAS = [
     // Proposta de Emenda à Constituição nº 5, de 1983. Registrado no NOTES.md como decisão, e
     // não como esquecimento, para nenhuma sessão futura "consertar" isto.
     id: "praca",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero mais uma assinatura. E depois mais uma. A caneta está aqui na minha mão.",
     nome: "A PRAÇA",
     quando: "1984–1988",
     arteCap: 3,
@@ -2197,6 +2224,9 @@ const EPOCAS = [
   },
   {
     id: "segurou",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero chegar na última casa antes de escurecer — e encontrar todo mundo respirando.",
     nome: "O QUE SEGUROU",
     quando: "2020–2022",
     // ESCRITO EM 16/08 sob a REGRA DO DOCUMENTO (§2.6), o caso mais difícil dela até aqui.
@@ -2245,6 +2275,9 @@ const EPOCAS = [
     // toda fala carrega a data DENTRO da frase ("em tal ano o órgão registrou…"), nunca no
     // presente, e o `NOTES.md` ganha uma linha de manutenção anual.
     id: "aceiro",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero que o fogo pare onde eu parei ele. O aceiro está aberto; hoje ele segura.",
     nome: "O ACEIRO",
     quando: "cerrado · agosto, hoje",
     // ESCRITO EM 16/08, pelo desenho do HISTORIA-CONTEMPORANEO.md (Parte 1) — os cinco
@@ -2275,6 +2308,9 @@ const EPOCAS = [
   },
   {
     id: "temfonte",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero acreditar — por isso eu confiro. Me mostra de onde veio, que eu levo adiante.",
     nome: "O QUE TEM FONTE",
     quando: "o método · agora",
     // ESCRITO EM 16/08 — o fecho do arco de 13. Revisão de escopo do HISTORIA-CONTEMPORANEO
@@ -2312,6 +2348,9 @@ const EPOCAS = [
     // acrescentar um capítulo é acrescentar um objeto aqui em cima e uma linha na tabela
     // de arcos. Nenhum mapa escrito à mão, nunca mais.
     id: "hoje",
+    // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
+    // Ficção autoral — por isso SEM DÍGITO e sem afirmação histórica (a regra de TEXTOS).
+    querer: "Quero que saibam que a gente está aqui. Não no passado: aqui, agora, nesta rua.",
     nome: "AINDA AQUI",
     quando: "terra indígena demarcada · hoje",
     emObra: false, arteCap: 3,
@@ -9717,7 +9756,13 @@ function mostrarAbertura(depois?, sempre?) {
   if (!sempre && jaViu(S.aberturas, i)) { if (depois) depois(); return false; }
   S.aberturas = ((S.aberturas | 0) | (1 << i)) >>> 0;
   salvar();
-  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].abertura, depois, EPOCAS[i].aberturaImg, true);
+  // O QUERER FECHA A ABERTURA (16/08): depois do contexto vem a voz — a linha de desejo em
+  // primeira pessoa, entre aspas, dita por quem o retrato já mostra. É a virada de narrador
+  // para pessoa, e é o que transforma "um capítulo sobre" em "alguém que quer".
+  const querer=(EPOCAS[i] as {querer?:string}).querer;
+  const falas = querer ? EPOCAS[i].abertura.concat(["“" + querer + "”"]) : EPOCAS[i].abertura;
+  const imgs=querer?(EPOCAS[i].aberturaImg||[]).concat([null]):EPOCAS[i].aberturaImg;
+  abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, falas, depois, imgs, true);
   return true;
 }
 function mostrarFecho(i, depois?) {
