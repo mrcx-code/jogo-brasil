@@ -824,14 +824,13 @@ const sec = t => log('\n---- ' + t);
     ? 'fala comprida demais para a revelação letra a letra: ' + compridas.fora.join(', ')
     : 'nenhuma fala passa dos 260 caracteres — a caixa consegue escrever todas antes de cansar');
 
-  // ---- E QUEM NÃO TEM A PESSOA DELE FALA SEM ROSTO (§2) ----
-  // A condição de mostrar o retrato era `emObra`, e isso funcionou por acidente enquanto os
-  // únicos capítulos de bloco emprestado eram os esqueletos. No dia em que três deles ganharam
-  // texto e perderam o `emObra`, a cara de AINDA AQUI voltou a narrar o Valongo — sem erro de
-  // console, sem tela em branco, e nenhum teste olhava. Escalar quem representa um capítulo é
-  // decisão do dono; o código não pode tomá-la por omissão. A regra, agora cobrada aqui: o
-  // rosto aparece só para quem é DONO do bloco (`DONO_DO_BLOCO`), e nunca para quem o veste
-  // emprestado. Medido de fora, abrindo a fala de CADA capítulo e olhando o elemento.
+  // ---- E CADA CAPÍTULO FALA COM A PRÓPRIA CARA (§2) ----
+  // O contrato MUDOU em 15/08 e a mudança é a evolução que ele guardava: com os nove rostos
+  // aprovados em ROSTOS.md, RETRATO_B64 tem uma pessoa POR ÉPOCA e o gate DONO_DO_BLOCO
+  // morreu. O que o §2 cobra agora é mais forte: o retrato mostrado em cada capítulo tem de
+  // ser O DELE — nunca o de outra época (o defeito original: a cara de AINDA AQUI narrando o
+  // Valongo), e nunca escondido se a época tem retrato de verdade no aparelho. Medido de fora,
+  // abrindo a fala de CADA capítulo: o src do elemento tem de bater com RETRATO_B64[i].
   const rostos = await page.evaluate(async () => {
     const fora = [];
     for (let i = 0; i < EPOCAS.length; i++) {
@@ -840,18 +839,22 @@ const sec = t => log('\n---- ' + t);
       await new Promise(r => setTimeout(r, 30));
       const r = document.getElementById('falaRetrato');
       const visivel = !!r && !r.classList.contains('oculta');
-      const dono = DONO_DO_BLOCO[blocoArte(i)] === EPOCAS[i].id;
-      fora.push({ nome: EPOCAS[i].nome, visivel: visivel, dono: dono, ok: visivel === dono });
+      const meu = RETRATO_B64[i] || '';
+      const temRetrato = meu.length >= 200;              // stub de pacote = ~80 chars
+      const srcCerto = !!r && r.getAttribute('src') === meu;
+      const emprestado = visivel && !srcCerto;
+      fora.push({ nome: EPOCAS[i].nome, visivel: visivel, temRetrato: temRetrato,
+        ok: temRetrato ? (visivel && srcCerto) : !visivel, emprestado: emprestado });
     }
     fecharTudo();
     return fora;
   });
   log('   com rosto: ' + rostos.filter(r => r.visivel).map(r => r.nome).join(' · '));
-  log('   sem rosto: ' + rostos.filter(r => !r.visivel).map(r => r.nome).join(' · '));
-  const rostoErrado = rostos.filter(r => !r.ok).map(r => r.nome + (r.visivel ? ' (rosto emprestado!)' : ' (rosto próprio escondido)'));
+  log('   sem rosto (pacote ainda não chegou): ' + (rostos.filter(r => !r.visivel).map(r => r.nome).join(' · ') || '(nenhum)'));
+  const rostoErrado = rostos.filter(r => !r.ok).map(r => r.nome + (r.emprestado ? ' (rosto de OUTRA época!)' : r.visivel ? ' (visível sem retrato)' : ' (rosto próprio escondido)'));
   ok(!rostoErrado.length, rostoErrado.length
     ? '§2: ' + rostoErrado.join(', ')
-    : 'o rosto só aparece para o capítulo DONO do bloco de arte — ninguém empresta cara');
+    : 'cada capítulo fala com a própria cara — treze épocas, treze pessoas, nenhum empréstimo');
 
   // ============================================================
   // 16 · CAPÍTULO VAZIO NÃO COBRA PEDÁGIO

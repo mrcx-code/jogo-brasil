@@ -56,12 +56,22 @@
 // `salvador`. Quem VESTE paga o pacote de quem é DONO — não há terceira opção, porque a
 // pintura é uma só e o pacote é dela.
 const PACK_DA_CENA = [null, null, "palmares", "palmares", "salvador", "hoje", "hoje",
-  "jabaquara", "pequenaafrica", "portas", "naodito", "hoje"];
+  "jabaquara", "pequenaafrica", "portas", "naodito", "hoje",
+  // 12 = a pintura própria de O CAIS, que chegou em 15/08 — e esta linha veio JUNTO, como o
+  // comentário acima prometia. Sem ela a pintura 12 cairia na porta de entrada em silêncio.
+  "cais"];
 
 // ---- os sprites da época, por BLOCO DE ARTE (o campo `arteCap` de EPOCAS) ----
 // Índice = arteCap. É este número que HERO_CAP_B64, MOB_B64, DROP_B64, RETRATO_B64 e
 // FRENTE_CAP já usam no src/jogo.ts; aqui ele só ganha um pacote.
 const PACK_DO_BLOCO = [null, "palmares", "salvador", "hoje"];
+
+// ---- o retrato de fala, por ÉPOCA (índice = posição em EPOCAS) ----
+// pindorama fica na abertura (é a arte que segura o jogo); hoje idem — o retrato dela é o
+// que o jogo inteiro usava até 15/08 e a CHEGADA o mostra. Os demais vão no pacote que o
+// capítulo já baixa, pela regra "quem veste paga o pacote de quem é dono".
+const PACK_DO_RETRATO = [null, "palmares", "cais", "salvador", "jabaquara", "pequenaafrica",
+  "portas", "naodito", "naodito", "naodito", "naodito", "hoje", null];
 
 // ---- de qual bloco de arte é cada folha do HERO_B64 ----
 // As chaves do bloco são `walk`, `walk2`, `walk3`, `walk4`… e o SUFIXO é o número do PEDIDO
@@ -146,7 +156,11 @@ function pacoteDoEndereco(caminho) {
   }
   // MOB_B64.smog[i] e RETRATO_B64[i] e DROP_B64[i][j]: o índice do capítulo é o `arteCap`.
   if (c === "MOB_B64") return PACK_DO_BLOCO[caminho[2]] || null;
-  if (c === "RETRATO_B64" || c === "DROP_B64") return PACK_DO_BLOCO[caminho[1]] || null;
+  if (c === "DROP_B64") return PACK_DO_BLOCO[caminho[1]] || null;
+  // RETRATO_B64 mudou de régua em 15/08: TREZE entradas, uma por ÉPOCA (os nove rostos de
+  // ROSTOS.md). Cada retrato viaja no pacote que o capítulo dele JÁ PUXA — quem veste pintura
+  // emprestada (A PRAÇA, O QUE SEGUROU, O ACEIRO → naodito) leva o rosto no mesmo embrulho.
+  if (c === "RETRATO_B64") return PACK_DO_RETRATO[caminho[1]] || null;
   if (c === "FRENTE_B64") return PACK_DO_BLOCO[FRENTE_OITAVA_BLOCO[Math.floor(caminho[1] / 8)]] || null;
   if (c === "CTX_B64") {
     const m = String(caminho[1]).match(/^(cap\d+)/);
@@ -173,7 +187,8 @@ function conhecido(caminho) {
   if (c === "CENARIO_ALTO_B64" || c === "CENARIO_CHAO_B64") return caminho[1] < PACK_DA_CENA.length;
   if (c === "HERO_B64") return blocoDaChaveDoHeroi(caminho[1]) != null;
   if (c === "MOB_B64") return caminho[2] < PACK_DO_BLOCO.length;
-  if (c === "RETRATO_B64" || c === "DROP_B64") return caminho[1] < PACK_DO_BLOCO.length;
+  if (c === "DROP_B64") return caminho[1] < PACK_DO_BLOCO.length;
+  if (c === "RETRATO_B64") return caminho[1] < PACK_DO_RETRATO.length;
   if (c === "FRENTE_B64") return Math.floor(caminho[1] / 8) < FRENTE_OITAVA_BLOCO.length;
   if (c === "CTX_B64") {
     const m = String(caminho[1]).match(/^(cap\d+)/);

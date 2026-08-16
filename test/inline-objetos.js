@@ -41,7 +41,12 @@ const MOBS = {
 // RETRATO_B64 era o único pedaço de arte embutido à mão — "gerado" no comentário e por
 // ninguém no código. Um capítulo novo precisava de um base64 colado, que é exatamente o tipo
 // de passo que se esquece.
-const RETRATOS = ['retrato-cap1', 'retrato-cap2', 'retrato-cap4', 'retrato-cap3'];
+// TREZE, UM POR ÉPOCA, NA ORDEM DE `EPOCAS` (15/08 — os nove rostos aprovados pelo dono em
+// ROSTOS.md). O índice deixou de ser bloco de arte: retrato é PESSOA, e cada capítulo tem a
+// sua. Os sufixos numéricos são o número do pedido antigo (cap4 = SALVADOR, cap3 = AINDA AQUI).
+const RETRATOS = ['retrato-cap1', 'retrato-cap2', 'retrato-cais', 'retrato-cap4',
+  'retrato-jabaquara', 'retrato-pequenaafrica', 'retrato-portas', 'retrato-naodito',
+  'retrato-praca', 'retrato-segurou', 'retrato-aceiro', 'retrato-temfonte', 'retrato-cap3'];
 // Uma lista por capítulo. Capítulos 2 e 3 têm uma arte só, e a lista curta é lida como
 // "todo mundo deixa isto" — ver o comentário do bloco no index.html.
 const DROPS = [
