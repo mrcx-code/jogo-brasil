@@ -33,7 +33,11 @@ if (!pares.length) { console.error('uso: converter-retrato.js entrada:saida ...'
             px[i] = Math.min(255, (px[i] - 255 * (1 - f)) / f);
             px[i + 2] = Math.min(255, (px[i + 2] - 255 * (1 - f)) / f);
           }
-          px[i + 3] = a < 30 ? 0 : a;
+          // piso 64, e nao 30 (16/08): a entrega da brigadista veio com magenta IMPURO —
+          // min(R,B)-G dava ~220 e sobrava alfa 35 no fundo inteiro, uma caixa fantasma
+          // atras do retrato na fala. Abaixo de 64 e fundo; acima, reescala para nao
+          // escurecer a borda legitima.
+          px[i + 3] = a < 64 ? 0 : Math.round((a - 64) * 255 / 191);
         }
       }
       g.putImageData(d, 0, 0);

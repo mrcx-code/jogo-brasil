@@ -7200,3 +7200,24 @@ meio-passo, escala certa.
 que não existem mais (imprime "atendidas 0") e o toques/pessoa deu 7,58 — ou o instrumento
 apodreceu, ou o ACOMPANHAR regrediu. Fica registrado para a próxima sessão MEDIR qual dos dois
 antes de acreditar em qualquer número dele.
+
+---
+
+## Diário — 2026-08-16 · A varredura dos treze, e a caixa fantasma dos retratos
+
+**Varredura completa** (`test/tmp-varre` → prints `VARRE-*.png`): 13 de 13 aberturas com seis
+linhas, retrato visível e querer fechando na voz da pessoa. Zero erro de console. A última
+linha larga a imagem de contexto e mostra a rua pintada do capítulo — composição certa: a
+pessoa fala do lugar onde vive.
+
+**Três consertos da revisão fina:**
+1. O nome quebra em duas linhas na cerimônia (decisão de 14/08 virou código; espaço mais
+   perto do meio, nunca corta palavra).
+2. O retrato na fala usa `cover` ancorado no topo — os nove novos são mais largos que os
+   quatro antigos e o `contain` os encolhia até sobrar só a testa.
+3. **A caixa fantasma:** sete dos dez mestres carregavam alfa 28–42 no fundo — magenta impuro
+   nas entregas fazia `min(R,B)−G` parar em ~220 e o corte de 30 deixava passar. O piso do
+   desfranje subiu para 64 com reescala, os dez reconvertidos, auditados: zero alfa de fundo.
+
+A regra que fica: **auditar o alfa do canto é parte da conversão** — fantasma de 12% não
+aparece em fundo movimentado e aparece inteiro contra o céu.
