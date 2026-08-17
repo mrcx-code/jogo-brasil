@@ -140,7 +140,8 @@
     "gente-hoje",
     "gente-portas",
     "gente-pequenaafrica",
-    "gente-aceiro"
+    "gente-aceiro",
+    "gente-cais"
   ],
   "_quando": "Quando o nome entrou NESTE registro. A mesa compara esta data com a data do arquivo em assets/entrada: arquivo MAIS NOVO que a data aqui e uma RE-ENTREGA, e volta a aparecer como chegada. Sem isso, recolar uma imagem sobre uma ja processada sumia da tela. Datas anteriores a 09/08 foram lidas do historico do git deste arquivo.",
   "quando": {
@@ -273,6 +274,7 @@
     "gente-hoje": "2026-08-17 00:40",
     "gente-portas": "2026-08-17 01:30",
     "gente-pequenaafrica": "2026-08-17 01:30",
-    "gente-aceiro": "2026-08-17 01:30"
+    "gente-aceiro": "2026-08-17 01:30",
+    "gente-cais": "2026-08-17 02:30"
   }
 }

@@ -3,20 +3,6 @@
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
   "itens": [
     {
-      "n": "gente-pindorama",
-      "em": "2026-08-16 22:50",
-      "bytes": 2147421,
-      "onde": "portao tecnico",
-      "porque": "COLADA: vale minimo de 125 linhas de tinta entre figuras — nem o corte pelo vale passa. Regenerar com o vao de magenta puro de 20px."
-    },
-    {
-      "n": "gente-praca",
-      "em": "2026-08-16 22:50",
-      "bytes": 2051524,
-      "onde": "portao tecnico",
-      "porque": "COLADA no limite: vale 20. Regenerar com o vao de 20px para nao decepar fio de cabelo."
-    },
-    {
       "n": "gente-segurou",
       "em": "2026-08-16 22:50",
       "bytes": 2011378,
@@ -24,18 +10,25 @@
       "porque": "COLADA: vale 61. Regenerar com o vao de 20px."
     },
     {
-      "n": "cap4-sprite-v3",
-      "em": "2026-08-17 00:30",
-      "bytes": 1539354,
-      "onde": "test/medir-sola.js",
-      "porque": "A SOBREPOSICAO FOI CONSERTADA (vale 0 agora, era incortavel) — e a folha falha o PROPRIO pedido, que dizia SO AS POSES DO APOIO: medida, ela tem 3 quadros NO AR de 8 (2, 6 e 8). Dos 5 apoiados, quatro estao quase na mesma fase (calcanhar 149, 150, 153, 155) e so um na oposta (51): nao ha ciclo de 3 fases distintas ali dentro. E a folha ATUAL mede bem — laco 121,5 px em 3 quadros com recuos 41/40, consistente. Nao se troca arte que funciona por arte pior. O pedido novo: OITO poses TODAS com pelo menos um pe plantado, distribuindo o passo inteiro (contato aberto -> passagem com os pes juntos -> contato aberto do outro pe)."
+      "n": "gente-pindorama",
+      "em": "2026-08-17 02:40",
+      "bytes": 2015747,
+      "onde": "portao tecnico",
+      "porque": "COLADA ainda: vale caiu de 125 para 70 linhas de tinta, mas o limite pratico e 8. As figuras continuam invadindo a celula vizinha e nao ha corte vertical que nao decepe cesto ou calcanhar. O que falta e literal: VAO DE MAGENTA PURO de 20px entre uma figura e outra — nenhum pixel de tinta na faixa entre elas."
     },
     {
-      "n": "gente-cais",
-      "em": "2026-08-17 00:30",
-      "bytes": 2031141,
-      "onde": "ferramentas/necessario.json",
-      "porque": "TEMA, e a segunda vez: continua chegando o trio dos anos 70 (jornaleiro de jornais debaixo do braco, secretaria de pasta, office-boy de bicicleta) — que e exatamente a folha de O QUE NAO PODIA SER DITO, ja aprovada e no jogo. O cais do Valongo e o capitulo de HOJE sobre um cais do seculo XIX: o pedido pede gente CONTEMPORANEA da Saude/Gamboa — entregador de app com bag quadrada, senhora com carrinho de feira, jovem de fone e mochila. Roupa de agora, nao de epoca."
+      "n": "gente-praca",
+      "em": "2026-08-17 02:40",
+      "bytes": 2078152,
+      "onde": "portao tecnico",
+      "porque": "COLADA e PIOROU: vale subiu de 20 para 104. Mesmo pedido: vao de magenta puro de 20px entre figuras, nenhum pixel de tinta na faixa entre elas."
+    },
+    {
+      "n": "cap4-sprite-v3",
+      "em": "2026-08-17 02:40",
+      "bytes": 1458611,
+      "onde": "test/medir-sola.js",
+      "porque": "ADIADA, e nao recusada — a distincao importa e e a mesma das corridas. A v3 MELHOROU de verdade: 3 quadros no ar viraram 1, e a cabeca esta estavel (135, min 134 max 135). O que ainda falta e ciclo: dos sete apoiados, CINCO tem o calcanhar entre 131 e 138 — sao quase a mesma fase — e so um esta na oposta (63). Um ciclo precisa de fases distribuidas ao longo do passo, nao de oito variacoes do mesmo instante.\n\nE a folha ATUAL funciona: laco 121,5 px em 3 quadros com recuos 41/40. O ganho aqui seria SUAVIDADE (3 quadros -> 8), que e polimento — e tres tentativas ja e o bastante para um polimento enquanto ha rua sem gente. Volta quando o resto estiver no ar.\n\nSe voltar, o pedido e: as oito poses distribuindo o passo INTEIRO — contato com o pe da frente plantado, passagem com os pes juntos, contato com o outro pe — e nao oito instantes proximos."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
@@ -165,6 +158,13 @@
       "bytes": 2027137,
       "estado": "APROVADA E EMBUTIDA",
       "porque": "A PENA SAIU. A recusa era de uma fileira so: o produtor usava pena na cabeca, e o pedido dizia adorno discreto (colar, bracelete) sem cocar — porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Agora ele tem so o colar. As tres vestem roupa contemporanea, que E o argumento do capitulo: universitaria de cracha e tenis, produtor de caixa de feira e chinelo, senhora de guarda-chuva e ecobag."
+    },
+    {
+      "n": "gente-cais",
+      "em": "2026-08-17 02:30",
+      "bytes": 2152960,
+      "estado": "APROVADA E EMBUTIDA",
+      "porque": "Na terceira, e agora e a Saude de HOJE: entregador de app com bag amarela empurrando a bike, senhora de carrinho de feira quadriculado, jovem de fone no pescoco e mochila. As duas entregas anteriores traziam o trio dos anos 70, que e a folha do NAODITO — o capitulo e de hoje sobre um cais do seculo XIX, e a roupa e que diz isso."
     }
   ]
 }
