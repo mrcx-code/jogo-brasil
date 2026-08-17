@@ -3272,9 +3272,11 @@ function atualizarMobs(dt) {
 }
 let CAP_GENTE = 1;
 function capGente() { return epocaAtual() === CAP_GENTE; }
+let CAP_FILA = [];
+function capFila() { return CAP_FILA.indexOf(epocaAtual()) >= 0; }
 const ACOLHER_SEG = 1.6;
 function concluirAlcance(m, sx, auto) {
-    const gente = capGente(), pessoa = pessoaNaRua();
+    const gente = capFila(), pessoa = pessoaNaRua();
     if (m.parado && !dicaSetaVista && dicasValem())
         dicaSetaArmada = true;
     if (gente) {
@@ -3301,9 +3303,9 @@ let CAPS_VERBO = [];
 CAPS_VERBO = [];
 function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
 function verboExigeAndarNoToque() { return EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id === "naodito"; }
-function pessoaNaRua() { return capGente() || capPalavra(); }
+function pessoaNaRua() { return capFila() || capPalavra(); }
 function fracAlcance(m) {
-    if (capGente())
+    if (capFila())
         return Math.max(0, Math.min(1, (m.acolhida || 0) / ACOLHER_SEG));
     if (capPalavra())
         return Math.max(0, Math.min(1, (m.conversa || 0) / CONVERSA_SEG));
@@ -3357,7 +3359,7 @@ function acolherPessoa(x, esc) {
     }
 }
 function atualizarGrupo(dt) {
-    if (!capGente()) {
+    if (!capFila()) {
         if (grupo.length || ficando.length || S.grupo) {
             grupo.length = 0;
             ficando.length = 0;
@@ -3431,7 +3433,7 @@ function clicar(auto, naoConta, semAnim) {
     });
     if (alvo) {
         const m = alvo, sx = alvoSx;
-        const gente = capGente(), pessoa = pessoaNaRua();
+        const gente = capFila(), pessoa = pessoaNaRua();
         if (capPalavra()) {
             if (verboExigeAndarNoToque() && S.modo === "carvao") { }
             else if (!m.conversa) {
@@ -4005,6 +4007,7 @@ const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
 CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
+CAP_FILA = [iEp("palmares"), iEp("jabaquara")];
 const EPOCA_CENA0 = [];
 let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
@@ -4868,10 +4871,18 @@ function ajustarHeroHD() {
 function desenharGenteHD(hc, kx, ky, escBase) {
     if (!escBase)
         return;
+    const epId = EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id;
+    const folhaEp = epId && typeof GENTE_EP_SPR !== "undefined" ? GENTE_EP_SPR[epId] : null;
+    const pronta = folhaEp && folhaEp[0] && folhaEp[0][0] && !esperando(folhaEp[0][0]);
     const walk = heroBloco("walk"), n = walk.length;
     const atk = heroBloco("atk1");
     const poseEspera = atk[Math.min(3, atk.length - 1)] || walk[0];
     const passo = passoCap().passo;
+    const quadroGente = function (d, i) {
+        const f = folhaEp;
+        const fila = f[i % f.length];
+        return fila[Math.floor(Math.max(0, d) / GENTE4_PASSO) % fila.length];
+    };
     const desenha = function (img, xMundo, esc, espelha) {
         if (!img || !img.complete || !img.naturalWidth)
             return;
@@ -4903,11 +4914,11 @@ function desenharGenteHD(hc, kx, ky, escBase) {
     }
     for (let i = ficando.length - 1; i >= 0; i--) {
         const c = ficando[i];
-        desenha(quadro(c.d, c.esc), c.x, c.esc, false);
+        desenha(pronta ? quadroGente(c.d, i + 1) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
     }
     for (let i = grupo.length - 1; i >= 0; i--) {
         const c = grupo[i];
-        desenha(quadro(c.d, c.esc), c.x, c.esc, false);
+        desenha(pronta ? quadroGente(c.d, i) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
     }
     mobs.forEach(function (m) {
         if (m.dead || m.dying > 0)
