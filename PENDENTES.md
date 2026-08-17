@@ -592,3 +592,22 @@ Os três reusam moldes medidos (fila, segurar, acolher). Regra de sempre: renda 
 
 **Com os 17 e o lote 1 já feito, os NOVE verbos têm desenho aprovado.** Restam implementar: os
 três do 17 (fila/varrer/convidar) e estes três.
+
+---
+
+## 19. A pergunta de três dias segue sem dado, por decisão — 17/08
+
+Perguntado no check de produto: doze dias de construção e **zero jogadores reais**; todo número
+de retenção é bot. O dono escolheu **continuar construindo** em vez de testar agora.
+
+Fica registrado porque é a decisão de maior risco do projeto, não porque seja errada: a perna
+**divertido** da tese é a única sem medidor, e a única medição possível é gente jogando. As
+outras duas (bonito, ensina) se defendem com número; essa se defende com opinião.
+
+Quando o teste vier, o que já está pronto para medi-lo: PostHog com 9 eventos, a pergunta
+"você voltaria amanhã?" na CHEGADA, e a retenção local (dias distintos, tempo, tochas).
+
+**Aprovado no mesmo check:** medir e cortar o peso da porta AGORA (1.510 KB era a meta, hoje
+2.137) antes de mais arte entrar · e a obra passar a CHAMAR ao abrir o jogo — hoje o que cresceu
+só aparece se a pessoa for procurar em O LUGAR, e esse é o único motivo de voltar amanhã que não
+depende de conteúdo novo.
