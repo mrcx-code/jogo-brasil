@@ -4883,6 +4883,10 @@ function desenharGenteHD(hc, kx, ky, escBase) {
         const fila = f[i % f.length];
         return fila[Math.floor(Math.max(0, d) / GENTE4_PASSO) % fila.length];
     };
+    const altHeroi = (walk[0] && walk[0].naturalHeight) || 0;
+    const escGente = function (img, esc) {
+        return altHeroi && img.naturalHeight ? esc * (altHeroi / img.naturalHeight) : esc;
+    };
     const desenha = function (img, xMundo, esc, espelha) {
         if (!img || !img.complete || !img.naturalWidth)
             return;
@@ -4914,11 +4918,13 @@ function desenharGenteHD(hc, kx, ky, escBase) {
     }
     for (let i = ficando.length - 1; i >= 0; i--) {
         const c = ficando[i];
-        desenha(pronta ? quadroGente(c.d, i + 1) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
+        const q = pronta ? quadroGente(c.d, i + 1) : quadro(c.d, c.esc);
+        desenha(q, c.x, pronta ? escGente(q, c.esc) : c.esc, false);
     }
     for (let i = grupo.length - 1; i >= 0; i--) {
         const c = grupo[i];
-        desenha(pronta ? quadroGente(c.d, i) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
+        const q = pronta ? quadroGente(c.d, i) : quadro(c.d, c.esc);
+        desenha(q, c.x, pronta ? escGente(q, c.esc) : c.esc, false);
     }
     mobs.forEach(function (m) {
         if (m.dead || m.dying > 0)

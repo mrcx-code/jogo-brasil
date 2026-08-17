@@ -3977,6 +3977,16 @@ function desenharGenteHD(hc, kx, ky, escBase) {
     const fila = f[i % f.length];
     return fila[Math.floor(Math.max(0, d) / GENTE4_PASSO) % fila.length];
   };
+  // A ESCALA SAI DA ALTURA DO QUADRO, e não de um número escolhido a olho. `escBase` está
+  // calibrada para o quadro do HERÓI (323 px em PALMARES); a folha de gente vem em 280. Desenhar
+  // as duas na mesma escala encolhe a fila em 13%, e a primeira tentativa piorou com um 0,62
+  // chutado: a fila saiu do tamanho de crianças ao lado dela (print FILA-palmares).
+  // Com a razão medida em tempo de desenho, uma pessoa mais baixa continua mais baixa porque
+  // `c.esc` varia — o que some é o erro de vir de folhas de tamanhos diferentes.
+  const altHeroi = (walk[0] && walk[0].naturalHeight) || 0;
+  const escGente = function (img, esc) {
+    return altHeroi && img.naturalHeight ? esc * (altHeroi / img.naturalHeight) : esc;
+  };
   const desenha = function (img, xMundo, esc, espelha) {
     if (!img || !img.complete || !img.naturalWidth) return;
     const sc = escBase * esc;
@@ -4006,11 +4016,13 @@ function desenharGenteHD(hc, kx, ky, escBase) {
   // de trás para a frente, para quem está mais perto ficar por cima
   for (let i = ficando.length - 1; i >= 0; i--) {
     const c = ficando[i];
-    desenha(pronta ? quadroGente(c.d, i + 1) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
+    const q = pronta ? quadroGente(c.d, i + 1) : quadro(c.d, c.esc);
+    desenha(q, c.x, pronta ? escGente(q, c.esc) : c.esc, false);
   }
   for (let i = grupo.length - 1; i >= 0; i--) {
     const c = grupo[i];
-    desenha(pronta ? quadroGente(c.d, i) : quadro(c.d, c.esc), c.x, pronta ? c.esc * 0.62 : c.esc, false);
+    const q = pronta ? quadroGente(c.d, i) : quadro(c.d, c.esc);
+    desenha(q, c.x, pronta ? escGente(q, c.esc) : c.esc, false);
   }
   mobs.forEach(function (m) {
     if (m.dead || m.dying > 0) return;
