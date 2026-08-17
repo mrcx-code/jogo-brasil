@@ -22,6 +22,27 @@
       "bytes": 2008078,
       "onde": "mesa",
       "porque": "UMA fileira so: o produtor (fileira 2) veste PENA na cabeca — o pedido dizia sem cocar e adorno discreto (colar, bracelete), porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Fileiras 1 e 3 estao perfeitas (a universitaria de cracha, a senhora de guarda-chuva e ecobag). Conserto: mesma folha, fileira 2 com headband SEM pena ou so o colar."
+    },
+    {
+      "n": "gente-pindorama",
+      "em": "2026-08-16 22:50",
+      "bytes": 2147421,
+      "onde": "portao tecnico",
+      "porque": "COLADA: vale minimo de 125 linhas de tinta entre figuras — nem o corte pelo vale passa. Regenerar com o vao de magenta puro de 20px."
+    },
+    {
+      "n": "gente-praca",
+      "em": "2026-08-16 22:50",
+      "bytes": 2051524,
+      "onde": "portao tecnico",
+      "porque": "COLADA no limite: vale 20. Regenerar com o vao de 20px para nao decepar fio de cabelo."
+    },
+    {
+      "n": "gente-segurou",
+      "em": "2026-08-16 22:50",
+      "bytes": 2011378,
+      "onde": "portao tecnico",
+      "porque": "COLADA: vale 61. Regenerar com o vao de 20px."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",

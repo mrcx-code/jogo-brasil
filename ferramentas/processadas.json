@@ -133,7 +133,10 @@
     "cap-aceiro-retrato",
     "cap4-obj-v2",
     "cap3-obj-galao-v2",
-    "cap4-gente"
+    "cap4-gente",
+    "gente-palmares",
+    "gente-jabaquara",
+    "gente-naodito"
   ],
   "_quando": "Quando o nome entrou NESTE registro. A mesa compara esta data com a data do arquivo em assets/entrada: arquivo MAIS NOVO que a data aqui e uma RE-ENTREGA, e volta a aparecer como chegada. Sem isso, recolar uma imagem sobre uma ja processada sumia da tela. Datas anteriores a 09/08 foram lidas do historico do git deste arquivo.",
   "quando": {
@@ -259,6 +262,9 @@
     "cap-aceiro-retrato": "2026-08-15 22:00",
     "cap4-obj-v2": "2026-08-16 07:00",
     "cap3-obj-galao-v2": "2026-08-16 07:00",
-    "cap4-gente": "2026-08-16 08:40"
+    "cap4-gente": "2026-08-16 08:40",
+    "gente-palmares": "2026-08-16 22:50",
+    "gente-jabaquara": "2026-08-16 22:50",
+    "gente-naodito": "2026-08-16 22:50"
   }
 }

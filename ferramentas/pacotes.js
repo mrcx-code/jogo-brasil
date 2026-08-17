@@ -161,8 +161,15 @@ function pacoteDoEndereco(caminho) {
   // ROSTOS.md). Cada retrato viaja no pacote que o capítulo dele JÁ PUXA — quem veste pintura
   // emprestada (A PRAÇA, O QUE SEGUROU, O ACEIRO → naodito) leva o rosto no mesmo embrulho.
   if (c === "RETRATO_B64") return PACK_DO_RETRATO[caminho[1]] || null;
-  // A gente da rua de SALVADOR (16/08): tres fileiras de oito quadros, todas do mesmo dono.
-  if (c === "GENTE4_B64") return "salvador";
+  // A gente das ruas, POR ÉPOCA (16/08): caminho[1] é o id do capítulo, e cada folha viaja
+  // no pacote que o capítulo já puxa — a regra dos retratos.
+  if (c === "GENTE_EP_B64") {
+    const PACK_DA_GENTE = { salvador: "salvador", palmares: "palmares", jabaquara: "jabaquara",
+      naodito: "naodito", cais: "cais", pequenaafrica: "pequenaafrica", portas: "portas",
+      praca: "naodito", segurou: "naodito", aceiro: "naodito", temfonte: "hoje", hoje: "hoje",
+      pindorama: null };
+    return PACK_DA_GENTE[caminho[1]] || null;
+  }
   if (c === "FRENTE_B64") return PACK_DO_BLOCO[FRENTE_OITAVA_BLOCO[Math.floor(caminho[1] / 8)]] || null;
   if (c === "CTX_B64") {
     const m = String(caminho[1]).match(/^(cap\d+)/);
@@ -191,7 +198,7 @@ function conhecido(caminho) {
   if (c === "MOB_B64") return caminho[2] < PACK_DO_BLOCO.length;
   if (c === "DROP_B64") return caminho[1] < PACK_DO_BLOCO.length;
   if (c === "RETRATO_B64") return caminho[1] < PACK_DO_RETRATO.length;
-  if (c === "GENTE4_B64") return true;
+  if (c === "GENTE_EP_B64") return true;
   if (c === "FRENTE_B64") return Math.floor(caminho[1] / 8) < FRENTE_OITAVA_BLOCO.length;
   if (c === "CTX_B64") {
     const m = String(caminho[1]).match(/^(cap\d+)/);
@@ -204,6 +211,6 @@ function conhecido(caminho) {
 // Os containers cujo conteúdo pode viajar em pacote. O jogo declara os mesmos nomes em
 // `ARTE_CONTAINERS` (src/jogo.ts) para saber onde devolver cada imagem quando ela chegar.
 const CONTAINERS = ["CENARIO_ALTO_B64", "CENARIO_CHAO_B64", "HERO_B64", "MOB_B64",
-  "DROP_B64", "FRENTE_B64", "RETRATO_B64", "GENTE4_B64", "CTX_B64", "QUAD_B64", "TRAV_B64"];
+  "DROP_B64", "FRENTE_B64", "RETRATO_B64", "GENTE_EP_B64", "CTX_B64", "QUAD_B64", "TRAV_B64"];
 
 module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, CONTAINERS, pacoteDoEndereco, conhecido };
