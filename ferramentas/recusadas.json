@@ -3,27 +3,6 @@
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
   "itens": [
     {
-      "n": "cap4-sprite-v3",
-      "em": "2026-08-16 07:50",
-      "bytes": 1977729,
-      "onde": "test/LEIAME.md (celulas iguais)",
-      "porque": "TECNICA, nao de desenho — o desenho esta certo: a mesma ganhadeira, oito poses todas apoiadas, como o pedido exigia. O problema e que AS FIGURAS SE SOBREPOEM na folha: medido coluna a coluna, ate os vales de tinta entre figuras carregam 60 a 180 linhas de pixel — o tabuleiro de uma invade a vizinha. Nao existe corte vertical que nao decepe um tabuleiro ou um calcanhar. O pedido novo e o mesmo desenho com RESPIRO: 8 celulas de largura IGUAL, cada figura INTEIRA dentro da sua, com vao de magenta puro (20px ou mais) entre uma e outra."
-    },
-    {
-      "n": "gente-cais",
-      "em": "2026-08-16 20:30",
-      "bytes": 2173200,
-      "onde": "mesa",
-      "porque": "TECNICA, mesma da sprite-v3: figuras se sobrepoem — pior fronteira vertical com 205 linhas de tinta (limite pratico ~20). Regenerar com o vao de magenta puro de 20px que o pedido ja exige."
-    },
-    {
-      "n": "gente-hoje",
-      "em": "2026-08-16 20:30",
-      "bytes": 2008078,
-      "onde": "mesa",
-      "porque": "UMA fileira so: o produtor (fileira 2) veste PENA na cabeca — o pedido dizia sem cocar e adorno discreto (colar, bracelete), porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Fileiras 1 e 3 estao perfeitas (a universitaria de cracha, a senhora de guarda-chuva e ecobag). Conserto: mesma folha, fileira 2 com headband SEM pena ou so o colar."
-    },
-    {
       "n": "gente-pindorama",
       "em": "2026-08-16 22:50",
       "bytes": 2147421,
@@ -43,6 +22,20 @@
       "bytes": 2011378,
       "onde": "portao tecnico",
       "porque": "COLADA: vale 61. Regenerar com o vao de 20px."
+    },
+    {
+      "n": "cap4-sprite-v3",
+      "em": "2026-08-17 00:30",
+      "bytes": 1539354,
+      "onde": "test/medir-sola.js",
+      "porque": "A SOBREPOSICAO FOI CONSERTADA (vale 0 agora, era incortavel) — e a folha falha o PROPRIO pedido, que dizia SO AS POSES DO APOIO: medida, ela tem 3 quadros NO AR de 8 (2, 6 e 8). Dos 5 apoiados, quatro estao quase na mesma fase (calcanhar 149, 150, 153, 155) e so um na oposta (51): nao ha ciclo de 3 fases distintas ali dentro. E a folha ATUAL mede bem — laco 121,5 px em 3 quadros com recuos 41/40, consistente. Nao se troca arte que funciona por arte pior. O pedido novo: OITO poses TODAS com pelo menos um pe plantado, distribuindo o passo inteiro (contato aberto -> passagem com os pes juntos -> contato aberto do outro pe)."
+    },
+    {
+      "n": "gente-cais",
+      "em": "2026-08-17 00:30",
+      "bytes": 2031141,
+      "onde": "ferramentas/necessario.json",
+      "porque": "TEMA, e a segunda vez: continua chegando o trio dos anos 70 (jornaleiro de jornais debaixo do braco, secretaria de pasta, office-boy de bicicleta) — que e exatamente a folha de O QUE NAO PODIA SER DITO, ja aprovada e no jogo. O cais do Valongo e o capitulo de HOJE sobre um cais do seculo XIX: o pedido pede gente CONTEMPORANEA da Saude/Gamboa — entregador de app com bag quadrada, senhora com carrinho de feira, jovem de fone e mochila. Roupa de agora, nao de epoca."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
@@ -165,6 +158,13 @@
       "bytes": 1713741,
       "estado": "APROVADA em 15/08",
       "porque": "APROVADA de primeira: celular numa mao, caderno na outra, conferindo um contra o outro — o metodo do capitulo num gesto. Uniforme sem brasao."
+    },
+    {
+      "n": "gente-hoje",
+      "em": "2026-08-17 00:40",
+      "bytes": 2027137,
+      "estado": "APROVADA E EMBUTIDA",
+      "porque": "A PENA SAIU. A recusa era de uma fileira so: o produtor usava pena na cabeca, e o pedido dizia adorno discreto (colar, bracelete) sem cocar — porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Agora ele tem so o colar. As tres vestem roupa contemporanea, que E o argumento do capitulo: universitaria de cracha e tenis, produtor de caixa de feira e chinelo, senhora de guarda-chuva e ecobag."
     }
   ]
 }
