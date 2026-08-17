@@ -576,3 +576,19 @@ exige vão de magenta puro ≥20px entre figuras.
 - **A PEQUENA ÁFRICA · CONVIDAR**: toque convida; a pessoa entra pela porta da casa na cena; casa cheia é o placar.
 
 Os três reusam moldes medidos (fila, segurar, acolher). Regra de sempre: renda ±10% por capítulo ao ligar.
+
+---
+
+## 18. O lote 3 de verbos, aprovado em 17/08 — fecha o desenho dos nove
+
+- **O QUE SEGUROU · CHEGAR**: casas ao longo da rua; tocar atende quem está na porta, mas a que
+  CONTA é a do fim do quarteirão, e só se chega nela andando até lá. Recompensa persistência,
+  não velocidade — o verbo ao pé da letra.
+- **O ACEIRO · ABAFAR**: frentes de fogo atravessam; cada uma que passa esquenta o mundo (motor
+  de sinal já existe). Tocar abafa, **correr não abafa**. Fogo nunca é pessoa nem máquina.
+- **O QUE TEM FONTE · CONFERIR**: atravessam FRASES que o jogo já afirmou nos 12 capítulos;
+  tocar abre quem mediu, como e onde está publicado. O que passa sem conferência some — que é
+  literalmente o que o capítulo diz.
+
+**Com os 17 e o lote 1 já feito, os NOVE verbos têm desenho aprovado.** Restam implementar: os
+três do 17 (fila/varrer/convidar) e estes três.
