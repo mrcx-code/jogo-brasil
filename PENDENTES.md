@@ -566,3 +566,13 @@ O desenho da ligação, para a próxima sessão não redescobrir:
 E `cap4-sprite-v3` foi RECUSADA por sobreposição (as figuras invadem as células vizinhas — não
 há corte vertical possível; medido coluna a coluna). O desenho em si está certo; o pedido novo
 exige vão de magenta puro ≥20px entre figuras.
+
+---
+
+## 17. Os três verbos do lote 2, aprovados no check de 16/08 — por implementar
+
+- **JABAQUARA · GUIAR**: toque forma a FILA (molde de PALMARES); levar ao alto conta a chegada.
+- **O CAIS · VARRER**: trechos do chão vêm cobertos; SEGURAR revela o calçamento por baixo, e fica.
+- **A PEQUENA ÁFRICA · CONVIDAR**: toque convida; a pessoa entra pela porta da casa na cena; casa cheia é o placar.
+
+Os três reusam moldes medidos (fila, segurar, acolher). Regra de sempre: renda ±10% por capítulo ao ligar.
