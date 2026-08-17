@@ -257,6 +257,18 @@ Não é relatório de status ("fiz A, B e C") — é uma mesa de decisão. O que
 - **as dúvidas** que apareceram e ainda não têm resposta;
 - **as ideias e os caminhos possíveis**, inclusive os que eu não seguiria.
 
+**O CHECK É DE PRODUTO, e isto é obrigatório desde 2026-08-17** (*"o check tem que trigar a
+evolução do produto também, sempre revisar metas, objetivos e oportunidades também para me
+enviar"*). Todo check tem QUATRO camadas, nesta ordem:
+
+1. **METAS** — onde estamos contra a pergunta de três dias e contra a tese (bonito · divertido ·
+   ensina). Com número quando houver; dizendo "não sei" quando não houver, que é informação.
+2. **OBJETIVOS** — o que está feito e o que falta, medido.
+3. **OPORTUNIDADES** — o que EU vejo e não está em fila nenhuma, inclusive o que eu não faria.
+4. **AS DECISÕES**, na forma clicável.
+
+Sem a camada 1 o check vira relatório de tarefas, que é exatamente o que ele não é.
+
 **A forma é obrigatória e ele repetiu duas vezes: LISTA ORDENADA, com OPÇÕES, e a melhor
 opção marcada.** Ele responde por número — "1. C, 2. A" — e isso só funciona se cada item for
 uma pergunta fechada com saídas nomeadas.
