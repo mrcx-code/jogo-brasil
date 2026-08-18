@@ -70,8 +70,19 @@ const PACK_DO_BLOCO = [null, "palmares", "salvador", "hoje"];
 // pindorama fica na abertura (é a arte que segura o jogo); hoje idem — o retrato dela é o
 // que o jogo inteiro usava até 15/08 e a CHEGADA o mostra. Os demais vão no pacote que o
 // capítulo já baixa, pela regra "quem veste paga o pacote de quem é dono".
+// O ÚLTIMO ERA `null` E NÃO DEVIA (18/08). Medido: o retrato de AINDA AQUI viajava na PORTA DE
+// ENTRADA, 16 KB pagos por quem abre o jogo pela primeira vez e talvez nunca chegue ao capítulo
+// 13. Os outros doze estão certos — só este ficou para trás, e a razão é a reindexação dos
+// retratos feita nesta mesma manhã: eles passaram de índice de BLOCO DE ARTE (4 posições) para
+// índice de ÉPOCA (13), e a última posição do mapa nasceu vazia sem ninguém reparar.
+//
+// O `null` da posição 0 é outro caso e continua certo: PINDORAMA é o capítulo 1, e a arte dele
+// nunca sai da abertura por decisão — é ela que faz o jogo ter chão enquanto o pacote viaja.
+//
+// A conferência que pega isto de novo é de uma linha: para cada época i > 0, `PACK_DO_RETRATO[i]`
+// tem de ser um dos pacotes que `pacotesDaEpoca(i)` pede. Ver o bloco 35 do `test/encaixe.js`.
 const PACK_DO_RETRATO = [null, "palmares", "cais", "salvador", "jabaquara", "pequenaafrica",
-  "portas", "naodito", "naodito", "naodito", "naodito", "hoje", null];
+  "portas", "naodito", "naodito", "naodito", "naodito", "hoje", "hoje"];
 
 // ---- de qual bloco de arte é cada folha do HERO_B64 ----
 // As chaves do bloco são `walk`, `walk2`, `walk3`, `walk4`… e o SUFIXO é o número do PEDIDO
@@ -213,4 +224,6 @@ function conhecido(caminho) {
 const CONTAINERS = ["CENARIO_ALTO_B64", "CENARIO_CHAO_B64", "HERO_B64", "MOB_B64",
   "DROP_B64", "FRENTE_B64", "RETRATO_B64", "GENTE_EP_B64", "CTX_B64", "QUAD_B64", "TRAV_B64"];
 
-module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, CONTAINERS, pacoteDoEndereco, conhecido };
+// `PACK_DO_RETRATO` sai daqui para o `construir.js` poder COBRAR que ele não tenha posição
+// vazia — mapa escrito à mão com posição esquecida é 16 KB na porta de entrada, em silêncio.
+module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, PACK_DO_RETRATO, CONTAINERS, pacoteDoEndereco, conhecido };

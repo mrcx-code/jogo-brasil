@@ -193,6 +193,46 @@ if (/@@[A-Z]+@@/.test(saida)) throw new Error('sobrou marca por trocar na saída
 const externo = saida.match(/(?:src|href)\s*=\s*["'](?!data:)[^"']+["']/gi) || [];
 if (externo.length) throw new Error('referência externa na saída: ' + externo.slice(0, 3).join(' , '));
 
+// ---- A PORTA DE ENTRADA NÃO ENGORDA POR DESCUIDO (18/08) ----
+// A exceção do arquivo único foi aprovada pelo dono em 10/08 sobre a promessa de que capítulo
+// novo custa 0 KB na abertura. A promessa depende de UM mapa por container em `pacotes.js`, e
+// mapa é lista escrita à mão: posição esquecida vale `null`, e `null` significa "fica embutido".
+// Não dá erro, não dá aviso — só engorda a porta.
+//
+// FOI O QUE ACONTECEU, e o defeito era meu: os retratos foram reindexados de bloco de arte
+// (4 posições) para época (13) nesta mesma manhã, e a última posição do `PACK_DO_RETRATO`
+// nasceu vazia. Medido: o retrato de AINDA AQUI viajava na abertura, 16 KB pagos por quem abre
+// o jogo pela primeira vez e talvez nunca chegue ao capítulo 13.
+//
+// A regra é de uma linha e vale para sempre: se um capítulo pede pacote, o retrato dele tem de
+// viajar em UM DELES. A posição 0 é a exceção declarada — PINDORAMA é o chão que existe
+// enquanto os outros pacotes viajam, e a arte dele nunca sai da abertura por decisão.
+{
+  const P = require('./pacotes.js');
+  // Conta as épocas lendo a fonte: o número de posições do mapa tem de acompanhar o de capítulos,
+  // e é justamente quando um capítulo entra que a posição nova nasce vazia.
+  // `arteCap:` é o marcador porque toda época declara um e nada mais no arquivo o usa — mas ele
+  // aparece também DENTRO de um comentário que explica a regra, e contar essa linha dava 14 onde
+  // há 13. As linhas de comentário saem antes de contar; a régua tem de contar o código.
+  const fonteEp = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'jogo.ts'), 'utf8');
+  const idsEp = fonteEp.split(/\r?\n/)
+    .filter(function (l) { const t = l.trim(); return !t.startsWith('//') && !t.startsWith('*') && /\barteCap:\s*\d/.test(t); })
+    .length;
+  const mapa = P.PACK_DO_RETRATO;
+  if (!Array.isArray(mapa)) throw new Error('pacotes.js parou de exportar PACK_DO_RETRATO — a porta de entrada ficou sem trava');
+  const vazias = [];
+  for (let i = 1; i < mapa.length; i++) if (!mapa[i]) vazias.push(i);
+  if (vazias.length) {
+    throw new Error('PACK_DO_RETRATO tem posição vazia em ' + vazias.join(', ') +
+      ' — o retrato desse capítulo viaja na PORTA DE ENTRADA. Aponte-o para um dos pacotes que ' +
+      'o capítulo já pede (só a posição 0, do capítulo 1, pode ser null).');
+  }
+  if (idsEp && mapa.length !== idsEp) {
+    throw new Error('PACK_DO_RETRATO tem ' + mapa.length + ' posições e há ' + idsEp +
+      ' épocas — capítulo novo entrou sem lugar no mapa, e o retrato dele vai pagar na abertura.');
+  }
+}
+
 // ---- O CONTRATO DA REDE, COBRADO ----
 // A trava acima cobra `src=` e `href=`. Ela NÃO vê um `fetch()`, e por isso ela sozinha virou
 // uma garantia que só parecia existir no dia em que o jogo passou a buscar os pacotes de arte
