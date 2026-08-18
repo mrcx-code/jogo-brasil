@@ -9050,7 +9050,38 @@ function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
     falaDepois = depois || null;
     falaViva = true;
     falaImgs = falaLinhas.map(function (_, i) { return (imgs && imgs[i]) || null; });
-    pixelRotulo($("falaTit"), titulo, 2, "#5c3210");
+    {
+        const cxFala = $("falaCaixa"), csCx = getComputedStyle(cxFala);
+        const dispTit = cxFala.getBoundingClientRect().width
+            - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
+        const cabeTit = Math.floor(dispTit / 12);
+        const elTit = $("falaTit");
+        if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
+            const meioT = Math.floor(titulo.length / 2);
+            let corteT = -1;
+            for (let k = 0; k < titulo.length; k++) {
+                if (titulo.charAt(k) !== " ")
+                    continue;
+                if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT))
+                    corteT = k;
+            }
+            elTit.textContent = "";
+            elTit.dataset.px = "";
+            elTit.setAttribute("aria-label", titulo);
+            const t1 = document.createElement("div"), t2 = document.createElement("div");
+            elTit.appendChild(t1);
+            elTit.appendChild(t2);
+            pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
+            pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
+        }
+        else {
+            if (elTit.firstElementChild) {
+                elTit.textContent = "";
+                elTit.dataset.px = "";
+            }
+            pixelRotulo(elTit, titulo, 2, "#5c3210");
+        }
+    }
     $("falaSub").textContent = quando || "";
     const g = $("falaFantasma");
     g.textContent = "";

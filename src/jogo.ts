@@ -10265,7 +10265,51 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   // imagem nenhuma continua funcionando como sempre funcionou, sem imagem em lugar nenhum.
   falaImgs = falaLinhas.map(function (_, i) { return (imgs && imgs[i]) || null; });
   // tinta escura: o título agora vive sobre papel claro, não sobre caixa escura
-  pixelRotulo($("falaTit"), titulo, 2, "#5c3210");
+  // O NOME QUEBRA EM DUAS LINHAS QUANDO NÃO CABE (18/08) — a mesma decisão que a CERIMÔNIA
+  // deste mesmo título já obedece desde 14/08, e que a caixa de fala não obedecia.
+  //
+  // MEDIDO a 320 px: o papel útil de `#falaCaixa` é 272 px, e dois dos treze nomes passam —
+  // "O QUE NÃO PODIA SER DITO" com 290 px e "O CAIS QUE VOLTOU À LUZ" com 278. A moldura de
+  // madeira é um `box-shadow` DENTRO do recheio, então bastam alguns pixels para a última
+  // letra sentar em cima dela. Com a fala aberta, o retângulo do título ficava 2 px além da
+  // borda direita da própria caixa.
+  //
+  // POR QUE NÃO `escalaQueCabe` AQUI, e o número é o argumento: a 320 px ela devolveria escala
+  // 1 — meia letra nos TREZE nomes por causa de dois. O dono já decidiu isto em 14/08 para a
+  // cerimônia: nenhum nome muda e o tamanho da letra continua o mesmo em todos os treze. É o
+  // mesmo nome, na mesma tela, e a resposta tem de ser a mesma.
+  //
+  // Dá para medir daqui: `.tela` fecha com `visibility: hidden`, não `display: none`, então
+  // `#falaCaixa` já tem largura real neste instante mesmo com `#telaFala` fechada.
+  {
+    const cxFala = $("falaCaixa"), csCx = getComputedStyle(cxFala);
+    const dispTit = cxFala.getBoundingClientRect().width
+      - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
+    const cabeTit = Math.floor(dispTit / 12);      // 6 px por glifo × escala 2
+    const elTit = $("falaTit");
+    if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
+      // corta no espaço MAIS PRÓXIMO DO MEIO, para as duas linhas ficarem parecidas
+      const meioT = Math.floor(titulo.length / 2);
+      let corteT = -1;
+      for (let k = 0; k < titulo.length; k++) {
+        if (titulo.charAt(k) !== " ") continue;
+        if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT)) corteT = k;
+      }
+      elTit.textContent = ""; elTit.dataset.px = "";
+      elTit.setAttribute("aria-label", titulo);    // o nome inteiro segue legível por leitor de tela
+      const t1 = document.createElement("div"), t2 = document.createElement("div");
+      elTit.appendChild(t1); elTit.appendChild(t2);
+      pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
+      pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
+    } else {
+      // Nome curto: uma linha. E LIMPA OS FILHOS de uma fala anterior que quebrou — sem isto,
+      // um capítulo de nome curto aberto depois de um longo herdaria as duas linhas do outro.
+      // `textContent` e `dataset.px` saem JUNTOS: `pixelRotulo` cacheia pela chave, e limpar
+      // só um dos dois faz o rótulo sumir e nunca mais voltar.
+      if (elTit.firstElementChild) { elTit.textContent = ""; elTit.dataset.px = ""; }
+      pixelRotulo(elTit, titulo, 2, "#5c3210");
+    }
+  }
   $("falaSub").textContent = quando || "";
   // O fantasma: todas as falas desta conversa, empilhadas invisíveis na mesma célula da
   // grade. É o que dá à caixa a altura da mais alta antes de a primeira letra aparecer.
