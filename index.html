@@ -4457,7 +4457,7 @@ function mostrarRetorno(dt) {
         linha(fila === 1 ? "Uma pessoa continua andando com você."
             : fila + " pessoas continuam andando com você.");
     }
-    const vivendo = S.acolhidos.reduce(function (a, b) { return a + (b | 0); }, 0);
+    const vivendo = genteDaObra();
     if (vivendo > 0) {
         linha(vivendo === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
             : vivendo + " pessoas acolhidas vivem no lugar que vocês abriram.");

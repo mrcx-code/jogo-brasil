@@ -2432,6 +2432,81 @@ const sec = t => log('\n---- ' + t);
       (jaTemFolha.length ? ' — TIRE DAQUI: ' + jaTemFolha.join(', ') : ''));
   }
 
+  // ============================================================
+  // 33 · A VOLTA NO DIA 2 — a tela que a pergunta de tres dias inteira atravessa
+  //
+  // O GAP (18/08). "O jogo segura alguem por tres dias?" e a pergunta do repositorio, e a
+  // unica tela que existe para responde-la -- o papel ENQUANTO VOCE ESTEVE FORA -- nao tinha
+  // uma assercao sequer. Ela abre uma vez por dia, no primeiro segundo da sessao, e e a
+  // primeira coisa que a pessoa ve e pode tocar ao voltar. Se ela quebrar, quebra calada e o
+  // sintoma e o unico que este projeto nao pode medir: alguem nao volta.
+  //
+  // E ela ja estava errada. Ver a assercao (c).
+  // ============================================================
+  sec('33 · a volta no dia 2: o papel abre, diz a verdade, e traz historia com fonte');
+  {
+    const volta = await page.evaluate(() => {
+      const ler = () => [...document.querySelectorAll('#retLista .retLinha')].map(d => d.textContent);
+      const limpar = () => { document.getElementById('retLista').textContent = ''; };
+      const fechar = () => { const e = document.getElementById('retorno'); if (e) e.classList.remove('aberto'); };
+      const r = {};
+
+      // (a) ausencia curta nao faz cerimonia
+      limpar(); fechar(); mostrarRetorno(30);
+      r.curta = document.getElementById('retorno').classList.contains('aberto');
+
+      // (b) o dia 2 de quem so jogou o capitulo 1 -- que e TODO MUNDO no dia 2
+      S.acolhidos = S.acolhidos.map(() => 0);
+      S.acolhidos[CAP_FILA[0]] = 5;
+      S.grupo = 5; S.fronteira = 0; R.dias = 2;
+      limpar(); fechar(); mostrarRetorno(12 * 3600);
+      r.abriu = document.getElementById('retorno').classList.contains('aberto');
+      r.novato = ler();
+      const nota = document.querySelector('#retLista .retNota');
+      r.temNota = !!nota;
+      r.notaTemFonte = !!(nota && /fonte:/i.test(nota.textContent || ''));
+
+      // (c) a mesma gente, agora na vaga da obra
+      S.acolhidos = S.acolhidos.map(() => 0);
+      S.acolhidos[CAP_GENTE] = 5;
+      S.fronteira = CAP_GENTE;
+      limpar(); fechar(); mostrarRetorno(12 * 3600);
+      r.naObra = ler();
+
+      // (d) quantas notas existem no pior caso -- fronteira zero
+      r.notasNaFronteiraZero = LINHA_TEMPO.filter(n =>
+        n.tipo === 'momento' && ((n.cena || 0) | 0) <= 0 && !!n.t && !!n.d && !!n.f).length;
+      return r;
+    });
+
+    const moram = (linhas) => linhas.some(l => /vive[m]? no lugar/i.test(l));
+    log('   dia 2 de quem so jogou o cap. 1:');
+    volta.novato.forEach(l => log('     · ' + l));
+    log('   a mesma gente na vaga da obra:');
+    volta.naObra.forEach(l => log('     · ' + l));
+    log('   notas de historia disponiveis na fronteira 0: ' + volta.notasNaFronteiraZero);
+
+    ok(!volta.curta, 'ausência de 30 s não abre o papel da volta — voltar do bolso não é voltar');
+    ok(volta.abriu, 'ausência de 12 h abre o papel da volta');
+    ok(volta.temNota, 'quem volta no dia 2 recebe uma nota de história');
+    ok(volta.notaTemFonte, 'a nota da volta traz a fonte junto (§2: onde há fonte, ela aparece)');
+    ok(volta.notasNaFronteiraZero > 0,
+      'há nota disponível já na fronteira 0 — senão quem volta no dia 2 sem ter avançado não recebe nada');
+
+    // (c) O DEFEITO QUE ISTO PEGOU, e ele estava no ar (18/08). A linha "N pessoas acolhidas
+    // vivem no lugar que voces abriram" somava TODAS as vagas de `S.acolhidos` -- era o unico
+    // leitor do jogo que somava, contra seis que usam `[CAP_GENTE]`. Consequencia: quem jogou
+    // so PINDORAMA lia que gente acolhida em 1500 vivia na roca do quilombo, que e exatamente
+    // a conflacao que a linha 1061 do jogo.ts proibe por escrito ("faria a roca do quilombo
+    // crescer com gente de Santos de 1888"). O codigo recusava fazer isso na economia e o
+    // texto fazia na tela. De quebra, contradizia a linha seguinte: dizia que cinco pessoas
+    // moravam ali e, logo abaixo, que a estrada tinha esperado.
+    ok(!moram(volta.novato),
+      'acolhida em outro capítulo NÃO é dita morando no lugar do mutirão (§2 — não se mistura povo e século)');
+    ok(moram(volta.naObra),
+      'acolhida na vaga da obra É dita morando lá — o conserto não pode ter apagado a linha');
+  }
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;

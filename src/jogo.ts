@@ -3312,7 +3312,20 @@ function mostrarRetorno(dt) {
     linha(fila === 1 ? "Uma pessoa continua andando com você."
       : fila + " pessoas continuam andando com você.");
   }
-  const vivendo = S.acolhidos.reduce(function (a, b) { return a + (b | 0); }, 0);
+  // `genteDaObra()` e NAO a soma de `S.acolhidos` (18/08). Esta linha era o unico lugar do jogo
+  // que somava todas as vagas — os outros seis leitores usam `[CAP_GENTE]` —, e a conta errada
+  // dizia a frase que a linha 1061 proibe por escrito: gente acolhida em PINDORAMA em 1500
+  // "vivendo no lugar que voces abriram", que e a roca do quilombo. A mesma conflacao que o
+  // codigo recusa fazer na economia, o texto fazia na tela.
+  //
+  // E ela contradizia a propria tela dois paragrafos abaixo: quem jogou so PINDORAMA — ou seja,
+  // TODO MUNDO no dia 2 — lia "5 pessoas acolhidas vivem no lugar que voces abriram" e, logo em
+  // seguida, "a estrada esperou", que e a frase de quando ninguem trabalhou. Com a vaga certa as
+  // duas passam a poder ser verdade ao mesmo tempo, porque falam da MESMA gente.
+  //
+  // Quem foi acolhida nos outros quatro capitulos da fila nao some da tela: aparece na linha de
+  // cima, "continuam andando com voce", que e o que de fato aconteceu com elas.
+  const vivendo = genteDaObra();
   if (vivendo > 0) {
     linha(vivendo === 1 ? "Uma pessoa acolhida vive no lugar que vocês abriram."
       : vivendo + " pessoas acolhidas vivem no lugar que vocês abriram.");

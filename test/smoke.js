@@ -1259,7 +1259,14 @@ function lintComentarios() {
     localStorage.setItem(CHAVE_JOGO, JSON.stringify({
       energia: 500, energiaTotal: 800, cenario: 0, modo: 'limpo',
       u1: false, u2: false, u3: false, u4: false, cuidado: 0.8, som: false,
-      aberturas: 1, fechos: 0, grupo: 3, acolhidos: [2, 0, 0], marcos: 0,
+      // A VAGA IMPORTA, e ate 18/08 esta semente estava na errada. `acolhidos` tem uma posicao
+      // por epoca, e a linha "N pessoas acolhidas vivem no lugar que voces abriram" fala do
+      // mutirao do quilombo -- posicao CAP_GENTE, que e 1. Semeada em 0 (PINDORAMA), ela cobrava
+      // que o painel dissesse que gente acolhida em 1500 morava na roca de Palmares, que e a
+      // conflacao proibida por escrito no jogo.ts linha 1061. O painel de fato dizia, porque era
+      // o unico leitor de `acolhidos` que somava todas as vagas; o teste passava por concordar
+      // com o defeito. Ver encaixe.js bloco 33, que cobra os DOIS lados.
+      aberturas: 1, fechos: 0, grupo: 3, acolhidos: [0, 2, 0], marcos: 0,
       salvoEm: Date.now() - 8 * 3600 * 1000     // 8h away, under the 12h offline cap
     }));
     const ontem = new Date(Date.now() - 864e5);
@@ -1282,9 +1289,16 @@ function lintComentarios() {
   });
   console.log('day-2 return -> open:', volta.aberto, '| away', Math.round(volta.dt) + 's',
     '| lines:', volta.linhas.length, '| days', volta.dias);
+  volta.linhas.forEach(function (l) { console.log('   .', l); });
   if (!volta.aberto) errors.push('an 8h-old save did not open the return panel');
   if (volta.aria !== 'false') errors.push('the return panel is open but hidden from the accessibility tree');
-  if (volta.linhas.length !== 5) errors.push('the return panel does not carry its five lines: got ' + volta.linhas.length);
+  // NAO E CONTAGEM EXATA, e a razao apareceu em 18/08. O painel tem quatro linhas fixas mais
+  // as do mutirao, e essas variam com o quanto a obra andou -- uma noite no teto ergue ate tres
+  // estagios. Cobrar "exatamente 5" era cobrar que o mutirao NAO trabalhasse, e de fato ele nao
+  // trabalhava: a semente punha as acolhidas na vaga 0 em vez da vaga da obra, entao o caminho
+  // inteiro de "o que o mutirao ergueu enquanto voce esteve fora" tinha zero cobertura. As
+  // assercoes que valem sao as de CONTEUDO, logo abaixo.
+  if (volta.linhas.length < 5) errors.push('the return panel lost lines: got ' + volta.linhas.length);
   // Every number on the paper must be the state AT BUILD TIME (the panel is built inside
   // carregar(), synchronously on the seeded save). S.grupo is re-derived by the frame loop
   // right after, so the panel is compared against the seed, not against later live state.
@@ -1300,6 +1314,18 @@ function lintComentarios() {
   }
   if (!volta.linhas.some(l => l.startsWith('2 pessoas acolhidas'))) {
     errors.push('no line matches the seeded 2 sheltered: ' + JSON.stringify(volta.linhas));
+  }
+  // O MUTIRAO TRABALHOU, E O PAPEL DIZ O QUE ELE ERGUEU. Com gente na vaga da obra e 8h fora,
+  // a taxa nao e zero e a obra tem de ter andado -- e o painel tem de contar isso, porque e o
+  // unico motivo concreto de voltar amanha que este jogo oferece hoje. Sem esta assercao, o
+  // recurso podia sair inteiro e nada ficaria vermelho.
+  if (!volta.linhas.some(l => /mutir[aã]o|mantimentos/i.test(l))) {
+    errors.push('the mutirão worked for 8h and the paper says nothing about it: ' + JSON.stringify(volta.linhas));
+  }
+  // E O AVESSO: "a estrada esperou" e a frase de quando NINGUEM trabalhou. Dita com o mutirao
+  // de pe, ela mente -- e o comentario de mostrarRetorno() ja avisava disso por escrito.
+  if (volta.linhas.some(l => /A estrada esperou/i.test(l))) {
+    errors.push('the paper says the road waited while the mutirão was building: ' + JSON.stringify(volta.linhas));
   }
   // ---- B1 (QA, 2026-08-07): o painel vem ANTES do menu, e responde ao toque ----
   // Era o bug: o boot abre o menu SEMPRE (z 40) e o painel nascia em z 30 — visível pelo
