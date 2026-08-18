@@ -7320,3 +7320,45 @@ se olharia bem: "a pintura combina com o capítulo" não é coisa que asserção
 
 **Próximo:** ou a lente **Volta no dia 2** (o que a pessoa acha de novo ao voltar continua
 pouco), ou fechar a dívida das três pinturas emprestadas — que é pedido de arte, logo do dono.
+
+### 18/08 (2) · a volta no dia 2 não era fraca — era mentirosa
+
+**Lente: Volta no dia 2, e a entrada anterior deste Diário estava errada.** Escrevi que "o que a
+pessoa acha de novo ao voltar continua pouco". Medi, e não é pouco: o papel ENQUANTO VOCÊ ESTEVE
+FORA traz tempo fora, o bônus do dia, quem continua andando junto, quem foi acolhida, o que o
+mutirão ergueu, e **uma nota de história com fonte indexada pelo dia de travessia** — limitada
+pela fronteira, para não entregar o que vem pela frente. Medido: há **5 notas disponíveis já na
+fronteira 0**, então quem volta no dia 2 sem ter avançado sempre recebe uma.
+
+**O que estava errado era o que o papel afirmava.** A linha *"N pessoas acolhidas vivem no lugar
+que vocês abriram"* somava **todas** as vagas de `S.acolhidos`. Era o único leitor do jogo que
+somava — os outros seis usam `[CAP_GENTE]`. Quem jogou só PINDORAMA, que é todo mundo no dia 2,
+lia que gente acolhida em 1500 vivia na roça do quilombo: exatamente a conflação que a linha 1061
+do `jogo.ts` proíbe por escrito (*"faria a roça do quilombo crescer com gente de Santos de 1888"*).
+O código recusava fazer isso na economia; o texto fazia na tela. E se contradizia duas linhas
+abaixo, dizendo que a estrada tinha esperado.
+
+**O smoke passava por concordar com o defeito.** Ele semeava `acolhidos: [2, 0, 0]` — vaga 0 — e
+cobrava a frase do quilombo. Movida a semente para a vaga 1, apareceu a descoberta maior: com
+gente na vaga certa a taxa do mutirão não é zero, então **a obra anda durante as 8 horas**, e o
+painel passou a dizer *"O mutirão adiantou a obra da roça"* e *"Os mantimentos acabaram — a obra
+esperou por você"*. O caminho inteiro de "o que o mutirão ergueu enquanto você esteve fora" tinha
+**zero cobertura**, e o print deste commit é a primeira vez que essas linhas aparecem num teste.
+"Os mantimentos acabaram" é o gancho de voltar amanhã mais concreto que este jogo tem hoje, e
+ninguém estava olhando para ele.
+
+**A contagem rígida de 5 linhas caiu**: cobrar número exato era cobrar que o mutirão não
+trabalhasse. No lugar, duas asserções de conteúdo — o papel tem de contar o que a obra ergueu, e
+não pode dizer "a estrada esperou" com o mutirão de pé.
+
+**Bloco 33 do `encaixe.js`** cobre a tela pela primeira vez: ausência de 30 s não abre cerimônia,
+12 h abre, a nota vem com fonte, há nota na fronteira 0, e os **dois lados** da vaga.
+
+**Também medido:** quatro capítulos dividem a pintura 10 — NAODITO é o dono, A PRAÇA, O QUE
+SEGUROU e O ACEIRO pegam emprestado. Praça e segurou já tinham par de cenário pedido; **o aceiro
+não tinha nenhum**. Pedido escrito e posto na mesa, com duas coisas próprias: a proibição de céu
+laranja (aceiro é o trabalho de ANTES do fogo — pintura queimando contradiz o verbo) e o fato de
+que aqui o **chão é o assunto**, porque aceiro literalmente é uma faixa de chão raspada.
+
+**Próximo:** gap-check — depois de dois defeitos achados em telas que ninguém testava (a rua de
+O QUE TEM FONTE e o papel da volta), a pergunta é quais outras telas do jogo têm zero asserção.
