@@ -2457,7 +2457,12 @@ CAP_PALAVRA = iEp("salvador");
 // O que atravessa a tela ali continua sendo FOGO — nunca pessoa, nunca maquina, nunca marca
 // (§2). A folha de gente do capitulo desenha quem TRABALHA na beira do fogo: brigadista,
 // apanhadora de sempre-vivas, vaqueiro.
-CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro")];
+// O QUE SEGUROU entra em 18/08 com CHEGAR (PENDENTES 18). O verbo ja estava escrito na
+// abertura do capitulo antes de existir mecanica: "chegar na ultima casa". Aqui ele e a
+// familia da conversa — um toque abre, o tempo ao lado resolve — e o sentido e o de quem bate
+// de porta em porta: cada pessoa atendida e uma casa a menos entre voce e o fim da rua.
+// O capitulo fecha os TREZE: nenhum alcanca mais por dano.
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro"), iEp("segurou")];
 // A FILA GANHA DOIS CAPITULOS EM 17/08 (PENDENTES 17, aprovados pelo dono no check). O gesto
 // e o mesmo — um toque, e o tempo corre com a pessoa ao seu lado — e o SENTIDO e outro em cada
 // rua, que e o que faz profundidade sem inventar mecanica:
