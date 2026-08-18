@@ -768,3 +768,41 @@ confirmou o item 24 no mesmo passe.
 **O que eu não sei:** por que o agente mediu o que mediu. Pode ter medido outro estado de tela.
 Não gastei uma terceira tentativa nisso, porque a pergunta que importa — *a tela cabe?* — está
 respondida com print.
+
+## 26 · Tela parada e VISÍVEL conta como tempo jogado — e isso é decisão do dono
+
+**Medido em 18/08**, 15 s de página aberta e visível **sem um único toque**: `R.segundos` **+15,02**.
+O laço de quadro soma `dt` em todo quadro, sem guarda de ociosidade.
+
+**Não estou chamando isso de defeito, e a razão é que o comentário do código é mais preciso do
+que parece.** Ele diz: *"mede tempo JOGADO e não tempo de aba aberta: uma noite com o jogo
+esquecido numa aba **de fundo** não conta um segundo, porque o `rAF` não roda"*. A frase fala de
+aba **de fundo**, e ali ela está certa. Ela não afirma nada sobre aba visível e parada.
+
+**A pergunta é de produto, não de código:** uma pessoa com o jogo aberto na tela, sem tocar,
+está jogando? Num jogo *idle* a resposta não é óbvia — parte do gênero é justamente o número
+subir sozinho enquanto se olha.
+
+**A exposição real é menor do que parece, e isto importa para a decisão.** O alvo é celular, e
+lá a tela apaga sozinha por conta do sistema (~30 s a 2 min). Ao apagar, a aba fica oculta e o
+`rAF` para. Então o tempo parado-e-visível é limitado pelo tempo de tela do aparelho, não pelo
+descuido da pessoa. No computador — que não é o alvo — uma aba visível esquecida contaria horas.
+
+**O que muda conforme a resposta:** `minutos` e `sessao` do evento `parou`, o total da tela de
+AJUSTES, e a janela dos primeiros 60 s da hipótese H5. São os números que respondem a pergunta
+de três dias.
+
+**As saídas, se ele quiser mexer:**
+- **(a) deixar como está** — "tempo com o jogo na frente" é uma definição defensável para idle, e
+  a exposição no celular é curta;
+- **(b) guarda de ociosidade** — parar de contar após N segundos sem toque. Escolher o N é a
+  decisão real: 30 s corta a contemplação legítima do idle, 5 min quase não corta nada;
+- **(c) contar as duas coisas** — um contador de tempo com a tela na frente e outro de tempo com
+  toque nos últimos N segundos, e comparar. Custa um campo no save e responde a pergunta em vez
+  de arbitrá-la.
+
+**O que EU consertei sozinho, porque ali a intenção já estava escrita:** `sessaoSeg` não
+reiniciava ao voltar do segundo plano, então a segunda saída do dia relatava a carga de página
+inteira como uma sentada só. O comentário do próprio campo diz que ele existe para separar *"parou
+no capítulo 3 com 40 s"* de *"parou no capítulo 3 com 25 min"* — duas pessoas opostas. Corrigido e
+medido: 2ª sentada relata 4,42 s em vez de 10,85, e `R.segundos` segue sendo o total do save.

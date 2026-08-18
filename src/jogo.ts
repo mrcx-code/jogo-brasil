@@ -14667,6 +14667,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Voltou para a aba: o "onde parou" volta a poder sair. Sem este rearme, uma tarde de
     // alternar entre abas mandaria um evento e sumiria; com ele sem trava, mandaria trinta.
     medirParouArmado = true;
+    // E A SESSÃO RECOMEÇA JUNTO (18/08). O gatilho rearmava e o contador não, então a SEGUNDA
+    // saída do dia relatava a carga de página inteira como se fosse uma sentada só. Medido:
+    // 15 s de jogo, ida ao segundo plano, volta, e `sessaoSeg` já valia 32,63 s.
+    //
+    // Isso desmonta exatamente o que o campo existe para responder, e a intenção está escrita
+    // três linhas abaixo de onde ele nasce: *"parou no capítulo 3 com 40 s de sessão" e "com
+    // 25 min de sessão" são duas pessoas opostas com o mesmo capítulo — a primeira abriu e
+    // desistiu, a segunda jogou uma tarde e foi jantar*. Com o contador acumulando, a pessoa
+    // que volta e desiste em trinta segundos aparece como quem jogou a tarde inteira.
+    //
+    // `R.segundos` NÃO zera aqui, e é a diferença que importa: ele é o total do save, de vida
+    // inteira; `sessaoSeg` é O PEDAÇO DE HOJE. Zerar o primeiro apagaria a retenção.
+    sessaoSeg = 0;
     marcarDia();
     // VOLTAR PARA UMA ABA QUE RECUOU. Se outra aba escreveu enquanto esta estava atrás, o que
     // está na tela aqui é passado. Recarregar é a única resposta honesta — a alternativa é
