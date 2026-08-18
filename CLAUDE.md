@@ -253,6 +253,14 @@ símbolo e cada bloco que são dele em `src/jogo.ts`, `src/index.html` e `src/es
 **Não edite nada de lá — nem eu, nem agente nenhum.** Trabalho que precise tocar a zona dele
 para e avisa; não edita e pede perdão depois.
 
+## 5.2 A EQUIPE VIROU MÁQUINA (17/08)
+
+Seis agentes em `.claude/agents/`: `pm` · `arte` · `dev` · `historiador` · `pipeline` · `qa`.
+O `AGENTES.md` explica cada portão e por que ele existe. O que a máquina passou a garantir e o
+prompt não garantia: **worktree sempre** para quem toca `src/`, **ferramenta negada** onde o §2
+manda parar (`ROSTOS.md` é somente leitura para agente), e um **QA independente que tenta
+refutar** antes de eu integrar.
+
 ## 6. Como trabalhar
 
 ### O CHECK — quando o dono escrever `check` e nada mais
