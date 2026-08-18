@@ -806,3 +806,64 @@ reiniciava ao voltar do segundo plano, então a segunda saída do dia relatava a
 inteira como uma sentada só. O comentário do próprio campo diz que ele existe para separar *"parou
 no capítulo 3 com 40 s"* de *"parou no capítulo 3 com 25 min"* — duas pessoas opostas. Corrigido e
 medido: 2ª sentada relata 4,42 s em vez de 10,85, e `R.segundos` segue sendo o total do save.
+
+## 27 · Vinte e dois momentos com fonte JÁ LIDA, prontos e não aplicados
+
+**18/08.** Uma varredura do `NOTES.md` inteiro achou **27 afirmações com fonte lida e citação
+literal já registrada** que nunca viraram momento na `LINHA_TEMPO` — e só o que está lá vira
+placa, entra em A HISTÓRIA e alimenta a nota da volta e a rua de O QUE TEM FONTE.
+
+**Cinco entraram** (O CAIS 1831 e 1850; O QUE SEGUROU calamidade+auxílio, ADI 6341, Anvisa):
+momentos 31 → 36, e **nenhuma placa trocou**, que era a condição. **Faltam 22.**
+
+### A regra mecânica que decide tudo isto, e ela foi medida em 10 de 10 capítulos
+
+Capítulo de **1 cena carrega exatamente 1 placa**, quantos momentos tenha — então acrescentar
+momento nos onze capítulos de uma cena **não mexe no save**. E, com uma vaga só, **a placa é o
+ÚLTIMO momento do capítulo na ordem da lista**. Ou seja: **a posição de inserção escolhe qual
+fato vai para a estrada.** Isso não é detalhe de implementação; é decisão editorial disfarçada.
+
+### O que falta, por capítulo, e o que cada lote faria com a placa
+
+| capítulo | nós prontos | a placa | fonte no NOTES |
+|---|---|---|---|
+| JABAQUARA (1 momento) | **4** | trocaria para *"Todos de profissão roceiros"* — o sujeito vira quem sustenta | 5013–5030 |
+| O QUE NÃO PODIA SER DITO (1) | **3** (+1 opcional) | trocaria para *"Vinte e quatro horas dão para copiar"* — idem | 6404–6418 |
+| A PEQUENA ÁFRICA (2) | **4** | trocaria para *"A certidão e o título que falta"* | 5091–5103 |
+| SALVADOR (2) | **2** (o levante de 1835) | depende do ponto — ver PARE abaixo | 1935–1937 |
+| AS PORTAS (3) | **3** | não troca, se entrarem antes do último | 6294–6302 |
+| A PRAÇA (2) | **1** (+1 opcional) | trocaria para *"Trinta mil assinaturas"* | 6508–6510 |
+| O ACEIRO (2) | **2** | não troca | 7141–7147 |
+| AINDA AQUI (2) | **1** (Lei 14.402/2022) | é o único que muda `MARCOS.length` (17 → 18) | 489–491 |
+
+**O que isto move, medido:** momentos 36 → **58** com tudo. Capítulos com 3 ou mais momentos:
+4 de 13 → **12 de 13**. E a rua de O QUE TEM FONTE cresce sozinha junto, porque
+`montarConferiveis()` deriva da `LINHA_TEMPO`.
+
+**PINDORAMA, PALMARES e O QUE TEM FONTE não crescem** — os dois primeiros estão saturados
+(5 e 4 momentos, tetos 3 e 2) e o terceiro não tem de onde tirar sem inventar: o assunto dele é
+o método, e todo fato datado que ele usa é do capítulo anterior e já é nó.
+
+### ⚠ TRÊS PERGUNTAS DE §2 QUE SÃO DO DONO, e por isso nada de JABAQUARA e SALVADOR entrou
+
+1. **Quintino de Lacerda pode ser nomeado?** Ele liderava o quilombo do Jabaquara, já é nomeado
+   na abertura e no fecho do capítulo — mas virou vereador de Santos em 1895, e a regra diz
+   *nunca nomeia político*. Há duas versões do nó prontas: com o nome (só como quem liderava o
+   quilombo, sem a vereança) e sem o nome.
+2. **A placa de SALVADOR pode anunciar o levante de 1835?** O §2 escrito no próprio arquivo manda
+   o 25 de janeiro ficar *"no FECHO e na LINHA_TEMPO — nunca jogável"*. A placa é uma **terceira**
+   superfície: deriva da LINHA_TEMPO e aparece **durante** o capítulo, cuja mecânica é a véspera.
+   Inserir antes de *"As ganhadeiras"* mantém a placa como está; inserir depois faz a estrada
+   anunciar o levante.
+3. **O manto Tupinambá entra como nó?** Objeto sagrado de povo vivo, e o nó nomearia uma anciã
+   viva. O §2.4.5 permite como fala e proíbe como item — e um nó é fala. Não decidido. Se entrar,
+   a fonte precisa ser relida na origem: o NOTES traz resumo com link, não citação literal.
+
+### E uma dúvida estrutural que vale mais que os 22 nós
+
+**Os seis nós indexados (`{ tipo: "momento", i: 0..5 }`) são invisíveis para dois dos três
+consumidores.** Sem `t`/`d`/`f` no próprio nó, eles não entram na `notaDaVolta` nem em
+`montarConferiveis()` — só aparecem como página de A HISTÓRIA. Para as placas isso é deliberado
+(não têm `cena`); para os outros dois parece acidente. Consequência: **Zumbi, os mocambos, o
+Censo de 2022 indígena e a portaria dos Tupinambá nunca saem na nota da volta.** O conserto não
+inventa nada — copiar `q`/`t`/`d`/`f` de `MOMENTOS` para os nós, ou dar `cena` a eles.
