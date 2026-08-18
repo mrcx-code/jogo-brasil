@@ -246,6 +246,13 @@ explica o processo inteiro e o porquê de cada decisão. O que não é óbvio:
 - Compare escala entre folhas pela **largura da cabeça**, não pela altura: uma pose esticada
   é legitimamente mais alta.
 
+## 5.1 TERRITÓRIO — a tela ONDE FOI é do dono (17/08)
+
+Ele passou a trabalhar no mapa em **outra máquina**. O `TERRITORIO.md` lista, por nome, cada
+símbolo e cada bloco que são dele em `src/jogo.ts`, `src/index.html` e `src/estilo.css`.
+**Não edite nada de lá — nem eu, nem agente nenhum.** Trabalho que precise tocar a zona dele
+para e avisa; não edita e pede perdão depois.
+
 ## 6. Como trabalhar
 
 ### O CHECK — quando o dono escrever `check` e nada mais
