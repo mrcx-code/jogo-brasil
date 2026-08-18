@@ -4759,7 +4759,10 @@ uma placa na estrada sem tocar em uma linha de código.
 | A PEQUENA ÁFRICA | 1 | 2 | 1 | Quem podia votar (1891) |
 | AS PORTAS | 1 | 3 | 1 | A lei do trabalho e quem ficou de fora (1943 → 2015) |
 | O QUE NÃO PODIA SER DITO | 1 | 1 | 1 | O ato que tirou o juiz do caminho (1964) |
-| A PRAÇA · O QUE SEGUROU · O ACEIRO · O QUE TEM FONTE | 1 | 0 | 1 | — |
+| A PRAÇA | 1 | **2** | 1 | **O que a derrota escreveu depois** (18/08) |
+| O QUE SEGUROU | 1 | **2** | 1 | **Quem batia na porta já tinha lei** (18/08) |
+| O ACEIRO | 1 | **2** | 1 | **Duas réguas, dois números** (18/08) |
+| O QUE TEM FONTE | 1 | 0 | 1 | — |
 | AINDA AQUI | 2 | 3 | 3 | A lei de dois artigos · A Constituinte · Quilombos hoje |
 
 **Os seis capítulos sem placa são os seis sem momento com fonte**, e é assim que se diz o que

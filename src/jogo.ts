@@ -10995,6 +10995,21 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: cenarioDaEpoca(iEp("naodito")), q: "1964", t: "O ato que tirou o juiz do caminho",
     d: "Em 9 de abril de 1964 um ato institucional autorizou os comandantes que o editaram a “suspender os direitos políticos pelo prazo de dez anos e cassar os mandatos legislativos federais, estaduais e municipais, excluída a apreciação judicial desses atos”. A última oração é a que decide o resto.",
     f: "Ato Institucional de 9 de abril de 1964, art. 10" },
+  // A PRACA (18/08). A tese do capitulo e que a proposta foi REJEITADA e o pais mudou assim
+  // mesmo -- e ensinar isso e melhor vacina que a versao triunfal, porque "protesto = vitoria"
+  // e falso e desmobiliza na primeira derrota. Os dois nos tem de vir JUNTOS e nesta ordem:
+  // a derrota sozinha ensina cinismo, que o §2.6 proibe; a vitoria sozinha ensina a mentira.
+  //
+  // O NOME DA EMENDA usa a excecao que o dono abriu em 11/08, e usa o limite dela: vale para
+  // NOMEAR O TEXTO, porque e assim que o pais chama aquele documento, e nunca para narrar a
+  // pessoa. "A Emenda Dante de Oliveira foi rejeitada" entra; "o deputado propos" nao entra.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("praca")), q: "1984", t: "Faltaram 22",
+    d: "Em 25 de abril de 1984 a emenda das eleições diretas — a Emenda Dante de Oliveira — teve 298 votos a favor, 65 contra e 3 abstenções. Faltaram 22 para o quórum. Rejeitada na Câmara, deixou de ser submetida ao Senado.",
+    f: "Câmara dos Deputados · Diretas Já — 30 anos do Movimento" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("praca")), q: "1985", t: "O que a derrota escreveu depois",
+    d: "Treze meses depois, uma emenda constitucional escreveu na Constituição exatamente o que a emenda derrotada pedia — e devolveu o voto a quem não sabia ler.",
+    f: "Emenda Constitucional nº 25, de 15 de maio de 1985, art. 74 · Câmara, Legislação Informatizada",
+    com: "Perdemos a votação e seguimos juntando. Comício não vira lei sozinho, e perder uma votação não é o fim.", quem: iEp("praca") },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "1988", t: "A Constituinte",
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
     f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
@@ -11006,9 +11021,36 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "2017", t: "Patrimônio Mundial",
     d: "Em 10 de julho de 2017 o cais do Valongo entrou na lista do Patrimônio Mundial pelo critério vi — o que reconhece acontecimentos e tradições vivas, ideias ou crenças e obras de significação universal excepcional.",
     f: "ONU Brasil · inscrição do Cais do Valongo, 2017" },
+  // O QUE SEGUROU (18/08). REGRA DO DOCUMENTO no caso mais dificil dela: cada frase e o que uma
+  // norma com numero e data afirma, e o sujeito e quem SUSTENTA, nunca quem governa. Nenhum
+  // numero de mortes ou de casos entra -- painel muda, e o capitulo so afirma o que esta fechado
+  // em norma publicada. Nenhuma pessoa de governo nomeada, dos dois lados.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("segurou")), q: "2020", t: "A palavra antes do caso",
+    d: "Em 6 de fevereiro de 2020 uma lei já definia, artigo por artigo, o que seriam isolamento e quarentena no país. O vocabulário chegou antes do primeiro caso confirmado.",
+    f: "Lei nº 13.979, de 6 de fevereiro de 2020, art. 2º" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("segurou")), q: "2006 → 2020", t: "Quem batia na porta já tinha lei",
+    d: "O cargo de agente comunitária de saúde foi regulamentado em 2006 — catorze anos antes. Quando a emergência chegou, quem ia de casa em casa já estava lá, e já estava na lei.",
+    f: "Lei nº 11.350, de 5 de outubro de 2006",
+    com: "Eu já estava na sua rua antes disso tudo. Continuei.", quem: iEp("segurou") },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "2022", t: "Quilombos hoje", qi: "p23",
     d: "E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.",
     f: "IBGE · Censo 2022 · Fundação Cultural Palmares" },
+  // O ACEIRO (18/08). Os dois verbos da REGRA DO DOCUMENTO estao aqui de proposito e nao sao
+  // sinonimos: "registrou" para o numero que um orgao mediu, e "o relatorio concluiu" para a
+  // conclusao dele -- que e citavel como conclusao, nunca como "o que aconteceu". E a mesma
+  // leitura critica que o jogo aplica as cartas jesuiticas, e o §2.6 diz por que: desconfiar do
+  // documento do sec. XVII e engolir o do XXI nao e ensinar metodo, e escolher lado.
+  //
+  // ⚠ MANUTENCAO ANUAL: o PRODES sai todo ano (~novembro) e o RAD do MapBiomas ~maio. As duas
+  // falas carregam a data DENTRO da frase, entao envelhecem datadas e nunca falsas. Ao atualizar
+  // o capitulo, atualize estes dois nos junto.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2024", t: "Metade do país num bioma só",
+    d: "O relatório anual de desmatamento registrou 652.197 hectares derrubados no Cerrado — 52,5% de todo o desmatamento do país naquele ano. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.",
+    f: "MapBiomas · Relatório Anual do Desmatamento 2024" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2025", t: "Duas réguas, dois números",
+    d: "O monitoramento por satélite registrou 7.235 km² desmatados no Cerrado e 5.796 km² na Amazônia no mesmo período. Os dois números são públicos, e são de quem mediu.",
+    f: "INPE · PRODES 2025",
+    com: "O fogo não escolhe. Quem abre o aceiro escolhe por onde ele não passa.", quem: iEp("aceiro") },
   { tipo: "marco", ep: iEp("hoje") },
   { tipo: "momento", i: 5,
     com: "Esse “continuam” sou eu. Ainda aqui.", quem: iEp("hoje") },
