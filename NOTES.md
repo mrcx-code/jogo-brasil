@@ -4762,7 +4762,7 @@ uma placa na estrada sem tocar em uma linha de código.
 | A PRAÇA | 1 | **2** | 1 | **O que a derrota escreveu depois** (18/08) |
 | O QUE SEGUROU | 1 | **2** | 1 | **Quem batia na porta já tinha lei** (18/08) |
 | O ACEIRO | 1 | **2** | 1 | **Duas réguas, dois números** (18/08) |
-| O QUE TEM FONTE | 1 | 0 | 1 | — |
+| O QUE TEM FONTE | 1 | **1** | 1 | **Medir o mesmo, do mesmo jeito, todo ano** (18/08) |
 | AINDA AQUI | 2 | 3 | 3 | A lei de dois artigos · A Constituinte · Quilombos hoje |
 
 **Os seis capítulos sem placa são os seis sem momento com fonte**, e é assim que se diz o que

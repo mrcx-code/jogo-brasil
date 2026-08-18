@@ -11014,6 +11014,23 @@ const LINHA_TEMPO: NoLinha[] = [
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
     f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
     com: "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.", quem: iEp("hoje") },
+  // O QUE TEM FONTE (18/08), e este foi o mais dificil dos cinco -- porque o assunto do capitulo
+  // e o METODO, nao um fato, e um no da LINHA_TEMPO precisa de data.
+  //
+  // O QUE EU RECUSEI PRIMEIRO, e a recusa e a licao: por o RAD do MapBiomas (652.197 ha, 2024)
+  // ao lado do PRODES (7.235 km2, 2025) como "duas reguas medindo a mesma floresta". Os dois
+  // numeros existem e os dois estao publicados, mas sao de ANOS DIFERENTES -- entao a diferenca
+  // entre eles pode ser o ano e nao o metodo. Ensinar isso como exemplo de metodo, no capitulo
+  // que existe para ensinar metodo, seria o proprio erro que ele combate.
+  //
+  // O que entrou e melhor e ja estava no jogo: o verbete do glossario sobre o PRODES, com a
+  // fonte inteira. A licao nao e o numero de um ano -- e a SERIE. Um numero so significa alguma
+  // coisa porque alguem mede do mesmo jeito, em publico, ha tempo bastante para comparar. E a
+  // ultima oracao e a tese do capitulo: por isso o proprio instrumento de medida e disputado.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("temfonte")), q: "desde 1988", t: "Medir o mesmo, do mesmo jeito, todo ano",
+    d: "O Brasil mede o próprio desmatamento por satélite desde 1988: o programa fecha o ano em 31 de julho e publica a taxa. Ter número público, comparável e antigo é o que permite discutir com dado em vez de com opinião — e é por isso que o instrumento de medida também é disputado.",
+    f: "INPE · PRODES / Programa de Monitoramento da Amazônia, nota técnica de 2025",
+    com: "Mede-se desde antes de eu nascer, e sempre do mesmo jeito. É isso que deixa comparar — e é por isso que eu confiro.", quem: iEp("temfonte") },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "2011", t: "A pedra de volta",
     d: "Uma escavação dirigida pela arqueóloga Tânia Andrade Lima trouxe o cais de volta à superfície, exatamente duzentos anos depois de ele ter sido construído.",
     f: "Lima, Sene & Souza · Anais do Museu Paulista 24(1), 2016",
