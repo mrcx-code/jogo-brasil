@@ -682,3 +682,31 @@ mim também. **Mas o diagnóstico avançou**, e é isto que o próximo não prec
   que media SALVADOR por índice fixo.
 
 O caminho está claro; o que falta é uma passada com o bloco inteiro na mão, não remendo.
+
+## 23 · Um print do recuo saiu borrado e laranja, e eu não reconciliei em duas tentativas
+
+**18/08.** Sondando O QUE TEM FONTE **sem pedir o pacote** (setando `S.cenario` direto, que pula
+o caminho que dispara o `fetch`), o `#fundoHD` saiu como um **borrão laranja e cinza**, não como
+a mata atlântica do capítulo 1. O `#scene` e a personagem vieram certos, do capítulo 1.
+Print: `test/SEAM-temfonte.png`.
+
+**O que a medição diz, e ela contradiz o print:** o recuo *é* a pintura do capítulo 1. Medido
+capítulo a capítulo, `fundoIdx()` devolve 0 para os treze enquanto o pacote não chegou, e
+`CENARIO_ALTO[0]` é 720×959 — exatamente a mesma imagem que PINDORAMA desenha, e PINDORAMA
+renderiza **nítido** (`test/VERBO-pindorama.png`). O mecanismo está certo.
+
+**Duas tentativas, sem reconciliar.** Hipóteses não descartadas: (a) o relógio do jogo tingindo
+a pintura (o laranja seria pôr do sol) somado a algum caminho de desenho que amplia demais;
+(b) um pacote parcialmente chegado trocando a imagem no meio do quadro; (c) artefato de a sonda
+setar `S.cenario` sem passar pela entrada do capítulo, estado que **não existe em produção**.
+A (c) é a mais provável e é a razão de isto ser PENDENTE e não defeito.
+
+**O que ficou feito no lugar, e vale sozinho:** o smoke cobrava `fundoDoRecuo > 1` — largura
+maior que um pixel —, que **um stub de 2 px satisfaz**. Isso não guardava a promessa que dizia
+guardar, e a promessa não é pequena: é a primeira das três condições sobre as quais o dono
+aprovou a exceção do arquivo único em 10/08. Agora o teste compara a **identidade do objeto**,
+alto e chão: tem de ser a mesma imagem que o capítulo 1 desenha.
+
+**Como retomar:** reproduzir entrando no capítulo pelo caminho normal, com o `fetch` do pacote
+bloqueado por `page.route(...abort)`, e comparar o print com `VERBO-pindorama.png`. Se sair
+nítido, a hipótese (c) se confirma e este item fecha sem código.

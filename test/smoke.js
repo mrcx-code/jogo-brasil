@@ -138,6 +138,23 @@ function lintComentarios() {
       cap1Real: cap1, outro, pedeOutro: outro < 0 ? [] : pacotesDaEpoca(outro),
       outroEmEspera: arteOutro.length > 0 && arteOutro.every(i => eDeEspera(CENARIO_ALTO[i])),
       // e o recuo: mandar o jogo para lá NÃO pode deixar a tela sem pintura
+      // A IDENTIDADE, E NAO SO A LARGURA (18/08). A assercao antiga era `fundoDoRecuo > 1`,
+      // que um stub de 2 px satisfaz -- entao ela nao guardava a promessa que diz guardar. E a
+      // promessa nao e pequena: a excecao de UM ARQUIVO SO foi aprovada pelo dono em 10/08 sobre
+      // tres condicoes, e a primeira delas e que o jogo NUNCA fica sem chao, rodando com a arte
+      // do capitulo 1 enquanto o pacote nao chega. Cobrar largura maior que um pixel nao prova
+      // isso; prova que existe alguma imagem.
+      //
+      // Agora compara o OBJETO, alto e chao: tem de ser a MESMA imagem que o capitulo 1 desenha.
+      recuoEIgualAoCap1: (() => {
+        const antes = S.cenario;
+        S.cenario = cenarioDaEpoca(outro < 0 ? 0 : outro);
+        const doRecuo = CENARIO_ALTO[fundoIdx()], chaoRecuo = CENARIO_CHAO[fundoIdx()];
+        S.cenario = cenarioDaEpoca(0);
+        const doCap1 = CENARIO_ALTO[fundoIdx()], chaoCap1 = CENARIO_CHAO[fundoIdx()];
+        S.cenario = antes;
+        return doRecuo === doCap1 && chaoRecuo === chaoCap1 && !!doCap1 && doCap1.naturalWidth > 1;
+      })(),
       fundoDoRecuo: (() => {
         const antes = S.cenario;
         S.cenario = cenarioDaEpoca(outro < 0 ? 0 : outro);
@@ -156,6 +173,7 @@ function lintComentarios() {
   if (espera.outro < 0) errors.push('no chapter asks for a pack: the on-demand path is dead code');
   if (!espera.outroEmEspera) errors.push('chapter ' + espera.outro + ' art is still inside index.html: the opening file is growing again');
   if (!(espera.fundoDoRecuo > 1)) errors.push('a chapter whose pack has not arrived draws no painting at all');
+  if (!espera.recuoEIgualAoCap1) errors.push('a chapter waiting on its pack does not fall back to the SAME chapter-1 painting (alto+chao) — that is the first of the three conditions the single-file exception was approved on');
 
   // ...e agora o pacote chega, e a arte fica de verdade — em TODOS os capítulos que pedem um.
   const chegou = await page.evaluate(async () => {
