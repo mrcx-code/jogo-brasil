@@ -7221,3 +7221,45 @@ pessoa fala do lugar onde vive.
 
 A regra que fica: **auditar o alfa do canto é parte da conversão** — fantasma de 12% não
 aparece em fundo movimentado e aparece inteiro contra o céu.
+
+---
+
+## Diário — 2026-08-18 · A noite em que o jogo parou de bater
+
+**Quatro verbos numa madrugada, e o último capítulo sem um é decisão do dono.**
+
+| capítulo | verbo | o que a mão faz |
+|---|---|---|
+| PINDORAMA | **trocar** | quem passa carrega peixe, mandioca, fruta — e vocês trocam |
+| O ACEIRO | **abafar** | a frente de fogo avança se você não for; **correr não abafa** |
+| O QUE SEGUROU | **chegar** | cada pessoa atendida é uma casa a menos até o fim da rua |
+| O QUE TEM FONTE | **conferir** | atravessam FRASES; o alcance devolve quem mediu |
+
+**12 de 13 com verbo. 11 ruas com gente. Nenhum capítulo alcança mais por dano.**
+
+### O que destravou o PENDENTES 20, e não foi tentativa
+
+Três medições, cada uma corrigindo o que eu media errado:
+1. **O capítulo ficava solto** — o bloco `vida` do smoke rodava em qualquer cenário, então
+   *"este tem verbo?"* respondia sobre outro. Mesma doença do `medir-acompanhar.js`.
+2. **Cada estado lê a própria superfície** — sem verbo o alcance mora na BARRA; com verbo mora
+   no ANEL, no chão. Eu media o chão num capítulo sem verbo: a barra mudava, o chão não.
+3. **A ausência da barra é estrutural** — gente mede 42px e objeto 17–24, então a faixa da
+   barra cai **dentro do corpo**. Contar alfa ali mede o torso, não a barra.
+
+### O CONFERIR não inventou um dado
+
+As frases são **derivadas** dos 20 momentos da `LINHA_TEMPO` que já têm título, quando e fonte.
+Frase sem fonte não atravessa — o §2 virando mecânica em vez de filtro. Acrescentar um momento
+com fonte acrescenta uma frase conferível sem tocar em código.
+
+### A trava de §2.2 provou o desenho dela três vezes
+
+As folhas de gente do capítulo 1, do ACEIRO e do SEGUROU estavam embutidas e **dormentes**, e
+acenderam sozinhas quando cada capítulo ganhou verbo. Nada a reembutir, nenhuma exceção
+esquecida — arte e mecânica são a mesma decisão, e agora o código cobra isso.
+
+### O que fica para o dono
+
+**AINDA AQUI é o único dos treze sem verbo aprovado**, e a folha de gente dele existe, dormente.
+Não inventei: é §2, e representação é dele.
