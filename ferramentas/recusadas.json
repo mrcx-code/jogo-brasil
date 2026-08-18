@@ -3,18 +3,11 @@
   "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
   "itens": [
     {
-      "n": "gente-segurou",
-      "em": "2026-08-16 22:50",
-      "bytes": 2011378,
-      "onde": "portao tecnico",
-      "porque": "COLADA: vale 61. Regenerar com o vao de 20px."
-    },
-    {
       "n": "cap4-sprite-v3",
-      "em": "2026-08-17 02:40",
-      "bytes": 1458611,
-      "onde": "test/medir-sola.js",
-      "porque": "ADIADA, e nao recusada — a distincao importa e e a mesma das corridas. A v3 MELHOROU de verdade: 3 quadros no ar viraram 1, e a cabeca esta estavel (135, min 134 max 135). O que ainda falta e ciclo: dos sete apoiados, CINCO tem o calcanhar entre 131 e 138 — sao quase a mesma fase — e so um esta na oposta (63). Um ciclo precisa de fases distribuidas ao longo do passo, nao de oito variacoes do mesmo instante.\n\nE a folha ATUAL funciona: laco 121,5 px em 3 quadros com recuos 41/40. O ganho aqui seria SUAVIDADE (3 quadros -> 8), que e polimento — e tres tentativas ja e o bastante para um polimento enquanto ha rua sem gente. Volta quando o resto estiver no ar.\n\nSe voltar, o pedido e: as oito poses distribuindo o passo INTEIRO — contato com o pe da frente plantado, passagem com os pes juntos, contato com o outro pe — e nao oito instantes proximos."
+      "em": "2026-08-17 04:00",
+      "bytes": 1432099,
+      "onde": "portao tecnico",
+      "porque": "NOVE figuras numa folha de OITO celulas — o cortador conta as manchas e acha uma a mais. Ou sobrou uma figura, ou uma delas esta partida em duas por um vao interno grande demais (um braco muito afastado do corpo). O desenho pode estar certo; o que nao da e cortar. Oito figuras, oito celulas."
     }
   ],
   "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
@@ -165,6 +158,13 @@
       "bytes": 2078152,
       "estado": "APROVADA — A RECUSA ERA MINHA",
       "porque": "A ARTE ESTAVA BOA NAS DUAS VEZES. Eu recusei por sobreposicao com um instrumento errado: o cortador procurava o vao a mais ou menos 40px de cada fronteira da GRADE fixa, e as figuras nao nascem centradas na celula — media 101 a 127px de figura numa celula de 192, ou seja com folga de sobra, e mesmo assim acusava colada. O conserto e do cortador: ele passou a achar as manchas de tinta onde elas estao e a cortar nos SETE MAIORES VAOS, ja que o numero de figuras e conhecido. Nenhum limiar a escolher, funciona na folha larga e na apertada."
+    },
+    {
+      "n": "gente-segurou",
+      "em": "2026-08-17 04:00",
+      "bytes": 2012891,
+      "estado": "APROVADA E EMBUTIDA (dormente ate o verbo CHEGAR)",
+      "porque": "Entregador de bag termica, tecnica de enfermagem de bolsa a tiracolo, senhor com sacola de compras — e UM DOS TRES SEM MASCARA, como o pedido exigia para os rostos nao sumirem todos. Roupa de 2020 sem virar cenario de medo."
     }
   ]
 }
