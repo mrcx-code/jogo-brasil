@@ -7365,3 +7365,50 @@ que aqui o **chão é o assunto**, porque aceiro literalmente é uma faixa de ch
 
 **Próximo:** gap-check — depois de dois defeitos achados em telas que ninguém testava (a rua de
 O QUE TEM FONTE e o papel da volta), a pergunta é quais outras telas do jogo têm zero asserção.
+
+### 18/08 (3) · gap-check: cinco capítulos não ensinavam nada, e a correção não inventou nada
+
+**Lente: Medir.** Depois de dois defeitos achados em telas sem asserção, a pergunta era quais
+outras telas estão assim. Cruzei as dez telas do jogo contra os dois testes. `telaMapa` é zero
+nos dois — **e é território do dono (ONDE FOI), não toquei**. As outras têm cobertura.
+
+Mas o gap real não era de tela: era de conteúdo. **Cinco de treze capítulos tinham ZERO momento
+com fonte** — O CAIS, A PRAÇA, O QUE SEGUROU, O ACEIRO e O QUE TEM FONTE. Sem momento com fonte
+não há placa na estrada, não há entrada em A HISTÓRIA, e não há nada para a nota da volta
+sortear. São trechos de estrada que não ensinam nada, numa tese em que **ensina** é uma das três
+pernas com o mesmo peso.
+
+**E a correção não escreveu uma afirmação nova.** Os fatos já estavam no jogo, na **fala** dos
+capítulos, com fonte lida e citação literal tabelada nos Diários de 11, 12 e 16/08. Fala não vira
+placa. Promover o que já passou pelo crivo é o oposto de inventar — e foi só isso que se fez.
+
+Quatro nós para O CAIS (1811, 1843, 2011, 2017), dois para A PRAÇA, dois para O QUE SEGUROU,
+dois para O ACEIRO. **De 8 capítulos com placa para 12 de 13.**
+
+**Três disciplinas ficaram escritas no código, junto dos nós:**
+
+- **A PRAÇA precisa dos dois nós, nesta ordem.** A derrota sozinha ensina cinismo, que o §2.6
+  proíbe; a vitória sozinha ensina "protesto = vitória", que é falso e desmobiliza na primeira
+  derrota. O nome da emenda usa a exceção aberta pelo dono em 11/08 **e o limite dela**: nomeia
+  o texto, nunca narra a pessoa.
+- **O QUE SEGUROU não leva número de morte nem de caso.** Painel muda; norma publicada não. E o
+  sujeito é quem sustenta — a placa que a derivação escolheu sozinha foi *"Quem batia na porta já
+  tinha lei"*, que é exatamente a regra funcionando.
+- **O ACEIRO usa dois verbos que não são sinônimos**: *registrou* para o número que o órgão mediu,
+  *o relatório concluiu* para a conclusão dele. Desconfiar do documento do séc. XVII e engolir o
+  do XXI não é ensinar método, é escolher lado.
+
+**Recusado por falta de fonte lida, e fica registrado:** *"único sítio das Américas inscrito por
+esse motivo"*, sobre o Valongo. Circula, e eu não li o documento que afirma. Não entrou.
+
+**Medido, e é o retorno da lente anterior:** o repertório da nota da volta passou de **18 para 28**
+momentos no topo, e de 9 para **13 já na fronteira 4**. Quem volta no dia 2, 3, 4 lê coisa
+diferente por mais tempo antes de a lista dar a volta.
+
+**⚠ Um teto encostado, e vale escrever antes de doer:** as placas passaram de 14 para **16**, e
+`MASCARA_MARCOS` é 65535 — dezesseis bits, exatamente cheios. A máscara e o teto do esquema são
+derivados de `MARCOS.length`, então crescem sozinhos; o que não cresce sozinho é o campo do save
+de quem já jogou. Ao passar de 16, conferir a migração antes de empurrar.
+
+**Falta um: O QUE TEM FONTE**, e é o mais delicado dos treze — o assunto dele é o **método**, não
+um fato, e um momento com fonte ali tem de ensinar a ler, não a decorar.
