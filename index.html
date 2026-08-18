@@ -4420,7 +4420,9 @@ function carregar(silencioso) {
     cuidadoVisto = S.cuidado;
     semearGrupo();
     salvoConhecido = S.salvoEm;
-    const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
+    const semRelogio = !(S.salvoEm > 0);
+    const dt = semRelogio ? 0
+        : Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
     voltouDepoisDe = dt;
     if (!silencioso) {
         relatoObra = avancarObra(Math.floor(dt / 3600 * taxaMutirao(genteDaObra())));

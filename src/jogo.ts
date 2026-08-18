@@ -3262,7 +3262,23 @@ function carregar(silencioso?: boolean) {
   // O `Math.max(0, …)` é cinto e suspensório: o esquema já não deixa `salvoEm` vir do futuro,
   // mas o relógio DO APARELHO pode andar para trás sozinho (fuso, correção de hora), e aí o
   // save é honesto e a subtração é que fica negativa. Tempo fora negativo não existe.
-  const dt = Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
+  // NÃO SABER QUANDO FOI VALE ZERO, E NÃO DOZE HORAS (18/08). `salvoEm` tem `pad: 0` e
+  // `semAparar`, então um save sem o campo — ou com ele fora da faixa — chega aqui valendo 0,
+  // e `Date.now() - 0` estoura o teto: a conta entregava 43.200 s, o MÁXIMO, para quem não
+  // tinha relógio nenhum. Medido antes do conserto: save sem `salvoEm` pagava 144 pontos de
+  // obra (27% dos 540 do canteiro inteiro) e o papel da volta afirmava "você ficou fora por
+  // 12h00" a alguém de quem ninguém sabia nada.
+  //
+  // O comentário do próprio esquema dizia, em 09/08: "hoje é inofensivo porque não há produção
+  // offline… mas é uma bomba armada para o primeiro consumidor futuro desse número". O
+  // consumidor chegou com o MUTIRÃO DA AUSÊNCIA, três linhas abaixo, e ninguém voltou aqui.
+  // Fica escrito: quando um campo do save existe só para ser lido depois, o "depois" chega.
+  //
+  // Zero é o lado certo de errar. Perder uma ausência legítima custa alguns pontos de obra;
+  // pagar o teto a um save adulterado dá quase um terço da obra de graça, e faz a tela mentir.
+  const semRelogio = !(S.salvoEm > 0);
+  const dt = semRelogio ? 0
+    : Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
   voltouDepoisDe = dt;
   // ===== O MUTIRÃO DA AUSÊNCIA =====
   // O MESMO `dt` já capado que a tela de retorno usa, e o MESMO `avancarObra` do dedo e do
