@@ -7319,8 +7319,28 @@ function verificarCenario() {
     // ele não interrompe leitura. A guarda de `falaAberta()` lá em cima não bastava — fala é
     // uma tela entre várias, e as outras também são lugares onde ninguém pediu companhia.
     if (S.energiaTotal >= LIMIAR_FIM && !telaAberta()) {
-      if (mostrarFecho(epocaAtual(), chegarAoFim)) return;
-      if (!(R.chegou | 0)) chegarAoFim();
+      // A GUARDA ENVOLVE AS DUAS LINHAS, e antes envolvia só a segunda — que é o mesmo que não
+      // envolver nada (18/08, achado por um QA adversarial). `mostrarFecho` com o bit já visto
+      // faz `if (depois) depois(); return false;`: ele CHAMA `chegarAoFim()` e devolve `false`,
+      // então a guarda da linha de baixo nunca era alcançada com o trabalho por fazer.
+      //
+      // O sintoma era grave e eu confirmei tocando: quem termina o jogo fica PRESO na CHEGADA.
+      // Cada toque em VOLTAR PARA A RUA fechava a tela, o quadro seguinte via `!telaAberta()`
+      // com o impacto acima do limiar, e reabria. Medido: quatro toques, quatro reaberturas.
+      // A rua desaparecia para quem chegou ao fim — o público exato da pergunta de três dias.
+      //
+      // De quebra, `R.chegou` subia a cada dispensa. Ele é a `vez` dos eventos `terminou` e
+      // `volta`, então a medição do fim do jogo saía inflada por um número que contava a pessoa
+      // tentando SAIR da tela. Agora ele conta chegada, que é o que o nome diz.
+      //
+      // Reabrir de propósito continua possível: o botão ATÉ AQUI do menu chama `montarFim()` e
+      // `abrirTela` direto, sem passar por aqui — visita não é chegada.
+      // E `mostrarFecho` CHAMA O RETORNO NOS DOIS RAMOS, o que faz a segunda chamada ser pura
+      // duplicação: com o fecho por ver ele mostra a fala e chama `depois` no fim dela; com o
+      // fecho já visto ele chama `depois` na hora e devolve `false`. Medido enquanto eu
+      // consertava: com a guarda no lugar certo mas a chamada extra ainda ali, `R.chegou` ia a
+      // DOIS numa passada só. Uma linha, um caminho.
+      if (!(R.chegou | 0)) mostrarFecho(epocaAtual(), chegarAoFim);
     }
     return;
   }
@@ -14109,7 +14129,16 @@ function montarConfere() {
   // (lá `R.dias`, aqui `R.chegou`), sem um campo novo no save. Ao dar a volta na lista ela
   // recomeça, e reler não é castigo — é o que uma despedida faz.
   const CONFERE_POR_VEZ = 3;
-  const giro = Math.max(0, ((R.chegou | 0) - 1)) * CONFERE_POR_VEZ;
+  // O RELÓGIO DO GIRO MUDOU DE `R.chegou` PARA `R.dias` (18/08, mesma tarde em que o giro
+  // nasceu). O motivo é o conserto acima: `R.chegou` subia a cada DISPENSA da tela, porque quem
+  // terminava ficava preso nela — então o trio girava a cada tentativa de sair, que é o oposto
+  // de girar por visita. Consertado o laço, `R.chegou` passa a valer 1 para sempre num save, e
+  // um índice que nunca anda é um giro que nunca gira.
+  //
+  // `R.dias` é o mesmo relógio da `notaDaVolta`, e a coincidência não é preguiça — é a mesma
+  // regra: quem volta amanhã encontra outra coisa. Sem campo novo no save, e ao dar a volta na
+  // lista ela recomeça, porque reler não é castigo.
+  const giro = Math.max(0, ((R.dias | 0) - 1)) * CONFERE_POR_VEZ;
   const quantas = Math.min(CONFERE_POR_VEZ, FIM_CONFERE.length);
   const trio = Array.from({ length: quantas }, function (_, k) {
     return FIM_CONFERE[(giro + k) % FIM_CONFERE.length];

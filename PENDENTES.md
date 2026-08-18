@@ -873,20 +873,6 @@ inventa nada — copiar `q`/`t`/`d`/`f` de `MOMENTOS` para os nós, ou dar `cena
 **18/08.** Um QA independente tentou derrubar os nove consertos do dia. Derrubou **cinco**. Um
 já foi consertado (o `salvoEm`, abaixo). Ficam quatro, e o mais grave nem estava na lista.
 
-### ⚠ O MAIS GRAVE, e é anterior aos meus consertos: "VOLTAR PARA A RUA" não volta para a rua
-
-Medido no jogo vivo, com toque real, num save que já terminou: tocar o botão **reabre a CHEGADA**.
-Vinte e cinco fechamentos em 2,5 s → a tela abriu vinte e cinco vezes. **Quem termina o jogo fica
-preso na tela de fim**, e a única saída é abrir outra tela.
-
-A causa está em `verificarCenario`: `mostrarFecho()` com o bit já visto chama `chegarAoFim()` e
-devolve `false`, contornando a guarda `if (!(R.chegou | 0))` da linha seguinte.
-
-**Duas consequências**, e a segunda envenena a medição: quem chegou ao fim perde a rua — o público
-exato da pergunta de três dias —, e **`R.chegou` conta dispensas da tela, não chegadas**. Um
-jogador só produziu 20. As propriedades `vez` dos eventos `terminou` e `volta` saem infladas, e o
-giro das conferências do fim alterna a cada *tentativa de sair*, não a cada chegada.
-
 ### Girar o aparelho desfaz os dois consertos de rótulo de hoje
 
 Nenhum rótulo em canvas é repintado no `resize`. Medido:

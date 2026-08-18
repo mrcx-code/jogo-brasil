@@ -7062,10 +7062,8 @@ function verificarCenario() {
     const alvo = proximoLimiar();
     if (alvo === null) {
         if (S.energiaTotal >= LIMIAR_FIM && !telaAberta()) {
-            if (mostrarFecho(epocaAtual(), chegarAoFim))
-                return;
             if (!(R.chegou | 0))
-                chegarAoFim();
+                mostrarFecho(epocaAtual(), chegarAoFim);
         }
         return;
     }
@@ -11704,7 +11702,7 @@ function montarConfere() {
         return;
     cx.textContent = "";
     const CONFERE_POR_VEZ = 3;
-    const giro = Math.max(0, ((R.chegou | 0) - 1)) * CONFERE_POR_VEZ;
+    const giro = Math.max(0, ((R.dias | 0) - 1)) * CONFERE_POR_VEZ;
     const quantas = Math.min(CONFERE_POR_VEZ, FIM_CONFERE.length);
     const trio = Array.from({ length: quantas }, function (_, k) {
         return FIM_CONFERE[(giro + k) % FIM_CONFERE.length];
