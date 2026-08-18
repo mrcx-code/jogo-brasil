@@ -683,30 +683,39 @@ mim também. **Mas o diagnóstico avançou**, e é isto que o próximo não prec
 
 O caminho está claro; o que falta é uma passada com o bloco inteiro na mão, não remendo.
 
-## 23 · Um print do recuo saiu borrado e laranja, e eu não reconciliei em duas tentativas
+## 23 · O recuo troca a PINTURA e não troca a TINTA (diagnosticado 18/08, não consertado)
 
-**18/08.** Sondando O QUE TEM FONTE **sem pedir o pacote** (setando `S.cenario` direto, que pula
-o caminho que dispara o `fetch`), o `#fundoHD` saiu como um **borrão laranja e cinza**, não como
-a mata atlântica do capítulo 1. O `#scene` e a personagem vieram certos, do capítulo 1.
-Print: `test/SEAM-temfonte.png`.
+**Reproduzido pelo caminho normal**, com `garantirEpoca()` pedindo o pacote de verdade e a rede
+negando (`page.route` → `abort`). Não é artefato de sonda: os pedidos saem (`pack-hoje.json` e
+`pack-naodito.json` negados), o jogo não quebra, zero erro de console — e o `#fundoHD` pinta um
+**borrão laranja** em vez da mata atlântica. Print: `test/RECUO-temfonte.png`.
 
-**O que a medição diz, e ela contradiz o print:** o recuo *é* a pintura do capítulo 1. Medido
-capítulo a capítulo, `fundoIdx()` devolve 0 para os treze enquanto o pacote não chegou, e
-`CENARIO_ALTO[0]` é 720×959 — exatamente a mesma imagem que PINDORAMA desenha, e PINDORAMA
-renderiza **nítido** (`test/VERBO-pindorama.png`). O mecanismo está certo.
+**As quatro medidas que fecham o diagnóstico:**
 
-**Duas tentativas, sem reconciliar.** Hipóteses não descartadas: (a) o relógio do jogo tingindo
-a pintura (o laranja seria pôr do sol) somado a algum caminho de desenho que amplia demais;
-(b) um pacote parcialmente chegado trocando a imagem no meio do quadro; (c) artefato de a sonda
-setar `S.cenario` sem passar pela entrada do capítulo, estado que **não existe em produção**.
-A (c) é a mais provável e é a razão de isto ser PENDENTE e não defeito.
+| situação | `fundoIdx()` | o que o `#fundoHD` pinta |
+|---|---|---|
+| PINDORAMA, pacote negado | 0 | verde — `rgb(63,89,35)` ✔ |
+| O QUE TEM FONTE, pacote negado | **0 também** | laranja borrado ✘ |
+| O QUE TEM FONTE, pacote chega | 11 | o arquivo, correto ✔ |
+| a imagem de recuo | — | 720×959, **o mesmo objeto** que o capítulo 1 desenha ✔ |
 
-**O que ficou feito no lugar, e vale sozinho:** o smoke cobrava `fundoDoRecuo > 1` — largura
-maior que um pixel —, que **um stub de 2 px satisfaz**. Isso não guardava a promessa que dizia
-guardar, e a promessa não é pequena: é a primeira das três condições sobre as quais o dono
-aprovou a exceção do arquivo único em 10/08. Agora o teste compara a **identidade do objeto**,
-alto e chão: tem de ser a mesma imagem que o capítulo 1 desenha.
+**O mesmo índice, a mesma imagem, e cores diferentes.** Logo a escolha da PINTURA recua certo —
+`fundoIdx()` e `fundoComArte()` fazem o trabalho deles. O que não recua junto é a **tinta do**
+**capítulo**: o tom quente de sala de arquivo aplicado sobre a mata atlântica dá exatamente esse
+laranja. É a classe de erro "identidade > posição" uma camada acima da que este repositório já
+pagou: a arte pertence ao capítulo, e o TRATAMENTO DE COR também tem de pertencer ao capítulo
+**de onde a arte veio**, não àquele em que a pessoa está.
 
-**Como retomar:** reproduzir entrando no capítulo pelo caminho normal, com o `fetch` do pacote
-bloqueado por `page.route(...abort)`, e comparar o print com `VERBO-pindorama.png`. Se sair
-nítido, a hipótese (c) se confirma e este item fecha sem código.
+**Quanto dura:** só enquanto o pacote não chega — medido: assim que ele chega, a tela fica
+correta sozinha. Em 3G isso é a janela de ~6 s da entrada do capítulo. Não é permanente, e foi
+por isso que não parou a fila.
+
+**Por que não consertei:** o conserto é fazer a tinta seguir o mesmo recuo da pintura, num lugar
+só. Não achei esse lugar dentro do orçamento de duas tentativas (a pista são os "três passes por
+quadro sobre o #fundoHD", `src/jogo.ts` ~7832), e mexer na camada visual sem print antes/depois
+e sem o aval de `DIRECAO.md` seria trocar um defeito de 6 segundos por um risco permanente.
+
+**Como retomar, e agora é barato:** o sintoma virou número — cor média do topo do `#fundoHD`
+com o pacote negado. Verde em PINDORAMA, laranja em O QUE TEM FONTE. Quando a tinta recuar
+junto, os dois ficam verdes, e isso vira teste em três linhas.
+
