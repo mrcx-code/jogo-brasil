@@ -11730,7 +11730,12 @@ function montarFim() {
         d.appendChild(b);
         box.appendChild(d);
     });
-    pixelRotulo($("fimTit"), (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI", 3, "#ffd98a");
+    const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+    const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle($("fimTit"));
+    const dispFim = $("telaFim").clientWidth
+        - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
+        - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
+    pixelRotulo($("fimTit"), fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
     montarPergunta();
 }
 const VOLTA_RESPOSTAS = ["volto", "talvez", "nao"];

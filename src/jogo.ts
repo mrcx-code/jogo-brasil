@@ -14078,7 +14078,33 @@ function montarFim() {
   // não ter percebido que a pessoa voltou.
   // `pintarRotulos()` já pinta todo `.telaTit` no boot, mas este muda de texto — e escrever
   // `textContent` num nó que virou canvas devolve a tela para a fonte do aparelho. Repinta.
-  pixelRotulo($("fimTit"), (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI", 3, "#ffd98a");
+  // A MAIOR ESCALA QUE CABE — e a largura vem do PAI, nunca do próprio rótulo (18/08).
+  //
+  // O DEFEITO: na segunda chegada o título vira "DE NOVO ATÉ AQUI", que em escala fixa 3 desenha
+  // um canvas de 291 px. A `.telaTit` fica com 335 px de largura intrínseca em qualquer tela, e
+  // como `#telaFim` tem `overflow: auto` a tela passa a ARRASTAR de lado. Medido: 32 px de
+  // arrasto em 320×568, 12 px em 360×640, zero em 390×844. Atinge só quem VOLTA — que é
+  // exatamente o público da pergunta de três dias — e o print a 320 mostra a placa sem borda
+  // esquerda nem direita: lê como faixa, não como tábua.
+  //
+  // POR QUE MEDIR O PAI, e este é o erro que quase entrou: `#fimTit` é item de flex centrado,
+  // com largura de conteúdo. Medir o retângulo DELE devolve o tamanho do próprio rótulo, e
+  // `escalaQueCabe` com esse número responde 3 a 320 px — ou seja, não conserta nada. Quem
+  // limita é a caixa de conteúdo de `#telaFim` menos o recheio da placa.
+  //
+  // E DÁ PARA MEDIR AQUI, apesar de `montarFim()` rodar ANTES de `abrirTela`: `.tela` fecha com
+  // `visibility: hidden`, não com `display: none` — medido, `#telaFim.clientWidth` já vale
+  // 320/360/390 com a tela fechada. Quem era `display: none` é o `#retorno`, e foi só por isso
+  // que o título DELE teve de ser pintado depois do `.aberto`. A armadilha existe; não é aqui.
+  //
+  // Medido depois: escala 2 a 320 e 360 (canvas 194, arrasto zero), escala 3 intocada a 390.
+  // "ATÉ AQUI", da primeira chegada, continua em escala 3 nas três telas.
+  const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+  const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle($("fimTit"));
+  const dispFim = $("telaFim").clientWidth
+    - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
+    - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
+  pixelRotulo($("fimTit"), fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
   montarPergunta();
 }
 // ============================================================

@@ -37,3 +37,7 @@ test/CAPA*.png
 
 # Config local da sessao de ferramenta — nao pertence ao repositorio.
 .claude/settings.local.json
+
+# sondas descartaveis de agentes e sessoes — nunca entram no historico
+test/tmp-*
+test/TMP*
