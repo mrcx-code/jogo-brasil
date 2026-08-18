@@ -719,3 +719,52 @@ e sem o aval de `DIRECAO.md` seria trocar um defeito de 6 segundos por um risco 
 com o pacote negado. Verde em PINDORAMA, laranja em O QUE TEM FONTE. Quando a tinta recuar
 junto, os dois ficam verdes, e isso vira teste em três linhas.
 
+
+## 24 · A CHEGADA rola de lado na segunda visita
+
+**Medido em 18/08, com número próprio.** Na segunda chegada o título vira `DE NOVO ATÉ AQUI` e
+`pixelRotulo` o desenha em **escala fixa 3** — 291 px de canvas numa `.telaTit` que fica com 335 px
+de largura intrínseca, em qualquer tela. Como `#telaFim` tem `overflow: auto`, a tela **arrasta na
+horizontal**:
+
+| tela | 1ª chegada | 2ª chegada |
+|---|---|---|
+| 320×568 | 0 px | **32 px de arrasto** |
+| 360×640 | 0 px | **12 px de arrasto** |
+| 390×844 | 0 px | 0 px |
+
+Atinge só quem **volta** — que é exatamente o público da pergunta de três dias — e só abaixo de
+~390 px de largura.
+
+**A causa é de família:** `escalaQueCabe()` existe e é chamada em **um único lugar do arquivo**
+(o `#retTit` do papel da volta). Todo outro rótulo do jogo usa escala fixa. Este é o primeiro que
+estoura de verdade; pode não ser o último.
+
+**A armadilha do conserto, e ela já foi paga uma vez:** medir a caixa **antes** de o elemento
+estar visível devolve zero, e a escala cai no padrão — foi assim que "ENQUANTO VOCÊ ESTEVE FORA"
+saía cortado. E `montarFim()` roda **antes** de `abrirTela("telaFim")`, então uma chamada ingênua
+a `escalaQueCabe` dentro de `montarFim` mede zero. O `#retTit` resolve pintando **depois** do
+`.aberto`; o `#fimTit` teria de fazer o mesmo.
+
+**Estado:** um agente estava preparando o patch medido quando a sessão virou. Retomar por aí.
+
+## 25 · O corte de AJUSTES relatado em 360×640 NÃO reproduz — e o registro é o valor
+
+Um agente relatou, com números, que a tela de AJUSTES saía 22 px acima e 18 px abaixo da janela
+em 360×640, e que a faixa 601–690 inteira estava quebrada por a única consulta de retrato ser
+`max-height: 600px`.
+
+**Não reproduz.** Medido em carga fresca a cada altura de 560 a 900, e depois elemento por
+elemento a 360×640: título em y=102, último botão terminando em 534 de 640, **nenhum** dos 10
+elementos visíveis fora da janela, e o print (`test/CFG-360x640.png`) mostra a tela inteira com
+folga — cinco tábuas e o VOLTAR sobrando espaço embaixo.
+
+**Fica registrado por dois motivos.** Primeiro, para ninguém "consertar" isto de novo a partir do
+mesmo relatório: mexer numa consulta de mídia que está certa é como se ganha uma faixa morta.
+Segundo, porque o instrumento que desmentiu o achado nasceu disso e ficou —
+`test/medir-telas-altura.js`, que varre a altura de 20 em 20 px em oito telas. Foi ele que
+confirmou o item 24 no mesmo passe.
+
+**O que eu não sei:** por que o agente mediu o que mediu. Pode ter medido outro estado de tela.
+Não gastei uma terceira tentativa nisso, porque a pergunta que importa — *a tela cabe?* — está
+respondida com print.
