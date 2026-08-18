@@ -13957,13 +13957,41 @@ const FIM_CONFERE = [
   { q: "O Censo de 2022 foi o primeiro a contar a população…",
     ops: ["quilombola", "indígena", "urbana"],
     frase: "quilombola: 1.327.802 pessoas — 134 anos depois da abolição, o país as contou pela primeira vez.",
-    fonte: "IBGE, Censo Demográfico 2022" }
+    fonte: "IBGE, Censo Demográfico 2022" },
+  // AS TRÊS DE 18/08. Mesma regra das primeiras, e ela é a que impede este bloco de virar
+  // trivia: nada nasce aqui. Os três fatos entraram na LINHA_TEMPO nesta mesma noite, cada um
+  // com a fonte que o capítulo já carregava na fala. Conferir é reler, não decorar.
+  { q: "A lei que definiu isolamento e quarentena no país é de…",
+    ops: ["fevereiro de 2020", "março de 2021", "janeiro de 2022"],
+    frase: "6 de fevereiro de 2020 — antes do primeiro caso confirmado. O vocabulário chegou antes da doença.",
+    fonte: "O QUE SEGUROU · Lei nº 13.979, de 6 de fevereiro de 2020, art. 2º" },
+  { q: "Em 2024, quanto do desmatamento do país aconteceu no Cerrado?",
+    ops: ["52,5%", "8%", "23%"],
+    frase: "52,5% — 652.197 hectares num bioma só. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.",
+    fonte: "O ACEIRO · MapBiomas, Relatório Anual do Desmatamento 2024" },
+  { q: "Desde quando o Brasil mede o próprio desmatamento por satélite?",
+    ops: ["1988", "2005", "2019"],
+    frase: "1988 — e é ter número público, comparável e antigo que permite discutir com dado em vez de com opinião.",
+    fonte: "O QUE TEM FONTE · INPE, PRODES / Programa de Monitoramento da Amazônia" }
 ];
 function montarConfere() {
   const cx = $("fimConfere");
   if (!cx) return;
   cx.textContent = "";
-  FIM_CONFERE.forEach(function (c) {
+  // O TRIO GIRA POR CHEGADA (18/08), e o motivo é a lente FIM DE PARTIDA: a despedida era
+  // idêntica na segunda vez. O título já sabia disso — ele vira "DE NOVO ATÉ AQUI" —, mas as
+  // três perguntas eram as mesmas três, sempre. Quem chega de novo relia o que já tinha lido.
+  //
+  // A regra é a MESMA da nota da volta, de propósito: índice pela contagem que o jogo já tem
+  // (lá `R.dias`, aqui `R.chegou`), sem um campo novo no save. Ao dar a volta na lista ela
+  // recomeça, e reler não é castigo — é o que uma despedida faz.
+  const CONFERE_POR_VEZ = 3;
+  const giro = Math.max(0, ((R.chegou | 0) - 1)) * CONFERE_POR_VEZ;
+  const quantas = Math.min(CONFERE_POR_VEZ, FIM_CONFERE.length);
+  const trio = Array.from({ length: quantas }, function (_, k) {
+    return FIM_CONFERE[(giro + k) % FIM_CONFERE.length];
+  });
+  trio.forEach(function (c) {
     const item = document.createElement("div");
     item.className = "fnItem cfItem";
     const q = document.createElement("div");
