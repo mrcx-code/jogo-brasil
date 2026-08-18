@@ -1907,6 +1907,35 @@ const sec = t => log('\n---- ' + t);
     ok(c.alvos.every(function (a) { return a > c.ini && a < c.fim; }),
       c.nome + ': todo alvo cai DENTRO do vão do capítulo (' + c.ini + '..' + c.fim + ')');
   });
+
+  // A CATRACA DA PERNA "ENSINA" (18/08). Este bloco MEDIA momentos por capitulo desde que
+  // existe e nunca cobrou que houvesse algum -- entao cinco capitulos de treze rodaram em
+  // producao com ZERO, e ninguem soube. Sem momento com fonte nao ha placa na estrada, nao ha
+  // entrada em A HISTORIA, e nao ha nada para a nota da volta sortear: o capitulo e bonito, e
+  // jogavel, e nao ensina nada. Numa tese em que bonito · divertido · ensina pesam igual, isso
+  // e um terco da entrega faltando em silencio.
+  //
+  // A lista e nominal pelo mesmo motivo das outras deste arquivo: um capitulo novo que entre
+  // sem historia exige escrever o id aqui, e isso aparece no diff. Hoje ela esta VAZIA -- os
+  // treze ensinam -- e e assim que ela deve ficar.
+  {
+    const SEM_HISTORIA_ACEITO = [];
+    const mudos = mk.caps.filter(function (c) { return c.momentos === 0; });
+    if (mudos.length) log('   ⚠ capitulos sem nenhum momento com fonte: ' + mudos.map(function (c) { return c.nome; }).join(', '));
+    const novos = mudos.filter(function (c) { return SEM_HISTORIA_ACEITO.indexOf(c.id) < 0; })
+      .map(function (c) { return c.nome + ' (' + c.id + ')'; });
+    ok(novos.length === 0,
+      'todo capítulo tem pelo menos um momento com fonte — nenhum trecho de estrada é mudo' +
+      (novos.length ? ' — NÃO ENSINA NADA: ' + novos.join(', ') +
+        '. Pendure um momento com fonte na cena dele e a placa aparece sozinha.' : ''));
+    const jaEnsinam = SEM_HISTORIA_ACEITO.filter(function (id) {
+      const c = mk.caps.find(function (x) { return x.id === id; });
+      return c && c.momentos > 0;
+    });
+    ok(jaEnsinam.length === 0,
+      'a lista de exceção não guarda capítulo que já tem história' +
+      (jaEnsinam.length ? ' — TIRE DAQUI: ' + jaEnsinam.join(', ') : ''));
+  }
   log('   total ' + mk.total + ' marcos · máscara ' + mk.mascara + ' · espaçamento mínimo ' + mk.espaco);
   ok(mk.total > 0 && mk.total <= 30,
     'a lista derivada cabe numa máscara de bits (' + mk.total + ' marcos, teto 30)');
