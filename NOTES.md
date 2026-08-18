@@ -4753,7 +4753,7 @@ uma placa na estrada sem tocar em uma linha de código.
 |---|---:|---:|---:|---|
 | PINDORAMA | 2 | 5 | 3 | Quem já estava aqui · Marajó · Os Tupi chegam ao litoral |
 | PALMARES | 2 | 4 | 3 | O açúcar · A travessia forçada · A guerra que abriu a serra |
-| O CAIS QUE VOLTOU À LUZ | 1 | 0 | 1 | — |
+| O CAIS QUE VOLTOU À LUZ | 1 | **4** | 1 | **Patrimônio Mundial** (18/08) |
 | SALVADOR | 1 | 2 | 1 | As ganhadeiras |
 | JABAQUARA | 1 | 0 | 1 | — |
 | A PEQUENA ÁFRICA | 1 | 2 | 1 | Quem podia votar (1891) |

@@ -10911,6 +10911,19 @@ const LINHA_TEMPO: NoLinha[] = [
   // quando que a própria época declara, e o levante contado no FECHO do capítulo — que é onde
   // ele pode ser contado sem virar fase de jogo (§2.2). O que fica no vão antes da placa é o
   // que EXPLICA como se chega em 1835: a cidade africana e o trabalho de rua.
+  // O CAIS DO VALONGO ENTRA NA LINHA DO TEMPO (18/08), e nao ha uma afirmacao nova aqui.
+  // Os quatro fatos abaixo ja estavam NO JOGO, na fala do capitulo, com a fonte lida e a
+  // citacao literal registrada no NOTES.md de 11/08. So que fala nao vira placa, nao entra em
+  // A HISTORIA e nao alimenta a nota da volta -- entao O CAIS era, medido, um dos cinco
+  // capitulos de treze com ZERO momento com fonte: um trecho de estrada que nao ensina nada.
+  // Promover o que ja passou pelo crivo e o oposto de inventar.
+  //
+  // Os quatro ficam na posicao CRONOLOGICA (1811 e 1843 aqui, 2011 e 2017 la embaixo) e todos
+  // declaram a cena de O CAIS: e o capitulo que os revela, e o vao dele vai de 1811 a 2017
+  // porque a historia dele E essa -- a pedra coberta e a pedra de volta.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "1811", t: "O cais do Valongo",
+    d: "Um cais de pedra construído pela Intendência Geral de Polícia, por ordem do príncipe regente, fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas. Entre 1811 e 1831 — o período que se sabe que ele funcionou — chegaram ali cerca de 550 mil pessoas.",
+    f: "Lima, Sene & Souza · Anais do Museu Paulista 24(1), 2016" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("salvador")), q: "início do século XIX", t: "A cidade africana", qi: "p18",
     d: "Salvador era uma das cidades mais africanas das Américas: boa parte de quem a fazia funcionar tinha nascido do outro lado do Atlântico e falava as línguas de lá. A cidade que a colônia chamava de sua era, na rua, deles.",
     f: "Reis · Rebelião escrava no Brasil, ed. 2003",
@@ -10919,6 +10932,9 @@ const LINHA_TEMPO: NoLinha[] = [
     d: "Mulheres africanas e crioulas dominavam o comércio de rua e o carrego da cidade — escravizadas e libertas, entregando parte do ganho e guardando o resto. Foi com esse resto que muitas compraram a própria alforria.",
     f: "Cecília Moreira Soares · As ganhadeiras, Afro-Ásia",
     com: "Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.", quem: iEp("salvador") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "1843", t: "O cais por cima do cais",
+    d: "Para o desembarque de uma princesa, mandaram erguer outro cais sobre este. O Valongo não foi demolido: foi recoberto — e ficou embaixo do chão por quase dois séculos.",
+    f: "Lima, Sene & Souza · Anais do Museu Paulista 24(1), 2016" },
   { tipo: "marco", ep: iEp("salvador") },
   // A PLACA DE JABAQUARA entrou em 2026-08-11 com o texto do capítulo, e ela vem ANTES do nó
   // de 1888 porque o quilombo é de 1882 a 1888 — a lei chega no fim dele, não antes. Com
@@ -10983,6 +10999,13 @@ const LINHA_TEMPO: NoLinha[] = [
     d: "A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.",
     f: "CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987",
     com: "Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.", quem: iEp("hoje") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "2011", t: "A pedra de volta",
+    d: "Uma escavação dirigida pela arqueóloga Tânia Andrade Lima trouxe o cais de volta à superfície, exatamente duzentos anos depois de ele ter sido construído.",
+    f: "Lima, Sene & Souza · Anais do Museu Paulista 24(1), 2016",
+    com: "Duzentos anos debaixo do chão. O que cobriram não parou de ser verdade enquanto ninguém olhava.", quem: iEp("cais") },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("cais")), q: "2017", t: "Patrimônio Mundial",
+    d: "Em 10 de julho de 2017 o cais do Valongo entrou na lista do Patrimônio Mundial pelo critério vi — o que reconhece acontecimentos e tradições vivas, ideias ou crenças e obras de significação universal excepcional.",
+    f: "ONU Brasil · inscrição do Cais do Valongo, 2017" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("hoje")), q: "2022", t: "Quilombos hoje", qi: "p23",
     d: "E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.",
     f: "IBGE · Censo 2022 · Fundação Cultural Palmares" },
