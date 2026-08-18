@@ -768,3 +768,32 @@ confirmou o item 24 no mesmo passe.
 **O que eu não sei:** por que o agente mediu o que mediu. Pode ter medido outro estado de tela.
 Não gastei uma terceira tentativa nisso, porque a pergunta que importa — *a tela cabe?* — está
 respondida com print.
+
+## 26 · APAGAR MEU PROGRESSO a 320 px: patch escrito, revertido, não verificado
+
+**18/08.** Um agente relatou, com números, que o rótulo `APAGAR MEU PROGRESSO` é um canvas de
+242 px numa tábua de `min(70vw, 290px)` = 224 px a 320 de largura, sangrando ~9 px para fora de
+cada lado, e propôs `@media (orientation: portrait) and (max-width: 340px) { #telaConfig .telaBtn
+{ width: min(82vw, 290px) } }`, medindo 262,4 px de tábua e 10,2 px de folga por lado.
+
+**Apliquei, medi, e a medida contradiz o relatório.** Botão por botão a 320/360/390, o
+`APAGAR MEU PROGRESSO` tem **canvas 0** — não é pixel art, é texto HTML, e ele **quebra em duas
+linhas** (altura 56 contra 44 dos outros) em vez de sangrar. `SOM` e `CONTAGEM` também têm
+canvas 0; só `DE ONDE VEM` (134 px) e `VOLTAR` (74 px) são canvas.
+
+**Não consegui fechar em duas tentativas.** A segunda foi um print que saiu num quadro de
+transição — menu e AJUSTES sobrepostos, a tela sem terminar de abrir. Então **revertido**: mudar
+a largura das tábuas do jogo sem defeito demonstrado é mexer na direção visual sem motivo, e
+`DIRECAO.md` é quem manda nisso.
+
+**O patch, se alguém confirmar o defeito:** está escrito por extenso acima, com o comentário
+pronto — a razão de a consulta ser de LARGURA (as outras desta tela são todas de altura, e foi
+por isso que o caso escapou), a razão de quem ceder ser a TÁBUA e não a letra (`escalaQueCabe`
+devolveria escala 1, o botão destrutivo com metade da letra dos outros quatro, quebrando a
+coluna uniforme da régua de 15/08), e o `portrait` no seletor, que não é enfeite: o bloco
+`landscape` acima declara `width: auto` para a mesma tábua e este viria depois na fonte.
+
+**O passo exato para retomar:** abrir AJUSTES a 320×568, **esperar a transição terminar**
+(a tela usa `visibility` + opacidade com atraso), e medir o retângulo do NÓ DE TEXTO de
+`#btnApagar` contra o do botão. Se o texto couber — e a quebra em duas linhas sugere que cabe —
+o item fecha sem código, e o relatório do agente entra na mesma prateleira do PENDENTES 25.
