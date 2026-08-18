@@ -3302,7 +3302,10 @@ let CAP_PALAVRA = 2;
 let CAPS_VERBO = [];
 CAPS_VERBO = [];
 function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
-function verboExigeAndarNoToque() { return EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id === "naodito"; }
+function verboExigeAndarNoToque() {
+    const id = EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id;
+    return id === "naodito" || id === "aceiro";
+}
 function pessoaNaRua() { return capFila() || capPalavra(); }
 function fracAlcance(m) {
     if (capFila())
@@ -4006,7 +4009,7 @@ function blocoArte(e) {
 const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
-CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro")];
 CAP_FILA = [iEp("pindorama"), iEp("palmares"), iEp("jabaquara"), iEp("pequenaafrica"), iEp("cais")];
 const EPOCA_CENA0 = [];
 let TOTAL_CENAS = 0;

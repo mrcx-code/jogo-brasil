@@ -1185,7 +1185,14 @@ let CAPS_VERBO: number[] = [];
 CAPS_VERBO = [];                            // preenchido junto de CAP_PALAVRA, por id
 function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
 // correr fecha a MÃO em NAODITO: o toque só abre a entrega andando (aprovado: "discrição é andar")
-function verboExigeAndarNoToque() { return EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id === "naodito"; }
+function verboExigeAndarNoToque() {
+  const id = EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id;
+  // DOIS capitulos exigem ANDAR no proprio toque, e pela mesma forma com razoes opostas:
+  //   naodito — quem corre chama atencao, e a pessoa segue reto sem pegar o impresso;
+  //   aceiro  — o aceiro se abre ANDANDO; correr passa por cima do fogo sem abafar nada.
+  // Nos dois, a tensao e o RITMO e nao um inimigo: nao ha vigia, nao ha sirene, nao ha alarme.
+  return id === "naodito" || id === "aceiro";
+}
 // Os dois capítulos em que quem atravessa a rua é GENTE. Toda decisão de gramática — pisca,
 // estilhaço, empurrão, barra de vida, anel que enche — lê ESTA função, e não `capGente()`,
 // para que o §2 valha nos dois sem ninguém precisar lembrar de dois lugares.
@@ -2442,7 +2449,15 @@ const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 // como `let` justamente para isto).
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
-CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
+// O ACEIRO entra em 18/08 com ABAFAR (PENDENTES 18, aprovado no check). O gesto e o mesmo da
+// familia — um toque abre, o tempo ao lado resolve — e o sentido e o do capitulo: a frente de
+// fogo avanca se voce nao for, e abafar exige ANDAR, porque o aceiro se abre andando. Correr
+// nao abafa, e isso e a decisao central da rua dele, do mesmo jeito que discricao e andar em
+// O QUE NAO PODIA SER DITO.
+// O que atravessa a tela ali continua sendo FOGO — nunca pessoa, nunca maquina, nunca marca
+// (§2). A folha de gente do capitulo desenha quem TRABALHA na beira do fogo: brigadista,
+// apanhadora de sempre-vivas, vaqueiro.
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro")];
 // A FILA GANHA DOIS CAPITULOS EM 17/08 (PENDENTES 17, aprovados pelo dono no check). O gesto
 // e o mesmo — um toque, e o tempo corre com a pessoa ao seu lado — e o SENTIDO e outro em cada
 // rua, que e o que faz profundidade sem inventar mecanica:
