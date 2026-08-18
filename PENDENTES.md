@@ -611,3 +611,26 @@ Quando o teste vier, o que já está pronto para medi-lo: PostHog com 9 eventos,
 2.137) antes de mais arte entrar · e a obra passar a CHAMAR ao abrir o jogo — hoje o que cresceu
 só aparece se a pessoa for procurar em O LUGAR, e esse é o único motivo de voltar amanhã que não
 depende de conteúdo novo.
+
+---
+
+## 19. ⚠ EU RECRIEI A DÍVIDA DE §2.2 QUE SALVADOR PAGOU — travado em 17/08
+
+**O que aconteceu.** Liguei a folha de gente em onze capítulos. Cinco deles ainda alcançam por
+HP (`m.hp -= dmg`, cinco a treze toques): `hoje`, `pequenaafrica`, `aceiro`, `cais`, `pindorama`.
+Desenhar uma PESSOA atravessando a rua nesses capítulos é exatamente a dívida que SALVADOR
+pagou em 11/08 — *"bater por baixo com nome novo por cima"*. Eu troquei a arte e não o gesto.
+
+**Como apareceu.** Não foi por eu perceber: o `smoke` reprovou com *"an untouched trouble is
+drawing an empty bar again"*. A barra de vida só some onde `pessoaNaRua()` é verdadeiro, e essa
+função conhece os capítulos com VERBO, não os com arte de gente. O teste pegou pela geometria o
+que era um problema de representação — e é por isso que a asserção existe.
+
+**A trava.** `mobFrame` só usa a folha de gente onde `pessoaNaRua()` é verdadeiro. A arte fica
+no repositório e **acende sozinha** no dia em que o capítulo ganhar o verbo — nada a refazer.
+
+**Hoje com gente na rua (6):** salvador, palmares, jabaquara, naodito, portas, praca.
+**Esperando o verbo (5):** pindorama, cais, pequenaafrica, aceiro, hoje.
+
+**A lição, para não repetir:** arte de gente e mecânica de gente são a MESMA decisão. Ligar uma
+sem a outra não é meio caminho andado — é o §2 quebrado com pixel bonito.
