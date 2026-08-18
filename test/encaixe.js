@@ -2409,7 +2409,10 @@ const sec = t => log('\n---- ' + t);
     // deixar a main vermelha por trabalho de outra pessoa e transformar o portao de qualidade
     // em ruido que se aprende a ignorar. Mas nao pode CRESCER: escrever o proximo capitulo e
     // solta-lo sem gente vira teste vermelho, porque exige acrescentar um nome aqui.
-    const SEM_FOLHA_ACEITO = ['temfonte'];
+    // VAZIA desde 18/08, e e assim que ela deve ficar: gente-temfonte chegou no mesmo dia em
+    // que a catraca foi escrita, e foi a propria catraca que mandou tirar o nome daqui. De
+    // agora em diante, capitulo com verbo e sem folha e vermelho na hora.
+    const SEM_FOLHA_ACEITO = [];
     const semFolhaNoAr = censo.caps.filter(c => c.desenha && !c.temGente);
     if (semFolhaNoAr.length) {
       log('   ⚠ verbo no ar SEM folha de gente (a rua mostra objeto): ' +
