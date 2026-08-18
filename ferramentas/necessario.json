@@ -727,12 +727,6 @@
       "p": "PIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons\npor material, contorno marrom escuro nunca preto. Mesma linguagem visual do resto do jogo.\n\nREPRESENTAÇÃO (regra dura do projeto): dignidade absoluta, nada de caricatura. A pessoa é a\nprotagonista do capítulo e está no trabalho dela, não posando.\n\nRETRATO de frente, da cintura para cima. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\nQUEM: uma estudante de ensino médio de escola pública brasileira, HOJE. 15 a 17 anos.\n\nO QUE ELA VESTE E CARREGA: uniforme simples de escola pública (camiseta lisa e calça, SEM\nbrasão nem nome de escola legível), mochila num ombro. Numa mão o CELULAR, na outra um caderno\naberto — ela está conferindo uma coisa na outra, e é esse o gesto: comparar o que se diz com de\nonde veio.\n\nEXPRESSÃO: desconfiada do jeito bom — sobrancelha meio erguida, quase um sorriso. Não é cinismo,\né método: ela quer acreditar, e por isso confere."
     },
     {
-      "nome": "gente-pindorama",
-      "titulo": "PINDORAMA · a gente da aldeia (século XVI)",
-      "tam": "GRADE 8×3 (~1536×1024) · magenta",
-      "p": "FOLHA DE CAMINHADA LATERAL, grade de 8 colunas por 3 fileiras (TRÊS pessoas, OITO quadros de caminhada cada), perfil andando para a direita. Células de largura IGUAL, cada figura INTEIRA dentro da própria célula, com VÃO DE MAGENTA PURO de pelo menos 20px entre figuras — nada pode encostar na fronteira. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nREPRESENTAÇÃO (regra dura): dignidade absoluta — gente com rosto, nunca caricatura. É a gente comum da rua daquele tempo, trabalhando ou indo a algum lugar.\n\nTRÊS pessoas Tupinambá do litoral atlântico no século XVI, cada uma numa fileira: (1) uma mulher carregando um cesto cargueiro com mandioca; (2) um homem com feixe de varas de pesca ao ombro; (3) uma pessoa mais velha carregando um pote de cerâmica. Corpos como na folha de caminhada do capítulo: pintura corporal SÓ se for de padrão tupinambá citável — na dúvida, corpo sem pintura."
-    },
-    {
       "nome": "gente-palmares",
       "titulo": "PALMARES · a gente do quilombo (século XVII)",
       "tam": "GRADE 8×3 (~1536×1024) · magenta",
@@ -769,12 +763,6 @@
       "p": "FOLHA DE CAMINHADA LATERAL, grade de 8 colunas por 3 fileiras (TRÊS pessoas, OITO quadros de caminhada cada), perfil andando para a direita. Células de largura IGUAL, cada figura INTEIRA dentro da própria célula, com VÃO DE MAGENTA PURO de pelo menos 20px entre figuras — nada pode encostar na fronteira. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nREPRESENTAÇÃO (regra dura): dignidade absoluta — gente com rosto, nunca caricatura. É a gente comum da rua daquele tempo, trabalhando ou indo a algum lugar.\n\nTRÊS pessoas de centro de cidade nos anos 1970: (1) um jornaleiro com pilha de jornais sob o braço; (2) uma datilógrafa/secretária com pasta; (3) um office-boy de bicicleta empurrada. ⚠ NENHUM texto legível em jornal ou papel; nenhuma farda, nenhuma arma, nenhum símbolo político — a rua deste capítulo PARECE comum, e é esse o assunto."
     },
     {
-      "nome": "gente-praca",
-      "titulo": "A PRAÇA · a gente de 1984–88",
-      "tam": "GRADE 8×3 (~1536×1024) · magenta",
-      "p": "FOLHA DE CAMINHADA LATERAL, grade de 8 colunas por 3 fileiras (TRÊS pessoas, OITO quadros de caminhada cada), perfil andando para a direita. Células de largura IGUAL, cada figura INTEIRA dentro da própria célula, com VÃO DE MAGENTA PURO de pelo menos 20px entre figuras — nada pode encostar na fronteira. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nREPRESENTAÇÃO (regra dura): dignidade absoluta — gente com rosto, nunca caricatura. É a gente comum da rua daquele tempo, trabalhando ou indo a algum lugar.\n\nTRÊS pessoas de rua brasileira em 1984–88: (1) uma mulher com prancheta colhendo assinaturas; (2) um vendedor de picolé com caixa térmica a tiracolo; (3) um estudante com livros. Roupa dos anos 80. ⚠ NADA de bandeira, sigla, camiseta de campanha ou cor partidária; nenhum texto legível."
-    },
-    {
       "nome": "gente-segurou",
       "titulo": "O QUE SEGUROU · a gente do bairro (2020)",
       "tam": "GRADE 8×3 (~1536×1024) · magenta",
@@ -797,6 +785,42 @@
       "titulo": "AINDA AQUI · a gente indígena de hoje",
       "tam": "GRADE 8×3 (~1536×1024) · magenta",
       "p": "FOLHA DE CAMINHADA LATERAL, grade de 8 colunas por 3 fileiras (TRÊS pessoas, OITO quadros de caminhada cada), perfil andando para a direita. Células de largura IGUAL, cada figura INTEIRA dentro da própria célula, com VÃO DE MAGENTA PURO de pelo menos 20px entre figuras — nada pode encostar na fronteira. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\nPIXEL ART pintada em alta resolução, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nREPRESENTAÇÃO (regra dura): dignidade absoluta — gente com rosto, nunca caricatura. É a gente comum da rua daquele tempo, trabalhando ou indo a algum lugar.\n\nTRÊS pessoas indígenas brasileiras HOJE, na cidade ou na estrada: (1) uma universitária com mochila e crachá em branco; (2) um homem com caixa de feira (produtor); (3) uma mulher mais velha com guarda-chuva e sacola. Roupa CONTEMPORÂNEA (camiseta, calça, tênis/chinelo) com UM elemento de adorno discreto cada (colar, bracelete) — SEM pintura facial inventada, SEM cocar: o capítulo existe para dizer que povos indígenas são contemporâneos, e a roupa é o argumento."
+    },
+    {
+      "nome": "gente-pindorama-1",
+      "titulo": "PINDORAMA · pessoa 1 da rua (mulher-cesto)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: uma mulher Tupinamba carregando um cesto cargueiro de mandioca nas costas, apoiado por faixa na testa"
+    },
+    {
+      "nome": "gente-pindorama-2",
+      "titulo": "PINDORAMA · pessoa 2 da rua (homem-pesca)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: um homem Tupinamba com feixe de varas de pesca ao ombro"
+    },
+    {
+      "nome": "gente-pindorama-3",
+      "titulo": "PINDORAMA · pessoa 3 da rua (pessoa-pote)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: uma pessoa mais velha Tupinamba carregando um pote de ceramica junto ao corpo"
+    },
+    {
+      "nome": "gente-praca-1",
+      "titulo": "A PRACA · pessoa 1 da rua (mulher-prancheta)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: uma mulher de prancheta e caneta, colhendo assinaturas, roupa comum dos anos 80"
+    },
+    {
+      "nome": "gente-praca-2",
+      "titulo": "A PRACA · pessoa 2 da rua (vendedor-picole)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: um vendedor de picole com caixa termica a tiracolo"
+    },
+    {
+      "nome": "gente-praca-3",
+      "titulo": "A PRACA · pessoa 3 da rua (estudante-livros)",
+      "tam": "FOLHA 8x1 (~1536x400) · magenta",
+      "p": "PIXEL ART pintada em alta resolucao, borda dura, sem anti-aliasing, paleta saturada, poucos tons por material, contorno marrom escuro nunca preto. Mesma linguagem do jogo.\n\nFOLHA DE CAMINHADA LATERAL de UMA PESSOA SO: 8 quadros numa unica FILEIRA horizontal, perfil andando para a direita, distribuindo o passo inteiro. Fundo MAGENTA CHAPADO #FF00FF, sem sombra, sem texto.\n\n⚠ UMA PESSOA POR IMAGEM, e e por isso que este pedido existe: a grade de 8x3 voltou duas vezes com as figuras invadindo a celula vizinha, e nao havia corte possivel. Com uma pessoa so, cada quadro tem a largura toda e nao ha vizinha para encostar.\n\nDIGNIDADE absoluta, gente com rosto, nunca caricatura.\n\nQUEM: um estudante com livros debaixo do braco"
     }
   ]
 }

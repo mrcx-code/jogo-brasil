@@ -10,20 +10,6 @@
       "porque": "COLADA: vale 61. Regenerar com o vao de 20px."
     },
     {
-      "n": "gente-pindorama",
-      "em": "2026-08-17 02:40",
-      "bytes": 2015747,
-      "onde": "portao tecnico",
-      "porque": "COLADA ainda: vale caiu de 125 para 70 linhas de tinta, mas o limite pratico e 8. As figuras continuam invadindo a celula vizinha e nao ha corte vertical que nao decepe cesto ou calcanhar. O que falta e literal: VAO DE MAGENTA PURO de 20px entre uma figura e outra — nenhum pixel de tinta na faixa entre elas."
-    },
-    {
-      "n": "gente-praca",
-      "em": "2026-08-17 02:40",
-      "bytes": 2078152,
-      "onde": "portao tecnico",
-      "porque": "COLADA e PIOROU: vale subiu de 20 para 104. Mesmo pedido: vao de magenta puro de 20px entre figuras, nenhum pixel de tinta na faixa entre elas."
-    },
-    {
       "n": "cap4-sprite-v3",
       "em": "2026-08-17 02:40",
       "bytes": 1458611,
