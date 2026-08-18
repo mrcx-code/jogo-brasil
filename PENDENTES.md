@@ -634,3 +634,31 @@ no repositório e **acende sozinha** no dia em que o capítulo ganhar o verbo �
 
 **A lição, para não repetir:** arte de gente e mecânica de gente são a MESMA decisão. Ligar uma
 sem a outra não é meio caminho andado — é o §2 quebrado com pixel bonito.
+
+---
+
+## 20. PINDORAMA aprovado como TROCAR — e o smoke mede o hp no capítulo 1 (17/08)
+
+O dono aprovou "trocar com quem passa" para PINDORAMA no check de 17/08. Implementado (uma
+linha em `CAP_FILA`), **revertido no mesmo minuto** para não deixar a `main` vermelha: o
+`smoke.js` usa o **capítulo 1 como referência do mecanismo de hp** e três asserções caem —
+*"the health readout does not change when a trouble is damaged"*, *"chapter 1 stopped
+dissipating what crosses the street"*, *"beating a trouble left no drop"*.
+
+**Não é bug: é o teste seguindo o jogo.** As três medem o alcance por dano, que continua
+existindo — só que não mais no capítulo 1.
+
+**A pergunta estrutural, e ela é do dono:** com nove dos treze já em verbo e PINDORAMA aprovado,
+o alcance por HP está virando o caminho minoritário. Restam com hp: `segurou`, `temfonte`,
+`hoje`, `aceiro` — e os três primeiros já têm verbo desenhado e aprovado (PENDENTES 18).
+**No fim do plano, nenhum capítulo alcança por dano.** Então:
+
+- **(a)** apontar as três asserções para um capítulo que ainda tem hp, e repetir a mudança a cada
+  verbo novo — adia a decisão e mente sobre onde o jogo está;
+- **(b) ⭐** assumir que o alcance por dano é caminho de saída: as três asserções passam a cobrar
+  o alcance POR VERBO (toque abre, tempo resolve, drop cai), e a gramática de dano é apagada
+  quando o último capítulo receber o dele;
+- **(c)** manter PINDORAMA batendo por hp e aceitar que o primeiro capítulo do jogo — onde todo
+  mundo entra — é o que ensina a gramática que o resto do jogo abandonou.
+
+Não decidi sozinho porque isto muda o que o jogo É, não como ele está escrito.
