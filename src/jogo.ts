@@ -785,6 +785,12 @@ let jumpT = 0, shocks: never[] = [];       // owner: both stay at rest — the l
 // ============================================================
 let drops: Drop[] = [], mutiraoT = 0, chamada = null, chamadaT = 0, mobChao = 0;
 let chamadaDobrada = false, diaNovo = false, voltouDepoisDe = 0;
+// QUANDO ESTA ABA ENTROU NO SEGUNDO PLANO, ou 0 se está na frente. É o relógio da ausência de
+// quem trocou de app SEM fechar o jogo — o caso comum no celular e o único no aplicativo, onde
+// a webview sobrevive. Deliberadamente separado de `S.salvoEm`: aquele é do SAVE e é
+// compartilhado entre abas; este é desta aba, e é o que impede que a mesma ausência seja paga
+// duas vezes quando há duas abas. Ver `pagarAusencia`.
+let escondidoEm = 0;
 // Onda 5 (Direção de Arte): VOLTAR É AMANHECER. Armado quando a tela de retorno abre num
 // dia NOVO de travessia (diaNovo — a régua da retenção, não qualquer pausa de café) e
 // consumido quando ela fecha: a luz varre até a próxima manhã pelo MESMO canal da virada
@@ -3286,14 +3292,30 @@ function carregar(silencioso?: boolean) {
   // seguindo a obra, e com `acolhidos = 0` a taxa é ZERO e nada acontece (nem avanço, nem
   // consumo). Sob `silencioso` não roda: aquela releitura é uma aba que recuou, não alguém
   // que voltou ao jogo — aplicar ali contaria a mesma ausência duas vezes.
-  if (!silencioso) {
-    relatoObra = avancarObra(Math.floor(dt / 3600 * taxaMutirao(genteDaObra())));
-    if (relatoObra.pontos > 0) salvar();
-  }
   // `silencioso` é a releitura feita quando a pessoa volta para uma aba que recuou: ali ela
   // não voltou ao JOGO, voltou a esta aba — e o papel de "enquanto você esteve fora" contando
   // as horas de novo seria uma cerimônia sobre um evento que não aconteceu.
-  if (!silencioso) mostrarRetorno(dt);
+  if (!silencioso) pagarAusencia(dt);
+}
+// PAGAR A AUSÊNCIA — e este passou a ser o ÚNICO lugar que o faz (18/08).
+//
+// Ele era corpo solto dentro de `carregar()`, e por isso só existia na CARGA DA PÁGINA. A
+// consequência estava medida e era feia: quem FECHA o jogo recebe o mutirão e o papel da volta;
+// quem só troca de app e volta recebe ZERO. No celular — e mais ainda no aplicativo, onde a
+// webview sobrevive ao segundo plano — trocar de app É a forma comum de se ausentar. Medido, 8 h
+// de ausência com 6 acolhidas em Palmares: aba morta e recarregada paga 96 pontos e abre o
+// papel; aba viva voltando do segundo plano pagava 0, e `carregar()` rodava zero vezes.
+//
+// Uma função só, chamada de dois lugares, é o que mantém a promessa que o bloco acima já fazia:
+// o MESMO `dt` capado, o MESMO `avancarObra` do dedo e do laço de quadro, um relógio só.
+// Não é renda de graça — com `acolhidos = 0` a taxa é zero e nada acontece, nem avanço nem
+// consumo. E o teto de `mostrarRetorno` (60 s) continua decidindo sozinho quando há cerimônia:
+// trocar de app por vinte segundos não vira papel na cara de ninguém.
+function pagarAusencia(dt: number) {
+  voltouDepoisDe = dt;
+  relatoObra = avancarObra(Math.floor(dt / 3600 * taxaMutirao(genteDaObra())));
+  if (relatoObra.pontos > 0) salvar();
+  mostrarRetorno(dt);
 }
 
 // ===== A TELA DE RETORNO — "enquanto você esteve fora" (JOGABILIDADE.md, passo 3) =====
@@ -14663,7 +14685,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // primeira passada e só rearma quando a pessoa volta para a aba.
   window.addEventListener("pagehide", function () { salvar(); salvarRetencao(); medirParou(); });
   document.addEventListener("visibilitychange", function () {
-    if (document.hidden) { salvar(); salvarRetencao(); medirParou(); return; }
+    if (document.hidden) {
+      salvar(); salvarRetencao(); medirParou();
+      // QUANDO ESTA ABA SE AUSENTOU. É daqui que sai a ausência de quem trocou de app sem
+      // fechar o jogo — o caso comum no celular, e o único no aplicativo, onde a webview
+      // sobrevive. Ver `pagarAusencia`: sem esta marca, essa pessoa recebia zero.
+      escondidoEm = Date.now();
+      return;
+    }
     // Voltou para a aba: o "onde parou" volta a poder sair. Sem este rearme, uma tarde de
     // alternar entre abas mandaria um evento e sumiria; com ele sem trava, mandaria trinta.
     medirParouArmado = true;
@@ -14689,6 +14718,17 @@ document.addEventListener("DOMContentLoaded", () => {
       carregar(true);
       redesenharFundo();
       desenhar();
+      // A ABA RECUOU: quem paga a ausência é a OUTRA aba, na carga dela. Pagar aqui também
+      // seria contar a mesma ausência duas vezes, que é exatamente o que o `silencioso` de
+      // `carregar()` existe para impedir. Some a marca e não se paga nada.
+      escondidoEm = 0;
+    } else if (escondidoEm > 0) {
+      // VOLTOU DO SEGUNDO PLANO COM A ABA VIVA. `carregar()` não roda aqui — medido, zero
+      // vezes —, então sem esta linha o mutirão não trabalhava e o papel da volta não abria
+      // para quem apenas trocou de app. O relógio é o tempo REALMENTE oculto, e não `salvoEm`:
+      // é o número honesto para esta aba, e não se confunde com o das duas abas acima.
+      pagarAusencia(Math.max(0, Math.min((Date.now() - escondidoEm) / 1000, CFG.capOfflineHoras * 3600)));
+      escondidoEm = 0;
     }
   });
 });
