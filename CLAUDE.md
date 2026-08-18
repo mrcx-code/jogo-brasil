@@ -261,6 +261,25 @@ prompt não garantia: **worktree sempre** para quem toca `src/`, **ferramenta ne
 manda parar (`ROSTOS.md` é somente leitura para agente), e um **QA independente que tenta
 refutar** antes de eu integrar.
 
+**LICENÇA PERMANENTE DE USO DOS AGENTES, dada pelo dono em 2026-08-18.** Ela existe porque a
+máquina foi construída em 17/08 e ficou **parada**: a sessão da madrugada de 18/08 trabalhou seis
+horas sozinha com os seis agentes ali do lado, porque o padrão é não disparar agente sem pedido
+explícito. Não é mais preciso pedir.
+
+- **Use os agentes por padrão**, sem perguntar, sempre que a tarefa se beneficiar: `historiador`
+  lendo fonte enquanto o `dev` mede, `qa` tentando **refutar** o que você acabou de afirmar,
+  `arte` e `pipeline` no que é deles. Trabalho em paralelo é o normal, não a exceção.
+- **`isolation: "worktree"` é obrigatório** para qualquer agente que toque `src/` — é o que
+  impede duas escritas simultâneas de se atropelarem no arquivo de 14 mil linhas.
+- **O QA vem antes de integrar**, não depois. Um agente que tenta derrubar o achado é a única
+  correção estrutural para o defeito de eu revisar o meu próprio trabalho.
+- **O que a licença NÃO revoga:** o §2 inteiro (representação decide-se com o dono), o
+  `TERRITORIO.md`, e a regra de que nada entra na `main` sem os dois portões verdes por exit code.
+
+**Orquestração pesada continua exigindo pedido dele** — fan-out de dezenas de agentes, auditoria
+paralela dos treze capítulos, painel de juízes. Isso queima muito, e o dono pede com a palavra
+`ultracode` na mensagem. A licença acima é para o trabalho de todo dia, não para a frota.
+
 ## 6. Como trabalhar
 
 ### O CHECK — quando o dono escrever `check` e nada mais
@@ -308,6 +327,13 @@ Regras que fazem o check valer alguma coisa:
    vão na forma interativa, e o resto continua em lista escrita, abaixo. Escolher quais quatro
    é trabalho, não sorteio — vai o que trava outra pessoa, o que trava arte, e o que fica pior
    quanto mais se espera.
+
+7. **A PÁGINA PUBLICADA, pedida pelo dono em 2026-08-18.** O check é lido no celular, e rolagem
+   de terminal é o pior lugar possível para uma mesa de decisão com print, número e opção lado a
+   lado. Publique o check como **página privada** (Artifact) e entregue o link junto do resumo:
+   as quatro camadas na página, os prints que sustentam cada número, e as decisões clicáveis
+   continuando na conversa, porque é ali que ele responde. A página é o material de leitura; a
+   pergunta continua sendo feita aqui.
 
 
 ```bash
