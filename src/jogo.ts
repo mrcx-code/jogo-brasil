@@ -1170,6 +1170,17 @@ function concluirAlcance(m: Mob, sx: number, auto?: boolean) {
   burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
     : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
     : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+  // O QUE TEM FONTE: conferir DEVOLVE A PROCEDENCIA (18/08). Em vez do numero que os outros
+  // capitulos flutuam, aqui sobe o nome de quem mediu — porque a recompensa do capitulo do
+  // metodo e justamente saber de onde vem. Nada de novo e afirmado: a fonte ja estava no
+  // jogo, dita pela LINHA_TEMPO, e o que muda e a MAO que a alcanca.
+  if (capConferir()) {
+    const fr = fraseDoMob(m);
+    if (fr) {
+      const fonte = fr.f.length > 34 ? fr.f.slice(0, 33) + "…" : fr.f;
+      novoFloat({ x: Math.max(2, sx - 12), y: GROUND - 46, txt: fonte, life: 74 });
+    }
+  }
   if (!auto) somAtendida();
 }
 const CONVERSA_SEG = 1.6;
@@ -1185,6 +1196,37 @@ let CAPS_VERBO: number[] = [];
 CAPS_VERBO = [];                            // preenchido junto de CAP_PALAVRA, por id
 function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
 // correr fecha a MÃO em NAODITO: o toque só abre a entrega andando (aprovado: "discrição é andar")
+// ===== O QUE TEM FONTE: O QUE ATRAVESSA A RUA E UMA FRASE (18/08) =====
+// PENDENTES 18, aprovado pelo dono: "frases passam; tocar abre a fonte". E o unico capitulo em
+// que o que cruza a tela nao e gente nem objeto — sao as afirmacoes que o JOGO ja fez nos doze
+// capitulos anteriores, e o gesto e conferir de onde vieram.
+//
+// NENHUM DADO NOVO NASCE AQUI, e essa e a regra do capitulo: as frases sao os momentos da
+// LINHA_TEMPO que ja carregam titulo, texto e fonte (vinte deles). O metodo virou rua lendo o
+// que o jogo afirmou — se uma frase nao tem fonte, ela nao atravessa, que e o §2 em movimento.
+function capConferir() {
+  const e = EPOCAS[epocaAtual()];
+  return !!e && e.id === "temfonte";
+}
+// As frases conferiveis, derivadas e nao escritas. Cada uma leva o que o metodo pergunta:
+// quem afirmou (t), quando (q) e onde esta publicado (f).
+let CONFERIVEIS: { q: string; t: string; f: string }[] = [];
+function montarConferiveis() {
+  if (CONFERIVEIS.length) return CONFERIVEIS;
+  CONFERIVEIS = (typeof LINHA_TEMPO !== "undefined" ? LINHA_TEMPO : [])
+    .filter(function (x: any) { return x.tipo === "momento" && x.f && x.t && (x.d || x.q); })
+    .map(function (x: any) { return { q: String(x.q || ""), t: String(x.t), f: String(x.f) }; });
+  return CONFERIVEIS;
+}
+// A frase que este mob carrega. Sai do `d` dele — o chao que ELE cobriu — pelo mesmo motivo
+// que o quadro da caminhada sai dali: e estavel, nao sorteia a cada quadro, e nao precisa de
+// campo novo no mob (o save nao muda).
+function fraseDoMob(m: { d?: number; wx: number }) {
+  const lista = montarConferiveis();
+  if (!lista.length) return null;
+  const i = Math.abs(Math.floor((m.wx || 0) / 137)) % lista.length;
+  return lista[i];
+}
 function verboExigeAndarNoToque() {
   const id = EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id;
   // DOIS capitulos exigem ANDAR no proprio toque, e pela mesma forma com razoes opostas:
@@ -2462,7 +2504,10 @@ CAP_PALAVRA = iEp("salvador");
 // familia da conversa — um toque abre, o tempo ao lado resolve — e o sentido e o de quem bate
 // de porta em porta: cada pessoa atendida e uma casa a menos entre voce e o fim da rua.
 // O capitulo fecha os TREZE: nenhum alcanca mais por dano.
-CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro"), iEp("segurou")];
+// O QUE TEM FONTE entra em 18/08 e fecha DOZE dos treze. Ele usa a familia da conversa — um
+// toque abre, o tempo ao lado resolve — porque conferir tambem e uma coisa que se faz JUNTO e
+// com calma: ler quem mediu, como mediu e onde esta publicado nao se faz correndo.
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro"), iEp("segurou"), iEp("temfonte")];
 // A FILA GANHA DOIS CAPITULOS EM 17/08 (PENDENTES 17, aprovados pelo dono no check). O gesto
 // e o mesmo — um toque, e o tempo corre com a pessoa ao seu lado — e o SENTIDO e outro em cada
 // rua, que e o que faz profundidade sem inventar mecanica:

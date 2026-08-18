@@ -3294,6 +3294,13 @@ function concluirAlcance(m, sx, auto) {
     burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
         : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
             : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
+    if (capConferir()) {
+        const fr = fraseDoMob(m);
+        if (fr) {
+            const fonte = fr.f.length > 34 ? fr.f.slice(0, 33) + "…" : fr.f;
+            novoFloat({ x: Math.max(2, sx - 12), y: GROUND - 46, txt: fonte, life: 74 });
+        }
+    }
     if (!auto)
         somAtendida();
 }
@@ -3302,6 +3309,26 @@ let CAP_PALAVRA = 2;
 let CAPS_VERBO = [];
 CAPS_VERBO = [];
 function capPalavra() { return CAPS_VERBO.indexOf(epocaAtual()) >= 0; }
+function capConferir() {
+    const e = EPOCAS[epocaAtual()];
+    return !!e && e.id === "temfonte";
+}
+let CONFERIVEIS = [];
+function montarConferiveis() {
+    if (CONFERIVEIS.length)
+        return CONFERIVEIS;
+    CONFERIVEIS = (typeof LINHA_TEMPO !== "undefined" ? LINHA_TEMPO : [])
+        .filter(function (x) { return x.tipo === "momento" && x.f && x.t && (x.d || x.q); })
+        .map(function (x) { return { q: String(x.q || ""), t: String(x.t), f: String(x.f) }; });
+    return CONFERIVEIS;
+}
+function fraseDoMob(m) {
+    const lista = montarConferiveis();
+    if (!lista.length)
+        return null;
+    const i = Math.abs(Math.floor((m.wx || 0) / 137)) % lista.length;
+    return lista[i];
+}
 function verboExigeAndarNoToque() {
     const id = EPOCAS[epocaAtual()] && EPOCAS[epocaAtual()].id;
     return id === "naodito" || id === "aceiro";
@@ -4009,7 +4036,7 @@ function blocoArte(e) {
 const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
-CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro"), iEp("segurou")];
+CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito"), iEp("aceiro"), iEp("segurou"), iEp("temfonte")];
 CAP_FILA = [iEp("pindorama"), iEp("palmares"), iEp("jabaquara"), iEp("pequenaafrica"), iEp("cais")];
 const EPOCA_CENA0 = [];
 let TOTAL_CENAS = 0;
