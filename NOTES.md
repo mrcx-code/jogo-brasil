@@ -7263,3 +7263,60 @@ esquecida — arte e mecânica são a mesma decisão, e agora o código cobra is
 
 **AINDA AQUI é o único dos treze sem verbo aprovado**, e a folha de gente dele existe, dormente.
 Não inventei: é §2, e representação é dele.
+
+### 18/08 · o censo, e o defeito que tinha a arte esperando ao lado
+
+**Lente: Medir.** Depois de quatro verbos novos numa noite, a pergunta era o que nenhum teste
+está olhando. A resposta foi o conjunto: o bloco 5 do `encaixe.js` confere se o texto da
+abertura e o motor concordam, mas só sobre **dois** capítulos, porque foi escrito quando havia
+dois verbos. Hoje há doze e ninguém varria os treze.
+
+**O bloco 32 — o censo.** Cobra quatro coisas por capítulo: quem não tem verbo está declarado
+pelo nome numa lista de exceção (só `hoje`, AINDA AQUI, que é decisão do dono); a lista encolhe
+quando ele decidir; nenhuma rua **desenha** gente sem ter verbo; e todo capítulo com verbo abre
+o portão de `pessoaNaRua()` — que é a mesma falha de `fracAlcance` na direção inversa, e deixaria
+a rua vazia sem um erro.
+
+**A primeira versão reprovou AINDA AQUI e estava errada.** Ela olhava o inventário de folhas em
+vez do portão. Folha pronta com portão fechado não é dívida — guardar a arte esperando o dono é
+o comportamento certo. Corrigida para perguntar `pessoaNaRua()` capítulo a capítulo.
+
+**O que ela achou na primeira rodada, e o print confirmou:** O QUE TEM FONTE tinha o verbo
+CONFERIR vivo e nenhuma folha de gente. O portão abria, a folha não existia, e a rua recaía na
+arte genérica — o capítulo prometia conferir a fonte de quem você cruza, e quem cruzava era um
+**toco de árvore com o anel de aproximação em volta**. A versão "objetos boiando" que a campanha
+de gente inteira existiu para consertar, no capítulo mais novo, em produção.
+
+**E a arte estava no disco desde as 22:50 da véspera**, entregue e não processada. Três pessoas
+numa sala de leitura — estudante com mochila, livros e celular; homem com mochila e café;
+pesquisadora com pilha de livros. Cortada, desfranjada, 310 KB, viajando no pacote `hoje` que o
+capítulo já puxa. Foi a catraca escrita uma hora antes que mandou tirar o nome da exceção:
+assim que a folha entrou, a asserção reprovou com *"TIRE DAQUI: temfonte"*.
+
+**A catraca fica VAZIA**, e é assim que ela deve ficar: capítulo com verbo e sem folha passa a
+ser vermelho na hora.
+
+**Medido na mesma noite** (números só comparáveis dentro da própria rodada): renda pós-verbos
+dentro do contrato de ±10% nos três capítulos amostrados — cap1 1402/1412, cap2 1383/1433, cap3
+1780/1741. Toques por pessoa **1,11**, contra os 5 a 13 de quando o alcance era por dano.
+Alternar andar/correr rende **+133%** sobre só correr. Correr rendeu menos em dois capítulos, e
+isso é o desenho funcionando: conversa não anda correndo.
+
+**Ferramenta nova: `test/embutir-gente.js`.** As doze folhas anteriores foram emendadas à mão com
+um script descartável reescrito a cada lote. Numa declaração de 300 KB de base64, onde ler o diff
+não é opção, uma vírgula esquecida quebra o build inteiro. Ela recusa chave que já existe, recusa
+contagem diferente de 24 quadros, e lê a quebra de linha **do arquivo** — a primeira versão
+procurava a âncora com `\n` puro num `src/jogo.ts` em CRLF e respondia *"a declaração mudou de
+forma"*, que é a mensagem que manda procurar exatamente no lugar certo estando errada. Custou
+duas tentativas.
+
+**Estado:** 13 capítulos, 12 com verbo, **12 com gente na rua** (a 13ª folha existe e dorme,
+esperando a decisão do dono sobre AINDA AQUI). Nenhum capítulo alcança por dano.
+
+**Dúvida nova:** o censo mostra que A PRAÇA, O QUE SEGUROU e O ACEIRO desenham gente sobre
+**pintura emprestada** do NAODITO — o print do ACEIRO tem brigadista e apanhadora de
+sempre-vivas numa rua urbana. A gente está certa e o chão não. Nenhum teste olha isso, e não sei
+se olharia bem: "a pintura combina com o capítulo" não é coisa que asserção meça.
+
+**Próximo:** ou a lente **Volta no dia 2** (o que a pessoa acha de novo ao voltar continua
+pouco), ou fechar a dívida das três pinturas emprestadas — que é pedido de arte, logo do dono.
