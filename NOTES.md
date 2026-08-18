@@ -7412,3 +7412,42 @@ de quem já jogou. Ao passar de 16, conferir a migração antes de empurrar.
 
 **Falta um: O QUE TEM FONTE**, e é o mais delicado dos treze — o assunto dele é o **método**, não
 um fato, e um momento com fonte ali tem de ensinar a ler, não a decorar.
+
+### 18/08 (4) · Primeiros cinco minutos: a lente que nunca tinha sido usada, e não achou defeito
+
+**Instrumento novo: `test/medir-cinco-minutos.js`.** Ele não responde "onde trava" — travar é coisa
+de gente e eu não sou gente abrindo o jogo pela primeira vez. Responde a primeira metade com
+número: o que está na tela, em que ordem, e quanto tempo até dar para tocar.
+
+| o quê | medido |
+|---|---|
+| menu pronto e tocável | **2,5 s** da carga |
+| toques até a rua | **3** (JOGAR → fala → PULAR) |
+| abertura SEM pular | **19,9 s**, 6 páginas |
+| primeiro upgrade pagável | **30 s** de toque (320 de impacto contra custo 150) |
+| cinco minutos só tocando | **3.102** de impacto · capítulo 3 · fila de 5 · **3 placas vistas** |
+
+**O onboarding funciona, e eu quase concluí o contrário.** A primeira rodada da sonda respondeu
+*"dica na tela: NENHUMA"* e eu ia registrar que o jogo não ensina nada. As microdicas são
+desenhadas **no canvas**, não no DOM — perguntar ao DOM devolve sempre "nenhuma". Medidas no
+motor, elas disparam certo: **ESQUERDA PULA no 1º toque** na metade direita, **SEGURE PARA
+ALCANÇAR no 3º toque solto**.
+
+E o relógio delas é o **impacto**, não o tempo (`DICA_TETO_IMPACTO = 400`). Isso é melhor do que
+parece: quem lê devagar, olha em volta e demora não perde dica nenhuma, porque o contador só anda
+quando a pessoa toca. Um teto em segundos puniria exatamente quem está lendo — que é o público
+que a terceira perna da tese quer.
+
+**O sinal de "dá para comprar" está vivo**, e eu também quase o declarei morto: `#openUpgrades`
+ganha `pronto` e o fundo vai de `rgb(163,154,131)` para `rgb(188,178,152)`. A primeira sonda leu
+a classe sem deixar um quadro rodar.
+
+**Duas vezes na mesma hora eu quase registrei defeito onde não havia**, e as duas pelo mesmo
+motivo: perguntei à camada errada (DOM em vez de canvas; classe em vez de quadro). Fica a régua —
+antes de escrever "o jogo não faz X", perguntar se o instrumento sabe olhar onde X mora.
+
+**Um julgamento, não um defeito, e é do dono:** o `pronto` é um clareamento de ~15% da mesma
+pedra. Se isso lê num celular na rua, ao sol, é pergunta de direção visual — não mexo por conta.
+
+**Veredito da lente: os primeiros cinco minutos estão sãos.** Nenhum defeito. Isso é resultado, e
+o instrumento fica para poder ser refeito depois de qualquer mexida na abertura.
