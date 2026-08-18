@@ -2443,7 +2443,15 @@ const DONO_DO_BLOCO = ["pindorama", "palmares", "salvador", "hoje"];
 CAP_GENTE = iEp("palmares");
 CAP_PALAVRA = iEp("salvador");
 CAPS_VERBO = [iEp("salvador"), iEp("portas"), iEp("praca"), iEp("naodito")];
-CAP_FILA = [iEp("palmares"), iEp("jabaquara")];
+// A FILA GANHA DOIS CAPITULOS EM 17/08 (PENDENTES 17, aprovados pelo dono no check). O gesto
+// e o mesmo — um toque, e o tempo corre com a pessoa ao seu lado — e o SENTIDO e outro em cada
+// rua, que e o que faz profundidade sem inventar mecanica:
+//   PALMARES   acolher   — quem chega cansado encontra lugar
+//   JABAQUARA  guiar     — ele ja desceu a serra e volta para trazer o proximo
+//   PEQUENA AFRICA convidar — a casa enche porque alguem chamou
+//   O CAIS     varrer    — a pedra coberta volta a luz enquanto voce fica
+// Uma linha, quatro verbos: e por isso que `fracAlcance` e `pessoaNaRua` leem UMA funcao so.
+CAP_FILA = [iEp("palmares"), iEp("jabaquara"), iEp("pequenaafrica"), iEp("cais")];
 const EPOCA_CENA0: number[] = [];      // primeira cena de cada época (soma-prefixo de `cenas`)
 let TOTAL_CENAS = 0;
 EPOCAS.forEach(function (ep) { EPOCA_CENA0.push(TOTAL_CENAS); TOTAL_CENAS += ep.cenas; });
