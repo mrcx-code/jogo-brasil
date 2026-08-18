@@ -2397,6 +2397,36 @@ const sec = t => log('\n---- ' + t);
 
     const dormentes = censo.caps.filter(c => c.temGente && !c.desenha).map(c => c.nome);
     if (dormentes.length) log('   folha pronta e portão fechado (esperando decisão): ' + dormentes.join(', '));
+
+    // (e) A CATRACA. Ha um terceiro estado, e o print do dia 18/08 mostrou o quanto ele e feio:
+    // capitulo com verbo VIVO e folha de gente NAO ENTREGUE. O jogo abre o portao, nao acha a
+    // folha, e recai na arte generica de objeto -- entao O QUE TEM FONTE promete CONFERIR A
+    // FONTE de quem voce cruza e quem cruza e um TOCO DE ARVORE com o anel de aproximacao em
+    // volta. E exatamente a versao "objetos boiando" que a campanha de gente inteira existiu
+    // para consertar, embarcada no capitulo mais novo.
+    //
+    // Isto NAO reprova, e a razao importa: a arte esta pedida ha dias e depende do dono, e
+    // deixar a main vermelha por trabalho de outra pessoa e transformar o portao de qualidade
+    // em ruido que se aprende a ignorar. Mas nao pode CRESCER: escrever o proximo capitulo e
+    // solta-lo sem gente vira teste vermelho, porque exige acrescentar um nome aqui.
+    const SEM_FOLHA_ACEITO = ['temfonte'];
+    const semFolhaNoAr = censo.caps.filter(c => c.desenha && !c.temGente);
+    if (semFolhaNoAr.length) {
+      log('   ⚠ verbo no ar SEM folha de gente (a rua mostra objeto): ' +
+        semFolhaNoAr.map(c => c.nome).join(', '));
+    }
+    const novosSemFolha = semFolhaNoAr.filter(c => SEM_FOLHA_ACEITO.indexOf(c.id) < 0).map(c => c.nome + ' (' + c.id + ')');
+    ok(novosSemFolha.length === 0,
+      'nenhum capítulo NOVO abriu o verbo antes de ter a folha de gente' +
+      (novosSemFolha.length ? ' — SOLTOU SEM GENTE: ' + novosSemFolha.join(', ') +
+        '. Ou entregue a folha, ou mantenha o portão fechado até ela chegar.' : ''));
+    const jaTemFolha = SEM_FOLHA_ACEITO.filter(id => {
+      const c = censo.caps.find(x => x.id === id);
+      return c && c.temGente;
+    });
+    ok(jaTemFolha.length === 0,
+      'a catraca não guarda capítulo cuja folha já chegou' +
+      (jaTemFolha.length ? ' — TIRE DAQUI: ' + jaTemFolha.join(', ') : ''));
   }
 
   sec('ERROS DE CONSOLE');

@@ -682,3 +682,28 @@ mim também. **Mas o diagnóstico avançou**, e é isto que o próximo não prec
   que media SALVADOR por índice fixo.
 
 O caminho está claro; o que falta é uma passada com o bloco inteiro na mão, não remendo.
+
+## 22 · O QUE TEM FONTE está no ar com o verbo vivo e sem gente na rua
+
+**Achado em 18/08 pelo bloco 32 do `encaixe.js` (o censo), e confirmado no print.**
+
+O capítulo promete CONFERIR: você cruza alguém e a fonte daquela pessoa aparece. O verbo
+funciona. Mas `gente-temfonte` nunca foi entregue, então `pessoaNaRua()` abre o portão, não
+acha a folha, e a rua recai na arte genérica de objeto — quem cruza é um **toco de árvore com
+o anel de aproximação em volta**, e uma cesta de frutas.
+
+É a versão "objetos boiando" que a campanha de gente inteira existiu para consertar, embarcada
+no capítulo mais novo, em produção.
+
+**Por que não foi consertado agora:** as três saídas que eu tenho são piores que o defeito.
+Emprestar a folha de outro capítulo põe gente dos anos 1970 dentro de um arquivo público.
+Fechar o portão devolve o alcance por dano, que é a dívida do §2 que acabou de ser paga.
+Segurar o capítulo inteiro tira do ar o único que ensina o método.
+
+**O que ficou no lugar:** a catraca `SEM_FOLHA_ACEITO` no bloco 32. Não reprova hoje — a arte
+depende do dono e main vermelha por trabalho de outra pessoa vira ruído que se aprende a
+ignorar. Mas o próximo capítulo que abrir verbo sem folha **é vermelho**, porque exige
+acrescentar um nome à lista, e isso aparece no diff.
+
+**Sai daqui quando:** `gente-temfonte` for entregue e embutida. Aí o nome sai da catraca e o
+próprio teste cobra que ele saia.
