@@ -321,6 +321,12 @@ function lintComentarios() {
   // spread between the little one and the big one is wide enough to feel, and the readout
   // actually puts pixels on the screen over the right head.
   const vida = await page.evaluate(async () => {
+    // O CAPITULO FICA FIXO AQUI, e isto derrubou uma tentativa inteira (PENDENTES 20.1): este
+    // bloco rodava no capitulo em que o teste estivesse naquele instante, entao toda pergunta
+    // do tipo "este capitulo tem verbo?" respondia sobre outro. Mesma doenca do
+    // medir-acompanhar.js, que media O CAIS achando que media SALVADOR por indice fixo.
+    const cenarioDaVida = S.cenario;
+    S.cenario = cenarioDaEpoca(0);
     mobs.length = 0; drops.length = 0; chamada = null; mutiraoT = 0; superT = 0; superCarga = 0; superSwings = 0; superCd = 0; superFx = null;
     const hp = {}, golpes = {};
     for (const t of ['smog', 'cash', 'barrel']) {
@@ -330,17 +336,28 @@ function lintComentarios() {
       while (restante > 0) { restante -= (c % 3 === 2) ? 2 : 1; c++; n++; }
       golpes[t] = n;
     }
-    // and it is drawn: paint one barrel's readout onto the scene and look at the pixels
+    // A LEITURA DO ALCANCE — POR DIFERENCA, e nao por alfa absoluto (17/08).
+    // MEDIDO antes de mexer, que e o passo que faltou nas duas tentativas anteriores: a faixa do
+    // CHAO tem 96 pixels pintados SEMPRE (andando, parada, intacta, alcancada) porque ali mora a
+    // SOMBRA DE CONTATO. Assercao de "intacto nao desenha nada" amostrada no chao mede sombra e
+    // reprova por construcao. A sombra e constante, logo toda DIFERENCA entre dois estados e o
+    // anel — e e assim que se le o progresso onde ha verbo.
+    // A barra de vida, por sua vez, passa a ser cobrada pela AUSENCIA: §2.2 nao admite barra de
+    // aflicao sobre gente, entao em capitulo com verbo ela tem de estar em ZERO nos dois estados.
     mobs.length = 0;
+    const comVerbo = capFila() || capPalavra();
     const m = novoMob('barrel', worldX + HX + 40);
-    m.parado = true; mobs.push(m);
-    const y = GROUND - VIDA_TOPO.barrel, x0 = Math.round(m.wx - worldX) + 5 - ((m.hpMax * 3 - 1) >> 1);
-    const leia = () => Array.from(cx.getImageData(x0, y, m.hpMax * 3 - 1, 3).data);
+    m.parado = true; m.espera = 9; mobs.push(m);
+    const sxm = Math.round(m.wx - worldX) + 5;
+    const xBarra = sxm - ((m.hpMax * 3 - 1) >> 1);
+    const leiaBarra = () => Array.from(cx.getImageData(xBarra, GROUND - VIDA_TOPO.barrel, m.hpMax * 3 - 1, 3).data);
+    const leia = () => Array.from(cx.getImageData(Math.max(0, sxm - 16), GROUND - 6, 32, 8).data);
     drawScene(); desenharMundo();
-    const cheio = leia();
-    m.hp = 1;
+    const cheio = leia(), barraIntacta = leiaBarra();
+    if (comVerbo) m.acolhida = ACOLHER_SEG * 0.75; else m.hp = 1;
     drawScene(); desenharMundo();
-    const ferido = leia();
+    const ferido = leia(), barraAlcancada = leiaBarra();
+    const temAlfa = (a) => a.some((v, i) => i % 4 === 3 && v > 0);
     mobs.length = 0;
     // Regra nova (usabilidade, achado 1): a barra INTACTA não desenha nada — vazia ela era
     // um retângulo preto pousado sobre cada coisa que chega. Só depois do primeiro alcance
@@ -351,9 +368,23 @@ function lintComentarios() {
     // mente. Limpa-se o mundo inteiro antes de medir.
     drops.length = 0; folhas.length = 0; parts.length = 0; floats.length = 0;
     drawScene(); desenharMundo();
-    return { hp, golpes, mudou: cheio.some((v, i) => v !== ferido[i]),
-      cheioLimpo: !cheio.some((v, i) => i % 4 === 3 && v > 0),
-      pintou: ferido.some((v, i) => i % 4 === 3 && v > 0) };
+    S.cenario = cenarioDaVida;
+    return { hp, golpes, comVerbo,
+      // CADA ESTADO LE A PROPRIA SUPERFICIE, e confundir as duas custou uma tentativa: sem
+      // verbo o alcance mora na BARRA (GROUND - VIDA_TOPO), com verbo mora no ANEL (o chao).
+      // Medir o chao num capitulo sem verbo nao acusa mudanca nenhuma — a barra mudou, o chao
+      // nao. A sombra e constante nos dois casos, entao a diferenca e sempre o sinal.
+      mudou: comVerbo
+        ? cheio.some((v, i) => v !== ferido[i])
+        : barraIntacta.some((v, i) => v !== barraAlcancada[i]),
+      // com verbo, a barra de aflicao NAO pode existir; sem verbo, a regra antiga vale.
+      // A AUSENCIA DA BARRA E ESTRUTURAL, e nao amostra de pixel — e a razao e geometrica:
+      // gente mede 42px e o objeto 17 a 24, entao a faixa da barra (GROUND - VIDA_TOPO) cai
+      // DENTRO DO CORPO da pessoa. Contar alfa ali mede o torso dela, nao a barra. O que
+      // garante a ausencia e `pessoaNaRua()`, a mesma porta que ja governa pisca, estilhaco e
+      // empurrao — entao e ela que se cobra. (O bloco de SALVADOR cobra os outros tres.)
+      cheioLimpo: comVerbo ? pessoaNaRua() : !temAlfa(barraIntacta),
+      pintou: comVerbo ? ferido.some((v, i) => i % 4 === 3 && v > 0) : temAlfa(barraAlcancada) };
   });
   console.log('trouble health -> smog', vida.hp.smog, 'hits', vida.golpes.smog,
     '| cash', vida.hp.cash, 'hits', vida.golpes.cash,
@@ -572,10 +603,14 @@ function lintComentarios() {
     S.cenario = cenarioDaEpoca(0);
     mobs.length = 0; drops.length = 0;
     const outro = novoMob('smog', worldX + HX + 20);
-    outro.hp = 1; mobs.push(outro);
+    outro.hp = 1; outro.parado = true; outro.espera = 9; mobs.push(outro);
     clicar(false, true, true);
     r.vazouParaOCap1 = !!outro.sabe;
-    r.dissipaNoCap1 = outro.dying > 0;
+    // O CAPITULO 1 CONTINUA RESOLVENDO O QUE PASSA — mas pelo VERBO dele desde 17/08, e nao
+    // por dano: um toque abre, o tempo ao lado resolve. Deixar esse tempo correr e a unica
+    // diferenca; a assercao continua cobrando a MESMA coisa, que e a rua nao encher.
+    for (let i = 0; i < 300 && !(outro.dying > 0 || outro.dead) && !drops.length; i++) atualizarMobs(0.05);
+    r.dissipaNoCap1 = outro.dying > 0 || outro.dead || drops.length > 0;
     S.cenario = cenarioAntes; S.cuidado = cuidadoAntes; cuidadoVisto = cuidadoAntes;
     mobs.length = 0; drops.length = 0; parts.length = 0;
     proximoMob = -1; mobChao = 0;
@@ -622,10 +657,12 @@ function lintComentarios() {
     // the world is the jump surface now, so swinging is done on the button
     // troubles have four times the health they used to, and the leap only lands every fifth
     // swing, so it takes a good few more taps to see one off
-    for (let i = 0; i < 24 && mobs.length && !mobs[0].dying; i++) {
-      clicar();
-      await new Promise(rr => setTimeout(rr, 40));
-    }
+    // UM TOQUE ABRE, O TEMPO RESOLVE. Eram 24 toques ate o hp zerar; com o verbo do capitulo 1
+    // o toque abre e o relogio ao lado conclui. O que se cobra nao mudou: que o mundo responda
+    // com um drop no chao.
+    m.parado = true; m.espera = 9;
+    clicar();
+    for (let i = 0; i < 300 && !drops.length && mobs.length && !mobs[0].dying; i++) atualizarMobs(0.05);
     const nDrops = drops.length, oDrop = drops[0], valor = oDrop ? oDrop.valor : 0;
     const antes = S.energiaTotal;
     // a drop comes off the ground when she walks over it — the world tap is a jump now
