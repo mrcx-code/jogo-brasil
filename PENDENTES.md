@@ -662,3 +662,23 @@ o alcance por HP está virando o caminho minoritário. Restam com hp: `segurou`,
   mundo entra — é o que ensina a gramática que o resto do jogo abandonou.
 
 Não decidi sozinho porque isto muda o que o jogo É, não como ele está escrito.
+
+### 20.1 · O que MEDI antes de parar (17/08, segunda tentativa)
+
+Duas tentativas, as duas revertidas — e a regra das duas tentativas do `AGENTES.md` vale para
+mim também. **Mas o diagnóstico avançou**, e é isto que o próximo não precisa redescobrir:
+
+- **A faixa do CHÃO tem 96 pixels pintados SEMPRE** — com a pessoa andando, parada, intacta ou
+  alcançada. É a **sombra de contato**, não o anel. Qualquer asserção de "intacto não desenha
+  nada" amostrada no chão mede sombra e reprova por construção. Foi nisso que iterei às cegas.
+- **A leitura tem de ser por DIFERENÇA**: a sombra é constante, logo toda diferença entre dois
+  estados é o anel. Alfa absoluto no chão nunca vai servir.
+- **A barra some sozinha em capítulo com verbo** (`pessoaNaRua()` já governa isso), então a
+  asserção certa ali é a da AUSÊNCIA — §2.2 não admite barra de aflição sobre gente.
+- **O que derrubou a segunda tentativa:** o bloco `vida` do smoke roda no capítulo em que o
+  teste estiver naquele instante, e não necessariamente no 1. Meu `capFila()` dentro da amostra
+  avaliava o capítulo errado. **Quem pegar isto: fixe `S.cenario` explicitamente no começo do
+  bloco e restaure no fim** — é a mesma cura do `medir-acompanhar.js`, que media O CAIS achando
+  que media SALVADOR por índice fixo.
+
+O caminho está claro; o que falta é uma passada com o bloco inteiro na mão, não remendo.
