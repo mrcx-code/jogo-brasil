@@ -138,15 +138,36 @@ const ATAQUES_RET = [
   console.log('\n===== SEM RELÓGIO =====');
   {
     const gente = '"acolhidos":[0,6,0,0,0,0,0,0,0,0,0,0,0],"recursos":{"flor":9999,"agua":9999,"refeicao":9999}';
+    // OS QUATRO DO MEIO ENTRARAM EM 18/08, DEPOIS DE UM QA ADVERSARIAL FURAR A TRAVA DA MANHÃ.
+    // A primeira versão perguntava `salvoEm > 0`, e isso pega só o zero exato: `0.5`, `1`, `1000`
+    // e `1e9` são positivos DENTRO da faixa do esquema, passavam a régua, e `Date.now() − 1`
+    // estoura o teto igualzinho a `Date.now() − 0`. Os quatro davam 43.200 s e 144 pontos.
+    // A pergunta certa não é "é maior que zero", é "isto é um relógio?".
+    //
+    // `1e9` fica aqui como caso nomeado porque ele não é só adulteração: é o que um aparelho de
+    // relógio morto escreve ao acordar em 1970 e salvar antes de sincronizar a hora.
     const casos = [
       ['sem o campo salvoEm', '{"energia":1,' + gente + '}', false],
       ['salvoEm fora da faixa', '{"energia":1,"salvoEm":5e12,' + gente + '}', false],
+      ['salvoEm meio segundo', '{"energia":1,"salvoEm":0.5,' + gente + '}', false],
+      ['salvoEm um', '{"energia":1,"salvoEm":1,' + gente + '}', false],
+      ['salvoEm em 1970', '{"energia":1,"salvoEm":1000,' + gente + '}', false],
+      ['relógio morto (1e9)', '{"energia":1,"salvoEm":1e9,' + gente + '}', false],
       ['8 h de verdade', '{"energia":1,"salvoEm":' + (Date.now() - 8 * 3600 * 1000) + ',' + gente + '}', true],
     ];
     for (const [nome, save, deveriaPagar] of casos) {
       const r = await pg.evaluate((save) => {
         localStorage.clear();
         window.salvar = function () {};
+        // O PAINEL SÓ ABRE, NUNCA FECHA SOZINHO — e um instrumento que mede "painel aberto" em
+        // série sem fechar antes lê o caso ANTERIOR. Sem esta linha, o primeiro caso que abre o
+        // papel faz todos os seguintes parecerem abri-lo também.
+        const antes = document.getElementById('retorno');
+        if (antes) antes.classList.remove('aberto');
+        // E `carregar()` só escreve os campos PRESENTES no JSON: `S.salvoEm` sobrevive da leitura
+        // anterior se o caso novo não o trouxer. Zerar à mão é o que torna cada caso independente
+        // da ordem em que está escrito — senão o teste passa medindo o vizinho.
+        S.salvoEm = 0;
         localStorage.setItem(CHAVE_JOGO, save);
         carregar();
         const el = document.getElementById('retorno');

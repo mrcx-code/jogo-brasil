@@ -3282,7 +3282,18 @@ function carregar(silencioso?: boolean) {
   //
   // Zero é o lado certo de errar. Perder uma ausência legítima custa alguns pontos de obra;
   // pagar o teto a um save adulterado dá quase um terço da obra de graça, e faz a tela mentir.
-  const semRelogio = !(S.salvoEm > 0);
+  // `> 0` NÃO BASTAVA, e o buraco era meu (18/08, achado por um QA adversarial horas depois).
+  // O esquema apara `salvoEm` para fora de [0, 4e12], mas QUALQUER positivo DENTRO da faixa
+  // passava a régua — e `Date.now() − 1` estoura o teto igualzinho a `Date.now() − 0`.
+  // Medido: `0.5`, `1`, `1000` e `1e9` davam os mesmos 43.200 s, 144 pontos de obra e o mesmo
+  // "você ficou fora por 12h00". A trava de manhã pegava só o zero exato.
+  //
+  // A pergunta certa não é "é maior que zero", é "ISTO É UM RELÓGIO?". Um `salvoEm` anterior a
+  // setembro de 2001 não é save que este jogo escreveu — o jogo não existia, e o `Date.now()`
+  // de qualquer aparelho com hora sincronizada é dez vezes maior. E o caminho não é só save
+  // adulterado: aparelho com relógio morto acorda em 1970, salva, e depois sincroniza a hora.
+  const RELOGIO_MINIMO = 1e12;   // 9 de setembro de 2001 — antes disso não é relógio, é lixo
+  const semRelogio = !(S.salvoEm >= RELOGIO_MINIMO);
   const dt = semRelogio ? 0
     : Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
   voltouDepoisDe = dt;

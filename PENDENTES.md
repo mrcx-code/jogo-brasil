@@ -867,3 +867,60 @@ consumidores.** Sem `t`/`d`/`f` no próprio nó, eles não entram na `notaDaVolt
 (não têm `cena`); para os outros dois parece acidente. Consequência: **Zumbi, os mocambos, o
 Censo de 2022 indígena e a portaria dos Tupinambá nunca saem na nota da volta.** O conserto não
 inventa nada — copiar `q`/`t`/`d`/`f` de `MOMENTOS` para os nós, ou dar `cena` a eles.
+
+## 28 · O que o QA adversarial derrubou e eu ainda não consertei
+
+**18/08.** Um QA independente tentou derrubar os nove consertos do dia. Derrubou **cinco**. Um
+já foi consertado (o `salvoEm`, abaixo). Ficam quatro, e o mais grave nem estava na lista.
+
+### ⚠ O MAIS GRAVE, e é anterior aos meus consertos: "VOLTAR PARA A RUA" não volta para a rua
+
+Medido no jogo vivo, com toque real, num save que já terminou: tocar o botão **reabre a CHEGADA**.
+Vinte e cinco fechamentos em 2,5 s → a tela abriu vinte e cinco vezes. **Quem termina o jogo fica
+preso na tela de fim**, e a única saída é abrir outra tela.
+
+A causa está em `verificarCenario`: `mostrarFecho()` com o bit já visto chama `chegarAoFim()` e
+devolve `false`, contornando a guarda `if (!(R.chegou | 0))` da linha seguinte.
+
+**Duas consequências**, e a segunda envenena a medição: quem chegou ao fim perde a rua — o público
+exato da pergunta de três dias —, e **`R.chegou` conta dispensas da tela, não chegadas**. Um
+jogador só produziu 20. As propriedades `vez` dos eventos `terminou` e `volta` saem infladas, e o
+giro das conferências do fim alterna a cada *tentativa de sair*, não a cada chegada.
+
+### Girar o aparelho desfaz os dois consertos de rótulo de hoje
+
+Nenhum rótulo em canvas é repintado no `resize`. Medido:
+
+| | aberto já na tela estreita | aberto a 390 e girado |
+|---|---|---|
+| título da CHEGADA a 320 | arrasto 0 | **arrasto 32 px** |
+| título da CHEGADA a 280 | — | **arrasto 52 px**, e o canvas sai pela esquerda |
+| nome do capítulo a 320 | 2 linhas, cabe | **1 linha de 290 num papel de 272** |
+| nome do capítulo a 280 | — | **58 px para fora** |
+
+O conserto é um `resize` que repinte `#fimTit` e o `#falaTit`. **Nenhum instrumento do repositório
+gira o aparelho com uma tela já aberta** — é o caminho que ninguém percorre.
+
+### `escalaQueCabe` pode devolver 1, e ninguém cobra piso
+
+A 280 px, "DE NOVO ATÉ AQUI" cai para escala **1** (canvas de 97 px, letra de 11 px de altura)
+enquanto "ATÉ AQUI" fica em 3 na mesma tela — **três vezes de diferença de corpo** entre a
+primeira e a segunda chegada. É o mesmo "meia letra" que eu recusei hoje para a caixa de fala.
+
+### `medir-telas-altura.js` tem asserção vazia em 3 de 8 telas
+
+O filtro `!podeRolar` descarta toda reprovação de tela que rola — e `telaMenu`, `telaFim` e
+`telaObra` rolam, então **nunca podem reprovar**. Pior: o seletor cobre 4 classes, o que na
+CHEGADA são 7 nós de 61. Medido com o botão-âncora de cada tela: o VOLTAR da CHEGADA fica
+**abaixo da dobra em 10 de 10 alturas** (+192 a +522 px), e o da obra em 10 de 10 a 320 px.
+Pode ser desenho — páginas que rolam —, mas então a frase "cabe em toda altura" não descreve o
+que foi medido, e o instrumento não tem como um dia dizer o contrário.
+
+### O que o QA NÃO derrubou, com número
+
+O pagamento da ausência ao voltar do segundo plano (cinco ataques de pagamento duplo, todos
+negativos, inclusive com duas abas), o reinício de `sessaoSeg` (13 campos varridos, nada mais
+mudou; uma saída dispara UM evento), as 17 placas (bits únicos, nenhuma fora do vão, nenhuma
+inalcançável, folga mínima de 750 de impacto), e o save hostil contra 17 ataques novos que eu não
+tinha escrito — `arco` fora de faixa, `marcosN` mentiroso, `obraVista` maior que `obra`, recursos
+fracionários, `\u0000` no `modo`, `acolhidos` como objeto com `length`. Nenhum vazou.

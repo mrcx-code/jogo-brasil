@@ -4421,7 +4421,8 @@ function carregar(silencioso) {
     cuidadoVisto = S.cuidado;
     semearGrupo();
     salvoConhecido = S.salvoEm;
-    const semRelogio = !(S.salvoEm > 0);
+    const RELOGIO_MINIMO = 1e12;
+    const semRelogio = !(S.salvoEm >= RELOGIO_MINIMO);
     const dt = semRelogio ? 0
         : Math.max(0, Math.min((Date.now() - S.salvoEm) / 1000, CFG.capOfflineHoras * 3600));
     voltouDepoisDe = dt;
