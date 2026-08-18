@@ -64,3 +64,14 @@ o que virou PARE sobe para o check do dono, em pergunta fechada
 - **A zona do dono (`TERRITORIO.md`) não vira ticket de ninguém.** Trabalho que precise dela
   para e avisa.
 - **Instrumento não medido contra si mesmo não mede nada.**
+
+## ⚠ Os agentes só existem em SESSÃO NOVA
+
+Medido em 17/08, logo depois de escrevê-los: o harness varre `.claude/agents/` na
+**inicialização**, então a sessão que os criou não os enxerga (`Agent type 'pm' not found`).
+Eles valem a partir do próximo `claude` aberto neste diretório. Não é defeito e não há o que
+consertar — é a ordem das coisas, e fica escrito para ninguém procurar bug onde não há.
+
+Enquanto isso, o trabalho segue com `general-purpose` carregando as mesmas instruções no
+prompt — o que se perde é justamente o que a definição garante sozinha: o isolamento
+automático, a ferramenta negada e o modelo por papel.
