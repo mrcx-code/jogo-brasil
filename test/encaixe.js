@@ -2304,6 +2304,101 @@ const sec = t => log('\n---- ' + t);
     }
   }
 
+  // ============================================================
+  // 32 · O CENSO DOS VERBOS
+  //
+  // O GAP QUE ISTO FECHA (18/08). O bloco 5 confere se o TEXTO e o MOTOR concordam — mas só
+  // sobre dois capítulos, porque foi escrito quando havia dois verbos. Hoje há doze, e nada
+  // olhava o conjunto. Um capítulo podia sair da `CAPS_VERBO` num refactor e ninguém saberia:
+  // o smoke continuaria verde, porque cada asserção dele testa o capítulo em que por acaso está.
+  //
+  // E há uma consequência pior que perder um verbo, e é a dívida do §2 voltando pela porta dos
+  // fundos: rua COM GENTE e SEM VERBO é gente que a mão só alcança batendo. Foi exatamente o
+  // que eu introduzi em 15/08 em cinco capítulos, e foi o smoke que pegou, não eu. Aquilo foi
+  // sorte. Isto é teste.
+  //
+  // A lista de exceção é nominal de propósito: acrescentar capítulo sem verbo passa a exigir
+  // escrever o id aqui, o que é uma decisão visível no diff — e não um silêncio.
+  // ============================================================
+  sec('32 · o censo dos verbos: nenhum capítulo perde o seu em silêncio');
+  {
+    // AINDA AQUI é o único sem verbo aprovado, e é decisão do dono (§2): o capítulo do presente
+    // fala de povos que estão aqui AGORA, e que gesto a mão faz ali não é coisa que eu invente.
+    const SEM_VERBO_APROVADO = ['hoje'];
+
+    const censo = await page.evaluate(() => {
+      const fila = (typeof CAP_FILA !== 'undefined') ? CAP_FILA : null;
+      const verbo = (typeof CAPS_VERBO !== 'undefined') ? CAPS_VERBO : null;
+      const gente = (typeof GENTE_EP_B64 !== 'undefined') ? GENTE_EP_B64 : null;
+      return {
+        achouListas: !!(fila && verbo),
+        achouGente: !!gente,
+        caps: EPOCAS.map(function (e, i) {
+          // `desenha` pergunta ao PORTÃO, não ao inventário: é `pessoaNaRua()` que decide se a
+          // folha de gente chega ao quadro. Uma folha guardada e dormente não é dívida nenhuma —
+          // dívida é gente DESENHADA numa rua onde a mão só alcança batendo.
+          const guardado = S.cenario;
+          S.cenario = cenarioDaEpoca(i);
+          const desenha = pessoaNaRua();
+          S.cenario = guardado;
+          return {
+            id: e.id,
+            nome: e.nome,
+            temVerbo: !!(fila && verbo) && (fila.indexOf(i) >= 0 || verbo.indexOf(i) >= 0),
+            temGente: !!(gente && gente[e.id]),
+            desenha: desenha
+          };
+        })
+      };
+    });
+
+    ok(censo.achouListas, 'as listas de verbo (CAP_FILA / CAPS_VERBO) são alcançáveis — sem elas o censo passaria vazio');
+    ok(censo.achouGente, 'o mapa de gente (GENTE_EP_B64) é alcançável');
+
+    const semVerbo = censo.caps.filter(c => !c.temVerbo);
+    const comGente = censo.caps.filter(c => c.temGente);
+    log('   capítulos: ' + censo.caps.length + ' · com verbo: ' + (censo.caps.length - semVerbo.length) +
+      ' · com gente na rua: ' + comGente.length);
+    censo.caps.forEach(function (c) {
+      log('     ' + c.nome.padEnd(24) + ' verbo ' + (c.temVerbo ? 'sim' : 'NÃO') + ' · folha ' + (c.temGente ? 'sim' : 'não') + ' · desenha ' + (c.desenha ? 'sim' : 'não'));
+    });
+
+    // (a) quem não tem verbo tem de estar na lista, pelo nome
+    const surpresas = semVerbo.filter(c => SEM_VERBO_APROVADO.indexOf(c.id) < 0).map(c => c.nome + ' (' + c.id + ')');
+    ok(surpresas.length === 0,
+      'todo capítulo sem verbo está declarado na exceção' +
+      (surpresas.length ? ' — PERDEU O VERBO EM SILÊNCIO: ' + surpresas.join(', ') : ''));
+
+    // (b) a lista de exceção encolhe quando o dono decide: id que ganhou verbo não fica nela
+    const obsoletos = SEM_VERBO_APROVADO.filter(id => {
+      const c = censo.caps.find(x => x.id === id);
+      return c && c.temVerbo;
+    });
+    ok(obsoletos.length === 0,
+      'a lista de exceção não guarda capítulo que já tem verbo' +
+      (obsoletos.length ? ' — TIRE DAQUI: ' + obsoletos.join(', ') : ''));
+
+    // (c) §2, a asserção que mais importa deste arquivo: rua que DESENHA gente é rua com verbo.
+    // Repare que ela olha `desenha`, e não `temGente` — a primeira versão deste bloco reprovou
+    // AINDA AQUI, que tem folha pronta e portão fechado, e reprovar isso seria cobrar o inverso
+    // do certo: guardar a arte à espera da decisão do dono é o comportamento correto.
+    const dividaDoDois = censo.caps.filter(c => c.desenha && !c.temVerbo).map(c => c.nome);
+    ok(dividaDoDois.length === 0,
+      'nenhuma rua DESENHA gente sem ter verbo (§2.2 — pessoa não se alcança por dano)' +
+      (dividaDoDois.length ? ' — VIOLAÇÃO: ' + dividaDoDois.join(', ') : ''));
+
+    // (d) e o outro lado da mesma moeda: capítulo COM verbo tem de abrir o portão. Se um verbo
+    // for acrescentado à lista mas `pessoaNaRua()` não o reconhecer, a rua fica vazia em
+    // silêncio — que é o defeito de `fracAlcance` anotado logo acima dela, na outra direção.
+    const portaoFechado = censo.caps.filter(c => c.temVerbo && !c.desenha).map(c => c.nome);
+    ok(portaoFechado.length === 0,
+      'todo capítulo com verbo abre o portão de pessoaNaRua()' +
+      (portaoFechado.length ? ' — VERBO SEM PORTÃO: ' + portaoFechado.join(', ') : ''));
+
+    const dormentes = censo.caps.filter(c => c.temGente && !c.desenha).map(c => c.nome);
+    if (dormentes.length) log('   folha pronta e portão fechado (esperando decisão): ' + dormentes.join(', '));
+  }
+
   sec('ERROS DE CONSOLE');
   log(erros.length ? erros.join('\n') : '(nenhum)');
   if (erros.length) falhas++;
