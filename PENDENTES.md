@@ -1136,3 +1136,25 @@ Os dois são representação — vão para a mesa dele, não decido.
    fala de AINDA AQUI (cuja protagonista foi aprovada como presença indígena — pedir que um rosto
    represente dois povos seria errado). O QUE a superfície é ainda precisa de decisão de
    representação do dono; a DIREÇÃO está dada. Fica aberto só nessa parte.
+
+## 41 · A PLATAFORMA COMEÇA PELAS SEÇÕES QUE JÁ EXISTEM — decidido pelo dono, 19/08 (check)
+
+Escolha dele no check: dar **endereço próprio** às seções já escritas, antes de qualquer migração.
+`matheusferreira.cc/historia` · `/glossario` · `/de-onde-vem` como páginas navegáveis, reusando o
+texto que já está no jogo (medido: as seções dependem do jogo em 1,9% a 17,4% — quase autônomas).
+
+**É a "home como proposta" nascendo com o que existe.** Ordem dada por ele: (1) endereço às
+seções; (2) a home; (3) a migração. A /sala e a migração ficam para depois.
+
+**MINHA para fazer, e é trabalho de plataforma, não de jogo.** Restrições que já valem:
+- Cada seção precisa **valer sozinha** (o teste do dono: dá para mandar o link a quem nunca jogou?).
+- Sai do mesmo texto-fonte do jogo — não duplicar conteúdo, gerar as páginas a partir de
+  `LINHA_TEMPO`, `GLOSSARIO`, `FONTES`. Uma fonte, duas saídas (como o build já faz com o jogo).
+- Endereço no domínio → passa pela Vercel (`dist/`), como a `/mesa`. Sem login.
+- A tela ONDE FOI continua sendo do dono (TERRITORIO.md) — o mapa é seção dele, não minha.
+- O §2 vale igual: as páginas afirmam história, então cada número tem fonte, e a home é a
+  proposta sem virar palanque (a mão leve do §1).
+
+**Próximo passo concreto:** um spec curto de como as 3 seções viram páginas a partir do
+texto-fonte, e qual a primeira (proponho A HISTÓRIA — é a mais autônoma, 1,9%, e é uma linha do
+tempo do Brasil publicável hoje).
