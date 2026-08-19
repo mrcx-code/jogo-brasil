@@ -9039,6 +9039,41 @@ function fundoDaFala() {
     if (b64 && f.getAttribute("src") !== b64)
         f.src = b64;
 }
+let falaTituloAtual = "";
+function pintarFalaTit(titulo) {
+    const cxFala = $("falaCaixa"), elTit = $("falaTit");
+    if (!cxFala || !elTit)
+        return;
+    const csCx = getComputedStyle(cxFala);
+    const dispTit = cxFala.getBoundingClientRect().width
+        - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
+    const cabeTit = Math.floor(dispTit / 12);
+    if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
+        const meioT = Math.floor(titulo.length / 2);
+        let corteT = -1;
+        for (let k = 0; k < titulo.length; k++) {
+            if (titulo.charAt(k) !== " ")
+                continue;
+            if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT))
+                corteT = k;
+        }
+        elTit.textContent = "";
+        elTit.dataset.px = "";
+        elTit.setAttribute("aria-label", titulo);
+        const t1 = document.createElement("div"), t2 = document.createElement("div");
+        elTit.appendChild(t1);
+        elTit.appendChild(t2);
+        pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
+        pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
+    }
+    else {
+        if (elTit.firstElementChild) {
+            elTit.textContent = "";
+            elTit.dataset.px = "";
+        }
+        pixelRotulo(elTit, titulo, 2, "#5c3210");
+    }
+}
 function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
     if (!linhas || !linhas.length) {
         if (depois)
@@ -9052,38 +9087,8 @@ function abrirFala(titulo, quando, linhas, depois, imgs, cerimonia) {
     falaDepois = depois || null;
     falaViva = true;
     falaImgs = falaLinhas.map(function (_, i) { return (imgs && imgs[i]) || null; });
-    {
-        const cxFala = $("falaCaixa"), csCx = getComputedStyle(cxFala);
-        const dispTit = cxFala.getBoundingClientRect().width
-            - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
-        const cabeTit = Math.floor(dispTit / 12);
-        const elTit = $("falaTit");
-        if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
-            const meioT = Math.floor(titulo.length / 2);
-            let corteT = -1;
-            for (let k = 0; k < titulo.length; k++) {
-                if (titulo.charAt(k) !== " ")
-                    continue;
-                if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT))
-                    corteT = k;
-            }
-            elTit.textContent = "";
-            elTit.dataset.px = "";
-            elTit.setAttribute("aria-label", titulo);
-            const t1 = document.createElement("div"), t2 = document.createElement("div");
-            elTit.appendChild(t1);
-            elTit.appendChild(t2);
-            pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
-            pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
-        }
-        else {
-            if (elTit.firstElementChild) {
-                elTit.textContent = "";
-                elTit.dataset.px = "";
-            }
-            pixelRotulo(elTit, titulo, 2, "#5c3210");
-        }
-    }
+    falaTituloAtual = titulo;
+    pintarFalaTit(titulo);
     $("falaSub").textContent = quando || "";
     const g = $("falaFantasma");
     g.textContent = "";
@@ -11736,6 +11741,17 @@ function montarConfere() {
         cx.appendChild(item);
     });
 }
+function pintarFimTit() {
+    const el = $("fimTit");
+    if (!el)
+        return;
+    const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+    const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle(el);
+    const dispFim = $("telaFim").clientWidth
+        - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
+        - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
+    pixelRotulo(el, fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+}
 function montarFim() {
     montarConfere();
     const nCap = EPOCAS.length;
@@ -11778,12 +11794,7 @@ function montarFim() {
         d.appendChild(b);
         box.appendChild(d);
     });
-    const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
-    const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle($("fimTit"));
-    const dispFim = $("telaFim").clientWidth
-        - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
-        - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
-    pixelRotulo($("fimTit"), fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+    pintarFimTit();
     montarPergunta();
 }
 const VOLTA_RESPOSTAS = ["volto", "talvez", "nao"];
@@ -12054,6 +12065,14 @@ document.addEventListener("DOMContentLoaded", () => {
     semearAnuncios();
     medirControles();
     window.addEventListener("resize", medirControles);
+    window.addEventListener("resize", function () {
+        const fim = document.getElementById("telaFim");
+        if (fim && fim.classList.contains("aberta"))
+            pintarFimTit();
+        const fala = document.getElementById("telaFala");
+        if (fala && fala.classList.contains("aberta") && falaTituloAtual)
+            pintarFalaTit(falaTituloAtual);
+    });
     let ultimo = performance.now(), hudAcc = 0, autoAcc = 0, retAcc = 0;
     function frame(agora) {
         const dt = Math.max(0, Math.min(0.25, (agora - ultimo) / 1000));

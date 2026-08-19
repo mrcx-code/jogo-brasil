@@ -10309,6 +10309,45 @@ function fundoDaFala() {
   const b64 = CENARIO_ALTO_B64[iArt >= 0 ? iArt : CENARIO_ALTO_B64.length - 1];
   if (b64 && f.getAttribute("src") !== b64) f.src = b64;
 }
+// O NOME DO CAPÍTULO EM EXIBIÇÃO, guardado para poder ser REPINTADO quando o aparelho girar.
+// Sem isto o `resize` não teria o que repintar: `abrirFala` recebe o título por argumento e ele
+// morria ali.
+let falaTituloAtual = "";
+// O TÍTULO DA CAIXA DE FALA, numa função própria pelo mesmo motivo do `pintarFimTit`: a decisão
+// de quebrar em duas linhas depende da LARGURA, e a largura muda quando o aparelho gira. Medido
+// por um QA adversarial em 18/08: abrir a fala de "O QUE NÃO PODIA SER DITO" a 390 e girar para
+// 320 devolvia o título de 290 px num papel de 272 — o "O" final de volta em cima da moldura,
+// que é exatamente o sintoma que o conserto da tarde tinha removido. A 280, 58 px para fora.
+function pintarFalaTit(titulo: string) {
+  const cxFala = $("falaCaixa"), elTit = $("falaTit");
+  if (!cxFala || !elTit) return;
+  const csCx = getComputedStyle(cxFala);
+  const dispTit = cxFala.getBoundingClientRect().width
+    - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
+  const cabeTit = Math.floor(dispTit / 12);      // 6 px por glifo × escala 2
+  if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
+    // corta no espaço MAIS PRÓXIMO DO MEIO, para as duas linhas ficarem parecidas
+    const meioT = Math.floor(titulo.length / 2);
+    let corteT = -1;
+    for (let k = 0; k < titulo.length; k++) {
+      if (titulo.charAt(k) !== " ") continue;
+      if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT)) corteT = k;
+    }
+    elTit.textContent = ""; elTit.dataset.px = "";
+    elTit.setAttribute("aria-label", titulo);    // o nome inteiro segue legível por leitor de tela
+    const t1 = document.createElement("div"), t2 = document.createElement("div");
+    elTit.appendChild(t1); elTit.appendChild(t2);
+    pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
+    pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
+  } else {
+    // Nome curto: uma linha. E LIMPA OS FILHOS de uma fala anterior que quebrou — sem isto,
+    // um capítulo de nome curto aberto depois de um longo herdaria as duas linhas do outro.
+    // `textContent` e `dataset.px` saem JUNTOS: `pixelRotulo` cacheia pela chave, e limpar
+    // só um dos dois faz o rótulo sumir e nunca mais voltar.
+    if (elTit.firstElementChild) { elTit.textContent = ""; elTit.dataset.px = ""; }
+    pixelRotulo(elTit, titulo, 2, "#5c3210");
+  }
+}
 function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   if (!linhas || !linhas.length) { if (depois) depois(); return; }
   pararFala();
@@ -10334,35 +10373,8 @@ function abrirFala(titulo, quando, linhas, depois, imgs?, cerimonia?) {
   //
   // Dá para medir daqui: `.tela` fecha com `visibility: hidden`, não `display: none`, então
   // `#falaCaixa` já tem largura real neste instante mesmo com `#telaFala` fechada.
-  {
-    const cxFala = $("falaCaixa"), csCx = getComputedStyle(cxFala);
-    const dispTit = cxFala.getBoundingClientRect().width
-      - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
-    const cabeTit = Math.floor(dispTit / 12);      // 6 px por glifo × escala 2
-    const elTit = $("falaTit");
-    if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
-      // corta no espaço MAIS PRÓXIMO DO MEIO, para as duas linhas ficarem parecidas
-      const meioT = Math.floor(titulo.length / 2);
-      let corteT = -1;
-      for (let k = 0; k < titulo.length; k++) {
-        if (titulo.charAt(k) !== " ") continue;
-        if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT)) corteT = k;
-      }
-      elTit.textContent = ""; elTit.dataset.px = "";
-      elTit.setAttribute("aria-label", titulo);    // o nome inteiro segue legível por leitor de tela
-      const t1 = document.createElement("div"), t2 = document.createElement("div");
-      elTit.appendChild(t1); elTit.appendChild(t2);
-      pixelRotulo(t1, titulo.slice(0, corteT), 2, "#5c3210");
-      pixelRotulo(t2, titulo.slice(corteT + 1), 2, "#5c3210");
-    } else {
-      // Nome curto: uma linha. E LIMPA OS FILHOS de uma fala anterior que quebrou — sem isto,
-      // um capítulo de nome curto aberto depois de um longo herdaria as duas linhas do outro.
-      // `textContent` e `dataset.px` saem JUNTOS: `pixelRotulo` cacheia pela chave, e limpar
-      // só um dos dois faz o rótulo sumir e nunca mais voltar.
-      if (elTit.firstElementChild) { elTit.textContent = ""; elTit.dataset.px = ""; }
-      pixelRotulo(elTit, titulo, 2, "#5c3210");
-    }
-  }
+  falaTituloAtual = titulo;
+  pintarFalaTit(titulo);
   $("falaSub").textContent = quando || "";
   // O fantasma: todas as falas desta conversa, empilhadas invisíveis na mesma célula da
   // grade. É o que dá à caixa a altura da mais alta antes de a primeira letra aparecer.
@@ -14170,6 +14182,24 @@ function montarConfere() {
     cx.appendChild(item);
   });
 }
+// O TÍTULO DA CHEGADA, PINTADO NUMA FUNÇÃO PRÓPRIA — porque ele precisa ser pintado DUAS vezes:
+// ao montar a tela e ao aparelho GIRAR (18/08). Ele estava dentro de `montarFim`, e por isso a
+// escala era escolhida uma vez, com a largura daquele instante. Medido por um QA adversarial:
+// abrir a CHEGADA a 390 e girar para 320 devolvia os 32 px de arrasto que o conserto da manhã
+// tinha tirado — e a 280, o canvas saía pela esquerda da janela.
+//
+// A largura vem do PAI e não do próprio rótulo: `#fimTit` é item de flex centrado, com largura
+// de conteúdo, e medi-lo devolve o tamanho dele mesmo. Ver o comentário do `resize`, no fim.
+function pintarFimTit() {
+  const el = $("fimTit");
+  if (!el) return;
+  const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
+  const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle(el);
+  const dispFim = $("telaFim").clientWidth
+    - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
+    - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
+  pixelRotulo(el, fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+}
 function montarFim() {
   montarConfere();
   const nCap = EPOCAS.length;
@@ -14235,12 +14265,7 @@ function montarFim() {
   //
   // Medido depois: escala 2 a 320 e 360 (canvas 194, arrasto zero), escala 3 intocada a 390.
   // "ATÉ AQUI", da primeira chegada, continua em escala 3 nas três telas.
-  const fimT = (R.chegou | 0) > 1 ? "DE NOVO ATÉ AQUI" : "ATÉ AQUI";
-  const csFim = getComputedStyle($("telaFim")), csFimTit = getComputedStyle($("fimTit"));
-  const dispFim = $("telaFim").clientWidth
-    - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
-    - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
-  pixelRotulo($("fimTit"), fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+  pintarFimTit();
   montarPergunta();
 }
 // ============================================================
@@ -14610,6 +14635,29 @@ document.addEventListener("DOMContentLoaded", () => {
   semearAnuncios();      // adopt current state so the first frames do not shout on load
   medirControles();
   window.addEventListener("resize", medirControles);
+  // GIRAR O APARELHO REPINTA OS RÓTULOS QUE DEPENDEM DE LARGURA (18/08).
+  //
+  // O DEFEITO QUE ISTO FECHA, e ele desfazia dois consertos do mesmo dia: `pixelRotulo` desenha
+  // um canvas de tamanho fixo, e quem escolhe a escala — ou a quebra em duas linhas — decide uma
+  // vez, no instante em que a tela é montada. Girar o aparelho muda a largura e não muda o
+  // canvas. Medido por um QA adversarial: a CHEGADA aberta a 390 e girada para 320 voltava a
+  // arrastar 32 px de lado; a 280, o canvas do título saía pela esquerda da janela. A fala de
+  // "O QUE NÃO PODIA SER DITO" aberta a 390 e girada para 320 voltava a uma linha de 290 px num
+  // papel de 272 — o "O" final sentado na moldura de madeira.
+  //
+  // Repinta SÓ o que está aberto: girar com tudo fechado não custa nada, e a caixa medida de uma
+  // tela fechada devolveria número de outro estado. É a mesma razão de o `resize` do mapa, logo
+  // acima, perguntar antes se o mapa está aberto.
+  //
+  // NÃO chama `montarFim()` inteiro: aquilo remonta o placar e sorteia o trio de conferências de
+  // novo, e girar o aparelho não é chegar de novo. O que muda com a largura é o título, e é só
+  // ele que se repinta.
+  window.addEventListener("resize", function () {
+    const fim = document.getElementById("telaFim");
+    if (fim && fim.classList.contains("aberta")) pintarFimTit();
+    const fala = document.getElementById("telaFala");
+    if (fala && fala.classList.contains("aberta") && falaTituloAtual) pintarFalaTit(falaTituloAtual);
+  });
 
 
   let ultimo = performance.now(), hudAcc = 0, autoAcc = 0, retAcc = 0;
