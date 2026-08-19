@@ -929,3 +929,24 @@ exatamente isso: *"o automático vazou da travessia"*. Vale checar antes de culp
 **Como retomar:** instrumentar `avancarFala` para registrar QUEM o chamou (pilha ou uma marca por
 chamador) e rodar o `encaixe` até o bloco 9. Se for vazamento, o conserto é no motor e a frase
 entra junto. Se for a frase, a saída é outra redação com o mesmo sentido e mais corpo.
+
+## 33 · A lista branca da medição só vê os eventos que dispararam antes dela
+
+**19/08, achado ao acrescentar uma propriedade.** O bloco 17 do `encaixe.js` é o portão de
+privacidade do repositório: *"qualquer propriedade nova aparece aqui como falha, e é de
+propósito — o jeito de vazar algo é acrescentar um campo achando que ele é inofensivo"*.
+
+Acrescentei `ativos` ao evento `parou` e **o bloco passou**. Não porque a propriedade fosse
+aprovada — ela não estava na lista —, mas porque **o bloco examina só os eventos que já
+dispararam quando ele roda**, e o `parou` nasce no bloco 20, doze blocos depois.
+
+**A consequência é a que o comentário do bloco promete não ter:** hoje dá para acrescentar
+qualquer propriedade a `parou`, a `terminou` ou a `volta` e o portão não vê. Só os eventos
+precoces — `abriu`, `capitulo` — estão realmente cobertos.
+
+**O conserto é pequeno e não é adivinhação:** o bloco deve DISPARAR cada um dos nove eventos
+antes de conferir, em vez de esperar que a partida os produza. `medirParou()`, `chegarAoFim()` e
+os outros são chamáveis; o bloco 20 já mostra como se força o `parou`.
+
+**Enquanto isso**, `ativos` entrou na lista à mão, com o motivo escrito ao lado — e o comentário
+do bloco diz agora que ele tem esse buraco, para ninguém confiar nele mais do que deve.

@@ -2111,7 +2111,12 @@ function lintComentarios() {
   // `volta` entrou com a pergunta de uma linha da CHEGADA ("você voltaria amanhã?"): 0 nunca
   // perguntada, 1 perguntada e calada, 2/3/4 a resposta. Sem ela no esquema, a pergunta
   // voltaria a ser feita em toda chegada — e uma pergunta que insiste deixa de medir intenção.
-  const retEsperadas = ['chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo', 'volta'];
+  // `ativos` entrou em 19/08 com a decisão do dono sobre o que conta como tempo jogado: em vez
+  // de arbitrar uma guarda de ociosidade, o jogo passa a contar DUAS coisas — `segundos` é tempo
+  // com o jogo na frente, `ativos` é quanto disso teve a mão nele (janela de 60 s após o último
+  // toque). A diferença entre os dois é a resposta, e ela sai na tela de AJUSTES e no evento
+  // `parou`. Nenhuma conta do jogo depende dele: ele existe para medir.
+  const retEsperadas = ['ativos', 'chegou', 'dias', 'fontes', 'historia', 'primeiro', 'segundos', 'tochas', 'toqDir', 'toqEsq', 'turbo', 'ultimo', 'volta'];
   const retChaves = Object.keys(painel.gravado).sort();
   console.log('retention written ->', retChaves.join(', '));
   if (retChaves.join(',') !== retEsperadas.join(',')) errors.push('the retention record carries fields the loader would discard: ' + retChaves.join(','));

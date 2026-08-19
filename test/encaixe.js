@@ -1028,9 +1028,17 @@ const sec = t => log('\n---- ' + t);
       // porque parece técnico e ninguém o lê como dado pessoal.
       // `resposta` entrou com a pergunta da CHEGADA (bloco 19) e `sessao` com o "onde parou"
       // (bloco 20).
-      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'capitulo',
-        'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta', 'sessao',
-        'terminou', 'vez'];
+      // `ativos` entrou em 19/08 com a decisão do dono sobre o que conta como tempo jogado:
+      // `minutos` é tempo com o jogo na frente, `ativos` é quanto disso teve a mão nele. Inteiro
+      // de minutos, como o vizinho — nada de pessoa.
+      //
+      // ⚠ E ELE ENTROU AQUI À MÃO PORQUE ESTA LISTA NÃO O PEGOU: o bloco só examina os eventos
+      // que por acaso dispararam ANTES dele, e o `parou` — que é quem carrega `ativos` e
+      // `sessao` — nasce no bloco 20, doze blocos depois. A lista branca é o portão de
+      // privacidade do repositório e tem esse buraco. Ver PENDENTES 33.
+      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'ativos',
+        'capitulo', 'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta',
+        'sessao', 'terminou', 'vez'];
       const estranhas = props.filter(p => PERMITIDAS.indexOf(p) < 0);
       ok(estranhas.length === 0, estranhas.length === 0
         ? 'e nenhuma propriedade fora da lista branca — nada de tela, idioma, fuso ou navegador'

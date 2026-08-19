@@ -4627,9 +4627,10 @@ function fecharRetorno() {
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = () => ({
-    dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
+    dias: 0, primeiro: "", ultimo: "", segundos: 0, ativos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
     fontes: 0, chegou: 0, volta: 0
 });
+const JANELA_ATIVO = 60000;
 let R = RET_PADRAO();
 const RET_TOQUE_TETO = 5000;
 const ESQUEMA_RET = {
@@ -4637,6 +4638,7 @@ const ESQUEMA_RET = {
     primeiro: { tipo: "dia", pad: "" },
     ultimo: { tipo: "dia", pad: "" },
     segundos: { tipo: "num", min: 0, max: 1e9, pad: 0 },
+    ativos: { tipo: "num", min: 0, max: 1e9, pad: 0 },
     tochas: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
     historia: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
     toqEsq: { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
@@ -4851,6 +4853,7 @@ function medirParou() {
         nome: EPOCAS[epocaAtual()] ? EPOCAS[epocaAtual()].nome : "",
         minutos: Math.round((R.segundos | 0) / 60),
         sessao: Math.round(sessaoSeg),
+        ativos: Math.round((R.ativos || 0) / 60),
         dia: R.dias | 0
     });
 }
@@ -10135,6 +10138,11 @@ function montarConfig() {
         ["TEMPO TOTAL: " + m + " MIN", "#33240f"],
         ["A HISTÓRIA ABERTA: " + R.historia + "X", "#33240f"]
     ];
+    {
+        const ma = Math.round((R.ativos || 0) / 60);
+        if (m - ma >= 1)
+            linhas.push(["COM A MÃO NELE: " + ma + " MIN", "#33240f"]);
+    }
     if (R.toqEsq + R.toqDir > 0) {
         linhas.push(["PRIMEIROS 60S · ESQ " + R.toqEsq + " / DIR " + R.toqDir, "#33240f"]);
     }
@@ -12191,6 +12199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     semearAnuncios();
     medirControles();
     window.addEventListener("resize", medirControles);
+    document.addEventListener("pointerdown", function () { ultimaInteracao = Date.now(); }, true);
     window.addEventListener("resize", function () {
         const fim = document.getElementById("telaFim");
         if (fim && fim.classList.contains("aberta"))
@@ -12244,6 +12253,8 @@ document.addEventListener("DOMContentLoaded", () => {
         R.segundos += dt;
         sessaoSeg += dt;
         retAcc += dt;
+        if (ultimaInteracao && Date.now() - ultimaInteracao < JANELA_ATIVO)
+            R.ativos += dt;
         if (retAcc > 30) {
             retAcc = 0;
             marcarDia();

@@ -70,6 +70,7 @@ interface Retencao {
   primeiro: string;   // "AAAA-MM-DD" do primeiro dia com sessão
   ultimo: string;     // "AAAA-MM-DD" do último dia contado
   segundos: number;   // tempo REALMENTE jogado, somado no laço de quadro
+  ativos: number;     // e destes, quantos tiveram TOQUE recente — ver JANELA_ATIVO
   tochas: number;
   historia: number;   // quantas vezes a tela A HISTÓRIA foi aberta
   toqEsq: number;     // toques na metade ESQUERDA (pula) nos primeiros 60 s de jogo
@@ -3592,9 +3593,22 @@ function fecharRetorno() {
 const CHAVE_JOGO = "jogo_brasil_v1";
 const CHAVE_RET = "jogo_brasil_retencao";
 const RET_PADRAO = (): Retencao => ({
-  dias: 0, primeiro: "", ultimo: "", segundos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
+  dias: 0, primeiro: "", ultimo: "", segundos: 0, ativos: 0, tochas: 0, historia: 0, toqEsq: 0, toqDir: 0, turbo: 0,
   fontes: 0, chegou: 0, volta: 0
 });
+// A JANELA DO "ATIVO": quanto tempo depois do último toque ainda se conta como jogar.
+//
+// SESSENTA SEGUNDOS, e o número é uma SONDA e não uma verdade — foi essa a decisão do dono em
+// 19/08, entre três saídas: deixar como estava, cravar uma guarda de ociosidade, ou CONTAR AS
+// DUAS COISAS e comparar. Ele escolheu a terceira, e ela é a única que não arbitra: em vez de
+// eu decidir o que "jogar" significa, o jogo passa a medir os dois números e a diferença entre
+// eles vira dado.
+//
+// Por que 60 e não 30: num jogo *idle*, olhar o número subir É parte do gênero, e 30 s cortaria
+// contemplação legítima. Por que não 5 min: aí quase nada seria cortado e o segundo número não
+// diria nada. Se a diferença medida entre `segundos` e `ativos` for pequena, a pergunta estava
+// mal colocada e a janela pode ir embora; se for grande, ela achou algo.
+const JANELA_ATIVO = 60000;
 let R: Retencao = RET_PADRAO();
 
 // ===== O ESQUEMA DA RETENÇÃO (T1) =====
@@ -3615,6 +3629,11 @@ const ESQUEMA_RET = {
   primeiro: { tipo: "dia", pad: "" },
   ultimo:   { tipo: "dia", pad: "" },
   segundos: { tipo: "num", min: 0, max: 1e9, pad: 0 },
+  // O SEGUNDO RELÓGIO (19/08). Mesma faixa de `segundos` porque ele é um SUBCONJUNTO dele:
+  // `ativos` nunca pode passar `segundos`, e se um save adulterado disser que passa, o pior
+  // que acontece é a tela de AJUSTES mostrar dois números incoerentes — nenhuma conta do jogo
+  // depende dele. Ele existe para MEDIR, não para multiplicar nada.
+  ativos:   { tipo: "num", min: 0, max: 1e9, pad: 0 },
   tochas:   { tipo: "cont", min: 0, max: 1e6, pad: 0 },
   historia: { tipo: "cont", min: 0, max: 1e6, pad: 0 },
   toqEsq:   { tipo: "cont", min: 0, max: RET_TOQUE_TETO, pad: 0 },
@@ -3899,6 +3918,12 @@ function medirParou() {
     // Em SEGUNDOS de propósito: a sessão que interessa é justamente a curta, e ela some
     // inteira se for arredondada para minuto.
     sessao: Math.round(sessaoSeg),
+    // O SEGUNDO RELÓGIO VIAJA JUNTO (19/08), e é ele que decide se a pergunta valia. `minutos`
+    // é tempo com o jogo na frente; `ativos` é quanto disso teve a mão nele. Se os dois vierem
+    // sempre iguais, a distinção não existia e a janela pode sair; se vierem longe, ela achou
+    // algo — e aí "40 min de jogo" e "6 min de jogo" eram a mesma linha até hoje.
+    // Continua sem nada de pessoa: é um inteiro de minutos, como o que já ia ao lado.
+    ativos: Math.round((R.ativos || 0) / 60),
     dia: R.dias | 0
   });
 }
@@ -11826,6 +11851,16 @@ function montarConfig() {
     ["TEMPO TOTAL: " + m + " MIN", "#33240f"],
     ["A HISTÓRIA ABERTA: " + R.historia + "X", "#33240f"]
   ];
+  // OS DOIS RELÓGIOS, LADO A LADO (19/08). A linha só aparece quando há diferença de pelo menos
+  // um minuto — em partida curta os dois números são iguais e mostrar as duas seria ruído.
+  //
+  // É a decisão do dono sobre o que conta como "tempo jogado": em vez de arbitrar, medir os dois
+  // e comparar. Esta linha é onde a comparação fica visível para ELE, e a mesma diferença sai no
+  // evento de retenção — porque a pergunta é sobre o número que responde os três dias.
+  {
+    const ma = Math.round((R.ativos || 0) / 60);
+    if (m - ma >= 1) linhas.push(["COM A MÃO NELE: " + ma + " MIN", "#33240f"]);
+  }
   if (R.toqEsq + R.toqDir > 0) {
     linhas.push(["PRIMEIROS 60S · ESQ " + R.toqEsq + " / DIR " + R.toqDir, "#33240f"]);
   }
@@ -14822,6 +14857,20 @@ document.addEventListener("DOMContentLoaded", () => {
   semearAnuncios();      // adopt current state so the first frames do not shout on load
   medirControles();
   window.addEventListener("resize", medirControles);
+  // A MÃO ESTEVE AQUI — o gancho do segundo relógio (19/08).
+  //
+  // `ultimaInteracao` já existia, mas só era escrita em `contarToque`, que roda apenas nas
+  // METADES DA RUA. Quem joga pelo botão dourado — que é o jeito mais comum — nunca a
+  // atualizava, e o segundo relógio marcaria zero para essa pessoa. Medido: dez toques na
+  // metade direita e `toqDir` continuou 0 no meu instrumento, porque o caminho é estreito.
+  //
+  // Aqui é largo de propósito e na fase de CAPTURA: qualquer ponteiro real, em qualquer lugar
+  // da página, conta como a mão estando aqui. Ler uma tela de fontes é jogar tanto quanto bater
+  // — o que este relógio separa é gente na frente do aparelho de tela esquecida acesa.
+  //
+  // E a ajuda automática continua de fora sem precisar de guarda: `u3` chama `clicar()` direto,
+  // nunca despacha evento de ponteiro. É a mesma razão pela qual `contarToque` mora onde mora.
+  document.addEventListener("pointerdown", function () { ultimaInteracao = Date.now(); }, true);
   // GIRAR O APARELHO REPINTA OS RÓTULOS QUE DEPENDEM DE LARGURA (18/08).
   //
   // O DEFEITO QUE ISTO FECHA, e ele desfazia dois consertos do mesmo dia: `pixelRotulo` desenha
@@ -14951,6 +15000,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // rAF stops in a background tab and dt is clamped, so this counts time actually
     // spent playing rather than time the tab sat open
     R.segundos += dt; sessaoSeg += dt; retAcc += dt;
+    // E O SEGUNDO RELÓGIO, que só anda com toque recente. `ultimaInteracao` já existia — era
+    // usada só pela regra das duas abas — e é ela que responde "a mão estava aqui?".
+    // A diferença entre os dois é a resposta que o dono pediu: quanto do tempo com o jogo na
+    // frente é tempo com a mão nele.
+    if (ultimaInteracao && Date.now() - ultimaInteracao < JANELA_ATIVO) R.ativos += dt;
     if (retAcc > 30) { retAcc = 0; marcarDia(); salvarRetencao(); }
     tick++;                     // quadros DESENHADOS: não para (orçamento de vozes; ver acima)
     // O CANAL PRÓPRIO DA CERIMÔNIA — a exceção declarada lá em cima. Escreve em `relogio`
