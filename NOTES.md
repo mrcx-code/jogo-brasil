@@ -7451,3 +7451,78 @@ pedra. Se isso lê num celular na rua, ao sol, é pergunta de direção visual �
 
 **Veredito da lente: os primeiros cinco minutos estão sãos.** Nenhum defeito. Isso é resultado, e
 o instrumento fica para poder ser refeito depois de qualquer mexida na abertura.
+
+### 18/08 (5) · O dia em que os agentes começaram a trabalhar — e me corrigiram três vezes
+
+O dono deu **licença permanente de uso dos agentes** (CLAUDE.md §5.2). Antes disso a máquina
+existia desde 17/08 e estava **parada**: uma sessão de seis horas trabalhou sozinha com os seis
+ali do lado. Este é o primeiro dia em que eles rodaram.
+
+**O placar, e ele é a informação mais útil deste diário:** de quatro rodadas de agente saíram
+**dezoito achados**. Treze eram reais e viraram conserto. **Três eu desmenti — e em dois eu
+estava errado.** Um foi devolvido ao dono por ser decisão de produto.
+
+#### As duas vezes em que eu desmenti um agente certo, e a causa é UMA só
+
+`abrirTela(id)` **abre** a tela e não a **monta**. Quem enche é `montarConfig()`,
+`montarCapitulos()`, `montarFontes()` — chamadas pelo **toque no botão**. Eu media a AJUSTES com
+`abrirTela` e via **10 nós**; a tela tem **41**. Tela vazia cabe em qualquer altura.
+
+Com isso eu escrevi no `PENDENTES` que dois defeitos "não reproduziam" — o que é pior que não
+ter medido, porque manda a próxima sessão não olhar. Os dois reproduzem:
+
+| relatado | eu disse | a verdade, pelo caminho real |
+|---|---|---|
+| AJUSTES corta em 360×640 | não reproduz | título **22 px acima**, VOLTAR **18 abaixo**, `scrollTop` move zero |
+| APAGAR sangra a 320 | não é defeito, é texto HTML | canvas de **242 px numa tábua de 224** |
+
+**O mesmo erro estava no instrumento**: `medir-telas-altura.js` media **seis das oito telas
+vazias** — A HISTÓRIA com 5 nós em vez de 568, DE ONDE VEM com 4 em vez de 207. Era por isso que
+a varredura era verde.
+
+#### O que os agentes acharam que eu não teria achado
+
+- **VOLTAR PARA A RUA não voltava para a rua.** Quem terminava o jogo ficava **preso** na
+  CHEGADA: 25 fechamentos em 2,5 s, 25 reaberturas. `mostrarFecho` com o bit já visto chama
+  `depois()` e devolve `false`, contornando a guarda. De quebra, `R.chegou` contava **dispensas
+  da tela**, envenenando a `vez` dos eventos `terminou` e `volta`.
+- **`salvoEm > 0` não era a pergunta certa.** Minha trava da manhã pegava só o zero exato:
+  `0.5`, `1`, `1000` e `1e9` davam os mesmos 43.200 s e 144 pontos. A régua virou *isto é um
+  relógio plausível?* — e o caminho nem é adulteração, é aparelho de relógio morto acordando
+  em 1970.
+- **Girar o aparelho desfazia dois consertos do mesmo dia.** Nenhum rótulo em canvas era
+  repintado no `resize`.
+- **27 afirmações com fonte lida no NOTES nunca viraram momento na LINHA_TEMPO.** Cinco
+  entraram; 22 estão no PENDENTES 27, com o nó pronto.
+
+#### A regra mecânica que ninguém sabia
+
+Capítulo de **1 cena carrega exatamente 1 placa**, quantos momentos tenha — e a placa é o
+**último momento na ordem da lista**. Confirmado em 10 de 10. **A posição de inserção escolhe
+qual fato vai para a estrada**: decisão editorial disfarçada de ordenação.
+
+#### O que ficou medido
+
+| | |
+|---|---|
+| momentos com fonte | 31 → **36** · placas 17, nenhuma trocou |
+| porta de entrada | 2.481 → **2.465 KB**, e 13 de 13 capítulos pagam zero |
+| save hostil | **254 asserções**, 17 ataques novos do QA, zero vazamentos |
+| AJUSTES | PASSOU em 3 larguras × 23 alturas |
+| a tela de fala | **medida pela primeira vez** — pior caso O ACEIRO, 1.026 caracteres, cabe a 500 px |
+
+#### As lições que valem mais que os consertos
+
+1. **Relatório de agente é hipótese.** Verifique por medição própria — e registre o desmentido,
+   porque desmentido errado é pior que silêncio.
+2. **Antes de escrever "não reproduz", pergunte se o instrumento exercita o caminho da PESSOA.**
+   `abrirTela` é atalho de teste; `montarX()` é o jogo.
+3. **Um instrumento que nunca foi visto reprovando é decoração.** O `medir-telas-altura.js`
+   ganhou autoteste (`ENCAIXE_DEFEITO` injeta CSS) — foi assim que se provou que a versão antiga
+   dizia "cabe em todas" com a saída da CHEGADA jogada 400 px para fora.
+4. **Para script de patch, use Write/Edit — nunca heredoc + `sed` + `node -e`.** Crase, aspas e
+   barra invertida somem no caminho, e custou tentativas em quatro momentos diferentes.
+
+**Próximo:** os 22 nós do PENDENTES 27, e as três perguntas de §2 que são do dono (o nome de
+Quintino de Lacerda, a placa do levante de 1835, o manto Tupinambá). Aberto e dele também: o
+`PENDENTES 26` (tela parada e visível conta como tempo jogado) e o verbo de AINDA AQUI.

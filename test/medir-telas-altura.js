@@ -88,6 +88,18 @@ const TELAS = [
   { id: 'telaFontes', monta: 'montarFontes', ancora: 'btnVoltarFontes' },
   { id: 'telaGlossario', monta: 'montarGlossario', ancora: 'btnVoltarGloss' },
   { id: 'telaObra', monta: 'montarObra', ancora: 'btnVoltarObra' },
+  // A TELA DE FALA ENTROU EM 18/08, e ela era o buraco mais sério da lista: é ONDE A PESSOA LÊ
+  // A HISTÓRIA — a perna "ensina" da tese do produto — e nenhum instrumento de altura do
+  // repositório a olhava. Não por decisão: por esquecimento, porque ela não se monta como as
+  // outras. `abrirTela` não a enche; quem enche é `abrirFala(titulo, quando, linhas, …)`, com
+  // argumentos. As outras oito couberam num nome de função e ela não, então ficou de fora.
+  //
+  // Mede-se o PIOR CASO REAL, escolhido do próprio conteúdo do jogo na hora da medição: o
+  // capítulo cuja abertura tem mais caracteres somados. Medir a fala mais curta seria medir o
+  // caso fácil, que é pior que não medir.
+  //
+  // A âncora dela é PULAR: é o único jeito de sair de uma fala sem esperar o fim.
+  { id: 'telaFala', monta: 'FALA', ancora: 'btnFalaPular' },
 ];
 const LARGURA = Number(process.argv[2] || 360);
 const H0 = Number(process.argv[3] || 560);
@@ -126,9 +138,28 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
         fecharTudo();
         // Se o nome de quem monta a tela mudar, isto REPROVA em vez de medir a tela vazia de
         // novo — a cegueira (1) só existiu porque ninguém era avisado de que a tela vinha vazia.
-        const montaFaltando = !!monta && typeof window[monta] !== 'function';
-        if (monta && !montaFaltando) window[monta]();
-        abrirTela(id);
+        // A FALA É O CASO À PARTE: ela não se monta por nome de função, e sim por `abrirFala`
+        // com argumentos. O pior caso sai do conteúdo do jogo — a abertura mais longa dos treze.
+        let montaFaltando = false;
+        if (monta === 'FALA') {
+          if (typeof window.abrirFala !== 'function' || typeof EPOCAS === 'undefined') {
+            return { montaFaltando: true };
+          }
+          pararFala();
+          const pior = EPOCAS.slice().sort(function (a, b) {
+            return b.abertura.join('').length - a.abertura.join('').length;
+          })[0];
+          abrirFala(pior.nome, pior.quando, pior.abertura, null);
+          const elF = document.getElementById(id);
+          if (elF) { elF.classList.add('aberta'); elF.setAttribute('aria-hidden', 'false'); }
+        } else {
+          // Se o nome de quem monta a tela mudar, isto REPROVA em vez de medir a tela vazia de
+          // novo — a cegueira (1) só existiu porque ninguém era avisado de que a tela vinha vazia.
+          montaFaltando = !!monta && typeof window[monta] !== 'function';
+          if (montaFaltando) return { montaFaltando: true };
+          if (monta) window[monta]();
+          abrirTela(id);
+        }
         const el = document.getElementById(id);
         if (!el) return null;
         const J = window.innerHeight, L = window.innerWidth;
