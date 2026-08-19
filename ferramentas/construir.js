@@ -375,6 +375,20 @@ if (fs.existsSync(p('mesa'))) {
   console.log('  mesa/ copiada para dist/mesa/ — ' + nMesa + ' arquivo(s), mais o robots.txt');
 }
 
+// AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
+// já existem (A HISTÓRIA, e depois o glossário e DE ONDE VEM) ganham endereço próprio. Ao
+// contrário da `mesa` acima, estas são PÚBLICAS e indexáveis — o dono QUER que as pessoas as
+// achem —, então nada de `noindex` e nada no Disallow. Cada uma é "uma fonte, duas saídas": o
+// conteúdo é gerado do mesmo `LINHA_TEMPO`/`GLOSSARIO`/`FONTES` do jogo (ver ferramentas/gerar-*),
+// nunca reescrito à mão. Aqui o build só PUBLICA o que o gerador já produziu.
+for (const secao of ['historia']) {
+  if (!fs.existsSync(p(secao))) continue;
+  fs.mkdirSync(p('dist', secao), { recursive: true });
+  let n = 0;
+  for (const f of fs.readdirSync(p(secao))) { fs.copyFileSync(p(secao, f), p('dist', secao, f)); n++; }
+  console.log('  ' + secao + '/ copiada para dist/' + secao + '/ — ' + n + ' arquivo(s)');
+}
+
 // OS PACOTES DE ARTE, nos dois lugares em que o index.html também está — e pelo mesmo motivo
 // de sempre: a Vercel publica `dist/` (ver vercel.json) e o Capacitor empacota `dist/` inteiro
 // para dentro do APK, enquanto a RAIZ é o que o `npm start` serve, o que o smoke test abre e o

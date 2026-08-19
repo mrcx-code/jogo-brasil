@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A história do Brasil em linha do tempo — de quem já estava aqui até hoje, cada momento com a fonte ao lado.">
+<meta property="og:title" content="A HISTÓRIA — BRASIL">
+<meta property="og:description" content="Uma linha do tempo do Brasil, de quem já estava aqui até hoje. Cada momento traz a fonte.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<title>A História do Brasil — uma linha do tempo</title>
+<style>
+  :root {
+    --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
+    --pedra:#7d8479; --mata:#2f5230; --terra:#7a4a24; --brasa:#b5541f;
+    --linha:#d3cab5; --realce:#ffffff; --sombra:rgba(29,33,25,.07);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
+    --pedra:#838a7c; --mata:#8fbf7f; --terra:#d09a63; --brasa:#e8834a;
+    --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
+  } }
+  :root[data-theme="dark"] {
+    --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
+    --pedra:#838a7c; --mata:#8fbf7f; --terra:#d09a63; --brasa:#e8834a;
+    --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--papel); color:var(--tinta);
+    font:400 17px/1.62 "Source Sans 3", system-ui, sans-serif; -webkit-text-size-adjust:100%; }
+  .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
+
+  header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.6rem; }
+  .selo { font:600 .72rem/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--terra); display:block; margin-bottom:.7rem; }
+  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 "Bitter",Georgia,serif; margin:0 0 .6rem;
+    text-wrap:balance; letter-spacing:-.015em; }
+  .intro { color:var(--tinta2); margin:0; font-size:1.05rem; max-width:36rem; }
+  .conta { font:600 .74rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+    margin:1rem 0 0; letter-spacing:.03em; }
+
+  /* A linha do tempo: um fio vertical à esquerda, marcos pontuando. */
+  .linha { position:relative; margin-top:.5rem; }
+  .linha::before { content:""; position:absolute; left:7px; top:6px; bottom:0; width:2px;
+    background:linear-gradient(var(--linha), var(--linha) 85%, transparent); }
+  .momento { position:relative; padding:0 0 2.4rem 2.4rem; }
+  .marco { position:absolute; left:0; top:.3rem; width:16px; height:16px; }
+  .ponto { display:block; width:16px; height:16px; border-radius:50%;
+    background:var(--papel); border:3px solid var(--mata); box-shadow:0 0 0 3px var(--papel); }
+  .quando { font:600 .73rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--terra); margin:0 0 .25rem; }
+  .momento h2 { font:700 1.32rem/1.22 "Bitter",Georgia,serif; margin:0 0 .5rem;
+    text-wrap:balance; letter-spacing:-.01em; }
+  .texto { margin:0 0 .7rem; }
+  .hoje { position:relative; background:var(--papel2); border-left:3px solid var(--terra);
+    padding:.7rem .9rem; margin:0 0 .7rem; font-style:italic; font-size:.97rem; color:var(--tinta2);
+    border-radius:0 4px 4px 0; }
+  .hojeR { display:block; font:600 .62rem/1 "IBM Plex Mono",ui-monospace,monospace;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--pedra); font-style:normal;
+    margin-bottom:.35rem; }
+  .fonte { font:400 .82rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+    margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
+
+  footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
+    font-size:.86rem; color:var(--pedra); }
+  footer.rod a { color:var(--terra); }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body>
+<div class="env">
+  <header class="topo">
+    <span class="selo">BRASIL · uma plataforma de conhecimento</span>
+    <h1>A história do Brasil, em linha do tempo</h1>
+    <p class="intro">De quem já estava aqui — há mais de onze mil anos — até hoje. Cada momento
+      traz a fonte ao lado: aqui não há número sem de onde ele veio.</p>
+    <p class="conta">47 momentos · 47 com fonte · 11 com a leitura de hoje</p>
+  </header>
+
+  <main class="linha">
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">há mais de onze mil anos</p>
+        <h2>Quem já estava aqui</h2>
+        <p class="texto">Em Lagoa Santa, Minas Gerais, um esqueleto de onze a doze mil anos. A pesquisa já mudou duas vezes a história de quem eram essas pessoas — e continua mudando.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Eu leio isto hoje, e ainda estou aprendendo: a nossa história não começa em navio nenhum.</p>
+        <p class="fonte">Neves &amp; Piló · O povo de Luzia · Jornal da USP</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">por milhares de anos</p>
+        <h2>Os montes da costa</h2>
+        <p class="texto">Povos do litoral ergueram montes de concha, cesto a cesto, geração após geração — alguns passaram de trinta metros. O nome que davam a si mesmos não chegou até nós: ninguém escreveu. A arqueologia os chama pela obra.</p>
+        
+        <p class="fonte">Maria Dulce Gaspar · Sambaqui, 2000</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">séculos IV a XIV</p>
+        <h2>Marajó</h2>
+        <p class="texto">Na foz do Amazonas, sociedades ergueram aterros para morar acima da cheia e produziram uma das maiores artes cerâmicas das Américas.</p>
+        
+        <p class="fonte">Anna C. Roosevelt, 1991 · Denise Schaan, 2004</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">há uns dois mil anos</p>
+        <h2>Os geoglifos do Acre</h2>
+        <p class="texto">Valas em círculo e em quadrado abertas na terra firme, largas o bastante para se ver de avião — mais de quinhentas já registradas. A floresta em volta era manejada há milênios: a Amazônia intocada nunca existiu.</p>
+        
+        <p class="fonte">Schaan, Ranzi &amp; Pärssinen · Watling et al., PNAS 2017</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">séculos antes dos navios</p>
+        <h2>Os Tupi chegam ao litoral</h2>
+        <p class="texto">Grupos de língua tupi saíram da Amazônia e ocuparam a costa atlântica de norte a sul. Quando os navios apareceram, essa ocupação já era antiga — é por isso que o primeiro capítulo encontra os Tupinambá no litoral.</p>
+        
+        <p class="fonte">Noelli · The Tupi expansion, 2008</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">séculos XVI–XVII</p>
+        <h2>O açúcar</h2>
+        <p class="texto">Nesta costa levantaram engenhos de açúcar. Foi para eles que se traficou gente — a escravidão não aconteceu: foi montada, e dava lucro.</p>
+        
+        <p class="fonte">Schwartz · Segredos internos, 1988</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">séculos XVI–XVII</p>
+        <h2>A terra esvaziada à força</h2>
+        <p class="texto">E os Tupinambá desta costa? Guerra, escravização e doença trazida nos navios os expulsaram do litoral. Não desapareceram — foram empurrados.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Não desaparecemos. Fomos empurrados — e eu sigo aqui para te contar.</p>
+        <p class="fonte">Monteiro · Negros da terra, 1994 · Cunha (org.), 1992</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">séculos XVI–XIX</p>
+        <h2>A travessia forçada</h2>
+        <p class="texto">De cada dez pessoas arrancadas da África para as Américas, quase cinco desembarcaram aqui. Nenhum lugar do mundo recebeu mais.</p>
+        
+        <p class="fonte">Trans-Atlantic Slave Trade Database · SlaveVoyages.org</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1630–1654</p>
+        <h2>A guerra que abriu a serra</h2>
+        <p class="texto">Quando os holandeses invadiram Pernambuco, a colônia virou campo de batalha — e na desordem da guerra, mais gente conseguiu fugir para a serra. Palmares cresceu.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Foi por essa fresta na guerra deles que muita gente subiu a serra.</p>
+        <p class="fonte">Gomes · Palmares, 2005 · Documenta Palmares</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1811</p>
+        <h2>O cais do Valongo</h2>
+        <p class="texto">Um cais de pedra construído pela Intendência Geral de Polícia, por ordem do príncipe regente, fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas. Entre 1811 e 1831 — o período que se sabe que ele funcionou — chegaram ali cerca de 550 mil pessoas.</p>
+        
+        <p class="fonte">Lima, Sene &amp; Souza · Anais do Museu Paulista 24(1), 2016</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1831</p>
+        <h2>A lei que declarou livres</h2>
+        <p class="texto">“Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” É o art. 1º da lei de 7 de novembro de 1831, e ela vale para todo mundo que chegasse depois dela.</p>
+        
+        <p class="fonte">Lei de 7 de novembro de 1831, art. 1º · Câmara, Legislação Informatizada</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1850</p>
+        <h2>A lei que veio proibir de novo</h2>
+        <p class="texto">Dezenove anos depois, outra lei “estabelece medidas para a repressão do trafico de africanos neste Imperio” — e o art. 1º dela se refere à lei de 1831 pelo nome. As duas datas ficam lado a lado, e o jogo não acrescenta adjetivo nenhum.</p>
+        
+        <p class="fonte">Lei nº 581, de 4 de setembro de 1850, art. 1º · Câmara, Legislação Informatizada</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">início do século XIX</p>
+        <h2>A cidade africana</h2>
+        <p class="texto">Salvador era uma das cidades mais africanas das Américas: boa parte de quem a fazia funcionar tinha nascido do outro lado do Atlântico e falava as línguas de lá. A cidade que a colônia chamava de sua era, na rua, deles.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Na rua, quem fazia a cidade funcionar éramos nós.</p>
+        <p class="fonte">Reis · Rebelião escrava no Brasil, ed. 2003</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">século XIX</p>
+        <h2>As ganhadeiras</h2>
+        <p class="texto">Mulheres africanas e crioulas dominavam o comércio de rua e o carrego da cidade — escravizadas e libertas, entregando parte do ganho e guardando o resto. Foi com esse resto que muitas compraram a própria alforria.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Este trabalho é o meu: o tabuleiro, a rua — e o resto do ganho, que era o caminho.</p>
+        <p class="fonte">Cecília Moreira Soares · As ganhadeiras, Afro-Ásia</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1843</p>
+        <h2>O cais por cima do cais</h2>
+        <p class="texto">Para o desembarque de uma princesa, mandaram erguer outro cais sobre este. O Valongo não foi demolido: foi recoberto — e ficou embaixo do chão por quase dois séculos.</p>
+        
+        <p class="fonte">Lima, Sene &amp; Souza · Anais do Museu Paulista 24(1), 2016</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">25 de janeiro de 1835</p>
+        <h2>A madrugada do levante</h2>
+        <p class="texto">Na madrugada de 24 para 25 de janeiro de 1835, centenas de africanos saíram armados às ruas de Salvador. O plano tinha sido denunciado na véspera, e eles enfrentaram a tropa antes de amanhecer. Quem reconstruiu essa noite documento por documento, a partir dos autos de quem julgou o levante, foi João José Reis.</p>
+        
+        <p class="fonte">Reis · Rebelião escrava no Brasil, ed. 2003</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">depois de 1835</p>
+        <h2>O que veio depois</h2>
+        <p class="texto">O governo da província respondeu com julgamentos em massa, açoites, prisão, degredo e execução — e com leis novas, escritas para vigiar quem era africano na Bahia. Mas o levante foi lido no império inteiro: quem carregava os fardos da cidade sabia ler, sabia se organizar e sabia esperar a hora.</p>
+        
+        <p class="fonte">Reis · Rebelião escrava no Brasil, ed. 2003</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">anos 1880</p>
+        <h2>A descida da serra</h2>
+        <p class="texto">Nos anos 1880, gente escravizada abandonou em massa as fazendas de café do interior de São Paulo e desceu a serra a pé, pela estrada que margeia a linha férrea — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas.</p>
+        
+        <p class="fonte">Matheus Serva Pereira · Uma viagem possível, PPGH/UFF, 2011</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1882</p>
+        <h2>O quilombo no morro</h2>
+        <p class="texto">No morro do Jabaquara, em Santos, havia um reduto organizado desde 1882 — um quilombo. Quem o liderava era Quintino de Lacerda, sergipano, que fora escravizado na cidade como cozinheiro de ganho e ficou livre naquela mesma década.</p>
+        
+        <p class="fonte">Matheus Serva Pereira · Uma viagem possível, PPGH/UFF, 2011</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1º de maio de 1888</p>
+        <h2>Doze dias antes da lei</h2>
+        <p class="texto">O Correio Paulistano publicou um relatório do presidente da província de São Paulo dizendo que, em vastos municípios ao mesmo tempo, “os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos”. Está escrito no jornal, antes da lei.</p>
+        
+        <p class="fonte">Relatório do presidente da província de São Paulo · Correio Paulistano, 1º de maio de 1888</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1888</p>
+        <h2>A lei de dois artigos</h2>
+        <p class="texto">A escravidão foi declarada extinta numa lei que coube em duas frases. Nada sobre terra, casa ou trabalho para quem tinha sido escravizado. A liberdade veio sem chão.</p>
+        
+        <p class="fonte">Lei nº 3.353, de 13 de maio de 1888 · Planalto</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1893</p>
+        <h2>Todos de profissão roceiros</h2>
+        <p class="texto">Cinco anos depois da abolição, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei. No processo se declararam “todos de profissão roceiros”. Ninguém tinha ganhado terra.</p>
+        
+        <p class="fonte">Ação judicial de 1893, moradores do sítio do Jabaquara · em Serva Pereira, 2011</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1890</p>
+        <h2>O código de dois anos depois</h2>
+        <p class="texto">Dois anos depois da abolição, o Código Penal da República fez crime não ter ocupação (art. 399) e fez crime a capoeira, chamada pelo nome: “exercícios de agilidade e destreza corporal conhecidos pela denominação capoeiragem” (art. 402). A lei não escreveu cor nenhuma. Escreveu rua, ofício e corpo.</p>
+        
+        <p class="fonte">Decreto nº 847, de 11 de outubro de 1890, arts. 399 e 402</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1891</p>
+        <h2>Quem podia votar</h2>
+        <p class="texto">A primeira Constituição da República listou quem NÃO podia alistar-se eleitor: “os mendigos; os analfabetos; as praças de pré”. A exigência de saber ler já vinha da Lei Saraiva, de 1881, e atravessaria inteira a República.</p>
+        
+        <p class="fonte">Constituição de 1891, art. 70, § 1º · Lei Saraiva, 1881 · TSE</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1930</p>
+        <h2>O decreto que dissolveu o Congresso</h2>
+        <p class="texto">Em 11 de novembro de 1930 um decreto deu ao governo provisório, “discricionariamente, em toda sua plenitude”, as funções do Poder Executivo e também do Legislativo, e confirmou dissolvidos o Congresso Nacional, as assembleias dos estados e as câmaras municipais. É por isso que a lei eleitoral seguinte veio como decreto, e não votada.</p>
+        
+        <p class="fonte">Decreto nº 19.398, de 11 de novembro de 1930, arts. 1º e 2º</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1932 → 1985</p>
+        <h2>O voto, e a porta que ficou fechada</h2>
+        <p class="texto">O primeiro Código Eleitoral criou a Justiça Eleitoral, trouxe o voto secreto e escreveu que é eleitor o cidadão maior de 21 anos “sem distinção de sexo”. A mesma norma manteve fora quem não soubesse ler — e essa exigência só caiu com a Emenda Constitucional nº 25, de 15 de maio de 1985. Cento e quatro anos depois de 1881.</p>
+        
+        <p class="fonte">Decreto nº 21.076, de 24 de fevereiro de 1932, art. 2º · EC nº 25/1985 · TSE · Senado Federal</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1934</p>
+        <h2>A porta de 1934</h2>
+        <p class="texto">A Constituição de 1934 escreveu que eram eleitores “os brasileiros de um e de outro sexo, maiores de 18 annos” — e, no parágrafo único do mesmo artigo, que não podiam alistar-se “os que não saibam ler e escrever”. A porta e a tranca no mesmo papel.</p>
+        
+        <p class="fonte">Constituição de 16 de julho de 1934, art. 108 · Câmara, Legislação Informatizada</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1940</p>
+        <h2>O que o censo de 1940 registrou</h2>
+        <p class="texto">O IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais em 1940 — e a mesma Constituição que exigia saber ler para votar prometia “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”.</p>
+        
+        <p class="fonte">IBGE · Tendências Demográficas, Censos de 1940 e 2000 · Constituição de 1934, art. 150</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1936 → 1988</p>
+        <h2>Quem não esperou pela lei</h2>
+        <p class="texto">Em 1936, em Santos, Laudelina de Campos Mello fundou a Associação das Empregadas Domésticas do Brasil — sete anos antes de a CLT dizer que a lei do trabalho não era para a categoria. O Estado Novo fechou a associação em 1942; em 1961, em Campinas, ela fundou outra.</p>
+        
+        <p class="fonte">Senado Federal · Laudelina de Campos Mello (1904–1991)</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1943 → 2015</p>
+        <h2>A lei do trabalho e quem ficou de fora</h2>
+        <p class="texto">A Consolidação das Leis do Trabalho diz, logo no art. 7º, a quem ela NÃO se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. A Constituição de 1988 deu à categoria doméstica nove dos direitos que os outros já tinham. A igualdade veio com a Emenda Constitucional nº 72, de 2013, e a Lei Complementar nº 150, de 2015. Do primeiro texto ao último, setenta e dois anos.</p>
+        
+        <p class="fonte">Decreto-Lei nº 5.452, de 1º de maio de 1943, art. 7º · EC nº 72/2013 · LC nº 150/2015 · Senado Federal</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1964</p>
+        <h2>O ato que tirou o juiz do caminho</h2>
+        <p class="texto">Em 9 de abril de 1964 um ato institucional autorizou os comandantes que o editaram a “suspender os direitos políticos pelo prazo de dez anos e cassar os mandatos legislativos federais, estaduais e municipais, excluída a apreciação judicial desses atos”. A última oração é a que decide o resto.</p>
+        
+        <p class="fonte">Ato Institucional de 9 de abril de 1964, art. 10</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1984</p>
+        <h2>Faltaram 22</h2>
+        <p class="texto">Em 25 de abril de 1984 a emenda das eleições diretas — a Emenda Dante de Oliveira — teve 298 votos a favor, 65 contra e 3 abstenções. Faltaram 22 para o quórum. Rejeitada na Câmara, deixou de ser submetida ao Senado.</p>
+        
+        <p class="fonte">Câmara dos Deputados · Diretas Já — 30 anos do Movimento</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1985</p>
+        <h2>O que a derrota escreveu depois</h2>
+        <p class="texto">Treze meses depois, uma emenda constitucional escreveu na Constituição exatamente o que a emenda derrotada pedia — e devolveu o voto a quem não sabia ler.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Perdemos a votação e seguimos juntando. Comício não vira lei sozinho, e perder uma votação não é o fim.</p>
+        <p class="fonte">Emenda Constitucional nº 25, de 15 de maio de 1985, art. 74 · Câmara, Legislação Informatizada</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">1988</p>
+        <h2>A Constituinte</h2>
+        <p class="texto">A Constituição reconheceu o direito dos povos indígenas às suas terras e o das comunidades quilombolas aos seus territórios. Foi escrita com gente indígena falando no plenário — não só sendo falada.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Dessa vez a nossa voz estava dentro do plenário — não só sendo falada.</p>
+        <p class="fonte">CF/88, art. 231 · ADCT, art. 68 · Ailton Krenak na Constituinte, 1987</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">desde 1988</p>
+        <h2>Medir o mesmo, do mesmo jeito, todo ano</h2>
+        <p class="texto">O Brasil mede o próprio desmatamento por satélite desde 1988: o programa fecha o ano em 31 de julho e publica a taxa. Ter número público, comparável e antigo é o que permite discutir com dado em vez de com opinião — e é por isso que o instrumento de medida também é disputado.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Mede-se desde antes de eu nascer, e sempre do mesmo jeito. É isso que deixa comparar — e é por isso que eu confiro.</p>
+        <p class="fonte">INPE · PRODES / Programa de Monitoramento da Amazônia, nota técnica de 2025</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2011</p>
+        <h2>A pedra de volta</h2>
+        <p class="texto">Uma escavação dirigida pela arqueóloga Tânia Andrade Lima trouxe o cais de volta à superfície, exatamente duzentos anos depois de ele ter sido construído.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Duzentos anos debaixo do chão. O que cobriram não parou de ser verdade enquanto ninguém olhava.</p>
+        <p class="fonte">Lima, Sene &amp; Souza · Anais do Museu Paulista 24(1), 2016</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2017</p>
+        <h2>Patrimônio Mundial</h2>
+        <p class="texto">Em 10 de julho de 2017 o cais do Valongo entrou na lista do Patrimônio Mundial pelo critério vi — o que reconhece acontecimentos e tradições vivas, ideias ou crenças e obras de significação universal excepcional.</p>
+        
+        <p class="fonte">ONU Brasil · inscrição do Cais do Valongo, 2017</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2020</p>
+        <h2>A palavra antes do caso</h2>
+        <p class="texto">Em 6 de fevereiro de 2020 uma lei já definia, artigo por artigo, o que seriam isolamento e quarentena no país. O vocabulário chegou antes do primeiro caso confirmado.</p>
+        
+        <p class="fonte">Lei nº 13.979, de 6 de fevereiro de 2020, art. 2º</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2020</p>
+        <h2>A calamidade, e a renda</h2>
+        <p class="texto">Em 20 de março de 2020 um decreto legislativo reconheceu estado de calamidade pública no país. Em 2 de abril uma lei criou o auxílio emergencial de seiscentos reais mensais para quem o trabalho parou.</p>
+        
+        <p class="fonte">Decreto Legislativo nº 6, de 20 de março de 2020 · Lei nº 13.982, de 2 de abril de 2020</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2020</p>
+        <h2>Quem decide o que fecha</h2>
+        <p class="texto">Em 15 de abril de 2020 o Supremo referendou a medida cautelar na ADI 6341: cuidar de saúde é competência da União, dos estados, do Distrito Federal e também dos municípios. A decisão preservou as medidas locais.</p>
+        
+        <p class="fonte">STF · ADI 6341, medida cautelar referendada em 15 de abril de 2020</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2021</p>
+        <h2>O dia da primeira dose</h2>
+        <p class="texto">Em 17 de janeiro de 2021 a diretoria colegiada da Anvisa aprovou, em reunião pública extraordinária, o uso emergencial das duas primeiras vacinas contra a covid-19 no país. A primeira dose foi aplicada no mesmo dia.</p>
+        
+        <p class="fonte">Anvisa · uso emergencial das primeiras vacinas, 17 de janeiro de 2021</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2006 → 2020</p>
+        <h2>Quem batia na porta já tinha lei</h2>
+        <p class="texto">O cargo de agente comunitária de saúde foi regulamentado em 2006 — catorze anos antes. Quando a emergência chegou, quem ia de casa em casa já estava lá, e já estava na lei.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>Eu já estava na sua rua antes disso tudo. Continuei.</p>
+        <p class="fonte">Lei nº 11.350, de 5 de outubro de 2006</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2022</p>
+        <h2>Quilombos hoje</h2>
+        <p class="texto">E quem construiu Palmares? Continua aqui também. O Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas.</p>
+        
+        <p class="fonte">IBGE · Censo 2022 · Fundação Cultural Palmares</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2017</p>
+        <h2>Três quartos de quem planta</h2>
+        <p class="texto">O Censo Agropecuário de 2017 registrou 5.073.324 estabelecimentos agropecuários no país. A agricultura familiar é 76,8% deles e ocupa 23,0% da área — três quartos de quem planta em menos de um quarto da terra.</p>
+        
+        <p class="fonte">IBGE · Censo Agropecuário 2017 (SIDRA, tabela 6754)</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2012</p>
+        <h2>Cadastro não é título</h2>
+        <p class="texto">O Código Florestal fixa quanto tem de ficar em pé (art. 12) e diz, com todas as letras, que o cadastro ambiental rural “não será considerado título para fins de reconhecimento do direito de propriedade ou posse” (art. 29, § 2º).</p>
+        
+        <p class="fonte">Lei nº 12.651, de 25 de maio de 2012, arts. 12 e 29, § 2º</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2024</p>
+        <h2>Metade do país num bioma só</h2>
+        <p class="texto">O relatório anual de desmatamento registrou 652.197 hectares derrubados no Cerrado — 52,5% de todo o desmatamento do país naquele ano. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.</p>
+        
+        <p class="fonte">MapBiomas · Relatório Anual do Desmatamento 2024</p>
+      </div>
+    </article>
+
+    <article class="momento">
+      <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
+      <div class="corpo">
+        <p class="quando">2025</p>
+        <h2>Duas réguas, dois números</h2>
+        <p class="texto">O monitoramento por satélite registrou 7.235 km² desmatados no Cerrado e 5.796 km² na Amazônia no mesmo período. Os dois números são públicos, e são de quem mediu.</p>
+        <p class="hoje"><span class="hojeR">quem lê hoje</span>O fogo não escolhe. Quem abre o aceiro escolhe por onde ele não passa.</p>
+        <p class="fonte">INPE · PRODES 2025</p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="rod">
+    <p>Esta é a seção <strong>A HISTÓRIA</strong> da plataforma BRASIL. O mesmo conteúdo aparece
+      dentro do jogo — aqui ele se lê inteiro, de uma vez. As fontes são as que sustentam cada
+      afirmação; a voz de “quem lê hoje” é leitura do presente, não fato.</p>
+  </footer>
+</div>
+</body>
+</html>
