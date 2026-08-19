@@ -7526,3 +7526,65 @@ qual fato vai para a estrada**: decisão editorial disfarçada de ordenação.
 **Próximo:** os 22 nós do PENDENTES 27, e as três perguntas de §2 que são do dono (o nome de
 Quintino de Lacerda, a placa do levante de 1835, o manto Tupinambá). Aberto e dele também: o
 `PENDENTES 26` (tela parada e visível conta como tempo jogado) e o verbo de AINDA AQUI.
+
+---
+
+## 19/08, noite — QUANTO TEMPO LEVA O ARCO, e a resposta é ruim
+
+**Lente: MEDIR.** A pergunta do repositório é se o laço segura alguém por **três dias**, e
+ninguém nunca mediu quanto tempo o arco leva. Sem esse número a pergunta não tem como ser
+respondida nem por acaso. Instrumento novo: `test/medir-arco.js`.
+
+**Como ele mede, e por que não joga 40 minutos:** mede a RENDA REAL em janelas curtas, em três
+pontos da curva (0 · 8.000 · 20.000 de impacto), com o estado que um jogador teria ali, em três
+estilos (só tocando · comprando as melhorias · segurando o botão) — e integra. Cada renda é
+medida jogando de verdade no jogo construído; o que é simulado é só a soma. Ele **não** mede o
+tempo de LEITURA, então o número que sai é o CHÃO: o arco nunca é mais rápido que isto.
+
+### O número
+
+A curva é **linear**: `LIMIAR_CENA = 1500` × 16 cenas = `LIMIAR_FIM = 24.000`. Não há `1,15^n`.
+
+| estilo | em 0 | em 8.000 | em 20.000 | **arco inteiro** |
+|---|---:|---:|---:|---:|
+| só tocando, sem comprar | 423/min | 3.373/min | 3.418/min | **10 min** |
+| comprando as melhorias | 476/min | 4.268/min | 4.284/min | **8 min** |
+| segurando o botão | 562/min | 4.506/min | 4.611/min | **8 min** |
+
+**Os treze capítulos inteiros cabem em oito a dez minutos de jogo.** PALMARES chega aos 3 min,
+AINDA AQUI aos 7. Três dias de laço não existem: o que pode segurar três dias é a LEITURA e o
+número de capítulos, nunca a curva de custo — ela acaba antes do primeiro intervalo.
+
+### O achado que dói mais, e ele veio de perguntar de onde vinha a renda
+
+A renda multiplica por **oito** entre o começo e os 8.000 **sem comprar nada**, e `ganhoClique()`
+vale 1 sem melhoria. Como? Sonda: medir PARADO, sem tocar em nada, contra TOCANDO a 7/s.
+
+| ponto | parado, sem tocar | tocando 7×/s | o que o toque acrescenta |
+|---:|---:|---:|---:|
+| 0 | 80/min | 437/min | **+357/min** |
+| 8.000 | 5.045/min | 4.038/min | −1.007/min |
+| 20.000 | 4.035/min | 4.186/min | **+151/min (3,7%)** |
+
+**Do capítulo 5 em diante o jogo se joga sozinho.** Parado rende o mesmo que jogando — a
+diferença aos 20.000 é 3,7%, dentro do ruído, e aos 8.000 o toque mede NEGATIVO. A renda vem
+dos drops recolhidos pela corrida, e a personagem corre sozinha. O verbo ALCANÇAR, que o próprio
+`src/jogo.ts` defende num comentário longo, é decorativo depois da primeira meia dúzia de cenas.
+
+Isto é da perna **divertido** da tese, e é a mais barata de perder sem perceber: bonito e ensina
+continuam funcionando com o telefone na mesa.
+
+### O que custou, e é a lição 2.3 do EQUIPE.md outra vez
+
+Duas rodadas inteiras medindo **0/min nos nove pontos** e anunciando um arco de **400 horas** —
+absurdo o bastante para denunciar o instrumento, o que foi sorte. Dois consertos no escuro, os
+dois errados. A terceira coisa que fiz foi **imprimir o estado**: 15 toques, delta zero,
+`.tela.aberta` ainda `true`. São **dois fechamentos com nomes parecidos** e eu chamava só um —
+`fecharTudo()` fecha as BANDEJAS, `fecharTelas()` fecha as TELAS. Com a tela aberta o toque é
+engolido.
+
+> **Medir o instrumento custa um minuto. Adivinhar custou duas rodadas.**
+
+**Próximo:** a economia depois do capítulo 5 é decisão de produto e vai para a mesa do dono —
+está no `PENDENTES 34`. Não mexo em economia sem ele, e a régua do `CLAUDE.md` exige medição
+antes/depois, que agora existe.

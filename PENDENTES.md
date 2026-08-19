@@ -950,3 +950,37 @@ os outros são chamáveis; o bloco 20 já mostra como se força o `parou`.
 
 **Enquanto isso**, `ativos` entrou na lista à mão, com o motivo escrito ao lado — e o comentário
 do bloco diz agora que ele tem esse buraco, para ninguém confiar nele mais do que deve.
+
+## 34 · O jogo se joga sozinho a partir do capítulo 5 — E É DO DONO
+
+**19/08, medido por `test/medir-arco.js` e por sonda dedicada.** Não é hipótese, e não é opinião
+de gosto: são dois instrumentos e o segundo existe só para responder de onde vem a renda.
+
+| ponto da curva | PARADO, sem tocar em nada | TOCANDO 7×/s | o toque acrescenta |
+|---:|---:|---:|---:|
+| 0 | 80/min | 437/min | **+357/min** |
+| 8.000 | 5.045/min | 4.038/min | −1.007/min |
+| 20.000 | 4.035/min | 4.186/min | **+151/min (3,7%)** |
+
+A renda vem dos drops recolhidos pela corrida, e a personagem corre sozinha. Dos ~7.500 de
+impacto em diante, largar o telefone na mesa rende o mesmo que jogar. E o arco inteiro leva
+**8 a 10 minutos**, então isso vale para quase todo o jogo.
+
+**Por que isto não é bug de número:** `ganhoClique()` vale 1 sem melhoria e 3 com a `u1`. O toque
+não ficou fraco — a corrida ficou rica. Consertar mexendo no toque é tratar o sintoma.
+
+**POR QUE NÃO DECIDO SOZINHO.** Mexer aqui é mexer na economia, e o `CLAUDE.md` exige medição
+antes/depois — que agora existe, então o impedimento não é esse. O impedimento é que as três
+saídas plausíveis mudam coisas diferentes da tese, e a escolha é de produto:
+
+- **(a) o drop deixa de ser automático** — passa a exigir o toque para ser recolhido. Devolve o
+  verbo ALCANÇAR ao lugar que o comentário do `src/jogo.ts` já diz que ele tem. Risco: castiga
+  quem lê, e o §2.2 já barrou "punir por não alcançar" no capítulo de Palmares, onde quem
+  atravessa a tela é GENTE. **A forma teria de ser ganho a mais, nunca perda.**
+- **(b) a renda passiva vira teto, não motor** — o automático paga até uma fração da renda do
+  minuto e o resto vem do toque. Mexe menos na sensação e menos no §2.
+- **(c) não conserta: assume que o jogo é de LEITURA** — e então o laço nunca foi a resposta dos
+  três dias, e o esforço vai todo para capítulo novo. É defensável e é honesto; só não pode ser
+  escolhido por omissão, que é o que está acontecendo hoje.
+
+Vai para a mesa do próximo `check`, camada OPORTUNIDADES, com **(b)** marcada.
