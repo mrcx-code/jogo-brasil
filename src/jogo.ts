@@ -12760,8 +12760,8 @@ const GLOSSARIO = [
 
   { t: "VOTO FEMININO",
     o: "Decreto nº 21.076, de 24 de fevereiro de 1932, o Código Eleitoral. Veio depois de quatro décadas de campanha, organizada desde 1922 pela Federação Brasileira pelo Progresso Feminino.",
-    d: "As mulheres passaram a votar — inicialmente só as casadas com autorização do marido e as solteiras com renda própria, restrições retiradas em 1934. Como o voto seguiu vedado a analfabetos até 1985, a conquista chegou primeiro a quem tinha tido escola, o que no Brasil daquele ano queria dizer poucas.",
-    f: "Decreto nº 21.076, de 24/02/1932, Planalto · Céli Regina Jardim Pinto, Uma história do feminismo no Brasil, Fundação Perseu Abramo, 2003" },
+    d: "As mulheres passaram a votar: o art. 2º diz “é eleitor o cidadão maior de 21 anos, sem distinção de sexo”. A exigência de autorização do marido ou de renda própria que às vezes se repete não está no texto aprovado — o que o Código trouxe foi o art. 121, que deixava o voto facultativo para as mulheres e obrigatório para os homens. E como seguiu vedado a analfabetos até 1985, a conquista chegou primeiro a quem tinha tido escola.",
+    f: "Decreto nº 21.076, de 24/02/1932, arts. 2º e 121 — Câmara dos Deputados (publicação original) e Planalto · Céli Regina Jardim Pinto, Uma história do feminismo no Brasil, Fundação Perseu Abramo, 2003" },
 
   { t: "CLT",
     o: "Consolidação das Leis do Trabalho, Decreto-Lei nº 5.452, de 1º de maio de 1943. “Consolidação” é a palavra exata: reuniu num texto só normas que já vinham sendo editadas desde os anos 1930.",
