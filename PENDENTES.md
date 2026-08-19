@@ -1089,3 +1089,29 @@ uma ida e volta com o dono.
 sprite é listrado azul/vermelho/rosa/branco amarrado na cintura com franja, e o do retrato é cru
 e ferrugem atravessado no peito; o torço do sprite é do mesmo tecido listrado, e o do retrato é
 liso. São duas mulheres diferentes vestidas parecido — e o retrato é o rosto de quem se joga.)*
+
+## 40 · Os 14 verbetes dos 3 capítulos sem porta — aguardando QA, correção do 1932 já feita
+
+**19/08.** A historiadora entregou 14 verbetes que dão porta de glossário a A PRAÇA, O QUE
+SEGUROU e O QUE TEM FONTE (hoje com zero), mais a correção do voto de 1932 e 3 revisões de fala.
+
+**FEITO e verificado por mim na fonte primária:** a correção do 1932. O glossário afirmava que o
+voto feminino exigia "autorização do marido", citando o próprio Decreto nº 21.076 — que diz o
+oposto ("sem distinção de sexo", art. 2º; voto facultativo para mulheres, art. 121). Li as duas
+cópias (Câmara legin e Planalto), confirmei, corrigi. Commit `c705a30`.
+
+**AGUARDANDO QA adversarial** (rodando): os 14 verbetes. O rascunho está preservado em
+`scratchpad/verbetes-propostos.json` e nas sondas do worktree `agent-ab61180f159d428c0`
+(`test/tmp-propostos.json`). Cada um afirma número de lei/artigo, e a regra do dono é verificar a
+fonte primária, não confiar no relatório do agente. O QA vai a cada lei citada. Só integro os que
+ele confirmar.
+
+**3 revisões de fala seguradas, cada uma com armadilha já identificada** (do relatório anterior):
+(a) AS PORTAS 1932 — resolvida pela correção acima, a fala pode citar o art. 2º; (b) A PRAÇA
+1989 — precisa ancorar à derrota de 1984 e não virar última palavra; (c) SAMBA — a disputa de
+autoria de "Pelo Telefone" precisa da citação exata (a historiadora achou: nota do Jornal do
+Brasil de 4/02/1917, mas as fontes divergem se era criação coletiva; o conserto é no verbete).
+
+**PENDENTES do dono que saíram deste trabalho:** a exceção do nome-de-lei se estica para "Lei
+Caó" e "Lei Afonso Arinos" (verbete INAFIANÇÁVEL)? E nomear os cinco sambistas da nota de 1917?
+Os dois são representação — vão para a mesa dele, não decido.
