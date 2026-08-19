@@ -499,6 +499,26 @@ Isto muda o que conta como PRONTO, e em três lugares concretos:
    que cresce ano a ano não cabe num `src/jogo.ts` de 15 mil linhas com a arte em base64. A
    migração combinada em 05/08 deixa de ser preferência técnica e passa a ser o caminho do alvo.
 
+**E A FORMA DELA, decidida por ele no mesmo dia, poucas horas depois:** *"como é uma plataforma
+de conhecimento, não devemos focar no jogo apenas… a home deveria ser um pouco da proposta em si,
+e cada seção tem seu valor separado… o Jogo seria um chamariz e forma de tornar a plataforma
+engajante."*
+
+**A inversão é de figura e fundo, e é o ponto:** o jogo deixa de ser O produto com telas de apoio
+e passa a ser UMA seção — a que traz gente e a que faz voltar. A porta de entrada passa a ser a
+proposta, não o menu de JOGAR.
+
+**O critério que decorre disso, e ele é verificável:** *cada seção tem de valer sozinha.* Se uma
+só faz sentido para quem jogou, ela não é seção — é tela de jogo com outro nome. Teste prático:
+dá para mandar o link dela para alguém que nunca abriu o jogo e a pessoa achar útil?
+
+**O que isto revela sobre o que já existe** (medido em 19/08): a plataforma **já está escrita** e
+está presa dentro do jogo. O glossário tem **167 verbetes e 17.918 palavras** com fonte — 64% de
+todo o texto do repositório — atrás de um botão que ninguém precisa abrir; A HISTÓRIA tem 53
+momentos, 47 com fonte lida; DE ONDE VEM tem 71 fontes. O achado do dia (*"64% do texto está na
+tela que ninguém abre"*) deixa de ser defeito de navegação e vira o diagnóstico: **o glossário
+nunca foi tela de jogo — é obra de referência tratada como tela de jogo.**
+
 **O que isto NÃO revoga:** o §2 inteiro. Plataforma de conhecimento sobre o Brasil aumenta a
 responsabilidade de representação em vez de diminuí-la — mais assunto, mais gente real, mais
 chance de errar. Na dúvida, continua parando e perguntando.
