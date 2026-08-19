@@ -984,3 +984,66 @@ saídas plausíveis mudam coisas diferentes da tese, e a escolha é de produto:
   escolhido por omissão, que é o que está acontecendo hoje.
 
 Vai para a mesa do próximo `check`, camada OPORTUNIDADES, com **(b)** marcada.
+
+## 35 · O jogo se contradiz sobre a Comissão Nacional da Verdade
+
+**19/08, achado pela varredura da historiadora e confirmado por medição própria nas três fontes.**
+
+- A **fala** de O QUE NÃO PODIA SER DITO (`src/jogo.ts` 2323) declara em voz alta: *"nenhum deles
+  entrou: não foi possível ler o documento. Sem fonte na mão, o jogo cala."*
+- O **glossário** (12681) afirma: *"O relatório listou 434 mortos e desaparecidos políticos,
+  identificou 377 agentes do Estado como responsáveis."*
+- O **NOTES.md** (4310) registra por que a fala está certa: *"o servidor dela devolve certificado
+  inválido e eu não o li. Continua ✖N e não entrou em fala nenhuma."*
+
+Mas entrou — no glossário, pelo commit `db51b90` (glossário v2), na mesma leva que duplicou a
+tábua do menu. **Um número histórico está na superfície que afirma, sem a fonte ter sido lida.**
+É o §2 direto, e é do tipo que o repositório inteiro existe para não deixar acontecer.
+
+**Não confundir com o outro número da CNV.** Os 8.350 indígenas mortos entre 1946 e 1988
+(verbete RELATÓRIO FIGUEIREDO) foram **aprovados explicitamente pelo dono** em 06/08 — NOTES.md
+linha 578, *"são dados importantes"*, com a ressalva da própria Comissão. Aquele fica.
+
+Uma historiadora está tentando LER a fonte agora. Duas saídas, e a segunda é a que vale se ela
+não conseguir: ou o número ganha lastro e a **fala** muda para afirmá-lo, ou o número **sai do
+glossário** e o jogo volta a dizer a mesma coisa nas duas superfícies.
+
+## 36 · DO DONO — o marco temporal pode subir de verbete para fala?
+
+**Devolvido pela historiadora, que parou sozinha na regra certa.** A fala de AINDA AQUI diz
+apenas *"É uma disputa em curso"*. O verbete MARCO TEMPORAL nomeia a disputa inteira: o STF
+julgou a tese inconstitucional em setembro de 2023 (RE 1.017.365, repercussão geral); semanas
+depois o Congresso aprovou a Lei nº 14.701/2023, que a reinstituiu em texto legal.
+
+A régua dos cinco anos do §2.6 diz **"nada em julgamento"**, e a disputa segue no Judiciário.
+
+- **(a)** sobe para a fala, citada como decisão com número de processo e lei com número, sem
+  adjetivo — a pessoa fica sabendo que a disputa tem forma jurídica, não só clima.
+- **(b)** fica no glossário até haver decisão sem litígio pendente — coerente com a régua, e o
+  capítulo do presente continua dizendo "disputa em curso" sem dizer qual.
+
+A fala hoje tem 103 caracteres; com os dois documentos teria ~180.
+
+## 37 · DO DONO — o fio quilombola tem fecho próprio ou entra na fala de AINDA AQUI?
+
+**Também devolvido pela historiadora, e ela não escreveu texto de propósito** — `ROSTOS.md` é
+somente leitura para agente e a pergunta é de representação.
+
+Existe um nó da LINHA_TEMPO **pendurado na cena de AINDA AQUI** — *"2022 · Quilombos hoje: o
+Censo de 2022 contou, pela primeira vez na história do país, mais de um milhão de quilombolas"*
+(IBGE · Censo 2022 · Fundação Cultural Palmares) — e **nenhuma fala do capítulo o diz**. A
+abertura traz só 1,69 milhão de indígenas, 391 etnias, 295 línguas. O verbete CONSTITUIÇÃO DE
+1988 chama os dois de *"os dois fios deste jogo"*, e o último capítulo só amarra um.
+
+- **(a)** entra uma fala com o dado do Censo no capítulo final.
+- **(b)** fica só na linha do tempo, como está.
+- **(c)** o fio quilombola ganha superfície própria.
+
+A pergunta por trás, e é ela que é do dono: o capítulo final, cuja protagonista e cujo retrato
+foram aprovados como presença indígena, passa a afirmar também o presente quilombola — ou isso é
+pedir que um rosto represente dois povos?
+
+**Junto destes dois vai um terceiro, da TRAVESSIA:** a fala *"O resto deste trecho é o mar, e o
+tempo que ele leva"* não diz o tempo, e o verbete TUMBEIRO diz — *"de trinta a cinquenta dias"*
+(Jaime Rodrigues, *De costa a costa*, 2005 · SlaveVoyages). Boa parte daquele roteiro é do dono
+palavra por palavra e o §2.4 é dele, então nem isto se propõe sozinho.
