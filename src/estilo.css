@@ -548,14 +548,24 @@
     animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */
   @keyframes respira { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  /* a frase: uma tabuinha estreita pendurada sob o logo, do mesmo material do poste */
-  #telaMenu .telaTxt { color: #f0dfb4; font-size: 11.5px; letter-spacing: .1em; white-space: nowrap;
-    font-weight: 700; text-transform: uppercase; margin: 0;
-    padding: 7px 16px; background: var(--veioPx, none), linear-gradient(180deg, #6d4b28, #503319);
-    border-radius: 2px;
-    box-shadow: inset 0 2px 0 #8a6236, inset 0 -2px 0 #33200e,
-                inset 0 0 0 2px #241605, 0 3px 0 #120c06;
-    text-shadow: 0 1px 0 rgba(0,0,0,.8); }
+  /* A FAIXA DE PROPOSTA (19/08). A tabuinha antiga era uma linha só, curta, pregada como as
+     tábuas do poste — e servia bem a um subtítulo de sete palavras. A frase aprovada pelo dono
+     é mais que o dobro do tamanho ("uma travessia pela nossa história — de quem já estava aqui
+     até hoje") e PRECISA quebrar em telas estreitas. Uma tábua de madeira com aquele
+     box-shadow empilhado, esticada para duas linhas, pesaria mais que a home pede — a home é a
+     PROPOSTA agora, não mais um aviso pregado nela. Por isso a frase larga o material de
+     tábua e vira texto solto sobre o véu, na voz de LEITURA do jogo (a mesma família que narra
+     capítulo, `var(--leitura)`) — itálico, para soar como convite e não como rótulo de botão.
+     A chamada de ação por baixo é a tábua em miniatura: menor, mais espaçada, mais apagada —
+     ela é o "clique aqui" discreto, não a frase que carrega o sentido. */
+  #telaMenu .menuProposta { display: flex; flex-direction: column; align-items: center;
+    gap: 2px; margin: 0 0 var(--mLogoBaixo); max-width: min(84vw, 320px); text-align: center; }
+  #telaMenu .mpFrase { margin: 0; color: #f0dfb4; font: italic 400 11px/1.15 var(--leitura);
+    letter-spacing: .01em; text-wrap: balance;
+    text-shadow: 0 2px 0 rgba(0,0,0,.7), 0 0 10px rgba(0,0,0,.35); }
+  #telaMenu .mpCta { margin: 0; color: #b9ad8d; font: 700 8px/1 var(--leitura);
+    letter-spacing: .2em; text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(0,0,0,.7); }
   /* O POSTE. Um mastro de madeira fincado no chão — ele atravessa a borda de baixo da tela,
      e é isso que o planta no lugar em vez de deixá-lo boiando no centro. As tábuas são os
      botões, pregadas nele. O vazio morto entre o último botão e o rodapé morreu aqui: o
@@ -726,8 +736,8 @@
          frações valem o mesmo (mínimo zero), e o logo passa a caber na de cima em vez de
          esticá-la e empurrar o par para o alto da tela. */
       height: min(52vh, 250px); width: auto; max-width: 44vw; max-height: 100%; }
-    #menuSub { grid-area: 2 / 1; align-self: start; }
-    #telaMenu .telaTxt { margin-bottom: 0; }
+    #menuSub { grid-area: 2 / 1; align-self: start; max-width: 44vw; }
+    #telaMenu .menuProposta { margin-bottom: 0; }
     /* o poste ocupa a coluna da direita inteira. O `margin-top: auto` que o ancorava no pé
        da tela sai: em grade ele empurraria as tábuas para fora de novo. */
     /* de borda a borda (1 / -1) e esticado: a caixa do poste passa a ser a altura da tela, as

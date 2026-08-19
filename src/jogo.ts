@@ -2395,7 +2395,7 @@ const EPOCAS = [
       "O regimento dela abriu o que nenhuma constituinte brasileira tinha aberto: proposta apresentada por três entidades, com trinta mil assinaturas de eleitores, entrava para ser votada como emenda popular.",
       "Foram 122 emendas populares, algumas com mais de um milhão de assinaturas — doze milhões ao todo, colhidas de mão em mão. Antes disso, o Senado já tinha recebido mais de 72 mil cartas deixadas em agências dos correios.",
       "A Constituição foi promulgada em 5 de outubro de 1988. No art. 5º ela escreveu que “a prática do racismo constitui crime inafiançável e imprescritível”. No inciso seguinte pôs a tortura entre os crimes que não admitem anistia.",
-      "Guarde as duas coisas juntas: a emenda das diretas foi rejeitada em 1984, e em 1988 estava tudo escrito. Comício não vira lei sozinho, e perder uma votação não é o fim. O que atravessou os quatro anos foi o trabalho de juntar."
+      "Guarde junto: a emenda das diretas foi rejeitada em 1984, o voto direto só voltou em 1989 — e em 1988 já estava tudo escrito. Comício não vira lei sozinho, e perder uma votação não é o fim. O que atravessou esses anos foi o trabalho de juntar."
     ]
   },
   {
@@ -11684,7 +11684,9 @@ function pintarRotulos() {
   document.querySelectorAll<HTMLElement>(".telaTit").forEach(function (el) {
     pixelRotulo(el, el.textContent || "", 3, "#ffd98a");
   });
-  pixelRotulo($("menuSub"), "um jogo sobre quem já estava aqui", 1, "#efe3c2");
+  // menuSub deixou de passar por pixelRotulo em 19/08: a faixa de proposta é texto de leitura
+  // (fonte var(--leitura), quebra por CSS), estático no HTML — a fonte pixel é um canvas de
+  // largura fixa e não quebra linha, e a frase nova é mais longa que o subtítulo antigo.
   pixelRotulo($("btnJogar"), "JOGAR", 4, "#221806");
   pixelRotulo($("btnCompletude"), "A HISTÓRIA", 2, "#d9cfae");
   pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
