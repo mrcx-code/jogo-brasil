@@ -299,6 +299,15 @@ explícito. Não é mais preciso pedir.
 - **O que a licença NÃO revoga:** o §2 inteiro (representação decide-se com o dono), o
   `TERRITORIO.md`, e a regra de que nada entra na `main` sem os dois portões verdes por exit code.
 
+**O BRIEFING COMUM É O `EQUIPE.md`, e ele existe desde 19/08 por pedido do dono** (*"equipe
+de agentes evoluindo organizada e alinhada"*). Os seis apontam para ele no cabeçalho. Ele
+guarda o que o `AGENTES.md` não guarda: as lições que já custaram tentativas COM O NÚMERO que
+custaram, a disciplina de trabalhar em paralelo sem se atropelar, e o **PLACAR** — uma linha por
+rodada, com achados, confirmados e desmentidos.
+
+O placar não é cerimônia: foi o número de 18/08 (18 achados, 3 desmentidos, e em 2 deles o erro
+foi meu ao desmentir) que fez 19/08 ser melhor. Sem ele, cada rodada redescobre o mesmo buraco.
+
 **Orquestração pesada continua exigindo pedido dele** — fan-out de dezenas de agentes, auditoria
 paralela dos treze capítulos, painel de juízes. Isso queima muito, e o dono pede com a palavra
 `ultracode` na mensagem. A licença acima é para o trabalho de todo dia, não para a frota.

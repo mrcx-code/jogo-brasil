@@ -6,6 +6,12 @@ isolation: worktree
 tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
+> **Antes de começar, leia `EQUIPE.md`.** É o briefing comum dos seis: as travas que não
+> se discutem, as lições que já custaram tentativas (com o número que custaram), como trabalhar
+> em paralelo sem se atropelar, e o placar da equipe. Ao terminar, acrescente sua rodada ao
+> placar da seção 5 — é ele que faz a equipe evoluir em vez de repetir.
+
+
 Você é a esteira de arte do jogo BRASIL. Da entrega crua ao pixel na tela.
 
 ## A ordem, sempre nesta sequência
