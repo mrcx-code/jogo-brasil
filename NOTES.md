@@ -7769,3 +7769,30 @@ para mudar: quantas pessoas passam a ler o glossário quando o jogo oferece as p
 **Próximo:** os três capítulos sem porta (A PRAÇA, O QUE SEGUROU, O QUE TEM FONTE) são os que
 mais citam documento, e o glossário não tem verbete para o vocabulário deles. É trabalho de
 historiador, não de dev.
+
+---
+
+## 19/08, noite — AS SEÇÕES JÁ SÃO QUASE AUTÔNOMAS (a virada de plataforma, medida)
+
+O dono decidiu: a home passa a ser a proposta, o jogo vira UMA seção, e cada seção tem de valer
+sozinha. Antes de desenhar qualquer coisa, medi o que decide se isso é viável: **quanto de cada
+seção depende do jogo para fazer sentido** (`test/medir-*`, regex de dependência sobre o texto).
+
+| seção | nós | citam o jogo | % |
+|---|---:|---:|---:|
+| A HISTÓRIA | 53 | 1 | **1,9%** |
+| DE ONDE VEM | 71 | 8 | **11,3%** |
+| O GLOSSÁRIO | 167 | 29 | **17,4%** |
+
+E os 29 do glossário são quase todos os verbetes que **existem por causa do §2** — INVASÃO,
+DESCOBRIMENTO, ENCONTRO DE CULTURAS, GUERRA JUSTA —, que citam "o jogo" porque explicam a escolha
+de palavra DO jogo. Tirando esses, a dependência real é quase zero.
+
+**Conclusão medida:** a plataforma não precisa ser escrita, precisa ser destrancada. 27.843
+palavras com fonte já existem e 88% delas não mencionam o jogo. A HISTÓRIA é uma linha do tempo
+publicável hoje; DE ONDE VEM é bibliografia; o glossário é enciclopédia. O que falta é endereço
+por seção e uma home que seja a proposta.
+
+**Próximo:** o spec da plataforma (o agente pm começou e caiu por limite de modelo — refazer). E
+a régua de aceite de cada seção: "dá para mandar o link para quem nunca jogou e a pessoa achar
+útil?" vira medição, não opinião.

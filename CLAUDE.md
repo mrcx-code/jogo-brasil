@@ -457,11 +457,26 @@ como desencontrar**, que era o jeito antigo de a prévia do WhatsApp quebrar em 
 
 Repo: `mrcx-code/jogo-brasil` · Push na `main` publica sozinho.
 
-Não há variável de ambiente nem backend. Há **uma** credencial no cliente, e ela é publicável
-por construção: a chave `phc_` do PostHog, que só serve para MANDAR evento. **Nenhuma chave de
-serviço, nunca**, num jogo que roda no navegador de outra pessoa — e isto deixou de ser só uma
-frase: o `ferramentas/construir.js` recusa construir se a chave embutida não começar com `phc_`.
-O mesmo vale para o Supabase quando ele chegar.
+**BACKEND PASSA A SER PERMITIDO, decidido pelo dono em 2026-08-19.** Palavras dele: *"essa regra
+de sem backend… não precisa dessa regra, podemos ter backend sim po"*. A regra "não há backend, e
+se precisar, pare e pergunte" **cai**. Backend deixa de ser item de "pare e pergunte" e passa a
+ser ferramenta disponível — o que a virada de plataforma (a home como proposta, seções com valor
+próprio, evolução ano a ano) e a rotina de verdade (que roda sem a máquina dele ligada) as duas
+exigem. O Supabase do §3 deixa de ser "quando chegar" e passa a estar liberado a chegar.
+
+**O que esta permissão NÃO revoga, e a distinção é de natureza — arquitetura muda, segurança de
+credencial não:**
+- **Nenhuma chave de serviço no cliente, NUNCA.** A única credencial que roda no navegador de
+  outra pessoa é publicável por construção: a `phc_` do PostHog, que só MANDA evento, e o
+  `ferramentas/construir.js` recusa construir se ela não começar com `phc_`. Quando o Supabase
+  chegar, vale a chave **anon** publicável — a `service_role` fica no servidor e só no servidor.
+  Backend permitido é o lugar onde segredo pode finalmente existir; ele não afrouxa a regra, a
+  cumpre pela primeira vez.
+- **A afirmação de privacidade acompanha o primeiro byte que sair.** O §3 já manda: a tela de
+  CONFIGURAÇÕES diz hoje *"nada sai deste aparelho"*, e isso deixa de ser verdade no instante em
+  que a rede liga. Reescrever essa tela é da MESMA fase que ligar o backend, nunca depois.
+- **A porta de entrada continua sendo o arquivo único.** Backend serve a plataforma e a rotina;
+  o jogo em si continua abrindo do `index.html` autocontido, que é o que faz ele carregar em 3G.
 
 O nome do jogo é **BRASIL**, decidido pelo dono em 2026-08-05. O repositório continua se
 chamando `jogo-brasil`, o que é só o slug.

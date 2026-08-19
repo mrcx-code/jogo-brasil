@@ -141,6 +141,7 @@ Toda rodada de agente termina com uma linha aqui. Não é cerimônia: foi o núm
 | 18/08 | 4 | 18 | 13 | 3 | 1 | primeiro dia com a licença. Dos 3 desmentidos, **2 eram meus erros ao desmentir** — mesma causa única, `abrirTela` sem montar |
 | 19/08 | 4 | 12 | 10 | 0 | 5 | historiadora achou 3 lugares onde o jogo já sabia mais do que falava; pipeline mediu 18,75% → 0,88% e parou no §2 por conta própria |
 | 19/08 noite | 5 | 33 | 10 integrados | 6 | 3 | a rodada em que o QA valeu mais que o achado — ver abaixo |
+| 19/08 madrugada | 1 | 8 | 7 | 1 | 1 | historiadora nos três capítulos sem porta de glossário: 14 verbetes propostos (0·0·0 → 5·5·4 medido em simulação), as 3 revisões seguradas resolvidas. **O desmentido foi contra o próprio jogo**: o verbete VOTO FEMININO afirma restrição de 1932 que não está no Decreto nº 21.076 — está no ANTEPROJETO. Ver abaixo |
 
 **Como ler:** "desmentido" alto e "reais" baixo significa que os prompts estão pedindo palpite em
 vez de medição. "Do dono" alto é bom — significa que a equipe está reconhecendo o limite do §2 em
@@ -170,3 +171,21 @@ vez de atravessá-lo.
 **O que a linha de 19/08 (dia) ensina:** os dois melhores relatórios do dia foram os que **pararam
 sozinhos** — a historiadora listou 5 perguntas que não resolveu, e o pipeline aprovou o técnico e
 recusou o §2 na mesma página. Agente que sabe onde parar vale mais que agente que decide tudo.
+
+**O que a linha de 19/08 (madrugada) ensina, e as três valem para qualquer agente:**
+
+- **O jogo pode estar mais errado que a internet, e a internet mais errada que a lei.** A frase
+  "em 1932 só votavam as casadas com autorização do marido e as solteiras com renda própria"
+  está no glossário DESTE jogo, em páginas de tribunais eleitorais e em quase toda matéria de
+  jornal. **Não está no Decreto nº 21.076, de 24/02/1932** — o art. 2º diz "sem distinção de
+  sexo" e nenhum artigo de alistamento pede autorização nem renda. A restrição estava no
+  ANTEPROJETO e caiu por pressão das sufragistas. Uma consulta ao texto promulgado desmontou
+  em minutos o que quatro fontes secundárias repetiam. **Leia a norma, não quem a resume.**
+- **Fonte que não abre num servidor abre noutro** (a lição de 19/08 à noite se repetiu): o
+  Planalto devolveu `ECONNRESET` em três tentativas; a Câmara (`legin`, publicação original)
+  entregou os mesmos artigos inteiros. Não escreva "não deu para ler" antes do segundo host.
+- **Antes de propor conteúdo que depende de uma regra de código, reimplemente a regra e rode o
+  CONTROLE.** A sonda de casamento de termos (`test/tmp-casar.js`) reproduziu os treze números
+  documentados no `src/jogo.ts` antes de eu confiar em qualquer proposta — e foi ela que achou,
+  de graça, que o comentário da regra documenta **1 porta** para O QUE NÃO PODIA SER DITO
+  quando hoje são **2**: o número ficou velho quando a fala da CNV entrou, no mesmo dia.
