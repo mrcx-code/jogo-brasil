@@ -1158,3 +1158,23 @@ seções; (2) a home; (3) a migração. A /sala e a migração ficam para depois
 **Próximo passo concreto:** um spec curto de como as 3 seções viram páginas a partir do
 texto-fonte, e qual a primeira (proponho A HISTÓRIA — é a mais autônoma, 1,9%, e é uma linha do
 tempo do Brasil publicável hoje).
+
+## 41 (progresso) · A HISTÓRIA virou página — o padrão está de pé
+
+**FEITO em 19/08:** `matheusferreira.cc/historia` no ar (HTTP 200), gerada por
+`ferramentas/gerar-historia.js` a partir do `LINHA_TEMPO` do jogo — uma fonte, duas saídas, 47
+momentos com fonte. Define o padrão visual das outras seções (tokens papel/tinta/mata do check,
+Bitter+Source Sans, a fonte ao lado de cada momento, "quem lê hoje" marcado como leitura).
+
+**Falta, e é a fila da plataforma:**
+- **O GLOSSÁRIO vira `/glossario`** e **DE ONDE VEM vira `/de-onde-vem`**, no mesmo molde — um
+  `gerar-glossario.js` e um `gerar-fontes.js` irmãos do de história. O build já tem o loop de
+  seções (`for (const secao of ['historia'])`) — é acrescentar o nome.
+- **A HOME precisa LINKAR para as páginas.** Hoje os botões A HISTÓRIA/GLOSSÁRIO abrem as telas
+  DENTRO do jogo; a plataforma tem as páginas SEPARADAS. Falta decidir com o dono: as páginas
+  são a cara pública (a home aponta para elas) ou um espelho? É pergunta de produto — não decido.
+- **A home da plataforma** (a proposta como página, separada do menu do jogo) — item 2 da ordem
+  do dono, depois das seções.
+
+**Aprovação pendente do dono:** o padrão visual da /historia. Se ele aprovar, as outras saem
+iguais; se não, ajusto antes de replicar (para não refazer três).
