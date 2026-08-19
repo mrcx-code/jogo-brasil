@@ -822,8 +822,9 @@ medido: 2ª sentada relata 4,42 s em vez de 10,85, e `R.segundos` segue sendo o 
 literal já registrada** que nunca viraram momento na `LINHA_TEMPO` — e só o que está lá vira
 placa, entra em A HISTÓRIA e alimenta a nota da volta e a rua de O QUE TEM FONTE.
 
-**Cinco entraram** (O CAIS 1831 e 1850; O QUE SEGUROU calamidade+auxílio, ADI 6341, Anvisa):
-momentos 31 → 36, e **nenhuma placa trocou**, que era a condição. **Faltam 22.**
+**Dez entraram** (O CAIS 1831 e 1850; O QUE SEGUROU calamidade+auxílio, ADI 6341, Anvisa):
+momentos 31 → **41**, e **nenhuma placa trocou**, que era a condição em todas as rodadas.
+**Faltam 17**, e os que sobraram são justamente os que MUDAM a placa ou dependem do §2.
 
 ### A regra mecânica que decide tudo isto, e ela foi medida em 10 de 10 capítulos
 
@@ -840,9 +841,9 @@ fato vai para a estrada.** Isso não é detalhe de implementação; é decisão 
 | O QUE NÃO PODIA SER DITO (1) | **3** (+1 opcional) | trocaria para *"Vinte e quatro horas dão para copiar"* — idem | 6404–6418 |
 | A PEQUENA ÁFRICA (2) | **4** | trocaria para *"A certidão e o título que falta"* | 5091–5103 |
 | SALVADOR (2) | **2** (o levante de 1835) | depende do ponto — ver PARE abaixo | 1935–1937 |
-| AS PORTAS (3) | **3** | não troca, se entrarem antes do último | 6294–6302 |
+
 | A PRAÇA (2) | **1** (+1 opcional) | trocaria para *"Trinta mil assinaturas"* | 6508–6510 |
-| O ACEIRO (2) | **2** | não troca | 7141–7147 |
+
 | AINDA AQUI (2) | **1** (Lei 14.402/2022) | é o único que muda `MARCOS.length` (17 → 18) | 489–491 |
 
 **O que isto move, medido:** momentos 36 → **58** com tudo. Capítulos com 3 ou mais momentos:

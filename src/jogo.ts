@@ -11123,6 +11123,23 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1932 → 1985", t: "O voto, e a porta que ficou fechada",
     d: "O primeiro Código Eleitoral criou a Justiça Eleitoral, trouxe o voto secreto e escreveu que é eleitor o cidadão maior de 21 anos “sem distinção de sexo”. A mesma norma manteve fora quem não soubesse ler — e essa exigência só caiu com a Emenda Constitucional nº 25, de 15 de maio de 1985. Cento e quatro anos depois de 1881.",
     f: "Decreto nº 21.076, de 24 de fevereiro de 1932, art. 2º · EC nº 25/1985 · TSE · Senado Federal" },
+  // MAIS TRÊS DE AS PORTAS (18/08), e as três já estavam no jogo com fonte lida — na fala do
+  // capítulo e tabeladas no NOTES. Entram ANTES do nó de 1943, e a ordem é a decisão: a placa
+  // deste capítulo continua sendo "A lei do trabalho e quem ficou de fora".
+  //
+  // A PORTA E A TRANCA NO MESMO PAPEL é o desenho do capítulo, e por isso os dois primeiros nós
+  // são a mesma Constituição citada duas vezes: o artigo que abre o voto e o parágrafo que o
+  // fecha. Nenhuma conclusão é escrita — as duas citações lado a lado fazem o trabalho, mesma
+  // disciplina das duas leis do tráfico em O CAIS.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1934", t: "A porta de 1934",
+    d: "A Constituição de 1934 escreveu que eram eleitores “os brasileiros de um e de outro sexo, maiores de 18 annos” — e, no parágrafo único do mesmo artigo, que não podiam alistar-se “os que não saibam ler e escrever”. A porta e a tranca no mesmo papel.",
+    f: "Constituição de 16 de julho de 1934, art. 108 · Câmara, Legislação Informatizada" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1940", t: "O que o censo de 1940 registrou",
+    d: "O IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais em 1940 — e a mesma Constituição que exigia saber ler para votar prometia “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”.",
+    f: "IBGE · Tendências Demográficas, Censos de 1940 e 2000 · Constituição de 1934, art. 150" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1936 → 1988", t: "Quem não esperou pela lei",
+    d: "Em 1936, em Santos, Laudelina de Campos Mello fundou a Associação das Empregadas Domésticas do Brasil — sete anos antes de a CLT dizer que a lei do trabalho não era para a categoria. O Estado Novo fechou a associação em 1942; em 1961, em Campinas, ela fundou outra.",
+    f: "Senado Federal · Laudelina de Campos Mello (1904–1991)" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("portas")), q: "1943 → 2015", t: "A lei do trabalho e quem ficou de fora",
     d: "A Consolidação das Leis do Trabalho diz, logo no art. 7º, a quem ela NÃO se aplica: “aos empregados domésticos” e “aos trabalhadores rurais”. A Constituição de 1988 deu à categoria doméstica nove dos direitos que os outros já tinham. A igualdade veio com a Emenda Constitucional nº 72, de 2013, e a Lei Complementar nº 150, de 2015. Do primeiro texto ao último, setenta e dois anos.",
     f: "Decreto-Lei nº 5.452, de 1º de maio de 1943, art. 7º · EC nº 72/2013 · LC nº 150/2015 · Senado Federal" },
@@ -11210,6 +11227,19 @@ const LINHA_TEMPO: NoLinha[] = [
   // ⚠ MANUTENCAO ANUAL: o PRODES sai todo ano (~novembro) e o RAD do MapBiomas ~maio. As duas
   // falas carregam a data DENTRO da frase, entao envelhecem datadas e nunca falsas. Ao atualizar
   // o capitulo, atualize estes dois nos junto.
+  // MAIS DOIS DE O ACEIRO (18/08), fonte lida e tabelada no NOTES em 16/08. Entram ANTES do nó
+  // de 2024, então a placa continua sendo "Duas réguas, dois números" — a do método.
+  //
+  // Os dois são de quem PLANTA e de quem MEDE, não de quem derruba: é a régua do capítulo, que
+  // nomeia o sistema por onde ele falta e nunca uma empresa. E o segundo diz uma coisa que o
+  // §2 obriga a dizer com o verbo certo: a lei fixa o que fica em pé, e ela própria escreve que
+  // o cadastro NÃO é título — não é conclusão minha, é o texto do artigo.
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2017", t: "Três quartos de quem planta",
+    d: "O Censo Agropecuário de 2017 registrou 5.073.324 estabelecimentos agropecuários no país. A agricultura familiar é 76,8% deles e ocupa 23,0% da área — três quartos de quem planta em menos de um quarto da terra.",
+    f: "IBGE · Censo Agropecuário 2017 (SIDRA, tabela 6754)" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2012", t: "Cadastro não é título",
+    d: "O Código Florestal fixa quanto tem de ficar em pé (art. 12) e diz, com todas as letras, que o cadastro ambiental rural “não será considerado título para fins de reconhecimento do direito de propriedade ou posse” (art. 29, § 2º).",
+    f: "Lei nº 12.651, de 25 de maio de 2012, arts. 12 e 29, § 2º" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2024", t: "Metade do país num bioma só",
     d: "O relatório anual de desmatamento registrou 652.197 hectares derrubados no Cerrado — 52,5% de todo o desmatamento do país naquele ano. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.",
     f: "MapBiomas · Relatório Anual do Desmatamento 2024" },
