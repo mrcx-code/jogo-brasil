@@ -83,6 +83,21 @@ O `medir-telas-altura.js` passava em 8 de 8 telas e **três delas não podiam re
 anistiava toda tela que rola. Prove que o seu reprova: injete o defeito de propósito e mostre o
 exit 1. (`ENCAIXE_DEFEITO="<css>"` faz isso naquele arquivo.)
 
+### 2.9 Medir o instrumento custa um minuto; adivinhar custa rodadas
+
+**19/08.** O `medir-arco.js` mediu **0/min nos nove pontos** e anunciou um arco de **400 horas**.
+Fiz dois consertos no escuro e os dois falharam. A terceira coisa que fiz foi **imprimir o
+estado** — 15 toques, delta zero, `.tela.aberta` ainda `true` — e a causa apareceu na primeira
+linha: são **dois fechamentos com nomes parecidos** e eu chamava só um. `fecharTudo()` fecha as
+BANDEJAS (melhorias, nichos); `fecharTelas()` fecha as TELAS. Com a tela aberta o toque é
+engolido.
+
+> **Antes do segundo palpite, imprima o estado.** Instrumento que devolve número absurdo está
+> pedindo diagnóstico, não conserto — e o absurdo foi sorte: um valor só um pouco errado teria
+> entrado no NOTES.md como fato.
+
+Prima da 2.1: nos dois casos o instrumento não exercitava o caminho da pessoa.
+
 ---
 
 ## 3. Como trabalhar em paralelo sem se atropelar
