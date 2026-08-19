@@ -320,8 +320,14 @@ paralela dos treze capítulos, painel de juízes. Isso queima muito, e o dono pe
 
 ### O CHECK — quando o dono escrever `check` e nada mais
 
-É um comando, definido por ele em 2026-08-10. Significa: **pare de produzir e faça o balanço.**
-Não é relatório de status ("fiz A, B e C") — é uma mesa de decisão. O que ele quer ver:
+É um comando, definido por ele em 2026-08-10. Significava "pare de produzir e faça o balanço".
+**REVISTO POR ELE em 2026-08-19:** *"pq precisa parar de produzir qnd mando o check, podia tocar
+no paralelo não"*. Ele tem razão, e o motivo é a máquina de agentes, que não existia em 10/08:
+montar a mesa é trabalho da MINHA linha principal, e os agentes tocam trabalho disjunto em
+worktree isolado ao mesmo tempo, sem um atrapalhar o outro. Então o check **não para mais a
+produção** — a linha principal monta o balanço enquanto o paralelo segue medindo, pesquisando ou
+refutando. O que continua valendo: o balanço é uma **mesa de decisão**, não relatório de status
+("fiz A, B e C"). O que ele quer ver:
 
 - **o que está pendente**, e de quem é cada coisa;
 - **as dúvidas** que apareceram e ainda não têm resposta;
