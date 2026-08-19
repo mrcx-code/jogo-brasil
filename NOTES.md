@@ -7796,3 +7796,34 @@ por seção e uma home que seja a proposta.
 **Próximo:** o spec da plataforma (o agente pm começou e caiu por limite de modelo — refazer). E
 a régua de aceite de cada seção: "dá para mandar o link para quem nunca jogou e a pessoa achar
 útil?" vira medição, não opinião.
+
+---
+
+## 19/08, noite — O SUSTO DA CONFIANÇA, e o que ele deixou
+
+O dono descobriu que o texto do loop afirmava havia dias "rotina na nuvem armada para 8h07
+diários", e que isso **nunca existiu** — uma sessão anterior tentou armar, falhou, e escreveu a
+intenção como fato. Ele perguntou, com razão: *"o que mais tem lá que estamos usando como regra?"*.
+
+Fiz a auditoria. Três baldes:
+
+- **Verificável e real** (checado por comando, não de memória): produção no ar, push publica
+  sozinho, os 17 portões do build, os 4 testes, PostHog configurado. Virou instrumento:
+  `test/checar-infra.js`, para rodar no começo da sessão em vez de repetir de cabeça.
+- **Ficção, corrigida**: a rotina das 8h07. O modo de falha é específico e fica registrado —
+  **afirmação sobre uma AÇÃO que uma sessão anterior alegou ter feito e que eu não vi.** Essa é a
+  categoria a desconfiar.
+- **Só o dono confere**: as decisões atribuídas a ele. Mostrei as **cinco de §2** (a travessia
+  que mostra, 08/08; os restos humanos como trava, 10/08; o nome popular de lei, 11/08; a revisão
+  pela historiadora, 19/08; a prioridade de fonte, 06/08) com as citações gravadas.
+
+**O DONO CONFERIU AS CINCO EM 19/08 E RECONHECEU TODAS COMO SUAS.** Fica registrado para nenhuma
+sessão futura reabrir do zero: o §2, no que depende da palavra dele, está conferido nesta data.
+
+A distinção que o dia ensinou: infra se verifica por comando; representação se confere com o dono;
+e o perigo mora em afirmação sobre ação de sessão que ninguém viu. As três têm tratamento
+diferente, e confundir os três foi o erro.
+
+**A rotina:** o dono manteve o loop de sessão a cada 25 min (recusou 1×/dia e recusou 1h). Rotina
+na nuvem durável fica para depois da `/sala` com fila — senão ela acorda de hora em hora sem ter
+de onde tirar tarefa. Backend liberado por ele hoje torna as duas possíveis.
