@@ -1021,31 +1021,181 @@ const sec = t => log('\n---- ' + t);
         'e `$process_person_profile: false` — o evento é contado sem abrir ficha de ninguém');
       ok(!r.pedidos[0].cabecalhos.cookie,
         'e o pedido vai sem cookie nenhum (credentials: "omit")');
-      // A LISTA BRANCA. Qualquer propriedade nova aparece aqui como falha, e é de propósito:
-      // o jeito de vazar algo é acrescentar um campo achando que ele é inofensivo.
-      // `msg`, `arquivo` e `linha` entraram com o relatório de erro (bloco 18) — as três, e
-      // nada além delas: relatório de defeito é o esconderijo clássico de dado de gente,
-      // porque parece técnico e ninguém o lê como dado pessoal.
-      // `resposta` entrou com a pergunta da CHEGADA (bloco 19) e `sessao` com o "onde parou"
-      // (bloco 20).
-      // `ativos` entrou em 19/08 com a decisão do dono sobre o que conta como tempo jogado:
-      // `minutos` é tempo com o jogo na frente, `ativos` é quanto disso teve a mão nele. Inteiro
-      // de minutos, como o vizinho — nada de pessoa.
-      //
-      // ⚠ E ELE ENTROU AQUI À MÃO PORQUE ESTA LISTA NÃO O PEGOU: o bloco só examina os eventos
-      // que por acaso dispararam ANTES dele, e o `parou` — que é quem carrega `ativos` e
-      // `sessao` — nasce no bloco 20, doze blocos depois. A lista branca é o portão de
-      // privacidade do repositório e tem esse buraco. Ver PENDENTES 33.
-      const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'ativos',
-        'capitulo', 'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta',
-        'sessao', 'terminou', 'vez'];
-      const estranhas = props.filter(p => PERMITIDAS.indexOf(p) < 0);
-      ok(estranhas.length === 0, estranhas.length === 0
-        ? 'e nenhuma propriedade fora da lista branca — nada de tela, idioma, fuso ou navegador'
-        : 'propriedade que ninguém aprovou no corpo do evento: ' + estranhas.join(', '));
+      // A LISTA BRANCA NÃO MORA MAIS AQUI, e a mudança é o conserto do PENDENTES 33: ela
+      // conferia o corpo de UM pedido — `pedidos[0]`, que é sempre o `abriu` — e prometia por
+      // escrito cobrir "qualquer propriedade nova". Passou a ser conferida logo abaixo, sobre
+      // os NOVE eventos, disparados de propósito em vez de esperados por acaso.
       ok(!/nome|email|e-mail|ip|user|agent/i.test(JSON.stringify(c).replace(/"(nome|\$ip)":/g, '""')),
         'e o corpo inteiro não carrega palavra de identificação escondida');
     }
+  }
+
+  // ============================================================
+  // 17b · OS NOVE EVENTOS, DISPARADOS DE PROPÓSITO — o portão de privacidade, fechado
+  //
+  // O DEFEITO QUE ISTO EXISTE PARA NÃO TER DE NOVO (PENDENTES 33, achado em 19/08). A lista
+  // branca prometia, por escrito, que "qualquer propriedade nova aparece aqui como falha, e é
+  // de propósito". A promessa era falsa: o bloco abria o corpo de UM pedido — `pedidos[0]`, e
+  // o primeiro pedido de toda carga é sempre o `abriu`. Os eventos tardios (`voltou`,
+  // `capitulo`, `terminou`, `volta`, `parou`) nascem blocos depois, quando ninguém mais está
+  // conferindo. Medido: `ativos` foi acrescentado ao `parou` e o portão passou sem um pio.
+  //
+  // A correção é não esperar que a partida produza os eventos por acaso. Esta página DISPARA
+  // os onze pontos de `medir()` do jogo, cada um pelo gatilho de verdade, e só então abre os
+  // corpos. Os gatilhos, na ordem em que rodam:
+  //   abriu    · sozinho, na carga da página
+  //   erro     · uma exceção de verdade, injetada no HTML servido, pelo `window.onerror`
+  //   voltou   · `R.ultimo` recuado + `marcarDia()`, o único lugar que sabe que o dia é novo
+  //   capitulo · `verificarCenario()` na PRIMEIRA fronteira sem travessia declarada, com o
+  //              fecho do capítulo que sai já marcado como lido — aí `mostrarFecho` e
+  //              `correrTravessia` chamam o retorno na hora e `avancar()` roda sem os 90 s de
+  //              água no meio. (Na fronteira 0→1 há travessia, e o teste levaria 90 s.)
+  //   historia · toque em `btnCompletude`, e depois em `btnFimHist` — são DOIS `medir()`
+  //   fontes   · toque em `btnFontes`, e depois em `btnFimFontes` — idem, e o segundo leva
+  //              `daChegada`, que é propriedade que só existe naquele caminho
+  //   terminou · `chegarAoFim()`
+  //   volta    · `responderVolta(2)`
+  //   parou    · `pagehide`, o gancho que manda no celular
+  //
+  // DUAS ARMADILHAS, e as duas foram medidas antes de escrever:
+  //  (a) esses gatilhos GRAVAM estado (`chegarAoFim` incrementa `R.chegou` e salva). Nada
+  //      vaza para os blocos seguintes porque `browser.newPage()` abre um CONTEXTO próprio:
+  //      esta página tem `localStorage` só dela, e ainda por cima noutra origem que a do
+  //      `page` principal. Medido: os blocos 18/19/20 dão o mesmo resultado com e sem isto.
+  //  (b) `medirParou()` se desarma na primeira passada. Como o bloco 20 roda na página DELE,
+  //      o desarme daqui não o alcança — e mesmo assim a página rearma ao terminar.
+  // ============================================================
+  sec('17b · os nove eventos saem, e o corpo de cada um é aberto — não só o primeiro');
+  // Toda propriedade que o jogo tem licença de mandar. É esta lista que reprova o campo novo.
+  // `msg`, `arquivo` e `linha` entraram com o relatório de erro (bloco 18) — as três, e nada
+  // além delas: relatório de defeito é o esconderijo clássico de dado de gente, porque parece
+  // técnico e ninguém o lê como dado pessoal. `resposta` entrou com a pergunta da CHEGADA
+  // (bloco 19) e `sessao` com o "onde parou" (bloco 20). `ativos` entrou em 19/08 com a
+  // decisão do dono sobre o que conta como tempo jogado: `minutos` é tempo com o jogo na
+  // frente, `ativos` é quanto disso teve a mão nele — inteiro de minutos, como o vizinho.
+  const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'ativos',
+    'capitulo', 'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta',
+    'sessao', 'terminou', 'vez'];
+  // E POR EVENTO, que é mais apertado do que a lista corrida: com ela sozinha, mudar `parou`
+  // para levar `resposta` passaria — a palavra está aprovada, só que para OUTRO evento. Aqui
+  // cada um só pode levar o que foi aprovado PARA ELE. As três técnicas valem em todos.
+  const TECNICAS = ['$ip', '$lib', '$process_person_profile'];
+  const ESPERADAS = {
+    abriu:    ['dia', 'capitulo', 'nome', 'minutos', 'terminou'],
+    voltou:   ['dia'],
+    capitulo: ['n', 'nome', 'minutos', 'dia'],
+    historia: ['vez', 'dia', 'daChegada'],
+    fontes:   ['vez', 'dia', 'daChegada'],
+    terminou: ['vez', 'minutos', 'dia'],
+    volta:    ['resposta', 'dia', 'minutos', 'vez'],
+    parou:    ['capitulo', 'nome', 'minutos', 'sessao', 'ativos', 'dia'],
+    erro:     ['msg', 'arquivo', 'linha']
+  };
+  const nove = await rodarMedida('adblock', {
+    esperado: /encaixe-portao/,
+    // O `erro` é o único que não se chama pelo nome: ele nasce de uma exceção de verdade e sobe
+    // pelo `window.onerror`. Mesma injeção do bloco 18, e pelo mesmo motivo — script criado por
+    // código chega sem `filename`.
+    injetar: 'setTimeout(function(){ throw new Error("encaixe-portao"); }, 0);',
+    provocar: async (pg) => pg.evaluate(async () => {
+      const nota = [];
+      const espera = ms => new Promise(r => setTimeout(r, ms));
+      const toque = id => {
+        const e = document.getElementById(id);
+        if (!e) { nota.push('AUSENTE ' + id); return; }
+        e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      };
+      fecharTelas(); fecharTudo();
+      // VOLTOU
+      R.ultimo = '2000-01-01';
+      marcarDia();
+      // CAPÍTULO — a fronteira mais barata: a primeira sem travessia declarada entre os dois.
+      let corte = -1;
+      for (let i = 0; i + 1 < TOTAL_CENAS && i < LIMIARES.length; i++) {
+        const de = epocaDoCenario(i), para = epocaDoCenario(i + 1);
+        if (de === para) continue;
+        if (travessiaEntre(EPOCAS[de].id, EPOCAS[para].id) >= 0) continue;
+        corte = i; break;
+      }
+      nota.push('fronteira usada: cena ' + corte + (corte >= 0
+        ? ' (' + EPOCAS[epocaDoCenario(corte)].id + ' -> ' + EPOCAS[epocaDoCenario(corte + 1)].id + ')'
+        : ' — NENHUMA fronteira sem travessia'));
+      if (corte >= 0) {
+        visitando = false;
+        S.cenario = corte; S.fronteira = corte;
+        S.fechos = ((S.fechos | 0) | (1 << epocaDoCenario(corte))) >>> 0;
+        S.energiaTotal = LIMIARES[corte];
+        verificarCenario();
+        await espera(150);
+        fecharTelas(); fecharTudo();
+      }
+      // A HISTÓRIA e DE ONDE VEM, pelo menu
+      toque('btnCompletude'); await espera(80); fecharTelas();
+      toque('btnFontes'); await espera(80); fecharTelas();
+      // TERMINOU, a pergunta de uma linha, e as duas portas da CHEGADA (que levam `daChegada`)
+      chegarAoFim(); await espera(150);
+      responderVolta(2);
+      toque('btnFimHist'); await espera(80); fecharTelas();
+      toque('btnFimFontes'); await espera(80); fecharTelas();
+      fecharTudo();
+      // ONDE PAROU — pelo gancho de verdade, e rearmado em seguida para a página não ficar muda
+      window.dispatchEvent(new Event('pagehide'));
+      medirParouArmado = true;
+      nota.push('R.dias=' + R.dias + ' R.chegou=' + R.chegou + ' R.volta=' + R.volta
+        + ' epoca=' + epocaAtual());
+      return nota;
+    })
+  }).catch(e => ({ erro: String(e) }));
+  if (nove.erro) { ok(false, 'o portão dos nove eventos explodiu — ' + nove.erro); }
+  else {
+    const corpos = eventos(nove);
+    log('   ' + (nove.colhido || []).join(' | '));
+    for (const c of corpos) {
+      log('   · ' + String(c.event || '?').padEnd(9) + ' ' + Object.keys(c.properties || {}).sort().join(', '));
+    }
+    // (1) OS NOVE SAÍRAM. Sem isto o portão volta a conferir só o que calhou de sair, que é
+    // exatamente o defeito — e ele voltaria em silêncio, porque um portão que não vê nada passa.
+    const nomes = [...new Set(corpos.map(c => c.event))];
+    // A lista de nomes sai da FONTE, não de um literal aqui: um evento novo que ninguém ensinou
+    // este bloco a disparar reprova na hora, em vez de ficar de fora do portão para sempre.
+    // (O `index.html` construído não tem comentário — a régua conta código, EQUIPE §2.6.)
+    const naFonte = [...new Set([...HTML.matchAll(/medir\("([a-z]+)"/g)].map(m => m[1]))];
+    const faltando = naFonte.filter(n => nomes.indexOf(n) < 0);
+    log('   eventos na fonte: ' + naFonte.length + ' | disparados aqui: ' + nomes.length
+      + ' | pedidos: ' + corpos.length);
+    ok(naFonte.length === 9,
+      'o jogo declara nove eventos, que são os nove do CLAUDE.md §3.2 (achei ' + naFonte.length + ')');
+    ok(faltando.length === 0, faltando.length === 0
+      ? 'e os nove saíram nesta página: ' + nomes.sort().join(' · ')
+      : 'evento que o portão NÃO conseguiu disparar, e portanto não confere: ' + faltando.join(', '));
+    // (2) A LISTA BRANCA, agora sobre todos os corpos
+    const fora = [];
+    const foraDoEvento = [];
+    for (const c of corpos) {
+      for (const p of Object.keys(c.properties || {})) {
+        if (PERMITIDAS.indexOf(p) < 0) fora.push(c.event + '.' + p);
+        const dele = ESPERADAS[c.event];
+        if (dele && TECNICAS.indexOf(p) < 0 && dele.indexOf(p) < 0) foraDoEvento.push(c.event + '.' + p);
+      }
+    }
+    ok(fora.length === 0, fora.length === 0
+      ? 'nenhuma propriedade fora da lista branca em NENHUM dos nove — nada de tela, idioma, fuso ou navegador'
+      : 'propriedade que ninguém aprovou: ' + [...new Set(fora)].join(', '));
+    ok(foraDoEvento.length === 0, foraDoEvento.length === 0
+      ? 'e nenhum evento carrega propriedade aprovada para OUTRO evento — a régua é por evento'
+      : 'propriedade aprovada, mas não para este evento: ' + [...new Set(foraDoEvento)].join(', '));
+    // (3) O corpo inteiro, atrás de palavra de identificação — em todos, não só no primeiro
+    const suspeito = corpos.filter(c =>
+      /nome|email|e-mail|ip|user|agent/i.test(JSON.stringify(c).replace(/"(nome|\$ip)":/g, '""')));
+    ok(suspeito.length === 0, suspeito.length === 0
+      ? 'e nenhum dos corpos carrega palavra de identificação escondida'
+      : 'palavra de identificação no corpo de: ' + suspeito.map(c => c.event).join(', '));
+    // (4) E disparar tudo isso não pode ser o que quebra o jogo
+    ok(nove.ruins.length === 0, nove.ruins.length === 0
+      ? 'e os onze pontos de medição rodaram sem o jogo soltar um erro sequer'
+      : 'disparar os nove eventos quebrou o jogo: ' + nove.ruins[0]);
+    ok(nove.vivo.andou > 1 && nove.vivo.tela,
+      'com a partida seguindo inteira depois deles (a rua andou ' + nove.vivo.andou.toFixed(1) + ' px)');
   }
   // O INTERRUPTOR. Não é "menos dados": é nenhum.
   const desl = await rodarMedida('desligado').catch(e => ({ modo: 'desligado', erro: String(e) }));
