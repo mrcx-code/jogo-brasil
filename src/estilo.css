@@ -1616,6 +1616,76 @@
      título 27 px acima e o VOLTAR 23 px abaixo. Ali coluna dupla não cabe (320 px de
      largura), então cede o respiro do papel e o degrau das tábuas, que é a régua que a
      CHEGADA já usa duas consultas acima. */
+  /* ============================================================================
+     O DEGRAU VIROU RAMPA (18/08), e é o mesmo conserto que o MENU levou em 17/08 —
+     só que ali foi feito e aqui não, e por um ano de código a AJUSTES ficou com a
+     faixa morta que o menu tinha deixado de ter.
+
+     O DEFEITO, medido pelo caminho real (abrir o menu e TOCAR em CONFIGURAÇÕES, que
+     é quem chama `montarConfig()` e enche a tela com 41 nós): a 360×640 o título
+     ficava 22 px ACIMA do topo da janela e o VOLTAR 18 px ABAIXO da dobra, com
+     `overflow-y: visible` — forçar `scrollTop` move ZERO. Nada resgatava. A 320×520,
+     13 acima e 12 abaixo. E 360×640 é o Android mais comum do país.
+
+     A causa era a consulta `max-height: 600px` sozinha: abaixo dela o layout
+     comprimido; acima, o cheio, que só volta a caber lá pelos 680. Entre 601 e 680
+     ninguém cabia — a mesma faixa morta de 211 px que o menu teve, pelo mesmo motivo,
+     e que lá foi resolvida trocando o degrau por variáveis que interpolam.
+
+     POR QUE EU NÃO TINHA VISTO: medi com `abrirTela('telaConfig')` direto, que ABRE
+     mas não MONTA. Medi uma tela de 10 nós, ela coube, e eu registrei que o defeito
+     não reproduzia — mandando a próxima sessão não olhar. Tela vazia cabe em qualquer
+     altura. Ver PENDENTES 25, retificado.
+
+     AS CONTAS: cada valor interpola entre o comprimido (a 500 px de altura) e o cheio
+     (a 720), linearmente. `k = (cheio − comprimido) / 2,2` é o coeficiente em vh, e o
+     deslocamento em px é `comprimido − k × 5`. O `clamp` segura as duas pontas, então
+     nada muda nas telas que já estavam certas.
+     ============================================================================ */
+  @media (orientation: portrait) {
+    #telaConfig { padding: clamp(12px, calc(5.45vh - 15.27px), 24px) 16px; }
+    #telaConfig .telaTit { margin-bottom: clamp(8px, calc(3.64vh - 10.18px), 16px); }
+    #telaConfig #cfgInfo { gap: clamp(4px, calc(1.82vh - 5.09px), 8px);
+      padding: clamp(9px, calc(2.27vh - 2.36px), 14px) clamp(13px, calc(2.27vh + 1.64px), 18px); }
+    #telaConfig .telaBtn {
+      padding: clamp(9px, calc(2.73vh - 4.64px), 15px) clamp(22px, calc(5.45vh - 5.27px), 34px);
+      margin: clamp(2px, calc(1.36vh - 4.82px), 5px);
+      min-height: 44px; box-sizing: border-box; }
+  }
+  /* O bloco antigo fica para o caso MUITO curto, onde nem a rampa basta: abaixo de 600 px
+     de altura ele volta a cravar o valor comprimido, que é o piso da rampa acima. É
+     redundante por construção — e é de propósito, para que uma mudança futura na rampa não
+     possa levar junto o caso que ela nunca cobriu bem. */
+  /* A TÁBUA CEDE POR LARGURA, e a consulta é de LARGURA de propósito — as outras desta tela são
+     de altura, e foi por isso que este caso escapou de todas.
+     `min(70vw, 290px)` dá 224 px numa tela de 320, e o rótulo de APAGAR MEU PROGRESSO é um
+     canvas de 242 px: nove pixels para FORA de cada lado, tinta clara sobre o fundo escuro.
+
+     ISTO FOI RELATADO POR UM AGENTE, EU MEDI, "NÃO REPRODUZIU", E EU REVERTI O CONSERTO DELE.
+     O erro era meu e era o mesmo do PENDENTES 25: medi com `abrirTela('telaConfig')`, que ABRE
+     mas não MONTA. Numa tela não montada o botão nem canvas tinha — `canvas 0` —, e eu conclui
+     que era texto HTML que quebrava em duas linhas. Pelo caminho real, tocando o botão do menu,
+     ele tem os 242 px que o agente disse ter. Duas vezes no mesmo dia, a mesma causa.
+
+     QUEM CEDE É A TÁBUA, NÃO A LETRA, e o número diz por quê: `escalaQueCabe` devolveria escala
+     1 aqui (canvas de 121 px), ou seja, o botão destrutivo com metade da letra dos outros quatro
+     — quebrando a coluna uniforme que a régua de 15/08 existe para manter. 82vw dá 262,4 px e
+     deixa 10,2 px de madeira de cada lado, com as cinco tábuas ainda idênticas entre si.
+
+     `portrait` no seletor não é enfeite: o bloco `landscape` acima declara `width: auto` para
+     esta mesma tábua, e este vem depois na fonte. */
+  @media (orientation: portrait) and (max-width: 340px) {
+    #telaConfig .telaBtn { width: min(82vw, 290px); }
+  }
+  /* E O RABO MUITO CURTO ROLA, em vez de cortar (18/08). Abaixo de ~530 px de altura nem o
+     layout comprimido cabe — medido: a 500 e a 520 faltavam 36 px, com o VOLTAR 22 px abaixo
+     da dobra e o título 14 acima. Comprimir mais custaria o alvo de 44 px de dedo, que não se
+     negocia. Rolar é a saída honesta: a tela deixa de esconder a saída, e o instrumento de
+     altura reconhece "rola e a saída se alcança" como veredito legítimo — foi para isso que o
+     critério dele mudou de ALTURA para ALCANCE. */
+  @media (orientation: portrait) and (max-height: 540px) {
+    #telaConfig { overflow-y: auto; justify-content: flex-start; }
+  }
   @media (orientation: portrait) and (max-height: 600px) {
     #telaConfig { padding: 12px 16px; }
     #telaConfig .telaTit { margin-bottom: 8px; }

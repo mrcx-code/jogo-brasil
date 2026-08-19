@@ -748,26 +748,35 @@ a `escalaQueCabe` dentro de `montarFim` mede zero. O `#retTit` resolve pintando 
 
 **Estado:** um agente estava preparando o patch medido quando a sessão virou. Retomar por aí.
 
-## 25 · O corte de AJUSTES relatado em 360×640 NÃO reproduz — e o registro é o valor
+## 25 · ~~NÃO reproduz~~ **REPRODUZ SIM** — eu medi uma tela vazia e disse que cabia
 
-Um agente relatou, com números, que a tela de AJUSTES saía 22 px acima e 18 px abaixo da janela
-em 360×640, e que a faixa 601–690 inteira estava quebrada por a única consulta de retrato ser
-`max-height: 600px`.
+**Retificado em 18/08, no mesmo dia.** Este item dizia que o corte da AJUSTES em 360×640 não
+reproduzia, e mandava ninguém consertar. **Estava errado, e o erro era meu.**
 
-**Não reproduz.** Medido em carga fresca a cada altura de 560 a 900, e depois elemento por
-elemento a 360×640: título em y=102, último botão terminando em 534 de 640, **nenhum** dos 10
-elementos visíveis fora da janela, e o print (`test/CFG-360x640.png`) mostra a tela inteira com
-folga — cinco tábuas e o VOLTAR sobrando espaço embaixo.
+**O que eu fiz de errado:** medi chamando `abrirTela("telaConfig")` direto. Isso ABRE a tela mas
+não a MONTA — quem enche é `montarConfig()`, chamada pelo toque no botão. Medi uma tela de
+**10 nós** e conclui que cabia. **Tela vazia cabe em qualquer altura.**
 
-**Fica registrado por dois motivos.** Primeiro, para ninguém "consertar" isto de novo a partir do
-mesmo relatório: mexer numa consulta de mídia que está certa é como se ganha uma faixa morta.
-Segundo, porque o instrumento que desmentiu o achado nasceu disso e ficou —
-`test/medir-telas-altura.js`, que varre a altura de 20 em 20 px em oito telas. Foi ele que
-confirmou o item 24 no mesmo passe.
+**Medido de novo pelo caminho real** — abrir o menu e tocar em CONFIGURAÇÕES, que é o que a
+pessoa faz. A tela tem **41 nós**, e ela corta:
 
-**O que eu não sei:** por que o agente mediu o que mediu. Pode ter medido outro estado de tela.
-Não gastei uma terceira tentativa nisso, porque a pergunta que importa — *a tela cabe?* — está
-respondida com print.
+| tela | título | VOLTAR termina em | rola? | veredito |
+|---|---|---|---|---|
+| 360×640 | **y = −22** | **658** de 640 | 0 px | corta 22 acima, 18 abaixo |
+| 320×520 | **y = −13** | **532** de 520 | 0 px | corta 13 acima, 12 abaixo |
+| 360×700 | y = 8 | 688 de 700 | 0 px | cabe |
+| 390×844 | y = 80 | 760 de 844 | 0 px | cabe |
+
+`overflow-y: visible` — forçar `scrollTop` move **zero px**. Nada resgata.
+
+**O primeiro agente estava certo, e com os números exatos** (22 acima, 18 abaixo). Eu o
+desmenti com um instrumento cego e registrei o desmentido aqui, que é a pior das duas coisas:
+um erro que manda a próxima pessoa não olhar.
+
+**A lição vale mais que o conserto:** antes de escrever "não reproduz", pergunte se o
+instrumento exercita o caminho da PESSOA. `abrirTela` é atalho de teste; `montarX()` é o jogo.
+Seis das oito telas do `medir-telas-altura.js` estavam sendo medidas vazias pelo mesmo motivo —
+A HISTÓRIA com 5 nós em vez de 568, DE ONDE VEM com 4 em vez de 207.
 
 ## 26 · Tela parada e VISÍVEL conta como tempo jogado — e isso é decisão do dono
 
