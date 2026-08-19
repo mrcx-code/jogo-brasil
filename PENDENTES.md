@@ -1115,3 +1115,24 @@ Brasil de 4/02/1917, mas as fontes divergem se era criação coletiva; o consert
 **PENDENTES do dono que saíram deste trabalho:** a exceção do nome-de-lei se estica para "Lei
 Caó" e "Lei Afonso Arinos" (verbete INAFIANÇÁVEL)? E nomear os cinco sambistas da nota de 1917?
 Os dois são representação — vão para a mesa dele, não decido.
+
+## DECISÕES DO DONO em 19/08 (check clicável) — quatro resolvidas
+
+1. **PENDENTES 34 (a economia depois do cap. 5) → decidido (b): renda passiva vira teto, não motor.**
+   O ganho automático passa a pagar até uma fração da renda do minuto; o resto vem do toque. É
+   MINHA para fazer, com medição antes/depois (a régua do CLAUDE.md). NÃO fechada até aplicada e
+   medida — continua aqui como tarefa minha, sai quando estiver no ar.
+
+2. **A exceção do nome-de-lei se estica → SIM.** "Lei Caó" (7.716/1989) e "Lei Afonso Arinos"
+   (1.390/1951) podem ser nomeadas, como a Emenda Dante de Oliveira — NOMEANDO a lei, nunca
+   narrando a pessoa. FEITO: verbete INAFIANÇÁVEL E IMPRESCRITÍVEL passou a citar os dois nomes
+   populares. Confirmado que são os nomes consagrados (Câmara, Senado, Agência Brasil). RESOLVIDO.
+
+3. **PENDENTES 36 (marco temporal sobe para fala?) → NÃO.** Fica no glossário até não haver
+   litígio pendente. A régua dos 5 anos do §2.6 diz "nada em julgamento", e a disputa segue no
+   Judiciário. RESOLVIDO — a fala de AINDA AQUI continua "disputa em curso" sem citar processo.
+
+4. **PENDENTES 37 (o fio quilombola no capítulo final) → ganha SUPERFÍCIE PRÓPRIA.** Não entra na
+   fala de AINDA AQUI (cuja protagonista foi aprovada como presença indígena — pedir que um rosto
+   represente dois povos seria errado). O QUE a superfície é ainda precisa de decisão de
+   representação do dono; a DIREÇÃO está dada. Fica aberto só nessa parte.
