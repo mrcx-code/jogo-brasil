@@ -1064,3 +1064,28 @@ são cinco novos por sessão de equipe.
 **O conserto certo não é uma faxina, é uma regra:** o agente que entrega deve terminar com a
 árvore dele limpa (commit no ramo do worktree, ou nada), e aí `remove` fica seguro por
 construção. Vai para o `EQUIPE.md` quando alguém confirmar que não há trabalho preso ali.
+
+## 39 · A MESA TEM DE CARREGAR A IMAGEM, NÃO O NOME DO ARQUIVO — pedido do dono, 2ª vez
+
+**19/08, e ele já tinha dito.** Palavras dele: *"as imagens de referência não estão aparecendo na
+mesa… não adianta enviar o nome do arquivo, preciso da imagem em si para copiar (já falei isso
+haha garanta q sempre apareça caso precise para dar contexto)"*.
+
+O caso que o fez repetir foi o `cap4-retrato-v2`: a mesa pedia o retrato novo da ganhadeira de
+SALVADOR citando **só o nome do arquivo**. Quem lê no celular, prestes a mandar o pedido para o
+gerador de imagem, não tem como anexar um nome.
+
+**A regra, e ela vale para toda mesa daqui em diante:** toda linha de arte na página publicada
+carrega a imagem **embutida em base64** — a de REFERÊNCIA e, quando for substituição, também a
+ATUAL que vai sair —, mais o prompt num bloco de copiar ao lado. Se a imagem não couber na
+página, ela vai como arquivo entregue na conversa **no mesmo momento** em que o pedido é feito.
+
+**Por que isto é estrutural e não descuido:** o pedido de arte só existe para virar imagem, e o
+gargalo dele é o momento em que ele sai da mesa para o gerador. Um pedido sem a referência anexa
+não é um pedido incompleto — **é um pedido que não pode ser executado**, e cada um deles custa
+uma ida e volta com o dono.
+
+*(O desencontro do `cap4-retrato-v2`, medido comparando a folha com o retrato: o pano da costa do
+sprite é listrado azul/vermelho/rosa/branco amarrado na cintura com franja, e o do retrato é cru
+e ferrugem atravessado no peito; o torço do sprite é do mesmo tecido listrado, e o do retrato é
+liso. São duas mulheres diferentes vestidas parecido — e o retrato é o rosto de quem se joga.)*
