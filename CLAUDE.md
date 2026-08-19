@@ -118,6 +118,29 @@ Regras práticas que decorrem disso:
   pesquisadoras de cada período. Fonte institucional (IBGE, CNV, leis) continua valendo;
   a regra é sobre QUEM narra quando há escolha. O NOTES.md mantém a lista por capítulo.
 
+- **A REVISÃO DOS TEXTOS PASSA À AGENTE HISTORIADORA, com uma condição — decidido pelo dono em
+  2026-08-19.** Palavras dele: *"nao daria pra nossa agente historiadora puxar isso, desde que ela
+  use fontes de pessoas com propriedade e local de fala, estarei de acordo... povos originarios,
+  pessoas negras, mulheres, pessoas em vulnerabilidade... em geral que tenham consciência
+  social"*.
+
+  Isto **amplia** a prioridade de fonte acima e a torna **condição de aprovação**, não preferência.
+  Ler e cortar o texto que o jogo afirma sobre gente real deixa de esperar por ele, desde que:
+
+  1. **Quem narra tem lugar de fala sobre o que se narra.** Povos originários sobre povos
+     originários; autoria negra sobre a história negra; mulheres sobre a história das mulheres;
+     quem viveu a vulnerabilidade sobre ela. Fonte institucional segue valendo para o dado —
+     é sobre quem **interpreta**, não sobre quem contou.
+  2. **Consciência social é critério**, e não enfeite: fonte que trata gente como objeto de
+     estudo não serve, mesmo sendo acadêmica e mesmo estando certa nos fatos.
+  3. **Cada corte diz de onde veio.** Quem revisou, com que fonte, e por que aquela fonte tem
+     propriedade sobre aquilo. Sem isso o corte é opinião, e opinião não corta texto histórico.
+
+  **O que esta licença NÃO cobre, e a diferença é de natureza:** decidir **quem representa** um
+  capítulo, nomear pessoa viva, encenar objeto sagrado, ou qualquer pergunta cuja resposta crie
+  representação nova. Revisar o que já está escrito é uma coisa; decidir o que passa a existir é
+  outra, e continua sendo dele — §2 inteiro segue valendo, e "na dúvida, pare e pergunte" também.
+
 ## 3. Regras técnicas
 
 > **Virada de arquitetura, decidida pelo dono em 2026-08-05.** As duas primeiras regras desta
