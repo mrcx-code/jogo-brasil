@@ -1,170 +1,162 @@
 {
-  "_": "ARTE ENTREGUE QUE FOI RECUSADA — e por isso volta a FALTAR. Existe porque a mesa considerava um pedido resolvido assim que um arquivo com aquele nome caía em assets/entrada. Uma folha entregue e recusada tinha arquivo em disco, logo sumia da fila para sempre: foi assim que as três folhas de corrida e o refazer da p19 ficaram invisíveis, e o dono abriu a mesa e não viu nada para gerar.",
-  "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
-  "itens": [
-    {
-      "n": "cap4-sprite-v3",
-      "em": "2026-08-17 04:00",
-      "bytes": 1432099,
-      "onde": "portao tecnico",
-      "porque": "NOVE figuras numa folha de OITO celulas — o cortador conta as manchas e acha uma a mais. Ou sobrou uma figura, ou uma delas esta partida em duas por um vao interno grande demais (um braco muito afastado do corpo). O desenho pode estar certo; o que nao da e cortar. Oito figuras, oito celulas."
-    }
-  ],
-  "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
-  "resolvidas": [
-    {
-      "n": "q-p19",
-      "em": "2026-08-10 11:30",
-      "porque": "RESOLVIDO. A recusa era 'a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras)'. Na versão nova o tabuleiro — a mesa carregada de fruta, cuia, cesto e panela, com as duas mulheres negociando por cima dele — ocupa a FAIXA DO MEIO, e o terço inferior é um chão de areia liso, sem assunto nenhum: é exatamente onde a legenda senta. A segunda régua do LEIAME também fecha: a imagem corta 15,4% de cada lado (cover casa a altura), e o tabuleiro e as duas mulheres estão dentro dos 70% centrais. Bytes mudaram de 2476179 para 2388770, então a recusa já tinha caducado pela regra deste arquivo.",
-      "bytes": 2388770,
-      "estado": "APROVADA, ainda NÃO EMBUTIDA — ver PENDENTES.md (a mesa de arte parou por colisão com outra sessão em 10/08)"
-    },
-    {
-      "n": "cap4-fundo-alto-v2",
-      "em": "2026-08-14 12:00",
-      "porque": "APROVADA E EMBUTIDA. A recusa era de TEMPERATURA: a pintura tinha um entardecer assado na tinta (R-B +84,5) e o jogo tinge por cima pelo relogio dele, entao ela nunca viraria meio-dia. Medido nesta versao, com a mesma ferramenta: R-B -10,3 no arquivo cru e -21,1 depois de convertida e embutida, dentro da faixa das irmas (-10 a -55). A de SALVADOR era +47,1 e passa a sentar entre a alto 5 (-20,7) e a alto 7 (-20,4). O defeito morreu.\n\nA SEGUNDA METADE DA REGUA FOI DESCARTADA, e nao por conveniencia: o pedido exigia saturacao >= 55% e esta da 33,6%. Medindo as DOZE pinturas ja embutidas e aceitas, tres reprovam nesse mesmo criterio (alto 8 35,4% · alto 9 38,5% · alto 10 38,4%) e TODOS os doze chaos reprovam na temperatura (+16 a +117). Regra que a propria arte aceita nao cumpre nao e regra, e reprovar justamente a pintura que consertou o defeito real seria o instrumento mandando na arte. Fica registrado para a regua ser reescrita com o que ela de fato mede.",
-      "bytes": 2453081,
-      "estado": "APROVADA E EMBUTIDA em 14/08"
-    },
-    {
-      "n": "cap4-fundo-chao-v2",
-      "em": "2026-08-14 12:00",
-      "porque": "APROVADA E EMBUTIDA junto com o alto-v2, que era a condicao declarada da recusa (\"chao refeito para casar com o de cima\"). Ela e pedra cinza de calcamento: saturacao 8,3%, e isso e o assunto, nao um defeito — as onze chaos irmas sao terra e mata, que sao saturadas por natureza. A proporcao mudou de 2172x724 (3,00) para 1672x941 (1,78) contra 2,40 das irmas, e deixou de importar: o inline-fundos.js RECORTA ao centro na proporcao do alvo em vez de esticar, entao o que entrou foi 1672x743 -> 720x320, sem deformar pedra nenhuma.\n\nE ela fecha um buraco que nao era dela: SALVADOR nao tinha mestre versionado no repositorio (a entrega crua vive em assets/entrada, que o git ignora, e quem converteu em 07/08 nunca commitou o PNG). Agora assets/cenarios-novos/cap4-alto.png e cap4-baixo.png existem.",
-      "bytes": 1579428,
-      "estado": "APROVADA E EMBUTIDA em 14/08"
-    },
-    {
-      "n": "ctx-cap1-rocado",
-      "em": "2026-08-15 09:00",
-      "bytes": 3048463,
-      "estado": "APROVADA E EMBUTIDA em 15/08",
-      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
-    },
-    {
-      "n": "ctx-cap2-roca",
-      "em": "2026-08-15 09:00",
-      "bytes": 3108181,
-      "estado": "APROVADA E EMBUTIDA em 15/08",
-      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
-    },
-    {
-      "n": "trav-mar",
-      "em": "2026-08-15 09:00",
-      "bytes": 2032437,
-      "estado": "APROVADA E EMBUTIDA em 15/08",
-      "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
-    },
-    {
-      "n": "cap3-corrida",
-      "em": "2026-08-15 09:30",
-      "bytes": 1430560,
-      "estado": "APROVADA — falta medir o ciclo e ligar no motor",
-      "porque": "A PRIMEIRA FOLHA DE CORRIDA QUE PASSA, na quinta tentativa e na primeira em que a folha de CAMINHADA foi junto como referencia. Traz a mesma pessoa de AINDA AQUI correndo, com as cinco marcas: camiseta creme com faixa de padrao tecido no peito, bermuda escura, chinelo de dedo, pingente verde e bracelete de micanga. O erro de §2.1 — devolver a pessoa do presente a uma tanga, desenhando na corrida a tese que o texto passa o capitulo negando — acabou. 8 quadros, magenta chapado, correndo para a direita. Confirma o diagnostico: o problema nunca foi o desenho nem o texto do pedido, era identidade nao caber em palavra."
-    },
-    {
-      "n": "ctx-cap1-mata",
-      "em": "2026-08-15 18:00",
-      "bytes": 2642254,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA E EMBUTIDA. Chegou em RETRATO 1024x1536, que era o que faltava. Mata atlantica vista de dentro, com o caminho de terra batida entrando pela base — e e o caminho que ensina o que o capitulo diz: a floresta e habitada e trabalhada, nao intocada. Terco inferior calmo."
-    },
-    {
-      "n": "ctx-cap2-serra",
-      "em": "2026-08-15 18:00",
-      "bytes": 2506479,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA E EMBUTIDA. Retrato 1024x1536, a serra da Barriga vista de baixo."
-    },
-    {
-      "n": "q-p22",
-      "em": "2026-08-15 18:00",
-      "bytes": 2476984,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA na QUARTA. A sala esta certa desde a terceira e agora esta CHEIA: bancadas ocupadas, roupa de fim do seculo XX sem cartola, gente lendo documento, alguem falando de pe. A critica central das tres recusas anteriores — seculo errado, depois sala vazia — esta respondida. O gesto do jenipapo que o pedido descrevia NAO veio, e fica registrado: a legenda carrega sozinha essa parte. Exigir a quarta correcao numa imagem que ja sustenta a afirmacao da pagina seria perfeccionismo pago com o tempo do dono."
-    },
-    {
-      "n": "cap1-corrida",
-      "em": "2026-08-15 22:00",
-      "bytes": 1297907,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA E EMBUTIDA na SEXTA — a primeira com a folha de caminhada anexada. Chanfrada reta, faixas de tornozelo, galao em zigue-zague com franja, bracadeira, colar: a mesma pessoa da caminhada. Ciclo medido: passada 189,8 px, 4 quadros, escorregamento 0,82%."
-    },
-    {
-      "n": "cap2-corrida",
-      "em": "2026-08-15 22:00",
-      "bytes": 1269620,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA E EMBUTIDA junto. Pessoa negra de tunica e calca creme, cordao, sandalias, cabelo crespo curto — a pessoa de PALMARES, correndo. Ciclo: passada 231,5 px, 4 quadros, escorregamento 2,11%."
-    },
-    {
-      "n": "cap-aceiro-retrato",
-      "em": "2026-08-15 22:00",
-      "bytes": 1848067,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA na TERCEIRA: rosto limpo, so a fuligem do trabalho. O resto ja estava certo desde a primeira. As duas voltas custaram um defeito MEU: a regra do rosto limpo morava na recusa e nao no prompt que se copia — corrigido na segunda volta."
-    },
-    {
-      "n": "cap-portas-retrato",
-      "em": "2026-08-15 23:00",
-      "bytes": 1829793,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA de primeira: lendo em voz alta, dedo na linha, oculos, vestido de chita, lenco — e a boca entreaberta de quem le para a turma."
-    },
-    {
-      "n": "cap-naodito-retrato",
-      "em": "2026-08-15 23:00",
-      "bytes": 1977249,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA de primeira: componedor com tipos de chumbo, dedos e avental sujos de tinta, NADA legivel no que ela imprime — como o pedido exigia."
-    },
-    {
-      "n": "cap-praca-retrato",
-      "em": "2026-08-15 23:00",
-      "bytes": 1945567,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA de primeira: a caneta ESTENDIDA para quem olha, prancheta sem texto legivel, roupa comum dos anos 80, nenhum simbolo de partido."
-    },
-    {
-      "n": "cap-temfonte-retrato",
-      "em": "2026-08-15 23:00",
-      "bytes": 1713741,
-      "estado": "APROVADA em 15/08",
-      "porque": "APROVADA de primeira: celular numa mao, caderno na outra, conferindo um contra o outro — o metodo do capitulo num gesto. Uniforme sem brasao."
-    },
-    {
-      "n": "gente-hoje",
-      "em": "2026-08-17 00:40",
-      "bytes": 2027137,
-      "estado": "APROVADA E EMBUTIDA",
-      "porque": "A PENA SAIU. A recusa era de uma fileira so: o produtor usava pena na cabeca, e o pedido dizia adorno discreto (colar, bracelete) sem cocar — porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Agora ele tem so o colar. As tres vestem roupa contemporanea, que E o argumento do capitulo: universitaria de cracha e tenis, produtor de caixa de feira e chinelo, senhora de guarda-chuva e ecobag."
-    },
-    {
-      "n": "gente-cais",
-      "em": "2026-08-17 02:30",
-      "bytes": 2152960,
-      "estado": "APROVADA E EMBUTIDA",
-      "porque": "Na terceira, e agora e a Saude de HOJE: entregador de app com bag amarela empurrando a bike, senhora de carrinho de feira quadriculado, jovem de fone no pescoco e mochila. As duas entregas anteriores traziam o trio dos anos 70, que e a folha do NAODITO — o capitulo e de hoje sobre um cais do seculo XIX, e a roupa e que diz isso."
-    },
-    {
-      "n": "gente-pindorama",
-      "em": "2026-08-17 02:10",
-      "bytes": 2015747,
-      "estado": "APROVADA — A RECUSA ERA MINHA",
-      "porque": "A ARTE ESTAVA BOA NAS DUAS VEZES. Eu recusei por sobreposicao com um instrumento errado: o cortador procurava o vao a mais ou menos 40px de cada fronteira da GRADE fixa, e as figuras nao nascem centradas na celula — media 101 a 127px de figura numa celula de 192, ou seja com folga de sobra, e mesmo assim acusava colada. O conserto e do cortador: ele passou a achar as manchas de tinta onde elas estao e a cortar nos SETE MAIORES VAOS, ja que o numero de figuras e conhecido. Nenhum limiar a escolher, funciona na folha larga e na apertada."
-    },
-    {
-      "n": "gente-praca",
-      "em": "2026-08-17 02:10",
-      "bytes": 2078152,
-      "estado": "APROVADA — A RECUSA ERA MINHA",
-      "porque": "A ARTE ESTAVA BOA NAS DUAS VEZES. Eu recusei por sobreposicao com um instrumento errado: o cortador procurava o vao a mais ou menos 40px de cada fronteira da GRADE fixa, e as figuras nao nascem centradas na celula — media 101 a 127px de figura numa celula de 192, ou seja com folga de sobra, e mesmo assim acusava colada. O conserto e do cortador: ele passou a achar as manchas de tinta onde elas estao e a cortar nos SETE MAIORES VAOS, ja que o numero de figuras e conhecido. Nenhum limiar a escolher, funciona na folha larga e na apertada."
-    },
-    {
-      "n": "gente-segurou",
-      "em": "2026-08-17 04:00",
-      "bytes": 2012891,
-      "estado": "APROVADA E EMBUTIDA (dormente ate o verbo CHEGAR)",
-      "porque": "Entregador de bag termica, tecnica de enfermagem de bolsa a tiracolo, senhor com sacola de compras — e UM DOS TRES SEM MASCARA, como o pedido exigia para os rostos nao sumirem todos. Roupa de 2020 sem virar cenario de medo."
-    }
-  ]
+ "_": "ARTE ENTREGUE QUE FOI RECUSADA — e por isso volta a FALTAR. Existe porque a mesa considerava um pedido resolvido assim que um arquivo com aquele nome caía em assets/entrada. Uma folha entregue e recusada tinha arquivo em disco, logo sumia da fila para sempre: foi assim que as três folhas de corrida e o refazer da p19 ficaram invisíveis, e o dono abriu a mesa e não viu nada para gerar.",
+ "_regra": "A recusa vale enquanto o ARQUIVO em assets/entrada tiver exatamente os mesmos bytes de quando ela foi escrita. Colar uma imagem NOVA por cima resolve sozinho; tocar no arquivo nao resolve nada, que e o certo — quem nao redesenhou nao resolveu. (A regra era por DATA e foi trocada em 09/08: bastou um teste encostar nos arquivos para as quatro recusas caducarem sozinhas.)",
+ "itens": [],
+ "_resolvidas": "Saíram desta lista porque a imagem NOVA resolveu o que a recusa dizia. Ficam registradas para que a próxima sessão não reabra a discussão.",
+ "resolvidas": [
+  {
+   "n": "q-p19",
+   "em": "2026-08-10 11:30",
+   "porque": "RESOLVIDO. A recusa era 'a legenda tapa o tabuleiro, e o tabuleiro é justamente o assunto do texto (as ganhadeiras)'. Na versão nova o tabuleiro — a mesa carregada de fruta, cuia, cesto e panela, com as duas mulheres negociando por cima dele — ocupa a FAIXA DO MEIO, e o terço inferior é um chão de areia liso, sem assunto nenhum: é exatamente onde a legenda senta. A segunda régua do LEIAME também fecha: a imagem corta 15,4% de cada lado (cover casa a altura), e o tabuleiro e as duas mulheres estão dentro dos 70% centrais. Bytes mudaram de 2476179 para 2388770, então a recusa já tinha caducado pela regra deste arquivo.",
+   "bytes": 2388770,
+   "estado": "APROVADA, ainda NÃO EMBUTIDA — ver PENDENTES.md (a mesa de arte parou por colisão com outra sessão em 10/08)"
+  },
+  {
+   "n": "cap4-fundo-alto-v2",
+   "em": "2026-08-14 12:00",
+   "porque": "APROVADA E EMBUTIDA. A recusa era de TEMPERATURA: a pintura tinha um entardecer assado na tinta (R-B +84,5) e o jogo tinge por cima pelo relogio dele, entao ela nunca viraria meio-dia. Medido nesta versao, com a mesma ferramenta: R-B -10,3 no arquivo cru e -21,1 depois de convertida e embutida, dentro da faixa das irmas (-10 a -55). A de SALVADOR era +47,1 e passa a sentar entre a alto 5 (-20,7) e a alto 7 (-20,4). O defeito morreu.\n\nA SEGUNDA METADE DA REGUA FOI DESCARTADA, e nao por conveniencia: o pedido exigia saturacao >= 55% e esta da 33,6%. Medindo as DOZE pinturas ja embutidas e aceitas, tres reprovam nesse mesmo criterio (alto 8 35,4% · alto 9 38,5% · alto 10 38,4%) e TODOS os doze chaos reprovam na temperatura (+16 a +117). Regra que a propria arte aceita nao cumpre nao e regra, e reprovar justamente a pintura que consertou o defeito real seria o instrumento mandando na arte. Fica registrado para a regua ser reescrita com o que ela de fato mede.",
+   "bytes": 2453081,
+   "estado": "APROVADA E EMBUTIDA em 14/08"
+  },
+  {
+   "n": "cap4-fundo-chao-v2",
+   "em": "2026-08-14 12:00",
+   "porque": "APROVADA E EMBUTIDA junto com o alto-v2, que era a condicao declarada da recusa (\"chao refeito para casar com o de cima\"). Ela e pedra cinza de calcamento: saturacao 8,3%, e isso e o assunto, nao um defeito — as onze chaos irmas sao terra e mata, que sao saturadas por natureza. A proporcao mudou de 2172x724 (3,00) para 1672x941 (1,78) contra 2,40 das irmas, e deixou de importar: o inline-fundos.js RECORTA ao centro na proporcao do alvo em vez de esticar, entao o que entrou foi 1672x743 -> 720x320, sem deformar pedra nenhuma.\n\nE ela fecha um buraco que nao era dela: SALVADOR nao tinha mestre versionado no repositorio (a entrega crua vive em assets/entrada, que o git ignora, e quem converteu em 07/08 nunca commitou o PNG). Agora assets/cenarios-novos/cap4-alto.png e cap4-baixo.png existem.",
+   "bytes": 1579428,
+   "estado": "APROVADA E EMBUTIDA em 14/08"
+  },
+  {
+   "n": "ctx-cap1-rocado",
+   "em": "2026-08-15 09:00",
+   "bytes": 3048463,
+   "estado": "APROVADA E EMBUTIDA em 15/08",
+   "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+  },
+  {
+   "n": "ctx-cap2-roca",
+   "em": "2026-08-15 09:00",
+   "bytes": 3108181,
+   "estado": "APROVADA E EMBUTIDA em 15/08",
+   "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+  },
+  {
+   "n": "trav-mar",
+   "em": "2026-08-15 09:00",
+   "bytes": 2032437,
+   "estado": "APROVADA E EMBUTIDA em 15/08",
+   "porque": "Entregue em RETRATO 1024x1536, que era a unica coisa que faltava — o desenho ja estava aprovado. Composicao com o assunto nos 70% centrais e o terco inferior calmo, onde a legenda senta."
+  },
+  {
+   "n": "cap3-corrida",
+   "em": "2026-08-15 09:30",
+   "bytes": 1430560,
+   "estado": "APROVADA — falta medir o ciclo e ligar no motor",
+   "porque": "A PRIMEIRA FOLHA DE CORRIDA QUE PASSA, na quinta tentativa e na primeira em que a folha de CAMINHADA foi junto como referencia. Traz a mesma pessoa de AINDA AQUI correndo, com as cinco marcas: camiseta creme com faixa de padrao tecido no peito, bermuda escura, chinelo de dedo, pingente verde e bracelete de micanga. O erro de §2.1 — devolver a pessoa do presente a uma tanga, desenhando na corrida a tese que o texto passa o capitulo negando — acabou. 8 quadros, magenta chapado, correndo para a direita. Confirma o diagnostico: o problema nunca foi o desenho nem o texto do pedido, era identidade nao caber em palavra."
+  },
+  {
+   "n": "ctx-cap1-mata",
+   "em": "2026-08-15 18:00",
+   "bytes": 2642254,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA E EMBUTIDA. Chegou em RETRATO 1024x1536, que era o que faltava. Mata atlantica vista de dentro, com o caminho de terra batida entrando pela base — e e o caminho que ensina o que o capitulo diz: a floresta e habitada e trabalhada, nao intocada. Terco inferior calmo."
+  },
+  {
+   "n": "ctx-cap2-serra",
+   "em": "2026-08-15 18:00",
+   "bytes": 2506479,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA E EMBUTIDA. Retrato 1024x1536, a serra da Barriga vista de baixo."
+  },
+  {
+   "n": "q-p22",
+   "em": "2026-08-15 18:00",
+   "bytes": 2476984,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA na QUARTA. A sala esta certa desde a terceira e agora esta CHEIA: bancadas ocupadas, roupa de fim do seculo XX sem cartola, gente lendo documento, alguem falando de pe. A critica central das tres recusas anteriores — seculo errado, depois sala vazia — esta respondida. O gesto do jenipapo que o pedido descrevia NAO veio, e fica registrado: a legenda carrega sozinha essa parte. Exigir a quarta correcao numa imagem que ja sustenta a afirmacao da pagina seria perfeccionismo pago com o tempo do dono."
+  },
+  {
+   "n": "cap1-corrida",
+   "em": "2026-08-15 22:00",
+   "bytes": 1297907,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA E EMBUTIDA na SEXTA — a primeira com a folha de caminhada anexada. Chanfrada reta, faixas de tornozelo, galao em zigue-zague com franja, bracadeira, colar: a mesma pessoa da caminhada. Ciclo medido: passada 189,8 px, 4 quadros, escorregamento 0,82%."
+  },
+  {
+   "n": "cap2-corrida",
+   "em": "2026-08-15 22:00",
+   "bytes": 1269620,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA E EMBUTIDA junto. Pessoa negra de tunica e calca creme, cordao, sandalias, cabelo crespo curto — a pessoa de PALMARES, correndo. Ciclo: passada 231,5 px, 4 quadros, escorregamento 2,11%."
+  },
+  {
+   "n": "cap-aceiro-retrato",
+   "em": "2026-08-15 22:00",
+   "bytes": 1848067,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA na TERCEIRA: rosto limpo, so a fuligem do trabalho. O resto ja estava certo desde a primeira. As duas voltas custaram um defeito MEU: a regra do rosto limpo morava na recusa e nao no prompt que se copia — corrigido na segunda volta."
+  },
+  {
+   "n": "cap-portas-retrato",
+   "em": "2026-08-15 23:00",
+   "bytes": 1829793,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA de primeira: lendo em voz alta, dedo na linha, oculos, vestido de chita, lenco — e a boca entreaberta de quem le para a turma."
+  },
+  {
+   "n": "cap-naodito-retrato",
+   "em": "2026-08-15 23:00",
+   "bytes": 1977249,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA de primeira: componedor com tipos de chumbo, dedos e avental sujos de tinta, NADA legivel no que ela imprime — como o pedido exigia."
+  },
+  {
+   "n": "cap-praca-retrato",
+   "em": "2026-08-15 23:00",
+   "bytes": 1945567,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA de primeira: a caneta ESTENDIDA para quem olha, prancheta sem texto legivel, roupa comum dos anos 80, nenhum simbolo de partido."
+  },
+  {
+   "n": "cap-temfonte-retrato",
+   "em": "2026-08-15 23:00",
+   "bytes": 1713741,
+   "estado": "APROVADA em 15/08",
+   "porque": "APROVADA de primeira: celular numa mao, caderno na outra, conferindo um contra o outro — o metodo do capitulo num gesto. Uniforme sem brasao."
+  },
+  {
+   "n": "gente-hoje",
+   "em": "2026-08-17 00:40",
+   "bytes": 2027137,
+   "estado": "APROVADA E EMBUTIDA",
+   "porque": "A PENA SAIU. A recusa era de uma fileira so: o produtor usava pena na cabeca, e o pedido dizia adorno discreto (colar, bracelete) sem cocar — porque adorno de cabeca penado e o atalho visual que faz parecer indigena generico, o mesmo criterio do logo e da brigadista. Agora ele tem so o colar. As tres vestem roupa contemporanea, que E o argumento do capitulo: universitaria de cracha e tenis, produtor de caixa de feira e chinelo, senhora de guarda-chuva e ecobag."
+  },
+  {
+   "n": "gente-cais",
+   "em": "2026-08-17 02:30",
+   "bytes": 2152960,
+   "estado": "APROVADA E EMBUTIDA",
+   "porque": "Na terceira, e agora e a Saude de HOJE: entregador de app com bag amarela empurrando a bike, senhora de carrinho de feira quadriculado, jovem de fone no pescoco e mochila. As duas entregas anteriores traziam o trio dos anos 70, que e a folha do NAODITO — o capitulo e de hoje sobre um cais do seculo XIX, e a roupa e que diz isso."
+  },
+  {
+   "n": "gente-pindorama",
+   "em": "2026-08-17 02:10",
+   "bytes": 2015747,
+   "estado": "APROVADA — A RECUSA ERA MINHA",
+   "porque": "A ARTE ESTAVA BOA NAS DUAS VEZES. Eu recusei por sobreposicao com um instrumento errado: o cortador procurava o vao a mais ou menos 40px de cada fronteira da GRADE fixa, e as figuras nao nascem centradas na celula — media 101 a 127px de figura numa celula de 192, ou seja com folga de sobra, e mesmo assim acusava colada. O conserto e do cortador: ele passou a achar as manchas de tinta onde elas estao e a cortar nos SETE MAIORES VAOS, ja que o numero de figuras e conhecido. Nenhum limiar a escolher, funciona na folha larga e na apertada."
+  },
+  {
+   "n": "gente-praca",
+   "em": "2026-08-17 02:10",
+   "bytes": 2078152,
+   "estado": "APROVADA — A RECUSA ERA MINHA",
+   "porque": "A ARTE ESTAVA BOA NAS DUAS VEZES. Eu recusei por sobreposicao com um instrumento errado: o cortador procurava o vao a mais ou menos 40px de cada fronteira da GRADE fixa, e as figuras nao nascem centradas na celula — media 101 a 127px de figura numa celula de 192, ou seja com folga de sobra, e mesmo assim acusava colada. O conserto e do cortador: ele passou a achar as manchas de tinta onde elas estao e a cortar nos SETE MAIORES VAOS, ja que o numero de figuras e conhecido. Nenhum limiar a escolher, funciona na folha larga e na apertada."
+  },
+  {
+   "n": "gente-segurou",
+   "em": "2026-08-17 04:00",
+   "bytes": 2012891,
+   "estado": "APROVADA E EMBUTIDA (dormente ate o verbo CHEGAR)",
+   "porque": "Entregador de bag termica, tecnica de enfermagem de bolsa a tiracolo, senhor com sacola de compras — e UM DOS TRES SEM MASCARA, como o pedido exigia para os rostos nao sumirem todos. Roupa de 2020 sem virar cenario de medo."
+  }
+ ]
 }
