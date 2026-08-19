@@ -2181,7 +2181,7 @@ const EPOCAS = [
       "Ele dizia que, em vastos municípios ao mesmo tempo, “os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos”. Está escrito no jornal, antes da lei.",
       "Quanta gente passou por aqui, ninguém sabe. Memorialistas escreveram “mais de três mil”; outros, dez mil. A pesquisa trata esses números como exagerados e não os adota — este jogo também não.",
       "E há uma armadilha na fonte. Um memorialista de Santos escreveu que o Jabaquara foi “a suprema criação do branco em favor do negro”. A pesquisa recente lê ao contrário: quem descia a serra vinha antes de qualquer plano.",
-      "Depois de 13 de maio ninguém ganhou terra. Em 1893, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei, e se declararam no processo “todos de profissão roceiros”.",
+      "A lei de 13 de maio coube em dois artigos: nada sobre terra, casa ou trabalho. Em 1893, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei, e se declararam “todos de profissão roceiros”.",
       "Quintino de Lacerda virou vereador de Santos em 1895. A luta mudou de lugar; não acabou. Quem leu esta década pondo quem era escravizado como agente da própria história foi Maria Helena Machado."
     ]
   },
@@ -2222,7 +2222,7 @@ const EPOCAS = [
     fecho: [
       "Numa roda na casa dela nasceu “Pelo Telefone”. Em 6 de novembro de 1916, Donga — Ernesto Joaquim Maria dos Santos — entrou com o pedido de registro na Biblioteca Nacional.",
       "Anexou uma partitura de piano da mão de Pixinguinha e um atestado de que a música tinha sido tocada pela primeira vez em 25 de outubro daquele ano. O registro saiu em 27 de novembro, com o número 3.295.",
-      "Vinte e seis anos antes, o Código Penal da República tinha feito crime não ter ocupação e feito crime a capoeira, chamada pelo nome. Mesma cidade. A linha do tempo traz os dois artigos.",
+      "Vinte e seis anos antes, o Código Penal da República tinha feito crime não ter ocupação e feito crime a capoeira, chamada pelo nome. Deixou de ser crime em 1937. A linha do tempo traz os dois artigos.",
       "As obras da Avenida Presidente Vargas duraram três anos e derrubaram 525 imóveis. Um deles era a Praça Onze, onde as tias moravam e onde as escolas de samba desfilavam. A avenida foi inaugurada em 1944.",
       "Nem tudo caiu. A Pedra do Sal, ali ao lado, é comunidade remanescente de quilombo certificada pela Fundação Cultural Palmares desde a portaria publicada no Diário Oficial da União em 20 de janeiro de 2006.",
       "O relatório técnico saiu em 2010 e contou 25 famílias. A terra continua sem título. Quem pensou o quilombo como símbolo de resistência que continua, e não como coisa do passado, foi Beatriz Nascimento."
@@ -2289,11 +2289,17 @@ const EPOCAS = [
     //    processos. Isso não é ilustração do verbo `fazer passar`: é o verbo, literalmente,
     //    documentado. E fecha a rima de 130 anos com a rua de SALVADOR.
     //
-    // ⚠ O QUE ESTE CAPÍTULO NÃO DIZ, e diz que não diz: **nenhum número da Comissão Nacional
-    // da Verdade.** O servidor dela responde por trás de um CAPTCHA, e resolver CAPTCHA não é
-    // coisa que se faça — então o relatório não foi lido, e o que não se lê não se afirma. A
-    // última fala do fecho declara a falta em voz alta, do mesmo jeito que O CAIS declara que
-    // não encena o cemitério. O lugar da CNV está guardado; o número, não inventado.
+    // ⚠ ESTE BLOCO DIZIA QUE O CAPÍTULO NÃO TRAZ NENHUM NÚMERO DA COMISSÃO NACIONAL DA VERDADE,
+    // porque o servidor dela não deixava ler o relatório. Deixou de valer em 19/08: o Arquivo
+    // Nacional hospeda os mesmos volumes em `www.gov.br/memoriasreveladas`, com certificado
+    // válido, e eles foram lidos. A última fala do fecho passou a trazer o número, com a
+    // ressalva do próprio relatório de que ele não é o total.
+    //
+    // O QUE CONTINUA VALENDO, e não é a mesma coisa: **o capítulo não nomeia ninguém.** O
+    // relatório nomeia 377 pessoas; o jogo diz quantas e não diz quem, porque o §2 proíbe
+    // pessoa real como sujeito e o §2.6 proíbe nomear responsável — nem com condenação. E o
+    // gesto de declarar o próprio limite, que era desta fala, continua vivo em O CAIS, que
+    // declara em voz alta que não encena o cemitério.
     // Fontes por fala no NOTES.md, no diário do mesmo commit.
     id: "naodito",
     // O QUERER (16/08, aprovado "Construo agora"): uma linha de desejo em primeira pessoa.
@@ -2305,7 +2311,7 @@ const EPOCAS = [
     cenas: 1, lugar: "naodito", arte: [10],
     abertura: [
       "Isto é uma rua de centro de cidade brasileira, entre 1964 e 1985. Nada nela parece proibido, e é esse o assunto: o que não podia ser dito não estava escrito na parede. Estava escrito no Diário Oficial.",
-      "Em 13 de dezembro de 1968 um ato institucional deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
+      "Em 13 de dezembro de 1968 o Ato Institucional nº 5 deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
       "O art. 11 pôs fora de “qualquer apreciação judicial” tudo o que fosse feito com ele. Em 1970 um decreto-lei mandou a Polícia Federal conferir livros e revistas antes de saírem — e quem publicasse o não liberado perdia todos os exemplares.",
       "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais.",
       "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
@@ -2316,11 +2322,26 @@ const EPOCAS = [
     aberturaImg: ["cap9-rua", "cap9-rua", "cap9-banca", null, null],
     fecho: [
       "Os exemplares apreendidos, dizia o decreto, “serão incinerados a sua custa”. Mas o mesmo Estado que mandava queimar papel também guardava papel: o Superior Tribunal Militar deixava o advogado levar os autos por vinte e quatro horas.",
-      "Em 1979, advogados e religiosos viram a brecha. Vinte e quatro horas dão para copiar. Alugaram uma sala e três máquinas de xerox em Brasília, e os funcionários contratados achavam que era uma copiadora comum.",
+      "Em 1979 — o ano da Lei da Anistia, a nº 6.683 — advogados e religiosos viram a brecha. Vinte e quatro horas dão para copiar. Alugaram uma sala e três máquinas de xerox em Brasília, e os funcionários achavam que era uma copiadora comum.",
       "As cópias seguiam para São Paulo em ônibus noturnos e, depois, como carga desacompanhada de avião. Seis anos em sigilo: setecentos e dez processos, cerca de 850 mil cópias em papel, 543 rolos de microfilme.",
       "Entre quem percebeu a brecha, a fonte destaca a advogada Eny Raimundo Moreira. Em 15 de julho de 1985 aquilo virou livro: “Brasil: Nunca Mais”, montado com o papel do próprio tribunal que julgava.",
       "E o Estado acabou escrevendo o dele. A Lei nº 9.140, de 4 de dezembro de 1995, reconhece “como mortas, para todos os efeitos legais”, pessoas detidas por agentes públicos entre 1961 e 1979 e desaparecidas desde então.",
-      "Falta uma peça aqui, e o jogo prefere dizer. Os números desta história estão no relatório da Comissão Nacional da Verdade, de 2014, e nenhum deles entrou: não foi possível ler o documento. Sem fonte na mão, o jogo cala."
+      // ESTA LINHA DECLARAVA UMA FALTA QUE DEIXOU DE EXISTIR (19/08). Ela dizia que os números da
+      // Comissão Nacional da Verdade não entraram porque "não foi possível ler o documento" — e
+      // era verdade em 07/08: o servidor da CNV devolve certificado inválido. Só que o Arquivo
+      // Nacional hospeda os MESMOS PDFs em `gov.br/memoriasreveladas`, com certificado válido, e
+      // de lá eles baixam inteiros e com camada de texto. Lido em 19/08: vol. III, Apresentação,
+      // p. 25, e vol. I, cap. 18, conclusão [1], item 5, p. 963.
+      //
+      // A LIÇÃO VALE MAIS QUE O NÚMERO: fonte que falha num servidor não é fonte inexistente.
+      // Procure quem mais a hospeda antes de escrever que não deu para ler.
+      //
+      // O que a linha nova carrega, e nenhum dos três pedaços é enfeite: o número, a RESSALVA do
+      // próprio relatório de que ele não é o total (p. 963, "esses números certamente não
+      // correspondem ao total"), e a palavra AUTORES em vez de "responsáveis" — porque o cap. 16,
+      // item 4, adverte que apontar autoria "não implica, por si, a atribuição de responsabilidade
+      // jurídica individual". É a distinção que o §2.6 existe para preservar.
+      "E em 2014 a Comissão Nacional da Verdade contou. O relatório confirmou 434 mortes e desaparecimentos — e disse que esse número não é o total, e sim o que deu para comprovar. Nomeou 377 agentes do Estado como autores."
     ]
   },
   {
@@ -2400,14 +2421,14 @@ const EPOCAS = [
     abertura: [
       "Isto é uma rua de bairro brasileiro em 2020. Ela está mais vazia do que qualquer rua que você atravessou até aqui — e o trabalho que importa é de porta em porta.",
       "Em 6 de fevereiro de 2020, antes do primeiro caso confirmado no país, a Lei nº 13.979 já escrevia o vocabulário dos meses seguintes: isolamento, quarentena, o que cada palavra ia significar.",
-      "Em 20 de março, o Decreto Legislativo nº 6 reconheceu estado de calamidade pública. Em 2 de abril, a Lei nº 13.982 criou o auxílio emergencial — renda para quem o trabalho parou.",
+      "Em 20 de março, o Decreto Legislativo nº 6 reconheceu estado de calamidade pública. Em 2 de abril, a Lei nº 13.982 criou o auxílio emergencial de seiscentos reais mensais — renda para quem o trabalho parou.",
       "E o Supremo, na ADI 6341, confirmou que cuidar de saúde é competência da União, dos estados e também dos municípios — e é no município, no bairro, que mora quem este capítulo acompanha.",
       "Ela é agente comunitária de saúde. O cargo está na Lei nº 11.350, de 2006; o trabalho está na rua: chegar na última casa — a que nenhum papel alcança sozinho."
     ],
     aberturaImg: [null, null, null, null, null],
     fecho: [
       "Fim do trecho. Em 17 de janeiro de 2021, a Anvisa autorizou o uso emergencial das primeiras vacinas no país — e a primeira dose foi aplicada no mesmo dia.",
-      "O que segurou não foi uma coisa só. Foi lei com número e data, foi repartição pública — e foi gente do próprio bairro batendo na porta do fim da rua.",
+      "O que segurou não foi uma coisa só. Foi lei com número e data, foi o SUS — o sistema que a Lei nº 8.080, de 1990, criou — e foi gente do próprio bairro batendo na porta do fim da rua.",
       "Os documentos deste capítulo estão em DE ONDE VEM, com número e data. História recente se lê assim: com o papel na mesa."
     ]
   },
@@ -12678,8 +12699,8 @@ const GLOSSARIO = [
 
   { t: "COMISSÃO NACIONAL DA VERDADE",
     o: "Criada pela Lei nº 12.528, de 18 de novembro de 2011, instalada em 2012 e encerrada com relatório final em 10 de dezembro de 2014.",
-    d: "Apurou graves violações de direitos humanos praticadas entre 1946 e 1988. O relatório listou 434 mortos e desaparecidos políticos, identificou 377 agentes do Estado como responsáveis e recomendou que fossem responsabilizados — recomendação que não foi cumprida. Vale como “o que a comissão concluiu”, que é diferente e mais honesto que “o que aconteceu”.",
-    f: "Lei nº 12.528, de 18/11/2011, Planalto · Comissão Nacional da Verdade, relatório final, 3 volumes, dezembro de 2014" },
+    d: "Apurou graves violações de direitos humanos praticadas entre 1946 e 1988. O relatório concluiu ter confirmado 434 mortes e desaparecimentos — 191 mortos e 243 desaparecidos — e registrou que esse número não é o total, e sim o que foi possível comprovar. Nomeou 377 agentes do Estado como autores, advertindo que a lista não é exaustiva e que apontar autoria não é, por si, responsabilizar juridicamente: isso a comissão recomendou aos órgãos competentes. Vale como “o que a comissão concluiu”, que é diferente e mais honesto que “o que aconteceu”.",
+    f: "Lei nº 12.528, de 18/11/2011, Planalto · Comissão Nacional da Verdade, relatório final, dezembro de 2014: vol. III, Apresentação, p. 25; vol. I, cap. 16, itens 3 e 4, p. 843, e cap. 18, conclusão [1], item 5, p. 963" },
 
   { g: "OS DIREITOS QUE FORAM CONQUISTADOS", curto: "OS DIREITOS",
     sub: "Nenhuma dessas leis caiu do céu: cada uma tem um movimento por trás e uma data." },

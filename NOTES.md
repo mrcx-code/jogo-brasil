@@ -4307,7 +4307,24 @@ o retrato de AINDA AQUI comentando 1890 seria pôr palavra na boca errada.
   vieram sem camada de texto e o `web.archive.org` está fora do alcance da ferramenta. Ler a
   redação por buscador não é ler a fonte, e o marco não entra por citação de segunda mão.
   **Fica como a primeira tarefa de quem tiver rede para o Planalto.**
-- **Os números da CNV.** Conferi na página institucional (`gov.br/memoriasreveladas`) o que
+- ~~**Os números da CNV.**~~ **DESMENTIDO EM 19/08 — a fonte era legível o tempo todo, em outro
+  host.** O `cnv.memoriasreveladas.gov.br` devolve certificado inválido, mas o Arquivo Nacional
+  hospeda os MESMOS PDFs em `www.gov.br/memoriasreveladas`, com certificado válido, e de lá eles
+  baixam inteiros e com camada de texto (vol. I 10.317.304 bytes; vol. III 17.618.906 bytes,
+  sha256 `9f064e62…`). Li e conferi: vol. III, Apresentação, p. 25 — *"a história de vida e as
+  circunstâncias da morte de 434 mortos e desaparecidos políticos"*; vol. I, p. 963 — *"confirmar
+  434 mortes e desaparecimentos… sendo 191 os mortos, 210 os desaparecidos e 33 os desaparecidos
+  cujos corpos tiveram seu paradeiro posteriormente localizado"*, com a ressalva *"esses números
+  certamente não correspondem ao total"*; vol. I, p. 843, itens 3 e 4 — a lista *"certamente não
+  é exaustiva"* e as indicações *"não implicam, por si, a atribuição de responsabilidade jurídica
+  individual… às pessoas apontadas como autoras"*.
+  **A lição vale mais que o número: fonte que falha num servidor não é fonte inexistente.**
+  Procure quem mais a hospeda antes de escrever que não deu para ler. Vale para os outros dois
+  itens ✖N desta lista — a Lei de Terras nº 601/1850 e o Decreto nº 528/1890 —, que foram
+  recusados pelo mesmo motivo e podem estar no mesmo caso.
+
+  *O registro original, mantido porque é ele que a lição desmente:* conferi na página
+  institucional (`gov.br/memoriasreveladas`) o que
   basta para o capítulo futuro: criada pela **Lei nº 12.528/2011**, instituída em 16/05/2012,
   apurando violações entre **18/09/1946 e 05/10/1988**. O número que circula — 434 mortos e
   desaparecidos políticos no volume 3 — aparece em três resultados que apontam para o site da
