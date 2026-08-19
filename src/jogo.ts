@@ -10406,6 +10406,28 @@ function fimCerimonia() {
   $("telaFala").classList.remove("cerimoniando");
   if (falaViva) revelarFala();
 }
+// ===== A PORTA DAS PALAVRAS, no fim do fecho =====
+// De qual capítulo são as palavras que esta fala oferece, ou -1 para "esta fala não oferece
+// nenhuma". Só o FECHO acende: a abertura é a hora de entrar no capítulo, e mandar alguém para
+// uma lista de verbetes ANTES de ele ver o capítulo seria trocar a história por um índice.
+// O botão só aparece na ÚLTIMA linha e só depois de ela terminar de se revelar — antes disso
+// ele estaria oferecendo saída de um texto que ainda está sendo dito.
+let falaGlossCap = -1;
+function falaOferta() {
+  const b = document.getElementById("falaGloss") as HTMLButtonElement | null;
+  if (!b) return;                                  // molde antigo: a fala funciona sem
+  const ultima = falaViva && falaI === falaLinhas.length - 1 && !falaTimer;
+  const quantas = (ultima && falaGlossCap >= 0) ? capPalavras(falaGlossCap).length : 0;
+  b.hidden = !quantas;
+  if (!quantas) return;
+  const txt = "AS PALAVRAS DAQUI";
+  const cx = document.getElementById("falaCaixa");
+  const larg = cx ? cx.getBoundingClientRect().width - 54 : 0;   // recheio da caixa + o do botão
+  pixelRotulo(b, txt, escalaQueCabe(txt, 2, larg), "#d9a441");
+  // `pixelRotulo` carimba o próprio texto como rótulo acessível; aqui a frase inteira diz mais
+  // do que a tabuinha cabe, e é ela que quem não vê o canvas precisa ouvir.
+  b.setAttribute("aria-label", "As palavras que este capítulo disse — abre o glossário nelas");
+}
 function pararFala() {
   if (falaTimer) { clearInterval(falaTimer); falaTimer = null; }
   if (cerTimer) { clearTimeout(cerTimer); cerTimer = null; }
@@ -10413,6 +10435,7 @@ function pararFala() {
   $("telaFala").classList.remove("cerimoniando");
   falaViva = false; falaDepois = null; falaLinhas = []; falaI = 0;
   falaImgs = []; trocarCtx(null);
+  falaGlossCap = -1; falaOferta();
 }
 // O FUNDO DA CONVERSA — pedido do dono (2026-08-08): "quando aparece a história, tem que
 // ter sempre a imagenzinha do fundo… não deixa só texto". Toda fala abre sobre uma imagem
@@ -10605,12 +10628,17 @@ function revelarFala() {
     if (n % 3 === 0 && txt.charAt(n - 1) !== " ") somTique();
     if (n >= txt.length) terminarLinha();
   }, FALA_MS);
+  // DEPOIS de `falaTimer` existir, e a ordem é a condição inteira: `falaOferta()` só acende com
+  // a linha terminada, e "terminada" aqui se lê como "não há relógio escrevendo". Chamado antes
+  // desta linha, ele acenderia a oferta na primeira letra da última fala.
+  falaOferta();
 }
 function terminarLinha() {
   if (falaTimer) { clearInterval(falaTimer); falaTimer = null; }
   const txt = falaLinhas[falaI] || "";
   $("falaTxt").textContent = txt;
   $("falaCaixa").classList.add("pronta");   // só agora o "toque para continuar" acende
+  falaOferta();                             // ...e é aqui que a porta das palavras nasce
   // E, na travessia, o relógio da próxima linha começa a correr aqui.
   pararAuto();
   if (travessiaViva && falaI < falaLinhas.length - 1) {
@@ -10664,6 +10692,9 @@ function mostrarFecho(i, depois?) {
   // paisagem na despedida é composição, não economia. A ordem é a da abertura; as linhas a
   // mais seguram a última imagem, que é a regra que a abertura já usa.
   abrirFala(EPOCAS[i].nome, EPOCAS[i].quando, EPOCAS[i].fecho, depois, EPOCAS[i].aberturaImg);
+  // DEPOIS do `abrirFala`, e não antes: ele começa chamando `pararFala()`, que zera isto junto
+  // com o resto do estado da fala. É o fecho — e só ele — que acende a porta das palavras.
+  falaGlossCap = i;
   return true;
 }
 
@@ -11790,7 +11821,19 @@ function ligarTelas() {
       e.preventDefault(); montarGlossario(); abrirTela("telaGlossario");
     });
     const bV = document.getElementById("btnVoltarGloss");
-    if (bV) bV.addEventListener("pointerdown", function (e) { e.preventDefault(); abrirTela("telaMenu"); });
+    if (bV) bV.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      // QUEM VEIO DO FECHO VOLTA PARA O FECHO. O glossário aberto pela porta do capítulo é um
+      // desvio no meio de uma leitura, não uma visita ao menu — despejar a pessoa no menu aqui
+      // deixaria o capítulo seguinte pendurado atrás de um caminho que ela não sabe que existe.
+      if (glVoltaFala && falaAberta()) {
+        glVoltaFala = false; glCapFiltro = -1;
+        abrirTela("telaFala");
+        return;
+      }
+      glVoltaFala = false;
+      abrirTela("telaMenu");
+    });
   }
   // A CHEGADA, pelo menu — só existe para quem chegou. Uma tela de fim que aparece uma vez e
   // some é a mesma ausência de antes com um quadro a mais: quem quiser rever o que deixou
@@ -11832,6 +11875,16 @@ function ligarTelas() {
   $("btnFalaPular").addEventListener("pointerdown", function (e) {
     e.preventDefault(); e.stopPropagation(); encerrarFala();
   });
+  // A PORTA DAS PALAVRAS. `stopPropagation` pelo mesmo motivo do PULAR: o toque em qualquer
+  // lugar desta tela avança a fala, e sem isto o mesmo dedo abriria o glossário E passaria a
+  // linha — a pessoa voltaria do glossário para um fecho que andou sozinho.
+  {
+    const bp = document.getElementById("falaGloss");
+    if (bp) bp.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      abrirGlossarioDoCap(falaGlossCap);
+    });
+  }
   // Ligar/desligar o som. Salva na hora — quem calou o jogo não pode reencontrá-lo falando
   // depois de fechar a aba. E toca uma nota ao LIGAR, nunca ao desligar: é a única confirmação
   // honesta de que a coisa funciona, e ela chega pelo ouvido.
@@ -13507,6 +13560,12 @@ let glTermo = "";
 // A busca atravessa os dois: digitar mostra sugestões venha de onde vier, e o salto sempre
 // aterrissa em "lista", porque quem tocou numa sugestão quer LER.
 let glVista: "assuntos" | "lista" = "assuntos";
+// O CAPÍTULO PELO QUAL A TELA ESTÁ PENEIRADA, ou -1 para o glossário inteiro. É a vista que a
+// porta nova do fecho abre (ver `capPalavras`), e ela é DA SESSÃO, como o resto do estado desta
+// tela: não entra no `ESQUEMA_SAVE` pelo mesmo motivo escrito no bloco acima — uma tela de
+// referência que reabre peneirada faz a pessoa concluir que o glossário encolheu.
+// Qualquer coisa que tire a pessoa daqui (o VER TODAS, um salto, a porta do menu) devolve -1.
+let glCapFiltro = -1;
 let glAlvoT: ReturnType<typeof setTimeout> | null = null;
 // O último verbete sorteado pelo `#glSorte`, só para que o botão não repita a mesma palavra
 // duas vezes seguidas — sorteio que repete lê como botão quebrado, não como acaso.
@@ -13539,6 +13598,83 @@ function glVerbetes() {
   });
   glCache = out;
   return out;
+}
+
+// ============================================================
+// AS PALAVRAS QUE ESTE CAPÍTULO DISSE — a SEGUNDA porta do glossário
+//
+// O NÚMERO QUE PEDIU ISTO (19/08, `test/medir-leitura.js` e `test/medir-caminho-glossario.js`):
+// o glossário é 17.918 das 27.843 palavras do jogo — 64% de tudo o que foi escrito — e tinha
+// UMA porta, o botão do menu. Nenhuma fala, nenhuma placa e nenhum momento levava a um verbete.
+// Ao mesmo tempo, 42 verbetes são NOMEADOS em voz alta por alguma fala de capítulo: o jogo diz
+// a palavra, tem o verbete escrito com fonte, e não conta que ele existe.
+//
+// A porta que falta não custa texto novo — custa CAMINHO. Ela abre no fim do FECHO, que é o
+// ponto em que a leitura já parou por conta própria, e oferece só as palavras DAQUELE capítulo.
+//
+// A REGRA DE CASAMENTO, e ela é derivada do texto EM TEMPO DE EXECUÇÃO, nunca escrita à mão.
+// Lista à mão descola do texto na primeira revisão de fala — e há revisão de fala acontecendo
+// o tempo todo neste repositório. Quatro passos, cada um pago por uma medição:
+//
+//  1. DOBRA os dois lados: sem acento, minúscula, pontuação virando espaço. É a mesma função
+//     do `medir-caminho-glossario.js`, de propósito — dois casamentos diferentes para o mesmo
+//     par de textos dariam dois números e nenhuma verdade.
+//  2. CASA por SUBSTRING quando o termo (ou o `curto`) tem 4+ caracteres depois de dobrado.
+//     Substring e não palavra inteira, e o número decidiu: medido nas treze falas, exigir
+//     palavra inteira derruba de 42 para 39 e o que se perde é PLURAL — "quilombos" deixa de
+//     achar QUILOMBO, "indígenas" deixa de achar INDÍGENA. Perder o plural é perder o certo
+//     para não perder o duvidoso.
+//  3. DESCARTA o termo que casa com 4+ capítulos: palavra que aparece em quase todo lugar é
+//     palavra comum, não conceito daquele capítulo. Hoje ela derruba ZERO — o único candidato
+//     ("A FÉ", 5 capítulos) é CABEÇALHO de grupo e já sai no filtro de cima, porque cabeçalho
+//     não é verbete e a lista filtrada mostra verbetes. A regra fica de pé porque o texto vai
+//     mudar: ela é a rede, não o conserto de hoje.
+//  4. TETO de 8 por capítulo, do termo mais LONGO para o mais curto — termo longo é termo
+//     específico. Só A PEQUENA ÁFRICA encosta no teto (14 casam, 8 entram).
+//
+// Medido com esta regra: 8 · 6 · 1 · 7 · 3 · 8 · 1 · 1 · 0 · 0 · 1 · 0 · 5 nos treze capítulos.
+// Os três zeros são A PRAÇA, O QUE SEGUROU e O QUE TEM FONTE — eles citam lei por número, e
+// número não casa com termo de glossário. Neles o botão simplesmente não nasce, que é melhor
+// que um botão que abre uma lista vazia.
+const CAP_PALAVRAS_TETO = 8;
+const CAP_PALAVRAS_COMUM = 4;    // casou com 4 capítulos ou mais? é palavra comum, cai fora
+const CAP_PALAVRAS_MIN = 4;      // termo com menos de 4 letras dobradas casaria com qualquer coisa
+// A mesma dobra do instrumento: NFD separa a letra do acento, a faixa combinante vai fora (o Ç
+// entra junto, cedilha é U+0327), tudo o que não é letra ou dígito vira espaço.
+function capDobra(s) {
+  return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9º]+/g, " ").replace(/\s+/g, " ").trim();
+}
+let capPalavrasCache: number[][] | null = null;
+function capPalavrasCalcular(): number[][] {
+  const textos = EPOCAS.map(function (e) {
+    return capDobra([(e.abertura || []).join(" "), (e.fecho || []).join(" "),
+      (e as { querer?: string }).querer || ""].join(" "));
+  });
+  const saida: number[][] = EPOCAS.map(function () { return []; });
+  const compr: { [i: number]: number } = {};
+  GLOSSARIO.forEach(function (v, i) {
+    if (v.g || !v.t) return;                       // cabeçalho de grupo não é verbete
+    const formas = [String(v.t), String((v as { curto?: string }).curto || "")]
+      .map(capDobra).filter(function (f) { return f.length >= CAP_PALAVRAS_MIN; });
+    if (!formas.length) return;
+    const onde: number[] = [];
+    textos.forEach(function (tx, c) {
+      if (formas.some(function (f) { return tx.indexOf(f) >= 0; })) onde.push(c);
+    });
+    if (!onde.length || onde.length >= CAP_PALAVRAS_COMUM) return;
+    compr[i] = Math.max.apply(null, formas.map(function (f) { return f.length; }));
+    onde.forEach(function (c) { saida[c].push(i); });
+  });
+  return saida.map(function (lista) {
+    return lista.sort(function (a, b) { return compr[b] - compr[a]; }).slice(0, CAP_PALAVRAS_TETO);
+  });
+}
+// Os índices no `GLOSSARIO` das palavras deste capítulo. Preguiçoso: o cálculo é uma varredura
+// de 167 verbetes contra 13 falas e não tem por que acontecer em quem nunca chega num fecho.
+function capPalavras(i: number): number[] {
+  if (!capPalavrasCache) capPalavrasCache = capPalavrasCalcular();
+  return (i >= 0 && capPalavrasCache[i]) || [];
 }
 
 // O ENDEREÇO POR TERMO — é o que faz os `rel` do historiador virarem ligação clicável. Ele
@@ -13777,11 +13913,33 @@ function glPlaca(box: HTMLElement, txt: string, sub?: string) {
 function glPintarFiltros() {
   const cx = document.getElementById("glFiltros");
   if (!cx) return;                       // a Arte ainda nao aterrissou: a lista funciona sem
+  // PENEIRADO POR CAPÍTULO, a mesma peça com o outro destino: dali não se volta para os
+  // ASSUNTOS (não se veio deles), volta-se para o glossário INTEIRO. É o "VER TODAS" que o
+  // desenho pede, e ele mora onde o caminho de volta já morava — uma barra, um trabalho.
+  if (glCapFiltro >= 0 && !glTermo.trim()) {
+    cx.classList.remove("vazia");
+    cx.textContent = "";
+    const t = document.createElement("button");
+    t.type = "button";
+    t.className = "glVolta glTodas";
+    pixelRotulo(t, "VER TODAS", 2, "#d9a441");
+    t.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      glCapFiltro = -1;
+      glVista = "assuntos";
+      glSeg = "*";
+      glPintar();
+      const box = document.getElementById("listaGlossario");
+      if (box) box.scrollTop = 0;
+    });
+    cx.appendChild(t);
+    return;
+  }
   const naLista = glVista === "lista";
   cx.classList.toggle("vazia", !naLista);
   const jaTem = cx.querySelector(".glVolta");
   if (!naLista) { cx.textContent = ""; return; }
-  if (jaTem) { glRotuloVolta(jaTem as HTMLElement); return; }
+  if (jaTem && !jaTem.classList.contains("glTodas")) { glRotuloVolta(jaTem as HTMLElement); return; }
   cx.textContent = "";
   const b = document.createElement("button");
   b.type = "button";
@@ -13934,6 +14092,10 @@ function glPintar() {
   glPintarFiltros();
   box.textContent = "";
   if (glTermo.trim()) { glPintarSugestoes(box); return; }
+  // A VISTA DO CAPÍTULO vem ANTES dos assuntos e DEPOIS da busca, e a ordem é a regra desta
+  // tela inteira: quem digitou quer o atalho e ele vence tudo; quem não digitou está onde a
+  // porta o pôs.
+  if (glCapFiltro >= 0) { glPintarCapitulo(box); return; }
   if (glVista === "assuntos") { glPintarAssuntos(box); return; }
   // TUDO, ou um grupo só. O cabeçalho do grupo continua aparecendo mesmo filtrado: ele é o
   // que nomeia o que está na tela, e uma lista sem título é uma lista sem assunto.
@@ -13942,6 +14104,19 @@ function glPintar() {
     if (v.g) { g = v.g as string; if (glSeg === "*" || glSeg === g) glPlaca(box, (v.curto || v.g) as string, v.sub as string); return; }
     if (glSeg === "*" || glSeg === g) box.appendChild(glCartao(v, i));
   });
+}
+
+// A VISTA DE UM CAPÍTULO — as palavras que ele disse, e nada mais.
+// A placa leva o NOME do capítulo porque é ele que responde "por que estas e não outras", e a
+// frase embaixo diz de onde a lista saiu. Os cartões são os MESMOS `glCartao` do glossário
+// inteiro: mesma cabeça, mesmo corpo, mesmas remissões — quem tocar numa remissão sai daqui
+// para o glossário inteiro pelo `glSaltar`, que é o comportamento certo e já estava escrito.
+function glPintarCapitulo(box: HTMLElement) {
+  const idx = capPalavras(glCapFiltro);
+  const ep = EPOCAS[glCapFiltro];
+  glPlaca(box, (ep && ep.nome) || "AS PALAVRAS",
+    "As palavras que este capítulo disse em voz alta. O glossário inteiro continua no VER TODAS.");
+  idx.forEach(function (i) { box.appendChild(glCartao(GLOSSARIO[i], i)); });
 }
 
 // AS SUGESTÕES. O que foi digitado NUNCA é reescrito na tela — nem no realce do trecho que
@@ -13989,6 +14164,10 @@ function glSaltar(i: number) {
   // achar seria devolver a ela o trabalho que a busca existe para fazer.
   const v = glVerbetes().filter(function (x) { return x.i === i; })[0];
   if (glSeg !== "*" && (!v || v.g !== glSeg)) glSeg = "*";
+  // E a peneira do CAPÍTULO cede pelo mesmo motivo, com mais força ainda: a lista dele tem oito
+  // verbetes no máximo, e a remissão que se acabou de tocar quase nunca é um deles. Saltar para
+  // dentro de uma peneira que não contém o destino é saltar para lugar nenhum.
+  glCapFiltro = -1;
   // Quem tocou numa sugestao, num link de remissao ou no dado quer LER: o salto aterrissa
   // sempre na lista, venha da tela de assuntos ou de onde for.
   glVista = "lista";
@@ -14087,6 +14266,7 @@ function glLigar() {
 function montarGlossario() {
   glSeg = "*";
   glTermo = "";
+  glCapFiltro = -1;      // a porta do menu abre o glossário INTEIRO, sempre
   // Abre pelos ASSUNTOS, sempre. E a primeira coisa que a pessoa ve, e e ela que apresenta o
   // glossario em vez de despejar 121 termos sem dizer de que eles sao.
   glVista = "assuntos";
@@ -14097,6 +14277,33 @@ function montarGlossario() {
   glPintar();
   const box = document.getElementById("listaGlossario");
   if (box) box.scrollTop = 0;
+}
+
+// A SEGUNDA PORTA, e o cuidado inteiro dela está em UMA linha que não existe aqui: ela NÃO
+// chama `pararFala()`.
+//
+// A fala do fecho continua VIVA por trás do glossário, só escondida — `abrirTela` troca a
+// classe `.aberta` e nada mais. Matar a fala aqui teria um custo que só aparece três funções
+// adiante: `verificarCenario()` roda a cada quadro e a primeira guarda dele é `falaAberta()`.
+// Com a fala morta e a virada de capítulo ainda por acontecer (o `depois` do fecho é quem corre
+// a travessia e abre o capítulo seguinte), o laço de quadro dispararia a virada INTEIRA por
+// baixo do glossário aberto. Com a fala viva, o jogo espera — e o VOLTAR devolve a pessoa
+// exatamente à linha onde ela parou de ler, que é de onde ela saiu.
+let glVoltaFala = false;
+function abrirGlossarioDoCap(i: number) {
+  if (i < 0 || !capPalavras(i).length) return;
+  montarGlossario();
+  glCapFiltro = i;
+  glVoltaFala = falaAberta();
+  glPintar();
+  const cx = document.getElementById("listaGlossario");
+  if (cx) cx.scrollTop = 0;
+  // O ÚNICO EVENTO NOVO desta porta, e ele responde a pergunta que a porta existe para mudar:
+  // quantas pessoas passam a LER o glossário quando o jogo oferece as palavras no fim do fecho.
+  // Duas propriedades, as duas já na lista branca do `encaixe.js` bloco 17: qual capítulo e que
+  // dia da pessoa. Nada do estado da partida, nada de quem ela é.
+  medir("glossario_do_capitulo", { n: i, dia: R.dias | 0 });
+  abrirTela("telaGlossario");
 }
 
 

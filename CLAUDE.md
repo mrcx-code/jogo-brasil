@@ -198,12 +198,16 @@ Regras práticas que decorrem disso:
    chata de mudar por acidente —, e o host sai de **uma constante só** (`MEDIDA_HOST`), que
    alimenta a CSP e a cobrança do endereço que o jogo chama.
 
-   **A contagem, e os limites dela.** Nove eventos anônimos respondem a pergunta de três dias:
+   **A contagem, e os limites dela.** Dez eventos anônimos respondem a pergunta de três dias:
    abriu · voltou (com o número do dia) · chegou no capítulo X · terminou · abriu A HISTÓRIA ·
    abriu DE ONDE VEM · onde parou (com o tempo daquela sessão) · **o jogo quebrou** (mensagem,
    arquivo e linha, e nada do estado da partida — teto de três mensagens distintas por carga,
    agrupadas por mensagem, para uma exceção presa no laço de quadro não virar 60 pedidos por
-   segundo) · **a resposta de "você voltaria amanhã?"**, a pergunta de uma linha da CHEGADA.
+   segundo) · **a resposta de "você voltaria amanhã?"**, a pergunta de uma linha da CHEGADA ·
+   **abriu as palavras do capítulo** (com o número do capítulo), a porta que o fecho oferece para
+   o glossário — acrescentado em 19/08 junto com a porta, porque medir se ela é usada é a única
+   forma de saber se ela resolveu o que foi medida para resolver: 64% do texto do jogo estava
+   atrás de um botão que nada apontava.
    Sem nome, sem e-mail, **sem IP** (`$ip: null`), sem perfil de
    pessoa (`$process_person_profile: false`), sem cookie (`fetch` com `credentials: "omit"`; a
    biblioteca do PostHog **não** é usada, e a CSP nem a deixaria carregar), sem autocapture e sem

@@ -227,6 +227,11 @@
         <div id="falaFantasma" aria-hidden="true"></div>
         <div id="falaTxt"></div>
       </div>
+      <!-- A PORTA DAS PALAVRAS. Nasce escondida e só acende no fim do FECHO de um capítulo que
+           tenha palavras a oferecer (ver `capPalavras` no jogo.ts). Vive DEPOIS do texto porque
+           é ali que a leitura parou: nada dentro do parágrafo é clicável, e o desenho da fala
+           não muda uma vírgula enquanto se lê. -->
+      <button id="falaGloss" type="button" hidden></button>
     </div>
     <div id="falaSeta">toque para continuar ▾</div>
   </div>

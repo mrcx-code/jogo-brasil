@@ -7691,3 +7691,81 @@ fraca por falta de porta, e porta é código, não pesquisa.
 **Próximo:** a forma da porta. A mais leve — e a que não toca no desenho da fala, que é medido
 por `medir-telas-altura.js` — é oferecer, no fim do fecho de cada capítulo, as palavras que
 aquele capítulo disse. Uma fileira, num ponto em que a leitura já parou. Vai para a mesa.
+
+---
+
+## 19/08, noite — A SEGUNDA PORTA DO GLOSSÁRIO, no fim do fecho
+
+Feito o que a entrada anterior deixou na mesa. O glossário deixou de ter uma porta: no fim do
+FECHO de cada capítulo nasce uma tabuinha — **AS PALAVRAS DAQUI** — que abre o glossário
+peneirado pelas palavras que aquele capítulo disse em voz alta. Dentro dele, **VER TODAS** tira
+a peneira; o **VOLTAR** devolve à linha do fecho de onde a pessoa saiu.
+
+### O que a porta oferece, medido (`test/medir-caminho-glossario.js`, bloco novo)
+
+| | antes | depois |
+|---|---:|---:|
+| portas do glossário | 1 (o botão do menu) | 2 |
+| capítulos com porta | 0 de 13 | **10 de 13** |
+| verbetes alcançáveis por uma fala | 0 | **38 distintos** (1.877 palavras de definição) |
+
+Por capítulo: PINDORAMA 8 · PALMARES 6 · O CAIS 1 · SALVADOR 7 · JABAQUARA 3 · A PEQUENA ÁFRICA
+8 · AS PORTAS 1 · O QUE NÃO PODIA SER DITO 1 · A PRAÇA 0 · O QUE SEGUROU 0 · O ACEIRO 1 ·
+O QUE TEM FONTE 0 · AINDA AQUI 5. Nos três zeros o botão **não nasce** — eles citam lei por
+número, e número não casa com termo de glossário. Botão que abre lista vazia é pior que ausência.
+
+### A regra de casamento, e por que ela é calculada e não escrita
+
+`capPalavras(i)` deriva a lista DO TEXTO a cada carga: dobra (sem acento, minúscula, pontuação
+virando espaço — a mesma função do instrumento), casa por substring com 4+ caracteres, descarta
+o termo que 4+ capítulos dizem, teto de 8 do termo mais longo para o mais curto. Lista escrita à
+mão descolaria do texto na primeira revisão de fala — e há revisão de fala acontecendo agora.
+
+Três números que a regra custou e que ficam registrados:
+
+- **Palavra inteira derruba de 42 para 39, e o que se perde é PLURAL.** "quilombos" deixaria de
+  achar QUILOMBO, "indígenas" deixaria de achar INDÍGENA. Substring fica.
+- **Cabeçalho de grupo não é verbete.** O `GLOSSARIO` tem 184 itens: **17 cabeçalhos e 167
+  verbetes**. Os cabeçalhos têm `curto` ("A FÉ", "O ESTADO", "A ESCRAVIDÃO") e é por isso que a
+  medição de 19/08 dizia 49 e a porta diz 42 — a diferença são sete cabeçalhos, que não entram
+  numa lista de verbetes.
+- **A regra dos 4+ capítulos descarta ZERO hoje.** O único candidato — "A FÉ", em 5 capítulos —
+  é cabeçalho e já saía antes. A regra fica como rede para quando o texto mudar, não como
+  conserto de hoje.
+
+### O que quase passou batido, e é a lição 2.1 de novo
+
+O `medir-telas-altura.js` media a tela de fala com a **abertura mais longa** — e o botão novo só
+existe na última linha de um **fecho**. Mediria a tela sem a coisa nova. Entraram duas linhas:
+`telaFala/fecho` (17 nós) e `telaGlossario/cap` (40 nós), as duas montadas pelo caminho da pessoa.
+
+E a peneira achou uma cegueira do próprio instrumento: com 8 verbetes a lista **para de rolar**,
+e aí os 17 nós fantasmas dos corpos FECHADOS dos verbetes (`.glF`, `.glRel`, `.glLink` — dentro
+de um `.glCorpo` de altura 0 e opacidade 0) apareciam como **corte de 234 px**. Nenhum deles é
+pintado num pixel. O filtro passou a pular quem está recortado a zero por um ancestral. **A
+primeira versão dele também pulava `opacity: 0` e zerou a contagem de nove telas** — as telas
+abrem com transição e a medição acontece no mesmo tique do `abrirTela`, quando a opacidade ainda
+é 0. Lição 2.4 vestida de filtro; só o recorte ficou.
+
+⚠ **O autoteste documentado do `medir-telas-altura.js` não morde mais**, e isso é anterior a
+este trabalho: `ENCAIXE_DEFEITO='#btnFimVoltar{position:fixed;top:-400px}'` sai com **exit 0**
+também na versão da `main`. O botão da CHEGADA tem regra própria que ganha do `position`
+injetado. A prova de que o instrumento morde passou a ser
+`ENCAIXE_DEFEITO='#falaGloss{position:fixed;top:-400px}'`, que reprova `telaFala/fecho` com
+exit 1 — está escrito no cabeçalho do arquivo.
+
+### O que NÃO foi feito, de propósito
+
+Nada de termo clicável dentro do parágrafo: o desenho do texto da fala não mudou uma vírgula. A
+porta é UM botão, depois do texto. Nenhum estado novo persiste (`glCapFiltro` e `falaGlossCap`
+são da sessão, como o resto do estado do glossário), então o `ESQUEMA_SAVE` não mudou.
+
+**Um evento novo:** `glossario_do_capitulo`, com `n` (capítulo) e `dia` — as duas propriedades
+já estavam na lista branca do `encaixe.js` bloco 17, e o corpo foi medido servindo por http
+(sob `file://` o `medir()` sai na primeira linha). Ele responde a pergunta que a porta existe
+para mudar: quantas pessoas passam a ler o glossário quando o jogo oferece as palavras.
+**O §3.2 do CLAUDE.md diz "nove eventos" e agora são dez — a frase precisa da mão do dono.**
+
+**Próximo:** os três capítulos sem porta (A PRAÇA, O QUE SEGUROU, O QUE TEM FONTE) são os que
+mais citam documento, e o glossário não tem verbete para o vocabulário deles. É trabalho de
+historiador, não de dev.

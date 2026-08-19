@@ -950,6 +950,23 @@
     background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
+  /* A PORTA DAS PALAVRAS — a tabuinha que abre o glossário nas palavras daquele capítulo.
+     MESMO MATERIAL do PULAR (madeira escura, canto de 2px, o mesmo relevo): é a mesma família
+     de botão pequeno sobre papel, e material novo aqui inventaria um terceiro vocabulário numa
+     tela que só tem dois. O que muda é o LUGAR — ela nasce no fim do texto, onde a leitura
+     parou, e não no canto de cima, que é de onde se foge.
+     `display:block` com `width:max-content` para a tabuinha ter o tamanho do rótulo e não da
+     coluna; a regra `[hidden]` existe porque `display` declarado atropela o atributo. */
+  #falaGloss { display: block; width: max-content; max-width: 100%;
+    margin: 13px 0 2px; pointer-events: auto; cursor: pointer;
+    border: 0; padding: 7px 11px; border-radius: 2px;
+    background: var(--veioPx, none), linear-gradient(180deg, #503319, #38220e);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 3px 0 rgba(0,0,0,.45); }
+  #falaGloss[hidden] { display: none; }
+  #falaGloss:active { transform: translateY(2px);
+    box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
+                inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }
   #btnFalaPular:active { transform: translateY(2px);
     box-shadow: inset 0 2px 0 #6d4b28, inset 0 -2px 0 #1e1206,
                 inset 0 0 0 2px #120c06, 0 1px 0 rgba(0,0,0,.45); }

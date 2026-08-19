@@ -68,8 +68,16 @@
 //
 // COMO SE MEDE O PRÓPRIO INSTRUMENTO: `ENCAIXE_DEFEITO="<css>"` injeta uma folha de estilo antes
 // de medir. É o autoteste — um instrumento que nunca foi visto reprovando não é instrumento, é
-// decoração. Duas rodadas sem mudança nenhuma dão diferença ZERO de texto (medido em 18/08), e
-// com `ENCAIXE_DEFEITO='#btnFimVoltar{position:fixed;top:-400px}'` ele reprova a CHEGADA.
+// decoração. Duas rodadas sem mudança nenhuma dão diferença ZERO de texto (medido em 18/08).
+//
+// ⚠ A FÓRMULA DO AUTOTESTE ENVELHECEU, e isto foi MEDIDO em 19/08, no arquivo desta versão E no
+// da `main` sem nenhuma mudança minha: `ENCAIXE_DEFEITO='#btnFimVoltar{position:fixed;top:-400px}'`
+// sai com exit 0 nos dois. O botão da CHEGADA tem regra própria que ganha do `position` injetado,
+// então o que sobra é o `top` movendo um elemento que continua rolando com a tela — e o
+// instrumento, com razão, diz "se alcança rolando". A prova de que ele MORDE é outra e está
+// verificada: `ENCAIXE_DEFEITO='#falaGloss{position:fixed;top:-400px}'` reprova `telaFala/fecho`
+// com exit 1 (158 px acima da janela, sem resgate). Trocar a fórmula documentada por uma que
+// volte a morder na CHEGADA é conserto de quem for mexer nela — está no relatório.
 const { chromium } = require('playwright');
 const path = require('path');
 const ABRIR = require('./abrir.js');
@@ -100,6 +108,13 @@ const TELAS = [
   //
   // A âncora dela é PULAR: é o único jeito de sair de uma fala sem esperar o fim.
   { id: 'telaFala', monta: 'FALA', ancora: 'btnFalaPular' },
+  // O FECHO COM A PORTA DAS PALAVRAS (19/08). A tela é a mesma, o conteúdo não: o botão
+  // `#falaGloss` só nasce na ÚLTIMA linha de um FECHO, e a abertura medida acima nunca o vê —
+  // medir só ela seria medir a tela sem a coisa nova, que é a cegueira (1) com outra roupa.
+  // Escolhe-se o pior caso pelo próprio jogo: o capítulo com porta cujo fecho é mais comprido.
+  { id: 'telaFala', rot: 'telaFala/fecho', monta: 'FALA_FECHO', ancora: 'btnFalaPular' },
+  // E O GLOSSÁRIO PENEIRADO por um capítulo, que é a tela para onde essa porta leva.
+  { id: 'telaGlossario', rot: 'telaGlossario/cap', monta: 'GLOSS_CAP', ancora: 'btnVoltarGloss' },
 ];
 const LARGURA = Number(process.argv[2] || 360);
 const H0 = Number(process.argv[3] || 560);
@@ -128,7 +143,7 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
   });
 
   const faixa = {};
-  TELAS.forEach(t => { faixa[t.id] = []; });
+  TELAS.forEach(t => { faixa[t.rot || t.id] = []; });
 
   for (let h = H0; h <= H1; h += 20) {
     await pg.setViewportSize({ width: LARGURA, height: h });
@@ -141,7 +156,38 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
         // A FALA É O CASO À PARTE: ela não se monta por nome de função, e sim por `abrirFala`
         // com argumentos. O pior caso sai do conteúdo do jogo — a abertura mais longa dos treze.
         let montaFaltando = false;
-        if (monta === 'FALA') {
+        if (monta === 'FALA_FECHO' || monta === 'GLOSS_CAP') {
+          // As duas telas novas dependem de `capPalavras`, que é quem decide se há porta.
+          if (typeof capPalavras !== 'function' || typeof EPOCAS === 'undefined') {
+            return { montaFaltando: true };
+          }
+          const comPorta = EPOCAS.map(function (e, i) { return { i: i, e: e, n: capPalavras(i).length }; })
+            .filter(function (x) { return x.n > 0; });
+          if (!comPorta.length) return { montaFaltando: true };
+          if (monta === 'FALA_FECHO') {
+            // o fecho mais comprido entre os que têm porta: mais texto na caixa E o botão
+            const pior = comPorta.slice().sort(function (a, b) {
+              return b.e.fecho.join('').length - a.e.fecho.join('').length;
+            })[0];
+            pararFala();
+            abrirFala(pior.e.nome, pior.e.quando, pior.e.fecho, null, pior.e.aberturaImg);
+            falaGlossCap = pior.i;
+            // a ÚLTIMA linha, já revelada: é a única situação em que a porta existe
+            falaI = falaLinhas.length - 1;
+            revelarFala(); terminarLinha();
+            const elF = document.getElementById(id);
+            if (elF) { elF.classList.add('aberta'); elF.setAttribute('aria-hidden', 'false'); }
+            if (document.getElementById('falaGloss').hidden) return { montaFaltando: true };
+          } else {
+            // o capítulo com MAIS palavras: a lista mais alta que a peneira consegue produzir
+            const rico = comPorta.slice().sort(function (a, b) { return b.n - a.n; })[0];
+            pararFala();
+            abrirGlossarioDoCap(rico.i);
+            if (!document.querySelectorAll('#listaGlossario .glItem').length) {
+              return { montaFaltando: true };
+            }
+          }
+        } else if (monta === 'FALA') {
           if (typeof window.abrirFala !== 'function' || typeof EPOCAS === 'undefined') {
             return { montaFaltando: true };
           }
@@ -193,9 +239,36 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
         const conteudo = f => /^(button|a|input|select|textarea|img|canvas|svg|video|picture)$/i.test(f.tagName)
           || [...f.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
 
+        // O QUE NÃO ESTÁ NA TELA NÃO PODE ESTAR CORTADO (19/08). `visibility: hidden` não era a
+        // única forma de um nó não existir para os olhos, e a segunda apareceu com a vista
+        // peneirada do glossário: o CORPO de um verbete fechado é `overflow:hidden` com altura
+        // ZERO e `opacity:0`, mas os filhos dele continuam devolvendo `getBoundingClientRect()`
+        // com a caixa que teriam se estivessem abertos. Medido: 17 nós (`.glF`, `.glRel`,
+        // `.glLink`) até 234 px abaixo da dobra, todos dentro de um `.glCorpo` de clientHeight 0
+        // e opacidade 0 — nenhum deles pintado num pixel sequer.
+        //
+        // Isto nunca reprovou antes por acaso: no glossário INTEIRO a lista sempre rola, e o
+        // rolo os resgatava. Uma lista curta faz o rolo sumir e o fantasma vira "corte".
+        // A regra não anistia nada real: um nó de conteúdo só escapa daqui se estiver dentro de
+        // um ancestral que o recorta a zero ou que é transparente — e aí ele não está na tela.
+        // SÓ O RECORTE, NUNCA A OPACIDADE — e isto custou uma rodada. A primeira versão desta
+        // regra também pulava quem estivesse sob um ancestral de `opacity: 0`, e ela zerou a
+        // contagem de NOVE telas: as telas desta casa abrem com transição (`.tela` e
+        // `#falaCaixa` nascem em opacidade 0 e sobem), e a medição acontece no MESMO tique do
+        // `abrirTela`, quando `getComputedStyle` ainda devolve 0. É a lição 2.4 do EQUIPE.md
+        // vestida de filtro. Recorte é geometria estática e não tem esse problema.
+        const foraDosOlhos = f => {
+          for (let p = f.parentElement; p && p !== el; p = p.parentElement) {
+            const cs = getComputedStyle(p);
+            if ((cs.overflowY === 'hidden' || cs.overflowX === 'hidden')
+              && (p.clientHeight === 0 || p.clientWidth === 0)) return true;
+          }
+          return false;
+        };
         const todos = [...el.querySelectorAll('*')].filter(f => {
           const b = f.getBoundingClientRect();
-          return b.width > 0 && b.height > 0 && getComputedStyle(f).visibility !== 'hidden';
+          return b.width > 0 && b.height > 0 && getComputedStyle(f).visibility !== 'hidden'
+            && !foraDosOlhos(f);
         });
         const cortes = [], sangrias = [], lados = [];
         todos.forEach(f => {
@@ -264,7 +337,7 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
           rolaCorpo: document.body.scrollWidth > L + TOL,
         };
       }, [tela.id, tela.monta, tela.ancora, TOL]);
-      if (r) faixa[tela.id].push({ h, ...r });
+      if (r) faixa[tela.rot || tela.id].push({ h, ...r });
     }
   }
 
@@ -277,7 +350,7 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
   };
   let reprovas = 0;
   for (const tela of TELAS) {
-    const t = tela.id;
+    const t = tela.rot || tela.id;
     const linhas = faixa[t];
     const n = linhas.length;
     const comCorte = linhas.filter(x => x.cortes.length);
@@ -336,7 +409,7 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
         ': ' + w.n + ' ' + Math.max(w.acima, w.abaixo) + ' px');
     }
     if (corpo.length) { parte.push('CORPO ROLA em ' + corpo.length); reprovas++; }
-    console.log(t.padEnd(15) + ' · ' + parte.join(' · '));
+    console.log(t.padEnd(18) + ' · ' + parte.join(' · '));
   }
   console.log('\nerros de console: ' + (erros.length ? erros[0] : '(nenhum)'));
   console.log(reprovas ? '\nFALHOU: ' + reprovas + ' problema(s) de encaixe' : '\nPASSOU');
