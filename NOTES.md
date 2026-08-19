@@ -7588,3 +7588,51 @@ engolido.
 **Próximo:** a economia depois do capítulo 5 é decisão de produto e vai para a mesa do dono —
 está no `PENDENTES 34`. Não mexo em economia sem ele, e a régua do `CLAUDE.md` exige medição
 antes/depois, que agora existe.
+
+---
+
+## 19/08, noite — E QUANTO TEMPO DE LEITURA O JOGO TEM
+
+Segunda metade da mesma pergunta. O `medir-arco.js` disse na própria cabeça que não media a
+leitura, e o que ele mediu — 8 a 10 minutos de jogo — elimina a curva de custo como resposta dos
+três dias. **Sobra a leitura**, e por isso ela deixou de ser "o texto do jogo" e virou coisa
+medível. Instrumento: `test/medir-leitura.js`.
+
+A régua é 180 a 220 palavras/min, faixa comum de leitura silenciosa de adulto. **É suposição de
+instrumento, está escrita como tal, e não entra em tela nenhuma.** O que o instrumento afirma de
+verdade é a contagem de palavras, que é exata.
+
+| superfície | palavras | leitura |
+|---|---:|---|
+| **OBRIGATÓRIO** — abre sozinho | | |
+| abertura dos 13 capítulos | 2.052 | |
+| fecho dos 13 capítulos | 2.072 | |
+| a linha do QUERER | 218 | |
+| **soma** | **4.342** | **20 a 24 min** |
+| **SÓ PARA QUEM ABRE A TELA** | | |
+| A HISTÓRIA (53 nós, **47 com fonte**) | 2.239 | 10 a 12 min |
+| o glossário (184 verbetes) | **17.918** | 81 a 100 min |
+| DE ONDE VEM (71 fontes) | 3.344 | 15 a 19 min |
+| **o jogo inteiro, lendo tudo** | **27.843** | **127 a 155 min** |
+
+Mais **18 placas** fincadas na estrada (o instrumento conta 18 pelo teto; a contagem de 17 do
+diário anterior era a lista realizada — a diferença é uma placa que o teto permite e a lista
+ainda não usa).
+
+### As três coisas que estes números dizem
+
+**1. A primeira travessia inteira dá meia hora.** 8 a 10 minutos de jogo mais 20 a 24 de leitura
+obrigatória. Não é um jogo de três dias: é uma sessão de trinta minutos. Isso não é fracasso —
+é o tamanho real do que existe hoje, e é a primeira vez que ele tem número.
+
+**2. Dois terços de tudo o que foi escrito estão na superfície menos visível.** O glossário
+sozinho é **17.918 das 27.843 palavras — 64%** — e é a única tela que ninguém precisa abrir para
+terminar o jogo. A perna **ensina** da tese está quase toda guardada atrás de um toque opcional.
+Escrever mais glossário aumenta o acervo e não aumenta o que a pessoa lê.
+
+**3. Os capítulos são desiguais em texto e isso não foi decidido.** O QUE NÃO PODIA SER DITO tem
+425 palavras; AINDA AQUI tem 208 — metade. AINDA AQUI é o capítulo do presente, o último, o que
+devia fechar a travessia, e é o mais curto do jogo. PALMARES, 238, é o segundo mais curto.
+
+**Próximo:** a (2) é a mais barata de agir e a mais valiosa — não custa texto novo, custa dar
+caminho ao texto que já existe. Vai para a mesa do próximo `check`.
