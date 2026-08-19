@@ -1047,3 +1047,20 @@ pedir que um rosto represente dois povos?
 tempo que ele leva"* não diz o tempo, e o verbete TUMBEIRO diz — *"de trinta a cinquenta dias"*
 (Jaime Rodrigues, *De costa a costa*, 2005 · SlaveVoyages). Boa parte daquele roteiro é do dono
 palavra por palavra e o §2.4 é dele, então nem isto se propõe sozinho.
+
+## 38 · 55 worktrees de agente parados na árvore, e apagar em massa é irreversível
+
+**19/08.** `git worktree list` devolve **56 entradas**. Sete estavam limpos e saíram; os cinco
+desta sessão foram integrados e removidos. Sobram **55 com alteração não commitada**.
+
+**Quase todos são falso positivo, e a razão é boba:** o que os marca como sujos é `M index.html`,
+que é **saída de build** — qualquer agente que tenha rodado `npm test` sujou o arquivo sem ter
+escrito nada. O sinal de verdade seria `M src/…` com conteúdo que não está na `main`.
+
+Não apaguei porque separar os dois exige abrir um a um, e `git worktree remove --force`
+descarta trabalho sem volta. É disco e velocidade de `git`, não correção — mas cresce sozinho:
+são cinco novos por sessão de equipe.
+
+**O conserto certo não é uma faxina, é uma regra:** o agente que entrega deve terminar com a
+árvore dele limpa (commit no ramo do worktree, ou nada), e aí `remove` fica seguro por
+construção. Vai para o `EQUIPE.md` quando alguém confirmar que não há trabalho preso ali.

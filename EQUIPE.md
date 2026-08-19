@@ -140,11 +140,33 @@ Toda rodada de agente termina com uma linha aqui. Não é cerimônia: foi o núm
 |---|---:|---:|---:|---:|---:|---|
 | 18/08 | 4 | 18 | 13 | 3 | 1 | primeiro dia com a licença. Dos 3 desmentidos, **2 eram meus erros ao desmentir** — mesma causa única, `abrirTela` sem montar |
 | 19/08 | 4 | 12 | 10 | 0 | 5 | historiadora achou 3 lugares onde o jogo já sabia mais do que falava; pipeline mediu 18,75% → 0,88% e parou no §2 por conta própria |
+| 19/08 noite | 5 | 33 | 10 integrados | 6 | 3 | a rodada em que o QA valeu mais que o achado — ver abaixo |
 
 **Como ler:** "desmentido" alto e "reais" baixo significa que os prompts estão pedindo palpite em
 vez de medição. "Do dono" alto é bom — significa que a equipe está reconhecendo o limite do §2 em
 vez de atravessá-lo.
 
-**O que a linha de 19/08 ensina:** os dois melhores relatórios do dia foram os que **pararam
+**O que a linha de 19/08 à noite ensina, e é a mais densa até hoje:**
+
+- **O QA achou uma SUPERFÍCIE que a historiadora não sabia que existia.** Ela comparou fala
+  contra glossário e linha do tempo; o QA descobriu que a **placa da estrada chama
+  `abrirFala()` com o texto inteiro do nó**, sozinha, no meio do capítulo. Quatro dos quinze
+  achados morreram aí. Achado bom morre por uma superfície esquecida, não por má leitura.
+- **Três achados confirmados tinham ARMADILHA e só o QA viu.** A revisão do voto de 1932
+  deixaria a fala mais grossa que o glossário (recriando o defeito ao contrário); a de AS
+  PORTAS quebraria a conta "setenta e dois depois da CLT"; a de A PRAÇA põe 1989 antes de uma
+  emenda de 1985. Confirmar não é aprovar.
+- **Um agente refutou a própria hipótese por controle.** O QA do portão de privacidade achou
+  que o conserto dele tinha mexido no bloco 28; rodou o arquivo ORIGINAL com 12 s de espera e
+  reproduziu o desvio. Causa: tempo de relógio. Isso vale mais que qualquer achado do dia.
+- **Fonte que falha num servidor não é fonte inexistente.** O relatório da CNV estava
+  recusado há doze dias por certificado inválido; o Arquivo Nacional hospeda os mesmos PDFs
+  em `gov.br` e eles abrem inteiros. **Procure quem mais hospeda antes de escrever que não
+  deu para ler** — há pelo menos mais dois itens recusados pelo mesmo motivo no `NOTES.md`.
+- **Dois portões eram decoração e foram pegos no mesmo dia** (lição 2.8 outra vez): o bloco 17
+  do `encaixe.js` conferia só `pedidos[0]`, e o autoteste do `medir-telas-altura.js` saía
+  exit 0 com o defeito documentado. **Leia a promessa escrita no portão e tente falsificá-la.**
+
+**O que a linha de 19/08 (dia) ensina:** os dois melhores relatórios do dia foram os que **pararam
 sozinhos** — a historiadora listou 5 perguntas que não resolveu, e o pipeline aprovou o técnico e
 recusou o §2 na mesma página. Agente que sabe onde parar vale mais que agente que decide tudo.
