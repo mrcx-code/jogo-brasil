@@ -1880,6 +1880,11 @@ const EPOCAS = [
     emObra: false, arteCap: 0,
     cenas: 2, lugar: "litoral", arte: [0, 1],
     abertura: [
+      // A PRIMEIRA FRASE MEDIA O TEMPO PELO NAVIO EUROPEU (19/08), num capitulo cujo comentario
+      // diz que ele "deixa de se definir pela chegada dos outros". Nada novo e afirmado: a
+      // LINHA_TEMPO ja diz "ha mais de onze mil anos" e "por milhares de anos". A ancora de tempo
+      // nao se perde -- `abrirFala` imprime o `quando` acima da fala --, e a chegada dos navios
+      // continua dita no fecho, que e onde ela pertence.
       "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
       "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
       "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
@@ -1902,11 +1907,27 @@ const EPOCAS = [
     // o texto final é do dono, palavra por palavra.
     fecho: [
       "Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra que já tinha dono.",
-      "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa mandava escravizar. Chamavam isso de guerra justa.",
+      // "MANDAVA" VIRA "DEIXAVA" (19/08), e a palavra e a licao: a lei de 1570 nao mandava
+      // escravizar -- ela declarou livres os povos daqui e ABRIU a excecao. Chamar a excecao de
+      // regra apaga o mecanismo, que e justamente o que o capitulo quer mostrar.
+      // Fica na versao minima de uma palavra: a versao completa citaria a lei de 20/03/1570 por
+      // extenso, e o PDF da copia digitalizada nao abriu para transcricao literal.
+      "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa deixava escravizar. Chamavam isso de guerra justa.",
       "O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E não foi acidente da natureza: a doença correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou.",
-      "Em poucas gerações esta costa deixou de ser deles. Foram mortos, escravizados, reunidos à força em aldeamentos e empurrados para o interior. Não sumiram. Foram expulsos.",
+      // PASSIVA SEM AGENTE, e aqui ela derruba a propria frase (19/08): o par "Nao sumiram / Foram
+      // expulsos" so funciona se houver QUEM expulsa, e a linha inteira estava sem sujeito.
+      // Fontes: Monteiro, Negros da terra (1994), e Maria Regina Celestino de Almeida,
+      // Metamorfoses indigenas (2003) -- as duas ja sao a fonte desta fala no NOTES.md.
+      // "quase sempre a forca" respeita Almeida, que mostra o aldeamento tambem como espaco de
+      // negociacao e reinvencao: dizer so "a forca" seria mais forte e menos verdadeiro.
+      "Em poucas gerações a invasão tomou esta costa. Colonos, tropas e missões mataram, escravizaram, juntaram gente em aldeamentos quase sempre à força e empurraram os que restaram para o interior. Eles não sumiram: foram expulsos.",
       "Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capítulo.",
-      "E a terra tomada precisava de braços. Ao longo de mais de três séculos, milhões de pessoas foram traficadas da África para trabalhar nela. A escravidão não aconteceu: foi montada, e dava lucro. Algumas fugiram. E o que elas construíram tem nome."
+      // "BRACOS" E A PALAVRA DOS TRAFICANTES (19/08) -- "bracos para a lavoura" -- e reduz gente a
+      // parte de corpo. Era a unica linha do jogo que usava a palavra do lado de la sem marcar
+      // que era dele, e o §2.4 pede dignidade e proibe massa anonima. "Arrancou" e o verbo que o
+      // NOTES.md manda usar no lugar de "trazidas", e ele poe sujeito no trafico.
+      // Fonte: Schwartz, Segredos internos (1988), ja a fonte do no "O acucar"; SlaveVoyages.
+      "E a terra tomada virou engenho de açúcar. Ao longo de mais de três séculos, o tráfico arrancou da África milhões de pessoas para trabalhar nela. A escravidão não aconteceu: foi montada, e dava lucro. Algumas fugiram. E o que elas construíram tem nome."
     ]
   },
   {
@@ -1930,7 +1951,14 @@ const EPOCAS = [
     // que é a frase que desmonta a ideia de esconderijo, e é isso que a imagem mostra.
     aberturaImg: ["cap2-serra", "cap2-serra", "cap2-roca", null, null],
     fecho: [
-      "Em 1694 as tropas da Coroa destruíram Palmares. Em 20 de novembro de 1695 mataram Zumbi — a data é hoje o Dia da Consciência Negra.",
+      // A DATA TEM AUTOR, E A FALA APAGAVA (19/08). Ela dizia "a data é hoje o Dia da Consciência
+      // Negra" — a data simplesmente ERA, sem quem a fez. O verbete do próprio jogo diz o
+      // contrário, com todas as letras: proposta por militantes do Grupo Palmares em Porto
+      // Alegre no início dos anos 1970, assumida pelo MNU em 1978, e "veio do movimento negro,
+      // não do Estado". A fala apagava exatamente a autoria negra que o glossário credita duas
+      // telas adiante — num capítulo que existe para dizer que quem agiu foi quem estava lá.
+      // Nenhuma afirmação nova entra: as duas leis já estão no verbete e em DE ONDE VEM.
+      "Em 1694 as tropas da Coroa destruíram Palmares. Em 20 de novembro de 1695 mataram Zumbi. O movimento negro escolheu essa data — e não o 13 de maio — para marcar a Consciência Negra: virou data nacional em 2011 e feriado em 2023.",
       "Quase tudo que se sabe sobre a forma daquele lugar vem dos documentos de quem foi atacá-lo. Até os nomes chegaram tortos: a pesquisa recente lê \"Gana Zumba\" onde os livros escreviam \"Ganga Zumba\".",
       "A serra da Barriga é patrimônio tombado hoje. Levou quase três séculos.",
       "E os povos do primeiro capítulo? Continuam aqui."
@@ -2053,8 +2081,20 @@ const EPOCAS = [
     cenas: 1, lugar: "salvador", arte: [4],
     abertura: [
       "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
-      "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, com o próprio ganho na mão.",
-      "Pela mesma rua corre outra coisa além de mercadoria: recado. Muitos africanos daqui são muçulmanos — os malês — e se reúnem à noite para ensinar uns aos outros a ler e a escrever.",
+      // "COM O PRÓPRIO GANHO NA MÃO" APAGAVA A ALFORRIA COMPRADA (19/08), e era a menos precisa
+      // das três vezes em que o jogo diz isto. O nó da LINHA_TEMPO já afirma, com fonte:
+      // "entregando parte do ganho e guardando o resto. Foi com esse resto que muitas compraram
+      // a própria alforria". A fala dava a entender que ficavam com tudo — e sumia justamente
+      // com a parte que tem agência, que é a compra da própria liberdade.
+      // Fonte: Cecília Moreira Soares, "As ganhadeiras", Afro-Ásia nº 17, 1996 (UFBA) — a mesma
+      // que o fecho do capítulo já credita, e é dela a virada que tira as ganhadeiras da margem.
+      "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, entregando o ganho do dia e guardando o resto, que foi como muitas compraram a própria alforria.",
+      // "EM ARABE" ESTAVA NO GLOSSARIO E NAO NA FALA (19/08). O verbete MALE do proprio jogo diz
+      // "Liam e escreviam em arabe", e a trava escrita neste capitulo diz que o jogo DIZ isso --
+      // o que ela proibe e a escrita virar item, imagem ou drop. Sem "em arabe" a frase perde o
+      // fato que desmonta a ideia de que quem carregava fardo nao sabia ler, e e essa ideia que
+      // o fecho vem derrubar tres telas depois. Fonte: Reis, 2003, ja creditado no capitulo.
+      "Pela mesma rua corre outra coisa além de mercadoria: recado. Muitos africanos daqui são muçulmanos — os malês — e se reúnem à noite para ensinar uns aos outros a ler e a escrever em árabe.",
       "Estamos na véspera. Aqui, alcançar é levar palavra: quem você alcança passa a saber o que precisa saber.",
       "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua. No chão ficam acarajé, pano da costa e búzios, e são os mesmos três contadores de sempre."
     ],
@@ -2064,7 +2104,10 @@ const EPOCAS = [
     aberturaImg: ["cap4-porto", "cap4-porto", "cap4-patio", null, null],
     fecho: [
       "Na madrugada de 24 para 25 de janeiro de 1835, centenas de africanos saíram armados às ruas de Salvador. O plano tinha sido denunciado na véspera, e eles enfrentaram a tropa antes de amanhecer.",
-      "Perderam aquela noite. Vieram julgamentos em massa, açoites, prisão, degredo, execução — e leis novas, feitas para vigiar quem era africano na Bahia.",
+      // PASSIVA SEM AGENTE (19/08): "vieram julgamentos" faz a represalia acontecer sozinha. Quem
+      // julgou, acoitou, degredou e legislou foi o governo da provincia. E o padrao que o proprio
+      // projeto proibiu em 07/08 -- violencia com sujeito. Fonte: Reis, 2003, ja creditado.
+      "Perderam aquela noite. O governo da província respondeu com julgamentos em massa, açoites, prisão, degredo e execução — e com leis novas, escritas para vigiar quem era africano na Bahia.",
       "Mas o levante foi lido no império inteiro, e o que ele disse não teve como ser desdito: quem carregava os fardos da cidade sabia ler, sabia se organizar e sabia esperar a hora.",
       "Quem reconstruiu esta noite documento por documento foi João José Reis. Quem tirou as ganhadeiras da margem da história foi Cecília Moreira Soares. A tela DE ONDE VEM traz as duas."
     ]
@@ -2441,7 +2484,12 @@ const EPOCAS = [
     abertura: [
       "Este é o presente. A mesma costa, cinco séculos depois — e continuar aqui deu trabalho.",
       "O Censo de 2022 contou 1,69 milhão de indígenas no Brasil, de 391 etnias, falando 295 línguas. Não é passado nenhum.",
-      "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria de demarcação da terra deles assinada em 2025 — depois de um processo que ficou parado por mais de uma década.",
+      // A PORTARIA E O PENULTIMO PASSO, NAO A DEMARCACAO (19/08). A Portaria do Ministro nº
+      // 1.075/2025 (MJSP, DOU de 18/11/2025) DECLARA a posse permanente e manda a Funai promover
+      // a demarcacao administrativa para posterior homologacao -- art. 2º. Dizer "portaria de
+      // demarcacao" dava o processo por encerrado quando ele nao esta, e o glossario DEMARCACAO
+      // do proprio jogo ensina o rito que esta fala atropelava.
+      "Os Tupinambá de Olivença, no sul da Bahia, tiveram a portaria declaratória da terra deles assinada em 2025 — o penúltimo passo, depois de um processo que ficou parado por mais de uma década.",
       "O trabalho aqui é o mesmo do primeiro capítulo. Colher, plantar, cuidar. Não é coincidência.",
       "Pela estrada vem muda de plantar, galão de água e cesto de legumes — as mesmas três coisas do começo, com a cara de agora."
     ],

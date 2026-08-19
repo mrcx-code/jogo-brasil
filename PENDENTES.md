@@ -900,3 +900,32 @@ mudou; uma saída dispara UM evento), as 17 placas (bits únicos, nenhuma fora d
 inalcançável, folga mínima de 750 de impacto), e o save hostil contra 17 ataques novos que eu não
 tinha escrito — `arco` fora de faixa, `marcosN` mentiroso, `obraVista` maior que `obra`, recursos
 fracionários, `\u0000` no `modo`, `acolhidos` como objeto com `length`. Nenhum vazou.
+
+## 32 · A primeira linha de PINDORAMA: a revisão está pronta e o teste reprova
+
+**19/08.** A historiadora propôs, e eu concordo com a razão: a primeira frase do jogo mede o tempo
+pelo navio europeu — *"Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente
+aqui"* — num capítulo cujo próprio comentário diz que ele *"deixa de se definir pela chegada dos
+outros"*. O texto novo, pronto e sem afirmação nova (a `LINHA_TEMPO` já diz "há mais de onze mil
+anos"): **"Este lugar é o litoral atlântico, e faz milhares de anos que tem gente vivendo nele."**
+
+**Aplicada, o bloco 9 do `encaixe.js` reprova**, e o número é limpo: a abertura do capítulo, que
+deve **esperar o dedo**, avança para a linha 1 em 9 s. Sem a mudança, fica na 0. **A regressão é
+da mudança** — medido com `git stash`, os dois sentidos.
+
+**O que eu NÃO descobri em duas tentativas:** por quê. O avanço automático só roda com
+`travessiaViva` (`src/jogo.ts` ~10534), e a suspeita óbvia era vazamento do bloco da travessia,
+que roda logo antes no `encaixe`. **Não reproduz isoladamente**: numa sonda que abre a travessia,
+fecha, e abre a abertura, `travessiaViva` volta `false` e a linha fica em 0 nos dois casos.
+
+**A hipótese que sobra, e é a mais interessante:** o texto antigo tem 115 caracteres e o novo 84.
+Se algo avança a fala e o prazo depende do comprimento, o texto longo **escondia** o defeito e o
+curto o revelou. Nesse caso a asserção está certa e o defeito é anterior — a mensagem dela diz
+exatamente isso: *"o automático vazou da travessia"*. Vale checar antes de culpar a frase.
+
+**As outras seis revisões da mesma rodada entraram** e os quatro portões ficaram verdes com elas
+— só esta ficou de fora.
+
+**Como retomar:** instrumentar `avancarFala` para registrar QUEM o chamou (pilha ou uma marca por
+chamador) e rodar o `encaixe` até o bloco 9. Se for vazamento, o conserto é no motor e a frase
+entra junto. Se for a frase, a saída é outra redação com o mesmo sentido e mais corpo.
