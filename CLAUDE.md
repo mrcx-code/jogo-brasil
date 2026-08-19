@@ -481,6 +481,28 @@ fôlego ele deu licença de arquitetura: *"fique à vontade para mexer na estrut
 algo da forma que está planejado."* Plano é ferramenta, não compromisso: se a estrutura
 atual não serve às três pernas, mude a estrutura e escreva por quê.
 
+**O ALVO CRESCEU, dito por ele em 2026-08-19, e ele governa a tese acima em vez de substituí-la:**
+*"precisamos evoluir o jogo como um todo — para evoluir para uma plataforma de conhecimento do
+Brasil; futuramente teremos evolução ano a ano."*
+
+Isto muda o que conta como PRONTO, e em três lugares concretos:
+
+1. **Deixa de ser um jogo com treze capítulos e passa a ser um acervo que cresce.** A pergunta
+   de três dias continua sendo o termômetro do laço, mas a de longo prazo passa a ser outra:
+   *alguém volta no ano que vem porque tem coisa nova?* Medido em 19/08, o arco inteiro leva
+   **8 a 10 minutos de jogo** e a leitura obrigatória **20 a 24** — meia hora ao todo. Um acervo
+   de meia hora não é plataforma; é uma boa demonstração de uma.
+2. **"Evolução ano a ano" é requisito técnico, não intenção.** Conteúdo que envelhece precisa
+   de data e de manutenção previsível — O ACEIRO já carrega número do PRODES que muda todo
+   outubro. Cada coisa que o jogo afirma passa a precisar responder *"quando isto vence?"*.
+3. **Escala vira problema de arquitetura, e é o argumento mais forte da migração.** Um acervo
+   que cresce ano a ano não cabe num `src/jogo.ts` de 15 mil linhas com a arte em base64. A
+   migração combinada em 05/08 deixa de ser preferência técnica e passa a ser o caminho do alvo.
+
+**O que isto NÃO revoga:** o §2 inteiro. Plataforma de conhecimento sobre o Brasil aumenta a
+responsabilidade de representação em vez de diminuí-la — mais assunto, mais gente real, mais
+chance de errar. Na dúvida, continua parando e perguntando.
+
 **Mandato de evolução, decidido pelo dono em 2026-08-07:** a evolução visual e de produto
 é **delegada e autônoma** — existe um papel de DIREÇÃO DE EVOLUÇÃO (agente dedicado) que
 pensa só nisso e CONDUZ, sem esperar o dono ("vou ajustando mas não quero que vc me
