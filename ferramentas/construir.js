@@ -351,6 +351,30 @@ fs.mkdirSync(p('dist'), { recursive: true });
 fs.writeFileSync(p('dist', 'index.html'), saida);
 if (fs.existsSync(p('compartilhar.jpg'))) fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
 
+// A MESA, publicada num endereço que abre SEM LOGIN. Ela nasceu como artifact privado, e o
+// dono não conseguia escanear o QR dela no celular porque a página pedia login (19/08). Decisão
+// dele: publicar no próprio domínio. Vai para `dist/mesa/` porque é `dist/` que a Vercel serve
+// (ver vercel.json) — uma pasta solta na raiz não seria publicada, e o sintoma seria um 404 só
+// descoberto depois do push.
+//
+// DUAS TRAVAS, e as duas de propósito: a página carrega `noindex` no <head> E o `robots.txt`
+// repete a instrução para o domínio. Um dos dois sozinho já falhou em muito site — e isto é
+// material interno de trabalho servido em endereço público só pela conveniência do QR.
+//
+// A mesa NÃO passa pelas cobranças do arquivo único: ela não é o jogo, não carrega chave, não
+// fala com a rede e não entra no APK. O que ela tem de externo são as fontes do Google, que o
+// jogo não pode ter e ela pode, porque a CSP do jogo vale só para o <head> do jogo.
+if (fs.existsSync(p('mesa'))) {
+  fs.mkdirSync(p('dist', 'mesa'), { recursive: true });
+  let nMesa = 0;
+  for (const f of fs.readdirSync(p('mesa'))) {
+    fs.copyFileSync(p('mesa', f), p('dist', 'mesa', f));
+    nMesa++;
+  }
+  fs.writeFileSync(p('dist', 'robots.txt'), ['User-agent: *', 'Disallow: /mesa', ''].join('\n'));
+  console.log('  mesa/ copiada para dist/mesa/ — ' + nMesa + ' arquivo(s), mais o robots.txt');
+}
+
 // OS PACOTES DE ARTE, nos dois lugares em que o index.html também está — e pelo mesmo motivo
 // de sempre: a Vercel publica `dist/` (ver vercel.json) e o Capacitor empacota `dist/` inteiro
 // para dentro do APK, enquanto a RAIZ é o que o `npm start` serve, o que o smoke test abre e o
