@@ -41,3 +41,4 @@ test/CAPA*.png
 # sondas descartaveis de agentes e sessoes — nunca entram no historico
 test/tmp-*
 test/TMP*
+glossario/
