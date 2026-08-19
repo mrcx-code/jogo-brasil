@@ -873,26 +873,6 @@ inventa nada — copiar `q`/`t`/`d`/`f` de `MOMENTOS` para os nós, ou dar `cena
 **18/08.** Um QA independente tentou derrubar os nove consertos do dia. Derrubou **cinco**. Um
 já foi consertado (o `salvoEm`, abaixo). Ficam quatro, e o mais grave nem estava na lista.
 
-### Girar o aparelho desfaz os dois consertos de rótulo de hoje
-
-Nenhum rótulo em canvas é repintado no `resize`. Medido:
-
-| | aberto já na tela estreita | aberto a 390 e girado |
-|---|---|---|
-| título da CHEGADA a 320 | arrasto 0 | **arrasto 32 px** |
-| título da CHEGADA a 280 | — | **arrasto 52 px**, e o canvas sai pela esquerda |
-| nome do capítulo a 320 | 2 linhas, cabe | **1 linha de 290 num papel de 272** |
-| nome do capítulo a 280 | — | **58 px para fora** |
-
-O conserto é um `resize` que repinte `#fimTit` e o `#falaTit`. **Nenhum instrumento do repositório
-gira o aparelho com uma tela já aberta** — é o caminho que ninguém percorre.
-
-### `escalaQueCabe` pode devolver 1, e ninguém cobra piso
-
-A 280 px, "DE NOVO ATÉ AQUI" cai para escala **1** (canvas de 97 px, letra de 11 px de altura)
-enquanto "ATÉ AQUI" fica em 3 na mesma tela — **três vezes de diferença de corpo** entre a
-primeira e a segunda chegada. É o mesmo "meia letra" que eu recusei hoje para a caixa de fala.
-
 ### `medir-telas-altura.js` tem asserção vazia em 3 de 8 telas
 
 O filtro `!podeRolar` descarta toda reprovação de tela que rola — e `telaMenu`, `telaFim` e

@@ -9049,14 +9049,7 @@ function pintarFalaTit(titulo) {
         - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
     const cabeTit = Math.floor(dispTit / 12);
     if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
-        const meioT = Math.floor(titulo.length / 2);
-        let corteT = -1;
-        for (let k = 0; k < titulo.length; k++) {
-            if (titulo.charAt(k) !== " ")
-                continue;
-            if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT))
-                corteT = k;
-        }
+        const corteT = cortarNoMeio(titulo);
         elTit.textContent = "";
         elTit.dataset.px = "";
         elTit.setAttribute("aria-label", titulo);
@@ -11741,6 +11734,17 @@ function montarConfere() {
         cx.appendChild(item);
     });
 }
+function cortarNoMeio(txt) {
+    const meio = Math.floor(txt.length / 2);
+    let corte = -1;
+    for (let k = 0; k < txt.length; k++) {
+        if (txt.charAt(k) !== " ")
+            continue;
+        if (corte < 0 || Math.abs(k - meio) < Math.abs(corte - meio))
+            corte = k;
+    }
+    return corte;
+}
 function pintarFimTit() {
     const el = $("fimTit");
     if (!el)
@@ -11750,7 +11754,24 @@ function pintarFimTit() {
     const dispFim = $("telaFim").clientWidth
         - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
         - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
-    pixelRotulo(el, fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+    const esc = escalaQueCabe(fimT, 3, dispFim);
+    if (esc < 2 && fimT.indexOf(" ") > 0) {
+        const corte = cortarNoMeio(fimT);
+        el.textContent = "";
+        el.dataset.px = "";
+        el.setAttribute("aria-label", fimT);
+        const l1 = document.createElement("div"), l2 = document.createElement("div");
+        el.appendChild(l1);
+        el.appendChild(l2);
+        pixelRotulo(l1, fimT.slice(0, corte), 2, "#ffd98a");
+        pixelRotulo(l2, fimT.slice(corte + 1), 2, "#ffd98a");
+        return;
+    }
+    if (el.firstElementChild) {
+        el.textContent = "";
+        el.dataset.px = "";
+    }
+    pixelRotulo(el, fimT, esc, "#ffd98a");
 }
 function montarFim() {
     montarConfere();

@@ -10326,13 +10326,7 @@ function pintarFalaTit(titulo: string) {
     - parseFloat(csCx.paddingLeft) - parseFloat(csCx.paddingRight);
   const cabeTit = Math.floor(dispTit / 12);      // 6 px por glifo × escala 2
   if (dispTit > 0 && titulo.length > cabeTit && titulo.indexOf(" ") > 0) {
-    // corta no espaço MAIS PRÓXIMO DO MEIO, para as duas linhas ficarem parecidas
-    const meioT = Math.floor(titulo.length / 2);
-    let corteT = -1;
-    for (let k = 0; k < titulo.length; k++) {
-      if (titulo.charAt(k) !== " ") continue;
-      if (corteT < 0 || Math.abs(k - meioT) < Math.abs(corteT - meioT)) corteT = k;
-    }
+    const corteT = cortarNoMeio(titulo);
     elTit.textContent = ""; elTit.dataset.px = "";
     elTit.setAttribute("aria-label", titulo);    // o nome inteiro segue legível por leitor de tela
     const t1 = document.createElement("div"), t2 = document.createElement("div");
@@ -14190,6 +14184,17 @@ function montarConfere() {
 //
 // A largura vem do PAI e não do próprio rótulo: `#fimTit` é item de flex centrado, com largura
 // de conteúdo, e medi-lo devolve o tamanho dele mesmo. Ver o comentário do `resize`, no fim.
+// O ESPAÇO MAIS PRÓXIMO DO MEIO — para as duas linhas ficarem parecidas. Usado pelo título da
+// caixa de fala e pelo da CHEGADA, que chegaram à mesma solução por caminhos diferentes.
+function cortarNoMeio(txt: string) {
+  const meio = Math.floor(txt.length / 2);
+  let corte = -1;
+  for (let k = 0; k < txt.length; k++) {
+    if (txt.charAt(k) !== " ") continue;
+    if (corte < 0 || Math.abs(k - meio) < Math.abs(corte - meio)) corte = k;
+  }
+  return corte;
+}
 function pintarFimTit() {
   const el = $("fimTit");
   if (!el) return;
@@ -14198,7 +14203,33 @@ function pintarFimTit() {
   const dispFim = $("telaFim").clientWidth
     - parseFloat(csFim.paddingLeft) - parseFloat(csFim.paddingRight)
     - parseFloat(csFimTit.paddingLeft) - parseFloat(csFimTit.paddingRight);
-  pixelRotulo(el, fimT, escalaQueCabe(fimT, 3, dispFim), "#ffd98a");
+  const esc = escalaQueCabe(fimT, 3, dispFim);
+  // ESCALA 1 NÃO É RESPOSTA, E O PISO SOZINHO TAMBÉM NÃO (18/08). `escalaQueCabe` tem
+  // `Math.max(1, …)` e ninguém cobrava piso: a 280 px "DE NOVO ATÉ AQUI" caía para escala 1 —
+  // canvas de 97 px, letra de 11 px de altura — enquanto "ATÉ AQUI", da primeira chegada, ficava
+  // em 3 na mesma tela. Três vezes de diferença de corpo entre a primeira e a segunda visita.
+  //
+  // Mas um piso de 2 seco estoura: medido, escala 2 pede 194 px e só há 188 a 280 e 168 a 260.
+  // A resposta é a que este arquivo já deu duas vezes — na cerimônia em 14/08 e na caixa de fala
+  // hoje de manhã: QUEBRA EM DUAS LINHAS, e a letra não encolhe. "DE NOVO" (86 px) e "ATÉ AQUI"
+  // (98 px) cabem folgados nos 168 do pior caso.
+  //
+  // "ATÉ AQUI" sozinho nunca entra aqui: a 260 px ele ainda dá escala 3, então a primeira
+  // chegada não muda em tela nenhuma.
+  if (esc < 2 && fimT.indexOf(" ") > 0) {
+    const corte = cortarNoMeio(fimT);
+    el.textContent = ""; el.dataset.px = "";
+    el.setAttribute("aria-label", fimT);
+    const l1 = document.createElement("div"), l2 = document.createElement("div");
+    el.appendChild(l1); el.appendChild(l2);
+    pixelRotulo(l1, fimT.slice(0, corte), 2, "#ffd98a");
+    pixelRotulo(l2, fimT.slice(corte + 1), 2, "#ffd98a");
+    return;
+  }
+  // Volta de duas linhas para uma: limpa os filhos E a chave de cache juntos, pelo mesmo motivo
+  // escrito em `pintarFalaTit` — limpar só um faz o rótulo sumir e nunca mais voltar.
+  if (el.firstElementChild) { el.textContent = ""; el.dataset.px = ""; }
+  pixelRotulo(el, fimT, esc, "#ffd98a");
 }
 function montarFim() {
   montarConfere();
