@@ -7636,3 +7636,41 @@ devia fechar a travessia, e é o mais curto do jogo. PALMARES, 238, é o segundo
 
 **Próximo:** a (2) é a mais barata de agir e a mais valiosa — não custa texto novo, custa dar
 caminho ao texto que já existe. Vai para a mesa do próximo `check`.
+
+---
+
+## 19/08, noite — O GLOSSÁRIO TEM UMA PORTA SÓ, e nada no jogo aponta para ela
+
+Continuação direta do achado anterior. Se 64% do texto está no glossário, a pergunta seguinte não
+é "escrever mais?" — é **quantas portas ele tem**. Instrumento: `test/medir-caminho-glossario.js`.
+
+**A busca no código responde antes da medição: a porta é uma.** O botão GLOSSÁRIO do menu, em
+`src/jogo.ts` linha 11769, é o único lugar do arquivo inteiro que chama `abrirTela("telaGlossario")`.
+Nenhuma fala, nenhuma placa, nenhum momento da linha do tempo leva a um verbete. O
+`GLOSSARIO_REL` liga verbete a verbete — **por dentro**; de fora para dentro não há caminho.
+
+| | verbetes | palavras do campo `d` |
+|---|---:|---:|
+| no total | 184 | 8.926 |
+| **nomeados por alguma FALA de capítulo** | **49** | **2.033** |
+| nomeados por A HISTÓRIA | 27 | |
+| não nomeados em lugar nenhum | 129 | 6.752 |
+
+**Os 49 são o achado.** Cada um é uma vez em que o jogo **disse a palavra em voz alta**, tem um
+verbete escrito explicando-a, e não disse que ele existe. A PEQUENA ÁFRICA diz quinze deles —
+QUILOMBO, PEDRA DO SAL, CAPOEIRA, PEQUENA ÁFRICA… PINDORAMA diz nove, incluindo INVASÃO e GUERRA
+JUSTA, que são o §2 do capítulo inteiro em duas palavras.
+
+E dois capítulos dizem **zero**: A PRAÇA e O QUE SEGUROU — os dois mais recentes, os dois em que
+a REGRA DO DOCUMENTO mais aperta. Não é coincidência: eles citam leis por número, e número não
+casa com termo de glossário.
+
+### Por que isto é a coisa mais barata que existe na fila
+
+Não custa texto novo. As 2.033 palavras já foram escritas, já têm fonte, já passaram por revisão.
+O que falta é **caminho**. A perna **ensina** da tese não está fraca por falta de conteúdo — está
+fraca por falta de porta, e porta é código, não pesquisa.
+
+**Próximo:** a forma da porta. A mais leve — e a que não toca no desenho da fala, que é medido
+por `medir-telas-altura.js` — é oferecer, no fim do fecho de cada capítulo, as palavras que
+aquele capítulo disse. Uma fileira, num ponto em que a leitura já parou. Vai para a mesa.
