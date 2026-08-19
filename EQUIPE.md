@@ -141,6 +141,7 @@ Toda rodada de agente termina com uma linha aqui. Não é cerimônia: foi o núm
 | 18/08 | 4 | 18 | 13 | 3 | 1 | primeiro dia com a licença. Dos 3 desmentidos, **2 eram meus erros ao desmentir** — mesma causa única, `abrirTela` sem montar |
 | 19/08 | 4 | 12 | 10 | 0 | 5 | historiadora achou 3 lugares onde o jogo já sabia mais do que falava; pipeline mediu 18,75% → 0,88% e parou no §2 por conta própria |
 | 19/08 noite | 5 | 33 | 10 integrados | 6 | 3 | a rodada em que o QA valeu mais que o achado — ver abaixo |
+| 19/08 tarde/noite | 4 | 15 | 14 verbetes + home | 0 | 6 | QA leu as 14 leis na fonte primaria e confirmou todas; home feita por dev-sonnet no paralelo enquanto a mesa era montada (regra nova). O fato de 1932 e o de A PRACA verificados por mim antes de integrar |
 | 19/08 madrugada | 1 | 8 | 7 | 1 | 1 | historiadora nos três capítulos sem porta de glossário: 14 verbetes propostos (0·0·0 → 5·5·4 medido em simulação), as 3 revisões seguradas resolvidas. **O desmentido foi contra o próprio jogo**: o verbete VOTO FEMININO afirma restrição de 1932 que não está no Decreto nº 21.076 — está no ANTEPROJETO. Ver abaixo |
 
 **Como ler:** "desmentido" alto e "reais" baixo significa que os prompts estão pedindo palpite em
