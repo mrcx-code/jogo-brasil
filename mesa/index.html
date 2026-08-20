@@ -67,7 +67,7 @@
   .cartao h3{font:700 1.02rem/1.25 "Bitter",Georgia,serif;margin:0 0 .3rem}
   .cartao p{margin:0;color:var(--tinta2);font-size:.94rem}
 
-  .acoes{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+  .acoes{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-top:.75rem}
   .btn{border:1.5px solid var(--linha);background:var(--papel);color:var(--tinta2);
     border-radius:4px;padding:.4rem .75rem;font:600 .78rem/1 "Source Sans 3",sans-serif;transition:border-color .12s,color .12s,background .12s}
   .btn:hover{border-color:var(--terra);color:var(--terra)}
@@ -75,6 +75,19 @@
   .btn.forte:hover{filter:brightness(1.08);color:#fff}
   .btn.forte:disabled{background:var(--linha);border-color:var(--linha);color:var(--pedra);cursor:not-allowed;filter:none}
   .btn.leve{padding:.32rem .6rem;font-size:.72rem}
+  /* oportunidade: 3 botões iguais, largura toda, cor + emoji */
+  .acoes-op{display:flex;gap:.45rem;margin-top:.85rem}
+  .btn-op{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
+    min-height:60px;padding:.5rem .25rem;border:1.5px solid var(--linha);border-radius:8px;background:var(--papel);color:var(--tinta);
+    font:600 .74rem/1.1 "Source Sans 3",sans-serif;text-align:center;transition:transform .06s,filter .12s,border-color .12s}
+  .btn-op .emo{font-size:1.4rem;line-height:1}
+  .btn-op:active{transform:scale(.96)}
+  .btn-op.prior{background:var(--mata);border-color:var(--mata);color:#fff}
+  .btn-op.prior:hover{filter:brightness(1.1)}
+  .btn-op.adiar{background:var(--papel2);border-color:var(--terra);color:var(--terra)}
+  .btn-op.adiar:hover{filter:brightness(1.04)}
+  .btn-op.nao{background:transparent;border-color:var(--linha);color:var(--pedra)}
+  .btn-op.nao:hover{border-color:var(--alerta);color:var(--alerta)}
   .envio{font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);min-width:1px}
   .envio.ok{color:var(--ok)} .envio.erro{color:var(--alerta)}
 
@@ -162,7 +175,7 @@
 
   <header class="topo">
     <span class="marca">Mesa</span>
-    <span class="quando">20 ago 2026, 12:43</span>
+    <span class="quando">20 ago 2026, 13:02</span>
   </header>
   <div class="placar" id="placar"></div>
 
@@ -180,17 +193,17 @@
       <div class="cartao some" data-op="retencao">
         <h3>Instrumentar retenção de verdade</h3>
         <p>O jogo ainda não sabe responder à pergunta de três dias. É o que troca o “não sei” por número. Anônimo.</p>
-        <div class="acoes"><button class="btn leve forte" data-act="priorizar">Priorizar</button><button class="btn leve" data-act="adiar">Adiar</button><button class="btn leve" data-act="nao">Não interessa</button></div>
+        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
       </div>
       <div class="cartao some" data-op="vivo">
         <h3>Painel de agentes ao vivo</h3>
         <p>Fase 2 do backend: os bonequinhos se mexem sozinhos conforme os agentes trabalham de verdade, aqui no seu celular.</p>
-        <div class="acoes"><button class="btn leve forte" data-act="priorizar">Priorizar</button><button class="btn leve" data-act="adiar">Adiar</button><button class="btn leve" data-act="nao">Não interessa</button></div>
+        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
       </div>
       <div class="cartao some" data-op="acervo">
         <h3>A plataforma cresce ano a ano</h3>
         <p>Deixar de ser um jogo de 30 min e virar um acervo que dá motivo pra voltar no ano que vem. Requer data de validade em cada afirmação.</p>
-        <div class="acoes"><button class="btn leve forte" data-act="priorizar">Priorizar</button><button class="btn leve" data-act="adiar">Adiar</button><button class="btn leve" data-act="nao">Não interessa</button></div>
+        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
       </div>
     </div>
     <p class="vazio" id="vazio-op" hidden>Nada aberto aqui agora.</p>
@@ -209,26 +222,18 @@
     <div class="rot"><span class="n">SUA VEZ</span><h2>Pendências</h2></div>
     <div class="lista" id="lista-pend">
       <div class="pend some" data-p="acompanhar">
-        <div class="top"><span class="cx" role="checkbox" aria-checked="false" tabindex="0"></span>
-          <div class="corpo">
-            <h3>Mecânica de ACOMPANHAR (AINDA AQUI)</h3>
-            <p>Como os povos originários seguem presentes sem virar “recurso a coletar”. §2 + design.</p>
-            <p class="quem">representação · com o dono</p>
-            <textarea placeholder="sua resposta / direção"></textarea>
-            <div class="acoes"><button class="btn forte enviar-btn">Enviar</button><span class="envio"></span></div>
-          </div>
-        </div>
+        <h3>Mecânica de ACOMPANHAR (AINDA AQUI)</h3>
+        <p>Como os povos originários seguem presentes sem virar “recurso a coletar”. §2 + design.</p>
+        <p class="quem">representação · com o dono</p>
+        <textarea placeholder="sua resposta / direção"></textarea>
+        <div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>
       </div>
       <div class="pend some" data-p="fio">
-        <div class="top"><span class="cx" role="checkbox" aria-checked="false" tabindex="0"></span>
-          <div class="corpo">
-            <h3>Superfície do fio quilombola</h3>
-            <p>Como o fio que liga os quilombos aparece na tela.</p>
-            <p class="quem">representação · com o dono</p>
-            <textarea placeholder="sua resposta"></textarea>
-            <div class="acoes"><button class="btn forte enviar-btn">Enviar</button><span class="envio"></span></div>
-          </div>
-        </div>
+        <h3>Superfície do fio quilombola</h3>
+        <p>Como o fio que liga os quilombos aparece na tela.</p>
+        <p class="quem">representação · com o dono</p>
+        <textarea placeholder="sua resposta"></textarea>
+        <div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>
       </div>
     </div>
     <p class="vazio" id="vazio-pend" hidden>Nada aberto aqui agora.</p>
@@ -344,17 +349,12 @@
   document.querySelectorAll("#lista-pend .pend").forEach(function(p){
     var id=p.getAttribute("data-p");
     if(estado.pendDone[id]){ p.setAttribute("hidden","hidden"); return; }
-    var cx=p.querySelector(".cx"), ta=p.querySelector("textarea"), btn=p.querySelector(".enviar-btn"), envio=p.querySelector(".envio");
-    if(estado.pend[id]){p.setAttribute("data-on","1"); cx.setAttribute("aria-checked","true");}
+    var ta=p.querySelector("textarea"), btn=p.querySelector(".enviar-btn"), envio=p.querySelector(".envio");
     if(estado.texto[id]&&ta){ta.value=estado.texto[id];}
-    function alterna(){ var on=p.getAttribute("data-on")==="1"; p.setAttribute("data-on",on?"0":"1");
-      cx.setAttribute("aria-checked",on?"false":"true"); estado.pend[id]=!on; salva(); }
-    cx.addEventListener("click",alterna);
-    cx.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){e.preventDefault();alterna();}});
     if(ta) ta.addEventListener("input",function(){estado.texto[id]=ta.value; salva();});
     btn.addEventListener("click",function(){
       btn.disabled=true; envio.textContent="enviando…"; envio.className="envio";
-      registrar({tipo:"pendencia",chave:id,valor:(p.getAttribute("data-on")==="1"?"marcada":"—"),texto:(ta?ta.value:null)}).then(function(ok){
+      registrar({tipo:"pendencia",chave:id,valor:"respondida",texto:(ta?ta.value:null)}).then(function(ok){
         estado.pendDone[id]=true; salva();
         toast(ok?"Pendência enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
         prepararColapso(p); requestAnimationFrame(function(){ esconder(p); });
