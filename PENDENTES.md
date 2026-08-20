@@ -1206,3 +1206,24 @@ iguais; se não, ajusto antes de replicar (para não refazer três).
    (como os outros 12 verbos, mas sem transformar presença indígena viva em recurso a coletar) e
    levar ao dono. É o próximo item de conteúdo que move a tese (bonito·divertido·ensina) no fim
    do arco. Ver NOTES.md ~7284 (a folha de gente existe, dormente).
+
+## 42 · A HOME DA PLATAFORMA está pronta em rascunho — falta o dono decidir ONDE ela mora
+
+**19/08.** A home da plataforma (a cara que amarra as 3 seções + o jogo) está gerada por
+`ferramentas/gerar-home.js` em `plataforma/index.html` (rascunho, gitignored, fora do loop de
+seções do build). Mostrada ao dono: o nome BRASIL, a proposta aprovada, JOGAR como chamariz em
+destaque, e A HISTÓRIA/O GLOSSÁRIO/DE ONDE VEM como cartões com número.
+
+**A DECISÃO É DELE, e é de arquitetura — mexe na URL do jogo:**
+- **(a) A home vira a raiz** (`matheusferreira.cc/`), e o jogo move para `/jogo`. A home é a
+  primeira coisa que a pessoa vê — é a "home = proposta" que ele desenhou, ao pé da letra. Custo:
+  muda a URL do jogo (estabelecida, no cartão do link do WhatsApp), mexe no build (o index.html da
+  raiz deixa de ser o jogo), e os pack-*.json e o `dominio.js` precisam acompanhar. É a mudança
+  mais fiel à visão e a mais trabalhosa.
+- **(b) A home num subcaminho** (`/inicio` ou `/sobre`), a raiz continua o jogo. Baixo custo, não
+  mexe em nada do jogo — mas a home não é a "primeira coisa", e quem digita o domínio cai no jogo,
+  não na proposta.
+
+**Quando ele decidir:** se (a), é uma fase com cuidado (mover o jogo, ajustar build/dominio/cartão
+do link, testar que o jogo abre na URL nova); se (b), é rápido (acrescentar 'plataforma' ao loop
+de seções com o nome do subcaminho, tirar do gitignore, build, push).
