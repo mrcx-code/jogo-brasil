@@ -833,8 +833,15 @@
      ele apontou — e não adianta pôr uma opaca embaixo da outra, porque durante a mistura você
      continua vendo as duas. A troca passa a ser SEQUENCIAL: a que sai apaga, e só então a que
      entra acende. O escuro entre elas é curto e lê como corte de cena, que é o que é. */
+  /* object-position: TOP, não center — as pinturas de contexto são VERTICAIS (retrato), com o
+     assunto no alto (a paliçada do quilombo em cap2-serra, o horizonte, as construções) e o
+     chão embaixo. Em tela mais larga que a imagem, o `cover` amplia para preencher a largura e
+     corta topo e fundo por igual — e o dono apontou (19/08) que assim o povoado no alto da
+     serra some, restando só a mata. Ancorar no topo preserva o assunto e sacrifica o chão, que
+     a caixa de fala já cobre. Em retrato mobile os dois enquadramentos são idênticos: a troca
+     só age onde a proporção da tela foge da imagem, que é exatamente onde o corte doía. */
   .falaCtx { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 0;
-    object-fit: cover; object-position: center;
+    object-fit: cover; object-position: top center;
     opacity: 0; transition: opacity .22s ease; pointer-events: none; }
   .falaCtx.viva { opacity: 1; }
   /* A PESSOA FICA ATRAS, GRANDE, e o texto vira LEGENDA embaixo ocupando tudo.
