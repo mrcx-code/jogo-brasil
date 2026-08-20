@@ -43,6 +43,11 @@
   .placar{display:flex;gap:.9rem;flex-wrap:wrap;margin:0 0 1.3rem;
     font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.05em;text-transform:uppercase}
   .placar b{color:var(--terra)}
+  .pedir-check{display:block;width:100%;margin:0 0 1.1rem;background:var(--papel2);color:var(--terra);
+    border:1.5px dashed var(--terra);border-radius:6px;padding:.6rem;font:600 .74rem/1.2 "IBM Plex Mono",monospace;
+    letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .12s,color .12s}
+  .pedir-check:hover{background:var(--terra);color:#fff}
+  .pedir-check:disabled{opacity:.5;cursor:default}
 
   nav.aba{position:sticky;top:0;z-index:20;display:flex;gap:.2rem;overflow-x:auto;
     background:var(--papel);border-bottom:1px solid var(--linha);margin:0 -1.05rem 1.3rem;
@@ -187,9 +192,10 @@
 
   <header class="topo">
     <span class="marca">Mesa</span>
-    <span class="quando">20 ago 2026, 15:52</span>
+    <span class="quando">20 ago 2026, 16:47</span>
   </header>
   <div class="placar" id="placar"></div>
+  <button class="pedir-check" id="pedir-check" type="button">↻ pedir check — monto um balanço novo aqui</button>
 
   <nav class="aba">
     <a href="#oportunidades">Oportunidades</a>
@@ -236,7 +242,7 @@
     <div class="rot"><span class="n">DECIDA</span><h2>As decisões</h2></div>
     <div class="lista" id="lista-dec">
     </div>
-    <p class="vazio" id="vazio-dec">Tudo respondido. ✓ (D-mapa → protótipo · D-home → jogo em /jogo)</p>
+    <p class="vazio" id="vazio-dec">Nada pra decidir agora — toque “pedir check” se quiser que eu monte um.</p>
   </section>
 
   <!-- PENDÊNCIAS -->
@@ -353,12 +359,25 @@
     });
   });
 
-  // ---- DECISÕES: escolhe -> Enviar -> some ----
-  document.querySelectorAll("#lista-dec .decisao").forEach(function(bloco){
-    var d=bloco.getAttribute("data-d");
-    if(estado.decDone[d]){ bloco.setAttribute("hidden","hidden"); return; }
-    var btn=bloco.querySelector(".enviar-btn");
-    var envio=bloco.querySelector(".envio");
+  // ---- DECISÕES DINÂMICAS: vêm do backend (mesa_item). Eu escrevo lá, aparecem no celular. ----
+  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+  var SB_ITEM=SB_URL+"/rest/v1/mesa_item?select=chave,titulo,contexto,opcoes,recomendada&tipo=eq.decisao&estado=eq.aberto&order=ordem";
+  var listaDec=document.getElementById("lista-dec"), decRend={};
+  function renderDecisao(item){
+    var bloco=document.createElement("div");
+    bloco.className="decisao some"; bloco.setAttribute("data-d",item.chave);
+    var ops=(item.opcoes||[]).map(function(o){
+      var rec=(o.v===item.recomendada);
+      return '<button class="op" data-v="'+escH(o.v)+'"><span class="marca"></span><span class="txt">'
+        + '<span class="lab">'+escH(o.label)+(rec?' <span class="rec">sugiro ★</span>':'')+'</span>'
+        + (o.desc?'<span class="desc">'+escH(o.desc)+'</span>':'')+'</span></button>';
+    }).join("");
+    bloco.innerHTML='<p class="q">'+escH(item.titulo)+'</p>'
+      + (item.contexto?'<p class="ctx">'+escH(item.contexto)+'</p>':'')
+      + '<div class="ops">'+ops+'</div>'
+      + '<div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn" disabled>Enviar</button></div>';
+    listaDec.appendChild(bloco);
+    var d=item.chave, btn=bloco.querySelector(".enviar-btn"), envio=bloco.querySelector(".envio");
     if(estado.dec[d]){ var pre=bloco.querySelector('.op[data-v="'+estado.dec[d]+'"]'); if(pre){pre.setAttribute("aria-pressed","true"); btn.disabled=false;} }
     bloco.querySelectorAll(".op").forEach(function(op){
       op.setAttribute("role","button");
@@ -374,8 +393,31 @@
       registrar({tipo:"decisao",chave:d,valor:estado.dec[d],texto:null}).then(function(ok){
         estado.decDone[d]=true; salva();
         toast(ok?"Decisão enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
-        prepararColapso(bloco); requestAnimationFrame(function(){ esconder(bloco); });
+        prepararColapso(bloco); requestAnimationFrame(function(){ esconder(bloco); atualizaPlacar(); });
       });
+    });
+  }
+  function buscarDecisoes(){
+    fetch(SB_ITEM,{headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(itens){
+        (itens||[]).forEach(function(item){
+          if(estado.decDone[item.chave] || decRend[item.chave]) return;
+          decRend[item.chave]=true; renderDecisao(item);
+        });
+        atualizaPlacar();
+      }).catch(function(){});
+  }
+  buscarDecisoes();
+  setInterval(buscarDecisoes, 8000);
+
+  // ---- PEDIR CHECK: o dono toca, eu monto um check novo (escrevo decisões na mesa) ----
+  var btnCheck=document.getElementById("pedir-check");
+  if(btnCheck) btnCheck.addEventListener("click",function(){
+    btnCheck.disabled=true;
+    registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(ok){
+      toast(ok?"Check pedido — vou montar e trazer aqui.":"Guardei o pedido — reenvio.", !ok);
+      setTimeout(function(){ btnCheck.disabled=false; }, 3000);
     });
   });
 
