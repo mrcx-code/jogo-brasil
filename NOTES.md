@@ -7935,3 +7935,25 @@ porta cairia para ~2.350 KB. **Mas não vale hoje:** o ganho é 5%, e o glossár
 do fecho, pela dica de casamento e pela tela — carregá-lo sob demanda em vários pontos é mexer na
 arquitetura, e se falhar (adblock, offline) essas coisas quebram. Fica anotado para o dia em que o
 peso da porta virar prioridade medida (hoje 2.477 KB carrega em ~6,3 s em 3G, dentro da meta).
+
+## Diário — 2026-08-20 (tarde): a mesa virou backend, e o dono decidiu 3 coisas PELA mesa
+
+- **HOME CINEMÁTICA** (tela larga >=900px): cena+personagem à esquerda, painel de largura fixa à
+  direita, tipografia em clamp. Consertou o "menu de celular esticado" que o dono apontou. Medido
+  em 1024x768 e 1366x768. Increment 1; faltam personagem-diorama e os portais-de-topo (arte deu a direção).
+- **A MESA VIROU BACKEND** (Supabase projeto 'patinhas', via PostgREST + chave PUBLICÁVEL
+  sb_publishable_ — §8 ok, sem service key no cliente). Tabela public.mesa_resposta (anon insert+select).
+  O dono responde na própria página; nada de copiar/colar. O DDL pelo MCP tinha senha de postgres
+  defasada e destravou na 2ª tentativa (apply_migration). Mesa v3: escolhe->Enviar->some; header enxuto;
+  oportunidade com Priorizar/Adiar/Não-interessa; Acionar agente parado. Bonequinhos (working animado,
+  idle com última data ativa). A mesa é página separada (sem a CSP fechada do jogo), então POSTa livre.
+- **DECISÕES DO DONO, respondidas PELA MESA** (lidas da tabela em 20/08):
+  1. **D-home = JOGO**: home da plataforma na raiz, jogo em /jogo. [AÇÃO: mover — cuidado com os
+     caminhos dos pack-*.json e o roteamento da Vercel.]
+  2. **D-mapa = PROTOTIPO**: prototipar um território separado (WebGL/three.js) sem tocar a zona do
+     dono; ele vê e, se gostar, integra. [AÇÃO: build de protótipo.]
+  3. **§2 — MANTO TUPINAMBÁ = ENTRA.** Palavras do dono: "entra sim, usar referências tupinambá para
+     representarmos de forma respeitosa e importante para a valorização dessa cultura." Consistente com
+     §2.1 (objeto ritual entra como FALA/referência, nunca como drop/colecionável). Decisão de
+     representação DELE, registrada aqui para toda sessão futura honrar. [AÇÃO: design com cuidado §2.]
+- Próximo meu: régua de responsividade no gate + briefing do dev (aprovado); depois D-home e D-mapa.
