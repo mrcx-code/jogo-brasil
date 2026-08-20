@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/smoke.js",
+    "test": "npm run build && node test/smoke.js && node test/regua-larga.js",
+    "regua": "node test/regua-larga.js",
     "start": "npm run build && node ferramentas/servir.js 8199",
     "servir": "node ferramentas/servir.js 8199",
     "mesa": "node ferramentas/receber.js",

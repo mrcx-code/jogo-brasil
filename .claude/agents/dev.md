@@ -38,6 +38,12 @@ oposto da disciplina daqui, e já custou horas.
 - O `index.html` da raiz é SAÍDA. A fonte é `src/`.
 - Nunca crase em mensagem de commit: o bash come o trecho.
 - Instrumento que você não mediu contra si mesmo não mede nada.
+- **Responsividade não é só o celular** (custou uma sessão em 20/08). O "menu de celular
+  esticado" em tablet/notebook passou porque ninguém media largura larga — só 390×844. Ao
+  mexer em layout ou tipografia: teste em tablet E notebook, e nunca fixe `px` onde a régua
+  pede escala (`clamp`). O `npm test` já roda `test/regua-larga.js` (proposta legível + painel
+  contido em 768/1024/1366) — ele reprova por exit code se a fonte voltar a ficar fixa/pequena
+  ou o painel encher a largura. Olhe o número, não só o verde.
 
 ## O que devolver
 Objeto com: `feito` (o que mudou, por arquivo), `medido` (números antes/depois), `portoes`
