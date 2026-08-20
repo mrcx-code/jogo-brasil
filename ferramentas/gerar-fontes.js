@@ -1,16 +1,17 @@
-// GERA A PÁGINA "O GLOSSÁRIO" — a segunda seção da plataforma (19/08, publicada).
+// GERA A PÁGINA "DE ONDE VEM" — a terceira seção da plataforma (19/08, aprovada pelo dono).
 //
-// IRMÃO de `gerar-historia.js`, mesma disciplina: UMA FONTE, DUAS SAÍDAS. O conteúdo é o mesmo
-// `GLOSSARIO` que o jogo desenha na tela do glossário — 181 verbetes em 17 grupos. Esta
-// ferramenta roda o jogo headless, extrai, e gera `glossario/index.html`. Nunca há duas cópias.
+// IRMÃ de gerar-historia.js e gerar-glossario.js, mesma disciplina: UMA FONTE, DUAS SAÍDAS. O
+// conteúdo é o mesmo `FONTES` que o jogo mostra na tela DE ONDE VEM — 71 fontes em grupos. Roda
+// o jogo headless, extrai, gera `de-onde-vem/index.html`. Nunca há duas cópias.
 //
-// PUBLICADA em 19/08: o dono aprovou o padrão visual da /historia e mandou publicar as outras
-// duas no mesmo molde. O build copia `glossario/` para `dist/glossario/` (loop de seções em
-// `ferramentas/construir.js`), e a Vercel serve matheusferreira.cc/glossario.
+// POR QUE ESTA SEÇÃO É A PROVA DA PLATAFORMA. A /historia conta e o glossário explica; esta
+// MOSTRA de onde cada afirmação veio. É a página que torna o resto verificável — a régua do §2
+// ("nenhum número sem fonte") vira uma seção pública que qualquer pessoa pode conferir. Prioriza,
+// como o jogo, autoria indígena e negra e as pesquisadoras de cada período (a lista já vem
+// organizada assim em `FONTES`, por grupo).
 //
-// O §2 e o §1 valem igual à /historia: cada verbete mostra a fonte, e a página é uma obra de
-// referência, não um manifesto. O glossário já é a superfície onde o jogo EXPLICA a palavra — o
-// verbete AS PALAVRAS QUE ESTE JOGO ESCOLHE (invasão, não descobrimento) é a espinha do §2.
+// Cada entrada tem `t` (a fonte, com autoria e veículo) e `q` (o que ela sustenta no jogo). O §1
+// vale: é uma bibliografia comentada, não um manifesto.
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
@@ -27,33 +28,29 @@ const esc = (s) => String(s || '')
   await pg.goto(ALVO);
   await pg.waitForTimeout(1800);
 
-  // GLOSSARIO é uma lista plana: um cabeçalho de grupo (campo `g`) é seguido pelos seus verbetes
-  // (campo `t`) até o próximo cabeçalho. Reconstruo os grupos preservando essa ordem.
+  // FONTES é uma lista plana: um cabeçalho de grupo (`g`) seguido das fontes (`t`) até o próximo.
   const grupos = await pg.evaluate(() => {
     const out = []; let atual = null;
-    for (const v of GLOSSARIO) {
-      if (v.g) { atual = { nome: v.g, sub: v.sub || '', itens: [] }; out.push(atual); }
-      else if (v.t && atual) { atual.itens.push({ t: v.t, o: v.o || '', d: v.d || '', f: v.f || '' }); }
+    for (const v of FONTES) {
+      if (v.g) { atual = { nome: v.g, itens: [] }; out.push(atual); }
+      else if (v.t && atual) { atual.itens.push({ t: v.t, q: v.q || '' }); }
     }
     return out;
   });
   await nav.close();
 
-  const nVerb = grupos.reduce((s, g) => s + g.itens.length, 0);
+  const nFontes = grupos.reduce((s, g) => s + g.itens.length, 0);
 
   const secoes = grupos.map((g) => `
     <section class="grupo">
       <h2>${esc(g.nome)}</h2>
-      ${g.sub ? `<p class="gsub">${esc(g.sub)}</p>` : ''}
-      <div class="verbetes">
+      <ul class="fontes">
         ${g.itens.map((v) => `
-        <article class="verbete">
-          <h3>${esc(v.t)}</h3>
-          ${v.o ? `<p class="orig">${esc(v.o)}</p>` : ''}
-          <p class="def">${esc(v.d)}</p>
-          ${v.f ? `<p class="fonte">${esc(v.f)}</p>` : ''}
-        </article>`).join('\n')}
-      </div>
+        <li class="fonte">
+          <p class="ref">${esc(v.t)}</p>
+          ${v.q ? `<p class="traz">${esc(v.q)}</p>` : ''}
+        </li>`).join('\n')}
+      </ul>
     </section>`).join('\n');
 
   const html = `<!doctype html>
@@ -61,13 +58,13 @@ const esc = (s) => String(s || '')
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="O glossário do Brasil: ${nVerb} palavras da nossa história explicadas, com fonte — e as que este jogo recusa, e por quê.">
-<meta property="og:title" content="O GLOSSÁRIO — BRASIL">
-<meta property="og:description" content="${nVerb} palavras da história do Brasil explicadas, cada uma com a fonte.">
+<meta name="description" content="De onde vem cada afirmação do jogo BRASIL: ${nFontes} fontes, com autoria e o que cada uma sustenta. Nenhum número sem de onde veio.">
+<meta property="og:title" content="DE ONDE VEM — BRASIL">
+<meta property="og:description" content="${nFontes} fontes da história do Brasil, com o que cada uma sustenta. Aqui a régua do jogo se mostra.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
-<title>O Glossário do Brasil — as palavras da nossa história</title>
+<title>De Onde Vem — as fontes da história do Brasil</title>
 <style>
   :root {
     --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
@@ -97,19 +94,14 @@ const esc = (s) => String(s || '')
   .conta { font:600 .74rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
     margin:1rem 0 0; letter-spacing:.03em; }
 
-  .grupo { margin:0 0 2.6rem; }
+  .grupo { margin:0 0 2.4rem; }
   .grupo > h2 { font:700 1rem/1.3 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.06em;
-    text-transform:uppercase; color:var(--terra); margin:0 0 .3rem;
+    text-transform:uppercase; color:var(--terra); margin:0 0 1rem;
     padding-bottom:.5rem; border-bottom:1px solid var(--linha); }
-  .gsub { color:var(--pedra); font-size:.92rem; font-style:italic; margin:0 0 1.2rem; }
-  .verbetes { display:grid; gap:1rem; }
-  .verbete { background:var(--realce); border:1px solid var(--linha); border-left:3px solid var(--mata);
-    padding:1rem 1.1rem; box-shadow:0 1px 2px var(--sombra); }
-  .verbete h3 { font:700 1.16rem/1.25 "Bitter",Georgia,serif; margin:0 0 .4rem; letter-spacing:-.01em; }
-  .orig { color:var(--tinta2); font-style:italic; font-size:.94rem; margin:0 0 .55rem; }
-  .def { margin:0 0 .6rem; }
-  .fonte { font:400 .82rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
-    margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
+  .fontes { list-style:none; margin:0; padding:0; display:grid; gap:.9rem; }
+  .fonte { border-left:3px solid var(--mata); padding:.15rem 0 .15rem 1rem; }
+  .ref { font:600 1.02rem/1.4 "Bitter",Georgia,serif; margin:0 0 .3rem; color:var(--tinta); }
+  .traz { margin:0; color:var(--tinta2); font-size:.96rem; }
 
   footer.rod { margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
@@ -120,10 +112,11 @@ const esc = (s) => String(s || '')
 <div class="env">
   <header class="topo">
     <span class="selo">BRASIL · uma plataforma de conhecimento</span>
-    <h1>O glossário do Brasil</h1>
-    <p class="intro">As palavras da nossa história, explicadas — e as que este jogo recusa, e por
-      quê. Cada uma traz a fonte: invasão, e não descobrimento, é uma escolha com razão escrita.</p>
-    <p class="conta">${nVerb} verbetes · ${grupos.length} grupos</p>
+    <h1>De onde vem</h1>
+    <p class="intro">As fontes da nossa história — com autoria, e o que cada uma sustenta no jogo.
+      Aqui a régua se mostra: nenhum número sem de onde veio. A prioridade é de quem tem lugar de
+      fala sobre o que se conta.</p>
+    <p class="conta">${nFontes} fontes · ${grupos.length} grupos</p>
   </header>
 
   <main>
@@ -131,18 +124,18 @@ ${secoes}
   </main>
 
   <footer class="rod">
-    <p>Esta é a seção <strong>O GLOSSÁRIO</strong> da plataforma BRASIL. O mesmo conteúdo aparece
-      dentro do jogo, onde cada capítulo oferece as palavras que disse. Aqui ele se lê inteiro.</p>
+    <p>Esta é a seção <strong>DE ONDE VEM</strong> da plataforma BRASIL. É a bibliografia que
+      sustenta cada afirmação do jogo e das outras seções — a parte que torna o resto verificável.</p>
   </footer>
 </div>
 </body>
 </html>
 `;
 
-  const dir = path.join(RAIZ, 'glossario');
+  const dir = path.join(RAIZ, 'de-onde-vem');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), html);
-  console.log('glossario/index.html gerado — ' + nVerb + ' verbetes em '
+  console.log('de-onde-vem/index.html gerado — ' + nFontes + ' fontes em '
     + grupos.length + ' grupos, ' + (html.length / 1024).toFixed(0) + ' KB');
   const ext = (html.match(/(?:src|href)="https?:\/\/(?!fonts\.g)[^"]+"/g) || []);
   if (ext.length) { console.error('RECUSADO: referência externa: ' + ext[0]); process.exit(1); }

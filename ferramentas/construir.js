@@ -381,7 +381,7 @@ if (fs.existsSync(p('mesa'))) {
 // achem —, então nada de `noindex` e nada no Disallow. Cada uma é "uma fonte, duas saídas": o
 // conteúdo é gerado do mesmo `LINHA_TEMPO`/`GLOSSARIO`/`FONTES` do jogo (ver ferramentas/gerar-*),
 // nunca reescrito à mão. Aqui o build só PUBLICA o que o gerador já produziu.
-for (const secao of ['historia']) {
+for (const secao of ['historia', 'glossario', 'de-onde-vem']) {
   if (!fs.existsSync(p(secao))) continue;
   fs.mkdirSync(p('dist', secao), { recursive: true });
   let n = 0;
