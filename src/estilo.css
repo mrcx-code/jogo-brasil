@@ -800,6 +800,12 @@
      nascem em fundoDaFala() no jogo.ts; primeiro-filhos da tela, ficam atrás de tudo o que
      ela desenha. O véu é o assentamento de leitura, mais leve em cima (a pintura respira)
      e firme no pé, onde o papel senta. */
+  /* object-position: CENTER aqui, e NÃO top — ao contrário da `.falaCtx`. A distinção foi
+     MEDIDA em 19/08 (não deduzida): o `#falaFundo` é o CENÁRIO do capítulo, e o assunto dele
+     está no MEIO — o horizonte, o mar, a linha de mata. Ancorar no topo mostraria só o céu
+     vazio e cortaria a paisagem inteira. A `.falaCtx` é o oposto: pintura de contexto com o
+     assunto no ALTO (o povoado na serra), e lá o topo é que preserva. Mesmo CSS, telas
+     irmãs, ancoragens opostas de propósito — não unifique. Prova em teste-fundo.html. */
   #falaFundo { position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; object-position: center; pointer-events: none; }
   #falaVeu { position: absolute; inset: 0; pointer-events: none;
