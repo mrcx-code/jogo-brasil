@@ -7957,3 +7957,27 @@ peso da porta virar prioridade medida (hoje 2.477 KB carrega em ~6,3 s em 3G, de
      §2.1 (objeto ritual entra como FALA/referência, nunca como drop/colecionável). Decisão de
      representação DELE, registrada aqui para toda sessão futura honrar. [AÇÃO: design com cuidado §2.]
 - Próximo meu: régua de responsividade no gate + briefing do dev (aprovado); depois D-home e D-mapa.
+
+## Território — §2 e roadmap (2026-08-20)
+
+O dono escolheu o território como próximo (D-mapa = protótipo separado, WebGL, sem tocar a zona
+do dono/ONDE FOI). three.js é PERMITIDO aqui (a D1 liberou justamente para este showcase separado).
+Alinhamento §2:
+- AGORA (opção 1, §2-seguro): o protótipo mostra a MESMA essência do mapa atual — os lugares dos
+  capítulos no mapa do Brasil + o censo (Brasil 203.080.756, indígenas 1.694.836, quilombolas
+  1.327.802; IBGE Censo 2022, o primeiro a contar quilombolas) — mas interativo e cinemático. Sem
+  afirmar nada novo. A presença indígena/quilombola é mostrada como PRESENTE, com fonte.
+- EVOLUÇÕES FUTURAS (o dono gostou muito, guardadas): (2) terras indígenas demarcadas no mapa
+  (fonte FUNAI/IBGE) — "ainda aqui"; (3) dimensão do tempo — o território era a era. As duas são
+  representação nova e exigem fonte sólida.
+- Palavras do dono: "quero a 1, mas gostei mto da 2 e 3, podemos ter como evolucoes da plataforma".
+
+## A MESA VIROU A SUPERFÍCIE DE INTERAÇÃO (2026-08-20)
+
+O dono vai ficar mais no celular e menos no chat. Pediu que as decisões apareçam NA MESA (não no
+chat), um botão "pedir check", e algo prático pra interagir. Feito: tabela mesa_item (eu escrevo
+decisões/oportunidades/pendências; a mesa lê e renderiza, poll 8s); DECISÕES viraram dinâmicas do
+backend; botão "pedir check" escreve check-pedido em mesa_resposta. A partir daqui: decisão vai pra
+mesa, não pro chat. FALTA (pra ser assíncrono de verdade, com ele no celular e eu desligado): um
+processo recorrente que leia mesa_resposta (respostas + check-pedidos) e responda escrevendo na
+mesa — hoje só acontece quando eu estou ativo (sessão/loop).
