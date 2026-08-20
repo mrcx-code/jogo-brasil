@@ -187,7 +187,7 @@
 
   <header class="topo">
     <span class="marca">Mesa</span>
-    <span class="quando">20 ago 2026, 15:08</span>
+    <span class="quando">20 ago 2026, 15:52</span>
   </header>
   <div class="placar" id="placar"></div>
 
@@ -479,22 +479,64 @@
     modal.removeAttribute("hidden");
   }
 
-  var g=document.getElementById("grade-ag");
-  AG.forEach(function(a){
-    var st = (estado.acionado[a.nome] && a.status==="espera") ? "chamado" : a.status;
-    var card=document.createElement("div");
-    card.className="ag"; card.setAttribute("data-st",st);
-    var pode = a.status==="espera";
-    card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(a.cor)+'</div>'
-      + '<div class="nome">'+a.nome+'</div><div class="papel">'+a.papel+'</div>'
-      + '<div class="st">'+(st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"))+'</div>'
-      + '<div class="ult">última: '+a.ult+'</div>'
-      + (pode ? '<button class="btn leve acionar">'+(st==="chamado"?"chamado ✓":"Acionar")+'</button>' : '');
-    g.appendChild(card);
-    var ac=card.querySelector(".acionar");
-    if(ac) ac.addEventListener("click",function(){ abrirModal(a, card, ac); });
-  });
-  document.getElementById("ag-nota").textContent="toque “Acionar” em quem está parado e o pedido chega em mim.";
+  // ---- PAINEL AO VIVO: busca mesa_agente e atualiza sozinho a cada 6s (fallback offline) ----
+  var g=document.getElementById("grade-ag"), cards={}, dadosAgente={};
+  function rotuloSt(st){ return st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"); }
+  function desde(iso){
+    if(!iso) return "—";
+    var t=new Date(iso).getTime(); if(isNaN(t)) return "—";
+    var s=Math.max(0,(Date.now()-t)/1000);
+    if(s<90) return "agora";
+    var m=s/60; if(m<60) return "há "+Math.round(m)+" min";
+    var h=m/60; if(h<24) return "há "+Math.round(h)+"h";
+    var d=h/24; if(d<2) return "ontem"; return "há "+Math.round(d)+" dias";
+  }
+  function stExibido(item){
+    // o trabalho REAL vindo do backend vence; senão, o chamado otimista do dono (local)
+    if(item.status==="trabalhando") return "trabalhando";
+    if(item.status==="chamado") return "chamado";
+    return estado.acionado[item.nome] ? "chamado" : "espera";
+  }
+  function montaCard(item){
+    var card=document.createElement("div"); card.className="ag";
+    card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(item.cor||"#7d8479")+'</div>'
+      + '<div class="nome">'+item.nome+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
+    g.appendChild(card); return card;
+  }
+  function atualizaCard(card, item){
+    var st=stExibido(item);
+    card.setAttribute("data-st",st);
+    card.querySelector(".papel").textContent = item.papel + (st==="trabalhando" && item.atividade ? " — "+item.atividade : "");
+    card.querySelector(".st").textContent = rotuloSt(st);
+    card.querySelector(".ult").textContent = (st==="trabalhando" ? "agora" : "última: "+desde(item.ativo_em));
+    var slot=card.querySelector(".acaoAg");
+    if(st==="espera"){
+      if(!slot.querySelector(".acionar")){
+        slot.innerHTML='<button class="btn leve acionar">Acionar</button>';
+        slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(dadosAgente[item.nome], card, slot.querySelector(".acionar")); });
+      }
+    } else if(st==="chamado"){ slot.innerHTML='<button class="btn leve acionar" disabled>chamado ✓</button>'; }
+    else { slot.innerHTML=''; }
+  }
+  function renderAgentes(lista){
+    lista.forEach(function(item){
+      dadosAgente[item.nome]=item;
+      if(!cards[item.nome]) cards[item.nome]=montaCard(item);
+      atualizaCard(cards[item.nome], item);
+    });
+  }
+  // pinta o instantâneo local na hora (sem flash de tela vazia), o vivo refina em seguida
+  renderAgentes(AG.map(function(a){return {nome:a.nome,papel:a.papel,cor:a.cor,status:a.status,atividade:null,ativo_em:null};}));
+  var SB_AGENTE=SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem&order=ordem";
+  var vivo=false, nota=document.getElementById("ag-nota");
+  function buscarAgentes(){
+    fetch(SB_AGENTE,{headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(lista){ if(lista&&lista.length){ renderAgentes(lista); vivo=true; nota.textContent="ao vivo · atualiza sozinho · toque “Acionar” em quem está parado"; } })
+      .catch(function(){ if(!vivo) nota.textContent="instantâneo (sem conexão) · toque “Acionar” em quem está parado"; });
+  }
+  buscarAgentes();
+  setInterval(buscarAgentes, 6000);
 
   atualizaPlacar();
   flush();
