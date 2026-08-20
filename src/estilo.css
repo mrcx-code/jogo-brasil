@@ -560,10 +560,16 @@
      ela é o "clique aqui" discreto, não a frase que carrega o sentido. */
   #telaMenu .menuProposta { display: flex; flex-direction: column; align-items: center;
     gap: 2px; margin: 0 0 var(--mLogoBaixo); max-width: min(84vw, 320px); text-align: center; }
-  #telaMenu .mpFrase { margin: 0; color: #f0dfb4; font: italic 400 11px/1.15 var(--leitura);
+  /* TIPOGRAFIA EM FAIXA, NÃO FIXA (20/08, direção da arte). Os 11px/8px eram fixos e ficavam
+     ilegíveis num notebook — "muito pequenininho, não está legível" (o dono). Passam a clamp:
+     no celular (390px) continuam ~11/8, e sobem suave até um TETO de conforto de leitura, sem
+     nunca escalar com a largura inteira da tela. A régua é a leitura confortável, não vw solto. */
+  #telaMenu .mpFrase { margin: 0; color: #f0dfb4;
+    font: italic 400 clamp(11px, calc(6px + 1.4vw), 20px)/1.28 var(--leitura);
     letter-spacing: .01em; text-wrap: balance;
     text-shadow: 0 2px 0 rgba(0,0,0,.7), 0 0 10px rgba(0,0,0,.35); }
-  #telaMenu .mpCta { margin: 0; color: #b9ad8d; font: 700 8px/1 var(--leitura);
+  #telaMenu .mpCta { margin: 0; color: #b9ad8d;
+    font: 700 clamp(8px, calc(4px + 0.7vw), 13px)/1 var(--leitura);
     letter-spacing: .2em; text-transform: uppercase;
     text-shadow: 0 1px 0 rgba(0,0,0,.7); }
   /* O POSTE. Um mastro de madeira fincado no chão — ele atravessa a borda de baixo da tela,
@@ -716,7 +722,11 @@
      ROLAGEM, que é o único conserto que não tem número para estourar. Com quatro botões nada
      muda — não há o que rolar. */
   #telaMenu { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  @media (orientation: landscape) {
+  /* ATÉ 899px de largura este bloco vale (telefone deitado): logo+frase à esquerda, poste à
+     direita, tudo apertado porque a tela é pequena. A partir de 900px a home vira CINEMÁTICA
+     (bloco mais abaixo) — o antigo `orientation: landscape` sozinho pegava o notebook e só
+     esticava o menu de celular, que é o defeito que o dono apontou. */
+  @media (orientation: landscape) and (max-width: 899px) {
     /* TRÊS LINHAS, E A DO MEIO É A MARCA. Era `align-content: center` com duas linhas de
        altura automática, e aí a grade inteira ficava do tamanho do conteúdo, centrada — o que
        deixava o poste boiando com folga em cima e embaixo, e obrigava o mastro a atravessar
@@ -766,6 +776,42 @@
        escrito aqui à mão; em 1024×768 dão 14 e 11. O telefone não muda um pixel. */
     #telaMenu .telaBtn { width: min(42vw, 280px); min-height: 44px; }
     #poste { padding: 6px 0 10px; }
+  }
+  /* ===== A HOME CINEMÁTICA — tela larga (>=900px). Direção da arte (20/08). =====
+     Duas faixas, não uma coluna esticada: a CENA (o canvas do jogo, com a personagem andando)
+     ocupa a esquerda e cresce com a tela; o PAINEL — logo pregado no topo, a proposta legível
+     e o poste com as tábuas — é uma faixa de largura FIXA (px, nunca vw puro) ancorada à
+     direita. É o que faz o notebook parecer cinema em vez de um menu de celular com 80% de
+     vazio. O breakpoint é de LARGURA (o espaço que de fato falta), não de orientation. */
+  @media (min-width: 900px) {
+    #telaMenu {
+      display: grid;
+      grid-template-columns: 1fr clamp(360px, 33vw, 460px);
+      grid-template-rows: auto auto 1fr;
+      justify-items: center; align-items: start;
+      column-gap: 0; padding: 0 clamp(20px, 3vw, 56px) 0 0; overflow-y: auto;
+      /* véu SÓ do lado do painel, para as tábuas e a frase lerem sobre a mata — a cena da
+         esquerda fica limpa (a arte pediu para não escurecer a cena inteira). */
+      background:
+        linear-gradient(90deg, rgba(10,9,6,0) 52%, rgba(10,9,6,.20) 78%, rgba(10,9,6,.46) 100%),
+        linear-gradient(180deg, rgba(10,9,6,.20) 0%, rgba(10,9,6,.04) 42%, rgba(10,9,6,.40) 100%); }
+    /* logo pregado no topo do painel — teto de conforto, encolhe por ALTURA se a tela for baixa */
+    #logoImg { grid-column: 2; grid-row: 1; align-self: end; justify-self: center;
+      width: min(30vw, 440px); height: auto; max-width: 100%; max-height: min(30vh, 300px);
+      margin: clamp(12px, 3vh, 44px) 0 10px; }
+    #menuSub { grid-column: 2; grid-row: 2; align-self: start; justify-self: center;
+      max-width: 94%; margin: 0 0 clamp(8px, 2vh, 20px); }
+    #telaMenu .menuProposta { max-width: 100%; }
+    /* o poste ancora o painel embaixo; as tábuas centradas na altura que sobra */
+    #poste { grid-column: 2; grid-row: 3; align-self: stretch; justify-content: flex-start;
+      margin: 0; padding: 6px 0 18px; gap: var(--mVao); width: 100%; }
+    #poste::after { display: none; }
+    #telaMenu .telaBtn { width: min(100%, 320px); min-height: 46px; }
+    #telaMenu .mpFrase { line-height: 1.4; }
+  }
+  /* Degrau maior a partir de 1280px: o logo cresce e a cena ganha ar. */
+  @media (min-width: 1280px) {
+    #logoImg { width: min(28vw, 520px); max-height: min(38vh, 400px); }
   }
   /* E A OUTRA PONTA DA MESMA MEDIÇÃO: em RETRATO curto (320×568, o piso do que ainda se
      vende) o poste já saía 32 px abaixo da borda e o AJUSTES 6 px — pré-existente, e achado
