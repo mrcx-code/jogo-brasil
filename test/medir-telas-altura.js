@@ -113,6 +113,9 @@ const TELAS = [
   // medir só ela seria medir a tela sem a coisa nova, que é a cegueira (1) com outra roupa.
   // Escolhe-se o pior caso pelo próprio jogo: o capítulo com porta cujo fecho é mais comprido.
   { id: 'telaFala', rot: 'telaFala/fecho', monta: 'FALA_FECHO', ancora: 'btnFalaPular' },
+  // A PLACA da estrada — a linha mais longa que a caixa de fala recebe (382 letras contra 255
+  // do maior fecho), e que a medição da abertura e do fecho nunca via. Ver o bloco FALA_PLACA.
+  { id: 'telaFala', rot: 'telaFala/placa', monta: 'FALA_PLACA', ancora: 'btnFalaPular' },
   // E O GLOSSÁRIO PENEIRADO por um capítulo, que é a tela para onde essa porta leva.
   { id: 'telaGlossario', rot: 'telaGlossario/cap', monta: 'GLOSS_CAP', ancora: 'btnVoltarGloss' },
 ];
@@ -198,6 +201,23 @@ const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é co
           abrirFala(pior.nome, pior.quando, pior.abertura, null);
           const elF = document.getElementById(id);
           if (elF) { elF.classList.add('aberta'); elF.setAttribute('aria-hidden', 'false'); }
+        } else if (monta === 'FALA_PLACA') {
+          // A PLACA da estrada, a cegueira que faltava. Quando a personagem alcança um marco, o
+          // jogo chama abrirFala(no.t, no.q, [no.d], null) com o `d` INTEIRO do nó como única
+          // linha — e essa é a linha MAIS LONGA que a caixa de fala recebe: medido, 382 letras
+          // contra 255 do maior fecho autoral. O medir-telas media a abertura e o fecho e nunca
+          // a placa, então uma placa que estourasse a tela passava. O pior caso é o nó que vira
+          // placa (tipo momento, com título e texto) cujo `d` é o mais comprido de todos.
+          if (typeof window.abrirFala !== 'function' || typeof LINHA_TEMPO === 'undefined') {
+            return { montaFaltando: true };
+          }
+          const nos = LINHA_TEMPO.filter(function (x) { return x.tipo === 'momento' && x.t && x.d; });
+          if (!nos.length) return { montaFaltando: true };
+          const piorNo = nos.slice().sort(function (a, b) { return b.d.length - a.d.length; })[0];
+          pararFala();
+          abrirFala(piorNo.t, piorNo.q, [piorNo.d], null);
+          const elP = document.getElementById(id);
+          if (elP) { elP.classList.add('aberta'); elP.setAttribute('aria-hidden', 'false'); }
         } else {
           // Se o nome de quem monta a tela mudar, isto REPROVA em vez de medir a tela vazia de
           // novo — a cegueira (1) só existiu porque ninguém era avisado de que a tela vinha vazia.
