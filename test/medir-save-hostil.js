@@ -153,6 +153,13 @@ const ATAQUES_RET = [
       ['salvoEm um', '{"energia":1,"salvoEm":1,' + gente + '}', false],
       ['salvoEm em 1970', '{"energia":1,"salvoEm":1000,' + gente + '}', false],
       ['relógio morto (1e9)', '{"energia":1,"salvoEm":1e9,' + gente + '}', false],
+      // O RELÓGIO ADIANTADO QUE VOLTOU — o caso REALISTA, não adulteração: aparelho com a hora
+      // 1 h à frente, a pessoa joga e salva (salvoEm = agora+1h, um timestamp VÁLIDO, não lixo),
+      // corrige a hora, e volta. Agora `Date.now() < salvoEm`, e `Date.now() - salvoEm` é
+      // negativo. O `Math.max(0, …)` do carregar zera; sem ele, dt negativo passaria adiante.
+      // Medido em 19/08 (dt=0, sem painel) e travado aqui para não regredir. É diferente do
+      // 5e12 acima: aquele é lixo fora da faixa; este é um relógio de verdade, só adiantado.
+      ['relógio adiantado que voltou', '{"energia":1,"salvoEm":' + (Date.now() + 3600 * 1000) + ',' + gente + '}', false],
       ['8 h de verdade', '{"energia":1,"salvoEm":' + (Date.now() - 8 * 3600 * 1000) + ',' + gente + '}', true],
     ];
     for (const [nome, save, deveriaPagar] of casos) {
