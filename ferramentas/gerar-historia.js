@@ -123,13 +123,26 @@ const esc = (s) => String(s || '')
   footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
   footer.rod a { color:var(--terra); }
+  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
+    font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
+    text-transform:uppercase; }
+  .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
+    padding-bottom:.15rem; transition:color .15s; }
+  .nav a:hover { color:var(--terra); }
+  .nav a.marca { color:var(--tinta); font-weight:700; letter-spacing:.12em; }
+  .nav a.aqui { color:var(--terra); border-bottom-color:var(--terra); cursor:default; }
   @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
 <body>
 <div class="env">
   <header class="topo">
-    <span class="selo">BRASIL · uma plataforma de conhecimento</span>
+    <nav class="nav">
+      <a href="/" class="marca">BRASIL</a>
+      <a href="/historia" class="aqui">A História</a>
+      <a href="/glossario">Glossário</a>
+      <a href="/de-onde-vem">De Onde Vem</a>
+    </nav>
     <h1>A história do Brasil, em linha do tempo</h1>
     <p class="intro">De quem já estava aqui — há mais de onze mil anos — até hoje. Cada momento
       traz a fonte ao lado: aqui não há número sem de onde ele veio.</p>

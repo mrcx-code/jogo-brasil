@@ -105,13 +105,26 @@ const esc = (s) => String(s || '')
 
   footer.rod { margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
+  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
+    font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
+    text-transform:uppercase; }
+  .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
+    padding-bottom:.15rem; transition:color .15s; }
+  .nav a:hover { color:var(--terra); }
+  .nav a.marca { color:var(--tinta); font-weight:700; letter-spacing:.12em; }
+  .nav a.aqui { color:var(--terra); border-bottom-color:var(--terra); cursor:default; }
   @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
 <body>
 <div class="env">
   <header class="topo">
-    <span class="selo">BRASIL · uma plataforma de conhecimento</span>
+    <nav class="nav">
+      <a href="/" class="marca">BRASIL</a>
+      <a href="/historia">A História</a>
+      <a href="/glossario">Glossário</a>
+      <a href="/de-onde-vem" class="aqui">De Onde Vem</a>
+    </nav>
     <h1>De onde vem</h1>
     <p class="intro">As fontes da nossa história — com autoria, e o que cada uma sustenta no jogo.
       Aqui a régua se mostra: nenhum número sem de onde veio. A prioridade é de quem tem lugar de
