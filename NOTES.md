@@ -7882,3 +7882,31 @@ Duas verificações da fila, e as duas já estavam boas — registro para não r
 
 Rodada sem commit de código — as duas frentes estavam sãs. Próximo pela lente 6(f): algo que
 ninguém mediu, ou os primeiros cinco minutos.
+
+---
+
+## 19/08, noite — lente VOLTA NO DIA 2: a nota da volta traz novidade, medido
+
+**Lente: Volta no dia 2.** A pergunta de retenção que ninguém tinha medido: quem volta encontra
+algo NOVO, ou repete? A `notaDaVolta` (src/jogo.ts 3552) mostra, ao voltar depois de 12h, um
+momento da LINHA_TEMPO que a pessoa JÁ alcançou (cena ≤ fronteira, com t/d/f), escolhido por
+`notas[(R.dias-1) % pool]` — rotaciona por dia, e o pool cresce com o avanço.
+
+**Medido — o pool por fronteira e a novidade:**
+
+| onde a pessoa chegou | notas no pool |
+|---|---:|
+| fronteira 0 (só a história profunda) | 5 |
+| fronteira 4 | 15 |
+| fronteira 8 | 32 |
+| fronteira 15 (fim) | 47 |
+
+- **Quem avança (mesmo 1 cena/dia): nota NOVA a cada dia, indefinidamente** — o pool cresce junto
+  com `R.dias`, então a rotação nunca alcança a repetição. Medido nos dias 1–8: oito notas novas.
+- **Quem NÃO avança (caso extremo, fronteira 0): 5 notas novas, repete no dia 6.** Cinco dias de
+  novidade mesmo parado — a régua de três dias é coberta com folga.
+
+**Conclusão:** a retenção do dia 2+ está sã. É a primeira medição direta da pergunta de três dias
+pelo lado do CONTEÚDO (não da curva de custo, que acaba em 8 min): a pessoa que volta tem uma
+razão de história nova para voltar, e a razão cresce quanto mais ela jogou. Não gera conserto —
+o mecanismo está bem projetado. Registrado para não re-medir.
