@@ -7910,3 +7910,28 @@ momento da LINHA_TEMPO que a pessoa JÁ alcançou (cena ≤ fronteira, com t/d/f
 pelo lado do CONTEÚDO (não da curva de custo, que acaba em 8 min): a pessoa que volta tem uma
 razão de história nova para voltar, e a razão cresce quanto mais ela jogou. Não gera conserto —
 o mecanismo está bem projetado. Registrado para não re-medir.
+
+---
+
+## 20/08 — lente SUBTRAÇÃO/MEDIR: onde está o peso da porta de entrada
+
+**Lente: Medir + Subtração.** A afirmação sem número era "a porta de entrada está enxuta". Medi a
+composição do `index.html` (2.477 KB, cresceu 23 KB com os 14 verbetes de ontem — texto, esperado):
+
+| parte | peso | % |
+|---|---:|---:|
+| arte base64 (99 imagens) | 1.757 KB | 71% |
+| código + texto | 720 KB | 29% |
+| — dentro do texto: o array GLOSSARIO | 127 KB | 5,1% |
+
+**Conclusão: a porta está enxuta, não há gordura fácil.** Os 71% de arte são o capítulo 1 (que a
+lei manda manter na abertura, para o jogo nunca ficar sem chão) — as 3 maiores (~130 KB) são os
+cenários dele. A arte dos capítulos 2+ já sai para os `pack-*.json` (8.327 KB fora da porta), e o
+build já faz dedup das repetidas. O código+texto é necessário no boot.
+
+**A única subtração de texto possível, registrada como oportunidade NÃO urgente:** o GLOSSARIO
+(127 KB, 5% da porta) só abre sob demanda — poderia ser pacote como a arte dos capítulos, e a
+porta cairia para ~2.350 KB. **Mas não vale hoje:** o ganho é 5%, e o glossário é usado pela porta
+do fecho, pela dica de casamento e pela tela — carregá-lo sob demanda em vários pontos é mexer na
+arquitetura, e se falhar (adblock, offline) essas coisas quebram. Fica anotado para o dia em que o
+peso da porta virar prioridade medida (hoje 2.477 KB carrega em ~6,3 s em 3G, dentro da meta).
