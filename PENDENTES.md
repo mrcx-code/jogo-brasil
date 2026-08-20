@@ -1185,3 +1185,24 @@ Bitter+Source Sans, a fonte ao lado de cada momento, "quem lê hoje" marcado com
 
 **Aprovação pendente do dono:** o padrão visual da /historia. Se ele aprovar, as outras saem
 iguais; se não, ajusto antes de replicar (para não refazer três).
+
+## DECISÕES DO DONO em 19/08 (check de fim de dia) — quatro
+
+1. **O padrão visual das seções → APROVADO, publicado.** /glossario (181 verbetes) e
+   /de-onde-vem (60 fontes) estão no ar, no molde da /historia. A plataforma passou de uma seção
+   para três. RESOLVIDO.
+
+2. **PENDENTES 41 (as páginas são cara ou espelho?) → A CARA da plataforma.** A home aponta para
+   elas, elas convidam a jogar; o jogo é uma seção entre elas. RESOLVIDO — e vira a fila: falta a
+   HOME DA PLATAFORMA (a proposta como página que linka para as seções), item 2 da ordem do dono.
+
+3. **PENDENTES 34 (a economia) → FICA COMO ESTÁ.** O toque vale 2,5×, o U3 é automação comprada,
+   não há vazamento (era erro de instrumento). Sem ajuste. FECHADO.
+
+4. **O verbo de AINDA AQUI → "ACOMPANHAR".** O dono escolheu das três opções (acompanhar ·
+   conferir a demarcação · não atravessar). Isto DESTRAVA o único capítulo sem verbo e a folha de
+   gente dormente dele. **O QUE FALTA, e é §2 + design, não invento sozinho:** o que "acompanhar"
+   FAZ mecanicamente — a mão da pessoa no capítulo do presente indígena. Preciso PROPOR a mecânica
+   (como os outros 12 verbos, mas sem transformar presença indígena viva em recurso a coletar) e
+   levar ao dono. É o próximo item de conteúdo que move a tese (bonito·divertido·ensina) no fim
+   do arco. Ver NOTES.md ~7284 (a folha de gente existe, dormente).
