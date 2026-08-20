@@ -348,8 +348,24 @@ if (nScript !== 1 || nStyle !== 1) throw new Error('esperava 1 <script> e 1 <sty
 
 fs.writeFileSync(p('index.html'), saida);
 fs.mkdirSync(p('dist'), { recursive: true });
-fs.writeFileSync(p('dist', 'index.html'), saida);
-if (fs.existsSync(p('compartilhar.jpg'))) fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
+// A PORTA DA PLATAFORMA É A RAIZ (D-home, dono 20/08): o jogo vira /jogo (o chamariz) e a home
+// da plataforma vira dist/index.html. A RAIZ VERSIONADA CONTINUA SENDO O JOGO — o smoke e a régua
+// leem o index.html da raiz e precisam medir o JOGO, não a porta. No dist, o jogo vai para
+// dist/jogo/ com os pacotes de arte AO LADO: o fetch de `pack-*.json` é RELATIVO (ver
+// caminhoPacote), então a arte quebraria se o jogo mudasse de pasta e os pacotes ficassem na raiz.
+fs.mkdirSync(p('dist', 'jogo'), { recursive: true });
+fs.writeFileSync(p('dist', 'jogo', 'index.html'), saida);
+if (fs.existsSync(p('plataforma', 'index.html'))) {
+  fs.copyFileSync(p('plataforma', 'index.html'), p('dist', 'index.html'));
+  console.log('  plataforma/index.html -> dist/index.html (a PORTA, na raiz)');
+} else {
+  fs.writeFileSync(p('dist', 'index.html'), saida);
+  console.log('  AVISO: plataforma/index.html nao existe — dist/index.html ficou com o JOGO (sem porta)');
+}
+if (fs.existsSync(p('compartilhar.jpg'))) {
+  fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
+  fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'jogo', 'compartilhar.jpg'));
+}
 
 // A MESA, publicada num endereço que abre SEM LOGIN. Ela nasceu como artifact privado, e o
 // dono não conseguia escanear o QR dela no celular porque a página pedia login (19/08). Decisão
@@ -396,7 +412,10 @@ for (const secao of ['historia', 'glossario', 'de-onde-vem']) {
 // sintoma dos dois lados: um capítulo sem pintura, sem erro nenhum no console.
 // Antes de escrever, varre as sobras: um pacote que deixou de existir (capítulo removido,
 // tabela mudada) ficaria no disco e seria publicado para sempre.
-for (const dir of [p('.'), p('dist')]) {
+// Varre as sobras nos TRÊS lugares — raiz, dist/ e dist/jogo/ — inclusive um pack antigo em
+// dist/ da época em que o jogo era a raiz do dist, que de outra forma ficaria publicado para sempre.
+for (const dir of [p('.'), p('dist'), p('dist', 'jogo')]) {
+  if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) if (/^pack-[\w-]+\.json$/.test(f)) fs.unlinkSync(path.join(dir, f));
 }
 let totalPacks = 0;
@@ -404,7 +423,7 @@ for (const [nome, pk] of separado.packs) {
   const corpo = JSON.stringify({ arte: pk.arte, itens: pk.itens });
   totalPacks += corpo.length;
   fs.writeFileSync(p('pack-' + nome + '.json'), corpo);
-  fs.writeFileSync(p('dist', 'pack-' + nome + '.json'), corpo);
+  fs.writeFileSync(p('dist', 'jogo', 'pack-' + nome + '.json'), corpo);
   console.log('  pack-' + nome + '.json — ' + (corpo.length / 1024).toFixed(0) + ' KB, '
     + pk.arte.length + ' imagens em ' + pk.itens.length + ' lugares');
 }
