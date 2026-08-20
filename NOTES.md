@@ -7863,3 +7863,22 @@ sido medido, não usado. E ele quase virou um conserto de economia sobre premiss
 diagnosticado. Vai para a mesa do dono: a decisão (b) foi tomada sobre número errado; o toque
 importa 2,5× a 558/min, e o U3 é automação comprada, não um vazamento. Ele decide se ainda quer
 algum ajuste, mas a premissa caiu.
+
+---
+
+## 19/08, noite — rodada de verificação: robustez visual OK, ≥1 placa já estava feito
+
+Duas verificações da fila, e as duas já estavam boas — registro para não repetir:
+
+- **Robustez visual varrida.** `medir-telas-altura` passa em larguras 280, 320 e 768 (não só 360).
+  Menu, A HISTÓRIA e as telas de texto em tablet (768) e desktop (1280) sem overflow horizontal,
+  conteúdo centralizado e legível. O menu em desktop fica até melhor — logo e tábuas se separam e
+  a personagem aparece no cenário. Nenhum problema novo além do enquadramento já consertado.
+- **≥1 placa por capítulo já era coberto.** O item que o QA sugeriu já existe no `encaixe.js`
+  (linhas ~2074–2102), e mais completo: capítulo com momento-com-fonte cobra placa > 0; sem fonte
+  cobra placa == 0 (muda não existe); e "todo capítulo tem pelo menos um momento com fonte —
+  nenhum trecho de estrada é mudo". Adicionei uma asserção redundante e a REVERTI ao descobrir.
+  Medido: 13 de 13 têm ≥1 (PINDORAMA 3, PALMARES 2, AINDA AQUI 2, os de uma cena 1).
+
+Rodada sem commit de código — as duas frentes estavam sãs. Próximo pela lente 6(f): algo que
+ninguém mediu, ou os primeiros cinco minutos.
