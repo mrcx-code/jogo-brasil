@@ -951,7 +951,14 @@ os outros são chamáveis; o bloco 20 já mostra como se força o `parou`.
 **Enquanto isso**, `ativos` entrou na lista à mão, com o motivo escrito ao lado — e o comentário
 do bloco diz agora que ele tem esse buraco, para ninguém confiar nele mais do que deve.
 
-## 34 · O jogo se joga sozinho a partir do capítulo 5 — E É DO DONO
+## 34 · ~~O jogo se joga sozinho~~ — RETIFICADO 19/08: ERA ERRO DE INSTRUMENTO
+
+**RETIFICAÇÃO (19/08, medido):** o número que motivou este item (parado 4.035/min) estava
+ERRADO. Medição desagregada correta: sem U3, parado rende 0/min e tocando 558/min; com U3
+(automação comprada), parado 245 e tocando 618 (o toque vale 2,5×). O jogo NUNCA se joga sozinho.
+A decisão (b) foi tomada sobre premissa falsa e NÃO foi aplicada. Vai à mesa do dono. Ver NOTES.
+O bloco original abaixo fica como registro do que se acreditava.
+
 
 **19/08, medido por `test/medir-arco.js` e por sonda dedicada.** Não é hipótese, e não é opinião
 de gosto: são dois instrumentos e o segundo existe só para responder de onde vem a renda.

@@ -7827,3 +7827,39 @@ diferente, e confundir os três foi o erro.
 **A rotina:** o dono manteve o loop de sessão a cada 25 min (recusou 1×/dia e recusou 1h). Rotina
 na nuvem durável fica para depois da `/sala` com fila — senão ela acorda de hora em hora sem ter
 de onde tirar tarefa. Backend liberado por ele hoje torna as duas possíveis.
+
+---
+
+## 19/08, noite — O "JOGO SE JOGA SOZINHO" ERA ERRO DE INSTRUMENTO
+
+A decisão (b) do PENDENTES 34 — renda passiva vira teto — nasceu de um número: *"do capítulo 5 em
+diante o jogo se joga sozinho, parado 4.035/min vs tocando 4.186, 3,7% de diferença"*. Antes de
+aplicar o conserto, fui MEDIR de onde vem a renda parada (`test/medir-renda-passiva.js`,
+desagregando `coletarDrop` por auto/mão e por ponto da curva). O número não fechou — e ao
+reconciliar, o diagnóstico caiu inteiro.
+
+**As três fontes de renda, achadas no código:** `coletarDrop` (drop recolhido pela corrida
+automática, auto=false, ou pelo U3, auto=true); `folhaValor` (folha pega no PULO — não conta
+parado); e `clicar()` — que o **U3 chama sozinho** (`if (S.u3) clicar(true,true)`, linha 15264),
+a ajuda automática que a pessoa COMPRA por 4.000.
+
+**Medido agora, decisivo, aos 20.000 de impacto:**
+
+| estado | parado | tocando 7×/s | o toque vale |
+|---|---:|---:|---:|
+| SEM upgrades | **0/min** | 558/min | tudo |
+| só u3 (automação comprada) | 245/min | 618/min | +373/min (2,5×) |
+
+**O toque SEMPRE importa.** Sem o U3, parado rende ZERO — o jogo não anda sozinho de jeito
+nenhum. Com o U3 (que a pessoa escolheu comprar para automatizar), parado rende 245/min, mas
+tocar ainda rende 2,5× mais. Em nenhum caso existe o "3,7% de diferença" que motivou a decisão (b).
+
+**A sonda anterior (4.035 parado sem upgrades) estava errada** — 4.035 contra 0 medido agora é
+erro de instrumento, não margem. Provável causa: a mesma família do bug que já custou o medir-arco
+(tela/cerimônia engolindo, estado semeado errado). Lição 2.9 outra vez: o número absurdo devia ter
+sido medido, não usado. E ele quase virou um conserto de economia sobre premissa falsa.
+
+**Consequência:** a economia (b) NÃO se aplica — o problema que ela conserta não existe como foi
+diagnosticado. Vai para a mesa do dono: a decisão (b) foi tomada sobre número errado; o toque
+importa 2,5× a 558/min, e o U3 é automação comprada, não um vazamento. Ele decide se ainda quer
+algum ajuste, mas a premissa caiu.
