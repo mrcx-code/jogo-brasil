@@ -11,6 +11,11 @@
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="https://matheusferreira.cc/territorio/">
 <meta property="og:locale" content="pt_BR">
+<meta property="og:image" content="https://matheusferreira.cc/territorio/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A placa do Brasil em relevo, com os pinos acesos nos lugares onde cada capítulo aconteceu.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://matheusferreira.cc/territorio/">
 <title>O Território — BRASIL</title>
 <style>
@@ -563,6 +568,10 @@ window.__centro = function () {
   const v = new THREE.Vector3(0, ALTURA, 0).project(camera);
   return { fx: v.x * 0.5 + 0.5, fy: v.y * 0.5 + 0.5 };
 };
+/* QUANTOS PINOS JÁ ACENDERAM. Quem tira o cartão do link (o próprio gerador) precisa provar
+   que esperou a brasa terminar — um print tirado cedo mostra a placa certa com os pinos
+   apagados, e nada no arquivo denunciaria isso depois. */
+window.__acesos = function () { return pinos.filter(function (p) { return p.aceso > 0.9; }).length; };
 const palco = render.domElement;
 let toqueX = 0, toqueY = 0, toqueT = 0;
 palco.addEventListener("pointerdown", function (e) { toqueX = e.clientX; toqueY = e.clientY; toqueT = performance.now(); });
