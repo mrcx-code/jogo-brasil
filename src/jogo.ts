@@ -1899,7 +1899,25 @@ const EPOCAS = [
       // LINHA_TEMPO ja diz "ha mais de onze mil anos" e "por milhares de anos". A ancora de tempo
       // nao se perde -- `abrirFala` imprime o `quando` acima da fala --, e a chegada dos navios
       // continua dita no fecho, que e onde ela pertence.
-      "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
+      //
+      // APLICADA EM 20/08, e o que a segurava era o INSTRUMENTO, nao a frase (PENDENTES 32).
+      // Medido nas quatro celulas (test/tmp-hist-portao9.js): na sequencia do bloco 9 do
+      // encaixe, `travessiaAtiva()` continuava TRUE quando a abertura era aberta -- `fecharTudo()`
+      // fecha as bandejas, `fecharTelas()` fecha as telas, e so a segunda chama `fimTravessia()`
+      // (EQUIPE.md 2.9, a mesma licao pela segunda vez). Com o texto de 115 caracteres a fala
+      // avancava sozinha aos 10,0 s e a janela do teste era 9 s: o portao passava por 1 s de
+      // sorte. Com `fecharTelas()` antes, os DOIS textos ficam na linha 0. O bloco 9 passou a
+      // limpar o estado e a COBRAR `travessiaAtiva() === false`, para o vazamento nao voltar calado.
+      //
+      // Quem tem propriedade sobre o que a frase afirma: Daniel Munduruku (entrevista ao IHU/
+      // Unisinos, 2018) contra "a mentalidade de que o Brasil comeca a partir de 1500", e Ailton
+      // Krenak, que diz que esta regiao "ja vinha fazendo historia" muito antes de se chamar
+      // Brasil. O DADO do tempo profundo e da propria LINHA_TEMPO: "ha mais de onze mil anos"
+      // (Neves & Pilo, Lagoa Santa) e "por milhares de anos" no litoral (Maria Dulce Gaspar,
+      // Sambaqui, 2000). O comentario do no p2, na voz de quem joga o ultimo capitulo, ja dizia
+      // exatamente isto: "a nossa historia nao comeca em navio nenhum" -- e a primeira frase do
+      // jogo dizia o contrario, medindo o tempo pelo navio que ainda nao tinha chegado.
+      "Este lugar é o litoral atlântico, e faz milhares de anos que tem gente vivendo nele.",
       "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
       "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
       "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
@@ -1932,7 +1950,18 @@ const EPOCAS = [
       // regra apaga o mecanismo, que e justamente o que o capitulo quer mostrar.
       // Fica na versao minima de uma palavra: a versao completa citaria a lei de 20/03/1570 por
       // extenso, e o PDF da copia digitalizada nao abriu para transcricao literal.
-      "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa deixava escravizar. Chamavam isso de guerra justa.",
+      //
+      // "DEIXAVA" VIRA "AUTORIZAVA" (20/08, historiadora), e e a continuacao do mesmo conserto,
+      // nao um desmentido dele: "mandava" dizia que a lei OBRIGAVA, o que e falso; "deixava" caiu
+      // do outro lado e faz a lei parecer omissa, quando ela abriu a excecao por escrito. O
+      // proprio NOTES.md diz a frase que a fala precisava sustentar: "A escravizacao indigena nao
+      // foi excesso de colono: foi politica legislada". "Autorizava" e o unico dos tres verbos que
+      // guarda as duas coisas -- a lei declarou livres os povos daqui E permitiu escravizar quem
+      // fosse tomado em guerra justa.
+      // Fonte: Lei sobre a Liberdade dos Gentios, Evora, 20/03/1570, e Beatriz Perrone-Moises,
+      // "Indios livres e indios escravos", em Cunha (org.), 1992 -- as duas ja sao a fonte desta
+      // fala no NOTES.md e do verbete GUERRA JUSTA.
+      "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa autorizava escravizar. Chamavam isso de guerra justa.",
       "O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E não foi acidente da natureza: a doença correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou.",
       // PASSIVA SEM AGENTE, e aqui ela derruba a propria frase (19/08): o par "Nao sumiram / Foram
       // expulsos" so funciona se houver QUEM expulsa, e a linha inteira estava sem sujeito.
@@ -2117,7 +2146,17 @@ const EPOCAS = [
       // com a parte que tem agência, que é a compra da própria liberdade.
       // Fonte: Cecília Moreira Soares, "As ganhadeiras", Afro-Ásia nº 17, 1996 (UFBA) — a mesma
       // que o fecho do capítulo já credita, e é dela a virada que tira as ganhadeiras da margem.
-      "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, entregando o ganho do dia e guardando o resto, que foi como muitas compraram a própria alforria.",
+      //
+      // "O GANHO DO DIA" VIRA "A QUANTIA FIXA" (20/08, historiadora): o conserto de 19/08 acertou
+      // o alvo e errou a palavra. Entregar "o ganho do dia" e guardar "o resto" nao fecha -- se
+      // entregou o ganho do dia, nao sobra resto --, e desfaz justamente o que o regime tinha de
+      // proprio. O jogo ja explica o mecanismo certo em dois outros lugares: o verbete GANHADEIRA
+      // diz "entregava uma quantia fixa ao senhor, guardando o que passasse disso", e o no "As
+      // ganhadeiras" da LINHA_TEMPO diz "entregando parte do ganho e guardando o resto". A fala
+      // era a unica das tres superficies fora de esquadro -- e e a unica que se le obrigado.
+      // Mesma fonte das outras duas: Cecilia Moreira Soares, "As ganhadeiras: mulher e resistencia
+      // negra em Salvador no seculo XIX", Afro-Asia nº 17, 1996, UFBA.
+      "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, entregando a quantia fixa e guardando o resto, que foi como muitas compraram a própria alforria.",
       // "EM ARABE" ESTAVA NO GLOSSARIO E NAO NA FALA (19/08). O verbete MALE do proprio jogo diz
       // "Liam e escreviam em arabe", e a trava escrita neste capitulo diz que o jogo DIZ isso --
       // o que ela proibe e a escrita virar item, imagem ou drop. Sem "em arabe" a frase perde o
@@ -2551,7 +2590,6 @@ const EPOCAS = [
     aberturaImg: ["cap3-demarcada", "cap3-demarcada", "cap3-disputa", null, null],
     fecho: [
       "A demarcação não é um final feliz. É uma disputa em curso, e ela continua depois que você fecha o jogo.",
-      "Se alguma coisa aqui te deu vontade de saber mais, a tela DE ONDE VEM lista as fontes de tudo o que este jogo afirma.",
       // A VOZ QUE FECHA O JOGO (19/08, decidido pelo dono: creditar o MOVIMENTO, sem nomear pessoa
       // viva). O ultimo capitulo fala do presente indigena e interpretava essa permanencia so
       // com dado de Estado -- IBGE e portaria. Nao havia uma linha em que quem permanece
@@ -2559,7 +2597,19 @@ const EPOCAS = [
       // capitulos antes. A saida escolhida credita autoria indigena INSTITUCIONAL: quem
       // organiza o acampamento e a articulacao dos proprios povos.
       // Fonte: APIB, Acampamento Terra Livre, desde 2004.
-      "Todo mês de abril, desde 2004, povos de todo o país acampam em Brasília para cobrar demarcação. Chama-se Acampamento Terra Livre, e quem organiza é a articulação dos próprios povos.",
+      //
+      // DUAS CORRECOES EM 20/08 (historiadora), e a primeira e de ORDEM, nao de palavra:
+      //  · esta linha entrou entre "as fontes" e "inclusive onde ELAS discordam entre si", e o
+      //    pronome da ultima fala do jogo passou a apontar para o acampamento. Ela sobe uma
+      //    posicao: aqui ela responde diretamente a "disputa em curso" da fala anterior -- quem
+      //    disputa, e como --, e as duas falas das fontes voltam a ficar coladas.
+      //  · "Todo mes de abril, desde 2004" saiu. O ATL de 2020 (16ª edicao, 27-30/04) e o de 2021
+      //    (17ª, a partir de 05/04) foram feitos EM FORMATO ONLINE por causa da pandemia -- a
+      //    propria APIB chama o de 2020 de "edicao historica" por ter sido o primeiro sem
+      //    Brasilia. "Todo" afirmava o que dois anos desmentem; "Desde 2004, em abril" diz a
+      //    pratica sem afirmar a excecao inexistente. Fonte: APIB, historico do ATL.
+      "Desde 2004, em abril, povos de todo o país acampam em Brasília para cobrar demarcação. Chama-se Acampamento Terra Livre, e quem organiza é a articulação dos próprios povos.",
+      "Se alguma coisa aqui te deu vontade de saber mais, a tela DE ONDE VEM lista as fontes de tudo o que este jogo afirma.",
       "Inclusive onde elas discordam entre si."
     ]
   }

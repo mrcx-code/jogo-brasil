@@ -901,6 +901,24 @@ inalcançável, folga mínima de 750 de impacto), e o save hostil contra 17 ataq
 tinha escrito — `arco` fora de faixa, `marcosN` mentiroso, `obraVista` maior que `obra`, recursos
 fracionários, `\u0000` no `modo`, `acolhidos` como objeto com `length`. Nenhum vazou.
 
+## 32 · ~~A primeira linha de PINDORAMA: a revisão está pronta e o teste reprova~~ — RESOLVIDO 20/08
+
+**RESOLVIDO em 20/08 pela historiadora, e a hipótese registrada abaixo estava CERTA: o defeito era
+do instrumento.** O bloco 9 do `encaixe.js` media a abertura com a **travessia ainda viva por
+baixo** — a metade de cima do bloco a deixa correndo (~90 s; o teste espera 15) e a de baixo
+chamava `fecharTudo()`, que fecha as BANDEJAS. Quem chama `fimTravessia()` é `fecharTelas()`
+(EQUIPE.md 2.9, a mesma confusão de nomes pela segunda vez). Com a travessia viva,
+`terminarLinha()` arma o avanço automático também na abertura, e o que decidia era o COMPRIMENTO
+da fala: 3,4 s de cerimônia + 2,07 s de digitação + 4,55 s de pausa = **10,0 s**, logo acima da
+janela de 9 s; com 84 caracteres dá **8,53 s**. Ou seja: **o portão passava por 1 segundo de
+sorte**, e não por o motor estar certo.
+
+Medido em quatro células (`test/tmp-hist-portao9.js`, tabela no NOTES.md de 20/08): com
+`fecharTelas()` antes, os DOIS textos ficam na linha 0. O bloco 9 passou a limpar o estado **e a
+cobrar `travessiaAtiva() === false`**, e a frase nova entrou. Nada do motor precisou mudar.
+
+<details><summary>o diagnóstico original de 19/08, que continua valendo como registro</summary>
+
 ## 32 · A primeira linha de PINDORAMA: a revisão está pronta e o teste reprova
 
 **19/08.** A historiadora propôs, e eu concordo com a razão: a primeira frase do jogo mede o tempo
@@ -929,6 +947,8 @@ exatamente isso: *"o automático vazou da travessia"*. Vale checar antes de culp
 **Como retomar:** instrumentar `avancarFala` para registrar QUEM o chamou (pilha ou uma marca por
 chamador) e rodar o `encaixe` até o bloco 9. Se for vazamento, o conserto é no motor e a frase
 entra junto. Se for a frase, a saída é outra redação com o mesmo sentido e mais corpo.
+
+</details>
 
 ## 33 · A lista branca da medição só vê os eventos que dispararam antes dela
 
@@ -1227,3 +1247,42 @@ destaque, e A HISTÓRIA/O GLOSSÁRIO/DE ONDE VEM como cartões com número.
 **Quando ele decidir:** se (a), é uma fase com cuidado (mover o jogo, ajustar build/dominio/cartão
 do link, testar que o jogo abre na URL nova); se (b), é rápido (acrescentar 'plataforma' ao loop
 de seções com o nome do subcaminho, tirar do gitignore, build, push).
+
+## 43 · PALMARES: duas precisões que a historiadora mediu e NÃO aplicou (20/08)
+
+As duas são **acréscimo**, não correção — nenhuma das duas falas está errada —, e as duas mexem em
+mais de um lugar. Por isso ficaram fora da rodada dos quatro textos e ficam aqui inteiras, com
+fonte, para não custarem pesquisa de novo.
+
+**(a) Palmares é mais velho do que a fala diz.** A abertura 2 e o verbete PALMARES dizem os dois
+*"a partir de mais ou menos 1630"*. **Flávio dos Santos Gomes** (*Palmares*, Contexto, 2005 — já é
+a fonte do verbete) registra que as **primeiras referências documentais a Palmares são de 1597**, e
+que há menção a um quilombo formado por fugidos de engenhos de Pernambuco por volta de **1580**.
+**Silvia Hunold Lara** data em **1630–1654** (ocupação holandesa) a consolidação da REDE de mocambos
+que ficou conhecida como Palmares — que é o que a fala descreve. As duas coisas convivem: mocambos
+antes, rede depois. O que a fala de hoje faz sem querer é datar o começo da fuga pela guerra
+europeia. **Custo:** uma frase na fala (cabe: a linha tem 130 de 260) **e** uma no verbete, senão as
+duas superfícies discordam.
+
+**(b) A Coroa terceirizou a guerra, e a fala esconde isso.** O fecho 1 diz *"as tropas da Coroa
+destruíram Palmares"*. Quem tomou o Macaco em 1694 foi uma tropa **contratada**: contrato de guerra
+de **1687** com o governador da capitania, e outro de **dezembro de 1691** com o governador de
+Pernambuco, pagando em **sesmarias na área do quilombo**, **um quinto** do que fosse tomado e
+gratificação por pessoa devolvida ao senhor. Isso paga a linha da abertura ("mais de vinte
+expedições") e é a lição inteira: depois de vinte fracassos, a Coroa comprou a guerra. **Custo e
+por que não entrou:** a versão medida (`as tropas contratadas pelo governo da capitania`) dá **257
+de 260 caracteres** — 3 de folga é frágil demais para uma fala que alguém vai reescrever —, e o
+pagamento em terra e em gente pede verbete próprio para não virar frase solta. **§2:** o nome do
+contratado NÃO entra em fala nenhuma; o sujeito é o governo, o documento é o contrato.
+
+## 44 · `encaixe.js` está VERMELHO na main, e não é de agora (20/08) — **FECHADO em 20/08, mesma noite**: era regressão MINHA (clamp da proposta, +0,46px×2 linhas + line-height 1,28 em 390px estourava a folga de 4px). Consertado em src/estilo.css (calc 5px+1.4vw, line-height 1,15 no celular); encaixe 395/395 exit 0.
+
+`node test/encaixe.js` sai **1**: *"390×812: o menu não rola com todas as tábuas dentro (7px, folga
+de 4 para arredondamento de subpixel)"* — `7 tábuas · 50–72px · rolagem 7px [logoImg 210 + menuSub
+39 + poste 498]`. Só nessa altura; 640, 700, 720 e 932 passam com rolagem 0.
+
+**Medido com `git stash` nos dois sentidos na rodada da historiadora: idêntico no HEAD**, sem
+nenhuma das mudanças de texto. É defeito anterior, de layout, e está no portão que a EQUIPE.md
+manda ler por exit code — ou seja, **hoje qualquer agente que rode os quatro portões vê vermelho e
+não sabe se é dele**. Conserto provável: 7 px em `logoImg`/`menuSub`/`poste` naquela faixa. Quem
+pegar: registre o antes/depois nas cinco alturas, não só na que falha.

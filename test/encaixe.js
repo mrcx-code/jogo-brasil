@@ -507,13 +507,29 @@ const sec = t => log('\n---- ' + t);
     ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 15 s)'
     : 'a travessia PAROU na linha ' + anda.i + ' — ela não tem duração própria');
 
+  // ESTA METADE MEDIA COM A TRAVESSIA AINDA VIVA POR BAIXO, e passava por 1 s de sorte (20/08).
+  // A metade de cima deixa a travessia CORRENDO — ela dura ~90 s e o teste espera 15. `fecharTudo()`
+  // fecha as BANDEJAS; quem chama `fimTravessia()` é `fecharTelas()` (EQUIPE.md 2.9, a mesma
+  // confusão de nomes pela segunda vez). Medido nas quatro células de `test/tmp-hist-portao9.js`:
+  // `travessiaAtiva()` continuava `true` ao abrir a abertura, e o que segurava a asserção era o
+  // COMPRIMENTO da primeira fala — 3,4 s de cerimônia + 2,07 s de digitação + 4,55 s de pausa =
+  // 10,0 s, logo acima da janela de 9 s. Encurtar a frase para 84 caracteres derrubava o bloco
+  // (8,53 s) sem que nada no jogo tivesse mudado — foi o que segurou a revisão de PINDORAMA por
+  // um dia. Com a travessia encerrada, os dois textos ficam na linha 0.
+  // Agora o estado é limpo E cobrado: se alguém voltar a medir com a travessia viva, a asserção
+  // nova reprova em vez de depender de quantas letras a fala tem.
   const parada = await page.evaluate(() => new Promise(res => {
     fecharTudo();
+    fecharTelas();                       // e é ESTA que encerra a travessia da metade de cima
+    const trav = travessiaAtiva();
     // a abertura do capítulo 1, forçada a aparecer mesmo já vista
     S.aberturas = 0; S.cenario = 0;
     mostrarAbertura(function () { }, true);
-    setTimeout(() => res({ i: falaI, viva: !!falaViva }), 9000);
+    setTimeout(() => res({ i: falaI, viva: !!falaViva, trav: trav }), 9000);
   }));
+  ok(parada.trav === false, parada.trav === false
+    ? 'a abertura é medida sem travessia viva por baixo — o estado da metade de cima foi encerrado'
+    : 'a travessia continuava VIVA ao abrir a abertura: este bloco estaria medindo o comprimento da fala, não o motor');
   log('   abertura de capítulo, 9 s sem encostar: linha ' + parada.i);
   ok(parada.i === 0, parada.i === 0
     ? 'e a abertura de capítulo espera o dedo, como sempre esperou'

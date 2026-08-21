@@ -7982,15 +7982,107 @@ mesa, não pro chat. FALTA (pra ser assíncrono de verdade, com ele no celular e
 processo recorrente que leia mesa_resposta (respostas + check-pedidos) e responda escrevendo na
 mesa — hoje só acontece quando eu estou ativo (sessão/loop).
 
-## A equipe cresceu, e a mesa virou o canal (2026-08-20, noite)
+## 20/08 — A HISTORIADORA LEU OS QUATRO TEXTOS SOB A LICENÇA DO §2
 
-O dono, pelo chat antes de sair (volta amanha): quer agentes novos — legal, growth marketing,
-talvez um CEO, cybersecurity e infra — e duvida do valor do pipeline. Feito:
-- Criados .claude/agents/: **juridico** (LGPD/licencas/pessoa real), **growth** (ser achado,
-  voltar, compartilhar — sem trair §1/§2), **seguranca** (CSP/chaves/RLS/superficies; cyber+infra).
-- CEO e pipeline viraram DECISOES NA MESA (mesa_item: ceo-agente, pipeline-vale) — o novo canal.
-- Os 4 acionamentos dele pela mesa foram DISPARADOS de verdade (arte=direcao territorio 3D;
-  historiador=revisao §2 dos 4 textos em worktree; qa=regua de telas em worktree; pm=evolucao
-  ano a ano). O acionar do dev (mover /jogo) ja estava feito — registrado.
-- Territorio: dono decidiu THREE.JS (mesa, terr-tech=three).
-- Painel ao vivo reflete tudo (mesa_agente).
+Os quatro que o dono tirou da fila dele em 19/08 (`ferramentas/respondidas.json`, quatro entradas
+"historiadora revisa"): **PINDORAMA · PALMARES · SALVADOR · AINDA AQUI**. A condição da licença é
+que cada corte diga **de onde veio** — quem revisou, com que fonte, e por que aquela fonte tem
+propriedade sobre aquilo. Está escrito ao lado de cada fala em `src/jogo.ts`; aqui fica o resumo
+e o que NÃO entrou.
+
+### Cinco mudanças, e a fonte de cada uma
+
+1. **PINDORAMA, primeira fala do jogo** — *"Muito antes de qualquer navio europeu aparecer no
+   horizonte, já havia gente aqui"* → **"Este lugar é o litoral atlântico, e faz milhares de anos
+   que tem gente vivendo nele."** É a revisão que estava presa no `PENDENTES` 32 desde 19/08.
+   Propriedade: **Daniel Munduruku** (entrevista ao IHU/Unisinos) contra *"a mentalidade de que o
+   Brasil começa a partir de 1500"*, e **Ailton Krenak**, que diz que esta região *"já vinha
+   fazendo história"* muito antes de se chamar Brasil. O dado do tempo profundo é da própria
+   `LINHA_TEMPO`: "há mais de onze mil anos" (Neves & Piló, Lagoa Santa) e "por milhares de anos"
+   no litoral (**Maria Dulce Gaspar**, *Sambaqui*, 2000). O comentário do nó p2, na voz de quem
+   joga o último capítulo, já dizia isto com todas as letras — *"a nossa história não começa em
+   navio nenhum"* — enquanto a primeira frase do jogo media o tempo pelo navio que ainda não
+   tinha chegado.
+2. **PINDORAMA, fecho 2** — *"a lei portuguesa **deixava** escravizar"* → **"autorizava"**.
+   Continuação do conserto de 19/08, não desmentido dele: "mandava" dizia que a lei OBRIGAVA
+   (falso); "deixava" caiu do outro lado e faz a lei parecer omissa, quando ela abriu a exceção por
+   escrito. O próprio NOTES.md tem a frase que a fala precisa sustentar: *"A escravização indígena
+   não foi excesso de colono: foi política legislada."* Fonte: **Lei sobre a Liberdade dos Gentios,
+   Évora, 20/03/1570**, e **Beatriz Perrone-Moisés**, "Índios livres e índios escravos", em Cunha
+   (org.), 1992 — as duas já eram a fonte desta fala e do verbete GUERRA JUSTA.
+3. **SALVADOR, abertura 2** — *"entregando **o ganho do dia** e guardando o resto"* → **"a quantia
+   fixa"**. A revisão de 19/08 acertou o alvo e errou a palavra: entregar o ganho do dia e guardar
+   "o resto" não fecha, e desfaz o que o regime de ganho tinha de próprio. O jogo já explica o
+   mecanismo certo em dois lugares — o verbete GANHADEIRA (*"entregava uma quantia fixa ao senhor,
+   guardando o que passasse disso"*) e o nó "As ganhadeiras" da `LINHA_TEMPO` (*"entregando parte
+   do ganho e guardando o resto"*). A fala era a única das três superfícies fora de esquadro, e é a
+   única que se lê obrigado. Fonte: **Cecília Moreira Soares**, "As ganhadeiras", *Afro-Ásia* nº 17,
+   1996, UFBA — mulher negra pesquisando o trabalho de mulheres negras, que é o caso mais limpo da
+   condição 1 da licença.
+4. **AINDA AQUI, fecho: ORDEM.** A fala do Acampamento Terra Livre entrou em 19/08 ENTRE "as
+   fontes" e "inclusive onde **elas** discordam entre si" — e o pronome da última fala do jogo
+   passou a apontar para o acampamento. O ATL sobe uma posição: ali ele responde direto à "disputa
+   em curso" da fala anterior, e as duas falas das fontes voltam a ficar coladas. Nenhuma palavra
+   nova entra.
+5. **AINDA AQUI, fecho: "Todo mês de abril, desde 2004" → "Desde 2004, em abril".** O ATL de 2020
+   (16ª edição, 27–30/04) e o de 2021 (17ª, a partir de 05/04) foram **online** por causa da
+   pandemia — a própria **APIB** chama o de 2020 de "edição histórica" por ter sido o primeiro sem
+   Brasília. "Todo" afirmava o que dois anos desmentem. Fonte: APIB, histórico do ATL.
+
+### O que a revisão NÃO mudou, e por quê
+
+- **PALMARES, "a partir de mais ou menos 1630"** (a abertura 2 e o verbete PALMARES dizem o mesmo).
+  **Flávio dos Santos Gomes** registra que as primeiras referências documentais a Palmares são de
+  **1597**, e que há menção a um quilombo na região em **1580**; mas **Silvia Hunold Lara** data em
+  1630–1654 a consolidação da REDE de mocambos que ficou conhecida como Palmares — que é
+  exatamente o que a fala descreve ("milhares de pessoas… construíram povoados"). A fala não está
+  errada; está incompleta. Proposta para a próxima rodada, e ela mexe em DOIS lugares (fala e
+  verbete), por isso não entrou de carona nesta.
+- **PALMARES, "as tropas da Coroa destruíram Palmares" (1694).** Quem tomou o Macaco foi uma tropa
+  **contratada**: há contrato de guerra de 1687 com o governador da capitania e outro de dezembro
+  de 1691, com pagamento em sesmarias na área do quilombo, um quinto do que fosse tomado e
+  gratificação por pessoa devolvida ao senhor. Isso pagaria a linha da abertura ("mais de vinte
+  expedições") e mostra que a Coroa **terceirizou** a guerra. Não entrou porque é ACRÉSCIMO, não
+  correção — "tropas da Coroa" não é falso —, porque a versão medida chega a **257 de 260**
+  caracteres, e porque o mesmo acréscimo pede verbete. Fica proposto.
+- **Tudo o mais dos quatro textos foi lido linha a linha e ficou como estava.** Verificados nesta
+  rodada, sem mudança: Censo 2022 (1.694.836 indígenas, **391 etnias**, **295 línguas** — IBGE);
+  **Portaria do Ministro nº 1.075/2025** (MJSP, 18/11/2025), que DECLARA a posse permanente da TI
+  Tupinambá de Olivença, ~47.376 ha em Ilhéus, Buerarema e Una, e cujo art. 2º manda a Funai
+  promover a demarcação — "penúltimo passo" está certo; Lei nº 12.519/2011 e Lei nº 14.759/2023
+  (data nacional e feriado); "mais de vinte expedições" (é o número BAIXO da literatura, que vai a
+  30–40); Censo 2022 quilombola (1.327.802, o primeiro a contar); a madrugada de 24 para 25/01/1835
+  e a denúncia na véspera (Reis, 2003).
+
+### O portão que segurava a revisão 1 era o INSTRUMENTO, e ele passava por 1 segundo de sorte
+
+`PENDENTES` 32 dizia que a frase nova fazia o bloco 9 do `encaixe.js` reprovar, e a hipótese em
+aberto era "se o prazo depende do comprimento, o texto longo ESCONDIA um defeito". **A hipótese
+estava certa e o defeito era do teste.** Medido em quatro células, por sonda descartável
+(`test/tmp-hist-portao9.js`, apagada ao fim da rodada — a tabela abaixo é o que ela deixou):
+
+| célula | primeira fala | travessia viva ao abrir a abertura | abertura em 9 s |
+|---|---:|---|---|
+| A · bloco 9 como estava · texto atual | 115 car. | **true** | linha 0 |
+| B · bloco 9 como estava · texto novo | 84 car. | **true** | **linha 1** |
+| C · com `fecharTelas()` · texto atual | 115 car. | false | linha 0 |
+| D · com `fecharTelas()` · texto novo | 84 car. | false | linha 0 |
+
+A metade de cima do bloco deixa a travessia CORRENDO (ela dura ~90 s; o teste espera 15) e a de
+baixo chamava `fecharTudo()`, que fecha as **bandejas**. Quem chama `fimTravessia()` é
+`fecharTelas()` — **EQUIPE.md 2.9 pela segunda vez, a mesma confusão de nomes.** Com a travessia
+viva, `terminarLinha()` arma o avanço automático também na abertura, e o que decidia era o
+comprimento da fala: 3,4 s de cerimônia + 2,07 s de digitação + 4,55 s de pausa = **10,0 s**, logo
+acima da janela de 9 s. Com 84 caracteres dá **8,53 s** e o bloco cai — sem que nada no jogo
+tivesse mudado.
+
+O bloco 9 passou a **limpar o estado e a cobrar `travessiaAtiva() === false`** antes de medir. A
+asserção deixou de depender de quantas letras a fala tem, e as células A/B são a prova de que ela
+reprova quando o defeito está presente (EQUIPE.md 2.8).
+
+### Uma coisa vermelha que já estava vermelha
+
+`node test/encaixe.js` sai **1** no bloco do menu: *"390×812: o menu não rola com todas as tábuas
+dentro (7px)"*. **Medido com `git stash` nos dois sentidos: idêntico no HEAD, sem nenhuma das
+mudanças desta rodada.** É defeito anterior e é de layout, não de texto — fica relatado, não
+consertado por mim.

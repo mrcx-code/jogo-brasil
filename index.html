@@ -620,8 +620,11 @@
      ilegíveis num notebook — "muito pequenininho, não está legível" (o dono). Passam a clamp:
      no celular (390px) continuam ~11/8, e sobem suave até um TETO de conforto de leitura, sem
      nunca escalar com a largura inteira da tela. A régua é a leitura confortável, não vw solto. */
+  /* No celular a conta volta ao EXATO tamanho de antes do clamp (11px/1.15): em 390px o
+     calc dá 10,46 e o piso 11 assume — foi o +0,46px×2 linhas + line-height 1,28 que estourou
+     em 7px a folga de 4 do encaixe em 390×812 (regressão minha de 20/08, pega pelo portão). */
   #telaMenu .mpFrase { margin: 0; color: #f0dfb4;
-    font: italic 400 clamp(11px, calc(6px + 1.4vw), 20px)/1.28 var(--leitura);
+    font: italic 400 clamp(11px, calc(5px + 1.4vw), 20px)/1.15 var(--leitura);
     letter-spacing: .01em; text-wrap: balance;
     text-shadow: 0 2px 0 rgba(0,0,0,.7), 0 0 10px rgba(0,0,0,.35); }
   #telaMenu .mpCta { margin: 0; color: #b9ad8d;
@@ -3902,7 +3905,7 @@ const EPOCAS = [
         emObra: false, arteCap: 0,
         cenas: 2, lugar: "litoral", arte: [0, 1],
         abertura: [
-            "Este lugar é o litoral atlântico. Muito antes de qualquer navio europeu aparecer no horizonte, já havia gente aqui.",
+            "Este lugar é o litoral atlântico, e faz milhares de anos que tem gente vivendo nele.",
             "Os Tupinambá viviam nesta costa. Plantavam mandioca, pescavam, cuidavam de roçados. Tinham língua própria. E não estavam sozinhos: esta terra era de centenas de povos, com centenas de línguas.",
             "Nada disso era o começo de nada. Era a vida acontecendo, do jeito dela.",
             "Aqui você vai fazer o trabalho do dia. O que passa precisa de alguém. Alcance quem puder.",
@@ -3911,7 +3914,7 @@ const EPOCAS = [
         aberturaImg: ["cap1-mata", "cap1-rocado", "cap1-rocado", null, null],
         fecho: [
             "Em 1500 os navios apareceram no horizonte. O que veio depois deles não foi visita: foi invasão. Gente armada tomando terra onde já se vivia.",
-            "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa deixava escravizar. Chamavam isso de guerra justa.",
+            "Os Tupinambá lutaram, se aliaram, negociaram e recuaram — por mais de um século. E quem era capturado nessas guerras, a lei portuguesa autorizava escravizar. Chamavam isso de guerra justa.",
             "O que mais matou foi a doença que chegou nos navios. Em 1562 e 1563 a varíola varreu esta costa e esvaziou aldeias inteiras. E não foi acidente da natureza: a doença correu pelos caminhos que a invasão abriu, e a invasão ocupou o vazio que ela deixou.",
             "Em poucas gerações a invasão tomou esta costa. Colonos, tropas e missões mataram, escravizaram, juntaram gente em aldeamentos quase sempre à força e empurraram os que restaram para o interior. Eles não sumiram: foram expulsos.",
             "Nada disso os apagou. Os Tupinambá estão no sul da Bahia agora, enquanto você joga. Você vai encontrá-los de novo no último capítulo.",
@@ -3974,7 +3977,7 @@ const EPOCAS = [
         cenas: 1, lugar: "salvador", arte: [4],
         abertura: [
             "Isto é Salvador, em 1835. A cidade alta, a ladeira de pedra, e lá embaixo o porto.",
-            "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, entregando o ganho do dia e guardando o resto, que foi como muitas compraram a própria alforria.",
+            "Quem faz esta rua andar são as ganhadeiras: mulheres africanas e crioulas que vendem, carregam e negociam de sol a sol — escravizadas e libertas, entregando a quantia fixa e guardando o resto, que foi como muitas compraram a própria alforria.",
             "Pela mesma rua corre outra coisa além de mercadoria: recado. Muitos africanos daqui são muçulmanos — os malês — e se reúnem à noite para ensinar uns aos outros a ler e a escrever em árabe.",
             "Estamos na véspera. Aqui, alcançar é levar palavra: quem você alcança passa a saber o que precisa saber.",
             "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua. No chão ficam acarajé, pano da costa e búzios, e são os mesmos três contadores de sempre."
@@ -4190,8 +4193,8 @@ const EPOCAS = [
         aberturaImg: ["cap3-demarcada", "cap3-demarcada", "cap3-disputa", null, null],
         fecho: [
             "A demarcação não é um final feliz. É uma disputa em curso, e ela continua depois que você fecha o jogo.",
+            "Desde 2004, em abril, povos de todo o país acampam em Brasília para cobrar demarcação. Chama-se Acampamento Terra Livre, e quem organiza é a articulação dos próprios povos.",
             "Se alguma coisa aqui te deu vontade de saber mais, a tela DE ONDE VEM lista as fontes de tudo o que este jogo afirma.",
-            "Todo mês de abril, desde 2004, povos de todo o país acampam em Brasília para cobrar demarcação. Chama-se Acampamento Terra Livre, e quem organiza é a articulação dos próprios povos.",
             "Inclusive onde elas discordam entre si."
         ]
     }

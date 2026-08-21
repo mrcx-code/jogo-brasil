@@ -564,8 +564,11 @@
      ilegíveis num notebook — "muito pequenininho, não está legível" (o dono). Passam a clamp:
      no celular (390px) continuam ~11/8, e sobem suave até um TETO de conforto de leitura, sem
      nunca escalar com a largura inteira da tela. A régua é a leitura confortável, não vw solto. */
+  /* No celular a conta volta ao EXATO tamanho de antes do clamp (11px/1.15): em 390px o
+     calc dá 10,46 e o piso 11 assume — foi o +0,46px×2 linhas + line-height 1,28 que estourou
+     em 7px a folga de 4 do encaixe em 390×812 (regressão minha de 20/08, pega pelo portão). */
   #telaMenu .mpFrase { margin: 0; color: #f0dfb4;
-    font: italic 400 clamp(11px, calc(6px + 1.4vw), 20px)/1.28 var(--leitura);
+    font: italic 400 clamp(11px, calc(5px + 1.4vw), 20px)/1.15 var(--leitura);
     letter-spacing: .01em; text-wrap: balance;
     text-shadow: 0 2px 0 rgba(0,0,0,.7), 0 0 10px rgba(0,0,0,.35); }
   #telaMenu .mpCta { margin: 0; color: #b9ad8d;
