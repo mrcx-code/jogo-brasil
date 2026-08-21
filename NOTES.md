@@ -8337,3 +8337,78 @@ O glossario inteiro vive no banco e o portao provou que e o MESMO texto do jogo:
   chave de grupo = nome completo (renome = troca de chave, decisao de dado futura); tag_s2
   e parecer do HISTORIADOR — virou item de backlog (tag-s2-glossario).
 Proximo da avenida: fase 1 (banco vira fonte, conteudo:puxar commita JSON, build segue offline).
+
+## O NÚMERO VENCIDO DE O ACEIRO FOI TROCADO — RAD 2025 e PRODES consolidado (Historiador, 2026-08-21)
+
+Primeira vez que a **manutenção anual** prometida em 16/08 foi de fato executada. O gatilho foi a
+auditoria de validade de 21/08: o RAD do MapBiomas virou **RAD 2025**, publicado em **27/05/2026**,
+e o capítulo continuava dizendo o número de 2024.
+
+### O que mudou, e a fonte de cada linha
+
+| onde | era | passou a ser |
+|---|---|---|
+| O ACEIRO, abertura[1] | "relatório de 2024 · segundo ano seguido · 652.197 ha · 52,5%" | "relatório de 2025 · **terceiro ano seguido · 540.614 ha · 54,9%**" |
+| O ACEIRO, abertura[3] | aspas com "…nos últimos **seis** anos ocorreram por pressão da agropecuária" | aspas com a frase **literal** do RAD 2025 (abaixo), "…nos últimos **sete** anos" |
+| LINHA_TEMPO, marco q:"2024" | 652.197 ha · 52,5% · "97% dessa área" | q:"2025" · 540.614 ha · 54,9% · terceiro ano · **984.794 ha no país, −20,6%** |
+| LINHA_TEMPO, marco PRODES | "registrou 7.235 km² … 5.796 km²" | "registrou, **nas estimativas de outubro de 2025**, 7.235 … 5.796" |
+| GLOSSÁRIO, DESMATAMENTO | só a estimativa de 5.796 km² | estimativa 5.796 (out/2025) **× taxa consolidada 5.731 km² (mar/2026)** |
+| GLOSSÁRIO, MAPBIOMAS (fonte) | RAD 2024 | RAD 2025 |
+| GLOSSÁRIO, TRONCO LINGUÍSTICO | "As 295 línguas…" | "As 295 línguas — faladas por **474.856 pessoas de dois anos ou mais**…" |
+| GLOSSÁRIO ×4 (fonte) | "Etnias e línguas indígenas, 2025" | "Etnias e línguas indígenas, **2ª edição, 2026**" |
+| DE ONDE VEM | RAD 2024 · Nota PRODES 2025 · "IBGE — Censo 2022" | RAD 2025 · Nota (estimativa 30/10/2025) · **nova ficha da taxa consolidada** · ficha do Censo nomeando a publicação e a 2ª edição |
+| TRIO DA CHEGADA (pergunta) | "Em 2024… 52,5%" | "Em 2025… **54,9%**" |
+
+**Fontes lidas nesta rodada (todas primárias, exceto onde dito):**
+
+- **MapBiomas, Relatório Anual do Desmatamento no Brasil (RAD 2025)**, publicado em **27/05/2026** —
+  PDF lido inteiro (227 páginas, `RAD2025_27.05.26.pdf`). Literal, Resumo Executivo: *"Pelo terceiro
+  ano consecutivo, o Cerrado se mantém como o bioma com a maior área desmatada. Apesar da redução de
+  16,9%, o bioma é responsável por mais da metade do total da área desmatada do país (55%) em 2025,
+  totalizando 540.614 ha"*. A **Tabela** da série 2019–2025 dá o percentual exato: Cerrado 540.614 ha
+  = **54,9%**; Brasil 984.794 ha, **−20,6%** contra 2024. E: *"Pela primeira vez na série histórica do
+  MapBiomas Alerta, a área total desmatada no país fica abaixo de um milhão de hectares em um ano"*.
+- **A régua dos 97% foi CONFERIDA NOS DOIS RELATÓRIOS**, e é o achado de método desta rodada.
+  RAD 2024 (p. do capítulo de vetores): *"O desmatamento por pressão da agropecuária está associado
+  a mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos **seis** anos (Tabela 30)"*.
+  RAD 2025: *"…está associado a mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos
+  **sete** anos (Tabela 31). Em 2025, esse vetor responde por 99% da área desmatada, o que corresponde
+  a 974.469 hectares"*. **É a mesma frase, com a janela da série crescida em um ano** — por isso a
+  troca de "seis" por "sete" é atualização, e não afirmação nova.
+- **INPE, estimativa do PRODES 2025**, divulgada em **30/10/2025** (gov.br/inpe, notícia "Dados do
+  Prodes apontam redução…"): *"a taxa estimada de desmatamento na Amazônia é de 5.796 km²"* e, para o
+  Cerrado, *"a taxa estimada foi de 7.235 km²"*.
+- **INPE / Programa BiomasBR, taxa CONSOLIDADA do PRODES 2025 para a Amazônia Legal**, publicada em
+  **03/03/2026** (gov.br/inpe, "Novos dados do Prodes são atualizados pelo Programa BiomasBR"):
+  *"passando de 5.796 km² (estimativa de outubro de 2025) para 5.731 km²"* — variação de 1,12%.
+- **IBGE, Censo Demográfico 2022: Etnias e línguas indígenas — resultados do universo, 2ª edição**,
+  divulgada em **18/06/2026** (a divulgação foi transferida de 13/05 para 18/06/2026; aviso no portal
+  do IBGE). A 2ª edição incorpora padronização editorial; os números seguem os mesmos: 1.694.836
+  indígenas, 391 etnias, 295 línguas, **474.856 falantes de língua indígena com dois anos ou mais**.
+
+### Três achados que não estavam no despacho
+
+1. **As aspas do jogo não eram aspas.** A fala citava *"mais de 97% … ocorreram por pressão da
+   agropecuária"* entre aspas, e **essa frase não existe em nenhum dos dois relatórios** — era
+   paráfrase dentro de aspas. Agora a citação é literal, conferida no PDF.
+2. **O marco atribuía os 97% à área ERRADA.** Dizia *"mais de 97% **dessa área**"*, logo depois dos
+   652.197 ha do Cerrado. Os 97% são de **toda a perda de vegetação nativa do Brasil**, em sete anos,
+   não do Cerrado naquele ano. Corrigido: o marco não repete mais o percentual; quem o afirma é a
+   fala, com a régua completa.
+3. **A pergunta da CHEGADA teria ficado órfã.** O trio de perguntas tem uma regra escrita no próprio
+   código — *"nada nasce aqui"*, todo fato vem do capítulo. Atualizar o capítulo sem atualizar a
+   pergunta faria o jogo perguntar por um número que ele deixou de ensinar. Atualizada junto.
+
+### ⚠ MANUTENÇÃO ANUAL — o calendário fica mais preciso depois desta rodada
+
+O comentário do `src/jogo.ts` dizia "PRODES ~novembro". **São dois momentos, não um:** estimativa
+~**outubro** (30/10 em 2025) e taxa **consolidada** — que a partir de 2026 saiu em **março**, não
+mais em meados do ano. O RAD do MapBiomas segue ~**maio** (27/05 em 2026). Comentário corrigido.
+
+**Portões:** `npm test` exit 0 · `node test/encaixe.js` exit 0 · `node test/medir-telas-altura.js
+360 500 950` exit 0 · `node test/medir-save-hostil.js` exit 0. Fala mais comprida do jogo: 255
+caracteres (teto 260).
+
+**Pendência para o dev-plataforma (não editei, é território dele):** o comentário do
+`ferramentas/gerar-fontes.js` diz "71 fontes em grupos" e agora são 72 — a contagem do gerador é
+dinâmica, então nada quebra; só o comentário envelheceu.

@@ -2509,9 +2509,9 @@ const EPOCAS = [
     cenas: 1, lugar: "aceiro", arte: [10],
     abertura: [
       "Isto é cerrado, em agosto — o meio da estação seca. Aceiro é a faixa de chão que se limpa para o fogo não passar. Quem abre o aceiro trabalha antes do fogo, e este capítulo é esse verbo.",
-      "Não é a floresta dos cartões-postais — e é aqui que a fronteira avança: no relatório de 2024 do MapBiomas, o Cerrado foi o bioma com maior área desmatada pelo segundo ano seguido: 652.197 hectares, 52,5% do total do país.",
+      "Não é a floresta dos cartões-postais — e é aqui que a fronteira avança: no relatório de 2025 do MapBiomas, o Cerrado foi o bioma com maior área desmatada pelo terceiro ano seguido: 540.614 hectares, 54,9% do total do país.",
       "Antes de qualquer frase sobre pressão, a aritmética do Censo Agropecuário de 2017: três quartos de quem planta no Brasil (76,8% dos estabelecimentos) ocupam menos de um quarto da terra (23%).",
-      "E o que o MapBiomas concluiu, entre aspas e com o nome do relatório: “mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos seis anos ocorreram por pressão da agropecuária” — lido como este jogo lê toda fonte: é o que quem mediu concluiu.",
+      "E o que o MapBiomas concluiu no RAD 2025, entre aspas: o desmatamento por pressão da agropecuária “está associado a mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos sete anos” — é o que quem mediu concluiu, não o que aconteceu.",
       "Quem segura a linha é a brigadista — moradora do lugar, contratada para a temporada seca. O número que ela defende já subiu e já caiu: ele depende de decisão, não de destino."
     ],
     aberturaImg: [null, null, null, null, null],
@@ -11477,7 +11477,8 @@ const LINHA_TEMPO: NoLinha[] = [
   // leitura critica que o jogo aplica as cartas jesuiticas, e o §2.6 diz por que: desconfiar do
   // documento do sec. XVII e engolir o do XXI nao e ensinar metodo, e escolher lado.
   //
-  // ⚠ MANUTENCAO ANUAL: o PRODES sai todo ano (~novembro) e o RAD do MapBiomas ~maio. As duas
+  // ⚠ MANUTENCAO ANUAL: o PRODES sai duas vezes — ESTIMATIVA ~outubro e taxa CONSOLIDADA
+  // (desde 2026, ~marco) — e o RAD do MapBiomas ~maio. As duas
   // falas carregam a data DENTRO da frase, entao envelhecem datadas e nunca falsas. Ao atualizar
   // o capitulo, atualize estes dois nos junto.
   // MAIS DOIS DE O ACEIRO (18/08), fonte lida e tabelada no NOTES em 16/08. Entram ANTES do nó
@@ -11493,12 +11494,12 @@ const LINHA_TEMPO: NoLinha[] = [
   { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2012", t: "Cadastro não é título",
     d: "O Código Florestal fixa quanto tem de ficar em pé (art. 12) e diz, com todas as letras, que o cadastro ambiental rural “não será considerado título para fins de reconhecimento do direito de propriedade ou posse” (art. 29, § 2º).",
     f: "Lei nº 12.651, de 25 de maio de 2012, arts. 12 e 29, § 2º" },
-  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2024", t: "Metade do país num bioma só",
-    d: "O relatório anual de desmatamento registrou 652.197 hectares derrubados no Cerrado — 52,5% de todo o desmatamento do país naquele ano. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.",
-    f: "MapBiomas · Relatório Anual do Desmatamento 2024" },
+  { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2025", t: "Metade do país num bioma só",
+    d: "O relatório anual de desmatamento registrou 540.614 hectares derrubados no Cerrado — 54,9% de todo o desmatamento do país, o terceiro ano seguido em que o bioma lidera. No país inteiro foram 984.794 hectares, 20,6% menos que em 2024.",
+    f: "MapBiomas · Relatório Anual do Desmatamento (RAD) 2025, publicado em 27/05/2026" },
   { tipo: "momento", cena: cenarioDaEpoca(iEp("aceiro")), q: "2025", t: "Duas réguas, dois números",
-    d: "O monitoramento por satélite registrou 7.235 km² desmatados no Cerrado e 5.796 km² na Amazônia no mesmo período. Os dois números são públicos, e são de quem mediu.",
-    f: "INPE · PRODES 2025",
+    d: "O monitoramento por satélite registrou, nas estimativas de outubro de 2025, 7.235 km² desmatados no Cerrado e 5.796 km² na Amazônia no mesmo período. Os dois números são públicos, e são de quem mediu.",
+    f: "INPE · PRODES 2025 (estimativas divulgadas em 30/10/2025)",
     com: "O fogo não escolhe. Quem abre o aceiro escolhe por onde ele não passa.", quem: iEp("aceiro") },
   { tipo: "marco", ep: iEp("hoje") },
   { tipo: "momento", i: 5,
@@ -12061,8 +12062,8 @@ const FONTES = [
   { g: "POVOS ORIGINÁRIOS" },
   { t: "Manuela Carneiro da Cunha, “Imagens de índios do Brasil: o século XVI”, Estudos Avançados 4(10), 1990 — USP",
     q: "Inventário crítico das fontes quinhentistas, e a demonstração de que elas descrevem preocupações europeias, não realidades indígenas." },
-  { t: "IBGE — Censo 2022",
-    q: "391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas. É o dado que derruba tratar “índio” como categoria única." },
+  { t: "IBGE — Censo Demográfico 2022: Etnias e línguas indígenas (2ª edição, 18 de junho de 2026)",
+    q: "391 etnias e 295 línguas indígenas, 1,69 milhão de pessoas, e 474.856 falantes de língua indígena com dois anos ou mais. É o dado que derruba tratar “índio” como categoria única." },
   { t: "Lei nº 14.402/2022 — Planalto",
     q: "Institui o Dia dos Povos Indígenas e revoga o “Dia do Índio” de 1943. O Estado brasileiro, em lei, adotando o plural." },
   { t: "Enciclopédia Povos Indígenas no Brasil — Tupinambá de Olivença",
@@ -12227,10 +12228,12 @@ const FONTES = [
   { t: "Anvisa — uso emergencial das primeiras vacinas, 17 de janeiro de 2021",
     q: "A diretoria colegiada aprovou, em reunião pública extraordinária, o uso emergencial das duas primeiras vacinas contra a covid-19 no Brasil; a primeira dose foi aplicada no mesmo dia." },
   // O ACEIRO (cerrado · hoje) — escritas em 16/08. ⚠ Perecíveis: dado anual; ver NOTES.md.
-  { t: "MapBiomas — Relatório Anual do Desmatamento (RAD) 2024",
-    q: "Registra o Cerrado como o bioma com maior área desmatada pelo segundo ano seguido — 652.197 ha, 52,5% do total do país — e conclui que “mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos seis anos ocorreram por pressão da agropecuária”. Citado como conclusão do relatório, nunca como “o que aconteceu”." },
-  { t: "INPE — Nota Técnica do PRODES, 2025",
-    q: "Registrou 7.235 km² desmatados no Cerrado contra 5.796 km² na Amazônia Legal; a Tabela 2 mostra queda em oito dos nove estados da Amazônia Legal entre 2024 e 2025, e alta em um. Cita a Portaria GM/MMA nº 1.202/2024, com a lista de 81 municípios prioritários de fiscalização." },
+  { t: "MapBiomas — Relatório Anual do Desmatamento (RAD) 2025, publicado em 27 de maio de 2026",
+    q: "Registra o Cerrado como o bioma com maior área desmatada pelo terceiro ano consecutivo — 540.614 ha, 54,9% do total do país, apesar da queda de 16,9% — e o país inteiro em 984.794 ha, 20,6% menos que em 2024, a primeira vez abaixo de um milhão de hectares desde 2019. Sobre o vetor, conclui que o desmatamento por pressão da agropecuária “está associado a mais de 97% de toda a perda de vegetação nativa no Brasil nos últimos sete anos” (Tabela 31), e que em 2025 esse vetor respondeu por 99% da área desmatada. Citado como conclusão do relatório, nunca como “o que aconteceu”." },
+  { t: "INPE — Nota Técnica do PRODES, estimativa da taxa de 2025 (divulgada em 30 de outubro de 2025)",
+    q: "Registrou a estimativa de 7.235 km² desmatados no Cerrado contra 5.796 km² na Amazônia Legal; a Tabela 2 mostra queda em oito dos nove estados da Amazônia Legal entre 2024 e 2025, e alta em um. Cita a Portaria GM/MMA nº 1.202/2024, com a lista de 81 municípios prioritários de fiscalização." },
+  { t: "INPE — taxa consolidada do PRODES 2025 para a Amazônia Legal (atualização de 3 de março de 2026)",
+    q: "A taxa fechada ficou em 5.731 km², contra os 5.796 km² da estimativa de outubro de 2025 — variação de 1,12%. É o par que o jogo usa para mostrar a diferença entre estimativa e taxa consolidada: o mesmo ano, o mesmo instituto, dois números, e nenhum deles errado." },
   { t: "IBGE — Censo Agropecuário 2017 (SIDRA, tabela 6754)",
     q: "Registrou 5.073.324 estabelecimentos agropecuários em 351.289.816 ha; a agricultura familiar é 76,8% dos estabelecimentos em 23,0% da área." },
   { t: "Lei nº 12.651, de 25 de maio de 2012 (Código Florestal)",
@@ -12892,12 +12895,12 @@ const GLOSSARIO = [
   { t: "GUARANI",
     o: "Etnônimo em língua guarani, da família tupi-guarani. No Brasil o povo se divide em subgrupos que usam o próprio nome antes dele: Kaiowá, Ñandeva e Mbya.",
     d: "Vivem no Sul, no Sudeste e sobretudo em Mato Grosso do Sul, e também no Paraguai, na Argentina e na Bolívia. O guarani kaiowá é a segunda língua indígena mais falada do país: 38.658 falantes no Censo de 2022. Em Mato Grosso do Sul boa parte do território tradicional — o tekoha — ficou fora das terras demarcadas, e as retomadas são a forma que as comunidades encontraram de voltar a ele.",
-    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2025 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2ª edição, 2026 · Enciclopédia Povos Indígenas no Brasil, ISA" },
 
   { t: "YANOMAMI",
     o: "Do yanomami yanomamɨ, “ser humano”. Nomeia um conjunto de povos e de línguas aparentados, no norte de Roraima e do Amazonas e do outro lado da fronteira, na Venezuela.",
     d: "A Terra Indígena Yanomami foi homologada em 1992, com cerca de 9,6 milhões de hectares, e é onde vive 94,34% da etnia — a maior proporção entre os povos com mais de dez mil pessoas, segundo o Censo de 2022. Davi Kopenawa, xamã e porta-voz do povo, escreveu com o antropólogo Bruce Albert A queda do céu, ao mesmo tempo autobiografia, cosmologia e denúncia do garimpo. Não é livro sobre eles: é livro deles.",
-    f: "Davi Kopenawa e Bruce Albert, A queda do céu, Companhia das Letras, 2015 · IBGE, Censo 2022, Etnias e línguas indígenas · Funai, TI Yanomami, homologação de 1992" },
+    f: "Davi Kopenawa e Bruce Albert, A queda do céu, Companhia das Letras, 2015 · IBGE, Censo 2022, Etnias e línguas indígenas, 2ª edição, 2026 · Funai, TI Yanomami, homologação de 1992" },
 
   { t: "KAYAPÓ",
     o: "“Kayapó” é nome dado de fora, provavelmente por povos tupi vizinhos. Eles se autodenominam Mebêngôkre e falam uma língua do tronco macro-jê.",
@@ -12927,12 +12930,12 @@ const GLOSSARIO = [
   { t: "TIKUNA",
     o: "Tikuna (também Ticuna) é o nome do povo e da língua; eles se autodenominam Magüta. A língua não tem parentesco consensual com nenhuma outra família — é tratada como isolada.",
     d: "Vivem no Alto Solimões, no Amazonas, e também no Peru e na Colômbia. São o povo indígena mais numeroso do Brasil, com 74.061 pessoas no Censo de 2022, e o tikuna é a língua indígena com mais falantes do país: 51.978. O povo mais numeroso do país é também um dos que a escola brasileira menos nomeia.",
-    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2025 · Enciclopédia Povos Indígenas no Brasil, ISA" },
+    f: "IBGE, Censo 2022, Etnias e línguas indígenas, 2ª edição, 2026 · Enciclopédia Povos Indígenas no Brasil, ISA" },
 
   { t: "TRONCO LINGUÍSTICO",
     o: "Termo da linguística histórica: agrupamento de famílias de línguas que descendem de um mesmo ancestral remoto. Foi Aryon Dall'Igna Rodrigues quem o firmou para as línguas faladas no Brasil.",
-    d: "As 295 línguas indígenas do país não formam uma família só: há dois grandes troncos — o tupi e o macro-jê —, mais de uma dezena de famílias que não se encaixam em nenhum deles, como aruák, karib, pano, tukano e yanomami, e línguas isoladas, sem parente conhecido. Quem fala uma língua de um tronco não entende a de outro, do mesmo modo que um falante de português não entende russo. É a razão linguística de “índio” não descrever coisa nenhuma.",
-    f: "Aryon Dall'Igna Rodrigues, Línguas brasileiras: para o conhecimento das línguas indígenas, Loyola, 1986 · IBGE, Censo 2022, Etnias e línguas indígenas" },
+    d: "As 295 línguas indígenas do país — faladas por 474.856 pessoas de dois anos ou mais, no Censo de 2022 — não formam uma família só: há dois grandes troncos — o tupi e o macro-jê —, mais de uma dezena de famílias que não se encaixam em nenhum deles, como aruák, karib, pano, tukano e yanomami, e línguas isoladas, sem parente conhecido. Quem fala uma língua de um tronco não entende a de outro, do mesmo modo que um falante de português não entende russo. É a razão linguística de “índio” não descrever coisa nenhuma.",
+    f: "Aryon Dall'Igna Rodrigues, Línguas brasileiras: para o conhecimento das línguas indígenas, Loyola, 1986 · IBGE, Censo 2022, Etnias e línguas indígenas, 2ª edição, 2026" },
 
   { g: "A LÍNGUA QUE SE FALA AQUI", curto: "A LÍNGUA",
     sub: "O português do Brasil foi feito de tupi, de línguas africanas e de proibição — e ainda está sendo feito." },
@@ -12983,8 +12986,8 @@ const GLOSSARIO = [
 
   { t: "DESMATAMENTO",
     o: "De desmatar. Este jogo prefere a palavra a “conversão de uso do solo”, que é a fórmula do relatório técnico e não diz o que aconteceu com as árvores.",
-    d: "O Brasil mede o próprio desmatamento por satélite desde 1988: é o PRODES, do Instituto Nacional de Pesquisas Espaciais, que fecha o ano em 31 de julho e publica a taxa. A estimativa do INPE para 2025 na Amazônia Legal foi de 5.796 km², a menor em onze anos. Ter número público, comparável e antigo é o que permite discutir isso com dado em vez de com opinião — e é por isso que o instrumento de medida também é disputado.",
-    f: "INPE, PRODES / Programa de Monitoramento da Amazônia, nota técnica de estimativa da taxa de 2025, outubro de 2025" },
+    d: "O Brasil mede o próprio desmatamento por satélite desde 1988: é o PRODES, do Instituto Nacional de Pesquisas Espaciais, que fecha o ano em 31 de julho e publica a taxa. Em outubro de 2025 o INPE estimou 5.796 km² na Amazônia Legal, a menor em onze anos; em março de 2026 a taxa consolidada do mesmo ano fechou em 5.731 km². Os dois números são do mesmo instituto e nenhum deles está errado: o primeiro é estimativa, o segundo é a conta fechada — e saber disso é a diferença entre ler um número e repetir um número. Ter número público, comparável e antigo é o que permite discutir isso com dado em vez de com opinião — e é por isso que o instrumento de medida também é disputado.",
+    f: "INPE, PRODES / Programa de Monitoramento da Amazônia, nota técnica de estimativa da taxa de 2025, outubro de 2025 · INPE / Programa BiomasBR, taxa consolidada do PRODES 2025 para a Amazônia Legal, atualização de 3 de março de 2026" },
   { t: "INPE",
     o: "Instituto Nacional de Pesquisas Espaciais, órgão federal. O PRODES, programa dele, produz a taxa oficial de desmatamento por corte raso da Amazônia Legal em série anual desde 1988 — a série mais longa que o país tem sobre a própria floresta.",
     d: "Três regras explicam o número antes de qualquer discussão sobre ele: o ano do PRODES vai de 1º de agosto a 31 de julho, e não de janeiro a dezembro; a área mínima mapeada é de 6,25 hectares, então o que é menor não entra na conta; e o dado sai primeiro como estimativa, no fim do ano, e consolidado depois. Saber a régua é a diferença entre ler um número e repetir um número.",
@@ -12992,7 +12995,7 @@ const GLOSSARIO = [
   { t: "MAPBIOMAS",
     o: "Rede de universidades, organizações da sociedade civil e empresas de tecnologia — não é órgão de Estado. Mapeia cobertura e uso da terra do Brasil inteiro com imagens Landsat de 30 metros, em série anual desde 1985, e publica dados, método e código abertos.",
     d: "Cobre todos os biomas, não só a Amazônia, e o MapBiomas Alerta valida alertas de desmatamento a partir de 0,3 hectare com imagem de alta resolução — um limiar muito menor que o do PRODES. É por isso que os dois números não batem e os dois podem estar certos: medem áreas diferentes, com recortes de tempo e de tamanho diferentes. Quem compara sem ler a régua está somando coisas que não somam.",
-    f: "MapBiomas, Relatório Anual do Desmatamento (RAD) 2024 · MapBiomas Alerta, descrição do método · MapBiomas, perguntas frequentes (dados abertos sob licença Creative Commons CC-BY)" },
+    f: "MapBiomas, Relatório Anual do Desmatamento (RAD) 2025, publicado em 27 de maio de 2026 · MapBiomas Alerta, descrição do método · MapBiomas, perguntas frequentes (dados abertos sob licença Creative Commons CC-BY)" },
   { t: "CARTA JESUÍTICA",
     o: "As cartas e relatos que missionários da Companhia de Jesus mandavam aos superiores na Europa a partir do século XVI. São a fonte escrita mais abundante sobre o litoral daquele século — e são, todas elas, de quem chegou.",
     d: "Não foram escritas para informar a posteridade: foram escritas para prestar contas, justificar a missão e pedir recursos. Isso não as inutiliza; inutiliza lê-las como relato neutro. Este jogo as trata como o que o missionário viu e quis que fosse lido — e é a mesma leitura que aplica a relatório de comissão e a número de órgão. Desconfiar do documento do século XVII e engolir o do XXI não é método: é escolher lado.",
@@ -14647,10 +14650,10 @@ const FIM_CONFERE = [
     ops: ["fevereiro de 2020", "março de 2021", "janeiro de 2022"],
     frase: "6 de fevereiro de 2020 — antes do primeiro caso confirmado. O vocabulário chegou antes da doença.",
     fonte: "O QUE SEGUROU · Lei nº 13.979, de 6 de fevereiro de 2020, art. 2º" },
-  { q: "Em 2024, quanto do desmatamento do país aconteceu no Cerrado?",
-    ops: ["52,5%", "8%", "23%"],
-    frase: "52,5% — 652.197 hectares num bioma só. O relatório concluiu que mais de 97% dessa área foi aberta por pressão da agropecuária.",
-    fonte: "O ACEIRO · MapBiomas, Relatório Anual do Desmatamento 2024" },
+  { q: "Em 2025, quanto do desmatamento do país aconteceu no Cerrado?",
+    ops: ["54,9%", "8%", "23%"],
+    frase: "54,9% — 540.614 hectares num bioma só, o terceiro ano seguido em que o Cerrado lidera.",
+    fonte: "O ACEIRO · MapBiomas, Relatório Anual do Desmatamento (RAD) 2025" },
   { q: "Desde quando o Brasil mede o próprio desmatamento por satélite?",
     ops: ["1988", "2005", "2019"],
     frase: "1988 — e é ter número público, comparável e antigo que permite discutir com dado em vez de com opinião.",
