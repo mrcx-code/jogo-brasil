@@ -1293,3 +1293,28 @@ Todo outubro/novembro: nota do PRODES (O ACEIRO, fala 2 + fecho 1 + duas fontes)
 MapBiomas RAD. Censo IBGE: proxima edicao a verificar. O alerta automatico mensal
 (scheduled task alerta-validade-brasil) avisa na mesa; ESTE item garante que mesmo sem o
 alerta alguem olhe nas janelas certas. Nao fecha nunca — e recorrente de proposito.
+
+## 46 · FILA-AUTH — a pagina ja fecha, o BANCO ainda nao (21/08, dev-plataforma)
+
+O login por e-mail (OTP) esta no `dashboard/index.html` e medido em 10 cenas
+(`node test/fila-auth.js`, exit 0). **Mas a fila `mesa_resposta` continua aceitando INSERT
+anonimo** — a metade que falta e SQL, e SQL nao se aplica pelo REST anonimo. Esta escrito e
+comentado em `ferramentas/fila-auth.sql`, para quem integra aplicar pelo MCP do Supabase.
+
+Enquanto nao for aplicado, o buraco e o de sempre: **qualquer pessoa com a chave publicavel
+escreve na fila que ACIONA agente**. A pagina ja funciona nos dois mundos, entao aplicar nao
+quebra nada e nao precisa de deploy junto.
+
+Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
+
+1. **`authenticated` nao e "o dono".** Com o cadastro aberto no Auth, qualquer um cria conta
+   por e-mail e volta a escrever. Fechar o cadastro (BLOCO 3) **e** prender a policy ao uuid
+   dele (BLOCO 2-B) — as duas, nao uma.
+2. **O template de e-mail precisa de `{{ .Token }}`.** Sem isso o dono so entra tocando no
+   link, e o campo de codigo fica sem serventia quando o e-mail e lido noutro aparelho.
+3. **A mesa local (`ferramentas/receber.html`) perde o botao "confirmar prioridades"** — ela
+   roda em localhost, sem sessao, e escreve na mesma tabela. A mensagem dela ja foi corrigida
+   para dizer a verdade (401/403 = "a fila exige login"), mas o aviso em si passa a sair so
+   pelo dashboard. Se isso incomodar, o conserto certo e o `servir.js` ganhar uma rota que
+   grave no disco local, nao afrouxar a policy.
+

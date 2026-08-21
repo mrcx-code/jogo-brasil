@@ -53,6 +53,39 @@
     border-radius:50%;animation:giraCk .8s linear infinite}
   @keyframes giraCk{to{transform:rotate(360deg)}}
 
+  /* ---- conta e login (Supabase Auth por e-mail; sem biblioteca, REST puro) ----
+     A pagina roda nos DOIS mundos: enquanto o INSERT anon estiver aberto ela escreve com a
+     chave publicavel; quando as politicas de ferramentas/fila-auth.sql entrarem, o 401/403
+     abre o login em vez de perder a resposta. */
+  .conta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .9rem;
+    font:600 .64rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.05em;color:var(--pedra)}
+  .conta .ponto{width:8px;height:8px;border-radius:50%;background:var(--pedra);flex:0 0 auto}
+  body[data-auth="dentro"] .conta .ponto{background:var(--ok)}
+  /* a frase quebra DENTRO da propria coluna; o botao nao e empurrado para a linha de baixo */
+  .conta .quem{flex:1 1 8rem;min-width:0;text-transform:none;letter-spacing:0;
+    font:400 .8rem/1.35 "Source Sans 3",sans-serif;color:var(--tinta2)}
+  .conta .btn{margin-left:auto;flex:0 0 auto}
+  .so-leitura{display:none;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .75rem;
+    background:var(--papel2);border:1px dashed var(--terra);border-radius:6px;padding:.45rem .6rem;
+    font:600 .74rem/1.3 "Source Sans 3",sans-serif;color:var(--tinta2)}
+  body[data-auth="fora"] .so-leitura{display:flex}
+  .so-leitura .btn{margin-left:auto;padding:.3rem .6rem;font-size:.72rem}
+  .login{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--terra);
+    border-radius:4px;padding:.9rem 1rem;margin:0 0 1.1rem;box-shadow:0 1px 3px var(--sombra)}
+  .login[hidden]{display:none}
+  .login h3{font:700 1.02rem/1.25 "Bitter",Georgia,serif;margin:0 0 .2rem}
+  .login p.sub{color:var(--pedra);font-size:.84rem;margin:0 0 .8rem}
+  .login label{display:block;font:600 .6rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--pedra)}
+  .login input{width:100%;background:var(--papel);color:var(--tinta);border:1.5px solid var(--linha);
+    border-radius:4px;padding:.55rem .6rem;font:inherit;font-size:1rem}
+  .login input:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
+  .login input.cod{letter-spacing:.35em;font-family:"IBM Plex Mono",monospace;text-align:center}
+  .login .passo[hidden]{display:none}
+  .login .estado{font:600 .68rem/1.45 "IBM Plex Mono",monospace;color:var(--pedra);margin-top:.55rem;min-height:1rem}
+  .login .estado.erro{color:var(--alerta)}
+  .login .estado.ok{color:var(--ok)}
+
   nav.aba{position:sticky;top:0;z-index:20;display:flex;gap:.2rem;overflow-x:auto;
     background:var(--papel);border-bottom:1px solid var(--linha);margin:0 -1.05rem 1.3rem;
     padding:.5rem 1.05rem;scrollbar-width:none}
@@ -199,6 +232,31 @@
     <span class="marca">Dashboard</span>
     <span class="quando" id="quando">—</span>
   </header>
+  <div class="conta" id="conta">
+    <span class="ponto"></span>
+    <span class="quem" id="conta-quem">modo leitura</span>
+    <button class="btn leve" id="conta-btn" type="button">Entrar</button>
+  </div>
+
+  <section class="login" id="login" hidden aria-label="Entrar na mesa">
+    <h3>Entrar na mesa</h3>
+    <p class="sub">Ler é aberto; <b>escrever é seu</b>. Um e-mail, um código, e este aparelho fica entrado — não precisa repetir.</p>
+    <div class="passo" id="login-p1">
+      <label for="login-email">seu e-mail</label>
+      <input id="login-email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="voce@exemplo.com">
+      <div class="acoes"><button class="btn forte" id="login-pedir" type="button">Mandar o código</button></div>
+    </div>
+    <div class="passo" id="login-p2" hidden>
+      <label for="login-cod">código que chegou no e-mail</label>
+      <input id="login-cod" class="cod" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="000000">
+      <div class="acoes">
+        <button class="btn" id="login-voltar" type="button">Trocar e-mail</button>
+        <button class="btn forte" id="login-entrar" type="button">Entrar</button>
+      </div>
+    </div>
+    <p class="estado" id="login-estado"></p>
+  </section>
+
   <div class="placar" id="placar"></div>
   <button class="pedir-check" id="pedir-check" type="button">↻ pedir check — monto um balanço novo aqui</button>
 
@@ -221,18 +279,21 @@
 
   <section class="camada" id="oportunidades">
     <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
+    <div class="so-leitura"><span>Modo leitura — priorizar e adiar exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
     <div class="lista" id="lista-op"></div>
     <p class="vazio" id="vazio-op">Nada aberto aqui agora.</p>
   </section>
 
   <section class="camada" id="decisoes">
     <div class="rot"><span class="n">DECIDA</span><h2>As decisões</h2></div>
+    <div class="so-leitura"><span>Modo leitura — decidir exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
     <div class="lista" id="lista-dec"></div>
     <p class="vazio" id="vazio-dec">Nada pra decidir agora — toque “pedir check” se quiser que eu monte um.</p>
   </section>
 
   <section class="camada" id="pendencias">
     <div class="rot"><span class="n">SUA VEZ</span><h2>Pendências</h2></div>
+    <div class="so-leitura"><span>Modo leitura — responder exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
     <div class="lista" id="lista-pend"></div>
     <p class="vazio" id="vazio-pend">Nada aberto aqui agora.</p>
   </section>
@@ -240,6 +301,7 @@
   <section class="camada" id="conversa">
     <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
     <div class="fio" id="fio"></div>
+    <div class="so-leitura"><span>Modo leitura — falar comigo exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
     <div class="compor">
       <textarea id="compor-txt" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
       <button id="compor-btn" type="button">Enviar</button>
@@ -247,7 +309,7 @@
   </section>
 
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Nada pessoal é coletado.</p></footer>
+  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — o e-mail que você usa para entrar fica no Supabase Auth deste projeto, só para provar que é você, e a sessão fica guardada neste aparelho até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -269,8 +331,9 @@
   "use strict";
   var SB_URL="https://hdhqziqvrthxtgyraemk.supabase.co";
   var SB_KEY="sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN";
-  var H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY};
+  var H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY};   // LEITURA: publicável, sempre (painéis públicos)
   var FILA="mesa-brasil-fila4";
+  var SESSAO="mesa-brasil-sessao1";
 
   function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
   var toastEl=document.getElementById("toast"), toastT;
@@ -279,10 +342,79 @@
 
   function lerFila(){ try{return JSON.parse(localStorage.getItem(FILA)||"[]");}catch(e){return [];} }
   function gravarFila(f){ try{localStorage.setItem(FILA,JSON.stringify(f));}catch(e){} }
-  function enviar(reg){
+
+  // ================= A SESSÃO (Supabase Auth por e-mail, REST puro) =================
+  // Sem biblioteca: a página é autocontida e a única dependência de rede é o próprio projeto.
+  // Guarda access_token + refresh_token no localStorage — entrar UMA vez basta.
+  var ses=null, refrescando=null;
+  function lerSessao(){
+    try{ var s=JSON.parse(localStorage.getItem(SESSAO)||"null");
+      if(s && typeof s.access_token==="string" && typeof s.refresh_token==="string") return s;
+    }catch(e){}
+    return null;
+  }
+  function gravarSessao(s){
+    ses=s||null;
+    try{ if(ses) localStorage.setItem(SESSAO,JSON.stringify(ses)); else localStorage.removeItem(SESSAO); }catch(e){}
+    pintarConta();
+  }
+  function guardarTokens(j){
+    if(!j || !j.access_token || !j.refresh_token) return null;
+    gravarSessao({ access_token:j.access_token, refresh_token:j.refresh_token,
+      expira_em: Date.now() + ((parseInt(j.expires_in,10)||3600)*1000),
+      email: (j.user && j.user.email) || (ses && ses.email) || "" });
+    return ses;
+  }
+  function comToken(s){ return {apikey:SB_KEY, Authorization:"Bearer "+s.access_token}; }
+  function sair(){ gravarSessao(null); }
+  // Rede caída NÃO desloga; refresh_token recusado pelo servidor, sim.
+  function refrescar(){
+    if(!ses || !ses.refresh_token) return Promise.resolve(null);
+    if(refrescando) return refrescando;
+    refrescando = fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",
+        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({refresh_token:ses.refresh_token})})
+      .then(function(r){ return r.ok ? r.json().catch(function(){return null;}) : "recusado"; })
+      .then(function(j){
+        if(j==="recusado"){ sair(); return null; }
+        return guardarTokens(j);
+      })
+      .catch(function(){ return null; })
+      .then(function(s){ refrescando=null; return s; });
+    return refrescando;
+  }
+  // Cabeçalho de ESCRITA: Bearer do usuário se entrou; senão a publicável — que é o mundo de
+  // hoje, com o INSERT anon ainda aberto. Quando o SQL entrar, o 401/403 abre o login.
+  function cabecalhoEscrita(){
+    if(!ses) return Promise.resolve(H);
+    if(ses.expira_em && (ses.expira_em - Date.now()) < 60000)
+      return refrescar().then(function(s){ return s ? comToken(s) : (ses ? comToken(ses) : H); });
+    return Promise.resolve(comToken(ses));
+  }
+  function postar(reg,hdr){
     return fetch(SB_URL+"/rest/v1/mesa_resposta",{method:"POST",
-      headers:Object.assign({"Content-Type":"application/json","Prefer":"return=minimal"},H),
-      body:JSON.stringify(reg)}).then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(r.status);}); return true; });
+      headers:Object.assign({"Content-Type":"application/json","Prefer":"return=minimal"},hdr),
+      body:JSON.stringify(reg)});
+  }
+  function enviar(reg){
+    return cabecalhoEscrita().then(function(hdr){
+      return postar(reg,hdr).then(function(r){
+        if(r.ok) return true;
+        if(r.status===401 || r.status===403){
+          if(ses){
+            return refrescar().then(function(s){
+              if(!s){ abrirLogin("a sessão venceu — entre de novo para enviar"); throw new Error(r.status); }
+              return postar(reg,comToken(s)).then(function(r2){
+                if(!r2.ok){ if(r2.status===401||r2.status===403) abrirLogin("esta conta não escreve na fila"); throw new Error(r2.status); }
+                return true;
+              });
+            });
+          }
+          abrirLogin("a fila agora exige entrar — guardei sua resposta");
+        }
+        throw new Error(r.status);
+      });
+    });
   }
   function flush(){ var f=lerFila(); if(!f.length) return Promise.resolve();
     return enviar(f[0]).then(function(){ f.shift(); gravarFila(f); return flush(); }).catch(function(){}); }
@@ -290,6 +422,98 @@
     return enviar(reg).then(function(){ flush(); return true; })
       .catch(function(){ var f=lerFila(); f.push(reg); gravarFila(f); return false; });
   }
+  // -------- a porta: e-mail -> código -> dentro --------
+  var cxLogin=document.getElementById("login"),
+      p1=document.getElementById("login-p1"), p2=document.getElementById("login-p2"),
+      cEmail=document.getElementById("login-email"), cCod=document.getElementById("login-cod"),
+      bPedir=document.getElementById("login-pedir"), bEntrar=document.getElementById("login-entrar"),
+      bVoltar=document.getElementById("login-voltar"), elEstado=document.getElementById("login-estado"),
+      contaQuem=document.getElementById("conta-quem"), contaBtn=document.getElementById("conta-btn"),
+      emailPendente="";
+  function estadoLogin(msg,classe){ elEstado.textContent=msg||""; elEstado.className="estado"+(classe?" "+classe:""); }
+  function pintarConta(){
+    document.body.setAttribute("data-auth", ses?"dentro":"fora");
+    if(ses){
+      contaQuem.textContent = (ses.email?ses.email+" — ":"") + "entrado neste aparelho";
+      contaBtn.textContent="Sair";
+    }else{
+      contaQuem.textContent="modo leitura — os painéis são abertos; escrever exige entrar";
+      contaBtn.textContent="Entrar";
+    }
+  }
+  function abrirLogin(msg){
+    if(ses) return;
+    cxLogin.removeAttribute("hidden");
+    if(msg) estadoLogin(msg,"erro");
+    try{ cxLogin.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){}
+    (p2.hasAttribute("hidden")?cEmail:cCod).focus();
+  }
+  function fecharLogin(){ cxLogin.setAttribute("hidden","hidden"); }
+  function passo(n){
+    if(n===1){ p1.removeAttribute("hidden"); p2.setAttribute("hidden","hidden"); }
+    else { p1.setAttribute("hidden","hidden"); p2.removeAttribute("hidden"); }
+  }
+  function erroDe(r){
+    return r.json().catch(function(){return {};}).then(function(j){
+      return j.msg || j.error_description || j.message || j.error || ("erro "+r.status);
+    });
+  }
+  contaBtn.addEventListener("click",function(){
+    if(ses){ sair(); fecharLogin(); passo(1); estadoLogin(""); toast("Saiu — os painéis continuam abertos."); }
+    else if(cxLogin.hasAttribute("hidden")) abrirLogin("");
+    else fecharLogin();
+  });
+  document.querySelectorAll(".entrar-aqui").forEach(function(b){
+    b.addEventListener("click",function(){ abrirLogin(""); });
+  });
+  bPedir.addEventListener("click",function(){
+    var e=(cEmail.value||"").trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){ estadoLogin("escreva um e-mail válido","erro"); return; }
+    bPedir.disabled=true; estadoLogin("mandando o código…");
+    fetch(SB_URL+"/auth/v1/otp?redirect_to="+encodeURIComponent(location.origin+location.pathname),{
+        method:"POST", headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({email:e, create_user:true})})
+      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ throw new Error(m); }); return true; })
+      .then(function(){ emailPendente=e; passo(2); cCod.value=""; cCod.focus();
+        estadoLogin("código enviado para "+e+" — cole aqui, ou toque no link do e-mail neste aparelho","ok"); })
+      .catch(function(err){ estadoLogin("não deu: "+err.message,"erro"); })
+      .then(function(){ bPedir.disabled=false; });
+  });
+  bVoltar.addEventListener("click",function(){ passo(1); estadoLogin(""); cEmail.focus(); });
+  function verificar(){
+    var cod=(cCod.value||"").replace(/\s/g,"");
+    if(cod.length<6){ estadoLogin("o código tem 6 dígitos","erro"); return; }
+    bEntrar.disabled=true; estadoLogin("conferindo…");
+    fetch(SB_URL+"/auth/v1/verify",{method:"POST",
+        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({email:emailPendente, token:cod, type:"email"})})
+      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ throw new Error(m); }); return r.json(); })
+      .then(function(j){
+        if(!guardarTokens(j)) throw new Error("resposta sem token");
+        fecharLogin(); passo(1); estadoLogin(""); cCod.value="";
+        toast("Entrou ✓ — este aparelho fica entrado.");
+        flush();
+      })
+      .catch(function(err){ estadoLogin("não entrou: "+err.message,"erro"); })
+      .then(function(){ bEntrar.disabled=false; });
+  }
+  bEntrar.addEventListener("click",verificar);
+  cCod.addEventListener("keydown",function(e){ if(e.key==="Enter") verificar(); });
+  cEmail.addEventListener("keydown",function(e){ if(e.key==="Enter") bPedir.click(); });
+  // Link mágico: o e-mail volta com #access_token=... no endereço. Recolhe e limpa a barra.
+  function sessaoDoEndereco(){
+    var h=location.hash||"";
+    if(h.indexOf("access_token=")<0 && h.indexOf("error")<0) return false;
+    var p={};
+    h.replace(/^#/,"").split("&").forEach(function(kv){
+      var i=kv.indexOf("="); if(i>0) p[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g," "));
+    });
+    try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+    if(p.access_token && p.refresh_token){ guardarTokens(p); return true; }
+    if(p.error || p.error_description){ abrirLogin("o link não valeu: "+(p.error_description||p.error)); }
+    return false;
+  }
+
   function esconder(el){ el.style.maxHeight=el.scrollHeight+"px";
     requestAnimationFrame(function(){ el.classList.add("foi");
       setTimeout(function(){ el.remove(); atualizaPlacar(); },340); }); }
@@ -531,6 +755,18 @@
     }).catch(function(){
       document.getElementById("quando").textContent="sem conexão — tentando de novo";
     });
+  }
+  // ================= PARTIDA =================
+  ses=lerSessao(); pintarConta();
+  if(sessaoDoEndereco()) toast("Entrou ✓ — este aparelho fica entrado.");
+  if(ses){
+    if(ses.expira_em && (ses.expira_em-Date.now())<60000) refrescar();
+    if(!ses.email){
+      fetch(SB_URL+"/auth/v1/user",{headers:comToken(ses)})
+        .then(function(r){ return r.ok?r.json():null; })
+        .then(function(u){ if(u && u.email && ses){ ses.email=u.email; gravarSessao(ses); } })
+        .catch(function(){});
+    }
   }
   carregar();
   setInterval(carregar, 7000);

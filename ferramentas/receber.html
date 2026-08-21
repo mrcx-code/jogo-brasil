@@ -689,9 +689,14 @@ document.getElementById('confirmar-prioridades').addEventListener('click', funct
       'Content-Type':'application/json', Prefer:'return=minimal' },
     body: JSON.stringify({ tipo:'backlog', chave:'confirmado',
       texto: blDoc.itens.map(function(it,n){return (n+1)+'.'+it.id;}).join(' ') })
-  }).then(function(r){ if(!r.ok) throw 0;
+  }).then(function(r){ if(!r.ok) throw r.status;
     est.textContent='✓ avisado — o Claude realinha no próximo ciclo';
-  }).catch(function(){ est.textContent='não consegui avisar (rede?) — a ordem ESTÁ salva no disco';
+  }).catch(function(cod){
+    // 401/403 = a fila do dashboard fechou (ferramentas/fila-auth.sql). Esta mesa roda em
+    // localhost e nao tem sessao: dizer "rede?" aqui seria mentira que custa meia hora.
+    est.textContent = (cod===401||cod===403)
+      ? 'a fila exige login agora — confirme pelo dashboard; a ordem ESTÁ salva no disco'
+      : 'não consegui avisar (rede?) — a ordem ESTÁ salva no disco';
   }).finally(function(){ setTimeout(function(){ b.disabled=false; }, 2500); });
 });
 fetch('/backlog').then(r => r.json()).then(function (d) { blDoc = d; pintarBacklog(); })
