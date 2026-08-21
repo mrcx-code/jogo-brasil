@@ -115,6 +115,10 @@ integração por `git merge` com portões por exit code entre cada um, e só ent
 
 ## 3. Como trabalhar em paralelo sem se atropelar
 
+- **A FILA OFICIAL é o backlog da mesa** (ferramentas/backlog.json, 21/08): o pm propõe a
+  ordem, o DONO reordena na mesa (localhost:8200), e o de cima é o próximo. Agente que escolhe
+  tarefa fora do topo do backlog escreve o porquê no placar.
+
 - **Territórios disjuntos.** Antes de abrir um leque, o `pm` define quem toca o quê. Dois agentes
   no mesmo arquivo é retrabalho garantido.
 - **A fila da mesa (`mesa_resposta`) tem UM consumidor: o plantão durável.** Sessão e agente não

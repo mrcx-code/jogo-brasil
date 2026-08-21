@@ -8185,3 +8185,14 @@ lugares**, e os cartões continuam abrindo (medido em `--disable-webgl`).
 **O que ficou de fora e por quê:** nenhuma seção irmã ganhou link para `/territorio` — mexer nos
 geradores delas é trabalho de outra pessoa nesta rodada. E o `plataforma/index.html` (a home)
 não lista a seção nova.
+
+## A DUPLA + o backlog do dono (21/08, tarde)
+
+- **A DUPLA nasceu** (decisão do dono entre 3 caminhos do Fable; B=TRÊS SQUADS declarado como
+  destino pós-avenida A): dev-jogo (src/, esteira, testes do jogo) e dev-plataforma (geradores,
+  porta, territorio, dashboard, mesa, servir, construir — dono nomeado). Fronteira: gerador
+  EXTRAI do jogo headless, nunca redigita. integrar.js aprovado junto (gatilhos de auditoria).
+- **O BACKLOG REORDENÁVEL na mesa** (pedido dele: controle de onde estamos): ferramentas/
+  backlog.json + rotas GET/POST /backlog + UI com ▲▼ abaixo dos assets; a ordem é o input
+  oficial de todos os agentes. Mais: Rolando agora (mesa_agente) e Últimas 24h (git) na mesa.
+  Testado: reordenar salva no disco; 8 entregas nas últimas 24h apareceram sozinhas.

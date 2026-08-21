@@ -552,6 +552,30 @@ const servidor = http.createServer(function (req, res) {
     return;
   }
 
+  // O BACKLOG (dono, 21/08): a fila oficial da plataforma, priorizada pelo pm e REORDENADA
+  // por ele aqui. GET devolve; POST grava o documento inteiro (ferramenta local de uma pessoa
+  // — a simplicidade e o desenho, nao preguica). A ordem do array E a prioridade.
+  if (req.method === 'GET' && url === '/backlog') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(fs.readFileSync(path.join(__dirname, 'backlog.json'), 'utf8'));
+    return;
+  }
+  if (req.method === 'POST' && url === '/backlog') {
+    const pd = [];
+    req.on('data', function (c) { pd.push(c); });
+    req.on('end', function () {
+      let doc;
+      try { doc = JSON.parse(Buffer.concat(pd).toString('utf8')); }
+      catch (e) { res.writeHead(400).end('json invalido'); return; }
+      if (!doc || !Array.isArray(doc.itens)) { res.writeHead(400).end('sem itens'); return; }
+      doc._ = 'O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.';
+      fs.writeFileSync(path.join(__dirname, 'backlog.json'), JSON.stringify(doc, null, 2));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, n: doc.itens.length }));
+    });
+    return;
+  }
+
   if (req.method === 'POST' && url === '/salvar') {
     const pedacos = [];
     let total = 0;

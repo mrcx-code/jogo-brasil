@@ -1,0 +1,55 @@
+{
+  "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
+  "itens": [
+    {
+      "id": "integrar-js",
+      "titulo": "integrar.js — o funil com gatilhos de auditoria",
+      "detalhe": "Merge + placar obrigatorio + QA-ou-motivo + gatilhos (publico→growth, rede→seguranca, historia→historiador, mecanica→qa). Aprovado no caminho A."
+    },
+    {
+      "id": "rodada-prova",
+      "titulo": "Rodada-prova da DUPLA em paralelo",
+      "detalhe": "dev-plataforma e dev-jogo em tickets disjuntos ao mesmo tempo; medir colisoes (meta: 0) e entregas/dia."
+    },
+    {
+      "id": "home-inc2",
+      "titulo": "Home do jogo increment 2 — diorama + portais",
+      "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo (direcao da arte de 20/08)."
+    },
+    {
+      "id": "gesto-ainda-aqui",
+      "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
+      "detalhe": "Decidido pelo dono (§2, 21/08). Design cuidadoso; duvida nova de representacao volta pra ele."
+    },
+    {
+      "id": "trilha-palmares",
+      "titulo": "Trilha batida entre os povoados de Palmares",
+      "detalhe": "Decidido pelo dono (§2, 21/08). A rede como coisa vivida, na linguagem pixel."
+    },
+    {
+      "id": "og-image-territorio",
+      "titulo": "og:image propria do territorio",
+      "detalhe": "gerar-territorio.js tira o print 1200x630 sozinho → territorio/compartilhar.jpg (uma fonte, duas saidas)."
+    },
+    {
+      "id": "link-jogo-plataforma",
+      "titulo": "O chamariz ganha saida: link jogo → plataforma",
+      "detalhe": "Hoje o jogo nao tem NENHUM link de volta (achado do growth). Proposta discreta; se pedir decisao visual, vai ao dono."
+    },
+    {
+      "id": "posthog-paginas",
+      "titulo": "Medir as paginas fora do jogo (PostHog)",
+      "detalhe": "Hoje visita na porta/secoes e invisivel. PENDE decisao do dono: onde mora o interruptor de privacidade nessas paginas (§3)."
+    },
+    {
+      "id": "avenida-a",
+      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
+      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08."
+    },
+    {
+      "id": "retro-pm",
+      "titulo": "Primeira retro do pm pelo placar",
+      "detalhe": "Um ajuste de prompt por agente, tirado do placar do EQUIPE.md §5. O mecanismo de evolucao da propria maquina."
+    }
+  ]
+}

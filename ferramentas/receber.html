@@ -181,7 +181,13 @@
 
 <!-- O QUE DECIDIR saiu em 21/08: decisões moraram para o DASHBOARD (matheusferreira.cc/dashboard). -->
 
-<!-- O painel de atividade saiu em 21/08: os bonequinhos do DASHBOARD contam isso agora. -->
+<h2 class="secao">Backlog <span class="conta" id="quantasBacklog"></span></h2>
+<p class="sub" style="margin:0 0 10px">A fila oficial, priorizada pela pm — <b>reordene com ▲▼</b>: a ordem daqui é o input de todos os agentes. O de cima é o próximo.</p>
+<div id="backlog"><p class="vazio">carregando…</p></div>
+
+<h2 class="secao">Atividades</h2>
+<div id="rolando" style="margin-bottom:10px"><p class="vazio">carregando…</p></div>
+<div id="ult24"></div>
 <p id="comigo"></p>
 
 <script>
@@ -634,6 +640,76 @@ setInterval(function () {
     montarFila();
   }).catch(function () {});
 }, 15000);
+
+// ===== BACKLOG (dono, 21/08): reordenavel; a ordem E a prioridade =====
+let blDoc = null;
+function pintarBacklog() {
+  const cx = document.getElementById('backlog');
+  const itens = (blDoc && blDoc.itens) || [];
+  document.getElementById('quantasBacklog').textContent = itens.length || '';
+  if (!itens.length) { cx.innerHTML = '<p class="vazio">backlog vazio</p>'; return; }
+  cx.innerHTML = '';
+  itens.forEach(function (it, i) {
+    const d = document.createElement('div');
+    d.className = 'pedido';
+    d.style.padding = '9px 12px';
+    d.innerHTML = '<div style="display:flex;gap:10px;align-items:flex-start">' +
+      '<div style="display:flex;flex-direction:column;gap:2px;flex:0 0 auto">' +
+      '<button data-mv="-1" style="margin:0;padding:1px 9px"' + (i===0?' disabled':'') + '>▲</button>' +
+      '<button data-mv="1" style="margin:0;padding:1px 9px"' + (i===itens.length-1?' disabled':'') + '>▼</button></div>' +
+      '<div style="flex:1"><div class="titulo" style="font-size:17px;margin:0">' + (i+1) + '. ' + it.titulo + '</div>' +
+      (it.detalhe ? '<div class="ref" style="margin:2px 0 0">' + it.detalhe + '</div>' : '') + '</div></div>';
+    d.querySelectorAll('button[data-mv]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        const dir = parseInt(b.getAttribute('data-mv'), 10);
+        const j = i + dir;
+        const t = itens[i]; itens[i] = itens[j]; itens[j] = t;
+        pintarBacklog();
+        fetch('/backlog', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(blDoc) }).then(r => r.json()).then(function (x) {
+            if (!x.ok) throw 0;
+          }).catch(function () { alert('nao salvou a ordem — o servidor caiu?'); });
+      });
+    });
+    cx.appendChild(d);
+  });
+}
+fetch('/backlog').then(r => r.json()).then(function (d) { blDoc = d; pintarBacklog(); })
+  .catch(function () { document.getElementById('backlog').innerHTML = '<p class="vazio">sem backlog (o servidor tem /backlog?)</p>'; });
+
+// ===== ATIVIDADES: rolando agora (painel dos agentes, via backend) + ultimas 24h (git) =====
+const SB = 'https://hdhqziqvrthxtgyraemk.supabase.co/rest/v1';
+const SB_K = 'sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN';
+function pintarRolando() {
+  fetch(SB + '/mesa_agente?select=nome,status,atividade,ativo_em&order=ordem',
+    { headers: { apikey: SB_K, Authorization: 'Bearer ' + SB_K } })
+    .then(r => r.json()).then(function (ags) {
+      const on = ags.filter(a => a.status === 'trabalhando');
+      const cx = document.getElementById('rolando');
+      cx.innerHTML = '<section class="bloco"><h2>Rolando agora</h2>' +
+        (on.length ? on.map(a => '<div class="linha"><span class="marca">' + a.nome + '</span><span>' +
+          (a.atividade || 'trabalhando') + '</span><span class="selo sVoo">EM VOO</span></div>').join('') :
+          '<div class="linha"><span class="sub">ninguém em voo agora — "nada em curso" é informação</span></div>') +
+        '</section>';
+    }).catch(function () {
+      document.getElementById('rolando').innerHTML = '<section class="bloco"><h2>Rolando agora</h2><div class="linha"><span class="sub">sem conexão com o painel</span></div></section>';
+    });
+}
+function pintarUlt24() {
+  fetch('/atividade', { cache: 'no-store' }).then(r => r.json()).then(function (a) {
+    const dia = (a.commits || []).filter(c => c.minutos <= 1440);
+    document.getElementById('ult24').innerHTML = '<section class="bloco"><h2>Últimas 24 h — ' +
+      dia.length + ' entregas</h2>' +
+      (dia.length ? dia.map(c => '<div class="linha"><span class="marca">' + c.ha + '</span><span>' +
+        c.assunto + '</span></div>').join('') :
+        '<div class="linha"><span class="sub">nenhuma entrega nas últimas 24 h</span></div>') +
+      '</section>';
+  }).catch(function () {});
+}
+pintarRolando(); pintarUlt24();
+setInterval(pintarRolando, 15000);
+setInterval(pintarUlt24, 60000);
+
 </script>
 </body>
 </html>
