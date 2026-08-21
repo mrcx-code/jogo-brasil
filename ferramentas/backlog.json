@@ -2,19 +2,9 @@
   "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
   "itens": [
     {
-      "id": "integrar-js",
-      "titulo": "integrar.js — o funil com gatilhos de auditoria",
-      "detalhe": "Merge + placar obrigatorio + QA-ou-motivo + gatilhos (publico→growth, rede→seguranca, historia→historiador, mecanica→qa). Aprovado no caminho A."
-    },
-    {
       "id": "rodada-prova",
       "titulo": "Rodada-prova da DUPLA em paralelo",
-      "detalhe": "dev-plataforma e dev-jogo em tickets disjuntos ao mesmo tempo; medir colisoes (meta: 0) e entregas/dia."
-    },
-    {
-      "id": "territorio-rico",
-      "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
-      "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma."
+      "detalhe": "EM CURSO: dev-plataforma entregue e integrada (colisões 0 até aqui); falta o dev-jogo pousar pra fechar a medição."
     },
     {
       "id": "fila-auth",
@@ -22,14 +12,19 @@
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth."
     },
     {
+      "id": "avenida-a",
+      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
+      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08."
+    },
+    {
+      "id": "territorio-rico",
+      "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
+      "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma."
+    },
+    {
       "id": "home-inc2",
       "titulo": "Home do jogo increment 2 — diorama + portais",
       "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo (direcao da arte de 20/08)."
-    },
-    {
-      "id": "gesto-ainda-aqui",
-      "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
-      "detalhe": "Decidido pelo dono (§2, 21/08). Design cuidadoso; duvida nova de representacao volta pra ele."
     },
     {
       "id": "trilha-palmares",
@@ -37,9 +32,9 @@
       "detalhe": "Decidido pelo dono (§2, 21/08). A rede como coisa vivida, na linguagem pixel."
     },
     {
-      "id": "og-image-territorio",
-      "titulo": "og:image propria do territorio",
-      "detalhe": "gerar-territorio.js tira o print 1200x630 sozinho → territorio/compartilhar.jpg (uma fonte, duas saidas)."
+      "id": "gesto-ainda-aqui",
+      "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
+      "detalhe": "Decidido pelo dono (§2, 21/08). Design cuidadoso; duvida nova de representacao volta pra ele."
     },
     {
       "id": "link-jogo-plataforma",
@@ -52,14 +47,29 @@
       "detalhe": "Hoje visita na porta/secoes e invisivel. PENDE decisao do dono: onde mora o interruptor de privacidade nessas paginas (§3)."
     },
     {
-      "id": "avenida-a",
-      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
-      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08."
-    },
-    {
       "id": "retro-pm",
       "titulo": "Primeira retro do pm pelo placar",
       "detalhe": "Um ajuste de prompt por agente, tirado do placar do EQUIPE.md §5. O mecanismo de evolucao da propria maquina."
+    },
+    {
+      "id": "validade-rad",
+      "titulo": "Corrigir o número VENCIDO do MapBiomas (2º→3º ano) + rótulo de estimativa",
+      "detalhe": "Relatório do historiador 21/08: RAD 2025 (27/05/26) — Cerrado 540.614 ha, 54,9%, TERCEIRO ano seguido; marco PRODES rotular estimativa vs consolidada (5.731 km² em mar/26); citação IBGE 2ª ed 18/06/26 + 474.856 falantes a ganhar. Via funil, historiador aplica."
+    },
+    {
+      "id": "og-image-secoes",
+      "titulo": "Cartões de imagem das 3 seções de leitura (WhatsApp)",
+      "detalhe": "gerar-cartoes.js pronto do growth + 4 metas; historia/glossario/de-onde-vem sem imagem hoje."
+    },
+    {
+      "id": "divulgacao-2026",
+      "titulo": "Divulgação 2026 — plano e rascunhos PARA SIGN-OFF",
+      "detalhe": "Sua lei: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem seu sign-off."
+    },
+    {
+      "id": "coerencia-visual",
+      "titulo": "Coerência visual: as DUAS línguas do jogo (auditoria da arte)",
+      "detalhe": "3 capítulos pixel cru vs 10 em pintura (medido); 4 capítulos com a MESMA pintura; fantasma na costura de JABAQUARA. Correções propostas sem arte nova (quantização + luzDoDia + deslocar costura). Decisão de direção: qual língua vence?"
     }
   ]
 }

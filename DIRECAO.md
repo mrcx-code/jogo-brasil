@@ -819,3 +819,98 @@ removeu o CSS morto do motor antigo (`#cartao` navy, `#offline`, `.pop`, `.tend`
   voltam.
 - **Paralaxe nova, blur, bloom de verdade**: ou quebram o §7 (chão 1:1) ou pedem WebGL.
   O jogo é canvas 2D por decisão; bloom aqui é gradiente, e gradiente já há.
+
+## AUDITORIA (2026-08-21): OS 13 CAPÍTULOS LADO A LADO — o frankenstein que nenhuma onda mediu
+
+Acionada pelo dono ("coerência visual entre capítulos"). Diagnóstico, sem código: 13 capítulos
+entrados um a um por `entrarNaEpoca`, print da RUA em 390×844 dsf2 (cada um esperando o pacote
+de arte sob demanda terminar via `pacoteEstado`), mais luma/sat/temperatura da pintura ativa na
+escala de EXIBIÇÃO (cover, como `medir-na-tela.js`). Prints piores guardados em `test/COER-*.png`;
+os 13 originais foram apagados depois de medidos (eram `test/tmp-coer-*.png`).
+
+**O achado central, e é maior que qualquer onda anterior: o jogo fala DUAS línguas visuais, não
+uma.** PINDORAMA, PALMARES e AINDA AQUI (hoje) são pixel art de verdade — blocos de cor chapada,
+grão grosso, a mesma gramática do chrome que as ondas 6/7/11 já impuseram. CAIS, SALVADOR,
+JABAQUARA, A PEQUENA ÁFRICA, AS PORTAS, O QUE NÃO PODIA SER DITO, A PRAÇA, O QUE SEGUROU, O
+ACEIRO e O QUE TEM FONTE (10 dos 13) são pintura semi-realista de tom contínuo — sombra suave,
+perspectiva de concept art, zero grão de pixel. **A saturação medida confirma por número**: família
+pixel art 59–66%; família pintura 34–52% (exceto CAIS, transicional, 59%). Isto não é a paleta
+que as ondas 1–3 calibraram (cor por família de material) — é a TÉCNICA de renderização mudando
+de capítulo para capítulo, o "vetor sobre pixel" da onda 11, só que agora é "pintura contínua
+sobre pixel art" e é dez capítulos, não um HUD. **Print:** `test/COER-transicao-palmares-cais.png`.
+
+**O mesmo corte atravessa o herói.** `HERO_B64` é uma folha por capítulo (não uma só), e as
+folhas foram desenhadas nos dois registros: o herói de PINDORAMA é pixel art crua (pixels grandes,
+sem gradiente); o de CAIS e o de SALVADOR têm sombreado contínuo, mais perto de arte "anime"
+reduzida do que de sprite retro. Como o chrome (HUD, botões) é fonte bitmap 5×7 e material com
+grão determinístico em toda tela, é o ELENCO que desafina, não o resto. **Print:**
+`test/COER-grao-heroi.png`.
+
+**Segundo achado: quatro capítulos usam a MESMA pintura, pixel a pixel.** NÃO DITO, A PRAÇA, O
+QUE SEGUROU e O ACEIRO (`arte: [10]` nos quatro, confirmado em `src/jogo.ts`) mostram o idêntico
+prédio, o mesmo poste, o mesmo fiado de rua — só o elenco de NPCs muda. Para quem joga do começo
+ao fim, é a mesma rua quatro vezes seguidas, em quatro nomes de capítulo diferentes. **Print:**
+`test/COER-repeticao-4x.png`.
+
+**Terceiro achado: a emenda de espelho (§7 do CLAUDE.md, técnica correta e antiga) produz um
+rosto fantasma em JABAQUARA.** A raiz de árvore no chão, muito detalhada e não-repetitiva, reflete
+sobre si mesma no eixo do espelho e forma um padrão simétrico que lê como máscara — invisível na
+mata chapada de PINDORAMA/PALMARES (onde a folhagem já é repetitiva o bastante para o espelho não
+chamar atenção), gritante na pintura fina de JABAQUARA. **Print:** `test/COER-jabaquara-costura.png`.
+
+### Ranking de coerência, melhor → pior (13 capítulos, critério: quanto cada RUA lê como do
+mesmo jogo que o chrome e os bookends já estabelecem)
+
+1. **PINDORAMA** — pixel art fundadora, zero artefato.
+2. **PALMARES** — mesma família, zero artefato.
+3. **O QUE TEM FONTE** — pintura, mas interior fechado e simétrico (biblioteca): a reflexão do
+   espelho cai sobre estante repetitiva, não chama atenção; a família pintura aqui é a mais bem
+   resolvida do lote.
+4. **SALVADOR** — pintura coerente internamente, sem artefato de emenda visível no recorte medido.
+5. **AS PORTAS** — pintura coerente, tom apropriadamente mais cinza/concreto para o período.
+6. **A PEQUENA ÁFRICA** — pintura coerente, sem artefato visível.
+7. **AINDA AQUI (hoje)** — volta à família pixel art no FUNDO (bom, fecha o arco), mas carrega o
+   herói "moderno" de grão fino (o mesmo elenco de AS PORTAS/NÃO DITO) — o único capítulo onde
+   fundo e personagem pertencem a famílias DIFERENTES ao mesmo tempo.
+8. **CAIS** — a pintura mais bonita do lote isoladamente, mas é o capítulo-dobradiça: depois de
+   dois capítulos inteiros de pixel art, é aqui que o jogo muda de técnica pela primeira vez, sem
+   ponte nenhuma. O problema não é dele sozinho — é ser o primeiro a quebrar a regra.
+9. **NÃO DITO** — pintura coerente, primeira das quatro a repetir a arte de `arte:[10]`.
+10. **A PRAÇA** — mesma pintura de NÃO DITO; a repetição começa a se notar.
+11. **O QUE SEGUROU** — terceira repetição consecutiva da mesma pintura.
+12. **O ACEIRO** — quarta repetição consecutiva; a esta altura é indistinguível dos três anteriores
+    sem ler o nome no letreiro de madeira.
+13. **JABAQUARA** — pior colocado: além de pertencer à família pintura (mesmo corte de 8–12), é o
+    único com um artefato de composição visível e não-intencional (o rosto no espelho da raiz).
+
+### Os 3 problemas mais graves, e a correção de maior retorno por capítulo problemático
+
+**1. Duas técnicas de renderização coexistindo sem ponte (PALMARES→CAIS e os 10 capítulos
+pintados vs. os 3 pixel art).** Maior achado da auditoria — nenhuma onda anterior mediu o jogo
+inteiro de uma vez; todas mediram chrome, tipografia ou luz. Correção de maior retorno, sem arte
+nova (princípio 7 da onda 12, "zero arte nova por padrão"): um passe de código — quantização de
+cor + redução de resolução efetiva — aplicado NA EXIBIÇÃO sobre os 10 `CENARIO_ALTO_B64` da
+família pintura (e sobre os `HERO_B64` que a acompanham), até a granulometria bater com o mesmo
+`--graoPx`/passo de 2 px css que o chrome já usa desde a onda 11. Não reprocessa arquivo: um
+canvas intermediário no `redesenharFundo()`, medido em FPS antes de entrar (piso 58 continua
+valendo). Alternativa mais cara e não recomendada: repintar os 3 capítulos pixel art no registro
+"pintura" — mais arte nova, e perde o bookend deliberado de PINDORAMA/AINDA AQUI.
+
+**2. Quatro capítulos, uma pintura (`arte:[10]` em NÃO DITO/A PRAÇA/O QUE SEGUROU/O ACEIRO).**
+Correção de maior retorno: o próprio motor já tem um sistema de hora do dia (`HORAS`,
+`luzDoDia()`) que a "O diagnóstico" desta casa (12/08) já registrou que NÃO alcança `#fundoHD`
+— só a lavagem de cuidado (`lavarFundo`) chega lá. Estender esse sistema à pintura destes quatro
+capítulos especificamente (uma hora fixa e diferente por capítulo, não o ciclo completo) dá a
+cada um uma luz própria sem pintar nada de novo — MANHÃ para NÃO DITO, TARDE para A PRAÇA, e
+assim por diante. Zero imagem nova; o sistema de tingimento já existe e já é medido.
+
+**3. O rosto no espelho em JABAQUARA.** Correção de maior retorno: não é a técnica de espelho
+(§7 do CLAUDE.md, correta e não se mexe) — é ONDE a emenda cai nesta pintura específica. Ajustar
+o deslocamento de scroll em que a cópia espelhada começa (mover a costura alguns px para a
+esquerda ou direita) tira a raiz mais detalhada do eixo de simetria sem tocar em nenhuma outra
+pintura. Correção de posição, não de arte.
+
+**Fora do escopo desta cadeira:** decidir se os 10 capítulos "pintura" são a direção nova do jogo
+(e então os 3 pixel art é que precisam mudar) é decisão de arquitetura visual de longo prazo —
+cito aqui, não decido. E nada disto é pergunta de representação (§2): quem está em cada rua
+continua sendo do dono via `ROSTOS.md`; esta auditoria julgou só a TÉCNICA com que a rua é pintada.
