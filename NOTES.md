@@ -8096,3 +8096,16 @@ consertado por mim.
 - **Os loops da madrugada NAO RODARAM**: o despertar de 23:23 morreu com o app fechado (loop de
   sessao). Consertado em 21/08 com agendamento DURAVEL (scheduled task, 30min, roda ao abrir o
   app se perdeu a hora) — o plantao da mesa deixa de depender da sessao viva.
+
+## As 3 decisoes do plano ano a ano, respondidas pelo dono no chat (21/08 manha)
+
+1. **Avenida primeira = A, conteudo vira dado**: migrar GLOSSARIO/LINHA_TEMPO/FONTES do
+   src/jogo.ts para o backend com PORTAO DE REVISAO (historiador/dono aprovam antes de publicar
+   — o portao se desenha JUNTO, nao depois). Entra na fila DEPOIS do territorio 3D (que ja esta
+   em construcao) e da home increment 2 (priorizada por ele na mesa).
+2. **Calendario anual = INTERNO**: guia de prioridade (19/abr, MapBiomas ~mai, PRODES ~out,
+   20/nov), nunca anunciado como promessa. Nota do pm mantida: 13/mai so entra com a camada
+   critica do proprio movimento negro, nunca como efemeride solta.
+3. **Expiracao = OS DOIS**: (a) item recorrente aqui e no PENDENTES; (b) alerta automatico JA —
+   scheduled task mensal (alerta-validade-brasil, dia 1, 9h13) verifica INPE/MapBiomas/IBGE por
+   WebSearch e avisa NA MESA se algo venceu; silencio se nada venceu.

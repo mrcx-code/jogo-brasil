@@ -1286,3 +1286,10 @@ nenhuma das mudanças de texto. É defeito anterior, de layout, e está no port�
 manda ler por exit code — ou seja, **hoje qualquer agente que rode os quatro portões vê vermelho e
 não sabe se é dele**. Conserto provável: 7 px em `logoImg`/`menuSub`/`poste` naquela faixa. Quem
 pegar: registre o antes/depois nas cinco alturas, não só na que falha.
+
+## 45 · RECORRENTE — validade dos numeros datados (decidido em 21/08)
+
+Todo outubro/novembro: nota do PRODES (O ACEIRO, fala 2 + fecho 1 + duas fontes). Todo maio:
+MapBiomas RAD. Censo IBGE: proxima edicao a verificar. O alerta automatico mensal
+(scheduled task alerta-validade-brasil) avisa na mesa; ESTE item garante que mesmo sem o
+alerta alguem olhe nas janelas certas. Nao fecha nunca — e recorrente de proposito.
