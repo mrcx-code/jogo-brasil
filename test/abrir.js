@@ -88,7 +88,16 @@ module.exports = function abrir(u) {
   if (!/^file:\/{2,3}/i.test(s)) return s;
   // `file:///C:/x` e `file://C:/x` chegam os dois; a barra que sobra antes da letra do disco
   // some aqui, e é só no Windows que ela existe.
-  const cru = decodeURI(s.replace(/^file:\/{2,3}/i, '')).replace(/^\/(?=[A-Za-z]:)/, '');
+  //
+  // TIRA-SE `file://` E NUNCA A TERCEIRA BARRA — a versão anterior (`\/{2,3}`) comia três, e
+  // isso QUEBRAVA TODO O CI DESDE 20/08 16:22 sem quebrar máquina Windows nenhuma: no Linux,
+  // `file:///home/runner/.../index.html` virava `home/runner/...` RELATIVO, o resolve colava
+  // o cwd na frente, o caminho terminava em .html e começava com a RAIZ — então o servidor
+  // subia feliz e devolvia 404 para um arquivo que não existe. A régua via uma página "404"
+  // sem #telaMenu e reprovava com "menu não existe" em todas as telas. No Windows a terceira
+  // barra é lixo de sintaxe antes de `C:` e comê-la era inofensivo — por isso o defeito só
+  // aparecia no runner. A terceira barra do POSIX é o começo do caminho; fica.
+  const cru = decodeURI(s.replace(/^file:\/\//i, '')).replace(/^\/(?=[A-Za-z]:)/, '');
   const abs = path.resolve(cru);
   if (!abs.startsWith(RAIZ)) return s;      // arte de entrada, arquivo solto: file:// serve
   if (!/\.html?$/i.test(abs)) return s;     // não é uma página, é matéria-prima
