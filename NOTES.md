@@ -8123,3 +8123,65 @@ consertado por mim.
 Implementacao entra na fila DEPOIS de territorio 3D e home increment 2 (ordem que ele ja
 priorizou na mesa; ele pode reordenar por la). Design detalhado de cada uma vai a ele antes de
 virar codigo se surgir QUALQUER duvida de representacao nova — o §2 nao dorme.
+
+
+## 21/08 — O TERRITÓRIO: a placa 3D do país, em página separada (agente dev)
+
+Pedido do dono ("o mapa tá taaaao basiquinho") com a técnica decidida por ele: **three.js**. O
+resultado é `territorio/index.html`, quarta seção da plataforma, irmã de `historia/`,
+`glossario/` e `de-onde-vem/`. **Ela não toca o jogo, não toca a CSP do jogo e não entra no
+arquivo único** — carrega sob demanda, no próprio endereço.
+
+**UMA FONTE, DUAS SAÍDAS.** `ferramentas/gerar-territorio.js` roda o JOGO headless e extrai
+`MAPA_CONTORNO` (52 pontos), `MAPA_LUGARES`, `MAPA_PONTOS` (5 pinos, 6 capítulos),
+`MAPA_CENSO`, `MAPA_CENSO_FONTE`, `MAPA_N/S/O/L` e o `nome`/`quando` de `EPOCAS`. Nada foi
+redigitado: **a zona do dono (`TERRITORIO.md`) só foi LIDA**. A frase da honestidade do
+contorno sai do `src/jogo.ts` por regex, verbatim, e a ferramenta **recusa gerar se não a
+achar** — porque redigitá-la criaria a segunda cópia que desencontra.
+
+**Medido nesta rodada** (`node test/ver-territorio.js`, quatro larguras):
+
+| tela | primeiro quadro | fps (SwiftShader) | topo na tela |
+|---|---:|---:|---|
+| 1366×768 | 251 ms | 7,5 | #e9d8ae |
+| 390×844 | 189 ms | 21,5 | #e1cfa4 |
+| 768×1024 | 179 ms | 9,0 | #dfcc9e |
+| 1024×768 | 185 ms | 9,5 | #e9d8ae |
+
+- **Página: 766 KB crus, 196 KB gzip.** 733 KB são o three.js minificado inline (r0.185, dois
+  módulos ESM colados por Blob URL — a lib não publica mais UMD). Zero CDN, zero fonte remota,
+  zero imagem: o grão do topo é gerado no canvas com o **mesmo `hash01` e as mesmas doses da
+  Onda 11** (poro 11%, cisco 5,5%).
+- **19 chamadas de desenho e 2.372 triângulos.** Os fps acima são de **rasterizador de
+  software** (headless), então não dizem nada sobre celular; o orçamento de desenho, sim.
+- **A paleta é cobrada por medição, não por olho.** O instrumento lê o pixel do topo e exige
+  que ele caia na faixa travada #e9d8ae–#d8c391. Foi ela que pegou o defeito: um sol
+  `0xfff2d8` (quente) multiplica canal a canal e puxava o azul **15/255** para fora da faixa.
+  A luz virou branca; o calor vem da tinta, não da lâmpada.
+
+**Dois defeitos reais achados pelo próprio instrumento, e os dois só apareceram porque ele
+exercita o caminho da pessoa (EQUIPE.md 2.1):**
+
+1. **Girar o aparelho com o cartão aberto tirava 2 dos 5 pinos da tela.** Causa: o destino do
+   dolly-in era **guardado** no toque — e um destino guardado é uma cópia do enquadramento
+   velho. Passou a ser recalculado a cada quadro; o giro se resolve sozinho.
+2. **O cartão do Rio rotulava a cidade inteira de "Cais do Valongo"** — exatamente o defeito
+   que o mapa do jogo já tinha pago e deixado escrito no código. Com dois capítulos no mesmo
+   pino, o endereço desce e vira do capítulo a que pertence.
+
+**Direção de arte, cumprida e onde ela foi interpretada:** placa extrudada do contorno (altura
+2,6% da largura), mesa escura, fundo #0a0806, câmera 3/4 a 57° com FOV 33, **um** movimento de
+entrada de 1,4 s que acaba e para, pinos acendendo de 80 em 80 ms, `MeshToonMaterial` com rampa
+de 3 bandas, sem bloom, sem PBR, sem skybox, sem autorrotação. **O bisel de 8° foi lido como
+ângulo de saída da PAREDE, não do topo** — medido do topo, um bisel de 8° numa placa de 2,6%
+viraria uma aba de 18% da largura, que não é bisel; fica registrado como a única leitura da
+direção que precisou de decisão, para o arte confirmar ou corrigir.
+
+**Toque de 44 px DE TELA**, medido em px de CSS a partir da projeção do pino (não do tamanho
+aparente do mesh) — o instrumento mira **20 px ao lado** de propósito para provar que o raio
+existe. Sem WebGL: a página troca o canvas por um aviso digno, **mantém o censo e a lista de
+lugares**, e os cartões continuam abrindo (medido em `--disable-webgl`).
+
+**O que ficou de fora e por quê:** nenhuma seção irmã ganhou link para `/territorio` — mexer nos
+geradores delas é trabalho de outra pessoa nesta rodada. E o `plataforma/index.html` (a home)
+não lista a seção nova.

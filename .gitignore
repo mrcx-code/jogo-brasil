@@ -43,3 +43,10 @@ test/tmp-*
 test/TMP*
 # plataforma/ deixou de ser rascunho: e a PORTA da plataforma (D-home, 20/08), servida em
 # dist/index.html. Precisa estar versionada para a Vercel construir a partir dela.
+
+# Prints da placa 3D (O TERRITORIO). Os dois pedidos ficam versionados — TERRITORIO-3d.png e
+# TERRITORIO-3d-mobile.png. O resto e saida do instrumento (test/ver-territorio.js) e se refaz
+# em um comando; 3,5 MB de print de medicao nao entram num repositorio onde peso decide o arco.
+test/TERRITORIO-3d-768*.png
+test/TERRITORIO-3d-1024*.png
+test/TERRITORIO-3d-cartao.png

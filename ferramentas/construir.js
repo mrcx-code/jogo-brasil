@@ -397,7 +397,10 @@ if (fs.existsSync(p('mesa'))) {
 // achem —, então nada de `noindex` e nada no Disallow. Cada uma é "uma fonte, duas saídas": o
 // conteúdo é gerado do mesmo `LINHA_TEMPO`/`GLOSSARIO`/`FONTES` do jogo (ver ferramentas/gerar-*),
 // nunca reescrito à mão. Aqui o build só PUBLICA o que o gerador já produziu.
-for (const secao of ['historia', 'glossario', 'de-onde-vem']) {
+// `territorio` entrou em 21/08: a placa 3D do país, gerada do MAPA_* do jogo por
+// ferramentas/gerar-territorio.js. Ela é página separada de propósito — carrega three.js
+// inline e não pode pesar na porta de entrada do jogo, que é o que carrega em 3G.
+for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio']) {
   if (!fs.existsSync(p(secao))) continue;
   fs.mkdirSync(p('dist', secao), { recursive: true });
   let n = 0;
