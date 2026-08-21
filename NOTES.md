@@ -8294,3 +8294,14 @@ permitir (sonnet para pesquisa/documento/página; opus só em código crítico),
 despachos/dia, item do-dono/§2 NUNCA despachado (vira pergunta no dashboard), um escritor por
 vez no monólito, e o dono pausa escrevendo "pausa despachante" na conversa do dashboard.
 Campos novos no backlog.json por item: agente + estado (livre|em-curso|bloqueado|do-dono).
+
+## AVENIDA A: as 4 decisoes do dono (21/08, check) — a migracao esta destravada
+
+1. **Comeca pelo GLOSSARIO** (181 verbetes — o maior e menos §2-sensivel como operacao).
+2. **Aprovacao dele = aba REVISAO no dashboard** (diff antes/depois no celular, dois botoes,
+   canal mesa_resposta — zero infra nova).
+3. **vence_em liga o alerta mensal JA na fase 0** (a task do dia 1 passa a ler o banco).
+4. **Item sem §2 e sem numero: historiador aprova sozinho, com trilha** (licenca de 19/08).
+O desenho completo (esquema conteudo_*, portao rascunho->revisto->aprovado->publicado, 3 fases
+com byte-compare e rollback, CSP do jogo INTOCADA — o banco alimenta o build via commit, nunca
+o navegador do jogador) esta no relatorio do pm de 21/08. Fase 0 despachada ao dev-plataforma.

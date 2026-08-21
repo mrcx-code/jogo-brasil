@@ -6,14 +6,16 @@
       "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
       "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
       "agente": "pm",
-      "estado": "livre"
+      "estado": "em-curso",
+      "nota": "fase 0 (espelho do glossario) despachada 21/08; 4 decisoes do dono tomadas"
     },
     {
       "id": "fila-auth",
       "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth.",
       "agente": "dev-plataforma",
-      "estado": "livre"
+      "estado": "em-curso",
+      "nota": "entregue, sob auditoria da seguranca"
     },
     {
       "id": "territorio-rico",
