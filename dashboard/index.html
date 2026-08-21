@@ -47,6 +47,11 @@
     letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .12s,color .12s}
   .pedir-check:hover{background:var(--terra);color:#fff}
   .pedir-check:disabled{opacity:.5;cursor:default}
+  .pedir-check.aguarda{opacity:1;color:var(--terra);border-style:solid;cursor:wait}
+  .pedir-check.aguarda::before{content:"";display:inline-block;width:.85em;height:.85em;
+    margin-right:.5em;vertical-align:-.12em;border:2px solid var(--terra);border-top-color:transparent;
+    border-radius:50%;animation:giraCk .8s linear infinite}
+  @keyframes giraCk{to{transform:rotate(360deg)}}
 
   nav.aba{position:sticky;top:0;z-index:20;display:flex;gap:.2rem;overflow-x:auto;
     background:var(--papel);border-bottom:1px solid var(--linha);margin:0 -1.05rem 1.3rem;
@@ -242,7 +247,7 @@
   </section>
 
 
-  <footer class="rod"><p>Mesa privada do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Nada pessoal é coletado.</p></footer>
+  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Nada pessoal é coletado.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -478,13 +483,18 @@
   }
 
   // -------- pedir check --------
-  document.getElementById("pedir-check").addEventListener("click",function(){
-    var b=this; b.disabled=true;
+  var checkPedidoEm=null, btnCheck=document.getElementById("pedir-check"), txtCheck=btnCheck.textContent;
+  btnCheck.addEventListener("click",function(){
+    if(checkPedidoEm) return;
+    checkPedidoEm=new Date().toISOString();
+    btnCheck.classList.add("aguarda"); btnCheck.textContent="montando o check — chega aqui sozinho";
     registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(ok){
-      toast(ok?"Check pedido — monto e trago aqui.":"Guardei o pedido — reenvio.", !ok);
-      setTimeout(function(){b.disabled=false;},4000);
+      toast(ok?"Pedido — monto e o painel atualiza sozinho.":"Guardei o pedido — reenvio.", !ok);
     });
   });
+  function checkChegou(){
+    checkPedidoEm=null; btnCheck.classList.remove("aguarda"); btnCheck.textContent=txtCheck;
+    toast("Check chegou ✓"); }
 
   // ================= O CICLO DE VIDA =================
   function carregar(){
@@ -509,6 +519,10 @@
         else if(item.tipo==="decisao") renderDecisao(item);
         else if(item.tipo==="pendencia") renderPendencia(item);
       });
+      if(checkPedidoEm){
+        var novo=itens.some(function(i){ return i.criado_em && i.criado_em>checkPedidoEm; });
+        if(novo) checkChegou();
+      }
       ags.forEach(atualizaAg);
       document.getElementById("ag-nota").textContent="ao vivo · atualiza sozinho · “Acionar” abre os caminhos";
       document.getElementById("quando").textContent="ao vivo · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
