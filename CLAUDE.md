@@ -282,7 +282,9 @@ para e avisa; não edita e pede perdão depois.
 
 ## 5.2 A EQUIPE VIROU MÁQUINA (17/08)
 
-Seis agentes em `.claude/agents/`: `pm` · `arte` · `dev` · `historiador` · `pipeline` · `qa`.
+Os agentes vivem em `.claude/agents/` — **a pasta é a verdade**; em 21/08 são oito: `pm`
+(produto+estratégia) · `arte` · `dev` (motor+esteira da arte; absorveu o `pipeline` em 21/08,
+decisão do dono) · `historiador` · `qa` · `juridico` · `growth` · `seguranca`.
 O `AGENTES.md` explica cada portão e por que ele existe. O que a máquina passou a garantir e o
 prompt não garantia: **worktree sempre** para quem toca `src/`, **ferramenta negada** onde o §2
 manda parar (`ROSTOS.md` é somente leitura para agente), e um **QA independente que tenta
