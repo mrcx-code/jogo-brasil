@@ -1293,3 +1293,27 @@ Todo outubro/novembro: nota do PRODES (O ACEIRO, fala 2 + fecho 1 + duas fontes)
 MapBiomas RAD. Censo IBGE: proxima edicao a verificar. O alerta automatico mensal
 (scheduled task alerta-validade-brasil) avisa na mesa; ESTE item garante que mesmo sem o
 alerta alguem olhe nas janelas certas. Nao fecha nunca — e recorrente de proposito.
+
+## 46 · `encaixe.js` bloco 14 VERMELHO na main desde 801394c (21/08) — **não é do dev-jogo**
+
+`node test/encaixe.js` sai **1** numa asserção só: *"a imagem mora no MESMO endereço da página (as
+URLs mudam juntas ou a prévia quebra)"*. Medido nesta rodada com CONTROLE no HEAD antes de
+qualquer mudança minha: **394 ok · 1 FALHA, idêntico antes e depois** — a home increment 2 não
+tocou nisso.
+
+**A causa, achada por `git log -S`:** o commit `801394c` ("Growth aplicado — og/canonical/sitemap")
+mudou o `og:url` de `@@BASE@@/` para `@@BASE@@/jogo/` em `src/index.html`, seguindo a decisão
+D-home (o jogo mora em `/jogo`, a porta na raiz). O `og:image` continua — **corretamente** — em
+`@@BASE@@/compartilhar.jpg`, que é onde o arquivo é publicado (`dist/compartilhar.jpg`, na raiz).
+
+**O defeito é da ASSERÇÃO, não do jogo.** Ela compara prefixo de CAMINHO
+(`ogI.indexOf(ogU_sem_barra + '/') === 0`), o que passou a exigir que a imagem morasse *debaixo de*
+`/jogo/`. A promessa que o bloco escreve para si mesmo é outra, e continua boa: *"as URLs mudam
+JUNTAS ou a prévia quebra"* — ou seja, mesma ORIGEM. O conserto é comparar a origem em vez do
+caminho: extrair `new URL(x).origin` das duas e exigir que sejam a mesma. Isso continua reprovando
+o defeito para o qual o bloco nasceu (trocar de domínio e deixar a imagem no antigo) e para de
+reprovar a separação de caminho que a D-home criou de propósito.
+
+**Por que não apliquei:** onde o jogo mora e as tags `og:` são do **dev-plataforma** (fronteira da
+DUPLA, 21/08). Fica aqui com o diagnóstico pronto — não sai daqui sem estar feito ou descartado
+pelo dono.

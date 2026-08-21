@@ -633,18 +633,62 @@
   #telaMenu .telaBtn { position: relative; width: min(70vw, 290px); box-sizing: border-box;
     display: flex; align-items: center; justify-content: center; margin: 0;
     padding: var(--mTabua) 26px; min-height: 44px; }
-  /* JOGAR é a tábua nova, de madeira clara recém-cortada; as outras três são do mesmo poste,
-     mais curtidas. Destaque por MATERIAL, nunca por tamanho — a coluna alinhada é o que faz
-     o conjunto ler como um só objeto. */
-  #btnJogar { background: var(--veioPx, none),
+  /* ===== OS PORTÕES DE TOPO (increment 2 da home, direção da arte de 20/08) =====
+     Até aqui a madeira clara era de UMA tábua só — o JOGAR — e as outras seis eram a mesma
+     madeira curtida, indistinguíveis entre si. Medido em 21/08 (test/HOME2-ANTES-*.png):
+     o JOGAR em 273×72 na madeira clara e as OUTRAS QUATRO destravadas todas em 273×50 no
+     mesmo rgb(124,85,44) — quatro portas de naturezas diferentes com um só peso visual.
+
+     O que a direção pediu, e por que ela pede isto: a home deixou de ser o menu de um jogo
+     (CLAUDE.md §8, decisão do dono de 19/08 — *"o jogo seria um chamariz… cada seção tem seu
+     valor separado"*). Então o topo do poste passa a ter PORTÕES — JOGAR, A HISTÓRIA e
+     GLOSSÁRIO —, e eles têm de ler como IGUAIS entre si: é isso que diz "isto é a plataforma
+     inteira", e não "um jogo com telas de apoio". O que é utilidade desce para nível 2:
+     mesma marcenaria, tábua menor, mais estreita e mais apagada.
+
+     IGUAIS DE VERDADE, e este é o único ponto em que a direção precisou de interpretação: o
+     JOGAR perdeu a letra maior (o rótulo caiu de escala 4 para 3, em `pintarRotulos`) para
+     ficar do MESMO tamanho das duas irmãs. Manter 44 px de letra num e 33 nas outras seria
+     dizer com o corpo o contrário do que a direção diz com a palavra. O JOGAR continua sendo
+     lido primeiro por ser o primeiro do poste e o único de uma palavra — não por ser maior.
+     Fica registrado para a arte confirmar ou corrigir.
+
+     A hierarquia é por MATERIAL, LARGURA e ALTURA, nesta ordem — nunca por tinta só. */
+  #poste .telaBtn.portal { background: var(--veioPx, none),
       linear-gradient(180deg, #b8834a, #96632f 60%, #7c4f24);
     color: #2a1a0a;
+    width: min(78vw, 320px);
+    /* O RECHEIO DO PORTÃO CEDE 2 px E O MOTIVO É MEDIDO, não estético: o rótulo do portão
+       passou de 22 para 33 px de letra, e um recheio calculado para a letra pequena deixa a
+       tábua alta demais. Sem esta cessão o poste mede 371 px em 390×568 contra 360 antes desta
+       rodada, e o bloco 30 do `encaixe.js` (folga de 4 px de subpixel) piscava entre 2 e 5 px
+       de rolagem em execuções seguidas do MESMO build — régua mais fina que o instrumento é
+       cara ou coroa. Com 2 px a menos por portão o poste fecha em 359 e o número volta a ser
+       estável. O piso de 48 px continua sendo o piso. */
+    padding: calc(var(--mTabua) - 2px) 24px; min-height: 48px;
     text-shadow: 0 1px 0 rgba(255,236,196,.5);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 7px 0 rgba(0,0,0,.4); }
-  #btnJogar:active { transform: translateY(4px);
+  #poste .telaBtn.portal:active { transform: translateY(4px);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 1px 0 #120c06; }
+  /* NÍVEL 2 — utilidade. Mais estreita (recuada do vão dos portões), mais baixa e mais
+     apagada, na madeira mais curtida do poste. O RECHEIO CEDE 3 px, O DEDO NÃO CEDE NADA:
+     `min-height: 44px` é o piso de polegar que a lição de 14/08 deixou escrito e ele não se
+     negocia por caber — em toda tela medida a tábua de nível 2 fecha em 44 px CHEIOS, e é
+     essa cessão de recheio que paga a altura que os portões ganharam. A opacidade fica em
+     .88: abaixo disso o rótulo bitmap começa a perder o contorno sobre a mata, e apagar não
+     pode virar ilegível. */
+  #poste .telaBtn.sec { width: min(62vw, 246px);
+    padding: calc(var(--mTabua) - 3px) 20px; min-height: 44px;
+    opacity: .88;
+    background: var(--veioPx, none),
+      linear-gradient(180deg, #6a4826, #513418 60%, #402711);
+    box-shadow: inset 0 2px 0 #86603a, inset 0 -3px 0 #2a1a0a,
+                inset 0 0 0 2px #201404, 0 4px 0 #120c06, 0 6px 0 rgba(0,0,0,.35); }
+  #poste .telaBtn.sec:active { transform: translateY(3px);
+    box-shadow: inset 0 2px 0 #86603a, inset 0 -3px 0 #2a1a0a,
+                inset 0 0 0 2px #201404, 0 1px 0 #120c06; }
   /* o título de cada tela é uma placa de madeira escura, não texto solto sobre o véu */
   .telaTit { font-size: 22px; font-weight: 900; color: #ffd98a; letter-spacing: .12em;
     text-shadow: 0 3px 0 #0a0806; margin-bottom: 14px; padding: 10px 22px;
@@ -778,6 +822,14 @@
        orientações sem uma linha nova: em 844×390 dão exatamente 11 e 6, que é o que estava
        escrito aqui à mão; em 1024×768 dão 14 e 11. O telefone não muda um pixel. */
     #telaMenu .telaBtn { width: min(42vw, 280px); min-height: 44px; }
+    /* A HIERARQUIA DOS PORTÕES VALE DEITADO TAMBÉM. Ela não pode morar só no retrato: quem
+       abre o notebook fechado, gira o telefone ou usa tablet vê a MESMA home. As larguras
+       daqui são as do bloco de retrato reescalonadas para a coluna estreita da direita — e o
+       teto do portão é 300 px e não 320 porque, em 480×320 (o menor deitado que ainda se
+       vende), 52vw dá 250 px de tábua e o rótulo de A HISTÓRIA a escala 3 mede 183: cabe com
+       19 px de folga de cada lado, que é o mínimo para o prego não encostar na letra. */
+    #poste .telaBtn.portal { width: min(52vw, 300px); min-height: 46px; }
+    #poste .telaBtn.sec { width: min(42vw, 240px); }
     #poste { padding: 6px 0 10px; }
   }
   /* ===== A HOME CINEMÁTICA — tela larga (>=900px). Direção da arte (20/08). =====
@@ -810,6 +862,12 @@
       margin: 0; padding: 6px 0 18px; gap: var(--mVao); width: 100%; }
     #poste::after { display: none; }
     #telaMenu .telaBtn { width: min(100%, 320px); min-height: 46px; }
+    /* NA CINEMÁTICA A HIERARQUIA É O QUE A FAIXA DA DIREITA TEM PARA DIZER. O painel é uma
+       coluna de largura fixa: sem dois níveis, ele lê como uma lista de sete itens iguais —
+       exatamente o "menu de celular esticado" que a régua larga existe para não deixar voltar.
+       Os portões ocupam a faixa quase inteira; a utilidade recua 16% de cada lado. */
+    #poste .telaBtn.portal { width: min(100%, 340px); min-height: 50px; }
+    #poste .telaBtn.sec { width: min(84%, 268px); }
     #telaMenu .mpFrase { line-height: 1.4; }
   }
   /* Degrau maior a partir de 1280px: o logo cresce e a cena ganha ar. */

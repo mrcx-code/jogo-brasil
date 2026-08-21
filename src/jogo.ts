@@ -11737,13 +11737,19 @@ function pintarRotulos() {
   // menuSub deixou de passar por pixelRotulo em 19/08: a faixa de proposta é texto de leitura
   // (fonte var(--leitura), quebra por CSS), estático no HTML — a fonte pixel é um canvas de
   // largura fixa e não quebra linha, e a frase nova é mais longa que o subtítulo antigo.
-  pixelRotulo($("btnJogar"), "JOGAR", 4, "#221806");
-  pixelRotulo($("btnCompletude"), "A HISTÓRIA", 2, "#d9cfae");
+  // OS TRÊS PORTÕES FALAM NA MESMA VOZ (21/08, increment 2 da home). Escala 3 e a tinta escura
+  // da madeira clara para os três — antes o JOGAR vinha a 4 (44 px de letra) e os outros dois a
+  // 2 (22 px), na tinta clara da madeira curtida. Não é enfeite: dois níveis de rótulo dentro do
+  // MESMO material leem como "um botão e dois sub-botões", que é o oposto do que a direção pede.
+  // A escala 3 é a maior que cabe na tábua mais estreita que o jogo compõe (480×320 deitado:
+  // 250 px de tábua, "A HISTÓRIA" mede 183) — ver o cálculo no `.portal` do estilo.css.
+  pixelRotulo($("btnJogar"), "JOGAR", 3, "#221806");
+  pixelRotulo($("btnCompletude"), "A HISTÓRIA", 3, "#221806");
   pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
   pixelRotulo($("btnMapa"), "ONDE FOI", 2, "#d9cfae");
   pixelRotulo($("btnVoltarMapa"), "VOLTAR", 2, "#a9a184");
   // O molde pode nao ter o botao ainda (integracao entre maquinas): id sem markup nao pode lancar.
-  { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 2, "#d9cfae"); }
+  { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 3, "#221806"); }
   { const b = document.getElementById("btnLugar"); if (b) pixelRotulo(b, "O LUGAR", 2, "#d9cfae"); }
   pixelRotulo($("btnConfig"), "CONFIGURAÇÕES", 2, "#d9cfae");
   // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais

@@ -166,23 +166,38 @@
        Madeira lisa com veio, sem NENHUM grafismo geométrico: padrão que "parece indígena"
        pertence a um povo e tem nome — é a regra do §2 e do logo. -->
   <div id="poste">
-    <button class="telaBtn" id="btnJogar">JOGAR</button>
+    <!-- OS TRÊS PORTÕES, no topo e com o MESMO peso (increment 2 da home, direção da arte de
+         20/08). Eles não são "JOGAR e mais umas telas": são as três entradas da plataforma —
+         a que se joga, a que se percorre e a que se consulta. A decisão do dono de 19/08 é
+         literal sobre isso (*"cada seção tem seu valor separado… o jogo seria um chamariz"*),
+         e um poste em que só o JOGAR tem madeira clara diz o contrário disso com o material.
+         A marcenaria dos três vive em `.portal`, no estilo.css; a utilidade fica em `.sec`,
+         abaixo, menor e mais apagada. A ORDEM É A LEITURA: joga · percorre · consulta. -->
+    <button class="telaBtn portal" id="btnJogar">JOGAR</button>
+    <button class="telaBtn portal" id="btnCompletude">A HISTÓRIA</button>
+    <!-- GLOSSÁRIO SOBE PARA O TOPO, e é a mudança de lugar que mais se justifica sozinha: ele
+         tem 167 verbetes e 17.918 palavras com fonte — 64% de todo o texto do repositório —, o
+         que o torna a maior obra da casa, e ele estava na sexta tábua, na mesma madeira curtida
+         do CONFIGURAÇÕES. Medido em 19/08 e escrito no CLAUDE.md §8: "64% do texto está na tela
+         que ninguém abre". Uma obra de referência não é item de menu de jogo. -->
+    <button class="telaBtn portal" id="btnGlossario">GLOSSÁRIO</button>
+    <!-- ===== NÍVEL 2 — a utilidade. Mesma marcenaria, tábua menor e mais apagada: o que
+         alguém procura QUANDO PRECISA, não o que a home tem a oferecer de cara. ===== -->
     <!-- O LUGAR. Nasce OCULTA, como a ATÉ AQUI ao lado: uma porta para uma coisa que ainda
          não existe é uma porta que decepciona. Ela aparece no instante em que PALMARES tem
-         gente acolhida — que é o instante em que a obra passa a poder andar. Logo abaixo do
-         JOGAR de propósito: é a tábua que responde "o que mudou desde ontem", e essa é a
-         pergunta de quem acabou de abrir o jogo. -->
+         gente acolhida — que é o instante em que a obra passa a poder andar. Abre o nível 2
+         de propósito: é a tábua que responde "o que mudou desde ontem", e essa é a pergunta
+         de quem acabou de abrir o jogo — mas responder a ela não é uma das portas da casa. -->
     <button class="telaBtn sec oculto" id="btnLugar">O LUGAR</button>
-    <button class="telaBtn sec" id="btnCompletude">A HISTÓRIA</button>
     <!-- ONDE FOI. Logo depois de A HISTÓRIA porque é a mesma pergunta noutro eixo: aquela conta
          QUANDO, esta conta ONDE. Não nasce oculta nem trancada — o mapa é legível vazio, e
          vazio ele diz uma coisa verdadeira: o país é grande e o jogo ainda cobre seis pontos. -->
     <button class="telaBtn sec" id="btnMapa">ONDE FOI</button>
     <button class="telaBtn sec oculto" id="btnFim">ATÉ AQUI</button>
-    <!-- GLOSSÁRIO entra AQUI, entre a história e a procedência, porque é o que há entre as
-         duas: A HISTÓRIA conta, o GLOSSÁRIO explica a palavra, DE ONDE VEM prova. A quinta
-         tábua encurta a folga do poste em telas baixas — ver a média de altura no estilo.css. -->
-    <button class="telaBtn sec" id="btnGlossario">GLOSSÁRIO</button>
+    <!-- O GLOSSÁRIO MORAVA AQUI, entre a história e a procedência, e subiu para o topo em
+         21/08 (ver o comentário dele lá em cima). O que continua valendo desta posição antiga:
+         a sequência de leitura A HISTÓRIA conta · o GLOSSÁRIO explica a palavra · DE ONDE VEM
+         prova — ela agora se lê nos três portões e dentro do CONFIGURAÇÕES, não na fileira. -->
     <!-- UMA tábua, e não duas: o `db51b90` (glossário v2) duplicou esta linha e o menu passou
          a mostrar DE ONDE VEM DUAS VEZES — a segunda em Arial Black, porque `pixelRotulo`
          pinta o primeiro nó com o id e o segundo ficava com o texto cru do molde. Achado no

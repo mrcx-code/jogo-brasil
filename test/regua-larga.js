@@ -116,6 +116,21 @@ const TELAS = [
         }
       }
 
+      // ---- A HIERARQUIA DOS PORTÕES (increment 2 da home, 21/08) ----
+      // O defeito que isto existe para não ter de novo: até 21/08 seis das sete tábuas do poste
+      // eram a MESMA tábua — medido, 273×50 em rgb(124,85,44) para A HISTÓRIA, GLOSSÁRIO,
+      // CONFIGURAÇÕES e a do mapa. Uma home de plataforma que dá o mesmo peso a "o acervo de 167
+      // verbetes" e a "configurações" não está dizendo o que a direção mandou dizer. A régua
+      // mede a DISTÂNCIA entre os dois níveis, não a receita de cada um: quem quiser trocar a
+      // madeira, a largura ou a letra pode — o que não pode é o degrau sumir.
+      const caixa = function (el) {
+        const cs = getComputedStyle(el), r = el.getBoundingClientRect();
+        return { id: el.id, w: r.width, h: r.height, op: parseFloat(cs.opacity) };
+      };
+      const naTela = function (el) { return getComputedStyle(el).display !== 'none'; };
+      const portais = [...document.querySelectorAll('#poste .telaBtn.portal')].filter(naTela).map(caixa);
+      const utilidade = [...document.querySelectorAll('#poste .telaBtn.sec')].filter(naTela).map(caixa);
+
       return {
         menuVisivel: visivel,
         frase: px('#telaMenu .mpFrase'),
@@ -125,6 +140,8 @@ const TELAS = [
         tela: window.innerWidth,
         cfgOk: alcancavel && tocavel,
         cfgMotivo: motivo,
+        portais: portais,
+        utilidade: utilidade,
       };
     });
     await pg.close();
@@ -137,11 +154,33 @@ const TELAS = [
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
     if (!m.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + m.cfgMotivo);
 
+    // ---- os dois níveis do poste, medidos ----
+    const P = m.portais || [], U = m.utilidade || [];
+    if (P.length !== 3) probs.push('o topo do poste tem ' + P.length + ' portões, e a direção pede 3 (JOGAR · A HISTÓRIA · GLOSSÁRIO)');
+    else {
+      // (a) os três portões são IGUAIS entre si — é o que diz "isto é a plataforma inteira"
+      const lp = Math.min(...P.map(p => p.w)), Lp = Math.max(...P.map(p => p.w));
+      const ap = Math.min(...P.map(p => p.h)), Ap = Math.max(...P.map(p => p.h));
+      if (Lp - lp > 1) probs.push('os portões não têm a mesma largura (' + P.map(p => p.id + ' ' + p.w.toFixed(0)).join(', ') + ')');
+      if (Ap - ap > 1) probs.push('os portões não têm a mesma altura (' + P.map(p => p.id + ' ' + p.h.toFixed(0)).join(', ') + ')');
+      // (b) e a utilidade é MENOR — em largura e em altura. 16 px e 6 px são o degrau mínimo
+      //     que ainda se lê de longe; abaixo disso o print de 21/08 mostra dois níveis que
+      //     leem como um só, que é exatamente o estado anterior.
+      U.forEach(function (u) {
+        if (u.w > lp - 16) probs.push(u.id + ' (nível 2) tem ' + u.w.toFixed(0) + 'px de largura contra ' + lp.toFixed(0) + ' do portão — o degrau sumiu');
+        if (u.h > ap - 6) probs.push(u.id + ' (nível 2) tem ' + u.h.toFixed(0) + 'px de altura contra ' + ap.toFixed(0) + ' do portão — o degrau sumiu');
+        // o degrau nunca desce abaixo do polegar: 44 px é piso, não sugestão (lição de 14/08)
+        if (u.h < 44) probs.push(u.id + ' (nível 2) caiu para ' + u.h.toFixed(1) + 'px — abaixo dos 44 de dedo');
+      });
+    }
+
     const linha = t.nome.padEnd(16) + ' · ' + t.w + 'x' + t.h
       + ' · proposta ' + (m.frase != null ? m.frase.toFixed(1) : '—') + 'px'
       + ' · cta ' + (m.cta != null ? m.cta.toFixed(1) : '—') + 'px'
       + ' · painel ' + (m.painel != null ? m.painel.toFixed(0) : '—') + 'px'
       + ' · logo ' + (m.logo != null ? m.logo.toFixed(0) : '—') + 'px'
+      + ' · portões ' + ((m.portais || []).length ? (m.portais[0].w.toFixed(0) + 'x' + m.portais[0].h.toFixed(0)) : '—')
+      + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
       + ' · configurações ' + (m.cfgOk ? 'alcançável' : 'PRESO');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
@@ -160,3 +199,8 @@ const TELAS = [
 // prende CONFIGURAÇÕES em 926×428 (e em toda tela cujo poste dependa da rolagem) e reprova por
 // exit code. A primeira versão desta asserção (com `scrollIntoView`) NÃO mordia esse defeito —
 // ver o comentário grande acima. Reprova de verdade com a versão atual, verificado nesta rodada.
+//
+// E o autoteste da HIERARQUIA (21/08), pela mesma lição:
+//   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'
+// devolve o nível 2 ao tamanho dos portões — que é literalmente o estado de antes desta rodada —
+// e a régua sai 1 em todas as seis telas. Verificado nesta rodada, com o número no NOTES.md.
