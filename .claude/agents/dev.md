@@ -1,6 +1,6 @@
 ---
 name: dev
-description: Implementa tickets de MOTOR e mecânica no src/jogo.ts — verbos, economia, física, pacotes. Use quando o trabalho é código de jogo com critério de aceite claro. NÃO use para texto histórico (historiador), arte (pipeline) ou decisão de produto (pm).
+description: Implementa tickets de MOTOR e mecânica no src/jogo.ts — verbos, economia, física, pacotes — e, desde 21/08, também a ESTEIRA DA ARTE (o dono fundiu o pipeline aqui) — corte, desfranje, embutir, particionar, medir peso. Use quando o trabalho é código de jogo com critério de aceite claro ou chegada de arte nova. NÃO use para texto histórico (historiador) nem decisão de produto (pm).
 model: opus
 isolation: worktree
 tools: Bash, Read, Edit, Write, Glob, Grep
@@ -44,6 +44,12 @@ oposto da disciplina daqui, e já custou horas.
   pede escala (`clamp`). O `npm test` já roda `test/regua-larga.js` (proposta legível + painel
   contido em 768/1024/1366) — ele reprova por exit code se a fonte voltar a ficar fixa/pequena
   ou o painel encher a largura. Olhe o número, não só o verde.
+
+## A esteira da arte (herdada do pipeline em 21/08, decisão do dono)
+Quando chegar arte nova (`assets/entrada/`), o fluxo é o do `test/LEIAME.md`: corte em células
+iguais, desfranje pelo `min(R,B)−G`, registro pela cabeça, embutir via ferramentas (que escrevem
+em `src/jogo.ts`), particionar em `ferramentas/pacotes.js`, e MEDIR o peso na tela
+(`test/medir-na-tela.js`) antes de aceitar. As armadilhas do §5/§7 do CLAUDE.md valem todas.
 
 ## O que devolver
 Objeto com: `feito` (o que mudou, por arquivo), `medido` (números antes/depois), `portoes`

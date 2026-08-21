@@ -8086,3 +8086,13 @@ reprova quando o defeito está presente (EQUIPE.md 2.8).
 dentro (7px)"*. **Medido com `git stash` nos dois sentidos: idêntico no HEAD, sem nenhuma das
 mudanças desta rodada.** É defeito anterior e é de layout, não de texto — fica relatado, não
 consertado por mim.
+
+## As duas decisoes da manha de 21/08, respondidas pela mesa e executadas
+
+- **CEO = o pm absorve** (mesa, ceo-agente=pm): pm.md ganha o § de estrategia/visao/negocio.
+- **Pipeline = funde no dev** (mesa, pipeline-vale=funde): dev.md herda a esteira da arte
+  (corte/desfranje/embutir/pacotes/peso, apontando pro test/LEIAME.md); pipeline.md removido.
+  As FERRAMENTAS ficam todas — o que some e o papel separado.
+- **Os loops da madrugada NAO RODARAM**: o despertar de 23:23 morreu com o app fechado (loop de
+  sessao). Consertado em 21/08 com agendamento DURAVEL (scheduled task, 30min, roda ao abrir o
+  app se perdeu a hora) — o plantao da mesa deixa de depender da sessao viva.
