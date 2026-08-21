@@ -8109,3 +8109,17 @@ consertado por mim.
 3. **Expiracao = OS DOIS**: (a) item recorrente aqui e no PENDENTES; (b) alerta automatico JA —
    scheduled task mensal (alerta-validade-brasil, dia 1, 9h13) verifica INPE/MapBiomas/IBGE por
    WebSearch e avisa NA MESA se algo venceu; silencio se nada venceu.
+
+## Duas decisoes de representacao do DONO (21/08, chat — §2 respondido)
+
+1. **AINDA AQUI, o gesto do jogador = PLANTAR E COLHER JUNTO.** O gesto e sobre a TERRA e o
+   trabalho comum — ecoa o capitulo 1 de proposito (o texto ja diz: colher, plantar, cuidar,
+   nao e coincidencia). Ninguem vira item; o jogador se junta ao trabalho que ja existe.
+   Descartado por ele: caminhar-ao-lado (repetiria Palmares).
+2. **PALMARES, a rede entre povoados = TRILHA BATIDA NO CHAO.** Caminhos visiveis de pes entre
+   os povoados, no mundo mesmo, na linguagem pixel — a rede como coisa VIVIDA, nao diagrama.
+   Descartados: linha/luz (diagrama), fumaca (leria como alarme).
+
+Implementacao entra na fila DEPOIS de territorio 3D e home increment 2 (ordem que ele ja
+priorizou na mesa; ele pode reordenar por la). Design detalhado de cada uma vai a ele antes de
+virar codigo se surgir QUALQUER duvida de representacao nova — o §2 nao dorme.
