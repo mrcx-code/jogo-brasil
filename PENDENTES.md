@@ -1293,3 +1293,4 @@ Todo outubro/novembro: nota do PRODES (O ACEIRO, fala 2 + fecho 1 + duas fontes)
 MapBiomas RAD. Censo IBGE: proxima edicao a verificar. O alerta automatico mensal
 (scheduled task alerta-validade-brasil) avisa na mesa; ESTE item garante que mesmo sem o
 alerta alguem olhe nas janelas certas. Nao fecha nunca — e recorrente de proposito.
+linha de teste do funil (21/08) — apagar apos o teste
