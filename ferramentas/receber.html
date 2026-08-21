@@ -676,6 +676,24 @@ function pintarBacklog() {
     cx.appendChild(d);
   });
 }
+// CONFIRMAR (dono, 21/08): reordenar salva no disco em silencio; ESTE botao me NOTIFICA —
+// grava a ordem na fila do dashboard (mesa_resposta) que o plantao consome.
+document.getElementById('confirmar-prioridades').addEventListener('click', function () {
+  const b=this, est=document.getElementById('conf-estado');
+  if(!blDoc){ est.textContent='backlog ainda não carregou'; return; }
+  b.disabled=true; est.textContent='avisando…';
+  fetch('https://hdhqziqvrthxtgyraemk.supabase.co/rest/v1/mesa_resposta',{
+    method:'POST',
+    headers:{ apikey:'sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN',
+      Authorization:'Bearer sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN',
+      'Content-Type':'application/json', Prefer:'return=minimal' },
+    body: JSON.stringify({ tipo:'backlog', chave:'confirmado',
+      texto: blDoc.itens.map(function(it,n){return (n+1)+'.'+it.id;}).join(' ') })
+  }).then(function(r){ if(!r.ok) throw 0;
+    est.textContent='✓ avisado — o Claude realinha no próximo ciclo';
+  }).catch(function(){ est.textContent='não consegui avisar (rede?) — a ordem ESTÁ salva no disco';
+  }).finally(function(){ setTimeout(function(){ b.disabled=false; }, 2500); });
+});
 fetch('/backlog').then(r => r.json()).then(function (d) { blDoc = d; pintarBacklog(); })
   .catch(function () { document.getElementById('backlog').innerHTML = '<p class="vazio">sem backlog (o servidor tem /backlog?)</p>'; });
 
