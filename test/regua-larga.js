@@ -11,6 +11,43 @@
 // confortável, e o painel não pode ocupar a tela toda (seria o menu de celular esticado). Se
 // alguém voltar a fixar 11px, tirar o clamp, ou fazer o painel encher a largura, aqui reprova
 // por exit code — é o portão, não um aviso.
+//
+// AMPLIADA PELO QA em 20/08, depois de medir três buracos de verdade (números em test/tmp-*
+// descartados, refeitos aqui como asserção permanente):
+//
+//   1. O DEGRAU DE 899→900 nunca era atravessado. As três telas originais (768, 1024, 1366)
+//      caem todas OU bem abaixo OU bem acima de 900 — nenhuma testa a última largura do layout
+//      "apertado" (`@media (orientation: landscape) and (max-width: 899px)`, estilo.css:729),
+//      que é OUTRO layout que o cinemático, com regras próprias de legibilidade e contenção.
+//      Medido em 899×500: proposta 18.6px, cta 10.3px, painel 280px (31%) — lê bem, mas ninguém
+//      media isso, e uma regressão ali passaria despercebida para sempre.
+//   2. TELEFONE DEITADO REAL CAI NO LAYOUT CINEMÁTICO, E NINGUÉM MEDIA A ALTURA CURTA JUNTO
+//      COM A LARGURA ≥900. iPhone 14/15 Pro Max deitado é 926×428 CSS px — largura já cinemática,
+//      altura de telefone. `#telaMenu` nesse degrau tem `overflow-y:auto` de propósito (é o
+//      mesmo poste que rola em qualquer tela baixa), e MEDIDO por scroll manual o botão
+//      CONFIGURAÇÕES continua alcançável (rola 175px, chega, é tocável) — mas nenhum instrumento
+//      travava essa promessa. Se algum dia o overflow sumir do bloco cinemático, o poste
+//      simplesmente FICARIA PRESO numa tela de telefone, e só quem testasse landscape veria.
+//   3. ULTRAWIDE (1920+) nunca foi medido. O `clamp()` deveria travar o crescimento do painel e
+//      do logo em vez de deixá-los continuar crescendo com a largura — medido: painel trava em
+//      460px (18–24% da largura), frase e cta batem no mesmo teto do notebook. Sem medir, um
+//      clamp mal escrito (ex.: em vw puro, sem teto em px) passaria despercebido até alguém
+//      abrir num monitor grande.
+//
+// A NOVA ASSERÇÃO (alcançável): em toda largura da tabela, o ÚLTIMO botão do poste
+// (`#btnConfig`) tem de estar alcançável — existir, ter caixa, e (se estiver além da dobra)
+// SÓ pode ser trazido de volta por um ANCESTRAL com `overflow-y: auto|scroll` de verdade.
+//
+// A PRIMEIRA VERSÃO DESTA ASSERÇÃO ERA DECORAÇÃO, E FICOU PROVADO NESTA MESMA RODADA (lição
+// EQUIPE.md 2.8): usava `cfg.scrollIntoView()`, que o navegador cumpre mexendo o `scrollTop`
+// do ancestral MESMO QUE ELE TENHA `overflow-y: hidden` — `scrollIntoView` é imperativo e não
+// respeita a restrição que impede o DEDO de rolar. Injetando
+// `#telaMenu{overflow-y:hidden!important}` em 926×428 essa versão continuava dizendo
+// "alcançável" — reprovou o próprio autoteste que deveria morder. A versão atual acha o
+// ANCESTRAL ROLÁVEL de verdade (`overflow-y` computado é `auto` ou `scroll`, com conteúdo que
+// excede a caixa) e só mexe o `scrollTop` dele; se não existir nenhum e o botão estiver fora da
+// janela, é PRESO — do jeito que o toque real veria. Reverificado depois do conserto: o mesmo
+// `overflow-y:hidden` agora reprova por exit code (rodapé do arquivo).
 const { chromium } = require('playwright');
 const path = require('path');
 const ABRIR = require('./abrir.js');
@@ -18,9 +55,15 @@ const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
 // largura -> piso de fonte legível naquela largura (da tabela de faixas da direção de arte)
 const TELAS = [
-  { nome: 'tablet retrato',  w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
-  { nome: 'tablet paisagem', w: 1024, h: 768,  pisoFrase: 15, pisoCta: 9 },
-  { nome: 'notebook',        w: 1366, h: 768,  pisoFrase: 16, pisoCta: 10 },
+  { nome: 'tablet retrato',   w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
+  { nome: 'tablet paisagem',  w: 1024, h: 768,  pisoFrase: 15, pisoCta: 9 },
+  { nome: 'notebook',         w: 1366, h: 768,  pisoFrase: 16, pisoCta: 10 },
+  // fronteira do breakpoint 900 (achado 1): a última largura do layout "apertado", landscape
+  { nome: 'landscape 899',    w: 899,  h: 500,  pisoFrase: 13, pisoCta: 7 },
+  // telefone real deitado, largura já cinemática e altura curta (achado 2)
+  { nome: 'phone deitado 926', w: 926, h: 428,  pisoFrase: 14, pisoCta: 7 },
+  // ultrawide — o clamp tem de travar, não só desacelerar (achado 3)
+  { nome: 'ultrawide 1920',   w: 1920, h: 1080, pisoFrase: 16, pisoCta: 10 },
 ];
 
 (async () => {
@@ -31,11 +74,48 @@ const TELAS = [
     await pg.setViewportSize({ width: t.w, height: t.h });
     await pg.goto(ALVO);
     await pg.waitForTimeout(1400);
+    if (process.env.REGUA_DEFEITO) {
+      await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
+    }
     const m = await pg.evaluate(() => {
       const px = (sel) => { const el = document.querySelector(sel); return el ? parseFloat(getComputedStyle(el).fontSize) : null; };
       const larg = (sel) => { const el = document.querySelector(sel); return el ? el.getBoundingClientRect().width : null; };
       const menu = document.querySelector('#telaMenu');
       const visivel = !!menu && getComputedStyle(menu).display !== 'none' && menu.getBoundingClientRect().width > 0;
+
+      // o último botão do poste: existe, tem caixa, e — se estiver além da dobra — algum
+      // ancestral com overflow-y REALMENTE rolável (auto/scroll, e com o que rolar) o resgata?
+      const cfg = document.getElementById('btnConfig');
+      let alcancavel = false, tocavel = false, motivo = 'não existe';
+      if (cfg) {
+        const b0 = cfg.getBoundingClientRect();
+        if (b0.width === 0 || b0.height === 0) motivo = 'caixa vazia';
+        else {
+          const J = window.innerHeight, L = window.innerWidth;
+          const cabe = (r) => r.top >= -2 && r.bottom <= J + 2 && r.left >= -2 && r.right <= L + 2;
+          let b = cfg.getBoundingClientRect();
+          if (!cabe(b)) {
+            // rola de verdade só quem o dedo conseguiria rolar
+            for (let p = cfg.parentElement; p; p = p.parentElement) {
+              const cs = getComputedStyle(p);
+              const rolavel = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
+                && p.scrollHeight - p.clientHeight > 1;
+              if (rolavel) p.scrollTop = p.scrollHeight;
+              if (p === menu) break;
+            }
+            b = cfg.getBoundingClientRect();
+          }
+          alcancavel = cabe(b);
+          if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', janela ' + J + ')';
+          else {
+            const cx = Math.round((b.left + b.right) / 2), cy = Math.round((Math.max(b.top, 0) + Math.min(b.bottom, J)) / 2);
+            const alvo = document.elementFromPoint(cx, cy);
+            tocavel = !!(alvo && (alvo === cfg || cfg.contains(alvo)));
+            if (!tocavel) motivo = 'coberto por ' + (alvo ? (alvo.tagName + (alvo.id ? '#' + alvo.id : '')) : '(nada)');
+          }
+        }
+      }
+
       return {
         menuVisivel: visivel,
         frase: px('#telaMenu .mpFrase'),
@@ -43,6 +123,8 @@ const TELAS = [
         painel: larg('#poste'),
         logo: larg('#logoImg'),
         tela: window.innerWidth,
+        cfgOk: alcancavel && tocavel,
+        cfgMotivo: motivo,
       };
     });
     await pg.close();
@@ -53,20 +135,28 @@ const TELAS = [
     if (m.cta == null || m.cta < t.pisoCta) probs.push('cta ' + (m.cta == null ? 'ausente' : m.cta.toFixed(1) + 'px') + ' < piso ' + t.pisoCta);
     // em tela larga (>=900) o painel não pode ocupar quase a tela toda — isso é o "menu esticado"
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
+    if (!m.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + m.cfgMotivo);
 
     const linha = t.nome.padEnd(16) + ' · ' + t.w + 'x' + t.h
       + ' · proposta ' + (m.frase != null ? m.frase.toFixed(1) : '—') + 'px'
       + ' · cta ' + (m.cta != null ? m.cta.toFixed(1) : '—') + 'px'
       + ' · painel ' + (m.painel != null ? m.painel.toFixed(0) : '—') + 'px'
-      + ' · logo ' + (m.logo != null ? m.logo.toFixed(0) : '—') + 'px';
+      + ' · logo ' + (m.logo != null ? m.logo.toFixed(0) : '—') + 'px'
+      + ' · configurações ' + (m.cfgOk ? 'alcançável' : 'PRESO');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
   }
   await nav.close();
 
   if (falhou) {
-    console.error('\nRÉGUA DE RESPONSIVIDADE: REPROVOU — a home em tela larga voltou a ficar ilegível ou esticada.');
+    console.error('\nRÉGUA DE RESPONSIVIDADE: REPROVOU — a home em tela larga voltou a ficar ilegível, esticada ou com o poste preso.');
     process.exit(1);
   }
-  console.log('\nRÉGUA DE RESPONSIVIDADE: PASSOU — proposta legível e painel contido em tablet e notebook.');
+  console.log('\nRÉGUA DE RESPONSIVIDADE: PASSOU — proposta legível, painel contido e poste alcançável em tablet, notebook e telefone deitado.');
 })();
+
+// AUTOTESTE (lição EQUIPE.md 2.8 — instrumento nunca visto reprovando é decoração):
+//   REGUA_DEFEITO='#telaMenu{overflow-y:hidden!important}' node test/regua-larga.js
+// prende CONFIGURAÇÕES em 926×428 (e em toda tela cujo poste dependa da rolagem) e reprova por
+// exit code. A primeira versão desta asserção (com `scrollIntoView`) NÃO mordia esse defeito —
+// ver o comentário grande acima. Reprova de verdade com a versão atual, verificado nesta rodada.
