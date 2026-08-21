@@ -199,11 +199,11 @@
 
   <nav class="aba">
     <a href="#agentes">Agentes</a>
-    <a href="#conversa">Conversa</a>
     
     <a href="#oportunidades">Oportunidades</a>
     <a href="#decisoes">Decisões</a>
     <a href="#pendencias">Pendências</a>
+    <a href="#conversa">Conversa</a>
     
   </nav>
 
@@ -213,14 +213,6 @@
     <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
 
-  <section class="camada" id="conversa">
-    <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
-    <div class="fio" id="fio"></div>
-    <div class="compor">
-      <textarea id="compor-txt" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
-      <button id="compor-btn" type="button">Enviar</button>
-    </div>
-  </section>
 
   <section class="camada" id="oportunidades">
     <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
@@ -238,6 +230,15 @@
     <div class="rot"><span class="n">SUA VEZ</span><h2>Pendências</h2></div>
     <div class="lista" id="lista-pend"></div>
     <p class="vazio" id="vazio-pend">Nada aberto aqui agora.</p>
+  </section>
+
+  <section class="camada" id="conversa">
+    <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
+    <div class="fio" id="fio"></div>
+    <div class="compor">
+      <textarea id="compor-txt" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
+      <button id="compor-btn" type="button">Enviar</button>
+    </div>
   </section>
 
 
@@ -393,7 +394,7 @@
   btnCompor.addEventListener("click",function(){
     var t=composto.value.trim(); if(!t) return;
     btnCompor.disabled=true;
-    addMsg("dono",t,new Date().toISOString(),null);
+    addMsg("dono",t,new Date().toISOString(),"d-"+t);
     registrar({tipo:"mensagem",chave:"dono",valor:null,texto:t}).then(function(ok){
       toast(ok?"Chegou em mim — respondo aqui.":"Sem conexão — guardei e reenvio.", !ok);
       composto.value=""; btnCompor.disabled=false;
@@ -496,7 +497,7 @@
       // conversa: minhas mensagens vêm de mesa_item (tipo=mensagem); as do dono, de mesa_resposta
       var papo=[];
       itens.forEach(function(i){ if(i.tipo==="mensagem") papo.push({de:"claude",t:i.titulo+(i.contexto?"\n"+i.contexto:""),iso:i.criado_em,id:"i-"+i.chave}); });
-      resp.forEach(function(r,ix){ if(r.tipo==="mensagem") papo.push({de:"dono",t:r.texto||"",iso:r.criado_em,id:"r-"+r.criado_em+"-"+ix}); });
+      resp.forEach(function(r){ if(r.tipo==="mensagem") papo.push({de:"dono",t:r.texto||"",iso:r.criado_em,id:"d-"+(r.texto||"")}); });
       papo.sort(function(a,b){ return a.iso<b.iso?-1:1; });
       papo.forEach(function(m){ addMsg(m.de,m.t,m.iso,m.id); });
       // itens: só o que está aberto E não respondido

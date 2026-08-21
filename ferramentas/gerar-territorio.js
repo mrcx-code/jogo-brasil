@@ -29,6 +29,8 @@ const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
 const ABRIR = require('../test/abrir.js');
+// O endereço mora numa linha só (ferramentas/dominio.js) — agora também nas seções.
+const { BASE } = require('./dominio.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -119,6 +121,11 @@ function lerThree() {
 <meta name="description" content="O território do Brasil em relevo: os lugares onde a história do jogo aconteceu e os três números do Censo 2022.">
 <meta property="og:title" content="O TERRITÓRIO — BRASIL">
 <meta property="og:description" content="Uma placa do Brasil em relevo, com os lugares onde cada capítulo aconteceu e o Censo Demográfico de 2022.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRASIL">
+<meta property="og:url" content="${BASE}/territorio/">
+<meta property="og:locale" content="pt_BR">
+<link rel="canonical" href="${BASE}/territorio/">
 <title>O Território — BRASIL</title>
 <style>
   :root {
@@ -737,7 +744,10 @@ requestAnimationFrame(passo);
   // GUARDA: a página é autocontida. Nenhum src=/href= de rede, nem fonte do Google — ao
   // contrário das irmãs, esta não pode ter nem isso: ela já carrega o three.js inteiro e
   // uma fonte remota atrasaria o primeiro pixel de uma página que é PURA imagem.
-  const externas = html.match(/(?:src|href)\s*=\s*"(?!\/|#)[^"]*"/g) || [];
+  const externas = (html.match(/(?:src|href)\s*=\s*"(?!\/|#)[^"]*"/g) || [])
+    // o próprio domínio (canonical/og:url, growth 21/08) é navegação, não asset — o navegador
+    // não BUSCA um canonical; a régua "nada atrasa o primeiro pixel" continua inteira.
+    .filter(function (u) { return u.indexOf(BASE) < 0; });
   if (externas.length) throw new Error('RECUSADO: referência externa na página: ' + externas[0]);
 
   const dir = path.join(RAIZ, 'territorio');

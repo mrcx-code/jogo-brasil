@@ -16,6 +16,8 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('../test/abrir.js');
+// O endereço mora numa linha só (ferramentas/dominio.js) — agora também nas seções.
+const { BASE } = require('./dominio.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -64,6 +66,11 @@ const esc = (s) => String(s || '')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRASIL">
+<meta property="og:url" content="${BASE}/de-onde-vem/">
+<meta property="og:locale" content="pt_BR">
+<link rel="canonical" href="${BASE}/de-onde-vem/">
 <title>De Onde Vem — as fontes da história do Brasil</title>
 <style>
   :root {
@@ -151,6 +158,6 @@ ${secoes}
   fs.writeFileSync(path.join(dir, 'index.html'), html);
   console.log('de-onde-vem/index.html gerado — ' + nFontes + ' fontes em '
     + grupos.length + ' grupos, ' + (html.length / 1024).toFixed(0) + ' KB');
-  const ext = (html.match(/(?:src|href)="https?:\/\/(?!fonts\.g)[^"]+"/g) || []);
+  const ext = (html.match(/(?:src|href)="https?:\/\/(?!fonts\.g)[^"]+"/g) || []).filter(function (u) { return u.indexOf(BASE) < 0; }); // o proprio dominio (canonical/og) nao e asset externo
   if (ext.length) { console.error('RECUSADO: referência externa: ' + ext[0]); process.exit(1); }
 })();

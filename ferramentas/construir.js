@@ -387,8 +387,16 @@ if (fs.existsSync(p("dashboard"))) {
     fs.copyFileSync(p("dashboard", f), p("dist", "dashboard", f));
     nDash++;
   }
-  fs.writeFileSync(p("dist", "robots.txt"), ["User-agent: *", "Disallow: /dashboard", ""].join("\n"));
-  console.log("  dashboard/ copiado para dist/dashboard/ — " + nDash + " arquivo(s), mais o robots.txt");
+  fs.writeFileSync(p("dist", "robots.txt"),
+    ["User-agent: *", "Disallow: /dashboard", "Sitemap: " + BASE + "/sitemap.xml", ""].join("\n"));
+  // O SITEMAP (growth, 21/08): sem ele o Google só acha as páginas por link, e não havia sinal
+  // de indexação nenhuma. As seis URLs públicas; o dashboard fica de fora de propósito.
+  const urlsMapa = ["/", "/jogo/", "/historia/", "/glossario/", "/de-onde-vem/", "/territorio/"];
+  fs.writeFileSync(p("dist", "sitemap.xml"),
+    '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + urlsMapa.map(function (u) { return "  <url><loc>" + BASE + u + "</loc></url>"; }).join("\n")
+    + "\n</urlset>\n");
+  console.log("  dashboard/ copiado para dist/dashboard/ — " + nDash + " arquivo(s), + robots.txt e sitemap.xml");
   // O ENDERECO ANTIGO REDIRECIONA: o dashboard chamava-se mesa ate 21/08 e o bookmark do
   // celular do dono aponta para /mesa. Quebrar bookmark dele e o oposto de organizar.
   fs.mkdirSync(p("dist", "mesa"), { recursive: true });
