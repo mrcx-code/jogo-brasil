@@ -35,12 +35,11 @@
   button{font:inherit;cursor:pointer}
   .env{max-width:52rem;margin:0 auto;padding:1rem 1.05rem 5rem}
 
-  /* header enxuto */
   header.topo{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;
     border-bottom:2px solid var(--tinta);padding-bottom:.6rem;margin-bottom:.5rem}
   header .marca{font:700 1.5rem/1 "Bitter",Georgia,serif;letter-spacing:-.01em}
   header .quando{font:600 .64rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.04em}
-  .placar{display:flex;gap:.9rem;flex-wrap:wrap;margin:0 0 1.3rem;
+  .placar{display:flex;gap:.9rem;flex-wrap:wrap;margin:0 0 1.1rem;
     font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.05em;text-transform:uppercase}
   .placar b{color:var(--terra)}
   .pedir-check{display:block;width:100%;margin:0 0 1.1rem;background:var(--papel2);color:var(--terra);
@@ -63,9 +62,22 @@
   .rot h2{font:700 1.22rem/1.1 "Bitter",Georgia,serif}
   .vazio{color:var(--pedra);font:italic 400 .92rem/1.4 "Bitter",serif;padding:.2rem 0}
 
-  /* item que colapsa ao resolver */
   .some{overflow:hidden;transition:max-height .32s ease,opacity .25s ease,margin .32s ease,padding .32s ease}
   .some.foi{max-height:0!important;opacity:0;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-width:0}
+
+  /* conversa */
+  .fio{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.9rem}
+  .msg{max-width:88%;border-radius:10px;padding:.6rem .8rem;font-size:.95rem;box-shadow:0 1px 2px var(--sombra)}
+  .msg .de{font:600 .58rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra)}
+  .msg.claude{align-self:flex-start;background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--mata)}
+  .msg.dono{align-self:flex-end;background:var(--papel2);border:1px solid var(--linha);border-right:3px solid var(--terra)}
+  .msg .qdo{font:600 .56rem/1.6 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.7}
+  .compor{display:flex;gap:.5rem;align-items:flex-end}
+  .compor textarea{flex:1;background:var(--realce);color:var(--tinta);border:1.5px solid var(--linha);
+    border-radius:8px;padding:.6rem .7rem;font:inherit;font-size:.95rem;resize:vertical;min-height:2.6rem}
+  .compor textarea:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
+  .compor button{background:var(--mata);border:none;color:#fff;border-radius:8px;padding:.7rem 1rem;font-weight:700}
+  .compor button:disabled{background:var(--linha);color:var(--pedra)}
 
   .cartao{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--mata);
     border-radius:3px;padding:.9rem 1rem;box-shadow:0 1px 2px var(--sombra);margin:0 0 .7rem}
@@ -82,7 +94,6 @@
   .btn.forte:hover{filter:brightness(1.08);color:#fff}
   .btn.forte:disabled{background:var(--linha);border-color:var(--linha);color:var(--pedra);cursor:not-allowed;filter:none}
   .btn.leve{padding:.32rem .6rem;font-size:.72rem}
-  /* oportunidade: 3 botões iguais, largura toda, cor + emoji */
   .acoes-op{display:flex;gap:.45rem;margin-top:.85rem}
   .btn-op{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
     min-height:60px;padding:.5rem .25rem;border:1.5px solid var(--linha);border-radius:8px;background:var(--papel);color:var(--tinta);
@@ -98,7 +109,6 @@
   .envio{font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);min-width:1px}
   .envio.ok{color:var(--ok)} .envio.erro{color:var(--alerta)}
 
-  /* decisões */
   .decisao{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
     padding:.95rem 1rem;box-shadow:0 1px 3px var(--sombra);margin:0 0 .9rem}
   .decisao > .q{font:700 1.02rem/1.3 "Bitter",Georgia,serif;margin:0 0 .15rem}
@@ -119,17 +129,8 @@
   .op[aria-pressed="true"] .marca{border-color:var(--mata)}
   .op[aria-pressed="true"] .marca::after{background:var(--mata)}
 
-  /* pendências */
   .pend{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--terra);
     border-radius:3px;padding:.85rem .95rem;margin:0 0 .7rem;box-shadow:0 1px 2px var(--sombra)}
-  .pend .top{display:flex;gap:.65rem;align-items:flex-start}
-  .pend .cx{flex:0 0 auto;width:21px;height:21px;border:2px solid var(--pedra);border-radius:4px;background:var(--papel);
-    position:relative;margin-top:.05rem;transition:border-color .12s,background .12s;cursor:pointer}
-  .pend .cx::after{content:"";position:absolute;left:5.5px;top:2px;width:6px;height:11px;
-    border:solid var(--realce);border-width:0 3px 3px 0;transform:rotate(45deg) scale(0);transition:transform .12s}
-  .pend[data-on="1"] .cx{background:var(--mata);border-color:var(--mata)}
-  .pend[data-on="1"] .cx::after{transform:rotate(45deg) scale(1)}
-  .pend .corpo{flex:1}
   .pend h3{font:700 .98rem/1.25 "Bitter",Georgia,serif;margin:0}
   .pend p{margin:.2rem 0 0;color:var(--tinta2);font-size:.88rem}
   .pend .quem{font:600 .6rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra);margin-top:.3rem}
@@ -137,7 +138,6 @@
     border-radius:3px;padding:.45rem .55rem;font:inherit;font-size:.9rem;resize:vertical;min-height:2.2rem}
   .pend textarea:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
 
-  /* agentes */
   .grade-ag{display:grid;gap:.6rem;grid-template-columns:1fr 1fr}
   @media(min-width:40rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
   .ag{background:var(--realce);border:1px solid var(--linha);border-radius:4px;padding:.6rem .6rem .7rem;
@@ -165,7 +165,6 @@
   .ag .st{font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--pedra)}
   .ag[data-st="trabalhando"] .st{color:var(--ok)} .ag[data-st="chamado"] .st{color:var(--brasa)}
   .ag .ult{font:600 .56rem/1.3 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.8}
-  .ag .btn.leve{margin-top:.15rem}
 
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,6,.55);padding:1.2rem}
   .modal[hidden]{display:none}
@@ -177,6 +176,7 @@
   .modal-op:hover{border-color:var(--terra)}
   .modal-op[aria-pressed="true"]{border-color:var(--mata);background:var(--papel2)}
   .modal-acoes{display:flex;justify-content:flex-end;gap:.6rem}
+
   .toast{position:fixed;left:50%;bottom:1.1rem;transform:translateX(-50%) translateY(2rem);
     background:var(--mata);color:#fff;padding:.55rem 1rem;border-radius:6px;font:600 .82rem/1.2 "Source Sans 3",sans-serif;
     box-shadow:0 4px 14px var(--sombra);opacity:0;transition:opacity .25s,transform .25s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
@@ -192,95 +192,59 @@
 
   <header class="topo">
     <span class="marca">Mesa</span>
-    <span class="quando">20 ago 2026, 16:47</span>
+    <span class="quando" id="quando">—</span>
   </header>
   <div class="placar" id="placar"></div>
   <button class="pedir-check" id="pedir-check" type="button">↻ pedir check — monto um balanço novo aqui</button>
 
   <nav class="aba">
+    <a href="#conversa">Conversa</a>
     <a href="#oportunidades">Oportunidades</a>
     <a href="#decisoes">Decisões</a>
     <a href="#pendencias">Pendências</a>
     <a href="#agentes">Agentes</a>
   </nav>
 
-  <!-- OPORTUNIDADES -->
-  <section class="camada" id="oportunidades">
-    <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
-    <div class="lista" id="lista-op">
-      <div class="cartao some" data-op="porta">
-        <h3>Porta da plataforma<span class="rec-op">⭐ recomendo</span></h3>
-        <p>Home da plataforma na raiz, jogo em /jogo — a virada que você confirmou (jogo = chamariz).</p>
-        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
-      </div>
-      <div class="cartao some" data-op="territorio">
-        <h3>Protótipo do território</h3>
-        <p>O mapa como experiência interativa (WebGL) — o showcase que você quer, sem tocar na sua zona (D-mapa).</p>
-        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
-      </div>
-      <div class="cartao some" data-op="homediorama">
-        <h3>Home do jogo: personagem + portais</h3>
-        <p>Increment 2 da home: cena com profundidade e a personagem com presença, mais os quatro portais de topo (direção da arte).</p>
-        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
-      </div>
-      <div class="cartao some" data-op="retencao">
-        <h3>Instrumentar retenção de verdade</h3>
-        <p>O jogo ainda não sabe responder à pergunta de três dias. Troca o “não sei” por número. Anônimo.</p>
-        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
-      </div>
-      <div class="cartao some" data-op="vivo">
-        <h3>Painel de agentes ao vivo</h3>
-        <p>Fase 2 do backend: os bonequinhos se mexem sozinhos conforme os agentes trabalham de verdade.</p>
-        <div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button><button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button><button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>
-      </div>
+  <section class="camada" id="conversa">
+    <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
+    <div class="fio" id="fio"></div>
+    <div class="compor">
+      <textarea id="compor-txt" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
+      <button id="compor-btn" type="button">Enviar</button>
     </div>
-    <p class="vazio" id="vazio-op" hidden>Nada aberto aqui agora.</p>
   </section>
 
-  <!-- DECISÕES -->
+  <section class="camada" id="oportunidades">
+    <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
+    <div class="lista" id="lista-op"></div>
+    <p class="vazio" id="vazio-op">Nada aberto aqui agora.</p>
+  </section>
+
   <section class="camada" id="decisoes">
     <div class="rot"><span class="n">DECIDA</span><h2>As decisões</h2></div>
-    <div class="lista" id="lista-dec">
-    </div>
+    <div class="lista" id="lista-dec"></div>
     <p class="vazio" id="vazio-dec">Nada pra decidir agora — toque “pedir check” se quiser que eu monte um.</p>
   </section>
 
-  <!-- PENDÊNCIAS -->
   <section class="camada" id="pendencias">
     <div class="rot"><span class="n">SUA VEZ</span><h2>Pendências</h2></div>
-    <div class="lista" id="lista-pend">
-      <div class="pend some" data-p="acompanhar">
-        <h3>O que o jogador FAZ no último capítulo (AINDA AQUI)</h3>
-        <p>O último capítulo se passa hoje, com os povos indígenas que continuam aqui. Preciso de um gesto para o jogador — o que ele faz na tela? Em Palmares, “alcançar” virou “acolher quem chega”; aqui pensei em “acompanhar” (andar junto). O cuidado (§2): não pode virar “coletar pessoas” como se fossem itens. Que gesto combina? Ex.: (a) plantar/colher junto · (b) caminhar ao lado de alguém · (c) sua ideia.</p>
-        <p class="quem">representação · com o dono</p>
-        <textarea placeholder="sua resposta / direção"></textarea>
-        <div class="acoes"><button class="btn nao-entendi" type="button">Não entendi</button><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>
-      </div>
-      <div class="pend some" data-p="fio">
-        <h3>Como mostrar a rede entre os quilombos</h3>
-        <p>Palmares não era um lugar só — era uma rede de povoados de quem fugiu da escravidão, ligados entre si. Quero mostrar essa ligação na tela, mas não sei a forma. Como o “fio” que liga um quilombo ao outro aparece? Ex.: (a) uma trilha no chão entre eles · (b) uma linha/luz ligando pontos num mapa · (c) sinal de fumaça de um para o outro · (d) sua ideia.</p>
-        <p class="quem">representação · com o dono</p>
-        <textarea placeholder="sua resposta"></textarea>
-        <div class="acoes"><button class="btn nao-entendi" type="button">Não entendi</button><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>
-      </div>
-    </div>
-    <p class="vazio" id="vazio-pend" hidden>Nada aberto aqui agora.</p>
+    <div class="lista" id="lista-pend"></div>
+    <p class="vazio" id="vazio-pend">Nada aberto aqui agora.</p>
   </section>
 
-  <!-- AGENTES -->
   <section class="camada" id="agentes">
     <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
     <div class="grade-ag" id="grade-ag"></div>
-    <p class="ag-nota" id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
+    <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
 
-  <footer class="rod"><p>Mesa privada do BRASIL. Suas respostas vão direto para uma caixa que eu leio; nada pessoal.</p></footer>
+  <footer class="rod"><p>Mesa privada do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Nada pessoal é coletado.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
   <div class="modal-cx">
     <h3 id="modal-tit">Acionar</h3>
-    <p class="msub" id="modal-sub">Escolha um caminho e confirme — o pedido chega direto em mim.</p>
+    <p class="msub">Escolha um caminho e confirme — o pedido chega direto em mim.</p>
     <div class="modal-ops" id="modal-ops"></div>
     <div class="modal-acoes">
       <button class="btn" id="modal-cancelar" type="button">Cancelar</button>
@@ -296,76 +260,68 @@
   "use strict";
   var SB_URL="https://hdhqziqvrthxtgyraemk.supabase.co";
   var SB_KEY="sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN";
-  var CHAVE="mesa-brasil-v3", FILA="mesa-brasil-fila3";
-  var estado={dec:{},decDone:{},pend:{},texto:{},pendDone:{},opFora:{},acionado:{}};
-  try{var s=localStorage.getItem(CHAVE); if(s) estado=Object.assign(estado,JSON.parse(s));}catch(e){}
-  function salva(){try{localStorage.setItem(CHAVE,JSON.stringify(estado));}catch(e){}}
+  var H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY};
+  var FILA="mesa-brasil-fila4";
 
+  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
   var toastEl=document.getElementById("toast"), toastT;
   function toast(msg,erro){ toastEl.textContent=msg; toastEl.className="toast ver"+(erro?" erro":"");
-    clearTimeout(toastT); toastT=setTimeout(function(){toastEl.className="toast";},2200); }
+    clearTimeout(toastT); toastT=setTimeout(function(){toastEl.className="toast";},2400); }
 
   function lerFila(){ try{return JSON.parse(localStorage.getItem(FILA)||"[]");}catch(e){return [];} }
   function gravarFila(f){ try{localStorage.setItem(FILA,JSON.stringify(f));}catch(e){} }
   function enviar(reg){
-    return fetch(SB_URL+"/rest/v1/mesa_resposta",{ method:"POST",
-      headers:{ "apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal" },
-      body: JSON.stringify(reg) }).then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(r.status+" "+t);}); return true; });
+    return fetch(SB_URL+"/rest/v1/mesa_resposta",{method:"POST",
+      headers:Object.assign({"Content-Type":"application/json","Prefer":"return=minimal"},H),
+      body:JSON.stringify(reg)}).then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(r.status);}); return true; });
   }
   function flush(){ var f=lerFila(); if(!f.length) return Promise.resolve();
     return enviar(f[0]).then(function(){ f.shift(); gravarFila(f); return flush(); }).catch(function(){}); }
-  // envia; resolve true se foi, false se ficou na fila
   function registrar(reg){
     return enviar(reg).then(function(){ flush(); return true; })
       .catch(function(){ var f=lerFila(); f.push(reg); gravarFila(f); return false; });
   }
+  function esconder(el){ el.style.maxHeight=el.scrollHeight+"px";
+    requestAnimationFrame(function(){ el.classList.add("foi");
+      setTimeout(function(){ el.remove(); atualizaPlacar(); },340); }); }
 
-  function esconder(el, cb){ el.classList.add("foi");
-    setTimeout(function(){ el.setAttribute("hidden","hidden"); if(cb) cb(); atualizaPlacar(); }, 340); }
-
-  function contaVisiveis(sel){ var n=0; document.querySelectorAll(sel).forEach(function(e){ if(!e.hasAttribute("hidden")) n++; }); return n; }
-  function atualizaVazios(){
-    document.getElementById("vazio-op").hidden = contaVisiveis("#lista-op .cartao")>0;
-    document.getElementById("vazio-dec").hidden = contaVisiveis("#lista-dec .decisao")>0;
-    document.getElementById("vazio-pend").hidden = contaVisiveis("#lista-pend .pend")>0;
-  }
+  function conta(id){ return document.querySelectorAll("#"+id+" > *").length; }
   function atualizaPlacar(){
-    atualizaVazios();
+    var op=conta("lista-op"), dec=conta("lista-dec"), pen=conta("lista-pend");
+    document.getElementById("vazio-op").hidden = op>0;
+    document.getElementById("vazio-dec").hidden = dec>0;
+    document.getElementById("vazio-pend").hidden = pen>0;
     document.getElementById("placar").innerHTML =
-      '<span><b>'+contaVisiveis("#lista-op .cartao")+'</b> oportunidades</span>'+
-      '<span><b>'+contaVisiveis("#lista-dec .decisao")+'</b> decisões</span>'+
-      '<span><b>'+contaVisiveis("#lista-pend .pend")+'</b> pendências</span>';
+      '<span><b>'+op+'</b> oportunidades</span><span><b>'+dec+'</b> decisões</span><span><b>'+pen+'</b> pendências</span>';
   }
 
-  // altura fixa para animar o colapso
-  function prepararColapso(el){ el.style.maxHeight = el.scrollHeight + "px"; }
+  // ================= FONTE DA VERDADE: O SERVIDOR =================
+  // A mesa busca mesa_item (aberto) e mesa_resposta; item já respondido NUNCA reaparece,
+  // em nenhum aparelho — o defeito do localStorage está morto.
+  var rendido={};          // chave -> elemento (pra não duplicar no poll)
+  var respondidas={};      // chave -> true (veio de mesa_resposta)
 
-  // ---- OPORTUNIDADES: adiar / não interessa ----
-  document.querySelectorAll("#lista-op .cartao").forEach(function(c){
-    var id=c.getAttribute("data-op");
-    if(estado.opFora[id]){ c.setAttribute("hidden","hidden"); return; }
+  function renderOportunidade(item){
+    var c=document.createElement("div"); c.className="cartao some"; c.setAttribute("data-k",item.chave);
+    c.innerHTML='<h3>'+escH(item.titulo)+(item.recomendada==="sim"?'<span class="rec-op">⭐ recomendo</span>':'')+'</h3>'
+      + (item.contexto?'<p>'+escH(item.contexto)+'</p>':'')
+      + '<div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button>'
+      + '<button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button>'
+      + '<button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>';
+    document.getElementById("lista-op").appendChild(c);
     c.querySelectorAll("[data-act]").forEach(function(b){
       b.addEventListener("click",function(){
-        var act=b.getAttribute("data-act");
-        var mapa={priorizar:{v:"priorizar",t:"Priorizada — vira a próxima da fila."},
-                  adiar:{v:"adiar",t:"Adiada — te trago de novo depois."},
-                  nao:{v:"nao-interessa",t:"Anotado: não interessa."}};
-        var m=mapa[act]||mapa.nao;
-        estado.opFora[id]=act; salva();
-        registrar({tipo:"oportunidade",chave:id,valor:m.v,texto:null})
-          .then(function(ok){ toast(m.t, !ok); });
-        prepararColapso(c); requestAnimationFrame(function(){ esconder(c); });
+        var m={priorizar:"Priorizada — vira a próxima da fila.",adiar:"Adiada — te trago de novo depois.",nao:"Anotado: não interessa."};
+        registrar({tipo:"oportunidade",chave:item.chave,valor:(b.getAttribute("data-act")==="nao"?"nao-interessa":b.getAttribute("data-act")),texto:null})
+          .then(function(ok){ toast(m[b.getAttribute("data-act")], !ok); });
+        respondidas[item.chave]=true; esconder(c);
       });
     });
-  });
+    return c;
+  }
 
-  // ---- DECISÕES DINÂMICAS: vêm do backend (mesa_item). Eu escrevo lá, aparecem no celular. ----
-  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
-  var SB_ITEM=SB_URL+"/rest/v1/mesa_item?select=chave,titulo,contexto,opcoes,recomendada&tipo=eq.decisao&estado=eq.aberto&order=ordem";
-  var listaDec=document.getElementById("lista-dec"), decRend={};
   function renderDecisao(item){
-    var bloco=document.createElement("div");
-    bloco.className="decisao some"; bloco.setAttribute("data-d",item.chave);
+    var bloco=document.createElement("div"); bloco.className="decisao some"; bloco.setAttribute("data-k",item.chave);
     var ops=(item.opcoes||[]).map(function(o){
       var rec=(o.v===item.recomendada);
       return '<button class="op" data-v="'+escH(o.v)+'"><span class="marca"></span><span class="txt">'
@@ -376,76 +332,72 @@
       + (item.contexto?'<p class="ctx">'+escH(item.contexto)+'</p>':'')
       + '<div class="ops">'+ops+'</div>'
       + '<div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn" disabled>Enviar</button></div>';
-    listaDec.appendChild(bloco);
-    var d=item.chave, btn=bloco.querySelector(".enviar-btn"), envio=bloco.querySelector(".envio");
-    if(estado.dec[d]){ var pre=bloco.querySelector('.op[data-v="'+estado.dec[d]+'"]'); if(pre){pre.setAttribute("aria-pressed","true"); btn.disabled=false;} }
+    document.getElementById("lista-dec").appendChild(bloco);
+    var escolha=null, btn=bloco.querySelector(".enviar-btn");
     bloco.querySelectorAll(".op").forEach(function(op){
       op.setAttribute("role","button");
       op.addEventListener("click",function(){
-        estado.dec[d]=op.getAttribute("data-v"); salva();
+        escolha=op.getAttribute("data-v");
         bloco.querySelectorAll(".op").forEach(function(o){o.setAttribute("aria-pressed",o===op?"true":"false");});
         btn.disabled=false;
       });
     });
     btn.addEventListener("click",function(){
-      if(!estado.dec[d]) return;
-      btn.disabled=true; envio.textContent="enviando…"; envio.className="envio";
-      registrar({tipo:"decisao",chave:d,valor:estado.dec[d],texto:null}).then(function(ok){
-        estado.decDone[d]=true; salva();
+      if(!escolha) return; btn.disabled=true;
+      registrar({tipo:"decisao",chave:item.chave,valor:escolha,texto:null}).then(function(ok){
         toast(ok?"Decisão enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
-        prepararColapso(bloco); requestAnimationFrame(function(){ esconder(bloco); atualizaPlacar(); });
       });
+      respondidas[item.chave]=true; esconder(bloco);
     });
+    return bloco;
   }
-  function buscarDecisoes(){
-    fetch(SB_ITEM,{headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}})
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
-      .then(function(itens){
-        (itens||[]).forEach(function(item){
-          if(estado.decDone[item.chave] || decRend[item.chave]) return;
-          decRend[item.chave]=true; renderDecisao(item);
-        });
-        atualizaPlacar();
-      }).catch(function(){});
-  }
-  buscarDecisoes();
-  setInterval(buscarDecisoes, 8000);
 
-  // ---- PEDIR CHECK: o dono toca, eu monto um check novo (escrevo decisões na mesa) ----
-  var btnCheck=document.getElementById("pedir-check");
-  if(btnCheck) btnCheck.addEventListener("click",function(){
-    btnCheck.disabled=true;
-    registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(ok){
-      toast(ok?"Check pedido — vou montar e trazer aqui.":"Guardei o pedido — reenvio.", !ok);
-      setTimeout(function(){ btnCheck.disabled=false; }, 3000);
-    });
-  });
-
-  // ---- PENDÊNCIAS: marca/escreve -> Enviar -> some ----
-  document.querySelectorAll("#lista-pend .pend").forEach(function(p){
-    var id=p.getAttribute("data-p");
-    if(estado.pendDone[id]){ p.setAttribute("hidden","hidden"); return; }
-    var ta=p.querySelector("textarea"), btn=p.querySelector(".enviar-btn"), envio=p.querySelector(".envio");
-    if(estado.texto[id]&&ta){ta.value=estado.texto[id];}
-    if(ta) ta.addEventListener("input",function(){estado.texto[id]=ta.value; salva();});
-    btn.addEventListener("click",function(){
-      btn.disabled=true; envio.textContent="enviando…"; envio.className="envio";
-      registrar({tipo:"pendencia",chave:id,valor:"respondida",texto:(ta?ta.value:null)}).then(function(ok){
-        estado.pendDone[id]=true; salva();
+  function renderPendencia(item){
+    var p=document.createElement("div"); p.className="pend some"; p.setAttribute("data-k",item.chave);
+    p.innerHTML='<h3>'+escH(item.titulo)+'</h3>'
+      + (item.contexto?'<p>'+escH(item.contexto)+'</p>':'')
+      + '<p class="quem">representação · com o dono</p>'
+      + '<textarea placeholder="sua resposta"></textarea>'
+      + '<div class="acoes"><button class="btn nao-entendi" type="button">Não entendi</button><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>';
+    document.getElementById("lista-pend").appendChild(p);
+    var ta=p.querySelector("textarea");
+    p.querySelector(".enviar-btn").addEventListener("click",function(){
+      registrar({tipo:"pendencia",chave:item.chave,valor:"respondida",texto:ta.value}).then(function(ok){
         toast(ok?"Pendência enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
-        prepararColapso(p); requestAnimationFrame(function(){ esconder(p); });
       });
+      respondidas[item.chave]=true; esconder(p);
     });
-    var ne=p.querySelector(".nao-entendi");
-    if(ne) ne.addEventListener("click",function(){
-      registrar({tipo:"pendencia",chave:id,valor:"nao-entendi",texto:null}).then(function(ok){
-        toast(ok?"Vou reescrever mais claro e te trazer de novo.":"Guardei — reenvio.", !ok);
+    p.querySelector(".nao-entendi").addEventListener("click",function(){
+      registrar({tipo:"pendencia",chave:item.chave,valor:"nao-entendi",texto:null}).then(function(ok){
+        toast(ok?"Vou reescrever mais claro e trazer de novo.":"Guardei — reenvio.", !ok);
       });
-      prepararColapso(p); requestAnimationFrame(function(){ esconder(p); });
+      respondidas[item.chave]=true; esconder(p);
+    });
+    return p;
+  }
+
+  // -------- conversa --------
+  var fio=document.getElementById("fio"), msgsVistas={};
+  function horaDe(iso){ try{ var d=new Date(iso); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }catch(e){ return ""; } }
+  function addMsg(de,texto,iso,id){
+    if(id && msgsVistas[id]) return; if(id) msgsVistas[id]=true;
+    var m=document.createElement("div"); m.className="msg "+(de==="claude"?"claude":"dono");
+    m.innerHTML='<span class="de">'+(de==="claude"?"claude":"você")+'</span><div>'+escH(texto)+'</div>'
+      + (iso?'<span class="qdo">'+horaDe(iso)+'</span>':'');
+    fio.appendChild(m);
+  }
+  var composto=document.getElementById("compor-txt"), btnCompor=document.getElementById("compor-btn");
+  btnCompor.addEventListener("click",function(){
+    var t=composto.value.trim(); if(!t) return;
+    btnCompor.disabled=true;
+    addMsg("dono",t,new Date().toISOString(),null);
+    registrar({tipo:"mensagem",chave:"dono",valor:null,texto:t}).then(function(ok){
+      toast(ok?"Chegou em mim — respondo aqui.":"Sem conexão — guardei e reenvio.", !ok);
+      composto.value=""; btnCompor.disabled=false;
     });
   });
 
-  // ---- AGENTES: bonequinhos + Acionar ----
+  // -------- agentes (ao vivo) --------
   function bon(cor){
     return '<svg class="bon" viewBox="0 0 16 20" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">'
       + '<rect x="5" y="1" width="6" height="2" fill="#2b2118"/>'
@@ -456,35 +408,16 @@
       + '<g class="braco"><rect x="12" y="7" width="2" height="4" fill="var(--pele)"/><rect x="12" y="5" width="3" height="2" fill="#8a6a3a"/></g>'
       + '<rect x="5" y="13" width="2" height="5" fill="#3a2c1c"/><rect x="9" y="13" width="2" height="5" fill="#3a2c1c"/></svg>';
   }
-  var AG=[
-    {nome:"Claude", papel:"loop principal", cor:"#b5541f", status:"trabalhando", ult:"agora"},
-    {nome:"arte", papel:"direção de arte", cor:"#7a4a24", status:"espera", ult:"hoje"},
-    {nome:"pm", papel:"produto", cor:"#2f5230", status:"espera", ult:"19 ago"},
-    {nome:"dev", papel:"motor & mecânica", cor:"#3f7d3a", status:"espera", ult:"19 ago"},
-    {nome:"historiador", papel:"texto com fonte", cor:"#7d8479", status:"espera", ult:"19 ago"},
-    {nome:"pipeline", papel:"esteira da arte", cor:"#7a4a24", status:"espera", ult:"19 ago"},
-    {nome:"qa", papel:"prova que quebrou", cor:"#b5541f", status:"espera", ult:"19 ago"}
-  ];
-  // três caminhos por agente, ligados à evolução da plataforma — o dono escolhe e confirma
   var CAMINHOS={
-    arte:[{id:"territorio",l:"Direção do território (o showcase WebGL)"},
-      {id:"home2",l:"Home increment 2: cena com profundidade + portais de topo"},
-      {id:"coerencia",l:"Revisar a coerência visual entre os capítulos"}],
-    pm:[{id:"porta",l:"Montar o sprint da porta da plataforma"},
-      {id:"roadmap",l:"Desenhar a evolução ano a ano"},
-      {id:"backlog",l:"Repriorizar o backlog inteiro"}],
-    dev:[{id:"regua",l:"Régua de responsividade no gate + briefing"},
-      {id:"home2",l:"Home increment 2 (personagem-diorama + portais)"},
-      {id:"mover",l:"Mover o jogo para /jogo (porta da plataforma)"}],
-    historiador:[{id:"revisar4",l:"Revisar os 4 textos de capítulo (licença §2)"},
-      {id:"verbetes",l:"Escrever verbetes e fontes novas"},
-      {id:"validade",l:"Checar os números que vencem (PRODES, censo)"}],
-    pipeline:[{id:"artterr",l:"Preparar a arte do território"},
-      {id:"peso",l:"Otimizar o peso dos pacotes"},
-      {id:"nitidez",l:"Auditar nitidez e qualidade da arte atual"}],
-    qa:[{id:"telas",l:"Ampliar a régua de telas (tablet/notebook)"},
-      {id:"hostil",l:"Testar save hostil + backend da mesa"},
-      {id:"gap",l:"Caçar o gap que ninguém está olhando"}]
+    arte:[{id:"territorio",l:"Direção do território (o showcase 3D)"},{id:"home2",l:"Home increment 2: cena + portais"},{id:"coerencia",l:"Coerência visual entre capítulos"}],
+    pm:[{id:"porta",l:"Sprint da porta da plataforma"},{id:"roadmap",l:"Evolução ano a ano"},{id:"backlog",l:"Repriorizar o backlog"}],
+    dev:[{id:"territorio3d",l:"Construir o território em three.js"},{id:"home2",l:"Home increment 2 (diorama + portais)"},{id:"retencao",l:"Instrumentar retenção"}],
+    historiador:[{id:"revisar4",l:"Revisar os 4 textos (§2)"},{id:"verbetes",l:"Verbetes e fontes novas"},{id:"validade",l:"Números que vencem (PRODES, censo)"}],
+    pipeline:[{id:"artterr",l:"Arte do território"},{id:"peso",l:"Peso dos pacotes"},{id:"nitidez",l:"Auditoria de nitidez"}],
+    qa:[{id:"telas",l:"Régua de telas (tablet/notebook)"},{id:"hostil",l:"Save hostil + backend da mesa"},{id:"gap",l:"Caçar o gap"}],
+    juridico:[{id:"lgpd",l:"Auditoria LGPD do que existe"},{id:"privacidade",l:"Texto de privacidade da plataforma"},{id:"licencas",l:"Licenças das fontes"}],
+    growth:[{id:"seo",l:"SEO das seções públicas"},{id:"cartao",l:"Cartão de link (og:) perfeito"},{id:"funil",l:"Funil de volta (eventos anônimos)"}],
+    seguranca:[{id:"mesa",l:"Auditar o backend da mesa"},{id:"headers",l:"Cabeçalhos + CSP das páginas novas"},{id:"deps",l:"Dependências e build"}]
   };
   var modal=document.getElementById("modal"), modalOps=document.getElementById("modal-ops"),
       modalTit=document.getElementById("modal-tit"), modalConf=document.getElementById("modal-confirmar"),
@@ -492,95 +425,96 @@
   function fecharModal(){ modal.setAttribute("hidden","hidden"); modalEsc=null; modalConf.disabled=true; modalConf.onclick=null; }
   modalCanc.addEventListener("click",fecharModal);
   modal.addEventListener("click",function(e){ if(e.target===modal) fecharModal(); });
-  function abrirModal(a, card, ac){
-    var lista=CAMINHOS[a.nome]||[];
-    modalTit.textContent="Acionar "+a.nome;
+  function abrirModal(item, card, slot){
+    var lista=CAMINHOS[item.nome]||[{id:"livre",l:"Trabalhar no que for mais valioso agora"}];
+    modalTit.textContent="Acionar "+item.nome;
     modalEsc=null; modalConf.disabled=true; modalOps.innerHTML="";
     lista.forEach(function(c){
-      var b=document.createElement("button");
-      b.className="modal-op"; b.type="button"; b.textContent=c.l;
-      b.addEventListener("click",function(){
-        modalEsc=c;
+      var b=document.createElement("button"); b.className="modal-op"; b.type="button"; b.textContent=c.l;
+      b.addEventListener("click",function(){ modalEsc=c;
         modalOps.querySelectorAll(".modal-op").forEach(function(o){o.setAttribute("aria-pressed",o===b?"true":"false");});
-        modalConf.disabled=false;
-      });
+        modalConf.disabled=false; });
       modalOps.appendChild(b);
     });
     modalConf.onclick=function(){
       if(!modalEsc) return;
-      estado.acionado[a.nome]=true; salva();
-      card.setAttribute("data-st","chamado");
-      card.querySelector(".st").textContent="chamado";
-      if(ac) ac.textContent="chamado ✓";
+      card.setAttribute("data-st","chamado"); card.querySelector(".st").textContent="chamado";
+      slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>';
       var esc=modalEsc;
-      registrar({tipo:"acionar",chave:a.nome,valor:esc.id,texto:esc.l}).then(function(ok){
-        toast(ok?("Acionei "+a.nome+" — "+esc.l):"Guardei o chamado — reenvio.", !ok);
+      registrar({tipo:"acionar",chave:item.nome,valor:esc.id,texto:esc.l}).then(function(ok){
+        toast(ok?("Acionei "+item.nome+" — "+esc.l):"Guardei o chamado — reenvio.", !ok);
       });
       fecharModal();
     };
     modal.removeAttribute("hidden");
   }
-
-  // ---- PAINEL AO VIVO: busca mesa_agente e atualiza sozinho a cada 6s (fallback offline) ----
-  var g=document.getElementById("grade-ag"), cards={}, dadosAgente={};
-  function rotuloSt(st){ return st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"); }
-  function desde(iso){
-    if(!iso) return "—";
-    var t=new Date(iso).getTime(); if(isNaN(t)) return "—";
-    var s=Math.max(0,(Date.now()-t)/1000);
-    if(s<90) return "agora";
+  var g=document.getElementById("grade-ag"), cards={};
+  function desde(iso){ if(!iso) return "—"; var t=new Date(iso).getTime(); if(isNaN(t)) return "—";
+    var s=Math.max(0,(Date.now()-t)/1000); if(s<90) return "agora";
     var m=s/60; if(m<60) return "há "+Math.round(m)+" min";
     var h=m/60; if(h<24) return "há "+Math.round(h)+"h";
-    var d=h/24; if(d<2) return "ontem"; return "há "+Math.round(d)+" dias";
-  }
-  function stExibido(item){
-    // o trabalho REAL vindo do backend vence; senão, o chamado otimista do dono (local)
-    if(item.status==="trabalhando") return "trabalhando";
-    if(item.status==="chamado") return "chamado";
-    return estado.acionado[item.nome] ? "chamado" : "espera";
-  }
-  function montaCard(item){
-    var card=document.createElement("div"); card.className="ag";
-    card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(item.cor||"#7d8479")+'</div>'
-      + '<div class="nome">'+item.nome+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
-    g.appendChild(card); return card;
-  }
-  function atualizaCard(card, item){
-    var st=stExibido(item);
+    var d=h/24; if(d<2) return "ontem"; return "há "+Math.round(d)+" dias"; }
+  function atualizaAg(item){
+    var card=cards[item.nome];
+    if(!card){ card=document.createElement("div"); card.className="ag";
+      card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(item.cor||"#7d8479")+'</div>'
+        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
+      g.appendChild(card); cards[item.nome]=card; }
+    var st=item.status||"espera";
     card.setAttribute("data-st",st);
-    card.querySelector(".papel").textContent = item.papel + (st==="trabalhando" && item.atividade ? " — "+item.atividade : "");
-    card.querySelector(".st").textContent = rotuloSt(st);
-    card.querySelector(".ult").textContent = (st==="trabalhando" ? "agora" : "última: "+desde(item.ativo_em));
+    card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
+    card.querySelector(".st").textContent = st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera");
+    card.querySelector(".ult").textContent = st==="trabalhando"?"agora":"última: "+desde(item.ativo_em);
     var slot=card.querySelector(".acaoAg");
-    if(st==="espera"){
-      if(!slot.querySelector(".acionar")){
-        slot.innerHTML='<button class="btn leve acionar">Acionar</button>';
-        slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(dadosAgente[item.nome], card, slot.querySelector(".acionar")); });
-      }
-    } else if(st==="chamado"){ slot.innerHTML='<button class="btn leve acionar" disabled>chamado ✓</button>'; }
+    if(st==="espera"){ if(!slot.querySelector(".acionar")){
+      slot.innerHTML='<button class="btn leve acionar">Acionar</button>';
+      slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(item, card, slot); }); } }
+    else if(st==="chamado"){ slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>'; }
     else { slot.innerHTML=''; }
   }
-  function renderAgentes(lista){
-    lista.forEach(function(item){
-      dadosAgente[item.nome]=item;
-      if(!cards[item.nome]) cards[item.nome]=montaCard(item);
-      atualizaCard(cards[item.nome], item);
+
+  // -------- pedir check --------
+  document.getElementById("pedir-check").addEventListener("click",function(){
+    var b=this; b.disabled=true;
+    registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(ok){
+      toast(ok?"Check pedido — monto e trago aqui.":"Guardei o pedido — reenvio.", !ok);
+      setTimeout(function(){b.disabled=false;},4000);
+    });
+  });
+
+  // ================= O CICLO DE VIDA =================
+  function carregar(){
+    var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
+    var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
+    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem&order=ordem",{headers:H}).then(function(r){return r.ok?r.json():[];});
+    return Promise.all([qItens,qResp,qAg]).then(function(rs){
+      var itens=rs[0]||[], resp=rs[1]||[], ags=rs[2]||[];
+      resp.forEach(function(r){ if(r.tipo!=="mensagem") respondidas[r.chave]=true; });
+      // conversa: minhas mensagens vêm de mesa_item (tipo=mensagem); as do dono, de mesa_resposta
+      var papo=[];
+      itens.forEach(function(i){ if(i.tipo==="mensagem") papo.push({de:"claude",t:i.titulo+(i.contexto?"\n"+i.contexto:""),iso:i.criado_em,id:"i-"+i.chave}); });
+      resp.forEach(function(r,ix){ if(r.tipo==="mensagem") papo.push({de:"dono",t:r.texto||"",iso:r.criado_em,id:"r-"+r.criado_em+"-"+ix}); });
+      papo.sort(function(a,b){ return a.iso<b.iso?-1:1; });
+      papo.forEach(function(m){ addMsg(m.de,m.t,m.iso,m.id); });
+      // itens: só o que está aberto E não respondido
+      itens.forEach(function(item){
+        if(item.tipo==="mensagem") return;
+        if(respondidas[item.chave] || rendido[item.chave]) return;
+        rendido[item.chave]=true;
+        if(item.tipo==="oportunidade") renderOportunidade(item);
+        else if(item.tipo==="decisao") renderDecisao(item);
+        else if(item.tipo==="pendencia") renderPendencia(item);
+      });
+      ags.forEach(atualizaAg);
+      document.getElementById("ag-nota").textContent="ao vivo · atualiza sozinho · “Acionar” abre os caminhos";
+      document.getElementById("quando").textContent="ao vivo · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+      atualizaPlacar();
+    }).catch(function(){
+      document.getElementById("quando").textContent="sem conexão — tentando de novo";
     });
   }
-  // pinta o instantâneo local na hora (sem flash de tela vazia), o vivo refina em seguida
-  renderAgentes(AG.map(function(a){return {nome:a.nome,papel:a.papel,cor:a.cor,status:a.status,atividade:null,ativo_em:null};}));
-  var SB_AGENTE=SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem&order=ordem";
-  var vivo=false, nota=document.getElementById("ag-nota");
-  function buscarAgentes(){
-    fetch(SB_AGENTE,{headers:{apikey:SB_KEY,Authorization:"Bearer "+SB_KEY}})
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
-      .then(function(lista){ if(lista&&lista.length){ renderAgentes(lista); vivo=true; nota.textContent="ao vivo · atualiza sozinho · toque “Acionar” em quem está parado"; } })
-      .catch(function(){ if(!vivo) nota.textContent="instantâneo (sem conexão) · toque “Acionar” em quem está parado"; });
-  }
-  buscarAgentes();
-  setInterval(buscarAgentes, 6000);
-
-  atualizaPlacar();
+  carregar();
+  setInterval(carregar, 7000);
   flush();
 })();
 </script>
