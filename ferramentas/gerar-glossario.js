@@ -132,6 +132,7 @@ const esc = (s) => String(s || '')
       <a href="/historia">A História</a>
       <a href="/glossario" class="aqui">Glossário</a>
       <a href="/de-onde-vem">De Onde Vem</a>
+      <a href="/territorio">O Território</a>
     </nav>
     <h1>O glossário do Brasil</h1>
     <p class="intro">As palavras da nossa história, explicadas — e as que este jogo recusa, e por

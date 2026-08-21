@@ -124,6 +124,7 @@ const esc = (s) => String(s || '')
       <a href="/historia">A História</a>
       <a href="/glossario">Glossário</a>
       <a href="/de-onde-vem" class="aqui">De Onde Vem</a>
+      <a href="/territorio">O Território</a>
     </nav>
     <h1>De onde vem</h1>
     <p class="intro">As fontes da nossa história — com autoria, e o que cada uma sustenta no jogo.

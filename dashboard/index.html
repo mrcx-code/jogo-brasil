@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<title>Mesa · BRASIL</title>
+<title>Dashboard · BRASIL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
@@ -191,19 +191,27 @@
 <div class="env">
 
   <header class="topo">
-    <span class="marca">Mesa</span>
+    <span class="marca">Dashboard</span>
     <span class="quando" id="quando">—</span>
   </header>
   <div class="placar" id="placar"></div>
   <button class="pedir-check" id="pedir-check" type="button">↻ pedir check — monto um balanço novo aqui</button>
 
   <nav class="aba">
+    <a href="#agentes">Agentes</a>
     <a href="#conversa">Conversa</a>
+    
     <a href="#oportunidades">Oportunidades</a>
     <a href="#decisoes">Decisões</a>
     <a href="#pendencias">Pendências</a>
-    <a href="#agentes">Agentes</a>
+    
   </nav>
+
+  <section class="camada" id="agentes">
+    <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
+    <div class="grade-ag" id="grade-ag"></div>
+    <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
+  </section>
 
   <section class="camada" id="conversa">
     <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
@@ -232,11 +240,6 @@
     <p class="vazio" id="vazio-pend">Nada aberto aqui agora.</p>
   </section>
 
-  <section class="camada" id="agentes">
-    <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
-    <div class="grade-ag" id="grade-ag"></div>
-    <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
-  </section>
 
   <footer class="rod"><p>Mesa privada do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Nada pessoal é coletado.</p></footer>
 </div>

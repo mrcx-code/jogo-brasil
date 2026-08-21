@@ -380,15 +380,22 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // A mesa NÃO passa pelas cobranças do arquivo único: ela não é o jogo, não carrega chave, não
 // fala com a rede e não entra no APK. O que ela tem de externo são as fontes do Google, que o
 // jogo não pode ter e ela pode, porque a CSP do jogo vale só para o <head> do jogo.
-if (fs.existsSync(p('mesa'))) {
-  fs.mkdirSync(p('dist', 'mesa'), { recursive: true });
-  let nMesa = 0;
-  for (const f of fs.readdirSync(p('mesa'))) {
-    fs.copyFileSync(p('mesa', f), p('dist', 'mesa', f));
-    nMesa++;
+if (fs.existsSync(p("dashboard"))) {
+  fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
+  let nDash = 0;
+  for (const f of fs.readdirSync(p("dashboard"))) {
+    fs.copyFileSync(p("dashboard", f), p("dist", "dashboard", f));
+    nDash++;
   }
-  fs.writeFileSync(p('dist', 'robots.txt'), ['User-agent: *', 'Disallow: /mesa', ''].join('\n'));
-  console.log('  mesa/ copiada para dist/mesa/ — ' + nMesa + ' arquivo(s), mais o robots.txt');
+  fs.writeFileSync(p("dist", "robots.txt"), ["User-agent: *", "Disallow: /dashboard", ""].join("\n"));
+  console.log("  dashboard/ copiado para dist/dashboard/ — " + nDash + " arquivo(s), mais o robots.txt");
+  // O ENDERECO ANTIGO REDIRECIONA: o dashboard chamava-se mesa ate 21/08 e o bookmark do
+  // celular do dono aponta para /mesa. Quebrar bookmark dele e o oposto de organizar.
+  fs.mkdirSync(p("dist", "mesa"), { recursive: true });
+  fs.writeFileSync(p("dist", "mesa", "index.html"),
+    "<!doctype html><meta charset=utf-8><meta name=robots content=noindex>" +
+    "<meta http-equiv=refresh content=\"0; url=/dashboard/\">" +
+    "<a href=/dashboard/>O painel mudou para /dashboard</a>");
 }
 
 // AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
