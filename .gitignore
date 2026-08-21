@@ -41,6 +41,11 @@ test/CAPA*.png
 # sondas descartaveis de agentes e sessoes — nunca entram no historico
 test/tmp-*
 test/TMP*
+
+# Home increment 2 (21/08): o par 390x844 fica versionado — e o antes/depois que sustenta o
+# numero no NOTES.md. O par de notebook pesa 1,4 MB CADA e se refaz num comando; mesma regra dos
+# prints da placa 3D logo acima.
+test/HOME2-*-1366x768.png
 # plataforma/ deixou de ser rascunho: e a PORTA da plataforma (D-home, 20/08), servida em
 # dist/index.html. Precisa estar versionada para a Vercel construir a partir dela.
 

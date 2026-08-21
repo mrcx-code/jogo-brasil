@@ -8213,3 +8213,61 @@ ninguem consumia a fila. Nao era bug da pagina. Processado tudo ao resetar:
   com fonte por cidade, pontos historicos pelo historiador.
 - **CONVERSA DO DASHBOARD (regra dele)**: so os 3 ultimos destaques + resposta DIRETA, curta,
   sem textao a nao ser que ele peca. Aplicado na pagina e vale para o plantao.
+
+## Diário — 2026-08-21: a home increment 2, os portões de topo (agente dev-jogo)
+
+Increment 2 da home cinemática, parte dos **portais** — o diorama fica para outra rodada, um
+incremento por vez. Direção da arte de 20/08: os portões de topo com o mesmo peso entre si,
+utilidade em nível 2.
+
+**O que estava lá, medido antes de mexer** (`test/HOME2-ANTES-*.png`, sonda descartável em
+`test/tmp-home2.js`): das sete tábuas do poste, **seis eram a mesma tábua**. A HISTÓRIA, ONDE FOI,
+GLOSSÁRIO e CONFIGURAÇÕES mediam **273×50 px em `rgb(124,85,44)`, indistinguíveis uma da outra**; só
+o JOGAR tinha madeira clara (273×72). Uma home que dá o mesmo peso ao acervo de **167 verbetes** e a
+"configurações" não está dizendo o que o dono decidiu em 19/08 (*"cada seção tem seu valor
+separado… o jogo seria um chamariz"*).
+
+**O que passou a ser** — a hierarquia é por MATERIAL, LARGURA e ALTURA, nesta ordem:
+
+| | antes | depois (390×844) | depois (1366×768) |
+|---|---|---|---|
+| **nível 1 · portões** JOGAR · A HISTÓRIA · GLOSSÁRIO | 273×72 claro + 2× 273×50 escuro | **304×57, madeira clara, os três iguais** | **340×56, os três iguais** |
+| **nível 2 · utilidade** O LUGAR · ONDE FOI · ATÉ AQUI · CONFIGURAÇÕES | 273×50 | **242×44, madeira curtida, opacidade .88** | **268×44** |
+| rótulo dos portões | JOGAR escala 4 (44 px), os outros escala 2 (22 px) | **escala 3 (33 px) nos três, tinta escura** | idem |
+| altura do poste | 498 px | **473 px (−25)** | 420 px (era 441, −21) |
+| rolagem do menu em 390×812 | **3 px** | **0 px** | — |
+| rolagem no notebook (7 tábuas) | 76 px | **55 px** | — |
+
+O GLOSSÁRIO subiu da sexta tábua para o topo: 167 verbetes e 17.918 palavras com fonte, 64% do
+texto do repositório, estavam na mesma madeira do CONFIGURAÇÕES.
+
+**A única interpretação da direção, registrada para a arte confirmar ou corrigir:** o JOGAR perdeu
+a letra maior (escala 4 → 3) para ficar **do mesmo tamanho** das duas irmãs. Manter 44 px de letra
+num e 33 nas outras seria dizer com o corpo o contrário do que a direção diz com a palavra; o JOGAR
+continua sendo lido primeiro por ser o primeiro e o único de uma palavra.
+
+**O achado da rodada foi do instrumento contra mim, e é a lição 2.8 de novo.** A primeira versão
+deixava o poste em **371 px** em 390×568 (contra 360 antes) e o bloco 30 do `encaixe.js` **piscava
+entre 2 e 5 px de rolagem em execuções seguidas do MESMO build** — a folga daquele bloco é 4, então
+o portão era cara ou coroa. Não foi afrouxada: o recheio do portão cedeu 2 px (`calc(var(--mTabua)
+- 2px)`), o poste fechou em **359** e o número voltou à banda estável do controle: **2 · 3 · 1 px em
+três execuções seguidas**. Régua mais fina que o instrumento continua sendo o erro; a resposta é
+tirar peso, não alargar a régua.
+
+**Portão novo, e ele foi visto reprovando** (`test/regua-larga.js`, seis telas): mede o DEGRAU entre
+os dois níveis, não a receita de cada um — os três portões têm de ter a mesma largura e a mesma
+altura entre si, e toda tábua de nível 2 tem de ser ≥16 px mais estreita, ≥6 px mais baixa e **nunca
+abaixo de 44 px de dedo**. Autoteste:
+`REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'`
+devolve o nível 2 ao tamanho dos portões — que é o estado de ontem — e a régua **sai 1 nas seis
+telas**.
+
+**Portões:** `npm test` exit **0** · `node test/encaixe.js` exit **1** em **uma** asserção, a mesma
+do CONTROLE rodado no HEAD antes de eu tocar em nada (**394 ok · 1 FALHA, idêntico antes e
+depois**): o bloco 14, `og:image` na raiz contra `og:url` em `/jogo/`, regressão do `801394c` e
+território do dev-plataforma. Diagnóstico e linha de conserto no **PENDENTES 46** — não invadi.
+
+**Dúvida que fica:** no notebook com as sete tábuas destravadas o CONFIGURAÇÕES continua abaixo da
+dobra (55 px de rolagem, era 76). A régua só cobra que ele seja **alcançável**, e ele é; se a
+direção quiser o poste inteiro sem rolagem em 768 px de altura, isso é decisão de composição
+(logo menor? nível 2 em duas colunas?) e não coube neste incremento.
