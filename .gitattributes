@@ -1,0 +1,6 @@
+# DIARIOS SAO APPEND-ONLY e se resolvem por UNIAO no merge (21/08): main e worktree apendam
+# em paralelo e a colisao no fim do arquivo nao e conflito de verdade — as duas entradas valem.
+# Foi o primeiro tropeço do funil (integracao do dev-jogo) e a uniao e o conserto estrutural.
+NOTES.md merge=union
+PENDENTES.md merge=union
+EQUIPE.md merge=union
