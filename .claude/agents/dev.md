@@ -51,6 +51,12 @@ iguais, desfranje pelo `min(R,B)−G`, registro pela cabeça, embutir via ferram
 em `src/jogo.ts`), particionar em `ferramentas/pacotes.js`, e MEDIR o peso na tela
 (`test/medir-na-tela.js`) antes de aceitar. As armadilhas do §5/§7 do CLAUDE.md valem todas.
 
+## A entrega
+Termina **commitada no ramo do seu worktree** — caminhos explícitos (EQUIPE.md 2.5), sem push.
+Árvore suja não se integra: a integração é MERGE do seu ramo, e é o commit que a torna segura
+(EQUIPE.md 2.10 — a cópia de arquivo quase perdeu NOTES.md duas vezes).
+
 ## O que devolver
 Objeto com: `feito` (o que mudou, por arquivo), `medido` (números antes/depois), `portoes`
-(exit codes), `bloqueado` (se houver) e `duvida` (o que ficou sem resposta). Sem prosa.
+(exit codes), `bloqueado` (se houver), `duvida` (o que ficou sem resposta) e `placar` (a sua
+linha para a tabela do EQUIPE.md §5 — quem integra a prega). Sem prosa.

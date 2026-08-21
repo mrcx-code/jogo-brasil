@@ -46,6 +46,12 @@ magistrado, delator ou empresário — **nem com condenação transitada**.
 `npm test` e `node test/encaixe.js` por **exit code**. O smoke checa o vocabulário do §2 nas
 falas autorais; ele reprova se um dígito entrar em texto de ficção.
 
+## A entrega
+Termina **commitada no ramo do seu worktree** — a fala e a fonte no NOTES.md no MESMO commit,
+como sempre; caminhos explícitos (EQUIPE.md 2.5), sem push. Árvore suja não se integra: a
+integração é MERGE do seu ramo (EQUIPE.md 2.10).
+
 ## O que devolver
 `escrito` (capítulo e falas), `fontes` (cada uma com número e data), `pare` (as perguntas de
-§2 que você não resolveu) e `duvida`. Sem prosa.
+§2 que você não resolveu), `duvida` e `placar` (a sua linha para a tabela do EQUIPE.md §5 —
+quem integra a prega). Sem prosa.

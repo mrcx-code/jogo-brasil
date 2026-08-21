@@ -7,16 +7,24 @@ O `EQUIPE.md` desenhou os papéis em 07/08 e eles funcionaram — **interpretado
 improviso**. Não havia isolamento, não havia restrição de ferramenta, não havia território
 cobrado por máquina. Este documento é a diferença entre um papel e um agente.
 
-## Os seis, e o que cada um NÃO pode
+## A equipe, e o que cada um NÃO pode
+
+> **Atualizada em 20–21/08 por decisão do dono:** a equipe cresceu (juridico · growth ·
+> seguranca, 20/08 22:05), o **pm absorveu a estratégia** em vez de nascer um "CEO", e o
+> **pipeline fundiu no dev** — a esteira da arte é do dev, as ferramentas ficam todas
+> (21/08, respondido pela mesa). A tabela abaixo é o estado vigente; se ela desencontrar
+> de `.claude/agents/`, quem vale é a pasta, e esta tabela é que se conserta.
 
 | agente | modelo | isolamento | edita `src/`? | o portão dele |
 |---|---|---|---|---|
-| **pm** | fable | — | não | não decide representação nem escreve código |
+| **pm** | fable | — | não | não decide representação nem escreve código; estratégia recomenda, não decide pelo dono |
 | **arte** | fable | — | não | não corta imagem, não julga representação |
-| **dev** | opus | worktree | sim (motor) | não toca `EPOCAS[]` nem a zona do dono |
+| **dev** | opus | worktree | sim (motor + esteira da arte) | não toca `EPOCAS[]` nem a zona do dono |
 | **historiador** | opus | worktree | sim (texto) | `ROSTOS.md` é **somente leitura** |
-| **pipeline** | opus | worktree | sim (arte) | não aprova nem recusa representação |
 | **qa** | opus | worktree | **não** — só `test/` | não conserta o jogo; devolve o achado |
+| **juridico** | opus | — | não | aponta risco e propõe texto; não publica nada sozinho |
+| **growth** | sonnet | — | não | não inventa número, não toca conteúdo histórico nem §2 |
+| **seguranca** | opus | — | não | não relaxa trava por conveniência; o que abre fluxo vai ao dono |
 
 ## As quatro decisões do dono, e por que cada uma
 
@@ -40,24 +48,37 @@ tenta refutar o que eles alegam antes de eu integrar. É o padrão que pega o er
 plausível-mas-falso — o tipo que mais me escapou: o cortador que "provava" colagem, a barra
 vazia que era geometria, o instrumento que media o capítulo errado por índice fixo.
 
-## O ciclo
+## O ciclo (revisto em 21/08 — a mesa virou a porta de entrada)
 
 ```
+dono decide/aciona pela MESA no celular
+   ↓
+plantão durável (30 em 30 min) é o ÚNICO consumidor da fila mesa_resposta
+   — antes da fila, ele confere o CI da main; vermelho passa na frente de tudo
+   ↓
 pm lê o estado → sprint com territórios DISJUNTOS
    ↓
-dev · historiador · pipeline em paralelo, cada um no worktree dele
+dev · historiador (e arte/growth/juridico/seguranca no que é deles) em paralelo,
+cada um que toca src/ no worktree dele — e a entrega termina COMMITADA no ramo
    ↓
-qa tenta REFUTAR cada alegação (não confirmar)
+qa tenta REFUTAR (não confirmar) — em LOTE, uma rodada por leva de alegações,
+obrigatório quando a entrega muda mecânica, economia, texto de §2, um portão,
+ou põe NÚMERO no NOTES.md; dispensável só no que um portão por exit code já cobre
    ↓
-eu integro em série, portões (exit code) entre cada patch
+a linha principal integra por MERGE do ramo do worktree (nunca cópia de arquivo),
+portões por exit code entre cada merge, placar conferido, worktree removido
    ↓
-o que virou PARE sobe para o check do dono, em pergunta fechada
+o que virou PARE sobe para a mesa do dono, em pergunta fechada
 ```
 
 ## Regras que valem para todos, sem exceção
 
 - **Portão por EXIT CODE**, nunca por ler a última linha da saída. Já empurrei vermelho por
   isso: `tail -2` mostrou as linhas de erro e eu li como resumo.
+- **Entrega de worktree termina COMMITADA no ramo do worktree** (caminhos explícitos, nunca
+  `git add -A`; sem push). Árvore suja não se integra: é o commit que torna a integração um
+  merge de verdade e o `git worktree remove` seguro por construção. A quase-perda de 19–20/08
+  (NOTES.md copiado por cima de commits mais novos, duas vezes) veio de integrar por cópia.
 - **Duas tentativas.** Falhou e você não entendeu na segunda? Pare e devolva `BLOQUEADO` com o
   diagnóstico. Iterar às cegas no teste é o oposto da disciplina daqui e já custou horas.
 - **Devolver dado, não prosa.** O relatório é objeto: feito · medido · bloqueado · dúvida.
