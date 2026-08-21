@@ -240,3 +240,4 @@ recusou o §2 na mesma página. Agente que sabe onde parar vale mais que agente 
   de graça, que o comentário da regra documenta **1 porta** para O QUE NÃO PODIA SER DITO
   quando hoje são **2**: o número ficou velho quando a fala da CNV entrou, no mesmo dia.
 | 21/08 | 1 | prova do funil | - | - | - | integrar.js estreou pegando main vermelha e desfazendo o proprio merge; verde na 2a |
+| 21/08 pm | 1 | 5 | 5 | 0 | 2 | roadmap operacional da 2a rodada ano-a-ano: backlog auditado contra o estado real — integrar-js JA FEITO (sai), og-image-territorio absorvido em territorio-rico (mesmos arquivos), rodada-prova deixa de ser item e vira MEDICAO dos 2 primeiros tickets em paralelo (colisoes=0); 2 faltas achadas por grep, nao por suposicao: historia/glossario/de-onde-vem sem og:image apos o growth, e a lei de DIVULGACAO do dono (21/08 tarde) sem NENHUM item na fila. 2 decisoes reais ao dono: interruptor de privacidade das paginas e a ancora interna do lancamento |
