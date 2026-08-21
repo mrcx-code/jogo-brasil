@@ -125,6 +125,11 @@ function lerThree() {
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="${BASE}/territorio/">
 <meta property="og:locale" content="pt_BR">
+<meta property="og:image" content="${BASE}/territorio/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A placa do Brasil em relevo, com os pinos acesos nos lugares onde cada capítulo aconteceu.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="${BASE}/territorio/">
 <title>O Território — BRASIL</title>
 <style>
@@ -659,6 +664,10 @@ window.__centro = function () {
   const v = new THREE.Vector3(0, ALTURA, 0).project(camera);
   return { fx: v.x * 0.5 + 0.5, fy: v.y * 0.5 + 0.5 };
 };
+/* QUANTOS PINOS JÁ ACENDERAM. Quem tira o cartão do link (o próprio gerador) precisa provar
+   que esperou a brasa terminar — um print tirado cedo mostra a placa certa com os pinos
+   apagados, e nada no arquivo denunciaria isso depois. */
+window.__acesos = function () { return pinos.filter(function (p) { return p.aceso > 0.9; }).length; };
 const palco = render.domElement;
 let toqueX = 0, toqueY = 0, toqueT = 0;
 palco.addEventListener("pointerdown", function (e) { toqueX = e.clientX; toqueY = e.clientY; toqueT = performance.now(); });
@@ -760,4 +769,62 @@ requestAnimationFrame(passo);
   console.log('territorio/index.html gerado — ' + D.pontos.length + ' lugares, '
     + D.pontos.reduce((a, p) => a + p.caps.length, 0) + ' capítulos, ' + D.contorno.length + ' pontos de contorno');
   console.log('  peso: ' + kb + ' KB cru, ' + gz + ' KB gzip (three.js inline = ' + kbThree + ' KB dos ' + kb + ')');
+
+  // ------------------------------------------------------- a imagem do cartão do link, da PRÓPRIA página
+  //
+  // UMA FONTE, DUAS SAÍDAS outra vez, e aqui ela vale ainda mais: a prévia do WhatsApp é a
+  // primeira coisa que alguém vê desta seção, e uma imagem desenhada à parte seria a segunda
+  // cópia do mapa — o modo de falha que o cabeçalho deste arquivo proíbe (pino no lugar errado
+  // é afirmação falsa sobre onde a história aconteceu, e num cartão de link ninguém confere).
+  // Então o print é da página que acabou de ser escrita, no tamanho que as redes pedem.
+  //
+  // POR QUE REUSAR A DO JOGO ESTAVA ERRADO (growth, 21/08): a `compartilhar.jpg` da raiz é HUD
+  // de partida. Ela não diz nada sobre mapa nem sobre censo, e um cartão que promete uma coisa
+  // e entrega outra gasta o clique de graça.
+  //
+  // 1200x630 com deviceScaleFactor 1 porque o print sai em pixels de DISPOSITIVO: a 2 ele
+  // sairia 2400x1260 e desmentiria as tags og:image:width/height logo acima.
+  const shot = path.join(dir, 'compartilhar.jpg');
+  const ALVO_PAG = ABRIR('file:///' + path.join(dir, 'index.html').split(path.sep).join('/'));
+  // o mesmo flag do test/ver-territorio.js — sem ele o Chromium headless recusa WebGL e a
+  // página cai no recuo digno, que é uma tela de texto: cartão vazio, e ninguém veria.
+  const nav2 = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  const pg2 = await nav2.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
+  const errosPag = [];
+  pg2.on('pageerror', (e) => errosPag.push('pageerror: ' + e));
+  pg2.on('console', (m) => { if (m.type() === 'error') errosPag.push('console: ' + m.text()); });
+  await pg2.goto(ALVO_PAG);
+  // `__pronto` marca o fim da ENTRADA da câmera (1400 ms) + 600. Os pinos só terminam de
+  // acender em 1400 + 4*80 + 260 = 1980 ms, e o pulso deles fica bom um respiro depois —
+  // por isso a espera extra. Print tirado cedo mostraria a placa chegando e pinos apagados.
+  await pg2.waitForFunction('window.__pronto === true', null, { timeout: 30000 });
+  await pg2.waitForTimeout(900);
+  // AS DUAS COBRANÇAS ABAIXO EXISTEM PORQUE O PESO NÃO PEGA NENHUMA DAS DUAS, e isso foi
+  // MEDIDO antes de escrevê-las (EQUIPE.md 2.8 — portão que nunca foi visto reprovando é
+  // decoração). Injetados os dois defeitos de propósito:
+  //   · print aos 300 ms → 0 de 5 pinos acesos, e o JPEG pesa 62 KB;
+  //   · Chromium sem WebGL → a página cai no recuo digno (sem mapa nenhum), e pesa 54 KB.
+  // Os dois cabem folgados na faixa de 20 a 300 KB. Um cartão de link é a única coisa deste
+  // repositório que ninguém revê depois de publicada — o robô da rede social busca uma vez e
+  // guarda por semanas. Então quem cobra é o estado da CENA, não o tamanho do arquivo.
+  const semWebGL = await pg2.evaluate(() => document.body.classList.contains('sem'));
+  if (semWebGL) throw new Error('RECUSADO: a página caiu no recuo sem WebGL — o cartão sairia sem mapa (medido: 54 KB, dentro da faixa de peso)');
+  const acesos = await pg2.evaluate(() => window.__acesos());
+  if (acesos !== D.pontos.length) {
+    throw new Error('RECUSADO: só ' + acesos + ' de ' + D.pontos.length
+      + ' pinos acesos no instante do print — a brasa não terminou (medido: aos 300 ms são 0, e o JPEG pesa 62 KB)');
+  }
+  await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });
+  await nav2.close();
+  if (errosPag.length) throw new Error('RECUSADO: erro na página ao tirar o cartão: ' + errosPag[0]);
+
+  const kbShot = fs.statSync(shot).size / 1024;
+  // e o peso continua valendo para o que ele SABE pegar: acima de 300 KB o robô da prévia
+  // desiste de buscar a imagem, e abaixo de 20 KB o JPEG é uma chapa lisa.
+  if (kbShot < 20 || kbShot > 300) {
+    throw new Error('RECUSADO: territorio/compartilhar.jpg saiu com ' + kbShot.toFixed(0)
+      + ' KB — fora da faixa de 20 a 300 KB');
+  }
+  console.log('  territorio/compartilhar.jpg — 1200x630, qualidade 85, ' + kbShot.toFixed(0) + ' KB · '
+    + acesos + ' de ' + D.pontos.length + ' pinos acesos');
 })();
