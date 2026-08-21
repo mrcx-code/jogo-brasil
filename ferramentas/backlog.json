@@ -23,7 +23,14 @@
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth.",
       "agente": "dev-plataforma",
       "estado": "em-curso",
-      "nota": "entregue, sob auditoria da seguranca"
+      "nota": "pagina integrada e no ar (retrocompativel); falta o hardening abaixo e ai o SQL+login"
+    },
+    {
+      "id": "fila-auth-hardening",
+      "titulo": "Hardening da fila-auth (12 achados da auditoria) — ANTES do SQL e do login",
+      "detalhe": "A1 prova do SQL cega a FOR ALL/{public} e drop por chute; A2 descomentar 2-B (uuid) + cadastro-OFF como passo numerado da MESMA sentada; A4 CSP meta no dashboard (frame-ancestors none) ANTES do login do dono; A5 teto na fila local + toast honesto; A6 4xx permanente trava a fila; A7 flush concorrente duplica; A8 logout sem revogar; A9 maxlength+check(length); A10 cena 5 do instrumento cega; A11 fila-auth.js no CI; A12 build recusa segredo em dashboard/. Relatorio completo: transcript da seguranca 21/08.",
+      "agente": "dev-plataforma",
+      "estado": "livre"
     },
     {
       "id": "territorio-rico",
@@ -102,11 +109,10 @@
     },
     {
       "id": "coerencia-visual",
-      "titulo": "Coerência visual: as DUAS línguas do jogo (auditoria da arte)",
-      "detalhe": "3 capítulos pixel cru vs 10 em pintura (medido); 4 capítulos com a MESMA pintura; fantasma na costura de JABAQUARA. Correções propostas sem arte nova (quantização + luzDoDia + deslocar costura). Decisão de direção: qual língua vence?",
+      "titulo": "PIXEL VENCE — o passe de coerencia nos 10 capitulos pintados",
+      "detalhe": "Decidido pelo dono 21/08 (mosaico a vista): quantizacao na EXIBICAO nos 10 pintados + luzDoDia com hora propria nos 4 repetidos + deslocar a costura de JABAQUARA. Zero arte nova. Medir antes/depois com prints e o erro na escala de exibicao.",
       "agente": "dev-jogo",
-      "estado": "do-dono",
-      "nota": "qual língua visual vence é decisão de direção com o dono"
+      "estado": "livre"
     }
   ]
 }

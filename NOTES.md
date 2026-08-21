@@ -8305,3 +8305,20 @@ Campos novos no backlog.json por item: agente + estado (livre|em-curso|bloqueado
 O desenho completo (esquema conteudo_*, portao rascunho->revisto->aprovado->publicado, 3 fases
 com byte-compare e rollback, CSP do jogo INTOCADA — o banco alimenta o build via commit, nunca
 o navegador do jogador) esta no relatorio do pm de 21/08. Fase 0 despachada ao dev-plataforma.
+
+## PIXEL VENCE — a decisao da lingua visual (dono, 21/08, com o mosaico dos 13 a vista)
+
+Caminho A: passe de codigo nos 10 capitulos pintados (quantizacao na EXIBICAO — nunca no
+arquivo), hora-do-dia propria nos 4 que repetem a mesma pintura (luzDoDia estendido ao
+#fundoHD), e a costura de JABAQUARA deslocada (o rosto-fantasma). Zero arte nova; o bookend
+Pindorama->Ainda Aqui preservado; custo aceito: as pinturas finas perdem detalhe. Material:
+test/COER-13-mosaico.png + ranking.md (arte, 21/08). Ticket: dev-jogo.
+
+## FILA-AUTH integrada — a auditoria ANTES de integrar funcionou como desenhada (21/08)
+
+Login OTP no ar (retrocompativel; ninguem obrigado a logar ate o SQL). A seguranca achou 12
+com prova — o critico (mesa_agente.cor cru no innerHTML roubava o refresh_token) entrou
+consertado NO merge, exigencia do auditor. O SQL esta SEGURADO: a prova dele ficava verde com
+policy FOR ALL/{public} e o conserto do uuid estava comentado. Hardening A1-A12 vira item de
+backlog em posicao alta; SO DEPOIS vem o passo de login do dono + aplicacao do SQL via MCP com
+prova curl 401.
