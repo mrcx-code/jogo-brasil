@@ -7981,3 +7981,16 @@ backend; botão "pedir check" escreve check-pedido em mesa_resposta. A partir da
 mesa, não pro chat. FALTA (pra ser assíncrono de verdade, com ele no celular e eu desligado): um
 processo recorrente que leia mesa_resposta (respostas + check-pedidos) e responda escrevendo na
 mesa — hoje só acontece quando eu estou ativo (sessão/loop).
+
+## A equipe cresceu, e a mesa virou o canal (2026-08-20, noite)
+
+O dono, pelo chat antes de sair (volta amanha): quer agentes novos — legal, growth marketing,
+talvez um CEO, cybersecurity e infra — e duvida do valor do pipeline. Feito:
+- Criados .claude/agents/: **juridico** (LGPD/licencas/pessoa real), **growth** (ser achado,
+  voltar, compartilhar — sem trair §1/§2), **seguranca** (CSP/chaves/RLS/superficies; cyber+infra).
+- CEO e pipeline viraram DECISOES NA MESA (mesa_item: ceo-agente, pipeline-vale) — o novo canal.
+- Os 4 acionamentos dele pela mesa foram DISPARADOS de verdade (arte=direcao territorio 3D;
+  historiador=revisao §2 dos 4 textos em worktree; qa=regua de telas em worktree; pm=evolucao
+  ano a ano). O acionar do dev (mover /jogo) ja estava feito — registrado.
+- Territorio: dono decidiu THREE.JS (mesa, terr-tech=three).
+- Painel ao vivo reflete tudo (mesa_agente).
