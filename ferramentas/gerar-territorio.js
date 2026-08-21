@@ -131,7 +131,7 @@ function lerThree() {
 <meta property="og:image:alt" content="A placa do Brasil em relevo, com os pinos acesos nos lugares onde cada capítulo aconteceu.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="${BASE}/territorio/">
-<title>O Território — BRASIL</title>
+<title>O Território — os lugares da história do Brasil</title>
 <style>
   :root {
     --fundo:#0a0806; --mesa:#120d08;

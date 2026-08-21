@@ -8271,3 +8271,26 @@ território do dev-plataforma. Diagnóstico e linha de conserto no **PENDENTES 4
 dobra (55 px de rolagem, era 76). A régua só cobra que ele seja **alcançável**, e ele é; se a
 direção quiser o poste inteiro sem rolagem em 768 px de altura, isso é decisão de composição
 (logo menor? nível 2 em duas colunas?) e não coube neste incremento.
+
+## A RODADA-PROVA DA DUPLA FECHOU — e o número é o que importa (21/08)
+
+- **Colisões: 0.** dev-plataforma (og:image do território) e dev-jogo (portais de topo da home)
+  construíram EM PARALELO em worktrees e as duas entregas entraram pelo funil no mesmo dia.
+- **Entregas do dia até aqui: 10+ commits na main, todos com portões verdes.** O funil segurou
+  1 merge sobre main vermelha, recusou 2 árvores sujas e 1 falta de auditoria — funcionando.
+- O tropeço que virou conserto estrutural: appends paralelos em NOTES/PENDENTES conflitavam;
+  agora .gitattributes merge=union — diário append-only não conflita mais.
+- **3 decisões do dono no check da tarde**: interruptor de privacidade = RODAPÉ das páginas;
+  âncora INTERNA do lançamento = 20/nov (com a camada crítica do movimento, nunca efeméride);
+  titles do growth = só o do território (aplicado nesta leva).
+- **PENDENTES 46 (nota)**: o vermelho que o dev-jogo diagnosticou já tinha morrido em c9d6ea0
+  (og:image acompanhou o og:url para /jogo/). A proposta origin-compare fica como opcional.
+
+## O DESPACHANTE — entrega contínua decidida pelo dono (21/08)
+
+Observação dele: "só o claude trabalha continuamente". Decisão: o plantão durável passa a
+DESPACHAR do backlog sozinho — **até 5 agentes simultâneos**, modelo médio/baixo onde a tarefa
+permitir (sonnet para pesquisa/documento/página; opus só em código crítico), teto ~10
+despachos/dia, item do-dono/§2 NUNCA despachado (vira pergunta no dashboard), um escritor por
+vez no monólito, e o dono pausa escrevendo "pausa despachante" na conversa do dashboard.
+Campos novos no backlog.json por item: agente + estado (livre|em-curso|bloqueado|do-dono).
