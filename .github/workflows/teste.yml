@@ -41,3 +41,9 @@ jobs:
       # O teste imprime muita coisa e o valor está NA SAÍDA, não só no código de saída — é a
       # regra do CLAUDE.md §6, e vale para quem for ler o log aqui também.
       - run: npm test
+
+      # O ENCAIXE TAMBEM (decisao do dono, 21/08 12:38 pelo dashboard): o CI cobria so metade
+      # da lei (build+smoke) e um vermelho do encaixe ficou invisivel na main (PENDENTES 44).
+      # Custa ~5 min por push; o dono aceitou o preco. Timeout largo: sao 395 asserçoes.
+      - run: node test/encaixe.js
+        timeout-minutes: 12
