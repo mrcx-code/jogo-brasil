@@ -239,3 +239,4 @@ recusou o §2 na mesma página. Agente que sabe onde parar vale mais que agente 
   documentados no `src/jogo.ts` antes de eu confiar em qualquer proposta — e foi ela que achou,
   de graça, que o comentário da regra documenta **1 porta** para O QUE NÃO PODIA SER DITO
   quando hoje são **2**: o número ficou velho quando a fala da CNV entrou, no mesmo dia.
+| 21/08 | 1 | prova do funil | - | - | - | integrar.js estreou pegando main vermelha e desfazendo o proprio merge; verde na 2a |
