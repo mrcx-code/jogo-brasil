@@ -8322,3 +8322,18 @@ consertado NO merge, exigencia do auditor. O SQL esta SEGURADO: a prova dele fic
 policy FOR ALL/{public} e o conserto do uuid estava comentado. Hardening A1-A12 vira item de
 backlog em posicao alta; SO DEPOIS vem o passo de login do dono + aplicacao do SQL via MCP com
 prova curl 401.
+
+## FASE 0 DA AVENIDA A: FECHADA (21/08, noite)
+
+O glossario inteiro vive no banco e o portao provou que e o MESMO texto do jogo:
+- 3 tabelas conteudo_glossario* com RLS FORCADO, so-leitura (0 policies e 0 grants fora de
+  SELECT — prova negativa no estilo A1 da auditoria), anon so ve publicado-vigente.
+- Carga: 17 grupos · 181 verbetes · 644 pares, via janela REST TEMPORARIA (INSERT anon aberto
+  e FECHADO na mesma sessao, com prova). Os dados fluiram maquina->Supabase sem passar pelo
+  contexto — 260KB de SQL nao se cola em chat.
+- ESPELHO: node conteudo-espelho.js --banco → exit 0, hash canonico identico dos dois lados
+  (2457...c858). O portao foi visto reprovando em 4 controles antes de ser acreditado.
+- Duvidas do dev registradas: UPDATE do authenticated e decisao da FASE 2 com a tela na mao;
+  chave de grupo = nome completo (renome = troca de chave, decisao de dado futura); tag_s2
+  e parecer do HISTORIADOR — virou item de backlog (tag-s2-glossario).
+Proximo da avenida: fase 1 (banco vira fonte, conteudo:puxar commita JSON, build segue offline).
