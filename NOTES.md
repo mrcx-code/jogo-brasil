@@ -8337,3 +8337,11 @@ O glossario inteiro vive no banco e o portao provou que e o MESMO texto do jogo:
   chave de grupo = nome completo (renome = troca de chave, decisao de dado futura); tag_s2
   e parecer do HISTORIADOR — virou item de backlog (tag-s2-glossario).
 Proximo da avenida: fase 1 (banco vira fonte, conteudo:puxar commita JSON, build segue offline).
+
+## O 4o PORTAL E DE ONDE VEM (dono, 21/08, check da noite)
+
+A duvida do dev-jogo (entrega dos portais) respondida: DE ONDE VEM sai de dentro de
+CONFIGURACOES (onde morava por decisao de 15/08) e vira o 4o portal de topo — JOGAR ·
+A HISTORIA · GLOSSARIO · DE ONDE VEM, mesmo peso de madeira. Racional dele: as fontes sao a
+regua da casa; esconde-las contradiz a tese. Territorio do dev-jogo; despacha quando o
+pixel-vence pousar (um escritor por vez no monolito).

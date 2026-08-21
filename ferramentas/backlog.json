@@ -120,6 +120,13 @@
       "detalhe": "Decidido pelo dono 21/08 (mosaico a vista): quantizacao na EXIBICAO nos 10 pintados + luzDoDia com hora propria nos 4 repetidos + deslocar a costura de JABAQUARA. Zero arte nova. Medir antes/depois com prints e o erro na escala de exibicao.",
       "agente": "dev-jogo",
       "estado": "livre"
+    },
+    {
+      "id": "quarto-portal",
+      "titulo": "DE ONDE VEM vira o 4o portal de topo da home",
+      "detalhe": "Decidido pelo dono 21/08: sai de dentro de CONFIGURACOES e sobe pro topo com o mesmo peso de madeira dos outros 3. btnFontes ganha .portal; conferir alturas na regua (o poste cresceu uma tabua clara) e no encaixe 390x812 (folga de 4px).",
+      "agente": "dev-jogo",
+      "estado": "livre"
     }
   ]
 }
