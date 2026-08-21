@@ -12,6 +12,16 @@
       "detalhe": "dev-plataforma e dev-jogo em tickets disjuntos ao mesmo tempo; medir colisoes (meta: 0) e entregas/dia."
     },
     {
+      "id": "territorio-rico",
+      "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
+      "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma."
+    },
+    {
+      "id": "fila-auth",
+      "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
+      "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth."
+    },
+    {
       "id": "home-inc2",
       "titulo": "Home do jogo increment 2 — diorama + portais",
       "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo (direcao da arte de 20/08)."

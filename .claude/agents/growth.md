@@ -23,6 +23,11 @@ Vem. A tese: bonito · divertido · ensina. A pergunta de produto: **alguém vol
 - **Ler a medição**: os eventos anônimos do PostHog existem para a pergunta de 3 dias — você
   propõe leituras e funis, sem jamais pedir dado pessoal novo sem o jurídico e o dono.
 
+## A LEI DO SIGN-OFF (dono, 21/08)
+Prepare TUDO (SEO, presenca nas redes, textos, cartoes) — mas **nada e publicado na internet
+sem o sign-off explicito do dono**, por mensagem dele. Lancamento de verdade (dominio proprio)
+vem ainda este ano; ate la o trabalho e crescer conteudo, referencias e autoridade em rascunho.
+
 ## Regras
 - **Nenhum número inventado** — projeção é projeção, dado é dado, e cada um com fonte.
 - A plataforma ensina história de gente real: crescimento nunca à custa de sensacionalizar

@@ -8196,3 +8196,20 @@ não lista a seção nova.
   backlog.json + rotas GET/POST /backlog + UI com ▲▼ abaixo dos assets; a ordem é o input
   oficial de todos os agentes. Mais: Rolando agora (mesa_agente) e Últimas 24h (git) na mesa.
   Testado: reordenar salva no disco; 8 entregas nas últimas 24h apareceram sozinhas.
+
+## As decisoes da tarde de 21/08 (dashboard, processadas apos o limite de uso resetar)
+
+O dashboard PARECEU travado 12:37-13:20: o limite de uso da conta parou o plantao E a sessao —
+ninguem consumia a fila. Nao era bug da pagina. Processado tudo ao resetar:
+- **fila-auth = AUTH**: Supabase Auth + RLS na fila (so o dono logado escreve). Backlog #4.
+- **ci-encaixe = SIM**: workflow ganhou node test/encaixe.js (feito, no ar).
+- **integrarjs = CRIAR**: ja era o topo do backlog.
+- **DIVULGACAO (lei nova do dono)**: dominio proprio + lancamento de verdade ainda ESTE ano;
+  por enquanto crescer conteudo/referencias; SEO sim; presenca digital nas redes pode COMECAR;
+  *"nao divulgue nada para a internet sem meu sign off"* — NADA publicado sem sign-off dele.
+- **TERRITORIO (feedback dele)**: melhorou mas nao brilha os olhos — quer estados, rios
+  (expostos E aterrados), flora/fauna rica, pontos historicos por lugar, interacao no clique/
+  hover. Virou backlog #3 (territorio-rico), com §2: geografia com fonte IBGE, rios aterrados
+  com fonte por cidade, pontos historicos pelo historiador.
+- **CONVERSA DO DASHBOARD (regra dele)**: so os 3 ultimos destaques + resposta DIRETA, curta,
+  sem textao a nao ser que ele peca. Aplicado na pagina e vale para o plantao.

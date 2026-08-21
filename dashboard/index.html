@@ -509,6 +509,7 @@
       itens.forEach(function(i){ if(i.tipo==="mensagem") papo.push({de:"claude",t:i.titulo+(i.contexto?"\n"+i.contexto:""),iso:i.criado_em,id:"i-"+i.chave}); });
       resp.forEach(function(r){ if(r.tipo==="mensagem") papo.push({de:"dono",t:r.texto||"",iso:r.criado_em,id:"d-"+(r.texto||"")}); });
       papo.sort(function(a,b){ return a.iso<b.iso?-1:1; });
+      papo=papo.slice(-3); // só os 3 últimos destaques (dono, 21/08) — resposta curta, direto ao ponto
       papo.forEach(function(m){ addMsg(m.de,m.t,m.iso,m.id); });
       // itens: só o que está aberto E não respondido
       itens.forEach(function(item){
