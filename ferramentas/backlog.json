@@ -7,14 +7,14 @@
       "detalhe": "EM CURSO: dev-plataforma entregue e integrada (colisões 0 até aqui); falta o dev-jogo pousar pra fechar a medição."
     },
     {
-      "id": "fila-auth",
-      "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
-      "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth."
-    },
-    {
       "id": "avenida-a",
       "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
       "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08."
+    },
+    {
+      "id": "fila-auth",
+      "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
+      "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth."
     },
     {
       "id": "territorio-rico",
