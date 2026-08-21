@@ -1,6 +1,7 @@
 # EQUIPE.md — o que todo agente lê antes de começar
 
-Um arquivo, seis agentes. O `AGENTES.md` diz **quem faz o quê**; este diz **o que já custou caro**
+Um arquivo, uma equipe (a lista vigente é a pasta `.claude/agents/` — contagem escrita aqui já
+envelheceu duas vezes). O `AGENTES.md` diz **quem faz o quê**; este diz **o que já custou caro**
 e **como não repetir**. Cada definição em `.claude/agents/` aponta para cá.
 
 **Se você é um agente e está lendo isto pela primeira vez: leia até o fim.** São dez minutos que
@@ -18,6 +19,9 @@ já pouparam dias, e cada linha aqui existe porque alguém perdeu tempo antes de
   build` apaga o que você escrever. A fonte é `src/`.
 - **`isolation: worktree` para quem toca `src/`.** Duas escritas simultâneas num arquivo de 15 mil
   linhas se atropelam em silêncio.
+- **Entrega de worktree termina COMMITADA no ramo do worktree** — caminhos explícitos (lição 2.5),
+  sem push. Árvore suja não se integra, e a integração é **merge do ramo**, nunca cópia de arquivo
+  (lição 2.10). É também o que torna `git worktree remove` seguro depois.
 
 ---
 
@@ -98,12 +102,28 @@ engolido.
 
 Prima da 2.1: nos dois casos o instrumento não exercitava o caminho da pessoa.
 
+### 2.10 Integrar por cópia de arquivo quase perdeu trabalho DUAS vezes
+
+**19–20/08.** A integração de worktree era "copiar os arquivos mudados para a árvore principal" —
+e duas vezes um `NOTES.md` do worktree (ramificado horas antes) ia por cima de commits mais novos
+da `main`. Salvou a atenção de quem olhou o diff, não o desenho. Cópia é last-writer-wins: ela não
+sabe o que o outro lado escreveu depois. **Merge sabe** — o três-vias do git é exatamente o
+mecanismo que a cópia improvisa mal. Por isso a trava da seção 1: entrega commitada no ramo,
+integração por `git merge` com portões por exit code entre cada um, e só então `worktree remove`.
+
 ---
 
 ## 3. Como trabalhar em paralelo sem se atropelar
 
 - **Territórios disjuntos.** Antes de abrir um leque, o `pm` define quem toca o quê. Dois agentes
   no mesmo arquivo é retrabalho garantido.
+- **A fila da mesa (`mesa_resposta`) tem UM consumidor: o plantão durável.** Sessão e agente não
+  fazem GET nela por conta própria — dois leitores na mesma fila é executar o mesmo acionar duas
+  vezes. O que a sessão recebe da mesa chega via o que o plantão registrou (NOTES/PENDENTES/mesa).
+- **CI vermelho na `main` passa na frente de qualquer fila.** A main publica sozinha; vermelho no
+  ar não espera dono reclamar (já esperou 16 h, de 20/08 16:22 a 21/08 08:23). O estado se lê por
+  comando, sem credencial: `curl -s "https://api.github.com/repos/mrcx-code/jogo-brasil/actions/runs?branch=main&per_page=1"`
+  e o campo `conclusion`. Quem vê vermelho conserta ou reverte — o dono do relógio é o plantão.
 - **Quem mede não edita, quem edita não julga o próprio trabalho.** O `qa` vem **antes** de
   integrar, e o trabalho dele é **derrubar** o achado, não confirmá-lo.
 - **Sondas descartáveis** vão em `test/tmp-*` e são apagadas ao terminar. Elas estão no
@@ -135,6 +155,11 @@ porque some o código **e** o diagnóstico que custou a sessão.
 
 Toda rodada de agente termina com uma linha aqui. Não é cerimônia: foi o número de 18/08 que fez
 19/08 ser melhor, porque ele disse **em que a equipe erra**.
+
+**A linha do placar é parte da entrega, não gentileza:** agente em worktree a devolve DENTRO do
+relatório (rodadas paralelas editando esta tabela conflitam à toa), e quem integra a prega aqui
+**antes** de remover o worktree. Entrega sem linha de placar não se integra — é o portão que tira
+o placar da memória de cada um.
 
 | data | rodadas | achados | reais | desmentidos | do dono | observação |
 |---|---:|---:|---:|---:|---:|---|
