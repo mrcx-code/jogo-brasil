@@ -10,6 +10,14 @@
       "nota": "fase 0 (espelho do glossario) despachada 21/08; 4 decisoes do dono tomadas"
     },
     {
+      "id": "tres-squads",
+      "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
+      "detalhe": "Caminho B do Fable, declarado destino em 21/08: squads com donos por superficie, QA CRUZADO (quem convive nao julga), pm/qa/seguranca centrais, e o squad ACERVO nasce com um dev-dados. Destrava quando a avenida A desmontar o monolito (fase 1+). O que da pra preparar antes: QA-cruzado como regra do funil, esqueleto dos squads no AGENTES.md, e o papel dev-dados rascunhado.",
+      "agente": "pm",
+      "estado": "bloqueado",
+      "nota": "bloqueado ate avenida-a fase 1; a preparacao (regra de QA cruzado + esqueleto) pode ser despachada antes se o dono subir o item"
+    },
+    {
       "id": "fila-auth",
       "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth.",
