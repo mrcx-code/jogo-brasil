@@ -1,12 +1,23 @@
-// Servidor estático para abrir o jogo no navegador. Existe porque `npm start` usava
-// `python3 -m http.server`, e `python3` não existe no Windows desta máquina — é só um atalho
-// para a loja da Microsoft. Node já é dependência do projeto (o smoke test roda nele), então
-// servir com Node não acrescenta nada que já não estivesse aqui.
+// Servidor estático local. Existe porque `npm start` usava `python3 -m http.server`, e
+// `python3` não existe no Windows desta máquina. Node já é dependência do projeto.
 //
-// Não confunda com ferramentas/receber.js: aquele é a mesa de entrega, na 8200. Este serve
-// o jogo, na 8199.
+// Não confunda com ferramentas/receber.js: aquele é a MESA (subir imagem de arte), na 8200.
 //
-//   node ferramentas/servir.js [porta]
+//   node ferramentas/servir.js [porta] [pasta]
+//
+// SEM pasta: serve a RAIZ do repositório — o index.html da raiz é o JOGO, e é assim que o
+// `npm start` e os instrumentos sempre abriram. COM pasta, serve aquela subpasta como raiz do
+// site — é o que faz `dist` virar a PLATAFORMA local (decidido pelo dono em 21/08: o localhost
+// principal deixa de ser "o jogo" e passa a ser "a plataforma em si", que tem o jogo dentro):
+//
+//   node ferramentas/servir.js 8199 dist        -> localhost:8199 = porta na raiz, /jogo/,
+//                                                  /historia, /territorio, /dashboard...
+//   node ferramentas/servir.js 8203 dashboard   -> localhost:8203 = só o dashboard
+//
+// Servindo pasta, diretório sem barra final redireciona 301 para a barra — a MESMA regra do
+// trailingSlash da Vercel, e pelo mesmo motivo: o fetch dos pack-*.json é relativo, e /jogo
+// sem barra resolveria o pacote na raiz (404 de arte). Paridade com produção ou o localhost
+// mente sobre o que a produção faz.
 
 const http = require('http');
 const fs = require('fs');
@@ -14,26 +25,35 @@ const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
 const PORTA = parseInt(process.argv[2] || '8199', 10);
+const PASTA = process.argv[3] ? path.resolve(RAIZ, process.argv[3]) : RAIZ;
+if (!PASTA.startsWith(RAIZ)) { console.error('pasta fora do repositório'); process.exit(1); }
 const TIPOS = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml'
+  '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml',
+  '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml; charset=utf-8'
 };
 
 http.createServer(function (req, res) {
   let rel = decodeURIComponent(req.url.split('?')[0]);
-  if (rel === '/') rel = '/index.html';
-  const alvo = path.normalize(path.join(RAIZ, rel));
+  let alvo = path.normalize(path.join(PASTA, rel));
   // Sem isto, `GET /../../algo` serve qualquer arquivo do disco.
-  if (!alvo.startsWith(RAIZ)) { res.writeHead(403).end('fora da raiz'); return; }
+  if (!alvo.startsWith(PASTA)) { res.writeHead(403).end('fora da raiz'); return; }
+  try {
+    if (fs.statSync(alvo).isDirectory()) {
+      if (!rel.endsWith('/')) { res.writeHead(301, { Location: rel + '/' }).end(); return; }
+      alvo = path.join(alvo, 'index.html');
+    }
+  } catch (e) { /* não existe: o readFile abaixo responde 404 */ }
   fs.readFile(alvo, function (err, buf) {
     if (err) { res.writeHead(404).end('404'); return; }
     res.writeHead(200, {
       'Content-Type': TIPOS[path.extname(alvo).toLowerCase()] || 'application/octet-stream',
-      'Cache-Control': 'no-store'   // o index.html tem 2,7 MB e muda o tempo todo
+      'Cache-Control': 'no-store'   // o index.html tem 2,4 MB e muda o tempo todo
     });
     res.end(buf);
   });
 }).listen(PORTA, '127.0.0.1', function () {
-  console.log('jogo em http://localhost:' + PORTA);
+  console.log((PASTA === RAIZ ? 'jogo (raiz do repo)' : 'servindo ' + path.relative(RAIZ, PASTA) + '/')
+    + ' em http://localhost:' + PORTA);
 });

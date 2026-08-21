@@ -2,21 +2,33 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "jogo",
+      "//": "APP = a PLATAFORMA em si (decidido pelo dono em 21/08: 'nao seria so jogo ne,",
+      "// ": "seria a plataforma em si'). Serve dist/ — porta na raiz, /jogo/, /historia,",
+      "//  ": "/glossario, /de-onde-vem, /territorio e /dashboard — com o mesmo redirect de",
+      "//   ": "barra final da Vercel. Rode npm run build antes se quiser o dist fresco.",
+      "name": "app",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["ferramentas/servir.js", "8199"],
+      "runtimeArgs": ["ferramentas/servir.js", "8199", "dist"],
       "port": 8199,
       "autoPort": false
     },
     {
-      "//": "A mesa PRECISA da 8200: e o endereco que o dono usa (npm run mesa ->",
-      "// ": "localhost:8200) e o receber.js tem a porta fixa no codigo. autoPort false",
-      "//  ": "de proposito — porta sorteada aqui daria uma sala de maquinas em endereco",
-      "//   ": "que ninguem conhece. Se a porta estiver ocupada, e a propria mesa ja de pe.",
+      "//": "A MESA de arte: revisar a fila O QUE GERAR e colar a imagem no cartao do pedido.",
+      "// ": "Porta fixa de proposito — e o endereco que o dono conhece.",
       "name": "mesa",
       "runtimeExecutable": "node",
       "runtimeArgs": ["ferramentas/receber.js"],
       "port": 8200,
+      "autoPort": false
+    },
+    {
+      "//": "O DASHBOARD sozinho (o painel interativo do celular, servido local para mexer",
+      "// ": "nele). Em producao vive em matheusferreira.cc/dashboard; no app local, em",
+      "//  ": "localhost:8199/dashboard/. 8203 evita a faixa que o abrir.js calcula (8321 aqui).",
+      "name": "dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ferramentas/servir.js", "8203", "dashboard"],
+      "port": 8203,
       "autoPort": false
     }
   ]
