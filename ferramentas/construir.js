@@ -380,11 +380,32 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // A mesa NÃO passa pelas cobranças do arquivo único: ela não é o jogo, não carrega chave, não
 // fala com a rede e não entra no APK. O que ela tem de externo são as fontes do Google, que o
 // jogo não pode ter e ela pode, porque a CSP do jogo vale só para o <head> do jogo.
+//
+// E ELA TEM UM PORTAO DE SEGREDO, do mesmo feitio do `phc_` do jogo (A12 da auditoria da
+// seguranca, 21/08). O dashboard e a unica pagina deste repositorio que fala com um backend
+// com contas de verdade, e o caminho do erro e curto: colar no lugar da chave publicavel a
+// `service_role` do Supabase "so para testar" e esquecer. Ela e publicada num endereco publico
+// (noindex nao e segredo) e da acesso TOTAL ao banco, ignorando RLS — a fila fechada em
+// fila-auth.sql viraria enfeite no mesmo instante. Um segredo commitado tambem nao se
+// desfaz com um revert: vale enquanto nao for revogado a mao.
+// O build RECUSA construir, como recusa a chave errada do PostHog. Tres formas cobertas:
+//   sb_secret_...  chave secreta nova do Supabase
+//   service_role   o papel, que aparece no payload do JWT antigo e em qualquer comentario
+//   eyJ....eyJ...  a forma de um JWT (a chave `anon` legada tambem tem essa forma, e por isso
+//                  ela nao entra aqui: quem precisar dela usa a publicavel `sb_publishable_`)
+const SEGREDO = /sb_secret_|service_role|eyJ[\w-]{20,}\.[\w-]{20,}\./;
 if (fs.existsSync(p("dashboard"))) {
   fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
   let nDash = 0;
   for (const f of fs.readdirSync(p("dashboard"))) {
-    fs.copyFileSync(p("dashboard", f), p("dist", "dashboard", f));
+    const bytes = fs.readFileSync(p("dashboard", f));
+    const achado = bytes.toString("utf8").match(SEGREDO);
+    if (achado) {
+      throw new Error('SEGREDO em dashboard/' + f + ': achei "' + achado[0].slice(0, 16)
+        + '…" — chave de servico NUNCA vai para uma pagina publicada. A do navegador e a'
+        + ' publicavel (sb_publishable_/anon); a service_role fica no servidor e so nele.');
+    }
+    fs.writeFileSync(p("dist", "dashboard", f), bytes);
     nDash++;
   }
   fs.writeFileSync(p("dist", "robots.txt"),

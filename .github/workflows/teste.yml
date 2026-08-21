@@ -47,3 +47,12 @@ jobs:
       # Custa ~5 min por push; o dono aceitou o preco. Timeout largo: sao 395 asserçoes.
       - run: node test/encaixe.js
         timeout-minutes: 12
+
+      # E A FILA-AUTH (A11 da auditoria da seguranca, 21/08). O dashboard e a unica pagina que
+      # guarda sessao do dono — access_token E refresh_token — e ate aqui nada no CI a abria:
+      # quem quebrasse o login so descobriria tentando entrar pelo celular. As 13 cenas rodam
+      # com o backend TODO simulado por page.route, entao nenhum pedido sai para o projeto de
+      # verdade e nenhuma linha de teste entra na fila do dono. Sao ~40 s; o teto de 3 min e
+      # para o job morrer rapido se um dia ele pendurar, em vez de queimar 6 horas de runner.
+      - run: node test/fila-auth.js
+        timeout-minutes: 3

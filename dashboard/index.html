@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
+<!-- CSP (auditoria da seguranca, A4 — 21/08). Esta pagina guarda access_token E refresh_token
+     no localStorage: qualquer script de fora que rode aqui leva a sessao do dono inteira. A
+     regra e a mesma do jogo (CLAUDE.md §3.2): escrita por extenso, nenhum curinga, e cada
+     afrouxamento tem o motivo escrito ao lado.
+       default-src 'self'  -> nada de fora por padrao
+       connect-src         -> so o proprio projeto do Supabase (REST + Auth). Endereco por
+                              extenso: e o unico host que a pagina chama.
+       style-src           -> 'unsafe-inline' porque o <style> mora na pagina; googleapis
+                              porque a folha das fontes vem de la (<link rel=stylesheet>)
+       font-src            -> gstatic, que e onde a folha do googleapis busca os .woff2
+       img-src 'self' data:-> nao ha <img>; data: fica para um favicon embutido nao quebrar
+       script-src          -> 'unsafe-inline' e SO isso: o script mora na pagina e nao ha
+                              nenhum src= — script de terceiro nao carrega nem por engano
+       base-uri 'none'     -> ninguem reescreve a base dos caminhos relativos
+     frame-ancestors NAO entra aqui: o navegador IGNORA a diretiva quando ela chega por <meta>
+     (so vale em cabecalho HTTP) e ainda registra erro de console. Ela vira cabecalho de
+     verdade no vercel.json, junto de X-Frame-Options — que e onde ela funciona. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://hdhqziqvrthxtgyraemk.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'unsafe-inline'; base-uri 'none'">
 <title>Dashboard · BRASIL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -303,7 +321,7 @@
     <div class="fio" id="fio"></div>
     <div class="so-leitura"><span>Modo leitura — falar comigo exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
     <div class="compor">
-      <textarea id="compor-txt" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
+      <textarea id="compor-txt" maxlength="4000" placeholder="escreva aqui — chega em mim e eu respondo nesta página"></textarea>
       <button id="compor-btn" type="button">Enviar</button>
     </div>
   </section>
@@ -340,8 +358,30 @@
   function toast(msg,erro){ toastEl.textContent=msg; toastEl.className="toast ver"+(erro?" erro":"");
     clearTimeout(toastT); toastT=setTimeout(function(){toastEl.className="toast";},2400); }
 
-  function lerFila(){ try{return JSON.parse(localStorage.getItem(FILA)||"[]");}catch(e){return [];} }
-  function gravarFila(f){ try{localStorage.setItem(FILA,JSON.stringify(f));}catch(e){} }
+  // ================= A FILA LOCAL, COM TETO (A5/A6 da auditoria, 21/08) =================
+  // Ela existe para a resposta não se perder quando a rede cai. Sem teto ela é o contrário:
+  // um erro que não passa nunca (400 permanente, sessão que não é do dono) fazia cada toque
+  // empilhar mais um item para sempre, até o localStorage estourar — e o `catch(e){}` mudo
+  // engolia justamente o aviso. Agora ela tem tamanho, e quem não coube ouve a verdade.
+  // LIMITE_TEXTO (A9): o campo já tem maxlength=4000, mas maxlength é enfeite — colar por
+  // script passa por cima. O corte acontece aqui, antes de sair do aparelho, e o banco tem o
+  // seu próprio teto (check length(texto) <= 8000, em ferramentas/fila-auth.sql). Os dois
+  // números são diferentes de propósito: o de cá é o que a pessoa escreve, o de lá é a última
+  // linha, e uma linha de defesa que depende só do navegador não é linha de defesa.
+  var FILA_MAX=50, FILA_BYTES=200*1024, TENTATIVAS_MAX=25, LIMITE_TEXTO=4000;
+  function lerFila(){ try{ var f=JSON.parse(localStorage.getItem(FILA)||"[]"); return Array.isArray(f)?f:[]; }catch(e){return [];} }
+  // Devolve `true` se guardou de verdade. Nunca joga fora o que já estava lá para caber o novo:
+  // a fila é ordem de chegada, e descartar o começo é perder o mais antigo sem ninguém saber.
+  function gravarFila(f){
+    var s;
+    try{ s=JSON.stringify(f); }catch(e){ return false; }
+    if(f.length>FILA_MAX || s.length>FILA_BYTES){
+      console.warn("mesa: a fila local bateu no teto ("+f.length+" itens, "+s.length+" bytes; teto "+FILA_MAX+"/"+FILA_BYTES+") — não guardei o novo item");
+      return false;
+    }
+    try{ localStorage.setItem(FILA,s); return true; }
+    catch(e){ console.warn("mesa: o localStorage recusou a fila ("+(e&&e.name||"erro")+") — não guardei o novo item"); return false; }
+  }
 
   // ================= A SESSÃO (Supabase Auth por e-mail, REST puro) =================
   // Sem biblioteca: a página é autocontida e a única dependência de rede é o próprio projeto.
@@ -366,7 +406,17 @@
     return ses;
   }
   function comToken(s){ return {apikey:SB_KEY, Authorization:"Bearer "+s.access_token}; }
-  function sair(){ gravarSessao(null); }
+  // SAIR REVOGA (A8 da auditoria, 21/08). Apagar o localStorage tira o token do aparelho e
+  // deixa ele VIVO no servidor até vencer — quem já tivesse copiado o refresh_token continuava
+  // entrando depois de o dono "sair". O POST /logout mata a sessão do lado de lá.
+  // Sem `await` de propósito: sair é instantâneo para quem toca o botão, e rede caída não pode
+  // impedir ninguém de sair do próprio aparelho. `keepalive` faz o pedido sobreviver à navegação.
+  function sair(){
+    if(ses && ses.access_token){
+      try{ fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:comToken(ses),keepalive:true}).catch(function(){}); }catch(e){}
+    }
+    gravarSessao(null);
+  }
   // Rede caída NÃO desloga; refresh_token recusado pelo servidor, sim.
   function refrescar(){
     if(!ses || !ses.refresh_token) return Promise.resolve(null);
@@ -396,6 +446,10 @@
       headers:Object.assign({"Content-Type":"application/json","Prefer":"return=minimal"},hdr),
       body:JSON.stringify(reg)});
   }
+  // O erro carrega o STATUS (e não só um texto): é ele que separa "tenta de novo amanhã" de
+  // "isto nunca vai passar", e sem essa distinção a fila entope com o item que o servidor
+  // recusa por desenho. `status 0` = não houve resposta (rede caída).
+  function falha(st){ var e=new Error("mesa "+st); e.status=st; return e; }
   function enviar(reg){
     return cabecalhoEscrita().then(function(hdr){
       return postar(reg,hdr).then(function(r){
@@ -403,24 +457,63 @@
         if(r.status===401 || r.status===403){
           if(ses){
             return refrescar().then(function(s){
-              if(!s){ abrirLogin("a sessão venceu — entre de novo para enviar"); throw new Error(r.status); }
+              if(!s){ abrirLogin("a sessão venceu — entre de novo para enviar"); throw falha(r.status); }
               return postar(reg,comToken(s)).then(function(r2){
-                if(!r2.ok){ if(r2.status===401||r2.status===403) abrirLogin("esta conta não escreve na fila"); throw new Error(r2.status); }
+                if(!r2.ok){ if(r2.status===401||r2.status===403) abrirLogin("esta conta não escreve na fila"); throw falha(r2.status); }
                 return true;
               });
             });
           }
           abrirLogin("a fila agora exige entrar — guardei sua resposta");
         }
-        throw new Error(r.status);
+        throw falha(r.status);
       });
     });
   }
-  function flush(){ var f=lerFila(); if(!f.length) return Promise.resolve();
-    return enviar(f[0]).then(function(){ f.shift(); gravarFila(f); return flush(); }).catch(function(){}); }
+  // 4xx PERMANENTE descarta (A6). 401/403 não: são "entre de novo", e a resposta espera o
+  // login. 408 e 429 também não: são "tente daqui a pouco". O resto do 4xx (corpo malformado,
+  // coluna que não existe, texto grande demais, check do banco) é a mesma recusa para sempre —
+  // insistir só entope a fila e esconde o motivo. Vai para o console com o corpo do item, que
+  // é a única forma de o dono saber que uma resposta dele não chegou.
+  function permanente(st){ return st>=400 && st<500 && st!==401 && st!==403 && st!==408 && st!==429; }
+  // UMA LAVAGEM POR VEZ (A7). `flush()` era chamado da partida, do login e de cada registro;
+  // duas lavagens simultâneas liam a MESMA fila, mandavam o MESMO item e o `shift()` da
+  // segunda comia um item que ninguém enviou. A trava é uma variável, e ela desce no fim.
+  var lavando=false;
+  function lavarUm(){
+    var f=lerFila(); if(!f.length) return Promise.resolve();
+    var reg=f[0];
+    return enviar(reg).then(function(){
+      var g=lerFila(); g.shift(); gravarFila(g); return lavarUm();
+    },function(err){
+      var g=lerFila(); if(!g.length) return;
+      var st=(err && err.status) || 0;
+      g[0].tentativas=(g[0].tentativas||0)+1;
+      if(permanente(st) || g[0].tentativas>=TENTATIVAS_MAX){
+        console.warn("mesa: descartei uma resposta da fila local — "+(permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas"))+":",JSON.stringify(g[0]));
+        g.shift(); gravarFila(g); return lavarUm();
+      }
+      gravarFila(g);   // guarda o contador; o item fica para a próxima
+    });
+  }
+  function flush(){
+    if(lavando) return Promise.resolve();
+    lavando=true;
+    return lavarUm().catch(function(){}).then(function(){ lavando=false; });
+  }
+  // Devolve "enviado" | "fila" (guardei, reenvio) | "perdido" (não coube em lugar nenhum).
+  // "perdido" existe porque dizer "guardei e reenvio" quando não se guardou nada é a única
+  // coisa aqui pior que perder a resposta.
   function registrar(reg){
-    return enviar(reg).then(function(){ flush(); return true; })
-      .catch(function(){ var f=lerFila(); f.push(reg); gravarFila(f); return false; });
+    if(reg && typeof reg.texto==="string" && reg.texto.length>LIMITE_TEXTO) reg.texto=reg.texto.slice(0,LIMITE_TEXTO);
+    return enviar(reg).then(function(){ flush(); return "enviado"; })
+      .catch(function(){ var f=lerFila(); f.push(reg); return gravarFila(f)?"fila":"perdido"; });
+  }
+  // Uma frase por desfecho, e nenhuma delas mente.
+  function dizer(res,msgOk,msgFila){
+    if(res==="enviado"){ toast(msgOk); return; }
+    if(res==="fila"){ toast(msgFila,true); return; }
+    toast("Não consegui enviar NEM guardar — a fila deste aparelho está cheia. Copie o texto antes de sair.",true);
   }
   // -------- a porta: e-mail -> código -> dentro --------
   var cxLogin=document.getElementById("login"),
@@ -546,7 +639,7 @@
       b.addEventListener("click",function(){
         var m={priorizar:"Priorizada — vira a próxima da fila.",adiar:"Adiada — te trago de novo depois.",nao:"Anotado: não interessa."};
         registrar({tipo:"oportunidade",chave:item.chave,valor:(b.getAttribute("data-act")==="nao"?"nao-interessa":b.getAttribute("data-act")),texto:null})
-          .then(function(ok){ toast(m[b.getAttribute("data-act")], !ok); });
+          .then(function(r){ dizer(r, m[b.getAttribute("data-act")], "Sem conexão — guardei e reenvio."); });
         respondidas[item.chave]=true; esconder(c);
       });
     });
@@ -577,8 +670,8 @@
     });
     btn.addEventListener("click",function(){
       if(!escolha) return; btn.disabled=true;
-      registrar({tipo:"decisao",chave:item.chave,valor:escolha,texto:null}).then(function(ok){
-        toast(ok?"Decisão enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
+      registrar({tipo:"decisao",chave:item.chave,valor:escolha,texto:null}).then(function(r){
+        dizer(r,"Decisão enviada ✓","Sem conexão — guardei e reenvio.");
       });
       respondidas[item.chave]=true; esconder(bloco);
     });
@@ -590,19 +683,19 @@
     p.innerHTML='<h3>'+escH(item.titulo)+'</h3>'
       + (item.contexto?'<p>'+escH(item.contexto)+'</p>':'')
       + '<p class="quem">representação · com o dono</p>'
-      + '<textarea placeholder="sua resposta"></textarea>'
+      + '<textarea maxlength="4000" placeholder="sua resposta"></textarea>'
       + '<div class="acoes"><button class="btn nao-entendi" type="button">Não entendi</button><span class="envio"></span><button class="btn forte enviar-btn">Enviar</button></div>';
     document.getElementById("lista-pend").appendChild(p);
     var ta=p.querySelector("textarea");
     p.querySelector(".enviar-btn").addEventListener("click",function(){
-      registrar({tipo:"pendencia",chave:item.chave,valor:"respondida",texto:ta.value}).then(function(ok){
-        toast(ok?"Pendência enviada ✓":"Sem conexão — guardei e reenvio.", !ok);
+      registrar({tipo:"pendencia",chave:item.chave,valor:"respondida",texto:ta.value}).then(function(r){
+        dizer(r,"Pendência enviada ✓","Sem conexão — guardei e reenvio.");
       });
       respondidas[item.chave]=true; esconder(p);
     });
     p.querySelector(".nao-entendi").addEventListener("click",function(){
-      registrar({tipo:"pendencia",chave:item.chave,valor:"nao-entendi",texto:null}).then(function(ok){
-        toast(ok?"Vou reescrever mais claro e trazer de novo.":"Guardei — reenvio.", !ok);
+      registrar({tipo:"pendencia",chave:item.chave,valor:"nao-entendi",texto:null}).then(function(r){
+        dizer(r,"Vou reescrever mais claro e trazer de novo.","Guardei — reenvio.");
       });
       respondidas[item.chave]=true; esconder(p);
     });
@@ -624,9 +717,11 @@
     var t=composto.value.trim(); if(!t) return;
     btnCompor.disabled=true;
     addMsg("dono",t,new Date().toISOString(),"d-"+t);
-    registrar({tipo:"mensagem",chave:"dono",valor:null,texto:t}).then(function(ok){
-      toast(ok?"Chegou em mim — respondo aqui.":"Sem conexão — guardei e reenvio.", !ok);
-      composto.value=""; btnCompor.disabled=false;
+    registrar({tipo:"mensagem",chave:"dono",valor:null,texto:t}).then(function(r){
+      dizer(r,"Chegou em mim — respondo aqui.","Sem conexão — guardei e reenvio.");
+      // Texto perdido não some do campo: é a única cópia que sobrou (A5).
+      if(r!=="perdido") composto.value="";
+      btnCompor.disabled=false;
     });
   });
 
@@ -674,8 +769,8 @@
       card.setAttribute("data-st","chamado"); card.querySelector(".st").textContent="chamado";
       slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>';
       var esc=modalEsc;
-      registrar({tipo:"acionar",chave:item.nome,valor:esc.id,texto:esc.l}).then(function(ok){
-        toast(ok?("Acionei "+item.nome+" — "+esc.l):"Guardei o chamado — reenvio.", !ok);
+      registrar({tipo:"acionar",chave:item.nome,valor:esc.id,texto:esc.l}).then(function(r){
+        dizer(r,"Acionei "+item.nome+" — "+esc.l,"Guardei o chamado — reenvio.");
       });
       fecharModal();
     };
@@ -712,8 +807,8 @@
     if(checkPedidoEm) return;
     checkPedidoEm=new Date().toISOString();
     btnCheck.classList.add("aguarda"); btnCheck.textContent="montando o check — chega aqui sozinho";
-    registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(ok){
-      toast(ok?"Pedido — monto e o painel atualiza sozinho.":"Guardei o pedido — reenvio.", !ok);
+    registrar({tipo:"check-pedido",chave:"check",valor:"pedido",texto:null}).then(function(r){
+      dizer(r,"Pedido — monto e o painel atualiza sozinho.","Guardei o pedido — reenvio.");
     });
   });
   function checkChegou(){
