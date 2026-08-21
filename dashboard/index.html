@@ -690,7 +690,7 @@
   function atualizaAg(item){
     var card=cards[item.nome];
     if(!card){ card=document.createElement("div"); card.className="ag";
-      card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(item.cor||"#7d8479")+'</div>'
+      card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
         + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
       g.appendChild(card); cards[item.nome]=card; }
     var st=item.status||"espera";
