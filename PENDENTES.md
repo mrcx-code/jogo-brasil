@@ -1680,3 +1680,8 @@ portao cobrava NOVE, porque a varredura da fonte casava `medir\("([a-z]+)"` **se
 ## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma
 
 Decisao do dono (22/08): localhost interage SEM entrar, sempre. Hoje vale porque a fila esta aberta; depois do RLS, quem valida e o banco (que nao enxerga localhost). Desenho: um arquivo local gitignored (ex.: ferramentas/mesa-pin.local, criado PELO DONO uma unica vez) com o PIN; servido apenas em loopback pelo receber.js/servir.js; a pagina em localhost le e faz o grant_type=password sozinha, invisivel. O plantao NUNCA ve o PIN final. Entra no mesmo pacote do fechamento da fila, depois da auditoria da seguranca no ramo do PIN.
+
+
+## 58 — Flake 2 do encaixe NOMEADO: o nicho apontado esta no topo no ponto dele (null) — dev-jogo
+
+Segunda familia de corrida no encaixe (a 1a era o reload, morta em 22/08). Mordeu o funil do B3 em 22/08: bloco 3, a assercao "o nicho apontado esta no topo no ponto dele" devolveu null — o elemento do nicho ainda nao estava montado/apontado no instante da leitura (nasce com o 1o item + seta). 395 ok no mesmo run; verde na 2a tentativa. Conserto: esperar o elemento de verdade (o padrao abrirMenuParado/esperar() que os instrumentos novos ja usam) em vez de ler no relogio. O log inteiro fica em test/portao-vermelho-encaixe.log quando morder de novo.
