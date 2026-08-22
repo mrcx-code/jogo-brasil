@@ -461,12 +461,22 @@ if (fs.existsSync(p("dashboard"))) {
 
 // O BACKLOG NA TELA (dono, 22/08). A fila oficial vive em `ferramentas/backlog.json`, que NÃO é
 // publicado — ferramentas/ não vai para dist/. O dashboard é servido de dist/ e lê a fila por
-// `fetch('/backlog.json')`, então o build copia o arquivo para a RAIZ do dist como JSON estático.
-// Passa pelo portão de segredo como todo byte publicado (copiarPublicado). Se um dia sumir, o
-// dashboard esconde a seção sozinho — o fetch cai no 404 e a vista some sem erro.
+// `fetch("backlog.json")` RELATIVO, então o build copia o arquivo para DENTRO de dist/dashboard/.
+//
+// A PASTA IMPORTA, e foi um BLOQUEANTE da segurança (B1, 22/08). A primeira versão copiava para
+// a RAIZ do dist — `/backlog.json`, um caminho INDEXÁVEL, porque o `robots.txt` só carrega
+// `Disallow: /dashboard`. São 24 KB de fila INTERNA: caminhos de arquivo, números de PENDENTES,
+// nomes de agentes, o e-mail sintético da conta e o desenho inteiro do auto-login por PIN. O
+// dashboard e a mesa são `noindex` + `Disallow` por decisão explícita, e este arquivo é o MESMO
+// material de trabalho — com um agravante: JSON não aceita `<meta name=robots>`, então dentro da
+// pasta já barrada é a única trava que existe para ele. Debaixo de `/dashboard/` ele herda o
+// Disallow que já está no ar, continua dentro do `connect-src 'self'` da página, e o recuo não
+// muda: some o arquivo, o fetch cai no 404 e a seção se esconde sozinha.
+// Passa pelo portão de segredo como todo byte publicado (copiarPublicado).
 if (fs.existsSync(p("ferramentas", "backlog.json"))) {
-  copiarPublicado(p("ferramentas", "backlog.json"), p("dist", "backlog.json"));
-  console.log("  ferramentas/backlog.json -> dist/backlog.json (a fila, leitura no dashboard)");
+  fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
+  copiarPublicado(p("ferramentas", "backlog.json"), p("dist", "dashboard", "backlog.json"));
+  console.log("  ferramentas/backlog.json -> dist/dashboard/backlog.json (a fila, atras do Disallow)");
 }
 
 // AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
