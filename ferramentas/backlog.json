@@ -106,7 +106,8 @@
       "titulo": "Cartões de imagem das 3 seções de leitura (WhatsApp)",
       "detalhe": "gerar-cartoes.js pronto do growth + 4 metas; historia/glossario/de-onde-vem sem imagem hoje.",
       "agente": "dev-plataforma",
-      "estado": "livre"
+      "estado": "concluido",
+      "nota": "INTEGRADO 565a586 e PROVADO por curl: os 3 compartilhar.jpg respondem 200 image/jpeg com os bytes exatos do build (67133/68470/75347). Link de qualquer secao agora vem com cartao no WhatsApp"
     },
     {
       "id": "divulgacao-2026",
