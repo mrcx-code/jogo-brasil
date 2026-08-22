@@ -257,18 +257,33 @@ const TELAS = [
   // e que ela continue inteira atrás do poste. Uma implementação que subisse o chão "um
   // pouquinho" para espremê-la reprova aqui, e é de propósito.
   //
+  // ...E HÁ UM TERCEIRO ESTADO DESDE O VETO DA ARTE (22/08): a chave `CHAO_HOME_LIGADO` nasce
+  // DESLIGADA, e com ela desligada este bloco cobra INÉRCIA — `GROUND == round(H × 0,68)` e
+  // `chaoHome == 0` nas SEIS telas de retrato, não só nas quatro em que a faixa não dá. O par
+  // 390×844 antes/depois já prova que a tela de referência não se mexeu; a asserção FIXA isso
+  // para as outras cinco, e é o que impede a subida de voltar ligada por acidente num merge.
+  // A régua dos dois lados continua inteira aqui, e volta a valer no instante em que a chave
+  // for ligada junto com o caminho-do-céu do PENDENTES 54.
+  //
   // A CAIXA DELA É A ANALÍTICA, não a mancha do canvas — e isto foi medido antes de escrever:
   // a caixa alfa do `#heroHD` mede 102 px de altura onde ela tem 88, porque o PLANO DA FRENTE
   // (`desenharFrente`) é desenhado na mesma camada e a folha da quina de baixo entra na conta.
   // Em tela deitada a mesma leitura dá 511 px de largura. A caixa que vale é a que o
   // `desenharHeroiHD` usa: `HX*kx - dw/2` por `GROUND*ky - dh`, com `dh = HERO_TARGET*ky`.
   //
-  // AUTOTESTE (lição 2.8), com os dois controles vistos mordendo:
-  //   REGUA_CHAO=desligar  — força `chaoHome = 0` em toda tela: as duas telas em que a faixa DÁ
-  //                          passam a esconder a personagem, e o portão reprova nelas.
-  //   REGUA_CHAO=espremer  — força uma subida pequena (0,60) em toda tela: nas telas em que a
-  //                          faixa NÃO dá o chão passa a se mexer e ela encosta no poste, e o
-  //                          portão reprova nelas.
+  // AUTOTESTE (lição 2.8), com os TRÊS controles vistos mordendo e um positivo:
+  //   REGUA_CHAO=espremer   — chave DESLIGADA e a linha do chão mexida à mão (0,60): a asserção
+  //                           de inércia reprova nas seis de retrato E nas seis largas. É o
+  //                           controle da asserção nova.
+  //   REGUA_CHAO=ligar      — chave LIGADA à mão, sem refazer a medida: a régua do retrato volta
+  //                           a EXIGIR as entradas, e reprova nas duas telas em que a faixa dá
+  //                           ("a faixa dá e a linha do chão NÃO subiu"). É a prova de que a
+  //                           régua dos dois lados não morreu junto com o veto — ela está viva
+  //                           e só está dormindo.
+  //   REGUA_CHAO=ligar-real — chave LIGADA e a medida refeita pelo caminho de verdade: PASSA,
+  //                           com as duas telas entrando dentro da régua. É o controle POSITIVO,
+  //                           e ele existe para que "reprovou com a chave ligada" não possa ser
+  //                           confundido com "a régua reprova qualquer coisa quando ligada".
   // ============================================================
   const RETRATOS = [
     { nome: 'iphone SE',      w: 320, h: 568 },
@@ -287,10 +302,15 @@ const TELAS = [
     await pg.waitForTimeout(1400);
     if (process.env.REGUA_CHAO) {
       await pg.evaluate((d) => {
-        // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo: a primeira
-        // coisa que ele faz é chamar `medirChaoDaHome()`, que desfaria o defeito na hora.
-        if (d === 'desligar') { chaoHome = 0; }
+        // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a
+        // primeira coisa que ele faz é chamar `medirChaoDaHome()`, que com a chave desligada
+        // devolve `chaoHome = 0` e desfaria o defeito na hora.
         if (d === 'espremer') { chaoHome = 0.60; }
+        // `ligar` liga a chave e NÃO refaz a medida: a régua volta ao modo dos dois lados com
+        // o chão ainda no 0,68, que é exatamente o estado que ela tem de acusar.
+        if (d === 'ligar') { CHAO_HOME_LIGADO = true; }
+        // `ligar-real` liga e refaz pelo caminho de verdade — o controle positivo.
+        if (d === 'ligar-real') { CHAO_HOME_LIGADO = true; medirChaoDaHome(); }
         GROUND = Math.round(H * (chaoHome || 0.68));
         redesenharFundo();
       }, process.env.REGUA_CHAO);
@@ -315,7 +335,7 @@ const TELAS = [
       const subR = document.getElementById('menuSub').getBoundingClientRect();
       const posteR = document.getElementById('poste').getBoundingClientRect();
       return {
-        W, H, GROUND, ESCALA, chaoHome, ela,
+        W, H, GROUND, ESCALA, chaoHome, ela, ligado: CHAO_HOME_LIGADO,
         subBase: sub.topo + sub.alt, posteTopo: poste.topo,
         subCx: { t: subR.top, b: subR.bottom, l: subR.left, r: subR.right },
         posteCx: { t: posteR.top, b: posteR.bottom, l: posteR.left, r: posteR.right },
@@ -335,7 +355,15 @@ const TELAS = [
     // o piso de dedo vale em retrato também — o despacho pede que ele fique INTOCADO
     m.tabuas.forEach(b => { if (b.h < 44) probs.push(b.id + ' tem ' + b.h.toFixed(1) + 'px — abaixo dos 44 de dedo'); });
 
-    if (cabe) {
+    if (!m.ligado) {
+      // ---- INÉRCIA (veto da arte, 22/08). A chave está desligada: a linha do chão não pode ter
+      // se mexido em tela NENHUMA de retrato — nem nas duas em que a régua diria que dá. É esta
+      // asserção que impede a subida de voltar ligada por acidente num merge, e ela é fixa: o
+      // par de prints 390×844 mostra UMA tela, isto cobra as seis.
+      if (m.chaoHome) probs.push('a chave está DESLIGADA e chaoHome vale ' + m.chaoHome.toFixed(4));
+      if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('a chave está DESLIGADA e GROUND é '
+        + m.GROUND + ' em vez de ' + Math.round(m.H * 0.68) + ' (0,68 de H=' + m.H + ')');
+    } else if (cabe) {
       // ---- ELA ENTRA. Nada pode encostar nela, e o respiro é 8 dos dois lados.
       const acima = elaCx.t - m.subBase, abaixo = m.posteTopo - elaCx.b;
       if (acima < RESPIRO) probs.push('respiro de cima ' + acima.toFixed(1) + 'px < ' + RESPIRO);
@@ -362,7 +390,9 @@ const TELAS = [
       + ' · chão ' + (m.chaoHome ? m.chaoHome.toFixed(4) + ' (subiu)' : '0,6800')
       + ' · GROUND ' + m.GROUND + '/' + m.H
       + ' · ela ' + elaCx.l.toFixed(0) + '..' + elaCx.r.toFixed(0) + ' x ' + elaCx.t.toFixed(0) + '..' + elaCx.b.toFixed(0)
-      + ' · ' + (cabe ? 'ENTRA' : 'não entra (fica atrás do poste)');
+      + ' · ' + (!m.ligado
+        ? 'chave DESLIGADA (inércia) — a régua diria ' + (cabe ? 'ENTRA' : 'não entra')
+        : (cabe ? 'ENTRA' : 'não entra (fica atrás do poste)'));
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
   }

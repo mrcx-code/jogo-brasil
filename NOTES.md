@@ -9218,7 +9218,7 @@ E-mail do codigo: template pronto-para-colar entregue ao dono (o painel e dele).
 
 Duas decisoes dele, no mesmo ramo.
 
-### 1 · A LINHA DO CHAO SOBE NO MENU EM RETRATO — onde a regua deixa, e so onde ela deixa
+### 1 · A LINHA DO CHAO SOBE NO MENU EM RETRATO — mecanismo aprovado, subida VETADA, pousa INERTE
 
 O PENDENTES 53 dizia que em retrato ela fica 100% atras do poste. A saida escolhida por ele foi
 subir a linha do chao so no menu retrato, com regua NUMERICA: 0% de sobreposicao com poste,
@@ -9260,11 +9260,37 @@ passou a ter duas composicoes conforme a altura do celular.** O caminho que pres
 PENDENTES 54 com o custo — nao foi feito porque o despacho pedia a regua, nao a reescrita do
 fundo.
 
-**O portao:** `test/regua-larga.js` ganhou um segundo bloco com as seis telas de retrato e as
-duas metades da regua, mais uma assercao NEGATIVA nas seis telas largas (`GROUND` tem de
-continuar em 0,68 fora do retrato). **Tres controles vistos mordendo:** `REGUA_CHAO=desligar`
-reprova as 2 telas em que ela deveria entrar; `REGUA_CHAO=espremer` reprova as 6 de retrato E as
-6 largas. Verde por exit code sem defeito.
+**A ARTE JULGOU E A ENTREGA POUSOU INERTE (veredito b, no mesmo ramo).** Mecanismo APROVADO — o
+parecer dela: *"a regua dizendo NAO em 4 de 6 e prova, nao defeito"*. Subida VETADA por tres
+razoes, e a terceira e a que fecha: o logo perde o recorte da folha contra o CEU (vira folha
+sobre folha) · o MAR some, e o mar e o que a home diz sem escrever ("travessia") · e **duas
+homes por altura de aparelho, na PORTA DE ENTRADA, e "nao parecem do mesmo jogo"**.
+
+Entao entrou `CHAO_HOME_LIGADO = false`, chave **dedicada** — a arte foi explicita em nao
+reaproveitar `CHAO_FRAC_MIN` como interruptor: trava de sanidade nao vira chave, e quem lesse
+0,34 daqui a um mes nao saberia que aquele numero desligava uma decisao de composicao. Ela liga
+JUNTO com o caminho-do-ceu, nunca sozinha, e as **quatro condicoes de aceite** da arte estao por
+extenso no PENDENTES 54 (costura vertical julgada por PRINT, com o precedente JABAQUARA nomeado
+— espelho em textura organica fabrica rosto, achado de 21/08 · a referencia 390x844 TEM que
+ganhar a heroina, senao a prioridade cai · a regua 0%/8px/44px inteira · FPS em A/B na mesma
+carga com ordem ALTERNADA, porque o vento custou 9 FPS e a ordem fixa inventou 10%).
+
+**O portao:** `test/regua-larga.js` ganhou um segundo bloco com as seis telas de retrato, as
+duas metades da regua, a assercao NEGATIVA nas seis telas largas (`GROUND` em 0,68 fora do
+retrato) e, com o veto, a assercao de **INERCIA**: com a chave desligada, `GROUND ==
+round(H x 0,68)` e `chaoHome == 0` nas SEIS de retrato — o par de prints 390x844 mostra UMA
+tela, a assercao cobra as seis, e e ela que impede a subida de voltar ligada por acidente num
+merge.
+
+**Tres controles vistos mordendo e um positivo:** `REGUA_CHAO=espremer` (chave desligada, chao
+mexido a mao) reprova as 6 de retrato E as 6 largas · `REGUA_CHAO=ligar` (chave ligada, medida
+nao refeita) reprova as 2 telas em que a faixa da, o que prova que a regua dos dois lados nao
+morreu com o veto — esta viva e so dormindo · `REGUA_CHAO=ligar-real` (chave ligada e medida
+refeita pelo caminho de verdade) **PASSA**, com as duas telas entrando dentro da regua, e ele
+existe para "reprovou com a chave ligada" nao poder ser confundido com "a regua reprova
+qualquer coisa quando ligada". Verde por exit code sem defeito.
+
+**No dia em que o 54 fechar, muda UMA linha:** `false` -> `true`.
 
 ### 2 · A PORTA PARA A PLATAFORMA PASSA A MEDIR
 

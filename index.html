@@ -5350,11 +5350,14 @@ let W = 320, H = 180, GROUND = 108, HX = 90;
 const CHAO_FRAC = 0.68;
 const CHAO_RESPIRO = 8;
 const CHAO_FRAC_MIN = 0.34;
+let CHAO_HOME_LIGADO = false;
 let chaoHome = 0;
 function fracChao() { return chaoHome || CHAO_FRAC; }
 function medirChaoDaHome() {
     const anterior = chaoHome;
     chaoHome = 0;
+    if (!CHAO_HOME_LIGADO)
+        return chaoHome !== anterior;
     const naHome = document.body.classList.contains("naHome");
     const retrato = window.innerHeight > window.innerWidth;
     const sub = document.getElementById("menuSub");

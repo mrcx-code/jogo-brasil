@@ -4268,6 +4268,32 @@ let W = 320, H = 180, GROUND = 108, HX = 90;
 const CHAO_FRAC = 0.68;              // a linha do chão de sempre — jogo, deitado e desktop
 const CHAO_RESPIRO = 8;              // px livres exigidos acima e abaixo da caixa dela
 const CHAO_FRAC_MIN = 0.34;          // trava de sanidade: a pintura não sobe mais que isto
+// ===== A CHAVE, E ELA NASCE DESLIGADA — VETO DA ARTE, 22/08 =====
+//
+// O MECANISMO acima foi APROVADO pela arte (a régua dizendo NÃO em 4 das 6 telas de retrato é
+// prova de que ela funciona, não defeito dela). O que foi VETADO foi ligá-lo hoje, e o parecer
+// tem número: nas duas telas em que ela entra, subir a linha do chão AMPLIA a pintura 1,64×
+// (dh 2.345 → 3.840 em 412×915 dpr2), porque só existe 25% de chão na fonte. Com isso:
+//   · o logo perde o recorte da folha contra o CÉU — ele passa a ser folha sobre folha;
+//   · o MAR some, e o mar é o que a home diz sem escrever ("travessia");
+//   · a home vira parede de mata.
+// E o argumento que fecha: seriam DUAS HOMES conforme a altura do aparelho, na PORTA DE
+// ENTRADA da plataforma — "não parecem do mesmo jogo".
+//
+// LIGA JUNTO COM O CAMINHO-DO-CÉU DO PENDENTES 54, NUNCA SOZINHA. Aquele caminho (repetir a
+// peça de chão espelhada na vertical, o mesmo truque que já elimina a emenda na horizontal)
+// derruba a exigência de "a faixa de baixo tem de ser coberta pela pintura" — e aí a pintura
+// fica MENOR que hoje, com MAIS céu, e as três objeções acima deixam de existir. As quatro
+// condições da arte para aquele dia estão escritas por extenso no PENDENTES 54.
+//
+// É `let` e não `const` por UMA razão só, e nenhuma linha do jogo a escreve: o autoteste da
+// régua a liga à mão para provar que a régua do retrato volta a morder (lição 2.8) — ver
+// `REGUA_CHAO=ligar` no rodapé de `test/regua-larga.js`.
+//
+// E ela É UMA CHAVE DEDICADA de propósito: a arte foi explícita em NÃO reaproveitar o
+// `CHAO_FRAC_MIN` como interruptor. Trava de sanidade não vira chave — quem lesse 0,34 daqui a
+// um mês não teria como saber que aquele número estava desligando uma decisão de composição.
+let CHAO_HOME_LIGADO = false;
 let chaoHome = 0;                    // 0 = fração de sempre; senão a fração só da home retrato
 function fracChao() { return chaoHome || CHAO_FRAC; }
 // A MEDIDA SAI DO LAYOUT, NUNCA DO `getBoundingClientRect` — e isto é a lição 2.4 aplicada
@@ -4278,6 +4304,10 @@ function fracChao() { return chaoHome || CHAO_FRAC; }
 function medirChaoDaHome() {
   const anterior = chaoHome;
   chaoHome = 0;
+  // A CHAVE PRIMEIRO, e o retorno seco: desligada, esta função não lê uma caixa do DOM (ou seja,
+  // não custa um reflow por troca de tela) e o mundo fica byte a byte no 0,68 de sempre — que é
+  // exatamente o que a asserção de INÉRCIA da `regua-larga.js` cobra nas seis telas de retrato.
+  if (!CHAO_HOME_LIGADO) return chaoHome !== anterior;
   const naHome = document.body.classList.contains("naHome");
   // Deitado e desktop ficam INTOCADOS: lá ela já aparece (o poste é de dois lados ou mora numa
   // coluna), e mexer no enquadramento deles seria pagar por um problema que não existe.

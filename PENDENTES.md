@@ -1491,6 +1491,12 @@ dev-jogo decidir sozinho.
 o retrato fica sendo a tela da MARCA (logo + proposta + portoes) e a personagem e coisa das telas
 largas? As duas leituras sao defensaveis; a segunda e a de hoje, e agora esta medida.
 
+**MECANISMO FEITO E INTEGRADO INERTE em 22/08 (dev-jogo); a arte VETOU liga-lo hoje e o
+destravamento virou o PENDENTES 54, priorizado.** A tabela abaixo e o que a regua responde
+QUANDO a chave subir — hoje `CHAO_HOME_LIGADO = false` e nada se mexe em tela nenhuma, o que a
+`regua-larga.js` cobra por asserção de inércia nas seis telas de retrato. O 53 so fecha com o
+54, porque o que ele pede (ela aparecer no retrato) continua nao acontecendo.
+
 **FEITO EM PARTE em 22/08 (dev-jogo), e a regua do dono decidiu sozinha em que telas.** O dono
 mandou subir a linha do chao so no menu em retrato, com regua dura: 0% de sobreposicao, respiro
 >= 8 px acima e abaixo, e faixa livre >= altura dela + 16 — **e, se nao der, ela NAO entra**.
@@ -1528,11 +1534,17 @@ volta provada: home 218 -> JOGAR 311 -> home 218 -> girado deitado 140 (0,68 de 
 de volta 218 -> `fecharTelas` 311, zero erro de console.
 
 
-## 54 — Subir a linha do chao no retrato CUSTA O CEU, e isso e da arte/dono — dev-jogo/arte
+## 54 — O CAMINHO-DO-CEU: destravar a subida do chao no retrato — dev-jogo/arte — **PRIORIZADO**
 
 **Medido em 22/08, na mesma rodada que fez o 53, com print antes/depois em
 `test/CHAO-ANTES-412x915.png` e `test/CHAO-DEPOIS-412x915.png`.** Nao e efeito colateral de
 implementacao: e geometria, e ela nao tem saida barata.
+
+> **CUIDADO AO LER OS PRINTS:** o `CHAO-DEPOIS-412x915.png` e o que a subida FARIA, tirado com a
+> chave ligada. **Nao e o estado publicado** — com `CHAO_HOME_LIGADO = false` o que esta no ar
+> em 412x915 e o `CHAO-ANTES`. Os dois ficam versionados porque sao o material da decisao deste
+> item; o par 390x844 e outra coisa: la o ANTES e o DEPOIS sao a mesma composicao, e ele esta
+> ali para provar que a tela de referencia nao se mexeu.
 
 A pintura tem **75% de ceu+mata e 25% de chao** (a emenda das duas pecas, `FUNDO_GROUND_SRC`).
 Para a linha do chao subir de 0,68 para 0,476 da tela, a faixa de chao ABAIXO dela cresce de
@@ -1545,10 +1557,54 @@ e depois (GROUND 287/422, dh 2161, dw 1216, dy -473, tudo em dpr2). Os quatro pr
 versionados sao em **dsf1** de proposito — 480 a 534 KB cada em vez de 1,4 a 1,6 MB, e o que a
 arte precisa julgar aqui e composicao, nao fidelidade de pixel; os numeros estao no texto.
 
-Ou seja: **hoje a home tem duas composicoes diferentes conforme a altura do celular.** Isso e
-defensavel (a regua do dono decidiu, e o Pixel/iPhone Max ganham a personagem que nao tinham) e
-tambem e a primeira vez que a home nao e a mesma imagem em todo retrato. **A arte precisa
-julgar**, e a decisao e do dono se ela empatar.
+Ou seja: **a home teria duas composicoes diferentes conforme a altura do celular.**
+
+### O PARECER DA ARTE (22/08, veredito b) — mecanismo APROVADO, subida VETADA
+
+**Aprovado:** o mecanismo inteiro. Palavras dela: *a regua dizendo NAO em 4 de 6 telas e prova,
+nao defeito* — um enquadramento que se recusa a entrar quando nao cabe e exatamente o que se
+queria construir.
+
+**Vetado:** liga-lo hoje. Tres razoes, e a terceira e a que fecha:
+
+1. **O logo perde o recorte da folha contra o CEU.** A costela-de-adao do logo e lida porque
+   tem ceu atras dela; com a mata ampliada 1,64x, vira folha sobre folha.
+2. **O MAR some**, e o mar e o que a home diz sem escrever — *travessia*. Perder o mar e perder
+   a unica palavra que a imagem da porta de entrada diz sozinha.
+3. **Duas homes por altura de aparelho, na PORTA DE ENTRADA da plataforma** = "nao parecem do
+   mesmo jogo". Esse argumento vale mais que a presenca dela numa tela.
+
+**Como ficou integrado:** INERTE. `CHAO_HOME_LIGADO = false` em `src/jogo.ts`, chave DEDICADA
+(a arte foi explicita: **nao** reaproveitar `CHAO_FRAC_MIN` como interruptor — trava de sanidade
+nao vira chave, e o proximo a ler 0,34 nao entenderia o numero). A `test/regua-larga.js` cobra
+INERCIA com a chave desligada: `GROUND == round(H x 0,68)` e `chaoHome == 0` nas SEIS telas de
+retrato. A regua dos dois lados continua inteira e volta a valer no instante em que a chave
+subir — provado pelo controle positivo `REGUA_CHAO=ligar-real`, que passa com as duas telas
+entrando dentro da regua.
+
+### AS QUATRO CONDICOES DA ARTE PARA LIGAR A CHAVE
+
+Elas sao de aceite, nao de intencao — quem pegar este item entrega as quatro ou nao liga nada.
+
+1. **A COSTURA VERTICAL SE JULGA POR PRINT, e o precedente tem nome: JABAQUARA.** Repetir a peca
+   de chao espelhada na vertical cria uma linha de simetria, e simetria em textura organica
+   FABRICA ROSTO — foi exatamente o que a auditoria de coerencia de 21/08 achou em JABAQUARA
+   ("raiz detalhada forma rosto simetrico na costura"), num espelho que tambem era
+   nao-intencional. A costura nova nasce sob suspeita: print de cada capitulo com a home aberta,
+   olhado pela arte, antes de qualquer verde de portao.
+2. **A REFERENCIA 390x844 TEM QUE GANHAR A HEROINA — senao a prioridade cai.** Com o ceu
+   preservado o argumento (3) do veto morre, mas o (3) so morre de verdade se a home for A
+   MESMA em todo retrato. Hoje faltam **21 px** de faixa em 390x844 (83 contra 104), e a
+   alavanca esta na composicao (logo um degrau menor, ou a proposta mais colada nele), nao no
+   motor. Se a entrega chegar destravando so Pixel e iPhone Max, ela reintroduz as duas homes e
+   **este item desce de prioridade em vez de fechar**.
+3. **A REGUA DE HOJE CONTINUA VALENDO INTEIRA:** 0% de sobreposicao com poste, tabuas e
+   proposta · respiro >= 8 px acima e abaixo · piso de 44 px das tabuas intocado. Nada disso se
+   renegocia em nome do ceu.
+4. **FPS MEDIDO EM A/B NA MESMA CARGA, e o precedente tambem tem numero: o vento custou 9 FPS**
+   e foi cortado por medicao em 22/08, antes de a arte precisar veta-lo. Uma peca de chao
+   desenhada duas vezes por quadro e trabalho novo no laco; o A/B com ordem ALTERNADA (ordem
+   fixa inventou 10% de custo naquela mesma rodada) vem escrito antes, nao depois.
 
 **O caminho que preserva o ceu, ja pensado e NAO feito (nao medido):** repetir a peca de CHAO
 verticalmente, espelhada, em `rolarFundo()` — e o mesmo truque de espelho que ja elimina a
@@ -1557,7 +1613,12 @@ coberta pela pintura" cai, o `scale` volta a ser governado por `ch/ih` e a pintu
 **menor** que hoje (mais ceu, nao menos). O preco: mexer em `rolarFundo`, no passe de
 quantizacao (`construirGrao`) e na linha da emenda que tres instrumentos leem
 (`test/medir-conversa.js`, `desenharFrente`). Estimativa honesta: uma sessao, com risco de
-costura visivel. **Nao foi feito porque o despacho pedia a regua, nao a reescrita do fundo.**
+costura visivel. **Nao foi feito porque o despacho pedia a regua, nao a reescrita do fundo** —
+e agora ele e o item, com as quatro condicoes acima como criterio de aceite.
+
+**O dia em que fechar, muda UMA LINHA no jogo:** `CHAO_HOME_LIGADO = false` -> `true`. Todo o
+resto (a medida, a regua, os portoes, os controles) ja esta no lugar e ja foi visto funcionando
+com a chave ligada a mao.
 
 
 ## 55 — A caixa alfa do #heroHD NAO e a caixa dela — dev-jogo — **FECHADO na medicao de 22/08**
