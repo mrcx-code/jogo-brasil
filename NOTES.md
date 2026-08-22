@@ -9445,3 +9445,59 @@ cresceu.
 `node test/fila-auth-controle.js` **0** (18/18 mordendo) · `npm test` **0** ·
 `node test/encaixe.js` **0** · `node test/diario-sem-eco.js` **0**. `src/` intocado; zona do dono
 intocada. Nada publicado — entrega no ramo.
+
+## 22/08 (noite) — A SEGURANCA REPROVOU o auto-login: o PIN saia do loopback por 2 portas
+
+A construcao estava boa (23/23 e 18/18 rodados por ela), mas a auditoria achou **duas** saidas
+que o desenho nao previu, e as duas entregavam o PIN. Quatro consertos no mesmo ramo:
+
+**S1 (BLOQUEAVA) — o docroot servia o PIN.** `npm start` e `node servir.js 8199` **sem terceiro
+argumento**, e ai a pasta servida e a RAIZ do repo. Com o arquivo em `ferramentas/`,
+`GET /ferramentas/mesa-pin.local` era servido VERBATIM pelo caminho estatico, **sem passar por
+`atender()`** (a seguranca mediu 200 com o PIN no corpo). Conserto pela raiz, nao por remendo: o
+arquivo **saiu do repositorio** — `ARQUIVO_PADRAO = path.join(os.homedir(), '.mesa-brasil-pin')`.
+Nao ha mais o que o servidor estatico ache, e o `.gitignore` deixa de ser a linha principal de
+defesa. **Medido ao vivo** contra `servir.js` na raiz: `/ferramentas/mesa-pin.local` -> **404**,
+`/pin-local` (Host loopback) -> **200** com o PIN, nada no log.
+
+**S2 (BLOQUEAVA) — DNS rebinding.** A rota conferia o `remoteAddress` do socket mas **nao o
+`Host`**. Uma pagina em `evil.com` cujo dominio resolve para 127.0.0.1 chega por socket de
+loopback (`ehLoopback` passa) com `Host: evil.com`, e o navegador da vitima devolve o PIN ao
+atacante — a seguranca mediu isso nas 3 portas + Origin. Conserto de 4 linhas no estilo do
+arquivo: `hostLocal(req)` casa so `localhost`/`127.0.0.1`/`[::1]` (com porta opcional), e
+`atender` recusa todo o resto. O navegador nao deixa script forjar o `Host`, entao um `Host` de
+verdade so vale local quando a barra de enderecos tambem e. **Medido ao vivo:** `/pin-local` com
+`Host: evil.com` -> **404**.
+
+**S3 (junto) — o `.gitignore` pegava so o nome exato.** `mesa-pin.local.txt` (o que o Bloco de
+Notas salva sozinho) entrava no git. Com o arquivo no homedir isto virou irrelevante, mas ficou a
+defesa em profundidade: `ferramentas/*.local*` e `ferramentas/mesa-pin*`.
+
+**S4 (junto) — PIN velho queimava cota do rate limit a cada carga.** O login manual e o
+auto-login dividem o balde por IP; um arquivo com o PIN velho fazia CADA carga (e o painel
+recarrega sozinho) gastar uma tentativa com um PIN que ja se sabe errado, ate trancar o login de
+verdade. Conserto: o PIN recusado vai para o `sessionStorage` e nao se repete na mesma sessao de
+navegador (some quando a aba fecha, entao um PIN corrigido volta a ser tentado numa aba nova). O
+recusado nao e o certo — guardar o errado nao vaza segredo.
+
+**Cenas novas:** cena 24 (S4: reload da MESMA aba nao repete o grant_type=password, e um PIN novo
+no arquivo VOLTA a ser tentado — bloqueia o errado repetido, nao a correcao); a cena 23 ganhou o
+caso do rebinding (Host de fora sobre loopback -> false) e trocou a assercao de caminho: o padrao
+tem de estar **no homedir e fora da arvore do repo** (a prova de que S1 morreu). O `chamar` da
+cena 23 passou a carregar um `Host`. Controle: +3 defeitos novos (Host removido -> rebinding
+volta; arquivo de volta para `ferramentas/` -> docroot expoe; PIN recusado nao lembrado ->
+cota queimada), todos vistos mordendo.
+
+**Um conserto no proprio controle, do tipo EQUIPE.md 2.8, DUAS vezes nesta rodada.** (1) A janela
+de leitura ja tinha virado "ate o cabecalho da cena seguinte" na entrega anterior; (2) a assercao
+do homedir na cena 23 nascera guardada por `!PIN_LOCAL_JS` — e **essa guarda tornava o defeito do
+docroot impossivel de pegar**, porque a assercao que o pegaria era exatamente a que ficava de
+fora sob uma copia. Tirada a guarda: copia que nao mexe no `ARQUIVO_PADRAO` mantem a linha do
+homedir e passa; a copia do docroot poe `__dirname` (= `test/`) e a igualdade quebra. Visto: o
+defeito do docroot **passava** (DECORACAO) antes, e **morde** depois.
+
+**Portoes (exit real):** `node test/fila-auth.js` **0** (24 cenas, 212 ok) ·
+`node test/fila-auth-controle.js` **0** · `npm test` **0** (FPS 38 sob a carga do controle em
+paralelo — nenhuma mudanca no jogo; o smoke passou por exit) · `node test/encaixe.js` **0**
+(396 ok) · `node test/diario-sem-eco.js` **0**. `src/` intocado; zona do dono intocada. Nada
+publicado — entrega no ramo.

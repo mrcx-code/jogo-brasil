@@ -38,17 +38,19 @@
 //
 //     FILA_AUTH_HTML=test/tmp-fila-defeito.html node test/fila-auth.js    # tem de sair 1
 //
-// O AUTO-LOGIN LOCAL entrou em 22/08 (PENDENTES 57) e trouxe QUATRO cenas — 20 a 23. Tres delas
-// sao de navegador, como todas as outras, e a quarta nao: a 23 mede o modulo do SERVIDOR
-// (ferramentas/pin-local.js) direto, sem Chromium, porque a regra que ela cobra e sobre o
-// remoteAddress do socket e NAO HA COMO produzir um socket nao-loopback contra um servidor que
-// so escuta em 127.0.0.1. Chamar a funcao com um `req` de mentira e o unico jeito de exercitar
-// o caminho que interessa; deixar de exercita-lo seria ter a regra sem nunca a ter visto valer.
+// O AUTO-LOGIN LOCAL entrou em 22/08 (PENDENTES 57) e trouxe CINCO cenas — 20 a 24. Quatro sao
+// de navegador, como todas as outras, e a 23 nao: ela mede o modulo do SERVIDOR
+// (ferramentas/pin-local.js) direto, sem Chromium, porque as regras que ela cobra sao sobre o
+// remoteAddress do socket E o cabecalho Host, e NAO HA COMO produzir um socket nao-loopback (nem
+// um Host forjado por script) contra um servidor que so escuta em 127.0.0.1. Chamar a funcao com
+// um `req` de mentira e o unico jeito de exercitar esses caminhos — o rebinding (Host de fora
+// sobre socket de loopback) inclusive, que e o buraco que a auditoria de 22/08 achou. Deixar de
+// exercita-los seria ter a regra sem nunca a ter visto valer.
 // O modulo tambem se troca por variavel de ambiente, pela mesma razao que o HTML:
 //
 //     PIN_LOCAL_JS=test/tmp-pin-defeito.js node test/fila-auth.js         # tem de sair 1
 //
-// E O ARQUIVO DO PIN: nenhuma cena aqui le `ferramentas/mesa-pin.local`. Ele e do dono, o
+// E O ARQUIVO DO PIN: nenhuma cena aqui le `~/.mesa-brasil-pin`. Ele e do dono, o
 // plantao nao o le, e um teste que o lesse imprimiria o PIN dele no log da primeira falha. A
 // cena 23 escreve um arquivo PROPRIO em test/tmp-*, com um PIN inventado, e o apaga no fim.
 const fs = require('fs');
@@ -201,7 +203,7 @@ async function palco(navegador, plano) {
 
   await pag.goto(base + CAMINHO, { waitUntil: 'domcontentloaded' });
   await pag.waitForTimeout(450);
-  return { ctx, pag, erros, avisos, escritas, autenticacoes, pinPedidos };
+  return { ctx, pag, erros, avisos, escritas, autenticacoes, pinPedidos, base };
 }
 
 // ESPERA QUE NAO ESTOURA O RELOGIO. `waitForFunction` derruba a cena inteira por timeout quando
@@ -907,8 +909,8 @@ const estado = pag => pag.evaluate(() => ({
   // remoteAddress do socket, e nao ha como abrir um socket nao-loopback contra um servidor que
   // escuta em 127.0.0.1. Chamar `atender` com um `req` de mentira e o unico jeito de ver a
   // regra valendo — e ve-la valendo e a diferenca entre ter a regra e achar que se tem.
-  // O arquivo do PIN aqui e NOSSO, com um PIN inventado: ferramentas/mesa-pin.local e do dono e
-  // ninguem o le, nem este teste (um log de falha imprimiria o PIN dele).
+  // O arquivo do PIN aqui e NOSSO, com um PIN inventado: ~/.mesa-brasil-pin e do dono e ninguem
+  // o le, nem este teste (um log de falha imprimiria o PIN dele).
   {
     const pinLocal = require(MOD_PIN);
     const ARQ = path.join(__dirname, 'tmp-pin-local-cena23.txt');
@@ -920,13 +922,16 @@ const estado = pag => pag.evaluate(() => ({
     // Um `res` de mentira que so anota o que lhe pediram. E um `console` capturado, porque
     // "o PIN nunca vai para o log" e uma afirmacao, e afirmacao sem medida e o que este
     // repositorio inteiro existe para evitar.
-    function chamar(metodo, url, endereco, arquivo) {
+    // `host` e o 5o argumento e cai em 'localhost:8203' por padrao, para as chamadas antigas
+    // seguirem medindo o que mediam. O DNS rebinding (cena abaixo) o troca por 'evil.com'.
+    function chamar(metodo, url, endereco, arquivo, host) {
       const r = { st: 0, cab: null, corpo: null };
       const res = {
         writeHead(st, cab) { r.st = st; r.cab = cab; return res; },
         end(c) { r.corpo = c == null ? '' : String(c); return res; },
       };
-      const req = { method: metodo, url, socket: { remoteAddress: endereco } };
+      const req = { method: metodo, url, socket: { remoteAddress: endereco },
+        headers: { host: host === undefined ? 'localhost:8203' : host } };
       const impressos = [];
       const guarda = ['log', 'info', 'warn', 'error'].map(n => {
         const orig = console[n];
@@ -954,6 +959,23 @@ const estado = pag => pag.evaluate(() => ({
         'atendeu=' + c.atendeu + ' status=' + c.r.st + ' corpo=' + JSON.stringify(c.r.corpo));
       ok(c.impressos.length === 0, 'e o PIN nao vaza para o log nem na recusa', c.impressos.join(' | '));
     }
+    // DNS REBINDING (S2 da auditoria, 22/08). O socket e loopback — o atacante fez o dominio
+    // dele resolver para 127.0.0.1 — mas o Host e o dele. Sem a conferencia do Host, o navegador
+    // da vitima entrega o PIN de volta a evil.com. A cobranca: Host que nao e local NAO e
+    // atendido, mesmo por loopback, e o PIN nao vai para o corpo nem para o log.
+    for (const host of ['evil.com', 'attacker.example:8203', 'brasil.test', 'meu-site.com:80']) {
+      const c = chamar('GET', '/pin-local', '127.0.0.1', undefined, host);
+      ok(c.atendeu === false && c.r.st === 0 && c.r.corpo === null,
+        'Host "' + host + '" sobre loopback NAO recebe o PIN (DNS rebinding fechado)',
+        'atendeu=' + c.atendeu + ' status=' + c.r.st + ' corpo=' + JSON.stringify(c.r.corpo));
+      ok(c.impressos.length === 0, 'e o PIN nao vaza para o log no rebinding (' + host + ')', c.impressos.join(' | '));
+    }
+    // e o Host local, nas formas que valem, continua entrando
+    for (const host of ['localhost', 'localhost:8203', '127.0.0.1', '127.0.0.1:8200', '[::1]', '[::1]:8199']) {
+      ok(chamar('GET', '/pin-local', '127.0.0.1', undefined, host).atendeu === true,
+        'Host local "' + host + '" continua sendo atendido');
+    }
+    ok(chamar('GET', '/pin-local', '127.0.0.1', undefined, '').atendeu === false, 'Host vazio nao e atendido');
     ok(chamar('GET', '/pin-local?v=2', '127.0.0.1').atendeu === true, 'a query string nao esconde a rota');
     ok(chamar('POST', '/pin-local', '127.0.0.1').atendeu === false, 'POST /pin-local nao e atendido (a rota e GET)');
     ok(chamar('GET', '/pin-local/mais', '127.0.0.1').atendeu === false, 'e nem um caminho que apenas comeca igual');
@@ -965,19 +987,71 @@ const estado = pag => pag.evaluate(() => ({
     const VAZIO = path.join(__dirname, 'tmp-pin-local-vazio.txt');
     fs.writeFileSync(VAZIO, '   \n');
     ok(chamar('GET', '/pin-local', '127.0.0.1', VAZIO).atendeu === false, 'arquivo em branco tambem nao vira rota');
-    // A constante que os dois servidores usam. Se ela mudar de nome ou de pasta, o dono cria o
-    // arquivo no lugar errado e nada acontece — em silencio, que e o pior desfecho possivel.
-    // SO CONTRA O MODULO DE VERDADE: uma copia defeituosa mora em test/, entao o caminho dela
-    // seria test/mesa-pin.local e estas duas reprovariam SEMPRE — o controle passaria de graca
-    // em qualquer defeito, que e a decoracao que ele existe para denunciar.
-    if (!process.env.PIN_LOCAL_JS) {
-      ok(/[\\/]ferramentas[\\/]mesa-pin\.local$/.test(pinLocal.ARQUIVO_PADRAO),
-        'o arquivo padrao continua sendo ferramentas/mesa-pin.local', pinLocal.ARQUIVO_PADRAO);
-      ok(fs.existsSync(path.resolve(__dirname, '..', '.gitignore'))
-        && /^ferramentas\/mesa-pin\.local$/m.test(fs.readFileSync(path.resolve(__dirname, '..', '.gitignore'), 'utf8')),
-        'e ele esta no .gitignore — e o .gitignore e a UNICA coisa que o mantem fora do historico');
+    // O ARQUIVO MORA FORA DO DOCROOT (S1 da auditoria, 22/08). Enquanto ele vivia em
+    // ferramentas/, `npm start` (que serve a RAIZ do repo) o entregava VERBATIM pelo caminho
+    // estatico, sem passar por atender(). A prova de que essa porta morreu e esta: o caminho
+    // padrao esta sob o homedir e NAO esta sob a arvore do repositorio — nao ha o que o servidor
+    // estatico ache. ESTA VALE ATE SOB PIN_LOCAL_JS, e de proposito: uma copia defeituosa que NAO
+    // mexe no ARQUIVO_PADRAO mantem a linha do homedir e passa; a copia do defeito "arquivo de
+    // volta para ferramentas/" troca por path.join(__dirname, ...), e ai __dirname e test/ — a
+    // igualdade com o homedir quebra e o controle ve o defeito morder. Fosse guardada por
+    // `!PIN_LOCAL_JS`, esse defeito seria impossivel de pegar (a assercao dele ficaria de fora).
+    {
+      const os = require('os');
+      const raiz = path.resolve(__dirname, '..');
+      ok(pinLocal.ARQUIVO_PADRAO === path.join(os.homedir(), '.mesa-brasil-pin'),
+        'o arquivo padrao mora no homedir (~/.mesa-brasil-pin), fora do repositorio', pinLocal.ARQUIVO_PADRAO);
+      ok(pinLocal.ARQUIVO_PADRAO.indexOf(raiz + path.sep) !== 0,
+        'e por construcao NAO esta sob a arvore do repo — nenhum docroot o alcanca (S1)', pinLocal.ARQUIVO_PADRAO);
+      // Defesa em profundidade: se um dia um PIN reaparecer em ferramentas/, o git tem de
+      // ignora-lo mesmo com o sufixo .txt que o Bloco de Notas cola sozinho. Sempre contra o
+      // .gitignore REAL do repo (nao muda entre copia e original).
+      const gi = fs.readFileSync(path.resolve(raiz, '.gitignore'), 'utf8');
+      ok(/^ferramentas\/\*\.local\*$/m.test(gi) && /^ferramentas\/mesa-pin\*$/m.test(gi),
+        'e o .gitignore guarda ferramentas/*.local* e mesa-pin* (defesa em profundidade)', '');
     }
     fs.unlinkSync(ARQ); fs.unlinkSync(VAZIO);
+  }
+
+  // ---------------------------------------------------------------- 24
+  console.log('\n[24] PIN VELHO NAO QUEIMA COTA A CADA CARGA — recusado uma vez por sessao (S4)');
+  cenas++;
+  // O endpoint de entrada tem rate limit POR IP, e o login manual e o auto-login dividem o
+  // balde. Um arquivo com o PIN velho fazia CADA carga gastar uma tentativa com um PIN que ja
+  // se sabe errado, ate trancar o login de verdade. A cena carrega a MESMA aba duas vezes
+  // (reload preserva o sessionStorage, que e onde o PIN recusado fica) e cobra que a segunda
+  // carga NAO repita o grant_type=password.
+  {
+    const { ctx, pag, erros, autenticacoes, base } = await palco(nav, {
+      local: true, pinLocal: '00000000', senha: 'errada', escrita: 'fechada',
+    });
+    await pag.waitForTimeout(300);
+    const senha1 = autenticacoes.filter(a => a.rota === 'senha').length;
+    ok(senha1 === 1, 'a primeira carga tenta o PIN uma vez', String(senha1));
+    ok(erros.length === 0, 'zero erro de console na primeira carga', erros.join(' | '));
+    // a segunda carga da MESMA aba: o sessionStorage lembra que aquele PIN foi recusado
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    await pag.waitForTimeout(400);
+    const senha2 = autenticacoes.filter(a => a.rota === 'senha').length;
+    ok(senha2 === 1, 'a segunda carga NAO repete o PIN recusado — a cota nao e queimada de novo', String(senha2));
+    const e = await estado(pag);
+    ok(e.auth === 'local', 'segue em localhost sem sessao', e.auth);
+    ok(e.erros === null, 'e a recusa continua nao contando como erro de quem digita', String(e.erros));
+    // a prova pela contramao: um PIN NOVO no arquivo volta a ser tentado na mesma sessao — o
+    // que se bloqueia e repetir o MESMO errado, nao tentar de novo com um corrigido.
+    await pag.unroute(base + '/**');
+    await pag.route(base + '/**', r => {
+      const p = new URL(r.request().url()).pathname;
+      if (p === CAMINHO || p === CAMINHO + 'index.html')
+        return r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: fs.readFileSync(HTML) });
+      if (p === '/pin-local') return r.fulfill({ status: 200, contentType: 'text/plain', body: '11112222' });
+      return r.fulfill({ status: 404, contentType: 'text/plain', body: '404' });
+    });
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    await pag.waitForTimeout(400);
+    const senha3 = autenticacoes.filter(a => a.rota === 'senha').length;
+    ok(senha3 === 2, 'um PIN NOVO no arquivo e tentado (bloqueia o errado repetido, nao a correcao)', String(senha3));
+    await ctx.close();
   }
 
   await nav.close();

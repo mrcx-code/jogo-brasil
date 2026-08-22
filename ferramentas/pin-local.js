@@ -30,11 +30,13 @@
 //       ferramentas/mesa-pin.local ja pode ler o localStorage do Chrome dessa mesma maquina,
 //       onde mora o access_token E o refresh_token depois de qualquer entrada normal. O arquivo
 //       nao abre porta nova; ele e uma porta a menos que as que ja estao abertas ali dentro.
-//   (b) A ROTA SO RESPONDE AO LOOPBACK. Os dois servidores (servir.js, receber.js) ja fazem
-//       bind em 127.0.0.1, entao hoje nenhum socket de fora sequer chega — a conferencia do
-//       remoteAddress e a segunda linha, para o dia em que alguem trocar o bind por 0.0.0.0
-//       "so para testar no celular". Endereco que nao e loopback recebe o MESMO 404 de uma rota
-//       inexistente: a rota nao se anuncia, nao devolve 403, nao diz que existe.
+//   (b) A ROTA SO RESPONDE AO LOOPBACK, E SO COM Host LOCAL. Os dois servidores (servir.js,
+//       receber.js) ja fazem bind em 127.0.0.1, entao hoje nenhum socket de fora sequer chega —
+//       a conferencia do remoteAddress e a segunda linha, para o dia em que alguem trocar o bind
+//       por 0.0.0.0 "so para testar no celular". A conferencia do Host e a TERCEIRA, e ela fecha
+//       o DNS rebinding (evil.com -> 127.0.0.1): socket de loopback, mas Host de fora, recebe o
+//       MESMO 404 de uma rota inexistente. A rota nunca se anuncia, nao devolve 403, nao diz que
+//       existe.
 //   (c) O DANO MAXIMO NAO MUDA, e ele ja estava medido em 22/08: quem tem o PIN faz INSERT em
 //       mesa_resposta e troca o PIN/e-mail da propria conta (PUT /auth/v1/user). Nao alcanca
 //       dado de terceiro nenhum — SELECT ja e publico, UPDATE e DELETE nao tem policy para
@@ -42,16 +44,22 @@
 //       parte feia (tranca o dono para fora), depende da trava de painel "Secure password
 //       change" estar ligada, e ela esta na instrucao de fechamento do ferramentas/fila-auth.sql.
 //
-// O .GITIGNORE E PARTE DA ENTREGA, e e a UNICA coisa que impede o arquivo de entrar no
-// historico: o guarda de segredo do ferramentas/construir.js varre o que vai para `dist/`, e
-// `ferramentas/` nunca vai para dist/ (nem a extensao `.local` esta na lista de texto varrido).
-// Conferido, e escrito aqui para ninguem supor cobertura que nao existe.
+// O ARQUIVO MORA FORA DO REPOSITORIO — ~/.mesa-brasil-pin (homedir do dono). Ele estava em
+// ferramentas/ ate a auditoria da seguranca de 22/08, que achou o buraco: `npm start` e
+// `node servir.js 8199` SEM terceiro argumento, e ai a PASTA servida e a RAIZ do repo — entao
+// `GET /ferramentas/mesa-pin.local` era servido VERBATIM pelo caminho estatico, sem passar por
+// `atender()` (medido: 200 com o PIN no corpo). Tirar o arquivo do docroot mata essa porta pela
+// raiz, e nao por remendo: nao ha mais arquivo dentro da arvore para o servidor estatico achar.
+// De quebra, o `.gitignore` deixa de ser a unica linha de defesa — o arquivo simplesmente nao
+// esta onde o git olha. O guarda de segredo do construir.js segue varrendo `dist/`, e homedir
+// nunca chega perto de `dist/`.
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const CAMINHO = '/pin-local';
-const ARQUIVO_PADRAO = path.join(__dirname, 'mesa-pin.local');
+const ARQUIVO_PADRAO = path.join(os.homedir(), '.mesa-brasil-pin');
 
 // Os tres enderecos que a propria maquina usa. `::ffff:127.0.0.1` e a forma mapeada, que e o
 // que o Node entrega quando o socket e IPv6 e o cliente chegou por IPv4 — deixa-la de fora
@@ -63,6 +71,18 @@ function ehLoopback(req) {
   return a === '127.0.0.1' || a === '::1' || a === '::ffff:127.0.0.1';
 }
 
+// O CABECALHO Host TAMBEM TEM DE SER LOCAL — e sozinho `ehLoopback` nao garante isso. E o
+// DNS REBINDING, achado pela seguranca em 22/08: uma pagina em `http://evil.com` cujo dominio
+// resolve para 127.0.0.1 chega a este servidor por um socket de LOOPBACK (remoteAddress e
+// 127.0.0.1, `ehLoopback` passa), mas com `Host: evil.com` — e o navegador da vitima, que
+// confia em evil.com, entrega o PIN de volta ao atacante. A defesa e recusar todo Host que nao
+// seja o proprio localhost: o navegador NAO deixa o script forjar o cabecalho Host, entao um
+// Host de verdade so vale 127.0.0.1/localhost quando a barra de enderecos tambem e.
+function hostLocal(req) {
+  const h = String((req && req.headers && req.headers.host) || '').toLowerCase();
+  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(h);
+}
+
 // Devolve `true` se ATENDEU (e ai a resposta ja foi escrita) e `false` se nao e assunto dele —
 // e `false` e de proposito o mesmo desfecho de "nao e loopback" e de "o arquivo nao existe":
 // quem chama simplesmente segue para o 404 dele, que e o 404 de qualquer caminho que nao existe.
@@ -70,6 +90,7 @@ function atender(req, res, arquivo) {
   if (!req || req.method !== 'GET') return false;
   if (String(req.url || '').split('?')[0] !== CAMINHO) return false;
   if (!ehLoopback(req)) return false;
+  if (!hostLocal(req)) return false;
   let bruto;
   try { bruto = fs.readFileSync(arquivo || ARQUIVO_PADRAO, 'utf8'); } catch (e) { return false; }
   // Uma linha, sem o que o editor deixa atras: BOM, CR do Windows e espaco de sobra viram PIN
@@ -81,4 +102,4 @@ function atender(req, res, arquivo) {
   return true;
 }
 
-module.exports = { CAMINHO, ARQUIVO_PADRAO, ehLoopback, atender };
+module.exports = { CAMINHO, ARQUIVO_PADRAO, ehLoopback, hostLocal, atender };

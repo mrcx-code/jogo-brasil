@@ -839,6 +839,18 @@
   //
   // A CSP nao muda: `connect-src 'self'` ja cobre um caminho do proprio endereco, e /pin-local
   // e relativo de proposito — ele nunca aponta para host nenhum.
+  // NAO REPETE UM PIN JA RECUSADO NA MESMA SESSAO (S4 da auditoria da seguranca, 22/08). O
+  // endpoint de entrada tem um balde de rate limit POR IP, e o login manual e o auto-login
+  // dividem esse balde. Um arquivo com o PIN velho (o dono trocou e esqueceu de reescrever)
+  // fazia CADA carga da pagina — e o painel recarrega sozinho — gastar uma tentativa desse
+  // balde com um PIN que ja se sabe errado, ate trancar o login de verdade. Guardar o PIN
+  // recusado no sessionStorage e nao repeti-lo corta isso pela raiz: erra UMA vez por sessao de
+  // navegador, nao uma por carga. sessionStorage e nao localStorage de proposito — some quando
+  // a aba fecha, entao um PIN corrigido no arquivo volta a ser tentado numa aba nova, sem exigir
+  // que ninguem limpe nada. E o PIN recusado nao e o PIN certo: guardar o errado nao vaza segredo.
+  var PIN_RECUSADO="mesa-brasil-pin-local-recusado";
+  function pinJaRecusado(pin){ try{ return sessionStorage.getItem(PIN_RECUSADO)===pin; }catch(e){ return false; } }
+  function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }
   function autoLoginLocal(){
     if(!LOCAL || ses) return;
     var pedido;
@@ -847,7 +859,9 @@
       .then(function(t){
         var pin=(t||"").split("\n")[0].trim();
         if(!pin) return null;               // sem arquivo, sem rota: nada acontece
-        return pedirToken(pin).then(function(j){ return guardarTokens(j); });
+        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa
+        return pedirToken(pin).then(function(j){ return guardarTokens(j); },
+          function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
       })
       .then(function(s){ if(s) flush(); })  // a resposta presa na fila sai sozinha agora
       .catch(function(){});                 // ver regras 2, 3 e 4: falhou, cala e fica como estava

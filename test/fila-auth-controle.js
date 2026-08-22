@@ -235,6 +235,36 @@ const DEFEITOS = [
       "  console.log('pin-local: servindo ' + pin);\n  res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });",
     ]],
   },
+  {
+    // S2 da auditoria da seguranca (22/08): DNS rebinding. Sem a conferencia do Host, um socket
+    // de loopback com Host de fora (evil.com resolvendo para 127.0.0.1) recebe o PIN — o
+    // navegador da vitima o entrega ao atacante. A cena 23 tem o caso do rebinding; tirar a
+    // linha do Host tem de faze-la reprovar.
+    id: 'PIN-LOCAL · a conferencia de Host some (DNS rebinding volta a funcionar)',
+    cena: '[23]',
+    alvo: 'pin',
+    pares: [['  if (!hostLocal(req)) return false;', '  if (false && !hostLocal(req)) return false;']],
+  },
+  {
+    // S1 da auditoria (22/08): com o arquivo de volta em ferramentas/, o docroot do `npm start`
+    // o serve VERBATIM, sem passar por atender(). A prova de que a porta esta fechada e o
+    // caminho padrao estar no homedir, fora do repo; devolve-lo a ferramentas/ tem de reprovar.
+    id: 'PIN-LOCAL · o arquivo volta para dentro do repo (docroot volta a expor o PIN)',
+    cena: '[23]',
+    alvo: 'pin',
+    pares: [[
+      "const ARQUIVO_PADRAO = path.join(os.homedir(), '.mesa-brasil-pin');",
+      "const ARQUIVO_PADRAO = path.join(__dirname, 'mesa-pin.local');",
+    ]],
+  },
+  {
+    // S4 da auditoria (22/08): sem lembrar o PIN recusado, cada carga da pagina gasta uma
+    // tentativa do rate limit com um PIN que ja se sabe errado. A cena 24 recarrega a aba e
+    // cobra que a segunda carga nao repita; tirar a guarda tem de faze-la reprovar.
+    id: 'AUTO-LOGIN · o PIN recusado deixa de ser lembrado (queima cota a cada carga)',
+    cena: '[24]',
+    pares: [['        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa\n', '']],
+  },
 ];
 
 const COPIA = path.join(RAIZ, 'test', 'tmp-fila-defeito.html');
