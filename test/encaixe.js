@@ -77,9 +77,23 @@ async function abrirMenuParado(page) {
   const erros = [];
   page.on('pageerror', e => erros.push('PAGEERROR: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') erros.push('CONSOLE: ' + m.text()); });
+  // O FLAKE DE DUAS NOITES, nomeado em 22/08 pelo log inteiro do portão (PENDENTES 52):
+  // não era asserção nenhuma — era page.reload() levando net::ERR_CONNECTION_REFUSED do
+  // servidor efêmero, SÓ sob a carga do funil (npm test termina segundos antes); em série
+  // calma, 8/8 verdes. Três tentativas com respiro curam a recusa transitória sem esconder
+  // defeito real: servidor MORTO recusa as três e continua reprovando.
+  async function recarregar(pg) {
+    for (let t = 1; ; t++) {
+      try { await pg.reload(); return; }
+      catch (e) {
+        if (t >= 3 || String(e).indexOf('ERR_CONNECTION_REFUSED') < 0) throw e;
+        await new Promise(r => setTimeout(r, 400 * t));
+      }
+    }
+  }
   await page.goto(alvo());
   await page.evaluate(() => { localStorage.clear(); });
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(900);
 
   // ============================================================
@@ -154,7 +168,7 @@ async function abrirMenuParado(page) {
   await page.evaluate(() => {
     localStorage.clear();
   });
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(700);
   await page.evaluate(() => { fecharTelas(); S.aberturas = MASCARA_EPOCAS; salvar(); });
   await page.waitForTimeout(400);
@@ -277,7 +291,7 @@ async function abrirMenuParado(page) {
   // `beforeunload` grava o save ao sair: limpar e recarregar sem neutralizar `salvar` devolve
   // exatamente o estado que se tentou apagar. É a mesma armadilha anotada no percurso.js.
   await page.evaluate(() => { window.salvar = function () {}; localStorage.clear(); });
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(800);
   await page.evaluate(() => { fecharTelas(); S.aberturas = MASCARA_EPOCAS; salvar(); });
   await page.waitForTimeout(500);   // #controls volta com transição; medir antes disso mede o vazio
@@ -302,7 +316,7 @@ async function abrirMenuParado(page) {
   });
   log('   jogado por toque: impacto ' + antes.total + ' | recursos ' + antes.rec);
   ok(antes.total > 0, 'o toque pagou alguma coisa antes de fechar (' + antes.total + ')');
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(1000);
   const depois = await page.evaluate(() => ({
     total: Math.round(S.energiaTotal), energia: Math.round(S.energia), cena: S.cenario,
@@ -645,7 +659,7 @@ async function abrirMenuParado(page) {
   // ============================================================
   sec('11 · os recursos sobrevivem ao dia seguinte');
   await page.evaluate(() => { S.recursos = { flor: 7, agua: 3, refeicao: 2 }; salvar(); });
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(900);
   const rec = await page.evaluate(() => ({
     vivo: JSON.stringify(S.recursos),
@@ -2262,7 +2276,7 @@ async function abrirMenuParado(page) {
       (c.media - c.mediaSem).toFixed(2) + ' objeto de média — um marco é UM objeto, nunca dois');
   }
   await page.evaluate(() => { localStorage.clear(); });
-  await page.reload();
+  await recarregar(page);
   await page.waitForTimeout(600);
 
   // ============================================================

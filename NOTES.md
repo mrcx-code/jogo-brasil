@@ -9171,3 +9171,14 @@ plataforma na CHEGADA · hardening da fila integrado com cabecalhos provados em 
 49 pinos propostos · rascunhos de divulgacao prontos para sign-off · PENDENTES 48/51/52
 fechados. Restam DELE: login da fila, GSC, 3 decisoes da divulgacao, chao-menu-retrato,
 trilha/gesto, evento-saida.
+
+## 22/08 (manha, cont.) — o flake de duas noites tem NOME, e morreu
+
+O PENDENTES 52 pagou na primeira mordida: o funil do vigia reprovou e o log inteiro revelou que
+o "flake de assercao" NUNCA foi assercao — era page.reload() levando net::ERR_CONNECTION_REFUSED
+do servidor efemero do encaixe (encaixe.js:648, bloco 11), SO sob a carga do funil (o npm test
+pesado termina segundos antes). Serie calma: 8/8 verdes. Conserto: recarregar() com 3 tentativas
+e respiro — recusa transitoria sobrevive, servidor MORTO recusa as tres e continua reprovando.
+Os 6 reloads trocados; encaixe verde por exit real apos o conserto.
+
+Isso explica as 3 recusas intermitentes (growth 21/08, link 22/08, vigia 22/08) com uma causa so.
