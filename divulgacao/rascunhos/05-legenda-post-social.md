@@ -5,7 +5,7 @@ qual rede; a legenda serve para Instagram/Twitter-X com ajuste de tamanho.
 
 ---
 
-> BRASIL: uma plataforma sobre a história do país — da chegada dos povos originários até hoje.
+> BRASIL: uma plataforma sobre a história do país — dos povos que já estavam aqui até hoje.
 >
 > Um jogo em pixel art (13 capítulos), uma linha do tempo com 47 momentos, um glossário com 181
 > verbetes e as fontes de tudo, abertas.
@@ -18,7 +18,7 @@ qual rede; a legenda serve para Instagram/Twitter-X com ajuste de tamanho.
 *(variante mais curta, para limite de caracteres apertado:)*
 
 > Uma plataforma sobre a história do Brasil: jogo, linha do tempo, glossário, fontes abertas.
-> Da chegada dos povos originários até hoje — sem herói colonizador, sem "descobrimento".
+> Dos povos que já estavam aqui até hoje — sem herói colonizador, sem "descobrimento".
 > matheusferreira.cc
 
 **Nota interna:** se a data de publicação cair perto de 20/nov (Dia da Consciência Negra, âncora

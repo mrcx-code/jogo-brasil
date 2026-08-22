@@ -20,7 +20,7 @@ growth anterior — nunca supor):
 Números de conteúdo (conferidos na própria página, não redigitados): **181 verbetes** no
 Glossário (subiu de 167 com a migração Avenida A de 21/08 — se citar em texto público, usar
 181, que é o número no ar agora, e reconferir antes de publicar porque o banco pode mudar de
-novo), **60 fontes** em De Onde Vem, **47 momentos com fonte** em A História, **13 capítulos**
+novo), **61 fontes** em De Onde Vem, **47 momentos com fonte** em A História, **13 capítulos**
 no jogo.
 
 O domínio próprio (`matheusferreira.cc`) está **no ar desde 10/08** — a plataforma já é
@@ -79,21 +79,37 @@ final.
 
 ## 3. Sequência — o que sai primeiro e por quê
 
+**DECIDIDO PELO DONO em 22/08 — a ordem dos públicos é A → B → C, confirmada como estava
+proposta neste plano:** divulgadores de cultura primeiro, professores depois, imprensa por
+último. O que muda com a decisão é que a ordem deixa de ser proposta do growth e passa a ser
+sequência aprovada; cada rodada continua precisando do próprio sign-off de ENVIO antes de sair
+(aprovar a ordem não aprova o disparo de nenhuma delas).
+
 1. **[interno]** Fechar os cartões og: das 3 seções que faltam (A História, Glossário, De Onde
    Vem) — sem isso, qualquer link dessas seções compartilhado abre sem imagem.
 2. **[interno]** Fechar o link jogo → plataforma (item `link-jogo-plataforma` do backlog) — hoje
    quem termina o jogo não tem para onde ir; um professor que jogar primeiro esbarra no mesmo
    buraco.
-3. **[PRECISA SIGN-OFF]** Aprovar os 3 tamanhos de apresentação (rascunho 01) — é o texto-base que
-   todo o resto reusa; sem ele aprovado, cada peça nova reabre a mesma discussão de tom.
-4. **[PRECISA SIGN-OFF]** Primeira rodada com público (A) — divulgadores de cultura — porque é
-   o público que menos precisa de "venda" e serve de prova social antes de ir a professores e
-   imprensa. Enviar o link + o parágrafo, um de cada vez, não disparo em massa.
+3. **[FEITO em 22/08]** Aprovar os 3 tamanhos de apresentação (rascunho 01) — é o texto-base que
+   todo o resto reusa. O dono aprovou com um ajuste (a 1ª frase troca "da chegada dos povos
+   originários até hoje" por "dos povos que já estavam aqui até hoje" — povos originários não
+   chegaram, estavam). Ajuste aplicado no rascunho 01 e replicado nas peças 02, 03, 04 e 05, que
+   reusavam a mesma frase. Aprovar o texto-base não aprova nenhum envio.
+4. **[PRECISA SIGN-OFF]** Primeira rodada com público (A) — divulgadores de cultura. **O que essa
+   rodada espera da anterior:** nada além do texto-base aprovado (item 3, feito) — é a primeira
+   rodada, não depende de retorno de ninguém. Critério de escolha do público: é quem menos
+   precisa de "venda" e serve de prova social antes de ir a professores e imprensa. Enviar o
+   link + o parágrafo, um de cada vez, não disparo em massa.
 5. **[PRECISA SIGN-OFF]** Rodada com público (B) — professores — usando o texto-professor
-   (rascunho 02), depois que (A) já deu algum retorno (mesmo que anedótico).
+   (rascunho 02). **O que essa rodada espera da anterior:** que a rodada (A) já tenha saído e
+   dado algum retorno, mesmo que anedótico (uma resposta, um repost, um "usei e gostei") — não
+   precisa de número, só de sinal de que a peça não caiu no vazio antes de ir a um público que
+   pede mais confiança institucional.
 6. **[PRECISA SIGN-OFF]** Rodada com público (C) — imprensa de nicho — com o press-kit
-   (rascunho 03), a última porque é a que menos tolera repetir contato ("já mandei, deixa
-   descansar") e a que mais se beneficia de já ter alguma repercussão prévia para citar.
+   (rascunho 03). **O que essa rodada espera da anterior:** que (A) e (B) já tenham alguma
+   repercussão para citar no press-kit ("já em uso por X" ou equivalente) — é a rodada que
+   menos tolera repetir contato ("já mandei, deixa descansar"), então sai por último e só com
+   algo para mostrar.
 7. **[PRECISA SIGN-OFF]** O lançamento de verdade — o anúncio amplo, com data. O dono já decidiu
    a âncora **interna** de 20/nov (Dia da Consciência Negra), registrada em `NOTES.md` 21/08
    como "âncora interna do lançamento... com a camada crítica do movimento, nunca efeméride" —
@@ -167,3 +183,8 @@ nova. Isso é tática de execução, não plano; cabe na hora, com o texto já a
 
 Todos marcados [PRECISA SIGN-OFF] onde ha texto a publicar; nenhum sai sem aprovacao por
 mensagem do dono, peca por peca -- aprovar o rascunho 01 nao aprova os demais.
+
+**Atualizado em 22/08:** o rascunho 01 (texto-base) foi aprovado pelo dono, com o ajuste da 1a
+frase (ver secao 3, item 3). Isso NAO aprova o envio de nenhuma peca -- so fixa o texto que as
+demais reusam. O rascunho 03 (press-kit) teve a secao "Quem fez" resolvida pelo dono na mesma
+data (sem nome de pessoa); o resto do press-kit e das demais pecas continua [PRECISA SIGN-OFF].

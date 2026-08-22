@@ -15,8 +15,8 @@ com BNCC ou qualquer currículo específico — isso exigiria checagem que não 
 > - **O Glossário** (matheusferreira.cc/glossario) — 181 verbetes com fonte, das palavras que a
 >   história do Brasil usa. Serve como referência rápida ou leitura dirigida.
 > - **A História** (matheusferreira.cc/historia) — uma linha do tempo com 47 momentos, cada um
->   com a fonte à mão, da chegada dos povos originários a hoje.
-> - **De Onde Vem** (matheusferreira.cc/de-onde-vem) — as 60 fontes usadas em tudo isso, abertas
+>   com a fonte à mão, dos povos que já estavam aqui até hoje.
+> - **De Onde Vem** (matheusferreira.cc/de-onde-vem) — as 61 fontes usadas em tudo isso, abertas
 >   — útil se a turma quiser ir na fonte primária.
 > - **O Jogo** (matheusferreira.cc/jogo) — 13 capítulos em pixel art, uns 8 a 10 minutos de
 >   jogo. Pode servir de gancho antes de uma aula, não como substituto dela.
