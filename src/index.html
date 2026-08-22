@@ -61,6 +61,14 @@
 <canvas id="fundoHD"></canvas>
 <canvas id="scene" width="320" height="180"></canvas>
 <canvas id="heroHD"></canvas>
+<!-- O DIORAMA DA HOME (increment 2, 22/08). A QUARTA camada, e ela só existe com o menu
+     aberto: a folhagem que pende da borda de cima e fecha as quinas de baixo, o recorte que a
+     assenta e a clareira que abre o meio do quadro. Vem DEPOIS do #heroHD de propósito — o
+     plano da frente tem de passar na frente da personagem, senão é cenário, não moldura.
+     É irmã das três camadas e não filha do #telaMenu: o poste conta filhos (`:nth-child(2)`
+     e `(3)` seguram os atrasos do `brota`) e o menu deitado é uma grade — um canvas dentro
+     dele viraria mais um item posicionado. Ver `pintarHomeCena()` no jogo.ts. -->
+<canvas id="homeCena" aria-hidden="true"></canvas>
 
 <!-- owner: the opening card is gone. The game starts on the street, and the first-run
      guide is what explains it, one line at a time. -->

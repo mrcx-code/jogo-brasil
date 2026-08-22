@@ -2758,3 +2758,31 @@ Desde 22/08 o interruptor de medicao e UM so (mesma chave de localStorage, decis
 ## 52 — O integrar.js trunca o log do encaixe vermelho — plantao/dev-plataforma
 
 Duas noites seguidas (funil da growth 21/08, funil do link-jogo 22/08) o encaixe reprovou 1-2 assercoes na 1a tentativa, passou na 2a, e o log do funil NAO diz QUAL assercao mordeu — ele guarda so o fim da saida, e a falha rola para fora. Sem o nome da assercao, flake nao vira diagnostico. Conserto: o integrar.js salva a saida INTEIRA do encaixe num arquivo ao lado (encaixe-vermelho-<data>.log) quando exit != 0, e imprime o caminho. Uma linha de tee com exit real preservado.
+
+
+## 53 — Em RETRATO a personagem esta 100% escondida atras do poste — arte/dono
+
+Medido em 22/08 (dev-jogo, increment 2 da home), pelo DOM e nao pelo olho: a caixa dela na home
+mede **x 82..122 · y 486..574** em 390x844 e **x 82..122 · y 298..386** em 390x568, e o poste
+ocupa **x 43..347 · y 386..844** e **x 43..347 · y 155..568** nas duas. Ou seja: nas duas telas
+de retrato ela cai INTEIRA atras das tabuas — nao e "pouco visivel", e zero pixel.
+
+Isso e o que sobrou do ticket home-inc2 depois da entrega: a **presenca da personagem so existe
+onde ha cena** (a cinematica >=900 e o telefone deitado). Em retrato ela nao aparece, e a home de
+celular e justamente a tela que mais gente ve.
+
+**Por que nao foi consertado nesta rodada:** as tres saidas possiveis mexem em coisa que nao e do
+dev-jogo decidir sozinho.
+
+1. **Encolher/subir o poste** para abrir uma faixa de chao — mexe na composicao que o dono
+   aprovou em 21-22/08 (oito tabuas, piso de 44 px de dedo, rolagem 0 em oito alturas). A conta
+   nao fecha sem tirar tabua: as oito ja somam 413..464 px numa tela de 844.
+2. **Desenhar uma SEGUNDA figura** dela no diorama, grande, no plano da frente — duas
+   personagens na mesma tela, e o dono pediu em 12/08 *"apenas o personagem andando e o cenario
+   em si"*, no singular. Recusado por isso.
+3. **Enquadrar a home mais alto** (a linha do chao subir so no menu) — mexe em `GROUND`/`fitCanvas`,
+   que sao as constantes medidas do motor (§7 do CLAUDE.md). Nao se toca por composicao de menu.
+
+**A pergunta para a arte:** vale abrir uma faixa de cena no retrato tirando o logo um degrau, ou
+o retrato fica sendo a tela da MARCA (logo + proposta + portoes) e a personagem e coisa das telas
+largas? As duas leituras sao defensaveis; a segunda e a de hoje, e agora esta medida.

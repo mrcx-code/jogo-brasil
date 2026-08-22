@@ -9033,3 +9033,121 @@ replace cego). validade-rad marcado concluido (a rodada RAD de 21/08 ja o cobria
 
 **Backlog livre restante:** home-inc2 (dev-jogo). Resto: do-dono (trilha, gesto, divulgacao x3,
 evento-saida) ou aguardando o dono (login da fila, GSC).
+
+
+## 22/08 — a home vira DIORAMA, e a personagem para de ser mais escura que o chão (home-inc2, dev-jogo)
+
+Último item livre do backlog. Dos três pedaços do `home-inc2` ("cena com profundidade, personagem
+com presença, 4 portais de topo"), o terceiro pousou em 21/08; esta rodada entrega os dois
+primeiros. **Zero arte nova** — cada folha desenhada aqui é uma célula de `FRENTE_SPR`, a mesma
+vegetação que já cresce na rua do capítulo em que a pessoa está.
+
+### O que estava lá, medido antes de tocar em nada (`test/DIO-ANTES-*.png`)
+
+A home MOSTRA a pintura, e mostrar não é compor. Em 390×844 a tela é uma parede de mata chapada:
+três planos desenhados (pintura, mundo, folhagem da rua) que o olho lê como UM, porque nenhum
+deles cruza o outro dentro do enquadramento do menu. E a personagem, quando aparece, aparece
+**mais escura que o cenário em que anda** — ver o número abaixo.
+
+### A quarta camada: `#homeCena`
+
+Uma camada nova, irmã das três do motor (`#fundoHD` → `#scene` → `#heroHD` → **`#homeCena`** →
+telas), que **só existe com o menu aberto** (`body.naHome`, ligada em `abrirTela` e apagada em
+`fecharTelas`). Ela tem três partes, na ordem de força:
+
+1. **PLANO DA FRENTE** — folhagem pendurada da borda de cima (a mesma célula VIRADA: uma folha
+   que pende é uma folha crescendo do galho para baixo) e plantada nas quinas de baixo, quase em
+   silhueta. É o sinal de profundidade mais barato que existe, e é o mesmo argumento que
+   `desenharFrente()` já escreve para a rua — aqui valendo para o ENQUADRAMENTO. As quinas vêm em
+   cacho de cinco, o meio fica com duas: folha espalhada lê como sujeira na lente; o que lê como
+   copa é folha encostando em folha.
+2. **RECORTE** — sombra curta só nas quatro quinas, para as folhas assentarem. **Não é a vinheta
+   que a direção já recusou** (aquela acinzentava o quadro inteiro): esta morre antes de um terço
+   da tela, e a régua de tinta abaixo mostra que ela não fecha o meio.
+3. **LUZ** — uma clareira quente entrando pelo alto, do lado da cena, aditiva e fraca; e uma
+   **névoa no pé da mata**, deitada exatamente na linha em que ela pisa (0,68 da altura, o mesmo
+   número que o `fitCanvas` escreve), que é perspectiva aérea: a pintura encosta mata e terra com
+   o mesmo contraste, e o olho põe as duas na mesma distância.
+
+**Capítulo sem vegetação fica sem folha, e é de propósito.** Medido nos 13: `bloco 0` em
+PINDORAMA, `8` em PALMARES, `16` do CAIS em diante, **−1 em SALVADOR** — bananeira pendurada
+sobre a ladeira de pedra da Bahia de 1835 seria a mesma mentira que o `FRENTE_CAP` existe para
+não contar. Zero erro de console nos treze.
+
+### O VENTO CUSTOU 9 FPS E FOI CORTADO — o achado da rodada, e é contra mim
+
+A primeira versão balançava a camada inteira (`brisa 11s`, 5 px de `translate3d`), com o
+argumento de sempre: transform é compositor, não repintura. **Medido em A/B alternado na MESMA
+carga** (390×844, três rodadas, mediana): **30 FPS sem a camada · 21 com o balanço · 29 com a
+camada parada**. O balanço de uma camada do tamanho da tela custa 9 FPS sozinho, e
+`will-change: transform` não recupera (22). A camada ficou; o vento saiu.
+
+**E o A/B tinha um viés que quase virou número no Diário.** Com a ordem dos braços FIXA
+(sempre "com" primeiro), o custo de invalidar a camada ao trocar a classe caía sempre no mesmo
+braço: dava **27 contra 30**, e eu ia escrever que a camada custa 10%. Alternando a ordem entre
+as rodadas o efeito desaparece. Números finais, quatro rodadas, mediana:
+
+| tela | com diorama | sem (a home de ontem) |
+|---|---:|---:|
+| 390×844 | **29** | 30 |
+| 844×390 | **29** | 29 |
+| 1366×768 | **11** | 11 |
+
+> Instrumento com braço fixo mede a troca, não a coisa. É a 2.9 outra vez: antes do segundo
+> palpite, imprima o estado — e antes de acreditar num A/B, troque a ordem dos braços.
+
+### A PERSONAGEM: ela era 20% mais escura que a mata em que pisa
+
+`body.emTela #heroHD { filter: brightness(.42) }` nasceu para as telas de LEITURA, que baixam um
+véu de `rgba(12,10,7,.88)` — ali 42% é o que a põe na mesma luz do cenário. **O menu não usa esse
+véu**: o dele é quase nenhum (.30 no céu, .06 no meio, .52 no pé). Ou seja, na home ela vinha
+com metade do brilho do chão em que anda, que é o oposto do que a luz faz — figura mais escura
+que o próprio cenário lê como recorte colado, não como gente ali dentro.
+
+Medido em A/B alternado na mesma carga (1366×768, cinco rodadas, mediana — o mundo do menu ROLA,
+então dois prints separados mediriam a passada dela e não a luz), luma média:
+
+| | personagem | mata do mesmo pedaço de quadro |
+|---|---:|---:|
+| antes (.42) | **41,5** | 51,8 |
+| depois (.86) | **71,6** | 62,8 |
+
+De **20% mais escura** que o cenário para **14% mais clara** — passa a ser a coisa mais clara do
+plano dela, que é o que "presença" quer dizer num diorama. Nenhuma outra tela muda um pixel: a
+regra só existe onde `body.naHome` existe.
+
+### O que a entrega NÃO resolveu, com número (PENDENTES 53)
+
+**Em retrato ela está 100% escondida atrás do poste** — não é "pouco visível", é zero pixel: a
+caixa dela mede x 82..122 · y 486..574 em 390×844 (poste x 43..347 · y 386..844) e x 82..122 ·
+y 298..386 em 390×568 (poste y 155..568). As três saídas possíveis mexem em coisa que não é do
+dev-jogo decidir sozinho — encolher o poste aprovado ontem, desenhar uma SEGUNDA figura dela
+(o dono pediu *"apenas o personagem andando"*, no singular), ou subir a linha do chão só no menu
+(mexe em `GROUND`/`fitCanvas`). Vai ao dono/arte com as duas leituras escritas.
+
+### Portão novo, e ele foi visto reprovando (lição 2.8)
+
+`test/regua-larga.js` passa a cobrar a camada nas seis telas: ela existe, está acesa na home,
+**não recebe o dedo**, cobre a janela, e tem **tinta** (piso 0,6% da tela em folha densa — medido
+5,51% a 10,88% nas seis). O modo de falha que isso pega e que nenhum erro de console pegaria é a
+camada existir VAZIA porque a arte não chegou e a repintura não voltou. Dois controles:
+`REGUA_DEFEITO='#homeCena{display:none!important}'` e
+`REGUA_DEFEITO='#homeCena{pointer-events:auto!important}'` — os dois saem **1 nas seis telas**.
+
+### Peso e portões
+
+`index.html` **2.554.665 → 2.559.513 bytes (+4,7 KB)**, contra um teto de 50 — a camada é código,
+não arte: cada folha dela já estava embutida. Prints antes/depois nas quatro telas do despacho
+em `test/DIO-ANTES-*.png` e `test/DIO-DEPOIS-*.png`.
+
+**Portões (exit real):** `npm test` **0** (smoke PASS, FPS 61, régua larga verde nas 6 telas) ·
+`node test/encaixe.js` **0 · 0 · 0** em três execuções (395 ok, nenhuma falha — o flake do
+PENDENTES 52 não mordeu) · `npm run tipos` **0**. Zona do dono intocada (o guarda do
+`TERRITORIO.md` mordeu uma vez, no símbolo `resize` dentro do trecho colado, e o patch foi
+reescrito para não encostar nele).
+
+**Dúvida que fica:** a moldura é ESTÁTICA e o mundo atrás dela rola. Fisicamente um plano perto
+deveria correr mais rápido que o chão, não ficar parado — o que sustenta a leitura é ela ser
+lida como MOLDURA (quinas pesadas, meio vazio), não como um plano da rua. Ficou assim porque a
+alternativa medida custa 9 FPS. Se a arte quiser vento, o caminho barato é balançar só um
+pedaço da camada, e isso precisa ser medido antes de entrar.

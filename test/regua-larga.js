@@ -131,7 +131,35 @@ const TELAS = [
       const portais = [...document.querySelectorAll('#poste .telaBtn.portal')].filter(naTela).map(caixa);
       const utilidade = [...document.querySelectorAll('#poste .telaBtn.sec')].filter(naTela).map(caixa);
 
+      // ---- O DIORAMA DA HOME (increment 2, 22/08) ----
+      // A camada de profundidade da home (`#homeCena`: a folhagem do plano da frente, o recorte
+      // das quinas e a clareira) é pintada por JS a partir da vegetação do capítulo. Três coisas
+      // podem quebrá-la em silêncio e nenhuma daria erro de console: ela sumir do molde, ela
+      // deixar de cobrir a janela depois de girar, e — a pior — ela passar a RECEBER O DEDO, que
+      // transformaria uma moldura decorativa numa placa de vidro por cima do mundo. A quarta é
+      // ela existir VAZIA (a arte não chegou e a repintura não voltou), e é por isso que a régua
+      // conta tinta em vez de conferir só o elemento.
+      const dio = document.getElementById('homeCena');
+      let dioMotivo = 'não existe', dioTinta = -1;
+      if (dio) {
+        const cs = getComputedStyle(dio), r = dio.getBoundingClientRect();
+        if (cs.display === 'none') dioMotivo = 'apagada na home (display none)';
+        else if (cs.pointerEvents !== 'none') dioMotivo = 'recebe o dedo (pointer-events: ' + cs.pointerEvents + ')';
+        else if (r.width < window.innerWidth - 2 || r.height < window.innerHeight - 2) {
+          dioMotivo = 'não cobre a janela (' + Math.round(r.width) + 'x' + Math.round(r.height) + ')';
+        } else {
+          const gg = dio.getContext('2d');
+          const dd = gg.getImageData(0, 0, dio.width, dio.height).data;
+          let n = 0;
+          for (let k = 3; k < dd.length; k += 4) if (dd[k] > 120) n++;
+          dioTinta = 100 * n / (dio.width * dio.height);
+          dioMotivo = '';
+        }
+      }
+
       return {
+        dioMotivo: dioMotivo,
+        dioTinta: dioTinta,
         menuVisivel: visivel,
         frase: px('#telaMenu .mpFrase'),
         cta: px('#telaMenu .mpCta'),
@@ -153,6 +181,11 @@ const TELAS = [
     // em tela larga (>=900) o painel não pode ocupar quase a tela toda — isso é o "menu esticado"
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
     if (!m.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + m.cfgMotivo);
+    // o piso de tinta é 0,6% da tela: medido 3,4% em 390×844 e 1,5% no ultrawide (a folha
+    // cresce com a régua da tela, a tela cresce mais). Meio por cento é "há moldura"; zero é
+    // "a camada existe e não desenhou nada", que é o modo de falha silencioso.
+    if (m.dioMotivo) probs.push('diorama da home: ' + m.dioMotivo);
+    else if (m.dioTinta < 0.6) probs.push('diorama da home sem plano da frente: ' + m.dioTinta.toFixed(2) + '% de folha densa (piso 0,6%)');
 
     // ---- os dois níveis do poste, medidos ----
     const P = m.portais || [], U = m.utilidade || [];
@@ -185,6 +218,7 @@ const TELAS = [
       + ' · logo ' + (m.logo != null ? m.logo.toFixed(0) : '—') + 'px'
       + ' · portões ' + ((m.portais || []).length ? (m.portais[0].w.toFixed(0) + 'x' + m.portais[0].h.toFixed(0)) : '—')
       + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
+      + ' · diorama ' + (m.dioTinta >= 0 ? m.dioTinta.toFixed(2) + '%' : 'AUSENTE')
       + ' · configurações ' + (m.cfgOk ? 'alcançável' : 'PRESO');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
