@@ -14,8 +14,8 @@
       "titulo": "Marcar tag_s2 e validade nos 181 verbetes do banco",
       "detalhe": "Parecer do historiador (a carga deixou tudo false/null de proposito): quais verbetes tocam o §2 (tag_s2) e quais carregam numero com validade (vence_em/vence_regra — PRODES out, MapBiomas mai, censo). Relatorio dele → EU aplico via MCP como rev 2. Verbete que exigir juizo NOVO de representacao → dono.",
       "agente": "historiador",
-      "estado": "do-dono",
-      "nota": "APLICADO no banco 21/08 (176 true, 5 false, 20 validades, revisado_por=historiador); resta a decisao s2_alto, publicada no dashboard"
+      "estado": "concluido",
+      "nota": "FECHADO 21/08: parecer aplicado (176/5/20) + s2_alto criado com 34 chaves por decisao do dono (opcao A)"
     },
     {
       "id": "tres-squads",
@@ -121,8 +121,8 @@
       "titulo": "PIXEL VENCE — o passe de coerencia nos 10 capitulos pintados",
       "detalhe": "Decidido pelo dono 21/08 (mosaico a vista): quantizacao na EXIBICAO nos 10 pintados + luzDoDia com hora propria nos 4 repetidos + deslocar a costura de JABAQUARA. Zero arte nova. Medir antes/depois com prints e o erro na escala de exibicao.",
       "agente": "dev-jogo",
-      "estado": "em-curso",
-      "nota": "passe PIXEL VENCE entregue (cores 1281→86 no CAIS, FPS 61, controles imoveis); arte julgando a dose da trama antes do funil; prints ja com o dono"
+      "estado": "concluido",
+      "nota": "PIXEL VENCE integrado (168eba1): quantizacao nos 10 pintados, hora presa nos 4 repetidos, veu ambar no ACEIRO (luma 124,9). Arte aprovou a dose; condicao de FPS desmentida por A/B. Sobras em PENDENTES 47 (emenda de JABAQUARA, suavizacao dos 3 de pixel cru)"
     },
     {
       "id": "quarto-portal",

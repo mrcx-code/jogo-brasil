@@ -1,3 +1,5 @@
+> **DECISÕES DO DONO (21/08, via check):** (1) **João Cândido É NOMEADO** no pino da Revolta da Chibata — homenagem aprovada por ele; o texto candidato pode carregar o nome. (2) **Os 5 pinos PARE ficam FORA do mapa** (recomendação da historiadora acatada); o Vale do Javari fora em qualquer hipótese. As demais dúvidas (TIs além das homologadas, ponte Palmas-Palmares, camada vs pino em Brasília/Salvador) seguem abertas. A aprovação de CADA pino continua pino a pino, com ele.
+
 # PINOS-PROPOSTA — o Território rico, lista de candidatos para aprovação do dono
 
 **O que isto é.** A lista de pinos candidatos para o Território rico (ticket `territorio-rico`,
