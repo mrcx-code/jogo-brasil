@@ -7,7 +7,7 @@
       "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
       "agente": "pm",
       "estado": "em-curso",
-      "nota": "FASE 0 FECHADA 21/08 (espelho byte a byte); fase 1 (banco vira fonte via conteudo:puxar) livre para despacho"
+      "nota": "FASE 0 FECHADA 21/08 (espelho byte a byte). FASE 1 FEITA 22/08: conteudo:puxar + conteudo:conferir, os 3 JSON versionados (17/181/644) e o passo informativo no CI. Proximo: aplicar as rev+1 (item avenida-a-rev2) e so entao o passo vira portao"
     },
     {
       "id": "tag-s2-glossario",
@@ -130,6 +130,14 @@
       "detalhe": "Decidido pelo dono 21/08: sai de dentro de CONFIGURACOES e sobe pro topo com o mesmo peso de madeira dos outros 3. btnFontes ganha .portal; conferir alturas na regua (o poste cresceu uma tabua clara) e no encaixe 390x812 (folga de 4px).",
       "agente": "dev-jogo",
       "estado": "livre"
+    },
+    {
+      "id": "avenida-a-rev2",
+      "titulo": "Aplicar no banco as 8 divergencias que o jogo ja tem (rev+1) e fechar o portao",
+      "detalhe": "Achado confirmado pela fase 1 e NAO aplicado no ramo (escrita no banco e do plantao, via MCP). ferramentas/conteudo/DIVERGENCIA.md traz o texto INTEIRO dos dois lados: 8 diferencas em 6 chaves, todas do jogo estando na frente — GUARANI(f), YANOMAMI(f), TIKUNA(f), TRONCO LINGUISTICO(d,f), DESMATAMENTO(d,f), MAPBIOMAS(f). Aplicar como versionamento por intervalo: vigente_ate=now() na linha velha + insert com rev+1, estado publicado. Depois: npm run conteudo:puxar (o diff dos JSON tem de mostrar exatamente essas 6 chaves), npm run conteudo:conferir tem de sair 0, e ai TIRAR o continue-on-error do passo do CI — o comentario com o gatilho ja esta escrito no .github/workflows/teste.yml.",
+      "agente": "plantao",
+      "estado": "livre",
+      "nota": "22/08. Enquanto nao for feito, o passo do CI e informativo e nasce vermelho por razao conhecida — que e exatamente o estado que nao pode durar"
     }
   ]
 }

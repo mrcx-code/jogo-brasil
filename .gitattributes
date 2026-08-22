@@ -4,3 +4,10 @@
 NOTES.md merge=union
 PENDENTES.md merge=union
 EQUIPE.md merge=union
+
+# O CONTEUDO PUXADO DO BANCO E LF EM TODA MAQUINA (Avenida A fase 1, 22/08). Sem esta linha o
+# `core.autocrlf=true` de uma maquina Windows devolve CRLF no disco, o `conteudo-puxar.js`
+# reescreve em LF, e `git status` acusa os tres arquivos como sujos SEM nenhum byte de texto ter
+# mudado -- o oposto do que a fase 1 promete: diff que so aparece quando o TEXTO muda.
+ferramentas/conteudo/*.json text eol=lf
+ferramentas/conteudo/*.md text eol=lf

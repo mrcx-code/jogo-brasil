@@ -11,6 +11,8 @@
     "start": "npm run build && node ferramentas/servir.js 8199",
     "servir": "node ferramentas/servir.js 8199",
     "mesa": "node ferramentas/receber.js",
+    "conteudo:puxar": "node ferramentas/conteudo-puxar.js",
+    "conteudo:conferir": "node ferramentas/conteudo-conferir.js",
     "app": "npm run build && cap sync android",
     "app:abrir": "cap open android",
     "copiar": "node ferramentas/copiar.js"

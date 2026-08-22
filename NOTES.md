@@ -8582,3 +8582,61 @@ o canvas CRU e nao ve o filtro CSS. Os numeros dela e os do `lumaFiltrada` sao p
 coincidencia de escala, nao por serem a mesma coisa — no ACEIRO o cru da **134,3** e a tela da
 **124,9**. Vale a arte reancorar a regua no campo novo antes da proxima dose, senao a proxima
 conversa recomeca com duas reguas se chamando pelo mesmo nome.
+
+## FASE 1 DA AVENIDA A — o conteudo do banco vira ARQUIVO VERSIONADO (22/08, dev-plataforma)
+
+A fase 0 provou que o banco e o jogo eram o mesmo texto. A fase 1 tira a mao do meio: ate aqui
+so quem tivesse MCP conseguia olhar o banco, e o repositorio nao sabia o que havia la.
+
+**Duas engrenagens, e a separacao entre elas e o ponto:**
+
+- `npm run conteudo:puxar` (`ferramentas/conteudo-puxar.js`) — GET REST anonimo com a chave
+  **publicavel** (a mesma do dashboard; o script recusa iniciar se ela nao comecar com
+  `sb_publishable_`), so `vigente_ate is null`, e escreve um JSON canonico por tabela em
+  `ferramentas/conteudo/`. **Nunca roda dentro do build**: o `npm run build` continua 100%
+  offline, lendo so o que esta commitado. Se o build puxasse da rede, uma revisao aprovada no
+  banco entraria no jogo sem nenhum humano ler o diff — e um projeto fora do ar quebraria a
+  producao.
+- `npm run conteudo:conferir` (`ferramentas/conteudo-conferir.js`) — compara esses JSON com o
+  glossario embutido no jogo, extraido headless pela forma canonica do proprio
+  `conteudo-espelho.js` (importada, nunca reescrita: duas definicoes de "igual" seria o mesmo
+  defeito que o portao existe para pegar, um nivel acima). Exit 0 so com hash identico.
+
+**Medido em 22/08:** 17 grupos · 181 verbetes · 644 pares puxados do banco. Metadado real veio
+junto e e a razao de a fase existir — **176 verbetes com `tag_s2`, 34 com `tag_s2_alto`, 5 com
+`vence_em`** — agora legivel FORA do banco, por qualquer ferramenta, sem MCP.
+
+**O estado, e ele e vermelho de proposito:** hash do JOGO `cd5a68d4…bd7e` contra
+`24570539…c858` do banco (que e exatamente o hash que a fase 0 registrou em 21/08 — o banco esta
+congelado desde a carga). **8 divergencias em 6 chaves**, todas com o jogo na frente: `GUARANI`
+(f), `YANOMAMI` (f), `TIKUNA` (f), `TRONCO LINGUISTICO` (d, f), `DESMATAMENTO` (d, f),
+`MAPBIOMAS` (f) — a manutencao anual do historiador de 21/08 (RAD 2025, PRODES consolidado, 2a
+edicao do censo indigena). O relatorio com o texto **inteiro dos dois lados** esta em
+`ferramentas/conteudo/DIVERGENCIA.md`, e e dele que o plantao copia o valor para o `insert` da
+rev+1 (item de backlog `avenida-a-rev2`).
+
+**Desmentido por medicao:** o despacho presumia que `INDÍGENA` estava entre os verbetes mudados.
+Nao esta — a fonte dele e "IBGE, Censo 2022 · Lei nº 14.402/2022", sem edicao do censo, entao a
+troca para a 2a edicao nao o tocou. Sao 6 chaves, nao 8 verbetes.
+
+**No CI o passo entra INFORMATIVO** (`continue-on-error: true`), com o gatilho de virar portao
+escrito por extenso no `.github/workflows/teste.yml`: quando o plantao aplicar as rev+1 e o
+`conteudo:conferir` sair 0 na main. Portao que nasce vermelho por razao conhecida treina todo
+mundo a ignorar vermelho — e ai o proximo defeito de verdade passa junto.
+
+**Tres decisoes de forma que parecem detalhe:** (1) nenhum carimbo de tempo dentro dos arquivos,
+para o puxao ser idempotente byte a byte e o diff significar "o texto mudou" — medido: 2a
+execucao com o banco parado, `git status` limpo; (2) a ordem do arquivo e a chave natural e nao
+o campo `ordem`, senao reordenar o glossario move cem linhas e esconde a mudanca real; (3) `id`
+fica de fora — o proprio esquema diz que o uuid nao e a identidade do conteudo.
+
+**Provas de que os instrumentos mordem:** `conteudo-conferir.js --autoteste` roda 5 cenas
+(controle + definicao mudada + fonte mudada + verbete que so existe num lado + ordem curada de
+um par) e exige que cada uma seja vista E que a chave certa seja nomeada. E o caminho VERDE foi
+exercitado de verdade, nao suposto: escrevendo o lado do jogo na forma do banco, o
+`conteudo:conferir` saiu 0 com os dois hashes em `cd5a68d4…bd7e` — o que tambem prova que as 8
+divergencias sao texto, e nao artefato do formato do arquivo. Depois, `conteudo:puxar` restaurou
+os arquivos do banco.
+
+**Portoes:** `npm test` exit 0 (FPS 59, regua larga verde nos 6 tamanhos) · `node test/encaixe.js`
+exit 0 · `node test/fila-auth.js` exit 0 (16 cenas). Jogo, `src/` e CSP intocados.

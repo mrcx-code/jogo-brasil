@@ -56,3 +56,29 @@ jobs:
       # para o job morrer rapido se um dia ele pendurar, em vez de queimar 6 horas de runner.
       - run: node test/fila-auth.js
         timeout-minutes: 3
+
+      # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
+      #
+      # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados
+      # (ferramentas/conteudo/*.json, escritos por `npm run conteudo:puxar`, que so roda a mao e
+      # nunca dentro do build). Este passo compara esses arquivos com o glossario embutido no
+      # jogo e sai 1 quando divergem.
+      #
+      # ELE NASCE VERMELHO, POR RAZAO CONHECIDA: o historiador revisou 6 verbetes no jogo em
+      # 21/08 (GUARANI, YANOMAMI, TIKUNA, TRONCO LINGUISTICO, DESMATAMENTO, MAPBIOMAS) e o banco
+      # ainda tem o texto anterior -- 8 divergencias em 6 chaves, listadas em
+      # ferramentas/conteudo/DIVERGENCIA.md. Um portao que nasce vermelho por motivo conhecido
+      # nao pode derrubar o CI de todo push: em uma semana ninguem olha mais o vermelho e o
+      # proximo defeito de verdade passa despercebido junto.
+      #
+      # QUANDO TIRAR O `continue-on-error`, e o gatilho e objetivo: assim que o plantao aplicar
+      # as rev+1 via MCP, o `npm run conteudo:conferir` sair 0 na main, e o
+      # `node ferramentas/conteudo-puxar.js --conferir` confirmar que o disco esta em dia. Ai
+      # este passo vira PORTAO -- e a partir dali toda revisao de texto historico tem de andar
+      # nos dois lugares junto, que e a coisa inteira que a fase 1 existe para garantir.
+      #
+      # Roda depois do `npm test` porque ele le o `index.html` da RAIZ, que e saida do build.
+      - name: espelho do conteudo (informativo — vira portao quando o banco alcancar o jogo)
+        run: npm run conteudo:conferir
+        continue-on-error: true
+        timeout-minutes: 5
