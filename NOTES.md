@@ -9369,3 +9369,13 @@ anon, 0 update/delete, RLS on, teto on. Provas limpas do banco.
 Restam: 4 cliques do dono no painel (cadastro OFF, Secure password change ON, leaked passwords
 ON, minimo 8 — mandados no chat com o PIN temporario) e o PENDENTES 57 (auto-login local).
 Sugerido ao dono: apagar os 3 teste-*@patinhas.test e o hi@matheusferreira.cc orfao.
+
+## 22/08 (tarde, cont.) — auth limpo e as duas frentes pos-fechamento
+
+Dono mandou apagar os 4 usuarios mortos (3 teste-* de julho + o hi@ orfao): apagados via MCP
+com identities antes de users; o select limpo confirma que resta SO dono@mesa.brasil. (O susto
+do "restantes: 5" era semantica de CTE — o count externo enxerga o retrato de ANTES do delete;
+licao anotada: prova de delete se faz com select SEPARADO.) Despachados: auto-login local
+(PENDENTES 57, dev-plataforma) e a checagem de autodeclaracao da autora do B3 (pesquisadora,
+com a regra escrita: fonte publica ou nada, e inferir raca por aparencia e exatamente o erro
+que a checagem evita).
