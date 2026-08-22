@@ -9223,3 +9223,25 @@ SEM nome — o dominio assina; (3) home retrato: SOBE O CHAO com a regua dura da
 (4) a porta jogo->plataforma passa a MEDIR (evento novo na lista branca, decisao dele).
 Despachados: dev-jogo (chao + evento, um so worktree no monolito) e growth (aplicar as 3
 decisoes nas pecas). Check-pedido do dashboard das 02:22 consumido (era o mesmo check).
+
+## 22/08 (tarde) — o login vira PIN, e o lote 1 dos pinos foi ao dono
+
+**Login por decisao do dono:** "pin, simples mesmo, nao patinhas" + "localhost n precisa entrar".
+Desenho: PIN = senha de conta SINTETICA do Supabase (dono@mesa.brasil — email pessoal nao entra
+no codigo publico), um campo so, trocar-PIN logado, localhost pula o portao. O OTP por e-mail
+sai inteiro. dev-plataforma em campo; a seguranca vai auditar (gatilho REDE). Depois do pouso:
+plantao cria a conta + senha temporaria via MCP, aplica o fila-auth.sql com o uuid NOVO, e o
+dono troca o PIN no primeiro uso — a credencial final so ele conhece.
+
+**Territorio:** dono escolheu aprovar em LOTES DE 10 pelo dashboard; lote 1 publicado (os 5
+defendidos + 5 sem risco). Pesquisadora-fontes conferindo os [conferir] do lote (caiu uma vez
+por engolir PDF inteiro; retomada com leitura por fatias). **Rodada A da divulgacao: 20/nov**,
+tudo junto na ancora (decisao dele).
+
+**Chao do retrato pousou HONESTO:** a regua do dono disse NAO em 4 de 6 telas (no 390x844 de
+referencia faltam 21 px) e SIM so em 412x915/430x932 — e nessas duas subir o chao AMPLIA a
+pintura 1,64x e come o ceu (PENDENTES 54, com caminho alternativo escrito). Arte julgando ANTES
+do funil: aprovar como esta, entrar inerte, ou reprovar. Bonus do dev: a lista branca cobria 9
+dos 10 eventos desde 19/08 (regex nao casava glossario_do_capitulo) — corrigido; evento saiu
+com corpo provado campo a campo. CLAUDE.md par.3 diz DEZ eventos e agora sao ONZE — patch
+pronto no PENDENTES 56, a mao e do dono.
