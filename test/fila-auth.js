@@ -105,7 +105,7 @@ async function palco(navegador, plano) {
   pag.on('pageerror', e => erros.push('pageerror: ' + e.message));
 
   // A propria pagina, servida do disco no endereco que a cena escolheu (ver A CASA DA PAGINA).
-  const base = plano.local ? HOST_LOCAL : HOST_WEB;
+  const base = plano.local ? (typeof plano.local === 'string' ? plano.local : HOST_LOCAL) : HOST_WEB;
   await pag.route(base + '/**', r => {
     const p = new URL(r.request().url()).pathname;
     if (p === CAMINHO || p === CAMINHO + 'index.html')
@@ -221,9 +221,15 @@ const estado = pag => pag.evaluate(() => ({
     const { ctx, pag, erros } = await palco(nav, { escrita: 'fechada' });
     await falarNaConversa(pag, 'oi da cena 2');
     const e = await estado(pag);
+    const toast2 = await pag.textContent('#toast');
     ok(erros.length === 0, 'zero erro de console mesmo levando 401', erros.join(' | '));
     ok(e.loginVisivel, 'o 401 ABRE o login em vez de sumir com a resposta');
     ok(e.fila === 1, 'a resposta foi guardada na fila local', String(e.fila));
+    // o par da cena 18: FORA do localhost a frase de sempre continua verdadeira, porque o
+    // login abre e o flush do login esvazia a fila. Se alguem tornar a frase nova (a de
+    // localhost) incondicional, e AQUI que se percebe.
+    ok(/guardei e reenvio/i.test(toast2 || ''), 'e o toast continua sendo o de sempre — aqui ha para onde reenviar', toast2);
+    ok(!/PENDENTES 57/.test(toast2 || ''), 'sem a frase de localhost, que aqui seria falsa', toast2);
     await ctx.close();
   }
 
@@ -252,7 +258,7 @@ const estado = pag => pag.evaluate(() => ({
       }
       return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     });
-    await pag.fill('#login-pin', '123456');
+    await pag.fill('#login-pin', '12345678');
     await pag.click('#login-entrar');
     await pag.waitForTimeout(700);
     const e = await estado(pag);
@@ -260,7 +266,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(erros.length === 0, 'zero erro de console no fluxo inteiro', erros.join(' | '));
     ok(!!pedido && pedido.url.indexOf('grant_type=password') > 0, 'o PIN vai pelo grant_type=password', pedido && pedido.url);
     ok(!!pedido && pedido.corpo.email === EMAIL_DONO, 'com o e-mail SINTETICO da conta da mesa', pedido && pedido.corpo.email);
-    ok(!!pedido && pedido.corpo.password === '123456', 'e o PIN digitado como senha');
+    ok(!!pedido && pedido.corpo.password === '12345678', 'e o PIN digitado como senha');
     ok(e.auth === 'dentro', 'entrou');
     ok(!e.loginVisivel, 'o painel de login se fecha ao entrar');
     ok(e.botao.trim() === 'Sair', 'o botao vira Sair', e.botao);
@@ -363,14 +369,14 @@ const estado = pag => pag.evaluate(() => ({
   {
     const { ctx, pag, erros, autenticacoes } = await palco(nav, { senha: 'errada' });
     await pag.click('#conta-btn');
-    await pag.fill('#login-pin', '000000');
+    await pag.fill('#login-pin', '00000000');
     await pag.click('#login-entrar');
     await pag.waitForTimeout(500);
     const e = await estado(pag);
     const pedido = autenticacoes.find(a => a.rota === 'senha');
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
     ok(!!pedido && pedido.corpo.email === EMAIL_DONO, 'o pedido foi para a conta sintetica', pedido && pedido.corpo.email);
-    ok(!!pedido && pedido.corpo.password === '000000', 'com o PIN errado como senha');
+    ok(!!pedido && pedido.corpo.password === '00000000', 'com o PIN errado como senha');
     ok(e.auth === 'fora', 'nao entrou');
     ok(e.sessao === null, 'nenhuma sessao foi gravada', String(e.sessao));
     ok(e.loginVisivel, 'o painel continua aberto para tentar de novo');
@@ -390,14 +396,14 @@ const estado = pag => pag.evaluate(() => ({
     const { ctx, pag, erros, autenticacoes } = await palco(nav, { senha: 'errada' });
     await pag.click('#conta-btn');
     for (let i = 0; i < 5; i++) {
-      await pag.fill('#login-pin', '00000' + i);
+      await pag.fill('#login-pin', '0000000' + i);
       await pag.click('#login-entrar');
       await pag.waitForTimeout(260);
     }
     const depoisDe5 = autenticacoes.filter(a => a.rota === 'senha').length;
     const meio = await estado(pag);
     // a sexta tentativa NAO pode sair
-    await pag.fill('#login-pin', '999999');
+    await pag.fill('#login-pin', '99999999');
     await pag.click('#login-entrar', { force: true });
     await pag.waitForTimeout(300);
     const depoisDe6 = autenticacoes.filter(a => a.rota === 'senha').length;
@@ -639,20 +645,31 @@ const estado = pag => pag.evaluate(() => ({
     await pag.click('#conta-trocar');
     await pag.waitForTimeout(200);
     ok(await pag.isVisible('#trocar-novo'), 'o elo abre o painel de troca');
+    // Reabre o painel antes de cada tentativa. Sem isto, uma COPIA DEFEITUOSA (o controle roda
+    // uma por defeito) que aceite o PIN curto fecha o painel, e o `fill` seguinte fica 30 s
+    // esperando um campo invisivel e derruba a cena inteira por timeout em vez de reprovar
+    // pelas assercoes. Instrumento tem de reprovar dizendo POR QUE, nao estourando o relogio.
+    const abrirTroca = async () => {
+      if (!(await pag.isVisible('#trocar-novo'))) { await pag.click('#conta-trocar'); await pag.waitForTimeout(150); }
+    };
 
-    // curto demais: nem chega a sair da pagina
-    await pag.fill('#trocar-novo', '12345');
-    await pag.fill('#trocar-conf', '12345');
+    // SETE digitos: a borda nova. O minimo subiu de 6 para 8 em 22/08 (decisao do dono apos
+    // a conta da seguranca, 10^6 -> 10^8), e um PIN de 7 e o unico valor que prova a mudanca —
+    // com 5 a cena continuaria verde com o minimo velho de volta, medindo nada.
+    await abrirTroca();
+    await pag.fill('#trocar-novo', '1234567');
+    await pag.fill('#trocar-conf', '1234567');
     await pag.click('#trocar-ok');
     await pag.waitForTimeout(250);
     const curto = await estado(pag);
     ok(autenticacoes.filter(a => a.rota === 'trocar').length === 0,
-      'PIN de 5 nao vira pedido — a pagina nem tenta', JSON.stringify(autenticacoes.map(a => a.rota)));
-    ok(/6 caracteres/.test(curto.avisoTrocar), 'e a tela diz o minimo, em portugues', curto.avisoTrocar);
+      'PIN de 7 nao vira pedido — a pagina nem tenta', JSON.stringify(autenticacoes.map(a => a.rota)));
+    ok(/8 d[ií]gitos/.test(curto.avisoTrocar), 'e a tela diz o minimo NOVO, em portugues', curto.avisoTrocar);
 
     // os dois campos discordando: tambem nao sai
-    await pag.fill('#trocar-novo', '111111');
-    await pag.fill('#trocar-conf', '222222');
+    await abrirTroca();
+    await pag.fill('#trocar-novo', '11111111');
+    await pag.fill('#trocar-conf', '22222222');
     await pag.click('#trocar-ok');
     await pag.waitForTimeout(250);
     const difere = await estado(pag);
@@ -661,8 +678,9 @@ const estado = pag => pag.evaluate(() => ({
     ok(/n[aã]o batem/.test(difere.avisoTrocar), 'e a tela diz que os dois campos discordam', difere.avisoTrocar);
 
     // agora vale
-    await pag.fill('#trocar-novo', '111111');
-    await pag.fill('#trocar-conf', '111111');
+    await abrirTroca();
+    await pag.fill('#trocar-novo', '11111111');
+    await pag.fill('#trocar-conf', '11111111');
     await pag.click('#trocar-ok');
     await pag.waitForTimeout(500);
     const fim = await estado(pag);
@@ -671,7 +689,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(erros.length === 0, 'zero erro de console no fluxo inteiro', erros.join(' | '));
     ok(!!put, 'o PUT /auth/v1/user saiu', JSON.stringify(autenticacoes.map(a => a.rota)));
     ok(!!put && put.aut === 'Bearer tok-guardado', 'com o Bearer DO USUARIO, nao com a chave publicavel', put && put.aut);
-    ok(!!put && put.corpo.password === '111111', 'e o corpo leva so a senha nova', put && JSON.stringify(put.corpo));
+    ok(!!put && put.corpo.password === '11111111', 'e o corpo leva so a senha nova', put && JSON.stringify(put.corpo));
     ok(!fim.trocarVisivel, 'o painel de troca se fecha sozinho');
     ok(fim.auth === 'dentro', 'e o dono continua entrado (trocar PIN nao desloga)');
     ok(/trocado/i.test(toastTxt || ''), 'o toast confirma a troca', toastTxt);
@@ -698,6 +716,31 @@ const estado = pag => pag.evaluate(() => ({
     ok(e.sessao === null, 'NENHUMA sessao foi inventada', String(e.sessao));
     ok(escritas[0] && escritas[0].aut === 'Bearer ' + PUB, 'o POST sai anonimo, com a chave publicavel', escritas[0] && escritas[0].aut);
     ok(e.fila === 1, 'e a resposta recusada cai na fila local, como qualquer falha', String(e.fila));
+    // P4 da 2a auditoria (22/08): "Sem conexao — guardei e reenvio" mente duas vezes aqui.
+    // Nao foi conexao (foi 401) e nao vai haver reenvio, porque nesta pagina, neste endereco,
+    // nao ha como conseguir sessao. A fila local NAO drena ate o auto-login local existir.
+    const toast18 = await pag.textContent('#toast');
+    ok(!/sem conex/i.test(toast18 || ''), 'o toast NAO diz "sem conexao" — foi autenticacao', toast18);
+    ok(/PENDENTES 57/.test(toast18 || ''), 'e diz onde a espera esta registrada', toast18);
+    ok(/localhost/i.test(toast18 || ''), 'nomeando o motivo: em localhost nao ha login', toast18);
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 19
+  console.log('\n[19] 0.0.0.0 TAMBEM E A PROPRIA MAQUINA — P5 da 2a auditoria (22/08)');
+  cenas++;
+  // O alias que mais aparece na pratica: servidor que faz bind em 0.0.0.0 e a barra de
+  // endereco repetindo o que foi digitado. Ficar de fora errava na direcao segura — o portao
+  // APARECIA —, mas o custo era um formulario que o plantao nao tem como atravessar, porque
+  // o PIN e do dono. A cena existe para o alias nao sumir do regex numa limpeza futura.
+  {
+    const { ctx, pag, erros } = await palco(nav, { local: 'http://0.0.0.0:8199', escrita: 'fechada' });
+    await falarNaConversa(pag, 'oi da cena 19');
+    const e = await estado(pag);
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(e.auth === 'local', 'body data-auth=local tambem em 0.0.0.0', e.auth);
+    ok(!e.loginVisivel, 'o portao nao aparece nem levando 401');
+    ok(e.sessao === null, 'e nenhuma sessao foi inventada', String(e.sessao));
     await ctx.close();
   }
 

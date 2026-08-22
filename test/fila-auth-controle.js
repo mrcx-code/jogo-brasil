@@ -11,7 +11,7 @@
 // exige que o portao reprove. Se alguma copia defeituosa passar, este controle sai 1 — porque
 // nesse caso o defeito nao e a copia, e o portao.
 //
-// Roda assim (sao 10 execucoes do fila-auth.js):  node test/fila-auth-controle.js
+// Roda assim (sao 12 execucoes do fila-auth.js):  node test/fila-auth-controle.js
 // Nao esta no CI de proposito: o CI roda o portao, este roda o portao do portao.
 
 const fs = require('fs');
@@ -140,6 +140,45 @@ const DEFEITOS = [
   }`,
       '  function contarErro(){ }',
     ]],
+  },
+  {
+    // P5 da 2a auditoria (22/08). O alias sozinho numa lista e o tipo de coisa que some numa
+    // limpeza de regex sem ninguem notar — e o sintoma nao e inseguranca, e o plantao diante
+    // de um formulario que ele nao tem como atravessar, porque o PIN e do dono.
+    id: 'P5 · 0.0.0.0 sai do gate de localhost',
+    cena: '[19]',
+    pares: [[
+      'var LOCAL=/^(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0|\\[::1\\]|::1)$/',
+      'var LOCAL=/^(localhost|127\\.0\\.0\\.1|\\[::1\\]|::1)$/',
+    ]],
+  },
+  {
+    // P4 da 2a auditoria (22/08): o toast que mentia duas vezes em localhost ("sem conexao"
+    // quando foi 401, "reenvio" quando nao ha para onde). Reverter o catch de `registrar` ao
+    // que ele era devolve a mentira — e a cena 18 tem de pegar isso, senao a correcao nao
+    // esta medida e amanha alguem a desfaz sem que nada apite.
+    id: 'P4 · o toast de localhost volta a dizer "sem conexao — guardei e reenvio"',
+    cena: '[18]',
+    pares: [[
+      `      .catch(function(err){
+        var st=(err && err.status)||0;
+        var f=lerFila(); f.push(reg);
+        if(!gravarFila(f)) return "perdido";`,
+      `      .catch(function(err){
+        var st=(err && err.status)||0; void st;
+        var f=lerFila(); f.push(reg);
+        if(!gravarFila(f)) return "perdido";
+        if(true) return "fila";`,
+    ]],
+  },
+  {
+    // P3 da 2a auditoria (22/08), decidido pelo dono: o minimo do PIN subiu de 6 para 8. O
+    // GoTrue aceita 6 por padrao, entao este minimo e NOSSO — e minimo que so existe num
+    // `if` some sem deixar rastro. Com o 6 de volta, o PIN de 7 caracteres da cena 17 vira
+    // pedido de rede, que e exatamente o que ela cobra que nao aconteca.
+    id: 'P3 · o minimo do PIN volta a 6 (a borda de 8 deixa de ser cobrada)',
+    cena: '[17]',
+    pares: [['  var PIN_MIN=8;', '  var PIN_MIN=6;']],
   },
 ];
 

@@ -46,9 +46,13 @@
 --      itens 1, 2, 3 e 5 dele.
 --   5. BLOCO 2-B — prende a escrita ao uuid do passo 2. E preciso EDITAR uma linha; sem
 --      editar, ele levanta excecao e nao muda nada (falha fechado, de proposito).
---   6. BLOCO 3, item 4 — "Allow new users to sign up": DESLIGADO. E este passo que impede
---      um desconhecido de virar "authenticated". Ele so pode ser feito depois do passo 2,
---      e por isso esta separado do 4 — mas e da MESMA sentada.
+--   6. BLOCO 3, itens 4, 6 e 7 — "Allow new users to sign up": DESLIGADO, que e o passo que
+--      impede um desconhecido de virar "authenticated" (so pode ser feito depois do passo 2,
+--      e por isso esta separado do 4); e "Secure password change": LIGADO, que e o que impede
+--      um PIN adivinhado de virar sequestro da conta pelo PUT /auth/v1/user. Os dois sao da
+--      MESMA sentada — deixar qualquer um deles para depois e publicar o portao pela metade.
+--      O item 7 ("Minimum password length": 8) entra junto: o cliente ja cobra 8, o servidor
+--      ainda aceita 6, e um minimo que so vale no navegador nao vale para quem usa curl.
 --   7. BLOCO 4 — a PROVA. Sem ela o portao e decoracao (EQUIPE.md 2.8).
 --
 -- ----------------------------------------------------------------------------
@@ -274,7 +278,25 @@ end $$;
 --    proposito: valor de memoria envelhece e vira falsa seguranca) e NAO o afrouxe.
 --    O dashboard tambem para 30 s depois de cinco erros, mas aquilo e UX do
 --    lado de quem digita — quem ataca nao passa pela pagina, e por isso nao conta como defesa.
---    O terceiro limite e o tamanho do dano: esta conta so faz INSERT em mesa_resposta.
+--    O terceiro limite e o tamanho do dano — E ELE NAO E SO INSERT, ao contrario do que esta
+--    linha dizia ate o P1 da 2a auditoria (22/08). Quem acertar o PIN escreve em mesa_resposta
+--    E PODE TROCAR O PIN E O E-MAIL da conta pelo PUT /auth/v1/user (a mesma porta que o dono
+--    usa no botao "trocar PIN"). Nao alcanca dado de terceiro, mas TRANCA O DONO PARA FORA e
+--    a tranca sobrevive a trocar o PIN de volta, porque o e-mail ja mudou.
+--
+-- 6. Authentication > Sign In / Providers > "Secure password change": LIGADO. E este item que
+--    fecha o paragrafo acima — com ele, trocar a senha passa a exigir sessao recente (ou a
+--    senha atual), e um PIN adivinhado deixa de virar sequestro de conta. NAO E OPCIONAL e nao
+--    e "para depois": e da MESMA sentada dos passos 4 e 6 da lista la de cima, pela mesma razao
+--    que eles — enquanto nao estiver ligado, a porta mudou de lugar e nao fechou.
+--
+-- 7. Authentication > Sign In / Providers > Email > "Minimum password length": 8.
+--    P3, decidido pelo dono em 22/08 depois da conta da seguranca: 6 digitos sao 10^6 e 8 sao
+--    10^8 — cem vezes mais caro de varrer, ao preco de dois toques a mais uma vez por aparelho.
+--    O PADRAO DO GOTRUE E 6, e o dashboard ja cobra 8 no cliente (PIN_MIN) tanto na entrada
+--    quanto na troca. Mas checagem de cliente nao alcanca curl: sem esta linha no painel, um
+--    PIN de 6 continua sendo ACEITO pelo servidor para quem nao passa pela pagina. As duas
+--    metades, como sempre — a do cliente para quem digita, a do painel para quem nao digita.
 
 
 -- ############################################################################

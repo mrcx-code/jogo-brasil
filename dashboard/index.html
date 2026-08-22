@@ -289,18 +289,18 @@
     <h3>Entrar na mesa</h3>
     <p class="sub">Ler é aberto; <b>escrever é seu</b>. Um PIN, e este aparelho fica entrado — não precisa repetir.</p>
     <label for="login-pin">seu PIN</label>
-    <input id="login-pin" class="cod" type="password" inputmode="numeric" autocomplete="current-password" maxlength="64" placeholder="••••••">
+    <input id="login-pin" class="cod" type="password" inputmode="numeric" autocomplete="current-password" maxlength="64" placeholder="••••••••">
     <div class="acoes"><button class="btn forte" id="login-entrar" type="button">Entrar</button></div>
     <p class="estado" id="login-estado"></p>
   </section>
 
   <section class="login" id="trocar" hidden aria-label="Trocar o PIN">
     <h3>Trocar o PIN</h3>
-    <p class="sub">O PIN novo vale na hora, em todos os aparelhos. Mínimo de seis caracteres.</p>
+    <p class="sub">O PIN novo vale na hora, em todos os aparelhos. Mínimo de oito dígitos.</p>
     <label for="trocar-novo">PIN novo</label>
-    <input id="trocar-novo" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••">
+    <input id="trocar-novo" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••••">
     <label for="trocar-conf">repita o PIN novo</label>
-    <input id="trocar-conf" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••">
+    <input id="trocar-conf" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••••">
     <div class="acoes">
       <button class="btn" id="trocar-cancelar" type="button">Cancelar</button>
       <button class="btn forte" id="trocar-ok" type="button">Trocar</button>
@@ -411,7 +411,11 @@
   // TAMBEM em localhost. O item cai na fila local, como em qualquer outra falha, e nao se
   // perde; o que NAO acontece e o login abrir sozinho, porque aqui nao ha portao para abrir.
   // O administrativo local e do plantao, pelo MCP, com a credencial que nunca sai do servidor.
-  var LOCAL=/^(localhost|127\.0\.0\.1|\[::1\]|::1)$/.test(location.hostname);
+  // 0.0.0.0 entrou pelo P5 da 2a auditoria (22/08): e o alias de loopback que mais aparece na
+  // pratica (servidor que faz bind em 0.0.0.0 e barra de endereco repetindo o que foi digitado).
+  // Ficar de fora errava na direcao segura — o portao APARECIA —, mas o custo era um formulario
+  // que o plantao nao tem como atravessar, porque o PIN e do dono e nao dele.
+  var LOCAL=/^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|::1)$/.test(location.hostname);
 
   // escH ESCAPA ASPAS TAMBÉM, e isso é o achado N2 da re-auditoria (21/08). O truque do
   // textContent escapa `<`, `>` e `&` — e SÓ. Aspas passam inteiras, porque dentro de um nó de
@@ -621,11 +625,26 @@
   function registrar(reg){
     if(reg && typeof reg.texto==="string" && reg.texto.length>LIMITE_TEXTO) reg.texto=reg.texto.slice(0,LIMITE_TEXTO);
     return enviar(reg).then(function(){ flush(); return "enviado"; })
-      .catch(function(){ var f=lerFila(); f.push(reg); return gravarFila(f)?"fila":"perdido"; });
+      .catch(function(err){
+        var st=(err && err.status)||0;
+        var f=lerFila(); f.push(reg);
+        if(!gravarFila(f)) return "perdido";
+        // P4 da 2a auditoria (22/08). Fora do localhost, "sem conexao — guardei e reenvio" e
+        // verdade: o 401 abre o login e o flush do login esvazia a fila. Em localhost NAO ha
+        // portao, entao a MESMA frase mente em duas pontas — nao foi conexao, e nao vai haver
+        // reenvio, porque nada nesta pagina consegue uma sessao aqui. A resposta fica guardada
+        // de verdade (por isso nao e "perdido"), mas quem esta lendo tem de saber que ela nao
+        // sai sozinha ate o auto-login local existir (PENDENTES 57).
+        return (LOCAL && (st===401 || st===403)) ? "fila-local-sem-sessao" : "fila";
+      });
   }
   // Uma frase por desfecho, e nenhuma delas mente.
   function dizer(res,msgOk,msgFila){
     if(res==="enviado"){ toast(msgOk); return; }
+    if(res==="fila-local-sem-sessao"){
+      toast("O banco passou a exigir sessão — e em localhost não há login. Guardei sua resposta neste aparelho; ela só sai quando o auto-login local entrar (PENDENTES 57).",true);
+      return;
+    }
     if(res==="fila"){ toast(msgFila,true); return; }
     toast("Não consegui enviar NEM guardar — a fila deste aparelho está cheia. Copie o texto antes de sair.",true);
   }
@@ -683,13 +702,28 @@
   //     quem for confiar nele confere la, que e onde ele e verdade;
   //   * o CADASTRO DESLIGADO (BLOCO 3, item 4 do ferramentas/fila-auth.sql) — nao ha como
   //     criar uma segunda conta e contornar a policy que prende a escrita a um uuid so;
-  //   * o TAMANHO DO DANO: esta conta nao e admin de nada. Com ela se faz INSERT em
-  //     public.mesa_resposta e mais nada — o SELECT ja e publico, UPDATE e DELETE nao tem
-  //     policy para papel nenhum, e a chave de serviço nunca sai do servidor. (O nome dela
-  //     nao se escreve aqui por extenso: o guarda de segredo do build varre dist/ por ele.)
+  //   * o TAMANHO DO DANO — e ele NAO e zero. A frase que estava aqui ("esta conta nao e admin
+  //     de nada: INSERT em mesa_resposta e mais nada") nasceu FALSA no mesmo commit que a
+  //     escreveu, e quem a derrubou foi o P1 da 2a auditoria (22/08): quem acertar o PIN abre
+  //     junto o PUT /auth/v1/user daqui de baixo, e com ele TROCA O PIN E O E-MAIL DA PROPRIA
+  //     CONTA. Nao alcanca dado de terceiro nenhum — mas TRANCA O DONO PARA FORA da mesa dele,
+  //     e a tranca sobrevive a trocar o PIN de volta, porque o e-mail ja nao e mais o mesmo.
+  //     O que corta isso e uma trava de painel ("Secure password change": exigir sessao recente
+  //     ou a senha atual), e ela esta na instrucao de fechamento, no ferramentas/fila-auth.sql.
+  //     Fora disso: o SELECT ja e publico, UPDATE e DELETE nao tem policy para papel nenhum, e
+  //     a chave de serviço nunca sai do servidor. (O nome dela nao se escreve aqui por extenso:
+  //     o guarda de segredo do build varre dist/ por ele.)
   // O contador abaixo e UX, NAO seguranca, e dizer isso e o ponto: ele mora no localStorage de
   // quem digita, quem ataca nao passa por aqui, e limpar o navegador o zera. Ele serve para
   // quem errou cinco vezes parar de martelar o proprio celular e ir buscar onde anotou o PIN.
+  // OITO DIGITOS, decidido pelo dono em 22/08 depois da conta da seguranca: 6 digitos sao
+  // 10^6 = um milhao de PINs, 8 sao 10^8 = cem milhoes — cem vezes mais caro de varrer, ao
+  // preco de dois toques a mais UMA vez por aparelho. O GoTrue aceita 6 por padrao, entao ESTE
+  // minimo e NOSSO: cobrado aqui na entrada, cobrado de novo na troca, e — para valer tambem
+  // do lado de la, onde o curl nao passa por este arquivo — setado no painel como
+  // password_min_length = 8 (BLOCO 3, item 7 do ferramentas/fila-auth.sql). Sem essa linha no
+  // painel, um PIN de 6 continua sendo aceito por quem nao usa esta pagina.
+  var PIN_MIN=8;
   var TENTA="mesa-brasil-pin-erros", ERROS_ATE_ESPERAR=5, ESPERA_MS=30000, relEspera=null;
   function lerTentativas(){
     try{ var t=JSON.parse(localStorage.getItem(TENTA)||"null");
@@ -723,7 +757,7 @@
   function entrar(){
     if(pintarEspera()) return;
     var pin=(cPin.value||"");
-    if(pin.length<6){ estadoLogin("o PIN tem no mínimo 6 caracteres","erro"); return; }
+    if(pin.length<PIN_MIN){ estadoLogin("o PIN tem no mínimo "+PIN_MIN+" dígitos","erro"); return; }
     bEntrar.disabled=true; estadoLogin("conferindo…");
     fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",
         headers:{apikey:SB_KEY,"Content-Type":"application/json"},
@@ -750,12 +784,13 @@
   // coisa a fazer depois de entrar — dai em diante o PIN so existe na cabeca do dono e no hash
   // do GoTrue, e nem o plantao o conhece.
   // O PUT /auth/v1/user vai com o Bearer DO USUARIO: o proprio GoTrue exige sessao valida,
-  // entao ninguem troca o PIN de fora. O minimo de 6 caracteres tambem e do GoTrue — a
-  // checagem daqui existe so para um dedo a menos nao virar mensagem de erro em ingles.
+  // entao ninguem troca o PIN de fora. O minimo de PIN_MIN e NOSSO e nao do GoTrue (ele aceita
+  // 6 por padrao) — por isso ele e cobrado aqui, na troca, e nao so na entrada: nao adianta
+  // exigir oito para entrar e deixar sair daqui um PIN de seis.
   function trocarPin(){
     if(!ses){ estadoTrocar("você precisa estar entrado","erro"); return; }
     var a=(cNovo.value||""), b=(cConf.value||"");
-    if(a.length<6){ estadoTrocar("o PIN novo tem no mínimo 6 caracteres","erro"); return; }
+    if(a.length<PIN_MIN){ estadoTrocar("o PIN novo tem no mínimo "+PIN_MIN+" dígitos","erro"); return; }
     if(a!==b){ estadoTrocar("os dois campos não batem","erro"); return; }
     bTrocarOk.disabled=true; estadoTrocar("trocando…");
     cabecalhoEscrita().then(function(hdr){

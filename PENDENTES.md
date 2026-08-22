@@ -1325,8 +1325,11 @@ pelo dono.
 simples mesmo... nao patinhas"* e *"localhost n precisa entrar ne"*). O OTP por e-mail saiu
 inteiro do `dashboard/index.html`; entrou um campo de PIN, que por baixo e a senha de uma conta
 sintetica (`dono@mesa.brasil`, `grant_type=password`), mais "trocar PIN" (PUT `/auth/v1/user`)
-e o gate de localhost. Medido em **18 cenas** (`node test/fila-auth.js`, exit 0) com **10
-defeitos vistos mordendo** (`node test/fila-auth-controle.js`, exit 0).
+e o gate de localhost. **O minimo do PIN e 8 digitos** (dono, 22/08, apos a conta da seguranca:
+10^6 -> 10^8) — cobrado no cliente na entrada e na troca, e o painel precisa da linha
+`password_min_length = 8` para valer tambem para quem nao passa pela pagina (BLOCO 3, item 7).
+Medido em **19 cenas** (`node test/fila-auth.js`, exit 0) com **13 defeitos vistos mordendo**
+(`node test/fila-auth-controle.js`, exit 0).
 
 **Mas a fila `mesa_resposta` continua aceitando INSERT
 anonimo** — a metade que falta e SQL, e SQL nao se aplica pelo REST anonimo. Esta escrito e
@@ -1336,7 +1339,7 @@ Enquanto nao for aplicado, o buraco e o de sempre: **qualquer pessoa com a chave
 escreve na fila que ACIONA agente**. A pagina ja funciona nos dois mundos, entao aplicar nao
 quebra nada e nao precisa de deploy junto.
 
-Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
+Cinco coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
 
 1. **`authenticated` nao e "o dono".** Com o cadastro aberto no Auth, qualquer um cria conta
    por e-mail e volta a escrever. Fechar o cadastro (BLOCO 3) **e** prender a policy ao uuid
@@ -1347,10 +1350,14 @@ Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
    sempre e o login devolve *"Email not confirmed"* sem nenhuma tela explicando por que.
    *(Substitui o item que pedia `{{ .Token }}` no template de Magic Link — sem OTP, nao ha
    template a configurar, e a lista de Redirect URLs deixou de ser usada pela pagina.)*
-3. **O PIN inicial e temporario e a troca e do dono.** Quem cria a conta define uma senha pelo
+3. **Uma senha adivinhada TROCA a propria conta.** O PUT `/auth/v1/user` que o dono usa para
+   trocar o PIN tambem troca o E-MAIL — quem acertar o PIN tranca o dono para fora, e a tranca
+   sobrevive a trocar o PIN de volta. O que corta e a trava de painel "Secure password change"
+   (BLOCO 3, item 6), da MESMA sentada dos outros. Achado P1 da 2a auditoria (22/08).
+4. **O PIN inicial e temporario e a troca e do dono.** Quem cria a conta define uma senha pelo
    MCP e a entrega por fora do repositorio; a primeira coisa depois de entrar e tocar "trocar
    PIN". Enquanto isso nao acontecer, o PIN e conhecido por duas pessoas.
-4. **A mesa local (`ferramentas/receber.html`) perde o botao "confirmar prioridades"** — ela
+5. **A mesa local (`ferramentas/receber.html`) perde o botao "confirmar prioridades"** — ela
    roda em localhost, sem sessao, e escreve na mesma tabela. A mensagem dela ja foi corrigida
    para dizer a verdade (401/403 = "a fila exige login"), mas o aviso em si passa a sair so
    pelo dashboard. Se isso incomodar, o conserto certo e o `servir.js` ganhar uma rota que
