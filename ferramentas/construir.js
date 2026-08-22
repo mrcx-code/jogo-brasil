@@ -459,6 +459,16 @@ if (fs.existsSync(p("dashboard"))) {
     "<a href=/dashboard/>O painel mudou para /dashboard</a>");
 }
 
+// O BACKLOG NA TELA (dono, 22/08). A fila oficial vive em `ferramentas/backlog.json`, que NÃO é
+// publicado — ferramentas/ não vai para dist/. O dashboard é servido de dist/ e lê a fila por
+// `fetch('/backlog.json')`, então o build copia o arquivo para a RAIZ do dist como JSON estático.
+// Passa pelo portão de segredo como todo byte publicado (copiarPublicado). Se um dia sumir, o
+// dashboard esconde a seção sozinho — o fetch cai no 404 e a vista some sem erro.
+if (fs.existsSync(p("ferramentas", "backlog.json"))) {
+  copiarPublicado(p("ferramentas", "backlog.json"), p("dist", "backlog.json"));
+  console.log("  ferramentas/backlog.json -> dist/backlog.json (a fila, leitura no dashboard)");
+}
+
 // AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
 // já existem (A HISTÓRIA, e depois o glossário e DE ONDE VEM) ganham endereço próprio. Ao
 // contrário da `mesa` acima, estas são PÚBLICAS e indexáveis — o dono QUER que as pessoas as

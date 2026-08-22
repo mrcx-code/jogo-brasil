@@ -106,8 +106,8 @@ const DEFEITOS = [
     id: 'squads · o agrupamento por squad some (card solto na grade)',
     cena: '[16]',
     pares: [[
-      `    var alvo=grupoDe(item.squad);
-    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de squad`,
+      `    var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
+    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo`,
       '    g.appendChild(card);',
     ]],
   },
