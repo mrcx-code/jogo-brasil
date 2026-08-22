@@ -48,3 +48,61 @@ território esteja desocupado, entregar commitado em worktree, integrar pelo fun
 portões verdes por exit code, e pregar o placar. As mesmas leis: §2 é do dono, TERRITORIO.md
 intocável, crase em commit nunca, exit REAL (não o do pipe), sign-off do dono para qualquer
 publicação externa.
+
+## O LOCK ENTRE MÁQUINAS — o `em-curso` deixou de ser honra (23/08)
+
+Nasceu do **PR #4**, escrito pela sessão do Mac na primeira vez que duas máquinas trabalharam
+neste repositório ao mesmo tempo. O diagnóstico dela, medido e não suposto: **`em-curso` só
+existia dentro do `backlog.json`** — nenhuma ferramenta lia, validava ou impunha. O combinado
+era honra, e ninguém tinha escrito isso, que é a pior forma de uma regra existir.
+
+Três peças, e as três já estão de pé:
+
+### 1. Quem sou eu — `.claude/maquina`
+
+Uma linha, um nome, **fora do git** (está no `.gitignore`). `windows-plantao` na máquina do
+plantão; a outra escolhe o próprio. **Sem esse arquivo, nada trava** — degradar para o
+comportamento de sempre é melhor que travar a máquina errada.
+
+### 2. Pegar um item é escrever isso, e empurrar
+
+Ao pegar, o item ganha três campos e o commit vai **na hora**, não no fim:
+
+```jsonc
+{ "estado": "em-curso", "maquina": "windows-plantao", "desde": "2026-08-23T14:02:00Z" }
+```
+
+E o ramo marcador vai junto: `git push origin HEAD:refs/heads/voo/<id-do-item>`. Isso dá o que
+o JSON sozinho não dá: **o git recusa dois pushes criando a mesma ref**, então quem chegar
+depois descobre na hora, sem conflito de merge. `git ls-remote --heads origin 'voo/*'` é a
+lista do que está em voo, legível das duas máquinas. Ao terminar, o ramo marcador é apagado.
+
+### 3. O guarda recusa território de outra máquina
+
+`.claude/hooks/lock-maquina.js` (a lógica) + o bloco 2 do `guarda.js` (a recusa). Ele nega a
+escrita — exit 2, como as outras travas — quando **as três** são verdade: o arquivo cai no
+`territorio` de um item · o item está `em-curso` · a `maquina` do item não é a minha.
+
+**Não trava**, de propósito: arquivo que ainda não existe (o git funde sozinho), os diários
+(`NOTES`, `PENDENTES`, `EQUIPE`, `AGENTES`, `DIRECAO`, `TERRITORIO` — entram por `merge=union`),
+item `do-dono`, e **nada** quando o dado está ruim (sem `.claude/maquina`, JSON quebrado,
+carimbo ilegível).
+
+**A validade é 2 horas**, e o número é medido: as rodadas de agente de 21–22/08 duraram de 2 a
+67 minutos, e a mais longa (o passe de pixel) levou ~4.000 s. Duas horas cobrem a maior com 45
+minutos de folga. A proposta chutava 12 h; lock esquecido de 12 h tira meio dia da outra
+máquina, e "máquina travada por engano é pior que colisão" é a frase dela mesma.
+
+**O que o lock NÃO cobre, e precisa estar escrito:** agentes da MESMA máquina não se separam
+entre si (o `maquina` é igual). A coordenação intra-máquina continua sendo do despachante, por
+território disjunto no despacho — o guarda não substitui isso.
+
+O portão dele é `test/guarda-lock.js`: 7 cenas, e um controle que apaga um conserto por vez e
+exige que o teste morda. Na primeira versão **duas cenas eram decoração** (o item de teste nem
+tinha o território do alvo, então a exceção passava por acaso) — o controle pegou, e as cenas
+foram refeitas. É a lição 2.8 do `EQUIPE.md` acontecendo dentro do próprio instrumento.
+
+### O que continua sendo de uma máquina só
+
+**O despachante** (a fila do dashboard tem um consumidor) e **o funil**: um `integrar.js` por
+vez. A outra máquina entrega commitada no ramo e avisa; quem integra é quem está com o funil.
