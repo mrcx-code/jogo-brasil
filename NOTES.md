@@ -9394,3 +9394,36 @@ voo + item livre = despacha; max 8 em camadas. Em campo: pm repovoando a fila co
 B3: a voz alternativa fechou vinculo e fala-do-rio PLENOS em Bepa (p.234/241/247) mas
 autodeclaracao individual nao existe em fonte publica para ninguem; categoria nova achada
 (autoinclusao discursiva em 1a pessoa — a-negrada, nossos-negros) aguarda a regua do dono.
+
+## 22/08 (tarde, cont. 3) — Historiadora · B3 fecha, e a régua nova de §2 fica registrada
+
+**PRECEDENTE DE §2, decidido pelo dono em 22/08 (duas decisões, em sequência):**
+
+1. **A narradora do pino do Saracura é uma voz de quem VIVE o lugar.**
+2. **A régua fina: AUTOINCLUSÃO DISCURSIVA em 1ª pessoa VALE como lugar de fala.** Decidida
+   sobre Bepa/Júlia Bernard Ribeiro — "a negrada" (p. 241), "nossos negros" (Solange, p. 264,
+   a fala-irmã fichada junto) — nascida e criada no Bixiga, integrante do Vai-Vai. É a
+   categoria 2 que a pesquisadora registrou na ficha B3-d: a pessoa se inclui, em texto e em
+   primeira pessoa, no grupo racializado de que fala — nem autodeclaração individual estrita
+   ("eu sou negra", que não existe em fonte pública para nenhuma das três vozes checadas),
+   nem inferência por foto ou aparência, que segue proibida.
+
+**Por que isto é precedente e não caso isolado:** a condição de entrada de 19/08 (história
+negra narrada com lugar de fala) esbarrava num teto prático — três checagens honestas
+(Flávia Santos Santana, Bepa, Solange) não localizaram autodeclaração textual estrita em
+fonte pública para ninguém. A régua do dono resolve a CATEGORIA: quando a autodeclaração
+estrita não existir, a autoinclusão discursiva com citação e página FECHA a condição. A
+ordem de checagem não muda: primeiro busca-se a autodeclaração (ficha 6c), depois a
+autoinclusão com página (ficha 6d) — a régua premia leitura de texto, nunca leitura de
+imagem. Vale para os próximos pinos.
+
+**O que foi feito com a régua:** o texto candidato do pino b3-saracura
+(`territorio/PINOS-PROPOSTA.md`) foi reescrito, reancorado nas três citações de Bepa que a
+pesquisadora fichou — a enchente ("quando chovia, o Rio enchia [...] não tinha aquela rua,
+era o rio", p. 234), o apelido da rua ("é a rua do Riozinho, do Rio Saracura", p. 247) e o
+vínculo ("Aquilo ali é nosso chão. [...] Eu saí do Bixiga mas o Bixiga não sai de mim",
+p. 241). **Flávia Santos Santana figura como a pesquisadora que registrou** (Santana,
+Flávia Santos. *Bixiga Quilombo Presente*. Dissertação, FAU-USP, 2024), não como narradora.
+A ficha B3 (`fontes/fichas/lote1-territorio.md`) ganhou a seção 6(e) e fecha **CONFERIDO
+pleno**; a ressalva da arqueologia (sustenta a ocupação, não o traçado do rio) continua na
+linha de fonte do pino. Nada além do B3 foi tocado.

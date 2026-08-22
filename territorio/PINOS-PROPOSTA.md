@@ -143,17 +143,27 @@ cidades brasileiras foram construídas sobre rios que continuam correndo no escu
 
 ### B3. Saracura, o rio do Bexiga — São Paulo (SP)
 - **Onde:** aprox. -23.556, -46.647.
-- **Texto candidato:** "Sob a avenida Nove de Julho corre o Saracura, o rio enterrado do
-  Bexiga — bairro que a comunidade negra de São Paulo fez seu depois da abolição. A escola de
-  samba Vai-Vai, nascida ali, carrega o apelido de Saracura até hoje. O rio sumiu do mapa;
-  o nome, não."
-- **Fonte:** Rios e Ruas (traçado); escavações arqueológicas do sítio Saracura/Vai-Vai
-  (obras do Metrô, relatórios de arqueologia licenciada pelo IPHAN) [conferir o nome oficial
-  do sítio e o que os relatórios afirmam antes de qualquer frase sobre o achado]. Para o
-  Bexiga negro, buscar autoria negra paulistana como narradora — é exigência da prioridade de
-  fonte, e eu ainda não a li: **o pino não entra sem isso.**
-- **Risco §2:** CUIDADO — história negra narrada por autoria negra é condição (§2, decisão de
-  19/08), e a fonte com lugar de fala ainda não está lida.
+- **Texto candidato:** "Sob a avenida Nove de Julho corre, enterrado, o Saracura — o rio do
+  Bexiga, bairro que a comunidade negra de São Paulo fez seu. Bepa, Júlia Bernard Ribeiro,
+  nascida e criada ali, do Vai-Vai, viu o rio vivo: 'quando chovia, o Rio enchia [...] não
+  tinha aquela rua, era o rio'. Ela ainda ensina o endereço pelo nome que o mapa apagou:
+  'é a rua do Riozinho, do Rio Saracura'. E resume o que a avenida não enterrou: 'Aquilo ali
+  é nosso chão. [...] Eu saí do Bixiga mas o Bixiga não sai de mim'."
+- **Fonte:** Bepa (Júlia Bernard Ribeiro), entrevista em Santana, Flávia Santos. *Bixiga
+  Quilombo Presente*. Dissertação (Mestrado em Planejamento Urbano e Regional), FAU-USP, 2024
+  — a enchente do rio: p. 234; "nosso chão"/"o Bixiga não sai de mim": p. 241; a rua do
+  Riozinho: p. 247. **Flávia Santos Santana entra como a pesquisadora que registrou** as
+  entrevistas junto ao Mobiliza-Saracura/Vai-Vai — fonte, não narradora. Traçado do rio sob a
+  Nove de Julho: Rios e Ruas. Ocupação negra do vale: relatórios de arqueologia licenciada do
+  sítio Saracura/Vai-Vai (Metrô Linha 6, IPHAN) — a arqueologia sustenta a ocupação, não o
+  traçado do rio (ficha B3-a).
+- **Risco §2:** RESOLVIDO — decisões do dono em 22/08, em sequência: (1) a narradora do pino
+  é uma voz de quem VIVE o lugar; (2) régua fina — **autoinclusão discursiva em 1ª pessoa
+  VALE como lugar de fala**, decidida sobre as falas fichadas em B3-d: "a negrada" (Bepa,
+  p. 241) e "nossos negros" (Solange, p. 264), Bepa nascida e criada no Bixiga e integrante
+  do Vai-Vai. Com a régua, Bepa fecha as três condições da ficha (vínculo + fala sobre o rio
+  + lugar de fala) e o pino entra ancorado na voz dela. Ficha completa: fontes/fichas/
+  lote1-territorio.md, seções 6, 6(c), 6(d) e 6(e).
 
 ### B4. Rio Carioca, o rio que virou gentílico — Rio de Janeiro (RJ)
 - **Onde:** aprox. -22.94, -43.17 (deságua no Flamengo).
