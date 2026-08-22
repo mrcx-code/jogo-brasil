@@ -338,3 +338,4 @@ paralelo ao fim da entrega, não depois do pouso.
 **Pré-voo do funil**: antes de integrar, `node ferramentas/integrar.js <ramo> --so-gatilhos`
 lista as auditorias exigidas sem mergear — ou despache o **pre-integrador**, que devolve o
 comando completo com flags provadas. O merge continua só do plantão.
+| 22/08 growth decisoes | 1 | 11 | 11 | 0 | 0 | aplicadas as 3 decisoes do dono: armadilha chegada-dos-povos-originarios corrigida em 7 ocorrencias (5 pecas) — os povos nao chegaram, ESTAVAM; quem-fez do press-kit e do rascunho 01 resolvidos sem nomear o dono (o dominio assina); ordem A->B->C marcada como tomada com o que cada rodada espera da anterior. Reconferido por curl: 181/47/13 batem; fontes 60->61 atualizado em 4 pecas. Estreia do pre-voo: --so-gatilhos disse nenhuma auditoria exigida ANTES do merge — zero tentativa as cegas. Nada publicado; sign-off segue lei |
