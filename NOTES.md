@@ -9182,3 +9182,14 @@ e respiro — recusa transitoria sobrevive, servidor MORTO recusa as tres e cont
 Os 6 reloads trocados; encaixe verde por exit real apos o conserto.
 
 Isso explica as 3 recusas intermitentes (growth 21/08, link 22/08, vigia 22/08) com uma causa so.
+
+## 22/08 — o e-mail do codigo chegava como "patinhas"
+
+Dono reportou: o OTP do login da mesa chega com o nome do PROJETO Supabase e template padrao em
+ingles. O knob vive so no painel dele (Authentication -> Email Templates -> Magic Link) — o MCP
+nao tem ferramenta de auth-config e o caminho por Management API exigiria o access token dele
+(credencial: nunca). Entregue pronto-para-colar: assunto "Seu codigo de entrada — BRASIL" +
+corpo em portugues com {{ .Token }} em destaque — o Token no corpo e OBRIGATORIO porque o
+dashboard pede codigo de 6 digitos e o template padrao manda link. Remetente so muda com SMTP
+proprio; nao vale agora (o SMTP padrao so entrega para o time do projeto = so ele, que e o que a
+mesa precisa). Aprendido da doc oficial, nao de memoria.
