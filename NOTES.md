@@ -8462,3 +8462,123 @@ pinos-joao-candido, pinos-pare-visiveis.
 
 **Falta pousar:** dev-jogo do pixel (condicao de FPS do controle + veu ambar do ACEIRO). Depois:
 fase 1 avenida A, e o SQL da fila quando o dono logar.
+
+---
+
+## 21/08 (noite, dev-jogo) — a condicao da ARTE caiu por medicao, e os dois instrumentos que a criaram foram consertados
+
+**O bloqueio era este:** o capitulo-CONTROLE (litoral/PINDORAMA, `GRAO_PINT` 0, que nao recebe
+passe nenhum) teria caido de **42 para 25/26 FPS** depois do PIXEL VENCE. Controle que cai 40% quer
+dizer que a maquinaria custa onde promete inercia — e a arte estava certa em segurar o merge com
+esse numero na mao. O numero e que nao era um numero.
+
+### O que estava errado, e sao duas coisas
+
+**1. O "antes" da segunda rodada foi medido no build COM o passe.** `node test/medir-pixel.js antes`
+grava um arquivo chamado ANTES com o que estiver ligado no momento. O `test/PIXEL-antes.json` que
+estava na arvore do worktree mostrava o CAIS com **56 cores distintas** — o antes de verdade
+(commitado em 083cda2) tem **1.281**. Era um "depois" com nome de "antes". Entao a leitura real
+nunca foi "42 → 25 em duas rodadas": foi **uma** rodada de antes (42) contra **duas** de depois
+(25 e 26).
+
+**2. Duas execucoes nao se comparam.** Medido nesta maquina, o MESMO capitulo no MESMO build deu
+**30 FPS numa carga e 18 noutra**, com meia hora de diferenca. A deriva entre execucoes e MAIOR que
+o efeito procurado. Serie completa do controle nesta sessao, todas do mesmo `litoral`:
+27/30/29 (sem pre-carga) · 18/19/19 · 17/18/20 · 13-17 · 21/25/22 · 24/25/26 · 30/30/31 · 28/29/30 ·
+26/22/24 · 30/30/32. Uma leitura de FPS headless e uma amostra, nunca um fato.
+
+### O A/B que decide: mesma carga, bracos alternados
+
+`GRAO_PINT` e um array `const` de escopo de modulo — e `const` prende o vinculo, nao o conteudo.
+Esvaziado, `construirGrao()` devolve cedo e nenhum canvas e alocado: e bit a bit o motor de antes,
+nos mesmos bytes, na mesma carga. Alternando passe/sem/passe/sem dentro de UMA carga, a deriva
+cancela porque bate igual nos dois bracos.
+
+| alvo | passe LIGADO | passe DESLIGADO |
+|---|---|---|
+| litoral (CONTROLE) — 5 rodadas | **24,2 FPS** | **25,6 FPS** |
+| O ACEIRO (recebe o passe) — 5 rodadas | **26,6 FPS** | **24,4 FPS** |
+| litoral, sessao anterior — 4 rodadas | 16,0 FPS | 15,3 FPS |
+| O ACEIRO, sessao anterior — 4 rodadas | 17,8 FPS | 16,0 FPS |
+
+O controle **cruza o zero** entre as duas sessoes (−1,4 e +0,7): nao ha efeito a ler. E o custo
+DIRETO de `rolarFundo()`, cronometrado em 60 chamadas seguidas, fica em **0,04–0,08 ms** nos dois
+bracos — um sexagesimo de segundo tem 16,7 ms.
+
+**E o capitulo PINTADO fica MAIS RAPIDO com o passe** (26,6 contra 24,4; e 35/36/36 contra
+23/23/24 nas medianas do `medir-pixel`). Faz sentido fisico e e o contrario do que se temia:
+desenhar um canvas de 304x405 AMPLIADO custa menos que desenhar a pintura inteira REDUZIDA a cada
+quadro. O passe nao e um imposto — nesta parte ele paga.
+
+**A divergencia com o smoke (61 FPS) tambem tem causa, e nao e "escolher o numero bonito":** o
+smoke abre o jogo e mede no capitulo 1 com a arte do capitulo 1 e mais nada. O `medir-pixel`
+decodifica os **13 pacotes** antes de medir qualquer coisa, de proposito (senao mediria o recuo
+achando que mede a pintura do capitulo 9). Sao duas maquinas diferentes sob carga diferente; os
+dois numeros estao certos e nenhum dos dois se compara com o outro.
+
+### Os dois instrumentos consertados — porque o defeito era deles
+
+**`test/medir-pixel.js`:**
+1. **Recusa gravar um "antes" com o ticket ligado** (exit 1, provado reprovando: o comando que a
+   rodada anterior usou hoje sai com exit 1 e diz o que fazer). O jeito certo de produzir um antes
+   deixa de ser trocar de build: `PIXEL_SEM_TICKET=1` desliga passe, hora presa e veu em tempo de
+   execucao, no mesmo binario.
+2. **FPS vira 3 rodadas com mediana**, com min/max e o **espalhamento do proprio instrumento**
+   impresso ao lado. Se o espalhamento e da ordem da diferenca, nao ha diferenca a ler — foi essa
+   conta que faltou.
+3. **A rolagem presa em zero antes de medir.** Defeito real e caro: a pintura rola com `worldX`, e
+   a janela medida caia sobre um PEDACO DIFERENTE do quadro a cada execucao. Medido: O QUE SEGUROU
+   deu **132,1 numa execucao e 119,5 noutra**, mesmo filtro CSS, mesmo codigo — 12 unidades de
+   ruido numa regua cuja faixa util tem 8. Com a rolagem presa, os capitulos que nao mudaram
+   repetem com 0,3 de diferenca entre execucoes (litoral 73,4 → 73,6; hoje 75,1 → 75,1).
+4. **`lumaFiltrada` — o luma como o olho o recebe.** `getImageData` devolve o canvas ANTES do
+   `filter` CSS: a regua com que a arte separa a luz dos capitulos estava cega justamente para a
+   linha que da luz ao capitulo. Agora um canvas de trabalho com `ctx.filter` igual ao computado
+   reproduz a composicao, e o numero e o da tela.
+
+**`test/medir-fps-ab.js` (novo):** o A/B alternado dentro de uma carga, promovido de sonda
+descartavel a instrumento — foi ele que derrubou a condicao, e sem ele a proxima rodada
+redescobriria o mesmo buraco.
+
+### O VEU DE FUMACA DO ACEIRO (pedido da arte, mesma volta)
+
+O ACEIRO e o capitulo das queimadas, e ceu ambarizado ali e CONTEUDO: fumaca filtra o azul, e a
+mesma fisica do pos-do-sol. So luz, nenhuma representacao nova, §2 intocado.
+
+`VEU_AMBAR` guarda **dois** numeros por capitulo, e o segundo nao e enfeite: **`sepia()` CLAREIA.**
+A matriz de sepia do CSS, composta com os pesos de luminancia, soma **1,217** para cinza — sepia
+cheia sobe o luma 22%, e a dose de 0,10 sobe ~2,2%. Medido no mesmo pixel e na mesma rolagem: o
+ACEIRO na tela vai de **128,0 para 130,9** so de por o sepia — para CIMA, contra A PRACA (131,9),
+que e exatamente de quem a arte pediu para afasta-lo, e para FORA da faixa 118–126 que ela pediu.
+Os dois pedidos dela so fecham se o veu devolver pelo brilho o que tomou pelo sepia. Entao
+`aceiro: [0.10, 0.956]` — sepia somada e multiplicador de brilho. **`HORA_FIXA` nao e tocada**: a
+hora do ACEIRO continua a TARDE de 0,27 e a tinta dourada de `luzDaPintura()` continua a mesma.
+
+**Luma na TELA dos quatro que dividem `arte:[10]`** (`lumaFiltrada`, rolagem presa, mesma carga):
+
+| capitulo | sem veu | com veu | filtro |
+|---|---|---|---|
+| O QUE NAO PODIA SER DITO | 70,2 | 70,2 | brightness 0,635 |
+| O QUE SEGUROU | 117,8 | 117,8 | brightness 0,894 |
+| **O ACEIRO** | **128,0** | **124,9** | **sepia 0,100 · brightness 0,918** |
+| A PRACA | 131,9 | 131,9 | brightness 1,014 |
+
+Dentro da faixa 118–126 ✔ · **5,3% abaixo de A PRACA** (era 3,0% — o par mais apertado do lote na
+regua honesta, e nao o par SEGUROU×ACEIRO que a comparacao por `brightness` sugeria) · **5,7%
+acima de O QUE SEGUROU** ✔. Os outros tres nao se moveram um decimo: o veu e cirurgico.
+
+A chave de cache de `lavarFundo()` virou **texto** e carrega o veu. Empacotar mais uma entrada em
+casas decimais de um inteiro e como se perde uma entrada em silencio, e chave que ignora uma
+entrada devolve o filtro do capitulo anterior — o defeito mais caro que uma cache de filtro tem,
+porque nao da erro: so pinta errado.
+
+**Portoes:** `npm test` exit 0 (FPS 61, regua larga verde em 768/1024/1366) · `node test/encaixe.js`
+exit 0 · `npm run tipos` exit 0. Prints: `test/PIXEL-antes-10-aceiro.png` (motor de antes do
+ticket), `test/PIXEL-semveu-10-aceiro.png` (passe + hora presa, SEM veu) e
+`test/PIXEL-depois-10-aceiro.png` (com o veu).
+
+**Duvida que fica:** a regua da arte ("luma 118–126", "A PRACA 131") nasceu do campo `luma`, que e
+o canvas CRU e nao ve o filtro CSS. Os numeros dela e os do `lumaFiltrada` sao parecidos por
+coincidencia de escala, nao por serem a mesma coisa — no ACEIRO o cru da **134,3** e a tela da
+**124,9**. Vale a arte reancorar a regua no campo novo antes da proxima dose, senao a proxima
+conversa recomeca com duas reguas se chamando pelo mesmo nome.

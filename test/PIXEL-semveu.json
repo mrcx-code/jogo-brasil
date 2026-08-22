@@ -1,0 +1,264 @@
+{
+ "fase": "semveu",
+ "ticket": {
+  "ativo": true,
+  "grao": [
+   0,
+   0,
+   0,
+   0,
+   8,
+   0,
+   0,
+   8,
+   8,
+   8,
+   8,
+   8,
+   8
+  ],
+  "horaFixa": {
+   "praca": 0.02,
+   "aceiro": 0.27,
+   "segurou": 0.5,
+   "naodito": 0.68
+  },
+  "veu": {}
+ },
+ "linhas": [
+  {
+   "sat": 0.5403943556418893,
+   "luma": 73.72776981342753,
+   "lumaFiltrada": 50.1586158330181,
+   "satFiltrada": 0.5413800355633359,
+   "cores": 1028,
+   "coresExatas": 12943,
+   "grao": 2.874466651695486,
+   "gradiente": 3.724166981132099,
+   "filtro": "saturate(0.929) sepia(0) brightness(0.713) contrast(1.02)",
+   "pintura": 0,
+   "cena": 0,
+   "lugar": "litoral",
+   "nome": "PINDORAMA"
+  },
+  {
+   "sat": 0.4792864397270968,
+   "luma": 64.05119182657069,
+   "lumaFiltrada": 43.11196942716667,
+   "satFiltrada": 0.48432059691481816,
+   "cores": 986,
+   "coresExatas": 14408,
+   "grao": 2.7941497489631084,
+   "gradiente": 3.5478451257861954,
+   "filtro": "saturate(0.929) sepia(0) brightness(0.713) contrast(1.02)",
+   "pintura": 2,
+   "cena": 2,
+   "lugar": "palmares",
+   "nome": "PALMARES"
+  },
+  {
+   "sat": 0.38203413779622963,
+   "luma": 86.95149847619152,
+   "lumaFiltrada": 59.74617842271691,
+   "satFiltrada": 0.38051991992334877,
+   "cores": 92,
+   "coresExatas": 231,
+   "grao": 6.41925777331996,
+   "gradiente": 2.5391807389937813,
+   "filtro": "saturate(0.929) sepia(0) brightness(0.713) contrast(1.02)",
+   "pintura": 12,
+   "cena": 4,
+   "lugar": "cais",
+   "nome": "O CAIS QUE VOLTOU À LUZ"
+  },
+  {
+   "sat": 0.18568610755037265,
+   "luma": 85.73797717006144,
+   "lumaFiltrada": 58.860046253451635,
+   "satFiltrada": 0.18672182546027297,
+   "cores": 78,
+   "coresExatas": 183,
+   "grao": 5.648720211827008,
+   "gradiente": 3.157486949685387,
+   "filtro": "saturate(0.929) sepia(0) brightness(0.713) contrast(1.02)",
+   "pintura": 4,
+   "cena": 5,
+   "lugar": "salvador",
+   "nome": "SALVADOR"
+  },
+  {
+   "sat": 0.42124310382999564,
+   "luma": 91.31559571390599,
+   "lumaFiltrada": 63.0277961693025,
+   "satFiltrada": 0.4148580908332217,
+   "cores": 83,
+   "coresExatas": 225,
+   "grao": 5.638766519823789,
+   "gradiente": 2.9152657232704873,
+   "filtro": "saturate(0.929) sepia(0) brightness(0.713) contrast(1.02)",
+   "pintura": 7,
+   "cena": 6,
+   "lugar": "jabaquara",
+   "nome": "JABAQUARA"
+  },
+  {
+   "sat": 0.23068862756110176,
+   "luma": 117.68498154636131,
+   "lumaFiltrada": 83.86273362388071,
+   "satFiltrada": 0.2273714752622711,
+   "cores": 60,
+   "coresExatas": 200,
+   "grao": 5.688888888888889,
+   "gradiente": 4.49025455974842,
+   "filtro": "saturate(0.936) sepia(0) brightness(0.728) contrast(1.02)",
+   "pintura": 8,
+   "cena": 7,
+   "lugar": "pequenaafrica",
+   "nome": "A PEQUENA ÁFRICA"
+  },
+  {
+   "sat": 0.2549581487151144,
+   "luma": 102.74621730532681,
+   "lumaFiltrada": 72.7871304505208,
+   "satFiltrada": 0.2526126203049338,
+   "cores": 24,
+   "coresExatas": 78,
+   "grao": 8.625336927223719,
+   "gradiente": 1.4057639937106592,
+   "filtro": "saturate(0.936) sepia(0) brightness(0.728) contrast(1.02)",
+   "pintura": 9,
+   "cena": 8,
+   "lugar": "portas",
+   "nome": "AS PORTAS"
+  },
+  {
+   "sat": 0.2293371218776755,
+   "luma": 113.7374751058921,
+   "lumaFiltrada": 70.16458201777996,
+   "satFiltrada": 0.21704837572849128,
+   "cores": 64,
+   "coresExatas": 206,
+   "grao": 5.942432683379758,
+   "gradiente": 2.6536359276729398,
+   "filtro": "saturate(0.889) sepia(0) brightness(0.635) contrast(1.02)",
+   "pintura": 10,
+   "cena": 9,
+   "lugar": "naodito",
+   "nome": "O QUE NÃO PODIA SER DITO"
+  },
+  {
+   "sat": 0.23906477498649242,
+   "luma": 130.85286166478943,
+   "lumaFiltrada": 131.9096834369817,
+   "satFiltrada": 0.2571614225605167,
+   "cores": 48,
+   "coresExatas": 109,
+   "grao": 5.942432683379758,
+   "gradiente": 3.751972327043546,
+   "filtro": "saturate(1.06) sepia(0) brightness(1.014) contrast(1.02)",
+   "pintura": 10,
+   "cena": 10,
+   "lugar": "praca",
+   "nome": "A PRAÇA"
+  },
+  {
+   "sat": 0.22242056841702934,
+   "luma": 133.0659874111907,
+   "lumaFiltrada": 117.7967456369234,
+   "satFiltrada": 0.22458598993486484,
+   "cores": 44,
+   "coresExatas": 159,
+   "grao": 5.942432683379758,
+   "gradiente": 3.3183467767296473,
+   "filtro": "saturate(0.974) sepia(0) brightness(0.894) contrast(1.02)",
+   "pintura": 10,
+   "cena": 11,
+   "lugar": "segurou",
+   "nome": "O QUE SEGUROU"
+  },
+  {
+   "sat": 0.29047670649379725,
+   "luma": 134.3185839224647,
+   "lumaFiltrada": 128.03025779165793,
+   "satFiltrada": 0.3084905474646029,
+   "cores": 40,
+   "coresExatas": 214,
+   "grao": 5.942432683379758,
+   "gradiente": 3.2154151729558116,
+   "filtro": "saturate(1.04) sepia(0) brightness(0.961) contrast(1.02)",
+   "pintura": 10,
+   "cena": 12,
+   "lugar": "aceiro",
+   "nome": "O ACEIRO"
+  },
+  {
+   "sat": 0.35322286202935915,
+   "luma": 83.8345161413563,
+   "lumaFiltrada": 59.81150386253247,
+   "satFiltrada": 0.3589164793014546,
+   "cores": 50,
+   "coresExatas": 182,
+   "grao": 6.680584551148225,
+   "gradiente": 2.1542091981132154,
+   "filtro": "saturate(0.941) sepia(0) brightness(0.74) contrast(1.02)",
+   "pintura": 11,
+   "cena": 13,
+   "lugar": "temfonte",
+   "nome": "O QUE TEM FONTE"
+  },
+  {
+   "sat": 0.5337652897898436,
+   "luma": 75.35865781640163,
+   "lumaFiltrada": 53.49842476833261,
+   "satFiltrada": 0.5404373836030507,
+   "cores": 1620,
+   "coresExatas": 16025,
+   "grao": 2.8887384337621302,
+   "gradiente": 3.6865277515723403,
+   "filtro": "saturate(0.941) sepia(0) brightness(0.74) contrast(1.02)",
+   "pintura": 5,
+   "cena": 14,
+   "lugar": "hoje",
+   "nome": "AINDA AQUI"
+  }
+ ],
+ "fps": [
+  {
+   "lugar": "litoral",
+   "fps": 31,
+   "rodadas": [
+    32,
+    30,
+    31
+   ]
+  },
+  {
+   "lugar": "aceiro",
+   "fps": 37,
+   "rodadas": [
+    37,
+    34,
+    37
+   ]
+  },
+  {
+   "lugar": "temfonte",
+   "fps": 36,
+   "rodadas": [
+    38,
+    33,
+    36
+   ]
+  },
+  {
+   "lugar": "cais",
+   "fps": 36,
+   "rodadas": [
+    37,
+    36,
+    35
+   ]
+  }
+ ],
+ "erros": []
+}

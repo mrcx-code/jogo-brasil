@@ -111,7 +111,13 @@ interface Window { setParalaxe?: (v: number) => number; setFundo?: (i: number) =
   setHora?: (f: number) => number;
   setKick?: (v: any) => boolean; kickInfo?: () => number[]; kickPose?: (px: number) => number;
   setRepeticao?: (cena: number, espelhar?: boolean, fracao?: number, costurar?: boolean,
-    espelhaChao?: boolean) => any; }
+    espelhaChao?: boolean) => any;
+  // O passe de pixel (21/08): a PEÇA como ela chega ao aparelho — a imagem crua nos capítulos
+  // de pixel art, o canvas quantizado nos de pintura — e a geometria em que ela é desenhada.
+  // Sem estes dois, um instrumento teria de recalcular a conta de cover-fit por fora, e conta
+  // duplicada é conta que diverge (é o modo de falha que o `dominio.js` existe para evitar).
+  pecaExibida?: (idx: number, qual: string) => any;
+  geoFundo?: () => any; }
 
 
 // ============================================================
@@ -4815,6 +4821,105 @@ const HORA_PASSOS = 960;                    // finer than the eye can catch betw
 function acendeu(semente) { return escuridao() > 0.30 + hash01(semente * 7.13 + 2.9) * 0.20; }                    // finer than the eye can catch between bakes
 function horaKey() { return Math.round((relogio / DIA_SEG) % 1 * HORA_PASSOS); }
 
+// ===== A HORA FIXA DE UM CAPÍTULO — só para a PINTURA (21/08) =====
+//
+// O ticket: quatro capítulos dividem a MESMA pintura, pixel a pixel (`arte: [10]` em O QUE NÃO
+// PODIA SER DITO, A PRAÇA, O QUE SEGUROU e O ACEIRO). Para quem joga do começo ao fim, é a
+// mesma rua quatro vezes seguidas com quatro nomes diferentes — foi medido na auditoria de
+// coerência (DIRECAO.md, 21/08) e o próprio mosaico dos 13 mostra.
+//
+// A correção mais barata que existe é a que não pinta nada: o motor já tem um dia de 30 min
+// (`HORAS`, `luzDoDia`) e ele já alcança o #fundoHD por dois caminhos — o filtro CSS de
+// `lavarFundo()` e o passe de tinta de `luzDaPintura()`. O que faltava era poder PRENDER a
+// hora de um capítulo. Uma hora fixa e diferente por capítulo dá a cada um uma luz própria com
+// zero imagem nova.
+//
+// A CHAVE É O `lugar`, NÃO O ÍNDICE. Capítulo inserido no meio não move a luz de ninguém —
+// é a mesma cura que `arteDaCena()` já aplica à pintura (identidade em vez de posição).
+//
+// O QUE ESTA HORA ALCANÇA, E O QUE ELA NÃO ALCANÇA, de propósito: só a camada da PINTURA
+// (#fundoHD). O mundo procedural, os sprites e a personagem continuam no relógio do aparelho.
+// Prender o relógio inteiro de um capítulo mudaria a economia da luz em tudo o que se alcança
+// (as janelas que acendem, `acendeu()`), e o ticket é de coerência de FUNDO.
+//
+// AS QUATRO HORAS, e por que estas: o motor tem quatro, e "manhã" e "meio-dia" são a MESMA
+// entrada (MANHÃ) — pedir as duas devolveria dois capítulos com a mesma luz, que é exatamente
+// o defeito que se está corrigindo. Então O QUE SEGUROU leva a PÓS-CHUVA, que é a quarta luz
+// que o motor tem e a única que sobra depois de meio-dia, entardecer e anoitecer.
+const HORA_FIXA: Record<string, number> = {
+  praca: 0.02,      // A PRAÇA — luz plena: a praça cheia é de dia claro (MANHÃ pura)
+  aceiro: 0.27,     // O ACEIRO — entardecer dourado (TARDE)
+  segurou: 0.50,    // O QUE SEGUROU — a luz lavada de depois da chuva (PÓS-CHUVA)
+  naodito: 0.68     // O QUE NÃO PODIA SER DITO — anoitecer fechado (quase NOITE)
+};
+// ===== O VÉU DE FUMAÇA, POR CAPÍTULO (21/08) =====
+//
+// Pedido da ARTE na mesma volta em que ela aprovou a dose do passe de pixel: O QUE SEGUROU
+// (brightness 0,894) e O ACEIRO (0,961) ficaram a 7% um do outro, e sete por cento de brilho
+// lê como um SLIDER mexido, não como outro lugar. Dois capítulos vizinhos que dividem a mesma
+// pintura precisam diferir em COR, não só em quanto de luz.
+//
+// A dose entra como sepia SOMADA à que o filtro já monta a partir do cuidado — não substitui
+// nada e não toca em HORA_FIXA. É por isso que ela é segura: o brilho, a saturação e o
+// contraste do capítulo continuam exatamente onde a metade anterior deste ticket os pôs, e o
+// que muda é só para onde a cor puxa.
+//
+// **O ACEIRO É O CAPÍTULO DAS QUEIMADAS, e é isso que faz a cor ser CONTEÚDO em vez de
+// enfeite.** Céu de dia de queimada é âmbar porque a fumaça filtra o azul — é a mesma física
+// do pôr do sol, e quem já viu o sol virar disco laranja em setembro reconhece antes de ler
+// uma linha. Nada aqui representa gente, objeto ou povo: é luz sobre uma pintura que já
+// existe, e o §2 não é tocado.
+//
+// **POR QUE O VÉU TEM DOIS NÚMEROS, E O SEGUNDO NÃO É ENFEITE.** `sepia()` CLAREIA. Não é
+// opinião: a matriz de sépia do CSS, composta com os pesos de luminância, soma 1,217 para
+// cinza — sépia cheia sobe o luma em 22%, e a dose de 0,10 sobe ~2,2%. Medido nesta árvore,
+// no mesmo pixel e na mesma rolagem: O ACEIRO na tela vai de **128,0 para 130,9** só de pôr o
+// sépia. Ou seja, o véu sozinho EMPURRA o capítulo para cima — contra A PRAÇA (131,9), que é
+// exatamente de quem a arte pediu para afastá-lo, e para fora da faixa 118–126 que ela pediu.
+//
+// Então o véu devolve pelo brilho o que tomou pelo sépia. O segundo número é um MULTIPLICADOR
+// sobre o brilho que o capítulo já tinha — `HORA_FIXA` não é tocada, a hora do ACEIRO continua
+// sendo a TARDE de 0,27, e a tinta dourada de `luzDaPintura()` continua a mesma. O que muda é
+// só a exposição da camada, na medida em que o sépia a levantou.
+//
+// A régua, e ela é da arte: o luma final na TELA entre 118 e 126, sem encostar em A PRAÇA.
+// Medido com `test/medir-pixel.js` (campo `lumaFiltrada`) — os números estão no NOTES.md.
+const VEU_AMBAR: Record<string, [number, number]> = {
+  // O ACEIRO — a fumaça de queimada que ambariza o céu inteiro, e o brilho que ela devolve.
+  aceiro: [0.10, 0.956]
+};
+// O véu da PINTURA agora: [sépia somada, multiplicador de brilho]. `[0, 1]` é não ter véu,
+// e é o caso dos outros doze capítulos — a mesma forma de neutro que `JANELA_CHAO` usa.
+function veuAmbar(): [number, number] {
+  const ep = EPOCAS[epocaAtual()] as any;
+  const v = ep && ep.lugar ? VEU_AMBAR[ep.lugar] : undefined;
+  return v ? v : [0, 1];
+}
+// A fração do ciclo que a PINTURA deve mostrar agora: -1 = o relógio de sempre.
+function fracaoFundo(): number {
+  const ep = EPOCAS[epocaAtual()] as any;
+  const f = ep && ep.lugar ? HORA_FIXA[ep.lugar] : undefined;
+  return typeof f === "number" ? f : -1;
+}
+// A mesma conta de `horaAgora()`, para uma fração dada em vez do relógio. Duas contas iguais
+// escritas duas vezes divergem; esta existe só porque `horaAgora()` lê `relogio` direto.
+function horaEm(fr: number) {
+  const t = (fr % 1 + 1) % 1 * HORAS.length;
+  const i = Math.floor(t), f = t - i;
+  const s = f * f * (3 - 2 * f);
+  const ia = i % HORAS.length, ib = (i + 1) % HORAS.length;
+  return { a: HORAS[ia], b: HORAS[ib], f: s, ia: ia, ib: ib };
+}
+function horaDoFundo() { const f = fracaoFundo(); return f < 0 ? horaAgora() : horaEm(f); }
+function escuridaoFundo() { const q = horaDoFundo(); return lerp(q.a.escuro, q.b.escuro, q.f); }
+// A chave de cache das duas superfícies que a hora repinta. Ela precisa MUDAR quando a luz
+// muda e só então: com a hora presa ela é constante, e quando o capítulo troca ela troca junto,
+// porque a fração é outra. Chave igual só acontece quando a luz é de fato a mesma.
+function horaKeyFundo() {
+  const f = fracaoFundo();
+  return f < 0 ? horaKey() : Math.round(f * HORA_PASSOS);
+}
+
 // ---------- THE RHYTHM, AS WEATHER ----------
 // GO FAST and GO STEADY rendered pixel-identical frames: the one decision this prototype
 // exists to measure had no consequence you could SEE. It does now, and it is weather, not
@@ -7363,6 +7468,10 @@ function redesenharFundo() {
   // Park the geometry; the scroll is redrawn every frame from it, which is far cheaper than
   // recomputing the cover-fit each time.
   fundoGeo = { dw: dw, dh: dh, dy: dy, cw: cw, ch: ch };
+  // O PASSE DE PIXEL MORA AQUI, e é o lugar inteiro do argumento: esta função roda na troca de
+  // capítulo, na chegada do pacote de arte e quando a caixa da tela muda — nunca por quadro.
+  // `rolarFundo()`, que roda 60 vezes por segundo, só consome o canvas que sai daqui.
+  construirGrao(fundoGeo);
   rolarFundo();
 }
 
@@ -8052,7 +8161,7 @@ function pintarIconesDrop() {
 // Só o #fundoHD. O #scene (o que passa, os drops, as folhas) e a personagem ficam de fora de
 // propósito: quem seca é a TERRA, não quem anda nela nem quem precisa de ajuda. Lavar tudo
 // junto também comeria a legibilidade das coisas que o jogo pede para você alcançar.
-let lavagemK = -1;
+let lavagemK = "";
 function lavarFundo(fc) {
   // A HORA ENTROU AQUI (Direção de Evolução, onda 1). O filtro carregava só o cuidado, e a
   // pintura — que hoje cobre o quadro inteiro — vivia num meio-dia eterno enquanto o motor
@@ -8061,20 +8170,32 @@ function lavarFundo(fc) {
   // luzDaPintura(), porque filtro CSS não puxa para uma cor.
   // 120 degraus de hora por dia (um a cada 15 s de jogo): passo pequeno demais para o olho,
   // barato o bastante para uma string de CSS.
-  const k = Math.round(cuidadoVisto * 24) * 1024 + (horaKey() >> 3);
+  // `horaKeyFundo`/`horaDoFundo`, não `horaKey`/`horaAgora`: quatro capítulos têm a hora PRESA
+  // (ver HORA_FIXA). A chave e o valor saem da mesma função, então nunca há filtro de uma hora
+  // com a chave de outra.
+  // O VÉU entra na CHAVE, e não é zelo excessivo: sem ele, um capítulo com véu e outro sem
+  // véu que calhassem da mesma hora e do mesmo cuidado dariam a mesma chave, e o segundo
+  // herdaria em silêncio o filtro do primeiro. Chave que ignora uma entrada da conta é o
+  // mesmo defeito que `horaKeyFundo` acabou de corrigir.
+  const veu = veuAmbar();
+  // A chave virou TEXTO quando o véu entrou na conta. Empacotar mais uma entrada em casas
+  // decimais de um inteiro é como se perde uma entrada em silêncio — e a chave que ignora uma
+  // entrada devolve o filtro do capítulo anterior, que é o defeito mais caro que uma cache de
+  // filtro tem, porque ele não dá erro: só pinta errado.
+  const k = Math.round(cuidadoVisto * 24) + "|" + (horaKeyFundo() >> 3) + "|" + veu[0] + "|" + veu[1];
   if (k === lavagemK) return;
   lavagemK = k;
   const q = Math.round(cuidadoVisto * 24) / 24;
-  const hq = horaAgora();
+  const hq = horaDoFundo();
   const esc = lerp(hq.a.escala, hq.b.escala, hq.f);
   // Piso de 0,30 sobre a escala da hora: a NOITE do mundo procedural desce a 0,44, mas uma
   // pintura afundada até lá perde a leitura do chão onde o jogo acontece. 0,44→0,61 com
   // piso, e o resto da escuridão a tinta azul do passe de canvas entrega.
   const escF = lerp(esc, 1, 0.24);
-  const escu = escuridao();
+  const escu = escuridaoFundo();
   fc.style.filter = "saturate(" + ((0.42 + 0.64 * q) * lerp(1, 0.82, escu)).toFixed(3) + ")"
-    + " sepia(" + (0.26 * (1 - q)).toFixed(3) + ")"
-    + " brightness(" + ((1.10 - 0.10 * q) * escF).toFixed(3) + ")"
+    + " sepia(" + Math.min(1, 0.26 * (1 - q) + veu[0]).toFixed(3) + ")"
+    + " brightness(" + ((1.10 - 0.10 * q) * escF * veu[1]).toFixed(3) + ")"
     + " contrast(" + (0.94 + 0.08 * q).toFixed(3) + ")";
 }
 // ---------- A LUZ, A VINHETA E A VIDA AMBIENTE DA PINTURA ----------
@@ -8203,17 +8324,20 @@ window.setRepeticao = function (cena, espelhar, fracao, costurar, espelhaChao) {
 };
 function luzDaPintura(fx, g) {
   // --- 1. a tinta da hora ---
-  const hq = horaAgora();
+  // A HORA DA PINTURA, que pode estar presa (HORA_FIXA). Todas as leituras deste passe saem
+  // daqui — se uma só ficasse no relógio, a tinta e a escuridão discordariam dentro do mesmo
+  // quadro, que é como um capítulo ficaria dourado com vaga-lume.
+  const hq = horaDoFundo();
   const forca = lerp(hq.a.forca, hq.b.forca, hq.f);
   if (forca > 0.015) {
     const tin = mixA(hq.a.tinta, hq.b.tinta, hq.f);
-    const kg = (horaKey() >> 3) + "x" + g.ch;
+    const kg = (horaKeyFundo() >> 3) + "x" + g.ch;
     if (!tintaGrad || tintaGradK !== kg) {
       tintaGradK = kg;
       const r = Math.round(tin[0]), v = Math.round(tin[1]), b = Math.round(tin[2]);
       // a dose sobe com a escuridão: o filtro de brilho tem piso (a leitura do chão manda),
       // então é a tinta quem fecha a noite — sem ela o céu pintado lia como dia nublado
-      const escuN = escuridao();
+      const escuN = escuridaoFundo();
       const a1 = Math.min(0.62, forca * (0.85 + 0.75 * escuN)).toFixed(3);
       const a2 = Math.min(0.40, forca * (0.42 + 0.38 * escuN)).toFixed(3);
       tintaGrad = fx.createLinearGradient(0, 0, 0, g.ch);
@@ -8231,10 +8355,10 @@ function luzDaPintura(fx, g) {
   const teto = lerp(hq.a.teto, hq.b.teto, hq.f) * (CEU_PINT[fundoIdx()] || CEU_PINT[0])[0];
   if (teto > 0.015) {
     const faixa = (CEU_PINT[fundoIdx()] || CEU_PINT[0])[1];
-    const kc = (horaKey() >> 3) + "p" + fundoIdx() + "x" + g.ch;
+    const kc = (horaKeyFundo() >> 3) + "p" + fundoIdx() + "x" + g.ch;
     if (!ceuGrad || ceuGradK !== kc) {
       ceuGradK = kc;
-      const cz = mixA([46, 52, 102], [8, 12, 28], escuridao());
+      const cz = mixA([46, 52, 102], [8, 12, 28], escuridaoFundo());
       const r = Math.round(cz[0]), v = Math.round(cz[1]), b = Math.round(cz[2]);
       ceuGrad = fx.createLinearGradient(0, 0, 0, g.ch * faixa);
       ceuGrad!.addColorStop(0, "rgba(" + r + "," + v + "," + b + "," + teto.toFixed(3) + ")");
@@ -8259,7 +8383,7 @@ function luzDaPintura(fx, g) {
   const agora = performance.now();
   const dt = ambT ? Math.min(0.1, (agora - ambT) / 1000) : 0;
   ambT = agora;
-  const escu = escuridao();
+  const escu = escuridaoFundo();
   // 0 de dia, 1 de noite, com a passagem suave no crepúsculo
   const nq = Math.max(0, Math.min(1, (escu - 0.30) / 0.30));
   const noite = nq * nq * (3 - 2 * nq);
@@ -8311,6 +8435,145 @@ function luzDaPintura(fx, g) {
   }
   fx.globalAlpha = 1;
 }
+// ===== O PASSE DE PIXEL — a granulometria da pintura, NA EXIBIÇÃO (21/08) =====
+//
+// O ACHADO, medido na auditoria de coerência dos 13 capítulos (DIRECAO.md, 21/08): o jogo fala
+// DUAS línguas visuais. PINDORAMA, PALMARES e AINDA AQUI são pixel art de verdade — blocos de
+// cor chapada, grão grosso, a mesma gramática do chrome que as ondas 6/7/11 impuseram. Os
+// outros dez capítulos são pintura semi-realista de tom contínuo: sombra suave, perspectiva de
+// concept art, zero grão. Não é a paleta (que as ondas 1–3 calibraram): é a TÉCNICA de
+// renderização mudando de capítulo para capítulo. **O DONO DECIDIU: PIXEL VENCE** (21/08, com
+// o mosaico dos 13 à vista) — os dez capítulos de pintura passam a ser exibidos com o grão da
+// casa, e os três de pixel art não recebem passe nenhum.
+//
+// TRÊS COISAS QUE ESTE PASSE NÃO FAZ, e cada uma é uma trava:
+//  1. **Não reprocessa arte.** Nenhum byte de `CENARIO_ALTO_B64` muda; o peso da porta de
+//     entrada e dos pacotes é o mesmo antes e depois. Isto é exibição, e só.
+//  2. **Não roda por quadro.** `rolarFundo()` desenha o fundo 60 vezes por segundo; quantizar
+//     ali seria um `getImageData` de meio milhão de pixels a cada quadro. O passe roda UMA VEZ
+//     por troca de pintura ou de tamanho de tela, em `redesenharFundo()`, e o resultado fica
+//     num canvas guardado. O que o quadro faz é o mesmo `drawImage` de sempre.
+//  3. **Não cresce em memória com o acervo.** Guarda-se a pintura ATIVA e mais nenhuma — e o
+//     canvas guardado é o PEQUENO (a pintura já reduzida), não a ampliação dela. Uma pintura
+//     ampliada em memória custaria ~10 MB por capítulo; esta custa menos de 1.
+//
+// COMO A REDUÇÃO É FEITA, e por que nesta ordem: a peça é desenhada REDUZIDA (com suavização,
+// que é o que faz cada bloco virar a MÉDIA do que havia ali, em vez do pixel que calhou), a cor
+// é quantizada nesse tamanho pequeno — uma cor por bloco, por construção — e a ampliação de
+// volta acontece no próprio quadro, com a suavização DESLIGADA. Ampliar sem suavizar é o que
+// entrega bloco de borda dura em vez de mancha; é a mesma coisa que `image-rendering: pixelated`
+// faz no CSS, e o motor já a usa no `#scene` desde sempre.
+const GRAO_CSS = 2;             // o passo do chrome desde a onda 11 (--graoPx). Pixel é inteiro.
+// Quantos NÍVEIS por canal cada pintura recebe. 0 = sem passe.
+// A ordem é a das PINTURAS (a de CENARIO_ALTO_B64 / CEU_PINT / REPETICAO_PINT), não a dos
+// capítulos — quatro capítulos dividem a pintura 10 e recebem, portanto, o mesmo grão. O que
+// os distingue é a hora (HORA_FIXA), que é da outra metade deste ticket.
+const GRAO_PINT: number[] = [
+  0,   //  0 PINDORAMA (litoral) — pixel art: não recebe passe
+  0,   //  1 PINDORAMA
+  0,   //  2 PALMARES — pixel art
+  0,   //  3 PALMARES
+  8,   //  4 SALVADOR
+  0,   //  5 AINDA AQUI (hoje) — pixel art, o bookend deliberado do arco
+  0,   //  6 AINDA AQUI
+  8,   //  7 JABAQUARA
+  8,   //  8 A PEQUENA ÁFRICA
+  8,   //  9 AS PORTAS
+  8,   // 10 O QUE NÃO PODIA SER DITO / A PRAÇA / O QUE SEGUROU / O ACEIRO
+  8,   // 11 O QUE TEM FONTE
+  8    // 12 O CAIS QUE VOLTOU À LUZ
+];
+// A JANELA DA PEÇA DE BAIXO, por pintura: [início, fim] em fração da largura da fonte.
+//
+// Existe por UM defeito, e é o terceiro do ticket: em JABAQUARA a raiz de árvore do chão é
+// detalhada e não-repetitiva, e a técnica de espelho do §7 (correta, e não se mexe nela) a
+// reflete contra si mesma no eixo da emenda — o padrão simétrico que sai dali lê como uma
+// máscara. Invisível na mata chapada de PINDORAMA, gritante na pintura fina de JABAQUARA.
+//
+// A correção PROPOSTA pela auditoria (DIRECAO.md, 21/08) era mover a EMENDA: ladrilhando uma
+// janela da fonte em vez da largura inteira, os dois eixos de simetria — a borda esquerda e a
+// direita do que se repete — caem noutras colunas, e a raiz sai do eixo. Este parâmetro é essa
+// alavanca, e ela funciona: `[0, 1]` é a largura inteira e reproduz bit por bit o desenho de
+// sempre.
+//
+// **A ALAVANCA ESTÁ AQUI E O VALOR DE JABAQUARA NÃO ESTÁ — de propósito, e isto foi medido.**
+// `test/medir-costura.js` e `test/tmp-perfil.js` varreram a peça de baixo coluna a coluna com
+// três réguas (energia de borda, estrutura de baixa frequência, e quanto de verde/escuro há na
+// banda do eixo). O resultado: **nenhuma coluna desta pintura é um bom eixo**. A melhor janela
+// com pelo menos 90% da largura melhora a régua em 14,4% — e o recorte ampliado do eixo NOVO
+// mostra outra máscara simétrica, de raiz em vez de folha. Mover a emenda MUDA o rosto de
+// lugar; não o apaga, porque a peça é detalhe orgânico denso de ponta a ponta.
+//
+// E há um custo que a proposta não contabilizou: estreitar o ladrilho aumenta a FREQUÊNCIA da
+// emenda. Uma largura de pintura = 1,56 tela, e por isso há um eixo em cena 64% do tempo
+// (conta da própria auditoria); a 90% da largura passa a 71%. Trocar um rosto por mais emendas
+// é piorar duas coisas.
+// Fica registrado no PENDENTES.md com os dois caminhos que sobram (nenhum é "de posição").
+const JANELA_CHAO: Record<number, [number, number]> = {};
+function dimW(im: any) { return im.naturalWidth || im.width || 1; }
+function dimH(im: any) { return im.naturalHeight || im.height || 1; }
+// Bayer 4×4, normalizada. Sem ela, quantizar um céu inteiro em seis níveis dá faixas largas de
+// cor chapada (o "banding" que todo mundo conhece de GIF); com ela, a mesma quantização vira
+// trama — que é como a pixel art de verdade resolve gradiente desde o Amiga.
+const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const GRAO_TRAMA = 0.5;         // dose da trama, em passos de quantizacao
+function pixelarPeca(im: any, niveis: number, larguraDestino: number, alturaDestino: number, bloco: number) {
+  const pw = Math.max(1, Math.round(larguraDestino / bloco));
+  const ph = Math.max(1, Math.round(alturaDestino / bloco));
+  const cv = document.createElement("canvas");
+  cv.width = pw; cv.height = ph;
+  const cx = cv.getContext("2d")!;
+  cx.imageSmoothingEnabled = true;
+  (cx as any).imageSmoothingQuality = "high";
+  cx.drawImage(im, 0, 0, pw, ph);
+  const dat = cx.getImageData(0, 0, pw, ph);
+  const d = dat.data;
+  const passo = 255 / (niveis - 1);
+  for (let y = 0; y < ph; y++) {
+    for (let x = 0; x < pw; x++) {
+      const p = (y * pw + x) * 4;
+      const dz = ((BAYER4[(y & 3) * 4 + (x & 3)] + 0.5) / 16 - 0.5) * passo * GRAO_TRAMA;
+      for (let z = 0; z < 3; z++) {
+        const v = Math.round((d[p + z] + dz) / passo) * passo;
+        d[p + z] = v < 0 ? 0 : v > 255 ? 255 : Math.round(v);
+      }
+    }
+  }
+  cx.putImageData(dat, 0, 0);
+  return cv;
+}
+let graoCache: { chave: string; alto: HTMLCanvasElement | null; chao: HTMLCanvasElement | null } =
+  { chave: "", alto: null, chao: null };
+// Chamado de `redesenharFundo()` — troca de capítulo, troca de tamanho de tela, chegada do
+// pacote de arte. Nunca de dentro do laço de quadro.
+function construirGrao(g: { dw: number; dh: number; cw: number }) {
+  const idx = fundoIdx();
+  const niveis = GRAO_PINT[idx] || 0;
+  if (!niveis || !fundoPintado()) { graoCache = { chave: "", alto: null, chao: null }; return; }
+  const alto = CENARIO_ALTO[idx], chao = CENARIO_CHAO[idx];
+  // O bloco é medido em px de APARELHO, que é onde o olho o encontra: 2 px CSS × a densidade
+  // da tela. Num aparelho a dpr 3 o mesmo grão de 2 px CSS custa 6 px de canvas — é a régua do
+  // chrome, não um número de textura.
+  const dpr = Math.max(1, g.cw / Math.max(1, telaW()));
+  const bloco = Math.max(2, Math.round(GRAO_CSS * dpr));
+  const chave = idx + ":" + niveis + ":" + bloco + ":" + Math.round(g.dw) + "x" + Math.round(g.dh)
+    + ":" + dimW(alto) + "x" + dimH(alto) + ":" + dimW(chao) + "x" + dimH(chao)
+    + ":" + alto.src.length + ":" + chao.src.length;
+  if (chave === graoCache.chave) return;
+  graoCache = { chave: chave,
+    alto: pixelarPeca(alto, niveis, g.dw, g.dh * FUNDO_GROUND_SRC, bloco),
+    chao: pixelarPeca(chao, niveis, g.dw, g.dh * (1 - FUNDO_GROUND_SRC), bloco) };
+}
+// Gancho de instrumento (ver a interface Window lá em cima): a peça COMO ELA CHEGA AO
+// APARELHO. Sem ele, medir o passe obrigaria a refazer a conta de cover-fit por fora.
+window.pecaExibida = function (idx, qual) {
+  const i = typeof idx === "number" && idx >= 0 ? idx : fundoIdx();
+  const crua = qual === "chao" ? CENARIO_CHAO[i] : CENARIO_ALTO[i];
+  if (i !== fundoIdx() || !graoCache.alto) return crua;
+  return (qual === "chao" ? graoCache.chao : graoCache.alto) || crua;
+};
+window.geoFundo = function () { return fundoGeo; };
+
 function rolarFundo() {
   // A guarda vem ANTES do const: `ladrilhar()` mais abaixo é uma função aninhada, e o TS
   // descarta o estreitamento de tipo dentro dela. Checando primeiro, `g` já nasce não-nulo.
@@ -8353,20 +8616,35 @@ function rolarFundo() {
   // para fazer.
   const rep = repeticaoPint();
   const fracAlto = paralaxeForcada ? paralaxeLonge : rep[1];
-  const volta = g.dw * 2;
   const linha = FUNDO_GROUND_SRC;          // onde o chão começa, na fonte e no destino
-  function ladrilhar(im, fracao, dy, dh, espelhar, sy?, sh?, alfa?) {
+  // O PASSE DE PIXEL: se esta pintura o recebe e o canvas guardado é o dela, é ele que se
+  // desenha — mesma geometria, mesmo número de chamadas, mesma conta. O que muda é a peça.
+  const temGrao = !!(GRAO_PINT[idx] && graoCache.alto && graoCache.chao
+    && graoCache.chave.indexOf(idx + ":") === 0);
+  const pAlto: any = temGrao ? graoCache.alto : imAlto;
+  const pChao: any = temGrao ? graoCache.chao : imChao;
+  // Ampliar sem suavizar é o que faz o bloco ter borda dura em vez de virar mancha — é a
+  // metade da quantização que não cabe no canvas guardado. Volta a ligar antes do mato da
+  // emenda e da luz, que são as camadas de sempre e não pediram nada.
+  fx.imageSmoothingEnabled = !temGrao;
+  // `ini`/`fim` recortam uma JANELA da fonte: é assim que a emenda do espelho se move de
+  // coluna sem tocar em nenhuma outra pintura (ver JANELA_CHAO).
+  function ladrilhar(im, fracao, dy, dh, espelhar, sy?, sh?, alfa?, ini?, fim?) {
+    const a = ini === undefined ? 0 : ini, b = fim === undefined ? 1 : fim;
+    const fonteW = dimW(im), sx = fonteW * a, sw = fonteW * (b - a);
+    const tw = g.dw * (b - a);             // a largura do que se repete, no destino
+    const volta = tw * 2;
     const desl = ((worldX * fracao * (g.cw / W)) % volta + volta) % volta;
     // A fatia sob a borda esquerda da tela. O laço tem que COMEÇAR aqui: ele já rodou de
     // k = -1 para cima, o que servia enquanto desl ficava dentro de uma largura de pintura,
     // mas desl chega a sete delas — e aí todo x caía fora da tela, nada era desenhado, e o
     // que aparecia era a página atrás do canvas.
-    const k0 = Math.floor(desl / g.dw);
-    const quantas = Math.ceil(g.cw / g.dw) + 2;
+    const k0 = Math.floor(desl / tw);
+    const quantas = Math.ceil(g.cw / tw) + 2;
     for (let j = 0; j < quantas; j++) {
       const k = k0 + j;
-      const x = k * g.dw - desl;
-      if (x > g.cw || x + g.dw < 0) continue;
+      const x = k * tw - desl;
+      if (x > g.cw || x + tw < 0) continue;
       fx.globalAlpha = alfa === undefined ? 1 : alfa;
       // Cópias alternadas espelhadas: é o espelho que elimina a emenda, porque uma borda só
       // encontra o próprio reflexo. Junta espelhada não tem o que suavizar. Pintura de CIDADE
@@ -8374,14 +8652,14 @@ function rolarFundo() {
       const espelhado = espelhar && (((k % 2) + 2) % 2) === 1;
       // Recorte na FONTE: a costura da emenda redesenha só as primeiras linhas da peça de
       // baixo. Sem recorte (sy/sh indefinidos) é a imagem inteira, como sempre foi.
-      const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? im.naturalHeight : sh;
+      const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? dimH(im) : sh;
       if (espelhado) {
         fx.save();
-        fx.translate(x + g.dw, 0); fx.scale(-1, 1);
-        fx.drawImage(im, 0, fy, im.naturalWidth, fh, 0, dy, g.dw, dh);
+        fx.translate(x + tw, 0); fx.scale(-1, 1);
+        fx.drawImage(im, sx, fy, sw, fh, 0, dy, tw, dh);
         fx.restore();
       } else {
-        fx.drawImage(im, 0, fy, im.naturalWidth, fh, x, dy, g.dw, dh);
+        fx.drawImage(im, sx, fy, sw, fh, x, dy, tw, dh);
       }
     }
     fx.globalAlpha = 1;
@@ -8390,8 +8668,10 @@ function rolarFundo() {
   // A de cima primeiro, para a de baixo cobrir a emenda se sobrar meio pixel entre elas.
   // A fração da de cima é livre; a de baixo é 1:1 e não é negociável — é ela que a
   // personagem pisa, e qualquer valor diferente de 1 faz o pé deslizar.
-  ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
-  ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3]);
+  const jan = JANELA_CHAO[idx] || [0, 1];
+  ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
+  ladrilhar(pChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3], undefined, undefined, undefined,
+    jan[0], jan[1]);
   // A COSTURA DA EMENDA — só onde nada a cobre.
   //
   // As duas peças foram geradas separadas, então a de cima acaba numa coisa e a de baixo
@@ -8406,18 +8686,22 @@ function rolarFundo() {
   // MORRER dentro da de baixo. As últimas linhas dela são reesticadas alguns pixels abaixo
   // da junta, esmaecendo — vira a sombra de recessão onde uma superfície encontra a outra,
   // em vez de um corte. Nenhum pixel inventado: é tinta que já estava ali.
-  if (rep[2] && imAlto.naturalHeight) {
+  if (rep[2] && dimH(pAlto)) {
     const banda = Math.max(2, Math.round(g.dh * 0.008));
     const passos = 6;
-    const srcBanda = banda / (g.dh * linha) * imAlto.naturalHeight;
+    // A conta é PROPORCIONAL à altura da fonte, e por isso ela sobrevive ao passe de pixel:
+    // a peça quantizada tem outra altura em px, e é `dimH` quem responde qual — nunca um
+    // `naturalHeight` que só a imagem crua tem.
+    const srcBanda = banda / (g.dh * linha) * dimH(pAlto);
     const y0 = g.dy + g.dh * linha;
     for (let i = 0; i < passos; i++) {
       const alfa = 1 - (i + 0.5) / passos;
-      ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1,
+      ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1,
         y0 + banda * i / passos, banda / passos, rep[0],
-        imAlto.naturalHeight - srcBanda + srcBanda * i / passos, srcBanda / passos, alfa);
+        dimH(pAlto) - srcBanda + srcBanda * i / passos, srcBanda / passos, alfa);
     }
   }
+  fx.imageSmoothingEnabled = true;
   matoDaEmenda(fx, g);
   luzDaPintura(fx, g);     // a tinta da hora, a vinheta e a vida ambiente — sempre por último
 }

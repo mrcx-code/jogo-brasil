@@ -5444,6 +5444,38 @@ function luzDoDia(c) {
 const HORA_PASSOS = 960;
 function acendeu(semente) { return escuridao() > 0.30 + hash01(semente * 7.13 + 2.9) * 0.20; }
 function horaKey() { return Math.round((relogio / DIA_SEG) % 1 * HORA_PASSOS); }
+const HORA_FIXA = {
+    praca: 0.02,
+    aceiro: 0.27,
+    segurou: 0.50,
+    naodito: 0.68
+};
+const VEU_AMBAR = {
+    aceiro: [0.10, 0.956]
+};
+function veuAmbar() {
+    const ep = EPOCAS[epocaAtual()];
+    const v = ep && ep.lugar ? VEU_AMBAR[ep.lugar] : undefined;
+    return v ? v : [0, 1];
+}
+function fracaoFundo() {
+    const ep = EPOCAS[epocaAtual()];
+    const f = ep && ep.lugar ? HORA_FIXA[ep.lugar] : undefined;
+    return typeof f === "number" ? f : -1;
+}
+function horaEm(fr) {
+    const t = (fr % 1 + 1) % 1 * HORAS.length;
+    const i = Math.floor(t), f = t - i;
+    const s = f * f * (3 - 2 * f);
+    const ia = i % HORAS.length, ib = (i + 1) % HORAS.length;
+    return { a: HORAS[ia], b: HORAS[ib], f: s, ia: ia, ib: ib };
+}
+function horaDoFundo() { const f = fracaoFundo(); return f < 0 ? horaAgora() : horaEm(f); }
+function escuridaoFundo() { const q = horaDoFundo(); return lerp(q.a.escuro, q.b.escuro, q.f); }
+function horaKeyFundo() {
+    const f = fracaoFundo();
+    return f < 0 ? horaKey() : Math.round(f * HORA_PASSOS);
+}
 const HAZE_FAST = [236, 176, 96];
 let ritmoV = 0, ritmoUlt = null, ritmoT = 0, ritmoVirou = 0, ritmoCusto = 0;
 function ritmoPasso() {
@@ -7261,6 +7293,7 @@ function redesenharFundo() {
     let dy = gd * ch - gs * dh;
     dy = Math.min(0, Math.max(ch - dh, dy));
     fundoGeo = { dw: dw, dh: dh, dy: dy, cw: cw, ch: ch };
+    construirGrao(fundoGeo);
     rolarFundo();
 }
 let fundoGeo = null;
@@ -7688,20 +7721,21 @@ function pintarIconesDrop() {
     });
     iconesDropOk = true;
 }
-let lavagemK = -1;
+let lavagemK = "";
 function lavarFundo(fc) {
-    const k = Math.round(cuidadoVisto * 24) * 1024 + (horaKey() >> 3);
+    const veu = veuAmbar();
+    const k = Math.round(cuidadoVisto * 24) + "|" + (horaKeyFundo() >> 3) + "|" + veu[0] + "|" + veu[1];
     if (k === lavagemK)
         return;
     lavagemK = k;
     const q = Math.round(cuidadoVisto * 24) / 24;
-    const hq = horaAgora();
+    const hq = horaDoFundo();
     const esc = lerp(hq.a.escala, hq.b.escala, hq.f);
     const escF = lerp(esc, 1, 0.24);
-    const escu = escuridao();
+    const escu = escuridaoFundo();
     fc.style.filter = "saturate(" + ((0.42 + 0.64 * q) * lerp(1, 0.82, escu)).toFixed(3) + ")"
-        + " sepia(" + (0.26 * (1 - q)).toFixed(3) + ")"
-        + " brightness(" + ((1.10 - 0.10 * q) * escF).toFixed(3) + ")"
+        + " sepia(" + Math.min(1, 0.26 * (1 - q) + veu[0]).toFixed(3) + ")"
+        + " brightness(" + ((1.10 - 0.10 * q) * escF * veu[1]).toFixed(3) + ")"
         + " contrast(" + (0.94 + 0.08 * q).toFixed(3) + ")";
 }
 let tintaGrad = null, tintaGradK = "";
@@ -7747,15 +7781,15 @@ window.setRepeticao = function (cena, espelhar, fracao, costurar, espelhaChao) {
     return r;
 };
 function luzDaPintura(fx, g) {
-    const hq = horaAgora();
+    const hq = horaDoFundo();
     const forca = lerp(hq.a.forca, hq.b.forca, hq.f);
     if (forca > 0.015) {
         const tin = mixA(hq.a.tinta, hq.b.tinta, hq.f);
-        const kg = (horaKey() >> 3) + "x" + g.ch;
+        const kg = (horaKeyFundo() >> 3) + "x" + g.ch;
         if (!tintaGrad || tintaGradK !== kg) {
             tintaGradK = kg;
             const r = Math.round(tin[0]), v = Math.round(tin[1]), b = Math.round(tin[2]);
-            const escuN = escuridao();
+            const escuN = escuridaoFundo();
             const a1 = Math.min(0.62, forca * (0.85 + 0.75 * escuN)).toFixed(3);
             const a2 = Math.min(0.40, forca * (0.42 + 0.38 * escuN)).toFixed(3);
             tintaGrad = fx.createLinearGradient(0, 0, 0, g.ch);
@@ -7769,10 +7803,10 @@ function luzDaPintura(fx, g) {
     const teto = lerp(hq.a.teto, hq.b.teto, hq.f) * (CEU_PINT[fundoIdx()] || CEU_PINT[0])[0];
     if (teto > 0.015) {
         const faixa = (CEU_PINT[fundoIdx()] || CEU_PINT[0])[1];
-        const kc = (horaKey() >> 3) + "p" + fundoIdx() + "x" + g.ch;
+        const kc = (horaKeyFundo() >> 3) + "p" + fundoIdx() + "x" + g.ch;
         if (!ceuGrad || ceuGradK !== kc) {
             ceuGradK = kc;
-            const cz = mixA([46, 52, 102], [8, 12, 28], escuridao());
+            const cz = mixA([46, 52, 102], [8, 12, 28], escuridaoFundo());
             const r = Math.round(cz[0]), v = Math.round(cz[1]), b = Math.round(cz[2]);
             ceuGrad = fx.createLinearGradient(0, 0, 0, g.ch * faixa);
             ceuGrad.addColorStop(0, "rgba(" + r + "," + v + "," + b + "," + teto.toFixed(3) + ")");
@@ -7794,7 +7828,7 @@ function luzDaPintura(fx, g) {
     const agora = performance.now();
     const dt = ambT ? Math.min(0.1, (agora - ambT) / 1000) : 0;
     ambT = agora;
-    const escu = escuridao();
+    const escu = escuridaoFundo();
     const nq = Math.max(0, Math.min(1, (escu - 0.30) / 0.30));
     const noite = nq * nq * (3 - 2 * nq);
     const alvo = Math.round(lerp(9 * (0.45 + 0.55 * cuidadoVisto), 5 + 11 * cuidadoVisto, noite));
@@ -7850,6 +7884,81 @@ function luzDaPintura(fx, g) {
     }
     fx.globalAlpha = 1;
 }
+const GRAO_CSS = 2;
+const GRAO_PINT = [
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8
+];
+const JANELA_CHAO = {};
+function dimW(im) { return im.naturalWidth || im.width || 1; }
+function dimH(im) { return im.naturalHeight || im.height || 1; }
+const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const GRAO_TRAMA = 0.5;
+function pixelarPeca(im, niveis, larguraDestino, alturaDestino, bloco) {
+    const pw = Math.max(1, Math.round(larguraDestino / bloco));
+    const ph = Math.max(1, Math.round(alturaDestino / bloco));
+    const cv = document.createElement("canvas");
+    cv.width = pw;
+    cv.height = ph;
+    const cx = cv.getContext("2d");
+    cx.imageSmoothingEnabled = true;
+    cx.imageSmoothingQuality = "high";
+    cx.drawImage(im, 0, 0, pw, ph);
+    const dat = cx.getImageData(0, 0, pw, ph);
+    const d = dat.data;
+    const passo = 255 / (niveis - 1);
+    for (let y = 0; y < ph; y++) {
+        for (let x = 0; x < pw; x++) {
+            const p = (y * pw + x) * 4;
+            const dz = ((BAYER4[(y & 3) * 4 + (x & 3)] + 0.5) / 16 - 0.5) * passo * GRAO_TRAMA;
+            for (let z = 0; z < 3; z++) {
+                const v = Math.round((d[p + z] + dz) / passo) * passo;
+                d[p + z] = v < 0 ? 0 : v > 255 ? 255 : Math.round(v);
+            }
+        }
+    }
+    cx.putImageData(dat, 0, 0);
+    return cv;
+}
+let graoCache = { chave: "", alto: null, chao: null };
+function construirGrao(g) {
+    const idx = fundoIdx();
+    const niveis = GRAO_PINT[idx] || 0;
+    if (!niveis || !fundoPintado()) {
+        graoCache = { chave: "", alto: null, chao: null };
+        return;
+    }
+    const alto = CENARIO_ALTO[idx], chao = CENARIO_CHAO[idx];
+    const dpr = Math.max(1, g.cw / Math.max(1, telaW()));
+    const bloco = Math.max(2, Math.round(GRAO_CSS * dpr));
+    const chave = idx + ":" + niveis + ":" + bloco + ":" + Math.round(g.dw) + "x" + Math.round(g.dh)
+        + ":" + dimW(alto) + "x" + dimH(alto) + ":" + dimW(chao) + "x" + dimH(chao)
+        + ":" + alto.src.length + ":" + chao.src.length;
+    if (chave === graoCache.chave)
+        return;
+    graoCache = { chave: chave,
+        alto: pixelarPeca(alto, niveis, g.dw, g.dh * FUNDO_GROUND_SRC, bloco),
+        chao: pixelarPeca(chao, niveis, g.dw, g.dh * (1 - FUNDO_GROUND_SRC), bloco) };
+}
+window.pecaExibida = function (idx, qual) {
+    const i = typeof idx === "number" && idx >= 0 ? idx : fundoIdx();
+    const crua = qual === "chao" ? CENARIO_CHAO[i] : CENARIO_ALTO[i];
+    if (i !== fundoIdx() || !graoCache.alto)
+        return crua;
+    return (qual === "chao" ? graoCache.chao : graoCache.alto) || crua;
+};
+window.geoFundo = function () { return fundoGeo; };
 function rolarFundo() {
     if (!fundoGeo)
         return;
@@ -7867,45 +7976,55 @@ function rolarFundo() {
     const imAlto = CENARIO_ALTO[idx], imChao = CENARIO_CHAO[idx];
     const rep = repeticaoPint();
     const fracAlto = paralaxeForcada ? paralaxeLonge : rep[1];
-    const volta = g.dw * 2;
     const linha = FUNDO_GROUND_SRC;
-    function ladrilhar(im, fracao, dy, dh, espelhar, sy, sh, alfa) {
+    const temGrao = !!(GRAO_PINT[idx] && graoCache.alto && graoCache.chao
+        && graoCache.chave.indexOf(idx + ":") === 0);
+    const pAlto = temGrao ? graoCache.alto : imAlto;
+    const pChao = temGrao ? graoCache.chao : imChao;
+    fx.imageSmoothingEnabled = !temGrao;
+    function ladrilhar(im, fracao, dy, dh, espelhar, sy, sh, alfa, ini, fim) {
+        const a = ini === undefined ? 0 : ini, b = fim === undefined ? 1 : fim;
+        const fonteW = dimW(im), sx = fonteW * a, sw = fonteW * (b - a);
+        const tw = g.dw * (b - a);
+        const volta = tw * 2;
         const desl = ((worldX * fracao * (g.cw / W)) % volta + volta) % volta;
-        const k0 = Math.floor(desl / g.dw);
-        const quantas = Math.ceil(g.cw / g.dw) + 2;
+        const k0 = Math.floor(desl / tw);
+        const quantas = Math.ceil(g.cw / tw) + 2;
         for (let j = 0; j < quantas; j++) {
             const k = k0 + j;
-            const x = k * g.dw - desl;
-            if (x > g.cw || x + g.dw < 0)
+            const x = k * tw - desl;
+            if (x > g.cw || x + tw < 0)
                 continue;
             fx.globalAlpha = alfa === undefined ? 1 : alfa;
             const espelhado = espelhar && (((k % 2) + 2) % 2) === 1;
-            const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? im.naturalHeight : sh;
+            const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? dimH(im) : sh;
             if (espelhado) {
                 fx.save();
-                fx.translate(x + g.dw, 0);
+                fx.translate(x + tw, 0);
                 fx.scale(-1, 1);
-                fx.drawImage(im, 0, fy, im.naturalWidth, fh, 0, dy, g.dw, dh);
+                fx.drawImage(im, sx, fy, sw, fh, 0, dy, tw, dh);
                 fx.restore();
             }
             else {
-                fx.drawImage(im, 0, fy, im.naturalWidth, fh, x, dy, g.dw, dh);
+                fx.drawImage(im, sx, fy, sw, fh, x, dy, tw, dh);
             }
         }
         fx.globalAlpha = 1;
     }
-    ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
-    ladrilhar(imChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3]);
-    if (rep[2] && imAlto.naturalHeight) {
+    const jan = JANELA_CHAO[idx] || [0, 1];
+    ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
+    ladrilhar(pChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3], undefined, undefined, undefined, jan[0], jan[1]);
+    if (rep[2] && dimH(pAlto)) {
         const banda = Math.max(2, Math.round(g.dh * 0.008));
         const passos = 6;
-        const srcBanda = banda / (g.dh * linha) * imAlto.naturalHeight;
+        const srcBanda = banda / (g.dh * linha) * dimH(pAlto);
         const y0 = g.dy + g.dh * linha;
         for (let i = 0; i < passos; i++) {
             const alfa = 1 - (i + 0.5) / passos;
-            ladrilhar(imAlto, fracAlto > 0 ? fracAlto : 1, y0 + banda * i / passos, banda / passos, rep[0], imAlto.naturalHeight - srcBanda + srcBanda * i / passos, srcBanda / passos, alfa);
+            ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1, y0 + banda * i / passos, banda / passos, rep[0], dimH(pAlto) - srcBanda + srcBanda * i / passos, srcBanda / passos, alfa);
         }
     }
+    fx.imageSmoothingEnabled = true;
     matoDaEmenda(fx, g);
     luzDaPintura(fx, g);
 }
