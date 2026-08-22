@@ -165,8 +165,8 @@
       "titulo": "PENDENTES.md carrega uma copia VELHA de si mesmo colada na frente",
       "detalhe": "Medido em 22/08 pelo dev-dados: o arquivo tem o cabecalho \"# PENDENTES\" DUAS vezes (linhas 1 e 1297) e as linhas 1-1296 sao prefixo BYTE A BYTE do resto (provado: parte2.startsWith(parte1) === true; 83.931 bytes duplicados). A copia da frente para no item 45; os itens 46 a 53 so existem na segunda metade. Consequencia: quem le o arquivo de cima para baixo le o estado ANTIGO e nunca chega no 53 (a personagem escondida atras do poste, aberto para arte/dono). Conserto: apagar as linhas 1-1296 — e lossless, e a prova esta acima. E o modo de falha da licao 2.10 (integrar por copia) aparecendo dentro de um arquivo em vez de entre dois commits.",
       "agente": "plantao",
-      "estado": "livre",
-      "nota": "achado colateral da rodada do vigia de validade (dev-dados, 22/08); nao aplicado no ramo de proposito — apagar 1.296 linhas de um arquivo quente a partir de worktree e o pior conflito de merge possivel"
+      "estado": "concluido",
+      "nota": "CORTADO na main em 22/08: provado por startsWith normalizado (parte2 continha parte1 inteira), 83.932 bytes removidos, itens 1-53 integros e unicos depois do corte"
     }
   ]
 }
