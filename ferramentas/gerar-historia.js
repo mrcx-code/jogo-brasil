@@ -27,6 +27,10 @@ const { BASE } = require('./dominio.js');
 // escrito uma vez em ferramentas/medir-secao.js — e o interruptor no rodapé, que é o mesmo do
 // jogo (mesma origem, mesma chave de localStorage). O §3 do CLAUDE.md vale inteiro.
 const MED = require('./medir-secao.js');
+// O CARTÃO DO LINK (22/08). Sem `og:image` esta página vira retângulo cinza no WhatsApp — a
+// growth mediu isso por curl em três rodadas. O cartão é um print 1200×630 da PRÓPRIA página,
+// pelo molde do território: uma fonte, duas saídas, também para a imagem da prévia.
+const CARTAO = require('./cartao-secao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -77,6 +81,7 @@ const esc = (s) => String(s || '')
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="${BASE}/historia/">
 <meta property="og:locale" content="pt_BR">
+${CARTAO.tags(BASE, 'historia', 'A abertura da seção A HISTÓRIA: o título "A história do Brasil, em linha do tempo" sobre papel, com a contagem de momentos e o começo da linha.')}
 <link rel="canonical" href="${BASE}/historia/">
 <title>A História do Brasil — uma linha do tempo</title>
 <style>
@@ -185,4 +190,10 @@ ${MED.script('historia')}
   // guarda de §2: nenhuma referência externa além das fontes do Google
   const ext = (html.match(/(?:src|href)="https?:\/\/(?!fonts\.g)[^"]+"/g) || []).filter(function (u) { return u.indexOf(BASE) < 0; }); // o proprio dominio (canonical/og) nao e asset externo
   if (ext.length) { console.error('RECUSADO: referência externa fora do Google Fonts: ' + ext[0]); process.exit(1); }
+
+  // ---- o cartão do link, tirado da página que acabou de ser escrita ----
+  const c = await CARTAO.tirar(dir);
+  console.log('  historia/compartilhar.jpg — ' + CARTAO.LARGURA + 'x' + CARTAO.ALTURA
+    + ', qualidade ' + CARTAO.QUALIDADE + ', ' + c.kb.toFixed(0) + ' KB · abertura: "'
+    + c.titulo + '" (topo ' + c.topo + '–' + c.base + ' px) · ' + c.escondidos + ' controle(s) fora do print');
 })();
