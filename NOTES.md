@@ -8582,3 +8582,21 @@ o canvas CRU e nao ve o filtro CSS. Os numeros dela e os do `lumaFiltrada` sao p
 coincidencia de escala, nao por serem a mesma coisa — no ACEIRO o cru da **134,3** e a tela da
 **124,9**. Vale a arte reancorar a regua no campo novo antes da proxima dose, senao a proxima
 conversa recomeca com duas reguas se chamando pelo mesmo nome.
+
+## 22/08 (madrugada) — plantao noturno, parte 1
+
+**Squads em tres lugares:** banco (mesa_agente.squad), painel (cabecalhos por grupo, cena 16 com
+refresh real), e papel (AGENTES.md + QA-cruzado par.3.1 + dev-dados rascunho — que ja aparece no
+registro de agentes, bloqueado ate a fase 1). Pedido do dono executado.
+
+**Cabecalhos do dashboard: doc perdeu para curl.** O matcher /dashboard/:caminho* NAO casa com
+/dashboard/ em producao — o index.html tinha os 4 cabecalhos e a URL com barra nao tinha nenhum
+(a seguranca tinha exigido exatamente esta prova pos-deploy). Consertado com tres entradas
+explicitas (23e3c17); sonda pos-deploy confirmou os 4 em /dashboard/: frame-ancestors none,
+X-Frame-Options DENY, Referrer-Policy no-referrer, nosniff. Pendencia da seguranca FECHADA.
+
+**Pixel no ar** (168eba1) e worktree superado (ae51) removido. **Lost update da mesa morto por
+hash** (409 no reenvio de base velha — o incidente reproduzido e barrado). **PENDENTES 49**: o
+bloco 30 do encaixe pisca (5px, folga 4, 1 em 3) e ja tinha mordido o funil da growth — dev-jogo.
+
+**Em voo:** fase 1 do acervo (conteudo:puxar + conferir) e o quarto portal.
