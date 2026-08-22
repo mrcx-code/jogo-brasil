@@ -110,6 +110,13 @@ function portao(nome, cmd, args, minutos) {
   const r = spawnSync(cmd, args, { cwd: RAIZ, encoding: 'utf8', windowsHide: true, shell: cmd === 'npm', timeout: minutos * 60000 });
   console.log('  ' + nome + ' -> exit ' + r.status);
   if (r.status !== 0) {
+    // PENDENTES 52: o tail de 15 linhas escondia QUAL asserção mordeu (2 noites de flake sem
+    // diagnóstico). A saída INTEIRA vai para um arquivo ao lado, e o caminho é impresso.
+    const logv = path.join(RAIZ, 'test', 'portao-vermelho-' + nome.replace(/[^a-z0-9]/gi, '_') + '.log');
+    try {
+      fs.writeFileSync(logv, (r.stdout || '') + '\n---- STDERR ----\n' + (r.stderr || ''));
+      console.error('  saida inteira em: ' + logv);
+    } catch (e) {}
     console.error((r.stdout || '').split('\n').slice(-15).join('\n'));
     git(['reset', '--hard', antes]);
     morre(nome + ' vermelho — merge DESFEITO (main voltou a ' + antes.slice(0, 7) + ').');
