@@ -152,7 +152,10 @@ function barraCss() {
     text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s,transform .1s; }
   .barra a:hover{ filter:brightness(1.08); }
   .barra a:active{ transform:translateY(1px); }
-  .barra a.marca{ font-weight:700; letter-spacing:.16em; color:var(--ouro2); }
+  /* TINTA ÚNICA (arte, 22/08): uma regra só na barra — o dourado marca AÇÃO (JOGAR) e
+     ONDE-VOCÊ-ESTÁ (.aqui); todo o resto, inclusive a marca BRASIL, é creme. A marca se
+     distingue por peso e espaçamento, não por cor, para o dourado ter um único significado. */
+  .barra a.marca{ font-weight:700; letter-spacing:.16em; }
   .barra a.jogar{ font-weight:700; color:var(--ouro2); }
   .barra a.aqui{ color:var(--ouro2); cursor:default;
     background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
@@ -176,10 +179,16 @@ function barraHtml(atual) {
   const linhas = tabuas.map(function (t) {
     return `      <a href="${t[1]}" class="tabua${t[3]}${marcado(t[0])}">${t[2]}</a>`;
   }).join('\n');
+  // A TÁBUA ATUAL SEMPRE VISÍVEL (arte, 22/08): a 390px a barra transborda e a .aqui do
+  // TERRITÓRIO (5ª) e do DE ONDE VEM (4ª) nasce FORA da vista — ninguém sabia "você está aqui".
+  // Um scrollIntoView na carga rola SÓ a barra (inline:nearest), nunca a página (block:nearest).
+  // O script vem logo após o <nav>, então o alvo já existe quando ele roda; o try/catch e a
+  // guarda de scrollIntoView deixam a barra intacta se algo faltar.
   return `    <nav class="barra" aria-label="Seções da plataforma BRASIL">
       <a href="/" class="marca${marcado('porta')}">BRASIL</a>
 ${linhas}
-    </nav>`;
+    </nav>
+    <script>(function(){try{var a=document.querySelector('.barra a.aqui');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'nearest',block:'nearest'});}catch(e){}})();</script>`;
 }
 
 module.exports = {

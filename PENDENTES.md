@@ -1229,10 +1229,12 @@ iguais; se não, ajusto antes de replicar (para não refazer três).
 
 ## 42 · A HOME DA PLATAFORMA está pronta em rascunho — falta o dono decidir ONDE ela mora
 
-**19/08.** A home da plataforma (a cara que amarra as 3 seções + o jogo) está gerada por
-`ferramentas/gerar-home.js` em `plataforma/index.html` (rascunho, gitignored, fora do loop de
-seções do build). Mostrada ao dono: o nome BRASIL, a proposta aprovada, JOGAR como chamariz em
-destaque, e A HISTÓRIA/O GLOSSÁRIO/DE ONDE VEM como cartões com número.
+**19/08.** A home da plataforma (a cara que amarra as 3 seções + o jogo) já está no ar como a
+PORTA — `plataforma/index.html` — e desde 22/08 é GERADA por `ferramentas/gerar-porta.js`, com
+os números extraídos do jogo headless (portão `test/medir-porta-secao.js`). Mostra ao dono: o
+nome BRASIL, a proposta aprovada, JOGAR como chamariz em destaque, e A HISTÓRIA/O GLOSSÁRIO/DE
+ONDE VEM como cartões com número. *(O rascunho anterior `gerar-home.js`, estagnado e fora do
+loop, foi removido em 22/08 — superado por gerar-porta.js.)*
 
 **A DECISÃO É DELE, e é de arquitetura — mexe na URL do jogo:**
 - **(a) A home vira a raiz** (`matheusferreira.cc/`), e o jogo move para `/jogo`. A home é a
