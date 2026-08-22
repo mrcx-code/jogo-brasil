@@ -9379,3 +9379,18 @@ licao anotada: prova de delete se faz com select SEPARADO.) Despachados: auto-lo
 (PENDENTES 57, dev-plataforma) e a checagem de autodeclaracao da autora do B3 (pesquisadora,
 com a regra escrita: fonte publica ou nada, e inferir raca por aparencia e exatamente o erro
 que a checagem evita).
+
+## 22/08 (tarde, cont. 2) — backlog vai ao dash, territorios viram dado, e a lei do continuo
+
+Decisao do dono (textual): "bora passar o backlog pro dash e conectar com as equipes, quero
+tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo".
+O desenho: (1) dashboard le o backlog.json publicado e ESCREVE pela fila autenticada (so ele —
+a RLS de hoje e exatamente o canal); (2) itens agrupados por squad com o painel ao vivo;
+(3) campo territorio em todo item — disjunto voa junto, intersecao espera, src/jogo.ts sempre
+exclusivo; (4) LEI DO CONTINUO no plantao duravel (atualizado via scheduled-tasks): zero em
+voo + item livre = despacha; max 8 em camadas. Em campo: pm repovoando a fila com territorios
+(a livre tinha zerado); a parte visual do dashboard espera o auto-login pousar (mesmo arquivo).
+
+B3: a voz alternativa fechou vinculo e fala-do-rio PLENOS em Bepa (p.234/241/247) mas
+autodeclaracao individual nao existe em fonte publica para ninguem; categoria nova achada
+(autoinclusao discursiva em 1a pessoa — a-negrada, nossos-negros) aguarda a regua do dono.
