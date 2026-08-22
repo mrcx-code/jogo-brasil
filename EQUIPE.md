@@ -137,6 +137,32 @@ integração por `git merge` com portões por exit code entre cada um, e só ent
 
 ---
 
+### 3.1 QA CRUZADO — quem convive não julga (regra do funil, 21/08)
+
+Complemento do "quem edita não julga o próprio trabalho", escrito para as TRÊS SQUADS
+(esqueleto no `AGENTES.md`) e valendo desde já em toda integração:
+
+1. **O auditor de uma entrega nunca é do squad que a produziu.** A matriz:
+   - entrega do squad **JOGO** → auditada com a lente de PLATAFORMA/ACERVO: o dado que a
+     mecânica afirma tem fonte e validade? o link entre jogo e seção continua verdadeiro?
+   - entrega da **PLATAFORMA** → lente de JOGO/ACERVO: o gerador EXTRAIU do jogo ou
+     redigitou? o número da página bate com o que o acervo afirma?
+   - entrega do **ACERVO** → lente de JOGO/PLATAFORMA: o texto cabe na fala e na tela? a
+     página gerada muda algum byte? o esquema aguenta carga hostil?
+2. **`qa` e `seguranca` são centrais** e julgam qualquer squad — é para isso que não
+   pertencem a nenhuma.
+3. **Quem reprovou RE-AUDITA — com sondas PRÓPRIAS, nunca as do autor.** Precedente de 21/08
+   (dupla hardening, 2ª volta): a seguranca re-auditou o que ela mesma reprovara rodando
+   sonda própria (laço 1135→50 POSTs; XSS que não executa; controle 6/6 visto reprovando) em
+   vez de aceitar o verde do autor — e foi isso que provou o conserto, porque a sonda do
+   autor foi calibrada pelo mesmo raciocínio que errou.
+4. **PULADO continua existindo**, com justificativa de uma linha no placar, e só quando um
+   portão por exit code já cobre a alegação — auditoria pulada por pressa não é PULADO, é
+   furo.
+5. **Achado confirmado não fica órfão no placar**: se não foi aplicado no próprio ramo, vira
+   item no `ferramentas/backlog.json` com agente dono, no MESMO commit que prega a linha
+   (retro de 21/08, §6).
+
 ## 4. O portão, sempre por EXIT CODE
 
 ```bash
@@ -253,3 +279,31 @@ recusou o §2 na mesma página. Agente que sabe onde parar vale mais que agente 
 | 21/08 historiadora pinos | 1 | 49 | 0 | 1 | 6 | lista de candidatos do territorio-rico, pino a pino ao dono como ele decidiu: 49 em 4 grupos (27 NENHUM, 17 CUIDADO, 5 PARE sem texto — Pretos Novos, Javari, Volta Grande, Araguaia, sambaquis), toda confianca media marcada [conferir] com fonte primaria a abrir antes de entrar; o desmentido foi dela contra ela mesma — o cabecalho dizia 26/18 e o script que le o JSON disse 27/17. Do dono (2 ja no dashboard): Joao Candido nomeado?, PARE visiveis ou fora?; e ainda: mais TIs homologadas?, ponte Palmas-Palmares so com documento, camada vs pino novo em Brasilia/Salvador  · aud: growth:PULADO(documento interno de proposta de pesquisa em territorio/; nenhuma pagina publica muda (o gerador nao le PINOS-PROPOSTA.md nem o json); SEO e cartoes intocados) |
 | 21/08 dupla hardening (2a volta) | 1 | 8+3 | 11 | 0 | 0 | dev-plataforma fechou a re-auditoria no proprio ramo. O achado foi contra ele: o teto de fila da 1a volta CRIOU um laco — 348 POSTs, 347 repetidos com o conserto removido; conserto tem duas metades e so as duas juntas valem. 2o bloqueante: XSS executando com a CSP nova — escapar so menor-maior-e e deixar a aspa passar e seguro em texto e fatal em atributo; cena 14 mede escape (licao 2.8). EXTRA desmentido por medicao: 71 era tamanho de array (60 fontes + 11 cabecalhos). Portao de segredo vale para todo dist/. 66->79 verificacoes, 4->6 controles mordendo  · aud: seguranca:ok(APROVADO: os 2 bloqueantes morreram e a seguranca conferiu com sonda propria — laco 1135->50 POSTs e fila drena a 0; XSS nao executa e nenhum atributo on* nasce; portao 15/15 e controle 6/6 vistos reprovando. Confirmado por MCP: so mesa_resposta aceita INSERT anonimo, logo o XSS via mesa_item era interno. Restam N9/N10/N11 e o curl dos cabecalhos pos-deploy) growth:PULADO(diff toca dashboard/ (privado, noindex, Disallow no robots) e gerar-fontes.js so no comentario (a saida da pagina FONTES nao muda um byte). Nenhuma superficie de descoberta, og: ou divulgacao) qa:PULADO(a seguranca FOI o QA adversarial deste diff: re-auditou com sondas proprias (nao as do autor), rodou fila-auth 15/15 e o controle fila-auth-controle 6/6 vistos reprovando (628 POSTs/627 repetidos no N1 reinjetado, BUTTON[onmouseover] no N2), e mediu o regex de segredo sobre os 22 arquivos publicados. Os arquivos de teste tocados sao os instrumentos que ela mesma exercitou) |
 | 21/08 pixel vence (2 voltas + arte) | 2 | 5+4 | 8 | 2 | 0 | passe de quantizacao na EXIBICAO dos 10 pintados (cores 1281->86 no CAIS; 3 controles de pixel cru imoveis; zero byte de arte) + hora presa nos 4 que dividem arte + veu ambar no ACEIRO (sepia 0,10 com devolucao de brilho — sepia sozinha CLAREIA, matriz soma 1,217; luma na tela 124,9, dentro da faixa 118-126 da arte). A arte APROVOU a dose (8 niveis: 38-86 cores ja e 10x abaixo do pixel cru) e pos condicao de FPS que o dev DESMENTIU por A/B na mesma carga (controle 24,2 com passe vs 25,6 sem — cruza o zero; o antes da arte fora medido no build COM o passe; headless varia 13-32). 3 defeitos do proprio instrumento consertados (rolagem nao presa, luma cego ao filtro, antes gravavel com ticket ligado — exit 1 agora). Duvida: regua da arte nasceu do luma CRU; reancorar em lumaFiltrada  · aud: qa:PULADO(o par adversarial deste diff foi arte+dev em duas voltas: arte julgou por print e pos condicao; dev refutou com instrumento A/B novo e controles embutidos; portoes npm test 61 FPS, encaixe e tipos verdes por exit real) historiador:PULADO(o diff em src/jogo.ts e so motor de exibicao (GRAO_PINT, pixelarPeca, HORA_FIXA, VEU_AMBAR, lavarFundo) e instrumentos; grep no diff por conteudo historico devolve exatamente 2 linhas e as duas sao LEITURA de EPOCAS[epocaAtual()] para o lookup da hora — zero literal de texto, fonte ou numero alterado) |
+
+---
+
+## 6. Retro do pm — 21/08 (a primeira)
+
+Lido o §5 inteiro. Em 21/08 foram **15 linhas de rodada num único dia** — o mais denso da
+máquina até aqui — somando **117 achados, 1 desmentido e 28 itens levados ao dono** (contados
+das linhas; a linha da prova do funil não tem número e ficou fora da soma).
+
+**O que a máquina faz bem (com número):** medir antes de afirmar virou reflexo — **1
+desmentido em 117 achados (0,9%)**, contra 3 em 18 (17%) no primeiro dia da licença; e o
+único desmentido de 21/08 foi de uma agente contra ela mesma (o cabeçalho dizia 26/18, o
+script que lê o JSON disse 27/17). E o adversarial pega bloqueante ANTES do merge: os 2 da
+fila-auth morreram no ramo, e a 2ª volta pegou o conserto da 1ª criando um laço (348 POSTs
+repetidos) — a máquina já pega a própria regressão.
+
+**Onde ela desperdiça (com número):** achado confirmado sem dono RE-MEDE em vez de fechar. O
+`og:image` de historia/glossario/de-onde-vem foi conferido por curl real em **três rodadas
+distintas do mesmo dia** (growth · growth onda 2 · growth divulgação) e aplicado em **zero**
+— o custo de ~uma rodada inteira re-descobrindo o que o placar já dizia, porque achar e
+aplicar moram em agentes diferentes e nada obrigava o achado a virar ticket.
+
+**A mudança de processo (uma):** na integração, **achado confirmado que não foi aplicado no
+próprio ramo vira item no `ferramentas/backlog.json` com agente dono, no MESMO commit que
+prega a linha do placar.** Linha de placar não se integra com achado órfão — a mesma
+disciplina do "reverteu? escreve no PENDENTES no mesmo commit", aplicada ao funil. O QA
+CRUZADO (§3.1) herda: re-auditar achado que já tem item aberto é PULADO automático, com o id
+do item na justificativa.
