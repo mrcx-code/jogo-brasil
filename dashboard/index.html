@@ -210,6 +210,15 @@
 
   .grade-ag{display:grid;gap:.6rem;grid-template-columns:1fr 1fr}
   @media(min-width:40rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
+  /* AS SQUADS (dono, 21/08). O invólucro é `display:contents` de propósito: ele agrupa no
+     DOM (que é o que faz o refresh de 30 s não duplicar card) e desaparece do layout, para
+     os cards continuarem sendo itens da MESMA grade. Um <div> normal aqui viraria uma célula
+     só com tudo dentro. O cabeçalho ocupa a linha inteira por grid-column. */
+  .grupo-ag{display:contents}
+  .cab-squad{grid-column:1/-1;font:600 .6rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--pedra);border-top:1px solid var(--linha);
+    padding-top:.5rem;margin-top:.25rem}
+  .grupo-ag:first-child .cab-squad{border-top:0;padding-top:0;margin-top:0}
   .ag{background:var(--realce);border:1px solid var(--linha);border-radius:4px;padding:.6rem .6rem .7rem;
     box-shadow:0 1px 2px var(--sombra);display:flex;flex-direction:column;align-items:center;gap:.25rem;text-align:center}
   .ag .palco{width:100%;height:60px;display:flex;align-items:flex-end;justify-content:center;
@@ -551,8 +560,16 @@
     while(f.length>1 && JSON.stringify(f).length>FILA_BYTES) f.pop();
     if(f.length===antes) return;
     try{ localStorage.setItem(FILA,JSON.stringify(f)); }catch(e){ return; }
+    // N9 da re-auditoria: a frase dizia "antiga(s)" e o corte é o oposto. `slice(0,FILA_MAX)`
+    // MANTÉM as primeiras — a fila é ordem de chegada e quem esperou mais tem precedência —,
+    // então quem cai fora é o FIM, o mais recente. O corte continua igual (FIFO é a escolha
+    // documentada); a frase é que estava mentindo sobre qual resposta se perdeu.
+    // N10: e ela mentia só no console, onde ninguém olha. Perda de resposta do dono avisa NA
+    // TELA — o toast é o único lugar onde ele estaria olhando quando isto acontece.
+    var perdidas=antes-f.length;
     console.warn("mesa: a fila local herdada estava acima do teto ("+antes+" itens, "+bytesAntes
-      +" bytes) — podei para "+f.length+". "+(antes-f.length)+" resposta(s) antiga(s) não serão enviadas.");
+      +" bytes) — podei para "+f.length+". "+perdidas+" resposta(s) mais recente(s) não serão enviadas.");
+    toast("A fila local estava acima do teto — "+perdidas+" resposta(s) mais recente(s) não serão enviadas.",true);
   }
   function flush(){
     if(lavando) return Promise.resolve();
@@ -802,9 +819,12 @@
   var CAMINHOS={
     arte:[{id:"territorio",l:"Direção do território (o showcase 3D)"},{id:"home2",l:"Home increment 2: cena + portais"},{id:"coerencia",l:"Coerência visual entre capítulos"}],
     pm:[{id:"porta",l:"Sprint da porta da plataforma"},{id:"roadmap",l:"Evolução ano a ano"},{id:"backlog",l:"Repriorizar o backlog"}],
-    dev:[{id:"territorio3d",l:"Construir o território em three.js"},{id:"home2",l:"Home increment 2 (diorama + portais)"},{id:"retencao",l:"Instrumentar retenção"}],
+    // Os caminhos seguem os NOMES da tabela: em 21/08 a DUPLA nasceu e `dev` virou dois
+    // (dev-jogo, dev-plataforma), e `pipeline` foi absorvido pelo dev-jogo. Chave que não
+    // existe mais nunca aparece no modal — ela some em silêncio, e o agente cai no "livre".
+    "dev-jogo":[{id:"quarto-portal",l:"Quarto portal: DE ONDE VEM"},{id:"home2",l:"Home increment 2 (diorama + portais)"},{id:"saida",l:"Link do jogo → plataforma"}],
+    "dev-plataforma":[{id:"acervo1",l:"Fase 1 do acervo"},{id:"medir-paginas",l:"Medir as páginas (PostHog)"},{id:"cartoes",l:"Cartões og: das seções"}],
     historiador:[{id:"revisar4",l:"Revisar os 4 textos (§2)"},{id:"verbetes",l:"Verbetes e fontes novas"},{id:"validade",l:"Números que vencem (PRODES, censo)"}],
-    pipeline:[{id:"artterr",l:"Arte do território"},{id:"peso",l:"Peso dos pacotes"},{id:"nitidez",l:"Auditoria de nitidez"}],
     qa:[{id:"telas",l:"Régua de telas (tablet/notebook)"},{id:"hostil",l:"Save hostil + backend da mesa"},{id:"gap",l:"Caçar o gap"}],
     juridico:[{id:"lgpd",l:"Auditoria LGPD do que existe"},{id:"privacidade",l:"Texto de privacidade da plataforma"},{id:"licencas",l:"Licenças das fontes"}],
     growth:[{id:"seo",l:"SEO das seções públicas"},{id:"cartao",l:"Cartão de link (og:) perfeito"},{id:"funil",l:"Funil de volta (eventos anônimos)"}],
@@ -840,6 +860,34 @@
     modal.removeAttribute("hidden");
   }
   var g=document.getElementById("grade-ag"), cards={};
+  // ================= AS SQUADS (dono, 21/08) =================
+  // A coluna `mesa_agente.squad` diz de quem é cada superfície: central (quem serve os três),
+  // jogo, plataforma, acervo. Aqui ela só ESCOLHE UM GRUPO — e é isso que a torna inofensiva:
+  // o valor do servidor é comparado contra esta lista branca e NUNCA entra no HTML. Quem entra
+  // é o rótulo daqui, por textContent. Squad desconhecida (ou nula, ou um objeto) cai no grupo
+  // final, que não tem cabeçalho. Regra do dia (N2): todo dado de servidor é hostil.
+  var ORDEM_SQUAD=["central","jogo","plataforma","acervo"], FORA="_sem-squad";
+  var ROTULO_SQUAD={central:"CENTRAL",jogo:"SQUAD JOGO",plataforma:"SQUAD PLATAFORMA",acervo:"SQUAD ACERVO"};
+  var grupos={};
+  // O invólucro nasce UMA vez por squad e é inserido na posição certa da ordem — por isso
+  // squad vazia não deixa cabeçalho órfão na tela, e por isso o refresh de 30 s não duplica
+  // nada: `atualizaAg` só move um card quando o pai dele mudou.
+  function grupoDe(squad){
+    var chave=ORDEM_SQUAD.indexOf(squad)>=0?squad:FORA;
+    if(grupos[chave]) return grupos[chave];
+    var env=document.createElement("div"); env.className="grupo-ag";
+    if(ROTULO_SQUAD[chave]){
+      var cab=document.createElement("div"); cab.className="cab-squad";
+      cab.textContent=ROTULO_SQUAD[chave]; env.appendChild(cab);
+    }
+    var pos=chave===FORA?ORDEM_SQUAD.length:ORDEM_SQUAD.indexOf(chave), antes=null;
+    for(var i=pos+1;i<=ORDEM_SQUAD.length;i++){
+      var k=i===ORDEM_SQUAD.length?FORA:ORDEM_SQUAD[i];
+      if(grupos[k]){ antes=grupos[k]; break; }
+    }
+    g.insertBefore(env,antes);
+    grupos[chave]=env; return env;
+  }
   function desde(iso){ if(!iso) return "—"; var t=new Date(iso).getTime(); if(isNaN(t)) return "—";
     var s=Math.max(0,(Date.now()-t)/1000); if(s<90) return "agora";
     var m=s/60; if(m<60) return "há "+Math.round(m)+" min";
@@ -850,7 +898,9 @@
     if(!card){ card=document.createElement("div"); card.className="ag";
       card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
         + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
-      g.appendChild(card); cards[item.nome]=card; }
+      cards[item.nome]=card; }
+    var alvo=grupoDe(item.squad);
+    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de squad
     var st=item.status||"espera";
     card.setAttribute("data-st",st);
     card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
@@ -882,7 +932,7 @@
   function carregar(){
     var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
     var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
-    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem&order=ordem",{headers:H}).then(function(r){return r.ok?r.json():[];});
+    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(function(r){return r.ok?r.json():[];});
     return Promise.all([qItens,qResp,qAg]).then(function(rs){
       var itens=rs[0]||[], resp=rs[1]||[], ags=rs[2]||[];
       resp.forEach(function(r){ if(r.tipo!=="mensagem") respondidas[r.chave]=true; });

@@ -436,7 +436,9 @@ const estado = pag => pag.evaluate(() => ({
           recomendada: veneno.v, criado_em: '2026-08-21T00:00:00Z',
           opcoes: [{ v: veneno.v, label: veneno.texto, desc: veneno.texto }],
         }],
-        mesa_agente: [{ nome: veneno.texto, papel: veneno.texto, cor: veneno.cor, status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z', ordem: 1 }],
+        // `squad` entrou na leitura em 21/08 e vem envenenada aqui pela mesma razao que `cor`:
+        // campo novo do servidor e campo novo de ataque ate alguem provar o contrario.
+        mesa_agente: [{ nome: veneno.texto, papel: veneno.texto, cor: veneno.cor, squad: veneno.v, status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z', ordem: 1 }],
       },
     });
     await pag.waitForTimeout(500);
@@ -490,6 +492,55 @@ const estado = pag => pag.evaluate(() => ({
     ok(repetidos === 0, 'nenhuma resposta foi mandada duas vezes', String(repetidos));
     ok(e.fila === 0, 'a fila drenou ate o fim', String(e.fila));
     ok(avisos.some(a => /podei/i.test(a)), 'o console diz que podou a fila herdada', avisos.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 16
+  console.log('\n[16] AS SQUADS — agrupa na ordem, e o refresh NAO duplica card');
+  cenas++;
+  // A organizacao em squads (dono, 21/08) tem um risco que nao e visual: `atualizaAg` cacheia
+  // card por nome e a pagina recarrega sozinha a cada 7 s. Agrupamento feito com `appendChild`
+  // a cada volta duplicaria a grade inteira sem ninguem perceber por um tempo — o painel so
+  // ficaria "estranho". Entao esta cena espera UM refresh de verdade e conta de novo.
+  // Ela mede tres coisas: a ORDEM dos cabecalhos, a ordem dos cards dentro dela, e que a
+  // squad envenenada nao vira grupo nem atributo (a lista branca decide, o servidor nao).
+  {
+    const linhas = [
+      { nome: 'dev-plataforma', squad: 'plataforma', ordem: 1 },
+      { nome: 'claude', squad: 'central', ordem: 2 },
+      { nome: 'historiador', squad: 'acervo', ordem: 3 },
+      { nome: 'arte', squad: 'jogo', ordem: 4 },
+      { nome: 'fantasma', squad: 'x" onmouseover="window.__xss=9', ordem: 5 },
+      { nome: 'orfa', squad: null, ordem: 6 },
+    ].map(l => Object.assign({ papel: 'papel', cor: '#7d8479', status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z' }, l));
+    const { ctx, pag, erros } = await palco(nav, { leitura: { mesa_agente: linhas } });
+    const ler = () => pag.evaluate(() => {
+      const comOn = [];
+      document.querySelectorAll('*').forEach(el => {
+        for (const a of el.attributes) if (/^on/i.test(a.name)) comOn.push(el.tagName + '[' + a.name + ']');
+      });
+      return {
+        cards: document.querySelectorAll('#grade-ag .ag').length,
+        nomes: Array.from(document.querySelectorAll('#grade-ag .ag .nome')).map(n => n.textContent).join(','),
+        cabs: Array.from(document.querySelectorAll('#grade-ag .cab-squad')).map(n => n.textContent).join(' | '),
+        comOn, xss: window.__xss, veneno: document.getElementById('grade-ag').innerHTML.indexOf('onmouseover') >= 0,
+      };
+    });
+    await pag.waitForTimeout(600);
+    const a = await ler();
+    ok(a.cards === 6, 'os 6 agentes viraram 6 cards (a cena mede algo)', String(a.cards));
+    ok(a.cabs === 'CENTRAL | SQUAD JOGO | SQUAD PLATAFORMA | SQUAD ACERVO',
+      'os cabecalhos saem na ordem central -> jogo -> plataforma -> acervo', a.cabs);
+    ok(a.nomes === 'claude,arte,dev-plataforma,historiador,fantasma,orfa',
+      'os cards seguem a squad, nao a ordem do servidor, e quem nao tem squad fica no fim', a.nomes);
+    ok(a.comOn.length === 0 && !a.veneno && a.xss === undefined,
+      'a squad envenenada nao virou atributo nem grupo', a.comOn.join(',') + ' veneno=' + a.veneno);
+    // o painel recarrega sozinho a cada 7 s; esperar o refresh e o ponto da cena
+    await pag.waitForTimeout(7600);
+    const b = await ler();
+    ok(b.cards === 6, 'depois de um refresh de verdade continuam 6 cards (nada duplicou)', String(b.cards));
+    ok(b.cabs === a.cabs, 'e nenhum cabecalho de squad nasceu de novo', b.cabs);
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
     await ctx.close();
   }
 

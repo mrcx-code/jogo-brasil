@@ -644,7 +644,10 @@ setInterval(function () {
 }, 15000);
 
 // ===== BACKLOG (dono, 21/08): reordenavel; a ordem E a prioridade =====
-let blDoc = null;
+// `blHash` e o carimbo do arquivo no momento em que esta aba leu. Ele vai em todo POST e o
+// servidor recusa (409) se o disco tiver mudado — e o conserto do lost update do PENDENTES 48,
+// em que uma aba aberta havia horas devolveu um retrato velho por cima de tres itens novos.
+let blDoc = null, blHash = null;
 function pintarBacklog() {
   const cx = document.getElementById('backlog');
   const itens = (blDoc && blDoc.itens) || [];
@@ -667,9 +670,16 @@ function pintarBacklog() {
         const j = i + dir;
         const t = itens[i]; itens[i] = itens[j]; itens[j] = t;
         pintarBacklog();
+        // O hash de base viaja no corpo (PENDENTES 48). 409 = alguem escreveu no disco depois
+        // que esta aba carregou; entao esta aba NAO insiste — recarrega e mostra o que existe,
+        // porque insistir e justamente o lost update que o conserto existe para impedir.
         fetch('/backlog', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(blDoc) }).then(r => r.json()).then(function (x) {
-            if (!x.ok) throw 0;
+          body: JSON.stringify(Object.assign({}, blDoc, { hash: blHash })) })
+          .then(function (r) { return r.json().then(function (x) { return { st: r.status, x: x }; }); })
+          .then(function (res) {
+            if (res.st === 409) { recarregarBacklog('o backlog mudou no disco — recarreguei; reordene de novo'); return; }
+            if (!res.x.ok) throw 0;
+            blHash = res.x.hash;   // sem isto a SEGUNDA reordenacao seguida cairia em 409 sozinha
           }).catch(function () { alert('nao salvou a ordem — o servidor caiu?'); });
       });
     });
@@ -699,8 +709,15 @@ document.getElementById('confirmar-prioridades').addEventListener('click', funct
       : 'não consegui avisar (rede?) — a ordem ESTÁ salva no disco';
   }).finally(function(){ setTimeout(function(){ b.disabled=false; }, 2500); });
 });
-fetch('/backlog').then(r => r.json()).then(function (d) { blDoc = d; pintarBacklog(); })
-  .catch(function () { document.getElementById('backlog').innerHTML = '<p class="vazio">sem backlog (o servidor tem /backlog?)</p>'; });
+function recarregarBacklog(aviso) {
+  return fetch('/backlog').then(r => r.json()).then(function (d) {
+    blDoc = d; blHash = d.hash || null; pintarBacklog();
+    if (aviso) alert(aviso);
+  }).catch(function () {
+    document.getElementById('backlog').innerHTML = '<p class="vazio">sem backlog (o servidor tem /backlog?)</p>';
+  });
+}
+recarregarBacklog();
 
 // ===== ATIVIDADES: rolando agora (painel dos agentes, via backend) + ultimas 24h (git) =====
 const SB = 'https://hdhqziqvrthxtgyraemk.supabase.co/rest/v1';

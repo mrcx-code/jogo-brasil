@@ -2639,6 +2639,37 @@ Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
 
 
 
-## 48 — A mesa sobrescreve o backlog com retrato VELHO (lost update) — dev-plataforma
+## 48 — A mesa sobrescreve o backlog com retrato VELHO (lost update) — dev-plataforma — **FEITO em 21/08 (dev-plataforma)**
+
+**Como ficou:** `GET /backlog` devolve o documento com um `hash` (sha1 dos BYTES em disco), o
+`POST /backlog` exige esse campo e responde **409 "recarregue a mesa"** quando a base não bate;
+o POST devolve o hash NOVO, senão a segunda reordenação seguida cairia em 409 sozinha. A mesa
+(`ferramentas/receber.html`) guarda o hash do GET, manda em todo POST e, num 409, **recarrega e
+avisa** em vez de insistir — insistir é o próprio lost update. Medido por curl contra uma cópia
+do servidor em porta separada (`MESA_PORTA=8271`, a mesa do dono intocada em 8200): hash errado
+→ **409**; sem hash → **400**; hash certo → **200** e a ordem no disco trocada; POST encadeado
+com o hash devolvido → **200**; **reenvio do mesmo corpo (base agora velha) → 409** — que é o
+cenário de 21/08 reproduzido e barrado. O campo `hash` não é gravado no arquivo.
 
 Visto em 21/08: a arvore principal tinha um ferramentas/backlog.json SEM tres itens que o HEAD ja tinha (tag-s2, hardening, quarto-portal) e com um titulo revertido. Causa: a mesa aberta havia horas POSTou de volta o retrato que carregou — o POST /backlog do receber.js grava o array inteiro sem conferir contra o que esta no disco. Desta vez o HEAD era a verdade e nada do dono se perdeu (diff conferido linha a linha antes de descartar); da proxima pode ser a ordem NOVA dele que se perde. Conserto: o GET /backlog passa a devolver um hash do arquivo, o POST manda o hash de base, e o servidor RECUSA escrita cuja base nao bate (a mesa entao recarrega e reaplica). Enquanto isso, plantao confere git diff do backlog antes de qualquer descarte.
+
+
+## 49 — O bloco 30 do `encaixe.js` VOLTOU a piscar: 5 px em 390×568 (21/08, visto pelo dev-plataforma) — dev-jogo
+
+Não é regressão de ninguém desta rodada e a medição diz por quê: `node test/encaixe.js` saiu **1**
+uma vez em três execuções do MESMO build — *"FALHA 390×568: o menu não rola com todas as tábuas
+dentro (5px, folga de 4)"* —, e o **controle** (minhas mudanças em `git stash`, HEAD limpo) saiu
+**0**, assim como a re-execução com elas de volta. Meu diff não toca `src/`: dashboard, mesa,
+SQL e testes de fila, nenhum arquivo que o `encaixe.js` lê.
+
+O que isso contradiz: o NOTES de 21/08 registra que o recheio cedeu 2 px, o poste fechou em 359 e
+o número voltou à banda **2 · 3 · 1** em três execuções. Hoje ele bateu **5** com folga 4 — a banda
+é mais larga do que a medição de ontem sugeria, e o portão continua sendo cara ou coroa em 390×568.
+Ele reprova sozinho num CI e faz a próxima pessoa caçar defeito que não existe (já custou isso ao
+funil em 21/08, na linha "flake de timing" do placar).
+
+Duas saídas, e a segunda é a que eu faria: **(a)** ceder mais recheio até a banda ficar longe da
+folga — conserto de verdade, mas às cegas enquanto ninguém souber o que varia; **(b)** medir
+primeiro: rodar o bloco 30 umas 20 vezes no mesmo build imprimindo o número, para saber se é fonte
+que carrega tarde, arredondamento de subpixel ou layout que assenta depois do primeiro quadro. Sem
+essa distribuição, qualquer conserto é palpite — 2.9.
