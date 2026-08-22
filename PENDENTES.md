@@ -1275,7 +1275,8 @@ de 260 caracteres** — 3 de folga é frágil demais para uma fala que alguém v
 pagamento em terra e em gente pede verbete próprio para não virar frase solta. **§2:** o nome do
 contratado NÃO entra em fala nenhuma; o sujeito é o governo, o documento é o contrato.
 
-## 44 · `encaixe.js` está VERMELHO na main, e não é de agora (20/08) — **FECHADO em 20/08, mesma noite**: era regressão MINHA (clamp da proposta, +0,46px×2 linhas + line-height 1,28 em 390px estourava a folga de 4px). Consertado em src/estilo.css (calc 5px+1.4vw, line-height 1,15 no celular); encaixe 395/395 exit 0.
+## 44 · `encaixe.js` está VERMELHO na main, e não é de agora (20/08)
+ — **FECHADO em 20/08, mesma noite**: era regressão MINHA (clamp da proposta, +0,46px×2 linhas + line-height 1,28 em 390px estourava a folga de 4px). Consertado em src/estilo.css (calc 5px+1.4vw, line-height 1,15 no celular); encaixe 395/395 exit 0.
 
 `node test/encaixe.js` sai **1**: *"390×812: o menu não rola com todas as tábuas dentro (7px, folga
 de 4 para arredondamento de subpixel)"* — `7 tábuas · 50–72px · rolagem 7px [logoImg 210 + menuSub
@@ -2570,7 +2571,8 @@ de 260 caracteres** — 3 de folga é frágil demais para uma fala que alguém v
 pagamento em terra e em gente pede verbete próprio para não virar frase solta. **§2:** o nome do
 contratado NÃO entra em fala nenhuma; o sujeito é o governo, o documento é o contrato.
 
-## 44 · `encaixe.js` está VERMELHO na main, e não é de agora (20/08) — **FECHADO em 20/08, mesma noite**: era regressão MINHA (clamp da proposta, +0,46px×2 linhas + line-height 1,28 em 390px estourava a folga de 4px). Consertado em src/estilo.css (calc 5px+1.4vw, line-height 1,15 no celular); encaixe 395/395 exit 0.
+## 44 · `encaixe.js` está VERMELHO na main, e não é de agora (20/08)
+ — **FECHADO em 20/08, mesma noite**: era regressão MINHA (clamp da proposta, +0,46px×2 linhas + line-height 1,28 em 390px estourava a folga de 4px). Consertado em src/estilo.css (calc 5px+1.4vw, line-height 1,15 no celular); encaixe 395/395 exit 0.
 
 `node test/encaixe.js` sai **1**: *"390×812: o menu não rola com todas as tábuas dentro (7px, folga
 de 4 para arredondamento de subpixel)"* — `7 tábuas · 50–72px · rolagem 7px [logoImg 210 + menuSub
@@ -2673,3 +2675,57 @@ folga — conserto de verdade, mas às cegas enquanto ninguém souber o que vari
 primeiro: rodar o bloco 30 umas 20 vezes no mesmo build imprimindo o número, para saber se é fonte
 que carrega tarde, arredondamento de subpixel ou layout que assenta depois do primeiro quadro. Sem
 essa distribuição, qualquer conserto é palpite — 2.9.
+## 49 — 480×320 deitado: o poste de OITO tábuas rola 95 px (21/08, dev-jogo)
+
+**Não é regressão nova, é a mesma dívida crescendo, e o número está medido dos dois lados.** Com
+sete tábuas o menor deitado que ainda se vende (480×320) já rolava **9 px**; com a oitava (o
+portão DE ONDE VEM, decisão do dono de 21/08) passou a rolar **95**. A aritmética não tem saída
+numa coluna só: 4 portões de 51 + 4 tábuas de 44 + 7 vãos de 3 = **401 px** num aparelho de 320.
+
+O conserto do telefone deitado grande (844×390) foi o **poste de dois lados** — quatro portões à
+esquerda do mastro, quatro utilidades à direita, altura 413 → 225 px, e o bloco 21 do
+`encaixe.js` voltou ao verde. Ele **não** foi estendido a 480 px de largura de propósito: duas
+tábuas de 280 mais o mastro tomariam 586 dos 480, e estreitar a tábua até caber derruba o rótulo
+para escala 1 (a régua de escala mede e cede sozinha, mas a 1 a letra deixa de ser legível).
+
+O que **está** garantido lá hoje: nenhuma tábua fica inalcançável. O `justify-content: safe
+center` que entrou nesta rodada faz o poste desistir de centrar quando estoura, então a rolagem
+resgata tudo — antes disto o JOGAR nascia com o topo em −27 px, cortado e **sem jeito de chegar
+nele**, porque rolagem só anda para o fim.
+
+Caminhos, para quem pegar: (a) duas colunas também abaixo de 700 px, com o logo saindo da linha
+das tábuas em vez de dividir a largura com elas; (b) o poste de dois lados virar o padrão de todo
+deitado e a marca ir para cima das tábuas; (c) aceitar a rolagem em 480×320 e escrevê-la como
+decisão, com o número. Nenhuma foi medida.
+
+## 50 — A home CINEMÁTICA corta o poste quando a altura é curta (21/08, dev-jogo)
+
+**Dois tamanhos, o mesmo defeito, e o pior deles é num NOTEBOOK.** O painel da direita
+(`min-width: 900px`) empilha logo, frase e as oito tábuas numa faixa de `clamp(360px, 33vw,
+460px)`, e não pergunta se a altura dá. Medido depois desta rodada:
+
+| tela | poste | rolagem | o que fica cortado |
+|---|---:|---:|---|
+| 1366×768 (notebook) | 438 | **73** | ATÉ AQUI 66% visível · CONFIGURAÇÕES **fora** (pé em 831) |
+| 926×428 (telefone deitado moderno) | 417 | **205** | FONTES 86% · as quatro de baixo fora |
+| 1024×768 (tablet) | 438 | 8 | nada |
+| 1366×900 | 444 | 2 | nada |
+| 1920×1080 | 559 | 0 | nada |
+
+**Pré-existente e agravado, e os dois lados estão medidos:** com sete tábuas o 1366×768 já
+rolava 55 e o 926×428 já rolava 159 — a oitava somou ~20 e ~50. A `test/regua-larga.js` passa
+e está certa em passar: ela cobra que CONFIGURAÇÕES seja **alcançável pelo dedo**, e é (o menu
+declara `overflow-y: auto` desde 14/08). Alcançável não é visível, e numa home que é a porta
+da plataforma a segunda coisa importa tanto quanto a primeira.
+
+**A RESPOSTA JÁ EXISTE NESTE REPOSITÓRIO e é o poste de dois lados** (entrou em 21/08 para o
+telefone deitado, `estilo.css`). O que está errado hoje é o **gatilho**: ele é por LARGURA
+(700–899 px) quando o que decide é a ALTURA DISPONÍVEL contra a altura do poste. 1366×768 tem
+largura de sobra e cai no mesmo caso; 1366×900 não cai. O corte fica por volta de **830 px de
+altura** nessa largura — medido, não estimado.
+
+Caminho, para quem pegar: trocar a janela de largura por uma de altura (`max-height` na casa
+dos 830) e, na cinemática, deixar a faixa da direita crescer o bastante para duas pistas de
+tábua — hoje ela tem 360–460 px, e duas pistas dentro disso dariam ~175 px cada, abaixo do que
+o rótulo "DE ONDE VEM" precisa a escala 3 (201 px de canvas + 48 de recheio + 16 de prego). Ou
+seja: não é copiar o bloco, é alargar a faixa primeiro. **Não medido.**
