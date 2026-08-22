@@ -12360,10 +12360,23 @@ function montarConfig() {
                 ["E A SUA RESPOSTA À PERGUNTA DO FIM,", "#5c3210"],
                 ["SE VOCÊ RESPONDER.", "#5c3210"],
                 ["SEM NOME, SEM E-MAIL, SEM IP,", "#5c3210"],
-                ["SEM COOKIE E SEM ANÚNCIO.", "#5c3210"]);
+                ["SEM COOKIE E SEM ANÚNCIO.", "#5c3210"],
+                // A TERCEIRA VEZ QUE ESTA FRASE MUDA COM A REDE (PENDENTES 51). Em 22/08 as
+                // cinco páginas de fora do jogo passaram a contar a abertura delas, e o
+                // interruptor delas é ESTE — mesma chave de `localStorage`, porque uma
+                // origem com duas escolhas de privacidade é duas afirmações que podem
+                // discordar. O rodapé das páginas já diz "aqui e no jogo"; a tela do jogo
+                // dizia só metade do que o botão faz, e descrever metade do efeito de um
+                // interruptor de privacidade é o mesmo defeito das versões anteriores desta
+                // frase, em tamanho menor.
+                ["DESLIGAR VALE AQUI E NAS PÁGINAS", "#5c3210"],
+                ["DO SITE: O INTERRUPTOR É UM SÓ.", "#5c3210"]);
   } else {
     linhas.push(["A CONTAGEM ESTÁ DESLIGADA:", "#5c3210"],
-                ["NÃO SAI UM BYTE DAQUI.", "#5c3210"]);
+                ["NÃO SAI UM BYTE DAQUI.", "#5c3210"],
+                // e o outro lado da mesma verdade: desligado aqui, desligado lá
+                ["NEM DAS PÁGINAS DO SITE:", "#5c3210"],
+                ["O INTERRUPTOR É UM SÓ.", "#5c3210"]);
   }
   linhas.forEach(function (l) {
     const linha = document.createElement("div");
@@ -15165,6 +15178,60 @@ function montarFim() {
   // "ATÉ AQUI", da primeira chegada, continua em escala 3 nas três telas.
   pintarFimTit();
   montarPergunta();
+  montarSaidaPlataforma();
+}
+// ============================================================
+// A SAÍDA PARA A PLATAFORMA — uma linha, no fim, e em lugar nenhum mais
+//
+// O achado é da growth e foi medido por `curl` em três rodadas de 21/08: o jogo — que a
+// decisão de 19/08 do dono transformou no CHAMARIZ de uma plataforma de conhecimento — não
+// tem UM link de saída. Quem termina o arco não descobre que A HISTÓRIA, o glossário, DE ONDE
+// VEM e O TERRITÓRIO existem como PÁGINAS de verdade, que dá para mandar para alguém que
+// nunca abriu o jogo.
+//
+// POR QUE AQUI E NÃO NO MENU, que era o outro candidato: o menu é a porta de ENTRADA. Desde
+// 20/08 o jogo mora em `/jogo/` e a plataforma na raiz, então quem chega pelo site JÁ VEIO
+// de lá — uma saída ali é um botão de voltar para a página que a pessoa acabou de deixar, e
+// pior, ela disputa atenção com o JOGAR de quem ainda não jogou. A CHEGADA é o contrário: o
+// arco acabou, a tela existe para dizer "para onde ir", e quem chegou até ela é exatamente
+// quem quer mais. Uma tela só, um link só.
+//
+// POR QUE UMA NOTA DE MARGEM E NÃO UMA QUARTA TÁBUA: a régua da casa não é "madeira em tudo",
+// é madeira para AÇÃO DE JOGO e papel para leitura — está escrita no CSS da própria CHEGADA
+// ("nenhum material novo") e é o que impede o Frankenstein que três ondas tiraram desta tela.
+// Uma quarta tábua daria a este link o mesmo peso das três portas e o transformaria no
+// anúncio que ele não pode ser. Nota de margem é o material que o jogo já usa para dizer uma
+// coisa a mais sem interromper.
+//
+// AS DUAS GUARDAS, e cada uma responde a um lugar onde o link seria MENTIRA:
+//  1. `http`. Aberto com dois cliques (`file:`) não há domínio nem servidor — mesma decisão de
+//     `medir()` e de `garantirPacote()`, e o mesmo motivo.
+//  2. o jogo não pode SER a raiz. `/` só é a plataforma quando o jogo está pendurado noutro
+//     caminho (`/jogo/` em produção). No aplicativo do Capacitor o jogo é servido em
+//     `https://localhost/` — protocolo `http`, note bem, e é por isso que a guarda 1 sozinha
+//     não bastava — e ali `/` é o próprio jogo: o link recarregaria a partida prometendo uma
+//     plataforma. O mesmo vale para `npm run servir` sem a pasta `dist`.
+// O ENDEREÇO MOSTRADO É O `location.host`, nunca um literal: assim o rótulo e o destino não
+// têm como desencontrar — no domínio do dono lê "matheusferreira.cc", na prévia da Vercel lê
+// a prévia, e trocar `ferramentas/dominio.js` não deixa uma segunda cópia velha para trás.
+// ============================================================
+function montarSaidaPlataforma() {
+  const cx = document.getElementById("fimPlataforma") as HTMLElement | null;
+  if (!cx) return;
+  cx.textContent = "";
+  if (location.protocol.indexOf("http") !== 0 || location.pathname === "/") {
+    cx.hidden = true;
+    return;
+  }
+  cx.hidden = false;
+  const nota = document.createElement("span");
+  nota.textContent = "estas telas também são páginas, fora do jogo: ";
+  const a = document.createElement("a");
+  a.setAttribute("href", "/");
+  a.setAttribute("target", "_self");
+  a.textContent = "a plataforma continua em " + location.host + " →";
+  cx.appendChild(nota);
+  cx.appendChild(a);
 }
 // ============================================================
 // "VOCÊ VOLTARIA AMANHÃ?" — a única pergunta que o jogo faz a quem o joga

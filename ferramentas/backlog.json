@@ -77,7 +77,8 @@
       "titulo": "O chamariz ganha saida: link jogo → plataforma",
       "detalhe": "Hoje o jogo nao tem NENHUM link de volta (achado do growth). Proposta discreta; se pedir decisao visual, vai ao dono.",
       "agente": "dev-jogo",
-      "estado": "livre"
+      "estado": "concluido",
+      "nota": "FECHADO 22/08 (dev-jogo): UMA saida, na CHEGADA e so nela — nota de margem depois do VOLTAR PARA A RUA, ancora <a href=/ target=_self>, texto \"estas telas tambem sao paginas, fora do jogo: a plataforma continua em <host> →\". O menu foi RECUSADO por argumento: e a porta de ENTRADA, quem chega pelo site acabou de vir de / e ali o link disputa com o JOGAR de quem ainda nao jogou. Endereco vem de location.host (rotulo e destino nao tem como desencontrar). DUAS guardas, as duas vistas mordendo: file: (sem dominio) e o jogo SER a raiz — no Capacitor ele e servido em https://localhost/, protocolo http, e la / e o proprio jogo. Alvo de dedo 44,19-44,80 px em 6 telas; deitado a nota vai para a coluna das portas e custa ZERO altura (1366x768 continua com rolagem 0; atravessando embaixo custava 66)."
     },
     {
       "id": "posthog-paginas",
