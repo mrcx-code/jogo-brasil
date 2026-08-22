@@ -33,6 +33,42 @@ function ok(cond, txt) {
 const log = (...a) => console.log(...a);
 const sec = t => log('\n---- ' + t);
 
+// ABRIR O MENU E ESPERAR ELE PARAR DE ANDAR — e isto não é zelo, é o conserto de um portão que
+// era cara ou coroa (21/08).
+//
+// O sintoma: os blocos 21 e 30 mediam o poste com `waitForTimeout` e devolviam números
+// DIFERENTES no MESMO build, em cargas seguidas — 390×568 deu rolagem 6 numa execução e 1 na
+// seguinte (e reprovou por exit code numa delas); 1024×768 deu o pé do CONFIGURAÇÕES em 766,
+// 770 e 773 em três execuções. Sete pixels de espalhamento numa régua cuja folga é de 4 é a
+// mesma lição do FPS de 20/08: se o espalhamento do instrumento é da ordem do que se mede, não
+// há o que ler.
+//
+// A causa é a mobília BROTANDO. `#telaMenu.aberta > *` roda `brota .42s` com `animation-delay`
+// de .12s no terceiro filho — o próprio poste —, então a tela só para de andar em 540 ms, e o
+// que a animação faz é `translateY(18px)`. Um `waitForTimeout(420)` (bloco 30) ou de 600 ms
+// (bloco 21) cai DENTRO ou logo na borda dessa janela conforme a máquina esteja mais ou menos
+// carregada, e o que sobra de deslocamento entra direto na medida.
+//
+// O conserto não é esperar mais — é esperar A COISA CERTA: `getAnimations({subtree:true})` e
+// as promessas `finished` de cada uma. A `respira` do logo é INFINITA e nunca resolve, então
+// ela sai da lista pelo nome; a corrida com um teto de 3 s existe para um motor que um dia não
+// implemente `finished` não pendurar o teste inteiro.
+async function abrirMenuParado(page) {
+  await page.evaluate(async () => {
+    fecharTelas(); abrirTela('telaMenu');
+    const tela = document.getElementById('telaMenu');
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const vivas = tela.getAnimations({ subtree: true })
+      .filter(a => a.animationName !== 'respira')
+      .map(a => a.finished.catch(() => {}));
+    await Promise.race([
+      Promise.all(vivas),
+      new Promise(r => setTimeout(r, 3000)),
+    ]);
+    await new Promise(r => requestAnimationFrame(r));
+  });
+}
+
 (async () => {
   const browser = await chromium.launch({ executablePath: chromiumPath() });
   const page = await browser.newPage({
@@ -1696,8 +1732,7 @@ const sec = t => log('\n---- ' + t);
   for (const vp of [{ w: 844, h: 390, nome: 'telefone deitado 844×390' },
                     { w: 1024, h: 768, nome: 'tablet deitado 1024×768' }]) {
     await page.setViewportSize({ width: vp.w, height: vp.h });
-    await page.evaluate(() => { fecharTelas(); abrirTela('telaMenu'); });
-    await page.waitForTimeout(600);
+    await abrirMenuParado(page);
     const menu = await page.evaluate(() => {
       const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
       const r = [];
@@ -2423,8 +2458,7 @@ const sec = t => log('\n---- ' + t);
   // dois degraus antigos (600/601) para o salto não poder voltar sem o teste ficar vermelho.
   for (const h of [568, 600, 601, 640, 700, 720, 812, 932]) {
     await page.setViewportSize({ width: 390, height: h });
-    await page.evaluate(() => { fecharTelas(); abrirTela('telaMenu'); });
-    await page.waitForTimeout(420);
+    await abrirMenuParado(page);
     const m = await page.evaluate(() => {
       const H = document.documentElement.clientHeight;
       const tela = document.getElementById('telaMenu');

@@ -75,7 +75,44 @@
        E no mesmo dia o poste voltou a SETE: o dono mudou DE ONDE VEM para dentro de
        CONFIGURAÇÕES, então os números voltaram aos de sete. Fica registrado o ciclo inteiro
        porque ele mostra a régua: **oito tábuas só cabem apertando o respiro de todas**, e a
-       resposta certa não foi apertar — foi tirar uma tábua da rua e pôr onde ela pertence. */
+       resposta certa não foi apertar — foi tirar uma tábua da rua e pôr onde ela pertence.
+
+       E EM 21/08 A OITAVA VOLTOU, DESTA VEZ PARA FICAR — e como PORTÃO, que é a tábua alta.
+       O dono decidiu que DE ONDE VEM é a quarta entrada da plataforma, não um item de tela
+       de ajustes. Agora não há tábua para tirar: as quatro de cima são as quatro seções e as
+       quatro de baixo são utilidade que já cede tudo o que tem. Então desta vez a resposta É
+       apertar o respiro de todas — a mesma conta de sempre, refeita com o número novo. O que
+       a oitava custou, medido na MESMA carga antes e depois (test/tmp-poste.js, 390 de largura,
+       partida destravada, oito tábuas visíveis):
+
+           altura   poste antes   poste com 8   rolagem que apareceu
+           568      359           413           8
+           600      ~376          430           13
+           640      ~394          450           19
+           700      ~421          482           28
+           720      ~430          492           31
+           812      473           540           45
+           844      473           540           24
+
+       QUATRO MEDIDAS CEDEM, e nenhuma delas é altura de tábua (o piso de 44 e o de 48 seguem
+       intocados — quem cede é o respiro, nunca o dedo):
+
+        · o VÃO entre tábuas: teto 10 → 6. Sete vãos de 10 px são 70 px de nada entre oito
+          tábuas que já se distinguem por material e largura;
+        · o PÉ do poste: teto 48 → 20. Era a maior gordura da tela alta — 48 px de madeira
+          vazia abaixo da última tábua, num poste que agora tem uma tábua a mais para mostrar;
+        · o RECHEIO da tábua: a reta inteira desce (11→14 vira 9→12). Isto é o que encolhe os
+          PORTÕES, que são quatro e são os altos: portão a 812 vai de 57 para 51 px, e a 568
+          encosta no piso de 48 sem furá-lo;
+        · o LOGO desce mais um degrau. É a única coisa aqui que não é respiro, e entra porque
+          sem ela as telas de 568–640 não fechavam por 2 a 7 px — a mesma conta e o mesmo
+          argumento de 14/08 ("numa tela de 568 px um logo menor não custa nada"), agora
+          valendo até 844. Medido: 218 → 207 px de altura a 390×844, 5% menor.
+
+       O QUE ISSO DEIXA DE FOLGA, medido depois (mesma sonda, mesma carga): ver a tabela do
+       Diário. A régua é `test/encaixe.js` bloco 30, e ela cobra rolagem ≤ 4 px em oito
+       alturas. Se uma nona tábua for pedida um dia, é esta tabela que se refaz — e aí já não
+       haverá respiro para dar. */
     --mTopo:      clamp(4px, calc(21.31vh - 117.05px), max(7vh, 34px)); /*  4 → 56  respiro do topo */
     /* O LOGO DESCE MAIS FUNDO QUE AS OUTRAS, e o teto de cima é o VALOR ANTIGO de propósito:
        `clamp` com uma reta no meio e a curva velha como limite superior faz o piso baixar de
@@ -84,12 +121,15 @@
        de achá-los: raspar respiro em todo mundo ou encolher a primeira coisa que a pessoa vê
        — numa tela de 568 px um logo menor não custa nada, e 30 px de folga é margem de sobra
        para a oitava tábua não recomeçar esta conversa. */
-    --mLogoAlt:   clamp(120px, calc(36.89vh - 89.5px), calc(24.6vh + 10.2px));
+    /* 21/08: a reta desce um degrau inteiro para pagar a oitava tábua. O TETO continua sendo
+       o valor antigo (`24.6vh + 10.2`), então a curva nunca sobe acima do que já havia; o que
+       muda é a reta do meio, que passa a ficar abaixo dele em toda a faixa útil. */
+    --mLogoAlt:   clamp(104px, calc(35vh - 94px), calc(24.6vh + 10.2px));
     --mLogoBaixo: clamp(2px, calc(2.46vh - 11.97px), 8px);              /*  2 → 8   logo → frase */
-    --mVao:       clamp(3px, calc(2.87vh - 13.3px), 10px);              /*  3 → 10  entre tábuas (piso 3: CONFIGURAÇÕES somou um botão à pilha de 568) */
-    --mPosteTopo: clamp(8px, calc(4.1vh - 15.3px), 18px);               /*  8 → 18  ombro do poste */
-    --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 48px);            /*  4 → 48  pé do poste */
-    --mTabua:     clamp(11px, calc(1.23vh + 4.02px), 14px);             /* 11 → 14  recheio da tábua */
+    --mVao:       clamp(3px, calc(1.9vh - 8.2px), 6px);                 /*  3 → 6   entre tábuas (piso 3: CONFIGURAÇÕES somou um botão à pilha de 568; teto 10 → 6 e a reta mais deitada com a oitava) */
+    --mPosteTopo: clamp(6px, calc(4.1vh - 15.3px), 14px);               /*  6 → 14  ombro do poste (era 8 → 18) */
+    --mPosteBase: clamp(4px, calc(18.03vh - 98.43px), 20px);            /*  4 → 20  pé do poste (teto 48 → 20 com a oitava) */
+    --mTabua:     clamp(9px, calc(0.83vh + 4.3px), 12px);               /*  9 → 12  recheio da tábua (era 11 → 14) */
     /* responsive type scale — grows with the screen */
     /* Nothing here may touch the network, so the face has to already be on the device. Arial
        Black is the fattest one that ships nearly everywhere; Segoe UI Black covers Windows,
@@ -665,7 +705,14 @@
        de rolagem em execuções seguidas do MESMO build — régua mais fina que o instrumento é
        cara ou coroa. Com 2 px a menos por portão o poste fecha em 359 e o número volta a ser
        estável. O piso de 48 px continua sendo o piso. */
-    padding: calc(var(--mTabua) - 2px) 24px; min-height: 48px;
+    /* O PISO DO PORTÃO É 51, E ELE VIROU UM NÚMERO SÓ EM 21/08 — antes eram três (48 em
+       retrato, 46 deitado, 50 na cinemática), e o de retrato deixou de fechar a conta quando o
+       recheio desceu para pagar a oitava tábua. A conta é esta, e ela não é estética:
+       **44 de dedo (o piso da tábua de nível 2, que não se negocia) + 7 de degrau**. A
+       `test/regua-larga.js` cobra que o nível 2 seja pelo menos 6 px MAIS BAIXO que o portão —
+       é a régua que impede os dois níveis de voltarem a ler como um só. Com o recheio a 9 px o
+       portão media 47 e o degrau caía para 3: reprovou em 899×500 e a régua estava certa. */
+    padding: calc(var(--mTabua) - 2px) 24px; min-height: 51px;
     text-shadow: 0 1px 0 rgba(255,236,196,.5);
     box-shadow: inset 0 3px 0 #d8a468, inset 0 -4px 0 #573619,
                 inset 0 0 0 2px #2e1c0a, 0 5px 0 #120c06, 0 7px 0 rgba(0,0,0,.4); }
@@ -800,7 +847,17 @@
     /* de borda a borda (1 / -1) e esticado: a caixa do poste passa a ser a altura da tela, as
        tábuas ficam centradas dentro dela (`justify-content: center` do flex) e o mastro fecha
        em `bottom: 0` sem sobrar um pixel de rolagem. */
-    #poste { grid-area: 1 / 2 / -1 / auto; align-self: stretch; justify-content: center;
+    /* `safe center` E NÃO `center`, e a palavra vale a linha (21/08). Centrar conteúdo que NÃO
+       CABE corta os dois lados — e o lado de cima de um flex column não é alcançável por
+       rolagem nenhuma, porque a rolagem só anda para o fim. Medido quando a oitava tábua
+       entrou: em 844×390 as oito somam 417 px numa caixa de 390, e com `center` o JOGAR nascia
+       com o topo em −2 px, cortado e sem jeito de chegar nele. `safe` manda o navegador
+       desistir do centro exatamente quando ele passaria a esconder o começo, e alinhar no
+       início — o resto continua alcançável pela rolagem que o menu já declara. Onde cabe (a
+       maioria das telas deitadas) o efeito é ZERO: `safe center` é `center` quando não estoura.
+       Se um dia um motor não entender `safe`, a declaração inteira cai e o flex volta a
+       `flex-start`, que é o comportamento seguro — a falha é para o lado certo. */
+    #poste { grid-area: 1 / 2 / -1 / auto; align-self: stretch; justify-content: safe center;
       margin: 0; padding: 8px 0 14px; gap: var(--mVao); }
     /* deitado o mastro atravessa as DUAS bordas: desenhar o miolo cortado na borda de cima
        diria que ele acaba ali, e ele não acaba. */
@@ -828,9 +885,48 @@
        teto do portão é 300 px e não 320 porque, em 480×320 (o menor deitado que ainda se
        vende), 52vw dá 250 px de tábua e o rótulo de A HISTÓRIA a escala 3 mede 183: cabe com
        19 px de folga de cada lado, que é o mínimo para o prego não encostar na letra. */
-    #poste .telaBtn.portal { width: min(52vw, 300px); min-height: 46px; }
+    #poste .telaBtn.portal { width: min(52vw, 300px); min-height: 51px; }
     #poste .telaBtn.sec { width: min(42vw, 240px); }
-    #poste { padding: 6px 0 10px; }
+    /* 4/8 e não 6/10: com oito tábuas o deitado passou a estourar, e 4 px de ombro e 8 de pé
+       são o que ainda lê como poste sem custar tábua. */
+    #poste { padding: 4px 0 8px; }
+  }
+  /* ===== O POSTE DE DOIS LADOS — telefone deitado com as OITO tábuas (21/08) =====
+     A CONTA QUE OBRIGA, e ela não tem saída dentro de uma coluna só: oito tábuas com o piso de
+     dedo somam 4×51 + 4×44 = 380 px, mais sete vãos de 3 = 401, e a tela deitada de um telefone
+     tem 390. Medido pelo bloco 21 do `encaixe.js`, que cobra TODA tábua inteira na tela em
+     844×390 — e cobra com razão: em 12/08 o deitado era uma tela em que o jogo não podia nem
+     ser começado. Não há respiro para cortar (o poste já está em 4/8 e o vão no piso), e cortar
+     altura de tábua é furar os 44 px de polegar, que é a única linha que não se negocia.
+
+     Então quem muda é o ARRANJO, que é a mesma resposta que o deitado já deu em 12/08 quando
+     empilhar logo e tábuas numa coluna só parou de caber: **as tábuas passam a ser pregadas
+     dos DOIS LADOS do mastro**. Quatro portões à esquerda, quatro utilidades à direita, e o
+     mastro — que sempre esteve em `left: 50%` — passa a correr no vão entre elas, que é
+     exatamente o que um poste de beira de estrada faz. Nenhum material novo, nenhum
+     vocabulário novo: só o lado em que a tábua é pregada.
+
+     A altura cai de 413 para ~225 px, e a coluna vira `grid` de 4 linhas com `grid-auto-flow:
+     column`. `align-items: center` e não `stretch` é obrigatório: esticada, a tábua de nível 2
+     ficaria da altura da linha (51) e o DEGRAU entre os dois níveis sumiria — que é o defeito
+     que a `test/regua-larga.js` existe para pegar.
+
+     A JANELA É ESTREITA DE PROPÓSITO. Só entra onde as duas colunas cabem de verdade: acima de
+     700 px de largura (abaixo disso, 480×320, duas tábuas de 280 mais o mastro não deixariam
+     largura para o logo, e lá o menu continua rolando, como já rolava antes desta rodada) e
+     abaixo de 460 px de altura (acima disso a coluna única cabe — 899×500 mede 417 numa tela de
+     500 — e uma coluna só é a composição melhor quando ela cabe). */
+  @media (orientation: landscape) and (min-width: 700px) and (max-width: 899px) and (max-height: 460px) {
+    #poste { display: grid; grid-auto-flow: column;
+      grid-template-rows: repeat(4, auto); grid-template-columns: auto auto;
+      /* o vão entre as colunas é o mastro: 18 px de madeira mais folga dos dois lados */
+      column-gap: 26px; row-gap: var(--mVao);
+      align-items: center; justify-items: center; align-content: center; }
+    /* 280 e não 300: o rótulo mais comprido do topo ("DE ONDE VEM") mede 201 px a escala 3, e
+       280 − 48 de recheio − 16 de respiro do prego dão 216. A 300 caberia igual, mas duas
+       colunas de 300 mais o mastro tomariam 626 px dos 844 e sobrariam 190 para a marca. */
+    #poste .telaBtn.portal { width: min(34vw, 280px); }
+    #poste .telaBtn.sec { width: min(30vw, 244px); }
   }
   /* ===== A HOME CINEMÁTICA — tela larga (>=900px). Direção da arte (20/08). =====
      Duas faixas, não uma coluna esticada: a CENA (o canvas do jogo, com a personagem andando)
@@ -859,14 +955,17 @@
     #telaMenu .menuProposta { max-width: 100%; }
     /* o poste ancora o painel embaixo; as tábuas centradas na altura que sobra */
     #poste { grid-column: 2; grid-row: 3; align-self: stretch; justify-content: flex-start;
-      margin: 0; padding: 6px 0 18px; gap: var(--mVao); width: 100%; }
+      /* pé 18 → 10 com a oitava tábua: em 1024×768 o CONFIGURAÇÕES saía 2 px pela borda de
+         baixo (bloco 21 do encaixe), e 8 px de madeira vazia abaixo da última tábua era o que
+         havia de mais barato para dar. */
+      margin: 0; padding: 6px 0 10px; gap: var(--mVao); width: 100%; }
     #poste::after { display: none; }
     #telaMenu .telaBtn { width: min(100%, 320px); min-height: 46px; }
     /* NA CINEMÁTICA A HIERARQUIA É O QUE A FAIXA DA DIREITA TEM PARA DIZER. O painel é uma
        coluna de largura fixa: sem dois níveis, ele lê como uma lista de sete itens iguais —
        exatamente o "menu de celular esticado" que a régua larga existe para não deixar voltar.
        Os portões ocupam a faixa quase inteira; a utilidade recua 16% de cada lado. */
-    #poste .telaBtn.portal { width: min(100%, 340px); min-height: 50px; }
+    #poste .telaBtn.portal { width: min(100%, 340px); min-height: 51px; }
     #poste .telaBtn.sec { width: min(84%, 268px); }
     #telaMenu .mpFrase { line-height: 1.4; }
   }

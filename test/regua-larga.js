@@ -156,7 +156,11 @@ const TELAS = [
 
     // ---- os dois níveis do poste, medidos ----
     const P = m.portais || [], U = m.utilidade || [];
-    if (P.length !== 3) probs.push('o topo do poste tem ' + P.length + ' portões, e a direção pede 3 (JOGAR · A HISTÓRIA · GLOSSÁRIO)');
+    // QUATRO desde 21/08: DE ONDE VEM saiu de dentro de CONFIGURAÇÕES e subiu ao topo por
+    // decisão do dono. O número é cobrado de propósito — o modo de falha que este bloco existe
+    // para pegar é uma tábua desaparecer do topo em silêncio, e "3 ou 4, tanto faz" não pega
+    // isso. Se um quinto portão for decidido um dia, muda-se aqui E na tabela do estilo.css.
+    if (P.length !== 4) probs.push('o topo do poste tem ' + P.length + ' portões, e a direção pede 4 (JOGAR · A HISTÓRIA · GLOSSÁRIO · DE ONDE VEM)');
     else {
       // (a) os três portões são IGUAIS entre si — é o que diz "isto é a plataforma inteira"
       const lp = Math.min(...P.map(p => p.w)), Lp = Math.max(...P.map(p => p.w));

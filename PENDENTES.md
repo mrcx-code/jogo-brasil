@@ -2642,3 +2642,43 @@ Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
 ## 48 — A mesa sobrescreve o backlog com retrato VELHO (lost update) — dev-plataforma
 
 Visto em 21/08: a arvore principal tinha um ferramentas/backlog.json SEM tres itens que o HEAD ja tinha (tag-s2, hardening, quarto-portal) e com um titulo revertido. Causa: a mesa aberta havia horas POSTou de volta o retrato que carregou — o POST /backlog do receber.js grava o array inteiro sem conferir contra o que esta no disco. Desta vez o HEAD era a verdade e nada do dono se perdeu (diff conferido linha a linha antes de descartar); da proxima pode ser a ordem NOVA dele que se perde. Conserto: o GET /backlog passa a devolver um hash do arquivo, o POST manda o hash de base, e o servidor RECUSA escrita cuja base nao bate (a mesa entao recarrega e reaplica). Enquanto isso, plantao confere git diff do backlog antes de qualquer descarte.
+
+## 49 — 480×320 deitado: o poste de OITO tábuas rola 95 px (21/08, dev-jogo)
+
+**Não é regressão nova, é a mesma dívida crescendo, e o número está medido dos dois lados.** Com
+sete tábuas o menor deitado que ainda se vende (480×320) já rolava **9 px**; com a oitava (o
+portão DE ONDE VEM, decisão do dono de 21/08) passou a rolar **95**. A aritmética não tem saída
+numa coluna só: 4 portões de 51 + 4 tábuas de 44 + 7 vãos de 3 = **401 px** num aparelho de 320.
+
+O conserto do telefone deitado grande (844×390) foi o **poste de dois lados** — quatro portões à
+esquerda do mastro, quatro utilidades à direita, altura 413 → 225 px, e o bloco 21 do
+`encaixe.js` voltou ao verde. Ele **não** foi estendido a 480 px de largura de propósito: duas
+tábuas de 280 mais o mastro tomariam 586 dos 480, e estreitar a tábua até caber derruba o rótulo
+para escala 1 (a régua de escala mede e cede sozinha, mas a 1 a letra deixa de ser legível).
+
+O que **está** garantido lá hoje: nenhuma tábua fica inalcançável. O `justify-content: safe
+center` que entrou nesta rodada faz o poste desistir de centrar quando estoura, então a rolagem
+resgata tudo — antes disto o JOGAR nascia com o topo em −27 px, cortado e **sem jeito de chegar
+nele**, porque rolagem só anda para o fim.
+
+Caminhos, para quem pegar: (a) duas colunas também abaixo de 700 px, com o logo saindo da linha
+das tábuas em vez de dividir a largura com elas; (b) o poste de dois lados virar o padrão de todo
+deitado e a marca ir para cima das tábuas; (c) aceitar a rolagem em 480×320 e escrevê-la como
+decisão, com o número. Nenhuma foi medida.
+
+## 50 — A home cinemática CURTA rola 213 px (926×428) — 21/08, dev-jogo
+
+Mesma família do 49, outro layout. O painel da direita (`min-width: 900px`) empilha logo, frase e
+as oito tábuas numa faixa de `clamp(360px, 33vw, 460px)`, e num telefone deitado moderno
+(926×428) isso mede muito mais que 428. **Medido nos dois lados: 159 px de rolagem com sete
+tábuas, 213 com oito** — cresceu 54, que é exatamente uma tábua de portão mais o vão.
+
+A `test/regua-larga.js` passa e está certa em passar: o que ela cobra é que CONFIGURAÇÕES seja
+**alcançável pelo dedo**, e é (o menu declara `overflow-y: auto` desde 14/08). Mas 213 px de
+rolagem numa home que é a porta da plataforma é muita rolagem para uma decisão de layout que
+ninguém tomou — ela é o resto de uma conta, não uma escolha.
+
+O poste de dois lados não serve aqui sem mais trabalho: o painel tem 360 px de largura em 926, e
+duas colunas de tábua dentro dele dariam 170 px cada — abaixo do que o rótulo "DE ONDE VEM"
+precisa. O caminho provável é a faixa da direita virar DUAS faixas quando a altura é curta, ou o
+logo sair de dentro dela. Não medido.

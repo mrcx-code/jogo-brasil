@@ -166,13 +166,14 @@
        Madeira lisa com veio, sem NENHUM grafismo geométrico: padrão que "parece indígena"
        pertence a um povo e tem nome — é a regra do §2 e do logo. -->
   <div id="poste">
-    <!-- OS TRÊS PORTÕES, no topo e com o MESMO peso (increment 2 da home, direção da arte de
-         20/08). Eles não são "JOGAR e mais umas telas": são as três entradas da plataforma —
-         a que se joga, a que se percorre e a que se consulta. A decisão do dono de 19/08 é
-         literal sobre isso (*"cada seção tem seu valor separado… o jogo seria um chamariz"*),
-         e um poste em que só o JOGAR tem madeira clara diz o contrário disso com o material.
-         A marcenaria dos três vive em `.portal`, no estilo.css; a utilidade fica em `.sec`,
-         abaixo, menor e mais apagada. A ORDEM É A LEITURA: joga · percorre · consulta. -->
+    <!-- OS QUATRO PORTÕES, no topo e com o MESMO peso (increment 2 da home, direção da arte de
+         20/08; o quarto entrou em 21/08 por decisão do dono). Eles não são "JOGAR e mais umas
+         telas": são as quatro entradas da plataforma — a que se joga, a que se percorre, a que
+         se consulta e a que PROVA. A decisão do dono de 19/08 é literal sobre isso (*"cada
+         seção tem seu valor separado… o jogo seria um chamariz"*), e um poste em que só o
+         JOGAR tem madeira clara diz o contrário disso com o material.
+         A marcenaria dos quatro vive em `.portal`, no estilo.css; a utilidade fica em `.sec`,
+         abaixo, menor e mais apagada. A ORDEM É A LEITURA: joga · percorre · consulta · prova. -->
     <button class="telaBtn portal" id="btnJogar">JOGAR</button>
     <button class="telaBtn portal" id="btnCompletude">A HISTÓRIA</button>
     <!-- GLOSSÁRIO SOBE PARA O TOPO, e é a mudança de lugar que mais se justifica sozinha: ele
@@ -181,6 +182,17 @@
          do CONFIGURAÇÕES. Medido em 19/08 e escrito no CLAUDE.md §8: "64% do texto está na tela
          que ninguém abre". Uma obra de referência não é item de menu de jogo. -->
     <button class="telaBtn portal" id="btnGlossario">GLOSSÁRIO</button>
+    <!-- DE ONDE VEM VOLTA AO POSTE, e desta vez como PORTÃO (21/08, decisão do dono). Ela morou
+         aqui até 15/08, quando ele a mandou para dentro de CONFIGURAÇÕES — e o argumento de lá
+         ("procedência é leitura de quem quer conferir, não porta de entrada") era verdadeiro
+         para um JOGO. Deixou de ser quando o alvo virou plataforma de conhecimento (§8, 19/08):
+         a página DE ONDE VEM tem 60 fontes lidas e é a seção que responde sozinha à pergunta
+         que toda plataforma de história precisa responder — *por que eu acreditaria nisto?*.
+         Uma seção que passa no teste do §8 ("dá para mandar o link para quem nunca abriu o
+         jogo?") não é item de tela de ajustes.
+         E ela SAI de CONFIGURAÇÕES no mesmo movimento: duas portas para a mesma tela é o
+         defeito que o bloco 29 do `encaixe.js` existe para pegar. -->
+    <button class="telaBtn portal" id="btnFontes">DE ONDE VEM</button>
     <!-- ===== NÍVEL 2 — a utilidade. Mesma marcenaria, tábua menor e mais apagada: o que
          alguém procura QUANDO PRECISA, não o que a home tem a oferecer de cara. ===== -->
     <!-- O LUGAR. Nasce OCULTA, como a ATÉ AQUI ao lado: uma porta para uma coisa que ainda
@@ -202,11 +214,11 @@
          a mostrar DE ONDE VEM DUAS VEZES — a segunda em Arial Black, porque `pixelRotulo`
          pinta o primeiro nó com o id e o segundo ficava com o texto cru do molde. Achado no
          print `test/LG-antes-menu-zero.png`, não em teste nenhum: id repetido não dá erro. -->
-    <!-- CONFIGURAÇÕES, e não mais AJUSTES (15/08, decisão do dono) — e DE ONDE VEM mudou-se
-         para dentro dela na mesma decisão. Os dois motivos se somam: "configurações" é a palavra
-         que todo aplicativo usa e ninguém precisa aprender, e a procedência é leitura de quem
-         quer conferir, não porta de entrada. De quebra o poste volta a SETE tábuas: a oitava
-         tinha acabado de obrigar a apertar o respiro de todas. -->
+    <!-- CONFIGURAÇÕES, e não mais AJUSTES (15/08, decisão do dono). O DE ONDE VEM que morava
+         dentro dela desde então voltou ao topo em 21/08 (comentário lá em cima), e com isso o
+         poste torna a ter OITO tábuas — o mesmo número que em 15/08 obrigou a apertar o respiro
+         de todas. A conta foi refeita e está no `.portal` do estilo.css: quem paga a oitava é o
+         recheio dos portões nas telas curtas, e o piso de dedo continua intocado. -->
     <button class="telaBtn sec" id="btnConfig">CONFIGURAÇÕES</button>
   </div>
 </div>
@@ -285,11 +297,10 @@
        acima dele afirma o que sai do aparelho, e afirmação sem interruptor é aviso, não
        escolha. Desligado, `medir()` sai na primeira linha e não sai um byte. -->
   <button class="telaBtn sec" id="btnMedir">CONTAGEM</button>
-  <!-- DE ONDE VEM, que morava no poste. Fica ANTES de apagar e depois dos interruptores:
-       é leitura, não ajuste, mas é a leitura que sustenta tudo o que o jogo afirma — e num
-       menu de configurações a procedência tem exatamente a mesma natureza da linha que diz o
-       que sai do aparelho. As duas respondem "o que este jogo faz com a verdade". -->
-  <button class="telaBtn sec" id="btnFontes">DE ONDE VEM</button>
+  <!-- DE ONDE VEM MOROU AQUI de 15/08 a 21/08 e voltou a ser portão do poste. Não fica nos dois
+       lugares: duas tábuas para a mesma tela é o defeito que o bloco 29 do `encaixe.js` pega
+       (dois DE ONDE VEM no menu, o segundo em Arial Black, `test/LG-antes-menu-zero.png`).
+       O argumento que a trouxe para cá continua registrado no molde do poste. -->
   <button class="telaBtn sec" id="btnApagar">APAGAR MEU PROGRESSO</button>
   <button class="telaBtn" id="btnVoltarCfg">VOLTAR</button>
 </div>

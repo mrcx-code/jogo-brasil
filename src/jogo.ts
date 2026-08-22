@@ -12011,6 +12011,63 @@ function montarCompletude() {
   box.scrollTop = 0;
 }
 
+// OS PORTÕES DE TOPO — os quatro, e a escala deles é MEDIDA, não escrita.
+//
+// A voz é a mesma desde 21/08 (increment 2 da home): escala 3 e a tinta escura da madeira clara
+// para todos. Antes o JOGAR vinha a 4 (44 px de letra) e os outros a 2 (22 px) — dois níveis de
+// rótulo dentro do MESMO material leem como "um botão e dois sub-botões", que é o oposto do que
+// a direção pede.
+//
+// O QUE MUDOU COM O QUARTO PORTÃO (21/08, decisão do dono): o rótulo mais comprido do topo
+// deixou de ser "A HISTÓRIA" (10 letras, 61 px de canvas em 1×) e passou a ser "DE ONDE VEM"
+// (11 letras, 67 px). A escala 3 estava escrita à mão, com a conta feita para o rótulo velho, e
+// ela não sobrevive à tábua mais estreita que o jogo compõe: em 480×320 deitado a tábua do
+// portão mede 250 px e sobram 202 de recheio para dentro — "DE ONDE VEM" a 3 mede 201. Um pixel
+// de folga não é folga, é sorte.
+//
+// Então quem decide a escala passa a ser a RÉGUA: mede-se a caixa de verdade e a escala é a
+// maior inteira em que TODOS os quatro cabem. Duas coisas nisto não são detalhe:
+//  · a escala é ÚNICA para os quatro. `escalaQueCabe` por rótulo faria o mais comprido cair
+//    para 2 sozinho, e aí os portões teriam alturas diferentes — que é exatamente o degrau que
+//    a `test/regua-larga.js` reprova, e com razão: portão que não é igual ao irmão não diz
+//    "isto é a plataforma inteira".
+//  · desconta-se um respiro de 8 px do vão útil, porque a tábua tem PREGO nas duas pontas
+//    (`#poste .telaBtn::before/::after`, 5 px de lado a 9 px da borda) e letra encostada em
+//    prego lê como erro de marcenaria, não como aperto.
+//
+// Repintar quando o aparelho gira é obrigatório pelo mesmo motivo do título da CHEGADA (18/08):
+// o canvas do `pixelRotulo` tem tamanho FIXO, decidido no instante em que foi pintado — girar
+// muda a largura da tábua e não mudava o rótulo. A chamada está no ouvinte de giro que já
+// repinta a CHEGADA e a caixa de fala, e não custa nada quando nada mudou: `pixelRotulo` sai na
+// primeira linha se a chave (texto|escala|cor) for a mesma.
+const PORTOES: Array<[string, string]> = [
+  ["btnJogar", "JOGAR"],
+  ["btnCompletude", "A HISTÓRIA"],
+  ["btnGlossario", "GLOSSÁRIO"],
+  ["btnFontes", "DE ONDE VEM"],
+];
+const PORTAO_PREGO = 8;
+function pintarPortoes() {
+  const alvos: Array<[HTMLElement, string]> = [];
+  let vao = Infinity;
+  for (const par of PORTOES) {
+    // O molde pode não ter o botão ainda (integração entre máquinas): id sem markup não lança.
+    const el = document.getElementById(par[0]);
+    if (!el) continue;
+    alvos.push([el, par[1]]);
+    const cs = getComputedStyle(el);
+    const w = el.getBoundingClientRect().width
+      - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - PORTAO_PREGO * 2;
+    if (w > 0 && w < vao) vao = w;
+  }
+  // Caixa sem largura (tela ainda não composta) não manda em nada: aí vale a escala de projeto.
+  let esc = 3;
+  if (vao !== Infinity && vao > 0) {
+    for (const par of alvos) esc = Math.min(esc, escalaQueCabe(par[1], 3, vao));
+  }
+  for (const par of alvos) pixelRotulo(par[0], par[1], esc, "#221806");
+}
+
 // Os rótulos que não mudam, pintados uma vez na carga. Depois disto o chrome inteiro fala a
 // fonte do jogo: o que era Arial Black (letra de site, presa ao que o aparelho tiver) vira a
 // mesma 5×7 que flutua sobre a rua. Os títulos das telas são lidos do próprio HTML para não
@@ -12022,19 +12079,9 @@ function pintarRotulos() {
   // menuSub deixou de passar por pixelRotulo em 19/08: a faixa de proposta é texto de leitura
   // (fonte var(--leitura), quebra por CSS), estático no HTML — a fonte pixel é um canvas de
   // largura fixa e não quebra linha, e a frase nova é mais longa que o subtítulo antigo.
-  // OS TRÊS PORTÕES FALAM NA MESMA VOZ (21/08, increment 2 da home). Escala 3 e a tinta escura
-  // da madeira clara para os três — antes o JOGAR vinha a 4 (44 px de letra) e os outros dois a
-  // 2 (22 px), na tinta clara da madeira curtida. Não é enfeite: dois níveis de rótulo dentro do
-  // MESMO material leem como "um botão e dois sub-botões", que é o oposto do que a direção pede.
-  // A escala 3 é a maior que cabe na tábua mais estreita que o jogo compõe (480×320 deitado:
-  // 250 px de tábua, "A HISTÓRIA" mede 183) — ver o cálculo no `.portal` do estilo.css.
-  pixelRotulo($("btnJogar"), "JOGAR", 3, "#221806");
-  pixelRotulo($("btnCompletude"), "A HISTÓRIA", 3, "#221806");
-  pixelRotulo($("btnFontes"), "DE ONDE VEM", 2, "#d9cfae");
+  pintarPortoes();
   pixelRotulo($("btnMapa"), "ONDE FOI", 2, "#d9cfae");
   pixelRotulo($("btnVoltarMapa"), "VOLTAR", 2, "#a9a184");
-  // O molde pode nao ter o botao ainda (integracao entre maquinas): id sem markup nao pode lancar.
-  { const b = document.getElementById("btnGlossario"); if (b) pixelRotulo(b, "GLOSSÁRIO", 3, "#221806"); }
   { const b = document.getElementById("btnLugar"); if (b) pixelRotulo(b, "O LUGAR", 2, "#d9cfae"); }
   pixelRotulo($("btnConfig"), "CONFIGURAÇÕES", 2, "#d9cfae");
   // A CHEGADA. A auditoria holística pegou a tela mais nova do jogo falando a língua mais
@@ -15518,6 +15565,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // novo, e girar o aparelho não é chegar de novo. O que muda com a largura é o título, e é só
   // ele que se repinta.
   window.addEventListener("resize", function () {
+    // OS PORTÕES, sempre — e sem perguntar se o menu está aberto, ao contrário dos dois abaixo.
+    // A diferença é medida: `.tela` fechada usa `visibility: hidden`, não `display: none`, então
+    // a tábua do poste TEM caixa de verdade mesmo com o menu fechado — e é o giro com o menu
+    // fechado que mais acontece (a pessoa gira dentro do jogo e só depois abre o menu).
+    pintarPortoes();
     const fim = document.getElementById("telaFim");
     if (fim && fim.classList.contains("aberta")) pintarFimTit();
     const fala = document.getElementById("telaFala");

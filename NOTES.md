@@ -8582,3 +8582,119 @@ o canvas CRU e nao ve o filtro CSS. Os numeros dela e os do `lumaFiltrada` sao p
 coincidencia de escala, nao por serem a mesma coisa — no ACEIRO o cru da **134,3** e a tela da
 **124,9**. Vale a arte reancorar a regua no campo novo antes da proxima dose, senao a proxima
 conversa recomeca com duas reguas se chamando pelo mesmo nome.
+
+---
+
+## 21/08 (dev-jogo) — DE ONDE VEM vira o 4º portão, e a oitava tábua obrigou a refazer a escada inteira
+
+**A decisão é do dono e é de produto:** DE ONDE VEM sai de dentro de CONFIGURAÇÕES (onde morava
+desde 15/08) e sobe ao topo do poste com o mesmo peso de madeira de JOGAR, A HISTÓRIA e
+GLOSSÁRIO. O argumento de 15/08 ("procedência é leitura de quem quer conferir, não porta de
+entrada") era verdadeiro para um JOGO e deixou de ser quando o alvo virou plataforma de
+conhecimento: a seção tem 60 fontes lidas e responde sozinha a *por que eu acreditaria nisto?*,
+que é a pergunta que o §8 usa como teste de seção ("dá para mandar o link para quem nunca abriu
+o jogo?"). Ela **sai** de CONFIGURAÇÕES no mesmo movimento — duas portas para a mesma tela é o
+defeito que o bloco 29 do `encaixe.js` existe para pegar.
+
+### O que a oitava tábua custou, e por que não havia como não pagar
+
+Não havia tábua para tirar (as quatro de cima são as quatro seções, as quatro de baixo já cedem
+tudo o que têm), e o piso de 44 px de polegar não se negocia. Medido na MESMA carga, 390 de
+largura, partida destravada, oito tábuas visíveis:
+
+| altura | poste com 7 | poste com 8 | rolagem que apareceu |
+|---|---:|---:|---:|
+| 568 | 359 | 413 | 8 |
+| 600 | ~376 | 430 | 13 |
+| 640 | ~394 | 450 | 19 |
+| 700 | ~421 | 482 | 28 |
+| 720 | ~430 | 492 | 31 |
+| 812 | 473 | 540 | **45** |
+| 844 | 473 | 540 | 24 |
+
+**Quatro medidas da escada cederam, nenhuma delas altura de tábua:** vão entre tábuas 10 → 6 de
+teto e a reta mais deitada · pé do poste 48 → 20 de teto (era a maior gordura da tela alta) ·
+ombro do poste 8→18 vira 6→14 · recheio da tábua 11→14 vira **9→12**, que é o que encolhe os
+portões. E o **logo desce um degrau** — a única coisa que não é respiro, e entrou porque sem ela
+568–640 não fechavam por 2 a 7 px: 218 → 201 px de altura a 390×844, o mesmo argumento de 14/08
+("numa tela de 568 px um logo menor não custa nada"), agora valendo até 844.
+
+**Depois: rolagem 0 nas OITO alturas do bloco 30** (568 · 600 · 601 · 640 · 700 · 720 · 812 ·
+932), com o poste em 413–464 px. Prints em `test/PORTAL4-ANTES-*.png` e `test/PORTAL4-DEPOIS-*.png`.
+
+### O PISO DO PORTÃO virou um número só, e foi a régua larga que cobrou
+
+Eram três (48 em retrato, 46 deitado, 50 na cinemática). Com o recheio a 9 px o portão media
+**47** e o degrau para o nível 2 caiu para 3 — a `test/regua-larga.js` reprovou em 899×500, e
+estava certa: é ela que impede os dois níveis de voltarem a ler como um só. Agora é **51 em toda
+parte**, e a conta é dita: 44 de dedo + 7 de degrau.
+
+### O POSTE DE DOIS LADOS — telefone deitado, e é a parte que muda a composição
+
+O bloco 21 do `encaixe.js` cobra TODA tábua inteira na tela em 844×390, e cobra com razão (em
+12/08 o deitado era uma tela em que o jogo não podia nem ser começado). Oito tábuas somam **401
+px numa tela de 390**: não é aperto, é aritmética. Então quem muda é o ARRANJO — as tábuas
+passam a ser pregadas **dos dois lados do mastro**, quatro portões à esquerda, quatro utilidades
+à direita, e o mastro (que sempre esteve em `left: 50%`) corre no vão entre elas. Altura **413 →
+225 px**, bloco 21 verde. A janela é estreita de propósito: só entre 700 e 899 px de largura com
+menos de 460 de altura.
+
+### `justify-content: safe center`, e a palavra vale a linha
+
+Centrar conteúdo que não cabe corta os DOIS lados, e o de cima de um flex column **não é
+alcançável por rolagem nenhuma** — rolagem só anda para o fim. Medido: em 844×390 o JOGAR nascia
+com o topo em −2 px e em 480×320 em −27. Com `safe`, o navegador desiste do centro exatamente
+quando ele passaria a esconder o começo. Onde cabe, o efeito é zero.
+
+### A ESCALA DO RÓTULO passa a ser medida, e não escrita
+
+O rótulo mais comprido do topo deixou de ser "A HISTÓRIA" (10 letras, 61 px de canvas em 1×) e
+passou a ser "DE ONDE VEM" (11 letras, 67 px). A escala 3 estava **escrita à mão** com a conta
+feita para o rótulo velho, e não sobrevive à tábua mais estreita que o jogo compõe: em 480×320 a
+tábua mede 250 e sobram 202 de recheio para dentro — "DE ONDE VEM" a 3 mede **201**. Um pixel de
+folga não é folga, é sorte. Agora `pintarPortoes()` mede a caixa de verdade e usa a maior escala
+inteira em que os QUATRO cabem — única para os quatro, senão o mais comprido cairia sozinho e os
+portões teriam alturas diferentes, que é o degrau que a régua reprova. Desconta 8 px de respiro
+do prego. Medido: escala 3 (201×33) de 360 px de largura para cima, escala 2 (134×22) em 320 e
+480. E repinta ao girar, pelo mesmo motivo do título da CHEGADA (18/08).
+
+### O ACHADO DO DIA É CONTRA O PORTÃO, não contra o código
+
+**Os blocos 21 e 30 do `encaixe.js` eram cara ou coroa, e isso apareceu no CONTROLE, antes de eu
+mudar uma linha.** No HEAD limpo, duas execuções seguidas do mesmo build: `node test/encaixe.js`
+saiu **1** numa (390×568 com rolagem 6 px, `btnConfig` com o pé em 570) e **0** na seguinte
+(rolagem 1). Depois, com a oitava tábua, o 1024×768 devolveu o pé do CONFIGURAÇÕES em **766, 770
+e 773** em três execuções. Sete pixels de espalhamento numa régua cuja folga é 4 — a mesma lição
+do FPS de 20/08: se o espalhamento do instrumento é da ordem do que se mede, não há o que ler.
+
+**A causa é a mobília BROTANDO.** `#telaMenu.aberta > *` roda `brota .42s` com `animation-delay`
+de .12s no terceiro filho — o próprio poste —, então a tela só para de andar em **540 ms**, e o
+que a animação faz é `translateY(18px)`. Os dois blocos esperavam por relógio (420 ms e 600 ms) e
+caíam dentro ou na borda dessa janela conforme a máquina estivesse mais ou menos carregada. O
+deslocamento que sobrava entrava direto na medida.
+
+O conserto não foi esperar mais, foi esperar **a coisa certa**: `abrirMenuParado()` usa
+`getAnimations({subtree:true})` e as promessas `finished` de cada uma, tirando a `respira` do
+logo (infinita, nunca resolve) e correndo contra um teto de 3 s. **Medido depois: três execuções
+com números byte a byte idênticos** — 390×568 rolagem 0 nas três, `btnConfig` em 722..766 nas
+três. Espalhamento 7 → 0.
+
+*(Registrado porque é a segunda vez que este repositório mede um portão contra si mesmo e acha
+defeito no portão, e a primeira lição não bastou: um `ok` a mais nunca teria mostrado isto.)*
+
+### O que ficou de fora, com número
+
+`PENDENTES` 49 e 50: 480×320 deitado rola 95 px (rolava 9 com sete tábuas) e a home cinemática
+curta 926×428 rola 213 (rolava 159). Nos dois casos tudo continua alcançável — o `safe center`
+garante isso no primeiro e o `overflow-y: auto` no segundo —, e nos dois o conserto é de
+arranjo, não de respiro. Nenhum medido.
+
+**Portões:** `npm test` exit **0** (smoke PASS, FPS 62, régua larga verde nas 6 telas) ·
+`node test/encaixe.js` exit **0** (três execuções) · `npm run tipos` exit **0**.
+Autoteste da asserção nova (lição 2.8): `REGUA_DEFEITO='#btnFontes{display:none!important}'`
+reprova nas 6 telas com "o topo do poste tem 3 portões, e a direção pede 4".
+
+**Dúvida que fica:** o `safe center` cobre o telefone deitado, mas a home cinemática usa
+`justify-content: flex-start` e o `#telaMenu` como caixa de rolagem — não há garantia por teste
+de que o PRIMEIRO portão esteja visível sem rolar em telas curtas e largas. O bloco 21 só olha
+844×390 e 1024×768. Vale uma asserção de "o JOGAR nasce visível" em toda tela da régua.
