@@ -19,7 +19,7 @@ como "existe, mas é PARE".
 de sítio arqueológico não cercado ou de comunidade. Onde isso importa, está dito no pino.
 
 Contagem: **49 pinos** — 8 estados/limites · 9 rios · 9 flora e fauna · 23 pontos da história
-(18 com texto + 5 PARE). Riscos: 26 NENHUM · 18 CUIDADO · 5 PARE.
+(18 com texto + 5 PARE). Riscos: 27 NENHUM · 17 CUIDADO · 5 PARE (contagem conferida por script contra o JSON, nao no olho).
 
 ---
 
