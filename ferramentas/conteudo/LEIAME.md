@@ -12,13 +12,20 @@ a Avenida A existe para fechar.
 | `conteudo_glossario.json` | os verbetes | 181 |
 | `conteudo_glossario_rel.json` | os pares "veja também", com a ordem CURADA | 644 |
 | `DIVERGENCIA.md` | o relatório da última conferência | — |
+| `VIGIA.md` | o roteiro do plantão para a validade (`vence_em`/`vence_regra`) | — |
 
-## As duas engrenagens
+## As três engrenagens
 
 ```bash
 npm run conteudo:puxar      # rede, à mão: banco -> arquivos. NUNCA dentro do build.
 npm run conteudo:conferir   # offline: arquivos x glossário embutido no jogo. exit 0 = iguais.
+npm run conteudo:vigia      # offline: o que vence, e quando. exit 1 se algo já venceu.
 ```
+
+As duas primeiras respondem *"as duas cópias dizem a mesma coisa?"*. A terceira responde a outra
+pergunta, a do alvo ano a ano: *"quando isto vence?"* — e ela é a única que olha para o PRAZO do
+que o acervo afirma. O roteiro inteiro (o que fazer com cada categoria, e de quem é cada passo)
+está em `VIGIA.md`; o teste dela é `node test/conteudo-vigia-teste.js`.
 
 E dois modos que resolvem perguntas diferentes:
 
