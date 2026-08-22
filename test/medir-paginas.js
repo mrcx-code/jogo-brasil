@@ -295,8 +295,18 @@ function conferirCorpo(pag, c, cabecalhos, url, reprovar) {
     },
     {
       nome: 'o teto removido e a medição num laço (a cena 3 tem de morder)',
+      // O ALVO DA CHAMADA CASA COM \r\n, e a falta disso deixava este controle MUDO em toda
+      // máquina Windows (22/08). O texto procurado era `'  medir();\n'`; a página no disco vem
+      // com CRLF (o checkout converte), então a segunda troca nunca acontecia — a primeira
+      // acontecia, o `remendado === guardado` não acusava nada, e o controle saía "não mordeu"
+      // sem ter injetado defeito nenhum. É a 2.8 mordendo o próprio portão: um controle que não
+      // altera o que pretende altera é pior que ausente, porque reprova em silêncio no lugar
+      // errado. O laço agora é regex, tolerante à quebra de linha, e o `pos` abaixo confere que
+      // as DUAS trocas pegaram.
       remendo: (h) => h.replace('if (enviados >= TETO) return;', '')
-        .replace('  medir();\n', '  for (var i = 0; i < 30; i++) medir();\n'),
+        .replace(/\n( *)medir\(\);(\r?\n)/, '\n$1for (var i = 0; i < 30; i++) medir();$2'),
+      pos: (h) => h.indexOf('for (var i = 0; i < 30; i++) medir();') >= 0
+        && h.indexOf('if (enviados >= TETO) return;') < 0,
       rodar: async (pag) => {
         const r = await abrir(browser, pag, 'adblock');
         return r.pedidos.length !== 1 ? 1 : 0;
@@ -311,6 +321,11 @@ function conferirCorpo(pag, c, cabecalhos, url, reprovar) {
       const guardado = fs.readFileSync(path.join(RAIZ, alvoCtl.arq), 'utf8');
       const remendado = c.remendo(guardado);
       if (remendado === guardado) return -1;   // o remendo não achou o que remendar
+      // …e "mudou ALGUMA coisa" não é "mudou o que eu queria": um remendo de duas trocas com
+      // uma só pegando passa nesta guarda e injeta meio defeito. `pos` é a conferência do
+      // controle que faz duas coisas — sem ela, este arquivo reprovou por dias no Windows
+      // apontando para o portão em vez de para si mesmo.
+      if (c.pos && !c.pos(remendado)) return -1;
       // troca temporária do leitor: `abrir` lê do disco, então o remendo viaja por aqui
       const antes = fs.readFileSync;
       fs.readFileSync = function (p, o) {

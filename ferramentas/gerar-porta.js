@@ -48,8 +48,10 @@ const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).jo
 
   // O CHROME, a mesma fonte única das cinco páginas. O bloco vai embutido com o mesmo id que o
   // resto da plataforma usa, para o build reconhecê-lo e as ferramentas de arte não o tocarem.
+  // O `veuCss()` é só da porta: é ela que tem MATA atrás (a costura da onda 4). As quatro
+  // seções de leitura são papel e não recebem o token — ver o comentário dele no módulo.
   const chromeStyle = '<style id="chrome-plataforma">\n'
-    + CHROME.tokensCss() + CHROME.barraCss() + '</style>';
+    + CHROME.tokensCss() + CHROME.veuCss() + CHROME.barraCss() + '</style>';
   const barra = CHROME.barraHtml('porta');
 
   let html = fs.readFileSync(path.join(RAIZ, 'plataforma', 'molde.html'), 'utf8');

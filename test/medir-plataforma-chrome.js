@@ -174,6 +174,52 @@ const ehSerifa = (s) => /serif|georgia|palatino|iowan|times|noto serif/i.test(s 
   ok(materiaisComGrao.size >= 3, 'grão (url(data:) 1ª camada) em >=3 materiais: ' + materiaisComGrao.size
     + ' [' + [...materiaisComGrao].join(', ') + ']');
 
+  // ---------------------------------------------- A COSTURA PORTA<->JOGO (onda 4, 22/08)
+  // "A porta é a CLAREIRA antes do poste": quem sai da plataforma para o jogo não pode sentir
+  // troca de produto. Três coisas fazem essa frase ser verificável, e as três caem por motivos
+  // diferentes se alguém mexer sem querer:
+  //   (a) A IDA é direta. JOGAR leva a /jogo/, sem tela intermediária — na tábua da barra E no
+  //       portal do hero, que são dois caminhos para a mesma porta.
+  //   (b) A PORTA COMEÇA NA MATA. O hero nasce em y=0 e a barra de tábuas flutua sobre ele.
+  //       A faixa de papel de 58 px que existia acima era o maior salto de paleta da sequência
+  //       (medido: ΔRGB 169 contra os 58 px de cima da home do jogo).
+  //   (c) A VOLTA cai aqui. O link da CHEGADA (montarSaidaPlataforma, no jogo) aponta para a
+  //       RAIZ, e a raiz publicada é esta página — `construir.js` copia plataforma/index.html
+  //       para dist/index.html. Quem volta reconhece onde chegou porque acha a mesma barra.
+  sec('A COSTURA PORTA<->JOGO (onda 4)');
+  {
+    const { pg } = await carregar(browser, 'plataforma/index.html', 390);
+    const c = await pg.evaluate(() => {
+      const hero = document.querySelector('.hero');
+      const barra = document.querySelector('.barra');
+      const rh = hero ? hero.getBoundingClientRect() : null;
+      const rb = barra ? barra.getBoundingClientRect() : null;
+      const antes = hero ? getComputedStyle(hero, '::before').backgroundImage : '';
+      return {
+        portalJogar: (document.querySelector('.portal.jogar') || {}).getAttribute
+          ? document.querySelector('.portal.jogar').getAttribute('href') : null,
+        barraJogar: (document.querySelector('.barra a.jogar') || {}).getAttribute
+          ? document.querySelector('.barra a.jogar').getAttribute('href') : null,
+        heroTopo: rh ? Math.round(rh.top) : null,
+        barraSobreHero: !!(rh && rb && rb.top >= rh.top - 1 && rb.bottom > rh.top + 8),
+        veuNoHero: /linear-gradient/.test(antes) && /rgba\(10, ?9, ?6/.test(antes),
+      };
+    });
+    await pg.close();
+    ok(c.portalJogar === '/jogo/', 'o portal JOGAR do hero leva a /jogo/ (é ' + c.portalJogar + ')');
+    ok(c.barraJogar === '/jogo/', 'a tábua JOGAR da barra leva a /jogo/ (é ' + c.barraJogar + ')');
+    ok(c.heroTopo === 0, 'o hero começa em y=0 — a porta abre NA MATA (topo ' + c.heroTopo + ')');
+    ok(c.barraSobreHero, 'a barra de tábuas flutua SOBRE a mata, como o poste do jogo');
+    ok(c.veuNoHero, 'o hero usa o véu do menu do jogo (rgba(10,9,6) no ::before)');
+    // (c) a volta: lida do JOGO CONSTRUÍDO, que é o que a pessoa abre.
+    const jogo = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
+    ok(/montarSaidaPlataforma/.test(jogo) && /setAttribute\("href", ?"\/"\)/.test(jogo),
+      'a saída da CHEGADA (no jogo) aponta para a RAIZ');
+    const construir = fs.readFileSync(path.join(RAIZ, 'ferramentas', 'construir.js'), 'utf8');
+    ok(/plataforma['"], ?['"]index\.html['"]\)[\s\S]{0,120}dist['"], ?['"]index\.html/.test(construir),
+      'a raiz publicada é a PORTA (construir.js: plataforma -> dist/index.html)');
+  }
+
   // ------------------------------------------------------------------ AUTOTESTE (2.8)
   sec('AUTOTESTE — o portão TEM de morder o defeito');
   let mordidas = 0, controles = 0;
@@ -201,6 +247,21 @@ const ehSerifa = (s) => /serif|georgia|palatino|iowan|times|noto serif/i.test(s 
   await controle('barra forçada a quebrar', 'de-onde-vem/index.html', 390,
     (h) => h.replace('</head>', '<style>.barra{flex-wrap:wrap!important;width:120px!important;}</style></head>'),
     ({ linhas }) => linhas > 1);
+
+  // (4) a costura desfeita: a barra volta ao FLUXO e empurra o hero para baixo — a faixa de
+  //     papel de 58 px no alto da porta, que é exatamente o defeito que a onda 4 tirou.
+  controles++;
+  {
+    const { pg } = await carregar(browser, 'plataforma/index.html', 390,
+      (h) => h.replace('</head>', '<style>body>.barra{position:static!important;}</style></head>'));
+    const topo = await pg.evaluate(() => {
+      const r = document.querySelector('.hero').getBoundingClientRect();
+      return Math.round(r.top);
+    });
+    await pg.close();
+    if (topo !== 0) { mordidas++; console.log('  ok  mordeu: barra de volta ao fluxo (hero em y=' + topo + ')'); }
+    else console.log('  X   PASSOU (não mordeu): barra de volta ao fluxo');
+  }
 
   ok(mordidas === controles, 'o portão mordeu os ' + controles + ' defeitos injetados (' + mordidas + '/' + controles + ')');
 
