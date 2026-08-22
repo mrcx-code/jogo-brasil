@@ -78,7 +78,6 @@ jobs:
       # nos dois lugares junto, que e a coisa inteira que a fase 1 existe para garantir.
       #
       # Roda depois do `npm test` porque ele le o `index.html` da RAIZ, que e saida do build.
-      - name: espelho do conteudo (informativo — vira portao quando o banco alcancar o jogo)
+      - name: espelho do conteudo (PORTAO desde 22/08 — banco alcancou o jogo, hash unico)
         run: npm run conteudo:conferir
-        continue-on-error: true
         timeout-minutes: 5

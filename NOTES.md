@@ -8657,3 +8657,20 @@ os arquivos do banco.
 
 **Portoes:** `npm test` exit 0 (FPS 59, regua larga verde nos 6 tamanhos) · `node test/encaixe.js`
 exit 0 · `node test/fila-auth.js` exit 0 (16 cenas). Jogo, `src/` e CSP intocados.
+
+## 22/08 (madrugada, cont.) — o acervo alcancou o jogo
+
+**Fase 1 da Avenida A FECHADA de ponta a ponta na mesma noite em que foi despachada:** o repo
+ganhou conteudo:puxar + conteudo:conferir (diff por chave, autoteste 5/5), os 3 JSON versionados
+(17 grupos, 181 verbetes, 644 pares, com tag_s2/s2_alto/validades), e o conferir nomeou as 6
+chaves em que o jogo estava na frente do banco. EU apliquei as rev-2 via MCP (INSERT..SELECT do
+velho com d/f do lado do JOGO, extraidos pelo proprio espelho — nada digitado a mao), verifiquei
+181 vigentes / 6 rev2 / chaves certas, repuxei e o conferir cravou ESPELHO INTEGRO: jogo e banco
+no MESMO hash cd5a68d4...bd7e, exit 0. O passo do CI foi promovido de informativo a PORTAO, como
+o gatilho escrito nele mandava.
+
+**Cabecalhos por curl (registro da prova):** /dashboard/ agora responde os 4 (frame-ancestors
+none, DENY, no-referrer, nosniff) — o matcher :caminho* nao casava a URL com barra e foi
+substituido por tres entradas explicitas.
+
+**Falta pousar:** quarto portal (dev-jogo). Depois: posthog-paginas e og-image-secoes.
