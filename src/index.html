@@ -345,6 +345,16 @@
   <button class="telaBtn" id="btnFimHist">A HISTÓRIA</button>
   <button class="telaBtn sec" id="btnFimFontes">DE ONDE VEM</button>
   <button class="telaBtn sec" id="btnFimVoltar">VOLTAR PARA A RUA</button>
+  <!-- A SAÍDA PARA A PLATAFORMA (22/08). O jogo é o chamariz da plataforma e não tinha UM
+       link de volta — medido pela growth em três rodadas. Ela mora aqui, e só aqui, porque
+       aqui é onde quem quer mais está: o menu é a porta de ENTRADA (quem chegou pela home
+       acabou de vir de lá, e uma tábua "ir para o site" ao lado do JOGAR manda embora quem
+       ainda não jogou), e a CHEGADA é o fim do arco.
+       NASCE VAZIA E SEM `href`: quem a enche é `montarSaidaPlataforma()`, porque o endereço
+       mostrado é o `location.host` de onde a página foi servida — nunca um domínio escrito à
+       mão que pode desencontrar do de verdade — e porque a guarda de arquivo único do build
+       recusa qualquer `href=` na saída que não seja `data:`. -->
+  <div id="fimPlataforma" hidden></div>
 </div>
 
 <!-- O LUGAR: a obra do mutirão, num lugar que se VISITA.

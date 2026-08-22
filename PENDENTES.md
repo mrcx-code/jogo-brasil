@@ -2731,6 +2731,25 @@ o rótulo "DE ONDE VEM" precisa a escala 3 (201 px de canvas + 48 de recheio + 1
 seja: não é copiar o bloco, é alargar a faixa primeiro. **Não medido.**
 
 
-## 51 — A tela CONFIGURACOES do jogo nao conta que o interruptor vale para as paginas — dev-jogo
+## 51 — A tela CONFIGURACOES do jogo nao conta que o interruptor vale para as paginas — dev-jogo — **FEITO em 22/08 (dev-jogo)**
+
+**Como ficou:** duas linhas no papel de CONFIGURAÇÕES, uma por estado, escritas na mesma voz
+das outras (nenhuma palavra de programador). Ligada: `DESLIGAR VALE AQUI E NAS PÁGINAS` ·
+`DO SITE: O INTERRUPTOR É UM SÓ.` Desligada, o outro lado da mesma verdade, emendado no
+`NÃO SAI UM BYTE DAQUI.` que já estava lá: `NEM DAS PÁGINAS DO SITE:` · `O INTERRUPTOR É UM
+SÓ.` É o espelho do que o rodapé das páginas já diz ("Desligar desliga de verdade, aqui e no
+jogo") — as duas pontas da mesma chave de `localStorage` agora descrevem o mesmo botão.
+
+**Medido pelo caminho da PESSOA** (toque em CONFIGURAÇÕES no menu, que é quem chama
+`montarConfig()`; medir por `abrirTela` mediria a tela vazia — lição 2.1), A/B na mesma carga
+com as duas linhas removidas do papel: o papel vai de 14 para 16 linhas (7 → 9 desligada) e a
+tela **continua cabendo inteira em todas as telas medidas**. A folga que sobra embaixo, com as
+linhas novas: 320×568 **21 px** (era 36) · 360×640 **23** (era 37) · 390×844 **95** ·
+844×390 **40** · 1366×768 **229**. A largura não mudou: a linha mais larga do papel continua
+sendo uma das antigas, **223 px** nas seis telas. `encaixe.js` bloco 8 verde sem uma asserção
+tocada (ele casa por regex e as frases que ele cobra continuam palavra por palavra).
+O `medir-telas-altura.js` mostra o preço com o controle rodado: `telaConfig` passa de
+**rola em 2/23 alturas (+4 a +24 px)** para **3/23 (+14 a +54)** — conteúdo cabe em todas e a
+saída se alcança rolando nas duas versões, e o portão sai 0 nas duas.
 
 Desde 22/08 o interruptor de medicao e UM so (mesma chave de localStorage, decisao de uma origem = uma escolha): desligar no rodape de qualquer secao desliga o jogo, e vice-versa. O rodape das paginas ja diz isso; a tela de CONFIGURACOES do jogo ainda diz o interruptor esta aqui sem dizer e vale para as paginas tambem. E uma linha em src/jogo.ts (territorio do dev-jogo). A frase precisa continuar verdadeira dos DOIS lados.

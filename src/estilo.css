@@ -1754,6 +1754,19 @@
   #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 auto; min-width: fit-content;
     min-height: 44px; padding: 10px 8px; margin: 0; }
   #fimPerguntaBotoes.oculto { display: none; }
+  /* A SAÍDA PARA A PLATAFORMA. Nenhum material novo, pela terceira vez nesta tela: é a voz de
+     MARGEM (a mesma do `.fimR` e do `#fimPerguntaTxt.anotado`), sem papel por baixo e sem
+     tábua — porque não é leitura nem é ação de jogo, é a nota de rodapé de quem terminou.
+     Tábua daria a ela o peso das três portas, que é a definição de anúncio.
+     O RECHEIO DE 13 px é alvo de dedo, não respiro: o link é a única coisa TOCÁVEL desta
+     tela que não é uma tábua de 44 px, e sem ele a linha teria 19 px de altura. A sublinha
+     é `text-decoration` e não `border-bottom` de propósito — borda desceria com o recheio e
+     ficaria pendurada 13 px abaixo da letra. */
+  #fimPlataforma { width: 100%; max-width: 26em; text-align: left; margin: 6px 0 0;
+    font: var(--margem); font-style: normal; font-weight: 400; color: #8d846f; }
+  #fimPlataforma a { color: #cbb27a; text-decoration: underline dotted;
+    text-underline-offset: 3px; display: inline-block; padding: 13px 3px; }
+  #fimPlataforma a:active { color: #f0dfae; }
   /* `#telaMenu .telaBtn` declara `display:flex` e ganha de `.telaBtn.oculto` por causa do
      ID — o botão nascia visível e empurrava a coluna do menu inteira para cima. O seletor
      tem de carregar o mesmo ID para poder apagar. Custou uma reprovação do smoke: o painel
@@ -1781,6 +1794,11 @@
     #fimPergunta { margin-bottom: 8px; }
     #fimPerguntaTxt { font-size: 14px; line-height: 1.4; padding: 6px 10px; margin-bottom: 5px; }
     #telaFim #fimPerguntaBotoes .perguntaBtn { padding: 8px 6px; }
+    /* respiro, nunca alvo de dedo: a letra cede 1 px e o recheio SOBE 1, porque a conta que
+       não pode cair é a altura tocável. Medido: 12px/1,4 + 2×13 dava 42,8 — abaixo dos 44 que
+       esta tela cobra de toda tábua desde 10/08. Com 14 de recheio, 44,8. */
+    #fimPlataforma { margin-top: 0; font-size: 12px; }
+    #fimPlataforma a { padding: 14px 3px; }
   }
   /* O PISO DO QUE AINDA SE VENDE (320×568). Com só o aperto de 720px sobravam -17 px — a
      tela cabia por dezessete pixels de nada. Mais um degrau resolve sem cortar uma palavra.
@@ -1852,6 +1870,20 @@
        (o rótulo não reflui) e afinar a coluna empurra o problema para o placar. Atravessando,
        a linha inteira tem ~370 px e as três cabem lado a lado em qualquer tela deitada. */
     #fimPergunta { grid-column: 1 / 3; grid-row: 4; align-self: start; }
+    /* A NOTA VAI PARA A COLUNA DAS PORTAS, e isso foi medido, não escolhido por gosto.
+       Atravessando as três colunas embaixo de tudo (a primeira tentativa) ela abria uma
+       SEXTA linha de 64 px, e a CHEGADA em 1366×768 — a única tela onde ela ainda não
+       rolava — passou de 0 para 66 px de rolagem. Deitado a linha 5 já existe e tem 324 px
+       (1366×768) / 440 (844×390) / 346 (1024×768): é a do `#fimConfere`, que ocupa só a
+       coluna 1. Encostada ali na coluna 3, sob as três portas, ela custa ZERO altura — e é
+       onde ela faz mais sentido de qualquer forma, porque deitado o polegar mora nesse lado.
+       A LARGURA É A DA TÁBUA, não a do texto: a coluna 3 é `auto`, então um bloco de 338 px
+       roubaria 88 px das duas colunas de leitura. Com o mesmo teto das portas ela quebra em
+       linhas dentro da coluna que já existe.
+       O ACOPLAMENTO ESTÁ DITO: a linha 5 é do `#fimConfere` por colocação AUTOMÁTICA. Se um
+       dia ele ganhar linha declarada, este 5 tem de ser relido junto. */
+    #fimPlataforma { grid-column: 3; grid-row: 5; align-self: start; justify-self: start;
+      width: auto; max-width: min(30vw, 250px); margin: 0; }
     #btnFimHist   { grid-column: 3; grid-row: 2; }
     #btnFimFontes { grid-column: 3; grid-row: 3; }
     #btnFimVoltar { grid-column: 3; grid-row: 4; }

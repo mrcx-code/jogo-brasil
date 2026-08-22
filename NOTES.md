@@ -8936,3 +8936,78 @@ pagina). Interruptor unico no rodape; desligado = 0 pedidos, provado pelo portao
 verificacoes. A camada 1 do check ganha o termometro que faltava.
 
 **Em voo:** og-image-secoes (o buraco que a growth apontou 3x). Depois: link-jogo-plataforma.
+
+## 22/08 (dev-jogo) — o chamariz ganhou UMA saída, e a tela de privacidade parou de contar metade
+
+**A saída para a plataforma (backlog `link-jogo-plataforma`, achado da growth medido por curl em
+três rodadas de 21/08: o jogo tinha ZERO link de volta).** Ela é uma só, e é na **CHEGADA**.
+
+**Por que ali e não no menu, que era o outro candidato do ticket:** o menu é a porta de ENTRADA.
+Desde 20/08 o jogo mora em `/jogo/` e a plataforma na raiz — quem chega pelo site JÁ VEIO de lá,
+então uma saída no menu é um botão de voltar para a página que a pessoa acabou de deixar, e ainda
+disputa atenção com o JOGAR de quem nunca jogou. A CHEGADA é o contrário: o arco acabou, a tela
+existe para dizer "para onde ir", e quem chega até ela é exatamente quem quer mais. Uma tela, um
+link — fazer as duas sem argumento seria a propaganda que o ticket proíbe.
+
+**A forma:** nota de margem depois do VOLTAR PARA A RUA, na voz do `.fimR` (papel/serifa), sem
+material novo. *"estas telas também são páginas, fora do jogo: **a plataforma continua em
+matheusferreira.cc →**"*. Uma quarta tábua daria a ela o peso das três portas — e é aí que uma
+saída vira anúncio.
+
+**O endereço sai de `location.host`, nunca de um literal:** rótulo e destino não têm como
+desencontrar, na prévia da Vercel ele lê a prévia, e `ferramentas/dominio.js` não ganha uma
+segunda cópia para envelhecer.
+
+**AS DUAS GUARDAS, e a segunda é o achado da rodada.** O despacho pedia "só quando o protocolo
+começa com http", por causa do Capacitor. **Isso não bastaria**, e não é palpite: o comentário do
+próprio `garantirPacote()` registra que o Capacitor serve o jogo em `https://localhost` —
+protocolo http. Ali `/` é o próprio jogo, e o link recarregaria a partida prometendo uma
+plataforma. A segunda guarda é `location.pathname !== "/"`: `/` só é a plataforma quando o jogo
+está pendurado noutro caminho. As duas foram vistas mordendo, em controle separado: `file://` →
+escondida; jogo servido na raiz → escondida.
+
+**Medido (6 telas, prints em `test/SAIDA-390x844.png` e `test/SAIDA-844x390.png`):** alvo de dedo
+**44,19 px** (390×844, 768×1024, 1366×768) e **44,80** nas telas curtas — `elementFromPoint` no
+centro devolve o `A` nas seis. O recheio sobe de 13 para 14 px na consulta de 720 px justamente
+porque a letra encolhe ali: sem isso dava 42,8, abaixo dos 44 que esta tela cobra de toda tábua
+desde 10/08.
+
+**O achado contra a primeira versão foi do instrumento, e apareceu na tela LARGA.** Atravessando
+as três colunas embaixo de tudo, deitado, a nota abria uma **sexta linha de 64 px** e a CHEGADA
+em **1366×768 — a única tela onde ela ainda não rolava — passou de 0 para 66 px de rolagem**. A
+linha 5 do arranjo deitado já existe e tem 324 px (é a do `#fimConfere`, que ocupa só a coluna
+1): encostada na **coluna das portas**, com o teto de largura da tábua, a nota custa **zero**
+altura — 1366×768 volta a 0 e 844×390 fica em 358, idêntico ao sem-ela — e cai bem embaixo do
+VOLTAR PARA A RUA, que deitado é onde o polegar está. Em retrato ela custa **+62 a +69 px** numa
+tela que já rola 373–441.
+
+**PENDENTES 51 (a frase de privacidade).** Desde 22/08 o interruptor de medição é UM só para o
+jogo e para as cinco páginas (mesma chave de `localStorage`). O rodapé das páginas já dizia
+"aqui e no jogo"; a tela de CONFIGURAÇÕES descrevia metade do efeito do próprio botão. Duas
+linhas, uma por estado: ligada, `DESLIGAR VALE AQUI E NAS PÁGINAS · DO SITE: O INTERRUPTOR É UM
+SÓ.`; desligada, emendado no `NÃO SAI UM BYTE DAQUI.` que já estava lá, `NEM DAS PÁGINAS DO
+SITE: · O INTERRUPTOR É UM SÓ.` É a terceira vez que esta frase muda junto com a rede, que é o
+que o §3 manda.
+
+Medida pelo caminho da pessoa (o toque em CONFIGURAÇÕES, que é quem chama `montarConfig()` —
+medir por `abrirTela` mediria a tela vazia, lição 2.1), A/B na mesma carga: 14 → 16 linhas, e a
+tela continua cabendo inteira. Folga embaixo: **21 px em 320×568** (era 36) · 23 em 360×640 (era
+37) · 95 em 390×844 · 40 em 844×390 · 229 em 1366×768. Largura intocada — a linha mais larga
+continua sendo uma das antigas, 223 px. Com o controle rodado, o `medir-telas-altura.js` mostra
+o preço: `telaConfig` passa de rolar em 2/23 alturas (+4 a +24 px) para 3/23 (+14 a +54),
+cabendo e alcançável nas duas versões. Print: `test/SAIDA-CFG-360x640.png`.
+
+**Portões (exit real):** `npm test` 0 · `node test/encaixe.js` 0 (bloco 8 verde **sem uma
+asserção tocada** — ele casa por regex e as frases que cobra continuam palavra por palavra) ·
+`npm run tipos` 0 · `node test/medir-save-hostil.js` 0 · `node test/medir-telas-altura.js 360 500
+950` 0. Zona do dono intocada.
+
+**O que a guarda de arquivo único ensinou de graça:** o `construir.js` recusa qualquer
+`href="..."` na saída que não seja `data:`, e ele varre o JS embutido também. Então um `<a>` no
+molde ou um `a.href = "/"` no `jogo.ts` **derrubariam o build** — o link nasce por
+`setAttribute("href", "/")`, e é por isso que ele é montado em JS e não escrito na marcação.
+
+**Dúvida que fica:** a saída não emite evento nenhum — acrescentar um exigiria abrir a lista
+branca do `encaixe.js` bloco 17, que é decisão de quem governa a medição. Então hoje não há como
+saber se alguém usa a porta que acabou de nascer, e é exatamente a pergunta que a porta das
+palavras (19/08) ensinou a fazer.
