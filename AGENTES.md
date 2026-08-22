@@ -26,6 +26,46 @@ cobrado por máquina. Este documento é a diferença entre um papel e um agente.
 | **growth** | sonnet | — | não | não inventa número, não toca conteúdo histórico nem §2 |
 | **seguranca** | opus | — | não | não relaxa trava por conveniência; o que abre fluxo vai ao dono |
 
+## As TRÊS SQUADS — JOGO · PLATAFORMA · ACERVO (destino declarado em 21/08; esqueleto)
+
+Caminho B, declarado **destino** pelo dono em 21/08 (*"evolucao das squads"*). **Ativa de
+verdade com a fase 1 da Avenida A** — enquanto o conteúdo mora no monolito, squad de acervo é
+organograma sem chão. Até lá, este esqueleto já orienta duas coisas que não esperam: o
+**despacho** (ticket nasce endereçado a uma squad, territórios disjuntos por construção) e a
+**auditoria** (QA CRUZADO, EQUIPE.md §3.1: quem convive não julga). A mesa agrupa os agentes
+por estas squads (coluna `mesa_agente.squad`, no banco via MCP — ela não é versionada no repo;
+ferramenta que for ler a coluna confere o valor pelo MCP, não por este arquivo).
+
+### O núcleo central — não pertence a squad nenhuma
+**Claude** (linha principal: despacho, integração por merge, plantão) · **pm** · **qa** ·
+**seguranca** · **juridico**. O que é central continua central e **nunca desce para squad**:
+o **funil** (`ferramentas/integrar.js`, portões por exit code entre cada merge), o **placar**
+(EQUIPE.md §5), o **§2 inteiro** (representação é do dono; PARE sobe em pergunta fechada),
+a zona do dono (`TERRITORIO.md` — não vira ticket de squad nenhuma), o backlog e a mesa.
+
+### JOGO — `dev-jogo` · `arte`
+Dona por superfície: `src/` (jogo.ts, estilo.css, index.html — fora a zona do dono), a
+esteira da arte (`test/inline-*.js`, `cortar-pacote.js`, `embutir-heroi.js`,
+`requalificar.js`), `ferramentas/pacotes.js` e os `pack-*` que o build emite.
+
+### PLATAFORMA — `dev-plataforma` · `growth`
+Dona por superfície: `ferramentas/gerar-*.js` (as seções são GERADAS — mudança no gerador,
+nunca na saída), `plataforma/`, `territorio/`, `dashboard/`, `ferramentas/servir.js`,
+`ferramentas/receber.*`, o `construir.js` (dono nomeado; o que tocar empacotamento do JOGO —
+packs, CSP, dedup — consulta o dev-jogo antes) e `divulgacao/` (growth; nada publica sem
+sign-off do dono).
+
+### ACERVO — `historiador` hoje · `dev-dados` quando a fase 1 chegar
+Dona por superfície: o **texto** que o jogo e as seções afirmam (a licença de revisão do §2,
+com as três condições de lugar de fala), as fontes por capítulo no `NOTES.md`, e — a partir
+da fase 1 — o conteúdo como **dado**: esquema `conteudo_*` no Supabase,
+`ferramentas/conteudo-*.{sql,js}` (esquema · carga · espelho) e as validades
+(`vence_em`/`vence_regra`, o alerta anual que o dono ligou em 21/08). O `dev-dados` está
+**rascunhado** em `.claude/agents/dev-dados.md` com cabeçalho de RASCUNHO — acionado antes da
+fase 1, devolve BLOQUEADO por instrução própria. A divisão dentro da squad é a mesma do resto
+da casa: o historiador decide **o que o conteúdo diz**; o dev-dados garante **onde mora, como
+viaja e quando vence**. Nenhum dos dois decide representação — isso não é de squad, é do dono.
+
 ## As quatro decisões do dono, e por que cada uma
 
 **1 · Os seis, não os quatro.** O `EQUIPE.md` não tinha HISTORIADOR nem PIPELINE — e foi
