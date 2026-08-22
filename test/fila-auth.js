@@ -6,34 +6,53 @@
 // exercita os dois mundos com o backend TODO simulado por `page.route`: nenhum pedido sai
 // para o projeto de verdade, e nenhuma linha de teste entra na fila do dono.
 //
+// A PORTA VIROU UM PIN em 22/08 (decisao do dono: "o login do celular deve ser com um pin,
+// simples mesmo... nao patinhas"). As cenas de OTP viraram cenas de PIN — nao ha mais e-mail
+// a digitar, codigo a colar nem link magico a tocar, e por isso nao ha mais cena para eles.
+//
 // Ele reprova por EXIT CODE. Rode:  node test/fila-auth.js
 //
-// O que cada cena prova esta escrito no nome dela. Duas merecem aviso:
+// O que cada cena prova esta escrito no nome dela. Tres merecem aviso:
 //   * "refresh recusado" e "refresh sem rede" parecem a mesma coisa e sao opostas — servidor
 //     que RECUSA o refresh_token desloga; rede que CAI nao pode deslogar, senao o dono perde
 //     a sessao toda vez que o metro entra no tunel.
 //   * "mundo aberto" tem de continuar passando: enquanto o SQL nao for aplicado, deslogado
 //     ainda escreve com a chave publicavel. Um portao que so mede o mundo novo nao percebe
 //     que quebrou o de hoje.
-
+//   * "localhost pula o portao" e a unica cena que abre a pagina noutro ENDERECO, e e o
+//     endereco que ela mede — ver A CASA DA PAGINA, logo abaixo.
+//
+// A CASA DA PAGINA. Desde 22/08 o comportamento depende de `location.hostname` (em localhost
+// nao ha portao), entao o instrumento nao pode mais deixar o endereco por conta do
+// `test/abrir.js`, que serve tudo em 127.0.0.1 — o que faria TODA cena cair no caminho de
+// localhost e o portao inteiro medir o mundo errado. Aqui a propria pagina e servida por
+// `page.route`, a partir dos bytes do arquivo, em dois enderecos escolhidos:
+//   * `https://mesa.brasil.test/dashboard/` — a web, onde o portao existe;
+//   * `http://localhost:8199/dashboard/`    — a maquina do plantao, onde ele nao existe.
+// Nenhum dos dois resolve em DNS nenhum: a rota intercepta antes. Continua valendo o que
+// valia — nada sai desta maquina.
 //
 // O ALVO SE TROCA POR VARIAVEL DE AMBIENTE, e isso e o que torna este arquivo falsificavel
 // (EQUIPE.md 2.8): instrumento que nunca foi visto reprovando e decoracao. Para provar que
 // uma cena morde, copie o dashboard, apague o conserto que ela cobra e rode contra a copia:
 //
 //     FILA_AUTH_HTML=test/tmp-fila-defeito.html node test/fila-auth.js    # tem de sair 1
-//
-// O caminho precisa ficar DENTRO do repositorio — quem serve a pagina e o test/abrir.js.
+const fs = require('fs');
 const path = require('path');
-const ABRIR = require('./abrir.js');
 const { chromium } = require('playwright');
 
 const HTML = process.env.FILA_AUTH_HTML
   ? path.resolve(process.env.FILA_AUTH_HTML)
   : path.resolve(__dirname, '..', 'dashboard', 'index.html');
-const ALVO = ABRIR('file://' + HTML);
+const HOST_WEB = 'https://mesa.brasil.test';
+const HOST_LOCAL = 'http://localhost:8199';
+const CAMINHO = '/dashboard/';
 const SB = 'https://hdhqziqvrthxtgyraemk.supabase.co';
 const PUB = 'sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN';
+// O e-mail da conta sintetica esta escrito aqui de PROPOSITO, e nao lido do arquivo: se
+// alguem trocar a constante no dashboard sem pensar, as cenas de PIN reprovam e a troca vira
+// uma decisao, nao um acidente. Ele nao e o e-mail de ninguem — e um nome de usuario.
+const EMAIL_DONO = 'dono@mesa.brasil';
 
 let falhas = 0, cenas = 0;
 function ok(cond, msg, extra) {
@@ -48,7 +67,7 @@ function ok(cond, msg, extra) {
 function tokenJson(acesso, seg) {
   return JSON.stringify({
     access_token: acesso, refresh_token: 'refresh-' + acesso, token_type: 'bearer',
-    expires_in: seg == null ? 3600 : seg, user: { id: 'uuid-do-dono', email: 'dono@exemplo.test' }
+    expires_in: seg == null ? 3600 : seg, user: { id: 'uuid-do-dono', email: EMAIL_DONO }
   });
 }
 
@@ -68,6 +87,11 @@ async function palco(navegador, plano) {
       localStorage.setItem('mesa-brasil-fila4', s);
     }, JSON.stringify(plano.fila));
   }
+  if (plano.pinErros) {
+    await ctx.addInitScript(s => {
+      localStorage.setItem('mesa-brasil-pin-erros', s);
+    }, JSON.stringify(plano.pinErros));
+  }
   const pag = await ctx.newPage();
   // "Failed to load resource: ... 401" e o navegador narrando a RESPOSTA que a cena pediu —
   // um 401 simulado de proposito nao e defeito da pagina. O que interessa e excecao de
@@ -80,6 +104,15 @@ async function palco(navegador, plano) {
   });
   pag.on('pageerror', e => erros.push('pageerror: ' + e.message));
 
+  // A propria pagina, servida do disco no endereco que a cena escolheu (ver A CASA DA PAGINA).
+  const base = plano.local ? HOST_LOCAL : HOST_WEB;
+  await pag.route(base + '/**', r => {
+    const p = new URL(r.request().url()).pathname;
+    if (p === CAMINHO || p === CAMINHO + 'index.html')
+      return r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: fs.readFileSync(HTML) });
+    return r.fulfill({ status: 404, contentType: 'text/plain', body: '404' });
+  });
+
   // Fontes de fora: servidas vazias, para "falhou o recurso" nao virar erro de console e
   // envenenar a contagem que interessa.
   await pag.route('https://fonts.googleapis.com/**', r => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
@@ -89,16 +122,15 @@ async function palco(navegador, plano) {
     const req = rota.request();
     const url = req.url();
     const aut = (req.headers()['authorization'] || '');
-    if (url.indexOf('/auth/v1/otp') >= 0) {
-      autenticacoes.push({ rota: 'otp', corpo: req.postDataJSON(), url });
-      return rota.fulfill({ status: plano.otp || 200, contentType: 'application/json', body: '{}' });
-    }
-    if (url.indexOf('/auth/v1/verify') >= 0) {
-      autenticacoes.push({ rota: 'verify', corpo: req.postDataJSON() });
-      if (plano.verify === 'erro') return rota.fulfill({ status: 403, contentType: 'application/json', body: '{"msg":"Token has expired or is invalid"}' });
-      return rota.fulfill({ status: 200, contentType: 'application/json', body: tokenJson('tok-novo') });
-    }
     if (url.indexOf('/auth/v1/token') >= 0) {
+      // O MESMO endpoint atende o PIN e o refresh; quem separa e o grant_type. Confundir os
+      // dois faria a cena do PIN medir a renovacao do token e sair verde sem provar nada.
+      if (url.indexOf('grant_type=password') >= 0) {
+        autenticacoes.push({ rota: 'senha', corpo: req.postDataJSON(), url });
+        if (plano.senha === 'errada') return rota.fulfill({ status: 400, contentType: 'application/json', body: '{"error":"invalid_grant","error_description":"Invalid login credentials"}' });
+        if (plano.senha === 'semrede') return rota.abort('failed');
+        return rota.fulfill({ status: 200, contentType: 'application/json', body: tokenJson('tok-novo') });
+      }
       autenticacoes.push({ rota: 'refresh', corpo: req.postDataJSON() });
       if (plano.refresh === 'recusado') return rota.fulfill({ status: 400, contentType: 'application/json', body: '{"error":"invalid_grant"}' });
       if (plano.refresh === 'semrede') return rota.abort('failed');
@@ -109,7 +141,13 @@ async function palco(navegador, plano) {
       return rota.fulfill({ status: 204, body: '' });
     }
     if (url.indexOf('/auth/v1/user') >= 0) {
-      return rota.fulfill({ status: 200, contentType: 'application/json', body: '{"email":"dono@exemplo.test"}' });
+      if (req.method() === 'PUT') {
+        autenticacoes.push({ rota: 'trocar', aut, corpo: req.postDataJSON() });
+        if (plano.trocar === 'recusa') return rota.fulfill({ status: 422, contentType: 'application/json', body: '{"msg":"Password should be at least 6 characters"}' });
+        return rota.fulfill({ status: 200, contentType: 'application/json', body: '{"id":"uuid-do-dono"}' });
+      }
+      autenticacoes.push({ rota: 'usuario', aut });
+      return rota.fulfill({ status: 200, contentType: 'application/json', body: '{"id":"uuid-do-dono"}' });
     }
     if (req.method() === 'POST' && url.indexOf('/rest/v1/mesa_resposta') >= 0) {
       escritas.push({ aut, corpo: req.postDataJSON() });
@@ -127,7 +165,7 @@ async function palco(navegador, plano) {
     return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
 
-  await pag.goto(ALVO + (plano.hash || ''), { waitUntil: 'domcontentloaded' });
+  await pag.goto(base + CAMINHO, { waitUntil: 'domcontentloaded' });
   await pag.waitForTimeout(450);
   return { ctx, pag, erros, avisos, escritas, autenticacoes };
 }
@@ -141,12 +179,18 @@ async function falarNaConversa(pag, texto) {
 const estado = pag => pag.evaluate(() => ({
   auth: document.body.getAttribute('data-auth'),
   loginVisivel: !document.getElementById('login').hasAttribute('hidden'),
+  trocarVisivel: !document.getElementById('trocar').hasAttribute('hidden'),
+  elo: !document.getElementById('conta-trocar').hidden,
   quem: document.getElementById('conta-quem').textContent,
   botao: document.getElementById('conta-btn').textContent,
+  botaoVisivel: !document.getElementById('conta-btn').hidden,
   soLeitura: getComputedStyle(document.querySelectorAll('.so-leitura')[0]).display,
   fila: JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length,
   sessao: localStorage.getItem('mesa-brasil-sessao1'),
-  hash: location.hash
+  erros: localStorage.getItem('mesa-brasil-pin-erros'),
+  aviso: document.getElementById('login-estado').textContent,
+  avisoTrocar: document.getElementById('trocar-estado').textContent,
+  pinNoCampo: document.getElementById('login-pin').value,
 }));
 
 (async () => {
@@ -163,6 +207,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(e.auth === 'fora', 'body data-auth=fora');
     ok(e.soLeitura === 'flex', 'a faixa "modo leitura" aparece deslogado', e.soLeitura);
     ok(e.botao.trim() === 'Entrar', 'o botao da conta convida a entrar', e.botao);
+    ok(!e.elo, 'o elo "trocar PIN" NAO aparece deslogado');
     ok(escritas.length === 1, 'o POST saiu mesmo deslogado (o mundo de hoje segue de pe)', String(escritas.length));
     ok(escritas[0] && escritas[0].aut === 'Bearer ' + PUB, 'deslogado manda a chave publicavel', escritas[0] && escritas[0].aut);
     ok(e.fila === 0, 'nada ficou preso na fila local', String(e.fila));
@@ -183,45 +228,46 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 3
-  console.log('\n[3] A PORTA — e-mail, codigo, e a fila presa sai sozinha');
+  console.log('\n[3] A PORTA — um PIN, e a fila presa sai sozinha');
   cenas++;
   {
     const { ctx, pag, erros, escritas, autenticacoes } = await palco(nav, { escrita: 'fechada' });
     await falarNaConversa(pag, 'resposta que vai ficar presa');
     // o proprio 401 ja abriu o painel — clicar em "Entrar" agora o FECHARIA (e alternador)
-    ok(await pag.isVisible('#login-email'), 'o campo de e-mail ja esta a mao depois do 401');
-    await pag.fill('#login-email', 'dono@exemplo.test');
-    await pag.click('#login-pedir');
-    await pag.waitForTimeout(300);
-    const passo2 = await pag.isVisible('#login-p2');
-    ok(passo2, 'pedir o codigo leva ao passo 2');
-    const pedido = autenticacoes.find(a => a.rota === 'otp');
-    ok(!!pedido && pedido.corpo.email === 'dono@exemplo.test', 'o OTP foi pedido para o e-mail digitado');
-    ok(!!pedido && pedido.url.indexOf('redirect_to=') > 0, 'o pedido leva redirect_to (o link magico volta para ca)');
+    ok(await pag.isVisible('#login-pin'), 'o campo do PIN ja esta a mao depois do 401');
+    ok(await pag.getAttribute('#login-pin', 'type') === 'password', 'o PIN nao aparece na tela enquanto se digita');
 
     // dali em diante a escrita passa a ser aceita: e o que o SQL faz para quem entrou
     await pag.unroute(SB + '/**');
     const escritasDepois = [];
     await pag.route(SB + '/**', async rota => {
       const req = rota.request();
-      if (req.url().indexOf('/auth/v1/verify') >= 0)
+      if (req.url().indexOf('grant_type=password') >= 0) {
+        autenticacoes.push({ rota: 'senha', corpo: req.postDataJSON(), url: req.url() });
         return rota.fulfill({ status: 200, contentType: 'application/json', body: tokenJson('tok-novo') });
+      }
       if (req.method() === 'POST' && req.url().indexOf('/rest/v1/mesa_resposta') >= 0) {
         escritasDepois.push(req.headers()['authorization']);
         return rota.fulfill({ status: 201, contentType: 'application/json', body: '' });
       }
       return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     });
-    await pag.fill('#login-cod', '123456');
+    await pag.fill('#login-pin', '123456');
     await pag.click('#login-entrar');
-    await pag.waitForTimeout(600);
+    await pag.waitForTimeout(700);
     const e = await estado(pag);
+    const pedido = autenticacoes.find(a => a.rota === 'senha');
     ok(erros.length === 0, 'zero erro de console no fluxo inteiro', erros.join(' | '));
+    ok(!!pedido && pedido.url.indexOf('grant_type=password') > 0, 'o PIN vai pelo grant_type=password', pedido && pedido.url);
+    ok(!!pedido && pedido.corpo.email === EMAIL_DONO, 'com o e-mail SINTETICO da conta da mesa', pedido && pedido.corpo.email);
+    ok(!!pedido && pedido.corpo.password === '123456', 'e o PIN digitado como senha');
     ok(e.auth === 'dentro', 'entrou');
     ok(!e.loginVisivel, 'o painel de login se fecha ao entrar');
     ok(e.botao.trim() === 'Sair', 'o botao vira Sair', e.botao);
-    ok((e.quem || '').indexOf('dono@exemplo.test') >= 0, 'a conta aparece na barra', e.quem);
+    ok(e.elo, 'o elo "trocar PIN" aparece so depois de entrar');
+    ok(e.pinNoCampo === '', 'o PIN nao fica no campo depois de entrar', e.pinNoCampo);
     ok(!!e.sessao && JSON.parse(e.sessao).refresh_token === 'refresh-tok-novo', 'os DOIS tokens ficam guardados');
+    ok(!!e.sessao && !('email' in JSON.parse(e.sessao)), 'e NENHUM e-mail e guardado no aparelho', e.sessao);
     ok(escritasDepois.length >= 1 && escritasDepois[0] === 'Bearer tok-novo', 'a resposta presa saiu sozinha com o token do usuario', escritasDepois.join(','));
     ok(e.fila === 0, 'a fila local esvaziou', String(e.fila));
     void escritas;
@@ -229,11 +275,11 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 4
-  console.log('\n[4] SESSAO GUARDADA — voltar nao pede login de novo');
+  console.log('\n[4] SESSAO GUARDADA — voltar nao pede PIN de novo');
   cenas++;
   {
-    const { ctx, pag, erros, escritas } = await palco(nav, {
-      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3, email: 'dono@exemplo.test' }
+    const { ctx, pag, erros, escritas, autenticacoes } = await palco(nav, {
+      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3 }
     });
     await falarNaConversa(pag, 'oi da cena 4');
     const e = await estado(pag);
@@ -241,6 +287,9 @@ const estado = pag => pag.evaluate(() => ({
     ok(e.auth === 'dentro', 'ja entra logado (login unico)');
     ok(e.soLeitura === 'none', 'as faixas de "modo leitura" somem', e.soLeitura);
     ok(escritas[0] && escritas[0].aut === 'Bearer tok-guardado', 'o POST leva o token do usuario', escritas[0] && escritas[0].aut);
+    ok(autenticacoes.filter(a => a.rota === 'usuario').length === 0,
+      'a carga NAO pergunta ao servidor quem entrou (nao ha mais e-mail a buscar)',
+      JSON.stringify(autenticacoes.map(a => a.rota)));
     await ctx.close();
   }
 
@@ -256,7 +305,7 @@ const estado = pag => pag.evaluate(() => ({
   // escrever, com o relogio da pagina deslocado DEPOIS da carga.
   {
     const { ctx, pag, erros, escritas, autenticacoes } = await palco(nav, {
-      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() + 300e3, email: 'dono@exemplo.test' }
+      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() + 300e3 }
     });
     ok(autenticacoes.filter(a => a.rota === 'refresh').length === 0,
       'na carga NAO renova — a sessao ainda vale (e o que faz esta cena medir a escrita)',
@@ -279,7 +328,7 @@ const estado = pag => pag.evaluate(() => ({
   {
     const { ctx, pag, erros } = await palco(nav, {
       refresh: 'recusado', escrita: 'fechada',
-      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() - 1000, email: 'dono@exemplo.test' }
+      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() - 1000 }
     });
     await falarNaConversa(pag, 'oi da cena 6');
     const e = await estado(pag);
@@ -297,7 +346,7 @@ const estado = pag => pag.evaluate(() => ({
   {
     const { ctx, pag, erros } = await palco(nav, {
       refresh: 'semrede', escrita: 'semrede',
-      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() - 1000, email: 'dono@exemplo.test' }
+      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() - 1000 }
     });
     await falarNaConversa(pag, 'oi da cena 7');
     const e = await estado(pag);
@@ -309,32 +358,61 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 8
-  console.log('\n[8] LINK MAGICO — voltar do e-mail com #access_token entra e limpa a barra');
+  console.log('\n[8] PIN ERRADO — nao entra, diz o motivo, e nao guarda nada');
   cenas++;
   {
-    const { ctx, pag, erros } = await palco(nav, {
-      hash: '#access_token=tok-do-link&refresh_token=r-do-link&expires_in=3600&token_type=bearer&type=magiclink'
-    });
+    const { ctx, pag, erros, autenticacoes } = await palco(nav, { senha: 'errada' });
+    await pag.click('#conta-btn');
+    await pag.fill('#login-pin', '000000');
+    await pag.click('#login-entrar');
+    await pag.waitForTimeout(500);
     const e = await estado(pag);
+    const pedido = autenticacoes.find(a => a.rota === 'senha');
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
-    ok(e.auth === 'dentro', 'o link do e-mail entra');
-    ok(e.hash === '', 'o token some da barra de endereco', e.hash);
-    ok(!!e.sessao && JSON.parse(e.sessao).access_token === 'tok-do-link', 'a sessao do link ficou guardada');
+    ok(!!pedido && pedido.corpo.email === EMAIL_DONO, 'o pedido foi para a conta sintetica', pedido && pedido.corpo.email);
+    ok(!!pedido && pedido.corpo.password === '000000', 'com o PIN errado como senha');
+    ok(e.auth === 'fora', 'nao entrou');
+    ok(e.sessao === null, 'nenhuma sessao foi gravada', String(e.sessao));
+    ok(e.loginVisivel, 'o painel continua aberto para tentar de novo');
+    ok(/n[aã]o entrou/i.test(e.aviso), 'e a tela diz por que nao entrou', e.aviso);
+    ok(e.pinNoCampo === '', 'o PIN errado sai do campo (nao se re-manda por engano)', e.pinNoCampo);
     await ctx.close();
   }
 
   // ---------------------------------------------------------------- 9
-  console.log('\n[9] LINK COM ERRO — mostra o motivo, nao a tela quebrada');
+  console.log('\n[9] CINCO ERROS SEGUIDOS — o formulario espera 30 s (e volta sozinho)');
   cenas++;
+  // ISTO E UX, NAO SEGURANCA, e a cena mede exatamente isso: que a pagina para de mandar
+  // pedido depois do quinto erro e diz quanto falta. Quem ataca nao passa por esta pagina —
+  // o que protege de verdade e o rate limit do GoTrue, o cadastro desligado e o tamanho do
+  // dano (INSERT numa fila), e esta escrito por extenso no dashboard, ao lado do contador.
   {
-    const { ctx, pag, erros } = await palco(nav, {
-      hash: '#error=access_denied&error_description=Email+link+is+invalid+or+has+expired'
-    });
-    const e = await estado(pag);
+    const { ctx, pag, erros, autenticacoes } = await palco(nav, { senha: 'errada' });
+    await pag.click('#conta-btn');
+    for (let i = 0; i < 5; i++) {
+      await pag.fill('#login-pin', '00000' + i);
+      await pag.click('#login-entrar');
+      await pag.waitForTimeout(260);
+    }
+    const depoisDe5 = autenticacoes.filter(a => a.rota === 'senha').length;
+    const meio = await estado(pag);
+    // a sexta tentativa NAO pode sair
+    await pag.fill('#login-pin', '999999');
+    await pag.click('#login-entrar', { force: true });
+    await pag.waitForTimeout(300);
+    const depoisDe6 = autenticacoes.filter(a => a.rota === 'senha').length;
+    const parado = await estado(pag);
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
-    ok(e.auth === 'fora', 'nao entra com link invalido');
-    ok(e.loginVisivel, 'o login aparece explicando');
-    ok(e.hash === '', 'a barra de endereco fica limpa', e.hash);
+    ok(depoisDe5 === 5, 'os cinco erros saíram mesmo (a cena mede algo)', String(depoisDe5));
+    ok(/espere \d+ s/.test(meio.aviso), 'a tela mostra a espera com o numero de segundos', meio.aviso);
+    ok(!!meio.erros && JSON.parse(meio.erros).erros >= 5, 'o contador ficou no aparelho', meio.erros);
+    ok(depoisDe6 === 5, 'a SEXTA tentativa nao sai — nenhum pedido novo', String(depoisDe6));
+    ok(await pag.isDisabled('#login-entrar'), 'e o botao fica desligado enquanto a espera corre');
+    void parado;
+    // 31 s depois o formulario volta sozinho: o contador re-desenha a cada 500 ms
+    await pag.evaluate(ms => { const real = Date.now; Date.now = () => real() + ms; }, 31000);
+    await pag.waitForTimeout(900);
+    ok(!(await pag.isDisabled('#login-entrar')), 'passados 30 s o botao volta sozinho');
     await ctx.close();
   }
 
@@ -399,7 +477,7 @@ const estado = pag => pag.evaluate(() => ({
   // tivesse copiado o token continuava entrando depois de o dono "sair".
   {
     const { ctx, pag, erros, autenticacoes } = await palco(nav, {
-      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3, email: 'dono@exemplo.test' }
+      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3 }
     });
     await pag.click('#conta-btn');
     await pag.waitForTimeout(300);
@@ -410,6 +488,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(!!saida && saida.aut === 'Bearer tok-guardado', 'e foi com o token da sessao (o servidor sabe qual matar)', saida && saida.aut);
     ok(e.sessao === null, 'e o aparelho tambem ficou limpo', String(e.sessao));
     ok(e.auth === 'fora', 'a pagina volta ao modo leitura');
+    ok(!e.elo, 'e o elo "trocar PIN" some junto');
     await ctx.close();
   }
 
@@ -541,6 +620,84 @@ const estado = pag => pag.evaluate(() => ({
     ok(b.cards === 6, 'depois de um refresh de verdade continuam 6 cards (nada duplicou)', String(b.cards));
     ok(b.cabs === a.cabs, 'e nenhum cabecalho de squad nasceu de novo', b.cabs);
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 17
+  console.log('\n[17] TROCAR O PIN — o dono troca o temporario sem passar por ninguem');
+  cenas++;
+  // O plantao entrega um PIN temporario (ele cria a conta e define a senha pelo MCP, com a
+  // service_role que nunca sai do servidor). Esta e a tela que faz esse PIN deixar de ser
+  // conhecido por qualquer outra pessoa — e o PUT vai com o Bearer DO USUARIO, nunca com a
+  // chave publicavel: o GoTrue recusaria, e cobrar isso aqui e o ponto da cena.
+  {
+    const { ctx, pag, erros, autenticacoes } = await palco(nav, {
+      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3 }
+    });
+    const antes = await estado(pag);
+    ok(antes.elo, 'o elo "trocar PIN" esta a mao para quem entrou');
+    await pag.click('#conta-trocar');
+    await pag.waitForTimeout(200);
+    ok(await pag.isVisible('#trocar-novo'), 'o elo abre o painel de troca');
+
+    // curto demais: nem chega a sair da pagina
+    await pag.fill('#trocar-novo', '12345');
+    await pag.fill('#trocar-conf', '12345');
+    await pag.click('#trocar-ok');
+    await pag.waitForTimeout(250);
+    const curto = await estado(pag);
+    ok(autenticacoes.filter(a => a.rota === 'trocar').length === 0,
+      'PIN de 5 nao vira pedido — a pagina nem tenta', JSON.stringify(autenticacoes.map(a => a.rota)));
+    ok(/6 caracteres/.test(curto.avisoTrocar), 'e a tela diz o minimo, em portugues', curto.avisoTrocar);
+
+    // os dois campos discordando: tambem nao sai
+    await pag.fill('#trocar-novo', '111111');
+    await pag.fill('#trocar-conf', '222222');
+    await pag.click('#trocar-ok');
+    await pag.waitForTimeout(250);
+    const difere = await estado(pag);
+    ok(autenticacoes.filter(a => a.rota === 'trocar').length === 0,
+      'confirmacao diferente nao vira pedido', JSON.stringify(autenticacoes.map(a => a.rota)));
+    ok(/n[aã]o batem/.test(difere.avisoTrocar), 'e a tela diz que os dois campos discordam', difere.avisoTrocar);
+
+    // agora vale
+    await pag.fill('#trocar-novo', '111111');
+    await pag.fill('#trocar-conf', '111111');
+    await pag.click('#trocar-ok');
+    await pag.waitForTimeout(500);
+    const fim = await estado(pag);
+    const put = autenticacoes.find(a => a.rota === 'trocar');
+    const toastTxt = await pag.textContent('#toast');
+    ok(erros.length === 0, 'zero erro de console no fluxo inteiro', erros.join(' | '));
+    ok(!!put, 'o PUT /auth/v1/user saiu', JSON.stringify(autenticacoes.map(a => a.rota)));
+    ok(!!put && put.aut === 'Bearer tok-guardado', 'com o Bearer DO USUARIO, nao com a chave publicavel', put && put.aut);
+    ok(!!put && put.corpo.password === '111111', 'e o corpo leva so a senha nova', put && JSON.stringify(put.corpo));
+    ok(!fim.trocarVisivel, 'o painel de troca se fecha sozinho');
+    ok(fim.auth === 'dentro', 'e o dono continua entrado (trocar PIN nao desloga)');
+    ok(/trocado/i.test(toastTxt || ''), 'o toast confirma a troca', toastTxt);
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 18
+  console.log('\n[18] LOCALHOST PULA O PORTAO — sem login, e sem fingir sessao');
+  cenas++;
+  // Decisao do dono (22/08): "localhost n precisa entrar ne". A cena serve a MESMA pagina em
+  // http://localhost:8199/dashboard/ e cobra as duas metades: o portao nao aparece NEM
+  // quando o servidor devolve 401 (e ele devolve aqui, de proposito), e nada de sessao
+  // inventada — `mesa-brasil-sessao1` continua vazio e o POST sai com a chave publicavel.
+  // A resposta que levou 401 tem de cair na fila local, como em qualquer outra falha.
+  {
+    const { ctx, pag, erros, escritas } = await palco(nav, { local: true, escrita: 'fechada' });
+    await falarNaConversa(pag, 'oi da cena 18');
+    const e = await estado(pag);
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(e.auth === 'local', 'body data-auth=local (nem dentro, nem fora)', e.auth);
+    ok(!e.loginVisivel, 'o portao NAO aparece, mesmo com a escrita levando 401');
+    ok(!e.botaoVisivel, 'e nao ha botao "Entrar" para tocar por engano');
+    ok(e.soLeitura === 'none', 'as faixas "escrever exige entrar" somem — aqui seria mentira', e.soLeitura);
+    ok(e.sessao === null, 'NENHUMA sessao foi inventada', String(e.sessao));
+    ok(escritas[0] && escritas[0].aut === 'Bearer ' + PUB, 'o POST sai anonimo, com a chave publicavel', escritas[0] && escritas[0].aut);
+    ok(e.fila === 1, 'e a resposta recusada cai na fila local, como qualquer falha', String(e.fila));
     await ctx.close();
   }
 

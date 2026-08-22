@@ -85,10 +85,10 @@
     border-radius:50%;animation:giraCk .8s linear infinite}
   @keyframes giraCk{to{transform:rotate(360deg)}}
 
-  /* ---- conta e login (Supabase Auth por e-mail; sem biblioteca, REST puro) ----
-     A pagina roda nos DOIS mundos: enquanto o INSERT anon estiver aberto ela escreve com a
-     chave publicavel; quando as politicas de ferramentas/fila-auth.sql entrarem, o 401/403
-     abre o login em vez de perder a resposta. */
+  /* ---- conta e login (Supabase Auth por SENHA; sem biblioteca, REST puro) ----
+     A porta e UM PIN desde 22/08 (decisao do dono). A pagina roda nos DOIS mundos: enquanto o
+     INSERT anon estiver aberto ela escreve com a chave publicavel; quando as politicas de
+     ferramentas/fila-auth.sql entrarem, o 401/403 abre o login em vez de perder a resposta. */
   .conta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .9rem;
     font:600 .64rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.05em;color:var(--pedra)}
   .conta .ponto{width:8px;height:8px;border-radius:50%;background:var(--pedra);flex:0 0 auto}
@@ -113,7 +113,12 @@
     border-radius:4px;padding:.55rem .6rem;font:inherit;font-size:1rem}
   .login input:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
   .login input.cod{letter-spacing:.35em;font-family:"IBM Plex Mono",monospace;text-align:center}
-  .login .passo[hidden]{display:none}
+  .login input + label{margin-top:.6rem}
+  /* "trocar PIN" e um elo, nao um botao: ele nao pode disputar atencao com Sair */
+  .conta .elo{flex:0 0 auto;background:none;border:0;padding:.2rem 0;color:var(--pedra);cursor:pointer;
+    font:600 .66rem/1 "IBM Plex Mono",monospace;letter-spacing:.05em;text-decoration:underline}
+  .conta .elo:hover{color:var(--terra)}
+  .conta .elo[hidden]{display:none}
   .login .estado{font:600 .68rem/1.45 "IBM Plex Mono",monospace;color:var(--pedra);margin-top:.55rem;min-height:1rem}
   .login .estado.erro{color:var(--alerta)}
   .login .estado.ok{color:var(--ok)}
@@ -276,26 +281,31 @@
   <div class="conta" id="conta">
     <span class="ponto"></span>
     <span class="quem" id="conta-quem">modo leitura</span>
+    <button class="elo" id="conta-trocar" type="button" hidden>trocar PIN</button>
     <button class="btn leve" id="conta-btn" type="button">Entrar</button>
   </div>
 
   <section class="login" id="login" hidden aria-label="Entrar na mesa">
     <h3>Entrar na mesa</h3>
-    <p class="sub">Ler é aberto; <b>escrever é seu</b>. Um e-mail, um código, e este aparelho fica entrado — não precisa repetir.</p>
-    <div class="passo" id="login-p1">
-      <label for="login-email">seu e-mail</label>
-      <input id="login-email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="voce@exemplo.com">
-      <div class="acoes"><button class="btn forte" id="login-pedir" type="button">Mandar o código</button></div>
-    </div>
-    <div class="passo" id="login-p2" hidden>
-      <label for="login-cod">código que chegou no e-mail</label>
-      <input id="login-cod" class="cod" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="000000">
-      <div class="acoes">
-        <button class="btn" id="login-voltar" type="button">Trocar e-mail</button>
-        <button class="btn forte" id="login-entrar" type="button">Entrar</button>
-      </div>
-    </div>
+    <p class="sub">Ler é aberto; <b>escrever é seu</b>. Um PIN, e este aparelho fica entrado — não precisa repetir.</p>
+    <label for="login-pin">seu PIN</label>
+    <input id="login-pin" class="cod" type="password" inputmode="numeric" autocomplete="current-password" maxlength="64" placeholder="••••••">
+    <div class="acoes"><button class="btn forte" id="login-entrar" type="button">Entrar</button></div>
     <p class="estado" id="login-estado"></p>
+  </section>
+
+  <section class="login" id="trocar" hidden aria-label="Trocar o PIN">
+    <h3>Trocar o PIN</h3>
+    <p class="sub">O PIN novo vale na hora, em todos os aparelhos. Mínimo de seis caracteres.</p>
+    <label for="trocar-novo">PIN novo</label>
+    <input id="trocar-novo" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••">
+    <label for="trocar-conf">repita o PIN novo</label>
+    <input id="trocar-conf" class="cod" type="password" inputmode="numeric" autocomplete="new-password" maxlength="64" placeholder="••••••">
+    <div class="acoes">
+      <button class="btn" id="trocar-cancelar" type="button">Cancelar</button>
+      <button class="btn forte" id="trocar-ok" type="button">Trocar</button>
+    </div>
+    <p class="estado" id="trocar-estado"></p>
   </section>
 
   <div class="placar" id="placar"></div>
@@ -350,7 +360,7 @@
   </section>
 
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — o e-mail que você usa para entrar fica no Supabase Auth deste projeto, só para provar que é você, e a sessão fica guardada neste aparelho até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
+  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e um contador de erros de PIN, até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -375,6 +385,33 @@
   var H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY};   // LEITURA: publicável, sempre (painéis públicos)
   var FILA="mesa-brasil-fila4";
   var SESSAO="mesa-brasil-sessao1";
+
+  // ================= A CONTA DA MESA E UM PIN (dono, 22/08) =================
+  // Palavras dele: "o login do celular deve ser com um pin, simples mesmo... nao patinhas".
+  // O OTP por e-mail saiu inteiro — nao ha e-mail a digitar, codigo a esperar nem link magico
+  // a tocar; o codigo daquele fluxo nao ficou de lembranca.
+  //
+  // POR BAIXO CONTINUA SENDO O SUPABASE AUTH, e o PIN e a SENHA de uma conta sintetica:
+  //   POST /auth/v1/token?grant_type=password  { email: EMAIL_DONO, password: <o PIN> }
+  // Tudo o mais que ja existia continua igual: sessao no localStorage, refresh_token, Bearer
+  // nos POSTs, fila local com teto e poda, logout que revoga do lado de la.
+  //
+  // EMAIL_DONO E SINTETICO DE PROPOSITO. Esta pagina e servida na web aberta e o codigo-fonte
+  // dela e legivel por qualquer pessoa que aperte "ver fonte": e-mail pessoal embutido aqui e
+  // e-mail pessoal em lista de spam, e ainda entrega de graca metade do par de credenciais.
+  // "dono@mesa.brasil" nao existe como caixa postal, nao recebe nada e nao identifica ninguem —
+  // e um NOME DE USUARIO com formato de e-mail, que e o unico formato que o GoTrue aceita.
+  var EMAIL_DONO="dono@mesa.brasil";
+
+  // LOCALHOST NAO TEM PORTAO (dono, 22/08: "localhost n precisa entrar ne").
+  // Em localhost o painel abre como sempre abriu: sem login, escrevendo anonimo com a chave
+  // publicavel. Nada de sessao fingida — "ses" continua null e nenhum token e inventado.
+  // O QUE ISSO CUSTA, dito por extenso porque e o tipo de coisa que se descobre tarde: quando
+  // as policies de ferramentas/fila-auth.sql entrarem, a escrita anonima passa a levar 401
+  // TAMBEM em localhost. O item cai na fila local, como em qualquer outra falha, e nao se
+  // perde; o que NAO acontece e o login abrir sozinho, porque aqui nao ha portao para abrir.
+  // O administrativo local e do plantao, pelo MCP, com a credencial que nunca sai do servidor.
+  var LOCAL=/^(localhost|127\.0\.0\.1|\[::1\]|::1)$/.test(location.hostname);
 
   // escH ESCAPA ASPAS TAMBÉM, e isso é o achado N2 da re-auditoria (21/08). O truque do
   // textContent escapa `<`, `>` e `&` — e SÓ. Aspas passam inteiras, porque dentro de um nó de
@@ -416,7 +453,7 @@
     catch(e){ console.warn("mesa: o localStorage recusou a fila ("+(e&&e.name||"erro")+") — não guardei o novo item"); return false; }
   }
 
-  // ================= A SESSÃO (Supabase Auth por e-mail, REST puro) =================
+  // ================= A SESSÃO (Supabase Auth por senha, REST puro) =================
   // Sem biblioteca: a página é autocontida e a única dependência de rede é o próprio projeto.
   // Guarda access_token + refresh_token no localStorage — entrar UMA vez basta.
   var ses=null, refrescando=null;
@@ -431,11 +468,13 @@
     try{ if(ses) localStorage.setItem(SESSAO,JSON.stringify(ses)); else localStorage.removeItem(SESSAO); }catch(e){}
     pintarConta();
   }
+  // A sessao guardada NAO tem mais campo de e-mail, e isso e de proposito: com a conta
+  // sintetica o e-mail nao identifica nem informa nada, e o que nao se guarda nao vaza. Sessao
+  // antiga que ainda tenha o campo continua valendo — lerSessao so exige os dois tokens.
   function guardarTokens(j){
     if(!j || !j.access_token || !j.refresh_token) return null;
     gravarSessao({ access_token:j.access_token, refresh_token:j.refresh_token,
-      expira_em: Date.now() + ((parseInt(j.expires_in,10)||3600)*1000),
-      email: (j.user && j.user.email) || (ses && ses.email) || "" });
+      expira_em: Date.now() + ((parseInt(j.expires_in,10)||3600)*1000) });
     return ses;
   }
   function comToken(s){ return {apikey:SB_KEY, Authorization:"Bearer "+s.access_token}; }
@@ -590,97 +629,172 @@
     if(res==="fila"){ toast(msgFila,true); return; }
     toast("Não consegui enviar NEM guardar — a fila deste aparelho está cheia. Copie o texto antes de sair.",true);
   }
-  // -------- a porta: e-mail -> código -> dentro --------
+  // -------- a porta: UM PIN --------
   var cxLogin=document.getElementById("login"),
-      p1=document.getElementById("login-p1"), p2=document.getElementById("login-p2"),
-      cEmail=document.getElementById("login-email"), cCod=document.getElementById("login-cod"),
-      bPedir=document.getElementById("login-pedir"), bEntrar=document.getElementById("login-entrar"),
-      bVoltar=document.getElementById("login-voltar"), elEstado=document.getElementById("login-estado"),
+      cPin=document.getElementById("login-pin"),
+      bEntrar=document.getElementById("login-entrar"),
+      elEstado=document.getElementById("login-estado"),
+      cxTrocar=document.getElementById("trocar"),
+      cNovo=document.getElementById("trocar-novo"), cConf=document.getElementById("trocar-conf"),
+      bTrocarOk=document.getElementById("trocar-ok"), bTrocarNao=document.getElementById("trocar-cancelar"),
+      elTrocar=document.getElementById("trocar-estado"),
       contaQuem=document.getElementById("conta-quem"), contaBtn=document.getElementById("conta-btn"),
-      emailPendente="";
+      contaTrocar=document.getElementById("conta-trocar");
   function estadoLogin(msg,classe){ elEstado.textContent=msg||""; elEstado.className="estado"+(classe?" "+classe:""); }
+  function estadoTrocar(msg,classe){ elTrocar.textContent=msg||""; elTrocar.className="estado"+(classe?" "+classe:""); }
   function pintarConta(){
-    document.body.setAttribute("data-auth", ses?"dentro":"fora");
+    // tres estados, nao dois: "local" existe para as faixas de "modo leitura" NAO aparecerem
+    // em localhost — la a escrita sai anonima e dizer "escrever exige entrar" seria mentira.
+    document.body.setAttribute("data-auth", ses?"dentro":(LOCAL?"local":"fora"));
+    contaTrocar.hidden = !ses;
     if(ses){
-      contaQuem.textContent = (ses.email?ses.email+" — ":"") + "entrado neste aparelho";
-      contaBtn.textContent="Sair";
+      contaQuem.textContent="entrado neste aparelho — escrever está liberado";
+      contaBtn.hidden=false; contaBtn.textContent="Sair";
+    }else if(LOCAL){
+      contaQuem.textContent="localhost — sem portão; a escrita sai anônima, como sempre saiu aqui";
+      contaBtn.hidden=true;
     }else{
       contaQuem.textContent="modo leitura — os painéis são abertos; escrever exige entrar";
-      contaBtn.textContent="Entrar";
+      contaBtn.hidden=false; contaBtn.textContent="Entrar";
     }
   }
   function abrirLogin(msg){
-    if(ses) return;
+    if(ses || LOCAL) return;   // em localhost nao ha portao — ver LOCAL, la em cima
     cxLogin.removeAttribute("hidden");
     if(msg) estadoLogin(msg,"erro");
     try{ cxLogin.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){}
-    (p2.hasAttribute("hidden")?cEmail:cCod).focus();
+    pintarEspera(); cPin.focus();
   }
   function fecharLogin(){ cxLogin.setAttribute("hidden","hidden"); }
-  function passo(n){
-    if(n===1){ p1.removeAttribute("hidden"); p2.setAttribute("hidden","hidden"); }
-    else { p1.setAttribute("hidden","hidden"); p2.removeAttribute("hidden"); }
-  }
+  function fecharTrocar(){ cxTrocar.setAttribute("hidden","hidden"); }
   function erroDe(r){
     return r.json().catch(function(){return {};}).then(function(j){
       return j.msg || j.error_description || j.message || j.error || ("erro "+r.status);
     });
   }
+
+  // -------- forca bruta: o que protege de verdade, e o que ISTO AQUI nao faz --------
+  // O endpoint /auth/v1/token e publico por construcao. Quem quiser martelar PINs faz isso com
+  // curl, de fora desta pagina, e nenhuma linha de JavaScript daqui atrapalha. O que segura,
+  // do lado de la, sao tres coisas — e elas ficam escritas porque sao a resposta honesta:
+  //   * o RATE LIMIT do GoTrue nos endpoints de entrada, que transforma um dicionario de dez
+  //     mil PINs em muito tempo. O VALOR se le no painel (Authentication > Rate Limits) e nao
+  //     esta copiado aqui de proposito: numero de memoria envelhece e vira falsa seguranca —
+  //     quem for confiar nele confere la, que e onde ele e verdade;
+  //   * o CADASTRO DESLIGADO (BLOCO 3, item 4 do ferramentas/fila-auth.sql) — nao ha como
+  //     criar uma segunda conta e contornar a policy que prende a escrita a um uuid so;
+  //   * o TAMANHO DO DANO: esta conta nao e admin de nada. Com ela se faz INSERT em
+  //     public.mesa_resposta e mais nada — o SELECT ja e publico, UPDATE e DELETE nao tem
+  //     policy para papel nenhum, e a chave de serviço nunca sai do servidor. (O nome dela
+  //     nao se escreve aqui por extenso: o guarda de segredo do build varre dist/ por ele.)
+  // O contador abaixo e UX, NAO seguranca, e dizer isso e o ponto: ele mora no localStorage de
+  // quem digita, quem ataca nao passa por aqui, e limpar o navegador o zera. Ele serve para
+  // quem errou cinco vezes parar de martelar o proprio celular e ir buscar onde anotou o PIN.
+  var TENTA="mesa-brasil-pin-erros", ERROS_ATE_ESPERAR=5, ESPERA_MS=30000, relEspera=null;
+  function lerTentativas(){
+    try{ var t=JSON.parse(localStorage.getItem(TENTA)||"null");
+      if(t && typeof t.erros==="number" && typeof t.ate==="number") return t;
+    }catch(e){}
+    return {erros:0, ate:0};
+  }
+  function gravarTentativas(t){ try{ localStorage.setItem(TENTA,JSON.stringify(t)); }catch(e){} }
+  function zerarTentativas(){ try{ localStorage.removeItem(TENTA); }catch(e){} }
+  function esperaRestante(){ return Math.max(0, lerTentativas().ate - Date.now()); }
+  // Devolve true enquanto a espera corre, e e ela quem desenha o contador na tela.
+  function pintarEspera(){
+    var falta=esperaRestante();
+    if(falta>0){
+      bEntrar.disabled=true;
+      estadoLogin(ERROS_ATE_ESPERAR+" erros seguidos — espere "+Math.ceil(falta/1000)+" s","erro");
+      if(!relEspera) relEspera=setInterval(pintarEspera,500);
+      return true;
+    }
+    if(relEspera){ clearInterval(relEspera); relEspera=null; estadoLogin(""); }
+    bEntrar.disabled=false;
+    return false;
+  }
+  // So conta erro quando o SERVIDOR respondeu recusando (err.status). Rede caida nao e PIN
+  // errado, e fazer o dono esperar 30 s porque o metro entrou no tunel seria castigo por bug.
+  function contarErro(){
+    var t=lerTentativas(); t.erros++;
+    if(t.erros>=ERROS_ATE_ESPERAR) t.ate=Date.now()+ESPERA_MS;
+    gravarTentativas(t);
+  }
+  function entrar(){
+    if(pintarEspera()) return;
+    var pin=(cPin.value||"");
+    if(pin.length<6){ estadoLogin("o PIN tem no mínimo 6 caracteres","erro"); return; }
+    bEntrar.disabled=true; estadoLogin("conferindo…");
+    fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",
+        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({email:EMAIL_DONO, password:pin})})
+      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ var e=new Error(m); e.status=r.status; throw e; }); return r.json(); })
+      .then(function(j){
+        if(!guardarTokens(j)) throw new Error("resposta sem token");
+        zerarTentativas(); fecharLogin(); estadoLogin(""); cPin.value="";
+        toast("Entrou ✓ — este aparelho fica entrado.");
+        flush();
+      })
+      .catch(function(err){
+        if(err && err.status) contarErro();
+        cPin.value="";
+        if(!pintarEspera()) estadoLogin("não entrou: "+err.message,"erro");
+      })
+      .then(function(){ if(!esperaRestante()) bEntrar.disabled=false; });
+  }
+
+  // -------- trocar o PIN --------
+  // E ASSIM QUE O DONO TROCA O PIN TEMPORARIO QUE O PLANTAO LHE ENTREGA. O plantao cria a conta
+  // sintetica e define uma senha inicial pelo MCP (a chave de serviço vive no servidor e so la);
+  // essa senha viaja por fora desta pagina e serve para UMA entrada. Trocar aqui e a primeira
+  // coisa a fazer depois de entrar — dai em diante o PIN so existe na cabeca do dono e no hash
+  // do GoTrue, e nem o plantao o conhece.
+  // O PUT /auth/v1/user vai com o Bearer DO USUARIO: o proprio GoTrue exige sessao valida,
+  // entao ninguem troca o PIN de fora. O minimo de 6 caracteres tambem e do GoTrue — a
+  // checagem daqui existe so para um dedo a menos nao virar mensagem de erro em ingles.
+  function trocarPin(){
+    if(!ses){ estadoTrocar("você precisa estar entrado","erro"); return; }
+    var a=(cNovo.value||""), b=(cConf.value||"");
+    if(a.length<6){ estadoTrocar("o PIN novo tem no mínimo 6 caracteres","erro"); return; }
+    if(a!==b){ estadoTrocar("os dois campos não batem","erro"); return; }
+    bTrocarOk.disabled=true; estadoTrocar("trocando…");
+    cabecalhoEscrita().then(function(hdr){
+      return fetch(SB_URL+"/auth/v1/user",{method:"PUT",
+        headers:Object.assign({"Content-Type":"application/json"},hdr),
+        body:JSON.stringify({password:a})});
+    })
+      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ throw new Error(m); }); return true; })
+      .then(function(){
+        cNovo.value=""; cConf.value=""; zerarTentativas();
+        fecharTrocar(); estadoTrocar("");
+        toast("PIN trocado ✓ — vale em todos os aparelhos.");
+      })
+      .catch(function(err){ estadoTrocar("não deu: "+err.message,"erro"); })
+      .then(function(){ bTrocarOk.disabled=false; });
+  }
+
   contaBtn.addEventListener("click",function(){
-    if(ses){ sair(); fecharLogin(); passo(1); estadoLogin(""); toast("Saiu — os painéis continuam abertos."); }
+    if(ses){ sair(); fecharLogin(); fecharTrocar(); estadoLogin(""); estadoTrocar(""); toast("Saiu — os painéis continuam abertos."); }
     else if(cxLogin.hasAttribute("hidden")) abrirLogin("");
     else fecharLogin();
+  });
+  contaTrocar.addEventListener("click",function(){
+    if(!ses) return;
+    if(cxTrocar.hasAttribute("hidden")){
+      cxTrocar.removeAttribute("hidden"); estadoTrocar(""); cNovo.value=""; cConf.value="";
+      try{ cxTrocar.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){}
+      cNovo.focus();
+    } else fecharTrocar();
   });
   document.querySelectorAll(".entrar-aqui").forEach(function(b){
     b.addEventListener("click",function(){ abrirLogin(""); });
   });
-  bPedir.addEventListener("click",function(){
-    var e=(cEmail.value||"").trim();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){ estadoLogin("escreva um e-mail válido","erro"); return; }
-    bPedir.disabled=true; estadoLogin("mandando o código…");
-    fetch(SB_URL+"/auth/v1/otp?redirect_to="+encodeURIComponent(location.origin+location.pathname),{
-        method:"POST", headers:{apikey:SB_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({email:e, create_user:true})})
-      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ throw new Error(m); }); return true; })
-      .then(function(){ emailPendente=e; passo(2); cCod.value=""; cCod.focus();
-        estadoLogin("código enviado para "+e+" — cole aqui, ou toque no link do e-mail neste aparelho","ok"); })
-      .catch(function(err){ estadoLogin("não deu: "+err.message,"erro"); })
-      .then(function(){ bPedir.disabled=false; });
-  });
-  bVoltar.addEventListener("click",function(){ passo(1); estadoLogin(""); cEmail.focus(); });
-  function verificar(){
-    var cod=(cCod.value||"").replace(/\s/g,"");
-    if(cod.length<6){ estadoLogin("o código tem 6 dígitos","erro"); return; }
-    bEntrar.disabled=true; estadoLogin("conferindo…");
-    fetch(SB_URL+"/auth/v1/verify",{method:"POST",
-        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({email:emailPendente, token:cod, type:"email"})})
-      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ throw new Error(m); }); return r.json(); })
-      .then(function(j){
-        if(!guardarTokens(j)) throw new Error("resposta sem token");
-        fecharLogin(); passo(1); estadoLogin(""); cCod.value="";
-        toast("Entrou ✓ — este aparelho fica entrado.");
-        flush();
-      })
-      .catch(function(err){ estadoLogin("não entrou: "+err.message,"erro"); })
-      .then(function(){ bEntrar.disabled=false; });
-  }
-  bEntrar.addEventListener("click",verificar);
-  cCod.addEventListener("keydown",function(e){ if(e.key==="Enter") verificar(); });
-  cEmail.addEventListener("keydown",function(e){ if(e.key==="Enter") bPedir.click(); });
-  // Link mágico: o e-mail volta com #access_token=... no endereço. Recolhe e limpa a barra.
-  function sessaoDoEndereco(){
-    var h=location.hash||"";
-    if(h.indexOf("access_token=")<0 && h.indexOf("error")<0) return false;
-    var p={};
-    h.replace(/^#/,"").split("&").forEach(function(kv){
-      var i=kv.indexOf("="); if(i>0) p[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g," "));
-    });
-    try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
-    if(p.access_token && p.refresh_token){ guardarTokens(p); return true; }
-    if(p.error || p.error_description){ abrirLogin("o link não valeu: "+(p.error_description||p.error)); }
-    return false;
-  }
+  bEntrar.addEventListener("click",entrar);
+  cPin.addEventListener("keydown",function(e){ if(e.key==="Enter") entrar(); });
+  bTrocarOk.addEventListener("click",trocarPin);
+  bTrocarNao.addEventListener("click",function(){ fecharTrocar(); estadoTrocar(""); });
+  cNovo.addEventListener("keydown",function(e){ if(e.key==="Enter") cConf.focus(); });
+  cConf.addEventListener("keydown",function(e){ if(e.key==="Enter") trocarPin(); });
 
   function esconder(el){ el.style.maxHeight=el.scrollHeight+"px";
     requestAnimationFrame(function(){ el.classList.add("foi");
@@ -966,16 +1080,9 @@
   }
   // ================= PARTIDA =================
   ses=lerSessao(); pintarConta();
-  if(sessaoDoEndereco()) toast("Entrou ✓ — este aparelho fica entrado.");
-  if(ses){
-    if(ses.expira_em && (ses.expira_em-Date.now())<60000) refrescar();
-    if(!ses.email){
-      fetch(SB_URL+"/auth/v1/user",{headers:comToken(ses)})
-        .then(function(r){ return r.ok?r.json():null; })
-        .then(function(u){ if(u && u.email && ses){ ses.email=u.email; gravarSessao(ses); } })
-        .catch(function(){});
-    }
-  }
+  // O GET /auth/v1/user da partida saiu junto com o e-mail: nao ha mais nada a perguntar ao
+  // servidor sobre quem entrou — a conta e uma so e sintetica. Um pedido a menos por carga.
+  if(ses && ses.expira_em && (ses.expira_em-Date.now())<60000) refrescar();
   carregar();
   setInterval(carregar, 7000);
   podarFilaHerdada();   // antes do flush: fila acima do teto não drena, ela precisa caber primeiro

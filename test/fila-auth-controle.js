@@ -11,7 +11,7 @@
 // exige que o portao reprove. Se alguma copia defeituosa passar, este controle sai 1 — porque
 // nesse caso o defeito nao e a copia, e o portao.
 //
-// Roda assim (sao 6 execucoes do fila-auth.js, ~4 min):  node test/fila-auth-controle.js
+// Roda assim (sao 10 execucoes do fila-auth.js):  node test/fila-auth-controle.js
 // Nao esta no CI de proposito: o CI roda o portao, este roda o portao do portao.
 
 const fs = require('fs');
@@ -112,6 +112,34 @@ const DEFEITOS = [
     id: 'squads · o grupo renasce a cada volta (o refresh duplica os cabecalhos)',
     cena: '[16]',
     pares: [['    if(grupos[chave]) return grupos[chave];', '    if(false) return grupos[chave];']],
+  },
+  {
+    // PIN, 22/08. O gate de localhost e uma linha so, e uma linha so e exatamente o tipo de
+    // conserto que some numa refatoracao sem ninguem notar: sem ele o painel do plantao passa
+    // a abrir um portao de login que ele nao tem como atravessar (o PIN e do dono), toda vez
+    // que a escrita local levar 401. A cena 18 tem de reprovar.
+    id: 'PIN · o gate de localhost some (o portao volta a abrir na maquina do plantao)',
+    cena: '[18]',
+    pares: [[
+      '    if(ses || LOCAL) return;   // em localhost nao ha portao — ver LOCAL, la em cima',
+      '    if(ses) return;',
+    ]],
+  },
+  {
+    // PIN, 22/08. O contador de erros e UX, e UX que nao morde e UX que nao existe: sem
+    // gravar o erro, `esperaRestante()` devolve 0 para sempre e a sexta tentativa sai na rede
+    // como as cinco primeiras. O defeito e mudo — nada quebra, nada avisa, e o unico sintoma
+    // e um formulario que aceita marteladas sem fim.
+    id: 'PIN · o contador de erros para de contar (a espera de 30 s nunca chega)',
+    cena: '[9]',
+    pares: [[
+      `  function contarErro(){
+    var t=lerTentativas(); t.erros++;
+    if(t.erros>=ERROS_ATE_ESPERAR) t.ate=Date.now()+ESPERA_MS;
+    gravarTentativas(t);
+  }`,
+      '  function contarErro(){ }',
+    ]],
   },
 ];
 

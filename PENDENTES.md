@@ -1321,8 +1321,14 @@ pelo dono.
 
 ## 46 · FILA-AUTH — a pagina ja fecha, o BANCO ainda nao (21/08, dev-plataforma)
 
-O login por e-mail (OTP) esta no `dashboard/index.html` e medido em 10 cenas
-(`node test/fila-auth.js`, exit 0). **Mas a fila `mesa_resposta` continua aceitando INSERT
+**ATUALIZADO EM 22/08 — o login virou PIN** (dono: *"o login do celular deve ser com um pin,
+simples mesmo... nao patinhas"* e *"localhost n precisa entrar ne"*). O OTP por e-mail saiu
+inteiro do `dashboard/index.html`; entrou um campo de PIN, que por baixo e a senha de uma conta
+sintetica (`dono@mesa.brasil`, `grant_type=password`), mais "trocar PIN" (PUT `/auth/v1/user`)
+e o gate de localhost. Medido em **18 cenas** (`node test/fila-auth.js`, exit 0) com **10
+defeitos vistos mordendo** (`node test/fila-auth-controle.js`, exit 0).
+
+**Mas a fila `mesa_resposta` continua aceitando INSERT
 anonimo** — a metade que falta e SQL, e SQL nao se aplica pelo REST anonimo. Esta escrito e
 comentado em `ferramentas/fila-auth.sql`, para quem integra aplicar pelo MCP do Supabase.
 
@@ -1335,13 +1341,23 @@ Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
 1. **`authenticated` nao e "o dono".** Com o cadastro aberto no Auth, qualquer um cria conta
    por e-mail e volta a escrever. Fechar o cadastro (BLOCO 3) **e** prender a policy ao uuid
    dele (BLOCO 2-B) — as duas, nao uma.
-2. **O template de e-mail precisa de `{{ .Token }}`.** Sem isso o dono so entra tocando no
-   link, e o campo de codigo fica sem serventia quando o e-mail e lido noutro aparelho.
-3. **A mesa local (`ferramentas/receber.html`) perde o botao "confirmar prioridades"** — ela
+2. **A conta precisa nascer JA CONFIRMADA** (`email_confirm: true` no `createUser` do MCP —
+   BLOCO 3, item 2). `dono@mesa.brasil` nao existe como caixa postal e nunca vai receber
+   confirmacao nenhuma: criada sem isso, com "Confirm email" ligado, ela fica pendente para
+   sempre e o login devolve *"Email not confirmed"* sem nenhuma tela explicando por que.
+   *(Substitui o item que pedia `{{ .Token }}` no template de Magic Link — sem OTP, nao ha
+   template a configurar, e a lista de Redirect URLs deixou de ser usada pela pagina.)*
+3. **O PIN inicial e temporario e a troca e do dono.** Quem cria a conta define uma senha pelo
+   MCP e a entrega por fora do repositorio; a primeira coisa depois de entrar e tocar "trocar
+   PIN". Enquanto isso nao acontecer, o PIN e conhecido por duas pessoas.
+4. **A mesa local (`ferramentas/receber.html`) perde o botao "confirmar prioridades"** — ela
    roda em localhost, sem sessao, e escreve na mesma tabela. A mensagem dela ja foi corrigida
    para dizer a verdade (401/403 = "a fila exige login"), mas o aviso em si passa a sair so
    pelo dashboard. Se isso incomodar, o conserto certo e o `servir.js` ganhar uma rota que
    grave no disco local, nao afrouxar a policy.
+   **O dashboard em localhost cai no mesmo caso, e por decisao (22/08):** la nao ha portao, a
+   escrita sai anonima e, depois do SQL, vai levar 401 e cair na fila local — o item nao se
+   perde, mas tambem nao chega. O administrativo local e do plantao, pelo MCP.
 
 
 

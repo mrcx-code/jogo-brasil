@@ -7,8 +7,10 @@
 -- aberta ali nao e so lixo no painel, e execucao de trabalho por estranho.
 --
 -- DEPOIS: SELECT continua anonimo (os paineis sao de leitura publica); INSERT passa a
--- exigir sessao do Supabase Auth. O dashboard entra por e-mail + codigo (OTP) e guarda
--- access_token/refresh_token no aparelho — entrar uma vez basta.
+-- exigir sessao do Supabase Auth. O dashboard entra por UM PIN (decisao do dono em 22/08) —
+-- que por baixo e a SENHA de uma conta sintetica, 'dono@mesa.brasil', sem caixa postal e sem
+-- e-mail de pessoa nenhuma — e guarda access_token/refresh_token no aparelho: entrar uma vez
+-- basta. Em localhost o dashboard nao abre portao nenhum, tambem por decisao dele.
 --
 -- ESTE ARQUIVO NAO FOI APLICADO. Quem integra aplica pelo MCP do Supabase (projeto
 -- 'patinhas', hdhqziqvrthxtgyraemk). O REST anonimo nao tem DDL — nao ha como um agente
@@ -33,9 +35,12 @@
 --
 --   1. BLOCO 1 (diagnostico) — rode primeiro e GUARDE a saida. E o "antes" da medicao,
 --      e e o unico jeito de saber o nome real das policies que existem hoje.
---   2. O dono entra UMA VEZ no dashboard (https://matheusferreira.cc/dashboard/) com o
---      e-mail dele, ainda no mundo aberto. Isso cria a conta em auth.users.
---      -> anote o uuid: select id, email from auth.users order by created_at;
+--   2. O PLANTAO CRIA A CONTA SINTETICA e define a senha dela — o PIN temporario — pelo MCP
+--      (a receita esta no BLOCO 3, item 2). Nao ha auto-cadastro e nao ha e-mail: o dono nao
+--      precisa fazer nada neste passo, e nenhum endereco pessoal entra em auth.users.
+--      -> anote o uuid DELA: select id, email from auth.users order by created_at;
+--      E o uuid dessa conta que vai para o BLOCO 2-B. O dono troca o PIN depois, sozinho,
+--      pelo proprio dashboard ("trocar PIN" -> PUT /auth/v1/user) — nada disso e SQL.
 --   3. BLOCO 2 — as politicas.
 --   4. BLOCO 3 — o fecho da porta de tras (Auth config, feito no painel, nao em SQL) —
 --      itens 1, 2, 3 e 5 dele.
@@ -205,9 +210,10 @@ alter table public.mesa_resposta
 -- EDITE A LINHA ABAIXO: troque COLE-AQUI-O-UUID-DO-DONO pelo id de auth.users (passo 2).
 --     select id, email from auth.users order by created_at;
 --
--- E-mail do dono NAO fica escrito neste arquivo de proposito: o repositorio e publico e
--- endereco de e-mail em repositorio publico e endereco de e-mail em lista de spam. O uuid
--- nao diz nada sobre ninguem — por isso e ele que entra aqui.
+-- E o UUID que entra aqui, nunca um e-mail, e a razao sobreviveu a virada do PIN: desde 22/08
+-- a conta e sintetica ('dono@mesa.brasil') e nao expoe endereco de ninguem, mas o uuid
+-- continua sendo o identificador que o `auth.uid()` compara — casar policy por e-mail seria
+-- prender a fila a um texto que o painel deixa editar em dois cliques.
 do $$
 declare
   uuid_dono constant text := 'COLE-AQUI-O-UUID-DO-DONO';
@@ -235,29 +241,40 @@ end $$;
 -- ############################################################################
 -- BLOCO 3 — O QUE NAO E SQL (painel do Supabase, projeto 'patinhas')
 -- ############################################################################
--- 1. Authentication > Providers > Email: LIGADO. Sem "Confirm email" obrigatorio para o
---    fluxo de OTP funcionar de primeira (o proprio codigo ja e a confirmacao).
+-- 1. Authentication > Providers > Email: LIGADO. E ele que atende o grant_type=password —
+--    nao ha outro caminho de senha no GoTrue. Nao e preciso mexer em "Confirm email", DESDE
+--    QUE a conta seja criada ja confirmada (item 2); e ai que mora a armadilha.
 --
--- 2. Authentication > Emails > Magic Link: o template PRECISA conter {{ .Token }}.
---    O padrao so tem {{ .ConfirmationURL }} — com ele, o campo de codigo do dashboard
---    fica sem o que receber e o dono so consegue entrar tocando no link. A pagina aceita
---    os DOIS caminhos (codigo colado e link tocado, que volta com #access_token no
---    endereco), mas o codigo e o que funciona quando o e-mail e lido noutro aparelho.
---    Sugestao de linha no template:  Seu codigo: {{ .Token }}
+-- 2. A CONTA SINTETICA — criada PELO PLANTAO, nunca por auto-cadastro. Pelo MCP/Admin API:
+--       auth.admin.createUser({ email: 'dono@mesa.brasil',
+--                               password: '<PIN temporario>',
+--                               email_confirm: true })
+--    O `email_confirm: true` NAO e detalhe de conforto: 'dono@mesa.brasil' nao existe como
+--    caixa postal e nunca vai receber confirmacao nenhuma. Criada sem ele, com "Confirm
+--    email" ligado, a conta fica pendente para sempre e o login devolve "Email not
+--    confirmed" — o dono nao entra e nenhuma tela explica por que.
+--    O PIN TEMPORARIO viaja por fora deste repositorio e serve para UMA entrada: a primeira
+--    coisa que o dono faz depois de entrar e tocar "trocar PIN" no dashboard, que manda um
+--    PUT /auth/v1/user com o Bearer dele. Dali em diante nem o plantao conhece o PIN.
+--    E o `id` desta conta que vai para o BLOCO 2-B.
 --
--- 3. Authentication > URL Configuration:
---      Site URL:       https://matheusferreira.cc
---      Redirect URLs:  https://matheusferreira.cc/dashboard/
---                      http://localhost:8199/dashboard/     (para testar local)
---                      http://localhost:8203/               (servir.js apontado ao dashboard)
---    Sem isso o link magico volta com #error=... e a pagina mostra o erro no lugar de entrar.
+-- 3. Authentication > URL Configuration: NAO ha mais nada a configurar aqui para o login.
+--    O fluxo de PIN nao manda e-mail, nao gera link magico e nao volta de lugar nenhum, entao
+--    a lista de Redirect URLs deixou de ser usada por esta pagina (ela ficou de pe quando o
+--    OTP saiu, em 22/08). Site URL pode continuar em https://matheusferreira.cc.
 --
--- 4. DEPOIS DE O DONO ENTRAR UMA VEZ: Authentication > Sign In / Providers >
+-- 4. DEPOIS DE A CONTA EXISTIR: Authentication > Sign In / Providers >
 --    "Allow new users to sign up": DESLIGADO. Este e o passo que impede o desconhecido de
 --    virar "authenticated". Ligado, o BLOCO 2 sozinho nao fecha a fila.
 --
--- 5. Rate limits (Authentication > Rate Limits): o padrao de e-mails/hora ja segura o
---    envio em massa de OTP. Nao precisa mexer; anotado para nao parecer esquecimento.
+-- 5. Rate limits (Authentication > Rate Limits): com PIN, e AQUI que mora a defesa contra
+--    forca bruta, porque o endpoint de token e publico por construcao — qualquer pessoa com a
+--    URL do dashboard le a chave publicavel no codigo-fonte e pode martelar PINs com curl.
+--    LEIA o limite dos endpoints de entrada NESTA TELA (nenhum numero foi copiado para ca de
+--    proposito: valor de memoria envelhece e vira falsa seguranca) e NAO o afrouxe.
+--    O dashboard tambem para 30 s depois de cinco erros, mas aquilo e UX do
+--    lado de quem digita — quem ataca nao passa pela pagina, e por isso nao conta como defesa.
+--    O terceiro limite e o tamanho do dano: esta conta so faz INSERT em mesa_resposta.
 
 
 -- ############################################################################
