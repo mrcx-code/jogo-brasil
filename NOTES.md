@@ -8698,3 +8698,51 @@ reprova nas 6 telas com "o topo do poste tem 3 portões, e a direção pede 4".
 `justify-content: flex-start` e o `#telaMenu` como caixa de rolagem — não há garantia por teste
 de que o PRIMEIRO portão esteja visível sem rolar em telas curtas e largas. O bloco 21 só olha
 844×390 e 1024×768. Vale uma asserção de "o JOGAR nasce visível" em toda tela da régua.
+
+### 22/08 — o veto da arte no poste de dois lados, e o número que ele pedia
+
+A arte aprovou o retrato (escada nova, rótulos, passo 54 px, tábua 50,5, "o logo ainda manda na
+tela") e aprovou o poste de dois lados **como intenção**, com um veto de régua: **a coluna
+direita não estava pregada no poste — flutuava.** Ela mediu no print a dsf 2; o mesmo número
+saiu do DOM em CSS px, e bate:
+
+| | antes | depois |
+|---|---|---|
+| mastro | x 542..560 | x 543..561 |
+| borda interna ESQUERDA (portões) | x 556 → entra **14,0** px sob o mastro | x 548 → entra **5,0** |
+| borda interna DIREITA (tábuas escuras) | x 582 → **flutua 22,0 px** de mata visível | x 556 → entra **5,0** |
+
+**A causa não era o vão, era a assimetria das pistas.** O mastro é `#poste::before` em
+`left: 50%` — no centro da CAIXA do poste. Com pistas de larguras diferentes (`auto auto`, 280 e
+244) o centro da caixa cai fora do centro do vão, e sobra mata de um lado só. Reduzir o
+`column-gap` sozinho não resolveria: a conta dá `gap ≤ B − A + 10 = −26` com A=280 e B=244, ou
+seja, é impossível pregar os dois lados enquanto as pistas forem desiguais.
+
+Conserto: **duas pistas iguais** (`repeat(2, min(34vw, 270px))`) mais `justify-self: end` nos
+portões e `start` nas escuras — é o `justify-self` que encosta a tábua na borda INTERNA da pista
+e, ao mesmo tempo, deixa as duas LARGURAS continuarem diferentes, que é o degrau de hierarquia
+que a régua cobra. Com pistas iguais o centro da caixa É o centro do vão, e a conta passa a
+fechar sozinha em qualquer largura: cada lado entra `(18 − vão) / 2` px sob o mastro. Vão de 8 →
+**5,0 px de cada lado**, e sobram 8 px de mastro à vista correndo entre as colunas. Verificado
+em três tamanhos da janela (844×390, 899×440, 760×400): 5,0 nos três, dos dois lados.
+
+Portão de 280 → **270** para o poste caber na mesma largura de antes (548 contra 550) e a marca
+não perder pista. Rótulo: 270 − 48 de recheio − 16 de respiro do prego = 206 contra os 201 que
+"DE ONDE VEM" pede a escala 3 — e quem confere isso é `pintarPortoes()`, não um comentário.
+
+**A COBRANÇA DE NÚMERO DELA, respondida: o BOX DE TOQUE das tábuas escuras é 44,00 px exatos.**
+Ela leu 41–42 px de PINTURA no print, e a diferença é o `box-shadow` inset que desenha a aresta
+de luz e a de sombra por dentro da caixa — a madeira acesa é menor que o botão. Medido por
+`getBoundingClientRect().height` **e** por `elementFromPoint` no topo+1 e no pé−1 de cada uma das
+quatro: as oito verificações voltam `true`, ou seja, o dedo pega a caixa inteira. O piso de 44
+não foi tocado; o que é menor é só o visual, que é a hierarquia legítima que ela aprovou.
+Portões, para comparar na mesma medida: **51,00 px** de box.
+
+**BACKLOG registrado no mesmo commit (PENDENTES 50, reescrito):** 1366×768 corta ATÉ AQUI pela
+metade (66% visível) e joga CONFIGURAÇÕES para fora (pé em 831), com 73 px de rolagem —
+pré-existente (55 com sete tábuas) e agravado pela oitava. A arte tem razão no diagnóstico: a
+resposta é o próprio poste de dois lados com **gatilho por ALTURA disponível**, não por largura
+700–899. Medido o corte: 1366×900 cabe (rolagem 2), 1366×768 não — a fronteira fica por volta de
+830 px de altura. E o que a nota registra a mais: copiar o bloco não basta, porque a faixa da
+cinemática tem 360–460 px e duas pistas dentro dela dariam ~175 px cada, abaixo do que o rótulo
+precisa. Alargar a faixa vem primeiro.

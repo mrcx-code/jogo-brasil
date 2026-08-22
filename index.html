@@ -973,16 +973,35 @@
      abaixo de 460 px de altura (acima disso a coluna única cabe — 899×500 mede 417 numa tela de
      500 — e uma coluna só é a composição melhor quando ela cabe). */
   @media (orientation: landscape) and (min-width: 700px) and (max-width: 899px) and (max-height: 460px) {
+    /* AS DUAS PISTAS TÊM A MESMA LARGURA, E ISSO NÃO É SIMETRIA DECORATIVA — é o que põe o
+       MASTRO NO VÃO. O mastro é `#poste::before` em `left: 50%`, ou seja, no centro da CAIXA do
+       poste; com pistas de larguras diferentes (era `auto auto`, 280 e 244) o centro da caixa
+       cai fora do centro do vão, e a coluna que sobra flutua. Medido no DOM, e a arte tinha
+       visto pelo print antes: mastro em x 542..560, portões terminando em 556 (14 px SOB ele,
+       pregados) e tábuas escuras começando em 582 — **22 px de mata visível** entre o mastro e
+       a coluna direita, no eixo do olhar. A leitura vira grade com gutter, não poste.
+
+       Com as duas pistas iguais, o centro da caixa É o centro do vão, e aí a conta fecha
+       sozinha em qualquer largura: a borda interna de cada lado entra `(18 − vão) / 2` px sob o
+       mastro. Com vão de 8 são **5 px de cada lado**, e sobram 8 px de mastro à vista correndo
+       entre as duas colunas — que é o pau que se quer ver.
+
+       `justify-self` é o que encosta a tábua na borda INTERNA da pista: os portões no fim da
+       pista da esquerda, as tábuas escuras no começo da da direita. Sem isto elas ficariam
+       centradas na pista (`justify-items: center`) e a escura, que é mais estreita, recuaria do
+       mastro de novo — exatamente o defeito vetado, só que menor. É também o que deixa as duas
+       larguras SEREM diferentes, que é o degrau de hierarquia que a régua cobra. */
     #poste { display: grid; grid-auto-flow: column;
-      grid-template-rows: repeat(4, auto); grid-template-columns: auto auto;
-      /* o vão entre as colunas é o mastro: 18 px de madeira mais folga dos dois lados */
-      column-gap: 26px; row-gap: var(--mVao);
-      align-items: center; justify-items: center; align-content: center; }
-    /* 280 e não 300: o rótulo mais comprido do topo ("DE ONDE VEM") mede 201 px a escala 3, e
-       280 − 48 de recheio − 16 de respiro do prego dão 216. A 300 caberia igual, mas duas
-       colunas de 300 mais o mastro tomariam 626 px dos 844 e sobrariam 190 para a marca. */
-    #poste .telaBtn.portal { width: min(34vw, 280px); }
-    #poste .telaBtn.sec { width: min(30vw, 244px); }
+      grid-template-rows: repeat(4, auto);
+      grid-template-columns: repeat(2, min(34vw, 270px));
+      column-gap: 8px; row-gap: var(--mVao);
+      align-items: center; align-content: center; }
+    /* 270 e não 300: o rótulo mais comprido do topo ("DE ONDE VEM") mede 201 px a escala 3, e
+       270 − 48 de recheio − 16 de respiro do prego dão 206 — cabe, e é a régua de
+       `pintarPortoes()` que confere isso sozinha se alguém mexer. Duas pistas de 300 mais o
+       mastro tomariam 608 px dos 844 e sobrariam 200 para a marca. */
+    #poste .telaBtn.portal { width: min(34vw, 270px); justify-self: end; }
+    #poste .telaBtn.sec { width: min(30vw, 244px); justify-self: start; }
   }
   /* ===== A HOME CINEMÁTICA — tela larga (>=900px). Direção da arte (20/08). =====
      Duas faixas, não uma coluna esticada: a CENA (o canvas do jogo, com a personagem andando)
