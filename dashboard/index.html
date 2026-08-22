@@ -224,6 +224,7 @@
     text-transform:uppercase;color:var(--pedra);border-top:1px solid var(--linha);
     padding-top:.5rem;margin-top:.25rem}
   .grupo-ag:first-child .cab-squad{border-top:0;padding-top:0;margin-top:0}
+  .grupo-ag.agora .cab-squad{color:var(--ok)}
   .ag{background:var(--realce);border:1px solid var(--linha);border-radius:4px;padding:.6rem .6rem .7rem;
     box-shadow:0 1px 2px var(--sombra);display:flex;flex-direction:column;align-items:center;gap:.25rem;text-align:center}
   .ag .palco{width:100%;height:60px;display:flex;align-items:flex-end;justify-content:center;
@@ -266,6 +267,55 @@
     box-shadow:0 4px 14px var(--sombra);opacity:0;transition:opacity .25s,transform .25s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
   .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.erro{background:var(--brasa)}
+
+  .nota-sec{color:var(--pedra);font:italic 400 .9rem/1.4 "Bitter",serif;margin:-.4rem 0 .9rem}
+
+  /* SEUS PEDIDOS — cartao com o texto em destaque, o progresso menor e o botao feito */
+  .cartao.pedido{border-left-color:var(--terra)}
+  .cartao.pedido .prog{margin-top:.35rem;font-size:.86rem;color:var(--pedra)}
+
+  /* BACKLOG — vista de leitura */
+  .bl-item{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
+    padding:.7rem .8rem;margin:0 0 .55rem;box-shadow:0 1px 2px var(--sombra);
+    display:grid;grid-template-columns:1fr auto;gap:.35rem .7rem;align-items:start}
+  .bl-item .bl-tit{font:700 .96rem/1.25 "Bitter",Georgia,serif;grid-column:1}
+  .bl-item .bl-chip{grid-column:2;grid-row:1;justify-self:end;align-self:start;
+    font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid;border-radius:2px;padding:.05rem .38rem;white-space:nowrap}
+  .bl-chip.livre{color:var(--ok);border-color:var(--ok)}
+  .bl-chip.em-curso{color:var(--brasa);border-color:var(--brasa)}
+  .bl-chip.bloqueado{color:var(--alerta);border-color:var(--alerta)}
+  .bl-chip.do-dono{color:var(--terra);border-color:var(--terra)}
+  .bl-item .bl-meta{grid-column:1/-1;font:600 .6rem/1.5 "IBM Plex Mono",monospace;
+    letter-spacing:.04em;color:var(--pedra)}
+  .bl-item .bl-meta .bl-ag{text-transform:uppercase}
+  .bl-item .bl-meta .terr{color:var(--tinta2);text-transform:none;letter-spacing:0}
+
+  /* COMO FUNCIONA — dobravel, leitura */
+  details.comof{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
+    box-shadow:0 1px 2px var(--sombra);overflow:hidden}
+  details.comof>summary{list-style:none;cursor:pointer;padding:.8rem .9rem;
+    font:700 1rem/1.2 "Bitter",Georgia,serif;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  details.comof>summary::-webkit-details-marker{display:none}
+  details.comof>summary .chev{color:var(--pedra);font-size:.9rem;transition:transform .15s}
+  details.comof[open]>summary .chev{transform:rotate(90deg)}
+  .comof-corpo{padding:0 .9rem 1rem;border-top:1px solid var(--linha)}
+  .comof-fluxo{margin:.85rem 0;font:600 .74rem/1.7 "IBM Plex Mono",monospace;color:var(--pedra);
+    letter-spacing:.02em}
+  .comof-fluxo b{color:var(--terra)}
+  .comof-passos{list-style:none;padding:0;margin:0 0 1rem;display:flex;flex-direction:column;gap:.5rem}
+  .comof-passos li{font-size:.9rem;color:var(--tinta2);padding-left:.9rem;position:relative;line-height:1.45}
+  .comof-passos li::before{content:"›";position:absolute;left:0;color:var(--mata);font-weight:700}
+  .comof-passos b{color:var(--tinta);font-family:"Bitter",serif}
+  .comof code{font:600 .82em/1 "IBM Plex Mono",monospace;background:var(--papel2);padding:.05em .3em;border-radius:3px}
+  .comof-cfg{display:flex;flex-direction:column;gap:.5rem;margin:0 0 .9rem;
+    border-top:1px dashed var(--linha);padding-top:.8rem}
+  .cfg-linha{display:flex;gap:.6rem;flex-wrap:wrap}
+  .cfg-k{flex:0 0 6.5rem;font:600 .6rem/1.5 "IBM Plex Mono",monospace;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--pedra)}
+  .cfg-v{flex:1 1 12rem;min-width:0;font-size:.88rem;color:var(--tinta2);line-height:1.45}
+  .cfg-v b{color:var(--terra)}
+  .comof-fim{font:italic 400 .84rem/1.4 "Bitter",serif;color:var(--pedra);margin:0}
 
   footer.rod{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--linha);font-size:.78rem;color:var(--pedra)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -313,12 +363,13 @@
 
   <nav class="aba">
     <a href="#agentes">Agentes</a>
-    
+    <a href="#pedidos">Pedidos</a>
     <a href="#oportunidades">Oportunidades</a>
     <a href="#decisoes">Decisões</a>
     <a href="#pendencias">Pendências</a>
+    <a href="#backlog">Backlog</a>
+    <a href="#como-funciona">Como funciona</a>
     <a href="#conversa">Conversa</a>
-    
   </nav>
 
   <section class="camada" id="agentes">
@@ -327,6 +378,13 @@
     <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
 
+  <section class="camada" id="pedidos">
+    <div class="rot"><span class="n">O QUE VOCÊ PEDIU</span><h2>Seus pedidos</h2></div>
+    <p class="nota-sec">Marque feito e some — a garantia de que nada foi esquecido.</p>
+    <div class="so-leitura"><span>Modo leitura — marcar feito exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
+    <div class="lista" id="lista-ped"></div>
+    <p class="vazio" id="vazio-ped">Nenhum pedido aberto agora.</p>
+  </section>
 
   <section class="camada" id="oportunidades">
     <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
@@ -349,6 +407,39 @@
     <p class="vazio" id="vazio-pend">Nada aberto aqui agora.</p>
   </section>
 
+  <section class="camada" id="backlog" hidden>
+    <div class="rot"><span class="n">A FILA OFICIAL</span><h2>Backlog</h2></div>
+    <p class="nota-sec">A ordem é a do dono. Vista de leitura — para reordenar, me peça no chat.</p>
+    <div class="lista" id="lista-backlog"></div>
+    <p class="vazio" id="vazio-backlog" hidden>Nada em andamento na fila.</p>
+  </section>
+
+  <section class="camada" id="como-funciona">
+    <div class="rot"><span class="n">O SISTEMA</span><h2>Como funciona</h2></div>
+    <details class="comof">
+      <summary>O fluxo e as configurações atuais <span class="chev">▸</span></summary>
+      <div class="comof-corpo">
+        <p class="comof-fluxo"><b>backlog</b> → <b>despacho</b> → <b>worktree</b> → <b>banca</b> → <b>funil</b> → <b>produção</b> → <b>dashboard</b></p>
+        <ul class="comof-passos">
+          <li><b>backlog</b> — a fila oficial (o backlog aqui em cima). O de cima é o próximo; a ordem é sua.</li>
+          <li><b>despacho</b> — o plantão pega o item do topo cujo <i>território</i> está desimpedido. Territórios disjuntos voam juntos; qualquer interseção é sequencial. <code>src/jogo.ts</code> é sempre exclusivo: um escritor por vez.</li>
+          <li><b>worktree</b> — cada agente trabalha numa cópia isolada do repositório, para duas escritas não se atropelarem.</li>
+          <li><b>banca</b> — trabalho visual ou sensível ganha uma banca nomeada no despacho (arte, historiador) antes de fechar.</li>
+          <li><b>funil</b> — a integração é um merge do ramo, com os portões por exit code entre cada passo; QA cruzado (quem convive não julga) e segurança antes de entrar.</li>
+          <li><b>produção</b> — a <code>main</code> publica sozinha na Vercel. Vermelho no ar passa na frente de qualquer fila.</li>
+          <li><b>dashboard</b> — esta tela: pedidos, backlog, agentes ao vivo e as decisões.</li>
+        </ul>
+        <div class="comof-cfg">
+          <div class="cfg-linha"><span class="cfg-k">teto</span><span class="cfg-v">8 em voo = 3 pesado (opus) + 3 médio (sonnet) + 2 leve (haiku). Frota acima disso só com <code>ultracode</code>.</span></div>
+          <div class="cfg-linha"><span class="cfg-k">cadência</span><span class="cfg-v">o plantão pulsa aos minutos <b>:09</b> e <b>:39</b> de cada hora.</span></div>
+          <div class="cfg-linha"><span class="cfg-k">lei do contínuo</span><span class="cfg-v">sempre ≥ 1 agente ativo. Zero agentes com item <i>livre</i> na fila é defeito de plantão, não pausa.</span></div>
+          <div class="cfg-linha"><span class="cfg-k">funil por território</span><span class="cfg-v">o gatilho de auditoria segue o território do item: mexeu em página pública → growth; em <code>src/</code> ou rede → segurança; conteúdo histórico → historiador.</span></div>
+        </div>
+        <p class="comof-fim">Esta é uma vista de leitura — nada aqui é editável. Para mudar um botão do sistema, me peça no chat.</p>
+      </div>
+    </details>
+  </section>
+
   <section class="camada" id="conversa">
     <div class="rot"><span class="n">FALE COMIGO</span><h2>Conversa</h2></div>
     <div class="fio" id="fio"></div>
@@ -358,7 +449,6 @@
       <button id="compor-btn" type="button">Enviar</button>
     </div>
   </section>
-
 
   <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e um contador de erros de PIN, até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
 </div>
@@ -1113,6 +1203,27 @@
   var ORDEM_SQUAD=["central","jogo","plataforma","acervo"], FORA="_sem-squad";
   var ROTULO_SQUAD={central:"CENTRAL",jogo:"SQUAD JOGO",plataforma:"SQUAD PLATAFORMA",acervo:"SQUAD ACERVO"};
   var grupos={};
+  // ================= A FAIXA "AGORA" (dono, 22/08) =================
+  // "quero bater o olho e ver quem esta trabalhando." Quem esta com status `trabalhando` sobe
+  // para uma faixa no TOPO, acima de todas as squads — os ativos nunca ficam escondidos no meio.
+  // Ela nasce LAZY: so existe quando ha pelo menos um ativo. Isso nao e detalhe — enquanto
+  // ninguem trabalha, nenhum cabecalho "AGORA" aparece na tela (e nenhum `.cab-squad` a mais
+  // entra no DOM). Quando o ultimo ativo sai, a faixa se esconde em vez de virar cabecalho orfao.
+  // Reordenar e MOVER o card cacheado (appendChild move o no que ja existe), nunca recria — por
+  // isso o refresh de 7 s nao duplica nem pisca.
+  var faixaAgora=null;
+  function grupoAgora(){
+    if(faixaAgora) return faixaAgora;
+    var env=document.createElement("div"); env.className="grupo-ag agora";
+    var cab=document.createElement("div"); cab.className="cab-squad";
+    cab.textContent="AGORA — trabalhando"; env.appendChild(cab);
+    g.insertBefore(env, g.firstChild);   // sempre o topo
+    faixaAgora=env; return env;
+  }
+  function ajustarAgora(){
+    if(!faixaAgora) return;
+    faixaAgora.style.display = faixaAgora.querySelector(".ag") ? "" : "none";
+  }
   // O invólucro nasce UMA vez por squad e é inserido na posição certa da ordem — por isso
   // squad vazia não deixa cabeçalho órfão na tela, e por isso o refresh de 30 s não duplica
   // nada: `atualizaAg` só move um card quando o pai dele mudou.
@@ -1143,9 +1254,11 @@
       card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
         + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
       cards[item.nome]=card; }
-    var alvo=grupoDe(item.squad);
-    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de squad
     var st=item.status||"espera";
+    // ATIVO SOBE: trabalhando vai para a faixa AGORA (topo); o resto fica na squad. Como o card
+    // e cacheado por nome e so se move quando o pai troca, isto reordena sem recriar nem piscar.
+    var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
+    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
     card.setAttribute("data-st",st);
     card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
     card.querySelector(".st").textContent = st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera");
@@ -1156,6 +1269,7 @@
       slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(item, card, slot); }); } }
     else if(st==="chamado"){ slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>'; }
     else { slot.innerHTML=''; }
+    ajustarAgora();   // esconde a faixa AGORA quando o ultimo ativo saiu dela
   }
 
   // -------- pedir check --------
@@ -1173,7 +1287,141 @@
     toast("Check chegou ✓"); }
 
   // ================= O CICLO DE VIDA =================
+  // ================= SEUS PEDIDOS (mesa_pedido) =================
+  // Lê a tabela public.mesa_pedido (SELECT anon liberado) e mostra os abertos, mais recentes no
+  // topo. Marcar "feito" é ESCRITA: PATCH direto na linha, com cabecalhoEscrita (Bearer do dono
+  // quando entrou). O 401 não some o cartão — ele diz a verdade e abre a porta.
+  var pedidoRendido={};
+  function renderPedido(item){
+    var c=document.createElement("div"); c.className="cartao pedido some"; c.setAttribute("data-id",item.id);
+    c.innerHTML='<h3>'+escH(item.texto)+'</h3>'
+      + (item.detalhe?'<p class="prog">'+escH(item.detalhe)+'</p>':'')
+      + '<div class="acoes"><span class="envio"></span><button class="btn forte feito-btn" type="button">✓ feito</button></div>';
+    document.getElementById("lista-ped").appendChild(c);
+    var btn=c.querySelector(".feito-btn");
+    btn.addEventListener("click",function(){
+      btn.disabled=true;
+      marcarFeito(item.id).then(function(ok){
+        if(ok){ toast("Feito ✓ — some da lista."); pedidoRendido[item.id]=true; esconderPedido(c); }
+        else { btn.disabled=false; }
+      });
+    });
+    return c;
+  }
+  // Mesmo sumiço animado das decisões (.some.foi), mas sem mexer no placar de op/dec/pend.
+  function esconderPedido(el){
+    el.style.maxHeight=el.scrollHeight+"px";
+    requestAnimationFrame(function(){ el.classList.add("foi");
+      setTimeout(function(){ el.remove(); atualizaVazioPed(); },340); });
+  }
+  function atualizaVazioPed(){
+    var cont=document.getElementById("lista-ped");
+    document.getElementById("vazio-ped").hidden = cont.children.length>0;
+  }
+  function marcarFeito(id){
+    // O CORPO NAO CARREGA QUEM MARCOU, e isso e a nota (a) da seguranca (22/08). Um campo
+    // `quem_marcou:"dono"` escrito pelo NAVEGADOR nao e atribuicao: e uma afirmacao que quem
+    // manda o pedido faz sobre si mesmo, e um cliente qualquer com a chave publicavel escreveria
+    // a mesma string. Quem sabe de verdade quem escreveu e o BANCO — o Bearer da sessao chega no
+    // `auth.uid()`, e e de la que um default/trigger tira a autoria, se ela for necessaria.
+    // Mandar o campo daqui so criaria um dado que PARECE confiavel e nao e, que e pior que
+    // nenhum. O que a pagina afirma e o que ela sabe: o estado virou feito, e quando.
+    var body={estado:"feito",feito_em:new Date().toISOString()};
+    function patch(hdr){
+      return fetch(SB_URL+"/rest/v1/mesa_pedido?id=eq."+encodeURIComponent(id),{
+        method:"PATCH",
+        headers:Object.assign({"Content-Type":"application/json","Prefer":"return=minimal"},hdr),
+        body:JSON.stringify(body)});
+    }
+    return cabecalhoEscrita().then(function(hdr){
+      return patch(hdr).then(function(r){
+        if(r.ok) return true;
+        if(r.status===401 || r.status===403){
+          if(ses){
+            return refrescar().then(function(s){
+              if(!s){ abrirLogin("a sessão venceu — entre de novo para marcar feito"); toast("Escrever exige entrar.",true); return false; }
+              return patch(comToken(s)).then(function(r2){
+                if(r2.ok) return true;
+                abrirLogin("esta conta não escreve na mesa"); toast("Escrever exige entrar.",true); return false;
+              });
+            });
+          }
+          abrirLogin("marcar feito exige entrar"); toast("Escrever exige entrar.",true); return false;
+        }
+        toast("Não consegui marcar feito (erro "+r.status+").",true); return false;
+      });
+    }).catch(function(){ toast("Sem conexão — não marquei feito.",true); return false; });
+  }
+  function carregarPedidos(){
+    return fetch(SB_URL+"/rest/v1/mesa_pedido?select=id,texto,detalhe,criado_em,estado,feito_em&estado=eq.aberto&order=criado_em.desc",{headers:H})
+      .then(function(r){ return r.ok?r.json():[]; })
+      .then(function(lista){
+        if(!Array.isArray(lista)) lista=[];
+        lista.forEach(function(p){
+          if(p==null || p.id==null) return;
+          if(pedidoRendido[p.id]) return;
+          pedidoRendido[p.id]=true;
+          renderPedido(p);
+        });
+        atualizaVazioPed();
+      }).catch(function(){});
+  }
+
+  // ================= BACKLOG (dist/dashboard/backlog.json, leitura) =================
+  // O backlog vive em ferramentas/, fora do dist; o build copia para DENTRO de dist/dashboard/.
+  // O CAMINHO E RELATIVO DE PROPOSITO — sem a barra inicial —, e foi o bloqueante B1 da
+  // seguranca (22/08): `/backlog.json` na raiz do dominio e um endereco INDEXAVEL, e o
+  // robots.txt so barra `/dashboard`. A fila e material de trabalho interno (caminhos de
+  // arquivo, numeros de PENDENTES, nomes de agentes, o desenho do auto-login) e JSON nao aceita
+  // `<meta robots>`: estar dentro da pasta ja barrada e a unica trava que ele tem. Relativo,
+  // ele resolve para /dashboard/backlog.json onde quer que a pagina esteja servida.
+  // Se faltar (404, arquivo ausente, JSON malformado), a seção some sem erro no console — o
+  // dashboard roda sem ela. É vista: nenhum botão, a ordem é a do arquivo (a do dono).
+  // A LISTA BRANCA DOS ESTADOS, e ela e a nota (b) da seguranca (22/08). O chip nascia como
+  // `class="bl-chip "+escH(est)` — contexto de ATRIBUTO, seguro somente porque o escH escapa
+  // aspas desde o conserto N2. Depender de um escape correto para um valor que so pode ser um
+  // de quatro e apostar sem precisar: aqui o estado do arquivo apenas ESCOLHE uma chave desta
+  // tabela, e quem entra no DOM e a classe daqui, por classList.add. Estado desconhecido nao
+  // vira classe nenhuma (o chip fica na cor neutra) e o rotulo vai por textContent.
+  var CHIP={livre:"livre","em-curso":"em curso",bloqueado:"bloqueado","do-dono":"do dono",concluido:"concluído"};
+  function terrCurto(t){
+    if(!Array.isArray(t) || !t.length) return "";
+    var s=t.join(" · ");
+    return s.length>64 ? s.slice(0,61)+"…" : s;
+  }
+  function carregarBacklog(){
+    return fetch("backlog.json",{headers:{}}).then(function(r){
+      if(!r.ok) throw 0;
+      return r.json();
+    }).then(function(j){
+      var itens=(j && Array.isArray(j.itens))?j.itens:[];
+      var abertos=itens.filter(function(it){ return it && it.estado!=="concluido"; });
+      if(!abertos.length) throw 0;
+      var cont=document.getElementById("lista-backlog"); cont.innerHTML="";
+      abertos.forEach(function(it){
+        var est=String(it.estado||"livre");
+        var conhecido=Object.prototype.hasOwnProperty.call(CHIP,est);
+        var el=document.createElement("div"); el.className="bl-item";
+        el.innerHTML='<div class="bl-tit">'+escH(it.titulo||it.id||"—")+'</div>'
+          + '<div class="bl-meta"><span class="bl-ag">'+escH(it.agente||"—")+'</span>'
+          + (terrCurto(it.territorio)?' · <span class="terr">'+escH(terrCurto(it.territorio))+'</span>':'')+'</div>';
+        // o chip nao passa por string de HTML: classe da lista branca, rotulo por textContent
+        var chip=document.createElement("span");
+        chip.classList.add("bl-chip");
+        if(conhecido) chip.classList.add(est);
+        chip.textContent = conhecido ? CHIP[est] : est;
+        el.insertBefore(chip, el.children[1]);   // entre o titulo e a meta (grid: coluna 2, linha 1)
+        cont.appendChild(el);
+      });
+      document.getElementById("backlog").hidden=false;
+      document.getElementById("vazio-backlog").hidden=true;
+    }).catch(function(){
+      document.getElementById("backlog").hidden=true;   // sem backlog, sem seção — silencioso
+    });
+  }
+
   function carregar(){
+    carregarPedidos();
     var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
     var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
     var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(function(r){return r.ok?r.json():[];});
@@ -1214,6 +1462,7 @@
   // servidor sobre quem entrou — a conta e uma so e sintetica. Um pedido a menos por carga.
   if(ses && ses.expira_em && (ses.expira_em-Date.now())<60000) refrescar();
   carregar();
+  carregarBacklog();     // uma vez: o backlog é estático (dist/dashboard/backlog.json), muda a cada build
   setInterval(carregar, 7000);
   podarFilaHerdada();   // antes do flush: fila acima do teto não drena, ela precisa caber primeiro
   flush();
