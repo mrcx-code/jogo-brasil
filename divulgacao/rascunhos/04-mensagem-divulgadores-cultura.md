@@ -10,7 +10,7 @@ indígena.
 > preencher por contato, nunca genérico].
 >
 > Queria compartilhar um projeto que fizemos: **BRASIL** (matheusferreira.cc), uma plataforma
-> sobre a história do país — um jogo em pixel art que atravessa da chegada dos povos originários
+> sobre a história do país — um jogo em pixel art que atravessa dos povos que já estavam aqui
 > a momentos mais recentes, mais uma linha do tempo, um glossário (181 verbetes com fonte) e as
 > fontes todas abertas pra conferir.
 >

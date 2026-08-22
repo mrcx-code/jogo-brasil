@@ -12,11 +12,11 @@ número de verbetes muda por commit.
 **BRASIL** (matheusferreira.cc) é uma plataforma de conhecimento sobre a história do Brasil.
 Tem quatro partes que funcionam cada uma sozinha:
 
-- **O Jogo** — ação em pixel art atravessando o tempo, 13 capítulos, da chegada dos povos
-  originários a momentos mais recentes da história do país.
+- **O Jogo** — ação em pixel art atravessando o tempo, 13 capítulos, dos povos que já
+  estavam aqui a momentos mais recentes da história do país.
 - **A História** — linha do tempo com 47 momentos, cada um com fonte.
 - **O Glossário** — 181 verbetes das palavras da história do Brasil, com definição e fonte.
-- **De Onde Vem** — as 60 fontes usadas em toda a plataforma, abertas para conferir.
+- **De Onde Vem** — as 61 fontes usadas em toda a plataforma, abertas para conferir.
 
 ## Por que existe
 
@@ -26,9 +26,13 @@ esta plataforma — feita para servir a essa pergunta em cada seção, não só 
 
 ## Quem fez
 
-[A DEFINIR COM O DONO — se e como o nome dele aparece é decisão de representação e não foi
-tomada nesta rodada. Se aprovado, entra aqui: nome, papel, e uma frase sobre o processo (equipe,
-revisão histórica).]
+BRASIL é feito no Brasil, com fontes abertas e revisão histórica como regra — não como
+adendo. Toda afirmação histórica é checada contra fonte citável (a lista completa está em
+De Onde Vem); onde há escolha de quem narra, a prioridade é de autoria indígena e negra e de
+quem pesquisa cada período. O domínio (matheusferreira.cc) é a assinatura do projeto.
+
+*(decidido pelo dono em 22/08: o "quem fez" não nomeia ninguém — a plataforma e o método
+assinam. Resto do press-kit continua [PRECISA SIGN-OFF] antes de qualquer envio.)*
 
 ## O que a plataforma leva a sério (a régua, para quem for escrever sobre ela)
 
