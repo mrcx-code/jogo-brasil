@@ -90,7 +90,10 @@
     text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s,transform .1s; }
   .barra a:hover{ filter:brightness(1.08); }
   .barra a:active{ transform:translateY(1px); }
-  .barra a.marca{ font-weight:700; letter-spacing:.16em; color:var(--ouro2); }
+  /* TINTA ÚNICA (arte, 22/08): uma regra só na barra — o dourado marca AÇÃO (JOGAR) e
+     ONDE-VOCÊ-ESTÁ (.aqui); todo o resto, inclusive a marca BRASIL, é creme. A marca se
+     distingue por peso e espaçamento, não por cor, para o dourado ter um único significado. */
+  .barra a.marca{ font-weight:700; letter-spacing:.16em; }
   .barra a.jogar{ font-weight:700; color:var(--ouro2); }
   .barra a.aqui{ color:var(--ouro2); cursor:default;
     background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
@@ -111,6 +114,7 @@
       <a href="/de-onde-vem" class="tabua">De Onde Vem</a>
       <a href="/territorio" class="tabua">O Território</a>
     </nav>
+    <script>(function(){try{var a=document.querySelector('.barra a.aqui');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'nearest',block:'nearest'});}catch(e){}})();</script>
     <h1>O glossário do Brasil</h1>
     <p class="intro">As palavras da nossa história, explicadas — e as que este jogo recusa, e por
       quê. Cada uma traz a fonte: invasão, e não descobrimento, é uma escolha com razão escrita.</p>
