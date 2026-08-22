@@ -878,9 +878,14 @@
     // fecha por CONSTRUÇÃO, que é a diferença entre "escapei certo" e "não há o que escapar".
     var ops=listaOps.map(function(o){
       var rec=(o.v===item.recomendada);
+      // HOTFIX 22/08 (incidente do dono: "as decisoes bugaram"): o refactor N2 passou a ler
+      // o.label/o.desc, mas TODO cartao da mesa desde sempre usa {v, t} — os botoes nasciam
+      // vazios em producao, e a cena 14 nao pegou porque o mock dela ja usava o formato novo.
+      // O render aceita os DOIS formatos; o teste ganha um cartao no formato da mesa junto.
+      var rotulo=(o.t!=null?o.t:o.label), detalhe=(o.d!=null?o.d:o.desc);
       return '<button class="op"><span class="marca"></span><span class="txt">'
-        + '<span class="lab">'+escH(o.label)+(rec?' <span class="rec">sugiro ★</span>':'')+'</span>'
-        + (o.desc?'<span class="desc">'+escH(o.desc)+'</span>':'')+'</span></button>';
+        + '<span class="lab">'+escH(rotulo)+(rec?' <span class="rec">sugiro ★</span>':'')+'</span>'
+        + (detalhe?'<span class="desc">'+escH(detalhe)+'</span>':'')+'</span></button>';
     }).join("");
     bloco.innerHTML='<p class="q">'+escH(item.titulo)+'</p>'
       + (item.contexto?'<p class="ctx">'+escH(item.contexto)+'</p>':'')

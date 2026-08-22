@@ -520,6 +520,14 @@ const estado = pag => pag.evaluate(() => ({
           tipo: 'decisao', chave: 'envenenada', titulo: veneno.texto, contexto: veneno.texto,
           recomendada: veneno.v, criado_em: '2026-08-21T00:00:00Z',
           opcoes: [{ v: veneno.v, label: veneno.texto, desc: veneno.texto }],
+        }, {
+          // O CARTAO NO FORMATO REAL DA MESA ({v, t}) — hotfix de 22/08: o refactor N2 passou a
+          // ler o.label/o.desc, TODO cartao de producao usa {v, t}, e os botoes nasceram VAZIOS
+          // no aparelho do dono. Nenhuma cena pegou porque o unico mock usava o formato novo.
+          // Este cartao cobra que o rotulo do formato da mesa CHEGA ao botao.
+          tipo: 'decisao', chave: 'formato-da-mesa', titulo: 'formato {v,t} da mesa',
+          contexto: 'cartao real', recomendada: 'a', criado_em: '2026-08-21T00:00:01Z',
+          opcoes: [{ v: 'a', t: 'ROTULO-DA-MESA-VISIVEL' }, { v: 'b', t: 'segunda-opcao' }],
         }],
         // `squad` entrou na leitura em 21/08 e vem envenenada aqui pela mesma razao que `cor`:
         // campo novo do servidor e campo novo de ataque ate alguem provar o contrario.
@@ -536,7 +544,8 @@ const estado = pag => pag.evaluate(() => ({
       return {
         comOn, xss: window.__xss,
         imgs: document.querySelectorAll('#lista-dec img, #grade-ag img').length,
-        ops: document.querySelectorAll('#lista-dec .op').length,
+        ops: document.querySelectorAll('[data-k="envenenada"] .op').length,
+        rotuloDaMesa: (function(){ const b=document.querySelector('[data-k="formato-da-mesa"] .op .lab'); return b?(b.textContent||'').trim():null; })(),
         dataV: op ? op.getAttribute('data-v') : null,
         rotulo: op ? (op.textContent || '').trim() : null,
         // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon()
@@ -550,6 +559,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(m.xss === undefined, 'nada executou (window.__xss segue indefinido)', String(m.xss));
     ok(m.imgs === 0, 'o <img> do payload virou texto, nao elemento', String(m.imgs));
     ok(m.dataV === veneno.v, 'o valor da opcao chega INTEIRO como dado (escapar nao e mutilar)', String(m.dataV));
+    ok((m.rotuloDaMesa||'').indexOf('ROTULO-DA-MESA-VISIVEL') === 0, 'o formato {v,t} da mesa poe o ROTULO no botao (hotfix 22/08 — os botoes nasciam vazios em producao)', String(m.rotuloDaMesa));
     ok((m.rotulo || '').indexOf('<img') >= 0, 'e a marcacao do payload aparece como texto na tela', m.rotulo);
     ok(m.fill === '#7d8479', 'a cor invalida do agente cai no cinza padrao (o A3 continua fechado)', String(m.fill));
     await ctx.close();
