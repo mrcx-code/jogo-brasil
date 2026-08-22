@@ -391,12 +391,102 @@ concreto (dissertação de 2024, FAU-USP) e standing metodológico/comunitário 
 historiador/dono decidir se o standing já encontrado basta para destravar o pino ou se
 exige a confirmação textual explícita antes.
 
+### (c) CHECAGEM DA AUTOIDENTIFICAÇÃO — missão do dono de 22/08
+
+O dono pediu, por escrito, para CHECAR a dúvida registrada em (b) antes de tratar Flávia
+Santos Santana como autoria negra plena: procurar, só em fonte pública e citável, uma
+autoidentificação TEXTUAL dela — nunca inferência por foto ou aparência, que é exatamente
+o erro que esta checagem existe para evitar.
+
+**Fontes públicas revistadas nesta rodada, e o que cada uma tinha:**
+
+1. **A dissertação inteira, "Bixiga Quilombo Presente" (2024), baixada e fatiada com
+   `pdftotext` + `grep`** (`teses.usp.br/teses/disponiveis/16/16139/tde-06052025-153926/`,
+   193p., texto extraído com 8.719 linhas). Busquei por padrões amplos — "eu sou", "enquanto
+   (mulher/pesquisadora/arquiteta) negra", "sou uma mulher negra/preta", "minha trajetória",
+   "meu corpo", "corpo negro", "racializad[ao] eu", "posicionalidade", "lugar de fala", "de
+   onde falo" — em todas as 8.719 linhas. As únicas ocorrências de "eu sou" com "negra/preta"
+   no documento são: (i) letra de música do Vai-Vai citada como epígrafe/fonte ("é que eu sou
+   da pele preta [...] eu sou a negra alma do Bixiga" — samba-enredo, não fala da autora);
+   (ii) trecho de entrevista de uma informante da pesquisa, Solange Pereira de Sant'anna
+   ("Solange: [...] eu sou aposentada, né?"), transcrita como fonte oral, não fala da autora.
+   **Nenhuma ocorrência é da própria Flávia Santos Santana falando de si.**
+   Encontrei, sim — e registro porque reforça o *standing* metodológico já levantado em (b),
+   sem ser autodeclaração — que a Introdução lista como terceiro objetivo do próprio trabalho:
+   > "3- Acompanharmos e participarmos ativamente do Movimento Saracura/Vai-Vai, no
+   > enfrentamento a expulsão negra do território do Bixiga e na preservação do sítio
+   > arqueológico Saracura/Vai-Vai e peças encontradas." (p. 20 do corpo numerado)
+   e, mais adiante, que ela relata atividades pessoais de militância junto ao movimento:
+   > "houve atividades da militância, desenvolvidas junto ao Movimento Mobiliza
+   > Saracura/Vai-Vai, como roteiros pelo território, atividades de formação para
+   > professores da rede Municipal de ensino de São Paulo, organização de exposição,
+   > participação em audiências públicas nas câmaras dos deputados e vereadores, aplicação
+   > de oficinas, parcerias com outros movimentos sociais." (p. 22 do corpo numerado)
+   Isso é participação militante em primeira pessoa — mais forte que "pesquisar sobre" —,
+   mas continua sendo relato de AÇÃO, não autodeclaração de IDENTIDADE racial.
+
+2. **Entrevista ao *Jornal da USP*** (já citada em (b)) — reconferida por completo: não há
+   nenhuma frase da entrevistada sobre a própria identidade racial.
+
+3. **Artigo em coautoria assinado por ela**, "Bixiga persiste Quilombo: a luta pela memória
+   de um território negro" (Gisele Brito, Flávia Santana — `ibdu.org.br/col-democracia/`),
+   um texto de opinião/análise em PRIMEIRA PESSOA institucional ("estamos travando"), mas
+   sempre no plural do movimento, nunca autodeclaração pessoal de raça.
+
+4. **Busca por currículo Lattes/CNPq** (`buscatextual.cnpq.br`, `lattes.cnpq.br`) pelo nome
+   "Flávia Santos Santana" — não localizei um perfil Lattes publicamente indexado que eu
+   pudesse conferir com segurança de ser a mesma pessoa (o nome é comum e a busca por
+   palavra-chave devolveu resultados de outras pessoas).
+
+5. **Busca por vídeo de banca/defesa de mestrado no YouTube** — não localizei gravação
+   pública da defesa dela.
+
+6. **Alerta de nome parecido, registrado para não confundir quem ler esta ficha depois:**
+   existe OUTRA pesquisadora, **Flávia Santana Santos** (ordem invertida do sobrenome),
+   com dissertação de mestrado em História da África, da Diáspora e dos Povos Indígenas
+   pela UFRB sobre OUTRO quilombo urbano ("Um Quilombo Urbano Chamado Rua Nova"). Não é a
+   mesma pessoa nem a mesma instituição — cuidado ao buscar por variações do nome.
+
+**O que eu NÃO fiz, por regra desta missão:** não abri rede social pessoal (Instagram,
+Twitter/X, Facebook) dela para procurar bio ou posts — são espaços privados/não-citáveis
+para este fim, e mesmo se abertos, uma foto de perfil não é autoidentificação textual; usar
+aparência para classificar raça é o erro exato que esta checagem existe para evitar, e não
+o cometi.
+
+**RESULTADO DA CHECAGEM: NÃO LOCALIZADA em fonte pública.** Não encontrei, em nenhuma das
+fontes públicas e citáveis que revisitei, uma frase textual em que Flávia Santos Santana se
+autoidentifique racialmente. O que existe, e é forte, é padrão de MILITÂNCIA E MÉTODO —
+participação ativa e continuada no Mobiliza-Saracura/Vai-Vai, corpus teórico de autoria
+negra (Beatriz Nascimento, Kabengele Munanga) — mas isso é *standing* metodológico e
+comunitário, não é a mesma coisa que autodeclaração de identidade, e a ficha não deve
+confundir as duas coisas.
+
+**Caminho seguinte, proposto sem decidir — decisão é do dono, não minha:**
+- (i) **Contato direto e respeitoso com ela ou com a orientação (Profa. Raquel Rolnik/FAU-
+  USP)**, perguntando diretamente — é ação de RELACIONAMENTO, cabe ao dono ou a quem ele
+  designar, não a esta pesquisadora de fontes.
+- (ii) **Buscar voz alternativa que já tenha autodeclaração pública**, mantendo Flávia
+  Santos Santana como fonte de DADO/pesquisa (ela segue valendo para isso, sem ajuste), e
+  somando ou substituindo a "condição de entrada" do §2 por outra voz: por exemplo,
+  memória oral já publicada de integrantes do próprio Mobiliza-Saracura/Vai-Vai (Bepa/Júlia
+  Bernard Ribeiro e Solange Pereira de Sant'anna, ambas entrevistadas e citadas na própria
+  dissertação como moradoras/integrantes do Vai-Vai que viveram o território — mas eu não
+  fui atrás de autodeclaração racial delas nesta rodada; ficaria como próxima tarefa se o
+  dono escolher este caminho).
+- (iii) **Manter o pino com Flávia Santos Santana só como pesquisadora especialista**
+  (que já vale, sem condição pendente) e não usar o rótulo "autoria negra" no texto do
+  pino/verbete até uma das duas opções acima fechar a dúvida.
+
+Não escolho entre (i), (ii) e (iii) — é decisão de representação, portão do dono.
+
 ### Veredito consolidado do pino B3
 
 **CONFERIDO-COM-AJUSTE.** A arqueologia (a) está sustentada e cai a ressalva de precisão
-sobre o traçado do rio. A condição de entrada (b) tem voz encontrada e obra citável, mas com
-uma dúvida de §2 explícita, endereçada acima ao dono/historiador, antes de eu considerar a
-"condição de entrada" plenamente fechada.
+sobre o traçado do rio. A condição de entrada (b) tem voz encontrada e obra citável, mas a
+checagem pedida pelo dono em (c) **não localizou autoidentificação textual em fonte
+pública** — a dúvida de §2 permanece aberta e agora está mais precisa: não é "falta
+verificar", é "verifiquei e não achei", com o caminho seguinte proposto acima, sem decisão
+minha.
 
 ---
 
@@ -409,17 +499,19 @@ uma dúvida de §2 explícita, endereçada acima ao dono/historiador, antes de e
 | A4 (Brasília/candangos) | CONFERIDO | nada |
 | D14 (Cabanagem) | CONFERIDO-COM-AJUSTE | cai/verificar "cabanas de várzea"; número de Ricci (30 mil) não deve virar texto do pino |
 | A3 (Acre) | CONFERIDO-COM-AJUSTE | falta citação literal com página do livro (só tenho via resenha); parte "povos da floresta" indígenas carece de fonte própria |
-| B3 (Saracura) | CONFERIDO-COM-AJUSTE | (a) separar traçado do rio de achado arqueológico; (b) dúvida de §2 sobre autoidentificação de Flávia Santos Santana, endereçada ao dono |
+| B3 (Saracura) | CONFERIDO-COM-AJUSTE | (a) separar traçado do rio de achado arqueológico; (b)+(c) autoidentificação de Flávia Santos Santana CHECADA e NÃO LOCALIZADA em fonte pública — três caminhos propostos ao dono, nenhum escolhido por mim |
 
 **Lugar de fala PLENO (pessoa com vivência/pertencimento direto ao que narra):** nenhum dos
 seis — os seis são pesquisadoras/pesquisas institucionais ou acadêmicas de referência, com
-graus variados de proximidade metodológica ao tema (Santana trabalha COM a comunidade;
-Wolff viveu um ano em campo; Ricci e o IBGE são pesquisa de gabinete sobre dado
+graus variados de proximidade metodológica ao tema (Santana trabalha COM a comunidade e
+milita nela, o que é mais forte que "pesquisa sobre" mas ainda não é autodeclaração
+verificada; Wolff viveu um ano em campo; Ricci e o IBGE são pesquisa de gabinete sobre dado
 documental/estatístico).
 
 **Só institucional (documento, sem "narrador" a testar):** A7 (lei), A5-doc.1 (lei), A5-doc.2
 (câmara municipal), A4 (IBGE), B3(a) (relatório de arqueologia).
 
 **Dúvida por escrito, endereçada ao dono:** a autoidentificação racial de Flávia Santos
-Santana (B3-b) — ver seção 6(b) acima. É a única pergunta desta rodada que cabe a ele, não a
-mim resolver.
+Santana (B3-b/c) — CHECADA em 22/08 conforme pedido, NÃO LOCALIZADA em fonte pública. Ver
+seção 6(c) acima para os três caminhos possíveis, nenhum deles escolhido por esta ficha —
+decisão de representação é do dono.
