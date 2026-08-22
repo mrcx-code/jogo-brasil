@@ -31,6 +31,10 @@ const MED = require('./medir-secao.js');
 // growth mediu isso por curl em três rodadas. O cartão é um print 1200×630 da PRÓPRIA página,
 // pelo molde do território: uma fonte, duas saídas, também para a imagem da prévia.
 const CARTAO = require('./cartao-secao.js');
+// O CHROME DA PLATAFORMA (arte, 22/08). A língua visual do jogo — tokens, textura de madeira e
+// papel, a barra de tábuas e a serifa da casa — vive numa fonte única e é consumida por todas as
+// seções. Sem isto a página falava três línguas visuais e nenhuma era a do jogo.
+const CHROME = require('./chrome-plataforma.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -74,9 +78,6 @@ const esc = (s) => String(s || '')
 <meta name="description" content="A história do Brasil em linha do tempo — de quem já estava aqui até hoje, cada momento com a fonte ao lado.">
 <meta property="og:title" content="A HISTÓRIA — BRASIL">
 <meta property="og:description" content="Uma linha do tempo do Brasil, de quem já estava aqui até hoje. Cada momento traz a fonte.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="${BASE}/historia/">
@@ -85,10 +86,10 @@ ${CARTAO.tags(BASE, 'historia', 'A abertura da seção A HISTÓRIA: o título "A
 <link rel="canonical" href="${BASE}/historia/">
 <title>A História do Brasil — uma linha do tempo</title>
 <style>
-  :root {
-    --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
-    --pedra:#7d8479; --mata:#2f5230; --terra:#7a4a24; --brasa:#b5541f;
-    --linha:#d3cab5; --realce:#ffffff; --sombra:rgba(29,33,25,.07);
+${CHROME.tokensCss()}  :root {
+    --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
+    --pedra:#857658; --mata:#2f5230; --terra:#7a4a13; --brasa:#b5541f;
+    --linha:#cbbc98; --realce:#f0e4c4; --sombra:rgba(29,20,10,.10);
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
@@ -102,16 +103,16 @@ ${CARTAO.tags(BASE, 'historia', 'A abertura da seção A HISTÓRIA: o título "A
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--papel); color:var(--tinta);
-    font:400 17px/1.62 "Source Sans 3", system-ui, sans-serif; -webkit-text-size-adjust:100%; }
+    font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
 
   header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.6rem; }
-  .selo { font:600 .72rem/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.16em;
+  .selo { font:600 .72rem/1 var(--mono); letter-spacing:.16em;
     text-transform:uppercase; color:var(--terra); display:block; margin-bottom:.7rem; }
-  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 "Bitter",Georgia,serif; margin:0 0 .6rem;
+  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 var(--titulo); margin:0 0 .6rem;
     text-wrap:balance; letter-spacing:-.015em; }
   .intro { color:var(--tinta2); margin:0; font-size:1.05rem; max-width:36rem; }
-  .conta { font:600 .74rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .conta { font:600 .74rem/1.5 var(--mono); color:var(--pedra);
     margin:1rem 0 0; letter-spacing:.03em; }
 
   /* A linha do tempo: um fio vertical à esquerda, marcos pontuando. */
@@ -122,44 +123,30 @@ ${CARTAO.tags(BASE, 'historia', 'A abertura da seção A HISTÓRIA: o título "A
   .marco { position:absolute; left:0; top:.3rem; width:16px; height:16px; }
   .ponto { display:block; width:16px; height:16px; border-radius:50%;
     background:var(--papel); border:3px solid var(--mata); box-shadow:0 0 0 3px var(--papel); }
-  .quando { font:600 .73rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.05em;
+  .quando { font:600 .73rem/1.4 var(--mono); letter-spacing:.05em;
     text-transform:uppercase; color:var(--terra); margin:0 0 .25rem; }
-  .momento h2 { font:700 1.32rem/1.22 "Bitter",Georgia,serif; margin:0 0 .5rem;
+  .momento h2 { font:700 1.32rem/1.22 var(--titulo); margin:0 0 .5rem;
     text-wrap:balance; letter-spacing:-.01em; }
   .texto { margin:0 0 .7rem; }
-  .hoje { position:relative; background:var(--papel2); border-left:3px solid var(--terra);
+  .hoje { position:relative; background:var(--graoPx,none) var(--papel2); border-left:3px solid var(--terra);
     padding:.7rem .9rem; margin:0 0 .7rem; font-style:italic; font-size:.97rem; color:var(--tinta2);
     border-radius:0 4px 4px 0; }
-  .hojeR { display:block; font:600 .62rem/1 "IBM Plex Mono",ui-monospace,monospace;
+  .hojeR { display:block; font:600 .62rem/1 var(--mono);
     letter-spacing:.12em; text-transform:uppercase; color:var(--pedra); font-style:normal;
     margin-bottom:.35rem; }
-  .fonte { font:400 .82rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .fonte { font:400 .82rem/1.5 var(--mono); color:var(--pedra);
     margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
 
   footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
   footer.rod a { color:var(--terra); }
-${MED.estilo()}  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
-    font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
-    text-transform:uppercase; }
-  .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
-    padding-bottom:.15rem; transition:color .15s; }
-  .nav a:hover { color:var(--terra); }
-  .nav a.marca { color:var(--tinta); font-weight:700; letter-spacing:.12em; }
-  .nav a.aqui { color:var(--terra); border-bottom-color:var(--terra); cursor:default; }
-  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+${MED.estilo()}${CHROME.barraCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
 <body>
 <div class="env">
   <header class="topo">
-    <nav class="nav">
-      <a href="/" class="marca">BRASIL</a>
-      <a href="/historia" class="aqui">A História</a>
-      <a href="/glossario">Glossário</a>
-      <a href="/de-onde-vem">De Onde Vem</a>
-      <a href="/territorio">O Território</a>
-    </nav>
+${CHROME.barraHtml('historia')}
     <h1>A história do Brasil, em linha do tempo</h1>
     <p class="intro">De quem já estava aqui — há mais de onze mil anos — até hoje. Cada momento
       traz a fonte ao lado: aqui não há número sem de onde ele veio.</p>

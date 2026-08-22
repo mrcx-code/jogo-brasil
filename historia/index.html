@@ -6,9 +6,6 @@
 <meta name="description" content="A história do Brasil em linha do tempo — de quem já estava aqui até hoje, cada momento com a fonte ao lado.">
 <meta property="og:title" content="A HISTÓRIA — BRASIL">
 <meta property="og:description" content="Uma linha do tempo do Brasil, de quem já estava aqui até hoje. Cada momento traz a fonte.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="https://matheusferreira.cc/historia/">
@@ -21,10 +18,20 @@
 <link rel="canonical" href="https://matheusferreira.cc/historia/">
 <title>A História do Brasil — uma linha do tempo</title>
 <style>
+  /* chrome-plataforma.js — a língua visual do jogo (arte, 22/08). NÃO editar aqui:
+     a fonte é ferramentas/chrome-plataforma.js e o build regenera. */
+  :root{
+    --ch-papel:#e9d8ae; --ch-papel2:#d8c391; --ch-tinta:#33240f;
+    --madeira:#7a5430; --madeira2:#6d4b28; --madeira3:#503319;
+    --contorno:#191510; --ouro:#eba748; --ouro2:#f3c05c;
+    --leitura:Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif; --titulo:"Palatino Linotype",Palatino,Georgia,serif; --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --veioPx:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABgCAYAAADVenpJAAADs0lEQVR42u2d607bMBSAK+V3doGNgUs3jTGgY8AuL5a3zGNlQlqlqnIcX44dX74jff9QaO2vzvGx42w2gaH67lbH3N9P4/BuhrcSbIi0gQDEqRBfbJjG4cwH1XdbHbafbxqHPoSK+unhFQRAACJRg/+yweO6NyHQMwhAROrwJ0eubaBlEUD8g+5taLgj/0iQ4ff6+goCIED32wcG+bJiGodPOhAAAWSmDXP/YInDUOSBVdJkKD0bUX13b6KmexwCtCxABQLvPRFJ4lyneyveAq50IAACEJmK/TcQSsEIkIEAuW7omMbhMgTbJLT5Gj4CsIhD5PWDvD6GFkGA5hvkwodavg8CtC6AbemVwbPe+SYCEEUM1TsTqu9ehCh6owcCIABBEETCJDKrTZOnhY5TljZ6zOG74WV2K1Z4uz97cncMArQugOq7xwWcNotO4/DRkrlFljtJHBr0uw0rjLAPIdj8AwRoXIDnEBrKdZ58CPh/PyVBAAQIG/pSDY2pksjQJC63x7K9BUWAxgUosCTcSxJ7SJ7G4Y0k4kkgAiCAawdcSqL67puJDITTFpRaXpVDAPbSOSUn2mXXaRy2ktDSfkk1AiBAtbequQUhY4k6tPQ6d3Tu0hG6BAIQ/4cs24WnvQQRPv+tMHNleJHrI0DrAtReOpRaLtZc91GC4la5EKAyASrMIbIoLNkem284Tl9bCnZIgq1KywiAAM7Tq6w2R3p0TFEHOUzj8N6GlB8IAVoQQPXdDx0Jv7jt5tKmXvViaC+ngzARAAEWL6hdvo1Qmj08sLGVgHmQnFEIQFRdL1AmKvxB86JNBBAUwHZ6kmraUuurXTTfc2ciu/kpAmQuQOrkii1dyX6gOxsQoHUBEhRqrEg4hPo+4HHlyQdJQh/mPSJscQwBGheAWD0ZvJeAlkSA6hom6mPZvreCCEneuQ5+GQjgfKGox6MbkqrzEBqc1jkJp/rusw0I0LoAsUuTR4huy17h1vIiSU33XAQoWQDX6YFDh6+zSkUgABFnCF8i6aNlqV725Priy9Q7b4IP+kSAxgVIOI05M7HCyLdqg0htYHHdyBL78XgEQADxHENJ4CCq68GN2kfMfG9RB1yP6T9QY5KJADEFcH0NeumvQy/tQAfXR74M6DfnIkDjAmTYQbkeGRt3kyWBAETGEbp8He2lTwQCEIR3MknLIEDyD6IkqCDZvZGkJBMRoGYBlo6C0VBlB7d8r0GAwjrsQpK54+V8SV1wyv0lVq5J3mLShwBtC/APeCJVJXjlbBcAAAAASUVORK5CYII=);
+    --graoPx:url(data:image/png;base64,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);
+  }
   :root {
-    --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
-    --pedra:#7d8479; --mata:#2f5230; --terra:#7a4a24; --brasa:#b5541f;
-    --linha:#d3cab5; --realce:#ffffff; --sombra:rgba(29,33,25,.07);
+    --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
+    --pedra:#857658; --mata:#2f5230; --terra:#7a4a13; --brasa:#b5541f;
+    --linha:#cbbc98; --realce:#f0e4c4; --sombra:rgba(29,20,10,.10);
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
@@ -38,16 +45,16 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--papel); color:var(--tinta);
-    font:400 17px/1.62 "Source Sans 3", system-ui, sans-serif; -webkit-text-size-adjust:100%; }
+    font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
 
   header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.6rem; }
-  .selo { font:600 .72rem/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.16em;
+  .selo { font:600 .72rem/1 var(--mono); letter-spacing:.16em;
     text-transform:uppercase; color:var(--terra); display:block; margin-bottom:.7rem; }
-  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 "Bitter",Georgia,serif; margin:0 0 .6rem;
+  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 var(--titulo); margin:0 0 .6rem;
     text-wrap:balance; letter-spacing:-.015em; }
   .intro { color:var(--tinta2); margin:0; font-size:1.05rem; max-width:36rem; }
-  .conta { font:600 .74rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .conta { font:600 .74rem/1.5 var(--mono); color:var(--pedra);
     margin:1rem 0 0; letter-spacing:.03em; }
 
   /* A linha do tempo: um fio vertical à esquerda, marcos pontuando. */
@@ -58,18 +65,18 @@
   .marco { position:absolute; left:0; top:.3rem; width:16px; height:16px; }
   .ponto { display:block; width:16px; height:16px; border-radius:50%;
     background:var(--papel); border:3px solid var(--mata); box-shadow:0 0 0 3px var(--papel); }
-  .quando { font:600 .73rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.05em;
+  .quando { font:600 .73rem/1.4 var(--mono); letter-spacing:.05em;
     text-transform:uppercase; color:var(--terra); margin:0 0 .25rem; }
-  .momento h2 { font:700 1.32rem/1.22 "Bitter",Georgia,serif; margin:0 0 .5rem;
+  .momento h2 { font:700 1.32rem/1.22 var(--titulo); margin:0 0 .5rem;
     text-wrap:balance; letter-spacing:-.01em; }
   .texto { margin:0 0 .7rem; }
-  .hoje { position:relative; background:var(--papel2); border-left:3px solid var(--terra);
+  .hoje { position:relative; background:var(--graoPx,none) var(--papel2); border-left:3px solid var(--terra);
     padding:.7rem .9rem; margin:0 0 .7rem; font-style:italic; font-size:.97rem; color:var(--tinta2);
     border-radius:0 4px 4px 0; }
-  .hojeR { display:block; font:600 .62rem/1 "IBM Plex Mono",ui-monospace,monospace;
+  .hojeR { display:block; font:600 .62rem/1 var(--mono);
     letter-spacing:.12em; text-transform:uppercase; color:var(--pedra); font-style:normal;
     margin-bottom:.35rem; }
-  .fonte { font:400 .82rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .fonte { font:400 .82rem/1.5 var(--mono); color:var(--pedra);
     margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
 
   footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
@@ -79,26 +86,44 @@
   .medBt { font:inherit; color:var(--terra); background:none; border:0; padding:0;
     border-bottom:1px dotted currentColor; cursor:pointer; }
   .medBt[aria-pressed="false"] { color:var(--pedra); }
-  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
-    font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
-    text-transform:uppercase; }
-  .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
-    padding-bottom:.15rem; transition:color .15s; }
-  .nav a:hover { color:var(--terra); }
-  .nav a.marca { color:var(--tinta); font-weight:700; letter-spacing:.12em; }
-  .nav a.aqui { color:var(--terra); border-bottom-color:var(--terra); cursor:default; }
+  /* A BARRA DE TÁBUAS (arte, 22/08): fileira de tábuas de madeira com o veio como
+     PRIMEIRA camada de background e o contorno da casa. JOGAR sempre presente e primeiro depois
+     da marca; a página atual é a tábua escura "pressionada". Alvo de toque >=44x44; UMA linha
+     sempre (nowrap); em tela estreita rola na horizontal, nunca quebra. */
+  .barra{ display:flex; flex-wrap:nowrap; align-items:stretch; gap:6px; margin:0 0 1.7rem;
+    padding:7px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; background:transparent; }
+  .barra::-webkit-scrollbar{ height:0; display:none; }
+  .barra a{ flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    min-height:44px; padding:0 15px; text-decoration:none; white-space:nowrap;
+    font:600 .82rem/1 "Palatino Linotype",Palatino,Georgia,serif; letter-spacing:.02em;
+    color:#fff4e0; border-radius:3px;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s,transform .1s; }
+  .barra a:hover{ filter:brightness(1.08); }
+  .barra a:active{ transform:translateY(1px); }
+  .barra a.marca{ font-weight:700; letter-spacing:.16em; color:var(--ouro2); }
+  .barra a.jogar{ font-weight:700; color:var(--ouro2); }
+  .barra a.aqui{ color:var(--ouro2); cursor:default;
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno);
+    transform:translateY(1px); text-shadow:0 1px 0 rgba(0,0,0,.6); }
+  .barra a.aqui:hover{ filter:none; }
   @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
 <body>
 <div class="env">
   <header class="topo">
-    <nav class="nav">
+    <nav class="barra" aria-label="Seções da plataforma BRASIL">
       <a href="/" class="marca">BRASIL</a>
-      <a href="/historia" class="aqui">A História</a>
-      <a href="/glossario">Glossário</a>
-      <a href="/de-onde-vem">De Onde Vem</a>
-      <a href="/territorio">O Território</a>
+      <a href="/jogo/" class="tabua jogar">Jogar</a>
+      <a href="/historia" class="tabua aqui">A História</a>
+      <a href="/glossario" class="tabua">Glossário</a>
+      <a href="/de-onde-vem" class="tabua">De Onde Vem</a>
+      <a href="/territorio" class="tabua">O Território</a>
     </nav>
     <h1>A história do Brasil, em linha do tempo</h1>
     <p class="intro">De quem já estava aqui — há mais de onze mil anos — até hoje. Cada momento

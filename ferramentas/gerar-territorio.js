@@ -37,6 +37,9 @@ const { BASE } = require('./dominio.js');
 // moram. Ele NÃO entra em .env como bloco novo de propósito: `areaUtil()` mede `#censo` para
 // enquadrar a placa, e um bloco novo no fluxo mudaria o enquadramento dos pinos.
 const MED = require('./medir-secao.js');
+// O CHROME DA PLATAFORMA (arte, 22/08) — a barra de tábuas e as texturas. O TERRITÓRIO já usava
+// a paleta exata da casa (foi dela que os tokens saíram); aqui entra a mesma nav das outras 4.
+const CHROME = require('./chrome-plataforma.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -151,7 +154,7 @@ function lerThree() {
 <link rel="canonical" href="${BASE}/territorio/">
 <title>O Território — os lugares da história do Brasil</title>
 <style>
-  :root {
+${CHROME.tokensCss()}  :root {
     --fundo:#0a0806; --mesa:#120d08;
     --topo:#e9d8ae; --topo2:#d8c391; --sombra:#33240f;
     --pino:#eba748; --pino2:#f3c05c;
@@ -172,18 +175,13 @@ function lerThree() {
     pointer-events:none; }
   .env > * { pointer-events:auto; }
 
-  .nav { display:flex; flex-wrap:wrap; gap:.3rem .95rem; margin:0 0 .55rem;
-    font:600 .68rem/1.4 ui-monospace,"SFMono-Regular",Menlo,monospace; letter-spacing:.1em;
-    text-transform:uppercase; }
-  .nav a { text-decoration:none; color:#9c8f74; }
-  .nav a:hover { color:var(--pino2); }
-  .nav a.marca { color:var(--topo); font-weight:700; letter-spacing:.14em; }
-  .nav a.aqui { color:var(--pino); cursor:default; }
-
+${CHROME.barraCss()}
   /* width:fit-content nos blocos do cabeçalho não é estética: é o que faz o retângulo deles
      medir o TEXTO. A câmera enquadra a placa na área livre MEDIDA no DOM, e um <h1> que ocupa
-     a largura inteira (como todo bloco ocupa) diria que não sobrou área nenhuma. */
-  .nav, h1, .sub, .lista { width:fit-content; max-width:100%; }
+     a largura inteira (como todo bloco ocupa) diria que não sobrou área nenhuma. A barra de
+     tábuas entra no mesmo contrato: fit-content, e rola na horizontal quando não cabe. */
+  .barra, h1, .sub, .lista { width:fit-content; max-width:100%; }
+  .barra { margin:0 0 .55rem; }
   h1 { margin:0; font:400 clamp(1.35rem,5.2vw,2.1rem)/1.15 Georgia,serif; letter-spacing:.01em;
     color:var(--topo); }
   .sub { margin:.25rem 0 0; max-width:min(34ch,100%); font-size:clamp(.82rem,3.1vw,.95rem);
@@ -201,7 +199,7 @@ function lerThree() {
 
   /* O CENSO EM PAPEL — painel, não HUD. Ele fica no canto de baixo e não flutua sobre o mapa
      como um número solto: é uma folha apoiada na mesa, com a fonte impressa embaixo. */
-  .papel { background:linear-gradient(180deg,var(--papel),var(--papelB));
+  .papel { background:var(--graoPx,none), linear-gradient(180deg,var(--papel),var(--papelB));
     color:var(--tinta); border-radius:3px; padding:.75rem .85rem .7rem;
     box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 10px 26px rgba(0,0,0,.55);
     max-width:32rem; }
@@ -264,7 +262,7 @@ ${MED.estilo({ cor: '#7a4a13', apagada: 'var(--pedra)' })}  /* no papel do censo
     /* COLUNA DE TEXTO À ESQUERDA, PLACA À DIREITA. A largura da coluna é travada em 24rem
        porque é ela que decide onde a área livre da placa começa — deixar a fila de lugares
        correr solta empurrava a placa para 71% da largura e abria um vazio no meio da tela. */
-    .nav, h1, .sub, .lista { max-width:24rem; }
+    .barra, h1, .sub, .lista { max-width:24rem; }
     #censo { order:0; margin-top:1.4rem; }
     body.comCartao #censo { opacity:1; pointer-events:auto; }
     .cresce { order:1; }
@@ -283,13 +281,7 @@ ${MED.estilo({ cor: '#7a4a13', apagada: 'var(--pedra)' })}  /* no papel do censo
 
 <div class="env">
   <header>
-    <nav class="nav">
-      <a href="/" class="marca">BRASIL</a>
-      <a href="/historia">A História</a>
-      <a href="/glossario">Glossário</a>
-      <a href="/de-onde-vem">De Onde Vem</a>
-      <a href="/territorio" class="aqui">O Território</a>
-    </nav>
+${CHROME.barraHtml('territorio')}
     <h1>O território</h1>
     <p class="sub">Os lugares onde cada capítulo do jogo aconteceu. Toque num pino.</p>
     <nav class="lista" aria-label="lugares">
@@ -562,7 +554,7 @@ let dist = 3, distBase = 3, alvoBase = alvo.clone();
 function areaUtil() {
   const W = window.innerWidth, H = window.innerHeight;
   const r = (s) => document.querySelector(s).getBoundingClientRect();
-  const cab = [".nav", "h1", ".sub", ".lista"].map(r);
+  const cab = [".barra", "h1", ".sub", ".lista"].map(r);
   const censo = r("#censo");
   const folga = 14;
   if (W >= 820) {
