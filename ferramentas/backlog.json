@@ -54,7 +54,8 @@
       "titulo": "Home do jogo increment 2 — diorama + portais",
       "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo (direcao da arte de 20/08).",
       "agente": "dev-jogo",
-      "estado": "livre"
+      "estado": "concluido",
+      "nota": "INTEGRADO 31b63e9 (dev+arte APROVA nos 4 tamanhos): diorama com FRENTE_SPR, personagem com luz corrigida, vento cortado por medicao (9 FPS). Sobra do-dono: chao-menu-retrato"
     },
     {
       "id": "trilha-palmares",
@@ -150,6 +151,14 @@
       "agente": "dev-jogo",
       "estado": "do-dono",
       "nota": "nascido da duvida do link-jogo 22/08"
+    },
+    {
+      "id": "chao-menu-retrato",
+      "titulo": "Menu retrato: subir a linha do chao para a personagem aparecer",
+      "detalhe": "Em retrato a personagem do diorama fica 100% atras do poste (medido por caixas). Arte recomenda subir o chao SO no menu retrato, com regua: 0% de sobreposicao com poste/tabuas/tagline, respiro >=8px, faixa >= altura+16 (senao ela NAO entra — melhor ausente que decapitada); deitado/desktop intocados. Alternativas recusadas com motivo: encolher o poste (re-abre aprovacao de 21/08) e segunda figura (par.2 + nao cabe em calha de 43px). Prints antes/depois ja enviados ao dono.",
+      "agente": "dev-jogo",
+      "estado": "do-dono",
+      "nota": "nascido do home-inc2; decisao de composicao do menu que o dono viu ontem"
     }
   ]
 }

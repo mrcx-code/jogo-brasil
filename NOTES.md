@@ -9151,3 +9151,23 @@ deveria correr mais rápido que o chão, não ficar parado — o que sustenta a 
 lida como MOLDURA (quinas pesadas, meio vazio), não como um plano da rua. Ficou assim porque a
 alternativa medida custa 9 FPS. Se a arte quiser vento, o caminho barato é balançar só um
 pedaço da camada, e isso precisa ser medido antes de entrar.
+
+## 22/08 (manha) — a fila livre do dono ACABOU, toda executada
+
+**Home diorama INTEGRADO** (31b63e9, 3 tentativas de funil: print de banca sujo no worktree ->
+git clean; conflito de .gitignore (ambos apendaram) -> merge=union no .gitattributes, o mesmo
+remedio dos diarios). Dev entregou com numero, arte aprovou nos 4 tamanhos sem ajuste, e o
+padrao bom se repetiu: o vento foi CORTADO por medicao (9 FPS) antes de a arte vetar.
+
+**Decisao nova para o dono** (chao-menu-retrato, backlog do-dono): em retrato a personagem fica
+atras do poste; a arte recomenda subir o chao so no menu retrato, com regua escrita. Prints ja
+com ele.
+
+**Balanco da fila desde que ele dormiu:** squads (banco+painel+papel+QA-cruzado+dev-dados
+ativado) · fase 1 do acervo FECHADA com espelho integro e portao no CI · rev-2 no banco ·
+quarto portal com poste de dois lados · pixel na home dos 10 pintados · medicao das 5 paginas
+no ar (provada por curl) · cartoes og das 3 secoes no ar (provados por curl) · link jogo->
+plataforma na CHEGADA · hardening da fila integrado com cabecalhos provados em producao ·
+49 pinos propostos · rascunhos de divulgacao prontos para sign-off · PENDENTES 48/51/52
+fechados. Restam DELE: login da fila, GSC, 3 decisoes da divulgacao, chao-menu-retrato,
+trilha/gesto, evento-saida.
