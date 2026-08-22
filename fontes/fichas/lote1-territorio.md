@@ -479,14 +479,175 @@ confundir as duas coisas.
 
 Não escolho entre (i), (ii) e (iii) — é decisão de representação, portão do dono.
 
-### Veredito consolidado do pino B3
+### Veredito consolidado do pino B3 (até a rodada de 22/08 manhã)
 
 **CONFERIDO-COM-AJUSTE.** A arqueologia (a) está sustentada e cai a ressalva de precisão
 sobre o traçado do rio. A condição de entrada (b) tem voz encontrada e obra citável, mas a
 checagem pedida pelo dono em (c) **não localizou autoidentificação textual em fonte
 pública** — a dúvida de §2 permanece aberta e agora está mais precisa: não é "falta
 verificar", é "verifiquei e não achei", com o caminho seguinte proposto acima, sem decisão
-minha.
+minha. **Ver a continuação em 6(d) abaixo — o dono mandou seguir para a voz alternativa nas
+próprias entrevistadas antes de fechar o pino.**
+
+---
+
+## 6(d). CONTINUAÇÃO — voz alternativa nas próprias entrevistadas (22/08, missão nova do dono)
+
+O dono pediu para não parar na checagem de Flávia Santos Santana (6c) e ir atrás da
+**voz alternativa**: autodeclaração pública entre as próprias entrevistadas da dissertação —
+nomeando como ponto de partida **Bepa (Júlia Bernard Ribeiro)** e **Solange Pereira de
+Sant'anna**, "outras entrevistadas valem igualmente".
+
+**O universo real da dissertação:** ela registra só **três** entrevistas no total (p. 21–22,
+trecho metodológico) — Edilson Mineiro (morou no Bixiga na infância, se mudou, homem, fora do
+recorte "outras entrevistadas" porque não é mulher e o dono pediu entre as entrevistadas),
+Bepa e Solange. **Não há uma quarta ou quinta entrevistada** para "as outras valerem
+igualmente" — o universo já é exatamente as duas nomeadas pelo dono.
+
+**Fonte e disciplina:** o mesmo arquivo já baixado na rodada anterior (mesma dissertação, 2024,
+FAU-USP, `teses.usp.br/teses/disponiveis/16/16139/tde-06052025-153926/`, 8.719 linhas de
+texto extraído) — não baixei de novo nem li de uma vez; busquei por nome e por padrão
+(`grep`/`sed`), sempre fatiado, e localizei página pelo marcador de rodapé do próprio PDF
+(o número solto de página que o `pdftotext` preserva entre os blocos de texto).
+
+### Bepa (Júlia Bernard Ribeiro) — o que a fonte tem
+
+**Vínculo com o lugar, na voz da autora da dissertação (não é ainda autodeclaração dela
+mesma, é descrição de Flávia Santana sobre a entrevistada):**
+> "A segunda entrevistada foi Júlia Bernard Ribeiro, conhecida no Bixiga como Bepa. Bepa
+> nasceu e cresceu no Bixiga, viu o braço do Saracura Grande correr livre pelo bairro, e mesmo
+> não morando mais lá frequenta constantemente o Bixiga por conta das relações com amigos e
+> com o Vai-Vai." (p. 21–22, seção metodológica)
+
+**Vínculo com o lugar, na própria voz de Bepa (entrevista, anexo):**
+> "Meu nome é Júlia. No Bixiga as pessoas me chamam por Bepa. Eu nasci ali na Marques Leão
+> esquina com rua Una, que tinha um bar ali chamado o Último Gole. Nasci ali." (p. 229,
+> abertura da entrevista)
+
+> "Aquilo ali é nosso chão. Mesmo eu aqui em São Vicente. Eu saí do Bixiga mas o Bixiga não
+> sai de mim, entendeu como é que é?" (p. 241)
+
+> "A Vai-Vai, ela sempre foi de rua, ela nunca teve nada. Na época do Chiclé, nós tínhamos uma
+> sedinha que era ali na [Quatorze] de Julho. E a gente adorava aquela sedinha." (p. 163,
+> sobre a primeira sede da escola de samba)
+
+**A fala DELA sobre o rio — a que ancora o pino, com página:**
+> "É, que é o saracura, que é o saracura pequena, que é aquele lá de baixo, ali da 14 Bis."
+> (p. 233, respondendo sobre os dois braços do rio)
+
+> "Então, mas ali, na época da gente, quando chovia, o Rio enchia, né? Assim, as pessoas que
+> moram, que era muito alto, tipo a rua Rocha, eram mais ou menos um morro [...] Não tinha,
+> não tinha aquela rua, era o rio. [...] chovia tinha que sair porque enchia de água. [...]
+> quando estava chovendo, quem morava lá embaixo, já ia subindo com as coisas para cima."
+> (p. 234, sobre as enchentes do Saracura na infância dela)
+
+> "Quero chegar para o colega e falar, está aqui, vamos ensaiar na ruazinha, tá? É a rua do
+> Riozinho, do Rio Saracura." (p. 247, fim da entrevista — ela ainda chama a rua pelo nome do
+> rio que corria ali)
+
+### Solange Pereira de Sant'anna — o que a fonte tem
+
+**Vínculo com o lugar, na própria voz dela, logo na abertura da entrevista:**
+> "Solange Pereira de Santana eu sou aposentada, né? Sou graduada em administração e
+> atualmente aposentada. Faço parte do movimento Mobiliza Saracura Vai-vai. Desde o início."
+> (p. 247)
+
+> "Eu moro na rua Abolição no Bixiga, não é? Mas sempre morei no Bixiga, dentro do território,
+> desde nascido desde..." (p. 247)
+
+> "Eu estou na Vai-Vai, né? O chão da Vai-Vai." (p. 163, sobre a primeira sede informal da
+> escola de samba)
+
+**A fala dela sobre o BAIRRO como território negro — mais longa, mais densa que a de Bepa
+nesse ponto específico, e com uma reflexão que a própria fonte não tem em nenhuma outra voz
+consultada até agora:**
+> "Eu acredito que era mais pela população e por ser um cortiço como quem habita, a maioria
+> eram negros que habitavam, né? Os cortiços, ficou o navio negreiro, porque era muito grande
+> e vários cômodos e a maioria negros." (p. 264)
+
+> "[...] a ausência de negro no Bixiga — se fala de um Bixiga negro e não se tem negro no
+> Bixiga hoje. E, estatisticamente falando, o pessoal fala não, Bixiga ainda é um bairro que
+> tem muito negro. É errado isso, porque são negros, mas que não são remanescentes do
+> Quilombo [...] muito desses nossos negros não são originários do bairro ou descendente do
+> Quilombo [...] Hoje a gente, quando se refere a Bixiga negro, a gente está falando de negros,
+> de várias outras origens [...] Isso, na hora de condensar, faz o Bixiga um bairro negro, mas
+> não originalmente negro." (p. 264–265)
+
+### A pergunta que o dono mandou checar: autoidentificação racial TEXTUAL
+
+**Busquei nas 8.719 linhas** pelos mesmos padrões da rodada anterior ("eu sou negra/preta",
+"enquanto mulher negra", "sou uma mulher negra", "minha cor", "minha pele", "meu corpo
+negro", "afrodescendente", "minha raiz/ancestralidade") aplicados agora às falas de Bepa e
+Solange especificamente.
+
+**RESULTADO: nenhuma frase de autodeclaração racial explícita — no sentido estrito de "eu
+sou negra" ou equivalente — de Bepa nem de Solange.** Mesmo padrão do achado sobre Flávia
+Santos Santana em 6(c): a única ocorrência de "eu sou [...] preta/negra" no documento inteiro
+continua sendo a letra do samba-enredo do Vai-Vai, citada como epígrafe do capítulo 4 (p. 90):
+*"É que eu sou da pele preta [...] Axé, eu sou a negra alma do Bixiga"* — **é a letra da
+música, não fala de Bepa nem de Solange**, e repito aqui o alerta já registrado em 6(c): não
+confundir uma coisa com a outra.
+
+**O que é diferente desta vez, e por isso não escrevo "não localizada" sem qualificar:** as
+duas mulheres falam de si mesmas em relação ao grupo racializado, em primeira pessoa, sem
+ser inferência por foto ou aparência — é leitura de texto, não de imagem. Bepa, ao comentar o
+risco de expulsão do bairro: *"Então eu acho que daí vou ter um golpe de tirar os negros de
+lá, sabia? Tirar a negrada, de mandar a negrada mais pra lá. Como é que é? Racista? É
+racismo ao contrário, agora é racismo ao contrário que se chama?"* (p. 241) — ela fala
+como quem se inclui no grupo ameaçado, não como observadora externa. E descreve o cortiço
+onde nasceu e foi criada como *"era só negro"* (p. 88, já citado na análise da autora com
+trecho da entrevista). Solange usa reiteradamente "nossos negros", "a gente", "nosso samba de
+rua" para descrever a população negra do Bixiga da qual ela é membro ativo há décadas — mas
+sempre no plural coletivo, nunca numa frase individual do tipo "eu, enquanto mulher negra".
+
+**Isto é uma categoria diferente de evidência, e não decido qual pesa mais — registro as
+duas para quem decide:**
+1. **Autoidentificação individual explícita** ("eu sou negra") — não encontrada em nenhuma
+   das duas, mesmo padrão do achado sobre Flávia.
+2. **Autoinclusão discursiva num grupo racializado**, em primeira pessoa (singular e plural),
+   ligada a vivência concreta no território — encontrada e citável, com página, nas duas.
+
+### Veredito desta continuação
+
+**Nenhuma das duas fecha as TRÊS condições com o rigor estrito que a missão pediu** (autode-
+claração textual individual + vínculo + fala sobre o rio/bairro). Mas o quadro mudou em
+relação a 6(c):
+
+- **(2) vínculo com o lugar**: fecha com força total para as duas, com página e citação
+  literal — Bepa e Solange, cada uma na própria voz, não só na voz da autora.
+- **(3) fala sobre o rio/bairro que ancora o pino**: fecha com força total para **Bepa**
+  (três citações diretas sobre o Saracura, incluindo a enchente e o apelido da rua) e é forte,
+  mas deslocada para o eixo "bairro negro" em vez do rio, para **Solange**.
+- **(1) autoidentificação textual individual**: **não localizada** para nenhuma das duas, no
+  sentido estrito pedido — mas **há autoinclusão discursiva em primeira pessoa**, categoria
+  que a missão anterior não havia encontrado nem em grau parcial para Flávia.
+
+**Caminho seguinte, proposto sem decidir:**
+- (i) Se o critério do dono aceitar autoinclusão discursiva em primeira pessoa (grupo
+  racializado, sem ser inferência por imagem) como satisfazendo a condição de entrada do §2 —
+  **Bepa fecha as três**, e o pino B3 pode ser reancorado na fala dela sobre o Saracura
+  (p. 233–234), com o vínculo (p. 229, 241) como moldura. Escrevo aqui, só como MATÉRIA-PRIMA
+  para o historiador (a decisão do texto final é dele, pino a pino): a citação mais forte para
+  ancorar é a de p. 234 ("quando chovia, o Rio enchia [...] não tinha aquela rua, era o rio"),
+  porque é exatamente o que o pino afirma — o rio que sumiu do mapa mas não da memória de
+  quem cresceu ali.
+- (ii) Se o critério exigir a frase individual explícita ("eu sou negra" ou equivalente) —
+  a dúvida de §2 permanece aberta, e o caminho que resta é o mesmo (i) e (ii) já listados em
+  6(c): contato direto (não é trabalho desta pesquisadora) ou aceitar Bepa/Solange como
+  pesquisadas com vínculo comunitário forte, sem o rótulo "autoria negra" no texto do pino.
+- (iii) Nada impede os DOIS caminhos ao mesmo tempo: usar a fala de Bepa sobre o rio como
+  citação de ancoragem (vínculo + conteúdo, que já valem por si, com ou sem o rótulo racial) e
+  deixar a pergunta de autodeclaração aberta separadamente, sem travar o pino nela.
+
+Não escolho entre (i), (ii) e (iii) — é decisão de representação, portão do dono.
+
+### Resumo atualizado do pino B3
+
+| Sub-item | Estado em 6(c) | Estado nesta rodada 6(d) |
+|---|---|---|
+| Vínculo com o lugar | não checado nas entrevistadas | **fechado**, Bepa e Solange, com página |
+| Fala sobre o rio/bairro | não checado nas entrevistadas | **fechado para Bepa** (rio); forte mas deslocado para Solange (identidade negra do bairro) |
+| Autodeclaração racial individual | checada em Flávia, não localizada | checada em Bepa e Solange, **também não localizada** no sentido estrito — mas autoinclusão discursiva em 1ª pessoa encontrada nas duas, categoria nova |
 
 ---
 
@@ -499,19 +660,24 @@ minha.
 | A4 (Brasília/candangos) | CONFERIDO | nada |
 | D14 (Cabanagem) | CONFERIDO-COM-AJUSTE | cai/verificar "cabanas de várzea"; número de Ricci (30 mil) não deve virar texto do pino |
 | A3 (Acre) | CONFERIDO-COM-AJUSTE | falta citação literal com página do livro (só tenho via resenha); parte "povos da floresta" indígenas carece de fonte própria |
-| B3 (Saracura) | CONFERIDO-COM-AJUSTE | (a) separar traçado do rio de achado arqueológico; (b)+(c) autoidentificação de Flávia Santos Santana CHECADA e NÃO LOCALIZADA em fonte pública — três caminhos propostos ao dono, nenhum escolhido por mim |
+| B3 (Saracura) | CONFERIDO-COM-AJUSTE | (a) separar traçado do rio de achado arqueológico; (b)+(c) autoidentificação de Flávia Santos Santana CHECADA e NÃO LOCALIZADA; (d) mesma checagem estendida a Bepa e Solange, TAMBÉM não localizada no sentido estrito, mas com autoinclusão discursiva forte e citações de ancoragem prontas — três caminhos propostos ao dono, nenhum escolhido por mim |
 
-**Lugar de fala PLENO (pessoa com vivência/pertencimento direto ao que narra):** nenhum dos
-seis — os seis são pesquisadoras/pesquisas institucionais ou acadêmicas de referência, com
-graus variados de proximidade metodológica ao tema (Santana trabalha COM a comunidade e
-milita nela, o que é mais forte que "pesquisa sobre" mas ainda não é autodeclaração
-verificada; Wolff viveu um ano em campo; Ricci e o IBGE são pesquisa de gabinete sobre dado
+**Lugar de fala PLENO (pessoa com vivência/pertencimento direto ao que narra):** dos oito
+nomes cobertos por esta ficha (seis pinos + Bepa e Solange na continuação), **Bepa e Solange
+são as que mais se aproximam** — nasceram e viveram no território, falam do rio e do bairro
+em primeira pessoa, uma delas ainda mora lá — mas nenhuma tem, no sentido mais estrito da
+missão do dono, uma frase de autodeclaração racial explícita. Os outros seis pinos seguem
+como antes: pesquisadoras/pesquisas institucionais ou acadêmicas de referência, com graus
+variados de proximidade metodológica ao tema (Santana trabalha COM a comunidade e milita
+nela, o que é mais forte que "pesquisa sobre" mas ainda não é autodeclaração verificada;
+Wolff viveu um ano em campo; Ricci e o IBGE são pesquisa de gabinete sobre dado
 documental/estatístico).
 
 **Só institucional (documento, sem "narrador" a testar):** A7 (lei), A5-doc.1 (lei), A5-doc.2
 (câmara municipal), A4 (IBGE), B3(a) (relatório de arqueologia).
 
 **Dúvida por escrito, endereçada ao dono:** a autoidentificação racial de Flávia Santos
-Santana (B3-b/c) — CHECADA em 22/08 conforme pedido, NÃO LOCALIZADA em fonte pública. Ver
-seção 6(c) acima para os três caminhos possíveis, nenhum deles escolhido por esta ficha —
+Santana (B3-b/c), de Bepa e de Solange (B3-d) — CHECADA em 22/08 conforme pedido, NÃO
+LOCALIZADA em fonte pública nas três, no sentido estrito de frase individual explícita. Ver
+seção 6(c) e 6(d) acima para os caminhos possíveis, nenhum deles escolhido por esta ficha —
 decisão de representação é do dono.
