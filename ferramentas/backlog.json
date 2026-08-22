@@ -118,7 +118,7 @@
       "detalhe": "Sua lei: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem seu sign-off.",
       "agente": "growth",
       "estado": "do-dono",
-      "nota": "PLANO.md + 5 rascunhos integrados; 3 decisoes do dono pendentes (texto-base, nome no press-kit, ordem dos publicos). Sign-off continua lei"
+      "nota": "3 decisoes do dono em 22/08: texto-base APROVADO com ajuste par.2.1 (os povos nao chegaram — estavam), press-kit SEM nome, ordem A->B->C. growth aplicando nas pecas; sign-off segue lei para qualquer coisa que SAIA"
     },
     {
       "id": "coerencia-visual",
@@ -149,16 +149,16 @@
       "titulo": "Medir se a porta jogo->plataforma e usada (evento na lista branca)",
       "detalhe": "A saida da CHEGADA nao emite evento — abrir a lista branca do encaixe bloco 17 e decisao de quem governa a medicao. Um evento saiu-para-plataforma (sem propriedade nova) diria se o chamariz funciona. Levar ao dono no proximo check; aplicar e trivial depois do sim.",
       "agente": "dev-jogo",
-      "estado": "do-dono",
-      "nota": "nascido da duvida do link-jogo 22/08"
+      "estado": "em-curso",
+      "nota": "DECIDIDO pelo dono 22/08: mede. Evento saiu-para-a-plataforma entra na lista branca do bloco 17; dev-jogo em campo"
     },
     {
       "id": "chao-menu-retrato",
       "titulo": "Menu retrato: subir a linha do chao para a personagem aparecer",
       "detalhe": "Em retrato a personagem do diorama fica 100% atras do poste (medido por caixas). Arte recomenda subir o chao SO no menu retrato, com regua: 0% de sobreposicao com poste/tabuas/tagline, respiro >=8px, faixa >= altura+16 (senao ela NAO entra — melhor ausente que decapitada); deitado/desktop intocados. Alternativas recusadas com motivo: encolher o poste (re-abre aprovacao de 21/08) e segunda figura (par.2 + nao cabe em calha de 43px). Prints antes/depois ja enviados ao dono.",
       "agente": "dev-jogo",
-      "estado": "do-dono",
-      "nota": "nascido do home-inc2; decisao de composicao do menu que o dono viu ontem"
+      "estado": "em-curso",
+      "nota": "DECIDIDO pelo dono 22/08: sobe o chao, com a regua dura da arte (0% sobreposicao; se nao couber, ela nao entra). dev-jogo em campo junto com o evento da porta"
     },
     {
       "id": "pendentes-duplicado",

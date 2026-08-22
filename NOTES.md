@@ -9213,3 +9213,13 @@ com os 5 gargalos por custo medido.
 4. banca nomeada no despacho como regra escrita (EQUIPE par.3.2).
 
 E-mail do codigo: template pronto-para-colar entregue ao dono (o painel e dele).
+
+## 22/08 (manha, cont.) — check respondido: 4 decisoes, 2 despachos
+
+Dono respondeu o check: (1) texto-base da divulgacao APROVADO COM AJUSTE — a 1a frase dizia
+"da chegada dos povos originarios" e "chegada" e a palavra que o jogo reserva a invasao; vira
+"dos povos que ja estavam aqui" (a ressalva foi minha, par.2.1, e ele acatou); (2) press-kit
+SEM nome — o dominio assina; (3) home retrato: SOBE O CHAO com a regua dura da arte;
+(4) a porta jogo->plataforma passa a MEDIR (evento novo na lista branca, decisao dele).
+Despachados: dev-jogo (chao + evento, um so worktree no monolito) e growth (aplicar as 3
+decisoes nas pecas). Check-pedido do dashboard das 02:22 consumido (era o mesmo check).
