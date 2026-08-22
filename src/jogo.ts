@@ -4514,6 +4514,10 @@ function fitCanvas() {
   cx.imageSmoothingEnabled = false;
   ajustarHeroHD();
   if (typeof redesenharFundo === "function") redesenharFundo();
+  // GIRAR O APARELHO REPINTA O DIORAMA. Ele é pintado uma vez e vive de `transform` depois —
+  // então, sem esta linha, uma home aberta em retrato ficaria com a moldura do retrato depois
+  // de girar, com folha de quina no meio do quadro. É a mesma lição dos rótulos de 18/08.
+  if (document.body.classList.contains("naHome")) pintarHomeCena();
 }
 window.addEventListener("resize", fitCanvas);
 
@@ -8764,6 +8768,173 @@ function frentePeFrac(im, i) {
 }
 
 // ============================================================
+// A HOME COMO DIORAMA — planos, recorte e luz (increment 2 da home, direção da arte de 20/08)
+// ============================================================
+// O QUE ESTAVA ERRADO, e é o mesmo defeito que a direção nomeia desde a onda 12: a home MOSTRA
+// a pintura, e mostrar uma pintura não é compor uma cena. Medido nos prints de 22/08
+// (`test/DIO-ANTES-*.png`): em 390×844 a tela inteira é uma parede de mata chapada, sem nada
+// à frente de nada — três planos desenhados (pintura, mundo, folhagem) que o olho lê como UM,
+// porque nenhum deles cruza o outro dentro do enquadramento que a home usa.
+//
+// DIORAMA é o nome do conserto, e ele tem três partes, nesta ordem de força:
+//
+//   1. PLANO DA FRENTE — folhagem pendurada da borda de cima e plantada nas quinas de baixo,
+//      escura e sem detalhe, MAIS PERTO que tudo o que está desenhado. É o sinal de
+//      profundidade mais barato que existe: uma coisa perto e escura na frente de uma coisa
+//      longe e clara é profundidade antes de qualquer paralaxe. É o mesmo argumento que
+//      `desenharFrente()` já escreve para a rua — aqui ele vale para o ENQUADRAMENTO.
+//   2. RECORTE — as quinas fecham. Não é a vinheta que a direção já recusou uma vez (ela
+//      acinzentava o quadro inteiro, ver estilo.css §"the CRT scanlines"): é sombra SÓ atrás
+//      das folhas, para elas assentarem, e ela morre antes de um terço da tela.
+//   3. LUZ — uma clareira quente entrando pelo alto, do lado da cena. Aditiva e fraca; ela
+//      abre o meio do quadro em vez de escurecer as beiradas, que é a diferença entre luz e
+//      véu.
+//
+// ZERO ARTE NOVA: cada folha aqui é uma célula de `FRENTE_SPR`, a vegetação do capítulo em que
+// a pessoa está — a MESMA que já cresce na rua. As de cima são a mesma célula VIRADA, porque
+// uma folha pendurada é uma folha crescendo do galho para baixo; as de baixo entram de pé.
+// Capítulo sem vegetação (Salvador, `frenteBloco() < 0`) fica só com a luz e o recorte: uma
+// bananeira pendurada sobre a ladeira de pedra da Bahia de 1835 seria a mesma mentira que o
+// `FRENTE_CAP` existe para não contar.
+//
+// O CUSTO É ZERO POR QUADRO, e isso é escolha de projeto. Esta camada é pintada UMA VEZ, ao
+// abrir o menu e ao girar o aparelho — não entra no laço de quadro em nenhum momento. Medido
+// em A/B alternado na mesma carga (390×844, três rodadas, mediana): **30 FPS sem ela contra 29
+// com ela**. A versão que BALANÇAVA custava 21, e por isso não existe — o número está no
+// `#homeCena` do estilo.css.
+//
+// O QUE ELA NÃO É: paralaxe. O §7 proíbe fração diferente de 1 no CHÃO do jogo, e a proibição
+// continua inteira — esta camada não toca o mundo jogável, só existe com o menu aberto, e não
+// rola com `worldX`. Ela é o vão do diorama, não um plano da rua.
+const HOME_CIMA: [number, number, number][] = [
+  // x normalizado (0 = borda esquerda) · comprimento pendurado em fração da régua · giro em graus
+  // As quinas são MASSA, o meio é respiro: folha solta espalhada lê como sujeira na lente; o
+  // que lê como copa é folha ENCOSTANDO em folha. Por isso as pontas vêm em cachos de cinco,
+  // sangrando para fora da borda, e o meio fica com duas pequenas só — é por ele que a luz
+  // entra e é ele que o olho atravessa para chegar na cena.
+  [-0.06, 0.34, -16], [0.02, 0.26, 6], [0.10, 0.30, -4], [0.18, 0.20, 11], [0.27, 0.13, -8],
+  [0.43, 0.145, 7], [0.58, 0.125, -6],
+  [0.74, 0.14, 9], [0.82, 0.21, -7], [0.90, 0.30, 5], [0.98, 0.255, -11], [1.06, 0.34, 14],
+];
+const HOME_BAIXO: [number, number, number][] = [
+  // as duas quinas de baixo, de pé: é o plano mais perto do olho do quadro inteiro
+  [-0.04, 0.30, 4], [0.05, 0.22, -6], [0.15, 0.15, 5],
+  [0.85, 0.155, -5], [0.95, 0.225, 6], [1.04, 0.30, -4],
+];
+let homeFaltou = false, homeTentativas = 0;
+let homeRepintar: ReturnType<typeof setTimeout> | null = null;
+// A régua das folhas é a MENOR entre a altura e um pedaço da largura. Sem o teto de largura,
+// um telefone deitado (844×390) daria folha de 117 px pendurada sobre um poste que começa em
+// y=10 — a moldura comeria a mobília. Com ele, a quina fecha e a tábua continua livre.
+function homeRegua(w, h) { return Math.min(h, w * 0.62); }
+function homeFolha(g, im, i, xN, comp, giro, w, ref, deBaixo, alturaTela) {
+  if (!im || !im.complete || !im.naturalWidth || esperando(im)) { homeFaltou = true; return; }
+  const pe = Math.max(0.35, frentePeFrac(im, i));
+  // `comp` é o quanto de TINTA se quer ver; a célula é maior que a tinta (§5: corte em células
+  // iguais), então a altura desenhada tem de descontar o vazio, senão a folha entra curta.
+  const alt = ref * comp / pe;
+  const larg = alt * (im.naturalWidth / im.naturalHeight);
+  g.save();
+  g.translate(xN * w, deBaixo ? alturaTela + ref * 0.012 : -ref * 0.012);
+  g.rotate(giro * Math.PI / 180);
+  // Pendurada = a mesma célula virada no eixo Y: o pé da planta vira o galho de onde ela cai.
+  if (!deBaixo) g.scale(1, -1);
+  g.drawImage(im, -larg / 2, -alt * pe, larg, alt);
+  g.restore();
+}
+function homeFolhagem(w, h) {
+  const bloco = frenteBloco();
+  if (bloco < 0) return null;                    // rua de pedra não tem mata pendurada
+  const off = document.createElement("canvas");
+  off.width = w; off.height = h;
+  const g = off.getContext("2d");
+  if (!g) return null;
+  g.imageSmoothingEnabled = true;
+  const ref = homeRegua(w, h);
+  HOME_CIMA.forEach(function (f, k) {
+    const i = bloco + ((k * 3 + 1) % 8);
+    homeFolha(g, FRENTE_SPR[i], i, f[0], f[1], f[2], w, ref, false, h);
+  });
+  HOME_BAIXO.forEach(function (f, k) {
+    const i = bloco + ((k * 5 + 2) % 8);
+    homeFolha(g, FRENTE_SPR[i], i, f[0], f[1], f[2], w, ref, true, h);
+  });
+  // A TINTA DO PLANO DA FRENTE: quase silhueta. Perto e sem luz é o que faz o olho pôr a coisa
+  // na frente; folha da moldura com o mesmo verde da folha da rua leria como mais uma planta do
+  // cenário. `source-atop` pinta SÓ onde há folha — o resto da camada continua limpo.
+  g.globalCompositeOperation = "source-atop";
+  const t = g.createLinearGradient(0, 0, 0, h);
+  t.addColorStop(0, "rgba(8,13,8,.84)");
+  t.addColorStop(0.34, "rgba(11,18,11,.62)");
+  t.addColorStop(0.7, "rgba(11,18,11,.62)");
+  t.addColorStop(1, "rgba(8,13,8,.84)");
+  g.fillStyle = t; g.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = "source-over";
+  return off;
+}
+function pintarHomeCena() {
+  const el = document.getElementById("homeCena") as HTMLCanvasElement | null;
+  if (!el) return;
+  // dpr com teto 2: é uma camada mole (gradiente e silhueta), e o terceiro pixel por ponto não
+  // acrescenta nada que se veja — só triplica a área a compor.
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.max(1, Math.round(window.innerWidth * dpr));
+  const h = Math.max(1, Math.round(window.innerHeight * dpr));
+  if (el.width !== w) el.width = w;
+  if (el.height !== h) el.height = h;
+  const g = el.getContext("2d");
+  if (!g) return;
+  g.clearRect(0, 0, w, h);
+  // 1 · A CLAREIRA. Entra pelo alto, do lado da cena (o painel da home cinemática mora à
+  // direita), e é ADITIVA: ela abre o meio do quadro. Fraca de propósito — a régua aqui é a
+  // mesma da onda 2, "quase invisível ganha de dramático".
+  const luz = g.createRadialGradient(w * 0.32, -h * 0.10, 0, w * 0.32, -h * 0.10, Math.max(w, h) * 0.92);
+  luz.addColorStop(0, "rgba(255,228,172,.15)");
+  luz.addColorStop(0.42, "rgba(255,214,150,.05)");
+  luz.addColorStop(1, "rgba(255,200,140,0)");
+  g.fillStyle = luz; g.fillRect(0, 0, w, h);
+  // 2 · A NEVOA DO PE DA MATA — perspectiva aerea, e e ela que separa os DOIS planos pintados.
+  // A pintura encosta a mata no chao com um corte reto: mata e terra tem a mesma nitidez e o
+  // mesmo contraste, entao o olho poe as duas na mesma distancia e o quadro achata. Uma faixa
+  // clara e fraca deitada EXATAMENTE na linha em que ela pisa (GROUND/H, os mesmos 0,68 que o
+  // `fitCanvas` escreve) empurra a mata para tras sem tocar um pixel da arte — e para na
+  // linha, porque o chao e o plano de CA e escurecer ou clarear ele desfaria o efeito.
+  const linha = h * 0.68;
+  const nev = g.createLinearGradient(0, linha - h * 0.19, 0, linha);
+  nev.addColorStop(0, "rgba(228,220,180,0)");
+  nev.addColorStop(0.72, "rgba(228,220,180,.055)");
+  nev.addColorStop(1, "rgba(232,224,186,.11)");
+  g.fillStyle = nev; g.fillRect(0, linha - h * 0.19, w, h * 0.19);
+  // 3 · O RECORTE. Sombra atrás das folhas, nas quatro quinas, para elas assentarem em alguma
+  // coisa em vez de flutuarem sobre a mata. Raio curto: morre bem antes do meio da tela, que é
+  // o que separa isto da vinheta recusada.
+  const quinas: [number, number][] = [[0, 0], [w, 0], [0, h], [w, h]];
+  quinas.forEach(function (q, k) {
+    const r = Math.max(w, h) * (k < 2 ? 0.30 : 0.24);
+    const s = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], r);
+    s.addColorStop(0, k < 2 ? "rgba(6,10,6,.24)" : "rgba(6,10,6,.18)");
+    s.addColorStop(1, "rgba(6,10,6,0)");
+    g.fillStyle = s; g.fillRect(0, 0, w, h);
+  });
+  // 4 · O PLANO DA FRENTE.
+  homeFaltou = false;
+  const fol = homeFolhagem(w, h);
+  if (fol) g.drawImage(fol, 0, 0);
+  // A ARTE CHEGA DEPOIS DA PRIMEIRA PINTURA, e é o caso NORMAL, não a exceção: as células de
+  // `FRENTE_SPR` são data-URI e o navegador as decodifica em paralelo — no primeiro menu da
+  // primeira carga elas quase nunca estão prontas, e o pacote de um capítulo 2+ pode chegar
+  // segundos depois. Sem esta volta, a moldura simplesmente não existiria para quem abre o
+  // jogo pela primeira vez, que é exatamente quem ela foi feita para receber.
+  if (homeRepintar) { clearTimeout(homeRepintar); homeRepintar = null; }
+  if (homeFaltou && homeTentativas < 8) {
+    homeTentativas++;
+    homeRepintar = setTimeout(pintarHomeCena, 260);
+  } else if (!homeFaltou) {
+    homeTentativas = 0;
+  }
+}
+
+// ============================================================
 // A ARTE DE CADA CAPÍTULO CHEGA QUANDO A PESSOA CHEGA NELE
 //
 // O NÚMERO QUE MANDOU FAZER ISTO (RELATORIO-PESO.md, medido em 09/08): o jogo levava **16,6
@@ -10529,12 +10700,19 @@ function abrirTela(id) {
   // controles) sai de cena deslizando. É esta classe que faz o menu deixar de ser um modal
   // emoldurado por contadores e botões — ver estilo.css, body.emTela.
   document.body.classList.add("emTela");
+  // ...e a HOME é o lugar de UMA tela só. O diorama (a moldura de folhagem, o recorte e a luz)
+  // é composição da home, não do jogo: ele nasce com `telaMenu` e some com qualquer outra, e é
+  // esta classe que o liga — ver `pintarHomeCena()` e `body.naHome` no estilo.css.
+  const naHome = id === "telaMenu";
+  document.body.classList.toggle("naHome", naHome);
+  if (naHome) pintarHomeCena();
 }
 function fecharTelas() {
   pararFala();          // uma fala fechada por fora não pode continuar se revelando escondida
   fimTravessia();       // ...e uma travessia fechada por fora devolve o mundo e a personagem
   TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
   document.body.classList.remove("emTela");
+  document.body.classList.remove("naHome");
 }
 
 // ============================================================

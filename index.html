@@ -274,6 +274,35 @@
      o #scene — a deixava full-bright em cima do menu, lendo como vazamento do jogo. O mundo
      continua vivo; ela só entra na mesma luz que ele. */
   body.emTela #heroHD { filter: brightness(.42) saturate(.85); }
+  /* ...MENOS NA HOME, e a diferença é medida, não gosto (22/08). A regra acima nasceu para as
+     telas de LEITURA, que baixam um véu de `rgba(12,10,7,.88)` sobre o mundo: ali 42% de brilho
+     na personagem é o que a põe na mesma luz do cenário. O #telaMenu não usa esse véu — ele
+     tem o seu, quase nenhum (.30 no céu, .06 no meio, .52 no pé), e na altura em que ela pisa
+     o mundo chega com ~81% do brilho. Ou seja: na home ela estava DUAS VEZES mais escura que o
+     chão em que anda, o que é o oposto do que a luz faz — uma figura mais escura que o próprio
+     cenário lê como recorte colado, não como gente ali dentro.
+     MEDIDO em A/B alternado dentro da MESMA carga (1366×768, cinco rodadas, mediana — o mundo
+     do menu ROLA, então dois prints separados mediriam a passada dela e não a luz): a caixa
+     dela dava luma 41,5 contra 51,8 da mata do mesmo pedaço de quadro — 20% MAIS ESCURA que o
+     cenário em que pisa. Com .86 a conta vira 71,6 contra 62,8: ela passa a ser a coisa mais
+     clara do plano dela, que é o que "presença" quer dizer num diorama. As outras telas não
+     mudam um pixel — esta regra só existe onde `body.naHome` existe. */
+  body.naHome #heroHD { filter: brightness(.86) saturate(.96); }
+  /* ===== O DIORAMA DA HOME — a quarta camada (increment 2, direção da arte de 20/08) =====
+     Pintada por `pintarHomeCena()` e explicada por extenso lá. Aqui só o lugar dela: acima da
+     personagem (z 1) e abaixo de qualquer tela (z 40), sem receber dedo, e só visível na home.
+     `display: none` e não opacidade: fora da home ela não deve nem existir para o compositor. */
+  #homeCena { position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 2; pointer-events: none; display: none; image-rendering: auto; }
+  /* O VENTO NÃO É DE GRAÇA, E O NÚMERO MATOU A IDEIA (22/08). A primeira versão balançava a
+     camada inteira — `brisa 11s`, 5 px de `translate3d`, o mesmo argumento do `respira` do
+     logo: transform é compositor, não repintura. Medido em A/B alternado na MESMA carga, três
+     rodadas, 390×844: **30 FPS sem a camada · 21 com o balanço · 29 com a camada PARADA**. O
+     balanço de uma camada do tamanho da tela custa 9 FPS sozinho, e `will-change: transform`
+     não recupera (22). A camada fica; o vento sai. Quem se mexe na home continua sendo o mundo
+     atrás dela (a rua rola, ela anda) e o logo — e uma moldura de diorama parada é o que uma
+     moldura de diorama é. */
+  body.naHome #homeCena { display: block; }
   /* the CRT scanlines and the CSS vignette are gone: at opacity .34 the scanlines greyed
      down the whole frame, and the vignette stacked on the canvas one. Direction C has no
      post-processing anywhere — the look has to hold up on form and colour alone. */
@@ -2869,6 +2898,14 @@
 <canvas id="fundoHD"></canvas>
 <canvas id="scene" width="320" height="180"></canvas>
 <canvas id="heroHD"></canvas>
+<!-- O DIORAMA DA HOME (increment 2, 22/08). A QUARTA camada, e ela só existe com o menu
+     aberto: a folhagem que pende da borda de cima e fecha as quinas de baixo, o recorte que a
+     assenta e a clareira que abre o meio do quadro. Vem DEPOIS do #heroHD de propósito — o
+     plano da frente tem de passar na frente da personagem, senão é cenário, não moldura.
+     É irmã das três camadas e não filha do #telaMenu: o poste conta filhos (`:nth-child(2)`
+     e `(3)` seguram os atrasos do `brota`) e o menu deitado é uma grade — um canvas dentro
+     dele viraria mais um item posicionado. Ver `pintarHomeCena()` no jogo.ts. -->
+<canvas id="homeCena" aria-hidden="true"></canvas>
 
 <!-- owner: the opening card is gone. The game starts on the street, and the first-run
      guide is what explains it, one line at a time. -->
@@ -5482,6 +5519,8 @@ function fitCanvas() {
     ajustarHeroHD();
     if (typeof redesenharFundo === "function")
         redesenharFundo();
+    if (document.body.classList.contains("naHome"))
+        pintarHomeCena();
 }
 window.addEventListener("resize", fitCanvas);
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -8234,6 +8273,118 @@ function frentePeFrac(im, i) {
     frenteFrac[i] = f;
     return f;
 }
+const HOME_CIMA = [
+    [-0.06, 0.34, -16], [0.02, 0.26, 6], [0.10, 0.30, -4], [0.18, 0.20, 11], [0.27, 0.13, -8],
+    [0.43, 0.145, 7], [0.58, 0.125, -6],
+    [0.74, 0.14, 9], [0.82, 0.21, -7], [0.90, 0.30, 5], [0.98, 0.255, -11], [1.06, 0.34, 14],
+];
+const HOME_BAIXO = [
+    [-0.04, 0.30, 4], [0.05, 0.22, -6], [0.15, 0.15, 5],
+    [0.85, 0.155, -5], [0.95, 0.225, 6], [1.04, 0.30, -4],
+];
+let homeFaltou = false, homeTentativas = 0;
+let homeRepintar = null;
+function homeRegua(w, h) { return Math.min(h, w * 0.62); }
+function homeFolha(g, im, i, xN, comp, giro, w, ref, deBaixo, alturaTela) {
+    if (!im || !im.complete || !im.naturalWidth || esperando(im)) {
+        homeFaltou = true;
+        return;
+    }
+    const pe = Math.max(0.35, frentePeFrac(im, i));
+    const alt = ref * comp / pe;
+    const larg = alt * (im.naturalWidth / im.naturalHeight);
+    g.save();
+    g.translate(xN * w, deBaixo ? alturaTela + ref * 0.012 : -ref * 0.012);
+    g.rotate(giro * Math.PI / 180);
+    if (!deBaixo)
+        g.scale(1, -1);
+    g.drawImage(im, -larg / 2, -alt * pe, larg, alt);
+    g.restore();
+}
+function homeFolhagem(w, h) {
+    const bloco = frenteBloco();
+    if (bloco < 0)
+        return null;
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const g = off.getContext("2d");
+    if (!g)
+        return null;
+    g.imageSmoothingEnabled = true;
+    const ref = homeRegua(w, h);
+    HOME_CIMA.forEach(function (f, k) {
+        const i = bloco + ((k * 3 + 1) % 8);
+        homeFolha(g, FRENTE_SPR[i], i, f[0], f[1], f[2], w, ref, false, h);
+    });
+    HOME_BAIXO.forEach(function (f, k) {
+        const i = bloco + ((k * 5 + 2) % 8);
+        homeFolha(g, FRENTE_SPR[i], i, f[0], f[1], f[2], w, ref, true, h);
+    });
+    g.globalCompositeOperation = "source-atop";
+    const t = g.createLinearGradient(0, 0, 0, h);
+    t.addColorStop(0, "rgba(8,13,8,.84)");
+    t.addColorStop(0.34, "rgba(11,18,11,.62)");
+    t.addColorStop(0.7, "rgba(11,18,11,.62)");
+    t.addColorStop(1, "rgba(8,13,8,.84)");
+    g.fillStyle = t;
+    g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = "source-over";
+    return off;
+}
+function pintarHomeCena() {
+    const el = document.getElementById("homeCena");
+    if (!el)
+        return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(1, Math.round(window.innerWidth * dpr));
+    const h = Math.max(1, Math.round(window.innerHeight * dpr));
+    if (el.width !== w)
+        el.width = w;
+    if (el.height !== h)
+        el.height = h;
+    const g = el.getContext("2d");
+    if (!g)
+        return;
+    g.clearRect(0, 0, w, h);
+    const luz = g.createRadialGradient(w * 0.32, -h * 0.10, 0, w * 0.32, -h * 0.10, Math.max(w, h) * 0.92);
+    luz.addColorStop(0, "rgba(255,228,172,.15)");
+    luz.addColorStop(0.42, "rgba(255,214,150,.05)");
+    luz.addColorStop(1, "rgba(255,200,140,0)");
+    g.fillStyle = luz;
+    g.fillRect(0, 0, w, h);
+    const linha = h * 0.68;
+    const nev = g.createLinearGradient(0, linha - h * 0.19, 0, linha);
+    nev.addColorStop(0, "rgba(228,220,180,0)");
+    nev.addColorStop(0.72, "rgba(228,220,180,.055)");
+    nev.addColorStop(1, "rgba(232,224,186,.11)");
+    g.fillStyle = nev;
+    g.fillRect(0, linha - h * 0.19, w, h * 0.19);
+    const quinas = [[0, 0], [w, 0], [0, h], [w, h]];
+    quinas.forEach(function (q, k) {
+        const r = Math.max(w, h) * (k < 2 ? 0.30 : 0.24);
+        const s = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], r);
+        s.addColorStop(0, k < 2 ? "rgba(6,10,6,.24)" : "rgba(6,10,6,.18)");
+        s.addColorStop(1, "rgba(6,10,6,0)");
+        g.fillStyle = s;
+        g.fillRect(0, 0, w, h);
+    });
+    homeFaltou = false;
+    const fol = homeFolhagem(w, h);
+    if (fol)
+        g.drawImage(fol, 0, 0);
+    if (homeRepintar) {
+        clearTimeout(homeRepintar);
+        homeRepintar = null;
+    }
+    if (homeFaltou && homeTentativas < 8) {
+        homeTentativas++;
+        homeRepintar = setTimeout(pintarHomeCena, 260);
+    }
+    else if (!homeFaltou) {
+        homeTentativas = 0;
+    }
+}
 function caminhoPacote(nome) { return "pack-" + nome + ".json"; }
 const ARTE_CONTAINERS = {
     CENARIO_ALTO_B64: CENARIO_ALTO_B64, CENARIO_CHAO_B64: CENARIO_CHAO_B64,
@@ -9431,12 +9582,17 @@ function abrirTela(id) {
     }
     TELAS.forEach(function (t) { $(t).classList.toggle("aberta", t === id); });
     document.body.classList.add("emTela");
+    const naHome = id === "telaMenu";
+    document.body.classList.toggle("naHome", naHome);
+    if (naHome)
+        pintarHomeCena();
 }
 function fecharTelas() {
     pararFala();
     fimTravessia();
     TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
     document.body.classList.remove("emTela");
+    document.body.classList.remove("naHome");
 }
 let mundoGuardado = null;
 function guardarMundoDoMenu() {

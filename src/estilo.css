@@ -218,6 +218,35 @@
      o #scene — a deixava full-bright em cima do menu, lendo como vazamento do jogo. O mundo
      continua vivo; ela só entra na mesma luz que ele. */
   body.emTela #heroHD { filter: brightness(.42) saturate(.85); }
+  /* ...MENOS NA HOME, e a diferença é medida, não gosto (22/08). A regra acima nasceu para as
+     telas de LEITURA, que baixam um véu de `rgba(12,10,7,.88)` sobre o mundo: ali 42% de brilho
+     na personagem é o que a põe na mesma luz do cenário. O #telaMenu não usa esse véu — ele
+     tem o seu, quase nenhum (.30 no céu, .06 no meio, .52 no pé), e na altura em que ela pisa
+     o mundo chega com ~81% do brilho. Ou seja: na home ela estava DUAS VEZES mais escura que o
+     chão em que anda, o que é o oposto do que a luz faz — uma figura mais escura que o próprio
+     cenário lê como recorte colado, não como gente ali dentro.
+     MEDIDO em A/B alternado dentro da MESMA carga (1366×768, cinco rodadas, mediana — o mundo
+     do menu ROLA, então dois prints separados mediriam a passada dela e não a luz): a caixa
+     dela dava luma 41,5 contra 51,8 da mata do mesmo pedaço de quadro — 20% MAIS ESCURA que o
+     cenário em que pisa. Com .86 a conta vira 71,6 contra 62,8: ela passa a ser a coisa mais
+     clara do plano dela, que é o que "presença" quer dizer num diorama. As outras telas não
+     mudam um pixel — esta regra só existe onde `body.naHome` existe. */
+  body.naHome #heroHD { filter: brightness(.86) saturate(.96); }
+  /* ===== O DIORAMA DA HOME — a quarta camada (increment 2, direção da arte de 20/08) =====
+     Pintada por `pintarHomeCena()` e explicada por extenso lá. Aqui só o lugar dela: acima da
+     personagem (z 1) e abaixo de qualquer tela (z 40), sem receber dedo, e só visível na home.
+     `display: none` e não opacidade: fora da home ela não deve nem existir para o compositor. */
+  #homeCena { position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 2; pointer-events: none; display: none; image-rendering: auto; }
+  /* O VENTO NÃO É DE GRAÇA, E O NÚMERO MATOU A IDEIA (22/08). A primeira versão balançava a
+     camada inteira — `brisa 11s`, 5 px de `translate3d`, o mesmo argumento do `respira` do
+     logo: transform é compositor, não repintura. Medido em A/B alternado na MESMA carga, três
+     rodadas, 390×844: **30 FPS sem a camada · 21 com o balanço · 29 com a camada PARADA**. O
+     balanço de uma camada do tamanho da tela custa 9 FPS sozinho, e `will-change: transform`
+     não recupera (22). A camada fica; o vento sai. Quem se mexe na home continua sendo o mundo
+     atrás dela (a rua rola, ela anda) e o logo — e uma moldura de diorama parada é o que uma
+     moldura de diorama é. */
+  body.naHome #homeCena { display: block; }
   /* the CRT scanlines and the CSS vignette are gone: at opacity .34 the scanlines greyed
      down the whole frame, and the vignette stacked on the canvas one. Direction C has no
      post-processing anywhere — the look has to hold up on form and colour alone. */

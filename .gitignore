@@ -55,3 +55,11 @@ test/HOME2-*-1366x768.png
 test/TERRITORIO-3d-768*.png
 test/TERRITORIO-3d-1024*.png
 test/TERRITORIO-3d-cartao.png
+
+# Prints da home (increment 2, o DIORAMA de 22/08). O par 390x844 fica versionado — e o
+# antes/depois que sustenta os numeros do NOTES.md. Os outros tres tamanhos pesam de 1 a 5 MB
+# CADA (18 MB os oito) e se refazem num comando: `node test/prints-home.js DIO-DEPOIS`.
+# Mesma regra do HOME2-* e do TERRITORIO-3d-* logo acima.
+test/DIO-*-1366x768.png
+test/DIO-*-844x390.png
+test/DIO-*-390x568.png
