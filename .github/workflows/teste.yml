@@ -78,6 +78,10 @@ jobs:
       # nos dois lugares junto, que e a coisa inteira que a fase 1 existe para garantir.
       #
       # Roda depois do `npm test` porque ele le o `index.html` da RAIZ, que e saida do build.
+      - name: diarios sem eco (o caso PENDENTES de 22-08)
+        run: node test/diario-sem-eco.js
+        timeout-minutes: 1
+
       - name: espelho do conteudo (PORTAO desde 22/08 — banco alcancou o jogo, hash unico)
         run: npm run conteudo:conferir
         timeout-minutes: 5

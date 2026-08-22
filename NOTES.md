@@ -9193,3 +9193,23 @@ corpo em portugues com {{ .Token }} em destaque — o Token no corpo e OBRIGATOR
 dashboard pede codigo de 6 digitos e o template padrao manda link. Remetente so muda com SMTP
 proprio; nao vale agora (o SMTP padrao so entrega para o time do projeto = so ele, que e o que a
 mesa precisa). Aprendido da doc oficial, nao de memoria.
+
+## 22/08 — a revisao do Fable virou empresa: teto 8 com camadas, 2 contratacoes, 4 consertos
+
+O dono pediu a revisao completa da estrutura ("quero uma empresa de agentes") e respondeu as
+duas decisoes: **teto 8 com camadas de motor** (3 opus + 3 sonnet + 2 haiku; ultracode continua
+sendo so por pedido dele) e **as 2 contratacoes** — pesquisadora-fontes (ACERVO; le e tabela com
+lugar de fala, o historiador julga) e pre-integrador (central, leve; prepara flags do funil, o
+merge continua so do plantao). Diagnostico completo na pagina da sala de maquinas (artifact),
+com os 5 gargalos por custo medido.
+
+**Os 4 consertos executados no mesmo folego:**
+1. integrar.js ganhou --so-gatilhos (pre-voo: lista auditorias sem mergear — matava 2-3
+   tentativas as cegas de ~10 min cada);
+2. integrar.js limpa REGENERACAO da arvore principal antes do merge (index.html, test/*.png e
+   *.log) e RECUSA qualquer outra sujeira nomeando-a — backlog.json nunca se descarta sem ler;
+3. test/diario-sem-eco.js no CI: reprova diario que contem o proprio comeco de novo (o caso das
+   1.296 linhas do PENDENTES); controle visto mordendo em eco injetado;
+4. banca nomeada no despacho como regra escrita (EQUIPE par.3.2).
+
+E-mail do codigo: template pronto-para-colar entregue ao dono (o painel e dele).

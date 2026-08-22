@@ -38,7 +38,7 @@ ferramenta que for ler a coluna confere o valor pelo MCP, não por este arquivo)
 
 ### O núcleo central — não pertence a squad nenhuma
 **Claude** (linha principal: despacho, integração por merge, plantão) · **pm** · **qa** ·
-**seguranca** · **juridico**. O que é central continua central e **nunca desce para squad**:
+**seguranca** · **juridico** · **pre-integrador** (leve, 22/08: roda portoes no worktree e prepara as flags; o merge continua so do plantao). O que é central continua central e **nunca desce para squad**:
 o **funil** (`ferramentas/integrar.js`, portões por exit code entre cada merge), o **placar**
 (EQUIPE.md §5), o **§2 inteiro** (representação é do dono; PARE sobe em pergunta fechada),
 a zona do dono (`TERRITORIO.md` — não vira ticket de squad nenhuma), o backlog e a mesa.
@@ -55,7 +55,7 @@ nunca na saída), `plataforma/`, `territorio/`, `dashboard/`, `ferramentas/servi
 packs, CSP, dedup — consulta o dev-jogo antes) e `divulgacao/` (growth; nada publica sem
 sign-off do dono).
 
-### ACERVO — `historiador` hoje · `dev-dados` quando a fase 1 chegar
+### ACERVO — `historiador` · `dev-dados` (ATIVO desde 22/08, fase 1 fechada) · `pesquisadora-fontes` (contratada 22/08: le e tabela com lugar de fala; o historiador julga e corta)
 Dona por superfície: o **texto** que o jogo e as seções afirmam (a licença de revisão do §2,
 com as três condições de lugar de fala), as fontes por capítulo no `NOTES.md`, e — a partir
 da fase 1 — o conteúdo como **dado**: esquema `conteudo_*` no Supabase,

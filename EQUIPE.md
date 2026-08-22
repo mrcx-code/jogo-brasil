@@ -316,3 +316,25 @@ do item na justificativa.
 | 22/08 dupla link-jogo | 1 | 3 | 3 | 0 | 0 | dev-jogo fecha link-jogo-plataforma + PENDENTES 51. A saida e UMA (CHEGADA, nota de margem depois do VOLTAR PARA A RUA, endereco por location.host); o menu foi recusado por argumento escrito. O achado contra o DESPACHO: protocolo http nao basta — o Capacitor serve o jogo em https://localhost e la a raiz E o jogo; a guarda virou http + pathname != raiz, as duas vistas mordendo em controle. O achado da 1a versao veio na tela LARGA: atravessando as 3 colunas, 1366x768 ia de rolagem 0 para 66; encostada na coluna das portas custa ZERO. 3o: o build recusa href= na saida, por isso o link nasce por setAttribute. PENDENTES 51 medido pelo caminho da pessoa (14->16 linhas) com controle em git stash. Nota do funil: 1a tentativa recusada por 1 assercao de encaixe que nao reproduz (mesma familia do flake da growth em 21/08); se repetir, investigacao antes de 3a tentativa  · aud: qa:PULADO(os portoes por exit code foram o adversario, com os 2 controles do proprio link vistos escondendo-a (file:// e raiz) e controle em git stash separando o preco; encaixe bloco 8 verde sem assercao tocada) seguranca:PULADO(diff nao toca CSP, head, meta, chave nem rede: ancora same-origin para a raiz com target _self, e o build ja recusa href externo; grep de connect-src/posthog/fetch no diff de src/ = 0) |
 | 22/08 home diorama (dev+arte) | 2 | 4+4 | 8 | 0 | 2 | dev-jogo no home-inc2: camada #homeCena com plano da frente do FRENTE_SPR (zero arte nova, +4,7 KB), personagem com luma corrigida 41,5->71,6 sobre mata 62,8 + veu .86 que a cola na luz. Os 2 achados do dev contra si: o vento custava 9 FPS e foi CORTADO por medicao antes do veto; e o A/B com ordem FIXA inventava custo de 10%. A arte APROVOU nos 4 tamanhos: moldura le como diorama, estatica SUSTENTA (porta futura: 1 cipo por transform com FPS>=29 escrito antes), personagem assenta (contraste de MATIZ). PENDENTES 53 do dono: em retrato ela fica 100% atras do poste; arte recomenda SUBIR O CHAO so no menu retrato (regua: 0% sobreposicao, respiro 8, faixa>=altura+16 senao nao entra). Portao novo na regua-larga com 2 controles; encaixe 4x verde. Notas do funil: 1a recusa por print de banca sujo; 2a por conflito de .gitignore (ambos apendaram) -> .gitattributes ganhou gitignore merge=union  · aud: qa:PULADO(portoes por exit code com 2 controles novos reprovando nas 6 telas + encaixe 4x + save-hostil e telas-altura; a arte julgou os 4 tamanhos como segunda banca) seguranca:PULADO(nenhuma mudanca de CSP, rede, chave ou head; canvas local com pointer-events none) |
 | 22/08 vigia | 1 | 3 | 3 | 0 | 0 | primeira rodada do dev-dados. O vigia de validade fecha a terceira perna do ano-a-ano: 20/842 linhas com validade, 0 vencidas, 2 na janela de 60 dias (PRODES/INPE, out). Achado 1: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais — UNESCO, STF e INCRA nao eram procurados por ninguem. Achado 2: PENDENTES.md carrega 1.296 linhas de copia velha colada na frente (46%) e os itens 46-53 ficam invisiveis de cima — ao backlog com prova; conserto do plantao na main. Achado 3: vence_em malformada ganhou exit proprio (2). Controle 3/3 visto deixando passar; familia DERIVADA do texto da regra. BONUS da integracao: a 1a tentativa reprovou e o log inteiro (PENDENTES 52) nomeou o flake de 2 noites — ERR_CONNECTION_REFUSED no reload sob carga, nao assercao; recarregar() com retry matou a causa  · aud: qa:PULADO(teste proprio com 51 assercoes + controle 2.8 com 3 defeitos injetados; conferir e autoteste do espelho verdes; npm test verde — exit real) |
+
+## §3.2 — AS CAMADAS DE MOTOR E O TETO DE 8 (decisão do dono, 22/08)
+
+O dono aprovou ("8 com camadas"): até **8 agentes simultâneos**, escolhendo o motor pelo papel —
+e isso NÃO é ultracode (frota orquestrada continua exigindo a palavra dele):
+
+- **pesado (opus)** — só onde errar custa produção ou §2: dev-jogo e dev-plataforma em código
+  crítico, auditoria da seguranca, historiador em conteúdo. Máx 3 ao mesmo tempo.
+- **médio (sonnet)** — growth, juridico, arte-julgamento, dev-dados, pm de rotina,
+  pesquisadora-fontes. Máx 3.
+- **leve (haiku)** — sondas, contagens, regeneração de prints, pré-integrador. Máx 2.
+
+O que o teto novo NÃO muda: um escritor por região do monólito · UM integrar por vez ·
+worktree para quem escreve no repo · o §2 inteiro.
+
+**Banca nomeada no despacho** (lição das 2 idas-e-voltas do pixel): o despacho de trabalho
+visual/sensível já diz QUEM julga e o critério NUMÉRICO de aceite; a banca é chamada em
+paralelo ao fim da entrega, não depois do pouso.
+
+**Pré-voo do funil**: antes de integrar, `node ferramentas/integrar.js <ramo> --so-gatilhos`
+lista as auditorias exigidas sem mergear — ou despache o **pre-integrador**, que devolve o
+comando completo com flags provadas. O merge continua só do plantão.

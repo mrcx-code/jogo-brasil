@@ -44,7 +44,11 @@ const flags = {};
 for (let i = 1; i < argv.length; i++) {
   if (argv[i].startsWith('--')) { flags[argv[i].slice(2)] = argv[i + 1] || ''; i++; }
 }
-if (!flags.placar || !flags.placar.trim()) morre('sem --placar não há merge — a linha do EQUIPE.md §5 é parte da entrega (fragilidade 4).');
+// --so-gatilhos: PRÉ-VOO (22/08) — lista as auditorias que o diff exige e sai, sem mergear.
+// Nasceu porque cada integração custava 2-3 tentativas às cegas (~10 min cada) só para
+// descobrir as flags. Uso: node ferramentas/integrar.js <ramo> --so-gatilhos (flag única).
+const SO_GATILHOS = 'so-gatilhos' in flags;
+if (!SO_GATILHOS && (!flags.placar || !flags.placar.trim())) morre('sem --placar não há merge — a linha do EQUIPE.md §5 é parte da entrega (fragilidade 4).');
 
 // ---- o ramo existe? ----
 if (git(['rev-parse', '--verify', ramo]).code !== 0) morre('ramo não existe: ' + ramo);
@@ -83,6 +87,17 @@ if (arquivos.includes('src/jogo.ts')) {
   const diffJogo = git(['diff', 'main...' + ramo, '--', 'src/jogo.ts']).out;
   if (/^[+-].*(EPOCAS|GLOSSARIO|LINHA_TEMPO|FONTES)\b/m.test(diffJogo)) exigidos.add('historiador');
 }
+if (SO_GATILHOS) {
+  console.log('PRÉ-VOO de ' + ramo + ': ' + arquivos.length + ' arquivo(s) no diff.');
+  if (!exigidos.size) console.log('  nenhuma auditoria exigida — só --placar.');
+  for (const p of exigidos) {
+    const dele = arquivos.filter(a =>
+      (p === 'growth' && PUB.test(a)) || (p === 'seguranca' && REDE.test(a)) ||
+      (p === 'qa' && MEC.test(a)) || (p === 'historiador' && a === 'src/jogo.ts'));
+    console.log('  exige "' + p + '": ' + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
+  }
+  process.exit(0);
+}
 const auditoria = [];
 for (const p of exigidos) {
   if (flags['ok-' + p]) auditoria.push(p + ':ok(' + flags['ok-' + p] + ')');
@@ -93,6 +108,24 @@ for (const p of exigidos) {
     '...). Rode o agente e passe --ok-' + p + ' "nota", ou assuma por escrito com --sem-' + p + ' "motivo".');
 }
 console.log('diff: ' + arquivos.length + ' arquivo(s) · auditorias: ' + (auditoria.length ? auditoria.join(' · ') : '(nenhuma exigida)'));
+
+// ---- higiene da árvore PRINCIPAL antes do merge (22/08) ----
+// Dois merges abortaram por regeneração de teste solta na main (index.html reconstruído,
+// PNGs do smoke). Saída de build e print de regeneração são descartáveis por definição;
+// QUALQUER outra sujeira recusa — em especial ferramentas/backlog.json, que a mesa do dono
+// escreve ao vivo e NUNCA se descarta sem ler o diff.
+{
+  const REGEN = /^(index\.html|pack-[\w-]+\.json|test\/[^\/]+\.(png|log))$/;
+  const sujaMain = git(['status', '--porcelain']).out.split('\n').filter(l => l.length > 3);
+  const graveMain = sujaMain.filter(l => !REGEN.test(l.slice(3).replace(/^"|"$/g, '')));
+  if (graveMain.length) morre('árvore PRINCIPAL suja com coisa que não é regeneração:\n  ' +
+    graveMain.join('\n  ') + '\nResolva antes (se for backlog.json: LEIA o diff — pode ser edição do dono pela mesa).');
+  const regen = sujaMain.map(l => l.slice(3).replace(/^"|"$/g, '')).filter(a => REGEN.test(a));
+  if (regen.length) {
+    git(['checkout', '--'].concat(regen));
+    console.log('  (regeneração descartada na main: ' + regen.length + ' arquivo(s))');
+  }
+}
 
 // ---- merge ----
 const antes = git(['rev-parse', 'HEAD']).out.trim();
