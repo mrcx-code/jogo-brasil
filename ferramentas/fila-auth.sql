@@ -14,6 +14,14 @@
 -- 'patinhas', hdhqziqvrthxtgyraemk). O REST anonimo nao tem DDL — nao ha como um agente
 -- rodar isto por conta propria, e e de proposito.
 --
+-- APLIQUE BLOCO A BLOCO. NAO COLE O ARQUIVO INTEIRO DE UMA VEZ.
+-- O editor SQL do Supabase (e o psql, e o MCP) roda o que voce cola como UMA TRANSACAO
+-- IMPLICITA: tudo junto, ou nada. E o BLOCO 2-B levanta excecao de proposito enquanto o uuid
+-- nao for editado (e a trava que faz ele falhar fechado). Colado inteiro, essa excecao
+-- desfaz TAMBEM o BLOCO 2 — as policies novas somem, a policy larga some, e o que fica de pe
+-- e exatamente o estado de antes: escrita anonima aberta, com a sensacao de que o script rodou.
+-- Um bloco por vez, lendo a saida de cada um. Sao sete passos e eles cabem numa sentada.
+--
 -- ----------------------------------------------------------------------------
 -- COMO APLICAR, NESTA ORDEM, E TUDO NA MESMA SENTADA
 -- ----------------------------------------------------------------------------
@@ -109,6 +117,12 @@ begin
             where schemaname = 'public'
               and tablename  = 'mesa_resposta'
               and cmd in ('INSERT','ALL')
+              -- A POLICY DO DONO SOBREVIVE A ESTA VARREDURA (N3 da re-auditoria). Sem esta
+              -- linha, rodar o BLOCO 2 uma segunda vez — por retomada, por copiar-colar, por
+              -- alguem repetindo o arquivo daqui a seis meses — derrubava o aperto do 2-B e
+              -- recriava a policy LARGA logo abaixo. O script AFROUXAVA a fila silenciosamente
+              -- e terminava sem um unico erro. Nada aqui pode piorar a seguranca ao repetir.
+              and policyname <> 'mesa_resposta escreve so o dono'
   loop
     execute format('drop policy %I on public.mesa_resposta', p.policyname);
     raise notice 'derrubei a policy de escrita: %', p.policyname;
@@ -117,13 +131,26 @@ begin
   raise notice 'policies de escrita derrubadas: %', n;
 end $$;
 
--- (b) QUEM ESCREVE: so sessao autenticada.
-drop policy if exists "mesa_resposta escreve logado" on public.mesa_resposta;
-create policy "mesa_resposta escreve logado"
-  on public.mesa_resposta
-  for insert
-  to authenticated
-  with check (true);
+-- (b) QUEM ESCREVE: so sessao autenticada — E SO SE O APERTO DO 2-B AINDA NAO ESTIVER DE PE.
+--     Esta e a outra metade do N3. A policy larga ("qualquer authenticated escreve") e um
+--     degrau para o 2-B, nao o destino: uma vez que a escrita esta presa ao uuid do dono,
+--     recriar a larga e desfazer o aperto. Entao ela so nasce se a do dono nao existir.
+do $$
+begin
+  if exists (select 1 from pg_policies
+              where schemaname = 'public' and tablename = 'mesa_resposta'
+                and policyname = 'mesa_resposta escreve so o dono') then
+    raise notice 'o aperto do 2-B ja esta de pe — nao recriei a policy larga (seria afrouxar)';
+  else
+    drop policy if exists "mesa_resposta escreve logado" on public.mesa_resposta;
+    create policy "mesa_resposta escreve logado"
+      on public.mesa_resposta
+      for insert
+      to authenticated
+      with check (true);
+    raise notice 'policy larga criada — ela e PROVISORIA ate o BLOCO 2-B (passo 5)';
+  end if;
+end $$;
 
 -- (c) QUEM LE: continua aberto — os paineis do dashboard sao de leitura publica e a
 --     pagina tem de funcionar deslogada (degradacao digna). Recriado explicitamente
@@ -139,13 +166,21 @@ create policy "mesa_resposta le todo mundo"
 --     RLS nega. Nao crie nenhuma aqui — a fila e append-only por desenho, e quem apaga
 --     e o plantao, pelo servidor, com a service_role que NUNCA sai de la.
 
--- (e) O TETO DO TEXTO (A9 da auditoria). O campo do dashboard tem maxlength=4000 e a pagina
---     corta em 4000 antes de mandar — mas maxlength e enfeite: um POST direto com curl nao
---     passa por nenhum dos dois. Esta linha e a que vale, e ela e do banco. O numero e o
---     DOBRO do limite da pagina de proposito: quem chegar em 8000 nao errou de dedo.
+-- (e) O TETO DO TAMANHO (A9 da auditoria, ampliado pelo N5 da re-auditoria). O campo do
+--     dashboard tem maxlength=4000 e a pagina corta em 4000 antes de mandar — mas maxlength e
+--     enfeite: um POST direto com curl nao passa por nenhum dos dois. Esta linha e a que vale,
+--     e ela e do banco. O numero de `texto` e o DOBRO do limite da pagina de proposito: quem
+--     chegar em 8000 nao errou de dedo.
+--     E ELE NAO PODE COBRIR SO O `texto`: os outros tres campos sao texto livre tambem, e
+--     10 MB entravam por `tipo`, `chave` ou `valor` com o check de 8000 no lugar e verde. Os
+--     tres juntos sao rotulos curtos — tipo, uma chave de item, um valor de opcao —, entao 500
+--     e larguissimo para o uso real e estreito para quem quer encher o banco.
 alter table public.mesa_resposta drop constraint if exists mesa_resposta_texto_cabe;
 alter table public.mesa_resposta
-  add constraint mesa_resposta_texto_cabe check (texto is null or length(texto) <= 8000);
+  add constraint mesa_resposta_texto_cabe check (
+        (texto is null or length(texto) <= 8000)
+    and length(coalesce(tipo,'') || coalesce(chave,'') || coalesce(valor,'')) <= 500
+  );
 
 
 -- ############################################################################
@@ -235,6 +270,16 @@ end $$;
 -- ("Enable insert for all users", FOR ALL TO public) devolvia zero linhas e o script dizia
 -- "fechou". As tres consultas abaixo sao a correcao — e a terceira olha para um lugar que
 -- ninguem estava olhando.
+
+-- (0) A RLS ESTA LIGADA? Espera-se relrowsecurity = true. E a primeira pergunta porque com a
+--     RLS DESLIGADA todas as consultas abaixo ficam VERDES e nao querem dizer nada: sem RLS o
+--     Postgres nem olha as policies, e a tabela esta aberta a quem tiver a chave publicavel
+--     mesmo com zero policy de escrita no catalogo. Era o N4 da re-auditoria: a prova inteira
+--     descrevia um portao que podia estar desligado. E a mesma consulta do BLOCO 1, de novo,
+--     porque "antes" e "depois" so provam alguma coisa quando sao a MESMA pergunta.
+select relname, relrowsecurity, relforcerowsecurity
+  from pg_class
+ where oid = 'public.mesa_resposta'::regclass;
 
 -- (1) O RETRATO. Espera-se: UMA policy de INSERT para {authenticated} (a do 2-B, com o uuid
 --     no with_check) e UMA de SELECT com anon. Mais nada.

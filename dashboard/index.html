@@ -4,10 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<!-- CSP (auditoria da seguranca, A4 — 21/08). Esta pagina guarda access_token E refresh_token
-     no localStorage: qualquer script de fora que rode aqui leva a sessao do dono inteira. A
-     regra e a mesma do jogo (CLAUDE.md §3.2): escrita por extenso, nenhum curinga, e cada
-     afrouxamento tem o motivo escrito ao lado.
+<!-- CSP (auditoria da seguranca, A4 — 21/08; texto corrigido pela re-auditoria no mesmo dia).
+     O QUE ELA COBRE, E O QUE NAO COBRE — e a segunda metade importa mais que a primeira:
+     ela NAO e defesa contra XSS nesta pagina, e isso nao e opiniao: o achado N2 foi um XSS
+     visto EXECUTANDO com esta CSP ja em vigor. `script-src 'unsafe-inline'` e inevitavel aqui
+     (o script mora na pagina, sem build que gere nonce), e 'unsafe-inline' autoriza tanto o
+     <script> de dentro quanto um `onmouseover=` que apareca no DOM. Contra XSS quem defende e
+     o escape na hora de montar o HTML — escH e o setAttribute do data-v —, nunca esta linha.
+     O que ela cobre de verdade, e nao e pouco: script/estilo/fonte/imagem DE FORA nao carregam;
+     a pagina so fala com UM host, entao um token roubado nao tem para onde ser mandado por
+     fetch; e nada de <object>, <base> ou <form> apontado para outro lugar.
+     Esta pagina guarda access_token E refresh_token no localStorage — e por isso que o exfil,
+     e nao a execucao, e o que precisa estar fechado por politica. Regra igual a do jogo
+     (CLAUDE.md §3.2): escrita por extenso, nenhum curinga, cada afrouxamento com o motivo ao lado.
        default-src 'self'  -> nada de fora por padrao
        connect-src         -> so o proprio projeto do Supabase (REST + Auth). Endereco por
                               extenso: e o unico host que a pagina chama.
@@ -18,10 +27,15 @@
        script-src          -> 'unsafe-inline' e SO isso: o script mora na pagina e nao ha
                               nenhum src= — script de terceiro nao carrega nem por engano
        base-uri 'none'     -> ninguem reescreve a base dos caminhos relativos
+       form-action 'none'  -> nao ha <form> nenhum aqui, e default-src NAO cobre form-action:
+                              sem esta linha, um <form action="https://..."> injetado postaria
+                              o que estivesse na tela para fora sem tocar em connect-src
+       object-src 'none'   -> <object>/<embed> sao superficie de plugin e nao servem a nada
+                              nesta pagina (default-src cobriria, mas explicito nao envelhece)
      frame-ancestors NAO entra aqui: o navegador IGNORA a diretiva quando ela chega por <meta>
      (so vale em cabecalho HTTP) e ainda registra erro de console. Ela vira cabecalho de
      verdade no vercel.json, junto de X-Frame-Options — que e onde ela funciona. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://hdhqziqvrthxtgyraemk.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'unsafe-inline'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://hdhqziqvrthxtgyraemk.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'unsafe-inline'; object-src 'none'; form-action 'none'; base-uri 'none'">
 <title>Dashboard · BRASIL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -353,7 +367,17 @@
   var FILA="mesa-brasil-fila4";
   var SESSAO="mesa-brasil-sessao1";
 
-  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+  // escH ESCAPA ASPAS TAMBÉM, e isso é o achado N2 da re-auditoria (21/08). O truque do
+  // textContent escapa `<`, `>` e `&` — e SÓ. Aspas passam inteiras, porque dentro de um nó de
+  // texto elas são inofensivas. Só que este arquivo usa escH também em contexto de ATRIBUTO
+  // (`data-v="..."`), e ali uma aspa fecha o atributo e o resto vira HTML: um `v` vindo do
+  // servidor com `" onmouseover=...` executava script — visto executando, com a CSP nova em
+  // vigor, porque `script-src 'unsafe-inline'` (inevitável nesta página) permite manipulador
+  // embutido. É a mesma classe do A3 da auditoria anterior, noutro campo.
+  function escH(s){
+    var d=document.createElement("div"); d.textContent=(s==null?"":String(s));
+    return d.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
   var toastEl=document.getElementById("toast"), toastT;
   function toast(msg,erro){ toastEl.textContent=msg; toastEl.className="toast ver"+(erro?" erro":"");
     clearTimeout(toastT); toastT=setTimeout(function(){toastEl.className="toast";},2400); }
@@ -406,9 +430,17 @@
     return ses;
   }
   function comToken(s){ return {apikey:SB_KEY, Authorization:"Bearer "+s.access_token}; }
-  // SAIR REVOGA (A8 da auditoria, 21/08). Apagar o localStorage tira o token do aparelho e
-  // deixa ele VIVO no servidor até vencer — quem já tivesse copiado o refresh_token continuava
-  // entrando depois de o dono "sair". O POST /logout mata a sessão do lado de lá.
+  // SAIR REVOGA O QUE DÁ PARA REVOGAR (A8, com o comentário corrigido pela re-auditoria).
+  // Apagar só o localStorage deixava o refresh_token VIVO no servidor até vencer: quem tivesse
+  // copiado o token continuava trocando por acesso novo depois de o dono "sair". O POST
+  // /auth/v1/logout mata isso — e o que ele mata, exatamente, é o seguinte:
+  //   * os REFRESH tokens são revogados. No escopo padrão (global) isso derruba os OUTROS
+  //     aparelhos do dono também. É o comportamento certo para "perdi o celular" e é o errado
+  //     para "vou sair só deste computador" — está escrito aqui porque a diferença importa e
+  //     ninguém vai adivinhá-la lendo o código.
+  //   * o access_token que já está na mão CONTINUA VALENDO até o `exp` dele (o GoTrue não
+  //     mantém lista de revogados por pedido). A janela é curta, de minutos, mas existe.
+  // Ou seja: sair encurta a exposição de horas/dias para minutos. Não a zera.
   // Sem `await` de propósito: sair é instantâneo para quem toca o botão, e rede caída não pode
   // impedir ninguém de sair do próprio aparelho. `keepalive` faz o pedido sobreviver à navegação.
   function sair(){
@@ -483,18 +515,44 @@
   function lavarUm(){
     var f=lerFila(); if(!f.length) return Promise.resolve();
     var reg=f[0];
+    // O `if(!gravarFila(...)) return;` é o achado N1 da re-auditoria (21/08), e ele é grave:
+    // com uma fila HERDADA acima do teto (60 itens guardados antes de o teto existir), o
+    // `shift()` deixava 59 — ainda acima do teto —, `gravarFila` RECUSAVA a escrita em silêncio,
+    // e o `lavarUm()` seguinte relia os mesmos 60 do localStorage e mandava o mesmo item de
+    // novo. Laço infinito de POST: medido em 1173 pedidos em 6 s. Com o servidor respondendo
+    // 201, seriam 1173 INSERTs REAIS da mesma resposta na fila que ACIONA agente. Se a fila não
+    // encolheu de verdade, parar é a única saída correta — a poda da carga (abaixo) é quem
+    // resolve o estado herdado, e ela roda uma vez.
     return enviar(reg).then(function(){
-      var g=lerFila(); g.shift(); gravarFila(g); return lavarUm();
+      var g=lerFila(); g.shift();
+      if(!gravarFila(g)) return;
+      return lavarUm();
     },function(err){
       var g=lerFila(); if(!g.length) return;
       var st=(err && err.status) || 0;
       g[0].tentativas=(g[0].tentativas||0)+1;
       if(permanente(st) || g[0].tentativas>=TENTATIVAS_MAX){
         console.warn("mesa: descartei uma resposta da fila local — "+(permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas"))+":",JSON.stringify(g[0]));
-        g.shift(); gravarFila(g); return lavarUm();
+        g.shift();
+        if(!gravarFila(g)) return;
+        return lavarUm();
       }
       gravarFila(g);   // guarda o contador; o item fica para a próxima
     });
+  }
+  // A PODA DA CARGA (N1). O teto nasceu depois da fila: quem já tinha 60 itens guardados no
+  // aparelho nunca convergiria sozinho, porque toda escrita acima do teto é recusada e o estado
+  // herdado ficaria travado para sempre. Isto roda UMA vez, na partida, corta pelo fim (a fila
+  // é ordem de chegada: quem esperou mais tempo tem precedência) e diz no console o que cortou.
+  function podarFilaHerdada(){
+    var f=lerFila(); if(!f.length) return;
+    var antes=f.length, bytesAntes=JSON.stringify(f).length;
+    if(f.length>FILA_MAX) f=f.slice(0,FILA_MAX);
+    while(f.length>1 && JSON.stringify(f).length>FILA_BYTES) f.pop();
+    if(f.length===antes) return;
+    try{ localStorage.setItem(FILA,JSON.stringify(f)); }catch(e){ return; }
+    console.warn("mesa: a fila local herdada estava acima do teto ("+antes+" itens, "+bytesAntes
+      +" bytes) — podei para "+f.length+". "+(antes-f.length)+" resposta(s) antiga(s) não serão enviadas.");
   }
   function flush(){
     if(lavando) return Promise.resolve();
@@ -648,9 +706,13 @@
 
   function renderDecisao(item){
     var bloco=document.createElement("div"); bloco.className="decisao some"; bloco.setAttribute("data-k",item.chave);
-    var ops=(item.opcoes||[]).map(function(o){
+    var listaOps=(item.opcoes||[]);
+    // O `v` NÃO entra mais na string de HTML: ele vira atributo por setAttribute, logo abaixo.
+    // Escapar aspas (escH) já fecharia o buraco do N2; tirar o dado de dentro do atributo o
+    // fecha por CONSTRUÇÃO, que é a diferença entre "escapei certo" e "não há o que escapar".
+    var ops=listaOps.map(function(o){
       var rec=(o.v===item.recomendada);
-      return '<button class="op" data-v="'+escH(o.v)+'"><span class="marca"></span><span class="txt">'
+      return '<button class="op"><span class="marca"></span><span class="txt">'
         + '<span class="lab">'+escH(o.label)+(rec?' <span class="rec">sugiro ★</span>':'')+'</span>'
         + (o.desc?'<span class="desc">'+escH(o.desc)+'</span>':'')+'</span></button>';
     }).join("");
@@ -660,8 +722,9 @@
       + '<div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn" disabled>Enviar</button></div>';
     document.getElementById("lista-dec").appendChild(bloco);
     var escolha=null, btn=bloco.querySelector(".enviar-btn");
-    bloco.querySelectorAll(".op").forEach(function(op){
+    bloco.querySelectorAll(".op").forEach(function(op,i){
       op.setAttribute("role","button");
+      op.setAttribute("data-v", (listaOps[i] && listaOps[i].v!=null) ? String(listaOps[i].v) : "");
       op.addEventListener("click",function(){
         escolha=op.getAttribute("data-v");
         bloco.querySelectorAll(".op").forEach(function(o){o.setAttribute("aria-pressed",o===op?"true":"false");});
@@ -865,6 +928,7 @@
   }
   carregar();
   setInterval(carregar, 7000);
+  podarFilaHerdada();   // antes do flush: fila acima do teto não drena, ela precisa caber primeiro
   flush();
 })();
 </script>

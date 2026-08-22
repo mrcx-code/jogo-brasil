@@ -38,7 +38,10 @@ const PUB = 'sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN';
 let falhas = 0, cenas = 0;
 function ok(cond, msg, extra) {
   if (cond) { console.log('  ok  ' + msg); return true; }
-  falhas++; console.log('  FALHOU  ' + msg + (extra ? '  <- ' + extra : ''));
+  // o `extra` e cortado: um aviso repetido 60 vezes num laco encheu 35 KB de log na primeira
+  // vez que este portao reprovou de verdade, e log que ninguem le e log que nao existe.
+  const curto = extra == null ? '' : String(extra).slice(0, 240);
+  falhas++; console.log('  FALHOU  ' + msg + (curto ? '  <- ' + curto : ''));
   return false;
 }
 
@@ -115,7 +118,12 @@ async function palco(navegador, plano) {
       const st = typeof plano.escrita === 'number' ? plano.escrita : (plano.escrita === 'fechada' ? 401 : 201);
       return rota.fulfill({ status: st, contentType: 'application/json', body: st === 201 ? '' : '{"message":"new row violates row-level security policy"}' });
     }
-    // leitura dos paineis: sempre aberta
+    // leitura dos paineis: sempre aberta. `plano.leitura` deixa a cena servir linhas de
+    // verdade (e linhas ENVENENADAS) em vez do array vazio de sempre.
+    if (plano.leitura) {
+      const tab = (url.split('/rest/v1/')[1] || '').split('?')[0];
+      if (plano.leitura[tab]) return rota.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(plano.leitura[tab]) });
+    }
     return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
 
@@ -402,6 +410,86 @@ const estado = pag => pag.evaluate(() => ({
     ok(!!saida && saida.aut === 'Bearer tok-guardado', 'e foi com o token da sessao (o servidor sabe qual matar)', saida && saida.aut);
     ok(e.sessao === null, 'e o aparelho tambem ficou limpo', String(e.sessao));
     ok(e.auth === 'fora', 'a pagina volta ao modo leitura');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 14
+  console.log('\n[14] TEXTO DO SERVIDOR ENVENENADO — nenhum atributo on* nasce no DOM');
+  cenas++;
+  // N6 da re-auditoria, e a razao de ela existir: NENHUMA cena media escape, e foi por isso que
+  // o N2 passou por aqui verde. O `escH` escapava `<`, `>` e `&` e deixava as ASPAS passarem —
+  // inofensivas dentro de um no de texto, fatais dentro de `data-v="..."`. Com a CSP nova ja em
+  // vigor o XSS EXECUTOU (script-src 'unsafe-inline' autoriza manipulador embutido), entao o
+  // que defende aqui e o escape, nao a politica. Esta cena serve os dois campos que o painel
+  // le do servidor sem passar por lista branca — `mesa_agente.cor` (o A3) e `mesa_item.opcoes[].v`
+  // (o N2) — e reprova se QUALQUER atributo comecando por "on" existir no DOM.
+  {
+    const veneno = {
+      cor: '#fff" onload="window.__xss=1',
+      v: 'x" onmouseover="window.__xss=2" data-z="',
+      texto: '<img src=x onerror="window.__xss=3">',
+    };
+    const { ctx, pag, erros } = await palco(nav, {
+      leitura: {
+        mesa_item: [{
+          tipo: 'decisao', chave: 'envenenada', titulo: veneno.texto, contexto: veneno.texto,
+          recomendada: veneno.v, criado_em: '2026-08-21T00:00:00Z',
+          opcoes: [{ v: veneno.v, label: veneno.texto, desc: veneno.texto }],
+        }],
+        mesa_agente: [{ nome: veneno.texto, papel: veneno.texto, cor: veneno.cor, status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z', ordem: 1 }],
+      },
+    });
+    await pag.waitForTimeout(500);
+    const m = await pag.evaluate(() => {
+      const comOn = [];
+      document.querySelectorAll('*').forEach(el => {
+        for (const a of el.attributes) if (/^on/i.test(a.name)) comOn.push(el.tagName + '[' + a.name + ']');
+      });
+      const op = document.querySelector('#lista-dec .op');
+      return {
+        comOn, xss: window.__xss,
+        imgs: document.querySelectorAll('#lista-dec img, #grade-ag img').length,
+        ops: document.querySelectorAll('#lista-dec .op').length,
+        dataV: op ? op.getAttribute('data-v') : null,
+        rotulo: op ? (op.textContent || '').trim() : null,
+        // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon()
+        fill: (document.querySelector('#grade-ag .bon rect[x="4"][y="7"]') || {}).getAttribute
+          ? document.querySelector('#grade-ag .bon rect[x="4"][y="7"]').getAttribute('fill') : null,
+      };
+    });
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(m.ops === 1, 'a decisao envenenada foi renderizada (a cena mede algo)', String(m.ops));
+    ok(m.comOn.length === 0, 'NENHUM atributo on* no DOM inteiro', m.comOn.join(','));
+    ok(m.xss === undefined, 'nada executou (window.__xss segue indefinido)', String(m.xss));
+    ok(m.imgs === 0, 'o <img> do payload virou texto, nao elemento', String(m.imgs));
+    ok(m.dataV === veneno.v, 'o valor da opcao chega INTEIRO como dado (escapar nao e mutilar)', String(m.dataV));
+    ok((m.rotulo || '').indexOf('<img') >= 0, 'e a marcacao do payload aparece como texto na tela', m.rotulo);
+    ok(m.fill === '#7d8479', 'a cor invalida do agente cai no cinza padrao (o A3 continua fechado)', String(m.fill));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 15
+  console.log('\n[15] FILA HERDADA ACIMA DO TETO — drena uma vez, nao entra em laco');
+  cenas++;
+  // N1 da re-auditoria, e foi o achado mais grave da entrega: o teto nasceu DEPOIS da fila.
+  // Quem ja tinha 60 itens guardados no aparelho caia num laco — o shift deixava 59, ainda acima
+  // do teto, `gravarFila` recusava em silencio, e o `lavarUm()` seguinte relia os mesmos 60 e
+  // mandava o mesmo item de novo. Medido pelo auditor: 1173 POSTs em 6 s. Com o servidor
+  // respondendo 201, seriam 1173 INSERTs REAIS da mesma resposta na fila que ACIONA agente.
+  // Aqui a fila herdada tem 60 itens e o servidor aceita tudo: o certo e podar para 50 na carga
+  // e mandar 50 POSTs — um por item, nunca o mesmo duas vezes.
+  {
+    const herdada = Array.from({ length: 60 }, (_, i) => ({ tipo: 'mensagem', chave: 'dono', valor: null, texto: 'herdada ' + i }));
+    const { ctx, pag, erros, avisos, escritas } = await palco(nav, { fila: herdada });
+    await pag.waitForTimeout(2500);
+    const e = await estado(pag);
+    const textos = escritas.map(x => x.corpo && x.corpo.texto);
+    const repetidos = textos.length - new Set(textos).size;
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(escritas.length <= 60, 'o numero de POSTs e da ordem da fila, nao de um laco', String(escritas.length));
+    ok(repetidos === 0, 'nenhuma resposta foi mandada duas vezes', String(repetidos));
+    ok(e.fila === 0, 'a fila drenou ate o fim', String(e.fila));
+    ok(avisos.some(a => /podei/i.test(a)), 'o console diz que podou a fila herdada', avisos.join(' | '));
     await ctx.close();
   }
 

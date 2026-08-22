@@ -1,8 +1,16 @@
 // GERA A PÁGINA "DE ONDE VEM" — a terceira seção da plataforma (19/08, aprovada pelo dono).
 //
 // IRMÃ de gerar-historia.js e gerar-glossario.js, mesma disciplina: UMA FONTE, DUAS SAÍDAS. O
-// conteúdo é o mesmo `FONTES` que o jogo mostra na tela DE ONDE VEM — 71 fontes em grupos. Roda
-// o jogo headless, extrai, gera `de-onde-vem/index.html`. Nunca há duas cópias.
+// conteúdo é o mesmo `FONTES` que o jogo mostra na tela DE ONDE VEM. Roda o jogo headless,
+// extrai, gera `de-onde-vem/index.html`. Nunca há duas cópias.
+//
+// O NÚMERO NÃO FICA ESCRITO AQUI, e a razão é que o que estava escrito estava errado: o
+// comentário dizia "71 fontes" e 71 é o TAMANHO DO ARRAY — 11 dessas entradas são cabeçalhos
+// de grupo (`g`), não fontes (`t`). Medido em 21/08 rodando o próprio jogo: **60 fontes em 11
+// grupos**, que é exatamente o que a página imprime sozinha na linha `.conta` lá embaixo
+// (`${nFontes} fontes · ${grupos.length} grupos`). Número em comentário envelhece e ninguém
+// percebe; número calculado da fonte não tem como mentir. Se você veio até aqui para atualizar
+// a contagem depois de acrescentar uma ficha: não precisa — a página já conta.
 //
 // POR QUE ESTA SEÇÃO É A PROVA DA PLATAFORMA. A /historia conta e o glossário explica; esta
 // MOSTRA de onde cada afirmação veio. É a página que torna o resto verificável — a régua do §2
