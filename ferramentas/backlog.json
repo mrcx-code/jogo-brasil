@@ -140,6 +140,14 @@
       "agente": "plantao",
       "estado": "concluido",
       "nota": "APLICADO 22/08 via MCP: 6 chaves em rev 2 (DESMATAMENTO GUARANI MAPBIOMAS TIKUNA TRONCO-LINGUISTICO YANOMAMI), 181 vigentes; repuxado e ESPELHO INTEGRO — jogo e banco no MESMO hash cd5a68d4...bd7e, exit 0"
+    },
+    {
+      "id": "evento-saida-plataforma",
+      "titulo": "Medir se a porta jogo->plataforma e usada (evento na lista branca)",
+      "detalhe": "A saida da CHEGADA nao emite evento — abrir a lista branca do encaixe bloco 17 e decisao de quem governa a medicao. Um evento saiu-para-plataforma (sem propriedade nova) diria se o chamariz funciona. Levar ao dono no proximo check; aplicar e trivial depois do sim.",
+      "agente": "dev-jogo",
+      "estado": "do-dono",
+      "nota": "nascido da duvida do link-jogo 22/08"
     }
   ]
 }
