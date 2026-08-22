@@ -346,7 +346,49 @@ const nScript = (saida.match(/<script/gi) || []).length;
 const nStyle = (saida.match(/<style/gi) || []).length;
 if (nScript !== 1 || nStyle !== 1) throw new Error('esperava 1 <script> e 1 <style>, achei ' + nScript + ' e ' + nStyle);
 
-fs.writeFileSync(p('index.html'), saida);
+// ============================================================================
+// O PORTÃO DE SEGREDO — vale para TUDO o que é publicado, não só para o dashboard.
+//
+// Ele nasceu em 21/08 (A12) olhando só `dashboard/`, porque era ali que a chave do Supabase
+// morava. A re-auditoria (N7) derrubou o recorte no mesmo dia, e com razão: o dashboard não é
+// especial, é só o primeiro. Quem colar uma `service_role` numa página da plataforma, num
+// pacote de arte ou num JSON de seção publica exatamente o mesmo segredo pelo mesmo domínio —
+// e a varredura antiga passaria ao largo, verde. O critério certo é o DESTINO, não a origem:
+// se está indo para `dist/`, um robô da internet vai poder ler.
+//
+// Três formas cobertas, e a razão de cada uma:
+//   sb_secret_    chave secreta nova do Supabase
+//   service_role  o papel — aparece no payload do JWT legado e em qualquer comentário
+//   eyJ....eyJ... a forma de um JWT (a `anon` legada também tem essa forma; por isso ela não
+//                 entra: quem precisar dela usa a publicável `sb_publishable_`)
+//
+// SÓ TEXTO É VARRIDO. Um JPEG de 200 KB de bytes aleatórios pode casar `eyJ[\w-]{20,}\.` por
+// puro acaso e derrubar o build por nada — e segredo colado por engano mora em arquivo de
+// texto, nunca dentro de uma imagem. O recorte é por extensão e está escrito aqui para a
+// próxima pessoa saber que ele é uma escolha, não um esquecimento.
+const SEGREDO = /sb_secret_|service_role|eyJ[\w-]{20,}\.[\w-]{20,}\./;
+const TEXTO_VARRIDO = /\.(html?|js|mjs|json|css|txt|xml|svg|webmanifest)$/i;
+function guardaSegredo(destino, bytes) {
+  if (!TEXTO_VARRIDO.test(destino)) return bytes;
+  const achado = bytes.toString('utf8').match(SEGREDO);
+  if (achado) {
+    throw new Error('SEGREDO indo para ' + path.relative(RAIZ, destino).split(path.sep).join('/')
+      + ': achei "' + achado[0].slice(0, 16) + '…" — chave de serviço NUNCA vai para uma página'
+      + ' publicada. A do navegador é a publicável (sb_publishable_/phc_/anon); a service_role'
+      + ' fica no servidor e só nele. Um segredo publicado não se desfaz com revert: revogue-o.');
+  }
+  return bytes;
+}
+// As duas portas por onde tudo passa. Quem escrever em dist/ por fora delas está furando o
+// portão — e é por isso que elas têm nome curto: para não haver desculpa de conveniência.
+function escreverPublicado(destino, conteudo) {
+  fs.writeFileSync(destino, guardaSegredo(destino, Buffer.isBuffer(conteudo) ? conteudo : Buffer.from(String(conteudo))));
+}
+function copiarPublicado(origem, destino) {
+  escreverPublicado(destino, fs.readFileSync(origem));
+}
+
+escreverPublicado(p('index.html'), saida);
 fs.mkdirSync(p('dist'), { recursive: true });
 // A PORTA DA PLATAFORMA É A RAIZ (D-home, dono 20/08): o jogo vira /jogo (o chamariz) e a home
 // da plataforma vira dist/index.html. A RAIZ VERSIONADA CONTINUA SENDO O JOGO — o smoke e a régua
@@ -354,17 +396,17 @@ fs.mkdirSync(p('dist'), { recursive: true });
 // dist/jogo/ com os pacotes de arte AO LADO: o fetch de `pack-*.json` é RELATIVO (ver
 // caminhoPacote), então a arte quebraria se o jogo mudasse de pasta e os pacotes ficassem na raiz.
 fs.mkdirSync(p('dist', 'jogo'), { recursive: true });
-fs.writeFileSync(p('dist', 'jogo', 'index.html'), saida);
+escreverPublicado(p('dist', 'jogo', 'index.html'), saida);
 if (fs.existsSync(p('plataforma', 'index.html'))) {
-  fs.copyFileSync(p('plataforma', 'index.html'), p('dist', 'index.html'));
+  copiarPublicado(p('plataforma', 'index.html'), p('dist', 'index.html'));
   console.log('  plataforma/index.html -> dist/index.html (a PORTA, na raiz)');
 } else {
-  fs.writeFileSync(p('dist', 'index.html'), saida);
+  escreverPublicado(p('dist', 'index.html'), saida);
   console.log('  AVISO: plataforma/index.html nao existe — dist/index.html ficou com o JOGO (sem porta)');
 }
 if (fs.existsSync(p('compartilhar.jpg'))) {
-  fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
-  fs.copyFileSync(p('compartilhar.jpg'), p('dist', 'jogo', 'compartilhar.jpg'));
+  copiarPublicado(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
+  copiarPublicado(p('compartilhar.jpg'), p('dist', 'jogo', 'compartilhar.jpg'));
 }
 
 // A MESA, publicada num endereço que abre SEM LOGIN. Ela nasceu como artifact privado, e o
@@ -380,19 +422,26 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // A mesa NÃO passa pelas cobranças do arquivo único: ela não é o jogo, não carrega chave, não
 // fala com a rede e não entra no APK. O que ela tem de externo são as fontes do Google, que o
 // jogo não pode ter e ela pode, porque a CSP do jogo vale só para o <head> do jogo.
+//
+// O PORTÃO DE SEGREDO É O MESMO DE TODO MUNDO, e deixou de ser um privilégio desta pasta
+// (N7 da re-auditoria, 21/08): ele mora em `guardaSegredo`/`copiarPublicado`, lá em cima, e
+// vale para cada byte que entra em `dist/`. O dashboard continua sendo o lugar mais provável
+// do erro — é a única página que fala com um backend com contas de verdade, e colar a
+// `service_role` "só para testar" dá acesso TOTAL ao banco ignorando RLS, o que faria da fila
+// fechada em fila-auth.sql um enfeite no mesmo instante — mas provável não é exclusivo.
 if (fs.existsSync(p("dashboard"))) {
   fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
   let nDash = 0;
   for (const f of fs.readdirSync(p("dashboard"))) {
-    fs.copyFileSync(p("dashboard", f), p("dist", "dashboard", f));
+    copiarPublicado(p("dashboard", f), p("dist", "dashboard", f));
     nDash++;
   }
-  fs.writeFileSync(p("dist", "robots.txt"),
+  escreverPublicado(p("dist", "robots.txt"),
     ["User-agent: *", "Disallow: /dashboard", "Sitemap: " + BASE + "/sitemap.xml", ""].join("\n"));
   // O SITEMAP (growth, 21/08): sem ele o Google só acha as páginas por link, e não havia sinal
   // de indexação nenhuma. As seis URLs públicas; o dashboard fica de fora de propósito.
   const urlsMapa = ["/", "/jogo/", "/historia/", "/glossario/", "/de-onde-vem/", "/territorio/"];
-  fs.writeFileSync(p("dist", "sitemap.xml"),
+  escreverPublicado(p("dist", "sitemap.xml"),
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + urlsMapa.map(function (u) { return "  <url><loc>" + BASE + u + "</loc></url>"; }).join("\n")
     + "\n</urlset>\n");
@@ -400,7 +449,7 @@ if (fs.existsSync(p("dashboard"))) {
   // O ENDERECO ANTIGO REDIRECIONA: o dashboard chamava-se mesa ate 21/08 e o bookmark do
   // celular do dono aponta para /mesa. Quebrar bookmark dele e o oposto de organizar.
   fs.mkdirSync(p("dist", "mesa"), { recursive: true });
-  fs.writeFileSync(p("dist", "mesa", "index.html"),
+  escreverPublicado(p("dist", "mesa", "index.html"),
     "<!doctype html><meta charset=utf-8><meta name=robots content=noindex>" +
     "<meta http-equiv=refresh content=\"0; url=/dashboard/\">" +
     "<a href=/dashboard/>O painel mudou para /dashboard</a>");
@@ -419,7 +468,7 @@ for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio']) {
   if (!fs.existsSync(p(secao))) continue;
   fs.mkdirSync(p('dist', secao), { recursive: true });
   let n = 0;
-  for (const f of fs.readdirSync(p(secao))) { fs.copyFileSync(p(secao, f), p('dist', secao, f)); n++; }
+  for (const f of fs.readdirSync(p(secao))) { copiarPublicado(p(secao, f), p('dist', secao, f)); n++; }
   console.log('  ' + secao + '/ copiada para dist/' + secao + '/ — ' + n + ' arquivo(s)');
 }
 
@@ -440,8 +489,8 @@ let totalPacks = 0;
 for (const [nome, pk] of separado.packs) {
   const corpo = JSON.stringify({ arte: pk.arte, itens: pk.itens });
   totalPacks += corpo.length;
-  fs.writeFileSync(p('pack-' + nome + '.json'), corpo);
-  fs.writeFileSync(p('dist', 'jogo', 'pack-' + nome + '.json'), corpo);
+  escreverPublicado(p('pack-' + nome + '.json'), corpo);
+  escreverPublicado(p('dist', 'jogo', 'pack-' + nome + '.json'), corpo);
   console.log('  pack-' + nome + '.json — ' + (corpo.length / 1024).toFixed(0) + ' KB, '
     + pk.arte.length + ' imagens em ' + pk.itens.length + ' lugares');
 }

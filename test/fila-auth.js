@@ -16,18 +16,32 @@
 //     ainda escreve com a chave publicavel. Um portao que so mede o mundo novo nao percebe
 //     que quebrou o de hoje.
 
+//
+// O ALVO SE TROCA POR VARIAVEL DE AMBIENTE, e isso e o que torna este arquivo falsificavel
+// (EQUIPE.md 2.8): instrumento que nunca foi visto reprovando e decoracao. Para provar que
+// uma cena morde, copie o dashboard, apague o conserto que ela cobra e rode contra a copia:
+//
+//     FILA_AUTH_HTML=test/tmp-fila-defeito.html node test/fila-auth.js    # tem de sair 1
+//
+// O caminho precisa ficar DENTRO do repositorio — quem serve a pagina e o test/abrir.js.
 const path = require('path');
 const ABRIR = require('./abrir.js');
 const { chromium } = require('playwright');
 
-const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'dashboard', 'index.html'));
+const HTML = process.env.FILA_AUTH_HTML
+  ? path.resolve(process.env.FILA_AUTH_HTML)
+  : path.resolve(__dirname, '..', 'dashboard', 'index.html');
+const ALVO = ABRIR('file://' + HTML);
 const SB = 'https://hdhqziqvrthxtgyraemk.supabase.co';
 const PUB = 'sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw_t1j5YUKN';
 
 let falhas = 0, cenas = 0;
 function ok(cond, msg, extra) {
   if (cond) { console.log('  ok  ' + msg); return true; }
-  falhas++; console.log('  FALHOU  ' + msg + (extra ? '  <- ' + extra : ''));
+  // o `extra` e cortado: um aviso repetido 60 vezes num laco encheu 35 KB de log na primeira
+  // vez que este portao reprovou de verdade, e log que ninguem le e log que nao existe.
+  const curto = extra == null ? '' : String(extra).slice(0, 240);
+  falhas++; console.log('  FALHOU  ' + msg + (curto ? '  <- ' + curto : ''));
   return false;
 }
 
@@ -41,17 +55,25 @@ function tokenJson(acesso, seg) {
 // Prepara uma pagina com TODO o backend simulado. `plano` decide o que cada rota responde.
 async function palco(navegador, plano) {
   const ctx = await navegador.newContext({ viewport: { width: 390, height: 844 } });
-  const erros = [], escritas = [], autenticacoes = [];
+  const erros = [], avisos = [], escritas = [], autenticacoes = [];
   if (plano.sessao) {
     await ctx.addInitScript(s => {
       localStorage.setItem('mesa-brasil-sessao1', s);
     }, JSON.stringify(plano.sessao));
+  }
+  // Fila local ja cheia (ou com um item envenenado) ANTES de a pagina abrir: e o unico jeito
+  // de medir o teto e o descarte sem tocar quarenta vezes na tela.
+  if (plano.fila) {
+    await ctx.addInitScript(s => {
+      localStorage.setItem('mesa-brasil-fila4', s);
+    }, JSON.stringify(plano.fila));
   }
   const pag = await ctx.newPage();
   // "Failed to load resource: ... 401" e o navegador narrando a RESPOSTA que a cena pediu —
   // um 401 simulado de proposito nao e defeito da pagina. O que interessa e excecao de
   // script, que continua contando inteira.
   pag.on('console', m => {
+    if (m.type() === 'warning') { avisos.push(m.text()); return; }
     if (m.type() !== 'error') return;
     if (/^Failed to load resource/.test(m.text())) return;
     erros.push(m.text());
@@ -82,22 +104,32 @@ async function palco(navegador, plano) {
       if (plano.refresh === 'semrede') return rota.abort('failed');
       return rota.fulfill({ status: 200, contentType: 'application/json', body: tokenJson('tok-fresco') });
     }
+    if (url.indexOf('/auth/v1/logout') >= 0) {
+      autenticacoes.push({ rota: 'logout', aut });
+      return rota.fulfill({ status: 204, body: '' });
+    }
     if (url.indexOf('/auth/v1/user') >= 0) {
       return rota.fulfill({ status: 200, contentType: 'application/json', body: '{"email":"dono@exemplo.test"}' });
     }
     if (req.method() === 'POST' && url.indexOf('/rest/v1/mesa_resposta') >= 0) {
       escritas.push({ aut, corpo: req.postDataJSON() });
-      const st = plano.escrita === 'fechada' ? 401 : 201;
       if (plano.escrita === 'semrede') return rota.abort('failed');
+      // numero cru = o status que a cena quiser (400 permanente, 413, 422...)
+      const st = typeof plano.escrita === 'number' ? plano.escrita : (plano.escrita === 'fechada' ? 401 : 201);
       return rota.fulfill({ status: st, contentType: 'application/json', body: st === 201 ? '' : '{"message":"new row violates row-level security policy"}' });
     }
-    // leitura dos paineis: sempre aberta
+    // leitura dos paineis: sempre aberta. `plano.leitura` deixa a cena servir linhas de
+    // verdade (e linhas ENVENENADAS) em vez do array vazio de sempre.
+    if (plano.leitura) {
+      const tab = (url.split('/rest/v1/')[1] || '').split('?')[0];
+      if (plano.leitura[tab]) return rota.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(plano.leitura[tab]) });
+    }
     return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
 
   await pag.goto(ALVO + (plano.hash || ''), { waitUntil: 'domcontentloaded' });
   await pag.waitForTimeout(450);
-  return { ctx, pag, erros, escritas, autenticacoes };
+  return { ctx, pag, erros, avisos, escritas, autenticacoes };
 }
 
 async function falarNaConversa(pag, texto) {
@@ -213,16 +245,28 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 5
-  console.log('\n[5] TOKEN VENCIDO — renova sozinho antes de escrever');
+  console.log('\n[5] TOKEN QUE VENCE COM A PAGINA ABERTA — quem renova e a ESCRITA');
   cenas++;
+  // A10 da auditoria (21/08): esta cena era CEGA. Ela guardava uma sessao ja vencida (`expira_em
+  // = agora - 1000`), e uma sessao vencida na CARGA e renovada pela partida — a linha que roda
+  // uma vez, no fim do script. Com o token ja fresco antes do primeiro toque, apagar a renovacao
+  // do caminho de ESCRITA (`cabecalhoEscrita`) nao mudava nada: a cena continuava verde medindo
+  // o conserto do vizinho. Ela passou a montar o caso REAL — a aba que fica aberta a tarde
+  // inteira: sessao VALIDA quando a pagina carrega (nada a renovar) e VENCIDA na hora de
+  // escrever, com o relogio da pagina deslocado DEPOIS da carga.
   {
     const { ctx, pag, erros, escritas, autenticacoes } = await palco(nav, {
-      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() - 1000, email: 'dono@exemplo.test' }
+      sessao: { access_token: 'tok-velho', refresh_token: 'r1', expira_em: Date.now() + 300e3, email: 'dono@exemplo.test' }
     });
+    ok(autenticacoes.filter(a => a.rota === 'refresh').length === 0,
+      'na carga NAO renova — a sessao ainda vale (e o que faz esta cena medir a escrita)',
+      JSON.stringify(autenticacoes.map(a => a.rota)));
+    // cinco minutos passam com a aba aberta: agora falta menos de 1 min para o token vencer
+    await pag.evaluate(ms => { const real = Date.now; Date.now = () => real() + ms; }, 290e3);
     await falarNaConversa(pag, 'oi da cena 5');
     const e = await estado(pag);
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
-    ok(autenticacoes.some(a => a.rota === 'refresh'), 'o refresh foi chamado');
+    ok(autenticacoes.some(a => a.rota === 'refresh'), 'a ESCRITA renovou o token antes de mandar');
     ok(escritas[0] && escritas[0].aut === 'Bearer tok-fresco', 'o POST usou o token NOVO, nao o vencido', escritas[0] && escritas[0].aut);
     ok(e.auth === 'dentro', 'continua dentro');
     ok(JSON.parse(e.sessao).access_token === 'tok-fresco', 'o token novo ficou guardado');
@@ -305,6 +349,147 @@ const estado = pag => pag.evaluate(() => ({
     ok(leituras >= 5, 'as secoes montam deslogado', String(leituras));
     ok((await pag.textContent('#quando')).indexOf('ao vivo') >= 0, 'o cabecalho diz "ao vivo" — o SELECT anonimo respondeu');
     ok(e.auth === 'fora', 'sem sessao');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 11
+  console.log('\n[11] TETO DA FILA — cheia, a pagina diz a verdade em vez de "guardei"');
+  cenas++;
+  // A5 da auditoria: sem teto, um erro que nunca passa empilhava um item por toque ate o
+  // localStorage estourar — e o `catch(e){}` mudo engolia o estouro, entao o toast continuava
+  // dizendo "guardei e reenvio" com nada guardado. Mentir sobre ter guardado e pior que perder.
+  {
+    const cheia = Array.from({ length: 50 }, (_, i) => ({ tipo: 'mensagem', chave: 'dono', valor: null, texto: 'antiga ' + i }));
+    const { ctx, pag, erros, avisos } = await palco(nav, { escrita: 'semrede', fila: cheia });
+    await falarNaConversa(pag, 'esta nao cabe');
+    const e = await estado(pag);
+    const toastTxt = await pag.textContent('#toast');
+    const campo = await pag.inputValue('#compor-txt');
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(e.fila === 50, 'a fila para no teto de 50 — nao vira 51', String(e.fila));
+    ok(/cheia/i.test(toastTxt || ''), 'o toast diz que NAO guardou', toastTxt);
+    ok(campo === 'esta nao cabe', 'o texto perdido continua no campo (a unica copia que sobrou)', campo);
+    ok(avisos.some(a => /teto/i.test(a)), 'o console avisa do teto', avisos.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 12
+  console.log('\n[12] 4xx PERMANENTE — o item que nunca vai passar sai da fila, com aviso');
+  cenas++;
+  // A6: 400 nao e "tente de novo", e "isto esta errado para sempre". Insistir entope a fila e
+  // esconde o motivo. 401/403 continuam sendo espera (cena 2 e 6), e e o par que prova a regra.
+  {
+    const { ctx, pag, erros, avisos, escritas } = await palco(nav, {
+      escrita: 400,
+      fila: [{ tipo: 'mensagem', chave: 'dono', valor: null, texto: 'item que o banco recusa' }]
+    });
+    await pag.waitForTimeout(350);
+    const e = await estado(pag);
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(e.fila === 0, 'o item permanente saiu da fila', String(e.fila));
+    ok(escritas.length === 1, 'e saiu depois de UMA tentativa, sem laco', String(escritas.length));
+    ok(avisos.some(a => /descartei/i.test(a) && /400/.test(a)), 'o console diz o que foi descartado e por que', avisos.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 13
+  console.log('\n[13] SAIR REVOGA NO SERVIDOR — nao so apaga do aparelho');
+  cenas++;
+  // A8: apagar o localStorage deixava o refresh_token VIVO do lado de la ate vencer. Quem
+  // tivesse copiado o token continuava entrando depois de o dono "sair".
+  {
+    const { ctx, pag, erros, autenticacoes } = await palco(nav, {
+      sessao: { access_token: 'tok-guardado', refresh_token: 'r1', expira_em: Date.now() + 3600e3, email: 'dono@exemplo.test' }
+    });
+    await pag.click('#conta-btn');
+    await pag.waitForTimeout(300);
+    const e = await estado(pag);
+    const saida = autenticacoes.find(a => a.rota === 'logout');
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(!!saida, 'o POST /auth/v1/logout saiu', JSON.stringify(autenticacoes.map(a => a.rota)));
+    ok(!!saida && saida.aut === 'Bearer tok-guardado', 'e foi com o token da sessao (o servidor sabe qual matar)', saida && saida.aut);
+    ok(e.sessao === null, 'e o aparelho tambem ficou limpo', String(e.sessao));
+    ok(e.auth === 'fora', 'a pagina volta ao modo leitura');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 14
+  console.log('\n[14] TEXTO DO SERVIDOR ENVENENADO — nenhum atributo on* nasce no DOM');
+  cenas++;
+  // N6 da re-auditoria, e a razao de ela existir: NENHUMA cena media escape, e foi por isso que
+  // o N2 passou por aqui verde. O `escH` escapava `<`, `>` e `&` e deixava as ASPAS passarem —
+  // inofensivas dentro de um no de texto, fatais dentro de `data-v="..."`. Com a CSP nova ja em
+  // vigor o XSS EXECUTOU (script-src 'unsafe-inline' autoriza manipulador embutido), entao o
+  // que defende aqui e o escape, nao a politica. Esta cena serve os dois campos que o painel
+  // le do servidor sem passar por lista branca — `mesa_agente.cor` (o A3) e `mesa_item.opcoes[].v`
+  // (o N2) — e reprova se QUALQUER atributo comecando por "on" existir no DOM.
+  {
+    const veneno = {
+      cor: '#fff" onload="window.__xss=1',
+      v: 'x" onmouseover="window.__xss=2" data-z="',
+      texto: '<img src=x onerror="window.__xss=3">',
+    };
+    const { ctx, pag, erros } = await palco(nav, {
+      leitura: {
+        mesa_item: [{
+          tipo: 'decisao', chave: 'envenenada', titulo: veneno.texto, contexto: veneno.texto,
+          recomendada: veneno.v, criado_em: '2026-08-21T00:00:00Z',
+          opcoes: [{ v: veneno.v, label: veneno.texto, desc: veneno.texto }],
+        }],
+        mesa_agente: [{ nome: veneno.texto, papel: veneno.texto, cor: veneno.cor, status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z', ordem: 1 }],
+      },
+    });
+    await pag.waitForTimeout(500);
+    const m = await pag.evaluate(() => {
+      const comOn = [];
+      document.querySelectorAll('*').forEach(el => {
+        for (const a of el.attributes) if (/^on/i.test(a.name)) comOn.push(el.tagName + '[' + a.name + ']');
+      });
+      const op = document.querySelector('#lista-dec .op');
+      return {
+        comOn, xss: window.__xss,
+        imgs: document.querySelectorAll('#lista-dec img, #grade-ag img').length,
+        ops: document.querySelectorAll('#lista-dec .op').length,
+        dataV: op ? op.getAttribute('data-v') : null,
+        rotulo: op ? (op.textContent || '').trim() : null,
+        // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon()
+        fill: (document.querySelector('#grade-ag .bon rect[x="4"][y="7"]') || {}).getAttribute
+          ? document.querySelector('#grade-ag .bon rect[x="4"][y="7"]').getAttribute('fill') : null,
+      };
+    });
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(m.ops === 1, 'a decisao envenenada foi renderizada (a cena mede algo)', String(m.ops));
+    ok(m.comOn.length === 0, 'NENHUM atributo on* no DOM inteiro', m.comOn.join(','));
+    ok(m.xss === undefined, 'nada executou (window.__xss segue indefinido)', String(m.xss));
+    ok(m.imgs === 0, 'o <img> do payload virou texto, nao elemento', String(m.imgs));
+    ok(m.dataV === veneno.v, 'o valor da opcao chega INTEIRO como dado (escapar nao e mutilar)', String(m.dataV));
+    ok((m.rotulo || '').indexOf('<img') >= 0, 'e a marcacao do payload aparece como texto na tela', m.rotulo);
+    ok(m.fill === '#7d8479', 'a cor invalida do agente cai no cinza padrao (o A3 continua fechado)', String(m.fill));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 15
+  console.log('\n[15] FILA HERDADA ACIMA DO TETO — drena uma vez, nao entra em laco');
+  cenas++;
+  // N1 da re-auditoria, e foi o achado mais grave da entrega: o teto nasceu DEPOIS da fila.
+  // Quem ja tinha 60 itens guardados no aparelho caia num laco — o shift deixava 59, ainda acima
+  // do teto, `gravarFila` recusava em silencio, e o `lavarUm()` seguinte relia os mesmos 60 e
+  // mandava o mesmo item de novo. Medido pelo auditor: 1173 POSTs em 6 s. Com o servidor
+  // respondendo 201, seriam 1173 INSERTs REAIS da mesma resposta na fila que ACIONA agente.
+  // Aqui a fila herdada tem 60 itens e o servidor aceita tudo: o certo e podar para 50 na carga
+  // e mandar 50 POSTs — um por item, nunca o mesmo duas vezes.
+  {
+    const herdada = Array.from({ length: 60 }, (_, i) => ({ tipo: 'mensagem', chave: 'dono', valor: null, texto: 'herdada ' + i }));
+    const { ctx, pag, erros, avisos, escritas } = await palco(nav, { fila: herdada });
+    await pag.waitForTimeout(2500);
+    const e = await estado(pag);
+    const textos = escritas.map(x => x.corpo && x.corpo.texto);
+    const repetidos = textos.length - new Set(textos).size;
+    ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
+    ok(escritas.length <= 60, 'o numero de POSTs e da ordem da fila, nao de um laco', String(escritas.length));
+    ok(repetidos === 0, 'nenhuma resposta foi mandada duas vezes', String(repetidos));
+    ok(e.fila === 0, 'a fila drenou ate o fim', String(e.fila));
+    ok(avisos.some(a => /podei/i.test(a)), 'o console diz que podou a fila herdada', avisos.join(' | '));
     await ctx.close();
   }
 
