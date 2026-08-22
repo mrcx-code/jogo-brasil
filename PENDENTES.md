@@ -1679,7 +1679,42 @@ portao cobrava NOVE, porque a varredura da fonte casava `medir\("([a-z]+)"` **se
 
 
 
-## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma
+## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma — **FEITO em 22/08 (noite)**
+
+**Como ficou.** `ferramentas/pin-local.js` (novo) guarda a rota e a regra; `servir.js` e
+`receber.js` a montam antes de qualquer outro caminho; o dashboard, em localhost e sem sessao,
+pede `/pin-local` UMA vez e entra pela MESMA funcao do login normal (`pedirToken`). Sem arquivo,
+sem rota: o toast honesto continua — e agora ele NOMEIA o arquivo que resolve, em vez de
+prometer uma obra que ja existe.
+
+**O que o dono faz, uma vez:** cria **`~/.mesa-brasil-pin`** (no homedir — em `C:\Users\<voce>` no
+Windows, `$HOME` no resto) com o PIN numa linha. Nada mais. Se nao criar, nada muda. **O plantao
+nunca le esse arquivo** — esta escrito no cabecalho do `pin-local.js` e no teste, que escreve um
+arquivo proprio com um PIN inventado.
+
+**A AUDITORIA DA SEGURANCA REPROVOU a 1a versao e mudou 2 coisas de desenho** (22/08 noite): o PIN
+saia do loopback por duas portas. **(S1)** o arquivo estava em `ferramentas/`, e `npm start` serve
+a RAIZ do repo -> `GET /ferramentas/mesa-pin.local` era servido VERBATIM pelo docroot (200
+medido). Conserto: o arquivo **saiu do repo** para o homedir — por isso o caminho mudou. **(S2)**
+a rota nao conferia o `Host` -> DNS rebinding (`evil.com` -> 127.0.0.1) devolvia o PIN. Conserto:
+`hostLocal()` recusa todo Host que nao seja local. Mais **(S3)** padroes largos no `.gitignore`
+(`ferramentas/*.local*`, `mesa-pin*`) como defesa em profundidade, e **(S4)** o dashboard nao
+repete um PIN ja recusado na mesma sessao (senao um PIN velho queima a cota do rate limit a cada
+carga). Provado ao vivo: docroot -> **404**, loopback -> **200**, `Host: evil.com` -> **404**.
+
+**Medido:** `fila-auth.js` 19 -> **24 cenas** e 129 -> **212 verificacoes**; `fila-auth-controle.js`
+13 -> **21 defeitos**, todos vistos mordendo. A cena 21 e uma ARMADILHA (serve `/pin-local` no
+host da WEB e cobra que a pagina nao o peca); a 23 mede a rota do servidor sem navegador (loopback,
+Host, homedir). O bind e `127.0.0.1` nos dois servidores — conexao pelo IP de rede da maquina nao
+completa (curl `000`), medido.
+
+**O que fica aberto e NAO e deste item:** os 4 cliques do dono no painel do Supabase (cadastro
+OFF, **Secure password change ON**, leaked passwords ON, minimo 8). O terceiro deles e o que
+limita o dano de quem tiver o PIN — sem ele, quem entra troca o PIN e o e-mail da conta.
+
+---
+
+Registro original, para quem for ler o porque:
 
 Decisao do dono (22/08): localhost interage SEM entrar, sempre. Hoje vale porque a fila esta aberta; depois do RLS, quem valida e o banco (que nao enxerga localhost). Desenho: um arquivo local gitignored (ex.: ferramentas/mesa-pin.local, criado PELO DONO uma unica vez) com o PIN; servido apenas em loopback pelo receber.js/servir.js; a pagina em localhost le e faz o grant_type=password sozinha, invisivel. O plantao NUNCA ve o PIN final. Entra no mesmo pacote do fechamento da fila, depois da auditoria da seguranca no ramo do PIN.
 

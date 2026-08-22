@@ -56,6 +56,18 @@ test/TERRITORIO-3d-768*.png
 test/TERRITORIO-3d-1024*.png
 test/TERRITORIO-3d-cartao.png
 
+# O PIN DA MESA, EM TEXTO PLANO, NA MAQUINA DO DONO — auto-login local (PENDENTES 57, 22/08).
+# O arquivo de verdade mora FORA do repositorio, em ~/.mesa-brasil-pin (homedir) — foi movido
+# para la na auditoria da seguranca de 22/08, porque em ferramentas/ ele era servido VERBATIM
+# pelo docroot do `npm start` (medido: 200). Fora da arvore, o git nao o ve por construcao, e o
+# servidor estatico nao tem o que servir. O porque completo mora em ferramentas/pin-local.js.
+# ESTES PADROES SAO DEFESA EM PROFUNDIDADE, nao a linha principal: se um dia alguem voltar a
+# deixar um PIN dentro de ferramentas/ (ou o Bloco de Notas salvar `mesa-pin.local.txt`, que o
+# padrao exato de antes nao pegava), o git continua ignorando. Nunca toque neste arquivo para
+# "conferir" o PIN — ele e do dono, e le-lo e a mesma coisa que pedi-lo a ele.
+ferramentas/*.local*
+ferramentas/mesa-pin*
+
 test/portao-vermelho-*.log
 # Prints da home (increment 2, o DIORAMA de 22/08). O par 390x844 fica versionado — e o
 # antes/depois que sustenta os numeros do NOTES.md. Os outros tres tamanhos pesam de 1 a 5 MB

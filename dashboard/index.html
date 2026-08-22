@@ -411,6 +411,13 @@
   // TAMBEM em localhost. O item cai na fila local, como em qualquer outra falha, e nao se
   // perde; o que NAO acontece e o login abrir sozinho, porque aqui nao ha portao para abrir.
   // O administrativo local e do plantao, pelo MCP, com a credencial que nunca sai do servidor.
+  //
+  // ESSE CUSTO FOI PAGO EM 22/08 pelo AUTO-LOGIN LOCAL (PENDENTES 57, `autoLoginLocal` la
+  // embaixo): em localhost a pagina le o PIN de um arquivo que so o servidor local serve, e
+  // entra sozinha. Repare no que NAO mudou aqui: `LOCAL` continua sendo so "nao mostre o
+  // formulario", `ses` continua nascendo null, e a sessao — quando ela vem — vem do Supabase
+  // Auth como qualquer outra. O gate de localhost nunca concedeu privilegio e continua nao
+  // concedendo; quem concede e o banco, e so para quem tem o PIN.
   // 0.0.0.0 entrou pelo P5 da 2a auditoria (22/08): e o alias de loopback que mais aparece na
   // pratica (servidor que faz bind em 0.0.0.0 e barra de endereco repetindo o que foi digitado).
   // Ficar de fora errava na direcao segura — o portao APARECIA —, mas o custo era um formulario
@@ -614,10 +621,21 @@
       +" bytes) — podei para "+f.length+". "+perdidas+" resposta(s) mais recente(s) não serão enviadas.");
     toast("A fila local estava acima do teto — "+perdidas+" resposta(s) mais recente(s) não serão enviadas.",true);
   }
+  // O PEDIDO DE LAVAGEM NAO SE PERDE MAIS (22/08, junto do auto-login local). A trava do A7
+  // continua sendo uma so — duas lavagens simultaneas mandam o mesmo item duas vezes —, mas
+  // "estou lavando, entao ignore" jogava fora um pedido que mudava o RESULTADO: a lavagem em
+  // curso saiu ANONIMA e vai levar 401; o pedido descartado era o do login, que sairia com
+  // Bearer. Numa corrida de milissegundos a fila ficava presa ate o dono tocar em alguma coisa,
+  // e ninguem saberia por que. Agora o pedido fica anotado e a lavagem se repete ao fim, uma
+  // vez — `relavar` e um booleano, nao um contador, entao nao ha como isto virar laco.
+  var relavar=false;
   function flush(){
-    if(lavando) return Promise.resolve();
+    if(lavando){ relavar=true; return Promise.resolve(); }
     lavando=true;
-    return lavarUm().catch(function(){}).then(function(){ lavando=false; });
+    return lavarUm().catch(function(){}).then(function(){
+      lavando=false;
+      if(relavar){ relavar=false; return flush(); }
+    });
   }
   // Devolve "enviado" | "fila" (guardei, reenvio) | "perdido" (não coube em lugar nenhum).
   // "perdido" existe porque dizer "guardei e reenvio" quando não se guardou nada é a única
@@ -631,10 +649,11 @@
         if(!gravarFila(f)) return "perdido";
         // P4 da 2a auditoria (22/08). Fora do localhost, "sem conexao — guardei e reenvio" e
         // verdade: o 401 abre o login e o flush do login esvazia a fila. Em localhost NAO ha
-        // portao, entao a MESMA frase mente em duas pontas — nao foi conexao, e nao vai haver
-        // reenvio, porque nada nesta pagina consegue uma sessao aqui. A resposta fica guardada
-        // de verdade (por isso nao e "perdido"), mas quem esta lendo tem de saber que ela nao
-        // sai sozinha ate o auto-login local existir (PENDENTES 57).
+        // portao, entao a MESMA frase mente em duas pontas — nao foi conexao, e o reenvio
+        // depende de o auto-login local (PENDENTES 57) ter achado o PIN. Se a resposta chegou
+        // ate aqui, ele NAO achou: ou o arquivo nao existe, ou o PIN nele nao vale mais. A
+        // resposta fica guardada de verdade (por isso nao e "perdido"), e a frase diz onde
+        // mexer para ela sair.
         return (LOCAL && (st===401 || st===403)) ? "fila-local-sem-sessao" : "fila";
       });
   }
@@ -642,7 +661,12 @@
   function dizer(res,msgOk,msgFila){
     if(res==="enviado"){ toast(msgOk); return; }
     if(res==="fila-local-sem-sessao"){
-      toast("O banco passou a exigir sessão — e em localhost não há login. Guardei sua resposta neste aparelho; ela só sai quando o auto-login local entrar (PENDENTES 57).",true);
+      // A frase mudou em 22/08, com o auto-login local (PENDENTES 57), e a razão é a mesma que
+      // fez ela nascer: dizer a verdade. Antes, o que faltava era o auto-login e a frase dizia
+      // isso. Agora ele existe — se a resposta ainda ficou presa, é porque ele não achou o PIN.
+      // Então a frase deixa de anunciar uma obra futura e passa a dizer o que resolve, com o
+      // nome do arquivo: é acionável, e uma mensagem de erro que não diz o que fazer é metade.
+      toast("O banco passou a exigir sessão — e em localhost não há login a digitar. Guardei sua resposta neste aparelho; ela sai sozinha assim que o auto-login achar o PIN em ferramentas/mesa-pin.local (PENDENTES 57).",true);
       return;
     }
     if(res==="fila"){ toast(msgFila,true); return; }
@@ -754,15 +778,23 @@
     if(t.erros>=ERROS_ATE_ESPERAR) t.ate=Date.now()+ESPERA_MS;
     gravarTentativas(t);
   }
+  // O PEDIDO EM SI, numa funcao so — e ela e a MESMA para os dois caminhos de entrada: o dono
+  // digitando o PIN e o auto-login local lendo-o de um arquivo. Ter dois lugares mandando
+  // `grant_type=password` seria ter dois lugares para esquecer de consertar; e o que importa
+  // aqui e que o auto-login nao e um atalho por dentro — ele passa pela MESMA porta, com a
+  // mesma validacao do lado de la, e recebe a MESMA sessao. Nada de token inventado.
+  function pedirToken(pin){
+    return fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",
+        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({email:EMAIL_DONO, password:pin})})
+      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ var e=new Error(m); e.status=r.status; throw e; }); return r.json(); });
+  }
   function entrar(){
     if(pintarEspera()) return;
     var pin=(cPin.value||"");
     if(pin.length<PIN_MIN){ estadoLogin("o PIN tem no mínimo "+PIN_MIN+" dígitos","erro"); return; }
     bEntrar.disabled=true; estadoLogin("conferindo…");
-    fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",
-        headers:{apikey:SB_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({email:EMAIL_DONO, password:pin})})
-      .then(function(r){ if(!r.ok) return erroDe(r).then(function(m){ var e=new Error(m); e.status=r.status; throw e; }); return r.json(); })
+    pedirToken(pin)
       .then(function(j){
         if(!guardarTokens(j)) throw new Error("resposta sem token");
         zerarTentativas(); fecharLogin(); estadoLogin(""); cPin.value="";
@@ -775,6 +807,64 @@
         if(!pintarEspera()) estadoLogin("não entrou: "+err.message,"erro");
       })
       .then(function(){ if(!esperaRestante()) bEntrar.disabled=false; });
+  }
+
+  // -------- AUTO-LOGIN LOCAL: a maquina do dono entra sozinha (PENDENTES 57, 22/08) --------
+  // Decisao dele: "localhost nao precisa entrar para interagir". Ate 22/08 isso era de graca,
+  // porque a fila aceitava INSERT anonimo; com a RLS aplicada (so o uuid do dono escreve), o
+  // "sem portao" de localhost virou "sem escrita" — a resposta caia na fila local e ficava la,
+  // com um toast honesto dizendo que so sairia quando ISTO existisse. Agora existe.
+  //
+  // COMO: o dono escreve o PIN em ferramentas/mesa-pin.local (uma linha, fora do git), o
+  // servidor local serve esse arquivo em /pin-local SO para quem chega pelo loopback, e esta
+  // pagina troca o PIN por uma sessao de verdade pela MESMA porta do login normal. Nao ha
+  // sessao fingida, nao ha privilegio novo: quem valida continua sendo o Supabase Auth, e o
+  // Bearer que sai daqui e o mesmo que sairia se ele tivesse digitado.
+  //
+  // AS QUATRO REGRAS DESTA FUNCAO, e cada uma existe por um motivo:
+  //   1. SO EM LOCALHOST. Sem o `!LOCAL` na primeira linha, a pagina PUBLICADA passaria a
+  //      pedir /pin-local ao proprio dominio a cada carga — um pedido inutil na melhor
+  //      hipotese, e na pior o dia em que alguem servir esse caminho por engano na Vercel. A
+  //      cena 21 do test/fila-auth.js serve /pin-local NO HOST DA WEB, de proposito, e cobra
+  //      que a pagina nao o peca: e uma armadilha, e ela tem de ficar intacta.
+  //   2. UMA VEZ, SEM LACO. Falhou (arquivo nao existe, 404, PIN recusado, rede muda), acabou —
+  //      cai no comportamento de sempre e pronto. Tentar de novo aqui seria martelar o endpoint
+  //      de entrada com um PIN que ja se sabe errado.
+  //   3. EM SILENCIO. Sem tela, sem toast, sem "entrou ✓": o dono nao pediu login nenhum, e
+  //      avisar de um login que ele nao pediu e ruido. Quando falha, tambem cala — a frase que
+  //      ele veria e a mesma de antes, a do toast honesto da fila.
+  //   4. FALHA AQUI NAO CONTA COMO ERRO DELE. `contarErro()` fica de fora de proposito: aquele
+  //      contador existe para quem esta DIGITANDO parar de martelar o proprio celular, e um
+  //      arquivo desatualizado queimando as cinco tentativas do dono seria castigo por bug.
+  //
+  // A CSP nao muda: `connect-src 'self'` ja cobre um caminho do proprio endereco, e /pin-local
+  // e relativo de proposito — ele nunca aponta para host nenhum.
+  // NAO REPETE UM PIN JA RECUSADO NA MESMA SESSAO (S4 da auditoria da seguranca, 22/08). O
+  // endpoint de entrada tem um balde de rate limit POR IP, e o login manual e o auto-login
+  // dividem esse balde. Um arquivo com o PIN velho (o dono trocou e esqueceu de reescrever)
+  // fazia CADA carga da pagina — e o painel recarrega sozinho — gastar uma tentativa desse
+  // balde com um PIN que ja se sabe errado, ate trancar o login de verdade. Guardar o PIN
+  // recusado no sessionStorage e nao repeti-lo corta isso pela raiz: erra UMA vez por sessao de
+  // navegador, nao uma por carga. sessionStorage e nao localStorage de proposito — some quando
+  // a aba fecha, entao um PIN corrigido no arquivo volta a ser tentado numa aba nova, sem exigir
+  // que ninguem limpe nada. E o PIN recusado nao e o PIN certo: guardar o errado nao vaza segredo.
+  var PIN_RECUSADO="mesa-brasil-pin-local-recusado";
+  function pinJaRecusado(pin){ try{ return sessionStorage.getItem(PIN_RECUSADO)===pin; }catch(e){ return false; } }
+  function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }
+  function autoLoginLocal(){
+    if(!LOCAL || ses) return;
+    var pedido;
+    try{ pedido=fetch("/pin-local",{cache:"no-store"}); }catch(e){ return; }
+    pedido.then(function(r){ return r.ok ? r.text() : ""; })
+      .then(function(t){
+        var pin=(t||"").split("\n")[0].trim();
+        if(!pin) return null;               // sem arquivo, sem rota: nada acontece
+        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa
+        return pedirToken(pin).then(function(j){ return guardarTokens(j); },
+          function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
+      })
+      .then(function(s){ if(s) flush(); })  // a resposta presa na fila sai sozinha agora
+      .catch(function(){});                 // ver regras 2, 3 e 4: falhou, cala e fica como estava
   }
 
   // -------- trocar o PIN --------
@@ -1127,6 +1217,12 @@
   setInterval(carregar, 7000);
   podarFilaHerdada();   // antes do flush: fila acima do teto não drena, ela precisa caber primeiro
   flush();
+  // Depois do flush, e não antes: a primeira lavagem sai anônima e, no mundo da RLS, leva 401 —
+  // o item volta para a fila com uma tentativa a mais e espera. Quando o auto-login chega, ele
+  // chama `flush()` de novo, agora com Bearer, e é aí que a resposta presa sai. A ordem inversa
+  // não quebraria nada (o `lavando` impede duas lavagens), mas atrasaria a carga da página por
+  // uma leitura de disco que não tem nada a ver com desenhar os painéis.
+  autoLoginLocal();
 })();
 </script>
 </body>
