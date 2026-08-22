@@ -93,6 +93,26 @@ const DEFEITOS = [
       ],
     ],
   },
+  {
+    // As squads (dono, 21/08). Defeito 1: o agrupamento simplesmente nao existe — e o estado
+    // de ontem, com os cards soltos na ordem do servidor. Se a cena 16 passar assim, ela nao
+    // esta medindo o agrupamento, esta medindo que a pagina abre.
+    id: 'squads · o agrupamento por squad some (card solto na grade)',
+    cena: '[16]',
+    pares: [[
+      `    var alvo=grupoDe(item.squad);
+    if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de squad`,
+      '    g.appendChild(card);',
+    ]],
+  },
+  {
+    // Defeito 2, e e o que o dono pediu para nao acontecer: o grupo deixa de ser criado UMA
+    // vez. Com isto cada volta do refresh de 7 s cria invólucro e cabecalho novos — a grade
+    // some aos poucos atras de cabecalhos repetidos, sem erro de console, sem nada quebrar.
+    id: 'squads · o grupo renasce a cada volta (o refresh duplica os cabecalhos)',
+    cena: '[16]',
+    pares: [['    if(grupos[chave]) return grupos[chave];', '    if(false) return grupos[chave];']],
+  },
 ];
 
 const COPIA = path.join(RAIZ, 'test', 'tmp-fila-defeito.html');

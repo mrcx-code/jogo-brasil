@@ -89,6 +89,10 @@ select policyname, cmd, roles, qual, with_check
  where schemaname = 'public' and tablename = 'mesa_resposta'
  order by cmd, policyname;
 
+-- N11 da re-auditoria: linha legada acima de 500 abortaria o check do BLOCO 2 (e) — saber antes.
+select count(*) from public.mesa_resposta
+ where length(coalesce(tipo,'') || coalesce(chave,'') || coalesce(valor,'')) > 500;
+
 -- Serve para conferir que as tabelas de LEITURA nao sao tocadas por engano.
 select tablename, policyname, cmd, roles
   from pg_policies

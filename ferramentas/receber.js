@@ -12,12 +12,21 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ENTRADA = path.join(RAIZ, 'assets', 'entrada');
 const PEDIDOS = path.join(__dirname, 'pedidos.json');
-const PORTA = 8200;
+const ARQ_BACKLOG = path.join(__dirname, 'backlog.json');
+// 8200 e a porta de sempre; MESA_PORTA existe para conferir uma rota com a mesa do dono no ar
+// (subir uma segunda copia em 8200 so devolve EADDRINUSE, e derrubar a dele para testar e pior).
+const PORTA = Number(process.env.MESA_PORTA) || 8200;
+
+// O hash e dos BYTES EM DISCO, nao do objeto: e o disco que duas mesas disputam, e reserializar
+// para comparar introduziria um jeito de dois estados diferentes darem o mesmo carimbo.
+function lerBacklog() { try { return fs.readFileSync(ARQ_BACKLOG, 'utf8'); } catch (e) { return ''; } }
+function hashBacklog(bruto) { return crypto.createHash('sha1').update(bruto, 'utf8').digest('hex'); }
 
 fs.mkdirSync(ENTRADA, { recursive: true });
 
@@ -555,9 +564,22 @@ const servidor = http.createServer(function (req, res) {
   // O BACKLOG (dono, 21/08): a fila oficial da plataforma, priorizada pelo pm e REORDENADA
   // por ele aqui. GET devolve; POST grava o documento inteiro (ferramenta local de uma pessoa
   // — a simplicidade e o desenho, nao preguica). A ordem do array E a prioridade.
+  //
+  // O HASH E O CONSERTO DO LOST UPDATE (PENDENTES 48). Visto em 21/08: uma mesa aberta havia
+  // horas POSTou de volta o retrato que carregou e o backlog perdeu tres itens que o disco ja
+  // tinha. Gravar "o array inteiro" sem olhar o disco e last-writer-wins — a aba mais VELHA
+  // ganha, que e exatamente ao contrario do que qualquer um espera. Agora o GET carimba o
+  // sha1 dos bytes em disco, o POST manda o carimbo que leu, e escrita cuja base nao bate
+  // e RECUSADA com 409: a mesa recarrega e o dono reaplica em cima do que existe.
+  // O POST devolve o hash NOVO, senao a segunda reordenacao seguida cairia em 409 sozinha.
   if (req.method === 'GET' && url === '/backlog') {
+    const bruto = lerBacklog();
+    let doc;
+    try { doc = JSON.parse(bruto); } catch (e) { res.writeHead(500).end('backlog.json invalido'); return; }
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(fs.readFileSync(path.join(__dirname, 'backlog.json'), 'utf8'));
+    // Object.assign preserva o resto do documento (`_`, campos futuros): o cliente devolve o
+    // que recebeu, e um campo que o servidor esquecesse de repassar sumiria do disco no POST.
+    res.end(JSON.stringify(Object.assign({}, doc, { hash: hashBacklog(bruto) })));
     return;
   }
   if (req.method === 'POST' && url === '/backlog') {
@@ -568,10 +590,25 @@ const servidor = http.createServer(function (req, res) {
       try { doc = JSON.parse(Buffer.concat(pd).toString('utf8')); }
       catch (e) { res.writeHead(400).end('json invalido'); return; }
       if (!doc || !Array.isArray(doc.itens)) { res.writeHead(400).end('sem itens'); return; }
+      const atual = hashBacklog(lerBacklog());
+      if (typeof doc.hash !== 'string' || !doc.hash) {
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ ok: false, erro: 'sem hash de base — recarregue a mesa', hash: atual }));
+        return;
+      }
+      if (doc.hash !== atual) {
+        console.log('backlog: RECUSEI um POST com base velha (' + doc.hash.slice(0, 8) +
+          ' contra ' + atual.slice(0, 8) + ') — a mesa vai recarregar');
+        res.writeHead(409, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ ok: false, erro: 'o backlog em disco mudou depois que esta tela leu — recarregue a mesa', hash: atual }));
+        return;
+      }
+      delete doc.hash;   // o carimbo e do transporte; gravado no arquivo ele so se contradiria
       doc._ = 'O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.';
-      fs.writeFileSync(path.join(__dirname, 'backlog.json'), JSON.stringify(doc, null, 2));
+      const saida = JSON.stringify(doc, null, 2);
+      fs.writeFileSync(ARQ_BACKLOG, saida);
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, n: doc.itens.length }));
+      res.end(JSON.stringify({ ok: true, n: doc.itens.length, hash: hashBacklog(saida) }));
     });
     return;
   }
