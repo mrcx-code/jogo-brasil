@@ -1652,3 +1652,8 @@ Vale registrar junto o achado que fez a conta fechar: a lista do §3.2 dizia DEZ
 portao cobrava NOVE, porque a varredura da fonte casava `medir\("([a-z]+)"` **sem sublinhado** e
 `glossario_do_capitulo` nunca entrava. Corrigido no codigo do portao; o documento e que ficou.
 
+
+
+## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma
+
+Decisao do dono (22/08): localhost interage SEM entrar, sempre. Hoje vale porque a fila esta aberta; depois do RLS, quem valida e o banco (que nao enxerga localhost). Desenho: um arquivo local gitignored (ex.: ferramentas/mesa-pin.local, criado PELO DONO uma unica vez) com o PIN; servido apenas em loopback pelo receber.js/servir.js; a pagina em localhost le e faz o grant_type=password sozinha, invisivel. O plantao NUNCA ve o PIN final. Entra no mesmo pacote do fechamento da fila, depois da auditoria da seguranca no ramo do PIN.
