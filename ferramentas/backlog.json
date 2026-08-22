@@ -22,8 +22,8 @@
       "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
       "detalhe": "Caminho B do Fable, declarado destino em 21/08: squads com donos por superficie, QA CRUZADO (quem convive nao julga), pm/qa/seguranca centrais, e o squad ACERVO nasce com um dev-dados. Destrava quando a avenida A desmontar o monolito (fase 1+). O que da pra preparar antes: QA-cruzado como regra do funil, esqueleto dos squads no AGENTES.md, e o papel dev-dados rascunhado.",
       "agente": "pm",
-      "estado": "bloqueado",
-      "nota": "bloqueado ate avenida-a fase 1; a preparacao (regra de QA cruzado + esqueleto) pode ser despachada antes se o dono subir o item"
+      "estado": "em-curso",
+      "nota": "Fase 1 FECHADA em 22/08 -> o bloqueio caiu. Ja existem: esqueleto no AGENTES.md, QA-cruzado no EQUIPE.md, squads no dashboard, e dev-dados ATIVADO (cabecalho RASCUNHO removido). Falta: rodar na pratica e a 1a entrega do dev-dados"
     },
     {
       "id": "fila-auth",
@@ -78,7 +78,7 @@
       "detalhe": "Hoje o jogo nao tem NENHUM link de volta (achado do growth). Proposta discreta; se pedir decisao visual, vai ao dono.",
       "agente": "dev-jogo",
       "estado": "concluido",
-      "nota": "FECHADO 22/08 (dev-jogo): UMA saida, na CHEGADA e so nela — nota de margem depois do VOLTAR PARA A RUA, ancora <a href=/ target=_self>, texto \"estas telas tambem sao paginas, fora do jogo: a plataforma continua em <host> →\". O menu foi RECUSADO por argumento: e a porta de ENTRADA, quem chega pelo site acabou de vir de / e ali o link disputa com o JOGAR de quem ainda nao jogou. Endereco vem de location.host (rotulo e destino nao tem como desencontrar). DUAS guardas, as duas vistas mordendo: file: (sem dominio) e o jogo SER a raiz — no Capacitor ele e servido em https://localhost/, protocolo http, e la / e o proprio jogo. Alvo de dedo 44,19-44,80 px em 6 telas; deitado a nota vai para a coluna das portas e custa ZERO altura (1366x768 continua com rolagem 0; atravessando embaixo custava 66)."
+      "nota": "INTEGRADO d8efd47 (2a tentativa; 1a recusada por flake de encaixe): saida UNICA na CHEGADA, nota de margem, guarda dupla http+pathname (Capacitor). PENDENTES 51 fechado junto"
     },
     {
       "id": "posthog-paginas",
@@ -100,7 +100,8 @@
       "titulo": "Corrigir o número VENCIDO do MapBiomas (2º→3º ano) + rótulo de estimativa",
       "detalhe": "Relatório do historiador 21/08: RAD 2025 (27/05/26) — Cerrado 540.614 ha, 54,9%, TERCEIRO ano seguido; marco PRODES rotular estimativa vs consolidada (5.731 km² em mar/26); citação IBGE 2ª ed 18/06/26 + 474.856 falantes a ganhar. Via funil, historiador aplica.",
       "agente": "historiador",
-      "estado": "livre"
+      "estado": "concluido",
+      "nota": "FEITO pela rodada RAD do historiador em 21/08 (RAD 2025, terceiro ano, estimativa+consolidada) — o item ja estava coberto quando a fila chegou nele"
     },
     {
       "id": "og-image-secoes",

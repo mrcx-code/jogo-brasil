@@ -2753,3 +2753,8 @@ O `medir-telas-altura.js` mostra o preço com o controle rodado: `telaConfig` pa
 saída se alcança rolando nas duas versões, e o portão sai 0 nas duas.
 
 Desde 22/08 o interruptor de medicao e UM so (mesma chave de localStorage, decisao de uma origem = uma escolha): desligar no rodape de qualquer secao desliga o jogo, e vice-versa. O rodape das paginas ja diz isso; a tela de CONFIGURACOES do jogo ainda diz o interruptor esta aqui sem dizer e vale para as paginas tambem. E uma linha em src/jogo.ts (territorio do dev-jogo). A frase precisa continuar verdadeira dos DOIS lados.
+
+
+## 52 — O integrar.js trunca o log do encaixe vermelho — plantao/dev-plataforma
+
+Duas noites seguidas (funil da growth 21/08, funil do link-jogo 22/08) o encaixe reprovou 1-2 assercoes na 1a tentativa, passou na 2a, e o log do funil NAO diz QUAL assercao mordeu — ele guarda so o fim da saida, e a falha rola para fora. Sem o nome da assercao, flake nao vira diagnostico. Conserto: o integrar.js salva a saida INTEIRA do encaixe num arquivo ao lado (encaixe-vermelho-<data>.log) quando exit != 0, e imprime o caminho. Uma linha de tee com exit real preservado.

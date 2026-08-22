@@ -9011,3 +9011,25 @@ molde ou um `a.href = "/"` no `jogo.ts` **derrubariam o build** — o link nasce
 branca do `encaixe.js` bloco 17, que é decisão de quem governa a medição. Então hoje não há como
 saber se alguém usa a porta que acabou de nascer, e é exatamente a pergunta que a porta das
 palavras (19/08) ensinou a fazer.
+
+## 22/08 (madrugada, cont. 3) — a fila do dono chegou ao fim da parte livre
+
+**Link jogo→plataforma INTEGRADO** (d8efd47, 2a tentativa): saida UNICA na CHEGADA como nota de
+margem, guarda dupla http+pathname (o Capacitor serve https://localhost e la a raiz E o jogo —
+achado do dev contra o proprio despacho). PENDENTES 51 (frase do interruptor) fechado junto.
+**Correcao de registro:** o commit 900bccd diz "link-jogo integrado" na mensagem e estava ERRADO
+na hora do push — a 1a tentativa do funil tinha sido recusada; a integracao real e d8efd47.
+
+**O flake do encaixe tem uma familia nova:** 1 assercao intermitente que NAO e a dos blocos
+21/30 (mortos por abrirMenuParado) — mordeu a growth em 21/08 e o link em 22/08, sempre verde na
+2a tentativa. O integrar trunca o log e a assercao rola para fora ANTES de dizer qual e:
+PENDENTES 52 manda o funil salvar a saida inteira do encaixe vermelho. Sem o nome, flake nao
+vira diagnostico.
+
+**dev-dados ATIVADO** — o gatilho escrito no proprio papel ("ativa com a fase 1") foi batido
+esta noite; cabecalho reescrito (a 1a tentativa de ativacao por regex QUEBROU o frontmatter e o
+tipo sumiu do registro — consertado com Edit, licao: frontmatter se edita com editor, nao com
+replace cego). validade-rad marcado concluido (a rodada RAD de 21/08 ja o cobria).
+
+**Backlog livre restante:** home-inc2 (dev-jogo). Resto: do-dono (trilha, gesto, divulgacao x3,
+evento-saida) ou aguardando o dono (login da fila, GSC).
