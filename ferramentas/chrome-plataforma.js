@@ -128,7 +128,34 @@ function tokensCss() {
     --leitura:${LEITURA}; --titulo:${TITULO}; --mono:${MONO};
     --veioPx:${VEIO.uri};
     --graoPx:${GRAO.uri};
+    /* A PAUTA DO CADERNO — portada de src/estilo.css (a mesma receita da caixa de fala do
+       jogo): risco de 1px a cada 11px, e 11 é METADE da entrelinha de 22 do corpo de leitura,
+       o que faz a linha de texto POUSAR na pauta em vez de flutuar sobre ela (onda 6 do jogo).
+       É MEDIDA, não cópia — o valor viajou, o arquivo não. */
+    --pauta:repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px);
   }
+`;
+}
+
+// ---- O PAPEL DE CAMPO — a matéria de leitura das seções (onda 3 da arte, 22/08) ----
+// A disciplina que a arte cravou, virada em três regras de CSS reusáveis pelas 3 seções:
+//   .fundoCampo  — o FUNDO da página (o body): papel + pauta discreta + grão SUTIL. É o "desk".
+//                  O grão vive aqui e nas faixas/cartões, NUNCA sozinho atrás de coluna longa.
+//   .cartaoCampo — o cartão (verbete/momento): papel + pauta, FIO DE MADEIRA (inset da casa) e
+//                  SEM grão. É ele que MASCARA o grão do fundo atrás do texto corrido — a
+//                  coluna de leitura senta em papel limpo, com a pauta como única textura.
+//   .faixaCampo  — faixa/realce curto (a nota "quem lê hoje", um selo): papel2 + grão. Material,
+//                  não coluna — texto curto, então o grão pode estar atrás sem cansar o olho.
+// A CITAÇÃO/FONTE é itálico serifado (não mais o mono): a voz de quem cita, não de máquina.
+function campoCss() {
+  return `  /* onda 3 da arte (22/08): papel de campo nas seções de leitura. Fonte: chrome-plataforma.js */
+  .fundoCampo{ background:var(--graoPx,none), var(--pauta), var(--papel); }
+  .cartaoCampo{ position:relative; background:var(--pauta), linear-gradient(180deg,var(--papel),var(--papel2));
+    border:0; border-radius:3px;
+    box-shadow: inset 0 0 0 2px var(--contorno,#191510), inset 0 0 0 4px var(--madeira,#7a5430),
+                0 3px 0 rgba(10,8,6,.28), 0 6px 14px rgba(0,0,0,.16); }
+  .faixaCampo{ background:var(--graoPx,none), var(--papel2); }
+  .citaCampo{ font-family:var(--leitura); font-style:italic; }
 `;
 }
 
@@ -194,5 +221,5 @@ ${linhas}
 module.exports = {
   TOKENS, LEITURA, TITULO, MONO,
   VEIO, GRAO,
-  tokensCss, barraCss, barraHtml,
+  tokensCss, barraCss, barraHtml, campoCss,
 };

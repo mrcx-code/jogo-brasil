@@ -66,9 +66,9 @@ const esc = (s) => String(s || '')
       <h2>${esc(g.nome)}</h2>
       <ul class="fontes">
         ${g.itens.map((v) => `
-        <li class="fonte">
+        <li class="fonte cartaoCampo">
           <p class="ref">${esc(v.t)}</p>
-          ${v.q ? `<p class="traz">${esc(v.q)}</p>` : ''}
+          ${v.q ? `<p class="traz citaCampo">${esc(v.q)}</p>` : ''}
         </li>`).join('\n')}
       </ul>
     </section>`).join('\n');
@@ -105,7 +105,7 @@ ${CHROME.tokensCss()}  :root {
     --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--papel); color:var(--tinta);
+  body { margin:0; color:var(--tinta);
     font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
   header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.4rem; }
@@ -122,16 +122,19 @@ ${CHROME.tokensCss()}  :root {
     text-transform:uppercase; color:var(--terra); margin:0 0 1rem;
     padding-bottom:.5rem; border-bottom:1px solid var(--linha); }
   .fontes { list-style:none; margin:0; padding:0; display:grid; gap:.9rem; }
-  .fonte { border-left:3px solid var(--mata); padding:.15rem 0 .15rem 1rem; }
+  /* onda 3: cada fonte é uma FICHA de papel de campo com fio de madeira (.cartaoCampo); a
+     referência em serifa encorpada, e o que ela sustenta como nota de citação — itálico
+     serifado (.citaCampo). O grão fica no fundo, nunca sob a ficha. */
+  .fonte { padding:.8rem .95rem; }
   .ref { font:600 1.02rem/1.4 var(--titulo); margin:0 0 .3rem; color:var(--tinta); }
   .traz { margin:0; color:var(--tinta2); font-size:.96rem; }
 
   footer.rod { margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
-${CHROME.barraCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+${CHROME.barraCss()}${CHROME.campoCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
-<body>
+<body class="fundoCampo">
 <div class="env">
   <header class="topo">
 ${CHROME.barraHtml('de-onde-vem')}

@@ -61,12 +61,12 @@ const esc = (s) => String(s || '')
   const itens = momentos.map((m, i) => `
     <article class="momento">
       <div class="marco" aria-hidden="true"><span class="ponto"></span></div>
-      <div class="corpo">
+      <div class="corpo cartaoCampo">
         ${m.quando ? `<p class="quando">${esc(m.quando)}</p>` : ''}
         <h2>${esc(m.titulo)}</h2>
         <p class="texto">${esc(m.texto)}</p>
-        ${m.hoje ? `<p class="hoje"><span class="hojeR">quem lê hoje</span>${esc(m.hoje)}</p>` : ''}
-        ${m.fonte ? `<p class="fonte">${esc(m.fonte)}</p>` : ''}
+        ${m.hoje ? `<p class="hoje faixaCampo"><span class="hojeR">quem lê hoje</span>${esc(m.hoje)}</p>` : ''}
+        ${m.fonte ? `<p class="fonte citaCampo">${esc(m.fonte)}</p>` : ''}
       </div>
     </article>`).join('\n');
 
@@ -102,7 +102,7 @@ ${CHROME.tokensCss()}  :root {
     --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--papel); color:var(--tinta);
+  body { margin:0; color:var(--tinta);
     font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
 
@@ -120,7 +120,10 @@ ${CHROME.tokensCss()}  :root {
   .linha::before { content:""; position:absolute; left:7px; top:6px; bottom:0; width:2px;
     background:linear-gradient(var(--linha), var(--linha) 85%, transparent); }
   .momento { position:relative; padding:0 0 2.4rem 2.4rem; }
-  .marco { position:absolute; left:0; top:.3rem; width:16px; height:16px; }
+  /* onda 3: o momento vira CARTÃO de papel de campo com fio de madeira (via .cartaoCampo);
+     a coluna de leitura senta em papel limpo — o grão fica no fundo e nas faixas, nunca aqui. */
+  .corpo { padding:.95rem 1.05rem .85rem; margin-left:.15rem; }
+  .marco { position:absolute; left:0; top:.3rem; width:16px; height:16px; z-index:2; }
   .ponto { display:block; width:16px; height:16px; border-radius:50%;
     background:var(--papel); border:3px solid var(--mata); box-shadow:0 0 0 3px var(--papel); }
   .quando { font:600 .73rem/1.4 var(--mono); letter-spacing:.05em;
@@ -128,22 +131,23 @@ ${CHROME.tokensCss()}  :root {
   .momento h2 { font:700 1.32rem/1.22 var(--titulo); margin:0 0 .5rem;
     text-wrap:balance; letter-spacing:-.01em; }
   .texto { margin:0 0 .7rem; }
-  .hoje { position:relative; background:var(--graoPx,none) var(--papel2); border-left:3px solid var(--terra);
-    padding:.7rem .9rem; margin:0 0 .7rem; font-style:italic; font-size:.97rem; color:var(--tinta2);
+  .hoje { position:relative; border-left:3px solid var(--terra);
+    padding:.7rem .9rem; margin:.15rem 0 .7rem; font-style:italic; font-size:.97rem; color:var(--tinta2);
     border-radius:0 4px 4px 0; }
   .hojeR { display:block; font:600 .62rem/1 var(--mono);
     letter-spacing:.12em; text-transform:uppercase; color:var(--pedra); font-style:normal;
     margin-bottom:.35rem; }
-  .fonte { font:400 .82rem/1.5 var(--mono); color:var(--pedra);
+  /* onda 3: a FONTE é a voz de quem cita — itálico serifado (via .citaCampo), não mais o mono */
+  .fonte { font:italic 400 .9rem/1.5 var(--leitura); color:var(--pedra);
     margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
 
   footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
   footer.rod a { color:var(--terra); }
-${MED.estilo()}${CHROME.barraCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+${MED.estilo()}${CHROME.barraCss()}${CHROME.campoCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
-<body>
+<body class="fundoCampo">
 <div class="env">
   <header class="topo">
 ${CHROME.barraHtml('historia')}

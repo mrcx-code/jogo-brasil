@@ -59,11 +59,11 @@ const esc = (s) => String(s || '')
       ${g.sub ? `<p class="gsub">${esc(g.sub)}</p>` : ''}
       <div class="verbetes">
         ${g.itens.map((v) => `
-        <article class="verbete">
+        <article class="verbete cartaoCampo">
           <h3>${esc(v.t)}</h3>
           ${v.o ? `<p class="orig">${esc(v.o)}</p>` : ''}
           <p class="def">${esc(v.d)}</p>
-          ${v.f ? `<p class="fonte">${esc(v.f)}</p>` : ''}
+          ${v.f ? `<p class="fonte citaCampo">${esc(v.f)}</p>` : ''}
         </article>`).join('\n')}
       </div>
     </section>`).join('\n');
@@ -100,7 +100,7 @@ ${CHROME.tokensCss()}  :root {
     --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--papel); color:var(--tinta);
+  body { margin:0; color:var(--tinta);
     font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
   header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.4rem; }
@@ -118,20 +118,22 @@ ${CHROME.tokensCss()}  :root {
     padding-bottom:.5rem; border-bottom:1px solid var(--linha); }
   .gsub { color:var(--pedra); font-size:.92rem; font-style:italic; margin:0 0 1.2rem; }
   .verbetes { display:grid; gap:1rem; }
-  .verbete { background:var(--graoPx,none) var(--realce); border:1px solid var(--linha); border-left:3px solid var(--mata);
-    padding:1rem 1.1rem; box-shadow:0 1px 2px var(--sombra); }
+  /* onda 3: cada verbete é CARTÃO de papel de campo com fio de madeira (.cartaoCampo). A
+     definição senta em papel limpo — o grão que ANTES estava atrás do texto corrido saiu; ele
+     fica no fundo e nas faixas, nunca sob a coluna de leitura. */
+  .verbete { padding:1rem 1.1rem; }
   .verbete h3 { font:700 1.16rem/1.25 var(--titulo); margin:0 0 .4rem; letter-spacing:-.01em; }
   .orig { color:var(--tinta2); font-style:italic; font-size:.94rem; margin:0 0 .55rem; }
   .def { margin:0 0 .6rem; }
-  .fonte { font:400 .82rem/1.5 var(--mono); color:var(--pedra);
+  .fonte { font:italic 400 .9rem/1.5 var(--leitura); color:var(--pedra);
     margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
 
   footer.rod { margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
-${CHROME.barraCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+${CHROME.barraCss()}${CHROME.campoCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
-<body>
+<body class="fundoCampo">
 <div class="env">
   <header class="topo">
 ${CHROME.barraHtml('glossario')}
