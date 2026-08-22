@@ -11,3 +11,4 @@ EQUIPE.md merge=union
 # mudado -- o oposto do que a fase 1 promete: diff que so aparece quando o TEXTO muda.
 ferramentas/conteudo/*.json text eol=lf
 ferramentas/conteudo/*.md text eol=lf
+.gitignore merge=union
