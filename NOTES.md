@@ -8436,3 +8436,29 @@ dinâmica, então nada quebra; só o comentário envelheceu.
 **Armadilhas pagas de novo nesta rodada:** (a) o pipe comeu o exit do integrar.js — tail no fim da linha devolveu 0 com o merge ABORTADO; a reexecucao foi com redirect e echo do exit real; (b) o funil deixa regeneracao suja na arvore (index.html reconstruido + 4 PNGs) e isso ABORTA o merge seguinte — limpar com checkout virou rotina pos-funil; (c) a mesa POSTou um backlog VELHO por cima do novo — lost update real, virou PENDENTES 48 (o meu 47 original colidiria com o 47 do dev-jogo que ainda nao integrou; renumerado antes da uniao).
 
 **Proximo:** integrar pixel-vence quando a arte der o veredito; reintegrar o hardening quando os N voltarem verdes; ai a pendencia de LOGIN do dono no dashboard e so entao o SQL da fila. Fase 1 do acervo em seguida.
+
+## 21/08 (noite, cont.) — a esteira girou inteira: 4 pousos, 3 no ar
+
+**Integrados e no ar:** historiador (RAD 2025), growth (divulgacao/ para sign-off), 49 pinos
+do territorio (proposta), e o **hardening da fila-auth** (34a82eb) — este com o funil recusando
+DUAS vezes por gatilho (growth por dashboard/gerar-fontes; qa por test/), ambos assumidos por
+escrito com motivo, porque a seguranca ja tinha sido o QA adversarial. A seguranca APROVOU na
+2a volta: os 2 bloqueantes que ela mesma provou (laco de POST 1135->50, XSS em data-v) mortos,
+conferidos com sonda dela e nao do autor; controle 6/6 mordendo.
+
+**Achado que fecha uma divergencia antiga:** as "71/72 fontes" nunca foram 72 — 71 e o tamanho
+do array (60 fontes + 11 cabecalhos de grupo), a pagina ja imprime "60 fontes". O growth (60)
+estava certo; o comentario saiu em vez de virar 72.
+
+**Verificado por MCP antes de integrar:** so mesa_resposta aceita INSERT anonimo (with_check
+true); mesa_item e mesa_agente nao tem policy de escrita anonima -> o XSS via mesa_item.opcoes
+era INTERNO, nao remoto. E e mesa_resposta que o fila-auth.sql fecha.
+
+**Parecer do historiador no banco (181/181):** 176 tag_s2=true, 5 false, 20 vence_em/vence_regra,
+6 tem_numero corrigidos para false (vencem por frase, nao numero). Proposta s2_alto -> dashboard.
+
+**No dashboard do dono agora:** login-dono-fila (topo — destrava o SQL), s2-alto-glossario,
+pinos-joao-candido, pinos-pare-visiveis.
+
+**Falta pousar:** dev-jogo do pixel (condicao de FPS do controle + veu ambar do ACEIRO). Depois:
+fase 1 avenida A, e o SQL da fila quando o dono logar.

@@ -31,15 +31,15 @@
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth.",
       "agente": "dev-plataforma",
       "estado": "em-curso",
-      "nota": "pagina integrada e no ar (retrocompativel); falta o hardening abaixo e ai o SQL+login"
+      "nota": "pagina blindada no ar; aguarda login do dono para aplicar o SQL (RLS em mesa_resposta). Confirmado por MCP: so mesa_resposta aceita INSERT anonimo hoje"
     },
     {
       "id": "fila-auth-hardening",
       "titulo": "Hardening da fila-auth (12 achados da auditoria) — ANTES do SQL e do login",
       "detalhe": "A1 prova do SQL cega a FOR ALL/{public} e drop por chute; A2 descomentar 2-B (uuid) + cadastro-OFF como passo numerado da MESMA sentada; A4 CSP meta no dashboard (frame-ancestors none) ANTES do login do dono; A5 teto na fila local + toast honesto; A6 4xx permanente trava a fila; A7 flush concorrente duplica; A8 logout sem revogar; A9 maxlength+check(length); A10 cena 5 do instrumento cega; A11 fila-auth.js no CI; A12 build recusa segredo em dashboard/. Relatorio completo: transcript da seguranca 21/08.",
       "agente": "dev-plataforma",
-      "estado": "livre",
-      "nota": "REPROVADO na re-auditoria da seguranca (N1 laco infinito de POST provado com 1173 em 6s; N2 XSS em data-v visto executando) + 6 menores; dev-plataforma consertando no MESMO ramo"
+      "estado": "concluido",
+      "nota": "INTEGRADO 34a82eb; seguranca APROVOU na 2a volta (2 bloqueantes mortos, controle 6/6). Falta: dono logar (pendencia no dashboard) -> ai o SQL da fila via MCP bloco a bloco"
     },
     {
       "id": "territorio-rico",
@@ -47,7 +47,7 @@
       "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
       "agente": "dev-plataforma",
       "estado": "em-curso",
-      "nota": "decisao do dono 21/08: destravar ja — historiador montando a lista de pinos candidatos com fonte; aprovacao continua pino a pino"
+      "nota": "49 pinos candidatos integrados em territorio/PINOS-PROPOSTA.md; 2 decisoes no dashboard (Joao Candido, PARE visiveis); aprovacao segue pino a pino"
     },
     {
       "id": "home-inc2",
@@ -113,8 +113,8 @@
       "titulo": "Divulgação 2026 — plano e rascunhos PARA SIGN-OFF",
       "detalhe": "Sua lei: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem seu sign-off.",
       "agente": "growth",
-      "estado": "em-curso",
-      "nota": "decisao do dono 21/08: comecar ja — growth nos rascunhos internos; sign-off continua lei para qualquer coisa que saia"
+      "estado": "do-dono",
+      "nota": "PLANO.md + 5 rascunhos integrados; 3 decisoes do dono pendentes (texto-base, nome no press-kit, ordem dos publicos). Sign-off continua lei"
     },
     {
       "id": "coerencia-visual",
