@@ -76,3 +76,6 @@ test/portao-vermelho-*.log
 test/DIO-*-1366x768.png
 test/DIO-*-844x390.png
 test/DIO-*-390x568.png
+
+# quem sou eu, para o lock entre maquinas (PR #4) — nunca versionado: cada maquina tem o seu
+.claude/maquina

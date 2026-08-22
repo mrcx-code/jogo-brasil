@@ -51,7 +51,30 @@ process.stdin.on('end', () => {
     }
   }
 
-  // ---- 2. A ZONA DO DONO. A tela ONDE FOI é dele desde 17/08, e ele trabalha nela em OUTRA
+  // ---- 2. TERRITÓRIO TRAVADO POR OUTRA MÁQUINA (Proposta B do PR #4, 23/08).
+  // O `em-curso` do backlog era honra: a palavra só existia dentro do JSON e nenhuma ferramenta
+  // lia. Agora ela recusa — mas só quando há certeza: outra máquina, item em-curso, território
+  // casado e lock dentro da validade (2 h). Qualquer dúvida — sem `.claude/maquina`, JSON
+  // quebrado, carimbo ruim, lock vencido — DEGRADA para o comportamento de sempre, porque
+  // máquina travada por engano é pior que colisão. A lógica mora em `lock-maquina.js` para
+  // caber num teste sozinha (test/guarda-lock.js).
+  try {
+    const { quemTrava } = require(path.join(__dirname, 'lock-maquina.js'));
+    const trava = quemTrava(rel, RAIZ);
+    if (trava) {
+      const hora = String(trava.desde || '').replace('T', ' ').slice(0, 16);
+      recusar(
+        'RECUSADO pelo portão: ' + rel + ' pertence ao item ' + trava.id +
+        (trava.titulo ? ' (' + trava.titulo + ')' : '') + ', em curso na máquina ' +
+        trava.maquina + ' desde ' + hora + ' UTC.\n' +
+        'Duas máquinas escrevendo no mesmo território se atropelam em silêncio.\n' +
+        'Pegue outro item livre do backlog, ou fale com o dono. O lock vence sozinho em 2 h.\n' +
+        '(Proposta B do PR #4; o estado sai de ferramentas/backlog.json, nunca deste arquivo)\n'
+      );
+    }
+  } catch { /* o portão nunca vira bloqueio total por causa de dado ruim */ }
+
+  // ---- 3. A ZONA DO DONO. A tela ONDE FOI é dele desde 17/08, e ele trabalha nela em OUTRA
   // máquina — duas escritas simultâneas no mesmo arquivo de 15 mil linhas se atropelam em
   // silêncio. Os símbolos saem do TERRITORIO.md, nunca daqui.
   const territorio = path.join(RAIZ, 'TERRITORIO.md');
