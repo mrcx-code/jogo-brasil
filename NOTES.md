@@ -9245,3 +9245,112 @@ do funil: aprovar como esta, entrar inerte, ou reprovar. Bonus do dev: a lista b
 dos 10 eventos desde 19/08 (regex nao casava glossario_do_capitulo) — corrigido; evento saiu
 com corpo provado campo a campo. CLAUDE.md par.3 diz DEZ eventos e agora sao ONZE — patch
 pronto no PENDENTES 56, a mao e do dono.
+## 22/08 (dev-jogo) — a regua do dono respondeu "em duas telas sim, em quatro nao", e a conta e ela
+
+Duas decisoes dele, no mesmo ramo.
+
+### 1 · A LINHA DO CHAO SOBE NO MENU EM RETRATO — mecanismo aprovado, subida VETADA, pousa INERTE
+
+O PENDENTES 53 dizia que em retrato ela fica 100% atras do poste. A saida escolhida por ele foi
+subir a linha do chao so no menu retrato, com regua NUMERICA: 0% de sobreposicao com poste,
+tabuas e proposta · respiro >= 8 px dos dois lados · faixa livre >= altura dela + 16 — **e, se
+nao der, ela nao entra** (ausente e melhor que espremida).
+
+**A regua nao passou em todo lugar, e esse e o resultado:**
+
+| tela | faixa | precisa | veredito | GROUND | respiro cima/baixo |
+|---|---:|---:|---|---|---|
+| 320x568 | 9,0 | 104 | nao entra | 193/284 | — |
+| 360x640 | 16,0 | 104 | nao entra | 218/320 | — |
+| 390x568 | 9,0 | 104 | nao entra | 193/284 | — |
+| 390x844 | 83,0 | 104 | nao entra (faltam **21 px**) | 287/422 | — |
+| 412x915 | 119,0 | 104 | **ENTRA** | 311 -> **218**/458 | 14,4 / 15,9 |
+| 430x932 | 128,0 | 104 | **ENTRA** | 317 -> **224**/466 | 19,3 / 20,0 |
+
+Cruzamento medido nas duas em que ela entra: **zero px2** com o poste, com as OITO tabuas e com
+a proposta. Nas quatro em que nao entra, o portao exige que `GROUND == round(H x 0,68)` — nada
+se mexeu — e que ela continue inteira atras do poste.
+
+**Como:** `0,68` deixou de ser literal em tres lugares (`fitCanvas`, `redesenharFundo`, a nevoa
+do `pintarHomeCena`) e virou `fracChao()`. Quem decide e `medirChaoDaHome()`, que le
+`offsetTop`/`offsetHeight` e **nao** `getBoundingClientRect` — a mobilia entra com `brota`
+(translateY de 18 px), e medir durante a animacao daria uma faixa 18 px maior e uma subida
+errada de forma intermitente (a licao 2.4 paga antes de custar a sessao).
+
+**Ida e volta provada num probe proprio:** home 218 -> JOGAR 311 -> home 218 -> girado deitado
+140 (que e 0,68 de H=206) -> girado de volta 218 -> `fecharTelas` 311. Zero erro de console.
+
+**O PRECO, e ele e da arte (PENDENTES 54):** subir a linha do chao AMPLIA a pintura, porque so
+existe 25% de chao na fonte e a faixa de baixo cresce de 0,32 para 0,524 da tela. Medido em
+412x915 dpr2: `dh` **2.345 -> 3.840** (1,64x), e **o ceu, o mar e as montanhas saem de quadro**.
+Prints em `test/CHAO-ANTES-412x915.png` e `test/CHAO-DEPOIS-412x915.png`. Nas telas em que a
+regua nao deixa subir, a composicao e identica (390x844 antes e depois: GROUND 287/422, dh 2161,
+dw 1216, dy -473 — os mesmos quatro numeros). **Consequencia que precisa de julgamento: a home
+passou a ter duas composicoes conforme a altura do celular.** O caminho que preservaria o ceu
+(repetir a peca de chao espelhada na vertical, o mesmo truque da horizontal) esta escrito no
+PENDENTES 54 com o custo — nao foi feito porque o despacho pedia a regua, nao a reescrita do
+fundo.
+
+**A ARTE JULGOU E A ENTREGA POUSOU INERTE (veredito b, no mesmo ramo).** Mecanismo APROVADO — o
+parecer dela: *"a regua dizendo NAO em 4 de 6 e prova, nao defeito"*. Subida VETADA por tres
+razoes, e a terceira e a que fecha: o logo perde o recorte da folha contra o CEU (vira folha
+sobre folha) · o MAR some, e o mar e o que a home diz sem escrever ("travessia") · e **duas
+homes por altura de aparelho, na PORTA DE ENTRADA, e "nao parecem do mesmo jogo"**.
+
+Entao entrou `CHAO_HOME_LIGADO = false`, chave **dedicada** — a arte foi explicita em nao
+reaproveitar `CHAO_FRAC_MIN` como interruptor: trava de sanidade nao vira chave, e quem lesse
+0,34 daqui a um mes nao saberia que aquele numero desligava uma decisao de composicao. Ela liga
+JUNTO com o caminho-do-ceu, nunca sozinha, e as **quatro condicoes de aceite** da arte estao por
+extenso no PENDENTES 54 (costura vertical julgada por PRINT, com o precedente JABAQUARA nomeado
+— espelho em textura organica fabrica rosto, achado de 21/08 · a referencia 390x844 TEM que
+ganhar a heroina, senao a prioridade cai · a regua 0%/8px/44px inteira · FPS em A/B na mesma
+carga com ordem ALTERNADA, porque o vento custou 9 FPS e a ordem fixa inventou 10%).
+
+**O portao:** `test/regua-larga.js` ganhou um segundo bloco com as seis telas de retrato, as
+duas metades da regua, a assercao NEGATIVA nas seis telas largas (`GROUND` em 0,68 fora do
+retrato) e, com o veto, a assercao de **INERCIA**: com a chave desligada, `GROUND ==
+round(H x 0,68)` e `chaoHome == 0` nas SEIS de retrato — o par de prints 390x844 mostra UMA
+tela, a assercao cobra as seis, e e ela que impede a subida de voltar ligada por acidente num
+merge.
+
+**Tres controles vistos mordendo e um positivo:** `REGUA_CHAO=espremer` (chave desligada, chao
+mexido a mao) reprova as 6 de retrato E as 6 largas · `REGUA_CHAO=ligar` (chave ligada, medida
+nao refeita) reprova as 2 telas em que a faixa da, o que prova que a regua dos dois lados nao
+morreu com o veto — esta viva e so dormindo · `REGUA_CHAO=ligar-real` (chave ligada e medida
+refeita pelo caminho de verdade) **PASSA**, com as duas telas entrando dentro da regua, e ele
+existe para "reprovou com a chave ligada" nao poder ser confundido com "a regua reprova
+qualquer coisa quando ligada". Verde por exit code sem defeito.
+
+**No dia em que o 54 fechar, muda UMA linha:** `false` -> `true`.
+
+### 2 · A PORTA PARA A PLATAFORMA PASSA A MEDIR
+
+Evento `saiu`, **sem propriedade nenhuma** (so as tres tecnicas), no clique da ancora da CHEGADA.
+O `keepalive` que o `medir()` ja tinha deixa de ser detalhe: e o unico evento do jogo que nasce
+de uma navegacao.
+
+**O portao ganhou o evento junto com a lista** — e o achado do dia saiu dai: a varredura da
+fonte no bloco 17b casava `medir\("([a-z]+)"`, **sem o sublinhado**, entao
+`glossario_do_capitulo` NUNCA entrou na conta e o corpo dele nunca foi aberto por ninguem. O
+CLAUDE.md dizia DEZ eventos e o portao cobrava NOVE, desde 19/08. Corrigido no mesmo commit: o
+regex passa a aceitar `_`, a conta passa a ser **onze**, e os dois eventos novos entraram na
+tabela por-evento (`saiu: []`, a regua mais apertada que existe aqui). **O CLAUDE.md nao foi
+tocado de proposito** — editar o documento de instrucoes permanentes nao e coisa de agente, e o
+precedente e desta mesma casa (a linha de 19/08, "o §3.2 diz nove e agora sao dez, a frase
+precisa da mao do dono"). O patch pronto para colar esta no **PENDENTES 56**.
+
+**E o ORIGEM do bloco 17 deixou de ser a raiz:** `https://encaixe.local/` virava
+`location.pathname === "/"`, e a guarda do proprio link esconde a saida quando o jogo E a raiz
+(o caso do Capacitor). Com a raiz, o clique nao teria como ser dado. Passou a
+`https://encaixe.local/jogo/`, que e onde o jogo mora em producao desde 20/08.
+
+**Medido:** 11 eventos na fonte, 11 disparados, 14 pedidos, corpo do `saiu` exatamente
+`$ip, $lib, $process_person_profile`. **Desligado: 0 pedidos** com o clique dado no meio (e uma
+assercao nova conferindo que a saida EXISTIA naquela pagina, senao o clique nao provaria nada).
+**Dois controles vistos mordendo:** `medir("saiu",{dia:0})` -> exit 1 em "propriedade aprovada,
+mas nao para este evento"; `medir("saiu")` removido -> exit 1 em "achei 10".
+
+**Portoes (exit real):** `npm test` **0** (smoke PASS, FPS 61, regua verde nas 6 largas + 6 de
+retrato) · `node test/encaixe.js` **0** (396 ok, era 395) · `npm run tipos` **0** ·
+`node test/medir-save-hostil.js` **0** · `node test/medir-telas-altura.js 360 500 950` **0** ·
+`node test/diario-sem-eco.js` **0**. Zona do dono intocada (nada de `MAPA_*`/`telaMapa`).

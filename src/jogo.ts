@@ -4249,6 +4249,85 @@ let mundoParado = false;
 // `guardarMundoDoMenu()`. Lido pelos mesmos dois clientes de desenho, pela mesma razão.
 let mundoEmLoop = false;
 let W = 320, H = 180, GROUND = 108, HX = 90;
+// ===== A LINHA DO CHÃO É UMA FRAÇÃO, E ELA SOBE SÓ NO MENU EM RETRATO (22/08) =====
+//
+// O 0,68 sempre foi um literal repetido em três lugares — `fitCanvas` (o GROUND do mundo),
+// `redesenharFundo` (onde a rua pintada encosta) e a névoa do pé da mata em `pintarHomeCena`.
+// Ele passa a sair de UMA função, e é a armadilha nº 1 do §7 escrita como código: se as três
+// camadas não lerem a MESMA fração, o chão pintado e o chão do jogo se separam e ela levita.
+//
+// POR QUE A FRAÇÃO PASSA A SE MEXER. Medido em 22/08 pelo DOM (PENDENTES 53): em retrato a
+// caixa dela cai INTEIRA atrás das tábuas — zero pixel visível em 390×844, 390×568, 360×640,
+// 320×568, 412×915 e 430×932. Decisão do dono: subir a linha do chão SÓ no menu em retrato,
+// para ela aparecer na faixa livre entre a frase de proposta e o topo do poste.
+//
+// A RÉGUA É DURA E É ELA QUE DECIDE, não o gosto: a faixa livre precisa caber a altura dela
+// MAIS 8 px de respiro de cada lado. Se não couber, `chaoHome` fica 0 e NADA se mexe — ela
+// continua onde sempre esteve (atrás do poste, invisível), porque ausente é melhor que
+// espremida. Os dois caminhos são cobrados por asserção em `test/regua-larga.js`.
+const CHAO_FRAC = 0.68;              // a linha do chão de sempre — jogo, deitado e desktop
+const CHAO_RESPIRO = 8;              // px livres exigidos acima e abaixo da caixa dela
+const CHAO_FRAC_MIN = 0.34;          // trava de sanidade: a pintura não sobe mais que isto
+// ===== A CHAVE, E ELA NASCE DESLIGADA — VETO DA ARTE, 22/08 =====
+//
+// O MECANISMO acima foi APROVADO pela arte (a régua dizendo NÃO em 4 das 6 telas de retrato é
+// prova de que ela funciona, não defeito dela). O que foi VETADO foi ligá-lo hoje, e o parecer
+// tem número: nas duas telas em que ela entra, subir a linha do chão AMPLIA a pintura 1,64×
+// (dh 2.345 → 3.840 em 412×915 dpr2), porque só existe 25% de chão na fonte. Com isso:
+//   · o logo perde o recorte da folha contra o CÉU — ele passa a ser folha sobre folha;
+//   · o MAR some, e o mar é o que a home diz sem escrever ("travessia");
+//   · a home vira parede de mata.
+// E o argumento que fecha: seriam DUAS HOMES conforme a altura do aparelho, na PORTA DE
+// ENTRADA da plataforma — "não parecem do mesmo jogo".
+//
+// LIGA JUNTO COM O CAMINHO-DO-CÉU DO PENDENTES 54, NUNCA SOZINHA. Aquele caminho (repetir a
+// peça de chão espelhada na vertical, o mesmo truque que já elimina a emenda na horizontal)
+// derruba a exigência de "a faixa de baixo tem de ser coberta pela pintura" — e aí a pintura
+// fica MENOR que hoje, com MAIS céu, e as três objeções acima deixam de existir. As quatro
+// condições da arte para aquele dia estão escritas por extenso no PENDENTES 54.
+//
+// É `let` e não `const` por UMA razão só, e nenhuma linha do jogo a escreve: o autoteste da
+// régua a liga à mão para provar que a régua do retrato volta a morder (lição 2.8) — ver
+// `REGUA_CHAO=ligar` no rodapé de `test/regua-larga.js`.
+//
+// E ela É UMA CHAVE DEDICADA de propósito: a arte foi explícita em NÃO reaproveitar o
+// `CHAO_FRAC_MIN` como interruptor. Trava de sanidade não vira chave — quem lesse 0,34 daqui a
+// um mês não teria como saber que aquele número estava desligando uma decisão de composição.
+let CHAO_HOME_LIGADO = false;
+let chaoHome = 0;                    // 0 = fração de sempre; senão a fração só da home retrato
+function fracChao() { return chaoHome || CHAO_FRAC; }
+// A MEDIDA SAI DO LAYOUT, NUNCA DO `getBoundingClientRect` — e isto é a lição 2.4 aplicada
+// antes de custar a sessão: as tábuas e a frase entram com `brota` (translateY de 18 px por
+// 0,42 s, com atrasos de 0,06 e 0,12). Medir a caixa durante a animação daria uma faixa 18 px
+// maior que a real e a subida sairia errada, de forma intermitente. `offsetTop`/`offsetHeight`
+// são LAYOUT: não enxergam transform, não enxergam rolagem, e valem já no primeiro quadro.
+function medirChaoDaHome() {
+  const anterior = chaoHome;
+  chaoHome = 0;
+  // A CHAVE PRIMEIRO, e o retorno seco: desligada, esta função não lê uma caixa do DOM (ou seja,
+  // não custa um reflow por troca de tela) e o mundo fica byte a byte no 0,68 de sempre — que é
+  // exatamente o que a asserção de INÉRCIA da `regua-larga.js` cobra nas seis telas de retrato.
+  if (!CHAO_HOME_LIGADO) return chaoHome !== anterior;
+  const naHome = document.body.classList.contains("naHome");
+  // Deitado e desktop ficam INTOCADOS: lá ela já aparece (o poste é de dois lados ou mora numa
+  // coluna), e mexer no enquadramento deles seria pagar por um problema que não existe.
+  const retrato = window.innerHeight > window.innerWidth;
+  const sub = document.getElementById("menuSub");
+  const poste = document.getElementById("poste");
+  if (naHome && retrato && sub && poste && H > 0) {
+    const alturaEla = HERO_TARGET * ESCALA;                 // ky é exatamente ESCALA (TELA_H = H×ESCALA)
+    const topo = sub.offsetTop + sub.offsetHeight + CHAO_RESPIRO;
+    const base = poste.offsetTop - CHAO_RESPIRO;
+    if (base - topo >= alturaEla) {
+      const pes = topo + (base - topo - alturaEla) / 2 + alturaEla;
+      const alvo = Math.round(pes / ESCALA) / H;
+      // Só SOBE. Uma faixa que caísse abaixo da linha de sempre não é motivo para descer o
+      // chão — seria mexer no enquadramento aprovado para piorar.
+      if (alvo < CHAO_FRAC && alvo >= CHAO_FRAC_MIN) chaoHome = alvo;
+    }
+  }
+  return chaoHome !== anterior;
+}
 // ===== A CAIXA DAS TRÊS CAMADAS, EM PX DE TELA =====
 // `TELA_W`/`TELA_H` são W×ESCALA e H×ESCALA — a caixa que as três camadas (#fundoHD, #scene
 // e #heroHD) ocupam. Elas existem porque a caixa deixou de ser a janela: ver o bloco grande
@@ -4504,7 +4583,11 @@ function fitCanvas() {
   H = Math.ceil(window.innerHeight / SCALE);
   TELA_W = W * SCALE;
   TELA_H = H * SCALE;
-  GROUND = Math.round(H * 0.68);
+  // A fração vem depois de `H` e `ESCALA` porque ela DEPENDE dos dois (a altura dela na tela é
+  // HERO_TARGET × ESCALA). Girar o aparelho passa por aqui, então a subida da home se refaz
+  // sozinha no retrato e se desfaz sozinha no deitado.
+  medirChaoDaHome();
+  GROUND = Math.round(H * fracChao());
   HX = Math.round(W * 0.26);
   cv.width = W; cv.height = H;
   // A caixa em px de tela, escrita à mão: o `width: 100%` do CSS mediria a JANELA, que é a
@@ -7438,7 +7521,10 @@ function fundoPintado() {
 // the image; the game's GROUND is 0.68*H. Align that line to GROUND so the hero stands on the
 // painted street, scaling up enough that the ground band below still covers the frame (there is
 // only ~1/4 of the image below the ground line, so a plain cover-fit leaves the hero floating).
-const FUNDO_GROUND_SRC = 0.75, FUNDO_GROUND_DST = 0.68;
+// O DESTINO DEIXOU DE SER LITERAL (22/08): ele é `fracChao()`, a mesma função que o `fitCanvas`
+// usa para o GROUND. Enquanto o menu retrato sobe a linha do chão, a pintura sobe JUNTO — se
+// só uma das duas subisse, a personagem levitaria ou afundaria, que é a armadilha nº 1 do §7.
+const FUNDO_GROUND_SRC = 0.75;
 function redesenharFundo() {
   const fc = document.getElementById("fundoHD") as HTMLCanvasElement | null;
   if (!fc) return;
@@ -7462,7 +7548,7 @@ function redesenharFundo() {
   // em velocidades diferentes, lá no rolarFundo().
   const alto = CENARIO_ALTO[fundoIdx()], chao = CENARIO_CHAO[fundoIdx()];
   const iw = alto.naturalWidth, ih = alto.naturalHeight + chao.naturalHeight;
-  const gs = FUNDO_GROUND_SRC, gd = FUNDO_GROUND_DST;
+  const gs = FUNDO_GROUND_SRC, gd = fracChao();
   // scale must: cover width; keep the sky above the ground line covered (dy<=0); and keep the
   // ground band below covered (dy+dh>=ch). The last term dominates for these tall paintings.
   const scale = Math.max(cw / iw, ch / ih, gd * ch / (gs * ih), (1 - gd) * ch / ((1 - gs) * ih));
@@ -8899,7 +8985,9 @@ function pintarHomeCena() {
   // clara e fraca deitada EXATAMENTE na linha em que ela pisa (GROUND/H, os mesmos 0,68 que o
   // `fitCanvas` escreve) empurra a mata para tras sem tocar um pixel da arte — e para na
   // linha, porque o chao e o plano de CA e escurecer ou clarear ele desfaria o efeito.
-  const linha = h * 0.68;
+  // Ela sai de `fracChao()` desde 22/08 pelo mesmo motivo da pintura: com a linha do chao
+  // subida no menu retrato, uma nevoa presa em 0,68 ficaria deitada no meio do chao.
+  const linha = h * fracChao();
   const nev = g.createLinearGradient(0, linha - h * 0.19, 0, linha);
   nev.addColorStop(0, "rgba(228,220,180,0)");
   nev.addColorStop(0.72, "rgba(228,220,180,.055)");
@@ -10705,6 +10793,11 @@ function abrirTela(id) {
   // esta classe que o liga — ver `pintarHomeCena()` e `body.naHome` no estilo.css.
   const naHome = id === "telaMenu";
   document.body.classList.toggle("naHome", naHome);
+  // A LINHA DO CHÃO ENTRA E SAI COM A HOME (22/08). `fitCanvas` é quem sabe recalcular o
+  // GROUND, repintar a pintura na fração nova e repintar o diorama — chamá-lo só quando a
+  // fração MUDA é o que impede um repinte a cada abertura de tela. Fora do menu retrato
+  // `medirChaoDaHome()` devolve 0 e o mundo volta exatamente ao 0,68 de sempre.
+  if (medirChaoDaHome()) fitCanvas();
   if (naHome) pintarHomeCena();
 }
 function fecharTelas() {
@@ -10713,6 +10806,7 @@ function fecharTelas() {
   TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
   document.body.classList.remove("emTela");
   document.body.classList.remove("naHome");
+  if (medirChaoDaHome()) fitCanvas();
 }
 
 // ============================================================
@@ -15408,6 +15502,20 @@ function montarSaidaPlataforma() {
   a.setAttribute("href", "/");
   a.setAttribute("target", "_self");
   a.textContent = "a plataforma continua em " + location.host + " →";
+  // A PORTA PASSA A MEDIR (22/08, decisão do dono). O link existe desde hoje de manhã e
+  // ninguém sabe se alguém o usa — e ele é a única costura entre o CHAMARIZ e a plataforma
+  // (§8, 19/08). Sem este evento, "o jogo traz gente para as seções" continua sendo uma
+  // intenção escrita no CLAUDE.md em vez de um número.
+  //
+  // SEM PROPRIEDADE NENHUMA, e é decisão: o que se quer saber é quantas pessoas atravessam,
+  // não quem. Capítulo, dia e tempo já viajam no `terminou`, que sai na MESMA tela poucos
+  // segundos antes — repeti-los aqui só aumentaria a superfície do §3 sem responder nada.
+  //
+  // O `keepalive` do `medir()` é o que faz este evento sobreviver à navegação: sem ele o
+  // navegador aborta o POST no instante em que a página começa a sair, e o único evento do
+  // jogo que nasce de uma SAÍDA seria justamente o que nunca chega. Ele já estava lá para o
+  // "onde parou" — aqui ele deixa de ser detalhe e vira requisito.
+  a.addEventListener("click", function () { medir("saiu"); });
   cx.appendChild(nota);
   cx.appendChild(a);
 }

@@ -1,4 +1,5 @@
-// A HOME NAS QUATRO TELAS QUE A DECIDEM — o instrumento do increment 2 (diorama, 22/08).
+// A HOME NAS TELAS QUE A DECIDEM — o instrumento do increment 2 (diorama, 22/08).
+// Eram quatro; passaram a SEIS em 22/08, com a subida da linha do chão (PENDENTES 53).
 //
 // POR QUE ELE É PERMANENTE E OS PRINTS NÃO SÃO. Um par 1366×768 pesa 10 MB; os oito prints da
 // rodada de 22/08 pesavam 18 MB, num repositório onde 12 MB de print já entraram por engano uma
@@ -20,6 +21,13 @@ const PREF = process.argv[2] || 'HOME';
 const TELAS = [
   { nome: '390x844', w: 390, h: 844 },     // o celular de referência do smoke
   { nome: '390x568', w: 390, h: 568 },     // o retrato curto, piso do que ainda se vende
+  // AS DUAS QUE A SUBIDA DO CHÃO ATINGE (22/08). A faixa livre entre a proposta e o topo do
+  // poste só chega a caber a personagem MAIS 16 px de respiro em telas de retrato altas: 119
+  // px no Pixel e 128 no iPhone Max, contra 83 no 390×844 e 9 no 390×568. Sem estas duas
+  // linhas, o instrumento que existe para julgar o enquadramento não veria o enquadramento
+  // novo em tela nenhuma.
+  { nome: '412x915', w: 412, h: 915 },     // Pixel 7/8 — a faixa DÁ, o chão sobe
+  { nome: '430x932', w: 430, h: 932 },     // iPhone 15 Pro Max — idem
   { nome: '844x390', w: 844, h: 390 },     // telefone deitado — o poste de dois lados
   { nome: '1366x768', w: 1366, h: 768 },   // notebook — a home cinemática
 ];
@@ -58,20 +66,33 @@ async function abrirMenuParado(page) {
         const r = e.getBoundingClientRect();
         return [r.x, r.y, r.width, r.height].map(v => Math.round(v * 10) / 10).join('/'); };
       const tela = document.getElementById('telaMenu');
-      const hc = document.getElementById('heroHD');
-      const cssW = parseFloat(hc.style.width), cssH = parseFloat(hc.style.height);
-      const alt = HERO_TARGET * (cssH / H);
-      const ela = { x: Math.round(HX * (cssW / W) - 20), y: Math.round(GROUND * (cssH / H) - alt),
-        w: 40, h: Math.round(alt) };
+      // A CAIXA DELA É A DO `desenharHeroiHD`, e a aproximação antiga (40 px de largura, x−20)
+      // foi trocada em 22/08 porque ela erra 14 px de largura e não acompanha a folha do
+      // capítulo. A caixa alfa do `#heroHD` TAMBÉM não serve: o plano da frente é desenhado na
+      // mesma camada e a folha da quina entra na conta (medido: 102 px de altura onde ela tem
+      // 88, e 511 px de largura em tela deitada).
+      const img = heroBloco('walk')[0];
+      const sc = HERO_TARGET / img.naturalHeight;
+      const kx = telaW() / W, ky = telaH() / H;
+      const ela = { x: HX * kx - img.naturalWidth * sc * kx / 2, y: GROUND * ky - HERO_TARGET * ky,
+        w: img.naturalWidth * sc * kx, h: HERO_TARGET * ky };
       const p = document.getElementById('poste').getBoundingClientRect();
-      const escondida = ela.x > p.left - 20 && ela.x + ela.w < p.right + 20
-        && ela.y > p.top - 2 && ela.y + ela.h < p.bottom + 2;
+      const escondida = ela.x >= p.left - 1 && ela.x + ela.w <= p.right + 1
+        && ela.y >= p.top - 1 && ela.y + ela.h <= p.bottom + 1;
       const dio = document.getElementById('homeCena');
+      const sub = document.getElementById('menuSub');
+      const posteEl = document.getElementById('poste');
+      const r2 = (v) => Math.round(v * 10) / 10;
       return {
         rolagem: tela.scrollHeight - tela.clientHeight,
         poste: cx('poste'), logo: cx('logoImg'), jogar: cx('btnJogar'), config: cx('btnConfig'),
-        ela: ela.x + '/' + ela.y + '/' + ela.w + '/' + ela.h,
+        ela: [ela.x, ela.y, ela.w, ela.h].map(r2).join('/'),
         elaAtrasDoPoste: escondida,
+        // A FAIXA LIVRE e a régua do dono: altura dela + 8 de respiro de cada lado.
+        faixa: r2(posteEl.offsetTop - (sub.offsetTop + sub.offsetHeight)),
+        precisa: r2(ela.h + 16),
+        chao: chaoHome ? chaoHome.toFixed(4) : '0.6800',
+        ground: GROUND + '/' + H,
         diorama: dio ? getComputedStyle(dio).display : 'ausente',
       };
     });
@@ -79,10 +100,12 @@ async function abrirMenuParado(page) {
       + '  poste ' + m.poste + '  logo ' + m.logo
       + '\n          jogar ' + m.jogar + '  config ' + m.config
       + '\n          personagem ' + m.ela + (m.elaAtrasDoPoste ? '  <-- INTEIRA atrás do poste' : '  (aparece)')
+      + '\n          faixa ' + m.faixa + ' (precisa ' + m.precisa + ')  ·  chão ' + m.chao
+      + '  ·  GROUND ' + m.ground
       + '  ·  diorama ' + m.diorama);
     await pg.screenshot({ path: path.join(__dirname, PREF + '-' + t.nome + '.png') });
     await pg.close();
   }
-  console.log(erros.length ? 'ERROS:\n' + erros.join('\n') : 'zero erro de console nas quatro telas');
+  console.log(erros.length ? 'ERROS:\n' + erros.join('\n') : 'zero erro de console nas ' + TELAS.length + ' telas');
   await nav.close();
 })();
