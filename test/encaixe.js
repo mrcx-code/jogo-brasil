@@ -981,7 +981,13 @@ async function abrirMenuParado(page) {
   // ============================================================
   sec('17 · a medição some sem levar o jogo junto, e não carrega ninguém consigo');
   const HTML = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
-  const ORIGEM = 'https://encaixe.local/';
+  // O CAMINHO DEIXOU DE SER A RAIZ (22/08), e isto é o que torna a saída para a plataforma
+  // MEDÍVEL aqui: `montarSaidaPlataforma()` esconde a nota de margem quando o jogo É a raiz
+  // (no aplicativo do Capacitor `/` é o próprio jogo), então com `https://encaixe.local/` o
+  // link nem existia na página e o evento `saiu` não teria como ser disparado pelo caminho da
+  // PESSOA. Em produção o jogo mora em `/jogo/` desde 20/08 — este endereço passa a ser o de
+  // verdade, e o roteador continua servindo o mesmo HTML e os mesmos pacotes.
+  const ORIGEM = 'https://encaixe.local/jogo/';
   // `op.esperado` é a válvula dos blocos 18 e 20: eles PROVOCAM um defeito de propósito, e sem
   // ela o próprio erro encenado seria contado como erro do jogo. `op.provocar` roda com a
   // página já viva, depois da espera, e antes da conferência de que a partida seguiu.
@@ -1155,7 +1161,17 @@ async function abrirMenuParado(page) {
     terminou: ['vez', 'minutos', 'dia'],
     volta:    ['resposta', 'dia', 'minutos', 'vez'],
     parou:    ['capitulo', 'nome', 'minutos', 'sessao', 'ativos', 'dia'],
-    erro:     ['msg', 'arquivo', 'linha']
+    erro:     ['msg', 'arquivo', 'linha'],
+    // A PORTA DA PLATAFORMA (22/08, decisão do dono): NENHUMA propriedade além das três
+    // técnicas. Lista vazia não é esquecimento — é a régua mais apertada que existe aqui, e
+    // qualquer campo que alguém acrescente a este evento reprova na hora.
+    saiu:     [],
+    // ...e A PORTA DAS PALAVRAS, que estava FORA deste portão desde que nasceu (19/08). O
+    // achado é de 22/08 e é do próprio instrumento: a varredura da fonte casava
+    // `medir\("([a-z]+)"` — sem o sublinhado —, então `glossario_do_capitulo` nunca entrava na
+    // conta dos eventos declarados e o corpo dele nunca foi aberto por ninguém. O CLAUDE.md
+    // dizia DEZ e o portão cobrava NOVE, e a diferença passou dois dias sem ser vista.
+    glossario_do_capitulo: ['n', 'dia']
   };
   const nove = await rodarMedida('adblock', {
     esperado: /encaixe-portao/,
@@ -1203,7 +1219,30 @@ async function abrirMenuParado(page) {
       responderVolta(2);
       toque('btnFimHist'); await espera(80); fecharTelas();
       toque('btnFimFontes'); await espera(80); fecharTelas();
-      fecharTudo();
+      // A PORTA DAS PALAVRAS. Chamada pela função e não pelo botão `falaGloss`, e a razão é
+      // dita: o botão só existe DENTRO de um fecho de capítulo com palavras, e este bloco
+      // acabou de fechar todas as telas para disparar o `terminou`. O que este portão confere
+      // é o CORPO do evento, e o corpo é o mesmo pelos dois caminhos — a linha do `medir()`
+      // está dentro de `abrirGlossarioDoCap`, não do ouvinte do botão.
+      let capPal = -1;
+      for (let i = 0; i < EPOCAS.length; i++) if (capPalavras(i).length) { capPal = i; break; }
+      nota.push('capitulo com palavras: ' + capPal);
+      if (capPal >= 0) { abrirGlossarioDoCap(capPal); await espera(80); }
+      fecharTelas(); fecharTudo();
+      // A SAÍDA PARA A PLATAFORMA, pelo CAMINHO DA PESSOA — o clique na âncora de verdade.
+      // A navegação é barrada por um ouvinte de captura em `document` que só chama
+      // `preventDefault()`: ele cancela a IDA e não interrompe a propagação, então o ouvinte
+      // da própria âncora (que é quem mede) roda igual. Medir por `medir("saiu")` à mão
+      // provaria o corpo e não provaria a ligação, que é justamente o que pode quebrar.
+      // (a nota de margem já está no DOM: quem a monta é `montarFim()`, chamada pelo
+      //  `chegarAoFim()` lá de cima — fechar a tela não desfaz o que foi montado)
+      document.addEventListener('click', function (ev) { ev.preventDefault(); }, true);
+      const cxSai = document.getElementById('fimPlataforma');
+      const linkSai = cxSai && cxSai.querySelector('a');
+      nota.push('saida visivel: ' + !!(linkSai && !cxSai.hidden) + ' | pathname ' + location.pathname);
+      if (linkSai) linkSai.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      await espera(80);
+      fecharTelas(); fecharTudo();
       // ONDE PAROU — pelo gancho de verdade, e rearmado em seguida para a página não ficar muda
       window.dispatchEvent(new Event('pagehide'));
       medirParouArmado = true;
@@ -1225,14 +1264,21 @@ async function abrirMenuParado(page) {
     // A lista de nomes sai da FONTE, não de um literal aqui: um evento novo que ninguém ensinou
     // este bloco a disparar reprova na hora, em vez de ficar de fora do portão para sempre.
     // (O `index.html` construído não tem comentário — a régua conta código, EQUIPE §2.6.)
-    const naFonte = [...new Set([...HTML.matchAll(/medir\("([a-z]+)"/g)].map(m => m[1]))];
+    // O SUBLINHADO ENTROU NA VARREDURA EM 22/08, e ele valia um evento inteiro: sem ele
+    // `glossario_do_capitulo` não era achado na fonte, não entrava na conta e o corpo dele
+    // nunca era aberto — o portão prometia cobrir "qualquer propriedade nova" e cobria as de
+    // nove eventos dos onze. É a lição 2.8 pela terceira vez neste mesmo bloco.
+    const naFonte = [...new Set([...HTML.matchAll(/medir\("([a-z_]+)"/g)].map(m => m[1]))];
     const faltando = naFonte.filter(n => nomes.indexOf(n) < 0);
     log('   eventos na fonte: ' + naFonte.length + ' | disparados aqui: ' + nomes.length
       + ' | pedidos: ' + corpos.length);
-    ok(naFonte.length === 9,
-      'o jogo declara nove eventos, que são os nove do CLAUDE.md §3.2 (achei ' + naFonte.length + ')');
+    // O NÚMERO É O DA FONTE, e a lista do CLAUDE.md §3 ainda diz DEZ: ela não conta o `saiu`
+    // (22/08) e o texto pronto para colar está no PENDENTES 56 — quem edita o CLAUDE.md é o
+    // dono/plantão, não o agente. O portão continua sendo ESTE número, não o do documento.
+    ok(naFonte.length === 11,
+      'o jogo declara onze eventos, e todos passam pela lista branca (achei ' + naFonte.length + ')');
     ok(faltando.length === 0, faltando.length === 0
-      ? 'e os nove saíram nesta página: ' + nomes.sort().join(' · ')
+      ? 'e os onze saíram nesta página: ' + nomes.sort().join(' · ')
       : 'evento que o portão NÃO conseguiu disparar, e portanto não confere: ' + faltando.join(', '));
     // (2) A LISTA BRANCA, agora sobre todos os corpos
     const fora = [];
@@ -1263,15 +1309,32 @@ async function abrirMenuParado(page) {
     ok(nove.vivo.andou > 1 && nove.vivo.tela,
       'com a partida seguindo inteira depois deles (a rua andou ' + nove.vivo.andou.toFixed(1) + ' px)');
   }
-  // O INTERRUPTOR. Não é "menos dados": é nenhum.
-  const desl = await rodarMedida('desligado').catch(e => ({ modo: 'desligado', erro: String(e) }));
+  // O INTERRUPTOR. Não é "menos dados": é nenhum. Desde 22/08 ele é provocado com o CLIQUE NA
+  // SAÍDA no meio — o evento novo é o único que nasce de uma navegação, e "desligar desliga de
+  // verdade" tem de valer para ele também, ou o interruptor passa a ter uma exceção silenciosa.
+  const desl = await rodarMedida('desligado', {
+    provocar: async (pg) => pg.evaluate(async () => {
+      const espera = ms => new Promise(r => setTimeout(r, ms));
+      fecharTelas(); fecharTudo();
+      chegarAoFim(); await espera(150);
+      document.addEventListener('click', function (ev) { ev.preventDefault(); }, true);
+      const cxSai = document.getElementById('fimPlataforma');
+      const linkSai = cxSai && cxSai.querySelector('a');
+      if (linkSai) linkSai.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      await espera(80);
+      fecharTelas(); fecharTudo();
+      return ['saida clicada com a medicao desligada: ' + !!linkSai];
+    })
+  }).catch(e => ({ modo: 'desligado', erro: String(e) }));
   if (desl.erro) { ok(false, 'desligado: o teste explodiu — ' + desl.erro); }
   else {
     log('   [desligado] ' + desl.pedidos.length + ' pedido(s) à medição | a rua andou '
-      + desl.vivo.andou.toFixed(1) + ' px');
+      + desl.vivo.andou.toFixed(1) + ' px | ' + (desl.colhido || []).join(' | '));
+    ok((desl.colhido || []).join('').indexOf('true') >= 0,
+      'a saída para a plataforma EXISTE nesta página — senão o clique abaixo não provaria nada');
     ok(desl.pedidos.length === 0,
       desl.pedidos.length === 0
-        ? 'com a contagem desligada não sai UM byte — nem no boot, nem ao abrir A HISTÓRIA'
+        ? 'com a contagem desligada não sai UM byte — nem no boot, nem ao abrir A HISTÓRIA, nem ao SAIR para a plataforma'
         : 'a contagem está desligada e ainda saíram ' + desl.pedidos.length + ' pedido(s)');
     ok(desl.vivo.andou > 1 && desl.vivo.tela, 'e o jogo desligado continua sendo o mesmo jogo');
   }

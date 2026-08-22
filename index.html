@@ -5347,6 +5347,31 @@ let tick = 0, tickMundo = 0, animT = 0;
 let mundoParado = false;
 let mundoEmLoop = false;
 let W = 320, H = 180, GROUND = 108, HX = 90;
+const CHAO_FRAC = 0.68;
+const CHAO_RESPIRO = 8;
+const CHAO_FRAC_MIN = 0.34;
+let chaoHome = 0;
+function fracChao() { return chaoHome || CHAO_FRAC; }
+function medirChaoDaHome() {
+    const anterior = chaoHome;
+    chaoHome = 0;
+    const naHome = document.body.classList.contains("naHome");
+    const retrato = window.innerHeight > window.innerWidth;
+    const sub = document.getElementById("menuSub");
+    const poste = document.getElementById("poste");
+    if (naHome && retrato && sub && poste && H > 0) {
+        const alturaEla = HERO_TARGET * ESCALA;
+        const topo = sub.offsetTop + sub.offsetHeight + CHAO_RESPIRO;
+        const base = poste.offsetTop - CHAO_RESPIRO;
+        if (base - topo >= alturaEla) {
+            const pes = topo + (base - topo - alturaEla) / 2 + alturaEla;
+            const alvo = Math.round(pes / ESCALA) / H;
+            if (alvo < CHAO_FRAC && alvo >= CHAO_FRAC_MIN)
+                chaoHome = alvo;
+        }
+    }
+    return chaoHome !== anterior;
+}
 let ESCALA = 2, TELA_W = 0, TELA_H = 0;
 function telaW() { return TELA_W || window.innerWidth; }
 function telaH() { return TELA_H || window.innerHeight; }
@@ -5509,7 +5534,8 @@ function fitCanvas() {
     H = Math.ceil(window.innerHeight / SCALE);
     TELA_W = W * SCALE;
     TELA_H = H * SCALE;
-    GROUND = Math.round(H * 0.68);
+    medirChaoDaHome();
+    GROUND = Math.round(H * fracChao());
     HX = Math.round(W * 0.26);
     cv.width = W;
     cv.height = H;
@@ -7475,7 +7501,7 @@ function fundoPintado() {
     return i >= 0 && a && a.complete && a.naturalWidth > 0
         && c && c.complete && c.naturalWidth > 0;
 }
-const FUNDO_GROUND_SRC = 0.75, FUNDO_GROUND_DST = 0.68;
+const FUNDO_GROUND_SRC = 0.75;
 function redesenharFundo() {
     const fc = document.getElementById("fundoHD");
     if (!fc)
@@ -7497,7 +7523,7 @@ function redesenharFundo() {
     fx.clearRect(0, 0, cw, ch);
     const alto = CENARIO_ALTO[fundoIdx()], chao = CENARIO_CHAO[fundoIdx()];
     const iw = alto.naturalWidth, ih = alto.naturalHeight + chao.naturalHeight;
-    const gs = FUNDO_GROUND_SRC, gd = FUNDO_GROUND_DST;
+    const gs = FUNDO_GROUND_SRC, gd = fracChao();
     const scale = Math.max(cw / iw, ch / ih, gd * ch / (gs * ih), (1 - gd) * ch / ((1 - gs) * ih));
     const dw = iw * scale, dh = ih * scale;
     let dy = gd * ch - gs * dh;
@@ -8353,7 +8379,7 @@ function pintarHomeCena() {
     luz.addColorStop(1, "rgba(255,200,140,0)");
     g.fillStyle = luz;
     g.fillRect(0, 0, w, h);
-    const linha = h * 0.68;
+    const linha = h * fracChao();
     const nev = g.createLinearGradient(0, linha - h * 0.19, 0, linha);
     nev.addColorStop(0, "rgba(228,220,180,0)");
     nev.addColorStop(0.72, "rgba(228,220,180,.055)");
@@ -9584,6 +9610,8 @@ function abrirTela(id) {
     document.body.classList.add("emTela");
     const naHome = id === "telaMenu";
     document.body.classList.toggle("naHome", naHome);
+    if (medirChaoDaHome())
+        fitCanvas();
     if (naHome)
         pintarHomeCena();
 }
@@ -9593,6 +9621,8 @@ function fecharTelas() {
     TELAS.forEach(function (t) { $(t).classList.remove("aberta"); });
     document.body.classList.remove("emTela");
     document.body.classList.remove("naHome");
+    if (medirChaoDaHome())
+        fitCanvas();
 }
 let mundoGuardado = null;
 function guardarMundoDoMenu() {
@@ -12776,6 +12806,7 @@ function montarSaidaPlataforma() {
     a.setAttribute("href", "/");
     a.setAttribute("target", "_self");
     a.textContent = "a plataforma continua em " + location.host + " →";
+    a.addEventListener("click", function () { medir("saiu"); });
     cx.appendChild(nota);
     cx.appendChild(a);
 }

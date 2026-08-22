@@ -77,6 +77,13 @@ const TELAS = [
     if (process.env.REGUA_DEFEITO) {
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
     }
+    // O MESMO defeito do bloco de retrato entra AQUI também, e é o controle da asserção
+    // negativa: `REGUA_CHAO=espremer` sobe a linha do chão em toda tela, inclusive nas
+    // deitadas e no notebook, e `chaoIntacto` tem de reprovar nas seis.
+    if (process.env.REGUA_CHAO === 'espremer') {
+      await pg.evaluate(() => { chaoHome = 0.60; GROUND = Math.round(H * 0.60); redesenharFundo(); });
+      await pg.waitForTimeout(150);
+    }
     const m = await pg.evaluate(() => {
       const px = (sel) => { const el = document.querySelector(sel); return el ? parseFloat(getComputedStyle(el).fontSize) : null; };
       const larg = (sel) => { const el = document.querySelector(sel); return el ? el.getBoundingClientRect().width : null; };
@@ -160,6 +167,12 @@ const TELAS = [
       return {
         dioMotivo: dioMotivo,
         dioTinta: dioTinta,
+        // A LINHA DO CHÃO SÓ SOBE EM RETRATO (22/08). Aqui a asserção é a NEGATIVA, e ela é a
+        // metade do pedido do dono que ninguém mediria sozinha: deitado e desktop têm de
+        // continuar com o 0,68 de sempre, byte a byte. Sem esta linha, um erro na guarda de
+        // orientação reenquadraria o notebook inteiro e nenhum portão diria nada.
+        chaoIntacto: GROUND === Math.round(H * 0.68),
+        chaoGround: GROUND, chaoH: H,
         menuVisivel: visivel,
         frase: px('#telaMenu .mpFrase'),
         cta: px('#telaMenu .mpCta'),
@@ -181,6 +194,8 @@ const TELAS = [
     // em tela larga (>=900) o painel não pode ocupar quase a tela toda — isso é o "menu esticado"
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
     if (!m.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + m.cfgMotivo);
+    if (!m.chaoIntacto) probs.push('a linha do chão MEXEU fora do retrato: GROUND ' + m.chaoGround
+      + ' contra ' + Math.round(m.chaoH * 0.68) + ' (0,68 de H=' + m.chaoH + ')');
     // o piso de tinta é 0,6% da tela: medido 3,4% em 390×844 e 1,5% no ultrawide (a folha
     // cresce com a régua da tela, a tela cresce mais). Meio por cento é "há moldura"; zero é
     // "a camada existe e não desenhou nada", que é o modo de falha silencioso.
@@ -220,6 +235,134 @@ const TELAS = [
       + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
       + ' · diorama ' + (m.dioTinta >= 0 ? m.dioTinta.toFixed(2) + '%' : 'AUSENTE')
       + ' · configurações ' + (m.cfgOk ? 'alcançável' : 'PRESO');
+    if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
+    else console.log('  ✓ ' + linha);
+  }
+
+  // ============================================================
+  // A LINHA DO CHÃO NO MENU EM RETRATO — a régua da arte, cobrada dos DOIS lados (22/08)
+  //
+  // O QUE ISTO EXISTE PARA GARANTIR (PENDENTES 53, decisão do dono de 22/08). Em retrato a
+  // personagem do diorama caía INTEIRA atrás das tábuas — medido pelo DOM em 22/08, zero pixel
+  // visível em seis telas de retrato. A saída escolhida foi subir a linha do chão SÓ no menu
+  // em retrato, e a régua que o dono aprovou é dura e NUMÉRICA:
+  //
+  //   · 0% de sobreposição da caixa dela com o poste, com as tábuas e com a frase de proposta;
+  //   · respiro >= 8 px acima e abaixo;
+  //   · a faixa livre precisa medir a altura DELA + 16 px — e SE NÃO DER, ELA NÃO ENTRA
+  //     naquela tela. Ausente é melhor que espremida.
+  //
+  // OS DOIS LADOS SÃO COBRADOS, e é isso que separa esta régua de um "passou": nas telas em que
+  // a faixa não dá, o portão exige que NADA tenha se mexido (a linha do chão continua em 0,68)
+  // e que ela continue inteira atrás do poste. Uma implementação que subisse o chão "um
+  // pouquinho" para espremê-la reprova aqui, e é de propósito.
+  //
+  // A CAIXA DELA É A ANALÍTICA, não a mancha do canvas — e isto foi medido antes de escrever:
+  // a caixa alfa do `#heroHD` mede 102 px de altura onde ela tem 88, porque o PLANO DA FRENTE
+  // (`desenharFrente`) é desenhado na mesma camada e a folha da quina de baixo entra na conta.
+  // Em tela deitada a mesma leitura dá 511 px de largura. A caixa que vale é a que o
+  // `desenharHeroiHD` usa: `HX*kx - dw/2` por `GROUND*ky - dh`, com `dh = HERO_TARGET*ky`.
+  //
+  // AUTOTESTE (lição 2.8), com os dois controles vistos mordendo:
+  //   REGUA_CHAO=desligar  — força `chaoHome = 0` em toda tela: as duas telas em que a faixa DÁ
+  //                          passam a esconder a personagem, e o portão reprova nelas.
+  //   REGUA_CHAO=espremer  — força uma subida pequena (0,60) em toda tela: nas telas em que a
+  //                          faixa NÃO dá o chão passa a se mexer e ela encosta no poste, e o
+  //                          portão reprova nelas.
+  // ============================================================
+  const RETRATOS = [
+    { nome: 'iphone SE',      w: 320, h: 568 },
+    { nome: 'android baixo',  w: 360, h: 640 },
+    { nome: 'retrato curto',  w: 390, h: 568 },
+    { nome: 'iphone 12/13',   w: 390, h: 844 },   // o celular de referência do smoke
+    { nome: 'pixel 7/8',      w: 412, h: 915 },
+    { nome: 'iphone 15 pmax', w: 430, h: 932 },
+  ];
+  const RESPIRO = 8;
+  console.log('');
+  for (const t of RETRATOS) {
+    const pg = await nav.newPage();
+    await pg.setViewportSize({ width: t.w, height: t.h });
+    await pg.goto(ALVO);
+    await pg.waitForTimeout(1400);
+    if (process.env.REGUA_CHAO) {
+      await pg.evaluate((d) => {
+        // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo: a primeira
+        // coisa que ele faz é chamar `medirChaoDaHome()`, que desfaria o defeito na hora.
+        if (d === 'desligar') { chaoHome = 0; }
+        if (d === 'espremer') { chaoHome = 0.60; }
+        GROUND = Math.round(H * (chaoHome || 0.68));
+        redesenharFundo();
+      }, process.env.REGUA_CHAO);
+      await pg.waitForTimeout(200);
+    }
+    const m = await pg.evaluate(() => {
+      const off = (id) => { const e = document.getElementById(id); if (!e) return null;
+        let t = 0; for (let p = e; p && p.id !== 'telaMenu'; p = p.offsetParent) t += p.offsetTop;
+        return { topo: t, alt: e.offsetHeight }; };
+      // A CAIXA DELA, pela conta do `desenharHeroiHD` (alto = 0, que é ela em pé no menu)
+      const img = heroBloco('walk')[0];
+      const sc = HERO_TARGET / img.naturalHeight;
+      const kx = telaW() / W, ky = telaH() / H;
+      const dw = img.naturalWidth * sc * kx, dh = img.naturalHeight * sc * ky;
+      const ela = { x: HX * kx - dw / 2, y: GROUND * ky - dh, w: dw, h: dh };
+      const sub = off('menuSub'), poste = off('poste');
+      // as tábuas, uma a uma: a caixa dela não pode encostar em NENHUMA
+      const tabuas = [...document.querySelectorAll('#poste .telaBtn')]
+        .filter(b => getComputedStyle(b).display !== 'none')
+        .map(b => { const r = b.getBoundingClientRect();
+          return { id: b.id, t: r.top, b: r.bottom, l: r.left, r: r.right, h: r.height }; });
+      const subR = document.getElementById('menuSub').getBoundingClientRect();
+      const posteR = document.getElementById('poste').getBoundingClientRect();
+      return {
+        W, H, GROUND, ESCALA, chaoHome, ela,
+        subBase: sub.topo + sub.alt, posteTopo: poste.topo,
+        subCx: { t: subR.top, b: subR.bottom, l: subR.left, r: subR.right },
+        posteCx: { t: posteR.top, b: posteR.bottom, l: posteR.left, r: posteR.right },
+        tabuas
+      };
+    });
+    await pg.close();
+
+    const cruza = (a, b) => Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l))
+                          * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+    const elaCx = { l: m.ela.x, r: m.ela.x + m.ela.w, t: m.ela.y, b: m.ela.y + m.ela.h };
+    const faixa = m.posteTopo - m.subBase;
+    const precisa = m.ela.h + 2 * RESPIRO;
+    const cabe = faixa >= precisa;
+    const probs = [];
+
+    // o piso de dedo vale em retrato também — o despacho pede que ele fique INTOCADO
+    m.tabuas.forEach(b => { if (b.h < 44) probs.push(b.id + ' tem ' + b.h.toFixed(1) + 'px — abaixo dos 44 de dedo'); });
+
+    if (cabe) {
+      // ---- ELA ENTRA. Nada pode encostar nela, e o respiro é 8 dos dois lados.
+      const acima = elaCx.t - m.subBase, abaixo = m.posteTopo - elaCx.b;
+      if (acima < RESPIRO) probs.push('respiro de cima ' + acima.toFixed(1) + 'px < ' + RESPIRO);
+      if (abaixo < RESPIRO) probs.push('respiro de baixo ' + abaixo.toFixed(1) + 'px < ' + RESPIRO);
+      const sPoste = cruza(elaCx, m.posteCx), sSub = cruza(elaCx, m.subCx);
+      if (sPoste > 0) probs.push('a caixa dela cruza o POSTE em ' + Math.round(sPoste) + 'px²');
+      if (sSub > 0) probs.push('a caixa dela cruza a PROPOSTA em ' + Math.round(sSub) + 'px²');
+      m.tabuas.forEach(b => { const s = cruza(elaCx, b);
+        if (s > 0) probs.push('a caixa dela cruza a tábua ' + b.id + ' em ' + Math.round(s) + 'px²'); });
+      if (!m.chaoHome) probs.push('a faixa dá (' + faixa.toFixed(1) + ' >= ' + precisa.toFixed(1)
+        + ') e a linha do chão NÃO subiu — ela continua escondida');
+    } else {
+      // ---- NÃO DÁ: ela NÃO entra, e nada pode ter se mexido para espremê-la.
+      if (m.chaoHome) probs.push('a faixa não dá (' + faixa.toFixed(1) + ' < ' + precisa.toFixed(1)
+        + ') e mesmo assim a linha do chão subiu para ' + m.chaoHome.toFixed(4) + ' — ausente é melhor que espremida');
+      if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('GROUND ' + m.GROUND + ' != 0,68 de H=' + m.H);
+      const dentroDoPoste = elaCx.t >= m.posteCx.t - 1 && elaCx.b <= m.posteCx.b + 1
+                         && elaCx.l >= m.posteCx.l - 1 && elaCx.r <= m.posteCx.r + 1;
+      if (!dentroDoPoste) probs.push('ela não entra na faixa e TAMBÉM não está inteira atrás do poste — está meio à mostra');
+    }
+
+    const linha = t.nome.padEnd(16) + ' · ' + t.w + 'x' + t.h
+      + ' · faixa ' + faixa.toFixed(1) + 'px (precisa ' + precisa.toFixed(1) + ')'
+      + ' · chão ' + (m.chaoHome ? m.chaoHome.toFixed(4) + ' (subiu)' : '0,6800')
+      + ' · GROUND ' + m.GROUND + '/' + m.H
+      + ' · ela ' + elaCx.l.toFixed(0) + '..' + elaCx.r.toFixed(0) + ' x ' + elaCx.t.toFixed(0) + '..' + elaCx.b.toFixed(0)
+      + ' · ' + (cabe ? 'ENTRA' : 'não entra (fica atrás do poste)');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
   }

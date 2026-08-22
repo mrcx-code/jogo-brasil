@@ -1490,3 +1490,104 @@ dev-jogo decidir sozinho.
 **A pergunta para a arte:** vale abrir uma faixa de cena no retrato tirando o logo um degrau, ou
 o retrato fica sendo a tela da MARCA (logo + proposta + portoes) e a personagem e coisa das telas
 largas? As duas leituras sao defensaveis; a segunda e a de hoje, e agora esta medida.
+
+**FEITO EM PARTE em 22/08 (dev-jogo), e a regua do dono decidiu sozinha em que telas.** O dono
+mandou subir a linha do chao so no menu em retrato, com regua dura: 0% de sobreposicao, respiro
+>= 8 px acima e abaixo, e faixa livre >= altura dela + 16 — **e, se nao der, ela NAO entra**.
+
+Medida a faixa livre (topo do poste menos a base da frase de proposta, por `offsetTop`, que nao
+enxerga a animacao `brota`) contra os 88 px de altura dela (HERO_TARGET x ESCALA), a regua
+responde diferente em cada tela, e a resposta e o entregavel:
+
+| tela | faixa livre | precisa | o que acontece | GROUND |
+|---|---:|---:|---|---|
+| 320x568 | 9,0 | 104 | **nao entra** — nada se mexe | 193/284 (0,68) |
+| 360x640 | 16,0 | 104 | **nao entra** | 218/320 (0,68) |
+| 390x568 | 9,0 | 104 | **nao entra** | 193/284 (0,68) |
+| 390x844 | 83,0 | 104 | **nao entra** (faltam 21 px) | 287/422 (0,68) |
+| 412x915 | 119,0 | 104 | **ENTRA** — chao sobe para 0,4760 | 311 -> **218**/458 |
+| 430x932 | 128,0 | 104 | **ENTRA** — chao sobe para 0,4807 | 317 -> **224**/466 |
+
+Nas duas em que ela entra: caixa dela `81..135 x 348..436` (Pixel) e `85..139 x 360..448`
+(iPhone Max), respiro **14,4 / 15,9** e **19,3 / 20,0**, e **zero px2** de cruzamento com o
+poste, com as oito tabuas e com a proposta. Nas quatro em que nao entra, o portao exige que
+NADA tenha se mexido (GROUND continua exatamente `round(H x 0,68)`) e que ela continue inteira
+atras do poste — espremer reprova.
+
+**O 390x844 e o caso que doi, e ele esta medido:** faltam **21 px**. A faixa e 83 e a conta pede
+104 (88 dela + 8 + 8). Nao ha alavanca dentro do territorio do dev: a altura dela e
+`HERO_TARGET x ESCALA` e a escala e do motor; abrir a faixa exigiria mexer no logo ou na frase,
+que sao composicao aprovada. Se o dono quiser ela no celular de referencia, a decisao e **abrir
+a faixa** (logo um degrau menor, ou a proposta mais colada nele) — e ai a regua passa a caber
+sozinha, sem mudar uma linha do que entrou hoje.
+
+**Como ficou por dentro:** `0,68` deixou de ser literal em tres lugares (`fitCanvas`,
+`redesenharFundo`, a nevoa do `pintarHomeCena`) e passou a sair de `fracChao()`. `chaoHome` e a
+unica coisa que muda, medida por `medirChaoDaHome()` no `fitCanvas` e na troca de tela. Ida e
+volta provada: home 218 -> JOGAR 311 -> home 218 -> girado deitado 140 (0,68 de 206) -> girado
+de volta 218 -> `fecharTelas` 311, zero erro de console.
+
+
+## 54 — Subir a linha do chao no retrato CUSTA O CEU, e isso e da arte/dono — dev-jogo/arte
+
+**Medido em 22/08, na mesma rodada que fez o 53, com print antes/depois em
+`test/CHAO-ANTES-412x915.png` e `test/CHAO-DEPOIS-412x915.png`.** Nao e efeito colateral de
+implementacao: e geometria, e ela nao tem saida barata.
+
+A pintura tem **75% de ceu+mata e 25% de chao** (a emenda das duas pecas, `FUNDO_GROUND_SRC`).
+Para a linha do chao subir de 0,68 para 0,476 da tela, a faixa de chao ABAIXO dela cresce de
+0,32 para 0,524 da tela — e como so existe 25% de chao na fonte, a unica forma de cobrir e
+AMPLIAR a pintura inteira. Medido em 412x915 dpr2: `dh` de **2.345 -> 3.840 px** de dispositivo
+(**1,64x**), e o que sai de quadro e justamente o alto: **o ceu, o mar e as montanhas somem**, e
+a home passa a ser uma parede de mata. Nas telas onde a regua nao deixa subir (390x844 e as
+menores) nada disso acontece — o print de la e a mesma composicao, com numeros identicos antes
+e depois (GROUND 287/422, dh 2161, dw 1216, dy -473, tudo em dpr2). Os quatro prints
+versionados sao em **dsf1** de proposito — 480 a 534 KB cada em vez de 1,4 a 1,6 MB, e o que a
+arte precisa julgar aqui e composicao, nao fidelidade de pixel; os numeros estao no texto.
+
+Ou seja: **hoje a home tem duas composicoes diferentes conforme a altura do celular.** Isso e
+defensavel (a regua do dono decidiu, e o Pixel/iPhone Max ganham a personagem que nao tinham) e
+tambem e a primeira vez que a home nao e a mesma imagem em todo retrato. **A arte precisa
+julgar**, e a decisao e do dono se ela empatar.
+
+**O caminho que preserva o ceu, ja pensado e NAO feito (nao medido):** repetir a peca de CHAO
+verticalmente, espelhada, em `rolarFundo()` — e o mesmo truque de espelho que ja elimina a
+emenda na horizontal. Com o chao podendo se repetir, a restricao "a faixa de baixo tem de ser
+coberta pela pintura" cai, o `scale` volta a ser governado por `ch/ih` e a pintura ficaria
+**menor** que hoje (mais ceu, nao menos). O preco: mexer em `rolarFundo`, no passe de
+quantizacao (`construirGrao`) e na linha da emenda que tres instrumentos leem
+(`test/medir-conversa.js`, `desenharFrente`). Estimativa honesta: uma sessao, com risco de
+costura visivel. **Nao foi feito porque o despacho pedia a regua, nao a reescrita do fundo.**
+
+
+## 55 — A caixa alfa do #heroHD NAO e a caixa dela — dev-jogo — **FECHADO na medicao de 22/08**
+
+Fica registrado porque um instrumento futuro vai cair nisto de novo. Medir a personagem pela
+mancha de pixels nao-transparentes do `#heroHD` da **102 px de altura onde ela tem 88**, e
+**511 px de largura em tela deitada** — porque `desenharFrente()` (o plano da frente da mata) e
+`desenharVento()` desenham na MESMA camada, depois dela. A caixa que vale e a analitica, a do
+`desenharHeroiHD`: `HX*kx - dw/2` por `GROUND*ky - dh`. O `prints-home.js` usava uma
+aproximacao pior ainda (largura fixa de 40 px, x-20, errando 13 px) e foi corrigido.
+
+
+## 56 — O CLAUDE.md §3 ainda diz DEZ eventos, e agora sao ONZE — dono/plantao
+
+O evento `saiu` entrou em 22/08 por decisao do dono e o portao do `encaixe.js` bloco 17b ja o
+cobra (11 na fonte, 11 disparados, lista branca por evento com `saiu: []`). O que **nao** foi
+alterado e o `CLAUDE.md`, porque editar o documento de instrucoes permanentes nao e coisa de
+agente — vai ao dono/plantao. **O patch, pronto para colar** no paragrafo "A contagem, e os
+limites dela" do §3.2:
+
+- trocar `Dez eventos anonimos` por `Onze eventos anonimos`;
+- e emendar, depois de `atras de um botao que nada apontava.`:
+
+> · **saiu para a plataforma** (SEM propriedade nenhuma), o clique na nota de margem da CHEGADA
+> — acrescentado em 22/08 por decisao do dono, e pela mesma razao do anterior: essa linha e a
+> UNICA costura entre o chamariz e as secoes, e sem evento "o jogo traz gente para a
+> plataforma" continua sendo intencao escrita aqui em vez de numero. O `keepalive` do `medir()`
+> deixa de ser detalhe e vira requisito — e o unico evento que nasce de uma NAVEGACAO.
+
+Vale registrar junto o achado que fez a conta fechar: a lista do §3.2 dizia DEZ desde 19/08 e o
+portao cobrava NOVE, porque a varredura da fonte casava `medir\("([a-z]+)"` **sem sublinhado** e
+`glossario_do_capitulo` nunca entrava. Corrigido no codigo do portao; o documento e que ficou.
+
