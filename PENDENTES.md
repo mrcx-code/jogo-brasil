@@ -2637,3 +2637,8 @@ Tres coisas que o SQL sozinho NAO resolve, e estao no proprio arquivo:
    pelo dashboard. Se isso incomodar, o conserto certo e o `servir.js` ganhar uma rota que
    grave no disco local, nao afrouxar a policy.
 
+
+
+## 48 — A mesa sobrescreve o backlog com retrato VELHO (lost update) — dev-plataforma
+
+Visto em 21/08: a arvore principal tinha um ferramentas/backlog.json SEM tres itens que o HEAD ja tinha (tag-s2, hardening, quarto-portal) e com um titulo revertido. Causa: a mesa aberta havia horas POSTou de volta o retrato que carregou — o POST /backlog do receber.js grava o array inteiro sem conferir contra o que esta no disco. Desta vez o HEAD era a verdade e nada do dono se perdeu (diff conferido linha a linha antes de descartar); da proxima pode ser a ordem NOVA dele que se perde. Conserto: o GET /backlog passa a devolver um hash do arquivo, o POST manda o hash de base, e o servidor RECUSA escrita cuja base nao bate (a mesa entao recarrega e reaplica). Enquanto isso, plantao confere git diff do backlog antes de qualquer descarte.

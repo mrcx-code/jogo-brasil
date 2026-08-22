@@ -14,7 +14,8 @@
       "titulo": "Marcar tag_s2 e validade nos 181 verbetes do banco",
       "detalhe": "Parecer do historiador (a carga deixou tudo false/null de proposito): quais verbetes tocam o §2 (tag_s2) e quais carregam numero com validade (vence_em/vence_regra — PRODES out, MapBiomas mai, censo). Relatorio dele → EU aplico via MCP como rev 2. Verbete que exigir juizo NOVO de representacao → dono.",
       "agente": "historiador",
-      "estado": "livre"
+      "estado": "do-dono",
+      "nota": "APLICADO no banco 21/08 (176 true, 5 false, 20 validades, revisado_por=historiador); resta a decisao s2_alto, publicada no dashboard"
     },
     {
       "id": "tres-squads",
@@ -37,15 +38,16 @@
       "titulo": "Hardening da fila-auth (12 achados da auditoria) — ANTES do SQL e do login",
       "detalhe": "A1 prova do SQL cega a FOR ALL/{public} e drop por chute; A2 descomentar 2-B (uuid) + cadastro-OFF como passo numerado da MESMA sentada; A4 CSP meta no dashboard (frame-ancestors none) ANTES do login do dono; A5 teto na fila local + toast honesto; A6 4xx permanente trava a fila; A7 flush concorrente duplica; A8 logout sem revogar; A9 maxlength+check(length); A10 cena 5 do instrumento cega; A11 fila-auth.js no CI; A12 build recusa segredo em dashboard/. Relatorio completo: transcript da seguranca 21/08.",
       "agente": "dev-plataforma",
-      "estado": "livre"
+      "estado": "livre",
+      "nota": "REPROVADO na re-auditoria da seguranca (N1 laco infinito de POST provado com 1173 em 6s; N2 XSS em data-v visto executando) + 6 menores; dev-plataforma consertando no MESMO ramo"
     },
     {
       "id": "territorio-rico",
       "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
       "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
       "agente": "dev-plataforma",
-      "estado": "bloqueado",
-      "nota": "pontos históricos exigem aprovação do dono por pino (§2); historiador lista primeiro"
+      "estado": "em-curso",
+      "nota": "decisao do dono 21/08: destravar ja — historiador montando a lista de pinos candidatos com fonte; aprovacao continua pino a pino"
     },
     {
       "id": "home-inc2",
@@ -111,15 +113,16 @@
       "titulo": "Divulgação 2026 — plano e rascunhos PARA SIGN-OFF",
       "detalhe": "Sua lei: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem seu sign-off.",
       "agente": "growth",
-      "estado": "livre",
-      "nota": "rascunhos; NADA publicado sem sign-off"
+      "estado": "em-curso",
+      "nota": "decisao do dono 21/08: comecar ja — growth nos rascunhos internos; sign-off continua lei para qualquer coisa que saia"
     },
     {
       "id": "coerencia-visual",
       "titulo": "PIXEL VENCE — o passe de coerencia nos 10 capitulos pintados",
       "detalhe": "Decidido pelo dono 21/08 (mosaico a vista): quantizacao na EXIBICAO nos 10 pintados + luzDoDia com hora propria nos 4 repetidos + deslocar a costura de JABAQUARA. Zero arte nova. Medir antes/depois com prints e o erro na escala de exibicao.",
       "agente": "dev-jogo",
-      "estado": "livre"
+      "estado": "em-curso",
+      "nota": "passe PIXEL VENCE entregue (cores 1281→86 no CAIS, FPS 61, controles imoveis); arte julgando a dose da trama antes do funil; prints ja com o dono"
     },
     {
       "id": "quarto-portal",

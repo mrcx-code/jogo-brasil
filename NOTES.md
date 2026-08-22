@@ -8419,3 +8419,20 @@ caracteres (teto 260).
 **Pendência para o dev-plataforma (não editei, é território dele):** o comentário do
 `ferramentas/gerar-fontes.js` diz "71 fontes em grupos" e agora são 72 — a contagem do gerador é
 dinâmica, então nada quebra; só o comentário envelheceu.
+
+
+---
+
+## 21/08 (noite) — check do dono, tres pousos, uma reprovacao que valeu o funil
+
+**O check** foi montado com a producao rodando (regra revista de 19/08) e o dono respondeu as tres na recomendada: **(1) territorio destrava ja** — historiador montando a lista de pinos candidatos, aprovacao segue pino a pino; **(2) fase 1 do acervo** e o proximo do dev-plataforma; **(3) growth comeca os rascunhos de divulgacao ja**, tudo interno, sign-off continua lei.
+
+**Historiador INTEGRADO e NO AR** (funil verde por exit real, push a79aa08): RAD 2025, PRODES estimativa+consolidada, Censo 2a ed. **O parecer entrou no banco pelo MCP:** 176 verbetes tag_s2=true, 5 false, 20 com vence_em/vence_regra, revisado_por=historiador em todos os 181 — e 6 tem_numero corrigidos para false porque a regra deles vence por FRASE, nao por numero (SONIA GUAJAJARA vence por ato no DOU, nao por medicao). A proposta do s2_alto (~30 chaves onde o par. 2 manda PARAR, nao so ter cuidado) virou decisao no dashboard do dono.
+
+**Seguranca REPROVOU o hardening da fila-auth** — e este e o placar que justifica o funil: 2 bloqueantes com prova executada (N1: o teto novo da fila virou laco infinito de POST, 1173 em 6 s contra 60 na main, controle rodado; N2: escH nao escapa aspas e data-v e atributo — XSS visto executando sob a CSP nova) + 6 achados menores. Devolvido ao dev-plataforma no MESMO ramo com os consertos nomeados; nada tocou a main.
+
+**Pixel-vence pousou** (cores 1281→86 no CAIS, 1497→61 no ACEIRO, 3 controles imoveis, FPS 61, zero byte de arte): prints antes/depois ja estao com o dono; a ARTE esta julgando a dose da trama (chamada dela, o dev deixou escrito) antes do funil.
+
+**Armadilhas pagas de novo nesta rodada:** (a) o pipe comeu o exit do integrar.js — tail no fim da linha devolveu 0 com o merge ABORTADO; a reexecucao foi com redirect e echo do exit real; (b) o funil deixa regeneracao suja na arvore (index.html reconstruido + 4 PNGs) e isso ABORTA o merge seguinte — limpar com checkout virou rotina pos-funil; (c) a mesa POSTou um backlog VELHO por cima do novo — lost update real, virou PENDENTES 48 (o meu 47 original colidiria com o 47 do dev-jogo que ainda nao integrou; renumerado antes da uniao).
+
+**Proximo:** integrar pixel-vence quando a arte der o veredito; reintegrar o hardening quando os N voltarem verdes; ai a pendencia de LOGIN do dono no dashboard e so entao o SQL da fila. Fase 1 do acervo em seguida.
