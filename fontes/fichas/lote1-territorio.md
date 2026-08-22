@@ -651,6 +651,37 @@ Não escolho entre (i), (ii) e (iii) — é decisão de representação, portão
 
 ---
 
+## 6(e). FECHAMENTO — decisão do dono (22/08) e o texto novo do pino
+
+**As duas decisões do dono, em sequência, em 22/08:**
+
+1. **A narradora do pino do Saracura é uma voz de quem VIVE o lugar** — não a pesquisadora,
+   não o documento.
+2. **A régua fina: autoinclusão discursiva em 1ª pessoa VALE como lugar de fala.** Decidida
+   sobre o material fichado em 6(d) — Bepa/Júlia Bernard Ribeiro ("a negrada", p. 241;
+   nascida e criada no Bixiga, integrante do Vai-Vai) e a fala-irmã de Solange ("nossos
+   negros", p. 264). É a categoria 2 registrada em 6(d): inclusão de si no grupo racializado,
+   em texto, nunca inferência por foto ou aparência.
+
+**O que decorre, aplicado pela historiadora sob a licença de revisão do §2 (19/08):** com a
+régua, **Bepa fecha as três condições** — (1) lugar de fala pela autoinclusão discursiva
+(p. 241), (2) vínculo com o lugar na própria voz (p. 229, 241), (3) fala sobre o rio que
+ancora o pino (p. 233, 234, 247). O texto candidato do pino B3 foi reescrito em
+`territorio/PINOS-PROPOSTA.md`, reancorado nas três citações de Bepa que esta ficha
+levantou (enchente p. 234 · apelido da rua p. 247 · vínculo p. 241). **Flávia Santos Santana
+figura como a pesquisadora que registrou as entrevistas — fonte, não narradora.** A ressalva
+de (a) foi mantida na linha de fonte do pino: a arqueologia sustenta a ocupação, não o
+traçado do rio.
+
+**A régua é precedente datado de §2** e foi registrada no `NOTES.md` no mesmo commit — vale
+para os próximos pinos em que a autodeclaração individual estrita não exista em fonte
+pública, sem dispensar a checagem: primeiro se busca a autodeclaração (6c), depois a
+autoinclusão discursiva com página (6d); inferência por imagem segue proibida.
+
+### Veredito final do pino B3: **CONFERIDO pleno** (com a régua do dono de 22/08)
+
+---
+
 ## Resumo para o historiador
 
 | Pino | Veredito | O que muda no texto candidato |
@@ -660,7 +691,7 @@ Não escolho entre (i), (ii) e (iii) — é decisão de representação, portão
 | A4 (Brasília/candangos) | CONFERIDO | nada |
 | D14 (Cabanagem) | CONFERIDO-COM-AJUSTE | cai/verificar "cabanas de várzea"; número de Ricci (30 mil) não deve virar texto do pino |
 | A3 (Acre) | CONFERIDO-COM-AJUSTE | falta citação literal com página do livro (só tenho via resenha); parte "povos da floresta" indígenas carece de fonte própria |
-| B3 (Saracura) | CONFERIDO-COM-AJUSTE | (a) separar traçado do rio de achado arqueológico; (b)+(c) autoidentificação de Flávia Santos Santana CHECADA e NÃO LOCALIZADA; (d) mesma checagem estendida a Bepa e Solange, TAMBÉM não localizada no sentido estrito, mas com autoinclusão discursiva forte e citações de ancoragem prontas — três caminhos propostos ao dono, nenhum escolhido por mim |
+| B3 (Saracura) | **CONFERIDO pleno** (régua do dono de 22/08 — ver 6(e)) | texto reescrito em 22/08, reancorado nas citações de Bepa (p. 234, 241, 247); Flávia Santos Santana passa a fonte-que-registrou; a ressalva (a) — arqueologia sustenta ocupação, não traçado — mantida na linha de fonte |
 
 **Lugar de fala PLENO (pessoa com vivência/pertencimento direto ao que narra):** dos oito
 nomes cobertos por esta ficha (seis pinos + Bepa e Solange na continuação), **Bepa e Solange
@@ -680,4 +711,5 @@ documental/estatístico).
 Santana (B3-b/c), de Bepa e de Solange (B3-d) — CHECADA em 22/08 conforme pedido, NÃO
 LOCALIZADA em fonte pública nas três, no sentido estrito de frase individual explícita. Ver
 seção 6(c) e 6(d) acima para os caminhos possíveis, nenhum deles escolhido por esta ficha —
-decisão de representação é do dono.
+decisão de representação é do dono. **RESPONDIDA pelo dono em 22/08:** autoinclusão
+discursiva em 1ª pessoa vale como lugar de fala — ver 6(e); o pino B3 fecha CONFERIDO pleno.
