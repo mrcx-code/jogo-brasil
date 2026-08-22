@@ -17,6 +17,10 @@ const fs = require('fs');
 const ABRIR = require('../test/abrir.js');
 // O endereço mora numa linha só (ferramentas/dominio.js) — agora também nas seções.
 const { BASE } = require('./dominio.js');
+// A MEDIÇÃO DA SEÇÃO (22/08). Um evento anônimo por abertura, o mesmo bloco das cinco páginas,
+// escrito uma vez em ferramentas/medir-secao.js — e o interruptor no rodapé, que é o mesmo do
+// jogo (mesma origem, mesma chave de localStorage). O §3 do CLAUDE.md vale inteiro.
+const MED = require('./medir-secao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -154,8 +158,10 @@ ${secoes}
   <footer class="rod">
     <p>Esta é a seção <strong>O GLOSSÁRIO</strong> da plataforma BRASIL. O mesmo conteúdo aparece
       dentro do jogo, onde cada capítulo oferece as palavras que disse. Aqui ele se lê inteiro.</p>
+    ${MED.rodape()}
   </footer>
 </div>
+${MED.script('glossario')}
 </body>
 </html>
 `;

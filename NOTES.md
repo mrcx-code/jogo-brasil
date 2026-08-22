@@ -8837,3 +8837,86 @@ resposta é o próprio poste de dois lados com **gatilho por ALTURA disponível*
 830 px de altura. E o que a nota registra a mais: copiar o bloco não basta, porque a faixa da
 cinemática tem 360–460 px e duas pistas dentro dela dariam ~175 px cada, abaixo do que o rótulo
 precisa. Alargar a faixa vem primeiro.
+
+## 22/08 — as paginas fora do jogo passaram a ter termometro (posthog-paginas)
+
+**O buraco, medido pelo growth em 21/08 e nunca fechado:** nenhuma das cinco paginas fora do
+jogo emitia um unico evento. A plataforma nao sabia se alguem abre A HISTORIA, o glossario, DE
+ONDE VEM, o TERRITORIO ou a porta por link direto — e "cada secao vale sozinha" (dono, 19/08) e
+uma tese sem termometro enquanto isso for verdade.
+
+**O que passou a existir.** UM evento, `secao aberta`, com UMA propriedade de conteudo, `secao`
+(historia | glossario | de-onde-vem | territorio | porta). Nada mais: nao ha capitulo, nao ha
+tempo, nao ha referrer, nao ha tela. O bloco e o MESMO desenho do `medir()` do jogo — mesma
+chave publicavel `phc_`, mesmo host, `credentials: "omit"`, `$ip: null`,
+`$process_person_profile: false`, sem a biblioteca do PostHog, sem cookie, `catch` vazio e
+nenhum `await` no caminho. Ele mora numa vez so, em `ferramentas/medir-secao.js`, e os quatro
+geradores + a porta o consomem.
+
+**O host virou constante de verdade.** `MEDIDA_HOST` saiu de `ferramentas/construir.js` e passou
+a ser lido de `medir-secao.js` — a MESMA linha alimenta agora tres coisas que tem de concordar: a
+`connect-src` da CSP do jogo, a cobranca do `ENDERECO_MEDIDA` do `src/jogo.ts`, e o endereco que
+as paginas chamam. Duas copias de um endereco divergem em SILENCIO (os dois enderecos do PostHog
+respondem 200 OK a qualquer coisa; foi o erro de regiao de 10/08).
+
+**O interruptor mora no RODAPE (decisao do dono, 21/08) e usa A MESMA CHAVE DE localStorage DO
+JOGO** (`jogo_brasil_medir`), e isso e escolha, nao preguica: as paginas e o jogo estao na MESMA
+origem, entao dividem o mesmo armazenamento. Dois interruptores independentes ali seriam duas
+afirmacoes de privacidade que podem se contradizer — desligar no glossario e continuar sendo
+medido no jogo e a meia-verdade que o paragrafo 3 chama de pior que nenhuma. Desligar num lugar
+desliga no outro, e o rodape diz isso com todas as letras. O identificador anonimo tambem e o
+mesmo (`jogo_brasil_anon`): reusar e a escolha MAIS privada das duas, porque criar um segundo
+numero seria criar um identificador novo, nao menos um.
+
+**A frase de privacidade e nova em todas as cinco** — nenhuma delas afirmava nada antes, entao
+nada virou falso; o que havia era ausencia. Ela diz o que sai, o que nao sai, o que E o
+identificador e que o botao vale para o site inteiro.
+
+**A CSP das paginas: nao ha o que abrir, e isso foi VERIFICADO, nao suposto.** `grep -c
+Content-Security-Policy` devolve 0 nas cinco (historia, glossario, de-onde-vem, territorio,
+plataforma) e 1 em `src/index.html`. A CSP do jogo esta intocada — `git diff src/` vazio.
+
+**O numero que decidiu a redacao da frase.** A primeira versao tinha quatro oracoes e cinco
+linhas. No TERRITORIO isso custa area de mapa, porque `areaUtil()` mede o painel do censo para
+enquadrar a placa: em 390x844 a area livre caiu de 362x398 para 362x291 px — **26,9% a menos**.
+Cortadas duas oracoes que nao mudam de valor se o codigo mudar ("sem anuncio"; "some quando voce
+apaga os dados do site"), a perda ficou em **18,6%** (362x324) e em **0,0%** a 1366x768, onde
+quem decide o enquadramento e a coluna de texto. Nas quatro paginas de papel o custo e zero em
+qualquer largura — elas rolam. O interruptor tambem sai do cartao de link do TERRITORIO (botao
+nao existe num JPEG): `compartilhar.jpg` voltou a 68 KB, os mesmos de 21/08, com 5 de 5 pinos.
+
+**O portao novo: `test/medir-paginas.js` — 187 verificacoes, exit 0.** Ele e para as paginas o
+que o bloco 17 do `encaixe.js` e para o jogo. Medido, por pagina:
+
+- **adblock / 503 / servidor mudo:** 1 pedido, **0 erro** de console ou de pagina, conteudo
+  inteiro (47 momentos, 181 verbetes, 61 refs, 5 lugares, 5 cartoes) e carga em ~1,0 s nos tres.
+- **desligado pelo botao e recarregado: 0 pedido**, escolha persistida, rotulo mudado, e religar
+  volta atras (interruptor de mao unica seria pior que nenhum).
+- **quem ja chega desligado: 0 pedido e 0 gravacao** — nem o identificador e sorteado.
+- o corpo de cada um dos cinco e aberto campo a campo: evento certo, propriedades exatamente
+  `$ip, $lib, $process_person_profile, secao`, `secao` no valor certo, chave `phc_`, id de 32
+  hex, sem cookie, host unico.
+- e a chave e o endereco sao conferidos **byte a byte contra o `src/jogo.ts`**.
+
+**Os 3 controles, vistos reprovando (EQUIPE 2.8):** propriedade a mais no corpo (3 verificacoes
+mordendo), interruptor que nao desliga (1), teto removido com a medicao num laco (1). Os remendos
+entram no HTML SERVIDO, nunca no disco.
+
+**Um achado contra o proprio instrumento (EQUIPE 2.1).** A primeira versao do portao reprovou 5
+vezes acusando "o identificador foi sorteado com a medicao desligada". Era o instrumento: pelo
+caminho da PESSOA, o id nasce na primeira carga, quando a medicao ainda estava ligada e nao havia
+botao para tocar. A afirmacao "desligado nao grava nada" so pode ser feita sobre quem CHEGA
+desligado — virou a cena 4b, com o estado posto por `addInitScript` antes da primeira carga.
+
+**Miudeza consertada de passagem:** `gerar-territorio.js` morria com ENOENT num worktree porque
+montava `RAIZ/node_modules/three` a mao. Agora resolve por `require.resolve('three')` (o
+`package.json` do three tem `exports` e recusa `three/package.json` — medido). Mesma armadilha
+que o `construir.js` ja pagou com o `tsc`.
+
+**As paginas estavam VELHAS**, e regenerar as atualizou de graca: a historiadora mexeu no PRODES
+e no MapBiomas em 21/08 e `historia/` ainda mostrava os numeros antigos. Uma fonte, duas saidas
+so vale se a segunda saida for refeita.
+
+**Portoes:** `npm test` exit 0 (FPS 61, regua larga verde nos 6 tamanhos) · `node test/encaixe.js`
+exit 0 · `node test/medir-paginas.js` exit 0 (187 verificacoes, 3 controles) ·
+`node test/fila-auth.js` exit 0 (16 cenas). `src/` e a CSP do jogo intocados.

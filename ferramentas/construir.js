@@ -27,13 +27,17 @@ const p = (...x) => path.join(RAIZ, ...x);
 
 const semTsc = process.argv.includes('--sem-tsc');
 
-// O ÚNICO HOST DE FORA QUE ESTE JOGO PODE ALCANÇAR, escrito uma vez. Ele aparece em dois
-// lugares que TÊM de concordar — a `connect-src` da CSP (que o navegador cobra) e o
-// `ENDERECO_MEDIDA` do src/jogo.ts (que é quem de fato chama) — e as duas cobranças abaixo
-// saem daqui. Região EU, escolhida e não herdada. Trocar de região ou de serviço é trocar
-// esta linha, e aí a CSP e o jogo ficam errados juntos até que os três digam o mesmo — que é
-// exatamente o barulho que uma mudança dessas tem de fazer.
-const MEDIDA_HOST = 'https://us.i.posthog.com';
+// O ÚNICO HOST DE FORA QUE ESTE JOGO PODE ALCANÇAR, escrito uma vez. Ele aparece em TRÊS
+// lugares que TÊM de concordar — a `connect-src` da CSP (que o navegador cobra), o
+// `ENDERECO_MEDIDA` do src/jogo.ts (que é quem de fato chama) e, desde 22/08, o bloco de
+// medição das PÁGINAS da plataforma — e as três cobranças saem daqui. Trocar de região ou de
+// serviço é trocar UMA linha, e aí a CSP, o jogo e as páginas ficam errados juntos até que os
+// três digam o mesmo — que é exatamente o barulho que uma mudança dessas tem de fazer.
+// A linha mudou de arquivo em 22/08 e não de valor: ela mora em `ferramentas/medir-secao.js`,
+// junto do bloco das páginas, porque duas cópias do endereço divergem em SILÊNCIO (os dois
+// endereços do PostHog respondem 200 OK a qualquer coisa; o sintoma seria um painel vazio
+// semanas depois — o erro de região de 10/08).
+const MEDIDA_HOST = require('./medir-secao.js').MEDIDA_HOST;
 
 if (!semTsc) {
   // `require.resolve` e não um caminho montado à mão: num WORKTREE do git o `node_modules` não
