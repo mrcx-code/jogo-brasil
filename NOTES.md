@@ -9592,3 +9592,93 @@ abaixo de 4.5) — visto reprovando 4/4 (EQUIPE 2.8).
 `medir-plataforma-chrome` 0 (118 ok, 3/3 mordidas) · `medir-paginas` 0 (187 ok) ·
 `medir-porta-secao` 0 (4/4) · `medir-leitura-secao` 0 (31 ok, 4/4 mordidas). `src/` intocado;
 zona do dono intocada; dashboard/ intocado. Entrega no ramo, sem push.
+
+
+## 22/08 — a COSTURA porta→jogo: a porta vira a clareira antes do poste (onda 4 da arte, dev-plataforma)
+
+Última onda da direção da arte para a plataforma. A ideia, textual: *"a porta é a CLAREIRA antes
+do poste"* — quem sai da plataforma para o jogo não pode sentir troca de produto, e sim que andou
+um passo para dentro da mesma mata. **Zero arte nova:** tudo aqui é composição do que já existe, e
+o peso da porta subiu **216,3 KB → 221,3 KB (+4,98 KB)**, contra um teto de 80.
+
+### O que a home do jogo é, medido — e ela NÃO tem uma cor
+
+A primeira medição derrubou a régua que eu ia usar. A home do jogo lava a pintura com a **luz da
+hora real** (`semearRelogio`, `luzDoDia`), então a mata dela varre o dia inteiro. Medido a 390×844
+com `Date.prototype.getHours` fixado, média dos pixels de mata (G>R e G>=B) de cada print:
+
+| hora | mata da home do jogo |
+|---|---|
+| MANHÃ (8 h) | (64, 85, 47) |
+| TARDE (13 h) | (65, 81, 46) |
+| PÓS-CHUVA (17 h) | (51, 69, 43) |
+| NOITE (21 h) | (37, 49, 32) |
+
+> **Perseguir um print é perseguir uma hora.** Eu já tinha calibrado a porta contra a home NOITE
+> (o print saiu às 19 h) e cheguei a uma mata (39,55,31) — ótima à noite, **salto 42 de manhã**.
+> Só com as quatro horas na mesa é que a régua certa apareceu: a porta tem de mirar o MEIO da
+> faixa, e o melhor erro máximo possível é metade do vão do próprio jogo (23,7).
+
+### O que mudou, e os números
+
+1. **A barra de tábuas passou a FLUTUAR sobre a mata** (`body>.barra{position:absolute}` só na
+   porta; nas 4 seções de leitura ela continua pousada no papel, que é o material delas). A faixa
+   de papel de 58 px no alto era **o maior salto da sequência**: ΔRGB **169** contra os 58 px de
+   cima da home → **34** depois. Tábua sobre mata é exatamente o que a home mostra: o poste.
+2. **O véu do hero virou o véu do MENU do jogo** — `--veuMenu`, portado de `#telaMenu`
+   (.30 no céu, .06 no meio, .10 aos 62%, .52 no pé, tinta rgba(10,9,6)). O antigo fechava a mata
+   com .62 no céu e .66 no pé. Valor MEDIDO que viaja, como a `--pauta` da onda 3; mora em
+   `chrome-plataforma.js` (`veuCss()`) e **só a porta o recebe** — token que 4 de 5 páginas não
+   usam é peso nelas.
+3. **A demão fria** (`--tomMata: rgba(46,66,110,.13)`) é a hora do dia que a porta não tem. A COR
+   viaja do jogo (`HORAS[3].tinta`, a única lavagem fria do motor); a DOSE é calibrada. Mata da
+   porta **(41,62,30) → (45,67,40)**. O antes estava **fora** da faixa do jogo no azul (30 < 32…47);
+   o depois está **dentro**. Salto máximo contra as quatro horas: **36,7 → 27,1** (−26%); médio
+   **25,7 → 20,1**. Contra PÓS-CHUVA, o meio do dia: **7**.
+4. **A tábua JOGAR ganhou o RELEVO da tábua do poste** (e os pregos de 5 px de
+   `#poste .telaBtn::before`). Ela tinha a superfície certa desde a onda 1 e flutuava num borrão
+   `0 8px 22px` — sombra de cartão de site, o "vetor sobre pixel" que a onda 1 matou na barra.
+   Agora tem luz na aresta de cima, sombra na de baixo, contorno e **degrau duro**, e afunda no
+   toque como a do poste.
+
+**Descartado por medição, e fica escrito:** um passe de `backdrop-filter: saturate(.82)
+brightness(.88)` sobre a pintura, imitando `lavarFundo`. Aproximava da NOITE e afastava da MANHÃ
+(salto 42 contra 25). Saiu.
+
+**Descartado por peso, com o número:** trocar a pintura do hero pela do capítulo 1 do jogo
+(`CENARIO_ALTO_B64[0]`, 100,5 KB + `CENARIO_CHAO_B64[0]`, 55,9 KB = **156,4 KB**, contra os 91,0
+KB do hero atual). Além de estourar o teto de 80 KB, ela traz o **céu de dia** (média 130,178,203
+na faixa de cima) para uma sequência cuja outra ponta é céu escuro — seria trocar um salto por
+outro maior. A mata do hero atual já é a mesma família de palmeiras da pintura; o que faltava era
+a luz, e luz é grátis.
+
+### A ida e a volta, agora cobradas por portão
+
+`test/medir-plataforma-chrome.js` ganhou a seção **A COSTURA PORTA↔JOGO** (7 asserções): JOGAR
+leva a `/jogo/` pelos DOIS caminhos (tábua da barra e portal do hero), o hero começa em y=0 (a
+porta abre NA MATA), a barra flutua sobre ele, o hero usa o véu do menu, a saída da CHEGADA no
+jogo construído aponta para a RAIZ, e a raiz publicada é a porta (`construir.js`:
+`plataforma/index.html → dist/index.html`). **Controle novo, visto mordendo:** a barra de volta ao
+fluxo (hero em y=51) — 4/4.
+
+### O achado de passagem: um controle MUDO no medir-paginas.js, e só no Windows
+
+O `medir-paginas.js` reprovava (exit 1) na `main` desta máquina, e não era esta rodada — conferido
+com `git stash` na mesma árvore. O terceiro controle do autoteste procurava o texto
+`'  medir();\n'` para injetar o laço sem teto, e a página no disco vem com **CRLF** (o checkout
+converte). A troca nunca acontecia; a guarda `remendado === guardado` não acusava porque a
+PRIMEIRA das duas trocas pegava. Resultado: o controle dizia "o portão não mordeu" sem ter
+injetado defeito nenhum — reprovava em silêncio no lugar errado, e em máquina com LF passava.
+Consertado com regex tolerante à quebra de linha mais uma conferência `pos` de que as duas trocas
+pegaram. **186 ok/exit 1 → 187 ok/exit 0**, com o controle mordendo de verdade.
+
+> Prima da 2.8: um controle que não altera o que pretende alterar é pior que ausente.
+
+**Material da arte:** `test/ONDA4-lado-a-lado.png` — a porta ANTES, a porta DEPOIS e a home do
+jogo, os três a 390×844, na mesma imagem.
+
+**Portões (exit real):** `npm test` **0** (build+smoke+régua-larga, FPS 60) · `node test/encaixe.js`
+**0** · `medir-plataforma-chrome` **0** (125 ok, 4/4 mordidas) · `medir-paginas` **0** (187 ok,
+3/3 mordidas) · `medir-porta-secao` **0** (4/4) · `medir-leitura-secao` **0** (31 ok, 4/4).
+`src/` intocado (a costura não pediu nada de lá), zona do dono intocada, `dashboard/` intocado,
+e as 3 seções de leitura com **zero byte** mudado. Entrega no ramo, sem push.

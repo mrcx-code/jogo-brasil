@@ -137,6 +137,25 @@ function tokensCss() {
 `;
 }
 
+// ---- O VÉU DO MENU — a luz do jogo, para quem tem MATA atrás (onda 4 da costura, 22/08) ----
+// A mesma luz que o jogo baixa sobre a pintura na tela de abertura, portada de `#telaMenu`
+// (src/estilo.css): .30 no céu, .06 no meio, .10 aos 62% e .52 no pé, na tinta rgba(10,9,6).
+// É MEDIDA, não cópia — o valor viajou, o arquivo não, como o `--pauta` acima.
+//
+// POR QUE FORA DO tokensCss(), e é decisão: só a PORTA tem hero de mata; as quatro seções de
+// leitura são papel e nunca usariam este token. Um token que ninguém usa em 4 de 5 páginas é
+// peso e ruído nelas — e mexer nos bytes delas para servir a porta é a definição de acoplar
+// sem motivo. Fica aqui, na fonte única, para a próxima página com pintura atrás achá-lo.
+function veuCss() {
+  return `  /* A COSTURA PORTA->JOGO (onda 4, 22/08): a porta é a CLAREIRA antes do poste, então ela
+     usa o VÉU DO POSTE em vez de inventar um escurecimento próprio. Fonte: chrome-plataforma.js */
+  :root{
+    --veuMenu:linear-gradient(180deg, rgba(10,9,6,.30) 0%, rgba(10,9,6,.06) 34%,
+                                      rgba(10,9,6,.10) 62%, rgba(10,9,6,.52) 100%);
+  }
+`;
+}
+
 // ---- O PAPEL DE CAMPO — a matéria de leitura das seções (onda 3 da arte, 22/08) ----
 // A disciplina que a arte cravou, virada em três regras de CSS reusáveis pelas 3 seções:
 //   .fundoCampo  — o FUNDO da página (o body): papel + pauta discreta + grão SUTIL. É o "desk".
@@ -221,5 +240,5 @@ ${linhas}
 module.exports = {
   TOKENS, LEITURA, TITULO, MONO,
   VEIO, GRAO,
-  tokensCss, barraCss, barraHtml, campoCss,
+  tokensCss, barraCss, barraHtml, campoCss, veuCss,
 };
