@@ -2729,3 +2729,8 @@ dos 830) e, na cinemática, deixar a faixa da direita crescer o bastante para du
 tábua — hoje ela tem 360–460 px, e duas pistas dentro disso dariam ~175 px cada, abaixo do que
 o rótulo "DE ONDE VEM" precisa a escala 3 (201 px de canvas + 48 de recheio + 16 de prego). Ou
 seja: não é copiar o bloco, é alargar a faixa primeiro. **Não medido.**
+
+
+## 51 — A tela CONFIGURACOES do jogo nao conta que o interruptor vale para as paginas — dev-jogo
+
+Desde 22/08 o interruptor de medicao e UM so (mesma chave de localStorage, decisao de uma origem = uma escolha): desligar no rodape de qualquer secao desliga o jogo, e vice-versa. O rodape das paginas ja diz isso; a tela de CONFIGURACOES do jogo ainda diz o interruptor esta aqui sem dizer e vale para as paginas tambem. E uma linha em src/jogo.ts (territorio do dev-jogo). A frase precisa continuar verdadeira dos DOIS lados.

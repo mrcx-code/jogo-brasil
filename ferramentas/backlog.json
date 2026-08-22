@@ -129,7 +129,8 @@
       "titulo": "DE ONDE VEM vira o 4o portal de topo da home",
       "detalhe": "Decidido pelo dono 21/08: sai de dentro de CONFIGURACOES e sobe pro topo com o mesmo peso de madeira dos outros 3. btnFontes ganha .portal; conferir alturas na regua (o poste cresceu uma tabua clara) e no encaixe 390x812 (folga de 4px).",
       "agente": "dev-jogo",
-      "estado": "livre"
+      "estado": "concluido",
+      "nota": "INTEGRADO 4965519: DE ONDE VEM no topo, poste de DOIS LADOS no deitado (aprovado pela arte com ajuste medido: entra 5px dos dois lados, box 44.00), flake do encaixe MORTO (abrirMenuParado). PENDENTES 50: 1366x768/926x428 rolam — gatilho por altura e o caminho"
     },
     {
       "id": "avenida-a-rev2",

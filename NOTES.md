@@ -8920,3 +8920,19 @@ so vale se a segunda saida for refeita.
 **Portoes:** `npm test` exit 0 (FPS 61, regua larga verde nos 6 tamanhos) · `node test/encaixe.js`
 exit 0 · `node test/medir-paginas.js` exit 0 (187 verificacoes, 3 controles) ·
 `node test/fila-auth.js` exit 0 (16 cenas). `src/` e a CSP do jogo intocados.
+
+## 22/08 (madrugada, cont. 2) — portal e medicao no ar
+
+**Quarto portal INTEGRADO** (4965519): DE ONDE VEM no topo como o dono decidiu; a arte aprovou
+retrato e rotulos e vetou o deitado com regua (coluna direita a 24,5px do mastro) — o dev achou a
+causa real (pista assimetrica, nao o vao) e devolveu 5,0px de encosto DOS DOIS lados, box de
+toque 44,00 exatos 8/8. De carona, o flake do encaixe (PENDENTES 49) morreu: era a animacao
+brota (540ms) e os blocos mediam a 420/600ms; abrirMenuParado() espera as animacoes e 3
+execucoes ficaram identicas.
+
+**Medicao das paginas INTEGRADA e CONFERIDA em producao** (95433ba): curl nas 5 URLs devolve o
+evento unico secao-aberta em todas (o primeiro zero da sonda era barra dupla na URL, nao a
+pagina). Interruptor unico no rodape; desligado = 0 pedidos, provado pelo portao de 187
+verificacoes. A camada 1 do check ganha o termometro que faltava.
+
+**Em voo:** og-image-secoes (o buraco que a growth apontou 3x). Depois: link-jogo-plataforma.
