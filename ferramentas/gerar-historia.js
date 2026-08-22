@@ -23,6 +23,10 @@ const fs = require('fs');
 const ABRIR = require('../test/abrir.js');
 // O endereço mora numa linha só (ferramentas/dominio.js) — agora também nas seções.
 const { BASE } = require('./dominio.js');
+// A MEDIÇÃO DA SEÇÃO (22/08). Um evento anônimo por abertura, o mesmo bloco das cinco páginas,
+// escrito uma vez em ferramentas/medir-secao.js — e o interruptor no rodapé, que é o mesmo do
+// jogo (mesma origem, mesma chave de localStorage). O §3 do CLAUDE.md vale inteiro.
+const MED = require('./medir-secao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -130,7 +134,7 @@ const esc = (s) => String(s || '')
   footer.rod { margin-top:3rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
   footer.rod a { color:var(--terra); }
-  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
+${MED.estilo()}  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
     font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
     text-transform:uppercase; }
   .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
@@ -165,8 +169,10 @@ ${itens}
     <p>Esta é a seção <strong>A HISTÓRIA</strong> da plataforma BRASIL. O mesmo conteúdo aparece
       dentro do jogo — aqui ele se lê inteiro, de uma vez. As fontes são as que sustentam cada
       afirmação; a voz de “quem lê hoje” é leitura do presente, não fato.</p>
+    ${MED.rodape()}
   </footer>
 </div>
+${MED.script('historia')}
 </body>
 </html>
 `;

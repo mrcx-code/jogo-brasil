@@ -31,6 +31,12 @@ const zlib = require('zlib');
 const ABRIR = require('../test/abrir.js');
 // O endereço mora numa linha só (ferramentas/dominio.js) — agora também nas seções.
 const { BASE } = require('./dominio.js');
+// A MEDIÇÃO DA SEÇÃO (22/08). O mesmo bloco das outras quatro páginas. AQUI O RODAPÉ NÃO É UM
+// <footer>: esta página é uma tela cheia sem rolagem, e o lugar de rodapé dela é o pé do painel
+// de papel do censo — que é onde as duas outras linhas de crédito (fonte e honestidade) já
+// moram. Ele NÃO entra em .env como bloco novo de propósito: `areaUtil()` mede `#censo` para
+// enquadrar a placa, e um bloco novo no fluxo mudaria o enquadramento dos pinos.
+const MED = require('./medir-secao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -45,7 +51,19 @@ const esc = (s) => String(s == null ? '' : s)
 // resolver um no outro. É o único jeito de manter ESM sem CDN e sem bundler — e a ferramenta
 // confere que nenhum dos dois contém "</script", que quebraria a página em silêncio.
 function lerThree() {
-  const dir = path.join(RAIZ, 'node_modules', 'three', 'build');
+  // `require.resolve` e não só o caminho montado à mão: num WORKTREE do git o `node_modules`
+  // não é copiado, e `RAIZ/node_modules/three` some — a ferramenta morria com ENOENT num
+  // diretório onde `require('three')` funciona, porque o Node resolve subindo a árvore e esta
+  // linha não resolvia. É a MESMA armadilha que o `construir.js` já pagou com o `tsc`, e o
+  // caminho montado fica como primeiro palpite só porque é o caso comum.
+  let dir = path.join(RAIZ, 'node_modules', 'three', 'build');
+  if (!fs.existsSync(path.join(dir, 'three.core.min.js'))) {
+    // Resolve o PONTO DE ENTRADA e não o `package.json`: o pacote do three declara `exports`,
+    // e o Node recusa `three/package.json` com ERR_PACKAGE_PATH_NOT_EXPORTED (medido). O ponto
+    // de entrada é `build/three.cjs`, então a pasta dele já É a `build/` que se quer.
+    try { dir = path.dirname(require.resolve('three')); }
+    catch (e) { /* fica o caminho de sempre, e o ENOENT diz o que falta instalar */ }
+  }
   const core = fs.readFileSync(path.join(dir, 'three.core.min.js'), 'utf8');
   const mod = fs.readFileSync(path.join(dir, 'three.module.min.js'), 'utf8');
   for (const [nome, txt] of [['core', core], ['module', mod]]) {
@@ -198,6 +216,10 @@ function lerThree() {
     letter-spacing:-.01em; white-space:nowrap; }
   .fonte { margin:.5rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
   .fonte + .fonte { margin-top:.3rem; }
+${MED.estilo({ cor: '#7a4a13', apagada: 'var(--pedra)' })}  /* no papel do censo a linha da medição
+     é crédito, como as duas fontes acima: mesmo tamanho, mesma cor, sem pedir a vez. */
+  #censo .med { margin:.45rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
+  #censo .med strong { font-weight:600; color:var(--tinta2); }
 
   /* O CARTÃO — papel opaco que SOBE. Some por transform, não por display, para o movimento ser
      um só e a leitura não piscar. */
@@ -282,6 +304,7 @@ ${lista}
 ${censoLinhas}
     <p class="fonte">${esc(D.censoFonte)}</p>
     <p class="fonte">${esc(D.honestidade)}</p>
+    ${MED.rodape()}
   </section>
 
   <section class="papel" id="semwebgl">
@@ -746,6 +769,7 @@ ajustar();
 dist = distBase;
 requestAnimationFrame(passo);
 </script>
+${MED.script('territorio')}
 </body>
 </html>
 `;
@@ -814,6 +838,16 @@ requestAnimationFrame(passo);
     throw new Error('RECUSADO: só ' + acesos + ' de ' + D.pontos.length
       + ' pinos acesos no instante do print — a brasa não terminou (medido: aos 300 ms são 0, e o JPEG pesa 62 KB)');
   }
+  // O INTERRUPTOR DA MEDIÇÃO SAI DO CARTÃO, e só dele. Num JPEG não há botão para tocar: a
+  // linha de privacidade ali vira ruído no único lugar onde a seção tem 630 px para se
+  // explicar, e ela roubava quatro linhas do painel do censo (medido: o cartão passou de 68
+  // para 79 KB com ela dentro). Não é a linha sumindo — ela está na PÁGINA, que é onde o
+  // botão funciona; é um controle de interface não indo para uma imagem estática. Nenhum
+  // DADO do cartão muda: censo, pinos e fontes continuam vindo da própria página.
+  await pg2.evaluate(() => {
+    const m = document.querySelector('#censo .med');
+    if (m) m.style.display = 'none';
+  });
   await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });
   await nav2.close();
   if (errosPag.length) throw new Error('RECUSADO: erro na página ao tirar o cartão: ' + errosPag[0]);

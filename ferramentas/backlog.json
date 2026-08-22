@@ -84,8 +84,8 @@
       "titulo": "Medir as paginas fora do jogo (PostHog)",
       "detalhe": "Hoje visita na porta/secoes e invisivel. PENDE decisao do dono: onde mora o interruptor de privacidade nessas paginas (§3).",
       "agente": "dev-plataforma",
-      "estado": "livre",
-      "nota": "interruptor no RODAPÉ — decidido 21/08"
+      "estado": "concluido",
+      "nota": "FECHADO 22/08 (dev-plataforma): as 5 paginas emitem \"secao aberta\" com a propriedade secao; bloco unico em ferramentas/medir-secao.js (mesma chave phc_, mesmo host, credentials omit, $ip null, sem biblioteca); interruptor no RODAPE com a MESMA chave de localStorage do jogo (uma origem, uma decisao); portao novo test/medir-paginas.js — 187 verificacoes, 3 controles vistos reprovando; adblock/503/mudo = 0 erro, desligado = 0 pedido"
     },
     {
       "id": "retro-pm",
