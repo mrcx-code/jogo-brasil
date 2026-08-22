@@ -126,6 +126,10 @@ async function tirar(dir, op) {
         // fonte de recuo. O controle de test/cartao-controle.js pegou o portão passando.
         fontes: [...document.fonts].filter((f) => f.status === 'loaded')
           .map((f) => f.family.replace(/^['"]|['"]$/g, '')),
+        // A SERIFA DA CASA (arte, 22/08). As páginas deixaram de carregar Google Fonts e passaram
+        // à serifa de sistema (Palatino/Georgia). Não há @font-face para esperar — o que se cobra
+        // agora é que o TÍTULO resolva numa serifa, não que uma fonte de rede tenha chegado.
+        tituloFonte: h1 ? getComputedStyle(h1).fontFamily : '',
         botoes: botoes
       };
     });
@@ -141,13 +145,15 @@ async function tirar(dir, op) {
         + '. Num JPEG não há botão para tocar; esconda-o antes do print (é o que a lista de .med'
         + ' e de position fixed/sticky faz).');
     }
-    const exigidas = op.fontes || ['Bitter', 'Source Sans 3', 'IBM Plex Mono'];
-    const faltando = exigidas.filter((f) => cena.fontes.indexOf(f) < 0);
-    if (faltando.length) {
-      throw new Error('RECUSADO: as fontes da página não carregaram — falta ' + faltando.join(', ')
-        + ' (chegaram: ' + (cena.fontes.length ? [...new Set(cena.fontes)].join(', ') : 'nenhuma') + ').'
-        + ' O cartão sairia em Georgia e system-ui: outra identidade visual, e ninguém veria antes'
-        + ' de publicar. Gere com rede — as páginas buscam as fontes em fonts.googleapis.com.');
+    // A serifa da casa tem de estar de pé no título. Se um dia alguém devolver um título em
+    // sans/mono, ou quebrar a var(--titulo), o cartão sairia com outra identidade — e é isso que
+    // se cobra, não mais a chegada de uma fonte de rede (as páginas não usam mais Google Fonts).
+    const fonteTitulo = (cena.tituloFonte || '').toLowerCase();
+    const serifaCasa = /palatino|georgia|iowan|noto serif|times|\bserif\b/.test(fonteTitulo);
+    if (!serifaCasa) {
+      throw new Error('RECUSADO: o título não está na serifa da casa (font-family computada: "'
+        + cena.tituloFonte + '"). O cartão sairia com outra identidade visual. Esperado Palatino/'
+        + 'Georgia/serif — confira var(--titulo) e o chrome-plataforma.js.');
     }
 
     await pg.screenshot({ path: destino, type: 'jpeg', quality: op.qualidade || QUALIDADE });

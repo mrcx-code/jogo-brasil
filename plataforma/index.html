@@ -15,16 +15,13 @@
 <meta property="og:locale" content="pt_BR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://matheusferreira.cc/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <title>BRASIL — uma plataforma de conhecimento</title>
 <style>
   :root{
-    --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
-    --pedra:#7d8479; --mata:#2f5230; --terra:#7a4a24; --brasa:#b5541f;
-    --linha:#d3cab5; --realce:#ffffff; --sombra:rgba(29,33,25,.10);
-    --madeira:#8a5a2b; --madeira2:#6d4420;
+    --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
+    --pedra:#857658; --mata:#2f5230; --terra:#7a4a13; --brasa:#b5541f;
+    --linha:#cbbc98; --realce:#f0e4c4; --sombra:rgba(29,20,10,.12);
+    --madeira:#7a5430; --madeira2:#6d4b28;
   }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
     --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
@@ -39,7 +36,7 @@
   *,*::before,*::after{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
   body{margin:0;background:var(--papel);color:var(--tinta);
-    font:400 clamp(15px,3.6vw,17px)/1.6 "Source Sans 3",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    font:400 clamp(15px,3.6vw,17px)/1.6 var(--leitura);-webkit-font-smoothing:antialiased}
   body,h1,h2,h3,p{margin:0}
   a{color:inherit}
   img{display:block;max-width:100%}
@@ -57,47 +54,47 @@
 
   .cabeca{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;
     text-align:center;padding:clamp(2rem,6vh,4.5rem) 1.2rem 2rem;max-width:52rem;width:100%}
-  .selo{font:600 .72rem/1 "IBM Plex Mono",monospace;letter-spacing:.24em;text-transform:uppercase;
+  .selo{font:600 .72rem/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;
     color:#e9dcc0;margin-bottom:1.1rem;text-shadow:0 2px 4px rgba(0,0,0,.6)}
   .logo{width:min(74vw,360px);height:auto;image-rendering:pixelated;
     filter:drop-shadow(0 6px 0 rgba(0,0,0,.55));animation:respira 4.6s ease-in-out infinite}
   @keyframes respira{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-  .prop{font:500 clamp(1.15rem,4.4vw,1.7rem)/1.35 "Bitter",Georgia,serif;font-style:italic;
+  .prop{font:500 clamp(1.15rem,4.4vw,1.7rem)/1.35 var(--titulo);font-style:italic;
     color:#f4ecd8;margin:1.3rem auto 0;max-width:26rem;text-wrap:balance;
     text-shadow:0 2px 3px rgba(0,0,0,.75),0 0 16px rgba(0,0,0,.4)}
-  .cta{font:600 .74rem/1 "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;
+  .cta{font:600 .74rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
     color:#d9cba8;margin-top:.9rem;text-shadow:0 1px 3px rgba(0,0,0,.7)}
 
   .portais{position:relative;z-index:2;display:grid;gap:.7rem;width:100%;max-width:40rem;
     grid-template-columns:1fr;padding:1.6rem 1.2rem 0}
   @media(min-width:38rem){.portais{grid-template-columns:1fr 1fr 1fr}}
   .portal{display:flex;flex-direction:column;gap:.15rem;text-decoration:none;text-align:left;
-    background:rgba(243,238,226,.94);border:1px solid rgba(0,0,0,.18);border-left:4px solid var(--mata);
+    background:var(--graoPx,none) var(--papel);border:1px solid rgba(0,0,0,.18);border-left:4px solid var(--mata);
     border-radius:4px;padding:.75rem .85rem;box-shadow:0 6px 18px rgba(0,0,0,.35);
     transition:transform .14s,border-color .14s;color:var(--tinta)}
   .portal:hover{transform:translateY(-3px);border-left-color:var(--terra)}
-  .portal .rot{font:600 .6rem/1.3 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--pedra)}
-  .portal h3{font:700 1.16rem/1.05 "Bitter",Georgia,serif;letter-spacing:-.01em;color:#1d2119}
-  .portal .n{font:600 .72rem/1.4 "IBM Plex Mono",monospace;color:var(--terra);margin-top:.15rem}
-  /* JOGAR — a tábua, o chamariz, largura toda e madeira */
+  .portal .rot{font:600 .6rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--pedra)}
+  .portal h3{font:700 1.16rem/1.05 var(--titulo);letter-spacing:-.01em;color:#1d2119}
+  .portal .n{font:600 .72rem/1.4 var(--mono);color:var(--terra);margin-top:.15rem}
+  /* JOGAR — a tábua, largura toda e madeira (grão do chrome como 1a camada) */
   .jogar{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;
-    background:linear-gradient(180deg,var(--madeira),var(--madeira2));border:1px solid #3e2611;
-    border-left:4px solid #3e2611;color:#fff4e0;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
-  .jogar:hover{filter:brightness(1.06);border-left-color:#3e2611}
+    background:var(--veioPx,none),linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3,#503319));border:1px solid var(--contorno);
+    border-left:4px solid var(--contorno);color:#fff4e0;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+  .jogar:hover{filter:brightness(1.06);border-left-color:var(--contorno)}
   .jogar h3{font-size:1.7rem;color:#fff4e0;text-shadow:0 2px 0 rgba(0,0,0,.35)}
   .jogar .rot{color:#e7c79b}
-  .jogar .seta{font:700 1.5rem/1 "Bitter",serif;color:#fff4e0}
+  .jogar .seta{font:700 1.5rem/1 var(--titulo);color:#fff4e0}
 
   .rolar{position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);z-index:2;
-    font:600 .64rem/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;
+    font:600 .64rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
     color:#d9cba8;text-shadow:0 1px 3px rgba(0,0,0,.7);opacity:.85;animation:sobe 2.2s ease-in-out infinite}
   @keyframes sobe{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(4px)}}
 
   /* ===== O que é a plataforma (rolagem) ===== */
   .sobre{max-width:46rem;margin:0 auto;padding:3.4rem 1.25rem 1.5rem}
-  .sobre .eyebrow{font:600 .72rem/1 "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;
+  .sobre .eyebrow{font:600 .72rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
     color:var(--terra);display:block;margin-bottom:.8rem}
-  .sobre h2{font:700 clamp(1.7rem,6vw,2.4rem)/1.1 "Bitter",Georgia,serif;letter-spacing:-.015em;text-wrap:balance}
+  .sobre h2{font:700 clamp(1.7rem,6vw,2.4rem)/1.1 var(--titulo);letter-spacing:-.015em;text-wrap:balance}
   .sobre p{color:var(--tinta2);margin-top:1rem;font-size:1.06rem;max-width:38rem}
   .secoes{max-width:46rem;margin:1.6rem auto 0;padding:0 1.25rem;display:grid;gap:1rem}
   @media(min-width:40rem){.secoes{grid-template-columns:1fr 1fr}}
@@ -105,10 +102,10 @@
     border:1px solid var(--linha);border-left:3px solid var(--mata);border-radius:3px;
     padding:1.15rem 1.25rem;box-shadow:0 1px 2px var(--sombra);transition:border-color .15s,transform .15s}
   a.card:hover{border-left-color:var(--terra);transform:translateY(-2px)}
-  a.card .rot{font:600 .66rem/1.3 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--pedra)}
-  a.card h3{font:700 1.4rem/1.05 "Bitter",Georgia,serif;margin:.35rem 0 .4rem;letter-spacing:-.015em}
+  a.card .rot{font:600 .66rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--pedra)}
+  a.card h3{font:700 1.4rem/1.05 var(--titulo);margin:.35rem 0 .4rem;letter-spacing:-.015em}
   a.card p{margin:0;font-size:.96rem;color:var(--tinta2)}
-  a.card .n{font:600 .78rem/1.5 "IBM Plex Mono",monospace;color:var(--terra);display:block;margin-top:.55rem}
+  a.card .n{font:600 .78rem/1.5 var(--mono);color:var(--terra);display:block;margin-top:.55rem}
 
   footer.rod{max-width:46rem;margin:2.6rem auto 0;padding:1.4rem 1.25rem 3rem;border-top:1px solid var(--linha);
     color:var(--pedra);font-size:.9rem;text-align:center}
@@ -118,8 +115,53 @@
   .medBt[aria-pressed="false"] { color:var(--pedra); }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<style id="chrome-plataforma">
+  /* chrome-plataforma.js — a língua visual do jogo (arte, 22/08). NÃO editar aqui:
+     a fonte é ferramentas/chrome-plataforma.js e o build regenera. */
+  :root{
+    --ch-papel:#e9d8ae; --ch-papel2:#d8c391; --ch-tinta:#33240f;
+    --madeira:#7a5430; --madeira2:#6d4b28; --madeira3:#503319;
+    --contorno:#191510; --ouro:#eba748; --ouro2:#f3c05c;
+    --leitura:Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif; --titulo:"Palatino Linotype",Palatino,Georgia,serif; --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --veioPx:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABgCAYAAADVenpJAAADs0lEQVR42u2d607bMBSAK+V3doGNgUs3jTGgY8AuL5a3zGNlQlqlqnIcX44dX74jff9QaO2vzvGx42w2gaH67lbH3N9P4/BuhrcSbIi0gQDEqRBfbJjG4cwH1XdbHbafbxqHPoSK+unhFQRAACJRg/+yweO6NyHQMwhAROrwJ0eubaBlEUD8g+5taLgj/0iQ4ff6+goCIED32wcG+bJiGodPOhAAAWSmDXP/YInDUOSBVdJkKD0bUX13b6KmexwCtCxABQLvPRFJ4lyneyveAq50IAACEJmK/TcQSsEIkIEAuW7omMbhMgTbJLT5Gj4CsIhD5PWDvD6GFkGA5hvkwodavg8CtC6AbemVwbPe+SYCEEUM1TsTqu9ehCh6owcCIABBEETCJDKrTZOnhY5TljZ6zOG74WV2K1Z4uz97cncMArQugOq7xwWcNotO4/DRkrlFljtJHBr0uw0rjLAPIdj8AwRoXIDnEBrKdZ58CPh/PyVBAAQIG/pSDY2pksjQJC63x7K9BUWAxgUosCTcSxJ7SJ7G4Y0k4kkgAiCAawdcSqL67puJDITTFpRaXpVDAPbSOSUn2mXXaRy2ktDSfkk1AiBAtbequQUhY4k6tPQ6d3Tu0hG6BAIQ/4cs24WnvQQRPv+tMHNleJHrI0DrAtReOpRaLtZc91GC4la5EKAyASrMIbIoLNkem284Tl9bCnZIgq1KywiAAM7Tq6w2R3p0TFEHOUzj8N6GlB8IAVoQQPXdDx0Jv7jt5tKmXvViaC+ngzARAAEWL6hdvo1Qmj08sLGVgHmQnFEIQFRdL1AmKvxB86JNBBAUwHZ6kmraUuurXTTfc2ciu/kpAmQuQOrkii1dyX6gOxsQoHUBEhRqrEg4hPo+4HHlyQdJQh/mPSJscQwBGheAWD0ZvJeAlkSA6hom6mPZvreCCEneuQ5+GQjgfKGox6MbkqrzEBqc1jkJp/rusw0I0LoAsUuTR4huy17h1vIiSU33XAQoWQDX6YFDh6+zSkUgABFnCF8i6aNlqV725Priy9Q7b4IP+kSAxgVIOI05M7HCyLdqg0htYHHdyBL78XgEQADxHENJ4CCq68GN2kfMfG9RB1yP6T9QY5KJADEFcH0NeumvQy/tQAfXR74M6DfnIkDjAmTYQbkeGRt3kyWBAETGEbp8He2lTwQCEIR3MknLIEDyD6IkqCDZvZGkJBMRoGYBlo6C0VBlB7d8r0GAwjrsQpK54+V8SV1wyv0lVq5J3mLShwBtC/APeCJVJXjlbBcAAAAASUVORK5CYII=);
+    --graoPx:url(data:image/png;base64,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);
+  }
+  /* A BARRA DE TÁBUAS (arte, 22/08): fileira de tábuas de madeira com o veio como
+     PRIMEIRA camada de background e o contorno da casa. JOGAR sempre presente e primeiro depois
+     da marca; a página atual é a tábua escura "pressionada". Alvo de toque >=44x44; UMA linha
+     sempre (nowrap); em tela estreita rola na horizontal, nunca quebra. */
+  .barra{ display:flex; flex-wrap:nowrap; align-items:stretch; gap:6px; margin:0 0 1.7rem;
+    padding:7px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; background:transparent; }
+  .barra::-webkit-scrollbar{ height:0; display:none; }
+  .barra a{ flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    min-height:44px; padding:0 15px; text-decoration:none; white-space:nowrap;
+    font:600 .82rem/1 "Palatino Linotype",Palatino,Georgia,serif; letter-spacing:.02em;
+    color:#fff4e0; border-radius:3px;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s,transform .1s; }
+  .barra a:hover{ filter:brightness(1.08); }
+  .barra a:active{ transform:translateY(1px); }
+  .barra a.marca{ font-weight:700; letter-spacing:.16em; color:var(--ouro2); }
+  .barra a.jogar{ font-weight:700; color:var(--ouro2); }
+  .barra a.aqui{ color:var(--ouro2); cursor:default;
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno);
+    transform:translateY(1px); text-shadow:0 1px 0 rgba(0,0,0,.6); }
+  .barra a.aqui:hover{ filter:none; }
+</style>
 </head>
 <body>
+    <nav class="barra" aria-label="Seções da plataforma BRASIL">
+      <a href="/" class="marca aqui">BRASIL</a>
+      <a href="/jogo/" class="tabua jogar">Jogar</a>
+      <a href="/historia" class="tabua">A História</a>
+      <a href="/glossario" class="tabua">Glossário</a>
+      <a href="/de-onde-vem" class="tabua">De Onde Vem</a>
+      <a href="/territorio" class="tabua">O Território</a>
+    </nav>
 
   <header class="hero">
     <img class="andarilho" id="andarilho" src="data:image/webp;base64,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" alt="">
@@ -131,7 +173,7 @@
     </div>
     <nav class="portais">
       <a class="portal jogar" href="/jogo/">
-        <span><span class="rot">O jogo · o chamariz</span><h3>Jogar</h3></span>
+        <span><span class="rot">O jogo</span><h3>Jogar</h3></span>
         <span class="seta">→</span>
       </a>
       <a class="portal" href="/historia">
@@ -183,7 +225,7 @@
     <a class="card" href="/territorio">
       <span class="rot">Ver</span><h3>O Território</h3>
       <p>O mapa do país em relevo — os lugares onde cada capítulo aconteceu, e o censo de quem está aqui. Em 3D.</p>
-      <span class="n">showcase interativo</span>
+      <span class="n">toque e explore — em 3D</span>
     </a>
     </div>
 

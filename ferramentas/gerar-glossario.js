@@ -25,6 +25,8 @@ const MED = require('./medir-secao.js');
 // growth mediu isso por curl em três rodadas. O cartão é um print 1200×630 da PRÓPRIA página,
 // pelo molde do território: uma fonte, duas saídas, também para a imagem da prévia.
 const CARTAO = require('./cartao-secao.js');
+// O CHROME DA PLATAFORMA (arte, 22/08) — a língua visual do jogo, fonte única (ver gerar-historia).
+const CHROME = require('./chrome-plataforma.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -74,9 +76,6 @@ const esc = (s) => String(s || '')
 <meta name="description" content="O glossário do Brasil: ${nVerb} palavras da nossa história explicadas, com fonte — e as que este jogo recusa, e por quê.">
 <meta property="og:title" content="O GLOSSÁRIO — BRASIL">
 <meta property="og:description" content="${nVerb} palavras da história do Brasil explicadas, cada uma com a fonte.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BRASIL">
 <meta property="og:url" content="${BASE}/glossario/">
@@ -85,10 +84,10 @@ ${CARTAO.tags(BASE, 'glossario', 'A abertura do GLOSSÁRIO: o título "O glossá
 <link rel="canonical" href="${BASE}/glossario/">
 <title>O Glossário do Brasil — as palavras da nossa história</title>
 <style>
-  :root {
-    --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
-    --pedra:#7d8479; --mata:#2f5230; --terra:#7a4a24; --brasa:#b5541f;
-    --linha:#d3cab5; --realce:#ffffff; --sombra:rgba(29,33,25,.07);
+${CHROME.tokensCss()}  :root {
+    --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
+    --pedra:#857658; --mata:#2f5230; --terra:#7a4a13; --brasa:#b5541f;
+    --linha:#cbbc98; --realce:#f0e4c4; --sombra:rgba(29,20,10,.10);
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
@@ -102,54 +101,40 @@ ${CARTAO.tags(BASE, 'glossario', 'A abertura do GLOSSÁRIO: o título "O glossá
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--papel); color:var(--tinta);
-    font:400 17px/1.62 "Source Sans 3", system-ui, sans-serif; -webkit-text-size-adjust:100%; }
+    font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
   .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
   header.topo { border-bottom:2px solid var(--tinta); padding-bottom:1.3rem; margin-bottom:2.4rem; }
-  .selo { font:600 .72rem/1 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.16em;
+  .selo { font:600 .72rem/1 var(--mono); letter-spacing:.16em;
     text-transform:uppercase; color:var(--terra); display:block; margin-bottom:.7rem; }
-  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 "Bitter",Georgia,serif; margin:0 0 .6rem;
+  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 var(--titulo); margin:0 0 .6rem;
     text-wrap:balance; letter-spacing:-.015em; }
   .intro { color:var(--tinta2); margin:0; font-size:1.05rem; max-width:36rem; }
-  .conta { font:600 .74rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .conta { font:600 .74rem/1.5 var(--mono); color:var(--pedra);
     margin:1rem 0 0; letter-spacing:.03em; }
 
   .grupo { margin:0 0 2.6rem; }
-  .grupo > h2 { font:700 1rem/1.3 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.06em;
+  .grupo > h2 { font:700 1rem/1.3 var(--mono); letter-spacing:.06em;
     text-transform:uppercase; color:var(--terra); margin:0 0 .3rem;
     padding-bottom:.5rem; border-bottom:1px solid var(--linha); }
   .gsub { color:var(--pedra); font-size:.92rem; font-style:italic; margin:0 0 1.2rem; }
   .verbetes { display:grid; gap:1rem; }
-  .verbete { background:var(--realce); border:1px solid var(--linha); border-left:3px solid var(--mata);
+  .verbete { background:var(--graoPx,none) var(--realce); border:1px solid var(--linha); border-left:3px solid var(--mata);
     padding:1rem 1.1rem; box-shadow:0 1px 2px var(--sombra); }
-  .verbete h3 { font:700 1.16rem/1.25 "Bitter",Georgia,serif; margin:0 0 .4rem; letter-spacing:-.01em; }
+  .verbete h3 { font:700 1.16rem/1.25 var(--titulo); margin:0 0 .4rem; letter-spacing:-.01em; }
   .orig { color:var(--tinta2); font-style:italic; font-size:.94rem; margin:0 0 .55rem; }
   .def { margin:0 0 .6rem; }
-  .fonte { font:400 .82rem/1.5 "IBM Plex Mono",ui-monospace,monospace; color:var(--pedra);
+  .fonte { font:400 .82rem/1.5 var(--mono); color:var(--pedra);
     margin:0; padding-left:.9rem; border-left:2px solid var(--linha); }
 
   footer.rod { margin-top:2.5rem; padding-top:1.3rem; border-top:1px solid var(--linha);
     font-size:.86rem; color:var(--pedra); }
-  .nav { display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-bottom:1.6rem;
-    font:600 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em;
-    text-transform:uppercase; }
-  .nav a { text-decoration:none; color:var(--pedra); border-bottom:2px solid transparent;
-    padding-bottom:.15rem; transition:color .15s; }
-  .nav a:hover { color:var(--terra); }
-  .nav a.marca { color:var(--tinta); font-weight:700; letter-spacing:.12em; }
-  .nav a.aqui { color:var(--terra); border-bottom-color:var(--terra); cursor:default; }
-  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+${CHROME.barraCss()}  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 </style>
 </head>
 <body>
 <div class="env">
   <header class="topo">
-    <nav class="nav">
-      <a href="/" class="marca">BRASIL</a>
-      <a href="/historia">A História</a>
-      <a href="/glossario" class="aqui">Glossário</a>
-      <a href="/de-onde-vem">De Onde Vem</a>
-      <a href="/territorio">O Território</a>
-    </nav>
+${CHROME.barraHtml('glossario')}
     <h1>O glossário do Brasil</h1>
     <p class="intro">As palavras da nossa história, explicadas — e as que este jogo recusa, e por
       quê. Cada uma traz a fonte: invasão, e não descobrimento, é uma escolha com razão escrita.</p>

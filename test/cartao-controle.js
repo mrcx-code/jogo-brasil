@@ -112,9 +112,9 @@ function meta(html, sel) {
       espera: /controle visível/
     },
     {
-      nome: 'as fontes do Google removidas (o cartão sairia em Georgia e system-ui)',
-      remendo: (h) => h.replace(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis[^>]*>/, ''),
-      espera: /as fontes da página não carregaram/
+      nome: 'o título fora da serifa da casa (o cartão sairia com outra identidade)',
+      remendo: (h) => h.replace('</style>', '  h1{font-family:Arial,sans-serif!important;}\n</style>'),
+      espera: /não está na serifa da casa/
     },
     {
       nome: 'qualidade 1: o JPEG vira chapa lisa e some abaixo do piso de peso',
