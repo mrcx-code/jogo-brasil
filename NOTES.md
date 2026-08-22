@@ -9558,3 +9558,37 @@ defeito do docroot **passava** (DECORACAO) antes, e **morde** depois.
 paralelo — nenhuma mudanca no jogo; o smoke passou por exit) · `node test/encaixe.js` **0**
 (396 ok) · `node test/diario-sem-eco.js` **0**. `src/` intocado; zona do dono intocada. Nada
 publicado — entrega no ramo.
+
+## Diário — 2026-08-22 · ONDA 3 da arte: o papel de campo entra nas 3 seções de leitura (dev-plataforma)
+
+A onda 1 trouxe o CHROME (barra de tábuas, tokens, serifa) para as seções, mas o CORPO seguia
+creme chapado — e o glossário tinha **grão atrás do texto corrido** (medido no print
+`test/O3-glossario-antes-corpo.png`: speckle sob a definição inteira, cansa o olho). Esta onda
+porta a MATÉRIA de leitura do jogo para A HISTÓRIA, o glossário e DE ONDE VEM.
+
+**A pauta é MEDIDA, não copiada.** Portei de `src/estilo.css` o valor exato da onda 6 do jogo —
+`--pauta: repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px)`, e
+11 é metade da entrelinha de 22 do corpo, o que faz a linha de texto POUSAR na pauta. O valor
+viajou; o arquivo não.
+
+**A disciplina que a arte cravou, virada em três classes reusáveis** (fonte única em
+`ferramentas/chrome-plataforma.js`, `campoCss()`):
+- `.fundoCampo` — o body vira papel de campo: papel + pauta + grão sutil (o "desk").
+- `.cartaoCampo` — verbete/momento/ficha: papel + pauta, **fio de madeira** (inset da casa) e
+  **SEM grão** — é ele que mascara o grão do fundo atrás do texto; a coluna senta em papel limpo.
+- `.faixaCampo`/`.citaCampo` — grão fica só nas faixas curtas ("quem lê hoje"); a citação/fonte
+  virou **itálico serifado** (não mais o mono).
+
+**Medido (getComputedStyle, 3 seções, 390px):** fundo com pauta+grão; contraste da coluna de
+leitura **8,67:1** (tinta #33240f x papel2 #d8c391), muito acima do AA 4.5; citação italic+serif;
+**0 grão** atrás de `.corpo`/`.def`/`.ref`; 0 requisição a Google Fonts; chrome intacto (6
+tábuas, veio data-URI). Prints `test/O3-*-{antes,depois}-{topo,corpo}.png`.
+
+**Portão novo:** `test/medir-leitura-secao.js` — mede (a)-(f) e MORDE 4 defeitos injetados
+(fundo sem grão / grão de volta atrás do texto / citação em redonda sem serifa / tinta clareada
+abaixo de 4.5) — visto reprovando 4/4 (EQUIPE 2.8).
+
+**Portões (exit real):** `npm test` 0 (build+smoke+régua-larga) · `node test/encaixe.js` 0 ·
+`medir-plataforma-chrome` 0 (118 ok, 3/3 mordidas) · `medir-paginas` 0 (187 ok) ·
+`medir-porta-secao` 0 (4/4) · `medir-leitura-secao` 0 (31 ok, 4/4 mordidas). `src/` intocado;
+zona do dono intocada; dashboard/ intocado. Entrega no ramo, sem push.
