@@ -9354,3 +9354,18 @@ mas nao para este evento"; `medir("saiu")` removido -> exit 1 em "achei 10".
 retrato) · `node test/encaixe.js` **0** (396 ok, era 395) · `npm run tipos` **0** ·
 `node test/medir-save-hostil.js` **0** · `node test/medir-telas-altura.js 360 500 950` **0** ·
 `node test/diario-sem-eco.js` **0**. Zona do dono intocada (nada de `MAPA_*`/`telaMapa`).
+
+## 22/08 (tarde) — A FILA FECHOU, de ponta a ponta e com o par de provas
+
+Mandato do dono ("fecha ja, troco depois") executado inteiro numa sentada: PIN integrado
+(2f7cd35, seguranca APROVOU na 3a rodada com sonda propria) -> conta sintetica dono@mesa.brasil
+criada via MCP (a armadilha do INSERT manual mordeu: GoTrue devolve 500 Database error querying
+schema quando as colunas de token ficam NULL — coalesce para string vazia resolveu; registrado
+para o proximo) -> login provado por curl (200, authenticated) ANTES de qualquer policy ->
+BLOCO 1 guardado (a policy aberta era mesa_resposta_insere INSERT anon) -> BLOCO 2 -> 2-B com o
+uuid novo -> BLOCO 4 + curls: ANON 401 · DONO 201 · LEITURA 200; catalogo: 0 policy aberta a
+anon, 0 update/delete, RLS on, teto on. Provas limpas do banco.
+
+Restam: 4 cliques do dono no painel (cadastro OFF, Secure password change ON, leaked passwords
+ON, minimo 8 — mandados no chat com o PIN temporario) e o PENDENTES 57 (auto-login local).
+Sugerido ao dono: apagar os 3 teste-*@patinhas.test e o hi@matheusferreira.cc orfao.

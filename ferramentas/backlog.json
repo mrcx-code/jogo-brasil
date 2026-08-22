@@ -30,8 +30,8 @@
       "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
       "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila. Login unico no celular; INSERT em mesa_resposta passa a exigir auth.",
       "agente": "dev-plataforma",
-      "estado": "em-curso",
-      "nota": "pagina blindada no ar; aguarda login do dono para aplicar o SQL (RLS em mesa_resposta). Confirmado por MCP: so mesa_resposta aceita INSERT anonimo hoje"
+      "estado": "concluido",
+      "nota": "FECHADA 22/08 com o par de provas: anon 401, dono 201, leitura 200; policy unica de INSERT presa ao uuid da conta sintetica (01b909f5), RLS+teto conferidos por catalogo. Restam os 4 cliques do dono no painel (cadastro OFF, Secure password change ON, leaked passwords ON, minimo 8) e o PENDENTES 57 (auto-login local)"
     },
     {
       "id": "fila-auth-hardening",
