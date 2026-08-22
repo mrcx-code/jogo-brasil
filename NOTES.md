@@ -9592,3 +9592,53 @@ abaixo de 4.5) — visto reprovando 4/4 (EQUIPE 2.8).
 `medir-plataforma-chrome` 0 (118 ok, 3/3 mordidas) · `medir-paginas` 0 (187 ok) ·
 `medir-porta-secao` 0 (4/4) · `medir-leitura-secao` 0 (31 ok, 4/4 mordidas). `src/` intocado;
 zona do dono intocada; dashboard/ intocado. Entrega no ramo, sem push.
+
+## Diário — 2026-08-23 · A OUTRA MÁQUINA CHEGA — e o que ela achou frouxo
+
+**Quem escreve.** A sessão de Claude Code do **Mac**, conta diferente da que roda o plantão.
+É o cenário que o `ONBOARDING-OUTRA-CONTA.md` previu em 21/08, acontecendo pela primeira vez.
+
+**O que fez.** Sincronizou no `main`, leu `CLAUDE.md`, `AGENTES.md`, `EQUIPE.md`,
+`TERRITORIO.md` e o onboarding, e **não tocou em território nenhum** — a sessão do Windows
+estava trabalhando, e daqui não se enxerga worktree de lá.
+
+Abriu o **PR #4** (`proposta-coordenacao`) com um documento novo, para a outra sessão revisar
+e derrubar o que discordar. Nenhum arquivo existente foi tocado.
+
+**Os três buracos que motivaram a proposta, e os três foram verificados, não supostos:**
+
+1. **O `em-curso` não trava nada.** Busca no repositório inteiro: `em-curso` só aparece dentro
+   do próprio `ferramentas/backlog.json`. Nenhuma ferramenta lê, valida ou impõe. O combinado
+   entre as máquinas é honra — e isso não estava escrito em lugar nenhum, que é a pior forma
+   de uma regra existir.
+2. **Uma máquina não enxerga o worktree da outra**, e o `origin` não tinha nenhum ramo de
+   trabalho ativo — só `main` e dois ramos velhos do glossário.
+3. **O canal direto entre sessões morre com a sessão.** Medido: às 11h a sessão do Windows
+   aparecia em `ListAgents` e era alcançável por `SendMessage`; minutos depois, nenhuma sessão
+   alcançável. **Mensagem serve para avisar, nunca para combinar** — o que precisa durar tem
+   que estar em arquivo. É a Regra 3 do onboarding, confirmada na prática.
+
+**O que a proposta pede** (detalhe no `PROPOSTA-COORDENACAO.md`): o `em-curso` empurrado na
+hora de pegar e o ramo do worktree no `origin`, para o lock viajar por git · o `guarda.js`
+recusando escrita em território travado por OUTRA máquina, **especificado para a sessão do
+Windows implementar** (decisão do dono, e é a certa: mexer no portão a partir da máquina que
+não vê o que está em voo é o próprio erro que ele existe para impedir) · PR obrigatório só
+para uma classe nomeada — regras, portões, §2 e o que atravessa as máquinas · e item nascendo
+com critério de aceite, com o funil cobrando que exista.
+
+**Uma ressalva que ficou escrita de propósito:** as duas sessões são Claude, e revisão mútua
+tem ponto cego compartilhado. O valor do PR aqui não é qualidade — é **contexto**: a sessão do
+Windows sabe o que está em voo lá, e a do Mac não.
+
+**Fora do repositório, e não o afeta.** O dono separou as identidades de git do Mac dele: a
+conta de trabalho era o padrão global daquela máquina, o que era risco de política de uso e de
+propriedade intelectual. Agora os projetos pessoais assinam por chave SSH dedicada e regra
+automática. **Achado que vale guardar:** nas regras `includeIf hasconfig` do git, o curinga
+`**` NÃO casa — o padrão que funciona é `git@github-pessoal:*/*`. Sem testar, a proteção teria
+ficado escrita e desligada em silêncio.
+
+**Lição desta entrada.** A regra do handoff (`SPRINT.md` T7 — *nenhum push sem entrada no
+NOTES.md*) não estava no onboarding da outra conta, e por isso esta sessão empurrou o PR #4
+antes de escrever aqui. Foi o dono quem apontou. **Sugestão para quem absorver a proposta:** a
+regra do handoff entra no `ONBOARDING-OUTRA-CONTA.md`, senão toda sessão nova a descobre do
+mesmo jeito — tarde.
