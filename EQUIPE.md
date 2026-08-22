@@ -163,6 +163,25 @@ Complemento do "quem edita não julga o próprio trabalho", escrito para as TRÊ
    item no `ferramentas/backlog.json` com agente dono, no MESMO commit que prega a linha
    (retro de 21/08, §6).
 
+### 3.3 A REGRA DO CONTÍNUO — o plantão nunca fica em zero (decisão do dono, 22/08)
+
+Palavras dele: *"bora passar o backlog pro dash e conectar com as equipes, quero tarefas
+simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo"*. Três regras
+operacionais, e as três se cobram pelo `ferramentas/backlog.json`:
+
+1. **Zero agentes em voo com item `livre` na fila é defeito de plantão, não pausa.** Sempre que
+   uma rodada pousa, o plantão despacha o próximo item cujo território esteja desimpedido —
+   antes de integrar, de escrever diário ou de montar mesa. A única fila vazia aceitável é a
+   que está vazia de verdade (tudo `bloqueado`/`do-dono`), e aí o registro no diário diz isso.
+2. **O despacho lê o campo `territorio` do backlog.** Territórios DISJUNTOS = itens voam
+   juntos; qualquer INTERSEÇÃO = sequencial, na ordem da fila; **`src/jogo.ts` é sempre
+   exclusivo** — um escritor por vez no monólito, mesmo em regiões diferentes. A zona do dono
+   (`TERRITORIO.md`) não é território de item nenhum.
+3. **O contínuo não revoga o teto nem vira frota.** Máx 8 em voo (3 pesado + 3 médio + 2 leve,
+   §3.2), banca nomeada no despacho para trabalho visual/sensível, UM `integrar` por vez, e
+   orquestração acima do teto continua exigindo `ultracode` do dono. Manter 1 vivo é o piso;
+   o teto continua sendo o teto.
+
 ## 4. O portão, sempre por EXIT CODE
 
 ```bash
