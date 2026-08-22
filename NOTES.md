@@ -9369,3 +9369,79 @@ anon, 0 update/delete, RLS on, teto on. Provas limpas do banco.
 Restam: 4 cliques do dono no painel (cadastro OFF, Secure password change ON, leaked passwords
 ON, minimo 8 — mandados no chat com o PIN temporario) e o PENDENTES 57 (auto-login local).
 Sugerido ao dono: apagar os 3 teste-*@patinhas.test e o hi@matheusferreira.cc orfao.
+
+## 22/08 (noite) — O AUTO-LOGIN LOCAL: a maquina do dono entra sozinha (PENDENTES 57)
+
+Decisao do dono, dita em duas etapas: *"localhost n precisa entrar ne"* e, depois da RLS,
+*"localhost nao precisa entrar para interagir"*. A segunda e mais forte que a primeira, e a
+diferenca e o que este item existe para pagar: enquanto a fila aceitava INSERT anonimo, "sem
+portao" saia de graca; com a policy fechada (so o uuid do dono escreve), "sem portao" virou
+**sem escrita** — a resposta caia na fila local e ficava la, com um toast que dizia, honesto,
+que so sairia quando isto existisse.
+
+**A FORMA, e por que ela e essa.** O PIN mora num arquivo que o git nao ve
+(`ferramentas/mesa-pin.local`, uma linha, criado A MAO PELO DONO). Os dois servidores locais
+(`servir.js`, `receber.js`) ganham `GET /pin-local`, que so responde ao **loopback**; o
+dashboard, quando esta em localhost e sem sessao, pede esse caminho **uma vez** e troca o PIN
+por sessao pela **mesma funcao** do login normal (`pedirToken`, extraida do `entrar()`). Nao ha
+sessao fingida, nao ha token inventado, nao ha privilegio novo: quem valida continua sendo o
+Supabase Auth, e o Bearer que sai e o mesmo que sairia se ele tivesse digitado. **O plantao
+nunca le o arquivo** — escrito no `.gitignore`, no cabecalho do `pin-local.js` e no teste.
+
+**Falhou, cala.** Arquivo ausente, 404, PIN recusado, rede muda: cai no comportamento de sempre,
+sem laco de retry (uma tentativa, medida), sem tela e **sem queimar as tentativas do dono** —
+`contarErro()` fica de fora de proposito, porque aquele contador existe para quem esta
+DIGITANDO, e cinco cargas de pagina com um arquivo velho trancariam ele por 30 s sem ter tocado
+em nada.
+
+**A conta da seguranca, dita com o tamanho do dano** (e ela e a razao de o PIN em claro ser
+aceitavel aqui): (a) quem le o arquivo **ja esta dentro da maquina** e ja poderia ler o
+`access_token` no localStorage do navegador dela — o arquivo nao abre porta nova; (b) a rota so
+responde a loopback, e **medido**: os dois servidores fazem bind em `127.0.0.1`, e a conexao pelo
+IP da maquina na rede (100.85.253.61:8471) **nao completa** (curl `000`); (c) o dano maximo nao
+muda — INSERT na fila mais a troca do proprio PIN, que depende da trava "Secure password change"
+do painel. O guarda de segredo do `construir.js` **nao cobre isto**, e esta escrito: ele varre o
+que vai para `dist/`, e `ferramentas/` nunca vai. **O `.gitignore` e a unica coisa que mantem o
+arquivo fora do historico** — por isso ele e parte da entrega, e por isso a cena 23 o confere.
+
+**Um defeito de corrida achado no caminho, e ele era real.** `flush()` era "se ja estou lavando,
+ignore" — e o pedido descartado era justamente o que mudava o resultado: a lavagem em curso saiu
+**anonima** e vai levar 401; a que se perdia era a do login, com Bearer. Numa corrida de
+milissegundos a fila ficava presa ate o dono tocar em alguma coisa, sem nada avisar. Agora o
+pedido fica anotado (`relavar`, booleano — nao contador, entao nao vira laco) e a lavagem se
+repete uma vez ao fim. Vale para o login normal tambem, nao so para o auto-login.
+
+**A frase do toast mudou, e por coerencia.** Ela dizia "ela so sai quando o auto-login local
+entrar (PENDENTES 57)". O auto-login entrou; se a resposta AINDA ficou presa, e porque ele nao
+achou o PIN. Entao ela deixa de anunciar obra futura e passa a nomear o arquivo que resolve —
+mensagem de erro que nao diz o que fazer e metade de uma mensagem.
+
+**MEDIDO (instrumentos):** `test/fila-auth.js` 19 -> **23 cenas**, 129 -> **190 verificacoes**;
+`test/fila-auth-controle.js` 13 -> **18 defeitos injetados, 18 vistos mordendo** (exit 0). Os
+tres novos do cliente e os dois do servidor:
+- guard `!LOCAL` removido -> cena 21 (a **armadilha**: /pin-local servido no host da WEB) cai
+  com **6 falhas**, inclusive `data-auth=dentro` e POST com `Bearer tok-novo`;
+- chamada da partida removida -> cena 20 cai com **12 falhas**;
+- `contarErro()` no catch -> cena 22 cai (`{"erros":1}` onde tem de ser `null`);
+- conferencia de loopback removida -> cena 23 atende `10.0.0.5`, `192.168.1.7`,
+  `::ffff:192.168.1.7`, `203.0.113.9` e `''` com **200 e o PIN no corpo** (5 falhas);
+- `console.log` do PIN -> cena 23 cai nas 3 formas de loopback.
+
+**A cena 23 nao usa navegador, e isso e escolha.** A regra e sobre o `remoteAddress` do socket, e
+**nao ha como** abrir socket nao-loopback contra um servidor que escuta em 127.0.0.1 — chamar
+`atender` com um `req` de mentira e o unico jeito de ver a regra valendo. Ela tambem tem alvo
+trocavel por ambiente (`PIN_LOCAL_JS=...`), como o HTML ja tinha, que e o que permite o controle
+injetar defeito nela. E ela **escreve o proprio arquivo de PIN** (`test/tmp-*`, PIN inventado):
+um teste que lesse `ferramentas/mesa-pin.local` imprimiria o PIN do dono no primeiro log de
+falha.
+
+**Um conserto no proprio controle, do tipo EQUIPE.md 2.8.** A janela de leitura era de **10
+linhas fixas** depois do cabecalho da cena; a cena 23 tem 26 verificacoes, e uma falha na 20a
+cairia fora da janela — o controle diria **DECORACAO sobre um portao que mordeu**. Agora a janela
+vai ate o cabecalho da cena seguinte. Achado contra o proprio instrumento, no dia em que ele
+cresceu.
+
+**Portoes (exit real):** `node test/fila-auth.js` **0** (23 cenas, 190 ok) ·
+`node test/fila-auth-controle.js` **0** (18/18 mordendo) · `npm test` **0** ·
+`node test/encaixe.js` **0** · `node test/diario-sem-eco.js` **0**. `src/` intocado; zona do dono
+intocada. Nada publicado — entrega no ramo.

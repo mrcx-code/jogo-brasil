@@ -1677,6 +1677,29 @@ portao cobrava NOVE, porque a varredura da fonte casava `medir\("([a-z]+)"` **se
 
 
 
-## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma
+## 57 — Auto-login LOCAL da mesa/dashboard por arquivo fora do git — dev-plataforma — **FEITO em 22/08 (noite)**
+
+**Como ficou.** `ferramentas/pin-local.js` (novo) guarda a rota e a regra; `servir.js` e
+`receber.js` a montam antes de qualquer outro caminho; o dashboard, em localhost e sem sessao,
+pede `/pin-local` UMA vez e entra pela MESMA funcao do login normal (`pedirToken`). Sem arquivo,
+sem rota: o toast honesto continua — e agora ele NOMEIA o arquivo que resolve, em vez de
+prometer uma obra que ja existe.
+
+**O que o dono faz, uma vez:** cria `ferramentas/mesa-pin.local` com o PIN numa linha. Nada mais.
+Se nao criar, nada muda. **O plantao nunca le esse arquivo** — esta escrito no `.gitignore`, no
+cabecalho do `pin-local.js` e no teste, que escreve um arquivo proprio com um PIN inventado.
+
+**Medido:** `fila-auth.js` 19 -> 23 cenas e 129 -> 190 verificacoes; `fila-auth-controle.js`
+13 -> 18 defeitos, os 18 vistos mordendo. A cena 21 e uma ARMADILHA: serve `/pin-local` no host
+da WEB e cobra que a pagina nao o peca. O bind e `127.0.0.1` nos dois servidores — conexao pelo
+IP de rede da maquina nao completa (curl `000`), medido.
+
+**O que fica aberto e NAO e deste item:** os 4 cliques do dono no painel do Supabase (cadastro
+OFF, **Secure password change ON**, leaked passwords ON, minimo 8). O terceiro deles e o que
+limita o dano de quem tiver o PIN — sem ele, quem entra troca o PIN e o e-mail da conta.
+
+---
+
+Registro original, para quem for ler o porque:
 
 Decisao do dono (22/08): localhost interage SEM entrar, sempre. Hoje vale porque a fila esta aberta; depois do RLS, quem valida e o banco (que nao enxerga localhost). Desenho: um arquivo local gitignored (ex.: ferramentas/mesa-pin.local, criado PELO DONO uma unica vez) com o PIN; servido apenas em loopback pelo receber.js/servir.js; a pagina em localhost le e faz o grant_type=password sozinha, invisivel. O plantao NUNCA ve o PIN final. Entra no mesmo pacote do fechamento da fila, depois da auditoria da seguranca no ramo do PIN.

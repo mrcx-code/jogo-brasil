@@ -22,6 +22,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const pinLocal = require('./pin-local.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const PORTA = parseInt(process.argv[2] || '8199', 10);
@@ -35,6 +36,12 @@ const TIPOS = {
 };
 
 http.createServer(function (req, res) {
+  // /pin-local — o auto-login do dashboard na maquina do dono (PENDENTES 57). Vem ANTES do
+  // caminho estatico porque nao ha arquivo nenhum com esse nome, e depois dele a resposta seria
+  // o 404 do readFile. Quem nao e loopback, ou nao tem o arquivo, recebe exatamente esse mesmo
+  // 404: `atender` devolve false e a rota simplesmente nao existe para ele. Todo o porque
+  // (loopback, o que o PIN alcanca, por que o plantao nunca le o arquivo) mora em pin-local.js.
+  if (pinLocal.atender(req, res)) return;
   let rel = decodeURIComponent(req.url.split('?')[0]);
   let alvo = path.normalize(path.join(PASTA, rel));
   // Sem isto, `GET /../../algo` serve qualquer arquivo do disco.

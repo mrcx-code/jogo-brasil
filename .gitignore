@@ -56,6 +56,23 @@ test/TERRITORIO-3d-768*.png
 test/TERRITORIO-3d-1024*.png
 test/TERRITORIO-3d-cartao.png
 
+# O PIN DA MESA, EM TEXTO PLANO, NA MAQUINA DO DONO — auto-login local (PENDENTES 57, 22/08).
+# Uma linha, o PIN e nada mais. O DONO cria este arquivo a mao, uma unica vez; se ele nao
+# existir, nada acontece — o dashboard em localhost segue com o toast honesto de "sem sessao".
+# O PLANTAO NUNCA LE ESTE ARQUIVO. Nem agente nenhum, nem "so para conferir": ler o arquivo e a
+# mesma coisa que pedir o PIN a ele, e o ponto do PIN e existir so na cabeca dele e no resumo
+# criptografico do GoTrue. O instrumento que mede a rota (test/fila-auth.js, cena 23) escreve um
+# arquivo PROPRIO com um PIN inventado — nunca toca neste.
+# ESTA LINHA E A UNICA COISA QUE IMPEDE O ARQUIVO DE ENTRAR NO HISTORICO: o guarda de segredo do
+# ferramentas/construir.js varre o que vai para dist/, e ferramentas/ nunca vai para dist/.
+# Por que o PIN em claro aqui e aceitavel, com o dano dito: quem consegue ler este arquivo ja
+# esta dentro da maquina (e ja poderia ler o access_token no localStorage do navegador dela); a
+# rota /pin-local so responde a loopback; e o dano maximo continua sendo INSERT na fila mais a
+# troca do proprio PIN — que depende da trava "Secure password change" no painel, e ela esta na
+# instrucao de fechamento do ferramentas/fila-auth.sql. O porque completo mora em
+# ferramentas/pin-local.js, que e onde a rota vive.
+ferramentas/mesa-pin.local
+
 test/portao-vermelho-*.log
 # Prints da home (increment 2, o DIORAMA de 22/08). O par 390x844 fica versionado — e o
 # antes/depois que sustenta os numeros do NOTES.md. Os outros tres tamanhos pesam de 1 a 5 MB

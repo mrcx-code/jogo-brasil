@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
+const pinLocal = require('./pin-local.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ENTRADA = path.join(RAIZ, 'assets', 'entrada');
@@ -415,6 +416,12 @@ function estadoDaFila() {
 
 const servidor = http.createServer(function (req, res) {
   const url = req.url.split('?')[0];
+
+  // /pin-local — o auto-login do dashboard na maquina do dono (PENDENTES 57). Quem nao chega
+  // pelo loopback, ou chega sem o arquivo existir, cai no MESMO 404 do fim desta funcao: a rota
+  // nao se anuncia, nao devolve 403 e nao diz que existe. O porque inteiro esta em pin-local.js,
+  // inclusive por que este servidor nunca imprime o PIN no console.
+  if (pinLocal.atender(req, res)) return;
 
   if (req.method === 'GET' && (url === '/' || url === '/index.html')) {
     fs.readFile(path.join(__dirname, 'receber.html'), function (e, buf) {
