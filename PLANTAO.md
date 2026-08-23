@@ -133,6 +133,37 @@ cumpre — no lugar exato onde se decide o que despachar.
 
 ---
 
+## 5.1 As tres coisas que o dono percebe quando o plantao esquece
+
+Escritas em 23/08 porque **nenhuma delas estava em documento nenhum** — viviam so na cabeca de
+quem estava de plantao, e a passagem de bastao mostrou isso. As tres ja foram cobradas por ele.
+
+**O PAINEL DE AGENTES CONGELA SE NINGUEM O ATUALIZAR, e ele repara.** A tabela `mesa_agente`
+no Supabase alimenta o painel que ele abre no celular. Ela nao se atualiza sozinha: e o plantao
+que escreve, **a cada despacho e a cada pouso**, o que cada agente esta fazendo. Em 21/08 ele
+percebeu que estava parada havia horas e cobrou — com razao, porque painel congelado nao diz
+"ninguem trabalhou", diz "nao da para saber", e as duas coisas parecem iguais de fora.
+
+Ao pousar, troque a atividade para o que aquela rodada **descobriu**, nao para "terminou": *"hoje:
+refutou 2 achados meus com numero"* vale mais que *"concluido"*.
+
+Se a sua sessao nao tiver acesso ao banco, **diga isso ao dono** em vez de deixar congelar em
+silencio — a diferenca entre nao poder e nao lembrar e exatamente o que o painel existe para
+mostrar.
+
+**TODO PEDIDO DELE VIRA LINHA, para nenhum prompt ser esquecido.** Ele pediu isso por escrito
+("quero poder ir marcando eles como feito para q sumam da lista"). Pedido novo entra na tabela
+`mesa_pedido`; pedido atendido vira `feito` e sai da vista dele. **Nao marque feito o que esta
+pela metade** — ja aconteceu, e desmarcar depois custa a confianca na lista inteira.
+
+**CRASE NUNCA em mensagem de commit pelo shell.** O bash come o trecho entre elas e ja apagou
+**duas vezes** a parte que mais importava da mensagem. Escreva o nome do arquivo ou do simbolo
+sem marcacao, ou passe a mensagem por arquivo (`git commit -F`).
+
+E uma de higiene que economiza confusao: **depois do funil, `git checkout -- test/`**. Os portoes
+regravam tres prints a cada rodada, e eles sujam a arvore sem que um byte de codigo tenha mudado.
+Arvore suja que nao significa nada e como se aprende a ignorar `git status`.
+
 ## 6. Quando o dono escrever `check`
 
 É comando, e as regras estão no `CLAUDE.md` §6. Quatro camadas — **metas, objetivos,
