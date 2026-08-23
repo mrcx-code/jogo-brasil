@@ -1903,3 +1903,52 @@ sem o portao de ferramentas que o arquivo declara.
 O QUE FALTA, e e o que evita a repeticao: uma conferencia de arranque que compare a lista de
 agentes viva com o que ha em `.claude/agents/` e GRITE na diferenca. Hoje o sintoma so aparece
 quando alguem tenta despachar o agente que sumiu — e quem nao tentar, nao descobre.
+
+## 63 — O `abrir.js` afirma por escrito uma garantia FALSA: portas colidem entre copias — plantao/dev
+
+Achado pelo QA em 23/08, medido duas vezes por dois agentes diferentes. O cabecalho do
+`test/abrir.js` diz que "duas copias diferentes nunca pedem a mesma porta". Nao e verdade e nao
+tem como ser: sao **254 vagas** e o problema do aniversario. Medido sobre as raizes vivas do
+disco: **69 raizes, 59 portas distintas, 10 pares colidindo**.
+
+O modo de falha que o arquivo foi escrito para matar — medir o `index.html` de OUTRA arvore,
+sem erro, com print bonito — esta vivo de novo para 20 das 69 copias. Isto e grave porque e
+silencioso: o teste passa, o numero sai, e ele descreve o jogo de outra pasta.
+
+CONSERTO PROPOSTO pelo QA, e ele fecha a categoria inteira em vez do caso: um `GET /__raiz` que
+devolve o caminho servido, e o cliente confere que e a arvore dele antes de medir qualquer
+coisa. E o mesmo remedio que tirou o smoke do `file://` — parar de confiar em suposicao sobre
+o ambiente e PERGUNTAR.
+
+Hoje o `abrir.js` tambem engole `EADDRINUSE` sem checar quem respondeu.
+
+SEGUNDA METADE, ja feita em 23/08: o combustivel era o acumulo de worktrees. Estavam **64
+registrados e 68 copias no disco**; removi 55 worktrees e 68 ramos ja integrados, e sobraram 9.
+Ninguem media nem limpava isso — a limpeza precisa virar rotina, senao volta sozinha.
+
+## 64 — A coluna de heap do `martelo.js` mede o balde do navegador, nao o jogo — qa/dev
+
+Achado pelo QA em 23/08 auditando o instrumento que outro QA tinha acabado de escrever.
+
+`performance.memory` no Chromium do Playwright **sem** `--enable-precise-memory-info` devolve
+constante quantizada: `usedJSHeapSize = 10.000.000`, congelado. Medido: 12 leituras seguidas
+dao **1 valor distinto em 12**; reter **80 MB comprovadamente vivos** move o campo **0,00 MB**;
+com a bandeira, os mesmos 80 MB movem 38,62 MB.
+
+A prova que fecha: injetaram um vazamento de ~2 MB por batida DENTRO do proprio martelo, 36
+batidas em 12 s, e ele imprimiu `DELTA HEAP 0.0 MB` e saiu **0**. Ou seja, o "delta 0,0 MB em
+38 s" nao era medida — era o **unico valor que aquela configuracao podia produzir**, para
+vazamento de qualquer tamanho.
+
+O QUE CONTINUA VALENDO da rodada que usou esse numero: a refutacao de que martelar mata a aba
+se sustenta, porque ela vem de `page.on('crash')` e da ausencia de excecao, que sao sinais
+verdadeiros. So a linha de memoria cai.
+
+CONSERTO: uma linha, `args: ['--enable-precise-memory-info']` — ou tirar a coluna. Enquanto nao
+for feito, **nao cite heap desse instrumento como prova de nada**, e o guarda
+`performance.memory ? ... : 0` precisa parar de imprimir `0.0 MB` quando a API nao existe: nao
+distinguir "medi zero" de "nao consegui medir" e como o numero enganou.
+
+Dois defeitos vizinhos, medidos na mesma auditoria: o martelo **nao sai 1 com erro de pagina**
+(5 excecoes injetadas, exit 0) e **nao afere que martelou** (landou 2 toques onde o limpo faz
+15-25, e passou) — um instrumento cuja tese e "bate por 40 s" pode bater duas vezes e absolver.
