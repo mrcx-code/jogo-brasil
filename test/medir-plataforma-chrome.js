@@ -215,9 +215,19 @@ const ehSerifa = (s) => /serif|georgia|palatino|iowan|times|noto serif/i.test(s 
     const jogo = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
     ok(/montarSaidaPlataforma/.test(jogo) && /setAttribute\("href", ?"\/"\)/.test(jogo),
       'a saída da CHEGADA (no jogo) aponta para a RAIZ');
-    const construir = fs.readFileSync(path.join(RAIZ, 'ferramentas', 'construir.js'), 'utf8');
-    ok(/plataforma['"], ?['"]index\.html['"]\)[\s\S]{0,120}dist['"], ?['"]index\.html/.test(construir),
-      'a raiz publicada é a PORTA (construir.js: plataforma -> dist/index.html)');
+    // A COBRANÇA É NO ARTEFATO, não no texto do build (conserto de 22/08). Ela era um `grep`
+    // pela expressão `plataforma…index.html` seguida de `dist…index.html` dentro do
+    // `construir.js`, e caiu no dia em que o build passou a escrever numa pasta de obra: a
+    // promessa continuava verdadeira e o portão ficou vermelho porque duas literais mudaram de
+    // forma. Portão que lê o CÓDIGO de quem ele vigia reprova refatoração e dorme em bug — o
+    // que interessa é o byte que a Vercel publica. Comparado direto, e com a mensagem dizendo
+    // para rodar o build se a pasta não estiver lá.
+    const distIndex = path.join(RAIZ, 'dist', 'index.html');
+    const portaFonte = path.join(RAIZ, 'plataforma', 'index.html');
+    ok(fs.existsSync(distIndex), 'dist/index.html existe (se não, rode npm run build antes)');
+    ok(fs.existsSync(distIndex) && fs.existsSync(portaFonte)
+      && Buffer.compare(fs.readFileSync(distIndex), fs.readFileSync(portaFonte)) === 0,
+      'a raiz publicada é a PORTA — dist/index.html é byte a byte plataforma/index.html');
   }
 
   // ------------------------------------------------------------------ AUTOTESTE (2.8)

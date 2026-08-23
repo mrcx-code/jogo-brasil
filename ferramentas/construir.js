@@ -392,25 +392,119 @@ function copiarPublicado(origem, destino) {
   escreverPublicado(destino, fs.readFileSync(origem));
 }
 
+// ============================================================================
+// O GUARDA DO ROTEIRO — nenhum item PUBLICADO pode descrever uma defesa que ainda
+// não está no lugar. Achado do jurídico, 22/08.
+//
+// O QUE ACONTECEU. A fila interna passou a ser publicada em `/dashboard/backlog.json`, e um
+// item com estado `do-dono` explicava, num endereço que responde 200 a quem pedir, o que cada
+// defesa AINDA NÃO aplicada permitia — em português claro, com o passo a passo. Isso não é
+// transparência: é roteiro. Transparência é contar o que já se protegeu; contar o que falta
+// proteger, com o efeito descrito, é escrever o ataque no lugar de quem o faria. O texto dos
+// dois itens foi cortado no mesmo dia (commit 47df2a1) — mas conteúdo volta, e o que não volta
+// é um portão. Este é o portão.
+//
+// A RÉGUA, e ela cabe numa linha: **item não-concluído não fala de PIN, senha, token, conta,
+// vulnerabilidade, loopback nem de forma de autenticação.** Item CONCLUÍDO fala à vontade — ele
+// descreve defesa QUE JÁ EXISTE, e aí a descrição não entrega nada que não esteja de pé. É por
+// isso que o estado é o critério, e não a palavra sozinha.
+//
+// FRONTEIRA DE PALAVRA, e ela é a diferença entre portão e estorvo: `pin` cru casa dentro de
+// `pinos` e `pintados`, que enchem o backlog (O TERRITÓRIO é uma placa de PINOS). Medido nos 34
+// itens reais no dia em que isto entrou: **zero recusas**, e `pinos do territorio`/`os pinos
+// pintados` não casam enquanto `PIN da mesa` casa.
+//
+// A ARMADILHA QUE FICA, escrita aqui para a próxima pessoa não descobrir por build vermelho:
+// `\bPIN\b` casa também em `pin-local` (o hífen é fronteira), então um item novo cujo campo
+// `territorio` cite `ferramentas/pin-local.js` cai aqui. É recusa CORRETA por regra e chata na
+// prática; o conserto é reescrever o item, não afrouxar a lista. Mexer nesta lista tem de ser
+// chato de fazer por acidente — é o mesmo espírito da tabela da CSP.
+//
+// SÓ O BACKLOG PASSA POR AQUI, e é escolha: ele é o único arquivo publicado que é uma FILA DE
+// TRABALHO INTERNA, com estado por item. Página de seção não tem "o que ainda não fiz".
+const ROTEIRO = [
+  [/\bPINs?\b/i, 'PIN'],
+  [/\bsenhas?\b/i, 'senha'],
+  [/\btokens?\b/i, 'token'],
+  [/service_role/i, 'service_role'],
+  [/\bcria(?:r|ndo)?\s+conta\b/i, 'cria conta'],
+  [/vulnerab/i, 'vulnerabilidade'],
+  [/\bloopback\b/i, 'loopback'],
+  [/grant_type/i, 'grant_type'],
+];
+function guardaRoteiro(origem, bytes) {
+  let fila;
+  try { fila = JSON.parse(bytes.toString('utf8')); }
+  catch (e) {
+    throw new Error(origem + ' nao e JSON valido (' + e.message + ') — o dashboard le este'
+      + ' arquivo por fetch e o guarda do roteiro precisa ler os estados dos itens.');
+  }
+  const itens = Array.isArray(fila) ? fila : (fila.itens || []);
+  for (const item of itens) {
+    if (String(item.estado || '') === 'concluido') continue;
+    for (const [campo, valor] of Object.entries(item)) {
+      const texto = Array.isArray(valor) ? valor.join(' ') : String(valor == null ? '' : valor);
+      for (const [re, nome] of ROTEIRO) {
+        const i = texto.search(re);
+        if (i < 0) continue;
+        throw new Error('ROTEIRO indo para ' + origem + ': o item "' + (item.id || '(sem id)')
+          + '" esta em "' + item.estado + '" (nao concluido) e o campo `' + campo + '` diz "'
+          + nome + '" — …' + texto.slice(Math.max(0, i - 60), i + 60).replace(/\s+/g, ' ') + '…\n'
+          + '  Nenhum item publicado pode descrever uma defesa que ainda nao esta no lugar: este'
+          + ' arquivo e servido em /dashboard/backlog.json e responde 200 a quem pedir. Reescreva'
+          + ' o item sem dizer o que a falta permite (o QUE fazer basta; o EFEITO DE NAO TER'
+          + ' FEITO e o roteiro), ou marque-o concluido quando a defesa estiver de pe.');
+      }
+    }
+  }
+  return bytes;
+}
+
 escreverPublicado(p('index.html'), saida);
-fs.mkdirSync(p('dist'), { recursive: true });
+
+// ============================================================================
+// O `dist/` SE PUBLICA INTEIRO OU NÃO SE PUBLICA — a pasta de obra e a troca no fim.
+//
+// O DEFEITO, achado pela segurança em 22/08: o build escrevia direto em `dist/`, arquivo a
+// arquivo. Quando ele MORRIA no meio — e ele tem motivos para morrer no meio, todos de
+// propósito: o guarda de segredo, a tabela da CSP, a cobrança da chave `phc_` — o que já
+// tinha sido escrito ficava lá, misturado com os bytes da build ANTERIOR. Nada avisa: a pasta
+// existe, as páginas abrem, e uma delas é de ontem. Na Vercel isso é inócuo (build vermelha
+// não promove nada), mas `npm run servir` e o `cap sync` leem esta pasta do disco, e serviriam
+// a mistura calados.
+//
+// O CONSERTO é a pasta de obra: tudo vai para `dist.tmp/`, e só no ÚLTIMO passo, com todo byte
+// já escrito e todo portão já passado, o `dist/` velho sai e o novo entra por um rename. Um
+// build que falha deixa o `dist/` ANTERIOR intacto — coerente consigo mesmo, que é a única
+// coisa que se pode prometer de bytes que ninguém vai reconferir. Foi escolhido contra "limpar
+// o dist no início" porque aquele troca uma pasta misturada por uma pasta pela metade: o
+// `npm run servir` passaria a devolver 404 no lugar de conteúdo velho, o que é mais honesto,
+// mas ainda é uma pasta que ninguém pediu. Aqui não existe estado intermediário publicável.
+//
+// A pasta de obra é limpa ANTES, não depois: um build morto no meio deixa `dist.tmp/` para trás
+// e ela não pode virar sedimento (está no .gitignore junto com `dist/`, pelo mesmo motivo).
+const DIST = p('dist');
+const DIST_OBRA = p('dist.tmp');
+const d = (...partes) => path.join(DIST_OBRA, ...partes);
+fs.rmSync(DIST_OBRA, { recursive: true, force: true });
+fs.mkdirSync(DIST_OBRA, { recursive: true });
 // A PORTA DA PLATAFORMA É A RAIZ (D-home, dono 20/08): o jogo vira /jogo (o chamariz) e a home
 // da plataforma vira dist/index.html. A RAIZ VERSIONADA CONTINUA SENDO O JOGO — o smoke e a régua
 // leem o index.html da raiz e precisam medir o JOGO, não a porta. No dist, o jogo vai para
 // dist/jogo/ com os pacotes de arte AO LADO: o fetch de `pack-*.json` é RELATIVO (ver
 // caminhoPacote), então a arte quebraria se o jogo mudasse de pasta e os pacotes ficassem na raiz.
-fs.mkdirSync(p('dist', 'jogo'), { recursive: true });
-escreverPublicado(p('dist', 'jogo', 'index.html'), saida);
+fs.mkdirSync(d('jogo'), { recursive: true });
+escreverPublicado(d('jogo', 'index.html'), saida);
 if (fs.existsSync(p('plataforma', 'index.html'))) {
-  copiarPublicado(p('plataforma', 'index.html'), p('dist', 'index.html'));
+  copiarPublicado(p('plataforma', 'index.html'), d('index.html'));
   console.log('  plataforma/index.html -> dist/index.html (a PORTA, na raiz)');
 } else {
-  escreverPublicado(p('dist', 'index.html'), saida);
+  escreverPublicado(d('index.html'), saida);
   console.log('  AVISO: plataforma/index.html nao existe — dist/index.html ficou com o JOGO (sem porta)');
 }
 if (fs.existsSync(p('compartilhar.jpg'))) {
-  copiarPublicado(p('compartilhar.jpg'), p('dist', 'compartilhar.jpg'));
-  copiarPublicado(p('compartilhar.jpg'), p('dist', 'jogo', 'compartilhar.jpg'));
+  copiarPublicado(p('compartilhar.jpg'), d('compartilhar.jpg'));
+  copiarPublicado(p('compartilhar.jpg'), d('jogo', 'compartilhar.jpg'));
 }
 
 // A MESA, publicada num endereço que abre SEM LOGIN. Ela nasceu como artifact privado, e o
@@ -434,26 +528,26 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // `service_role` "só para testar" dá acesso TOTAL ao banco ignorando RLS, o que faria da fila
 // fechada em fila-auth.sql um enfeite no mesmo instante — mas provável não é exclusivo.
 if (fs.existsSync(p("dashboard"))) {
-  fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
+  fs.mkdirSync(d("dashboard"), { recursive: true });
   let nDash = 0;
   for (const f of fs.readdirSync(p("dashboard"))) {
-    copiarPublicado(p("dashboard", f), p("dist", "dashboard", f));
+    copiarPublicado(p("dashboard", f), d("dashboard", f));
     nDash++;
   }
-  escreverPublicado(p("dist", "robots.txt"),
+  escreverPublicado(d("robots.txt"),
     ["User-agent: *", "Disallow: /dashboard", "Sitemap: " + BASE + "/sitemap.xml", ""].join("\n"));
   // O SITEMAP (growth, 21/08): sem ele o Google só acha as páginas por link, e não havia sinal
   // de indexação nenhuma. As seis URLs públicas; o dashboard fica de fora de propósito.
   const urlsMapa = ["/", "/jogo/", "/historia/", "/glossario/", "/de-onde-vem/", "/territorio/"];
-  escreverPublicado(p("dist", "sitemap.xml"),
+  escreverPublicado(d("sitemap.xml"),
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + urlsMapa.map(function (u) { return "  <url><loc>" + BASE + u + "</loc></url>"; }).join("\n")
     + "\n</urlset>\n");
   console.log("  dashboard/ copiado para dist/dashboard/ — " + nDash + " arquivo(s), + robots.txt e sitemap.xml");
   // O ENDERECO ANTIGO REDIRECIONA: o dashboard chamava-se mesa ate 21/08 e o bookmark do
   // celular do dono aponta para /mesa. Quebrar bookmark dele e o oposto de organizar.
-  fs.mkdirSync(p("dist", "mesa"), { recursive: true });
-  escreverPublicado(p("dist", "mesa", "index.html"),
+  fs.mkdirSync(d("mesa"), { recursive: true });
+  escreverPublicado(d("mesa", "index.html"),
     "<!doctype html><meta charset=utf-8><meta name=robots content=noindex>" +
     "<meta http-equiv=refresh content=\"0; url=/dashboard/\">" +
     "<a href=/dashboard/>O painel mudou para /dashboard</a>");
@@ -472,10 +566,14 @@ if (fs.existsSync(p("dashboard"))) {
 // pasta já barrada é a única trava que existe para ele. Debaixo de `/dashboard/` ele herda o
 // Disallow que já está no ar, continua dentro do `connect-src 'self'` da página, e o recuo não
 // muda: some o arquivo, o fetch cai no 404 e a seção se esconde sozinha.
-// Passa pelo portão de segredo como todo byte publicado (copiarPublicado).
+// Passa pelo portão de segredo como todo byte publicado (copiarPublicado) E pelo guarda do
+// roteiro (guardaRoteiro, achado do jurídico em 22/08) — o `Disallow` pede ao robô que não
+// indexe, não impede ninguém de abrir o endereço.
 if (fs.existsSync(p("ferramentas", "backlog.json"))) {
-  fs.mkdirSync(p("dist", "dashboard"), { recursive: true });
-  copiarPublicado(p("ferramentas", "backlog.json"), p("dist", "dashboard", "backlog.json"));
+  fs.mkdirSync(d("dashboard"), { recursive: true });
+  const fila = fs.readFileSync(p("ferramentas", "backlog.json"));
+  guardaRoteiro("ferramentas/backlog.json", fila);
+  escreverPublicado(d("dashboard", "backlog.json"), fila);
   console.log("  ferramentas/backlog.json -> dist/dashboard/backlog.json (a fila, atras do Disallow)");
 }
 
@@ -490,9 +588,9 @@ if (fs.existsSync(p("ferramentas", "backlog.json"))) {
 // inline e não pode pesar na porta de entrada do jogo, que é o que carrega em 3G.
 for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio']) {
   if (!fs.existsSync(p(secao))) continue;
-  fs.mkdirSync(p('dist', secao), { recursive: true });
+  fs.mkdirSync(d(secao), { recursive: true });
   let n = 0;
-  for (const f of fs.readdirSync(p(secao))) { copiarPublicado(p(secao, f), p('dist', secao, f)); n++; }
+  for (const f of fs.readdirSync(p(secao))) { copiarPublicado(p(secao, f), d(secao, f)); n++; }
   console.log('  ' + secao + '/ copiada para dist/' + secao + '/ — ' + n + ' arquivo(s)');
 }
 
@@ -501,11 +599,13 @@ for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio']) {
 // para dentro do APK, enquanto a RAIZ é o que o `npm start` serve, o que o smoke test abre e o
 // que as ferramentas de peso medem. Um pacote que só existisse num dos dois daria o mesmo
 // sintoma dos dois lados: um capítulo sem pintura, sem erro nenhum no console.
-// Antes de escrever, varre as sobras: um pacote que deixou de existir (capítulo removido,
-// tabela mudada) ficaria no disco e seria publicado para sempre.
-// Varre as sobras nos TRÊS lugares — raiz, dist/ e dist/jogo/ — inclusive um pack antigo em
-// dist/ da época em que o jogo era a raiz do dist, que de outra forma ficaria publicado para sempre.
-for (const dir of [p('.'), p('dist'), p('dist', 'jogo')]) {
+// Antes de escrever, varre as sobras da RAIZ: um pacote que deixou de existir (capítulo
+// removido, tabela mudada) ficaria no disco e seria publicado para sempre. A varredura era em
+// três lugares — raiz, dist/ e dist/jogo/ — e os dois últimos deixaram de precisar dela em
+// 22/08: a pasta de obra nasce vazia a cada build e o dist/ velho inteiro é descartado no
+// rename do fim, então sobra de pacote em dist/ deixou de ser possível por construção. A da
+// raiz continua, porque a raiz é VERSIONADA e sobrevive ao build.
+for (const dir of [p('.')]) {
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) if (/^pack-[\w-]+\.json$/.test(f)) fs.unlinkSync(path.join(dir, f));
 }
@@ -514,9 +614,23 @@ for (const [nome, pk] of separado.packs) {
   const corpo = JSON.stringify({ arte: pk.arte, itens: pk.itens });
   totalPacks += corpo.length;
   escreverPublicado(p('pack-' + nome + '.json'), corpo);
-  escreverPublicado(p('dist', 'jogo', 'pack-' + nome + '.json'), corpo);
+  escreverPublicado(d('jogo', 'pack-' + nome + '.json'), corpo);
   console.log('  pack-' + nome + '.json — ' + (corpo.length / 1024).toFixed(0) + ' KB, '
     + pk.arte.length + ' imagens em ' + pk.itens.length + ' lugares');
+}
+
+// ---- A TROCA. Último passo do build, e nada é escrito depois dele. ----
+// Só aqui o `dist/` de ontem deixa de existir. Se o rename falhar (a pasta aberta num terminal,
+// um `npm run servir` de pé segurando um arquivo), o build morre com a mensagem dizendo o que
+// fazer — e o `dist/` de ontem continua inteiro, que é exatamente a promessa.
+try {
+  fs.rmSync(DIST, { recursive: true, force: true });
+  fs.renameSync(DIST_OBRA, DIST);
+} catch (e) {
+  throw new Error('nao consegui trocar dist/ pela pasta de obra dist.tmp/ (' + (e.code || e.message)
+    + '). Alguem esta segurando a pasta — um `npm run servir` de pe, um `cap sync`, um terminal'
+    + ' com o cwd dentro dela. Feche e rode de novo: o dist/ anterior continua intacto e a obra'
+    + ' pronta esta em dist.tmp/.');
 }
 
 const mb = (saida.length / 1048576).toFixed(2);

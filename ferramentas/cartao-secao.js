@@ -25,27 +25,38 @@
 //       e qualquer coisa `fixed`/`sticky` saem ANTES do print — e depois se confere que
 //       nenhum `button` sobrou dentro do quadro. Não é a linha sumindo: ela continua na
 //       PÁGINA, que é onde o botão funciona.
-//   (c) A PÁGINA ESTÁ VESTIDA. As quatro páginas de papel carregam Bitter/Source Sans/IBM Plex
-//       do Google. Gerado sem rede, o print sai em Georgia e system-ui — legível, e com outra
-//       identidade visual que ninguém veria antes de publicar. Aqui isso RECUSA, com a
-//       mensagem dizendo o que fazer.
+//   (c) A PÁGINA ESTÁ VESTIDA COM A SERIFA DA CASA. Escrito quando as páginas carregavam
+//       Bitter/Source Sans/IBM Plex do Google e o print sem rede saía em Georgia. A onda 1 de
+//       22/08 tirou o Google e pôs a serifa da casa; a cobrança acompanhou e virou IGUALDADE
+//       contra `CHROME.TITULO`, a fonte única de onde a `var(--titulo)` sai. O porquê da forma
+//       exata (e o dia em que ela ficou muda) está na linha da checagem, lá embaixo.
 //   (d) PESO. Acima de ~300 KB o robô da prévia desiste de buscar; abaixo de 20 KB o JPEG é
-//       uma chapa lisa (foi assim que o território pegou o print tirado cedo demais).
+//       uma chapa lisa (foi assim que o território pegou o print tirado cedo demais). A meta
+//       de projeto (90 KB) é mais apertada e quem a cobra é test/cartao-controle.js.
+//   (e) O GRÃO DO PAPEL SAI DO PRINT — a única coisa da PÁGINA que o cartão não mostra, e a
+//       única textura envolvida. O bloco GRAO_FORA abaixo tem a medição que decidiu isso.
 //
 // E o print sai a `deviceScaleFactor: 1` de propósito: a 2 ele sairia 2400×1260 e desmentiria
 // as tags `og:image:width`/`height` que o próprio gerador escreve.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
+const CHROME = require('./chrome-plataforma.js');
 
 // O tamanho que WhatsApp, Twitter e Facebook usam. Escrito aqui e lido pelas tags, para não
 // haver duas versões do mesmo número.
 const LARGURA = 1200;
 const ALTURA = 630;
 
-// A qualidade do JPEG. 85 é a do território (68 KB medidos ali). Página de papel é texto sobre
-// cor chapada: comprime melhor que a placa 3D.
-const QUALIDADE = 85;
+// A qualidade do JPEG. Era 85 (a do território) até 22/08, quando a onda 3 pôs papel de campo
+// nas três seções e o cartão TRIPLICOU sem ninguém ver: 66→183, 67→180, 74→183 KB, contra uma
+// meta de 90. Ver GRAO_FORA logo abaixo para a causa. Com o grão fora do print, 80 é o maior
+// valor que deixa as três com folga — medido nas três páginas, com a PAUTA mantida:
+//     q85  93,1 · 93,4 · 97,6      q84  91,2 · 91,4 · 95,5     (de-onde-vem ainda fura a meta)
+//     q82  86,5 · 86,9 · 90,7      q80  81,5 · 81,7 · 85,5  ← escolhido
+//     q78  78,5 · 78,8 · 82,4      q76  73,5 · 73,8 · 77,2
+// Abaixar mais só compraria KB que ninguém pediu, ao custo do único texto que o cartão tem.
+const QUALIDADE = 80;
 
 // A faixa de peso. Meta de projeto: <= 90 KB (o do território tem 68). A faixa abaixo é o
 // PORTÃO — mais larga que a meta de propósito, porque um cartão 12 KB acima da meta ainda
@@ -53,6 +64,36 @@ const QUALIDADE = 85;
 // número medido de cada seção sai no console e vai para o relatório.
 const KB_MIN = 20;
 const KB_MAX = 300;
+
+// ---- O GRÃO SAI DO PRINT, e é a única textura que sai (22/08) ----
+//
+// O QUE ACONTECEU. A onda 3 da arte deu papel de campo às três seções de leitura: `--pauta`
+// (risco de 1 px a cada 11) e `--graoPx` (speckle de 2 px, PNG de 96×96 ladrilhado no body
+// inteiro). Na PÁGINA isso custa alguns KB de data-URI e é o que faz o papel parecer papel.
+// No CARTÃO custou o triplo do arquivo, porque JPEG é transformada de cosseno em blocos de
+// 8×8: ruído disperso de alta frequência é o pior caso possível para ele — cada speckle vira
+// coeficiente que não se pode jogar fora. Medido nas três páginas, a 1200×630 e q85:
+//     com tudo            182,8 · 179,6 · 183,4 KB
+//     sem PAUTA           174,8 · 170,4 · 175,6 KB   ← a pauta quase não pesa (linha reta,
+//                                                      periódica, o JPEG a resolve barato)
+//     sem GRÃO             93,1 ·  93,4 ·  97,6 KB   ← -49%: é ELE, sozinho
+//     sem grão nem pauta   68,8 ·  68,0 ·  73,7 KB
+// Também foram medidos e RECUSADOS: só abaixar a qualidade (q55 chega a 94,6 — ainda fura a
+// meta, e a 55 o texto do cartão, que é a única coisa que ele tem, começa a franjar) e borrar
+// o grão com filter:blur (178,7 KB — blur em CSS não é filtro passa-baixa antes da DCT: o
+// Chromium rasteriza a página borrada e o JPEG paga o mesmo ruído, agora sujo).
+//
+// POR QUE ISTO NÃO FERE O "O CARTÃO É UM PRINT DA PRÓPRIA PÁGINA". A regra existe contra uma
+// SEGUNDA CÓPIA DO CONTEÚDO envelhecendo em silêncio: título, contagem, texto e cor continuam
+// vindo da página, num comando só. O que sai é uma textura de 2 px que, no tamanho em que o
+// cartão é visto (o WhatsApp mostra ~400 px de largura), nenhum olho resolve. A PAUTA FICA
+// justamente por isso: ela custa ~8 KB, é visível como pauta, e é ela que segura a leitura de
+// "papel" no cartão. Mesma família da linha que o território já tirava do print dele (o
+// interruptor da medição): controle e microtextura não fazem falta numa imagem estática.
+//
+// SE ISTO APODRECER: quem cobra é test/cartao-controle.js, que reprova acima de 90 KB nas
+// quatro seções. Uma textura nova entrando no papel derruba aquele portão, não este arquivo.
+const GRAO_FORA = ':root{--graoPx:none!important}';
 
 // As tags do <head>, montadas de uma vez para nenhuma seção esquecer metade delas. A URL vem
 // SEMPRE da BASE de ferramentas/dominio.js — endereço escrito à mão numa tag og: é o jeito
@@ -91,17 +132,22 @@ async function tirar(dir, op) {
     // e um respiro para o primeiro layout com as fontes já trocadas
     await pg.waitForTimeout(250);
 
-    // ---- (b) fora do print: o interruptor da medição e tudo o que flutua ----
-    const escondidos = await pg.evaluate(() => {
+    // ---- (b) fora do print: o interruptor da medição, tudo o que flutua, e o grão ----
+    const escondidos = await pg.evaluate((graoFora) => {
       let n = 0;
       document.querySelectorAll('.med').forEach((e) => { e.style.display = 'none'; n++; });
       document.querySelectorAll('body *').forEach((e) => {
         const p = getComputedStyle(e).position;
         if (p === 'fixed' || p === 'sticky') { e.style.display = 'none'; n++; }
       });
+      // O grão de 2 px sai SÓ do print (ver GRAO_FORA lá em cima: 183 -> 93 KB). A página não
+      // muda; o que muda é a foto dela.
+      const st = document.createElement('style');
+      st.textContent = graoFora;
+      document.head.appendChild(st);
       window.scrollTo(0, 0);
       return n;
-    });
+    }, GRAO_FORA);
 
     const cena = await pg.evaluate(() => {
       const h1 = document.querySelector('h1');
@@ -148,14 +194,31 @@ async function tirar(dir, op) {
     // A serifa da casa tem de estar de pé no título. Se um dia alguém devolver um título em
     // sans/mono, ou quebrar a var(--titulo), o cartão sairia com outra identidade — e é isso que
     // se cobra, não mais a chegada de uma fonte de rede (as páginas não usam mais Google Fonts).
-    const fonteTitulo = (cena.tituloFonte || '').toLowerCase();
-    const serifaCasa = /palatino|georgia|iowan|noto serif|times|\bserif\b/.test(fonteTitulo);
+    //
+    // A ARMADILHA QUE ISTO JÁ PAGOU (22/08). A cobrança anterior era um /…|\bserif\b/ solto, e
+    // ele deixava passar o defeito exato que o controle injeta: **`sans-serif` CONTÉM `serif`**,
+    // com um hífen antes do `s`, que é fronteira de palavra para o `\b`. Medido, imprimindo o
+    // estado (EQUIPE 2.9): com `h1{font-family:Arial,sans-serif}` a computada é "Arial,
+    // sans-serif" e o teste antigo respondia **true** — o portão ficou MUDO por um dia inteiro
+    // enquanto o controle o dava por vivo. A mesma frouxidão engolia `Arial, Georgia`: procurar
+    // um nome de serifa em QUALQUER posição da lista aprova uma sans que só tem serifa no recuo.
+    //
+    // A cobrança agora é de IGUALDADE contra a fonte única — CHROME.TITULO, de onde a var(--titulo)
+    // das cinco páginas sai. `getComputedStyle` devolve a LISTA DECLARADA (não a família que o
+    // sistema resolveu), então isto é determinístico em qualquer máquina, e é o que a mensagem de
+    // erro sempre prometeu: "a serifa da casa", não "alguma serifa em algum lugar da lista".
+    const normFam = (s) => String(s || '').toLowerCase().replace(/["']/g, '').split(',')
+      .map((x) => x.trim()).filter(Boolean).join(',');
+    const esperada = normFam(CHROME.TITULO);
+    const serifaCasa = normFam(cena.tituloFonte) === esperada;
     if (!serifaCasa) {
       throw new Error('RECUSADO: o título não está na serifa da casa (font-family computada: "'
-        + cena.tituloFonte + '"). O cartão sairia com outra identidade visual. Esperado Palatino/'
-        + 'Georgia/serif — confira var(--titulo) e o chrome-plataforma.js.');
+        + cena.tituloFonte + '"; esperada "' + CHROME.TITULO + '"). O cartão sairia com outra'
+        + ' identidade visual — confira var(--titulo) e ferramentas/chrome-plataforma.js.');
     }
 
+    // um quadro para o repintar sem o grão pousar antes do obturador
+    await pg.waitForTimeout(120);
     await pg.screenshot({ path: destino, type: 'jpeg', quality: op.qualidade || QUALIDADE });
     if (erros.length) throw new Error('RECUSADO: erro na página ao tirar o cartão: ' + erros[0]);
 
