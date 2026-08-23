@@ -61,7 +61,21 @@ async function medir(pg) {
       menorAlvo: caixas.length ? Math.min(...caixas.map(c => c.h)) : 0,
       peDaUltima: ultima ? innerHeight - (ultima.y + ultima.h) : null,
       rolagem: tela ? Math.max(0, tela.scrollHeight - tela.clientHeight) : 0,
-      forade: caixas.filter(c => c.y < 0 || c.y + c.h > innerHeight || c.x < 0 || c.x + c.w > innerWidth).map(c => c.rot)
+      forade: caixas.filter(c => c.y < 0 || c.y + c.h > innerHeight || c.x < 0 || c.x + c.w > innerWidth).map(c => c.rot),
+      // ===== AS DUAS MEDIDAS DO ANÚNCIO (23/08) =====
+      // Onde o menu rola por projeto, "rolou quanto" não é a pergunta certa — a pergunta é se
+      // a pessoa VÊ que há mais abaixo. Uma tábua cortada ao meio das letras conta que a tela
+      // continua; uma cortada por 1 px lê como tábua inteira e a tela parece terminar ali,
+      // que é o pior dos dois mundos. Medido pela direção de arte em 23/08.
+      // `anuncio` = quantos dos 44 px da última tábua VISÍVEL aparecem. `escondidas` = quantas
+      // ficam inteiramente abaixo da dobra, que é o custo que a rolagem cobra de quem não rolar.
+      anuncio: (() => {
+        const corta = caixas.filter(c => c.y < innerHeight && c.y + c.h > innerHeight);
+        if (corta.length) return Math.round(innerHeight - corta[corta.length - 1].y);
+        const dentro = caixas.filter(c => c.y + c.h <= innerHeight);
+        return dentro.length === caixas.length ? null : 0;   // null = coube tudo, 0 = nada aparece
+      })(),
+      escondidas: caixas.filter(c => c.y >= innerHeight).length
     };
   });
 }
@@ -115,6 +129,15 @@ async function medir(pg) {
     await pg.goto(alvo);
     await pg.addScriptTag({ content: REVELAR });
     await pg.waitForTimeout(900);
+    // NÃO EXISTE "ESTREIA COM MENOS TÁBUAS", e isto foi medido em 23/08 — fica escrito porque
+    // a hipótese é convincente e volta sozinha. O molde nasce com `oculto` em `btnLugar` e
+    // `btnFim`, então parece que quem abre o jogo pela primeira vez vê SEIS tábuas e não oito.
+    // Não vê: por decisão do dono em 15/08 as duas ficam SEMPRE no poste, com CADEADO
+    // (`classList.remove("oculto")` incondicional + `travada` + `disabled`, src/jogo.ts), porque
+    // *porta escondida não ensina que existe*. O `oculto` do molde só vale até o JS rodar.
+    // Consequência para este portão: a primeira visita e a centésima medem a MESMA geometria,
+    // e uma rolagem aqui nunca é "consequência de ter jogado". Medido: 640×360 rola 55 px na
+    // estreia também; 568×320 rola 95.
     await pg.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); if (typeof abrirTela === 'function') abrirTela('telaMenu'); revelarTudo(); });
     await pg.waitForTimeout(350);
     const m = await medir(pg);
@@ -178,10 +201,81 @@ async function medir(pg) {
   // piso de 44 px, e ele não cede. Aqui o menu usa a saída que ele já declara desde 12/08:
   // ROLA. É o único conserto que não tem número para estourar quando a oitava tábua chegar.
   // Fica nomeado para não virar "verde por acidente" nem "vermelho eterno que ninguém lê".
-  const EXCECAO = { '568x320': 'sete tábuas de 44 px não cabem em 320 px de altura — o menu rola, por projeto' };
+  // ===== A EXCEÇÃO DEIXOU DE SER UM `continue` (23/08, pedido da direção de arte) =====
+  //
+  // Ela era uma linha de texto e um `continue`: a tela saía da medição inteira. O buraco disso
+  // é o mesmo que o comentário acima diz querer evitar — `568×320` podia degradar para 300 px
+  // de rolagem e o portão seguiria VERDE, porque ninguém mais olhava. Tolerância sem número é
+  // o "verde por acidente" com outro nome.
+  //
+  // Agora tábua tolerada não pula a medição: ela TROCA DE RÉGUA. Três números, e os três saem
+  // de medida feita em 23/08, não de gosto:
+  //
+  //   1. A ROLAGEM NÃO PODE CRESCER. O valor de hoje fica CRAVADO por tela; qualquer aumento
+  //      é vermelho. É a catraca que faltava — sem ela a exceção só dizia "esta tela pode
+  //      rolar", sem dizer quanto, e quanto era o que importava.
+  //   2. O CORTE TEM DE SE ANUNCIAR. A última tábua visível precisa mostrar entre 12 e 38 dos
+  //      seus 44 px. Abaixo de 12 ela some e a tela parece terminar; ACIMA DE 38 é pior ainda,
+  //      porque uma tábua cortada por 1 px lê como tábua INTEIRA — a pessoa não tem como saber
+  //      que há mais. A régua tem teto e piso de propósito.
+  //   3. NO MÁXIMO UMA TÁBUA INTEIRAMENTE ABAIXO da dobra. É o custo que a rolagem cobra de
+  //      quem não rolar, e uma é o limite.
+  //
+  // E O NÚMERO DA PRÓXIMA TÁBUA JÁ ESTÁ ESCRITO, para o gatilho disparar sozinho em vez de
+  // depender de alguém lembrar: a NONA tábua aprovada empurra `640×360` de 55 para ~104 px de
+  // rolagem e leva DUAS tábuas para baixo da dobra, quebrando a régua 3. É quando as duas
+  // pistas voltam à mesa.
+  const EXCECAO = {
+    // Oito tábuas de 44 px não cabem em 320 px de altura, e o que teria de ceder é o piso de
+    // 44 px de dedo, que não cede. (A versão anterior deste comentário dizia SETE — ficou
+    // desatualizada quando o dono aprovou a oitava tábua, o DE ONDE VEM, em 21/08. A aritmética
+    // que sustenta a exceção estava errada desde então; achado da direção de arte em 23/08.)
+    '568x320': {
+      razao: 'oito tábuas de 44 px não cabem em 320 px de altura — o menu rola, por projeto',
+      // DÍVIDA NOMEADA, e ela é a razão de este número estar CONGELADO em vez de julgado pela
+      // régua: 43 de 44 px reprovaria por excesso (teto de 38), porque cortar por 1 px é a
+      // pior forma de cortar. Não afrouxo o teto para caber — congelo o valor de hoje, de modo
+      // que qualquer mexida aqui reabre a decisão em vez de passar batida. O conserto continua
+      // sem caminho conhecido (duas pistas medem 548 px e não cabem em 568 de largura) e vive
+      // no PENDENTES 49.
+      rolagem: 95, anuncio: 43, escondidas: 2, dividaAnuncio: true,
+    },
+    // 640×360 é o retrato 360 dp DEITADO — a linha de base do Android e o telefone de entrada
+    // mais comum do país. Entra por MEDIDA, não por cansaço: oito tábuas não cabem em 360 px,
+    // as duas pistas exigem 700 de largura, e forçá-las em 640 faria o menu cobrir a moldura
+    // inteira — a mata e a personagem sumiriam atrás da mobília, e o menu deixaria de ser um
+    // poste fincado num lugar para virar painel sobre papel de parede. Trocar a pintura por
+    // 55 px é caro demais (veto da direção de arte, 23/08).
+    '640x360': {
+      razao: 'oito tábuas de 44 px não cabem em 360 px — rola, mas o corte se anuncia e só uma some',
+      rolagem: 55, anuncio: 34, escondidas: 1,
+    },
+  };
   let ruim = 0;
   for (const l of linhas) {
-    if (EXCECAO[l.chave]) { console.log('  ~ ' + l.chave.padEnd(10) + EXCECAO[l.chave]); continue; }
+    const exc = EXCECAO[l.chave];
+    if (exc) {
+      const v = l.m, p = [];
+      if (v.rolagem > exc.rolagem) {
+        p.push('a rolagem CRESCEU: ' + v.rolagem + 'px, contra os ' + exc.rolagem + ' cravados em 23/08');
+      }
+      if (v.escondidas > exc.escondidas) {
+        p.push(v.escondidas + ' tábuas inteiras abaixo da dobra (tolerado ' + exc.escondidas + ')');
+      }
+      if (v.anuncio != null) {
+        if (exc.dividaAnuncio) {
+          if (Math.abs(v.anuncio - exc.anuncio) > 1) {
+            p.push('o anúncio do corte mudou: ' + v.anuncio + 'px da última tábua, contra os ' + exc.anuncio + ' congelados — reabra a decisão');
+          }
+        } else if (v.anuncio < 12 || v.anuncio > 38) {
+          p.push('o corte não se anuncia: ' + v.anuncio + 'px dos 44 da última tábua (a janela é 12–38; acima de 38 ela lê como tábua inteira)');
+        }
+      }
+      if (p.length) { ruim++; console.log('  ✗ ' + l.chave.padEnd(10) + p.join(' · ')); }
+      else console.log('  ~ ' + l.chave.padEnd(10) + exc.razao +
+        '  [rola ' + v.rolagem + '/' + exc.rolagem + ' · anúncio ' + v.anuncio + '/44 · ' + v.escondidas + ' escondida(s)]');
+      continue;
+    }
     const m = l.m;
     const p = [];
     if (m.forade.length) p.push('tábua fora da tela: ' + m.forade.join(','));
