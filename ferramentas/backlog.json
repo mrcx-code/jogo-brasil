@@ -1,423 +1,425 @@
 {
- "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
- "regras": {
-  "territorio": "Todo item nao-concluido declara `territorio`: a lista de caminhos/arquivos que ele toca. E o dado do despacho simultaneo: territorios DISJUNTOS = os itens podem voar juntos; qualquer INTERSECAO = sequencial, na ordem da fila. `src/jogo.ts` e SEMPRE exclusivo — no maximo UM item em voo que o toque, mesmo em regioes diferentes (arquivo de 15 mil linhas, um escritor por vez). A zona do dono (TERRITORIO.md — a tela ONDE FOI) nao e territorio de item nenhum.",
-  "camada": "Camada de motor sugerida por item (EQUIPE.md §3.2, decisao do dono 22/08): pesado=opus (max 3) · medio=sonnet (max 3) · leve=haiku (max 2). Teto total: 8. Frota acima disso so com `ultracode` do dono.",
-  "continuo": "Decisao do dono 22/08: sempre pelo menos 1 agente da equipe ativo. Se ha item `livre` cujo territorio esta desimpedido, o plantao nunca fica com zero agentes em voo (EQUIPE.md §3.3).",
-  "estados": "livre (despachavel) · bloqueado (diz por que e por quem) · em-curso · do-dono (so ele destrava) · concluido (fica como registro, desce para o fim)"
- },
- "itens": [
-  {
-   "id": "backlog-no-dashboard",
-   "titulo": "O backlog na tela do dashboard, conectado as equipes",
-   "detalhe": "Decisao do dono 22/08: \"bora passar o backlog pro dash e conectar com as equipes, quero tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo\". O dashboard passa a mostrar o backlog.json (itens, estado, agente, TERRITORIO e camada), com reordenacao do dono protegida pelo hash anti-lost-update que o POST /backlog ja exige (PENDENTES 48). Aceite: (a) o dono ve e reordena a fila no celular; (b) a tela mostra, por item, se o territorio esta LIVRE ou colidindo com item em voo (o dado e o campo territorio deste arquivo — regra: disjuntos = simultaneo, intersecao = sequencial, src/jogo.ts exclusivo); (c) escrita continua pelo caminho ja auditado (RLS/fila), zero rota nova sem a seguranca; (d) squads/agentes da mesa aparecem ao lado da fila (mesa_agente ja agrupada por squad).",
-   "agente": "dev-plataforma",
-   "estado": "bloqueado",
-   "camada": "pesado",
-   "territorio": [
-    "dashboard/",
-    "ferramentas/receber.js",
-    "ferramentas/backlog.json"
-   ],
-   "nota": "BLOQUEIO: espera o auto-login-local pousar — mesmo dashboard/index.html (intersecao de territorio). Despacha no instante em que aquele ramo integrar"
+  "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
+  "regras": {
+    "territorio": "Todo item nao-concluido declara `territorio`: a lista de caminhos/arquivos que ele toca. E o dado do despacho simultaneo: territorios DISJUNTOS = os itens podem voar juntos; qualquer INTERSECAO = sequencial, na ordem da fila. `src/jogo.ts` e SEMPRE exclusivo — no maximo UM item em voo que o toque, mesmo em regioes diferentes (arquivo de 15 mil linhas, um escritor por vez). A zona do dono (TERRITORIO.md — a tela ONDE FOI) nao e territorio de item nenhum.",
+    "camada": "Camada de motor sugerida por item (EQUIPE.md §3.2, decisao do dono 22/08): pesado=opus (max 3) · medio=sonnet (max 3) · leve=haiku (max 2). Teto total: 8. Frota acima disso so com `ultracode` do dono.",
+    "continuo": "Decisao do dono 22/08: sempre pelo menos 1 agente da equipe ativo. Se ha item `livre` cujo territorio esta desimpedido, o plantao nunca fica com zero agentes em voo (EQUIPE.md §3.3).",
+    "estados": "livre (despachavel) · bloqueado (diz por que e por quem) · em-curso · do-dono (so ele destrava) · concluido (fica como registro, desce para o fim)"
   },
-  {
-   "id": "avenida-a",
-   "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
-   "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
-   "agente": "pm",
-   "estado": "do-dono",
-   "camada": "pesado",
-   "territorio": [
-    "ferramentas/conteudo-puxar.js",
-    "ferramentas/conteudo-conferir.js",
-    "ferramentas/conteudo/",
-    "ferramentas/construir.js"
-   ],
-   "nota": "FASE 1 FECHADA 22/08 (espelho integro, portao no CI, rev-2 no banco). O que trava a fase 2 e DECISAO DE ARQUITETURA do dono: o build passa a LER dos JSON (inverte a direcao da verdade). Pergunta fechada na mesa; ate la, nada a despachar aqui"
-  },
-  {
-   "id": "tres-squads",
-   "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
-   "detalhe": "Caminho B do Fable, declarado destino em 21/08.",
-   "agente": "pm",
-   "estado": "concluido",
-   "nota": "FECHADO 22/08: esqueleto no AGENTES.md, QA-cruzado no EQUIPE.md, squads no dashboard, dev-dados ATIVO com a 1a entrega feita (o vigia de validade, placar 22/08) — a estrutura esta de pe e rodando"
-  },
-  {
-   "id": "caminho-do-ceu",
-   "titulo": "O CAMINHO-DO-CEU: chao repetido na vertical para a personagem entrar no retrato SEM comer o ceu",
-   "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
-   "agente": "dev-jogo",
-   "estado": "livre",
-   "camada": "pesado",
-   "territorio": [
-    "src/jogo.ts",
-    "src/estilo.css",
-    "test/regua-larga.js",
-    "test/medir-conversa.js"
-   ],
-   "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes"
-  },
-  {
-   "id": "auto-login-local",
-   "titulo": "Auto-login LOCAL da mesa/dashboard por arquivo fora do git",
-   "detalhe": "PENDENTES 57, decisao do dono 22/08: em localhost a mesa interage sem tela de entrada. Mecanismo, auditoria e limites: PENDENTES.md e auditoria da seguranca de 22/08 — fora do que e publicado.",
-   "agente": "dev-plataforma",
-   "estado": "concluido",
-   "camada": "pesado",
-   "territorio": [
-    "dashboard/",
-    "ferramentas/receber.js",
-    "ferramentas/servir.js"
-   ],
-   "nota": "integrado em 22/08; auditado em 2 rodadas pela seguranca"
-  },
-  {
-   "id": "trilha-palmares",
-   "titulo": "Trilha batida entre os povoados de Palmares",
-   "detalhe": "Decidido pelo dono em 21/08 (§2): a rede dos mocambos como coisa VIVIDA, na linguagem pixel — a trilha marcada no chao do capitulo PALMARES. Design ja decidido por ele; o que este item faz e implementar com cuidado. Aceite: a trilha existe na rua de PALMARES, na familia pixel art do capitulo (auditoria 21/08: PALMARES e pixel cru — a trilha nao pode chegar em tom continuo), FPS piso 58, prints antes/depois. TRAVA ESCRITA: qualquer duvida NOVA de representacao que a implementacao levantar e PARE — volta ao dono em pergunta fechada, nao se decide no worktree.",
-   "agente": "dev-jogo",
-   "estado": "livre",
-   "camada": "pesado",
-   "territorio": [
-    "src/jogo.ts",
-    "ferramentas/pacotes.js",
-    "assets/"
-   ],
-   "banca": "historiador (o que a trilha afirma) + arte (linguagem pixel do capitulo)",
-   "nota": "sequencial atras do caminho-do-ceu (src/jogo.ts exclusivo). Estava do-dono por inercia: o design JA foi decidido por ele — o que resta e execucao com a trava PARE"
-  },
-  {
-   "id": "gesto-ainda-aqui",
-   "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
-   "detalhe": "Decidido pelo dono em 21/08 (§2). Mesmo contrato da trilha: design dele, implementacao nossa, duvida nova de representacao = PARE em pergunta fechada. Aceite: o gesto existe no capitulo AINDA AQUI, legivel sem texto, na familia visual do capitulo; FPS piso 58; prints antes/depois; historiador confere o que o gesto AFIRMA (quem planta, o que se colhe — nada generico que trate povos como categoria unica).",
-   "agente": "dev-jogo",
-   "estado": "livre",
-   "camada": "pesado",
-   "territorio": [
-    "src/jogo.ts",
-    "assets/"
-   ],
-   "banca": "historiador + arte",
-   "nota": "sequencial atras de trilha-palmares (mesmo territorio)"
-  },
-  {
-   "id": "rotina-7-sinais",
-   "titulo": "A rotina de validade passa a cobrir os 7 sinais que o acervo declara",
-   "detalhe": "Achado 1 do vigia (22/08, dev-dados), orfao sem item ate agora — regra do §3.1.5: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais; UNESCO, STF e INCRA nao eram procurados por NINGUEM. Aceite: os 7 sinais tem dono e gatilho na rotina (quem procura, onde, quando), o conteudo-vigia.js enxerga os 7 (nao so PRODES/MapBiomas/censo), e o controle 2.8 do vigia continua mordendo com defeito injetado. Numero novo so entra com fonte primaria — o dev-dados garante ONDE mora e QUANDO vence; o que o conteudo DIZ e do historiador.",
-   "agente": "dev-dados",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "ferramentas/conteudo-vigia.js",
-    "ferramentas/conteudo/"
-   ]
-  },
-  {
-   "id": "fichas-lote-2",
-   "titulo": "Fichas de fonte do lote 2 do territorio (pesquisadora le e tabela; historiador julga)",
-   "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
-   "agente": "pesquisadora-fontes",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "territorio/",
-    "fontes/"
-   ]
-  },
-  {
-   "id": "pinos-lote-2",
-   "titulo": "Lote 2 dos pinos do territorio (10 seguintes, com as licoes do lote 1)",
-   "detalhe": "O historiador monta o lote 2 para o dashboard, incorporando o que o lote 1 ensinou: a frase sem lastro documental CAI antes de ir ao dono (Palmas-ecoa-Palmares), numero so com censo/fonte citada (candangos 42.332), e toda confianca media chega [conferir] ja conferida pelas fichas. Aceite: 10 pinos em pergunta fechada no dashboard, cada um com fonte e grupo (NENHUM/CUIDADO); PARE continua fora ate o dono decidir a regra dos 5.",
-   "agente": "historiador",
-   "estado": "bloqueado",
-   "camada": "pesado",
-   "territorio": [
-    "territorio/PINOS-PROPOSTA.md"
-   ],
-   "nota": "BLOQUEIO: so despacha depois de o dono responder o LOTE 1 no dashboard — as respostas dele sao input do lote 2 (e 2 decisoes do lote 1 seguem abertas: Joao Candido nomeado?, PARE visiveis ou fora?)"
-  },
-  {
-   "id": "coerencia-sobras",
-   "titulo": "Sobras da coerencia visual: a costura de JABAQUARA + o que o pixel-vence nao alcancou",
-   "detalhe": "Duas partes. (A) DIAGNOSTICADA e despachavel: deslocar a emenda do espelho de JABAQUARA — a raiz detalhada forma rosto simetrico na costura (DIRECAO.md, auditoria 21/08, print test/COER-jabaquara-costura.png); correcao de POSICAO do offset da copia espelhada, nao de arte. Aceite: print da costura nova julgado pela arte, nenhuma outra pintura tocada. (B) A CONFIRMAR ANTES DE FAZER: o plano da FRENTE borrado/os 3 de pixel cru — o backlog antigo citava um PENDENTES 47 que NAO EXISTE (a numeracao pula de 46 para 48) e o registro do achado da arte nao esta no DIRECAO.md deste ramo (grep=0). Primeiro passo da parte B e localizar o registro na rodada da arte; sem registro, B nao se faz — nada inventado.",
-   "agente": "dev-jogo",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "src/jogo.ts",
-    "test/"
-   ],
-   "banca": "arte (print da costura)",
-   "nota": "sequencial na fila do dev-jogo (src/jogo.ts exclusivo). A parte B respeita: achado sem registro nao e achado"
-  },
-  {
-   "id": "poste-alturas-curtas",
-   "titulo": "O poste em telas de ALTURA curta: gatilho por altura (~830) e o caso 480x320",
-   "detalhe": "PENDENTES 49b + 50, medidos dos dois lados: 1366x768 (notebook) rola 73 px com CONFIGURACOES fora da vista; 926x428 rola 205; 480x320 rola 95 com oito tabuas (401 px numa tela de 320). A resposta ja existe no repo — o poste de DOIS LADOS — e o que esta errado e o GATILHO: por largura (700-899) quando o que decide e ALTURA disponivel (corte medido ~830 px em 1366). Aceite: gatilho por altura; na cinematica, faixa da direita alargada ANTES de dividir em duas pistas (duas pistas em 360-460 px dao ~175 cada, abaixo do que DE ONDE VEM precisa a escala 3 — medido, esta no PENDENTES 50); 480x320 ou entra no duas-colunas ou a rolagem vira decisao ESCRITA com numero; regua-larga e encaixe verdes por exit real.",
-   "agente": "dev-jogo",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "src/estilo.css",
-    "src/jogo.ts",
-    "test/regua-larga.js",
-    "test/encaixe.js"
-   ],
-   "nota": "sequencial na fila do dev-jogo"
-  },
-  {
-   "id": "canonical-jogo",
-   "titulo": "O /jogo/ — o chamariz — ganha o <link rel=canonical> que e o unico a nao ter",
-   "detalhe": "Achado da growth (onda 2, 21/08), confirmado por curl entao e por grep agora (src/index.html: 0 ocorrencias) — orfao sem item, regra do §3.1.5. Unica das 6 paginas sem canonical. Aceite: a linha entra no head do molde apontando @@BASE@@/jogo/ (mesma marca das og:), o build a troca junto, encaixe bloco 14 verde por exit real, e curl pos-deploy confirma. Fronteira ja decidida em 21/08: head/og: do jogo sao do dev-plataforma.",
-   "agente": "dev-plataforma",
-   "estado": "livre",
-   "camada": "leve",
-   "territorio": [
-    "src/index.html",
-    "test/encaixe.js"
-   ]
-  },
-  {
-   "id": "retro-2",
-   "titulo": "Segunda retro do pm pelo placar (as ~20 rodadas desde a primeira)",
-   "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
-   "agente": "pm",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "EQUIPE.md",
-    ".claude/agents/"
-   ]
-  },
-  {
-   "id": "territorio-rico",
-   "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
-   "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
-   "agente": "dev-plataforma",
-   "estado": "em-curso",
-   "camada": "pesado",
-   "territorio": [
-    "ferramentas/gerar-territorio.js",
-    "territorio/"
-   ],
-   "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2"
-  },
-  {
-   "id": "divulgacao-2026",
-   "titulo": "Divulgação 2026 — plano e rascunhos PARA SIGN-OFF",
-   "detalhe": "Lei do dono: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem sign-off dele. Ancora: rodada A em 20/nov, tudo junto (decisao dele, 22/08).",
-   "agente": "growth",
-   "estado": "do-dono",
-   "camada": "medio",
-   "territorio": [
-    "divulgacao/"
-   ],
-   "nota": "as 3 decisoes de 22/08 APLICADAS nas pecas (texto-base com ajuste §2.1, press-kit sem nome, ordem A->B->C). O que resta e dele: sign-off das pecas + GSC"
-  },
-  {
-   "id": "patch-claude-onze",
-   "titulo": "CLAUDE.md §3 diz DEZ eventos e sao ONZE — patch pronto, mao do dono/plantao",
-   "detalhe": "PENDENTES 56: o evento saiu-para-a-plataforma entrou em 22/08 por decisao do dono e o portao ja cobra 11/11; o documento permanente ficou para tras. O patch esta escrito no PENDENTES 56, pronto para colar. Editar o CLAUDE.md nao e coisa de agente.",
-   "agente": "plantao",
-   "estado": "do-dono",
-   "camada": "leve",
-   "territorio": [
-    "CLAUDE.md"
-   ]
-  },
-  {
-   "id": "painel-4-cliques",
-   "titulo": "Os 4 cliques do dono no painel Supabase (fecham o auth de verdade)",
-   "detalhe": "Quatro ajustes no painel do Supabase que so o dono alcanca. O motivo de cada um esta no PENDENTES.md e na auditoria da seguranca de 22/08 — fora do que e publicado. Fora do repo.",
-   "agente": "dono",
-   "estado": "do-dono",
-   "territorio": [
-    "(painel Supabase — fora do repositorio)"
-   ]
-  },
-  {
-   "id": "b3-criterio-voz",
-   "titulo": "B3 (Saracura/Bexiga): qual criterio de voz vale? — regua do dono",
-   "detalhe": "A pesquisadora esgotou a checagem (22/08, duas rodadas): autodeclaracao racial INDIVIDUAL nao localizada em fonte publica para nenhuma das vozes; existe autoinclusao discursiva em 1a pessoa num grupo racializado (Bepa, p.241/264) e vinculo pleno com o lugar na propria voz. Decidir SE autoinclusao discursiva satisfaz a condicao de lugar de fala do §2 e regua de representacao — do dono, em pergunta fechada com os 3 caminhos que ela propos.",
-   "agente": "dono",
-   "estado": "do-dono",
-   "territorio": [
-    "fontes/"
-   ]
-  },
-  {
-   "id": "evento-saida-plataforma",
-   "titulo": "Medir se a porta jogo->plataforma e usada (evento na lista branca)",
-   "detalhe": "Decidido pelo dono 22/08: mede.",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "ENTREGUE na rodada chao-retrato+evento-porta (22/08): evento saiu na lista branca do bloco 17, corpo provado campo a campo, 11 na fonte/11 disparados — e o conserto de bonus: a lista cobria 9 dos 10 desde 19/08 (regex sem sublinhado). Resta so o patch do CLAUDE.md (item patch-claude-onze)"
-  },
-  {
-   "id": "chao-menu-retrato",
-   "titulo": "Menu retrato: subir a linha do chao para a personagem aparecer",
-   "detalhe": "Decidido pelo dono 22/08: sobe o chao, com a regua dura da arte.",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "MECANISMO INTEGRADO INERTE em 22/08 (regua respondeu NAO em 4 de 6 telas; arte vetou ligar hoje — o ceu e o mar somem a 1,64x). O sucessor e o caminho-do-ceu (PENDENTES 54), que preserva o ceu e liga a chave"
-  },
-  {
-   "id": "retro-pm",
-   "titulo": "Primeira retro do pm pelo placar",
-   "detalhe": "Um ajuste de prompt por agente, tirado do placar do EQUIPE.md §5.",
-   "agente": "pm",
-   "estado": "concluido",
-   "nota": "FEITA em 21/08 (EQUIPE.md §6): 15 rodadas/117 achados/0,9% desmentido, desperdicio nomeado (og:image medido 3x aplicado 0) e a regra do achado-orfao criada. A proxima e o item retro-2"
-  },
-  {
-   "id": "fila-auth",
-   "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
-   "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila.",
-   "agente": "dev-plataforma",
-   "estado": "concluido",
-   "nota": "FECHADA 22/08 com o par de provas: anon 401, dono 201, leitura 200; policy unica presa ao uuid da conta sintetica; auth limpo (resta so dono@mesa.brasil). Restam fora do repo: painel-4-cliques (do-dono) e auto-login-local (item proprio)"
-  },
-  {
-   "id": "fila-auth-hardening",
-   "titulo": "Hardening da fila-auth (12 achados da auditoria)",
-   "detalhe": "Relatorio completo: transcript da seguranca 21/08.",
-   "agente": "dev-plataforma",
-   "estado": "concluido",
-   "nota": "INTEGRADO 34a82eb; seguranca APROVOU na 2a volta; cabecalhos provados em producao pos-deploy"
-  },
-  {
-   "id": "tag-s2-glossario",
-   "titulo": "Marcar tag_s2 e validade nos 181 verbetes do banco",
-   "detalhe": "Parecer do historiador aplicado como rev 2.",
-   "agente": "historiador",
-   "estado": "concluido",
-   "nota": "FECHADO 21/08: parecer aplicado (176/5/20) + s2_alto com 34 chaves por decisao do dono (opcao A)"
-  },
-  {
-   "id": "avenida-a-rev2",
-   "titulo": "Aplicar no banco as 8 divergencias (rev+1) e fechar o portao",
-   "detalhe": "Escrita no banco e do plantao, via MCP.",
-   "agente": "plantao",
-   "estado": "concluido",
-   "nota": "APLICADO 22/08 via MCP: 6 chaves em rev 2, 181 vigentes, ESPELHO INTEGRO (hash unico cd5a...bd7e), exit 0"
-  },
-  {
-   "id": "home-inc2",
-   "titulo": "Home do jogo increment 2 — diorama + portais",
-   "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo.",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "INTEGRADO 31b63e9 (dev+arte APROVA nos 4 tamanhos); vento cortado por medicao (9 FPS). A sobra virou chao-menu-retrato -> caminho-do-ceu"
-  },
-  {
-   "id": "link-jogo-plataforma",
-   "titulo": "O chamariz ganha saida: link jogo → plataforma",
-   "detalhe": "Saida unica na CHEGADA.",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "INTEGRADO d8efd47: nota de margem na CHEGADA, guarda dupla http+pathname (Capacitor). PENDENTES 51 fechado junto"
-  },
-  {
-   "id": "posthog-paginas",
-   "titulo": "Medir as paginas fora do jogo (PostHog)",
-   "detalhe": "As 5 paginas emitem secao-aberta; interruptor unico no rodape.",
-   "agente": "dev-plataforma",
-   "estado": "concluido",
-   "nota": "FECHADO 22/08: 187 verificacoes, 3 controles mordendo; adblock/503/mudo = 0 erro; desligado = 0 pedido"
-  },
-  {
-   "id": "og-image-secoes",
-   "titulo": "Cartões de imagem das 3 seções de leitura (WhatsApp)",
-   "detalhe": "historia/glossario/de-onde-vem sem imagem — achado da growth medido 3x.",
-   "agente": "dev-plataforma",
-   "estado": "concluido",
-   "nota": "INTEGRADO 565a586 e PROVADO por curl: os 3 compartilhar.jpg no ar com os bytes do build"
-  },
-  {
-   "id": "validade-rad",
-   "titulo": "Corrigir o número VENCIDO do MapBiomas (2º→3º ano) + rótulo de estimativa",
-   "detalhe": "Relatório do historiador 21/08.",
-   "agente": "historiador",
-   "estado": "concluido",
-   "nota": "FEITO pela rodada RAD do historiador em 21/08"
-  },
-  {
-   "id": "coerencia-visual",
-   "titulo": "PIXEL VENCE — o passe de coerencia nos 10 capitulos pintados",
-   "detalhe": "Decidido pelo dono 21/08 (mosaico a vista).",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "INTEGRADO 168eba1: quantizacao nos 10, hora presa nos 4 repetidos, veu ambar no ACEIRO. As sobras estao no item coerencia-sobras (o PENDENTES 47 citado aqui antes NAO existe — numeracao pulou de 46 para 48; registrado la)"
-  },
-  {
-   "id": "quarto-portal",
-   "titulo": "DE ONDE VEM vira o 4o portal de topo da home",
-   "detalhe": "Decidido pelo dono 21/08.",
-   "agente": "dev-jogo",
-   "estado": "concluido",
-   "nota": "INTEGRADO 4965519: poste de dois lados no deitado, flake do encaixe MORTO. A divida de altura curta virou o item poste-alturas-curtas (PENDENTES 49b/50)"
-  },
-  {
-   "id": "pendentes-duplicado",
-   "titulo": "PENDENTES.md carregava uma copia velha de si mesmo",
-   "detalhe": "Achado do dev-dados 22/08.",
-   "agente": "plantao",
-   "estado": "concluido",
-   "nota": "CORTADO na main em 22/08: 83.932 bytes removidos, itens integros. O diario-sem-eco.js no CI impede a reincidencia"
-  },
-  {
-   "id": "interruptor-achavel",
-   "titulo": "O interruptor de privacidade sobe para o chrome",
-   "detalhe": "DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
-   "agente": "dev-plataforma",
-   "estado": "livre",
-   "camada": "pesado",
-   "territorio": [
-    "ferramentas/medir-secao.js",
-    "ferramentas/chrome-plataforma.js",
-    "ferramentas/gerar-*.js",
-    "plataforma/"
-   ]
-  },
-  {
-   "id": "pagina-privacidade",
-   "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
-   "detalhe": "DECIDIDO pelo dono 23/08: fazer depois, ANTES da divulgacao de novembro. O juridico ja escreveu o texto INTEIRO (esta no relatorio dele de 23/08): falta o nome do controlador e um e-mail de contato, que sao decisao dele. A lei pede identificar quem responde (art. 9 I), canal para exercicio de direitos (art. 18) e base legal escrita (art. 7 IX, legitimo interesse). Vira URGENTE quando a rodada A da divulgacao for disparada — o plano mira ensino fundamental II, ou seja criancas de 11 anos (art. 14).",
-   "agente": "dev-plataforma",
-   "estado": "do-dono",
-   "camada": "medio",
-   "territorio": [
-    "plataforma/",
-    "ferramentas/gerar-*.js"
-   ]
-  },
-  {
-   "id": "professores-desligar",
-   "titulo": "O texto para professores diz onde desligar a medicao",
-   "detalhe": "DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
-   "agente": "growth",
-   "estado": "livre",
-   "camada": "medio",
-   "territorio": [
-    "divulgacao/"
-   ]
-  },
-  {
-   "id": "robusto-tudo",
-   "titulo": "O teto de 12h do ganho offline NAO aplica: relogio adiantado nao e contido",
-   "detalhe": "Portao test/robusto-tudo.js vermelho por defeito real (exit 1, reproduzido no mac-jogo em 23/08). Medida do QA: 'dt de um carimbo absurdo devia bater no teto de 12h: 0'. E save de jogador, nao estetica — quem adianta o relogio do aparelho ganha o que nao jogou, e depois que a partida grava nao tem volta. Um dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6, que leva o CI de 5 para 12), porque CI que nasce vermelho ensina a ignorar CI. Aceite: node test/robusto-tudo.js com EXIT REAL 0, o teto aplicando sobre carimbo adiantado, e npm test + node test/encaixe.js seguindo verdes.",
-   "camada": "JOGO",
-   "agente": "dev-jogo",
-   "banca": "qa",
-   "territorio": [
-    "src/jogo.ts",
-    "test/robusto-tudo.js"
-   ],
-   "estado": "em-curso",
-   "maquina": "mac-jogo",
-   "desde": "2026-08-23T03:25:36Z"
-  }
- ]
+  "itens": [
+    {
+      "id": "backlog-no-dashboard",
+      "titulo": "O backlog na tela do dashboard, conectado as equipes",
+      "detalhe": "Decisao do dono 22/08: \"bora passar o backlog pro dash e conectar com as equipes, quero tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo\". O dashboard passa a mostrar o backlog.json (itens, estado, agente, TERRITORIO e camada), com reordenacao do dono protegida pelo hash anti-lost-update que o POST /backlog ja exige (PENDENTES 48). Aceite: (a) o dono ve e reordena a fila no celular; (b) a tela mostra, por item, se o territorio esta LIVRE ou colidindo com item em voo (o dado e o campo territorio deste arquivo — regra: disjuntos = simultaneo, intersecao = sequencial, src/jogo.ts exclusivo); (c) escrita continua pelo caminho ja auditado (RLS/fila), zero rota nova sem a seguranca; (d) squads/agentes da mesa aparecem ao lado da fila (mesa_agente ja agrupada por squad).",
+      "agente": "dev-plataforma",
+      "estado": "bloqueado",
+      "camada": "pesado",
+      "territorio": [
+        "dashboard/",
+        "ferramentas/receber.js",
+        "ferramentas/backlog.json"
+      ],
+      "nota": "BLOQUEIO: espera o auto-login-local pousar — mesmo dashboard/index.html (intersecao de territorio). Despacha no instante em que aquele ramo integrar"
+    },
+    {
+      "id": "avenida-a",
+      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
+      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
+      "agente": "pm",
+      "estado": "do-dono",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/conteudo-puxar.js",
+        "ferramentas/conteudo-conferir.js",
+        "ferramentas/conteudo/",
+        "ferramentas/construir.js"
+      ],
+      "nota": "FASE 1 FECHADA 22/08 (espelho integro, portao no CI, rev-2 no banco). O que trava a fase 2 e DECISAO DE ARQUITETURA do dono: o build passa a LER dos JSON (inverte a direcao da verdade). Pergunta fechada na mesa; ate la, nada a despachar aqui"
+    },
+    {
+      "id": "tres-squads",
+      "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
+      "detalhe": "Caminho B do Fable, declarado destino em 21/08.",
+      "agente": "pm",
+      "estado": "concluido",
+      "nota": "FECHADO 22/08: esqueleto no AGENTES.md, QA-cruzado no EQUIPE.md, squads no dashboard, dev-dados ATIVO com a 1a entrega feita (o vigia de validade, placar 22/08) — a estrutura esta de pe e rodando"
+    },
+    {
+      "id": "caminho-do-ceu",
+      "titulo": "O CAMINHO-DO-CEU: chao repetido na vertical para a personagem entrar no retrato SEM comer o ceu",
+      "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "src/jogo.ts",
+        "src/estilo.css",
+        "test/regua-larga.js",
+        "test/medir-conversa.js"
+      ],
+      "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes"
+    },
+    {
+      "id": "auto-login-local",
+      "titulo": "Auto-login LOCAL da mesa/dashboard por arquivo fora do git",
+      "detalhe": "PENDENTES 57, decisao do dono 22/08: em localhost a mesa interage sem tela de entrada. Mecanismo, auditoria e limites: PENDENTES.md e auditoria da seguranca de 22/08 — fora do que e publicado.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "camada": "pesado",
+      "territorio": [
+        "dashboard/",
+        "ferramentas/receber.js",
+        "ferramentas/servir.js"
+      ],
+      "nota": "integrado em 22/08; auditado em 2 rodadas pela seguranca"
+    },
+    {
+      "id": "trilha-palmares",
+      "titulo": "Trilha batida entre os povoados de Palmares",
+      "detalhe": "Decidido pelo dono em 21/08 (§2): a rede dos mocambos como coisa VIVIDA, na linguagem pixel — a trilha marcada no chao do capitulo PALMARES. Design ja decidido por ele; o que este item faz e implementar com cuidado. Aceite: a trilha existe na rua de PALMARES, na familia pixel art do capitulo (auditoria 21/08: PALMARES e pixel cru — a trilha nao pode chegar em tom continuo), FPS piso 58, prints antes/depois. TRAVA ESCRITA: qualquer duvida NOVA de representacao que a implementacao levantar e PARE — volta ao dono em pergunta fechada, nao se decide no worktree.",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "src/jogo.ts",
+        "ferramentas/pacotes.js",
+        "assets/"
+      ],
+      "banca": "historiador (o que a trilha afirma) + arte (linguagem pixel do capitulo)",
+      "nota": "sequencial atras do caminho-do-ceu (src/jogo.ts exclusivo). Estava do-dono por inercia: o design JA foi decidido por ele — o que resta e execucao com a trava PARE"
+    },
+    {
+      "id": "gesto-ainda-aqui",
+      "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
+      "detalhe": "Decidido pelo dono em 21/08 (§2). Mesmo contrato da trilha: design dele, implementacao nossa, duvida nova de representacao = PARE em pergunta fechada. Aceite: o gesto existe no capitulo AINDA AQUI, legivel sem texto, na familia visual do capitulo; FPS piso 58; prints antes/depois; historiador confere o que o gesto AFIRMA (quem planta, o que se colhe — nada generico que trate povos como categoria unica).",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "src/jogo.ts",
+        "assets/"
+      ],
+      "banca": "historiador + arte",
+      "nota": "sequencial atras de trilha-palmares (mesmo territorio)"
+    },
+    {
+      "id": "rotina-7-sinais",
+      "titulo": "A rotina de validade passa a cobrir os 7 sinais que o acervo declara",
+      "detalhe": "Achado 1 do vigia (22/08, dev-dados), orfao sem item ate agora — regra do §3.1.5: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais; UNESCO, STF e INCRA nao eram procurados por NINGUEM. Aceite: os 7 sinais tem dono e gatilho na rotina (quem procura, onde, quando), o conteudo-vigia.js enxerga os 7 (nao so PRODES/MapBiomas/censo), e o controle 2.8 do vigia continua mordendo com defeito injetado. Numero novo so entra com fonte primaria — o dev-dados garante ONDE mora e QUANDO vence; o que o conteudo DIZ e do historiador.",
+      "agente": "dev-dados",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "ferramentas/conteudo-vigia.js",
+        "ferramentas/conteudo/"
+      ]
+    },
+    {
+      "id": "fichas-lote-2",
+      "titulo": "Fichas de fonte do lote 2 do territorio (pesquisadora le e tabela; historiador julga)",
+      "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
+      "agente": "pesquisadora-fontes",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "territorio/",
+        "fontes/"
+      ]
+    },
+    {
+      "id": "pinos-lote-2",
+      "titulo": "Lote 2 dos pinos do territorio (10 seguintes, com as licoes do lote 1)",
+      "detalhe": "O historiador monta o lote 2 para o dashboard, incorporando o que o lote 1 ensinou: a frase sem lastro documental CAI antes de ir ao dono (Palmas-ecoa-Palmares), numero so com censo/fonte citada (candangos 42.332), e toda confianca media chega [conferir] ja conferida pelas fichas. Aceite: 10 pinos em pergunta fechada no dashboard, cada um com fonte e grupo (NENHUM/CUIDADO); PARE continua fora ate o dono decidir a regra dos 5.",
+      "agente": "historiador",
+      "estado": "bloqueado",
+      "camada": "pesado",
+      "territorio": [
+        "territorio/PINOS-PROPOSTA.md"
+      ],
+      "nota": "BLOQUEIO: so despacha depois de o dono responder o LOTE 1 no dashboard — as respostas dele sao input do lote 2 (e 2 decisoes do lote 1 seguem abertas: Joao Candido nomeado?, PARE visiveis ou fora?)"
+    },
+    {
+      "id": "coerencia-sobras",
+      "titulo": "Sobras da coerencia visual: a costura de JABAQUARA + o que o pixel-vence nao alcancou",
+      "detalhe": "Duas partes. (A) DIAGNOSTICADA e despachavel: deslocar a emenda do espelho de JABAQUARA — a raiz detalhada forma rosto simetrico na costura (DIRECAO.md, auditoria 21/08, print test/COER-jabaquara-costura.png); correcao de POSICAO do offset da copia espelhada, nao de arte. Aceite: print da costura nova julgado pela arte, nenhuma outra pintura tocada. (B) A CONFIRMAR ANTES DE FAZER: o plano da FRENTE borrado/os 3 de pixel cru — o backlog antigo citava um PENDENTES 47 que NAO EXISTE (a numeracao pula de 46 para 48) e o registro do achado da arte nao esta no DIRECAO.md deste ramo (grep=0). Primeiro passo da parte B e localizar o registro na rodada da arte; sem registro, B nao se faz — nada inventado.",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "src/jogo.ts",
+        "test/"
+      ],
+      "banca": "arte (print da costura)",
+      "nota": "sequencial na fila do dev-jogo (src/jogo.ts exclusivo). A parte B respeita: achado sem registro nao e achado"
+    },
+    {
+      "id": "poste-alturas-curtas",
+      "titulo": "O poste em telas de ALTURA curta: gatilho por altura (~830) e o caso 480x320",
+      "detalhe": "PENDENTES 49b + 50, medidos dos dois lados: 1366x768 (notebook) rola 73 px com CONFIGURACOES fora da vista; 926x428 rola 205; 480x320 rola 95 com oito tabuas (401 px numa tela de 320). A resposta ja existe no repo — o poste de DOIS LADOS — e o que esta errado e o GATILHO: por largura (700-899) quando o que decide e ALTURA disponivel (corte medido ~830 px em 1366). Aceite: gatilho por altura; na cinematica, faixa da direita alargada ANTES de dividir em duas pistas (duas pistas em 360-460 px dao ~175 cada, abaixo do que DE ONDE VEM precisa a escala 3 — medido, esta no PENDENTES 50); 480x320 ou entra no duas-colunas ou a rolagem vira decisao ESCRITA com numero; regua-larga e encaixe verdes por exit real.",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "src/estilo.css",
+        "src/jogo.ts",
+        "test/regua-larga.js",
+        "test/encaixe.js"
+      ],
+      "nota": "sequencial na fila do dev-jogo"
+    },
+    {
+      "id": "canonical-jogo",
+      "titulo": "O /jogo/ — o chamariz — ganha o <link rel=canonical> que e o unico a nao ter",
+      "detalhe": "Achado da growth (onda 2, 21/08), confirmado por curl entao e por grep agora (src/index.html: 0 ocorrencias) — orfao sem item, regra do §3.1.5. Unica das 6 paginas sem canonical. Aceite: a linha entra no head do molde apontando @@BASE@@/jogo/ (mesma marca das og:), o build a troca junto, encaixe bloco 14 verde por exit real, e curl pos-deploy confirma. Fronteira ja decidida em 21/08: head/og: do jogo sao do dev-plataforma.",
+      "agente": "dev-plataforma",
+      "estado": "livre",
+      "camada": "leve",
+      "territorio": [
+        "src/index.html",
+        "test/encaixe.js"
+      ]
+    },
+    {
+      "id": "retro-2",
+      "titulo": "Segunda retro do pm pelo placar (as ~20 rodadas desde a primeira)",
+      "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
+      "agente": "pm",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "EQUIPE.md",
+        ".claude/agents/"
+      ]
+    },
+    {
+      "id": "territorio-rico",
+      "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
+      "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
+      "agente": "dev-plataforma",
+      "estado": "em-curso",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/gerar-territorio.js",
+        "territorio/"
+      ],
+      "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2",
+      "maquina": "windows-plantao",
+      "desde": "2026-08-23T03:20:00Z"
+    },
+    {
+      "id": "divulgacao-2026",
+      "titulo": "Divulgação 2026 — plano e rascunhos PARA SIGN-OFF",
+      "detalhe": "Lei do dono: lançamento este ano; growth prepara presença/SEO em rascunho; NADA publicado sem sign-off dele. Ancora: rodada A em 20/nov, tudo junto (decisao dele, 22/08).",
+      "agente": "growth",
+      "estado": "do-dono",
+      "camada": "medio",
+      "territorio": [
+        "divulgacao/"
+      ],
+      "nota": "as 3 decisoes de 22/08 APLICADAS nas pecas (texto-base com ajuste §2.1, press-kit sem nome, ordem A->B->C). O que resta e dele: sign-off das pecas + GSC"
+    },
+    {
+      "id": "patch-claude-onze",
+      "titulo": "CLAUDE.md §3 diz DEZ eventos e sao ONZE — patch pronto, mao do dono/plantao",
+      "detalhe": "PENDENTES 56: o evento saiu-para-a-plataforma entrou em 22/08 por decisao do dono e o portao ja cobra 11/11; o documento permanente ficou para tras. O patch esta escrito no PENDENTES 56, pronto para colar. Editar o CLAUDE.md nao e coisa de agente.",
+      "agente": "plantao",
+      "estado": "do-dono",
+      "camada": "leve",
+      "territorio": [
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "painel-4-cliques",
+      "titulo": "Os 4 cliques do dono no painel Supabase (fecham o auth de verdade)",
+      "detalhe": "Quatro ajustes no painel do Supabase que so o dono alcanca. O motivo de cada um esta no PENDENTES.md e na auditoria da seguranca de 22/08 — fora do que e publicado. Fora do repo.",
+      "agente": "dono",
+      "estado": "do-dono",
+      "territorio": [
+        "(painel Supabase — fora do repositorio)"
+      ]
+    },
+    {
+      "id": "b3-criterio-voz",
+      "titulo": "B3 (Saracura/Bexiga): qual criterio de voz vale? — regua do dono",
+      "detalhe": "A pesquisadora esgotou a checagem (22/08, duas rodadas): autodeclaracao racial INDIVIDUAL nao localizada em fonte publica para nenhuma das vozes; existe autoinclusao discursiva em 1a pessoa num grupo racializado (Bepa, p.241/264) e vinculo pleno com o lugar na propria voz. Decidir SE autoinclusao discursiva satisfaz a condicao de lugar de fala do §2 e regua de representacao — do dono, em pergunta fechada com os 3 caminhos que ela propos.",
+      "agente": "dono",
+      "estado": "do-dono",
+      "territorio": [
+        "fontes/"
+      ]
+    },
+    {
+      "id": "evento-saida-plataforma",
+      "titulo": "Medir se a porta jogo->plataforma e usada (evento na lista branca)",
+      "detalhe": "Decidido pelo dono 22/08: mede.",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "ENTREGUE na rodada chao-retrato+evento-porta (22/08): evento saiu na lista branca do bloco 17, corpo provado campo a campo, 11 na fonte/11 disparados — e o conserto de bonus: a lista cobria 9 dos 10 desde 19/08 (regex sem sublinhado). Resta so o patch do CLAUDE.md (item patch-claude-onze)"
+    },
+    {
+      "id": "chao-menu-retrato",
+      "titulo": "Menu retrato: subir a linha do chao para a personagem aparecer",
+      "detalhe": "Decidido pelo dono 22/08: sobe o chao, com a regua dura da arte.",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "MECANISMO INTEGRADO INERTE em 22/08 (regua respondeu NAO em 4 de 6 telas; arte vetou ligar hoje — o ceu e o mar somem a 1,64x). O sucessor e o caminho-do-ceu (PENDENTES 54), que preserva o ceu e liga a chave"
+    },
+    {
+      "id": "retro-pm",
+      "titulo": "Primeira retro do pm pelo placar",
+      "detalhe": "Um ajuste de prompt por agente, tirado do placar do EQUIPE.md §5.",
+      "agente": "pm",
+      "estado": "concluido",
+      "nota": "FEITA em 21/08 (EQUIPE.md §6): 15 rodadas/117 achados/0,9% desmentido, desperdicio nomeado (og:image medido 3x aplicado 0) e a regra do achado-orfao criada. A proxima e o item retro-2"
+    },
+    {
+      "id": "fila-auth",
+      "titulo": "Fechar a fila do dashboard com Supabase Auth + RLS",
+      "detalhe": "Decidido pelo dono (21/08): so ele logado escreve na fila.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "nota": "FECHADA 22/08 com o par de provas: anon 401, dono 201, leitura 200; policy unica presa ao uuid da conta sintetica; auth limpo (resta so dono@mesa.brasil). Restam fora do repo: painel-4-cliques (do-dono) e auto-login-local (item proprio)"
+    },
+    {
+      "id": "fila-auth-hardening",
+      "titulo": "Hardening da fila-auth (12 achados da auditoria)",
+      "detalhe": "Relatorio completo: transcript da seguranca 21/08.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "nota": "INTEGRADO 34a82eb; seguranca APROVOU na 2a volta; cabecalhos provados em producao pos-deploy"
+    },
+    {
+      "id": "tag-s2-glossario",
+      "titulo": "Marcar tag_s2 e validade nos 181 verbetes do banco",
+      "detalhe": "Parecer do historiador aplicado como rev 2.",
+      "agente": "historiador",
+      "estado": "concluido",
+      "nota": "FECHADO 21/08: parecer aplicado (176/5/20) + s2_alto com 34 chaves por decisao do dono (opcao A)"
+    },
+    {
+      "id": "avenida-a-rev2",
+      "titulo": "Aplicar no banco as 8 divergencias (rev+1) e fechar o portao",
+      "detalhe": "Escrita no banco e do plantao, via MCP.",
+      "agente": "plantao",
+      "estado": "concluido",
+      "nota": "APLICADO 22/08 via MCP: 6 chaves em rev 2, 181 vigentes, ESPELHO INTEGRO (hash unico cd5a...bd7e), exit 0"
+    },
+    {
+      "id": "home-inc2",
+      "titulo": "Home do jogo increment 2 — diorama + portais",
+      "detalhe": "Cena com profundidade, personagem com presenca, 4 portais de topo.",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "INTEGRADO 31b63e9 (dev+arte APROVA nos 4 tamanhos); vento cortado por medicao (9 FPS). A sobra virou chao-menu-retrato -> caminho-do-ceu"
+    },
+    {
+      "id": "link-jogo-plataforma",
+      "titulo": "O chamariz ganha saida: link jogo → plataforma",
+      "detalhe": "Saida unica na CHEGADA.",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "INTEGRADO d8efd47: nota de margem na CHEGADA, guarda dupla http+pathname (Capacitor). PENDENTES 51 fechado junto"
+    },
+    {
+      "id": "posthog-paginas",
+      "titulo": "Medir as paginas fora do jogo (PostHog)",
+      "detalhe": "As 5 paginas emitem secao-aberta; interruptor unico no rodape.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "nota": "FECHADO 22/08: 187 verificacoes, 3 controles mordendo; adblock/503/mudo = 0 erro; desligado = 0 pedido"
+    },
+    {
+      "id": "og-image-secoes",
+      "titulo": "Cartões de imagem das 3 seções de leitura (WhatsApp)",
+      "detalhe": "historia/glossario/de-onde-vem sem imagem — achado da growth medido 3x.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "nota": "INTEGRADO 565a586 e PROVADO por curl: os 3 compartilhar.jpg no ar com os bytes do build"
+    },
+    {
+      "id": "validade-rad",
+      "titulo": "Corrigir o número VENCIDO do MapBiomas (2º→3º ano) + rótulo de estimativa",
+      "detalhe": "Relatório do historiador 21/08.",
+      "agente": "historiador",
+      "estado": "concluido",
+      "nota": "FEITO pela rodada RAD do historiador em 21/08"
+    },
+    {
+      "id": "coerencia-visual",
+      "titulo": "PIXEL VENCE — o passe de coerencia nos 10 capitulos pintados",
+      "detalhe": "Decidido pelo dono 21/08 (mosaico a vista).",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "INTEGRADO 168eba1: quantizacao nos 10, hora presa nos 4 repetidos, veu ambar no ACEIRO. As sobras estao no item coerencia-sobras (o PENDENTES 47 citado aqui antes NAO existe — numeracao pulou de 46 para 48; registrado la)"
+    },
+    {
+      "id": "quarto-portal",
+      "titulo": "DE ONDE VEM vira o 4o portal de topo da home",
+      "detalhe": "Decidido pelo dono 21/08.",
+      "agente": "dev-jogo",
+      "estado": "concluido",
+      "nota": "INTEGRADO 4965519: poste de dois lados no deitado, flake do encaixe MORTO. A divida de altura curta virou o item poste-alturas-curtas (PENDENTES 49b/50)"
+    },
+    {
+      "id": "pendentes-duplicado",
+      "titulo": "PENDENTES.md carregava uma copia velha de si mesmo",
+      "detalhe": "Achado do dev-dados 22/08.",
+      "agente": "plantao",
+      "estado": "concluido",
+      "nota": "CORTADO na main em 22/08: 83.932 bytes removidos, itens integros. O diario-sem-eco.js no CI impede a reincidencia"
+    },
+    {
+      "id": "interruptor-achavel",
+      "titulo": "O interruptor de privacidade sobe para o chrome",
+      "detalhe": "DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
+      "agente": "dev-plataforma",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/medir-secao.js",
+        "ferramentas/chrome-plataforma.js",
+        "ferramentas/gerar-*.js",
+        "plataforma/"
+      ]
+    },
+    {
+      "id": "pagina-privacidade",
+      "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
+      "detalhe": "DECIDIDO pelo dono 23/08: fazer depois, ANTES da divulgacao de novembro. O juridico ja escreveu o texto INTEIRO (esta no relatorio dele de 23/08): falta o nome do controlador e um e-mail de contato, que sao decisao dele. A lei pede identificar quem responde (art. 9 I), canal para exercicio de direitos (art. 18) e base legal escrita (art. 7 IX, legitimo interesse). Vira URGENTE quando a rodada A da divulgacao for disparada — o plano mira ensino fundamental II, ou seja criancas de 11 anos (art. 14).",
+      "agente": "dev-plataforma",
+      "estado": "do-dono",
+      "camada": "medio",
+      "territorio": [
+        "plataforma/",
+        "ferramentas/gerar-*.js"
+      ]
+    },
+    {
+      "id": "professores-desligar",
+      "titulo": "O texto para professores diz onde desligar a medicao",
+      "detalhe": "DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
+      "agente": "growth",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "divulgacao/"
+      ]
+    },
+    {
+      "id": "robusto-tudo",
+      "titulo": "O teto de 12h do ganho offline NAO aplica: relogio adiantado nao e contido",
+      "detalhe": "Portao test/robusto-tudo.js vermelho por defeito real (exit 1, reproduzido no mac-jogo em 23/08). Medida do QA: 'dt de um carimbo absurdo devia bater no teto de 12h: 0'. E save de jogador, nao estetica — quem adianta o relogio do aparelho ganha o que nao jogou, e depois que a partida grava nao tem volta. Um dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6, que leva o CI de 5 para 12), porque CI que nasce vermelho ensina a ignorar CI. Aceite: node test/robusto-tudo.js com EXIT REAL 0, o teto aplicando sobre carimbo adiantado, e npm test + node test/encaixe.js seguindo verdes.",
+      "camada": "JOGO",
+      "agente": "dev-jogo",
+      "banca": "qa",
+      "territorio": [
+        "src/jogo.ts",
+        "test/robusto-tudo.js"
+      ],
+      "estado": "em-curso",
+      "maquina": "mac-jogo",
+      "desde": "2026-08-23T03:25:36Z"
+    }
+  ]
 }
