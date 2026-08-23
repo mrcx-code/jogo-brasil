@@ -1722,3 +1722,85 @@ Decisao do dono (22/08): localhost interage SEM entrar, sempre. Hoje vale porque
 ## 58 — Flake 2 do encaixe NOMEADO: o nicho apontado esta no topo no ponto dele (null) — dev-jogo
 
 Segunda familia de corrida no encaixe (a 1a era o reload, morta em 22/08). Mordeu o funil do B3 em 22/08: bloco 3, a assercao "o nicho apontado esta no topo no ponto dele" devolveu null — o elemento do nicho ainda nao estava montado/apontado no instante da leitura (nasce com o 1o item + seta). 395 ok no mesmo run; verde na 2a tentativa. Conserto: esperar o elemento de verdade (o padrao abrirMenuParado/esperar() que os instrumentos novos ja usam) em vez de ler no relogio. O log inteiro fica em test/portao-vermelho-encaixe.log quando morder de novo.
+
+---
+
+## 59 — O LOCK ENTRE MÁQUINAS SOME EM SILÊNCIO QUANDO HÁ SYMLINK NO CAMINHO — plantao/dev-plataforma (achado pelo mac-jogo em 23/08)
+
+**A liderança deste conserto é de quem escreveu a trava** (a sessão do Windows, PR #5). Isto
+aqui é achado + diagnóstico + remendo proposto e já provado, para ele decidir a forma. O Mac
+não tocou `.claude/hooks/` — o remendo abaixo foi validado numa cópia.
+
+**O SINTOMA:** `node test/guarda-lock.js` dá **exit real 1** no Mac. Cenas 1 a 6 passam (a
+lógica do `lock-maquina.js` está certa); **a cena 7 falha nas três verificações** — "o guarda
+de verdade recusa com EXIT 2" devolve **exit 0 com stderr vazio**.
+
+**A CAUSA, isolada e medida.** O guarda compara duas pontas que se resolvem de formas
+diferentes:
+
+```js
+const RAIZ = path.resolve(__dirname, '..', '..');            // o Node JÁ resolveu o symlink
+const rel  = path.relative(RAIZ, path.resolve(alvo)) ...     // o alvo vem CRU da ferramenta
+```
+
+O `__dirname` do Node é resolvido por symlink; o `file_path` que chega da ferramenta, não.
+Sempre que houver symlink no caminho, as duas discordam, o `path.relative` devolve
+`../../../..`, **nada casa território, e o guarda passa sem escrever uma linha**. No macOS isso
+não é caso raro: `os.tmpdir()` devolve `/var/folders/...`, que é symlink de
+`/private/var/folders/...` — e é exatamente onde o teste monta o palco.
+
+Provado nas duas formas, mesmo palco, mesmo item:
+
+| alvo passado ao guarda | exit | stderr |
+|---|---|---|
+| `/var/folders/.../src/jogo.ts` | **0** | vazio |
+| `/private/var/folders/.../src/jogo.ts` | **2** | a recusa correta, com o nome da máquina |
+
+**O QUE ISSO CUSTA DE VERDADE.** Dois efeitos, e o segundo é o grave:
+
+1. O teste fica **vermelho em qualquer Mac** — ninguém deste lado distingue verde de vermelho
+   no `guarda-lock.js`, que é justamente o instrumento da trava.
+2. Um clone sob caminho com symlink **perde a trava inteira sem avisar**. "Degradar em
+   silêncio" foi escrito para **dado ruim** (sem `.claude/maquina`, JSON quebrado, carimbo
+   ilegível) — não para formato de caminho. Aqui o silêncio esconde uma trava que sumiu.
+
+**O QUE NÃO ESTÁ QUEBRADO, e também foi medido:** em `/Users/matf/brasil` não há symlink no
+caminho, então a trava **funciona de verdade nesta máquina** — palco fora do `/var`, item em
+curso na `windows-plantao`, escrita em `src/jogo.ts` recusada com exit 2 e a mensagem certa.
+
+**O REMENDO PROPOSTO** — resolver as duas pontas, tolerando arquivo que ainda não existe (que
+o guarda já trata como seguro):
+
+```js
+function real(p) {
+  const abs = path.resolve(p);
+  try { return fs.realpathSync(abs); } catch {}
+  // arquivo que ainda não existe: resolve a PASTA, que quase sempre existe, e recola o nome
+  try { return path.join(fs.realpathSync(path.dirname(abs)), path.basename(abs)); } catch {}
+  return abs;                                   // nem a pasta existe: melhor cru que errado
+}
+const RAIZ = real(path.resolve(__dirname, '..', '..'));
+const rel  = path.relative(RAIZ, real(alvo)).split(path.sep).join('/');
+```
+
+Rodado lado a lado no mesmo palco `/var/folders/...`: **guarda de hoje VERMELHO (3 falhas) ·
+guarda remendado VERDE (4 de 4)**, e o "fora de território passa com exit 0" continua passando
+nos dois — o remendo não fecha nada que estava aberto.
+
+**A SUGESTÃO QUE VAI ALÉM DO REMENDO, e é a que interessa:** consertar o `real()` deixa o teste
+verde, mas não impede a próxima trava de sumir do mesmo jeito. O que impediria é o guarda
+**dizer alto** quando o alvo cai fora da RAIZ — hoje ele trata "fora da raiz" e "dentro da raiz
+e liberado" como a mesma coisa, exit 0 calado. Uma linha em stderr no caso "fora da raiz"
+(sem recusar) transforma esta classe inteira de defeito em algo visível na primeira vez, em
+vez de invisível para sempre. Fica como proposta, não como pedido: a chamada é de quem lidera.
+
+**FICA TAMBÉM REGISTRADO, e é de outra natureza:** os dois itens `em-curso` do backlog
+(`auto-login-local`, `territorio-rico`) estão com `maquina: null` e `desde: null`. Sem esses
+campos o `quemTrava` devolve `null` por construção — ou seja, **a trava está de pé mas ainda
+não sustenta nada na prática**. São itens e territórios do Windows, que o Mac não ia tocar de
+qualquer forma; o registro é só para o mecanismo não parecer engatado antes de estar.
+
+
+## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma
+
+Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashboard/index.html:453) diz que no aparelho ficam a sessao e um contador de erros ate voce sair. Errado tres vezes: (1) sair() so apaga a sessao — o contador mesa-brasil-pin-erros so morre em login OK (linhas 890/983), entao o ate-voce-sair e falso para ele; (2) a fila local mesa-brasil-fila4 guarda ate 50 itens / 200 KB do texto que o dono escreveu, sobrevive ao logout e NAO e citada — e a maior das tres; (3) mesa-brasil-pin-local-recusado guarda um PIN em claro no sessionStorage. Conserto: o texto pronto esta no parecer do juridico (23/08), OU fazer sair() chamar zerarTentativas() e ai o texto encolhe — a fila continua precisando ser dita de todo jeito, porque apaga-la ao sair perderia trabalho do dono. Regra da casa (par.3): afirmacao falsa e pior que nenhuma.

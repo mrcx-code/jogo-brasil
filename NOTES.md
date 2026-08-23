@@ -9682,3 +9682,69 @@ jogo, os três a 390×844, na mesma imagem.
 3/3 mordidas) · `medir-porta-secao` **0** (4/4) · `medir-leitura-secao` **0** (31 ok, 4/4).
 `src/` intocado (a costura não pediu nada de lá), zona do dono intocada, `dashboard/` intocado,
 e as 3 seções de leitura com **zero byte** mudado. Entrega no ramo, sem push.
+
+---
+
+## 23/08 — O MAC vira o Claude do JOGO: o PR #4 fecha valendo três de quatro, e o lock sobe
+
+Entrada escrita pela sessão do **Mac** (`.claude/maquina` = `mac-jogo`), no handoff pedido pelo
+dono antes de reiniciar a janela de contexto. É a primeira entrada desta máquina depois de a
+coordenação entre as duas deixar de ser honra.
+
+**O que se resolveu.** O `PROPOSTA-COORDENACAO.md` (PR #4) foi lido, respondido item a item e
+**fechado sem merge** pela sessão do Windows — não por recusa: **A, B e D entraram, C entrou com
+correção**, e o texto inteiro foi absorvido no `ONBOARDING-OUTRA-CONTA.md`, seção *O LOCK ENTRE
+MÁQUINAS*. Era o destino escrito na própria proposta: virar regra e sumir, sem virar o 26º
+documento.
+
+**Os dois números que mudaram de dono na conversa, e valem registro:**
+
+1. **A validade do lock: 12 h → 2 h.** A proposta chutou 12 h e disse que estava chutando. A
+   outra máquina tinha o dado: as rodadas de agente de 21–22/08 duraram **de 2 a 67 minutos**, a
+   mais longa medida ~4.000 s (o passe de pixel). 2 h cobrem a maior com 45 min de folga — e
+   "máquina travada por engano é pior que colisão" era frase da própria proposta, virada contra
+   ela.
+2. **O ramo marcador `voo/<id>` como lock atômico.** O `backlog.json` é a fonte **local** (é o
+   que o guarda lê a cada escrita, e ele não faz rede); o ramo remoto é a fonte **remota**, e o
+   git **recusa dois pushes criando a mesma ref**. Pegar o item passa a ser o próprio ato de
+   criar o lock, sem conflito de merge, sem JSON.
+
+**A correção do §2, e é a parte que mais importa.** A proposta escrevia "qualquer coisa que
+toque §2 / representação → entra por PR". Está errado e foi derrubado: **§2 para no DONO, não em
+PR entre dois Claudes.** Dois Claudes se aprovando em representação é exatamente o que o §2
+existe para impedir; a linha criava a impressão de que havia caminho que não passa por ele. O PR
+pode *acompanhar* — a decisão nunca.
+
+**O ponto cego compartilhado, dito pelos dois lados.** PR entre as duas máquinas **não**
+substitui portão por exit code nem banca adversária: somos o mesmo modelo, e o dado do dia é que
+a **segurança reprovou duas entregas** com prova executada (um laço de 1.173 POSTs e um XSS que
+rodava). Nenhuma revisão de leitura teria pego aquilo — e revisão minha em cima de trabalho meu
+pegaria menos ainda.
+
+**A partição, agora declarada:** **Mac = JOGO (`src/`) · Windows = PLATAFORMA.** O despachante
+continua sendo um só e o `integrar.js` roda de um lado por vez. O dono autorizou hoje o **merge
+mútuo** (cada lado mergeia o PR do outro depois de revisar); §2 e sign-off de publicação
+continuam com ele.
+
+**O que o Mac tinha entregue antes disto, e não estava no Diário:** o **GLOSSÁRIO** (PR #3) —
+167 verbetes em 17 grupos, 644 remissões, zero link morto, busca com normalização de acento e
+layout de fichário —, o **CI** (`.github/workflows/teste.yml`, primeira vez que a suíte rodou
+fora de uma máquina), e duas asserções novas no `smoke.js`.
+
+**A lição do glossário que vale para o repositório inteiro, e custou a sessão:** um comentário
+CSS mal fechado deixou sete linhas de prosa soltas na folha de estilo com um `*/` órfão. O
+parser pulou adiante e **comeu a regra `.glItem` inteira** — verbete fechado media 334 px em vez
+de 45. **O `npm test` passou verde**, porque checava a classe, não a altura. Foi consertado, e
+o teste passou a cobrar as duas coisas que teriam pego: `lintComentarios()` (balanço de
+`/*`↔`*/` e fechador órfão) e um bloco de **geometria** — verbete fechado ≤ cabeça + 4 px, abrir
+cresce >1,5×, aba não transborda o cartão, sem overflow horizontal. Validado do jeito certo:
+reintroduzindo o defeito real, e o teste acusou *"um verbete fechado tem 309 px para uma cabeça
+de 44"*. **Asserção que nunca viu o defeito falhar não é asserção.**
+
+**O que fica esperando na fila do Mac:** o **caminho-do-céu** (`PENDENTES 54`), passado pela
+outra máquina, com quatro condições numéricas de aceite escritas pela arte — inclusive a que
+decide se vale a pena (*a referência 390×844 tem que ganhar a heroína; se não ganhar, a
+prioridade cai*). E a **repaginação visual**, que o dono abriu e ainda dirige: paper.design e
+Lovable como exploração, a tentativa própria (`salvador-1835`) recusada por ele. A tese que
+sobreviveu é o **Futurismo Ancestral** — Krenak (*Futuro Ancestral*, 2022), Denilson Baniwa,
+Jaider Esbell, Rosana Paulino. Nada disso encosta no jogo sem passar pelo dono: é §2.

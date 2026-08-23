@@ -1,5 +1,5 @@
 {
-  "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200) / dashboard. A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
+  "_": "O BACKLOG DA PLATAFORMA — a fila oficial, priorizada pelo pm e REORDENADA PELO DONO na mesa (localhost:8200). A ordem daqui e input para todos os agentes: o de cima e o proximo. Editado pela mesa via POST /backlog; a mao tambem vale.",
   "regras": {
     "territorio": "Todo item nao-concluido declara `territorio`: a lista de caminhos/arquivos que ele toca. E o dado do despacho simultaneo: territorios DISJUNTOS = os itens podem voar juntos; qualquer INTERSECAO = sequencial, na ordem da fila. `src/jogo.ts` e SEMPRE exclusivo — no maximo UM item em voo que o toque, mesmo em regioes diferentes (arquivo de 15 mil linhas, um escritor por vez). A zona do dono (TERRITORIO.md — a tela ONDE FOI) nao e territorio de item nenhum.",
     "camada": "Camada de motor sugerida por item (EQUIPE.md §3.2, decisao do dono 22/08): pesado=opus (max 3) · medio=sonnet (max 3) · leve=haiku (max 2). Teto total: 8. Frota acima disso so com `ultracode` do dono.",
@@ -8,34 +8,70 @@
   },
   "itens": [
     {
-      "id": "caminho-do-ceu",
-      "titulo": "O CAMINHO-DO-CEU: chao repetido na vertical para a personagem entrar no retrato SEM comer o ceu",
-      "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
-      "agente": "dev-jogo",
-      "estado": "livre",
-      "camada": "pesado",
-      "territorio": ["src/jogo.ts", "src/estilo.css", "test/regua-larga.js", "test/medir-conversa.js"],
-      "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes"
-    },
-    {
-      "id": "auto-login-local",
-      "titulo": "Auto-login LOCAL da mesa/dashboard por arquivo fora do git",
-      "detalhe": "PENDENTES 57, decisao do dono 22/08: localhost interage SEM entrar, sempre — depois do RLS quem valida e o banco, que nao enxerga localhost. Desenho: arquivo local gitignored com o PIN (criado pelo dono uma vez), servido APENAS em loopback pelo receber.js/servir.js; a pagina em localhost le e faz grant_type=password sozinha. Aceite: em localhost a escrita na fila volta a funcionar sem tela de PIN; fora de localhost nada muda; o PIN nunca aparece em log, commit ou pagina publicada (portao de segredo cobre); seguranca audita (gatilho REDE).",
-      "agente": "dev-plataforma",
-      "estado": "em-curso",
-      "camada": "pesado",
-      "territorio": ["dashboard/", "ferramentas/receber.js", "ferramentas/servir.js"],
-      "nota": "despachado em 22/08 (tarde). E o bloqueio do backlog-no-dashboard: mesmo dashboard/index.html"
-    },
-    {
       "id": "backlog-no-dashboard",
       "titulo": "O backlog na tela do dashboard, conectado as equipes",
       "detalhe": "Decisao do dono 22/08: \"bora passar o backlog pro dash e conectar com as equipes, quero tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo\". O dashboard passa a mostrar o backlog.json (itens, estado, agente, TERRITORIO e camada), com reordenacao do dono protegida pelo hash anti-lost-update que o POST /backlog ja exige (PENDENTES 48). Aceite: (a) o dono ve e reordena a fila no celular; (b) a tela mostra, por item, se o territorio esta LIVRE ou colidindo com item em voo (o dado e o campo territorio deste arquivo — regra: disjuntos = simultaneo, intersecao = sequencial, src/jogo.ts exclusivo); (c) escrita continua pelo caminho ja auditado (RLS/fila), zero rota nova sem a seguranca; (d) squads/agentes da mesa aparecem ao lado da fila (mesa_agente ja agrupada por squad).",
       "agente": "dev-plataforma",
       "estado": "bloqueado",
       "camada": "pesado",
-      "territorio": ["dashboard/", "ferramentas/receber.js", "ferramentas/backlog.json"],
+      "territorio": [
+        "dashboard/",
+        "ferramentas/receber.js",
+        "ferramentas/backlog.json"
+      ],
       "nota": "BLOQUEIO: espera o auto-login-local pousar — mesmo dashboard/index.html (intersecao de territorio). Despacha no instante em que aquele ramo integrar"
+    },
+    {
+      "id": "avenida-a",
+      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
+      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
+      "agente": "pm",
+      "estado": "do-dono",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/conteudo-puxar.js",
+        "ferramentas/conteudo-conferir.js",
+        "ferramentas/conteudo/",
+        "ferramentas/construir.js"
+      ],
+      "nota": "FASE 1 FECHADA 22/08 (espelho integro, portao no CI, rev-2 no banco). O que trava a fase 2 e DECISAO DE ARQUITETURA do dono: o build passa a LER dos JSON (inverte a direcao da verdade). Pergunta fechada na mesa; ate la, nada a despachar aqui"
+    },
+    {
+      "id": "tres-squads",
+      "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
+      "detalhe": "Caminho B do Fable, declarado destino em 21/08.",
+      "agente": "pm",
+      "estado": "concluido",
+      "nota": "FECHADO 22/08: esqueleto no AGENTES.md, QA-cruzado no EQUIPE.md, squads no dashboard, dev-dados ATIVO com a 1a entrega feita (o vigia de validade, placar 22/08) — a estrutura esta de pe e rodando"
+    },
+    {
+      "id": "caminho-do-ceu",
+      "titulo": "O CAMINHO-DO-CEU: chao repetido na vertical para a personagem entrar no retrato SEM comer o ceu",
+      "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
+      "agente": "dev-jogo",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "src/jogo.ts",
+        "src/estilo.css",
+        "test/regua-larga.js",
+        "test/medir-conversa.js"
+      ],
+      "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes"
+    },
+    {
+      "id": "auto-login-local",
+      "titulo": "Auto-login LOCAL da mesa/dashboard por arquivo fora do git",
+      "detalhe": "PENDENTES 57, decisao do dono 22/08: em localhost a mesa interage sem tela de entrada. Mecanismo, auditoria e limites: PENDENTES.md e auditoria da seguranca de 22/08 — fora do que e publicado.",
+      "agente": "dev-plataforma",
+      "estado": "concluido",
+      "camada": "pesado",
+      "territorio": [
+        "dashboard/",
+        "ferramentas/receber.js",
+        "ferramentas/servir.js"
+      ],
+      "nota": "integrado em 22/08; auditado em 2 rodadas pela seguranca"
     },
     {
       "id": "trilha-palmares",
@@ -44,7 +80,11 @@
       "agente": "dev-jogo",
       "estado": "livre",
       "camada": "pesado",
-      "territorio": ["src/jogo.ts", "ferramentas/pacotes.js", "assets/"],
+      "territorio": [
+        "src/jogo.ts",
+        "ferramentas/pacotes.js",
+        "assets/"
+      ],
       "banca": "historiador (o que a trilha afirma) + arte (linguagem pixel do capitulo)",
       "nota": "sequencial atras do caminho-do-ceu (src/jogo.ts exclusivo). Estava do-dono por inercia: o design JA foi decidido por ele — o que resta e execucao com a trava PARE"
     },
@@ -55,7 +95,10 @@
       "agente": "dev-jogo",
       "estado": "livre",
       "camada": "pesado",
-      "territorio": ["src/jogo.ts", "assets/"],
+      "territorio": [
+        "src/jogo.ts",
+        "assets/"
+      ],
       "banca": "historiador + arte",
       "nota": "sequencial atras de trilha-palmares (mesmo territorio)"
     },
@@ -66,7 +109,10 @@
       "agente": "dev-dados",
       "estado": "livre",
       "camada": "medio",
-      "territorio": ["ferramentas/conteudo-vigia.js", "ferramentas/conteudo/"]
+      "territorio": [
+        "ferramentas/conteudo-vigia.js",
+        "ferramentas/conteudo/"
+      ]
     },
     {
       "id": "fichas-lote-2",
@@ -75,7 +121,10 @@
       "agente": "pesquisadora-fontes",
       "estado": "livre",
       "camada": "medio",
-      "territorio": ["territorio/", "fontes/"]
+      "territorio": [
+        "territorio/",
+        "fontes/"
+      ]
     },
     {
       "id": "pinos-lote-2",
@@ -84,7 +133,9 @@
       "agente": "historiador",
       "estado": "bloqueado",
       "camada": "pesado",
-      "territorio": ["territorio/PINOS-PROPOSTA.md"],
+      "territorio": [
+        "territorio/PINOS-PROPOSTA.md"
+      ],
       "nota": "BLOQUEIO: so despacha depois de o dono responder o LOTE 1 no dashboard — as respostas dele sao input do lote 2 (e 2 decisoes do lote 1 seguem abertas: Joao Candido nomeado?, PARE visiveis ou fora?)"
     },
     {
@@ -94,7 +145,10 @@
       "agente": "dev-jogo",
       "estado": "livre",
       "camada": "medio",
-      "territorio": ["src/jogo.ts", "test/"],
+      "territorio": [
+        "src/jogo.ts",
+        "test/"
+      ],
       "banca": "arte (print da costura)",
       "nota": "sequencial na fila do dev-jogo (src/jogo.ts exclusivo). A parte B respeita: achado sem registro nao e achado"
     },
@@ -105,7 +159,12 @@
       "agente": "dev-jogo",
       "estado": "livre",
       "camada": "medio",
-      "territorio": ["src/estilo.css", "src/jogo.ts", "test/regua-larga.js", "test/encaixe.js"],
+      "territorio": [
+        "src/estilo.css",
+        "src/jogo.ts",
+        "test/regua-larga.js",
+        "test/encaixe.js"
+      ],
       "nota": "sequencial na fila do dev-jogo"
     },
     {
@@ -115,7 +174,10 @@
       "agente": "dev-plataforma",
       "estado": "livre",
       "camada": "leve",
-      "territorio": ["src/index.html", "test/encaixe.js"]
+      "territorio": [
+        "src/index.html",
+        "test/encaixe.js"
+      ]
     },
     {
       "id": "retro-2",
@@ -124,17 +186,10 @@
       "agente": "pm",
       "estado": "livre",
       "camada": "medio",
-      "territorio": ["EQUIPE.md", ".claude/agents/"]
-    },
-    {
-      "id": "avenida-a",
-      "titulo": "Avenida A — conteudo vira dado (com portao de revisao)",
-      "detalhe": "A migracao que desmonta o monolito e destrava os TRES SQUADS (destino declarado). Primeira avenida do ano, decidida em 21/08.",
-      "agente": "pm",
-      "estado": "do-dono",
-      "camada": "pesado",
-      "territorio": ["ferramentas/conteudo-puxar.js", "ferramentas/conteudo-conferir.js", "ferramentas/conteudo/", "ferramentas/construir.js"],
-      "nota": "FASE 1 FECHADA 22/08 (espelho integro, portao no CI, rev-2 no banco). O que trava a fase 2 e DECISAO DE ARQUITETURA do dono: o build passa a LER dos JSON (inverte a direcao da verdade). Pergunta fechada na mesa; ate la, nada a despachar aqui"
+      "territorio": [
+        "EQUIPE.md",
+        ".claude/agents/"
+      ]
     },
     {
       "id": "territorio-rico",
@@ -143,7 +198,10 @@
       "agente": "dev-plataforma",
       "estado": "em-curso",
       "camada": "pesado",
-      "territorio": ["ferramentas/gerar-territorio.js", "territorio/"],
+      "territorio": [
+        "ferramentas/gerar-territorio.js",
+        "territorio/"
+      ],
       "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2"
     },
     {
@@ -153,7 +211,9 @@
       "agente": "growth",
       "estado": "do-dono",
       "camada": "medio",
-      "territorio": ["divulgacao/"],
+      "territorio": [
+        "divulgacao/"
+      ],
       "nota": "as 3 decisoes de 22/08 APLICADAS nas pecas (texto-base com ajuste §2.1, press-kit sem nome, ordem A->B->C). O que resta e dele: sign-off das pecas + GSC"
     },
     {
@@ -163,15 +223,19 @@
       "agente": "plantao",
       "estado": "do-dono",
       "camada": "leve",
-      "territorio": ["CLAUDE.md"]
+      "territorio": [
+        "CLAUDE.md"
+      ]
     },
     {
       "id": "painel-4-cliques",
       "titulo": "Os 4 cliques do dono no painel Supabase (fecham o auth de verdade)",
-      "detalhe": "Cadastro OFF · Secure password change ON · leaked passwords ON · password_min_length=8. Sem o primeiro, qualquer um cria conta e volta a escrever na fila; sem o segundo, um PIN acertado troca o e-mail e tranca o dono para fora (achado P1 da auditoria). Mandados no chat com o PIN temporario em 22/08. Fora do repo — so ele alcanca o painel.",
+      "detalhe": "Quatro ajustes no painel do Supabase que so o dono alcanca. O motivo de cada um esta no PENDENTES.md e na auditoria da seguranca de 22/08 — fora do que e publicado. Fora do repo.",
       "agente": "dono",
       "estado": "do-dono",
-      "territorio": ["(painel Supabase — fora do repositorio)"]
+      "territorio": [
+        "(painel Supabase — fora do repositorio)"
+      ]
     },
     {
       "id": "b3-criterio-voz",
@@ -179,15 +243,9 @@
       "detalhe": "A pesquisadora esgotou a checagem (22/08, duas rodadas): autodeclaracao racial INDIVIDUAL nao localizada em fonte publica para nenhuma das vozes; existe autoinclusao discursiva em 1a pessoa num grupo racializado (Bepa, p.241/264) e vinculo pleno com o lugar na propria voz. Decidir SE autoinclusao discursiva satisfaz a condicao de lugar de fala do §2 e regua de representacao — do dono, em pergunta fechada com os 3 caminhos que ela propos.",
       "agente": "dono",
       "estado": "do-dono",
-      "territorio": ["fontes/"]
-    },
-    {
-      "id": "tres-squads",
-      "titulo": "TRES SQUADS — JOGO · PLATAFORMA · ACERVO (a estrutura-destino)",
-      "detalhe": "Caminho B do Fable, declarado destino em 21/08.",
-      "agente": "pm",
-      "estado": "concluido",
-      "nota": "FECHADO 22/08: esqueleto no AGENTES.md, QA-cruzado no EQUIPE.md, squads no dashboard, dev-dados ATIVO com a 1a entrega feita (o vigia de validade, placar 22/08) — a estrutura esta de pe e rodando"
+      "territorio": [
+        "fontes/"
+      ]
     },
     {
       "id": "evento-saida-plataforma",
@@ -308,6 +366,43 @@
       "agente": "plantao",
       "estado": "concluido",
       "nota": "CORTADO na main em 22/08: 83.932 bytes removidos, itens integros. O diario-sem-eco.js no CI impede a reincidencia"
+    },
+    {
+      "id": "interruptor-achavel",
+      "titulo": "O interruptor de privacidade sobe para o chrome",
+      "detalhe": "DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
+      "agente": "dev-plataforma",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/medir-secao.js",
+        "ferramentas/chrome-plataforma.js",
+        "ferramentas/gerar-*.js",
+        "plataforma/"
+      ]
+    },
+    {
+      "id": "pagina-privacidade",
+      "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
+      "detalhe": "DECIDIDO pelo dono 23/08: fazer depois, ANTES da divulgacao de novembro. O juridico ja escreveu o texto INTEIRO (esta no relatorio dele de 23/08): falta o nome do controlador e um e-mail de contato, que sao decisao dele. A lei pede identificar quem responde (art. 9 I), canal para exercicio de direitos (art. 18) e base legal escrita (art. 7 IX, legitimo interesse). Vira URGENTE quando a rodada A da divulgacao for disparada — o plano mira ensino fundamental II, ou seja criancas de 11 anos (art. 14).",
+      "agente": "dev-plataforma",
+      "estado": "do-dono",
+      "camada": "medio",
+      "territorio": [
+        "plataforma/",
+        "ferramentas/gerar-*.js"
+      ]
+    },
+    {
+      "id": "professores-desligar",
+      "titulo": "O texto para professores diz onde desligar a medicao",
+      "detalhe": "DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
+      "agente": "growth",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "divulgacao/"
+      ]
     }
   ]
 }
