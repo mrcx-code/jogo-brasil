@@ -304,6 +304,27 @@ function verificarRede(txt) {
     }
   }
 
+  // 3.b. E A CHAVE DE **LEITURA** NÃO PODE ESTAR NA SAÍDA, EM LUGAR NENHUM (23/08).
+  //
+  //    A cobrança acima olha uma constante só. Esta varre o arquivo inteiro, e guarda outra
+  //    coisa: a chave PESSOAL do PostHog (`phx_`), que o `ferramentas/ler-medicao.js` usa para
+  //    LER a medição. Ela é de outra natureza que a publicável — quem a tem consulta o projeto
+  //    inteiro —, e por isso ela mora em variável de ambiente ou em `ferramentas/posthog.local`
+  //    (gitignored), criada pelo dono, e nenhuma sessão de Claude a vê.
+  //
+  //    O modo de falhar que isto impede é banal e por isso provável: alguém cola a chave num
+  //    comentário para "testar rápido", o build embute, e ela sai publicada em produção — de
+  //    onde não se tira, porque já foi baixada. Chave publicada é chave queimada; a única
+  //    defesa que funciona é a que não depende de ninguém lembrar.
+  {
+    const vaz = txt.match(/phx_[A-Za-z0-9]{8,}/);
+    if (vaz) {
+      throw new Error('a saída contém uma chave PESSOAL do PostHog ("' + vaz[0].slice(0, 10)
+        + '…"): ela LÊ o projeto inteiro e nunca pode ser publicada. Tire-a do fonte e ponha em '
+        + '`ferramentas/posthog.local` (gitignored) ou na variável POSTHOG_LEITURA.');
+    }
+  }
+
   // 4. E a CSP é PREGADA, diretiva por diretiva. É ela que faz o navegador cobrar tudo o que
   //    está acima mesmo que o código mude; relaxá-la por conveniência é o começo de não ter
   //    CSP (§3.2 do CLAUDE.md). Mudar esta tabela é a forma de dizer, no commit, o que passou

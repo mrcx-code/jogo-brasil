@@ -84,3 +84,6 @@ test/DIO-*-390x568.png
 
 # quem sou eu, para o lock entre maquinas (PR #4) — nunca versionado: cada maquina tem o seu
 .claude/maquina
+
+# a chave PESSOAL de leitura da medicao (phx_) — segredo, criada pelo dono, nunca versionada
+ferramentas/posthog.local
