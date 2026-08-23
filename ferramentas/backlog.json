@@ -366,6 +366,43 @@
       "agente": "plantao",
       "estado": "concluido",
       "nota": "CORTADO na main em 22/08: 83.932 bytes removidos, itens integros. O diario-sem-eco.js no CI impede a reincidencia"
+    },
+    {
+      "id": "interruptor-achavel",
+      "titulo": "O interruptor de privacidade sobe para o chrome",
+      "detalhe": "DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
+      "agente": "dev-plataforma",
+      "estado": "livre",
+      "camada": "pesado",
+      "territorio": [
+        "ferramentas/medir-secao.js",
+        "ferramentas/chrome-plataforma.js",
+        "ferramentas/gerar-*.js",
+        "plataforma/"
+      ]
+    },
+    {
+      "id": "pagina-privacidade",
+      "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
+      "detalhe": "DECIDIDO pelo dono 23/08: fazer depois, ANTES da divulgacao de novembro. O juridico ja escreveu o texto INTEIRO (esta no relatorio dele de 23/08): falta o nome do controlador e um e-mail de contato, que sao decisao dele. A lei pede identificar quem responde (art. 9 I), canal para exercicio de direitos (art. 18) e base legal escrita (art. 7 IX, legitimo interesse). Vira URGENTE quando a rodada A da divulgacao for disparada — o plano mira ensino fundamental II, ou seja criancas de 11 anos (art. 14).",
+      "agente": "dev-plataforma",
+      "estado": "do-dono",
+      "camada": "medio",
+      "territorio": [
+        "plataforma/",
+        "ferramentas/gerar-*.js"
+      ]
+    },
+    {
+      "id": "professores-desligar",
+      "titulo": "O texto para professores diz onde desligar a medicao",
+      "detalhe": "DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
+      "agente": "growth",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "divulgacao/"
+      ]
     }
   ]
 }

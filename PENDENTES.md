@@ -1799,3 +1799,8 @@ vez de invisível para sempre. Fica como proposta, não como pedido: a chamada �
 campos o `quemTrava` devolve `null` por construção — ou seja, **a trava está de pé mas ainda
 não sustenta nada na prática**. São itens e territórios do Windows, que o Mac não ia tocar de
 qualquer forma; o registro é só para o mecanismo não parecer engatado antes de estar.
+
+
+## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma
+
+Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashboard/index.html:453) diz que no aparelho ficam a sessao e um contador de erros ate voce sair. Errado tres vezes: (1) sair() so apaga a sessao — o contador mesa-brasil-pin-erros so morre em login OK (linhas 890/983), entao o ate-voce-sair e falso para ele; (2) a fila local mesa-brasil-fila4 guarda ate 50 itens / 200 KB do texto que o dono escreveu, sobrevive ao logout e NAO e citada — e a maior das tres; (3) mesa-brasil-pin-local-recusado guarda um PIN em claro no sessionStorage. Conserto: o texto pronto esta no parecer do juridico (23/08), OU fazer sair() chamar zerarTentativas() e ai o texto encolhe — a fila continua precisando ser dita de todo jeito, porque apaga-la ao sair perderia trabalho do dono. Regra da casa (par.3): afirmacao falsa e pior que nenhuma.
