@@ -372,9 +372,9 @@
     {
       "id": "interruptor-achavel",
       "titulo": "O interruptor de privacidade sobe para o chrome",
-      "detalhe": "DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
+      "detalhe": "FEITO em 23/08: o interruptor subiu do rodape (116 telas de rolagem) para a barra das 5 paginas, 71,6x44 px, estado legivel pela PALAVRA e nao so pelo relevo. Aprovado por growth e qa. Custo medido e aceito: 162 px a mais de rolagem na barra. | DECIDIDO pelo dono 23/08 apos medicao do juridico: hoje o opt-out esta a 116 telas de rolagem no glossario (98.281 px; porta 3,1 · de-onde-vem 20,4 · historia 23,7 · territorio 0,9) e o alvo tem 17-21 px, contra os 44 que a casa exige em chrome-plataforma.js. Aceite: alcancavel de qualquer tela (entra na barra de tabuas e FICA tambem no rodape), alvo >=44x44 medido por rect E elementFromPoint nas 5 paginas x 3 larguras, o texto do rodape que o portao medir-paginas cobra continua intacto, e o custo de area no painel do TERRITORIO re-medido com areaUtil (a versao curta custou 18,6%).",
       "agente": "dev-plataforma",
-      "estado": "livre",
+      "estado": "concluido",
       "camada": "pesado",
       "territorio": [
         "ferramentas/medir-secao.js",
@@ -398,9 +398,9 @@
     {
       "id": "professores-desligar",
       "titulo": "O texto para professores diz onde desligar a medicao",
-      "detalhe": "DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
+      "detalhe": "FEITO em 23/08: a linha de opt-out entrou na peca 02. Foi PERDIDA uma vez quando o funil reverteu por flake e reintegrada depois -- o custo medido da intermitencia que a varredura curou. | DECIDIDO pelo dono 23/08 junto com manter a medicao ligada por padrao: a peca de divulgacao para professores ganha uma linha dizendo que da para desligar a medicao no rodape, e que vale para a turma inteira naquele aparelho. Uma linha, sem sign-off novo (a peca ja esta aprovada).",
       "agente": "growth",
-      "estado": "livre",
+      "estado": "concluido",
       "camada": "medio",
       "territorio": [
         "divulgacao/"
