@@ -1665,13 +1665,35 @@
      76/106), então o corte continua caindo na cintura como cai em toda tela. */
   @media (orientation: landscape) and (max-height: 400px) {
     .qRetrato { width: 76px; height: 106px; }
+    /* E MAIS UM DEGRAU EM 23/08, medido pelo `test/medir-telas.js`: a página 46 (o momento do
+       ACEIRO, o mais comprido do rolo) marcava 309 num espaço de 302 — SETE pixels, e sete
+       pixels de recorte caem na última linha, que é a da FONTE. O que cede é RESPIRO e só
+       respiro: o recheio do papel (13→9) e o do bilhete (9→7), doze pixels ao todo. Nada de
+       letra menor e nada de figura menor — a de quem comenta já cedeu um degrau acima.
+       Medido depois: 297 em 302. A folga é curta de propósito; página que crescer reprova. */
+    .ltMomento { padding: 9px 14px; }
+    .qBalao { padding: 7px 12px; }
   }
   /* A OUTRA PONTA, de novo: em retrato curto (320×568) UMA página já não cabia — 494 num
      espaço de 484. Aqui não há largura sobrando para gastar, então cede a reserva que o
      quadro guarda embaixo para o VOLTAR: 84 px para uma tábua de 44 mais 12 de margem era
-     folga de 28. Setenta e dois continuam sendo folga, e devolvem os doze que faltavam. */
+     folga de 28. Setenta e dois continuam sendo folga, e devolvem os doze que faltavam.
+     E EM 23/08 NÃO BASTARAM MAIS: a mesma página 46 marcava 539 num espaço de 496 — QUARENTA
+     E TRÊS px, quatro vezes o buraco de 10/08, porque o rolo cresceu de 26 para 62 páginas e
+     a mais comprida delas entrou depois desta consulta. Quarenta e três não saem de respiro:
+     saem de LARGURA. O argumento é o mesmo que consertou o quadrinho deitado — papel mais
+     LARGO é papel mais BAIXO com o mesmo corpo de letra, porque o que muda é o número de
+     linhas —, e aqui a largura vem do recheio lateral do quadro (20→13, +14 px de papel).
+     O resto é respiro (recheio do papel e do bilhete) e a figura de quem comenta cedendo um
+     degrau NA MESMA RAZÃO de recorte que o retrato deitado já usa (104/145 = 89/124 = 76/106),
+     para o corte continuar caindo na cintura. Nenhuma letra encolheu.
+     O cipó (`.qQuadro::before`, left 20px) segue por trás do papel como já seguia — o papel é
+     z-index 2 e já o cobria a 20 px de recheio. Medido depois: 488 em 500. */
   @media (orientation: portrait) and (max-height: 600px) {
-    .qQuadro { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .qQuadro { padding: 0 13px calc(68px + env(safe-area-inset-bottom)); }
+    .qRetrato { width: 89px; height: 124px; }
+    .ltMomento { padding: 9px 12px; }
+    .qBalao { padding: 7px 10px; }
   }
   /* CAPITULOS: as eras são marcos de trilha — tábuas na beira do caminho, do mesmo material
      do poste do menu. A trancada nao some — mostrar o que falta e o que faz querer voltar;
@@ -1829,7 +1851,15 @@
   #fimPerguntaBotoes { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
   /* `#telaFim .telaBtn` prega 300 px de largura em toda tábua desta tela; as três respostas
      dividem a linha, então elas precisam desfazer isso — ID mais classe, para ganhar dele. */
-  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 1 auto; min-width: fit-content;
+  /* O PISO DE DEDO É DOS DOIS EIXOS, e aqui ele precisa de duas linhas porque as duas coisas
+     que ele garante são diferentes: `min-width: 44px` é o piso do DEDO, e `flex-shrink: 0` é
+     o piso do RÓTULO (o canvas bitmap não reflui — é a lição escrita logo acima). Não dá para
+     escrever `max(44px, fit-content)`: `fit-content` é palavra-chave, não comprimento, e a
+     declaração inteira seria descartada em silêncio. Estas duas linhas não movem um pixel
+     hoje — nenhuma das três respostas aparece na lista de alvos miúdos do portão em nenhuma
+     das dez telas do cardápio (medido em 23/08) —, e existem para que um rótulo curto no
+     futuro não reabra o buraco de 36 px que o irmão desta regra (`.cfOp`) abriu. */
+  #telaFim #fimPerguntaBotoes .perguntaBtn { width: auto; flex: 1 0 auto; min-width: 44px;
     min-height: 44px; padding: 10px 8px; margin: 0; }
   #fimPerguntaBotoes.oculto { display: none; }
   /* A SAÍDA PARA A PLATAFORMA. Nenhum material novo, pela terceira vez nesta tela: é a voz de
@@ -2870,7 +2900,16 @@
   .cfItem { margin-bottom: 8px; padding: 8px 12px; }
   .cfQ { font: var(--corpoSm); color: #33240f; }
   .cfOps { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-  .cfOp { flex: 1 1 auto; min-height: 44px; }
+  /* 44 PX NOS DOIS EIXOS, e o que faltava era a LARGURA (medido em 23/08 pelo
+     `test/medir-telas.js`: `perguntaBtn 36×44` na CHEGADA a 640×360). A altura estava
+     pregada aqui desde sempre; a largura não, e `flex: 1 1 auto` num rolo estreito — a
+     coluna 1 da CHEGADA deitada tem 172 px — encolhe a tábua até o tamanho da palavra.
+     "SIM" com 36 px de largura é meio dedo, e o piso de 44 é decisão registrada
+     (PENDENTES.md, "piso de 44 px de dedo"), não gosto de quem mede.
+     A tábua tem `flex-wrap` desde que nasceu: quando as três não couberem na linha, elas
+     DESCEM em vez de encolher. Uma fileira a mais numa tela que já rola é barata; meio dedo
+     de alvo não é. */
+  .cfOp { flex: 1 1 auto; min-width: 44px; min-height: 44px; }
   .cfOp:disabled { opacity: .55; }
   .cfRev { font: var(--fonte); color: #5c3f1e; margin-top: 6px; line-height: 1.45; }
   .cfRev.oculto { display: none; }
