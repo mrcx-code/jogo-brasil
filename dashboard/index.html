@@ -318,6 +318,10 @@
   .comof-fim{font:italic 400 .84rem/1.4 "Bitter",serif;color:var(--pedra);margin:0}
 
   footer.rod{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--linha);font-size:.78rem;color:var(--pedra)}
+  /* O reset da linha 66 zera a margem de TODO p, entao cinco paragrafos renderizavam como um
+     bloco macico so -- medido: 0 px entre eles. Sem esta regra, a reescrita da growth (23/08)
+     seria invisivel para quem le, que era exatamente o defeito que ela veio corrigir. */
+  footer.rod p+p{margin-top:.62rem}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -450,7 +454,13 @@
     </div>
   </section>
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e um contador de erros de PIN, até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
+  <footer class="rod">
+    <p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b>, e entrar é com <b>um PIN</b> — não um e-mail. A conta é uma só, o endereço dela é inventado (não é o seu), e nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum.</p>
+    <p>O PIN viaja só até o Supabase Auth deste projeto, que guarda um resumo criptográfico dele e mais nada. Neste aparelho ficam a sessão e o contador de erros de PIN — os dois somem quando você sai.</p>
+    <p>Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): ela não some ao sair, porque apagá-la jogaria fora o que você escreveu. Ela sobe sozinha assim que a rede volta; e, se isso não acontecer sozinho — o navegador às vezes não percebe que a rede voltou —, ela sobe do mesmo jeito na próxima vez que você abrir a mesa.</p>
+    <p>Rodando local, fica também uma marca do último PIN recusado, que morre ao fechar a aba: é calculada a partir do PIN, mas não dá para reconstruir o PIN a partir dela — o PIN em si não fica guardado.</p>
+    <p>Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p>
+  </footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -592,11 +602,20 @@
   // Ou seja: sair encurta a exposição de horas/dias para minutos. Não a zera.
   // Sem `await` de propósito: sair é instantâneo para quem toca o botão, e rede caída não pode
   // impedir ninguém de sair do próprio aparelho. `keepalive` faz o pedido sobreviver à navegação.
+  // E SAIR APAGA TAMBEM O CONTADOR DE ERROS DE PIN (PENDENTES 60, 23/08). O rodape prometia
+  // "ate voce sair" para as duas coisas e cumpria para UMA: o contador so morria em login OK,
+  // entao quem saia com tres erros na conta voltava com tres, e a frase era falsa. Zerar aqui
+  // e o conserto no CODIGO — a alternativa era esticar o rodape para explicar a excecao, e
+  // frase que explica excecao e frase que ninguem le. `zerarTentativas` esta declarada mais
+  // abaixo: declaracao de funcao sobe, e as duas moram no mesmo escopo deste arquivo.
+  // Nao ha risco de folga aqui: aquele contador e UX (o comentario dele diz isso por extenso),
+  // quem ataca nao passa por esta pagina, e sair exige ja estar dentro.
   function sair(){
     if(ses && ses.access_token){
       try{ fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:comToken(ses),keepalive:true}).catch(function(){}); }catch(e){}
     }
     gravarSessao(null);
+    zerarTentativas();
   }
   // Rede caída NÃO desloga; refresh_token recusado pelo servidor, sim.
   function refrescar(){
@@ -679,9 +698,22 @@
     },function(err){
       var g=lerFila(); if(!g.length) return;
       var st=(err && err.status) || 0;
-      g[0].tentativas=(g[0].tentativas||0)+1;
+      // FALHA DE REDE NAO CONTA (3a auditoria da seguranca, 23/08), e ela nasceu de um conserto
+      // meu: o ouvinte de `online` da partida chama `flush()` a cada piscada, e com o contador
+      // subindo tambem em `st===0` o navegador queimava sozinho as 25 tentativas — sonda com
+      // servidor inalcancavel e 30 quedas-e-voltas de ~300 ms: fila 1/tentativas 6, 12, 24 e, na
+      // piscada 25, A FILA ESVAZIOU. Antes do ouvinte, queimar 25 exigia 25 CARGAS DE PAGINA, ato
+      // do dono; depois dele, bastam um trem e um elevador. Medido contra a main (0 tentativas em
+      // 12 piscadas) e contra o mutante sem ouvinte (0): so a minha versao contava 12.
+      // `st===0` e "nao houve resposta" — nao diz NADA sobre o item, entao contar seria punir o
+      // texto do dono pelo Wi-Fi dele. 503 continua contando, e 503 nao dispara `online`.
+      if(st) g[0].tentativas=(g[0].tentativas||0)+1;
       if(permanente(st) || g[0].tentativas>=TENTATIVAS_MAX){
-        console.warn("mesa: descartei uma resposta da fila local — "+(permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas"))+":",JSON.stringify(g[0]));
+        var porque=permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas");
+        console.warn("mesa: descartei uma resposta da fila local — "+porque+":",JSON.stringify(g[0]));
+        // E O DESCARTE AVISA NA TELA, como a poda irma ja avisava (N10). Perder resposta do dono
+        // em silencio no console e perde-la duas vezes: ele nao sabe que precisa reescrever.
+        toast("Uma resposta sua não foi enviada e foi descartada — "+porque+". Se ainda for importante, escreva de novo.",true);
         g.shift();
         if(!gravarFila(g)) return;
         return lavarUm();
@@ -937,10 +969,86 @@
   // recusado no sessionStorage e nao repeti-lo corta isso pela raiz: erra UMA vez por sessao de
   // navegador, nao uma por carga. sessionStorage e nao localStorage de proposito — some quando
   // a aba fecha, entao um PIN corrigido no arquivo volta a ser tentado numa aba nova, sem exigir
-  // que ninguem limpe nada. E o PIN recusado nao e o PIN certo: guardar o errado nao vaza segredo.
+  // que ninguem limpe nada.
+  //
+  // O QUE FICA GUARDADO NAO E O PIN, E ISSO MUDOU EM 23/08 (PENDENTES 60, achado do juridico).
+  // A versao de 22/08 escrevia o PIN recusado em claro no sessionStorage, com o argumento de que
+  // "o recusado nao e o certo". O argumento e fraco onde mais importa: o caso que esta funcao
+  // existe para atender e justamente o do dono que TROCOU o PIN e esqueceu de reescrever o
+  // arquivo — o valor recusado ali e, quase sempre, o PIN ANTERIOR dele, escrito por extenso
+  // num lugar que qualquer script da pagina le. Credencial nao se guarda no navegador, e nao
+  // ha dose pequena disso.
+  //
+  // O que se guarda agora e uma DERIVACAO: PBKDF2-SHA256 com sal aleatorio de 16 bytes, pelo
+  // `crypto.subtle` do proprio navegador (nada caseiro, nenhuma biblioteca). Ela responde a
+  // unica pergunta que a funcao precisa fazer — "este PIN e o mesmo que ja foi recusado?" —
+  // sem guardar a resposta.
+  //
+  // O VALOR DISSO E CATEGORICO, NAO CRIPTOGRAFICO, e a distincao foi cobrada pela seguranca em
+  // 23/08 — a versao anterior deste comentario sugeria que 60 mil voltas "resolvem", que e a
+  // mesma doenca do rodape: afirmar mais do que se entrega. Os numeros dela: um PIN de oito
+  // digitos e 10^8 candidatos, e varrer todos contra esta marca custa ~17 min de GPU, cerca de
+  // 15 centavos de dolar. Aumentar as voltas nao salva — um dia de GPU exigiria 5,1 milhoes
+  // delas, 2 a 13 s por carga —, e nem faria diferenca, porque um script rodando NESTA pagina
+  // pega o PIN inteiro de graca com um `fetch("/pin-local")`. O que a derivacao entrega, e e
+  // isso que vale: NENHUMA CREDENCIAL EM REPOUSO. Nao ha PIN guardado para vazar num dump de
+  // sessionStorage, num print de devtools ou num relato de bug — e essa e a diferenca de
+  // categoria entre "segredo guardado" e "segredo nao guardado", nao uma dose maior de custo.
+  //
+  // O CUSTO, dito: DUAS derivacoes por carga no pior caso (uma para comparar com a marca
+  // guardada, outra para gravar a marca nova quando o PIN tambem e recusado) — medido em
+  // 51,1 ms, e zero quando nao ha marca guardada. Onde nao houver `crypto.subtle` (contexto
+  // inseguro), a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga — degradar
+  // para o comportamento antigo e aceitavel; degradar para guardar o segredo nao e.
   var PIN_RECUSADO="mesa-brasil-pin-local-recusado";
-  function pinJaRecusado(pin){ try{ return sessionStorage.getItem(PIN_RECUSADO)===pin; }catch(e){ return false; } }
-  function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }
+  var VOLTAS_PBKDF2=60000;
+  function subtil(){ try{ return (window.crypto && window.crypto.subtle) || null; }catch(e){ return null; } }
+  function emHex(u8){ var s="",i; for(i=0;i<u8.length;i++) s+=("0"+u8[i].toString(16)).slice(-2); return s; }
+  function deHex(h){ var u=new Uint8Array(h.length>>1),i; for(i=0;i<u.length;i++) u[i]=parseInt(h.substr(i*2,2),16); return u; }
+  // Devolve a marca em hex, ou null se o navegador nao tem WebCrypto — nunca o PIN.
+  function derivarMarca(pin,sal){
+    var c=subtil(); if(!c) return Promise.resolve(null);
+    var chave;
+    try{ chave=c.importKey("raw",new TextEncoder().encode(pin),{name:"PBKDF2"},false,["deriveBits"]); }
+    catch(e){ return Promise.resolve(null); }
+    return Promise.resolve(chave)
+      .then(function(k){ return c.deriveBits({name:"PBKDF2",salt:sal,iterations:VOLTAS_PBKDF2,hash:"SHA-256"},k,256); })
+      .then(function(b){ return emHex(new Uint8Array(b)); })
+      .catch(function(){ return null; });
+  }
+  // Le a marca guardada. Valor no formato VELHO (o PIN em claro, escrito pelo JS de ontem numa
+  // aba que ficou aberta durante um deploy) nao se le: apaga-se. Ela e a UNICA que apaga, e por
+  // isso a PARTIDA a chama diretamente — o comentario que estava aqui dizia "apaga-se na hora" e
+  // era falso, achado B2 da seguranca em 23/08: a limpeza so acontecia por dentro de
+  // `pinJaRecusado`, que so roda no `autoLoginLocal`, que desiste na primeira linha quando ha
+  // sessao (`if(!LOCAL || ses) return;`). Com o dono entrado — que e o estado normal dele — o PIN
+  // em claro ficava vivo em toda carga, medido nas cargas 1, 2 e 3, enquanto a linha 453 do
+  // rodape afirmava que o PIN nao fica guardado.
+  function lerMarca(){
+    var cru=null;
+    try{ cru=sessionStorage.getItem(PIN_RECUSADO); }catch(e){ return null; }
+    if(!cru) return null;
+    var o=null; try{ o=JSON.parse(cru); }catch(e){}
+    if(!o || typeof o.sal!=="string" || typeof o.marca!=="string"){
+      try{ sessionStorage.removeItem(PIN_RECUSADO); }catch(e){}
+      return null;
+    }
+    return o;
+  }
+  function pinJaRecusado(pin){
+    var o=lerMarca(); if(!o) return Promise.resolve(false);
+    return derivarMarca(pin,deHex(o.sal)).then(function(m){ return m!==null && m===o.marca; });
+  }
+  function marcarRecusado(pin){
+    var c=subtil(); if(!c) return Promise.resolve(false);
+    var sal=new Uint8Array(16);
+    try{ window.crypto.getRandomValues(sal); }catch(e){ return Promise.resolve(false); }
+    return derivarMarca(pin,sal).then(function(m){
+      if(m===null) return false;
+      try{ sessionStorage.setItem(PIN_RECUSADO,JSON.stringify({sal:emHex(sal),marca:m})); }catch(e){}
+      return true;
+    });
+  }
   function autoLoginLocal(){
     if(!LOCAL || ses) return;
     var pedido;
@@ -949,9 +1057,11 @@
       .then(function(t){
         var pin=(t||"").split("\n")[0].trim();
         if(!pin) return null;               // sem arquivo, sem rota: nada acontece
-        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa
-        return pedirToken(pin).then(function(j){ return guardarTokens(j); },
-          function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
+        return pinJaRecusado(pin).then(function(ja){
+          if(ja) return null;               // ja falhou nesta sessao: nao queima outra tentativa
+          return pedirToken(pin).then(function(j){ return guardarTokens(j); },
+            function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
+        });
       })
       .then(function(s){ if(s) flush(); })  // a resposta presa na fila sai sozinha agora
       .catch(function(){});                 // ver regras 2, 3 e 4: falhou, cala e fica como estava
@@ -1471,7 +1581,23 @@
   // chama `flush()` de novo, agora com Bearer, e é aí que a resposta presa sai. A ordem inversa
   // não quebraria nada (o `lavando` impede duas lavagens), mas atrasaria a carga da página por
   // uma leitura de disco que não tem nada a ver com desenhar os painéis.
+  // B2 DA AUDITORIA (23/08): a limpeza do formato velho roda AQUI, incondicionalmente, antes de
+  // qualquer desistencia. `lerMarca()` apaga o que nao for {sal, marca} e nao toca no que for —
+  // chama-la na partida e o que faz a promessa do rodape ("o PIN em si nao fica guardado") valer
+  // tambem para a aba que atravessou um deploy com o dono entrado.
+  // O QUE ISTO NAO ALCANCA, e esta escrito para ninguem ler "resolvido" onde nao esta: enquanto
+  // aquela aba NAO recarrega, ela continua rodando o JS de ontem, que grava o PIN em claro — e
+  // nada deste commit chega la, porque codigo novo so passa a valer na proxima carga. O alcance
+  // desta linha e "toda carga a partir de agora", nao "toda aba aberta agora".
+  lerMarca();
   autoLoginLocal();
+  // B1 DA AUDITORIA (23/08): o rodape passou a prometer que a fila "sobe sozinha assim que a rede
+  // volta", e ela NAO subia — `flush()` so era chamado na carga, no login e no auto-login, entao
+  // a resposta ficava presa ate alguem recarregar (medido: 1 item parado em t+3s, +8s, +16s e
+  // +25s com a rede ja de volta). Havia duas saidas, encolher a frase ou cumpri-la; cumprir e a
+  // que serve ao dono, porque o que ele escreveu sobe mais cedo. Uma linha, e ela nao inventa
+  // laco nenhum: a trava do A7 (`lavando`/`relavar`) continua sendo quem impede duas lavagens.
+  window.addEventListener("online", function(){ flush(); });
 })();
 </script>
 </body>

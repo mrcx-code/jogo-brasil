@@ -1801,7 +1801,7 @@ não sustenta nada na prática**. São itens e territórios do Windows, que o Ma
 qualquer forma; o registro é só para o mecanismo não parecer engatado antes de estar.
 
 
-## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma
+## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma — **FEITO em 23/08 (dev-plataforma)**
 
 Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashboard/index.html:453) diz que no aparelho ficam a sessao e um contador de erros ate voce sair. Errado tres vezes: (1) sair() so apaga a sessao — o contador mesa-brasil-pin-erros so morre em login OK (linhas 890/983), entao o ate-voce-sair e falso para ele; (2) a fila local mesa-brasil-fila4 guarda ate 50 itens / 200 KB do texto que o dono escreveu, sobrevive ao logout e NAO e citada — e a maior das tres; (3) mesa-brasil-pin-local-recusado guarda um PIN em claro no sessionStorage. Conserto: o texto pronto esta no parecer do juridico (23/08), OU fazer sair() chamar zerarTentativas() e ai o texto encolhe — a fila continua precisando ser dita de todo jeito, porque apaga-la ao sair perderia trabalho do dono. Regra da casa (par.3): afirmacao falsa e pior que nenhuma.
 
@@ -2165,3 +2165,186 @@ exigia que valesse zero. Ninguem tropecou porque nenhum dos dois roda sozinho.
 
 Acrescentar os dois ao CI e barato. **Conferir antes se eles sao estaveis** — o `robusto-tudo`
 depende do save semeado, e o PENDENTES 71 mostra que a semente e apagada a cada 10 s.
+**COMO FICOU (23/08).** Duas das tres viraram conserto de CODIGO e uma virou texto — nessa ordem,
+porque frase que explica excecao e frase que ninguem le.
+
+- **(1) conserto de codigo.** `sair()` passa a chamar `zerarTentativas()`. O "ate voce sair" voltou a
+  ser verdade para o contador, e o rodape ENCOLHEU em vez de crescer. Sem folga de seguranca: aquele
+  contador e UX (o comentario dele ja dizia isso), quem ataca nao passa por esta pagina, e sair exige
+  ja estar dentro.
+- **(3) confirmado, e era um PIN de verdade — conserto de codigo.** A linha que sustenta:
+  `function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }`, com o
+  `pin` vindo de `(t||"").split("\n")[0].trim()` sobre o corpo de `/pin-local`. O argumento antigo ("o
+  recusado nao e o certo") e fraco justamente no caso que a funcao existe para atender: o dono
+  TROCOU o PIN e esqueceu de reescrever o arquivo, entao o valor recusado ali e, quase sempre, o PIN
+  ANTERIOR dele. Agora guarda-se `{sal, marca}` — PBKDF2-SHA256, sal aleatorio de 16 bytes, 60.000
+  voltas, pelo `crypto.subtle` do proprio navegador: nada caseiro, nenhuma biblioteca. A pergunta que
+  a funcao precisa fazer ("e o mesmo PIN que ja foi recusado?") continua respondida; o segredo nao
+  fica. Valor no formato VELHO (PIN em claro numa aba que ja estava aberta) e apagado na primeira
+  leitura. Sem `crypto.subtle` a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga —
+  degradar para nao lembrar e aceitavel, degradar para guardar o segredo nao e.
+- **(2) so tinha saida por texto**, como o item ja previa: apagar a fila ao sair jogaria fora o que o
+  dono escreveu. O rodape passa a dize-la, com o teto (50 itens / 200 KB), com o motivo de ela ficar
+  e com o fato de ela subir sozinha quando a rede volta.
+
+**O PORTAO NOVO, para isto nao apodrecer de novo: `test/rodape-verdadeiro.js`.** As tres chaves
+nasceram DEPOIS da frase, e ninguem tinha motivo para reler o rodape ao acrescentar uma — foi por
+acumulo, nao por ma-fe, e so um portao corrige acumulo. Ele abre o dashboard headless, colhe as
+chaves que a pagina realmente grava (gravador embrulhando `Storage.prototype.setItem` antes de
+qualquer script + `Object.keys` dos dois armazenamentos + varredura estatica que REPROVA o `setItem`
+cuja chave ela nao consegue resolver) e falha se existir chave que o rodape nao menciona. Cobra
+tambem, com o BOTAO de sair e nao com o texto, o que o rodape promete que some e o que promete que
+fica, e que nenhum valor guardado contenha o PIN.
+
+**Visto reprovando** em quatro defeitos injetados — chave-isca gravada, rodape sem a frase da fila,
+`sair()` sem zerar o contador, marca de volta em claro: **exit 1 nos quatro**. **Limite declarado** no
+cabecalho do arquivo: o metodo em execucao so ve o que as cenas exercitam, e o estatico nao resolve
+chave montada em tempo de execucao (concatenacao, template, variavel reatribuida) — por isso ele
+reprova em vez de ignorar. Junto foi atualizado o par de mutacao do S4 em
+`test/fila-auth-controle.js`: a guarda mudou de forma (virou assincrona) e o controle apontaria para
+uma linha que nao existe mais, saindo com "envelheceu" (exit 2).
+
+**Portoes:** `npm test` 0 · `node test/encaixe.js` 0 · `node test/fila-auth.js` 0 (24 cenas, inclusive a
+24, que e a do PIN recusado) · `node test/medir-save-hostil.js` 0 · `node test/medir-telas-altura.js 360
+500 950` 0 · `node test/rodape-verdadeiro.js` 0.
+
+**A SEGURANCA REPROVOU O COMMIT ACIMA (0015e70) COM SONDA PROPRIA, E TINHA RAZAO — 23/08.** O
+commit que existia para tirar tres frases falsas do rodape embarcou uma QUARTA frase falsa e
+deixou vivo um PIN em claro num caminho que ele afirmava ter fechado. Mesma classe de defeito,
+mesmo paragrafo, mesmo dia. Fica escrito porque a licao vale mais que o conserto:
+
+- **B1 — "ela sobe sozinha assim que a rede volta" era falso.** `flush()` so era chamado na carga,
+  no login e no auto-login; nao havia ouvinte de `online`. Medido pela seguranca com a aba aberta e
+  a rede de volta: 1 item parado em t+3s, +8s, +16s e +25s, drenando so no reload. Havia duas
+  saidas — encolher a frase ou cumpri-la. Escolhida a segunda, que e a que serve ao dono:
+  `window.addEventListener("online", function(){ flush(); });` na partida. Uma linha, e a trava do A7
+  (`lavando`/`relavar`) continua sendo quem impede duas lavagens.
+- **B2 — o PIN em claro herdado sobrevivia a toda carga quando havia sessao.** A limpeza morava
+  dentro de `lerMarca()`, chamada so por `pinJaRecusado()`, chamada so por `autoLoginLocal()`, que
+  desiste na primeira linha: `if(!LOCAL || ses) return;`. Com o dono entrado — o estado normal
+  dele — a limpeza nunca rodava; medido presente nas cargas 1, 2 e 3. E a aba que atravessa um
+  deploy roda o JS de ontem, que grava em claro. Conserto: `lerMarca();` na PARTIDA, antes de
+  `autoLoginLocal();`. O comentario que afirmava "apaga-se na hora" foi reescrito para descrever o
+  que o codigo faz.
+- **Nao bloqueantes, tambem corrigidos:** o comentario dizia "no maximo uma derivacao por carga" e
+  sao DUAS no pior caso (medido: 51,1 ms); e o argumento da forca da derivacao passou a dizer o
+  que ela entrega de verdade — **valor CATEGORICO, nao criptografico: nenhuma credencial em
+  repouso**. Os numeros da seguranca: 60.000 voltas contra 10^8 candidatos = ~17 min de GPU, ~15
+  centavos de dolar, e um script na propria pagina pega o PIN inteiro de graca com
+  `fetch("/pin-local")`. As voltas NAO foram aumentadas (um dia de GPU exigiria 5,1 milhoes, 2 a 13 s
+  por carga), e "nao guardar nada" foi recusado pela propria seguranca com argumento: reabre o S4
+  de 22/08 e quebra a asserção do PIN corrigido na cena 24.
+
+**A LICAO, e ela e a parte que vale para as proximas rodadas:** o portao cobrava que a FRASE
+EXISTISSE, nao que ela fosse VERDADE — por isso ele mordeu isca e mutante e deixou passar os dois
+defeitos do mesmo commit. E a lição 2.8 do EQUIPE.md num lugar novo. Duas cenas novas fecham isso,
+e sao a parte mais valiosa desta rodada: **[6]** valor legado em claro + sessao viva (cobra a
+ausencia do PIN nas cargas 1 e 2) e **[7]** fila presa + rede que volta (cobra que ela drene SEM
+recarregar). Ambas vistas reprovando com o defeito injetado: **exit 1**, agora 6 defeitos no
+controle de mordida.
+
+**E uma armadilha de instrumento que apareceu no caminho:** a cena 3 reprovou uma vez sozinha. Em
+vez de repetir ate passar, medi (lição 2.9): a carga FRIA da pagina leva **4112 ms** (a pagina so
+pediu `/pin-local` em +2941 ms), contra 358–506 ms nas quentes, e minhas esperas fixas somavam 900
+ms. Todas as esperas por relogio sairam do arquivo: a partida agora e ancorada em `data-auth`
+(que, sendo escrito no bloco sincrono da partida, prova que `lerMarca()` ja rodou) e o resto espera
+pelo FATO, com teto que devolve false para a assercao falar. Tres execucoes seguidas: 0, 0, 0.
+
+**Portoes da segunda volta:** `node test/rodape-verdadeiro.js` 0 (7 cenas) · `node test/fila-auth.js` 0
+(24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node test/encaixe.js` 0.
+
+**3a VOLTA — O CONSERTO DO B1 CRIOU PERDA SILENCIOSA DO TEXTO DO DONO, e a seguranca mediu.** Os
+dois consertos da 2a volta foram verificados e fechados (B2: `null` nas tres cargas, semeando o PIN
+de novo em cada uma; B1: drena em 121 ms). O bloqueante novo nasceu do MEU conserto:
+
+- **O ouvinte de `online` + o contador de tentativas = 25 piscadas apagam a resposta.** Cada
+  `flush()` que falhava incrementava `tentativas` **inclusive com falha de rede** (`st===0`), e
+  `TENTATIVAS_MAX=25` descarta. Sonda com servidor inalcancavel e 30 quedas-e-voltas de ~300 ms:
+  fila 1 / tentativas 6, 12, 24 — e **na piscada 25 a fila esvaziou**. Controle que prova que e
+  NOVO deste commit, 12 piscadas: main **0**, mutante sem ouvinte **0**, o meu **12**. Antes,
+  queimar as 25 exigia 25 CARGAS DE PAGINA (ato do dono); depois, bastam um trem e um elevador.
+  **Conserto, uma linha:** `if(st) g[0].tentativas=…` — falha sem status e falha do caminho, nao
+  do conteudo; contar seria punir o texto do dono pelo Wi-Fi dele. 503 continua contando, e 503
+  nao dispara `online`. **Nao se conserta com flush periodico:** cada tentativa gasta uma das 25,
+  entao um `flush()` no `setInterval(carregar, 7000)` jogaria o texto fora em ~3 min de servidor
+  caido.
+- **E o descarte era MUDO** — so `console.warn`, enquanto o caminho irmao (`podarFilaHerdada`) ja
+  mostrava `toast` desde o N10. Agora avisa na tela. Perder resposta do dono em silencio e
+  perde-la duas vezes: ele nao sabe que precisa reescrever.
+- **A frase do rodape mudou, e a razao e medida.** Refeito sem `setOffline`, nas tres formas de a
+  fila encher: navegador offline de verdade → o evento dispara e drena em **121 ms**; servidor
+  caido (503) → nao dispara; **conectividade morta com interface viva** (captive portal, DNS
+  morto) → nao dispara. O 503 a frase nem promete; o terceiro caso e a falsidade real, e a saida
+  honesta e a FRASE, porque o conserto em codigo e justamente o que apaga o texto do dono. Ficou:
+  *"…ela sobe sozinha quando a rede volta — e, se o navegador nao perceber que ela voltou, na
+  proxima vez que voce abrir a mesa."*
+- **Duas oracoes de comentario**, as duas cobradas: a condicao da ancora `data-auth` (so vale
+  enquanto `lerMarca()` ficar no mesmo bloco sincrono e sem excecao no meio — verificado pela
+  seguranca com MutationObserver: `data-auth` aos 53,2 ms, limpeza aos 53,1 ms) e o alcance real
+  do conserto do B2 (**a aba que ainda nao recarregou roda o JS de ontem e nada deste commit a
+  alcanca**).
+
+**O que virou PORTAO em vez de raciocinio:** a cena 2 passou a cobrar `lerMarca();` como chamada
+SOLTA no topo da partida. A seguranca provou que a distincao nao e ORDEM — `lerMarca()` depois de
+`autoLoginLocal()` passa, e passar esta certo, os dois no mesmo bloco sincrono — e sim
+INCONDICIONALIDADE: o mutante `if(!ses) lerMarca()` e mordido pelas duas pontas (portao estatico
+e cena 6).
+
+**Cenas novas: [8]** 30 piscadas com servidor mudo — a resposta sobrevive e `tentativas` nao sai
+do zero; **[9]** recusa permanente (422) — o item sai da fila E o dono VE o toast. A cena 9
+ensinou algo ao ser escrita: `registrar()` enfileira ate a recusa permanente, e quem descarta e a
+lavagem SEGUINTE — entao o descarte (e o aviso) so chega quando algo pede lavagem: a proxima
+carga, o login, ou a rede voltando.
+
+**A LICAO DESTA VOLTA, e ela nao e sobre uma linha de codigo:** consertar uma frase falsa criou
+uma perda de dados silenciosa, e isso **nao dava para prever lendo o codigo** — so medindo o que
+o conserto faz quando o mundo se comporta mal. E o argumento mais forte que ja apareceu aqui para
+o auditor rodar DEPOIS do conserto, e nao so antes.
+
+**Portoes da terceira volta:** `node test/rodape-verdadeiro.js` 0 (9 cenas) · `node test/fila-auth.js`
+0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node
+test/encaixe.js` 0 · mordida **10 de 10** (exit 1 em todos).
+
+**4a VOLTA — A GROWTH REPROVOU PELA FORMA, com a reescrita pronta (23/08).** Conteudo certo, fatos
+completos, nada precisava sumir; o defeito era de construcao e de densidade:
+
+- **O verbo estava ELIDIDO.** *"…ela sobe sozinha quando a rede volta — e, se o navegador nao
+  perceber que ela voltou, na proxima vez que voce abrir a mesa"*: a pessoa tinha de carregar "ela
+  sobe" por cima de um travessao e de uma condicional intercalada para encaixa-lo na oracao final.
+  Le-se em voz alta e a voz chega ao fim sem verbo. Repetir o verbo custou tres palavras.
+- **189 palavras, 7 frases, um `<p>` so, em letra miuda cinza** — o par que sinaliza "isto e para
+  nao ler", que e o oposto do que quatro voltas de trabalho tentaram conquistar. Virou **cinco
+  paragrafos**.
+- **Duas trocas de vocabulario:** "derivacao" saiu (a conclusao que importa — *"e calculada a
+  partir do PIN, mas nao da para reconstruir o PIN a partir dela"* — ja estava na mesma frase, e
+  entao o conceito nao precisa ser exigido de quem le) e "sintetico" virou *"inventado (nao e o
+  seu)"*. Ficaram, com argumento dela: "Supabase Auth" (nome proprio que o dono conhece), "resumo
+  criptografico", "sessao" e "fila de respostas que ainda nao subiram".
+- **O toast do descarte passou a dizer o que fazer.** Ela foi conferir se cabia "copie antes" e
+  descobriu que NAO: `composto.value=""` limpa o campo assim que a resposta entra na fila, muito
+  antes do descarte — quando o toast aparece, o texto ja nao esta em campo editavel nenhum. Entao
+  a unica acao verdadeira e *"Se ainda for importante, escreva de novo."* Ela recusou sugerir um
+  lugar de recuperacao, porque seria verdade em parte dos fluxos e mentira em outros — e este
+  rodape ja pagou caro por afirmacao que vale so as vezes.
+
+**O QUE A MEDICAO DESMENTIU NO PARECER DELA, e e o achado desta volta:** o parecer dizia, de
+boa-fe, que a mudanca "nao toca CSS". **Toca.** O reset da linha 66
+(`body,h1,h2,h3,p,ul,li{margin:0}`) zera a margem de TODO `p`, entao os cinco paragrafos saiam com
+**0 px** entre eles — medido: `espacoEntre: [0,0,0,0]`. Visualmente **o mesmo muro**, com marcacao
+diferente: a reescrita inteira teria sido invisivel para quem le. Uma regra resolveu —
+`footer.rod p+p{margin-top:.62rem}` — e a medicao nova da **10 px** entre cada par. Print conferido.
+
+**Isso virou a cena [10]**, e ela cobra o que a PESSOA VE (espaco renderizado entre os
+paragrafos), nao a folha de estilo: trocar rem por em, ou mover a regra de lugar, passa; o muro
+nao passa. Mordida: 11 defeitos, exit 1 em todos.
+
+**Quatro cenas dependiam da redacao antiga e foram ajustadas — nenhuma afrouxou, e aqui esta cada
+uma:** `/apagad\w+ quando voce sai/` → `/os dois somem quando voce sai/` (MAIS especifica: exige o
+"os dois", que e o que torna a frase verdadeira para as duas chaves); `/marca de PIN recusado/` →
+`/marca do ultimo PIN recusado/`; e `/derivacao/` → **duas** regexes que cobram a GARANTIA em vez
+da palavra tecnica (`/nao da para reconstruir o PIN a partir dela/` e `/o PIN em si nao fica
+guardado/`). Palavra qualquer um escreve; garantia e afirmacao.
+
+**Portoes da quarta volta:** `node test/rodape-verdadeiro.js` 0 (10 cenas) · `node
+test/fila-auth.js` 0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test`
+0 · mordida **11 de 11**.
