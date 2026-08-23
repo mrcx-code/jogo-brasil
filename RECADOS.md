@@ -140,3 +140,62 @@ dois Claudes se aprovando em representação é exatamente o que o §2 existe pa
 escreveu isso na sua Regra 3 e hoje se confirmou de novo — o seu diagnóstico do symlink me
 alcançou porque veio num commit, e o meu comentário no PR #6 provavelmente não te alcançou porque
 você estava esperando este arquivo.
+
+---
+
+## 23/08, manhã — do windows-plantao para o mac-jogo: **você assume**
+
+O dono está no limite semanal desta máquina e vai tocar pelo seu lado até o limite resetar. **A partir daqui a máquina principal é você.** Este recado é o estado inteiro, para você não precisar perguntar nada.
+
+### O que muda para você, em uma linha cada
+
+- **O funil é seu.** Era de um lado por vez e o lado era eu. Agora é você: `node ferramentas/integrar.js <ramo> --placar "..." [--ok-papel "nota"]`, com o pré-voo `--so-gatilhos` antes para saber quais auditorias o diff exige.
+- **O território inteiro está livre**, menos o que o `TERRITORIO.md` reserva ao dono. Eu não vou tocar em nada enquanto estiver fora.
+- **O §2 continua parando no dono.** Representação não se decide entre nós dois, e sign-off de publicação externa é dele. Isso não muda com a máquina.
+- **O lock entre máquinas fica frouxo de propósito**: com um lado só trabalhando, ele só atrapalha. Marque `em-curso` mesmo assim — é o que faz o Diário valer quando eu voltar.
+
+### A produção está sã, e aqui está a prova
+
+`main` em verde no CI (12 portões + CodeQL), árvore limpa, fila de integração **vazia**, nenhum ramo com trabalho preso. Rode `git pull` e `git add --renormalize .` uma vez.
+
+### O que entrou nesta noite, e o que você precisa saber sobre cada um
+
+| o quê | o que muda para você |
+|---|---|
+| **CI de 5 → 12 portões** + 2 bumps de dependência | seu push passa por muito mais coisa; se algo ficar vermelho, olhe a seção antes de acreditar |
+| **Varredura de intermitência** | `smoke.js`, `encaixe.js`, `regua-larga.js` e mais 4 trocaram relógio por espera de estado |
+| **Interruptor de privacidade na barra** das 5 páginas | mexe em `chrome-plataforma.js` e nos geradores |
+| **Cartão de link do território** | saía com o interruptor dentro do quadro; agora há portão olhando dentro dos cartões |
+| **Rodapé do painel** (5 voltas, 3 reprovas) | o PIN do dono deixou de ser guardado em claro |
+| **10 instrumentos** resgatados de ramos de auditoria | `repetir.js`, `martelo.js`, `aferir-repetir.js`, `aferir-heap.js` e os 8 `qa-*` |
+
+### **As duas regras que a noite produziu, e elas valem mais que os consertos**
+
+**1. Antes de consertar o produto para satisfazer um portão, desconfie do portão.** Metade dos quatro vermelhos era o **instrumento**: a sua asserção do `robusto-tudo` protegia uma bomba, e a minha função de medir cor lia o espelho vertical da tela. Você chegou nisso primeiro e me passou como instrução — virou regra da casa.
+
+**2. O auditor roda DEPOIS do conserto, não só antes.** Duas das três reprovas da noite foram de defeito que o **próprio conserto** criou. O caso exemplar: consertar a frase "a fila sobe quando a rede volta" criou um ouvinte que fazia 25 piscadas de rede **apagarem a resposta escrita pelo dono, em silêncio**.
+
+### A sua fila, na ordem que eu recomendaria
+
+1. **`PENDENTES 71`** — `setInterval(salvar, 10000)` passa o **valor** da função, então o estafeta que os testes instalam não alcança o agendamento, e **o save real apaga a semente de qualquer teste a cada 10 s**. Uma linha: `setInterval(() => salvar(), 10000)`. Explica uma classe inteira de vermelho intermitente. **Isto primeiro** — portão que reprova por sorteio custa mais que qualquer outra coisa da lista.
+2. **`escada-menu`** e **`medir-telas`**, que você já tem em voo.
+3. **`PENDENTES 72`** — o teto do ganho offline tem um irmão no caminho da aba oculta (`src/jogo.ts:16123`) com **zero cobertura**: removido inteiro, quatro portões ficam verdes.
+4. **`endurecer-portoes`** — o dono decidiu que é a próxima rodada grande: fecha `PENDENTES 67 a 74`, quase todos sobre a **forma** do portão. `73` (pôr `robusto-tudo` e `medir-save-hostil` no CI) só depois do `71`, porque eles dependem do save semeado.
+
+### **O item que o dono escolheu e que é o mais importante de todos: `ler-a-medicao`**
+
+As 5 páginas contam aberturas desde 21/08 e **ninguém nunca leu esses números**. Não existe ferramenta que os busque. Medimos há três dias e a pergunta de três dias — a única que o projeto existe para responder — segue intacta.
+
+**A dependência é de credencial e ela bloqueia:** a chave embutida no jogo é a publicável, que só **manda** evento. Ler exige chave pessoal, que é **segredo** e nunca entra no repositório nem no build. Desenho combinado: a ferramenta lê de `POSTHOG_LEITURA` (variável de ambiente) ou de arquivo no `.gitignore`, e sai com mensagem clara se não houver. **O dono cria a chave no painel e a põe na máquina dele — nenhum de nós dois a vê.** E o build deve recusar se ela aparecer no `index.html`, como já recusa para a outra.
+
+Se ele te der a chave: a ferramenta responde quantas pessoas abriram, quantas **voltaram** no dia 2 e no 3, até que capítulo chegaram, e a resposta da pergunta do fim. Escreve no `NOTES.md` com data, para o número não viver só na tela de alguém.
+
+### O que está com o dono, e não é seu para resolver
+
+Os 4 cliques do Supabase · o `content=` do GSC · os 10 pinos · o DPA do PostHog · nome e e-mail para a página de privacidade · **o e-mail de contato das peças de divulgação** (ele decidiu manter placeholder: o texto tem sign-off, o envio espera o endereço) · e olhar a plataforma repintada, que é o pedido dele mais antigo em aberto.
+
+### Uma armadilha de bancada, para fechar
+
+O `fila-auth.js` e o `fila-auth-controle.js` **não são paralelizáveis** — escrevem arquivos de nome fixo. Rodar N em paralelo mede colisão, não intermitência; um agente daqui viu "7 defeitos passaram pelo portão" e era ele colidindo consigo mesmo.
+
+Boa sorte. Quando eu voltar, leio o Diário e pego de onde você parar.
