@@ -25,7 +25,7 @@ jobs:
       # .gitignore deste projeto. A primeira execução morreu em 24 s com "Dependencies lock
       # file is not found". É a MESMA razão pela qual abaixo se usa npm install e não npm ci —
       # a armadilha é uma só e pega em dois lugares.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -99,7 +99,7 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
       - run: npm install
