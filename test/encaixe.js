@@ -54,18 +54,116 @@ const sec = t => log('\n---- ' + t);
 // ela sai da lista pelo nome; a corrida com um teto de 3 s existe para um motor que um dia não
 // implemente `finished` não pendurar o teste inteiro.
 async function abrirMenuParado(page) {
-  await page.evaluate(async () => {
-    fecharTelas(); abrirTela('telaMenu');
-    const tela = document.getElementById('telaMenu');
+  await page.evaluate(() => { fecharTelas(); abrirTela('telaMenu'); });
+  return await telaParada(page, 'telaMenu');
+}
+
+// A ESPERA DE `abrirMenuParado`, GENERALIZADA (23/08) — porque a doença não era do menu.
+//
+// O bloco 3 media o nicho 400 ms depois de `fecharTelas()`, e os blocos 21/24/30 mediam a
+// geometria de uma tela 500–900 ms depois de abri-la. É o mesmo erro em oito lugares: dormir
+// um número e supor que a animação acabou. Esta função espera as promessas `finished` da tela
+// inteira (subárvore) e devolve QUANTO esperou, para o log dizer se a máquina está lenta em
+// vez de o portão virar cara ou coroa.
+//
+// Duas exclusões, as duas necessárias: `respira` (o logo) é infinita e nunca resolve, e
+// qualquer outra animação de iterações infinitas cairia na mesma armadilha. O teto de 20 s é
+// DETECTOR DE TRAVAMENTO — nunca régua de ritmo.
+async function telaParada(pg, id) {
+  return await pg.evaluate(async (id) => {
+    const t0 = performance.now();
+    const tela = document.getElementById(id);
+    if (!tela) return { ms: 0, quantas: 0, achou: false };
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const vivas = tela.getAnimations({ subtree: true })
-      .filter(a => a.animationName !== 'respira')
+    const vivas = (tela.getAnimations ? tela.getAnimations({ subtree: true }) : [])
+      .filter(a => a.animationName !== 'respira' && a.playState !== 'idle')
+      .filter(a => !(a.effect && a.effect.getTiming && a.effect.getTiming().iterations === Infinity))
       .map(a => a.finished.catch(() => {}));
-    await Promise.race([
-      Promise.all(vivas),
-      new Promise(r => setTimeout(r, 3000)),
-    ]);
+    await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
     await new Promise(r => requestAnimationFrame(r));
+    return { ms: Math.round(performance.now() - t0), quantas: vivas.length, achou: true };
+  }, id);
+}
+
+// ESPERAR UMA CONDIÇÃO DA PÁGINA SEM EXPLODIR — devolve `false` no estouro em vez de derrubar
+// o instrumento inteiro. É o que permite trocar `waitForTimeout` por espera de estado sem
+// perder a asserção: quem chama continua dizendo `ok(...)` com a mensagem que já dizia, e o
+// portão continua MORDENDO (a lição 2.8) — só deixa de morder o relógio.
+async function esperarNaPagina(pg, fn, ms, arg) {
+  try { await pg.waitForFunction(fn, arg, { timeout: ms || 20000 }); return true; }
+  catch (e) { return false; }
+}
+
+// ESPERAR O JOGO TERMINAR DE NASCER — condição, não relógio (23/08).
+//
+// Depois de um `reload()` o instrumento precisa saber que o boot acabou. Dormir 700 ms é uma
+// aposta: sob carga o Chromium chega atrasado, o relógio não, e o que vem depois mede uma
+// página pela metade.
+//
+// A CONDIÇÃO CERTA NÃO É "os símbolos existem", E ISTO QUASE ME ESCAPOU. `S` e `fecharTelas`
+// nascem no topo do módulo, muito antes do fim do boot — esperar por eles resolveria cedo
+// demais, o `fecharTelas()` seguinte fecharia um menu que ainda não abriu, e o
+// `abrirTela("telaMenu")` da ÚLTIMA linha do `DOMContentLoaded` (src/jogo.ts) reabriria a tela
+// por baixo do teste. Seria trocar um flake por outro, mais silencioso.
+//
+// O fim do boot é observável: `abrirTela("telaMenu")` é a última coisa que ele faz. Então a
+// condição é o menu ABERTO. Teto de 30 s como DETECTOR DE TRAVAMENTO; devolve `false` no
+// estouro em vez de derrubar o instrumento, para quem chamou decidir.
+async function jogoPronto(pg) {
+  // A GUARDA DE `null` NAO E ZELO — sem ela isto vira NO-OP EM SILENCIO (achado do QA, 23/08).
+  // `waitForFunction` REJEITA quando o predicado lanca, e `esperarNaPagina` engole a rejeicao:
+  // numa pagina sem `#telaMenu`, `.classList` de `null` estoura, a promessa cai no catch e a
+  // espera devolve `false` em ~64 ms sem ter esperado coisa nenhuma. O `bootPronto` do smoke ja
+  // guardava; este nao guardava, e a diferenca era invisivel porque aqui a pagina e sempre o jogo.
+  return await esperarNaPagina(pg, () => {
+    const m = document.getElementById('telaMenu');
+    return typeof S !== 'undefined' && typeof fecharTelas === 'function' &&
+      !!document.getElementById('hudTop') && !!document.getElementById('pdFlor') &&
+      !!m && m.classList.contains('aberta');
+  }, 30000);
+}
+
+// ESPERAR A BARRA DE CIMA VOLTAR PARA A TELA — o conserto do bloco 3 (23/08).
+//
+// O bloco 3 chamava `fecharTelas()` e dormia 400 ms. `#hudTop, #controls { transition:
+// transform .34s }` (estilo.css 582) e `body.emTela` os estaciona fora da tela — então eram
+// 60 ms de folga sobre 340 ms de transição. Sob carga a transição nem começava, e o bloco lia
+// o nicho com a barra inteira em `translateY(-115%)`, `opacity 0`: nicho em y = -79, seta fora
+// da tela, seis asserções vermelhas por causa do relógio.
+//
+// MEDIDO, as duas esperas na mesma execução (`test/nicho-antes-depois.js`, 128 amostras com
+// 5 a 10 processos em paralelo mais `test/carga.js`): 400 ms de relógio -> 6 falhas (4,7%);
+// esperando o estado -> 0 falhas (0%). E é MAIS RÁPIDO, não mais lento: a espera real ficou
+// entre 190 e 260 ms na máquina calma. Alargar o 400 para 2 s teria comprado o verde de hoje
+// e devolvido o vermelho na próxima máquina cheia.
+//
+// O teto de 20 s existe para uma transição que NUNCA termine não pendurar o portão — é
+// detector de travamento, nunca régua de ritmo.
+async function hudNoLugar(pg) {
+  return await pg.evaluate(async () => {
+    const t0 = performance.now();
+    // dois quadros para o navegador recalcular o estilo e CRIAR a transição; sem isto
+    // `getAnimations()` pode devolver lista vazia porque ela ainda nem nasceu.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const vivas = [];
+    for (const id of ['hudTop', 'controls']) {
+      const el = document.getElementById(id);
+      if (!el || !el.getAnimations) continue;
+      for (const a of el.getAnimations()) {
+        if (a.playState === 'idle') continue;
+        // animação infinita (a `respira` e parentes) nunca resolve `finished`
+        if (a.effect && a.effect.getTiming && a.effect.getTiming().iterations === Infinity) continue;
+        vivas.push(a.finished.catch(() => {}));
+      }
+    }
+    await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
+    await new Promise(r => requestAnimationFrame(r));
+    const cs = getComputedStyle(document.getElementById('hudTop'));
+    const cc = document.getElementById('controls');
+    return { ms: Math.round(performance.now() - t0), quantas: vivas.length,
+             emTela: document.body.classList.contains('emTela'),
+             transform: cs.transform, opacity: cs.opacity,
+             opControles: cc ? getComputedStyle(cc).opacity : null };
   });
 }
 
@@ -94,7 +192,7 @@ async function abrirMenuParado(page) {
   await page.goto(alvo());
   await page.evaluate(() => { localStorage.clear(); });
   await recarregar(page);
-  await page.waitForTimeout(900);
+  await jogoPronto(page);                                    // era waitForTimeout(900)
 
   // ============================================================
   // 1 · TEXTO E IMAGEM ANDAM JUNTOS — a lista de imagens tem que ter o tamanho da lista de falas
@@ -169,9 +267,16 @@ async function abrirMenuParado(page) {
     localStorage.clear();
   });
   await recarregar(page);
-  await page.waitForTimeout(700);
+  await jogoPronto(page);                                    // era waitForTimeout(700)
   await page.evaluate(() => { fecharTelas(); S.aberturas = MASCARA_EPOCAS; salvar(); });
-  await page.waitForTimeout(400);
+  const volta = await hudNoLugar(page);                      // era waitForTimeout(400)
+  log('   a barra de cima voltou em ' + volta.ms + ' ms (' + volta.quantas + ' animações esperadas) — '
+    + volta.transform + ', opacity ' + volta.opacity);
+  ok(!volta.emTela && volta.opacity === '1',
+    !volta.emTela && volta.opacity === '1'
+      ? 'a leitura acontece com a barra de cima JÁ na tela, não 400 ms depois de torcer'
+      : 'a barra de cima ainda está fora da tela na hora de ler o nicho (' + volta.transform
+        + ', opacity ' + volta.opacity + ') — a espera de estado não segurou');
   const zero = await page.evaluate(() => {
     const v = ['nFlor', 'nAgua', 'nRef'].map(function (id) {
       const b = document.getElementById(id).parentElement;
@@ -292,14 +397,26 @@ async function abrirMenuParado(page) {
   // exatamente o estado que se tentou apagar. É a mesma armadilha anotada no percurso.js.
   await page.evaluate(() => { window.salvar = function () {}; localStorage.clear(); });
   await recarregar(page);
-  await page.waitForTimeout(800);
+  await jogoPronto(page);                                    // era waitForTimeout(800)
   await page.evaluate(() => { fecharTelas(); S.aberturas = MASCARA_EPOCAS; salvar(); });
-  await page.waitForTimeout(500);   // #controls volta com transição; medir antes disso mede o vazio
+  // ERA waitForTimeout(500), e o comentário de então já dizia o defeito sem saber: "#controls
+  // volta com transição; medir antes disso mede o vazio". Medir o vazio é o caso BOM — o caso
+  // ruim é TOCAR o vazio: as 60 batidas abaixo miram a caixa de `#btnClique`, e com o bloco
+  // ainda em `translateY(150%)` o dedo cai fora do botão e o impacto não sobe. Mesma cura do
+  // bloco 3: esperar o estado.
+  const voltou = await hudNoLugar(page);
+  ok(!voltou.emTela && voltou.opControles === '1',
+    'os controles voltaram para a tela ANTES das 60 batidas (' + voltou.ms + ' ms, '
+      + voltou.quantas + ' animações, opacity ' + voltou.opControles
+      + ') — o dedo mira um botão que está lá');
   const bot = await page.locator('#btnClique').boundingBox();
   const cena = await page.locator('#scene').boundingBox();
   for (let i = 0; i < 60; i++) {
     await page.touchscreen.tap(bot.x + bot.width / 2, bot.y + bot.height / 2);
     if (i % 9 === 8) await page.touchscreen.tap(cena.x + cena.width * 0.25, cena.y + cena.height * 0.5);
+    // 45 ms FICA DE PROPÓSITO: não é espera de animação, é a CADÊNCIA do dedo — sessenta
+    // batidas em ~2,7 s, que é como uma pessoa bate. Não há estado a esperar entre uma batida
+    // e a próxima; o que se mede depois é o total acumulado, não o instante de nenhuma delas.
     await page.waitForTimeout(45);
   }
   const antes = await page.evaluate(() => {
@@ -317,7 +434,7 @@ async function abrirMenuParado(page) {
   log('   jogado por toque: impacto ' + antes.total + ' | recursos ' + antes.rec);
   ok(antes.total > 0, 'o toque pagou alguma coisa antes de fechar (' + antes.total + ')');
   await recarregar(page);
-  await page.waitForTimeout(1000);
+  await jogoPronto(page);                                    // era waitForTimeout(1000)
   const depois = await page.evaluate(() => ({
     total: Math.round(S.energiaTotal), energia: Math.round(S.energia), cena: S.cenario,
     fronteira: S.fronteira, rec: JSON.stringify(S.recursos), aber: S.aberturas,
@@ -342,17 +459,27 @@ async function abrirMenuParado(page) {
   // NÃO se mexe em `S.energiaTotal` aqui: empurrá-lo para o teto faz `verificarCenario` disparar
   // fecho→travessia→abertura em cascata e FECHAR o menu por baixo do teste. Isto roda no estado
   // que a seção 6 deixou — a partida do DIA 1, que é justamente o quadrinho que ninguém testou.
+  // `fecharTudo` e nao `fecharTelas` de proposito (a 2.9): este bloco tem de rodar no estado
+  // que a secao 6 deixou. So a ESPERA muda — era waitForTimeout(600), agora e o estado.
   await page.evaluate(() => { fecharTudo(); abrirTela('telaMenu'); });
-  await page.waitForTimeout(600);
+  const menuPronto = await telaParada(page, 'telaMenu');
   const vis = await page.evaluate(() => {
     const b = document.getElementById('btnCompletude');
     const r = b.getBoundingClientRect();
     return { menu: document.getElementById('telaMenu').className, box: [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)],
       op: getComputedStyle(document.getElementById('telaMenu')).opacity };
   });
-  log('   menu: ' + vis.menu + ' opacidade ' + vis.op + ' | caixa do A HISTÓRIA ' + JSON.stringify(vis.box));
+  log('   menu parou de andar em ' + menuPronto.ms + ' ms (' + menuPronto.quantas + ' animações)'
+    + ' | menu: ' + vis.menu + ' opacidade ' + vis.op + ' | caixa do A HISTÓRIA ' + JSON.stringify(vis.box));
   await page.touchscreen.tap(vis.box[0] + vis.box[2] / 2, vis.box[1] + vis.box[3] / 2);
-  await page.waitForTimeout(1000);
+  // ERA waitForTimeout(1000). O que se quer saber é se o toque MONTOU o quadrinho — e isso é
+  // observável: a lista tem filhos ou não tem. Espera-se a lista, com teto de 20 s; se ela não
+  // vier, `esperarNaPagina` devolve `false` e a asserção abaixo reprova com a mesma frase de
+  // sempre. O portão continua mordendo (2.8) — deixou de morder o relógio da máquina.
+  await esperarNaPagina(page, () => {
+    const l = document.getElementById('listaCenas');
+    return !!l && l.children.length > 0;
+  }, 20000);
   const montou = await page.evaluate(() => document.getElementById('listaCenas').children.length);
   ok(montou > 0, 'A HISTÓRIA montou o quadrinho pelo toque no menu (' + montou + ' páginas)');
   if (!montou) { console.log('  (sem páginas: o resto da seção 7 não tem o que medir)'); }
@@ -682,7 +809,7 @@ async function abrirMenuParado(page) {
   sec('11 · os recursos sobrevivem ao dia seguinte');
   await page.evaluate(() => { S.recursos = { flor: 7, agua: 3, refeicao: 2 }; salvar(); });
   await recarregar(page);
-  await page.waitForTimeout(900);
+  await jogoPronto(page);                                    // era waitForTimeout(900)
   const rec = await page.evaluate(() => ({
     vivo: JSON.stringify(S.recursos),
     // e a régua do §3: chave inventada não entra, valor fora da faixa não passa
@@ -1062,7 +1189,7 @@ async function abrirMenuParado(page) {
     await pg.goto(ORIGEM);
     if (modo === 'desligado') {
       // desliga pelo BOTÃO da tela, como a pessoa desligaria, e recarrega
-      await pg.waitForTimeout(600);
+      await jogoPronto(pg);                                  // era waitForTimeout(600)
       await pg.evaluate(() => {
         fecharTudo(); abrirTela('telaConfig'); montarConfig();
         document.getElementById('btnMedir').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
@@ -1070,9 +1197,31 @@ async function abrirMenuParado(page) {
       pedidos.length = 0;
       await pg.reload();
     }
-    await pg.waitForTimeout(1400);
+    // AS DUAS METADES DESTE BLOCO PEDEM ESPERAS DIFERENTES, e misturá-las num relógio só era o
+    // defeito (23/08):
+    //   · ligado    — a asserção é "o jogo TENTOU medir". Isso é um EVENTO, e evento se espera.
+    //                 1400 ms de relógio bastavam na máquina calma e reprovavam na cheia.
+    //   · desligado — a asserção é "nenhum pedido saiu". Isso é uma AUSÊNCIA, e ausência não
+    //                 tem estado a esperar: só se prova deixando o tempo passar. Aqui o relógio
+    //                 é o instrumento certo, e ele FICA, de propósito e por escrito.
+    await jogoPronto(pg);
+    if (modo === 'desligado') {
+      await pg.waitForTimeout(1400);      // a janela em que um pedido apareceria se fosse aparecer
+    } else {
+      const t1 = Date.now();
+      while (!pedidos.length && Date.now() - t1 < 30000) await pg.waitForTimeout(50);
+    }
     let colhido = null;
-    if (op.provocar) { colhido = await op.provocar(pg); await pg.waitForTimeout(600); }
+    if (op.provocar) {
+      colhido = await op.provocar(pg);
+      if (modo === 'desligado') {
+        await pg.waitForTimeout(600);     // de novo a AUSÊNCIA: só o relógio a prova
+      } else {
+        // o `provocar` dispara eventos; espera-se a CHEGADA do próximo, com teto de 10 s
+        const antes = pedidos.length, t2 = Date.now();
+        while (pedidos.length === antes && Date.now() - t2 < 10000) await pg.waitForTimeout(50);
+      }
+    }
     // e o jogo continua sendo jogado: a rua anda e a leitura abre
     const vivo = await pg.evaluate(async () => {
       fecharTudo();
@@ -1531,7 +1680,11 @@ async function abrirMenuParado(page) {
   const parou = await rodarMedida('mudo', {
     provocar: async (pg) => {
       const antes = await pg.evaluate(() => { fecharTudo(); return { cap: epocaAtual() }; });
-      await pg.waitForTimeout(1200);   // deixa a sessão acumular segundos de jogo de verdade
+      // 1200 ms FICA DE PROPÓSITO: aqui o relógio NÃO é a espera de uma animação — ele é a
+      // grandeza medida. A asserção é que o evento leva o tempo daquela sessão, e para haver
+      // tempo é preciso que tempo passe. Sob carga isto só cresce, e crescer é inofensivo:
+      // a régua abaixo é "maior que zero", não "igual a 1,2 s".
+      await pg.waitForTimeout(1200);
       await pg.evaluate(() => window.dispatchEvent(new Event('pagehide')));
       await pg.evaluate(() => { medirParouArmado = true; });   // rearma como a volta à aba faria
       return antes;
@@ -1864,7 +2017,7 @@ async function abrirMenuParado(page) {
 
     // ---- e o rodapé, que é onde o polegar muda de lugar quando o aparelho vira ----
     await page.evaluate(() => { fecharTelas(); });
-    await page.waitForTimeout(700);
+    await hudNoLugar(page);                                  // era waitForTimeout(700)
 
     // ---- A ESCALA INTEIRA E O CHÃO, que é a armadilha nº 1 do §7 ----
     // A escala do mundo tem de ser um INTEIRO igual nos dois eixos: com `pixelated`, uma
@@ -1937,7 +2090,7 @@ async function abrirMenuParado(page) {
     // páginas cortavam texto, a pior com 365 px de papel num espaço de 306. Um verbete com
     // fonte perdendo a linha da fonte é o §2 sendo apagado por CSS.
     await page.evaluate(() => { fecharTelas(); montarCompletude(); abrirTela('telaCompletude'); });
-    await page.waitForTimeout(900);
+    await telaParada(page, 'telaCompletude');                // era waitForTimeout(900)
     const comic = await page.evaluate(() => {
       const apertadas = [];
       const paginas = document.querySelectorAll('.qQuadro');
@@ -1975,7 +2128,7 @@ async function abrirMenuParado(page) {
       await page.evaluate(function (t) {
         fecharTelas(); eval(t.mostra); abrirTela(t.id);
       }, t);
-      await page.waitForTimeout(500);
+      await telaParada(page, t.id);                          // era waitForTimeout(500)
       const r = await page.evaluate(function (t) {
         const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
         const tela = document.getElementById(t.id);
@@ -2007,7 +2160,7 @@ async function abrirMenuParado(page) {
   // devolve a medida da casa antes do bloco 22, que mede JOGO e não tela
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
-  await page.waitForTimeout(400);
+  await hudNoLugar(page);                                    // era waitForTimeout(400)
 
   // ============================================================
   // 22 · PALMARES: UM TOQUE ACOLHE — e nada ali é gramática de combate
@@ -2126,7 +2279,7 @@ async function abrirMenuParado(page) {
   // devolve a medida da casa: o que vier depois continua medindo o que sempre mediu
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
-  await page.waitForTimeout(400);
+  await hudNoLugar(page);                                    // era waitForTimeout(400)
 
   // ============================================================
   // 23 · OS MARCOS NO CHÃO EM TODO CAPÍTULO — e as três coisas que quebram em silêncio
@@ -2362,7 +2515,7 @@ async function abrirMenuParado(page) {
   }
   await page.evaluate(() => { localStorage.clear(); });
   await recarregar(page);
-  await page.waitForTimeout(600);
+  await jogoPronto(page);                                    // era waitForTimeout(600)
 
   // ============================================================
   // 25 · QUEM FALA FICA COLADA NA CAIXA, EM QUALQUER LARGURA
@@ -2602,7 +2755,7 @@ async function abrirMenuParado(page) {
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
-  await page.waitForTimeout(400);
+  await hudNoLugar(page);                                    // era waitForTimeout(400)
 
   sec('31 · arte recusada que foi refeita não pode esperar em silêncio');
   // O DEFEITO QUE ISTO EXISTE PARA NÃO TER DE NOVO (14/08). Seis artes recusadas por §2 foram

@@ -102,8 +102,43 @@ function lintComentarios() {
   page.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && !/ERR_(TUNNEL|NAME|CONNECTION)/.test(m.text())) errors.push('CONSOLE: ' + m.text()); });
 
+  // ESPERAR O ESTADO, NUNCA O RELOGIO — os tres ajudantes desta casa (23/08).
+  //
+  // O padrao que este arquivo tinha em trinta lugares e o mesmo de todo flake medido aqui:
+  // dormir N milissegundos e supor que a animacao/o boot/a montagem acabaram. Sob carga o
+  // navegador dilata; o relogio nao. Cada teto abaixo e DETECTOR DE TRAVAMENTO, nunca regua
+  // de ritmo — e todos devolvem `false` no estouro em vez de derrubar o teste, para a asserção
+  // de quem chamou continuar sendo quem reprova (a licao 2.8).
+  const esperar = async (fn, ms, arg) => {
+    try { await page.waitForFunction(fn, arg, { timeout: ms || 20000 }); return true; }
+    catch (e) { return false; }
+  };
+  // o boot terminou: `abrirTela("telaMenu")` e a ultima linha do DOMContentLoaded do jogo
+  const bootPronto = () => esperar(() => typeof S !== 'undefined' && typeof fecharTelas === 'function'
+    && !!document.getElementById('telaMenu')
+    && document.getElementById('telaMenu').classList.contains('aberta'), 30000);
+  // uma tela abriu E parou de andar (ou fechou, com `aberta:false`)
+  const telaParada = async (id, aberta) => {
+    const ok = await esperar(([id, ab]) => {
+      const t = document.getElementById(id);
+      return !!t && t.classList.contains('aberta') === ab;
+    }, 20000, [id, aberta !== false]);
+    await page.evaluate(async (id) => {
+      const t = document.getElementById(id);
+      if (!t) return;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const vivas = (t.getAnimations ? t.getAnimations({ subtree: true }) : [])
+        .filter(a => a.animationName !== 'respira' && a.playState !== 'idle')
+        .filter(a => !(a.effect && a.effect.getTiming && a.effect.getTiming().iterations === Infinity))
+        .map(a => a.finished.catch(() => {}));
+      await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
+      await new Promise(r => requestAnimationFrame(r));
+    }, id);
+    return ok;
+  };
+
   await page.goto(file);
-  await page.waitForTimeout(900);
+  await bootPronto();                        // era waitForTimeout(900)
 
   // O menu inicial abre quando nao ha partida, e o teste comeca sempre em partida nova, entao
   // ele cobre a tela e todo tap seguinte cai nele. Nao e bug do jogo: e o teste que precisa
@@ -111,7 +146,7 @@ function lintComentarios() {
   await page.evaluate(() => {
     if (typeof fecharTelas === 'function') fecharTelas();
   });
-  await page.waitForTimeout(150);
+  await telaParada('telaMenu', false);       // era waitForTimeout(150)
 
   // ---- A ARTE QUE CHEGA SOB DEMANDA ----
   // Este bloco vem ANTES de tudo de propósito: ele precisa de uma página recém-aberta, em que
@@ -1870,7 +1905,22 @@ function lintComentarios() {
       return { portaH: rp ? Math.round(rp.height) : 0, sobraDaAba: Math.min.apply(null, abas),
         fechado: Math.round(fechado), cabeca: Math.round(cabeca), vazaH };
     });
-    await page.waitForTimeout(420);                 // 260 ms de transicao, com folga
+    // ERA waitForTimeout(420) "com folga" sobre 260 ms de transicao — 160 ms de margem, que a
+    // maquina cheia come sem dificuldade. E o que se le logo abaixo e uma ALTURA no meio da
+    // transicao: o portao acusaria "abrir cresceu so ate 180px" com o jogo perfeito. Agora
+    // espera-se a promessa `finished` do proprio item, com teto de 20 s como detector de
+    // travamento.
+    await page.evaluate(async () => {
+      const a = document.querySelector('#listaGlossario .glItem.aberto');
+      if (!a) return;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const vivas = (a.getAnimations ? a.getAnimations({ subtree: true }) : [])
+        .filter(x => x.playState !== 'idle')
+        .filter(x => !(x.effect && x.effect.getTiming && x.effect.getTiming().iterations === Infinity))
+        .map(x => x.finished.catch(() => {}));
+      await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
+      await new Promise(r => requestAnimationFrame(r));
+    });
     geo.aberto = await page.evaluate(() => {
       const a = document.querySelector('#listaGlossario .glItem.aberto');
       return a ? Math.round(a.getBoundingClientRect().height) : 0;
@@ -2030,12 +2080,26 @@ function lintComentarios() {
       aberta: document.getElementById('telaFala').classList.contains('aberta') };
     // e o retorno sem solavanco: o primeiro quadro depois de fechar anda um quadro, não um
     // segundo inteiro de chão acumulado
+    // O TEMPO DE CADA UM DOS DOIS QUADROS VAI JUNTO, e é isso que tira a máquina da conta
+    // (23/08). Ver a nota da asserção lá embaixo.
+    //
+    // OS TRÊS QUADROS SÃO DE PROPÓSITO, e o de cima custou uma tentativa: o denominador certo
+    // do primeiro quadro é o intervalo ATÉ O QUADRO ANTERIOR, que é o dt que o motor usa —
+    // não o tempo desde a chamada de `fecharTelas()`. Medindo daquele jeito, um rAF que
+    // disparou 1 ms depois da chamada dava 0,635 px / 1 ms = 0,49 px/ms e o portão reprovava
+    // um jogo perfeito. Fechar DENTRO do quadro de referência põe os dois relógios no mesmo
+    // eixo.
     const salto = await new Promise(res => {
-      const x0 = worldX;
-      fecharTelas();
-      requestAnimationFrame(() => {
-        const x1 = worldX;
-        requestAnimationFrame(() => res({ primeiro: x1 - x0, normal: worldX - x1 }));
+      requestAnimationFrame(() => {                  // quadro N — a referência
+        const x0 = worldX, tA = performance.now();
+        fecharTelas();
+        requestAnimationFrame(() => {                // quadro N+1 — o primeiro depois de fechar
+          const x1 = worldX, tB = performance.now();
+          requestAnimationFrame(() => res({          // quadro N+2 — um quadro normal
+            primeiro: x1 - x0, normal: worldX - x1,
+            ms1: tB - tA, ms2: performance.now() - tB,
+          }));
+        });
       });
     });
     await new Promise(r => setTimeout(r, 200));
@@ -2047,8 +2111,13 @@ function lintComentarios() {
     'impact', (historia.d.total - historia.a.total).toFixed(2), '| day clock',
     (historia.d.relogio - historia.a.relogio).toFixed(2) + 's | objects',
     historia.a.n, '->', historia.d.n, '| screen still open:', historia.d.aberta);
-  console.log('  resume -> first frame', historia.salto.primeiro.toFixed(3), 'px vs a normal frame',
-    historia.salto.normal.toFixed(3), 'px | the parked drop was taken after closing:', historia.dropSaiu);
+  const taxa = (px, ms) => (ms > 0 ? px / ms : 0);
+  const taxa1 = taxa(historia.salto.primeiro, historia.salto.ms1);
+  const taxa2 = taxa(historia.salto.normal, historia.salto.ms2);
+  console.log('  resume -> first frame', historia.salto.primeiro.toFixed(3), 'px in',
+    historia.salto.ms1.toFixed(0) + 'ms (' + taxa1.toFixed(4), 'px/ms) vs a normal frame',
+    historia.salto.normal.toFixed(3), 'px in', historia.salto.ms2.toFixed(0) + 'ms ('
+    + taxa2.toFixed(4), 'px/ms) | the parked drop was taken after closing:', historia.dropSaiu);
   if (!historia.d.aberta) errors.push('the story screen closed on its own during the freeze test');
   if (Math.abs(historia.d.worldX - historia.a.worldX) > 1e-9) errors.push('the world kept scrolling under the story: ' + (historia.d.worldX - historia.a.worldX).toFixed(2) + 'px');
   if (Math.abs(historia.d.total - historia.a.total) > 1e-9) errors.push('impact was earned while the story was talking: ' + (historia.d.total - historia.a.total).toFixed(2));
@@ -2056,9 +2125,48 @@ function lintComentarios() {
   if (Math.abs(historia.d.relogio - historia.a.relogio) > 1e-9) errors.push('the day clock ran under the story: ' + (historia.d.relogio - historia.a.relogio).toFixed(2) + 's');
   if (historia.d.drops !== 1) errors.push('the drop parked under her was collected while she stood still');
   if (!historia.dropSaiu) errors.push('the parked drop stayed glued to the ground after the story closed');
-  // um quadro a 60 fps anda ~0,64 px; um segundo acumulado andaria ~38. Três quadros de folga.
-  if (historia.salto.primeiro > Math.max(historia.salto.normal * 3, 3)) {
-    errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2) + 'px');
+  // ESTA ASSERÇÃO MEDIA A MÁQUINA, E O NÚMERO QUE A DENUNCIOU FOI 9,57 (23/08).
+  //
+  // Ela comparava PIXELS: o primeiro quadro depois de fechar contra um quadro normal, com teto
+  // de 3 px. Sob carga (5 smokes em paralelo mais `test/carga.js`) caiu 1 em 5 rodadas com
+  // "9.57px" — e 9,57 não é coincidência: `src/jogo.ts:15942` limita o dt em 0,25 s, e
+  // 0,25 s de chão dá exatamente 9,565 px. Ou seja, o quadro demorou 250 ms de VERDADE porque a
+  // máquina estava cheia, o motor andou o que devia andar, e o portão chamou isso de defeito.
+  // Pior: o defeito REAL que ele existe para pegar — um segundo parado despejado num quadro —
+  // bate no MESMO limite de 9,565 px. Em pixels, os dois casos são indistinguíveis.
+  //
+  // A separação é a TAXA. O defeito é andar muito por MILISSEGUNDO decorrido, não andar muito:
+  //   · quadro honesto de 250 ms -> 9,565 px / 250 ms = 0,038 px/ms (a velocidade de sempre)
+  //   · um segundo despejado num quadro de 17 ms -> 9,565 / 17 = 0,56 px/ms, quinze vezes mais
+  // O piso absoluto de 0,115 px/ms (três quadros de 60 fps) existe para o caso em que o quadro
+  // "normal" saiu curto demais para servir de régua.
+  //
+  // E ELE MORDE — provado por injeção, que é a lição 2.8 (23/08). Uma cópia deste arquivo com
+  // `worldX += 9.0` logo depois de `fecharTelas()` (um segundo de chão despejado) saiu EXIT 1
+  // com "9.64px in 20ms = 0.4844 px/ms, over the ceiling of 0.1379". Nas 19 leituras honestas
+  // do mesmo dia, sob 5 a 8 smokes em paralelo mais `test/carga.js`, ele reprovou ZERO — e a
+  // regra antiga, aplicada aos MESMOS 19 números, teria reprovado 2 (11%).
+  //
+  // O QA REFEZ ISTO COM BANCADA PRÓPRIA e o par sobreviveu (23/08): com o quadro de referência
+  // esticado para 280 ms, a régua VELHA reprovou um jogo PERFEITO em 6 de 6 leituras e a nova
+  // passou nas 6. E a pergunta que decidia — se a nova protege ou só parece proteger — teve
+  // resposta: a nova pega salto de 3,0 px de forma reprodutível, a velha só a partir de 5,0.
+  // Ficou mais ESTRITA, com zero falso positivo em 9 leituras de dose zero.
+  // E QUANDO ELA FICA CEGA, ELA DIZ (achado do QA, 23/08). Acima de ~83 ms o clamp de 0,25 s
+  // do motor ja saturou os dois casos no mesmo numero, entao a taxa deixa de separar quadro
+  // lento de dt despejado. Isso nao e erro de desenho — e o limite do que da para saber dali.
+  // O defeito seria CALAR: 2 de 6 rodadas sob carga caem nesse regime, e o log verde parecia
+  // uma verificacao feita. Agora ele avisa que naquela rodada nao houve o que verificar.
+  if (historia.salto.ms1 > 83 || historia.salto.ms2 > 83) {
+    console.log('  resume -> AVISO: quadro de ' + Math.round(Math.max(historia.salto.ms1, historia.salto.ms2))
+      + 'ms, acima dos 83ms em que o clamp de dt satura — nesta rodada a regua de taxa nao separa'
+      + ' quadro lento de dt despejado. Nao e reprova; e uma verificacao que nao aconteceu.');
+  }
+  const tetoTaxa = Math.max(taxa2 * 3, 0.115);
+  if (taxa1 > tetoTaxa) {
+    errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2)
+      + 'px in ' + historia.salto.ms1.toFixed(0) + 'ms = ' + taxa1.toFixed(4)
+      + ' px/ms, over the ceiling of ' + tetoTaxa.toFixed(4));
   }
 
   // ============================================================
@@ -2093,15 +2201,18 @@ function lintComentarios() {
   });
   // A HISTÓRIA aberta por TOQUE REAL no botão real — escrever o contador provaria a soma,
   // não o botão (a armadilha do cartão de ritmo, já paga).
+  // CADA TOQUE ESPERA A TELA QUE O ANTERIOR ABRIU — era um relógio entre cada par (150/200/
+  // 150/250 ms), e é o modo de falha mais caro do arquivo: um toque disparado antes de a tela
+  // chegar cai no vazio, o contador não anda, e a asserção acusa o JOGO de não contar.
   await page.tap('#abrirMenu');
-  await page.waitForTimeout(150);
+  await telaParada('telaMenu');
   await page.tap('#btnCompletude');
-  await page.waitForTimeout(200);
+  await telaParada('telaCompletude');
   await page.screenshot({ path: path.resolve(__dirname, 'T1-historia-aberta.png') });
   await page.tap('#btnVoltarComp');
-  await page.waitForTimeout(150);
+  await telaParada('telaMenu');
   await page.tap('#btnConfig');                 // AJUSTES: onde os quatro números aparecem
-  await page.waitForTimeout(250);
+  await telaParada('telaConfig');
   await page.screenshot({ path: path.resolve(__dirname, 'T1-ajustes-retencao.png') });
   const painel = await page.evaluate(() => ({
     historia: R.historia, segundos: R.segundos,
@@ -2109,9 +2220,9 @@ function lintComentarios() {
     gravado: JSON.parse(localStorage.getItem(CHAVE_RET) || '{}')
   }));
   await page.tap('#btnVoltarCfg');
-  await page.waitForTimeout(120);
+  await telaParada('telaMenu');
   await page.tap('#btnJogar');
-  await page.waitForTimeout(250);
+  await telaParada('telaMenu', false);
   console.log('retention -> first 60s taps L/R:', t1.janela.esq + '/' + t1.janela.dir,
     '| after the window:', t1.depois.esq + '/' + t1.depois.dir,
     '| days', t1.dias, '| A HISTÓRIA opened', painel.historia + 'x',

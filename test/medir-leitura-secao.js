@@ -78,7 +78,11 @@ async function carregar(browser, arq, remendo) {
     return route.abort();
   });
   await pg.goto(ORIGEM);
-  await pg.waitForTimeout(400);
+  // ERA waitForTimeout(400) — mesma cura do `medir-plataforma-chrome.js`: o que se mede é
+  // papel e tipografia, e medir antes de a fonte assentar devolve outra altura de linha.
+  await pg.waitForFunction(() => document.readyState === 'complete',
+    null, { timeout: 20000 }).catch(() => {});
+  await pg.evaluate(() => (document.fonts && document.fonts.ready ? document.fonts.ready : null)).catch(() => {});
   return { pg, fontesGoogle };
 }
 

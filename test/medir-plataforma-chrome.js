@@ -71,7 +71,17 @@ async function carregar(browser, arq, W, remendo) {
     return route.abort();
   });
   await pg.goto(ORIGEM);
-  await pg.waitForTimeout(500);
+  // ERA waitForTimeout(500), e o que vem depois mede GEOMETRIA (barra de tábuas, alvo de 44 px
+  // no interruptor) — medida antes de a fonte assentar, ela muda. `readyState` e
+  // `document.fonts.ready` são o estado real; teto de 20 s como DETECTOR DE TRAVAMENTO, nunca
+  // régua de ritmo. Os `.catch` mantêm as asserções de baixo como quem reprova: uma espera que
+  // estoura não pode derrubar o instrumento inteiro (lição 2.8).
+  await pg.waitForFunction(() => document.readyState === 'complete',
+    null, { timeout: 20000 }).catch(() => {});
+  await pg.evaluate(() => (document.fonts && document.fonts.ready ? document.fonts.ready : null)).catch(() => {});
+  // `defora` é da cena do interruptor (entrou na main enquanto isto era escrito): ela cobra que
+  // subir o interruptor para a barra não trouxe rede nenhuma junto. As duas coisas convivem —
+  // o conflito era de texto, não de intenção.
   return { pg, fontesGoogle, defora, erros };
 }
 
