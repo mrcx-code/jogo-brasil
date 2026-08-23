@@ -30,9 +30,18 @@
 //       LIMITE: chave montada em tempo de execucao (concatenacao, template, indireta por
 //       variavel reatribuida) ele NAO resolve — e por isso ele REPROVA ao inves de ignorar.
 //
-// Alem das chaves, ele cobra as duas afirmacoes que o rodape faz sobre COMPORTAMENTO, e cobra na
+// Alem das chaves, ele cobra as afirmacoes que o rodape faz sobre COMPORTAMENTO, e cobra na
 // pratica, nao no texto: o que o rodape diz que some ao sair some mesmo (sair() e chamado de
-// verdade, pelo botao), o que ele diz que fica continua la, e nenhum valor guardado contem o PIN.
+// verdade, pelo botao), o que ele diz que fica continua la, o PIN nao fica guardado nem quando
+// ha sessao viva e valor legado (cena 6), e a fila sobe sozinha quando a rede volta (cena 7).
+//
+// AS CENAS 6 E 7 EXISTEM PORQUE ESTE ARQUIVO JA FALHOU UMA VEZ, E DA FORMA MAIS CONSTRANGEDORA
+// POSSIVEL: o commit que o criou para tirar tres frases falsas do rodape embarcou uma QUARTA
+// frase falsa ("ela sobe sozinha assim que a rede volta" — nao subia) e deixou vivo um PIN em
+// claro num caminho que afirmava ter fechado. As duas passaram porque as cenas de entao cobravam
+// que a FRASE EXISTISSE, nao que ela fosse VERDADE. Lição 2.8 num lugar novo: nao basta o portao
+// morder, ele tem de morder a AFIRMACAO. Toda linha nova de rodape que prometa comportamento
+// precisa de uma cena que exercite esse comportamento pelo caminho da pessoa.
 //
 // COMO VER ELE REPROVANDO (lição 2.8 do EQUIPE.md — instrumento nunca visto reprovando e
 // decoração):
@@ -180,6 +189,11 @@ async function palco(nav, plano) {
   if (plano.pinErros) {
     await ctx.addInitScript(s => localStorage.setItem('mesa-brasil-pin-erros', s), JSON.stringify(plano.pinErros));
   }
+  // O ESTADO HERDADO DE ONTEM: o PIN em claro que o JS da versao anterior gravou. Nao e cenario
+  // inventado — e o que existe hoje na aba do plantao que atravessou um deploy.
+  if (plano.pinRecusadoCru) {
+    await ctx.addInitScript(s => sessionStorage.setItem('mesa-brasil-pin-local-recusado', s), plano.pinRecusadoCru);
+  }
   const pag = await ctx.newPage();
   const erros = [];
   pag.on('pageerror', e => erros.push('pageerror: ' + e.message));
@@ -211,15 +225,39 @@ async function palco(nav, plano) {
       return rota.fulfill({ status: 200, contentType: 'application/json', body: tokenJson('tok-fresco') });
     }
     if (url.indexOf('/auth/v1/logout') >= 0) return rota.fulfill({ status: 204, body: '' });
-    if (req.method() === 'POST' && url.indexOf('/rest/v1/mesa_resposta') >= 0)
+    if (req.method() === 'POST' && url.indexOf('/rest/v1/mesa_resposta') >= 0) {
+      // `plano.escrita` e lido A CADA pedido de proposito: a cena 7 o vira de 'fechada' para
+      // 'ok' no meio, que e como se simula "a rede voltou" sem recarregar nada.
+      if (plano.escrita === 'ok') return rota.fulfill({ status: 201, contentType: 'application/json', body: '' });
       return rota.fulfill({ status: 401, contentType: 'application/json', body: '{"message":"row-level security"}' });
+    }
     return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
 
   await pag.goto(base + CAMINHO, { waitUntil: 'domcontentloaded' });
-  await pag.waitForTimeout(500);
+  if (!await pronta(pag)) parou('a pagina nao terminou a partida em 15 s — nada abaixo mediria o que diz medir');
   return { ctx, pag, erros };
 }
+
+// ESPERA QUE NAO ESTOURA O RELOGIO (emprestada do fila-auth.js): devolve false em vez de derrubar
+// a cena, para a assercao falar em vez de o teste morrer sem dizer por que.
+async function esperar(pag, fn, ms) {
+  const ate = Date.now() + (ms == null ? 8000 : ms);
+  for (;;) {
+    let v = false;
+    try { v = await pag.evaluate(fn); } catch (e) { v = false; }
+    if (v) return true;
+    if (Date.now() > ate) return false;
+    await pag.waitForTimeout(50);
+  }
+}
+
+// A PARTIDA TERMINOU? `data-auth` e escrito por `pintarConta()` dentro do bloco sincrono da
+// partida. Como JS e uma linha so, ve-lo de fora significa que o bloco INTEIRO rodou — inclusive
+// o `lerMarca()` que apaga o PIN herdado. E ancora determinista, nao um `waitForTimeout` no
+// escuro: medido, a carga fria desta pagina levou 4112 ms (a fria; as quentes, 358 a 506 ms), e
+// era exatamente isso que fazia uma espera fixa de 900 ms reprovar a esmo.
+const pronta = pag => esperar(pag, () => !!document.body.getAttribute('data-auth'), 15000);
 
 // Tudo o que a pagina gravou: o que o gravador anotou MAIS o que esta la de fato (Object.keys
 // pega ate o que tenha entrado por atribuicao direta de propriedade).
@@ -236,11 +274,14 @@ const colher = pag => pag.evaluate(() => {
   return { anotadas: anot, presentes, valores: vals };
 });
 
+// Escreve na conversa e ESPERA A RESPOSTA CAIR NA FILA — que e o desfecho de que as cenas
+// dependem quando o servidor recusa. Devolve false se ela nao caiu, para a cena decidir.
 async function falar(pag, texto) {
   await pag.fill('#compor-txt', texto);
   await pag.click('#compor-btn');
-  await pag.waitForTimeout(400);
+  return esperar(pag, () => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length > 0);
 }
+const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length);
 
 (async () => {
   console.log('RODAPE VERDADEIRO — ' + path.relative(process.cwd(), HTML) + (ISCA ? '   [ISCA: ' + ISCA + ']' : ''));
@@ -273,13 +314,17 @@ async function falar(pag, texto) {
   cenas++;
   {
     const { ctx, pag, erros } = await palco(nav, { local: true, pinLocal: PIN_DO_ARQUIVO, senha: 'errada' });
-    await falar(pag, 'resposta que nao sobe, para a fila encher');
+    ok(await falar(pag, 'resposta que nao sobe, para a fila encher'), 'a resposta recusada caiu na fila', 'nao caiu em 8 s');
+    // A marca chega DEPOIS do 400 do /auth (fetch + PBKDF2). Medido: 358 a 506 ms na carga
+    // quente e 4112 ms na fria — por isso se espera pelo FATO, nunca por um relogio.
+    ok(await esperar(pag, () => !!sessionStorage.getItem('mesa-brasil-pin-local-recusado')),
+      'a marca do PIN recusado foi escrita', 'nao apareceu em 8 s');
     const c = await colher(pag);
     const todas = [...new Set([...c.anotadas, ...c.presentes])];
     console.log('    gravou: ' + todas.join(', '));
     for (const t of todas) ok(CONHECIDA(t.split(':')[1]), 'gravou ' + t + ' — e o rodape menciona', 'chave sem frase');
     ok(c.presentes.indexOf('localStorage:mesa-brasil-fila4') >= 0, 'a fila local existe mesmo (a maior das tres)', c.presentes.join(','));
-    ok(c.presentes.indexOf('sessionStorage:mesa-brasil-pin-local-recusado') >= 0, 'a marca do PIN recusado foi escrita', c.presentes.join(','));
+    ok(c.presentes.indexOf('sessionStorage:mesa-brasil-pin-local-recusado') >= 0, 'e ela esta guardada, nao so escrita', c.presentes.join(','));
     // O SEGREDO: nenhum valor guardado pode CONTER o PIN. Era exatamente isto que o item 3 do
     // PENDENTES 60 acusava, e e a unica cena que o prova em vez de acreditar no comentario.
     const comPin = Object.keys(c.valores).filter(k => String(c.valores[k]).indexOf(PIN_DO_ARQUIVO) >= 0);
@@ -298,14 +343,15 @@ async function falar(pag, texto) {
       sessao: { access_token: 'tok-velho', refresh_token: 'ref-velho', expira_em: Date.now() + 3600e3 },
       pinErros: { erros: 3, ate: 0 },
     });
-    await falar(pag, 'uma resposta presa na fila antes de sair');
+    ok(await falar(pag, 'uma resposta presa na fila antes de sair'), 'a resposta recusada caiu na fila', 'nao caiu em 8 s');
     const antes = await colher(pag);
     ok(antes.presentes.indexOf('localStorage:mesa-brasil-sessao1') >= 0, 'antes de sair: a sessao esta la', antes.presentes.join(','));
     ok(antes.presentes.indexOf('localStorage:mesa-brasil-pin-erros') >= 0, 'antes de sair: o contador de erros esta la', antes.presentes.join(','));
     ok(antes.presentes.indexOf('localStorage:mesa-brasil-fila4') >= 0, 'antes de sair: a fila esta la', antes.presentes.join(','));
 
     await pag.click('#conta-btn');            // SAIR — o caminho da pessoa, nao um atalho por dentro
-    await pag.waitForTimeout(400);
+    ok(await esperar(pag, () => document.body.getAttribute('data-auth') === 'fora'),
+      'o clique em Sair foi recebido (a conta volta a "fora")', 'a pagina nao saiu em 8 s');
     const depois = await colher(pag);
     console.log('    depois de sair: ' + depois.presentes.join(', '));
     // SEM ANISTIA (lição 2.8): chave que nem existia antes de sair nao vira "ok" de graca — ela
@@ -331,16 +377,73 @@ async function falar(pag, texto) {
   {
     const { ctx, pag } = await palco(nav, { senha: 'errada' });
     await pag.click('#conta-btn');            // abre o portao de entrada
-    await pag.waitForTimeout(200);
+    await esperar(pag, () => !document.getElementById('login').hasAttribute('hidden'));
     await pag.fill('#login-pin', '12345678');
     await pag.click('#login-entrar');
-    await pag.waitForTimeout(500);
+    ok(await esperar(pag, () => !!localStorage.getItem('mesa-brasil-pin-erros')),
+      'errar o PIN escreve o contador', 'nao apareceu em 8 s');
     const c = await colher(pag);
-    ok(c.presentes.indexOf('localStorage:mesa-brasil-pin-erros') >= 0, 'errar o PIN escreve o contador', c.presentes.join(','));
     for (const t of [...new Set([...c.anotadas, ...c.presentes])])
       ok(CONHECIDA(t.split(':')[1]), 'gravou ' + t + ' — e o rodape menciona', 'chave sem frase');
     const comPin = Object.keys(c.valores).filter(k => String(c.valores[k]).indexOf('12345678') >= 0);
     ok(comPin.length === 0, 'e o PIN digitado nao fica guardado em lugar nenhum', comPin.join(','));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 6
+  console.log('\n[6] O PIN EM CLARO HERDADO MORRE NA PARTIDA — mesmo com sessao viva (B2)');
+  cenas++;
+  // ESTA CENA EXISTE PORQUE O PORTAO FALHOU. Ele foi escrito para o rodape nao mentir e, no
+  // mesmo commit, deixou passar a mentira: a linha 453 promete que "o PIN em si nao fica
+  // guardado", e a limpeza morava dentro de `pinJaRecusado`, que so roda no `autoLoginLocal`,
+  // que desiste na primeira linha quando ha sessao. Com o dono entrado — o estado normal dele —
+  // o segredo herdado de uma aba aberta durante o deploy sobrevivia a toda carga. O erro de
+  // desenho foi cobrar que a FRASE EXISTA em vez de cobrar que ela seja VERDADE.
+  {
+    const { ctx, pag, erros } = await palco(nav, {
+      local: true,
+      sessao: { access_token: 'tok-velho', refresh_token: 'ref-velho', expira_em: Date.now() + 3600e3 },
+      pinRecusadoCru: PIN_DO_ARQUIVO,          // exatamente o que o JS de ontem gravava
+      pinLocal: PIN_DO_ARQUIVO, senha: 'errada',
+    });
+    const c1 = await colher(pag);
+    const comPin1 = Object.keys(c1.valores).filter(k => String(c1.valores[k]).indexOf(PIN_DO_ARQUIVO) >= 0);
+    ok(comPin1.length === 0, 'carga 1 com sessao viva: o PIN herdado NAO esta mais guardado', comPin1.join(','));
+    // E nas cargas seguintes, que foi onde a sonda da seguranca o viu vivo (1, 2 e 3).
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    ok(await pronta(pag), 'a carga 2 terminou a partida', 'nao terminou em 15 s');
+    const c2 = await colher(pag);
+    const comPin2 = Object.keys(c2.valores).filter(k => String(c2.valores[k]).indexOf(PIN_DO_ARQUIVO) >= 0);
+    ok(comPin2.length === 0, 'carga 2: idem — o segredo nao ressuscita', comPin2.join(','));
+    for (const t of [...new Set([...c2.anotadas, ...c2.presentes])])
+      ok(CONHECIDA(t.split(':')[1]), 'gravou ' + t + ' — e o rodape menciona', 'chave sem frase');
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 7
+  console.log('\n[7] "SOBE SOZINHA ASSIM QUE A REDE VOLTA" — a fila drena SEM recarregar (B1)');
+  cenas++;
+  // A outra metade da mesma licao: o rodape passou a PROMETER isto, e a cena 1 so conferia que a
+  // frase estava escrita. Medido pela seguranca com a frase no ar e o codigo sem o ouvinte:
+  // 1 item parado em t+3s, +8s, +16s e +25s, drenando so no reload.
+  {
+    const plano = { escrita: 'fechada' };
+    const { ctx, pag, erros } = await palco(nav, plano);
+    await falar(pag, 'resposta escrita com a rede caida');
+    const presa = await naFila(pag);
+    ok(presa === 1, 'com a rede recusando, a resposta fica na fila local', String(presa));
+
+    plano.escrita = 'ok';                       // a rede voltou
+    await ctx.setOffline(true);
+    await ctx.setOffline(false);                // o evento `online` de verdade, nao um dispatch a mao
+    // Sem reload, sem toque: so o tempo passando. O teto de 8 s e generoso para uma lavagem de
+    // um item e MUITO menor que os 25 s em que a sonda da seguranca viu o item parado — e, o que
+    // importa, ele nao pode virar anistia: sem o ouvinte, a fila nao drena NUNCA sem recarregar,
+    // entao esperar mais nao salvaria o defeito (provado injetando-o: exit 1).
+    const vazia = await esperar(pag, () => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length === 0);
+    ok(vazia, 'a fila subiu sozinha quando a rede voltou — sem recarregar a pagina', 'continua presa depois de 8 s');
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
     await ctx.close();
   }
 

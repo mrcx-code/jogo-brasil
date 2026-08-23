@@ -959,15 +959,24 @@
   // O que se guarda agora e uma DERIVACAO: PBKDF2-SHA256 com sal aleatorio de 16 bytes, pelo
   // `crypto.subtle` do proprio navegador (nada caseiro, nenhuma biblioteca). Ela responde a
   // unica pergunta que a funcao precisa fazer — "este PIN e o mesmo que ja foi recusado?" —
-  // sem guardar a resposta. O sal aleatorio e o que impede a tabela: sem ele, um PIN de oito
-  // digitos e 10^8 hashes, coisa de segundos. Com sal e VOLTAS_PBKDF2 iteracoes, a mesma
-  // varredura custa 10^8 x VOLTAS derivacoes, e deixa de valer a pena para um dado que morre
-  // ao fechar a aba.
+  // sem guardar a resposta.
   //
-  // O CUSTO, dito: derivar leva dezenas de milissegundos, e acontece no maximo uma vez por
-  // carga (so quando ha marca guardada). Onde nao houver `crypto.subtle` (contexto inseguro),
-  // a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga — degradar para o
-  // comportamento antigo e aceitavel; degradar para guardar o segredo nao e.
+  // O VALOR DISSO E CATEGORICO, NAO CRIPTOGRAFICO, e a distincao foi cobrada pela seguranca em
+  // 23/08 — a versao anterior deste comentario sugeria que 60 mil voltas "resolvem", que e a
+  // mesma doenca do rodape: afirmar mais do que se entrega. Os numeros dela: um PIN de oito
+  // digitos e 10^8 candidatos, e varrer todos contra esta marca custa ~17 min de GPU, cerca de
+  // 15 centavos de dolar. Aumentar as voltas nao salva — um dia de GPU exigiria 5,1 milhoes
+  // delas, 2 a 13 s por carga —, e nem faria diferenca, porque um script rodando NESTA pagina
+  // pega o PIN inteiro de graca com um `fetch("/pin-local")`. O que a derivacao entrega, e e
+  // isso que vale: NENHUMA CREDENCIAL EM REPOUSO. Nao ha PIN guardado para vazar num dump de
+  // sessionStorage, num print de devtools ou num relato de bug — e essa e a diferenca de
+  // categoria entre "segredo guardado" e "segredo nao guardado", nao uma dose maior de custo.
+  //
+  // O CUSTO, dito: DUAS derivacoes por carga no pior caso (uma para comparar com a marca
+  // guardada, outra para gravar a marca nova quando o PIN tambem e recusado) — medido em
+  // 51,1 ms, e zero quando nao ha marca guardada. Onde nao houver `crypto.subtle` (contexto
+  // inseguro), a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga — degradar
+  // para o comportamento antigo e aceitavel; degradar para guardar o segredo nao e.
   var PIN_RECUSADO="mesa-brasil-pin-local-recusado";
   var VOLTAS_PBKDF2=60000;
   function subtil(){ try{ return (window.crypto && window.crypto.subtle) || null; }catch(e){ return null; } }
@@ -984,9 +993,14 @@
       .then(function(b){ return emHex(new Uint8Array(b)); })
       .catch(function(){ return null; });
   }
-  // Le a marca guardada. Valor no formato VELHO (o PIN em claro, de uma aba aberta antes desta
-  // versao) nao se le: apaga-se na hora. E o unico jeito de tirar o segredo de uma aba que ja
-  // esta aberta, sem esperar ela fechar.
+  // Le a marca guardada. Valor no formato VELHO (o PIN em claro, escrito pelo JS de ontem numa
+  // aba que ficou aberta durante um deploy) nao se le: apaga-se. Ela e a UNICA que apaga, e por
+  // isso a PARTIDA a chama diretamente — o comentario que estava aqui dizia "apaga-se na hora" e
+  // era falso, achado B2 da seguranca em 23/08: a limpeza so acontecia por dentro de
+  // `pinJaRecusado`, que so roda no `autoLoginLocal`, que desiste na primeira linha quando ha
+  // sessao (`if(!LOCAL || ses) return;`). Com o dono entrado — que e o estado normal dele — o PIN
+  // em claro ficava vivo em toda carga, medido nas cargas 1, 2 e 3, enquanto a linha 453 do
+  // rodape afirmava que o PIN nao fica guardado.
   function lerMarca(){
     var cru=null;
     try{ cru=sessionStorage.getItem(PIN_RECUSADO); }catch(e){ return null; }
@@ -1544,7 +1558,19 @@
   // chama `flush()` de novo, agora com Bearer, e é aí que a resposta presa sai. A ordem inversa
   // não quebraria nada (o `lavando` impede duas lavagens), mas atrasaria a carga da página por
   // uma leitura de disco que não tem nada a ver com desenhar os painéis.
+  // B2 DA AUDITORIA (23/08): a limpeza do formato velho roda AQUI, incondicionalmente, antes de
+  // qualquer desistencia. `lerMarca()` apaga o que nao for {sal, marca} e nao toca no que for —
+  // chama-la na partida e o que faz a promessa do rodape ("o PIN em si nao fica guardado") valer
+  // tambem para a aba que atravessou um deploy com o dono entrado.
+  lerMarca();
   autoLoginLocal();
+  // B1 DA AUDITORIA (23/08): o rodape passou a prometer que a fila "sobe sozinha assim que a rede
+  // volta", e ela NAO subia — `flush()` so era chamado na carga, no login e no auto-login, entao
+  // a resposta ficava presa ate alguem recarregar (medido: 1 item parado em t+3s, +8s, +16s e
+  // +25s com a rede ja de volta). Havia duas saidas, encolher a frase ou cumpri-la; cumprir e a
+  // que serve ao dono, porque o que ele escreveu sobe mais cedo. Uma linha, e ela nao inventa
+  // laco nenhum: a trava do A7 (`lavando`/`relavar`) continua sendo quem impede duas lavagens.
+  window.addEventListener("online", function(){ flush(); });
 })();
 </script>
 </body>

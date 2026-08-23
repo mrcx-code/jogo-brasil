@@ -1847,3 +1847,48 @@ uma linha que nao existe mais, saindo com "envelheceu" (exit 2).
 **Portoes:** `npm test` 0 · `node test/encaixe.js` 0 · `node test/fila-auth.js` 0 (24 cenas, inclusive a
 24, que e a do PIN recusado) · `node test/medir-save-hostil.js` 0 · `node test/medir-telas-altura.js 360
 500 950` 0 · `node test/rodape-verdadeiro.js` 0.
+
+**A SEGURANCA REPROVOU O COMMIT ACIMA (0015e70) COM SONDA PROPRIA, E TINHA RAZAO — 23/08.** O
+commit que existia para tirar tres frases falsas do rodape embarcou uma QUARTA frase falsa e
+deixou vivo um PIN em claro num caminho que ele afirmava ter fechado. Mesma classe de defeito,
+mesmo paragrafo, mesmo dia. Fica escrito porque a licao vale mais que o conserto:
+
+- **B1 — "ela sobe sozinha assim que a rede volta" era falso.** `flush()` so era chamado na carga,
+  no login e no auto-login; nao havia ouvinte de `online`. Medido pela seguranca com a aba aberta e
+  a rede de volta: 1 item parado em t+3s, +8s, +16s e +25s, drenando so no reload. Havia duas
+  saidas — encolher a frase ou cumpri-la. Escolhida a segunda, que e a que serve ao dono:
+  `window.addEventListener("online", function(){ flush(); });` na partida. Uma linha, e a trava do A7
+  (`lavando`/`relavar`) continua sendo quem impede duas lavagens.
+- **B2 — o PIN em claro herdado sobrevivia a toda carga quando havia sessao.** A limpeza morava
+  dentro de `lerMarca()`, chamada so por `pinJaRecusado()`, chamada so por `autoLoginLocal()`, que
+  desiste na primeira linha: `if(!LOCAL || ses) return;`. Com o dono entrado — o estado normal
+  dele — a limpeza nunca rodava; medido presente nas cargas 1, 2 e 3. E a aba que atravessa um
+  deploy roda o JS de ontem, que grava em claro. Conserto: `lerMarca();` na PARTIDA, antes de
+  `autoLoginLocal();`. O comentario que afirmava "apaga-se na hora" foi reescrito para descrever o
+  que o codigo faz.
+- **Nao bloqueantes, tambem corrigidos:** o comentario dizia "no maximo uma derivacao por carga" e
+  sao DUAS no pior caso (medido: 51,1 ms); e o argumento da forca da derivacao passou a dizer o
+  que ela entrega de verdade — **valor CATEGORICO, nao criptografico: nenhuma credencial em
+  repouso**. Os numeros da seguranca: 60.000 voltas contra 10^8 candidatos = ~17 min de GPU, ~15
+  centavos de dolar, e um script na propria pagina pega o PIN inteiro de graca com
+  `fetch("/pin-local")`. As voltas NAO foram aumentadas (um dia de GPU exigiria 5,1 milhoes, 2 a 13 s
+  por carga), e "nao guardar nada" foi recusado pela propria seguranca com argumento: reabre o S4
+  de 22/08 e quebra a asserção do PIN corrigido na cena 24.
+
+**A LICAO, e ela e a parte que vale para as proximas rodadas:** o portao cobrava que a FRASE
+EXISTISSE, nao que ela fosse VERDADE — por isso ele mordeu isca e mutante e deixou passar os dois
+defeitos do mesmo commit. E a lição 2.8 do EQUIPE.md num lugar novo. Duas cenas novas fecham isso,
+e sao a parte mais valiosa desta rodada: **[6]** valor legado em claro + sessao viva (cobra a
+ausencia do PIN nas cargas 1 e 2) e **[7]** fila presa + rede que volta (cobra que ela drene SEM
+recarregar). Ambas vistas reprovando com o defeito injetado: **exit 1**, agora 6 defeitos no
+controle de mordida.
+
+**E uma armadilha de instrumento que apareceu no caminho:** a cena 3 reprovou uma vez sozinha. Em
+vez de repetir ate passar, medi (lição 2.9): a carga FRIA da pagina leva **4112 ms** (a pagina so
+pediu `/pin-local` em +2941 ms), contra 358–506 ms nas quentes, e minhas esperas fixas somavam 900
+ms. Todas as esperas por relogio sairam do arquivo: a partida agora e ancorada em `data-auth`
+(que, sendo escrito no bloco sincrono da partida, prova que `lerMarca()` ja rodou) e o resto espera
+pelo FATO, com teto que devolve false para a assercao falar. Tres execucoes seguidas: 0, 0, 0.
+
+**Portoes da segunda volta:** `node test/rodape-verdadeiro.js` 0 (7 cenas) · `node test/fila-auth.js` 0
+(24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node test/encaixe.js` 0.
