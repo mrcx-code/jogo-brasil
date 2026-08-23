@@ -483,7 +483,7 @@
   {
    "id": "medir-telas",
    "titulo": "A CHEGADA passa da dobra em 6 de 8 telas: rola de 213 a 499 px",
-   "detalhe": "Portao test/medir-telas.js vermelho por defeito real (3 de 10 telas sem problema). UM defeito com SEIS sintomas: a tela final empilha pergunta + tres botoes de volta + os botoes do fim numa coluna que nao cabe. Medido em 23/08 pelo mac-jogo: 360x640 rola 432 · 390x844 rola 442 · 412x915 rola 371 · 430x932 rola 332 · 320x568 rola 499 · 768x1024 rola 213. As duas deitadas passam. Secundarios: perguntaBtn 36x44 em 640x360 (largura, nao altura — a regra base ja tem min-height 44) e a pagina 46 do quadrinho maior que o quadro em 320x568 e 640x360. Ultimo dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6). Aceite: node test/medir-telas.js EXIT REAL 0, com npm test e encaixe seguindo verdes. AVISO: este portao leva mais de 10 minutos para rodar.",
+   "detalhe": "Portao test/medir-telas.js vermelho por defeito real (3 de 10 telas sem problema). UM defeito com SEIS sintomas: a tela final empilha pergunta + tres botoes de volta + os botoes do fim numa coluna que nao cabe. Medido em 23/08 pelo mac-jogo: 360x640 rola 432 · 390x844 rola 442 · 412x915 rola 371 · 430x932 rola 332 · 320x568 rola 499 · 768x1024 rola 213. As duas deitadas passam. Secundarios: perguntaBtn 36x44 em 640x360 (largura, nao altura — a regra base ja tem min-height 44) e a pagina 46 do quadrinho maior que o quadro em 320x568 e 640x360. Ultimo dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6). Aceite: node test/medir-telas.js EXIT REAL 0, com npm test e encaixe seguindo verdes. AVISO: este portao leva mais de 10 minutos para rodar. | FEITO em 23/08: 3/10 -> 10/10. O defeito era do INSTRUMENTO — a regua velha era cega a .cfItem/.cfOp e aprovava 528px de rolagem em 640x360 enquanto reprovava 442 em 390x844. Trocada pela regua alcancavel + orcamento medido. Auditado pelo qa (9 achados, 7 reais, 2 desmentidos dele proprio) e integrado pelo funil. Dividas nomeadas: PENDENTES 75 a 78.",
    "camada": "JOGO",
    "agente": "dev-jogo",
    "banca": "qa",
@@ -492,9 +492,7 @@
     "src/index.html",
     "test/medir-telas.js"
    ],
-   "estado": "em-curso",
-   "maquina": "mac-jogo",
-   "desde": "2026-08-23T19:03:44Z"
+   "estado": "concluido"
   }
  ]
 }
