@@ -1952,3 +1952,41 @@ distinguir "medi zero" de "nao consegui medir" e como o numero enganou.
 Dois defeitos vizinhos, medidos na mesma auditoria: o martelo **nao sai 1 com erro de pagina**
 (5 excecoes injetadas, exit 0) e **nao afere que martelou** (landou 2 toques onde o limpo faz
 15-25, e passou) — um instrumento cuja tese e "bate por 40 s" pode bater duas vezes e absolver.
+
+## 65 — Toda medicao de cor feita com `__cor` desde 21/08 e suspeita — plantao/dev-plataforma
+
+Consequencia do espelho vertical achado em 23/08 (a fórmula lia `altura*(1-fy)` contra um
+`readPixels` que conta de baixo, e devolvia o pixel refletido). O conserto entrou; o que NAO foi
+feito e revisar o que aquela funcao ja tinha afirmado.
+
+Concreto: a tabela do NOTES de 21/08 traz **768×1024 = `#dfcc9e`**, e essa cor **hoje nao sai**
+naquele ponto. Provavel leitura espelhada — e ninguem revisou a tabela.
+
+Vale a pena porque numero errado no diario e pior que numero ausente: ele vira linha de base
+para a proxima comparacao, e a proxima pessoa mede contra uma mentira sem saber.
+
+Duas coisas medidas em 23/08 que ajudam a revisar: a distancia entre o ponto e o reflexo NAO e
+"~10 px" em toda tela — e 10 px em 1366×768, **8 px** em 1024×768 e **87 px** em 768×1024. E o
+sol `0xfff2d8` que o `gerar-territorio.js` afirma ter puxado "15/255 para fora" **nao reproduz**:
+reconstruido no commit `fad3a5d`, o maximo obtido foi 3/255, com espelho ou sem. A causa daquele
+15/255 continua **nao estabelecida** — nao escreva que foi o espelho, porque isso nao foi provado.
+
+## 66 — Ninguem olhava os cartoes de link, e a barra a 1200 px nao e medida por ninguem — qa
+
+Achado pelo QA em 23/08 auditando outra coisa, e ele pegou estrago real: o
+`territorio/compartilhar.jpg` **commitado** saiu com o interruptor de privacidade dentro do
+quadro, e com "A Historia" fora da barra e "Glossario" cortado em "lossario".
+
+Duas lacunas, e as duas continuam abertas depois do conserto daquele cartao:
+
+**(a) O cartao de link e o unico artefato que ninguem reve depois de publicado** — palavras do
+proprio gerador. O robo da rede social busca uma vez e guarda por semanas. O
+`gerar-territorio.js` cobra peso, pinos e WebGL do cartao; nunca cobrou **o que esta no quadro**.
+
+**(b) A barra a 1200 px nao e medida.** O `medir-plataforma-chrome.js` testa 390, 430 e 1366. O
+cartao e 1200 — e foi exatamente ali que a barra perdeu uma tabua, entre dois viewports testados.
+
+O QA escreveu `test/medir-cartao-controle.js` para fechar (a): abre cada secao em 1200×630,
+aplica a MESMA exclusao do gerador dela — com assinatura de fonte, para a tabela nao envelhecer
+calada — e cobra zero controle flutuante no quadro. Visto reprovando: exit 0 na main, exit 1 no
+ramo com o defeito, mais 3 controles injetados. Falta integrar e falta (b).
