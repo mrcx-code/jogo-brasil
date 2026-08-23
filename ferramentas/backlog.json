@@ -429,6 +429,15 @@
       "territorio": "ferramentas/medir-secao.js,ferramentas/chrome-plataforma.js",
       "camada": "plataforma",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim."
+    },
+    {
+      "id": "dashboard-sem-google",
+      "titulo": "O painel e a unica pagina que ainda chama o Google, sob um rodape que diz sem rastreio",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas."
     }
   ]
 }
