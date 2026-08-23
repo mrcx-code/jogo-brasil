@@ -58,10 +58,14 @@ async function recarregar(pg) {
 // Ela é comum às duas variantes de propósito — o que se compara é a espera DE DEPOIS de
 // `fecharTelas()`, e só ela.
 async function jogoPronto(pg) {
-  await pg.waitForFunction(() => typeof S !== 'undefined' && typeof fecharTelas === 'function' &&
-    !!document.getElementById('hudTop') && !!document.getElementById('pdFlor') &&
-    document.getElementById('telaMenu').classList.contains('aberta'),
-    null, { timeout: 30000 });
+  // guarda de `null`: predicado que lanca faz o `waitForFunction` REJEITAR, e a espera vira
+  // no-op silencioso. A mesma linha que o `encaixe.js` levou.
+  await pg.waitForFunction(() => {
+    const m = document.getElementById('telaMenu');
+    return typeof S !== 'undefined' && typeof fecharTelas === 'function' &&
+      !!document.getElementById('hudTop') && !!document.getElementById('pdFlor') &&
+      !!m && m.classList.contains('aberta');
+  }, null, { timeout: 30000 });
 }
 
 // A BARRA DE CIMA VOLTOU? — o estado de que a leitura depende, esperado como estado.

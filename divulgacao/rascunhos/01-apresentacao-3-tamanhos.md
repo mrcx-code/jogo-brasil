@@ -14,7 +14,8 @@ banco e o número muda por commit.
 > estavam aqui até hoje — com um jogo, uma linha do tempo, um glossário com 181 verbetes e as
 > fontes de tudo, abertas.
 
-*(variante ainda mais curta, para bio de rede social, 105 caracteres:)*
+*(variante ainda mais curta, para bio de rede social, 92 caracteres — recontado em 23/08, o
+rascunho original dizia 105 por engano:)*
 > Uma plataforma sobre a história do Brasil — jogo, linha do tempo, glossário, fontes abertas.
 
 ---

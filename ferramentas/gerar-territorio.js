@@ -214,8 +214,9 @@ ${CHROME.barraCss()}
     letter-spacing:-.01em; white-space:nowrap; }
   .fonte { margin:.5rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
   .fonte + .fonte { margin-top:.3rem; }
-${MED.estilo({ cor: '#7a4a13', apagada: 'var(--pedra)' })}  /* no papel do censo a linha da medição
-     é crédito, como as duas fontes acima: mesmo tamanho, mesma cor, sem pedir a vez. */
+${MED.estilo()}  /* no papel do censo a linha da medição é crédito, como as duas fontes acima:
+     mesmo tamanho, mesma cor, sem pedir a vez. As duas cores que esta chamada passava
+     (cor/apagada) vestiam o botão do rodapé, que subiu para a barra em 23/08. */
   #censo .med { margin:.45rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
   #censo .med strong { font-weight:600; color:var(--tinta2); }
 
@@ -657,13 +658,31 @@ function pinoPerto(px, py) {
 }
 /* A COR LIDA DO BUFFER, para o instrumento poder cobrar a paleta travada. Ela re-renderiza
    antes de ler porque o navegador apaga o buffer de desenho ao compor a tela — sem isso, o
-   readPixels devolve preto e o instrumento acusaria uma placa preta que ninguém vê. */
+   readPixels devolve preto e o instrumento acusaria uma placa preta que ninguém vê.
+
+   O EIXO Y DO readPixels CONTA DE BAIXO, e ele ESTAVA ESPELHADO aqui (consertado em 23/08).
+   fx/fy chegam de __centro(), que sai de Vector3.project(): são fração de NDC, e em NDC
+   o y cresce PARA CIMA — fy=1 é o topo da tela. O readPixels do WebGL também conta de
+   baixo, então a linha certa é altura * fy; a linha antiga era altura * (1 - fy), que é a
+   conversão para y de CSS (que conta de cima). O resultado é que o instrumento lia o ESPELHO
+   VERTICAL do ponto pedido, refletido no meio do canvas.
+   POR QUE SÓ O CELULAR RETRATO ACUSOU, e a primeira explicação que escrevi estava ERRADA (o QA
+   cruzado a derrubou com medida): não é "nos outros três a placa nasce no meio". Medida a
+   distância entre o ponto e o reflexo em px de CSS — 1366x768: 10 · 1024x768: 8 · 768x1024:
+   86 · 390x844: 83. Em 768x1024 o reflexo pula tão longe quanto no celular e mesmo assim lê
+   dentro da faixa. O que decide não é a distância absoluta, é ela CONTRA O TAMANHO DA PLACA na
+   altura do ponto: 10/396 = 3% · 8/298 = 3% · 86/288 = 30% · 83/169 = **49%**. Só em 390x844 o
+   reflexo atravessa metade da placa e chega perto da borda sudoeste, onde lia #c9b78b —
+   15/255 fora. Nos outros três ele cai em placa limpa, e o verde era sorte, não saúde.
+   Medido depois do conserto: 0/255 nos quatro. */
 window.__cor = function (fx, fy) {
   render.render(cena, camera);
   const g = render.getContext();
   const px = new Uint8Array(4);
-  g.readPixels(Math.round(render.domElement.width * fx), Math.round(render.domElement.height * (1 - fy)),
-    1, 1, g.RGBA, g.UNSIGNED_BYTE, px);
+  const W = render.domElement.width, H = render.domElement.height;
+  const x = Math.max(0, Math.min(W - 1, Math.round(W * fx)));
+  const y = Math.max(0, Math.min(H - 1, Math.round(H * fy)));   // fy=1 é o TOPO, e o topo do
+  g.readPixels(x, y, 1, 1, g.RGBA, g.UNSIGNED_BYTE, px);        // readPixels é H-1
   return [px[0], px[1], px[2]];
 };
 // a posição do pino em px de CSS — é o que o instrumento (test/ver-territorio.js) precisa para
@@ -830,16 +849,69 @@ ${MED.script('territorio')}
     throw new Error('RECUSADO: só ' + acesos + ' de ' + D.pontos.length
       + ' pinos acesos no instante do print — a brasa não terminou (medido: aos 300 ms são 0, e o JPEG pesa 62 KB)');
   }
-  // O INTERRUPTOR DA MEDIÇÃO SAI DO CARTÃO, e só dele. Num JPEG não há botão para tocar: a
-  // linha de privacidade ali vira ruído no único lugar onde a seção tem 630 px para se
-  // explicar, e ela roubava quatro linhas do painel do censo (medido: o cartão passou de 68
-  // para 79 KB com ela dentro). Não é a linha sumindo — ela está na PÁGINA, que é onde o
-  // botão funciona; é um controle de interface não indo para uma imagem estática. Nenhum
-  // DADO do cartão muda: censo, pinos e fontes continuam vindo da própria página.
-  await pg2.evaluate(() => {
-    const m = document.querySelector('#censo .med');
-    if (m) m.style.display = 'none';
-  });
+  // OS CONTROLES SAEM DO CARTÃO, E A EXCLUSÃO É GENÉRICA E BARULHENTA (revista em 23/08).
+  //
+  // ELA FALHOU UMA VEZ, E EM SILÊNCIO — é por isso que está escrita assim. A versão anterior
+  // escondia "#censo .med", que é o PARÁGRAFO. Bastava enquanto o interruptor morava dentro
+  // dele; no dia em que ele subiu para a barra de tábuas, a exclusão continuou "funcionando" e
+  // parou de excluir o que importava: o JPEG publicado saiu com a tábua MEDIÇÃO/ligada dentro
+  // do quadro e com a barra rolada, comendo "A História" e deixando "lossário". Achado pelo QA
+  // cruzado comparando os dois JPEGs — nenhum portão olhava os cartões de link.
+  //
+  // POR QUE NÃO É A VARREDURA DO cartao-secao.js, que é a das outras três seções: lá o sweep
+  // esconde TUDO que é fixed/sticky, e aqui isso apagaria a página inteira — nesta seção o
+  // "#palco" (o canvas) e o ".env" (a casca do conteúdo) SÃO position:fixed. A generalização
+  // certa aqui não é "tudo o que flutua", é "todo CONTROLE": a frase, o botão pelo MESMO id que
+  // o módulo da medição exporta (nada de string solta que envelhece à parte), o vão que só
+  // existe para reservar lugar a ele, e qualquer coisa que passe a flutuar DENTRO do chrome.
+  //
+  // E ELA GRITA SE NÃO ACHAR NADA: abaixo de dois alvos o build RECUSA. Exclusão que deixa de
+  // excluir tem de quebrar a obra, não a prévia — este é o único artefato que ninguém revê
+  // depois de publicado, porque o robô da rede social busca uma vez e guarda por semanas.
+  const foraDoCartao = await pg2.evaluate((idBotao) => {
+    const ALVOS_CONTROLE = "button, [role=\"button\"], input, select, summary";
+    const fora = [];
+    const esconder = (e, porque) => {
+      if (e && e.style.display !== "none") { e.style.display = "none"; fora.push(porque); }
+    };
+    document.querySelectorAll(".med").forEach((e) => esconder(e, ".med"));
+    esconder(document.getElementById(idBotao), "#" + idBotao);
+    document.querySelectorAll(".vaoMedida").forEach((e) => esconder(e, ".vaoMedida"));
+    // "FLUTUA E CONVIDA O DEDO" — a regra é do instrumento do QA (test/medir-cartao-controle.js)
+    // e é a generalização certa, medida por ele antes de escrita. As duas metades são
+    // necessárias: "flutua" (fixed/sticky) é a marca do que existe para acompanhar a ROLAGEM, e
+    // rolagem é a única coisa que um JPEG não tem; "convida o dedo" é o que impede a varredura
+    // de apagar a página inteira aqui, porque nesta seção o "#palco" (o canvas) e o ".env" (o
+    // envelope) são fixed e não são controle de nada. A varredura corre o BODY, não só a barra:
+    // o próximo controle a flutuar pode não nascer dentro do chrome.
+    document.querySelectorAll("body *").forEach((e) => {
+      const s = getComputedStyle(e);
+      const flutua = s.position === "fixed" || s.position === "sticky";
+      if (flutua && e.matches(ALVOS_CONTROLE)) esconder(e, "controle flutuante: " + (e.id || e.tagName));
+    });
+    // Com o botão e o vão fora, a barra encolheu, e o scroll-padding que existia SÓ para
+    // desviar do botão deixa de ter dono: zerado antes de refazer a rolagem, para o cartão
+    // enquadrar a tábua "você está aqui" como enquadrava antes do interruptor existir.
+    document.querySelectorAll(".barra").forEach((b) => {
+      b.style.scrollPaddingRight = "0px";
+      // ZERAR A ROLAGEM ANTES DE REFAZER, e isto foi MEDIDO: inline:"nearest" nao mexe num
+      // elemento que ja esta inteiro na vista, entao sem esta linha o cartao HERDA o
+      // scrollLeft da carga (calculado com o vao e o scroll-padding ainda de pe) e a barra
+      // sai 7 px mais a esquerda que a do cartao anterior. Do zero, o resultado nao depende
+      // de nada que aconteceu antes.
+      b.scrollLeft = 0;
+    });
+    // refaz a rolagem em vez de herdar um scrollLeft calculado para outra largura.
+    const a = document.querySelector(".barra a.aqui");
+    if (a && a.scrollIntoView) a.scrollIntoView({ inline: "nearest", block: "nearest" });
+    return fora;
+  }, MED.ID_BOTAO);
+  if (foraDoCartao.length < 2) {
+    throw new Error("RECUSADO: a exclusão do cartão achou só " + foraDoCartao.length
+      + " controle(s) [" + foraDoCartao.join(", ") + "] — esperado ao menos a frase e o "
+      + "interruptor. Alguém moveu um controle e o cartão ia sair com ele dentro.");
+  }
+  await pg2.waitForTimeout(120);
   await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });
   await nav2.close();
   if (errosPag.length) throw new Error('RECUSADO: erro na página ao tirar o cartão: ' + errosPag[0]);

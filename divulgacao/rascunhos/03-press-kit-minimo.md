@@ -1,9 +1,15 @@
 # Press-kit mínimo
 
-[PRECISA SIGN-OFF] — para anexar a um e-mail de imprensa de educação/cultura. Todos os números
-abaixo foram conferidos por `curl` direto em `matheusferreira.cc` em 21/08 (ver `divulgacao/
-PLANO.md` §0); reconferir antes de enviar, porque o Glossário está migrando para banco e o
-número de verbetes muda por commit.
+[TEXTO APROVADO PELO DONO em 23/08, em mesa de decisão — perguntado se liberava as 5 peças de
+divulgação ou só a de professores, escolheu liberar as 5. Isso aprova o TEXTO desta peça, que
+reusa o texto-base do rascunho 01 (aprovado em 22/08) sem número, fato histórico ou imagem
+novos. **Isso NÃO aprova canal, data de publicação nem quem posta** — a rodada de ENVIO que usa
+esta peça (ver `PLANO.md` §3) continua precisando do próprio sign-off antes de sair.]
+
+Para anexar a um e-mail de imprensa de educação/cultura. Todos os números abaixo foram
+conferidos por `curl` direto em `matheusferreira.cc`, pela última vez em 23/08 (ver
+`divulgacao/PLANO.md` §0); reconferir de novo antes de enviar, porque o Glossário está migrando
+para banco e o número de verbetes muda por commit.
 
 ---
 
@@ -32,7 +38,7 @@ De Onde Vem); onde há escolha de quem narra, a prioridade é de autoria indíge
 quem pesquisa cada período. O domínio (matheusferreira.cc) é a assinatura do projeto.
 
 *(decidido pelo dono em 22/08: o "quem fez" não nomeia ninguém — a plataforma e o método
-assinam. Resto do press-kit continua [PRECISA SIGN-OFF] antes de qualquer envio.)*
+assinam.)*
 
 ## O que a plataforma leva a sério (a régua, para quem for escrever sobre ela)
 
@@ -63,6 +69,7 @@ assinam. Resto do press-kit continua [PRECISA SIGN-OFF] antes de qualquer envio.
 
 ## Material de apoio
 
-Cartões de imagem (og:image) por seção: porta, jogo e território prontos; A História,
-Glossário e De Onde Vem pendentes de gerar (item `og-image-secoes` do backlog interno) — não
-anexar prints dessas três até o cartão existir.
+Cartões de imagem (og:image) das 6 seções estão no ar desde 23/08 (porta, jogo e território já
+existiam; A História, Glossário e De Onde Vem foram fechados no item `og-image-secoes` do
+backlog interno, confirmado por `curl`: os três respondem 200). Pode anexar prints de qualquer
+seção.

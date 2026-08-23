@@ -110,9 +110,17 @@ async function esperarNaPagina(pg, fn, ms, arg) {
 // condição é o menu ABERTO. Teto de 30 s como DETECTOR DE TRAVAMENTO; devolve `false` no
 // estouro em vez de derrubar o instrumento, para quem chamou decidir.
 async function jogoPronto(pg) {
-  return await esperarNaPagina(pg, () => typeof S !== 'undefined' && typeof fecharTelas === 'function' &&
-    !!document.getElementById('hudTop') && !!document.getElementById('pdFlor') &&
-    document.getElementById('telaMenu').classList.contains('aberta'), 30000);
+  // A GUARDA DE `null` NAO E ZELO — sem ela isto vira NO-OP EM SILENCIO (achado do QA, 23/08).
+  // `waitForFunction` REJEITA quando o predicado lanca, e `esperarNaPagina` engole a rejeicao:
+  // numa pagina sem `#telaMenu`, `.classList` de `null` estoura, a promessa cai no catch e a
+  // espera devolve `false` em ~64 ms sem ter esperado coisa nenhuma. O `bootPronto` do smoke ja
+  // guardava; este nao guardava, e a diferenca era invisivel porque aqui a pagina e sempre o jogo.
+  return await esperarNaPagina(pg, () => {
+    const m = document.getElementById('telaMenu');
+    return typeof S !== 'undefined' && typeof fecharTelas === 'function' &&
+      !!document.getElementById('hudTop') && !!document.getElementById('pdFlor') &&
+      !!m && m.classList.contains('aberta');
+  }, 30000);
 }
 
 // ESPERAR A BARRA DE CIMA VOLTAR PARA A TELA — o conserto do bloco 3 (23/08).

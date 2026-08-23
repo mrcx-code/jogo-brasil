@@ -1,38 +1,53 @@
 # PLANO.md — Divulgação 2026 (rascunho para sign-off)
 
-> Escrito pelo growth em 21/08, backlog `divulgacao-2026`. Nada aqui é publicado — é material
-> para o dono decidir. Ver `EQUIPE.md` e `.claude/agents/growth.md` §"A LEI DO SIGN-OFF".
+> Escrito pelo growth em 21/08, backlog `divulgacao-2026`. Ver `EQUIPE.md` e
+> `.claude/agents/growth.md` §"A LEI DO SIGN-OFF".
+>
+> **ATUALIZADO 23/08 — O TEXTO DAS 5 PEÇAS FOI APROVADO.** Em mesa de decisão, perguntado se
+> liberava as 5 ou só a de professores, o dono escolheu **liberar as 5**. Isso aprova o TEXTO de
+> `01` a `05` (ver §8). **Isso não aprova canal, data de publicação nem quem posta** — cada
+> rodada de ENVIO no §3 (itens 4 a 7) continua precisando do próprio sign-off antes de sair. A
+> LEI DO SIGN-OFF continua de pé: nada vai ao ar sem esse segundo sign-off, explícito, por
+> mensagem do dono.
 
 ## 0. O que já é verdade hoje (medido, não suposto)
 
 Conferido por `curl` direto em `matheusferreira.cc` em 21/08 (o mesmo método da rodada de
 growth anterior — nunca supor):
 
+**Reconferido por `curl` em 23/08** (mesmo método):
+
 | seção | endereço | title | og:image | canonical |
 |---|---|---|---|---|
 | porta | `/` | "BRASIL — uma plataforma de conhecimento" | sim (`/compartilhar.jpg`) | sim |
 | jogo | `/jogo/` | "BRASIL — um jogo sobre a história do Brasil" | sim (`/jogo/compartilhar.jpg`) | — (ver nota) |
 | território | `/territorio/` | "O Território — os lugares da história do Brasil" | sim | sim |
-| A História | `/historia/` | "A História do Brasil — uma linha do tempo" | **não tem** | sim |
-| Glossário | `/glossario/` | "O Glossário do Brasil — as palavras da nossa história" | **não tem** | sim |
-| De Onde Vem | `/de-onde-vem/` | "De Onde Vem — as fontes da história do Brasil" | **não tem** | sim |
+| A História | `/historia/` | "A História do Brasil — uma linha do tempo" | **sim, desde 23/08** (`/historia/compartilhar.jpg`, 200, 83.486 bytes) | sim |
+| Glossário | `/glossario/` | "O Glossário do Brasil — as palavras da nossa história" | **sim, desde 23/08** (`/glossario/compartilhar.jpg`, 200, 83.702 bytes) | sim |
+| De Onde Vem | `/de-onde-vem/` | "De Onde Vem — as fontes da história do Brasil" | **sim, desde 23/08** (`/de-onde-vem/compartilhar.jpg`, 200, 87.538 bytes) | sim |
 
-Números de conteúdo (conferidos na própria página, não redigitados): **181 verbetes** no
-Glossário (subiu de 167 com a migração Avenida A de 21/08 — se citar em texto público, usar
-181, que é o número no ar agora, e reconferir antes de publicar porque o banco pode mudar de
-novo), **61 fontes** em De Onde Vem, **47 momentos com fonte** em A História, **13 capítulos**
-no jogo.
+O que faltava em 21/08 (item `og-image-secoes` do backlog) foi fechado pelo dev-plataforma —
+`ferramentas/backlog.json` registra "INTEGRADO 565a586 e PROVADO por curl: os 3 compartilhar.jpg
+no ar com os bytes do build". Confirmado de novo agora, independente: os três respondem 200.
+
+Números de conteúdo (conferidos na própria página, não redigitados, reconferidos de novo em
+23/08 antes deste sign-off): **181 verbetes** no Glossário (mesmo número de 21/08 — a migração
+Avenida A não mudou o total nesse meio-tempo, mas o número segue variável por commit e pede
+reconferência a cada envio), **61 fontes** em De Onde Vem, **47 momentos, todos os 47 com
+fonte** em A História (a página hoje mostra "47 momentos · 47 com fonte" — o número de momentos
+totais também baixou de 53 para 47 desde a medição de 19/08 no `CLAUDE.md`; os 5 que saíram
+não tinham fonte lida), **13 capítulos** no jogo. Os cinco números que aparecem nas peças 01–05
+batem com o que está no ar hoje.
 
 O domínio próprio (`matheusferreira.cc`) está **no ar desde 10/08** — a plataforma já é
 alcançável e indexável. O que falta não é infraestrutura: é a decisão de **anunciar**. É essa
 distinção que este plano trata como "lançamento de verdade": não é o domínio subir, é o
 primeiro post/e-mail/matéria saírem.
 
-**Faltando antes de qualquer peça que aponte para A História, Glossário ou De Onde Vem:**
-cartão de imagem (og:image) dessas três — já é o item `og-image-secoes` do backlog, livre,
-com o gerador (`gerar-cartoes.js`) pronto do lado do dev-plataforma. Sem isso, um link dessas
-três seções abre feio no WhatsApp — a primeira coisa que qualquer professor ou jornalista vai
-fazer é colar o link numa conversa.
+**Fechado em 23/08:** o que faltava antes de qualquer peça apontar para A História, Glossário
+ou De Onde Vem — o cartão de imagem (og:image) dessas três — está no ar (ver tabela acima). Um
+link dessas três seções agora abre com imagem no WhatsApp, que era o risco que este item
+apontava.
 
 ---
 
@@ -83,13 +98,14 @@ final.
 proposta neste plano:** divulgadores de cultura primeiro, professores depois, imprensa por
 último. O que muda com a decisão é que a ordem deixa de ser proposta do growth e passa a ser
 sequência aprovada; cada rodada continua precisando do próprio sign-off de ENVIO antes de sair
-(aprovar a ordem não aprova o disparo de nenhuma delas).
+(aprovar a ordem não aprova o disparo de nenhuma delas). **Atualização 23/08:** o TEXTO das
+peças usadas nos itens 4 a 7 (rascunhos 01–05) está aprovado (ver cabeçalho deste arquivo e
+§8) — o que falta em cada item abaixo não é mais texto, é canal, data e quem envia.
 
-1. **[interno]** Fechar os cartões og: das 3 seções que faltam (A História, Glossário, De Onde
-   Vem) — sem isso, qualquer link dessas seções compartilhado abre sem imagem.
-2. **[interno]** Fechar o link jogo → plataforma (item `link-jogo-plataforma` do backlog) — hoje
-   quem termina o jogo não tem para onde ir; um professor que jogar primeiro esbarra no mesmo
-   buraco.
+1. **[FEITO — `og-image-secoes` concluído]** Fechar os cartões og: das 3 seções que faltavam (A
+   História, Glossário, De Onde Vem) — confirmado por `curl` em 23/08, ver §0.
+2. **[FEITO — `link-jogo-plataforma` concluído]** Fechar o link jogo → plataforma — integrado
+   (commit `d8efd47`, nota de margem na CHEGADA); quem termina o jogo agora tem para onde ir.
 3. **[FEITO em 22/08]** Aprovar os 3 tamanhos de apresentação (rascunho 01) — é o texto-base que
    todo o resto reusa. O dono aprovou com um ajuste (a 1ª frase troca "da chegada dos povos
    originários até hoje" por "dos povos que já estavam aqui até hoje" — povos originários não
@@ -132,7 +148,8 @@ precisando do texto já aprovado, não de aprovação unitária.
   ou A História).
 - **Qualquer peça que mencione número de verbetes/fontes/momentos**: reconferir no repo antes
   de sair, porque a Avenida A (migração para banco) está em curso e os números mudam por commit
-  — 181 verbetes é o número de HOJE, não uma constante.
+  — 181 verbetes, 61 fontes e 47 momentos são os números de HOJE (reconferidos por `curl` em
+  23/08, ver §0), não uma constante. Reconferir de novo no dia de cada envio.
 
 ---
 
@@ -142,11 +159,11 @@ Os eventos já existentes no PostHog respondem parte disto **sem precisar de nad
 já existe** (`CLAUDE.md` §3): `abriu A HISTÓRIA`, `abriu DE ONDE VEM`, `chegou no capítulo X`,
 `voltou`. Se uma rodada de divulgação sair, a leitura é: pico de aberturas dessas seções no dia
 do envio, e se há retorno (`voltou`) nos dias seguintes — sem saber QUEM veio, só QUANTO.
-As páginas fora do jogo (porta, seções) ainda não emitem evento nenhum (achado do growth em
-21/08, item `posthog-paginas` do backlog, interruptor de privacidade decidido para o rodapé) —
-sem isso, tráfego direto de divulgação é invisível. **Recomendo fechar esse item antes da
-primeira rodada com público (B) ou (C)**, porque são as duas com mais chance de gerar tráfego
-que vale medir.
+**Fechado em 22/08** (item `posthog-paginas` do backlog): as 5 páginas fora do jogo agora
+emitem `secao-aberta`, com interruptor único de privacidade no rodapé — "FECHADO 22/08: 187
+verificações, 3 controles mordendo; adblock/503/mudo = 0 erro; desligado = 0 pedido"
+(`ferramentas/backlog.json`). Tráfego direto de divulgação deixou de ser invisível antes mesmo
+da primeira rodada com público — o que este item recomendava já está pronto.
 
 ---
 
@@ -157,8 +174,9 @@ que vale medir.
 - Nenhum número sem fonte, e todo número de conteúdo (verbetes/fontes/momentos) é conferido no
   repo na data do envio, não copiado deste documento sem checar de novo.
 - "Invasão" ou "chegada", nunca "descobrimento" — em qualquer peça, mesmo as curtas.
-- Nenhuma pessoa viva nomeada que não já esteja no jogo — inclusive o próprio dono: o nome dele
-  no press-kit é uma decisão de representação e fica marcada [PRECISA SIGN-OFF] no rascunho.
+- Nenhuma pessoa viva nomeada que não já esteja no jogo — inclusive o próprio dono: **resolvido
+  em 22/08** — o "Quem fez" do press-kit (rascunho 03) não nomeia ninguém; a plataforma e o
+  método assinam.
 - Nenhuma peça vende o sofrimento histórico como atração ("puxa pelo choque") — a régua é a
   mesma do §2: mostrar para que se saiba, nunca para chocar por chocar.
 
@@ -181,10 +199,17 @@ nova. Isso é tática de execução, não plano; cabe na hora, com o texto já a
 | 04-mensagem-divulgadores-cultura.md | template de DM/e-mail pessoal, um contato por vez | publico (A) |
 | 05-legenda-post-social.md | legenda curta para post de lancamento, 2 tamanhos | quando houver rede aprovada |
 
-Todos marcados [PRECISA SIGN-OFF] onde ha texto a publicar; nenhum sai sem aprovacao por
-mensagem do dono, peca por peca -- aprovar o rascunho 01 nao aprova os demais.
-
 **Atualizado em 22/08:** o rascunho 01 (texto-base) foi aprovado pelo dono, com o ajuste da 1a
-frase (ver secao 3, item 3). Isso NAO aprova o envio de nenhuma peca -- so fixa o texto que as
-demais reusam. O rascunho 03 (press-kit) teve a secao "Quem fez" resolvida pelo dono na mesma
-data (sem nome de pessoa); o resto do press-kit e das demais pecas continua [PRECISA SIGN-OFF].
+frase (ver secao 3, item 3). O rascunho 03 (press-kit) teve a secao "Quem fez" resolvida pelo
+dono na mesma data (sem nome de pessoa).
+
+**Atualizado em 23/08 — TEXTO DAS 5 APROVADO.** Em mesa de decisao, perguntado se liberava as 5
+pecas ou so a de professores, o dono escolheu liberar as 5. Isso aprova o TEXTO de `01` a `05`
+(cada arquivo agora registra isso no proprio cabecalho, no lugar da marca [PRECISA SIGN-OFF]).
+**Isso NAO aprova:** canal, data de publicacao, nem quem posta -- cada rodada de ENVIO (secao 3,
+itens 4 a 7) continua exigindo o proprio sign-off antes de sair. Nenhuma peca foi lida linha a
+linha pelo dono nesta rodada alem do que ja estava fixado em 22/08 (rascunho 01 e o "Quem fez"
+do 03) -- as pecas 02, 04 e 05 reusam esse texto-base sem acrescentar numero, fato historico ou
+imagem novos (conferido pelo growth em 23/08, ver relatorio da rodada), entao nao ha conteudo
+nelas que o dono nao tenha visto em substancia. Se isso mudar numa proxima edicao de qualquer
+peca, a marca [PRECISA SIGN-OFF] volta para o trecho novo.

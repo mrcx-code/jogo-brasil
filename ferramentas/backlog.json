@@ -202,7 +202,9 @@
         "ferramentas/gerar-territorio.js",
         "territorio/"
       ],
-      "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2"
+      "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2",
+      "maquina": "windows-plantao",
+      "desde": "2026-08-23T03:20:00Z"
     },
     {
       "id": "divulgacao-2026",
@@ -403,6 +405,57 @@
       "territorio": [
         "divulgacao/"
       ]
+    },
+    {
+      "id": "robusto-tudo",
+      "titulo": "O teto de 12h do ganho offline NAO aplica: relogio adiantado nao e contido",
+      "detalhe": "Portao test/robusto-tudo.js vermelho por defeito real (exit 1, reproduzido no mac-jogo em 23/08). Medida do QA: 'dt de um carimbo absurdo devia bater no teto de 12h: 0'. E save de jogador, nao estetica — quem adianta o relogio do aparelho ganha o que nao jogou, e depois que a partida grava nao tem volta. Um dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6, que leva o CI de 5 para 12), porque CI que nasce vermelho ensina a ignorar CI. Aceite: node test/robusto-tudo.js com EXIT REAL 0, o teto aplicando sobre carimbo adiantado, e npm test + node test/encaixe.js seguindo verdes.",
+      "camada": "JOGO",
+      "agente": "dev-jogo",
+      "banca": "qa",
+      "territorio": [
+        "src/jogo.ts",
+        "test/robusto-tudo.js"
+      ],
+      "estado": "em-curso",
+      "maquina": "mac-jogo",
+      "desde": "2026-08-23T03:25:36Z"
+    },
+    {
+      "id": "rotulo-medicao-anonima",
+      "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "ferramentas/medir-secao.js,ferramentas/chrome-plataforma.js",
+      "camada": "plataforma",
+      "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim."
+    },
+    {
+      "id": "dashboard-sem-google",
+      "titulo": "O painel e a unica pagina que ainda chama o Google, sob um rodape que diz sem rastreio",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas."
+    },
+    {
+      "id": "recusa-por-desenho-tem-nome",
+      "titulo": "O painel chama recusa por desenho de sem conexao",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado pela seguranca em 23/08 e CONFERIDO NA MAIN, nao no relato: no instante em que o servidor recusa por desenho (HTTP 422), o toast que a pessoa ve e Sem conexao - guardei e reenvio. Frase identica byte a byte no codigo de antes de tudo, entao e PRE-EXISTENTE e o commit do rodape nao piorou -- melhorou, porque antes aquela frase imprecisa era a UNICA coisa que o dono via e a perda vinha depois em silencio; agora ela e seguida, na lavagem seguinte, pelo aviso correto. Conserto de uma linha em cada lugar: registrar() ja sabe distinguir por permanente(st), falta devolver um desfecho proprio para recusa por desenho em vez de cair no generico fila, e dizer() ganhar essa frase."
+    },
+    {
+      "id": "perda-de-resposta-deixa-rastro",
+      "titulo": "O aviso de perda dura 2400 ms e nao sobrevive a tela apagada",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando."
     }
   ]
 }

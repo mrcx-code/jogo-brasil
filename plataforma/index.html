@@ -162,9 +162,7 @@
   footer.rod{max-width:46rem;margin:2.6rem auto 0;padding:1.4rem 1.25rem 3rem;border-top:1px solid var(--linha);
     color:var(--pedra);font-size:.9rem;text-align:center}
   .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }
-  .medBt { font:inherit; color:var(--terra); background:none; border:0; padding:0;
-    border-bottom:1px dotted currentColor; cursor:pointer; }
-  .medBt[aria-pressed="false"] { color:var(--pedra); }
+
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <style id="chrome-plataforma">
@@ -217,6 +215,54 @@
     box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno);
     transform:translateY(1px); text-shadow:0 1px 0 rgba(0,0,0,.6); }
   .barra a.aqui:hover{ filter:none; }
+
+  /* O INTERRUPTOR DA MEDIÇÃO (23/08) — a única tábua que não é link, e a única GRUDADA.
+     POR QUE ELE SUBIU: o jurídico mediu que, no rodapé, ele ficava a 116 telas de rolagem do
+     topo em algumas páginas. O dono decidiu manter a medição ligada por padrão, e a condição
+     para isso ser defensável é desligar ser fácil — o que quer dizer alcançável de qualquer
+     página, sem procurar.
+     POR QUE ELE E STICKY E NAO A SETIMA TABUA DA FILA: a 390 px a barra transborda, e uma sétima tábua no
+     fim nasceria FORA da vista — exatamente o defeito que a .aqui já pagou (ver o
+     scrollIntoView abaixo). Grudado à direita ele fica visível em qualquer posição de rolagem
+     da barra, e sem wrapper nenhum: a barra continua sendo UM elemento, que é o que o
+     areaUtil() do TERRITÓRIO mede e o que o portão conta como uma linha.
+     O CUSTO, DITO: ele cobre ~80 px da direita da barra enquanto ela está rolada; as tábuas
+     por baixo continuam alcançáveis rolando, e nenhuma delas some — só o vão da direita
+     encolhe. Era isso ou a sétima tábua invisível.
+     DUAS LINHAS porque o estado tem de ser LEGÍVEL SEM TOCAR: rótulo fixo em cima, estado
+     embaixo. Alvo >=44x44 como as outras, e sem uma cor nova: ligada é a tábua levantada,
+     desligada é a tábua afundada (a mesma gramática do .aqui). O dourado continua com um
+     significado só — ação e onde-você-está —, então ele não entra aqui. */
+  .barra .medida{ flex:0 0 auto; position:sticky; right:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:44px; min-width:44px; padding:0 11px; border:0; cursor:pointer;
+    color:#fff4e0; border-radius:3px;
+    font-family:"Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4),
+                -9px 0 12px rgba(10,8,6,.55);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s; }
+  .barra .medida .medRot{ font-size:.55rem; line-height:1.1; letter-spacing:.1em;
+    text-transform:uppercase; opacity:.72; }
+  .barra .medida .medEst{ font-size:.78rem; line-height:1.15; font-weight:700; letter-spacing:.01em; }
+  .barra .medida:hover{ filter:brightness(1.08); }
+  .barra .medida:active{ transform:translateY(1px); }
+  .barra .medida[aria-pressed="false"]{
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno),
+                -9px 0 12px rgba(10,8,6,.55); }
+  .barra .medida[aria-pressed="false"] .medEst{ color:#c3b096; }
+  /* O VÃO ATRÁS DO INTERRUPTOR, e ele conserta um defeito que o primeiro print mostrou: na
+     página O TERRITÓRIO a tábua .aqui é a ÚLTIMA, a barra rola até ela na carga, e ela parava
+     EMBAIXO do interruptor grudado — sobrava a letra "O" de "O Território". Ou seja, a mesma
+     falha de "ninguém sabia onde estava" que o scrollIntoView tinha resolvido, de volta por
+     outra porta. São duas peças e as duas são necessárias: o VÃO cria a rolagem extra para
+     existir uma posição em que a última tábua não fica sob o interruptor, e o
+     scroll-padding-right faz o scrollIntoView PARAR nessa posição em vez de encostar a tábua
+     na borda. Sem o vão o navegador grampeia no fim e a tábua volta para baixo do botão. */
+  .barra{ scroll-padding-right:86px; }
+  .barra .vaoMedida{ flex:0 0 78px; }
 </style>
 </head>
 <body>
@@ -227,6 +273,7 @@
       <a href="/glossario" class="tabua">Glossário</a>
       <a href="/de-onde-vem" class="tabua">De Onde Vem</a>
       <a href="/territorio" class="tabua">O Território</a>
+      <button type="button" id="medirBt" class="medida" aria-pressed="true" aria-label="Medição ligada. Toque para desligar." title="A contagem anônima desta plataforma. Vale para o aparelho inteiro, jogo incluído."><span class="medRot" aria-hidden="true">medição</span><span class="medEst" data-estado>ligada</span></button><span class="vaoMedida" aria-hidden="true"></span>
     </nav>
     <script>(function(){try{var a=document.querySelector('.barra a.aqui');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'nearest',block:'nearest'});}catch(e){}})();</script>
 
@@ -298,7 +345,7 @@
 
     <footer class="rod">
       <p>Ninguém descobriu nada — havia gente aqui, com língua, roça, cidade e nome. Esta é a história delas, e a nossa.</p>
-      <p class="med">Esta página conta uma abertura anônima — <strong>qual seção foi aberta</strong>, e nada mais. Sem nome, sem e-mail, sem IP, sem cookie: só um número sorteado que fica neste aparelho. Desligar desliga de verdade, aqui e no jogo. <button type="button" id="medirBt" class="medBt" aria-pressed="true">medição: ligada</button></p>
+      <p class="med">Esta página conta uma abertura anônima — <strong>qual seção foi aberta</strong>, e nada mais. Sem nome, sem e-mail, sem IP, sem cookie: só um número sorteado que fica neste aparelho. O interruptor fica na barra do topo, em toda página. Desligar desliga de verdade, aqui e no jogo.</p>
     </footer>
   </main>
 
@@ -319,7 +366,10 @@
   var CHAVE = "phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG";
   var K_MEDIR = "jogo_brasil_medir", K_ANON = "jogo_brasil_anon";
   var TETO = 4, enviados = 0;
-  // O padrão é LIGADO e o rodapé diz isso na cara. Só a string exata "nao" desliga: um
+  // O padrão é LIGADO, e quem diz isso na cara é o INTERRUPTOR DA BARRA: ele nasce
+  // com "ligada" escrito nele. O rodapé deixou de contar o estado em 23/08, quando o
+  // botão subiu para a barra — lá ele diz onde o controle está, não como ele está.
+  // Só a string exata "nao" desliga: um
   // localStorage adulterado que traga outra coisa erra para o lado de respeitar o que a
   // página MOSTRA, que é o que a pessoa leu.
   var ligado = true;
@@ -370,11 +420,20 @@
         headers: { "Content-Type": "text/plain" }, body: JSON.stringify(corpo) })["catch"](function () {});
     } catch (e) {}
   }
+  // O BOTÃO ESTÁ NA BARRA DO TOPO desde 23/08, e este bloco é a fiação dele. O script vem
+  // depois do <nav>, então o alvo já existe; o `if (!bt)` continua porque uma página futura
+  // pode ter medição sem chrome, e medir nunca pode quebrar por causa de um botão ausente.
   var bt = document.getElementById("medirBt");
   function pintar() {
     if (!bt) return;
-    bt.textContent = ligado ? "medição: ligada" : "medição: desligada";
+    // Só o pedaço do ESTADO é reescrito: o rótulo "medição" fica, e é ele que diz do que
+    // este botão trata quando a barra está rolada e só ele aparece.
+    var est = bt.querySelector("[data-estado]");
+    if (est) est.textContent = ligado ? "ligada" : "desligada";
+    else bt.textContent = ligado ? "medição: ligada" : "medição: desligada";
     bt.setAttribute("aria-pressed", ligado ? "true" : "false");
+    bt.setAttribute("aria-label", ligado ? "Medição ligada. Toque para desligar."
+      : "Medição desligada. Toque para ligar.");
   }
   if (bt) bt.addEventListener("click", function () {
     ligado = !ligado;

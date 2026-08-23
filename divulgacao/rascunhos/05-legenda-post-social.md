@@ -1,7 +1,14 @@
 # Legenda curta para post de rede social (lançamento)
 
-[PRECISA SIGN-OFF] — para quando houver sign-off de abrir/usar uma conta e postar. Não presume
-qual rede; a legenda serve para Instagram/Twitter-X com ajuste de tamanho.
+[TEXTO APROVADO PELO DONO em 23/08, em mesa de decisão — perguntado se liberava as 5 peças de
+divulgação ou só a de professores, escolheu liberar as 5. Isso aprova o TEXTO desta peça, que
+reusa o texto-base do rascunho 01 (aprovado em 22/08) sem número, fato histórico ou imagem
+novos. **Isso NÃO aprova canal, data de publicação nem quem posta** — a rodada de ENVIO que usa
+esta peça (ver `PLANO.md` §3) continua precisando do próprio sign-off antes de sair.]
+
+Para quando houver sign-off de abrir/usar uma conta e postar — essa é uma decisão à parte,
+ainda não dada. Não presume qual rede; a legenda serve para Instagram/Twitter-X com ajuste de
+tamanho.
 
 ---
 

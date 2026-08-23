@@ -1903,3 +1903,203 @@ sem o portao de ferramentas que o arquivo declara.
 O QUE FALTA, e e o que evita a repeticao: uma conferencia de arranque que compare a lista de
 agentes viva com o que ha em `.claude/agents/` e GRITE na diferenca. Hoje o sintoma so aparece
 quando alguem tenta despachar o agente que sumiu — e quem nao tentar, nao descobre.
+
+## 63 — O `abrir.js` afirma por escrito uma garantia FALSA: portas colidem entre copias — plantao/dev
+
+Achado pelo QA em 23/08, medido duas vezes por dois agentes diferentes. O cabecalho do
+`test/abrir.js` diz que "duas copias diferentes nunca pedem a mesma porta". Nao e verdade e nao
+tem como ser: sao **254 vagas** e o problema do aniversario. Medido sobre as raizes vivas do
+disco: **69 raizes, 59 portas distintas, 10 pares colidindo**.
+
+O modo de falha que o arquivo foi escrito para matar — medir o `index.html` de OUTRA arvore,
+sem erro, com print bonito — esta vivo de novo para 20 das 69 copias. Isto e grave porque e
+silencioso: o teste passa, o numero sai, e ele descreve o jogo de outra pasta.
+
+CONSERTO PROPOSTO pelo QA, e ele fecha a categoria inteira em vez do caso: um `GET /__raiz` que
+devolve o caminho servido, e o cliente confere que e a arvore dele antes de medir qualquer
+coisa. E o mesmo remedio que tirou o smoke do `file://` — parar de confiar em suposicao sobre
+o ambiente e PERGUNTAR.
+
+Hoje o `abrir.js` tambem engole `EADDRINUSE` sem checar quem respondeu.
+
+SEGUNDA METADE, ja feita em 23/08: o combustivel era o acumulo de worktrees. Estavam **64
+registrados e 68 copias no disco**; removi 55 worktrees e 68 ramos ja integrados, e sobraram 9.
+Ninguem media nem limpava isso — a limpeza precisa virar rotina, senao volta sozinha.
+
+## 64 — A coluna de heap do `martelo.js` mede o balde do navegador, nao o jogo — qa/dev
+
+Achado pelo QA em 23/08 auditando o instrumento que outro QA tinha acabado de escrever.
+
+`performance.memory` no Chromium do Playwright **sem** `--enable-precise-memory-info` devolve
+constante quantizada: `usedJSHeapSize = 10.000.000`, congelado. Medido: 12 leituras seguidas
+dao **1 valor distinto em 12**; reter **80 MB comprovadamente vivos** move o campo **0,00 MB**;
+com a bandeira, os mesmos 80 MB movem 38,62 MB.
+
+A prova que fecha: injetaram um vazamento de ~2 MB por batida DENTRO do proprio martelo, 36
+batidas em 12 s, e ele imprimiu `DELTA HEAP 0.0 MB` e saiu **0**. Ou seja, o "delta 0,0 MB em
+38 s" nao era medida — era o **unico valor que aquela configuracao podia produzir**, para
+vazamento de qualquer tamanho.
+
+O QUE CONTINUA VALENDO da rodada que usou esse numero: a refutacao de que martelar mata a aba
+se sustenta, porque ela vem de `page.on('crash')` e da ausencia de excecao, que sao sinais
+verdadeiros. So a linha de memoria cai.
+
+CONSERTO: uma linha, `args: ['--enable-precise-memory-info']` — ou tirar a coluna. Enquanto nao
+for feito, **nao cite heap desse instrumento como prova de nada**, e o guarda
+`performance.memory ? ... : 0` precisa parar de imprimir `0.0 MB` quando a API nao existe: nao
+distinguir "medi zero" de "nao consegui medir" e como o numero enganou.
+
+Dois defeitos vizinhos, medidos na mesma auditoria: o martelo **nao sai 1 com erro de pagina**
+(5 excecoes injetadas, exit 0) e **nao afere que martelou** (landou 2 toques onde o limpo faz
+15-25, e passou) — um instrumento cuja tese e "bate por 40 s" pode bater duas vezes e absolver.
+
+## 65 — Toda medicao de cor feita com `__cor` desde 21/08 e suspeita — plantao/dev-plataforma
+
+Consequencia do espelho vertical achado em 23/08 (a fórmula lia `altura*(1-fy)` contra um
+`readPixels` que conta de baixo, e devolvia o pixel refletido). O conserto entrou; o que NAO foi
+feito e revisar o que aquela funcao ja tinha afirmado.
+
+Concreto: a tabela do NOTES de 21/08 traz **768×1024 = `#dfcc9e`**, e essa cor **hoje nao sai**
+naquele ponto. Provavel leitura espelhada — e ninguem revisou a tabela.
+
+Vale a pena porque numero errado no diario e pior que numero ausente: ele vira linha de base
+para a proxima comparacao, e a proxima pessoa mede contra uma mentira sem saber.
+
+Duas coisas medidas em 23/08 que ajudam a revisar: a distancia entre o ponto e o reflexo NAO e
+"~10 px" em toda tela — e 10 px em 1366×768, **8 px** em 1024×768 e **87 px** em 768×1024. E o
+sol `0xfff2d8` que o `gerar-territorio.js` afirma ter puxado "15/255 para fora" **nao reproduz**:
+reconstruido no commit `fad3a5d`, o maximo obtido foi 3/255, com espelho ou sem. A causa daquele
+15/255 continua **nao estabelecida** — nao escreva que foi o espelho, porque isso nao foi provado.
+
+## 66 — Ninguem olhava os cartoes de link, e a barra a 1200 px nao e medida por ninguem — qa
+
+Achado pelo QA em 23/08 auditando outra coisa, e ele pegou estrago real: o
+`territorio/compartilhar.jpg` **commitado** saiu com o interruptor de privacidade dentro do
+quadro, e com "A Historia" fora da barra e "Glossario" cortado em "lossario".
+
+Duas lacunas, e as duas continuam abertas depois do conserto daquele cartao:
+
+**(a) O cartao de link e o unico artefato que ninguem reve depois de publicado** — palavras do
+proprio gerador. O robo da rede social busca uma vez e guarda por semanas. O
+`gerar-territorio.js` cobra peso, pinos e WebGL do cartao; nunca cobrou **o que esta no quadro**.
+
+**(b) A barra a 1200 px nao e medida.** O `medir-plataforma-chrome.js` testa 390, 430 e 1366. O
+cartao e 1200 — e foi exatamente ali que a barra perdeu uma tabua, entre dois viewports testados.
+
+O QA escreveu `test/medir-cartao-controle.js` para fechar (a): abre cada secao em 1200×630,
+aplica a MESMA exclusao do gerador dela — com assinatura de fonte, para a tabela nao envelhecer
+calada — e cobra zero controle flutuante no quadro. Visto reprovando: exit 0 na main, exit 1 no
+ramo com o defeito, mais 3 controles injetados. Falta integrar e falta (b).
+
+## 67 — O portao do cartao cobra ESFORCO, nao RESULTADO — e ha caminho de volta com os dois verdes — qa/dev-plataforma
+
+Achado pelo QA em 23/08, na re-auditoria que APROVOU o conserto do cartao. Nao bloqueou porque
+o artefato de hoje esta certo; entra aqui porque a FORMA do portao deixa o mesmo defeito voltar.
+
+O gerador do TERRITORIO passou a recusar construir se a exclusao do cartao esconder **menos de
+2** controles. Isso cobra quantos nos foram escondidos — esforco —, nao se **sobrou** controle no
+quadro — resultado.
+
+O QA reproduziu o caminho de volta, e ele nao e rebuscado: **alguem envolve o interruptor num
+`span` com `position:sticky`, o botao passa a `position:static` e muda de id.** Medido na pagina
+do ramo: a exclusao ainda esconde `.med` e `.vaoMedida`, dois nos, entao o `throw` **deixa
+passar**; o `medir-cartao-controle.js` devolve lista vazia e **aprova**; e o botao fica em
+**x=331, y=31, 72x44, dentro do quadro e por cima**, com `elementFromPoint` acertando nele. O
+print mostra "MEDICAO / ligada" tapando "O Territorio" ate sobrar a letra O. **E o defeito de
+23/08 de volta, com os dois portoes verdes.**
+
+CONSERTO VOTADO PELO QA, e nao e mexer no numero: trocar a contagem por uma **pos-condicao**.
+Depois de excluir, o gerador rele o quadro com a MESMA leitura do instrumento e recusa se sobrou
+qualquer controle; e recusa tambem se um alvo nomeado (`MED.ID_BOTAO`, a frase) **existe na
+pagina e nao saiu**. Sao ~6 linhas reaproveitando codigo que ja esta escrito, e ficam imunes a
+renome, a involucro e a contagem.
+
+## 68 — A lista de alvos e a mesma no gerador e no instrumento, e por isso os dois tem o MESMO buraco — qa/dev-plataforma
+
+Segundo achado da mesma re-auditoria, e o dev tinha declarado a duvida antes de alguem perguntar
+— manteve a lista identica de proposito, para as duas nao divergirem. O QA votou o contrario, e
+com medida.
+
+A lista e `button, [role=button], input, select, summary`. O QA grudou na barra uma
+`div class="qaDiv" onclick tabindex="0"`: a exclusao do gerador **nao a retira**, o instrumento
+com a lista identica **nao a ve**, e uma lista paranoica (mais `[onclick]`,
+`[tabindex]:not([tabindex="-1"])`, `[contenteditable]`, `label`, `a[href]` fora da barra)
+**acha**, em 33,31 42x44.
+
+O ARGUMENTO, e ele vale alem deste arquivo: lista compartilhada da **um lugar para consertar** e
+**um buraco para os dois**. E a mesma forma do defeito da semana — a regua e a coisa regulada
+partilhando a suposicao. O medo de divergir ja esta resolvido pelo mecanismo de **assinatura**
+que o instrumento tem: se o gerador mudar de regra, o teste reprova dizendo que a tabela
+envelheceu, em vez de aprovar calado.
+
+REGRA PROPOSTA: **instrumento estritamente mais largo que o gerador.** Quando ele reprovar algo
+que o gerador nao pega, o gerador se alarga. Um instrumento que so pode confirmar o gerador nao
+e um segundo par de olhos. Medido que alargar e seguro: com a lista paranoica, as quatro paginas
+intactas continuam devolvendo lista vazia.
+
+## 69 — A `regua-larga.js` recebeu METADE da cura, e mede um layout que ainda esta assentando — qa/dev-jogo
+
+Achado pelo QA em 23/08, auditando a varredura de intermitencia. **Nao bloqueou**, e a razao esta
+medida abaixo — mas e margem perdida que ninguem pediu.
+
+A varredura trocou o relogio da regua por espera de estado, so que pela metade: ela espera o
+`#telaMenu` ganhar a classe `aberta` e **nao** espera as animacoes. O `estilo.css:587` roda
+`brota .42s` em `#telaMenu.aberta > *`, com `.12s` de atraso no terceiro filho — a mobilia so
+para em ~540 ms.
+
+Medido nas SEIS telas que a regua julga: a espera nova resolve em **81 a 301 ms**, com **4
+animacoes ainda correndo**, e o `#btnConfig` — o botao que a regua julga — esta de **18 a 223 px**
+da posicao final:
+
+| tela | na espera nova | depois | delta | cabia direto |
+|---|---:|---:|---:|---|
+| tablet retrato 768x1024 | 978 | 960 | -18 | sim -> sim |
+| tablet paisagem 1024x768 | 739,7 | 713,7 | **-26** | **nao -> sim** |
+| notebook 1366x768 | 804,8 | 713,8 | **-91** | **nao -> sim** |
+| landscape 899x500 | 427,5 | 409,5 | -18 | sim -> sim |
+| telefone deitado 926x428 | 597 | 374 | **-223** | **nao -> sim** |
+| ultrawide 1920x1080 | 931,4 | 913,4 | -18 | sim -> sim |
+
+Em **3 de 6 telas o caminho julgado mudou**: o portao passa pelo ramo de resgate por rolagem
+onde antes o botao cabia direto.
+
+POR QUE NAO BLOCKEOU: A/B da regua do ramo contra uma copia com o `waitForTimeout(1400)` de volta
+deu **exit 0 nos dois, saida identica linha a linha em 3 de 3 pares sob carga** — e a nova e bem
+mais rapida (26-34 s contra 47-52 s). **Perda de margem provada, regressao de resultado nao.**
+
+O PERIGO E FUTURO, e por isso vale o item: o dia em que alguem acrescentar uma assercao de
+geometria vertical ali, ela estara medindo um layout que ainda esta assentando. O conserto e o
+mesmo `telaParada()` que o `encaixe.js` ja usa — e o cabecalho do proprio encaixe, de 21/08,
+chama a versao sem espera de animacao de "portao que era cara ou coroa".
+
+## 70 — Tres cegueiras de instrumento que o QA nomeou e ninguem esta olhando — qa/dev-jogo
+
+Todas de 23/08, todas medidas, nenhuma bloqueou a entrega.
+
+**(a) O `jogoPronto` vira no-op de 64 ms na pagina errada.** Ele nao guarda contra `null` antes de
+ler o `#telaMenu`, e o `waitForFunction` **REJEITA no primeiro predicado que lanca** — provado por
+sonda: `false` em 334 ms contra 4168 ms quando a condicao e so *falsa*. Numa pagina com `#hudTop`
+e `#pdFlor` mas **sem** `#telaMenu`, a espera devolve false em 64 ms. Essa pagina nao e hipotese:
+e o 404 que o `abrir.js` serviu nas 16 h de CI vermelho de 20/08. Nao esconde defeito do jogo (as
+assercoes seguintes caem), mas troca "estou apontado para a pagina errada" de um timeout
+barulhento por um false rapido e mudo. **O mesmo autor acertou isso no `bootPronto` do smoke** —
+e uma linha.
+
+**(b) A regua de taxa e infalsificavel quando o quadro passa de 83 ms, e nao avisa.** O teto e
+`0,115 x ms1`, e como o motor nunca avanca mais de 9,5655 px por `dt`, a assercao so consegue ver
+defeito enquanto `ms1 < 83 ms`. Medido sob carga: ms1 = 22, 27, **167**, **123**, 45, 34 — **2 de
+6 rodadas (33%) no regime cego**. Nao e erro de desenho, porque ali o clamp torna bom e ruim o
+mesmo numero; o defeito e o teste **calar** sobre isso. Numa maquina de CI cronicamente lenta a
+assercao fica muda para sempre. Um `console.log` de "quadro longo demais para julgar" resolve.
+
+**(c) O `fila-auth.js` NAO e paralelizavel, e quem usar o `repetir.js` nele mede a coisa errada.**
+As cenas 23 e 24 escrevem `test/tmp-pin-local-*.txt` com nome **fixo**, entao rodar N em paralelo
+mede colisao de arquivo, nao intermitencia. Junto: o QA achou **1 falha em 35 rodadas em fila
+(2,9%)** e **nao conseguiu reproduzir em 32 tentativas seguintes** — a assercao culpada fica **NAO
+PROVADA**, e fica registrado que o "0 de 6" que justificou nao tocar o arquivo era amostra pequena
+demais.
+
+**Sobra tambem:** 21 relogios ainda no `smoke.js` (30 na main), e pelo menos um trava pelo
+mecanismo que a varredura chamou de o mais caro do arquivo — `tap('#openUpgrades')` seguido de
+`waitForTimeout(350)` e tres toques com 80 ms entre eles, julgados por "some upgrade did not
+apply". Mesmo arquivo, mesma doenca, intocada.

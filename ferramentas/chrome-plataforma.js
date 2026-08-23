@@ -13,6 +13,9 @@
 // nova, sem blob commitado, regenerável. O fallback é sempre `none`, então nada some se algo
 // falhar.
 const zlib = require('zlib');
+// O INTERRUPTOR DA MEDIÇÃO É UMA TÁBUA DESTA BARRA desde 23/08 — a roupa é daqui, a fiação é
+// do módulo da medição. Ver `botaoHtml()` lá e `.barra .medida` no `barraCss()` aqui.
+const MED = require('./medir-secao.js');
 
 // ---- os tokens EXATOS (arte, 22/08) — os mesmos que a página O TERRITÓRIO já usava ----
 const TOKENS = {
@@ -208,11 +211,60 @@ function barraCss() {
     box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno);
     transform:translateY(1px); text-shadow:0 1px 0 rgba(0,0,0,.6); }
   .barra a.aqui:hover{ filter:none; }
+
+  /* O INTERRUPTOR DA MEDIÇÃO (23/08) — a única tábua que não é link, e a única GRUDADA.
+     POR QUE ELE SUBIU: o jurídico mediu que, no rodapé, ele ficava a 116 telas de rolagem do
+     topo em algumas páginas. O dono decidiu manter a medição ligada por padrão, e a condição
+     para isso ser defensável é desligar ser fácil — o que quer dizer alcançável de qualquer
+     página, sem procurar.
+     POR QUE ELE E STICKY E NAO A SETIMA TABUA DA FILA: a 390 px a barra transborda, e uma sétima tábua no
+     fim nasceria FORA da vista — exatamente o defeito que a .aqui já pagou (ver o
+     scrollIntoView abaixo). Grudado à direita ele fica visível em qualquer posição de rolagem
+     da barra, e sem wrapper nenhum: a barra continua sendo UM elemento, que é o que o
+     areaUtil() do TERRITÓRIO mede e o que o portão conta como uma linha.
+     O CUSTO, DITO: ele cobre ~80 px da direita da barra enquanto ela está rolada; as tábuas
+     por baixo continuam alcançáveis rolando, e nenhuma delas some — só o vão da direita
+     encolhe. Era isso ou a sétima tábua invisível.
+     DUAS LINHAS porque o estado tem de ser LEGÍVEL SEM TOCAR: rótulo fixo em cima, estado
+     embaixo. Alvo >=44x44 como as outras, e sem uma cor nova: ligada é a tábua levantada,
+     desligada é a tábua afundada (a mesma gramática do .aqui). O dourado continua com um
+     significado só — ação e onde-você-está —, então ele não entra aqui. */
+  .barra .medida{ flex:0 0 auto; position:sticky; right:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:44px; min-width:44px; padding:0 11px; border:0; cursor:pointer;
+    color:#fff4e0; border-radius:3px;
+    font-family:"Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4),
+                -9px 0 12px rgba(10,8,6,.55);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s; }
+  .barra .medida .medRot{ font-size:.55rem; line-height:1.1; letter-spacing:.1em;
+    text-transform:uppercase; opacity:.72; }
+  .barra .medida .medEst{ font-size:.78rem; line-height:1.15; font-weight:700; letter-spacing:.01em; }
+  .barra .medida:hover{ filter:brightness(1.08); }
+  .barra .medida:active{ transform:translateY(1px); }
+  .barra .medida[aria-pressed="false"]{
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno),
+                -9px 0 12px rgba(10,8,6,.55); }
+  .barra .medida[aria-pressed="false"] .medEst{ color:#c3b096; }
+  /* O VÃO ATRÁS DO INTERRUPTOR, e ele conserta um defeito que o primeiro print mostrou: na
+     página O TERRITÓRIO a tábua .aqui é a ÚLTIMA, a barra rola até ela na carga, e ela parava
+     EMBAIXO do interruptor grudado — sobrava a letra "O" de "O Território". Ou seja, a mesma
+     falha de "ninguém sabia onde estava" que o scrollIntoView tinha resolvido, de volta por
+     outra porta. São duas peças e as duas são necessárias: o VÃO cria a rolagem extra para
+     existir uma posição em que a última tábua não fica sob o interruptor, e o
+     scroll-padding-right faz o scrollIntoView PARAR nessa posição em vez de encostar a tábua
+     na borda. Sem o vão o navegador grampeia no fim e a tábua volta para baixo do botão. */
+  .barra{ scroll-padding-right:86px; }
+  .barra .vaoMedida{ flex:0 0 78px; }
 `;
 }
 
-// A fileira de tábuas. `atual` marca a pressionada: porta | jogo | historia | glossario |
-// de-onde-vem | territorio. JOGAR é sempre a primeira depois da marca (5/5 páginas).
+// A fileira de tábuas. atual marca a pressionada: porta | jogo | historia | glossario |
+// de-onde-vem | territorio. JOGAR é sempre a primeira depois da marca (5/5 páginas), e o
+// INTERRUPTOR DA MEDIÇÃO é sempre o último — grudado à direita, em 5/5 (ver .barra .medida).
 function barraHtml(atual) {
   const marcado = (k) => (k === atual ? ' aqui' : '');
   const tabuas = [
@@ -233,6 +285,7 @@ function barraHtml(atual) {
   return `    <nav class="barra" aria-label="Seções da plataforma BRASIL">
       <a href="/" class="marca${marcado('porta')}">BRASIL</a>
 ${linhas}
+      ${MED.botaoHtml()}<span class="vaoMedida" aria-hidden="true"></span>
     </nav>
     <script>(function(){try{var a=document.querySelector('.barra a.aqui');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'nearest',block:'nearest'});}catch(e){}})();</script>`;
 }

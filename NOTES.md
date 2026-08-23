@@ -9748,3 +9748,104 @@ prioridade cai*). E a **repaginação visual**, que o dono abriu e ainda dirige:
 Lovable como exploração, a tentativa própria (`salvador-1835`) recusada por ele. A tese que
 sobreviveu é o **Futurismo Ancestral** — Krenak (*Futuro Ancestral*, 2022), Denilson Baniwa,
 Jaider Esbell, Rosana Paulino. Nada disso encosta no jogo sem passar pelo dono: é §2.
+
+---
+
+### 23/08 — o interruptor de privacidade sobe para o chrome, e o quarto vermelho do TERRITÓRIO era um Y espelhado (dev-plataforma, worktree)
+
+**1. O interruptor da medição virou uma tábua da barra, nas cinco páginas.** O número que pediu:
+o parecer do jurídico mediu que ele estava a **116 telas de rolagem** do topo em algumas páginas
+— existia, funcionava (o `medir-paginas.js` prova zero pedido depois de desligar) e ninguém o
+achava. O dono decidiu **manter a medição LIGADA por padrão**, e a condição que ele pôs para isso
+ser defensável é desligar ser fácil. Feito no `chrome-plataforma.js` (a roupa) + `medir-secao.js`
+(a fiação), então nasce igual em porta · A HISTÓRIA · glossário · DE ONDE VEM · O TERRITÓRIO.
+Medido nas 5 páginas × 3 larguras (390/430/1366): alvo **71,6×44 px** (mínimo 44), elementFromPoint
+acerta 15/15, **um só** `#medirBt` no documento, **zero** botão sobrando no rodapé, zero rolagem
+horizontal, zero fonte de rede nova. O estado é legível sem tocar: rótulo "medição" em cima,
+"ligada"/"desligada" embaixo, com `aria-pressed` concordando. **A preferência continua sendo UMA**
+(`jogo_brasil_medir`, a mesma do jogo).
+
+**Duas coisas que só o print mostrou, e as duas viraram linha de portão:** a tábua **"você está
+aqui"** de O TERRITÓRIO ficava EMBAIXO do interruptor grudado (sobrava a letra "O" de "O
+Território") — consertado com um vão de 78 px no fim da barra + `scroll-padding-right`, e cobrado
+agora; e a porta tinha uma **cópia byte a byte** do bloco de medição dentro do
+`plataforma/molde.html` (73 linhas, com chave, host e teto repetidos) — virou
+`{{MEDICAO}}`/`{{MED_RODAPE}}`/`{{MED_ESTILO}}` preenchido pelo `gerar-porta.js` a partir do
+módulo único.
+
+**2. O quarto vermelho do `ver-territorio.js` era a PÁGINA, e o defeito é de uma linha.** O QA
+reproduziu 2/2: em 390×844 o topo saía `#c9b78b`, **15/255** fora da faixa travada; nos outros três
+viewports, 0/255. Diagnóstico com o estado impresso antes do segundo palpite (lição 2.9): o
+`window.__cor` do gerador lia `altura * (1 - fy)`, que é y de CSS (conta de cima), enquanto o
+`readPixels` do WebGL **conta de baixo** e o `fy` vem de `Vector3.project()` (NDC, y para cima).
+O instrumento lia o **espelho vertical** do ponto pedido. O erro vale o dobro da distância entre a
+placa e o meio da tela: nos três viewports largos a placa nasce a ~10 px do meio e o espelho caía
+sobre ela mesma (verde por sorte); em 390×844 a placa vive na faixa entre o cabeçalho e o painel do
+censo, centro em y=388 de 844, e o espelho ia parar em **y=456**, quase na borda sudoeste.
+Medido antes → depois: `#c9b78b` (15/255) → **`#e9d8ae` (0/255)** em 390×844, e 0/255 nos quatro.
+**A faixa não foi alargada em um bit.**
+
+**3. Duas coisas que a investigação encontrou de brinde, e ficam medidas.** (a) Ler **um pixel** era
+loteria contra o grão: num retalho de 21×21 em volta do centro, **1,8%** dos pixels estão fora da
+faixa em 390×844, 4,8% em 1366×768, 5,9% em 768×1024, 5,7% em 1024×768 — poro e cisco da Onda 11,
+que são fora da faixa **de propósito**. A leitura passou a ser a **mediana de 5×5**; a régua é a
+mesma. (b) Varrida a sensibilidade real dessa régua: sol `0xfff2d8` → 0/255 (passa), `0xffe8c0` →
+0/255 (passa), `0xffd28c` → 17/255 (reprova); luz somando 0,90 → 0/255 (passa), 0,78 → 7/255
+(reprova). Ou seja, ela pega desvio da ordem de **10% na tela**, não os 6% que o cabeçalho dizia —
+e o sol `0xfff2d8` que o gerador diz ter sido pego "15/255 fora" **não reproduz** hoje no ponto
+lido, provavelmente porque foi medido com o `__cor` espelhado. Corrigido no comentário dos dois
+arquivos, sem reescrever a história.
+
+**Portões (exit code real):** `npm test` 0 · `encaixe` 0 · `medir-save-hostil` 0 ·
+`medir-telas-altura 360 500 950` 0 · `medir-paginas` 0 (187) · `medir-porta-secao` 0 ·
+`medir-leitura-secao` 0 · `medir-plataforma-chrome` 0 (**226 verificações, 9/9 controles**) ·
+`ver-territorio` 0 (**3/3 controles de cor**). O `smoke.js` falhou **uma vez** por tempo de relógio
+("closing the story handed a huge dt": 7,01 px contra 1,27 px na repetição) e passou nas quatro
+rodadas seguintes, sem nada de `src/` ter sido tocado — fica registrado como intermitente.
+
+**CORREÇÃO DA ENTRADA ACIMA — o QA cruzado auditou o commit 73d895a e reprovou.** Fica como
+correção e não como reescrita, porque apagar o que eu afirmei errado tira do próximo a chance de
+ver o erro. O que sustentou: o espelho (confirmado 4/4 com verdade de terra — `drawImage` do
+palco num canvas 2D e `getImageData`, o `__cor` velho casando byte a byte com o pixel do
+reflexo), o vermelho real 1/1, a faixa intacta em 0 bits, os 9/9 e 3/3 controles, e os dois
+autoconsertos que eu declarei. O que caiu:
+
+1. **O CARTÃO DE LINK SAIU COM O INTERRUPTOR DENTRO, e é o achado grave da rodada** — não por
+   tamanho, por lugar. O `territorio/compartilhar.jpg` que eu commitei levava a tábua
+   MEDIÇÃO/ligada no quadro, e o vão de 78 px empurrou a rolagem: **"A História" sumiu inteira e
+   "Glossário" virou "lossário"**. A causa: o `cartao-secao.js`, que faz os outros três cartões,
+   esconde **todo** `position:fixed|sticky` — genérico, sobreviveu à mudança, e os três saíram
+   byte a byte iguais; o `gerar-territorio.js` escondia `#censo .med`, que é o **parágrafo**.
+   Enquanto o botão morava dentro dele bastava; depois a exclusão **parou de excluir em
+   silêncio**, com o comentário três linhas acima do print ainda dizendo que o interruptor saía.
+   Consertado com a regra do próprio instrumento do QA — **flutua E convida o dedo** (a varredura
+   genérica não serve nesta seção: `#palco` e `.env` são `fixed` e são a página inteira) —, mais
+   os alvos nomeados e um **guarda barulhento**: abaixo de dois controles escondidos o build
+   RECUSA. Medido depois: cartão sem botão e com a barra enquadrada como a da main. De quebra,
+   **7 px de deriva** que eu não tinha visto: `inline:"nearest"` não rola um elemento já visível,
+   então o cartão herdava o `scrollLeft` da carga — zerado antes de refazer a rolagem.
+2. **O mecanismo do "~10 px" estava errado para uma das três telas.** Distância entre o ponto e o
+   reflexo, medida: 1366×768 = 10 px · 1024×768 = 8 px · **768×1024 = 86 px** · 390×844 = 83 px.
+   Em 768×1024 o reflexo pula tão longe quanto no celular e ainda assim lê dentro da faixa. O que
+   decide é a distância **contra o tamanho da placa** na altura do ponto: 3% · 3% · 30% · **49%**.
+   Só em 390×844 o reflexo atravessa metade da placa e chega à borda sudoeste. A conclusão
+   ("verde por sorte") fica **mais forte**; a explicação que eu tinha escrito, não.
+3. **Os dois consertos estão CONFUNDIDOS e eu atribuí o verde ao errado.** Na página da main, em
+   390×844, com a fórmula **ainda espelhada**: 1 px dá `#c9b78b` (15/255, reprova) e a mediana
+   5×5 dá `#d8c597` (0/255, aprova). Cada mudança sozinha já apagava o vermelho. O espelho
+   continua sendo bug real — provado pela verdade de terra, não pelo verde do portão.
+4. **O desmentido do sol vira NÃO PROVADO.** O QA reconstruiu o commit `fad3a5d`, que escreveu o
+   "15/255 no azul", e o máximo que obteve foi **3/255**, com espelho e sem. A minha explicação
+   ("foi medido com o `__cor` espelhado") não se sustenta: o número não reproduz e a razão não
+   foi estabelecida.
+
+**O instrumento que fecha a categoria entrou no ramo:** `test/medir-cartao-controle.js`, escrito
+pelo QA, abre cada seção em 1200×630, aplica a MESMA exclusão daquele gerador — com **assinatura**
+do código, para a tabela não envelhecer calada — e cobra zero controle flutuante no quadro. Foi
+visto reprovando nos dois sentidos: exit 1 apontando `#medirBt` sticky em 330,31 com 72×44, e
+exit 0 depois. Acrescentei a ele a linha do TERRITÓRIO nova e um quarto controle (a exclusão nova
+tem de retirar o intruso, senão o conserto trocou um buraco por outro do mesmo tamanho): **4/4**.
+
+**A lição, e ela é de cobertura, não de descuido:** nenhum portão olhava os cartões de link, e a
+barra **a 1200 px** — que é a largura do cartão — não era medida por ninguém. A barra foi mudada
+certo e medida certo em 390/430/1366; o estrago saiu na largura que não tinha instrumento.

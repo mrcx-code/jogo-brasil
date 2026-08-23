@@ -2130,14 +2130,14 @@ function lintComentarios() {
   // Ela comparava PIXELS: o primeiro quadro depois de fechar contra um quadro normal, com teto
   // de 3 px. Sob carga (5 smokes em paralelo mais `test/carga.js`) caiu 1 em 5 rodadas com
   // "9.57px" — e 9,57 não é coincidência: `src/jogo.ts:15942` limita o dt em 0,25 s, e
-  // 0,25 s de chão dá exatamente 9,58 px. Ou seja, o quadro demorou 250 ms de VERDADE porque a
+  // 0,25 s de chão dá exatamente 9,565 px. Ou seja, o quadro demorou 250 ms de VERDADE porque a
   // máquina estava cheia, o motor andou o que devia andar, e o portão chamou isso de defeito.
   // Pior: o defeito REAL que ele existe para pegar — um segundo parado despejado num quadro —
-  // bate no MESMO limite de 9,58 px. Em pixels, os dois casos são indistinguíveis.
+  // bate no MESMO limite de 9,565 px. Em pixels, os dois casos são indistinguíveis.
   //
   // A separação é a TAXA. O defeito é andar muito por MILISSEGUNDO decorrido, não andar muito:
-  //   · quadro honesto de 250 ms -> 9,58 px / 250 ms = 0,038 px/ms (a velocidade de sempre)
-  //   · um segundo despejado num quadro de 17 ms -> 9,58 / 17 = 0,56 px/ms, quinze vezes mais
+  //   · quadro honesto de 250 ms -> 9,565 px / 250 ms = 0,038 px/ms (a velocidade de sempre)
+  //   · um segundo despejado num quadro de 17 ms -> 9,565 / 17 = 0,56 px/ms, quinze vezes mais
   // O piso absoluto de 0,115 px/ms (três quadros de 60 fps) existe para o caso em que o quadro
   // "normal" saiu curto demais para servir de régua.
   //
@@ -2146,6 +2146,22 @@ function lintComentarios() {
   // com "9.64px in 20ms = 0.4844 px/ms, over the ceiling of 0.1379". Nas 19 leituras honestas
   // do mesmo dia, sob 5 a 8 smokes em paralelo mais `test/carga.js`, ele reprovou ZERO — e a
   // regra antiga, aplicada aos MESMOS 19 números, teria reprovado 2 (11%).
+  //
+  // O QA REFEZ ISTO COM BANCADA PRÓPRIA e o par sobreviveu (23/08): com o quadro de referência
+  // esticado para 280 ms, a régua VELHA reprovou um jogo PERFEITO em 6 de 6 leituras e a nova
+  // passou nas 6. E a pergunta que decidia — se a nova protege ou só parece proteger — teve
+  // resposta: a nova pega salto de 3,0 px de forma reprodutível, a velha só a partir de 5,0.
+  // Ficou mais ESTRITA, com zero falso positivo em 9 leituras de dose zero.
+  // E QUANDO ELA FICA CEGA, ELA DIZ (achado do QA, 23/08). Acima de ~83 ms o clamp de 0,25 s
+  // do motor ja saturou os dois casos no mesmo numero, entao a taxa deixa de separar quadro
+  // lento de dt despejado. Isso nao e erro de desenho — e o limite do que da para saber dali.
+  // O defeito seria CALAR: 2 de 6 rodadas sob carga caem nesse regime, e o log verde parecia
+  // uma verificacao feita. Agora ele avisa que naquela rodada nao houve o que verificar.
+  if (historia.salto.ms1 > 83 || historia.salto.ms2 > 83) {
+    console.log('  resume -> AVISO: quadro de ' + Math.round(Math.max(historia.salto.ms1, historia.salto.ms2))
+      + 'ms, acima dos 83ms em que o clamp de dt satura — nesta rodada a regua de taxa nao separa'
+      + ' quadro lento de dt despejado. Nao e reprova; e uma verificacao que nao aconteceu.');
+  }
   const tetoTaxa = Math.max(taxa2 * 3, 0.115);
   if (taxa1 > tetoTaxa) {
     errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2)
