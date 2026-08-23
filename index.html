@@ -904,8 +904,18 @@
   /* ATÉ 899px de largura este bloco vale (telefone deitado): logo+frase à esquerda, poste à
      direita, tudo apertado porque a tela é pequena. A partir de 900px a home vira CINEMÁTICA
      (bloco mais abaixo) — o antigo `orientation: landscape` sozinho pegava o notebook e só
-     esticava o menu de celular, que é o defeito que o dono apontou. */
-  @media (orientation: landscape) and (max-width: 899px) {
+     esticava o menu de celular, que é o defeito que o dono apontou.
+     E A SEGUNDA CONDIÇÃO ENTROU EM 23/08, pelo defeito que o `escada-menu.js` mediu: um
+     telefone deitado MODERNO tem 932 px de largura e 430 de altura, ou seja, é largo o
+     bastante para cair na cinemática e baixo demais para ela caber. Medido em 932×430 antes:
+     **194 px de tábua abaixo da borda e 204 de rolagem** — as cinco últimas nascendo fora.
+     A cinemática empilha logo + frase + oito tábuas numa coluna, e o PISO dessa pilha SEM
+     LOGO NENHUM é 481–508 px (medido em 900/1024/1280 de largura, test/tmp-painel2.js): ela
+     não cabe abaixo de ~600 px de altura por aritmética, não por aperto. Então o corte deixa
+     de ser só de largura e passa a ser `largura OU altura`: deitado e baixo volta a ser
+     telefone deitado, que é o desenho que já resolve esse formato desde 12/08. */
+  @media (orientation: landscape) and (max-width: 899px),
+         (orientation: landscape) and (max-height: 599px) {
     /* TRÊS LINHAS, E A DO MEIO É A MARCA. Era `align-content: center` com duas linhas de
        altura automática, e aí a grade inteira ficava do tamanho do conteúdo, centrada — o que
        deixava o poste boiando com folga em cima e embaixo, e obrigava o mastro a atravessar
@@ -1000,8 +1010,13 @@
      700 px de largura (abaixo disso, 480×320, duas tábuas de 280 mais o mastro não deixariam
      largura para o logo, e lá o menu continua rolando, como já rolava antes desta rodada) e
      abaixo de 460 px de altura (acima disso a coluna única cabe — 899×500 mede 417 numa tela de
-     500 — e uma coluna só é a composição melhor quando ela cabe). */
-  @media (orientation: landscape) and (min-width: 700px) and (max-width: 899px) and (max-height: 460px) {
+     500 — e uma coluna só é a composição melhor quando ela cabe).
+     O TETO DE LARGURA CAIU EM 23/08 (era `max-width: 899px`), e a razão é a mesma da consulta
+     acima: 932×430 é um telefone deitado com largura de tablet. Enquanto o teto de 899 existiu,
+     ele ficava de fora deste bloco E de fora do de cima, caía na cinemática e perdia 194 px de
+     tábua pela borda. O piso de 700 fica: é ele que garante largura para as duas pistas mais a
+     marca (640×360 não tem, e continua rolando — ver PENDENTES 49). */
+  @media (orientation: landscape) and (min-width: 700px) and (max-height: 460px) {
     /* AS DUAS PISTAS TÊM A MESMA LARGURA, E ISSO NÃO É SIMETRIA DECORATIVA — é o que põe o
        MASTRO NO VÃO. O mastro é `#poste::before` em `left: 50%`, ou seja, no centro da CAIXA do
        poste; com pistas de larguras diferentes (era `auto auto`, 280 e 244) o centro da caixa
@@ -1037,12 +1052,32 @@
      ocupa a esquerda e cresce com a tela; o PAINEL — logo pregado no topo, a proposta legível
      e o poste com as tábuas — é uma faixa de largura FIXA (px, nunca vw puro) ancorada à
      direita. É o que faz o notebook parecer cinema em vez de um menu de celular com 80% de
-     vazio. O breakpoint é de LARGURA (o espaço que de fato falta), não de orientation. */
-  @media (min-width: 900px) {
+     vazio. O breakpoint é de LARGURA (o espaço que de fato falta), não de orientation.
+     E GANHOU UM PISO DE ALTURA EM 23/08, porque largura sozinha era metade da pergunta. O
+     painel empilha logo + frase + as oito tábuas numa coluna, e essa pilha tem um PISO que
+     nenhum aperto alcança: SEM LOGO NENHUM ela mede 481 px a 900 de largura, 486 a 1024 e 490
+     a 1280 (medido, test/tmp-painel2.js). Abaixo disso a cinemática não cabe por aritmética —
+     em 932×430 ela cortava 194 px de tábua, em 1024×461 rolava 187. `min-height: 600px` é o
+     primeiro degrau em que ainda sobra logo de verdade (112 px a 1024 de largura, contra 180
+     hoje); abaixo dele manda o bloco de telefone deitado, que é o desenho feito para o
+     formato. Deitado-e-baixo com 900+ de largura sempre é landscape (900 > 599), então os dois
+     blocos se encaixam sem buraco. */
+  @media (min-width: 900px) and (min-height: 600px) {
     #telaMenu {
+      /* A LINHA QUE CEDE É A DO LOGO, e a ordem das linhas mudou por isso (23/08). Era
+         `auto auto 1fr` com o poste na fração: a fração NÃO encolhe abaixo do conteúdo, então
+         quem estourava a tela era sempre a última tábua — 55 px de rolagem em 1280×800, 73 em
+         1366×768, 31 em 1280×844 e 8 em 1024×768, com o CONFIGURAÇÕES fora da tela nos três
+         primeiros (medido). Agora a fração é a linha 1, a do logo: ela recebe o que sobra
+         depois da frase e do poste, e o logo cabe nela por `max-height` (abaixo). O poste e a
+         frase deixam de ter como ser empurrados. Onde já cabia nada muda — em 1920×1080 a
+         pilha media exatamente 1080 antes e depois. */
       display: grid;
       grid-template-columns: 1fr clamp(360px, 33vw, 460px);
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: minmax(0, 1fr) auto auto;
+      /* o respiro do topo do logo sai daqui e não do `margin` escrito à mão, porque o
+         `max-height` dele precisa descontar o próprio respiro para caber na linha */
+      --cinLogoTopo: clamp(12px, 3vh, 44px);
       justify-items: center; align-items: start;
       column-gap: 0; padding: 0 clamp(20px, 3vw, 56px) 0 0; overflow-y: auto;
       /* véu SÓ do lado do painel, para as tábuas e a frase lerem sobre a mata — a cena da
@@ -1050,15 +1085,24 @@
       background:
         linear-gradient(90deg, rgba(10,9,6,0) 52%, rgba(10,9,6,.20) 78%, rgba(10,9,6,.46) 100%),
         linear-gradient(180deg, rgba(10,9,6,.20) 0%, rgba(10,9,6,.04) 42%, rgba(10,9,6,.40) 100%); }
-    /* logo pregado no topo do painel — teto de conforto, encolhe por ALTURA se a tela for baixa */
+    /* logo pregado no topo do painel — teto de conforto, encolhe por ALTURA se a tela for baixa.
+       O TERCEIRO TERMO DO `min()` É O CONSERTO DE 23/08: `100%` aqui é a linha 1 da grade, que
+       é a fração — ou seja, o que sobrou depois da frase e do poste. Descontado o respiro de
+       cima e os 10 px de baixo, é exatamente o que o logo pode ocupar sem empurrar tábua
+       nenhuma. Onde a tela é alta o teto de conforto (30vh/300px) continua sendo o menor dos
+       três e nada muda; onde ela é baixa o logo cede, que é a ordem certa de ceder — ele é a
+       única peça do painel que não é alvo de dedo nem texto a ler.
+       `object-fit: contain` (regra base) é o que faz isso encolher sem deformar. */
     #logoImg { grid-column: 2; grid-row: 1; align-self: end; justify-self: center;
-      width: min(30vw, 440px); height: auto; max-width: 100%; max-height: min(30vh, 300px);
-      margin: clamp(12px, 3vh, 44px) 0 10px; }
+      width: min(30vw, 440px); height: auto; max-width: 100%;
+      max-height: min(30vh, 300px, calc(100% - var(--cinLogoTopo) - 10px));
+      margin: var(--cinLogoTopo) 0 10px; }
     #menuSub { grid-column: 2; grid-row: 2; align-self: start; justify-self: center;
       max-width: 94%; margin: 0 0 clamp(8px, 2vh, 20px); }
     #telaMenu .menuProposta { max-width: 100%; }
-    /* o poste ancora o painel embaixo; as tábuas centradas na altura que sobra */
-    #poste { grid-column: 2; grid-row: 3; align-self: stretch; justify-content: flex-start;
+    /* o poste ancora o painel embaixo — agora numa linha `auto` (era a fração), então ele mede
+       exatamente as oito tábuas e o que sobra vai todo para a linha do logo */
+    #poste { grid-column: 2; grid-row: 3; align-self: end; justify-content: flex-start;
       /* pé 18 → 10 com a oitava tábua: em 1024×768 o CONFIGURAÇÕES saía 2 px pela borda de
          baixo (bloco 21 do encaixe), e 8 px de madeira vazia abaixo da última tábua era o que
          havia de mais barato para dar. */
@@ -1073,9 +1117,14 @@
     #poste .telaBtn.sec { width: min(84%, 268px); }
     #telaMenu .mpFrase { line-height: 1.4; }
   }
-  /* Degrau maior a partir de 1280px: o logo cresce e a cena ganha ar. */
-  @media (min-width: 1280px) {
-    #logoImg { width: min(28vw, 520px); max-height: min(38vh, 400px); }
+  /* Degrau maior a partir de 1280px: o logo cresce e a cena ganha ar.
+     O `min-height` acompanha o da cinemática (23/08) — sem ele, um 1280×430 (que agora usa o
+     desenho de telefone deitado) receberia este logo de 38vh por cima e a marca voltaria a
+     dividir a largura com as tábuas. E o terceiro termo é o mesmo da regra acima: o logo maior
+     também não pode passar da linha que sobrou. */
+  @media (min-width: 1280px) and (min-height: 600px) {
+    #logoImg { width: min(28vw, 520px);
+      max-height: min(38vh, 400px, calc(100% - var(--cinLogoTopo) - 10px)); }
   }
   /* E A OUTRA PONTA DA MESMA MEDIÇÃO: em RETRATO curto (320×568, o piso do que ainda se
      vende) o poste já saía 32 px abaixo da borda e o AJUSTES 6 px — pré-existente, e achado
@@ -12979,7 +13028,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dicaSegurarAte = 0;
         segurando.add(src);
         if (!holdT)
-            holdT = setInterval(clicar, 145);
+            holdT = setInterval(() => clicar(), 145);
         if (src === "btn")
             bc.classList.add("segurando");
     }
@@ -13167,7 +13216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-    setInterval(salvar, 10000);
+    setInterval(() => salvar(), 10000);
     window.addEventListener("beforeunload", function () { salvar(); salvarRetencao(); medirParou(); });
     window.addEventListener("pagehide", function () { salvar(); salvarRetencao(); medirParou(); });
     document.addEventListener("visibilitychange", function () {
