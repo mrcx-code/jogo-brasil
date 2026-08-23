@@ -15749,7 +15749,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // continua depois de aprendido vira ruído, e ruído é o que o dono chamou de tela poluída.
     dicaSegurarVista = true; dicaSegurarAte = 0;
     segurando.add(src);
-    if (!holdT) holdT = setInterval(clicar, 145);   // ~7 hits per second while held
+    // A seta pelo mesmo motivo do `setInterval(() => salvar(), …)` lá embaixo (PENDENTES 71):
+    // agendar pelo NOME segura o VALOR, e dois testes desta casa dublam `clicar`. Este caso não
+    // tinha vermelho medido — mas é o MESMO defeito, no agendamento do segurar-para-atacar, que
+    // é justamente o que o smoke cobra que repita. Latente é pior que aceso: não avisa.
+    if (!holdT) holdT = setInterval(() => clicar(), 145);   // ~7 hits per second while held
     if (src === "btn") bc.classList.add("segurando");
   }
   function soltar(src?) {
@@ -16070,7 +16074,28 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  setInterval(salvar, 10000);
+  // ===== A SETA NÃO É ESTILO, É O CONSERTO (PENDENTES 71, causa raiz provada pelo QA em 23/08)
+  //
+  // `setInterval(salvar, …)` passa o VALOR da função. Todo teste desta casa instala um estafeta
+  // com `salvar = function(){}` — o `smoke.js`, o `robusto-tudo.js` e o `medir-save-hostil.js`,
+  // 17 vezes ao todo —, e reatribuir o NOME **não alcança** o que o intervalo já segura. Então,
+  // a cada 10 s, o save REAL sobrescrevia a semente que o teste tinha plantado.
+  //
+  // A sonda do QA, de segundo em segundo: `0s:semente … 9s:semente | 10s:REGRAVADO`. E os bytes
+  // regravados eram IDÊNTICOS aos de uma falha real de `npm test` ("a non-boolean was accepted
+  // as an upgrade"): o save adulterado da semeadura tinha virado um save de verdade antes da
+  // recarga. Medido: 2 vermelhos em 4 rodadas na main, com `git diff` de `src/` VAZIO — não era
+  // entrega nenhuma, era isto. Explica a classe inteira de intermitência que nós dois viemos
+  // chamando de "carga da máquina" a semana toda.
+  //
+  // A CLASSE, para quem vier: agendar pelo NOME de uma função que os testes dublam. Quem procura
+  // os outros casos usa
+  //     grep -nE "set(Interval|Timeout)\( *[A-Za-z_$][A-Za-z0-9_$]* *," src/jogo.ts
+  // e cruza com os nomes que `test/*.js` reatribui — hoje são três (`salvar`, `salvarRetencao`,
+  // `clicar`). Os outros três agendamentos (`pintarHomeCena`, `fimCerimonia`, `avancarFala`)
+  // ficam como estão de propósito: nenhum teste os dubla, e mexer no que não está medido é o
+  // avesso da regra da casa.
+  setInterval(() => salvar(), 10000);
   window.addEventListener("beforeunload", function () { salvar(); salvarRetencao(); medirParou(); });
   // O TERCEIRO GANCHO, e no celular ele é O gancho. `beforeunload` não é garantido no iOS e
   // não dispara quando a aba entra no cache de volta-para-trás (bfcache); `pagehide` dispara
