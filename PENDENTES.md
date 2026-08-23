@@ -2103,3 +2103,65 @@ demais.
 mecanismo que a varredura chamou de o mais caro do arquivo — `tap('#openUpgrades')` seguido de
 `waitForTimeout(350)` e tres toques com 80 ms entre eles, julgados por "some upgrade did not
 apply". Mesmo arquivo, mesma doenca, intocada.
+
+## 71 — `setInterval(salvar, 10000)` passa o VALOR, e o save real apaga a semente de QUALQUER teste — dev-jogo (src/, e a maquina do mac)
+
+Causa raiz PROVADA pelo QA em 23/08, e ela explica uma **classe inteira** de vermelho
+intermitente que ninguem tinha nomeado.
+
+`src/jogo.ts:16073` faz `setInterval(salvar, 10000)` — passando o **valor** da funcao. O estafeta
+`salvar = function(){}` que o `smoke.js`, o `robusto-tudo.js` e o `medir-save-hostil.js` **todos**
+usam reatribui o NOME e **nao alcanca** o que o intervalo ja segura. Entao, a cada 10 s, o save
+REAL sobrescreve a semente que o teste plantou.
+
+Sonda do QA, amostrando de segundo em segundo:
+
+```
+0s:semente | 1s:semente | ... | 9s:semente | 10s:REGRAVADO
+REGRAVADO aos 10s -> {"energia":994965,"energiaTotal":994965,"modo":"carvao","u1"...
+```
+
+**Bytes identicos aos de uma falha real** que ele viu: `npm test` reprovando em *"a non-boolean
+was accepted as an upgrade"* mostrando exatamente esse objeto. O save adulterado que o smoke
+semeia tinha sido substituido por um save de verdade antes da recarga.
+
+Medido: **2 vermelhos em 4 rodadas do `npm test` na main**, com `git diff --stat main HEAD -- src/
+ferramentas/` **vazio** — ou seja, nao era entrega nenhuma, era isto.
+
+CONSERTO: uma linha. `setInterval(() => salvar(), 10000)`. E de `src/`, entao e territorio da
+outra maquina — passar pelo canal.
+
+O QUE ESCAPA E O QUE NAO: cena que faz `setItem` + `carregar()` **sincronos dentro de um
+evaluate** e imune. Cena que faz `setItem` + `reload` **nao e** — e sao essas que reprovam quando
+o tique de 10 s cai na janela entre gravar e ler.
+
+## 72 — O teto do ganho offline tem um IRMAO sem cobertura nenhuma: a aba oculta — dev-jogo
+
+Achado pelo QA em 23/08, auditando outra coisa. `src/jogo.ts:16123`:
+
+```js
+pagarAusencia(Math.max(0, Math.min((Date.now() - escondidoEm)/1000, CFG.capOfflineHoras*3600)))
+```
+
+E o caminho da **aba oculta**, que nao passa por `carregar()`. Mesma constante, mesma
+consequencia — e zero cobertura: `grep -rn` por `escondidoEm` ou `pagarAusencia` em `test/*.js`
+devolve **nada**.
+
+O QA removeu o `Math.min` inteiro e rodou os quatro portoes: `robusto-tudo` **0**,
+`medir-save-hostil` **0**, `encaixe` **0**, `smoke` **0**. **Quatro verdes com o teto arrancado.**
+
+Isto responde uma pergunta que eu tinha feito com um sim desconfortavel: existe caminho em que o
+teto some sem nenhuma cena reprovar. E o irmao esquecido do `carregar()`.
+
+## 73 — `robusto-tudo` e `medir-save-hostil` estao FORA do CI, e foi isso que deixou a contradicao viver nove dias — plantao
+
+O `.github/workflows/teste.yml` roda 12 portoes. **Estes dois nao estao entre eles** — sao
+portoes de mao.
+
+A consequencia foi medida em 23/08: a `main` carregava **dois portoes em contradicao direta sobre
+a mesma entrada** (`salvoEm: 5e12`) por **nove dias**. O `robusto-tudo` exigia que aquele carimbo
+forjado batesse no teto de 12 h; o `medir-save-hostil`, nascido no commit que desarmou a bomba,
+exigia que valesse zero. Ninguem tropecou porque nenhum dos dois roda sozinho.
+
+Acrescentar os dois ao CI e barato. **Conferir antes se eles sao estaveis** — o `robusto-tudo`
+depende do save semeado, e o PENDENTES 71 mostra que a semente e apagada a cada 10 s.
