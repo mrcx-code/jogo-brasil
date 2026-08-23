@@ -533,28 +533,50 @@ async function abrirMenuParado(page) {
   // primeira passar, o jogo anda sozinho onde não devia; se só a segunda, voltamos ao 25 s.
   // ============================================================
   sec('9 · a travessia anda sozinha; a abertura de capítulo não');
+  // O INSTRUMENTO MUDOU EM 23/08, e a razão é o que ele estava medindo de verdade.
+  //
+  // Antes: dorme 15 s e olha uma vez. O número era aritmética honesta — 3,4 s de cerimônia do
+  // nome + (0,74 de digitação + 2,33 de pausa) da linha 0 + (1,06 + 2,87) da linha 1 = 10,4 s,
+  // com 4,6 s de margem. Mesmo assim caiu no funil com DOIS agentes rodando Chromium pesado em
+  // paralelo, e a entrega em julgamento era um texto de divulgação que não toca o jogo.
+  //
+  // O diagnóstico: uma janela de parede fixa contra uma cena que o navegador anima com timer.
+  // Sob carga, o jogo dilata junto — então a asserção deixava de medir "a travessia tem duração
+  // própria" e passava a medir "esta máquina está livre agora". Alargar o 15 para 25 seria
+  // afrouxar a régua até passar, que é a saída proibida.
+  //
+  // Agora: ESPERA O EVENTO em vez de amostrar o relógio. Pergunta a cada 200 ms e resolve no
+  // instante em que a fala anda sozinha; o teto de 40 s é detector de travamento, não régua de
+  // ritmo. A afirmação verificada continua sendo a mesma — ela anda SEM a mão —, e o tempo que
+  // levou vai para o log, que é onde uma lentidão real fica visível sem virar intermitência.
   const anda = await page.evaluate(() => new Promise(res => {
     fecharTudo();
     correrTravessia("pindorama", "palmares", function () { });
-    setTimeout(() => res({ i: falaI, viva: !!falaViva, n: falaLinhas.length,
-      // e o rótulo do botão dourado, que continuava prometendo "+1,0" num trecho em que
-      // `clicar()` sai na primeira linha: a interface anunciando o que o jogo recusa
-      rotulo: (document.querySelector('#cliqueRotulo') || {}).getAttribute
-        ? document.querySelector('#cliqueRotulo').getAttribute('aria-label') : null }), 15000);
+    const t0 = Date.now();
+    let rotulo = null;
+    const h = setInterval(() => {
+      // o rótulo do botão dourado, que continuava prometendo "+1,0" num trecho em que
+      // `clicar()` sai na primeira linha: a interface anunciando o que o jogo recusa.
+      // Lido a cada volta e guardado o último, para ser sempre um rótulo DE DENTRO da travessia.
+      const el = document.querySelector('#cliqueRotulo');
+      if (el && el.getAttribute) rotulo = el.getAttribute('aria-label');
+      const estourou = Date.now() - t0 > 40000;
+      if (falaI >= 2 || estourou) {
+        clearInterval(h);
+        res({ i: falaI, viva: !!falaViva, n: falaLinhas.length, rotulo: rotulo,
+              ms: Date.now() - t0, estourou: estourou });
+      }
+    }, 200);
   }));
-  // 15 s, e o número é ARITMÉTICA, não chute — com 11 s este bloco falhava uma vez a cada
-  // sete rodadas, e uma asserção intermitente é uma asserção que se aprende a ignorar.
-  // A conta até a linha 2: 3,4 s de cerimônia do nome + (0,74 s de digitação + 2,33 s de
-  // pausa) da linha 0 + (1,06 + 2,87) da linha 1 = **10,4 s**. Com 11 s a margem era de 600
-  // ms — menos que um engasgo de GC no headless. Com 15 s ela é de 4,6 s, e o teto de pausa
-  // (4,6 s) garante que nem a linha mais longa estica isso.
   log('   o botão dourado, durante a travessia, diz: "' + anda.rotulo + '"');
   ok(!/\+/.test(anda.rotulo || ''), /\+/.test(anda.rotulo || '')
     ? 'o botão promete "' + anda.rotulo + '" num trecho em que ele não rende nada'
     : 'e o botão aceso não promete ganho nenhum (QA relatório 3)');
-  log('   15 s sem encostar na tela: linha ' + anda.i + ' de ' + anda.n);
+  log('   sem encostar na tela: linha ' + anda.i + ' de ' + anda.n + ' em ' +
+      (anda.ms / 1000).toFixed(1) + ' s' + (anda.estourou ? ' (TETO DE 40 s ESTOURADO)' : '') +
+      '   [a conta sem carga dá 10,4 s até a linha 2]');
   ok(anda.i >= 2, anda.i >= 2
-    ? 'o trecho se conta sozinho (' + anda.i + ' linhas em 15 s)'
+    ? 'o trecho se conta sozinho (' + anda.i + ' linhas, sem a mão)'
     : 'a travessia PAROU na linha ' + anda.i + ' — ela não tem duração própria');
 
   // ESTA METADE MEDIA COM A TRAVESSIA AINDA VIVA POR BAIXO, e passava por 1 s de sorte (20/08).

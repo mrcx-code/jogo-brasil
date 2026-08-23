@@ -1865,3 +1865,36 @@ nesse caso prefiro pagar eu e deixar registrado por quê.
 
 **Fica de fora de propósito:** os prints `test/*.png` que o smoke regenera a cada rodada também
 sujam a árvore, mas ali o byte muda de verdade (é imagem nova). É outro assunto, e não é este.
+## 61 — O `qa` e o `historiador` nao existem para esta sessao — o registro de agentes congela no inicio
+
+Achado em 23/08 ao tentar despachar o QA para refutar o crash do `medir-emenda`. O erro:
+`Agent type 'qa' not found`, e a lista devolvida traz 10 dos 12 arquivos de `.claude/agents/`
+— faltam exatamente `qa` e `historiador`. Os dois arquivos estao no disco, versionados, com
+git status limpo desde 21/08.
+
+O que foi descartado por medicao, e cada um custou uma hipotese:
+- **nao e o frontmatter**: os dois tem 6 linhas, 2 separadores, zero caractere de controle,
+  zero NBSP, e a mesma forma dos que carregam;
+- **nao e `model: opus` nem `isolation: worktree`**: `dev-dados`, `dev-jogo` e `dev-plataforma`
+  declaram os dois campos identicos e carregam;
+- **nao e a linha `tools:`**: a do `qa` e byte a byte igual a do `arte`, que carrega;
+- **nao e colisao com agente global ou plugin**: `~/.claude/agents/` nao existe e nao ha plugins;
+- **nao e filtro de configuracao**: o `.claude/settings.json` so registra o hook do guarda.
+
+O QUE PROVOU A CAUSA: criei `.claude/agents/teste-registro.md`, minimo e em ASCII puro, e
+tentei despachar. Deu `not found` tambem. **O registro nao le arquivo novo** — ele e uma
+fotografia tirada no inicio da sessao. Entao a causa nao esta no conteudo dos dois arquivos
+hoje; esta em que a fotografia desta sessao saiu sem eles.
+
+POR QUE IMPORTA MAIS QUE PARECE: o `qa` e o refutador independente, e o CLAUDE.md par. 5.2 o
+poe como portao OBRIGATORIO antes de integrar. O `historiador` e quem escreve e corta texto
+sobre gente real. Perder os dois em silencio significa que uma sessao inteira pode integrar
+sem refutacao e sem revisao historica **achando que a maquina esta completa**.
+
+CONSERTO: reiniciar a sessao refaz a fotografia (nao testavel de dentro dela). Contorno usado
+hoje: despachar `general-purpose` com o corpo do `qa.md` colado como briefing — mesma funcao,
+sem o portao de ferramentas que o arquivo declara.
+
+O QUE FALTA, e e o que evita a repeticao: uma conferencia de arranque que compare a lista de
+agentes viva com o que ha em `.claude/agents/` e GRITE na diferenca. Hoje o sintoma so aparece
+quando alguem tenta despachar o agente que sumiu — e quem nao tentar, nao descobre.
