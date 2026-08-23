@@ -18,7 +18,7 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # SEM cache do setup-node, e a ausência é a correção de um erro que esta ação já cometeu
       # na primeira versão: o cache EXIGE um arquivo de lock, e o package-lock.json está no
@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 20
