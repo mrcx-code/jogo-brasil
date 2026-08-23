@@ -1,8 +1,13 @@
 # Mensagem para quem já divulga cultura/história do Brasil (público A)
 
-[PRECISA SIGN-OFF] — template de DM/e-mail pessoal, um contato de cada vez, não disparo em
-massa. Pensado para perfis e páginas que já falam de história, cultura popular, memória negra e
-indígena.
+[TEXTO APROVADO PELO DONO em 23/08, em mesa de decisão — perguntado se liberava as 5 peças de
+divulgação ou só a de professores, escolheu liberar as 5. Isso aprova o TEXTO desta peça, que
+reusa o texto-base do rascunho 01 (aprovado em 22/08) sem número, fato histórico ou imagem
+novos. **Isso NÃO aprova canal, data de publicação nem quem posta** — a rodada de ENVIO que usa
+esta peça (ver `PLANO.md` §3) continua precisando do próprio sign-off antes de sair.]
+
+Template de DM/e-mail pessoal, um contato de cada vez, não disparo em massa. Pensado para
+perfis e páginas que já falam de história, cultura popular, memória negra e indígena.
 
 ---
 

@@ -1,8 +1,14 @@
 # Texto para professores e educadores
 
-[PRECISA SIGN-OFF] — pensado para grupo de professores (WhatsApp/Telegram/Facebook) ou e-mail
-direto. Tom: prático, sem venda, sem prometer o que a plataforma não tem (não afirma alinhamento
-com BNCC ou qualquer currículo específico — isso exigiria checagem que não foi feita).
+[TEXTO APROVADO PELO DONO em 23/08, em mesa de decisão — perguntado se liberava as 5 peças de
+divulgação ou só a de professores, escolheu liberar as 5. Isso aprova o TEXTO desta peça, que
+reusa o texto-base do rascunho 01 (aprovado em 22/08) sem número, fato histórico ou imagem
+novos. **Isso NÃO aprova canal, data de publicação nem quem posta** — a rodada de ENVIO que usa
+esta peça (ver `PLANO.md` §3) continua precisando do próprio sign-off antes de sair.]
+
+Pensado para grupo de professores (WhatsApp/Telegram/Facebook) ou e-mail direto. Tom: prático,
+sem venda, sem prometer o que a plataforma não tem (não afirma alinhamento com BNCC ou qualquer
+currículo específico — isso exigiria checagem que não foi feita).
 
 ---
 
