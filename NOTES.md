@@ -9849,3 +9849,46 @@ tem de retirar o intruso, senão o conserto trocou um buraco por outro do mesmo 
 **A lição, e ela é de cobertura, não de descuido:** nenhum portão olhava os cartões de link, e a
 barra **a 1200 px** — que é a largura do cartão — não era medida por ninguém. A barra foi mudada
 certo e medida certo em 390/430/1366; o estrago saiu na largura que não tinha instrumento.
+
+
+### 23/08, madrugada — os portões mediam a máquina, e um deles não podia funcionar
+
+Registrado aqui porque o QA cobrou, com razão: os números que justificam a varredura inteira
+viviam só em mensagem de commit, e mensagem de commit é onde número vai para ser redescoberto.
+
+**O achado que vale a noite.** A asserção do `smoke.js` contra salto de tempo no primeiro quadro
+**não podia funcionar**. O motor limita `dt` em 0,25 s (`src/jogo.ts:15942`), e 0,25 s de chão dá
+**9,5652 px** — a conta é `140 × 44 / 322 / 3 = 6,37681 px` por passada, `× 60/10 = 38,26087 px/s`,
+`× 0,25 = 9,5652`. Então um quadro honesto de 250 ms numa máquina cheia e um segundo inteiro
+despejado num quadro de 17 ms produziam **o mesmo pixel**. Ela reprovava o caso bom e o caso ruim
+pela mesma medida, desde que existe.
+
+Virou **taxa** (px por ms), medida em três quadros para o denominador ser o intervalo real.
+Conferido pelo QA com bancada própria: com o quadro de referência esticado para 280 ms, a régua
+**velha reprovou um jogo perfeito em 6 de 6**; a nova passou nas 6. E a nova é **mais estrita**:
+pega salto de **3,0 px** de forma reprodutível, contra **5,0 px** da velha, com zero falso
+positivo em 9 leituras de dose zero.
+
+**O limite dela, escrito para ninguém se enganar depois:** o teto é `0,115 × ms1`, então a
+asserção só consegue ver defeito enquanto o quadro de referência for **menor que 83,2 ms**
+(`9,5652 / 0,115`). Acima disso o limitador satura os dois casos no mesmo número e nenhuma régua
+separaria. Medido sob carga: 2 de 6 rodadas caíram nesse regime. O teste agora **avisa** quando
+está cego, em vez de calar.
+
+**A troca de instrumento, em número.** Dez esperas de relógio viraram espera de estado em sete
+arquivos, três deles os que o funil roda. No bloco do nicho, com as duas esperas na **mesma
+execução**: **4,0% de falhas com relógio contra 0% com estado** em 176 leituras, e o estado
+resolve em **190 a 410 ms** — *menos* que os 400 fixos que estavam lá. Reproduzido pelo QA em
+bancada independente: 92 rodadas sob 7 e 10 Chromium em paralelo, **2,2% contra 0%**.
+
+**O ingrediente que engana quem for medir isto de novo:** carga de CPU **não** reproduz flake de
+animação. Um girador que devolve o núcleo a cada 50 ms rouba processador e nunca estola o
+compositor. O que dilata o `requestAnimationFrame` é **paralelismo de Chromium**.
+
+**Duas afirmações caíram no caminho, as duas do próprio autor**, e ficam registradas porque o
+valor está nisso: a primeira versão do `jogoPronto` resolvia **antes do fim do boot** e trocaria
+um flake por outro mais silencioso; e a alegação de que a guarda de `null` teria mudado um número
+medido (4 animações onde antes achava 0) foi **refutada por três medições** — o predicado ingênuo
+nunca rejeitou naquela página, porque `#telaMenu` é estático em `src/index.html:161`. A guarda
+vale, mas como defesa contra a página **sem** `#telaMenu`: o 404 que o `abrir.js` serviu nas 16 h
+de CI vermelho de 20/08.

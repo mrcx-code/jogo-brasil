@@ -102,6 +102,23 @@ engolido.
 
 Prima da 2.1: nos dois casos o instrumento não exercitava o caminho da pessoa.
 
+### 2.11 Depois do funil, NUNCA `pull --rebase` — ele desmonta o merge que acabou de ser feito
+
+Custou uma árvore presa em rebase interativo às 5 da manhã de 23/08, com a `main` local em
+estado inconsistente enquanto a produção já estava certa.
+
+**O que acontece:** o `integrar.js` faz um **merge de verdade** (o commit "Integra ... pelo
+funil"). O `git pull --rebase` seguinte tenta **achatar** esse merge, replaya os commits do ramo
+um a um em cima da origem, e conflita com o que ele mesmo acabou de resolver.
+
+**O que fazer:** depois de um funil verde, `git push` direto. Se precisar sincronizar antes,
+`git pull --ff-only` — que falha alto se não der fast-forward, em vez de tentar ser esperto.
+
+**Detalhe que confunde e vale saber:** durante um rebase o `HEAD` fica destacado, mas o ref
+`main` continua apontando para o topo original. Então o `git push origin main` **funciona e
+publica a coisa certa** enquanto o repositório local está no meio do rebase. O push sair verde
+não é prova de que a sua árvore está sã — confira `git status` depois.
+
 ### 2.10 Integrar por cópia de arquivo quase perdeu trabalho DUAS vezes
 
 **19–20/08.** A integração de worktree era "copiar os arquivos mudados para a árvore principal" —
