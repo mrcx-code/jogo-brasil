@@ -87,6 +87,26 @@ diferentes. Contorno: `general-purpose` com o corpo do `.claude/agents/<papel>.m
 brief. Perder o QA em silêncio significa integrar uma sessão inteira sem refutação **achando que
 a máquina está completa**.
 
+### ⚠ PORTÃO NÃO RODA EM PARALELO COM PORTÃO NO MESMO WORKTREE (23/08)
+
+Achado por um agente do `dev-jogo` na rodada do `medir-telas`, e ele fecha a mesma classe de
+problema que o `PENDENTES 71`: **reprovação por sorteio que a gente vinha chamando de carga de
+máquina.**
+
+Todos os instrumentos derivam a porta do **hash do caminho da raiz** (`test/abrir.js`). Num
+worktree, todos veem a mesma raiz — então **todos disputam UMA porta**. O portão que termina
+primeiro fecha o servidor debaixo dos outros.
+
+O que isso fabrica, medido: `ERR_CONNECTION_REFUSED` no meio de uma rodada, e — pior, porque
+parece defeito de verdade — um falso **"hudLinha acima da tela −11"**, que não existe. Rodados um
+de cada vez, os mesmos três portões deram **0, 0, 0**.
+
+**Regra:** um portão por vez dentro de um worktree. Se vir vermelho numa rodada paralela,
+**confirme que não é isto antes de reportar** — e antes de mandar alguém consertar o que não
+está quebrado. É o mesmo erro que custou uma semana com o `setInterval(salvar, …)`: um teste que
+falha por sorteio é mais caro que um teste que falha sempre, porque ninguém acredita nele e
+todo mundo continua empurrando.
+
 ---
 
 ## 4. O ciclo de integração
