@@ -2348,3 +2348,33 @@ guardado/`). Palavra qualquer um escreve; garantia e afirmacao.
 **Portoes da quarta volta:** `node test/rodape-verdadeiro.js` 0 (10 cenas) · `node
 test/fila-auth.js` 0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test`
 0 · mordida **11 de 11**.
+
+## 74 — Cinco gaps do portao do rodape, todos nomeados pelo QA ao APROVAR — dev-plataforma
+
+Nenhum bloqueou, e nenhum e sobre o que a entrega mudou: sao sobre o que ela ainda nao cobre.
+
+**(a) Os numeros do rodape nao estao amarrados ao codigo, e essa e a MESMA doenca do item 60.**
+A cena 1 cobra `/50/` e `/200/` como TEXTO; `FILA_MAX=50` e `FILA_BYTES=200*1024` vivem em
+`dashboard/index.html:552` e **nada liga os dois**. Hoje batem. Trocar `FILA_MAX` para 100 deixa
+o rodape falso **com o portao verde** — que e literalmente a classe de defeito que o item 60
+existiu para diagnosticar. Uma linha na cena 2 fecha.
+
+**(b) Nada cobra `cenas === 10`.** Apagar uma cena imprime `PASSOU: 9 cenas` e sai **0**. Portao
+que pode **encolher em silencio** — e o arquivo passou de 5 para 10 cenas em cinco voltas, entao
+encolher e um risco real.
+
+**(c) Anistia nao declarada na cena 8.** A segunda assercao (`!f[0] || !f[0].tentativas`) passa
+**vacuamente** quando a fila esvazia — o QA viu isso acontecer no mutante: a primeira assercao
+pegou o defeito e a segunda ficou verde com `f[0]` indefinido. Cosmetico, mas num arquivo que
+declara todas as outras anistias em voz alta.
+
+**(d) A varredura estatica nao cobre `localStorage["k"]=v`** (so `localStorage.k=`). O metodo por
+execucao pega, mas so se alguma cena exercitar o caminho. Os outros limites do metodo estao
+declarados no cabecalho; este nao.
+
+**(e) Consequencia ACEITA do `if(st)`, e nao defeito — fica escrito para ninguem redescobrir.**
+Com o host permanentemente inalcancavel (adblock, DNS morto, CORS), o item da cabeca da fila
+nunca recebe status, nunca conta tentativa e **nunca e descartado** — a fila pode encher ate 50 e
+passar a recusar respostas novas. E o tradeoff certo, porque o texto do dono vale mais que a
+vazao, e o rodape declara o teto. Mas e uma cabeca imortal, e alguem vai encontrar isso um dia
+achando que e bug.
