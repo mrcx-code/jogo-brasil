@@ -254,7 +254,7 @@ stashes foram descartados em 23/08 por serem só esse ruído.
 
 Auditado em 23/08: **nenhum rastro** da conta de trabalho no repositório (todos os PRs e
 comentários são `mrcx-code`, nenhum commit com e-mail da conta de trabalho). Mas o `gh` desta máquina
-tinha **só o `matf-ps` logado** — ler repo público é inofensivo, **escrever** deixaria rastro
+tinha **só a conta de trabalho logada** — ler repo público é inofensivo, **escrever** deixaria rastro
 público e permanente da conta da empresa num projeto pessoal.
 
 - **Chaveiro separado:** `~/.config/gh-pessoal` (mrcx-code), apontado por `GH_CONFIG_DIR` no
