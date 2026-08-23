@@ -1892,3 +1892,55 @@ pelo FATO, com teto que devolve false para a assercao falar. Tres execucoes segu
 
 **Portoes da segunda volta:** `node test/rodape-verdadeiro.js` 0 (7 cenas) · `node test/fila-auth.js` 0
 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node test/encaixe.js` 0.
+
+**3a VOLTA — O CONSERTO DO B1 CRIOU PERDA SILENCIOSA DO TEXTO DO DONO, e a seguranca mediu.** Os
+dois consertos da 2a volta foram verificados e fechados (B2: `null` nas tres cargas, semeando o PIN
+de novo em cada uma; B1: drena em 121 ms). O bloqueante novo nasceu do MEU conserto:
+
+- **O ouvinte de `online` + o contador de tentativas = 25 piscadas apagam a resposta.** Cada
+  `flush()` que falhava incrementava `tentativas` **inclusive com falha de rede** (`st===0`), e
+  `TENTATIVAS_MAX=25` descarta. Sonda com servidor inalcancavel e 30 quedas-e-voltas de ~300 ms:
+  fila 1 / tentativas 6, 12, 24 — e **na piscada 25 a fila esvaziou**. Controle que prova que e
+  NOVO deste commit, 12 piscadas: main **0**, mutante sem ouvinte **0**, o meu **12**. Antes,
+  queimar as 25 exigia 25 CARGAS DE PAGINA (ato do dono); depois, bastam um trem e um elevador.
+  **Conserto, uma linha:** `if(st) g[0].tentativas=…` — falha sem status e falha do caminho, nao
+  do conteudo; contar seria punir o texto do dono pelo Wi-Fi dele. 503 continua contando, e 503
+  nao dispara `online`. **Nao se conserta com flush periodico:** cada tentativa gasta uma das 25,
+  entao um `flush()` no `setInterval(carregar, 7000)` jogaria o texto fora em ~3 min de servidor
+  caido.
+- **E o descarte era MUDO** — so `console.warn`, enquanto o caminho irmao (`podarFilaHerdada`) ja
+  mostrava `toast` desde o N10. Agora avisa na tela. Perder resposta do dono em silencio e
+  perde-la duas vezes: ele nao sabe que precisa reescrever.
+- **A frase do rodape mudou, e a razao e medida.** Refeito sem `setOffline`, nas tres formas de a
+  fila encher: navegador offline de verdade → o evento dispara e drena em **121 ms**; servidor
+  caido (503) → nao dispara; **conectividade morta com interface viva** (captive portal, DNS
+  morto) → nao dispara. O 503 a frase nem promete; o terceiro caso e a falsidade real, e a saida
+  honesta e a FRASE, porque o conserto em codigo e justamente o que apaga o texto do dono. Ficou:
+  *"…ela sobe sozinha quando a rede volta — e, se o navegador nao perceber que ela voltou, na
+  proxima vez que voce abrir a mesa."*
+- **Duas oracoes de comentario**, as duas cobradas: a condicao da ancora `data-auth` (so vale
+  enquanto `lerMarca()` ficar no mesmo bloco sincrono e sem excecao no meio — verificado pela
+  seguranca com MutationObserver: `data-auth` aos 53,2 ms, limpeza aos 53,1 ms) e o alcance real
+  do conserto do B2 (**a aba que ainda nao recarregou roda o JS de ontem e nada deste commit a
+  alcanca**).
+
+**O que virou PORTAO em vez de raciocinio:** a cena 2 passou a cobrar `lerMarca();` como chamada
+SOLTA no topo da partida. A seguranca provou que a distincao nao e ORDEM — `lerMarca()` depois de
+`autoLoginLocal()` passa, e passar esta certo, os dois no mesmo bloco sincrono — e sim
+INCONDICIONALIDADE: o mutante `if(!ses) lerMarca()` e mordido pelas duas pontas (portao estatico
+e cena 6).
+
+**Cenas novas: [8]** 30 piscadas com servidor mudo — a resposta sobrevive e `tentativas` nao sai
+do zero; **[9]** recusa permanente (422) — o item sai da fila E o dono VE o toast. A cena 9
+ensinou algo ao ser escrita: `registrar()` enfileira ate a recusa permanente, e quem descarta e a
+lavagem SEGUINTE — entao o descarte (e o aviso) so chega quando algo pede lavagem: a proxima
+carga, o login, ou a rede voltando.
+
+**A LICAO DESTA VOLTA, e ela nao e sobre uma linha de codigo:** consertar uma frase falsa criou
+uma perda de dados silenciosa, e isso **nao dava para prever lendo o codigo** — so medindo o que
+o conserto faz quando o mundo se comporta mal. E o argumento mais forte que ja apareceu aqui para
+o auditor rodar DEPOIS do conserto, e nao so antes.
+
+**Portoes da terceira volta:** `node test/rodape-verdadeiro.js` 0 (9 cenas) · `node test/fila-auth.js`
+0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node
+test/encaixe.js` 0 · mordida **10 de 10** (exit 1 em todos).

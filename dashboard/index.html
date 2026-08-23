@@ -450,7 +450,7 @@
     </div>
   </section>
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e o contador de erros de PIN, e os dois são apagados quando você sai. Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): essa não some ao sair, porque apagá-la jogaria fora o que você escreveu — ela sobe sozinha assim que a rede volta. Rodando local, há ainda uma marca de PIN recusado, que morre ao fechar a aba e é uma derivação — o PIN em si não fica guardado. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
+  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e o contador de erros de PIN, e os dois são apagados quando você sai. Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): essa não some ao sair, porque apagá-la jogaria fora o que você escreveu — ela sobe sozinha quando a rede volta — e, se o navegador não perceber que ela voltou, na próxima vez que você abrir a mesa. Rodando local, há ainda uma marca de PIN recusado, que morre ao fechar a aba e é uma derivação — o PIN em si não fica guardado. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -688,9 +688,22 @@
     },function(err){
       var g=lerFila(); if(!g.length) return;
       var st=(err && err.status) || 0;
-      g[0].tentativas=(g[0].tentativas||0)+1;
+      // FALHA DE REDE NAO CONTA (3a auditoria da seguranca, 23/08), e ela nasceu de um conserto
+      // meu: o ouvinte de `online` da partida chama `flush()` a cada piscada, e com o contador
+      // subindo tambem em `st===0` o navegador queimava sozinho as 25 tentativas — sonda com
+      // servidor inalcancavel e 30 quedas-e-voltas de ~300 ms: fila 1/tentativas 6, 12, 24 e, na
+      // piscada 25, A FILA ESVAZIOU. Antes do ouvinte, queimar 25 exigia 25 CARGAS DE PAGINA, ato
+      // do dono; depois dele, bastam um trem e um elevador. Medido contra a main (0 tentativas em
+      // 12 piscadas) e contra o mutante sem ouvinte (0): so a minha versao contava 12.
+      // `st===0` e "nao houve resposta" — nao diz NADA sobre o item, entao contar seria punir o
+      // texto do dono pelo Wi-Fi dele. 503 continua contando, e 503 nao dispara `online`.
+      if(st) g[0].tentativas=(g[0].tentativas||0)+1;
       if(permanente(st) || g[0].tentativas>=TENTATIVAS_MAX){
-        console.warn("mesa: descartei uma resposta da fila local — "+(permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas"))+":",JSON.stringify(g[0]));
+        var porque=permanente(st)?("o servidor recusa por desenho (HTTP "+st+")"):("não passou em "+g[0].tentativas+" tentativas");
+        console.warn("mesa: descartei uma resposta da fila local — "+porque+":",JSON.stringify(g[0]));
+        // E O DESCARTE AVISA NA TELA, como a poda irma ja avisava (N10). Perder resposta do dono
+        // em silencio no console e perde-la duas vezes: ele nao sabe que precisa reescrever.
+        toast("Uma resposta sua não pôde ser enviada e foi descartada — "+porque+".",true);
         g.shift();
         if(!gravarFila(g)) return;
         return lavarUm();
@@ -1562,6 +1575,10 @@
   // qualquer desistencia. `lerMarca()` apaga o que nao for {sal, marca} e nao toca no que for —
   // chama-la na partida e o que faz a promessa do rodape ("o PIN em si nao fica guardado") valer
   // tambem para a aba que atravessou um deploy com o dono entrado.
+  // O QUE ISTO NAO ALCANCA, e esta escrito para ninguem ler "resolvido" onde nao esta: enquanto
+  // aquela aba NAO recarrega, ela continua rodando o JS de ontem, que grava o PIN em claro — e
+  // nada deste commit chega la, porque codigo novo so passa a valer na proxima carga. O alcance
+  // desta linha e "toda carga a partir de agora", nao "toda aba aberta agora".
   lerMarca();
   autoLoginLocal();
   // B1 DA AUDITORIA (23/08): o rodape passou a prometer que a fila "sobe sozinha assim que a rede

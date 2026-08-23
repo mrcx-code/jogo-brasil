@@ -66,6 +66,9 @@ const EMAIL_DONO = 'dono@mesa.brasil';
 // Um PIN improvavel de aparecer por acaso dentro de um token ou de um JSON — e o que a cena do
 // segredo procura nos valores guardados.
 const PIN_DO_ARQUIVO = '31415926';
+// 30 piscadas: cinco a mais que o TENTATIVAS_MAX=25 da pagina, para o defeito ter espaco de
+// acontecer. Com o conserto, o contador nem sai do zero; sem ele, a fila esvazia na 25a.
+const PISCADAS = 30;
 
 // ============================ A TABELA — chave por chave, frase por frase ============================
 // `diz` sao as frases que o rodape TEM de conter por causa desta chave. `fica` responde a
@@ -84,7 +87,13 @@ const CHAVES = [
   {
     chave: 'mesa-brasil-fila4', onde: 'localStorage', fica: true,
     oque: 'a fila local das respostas que ainda nao subiram — ate 50 itens / 200 KB do texto do dono',
-    diz: [/fila de respostas/i, /n[ãa]o some ao sair/i, /50/, /200/],
+    // A ultima delas e a metade HONESTA da promessa, e ela existe porque a primeira versao
+    // prometia demais: medido pela seguranca, o evento `online` so dispara quando a INTERFACE
+    // cai e volta. Servidor caido (503) e conectividade morta com Wi-Fi aceso (captive portal,
+    // DNS morto) nao disparam nada — nesses dois a fila fica parada ate a proxima carga, e e
+    // isso que a frase passou a dizer. Consertar isso no codigo seria pior: e justamente o
+    // caminho que apaga o texto do dono (ver cena 8).
+    diz: [/fila de respostas/i, /n[ãa]o some ao sair/i, /50/, /200/, /na pr[óo]xima vez que voc[êe] abrir a mesa/i],
   },
   {
     chave: 'mesa-brasil-pin-local-recusado', onde: 'sessionStorage', fica: true,
@@ -229,6 +238,13 @@ async function palco(nav, plano) {
       // `plano.escrita` e lido A CADA pedido de proposito: a cena 7 o vira de 'fechada' para
       // 'ok' no meio, que e como se simula "a rede voltou" sem recarregar nada.
       if (plano.escrita === 'ok') return rota.fulfill({ status: 201, contentType: 'application/json', body: '' });
+      // 'semrede' = o pedido nem chega a ter resposta (`err.status` indefinido, `st===0` la dentro).
+      // E o unico jeito de reproduzir a piscada da cena 8: servidor inalcancavel, nao servidor
+      // que responde mal — sao coisas diferentes e o codigo passou a trata-las diferente.
+      if (plano.escrita === 'semrede') return rota.abort('failed');
+      // numero cru = o status que a cena quiser (422 e a recusa permanente da cena 9)
+      if (typeof plano.escrita === 'number')
+        return rota.fulfill({ status: plano.escrita, contentType: 'application/json', body: '{"message":"recusado por desenho"}' });
       return rota.fulfill({ status: 401, contentType: 'application/json', body: '{"message":"row-level security"}' });
     }
     return rota.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
@@ -257,6 +273,13 @@ async function esperar(pag, fn, ms) {
 // o `lerMarca()` que apaga o PIN herdado. E ancora determinista, nao um `waitForTimeout` no
 // escuro: medido, a carga fria desta pagina levou 4112 ms (a fria; as quentes, 358 a 506 ms), e
 // era exatamente isso que fazia uma espera fixa de 900 ms reprovar a esmo.
+//
+// A CONDICAO DA ANCORA, escrita porque ate hoje era so raciocinio: ela vale enquanto `lerMarca()`
+// ficar no MESMO bloco sincrono da partida e nenhuma excecao acontecer entre uma coisa e outra.
+// A segunda metade ja e coberta pelo zero-`pageerror` da cena 6; a primeira virou PORTAO na cena
+// 2, que cobra a chamada solta no topo do bloco. Verificado pela seguranca com MutationObserver
+// registrado antes de qualquer script da pagina: `data-auth` aos 53,2 ms com a limpeza feita aos
+// 53,1 ms, e os mutantes (limpeza atrasada, limpeza ausente) dando "limpeza: nunca".
 const pronta = pag => esperar(pag, () => !!document.body.getAttribute('data-auth'), 15000);
 
 // Tudo o que a pagina gravou: o que o gravador anotou MAIS o que esta la de fato (Object.keys
@@ -306,6 +329,14 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
   ok(v.chaves.length > 0, 'a varredura achou chaves (se achasse zero, ela estaria quebrada)', String(v.chaves.length));
   for (const c of v.chaves) ok(CONHECIDA(c), 'a chave ' + c + ' esta na tabela e portanto no rodape', 'chave nova, rodape velho');
   for (const k of CHAVES) ok(v.chaves.indexOf(k.chave) >= 0, 'a tabela nao tem linha morta: ' + k.chave + ' ainda e gravada', 'a chave sumiu do codigo');
+  // A CONDICAO DA ANCORA DA CENA 6, agora cobrada em vez de raciocinada: `lerMarca();` tem de ser
+  // uma chamada SOLTA no topo do bloco da partida (dois espacos de indentacao, fora de qualquer
+  // `if`). Foi a incondicionalidade — nao a ordem — que derrubou a primeira volta: `lerMarca()`
+  // depois de `autoLoginLocal()` da no mesmo (os dois no mesmo bloco sincrono), mas
+  // `if(!ses) lerMarca()` traz o defeito de volta.
+  ok(/\r?\n {2}lerMarca\(\);/.test(fonte),
+    'lerMarca() e chamada solta no topo da partida (incondicional, sincrona)',
+    'ela saiu do topo ou virou condicional — a limpeza do PIN herdado deixa de ser garantida');
 
   const nav = await chromium.launch();
 
@@ -443,6 +474,63 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     // entao esperar mais nao salvaria o defeito (provado injetando-o: exit 1).
     const vazia = await esperar(pag, () => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length === 0);
     ok(vazia, 'a fila subiu sozinha quando a rede voltou — sem recarregar a pagina', 'continua presa depois de 8 s');
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 8
+  console.log('\n[8] PISCADA DE REDE NAO CONSOME TENTATIVA — ' + PISCADAS + ' delas com o servidor mudo');
+  cenas++;
+  // ESTA CENA EXISTE PORQUE O CONSERTO DA CENA 7 CRIOU UM DEFEITO PIOR QUE O QUE ELE CONSERTOU.
+  // O ouvinte de `online` chama `flush()` a cada piscada; com o contador de tentativas subindo
+  // tambem quando a falha e de REDE, o navegador queimava sozinho as 25 tentativas e a fila
+  // esvaziava — o texto do dono apagado por um trem passando num tunel, e em silencio. Medido
+  // pela seguranca: fila 1/tentativas 6, 12, 24, e na piscada 25 a fila zerou. Contra a main:
+  // 0 tentativas em 12 piscadas. O defeito era MEU e novo.
+  //
+  // A licao, que vale mais que a cena: consertar uma frase falsa pode criar perda de dados, e
+  // isso nao se ve lendo o codigo — so medindo o que o conserto faz quando o mundo se comporta
+  // mal. Auditor roda DEPOIS do conserto, nao so antes.
+  {
+    const plano = { escrita: 'semrede' };
+    const { ctx, pag, erros } = await palco(nav, plano);
+    ok(await falar(pag, 'texto do dono que o Wi-Fi nao pode apagar'), 'sem rede, a resposta cai na fila', 'nao caiu em 8 s');
+    for (let i = 0; i < PISCADAS; i++) {
+      await ctx.setOffline(true);
+      await ctx.setOffline(false);
+      await pag.waitForTimeout(80);
+    }
+    const f = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]'));
+    ok(f.length === 1, 'depois de ' + PISCADAS + ' piscadas, a resposta do dono AINDA esta la', 'a fila esvaziou — o texto foi descartado por causa do Wi-Fi');
+    ok(!f[0] || !f[0].tentativas, 'e nenhuma tentativa foi consumida — falha de rede nao diz nada sobre o item', f[0] && JSON.stringify(f[0].tentativas));
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 9
+  console.log('\n[9] QUANDO O DESCARTE ACONTECE MESMO, O DONO VE — nao so o console');
+  cenas++;
+  // A outra metade do achado da 3a auditoria. A cena 8 cobra que a resposta NAO seja descartada
+  // por piscada; esta cobra que, quando ela e descartada de verdade (recusa permanente do
+  // servidor), a perda apareca NA TELA. O caminho irmao — `podarFilaHerdada()` — ja avisava com
+  // `toast` desde o N10; o descarte do `lavarUm` so escrevia no console, onde ninguem olha. Perder
+  // resposta do dono em silencio e perde-la duas vezes: ele nao sabe que precisa reescrever.
+  {
+    const plano = { escrita: 422 };            // recusa permanente por desenho
+    const { ctx, pag, erros } = await palco(nav, plano);
+    ok(await falar(pag, 'resposta que o servidor recusa por desenho'), 'a recusa permanente cai na fila primeiro', 'nao caiu em 8 s');
+    // E AQUI ESTA UMA COISA QUE ESTA CENA ENSINOU AO ESCREVE-LA: `registrar()` enfileira TODA
+    // recusa, inclusive a permanente — quem decide descartar e `lavarUm()`, na lavagem SEGUINTE.
+    // Entao o descarte (e o toast) so acontece quando algo pede uma lavagem: a proxima carga, o
+    // login, ou — depois do conserto do B1 — a rede voltando. E o que se faz aqui.
+    await ctx.setOffline(true);
+    await ctx.setOffline(false);
+    const viu = await esperar(pag, () => {
+      const t = document.getElementById('toast');
+      return /descartada/i.test(t.textContent || '') && /ver/.test(t.className);
+    });
+    ok(viu, 'o descarte aparece na tela, em toast, e nao so no console', await pag.evaluate(() => document.getElementById('toast').textContent));
+    ok(await naFila(pag) === 0, 'e a resposta recusada por desenho sai da fila (nao entope)', String(await naFila(pag)));
     ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
     await ctx.close();
   }
