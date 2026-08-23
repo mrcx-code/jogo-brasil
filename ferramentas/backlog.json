@@ -194,17 +194,15 @@
     {
       "id": "territorio-rico",
       "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
-      "detalhe": "Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
+      "detalhe": "LIBERADO em 23/08 na saida do windows-plantao. Ficou em-curso por aquela maquina, e maquina que saiu deixando item travado bloqueia a outra no territorio inteiro (ferramentas/gerar-territorio.js e territorio/) ate o lock vencer. Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
       "agente": "dev-plataforma",
-      "estado": "em-curso",
+      "estado": "livre",
       "camada": "pesado",
       "territorio": [
         "ferramentas/gerar-territorio.js",
         "territorio/"
       ],
-      "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2",
-      "maquina": "windows-plantao",
-      "desde": "2026-08-23T03:20:00Z"
+      "nota": "49 pinos candidatos em territorio/PINOS-PROPOSTA.md; aprovacao pino a pino pelo dashboard (lote 1 publicado). Os pinos APROVADOS entram pelo gerador conforme o dono responde; lote 2 e o item pinos-lote-2"
     },
     {
       "id": "divulgacao-2026",
@@ -409,7 +407,7 @@
     {
       "id": "robusto-tudo",
       "titulo": "O teto de 12h do ganho offline NAO aplica: relogio adiantado nao e contido",
-      "detalhe": "Portao test/robusto-tudo.js vermelho por defeito real (exit 1, reproduzido no mac-jogo em 23/08). Medida do QA: 'dt de um carimbo absurdo devia bater no teto de 12h: 0'. E save de jogador, nao estetica — quem adianta o relogio do aparelho ganha o que nao jogou, e depois que a partida grava nao tem volta. Um dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6, que leva o CI de 5 para 12), porque CI que nasce vermelho ensina a ignorar CI. Aceite: node test/robusto-tudo.js com EXIT REAL 0, o teto aplicando sobre carimbo adiantado, e npm test + node test/encaixe.js seguindo verdes.",
+      "detalhe": "FEITO e integrado em 23/08 pelo mac-jogo. A entrega foi NAO consertar o jogo: a assercao de 09/08 protegia uma bomba que o commit 8889a6f desarmou em 18/08. Portao test/robusto-tudo.js vermelho por defeito real (exit 1, reproduzido no mac-jogo em 23/08). Medida do QA: 'dt de um carimbo absurdo devia bater no teto de 12h: 0'. E save de jogador, nao estetica — quem adianta o relogio do aparelho ganha o que nao jogou, e depois que a partida grava nao tem volta. Um dos quatro portoes que o dono mandou consertar ANTES do CI (PR #6, que leva o CI de 5 para 12), porque CI que nasce vermelho ensina a ignorar CI. Aceite: node test/robusto-tudo.js com EXIT REAL 0, o teto aplicando sobre carimbo adiantado, e npm test + node test/encaixe.js seguindo verdes.",
       "camada": "JOGO",
       "agente": "dev-jogo",
       "banca": "qa",
@@ -417,9 +415,7 @@
         "src/jogo.ts",
         "test/robusto-tudo.js"
       ],
-      "estado": "em-curso",
-      "maquina": "mac-jogo",
-      "desde": "2026-08-23T03:25:36Z"
+      "estado": "concluido"
     },
     {
       "id": "rotulo-medicao-anonima",
