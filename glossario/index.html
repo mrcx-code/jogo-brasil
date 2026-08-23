@@ -1587,7 +1587,10 @@
   var CHAVE = "phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG";
   var K_MEDIR = "jogo_brasil_medir", K_ANON = "jogo_brasil_anon";
   var TETO = 4, enviados = 0;
-  // O padrão é LIGADO e o rodapé diz isso na cara. Só a string exata "nao" desliga: um
+  // O padrão é LIGADO, e quem diz isso na cara é o INTERRUPTOR DA BARRA: ele nasce
+  // com "ligada" escrito nele. O rodapé deixou de contar o estado em 23/08, quando o
+  // botão subiu para a barra — lá ele diz onde o controle está, não como ele está.
+  // Só a string exata "nao" desliga: um
   // localStorage adulterado que traga outra coisa erra para o lado de respeitar o que a
   // página MOSTRA, que é o que a pessoa leu.
   var ligado = true;

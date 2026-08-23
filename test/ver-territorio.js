@@ -57,6 +57,15 @@ function desvioDaFaixa(cor) {
 // pixels é insensível ao grão e continua sensível ao que a régua existe para pegar, que é a luz
 // tingindo a placa INTEIRA. O quanto ela pega está MEDIDO no controle do fim deste arquivo, e
 // é menos do que se dizia: da ordem de 10% na tela, não 6%.
+//
+// E UMA HONESTIDADE QUE O QA CRUZADO COBROU, porque muda o que cada conserto pode reivindicar:
+// os DOIS consertos de 23/08 — o espelho do `__cor` na página e a mediana aqui — estão
+// CONFUNDIDOS, e cada um sozinho já deixaria o portão verde. Medido na página da main, em
+// 390x844, com a fórmula AINDA espelhada: um pixel dá #c9b78b, 15/255, reprova; a mediana 5x5
+// dá #d8c597, 0/255, aprova. Ou seja, o verde de hoje NÃO é prova de que o espelho era o
+// defeito. O espelho continua sendo bug real — está provado por outra via, comparando o
+// `__cor` velho com o pixel do reflexo lido por `drawImage`+`getImageData`, que casam byte a
+// byte nas quatro telas —, mas quem o afirma tem de apontar para ESSA prova, não para o verde.
 async function lerTopoMediana(pg) {
   return pg.evaluate(() => {
     const c = window.__centro();
@@ -204,10 +213,15 @@ async function lerTopoMediana(pg) {
   // folga), então esta régua pega luz errada da ordem de ~10% na tela para cima, e não os 6%
   // que o cabeçalho promete. Quem quiser mais fino tem de apertar a FAIXA, não a amostra — e
   // apertar a faixa é decisão de arte, não de teste. Fica medido para não ser redescoberto.
-  // E fica um desmentido: o sol 0xfff2d8 que o `gerar-territorio.js` diz ter puxado "o azul
-  // 15/255 para fora" sai HOJE em 0/255 no ponto lido. Provável explicação: aquela medição foi
-  // feita com o `__cor` ESPELHADO, isto é, noutro ponto da placa. Não reescrevi a história do
-  // gerador; o controle usa as doses que ele mesmo acabou de medir.
+  // E FICA UM NAO PROVADO, que é diferente de um desmentido: o sol 0xfff2d8 que o
+  // gerar-territorio.js diz ter puxado "o azul 15/255 para fora" sai HOJE em 0/255 no ponto
+  // lido, nas quatro telas. Eu tinha escrito que a medição original fora feita com o __cor
+  // espelhado; o QA cruzado foi ao commit que a escreveu (fad3a5d), reconstruiu a página e o
+  // máximo que obteve foi 3/255, COM espelho e SEM. Então a minha explicação não se sustenta
+  // com o que se conseguiu reproduzir: o número de 15/255 não reproduz, e a razão não foi
+  // estabelecida. O controle usa as doses que ele mesmo acabou de medir, e a história do
+  // gerador fica como está — corrigir um registro sem saber o que houve é trocar um erro por
+  // outro mais confiante.
   {
     const ORIGEM = 'https://territorio-controle.local/';
     const bruto = fs.readFileSync(path.join(RAIZ, 'territorio', 'index.html'), 'utf8');

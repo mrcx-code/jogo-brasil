@@ -9802,3 +9802,50 @@ arquivos, sem reescrever a história.
 `ver-territorio` 0 (**3/3 controles de cor**). O `smoke.js` falhou **uma vez** por tempo de relógio
 ("closing the story handed a huge dt": 7,01 px contra 1,27 px na repetição) e passou nas quatro
 rodadas seguintes, sem nada de `src/` ter sido tocado — fica registrado como intermitente.
+
+**CORREÇÃO DA ENTRADA ACIMA — o QA cruzado auditou o commit 73d895a e reprovou.** Fica como
+correção e não como reescrita, porque apagar o que eu afirmei errado tira do próximo a chance de
+ver o erro. O que sustentou: o espelho (confirmado 4/4 com verdade de terra — `drawImage` do
+palco num canvas 2D e `getImageData`, o `__cor` velho casando byte a byte com o pixel do
+reflexo), o vermelho real 1/1, a faixa intacta em 0 bits, os 9/9 e 3/3 controles, e os dois
+autoconsertos que eu declarei. O que caiu:
+
+1. **O CARTÃO DE LINK SAIU COM O INTERRUPTOR DENTRO, e é o achado grave da rodada** — não por
+   tamanho, por lugar. O `territorio/compartilhar.jpg` que eu commitei levava a tábua
+   MEDIÇÃO/ligada no quadro, e o vão de 78 px empurrou a rolagem: **"A História" sumiu inteira e
+   "Glossário" virou "lossário"**. A causa: o `cartao-secao.js`, que faz os outros três cartões,
+   esconde **todo** `position:fixed|sticky` — genérico, sobreviveu à mudança, e os três saíram
+   byte a byte iguais; o `gerar-territorio.js` escondia `#censo .med`, que é o **parágrafo**.
+   Enquanto o botão morava dentro dele bastava; depois a exclusão **parou de excluir em
+   silêncio**, com o comentário três linhas acima do print ainda dizendo que o interruptor saía.
+   Consertado com a regra do próprio instrumento do QA — **flutua E convida o dedo** (a varredura
+   genérica não serve nesta seção: `#palco` e `.env` são `fixed` e são a página inteira) —, mais
+   os alvos nomeados e um **guarda barulhento**: abaixo de dois controles escondidos o build
+   RECUSA. Medido depois: cartão sem botão e com a barra enquadrada como a da main. De quebra,
+   **7 px de deriva** que eu não tinha visto: `inline:"nearest"` não rola um elemento já visível,
+   então o cartão herdava o `scrollLeft` da carga — zerado antes de refazer a rolagem.
+2. **O mecanismo do "~10 px" estava errado para uma das três telas.** Distância entre o ponto e o
+   reflexo, medida: 1366×768 = 10 px · 1024×768 = 8 px · **768×1024 = 86 px** · 390×844 = 83 px.
+   Em 768×1024 o reflexo pula tão longe quanto no celular e ainda assim lê dentro da faixa. O que
+   decide é a distância **contra o tamanho da placa** na altura do ponto: 3% · 3% · 30% · **49%**.
+   Só em 390×844 o reflexo atravessa metade da placa e chega à borda sudoeste. A conclusão
+   ("verde por sorte") fica **mais forte**; a explicação que eu tinha escrito, não.
+3. **Os dois consertos estão CONFUNDIDOS e eu atribuí o verde ao errado.** Na página da main, em
+   390×844, com a fórmula **ainda espelhada**: 1 px dá `#c9b78b` (15/255, reprova) e a mediana
+   5×5 dá `#d8c597` (0/255, aprova). Cada mudança sozinha já apagava o vermelho. O espelho
+   continua sendo bug real — provado pela verdade de terra, não pelo verde do portão.
+4. **O desmentido do sol vira NÃO PROVADO.** O QA reconstruiu o commit `fad3a5d`, que escreveu o
+   "15/255 no azul", e o máximo que obteve foi **3/255**, com espelho e sem. A minha explicação
+   ("foi medido com o `__cor` espelhado") não se sustenta: o número não reproduz e a razão não
+   foi estabelecida.
+
+**O instrumento que fecha a categoria entrou no ramo:** `test/medir-cartao-controle.js`, escrito
+pelo QA, abre cada seção em 1200×630, aplica a MESMA exclusão daquele gerador — com **assinatura**
+do código, para a tabela não envelhecer calada — e cobra zero controle flutuante no quadro. Foi
+visto reprovando nos dois sentidos: exit 1 apontando `#medirBt` sticky em 330,31 com 72×44, e
+exit 0 depois. Acrescentei a ele a linha do TERRITÓRIO nova e um quarto controle (a exclusão nova
+tem de retirar o intruso, senão o conserto trocou um buraco por outro do mesmo tamanho): **4/4**.
+
+**A lição, e ela é de cobertura, não de descuido:** nenhum portão olhava os cartões de link, e a
+barra **a 1200 px** — que é a largura do cartão — não era medida por ninguém. A barra foi mudada
+certo e medida certo em 390/430/1366; o estrago saiu na largura que não tinha instrumento.
