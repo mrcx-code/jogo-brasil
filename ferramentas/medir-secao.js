@@ -52,6 +52,11 @@ const MEDIDA_CHAVE = 'phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG';
 const CHAVE_MEDIR = 'jogo_brasil_medir';
 const CHAVE_ANON = 'jogo_brasil_anon';
 
+// O ID DO INTERRUPTOR MORA AQUI, e o chrome da plataforma o importa daqui. O botão passou a
+// viver na BARRA DO TOPO (23/08) e a fiação continua sendo deste módulo — duas cópias da
+// string seriam duas formas de o botão existir sem ninguém o ligar em nada.
+const ID_BOTAO = 'medirBt';
+
 // O nome do evento e os cinco valores possíveis de `secao`. Quem acrescentar seção acrescenta
 // aqui, e o portão exige que o valor esteja nesta lista.
 const EVENTO = 'secao aberta';
@@ -84,25 +89,51 @@ const TETO = 4;
 // afirmação de privacidade (não há anúncio nenhum no repositório), e "some quando você apaga
 // os dados do site" é como todo localStorage funciona. As quatro que ficaram são as que
 // mudariam de valor se o código mudasse — e é por isso que são elas as cobradas pelo portão.
+//
+// O BOTÃO SAIU DAQUI EM 23/08, E O MOTIVO É UM NÚMERO. O parecer do jurídico mediu que o
+// interruptor estava a **116 telas de rolagem** do topo do glossário: ele existia, funcionava
+// (medido: desligar dá zero pedidos) e ninguém o achava. O dono decidiu manter a medição
+// LIGADA por padrão, e a condição para isso ser defensável é que desligar seja fácil — então o
+// botão subiu para a BARRA DE TÁBUAS, que é a única coisa que aparece igual nas cinco páginas.
+// A frase continua aqui, no rodapé, porque é texto de leitura e não controle; ela agora DIZ
+// onde o controle está, senão o rodapé explicaria um botão que não está mais ali.
+//
+// UM SÓ, EM TODA A PLATAFORMA. Não sobrou um segundo botão no rodapé de propósito: dois
+// controles da MESMA preferência, um deles fora da vista, é o jeito mais barato de a página
+// mostrar "ligada" num canto e "desligada" no outro.
 function rodape() {
   return '<p class="med">Esta página conta uma abertura anônima — <strong>qual seção foi '
     + 'aberta</strong>, e nada mais. Sem nome, sem e-mail, sem IP, sem cookie: só um número '
-    + 'sorteado que fica neste aparelho. Desligar desliga de verdade, aqui e no jogo. '
-    + '<button type="button" id="medirBt" class="medBt" aria-pressed="true">'
-    + 'medição: ligada</button></p>';
+    + 'sorteado que fica neste aparelho. O interruptor fica na barra do topo, em toda página. '
+    + 'Desligar desliga de verdade, aqui e no jogo.</p>';
 }
 
-// O estilo do interruptor. Usa as variáveis de cor que a página já declara, então cada seção o
-// veste com a própria paleta; `--terra` e `--pedra` existem nas quatro de papel, e o gerador do
-// TERRITÓRIO passa as dele.
-function estilo(op) {
-  op = op || {};
-  const cor = op.cor || 'var(--terra)';
-  const apagada = op.apagada || 'var(--pedra)';
-  return '  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }\n'
-    + '  .medBt { font:inherit; color:' + cor + '; background:none; border:0; padding:0;\n'
-    + '    border-bottom:1px dotted currentColor; cursor:pointer; }\n'
-    + '  .medBt[aria-pressed="false"] { color:' + apagada + '; }\n';
+// ------------------------------------------------------------------ o interruptor, no chrome
+//
+// O MARCADO É DESTE MÓDULO, A ROUPA É DO CHROME. A fiação (ler a chave, gravar, pintar o
+// estado) mora no `script()` daqui; como ele se parece com uma tábua de madeira mora no
+// `barraCss()` do `chrome-plataforma.js`. Separado assim porque a promessa que este botão faz
+// é de PRIVACIDADE — ela não pode depender de quem estiver mexendo na aparência da barra.
+//
+// O ESTADO É LEGÍVEL SEM TOCAR, e é requisito, não gosto: um interruptor que só conta o que
+// fez depois de ser apertado obriga a pessoa a mexer na própria configuração para descobri-la.
+// Duas linhas: o rótulo fixo ("medição") e o estado ("ligada"/"desligada"), este num span
+// marcado com `data-estado` — é ele que o `pintar()` reescreve, e é por isso que reescrever o
+// estado não apaga o rótulo.
+function botaoHtml() {
+  return '<button type="button" id="' + ID_BOTAO + '" class="medida" aria-pressed="true"'
+    + ' aria-label="Medição ligada. Toque para desligar."'
+    + ' title="A contagem anônima desta plataforma. Vale para o aparelho inteiro, jogo incluído.">'
+    + '<span class="medRot" aria-hidden="true">medição</span>'
+    + '<span class="medEst" data-estado>ligada</span></button>';
+}
+
+// O estilo da FRASE, e só dela. O botão não está mais aqui — ele é uma tábua da barra e se
+// veste no `barraCss()` do `chrome-plataforma.js`. Os dois parâmetros de cor que esta função
+// recebia (`cor`, `apagada`) existiam só para o botão do rodapé e saíram com ele: parâmetro que
+// ninguém lê é uma promessa de que mudá-lo faz alguma coisa.
+function estilo() {
+  return '  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }\n';
 }
 
 // ---------------------------------------------------------------- o bloco que roda na página
@@ -171,11 +202,20 @@ function script(secao) {
 + '        headers: { "Content-Type": "text/plain" }, body: JSON.stringify(corpo) })["catch"](function () {});\n'
 + '    } catch (e) {}\n'
 + '  }\n'
-+ '  var bt = document.getElementById("medirBt");\n'
++ '  // O BOTÃO ESTÁ NA BARRA DO TOPO desde 23/08, e este bloco é a fiação dele. O script vem\n'
++ '  // depois do <nav>, então o alvo já existe; o `if (!bt)` continua porque uma página futura\n'
++ '  // pode ter medição sem chrome, e medir nunca pode quebrar por causa de um botão ausente.\n'
++ '  var bt = document.getElementById(' + JSON.stringify(ID_BOTAO) + ');\n'
 + '  function pintar() {\n'
 + '    if (!bt) return;\n'
-+ '    bt.textContent = ligado ? "medição: ligada" : "medição: desligada";\n'
++ '    // Só o pedaço do ESTADO é reescrito: o rótulo "medição" fica, e é ele que diz do que\n'
++ '    // este botão trata quando a barra está rolada e só ele aparece.\n'
++ '    var est = bt.querySelector("[data-estado]");\n'
++ '    if (est) est.textContent = ligado ? "ligada" : "desligada";\n'
++ '    else bt.textContent = ligado ? "medição: ligada" : "medição: desligada";\n'
 + '    bt.setAttribute("aria-pressed", ligado ? "true" : "false");\n'
++ '    bt.setAttribute("aria-label", ligado ? "Medição ligada. Toque para desligar."\n'
++ '      : "Medição desligada. Toque para ligar.");\n'
 + '  }\n'
 + '  if (bt) bt.addEventListener("click", function () {\n'
 + '    ligado = !ligado;\n'
@@ -190,6 +230,6 @@ function script(secao) {
 
 module.exports = {
   MEDIDA_HOST, ENDERECO_MEDIDA, MEDIDA_CHAVE,
-  CHAVE_MEDIR, CHAVE_ANON, EVENTO, SECOES, PERMITIDAS, TETO,
-  rodape, estilo, script
+  CHAVE_MEDIR, CHAVE_ANON, ID_BOTAO, EVENTO, SECOES, PERMITIDAS, TETO,
+  rodape, estilo, botaoHtml, script
 };

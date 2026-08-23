@@ -18,6 +18,11 @@ const path = require('path');
 const fs = require('fs');
 const ABRIR = require('../test/abrir.js');
 const CHROME = require('./chrome-plataforma.js');
+// A MEDIÇÃO DA PORTA SAI DO MESMO MÓDULO DAS OUTRAS QUATRO desde 23/08. Ela era uma CÓPIA
+// colada dentro do molde — setenta e três linhas byte a byte iguais ao `MED.script('porta')`,
+// com a chave, o host, o teto e a frase repetidos. Cópia não erra hoje; erra no dia em que a
+// regra do §3 mudar num lugar só, e o sintoma seria a porta medindo com uma lei antiga.
+const MED = require('./medir-secao.js');
 // o endereço mora numa linha só — mas a porta nao redigita numero nenhum, só arte e chrome.
 const { BASE } = require('./dominio.js');
 
@@ -58,6 +63,9 @@ const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).jo
   const trocas = {
     '{{CHROME_STYLE}}': chromeStyle,
     '{{BARRA}}': barra,
+    '{{MED_ESTILO}}': MED.estilo(),
+    '{{MED_RODAPE}}': MED.rodape(),
+    '{{MEDICAO}}': MED.script('porta'),
     '{{N_MOMENTOS}}': String(num.momentos),
     '{{N_MOMENTOS_FONTE}}': String(num.momentosFonte),
     '{{N_VERBETES}}': String(num.verbetes),

@@ -161,10 +161,7 @@
 
   footer.rod{max-width:46rem;margin:2.6rem auto 0;padding:1.4rem 1.25rem 3rem;border-top:1px solid var(--linha);
     color:var(--pedra);font-size:.9rem;text-align:center}
-  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }
-  .medBt { font:inherit; color:var(--terra); background:none; border:0; padding:0;
-    border-bottom:1px dotted currentColor; cursor:pointer; }
-  .medBt[aria-pressed="false"] { color:var(--pedra); }
+{{MED_ESTILO}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 {{CHROME_STYLE}}
@@ -240,7 +237,7 @@
 
     <footer class="rod">
       <p>Ninguém descobriu nada — havia gente aqui, com língua, roça, cidade e nome. Esta é a história delas, e a nossa.</p>
-      <p class="med">Esta página conta uma abertura anônima — <strong>qual seção foi aberta</strong>, e nada mais. Sem nome, sem e-mail, sem IP, sem cookie: só um número sorteado que fica neste aparelho. Desligar desliga de verdade, aqui e no jogo. <button type="button" id="medirBt" class="medBt" aria-pressed="true">medição: ligada</button></p>
+      {{MED_RODAPE}}
     </footer>
   </main>
 
@@ -254,78 +251,6 @@
       setInterval(function(){ i=(i+1)%q.length; el.src=q[i]; }, 150);
     })();
   </script>
-<script>
-(function () {
-  var SECAO = "porta";
-  var ENDERECO = "https://us.i.posthog.com/i/v0/e/";
-  var CHAVE = "phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG";
-  var K_MEDIR = "jogo_brasil_medir", K_ANON = "jogo_brasil_anon";
-  var TETO = 4, enviados = 0;
-  // O padrão é LIGADO e o rodapé diz isso na cara. Só a string exata "nao" desliga: um
-  // localStorage adulterado que traga outra coisa erra para o lado de respeitar o que a
-  // página MOSTRA, que é o que a pessoa leu.
-  var ligado = true;
-  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }
-  function sorteado() {
-    var b = new Uint8Array(16), s = "", i;
-    try { crypto.getRandomValues(b); } catch (e) {
-      for (i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);
-    }
-    for (i = 0; i < 16; i++) s += (b[i] + 256).toString(16).slice(1);
-    return s;
-  }
-  // Um identificador que não veio de você: dezesseis bytes sorteados. Não é o aparelho,
-  // não é o navegador, não é hora nem tela. É o MESMO do jogo, de propósito — dois números
-  // seriam dois identificadores, não meio.
-  function id() {
-    var g = null;
-    try { g = localStorage.getItem(K_ANON); } catch (e) { g = null; }
-    if (typeof g === "string" && /^[0-9a-f]{32}$/.test(g)) return g;
-    var novo = sorteado();
-    try { localStorage.setItem(K_ANON, novo); } catch (e) {}
-    return novo;
-  }
-  function medir() {
-    if (!ligado) return;
-    // Aberta com dois cliques do arquivo não há domínio, e o fetch sairia com origem null:
-    // o navegador o recusaria com erro no console. Mesma guarda do jogo.
-    if (location.protocol === "file:") return;
-    if (enviados >= TETO) return;
-    enviados++;
-    var corpo = {
-      api_key: CHAVE,
-      event: "secao aberta",
-      distinct_id: id(),
-      properties: {
-        $ip: null,                      // descarte o endereço; não o guarde, não o geolocalize
-        $process_person_profile: false, // conte o evento e não abra ficha de ninguém
-        $lib: "brasil",                 // não é a biblioteca do PostHog; é este bloco
-        secao: SECAO
-      },
-      timestamp: new Date().toISOString()
-    };
-    // text/plain é o único tipo que não dispara verificação prévia; credentials "omit" é o
-    // que garante que cookie nenhum vai nem volta; keepalive deixa o pedido sair de uma aba
-    // que já está fechando. E o catch vazio é a parte importante do bloco.
-    try {
-      fetch(ENDERECO, { method: "POST", credentials: "omit", keepalive: true,
-        headers: { "Content-Type": "text/plain" }, body: JSON.stringify(corpo) })["catch"](function () {});
-    } catch (e) {}
-  }
-  var bt = document.getElementById("medirBt");
-  function pintar() {
-    if (!bt) return;
-    bt.textContent = ligado ? "medição: ligada" : "medição: desligada";
-    bt.setAttribute("aria-pressed", ligado ? "true" : "false");
-  }
-  if (bt) bt.addEventListener("click", function () {
-    ligado = !ligado;
-    try { localStorage.setItem(K_MEDIR, ligado ? "sim" : "nao"); } catch (e) {}
-    pintar();
-  });
-  pintar();
-  medir();
-})();
-</script>
+{{MEDICAO}}
 </body>
 </html>

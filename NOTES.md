@@ -9748,3 +9748,57 @@ prioridade cai*). E a **repaginação visual**, que o dono abriu e ainda dirige:
 Lovable como exploração, a tentativa própria (`salvador-1835`) recusada por ele. A tese que
 sobreviveu é o **Futurismo Ancestral** — Krenak (*Futuro Ancestral*, 2022), Denilson Baniwa,
 Jaider Esbell, Rosana Paulino. Nada disso encosta no jogo sem passar pelo dono: é §2.
+
+---
+
+### 23/08 — o interruptor de privacidade sobe para o chrome, e o quarto vermelho do TERRITÓRIO era um Y espelhado (dev-plataforma, worktree)
+
+**1. O interruptor da medição virou uma tábua da barra, nas cinco páginas.** O número que pediu:
+o parecer do jurídico mediu que ele estava a **116 telas de rolagem** do topo em algumas páginas
+— existia, funcionava (o `medir-paginas.js` prova zero pedido depois de desligar) e ninguém o
+achava. O dono decidiu **manter a medição LIGADA por padrão**, e a condição que ele pôs para isso
+ser defensável é desligar ser fácil. Feito no `chrome-plataforma.js` (a roupa) + `medir-secao.js`
+(a fiação), então nasce igual em porta · A HISTÓRIA · glossário · DE ONDE VEM · O TERRITÓRIO.
+Medido nas 5 páginas × 3 larguras (390/430/1366): alvo **71,6×44 px** (mínimo 44), elementFromPoint
+acerta 15/15, **um só** `#medirBt` no documento, **zero** botão sobrando no rodapé, zero rolagem
+horizontal, zero fonte de rede nova. O estado é legível sem tocar: rótulo "medição" em cima,
+"ligada"/"desligada" embaixo, com `aria-pressed` concordando. **A preferência continua sendo UMA**
+(`jogo_brasil_medir`, a mesma do jogo).
+
+**Duas coisas que só o print mostrou, e as duas viraram linha de portão:** a tábua **"você está
+aqui"** de O TERRITÓRIO ficava EMBAIXO do interruptor grudado (sobrava a letra "O" de "O
+Território") — consertado com um vão de 78 px no fim da barra + `scroll-padding-right`, e cobrado
+agora; e a porta tinha uma **cópia byte a byte** do bloco de medição dentro do
+`plataforma/molde.html` (73 linhas, com chave, host e teto repetidos) — virou
+`{{MEDICAO}}`/`{{MED_RODAPE}}`/`{{MED_ESTILO}}` preenchido pelo `gerar-porta.js` a partir do
+módulo único.
+
+**2. O quarto vermelho do `ver-territorio.js` era a PÁGINA, e o defeito é de uma linha.** O QA
+reproduziu 2/2: em 390×844 o topo saía `#c9b78b`, **15/255** fora da faixa travada; nos outros três
+viewports, 0/255. Diagnóstico com o estado impresso antes do segundo palpite (lição 2.9): o
+`window.__cor` do gerador lia `altura * (1 - fy)`, que é y de CSS (conta de cima), enquanto o
+`readPixels` do WebGL **conta de baixo** e o `fy` vem de `Vector3.project()` (NDC, y para cima).
+O instrumento lia o **espelho vertical** do ponto pedido. O erro vale o dobro da distância entre a
+placa e o meio da tela: nos três viewports largos a placa nasce a ~10 px do meio e o espelho caía
+sobre ela mesma (verde por sorte); em 390×844 a placa vive na faixa entre o cabeçalho e o painel do
+censo, centro em y=388 de 844, e o espelho ia parar em **y=456**, quase na borda sudoeste.
+Medido antes → depois: `#c9b78b` (15/255) → **`#e9d8ae` (0/255)** em 390×844, e 0/255 nos quatro.
+**A faixa não foi alargada em um bit.**
+
+**3. Duas coisas que a investigação encontrou de brinde, e ficam medidas.** (a) Ler **um pixel** era
+loteria contra o grão: num retalho de 21×21 em volta do centro, **1,8%** dos pixels estão fora da
+faixa em 390×844, 4,8% em 1366×768, 5,9% em 768×1024, 5,7% em 1024×768 — poro e cisco da Onda 11,
+que são fora da faixa **de propósito**. A leitura passou a ser a **mediana de 5×5**; a régua é a
+mesma. (b) Varrida a sensibilidade real dessa régua: sol `0xfff2d8` → 0/255 (passa), `0xffe8c0` →
+0/255 (passa), `0xffd28c` → 17/255 (reprova); luz somando 0,90 → 0/255 (passa), 0,78 → 7/255
+(reprova). Ou seja, ela pega desvio da ordem de **10% na tela**, não os 6% que o cabeçalho dizia —
+e o sol `0xfff2d8` que o gerador diz ter sido pego "15/255 fora" **não reproduz** hoje no ponto
+lido, provavelmente porque foi medido com o `__cor` espelhado. Corrigido no comentário dos dois
+arquivos, sem reescrever a história.
+
+**Portões (exit code real):** `npm test` 0 · `encaixe` 0 · `medir-save-hostil` 0 ·
+`medir-telas-altura 360 500 950` 0 · `medir-paginas` 0 (187) · `medir-porta-secao` 0 ·
+`medir-leitura-secao` 0 · `medir-plataforma-chrome` 0 (**226 verificações, 9/9 controles**) ·
+`ver-territorio` 0 (**3/3 controles de cor**). O `smoke.js` falhou **uma vez** por tempo de relógio
+("closing the story handed a huge dt": 7,01 px contra 1,27 px na repetição) e passou nas quatro
+rodadas seguintes, sem nada de `src/` ter sido tocado — fica registrado como intermitente.

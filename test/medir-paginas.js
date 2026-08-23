@@ -185,7 +185,12 @@ function conferirCorpo(pag, c, cabecalhos, url, reprovar) {
     const outros = (t.match(/fetch\(\s*["'][^"']*["']/g) || []).filter((s) => s.indexOf('ENDERECO') < 0);
     ok(outros.length === 0, pag.secao + ': nenhum fetch com endereço literal fora da constante'
       + (outros.length ? ' — achei ' + outros[0] : ''));
-    ok(t.indexOf('id="medirBt"') > 0, pag.secao + ': o interruptor está no rodapé da página');
+    // O INTERRUPTOR SUBIU PARA A BARRA em 23/08 (ele estava a 116 telas de rolagem do topo, e
+    // o dono manteve a medição ligada por padrão sob a condição de desligar ser fácil). Aqui a
+    // cobrança é só de que ele EXISTE e é UM — onde ele fica e se dá para acertá-lo com o dedo
+    // é do `test/medir-plataforma-chrome.js`, que mede a página aberta em três larguras.
+    const nBt = (t.split('id="medirBt"').length - 1);
+    ok(nBt === 1, pag.secao + ': o interruptor está na página, UMA vez (achei ' + nBt + ')');
     ok(/abertura anônima/.test(t) && /Sem nome, sem e-mail, sem IP, sem cookie/.test(t),
       pag.secao + ': e a frase de privacidade que ele torna verdadeira está ao lado dele');
     ok(/Desligar desliga de verdade, aqui e no jogo/.test(t),

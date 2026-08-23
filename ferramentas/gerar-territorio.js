@@ -214,8 +214,9 @@ ${CHROME.barraCss()}
     letter-spacing:-.01em; white-space:nowrap; }
   .fonte { margin:.5rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
   .fonte + .fonte { margin-top:.3rem; }
-${MED.estilo({ cor: '#7a4a13', apagada: 'var(--pedra)' })}  /* no papel do censo a linha da medição
-     é crédito, como as duas fontes acima: mesmo tamanho, mesma cor, sem pedir a vez. */
+${MED.estilo()}  /* no papel do censo a linha da medição é crédito, como as duas fontes acima:
+     mesmo tamanho, mesma cor, sem pedir a vez. As duas cores que esta chamada passava
+     (cor/apagada) vestiam o botão do rodapé, que subiu para a barra em 23/08. */
   #censo .med { margin:.45rem 0 0; font-size:.72rem; line-height:1.42; color:var(--pedra); }
   #censo .med strong { font-weight:600; color:var(--tinta2); }
 
@@ -657,13 +658,29 @@ function pinoPerto(px, py) {
 }
 /* A COR LIDA DO BUFFER, para o instrumento poder cobrar a paleta travada. Ela re-renderiza
    antes de ler porque o navegador apaga o buffer de desenho ao compor a tela — sem isso, o
-   readPixels devolve preto e o instrumento acusaria uma placa preta que ninguém vê. */
+   readPixels devolve preto e o instrumento acusaria uma placa preta que ninguém vê.
+
+   O EIXO Y DO readPixels CONTA DE BAIXO, e ele ESTAVA ESPELHADO aqui (consertado em 23/08).
+   fx/fy chegam de __centro(), que sai de Vector3.project(): são fração de NDC, e em NDC
+   o y cresce PARA CIMA — fy=1 é o topo da tela. O readPixels do WebGL também conta de
+   baixo, então a linha certa é altura * fy; a linha antiga era altura * (1 - fy), que é a
+   conversão para y de CSS (que conta de cima). O resultado é que o instrumento lia o ESPELHO
+   VERTICAL do ponto pedido, refletido no meio do canvas.
+   POR QUE SÓ O CELULAR RETRATO ACUSOU: o erro vale o DOBRO da distância entre o ponto e o meio
+   da tela. Em 1366x768, 1024x768 e 768x1024 a placa nasce quase no meio vertical (o desvio
+   medido foi de 10 px), e o espelho caía em cima da própria placa — 0/255 fora da faixa, verde
+   por sorte. Em 390x844 a placa vive na FAIXA entre o cabeçalho e o painel do censo, com o
+   centro em y=388 de 844: o espelho ia parar em y=456, a 68 px dali, quase na borda sudoeste,
+   e lia #c9b78b — 15/255 fora da faixa. O vermelho era real e o defeito era ESTE, não a tinta.
+   Medido depois do conserto: 0/255 nos quatro. */
 window.__cor = function (fx, fy) {
   render.render(cena, camera);
   const g = render.getContext();
   const px = new Uint8Array(4);
-  g.readPixels(Math.round(render.domElement.width * fx), Math.round(render.domElement.height * (1 - fy)),
-    1, 1, g.RGBA, g.UNSIGNED_BYTE, px);
+  const W = render.domElement.width, H = render.domElement.height;
+  const x = Math.max(0, Math.min(W - 1, Math.round(W * fx)));
+  const y = Math.max(0, Math.min(H - 1, Math.round(H * fy)));   // fy=1 é o TOPO, e o topo do
+  g.readPixels(x, y, 1, 1, g.RGBA, g.UNSIGNED_BYTE, px);        // readPixels é H-1
   return [px[0], px[1], px[2]];
 };
 // a posição do pino em px de CSS — é o que o instrumento (test/ver-territorio.js) precisa para
