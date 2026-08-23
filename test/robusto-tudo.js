@@ -195,6 +195,43 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     if (b.energia !== 500 || b.total !== 1000) falhas.push('2b: a energia mudou com carimbo absurdo: ' + b.energia);
     if (!isFinite(b.ganho) || b.ganho <= 0) falhas.push('2b: ganhoClique degradou com carimbo absurdo: ' + b.ganho);
 
+    // 2c. RECUSOU, ou NÃO RODOU? — acrescentado pelo QA em 23/08, e é o que falta à 2b.
+    // Zero é o valor INICIAL de `voltouDepoisDe`, então "vale 0 depois do reload" passa nos
+    // DOIS mundos: naquele em que o guarda recusou o carimbo, e naquele em que o cálculo do
+    // tempo fora nem aconteceu. MEDIDO: com um `return` plantado em `carregar()` logo antes
+    // do bloco do `dt`, a 2b inteira continuava VERDE e a suíte saía com exit 0.
+    // O conserto é carimbar a variável com −1 ANTES de chamar `carregar()`: −1 que sobrevive
+    // é "não rodou", 0 é "alguém decidiu que vale zero". De quebra, as três medidas do
+    // commit 8889a6f passam a ser cobradas no mesmo lugar, inclusive a que a trava fraca da
+    // manhã de 18/08 deixava passar (um carimbo DENTRO da faixa do esquema que não é relógio).
+    const c = await page.evaluate(() => {
+      salvar = function () {}; salvarRetencao = function () {};
+      const o = {};
+      const rodar = (carimbo) => {
+        localStorage.setItem(CHAVE_JOGO, JSON.stringify({ energia: 500, energiaTotal: 1000, salvoEm: carimbo }));
+        voltouDepoisDe = -1;
+        carregar();
+        return { volta: Math.round(voltouDepoisDe), salvoEm: S.salvoEm };
+      };
+      o.forjado = rodar(5e12);            // fora da faixa do esquema -> padrão 0
+      o.mil = rodar(1000);                // DENTRO da faixa, e ainda assim não é relógio (1970)
+      o.legitimo = rodar(Date.now() - 3 * 365 * 864e5);
+      o.oito = rodar(Date.now() - 8 * 3600 * 1000);
+      o.teto = CFG.capOfflineHoras * 3600;
+      if (typeof fecharRetorno === 'function') fecharRetorno();
+      return o;
+    });
+    console.log(cena, '2c: sentinela -1 antes de carregar() ->',
+      'forjado(5e12)', c.forjado.volta + 's', '| dentro-da-faixa(1000)', c.mil.volta + 's',
+      '| relógio legítimo de 3 anos', c.legitimo.volta + 's (teto ' + c.teto + 's)',
+      '| ausência honesta de 8 h', c.oito.volta + 's');
+    if (c.forjado.volta === -1) falhas.push('2c: o cálculo do tempo fora NÃO RODOU para o carimbo forjado — a 2b estaria lendo o valor inicial, não uma recusa');
+    if (c.forjado.volta !== 0) falhas.push('2c: carimbo forjado devia ser RECUSADO com 0 s, veio ' + c.forjado.volta);
+    if (c.mil.salvoEm !== 1000) falhas.push('2c: salvoEm=1000 está DENTRO da faixa do esquema e devia chegar intacto ao guarda, veio ' + c.mil.salvoEm);
+    if (c.mil.volta !== 0) falhas.push('2c: "maior que zero" não é a pergunta — salvoEm=1000 (1970) devia valer 0 s, veio ' + c.mil.volta);
+    if (c.legitimo.volta !== c.teto) falhas.push('2c: relógio LEGÍTIMO adiantado 3 anos devia bater no teto de 12 h, veio ' + c.legitimo.volta);
+    if (c.oito.volta !== 28800) falhas.push('2c: a ausência honesta de 8 h devia continuar valendo 28.800 s, veio ' + c.oito.volta);
+
     await page.close();
   }
 
