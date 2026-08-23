@@ -49,6 +49,36 @@ process.stdin.on('end', () => {
   const rel = path.relative(RAIZ, real(alvo)).split(path.sep).join('/');
   const recusar = (motivo) => { process.stderr.write(motivo); process.exit(2); };
 
+  // ---- 0. O PORTAO FALA QUANDO AS DUAS PONTAS DISCORDAM — cobranca do mac-jogo em 23/08, e
+  // ela e certa: eu tinha aplicado o remendo do symlink e nao a sugestao dele. O `path.relative`
+  // era o SINTOMA; a doenca era o SILENCIO. Um caminho que resolve para fora da raiz nao casa
+  // territorio nenhum, entao o guarda passa sem escrever uma linha — e foi assim que a trava
+  // inteira sumiu no Mac sem ninguem notar, por um symlink em /var/folders.
+  //
+  // ESCREVER FORA DA RAIZ E LEGITIMO E COMUM (rascunho, recado, area temporaria), e gritar em
+  // toda escrita dessas seria ruido — e ruido e como se aprende a ignorar um portao. O que NAO
+  // e legitimo e a DISCORDANCIA: o caminho cru parecer de dentro e o resolvido cair fora, ou o
+  // contrario. Isso e sempre defeito de resolucao (symlink, junction, montagem), nunca intencao
+  // de quem escreveu — e e exatamente o caso que passou calado.
+  //
+  // Sai por stderr com codigo 0: avisa sem cancelar a chamada. O que muda e que, na proxima vez
+  // que a trava sumir, alguem le o motivo em vez de descobrir dias depois.
+  const relCru = path.relative(RAIZ, path.resolve(alvo)).split(path.sep).join('/');
+  const dentro = (r) => r !== '' && !r.startsWith('../') && !path.isAbsolute(r);
+  if (dentro(relCru) !== dentro(rel)) {
+    process.stderr.write([
+      'AVISO do portao: as duas pontas do caminho discordam, e por isso NENHUMA trava foi aplicada.',
+      '  cru       -> ' + (relCru || '(a propria raiz)') + '   [' + (dentro(relCru) ? 'DENTRO' : 'fora') + ' da raiz]',
+      '  resolvido -> ' + (rel || '(a propria raiz)') + '   [' + (dentro(rel) ? 'DENTRO' : 'fora') + ' da raiz]',
+      '  raiz      -> ' + RAIZ,
+      'Isto e defeito de resolucao (symlink, junction, montagem), nao intencao de quem escreveu.',
+      'A escrita SEGUE — mas a saida de build, o lock entre maquinas e a zona do dono NAO foram',
+      'conferidos para este arquivo. Num clone sob caminho com symlink, e por isso.',
+      '(PENDENTES 59; o remendo entrou em 23/08, e este aviso e a outra metade que o mac-jogo pediu)',
+      ''
+    ].join('\n'));
+  }
+
   // ---- 1. SAÍDA DE BUILD. Escrever aqui não é errado, é INÚTIL: o próximo `npm run build`
   // apaga. O sintoma é pior que um erro — o trabalho some sem ninguém notar, e a sessão
   // seguinte lê o arquivo de ontem achando que é o de hoje.
