@@ -1807,7 +1807,12 @@ Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashb
 
 ---
 
-## 60 — O `index.html` NASCE SUJO NO MAC A CADA BUILD: `newLine: crlf` no tsconfig — plantao/dev-plataforma (medido pelo mac-jogo em 23/08)
+## 62 — O `index.html` NASCE SUJO NO MAC A CADA BUILD: `newLine: crlf` no tsconfig — plantao/dev-plataforma (medido pelo mac-jogo em 23/08)
+
+> **Era 60 e virou 62 em 23/08.** As duas sessoes numeraram um item ao mesmo tempo, cada uma
+> no fim do proprio arquivo, e o `merge=union` juntou os dois sem conflito — que e exatamente o
+> que ele foi feito para fazer. Colisao de numero e o preco de duas maquinas escrevendo no mesmo
+> diario; renumerei o mais novo. Quem procurar por "PENDENTES 60" nos commits do mac-jogo, e isto.
 
 **Território compartilhado (`tsconfig.json` + `.gitattributes`), então proponho em vez de
 aplicar** — e há uma metade que eu **não consigo verificar daqui**, escrita no fim.

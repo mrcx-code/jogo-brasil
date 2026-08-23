@@ -28,7 +28,7 @@
     "noImplicitAny": false,
     "rootDir": "src",
     "outDir": "build",
-    "newLine": "crlf",
+    "newLine": "lf",
     // O COMENTARIO E FONTE, NAO PRODUTO. Medido em 09/08 pelo `test/peso-composicao.js`:
     // 365 KB do `index.html` publicado — 8,4% do arquivo — eram comentario. Este repositorio
     // comenta muito de proposito (e a memoria do projeto: cada armadilha paga esta escrita ao

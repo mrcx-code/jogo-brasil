@@ -12,3 +12,26 @@ EQUIPE.md merge=union
 ferramentas/conteudo/*.json text eol=lf
 ferramentas/conteudo/*.md text eol=lf
 .gitignore merge=union
+
+# A SAIDA DO BUILD E LF EM TODA MAQUINA (medido pelo mac-jogo em 23/08, PENDENTES 62). O
+# `newLine: crlf` do tsconfig entrou sem comentario num commit de outro assunto e fazia todo
+# `npm test` no Mac deixar o index.html com 9.863 linhas de diff — 100% fim-de-linha, zero byte
+# de texto. No Windows nao aparecia porque o autocrlf=true normaliza nos dois sentidos e fecha o
+# circulo. Arvore suja por ruido deixa de ser sinal: o mac-jogo descartou tres stashes so por
+# isso, e qualquer um podia estar escondendo trabalho.
+# As DUAS pecas sao necessarias: o tsconfig em lf faz o build emitir LF, e esta linha impede que
+# o autocrlf do Windows desfaca a primeira no checkout. Mesma familia do eol=lf do conteudo acima.
+index.html text eol=lf
+
+# E OS FONTES TAMBEM, que e a peca que o mac-jogo nao tinha como medir de la. Com as duas pecas
+# do PENDENTES 62 o build ainda saia com 3.333 CR nesta maquina — 2.837 vindos do estilo.css e
+# 496 do molde, que o autocrlf=true entrega em CRLF no disco e o build embute como leu. So o
+# `tsc` respeita o newLine; o que e copiado verbatim nao passa por ele. Sem esta linha o
+# conserto apenas troca quem paga: limpa o Mac e suja o Windows.
+# Com ela, as duas maquinas constroem o MESMO byte, que e o ponto.
+src/* text eol=lf
+
+# A CAIXA DE CORREIO ENTRE AS SESSOES tambem e append-only (23/08). Mesma razao dos diarios:
+# duas maquinas escrevem recado no fim do arquivo ao mesmo tempo e isso nao e conflito de
+# verdade -- os dois recados valem.
+RECADOS.md merge=union
