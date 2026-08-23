@@ -450,7 +450,7 @@
     </div>
   </section>
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e um contador de erros de PIN, até você sair. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
+  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e o contador de erros de PIN, e os dois são apagados quando você sai. Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): essa não some ao sair, porque apagá-la jogaria fora o que você escreveu — ela sobe sozinha assim que a rede volta. Rodando local, há ainda uma marca de PIN recusado, que morre ao fechar a aba e é uma derivação — o PIN em si não fica guardado. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -592,11 +592,20 @@
   // Ou seja: sair encurta a exposição de horas/dias para minutos. Não a zera.
   // Sem `await` de propósito: sair é instantâneo para quem toca o botão, e rede caída não pode
   // impedir ninguém de sair do próprio aparelho. `keepalive` faz o pedido sobreviver à navegação.
+  // E SAIR APAGA TAMBEM O CONTADOR DE ERROS DE PIN (PENDENTES 60, 23/08). O rodape prometia
+  // "ate voce sair" para as duas coisas e cumpria para UMA: o contador so morria em login OK,
+  // entao quem saia com tres erros na conta voltava com tres, e a frase era falsa. Zerar aqui
+  // e o conserto no CODIGO — a alternativa era esticar o rodape para explicar a excecao, e
+  // frase que explica excecao e frase que ninguem le. `zerarTentativas` esta declarada mais
+  // abaixo: declaracao de funcao sobe, e as duas moram no mesmo escopo deste arquivo.
+  // Nao ha risco de folga aqui: aquele contador e UX (o comentario dele diz isso por extenso),
+  // quem ataca nao passa por esta pagina, e sair exige ja estar dentro.
   function sair(){
     if(ses && ses.access_token){
       try{ fetch(SB_URL+"/auth/v1/logout",{method:"POST",headers:comToken(ses),keepalive:true}).catch(function(){}); }catch(e){}
     }
     gravarSessao(null);
+    zerarTentativas();
   }
   // Rede caída NÃO desloga; refresh_token recusado pelo servidor, sim.
   function refrescar(){
@@ -937,10 +946,72 @@
   // recusado no sessionStorage e nao repeti-lo corta isso pela raiz: erra UMA vez por sessao de
   // navegador, nao uma por carga. sessionStorage e nao localStorage de proposito — some quando
   // a aba fecha, entao um PIN corrigido no arquivo volta a ser tentado numa aba nova, sem exigir
-  // que ninguem limpe nada. E o PIN recusado nao e o PIN certo: guardar o errado nao vaza segredo.
+  // que ninguem limpe nada.
+  //
+  // O QUE FICA GUARDADO NAO E O PIN, E ISSO MUDOU EM 23/08 (PENDENTES 60, achado do juridico).
+  // A versao de 22/08 escrevia o PIN recusado em claro no sessionStorage, com o argumento de que
+  // "o recusado nao e o certo". O argumento e fraco onde mais importa: o caso que esta funcao
+  // existe para atender e justamente o do dono que TROCOU o PIN e esqueceu de reescrever o
+  // arquivo — o valor recusado ali e, quase sempre, o PIN ANTERIOR dele, escrito por extenso
+  // num lugar que qualquer script da pagina le. Credencial nao se guarda no navegador, e nao
+  // ha dose pequena disso.
+  //
+  // O que se guarda agora e uma DERIVACAO: PBKDF2-SHA256 com sal aleatorio de 16 bytes, pelo
+  // `crypto.subtle` do proprio navegador (nada caseiro, nenhuma biblioteca). Ela responde a
+  // unica pergunta que a funcao precisa fazer — "este PIN e o mesmo que ja foi recusado?" —
+  // sem guardar a resposta. O sal aleatorio e o que impede a tabela: sem ele, um PIN de oito
+  // digitos e 10^8 hashes, coisa de segundos. Com sal e VOLTAS_PBKDF2 iteracoes, a mesma
+  // varredura custa 10^8 x VOLTAS derivacoes, e deixa de valer a pena para um dado que morre
+  // ao fechar a aba.
+  //
+  // O CUSTO, dito: derivar leva dezenas de milissegundos, e acontece no maximo uma vez por
+  // carga (so quando ha marca guardada). Onde nao houver `crypto.subtle` (contexto inseguro),
+  // a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga — degradar para o
+  // comportamento antigo e aceitavel; degradar para guardar o segredo nao e.
   var PIN_RECUSADO="mesa-brasil-pin-local-recusado";
-  function pinJaRecusado(pin){ try{ return sessionStorage.getItem(PIN_RECUSADO)===pin; }catch(e){ return false; } }
-  function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }
+  var VOLTAS_PBKDF2=60000;
+  function subtil(){ try{ return (window.crypto && window.crypto.subtle) || null; }catch(e){ return null; } }
+  function emHex(u8){ var s="",i; for(i=0;i<u8.length;i++) s+=("0"+u8[i].toString(16)).slice(-2); return s; }
+  function deHex(h){ var u=new Uint8Array(h.length>>1),i; for(i=0;i<u.length;i++) u[i]=parseInt(h.substr(i*2,2),16); return u; }
+  // Devolve a marca em hex, ou null se o navegador nao tem WebCrypto — nunca o PIN.
+  function derivarMarca(pin,sal){
+    var c=subtil(); if(!c) return Promise.resolve(null);
+    var chave;
+    try{ chave=c.importKey("raw",new TextEncoder().encode(pin),{name:"PBKDF2"},false,["deriveBits"]); }
+    catch(e){ return Promise.resolve(null); }
+    return Promise.resolve(chave)
+      .then(function(k){ return c.deriveBits({name:"PBKDF2",salt:sal,iterations:VOLTAS_PBKDF2,hash:"SHA-256"},k,256); })
+      .then(function(b){ return emHex(new Uint8Array(b)); })
+      .catch(function(){ return null; });
+  }
+  // Le a marca guardada. Valor no formato VELHO (o PIN em claro, de uma aba aberta antes desta
+  // versao) nao se le: apaga-se na hora. E o unico jeito de tirar o segredo de uma aba que ja
+  // esta aberta, sem esperar ela fechar.
+  function lerMarca(){
+    var cru=null;
+    try{ cru=sessionStorage.getItem(PIN_RECUSADO); }catch(e){ return null; }
+    if(!cru) return null;
+    var o=null; try{ o=JSON.parse(cru); }catch(e){}
+    if(!o || typeof o.sal!=="string" || typeof o.marca!=="string"){
+      try{ sessionStorage.removeItem(PIN_RECUSADO); }catch(e){}
+      return null;
+    }
+    return o;
+  }
+  function pinJaRecusado(pin){
+    var o=lerMarca(); if(!o) return Promise.resolve(false);
+    return derivarMarca(pin,deHex(o.sal)).then(function(m){ return m!==null && m===o.marca; });
+  }
+  function marcarRecusado(pin){
+    var c=subtil(); if(!c) return Promise.resolve(false);
+    var sal=new Uint8Array(16);
+    try{ window.crypto.getRandomValues(sal); }catch(e){ return Promise.resolve(false); }
+    return derivarMarca(pin,sal).then(function(m){
+      if(m===null) return false;
+      try{ sessionStorage.setItem(PIN_RECUSADO,JSON.stringify({sal:emHex(sal),marca:m})); }catch(e){}
+      return true;
+    });
+  }
   function autoLoginLocal(){
     if(!LOCAL || ses) return;
     var pedido;
@@ -949,9 +1020,11 @@
       .then(function(t){
         var pin=(t||"").split("\n")[0].trim();
         if(!pin) return null;               // sem arquivo, sem rota: nada acontece
-        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa
-        return pedirToken(pin).then(function(j){ return guardarTokens(j); },
-          function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
+        return pinJaRecusado(pin).then(function(ja){
+          if(ja) return null;               // ja falhou nesta sessao: nao queima outra tentativa
+          return pedirToken(pin).then(function(j){ return guardarTokens(j); },
+            function(err){ if(err && err.status) marcarRecusado(pin); throw err; });
+        });
       })
       .then(function(s){ if(s) flush(); })  // a resposta presa na fila sai sozinha agora
       .catch(function(){});                 // ver regras 2, 3 e 4: falhou, cala e fica como estava

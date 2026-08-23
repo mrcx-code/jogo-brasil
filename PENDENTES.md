@@ -1801,6 +1801,49 @@ não sustenta nada na prática**. São itens e territórios do Windows, que o Ma
 qualquer forma; o registro é só para o mecanismo não parecer engatado antes de estar.
 
 
-## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma
+## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma — **FEITO em 23/08 (dev-plataforma)**
 
 Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashboard/index.html:453) diz que no aparelho ficam a sessao e um contador de erros ate voce sair. Errado tres vezes: (1) sair() so apaga a sessao — o contador mesa-brasil-pin-erros so morre em login OK (linhas 890/983), entao o ate-voce-sair e falso para ele; (2) a fila local mesa-brasil-fila4 guarda ate 50 itens / 200 KB do texto que o dono escreveu, sobrevive ao logout e NAO e citada — e a maior das tres; (3) mesa-brasil-pin-local-recusado guarda um PIN em claro no sessionStorage. Conserto: o texto pronto esta no parecer do juridico (23/08), OU fazer sair() chamar zerarTentativas() e ai o texto encolhe — a fila continua precisando ser dita de todo jeito, porque apaga-la ao sair perderia trabalho do dono. Regra da casa (par.3): afirmacao falsa e pior que nenhuma.
+
+**COMO FICOU (23/08).** Duas das tres viraram conserto de CODIGO e uma virou texto — nessa ordem,
+porque frase que explica excecao e frase que ninguem le.
+
+- **(1) conserto de codigo.** `sair()` passa a chamar `zerarTentativas()`. O "ate voce sair" voltou a
+  ser verdade para o contador, e o rodape ENCOLHEU em vez de crescer. Sem folga de seguranca: aquele
+  contador e UX (o comentario dele ja dizia isso), quem ataca nao passa por esta pagina, e sair exige
+  ja estar dentro.
+- **(3) confirmado, e era um PIN de verdade — conserto de codigo.** A linha que sustenta:
+  `function marcarRecusado(pin){ try{ sessionStorage.setItem(PIN_RECUSADO,pin); }catch(e){} }`, com o
+  `pin` vindo de `(t||"").split("\n")[0].trim()` sobre o corpo de `/pin-local`. O argumento antigo ("o
+  recusado nao e o certo") e fraco justamente no caso que a funcao existe para atender: o dono
+  TROCOU o PIN e esqueceu de reescrever o arquivo, entao o valor recusado ali e, quase sempre, o PIN
+  ANTERIOR dele. Agora guarda-se `{sal, marca}` — PBKDF2-SHA256, sal aleatorio de 16 bytes, 60.000
+  voltas, pelo `crypto.subtle` do proprio navegador: nada caseiro, nenhuma biblioteca. A pergunta que
+  a funcao precisa fazer ("e o mesmo PIN que ja foi recusado?") continua respondida; o segredo nao
+  fica. Valor no formato VELHO (PIN em claro numa aba que ja estava aberta) e apagado na primeira
+  leitura. Sem `crypto.subtle` a pagina simplesmente NAO LEMBRA e volta a tentar uma vez por carga —
+  degradar para nao lembrar e aceitavel, degradar para guardar o segredo nao e.
+- **(2) so tinha saida por texto**, como o item ja previa: apagar a fila ao sair jogaria fora o que o
+  dono escreveu. O rodape passa a dize-la, com o teto (50 itens / 200 KB), com o motivo de ela ficar
+  e com o fato de ela subir sozinha quando a rede volta.
+
+**O PORTAO NOVO, para isto nao apodrecer de novo: `test/rodape-verdadeiro.js`.** As tres chaves
+nasceram DEPOIS da frase, e ninguem tinha motivo para reler o rodape ao acrescentar uma — foi por
+acumulo, nao por ma-fe, e so um portao corrige acumulo. Ele abre o dashboard headless, colhe as
+chaves que a pagina realmente grava (gravador embrulhando `Storage.prototype.setItem` antes de
+qualquer script + `Object.keys` dos dois armazenamentos + varredura estatica que REPROVA o `setItem`
+cuja chave ela nao consegue resolver) e falha se existir chave que o rodape nao menciona. Cobra
+tambem, com o BOTAO de sair e nao com o texto, o que o rodape promete que some e o que promete que
+fica, e que nenhum valor guardado contenha o PIN.
+
+**Visto reprovando** em quatro defeitos injetados — chave-isca gravada, rodape sem a frase da fila,
+`sair()` sem zerar o contador, marca de volta em claro: **exit 1 nos quatro**. **Limite declarado** no
+cabecalho do arquivo: o metodo em execucao so ve o que as cenas exercitam, e o estatico nao resolve
+chave montada em tempo de execucao (concatenacao, template, variavel reatribuida) — por isso ele
+reprova em vez de ignorar. Junto foi atualizado o par de mutacao do S4 em
+`test/fila-auth-controle.js`: a guarda mudou de forma (virou assincrona) e o controle apontaria para
+uma linha que nao existe mais, saindo com "envelheceu" (exit 2).
+
+**Portoes:** `npm test` 0 · `node test/encaixe.js` 0 · `node test/fila-auth.js` 0 (24 cenas, inclusive a
+24, que e a do PIN recusado) · `node test/medir-save-hostil.js` 0 · `node test/medir-telas-altura.js 360
+500 950` 0 · `node test/rodape-verdadeiro.js` 0.

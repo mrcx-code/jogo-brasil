@@ -261,9 +261,12 @@ const DEFEITOS = [
     // S4 da auditoria (22/08): sem lembrar o PIN recusado, cada carga da pagina gasta uma
     // tentativa do rate limit com um PIN que ja se sabe errado. A cena 24 recarrega a aba e
     // cobra que a segunda carga nao repita; tirar a guarda tem de faze-la reprovar.
+    // A LINHA MUDOU DE FORMA em 23/08 (PENDENTES 60): a guarda passou a ser assincrona, porque
+    // o que se guarda deixou de ser o PIN e virou uma derivacao PBKDF2 dele. O defeito injetado
+    // e o mesmo — tirar a guarda —, so que agora ela mora dentro do `then` da comparacao.
     id: 'AUTO-LOGIN · o PIN recusado deixa de ser lembrado (queima cota a cada carga)',
     cena: '[24]',
-    pares: [['        if(pinJaRecusado(pin)) return null; // ja falhou nesta sessao: nao queima outra tentativa\n', '']],
+    pares: [['          if(ja) return null;               // ja falhou nesta sessao: nao queima outra tentativa\n', '']],
   },
 ];
 
