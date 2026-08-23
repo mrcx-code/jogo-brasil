@@ -1,0 +1,44 @@
+# ANÁLISE ESTÁTICA DE SEGURANÇA — a camada que nenhum teste nosso dá.
+#
+# Pedido do dono em 23/08: *"sobre PRs vale termos alguma seguranca ou verificacao nos PRs?
+# algum bot para testar ou revisar bugs"*. A resposta honesta tem duas metades, e esta é a
+# primeira: o CodeQL lê o código procurando padrões que a gente não pensou em testar — sink de
+# XSS, injeção, caminho de arquivo montado com entrada, comparação frouxa que vira bypass.
+#
+# POR QUE ELE VALE AQUI, e não é cerimônia: os nossos portões provam o que ALGUÉM PENSOU em
+# provar. O XSS do `data-v` (22/08) passou por 21 controles porque ninguém tinha escrito uma
+# cena de escape — quem o pegou foi a auditoria adversária, olhando. O CodeQL é a versão
+# automática desse olhar, e roda em todo PR sem cansar.
+#
+# O QUE ELE NÃO É: não substitui a banca (arte, segurança, QA), que julga desenho e
+# representação; nem os portões por exit code, que provam comportamento. É a terceira camada.
+#
+# Grátis porque o repositório é público. Roda em PR, em push na main, e uma vez por semana —
+# o agendado existe porque regra nova do CodeQL pega código velho que ninguém tocou.
+name: codeql
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'   # segunda de manhã; o horário quebrado evita a fila do minuto zero
+
+jobs:
+  analise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # `security-and-quality` acha mais que o padrão e é o que queremos num repositório
+          # onde o mesmo arquivo tem 15 mil linhas e a revisão humana cansa.
+          queries: security-and-quality
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

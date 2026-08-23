@@ -85,3 +85,54 @@ jobs:
       - name: espelho do conteudo (PORTAO desde 22/08 — banco alcancou o jogo, hash unico)
         run: npm run conteudo:conferir
         timeout-minutes: 5
+
+      # ------------------------------------------------------------------------------------
+      # OS PORTÕES QUE EXISTIAM E NÃO RODAVAM (23/08, pergunta do dono: "esse smoke que passa,
+      # vale alguma outra camada de teste?").
+      #
+      # A resposta medida foi desconfortável: existiam 43 arquivos de teste no repositório e o
+      # CI rodava CINCO. Tudo o que as rodadas de 21 e 22/08 construíram — o chrome da
+      # plataforma, o portão que impede a porta de mentir, o papel de campo, a medição das
+      # páginas e, o pior de todos, o CONTROLE da fila-auth — dependia de alguém lembrar de
+      # rodar na própria máquina. Portão que depende de memória não é portão; é intenção.
+      #
+      # O CONTROLE é o que mais faltava, e a razão é a lição 2.8 da casa: `fila-auth.js` diz que
+      # os consertos estão lá, e `fila-auth-controle.js` é quem prova que ele MORDE quando o
+      # conserto some. Sem o controle no CI, o dia em que uma cena virar decoração ninguém
+      # descobre — foi assim que duas cenas do guarda-lock passaram como decoração, e só o
+      # controle pegou.
+      #
+      # Todos rodam headless com o mesmo Chromium do smoke e sem rede de verdade (page.route
+      # intercepta o Supabase; os geradores servem de arquivo). Se algum se mostrar instável no
+      # Linux, o conserto é o teste, não tirá-lo daqui.
+      # ------------------------------------------------------------------------------------
+      - name: controle da fila-auth (prova que as cenas MORDEM — a lição 2.8)
+        run: node test/fila-auth-controle.js
+        timeout-minutes: 8
+
+      - name: a porta não pode mentir (número da porta x número da seção)
+        run: node test/medir-porta-secao.js
+        timeout-minutes: 4
+
+      - name: chrome da plataforma (barra de tábuas, toque de 44px, zero fonte de rede)
+        run: node test/medir-plataforma-chrome.js
+        timeout-minutes: 6
+
+      - name: papel de campo nas seções de leitura
+        run: node test/medir-leitura-secao.js
+        timeout-minutes: 5
+
+      - name: medição das páginas (evento único, desligar desliga, adblock não quebra)
+        run: node test/medir-paginas.js
+        timeout-minutes: 6
+
+      # O cartao-controle.js FICA DE FORA por enquanto, e a razao e um achado dele mesmo:
+      # rodado a mao em 23/08, reprovou de verdade — os cartoes og:image das 3 secoes de
+      # leitura TRIPLICARAM de peso (66/67/74 -> 183/180/183 KB, contra a regua de 90 KB do
+      # proprio item), porque o papel de campo da onda 3 poe pauta e grao no fundo e JPEG
+      # odeia textura fina. Portao que nasce vermelho por defeito REAL nao entra antes do
+      # conserto — entra junto com ele, que ja esta em curso.
+
+      - name: o lock entre máquinas (o guarda recusa território de outra máquina)
+        run: node test/guarda-lock.js
+        timeout-minutes: 2
