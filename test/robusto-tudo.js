@@ -169,15 +169,68 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     console.log(cena, '2b: salvoEm=5e12 (fora do esquema) -> S.salvoEm aparado para',
       b.salvoEm, '| voltouDepoisDe', b.volta + 's (~-70 anos) | painel:', b.painel,
       '| energia', b.energia + '/' + b.total);
-    // CONSERTADO em 09/08: `salvoEm` ganhou `semAparar`, então um carimbo absurdo cai no
-    // PADRÃO (0) em vez de ser aparado para 4e12. As duas asserções abaixo cobravam o
-    // comportamento COM o defeito — teste que descreve o bug vira guardião do bug.
-    // Com o conserto, 5e12 vira "nunca foi salvo", o dt bate no teto de 12 h, e o painel de
-    // retorno abre normalmente, que é o que deve acontecer para quem sumiu por muito tempo.
+    // 09/08: `salvoEm` ganhou `semAparar`, então um carimbo absurdo cai no PADRÃO (0) em vez
+    // de ser aparado para 4e12. Naquele dia se escreveu aqui que "com o conserto, 5e12 vira
+    // 'nunca foi salvo', o dt bate no teto de 12 h" — e essa segunda metade estava ERRADA.
+    //
+    // CORRIGIDO em 23/08 (mac-jogo). Não saber quando foi vale ZERO, e não doze horas: é o
+    // commit `8889a6f` de 18/08, que se chama exatamente isso e traz a medição de por quê.
+    // ANTES daquela trava, um `salvoEm` fora da faixa pagava **43.200 s de ausência, 144
+    // pontos de obra de graça — 27% dos 540 do canteiro inteiro** — e o papel da volta
+    // afirmava "você ficou fora por 12h00" a alguém de quem ninguém sabia nada. O jogo passou
+    // a perguntar `ISTO É UM RELÓGIO?` (`RELOGIO_MINIMO`, src/jogo.ts) em vez de "é maior que
+    // zero", e carimbo que não é relógio passou a valer 0.
+    //
+    // A ASSERÇÃO ABAIXO NÃO ACOMPANHOU, e ficou nove dias cobrando o comportamento que o jogo
+    // tinha acabado de consertar — guardiã do bug que o comentário dela mesma alertava. Fazer
+    // o jogo passar aqui seria REARMAR a bomba: bastaria zerar `salvoEm` à mão para colher o
+    // teto quando quisesse. Zero é o lado certo de errar — perder uma ausência legítima custa
+    // alguns pontos; pagar o teto a um save torto dá um terço da obra e faz a tela mentir.
+    //
+    // O TETO CONTINUA COBRADO onde ele deve valer: a cena 2 acima, com relógio LEGÍTIMO
+    // adiantado anos, exige os 43.200 s. É a diferença entre capar tempo real e premiar lixo.
     if (b.salvoEm !== 0) falhas.push('2b: salvoEm=5e12 devia cair no padrão 0, veio ' + b.salvoEm);
-    if (Math.round(b.volta) !== 43200) falhas.push('2b: dt de um carimbo absurdo devia bater no teto de 12h: ' + b.volta);
+    if (Math.round(b.volta) !== 0) falhas.push('2b: carimbo que não é relógio devia valer 0 s de ausência, veio ' + b.volta);
+    if (b.painel) falhas.push('2b: o papel da volta NÃO pode abrir para um carimbo forjado — ele afirmaria um tempo fora que ninguém conhece');
     if (b.energia !== 500 || b.total !== 1000) falhas.push('2b: a energia mudou com carimbo absurdo: ' + b.energia);
     if (!isFinite(b.ganho) || b.ganho <= 0) falhas.push('2b: ganhoClique degradou com carimbo absurdo: ' + b.ganho);
+
+    // 2c. RECUSOU, ou NÃO RODOU? — acrescentado pelo QA em 23/08, e é o que falta à 2b.
+    // Zero é o valor INICIAL de `voltouDepoisDe`, então "vale 0 depois do reload" passa nos
+    // DOIS mundos: naquele em que o guarda recusou o carimbo, e naquele em que o cálculo do
+    // tempo fora nem aconteceu. MEDIDO: com um `return` plantado em `carregar()` logo antes
+    // do bloco do `dt`, a 2b inteira continuava VERDE e a suíte saía com exit 0.
+    // O conserto é carimbar a variável com −1 ANTES de chamar `carregar()`: −1 que sobrevive
+    // é "não rodou", 0 é "alguém decidiu que vale zero". De quebra, as três medidas do
+    // commit 8889a6f passam a ser cobradas no mesmo lugar, inclusive a que a trava fraca da
+    // manhã de 18/08 deixava passar (um carimbo DENTRO da faixa do esquema que não é relógio).
+    const c = await page.evaluate(() => {
+      salvar = function () {}; salvarRetencao = function () {};
+      const o = {};
+      const rodar = (carimbo) => {
+        localStorage.setItem(CHAVE_JOGO, JSON.stringify({ energia: 500, energiaTotal: 1000, salvoEm: carimbo }));
+        voltouDepoisDe = -1;
+        carregar();
+        return { volta: Math.round(voltouDepoisDe), salvoEm: S.salvoEm };
+      };
+      o.forjado = rodar(5e12);            // fora da faixa do esquema -> padrão 0
+      o.mil = rodar(1000);                // DENTRO da faixa, e ainda assim não é relógio (1970)
+      o.legitimo = rodar(Date.now() - 3 * 365 * 864e5);
+      o.oito = rodar(Date.now() - 8 * 3600 * 1000);
+      o.teto = CFG.capOfflineHoras * 3600;
+      if (typeof fecharRetorno === 'function') fecharRetorno();
+      return o;
+    });
+    console.log(cena, '2c: sentinela -1 antes de carregar() ->',
+      'forjado(5e12)', c.forjado.volta + 's', '| dentro-da-faixa(1000)', c.mil.volta + 's',
+      '| relógio legítimo de 3 anos', c.legitimo.volta + 's (teto ' + c.teto + 's)',
+      '| ausência honesta de 8 h', c.oito.volta + 's');
+    if (c.forjado.volta === -1) falhas.push('2c: o cálculo do tempo fora NÃO RODOU para o carimbo forjado — a 2b estaria lendo o valor inicial, não uma recusa');
+    if (c.forjado.volta !== 0) falhas.push('2c: carimbo forjado devia ser RECUSADO com 0 s, veio ' + c.forjado.volta);
+    if (c.mil.salvoEm !== 1000) falhas.push('2c: salvoEm=1000 está DENTRO da faixa do esquema e devia chegar intacto ao guarda, veio ' + c.mil.salvoEm);
+    if (c.mil.volta !== 0) falhas.push('2c: "maior que zero" não é a pergunta — salvoEm=1000 (1970) devia valer 0 s, veio ' + c.mil.volta);
+    if (c.legitimo.volta !== c.teto) falhas.push('2c: relógio LEGÍTIMO adiantado 3 anos devia bater no teto de 12 h, veio ' + c.legitimo.volta);
+    if (c.oito.volta !== 28800) falhas.push('2c: a ausência honesta de 8 h devia continuar valendo 28.800 s, veio ' + c.oito.volta);
 
     await page.close();
   }
