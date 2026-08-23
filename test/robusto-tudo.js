@@ -169,13 +169,29 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     console.log(cena, '2b: salvoEm=5e12 (fora do esquema) -> S.salvoEm aparado para',
       b.salvoEm, '| voltouDepoisDe', b.volta + 's (~-70 anos) | painel:', b.painel,
       '| energia', b.energia + '/' + b.total);
-    // CONSERTADO em 09/08: `salvoEm` ganhou `semAparar`, então um carimbo absurdo cai no
-    // PADRÃO (0) em vez de ser aparado para 4e12. As duas asserções abaixo cobravam o
-    // comportamento COM o defeito — teste que descreve o bug vira guardião do bug.
-    // Com o conserto, 5e12 vira "nunca foi salvo", o dt bate no teto de 12 h, e o painel de
-    // retorno abre normalmente, que é o que deve acontecer para quem sumiu por muito tempo.
+    // 09/08: `salvoEm` ganhou `semAparar`, então um carimbo absurdo cai no PADRÃO (0) em vez
+    // de ser aparado para 4e12. Naquele dia se escreveu aqui que "com o conserto, 5e12 vira
+    // 'nunca foi salvo', o dt bate no teto de 12 h" — e essa segunda metade estava ERRADA.
+    //
+    // CORRIGIDO em 23/08 (mac-jogo). Não saber quando foi vale ZERO, e não doze horas: é o
+    // commit `8889a6f` de 18/08, que se chama exatamente isso e traz a medição de por quê.
+    // ANTES daquela trava, um `salvoEm` fora da faixa pagava **43.200 s de ausência, 144
+    // pontos de obra de graça — 27% dos 540 do canteiro inteiro** — e o papel da volta
+    // afirmava "você ficou fora por 12h00" a alguém de quem ninguém sabia nada. O jogo passou
+    // a perguntar `ISTO É UM RELÓGIO?` (`RELOGIO_MINIMO`, src/jogo.ts) em vez de "é maior que
+    // zero", e carimbo que não é relógio passou a valer 0.
+    //
+    // A ASSERÇÃO ABAIXO NÃO ACOMPANHOU, e ficou nove dias cobrando o comportamento que o jogo
+    // tinha acabado de consertar — guardiã do bug que o comentário dela mesma alertava. Fazer
+    // o jogo passar aqui seria REARMAR a bomba: bastaria zerar `salvoEm` à mão para colher o
+    // teto quando quisesse. Zero é o lado certo de errar — perder uma ausência legítima custa
+    // alguns pontos; pagar o teto a um save torto dá um terço da obra e faz a tela mentir.
+    //
+    // O TETO CONTINUA COBRADO onde ele deve valer: a cena 2 acima, com relógio LEGÍTIMO
+    // adiantado anos, exige os 43.200 s. É a diferença entre capar tempo real e premiar lixo.
     if (b.salvoEm !== 0) falhas.push('2b: salvoEm=5e12 devia cair no padrão 0, veio ' + b.salvoEm);
-    if (Math.round(b.volta) !== 43200) falhas.push('2b: dt de um carimbo absurdo devia bater no teto de 12h: ' + b.volta);
+    if (Math.round(b.volta) !== 0) falhas.push('2b: carimbo que não é relógio devia valer 0 s de ausência, veio ' + b.volta);
+    if (b.painel) falhas.push('2b: o papel da volta NÃO pode abrir para um carimbo forjado — ele afirmaria um tempo fora que ninguém conhece');
     if (b.energia !== 500 || b.total !== 1000) falhas.push('2b: a energia mudou com carimbo absurdo: ' + b.energia);
     if (!isFinite(b.ganho) || b.ganho <= 0) falhas.push('2b: ganhoClique degradou com carimbo absurdo: ' + b.ganho);
 
