@@ -420,6 +420,15 @@
       "estado": "em-curso",
       "maquina": "mac-jogo",
       "desde": "2026-08-23T03:25:36Z"
+    },
+    {
+      "id": "rotulo-medicao-anonima",
+      "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "ferramentas/medir-secao.js,ferramentas/chrome-plataforma.js",
+      "camada": "plataforma",
+      "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim."
     }
   ]
 }
