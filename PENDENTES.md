@@ -1725,7 +1725,7 @@ Segunda familia de corrida no encaixe (a 1a era o reload, morta em 22/08). Morde
 
 ---
 
-## 59 — O LOCK ENTRE MÁQUINAS SOME EM SILÊNCIO QUANDO HÁ SYMLINK NO CAMINHO — plantao/dev-plataforma (achado pelo mac-jogo em 23/08)
+## 59 — FEITO 23/08 — O LOCK ENTRE MÁQUINAS SOMIA EM SILÊNCIO QUANDO HAVIA SYMLINK NO CAMINHO — plantao/dev-plataforma (achado pelo mac-jogo em 23/08)
 
 **A liderança deste conserto é de quem escreveu a trava** (a sessão do Windows, PR #5). Isto
 aqui é achado + diagnóstico + remendo proposto e já provado, para ele decidir a forma. O Mac

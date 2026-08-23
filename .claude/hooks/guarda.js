@@ -16,7 +16,24 @@
 const fs = require('fs');
 const path = require('path');
 
-const RAIZ = path.resolve(__dirname, '..', '..');
+// AS DUAS PONTAS PRECISAM SER RESOLVIDAS DO MESMO JEITO — achado do mac-jogo em 23/08,
+// conferindo a trava do PR #5 que eu tinha acabado de escrever (PENDENTES 59).
+// O `__dirname` o Node já resolve por symlink; o `file_path` que chega da ferramenta, não.
+// Onde houver symlink no caminho, as duas discordam, o `path.relative` devolve `../../../..`,
+// NADA casa território — e o guarda passa sem escrever uma linha. No macOS não é caso raro:
+// `os.tmpdir()` é `/var/folders/...`, symlink de `/private/var/folders/...`, que é onde o
+// próprio teste monta o palco. Efeito grave: clone sob caminho com symlink perde a trava
+// INTEIRA em silêncio — e "degradar em silêncio" foi escrito para DADO RUIM (sem
+// .claude/maquina, JSON quebrado, carimbo ilegível), nunca para formato de caminho.
+function real(p) {
+  const abs = path.resolve(p);
+  try { return fs.realpathSync(abs); } catch {}
+  // arquivo que ainda não existe: resolve a PASTA, que quase sempre existe, e recola o nome
+  try { return path.join(fs.realpathSync(path.dirname(abs)), path.basename(abs)); } catch {}
+  return abs;                                   // nem a pasta existe: melhor cru que errado
+}
+
+const RAIZ = real(path.resolve(__dirname, '..', '..'));
 
 let bruto = '';
 process.stdin.on('data', (c) => { bruto += c; });
@@ -29,7 +46,7 @@ process.stdin.on('end', () => {
   const alvo = ent.file_path || ent.notebook_path || '';
   if (!alvo) process.exit(0);
 
-  const rel = path.relative(RAIZ, path.resolve(alvo)).split(path.sep).join('/');
+  const rel = path.relative(RAIZ, real(alvo)).split(path.sep).join('/');
   const recusar = (motivo) => { process.stderr.write(motivo); process.exit(2); };
 
   // ---- 1. SAÍDA DE BUILD. Escrever aqui não é errado, é INÚTIL: o próximo `npm run build`
