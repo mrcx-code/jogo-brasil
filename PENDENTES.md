@@ -1990,3 +1990,49 @@ O QA escreveu `test/medir-cartao-controle.js` para fechar (a): abre cada secao e
 aplica a MESMA exclusao do gerador dela — com assinatura de fonte, para a tabela nao envelhecer
 calada — e cobra zero controle flutuante no quadro. Visto reprovando: exit 0 na main, exit 1 no
 ramo com o defeito, mais 3 controles injetados. Falta integrar e falta (b).
+
+## 67 — O portao do cartao cobra ESFORCO, nao RESULTADO — e ha caminho de volta com os dois verdes — qa/dev-plataforma
+
+Achado pelo QA em 23/08, na re-auditoria que APROVOU o conserto do cartao. Nao bloqueou porque
+o artefato de hoje esta certo; entra aqui porque a FORMA do portao deixa o mesmo defeito voltar.
+
+O gerador do TERRITORIO passou a recusar construir se a exclusao do cartao esconder **menos de
+2** controles. Isso cobra quantos nos foram escondidos — esforco —, nao se **sobrou** controle no
+quadro — resultado.
+
+O QA reproduziu o caminho de volta, e ele nao e rebuscado: **alguem envolve o interruptor num
+`span` com `position:sticky`, o botao passa a `position:static` e muda de id.** Medido na pagina
+do ramo: a exclusao ainda esconde `.med` e `.vaoMedida`, dois nos, entao o `throw` **deixa
+passar**; o `medir-cartao-controle.js` devolve lista vazia e **aprova**; e o botao fica em
+**x=331, y=31, 72x44, dentro do quadro e por cima**, com `elementFromPoint` acertando nele. O
+print mostra "MEDICAO / ligada" tapando "O Territorio" ate sobrar a letra O. **E o defeito de
+23/08 de volta, com os dois portoes verdes.**
+
+CONSERTO VOTADO PELO QA, e nao e mexer no numero: trocar a contagem por uma **pos-condicao**.
+Depois de excluir, o gerador rele o quadro com a MESMA leitura do instrumento e recusa se sobrou
+qualquer controle; e recusa tambem se um alvo nomeado (`MED.ID_BOTAO`, a frase) **existe na
+pagina e nao saiu**. Sao ~6 linhas reaproveitando codigo que ja esta escrito, e ficam imunes a
+renome, a involucro e a contagem.
+
+## 68 — A lista de alvos e a mesma no gerador e no instrumento, e por isso os dois tem o MESMO buraco — qa/dev-plataforma
+
+Segundo achado da mesma re-auditoria, e o dev tinha declarado a duvida antes de alguem perguntar
+— manteve a lista identica de proposito, para as duas nao divergirem. O QA votou o contrario, e
+com medida.
+
+A lista e `button, [role=button], input, select, summary`. O QA grudou na barra uma
+`div class="qaDiv" onclick tabindex="0"`: a exclusao do gerador **nao a retira**, o instrumento
+com a lista identica **nao a ve**, e uma lista paranoica (mais `[onclick]`,
+`[tabindex]:not([tabindex="-1"])`, `[contenteditable]`, `label`, `a[href]` fora da barra)
+**acha**, em 33,31 42x44.
+
+O ARGUMENTO, e ele vale alem deste arquivo: lista compartilhada da **um lugar para consertar** e
+**um buraco para os dois**. E a mesma forma do defeito da semana — a regua e a coisa regulada
+partilhando a suposicao. O medo de divergir ja esta resolvido pelo mecanismo de **assinatura**
+que o instrumento tem: se o gerador mudar de regra, o teste reprova dizendo que a tabela
+envelheceu, em vez de aprovar calado.
+
+REGRA PROPOSTA: **instrumento estritamente mais largo que o gerador.** Quando ele reprovar algo
+que o gerador nao pega, o gerador se alarga. Um instrumento que so pode confirmar o gerador nao
+e um segundo par de olhos. Medido que alargar e seguro: com a lista paranoica, as quatro paginas
+intactas continuam devolvendo lista vazia.
