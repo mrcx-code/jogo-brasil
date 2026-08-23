@@ -318,6 +318,10 @@
   .comof-fim{font:italic 400 .84rem/1.4 "Bitter",serif;color:var(--pedra);margin:0}
 
   footer.rod{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--linha);font-size:.78rem;color:var(--pedra)}
+  /* O reset da linha 66 zera a margem de TODO p, entao cinco paragrafos renderizavam como um
+     bloco macico so -- medido: 0 px entre eles. Sem esta regra, a reescrita da growth (23/08)
+     seria invisivel para quem le, que era exatamente o defeito que ela veio corrigir. */
+  footer.rod p+p{margin-top:.62rem}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -450,7 +454,13 @@
     </div>
   </section>
 
-  <footer class="rod"><p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b> — e entrar é <b>um PIN</b>, não um e-mail: a conta é uma só e o endereço dela é sintético, então nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum. O PIN viaja só até o Supabase Auth deste projeto, que guarda o resumo criptográfico dele e mais nada; neste aparelho ficam a sessão e o contador de erros de PIN, e os dois são apagados quando você sai. Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): essa não some ao sair, porque apagá-la jogaria fora o que você escreveu — ela sobe sozinha quando a rede volta — e, se o navegador não perceber que ela voltou, na próxima vez que você abrir a mesa. Rodando local, há ainda uma marca de PIN recusado, que morre ao fechar a aba e é uma derivação — o PIN em si não fica guardado. Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p></footer>
+  <footer class="rod">
+    <p>Dashboard privado do BRASIL. Tudo aqui vem do servidor: o que você responde some em qualquer aparelho. Ler é aberto; <b>escrever exige entrar</b>, e entrar é com <b>um PIN</b> — não um e-mail. A conta é uma só, o endereço dela é inventado (não é o seu), e nenhum e-mail seu é pedido, mandado ou guardado em lugar nenhum.</p>
+    <p>O PIN viaja só até o Supabase Auth deste projeto, que guarda um resumo criptográfico dele e mais nada. Neste aparelho ficam a sessão e o contador de erros de PIN — os dois somem quando você sai.</p>
+    <p>Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): ela não some ao sair, porque apagá-la jogaria fora o que você escreveu. Ela sobe sozinha assim que a rede volta; e, se isso não acontecer sozinho — o navegador às vezes não percebe que a rede voltou —, ela sobe do mesmo jeito na próxima vez que você abrir a mesa.</p>
+    <p>Rodando local, fica também uma marca do último PIN recusado, que morre ao fechar a aba: é calculada a partir do PIN, mas não dá para reconstruir o PIN a partir dela — o PIN em si não fica guardado.</p>
+    <p>Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p>
+  </footer>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -703,7 +713,7 @@
         console.warn("mesa: descartei uma resposta da fila local — "+porque+":",JSON.stringify(g[0]));
         // E O DESCARTE AVISA NA TELA, como a poda irma ja avisava (N10). Perder resposta do dono
         // em silencio no console e perde-la duas vezes: ele nao sabe que precisa reescrever.
-        toast("Uma resposta sua não pôde ser enviada e foi descartada — "+porque+".",true);
+        toast("Uma resposta sua não foi enviada e foi descartada — "+porque+". Se ainda for importante, escreva de novo.",true);
         g.shift();
         if(!gravarFila(g)) return;
         return lavarUm();

@@ -1944,3 +1944,47 @@ o auditor rodar DEPOIS do conserto, e nao so antes.
 **Portoes da terceira volta:** `node test/rodape-verdadeiro.js` 0 (9 cenas) · `node test/fila-auth.js`
 0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test` 0 · `node
 test/encaixe.js` 0 · mordida **10 de 10** (exit 1 em todos).
+
+**4a VOLTA — A GROWTH REPROVOU PELA FORMA, com a reescrita pronta (23/08).** Conteudo certo, fatos
+completos, nada precisava sumir; o defeito era de construcao e de densidade:
+
+- **O verbo estava ELIDIDO.** *"…ela sobe sozinha quando a rede volta — e, se o navegador nao
+  perceber que ela voltou, na proxima vez que voce abrir a mesa"*: a pessoa tinha de carregar "ela
+  sobe" por cima de um travessao e de uma condicional intercalada para encaixa-lo na oracao final.
+  Le-se em voz alta e a voz chega ao fim sem verbo. Repetir o verbo custou tres palavras.
+- **189 palavras, 7 frases, um `<p>` so, em letra miuda cinza** — o par que sinaliza "isto e para
+  nao ler", que e o oposto do que quatro voltas de trabalho tentaram conquistar. Virou **cinco
+  paragrafos**.
+- **Duas trocas de vocabulario:** "derivacao" saiu (a conclusao que importa — *"e calculada a
+  partir do PIN, mas nao da para reconstruir o PIN a partir dela"* — ja estava na mesma frase, e
+  entao o conceito nao precisa ser exigido de quem le) e "sintetico" virou *"inventado (nao e o
+  seu)"*. Ficaram, com argumento dela: "Supabase Auth" (nome proprio que o dono conhece), "resumo
+  criptografico", "sessao" e "fila de respostas que ainda nao subiram".
+- **O toast do descarte passou a dizer o que fazer.** Ela foi conferir se cabia "copie antes" e
+  descobriu que NAO: `composto.value=""` limpa o campo assim que a resposta entra na fila, muito
+  antes do descarte — quando o toast aparece, o texto ja nao esta em campo editavel nenhum. Entao
+  a unica acao verdadeira e *"Se ainda for importante, escreva de novo."* Ela recusou sugerir um
+  lugar de recuperacao, porque seria verdade em parte dos fluxos e mentira em outros — e este
+  rodape ja pagou caro por afirmacao que vale so as vezes.
+
+**O QUE A MEDICAO DESMENTIU NO PARECER DELA, e e o achado desta volta:** o parecer dizia, de
+boa-fe, que a mudanca "nao toca CSS". **Toca.** O reset da linha 66
+(`body,h1,h2,h3,p,ul,li{margin:0}`) zera a margem de TODO `p`, entao os cinco paragrafos saiam com
+**0 px** entre eles — medido: `espacoEntre: [0,0,0,0]`. Visualmente **o mesmo muro**, com marcacao
+diferente: a reescrita inteira teria sido invisivel para quem le. Uma regra resolveu —
+`footer.rod p+p{margin-top:.62rem}` — e a medicao nova da **10 px** entre cada par. Print conferido.
+
+**Isso virou a cena [10]**, e ela cobra o que a PESSOA VE (espaco renderizado entre os
+paragrafos), nao a folha de estilo: trocar rem por em, ou mover a regra de lugar, passa; o muro
+nao passa. Mordida: 11 defeitos, exit 1 em todos.
+
+**Quatro cenas dependiam da redacao antiga e foram ajustadas — nenhuma afrouxou, e aqui esta cada
+uma:** `/apagad\w+ quando voce sai/` → `/os dois somem quando voce sai/` (MAIS especifica: exige o
+"os dois", que e o que torna a frase verdadeira para as duas chaves); `/marca de PIN recusado/` →
+`/marca do ultimo PIN recusado/`; e `/derivacao/` → **duas** regexes que cobram a GARANTIA em vez
+da palavra tecnica (`/nao da para reconstruir o PIN a partir dela/` e `/o PIN em si nao fica
+guardado/`). Palavra qualquer um escreve; garantia e afirmacao.
+
+**Portoes da quarta volta:** `node test/rodape-verdadeiro.js` 0 (10 cenas) · `node
+test/fila-auth.js` 0 (24 cenas) · `node test/fila-auth-controle.js` 0 (21 defeitos) · `npm test`
+0 · mordida **11 de 11**.

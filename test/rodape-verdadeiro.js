@@ -77,12 +77,15 @@ const CHAVES = [
   {
     chave: 'mesa-brasil-sessao1', onde: 'localStorage', fica: false,
     oque: 'a sessao (access_token + refresh_token)',
-    diz: [/\bsess[ãa]o\b/i, /apagad\w+ quando voc[êe] sai/i],
+    // "apagados quando voce sai" virou "os dois somem quando voce sai" na reescrita da growth
+    // (23/08). A regex nova e MAIS especifica, nao menos: exige o "os dois", que e o que torna a
+    // frase verdadeira para a sessao E para o contador. Quem cobra o comportamento e a cena 4.
+    diz: [/\bsess[ãa]o\b/i, /os dois somem quando voc[êe] sai/i],
   },
   {
     chave: 'mesa-brasil-pin-erros', onde: 'localStorage', fica: false,
     oque: 'o contador de erros de PIN (UX, nao seguranca)',
-    diz: [/contador de erros de PIN/i, /apagad\w+ quando voc[êe] sai/i],
+    diz: [/contador de erros de PIN/i, /os dois somem quando voc[êe] sai/i],
   },
   {
     chave: 'mesa-brasil-fila4', onde: 'localStorage', fica: true,
@@ -98,7 +101,12 @@ const CHAVES = [
   {
     chave: 'mesa-brasil-pin-local-recusado', onde: 'sessionStorage', fica: true,
     oque: 'a marca (derivacao PBKDF2, nunca o PIN) de que o PIN do arquivo local foi recusado',
-    diz: [/marca de PIN recusado/i, /morre ao fechar a aba/i, /deriva[çc][ãa]o/i],
+    // "derivacao" SAIU do rodape de proposito (growth, 23/08): a conclusao que importa ja estava
+    // na mesma frase, entao o conceito nao precisa ser exigido de quem le. A regex acompanhou —
+    // e ficou mais forte, porque agora cobra a GARANTIA ("nao da para reconstruir o PIN a partir
+    // dela") em vez da palavra tecnica. Palavra qualquer um escreve; garantia e afirmacao.
+    diz: [/marca do [úu]ltimo PIN recusado/i, /morre ao fechar a aba/i,
+      /n[ãa]o d[áa] para reconstruir o PIN a partir dela/i, /o PIN em si n[ãa]o fica guardado/i],
   },
 ];
 const CONHECIDA = c => CHAVES.some(k => k.chave === c);
@@ -532,6 +540,32 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     ok(viu, 'o descarte aparece na tela, em toast, e nao so no console', await pag.evaluate(() => document.getElementById('toast').textContent));
     ok(await naFila(pag) === 0, 'e a resposta recusada por desenho sai da fila (nao entope)', String(await naFila(pag)));
     ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 10
+  console.log('\n[10] O RODAPE E LIDO EM BLOCOS, NAO EM MURO — medido na tela, nao na marcacao');
+  cenas++;
+  // A growth reescreveu o rodape em cinco paragrafos porque 189 palavras num `<p>` so, em letra
+  // miuda, sinalizam "isto e para nao ler" — e o parecer dela dizia, de boa-fe, que a mudanca
+  // "nao toca CSS". A MEDICAO DESMENTIU: `body,h1,h2,h3,p,ul,li{margin:0}` zera a margem de todo
+  // `p`, entao os cinco paragrafos saiam com **0 px** entre eles — visualmente o mesmo muro, com
+  // marcacao diferente. Uma regra (`footer.rod p+p{margin-top:.62rem}`) resolveu: 10 px medidos.
+  // Esta cena existe para essa regressao nao voltar em silencio, e ela cobra o que a pessoa VE
+  // (espaco renderizado), nao a folha de estilo — trocar rem por em, ou a regra de lugar, passa;
+  // o muro nao passa.
+  {
+    const { ctx, pag } = await palco(nav, {});
+    const m = await pag.evaluate(() => {
+      const ps = [...document.querySelectorAll('footer.rod p')];
+      return {
+        n: ps.length,
+        vaos: ps.slice(1).map((p, i) => Math.round(p.getBoundingClientRect().top - ps[i].getBoundingClientRect().bottom)),
+      };
+    });
+    ok(m.n >= 4, 'o rodape esta quebrado em blocos (4 ou mais paragrafos)', 'paragrafos: ' + m.n);
+    ok(m.vaos.length > 0 && m.vaos.every(v => v >= 4), 'e ha respiro VISIVEL entre eles na tela', 'vaos medidos: ' + m.vaos.join(', ') + ' px');
+    console.log('    ' + m.n + ' paragrafos, vaos de ' + m.vaos.join('/') + ' px');
     await ctx.close();
   }
 
