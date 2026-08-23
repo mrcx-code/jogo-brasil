@@ -438,6 +438,24 @@
       "territorio": "dashboard/",
       "camada": "plataforma",
       "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas."
+    },
+    {
+      "id": "recusa-por-desenho-tem-nome",
+      "titulo": "O painel chama recusa por desenho de sem conexao",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado pela seguranca em 23/08 e CONFERIDO NA MAIN, nao no relato: no instante em que o servidor recusa por desenho (HTTP 422), o toast que a pessoa ve e Sem conexao - guardei e reenvio. Frase identica byte a byte no codigo de antes de tudo, entao e PRE-EXISTENTE e o commit do rodape nao piorou -- melhorou, porque antes aquela frase imprecisa era a UNICA coisa que o dono via e a perda vinha depois em silencio; agora ela e seguida, na lavagem seguinte, pelo aviso correto. Conserto de uma linha em cada lugar: registrar() ja sabe distinguir por permanente(st), falta devolver um desfecho proprio para recusa por desenho em vez de cair no generico fila, e dizer() ganhar essa frase."
+    },
+    {
+      "id": "perda-de-resposta-deixa-rastro",
+      "titulo": "O aviso de perda dura 2400 ms e nao sobrevive a tela apagada",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "territorio": "dashboard/",
+      "camada": "plataforma",
+      "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando."
     }
   ]
 }
