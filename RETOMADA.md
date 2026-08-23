@@ -253,7 +253,7 @@ stashes foram descartados em 23/08 por serem só esse ruído.
 ### O `gh` deste Mac escreve como `mrcx-code`, e isso é garantido por máquina
 
 Auditado em 23/08: **nenhum rastro** da conta de trabalho no repositório (todos os PRs e
-comentários são `mrcx-code`, nenhum commit com e-mail da PetScreening). Mas o `gh` desta máquina
+comentários são `mrcx-code`, nenhum commit com e-mail da conta de trabalho). Mas o `gh` desta máquina
 tinha **só o `matf-ps` logado** — ler repo público é inofensivo, **escrever** deixaria rastro
 público e permanente da conta da empresa num projeto pessoal.
 
@@ -292,7 +292,8 @@ no navegador é a pessoa. O guarda confere quem assina, não quem foi autorizado
 - **A identidade pessoal está separada da conta de trabalho**, por construção, não por cuidado:
   `~/.gitconfig` com `includeIf hasconfig:remote.*.url:git@github-pessoal:*/*` (o curinga `**`
   da documentação **não casa nada** — foi medido) + host SSH `github-pessoal` com
-  `IdentitiesOnly yes`. **`matf-ps` e o e-mail da PetScreening nunca se usam aqui.**
+  `IdentitiesOnly yes`. **A conta e o e-mail de trabalho nunca se usam aqui** — o nome dela não
+  entra neste repositório, que é público.
 
 ---
 
