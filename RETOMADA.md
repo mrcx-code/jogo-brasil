@@ -149,16 +149,79 @@ Três coisas que a próxima sessão vai encontrar e não deve redescobrir do zer
 
 ---
 
-## 7. O colaborador (Mac)
+## 7. A OUTRA MÁQUINA — o Mac, que é o Claude do JOGO (reescrito em 23/08)
 
-`COLABORAR.md` é o contrato, e ele existe porque o PR #2 do Mac partiu de uma cópia de 08/08:
-`garantirPacote`, `CONVERSA_SEG`, `emObra`, `ENDERECO_MEDIDA` mediam **0 ocorrências** no ramo
-dele. Fechado com explicação; refeito certo como PR #3, que juntou limpo.
+Esta seção era "o colaborador (Mac)" e descrevia alguém que mandava PR de fora. Não descreve
+mais: desde 22–23/08 são **duas sessões de Claude no mesmo repositório**, com partição de
+território acordada por escrito e um lock que a impõe.
 
-O dono quer passar mais trabalho para ele, com a condição dita por ele mesmo: *"tem que ser algo
-nesse estilo, escopado e bem definido para não termos conflitos na evolução do jogo."* Escopo
-bom para o Mac = bloco novo, arquivo próprio ou função isolada; escopo ruim = qualquer coisa que
-reescreva função vizinha no `src/jogo.ts`.
+**A partição, desenhada por esta máquina e aceita pela outra no PR #4:**
+**Mac = Claude do JOGO (`src/`) · Windows = Claude da PLATAFORMA** (`plataforma/`, `dashboard/`,
+`ferramentas/gerar-*.js`, `ferramentas/construir.js`, `divulgacao/`). O despachante continua
+sendo **um só** (Windows) e o `integrar.js` roda **de um lado por vez**: o Mac entrega
+commitada no ramo e avisa; o Windows integra.
+
+**O nome desta máquina é `mac-jogo`** (`.claude/maquina`, fora do git). Sem esse arquivo o lock
+degrada para nada — foi criado em 23/08.
+
+### O que o Mac entregou até aqui
+
+- **O GLOSSÁRIO** (PR #3, mergeado): nova seção do menu com **167 verbetes em 17 grupos**, 644
+  remissões cruzadas, zero link morto, busca com normalização de acento, portas por assunto,
+  layout de fichário, página dupla em tela larga. Território: `src/jogo.ts` (bloco enxertado
+  depois de `montarFontes()`), `src/estilo.css` (seção `.gl*`), `NOTES.md` (cinco blocos de
+  fonte). Enxerto cirúrgico: 1.890 inserções / 2 remoções.
+- **O CI** (`.github/workflows/teste.yml`): primeira vez que a suíte rodou fora de uma máquina.
+  **Sem `cache: npm`** — exige lockfile, que está no `.gitignore`; foi essa a primeira falha.
+- **Duas asserções novas no `smoke.js`**: `lintComentarios()` (balanço de `/*`↔`*/` e fechador
+  órfão no CSS) e um bloco de **geometria** (verbete fechado ≤ altura da cabeça + 4 px, abrir
+  cresce >1,5×, aba não transborda o cartão, sem overflow horizontal). Nasceram de um defeito
+  real: um comentário CSS mal fechado engoliu a regra `.glItem` inteira e o `npm test` **passou
+  verde**, porque checava a classe, não a altura.
+- **O PR #4** — a proposta de coordenação entre máquinas. Fechado sem merge, de propósito:
+  **três das quatro propostas entraram**, absorvidas no `ONBOARDING-OUTRA-CONTA.md`.
+
+### O acerto do PR #4 → #5, e o que ficou combinado
+
+| | o que ficou |
+|---|---|
+| **A** — `em-curso` vira lock que viaja por git | **no ar**, mais o ramo marcador `voo/<id>` (o git recusa dois pushes na mesma ref: lock atômico de graça) |
+| **B** — o guarda recusa território de outra máquina | **no ar pelo PR #5** · validade **2 h** (medida: rodadas de 2 a 67 min; as 12 h da proposta eram chute) · degrada em silêncio com dado ruim |
+| **C** — portão/regra entra por PR entre as duas | aceita **com uma correção que não é detalhe: §2 NÃO entra por PR, para no DONO.** Dois Claudes se aprovando em representação é exatamente o que o §2 existe para impedir |
+| **D** — campo `aceite` cobrado pelo funil | aceita, para um PR seguinte: primeiro a **migração** (preencher o `aceite` dos itens livres), e quem escreve é **quem cria** o item, nunca quem vai executá-lo |
+
+**O dono autorizou o merge mútuo em 23/08**: cada lado mergeia o PR do outro depois de revisar.
+§2 e sign-off de publicação continuam com ele.
+
+### O item que a outra máquina passou ao Mac, e está esperando
+
+**O CAMINHO-DO-CÉU** — `PENDENTES 54`, priorizado pela direção de arte. Território:
+`src/jogo.ts` + `src/estilo.css` + `test/regua-larga.js`. Auto-contido, e já vem com **quatro
+condições numéricas de aceite** escritas pela arte — inclusive a que decide se vale a pena:
+*a referência 390×844 tem que ganhar a heroína; se não ganhar, a prioridade cai.*
+
+Para pegar: marcar `estado: em-curso` + `maquina: mac-jogo` + `desde` no `backlog.json`,
+commitar **na hora**, e empurrar `git push origin HEAD:refs/heads/voo/caminho-do-ceu`.
+
+### O que a outra máquina declarou OCUPADO (não encoste)
+
+`plataforma/` · `ferramentas/gerar-*.js` · `ferramentas/chrome-plataforma.js` · `dashboard/` ·
+`ferramentas/construir.js`. Os diários (`NOTES`, `PENDENTES`, `EQUIPE`, `AGENTES`, `DIRECAO`,
+`TERRITORIO`) nunca travam — entram por `merge=union`.
+
+### O que está em aberto no lado do Mac
+
+- **A repaginação visual.** O dono achou o jogo com "cara antiga e antiquada" e pediu
+  exploração. Três frentes: **paper.design** (brief entregue, ele dirige), **Lovable** (só
+  exploração e inspiração, **não** para construção), e a ferramenta de design própria — cuja
+  primeira tentativa (`salvador-1835`) ele **recusou** ("o layout nao me agrada"). A tese que
+  sobreviveu: **Futurismo Ancestral** — Krenak (*Futuro Ancestral*, 2022), Denilson Baniwa,
+  Jaider Esbell, Rosana Paulino. "Estes povos não são o passado — são um futuro." Nada disso
+  toca o jogo sem passar pelo dono: é §2.
+- **A identidade pessoal está separada da conta de trabalho**, por construção, não por cuidado:
+  `~/.gitconfig` com `includeIf hasconfig:remote.*.url:git@github-pessoal:*/*` (o curinga `**`
+  da documentação **não casa nada** — foi medido) + host SSH `github-pessoal` com
+  `IdentitiesOnly yes`. **`matf-ps` e o e-mail da PetScreening nunca se usam aqui.**
 
 ---
 
