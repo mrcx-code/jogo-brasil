@@ -456,6 +456,24 @@
       "territorio": "dashboard/",
       "camada": "plataforma",
       "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando."
+    },
+    {
+      "id": "endurecer-portoes",
+      "titulo": "Uma rodada so de endurecimento: fecha PENDENTES 67 a 74",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "territorio": "test/,ferramentas/gerar-territorio.js",
+      "camada": "esteira",
+      "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado."
+    },
+    {
+      "id": "contato-placeholder",
+      "titulo": "As pecas 02 e 03 ficam com placeholder no contato ate o dono dar o endereco",
+      "estado": "do-dono",
+      "papel": "growth",
+      "territorio": "divulgacao/",
+      "camada": "divulgacao",
+      "detalhe": "DECIDIDO PELO DONO em 23/08: use placeholder. As pecas 02 (professores) e 03 (press-kit) prometem um canal de retorno que nao existe. O texto ja tem sign-off dele; o que falta e o endereco. NAO inventar e-mail, NAO cortar a promessa -- o placeholder fica e o ENVIO espera. Quando ele der o endereco, e trocar o marcador em duas pecas e mandar."
     }
   ]
 }

@@ -9892,3 +9892,60 @@ medido (4 animações onde antes achava 0) foi **refutada por três medições**
 nunca rejeitou naquela página, porque `#telaMenu` é estático em `src/index.html:161`. A guarda
 vale, mas como defesa contra a página **sem** `#telaMenu`: o 404 que o `abrir.js` serviu nas 16 h
 de CI vermelho de 20/08.
+
+
+### 23/08 — DIARIO DA NOITE: a noite em que os testes foram testados
+
+Plantao noturno com o dono dormindo ("podem ir tocando ai, volto amanha e pode continuar
+passando tarefas e gerenciando o mac tbm"). **Oito entregas integradas, treze auditorias, tres
+reprovas aceitas e reconsertadas, zero entrega perdida.** Nenhuma linha de capitulo novo.
+
+**O QUE A NOITE DESCOBRIU, e e por isso que ela valeu mais que uma noite de producao:**
+
+**Metade dos portoes vermelhos nao era defeito do jogo — era o instrumento.** O `ver-territorio`
+acusava cor errada em uma tela de quatro: a funcao que MEDIA lia coordenada de CSS (que conta de
+cima) contra um `readPixels` que conta de baixo, e devolvia o **espelho vertical** do ponto
+pedido; os outros tres viewports passavam **por sorte**, e o discriminador nao e a distancia do
+erro e sim a distancia **contra o tamanho da placa** (3%, 3%, 30%, **49%**). O `robusto-tudo` era
+pior: a assercao de 09/08 **protegia uma bomba** que o jogo desarmou em 18/08 — carimbo de relogio
+forjado rendia 144 pontos de graca, 27% do canteiro — e consertar o jogo para o teste passar teria
+**rearmado**. Havia ainda um terceiro portao, VERDE, exigindo o contrario para a mesma entrada,
+**ha nove dias**, e ninguem tropecou porque **nenhum dos dois esta no CI**.
+
+**A regra que saiu disso: antes de consertar o produto para satisfazer um portao, desconfie do
+portao.** E a segunda, que custou tres reprovas: **o auditor roda DEPOIS do conserto, nao so
+antes** — duas das tres foram de defeito que o PROPRIO conserto criou. O caso exemplar: consertar
+a frase "a fila sobe sozinha quando a rede volta" criou um ouvinte que fazia **25 piscadas de rede
+descartarem a resposta escrita pelo dono, em silencio**.
+
+**A assercao que protege o motor nao podia funcionar, desde sempre.** O `dt` e limitado em 0,25 s
+(`src/jogo.ts:15942`) e 0,25 s de chao da **9,5652 px** — o mesmo pixel que um defeito real
+produziria. Ela reprovava o caso bom e o ruim pela mesma medida. Provado: com o quadro esticado
+para 280 ms, a regua velha reprovou um jogo **perfeito** 6 de 6. Virou taxa (px/ms), e a nova e
+**mais estrita**: pega salto de 3,0 px contra 5,0 px da velha.
+
+**O save real apagava a semente de qualquer teste a cada 10 s.** `setInterval(salvar, 10000)`
+passa o VALOR da funcao, entao o estafeta que os testes instalam nao alcanca o agendamento.
+Medido: 2 vermelhos em 4 rodadas do `npm test` com `src/` byte-identico. **Explica uma classe
+inteira** de intermitencia que as duas maquinas vinham chamando de carga. `PENDENTES 71`.
+
+**Um artefato publicado estava errado e nenhum portao olhava.** O `territorio/compartilhar.jpg`
+commitado levava o interruptor de privacidade DENTRO do quadro, com "A Historia" fora da barra —
+e o cartao de link e o unico artefato que ninguem reve depois de publicado. A barra a **1200 px**,
+que e a largura do cartao, nao era medida por ninguem: o chrome testa 390, 430 e 1366, e o
+estrago saiu no vao entre dois viewports testados.
+
+**NUMEROS:** CI de **5 para 12** portoes mais dois bumps de dependencia · falhas do bloco mais
+fragil sob carga de **4,0% para 0%** · portao do rodape de **5 para 10 cenas** e de 4 para **13**
+defeitos pegos · copias do repositorio no disco de **69 para 3** (55 worktrees e 68 ramos limpos,
+e eram elas o combustivel das colisoes de porta) · PIN do dono **deixou de ser guardado em claro**
+· dez instrumentos resgatados de ramos de auditoria, dois deles os primeiros do repositorio que
+**auditam outro instrumento**.
+
+**A COORDENACAO ENTRE AS DUAS MAQUINAS RODOU DE PONTA A PONTA PELA PRIMEIRA VEZ:** canal criado
+(`RECADOS.md` e a issue #7), marcador de voo, territorio disjunto, entrega em ramo, auditoria
+cruzada, integracao. E a entrega dela foi **nao consertar** — o melhor tipo de entrega que apareceu.
+
+**O QUE FICOU ABERTO:** `PENDENTES 63 a 74`, quase todos sobre a FORMA do portao, com conserto
+orcado. O dono decidiu que a proxima rodada e **endurecer os portoes** (contra voltar ao produto e
+contra medir o retorno primeiro).
