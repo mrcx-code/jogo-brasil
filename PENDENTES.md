@@ -2378,3 +2378,102 @@ nunca recebe status, nunca conta tentativa e **nunca e descartado** — a fila p
 passar a recusar respostas novas. E o tradeoff certo, porque o texto do dono vale mais que a
 vazao, e o rodape declara o teto. Mas e uma cabeca imortal, e alguem vai encontrar isso um dia
 achando que e bug.
+
+---
+
+## 75 — A CHEGADA tem UM ALVO PRESO em 640×360 para quem volta e toca — dev-jogo (achado do qa em 23/08)
+
+**É defeito do JOGO, não do instrumento, e é o mais grave dos três achados da auditoria.** Está
+aqui e não bloqueou a integração porque **já existia na `main`** — a entrega de hoje não piorou
+nada; ela apenas não enxerga este estado.
+
+A 640×360, quem **já terminou uma vez** e **tocou numa conferência** vê um `.cfItem` de
+**377 px numa janela de 360**. Pela régua nova do próprio bloco 8b isso é `alvo PRESO (nem
+rolando)` — não há posição de rolagem em que ele caiba inteiro. Reproduzido pelo qa na árvore da
+entrega.
+
+**A LACUNA QUE O EXPÔS, e ela é a lição:** o `ROLO_MEDIDO` do `medir-telas` guarda **o estado
+mais curto de quatro**. `.cfRev` nasce `oculto` e sai do oculto em **qualquer** toque numa opção
+— que é a única coisa que há para fazer nessa tela. E quem volta (`R.chegou > 1`) vê outro título
+e outro trio.
+
+| estado | 390×844 | 640×360 | 1024×768 | teto |
+|---|---:|---:|---:|---|
+| 1ª · fechada (**o que o portão mede**) | 442 | 528 | 21 | 496 / 592 / 45 |
+| 1ª · **tocada** | **610** | **863** | **189** | idem |
+| volta · fechada | 514 | 572 | 93 | idem |
+| volta · **tocada** | **699** | **974** | **278** | idem |
+
+**27 dos 40 estados já nascem acima do teto**, e a linha que o portão imprime (*"a CHEGADA rola
+442px"*) erra a tela real em até **63%**. O 10/10 é verde porque ele não olha, não porque a tela
+está boa.
+
+**O instrumento que fecha a lacuna já existe** e entrou junto: `test/chegada-estados.js`, escrito
+pelo qa, mede os quatro estados × dez telas e foi medido contra si mesmo com três defeitos
+injetados. Hoje ele passa (exit 0) porque só INFORMA a caixa mais alta que a janela; o
+`.cfItem 377>360` está no relatório dele.
+
+**Conserto pendente:** fazer o `.cfItem` caber em 360 px de altura, ou aceitar e escrever por quê.
+**Não corte texto sem passar pelo dono** — o que a CHEGADA afirma é §2.
+
+---
+
+## 76 — A 4ª receita de autoteste do medir-telas sai VERDE como está escrita — dev-jogo (qa, 23/08)
+
+O commit `199be46` afirma que *"as quatro reprovam por exit code, verificadas uma a uma nesta
+rodada"*. Para o artefato que ficou no repositório, **isso é falso**: a receita do rodapé é
+
+```
+TELAS_SO=390x844 node test/medir-telas.js TELAS_DEFEITO='#fimPergunta{position:fixed;...}'
+```
+
+com a variável **depois** do comando — o shell a passa como `argv`, e `process.env.TELAS_DEFEITO`
+fica `undefined`. Copiada literal, sai **exit 0, verde**. Movendo-a para antes do `node`, sai 1
+com a mensagem prometida.
+
+Conserto: uma linha no rodapé do arquivo. **A urgência não é o bug, é o folclore** — receita de
+autoteste que "prova" e não prova é pior que autoteste nenhum, porque a próxima pessoa confia.
+É a lição 2.8 do `EQUIPE.md` em miniatura, e desta vez ela pegou quem escreveu a lição.
+
+---
+
+## 77 — O bloco 9 mede o quadrinho sob `content-visibility: auto` — dev-jogo (qa, 23/08)
+
+`.qQuadro` tem `content-visibility: auto`, então o navegador **não dispõe** o conteúdo fora da
+janela — e o portão mede a caixa não disposta. Erro **sistemático de 29 px** contra um limiar de
+**1 px**, reprodutível ao pixel em duas execuções:
+
+| página 46 | como o portão mede | realmente disposta |
+|---|---:|---:|
+| entrega, 320×568 | 488 em 500 | **517 em 500** |
+| entrega, 640×360 | 297 em 302 | **307 em 302** |
+| `main`, 320×568 | 539 em 496 | **572 em 496** |
+
+**O efeito visual da entrega está certo** — nos prints a linha `fonte: INPE · PRODES…` aparece
+inteira na entrega e é encoberta pelo VOLTAR na `main`. O que **não** está provado é o número:
+pelo próprio bloco 9, medido direito, a página ainda estoura.
+
+Conserto: forçar a disposição antes de medir (`contentVisibility: 'visible'` na medição, ou
+rolar até a página) — e então re-decidir se 46 passa.
+
+---
+
+## 78 — O medir-telas tem intermitência PRÉ-EXISTENTE, e uma rodada verde não prova 10/10 — qa (23/08)
+
+Em **1 de ~9 execuções** da fatia 390×844, o portão imprimiu
+`volta: fora da tela por baixo: hudLinha acima da tela -4` e saiu **1**, sozinho, **sem disputa de
+porta** (o qa confirmou rodando um portão de cada vez). Não reproduziu na repetição idêntica.
+
+Isto é irmão do `PENDENTES 71` e do achado da porta única: **reprovação por sorteio**. E tem
+consequência imediata — o `medir-telas` **não está no CI** hoje (o job `portoes` roda outros
+oito), então ele entra no PR #6 com essa intermitência viva. Um portão que falha 1 em 9 no CI
+ensina todo mundo a reapertar o botão, que é o começo de não ter portão.
+
+**Piso de ruído medido pelo qa:** a mesma medição rodada duas vezes deu **0 px de diferença em
+todas as telas** — então não é ruído de medição, é estado.
+
+**Ainda em aberto, do mesmo bloco:** a tabela `ROLO_MEDIDO` prende dez números à métrica de fonte
+desta máquina. A pilha é de sistema (`Georgia, Iowan Old Style, Times New Roman, …`) e o
+`ubuntu-latest` não tem nenhuma das três primeiras. Medido: trocar a fonte move ±22 px, e
+American Typewriter move +22 a +40 e **reprova a 768×1024** (+27 contra folga de 26). **O piso de
+24 px compra exatamente UMA linha quebrada e nada mais.**
