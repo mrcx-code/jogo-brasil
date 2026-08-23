@@ -2036,3 +2036,70 @@ REGRA PROPOSTA: **instrumento estritamente mais largo que o gerador.** Quando el
 que o gerador nao pega, o gerador se alarga. Um instrumento que so pode confirmar o gerador nao
 e um segundo par de olhos. Medido que alargar e seguro: com a lista paranoica, as quatro paginas
 intactas continuam devolvendo lista vazia.
+
+## 69 — A `regua-larga.js` recebeu METADE da cura, e mede um layout que ainda esta assentando — qa/dev-jogo
+
+Achado pelo QA em 23/08, auditando a varredura de intermitencia. **Nao bloqueou**, e a razao esta
+medida abaixo — mas e margem perdida que ninguem pediu.
+
+A varredura trocou o relogio da regua por espera de estado, so que pela metade: ela espera o
+`#telaMenu` ganhar a classe `aberta` e **nao** espera as animacoes. O `estilo.css:587` roda
+`brota .42s` em `#telaMenu.aberta > *`, com `.12s` de atraso no terceiro filho — a mobilia so
+para em ~540 ms.
+
+Medido nas SEIS telas que a regua julga: a espera nova resolve em **81 a 301 ms**, com **4
+animacoes ainda correndo**, e o `#btnConfig` — o botao que a regua julga — esta de **18 a 223 px**
+da posicao final:
+
+| tela | na espera nova | depois | delta | cabia direto |
+|---|---:|---:|---:|---|
+| tablet retrato 768x1024 | 978 | 960 | -18 | sim -> sim |
+| tablet paisagem 1024x768 | 739,7 | 713,7 | **-26** | **nao -> sim** |
+| notebook 1366x768 | 804,8 | 713,8 | **-91** | **nao -> sim** |
+| landscape 899x500 | 427,5 | 409,5 | -18 | sim -> sim |
+| telefone deitado 926x428 | 597 | 374 | **-223** | **nao -> sim** |
+| ultrawide 1920x1080 | 931,4 | 913,4 | -18 | sim -> sim |
+
+Em **3 de 6 telas o caminho julgado mudou**: o portao passa pelo ramo de resgate por rolagem
+onde antes o botao cabia direto.
+
+POR QUE NAO BLOCKEOU: A/B da regua do ramo contra uma copia com o `waitForTimeout(1400)` de volta
+deu **exit 0 nos dois, saida identica linha a linha em 3 de 3 pares sob carga** — e a nova e bem
+mais rapida (26-34 s contra 47-52 s). **Perda de margem provada, regressao de resultado nao.**
+
+O PERIGO E FUTURO, e por isso vale o item: o dia em que alguem acrescentar uma assercao de
+geometria vertical ali, ela estara medindo um layout que ainda esta assentando. O conserto e o
+mesmo `telaParada()` que o `encaixe.js` ja usa — e o cabecalho do proprio encaixe, de 21/08,
+chama a versao sem espera de animacao de "portao que era cara ou coroa".
+
+## 70 — Tres cegueiras de instrumento que o QA nomeou e ninguem esta olhando — qa/dev-jogo
+
+Todas de 23/08, todas medidas, nenhuma bloqueou a entrega.
+
+**(a) O `jogoPronto` vira no-op de 64 ms na pagina errada.** Ele nao guarda contra `null` antes de
+ler o `#telaMenu`, e o `waitForFunction` **REJEITA no primeiro predicado que lanca** — provado por
+sonda: `false` em 334 ms contra 4168 ms quando a condicao e so *falsa*. Numa pagina com `#hudTop`
+e `#pdFlor` mas **sem** `#telaMenu`, a espera devolve false em 64 ms. Essa pagina nao e hipotese:
+e o 404 que o `abrir.js` serviu nas 16 h de CI vermelho de 20/08. Nao esconde defeito do jogo (as
+assercoes seguintes caem), mas troca "estou apontado para a pagina errada" de um timeout
+barulhento por um false rapido e mudo. **O mesmo autor acertou isso no `bootPronto` do smoke** —
+e uma linha.
+
+**(b) A regua de taxa e infalsificavel quando o quadro passa de 83 ms, e nao avisa.** O teto e
+`0,115 x ms1`, e como o motor nunca avanca mais de 9,5655 px por `dt`, a assercao so consegue ver
+defeito enquanto `ms1 < 83 ms`. Medido sob carga: ms1 = 22, 27, **167**, **123**, 45, 34 — **2 de
+6 rodadas (33%) no regime cego**. Nao e erro de desenho, porque ali o clamp torna bom e ruim o
+mesmo numero; o defeito e o teste **calar** sobre isso. Numa maquina de CI cronicamente lenta a
+assercao fica muda para sempre. Um `console.log` de "quadro longo demais para julgar" resolve.
+
+**(c) O `fila-auth.js` NAO e paralelizavel, e quem usar o `repetir.js` nele mede a coisa errada.**
+As cenas 23 e 24 escrevem `test/tmp-pin-local-*.txt` com nome **fixo**, entao rodar N em paralelo
+mede colisao de arquivo, nao intermitencia. Junto: o QA achou **1 falha em 35 rodadas em fila
+(2,9%)** e **nao conseguiu reproduzir em 32 tentativas seguintes** — a assercao culpada fica **NAO
+PROVADA**, e fica registrado que o "0 de 6" que justificou nao tocar o arquivo era amostra pequena
+demais.
+
+**Sobra tambem:** 21 relogios ainda no `smoke.js` (30 na main), e pelo menos um trava pelo
+mecanismo que a varredura chamou de o mais caro do arquivo — `tap('#openUpgrades')` seguido de
+`waitForTimeout(350)` e tres toques com 80 ms entre eles, julgados por "some upgrade did not
+apply". Mesmo arquivo, mesma doenca, intocada.
