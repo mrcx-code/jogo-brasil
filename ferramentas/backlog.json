@@ -474,6 +474,15 @@
       "territorio": "divulgacao/",
       "camada": "divulgacao",
       "detalhe": "DECIDIDO PELO DONO em 23/08: use placeholder. As pecas 02 (professores) e 03 (press-kit) prometem um canal de retorno que nao existe. O texto ja tem sign-off dele; o que falta e o endereco. NAO inventar e-mail, NAO cortar a promessa -- o placeholder fica e o ENVIO espera. Quando ele der o endereco, e trocar o marcador em duas pecas e mandar."
+    },
+    {
+      "id": "ler-a-medicao",
+      "titulo": "Ninguem nunca leu o que medimos ha tres dias -- construir a leitura",
+      "estado": "livre",
+      "papel": "growth",
+      "territorio": "ferramentas/ler-medicao.js",
+      "camada": "plataforma",
+      "detalhe": "DECIDIDO PELO DONO em 23/08, contra ele mesmo ler o painel e contra deixar para depois. O DIAGNOSTICO: as 5 paginas contam aberturas desde 21/08 e NENHUMA ferramenta do repositorio busca esses numeros. Medir sem ler e pior que nao medir, porque cria a sensacao de que a pergunta de tres dias esta sendo respondida. DEPENDENCIA QUE BLOQUEIA, e ela e de credencial: a chave embutida no jogo e a PUBLICAVEL (phc_), que so MANDA evento -- ler exige uma chave pessoal de leitura, que e SEGREDO e NUNCA pode entrar no repositorio nem no build. DESENHO: a ferramenta le a chave de uma variavel de ambiente (POSTHOG_LEITURA) ou de um arquivo local no .gitignore, e sai com mensagem clara se ela nao existir -- nunca com a chave escrita em lugar nenhum. O dono cria a chave no painel do PostHog (Personal API key, so leitura) e a poe na maquina; eu nunca a vejo. O QUE ELA DEVE RESPONDER, e nada alem disso: quantas pessoas abriram, quantas VOLTARAM no dia seguinte e no terceiro, ate que capitulo chegaram, e a resposta da pergunta voce voltaria amanha. Escreve o resultado no NOTES.md com a data, para o numero nao viver so na tela de alguem. O build tem de RECUSAR se essa chave aparecer no index.html -- a mesma trava que ja existe para a phc_."
     }
   ]
 }
