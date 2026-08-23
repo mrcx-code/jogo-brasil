@@ -5259,7 +5259,9 @@ function medir(nome, props, chave) {
         properties: Object.assign({
             $ip: null,
             $process_person_profile: false,
-            $lib: "brasil"
+            $lib: "brasil",
+            local: /^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(location.hostname) || !location.hostname
+                ? 1 : undefined
         }, props || {}),
         timestamp: new Date().toISOString()
     };

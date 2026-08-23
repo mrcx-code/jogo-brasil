@@ -90,7 +90,17 @@ async function consultar(k, id, hogql) {
   return r.results || [];
 }
 
-const J = 'timestamp > now() - interval ' + DIAS + ' day';
+// ===== O FILTRO QUE FAZ O NUMERO VALER ALGUMA COISA (23/08) =====
+// `properties.local` vale 1 quando o evento saiu de localhost/127.0.0.1 — bancada e CI — e nao
+// existe em producao. Sem este filtro a leitura mede a NOSSA propria rodada de teste: na
+// primeira vez que rodei, 11.576 "aparelhos", 838 "terminaram o arco" e uma curva de retencao
+// PLANA, com um `dia 20000` que so o robusto-tudo produz empurrando o relogio tres anos.
+// Os eventos anteriores a 23/08 NAO tem a marca e por isso nao tem conserto: a janela padrao
+// vai continuar contaminada ate 30 dias depois desta data. `--tudo` mostra o bruto, para a
+// contaminacao ficar visivel em vez de virar lenda.
+const TUDO = process.argv.includes('--tudo');
+const SO_GENTE = TUDO ? '' : " and isNull(properties.local)";
+const J = 'timestamp > now() - interval ' + DIAS + ' day' + SO_GENTE;
 
 (async () => {
   const k = chave();

@@ -1316,13 +1316,19 @@ async function hudNoLugar(pg) {
   // (bloco 19) e `sessao` com o "onde parou" (bloco 20). `ativos` entrou em 19/08 com a
   // decisão do dono sobre o que conta como tempo jogado: `minutos` é tempo com o jogo na
   // frente, `ativos` é quanto disso teve a mão nele — inteiro de minutos, como o vizinho.
+  // `local` entrou em 23/08 e é TÉCNICA, não conteúdo: vale 1 quando o jogo roda em
+  // localhost/127.0.0.1 — ou seja, em bancada e no CI — e some do corpo em produção
+  // (`undefined` não sobrevive ao JSON.stringify). Ela existe porque a PRIMEIRA leitura da
+  // medição não mediu gente, mediu a gente: 11.576 "aparelhos", 838 "terminaram o arco" e uma
+  // curva de retenção PLANA, com um `dia 20000` que só o `robusto-tudo` produz. Nada no corpo
+  // dizia de onde vinha, então aqueles 30 dias não têm conserto — daqui para a frente têm.
   const PERMITIDAS = ['$ip', '$lib', '$process_person_profile', 'arquivo', 'ativos',
-    'capitulo', 'daChegada', 'dia', 'linha', 'minutos', 'msg', 'n', 'nome', 'resposta',
+    'capitulo', 'daChegada', 'dia', 'linha', 'local', 'minutos', 'msg', 'n', 'nome', 'resposta',
     'sessao', 'terminou', 'vez'];
   // E POR EVENTO, que é mais apertado do que a lista corrida: com ela sozinha, mudar `parou`
   // para levar `resposta` passaria — a palavra está aprovada, só que para OUTRO evento. Aqui
   // cada um só pode levar o que foi aprovado PARA ELE. As três técnicas valem em todos.
-  const TECNICAS = ['$ip', '$lib', '$process_person_profile'];
+  const TECNICAS = ['$ip', '$lib', '$process_person_profile', 'local'];
   const ESPERADAS = {
     abriu:    ['dia', 'capitulo', 'nome', 'minutos', 'terminou'],
     voltou:   ['dia'],

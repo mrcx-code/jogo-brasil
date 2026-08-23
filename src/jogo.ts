@@ -3952,7 +3952,27 @@ function medir(nome: string, props?: Record<string, any>, chave?: string) {
     properties: Object.assign({
       $ip: null,                       // descarte o endereço; não o guarde, não o geolocalize
       $process_person_profile: false,  // conte o evento e não abra ficha de ninguém
-      $lib: "brasil"                   // não é a biblioteca do PostHog; é este arquivo
+      $lib: "brasil",                  // não é a biblioteca do PostHog; é este arquivo
+      // ===== O QUE VEM DE BANCADA SE DECLARA (23/08) =====
+      // Descoberto na PRIMEIRA leitura da medição, e ela não mediu gente: mediu a gente.
+      // Em 30 dias, 11.576 "aparelhos" abriram, 838 "terminaram o arco" inteiro, e a curva de
+      // retenção era PLANA — dia 2 com 841, dia 4 com 814, e um `dia 20000` que só o
+      // `robusto-tudo` produz empurrando o relógio três anos. Os doze capítulos com ~800 cada,
+      // sem nenhuma queda entre eles. Não existe público assim; existe CI.
+      //
+      // A CAUSA era de desenho: a única trava aqui era `location.protocol === "file:"`, e o
+      // smoke deixou de usar `file://` justamente porque ele quebra o `fetch` dos pacotes de
+      // arte (§6 do CLAUDE.md). Desde então toda rodada de teste manda evento REAL para a
+      // produção — e nada no corpo dizia de onde veio, então os 30 dias não têm como ser
+      // limpos depois. Ficam perdidos, e é barato perdê-los agora.
+      //
+      // MARCAR, E NÃO BLOQUEAR, é de propósito: o portão da medição (encaixe, bloco 17)
+      // INTERCEPTA o pedido para conferir o corpo — chave publicável, `$ip: null`, sem cookie,
+      // nenhuma propriedade fora da lista branca. Se o jogo parasse de mandar em `localhost`,
+      // esse portão pararia de ter o que conferir, e a gente trocaria dado sujo por trava cega.
+      // Assim o portão segue vendo o corpo, e a leitura filtra por esta marca.
+      local: /^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(location.hostname) || !location.hostname
+        ? 1 : undefined
     }, props || {}),
     timestamp: new Date().toISOString()
   };
