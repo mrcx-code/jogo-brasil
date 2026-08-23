@@ -1297,7 +1297,15 @@ function lintComentarios() {
   });
   await page.reload();
   await page.waitForFunction(() => typeof S !== 'undefined');
-  await page.waitForTimeout(600);
+  // ESPERA O PAPEL, NAO O RELOGIO. Eram 600 ms fixos. Sob carga o boot ainda nao tinha aberto o
+  // papel da volta: o teste media `open: false`, empilhava o erro certo, e entao MORRIA 30 s
+  // depois num `page.tap` de elemento invisivel — crash no lugar de diagnostico, que e a pior
+  // troca possivel num portao. Caiu 2 de 3 rodadas locais em 23/08, com tres agentes rodando
+  // Chromium ao lado, enquanto o CI do GitHub (maquina livre) passava verde no mesmo commit.
+  const abriuPapel = await page.waitForFunction(
+    () => document.getElementById('retorno').classList.contains('aberto'),
+    null, { timeout: 15000 }).then(() => true).catch(() => false);
+  await page.waitForTimeout(150);      // respiro para as linhas montarem depois de abrir
   const volta = await page.evaluate(() => {
     const el = document.getElementById('retorno');
     const linhas = Array.from(document.querySelectorAll('#retorno .retLinha')).map(d => d.textContent);
@@ -1377,7 +1385,14 @@ function lintComentarios() {
   if (!camada.menuAberto) errors.push('the boot no longer opens the menu — flow assumption broke');
   if (!camada.alcanca) errors.push('the return panel is buried under ' + camada.quem + ' (B1)');
   if (!camada.veuNoBotao) errors.push('the menu is not behind the return veil: JOGAR is reachable through it (' + camada.sobreBotao + ')');
-  await page.tap('#retorno');             // o toque que antes morria: menu aberto por baixo
+  // O TOQUE SO ACONTECE SE HOUVER O QUE TOCAR. Sem esta guarda, uma pre-condicao que falhou
+  // vira um `page.tap` de 30 s num elemento invisivel e uma excecao nao capturada que MATA a
+  // rodada — o portao perde a chance de dizer o que ele descobriu. Falhar e util; travar nao e.
+  if (abriuPapel) {
+    await page.tap('#retorno');           // o toque que antes morria: menu aberto por baixo
+  } else {
+    errors.push('the return panel never opened in 15s — the B1 tap was skipped so the run could report instead of hanging');
+  }
   await page.waitForTimeout(150);
   const dpTap = await page.evaluate(() => ({
     aberto: document.getElementById('retorno').classList.contains('aberto'),
