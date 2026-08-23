@@ -1,0 +1,32 @@
+# O VIGIA DAS DEPENDÊNCIAS — a segunda metade da pergunta do dono de 23/08.
+#
+# O jogo não tem dependência em runtime (é um arquivo autocontido, e isso é decisão de projeto).
+# Mas a ESTEIRA tem: o Playwright que roda todos os portões, o TypeScript que compila, o
+# Capacitor que empacota o Android. Vulnerabilidade em ferramenta de build não afeta quem joga
+# — afeta quem constrói, e é por onde se envenena uma cadeia de publicação.
+#
+# Semanal, e não diário, de propósito: PR de dependência que chega todo dia vira ruído, e ruído
+# é o que faz a gente parar de ler o que o CI diz. Teto de 3 abertos pela mesma razão.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps"
+    # As ferramentas que sustentam os portões vêm agrupadas: subir Playwright em três PRs
+    # separados é três vezes o mesmo teste.
+    groups:
+      esteira:
+        patterns: ["@playwright/*", "playwright", "typescript", "@capacitor/*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "ci"
