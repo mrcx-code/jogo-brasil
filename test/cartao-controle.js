@@ -10,12 +10,15 @@
 // DUAS PARTES, e as duas por exit code:
 //
 //   A · O CONTROLE (EQUIPE.md 2.8 — portão que nunca foi visto reprovando é decoração).
-//       Quatro defeitos são injetados de propósito numa CÓPIA da página de A HISTÓRIA, e
-//       `ferramentas/cartao-secao.js` tem de RECUSAR os quatro:
+//       Cinco defeitos são injetados de propósito numa CÓPIA da página de A HISTÓRIA, e
+//       `ferramentas/cartao-secao.js` tem de RECUSAR os cinco:
 //         1. uma faixa acima do cabeçalho que empurra o `h1` para fora dos 630 px
 //         2. um botão visível dentro do quadro (num JPEG não há botão para tocar)
-//         3. a folha de estilo das fontes do Google removida (o cartão sairia em Georgia)
-//         4. qualidade 1, que faz o JPEG virar chapa lisa abaixo do piso de 20 KB
+//         3. o título numa sans pura (o cartão sairia com outra identidade visual)
+//         4. o título numa sans com a serifa da casa só no RECUO — o caso difícil, que existe
+//            porque a versão anterior deste controle ficou MUDA por uma frouxidão de regex
+//            (ver o comentário no próprio defeito 3)
+//         5. qualidade 1, que faz o JPEG virar chapa lisa abaixo do piso de 20 KB
 //       Se um deles PASSAR, este arquivo sai 1 dizendo que o portão não presta.
 //
 //   B · A CONFERÊNCIA NO AR. `ferramentas/servir.js` sobe `dist/` — que é o que a Vercel
@@ -95,7 +98,7 @@ function meta(html, sel) {
   // ============================================================
   // A · O CONTROLE — quatro defeitos, quatro recusas
   // ============================================================
-  sec('A · o portão do cartão visto REPROVANDO (quatro defeitos injetados)');
+  sec('A · o portão do cartão visto REPROVANDO (cinco defeitos injetados)');
   const molde = fs.readFileSync(path.join(RAIZ, 'historia', 'index.html'), 'utf8');
   fs.mkdirSync(TMP, { recursive: true });
 
@@ -112,8 +115,24 @@ function meta(html, sel) {
       espera: /controle visível/
     },
     {
-      nome: 'o título fora da serifa da casa (o cartão sairia com outra identidade)',
+      // ESTE CONTROLE FICOU MUDO E FOI PEGO EM 22/08 — leia antes de mexer nele.
+      // Ele nasceu removendo a folha do Google Fonts, quando o portão cobrava a CHEGADA de uma
+      // fonte de rede. A onda 1 de 22/08 tirou o Google das páginas e pôs a serifa da casa; o
+      // remendo foi atualizado para injetar uma sans... e o controle passou a PASSAR, dizendo
+      // que o portão estava vivo. Causa medida, imprimindo o estado: `sans-serif` CONTÉM
+      // `serif`, e o `\bserif\b` do portão casava com ele. Um controle que reprova por um
+      // motivo e é lido como se reprovasse por outro é pior que controle nenhum — foi por isso
+      // que a regressão de peso (183 KB contra a meta de 90) viajou junto, sem ninguém ver.
+      nome: 'o título fora da serifa da casa: uma sans pura',
       remendo: (h) => h.replace('</style>', '  h1{font-family:Arial,sans-serif!important;}\n</style>'),
+      espera: /não está na serifa da casa/
+    },
+    {
+      // O IRMÃO DIFÍCIL do de cima, e é ele que prova que o conserto é conserto e não uma
+      // regex remendada: uma SANS na frente com a serifa da casa no recuo. O navegador desenha
+      // Arial; qualquer cobrança que procure "georgia" em qualquer posição da lista aprova.
+      nome: 'o título fora da serifa da casa: sans na frente, serifa da casa só no recuo',
+      remendo: (h) => h.replace('</style>', '  h1{font-family:Arial,Georgia,serif!important;}\n</style>'),
       espera: /não está na serifa da casa/
     },
     {

@@ -29,7 +29,7 @@ const cabeca = (url, ms = 25000) => new Promise((ok) => {
   const linhas = [];
   let falhou = 0;
   const diz = (ok, rot, detalhe) => {
-    linhas.push('  ' + (ok ? '✓' : '✗') + ' ' + rot.padEnd(42) + detalhe);
+    linhas.push('  ' + (ok ? '✓' : '✗') + ' ' + rot.padEnd(46) + detalhe);
     if (!ok) falhou++;
   };
 
@@ -39,8 +39,15 @@ const cabeca = (url, ms = 25000) => new Promise((ok) => {
 
   // 2. OS PACOTES DE ARTE ao lado do jogo — é a exceção do arquivo único, e se some, capítulo 2+
   // roda com a arte do capítulo 1 em silêncio.
-  const pack = await cabeca('https://matheusferreira.cc/pack-praca.json');
-  diz(pack.status === 200, 'pacote de arte no ar (pack-praca.json)', 'HTTP ' + (pack.status || pack.erro));
+  //
+  // O ENDEREÇO É `/jogo/`, NÃO A RAIZ, e este portão ficou vermelho pelo motivo errado até
+  // 22/08. A porta da plataforma passou a ser a raiz em 20/08 (D-home) e o jogo mudou para
+  // `dist/jogo/`, com os pacotes AO LADO dele — o `fetch` de `caminhoPacote()` é RELATIVO, então
+  // é assim que tem de ser. Medido na produção antes de mexer: raiz responde 404, `/jogo/`
+  // responde 200. Um portão de infra que acusa falta do que existe ensina a ignorar o vermelho,
+  // que é o oposto do motivo pelo qual este arquivo foi escrito.
+  const pack = await cabeca('https://matheusferreira.cc/jogo/pack-praca.json');
+  diz(pack.status === 200, 'pacote de arte no ar (jogo/pack-praca.json)', 'HTTP ' + (pack.status || pack.erro));
 
   // 3. PUSH PUBLICA SOZINHO. Não se prova sem um push novo; o que se prova é que a Vercel está
   // servindo — a prévia da vercel.app responde.

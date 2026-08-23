@@ -16,6 +16,11 @@ assets/entrada/
 # que o smoke test lê. Estes dois são intermediários e se refazem com `npm run build`.
 build/
 dist/
+# dist.tmp/ e a PASTA DE OBRA do build (22/08): tudo e escrito nela e so no ultimo passo ela
+# vira dist/ por um rename, para que um build que falha no meio deixe o dist/ ANTERIOR intacto
+# em vez de uma mistura de bytes de hoje e de ontem. Um build morto deixa a pasta para tras;
+# ignorada pelo mesmo motivo que dist/, e o proximo build a limpa antes de comecar.
+dist.tmp/
 
 # Android (Capacitor). A pasta é gerada por `npx cap add android` e o web dela vem de dist/.
 android/app/src/main/assets/public/
