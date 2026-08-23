@@ -86,7 +86,26 @@ jobs:
         run: npm run conteudo:conferir
         timeout-minutes: 5
 
-      # ------------------------------------------------------------------------------------
+
+  # ------------------------------------------------------------------------------------
+  # SEGUNDO JOB, e a razao e tempo de parede: o controle da fila-auth injeta 21 defeitos,
+  # um por vez, e cada um custa ~38 s — treze minutos so ele. Somado ao smoke no MESMO job,
+  # o CI passaria de quarenta minutos, e CI que ninguem espera e CI que ninguem le. Os dois
+  # jobs rodam em runners diferentes, ao mesmo tempo: o smoke continua respondendo em ~6 min
+  # e os portoes pesados terminam por conta deles.
+  # ------------------------------------------------------------------------------------
+  portoes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      # o build primeiro: varios portoes leem o index.html da RAIZ, que e saida
+      - run: npm run build
       # OS PORTÕES QUE EXISTIAM E NÃO RODAVAM (23/08, pergunta do dono: "esse smoke que passa,
       # vale alguma outra camada de teste?").
       #
@@ -108,7 +127,7 @@ jobs:
       # ------------------------------------------------------------------------------------
       - name: controle da fila-auth (prova que as cenas MORDEM — a lição 2.8)
         run: node test/fila-auth-controle.js
-        timeout-minutes: 8
+        timeout-minutes: 20
 
       - name: a porta não pode mentir (número da porta x número da seção)
         run: node test/medir-porta-secao.js
