@@ -203,6 +203,77 @@ condições numéricas de aceite** escritas pela arte — inclusive a que decide
 Para pegar: marcar `estado: em-curso` + `maquina: mac-jogo` + `desde` no `backlog.json`,
 commitar **na hora**, e empurrar `git push origin HEAD:refs/heads/voo/caminho-do-ceu`.
 
+**MAS A RÉGUA JÁ RESPONDEU, e a resposta é não — medido em 23/08.** A condição da arte é *"a
+referência 390×844 tem que ganhar a heroína; se não ganhar, a prioridade cai"*. A saída do
+`npm test` dá **83 px de faixa em 390×844 onde precisam 104** (412×915 e 430×932 passam). Pela
+regra do próprio PENDENTES 54, **a prioridade dele cai antes de começar**. Está com o dono, que
+é quem decide prioridade — a régua só informa. **Não pegue este item sem a decisão dele.**
+
+### O que aconteceu depois disso, ainda em 23/08 — a coordenação funcionou
+
+Não é registro de cortesia: é a prova de que o canal entre as duas máquinas fecha o ciclo, e
+quanto tempo leva.
+
+1. **O Mac conferiu a trava que o Windows tinha acabado de subir** e achou defeito: o
+   `test/guarda-lock.js` dava **exit real 1** aqui. Causa isolada — o guarda resolvia `RAIZ` pelo
+   `__dirname` (que o Node já resolve por symlink) e o alvo cru da ferramenta (que não). Com
+   symlink no caminho as pontas discordam, nada casa território e **o guarda passa em silêncio**.
+   No macOS `os.tmpdir()` é `/var/folders`, symlink de `/private/var/folders` — que é onde o
+   próprio teste monta o palco.
+2. **Virou `PENDENTES 59`** com o remendo já provado numa cópia (hoje 3 falhas · remendado 4/4),
+   sem tocar `.claude/hooks/`, mais um comentário de revisão no PR #5.
+3. **O Windows aplicou em menos de uma hora** (`7a8f726`), e o Mac conferiu: `guarda-lock`
+   **exit real 0**, cena 7 verde nas quatro verificações. **A trava está de pé nas duas máquinas.**
+4. **`PENDENTES 60`** foi o achado seguinte, ainda aberto — ver abaixo.
+
+**A regra que este ciclo confirmou:** achado + causa isolada + remendo provado + território
+respeitado é aceito rápido. O que trava é achado sem medição.
+
+### O que está esperando resposta da outra máquina (nenhum é bloqueante)
+
+- **O guarda falar alto no caso "fora da RAIZ".** Ele aplicou o remendo, não a sugestão maior:
+  hoje o guarda trata "fora da RAIZ" e "dentro da RAIZ e liberado" como a mesma coisa, exit 0
+  calado — foi esse silêncio que deixou a trava sumir. Uma linha em stderr, **sem recusar**,
+  trataria a classe em vez do caso.
+- **`territorio-rico` está `em-curso` com `maquina: null` e `desde: null`.** É o único item em
+  voo, e o `quemTrava` devolve `null` para ele por construção: a trava está de pé e ainda não
+  sustenta o único caso real.
+- **`PENDENTES 60` — o `index.html` nasce sujo no Mac a cada build.** Diff de 9.863 linhas,
+  **100% fim-de-linha** (`--ignore-cr-at-eol` zera). Causa: `tsconfig.json:31`
+  `"newLine": "crlf"`. No Windows não aparece porque o `autocrlf=true` fecha o círculo. Conserto
+  tem **duas** peças (`newLine: lf` + `index.html text eol=lf`) e uma sozinha não serve — medido.
+  Não foi aplicado porque a metade Windows não se verifica daqui: só a peça 1 limparia o Mac e
+  sujaria a árvore dele.
+
+**Consequência prática enquanto isso não fecha:** neste Mac, `git status` acusa `index.html`
+depois de todo build **sem nenhum byte de texto ter mudado**. Não confie em árvore suja como
+sinal aqui — confira com `git diff --ignore-cr-at-eol` antes de concluir qualquer coisa. Três
+stashes foram descartados em 23/08 por serem só esse ruído.
+
+### O `gh` deste Mac escreve como `mrcx-code`, e isso é garantido por máquina
+
+Auditado em 23/08: **nenhum rastro** da conta de trabalho no repositório (todos os PRs e
+comentários são `mrcx-code`, nenhum commit com e-mail da PetScreening). Mas o `gh` desta máquina
+tinha **só o `matf-ps` logado** — ler repo público é inofensivo, **escrever** deixaria rastro
+público e permanente da conta da empresa num projeto pessoal.
+
+- **Chaveiro separado:** `~/.config/gh-pessoal` (mrcx-code), apontado por `GH_CONFIG_DIR` no
+  `env` do `.claude/settings.local.json` (**gitignored** — não vai para a outra máquina). O
+  global `~/.config/gh` continua sendo o da empresa, intocado.
+- **Trava mecânica:** `~/.claude/guarda-gh.js`, hook `PreToolUse` de Bash, **recusa (exit 2)
+  qualquer escrita do `gh`** a menos que `gh api user` responda `mrcx-code`. Leitura livre.
+  **Falha FECHADA de propósito** — o contrário do guarda de território: lá travar por engano
+  custa meia hora, aqui deixar passar custa rastro público permanente.
+- **Teste:** `~/.claude/testar-guarda-gh.js`, **33 verificações**, cobrando a lógica nos dois
+  sentidos. Provado com escrita real: gist secreto criado como `mrcx-code` e apagado (404).
+- **Duas armadilhas que ele já pagou:** corpo de heredoc é **dado, não comando** (ele bloqueava
+  a escrita de um arquivo que apenas *mencionava* `gh pr create`); e a conferência tem de usar o
+  **mesmo ambiente** do comando. E o teste não pode fixar a conta ativa — a primeira versão ficou
+  vermelha exatamente quando o programa passou a estar certo.
+
+**O que a máquina NÃO cobre, e continua sendo humano:** no `gh auth login`, quem escolhe a conta
+no navegador é a pessoa. O guarda confere quem assina, não quem foi autorizado.
+
 ### O que a outra máquina declarou OCUPADO (não encoste)
 
 `plataforma/` · `ferramentas/gerar-*.js` · `ferramentas/chrome-plataforma.js` · `dashboard/` ·
