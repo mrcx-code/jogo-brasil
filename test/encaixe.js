@@ -86,8 +86,8 @@ async function abrirMenuParado(page) {
     for (let t = 1; ; t++) {
       try { await pg.reload(); return; }
       catch (e) {
-        if (t >= 3 || String(e).indexOf('ERR_CONNECTION_REFUSED') < 0) throw e;
-        await new Promise(r => setTimeout(r, 400 * t));
+        if (t >= 6 || String(e).indexOf('ERR_CONNECTION_REFUSED') < 0) throw e;
+        await new Promise(r => setTimeout(r, 500 * t));   // 0,5+1+1,5+2+2,5 = 7,5 s de paciencia
       }
     }
   }
