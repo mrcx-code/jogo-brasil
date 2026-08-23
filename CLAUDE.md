@@ -318,6 +318,20 @@ foi meu ao desmentir) que fez 19/08 ser melhor. Sem ele, cada rodada redescobre 
 paralela dos treze capítulos, painel de juízes. Isso queima muito, e o dono pede com a palavra
 `ultracode` na mensagem. A licença acima é para o trabalho de todo dia, não para a frota.
 
+## 5.3 COMO A SESSAO SE MANTEM ANDANDO — o `PLANTAO.md` (23/08)
+
+O `AGENTES.md` diz quem sao os agentes, o `EQUIPE.md` briefa eles, e o §6 diz como trabalhar.
+**Faltava o motor**: como uma sessao escolhe o proximo trabalho, despacha em paralelo, audita,
+integra e volta ao comeco **sem esperar pedido**. Isso ficou implicito por semanas e so apareceu
+como buraco quando o plantao passou de uma maquina para outra — foram precisos quatro documentos
+para transmitir o que devia caber em um.
+
+O `PLANTAO.md` e esse um. Ele guarda o laco, o que separa um brief de agente que devolve numero
+de um que devolve resumo, quantos agentes cabem antes de a carga derrubar portao, o ciclo do
+funil com as tres armadilhas que custaram sessao, e o que conta como registro.
+
+**Quem entra de plantao le o `PLANTAO.md` antes de despachar o primeiro agente.**
+
 ## 6. Como trabalhar
 
 ### O CHECK — quando o dono escrever `check` e nada mais
