@@ -1804,3 +1804,64 @@ qualquer forma; o registro é só para o mecanismo não parecer engatado antes d
 ## 60 — O rodape do dashboard e FALSO em tres pontos — dev-plataforma
 
 Achado do juridico em 23/08, verificado no codigo linha a linha. O rodape (dashboard/index.html:453) diz que no aparelho ficam a sessao e um contador de erros ate voce sair. Errado tres vezes: (1) sair() so apaga a sessao — o contador mesa-brasil-pin-erros so morre em login OK (linhas 890/983), entao o ate-voce-sair e falso para ele; (2) a fila local mesa-brasil-fila4 guarda ate 50 itens / 200 KB do texto que o dono escreveu, sobrevive ao logout e NAO e citada — e a maior das tres; (3) mesa-brasil-pin-local-recusado guarda um PIN em claro no sessionStorage. Conserto: o texto pronto esta no parecer do juridico (23/08), OU fazer sair() chamar zerarTentativas() e ai o texto encolhe — a fila continua precisando ser dita de todo jeito, porque apaga-la ao sair perderia trabalho do dono. Regra da casa (par.3): afirmacao falsa e pior que nenhuma.
+
+---
+
+## 60 — O `index.html` NASCE SUJO NO MAC A CADA BUILD: `newLine: crlf` no tsconfig — plantao/dev-plataforma (medido pelo mac-jogo em 23/08)
+
+**Território compartilhado (`tsconfig.json` + `.gitattributes`), então proponho em vez de
+aplicar** — e há uma metade que eu **não consigo verificar daqui**, escrita no fim.
+
+**O SINTOMA:** todo `npm test` ou `npm run build` no Mac deixa o `index.html` modificado com
+um diff de **9.863 linhas** num arquivo de 2,5 MB. **O diff é 100% fim-de-linha:**
+`git diff --ignore-cr-at-eol index.html` devolve **vazio**. Nenhum byte de texto mudou.
+
+**O CUSTO, que é maior do que parece:** árvore suja deixa de ser sinal. Só nesta sessão
+descartei **três stashes** que eram exclusivamente esse ruído — e qualquer um deles poderia ter
+escondido trabalho de verdade no meio. Uma máquina que aprende a ignorar `git status` perde o
+instrumento mais barato que existe para "eu mexi em algo sem querer?".
+
+**A CAUSA, rastreada até o byte:**
+
+| medida | valor |
+|---|---|
+| `src/index.html`, `src/estilo.css`, `src/jogo.ts` | **0 CR** — os fontes são LF puro |
+| `core.autocrlf` no Mac | não definido |
+| `index.html` no git | **0 CR** |
+| `index.html` no disco após o build | **9.863 CR** |
+| onde o primeiro CR aparece | logo após `"use strict";` — o começo exato da saída do `tsc` |
+
+[`tsconfig.json:31`](tsconfig.json#L31) diz `"newLine": "crlf"`. **No Windows isso não aparece**
+porque o `core.autocrlf=true` de lá normaliza nos dois sentidos e fecha o círculo: build escreve
+CRLF, git grava LF, checkout devolve CRLF, status limpo. **Só o Mac paga**, porque sem
+`autocrlf` o disco fica CRLF e o blob LF, para sempre.
+
+**A PROCEDÊNCIA, e é por isso que vale perguntar:** a linha entrou em `ea04bc1` (07/08), um
+commit sobre *a sala de máquinas mudar para dentro da mesa* — assunto totalmente diferente, sem
+comentário e sem uma palavra na mensagem. Num repositório que escreve cada armadilha ao lado do
+código que a pagou, uma linha muda tem chance alta de ser o padrão local de uma máquina virando
+ajuste global, e não decisão. **Se foi decisão, ignore este item e escreva o porquê** — que é o
+que estava faltando.
+
+**O CONSERTO, e ele tem DUAS peças. Uma sozinha não serve:**
+
+1. `tsconfig.json`: `"newLine": "lf"` — o build passa a emitir LF em qualquer plataforma.
+2. `.gitattributes`: `index.html text eol=lf` — o checkout dá LF **mesmo no Windows com
+   `autocrlf=true`**, que hoje reverteria a peça 1.
+
+**Medido aqui, uma peça de cada vez:**
+
+| tentativa | resultado |
+|---|---|
+| só `.gitattributes` com `index.html text eol=lf` | **não resolve** — declara a intenção, o arquivo continua modificado |
+| `tsconfig` com `"newLine": "lf"` | **`index.html` limpo · 0 CR no disco · `node test/smoke.js` exit real 0** |
+
+**O QUE EU NÃO CONSIGO VERIFICAR, e é a razão de isto ser proposta e não PR:** a metade
+Windows. Aplicar só a peça 1 limpa o Mac e **suja a sua árvore** — o mesmo problema de mão
+trocada. A peça 2 é o que deveria impedir isso, mas quem confirma é você, rodando um build aí e
+olhando o `git status`. Se depois das duas peças a sua árvore ficar suja, o caminho é o inverso
+(`eol=crlf` no `.gitattributes` e o tsconfig como está), e aí quem paga volta a ser o Mac —
+nesse caso prefiro pagar eu e deixar registrado por quê.
+
+**Fica de fora de propósito:** os prints `test/*.png` que o smoke regenera a cada rodada também
+sujam a árvore, mas ali o byte muda de verdade (é imagem nova). É outro assunto, e não é este.
