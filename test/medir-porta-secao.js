@@ -64,8 +64,11 @@ function contaSecao(html, rotulo, onde) {
   const nav = await chromium.launch();
   const pgn = await nav.newPage();
   await pgn.goto(ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/')));
-  await pgn.waitForTimeout(1500);
-  const sCapitulos = await pgn.evaluate(() => EPOCAS.length);
+  // ERA waitForTimeout(1500). O que se lê aqui é `EPOCAS.length` — então o estado esperado é
+  // `EPOCAS` EXISTIR, e é isso que se pergunta. Teto de 30 s como detector de travamento.
+  await pgn.waitForFunction(() => typeof EPOCAS !== 'undefined' && EPOCAS.length > 0,
+    null, { timeout: 30000 }).catch(() => {});
+  const sCapitulos = await pgn.evaluate(() => (typeof EPOCAS !== 'undefined' ? EPOCAS.length : 0));
   await nav.close();
 
   const pares = [

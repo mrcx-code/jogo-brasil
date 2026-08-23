@@ -66,7 +66,12 @@ async function carregar(browser, arq, W, remendo) {
     return route.abort();
   });
   await pg.goto(ORIGEM);
-  await pg.waitForTimeout(500);
+  // ERA waitForTimeout(500), e o que vem depois mede GEOMETRIA (barra de tábuas, alvo de 44 px)
+  // — medida antes de a fonte assentar, ela muda. `readyState` e `document.fonts.ready` são o
+  // estado real; teto de 20 s como detector de travamento.
+  await pg.waitForFunction(() => document.readyState === 'complete',
+    null, { timeout: 20000 }).catch(() => {});
+  await pg.evaluate(() => (document.fonts && document.fonts.ready ? document.fonts.ready : null)).catch(() => {});
   return { pg, fontesGoogle, erros };
 }
 

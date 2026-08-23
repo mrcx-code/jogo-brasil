@@ -73,7 +73,13 @@ const TELAS = [
     const pg = await nav.newPage();
     await pg.setViewportSize({ width: t.w, height: t.h });
     await pg.goto(ALVO);
-    await pg.waitForTimeout(1400);
+    // ERA waitForTimeout(1400) — 1,4 s de aposta sobre um boot cuja duração é da máquina.
+    // O fim do boot é observável: `abrirTela("telaMenu")` é a última linha do
+    // `DOMContentLoaded` do jogo. Teto de 30 s como detector de travamento; o `.catch` mantém
+    // a asserção de baixo como quem reprova, em vez de a espera derrubar o instrumento.
+    await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
+      && document.getElementById('telaMenu').classList.contains('aberta'),
+      null, { timeout: 30000 }).catch(() => {});
     if (process.env.REGUA_DEFEITO) {
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
     }
@@ -299,7 +305,13 @@ const TELAS = [
     const pg = await nav.newPage();
     await pg.setViewportSize({ width: t.w, height: t.h });
     await pg.goto(ALVO);
-    await pg.waitForTimeout(1400);
+    // ERA waitForTimeout(1400) — 1,4 s de aposta sobre um boot cuja duração é da máquina.
+    // O fim do boot é observável: `abrirTela("telaMenu")` é a última linha do
+    // `DOMContentLoaded` do jogo. Teto de 30 s como detector de travamento; o `.catch` mantém
+    // a asserção de baixo como quem reprova, em vez de a espera derrubar o instrumento.
+    await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
+      && document.getElementById('telaMenu').classList.contains('aberta'),
+      null, { timeout: 30000 }).catch(() => {});
     if (process.env.REGUA_CHAO) {
       await pg.evaluate((d) => {
         // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a

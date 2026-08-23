@@ -111,7 +111,16 @@ async function abrir(browser, pag, modo, op) {
     pedidos.length = 0;
     await pg.reload();
   }
-  await pg.waitForTimeout(op.espera || 900);
+  // ERA waitForTimeout(op.espera || 900) para os dois casos, e eles pedem esperas OPOSTAS:
+  //   · ligado    — a asserção é que o evento SAIU. Isso é um evento, e evento se espera.
+  //   · desligado — a asserção é que NENHUM saiu. Ausência não tem estado a esperar: só o
+  //                 relógio a prova, e por isso ele fica aqui, de propósito e por escrito.
+  if (op.desligar) {
+    await pg.waitForTimeout(op.espera || 900);
+  } else {
+    const tE = Date.now();
+    while (!pedidos.length && Date.now() - tE < (op.teto || 30000)) await pg.waitForTimeout(50);
+  }
   const vivo = await pg.evaluate(({ sel }) => ({
     nos: document.querySelectorAll(sel).length,
     botao: !!document.getElementById('medirBt'),
