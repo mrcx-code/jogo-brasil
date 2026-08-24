@@ -107,18 +107,33 @@ async function lerModal(navegador, htmlPath, backlogObj, nome) {
 (async () => {
   const fila = JSON.parse(fs.readFileSync(FILA, 'utf8'));
   const livres = fila.itens.filter(i => i.estado === 'livre');
-  const daPlataforma = livres.filter(i => (i.agente || i.papel) === 'dev-plataforma');
+  // O AGENTE SAI DO DADO, NAO E CHUMBADO — achado do QA em 24/08, e o modo de falha era
+  // vermelho FALSO no CI. Estava fixo em 'dev-plataforma'; 6 dos 15 livres sao dele, e no dia
+  // em que ele zerar a fila o portao reprova sem defeito nenhum (medido: exit 1 na cena 6, so
+  // mudando o backlog.json e sem tocar no dashboard). Pior: com zero itens as cenas 1 e 2
+  // viravam VACUO — `slice(0,0)` comparado com `[]` imprime "ok" sem verificar nada, que e o
+  // verde por acidente com outro nome. Agora escolhe quem TEM mais itens, e exige pelo menos
+  // dois para a comparacao significar alguma coisa.
+  const porQuem = {};
+  for (const i of livres) { const q = i.agente || i.papel; if (q) (porQuem[q] = porQuem[q] || []).push(i); }
+  const ESCOLHIDO = Object.keys(porQuem).sort((a, b) => porQuem[b].length - porQuem[a].length)[0];
+  const daPlataforma = porQuem[ESCOLHIDO] || [];
+  ok(daPlataforma.length >= 2,
+    'ha agente com >= 2 itens livres para a comparacao valer (' + ESCOLHIDO + ': ' + daPlataforma.length + ')');
   const concluidos = fila.itens.filter(i => i.estado === 'concluido').map(i => i.titulo);
   const nav = await chromium.launch();
   try {
     console.log('\n1) A LISTA E A FILA — os titulos do modal saem do backlog, na ordem do arquivo');
-    console.log('   (' + livres.length + ' itens livres na fila; ' + daPlataforma.length + ' do dev-plataforma)');
-    const m1 = await lerModal(nav, DASH, fila, 'dev-plataforma');
+    console.log('   (' + livres.length + ' itens livres na fila; ' + daPlataforma.length + ' de ' + ESCOLHIDO + ')');
+    const m1 = await lerModal(nav, DASH, fila, ESCOLHIDO);
     ok(!m1.erro, 'o modal abriu pelo caminho da pessoa (clique em Acionar)' + (m1.erro ? ' — ' + m1.erro : ''));
     ok((m1.erros || []).length === 0, 'sem erro de pagina ao montar a lista');
     const esperados = daPlataforma.map(i => i.titulo);
+    // imprime o que OBTEVE, nao so o que esperava (licao 2.9): sem isto, o diagnostico da
+    // proxima falha custa uma rodada inteira. Achado do QA na mesma auditoria.
     ok(JSON.stringify(m1.textos.slice(0, esperados.length)) === JSON.stringify(esperados),
-      'os ' + esperados.length + ' primeiros caminhos sao os itens livres, na ordem do dono');
+      'os ' + esperados.length + ' primeiros caminhos sao os itens livres, na ordem do dono',
+      'obtive: ' + JSON.stringify(m1.textos.slice(0, esperados.length)));
     ok(m1.textos[m1.textos.length - 1] === 'Trabalhar no que for mais valioso agora',
       'o recuo aberto continua no fim da lista');
 
@@ -133,7 +148,7 @@ async function lerModal(navegador, htmlPath, backlogObj, nome) {
     ok(/n[aã]o h[aá] item livre na fila/i.test(m3.sub || ''), 'e a tela DIZ que a fila nao tem item para ele: "' + m3.sub + '"');
 
     console.log('\n4) FILA QUE NAO CARREGA NAO INVENTA ITEM');
-    const m4 = await lerModal(nav, DASH, null, 'dev-plataforma');   // 404 no backlog.json
+    const m4 = await lerModal(nav, DASH, null, ESCOLHIDO);   // 404 no backlog.json
     ok(m4.textos && m4.textos.length === 1, 'nenhum caminho inventado quando o backlog nao carrega');
     ok(/n[aã]o consegui ler a fila/i.test(m4.sub || ''), 'e a tela diz isso: "' + m4.sub + '"');
 

@@ -1612,7 +1612,14 @@
       if(!r.ok) throw 0;
       return r.json();
     }).then(function(j){
-      var itens=(j && Array.isArray(j.itens))?j.itens:[];
+      // 200 OK COM A FORMA ERRADA NAO E "FILA VAZIA" — achado do QA em 24/08, e ele bate
+      // exatamente na promessa que esta escrita alguns comentarios acima: "nao ha trabalho" e
+      // "a lista quebrou" tem de ser distinguiveis a olho. Medido pelo QA: {"itens":"nao-e-array"},
+      // {} e [] faziam a tela dizer "Nao ha item livre na fila para <agente> agora" — a confusao
+      // que o proprio dashboard promete impedir. So corpo NAO-JSON caia em "nao consegui ler".
+      // Uma chave renomeada num deploy viraria "nao ha trabalho" em silencio.
+      if(!j || !Array.isArray(j.itens)) throw 0;   // forma errada e fila NAO LIDA, nao fila vazia
+      var itens=j.itens;
       // A FILA ALIMENTA OS CAMINHOS DE ACIONAR (24/08). Isto vem ANTES do desenho da seção de
       // propósito: mesmo que não haja item ABERTO para listar aqui, `backlogPorAgente` deixa de
       // ser `null` — ou seja, "li a fila e ela não tem item para você" fica distinguível de
