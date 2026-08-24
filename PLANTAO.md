@@ -78,6 +78,25 @@ porque **carga de máquina derruba portão**. Medido em 23/08: um teste que falh
 máquina calma falha 14 em 50 com cinco processos em paralelo. Se as duas máquinas rodarem frota
 ao mesmo tempo, as duas veem o funil rejeitar trabalho bom por sorteio.
 
+**MODELO E INTENSIDADE PELO PESO DO ITEM, NÃO PELO DEFAULT DO PAPEL (dono, 24/08):** *"fique
+à vontade para ajustar os modelos e intensidade para cada item, não queremos gastar tokens à
+toa"*. O `.claude/agents/` traz um modelo por papel — é o ponto de partida, não a ordem. Ao
+despachar, escolha pela dificuldade REAL do item:
+
+- **opus** — só onde o raciocínio paga: mudança de mecânica ou economia no `src/jogo.ts`, o
+  `qa` tentando refutar, `seguranca`, e o texto histórico do `historiador` (§2 não se arrisca).
+- **sonnet** — o grosso do trabalho de forma: ajuste de CSS, gerador de seção, texto de
+  divulgação, conserto de portão já diagnosticado, revisão de leitura. `growth` já é sonnet.
+- **haiku** — o mecânico de verdade: renomear, somar à lista branca, contar, um `--sql` de
+  migração. Gastar opus nisso é queimar token à toa, que é o que o dono pediu para evitar.
+- **efeito colateral desta máquina:** `arte` e `pm` são **fable**, que **exige créditos** na
+  conta atual e mata o agente no arranque (medido em 24/08). Enquanto assim, despache os dois
+  com override para **sonnet** no rotineiro e **opus** só no julgamento fino (veredito visual,
+  virada de estratégia). O contorno é o mesmo do `general-purpose` com o corpo do papel colado.
+
+A régua é uma só: **o item mais barato que resolve.** Subir de tier é decisão, não default —
+e quando subir, o comentário do despacho diz por quê, como qualquer outra medição desta casa.
+
 **`isolation: "worktree"` é obrigatório** para qualquer agente que toque `src/`. E limpe os
 worktrees depois: eram 69 cópias no disco disputando 254 portas, com 10 pares colidindo.
 
