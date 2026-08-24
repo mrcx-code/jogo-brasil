@@ -128,6 +128,40 @@ todo mundo continua empurrando.
 
 ---
 
+## 3.2 TOKENMAXXING — o gasto é medido, não estimado (dono, 24/08)
+
+*"tamo gastando muito token."* Diagnóstico do dia, ordenado por desperdício × frequência. Cada
+regra tem número medido ao lado, senão vira "economize à toa".
+
+1. **LER POR FAIXA, NUNCA O ARQUIVO.** `src/jogo.ts` tem **16 mil linhas** (~200k tokens). Agente
+   que o abre inteiro para "entender" ingere o repositório de código só para se orientar. O brief
+   aponta o **bloco/faixa exato** e manda `grep` antes de `Read`. Vale para `index.html` (13k) e
+   `NOTES.md` (10k) também.
+
+2. **GREP DE REPOSITÓRIO EXCLUI BASE64.** Os 11 `pack-*.json` e o `index.html` são MBs de base64;
+   um grep sobre eles cuspiu **5,7 MB** no contexto de uma vez em 24/08. Sempre
+   `git grep ... -- ':!pack-*.json' ':!index.html'` (ou `--include` no que interessa).
+
+3. **RODE O PORTÃO CERTO, NÃO O SUITE.** `npm test` é build (compila 16k linhas + reembute) +
+   **Chromium** (118 dos 148 testes usam navegador). Na iteração, rode **só o portão específico**;
+   `npm test` cheio **uma vez** antes de entregar. O funil roda o full-run no merge — não rode os
+   dois, é dobrado.
+
+4. **O PLANTÃO BAILA CEDO NO OCIOSO.** Antes de subir qualquer agente: se a fila do dono
+   (`mesa_resposta`) está vazia, o backlog não secou (`conferir-fila.js` verde) e o CI está verde,
+   **registre "nada a fazer" e encerre**. Disparo ocioso tem de custar quase zero — não subir
+   agente para descobrir que não havia trabalho.
+
+5. **REPUBLICAR O CHECK só quando mudou de verdade.** O Artifact reenvia o HTML inteiro; update
+   pequeno fica no chat.
+
+6. **MEÇA ANTES DE PUXAR CONTEÚDO GRANDE.** Transcript, diff enorme, saída de comando: cheque o
+   tamanho (`wc -c`, `--stat`, `head`) antes de trazer para o contexto. Em 24/08 um transcript de
+   568 KB truncou ao passar pela ferramenta — medir antes evita o gasto e a surpresa.
+
+A régua, uma frase: **o item mais barato que resolve, e o token que não se gasta é o melhor.**
+
+
 ## 4. O ciclo de integração
 
 ```bash
