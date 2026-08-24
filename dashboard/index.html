@@ -1346,7 +1346,13 @@
     var lista=daFila.concat([CAMINHO_LIVRE]);
     modalTit.textContent="Acionar "+item.nome;
     modalSub.textContent = backlogEstado==="carregando"
-      ? "Ainda estou lendo a fila (backlog.json) — abra de novo em um instante para ver os itens."
+      ? "Ainda estou lendo a fila (backlog.json). Se isto nao mudar em alguns segundos, recarregue a pagina — e o unico jeito de tentar de novo."
+      /* A FRASE NAO PODE PROMETER REABRIR O MODAL — achado do growth em 24/08, e e a mesma
+         familia que esta entrega veio consertar. A versao anterior dizia "abra de novo em um
+         instante", mas `carregarBacklog()` roda UMA VEZ no load, sem timeout e sem
+         AbortController: se o fetch pendurar, reabrir o modal nao dispara pedido nenhum — so
+         recarregar a pagina tenta de novo. Medido pelo QA: a frase seguia identica em 1 s,
+         11 s e 31 s. Sobrou uma promessa que nao se cumpre, e agora ela diz a saida real. */
       : backlogEstado!=="ok"
       ? "Não consegui ler a fila (backlog.json) — estes NÃO são os itens do backlog. Só o caminho aberto abaixo."
       : (daFila.length
