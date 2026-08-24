@@ -33,6 +33,16 @@ const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).jo
 const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// SLUG ESTÁVEL — derivado do TERMO, nunca da posição, para que `glossario/#v-quilombo` continue
+// apontando ao mesmo verbete quando outro for acrescentado ou removido no meio. Sem acento, sem
+// pontuação, minúsculo. Colisão (dois termos que normalizam igual) recebe sufixo determinístico
+// pela ordem de aparição — raro, mas o id TEM de ser único para a âncora e o JSON-LD funcionarem.
+const slugBase = (s) => String(s || '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '') || 'verbete';
+
 (async () => {
   const nav = await chromium.launch();
   const pg = await nav.newPage();
@@ -53,13 +63,46 @@ const esc = (s) => String(s || '')
 
   const nVerb = grupos.reduce((s, g) => s + g.itens.length, 0);
 
+  // Âncora por verbete: slug único e determinístico. Colisão ganha sufixo -2, -3… na ordem.
+  const vistos = new Map();
+  grupos.forEach((g) => g.itens.forEach((v) => {
+    const base = slugBase(v.t);
+    const n = (vistos.get(base) || 0) + 1;
+    vistos.set(base, n);
+    v.slug = n === 1 ? base : base + '-' + n;
+  }));
+
+  // JSON-LD DefinedTermSet — é o que o Google usa para entender que a página é um conjunto de
+  // definições e habilitar resultado por termo. Cada DefinedTerm aponta para a própria âncora
+  // (@id/url = .../glossario/#v-slug). Serializado por JSON.stringify: nada de innerHTML cru, o
+  // conteúdo do verbete é dado hostil. O </script> dentro de string é escapado para não fechar a tag.
+  const jsonld = {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    '@id': BASE + '/glossario/#glossario',
+    name: 'O glossário do Brasil',
+    description: nVerb + ' palavras da história do Brasil explicadas, cada uma com a fonte.',
+    url: BASE + '/glossario/',
+    inLanguage: 'pt-BR',
+    hasDefinedTerm: grupos.flatMap((g) => g.itens.map((v) => {
+      const t = { '@type': 'DefinedTerm', '@id': BASE + '/glossario/#v-' + v.slug,
+        name: v.t, url: BASE + '/glossario/#v-' + v.slug,
+        inDefinedTermSet: BASE + '/glossario/#glossario' };
+      const desc = [v.o, v.d, v.f].filter(Boolean).join(' — ');
+      if (desc) t.description = desc;
+      return t;
+    })),
+  };
+  const jsonldTag = '<script type="application/ld+json">'
+    + JSON.stringify(jsonld).replace(/</g, '\\u003c') + '</' + 'script>';
+
   const secoes = grupos.map((g) => `
     <section class="grupo">
       <h2>${esc(g.nome)}</h2>
       ${g.sub ? `<p class="gsub">${esc(g.sub)}</p>` : ''}
       <div class="verbetes">
         ${g.itens.map((v) => `
-        <article class="verbete cartaoCampo">
+        <article class="verbete cartaoCampo" id="v-${esc(v.slug)}">
           <h3>${esc(v.t)}</h3>
           ${v.o ? `<p class="orig">${esc(v.o)}</p>` : ''}
           <p class="def">${esc(v.d)}</p>
@@ -83,6 +126,7 @@ const esc = (s) => String(s || '')
 ${CARTAO.tags(BASE, 'glossario', 'A abertura do GLOSSÁRIO: o título "O glossário do Brasil" sobre papel, com a contagem de verbetes e os primeiros deles.')}
 <link rel="canonical" href="${BASE}/glossario/">
 <title>O Glossário do Brasil — as palavras da nossa história</title>
+${jsonldTag}
 <style>
 ${CHROME.tokensCss()}  :root {
     --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
