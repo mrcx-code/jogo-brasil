@@ -192,6 +192,12 @@ function portao(nome, cmd, args, minutos) {
 }
 portao('npm test', 'npm', ['test'], 10);
 portao('encaixe', process.execPath, [path.join(RAIZ, 'test', 'encaixe.js')], 12);
+  // PENDENTES 87: editar o glossario no jogo dessincroniza o espelho no banco, e ate 24/08 nada
+  // no funil pegava — so o CI, depois do merge. Agora, quando o diff toca a faixa do glossario
+  // (o mesmo gatilho que exige o historiador), o funil roda o espelho e REVERTE se divergir. A
+  // entrega que muda texto de verbete precisa ter feito o passo de banco (rev+1 via MCP) e o
+  // `npm run conteudo:puxar` ANTES de integrar — senao este portao desfaz o merge e diz isto.
+  if (exigidos.has('historiador')) portao('espelho do conteudo', 'npm', ['run', 'conteudo:conferir'], 3);
 
 // ---- prega o placar ----
 const eq = path.join(RAIZ, 'EQUIPE.md');
