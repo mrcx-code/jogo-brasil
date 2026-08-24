@@ -13357,9 +13357,9 @@ const GLOSSARIO = [
     f: "Constituição de 1824 e Constituição de 1891, Planalto · José Murilo de Carvalho, Cidadania no Brasil: o longo caminho, Civilização Brasileira, 2001" },
 
   { t: "LEI DE TERRAS",
-    o: "Lei nº 601, de 18 de setembro de 1850 — assinada duas semanas depois da lei que proibiu o tráfico. As duas datas juntas são o argumento.",
-    d: "Determinou que terra devoluta só se adquirisse por COMPRA, encerrando a posse por ocupação. Foi votada quando ficou claro que a escravidão acabaria: se a terra não pudesse mais ser tomada, quem fosse libertado sem dinheiro continuaria dependendo de quem já a tinha. A concentração fundiária brasileira tem data de nascimento.",
-    f: "Lei nº 601, de 18/09/1850, Planalto · Ligia Osorio Silva, Terras devolutas e latifúndio, Editora Unicamp, 2ª ed. 2008" },
+    o: "Lei nº 601, de 18 de setembro de 1850 — assinada duas semanas depois da Lei Eusébio de Queirós, que proibiu o tráfico atlântico. As duas datas juntas, no mesmo ano, são o argumento.",
+    d: "Determinou que terra devoluta só se adquirisse por COMPRA, encerrando a aquisição por posse e ocupação. Foi votada quando já se sabia que a escravidão acabaria: fechado esse caminho, quem fosse libertado sem dinheiro continuaria dependendo de quem já tinha terra. O Censo Agropecuário de 2017 registrou que a agricultura familiar é 76,8% dos estabelecimentos e ocupa 23% da área — a concentração fundiária brasileira tem data de nascimento, e ela chega até aqui.",
+    f: "Lei nº 601, de 18/09/1850, Planalto · Ligia Osorio Silva, Terras devolutas e latifúndio, Editora Unicamp, 2ª ed. 2008 · IBGE, Censo Agropecuário 2017" },
 
   { t: "GUERRA DO PARAGUAI",
     o: "1864–1870. No Paraguai chama-se Guerra Guasú (“guerra grande”); na Argentina e no Uruguai, Guerra da Tríplice Aliança — cada nome carrega um ponto de vista.",
