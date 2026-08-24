@@ -2645,3 +2645,24 @@ pontos que não são do guarda:
   trava do dono **em silêncio**.
 - **A porta que a `main` publica não é lida por teste nenhum:** `vercel.json` (item 82) não tem
   portão que confira que os cabeçalhos de segurança do `/dashboard` continuam lá.
+
+---
+
+## 87 — Mudar texto de glossário no jogo dessincroniza o espelho no banco, e nada lembra — plantao/dev-dados (24/08)
+
+**Aconteceu e deixou a main vermelha.** O historiador enriqueceu o verbete LEI DE TERRAS em
+`src/jogo.ts`; o portão `conteudo-conferir.js` (o "espelho do conteúdo") reprovou porque a tabela
+`conteudo_glossario` no banco ficou com o texto antigo. Duas verdades divergindo — exatamente o
+que esse portão existe para pegar. Consertado à mão (fechar rev vigente, inserir rev+1 via MCP,
+`conteudo:puxar`, `conteudo:conferir` verde), mas **o defeito é de processo, não pontual.**
+
+O funil já exige `historiador` quando o diff toca a faixa do `GLOSSARIO` (PENDENTES 83, feito).
+Falta o **par disso**: quando um diff toca `GLOSSARIO`/`EPOCAS`/`FONTES` em `src/jogo.ts`, o funil
+deveria **exigir também o passo de espelho** — ou pelo menos AVISAR "o banco precisa de rev+1;
+rode `conteudo:puxar` e atualize a linha vigente antes de integrar". Sem isso, toda edição de
+glossário no jogo é uma bomba-relógio de CI vermelho para quem integrar depois.
+
+**Conserto proposto:** no `integrar.js`, quando o diff casar a faixa do glossário, acrescentar um
+gatilho `espelho` (ou uma checagem que roda `conteudo:conferir` e exige verde) — o mesmo padrão
+"pedir vira garantir" dos outros portões. Território: `ferramentas/integrar.js` + talvez
+`conteudo-conferir.js`.
