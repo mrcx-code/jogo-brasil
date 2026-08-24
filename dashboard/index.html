@@ -792,7 +792,7 @@
       // isso. Agora ele existe — se a resposta ainda ficou presa, é porque ele não achou o PIN.
       // Então a frase deixa de anunciar uma obra futura e passa a dizer o que resolve, com o
       // nome do arquivo: é acionável, e uma mensagem de erro que não diz o que fazer é metade.
-      toast("O banco passou a exigir sessão — e em localhost não há login a digitar. Guardei sua resposta neste aparelho; ela sai sozinha assim que o auto-login achar o PIN em ferramentas/mesa-pin.local (PENDENTES 57).",true);
+      toast("O banco passou a exigir sessão — e em localhost não há login a digitar. Guardei sua resposta neste aparelho; ela sai sozinha assim que o auto-login achar o PIN em ~/.mesa-brasil-pin (fora do repositorio).",true);
       return;
     }
     if(res==="fila"){ toast(msgFila,true); return; }
@@ -947,7 +947,8 @@
   // "sem portao" de localhost virou "sem escrita" — a resposta caia na fila local e ficava la,
   // com um toast honesto dizendo que so sairia quando ISTO existisse. Agora existe.
   //
-  // COMO: o dono escreve o PIN em ferramentas/mesa-pin.local (uma linha, fora do git), o
+  // COMO: o dono escreve o PIN em ~/.mesa-brasil-pin (uma linha, FORA do repositorio — em
+  // ferramentas/ ele era servido verbatim pelo docroot, e por isso mudou de lugar em 22/08), o
   // servidor local serve esse arquivo em /pin-local SO para quem chega pelo loopback, e esta
   // pagina troca o PIN por uma sessao de verdade pela MESMA porta do login normal. Nao ha
   // sessao fingida, nao ha privilegio novo: quem valida continua sendo o Supabase Auth, e o
@@ -1298,9 +1299,31 @@
   // alguns milissegundos — e o dono pode clicar em Acionar antes de a fila chegar.
   var backlogEstado="carregando";   // "carregando" | "ok" | "falhou"
   function indexarBacklog(itens){
-    var mapa={};
+    // `Object.create(null)` E NAO `{}` — achado da seguranca em 24/08, e o dano medido era
+    // desproporcional ao tamanho do conserto: um item cujo `agente`/`papel` fosse `__proto__`
+    // ou `constructor` fazia o `.push` abaixo estourar dentro do forEach; o throw caia no
+    // `.catch` do fetch e a fila INTEIRA morria. Um item envenenava os outros 45, a secao
+    // #backlog sumia, todo Acionar caia no recuo — e SEM erro de pagina, porque o catch
+    // engole. Medido: 0 nos em #lista-backlog contra 10 com o mapa sem prototipo. Nao e
+    // ataque remoto (o POST /backlog e loopback e sem CORS): e dado nosso, e o dano e
+    // auto-infligido — que e justamente o tipo que ninguem procura.
+    var mapa=Object.create(null);
     (Array.isArray(itens)?itens:[]).forEach(function(it){
       if(!it || it.estado!=="livre") return;
+      // O `id` do item vira o `valor` gravado em mesa_resposta, e ele NAO tinha validacao —
+      // segundo achado da seguranca em 24/08. Um id de 633 chars estourava o check de 500 do
+      // banco (fila-auth.sql), o POST voltava 400 permanente, e o acionamento SE PERDIA com o
+      // dono vendo so um toast. Recusar AQUI, e nao truncar no envio, e a diferenca entre a
+      // opcao nem ser oferecida e ser oferecida sem nunca chegar. Hoje: 46 itens, maior id com
+      // 30 chars, todos casando este padrao — a margem e enorme e a trava e barata.
+      if(typeof it.id!=="string" || !/^[a-z0-9-]{1,64}$/.test(it.id)) return;
+      // O `id` do item vira o `valor` gravado em mesa_resposta, e ele NAO tinha validacao —
+      // segundo achado da seguranca. Um id de 633 chars estourava o check de 500 do banco
+      // (fila-auth.sql), o POST voltava 400 permanente, e o acionamento SE PERDIA com o dono
+      // vendo so um toast. Recusar AQUI, e nao truncar no envio, e a diferenca entre a opcao
+      // nem ser oferecida e ser oferecida sem nunca chegar. Hoje: 46 itens, maior id com 30
+      // chars, todos casando este padrao — a margem e enorme e a trava e barata.
+      if(typeof it.id!=="string" || !/^[a-z0-9-]{1,64}$/.test(it.id)) return;
       var quem=it.agente||it.papel;
       if(typeof quem!=="string" || !quem) return;
       var id=it.id, tit=it.titulo;
