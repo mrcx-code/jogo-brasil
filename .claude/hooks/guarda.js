@@ -43,10 +43,49 @@ process.stdin.on('end', () => {
 
   const ferramenta = ev.tool_name || '';
   const ent = ev.tool_input || {};
-  const alvo = ent.file_path || ent.notebook_path || '';
-  if (!alvo) process.exit(0);
+  // ===== O BASH TAMBEM ESCREVE, E ELE PASSAVA POR BAIXO DE TUDO (24/08) =====
+  // Achado da caca de gap, provado ao vivo: `printf >> index.html` saiu EXIT 0, sem uma linha do
+  // guarda, porque `.claude/settings.json` registrava o hook so para `Write|Edit|NotebookEdit`.
+  // Consequencia: a recusa de escrever na saida de build, o lock entre maquinas e a ZONA DO DONO
+  // eram todos contornaveis por um `sed -i`. A filosofia da casa e "pedir vira GARANTIR — nao e
+  // aviso, e recusa"; sem isto, era aviso.
+  //
+  // O QUE ESTA COBERTURA E, HONESTAMENTE: as formas COMUNS de escrever por shell — redirecao,
+  // `sed -i`, `tee`, e o destino de `cp`/`mv`. Nao e analise de shell, e nao pretende ser: um
+  // `python -c` com `open(...,'w')` ou uma variavel montando o caminho escapam. Isto e um chao
+  // muito mais alto que zero, e a lacuna fica escrita aqui em vez de virar surpresa.
+  const alvos = [];
+  if (ferramenta === 'Bash') {
+    const cmd = String(ent.command || '');
+    // heredoc e DADO, nao comando (mesma licao do guarda do gh): sem tirar, escrever um arquivo
+    // que MENCIONA um caminho protegido seria recusado como se fosse a escrita nele.
+    const semDoc = cmd.replace(/<<-?\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\1[^\n]*\n[\s\S]*?^\t*\2[ \t]*$/gm, ' ');
+    const cru = [];
+    let m;
+    const red = /(?:^|[;&|]|\s)\d?>>?\s*("([^"]+)"|'([^']+)'|([^\s;&|<>]+))/g;
+    while ((m = red.exec(semDoc))) cru.push(m[2] || m[3] || m[4]);
+    const sed = /\bsed\s+(?:-[^\s]*\s+)*-i[^\s]*\s+(?:(?:-[^\s]*|(?:'[^']*'|"[^"]*"|[^\s]+))\s+)*?("([^"]+)"|'([^']+)'|([^\s;&|]+))\s*(?:$|[;&|])/g;
+    while ((m = sed.exec(semDoc))) cru.push(m[2] || m[3] || m[4]);
+    const tee = /\btee\s+(?:-a\s+)?("([^"]+)"|'([^']+)'|([^\s;&|]+))/g;
+    while ((m = tee.exec(semDoc))) cru.push(m[2] || m[3] || m[4]);
+    const cpmv = /\b(?:cp|mv)\s+(?:-[^\s]+\s+)*(?:'[^']*'|"[^"]*"|[^\s;&|]+)\s+("([^"]+)"|'([^']+)'|([^\s;&|]+))/g;
+    while ((m = cpmv.exec(semDoc))) cru.push(m[2] || m[3] || m[4]);
+    for (const c of cru) {
+      if (!c || c === '/dev/null' || /^&/.test(c)) continue;
+      alvos.push(c.replace(/^~/, require('os').homedir()));
+    }
+    if (!alvos.length) process.exit(0);
+  } else {
+    const a = ent.file_path || ent.notebook_path || '';
+    if (!a) process.exit(0);
+    alvos.push(a);
+  }
 
-  const rel = path.relative(RAIZ, real(alvo)).split(path.sep).join('/');
+  // Um comando de shell pode escrever em VARIOS caminhos numa linha so; o corpo abaixo
+  // roda para cada um. `recusar` sai do processo, entao o primeiro que bater ja recusa
+  // o comando inteiro — que e o certo: nao existe meia escrita.
+  for (const umAlvo of alvos) {
+  const rel = path.relative(RAIZ, real(umAlvo)).split(path.sep).join('/');
   const recusar = (motivo) => { process.stderr.write(motivo); process.exit(2); };
 
   // ---- 0. O PORTAO FALA QUANDO AS DUAS PONTAS DISCORDAM — cobranca do mac-jogo em 23/08, e
@@ -63,7 +102,7 @@ process.stdin.on('end', () => {
   //
   // Sai por stderr com codigo 0: avisa sem cancelar a chamada. O que muda e que, na proxima vez
   // que a trava sumir, alguem le o motivo em vez de descobrir dias depois.
-  const relCru = path.relative(RAIZ, path.resolve(alvo)).split(path.sep).join('/');
+  const relCru = path.relative(RAIZ, path.resolve(umAlvo)).split(path.sep).join('/');
   const dentro = (r) => r !== '' && !r.startsWith('../') && !path.isAbsolute(r);
   if (dentro(relCru) !== dentro(rel)) {
     process.stderr.write([
@@ -168,7 +207,7 @@ process.stdin.on('end', () => {
 
   if (ferramenta === 'Write') {
     const conteudo = String(ent.content || '');
-    const arquivo = path.resolve(alvo);
+    const arquivo = path.resolve(umAlvo);
     if (fs.existsSync(arquivo)) {
       const antes = fs.readFileSync(arquivo, 'utf8');
       const perdidos = simbolos.filter((s) => antes.includes(s) && !conteudo.includes(s));
@@ -182,5 +221,7 @@ process.stdin.on('end', () => {
     }
   }
 
-  process.exit(0);
+  }
+
+    process.exit(0);
 });

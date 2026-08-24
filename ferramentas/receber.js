@@ -368,7 +368,25 @@ function estadoDaFila() {
     const emProc = feito.has(i.nome);
     // Re-entrega: o arquivo é mais novo que a data em que o nome entrou no registro.
     const reentrega = !!(emProc && arq && procEm[i.nome] && arq.quando > procEm[i.nome]);
-    const estado = (!arq || recusadoAgora) ? 'gerar'
+    // ===== AUSENCIA NAO E VEREDITO (24/08) =====
+    // Isto decidia pelo ARQUIVO em `assets/entrada` — pasta de rascunho, gitignored, que nunca
+    // viaja com o repositorio. Sem arquivo era `gerar`, e o `processadas.json` — o registro
+    // DURAVEL de 144 artes ja feitas — nem chegava a ser consultado.
+    //
+    // O DANO MEDIDO: nesta maquina a caixa esta vazia desde 8/08 (os arquivos viveram no disco
+    // da outra maquina). A mesa abria dizendo 111 A GERAR, e 88 deles constavam como FEITOS —
+    // 79% da fila era pedido para refazer o que ja existe. O dono viu o numero e perguntou se
+    // estavamos refazendo tudo. Nao estavamos; mas despachar arte por essa fila refaria 88
+    // pecas prontas.
+    //
+    // A FORMA E A MESMA DE OUTROS QUATRO ACHADOS DO DIA: a ferramenta deriva veredito de um
+    // sinal FRAGIL e, faltando o sinal, afirma o pior em vez de dizer que nao sabe.
+    //
+    // AGORA: quem esta no registro duravel e nao tem copia local vira `pronto-sem-copia` —
+    // FEITO, e o que falta e a copia de trabalho. So quem nunca foi processado E nao tem
+    // arquivo segue `gerar`, que e o unico caso em que "falta gerar" e verdade.
+    const estado = (!arq && emProc && !recusadoAgora) ? 'pronto-sem-copia'
+      : (!arq || recusadoAgora) ? 'gerar'
       : (!emProc || reentrega) ? 'chegou' : 'pronto';
     const o = ordemDe(i.nome);
     return {
@@ -408,6 +426,10 @@ function estadoDaFila() {
       gerar: itens.filter(function (i) { return i.estado === 'gerar'; }).length,
       chegou: itens.filter(function (i) { return i.estado === 'chegou'; }).length,
       pronto: itens.filter(function (i) { return i.estado === 'pronto'; }).length,
+      // contado A PARTE de proposito: `pronto-sem-copia` e FEITO, mas o disco local nao tem a
+      // copia. Somar com `pronto` esconderia que esta maquina nao enxerga a caixa; somar com
+      // `gerar` foi exatamente o defeito. Visivel e separado e o meio-termo honesto.
+      prontoSemCopia: itens.filter(function (i) { return i.estado === 'pronto-sem-copia'; }).length,
       soltas: soltas.length,
       total: itens.length
     }

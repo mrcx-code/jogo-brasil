@@ -98,8 +98,20 @@ async function consultar(k, id, hogql) {
 // Os eventos anteriores a 23/08 NAO tem a marca e por isso nao tem conserto: a janela padrao
 // vai continuar contaminada ate 30 dias depois desta data. `--tudo` mostra o bruto, para a
 // contaminacao ficar visivel em vez de virar lenda.
+// ===== A MARCA E UM CORTE, NAO SO UM FILTRO (24/08) =====
+// `isNull(properties.local)` INCLUI todo o passado — e o passado inteiro e contaminado, porque
+// antes da marca o evento nao tinha como dizer de onde veio. Medido pelo QA com a chave do dono:
+// dos 11.576 "aparelhos" da janela de 30 dias, **11.576 sao anteriores a marca**. O numero real
+// depois dela era **ZERO**. A ferramenta imprimia 11.576 e 838 arcos terminados em texto limpo, e
+// o `--escrever` gravaria isso no NOTES.md sob "A MEDICAO, LIDA" — como fato.
+//
+// Era o MESMO defeito que a ferramenta existe para denunciar, dentro dela.
+//
+// Agora a janela COMECA na marca por padrao. `--tudo` continua mostrando o bruto, e a saida diz
+// quantos eventos ficaram de fora — a contaminacao vira numero visivel em vez de lenda.
+const MARCA = '2026-08-23 17:56:00';   // quando `local:1` entrou no ar
 const TUDO = process.argv.includes('--tudo');
-const SO_GENTE = TUDO ? '' : " and isNull(properties.local)";
+const SO_GENTE = TUDO ? '' : " and isNull(properties.local) and timestamp >= toDateTime('" + MARCA + "')";
 const J = 'timestamp > now() - interval ' + DIAS + ' day' + SO_GENTE;
 
 (async () => {
@@ -129,6 +141,18 @@ const J = 'timestamp > now() - interval ' + DIAS + ' day' + SO_GENTE;
 
   const proj = await acharProjeto(k);
   console.log('projeto: ' + proj.name + '  ·  janela: ' + DIAS + ' dias\n');
+  
+  // A CONTAMINACAO VIRA NUMERO VISIVEL, nao lenda. Sem esta linha a pessoa nao tem como saber
+  // que a janela que ela pediu foi cortada — e ferramenta que corta em silencio e outra forma
+  // de afirmar o que nao sabe.
+  if (!TUDO) {
+    const antes = await consultar(k, proj.id, `select count(distinct distinct_id) from events`
+      + ` where timestamp > now() - interval ${DIAS} day and timestamp < toDateTime('${MARCA}')`);
+    const n = (antes[0] || [0])[0] || 0;
+    if (n) console.log('  ⚠ ' + n + ' aparelho(s) da janela sao ANTERIORES a ' + MARCA
+      + ' — antes da marca o evento nao dizia de onde vinha, entao nao da para saber se eram gente.');
+    console.log('  (a janela util comeca na marca; --tudo mostra o bruto)\n');
+  }
 
   const [porEvento, aberturas, porDia, capitulos, respostas, terminaram] = await Promise.all([
     consultar(k, proj.id, `select event, count() as n, count(distinct distinct_id) as ap from events where ${J} group by event order by n desc`),
@@ -164,6 +188,13 @@ const J = 'timestamp > now() - interval ' + DIAS + ' day' + SO_GENTE;
   for (const [ev, n, ap] of porEvento) p('  ' + String(ev).padEnd(24) + String(n).padStart(6) + '  ·  ' + ap);
 
   if (ESCREVER) {
+    // GRAVAR NUMERO SUJO NO DIARIO E O PIOR DESFECHO POSSIVEL: o NOTES.md e o que a proxima
+    // sessao le como fato, e numero errado la vira premissa de tudo o que vier depois. Com
+    // `--tudo` a janela inclui o CI, entao a gravacao e recusada.
+    if (TUDO) {
+      console.error('\nRECUSADO: --escrever com --tudo gravaria o CI no Diario como se fosse gente.');
+      process.exit(1);
+    }
     const hoje = new Date().toISOString().slice(0, 10);
     const bloco = [
       '', '---', '',
