@@ -57,6 +57,15 @@ jobs:
       - run: node test/fila-auth.js
         timeout-minutes: 3
 
+      # E OS CAMINHOS DE "ACIONAR" (24/08). O dashboard oferecia ao dono uma lista ESCRITA A MAO
+      # de 28 caminhos contra 15 itens `livre` no backlog — duas das opcoes ja estavam
+      # `concluido`, e ele acionou dois agentes para trabalho pronto. Lista chumbada envelhece em
+      # silencio: sem portao, ninguem descobre ate o agente chegar la e achar tudo feito. Sao
+      # ~20 s, backend simulado por page.route, e a cena 6 e um MUTANTE que prova o portao
+      # mordendo (licao 2.8).
+      - run: node test/caminhos-do-backlog.js
+        timeout-minutes: 3
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados

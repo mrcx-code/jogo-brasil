@@ -249,6 +249,10 @@
   .ag .papel{font-size:.72rem;color:var(--pedra);line-height:1.2}
   .ag .st{font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--pedra)}
   .ag[data-st="trabalhando"] .st{color:var(--ok)} .ag[data-st="chamado"] .st{color:var(--brasa)}
+  /* GUARDADO, NAO ENVIADO (24/08): o chamado esta na fila deste aparelho e o servidor nao o viu.
+     Ele NAO pode parecer chamado — sem o aceno do boneco, e com a cor de alerta no rotulo. */
+  .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
+  .ag[data-st="guardado"] .st{color:var(--alerta)}
   .ag .ult{font:600 .56rem/1.3 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.8}
 
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,6,.55);padding:1.2rem}
@@ -466,7 +470,7 @@
 <div class="modal" id="modal" hidden>
   <div class="modal-cx">
     <h3 id="modal-tit">Acionar</h3>
-    <p class="msub">Escolha um caminho e confirme — o pedido chega direto em mim.</p>
+    <p class="msub" id="modal-sub">Escolha um caminho e confirme — o pedido chega direto em mim.</p>
     <div class="modal-ops" id="modal-ops"></div>
     <div class="modal-acoes">
       <button class="btn" id="modal-cancelar" type="button">Cancelar</button>
@@ -788,7 +792,7 @@
       // isso. Agora ele existe — se a resposta ainda ficou presa, é porque ele não achou o PIN.
       // Então a frase deixa de anunciar uma obra futura e passa a dizer o que resolve, com o
       // nome do arquivo: é acionável, e uma mensagem de erro que não diz o que fazer é metade.
-      toast("O banco passou a exigir sessão — e em localhost não há login a digitar. Guardei sua resposta neste aparelho; ela sai sozinha assim que o auto-login achar o PIN em ferramentas/mesa-pin.local (PENDENTES 57).",true);
+      toast("O banco passou a exigir sessão — e em localhost não há login a digitar. Guardei sua resposta neste aparelho; ela sai sozinha assim que o auto-login achar o PIN em ~/.mesa-brasil-pin (fora do repositorio).",true);
       return;
     }
     if(res==="fila"){ toast(msgFila,true); return; }
@@ -816,7 +820,13 @@
       contaQuem.textContent="entrado neste aparelho — escrever está liberado";
       contaBtn.hidden=false; contaBtn.textContent="Sair";
     }else if(LOCAL){
-      contaQuem.textContent="localhost — sem portão; a escrita sai anônima, como sempre saiu aqui";
+      // A FRASE MENTIA, E SE CONTRADIZIA NA MESMA TELA (achado de 24/08). Ela dizia "sem portão;
+      // a escrita sai anônima, como sempre saiu aqui" — e o toast logo abaixo dizia "O banco
+      // passou a exigir sessão". Quem tem razão é o toast: a RLS foi apertada em 23/08 e escrita
+      // anônima leva 401 TAMBÉM em localhost. Este ramo só é alcançado quando NÃO há sessão, ou
+      // seja, quando o auto-login não achou o PIN — e então nada sai, fica na fila local.
+      // (Com o PIN no lugar, o ramo de cima é que vale: "entrado neste aparelho".)
+      contaQuem.textContent="localhost sem sessão — a escrita fica guardada aqui até o auto-login achar o PIN";
       contaBtn.hidden=true;
     }else{
       contaQuem.textContent="modo leitura — os painéis são abertos; escrever exige entrar";
@@ -937,7 +947,8 @@
   // "sem portao" de localhost virou "sem escrita" — a resposta caia na fila local e ficava la,
   // com um toast honesto dizendo que so sairia quando ISTO existisse. Agora existe.
   //
-  // COMO: o dono escreve o PIN em ferramentas/mesa-pin.local (uma linha, fora do git), o
+  // COMO: o dono escreve o PIN em ~/.mesa-brasil-pin (uma linha, FORA do repositorio — em
+  // ferramentas/ ele era servido verbatim pelo docroot, e por isso mudou de lugar em 22/08), o
   // servidor local serve esse arquivo em /pin-local SO para quem chega pelo loopback, e esta
   // pagina troca o PIN por uma sessao de verdade pela MESMA porta do login normal. Nao ha
   // sessao fingida, nao ha privilegio novo: quem valida continua sendo o Supabase Auth, e o
@@ -1260,29 +1271,93 @@
       + '<g class="braco"><rect x="12" y="7" width="2" height="4" fill="var(--pele)"/><rect x="12" y="5" width="3" height="2" fill="#8a6a3a"/></g>'
       + '<rect x="5" y="13" width="2" height="5" fill="#3a2c1c"/><rect x="9" y="13" width="2" height="5" fill="#3a2c1c"/></svg>';
   }
-  var CAMINHOS={
-    arte:[{id:"territorio",l:"Direção do território (o showcase 3D)"},{id:"home2",l:"Home increment 2: cena + portais"},{id:"coerencia",l:"Coerência visual entre capítulos"}],
-    pm:[{id:"porta",l:"Sprint da porta da plataforma"},{id:"roadmap",l:"Evolução ano a ano"},{id:"backlog",l:"Repriorizar o backlog"}],
-    // Os caminhos seguem os NOMES da tabela: em 21/08 a DUPLA nasceu e `dev` virou dois
-    // (dev-jogo, dev-plataforma), e `pipeline` foi absorvido pelo dev-jogo. Chave que não
-    // existe mais nunca aparece no modal — ela some em silêncio, e o agente cai no "livre".
-    "dev-jogo":[{id:"quarto-portal",l:"Quarto portal: DE ONDE VEM"},{id:"home2",l:"Home increment 2 (diorama + portais)"},{id:"saida",l:"Link do jogo → plataforma"}],
-    "dev-plataforma":[{id:"acervo1",l:"Fase 1 do acervo"},{id:"medir-paginas",l:"Medir as páginas (PostHog)"},{id:"cartoes",l:"Cartões og: das seções"}],
-    historiador:[{id:"revisar4",l:"Revisar os 4 textos (§2)"},{id:"verbetes",l:"Verbetes e fontes novas"},{id:"validade",l:"Números que vencem (PRODES, censo)"}],
-    qa:[{id:"telas",l:"Régua de telas (tablet/notebook)"},{id:"hostil",l:"Save hostil + backend da mesa"},{id:"gap",l:"Caçar o gap"}],
-    juridico:[{id:"lgpd",l:"Auditoria LGPD do que existe"},{id:"privacidade",l:"Texto de privacidade da plataforma"},{id:"licencas",l:"Licenças das fontes"}],
-    growth:[{id:"seo",l:"SEO das seções públicas"},{id:"cartao",l:"Cartão de link (og:) perfeito"},{id:"funil",l:"Funil de volta (eventos anônimos)"}],
-    seguranca:[{id:"mesa",l:"Auditar o backend da mesa"},{id:"headers",l:"Cabeçalhos + CSP das páginas novas"},{id:"deps",l:"Dependências e build"}]
-  };
+  // ================= OS CAMINHOS SAEM DO BACKLOG (24/08) =================
+  // ELES ERAM CHUMBADOS AQUI, e por isso envelheciam sozinhos. Medido em 24/08: **28 caminhos**
+  // escritos a mao (9 agentes x 3 + o recuo "livre") contra **15 itens `livre`** no
+  // `ferramentas/backlog.json` — e dois dos caminhos oferecidos ao dono, `home-inc2` ("Home
+  // increment 2: cena + portais") e `quarto-portal` ("Quarto portal: DE ONDE VEM"), ja estavam
+  // `concluido` no arquivo. Ele acionou dois agentes para trabalho pronto. O botao funcionava:
+  // era a LISTA que mentia, e o dado certo ja estava na mesma tela, na secao #backlog.
+  //
+  // Agora a lista se deriva da fila, na ORDEM DO ARQUIVO — que e a ordem do dono, e o de cima e
+  // o proximo. Tres coisas que este bloco nao pode perder:
+  //   (1) TITULO DE ITEM E TEXTO DE SERVIDOR (o backlog.json e servido, e a regra das squads
+  //       vale igual): ele entra por `textContent`, NUNCA por innerHTML nem por atributo.
+  //   (2) AGENTE SEM ITEM LIVRE nao vira modal vazio — sobra o recuo honesto de sempre, e a
+  //       nota do modal DIZ que a fila nao tem item para ele. "Nao ha trabalho" e "a lista
+  //       quebrou" tem de ser distinguiveis a olho.
+  //   (3) BACKLOG QUE NAO CARREGA NAO INVENTA ITEM. `backlogPorAgente` fica `null` e a nota diz
+  //       que a fila nao foi lida — nunca se cai de volta numa lista velha.
+  //
+  // O CAMPO DO DONO E DOIS: a maioria dos itens diz `agente`, mas cinco dizem `papel`
+  // (rotulo-medicao-anonima, dashboard-sem-google, recusa-por-desenho-tem-nome,
+  // perda-de-resposta-deixa-rastro, endurecer-portoes). Lendo so `agente`, 5 dos 15 livres
+  // ficavam invisiveis — 4 deles do dev-plataforma. Por isso `agente || papel`.
+  var CAMINHO_LIVRE={id:"livre",l:"Trabalhar no que for mais valioso agora"};
+  var backlogPorAgente=null;   // null = fila nao lida (nao confundir com fila vazia, que e {})
+  // TRES estados, nao dois: enquanto o fetch esta no ar, "nao consegui ler" seria mentira por
+  // alguns milissegundos — e o dono pode clicar em Acionar antes de a fila chegar.
+  var backlogEstado="carregando";   // "carregando" | "ok" | "falhou"
+  function indexarBacklog(itens){
+    // `Object.create(null)` E NAO `{}` — achado da seguranca em 24/08, e o dano medido era
+    // desproporcional ao tamanho do conserto: um item cujo `agente`/`papel` fosse `__proto__`
+    // ou `constructor` fazia o `.push` abaixo estourar dentro do forEach; o throw caia no
+    // `.catch` do fetch e a fila INTEIRA morria. Um item envenenava os outros 45, a secao
+    // #backlog sumia, todo Acionar caia no recuo — e SEM erro de pagina, porque o catch
+    // engole. Medido: 0 nos em #lista-backlog contra 10 com o mapa sem prototipo. Nao e
+    // ataque remoto (o POST /backlog e loopback e sem CORS): e dado nosso, e o dano e
+    // auto-infligido — que e justamente o tipo que ninguem procura.
+    var mapa=Object.create(null);
+    (Array.isArray(itens)?itens:[]).forEach(function(it){
+      if(!it || it.estado!=="livre") return;
+      // O `id` do item vira o `valor` gravado em mesa_resposta, e ele NAO tinha validacao —
+      // segundo achado da seguranca em 24/08. Um id de 633 chars estourava o check de 500 do
+      // banco (fila-auth.sql), o POST voltava 400 permanente, e o acionamento SE PERDIA com o
+      // dono vendo so um toast. Recusar AQUI, e nao truncar no envio, e a diferenca entre a
+      // opcao nem ser oferecida e ser oferecida sem nunca chegar. Hoje: 46 itens, maior id com
+      // 30 chars, todos casando este padrao — a margem e enorme e a trava e barata.
+      if(typeof it.id!=="string" || !/^[a-z0-9-]{1,64}$/.test(it.id)) return;
+      // O `id` do item vira o `valor` gravado em mesa_resposta, e ele NAO tinha validacao —
+      // segundo achado da seguranca. Um id de 633 chars estourava o check de 500 do banco
+      // (fila-auth.sql), o POST voltava 400 permanente, e o acionamento SE PERDIA com o dono
+      // vendo so um toast. Recusar AQUI, e nao truncar no envio, e a diferenca entre a opcao
+      // nem ser oferecida e ser oferecida sem nunca chegar. Hoje: 46 itens, maior id com 30
+      // chars, todos casando este padrao — a margem e enorme e a trava e barata.
+      if(typeof it.id!=="string" || !/^[a-z0-9-]{1,64}$/.test(it.id)) return;
+      var quem=it.agente||it.papel;
+      if(typeof quem!=="string" || !quem) return;
+      var id=it.id, tit=it.titulo;
+      if(typeof id!=="string" || !id) return;
+      (mapa[quem]||(mapa[quem]=[])).push({id:id, l:(typeof tit==="string"&&tit)?tit:id});
+    });
+    return mapa;
+  }
   var modal=document.getElementById("modal"), modalOps=document.getElementById("modal-ops"),
-      modalTit=document.getElementById("modal-tit"), modalConf=document.getElementById("modal-confirmar"),
+      modalTit=document.getElementById("modal-tit"), modalSub=document.getElementById("modal-sub"),
+      modalConf=document.getElementById("modal-confirmar"),
       modalCanc=document.getElementById("modal-cancelar"), modalEsc=null;
   function fecharModal(){ modal.setAttribute("hidden","hidden"); modalEsc=null; modalConf.disabled=true; modalConf.onclick=null; }
   modalCanc.addEventListener("click",fecharModal);
   modal.addEventListener("click",function(e){ if(e.target===modal) fecharModal(); });
   function abrirModal(item, card, slot){
-    var lista=CAMINHOS[item.nome]||[{id:"livre",l:"Trabalhar no que for mais valioso agora"}];
+    var daFila=(backlogPorAgente && backlogPorAgente[item.nome]) || [];
+    // O recuo honesto vai SEMPRE no fim: mesmo com fila cheia, "o que for mais valioso agora"
+    // continua sendo uma escolha valida do dono.
+    var lista=daFila.concat([CAMINHO_LIVRE]);
     modalTit.textContent="Acionar "+item.nome;
+    modalSub.textContent = backlogEstado==="carregando"
+      ? "Ainda estou lendo a fila (backlog.json). Se isto nao mudar em alguns segundos, recarregue a pagina — e o unico jeito de tentar de novo."
+      /* A FRASE NAO PODE PROMETER REABRIR O MODAL — achado do growth em 24/08, e e a mesma
+         familia que esta entrega veio consertar. A versao anterior dizia "abra de novo em um
+         instante", mas `carregarBacklog()` roda UMA VEZ no load, sem timeout e sem
+         AbortController: se o fetch pendurar, reabrir o modal nao dispara pedido nenhum — so
+         recarregar a pagina tenta de novo. Medido pelo QA: a frase seguia identica em 1 s,
+         11 s e 31 s. Sobrou uma promessa que nao se cumpre, e agora ela diz a saida real. */
+      : backlogEstado!=="ok"
+      ? "Não consegui ler a fila (backlog.json) — estes NÃO são os itens do backlog. Só o caminho aberto abaixo."
+      : (daFila.length
+          ? "Da fila oficial, na ordem do backlog — o de cima é o próximo."
+          : "Não há item livre na fila para " + item.nome + " agora — só o caminho aberto abaixo.");
     modalEsc=null; modalConf.disabled=true; modalOps.innerHTML="";
     lista.forEach(function(c){
       var b=document.createElement("button"); b.className="modal-op"; b.type="button"; b.textContent=c.l;
@@ -1293,17 +1368,57 @@
     });
     modalConf.onclick=function(){
       if(!modalEsc) return;
-      card.setAttribute("data-st","chamado"); card.querySelector(".st").textContent="chamado";
-      slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>';
       var esc=modalEsc;
+      // ENQUANTO NAO SE SABE, NAO SE AFIRMA. O cartao virava "chamado ✓" no clique, antes de a
+      // escrita ter desfecho — e quando ela caia na fila local o cartao continuava dizendo que
+      // o agente foi acionado. Agora ele diz "enviando…" ate a resposta chegar.
+      marcarLocal(item.nome,"enviando");
       registrar({tipo:"acionar",chave:item.nome,valor:esc.id,texto:esc.l}).then(function(r){
-        dizer(r,"Acionei "+item.nome+" — "+esc.l,"Guardei o chamado — reenvio.");
+        marcarLocal(item.nome, r==="enviado" ? "chamado" : (r==="perdido" ? null : "guardado"));
+        dizer(r,"Acionei "+item.nome+" — "+esc.l,"GUARDADO, NÃO ENVIADO — o chamado está neste aparelho e sai quando a escrita voltar.");
       });
       fecharModal();
     };
     modal.removeAttribute("hidden");
   }
   var g=document.getElementById("grade-ag"), cards={};
+  // ================= O QUE ESTA ABA ACIONOU (24/08) =================
+  // O servidor so muda `mesa_agente.status` quando o plantao consome a fila, entao o refresh de
+  // 7 s repintava o cartao a partir de `espera` e APAGAVA o marcador local — medido: o
+  // "chamado ✓" durava um ciclo (<=7 s) e virava "Acionar" de novo. Isto guarda o desfecho da
+  // ESCRITA, so na memoria desta aba (nada vai para o armazenamento — o rodape promete a lista
+  // de chaves que a pagina grava, e este marcador nao acrescenta nenhuma).
+  //   "enviando"  — ainda nao ha desfecho
+  //   "chamado"   — o POST passou
+  //   "guardado"  — caiu na fila local: guardado, NAO enviado. E a distincao que faltava.
+  var marcaLocal={};
+  function marcarLocal(nome,estado){
+    if(estado) marcaLocal[nome]=estado; else delete marcaLocal[nome];
+    var c=cards[nome]; if(c) pintarAcao(c, c.getAttribute("data-st")||"espera", nome);
+  }
+  function pintarAcao(card, st, nome){
+    var slot=card.querySelector(".acaoAg"), m=marcaLocal[nome];
+    if(st==="espera" && m){
+      if(m==="guardado"){
+        card.setAttribute("data-st","guardado");
+        card.querySelector(".st").textContent="guardado, não enviado";
+        slot.innerHTML='<button class="btn leve" disabled>guardado — não enviado</button>';
+      }else if(m==="enviando"){
+        card.querySelector(".st").textContent="enviando…";
+        slot.innerHTML='<button class="btn leve" disabled>enviando…</button>';
+      }else{
+        card.setAttribute("data-st","chamado");
+        card.querySelector(".st").textContent="chamado";
+        slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>';
+      }
+      return;
+    }
+    if(st==="espera"){ if(!slot.querySelector(".acionar")){
+      slot.innerHTML='<button class="btn leve acionar">Acionar</button>';
+      slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(cards[nome].__ag, cards[nome], slot); }); } }
+    else if(st==="chamado"){ slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>'; }
+    else { slot.innerHTML=''; }
+  }
   // ================= AS SQUADS (dono, 21/08) =================
   // A coluna `mesa_agente.squad` diz de quem é cada superfície: central (quem serve os três),
   // jogo, plataforma, acervo. Aqui ela só ESCOLHE UM GRUPO — e é isso que a torna inofensiva:
@@ -1369,16 +1484,15 @@
     // e cacheado por nome e so se move quando o pai troca, isto reordena sem recriar nem piscar.
     var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
+    card.__ag=item;   // o card e cacheado por nome; o ouvinte de "Acionar" le sempre o item novo
     card.setAttribute("data-st",st);
     card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
     card.querySelector(".st").textContent = st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera");
     card.querySelector(".ult").textContent = st==="trabalhando"?"agora":"última: "+desde(item.ativo_em);
-    var slot=card.querySelector(".acaoAg");
-    if(st==="espera"){ if(!slot.querySelector(".acionar")){
-      slot.innerHTML='<button class="btn leve acionar">Acionar</button>';
-      slot.querySelector(".acionar").addEventListener("click",function(){ abrirModal(item, card, slot); }); } }
-    else if(st==="chamado"){ slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>'; }
-    else { slot.innerHTML=''; }
+    // O servidor confirmou o chamado (ou o agente ja saiu de espera): a marca local cumpriu o
+    // papel dela e sai, senao um "guardado" antigo sobreviveria ao envio que ja aconteceu.
+    if(st!=="espera") delete marcaLocal[item.nome];
+    pintarAcao(card, st, item.nome);
     ajustarAgora();   // esconde a faixa AGORA quando o ultimo ativo saiu dela
   }
 
@@ -1504,7 +1618,19 @@
       if(!r.ok) throw 0;
       return r.json();
     }).then(function(j){
-      var itens=(j && Array.isArray(j.itens))?j.itens:[];
+      // 200 OK COM A FORMA ERRADA NAO E "FILA VAZIA" — achado do QA em 24/08, e ele bate
+      // exatamente na promessa que esta escrita alguns comentarios acima: "nao ha trabalho" e
+      // "a lista quebrou" tem de ser distinguiveis a olho. Medido pelo QA: {"itens":"nao-e-array"},
+      // {} e [] faziam a tela dizer "Nao ha item livre na fila para <agente> agora" — a confusao
+      // que o proprio dashboard promete impedir. So corpo NAO-JSON caia em "nao consegui ler".
+      // Uma chave renomeada num deploy viraria "nao ha trabalho" em silencio.
+      if(!j || !Array.isArray(j.itens)) throw 0;   // forma errada e fila NAO LIDA, nao fila vazia
+      var itens=j.itens;
+      // A FILA ALIMENTA OS CAMINHOS DE ACIONAR (24/08). Isto vem ANTES do desenho da seção de
+      // propósito: mesmo que não haja item ABERTO para listar aqui, `backlogPorAgente` deixa de
+      // ser `null` — ou seja, "li a fila e ela não tem item para você" fica distinguível de
+      // "não consegui ler a fila". As duas frases estão no modal.
+      backlogPorAgente=indexarBacklog(itens); backlogEstado="ok";
       var abertos=itens.filter(function(it){ return it && it.estado!=="concluido"; });
       if(!abertos.length) throw 0;
       var cont=document.getElementById("lista-backlog"); cont.innerHTML="";
@@ -1526,6 +1652,7 @@
       document.getElementById("backlog").hidden=false;
       document.getElementById("vazio-backlog").hidden=true;
     }).catch(function(){
+      if(backlogEstado!=="ok") backlogEstado="falhou";  // 404, JSON quebrado, rede: a fila NAO foi lida
       document.getElementById("backlog").hidden=true;   // sem backlog, sem seção — silencioso
     });
   }

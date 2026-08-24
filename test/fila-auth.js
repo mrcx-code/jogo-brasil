@@ -38,6 +38,13 @@
 //
 //     FILA_AUTH_HTML=test/tmp-fila-defeito.html node test/fila-auth.js    # tem de sair 1
 //
+// ATUALIZADO EM 24/08 — a assercao guardava o caminho ABANDONADO. Estas cenas cobravam que o
+// toast nomeasse `ferramentas/mesa-pin.local`, que deixou de ser o lugar do PIN em 22/08
+// justamente porque `GET /ferramentas/mesa-pin.local` era servido VERBATIM pelo docroot. O
+// arquivo passou a ser `~/.mesa-brasil-pin`, FORA do repositorio. O teste nao acompanhou, e a
+// consequencia foi concreta: o dono foi instruido a recriar o buraco fechado — pela mensagem
+// do proprio produto e por mim, que li o PENDENTES 57 (o desenho velho) em vez do codigo.
+// Asercao que guarda instrucao errada e pior que assercao nenhuma: ela DEFENDE o erro.
 // O AUTO-LOGIN LOCAL entrou em 22/08 (PENDENTES 57) e trouxe CINCO cenas — 20 a 24. Quatro sao
 // de navegador, como todas as outras, e a 23 nao: ela mede o modulo do SERVIDOR
 // (ferramentas/pin-local.js) direto, sem Chromium, porque as regras que ela cobra sao sobre o
@@ -280,7 +287,7 @@ const estado = pag => pag.evaluate(() => ({
     // login abre e o flush do login esvazia a fila. Se alguem tornar a frase nova (a de
     // localhost) incondicional, e AQUI que se percebe.
     ok(/guardei e reenvio/i.test(toast2 || ''), 'e o toast continua sendo o de sempre — aqui ha para onde reenviar', toast2);
-    ok(!/PENDENTES 57/.test(toast2 || ''), 'sem a frase de localhost, que aqui seria falsa', toast2);
+    ok(!/mesa-brasil-pin/.test(toast2 || ''), 'sem a frase de localhost, que aqui seria falsa', toast2);
     await ctx.close();
   }
 
@@ -782,7 +789,7 @@ const estado = pag => pag.evaluate(() => ({
     // nao ha como conseguir sessao. A fila local NAO drena ate o auto-login local existir.
     const toast18 = await pag.textContent('#toast');
     ok(!/sem conex/i.test(toast18 || ''), 'o toast NAO diz "sem conexao" — foi autenticacao', toast18);
-    ok(/PENDENTES 57/.test(toast18 || ''), 'e diz onde a espera esta registrada', toast18);
+    ok(/mesa-brasil-pin/.test(toast18 || ''), 'e diz onde a espera esta registrada', toast18);
     ok(/localhost/i.test(toast18 || ''), 'nomeando o motivo: em localhost nao ha login', toast18);
     await ctx.close();
   }
@@ -907,8 +914,8 @@ const estado = pag => pag.evaluate(() => ({
     ok(e.erros === null, 'a recusa do auto-login NAO conta como erro de quem digita', String(e.erros));
     ok(escritas[0] && escritas[0].aut === 'Bearer ' + PUB, 'a escrita saiu anonima, como antes', escritas[0] && escritas[0].aut);
     ok(e.fila === 1, 'a resposta ficou guardada na fila local', String(e.fila));
-    ok(/PENDENTES 57/.test(toast22 || ''), 'e o toast honesto continua, dizendo onde mexer', toast22);
-    ok(/mesa-pin\.local/.test(toast22 || ''), 'nomeando o arquivo que resolve', toast22);
+    ok(/mesa-brasil-pin/.test(toast22 || ''), 'e o toast honesto continua, dizendo onde mexer', toast22);
+    ok(/~\/\.mesa-brasil-pin/.test(toast22 || ''), 'nomeando o arquivo que resolve', toast22);
     await ctx.close();
   }
 
