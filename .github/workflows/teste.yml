@@ -66,6 +66,18 @@ jobs:
       - run: node test/caminhos-do-backlog.js
         timeout-minutes: 3
 
+      # AS FONTES CONFIAVEIS — o painel, a fila e a lei do continuo, cobrados a cada push (24/08).
+      # O dono viu a mesa dizer '111 imagens a gerar' com 88 delas ja feitas e perguntou se
+      # estavamos refazendo tudo. Nao estavamos: a mesa lia um disco de rascunho vazio em vez do
+      # registro duravel. Estes quatro portoes garantem que a mesa e o painel nunca mais afirmem
+      # em silencio o que nao sabem. conferir-agentes usa 0/1/2 (bate / nao bate / nao conferiu).
+      - run: node test/conferir-mesa.js
+        timeout-minutes: 2
+      - run: node ferramentas/conferir-fila.js
+        timeout-minutes: 2
+      - run: node ferramentas/conferir-agentes.js
+        timeout-minutes: 2
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados

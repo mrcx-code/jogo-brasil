@@ -50,8 +50,15 @@ function dataLocal(d) {
 }
 
 function lerJson(nome, vazio) {
-  try { return JSON.parse(fs.readFileSync(path.join(__dirname, nome), 'utf8')); }
-  catch (e) { return vazio; }
+  // MISSING e CORROMPIDO sao coisas diferentes, e tratar os dois como "vazio" foi um buraco de
+  // fonte confiavel (caca de gap, 24/08): um necessario.json corrompido zerava a mesa em
+  // SILENCIO, com 200 OK — ninguem sabia que a lista sumiu por ERRO e nao por estar vazia.
+  // Arquivo que NAO EXISTE e estado legitimo (clone novo) -> vazio. Arquivo que EXISTE e nao
+  // parseia e DADO PERDIDO -> estoura com o nome, e quem chama decide como falhar ALTO.
+  const arq = path.join(__dirname, nome);
+  if (!fs.existsSync(arq)) return vazio;
+  try { return JSON.parse(fs.readFileSync(arq, 'utf8')); }
+  catch (e) { throw new Error('CORROMPIDO: ' + nome + ' existe mas nao e JSON valido (' + e.message + ')'); }
 }
 
 // ---------------------------------------------------------------------------
@@ -479,8 +486,19 @@ const servidor = http.createServer(function (req, res) {
   }
 
   if (req.method === 'GET' && url === '/fila') {
+    // FONTE CONFIAVEL FALHA ALTO: se um durable estiver corrompido, a mesa NAO serve fila
+    // vazia com 200 (o silencio que assustou o dono). Devolve o erro, e a pagina mostra que
+    // nao esta enxergando a fonte em vez de fingir que nao ha nada.
+    let corpoFila;
+    try { corpoFila = estadoDaFila(); }
+    catch (e) {
+      console.error('MESA: ' + e.message);
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ erro: e.message, itens: [], contagem: null }));
+      return;
+    }
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(estadoDaFila()));
+    res.end(JSON.stringify(corpoFila));
     return;
   }
 
@@ -688,6 +706,11 @@ function avisarRepetidos() {
   return avisos.length;
 }
 
+// SO SOBE O SERVIDOR QUANDO E EXECUTADO DIRETO. Requerido como modulo (por um portao que
+// confere a fila sem depender de rede), NAO abre porta nenhuma — estadoDaFila fica chamavel
+// puro. Sem isto, require('./receber.js') prenderia uma porta de surpresa.
+module.exports = { estadoDaFila: estadoDaFila };
+if (require.main === module)
 servidor.listen(PORTA, '127.0.0.1', function () {
   console.log('mesa de entrega em http://localhost:' + PORTA);
   console.log('salvando em ' + ENTRADA);

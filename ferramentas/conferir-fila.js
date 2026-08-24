@@ -72,6 +72,15 @@ const dono = (i) => i.agente || i.papel || null;
   if (SO_QUEM) process.exit(0);
 
   const falhas = [];
+  // O PISO DE SOMA NAO BASTA — achado do QA em 24/08. Tres itens do MESMO construtor num
+  // territorio exclusivo (src/jogo.ts e um escritor por vez, §3.3.2) sustentam UM agente, nao
+  // tres, e o portao dizia 'trabalho para uma rodada inteira'. Some um segundo criterio: ao
+  // menos DOIS construtores distintos com item, senao o paralelo do teto nao se realiza.
+  const comItem = CONSTRUTORES.filter((a) => (porQuem[a] || []).length).length;
+  if (comItem < 2 && daFrente >= PISO) {
+    falhas.push('A FILA CONCENTRA: ' + daFrente + ' itens livres, mas em so ' + comItem
+      + ' construtor(es) — o teto de 2 a 3 agentes por rodada nao se realiza com um escritor so.');
+  }
   if (daFrente < PISO) {
     falhas.push('A FILA SECOU: ' + daFrente + ' item(ns) livre(s) para construtor, abaixo do piso de ' + PISO
       + '. Despache o `pm` para repriorizar e encher — a lei do contínuo diz que fila vazia é '

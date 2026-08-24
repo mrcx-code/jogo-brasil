@@ -21,9 +21,15 @@
 // `Claude` é a linha da própria sessão (o laço principal) e não tem arquivo de agente — é a
 // única exceção, e ela é nomeada aqui em vez de virar exceção silenciosa.
 //
-// COMO ELE LÊ A TABELA: pelo REST com a chave publicável, que é a mesma que o painel usa. Sem
-// rede, ele **não reprova** — devolve 0 com um aviso. Portão que exige internet para passar vira
-// vermelho de aeroporto, e vermelho que não é defeito ensina todo mundo a ignorar vermelho.
+// COMO ELE LÊ A TABELA: pelo REST com a chave publicável, que é a mesma que o painel usa.
+//
+// NAO CONFERIDO NAO E APROVADO — correcao de 24/08 (o proprio QA me pegou nisto no mesmo dia).
+// Sem rede, ou com a chave fora do html, este portao NAO tem como saber se o elenco bate — e
+// sair 0 ali e o exato padrao que a caca de gap nomeou: afirmar (passou) a partir de um sinal
+// que faltou. Entao ele sai 2, um codigo PROPRIO para 'nao sei': o plantao re-tenta ou checa a
+// rede, e o CI (que alcanca o banco) so ve o 2 quando ha problema de verdade. 0 = confere e bate;
+// 1 = confere e NAO bate; 2 = nao consegui conferir. Tres estados, tres codigos.
+
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -63,7 +69,7 @@ function doPainel() {
   const alvo = doPainel();
   if (!alvo) {
     console.log('AVISO: não achei endereço/chave do banco no dashboard — conferência pulada.');
-    process.exit(0);
+    process.exit(2);
   }
 
   let tabela;
@@ -77,7 +83,7 @@ function doPainel() {
   } catch (e) {
     // Sem rede não é defeito do repositório. Avisa e passa — ver o cabeçalho.
     console.log('AVISO: não consegui ler `mesa_agente` (' + e.message + ') — conferência pulada.');
-    process.exit(0);
+    process.exit(2);
   }
 
   const naTabela = new Set(tabela);
