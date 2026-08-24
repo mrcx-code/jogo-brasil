@@ -72,11 +72,23 @@ if (wtPath) {
 }
 
 // ---- o diff decide as auditorias ----
-const arquivos = git(['diff', '--name-only', 'main...' + ramo]).out.split('\n').filter(Boolean);
+// `--name-status -M` em vez de `--name-only`: um teste RENOMEADO para fora de `test/`
+// (git mv test/x.js x.js.bak) so aparecia pelo DESTINO com --name-only, entao escapava do
+// gatilho `qa` e o npm test ficava verde porque o teste sumiu (caca de gap, 24/08, PENDENTES 82).
+// Com -M o rename vira uma linha R100<tab>old<tab>new, e as DUAS pontas entram na lista.
+const diffCru = git(['diff', '--name-status', '-M', 'main...' + ramo]).out.split('\n').filter(Boolean);
+const arquivos = [];
+for (const linha of diffCru) {
+  const col = linha.split('\t');
+  for (let k = 1; k < col.length; k++) if (col[k]) arquivos.push(col[k]);
+}
 if (!arquivos.length) morre('o ramo não traz mudança nenhuma sobre a main.');
 const exigidos = new Set();
 const PUB = /^(plataforma|historia|glossario|de-onde-vem|territorio|dashboard)\/|^ferramentas\/gerar-/;
-const REDE = /^dashboard\/|^ferramentas\/(receber|construir)|^src\/index\.html$|^\.github\/workflows\//;
+// REDE = o que pede olho de SEGURANCA. Alargado em 24/08 (PENDENTES 82): antes, apagar o bloco
+// headers do vercel.json (CSP, X-Frame-Options do /dashboard), mexer no pin-local, na RLS
+// (fila-auth.sql), no esquema, no proprio funil ou no guarda integrava com --placar e mais nada.
+const REDE = /^dashboard\/|^ferramentas\/(receber|construir|servir|pin-local|fila-auth|conteudo-esquema|conteudo-)|^src\/index\.html$|^\.github\/workflows\/|^vercel\.json$|^\.claude\/(hooks|settings)|^ferramentas\/integrar\.js$/;
 const MEC = /^src\/(jogo\.ts|estilo\.css)$|^test\//;
 for (const a of arquivos) {
   if (PUB.test(a)) exigidos.add('growth');
@@ -85,7 +97,30 @@ for (const a of arquivos) {
 }
 if (arquivos.includes('src/jogo.ts')) {
   const diffJogo = git(['diff', 'main...' + ramo, '--', 'src/jogo.ts']).out;
-  if (/^[+-].*(EPOCAS|GLOSSARIO|LINHA_TEMPO|FONTES)\b/m.test(diffJogo)) exigidos.add('historiador');
+  // O HISTORIADOR PELA FAIXA DO GLOSSARIO, NAO PELO TOKEN (24/08, PENDENTES 83). O padrao
+  // antigo casava so a linha da DECLARACAO (`const GLOSSARIO`, `EPOCAS`...) — 3 de 1.056
+  // linhas do bloco. Mudar o TEXTO de um verbete, que e a afirmacao historica que o §2 manda
+  // revisar, nao disparava ninguem. Agora: acha a faixa de cada bloco no jogo.ts ATUAL e
+  // exige historiador se qualquer trecho do diff tocar essa faixa. O token continua como rede
+  // de seguranca para blocos pequenos (FONTES, LINHA_TEMPO) que nao delimito por nome aqui.
+  const fonte = require('fs').readFileSync('src/jogo.ts', 'utf8').split('\n');
+  const faixas = [];
+  for (const marca of [/^const GLOSSARIO\b/, /^const GLOSSARIO_REL\b/, /^const EPOCAS\b/]) {
+    const ini = fonte.findIndex((l) => marca.test(l));
+    if (ini < 0) continue;
+    // o fecho e o proximo `];` ou `};` na coluna 0 depois do inicio
+    let fim = ini + 1;
+    while (fim < fonte.length && !/^[\]}];?\s*$/.test(fonte[fim])) fim++;
+    faixas.push([ini + 1, fim + 1]);   // 1-based, como o diff conta
+  }
+  // os inicios de hunk `@@ -a,b +c,d @@` dizem QUAIS linhas do arquivo novo o diff toca
+  let tocaFaixa = false;
+  for (const h of diffJogo.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm) || []) {
+    const m = h.match(/\+(\d+)(?:,(\d+))?/);
+    const ini = +m[1], n = m[2] === undefined ? 1 : +m[2], fimH = ini + Math.max(n, 1);
+    if (faixas.some(([a, b]) => ini <= b && fimH >= a)) { tocaFaixa = true; break; }
+  }
+  if (tocaFaixa || /^[+-].*(EPOCAS|GLOSSARIO|LINHA_TEMPO|FONTES)\b/m.test(diffJogo)) exigidos.add('historiador');
 }
 if (SO_GATILHOS) {
   console.log('PRÉ-VOO de ' + ramo + ': ' + arquivos.length + ' arquivo(s) no diff.');
