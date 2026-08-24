@@ -5821,6 +5821,16 @@ Carvalho Soares, *Devotos da cor* (Civilização Brasileira, 2000) — NAÇÃO �
 construção da ordem / Teatro de sombras* (2003) e *Cidadania no Brasil* (2001) — PODER
 MODERADOR, VOTO CENSITÁRIO · Ligia Osorio Silva, *Terras devolutas e latifúndio* (Unicamp, 2ª
 ed. 2008) — LEI DE TERRAS · Victor Nunes Leal, *Coronelismo, enxada e voto* (orig. 1949) ·
+<!-- 24/08 (historiador): verbete LEI DE TERRAS enriquecido pela licença de revisão de 19/08.
+Passou a (a) NOMEAR inline a Lei Eusébio de Queirós — nome popular do texto, exceção do dono de
+11/08, nomeia a lei e não a pessoa; (b) fechar o "chega até hoje" com número de fonte: IBGE, Censo
+Agropecuário 2017 (agricultura familiar 76,8% dos estabelecimentos, 23% da área — verbo "registrou").
+Lugar de fala: Ligia Osorio Silva, *Terras devolutas e latifúndio* (historiografia agrária) para a
+interpretação; IBGE, institucional, para o dado. A tese econômica não é afirmada na voz do jogo
+(regra do dono de 24/08): mostra-se a terra virando mercadoria no ano da proibição do tráfico, e o
+jogador conclui. Não foi criado verbete novo — LEI DE TERRAS e LEI EUSÉBIO DE QUEIRÓS já existiam e
+já estavam ligados no GLOSSARIO_REL; verbete duplicado quebraria o índice. -->
+Fonte do dado até-hoje: IBGE, Censo Agropecuário 2017/SIDRA 6754 (76,8% dos estabelecimentos em 23% da área) — LEI DE TERRAS ·
 Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
 Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
 Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
