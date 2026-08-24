@@ -2477,3 +2477,70 @@ desta máquina. A pilha é de sistema (`Georgia, Iowan Old Style, Times New Roma
 `ubuntu-latest` não tem nenhuma das três primeiras. Medido: trocar a fonte move ±22 px, e
 American Typewriter move +22 a +40 e **reprova a 768×1024** (+27 contra folga de 26). **O piso de
 24 px compra exatamente UMA linha quebrada e nada mais.**
+
+---
+
+## 79 — O "guardado, não enviado" morre no F5, e o painel convida a acionar de novo — dev-plataforma (qa, 24/08)
+
+Medido pelo QA: o marcador **aguenta 20,1 s** e atravessa dois ciclos do refresh de 7 s — a
+alegação era 7,6 s, então ele é melhor que o prometido. **Mas some no recarregar.** Depois de um
+F5 o rótulo volta a *"em espera"*, o botão volta a **"Acionar"**, e a fila local
+(`mesa-brasil-fila4`) **continua com o pedido dentro** — medida: 157 → 172 bytes, com 3 POSTs
+tentados e recusados com 401.
+
+**Por que isso importa mais do que parece:** convidar a acionar de novo o que já está pedido é
+a MESMA família do defeito que esta entrega veio consertar — o dono agindo sobre trabalho que
+não precisava. Só que agora em vez de refazer item concluído, ele duplica o próprio chamado.
+
+O marcador vive **na memória da aba**, de propósito: o rodapé promete a lista de chaves que a
+página grava, e o autor não quis acrescentar nenhuma sem atualizar a promessa. **O dado para
+consertar já está lá** — derivar a marca da fila do `localStorage`, que é onde o pedido está.
+Custo: uma chave nova **mais** uma frase nova no rodapé, e o `rodape-verdadeiro.js` cobra as duas.
+
+**Nota do mesmo bloco:** `marcaLocal` só é limpa quando o status deixa de ser `espera`. O
+`flush()` que consegue enviar não avisa ninguém — então o cartão continua dizendo *"guardado, não
+enviado"* depois de o item ter saído de verdade, até o plantão consumir a fila. É a mesma classe
+de frase que mente, na direção oposta. **Achado da segurança**, no mesmo dia.
+
+---
+
+## 80 — `window.__XSS` medido no mesmo tick é uma asserção CEGA — qa (24/08)
+
+O `test/caminhos-do-backlog.js` verifica `m5.xss === false` para provar que o título hostil não
+executa. **Essa asserção não pode falhar**, e o QA provou rodando-a contra um dashboard
+**vulnerável de propósito** (`textContent` trocado por `innerHTML`):
+
+```
+window.__XSS  = false   no tick do clique
+window.__XSS  = true    1,5 s depois
+```
+
+O `onerror` de um `<img>` é **assíncrono**; o portão mede no mesmo tick e sempre vê `false`.
+A alegação *"XSS testado, window.__XSS false"* **não prova nada** — quem prova, e morde de
+verdade, é `tagsInjetadas === 0` e o texto aparecer literal.
+
+Conserto: esperar (ou usar um payload síncrono) antes de ler a bandeira, **ou** tirar a asserção
+e não fingir que ela cobre. Fingir é pior: dá licença por escrito para o caso difícil quebrar.
+
+**Dois gaps do mesmo portão, para o mesmo conserto:** nenhuma cena cobre o estado
+**"carregando"**, e nenhuma cobre o marcador guardado/enviado — ou seja, duas das três alegações
+de estado da entrega ficaram **sem portão**.
+
+---
+
+## 81 — Dois itens livres são ÓRFÃOS do painel: não há como acioná-los — plantao (qa, 24/08)
+
+`rotina-7-sinais` (agente `dev-dados`) e `fichas-lote-2` (agente `pesquisadora-fontes`) estão
+`livre` no backlog, mas **não têm linha correspondente em `mesa_agente`** — a tabela que desenha
+os cartões do painel. Sem cartão, não há botão; sem botão, não há como acionar.
+
+Isso não é regressão da entrega: era assim antes e continua depois. **O que mudou é que agora dá
+para ver** — antes os caminhos eram escritos à mão e ninguém comparava as duas listas.
+
+Conserto: ou os dois agentes ganham linha em `mesa_agente`, ou o backlog deixa de apontar para
+agente que não existe no painel. **A escolha é de produto, não de código:** o `dev-dados` está
+declarado ATIVO no `AGENTES.md` desde 22/08, e a `pesquisadora-fontes` foi contratada em 22/08 —
+então provavelmente é a tabela que está atrasada, não o backlog que está errado.
+
+**E vale a trava:** nada mede hoje o desencontro entre `backlog.json` e `mesa_agente`. Um item
+pode nascer apontando para um agente inexistente e ninguém sabe até alguém procurar o botão.
