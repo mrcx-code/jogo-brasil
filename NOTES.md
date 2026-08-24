@@ -10000,3 +10000,18 @@ dela é *"se um leitor de qualquer lado identifica um alvo, o texto falhou"*.
 **Pendente de decisão dele, se quiser:** promover estas três regras para dentro do `CLAUDE.md`
 §2.6 como lei dura (hoje elas vivem aqui no Diário e no aceite do item de glossário). Não reescrevi
 o §2 sozinha — editar a lei de representação é dele.
+
+---
+
+## 24/08 — GSC: o dono decidiu ESPERAR a troca de domínio
+
+O growth mediu que o site tem ZERO indexação (`site:matheusferreira.cc` = 0 no Google) porque
+nunca foi submetido ao Google Search Console, e que essa é a única alavanca que tira o tráfego
+orgânico de zero — toda a estrutura de SEO (cartão, sitemap, robots, canonical, e agora o
+glossário fatiado por verbete) já está pronta e é invisível sem isso.
+
+Apresentada a contradição (o GSC tinha sido tirado da lista por o domínio ir mudar) e o fato de
+que **não se perde ao trocar de domínio** (a Mudança de Endereço + 301 transferem o sinal; só se
+re-submete o sitemap), o dono **decidiu esperar a troca de domínio** mesmo assim. Registrado para
+não re-levantar: enquanto o domínio não mudar, o tráfego orgânico segue em zero por decisão, e a
+divulgação (rodada A, pronta desde 23/08) segue represada atrás do GSC, também por escolha dele.
