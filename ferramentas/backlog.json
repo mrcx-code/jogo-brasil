@@ -493,6 +493,19 @@
     "test/medir-telas.js"
    ],
    "estado": "concluido"
+  },
+  {
+   "id": "glossario-substancia-descolonial",
+   "titulo": "Enriquecer o glossario com a economia real (escravidao, terra, extracao colonial ate hoje) — substancia com fonte, sem lexico de corrente",
+   "detalhe": "Linha editorial decidida pelo dono em 24/08 (NOTES.md, \"A LINHA EDITORIAL DO CONHECIMENTO\"). Enriquecer o glossario com a historia economica real e descolonial. TRES REGRAS DE ACEITE, todas do dono: (1) SUBSTANCIA COM FONTE, nao o lexico de corrente — concentracao de terra/renda medida (IBGE), a economia da escravidao, a continuidade colonial ate hoje, citando historiadores e dados; o vocabulario ideologico de uma tradicao NAO entra como enquadramento. (2) Jones Manoel entra como FONTE (historiador negro, lugar de fala) com o filtro da §2.6; NAO nomear politico vivo (Erika Hilton e deputada viva — a §2.6 barra). (3) A tese \"o capitalismo tardio nao se sustenta\" e FATO COM FONTE, o jogador conclui — nunca afirmada na voz do jogo. Cada verbete novo precisa de fonte no NOTES.md no mesmo commit. QA cruzado antes de integrar. O vídeo que o dono mandou e um \"Glossario Marxista-Leninista\": minerar a substancia, recusar o dicionario.",
+   "camada": "ACERVO",
+   "agente": "historiador",
+   "banca": "qa",
+   "territorio": [
+    "src/jogo.ts",
+    "NOTES.md"
+   ],
+   "estado": "livre"
   }
  ]
 }

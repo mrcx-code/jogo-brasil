@@ -9949,3 +9949,44 @@ cruzada, integracao. E a entrega dela foi **nao consertar** — o melhor tipo de
 **O QUE FICOU ABERTO:** `PENDENTES 63 a 74`, quase todos sobre a FORMA do portao, com conserto
 orcado. O dono decidiu que a proxima rodada e **endurecer os portoes** (contra voltar ao produto e
 contra medir o retorno primeiro).
+
+---
+
+## 24/08 — A LINHA EDITORIAL DO CONHECIMENTO: conscientizar pela substância, não pelo rótulo (decidido pelo dono)
+
+Decisão de §2, tomada pelo dono, e registrada aqui para nenhuma sessão futura re-litigar. As
+palavras dele: *"gosto mto da Erika Hilton e Jones Manoel, importante conscientizarmos as
+pessoas... mas não queremos nos definir como esquerdistas ou socialistas ou comunistas, mas é
+um fato que esse capitalismo tardio não se sustenta para que possamos construir um Brasil que
+respeite e valorize nossa história real, não sob uma ótica europeia ou imperialista"*.
+
+O gatilho foi um vídeo que ele mandou para enriquecer o glossário — identificado como
+**"Glossário Marxista-Leninista"**. A tensão que ele mesmo nomeou: enriquecer e conscientizar,
+**sem** o projeto se autodefinir como de uma corrente.
+
+**A decisão, em três regras — todas escolhidas por ele em 24/08, opção recomendada em cada:**
+
+1. **SUBSTÂNCIA COM FONTE, NÃO O LÉXICO DE CORRENTE.** A história real e incômoda entra —
+   concentração de terra e renda medida (IBGE), a economia da escravidão, a continuidade da
+   extração colonial até hoje —, citando historiadores e dados. O **vocabulário ideológico** de
+   uma tradição (os termos do tal glossário como enquadramento) **não entra**: importá-lo é a
+   autodefinição que ele recusa. Minerar a substância, recusar o dicionário de corrente.
+
+2. **ABSORVE AS IDEIAS, NÃO NOMEIA POLÍTICO VIVO.** Erika Hilton é deputada viva; a §2.6 já diz
+   "nunca nomeia político". A sensibilidade que ela traz informa os **valores** do projeto, mas
+   o jogo **não a cita pelo nome**. **Jones Manoel é outra natureza:** historiador negro com
+   lugar de fala sobre colonialismo e escravidão — entra como **FONTE** pela licença de 19/08,
+   com o filtro da §2.6 (o fato histórico com fonte, nunca a conclusão ideológica como conclusão).
+
+3. **A TESE É FATO COM FONTE, O JOGADOR CONCLUI.** "O capitalismo tardio não se sustenta" **não**
+   se afirma na voz do jogo — isso seria autodefinição. Mostra-se a desigualdade medida e a
+   continuidade colonial → hoje, com número e fonte, e a conclusão fica clara sem o jogo dizê-la.
+
+**Por que isto NÃO é uma guinada:** é a §2 e a licença de 19/08 já em vigor — autoria indígena,
+negra, de mulheres, de quem viveu a vulnerabilidade; *"não sob ótica europeia"*. História
+descolonial com fonte é método, não partido. E a §2.6 já encarna o "não nos rotular": o teste
+dela é *"se um leitor de qualquer lado identifica um alvo, o texto falhou"*.
+
+**Pendente de decisão dele, se quiser:** promover estas três regras para dentro do `CLAUDE.md`
+§2.6 como lei dura (hoje elas vivem aqui no Diário e no aceite do item de glossário). Não reescrevi
+o §2 sozinha — editar a lei de representação é dele.
