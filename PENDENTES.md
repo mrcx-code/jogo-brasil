@@ -2544,3 +2544,104 @@ então provavelmente é a tabela que está atrasada, não o backlog que está er
 
 **E vale a trava:** nada mede hoje o desencontro entre `backlog.json` e `mesa_agente`. Um item
 pode nascer apontando para um agente inexistente e ninguém sabe até alguém procurar o botão.
+
+---
+
+## 82 — O funil não audita rede/credencial, e um teste RENOMEADO some do diff — plantao/seguranca (caça de gap, 24/08)
+
+Dois buracos no `ferramentas/integrar.js`, os dois medidos ao vivo pelo QA.
+
+**(a) 19 de 20 caminhos de rede/credencial saem `NENHUMA` auditoria.** Os que doem, e o que
+carregam sem disparar gatilho nenhum:
+
+| arquivo | carrega | gatilho hoje |
+|---|---|---|
+| `vercel.json` | CSP `frame-ancestors`, X-Frame-Options, Referrer-Policy, nosniff do `/dashboard` | **nenhum** |
+| `ferramentas/pin-local.js` | a porta do painel | **nenhum** |
+| `ferramentas/fila-auth.sql` | as regras de linha (RLS) | **nenhum** |
+| `ferramentas/conteudo-esquema.sql` | o esquema do banco | **nenhum** |
+| `ferramentas/integrar.js` | o próprio funil | **nenhum** |
+| `.claude/hooks/guarda.js` | a trava de território | **nenhum** |
+
+Apagar o bloco `headers` inteiro do `vercel.json` integra com `--placar` e mais nada.
+
+**(b) O RENAME contorna a auditoria.** `git diff --name-only main...ramo` mostra **só o destino**.
+`git mv test/medir-save-hostil.js medir-save-hostil.js.bak` produz um diff sem `test/` nenhum →
+**zero auditoria**, e `npm test` fica verde porque o teste sumiu. **Nada conta testes.**
+
+Sãos (o QA disse com todas as letras): arquivo **NOVO** em `plataforma/` dispara `growth`;
+`git rm test/alvo.js` aparece no diff e dispara `qa`. Só o rename escapa.
+
+**Conserto:** `git diff --name-status -M` (origem E destino), acrescentar ao `REDE` os arquivos
+acima, e um portão que conta os testes de `test/` e reprova se o número cair sem registro.
+
+---
+
+## 83 — O gatilho do historiador casa a DECLARAÇÃO do glossário, nunca o CONTEÚDO — plantao (caça de gap, 24/08)
+
+`ferramentas/integrar.js:88`:
+```js
+if (/^[+-].*(EPOCAS|GLOSSARIO|LINHA_TEMPO|FONTES)\b/m.test(diffJogo)) exigidos.add('historiador');
+```
+Casa **3 de 1.056 linhas** do bloco `GLOSSARIO` — a linha da declaração, nunca o texto dos
+verbetes. **Provado ao vivo:** um ramo que muda o texto de um verbete (`d: "…"`) exige só `qa`,
+zero historiador. E o texto do verbete é exatamente a **afirmação histórica** que o §2 e a
+licença de revisão de 19/08 mandam revisar por quem tem lugar de fala.
+
+**Conserto:** exigir historiador por **faixa de linhas** (do `const GLOSSARIO` até o fecho do
+bloco), não por token na linha mudada. É irmão do gatilho do glossário no dashboard.
+
+---
+
+## 84 — O lock entre máquinas não trava 7 de 46 itens (território STRING) e depende de 2 campos que 0 itens têm — plantao/seguranca (caça de gap, 24/08)
+
+`.claude/hooks/lock-maquina.js:74` só lê `territorio` **array**. No `backlog.json`: **23 array,
+7 string, 16 sem campo.** Para os 7 string, `terr = []`, `quemTrava` devolve `null`. E o
+`test/guarda-lock.js` alimenta **array** — o teste defende a forma que a mesa não escreve.
+
+Os 7: `rotulo-medicao-anonima`, `dashboard-sem-google`, `recusa-por-desenho-tem-nome`,
+`perda-de-resposta-deixa-rastro`, `endurecer-portoes`, `contato-placeholder`, `ler-a-medicao`.
+
+**E o lock inteiro depende de dois campos que ninguém preenche:** `maquina` e `desde` estão em
+**0 de 46** itens. Sem eles `quemTrava` devolve `null` por construção — a trava está de pé e não
+sustenta caso nenhum, exatamente como em 23/08. Some a isso o caminho "arquivo ainda não existe →
+não trava": o comentário diz "o git funde sozinho", mas duas criações do mesmo caminho é conflito
+**add/add**, que o git **não** funde.
+
+**Conserto:** normalizar `territorio` (string→lista, e AVISAR na forma não reconhecida em vez de
+virar `[]`); o teste passar a alimentar as duas formas.
+
+---
+
+## 85 — 60 de 147 testes não conseguem reprovar, e um deles é citado como PROVA — qa (caça de gap, 24/08)
+
+Recontagem (o instrumento se corrigiu no caminho: a 1ª varredura deu 79 e errava, porque
+`process.exit(cond?1:0)` não casa `process.exit(1`): **82 podem reprovar · 5 só se explodirem ·
+60 não têm exit≠0 nem throw.** É 56% capaz de reprovar, contra 47% do inventário anterior — o
+número melhorou, mas os piores continuam de pé:
+
+1. **`test/peso-file-fetch.js`** — o `CLAUDE.md` §6 o cita como **a prova** de que `file://`
+   quebra o `fetch`. Ele imprime "ok 200" ou "ERRO" e sai 0 nos dois. **Hoje sai 1 pelo motivo
+   errado** (o protótipo em `os.tmpdir()` sumiu e o `goto` estoura). Vermelho que não significa nada.
+2. **`test/medir-cinco-minutos.js`** — o termômetro do "divertido". Não reprova.
+3. **`test/medir-arco.js`** — o que já anunciou um arco de 400 h (lição 2.9). Um número errado
+   entra no `NOTES.md` como fato.
+4. **`test/medir-caminho-glossario.js`** — o caminho do "64% do texto atrás de um botão". Não reprova.
+5. **`test/medir-renda-passiva.js`** e os `qa-*` — nome de portão, comportamento de impressora.
+
+**Papelada morta:** `CLAUDE.md`/`EQUIPE.md` citam `test/tmp-casar.js`, que **não existe** (é
+`tmp-*`, gitignored). Referência morta num documento que é lei.
+
+---
+
+## 86 — Nenhum portão roda no caminho do Bash a não ser o guarda, e o vercel.json ninguém audita — plantao (caça de gap, 24/08)
+
+Fechei o furo do guarda (o Bash entrou no matcher, 24/08), mas o gap-check do QA deixou dois
+pontos que não são do guarda:
+
+- **`TERRITORIO.md` não tem régua.** `guarda.js` sai 0 se o arquivo sumir; a zona do dono rende
+  hoje **22 símbolos + 6 seletores**, e nenhum teste cobra esse número. O gerador
+  (`ferramentas/gerar-territorio.js`) está no território de um item `livre` — um bug nele apaga a
+  trava do dono **em silêncio**.
+- **A porta que a `main` publica não é lida por teste nenhum:** `vercel.json` (item 82) não tem
+  portão que confira que os cabeçalhos de segurança do `/dashboard` continuam lá.
