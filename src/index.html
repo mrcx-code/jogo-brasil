@@ -49,6 +49,10 @@
 <meta property="og:title" content="BRASIL — um jogo sobre a história do Brasil">
 <meta property="og:description" content="Uma jovem atravessa a história do Brasil e o que ela alcança fica de pé. Dos povos que já estavam aqui a hoje, com fonte para cada afirmação.">
 <meta property="og:url" content="@@BASE@@/jogo/">
+<!-- CANONICAL: as outras 4 páginas públicas já tinham, /jogo/ era a única sem (achado do growth,
+     24/08). Sem ela o Google pode tratar / e /jogo/ como duplicata e diluir o sinal. Usa o mesmo
+     @@BASE@@ das og:, trocado pela linha única de dominio.js no build. -->
+<link rel="canonical" href="@@BASE@@/jogo/">
 <meta property="og:image" content="@@BASE@@/jogo/compartilhar.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">

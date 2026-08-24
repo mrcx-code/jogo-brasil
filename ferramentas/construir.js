@@ -194,7 +194,13 @@ if (/@@[A-Z]+@@/.test(saida)) throw new Error('sobrou marca por trocar na saída
 
 // A garantia de arquivo único, cobrada aqui e não na boa-fé: nada de src/href externo, nada
 // de fetch, e uma tag <script> e uma <style> apenas.
-const externo = saida.match(/(?:src|href)\s*=\s*["'](?!data:)[^"']+["']/gi) || [];
+// EXCECAO canonical (24/08): a tag <link rel="canonical"> exige href por especificacao, e
+// aponta para a PROPRIA URL do site — a mesma base das og:, que ja sao excecao. Nao e
+// dependencia de runtime: o navegador nunca a busca, quem le e o robo de indexacao. Estreita
+// de proposito — so canonical, e so para a propria BASE. Canonical para outro host cai no erro.
+const okCanon = new RegExp('^<link rel="canonical" href="' + BASE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/[^"]*">$', 'i');
+const paraChecar = saida.replace(/<link\s[^>]*rel=["']canonical["'][^>]*>/gi, (t) => (okCanon.test(t) ? '' : t));
+const externo = paraChecar.match(/(?:src|href)\s*=\s*["'](?!data:)[^"']+["']/gi) || [];
 if (externo.length) throw new Error('referência externa na saída: ' + externo.slice(0, 3).join(' , '));
 
 // ---- A PORTA DE ENTRADA NÃO ENGORDA POR DESCUIDO (18/08) ----
