@@ -33,6 +33,24 @@ function lerMaquina(RAIZ) {
   } catch { return null; }
 }
 
+// Normaliza `territorio` para lista. A mesa às vezes escreve STRING em vez de array (medido no
+// PENDENTES 84: 23 array, 7 string, 16 sem campo) — os 7 string não podiam virar `[]` em
+// silêncio, porque isso é a trava desaparecendo sem avisar ninguém. Forma não reconhecida
+// (nem array, nem string, nem ausente) também não vira `[]` calada: avisa no stderr, o mesmo
+// padrão de "degradar não é silenciar" que o resto do arquivo já segue.
+function normalizarTerritorio(territorio, idParaAviso) {
+  if (territorio == null) return [];
+  if (Array.isArray(territorio)) return territorio;
+  if (typeof territorio === 'string') {
+    return territorio.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  process.stderr.write(
+    'lock-maquina: item ' + (idParaAviso || '(sem id)') +
+    ' tem território em forma não reconhecida (' + typeof territorio + ') — tratado como vazio\n'
+  );
+  return [];
+}
+
 // Casa `rel` contra um padrão de território do backlog. Três formas, e só três:
 //   "dashboard/"            → prefixo de pasta
 //   "ferramentas/gerar-*.js" → glob de um segmento
@@ -71,7 +89,7 @@ function quemTrava(rel, RAIZ, agora) {
       const desde = it.desde ? Date.parse(it.desde) : NaN;
       if (isNaN(desde)) continue;                          // sem carimbo confiável: não trava
       if (t - desde > VALIDADE_MS) continue;               // lock vencido: passa (e é de propósito)
-      const terr = Array.isArray(it.territorio) ? it.territorio : [];
+      const terr = normalizarTerritorio(it.territorio, it.id);
       if (terr.some((p) => casaTerritorio(rel, p))) {
         return { id: it.id || '(sem id)', titulo: it.titulo || '', maquina: it.maquina, desde: it.desde };
       }
@@ -82,4 +100,4 @@ function quemTrava(rel, RAIZ, agora) {
   }
 }
 
-module.exports = { quemTrava, casaTerritorio, lerMaquina, VALIDADE_MS };
+module.exports = { quemTrava, casaTerritorio, lerMaquina, VALIDADE_MS, normalizarTerritorio };

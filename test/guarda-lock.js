@@ -107,6 +107,35 @@ cena('5 · degradar é a regra: dado ruim nunca vira bloqueio', () => {
   ok(quemTrava('src/jogo.ts', semCarimbo) === null, 'carimbo ilegível: não trava');
 });
 
+cena('5b · território em forma STRING trava igual ao array (PENDENTES 84)', () => {
+  const { quemTrava } = carregar();
+  // a mesa às vezes escreve "src/jogo.ts, src/estilo.css" em vez de array — medido: 7 de 46
+  // itens do backlog.json real estão assim. Sem normalizar, terr vira [] e isto não trava.
+  const stringSimples = Object.assign({}, ITEM_OUTRA, { territorio: 'src/jogo.ts' });
+  const dir1 = palco([stringSimples], 'windows-plantao', ['src/jogo.ts']);
+  ok(!!quemTrava('src/jogo.ts', dir1), 'território STRING de um caminho só também trava', JSON.stringify(quemTrava('src/jogo.ts', dir1)));
+
+  const stringComVirgula = Object.assign({}, ITEM_OUTRA, { territorio: 'src/jogo.ts, src/estilo.css' });
+  const dir2 = palco([stringComVirgula], 'windows-plantao', ['src/jogo.ts', 'src/estilo.css']);
+  ok(!!quemTrava('src/jogo.ts', dir2), 'território STRING com vírgula: primeiro item trava');
+  ok(!!quemTrava('src/estilo.css', dir2), 'território STRING com vírgula: segundo item trava (aparado)');
+});
+
+cena('5c · território em forma NÃO reconhecida avisa no stderr, não trava em silêncio', () => {
+  const { normalizarTerritorio } = carregar();
+  const avisos = [];
+  const escrever = process.stderr.write;
+  process.stderr.write = (s) => { avisos.push(String(s)); return true; };
+  let terr;
+  try {
+    terr = normalizarTerritorio({ nao: 'e array nem string' }, 'item-esquisito');
+  } finally {
+    process.stderr.write = escrever;
+  }
+  ok(Array.isArray(terr) && terr.length === 0, 'forma não reconhecida vira lista vazia (degrada, não bloqueia)');
+  ok(avisos.length === 1 && /item-esquisito/.test(avisos[0]), 'e AVISA no stderr, com o id do item', avisos.join(''));
+});
+
 cena('6 · as três formas de território casam, e só elas', () => {
   const { casaTerritorio } = carregar();
   ok(casaTerritorio('dashboard/index.html', 'dashboard/'), 'prefixo de pasta');
