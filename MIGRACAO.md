@@ -141,3 +141,16 @@ segunda é a de verdade:
 4. **CONTEÚDO: mantém `pesquisadora-fontes` + `historiador` SEPARADOS.** A separação "quem lê e
    tabela" × "quem julga e corta" acabou de provar valor (a pesquisadora recusou tarefa fora de
    escopo em 25/08). Custa 2 spawns por entrega de conteúdo, e vale a pena.
+
+5. **HOUSE KEEPING DA MESA — junto desta migração.** Hoje pendências/decisões/pedidos vivem
+   espalhados (dashboard, `PENDENTES.md`, check). O dono decidiu (25/08) que **a mesa vira a fonte
+   única**: pendências/decisões/pedidos moram nas tabelas `mesa_*` e o dashboard só LÊ. Fazer no
+   `brasil` (que já recria as tabelas do zero) move o dado uma vez só, em vez de mexer no patinhas
+   agora e refazer. Passo a acrescentar na Fase 2: além do conteúdo e do elenco de agentes, semear
+   os itens de pendência/decisão/pedido na mesa e apontar o dashboard para lê-los.
+
+6. **PORTEIRO (decisão 3 acima) tem forma de entrega:** é mudança de portão → vai pelo funil, num
+   worktree, com auditoria. A `mesa_agente` já nasce nesta migração SEM `growth`/`seguranca` e COM
+   `porteiro` (roster 12, não 13). O código (`.claude/agents/`, `integrar.js`, `conferir-agentes.js`)
+   é independente do banco e pode ir antes ou depois do repontamento — mas o roster do banco tem de
+   bater com a pasta (o `conferir-agentes.js` reprova se não bater).

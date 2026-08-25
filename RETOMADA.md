@@ -11,11 +11,20 @@ Estado em 25/08 (tudo empurrado, CI verde, árvore limpa):
 - **Direção atual: ENSINA/ACERVO.** Item livre `glossario-substancia-descolonial` tem os 3 temas
   restantes (Critério Brasil, ouro/Methuen, escravização-acumulação) — 1 de 4 feito (Lei de Terras).
   Editar glossário no jogo EXIGE o passo de banco (PENDENTES 87, o funil reverte se esquecer).
-- **Plantão** de 30 min, mas **só roda com o app aberto** — não é 24/7. A autonomia real
-  (rotina na nuvem) é decisão pendente do dono (ver fim do MIGRACAO.md).
+- **Plantão** de 30 min, mas **só roda com o app aberto** — não é 24/7. A autonomia real foi
+  DECIDIDA em 25/08: **rotina na NUVEM + 3 travas** (teto de tokens/noite, idle-bail, modelo por
+  peso) e a regra "nuvem só puxa da fila e respeita o lock". Configurar a rotina = tarefa da
+  sessão nova, DEPOIS da migração (a nuvem aponta pro `brasil`). Detalhe no MIGRACAO.md §DECISÕES.
 - **GSC/tráfego**: o dono decidiu ESPERAR a troca de domínio. Não re-levantar.
-- **Painel**: status grudado foi resetado (todos em espera); a raiz (heartbeat) e as métricas
-  novas entram junto com a migração.
+- **Painel**: a **visão de gasto/tokenmaxxing já entrou na main (25/08)** — modelo+esforço reais
+  por agente + custo estimado com preço de fonte oficial (`ferramentas/precos-modelo.json`).
+  Falta ainda: o heartbeat (status "ativo" real, raiz do "4 fantasmas") e a **instrumentação de
+  tokens de verdade** (hoje é estimativa) — as duas entram com a migração/colunas novas.
+- **Decisões 25/08 (no MIGRACAO.md §DECISÕES) e tarefas que a migração carrega junto:**
+  (a) **house keeping da mesa** — pendências/decisões/pedidos viram fonte única na mesa, dashboard
+  só lê (fazer no `brasil`, uma vez só); (b) **porteiro** — fundir `growth`+`seguranca` num agente
+  (muda `.claude/agents/`, `integrar.js`, `conferir-agentes.js`, `mesa_agente`); (c) devs escalam
+  pra 4-5 só DEPOIS da migração (o monólito é o gargalo, não o nº de devs).
 - **tokenmaxxing** é lei (PLANTAO §3.2): modelo por peso, ler por faixa, grep sem base64, portão
   específico, baile ocioso. Mandato permanente do dono: sempre otimizar custo+qualidade.
 
