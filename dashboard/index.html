@@ -254,6 +254,18 @@
   .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
   .ag[data-st="guardado"] .st{color:var(--alerta)}
   .ag .ult{font:600 .56rem/1.3 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.8}
+  /* GASTO / TOKENMAXXING (25/08): modelo e esforco sao REAIS (saem do frontmatter dos agentes);
+     tokens e custo NAO tem medicao ainda, entao mostram "sem medicao" — instrumento nao mente. */
+  .ag .gasto{margin-top:.45rem;padding-top:.4rem;border-top:1px dashed var(--linha);
+    font:600 .56rem/1.5 "IBM Plex Mono",monospace;color:var(--pedra)}
+  .ag .gasto .gl{display:flex;justify-content:space-between;gap:.4rem}
+  .ag .gasto .gk{opacity:.7;text-transform:uppercase;letter-spacing:.04em}
+  .ag .gasto .gv{color:var(--tinta);text-align:right}
+  .ag .gasto .gv.fraco{color:var(--pedra);opacity:.8;font-style:italic}
+  .ag .gasto .gv.caro{color:var(--brasa)}
+  .ag.dono{border-color:var(--brasa)}
+  .nota-gasto{font:600 .62rem/1.5 "IBM Plex Mono",monospace;color:var(--pedra);
+    margin:.2rem 0 .8rem;text-align:center;opacity:.9}
 
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,6,.55);padding:1.2rem}
   .modal[hidden]{display:none}
@@ -382,6 +394,7 @@
 
   <section class="camada" id="agentes">
     <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
+    <p class="nota-gasto" id="nota-gasto">Modelo e esforço são reais (saem dos arquivos de agente). Tokens e custo ainda não têm medição — nada de zero fingindo ser número.</p>
     <div class="grade-ag" id="grade-ag"></div>
     <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
@@ -1260,6 +1273,66 @@
     });
   });
 
+  // ================= GASTO / TOKENMAXXING (dono, 25/08) =================
+  // "quero mais controle do que estamos fazendo e quanto gastamos." Duas coisas aqui, e a
+  // diferenca entre elas e a regra de ouro do dono: NAO deixar instrumento mentir.
+  //   - MODELO e ESFORCO sao REAIS: saem do frontmatter de cada `.claude/agents/*.md`. A pasta
+  //     e a verdade (CLAUDE.md §5.2), entao este mapa a ESPELHA, e o `conferir-agentes.js` cobra
+  //     que ele nao envelheca — se um agente trocar de modelo e este mapa nao, o portao reprova.
+  //   - TOKENS e CUSTO nao tem instrumentacao ainda. Mostrar 0 seria o instrumento mentindo,
+  //     entao mostram "sem medição ainda". O lugar fica pronto: se o banco um dia trouxer
+  //     `tokens_acum`/`custo_acum_usd`, o cartao le e mostra sem tocar em mais nada.
+  // Quando um agente nao declara modelo no frontmatter, ele HERDA o padrao da sessao — mostramos
+  // "herda", nunca um modelo inventado. `Claude` e a sessao principal (o dono/laco), sem arquivo.
+  var META_AGENTE={
+    "Claude":"opus",
+    "arte":"fable","dev-dados":"opus","dev-jogo":"opus","dev-plataforma":"opus",
+    "growth":"sonnet","historiador":"opus","juridico":"opus","pesquisadora-fontes":"sonnet",
+    "pm":"fable","pre-integrador":"haiku","qa":"opus","seguranca":"opus"
+  };
+  // apelido do frontmatter -> chave canonica na tabela de preco (ferramentas/precos-modelo.json)
+  var MODELO_CANON={opus:"claude-opus-4-8",sonnet:"claude-sonnet-4-5",haiku:"claude-haiku-4-5",fable:"claude-fable-5"};
+  var MODELO_ROTULO={opus:"Opus 4.8",sonnet:"Sonnet 4.5",haiku:"Haiku 4.5",fable:"Fable 5"};
+  var PRECOS=null;   // preenchido por fetch; null = tabela nao lida => "aguardando tabela de preço"
+  // A tabela e servida ao lado do dashboard (o build copia ferramentas/precos-modelo.json para
+  // dist/dashboard/). Same-origin, dentro do connect-src 'self'. Se 404 (servido cru da pasta),
+  // o custo cai em "aguardando tabela de preço" — degrada, nao quebra.
+  fetch("precos-modelo.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ if(j&&j.modelos) PRECOS=j; pintarGastoTodos(); }).catch(function(){});
+  function precoDe(apelido){
+    if(!PRECOS) return null;
+    var m=PRECOS.modelos&&PRECOS.modelos[MODELO_CANON[apelido]];
+    return (m&&typeof m.out_por_mtok==="number")?m:null;
+  }
+  // Custo estimado por 1 milhao de tokens de SAIDA — a ancora honesta: e o output que domina o
+  // custo e o unico numero que nao depende de saber a mistura cache/input desta sessao. Rotulado
+  // como ESTIMATIVA, nunca como medicao. Fable a 50 e o dobro de um Opus a 25 — o painel destaca.
+  function custoEstim(apelido){
+    var m=precoDe(apelido);
+    if(!m) return {txt:"aguardando tabela de preço",caro:false};
+    var caro=m.out_por_mtok>=50;
+    return {txt:"~US$ "+m.out_por_mtok.toFixed(2)+" / Mtok saída"+(caro?" (2× um Opus)":""),caro:caro};
+  }
+  function pintarGasto(card,nome){
+    var slot=card.querySelector(".gasto"); if(!slot) return;
+    var apelido=META_AGENTE[nome];
+    var mod = apelido ? MODELO_ROTULO[apelido]||apelido : "herda";
+    var ce = apelido ? custoEstim(apelido) : {txt:"aguardando tabela de preço",caro:false};
+    // tokens/custo REAIS so se o banco trouxer as colunas (podem nao existir) — senao, honesto.
+    var ag=card.__ag||{};
+    var temTok=typeof ag.tokens_acum==="number";
+    var temCusto=typeof ag.custo_acum_usd==="number";
+    var tokTxt=temTok?(ag.tokens_acum>=1000?(ag.tokens_acum/1000).toFixed(1)+"k":String(ag.tokens_acum)):"sem medição ainda";
+    var custoTxt=temCusto?("US$ "+ag.custo_acum_usd.toFixed(2)):"sem medição ainda";
+    slot.innerHTML=
+       '<div class="gl"><span class="gk">modelo</span><span class="gv'+(apelido?"":" fraco")+'">'+escH(mod)+'</span></div>'
+      +'<div class="gl"><span class="gk">esforço</span><span class="gv fraco">herda</span></div>'
+      +'<div class="gl"><span class="gk">tokens</span><span class="gv'+(temTok?"":" fraco")+'">'+escH(tokTxt)+'</span></div>'
+      +'<div class="gl"><span class="gk">custo</span><span class="gv'+(temCusto?"":" fraco")+'">'+escH(custoTxt)+'</span></div>'
+      +'<div class="gl"><span class="gk">estim.</span><span class="gv'+(ce.caro?" caro":" fraco")+'">'+escH(ce.txt)+'</span></div>';
+  }
+  function pintarGastoTodos(){ for(var n in cards){ if(cards[n]) pintarGasto(cards[n],n); } }
+
   // -------- agentes (ao vivo) --------
   function bon(cor){
     return '<svg class="bon" viewBox="0 0 16 20" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">'
@@ -1477,7 +1550,8 @@
     var card=cards[item.nome];
     if(!card){ card=document.createElement("div"); card.className="ag";
       card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
-        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div>';
+        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div><div class="gasto"></div>';
+      if(item.nome==="Claude") card.classList.add("dono");
       cards[item.nome]=card; }
     var st=item.status||"espera";
     // ATIVO SOBE: trabalhando vai para a faixa AGORA (topo); o resto fica na squad. Como o card
@@ -1492,10 +1566,25 @@
     // O servidor confirmou o chamado (ou o agente ja saiu de espera): a marca local cumpriu o
     // papel dela e sai, senao um "guardado" antigo sobreviveria ao envio que ja aconteceu.
     if(st!=="espera") delete marcaLocal[item.nome];
+    pintarGasto(card, item.nome);   // modelo/esforco reais; tokens/custo honestos ate instrumentar
+    // A SESSAO PRINCIPAL (dono) nao e um agente acionavel: sem botao Acionar, e o rotulo diz o que ela e.
+    if(item.nome==="Claude"){
+      card.querySelector(".st").textContent="linha principal";
+      card.querySelector(".acaoAg").innerHTML="";
+      return;
+    }
     pintarAcao(card, st, item.nome);
     ajustarAgora();   // esconde a faixa AGORA quando o ultimo ativo saiu dela
   }
 
+  // A SESSAO PRINCIPAL sempre tem cartao — ela nao tem arquivo em `.claude/agents/` (e a excecao
+  // nomeada no conferir-agentes.js), entao o banco pode nao ter linha para ela. Se tiver, respeita
+  // o que veio; se nao, sintetiza um cartao so de leitura, com o mesmo bloco de gasto dos demais.
+  function garantirDono(ags){
+    var temNoBanco=(ags||[]).some(function(a){return a&&a.nome==="Claude";});
+    if(temNoBanco || cards["Claude"]) return;
+    atualizaAg({nome:"Claude",papel:"linha principal — a sua sessão (dono)",status:"linha",squad:"central",cor:"#b5541f"});
+  }
   // -------- pedir check --------
   var checkPedidoEm=null, btnCheck=document.getElementById("pedir-check"), txtCheck=btnCheck.textContent;
   btnCheck.addEventListener("click",function(){
@@ -1686,6 +1775,7 @@
         if(novo) checkChegou();
       }
       ags.forEach(atualizaAg);
+      garantirDono(ags);   // a sessao principal (o dono) tem cartao de gasto mesmo sem linha no banco
       document.getElementById("ag-nota").textContent="ao vivo · atualiza sozinho · “Acionar” abre os caminhos";
       document.getElementById("quando").textContent="ao vivo · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
       atualizaPlacar();
