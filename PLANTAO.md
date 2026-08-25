@@ -161,6 +161,14 @@ regra tem número medido ao lado, senão vira "economize à toa".
 
 A régua, uma frase: **o item mais barato que resolve, e o token que não se gasta é o melhor.**
 
+**MANDATO PERMANENTE (dono, 25/08):** *"quero ter mais controle do que estamos fazendo e quanto
+gastamos... temos como garantir que nesse projeto, SEMPRE vc ira avaliar qual a melhor configuracao
+da IA para otimizar custos e garantir qualidade no resultado?"* — SIM. Em todo despacho, avaliar e
+escolher a config (modelo + esforço) que **otimiza custo E qualidade**, nunca o topo por default;
+subir de tier é decisão com motivo escrito. E o painel passa a mostrar **modelo · esforço · tokens ·
+custo por agente** (colunas novas na mesa_agente, ver MIGRACAO.md) para tornar isso VERIFICÁVEL — o
+dono vê onde o token foi, por frente, em vez de confiar na palavra.
+
 
 ## 4. O ciclo de integração
 

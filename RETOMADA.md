@@ -1,5 +1,27 @@
 # RETOMADA — leia isto primeiro na próxima sessão
 
+## ⏩ SESSÃO 25/08 — PARE AQUI PRIMEIRO
+**A tarefa grande e pendente: MIGRAÇÃO DO SUPABASE.** O dono criou o projeto próprio `brasil`
+(estava tudo no `patinhas`, de outro produto) e pediu a migração. O plano executável, com schema,
+RLS exato, chaves e a parte de auth do dono, está em **`MIGRACAO.md`** — leia-o e execute por fases
+(a Fase 1-3 constrói o `brasil` vazio sem risco; só depois repontar). Foi escrito de propósito para
+rodar barato depois deste `/clear`: **não re-derive o que já está lá.**
+
+Estado em 25/08 (tudo empurrado, CI verde, árvore limpa):
+- **Direção atual: ENSINA/ACERVO.** Item livre `glossario-substancia-descolonial` tem os 3 temas
+  restantes (Critério Brasil, ouro/Methuen, escravização-acumulação) — 1 de 4 feito (Lei de Terras).
+  Editar glossário no jogo EXIGE o passo de banco (PENDENTES 87, o funil reverte se esquecer).
+- **Plantão** de 30 min, mas **só roda com o app aberto** — não é 24/7. A autonomia real
+  (rotina na nuvem) é decisão pendente do dono (ver fim do MIGRACAO.md).
+- **GSC/tráfego**: o dono decidiu ESPERAR a troca de domínio. Não re-levantar.
+- **Painel**: status grudado foi resetado (todos em espera); a raiz (heartbeat) e as métricas
+  novas entram junto com a migração.
+- **tokenmaxxing** é lei (PLANTAO §3.2): modelo por peso, ler por faixa, grep sem base64, portão
+  específico, baile ocioso. Mandato permanente do dono: sempre otimizar custo+qualidade.
+
+---
+
+
 Reescrito em **2026-08-14**, num handoff pedido pelo dono. A versão anterior era de 09/08 e
 descrevia um jogo que não existe mais — ficou obsoleta em cinco dias, o que é a medida do ritmo
 aqui. **Leia depois do `CLAUDE.md` e antes de tocar em qualquer coisa.** Nada abaixo é
