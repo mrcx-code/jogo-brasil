@@ -110,4 +110,34 @@ segunda é a de verdade:
 2. **Rotina na NUVEM** (o certo para autônomo real): uma routine/cron que roda no servidor, não na
    máquina do dono — independe do app estar aberto. É uma decisão de configuração (RemoteTrigger /
    rotina agendada na nuvem) que vale levantar na sessão nova. É o único jeito de "roda de
-   madrugada sozinho" ser verdade. **Decisão do dono pendente.**
+   madrugada sozinho" ser verdade.
+
+## DECISÕES DO DONO — 25/08 (registradas antes de possível /clear)
+
+1. **AUTONOMIA: nuvem (opção 2) + as três travas.** O worker autônomo passa a ser uma **rotina
+   na NUVEM** (roda sem o app do dono aberto). A opção 1 (`caffeinate` + app aberto) fica como
+   modo interativo/diurno, não como autonomia. As TRÊS TRAVAS são obrigatórias e não-negociáveis:
+   (a) **teto de tokens por noite** — bate no teto, para; (b) **idle-bail** — noite sem trabalho
+   que valha custa ~zero; (c) **modelo por peso** — opus só onde raciocínio paga; sonnet/haiku no
+   resto. **REGRA DE COORDENAÇÃO (nuvem × mac × windows):** o worker da nuvem só puxa trabalho
+   **DA FILA** (backlog, já etiquetado por território) e respeita o mesmo lock (`.claude/maquina`
+   + ramos `voo/<id>`). Assim nunca briga com uma sessão interativa: worktree isola a escrita, o
+   git recusa push conflitante, o funil desfaz no vermelho. A configuração da rotina na nuvem é
+   tarefa da sessão nova (RemoteTrigger / rotina agendada).
+
+2. **DEVS: mantém 3 agora; escala para 4-5 DEPOIS da migração.** O gargalo não é o número de devs,
+   é o território — o `src/jogo.ts` é monólito de um escritor por vez. Os 3 devs atuais (jogo/
+   plataforma/dados) já são disjuntos. O 4º/5º só entram quando a migração quebrar o `jogo.ts` em
+   módulos TS e criar território próprio pra eles. Adicionar antes = agente ocioso ou colisão.
+
+3. **AUDITORES: fundir `growth` + `seguranca` num único "porteiro"** (juridico fica SEPARADO, é
+   disciplina distinta). Motivo: cada integração de página pública sobe hoje 2 agentes; com o
+   porteiro sobe 1 → metade do token no caminho quente. IMPLICA mudar: `.claude/agents/` (criar
+   `porteiro.md`, remover `growth.md`+`seguranca.md`), o mapeamento de território no
+   `ferramentas/integrar.js` (PUB e REDE passam a exigir `porteiro`), o elenco em
+   `conferir-agentes.js`, e a `mesa_agente` (a migração recria o elenco — nasce já com `porteiro`,
+   sem growth/seguranca; roster passa de 13 para 12 nomes). É mudança de portão → passa pelo funil.
+
+4. **CONTEÚDO: mantém `pesquisadora-fontes` + `historiador` SEPARADOS.** A separação "quem lê e
+   tabela" × "quem julga e corta" acabou de provar valor (a pesquisadora recusou tarefa fora de
+   escopo em 25/08). Custa 2 spawns por entrega de conteúdo, e vale a pena.
