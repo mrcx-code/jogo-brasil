@@ -62,9 +62,63 @@ function doPainel() {
   return url && chave ? { url, chave } : null;
 }
 
+// O MODELO DE CADA AGENTE — do frontmatter YAML de `.claude/agents/*.md`. A pasta e a verdade.
+function modelosDaPasta() {
+  const base = path.join(RAIZ, '.claude', 'agents');
+  const mapa = {};
+  for (const f of fs.readdirSync(base).filter((x) => x.endsWith('.md'))) {
+    const nome = f.replace(/\.md$/, '');
+    const m = fs.readFileSync(path.join(base, f), 'utf8').match(/^model:\s*(\S+)/m);
+    mapa[nome] = m ? m[1] : 'herda';
+  }
+  return mapa;
+}
+
+// O MAPA DO DASHBOARD (META_AGENTE) — o painel mostra modelo por agente a partir de um mapa
+// ESTATICO no HTML (o navegador nao le a pasta). Este bloco cobra que ele ESPELHE o frontmatter:
+// se um agente troca de modelo e o mapa nao acompanha, o painel passa a mentir em silencio, que
+// e exatamente o que o dono nao quer de um painel de gasto. `Claude` e a sessao principal e nao
+// tem arquivo — nao entra na comparacao com a pasta.
+function metaDoPainel() {
+  const p = path.join(RAIZ, 'dashboard', 'index.html');
+  if (!fs.existsSync(p)) return null;
+  const html = fs.readFileSync(p, 'utf8');
+  const bloco = html.match(/var META_AGENTE\s*=\s*\{([\s\S]*?)\};/);
+  if (!bloco) return null;
+  const mapa = {};
+  const re = /"([^"]+)"\s*:\s*"([^"]+)"/g;
+  let m;
+  while ((m = re.exec(bloco[1]))) mapa[m[1]] = m[2];
+  return mapa;
+}
+
 (async () => {
   const pasta = daPasta();
   if (!pasta) { console.error('não achei `.claude/agents/` — nada a conferir'); process.exit(1); }
+
+  // O MAPA DE MODELO E LOCAL E DETERMINISTICO — confere ANTES da rede, e reprova (exit 1) mesmo
+  // offline. Um painel de gasto que mostra o modelo errado e pior que nao mostrar nenhum.
+  if (!SO_SQL) {
+    const daPastaMod = modelosDaPasta();
+    const noPainel = metaDoPainel();
+    if (noPainel) {
+      const diverg = [];
+      for (const nome of Object.keys(daPastaMod)) {
+        // apenas os apelidos-base sao comparaveis (opus/sonnet/haiku/fable); o painel usa apelido.
+        if (!(nome in noPainel)) { diverg.push(nome + ': falta no META_AGENTE do painel'); continue; }
+        if (noPainel[nome] !== daPastaMod[nome]) {
+          diverg.push(nome + ': pasta diz `' + daPastaMod[nome] + '`, painel diz `' + noPainel[nome] + '`');
+        }
+      }
+      if (diverg.length) {
+        console.log('MODELO NO PAINEL: FALHOU — o mapa META_AGENTE nao espelha o frontmatter:');
+        for (const d of diverg) console.log('  ✗ ' + d);
+        console.log('  Conserte o `var META_AGENTE` em dashboard/index.html.');
+        process.exit(1);
+      }
+      console.log('  modelo no painel: PASSOU — META_AGENTE espelha o frontmatter (' + Object.keys(daPastaMod).length + ' agentes).');
+    }
+  }
 
   const alvo = doPainel();
   if (!alvo) {

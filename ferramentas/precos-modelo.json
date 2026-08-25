@@ -1,0 +1,15 @@
+{
+  "fonte": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "data": "2026-08-25",
+  "moeda": "USD",
+  "unidade": "por_mtok",
+  "nota": "cache_read = 0,1x do input base; 1h cache write = 2x; batch = -50%. Esta plataforma usa cache de 1h no laco principal, entao a maior parte do input entra como cache hit.",
+  "modelos": {
+    "claude-opus-4-8":  { "in_por_mtok": 5,  "cache_read_por_mtok": 0.50, "out_por_mtok": 25 },
+    "claude-opus-5":    { "in_por_mtok": 5,  "cache_read_por_mtok": 0.50, "out_por_mtok": 25 },
+    "claude-sonnet-4-5":{ "in_por_mtok": 3,  "cache_read_por_mtok": 0.30, "out_por_mtok": 15 },
+    "claude-sonnet-5":  { "in_por_mtok": 2,  "cache_read_por_mtok": 0.20, "out_por_mtok": 10 },
+    "claude-haiku-4-5": { "in_por_mtok": 1,  "cache_read_por_mtok": 0.10, "out_por_mtok": 5 },
+    "claude-fable-5":   { "in_por_mtok": 10, "cache_read_por_mtok": 1.00, "out_por_mtok": 50 }
+  }
+}

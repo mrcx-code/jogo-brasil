@@ -610,6 +610,17 @@ if (fs.existsSync(p("ferramentas", "backlog.json"))) {
   console.log("  ferramentas/backlog.json -> dist/dashboard/backlog.json (a fila, atras do Disallow)");
 }
 
+// A TABELA DE PRECO DE MODELO (dono, 25/08). O dashboard mostra o custo ESTIMADO por agente e le
+// os precos por `fetch("precos-modelo.json")` RELATIVO — mesmo desenho do backlog acima. A fonte
+// e `ferramentas/precos-modelo.json` (com URL e data da tabela oficial), que ferramentas/ nao
+// publica; entao o build a copia para dentro de dist/dashboard/. Se ela nao existir, o dashboard
+// cai em "aguardando tabela de preço" e nada quebra. Sem PIN/token/segredo: passa como todo byte.
+if (fs.existsSync(p("ferramentas", "precos-modelo.json"))) {
+  fs.mkdirSync(d("dashboard"), { recursive: true });
+  copiarPublicado(p("ferramentas", "precos-modelo.json"), d("dashboard", "precos-modelo.json"));
+  console.log("  ferramentas/precos-modelo.json -> dist/dashboard/precos-modelo.json (preco por modelo, atras do Disallow)");
+}
+
 // AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
 // já existem (A HISTÓRIA, e depois o glossário e DE ONDE VEM) ganham endereço próprio. Ao
 // contrário da `mesa` acima, estas são PÚBLICAS e indexáveis — o dono QUER que as pessoas as
