@@ -15,7 +15,7 @@
 // ritmo. Fila que seca sozinha e não avisa é a versão silenciosa de o projeto parar.
 //
 // CONSTRUTOR × REATIVO, e a distinção é o coração deste portão. Só os CONSTRUTORES são contados:
-// eles vivem de fila. Os REATIVOS (qa, seguranca, growth, juridico, arte, pre-integrador) são
+// eles vivem de fila. Os REATIVOS (qa, porteiro, juridico, arte, pre-integrador) são
 // convocados pelo funil quando uma entrega toca o território deles — ter zero item é o estado
 // normal deles, e cobrá-los aqui geraria vermelho que não é defeito. O `pm` é o que ENCHE, então
 // também não se conta: se ele tiver zero, é sinal para despachá-lo, não para reprovar.

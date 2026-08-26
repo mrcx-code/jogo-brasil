@@ -166,8 +166,8 @@ Complemento do "quem edita não julga o próprio trabalho", escrito para as TRÊ
      redigitou? o número da página bate com o que o acervo afirma?
    - entrega do **ACERVO** → lente de JOGO/PLATAFORMA: o texto cabe na fala e na tela? a
      página gerada muda algum byte? o esquema aguenta carga hostil?
-2. **`qa` e `seguranca` são centrais** e julgam qualquer squad — é para isso que não
-   pertencem a nenhuma.
+2. **`qa` e `porteiro` são centrais** e julgam qualquer squad — é para isso que não
+   pertencem a nenhuma. (O `porteiro` funde growth+segurança desde 26/08.)
 3. **Quem reprovou RE-AUDITA — com sondas PRÓPRIAS, nunca as do autor.** Precedente de 21/08
    (dupla hardening, 2ª volta): a seguranca re-auditou o que ela mesma reprovara rodando
    sonda própria (laço 1135→50 POSTs; XSS que não executa; controle 6/6 visto reprovando) em

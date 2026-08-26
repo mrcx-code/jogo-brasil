@@ -454,7 +454,7 @@
           <div class="cfg-linha"><span class="cfg-k">teto</span><span class="cfg-v">8 em voo = 3 pesado (opus) + 3 médio (sonnet) + 2 leve (haiku). Frota acima disso só com <code>ultracode</code>.</span></div>
           <div class="cfg-linha"><span class="cfg-k">cadência</span><span class="cfg-v">o plantão pulsa aos minutos <b>:09</b> e <b>:39</b> de cada hora.</span></div>
           <div class="cfg-linha"><span class="cfg-k">lei do contínuo</span><span class="cfg-v">sempre ≥ 1 agente ativo. Zero agentes com item <i>livre</i> na fila é defeito de plantão, não pausa.</span></div>
-          <div class="cfg-linha"><span class="cfg-k">funil por território</span><span class="cfg-v">o gatilho de auditoria segue o território do item: mexeu em página pública → growth; em <code>src/</code> ou rede → segurança; conteúdo histórico → historiador.</span></div>
+          <div class="cfg-linha"><span class="cfg-k">funil por território</span><span class="cfg-v">o gatilho de auditoria segue o território do item: mexeu em página pública ou rede → porteiro; em <code>src/</code> (mecânica) → qa; conteúdo histórico → historiador.</span></div>
         </div>
         <p class="comof-fim">Esta é uma vista de leitura — nada aqui é editável. Para mudar um botão do sistema, me peça no chat.</p>
       </div>
@@ -1287,8 +1287,8 @@
   var META_AGENTE={
     "Claude":"opus",
     "arte":"fable","dev-dados":"opus","dev-jogo":"opus","dev-plataforma":"opus",
-    "growth":"sonnet","historiador":"opus","juridico":"opus","pesquisadora-fontes":"sonnet",
-    "pm":"fable","pre-integrador":"haiku","qa":"opus","seguranca":"opus"
+    "historiador":"opus","juridico":"opus","pesquisadora-fontes":"sonnet","porteiro":"opus",
+    "pm":"fable","pre-integrador":"haiku","qa":"opus"
   };
   // apelido do frontmatter -> chave canonica na tabela de preco (ferramentas/precos-modelo.json)
   var MODELO_CANON={opus:"claude-opus-4-8",sonnet:"claude-sonnet-4-5",haiku:"claude-haiku-4-5",fable:"claude-fable-5"};

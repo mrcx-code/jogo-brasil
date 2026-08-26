@@ -84,9 +84,10 @@ toa"*. O `.claude/agents/` traz um modelo por papel — é o ponto de partida, n
 despachar, escolha pela dificuldade REAL do item:
 
 - **opus** — só onde o raciocínio paga: mudança de mecânica ou economia no `src/jogo.ts`, o
-  `qa` tentando refutar, `seguranca`, e o texto histórico do `historiador` (§2 não se arrisca).
+  `qa` tentando refutar, o `porteiro` (auditoria de infra/segurança de página pública), e o
+  texto histórico do `historiador` (§2 não se arrisca).
 - **sonnet** — o grosso do trabalho de forma: ajuste de CSS, gerador de seção, texto de
-  divulgação, conserto de portão já diagnosticado, revisão de leitura. `growth` já é sonnet.
+  divulgação, conserto de portão já diagnosticado, revisão de leitura.
 - **haiku** — o mecânico de verdade: renomear, somar à lista branca, contar, um `--sql` de
   migração. Gastar opus nisso é queimar token à toa, que é o que o dono pediu para evitar.
 - **efeito colateral desta máquina:** `arte` e `pm` são **fable**, que **exige créditos** na
