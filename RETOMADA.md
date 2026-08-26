@@ -23,8 +23,13 @@ Estado em 25/08 (tudo empurrado, CI verde, árvore limpa):
 - **Decisões 25/08 (no MIGRACAO.md §DECISÕES) e tarefas que a migração carrega junto:**
   (a) **house keeping da mesa** — pendências/decisões/pedidos viram fonte única na mesa, dashboard
   só lê (fazer no `brasil`, uma vez só); (b) **porteiro** — fundir `growth`+`seguranca` num agente
-  (muda `.claude/agents/`, `integrar.js`, `conferir-agentes.js`, `mesa_agente`); (c) devs escalam
-  pra 4-5 só DEPOIS da migração (o monólito é o gargalo, não o nº de devs).
+  (muda `.claude/agents/`, `integrar.js`, `conferir-agentes.js`, `mesa_agente`) — o dono confirmou
+  em 25/08 fazer o código JUNTO da migração; (c) devs escalam pra 4-5 só DEPOIS da migração (o
+  monólito é o gargalo, não o nº de devs).
+- **PRÓXIMA PRIORIDADE DE PRODUTO, decidida pelo dono em 25/08: o GLOSSÁRIO PÚBLICO.** Depois da
+  migração, tirar os 64% do texto de trás do botão e transformar em seção navegável que vale
+  sozinha (SEO + a virada "cada seção vale sozinha" de 19/08), com o material que JÁ existe.
+  Vem antes de "home como proposta" e de "instrumentar tokens".
 - **tokenmaxxing** é lei (PLANTAO §3.2): modelo por peso, ler por faixa, grep sem base64, portão
   específico, baile ocioso. Mandato permanente do dono: sempre otimizar custo+qualidade.
 
