@@ -14,8 +14,9 @@
 //   · Worktrees acumulavam às dezenas (60 em 21/08) — no verde, o worktree e o ramo morrem.
 //
 // GATILHOS (o diff manda, não a lembrança):
-//   página pública  -> growth       (plataforma/, secoes geradas, geradores, dashboard/)
-//   rede/chave/CSP  -> seguranca    (dashboard/, receber.*, construir.js, src/index.html, workflows)
+//   página pública  -> porteiro     (plataforma/, secoes geradas, geradores, dashboard/)
+//   rede/chave/CSP  -> porteiro     (dashboard/, receber.*, construir.js, src/index.html, workflows)
+//   (o porteiro funde growth+seguranca desde 26/08: toda pagina publica ja subia os dois)
 //   história        -> historiador  (o diff de src/jogo.ts toca EPOCAS/GLOSSARIO/LINHA_TEMPO/FONTES)
 //   mecânica/portão -> qa           (src/jogo.ts, src/estilo.css, test/)
 //
@@ -28,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const PAPEIS = ['growth', 'seguranca', 'historiador', 'qa'];
+const PAPEIS = ['porteiro', 'historiador', 'qa'];
 
 function morre(msg) { console.error('\nINTEGRAR RECUSOU: ' + msg); process.exit(1); }
 function git(args, opts) {
@@ -85,14 +86,13 @@ for (const linha of diffCru) {
 if (!arquivos.length) morre('o ramo não traz mudança nenhuma sobre a main.');
 const exigidos = new Set();
 const PUB = /^(plataforma|historia|glossario|de-onde-vem|territorio|dashboard)\/|^ferramentas\/gerar-/;
-// REDE = o que pede olho de SEGURANCA. Alargado em 24/08 (PENDENTES 82): antes, apagar o bloco
+// REDE = o que pede olho de infra/seguranca (hoje do PORTEIRO). Alargado em 24/08 (PENDENTES 82): antes, apagar o bloco
 // headers do vercel.json (CSP, X-Frame-Options do /dashboard), mexer no pin-local, na RLS
 // (fila-auth.sql), no esquema, no proprio funil ou no guarda integrava com --placar e mais nada.
 const REDE = /^dashboard\/|^ferramentas\/(receber|construir|servir|pin-local|fila-auth|conteudo-esquema|conteudo-)|^src\/index\.html$|^\.github\/workflows\/|^vercel\.json$|^\.claude\/(hooks|settings)|^ferramentas\/integrar\.js$/;
 const MEC = /^src\/(jogo\.ts|estilo\.css)$|^test\//;
 for (const a of arquivos) {
-  if (PUB.test(a)) exigidos.add('growth');
-  if (REDE.test(a)) exigidos.add('seguranca');
+  if (PUB.test(a) || REDE.test(a)) exigidos.add('porteiro');
   if (MEC.test(a)) exigidos.add('qa');
 }
 if (arquivos.includes('src/jogo.ts')) {
@@ -127,7 +127,7 @@ if (SO_GATILHOS) {
   if (!exigidos.size) console.log('  nenhuma auditoria exigida — só --placar.');
   for (const p of exigidos) {
     const dele = arquivos.filter(a =>
-      (p === 'growth' && PUB.test(a)) || (p === 'seguranca' && REDE.test(a)) ||
+      (p === 'porteiro' && (PUB.test(a) || REDE.test(a))) ||
       (p === 'qa' && MEC.test(a)) || (p === 'historiador' && a === 'src/jogo.ts'));
     console.log('  exige "' + p + '": ' + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
   }
@@ -138,7 +138,7 @@ for (const p of exigidos) {
   if (flags['ok-' + p]) auditoria.push(p + ':ok(' + flags['ok-' + p] + ')');
   else if (flags['sem-' + p]) auditoria.push(p + ':PULADO(' + flags['sem-' + p] + ')');
   else morre('o diff exige auditoria de "' + p + '" (' + arquivos.filter(a =>
-    (p === 'growth' && PUB.test(a)) || (p === 'seguranca' && REDE.test(a)) ||
+    (p === 'porteiro' && (PUB.test(a) || REDE.test(a))) ||
     (p === 'qa' && MEC.test(a)) || (p === 'historiador' && a === 'src/jogo.ts')).slice(0, 3).join(', ') +
     '...). Rode o agente e passe --ok-' + p + ' "nota", ou assuma por escrito com --sem-' + p + ' "motivo".');
 }

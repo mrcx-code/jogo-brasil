@@ -23,8 +23,7 @@ cobrado por máquina. Este documento é a diferença entre um papel e um agente.
 | **historiador** | opus | worktree | sim (texto) | `ROSTOS.md` é **somente leitura** |
 | **qa** | opus | worktree | **não** — só `test/` | não conserta o jogo; devolve o achado |
 | **juridico** | opus | — | não | aponta risco e propõe texto; não publica nada sozinho |
-| **growth** | sonnet | — | não | não inventa número, não toca conteúdo histórico nem §2 |
-| **seguranca** | opus | — | não | não relaxa trava por conveniência; o que abre fluxo vai ao dono |
+| **porteiro** | opus | — | não | funde growth+segurança (26/08): guarda quem ENTRA (SEO/og:/retorno) e o que SAI (CSP/chaves/RLS) de página pública; não inventa número, não relaxa trava por conveniência, não toca §2 |
 
 ## As TRÊS SQUADS — JOGO · PLATAFORMA · ACERVO (destino declarado em 21/08; esqueleto)
 
@@ -38,7 +37,7 @@ ferramenta que for ler a coluna confere o valor pelo MCP, não por este arquivo)
 
 ### O núcleo central — não pertence a squad nenhuma
 **Claude** (linha principal: despacho, integração por merge, plantão) · **pm** · **qa** ·
-**seguranca** · **juridico** · **pre-integrador** (leve, 22/08: roda portoes no worktree e prepara as flags; o merge continua so do plantao). O que é central continua central e **nunca desce para squad**:
+**porteiro** (funde growth+segurança, 26/08) · **juridico** · **pre-integrador** (leve, 22/08: roda portoes no worktree e prepara as flags; o merge continua so do plantao). O que é central continua central e **nunca desce para squad**:
 o **funil** (`ferramentas/integrar.js`, portões por exit code entre cada merge), o **placar**
 (EQUIPE.md §5), o **§2 inteiro** (representação é do dono; PARE sobe em pergunta fechada),
 a zona do dono (`TERRITORIO.md` — não vira ticket de squad nenhuma), o backlog e a mesa.
@@ -48,11 +47,11 @@ Dona por superfície: `src/` (jogo.ts, estilo.css, index.html — fora a zona do
 esteira da arte (`test/inline-*.js`, `cortar-pacote.js`, `embutir-heroi.js`,
 `requalificar.js`), `ferramentas/pacotes.js` e os `pack-*` que o build emite.
 
-### PLATAFORMA — `dev-plataforma` · `growth`
+### PLATAFORMA — `dev-plataforma` (o `porteiro`, central, audita as páginas públicas dela)
 Dona por superfície: `ferramentas/gerar-*.js` (as seções são GERADAS — mudança no gerador,
 nunca na saída), `plataforma/`, `territorio/`, `dashboard/`, `ferramentas/servir.js`,
 `ferramentas/receber.*`, o `construir.js` (dono nomeado; o que tocar empacotamento do JOGO —
-packs, CSP, dedup — consulta o dev-jogo antes) e `divulgacao/` (growth; nada publica sem
+packs, CSP, dedup — consulta o dev-jogo antes) e `divulgacao/` (o porteiro cuida; nada publica sem
 sign-off do dono).
 
 ### ACERVO — `historiador` · `dev-dados` (ATIVO desde 22/08, fase 1 fechada) · `pesquisadora-fontes` (contratada 22/08: le e tabela com lugar de fala; o historiador julga e corta)
@@ -98,7 +97,7 @@ plantão durável (30 em 30 min) é o ÚNICO consumidor da fila mesa_resposta
    ↓
 pm lê o estado → sprint com territórios DISJUNTOS
    ↓
-dev · historiador (e arte/growth/juridico/seguranca no que é deles) em paralelo,
+dev · historiador (e arte/porteiro/juridico no que é deles) em paralelo,
 cada um que toca src/ no worktree dele — e a entrega termina COMMITADA no ramo
    ↓
 qa tenta REFUTAR (não confirmar) — em LOTE, uma rodada por leva de alegações,
