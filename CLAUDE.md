@@ -365,6 +365,14 @@ Sem a camada 1 o check vira relatório de tarefas, que é exatamente o que ele n
 opção marcada.** Ele responde por número — "1. C, 2. A" — e isso só funciona se cada item for
 uma pergunta fechada com saídas nomeadas.
 
+> **⛔ NUNCA MUDE O FORMATO DO CHECK. SEMPRE clicável nativo — SEMPRE, SEM EXCEÇÃO.** Reforçado
+> pelo dono em 2026-08-25 com todas as letras: *"SEMPRE deve manter as opções clicáveis, SEMPRE
+> SEMPRE!! garanta que isso nunca mais aconteça, NUNCA"*. As decisões do check SÃO a ferramenta
+> de pergunta clicável nativa do Claude (AskUserQuestion), sempre. **Proibido**, sem exceção:
+> publicar Artifact/página, inventar outro layout, ou qualquer "adivinhação" de formato que ele
+> não pediu. O que ele não pediu explicitamente, NÃO se cria. Se a forma clicável não couber
+> (mais de 4 decisões), o excedente vai em lista escrita ABAIXO — nunca numa página.
+
 Regras que fazem o check valer alguma coisa:
 
 1. **Toda opção precisa de consequência dita.** "(a) faz agora / (b) faz depois" não é opção;
