@@ -386,12 +386,15 @@ Regras que fazem o check valer alguma coisa:
    é trabalho, não sorteio — vai o que trava outra pessoa, o que trava arte, e o que fica pior
    quanto mais se espera.
 
-7. **A PÁGINA PUBLICADA, pedida pelo dono em 2026-08-18.** O check é lido no celular, e rolagem
-   de terminal é o pior lugar possível para uma mesa de decisão com print, número e opção lado a
-   lado. Publique o check como **página privada** (Artifact) e entregue o link junto do resumo:
-   as quatro camadas na página, os prints que sustentam cada número, e as decisões clicáveis
-   continuando na conversa, porque é ali que ele responde. A página é o material de leitura; a
-   pergunta continua sendo feita aqui.
+7. **SEM PÁGINA PUBLICADA — só o clicável nativo. REVERTIDO PELO DONO em 2026-08-25.** A regra de
+   18/08 mandava publicar o check como página privada (Artifact) e entregar o link. O dono a
+   DERRUBOU com todas as letras: *"quero manter o padrão de sempre clicável nativo aqui do
+   claude"* — e o motivo é concreto: a página **não é clicável pra ele** (*"eu não consigo
+   clicar"*) e foi trabalho que ele não pediu. Então o check é, sempre: as **quatro camadas**
+   (metas/objetivos/oportunidades/decisões) escritas na CONVERSA, e as decisões na **ferramenta
+   de pergunta clicável nativa** (até 4 perguntas, 4 opções, a recomendada marcada). NUNCA
+   publique Artifact para um check. A regra 6 (forma interativa, no máx. 4 perguntas) continua
+   valendo; esta só remove a página.
 
 
 ```bash
