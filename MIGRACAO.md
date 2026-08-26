@@ -1,5 +1,39 @@
 # MIGRAÇÃO PARA O PROJETO `brasil` NO SUPABASE — plano executável (escrito 25/08)
 
+## ✅ ESTADO — 26/08 (Fases 1-3 estruturais FEITAS no brasil; NÃO refaça)
+Executado nesta data no `brasil` (`frrmiompmxjbpoxegyeb`), autorizado pelo dono via check:
+- **Fase 1 — schema COMPLETO**: as 7 tabelas criadas, RLS ligado nas 7. `conteudo_*` com
+  `force row level security` + policies anon(publicado+vigente)/auth(true) — conferido. As
+  `mesa_agente` já nasceram com as **8 colunas novas de custo** (modelo, esforco, tokens_rodada,
+  tokens_acum, custo_rodada_usd, custo_acum_usd, rodadas, ultima_duracao_ms).
+- **Fase 2 — dados de conteúdo CARREGADOS**: 17 grupos · **181 verbetes** · 644 relações, todos
+  `publicado`+vigente. Carregados **server-side** por um Edge Function de uso único (`migrar-conteudo`)
+  que buscou o `conteudo-carga.sql` fresco de um branch temporário e o rodou via `SUPABASE_DB_URL`
+  (custo ~zero de token; a carga por MCP à mão foi recusada por ser cara). A função foi **DESARMADA**
+  depois (v3 inerte, 410) — resta só **apagá-la pelo painel** do Supabase. O branch temp foi apagado.
+- **Fase 3 — verificado**: contagens batem (17/181/644); anon lê 181 publicados; marcar um verbete
+  como `rascunho` o **esconde do anon** (cai p/ 180, busca direta vazia) — RLS provado. A integridade
+  do espelho é transitiva: a `conteudo-carga.js` auto-verifica "ida e volta" contra o jogo na geração,
+  e o Edge Function carregou os **bytes exatos** desse arquivo.
+- **mesa_agente**: 13 nomes semeados (roster ATUAL, com growth+seguranca, SEM porteiro — pra o
+  `conferir-agentes` bater com a pasta `.claude/agents/`). A fusão do **porteiro** continua item de
+  funil à parte (decisão 6), muda pasta+DB juntos.
+
+### O QUE FALTA (nesta ordem)
+1. **Fase 4 — AUTH DO DONO (bloqueia as policies de escrita das mesa_*)**: as `mesa_pedido`/`mesa_resposta`
+   precisam do **UUID do dono NO brasil** (não o do patinhas) para as policies de INSERT/UPDATE. Hoje
+   `mesa_*` têm só SELECT (escrita fail-closed). O dono cria o usuário no painel do brasil e passa o UUID.
+2. **mesa_item / mesa_pedido / mesa_resposta — dados**: NÃO copiados de propósito. São estado de
+   trabalho e o **house keeping da mesa (decisão 5)** vai reestruturá-los; copiar verbatim agora seria
+   trabalho jogado fora. Popular na etapa de housekeeping.
+3. **Repontar o repo (Fase 4)** — só com **OK explícito do dono** (decisão dele no check de 26/08).
+4. **carga.sql no main está DESATUALIZADO** vs o jogo (faltam edições tipo "IBGE Censo 2022, 2ª edição,
+   2026"; `tem_numero` 108→109). O brasil recebeu a versão FRESCA (regenerada nesta sessão), mas o
+   arquivo commitado no main segue velho. Regenerar+commitar `node ferramentas/conteudo-carga.js` no
+   main é housekeeping à parte (não afeta runtime — o jogo lê do `src/jogo.ts`).
+
+---
+
 Escrito para a sessão NOVA executar barato depois de um `/clear` — o dono criou o projeto próprio
 e pediu a migração, e esta sessão ficou longa demais para fazê-la sem desperdício. Tudo o que a
 derivação cara já produziu (schema, RLS exato, chaves) está aqui embutido: **não re-derive.**
