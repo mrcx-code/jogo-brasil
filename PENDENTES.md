@@ -1656,7 +1656,7 @@ mancha de pixels nao-transparentes do `#heroHD` da **102 px de altura onde ela t
 aproximacao pior ainda (largura fixa de 40 px, x-20, errando 13 px) e foi corrigido.
 
 
-## 56 — O CLAUDE.md §3 ainda diz DEZ eventos, e agora sao ONZE — dono/plantao
+## 56 — ~~O CLAUDE.md §3 ainda diz DEZ eventos, e agora sao ONZE~~ — FEITO em 27/08 (dono autorizou no encerramento; §3.2 agora diz "Onze" e lista o evento `saiu para a plataforma`)
 
 O evento `saiu` entrou em 22/08 por decisao do dono e o portao do `encaixe.js` bloco 17b ja o
 cobra (11 na fonte, 11 disparados, lista branca por evento com `saiu: []`). O que **nao** foi
