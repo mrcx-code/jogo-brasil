@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>São Paulo — a linha do tempo que se caminha (protótipo)</title>
+<style>
+  *{margin:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:#0e1116;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;user-select:none}
+  #c{position:fixed;inset:0;display:block}
+  .hud{position:fixed;color:#f2ead6;z-index:5;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none}
+  .top{top:0;left:0;padding:16px 20px}
+  .top h1{font:800 1.05rem/1.1 "Georgia",serif}
+  .top .sub{font:600 .7rem/1.4 ui-monospace,monospace;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .ano{position:fixed;top:14px;right:20px;z-index:5;color:#ffe6b0;font:800 2.4rem/1 "Georgia",serif;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+  .cidadeAtual{position:fixed;top:64px;right:20px;z-index:5;color:#f2ead6;font:700 .85rem/1.2 ui-monospace,monospace;opacity:.9;text-align:right}
+  .barra{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg,rgba(8,10,14,.85),transparent);display:flex;flex-direction:column;gap:8px}
+  .barra .linha{display:flex;align-items:center;gap:12px}
+  .barra input[type=range]{flex:1;accent-color:#c9702a;height:26px}
+  .play{pointer-events:auto;border:1px solid rgba(255,255,255,.25);background:rgba(30,34,24,.6);color:#f2ead6;
+    width:44px;height:44px;border-radius:50%;font-size:1.1rem;cursor:pointer;flex:0 0 auto}
+  .marcos{display:flex;justify-content:space-between;color:#cdbf9d;font:600 .6rem/1 ui-monospace,monospace;opacity:.7;padding:0 46px 0 4px}
+  .dica{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:5;color:#f2ead6;
+    font:600 .78rem/1.5 ui-monospace,monospace;text-align:center;background:rgba(10,12,8,.45);
+    padding:10px 16px;border-radius:6px;backdrop-filter:blur(3px);transition:opacity .6s;pointer-events:none}
+  .dica.off{opacity:0}
+  .marca{position:fixed;bottom:2px;left:8px;color:#8a806a;opacity:.6;font:500 .58rem/1 ui-monospace,monospace;z-index:7;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud top"><h1>São Paulo — a linha do tempo que se caminha</h1>
+  <div class="sub">protótipo · WASD ou toque para andar · arraste p/ girar câmera</div></div>
+<div class="ano" id="ano">1532</div>
+<div class="cidadeAtual" id="cidadeAtual"></div>
+<div class="dica" id="dica">ande até uma cidade (WASD ou toque no chão)<br>arraste a linha do tempo ↓ e veja o estado se povoar</div>
+<div class="barra">
+  <div class="linha">
+    <button class="play" id="play">▶</button>
+    <input type="range" id="slider" min="1530" max="2030" value="1530" step="10">
+  </div>
+  <div class="marcos"><span>1530</span><span>1650</span><span>1750</span><span>1850</span><span>1950</span><span>2030</span></div>
+</div>
+<div class="marca">demo de conceito · contorno IBGE (SP) · datas de fundação a confirmar · §2/conteúdo com o dono</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ---- cidades de SP: nome, ano de fundação (registro municipal, a firmar), lat, lon ----
+const CIDADES = [
+  ['São Vicente',1532,-23.963,-46.391],['Santos',1546,-23.960,-46.333],['São Paulo',1554,-23.550,-46.633],
+  ['Itanhaém',1561,-24.183,-46.788],['Iguape',1538,-24.708,-47.555],['Taubaté',1645,-23.026,-45.555],
+  ['Guaratinguetá',1651,-22.816,-45.192],['Sorocaba',1654,-23.501,-47.458],['Jundiaí',1655,-23.186,-46.884],
+  ['Itu',1657,-23.264,-47.299],['São José dos Campos',1767,-23.179,-45.887],['Piracicaba',1767,-22.725,-47.649],
+  ['Bragança Paulista',1763,-22.952,-46.542],['Campinas',1774,-22.905,-47.061],['Franca',1805,-20.538,-47.401],
+  ['Amparo',1829,-22.701,-46.767],['São José do Rio Preto',1852,-20.819,-49.379],['Ribeirão Preto',1856,-21.177,-47.810],
+  ['Botucatu',1855,-22.887,-48.445],['Araraquara',1817,-21.794,-48.175],['Bauru',1896,-22.314,-49.060],
+  ['Presidente Prudente',1917,-22.125,-51.389],['Santo André',1938,-23.663,-46.538],['Marília',1929,-22.213,-49.946],
+];
+const ANO0=1530, ANO1=2030, PASSO=10;
+
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=new THREE.Color('#dcc79a'); scene.fog=new THREE.Fog('#dcc79a',120,360);
+const camera=new THREE.PerspectiveCamera(52,1,0.1,900);
+const sol=new THREE.DirectionalLight(0xffe9c0,1.6); sol.position.set(60,90,40); scene.add(sol);
+scene.add(new THREE.HemisphereLight(0xffffff,0x4a5a3a,.6));
+
+// ---- projeção lat/lon -> mundo ----
+const CLON=-48.64, CLAT=-22.55, SCALE=26; // graus -> unidades
+const proj=(lon,lat)=>[ (lon-CLON)*SCALE, -(lat-CLAT)*SCALE ]; // [x, z]
+
+// ---- o estado (extrude do contorno) ----
+const stateGroup=new THREE.Group(); scene.add(stateGroup);
+let bounds={minx:0,maxx:0,minz:0,maxz:0};
+fetch('sp.json').then(r=>r.json()).then(gj=>{
+  const geom=(gj.features?gj.features[0]:gj).geometry;
+  const polys = geom.type==='MultiPolygon'?geom.coordinates:[geom.coordinates];
+  const mat=new THREE.MeshStandardMaterial({color:'#8a9b5a',flatShading:true,roughness:1});
+  const sideMat=new THREE.MeshStandardMaterial({color:'#6d5a34',flatShading:true,roughness:1});
+  let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9;
+  polys.forEach(poly=>{
+    const ring=poly[0];
+    const shape=new THREE.Shape();
+    ring.forEach(([lon,lat],i)=>{ const [x,z]=proj(lon,lat); minx=Math.min(minx,x);maxx=Math.max(maxx,x);minz=Math.min(minz,z);maxz=Math.max(maxz,z);
+      if(i===0)shape.moveTo(x,z); else shape.lineTo(x,z); });
+    for(let h=1;h<poly.length;h++){ const hole=new THREE.Path(); poly[h].forEach(([lon,lat],i)=>{const[x,z]=proj(lon,lat); i===0?hole.moveTo(x,z):hole.lineTo(x,z);}); shape.holes.push(hole); }
+    const eg=new THREE.ExtrudeGeometry(shape,{depth:3,bevelEnabled:false});
+    eg.rotateX(-Math.PI/2); // deita: Y vira altura
+    const m=new THREE.Mesh(eg,[mat,sideMat]); stateGroup.add(m);
+  });
+  bounds={minx,maxx,minz,maxz};
+  // água em volta
+  const w=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000), new THREE.MeshStandardMaterial({color:'#4a83a0',roughness:.4}));
+  w.rotation.x=-Math.PI/2; w.position.y=-0.6; scene.add(w);
+  colocarCidades(); posInicial();
+});
+
+// ---- cidades ----
+const cityMeshes=[];
+const cityMat=new THREE.MeshStandardMaterial({color:'#c9702a',flatShading:true,roughness:.7,emissive:'#3a1e08'});
+function colocarCidades(){
+  CIDADES.forEach(([nome,ano,lat,lon])=>{
+    const [x,z]=proj(lon,lat);
+    const g=new THREE.Group(); g.position.set(x,3,z);
+    const pin=new THREE.Mesh(new THREE.CylinderGeometry(.5,.7,2.4,6), cityMat); pin.position.y=1.2; g.add(pin);
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(.9,10,10), new THREE.MeshStandardMaterial({color:'#ffd9a8',emissive:'#c9702a',emissiveIntensity:.5})); dot.position.y=2.7; g.add(dot);
+    g.scale.setScalar(0); g.userData={nome,ano,x,z}; stateGroup.add(g); cityMeshes.push(g);
+  });
+}
+
+// ---- personagem ----
+const hero=new THREE.Group();
+const corpo=new THREE.Mesh(new THREE.CapsuleGeometry(.9,1.6,4,8), new THREE.MeshStandardMaterial({color:'#b5541f',flatShading:true}));
+corpo.position.y=1.8; hero.add(corpo);
+const cabeca=new THREE.Mesh(new THREE.SphereGeometry(.7,10,10), new THREE.MeshStandardMaterial({color:'#e8b98a'})); cabeca.position.y=3.4; hero.add(cabeca);
+const frente=new THREE.Mesh(new THREE.ConeGeometry(.35,.9,4), new THREE.MeshStandardMaterial({color:'#33240f'})); frente.rotation.x=Math.PI/2; frente.position.set(0,1.8,1); hero.add(frente);
+hero.position.set(0,3,0); scene.add(hero);
+
+const controls=new OrbitControls(camera,canvas);
+controls.enableDamping=true; controls.dampingFactor=.1; controls.enablePan=false;
+controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=18; controls.maxDistance=120;
+
+function posInicial(){ // começa na capital
+  const sp=CIDADES.find(c=>c[0]==='São Paulo'); const [x,z]=proj(sp[3],sp[2]);
+  hero.position.set(x,3,z); camera.position.set(x,40,z+55); controls.target.set(x,3,z);
+}
+
+// ---- movimento: WASD + toque-para-ir ----
+const teclas={}; addEventListener('keydown',e=>teclas[e.key.toLowerCase()]=true); addEventListener('keyup',e=>teclas[e.key.toLowerCase()]=false);
+let alvo=null; const ray=new THREE.Raycaster(); const chaoY=3;
+let dicaOff=false;
+canvas.addEventListener('pointerdown',e=>{ if(!dicaOff){document.getElementById('dica').classList.add('off');dicaOff=true;} });
+canvas.addEventListener('dblclick',e=>irPara(e));
+let downT=0, downXY=[0,0];
+canvas.addEventListener('pointerdown',e=>{downT=performance.now();downXY=[e.clientX,e.clientY];});
+canvas.addEventListener('pointerup',e=>{ const dt=performance.now()-downT, dd=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);
+  if(dt<300 && dd<8) irPara(e); }); // toque curto sem arrastar = ir
+function irPara(e){ const r=canvas.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1), camera);
+  const p=new THREE.Vector3(); if(ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),-chaoY),p)) alvo=p; }
+
+// ---- linha do tempo ----
+const slider=document.getElementById('slider'), anoEl=document.getElementById('ano'), cidEl=document.getElementById('cidadeAtual');
+let ano=ANO0, tocando=false, ultimoPasso=0;
+function setAno(a){ ano=a; anoEl.textContent=(a<=ANO0?'até 1530':a+'s'); slider.value=a;
+  let n=0; cityMeshes.forEach(g=>{ const on = g.userData.ano<=a+9; g.userData.t = on?1:0; if(on)n++; });
+  cidEl.dataset.n=n; }
+slider.addEventListener('input',()=>setAno(+slider.value));
+document.getElementById('play').onclick=()=>{ tocando=!tocando; document.getElementById('play').textContent=tocando?'⏸':'▶'; };
+
+let cidadePerto='';
+function tick(){
+  // andar
+  const v=new THREE.Vector3();
+  const dir=new THREE.Vector3(); camera.getWorldDirection(dir); dir.y=0; dir.normalize();
+  const right=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,1,0)).normalize();
+  if(teclas['w']||teclas['arrowup'])v.add(dir); if(teclas['s']||teclas['arrowdown'])v.sub(dir);
+  if(teclas['d']||teclas['arrowright'])v.add(right); if(teclas['a']||teclas['arrowleft'])v.sub(right);
+  if(v.lengthSq()>0){ v.normalize().multiplyScalar(0.7); alvo=null; }
+  else if(alvo){ const to=new THREE.Vector3(alvo.x-hero.position.x,0,alvo.z-hero.position.z); if(to.length()>1.2){ v.copy(to).normalize().multiplyScalar(0.7);} else alvo=null; }
+  if(v.lengthSq()>0){ const nx=hero.position.x+v.x, nz=hero.position.z+v.z;
+    hero.position.x=nx; hero.position.z=nz; hero.rotation.y=Math.atan2(v.x,v.z);
+    corpo.position.y=1.8+Math.abs(Math.sin(performance.now()*0.012))*0.25; // "passada"
+  }
+  // câmera segue
+  const desired=new THREE.Vector3(hero.position.x,hero.position.y,hero.position.z);
+  controls.target.lerp(desired,0.1);
+  // cidades crescem/encolhem + detecta a mais próxima
+  let melhor=null,md=1e9;
+  cityMeshes.forEach(g=>{ const s=g.scale.x; const t=g.userData.t||0; g.scale.setScalar(s+(t-s)*0.12);
+    g.children[1].rotation.y+=0.03;
+    if(t>0.5){ const d=Math.hypot(g.userData.x-hero.position.x,g.userData.z-hero.position.z); if(d<md){md=d;melhor=g;} } });
+  cidadePerto = (melhor&&md<14)?`▸ ${melhor.userData.nome} · desde ${melhor.userData.ano}`:'';
+  cidEl.textContent=cidadePerto || ((cidEl.dataset.n||0)+' cidades fundadas');
+  if(tocando && performance.now()-ultimoPasso>700){ ultimoPasso=performance.now(); let a=ano+PASSO; if(a>ANO1){a=ANO0;} setAno(a); }
+  controls.update(); renderer.render(scene,camera);
+  requestAnimationFrame(tick);
+}
+function resize(){ renderer.setSize(innerWidth,innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize',resize); resize(); setAno(ANO0); tick();
+</script>
+</body>
+</html>

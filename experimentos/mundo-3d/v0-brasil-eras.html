@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>BRASIL — Território no passar das eras (protótipo)</title>
+<style>
+  :root{ --tinta:#33240f; --papel:#efe3c4; }
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#0d0f0a;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #c{position:fixed;inset:0;display:block}
+  .hud{position:fixed;left:0;right:0;pointer-events:none;color:#f4ead0;z-index:5;
+    text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .top{top:0;padding:18px 20px}
+  .top h1{font:800 1.15rem/1.05 "Georgia",serif;letter-spacing:.02em}
+  .top .sub{font:500 .78rem/1.4 ui-monospace,monospace;opacity:.85;margin-top:3px;letter-spacing:.04em;text-transform:uppercase}
+  .dica{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#f4ead0;opacity:.9;
+    font:600 .8rem/1.5 ui-monospace,monospace;text-align:center;z-index:5;pointer-events:none;
+    background:rgba(10,12,8,.4);padding:12px 18px;border-radius:6px;backdrop-filter:blur(3px);transition:opacity .6s}
+  .dica.off{opacity:0}
+  .eras{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:16px 16px 24px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+  .eranome{color:#fff6e6;font:700 1.05rem/1 "Georgia",serif;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+  .eradesc{color:#f0e4c4;font:500 .74rem/1.3 ui-monospace,monospace;opacity:.85;max-width:30rem;text-align:center}
+  .trilha{pointer-events:auto;display:flex;gap:0;width:min(92vw,540px);margin-top:4px;
+    background:rgba(20,24,16,.55);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:4px;backdrop-filter:blur(4px)}
+  .trilha button{flex:1;pointer-events:auto;border:0;background:transparent;color:#e9dcbf;cursor:pointer;
+    font:700 .7rem/1 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.04em;padding:9px 4px;border-radius:999px;transition:.2s}
+  .trilha button.on{background:#c9702a;color:#fff}
+  .marca{position:fixed;bottom:6px;right:10px;color:#cdbf9d;opacity:.5;font:500 .62rem/1 ui-monospace,monospace;z-index:6;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud top">
+  <h1>BRASIL — o território no passar das eras</h1>
+  <div class="sub">protótipo · arraste para girar · role para aproximar</div>
+</div>
+<div class="dica" id="dica">arraste para explorar o território ↔<br>toque uma era abaixo para atravessar o tempo</div>
+<div class="hud eras">
+  <div class="eranome" id="eranome"></div>
+  <div class="eradesc" id="eradesc"></div>
+  <div class="trilha" id="trilha"></div>
+</div>
+<div class="marca">demo de conceito — conteúdo e §2 vêm depois, com o dono</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const ERAS = [
+  { nome:'Povos originários', desc:'Antes de 1500 — a floresta é obra de gente: manejo, aldeias, roçados.',
+    ceu:'#f3d9a6', chao:'#3f6b34', mata:'#2f5230', densidade:1.0, aldeia:true, caravela:false, cidade:false, rio:'#3f7fa6' },
+  { nome:'A chegada', desc:'1500 — os primeiros navios no horizonte. Não foi descobrimento; havia gente aqui.',
+    ceu:'#e7c79a', chao:'#4a6b34', mata:'#3a5a2e', densidade:0.72, aldeia:true, caravela:true, cidade:false, rio:'#3f7fa6' },
+  { nome:'A colônia e a terra', desc:'Clareiras abertas à força, o território repartido — a terra vira propriedade.',
+    ceu:'#d8b98a', chao:'#7a5a2e', mata:'#4a5a2e', densidade:0.4, aldeia:false, caravela:false, cidade:false, rio:'#4a83a0' },
+  { nome:'Hoje', desc:'Cidades, estradas e as terras demarcadas — quem já estava aqui, continua aqui.',
+    ceu:'#bcd0e0', chao:'#5a6b3e', mata:'#3f7d3a', densidade:0.55, aldeia:false, caravela:false, cidade:true, rio:'#5aa0c0' },
+];
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
+camera.position.set(0, 34, 48);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = .08;
+controls.maxPolarAngle = Math.PI*0.49; controls.minDistance = 14; controls.maxDistance = 110;
+controls.autoRotate = true; controls.autoRotateSpeed = .35;
+
+// luz
+const sol = new THREE.DirectionalLight(0xffe9c0, 1.5); sol.position.set(30,50,20); scene.add(sol);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x3a4a2a, .55));
+
+// terreno — plano ondulado (ruído simples e determinístico)
+const N = 96, SZ = 120;
+const geo = new THREE.PlaneGeometry(SZ, SZ, N, N);
+geo.rotateX(-Math.PI/2);
+const pos = geo.attributes.position;
+function h(x,z){ return Math.sin(x*0.09)*3.2 + Math.cos(z*0.11)*2.6 + Math.sin((x+z)*0.05)*2.0
+  + Math.sin(x*0.31+z*0.2)*0.8; }
+for(let i=0;i<pos.count;i++){ const x=pos.getX(i), z=pos.getZ(i);
+  let y=h(x,z); const d=Math.hypot(x,z); if(d>SZ*0.42) y-=Math.pow((d-SZ*0.42)/10,2); // borda cai (ilha/território)
+  pos.setY(i, y); }
+geo.computeVertexNormals();
+const chaoMat = new THREE.MeshStandardMaterial({ flatShading:true, roughness:1 });
+const chao = new THREE.Mesh(geo, chaoMat); scene.add(chao);
+// cor por vértice conforme altura, atualizável por era
+const cores = new Float32Array(pos.count*3); geo.setAttribute('color', new THREE.BufferAttribute(cores,3));
+chaoMat.vertexColors = true;
+
+// rio — uma faixa curva (tubo achatado)
+const curva = new THREE.CatmullRomCurve3([ new THREE.Vector3(-55,0,-30), new THREE.Vector3(-20,0,-8),
+  new THREE.Vector3(4,0,6), new THREE.Vector3(26,0,20), new THREE.Vector3(52,0,40) ].map(v=>{v.y=h(v.x,v.z)+0.4;return v;}));
+const rioGeo = new THREE.TubeGeometry(curva, 80, 2.2, 8, false);
+const rioMat = new THREE.MeshStandardMaterial({ transparent:true, opacity:.9, roughness:.2, metalness:.1 });
+const rio = new THREE.Mesh(rioGeo, rioMat); scene.add(rio);
+
+// vegetação/elementos instanciados
+const treeGeo = new THREE.ConeGeometry(1.15, 3.4, 6);
+const treeMat = new THREE.MeshStandardMaterial({ flatShading:true, roughness:1 });
+const MAXT = 900; const trees = new THREE.InstancedMesh(treeGeo, treeMat, MAXT); scene.add(trees);
+const tronco = new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.24,1.1,5),
+  new THREE.MeshStandardMaterial({color:0x5a3d1e,flatShading:true}), MAXT); scene.add(tronco);
+// pontos fixos (deterministas)
+const rnd = (s=>()=>{ s=(s*1103515245+12345)&0x7fffffff; return s/0x7fffffff; })(7);
+const PONTOS = []; for(let i=0;i<MAXT;i++){ const x=(rnd()-.5)*SZ*0.82, z=(rnd()-.5)*SZ*0.82;
+  PONTOS.push({x,z,y:h(x,z),s:.6+rnd()*.9,ok:rnd()}); }
+
+// aldeia (ocas = cones baixos) e cidade (cubos) e caravela (marcador)
+const aldeiaMat = new THREE.MeshStandardMaterial({color:0x8a5a2a,flatShading:true,roughness:1});
+const aldeia = new THREE.InstancedMesh(new THREE.ConeGeometry(1.8,1.6,7), aldeiaMat, 60); scene.add(aldeia);
+const cidadeMat = new THREE.MeshStandardMaterial({color:0xcfc7b0,flatShading:true,roughness:.9});
+const cidade = new THREE.InstancedMesh(new THREE.BoxGeometry(1.3,1,1.3), cidadeMat, 200); scene.add(cidade);
+const caravela = new THREE.Mesh(new THREE.ConeGeometry(1.2,3.2,4),
+  new THREE.MeshStandardMaterial({color:0x2a2a2a})); caravela.rotation.z=Math.PI; scene.add(caravela);
+
+const M = new THREE.Object3D();
+function aplicarEra(e){
+  scene.background = new THREE.Color(e.ceu); scene.fog = new THREE.Fog(e.ceu, 70, 200);
+  sol.color.set(e.ceu);
+  rioMat.color.set(e.rio);
+  const cMata=new THREE.Color(e.mata), cChao=new THREE.Color(e.chao), cAreia=new THREE.Color('#cbb98a');
+  for(let i=0;i<pos.count;i++){ const y=pos.getY(i); const t=THREE.MathUtils.clamp((y+6)/12,0,1);
+    const c = y<0.3 ? cAreia : cMata.clone().lerp(cChao, 1-t);
+    cores[i*3]=c.r; cores[i*3+1]=c.g; cores[i*3+2]=c.b; }
+  geo.attributes.color.needsUpdate=true;
+  treeMat.color.set(e.mata);
+  let nt=0; for(const p of PONTOS){ if(p.ok<e.densidade && nt<MAXT){
+    M.position.set(p.x,p.y+1.7*p.s,p.z); M.scale.setScalar(p.s); M.rotation.y=p.x; M.updateMatrix(); trees.setMatrixAt(nt,M.matrix);
+    M.position.set(p.x,p.y+.55*p.s,p.z); M.scale.setScalar(p.s); M.updateMatrix(); tronco.setMatrixAt(nt,M.matrix); nt++; } }
+  trees.count=nt; tronco.count=nt; trees.instanceMatrix.needsUpdate=true; tronco.instanceMatrix.needsUpdate=true;
+  // aldeia
+  let na=0; if(e.aldeia){ for(let i=0;i<60;i++){ const a=i/60*6.28, r=8+ (i%5)*2.2;
+    const x=Math.cos(a)*r-14, z=Math.sin(a)*r-6; M.position.set(x,h(x,z)+.8,z); M.scale.setScalar(1); M.rotation.y=a; M.updateMatrix(); aldeia.setMatrixAt(na++,M.matrix);} }
+  aldeia.count=na; aldeia.instanceMatrix.needsUpdate=true; aldeia.visible=e.aldeia;
+  // cidade
+  let nc=0; if(e.cidade){ for(let i=0;i<200;i++){ const x=(rnd()-.5)*40+18, z=(rnd()-.5)*40+18; const yy=h(x,z);
+    if(yy<0.3){i--;continue;} const hh=1+rnd()*4; M.position.set(x,yy+hh/2,z); M.scale.set(1,hh,1); M.rotation.y=0; M.updateMatrix(); cidade.setMatrixAt(nc++,M.matrix);} }
+  cidade.count=nc; cidade.instanceMatrix.needsUpdate=true; cidade.visible=e.cidade;
+  caravela.visible=e.caravela; caravela.position.set(40,3,-46);
+}
+
+// UI
+const trilha=document.getElementById('trilha'), nomeEl=document.getElementById('eranome'), descEl=document.getElementById('eradesc');
+let atual=0;
+ERAS.forEach((e,i)=>{ const b=document.createElement('button'); b.textContent=e.nome; b.onclick=()=>setEra(i); trilha.appendChild(b); });
+function setEra(i){ atual=i; const e=ERAS[i]; aplicarEra(e); nomeEl.textContent=e.nome; descEl.textContent=e.desc;
+  [...trilha.children].forEach((b,j)=>b.classList.toggle('on', j===i)); }
+setEra(0);
+
+let dicaOff=false;
+function resize(){ const w=innerWidth,hh=innerHeight; renderer.setSize(w,hh); camera.aspect=w/hh; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+canvas.addEventListener('pointerdown',()=>{ if(!dicaOff){document.getElementById('dica').classList.add('off');dicaOff=true;} controls.autoRotate=false; });
+let t=0;
+function loop(){ requestAnimationFrame(loop); t+=0.01; rioMat.opacity=.82+Math.sin(t*2)*0.06; controls.update(); renderer.render(scene,camera); }
+loop();
+</script>
+</body>
+</html>
