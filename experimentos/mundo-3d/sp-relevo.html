@@ -23,10 +23,12 @@
   .dica{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:5;color:#f2ead6;font:600 .78rem/1.5 ui-monospace,monospace;text-align:center;background:rgba(10,12,8,.45);padding:10px 16px;border-radius:6px;backdrop-filter:blur(3px);transition:opacity .6s;pointer-events:none}
   .dica.off{opacity:0}
   .marca{position:fixed;bottom:2px;left:8px;color:#8a806a;opacity:.6;font:500 .58rem/1 ui-monospace,monospace;z-index:7;pointer-events:none}
+  .vinheta{position:fixed;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 240px 70px rgba(18,12,4,.5)}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div class="vinheta"></div>
 <div class="hud top"><h1>São Paulo — o relevo e o passar do tempo</h1>
   <div class="sub">protótipo · WASD ou toque para andar · arraste p/ girar</div></div>
 <div class="ano" id="ano"></div>
@@ -52,10 +54,17 @@ const ANO0=1530, ANO1=2030, PASSO=10;
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-const scene=new THREE.Scene(); scene.fog=new THREE.Fog('#cdd6d0',140,420);
-const camera=new THREE.PerspectiveCamera(52,1,0.1,1200);
-const sol=new THREE.DirectionalLight(0xfff0d0,1.6); sol.position.set(80,120,30); scene.add(sol);
-scene.add(new THREE.HemisphereLight(0xdfe8ff,0x40502e,.55));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.08;
+const scene=new THREE.Scene(); scene.fog=new THREE.Fog('#e7cfa0',150,470);
+const camera=new THREE.PerspectiveCamera(50,1,0.1,1400);
+// SOL de fim de tarde — baixo e dourado, com sombra suave
+const sol=new THREE.DirectionalLight(0xffdca0,2.2); sol.position.set(-90,70,60); sol.castShadow=true;
+sol.shadow.mapSize.set(2048,2048); sol.shadow.camera.near=1; sol.shadow.camera.far=420;
+sol.shadow.camera.left=-180; sol.shadow.camera.right=180; sol.shadow.camera.top=180; sol.shadow.camera.bottom=-180;
+sol.shadow.bias=-0.0004; sol.shadow.normalBias=0.6; scene.add(sol); scene.add(sol.target);
+scene.add(new THREE.HemisphereLight(0xdfe8ff,0x2e3a1e,.5));
+scene.add(new THREE.AmbientLight(0xffe8c8,.18));
 
 // projeção lat/lon -> mundo
 const CLON=-48.64, CLAT=-22.55, SCALE=26;
@@ -115,14 +124,17 @@ fetch('sp.json').then(r=>r.json()).then(gj=>{
     if(y<0.5) c=cAreia; else if(t<.55) c=cMata.clone().lerp(cAlta,t/.55); else c=cAlta.clone().lerp(cRocha,(t-.55)/.45);
     cols[i*3]=c.r;cols[i*3+1]=c.g;cols[i*3+2]=c.b; }
   g.computeVertexNormals(); g.setAttribute('color',new THREE.BufferAttribute(cols,3));
-  MAT=new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:1});
-  terra=new THREE.Mesh(g,MAT); scene.add(terra);
+  MAT=new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:.96});
+  terra=new THREE.Mesh(g,MAT); terra.receiveShadow=true; terra.castShadow=true; scene.add(terra);
   heightAt=(x,z)=> inPoly(x,z,RINGS)? elevLL(invLon(x),invLat(z)) : -6;
 
   // água
-  const w=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshStandardMaterial({color:'#4a83a0',roughness:.35,metalness:.1}));
-  w.rotation.x=-Math.PI/2; w.position.y=-1.2; scene.add(w);
-  scene.background=new THREE.Color('#cdd6d0');
+  const w=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.MeshStandardMaterial({color:'#3f7a96',roughness:.18,metalness:.35}));
+  w.rotation.x=-Math.PI/2; w.position.y=-1.2; w.receiveShadow=true; scene.add(w);
+  // céu em gradiente (textura de canvas — barato)
+  const sky=document.createElement('canvas'); sky.width=8; sky.height=256; const sg=sky.getContext('2d');
+  const grad=sg.createLinearGradient(0,0,0,256); grad.addColorStop(0,'#f6e2b0'); grad.addColorStop(.5,'#e7cfa0'); grad.addColorStop(1,'#bcae8e');
+  sg.fillStyle=grad; sg.fillRect(0,0,8,256); const skyTex=new THREE.CanvasTexture(sky); scene.background=skyTex;
 
   // vegetação (instanciada) — pontos determinísticos dentro do estado
   const rnd=(s=>()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;})(11);
@@ -132,6 +144,7 @@ fetch('sp.json').then(r=>r.json()).then(gj=>{
   treeMesh=new THREE.InstancedMesh(new THREE.ConeGeometry(1.1,3.2,6), new THREE.MeshStandardMaterial({color:'#2f5230',flatShading:true}), CAND.length);
   const troncos=new THREE.InstancedMesh(new THREE.CylinderGeometry(.16,.22,1,5), new THREE.MeshStandardMaterial({color:0x5a3d1e}), CAND.length);
   urbMesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1.1,1,1.1), new THREE.MeshStandardMaterial({color:'#cfc7b0',flatShading:true}), CAND.length);
+  [treeMesh,troncos,urbMesh].forEach(m=>{m.castShadow=true;m.receiveShadow=true;});
   scene.add(treeMesh,troncos,urbMesh); treeMesh.userData={CAND,troncos};
   aplicarTempo(ANO0);
 
@@ -139,6 +152,7 @@ fetch('sp.json').then(r=>r.json()).then(gj=>{
   const corpo=new THREE.Mesh(new THREE.CapsuleGeometry(.8,1.5,4,8),new THREE.MeshStandardMaterial({color:'#b5541f',flatShading:true})); corpo.position.y=1.6; hero.add(corpo);
   const cab=new THREE.Mesh(new THREE.SphereGeometry(.62,10,10),new THREE.MeshStandardMaterial({color:'#e8b98a'})); cab.position.y=3; hero.add(cab);
   const fr=new THREE.Mesh(new THREE.ConeGeometry(.3,.8,4),new THREE.MeshStandardMaterial({color:'#33240f'})); fr.rotation.x=Math.PI/2; fr.position.set(0,1.6,.9); hero.add(fr);
+  hero.traverse(o=>{if(o.isMesh)o.castShadow=true;});
   scene.add(hero);
   const sp=proj(-46.63,-23.55); hero.position.set(sp[0],heightAt(sp[0],sp[1])+1.6,sp[1]);
   camera.position.set(sp[0],44,sp[1]+60); controls.target.set(sp[0],4,sp[1]);
@@ -168,7 +182,8 @@ function aplicarTempo(a){
   treeMesh.count=nt; troncos.count=nt; urbMesh.count=nu;
   treeMesh.instanceMatrix.needsUpdate=troncos.instanceMatrix.needsUpdate=urbMesh.instanceMatrix.needsUpdate=true;
   // céu esquenta->esfria/cinza com urbanização
-  const ceu=new THREE.Color('#e6cfa0').lerp(new THREE.Color('#c2ccd2'),p); if(scene.background){scene.background.copy(ceu);} scene.fog.color.copy(ceu);
+  const ceu=new THREE.Color('#e7cfa0').lerp(new THREE.Color('#c2ccd2'),p*.7); scene.fog.color.copy(ceu);
+  sol.color.copy(new THREE.Color('#ffdca0').lerp(new THREE.Color('#eef2f6'),p*.6)); // luz esfria com a metrópole
 }
 
 // movimento
