@@ -1,5 +1,37 @@
 # RETOMADA — leia isto primeiro na próxima sessão
 
+## ⏩ SESSÃO 27/08 — O ESTADO MAIS RECENTE (leia antes do 25/08 abaixo)
+Sessão longa e produtiva. Tudo commitado e pushado, árvore limpa, CI verde. Ordem do que rolou:
+
+1. **MIGRAÇÃO SUPABASE — Fases 1-3 estruturais FEITAS no `brasil`** (`frrmiompmxjbpoxegyeb`).
+   7 tabelas criadas, RLS provado, glossário **17/181/644** carregado **server-side** (Edge Function
+   de uso único, já DESARMADA — v3 inerte 410). Detalhe em `MIGRACAO.md` §ESTADO. **O QUE FALTA e é
+   do DONO:** (a) **criar o usuário dono no painel do `brasil` e me passar o UUID** — bloqueia as
+   policies de ESCRITA das `mesa_*` (Fase 4; hoje escrita fail-closed); (b) **apagar a Edge Function
+   `migrar-conteudo`** no painel (MCP não tem delete); (c) **repontar** produção (patinhas→brasil, 6
+   arquivos) só com OK dele. `mesa_item/pedido/resposta` NÃO copiados de propósito (housekeeping).
+2. **PORTEIRO integrado e no ar** — fundiu `growth`+`seguranca` num agente (pasta, `integrar.js`
+   PUB||REDE→porteiro, dashboard META_AGENTE, `mesa_agente` NAS DUAS bases 13→12, docs). QA refutou,
+   portões verdes. Roster agora 12.
+3. **GLOSSÁRIO PÚBLICO — descoberta: JÁ EXISTE e está completo desde 19/08** (`/glossario`,
+   `gerar-glossario.js`: 181 verbetes, busca, JSON-LD, SEO, linkado, no sitemap). A prioridade que a
+   RETOMADA de 25/08 listava como "não começado" **estava feita**. `carga.sql` do main regenerado (fresco).
+4. **MUNDO 3D — direção NOVA e grande do dono (o foco agora).** Ele viu **bruno-simon.com** e quer um
+   mundo 3D explorável do **estado de São Paulo**, com **relevo**, uma **linha do tempo por DÉCADA**,
+   um **personagem que ANDA** (3ª pessoa, você vê o personagem), e a **paisagem transformando** (mata
+   → ocupação → metrópole). Base + relevo + 1º passe de beleza (sombras, hora dourada) FEITOS, em
+   **`experimentos/mundo-3d/`** (standalone, FORA da zona §5.1). Plano por marcos em **`SPEC-MUNDO-3D.md`**.
+   - **RODAR SÓ POR HTTP** (`npx http-server` na pasta) — `file://` TRAVA (módulos ES). Foi a lição.
+   - `three` via CDN só no experimento; produção exige self-hosted + CSP (M5 do spec).
+   - Datas de fundação das cidades a firmar com fonte (IBGE); relevo é ESTILIZADO (não DEM real).
+   - **Próximo marco: o dono escolheu BELEZA (M3)** — seguir polindo o visual; depois andarilho pixel
+     de verdade (M1) e conteúdo histórico §2 (M4, com ele).
+5. **Home "como proposta": explorada e REJEITADA pelo dono** ("cara de IA"). Pivotou pro 3D. As
+   mudanças de home (método/índice/campos-de-cor) foram REVERTIDAS. **Não retomar aquele caminho** —
+   o caminho é o mundo 3D.
+
+---
+
 ## ⏩ SESSÃO 25/08 — PARE AQUI PRIMEIRO
 **A tarefa grande e pendente: MIGRAÇÃO DO SUPABASE.** O dono criou o projeto próprio `brasil`
 (estava tudo no `patinhas`, de outro produto) e pediu a migração. O plano executável, com schema,
