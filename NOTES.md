@@ -5831,6 +5831,14 @@ interpretação; IBGE, institucional, para o dado. A tese econômica não é afi
 jogador conclui. Não foi criado verbete novo — LEI DE TERRAS e LEI EUSÉBIO DE QUEIRÓS já existiam e
 já estavam ligados no GLOSSARIO_REL; verbete duplicado quebraria o índice. -->
 Fonte do dado até-hoje: IBGE, Censo Agropecuário 2017/SIDRA 6754 (76,8% dos estabelecimentos em 23% da área) — LEI DE TERRAS ·
+Virgílio Noya Pinto, *O ouro brasileiro e o comércio anglo-português* (Nacional/INL, 1979) e Laura de
+Mello e Souza, *Desclassificados do ouro* (Graal, 1982), com o Tratado de Methuen de 27/12/1703 e o
+verbete "Casas de Fundição (1603-1821)" do MAPA/Arquivo Nacional — ECONOMIA DO OURO ·
+Eric Williams, *Capitalism and Slavery* (University of North Carolina Press, 1944) e Abdias do
+Nascimento, *O genocídio do negro brasileiro* (Paz e Terra, 1978), com o Slavery Abolition Act 1833,
+a base Legacies of British Slavery da UCL e a Lei nº 3.353/1888 — A CONTA DA ESCRAVIDÃO ·
+ABEP, *Critério de Classificação Econômica Brasil* (versão em vigor desde 2015, metodologia de
+Kamakura & Mazzon sobre a POF/IBGE) — CRITÉRIO BRASIL ·
 Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
 Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
 Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
@@ -10015,3 +10023,78 @@ que **não se perde ao trocar de domínio** (a Mudança de Endereço + 301 trans
 re-submete o sitemap), o dono **decidiu esperar a troca de domínio** mesmo assim. Registrado para
 não re-levantar: enquanto o domínio não mudar, o tráfego orgânico segue em zero por decisão, e a
 divulgação (rodada A, pronta desde 23/08) segue represada atrás do GSC, também por escolha dele.
+
+---
+
+## 31/08 — GLOSSÁRIO: a economia real entra em três verbetes (historiador, licença de 19/08)
+
+Fecha o item `glossario-substancia-descolonial`, cuja primeira parte (LEI DE TERRAS, 24/08) está
+registrada acima. **181 → 184 verbetes**, os 17 grupos inalterados. Os três, com a régua do dono de
+24/08: substância com fonte, sem léxico de corrente; a tese é fato com fonte e o jogador conclui.
+
+**1. ECONOMIA DO OURO** (grupo COMO A ESCRAVIDÃO FOI MONTADA, ao lado de ENGENHO). `dv: 1`.
+O quinto de 20%, as Casas de Fundição mandadas criar em 1720, o Tratado de Methuen de **27 de
+dezembro de 1703** (tecido inglês entra em Portugal; vinho português paga na Inglaterra um terço
+menos de direitos que o francês), e a estimativa de **876.629 quilos** no século XVIII, atribuída a
+**Virgílio Noya Pinto**, com a frase dele sobre o destino — *"os ingleses absorviam quase 60%,
+somente com o comércio lícito"*. O verbete diz, no próprio corpo, que é estimativa e por quê
+(contrabando; registros perdidos). **Lugar de fala:** Noya Pinto e Laura de Mello e Souza são
+historiografia econômica do período — o dado é de historiador, não de opinião, e o `dv` existe
+porque a divergência é real. Não há aqui interpretação sobre a vida de gente escravizada; a frase
+que a nomeia é curta e de fato ("quem cavou foi gente africana escravizada"), e a remissão para
+QUILOMBO é o que impede o verbete de contar só o lado de quem lucrou.
+
+**2. A CONTA DA ESCRAVIDÃO** (fecha o mesmo grupo; o subtítulo dele promete "o lucro" e faltava).
+`dv: 1`. **Slavery Abolition Act 1833**: 20 milhões de libras de indenização, perto de **40%** do
+gasto do governo britânico naquele ano, pagos a quem constava como dono pela perda da "propriedade"
+— a palavra vai entre aspas porque é vocabulário de quem indenizou. **Mais de 40 mil indenizações**,
+uma a uma, hoje na base *Legacies of British Slavery* da University College London, montada sobre os
+registros da Slave Compensation Commission. Contra isso, a **Lei nº 3.353, de 13/05/1888**, em dois
+artigos, sem previsão de nada. **Lugar de fala, e é a exigência que mais mordeu aqui:** a
+interpretação da acumulação sobre corpos negros **não** ficou com economista branco. Quem formula é
+**Eric Williams** (historiador negro de Trinidad e Tobago, *Capitalism and Slavery*, 1944), e a
+leitura brasileira do pós-abolição sem reparação é **Abdias do Nascimento** (*O genocídio do negro
+brasileiro*, 1978), já fonte de BRANQUEAMENTO e FRENTE NEGRA neste glossário. A tese de Williams
+entra **atribuída** ("economistas discutem a tese dele até hoje"), nunca como voz do jogo — é o
+`dv: 1`.
+
+**Um número que parecia bom e FICOU DE FORA**, registrado para ninguém o reabrir achando que é
+achado: a história de que o contribuinte britânico só terminou de pagar essa indenização em **2015**.
+O Tesouro do Reino Unido respondeu, em pedido de acesso à informação de 2018, que **não tem registro**
+de quanto do empréstimo de 1833 seguia em aberto; a data de 2015 é o resgate de um título perpétuo
+que consolidou dívidas de origens diferentes. Número redondo sem documento que o feche é exatamente
+o que o §2 proíbe — e este circula muito, o que o torna mais perigoso, não menos.
+
+**Clóvis Moura foi lido e NÃO entrou na linha de fonte, e o motivo é do dono.** *Dialética radical
+do Brasil negro* (1994) é o texto certo para o argumento econômico e Moura já tem verbete próprio
+aqui. Ficou fora porque a edição que se cita é da **Anita Garibaldi**, casa ligada à fundação de um
+partido, e a linha de fonte é VISÍVEL na tela: pôr esse selo debaixo de um verbete sobre acumulação
+é o rótulo de corrente que o dono recusou em 24/08 chegando pela porta dos fundos. O argumento não
+se perdeu — Williams e Abdias o sustentam sem o selo. **Se o dono quiser, a citação de Moura entra
+com uma linha dele; é decisão de estilo, não de fato.**
+
+**3. CRITÉRIO BRASIL** (fecha o grupo O DIA SEGUINTE DA ABOLIÇÃO, depois de FAVELA). Sem `dv`.
+Proposto em **1997**, mantido pela **ABEP**, versão em vigor desde **2015** (metodologia de Wagner
+Kamakura e José Afonso Mazzon sobre a POF do IBGE). Pontua posse de bens do domicílio, grau de
+instrução da pessoa de referência e acesso a serviço público — **água encanada vale 4 pontos, rua
+pavimentada 2** — e a própria ABEP avisa que os itens valem só como indicadores de capacidade de
+consumo, sem pretensão de caráter sociológico. O verbete fecha com o que a régua não contém: *"dá
+para subir de classe nela sem que um metro de terra mude de dono"* — e a remissão leva a LEI DE
+TERRAS, onde está a concentração medida pelo Censo Agropecuário 2017. **Lugar de fala:** o verbete
+descreve um INSTRUMENTO e o que o instrumento não mede; não interpreta a vida de ninguém, e por isso
+fonte institucional basta. Se ele passar a comentar quem é medido por ela, aí precisa de voz com
+lugar de fala, e isso fica anotado.
+
+**O QUE NÃO FOI LIDO, e é obrigatório dizer.** Nesta rodada o `WebFetch` estava **bloqueado pelo
+proxy de saída para todos os domínios testados** (abep.org, ie.ufrj.br, scielo.br, aba.com.br,
+wikipedia, ibge.gov.br, planalto.gov.br). Só o `WebSearch` respondeu. Consequência assumida, item a
+item: **nenhum documento primário foi aberto por mim** nesta rodada — cada número acima foi
+confirmado por **duas buscas independentes** que devolveram a mesma cifra com a mesma atribuição, e
+o que apareceu em uma fonte só **não entrou**. Em particular: (a) a frase da ABEP sobre "sem caráter
+sociológico" está **parafraseada, não citada**, porque não li o PDF do critério; (b) a frase de Noya
+Pinto está entre aspas porque as buscas a devolveram **literal e idêntica** em resultados distintos,
+mas o denominador dos "quase 60%" não está fixado por mim — por isso ela entra como *o que ele
+escreveu sobre o destino*, e não como percentual afirmado pelo jogo; (c) **Celso Furtado ficou de
+fora da linha de fonte** de ECONOMIA DO OURO, embora o backlog o sugerisse: não li *Formação
+econômica do Brasil* nesta rodada, e o verbete não precisa dele — Noya Pinto dá o número e Methuen
+dá o mecanismo. Quem retomar isto com rede aberta: fechar (a) e (c) é meia hora de trabalho.
