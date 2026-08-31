@@ -2074,6 +2074,32 @@ chama a versao sem espera de animacao de "portao que era cara ou coroa".
 
 ## 70 — Tres cegueiras de instrumento que o QA nomeou e ninguem esta olhando — qa/dev-jogo
 
+> **(a) e (b) RESOLVIDOS — 31/08, dev-jogo.** E as duas ja estavam no codigo antes desta rodada:
+> a rodada verificou em vez de reescrever, que e a diferenca entre fechar item e fingir.
+>
+> **(a) medido, nao suposto.** Sonda propria contra uma pagina sintetica com `#hudTop` e
+> `#pdFlor` e **sem** `#telaMenu`, teto de 3.000 ms, os DOIS predicados na MESMA pagina:
+> ingenuo `false` em **65 / 6 / 4 ms** (mudo); guardado `false` em **3005 / 3001 / 3004 ms**
+> (o teto inteiro — barulhento, que e o que se quer). Controle na pagina CERTA: os dois `true`
+> em 3 e 2 ms, entao a guarda nao custa nada onde a pagina esta certa. O `jogoPronto` do
+> `encaixe.js` **ja tem** a guarda (`!!m && m.classList…`).
+>
+> **(b) o aviso ja existia; o que faltava era o numero nao envelhecer.** A conta, refeita do
+> zero: clamp de dt `0,25 s` (src/jogo.ts) x `velocidadeMundo()` medida no jogo aberto
+> **38,2609 px/s** = **9,5652 px** — o pior quadro que o motor CONSEGUE produzir — dividido
+> pelo piso `0,115` = **83,176 ms**. Falsificado com a MESMA dose (a saturacao do clamp) em
+> varios ms1: **REPROVA a 83 ms, PASSA a 84 ms**. Mesma dose, vereditos opostos: acima do
+> limiar a regua mede a maquina, nao o defeito. O `83` literal virou derivado
+> (`test/smoke.js`, `PISO_TAXA`/`CLAMP_DT`/`msCego`) porque `PASSO_PX` e o `n` inteiro da
+> velocidade sao constantes MEDIDAS que o CLAUDE.md §3 promete re-derivar na migracao —
+> escrito a mao, o 83 passaria a avisar na hora errada em silencio. **Provado que dispara:**
+> com um quadro de 150 ms injetado de proposito, o smoke imprimiu
+> `AVISO: quadro de 169ms, acima dos 83.2ms…` e saiu **exit 0** (avisa, nao reprova).
+>
+> **(c) continua aberto** — `fila-auth.js` e o `test/tmp-pin-local-*.txt` de nome fixo, mais os
+> 21 relogios do `smoke.js`. Nao foi tocado nesta rodada.
+
+
 Todas de 23/08, todas medidas, nenhuma bloqueou a entrega.
 
 **(a) O `jogoPronto` vira no-op de 64 ms na pagina errada.** Ele nao guarda contra `null` antes de
@@ -2106,6 +2132,26 @@ apply". Mesmo arquivo, mesma doenca, intocada.
 
 ## 71 — `setInterval(salvar, 10000)` passa o VALOR, e o save real apaga a semente de QUALQUER teste — dev-jogo (src/, e a maquina do mac)
 
+> **RESOLVIDO — 31/08, dev-jogo. O conserto ja estava em `src/jogo.ts` (`setInterval(() =>
+> salvar(), 10000)`); o que faltava era a PROVA de que ele morde.** Feita por injecao de
+> regressao, os dois lados na mesma maquina e no mesmo dia:
+>
+> | codigo | 0s..9s | 10s..13s | veredito |
+> |---|---|---|---|
+> | `setInterval(() => salvar(), 10000)` (hoje) | semente | **semente** | sobreviveu |
+> | `setInterval(salvar, 10000)` (regressao injetada, build refeito) | semente | **REGRAVADO** `{"energia":0,"energiaTotal":0,"modo":"limpo",…}` | sobrescrita aos 10 s |
+>
+> Bate com a sonda do QA de 23/08 no segundo exato. Regressao revertida e `index.html`
+> reconstruido byte-identico ao de HEAD (`git diff -- src/ index.html` vazio).
+>
+> **IRMAOS: procurados e nenhum precisa de conserto.** `grep -nE "set(Interval|Timeout)\(
+> *[A-Za-z_$][A-Za-z0-9_$]* *,"` devolve tres — `pintarHomeCena`, `fimCerimonia`,
+> `avancarFala` —, e **nenhum teste reatribui esses nomes** (os testes os CHAMAM, que e outra
+> coisa). Os nomes que os testes dublam sao tres: `salvar`, `salvarRetencao` e `clicar`;
+> `salvarRetencao` nao e agendado, e `clicar` ja esta na forma de seta (src/jogo.ts:15776).
+> Diff nao alargado por simetria, de proposito.
+
+
 Causa raiz PROVADA pelo QA em 23/08, e ela explica uma **classe inteira** de vermelho
 intermitente que ninguem tinha nomeado.
 
@@ -2136,6 +2182,45 @@ evaluate** e imune. Cena que faz `setItem` + `reload` **nao e** — e sao essas 
 o tique de 10 s cai na janela entre gravar e ler.
 
 ## 72 — O teto do ganho offline tem um IRMAO sem cobertura nenhuma: a aba oculta — dev-jogo
+
+> **RESOLVIDO — 31/08, dev-jogo. `test/robusto-tudo.js`, cena 3c.** E este era o unico dos
+> quatro que faltava de verdade: nao havia uma linha de teste no caminho da aba oculta.
+>
+> **Onde, e por que ali:** cenario 3 do `robusto-tudo` chama-se *"a aba em segundo plano por
+> horas"* e a 3b ja cobre a metade que ESCONDE. A 3c e a metade que VOLTA — mesmo cenario,
+> mesmas ferramentas (`paginaLimpa`, o truque do `Object.defineProperty` em `document.hidden`),
+> ao lado das asseercoes de teto da 2c. Nao foi para o `smoke.js` porque uma cena que forja
+> `document.hidden` e `escondidoEm` no meio de um arquivo sequencial de 2.474 linhas envenena
+> o estado das ~40 cenas seguintes. **Ressalva honesta: o `robusto-tudo` esta FORA do CI (item
+> 73), entao o alcance desta assercao depende do 73 — nao dupliquei a cena no smoke por causa
+> disso.**
+>
+> **O que ela cobra** (sentinela `voltouDepoisDe = -1` antes de cada volta, a disciplina da 2c —
+> zero e o valor de repouso e passaria nos dois mundos):
+>
+> | aba oculta por | esperado | medido |
+> |---|---:|---:|
+> | 30 s | 30 s, sem papel da volta | 30 s, papel `false` |
+> | 8 h (ausencia honesta) | 28.800 s | 28.800 s |
+> | 3 anos (relogio pulou) | 43.200 s (teto de 12 h) | 43.200 s |
+> | −6 h (relogio recuou) | 0 s | 0 s |
+>
+> Mais: `escondidoEm` zerado nas quatro (a mesma ausencia nao pode ser paga duas vezes) e a
+> sentinela morta nas quatro (o caminho RODOU).
+>
+> **PROVA DE QUE MORDE, feita na ordem exigida.** Com `Math.min` arrancado do produto e o build
+> refeito:
+> - `node test/robusto-tudo.js` -> **exit 1**, `✗ 3c: O TETO DE 12 H NAO SEGUROU NA ABA OCULTA
+>   — 3 anos escondida deviam virar 43200s, viraram 94608000`
+> - e os vizinhos, com o MESMO defeito no lugar: `node test/smoke.js` **exit 0**,
+>   `node test/medir-save-hostil.js` **exit 0** — o "quatro verdes com o teto arrancado" do QA
+>   reproduzido, agora com um vermelho no meio.
+> - defeito revertido, build refeito: `node test/robusto-tudo.js` -> **exit 0**.
+>
+> Nada do produto foi mudado para o portao passar: a cena prega o comportamento que ja existe.
+> (`git log -S` na linha nao mostra bomba desarmada — o unico commit que a toca e o import
+> comprimido de 23/08, que contem o repositorio inteiro.)
+
 
 Achado pelo QA em 23/08, auditando outra coisa. `src/jogo.ts:16123`:
 

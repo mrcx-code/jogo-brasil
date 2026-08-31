@@ -2105,7 +2105,9 @@ function lintComentarios() {
     await new Promise(r => setTimeout(r, 200));
     const dropSaiu = drops.length === 0;
     drops.length = 0; mobs.length = 0; folhas.length = 0; S.u3 = false;
-    return { a, d, salto, dropSaiu };
+    // A VELOCIDADE VAI JUNTO, e ela não é curiosidade: é o que faz o limiar de cegueira lá
+    // embaixo ser DERIVADO em vez de literal. Sai do mesmo evaluate para não custar viagem.
+    return { a, d, salto, dropSaiu, vMundo: velocidadeMundo() };
   });
   console.log('story open -> world moved', (historia.d.worldX - historia.a.worldX).toFixed(2), 'px |',
     'impact', (historia.d.total - historia.a.total).toFixed(2), '| day clock',
@@ -2157,12 +2159,32 @@ function lintComentarios() {
   // lento de dt despejado. Isso nao e erro de desenho — e o limite do que da para saber dali.
   // O defeito seria CALAR: 2 de 6 rodadas sob carga caem nesse regime, e o log verde parecia
   // uma verificacao feita. Agora ele avisa que naquela rodada nao houve o que verificar.
-  if (historia.salto.ms1 > 83 || historia.salto.ms2 > 83) {
+  //
+  // O LIMIAR DEIXOU DE SER O LITERAL "83" (31/08), e a conta esta refeita aqui para que a
+  // proxima pessoa nao precise confiar em mim:
+  //   · o motor apara o dt em 0,25 s  (src/jogo.ts, `Math.min(0.25, (agora - ultimo)/1000)`)
+  //   · logo o PIOR quadro que ele consegue produzir anda `0,25 x velocidadeMundo()` px
+  //   · a regua so reprova enquanto esse pior caso passa do piso, isto e, enquanto
+  //         ms1 < (0,25 x v) / 0,115
+  //   · com a velocidade de hoje: 0,25 x 38,2609 = 9,5652 px; 9,5652 / 0,115 = 83,18 ms
+  // Medido com esta conta (sonda descartavel, 31/08): a MESMA dose — a saturacao do clamp,
+  // 9,565 px, que e o maximo que o motor consegue — REPROVA a 83 ms e PASSA a 84 ms. Mesma
+  // dose, vereditos opostos: acima do limiar a regua esta medindo a maquina, nao o defeito.
+  //
+  // Por que DERIVAR e nao escrever 83: `PASSO_PX` e o `n` inteiro da velocidade sao constantes
+  // MEDIDAS que o CLAUDE.md §3 promete re-derivar na migracao para Phaser. Um 83 escrito a mao
+  // sobreviveria a essa mudanca sem reclamar e passaria a avisar na hora errada — em silencio,
+  // que e exatamente o defeito que este aviso existe para consertar.
+  const PISO_TAXA = 0.115;      // tres quadros de 60 fps — o piso de quando o quadro de referencia sai curto
+  const CLAMP_DT = 0.25;        // src/jogo.ts: Math.max(0, Math.min(0.25, (agora - ultimo) / 1000))
+  const msCego = historia.vMundo > 0 ? (CLAMP_DT * historia.vMundo) / PISO_TAXA : 83;
+  if (historia.salto.ms1 > msCego || historia.salto.ms2 > msCego) {
     console.log('  resume -> AVISO: quadro de ' + Math.round(Math.max(historia.salto.ms1, historia.salto.ms2))
-      + 'ms, acima dos 83ms em que o clamp de dt satura — nesta rodada a regua de taxa nao separa'
+      + 'ms, acima dos ' + msCego.toFixed(1) + 'ms em que o clamp de dt satura (0,25s x '
+      + historia.vMundo.toFixed(2) + 'px/s / ' + PISO_TAXA + ') — nesta rodada a regua de taxa nao separa'
       + ' quadro lento de dt despejado. Nao e reprova; e uma verificacao que nao aconteceu.');
   }
-  const tetoTaxa = Math.max(taxa2 * 3, 0.115);
+  const tetoTaxa = Math.max(taxa2 * 3, PISO_TAXA);
   if (taxa1 > tetoTaxa) {
     errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2)
       + 'px in ' + historia.salto.ms1.toFixed(0) + 'ms = ' + taxa1.toFixed(4)
