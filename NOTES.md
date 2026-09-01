@@ -10128,3 +10128,33 @@ doença que o `PLANTAO.md` §5 nomeia, no lugar exato onde se decide o que despa
 `medir-save-hostil` 0 · `medir-telas-altura` 0 · `espelho do conteúdo` 0.
 
 Registro novo: `PENDENTES 88` (os portões nus) e `PENDENTES 89` (o coletor de console).
+
+---
+
+## 01/09 — CI vermelho 2 rodadas seguidas: card sintético do dono duplicava no painel — plantao/mac (baile cedo)
+
+Chegada na sessão de plantão da tarde: `mesa_resposta` vazia (nada pendente), backlog não secou
+(`conferir-fila.js` PASSOU, 15 livres), mas o CI da `main` estava **vermelho no portão `teste`**
+em duas rodadas seguidas (`33463020154` e a anterior) — então não era caso de "nada a fazer".
+
+**A causa, medida:** `dashboard/index.html:1583` (`garantirDono`) sintetiza um cartão extra com
+nome exato `"Claude"` sempre que a `mesa_agente` não trouxer uma linha com esse nome exato — é
+assim que a sessão principal aparece no painel mesmo sem linha no banco. O mock da cena 16 de
+`test/fila-auth.js` usava `nome: 'claude'` (minúsculo), que nunca casa com a checagem
+case-sensitive `a.nome==="Claude"` — resultado: **7 cards em vez de 6**, com `claude` (mock) e
+`Claude` (sintético) coexistindo. A cena 14 (cor inválida) tinha o mesmo problema por outra porta:
+o seletor `#grade-ag .bon rect[x="4"][y="7"]` (sem filtro) pegava o `<rect>` do cartão SINTÉTICO
+(`#b5541f`) em vez do agente envenenado que a cena queria medir — falha `<- #b5541f`.
+
+**Conserto, em duas linhas:** renomear o mock da cena 16 para `nome: 'Claude'` (maiúsculo — é o
+nome real que a produção grava, então o mock passa a exercitar o caso real em vez de um
+artefato) e o seletor da cena 14 ganha `:not(.dono)` para excluir o cartão sintético.
+
+**Medido, exit code real:** `node test/fila-auth.js` → **EXIT 0**, 24 cenas, nenhuma falha (antes:
+`REPROVOU: 4 verificacao(oes) em 24 cenas`, EXIT 1). Achado já estava meio resolvido: havia edição
+não commitada de uma sessão anterior nesta mesma máquina, parada — puxei, conferi que batia com a
+causa raiz medida acima, testei e completei.
+
+**Território:** só `test/fila-auth.js` (nada em `src/`, nada em `TERRITORIO.md`) — sem worktree,
+direto na linha principal, por ser conserto pequeno e bem delimitado (papel de Pro por §5.2 do
+`PLANTAO.md`, decidido pelo dono em 31/08).
