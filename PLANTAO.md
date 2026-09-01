@@ -195,6 +195,40 @@ de 23/08 era defeito de quem media, não do jogo — e um deles **protegia uma b
 tinha desarmado nove dias antes. `git log -S` na asserção e no código, e leia a mensagem do
 commit, antes de tocar no produto.
 
+### ⚠ O PRIMEIRO FUNIL DA NUVEM MORRE NO `tsc`, E A CULPA PARECE SER DA ENTREGA (01/09)
+
+**Rode `npm install` na árvore principal ANTES do primeiro funil da rodada.** O contêiner da
+nuvem nasce com o `node_modules` da raiz **incompleto** — medido nesta data: `npm install`
+acrescentou **103 pacotes**, entre eles o `typescript`, que está no `package.json` (`^7.0.2`) e
+não estava no disco.
+
+O que isso produz é um dos vermelhos mais enganosos que esta casa já viu, porque ele chega
+**com o nome da entrega colado**:
+
+```
+merge feito. Portões...
+  npm test -> exit 1
+INTEGRAR RECUSOU: npm test vermelho — merge DESFEITO
+```
+
+A leitura natural — e errada — é "a entrega quebrou o portão". Ela não quebrou nada: o
+`construir.js` chama `node_modules/typescript/bin/tsc`, o arquivo não existe, e o build morre
+**antes de olhar uma linha do diff**. Nesta rodada a entrega era **um único arquivo de teste**
+(`test/encaixe.js`, +14/−1) e ainda assim foi recusada.
+
+**Como separar em 30 segundos, e vale para qualquer vermelho de funil:** rode o portão na `main`
+**limpa, sem merge nenhum**. Se ele já estiver vermelho ali, o problema nunca foi da entrega.
+
+| medido em 01/09 | |
+|---|---|
+| `npm run build` na `main` limpa, antes do `npm install` | **exit 1** — `Cannot find module .../typescript/bin/tsc` |
+| `npm run build` na `main` limpa, depois | **exit 0** |
+| mesmo funil, mesma entrega, depois | **exit 0**, integrado |
+
+E note por que os agentes não viram: cada worktree de agente tem o seu próprio `node_modules`
+resolvido, então os portões passam **verdes lá dentro** e só a árvore principal está nua. Um
+pré-integrador verde não prevê este vermelho — ele não mede a máquina onde o funil roda.
+
 ---
 
 ## 5. Registrar — e o que conta como registro
