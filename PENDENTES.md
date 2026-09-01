@@ -2751,6 +2751,23 @@ por um resumo em vez do exit code, e o resumo mentia por construção.
    início só quando não vem depois de `:` (preserva `http://`). **Falso positivo é barulhento e se
    conserta; falso negativo é mudo e assina o verde.**
 
+### ⚠ O AMBIENTE MUDOU NO MEIO DA SESSÃO — leia isto antes de concluir que o item é fantasia
+
+Horas depois, o QA mediu o mesmo lançamento nu e ele **funcionou**. Não é contradição, e a
+explicação está no disco: `/opt/pw-browsers` ganhou `chromium_headless_shell-1234` **durante a
+sessão** (algum agente rodou `npx playwright install`). Antes disso a pasta tinha só a build
+**1194**, e o `playwright` que o `npm install` resolve hoje é **1.62.1**, que pede a **1234**.
+
+**Então o defeito é estrutural e volta em toda máquina nova:** a imagem traz 1194, o
+`package.json` pede `playwright ^1.47`, o `npm install` não baixa navegador, e o lançamento nu
+morre até alguém instalar à mão. A medição original está no log desta sessão e não é reconstrução:
+`Executable doesn't exist at …/chromium_headless_shell-1234/…` e `npm test` **EXIT 1** em
+`test/regua-larga.js:70`.
+
+**E o conserto custa zero onde o nu já funciona** — medido pelo QA com o disco mentido
+(`existsSync` negando os dois candidatos): `chromiumPath()` devolve `undefined` e
+`launch({ executablePath: undefined })` abre o **mesmo Chromium 141.0.7390.37** do lançamento nu.
+
 ### O que NÃO foi feito, de propósito
 
 Sobram **47 lançamentos nus em 46 arquivos** que **não são portão** — ferramentas de arte
@@ -2840,10 +2857,45 @@ ou seja, o filtro não estava escondendo mais nada junto.
 pede pacote nenhum** (a arte do capítulo 1 é embutida; pacote só na chegada do capítulo 2+).
 Instrumento que não percorre o caminho da pessoa mede o próprio silêncio e assina verde.
 
-### O que fica em aberto, e é decisão de quem tiver mais contexto
+### ⚠ O QA DERRUBOU A PRIMEIRA VERSÃO DESTE FILTRO, E ELE TINHA RAZÃO (31/08)
 
-O controle acima é **temporário** — rodou, provou, e não ficou no repositório. Torná-lo
-permanente (um `--autoteste` no `encaixe.js`, como o `portao-navegador.js` e o `cartao-controle.js`
-já têm) custaria pouco e fecharia a categoria: hoje, se alguém alargar esse filtro por
-conveniência, nada reprova. **Não entrou neste lote** para não misturar mais uma peça na mesma
-revisão.
+Registrado com destaque porque **é o achado mais valioso da noite**, e foi contra o autor: eu
+achei o defeito, escrevi o conserto, escrevi o portão que o vigia e escrevi o controle que diz
+que o portão morde. O QA de lote foi mandado justamente para desconfiar disso, e achou.
+
+**O buraco:** o Chromium usa a MESMA frase — `Failed to load resource` — para duas coisas opostas:
+
+| o que o navegador diz | o que significa | de quem é a culpa |
+|---|---|---|
+| `net::ERR_…` | **não cheguei lá** | da rede de quem roda (proxy, adblock, servidor mudo) |
+| `the server responded with a status of 404` / `400` | **cheguei, e levei um não** | **do jogo** — endereço malformado, payload inválido |
+
+A primeira versão filtrava por `/Failed to load resource/` e engolia as duas. Ou seja: com a
+promessa escrita de calar *"só quando o próprio Chromium diz que não conseguiu buscá-lo"*, ela
+calava também o 404 do próprio endereço da medição.
+
+**E isso é grave por uma razão que o `CLAUDE.md` §3.2 já tinha escrito**, sobre errar o endereço
+da medição: *"errar nela falha em SILÊNCIO: os dois endereços respondem 200 OK a qualquer chave,
+e o sintoma seria um painel vazio semanas depois"*. O caminho errado (contra a região errada) é o
+que ainda dava sinal — um 4xx. **O filtro tirava o único sinal que sobrava.**
+
+**O conserto é uma linha:** `/Failed to load resource: net::ERR_/`. Aplicado, e verificado nos
+dois sentidos por medição própria:
+
+- com o buraco de volta: `test/filtro-console-controle.js` → **exit 1**, apontando `D` e `E`
+  (*"a MEDIÇÃO responde 404 / 400 — culpa do jogo"*) e passando as outras quatro;
+- com o conserto: **exit 0**, seis cenas certas.
+
+### O controle virou PERMANENTE e está no CI
+
+`test/filtro-console-controle.js` (escrito pelo QA, 227 linhas) roda as seis cenas **no jogo de
+verdade, com a CSP de verdade**: A proxy recusa a medição (engole) · B `pack-*.json` do jogo some
+(acusa) · C CSP barra host não autorizado (acusa) · D medição responde 404 (acusa) · E medição
+responde 400 (acusa) · F `console.error()` do jogo (acusa). Mais duas verificações de borda: erro
+**sem url** continua acusando (o `|| ''` não virou curinga) e erro que não é `Failed to load
+resource` continua acusando **mesmo no host da medição**.
+
+**A lição, e ela não é sobre este filtro:** quem escreve o conserto não pode ser o único a
+escrever o controle dele. O meu controle temporário testava duas direções e as duas passavam — e
+o buraco estava numa terceira que eu não imaginei, porque quem imaginou o conserto imagina as
+mesmas cenas duas vezes.

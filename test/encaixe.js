@@ -193,6 +193,17 @@ async function hudNoLugar(pg) {
   // "Failed to load resource" em geral: isso engoliria um `pack-*.json` que some, que é defeito
   // de verdade e dos caros (o capítulo roda com a arte errada, sem erro nenhum). Ele cala UM
   // host: o da medição, e só quando o próprio Chromium diz que não conseguiu buscá-lo.
+  //
+  // O `net::ERR_` NÃO É ENFEITE, E A PRIMEIRA VERSÃO NÃO O TINHA — foi o QA que derrubou (31/08).
+  // O Chromium usa a MESMA frase, "Failed to load resource", para duas coisas opostas:
+  //   · `net::ERR_...`  — não cheguei lá. Rede de quem roda: proxy, adblock, servidor mudo.
+  //   · `the server responded with a status of 404` (ou 400) — cheguei, e levei um não.
+  // A segunda é **culpa do jogo**: endereço malformado, payload inválido, caminho errado. Sem o
+  // `net::ERR_` o filtro engolia as duas, e o §3.2 do CLAUDE.md nomeia justamente esse modo de
+  // falha como o pior que a medição tem — *"errar nela falha em SILÊNCIO: os dois endereços
+  // respondem 200 OK a qualquer chave, e o sintoma seria um painel vazio semanas depois"*. Um
+  // filtro que calasse o 404 tiraria o único sinal que ainda sobrava para o endereço errado.
+  // Quem cobra as seis cenas é `test/filtro-console-controle.js`.
   //   · o host sai da constante ÚNICA (`MEDIDA_HOST`), a mesma que alimenta a CSP e o build —
   //     escrever 'posthog' aqui à mão criaria a segunda cópia que o §3.2 existe para não ter;
   //   · a URL vem de `m.location().url`, e que ela chega foi MEDIDO, não suposto:
@@ -201,7 +212,7 @@ async function hudNoLugar(pg) {
   page.on('console', m => {
     if (m.type() !== 'error') return;
     const url = (m.location() && m.location().url) || '';
-    if (url.indexOf(MEDIDA_HOST) === 0 && /Failed to load resource/i.test(m.text())) return;
+    if (url.indexOf(MEDIDA_HOST) === 0 && /Failed to load resource: net::ERR_/i.test(m.text())) return;
     erros.push('CONSOLE: ' + m.text());
   });
   // O FLAKE DE DUAS NOITES, nomeado em 22/08 pelo log inteiro do portão (PENDENTES 52):

@@ -75,6 +75,18 @@ jobs:
       - run: node test/encaixe.js
         timeout-minutes: 12
 
+      # O CONTROLE DO FILTRO DE CONSOLE (31/08). O coletor de erros de console do encaixe passou
+      # a calar UM host — o da medição — quando o navegador diz que não conseguiu buscá-lo, para
+      # não reprovar um jogo perfeito por causa do proxy de quem roda. Filtro sem controle é
+      # portão cego com assinatura de verde, e este quase ficou: a primeira versão engolia também
+      # o 404 e o 400 VINDOS da medição, que são culpa do jogo (endereço malformado, payload
+      # inválido) e são exatamente o modo de falha que o CLAUDE.md §3.2 chama de o pior, porque
+      # já é silencioso por natureza. Quem achou foi o QA, contra o autor. As seis cenas rodam
+      # no jogo de verdade, com a CSP de verdade, e a cena D injeta o defeito de volta.
+      - name: controle do filtro de console (prova que ele só cala a rede de quem roda)
+        run: node test/filtro-console-controle.js
+        timeout-minutes: 4
+
       # E A FILA-AUTH (A11 da auditoria da seguranca, 21/08). O dashboard e a unica pagina que
       # guarda sessao do dono — access_token E refresh_token — e ate aqui nada no CI a abria:
       # quem quebrasse o login so descobriria tentando entrar pelo celular. As 13 cenas rodam
