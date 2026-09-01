@@ -107,12 +107,14 @@
       "titulo": "A rotina de validade passa a cobrir os 7 sinais que o acervo declara",
       "detalhe": "Achado 1 do vigia (22/08, dev-dados), orfao sem item ate agora — regra do §3.1.5: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais; UNESCO, STF e INCRA nao eram procurados por NINGUEM. Aceite: os 7 sinais tem dono e gatilho na rotina (quem procura, onde, quando), o conteudo-vigia.js enxerga os 7 (nao so PRODES/MapBiomas/censo), e o controle 2.8 do vigia continua mordendo com defeito injetado. Numero novo so entra com fonte primaria — o dev-dados garante ONDE mora e QUANDO vence; o que o conteudo DIZ e do historiador.",
       "agente": "dev-dados",
-      "estado": "livre",
+      "estado": "em-curso",
       "camada": "medio",
       "territorio": [
         "ferramentas/conteudo-vigia.js",
         "ferramentas/conteudo/"
-      ]
+      ],
+      "maquina": "nuvem-20260901T1622",
+      "desde": "2026-09-01T16:23:44.284Z"
     },
     {
       "id": "fichas-lote-2",
@@ -529,11 +531,13 @@
       "titulo": "O portao-navegador.js diz VERDE sobre 8 arquivos que ele nunca chega a ler (PENDENTES 92)",
       "detalhe": "Achado pelo pre-integrador em 01/09 rodando DEPOIS do conserto. semComentarios() procura /* no texto bruto sem entender strings; rodape-verdadeiro.js usa a rota Express /** seis vezes, o parser le aquilo como abertura de comentario e engole ate o proximo */ legitimo, inclusive o chromium.launch() real. Medido: reinjetado o launch nu, o portao saiu exit 0 (deveria ser 1). Varridos os test/*.js, OITO arquivos hoje no alcance tem ocorrencia engolida, entre eles o proprio portao-navegador.js. O --autoteste passa porque injeta sempre na mesma cobaia (medir-save-hostil.js), que nao tem o padrao — 1 cobaia fixa contra 8 arquivos cegos. Aceite no PENDENTES 92: semComentarios() pula literais de string; reinjetar o nu em rodape-verdadeiro.js e cobrar exit 1; o autoteste ganhar uma segunda cobaia COM o padrao /**; e a varredura dos 8 devolver 0 engolidos.",
       "agente": "qa",
-      "estado": "livre",
+      "estado": "em-curso",
       "camada": "medio",
       "territorio": [
         "test/portao-navegador.js"
-      ]
+      ],
+      "maquina": "nuvem-20260901T1622",
+      "desde": "2026-09-01T16:23:29.648Z"
     }
   ]
 }
