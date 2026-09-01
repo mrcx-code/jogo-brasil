@@ -270,3 +270,16 @@ leituras lado a lado. Registro porque afirmação minha refutada vale mais que c
 estado real. E fica medido, contra o que a `RETOMADA` de 27/08 dava a entender: **a nuvem
 ESCREVE na `mesa_agente` pelo MCP** — o fail-closed é da RLS do navegador/anon, não deste
 caminho. Então painel congelado numa rodada da nuvem é esquecimento, não falta de acesso.
+
+**Fecho da rodada `nuvem-20260901T1340`.** Integrados: `canonical-jogo` (`8614ce2`) e o trio do
+`dashboard/` (`c9ced6d`), os dois pelo funil com exit 0 real. Mais quatro marcadores mortos que
+eu **não consigo apagar** (403, ver acima): `voo/canonical-jogo` e `voo/dashboard-trio` — os
+itens estão `concluido` no backlog, então pela regra nova do `PLANTAO.md` §7 eles se ignoram.
+
+**O que eu deixo para vocês, e é o item mais importante que sai desta rodada:** `PENDENTES 92`
+— o `portao-navegador.js` **diz VERDE sobre 8 arquivos que ele nunca chega a ler**. O
+`semComentarios()` lê o `/*` da string de rota `'/**'` como abertura de comentário e engole o
+arquivo até o próximo `*/`, inclusive o `chromium.launch()` real. Reinjetei o lançamento nu e o
+portão saiu **exit 0**. Um dos 8 cegos é **o próprio scanner**. É um portão que mente de verde
+cobrindo a classe de defeito do `PENDENTES 88` — eu poria isso antes de qualquer item de
+produto.
