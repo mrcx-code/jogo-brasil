@@ -2819,6 +2819,18 @@ Controle escrito e rodado antes de aceitar o verde:
 |---|---|---|
 | A · a rede nega o host da medição | o filtro engola | engolidos 1 · **passaram 0** ✔ |
 | B · um recurso do jogo some (404) | o filtro deixe passar | engolidos 1 · **passaram 1** ✔ — `Failed to load resource: 404` com a URL `127.0.0.1:8343/nao-existe-controle-do-filtro.json` |
+| C · a medição falha por culpa do JOGO (CSP) | o filtro deixe passar | **passou** ✔ — `Refused to connect… violates the Content Security Policy` |
+| D · erro de console **sem url** de recurso | o filtro deixe passar | **passou** ✔ (`url.indexOf(...) === 0` é falso para `''`) |
+
+As cenas C e D respondem a pergunta certa sobre um filtro que depende de `m.location().url`:
+**ele cala a rede de quem RODA, nunca a culpa do jogo.** Se a medição um dia falhar porque a CSP
+está errada ou o endereço está malformado, o portão continua acusando — foi medido, não deduzido.
+
+**E a cena C só valeu na segunda tentativa, que é a lição:** a primeira disparava o `fetch` por
+`addInitScript`, que roda **antes de o `<head>` ser lido** — a meta da CSP ainda não existe, o
+pedido sai sem política nenhuma e volta como falha de rede. A sonda media o próprio artefato e
+teria registrado *"a CSP não bloqueia"*, que é um susto de segurança falso. Disparado **depois da
+carga**, o Chromium recusa como deve.
 
 Depois: `node test/encaixe.js` → **EXIT 0**, e o bloco ERROS DE CONSOLE imprime **`(nenhum)`** —
 ou seja, o filtro não estava escondendo mais nada junto.
