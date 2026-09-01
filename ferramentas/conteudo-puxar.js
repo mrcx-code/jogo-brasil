@@ -118,7 +118,7 @@ const TABELAS = [
 
 // ————— 3. O GET —————
 //
-// PostgREST pagina; 644 pares cabem numa resposta hoje, mas "cabe hoje" é como se perde linha
+// PostgREST pagina; 661 pares cabem numa resposta hoje, mas "cabe hoje" é como se perde linha
 // depois. A paginação é explícita, com `order` estável — sem ordem declarada, duas páginas
 // podem repetir e pular linhas, e o arquivo sairia errado sem erro nenhum.
 const PAGINA = 1000;

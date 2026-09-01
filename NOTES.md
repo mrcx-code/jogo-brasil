@@ -10510,3 +10510,114 @@ ordem para a primeira rodada com rede aberta.
 Critério Brasil é revista pela ABEP e o verbete a ancora em "versão em vigor desde 2015", que data
 a afirmação mas não a faz vencer sozinha; e o item (4), Clóvis Moura, que é do dono e ninguém deve
 decidir sozinho.
+
+---
+
+## 01/09 — DUAS DATAS ERRADAS NOS TRÊS VERBETES, E UMA DELAS CONTRA A PRÓPRIA FONTE CITADA
+
+Auditoria do `historiador` (rodada `hist-20260901T2022`) sobre a entrega órfã
+`entrega/glossario-substancia-rev2`, pedida pelo plantão `nuvem-20260901T2022` como portão do
+funil. **Veredito: aprova com corte.** Três cortes aplicados, cada um com procedência — que é o
+que o `CLAUDE.md` exige para um corte não ser opinião.
+
+**A lição da rodada, e ela é sobre COMO a entrega errou, não sobre o quanto:** esta entrega é a
+mais autocrítica que este glossário já recebeu. Ela cortou a própria aspa sem página, recusou o
+número bonito de "o contribuinte britânico pagou até 2015" citando a resposta do Tesouro, e
+declarou os próprios `dv: 1`. **E errou duas datas que ninguém checou.** É exatamente o que o
+`PLANTAO.md` §2 manda avisar por escrito ao despachar: *entrega honesta é onde eu baixo a
+guarda*. O brief do historiador trazia essa frase, e foi ela que encontrou o defeito — não a
+desconfiança do número que o plantão mais desconfiava, que era o dos 40% e que **não caiu**.
+
+### Corte 1 — ECONOMIA DO OURO: 1720 → lei de 11/02/1719, casas funcionando em 1725
+
+O verbete dizia que a Coroa *"em 1720 mandou criar as Casas de Fundição"*. **1720 não é o ano em
+que a Coroa mandou nada: é o ano do levante de Vila Rica, CONTRA as casas anunciadas no ano
+anterior.** O verbete publicava como ato de governo a data da revolta contra o ato.
+
+**De onde veio o corte:** do *Dicionário da administração pública brasileira do período colonial*
+(MAPA), do **Arquivo Nacional**, verbete "Casas de Fundição (1603-1821)" — **a fonte que o próprio
+verbete já listava na linha `f:`** — e do portal História Luso-Brasileira do mesmo Arquivo
+Nacional: a lei de **11 de fevereiro de 1719** autorizou a criação das casas e a cobrança do quinto
+sobre o ouro em pó; quatro delas só começaram a ser construídas em 1724 e **funcionaram a partir de
+1º de fevereiro de 1725**. Propriedade da fonte: é o órgão que guarda e descreve a documentação da
+administração colonial — registro de órgão, que é a forma que a REGRA DO DOCUMENTO manda preferir.
+
+O texto novo carrega as três datas e diz o que 1720 foi, de propósito: sem isso, a próxima sessão
+"corrige" 1719 de volta para 1720, porque 1720 é o ano que gruda na memória.
+
+### Corte 2 — CRITÉRIO BRASIL: "versão em vigor desde 2015" → "versão de 2015", consultada
+
+*"Em vigor desde 2015"* é uma afirmação sobre **hoje**, e hoje é 01/09/2026. Indexados no domínio
+`abep.org` há PDFs de alterações válidas a partir de 2021, 2022 e 2024, e um **`CCEB_2026.pdf`
+publicado em março de 2026** — posterior à entrega. A afirmação estava simplesmente vencida.
+
+**De onde veio o corte:** do repositório de documentos da **própria ABEP**, que é quem mantém o
+instrumento; ninguém tem mais propriedade sobre "qual versão está em vigor" que quem a publica.
+**A correção não foi atualizar para 2026** — o egresso desta máquina não abriu o PDF de 2026 —, foi
+**parar de afirmar vigência e dizer qual versão foi consultada**, que é verdade permanente. Os
+pontos (água encanada 4, rua pavimentada 2) ficam, agora datados na própria frase.
+
+**Manutenção, e é o único dos três que vence:** conferir no site da ABEP, a cada ano, se a
+pontuação mudou. Há `CCEB_2026` publicado que esta rodada não conseguiu abrir.
+
+### Corte 3 — A CONTA DA ESCRAVIDÃO: "ao acabar com a escravidão em suas colônias" → "ao votar o fim … em quase todas"
+
+Como estava, o verbete ensinava que a Grã-Bretanha acabou com a escravidão em suas colônias em
+1833 — errado nos três eixos. **De onde veio o corte:** do *Slavery Abolition Act 1833*, **já
+citado na linha `f:` do verbete**: sanção real em 28/08/1833, vigência em **1º de agosto de 1834**,
+exceção expressa dos territórios da Companhia das Índias Orientais, do Ceilão e de Santa Helena, e
+o regime de *apprenticeship* que só terminou em 31/07/1838. Duas palavras trocadas resolvem sem
+tocar o argumento, que é a conta.
+
+### O QUE O HISTORIADOR TENTOU DERRUBAR E NÃO CAIU — vale tanto quanto o corte
+
+- **"perto de 40% do gasto do governo naquele ano"** — o número de que o plantão mais desconfiava.
+  **Sustentado**, por duas fontes independentes com a mesma construção (Full Fact; Historic England,
+  alinhada ao UCL). É comparação de grandeza, não desembolso de 1833 — e o verbete diz o que o
+  Parlamento **votou**, não o que o Tesouro gastou. Nenhuma fonte o contradiz.
+- **"mais de 40 mil indenizações"** — sustentado, e é a formulação prudente: as fontes falam em
+  mais de 40 mil *awards* e em mais de 45 mil pedidos; a UCL publica registros de 47 mil
+  proprietários. O verbete escolheu o piso e a unidade certa (indenizações, não donos).
+- **876.629 kg atribuídos a Noya Pinto** — sustentado, com corroboração revisada por pares: a
+  Revista Clio (UFPE) atribui a ele exatamente esse número, registra a estimativa concorrente de
+  Pandiá Calógeras (948.105 kg, que incluía a Bahia) e dá a razão da divergência que o verbete já
+  dizia — contrabando e registros perdidos no incêndio da Alfândega de Lisboa em 1764. O `dv: 1`
+  está bem posto.
+- **Methuen 27/12/1703** — sustentado quanto a data, local e conteúdo. **Dívida de segunda ordem
+  registrada:** a fração "um terço menos de direitos que o francês" não foi fechada no articulado
+  (o egresso bloqueou as duas transcrições). É a leitura corrente do artigo II, não número
+  inventado, mas fica na mesma prateleira das dívidas que a própria entrega declarou.
+- **§2, verificado item a item nos três:** "propriedade" entre aspas como vocabulário de quem
+  indenizou; Williams **atribuído**, nunca na voz do jogo; nenhum "escravo" como identidade;
+  ninguém real como inimigo; nenhuma pessoa escravizada como recurso. Passa. As remissões novas
+  do `GLOSSARIO_REL` não deixam órfão.
+
+### A PAREDE DE REDE, medida e não acreditada
+
+O historiador **não tomou pela palavra** a alegação da entrega de que nenhum documento primário
+foi aberto: mediu. `curl` devolveu **CONNECT tunnel failed, 403** para `www.abep.org` e código
+**000** para o PDF da ABEP, para o FOI do Tesouro em `assets.publishing.service.gov.uk` e para
+`legislation.gov.uk`; `WebFetch` devolveu `EGRESS_BLOCKED` em quatro hosts. **Só busca indexada
+responde.** É por isso que os três cortes são todos de FORMA (data, vigência, tempo verbal) e
+nenhum troca um número por outro que também não se pôde abrir.
+
+### ⛔ DUAS PERGUNTAS QUE FICARAM PARA O DONO — lugar de fala, e §2 as torna dele
+
+O historiador achou **lacuna de lugar de fala em dois dos três verbetes** e **não a fechou
+sozinho**, porque a linha de fonte é visível na tela e escolher quem narra é escolher quem
+representa. As duas viram item de check:
+
+1. **ECONOMIA DO OURO** — a frase que nomeia gente ("quem cavou foi gente africana escravizada") e
+   a remissão para QUILOMBO são sustentadas só por historiografia econômica branca do período.
+   Nome proposto: **Clóvis Moura, *Rebeliões da senzala: quilombos, insurreições, guerrilhas*,
+   Edições Zumbi, 1959**. **Fato novo que muda a premissa da decisão de 24/08:** a recusa de Moura
+   era pelo selo de corrente da editora da edição corrente; a **1ª edição, de 1959, é da Edições
+   Zumbi**, casa que fechou três anos depois e não carrega selo nenhum.
+2. **CRITÉRIO BRASIL** — a nota da entrega dizia que "fonte institucional basta porque o verbete
+   não interpreta a vida de ninguém". **Não basta:** a última oração ("a régua enxerga o que a casa
+   comprou e não enxerga o que a família herdou") **é** interpretação sobre desigualdade, e hoje é
+   carregada por uma fonte de mercado publicitário. Nome proposto: **Marcelo Paixão (coord.),
+   *Relatório Anual das Desigualdades Raciais no Brasil 2009–2010*, LAESER/UFRJ, 2010**;
+   alternativa **Cida Bento, *O pacto da branquitude*, 2022**.
+
+Os três verbetes entraram **sem** esses nomes. Fechar a lacuna é decisão dele.
