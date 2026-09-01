@@ -291,27 +291,45 @@ const temNumero = (s) => /[0-9]/.test(String(s || ''));
 
 // As três tabelas, cada uma com a sua chave natural e as suas colunas de conteúdo. É a mesma
 // lista do `conteudo-puxar.js`; escrita, não descoberta, pelo mesmo motivo que lá.
+// A GOVERNANÇA HERDADA — e ela já saiu curta uma vez, no dia em que foi escrita.
+//
+// A primeira lista tinha cinco colunas e deixava `fonte_revisao` de fora, além de CARIMBAR
+// `revisado_por` com o nome de quem aplicava. As duas coisas apagavam o mesmo dado: os 181
+// verbetes têm `revisado_por` = "historiador" e `fonte_revisao` = "parecer 21/08/2026: triagem
+// §2 dos 181 verbetes", que foi um item inteiro de backlog. Quatro linhas perderam isso antes
+// de alguém olhar, e a tabela NÃO TEM DELETE.
+//
+// A lição do modelo, e ela é a razão de `revisado_por` ser herdado: **deslocar a `ordem` de um
+// verbete não é revisar o verbete.** Quem o revisou continua sendo quem o revisou; quem aplicou
+// vai em `aprovado_por`, que é o campo para isso. Carimbar `revisado_por` é assinar o parecer de
+// outra pessoa.
+//
+// `tem_numero` NÃO entra aqui de propósito: é a única recalculada, porque é mecânica e depende
+// do texto NOVO. `tag_s2_alto` existe só em `conteudo_glossario` — pedi-la nas outras daria erro
+// de coluna.
+const GOVERNANCA_HERDADA = ['vence_em', 'vence_regra', 'tag_s2', 'nota',
+  'revisado_por', 'fonte_revisao'];
+
 const TABELA = {
   grupo: {
     nome: 'public.conteudo_glossario_grupo',
     chaveCols: ['chave'],
     conteudo: ['chave', 'g', 'curto', 'sub', 'ordem'],
-    herda: ['vence_em', 'vence_regra', 'tag_s2', 'nota'],
+    herda: GOVERNANCA_HERDADA,
     numeroDe: 'sub',
   },
   verbete: {
     nome: 'public.conteudo_glossario',
     chaveCols: ['chave'],
     conteudo: ['chave', 't', 'o', 'd', 'f', 'dv', 'grupo_chave', 'ordem'],
-    // `tag_s2_alto` existe SÓ nesta tabela — pedi-la nas outras daria erro de coluna.
-    herda: ['vence_em', 'vence_regra', 'tag_s2', 'tag_s2_alto', 'nota'],
+    herda: GOVERNANCA_HERDADA.concat(['tag_s2_alto']),
     numeroDe: 'd',
   },
   par: {
     nome: 'public.conteudo_glossario_rel',
     chaveCols: ['termo', 'relacionado'],
     conteudo: ['termo', 'relacionado', 'ordem'],
-    herda: ['vence_em', 'vence_regra', 'tag_s2', 'nota'],
+    herda: GOVERNANCA_HERDADA,
     numeroDe: null,
   },
 };
@@ -409,11 +427,13 @@ function montarSQL(itens, A, por) {
       L.push('values (' + vals.join(', ') + ');');
     } else {
       // Revisão: rev+1 e a governança vêm da linha ANTERIOR (a que a fase 1 acabou de fechar).
+      // Só `aprovado_por`/`aprovado_em` levam o carimbo de quem aplicou. `revisado_por` é
+      // herdado com o resto — ver o comentário de GOVERNANCA_HERDADA.
       const cols = t.conteudo.concat(['rev', 'estado', 'tem_numero'], t.herda,
-        ['revisado_por', 'aprovado_por', 'aprovado_em']);
+        ['aprovado_por', 'aprovado_em']);
       const sel = t.conteudo.map((c) => val(a.linha[c]))
         .concat(['a.rev + 1', dq('publicado'), tn ? 'true' : 'false'], t.herda.map((c) => 'a.' + c),
-          [dq(por), dq(por), 'now()']);
+          [dq(por), 'now()']);
       L.push('insert into ' + t.nome + ' (' + cols.join(', ') + ')');
       L.push('select ' + sel.join(', '));
       L.push('  from ' + t.nome + ' a');
@@ -540,6 +560,13 @@ function autotesteSQL(A, base, clonar) {
   e.glossario[10].d = e.glossario[10].d + ' MEXIDO.';    // revisão: existe dos dois lados
   const mexida = e.glossario[10].chave;
   const nova = e.glossario.pop().chave;                  // só no jogo: entra com rev 1
+  // AS OUTRAS DUAS TABELAS TAMBÉM, e esta é a terceira forma de burlar, achada pelo QA em
+  // 01/09: até aqui NENHUM autoteste desta casa jamais gerou um statement para
+  // `conteudo_glossario_grupo` nem para `conteudo_glossario_rel`. Um `herda: []` nessas duas
+  // passaria por todo portão verde. Estragar uma linha de cada uma faz o emissor emitir para
+  // as três, e é sobre as TRÊS que a cobrança de governança abaixo roda.
+  e.grupo[2].sub = e.grupo[2].sub + ' MEXIDO.';
+  e.rel[3].ordem = 99;
   const itens = diferencas(A, ESPELHO.canonizarBanco(e));
   const sql = montarSQL(itens, A, 'autoteste');
 
@@ -570,8 +597,76 @@ function autotesteSQL(A, base, clonar) {
   if (linhasDaNova.some((l) => /^\s*where .*and vigente_ate is null;/.test(l))) {
     falhar('a chave nova "' + nova + '" ganhou um fecho, e ela nunca existiu no banco.');
   }
-  console.log('autoteste do --sql — ' + itens.length + ' divergência(s) viram SQL: a revisada e a '
-    + 'nova aparecem, a não-mexida NÃO aparece, e todo fecho vem antes de todo insert');
+  // ————— A GOVERNANÇA, cobrada TABELA POR TABELA e por uma lista de FORA —————
+  //
+  // Este é o controle que faltava no dia em que o emissor nasceu, e ele já nasceu errado uma
+  // vez: a primeira versão percorria `GOVERNANCA_HERDADA`, isto é, exatamente a lista que o
+  // defeito encurta. Injetado o defeito real (tirar `fonte_revisao` DAQUELA lista), o autoteste
+  // saía **exit 0** — ele deixava de procurar a coluna junto com o emissor. Controle que lê a
+  // mesma variável que o defeito estraga é decoração assinada de verde (EQUIPE.md 2.8).
+  //
+  // Então a lista vem do `conteudo-puxar.js`, que é OUTRO arquivo e a outra ponta do espelho:
+  // toda coluna de governança que o puxão traz do banco tem de ser herdada aqui, MENOS as que
+  // este emissor decide de propósito — cada uma nomeada com o motivo. Coluna nova no esquema
+  // passa a reprovar até alguém decidir de que lado ela cai.
+  const DECIDIDAS_AQUI = [
+    'rev',          // a.rev + 1, derivada do banco
+    'vigente_de',   // default now() — é a linha nova nascendo
+    'vigente_ate',  // null: é ela que passa a ser a vigente
+    'estado',       // 'publicado'
+    'tem_numero',   // recalculada: é mecânica e depende do texto NOVO
+    'aprovado_por', // o carimbo de quem aplicou
+    'aprovado_em',
+  ];
+  // ⚠ O STATEMENT NÃO SE CORTA NO PRIMEIRO `;`, e esta armadilha foi paga aqui na mesma hora.
+  // A primeira versão fatiava cada statement em `t.indexOf(';')` — e o texto histórico TEM
+  // ponto-e-vírgula dentro das aspas. O corte caía no meio da definição de um verbete, antes do
+  // `a.rev + 1`, e o controle concluía "nenhum insert de revisão foi emitido" sobre um SQL
+  // perfeitamente correto. É a mesma classe do PENDENTES 92 (`semComentarios` lendo o `/*` de
+  // uma string de rota como abertura de comentário): analisador ingênuo que confunde o
+  // delimitador com o conteúdo. Aqui o único limite confiável é o começo de linha, porque é o
+  // emissor logo acima que decide onde cada statement começa.
+  const statements = [];
+  for (const linha of sql.split('\n')) {
+    if (/^(insert into |update )/.test(linha)) statements.push(linha);
+    else if (statements.length) statements[statements.length - 1] += '\n' + linha;
+  }
+  const PUXAR = require('./conteudo-puxar.js');
+  for (const tab of PUXAR.TABELAS) {
+    const exigidas = tab.governanca.filter((c) => DECIDIDAS_AQUI.indexOf(c) < 0);
+    // o insert-select daquela tabela, isolado: é nele que a herança tem de aparecer
+    // o `nome` do puxao vem SEM o esquema (`conteudo_glossario`), e o emissor escreve COM
+    // (`public.conteudo_glossario`) — casar os dois sem o prefixo faz o filtro nunca achar
+    // nada e o controle acusar "nao emitiu" sobre um SQL correto. Custou uma volta.
+    const alvo = 'insert into public.' + tab.nome + ' (';
+    const revisao = statements.filter((t) => t.startsWith(alvo) && t.indexOf('a.rev + 1') >= 0);
+    if (!revisao.length) {
+      falhar('nenhum insert de REVISÃO foi emitido para public.' + tab.nome + ' — sem isso a herança '
+        + 'de governança dessa tabela nunca é medida, que é como `grupo` e `par` ficaram '
+        + 'descobertos até 01/09.');
+    }
+    const corpo = revisao[0];
+    for (const col of exigidas) {
+      if (corpo.indexOf('a.' + col) < 0) {
+        falhar('em public.' + tab.nome + ', a coluna de governança "' + col + '" não é herdada da linha '
+          + 'anterior no insert da rev+1. Coluna de governança que não viaja com o verbete é '
+          + 'trabalho do historiador apagado em silêncio — foi assim que o parecer §2 de 4 '
+          + 'verbetes se perdeu em 01/09.');
+      }
+    }
+    // E o carimbo aparece UMA vez — `aprovado_por`, e mais nada. Duas ocorrências significam
+    // que `revisado_por` (ou outra coluna de parecer) voltou a levar o nome de quem aplicou.
+    const carimbos = corpo.split('$b$autoteste$b$').length - 1;
+    if (carimbos !== 1) {
+      falhar('em public.' + tab.nome + ', o insert da rev+1 carimba o nome de quem aplicou ' + carimbos
+        + ' vez(es); tem de ser exatamente 1 (aprovado_por). Deslocar a ordem de um verbete não '
+        + 'é revisá-lo: quem o revisou continua sendo quem o revisou.');
+    }
+  }
+
+  console.log('autoteste do --sql — ' + itens.length + ' divergência(s) viram SQL nas TRÊS '
+    + 'tabelas: a revisada e a nova aparecem, a não-mexida NÃO aparece, todo fecho vem antes de '
+    + 'todo insert, e a governança inteira do puxão é herdada com um só carimbo por insert');
 }
 
 // ————— 6. O autoteste (lição 2.8: portão que nunca foi visto reprovando é decoração) —————
