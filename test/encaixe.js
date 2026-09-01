@@ -3011,6 +3011,31 @@ async function hudNoLugar(pg) {
       // (d) quantas notas existem no pior caso -- fronteira zero
       r.notasNaFronteiraZero = LINHA_TEMPO.filter(n =>
         n.tipo === 'momento' && ((n.cena || 0) | 0) <= 0 && !!n.t && !!n.d && !!n.f).length;
+
+      // (e) O ESPELHO CONTRA A MEDIDA -- acrescentado pelo QA adversarial em 31/08.
+      //
+      // O numero de (d) NAO e uma medida: e uma COPIA do filtro de `notaDaVolta` redigitada
+      // aqui dentro. Espelho nao mede nada -- no instante em que a funcao e o espelho
+      // discordarem, este bloco continua VERDE imprimindo o numero errado, que e a forma mais
+      // cara de um teste mentir. E a divergencia nao e hipotetica: medida em 31/08 sobre o
+      // conserto proposto no PENDENTES 27 (os seis nos `{tipo:"momento", i:0..5}` resolvidos
+      // por `MOMENTOS[i]`), a funcao passou a entregar SETE notas na fronteira 0 e o espelho
+      // continuou dizendo CINCO -- e nenhuma assercao deste arquivo notou.
+      //
+      // Entao o espelho passa a ser conferido contra o que o papel REALMENTE sorteia: os dias
+      // sao varridos, os titulos que saem do DOM sao contados, e os dois numeros tem de bater.
+      const vistos = [];
+      S.fronteira = 0;
+      for (let dia = 1; dia <= 60; dia++) {
+        limpar(); fechar(); R.dias = dia;
+        mostrarRetorno(12 * 3600);
+        const el = document.querySelector('#retLista .retNota .ltT');
+        const t = el ? (el.textContent || '') : '';
+        if (t && vistos.indexOf(t) < 0) vistos.push(t);
+      }
+      r.notasMedidasNaFronteiraZero = vistos.length;
+      r.notasMedidasTitulos = vistos;
+      limpar(); fechar();
       return r;
     });
 
@@ -3027,6 +3052,13 @@ async function hudNoLugar(pg) {
     ok(volta.notaTemFonte, 'a nota da volta traz a fonte junto (§2: onde há fonte, ela aparece)');
     ok(volta.notasNaFronteiraZero > 0,
       'há nota disponível já na fronteira 0 — senão quem volta no dia 2 sem ter avançado não recebe nada');
+    log('   notas que o papel REALMENTE sorteia na fronteira 0: '
+      + volta.notasMedidasNaFronteiraZero);
+    volta.notasMedidasTitulos.forEach(t => log('     · ' + t));
+    ok(volta.notasMedidasNaFronteiraZero === volta.notasNaFronteiraZero,
+      'e o número medido no papel bate com o filtro espelhado neste teste ('
+      + volta.notasMedidasNaFronteiraZero + ' medidas vs ' + volta.notasNaFronteiraZero
+      + ' espelhadas) — espelho que diverge da função é decoração, não asserção');
 
     // (c) O DEFEITO QUE ISTO PEGOU, e ele estava no ar (18/08). A linha "N pessoas acolhidas
     // vivem no lugar que voces abriram" somava TODAS as vagas de `S.acolhidos` -- era o unico
