@@ -10452,3 +10452,120 @@ literais de string, reinjetar o nu e cobrar **exit 1**, dar ao `--autoteste` uma
 cobaia com o padrão `'/**'`** (cobaia única é o que deixou isso passar), e reportar a varredura
 dos 8 com **0 engolidos**. É um portão mentindo de verde e ele cobre a classe de defeito do
 `PENDENTES 88` — vale antes de qualquer item de produto.
+
+---
+
+## Diário — 2026-09-01 · plantão `nuvem-20260901T1622` · o portão que mentia, e três armadilhas da nuvem
+
+Rodada agendada (nenhuma issue com a etiqueta `agente` aberta). Duas entregas integradas pelo
+funil com **exit 0 real**, e três armadilhas estruturais da máquina da nuvem medidas e escritas
+no `PLANTAO.md` §7 — as três capazes de fazer uma rodada inteira parecer outra coisa do que é.
+
+### O que fez
+
+**1. `PENDENTES 92` fechado — o portão que dizia VERDE sobre o que nunca leu** (`6b4f0c8`).
+
+O número que resume: nos 8 arquivos sob vigilância havia **12 ocorrências brutas** de
+`chromium.launch` e **só 2 sobreviviam** ao `semComentarios()` — **7 de 8 arquivos inteiramente
+cegos**, num portão cuja única função é vigiar exatamente aqueles arquivos. Depois do conserto:
+**8 sobrevivem, 0 nus**.
+
+O conserto trocou duas regex empilhadas por uma máquina de estados que reconhece string
+(`CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE`, com `${}` aninhado e escapes).
+
+**O verde foi tratado como suspeito, não como sucesso.** O portão passou verde de primeira, o
+que é o contrário do esperado de um instrumento que passou a ler 8 arquivos novos. O
+pré-integrador provou que `portoesDeclarados()` **não mudou** no diff e que os 8 estão dentro do
+alcance de 32 — logo o verde é árvore limpa, não cegueira nova. Sem essa prova, o conserto de um
+portão que mentia de verde teria sido assinado por um segundo verde não verificado.
+
+**2. `rotina-7-sinais` integrado** (`6b42a75`/`2aeb0f9`) — os 7 sinais do acervo (IBGE, INPE,
+MapBiomas, DOU, STF, INCRA, UNESCO) ganham `quem`/`endereco`/`periodicidade`, e o módulo recusa
+carregar sem os três. Ressalva **não bloqueante** registrada: os endereços são domínio
+institucional canônico e **não** foram verificados ao vivo — nem o autor nem o auditor têm rede
+(o `curl` do auditor foi bloqueado nos 6 hosts pela política de egress). Confirmar ao vivo é da
+próxima rodada do `alerta-validade-brasil`, como o `VIGIA.md` já manda.
+
+### O que MEDIU, e é o que muda o comportamento da próxima rodada
+
+**A nuvem roda em `HEAD` DESTACADO, e `git push -u origin main` empurra um ref de 26/08.**
+Pelo reflog: `refs/heads/main` foi criado em **2026-08-26** em `e0939a9` e **nunca mais se
+moveu** — mais de trinta commits atrás — enquanto o checkout roda no que a `origin` tem. O
+refspec `main` resolve para o ref **local**, então o push manda o commit de agosto e o trabalho
+da rodada não vai junto. Controle: com um commit novo em `HEAD` destacado, `git push --dry-run
+-u origin probe` empurra o commit velho e o novo não aparece. Aqui deu recusa, que é o desfecho
+**sortudo**; o ruim é o silencioso, com `exit 0` e o commit morrendo num contêiner reciclado.
+**O `CLAUDE.md` manda fazer exatamente isso** (`push -u origin <branch>`) — é o que torna a
+pegadinha barata de cair. A forma robusta é `HEAD:refs/heads/<ramo>`.
+
+Conferido, e é a parte boa: varri o reflog atrás de commit não publicado. **Nada perdido** além
+do meu próprio commit de sonda.
+
+**Duas entregas órfãs, dadas como inexistentes.** A rodada anterior concluiu que a das 08:23
+"não empurrou nada em cinco horas" e devolveu os itens a `livre`. Errado: existiam
+`entrega/rotina-7-sinais` (`d7174e5`) e `entrega/glossario-substancia-rev2` (`2396a90`), duas
+entregas inteiras que nunca foram pelo funil. A varredura dela olhou **só `voo/`**. Regra nova:
+**`voo/` é intenção, `entrega/` é resultado, o `backlog.json` é a verdade** — procure
+`entrega/<id>` antes de devolver qualquer item a `livre`, senão a próxima rodada refaz do zero
+trabalho que já está no servidor.
+
+**A árvore da nuvem nasce sem `node_modules`, e o funil culpa a entrega.** Custou um ciclo:
+`npm test` morreu em `Cannot find module .../typescript/bin/tsc`, o funil desfez o merge e saiu
+1, e a leitura natural — *"a entrega quebrou o build"* — é falsa. O **baseline** (`npm test` na
+`main` sem a entrega) separa as duas causas em trinta segundos: vermelho antes do `npm install`,
+**exit 0** depois, e o mesmo funil passou verde sem uma linha mudada. Antes de desconfiar do
+portão, desconfie da máquina que o roda.
+
+### O que CAIU — afirmação minha refutada
+
+**Minha formulação do PENDENTES 92 era estreita demais.** Despachei dizendo que o gatilho era o
+`/*` da rota Express `'/**'`. É **qualquer string contendo `/*`** — o que inclui os curingas
+`'**/*'` e `'**supabase.co/**'` do Playwright, presentes em quatro dos oito arquivos. A causa
+raiz é a mesma; a história bonita do `'/**'` do Express é que era pequena demais. Avisei o
+agente por escrito de que diagnóstico elegante é onde eu baixo a guarda, e foi exatamente ali
+que ele derrubou.
+
+**E uma segunda, minha, no meio da rodada:** escrevi no `PLANTAO.md` que as entregas órfãs
+foram *"empurradas às 08:42 e 08:34"*. Isso é data de **commit**, não de push, e a hora do push
+não é recuperável pela API — então eu não podia afirmar que a rodada das 13:40 podia tê-las
+visto. Corrigido no mesmo arquivo (`5b1e47c`) antes de seguir. A regra não dependia disso.
+
+### O que ficou aberto
+
+- **`PENDENTES 94`** (novo, do auditor): `chromium.launch()` na **mesma linha** de um regex com
+  barra escapada é engolido — **0 detectados onde deveria haver 1**. Mesma classe do 92, vetor
+  diferente. **Não bloqueia**: varridos `test/*.js` e `ferramentas/*.js`, não existe hoje
+  nenhuma linha que junte as duas coisas. Não foi fechado porque desambiguar regex de divisão
+  exige o token significativo anterior — outra ordem de trabalho.
+- **`PENDENTES 93`** (novo): três PNGs rastreados sujam a árvore a cada `npm test` (~400 KB de
+  churn binário sem significado). Aconteceu **3×** só nesta rodada. O risco sério é que eles
+  **não** casam com `SAIDA_BUILD`, então podem reprovar entrega boa por sujeira que ela não fez.
+- **`glossario-substancia-descolonial` é ENTREGA ÓRFÃ, não item livre.** O trabalho existe em
+  `entrega/glossario-substancia-rev2` (`2396a90`): 181→184 verbetes e o corte da aspa sem página.
+  **Testado: mergeia limpo na `main` de agora.** Não integrei porque exige o passo de banco do
+  `PENDENTES 87` (rev+1 em `conteudo_glossario`, senão o funil reverte) e auditoria do
+  `historiador` — é item de rodada, não apêndice. **Auditar e integrar, nunca reescrever.**
+
+### Dúvida que apareceu
+
+O `CLAUDE.md` §Git manda `git push -u origin <branch-name>`, e na nuvem isso é a forma **errada**.
+Não mudei o `CLAUDE.md` — é lei e a correção está no `PLANTAO.md` §7 — mas duas instruções da
+casa se contradizem, e quem ler a lei primeiro cai. Vale ao dono decidir se a lei ganha a
+ressalva.
+
+### Placar
+
+| agente | rodadas | achados | reais | desmentidos |
+|---|---|---|---|---|
+| qa (portão 92) | 1 | 3 | 2 | 1 (a minha formulação estreita) |
+| pré-integrador (vigia) | 1 | 6 | 6 | 0 (as 6 alegações confirmadas com controle próprio) |
+| pré-integrador (portão 92) | 1 | 7 | 7 | 0 (+1 achado que ninguém pediu: o PENDENTES 94) |
+| plantão | 1 | 4 | 3 | 1 (a hora do push que eu não podia afirmar) |
+
+### Próximo passo
+
+**`glossario-substancia-descolonial`**, e o trabalho é **auditar e integrar** a entrega órfã, não
+reescrevê-la. Precisa do passo de banco do `PENDENTES 87` junto (rev+1 em `conteudo_glossario`)
+e do `historiador` no gatilho — o diff toca a faixa do `GLOSSARIO` em `src/jogo.ts`.
+
+**Nome de máquina desta rodada: `nuvem-20260901T1622`.**
