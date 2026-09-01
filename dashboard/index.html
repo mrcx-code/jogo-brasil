@@ -254,6 +254,13 @@
   .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
   .ag[data-st="guardado"] .st{color:var(--alerta)}
   .ag .ult{font:600 .56rem/1.3 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.8}
+  /* FRIO: cartao que se diz trabalhando e nao da sinal. O rotulo vira alerta e o boneco para —
+     bonequinho martelando num cartao congelado e a mesma mentira em outra midia. */
+  .ag.frio .ult{color:var(--alerta);opacity:1}
+  .ag.frio .st{color:var(--alerta)}
+  .ag.frio .bon{animation:none !important;opacity:.55;filter:grayscale(.7)}
+  .ag.frio .bon .braco{animation:none !important}
+  .ag.frio .faisca{animation:none !important;opacity:0}
   /* GASTO / TOKENMAXXING (25/08): modelo e esforco sao REAIS (saem do frontmatter dos agentes);
      tokens e custo NAO tem medicao ainda, entao mostram "sem medicao" — instrumento nao mente. */
   .ag .gasto{margin-top:.45rem;padding-top:.4rem;border-top:1px dashed var(--linha);
@@ -1546,6 +1553,28 @@
     var m=s/60; if(m<60) return "há "+Math.round(m)+" min";
     var h=m/60; if(h<24) return "há "+Math.round(h)+"h";
     var d=h/24; if(d<2) return "ontem"; return "há "+Math.round(d)+" dias"; }
+  // "TRABALHANDO" NAO E PROVA DE VIDA. O status e a ultima coisa que alguem ESCREVEU: quem caiu,
+  // quem estourou cota e quem esqueceu de pousar deixa a linha acesa para sempre. Em 01/09 o painel
+  // mostrava quatro cartoes dizendo "agora" cujo ultimo sinal tinha 315 minutos — a rodada seguinte
+  // ja estava no ar e nao tinha tocado a mesa. O rotulo passa a dizer a IDADE do sinal; acima do
+  // teto ele diz que NAO SABE, que e a unica coisa honesta a dizer sobre um cartao sem sinal.
+  var SEM_SINAL_MIN=45;
+  // SEM CLAMP EM ZERO, de proposito (achado do porteiro em 01/09): com `Math.max(0, ...)` um
+  // carimbo no FUTURO virava idade 0 e o painel dizia "agora" — dez dias adiante, boneco
+  // martelando. Nao precisa de ninguem hostil: duas maquinas do plantao com relogio
+  // dessincronizado produzem isso sozinhas. Idade negativa e sinal que NAO da para acreditar,
+  // e a unica leitura honesta de um sinal em que nao se pode acreditar e "nao sei".
+  function idadeMin(iso, agoraMs){ var t=iso?new Date(iso).getTime():NaN;
+    return isNaN(t)?null:(agoraMs-t)/60000; }
+  function semSinal(iso, agoraMs){ var m=idadeMin(iso, agoraMs);
+    return m===null||m<0||m>SEM_SINAL_MIN; }
+  function rotuloUltimo(st, iso, agoraMs){
+    if(st!=="trabalhando") return "última: "+desde(iso);
+    var m=idadeMin(iso, agoraMs);
+    if(m===null) return "sem sinal — sem data";
+    if(m<0) return "sem sinal — carimbo no futuro";
+    if(m>SEM_SINAL_MIN) return "sem sinal " + desde(iso);
+    return "agora"; }
   function atualizaAg(item){
     var card=cards[item.nome];
     if(!card){ card=document.createElement("div"); card.className="ag";
@@ -1556,13 +1585,21 @@
     var st=item.status||"espera";
     // ATIVO SOBE: trabalhando vai para a faixa AGORA (topo); o resto fica na squad. Como o card
     // e cacheado por nome e so se move quando o pai troca, isto reordena sem recriar nem piscar.
-    var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
+    // FRIO NAO SOBE. A faixa AGORA e a resposta a "tem gente trabalhando neste instante?" —
+    // um cartao sem sinal ha horas responde "nao sei", e "nao sei" no topo e a mentira de novo,
+    // so que em posicao em vez de em texto. Ele desce para a squad dele com o rotulo honesto.
+    var frio=(st==="trabalhando") && semSinal(item.ativo_em, Date.now());
+    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoDe(item.squad);
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
     card.__ag=item;   // o card e cacheado por nome; o ouvinte de "Acionar" le sempre o item novo
     card.setAttribute("data-st",st);
     card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
-    card.querySelector(".st").textContent = st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera");
-    card.querySelector(".ult").textContent = st==="trabalhando"?"agora":"última: "+desde(item.ativo_em);
+    card.querySelector(".st").textContent = frio?"sem sinal"
+      :(st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"));
+    card.querySelector(".ult").textContent = rotuloUltimo(st, item.ativo_em, Date.now());
+    // Cartao FRIO: diz "trabalhando" e nao da sinal ha mais de SEM_SINAL_MIN. O boneco para de
+    // se mexer junto — animacao de trabalho num cartao morto e a mesma mentira que o rotulo.
+    card.classList.toggle("frio", frio);
     // O servidor confirmou o chamado (ou o agente ja saiu de espera): a marca local cumpriu o
     // papel dela e sai, senao um "guardado" antigo sobreviveria ao envio que ja aconteceu.
     if(st!=="espera") delete marcaLocal[item.nome];

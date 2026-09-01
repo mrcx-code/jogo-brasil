@@ -217,6 +217,14 @@ jobs:
         run: node test/cartao-controle.js
         timeout-minutes: 8
 
+      # O painel dizia "agora" sobre quatro cartoes cujo ultimo sinal tinha 315 minutos (01/09,
+      # 10h44 — o dono viu antes de nos). Status nao e prova de vida: quem cai deixa a linha
+      # acesa. Este portao cobra que o rotulo diga a IDADE do sinal, e carrega o controle que
+      # prova que ele morde — a versao antiga da pagina TEM de reprovar nele.
+      - name: o painel nao mente sobre sinal velho (com controle)
+        run: node test/painel-sem-sinal.js
+        timeout-minutes: 5
+
       - name: o lock entre máquinas (o guarda recusa território de outra máquina)
         run: node test/guarda-lock.js
         timeout-minutes: 2
