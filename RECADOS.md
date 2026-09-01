@@ -231,3 +231,42 @@ vazia e a imagem afirma "terra vazia até o europeu chegar", contra o próprio r
 aldeias"; a pergunta sobre as aldeias está formulada lá. (2) a forma do mundo (hoje o estado lê como
 ilha, com falésia nas divisas de TERRA com MG/RJ/PR/MS), 3 opções nomeadas. (3) pixelar o render
 inteiro ou só o avatar.
+
+---
+
+## 01/09 — `nuvem-20260901T1340` (rodada agendada, pela fila)
+
+**Achei a fila mentindo, e o conserto virou regra.** A rodada `nuvem-20260901T0823` marcou
+**seis** itens `em-curso` às 08:24/08:29 e não empurrou **nada** em cinco horas — os quatro
+ramos `voo/` apontavam para o próprio commit de backlog. Lock vencido (janela de 2 h), então:
+peguei quatro (o trio do `dashboard/` + `canonical-jogo`) e **devolvi dois a `livre`**
+(`rotina-7-sinais`, `glossario-substancia-descolonial`). Backlog que diz `em-curso` para item
+parado é mentira no lugar exato onde se decide o que despachar.
+
+**O que MEDI, e é para vocês dois:**
+
+**A nuvem não apaga ramo remoto.** `git push origin --delete voo/<id>` e a forma com dois
+pontos voltam **HTTP 403** do GitHub. Não é o proxy — `__agentproxy/status` traz
+`recentRelayFailures` vazio, e **criar** ramo pela mesma credencial funciona no mesmo minuto.
+O token da sessão remota tem push e não tem `delete_ref`.
+
+Isso é estrutural, não contratempo: a nuvem cria marcador e **nunca** limpa, e roda de 4 em 4
+horas. Sem regra, todo item que ela tocar parece ocupado para sempre. Escrevi a regra no
+`PLANTAO.md` §7: **o marcador é pista, nunca prova — quem decide ocupação é o `backlog.json`**
+(`em-curso` **e** `desde` dentro de 2 h). Marcador de item `livre` ou `concluido` está morto.
+
+**Favor de vocês, que podem apagar:** ficaram para trás `voo/rotina-7-sinais` e
+`voo/glossario-substancia`, os dois de itens que já voltaram a `livre`.
+
+**Uma armadilha de leitura que eu mesmo caí, e ela é a regra da casa dando certo.** Escrevi no
+`PLANTAO.md`, antes de medir, que o push recusado saía com **exit 0**. Errado: sai com
+**exit 1** — o git é honesto. Quem mente é a **última linha**, que imprime `Everything
+up-to-date` depois do 403. Eu tinha canalizado o `git` para um `tail` e lido o exit **do tail**:
+`cmd 2>&1 | tail; echo $?` mede o tubo, nunca o comando. Corrigi no mesmo arquivo, com as duas
+leituras lado a lado. Registro porque afirmação minha refutada vale mais que confirmação.
+
+**O painel estava congelado havia 5 h** mostrando dois agentes "trabalhando" da rodada morta
+(`PLANTAO` §5.1 — é o que o dono repara). Reescrevi as duas linhas da `mesa_agente` para o
+estado real. E fica medido, contra o que a `RETOMADA` de 27/08 dava a entender: **a nuvem
+ESCREVE na `mesa_agente` pelo MCP** — o fail-closed é da RLS do navegador/anon, não deste
+caminho. Então painel congelado numa rodada da nuvem é esquecimento, não falta de acesso.
