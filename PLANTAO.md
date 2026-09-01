@@ -309,6 +309,45 @@ Protocolo ao pegar item: `em-curso` + `maquina` + `desde` no backlog, **empurre 
 `git push origin HEAD:refs/heads/voo/<id>` como marcador atômico. Apague o marcador ao terminar —
 marcador esquecido faz o outro lado achar que o território está ocupado.
 
+### ⚠ O MARCADOR NÃO É A VERDADE — O BACKLOG É (01/09)
+
+Medido nesta data, e muda o protocolo acima: **a sessão da nuvem NÃO CONSEGUE apagar ramo
+remoto.** `git push origin --delete voo/<id>` e `git push origin :voo/<id>` voltam
+**HTTP 403** do GitHub (não é o proxy: `__agentproxy/status` traz `recentRelayFailures` vazio,
+e criar ramo pela mesma credencial funciona no mesmo minuto). O token da sessão remota tem
+push, não tem `delete_ref`.
+
+A consequência é estrutural, não um contratempo: a nuvem **cria** marcador e **nunca** o
+limpa. Como ela roda de 4 em 4 horas, sem regra todo item que ela tocar passa a parecer
+ocupado para sempre — e a fila seca sozinha, por sujeira, com trabalho livre embaixo.
+
+**A regra, e ela vale para as três máquinas:**
+
+> O marcador `voo/<id>` é **pista**, nunca prova. Quem decide se um item está ocupado é o
+> `backlog.json`: `estado: em-curso` **e** `desde` dentro de 2 h. Marcador cujo item está
+> `livre` ou `concluido` está **morto** — ignore-o e pegue o item.
+
+Assim o marcador vira dispensável em vez de mentiroso, que é o que ele estava a caminho de
+ser. Quem PUDER apagar (Mac e Windows apagam) apaga a sujeira que encontrar; quem não puder
+diz no `RECADOS.md` quais ficaram para trás, com o id.
+
+E a armadilha que vem junto é a regra da casa dando certo, então vale medida por extenso.
+O `git push` recusado **sai com exit code 1** — ele é honesto. Mas a **última linha que ele
+imprime é `Everything up-to-date`**, depois do 403, porque o outro refspec da mesma invocação
+não tinha o que fazer. Quem lê o fim do log conclui "apagado, nada a fazer" e segue.
+
+Medido nesta data, nas duas leituras do mesmo comando:
+
+| | |
+|---|---|
+| última linha do log | `Everything up-to-date` → parece sucesso |
+| exit code real | **1** → é recusa |
+
+Eu mesmo escrevi aqui, antes de medir, que o exit era 0 — e estava errado, porque tinha
+canalizado o `git` para um `tail` e lido o exit **do tail**. `cmd 2>&1 \| tail; echo $?`
+mede o tubo, nunca o comando. Redirecione para arquivo e leia o `$?` na linha seguinte.
+`git ls-remote --heads origin` é quem responde se o ramo morreu.
+
 O funil roda **de um lado por vez**. Quem estiver de plantão integra; o outro entrega em ramo e
 avisa.
 
