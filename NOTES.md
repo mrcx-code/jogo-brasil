@@ -10015,3 +10015,116 @@ que **não se perde ao trocar de domínio** (a Mudança de Endereço + 301 trans
 re-submete o sitemap), o dono **decidiu esperar a troca de domínio** mesmo assim. Registrado para
 não re-levantar: enquanto o domínio não mudar, o tráfego orgânico segue em zero por decisão, e a
 divulgação (rodada A, pronta desde 23/08) segue represada atrás do GSC, também por escolha dele.
+
+---
+
+## 31/08 — A NOITE EM QUE O `npm test` ESTAVA VERMELHO E DIZIA "PASS"
+
+Plantão autônomo na máquina de nuvem, sem ninguém acordado. Quatro frentes em paralelo (três
+agentes em worktree + a minha linha). **O achado da noite não estava em fila nenhuma** — apareceu
+na primeira medição, que era só para saber de que chão eu partia.
+
+### O que aconteceu, e a armadilha é de leitura
+
+Rodei `npm test` para estabelecer a linha de base. O log terminava em `PASS — no errors`, `FPS 61`.
+Anotei "base verde" e fui trabalhar. **Estava errado: o `npm test` saiu 1.**
+
+`npm test` é `build && smoke && regua-larga`. O smoke passa e **imprime o PASS**; quem morre é o
+`regua-larga.js`, depois. Julguei pelo resumo em vez do exit code — e o resumo mentia por
+construção. É exatamente a regra que o `PLANTAO.md` já tinha escrito (*"julgados pelo EXIT CODE e
+nunca pela última linha do log"*), e eu a furei na primeira hora.
+
+### A causa, medida
+
+**118 lugares** neste repositório abrem um Chromium. O `smoke.js` e o `encaixe.js` passam
+`executablePath`; **58 lançavam nus** (`chromium.launch()`), e cada arquivo que acertava carregava
+a **sua própria cópia** da função que resolve o caminho.
+
+Onde a máquina roda `npx playwright install`, nu e vestido dão no mesmo — por isso o defeito viveu
+meses e **o CI nunca acusou** (o runner instala o navegador). Onde o navegador vem **provisionado
+numa build diferente** da que o Playwright espera — esta máquina de nuvem, e qualquer máquina cujo
+Playwright subiu de versão sem reinstalar —, os 58 morrem, com uma mensagem que aponta para o
+lugar errado (*"Looks like Playwright was just installed"*, quando o navegador está no disco e o
+que falta é dizer **onde**).
+
+| | |
+|---|---|
+| `chromium.launch()` nu, aqui | **FALHA** |
+| `chromium.launch({ executablePath: … })` | **OK — Chromium 141.0.7390.37** |
+| `npm test` | **EXIT 1**, no `regua-larga.js`, depois do `PASS` do smoke |
+| portões do ciclo do plantão | **2 dos 4** mortos (`medir-save-hostil`, `medir-telas-altura`) |
+| portão do funil para diff de glossário | `conteudo-espelho.js` morto |
+
+Esse último é o que mais custaria: um diff de texto histórico seria **revertido pelo funil por
+falta de navegador**, com a mensagem dizendo que o banco divergiu.
+
+### O que ficou (commit `952e3aa`, na `main`)
+
+- **Uma definição canônica**, exportada de `test/abrir.js` (`ABRIR.chromiumPath()`). Sem
+  `PW_CHROMIUM` e sem `/opt/pw-browsers/chromium` ela devolve `undefined`, que é o lançamento nu:
+  **numa máquina que instalou o navegador, nada muda.** Vestidos: **60 → 71**.
+- **`test/portao-navegador.js`** — estático, ~40 ms, no CI **antes** do navegador, porque é o único
+  passo que ainda funciona quando o navegador é o problema. A lista de portões é **derivada** do
+  `teste.yml` e do `package.json` mais um nível de `require` — é assim que ela alcança o
+  `conteudo-espelho.js`, que ninguém chama direto. Com `--autoteste`, visto morder: `nus 0 → 1
+  (pegou medir-save-hostil) → 0`.
+- **Sobram 47 nus em 46 arquivos**, todos ferramentas de mão, nenhum portão. Não entraram para não
+  misturar 46 arquivos na revisão, e o portão **não os cobra** — cobrar o que ninguém roda no CI
+  transforma vermelho em ruído.
+
+### O SEGUNDO defeito, e ele é irmão do primeiro
+
+Com o `npm test` verde, o `encaixe.js` continuou saindo **1**. Uma asserção: **erros de console**,
+oito linhas de `net::ERR_TUNNEL_CONNECTION_FAILED`. O proxy desta máquina recusa
+`us.i.posthog.com`; o jogo roda inteiro e não perde nada, mas o Chromium escreve no console.
+
+**Medido na `main` LIMPA, com `git stash`, sem uma linha minha: EXIT 1.** Pré-existente, e o portão
+está no CI e no ciclo.
+
+E a casa **já tinha decidido isso por escrito** — no OUTRO coletor do MESMO arquivo: *"pedido de
+rede que o NAVEGADOR recusou não é defeito do jogo — um adblock de verdade escreve a mesma linha"*.
+O coletor global, que alimenta a asserção final, nunca recebeu a regra. **Dois coletores da mesma
+coisa, um com o critério e outro sem** — o `PENDENTES 68` visto do outro lado.
+
+O filtro novo é **mais estreito** que o que já existia: um host (da constante única `MEDIDA_HOST`,
+a mesma que alimenta a CSP) e uma frase, e **nunca** `Failed to load resource` em geral — isso
+engoliria um `pack-*.json` que some, que é defeito real e dos caros. Controle rodado nos dois
+sentidos antes de aceitar o verde:
+
+| cena | esperado | medido |
+|---|---|---|
+| a rede nega o host da medição | engolir | engolidos 1 · **passaram 0** ✔ |
+| um recurso do jogo some (404) | deixar passar | engolidos 1 · **passaram 1** ✔ (com a URL) |
+
+Depois: `encaixe.js` **EXIT 0**, e o bloco imprime **`(nenhum)`** — nada mais estava sendo escondido.
+
+### Três coisas que o instrumento achou contra quem o escreveu
+
+1. **`ferramentas/conteudo-espelho.js` era BINÁRIO para o git.** Dois bytes **NUL literais** dentro
+   de um `join()`, escritos como o caractere e não como o escape. `git diff` não mostrava nada e
+   todo grep o pulava. **Num portão do funil isso é sério: a correção entraria invisível na
+   revisão.** Trocados pelo escape — e a prova de que o valor não mudou é o **hash do espelho,
+   idêntico** (`1b97fe85…`).
+2. **A segunda versão do portão errava para o lado perigoso.** Para não tropeçar em prosa, ela
+   apagava comentário **e string**. Um scanner que não conhece literal de expressão regular lê o
+   `"` de `.replace(/"/g, …)` como abertura de string e **engole as 50 linhas seguintes** — entre
+   elas um lançamento nu real. Foi de *"3 achados, 2 falsos"* para **"0 achados, VERDE"**.
+   **Falso positivo é barulhento e se conserta; falso negativo é mudo e assina o verde.**
+3. **O portão reprovou a si mesmo**, no literal que ele usa para injetar o defeito no autoteste. A
+   saída óbvia seria isentar o próprio arquivo — e é a errada: régua que se exclui da medição é o
+   buraco do `PENDENTES 68`. O payload passou a ser montado por concatenação: **não há isenção
+   nenhuma**, há um specimen que não se parece com o bicho quando lido pela régua.
+
+### E um item que estava aberto descrevendo trabalho concluído
+
+**`PENDENTES 87` já estava feito.** O conserto proposto está em `ferramentas/integrar.js:195-200`,
+citando o item pelo número. Conferido por medição, não por leitura: `npm run conteudo:conferir`
+sai **0**, com jogo e banco em **181 verbetes · 17 grupos · 644 pares** e o **mesmo hash**. É a
+doença que o `PLANTAO.md` §5 nomeia, no lugar exato onde se decide o que despachar.
+
+### O ciclo, por exit code real
+
+`portao-navegador` 0 (+`--autoteste` 0) · `npm test` **0** (era 1) · `encaixe` **0** (era 1) ·
+`medir-save-hostil` 0 · `medir-telas-altura` 0 · `espelho do conteúdo` 0.
+
+Registro novo: `PENDENTES 88` (os portões nus) e `PENDENTES 89` (o coletor de console).
