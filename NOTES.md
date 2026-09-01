@@ -10236,3 +10236,97 @@ causa raiz medida acima, testei e completei.
 **Território:** só `test/fila-auth.js` (nada em `src/`, nada em `TERRITORIO.md`) — sem worktree,
 direto na linha principal, por ser conserto pequeno e bem delimitado (papel de Pro por §5.2 do
 `PLANTAO.md`, decidido pelo dono em 31/08).
+
+## 01/09 — A ISSUE #10 PEDIA UM JUÍZO DE ARTE SOBRE UM V1 QUE NUNCA APARECEU NA TELA — plantao/arte (nuvem-20260901T0423)
+
+**Máquina:** `nuvem-20260901T0423`. Rodada disparada por **issue etiquetada `agente`** (a #10, o
+primeiro pedido pelo canal novo), não pela fila. O pedido do dono: despachar a `arte` para julgar a
+v1 do M3 do mundo 3D (commit `932d365` — sombras suaves, sol dourado, tone mapping, céu em
+gradiente, vinheta) contra as referências do `SPEC-MUNDO-3D.md`, aplicar o que for mecânico e
+deixar para ele o que for direção.
+
+### O que caiu, e é a premissa do próprio pedido
+
+**A v1 nunca renderizou.** Antes de despachar a arte, tirei print do que ela iria julgar: **tela
+preta com o HUD por cima**. Os dois protótipos (`sp-relevo.html` e `sp-timeline.html`) buscavam
+`fetch('sp.json')`; o dado no repositório chama-se `sp-contorno-ibge.json`, e **`sp.json` nunca
+existiu em commit nenhum** — `git log --all -- '**/sp.json'` devolve vazio.
+
+O modo de falha é o que torna isto instrutivo: não havia erro visível. O callback do `fetch`
+estourava em `Cannot read properties of undefined (reading 'type')` e **tudo o que é criado lá
+dentro deixava de existir** — terreno, água, céu em gradiente, vegetação e o personagem. Ou seja, o
+passe de beleza inteiro do M3 mora dentro desse callback e **nunca chegou a uma tela**. E o HUD
+mentia por cima: `aplicarTempo()` escreve ano e fase **antes** do `if(!treeMesh) return`, então
+arrastar a linha do tempo mudava "1900s · café e ferrovias" sobre o nada.
+
+**Medido, headless por http (nunca `file://`), 1280×800:**
+| | antes | depois |
+|---|---|---|
+| requisição 404 | 1 (`sp.json`) | 0 |
+| `pageerror` | 1 | 0 |
+| cena | vazia | mundo em pé nos dois arquivos |
+
+Conserto: uma linha em cada arquivo (`36159b6`). O `LEIAME.md` também apontava para
+`sp-timeline.html` como "a base ATUAL" e **nem listava** o `sp-relevo.html`, que é onde o passe de
+beleza entrou — corrigido junto, com o aviso de procurar os dois `fetch` ao renomear o dado.
+
+### O juízo da arte, depois que houve o que julgar
+
+Com o mundo em pé, gerei 7 cenas (1530/1750/1900/2030 + dois largos + um rasante) e despachei a
+`arte`. Veredito por eixo: **paleta não passa · luz não passa · céu não passa · material passa com
+um conserto · pixel não passa · composição não passa**. A hora dourada do quadro largo de 1530 é o
+único quadro com identidade — preservada de propósito.
+
+Aplicados os cortes **[MECÂNICO]** (`05a06af`), cada um com a razão medida:
+- **Dois céus.** O `scene.background` era pintado uma vez e só o `scene.fog.color` mudava com o
+  ano — o horizonte tinha dois céus discordando, e essa faixa dura era a maior assinatura de
+  "three.js genérico" da cena. O canvas do céu foi hasteado para fora do callback e passa a ser
+  repintado com a cor da névoa.
+- **Névoa.** 150/470 → 240/720: o estado tem **~234 unidades** de ponta a ponta (9° de longitude ×
+  `SCALE` 26), então com `near=150` metade do mundo nascia dentro da névoa.
+- **Paleta.** O verde segurava só até `t<.55` enquanto a base do planalto vive em `t≈.32..0,9` —
+  quase todo o estado saía marrom, e 1530 lia como estepe seca. Verde até `t<.75`.
+- **Copa.** `ConeGeometry(1.1,3.2,6)` em `#2f5230` é abeto escandinavo, não mata atlântica → copa-domo
+  achatada com variação de matiz por instância (a cor mora na própria árvore, para o tom não pular
+  quando a contagem muda com o ano).
+- **Água.** `metalness .35` **sem environment map reflete preto** — era o breu dos quadros largos.
+- **Luz.** O hemisfério passa a rebater a cor da TERRA em vez de verde escuro (o que fazia a
+  encosta sombreada virar breu); a `AmbientLight` saiu, porque luz chapada por cima da sombra era
+  o que lavava o 2030.
+- **Câmera.** `maxDistance` 180 → 320: com 180 não dava para afastar o bastante para ver o contorno
+  de SP, **que é o próprio aceite do M0.5**.
+
+`npm test`: **PASS (exit 0)** nas duas rodadas. 0 erro de console e 0 `pageerror` nos 7 prints.
+
+### O que PARA no dono, e não é meu para resolver
+
+1. **[§2] O 1530 mostra floresta VAZIA.** A fase se chama "floresta e aldeias", mas nenhuma
+   presença humana existe no mundo até as caixas brancas brotarem em `p≈0.35` (≈1705). **A imagem
+   afirma "terra vazia até o europeu chegar"** — o erro que o §2.1 nomeia por extenso. Pergunta na
+   issue: *as aldeias dos povos que viviam no território de SP em 1530 (Tupiniquim, Tupinambá,
+   Guarani, Kaingang…) aparecem no mundo 3D? Com que forma e com que nome?* Ninguém desenha aldeia
+   sem ele. Enquanto não decide, o rótulo FICA — apagá-lo seria pior, e o que se registra é que a
+   imagem **deve à palavra**.
+2. **[DIREÇÃO] A forma do mundo.** Fora do polígono, `y=-6` faz **toda** a fronteira virar falésia
+   — inclusive as divisas de TERRA com MG, RJ, PR e MS. Três opções nomeadas na issue.
+3. **[DIREÇÃO] Pixelar o render inteiro** ou só o avatar. A arte desaconselha o primeiro.
+
+### Duas armadilhas de bancada que esta rodada pagou
+
+- **A sessão da nuvem nasce em `detached HEAD`, e o `refs/heads/main` local fica velho.** `git push
+  origin main` empurra o ramo local (atrasado) e é recusado com **"non-fast-forward"** mesmo com o
+  `HEAD` sendo filho direto do tip remoto — `git rev-list --left-right --count HEAD...origin/main`
+  dizia `1 0` e o push falhava assim mesmo. O diagnóstico certo é `git symbolic-ref -q HEAD`; o
+  conserto é `git branch -f main HEAD && git checkout main`. Custou ~6 minutos e a leitura errada
+  natural é "o proxy bloqueia push" — não bloqueia.
+- **`unpkg.com` é recusado pelo proxy desta máquina** (`CONNECT tunnel failed, 403`), e o
+  experimento importa `three` de lá. Para medir aqui, o harness copia o `three` do `node_modules`
+  (0.185.1) e troca **só o importmap** — o arquivo do repositório continua com o CDN 0.160, que é o
+  que o spec manda para o experimento. Quem for medir de novo: `scratchpad/prints.js`.
+
+### Uma medição que NÃO vale como veredito, e fica registrada como não valendo
+
+Medi o custo do quadro a 390×844 e deu **1,8 fps (1530) e 2,2 fps (2030)**, mediana de 120 quadros.
+**Isto não diz nada sobre o celular do dono:** esta máquina não tem GPU e o render sai por
+SwiftShader (software). É **piso**, não veredito. O que fica é o buraco: o guardrail 3 do spec pede
+medição de performance mobile e **ela continua sem existir** — nenhum número de aparelho real.

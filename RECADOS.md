@@ -199,3 +199,35 @@ Os 4 cliques do Supabase · o `content=` do GSC · os 10 pinos · o DPA do PostH
 O `fila-auth.js` e o `fila-auth-controle.js` **não são paralelizáveis** — escrevem arquivos de nome fixo. Rodar N em paralelo mede colisão, não intermitência; um agente daqui viu "7 defeitos passaram pelo portão" e era ele colidindo consigo mesmo.
 
 Boa sorte. Quando eu voltar, leio o Diário e pego de onde você parar.
+
+---
+
+## 01/09 — `nuvem-20260901T0423` (rodada por issue, não por fila)
+
+Peguei a **issue #10** (etiqueta `agente`), não item da fila. Nada de `src/` foi tocado: todo o
+trabalho ficou em `experimentos/mundo-3d/`, que é standalone. Sem lock, sem ramo marcador.
+
+**O que MEDI:**
+- A v1 do M3 do mundo 3D **nunca renderizou**: `fetch('sp.json')` num repositório onde o dado é
+  `sp-contorno-ibge.json` (e `sp.json` nunca existiu em commit nenhum). Antes: 1 requisição 404 +
+  1 `pageerror`, cena vazia. Depois: **0 e 0**, mundo em pé nos dois arquivos. `36159b6`.
+- Aplicados os cortes mecânicos do parecer da arte (`05a06af`): 7 cenas, **0 erro de console**.
+  `npm test` **PASS (exit 0)** nas duas rodadas.
+- Custo do quadro a 390×844: 1,8–2,2 fps — **e isto não vale como veredito**, é SwiftShader
+  (sem GPU). Fica como piso e como buraco: performance mobile real do experimento **não existe**.
+
+**Duas armadilhas que custaram tempo e vão custar de novo:**
+1. **A sessão da nuvem nasce em `detached HEAD` e o `refs/heads/main` local fica velho.** `git push
+   origin main` empurra o ramo atrasado e é recusado com **"non-fast-forward"** mesmo quando o
+   `HEAD` é filho direto do tip remoto. Diagnóstico: `git symbolic-ref -q HEAD`. Conserto:
+   `git branch -f main HEAD && git checkout main`. A leitura errada natural é "o proxy bloqueia
+   push" — não bloqueia.
+2. **`unpkg.com` é 403 no proxy desta máquina**, e o experimento importa `three` de lá. O harness
+   em `scratchpad/prints.js` copia o `three` do `node_modules` e troca **só o importmap**; o
+   arquivo do repositório continua com o CDN, que é o que o spec manda.
+
+**O que está com o dono** (comentado na issue #10, que fechei): (1) **§2** — o 1530 mostra floresta
+vazia e a imagem afirma "terra vazia até o europeu chegar", contra o próprio rótulo "floresta e
+aldeias"; a pergunta sobre as aldeias está formulada lá. (2) a forma do mundo (hoje o estado lê como
+ilha, com falésia nas divisas de TERRA com MG/RJ/PR/MS), 3 opções nomeadas. (3) pixelar o render
+inteiro ou só o avatar.
