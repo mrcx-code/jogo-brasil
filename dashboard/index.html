@@ -17,12 +17,20 @@
      Esta pagina guarda access_token E refresh_token no localStorage — e por isso que o exfil,
      e nao a execucao, e o que precisa estar fechado por politica. Regra igual a do jogo
      (CLAUDE.md §3.2): escrita por extenso, nenhum curinga, cada afrouxamento com o motivo ao lado.
+     CORRIGIDO em 01/09 (achado da seguranca em 23/08, item `dashboard-sem-google`): style-src
+     perdeu `https://fonts.googleapis.com` e font-src SAIU inteira — as tres linhas do <link>
+     do Google Fonts, logo abaixo desta tag, foram apagadas e a folha trocou pela serifa da
+     casa (Palatino/Georgia de sistema, a mesma familia que `ferramentas/chrome-plataforma.js`
+     usa nas outras 5 paginas da plataforma desde 22/08), sem nenhum byte de fora. O comentario
+     de 21/08 em `ferramentas/construir.js` ("o que ela tem de externo sao as fontes do
+     Google... e ela pode") ficou desatualizado por esta mudanca — o rodape promete "sem
+     rastreio, sem cookie de terceiro, sem perfil", e uma fonte do Google entrega IP e
+     User-Agent a Google a cada carga, o que a promessa nao cobria.
        default-src 'self'  -> nada de fora por padrao
        connect-src         -> so o proprio projeto do Supabase (REST + Auth). Endereco por
                               extenso: e o unico host que a pagina chama.
-       style-src           -> 'unsafe-inline' porque o <style> mora na pagina; googleapis
-                              porque a folha das fontes vem de la (<link rel=stylesheet>)
-       font-src            -> gstatic, que e onde a folha do googleapis busca os .woff2
+       style-src           -> 'unsafe-inline' porque o <style> mora na pagina; nenhum host de
+                              fora — a fonte e de sistema (ver acima), sem <link rel=stylesheet>
        img-src 'self' data:-> nao ha <img>; data: fica para um favicon embutido nao quebrar
        script-src          -> 'unsafe-inline' e SO isso: o script mora na pagina e nao ha
                               nenhum src= — script de terceiro nao carrega nem por engano
@@ -35,11 +43,8 @@
      frame-ancestors NAO entra aqui: o navegador IGNORA a diretiva quando ela chega por <meta>
      (so vale em cabecalho HTTP) e ainda registra erro de console. Ela vira cabecalho de
      verdade no vercel.json, junto de X-Frame-Options — que e onde ela funciona. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://hdhqziqvrthxtgyraemk.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'unsafe-inline'; object-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://hdhqziqvrthxtgyraemk.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'unsafe-inline'; object-src 'none'; form-action 'none'; base-uri 'none'">
 <title>Dashboard · BRASIL</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
   :root{
     --papel:#f3eee2; --papel2:#e9e2d1; --tinta:#1d2119; --tinta2:#4a5147;
@@ -62,20 +67,20 @@
   *,*::before,*::after{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
   body{margin:0; background:var(--papel); color:var(--tinta);
-    font:400 clamp(15px,3.6vw,17px)/1.55 "Source Sans 3",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+    font:400 clamp(15px,3.6vw,17px)/1.55 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;-webkit-font-smoothing:antialiased;}
   body,h1,h2,h3,p,ul,li{margin:0}
   button{font:inherit;cursor:pointer}
   .env{max-width:52rem;margin:0 auto;padding:1rem 1.05rem 5rem}
 
   header.topo{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;
     border-bottom:2px solid var(--tinta);padding-bottom:.6rem;margin-bottom:.5rem}
-  header .marca{font:700 1.5rem/1 "Bitter",Georgia,serif;letter-spacing:-.01em}
-  header .quando{font:600 .64rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.04em}
+  header .marca{font:700 1.5rem/1 "Palatino Linotype",Palatino,Georgia,serif;letter-spacing:-.01em}
+  header .quando{font:600 .64rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);letter-spacing:.04em}
   .placar{display:flex;gap:.9rem;flex-wrap:wrap;margin:0 0 1.1rem;
-    font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.05em;text-transform:uppercase}
+    font:600 .66rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);letter-spacing:.05em;text-transform:uppercase}
   .placar b{color:var(--terra)}
   .pedir-check{display:block;width:100%;margin:0 0 1.1rem;background:var(--papel2);color:var(--terra);
-    border:1.5px dashed var(--terra);border-radius:6px;padding:.6rem;font:600 .74rem/1.2 "IBM Plex Mono",monospace;
+    border:1.5px dashed var(--terra);border-radius:6px;padding:.6rem;font:600 .74rem/1.2 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .12s,color .12s}
   .pedir-check:hover{background:var(--terra);color:#fff}
   .pedir-check:disabled{opacity:.5;cursor:default}
@@ -90,36 +95,36 @@
      INSERT anon estiver aberto ela escreve com a chave publicavel; quando as politicas de
      ferramentas/fila-auth.sql entrarem, o 401/403 abre o login em vez de perder a resposta. */
   .conta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .9rem;
-    font:600 .64rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.05em;color:var(--pedra)}
+    font:600 .64rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.05em;color:var(--pedra)}
   .conta .ponto{width:8px;height:8px;border-radius:50%;background:var(--pedra);flex:0 0 auto}
   body[data-auth="dentro"] .conta .ponto{background:var(--ok)}
   /* a frase quebra DENTRO da propria coluna; o botao nao e empurrado para a linha de baixo */
   .conta .quem{flex:1 1 8rem;min-width:0;text-transform:none;letter-spacing:0;
-    font:400 .8rem/1.35 "Source Sans 3",sans-serif;color:var(--tinta2)}
+    font:400 .8rem/1.35 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;color:var(--tinta2)}
   .conta .btn{margin-left:auto;flex:0 0 auto}
   .so-leitura{display:none;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .75rem;
     background:var(--papel2);border:1px dashed var(--terra);border-radius:6px;padding:.45rem .6rem;
-    font:600 .74rem/1.3 "Source Sans 3",sans-serif;color:var(--tinta2)}
+    font:600 .74rem/1.3 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;color:var(--tinta2)}
   body[data-auth="fora"] .so-leitura{display:flex}
   .so-leitura .btn{margin-left:auto;padding:.3rem .6rem;font-size:.72rem}
   .login{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--terra);
     border-radius:4px;padding:.9rem 1rem;margin:0 0 1.1rem;box-shadow:0 1px 3px var(--sombra)}
   .login[hidden]{display:none}
-  .login h3{font:700 1.02rem/1.25 "Bitter",Georgia,serif;margin:0 0 .2rem}
+  .login h3{font:700 1.02rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;margin:0 0 .2rem}
   .login p.sub{color:var(--pedra);font-size:.84rem;margin:0 0 .8rem}
-  .login label{display:block;font:600 .6rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.08em;
+  .login label{display:block;font:600 .6rem/1.6 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.08em;
     text-transform:uppercase;color:var(--pedra)}
   .login input{width:100%;background:var(--papel);color:var(--tinta);border:1.5px solid var(--linha);
     border-radius:4px;padding:.55rem .6rem;font:inherit;font-size:1rem}
   .login input:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
-  .login input.cod{letter-spacing:.35em;font-family:"IBM Plex Mono",monospace;text-align:center}
+  .login input.cod{letter-spacing:.35em;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;text-align:center}
   .login input + label{margin-top:.6rem}
   /* "trocar PIN" e um elo, nao um botao: ele nao pode disputar atencao com Sair */
   .conta .elo{flex:0 0 auto;background:none;border:0;padding:.2rem 0;color:var(--pedra);cursor:pointer;
-    font:600 .66rem/1 "IBM Plex Mono",monospace;letter-spacing:.05em;text-decoration:underline}
+    font:600 .66rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.05em;text-decoration:underline}
   .conta .elo:hover{color:var(--terra)}
   .conta .elo[hidden]{display:none}
-  .login .estado{font:600 .68rem/1.45 "IBM Plex Mono",monospace;color:var(--pedra);margin-top:.55rem;min-height:1rem}
+  .login .estado{font:600 .68rem/1.45 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);margin-top:.55rem;min-height:1rem}
   .login .estado.erro{color:var(--alerta)}
   .login .estado.ok{color:var(--ok)}
 
@@ -128,14 +133,14 @@
     padding:.5rem 1.05rem;scrollbar-width:none}
   nav.aba::-webkit-scrollbar{display:none}
   nav.aba a{flex:0 0 auto;text-decoration:none;color:var(--pedra);white-space:nowrap;
-    font:600 .66rem/1 "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;padding:.4rem .55rem;border-radius:2px}
+    font:600 .66rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.07em;text-transform:uppercase;padding:.4rem .55rem;border-radius:2px}
   nav.aba a:hover{color:var(--terra);background:var(--papel2)}
 
   section.camada{margin:0 0 2rem;scroll-margin-top:3rem}
   .rot{display:flex;align-items:baseline;gap:.55rem;margin:0 0 .85rem;border-bottom:1px solid var(--linha);padding-bottom:.35rem}
-  .rot .n{font:600 .7rem/1 "IBM Plex Mono",monospace;color:var(--pedra);letter-spacing:.1em}
-  .rot h2{font:700 1.22rem/1.1 "Bitter",Georgia,serif}
-  .vazio{color:var(--pedra);font:italic 400 .92rem/1.4 "Bitter",serif;padding:.2rem 0}
+  .rot .n{font:600 .7rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);letter-spacing:.1em}
+  .rot h2{font:700 1.22rem/1.1 "Palatino Linotype",Palatino,Georgia,serif}
+  .vazio{color:var(--pedra);font:italic 400 .92rem/1.4 "Palatino Linotype",Palatino,Georgia,serif;padding:.2rem 0}
 
   .some{overflow:hidden;transition:max-height .32s ease,opacity .25s ease,margin .32s ease,padding .32s ease}
   .some.foi{max-height:0!important;opacity:0;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-width:0}
@@ -143,10 +148,10 @@
   /* conversa */
   .fio{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.9rem}
   .msg{max-width:88%;border-radius:10px;padding:.6rem .8rem;font-size:.95rem;box-shadow:0 1px 2px var(--sombra)}
-  .msg .de{font:600 .58rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra)}
+  .msg .de{font:600 .58rem/1.6 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra)}
   .msg.claude{align-self:flex-start;background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--mata)}
   .msg.dono{align-self:flex-end;background:var(--papel2);border:1px solid var(--linha);border-right:3px solid var(--terra)}
-  .msg .qdo{font:600 .56rem/1.6 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.7}
+  .msg .qdo{font:600 .56rem/1.6 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.7}
   .compor{display:flex;gap:.5rem;align-items:flex-end}
   .compor textarea{flex:1;background:var(--realce);color:var(--tinta);border:1.5px solid var(--linha);
     border-radius:8px;padding:.6rem .7rem;font:inherit;font-size:.95rem;resize:vertical;min-height:2.6rem}
@@ -156,14 +161,14 @@
 
   .cartao{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--mata);
     border-radius:3px;padding:.9rem 1rem;box-shadow:0 1px 2px var(--sombra);margin:0 0 .7rem}
-  .cartao h3{font:700 1.02rem/1.25 "Bitter",Georgia,serif;margin:0 0 .3rem}
+  .cartao h3{font:700 1.02rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;margin:0 0 .3rem}
   .cartao p{margin:0;color:var(--tinta2);font-size:.94rem}
-  .rec-op{display:inline-block;font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;
+  .rec-op{display:inline-block;font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;
     color:var(--brasa);border:1px solid var(--brasa);border-radius:2px;padding:.02rem .32rem;margin-left:.4rem;vertical-align:middle}
 
   .acoes{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-top:.75rem}
   .btn{border:1.5px solid var(--linha);background:var(--papel);color:var(--tinta2);
-    border-radius:4px;padding:.4rem .75rem;font:600 .78rem/1 "Source Sans 3",sans-serif;transition:border-color .12s,color .12s,background .12s}
+    border-radius:4px;padding:.4rem .75rem;font:600 .78rem/1 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;transition:border-color .12s,color .12s,background .12s}
   .btn:hover{border-color:var(--terra);color:var(--terra)}
   .btn.forte{background:var(--mata);border-color:var(--mata);color:#fff}
   .btn.forte:hover{filter:brightness(1.08);color:#fff}
@@ -172,7 +177,7 @@
   .acoes-op{display:flex;gap:.45rem;margin-top:.85rem}
   .btn-op{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
     min-height:60px;padding:.5rem .25rem;border:1.5px solid var(--linha);border-radius:8px;background:var(--papel);color:var(--tinta);
-    font:600 .74rem/1.1 "Source Sans 3",sans-serif;text-align:center;transition:transform .06s,filter .12s,border-color .12s}
+    font:600 .74rem/1.1 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;text-align:center;transition:transform .06s,filter .12s,border-color .12s}
   .btn-op .emo{font-size:1.4rem;line-height:1}
   .btn-op:active{transform:scale(.96)}
   .btn-op.prior{background:var(--mata);border-color:var(--mata);color:#fff}
@@ -181,12 +186,12 @@
   .btn-op.adiar:hover{filter:brightness(1.04)}
   .btn-op.nao{background:transparent;border-color:var(--linha);color:var(--pedra)}
   .btn-op.nao:hover{border-color:var(--alerta);color:var(--alerta)}
-  .envio{font:600 .66rem/1 "IBM Plex Mono",monospace;color:var(--pedra);min-width:1px}
+  .envio{font:600 .66rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);min-width:1px}
   .envio.ok{color:var(--ok)} .envio.erro{color:var(--alerta)}
 
   .decisao{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
     padding:.95rem 1rem;box-shadow:0 1px 3px var(--sombra);margin:0 0 .9rem}
-  .decisao > .q{font:700 1.02rem/1.3 "Bitter",Georgia,serif;margin:0 0 .15rem}
+  .decisao > .q{font:700 1.02rem/1.3 "Palatino Linotype",Palatino,Georgia,serif;margin:0 0 .15rem}
   .decisao > .ctx{color:var(--pedra);font-size:.86rem;margin:0 0 .75rem}
   .ops{display:grid;gap:.45rem}
   .op{display:flex;gap:.65rem;align-items:flex-start;text-align:left;width:100%;
@@ -198,7 +203,7 @@
   .op .marca::after{content:"";position:absolute;inset:3px;border-radius:50%;background:transparent;transition:background .12s}
   .op .lab{font-weight:600;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
   .op .desc{color:var(--tinta2);font-size:.86rem;margin-top:.12rem}
-  .rec{font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  .rec{font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;
     color:var(--brasa);border:1px solid var(--brasa);border-radius:2px;padding:.02rem .3rem}
   .op[aria-pressed="true"]{border-color:var(--mata);background:var(--papel2)}
   .op[aria-pressed="true"] .marca{border-color:var(--mata)}
@@ -206,9 +211,9 @@
 
   .pend{background:var(--realce);border:1px solid var(--linha);border-left:3px solid var(--terra);
     border-radius:3px;padding:.85rem .95rem;margin:0 0 .7rem;box-shadow:0 1px 2px var(--sombra)}
-  .pend h3{font:700 .98rem/1.25 "Bitter",Georgia,serif;margin:0}
+  .pend h3{font:700 .98rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;margin:0}
   .pend p{margin:.2rem 0 0;color:var(--tinta2);font-size:.88rem}
-  .pend .quem{font:600 .6rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra);margin-top:.3rem}
+  .pend .quem{font:600 .6rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--pedra);margin-top:.3rem}
   .pend textarea{width:100%;margin-top:.55rem;background:var(--papel);color:var(--tinta);border:1.5px solid var(--linha);
     border-radius:3px;padding:.45rem .55rem;font:inherit;font-size:.9rem;resize:vertical;min-height:2.2rem}
   .pend textarea:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
@@ -220,7 +225,7 @@
      os cards continuarem sendo itens da MESMA grade. Um <div> normal aqui viraria uma célula
      só com tudo dentro. O cabeçalho ocupa a linha inteira por grid-column. */
   .grupo-ag{display:contents}
-  .cab-squad{grid-column:1/-1;font:600 .6rem/1.6 "IBM Plex Mono",monospace;letter-spacing:.1em;
+  .cab-squad{grid-column:1/-1;font:600 .6rem/1.6 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.1em;
     text-transform:uppercase;color:var(--pedra);border-top:1px solid var(--linha);
     padding-top:.5rem;margin-top:.25rem}
   .grupo-ag:first-child .cab-squad{border-top:0;padding-top:0;margin-top:0}
@@ -242,49 +247,62 @@
   .faisca{position:absolute;top:8px;left:52%;width:4px;height:4px;border-radius:50%;background:var(--brasa);opacity:0}
   .ag[data-st="trabalhando"] .faisca{animation:faisca 1s ease-out infinite}
   @keyframes faisca{0%{opacity:0;transform:translate(6px,6px) scale(.5)}30%{opacity:1}100%{opacity:0;transform:translate(16px,-10px) scale(1)}}
-  .zzz{position:absolute;top:6px;left:56%;font:700 10px/1 "Bitter",serif;color:var(--pedra);opacity:0}
+  .zzz{position:absolute;top:6px;left:56%;font:700 10px/1 "Palatino Linotype",Palatino,Georgia,serif;color:var(--pedra);opacity:0}
   .ag[data-st="espera"] .zzz{animation:zzz 3s ease-in-out infinite}
   @keyframes zzz{0%,80%,100%{opacity:0}20%,60%{opacity:.7;transform:translateY(-4px)}}
-  .ag .nome{font:700 .9rem/1 "Bitter",Georgia,serif}
+  .ag .nome{font:700 .9rem/1 "Palatino Linotype",Palatino,Georgia,serif}
   .ag .papel{font-size:.72rem;color:var(--pedra);line-height:1.2}
-  .ag .st{font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--pedra)}
+  .ag .st{font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--pedra)}
   .ag[data-st="trabalhando"] .st{color:var(--ok)} .ag[data-st="chamado"] .st{color:var(--brasa)}
   /* GUARDADO, NAO ENVIADO (24/08): o chamado esta na fila deste aparelho e o servidor nao o viu.
      Ele NAO pode parecer chamado — sem o aceno do boneco, e com a cor de alerta no rotulo. */
   .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
   .ag[data-st="guardado"] .st{color:var(--alerta)}
-  .ag .ult{font:600 .56rem/1.3 "IBM Plex Mono",monospace;color:var(--pedra);opacity:.8}
+  .ag .ult{font:600 .56rem/1.3 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.8}
   /* GASTO / TOKENMAXXING (25/08): modelo e esforco sao REAIS (saem do frontmatter dos agentes);
      tokens e custo NAO tem medicao ainda, entao mostram "sem medicao" — instrumento nao mente. */
   .ag .gasto{margin-top:.45rem;padding-top:.4rem;border-top:1px dashed var(--linha);
-    font:600 .56rem/1.5 "IBM Plex Mono",monospace;color:var(--pedra)}
+    font:600 .56rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra)}
   .ag .gasto .gl{display:flex;justify-content:space-between;gap:.4rem}
   .ag .gasto .gk{opacity:.7;text-transform:uppercase;letter-spacing:.04em}
   .ag .gasto .gv{color:var(--tinta);text-align:right}
   .ag .gasto .gv.fraco{color:var(--pedra);opacity:.8;font-style:italic}
   .ag .gasto .gv.caro{color:var(--brasa)}
   .ag.dono{border-color:var(--brasa)}
-  .nota-gasto{font:600 .62rem/1.5 "IBM Plex Mono",monospace;color:var(--pedra);
+  .nota-gasto{font:600 .62rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);
     margin:.2rem 0 .8rem;text-align:center;opacity:.9}
 
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,6,.55);padding:1.2rem}
   .modal[hidden]{display:none}
   .modal-cx{background:var(--realce);border:1px solid var(--linha);border-radius:10px;max-width:24rem;width:100%;padding:1.15rem 1.2rem;box-shadow:0 12px 44px rgba(0,0,0,.42)}
-  .modal-cx h3{font:700 1.15rem/1.2 "Bitter",Georgia,serif;margin:0 0 .2rem}
+  .modal-cx h3{font:700 1.15rem/1.2 "Palatino Linotype",Palatino,Georgia,serif;margin:0 0 .2rem}
   .modal-cx .msub{color:var(--pedra);font-size:.84rem;margin:0 0 .9rem}
   .modal-ops{display:grid;gap:.45rem;margin-bottom:1rem}
-  .modal-op{text-align:left;background:var(--papel);border:1.5px solid var(--linha);border-radius:5px;padding:.6rem .7rem;color:var(--tinta);font:600 .9rem/1.25 "Source Sans 3",sans-serif;transition:border-color .12s,background .12s}
+  .modal-op{text-align:left;background:var(--papel);border:1.5px solid var(--linha);border-radius:5px;padding:.6rem .7rem;color:var(--tinta);font:600 .9rem/1.25 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;transition:border-color .12s,background .12s}
   .modal-op:hover{border-color:var(--terra)}
   .modal-op[aria-pressed="true"]{border-color:var(--mata);background:var(--papel2)}
   .modal-acoes{display:flex;justify-content:flex-end;gap:.6rem}
 
+  /* ITEM 3 (23/08): o rastro persistente do que caiu da fila local — a aba pode ter estado
+     oculta na hora do toast, e o registro precisa sobreviver a isso. */
+  .perdidas{background:var(--realce);border:1.5px solid var(--brasa);border-radius:5px;
+    padding:.85rem 1rem;margin:0 0 1.1rem;box-shadow:0 1px 3px var(--sombra)}
+  .perdidas[hidden]{display:none}
+  .perdidas h3{font:700 1.02rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;color:var(--brasa);margin:0 0 .2rem}
+  .perdidas .sub{color:var(--tinta2);font-size:.86rem;margin:0 0 .7rem}
+  .perdidas-item{background:var(--papel);border:1px solid var(--linha);border-radius:4px;
+    padding:.55rem .65rem;margin:0 0 .5rem}
+  .perdidas-item .txt{font:400 .9rem/1.4 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;
+    color:var(--tinta);white-space:pre-wrap;word-break:break-word}
+  .perdidas-item .meta{font:600 .58rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--pedra);margin-top:.3rem}
   .toast{position:fixed;left:50%;bottom:1.1rem;transform:translateX(-50%) translateY(2rem);
-    background:var(--mata);color:#fff;padding:.55rem 1rem;border-radius:6px;font:600 .82rem/1.2 "Source Sans 3",sans-serif;
+    background:var(--mata);color:#fff;padding:.55rem 1rem;border-radius:6px;font:600 .82rem/1.2 Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif;
     box-shadow:0 4px 14px var(--sombra);opacity:0;transition:opacity .25s,transform .25s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
   .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.erro{background:var(--brasa)}
 
-  .nota-sec{color:var(--pedra);font:italic 400 .9rem/1.4 "Bitter",serif;margin:-.4rem 0 .9rem}
+  .nota-sec{color:var(--pedra);font:italic 400 .9rem/1.4 "Palatino Linotype",Palatino,Georgia,serif;margin:-.4rem 0 .9rem}
 
   /* SEUS PEDIDOS — cartao com o texto em destaque, o progresso menor e o botao feito */
   .cartao.pedido{border-left-color:var(--terra)}
@@ -294,15 +312,15 @@
   .bl-item{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
     padding:.7rem .8rem;margin:0 0 .55rem;box-shadow:0 1px 2px var(--sombra);
     display:grid;grid-template-columns:1fr auto;gap:.35rem .7rem;align-items:start}
-  .bl-item .bl-tit{font:700 .96rem/1.25 "Bitter",Georgia,serif;grid-column:1}
+  .bl-item .bl-tit{font:700 .96rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;grid-column:1}
   .bl-item .bl-chip{grid-column:2;grid-row:1;justify-self:end;align-self:start;
-    font:600 .56rem/1.4 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;
+    font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;
     border:1px solid;border-radius:2px;padding:.05rem .38rem;white-space:nowrap}
   .bl-chip.livre{color:var(--ok);border-color:var(--ok)}
   .bl-chip.em-curso{color:var(--brasa);border-color:var(--brasa)}
   .bl-chip.bloqueado{color:var(--alerta);border-color:var(--alerta)}
   .bl-chip.do-dono{color:var(--terra);border-color:var(--terra)}
-  .bl-item .bl-meta{grid-column:1/-1;font:600 .6rem/1.5 "IBM Plex Mono",monospace;
+  .bl-item .bl-meta{grid-column:1/-1;font:600 .6rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.04em;color:var(--pedra)}
   .bl-item .bl-meta .bl-ag{text-transform:uppercase}
   .bl-item .bl-meta .terr{color:var(--tinta2);text-transform:none;letter-spacing:0}
@@ -311,27 +329,27 @@
   details.comof{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
     box-shadow:0 1px 2px var(--sombra);overflow:hidden}
   details.comof>summary{list-style:none;cursor:pointer;padding:.8rem .9rem;
-    font:700 1rem/1.2 "Bitter",Georgia,serif;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+    font:700 1rem/1.2 "Palatino Linotype",Palatino,Georgia,serif;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
   details.comof>summary::-webkit-details-marker{display:none}
   details.comof>summary .chev{color:var(--pedra);font-size:.9rem;transition:transform .15s}
   details.comof[open]>summary .chev{transform:rotate(90deg)}
   .comof-corpo{padding:0 .9rem 1rem;border-top:1px solid var(--linha)}
-  .comof-fluxo{margin:.85rem 0;font:600 .74rem/1.7 "IBM Plex Mono",monospace;color:var(--pedra);
+  .comof-fluxo{margin:.85rem 0;font:600 .74rem/1.7 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);
     letter-spacing:.02em}
   .comof-fluxo b{color:var(--terra)}
   .comof-passos{list-style:none;padding:0;margin:0 0 1rem;display:flex;flex-direction:column;gap:.5rem}
   .comof-passos li{font-size:.9rem;color:var(--tinta2);padding-left:.9rem;position:relative;line-height:1.45}
   .comof-passos li::before{content:"›";position:absolute;left:0;color:var(--mata);font-weight:700}
-  .comof-passos b{color:var(--tinta);font-family:"Bitter",serif}
-  .comof code{font:600 .82em/1 "IBM Plex Mono",monospace;background:var(--papel2);padding:.05em .3em;border-radius:3px}
+  .comof-passos b{color:var(--tinta);font-family:"Palatino Linotype",Palatino,Georgia,serif}
+  .comof code{font:600 .82em/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;background:var(--papel2);padding:.05em .3em;border-radius:3px}
   .comof-cfg{display:flex;flex-direction:column;gap:.5rem;margin:0 0 .9rem;
     border-top:1px dashed var(--linha);padding-top:.8rem}
   .cfg-linha{display:flex;gap:.6rem;flex-wrap:wrap}
-  .cfg-k{flex:0 0 6.5rem;font:600 .6rem/1.5 "IBM Plex Mono",monospace;letter-spacing:.06em;
+  .cfg-k{flex:0 0 6.5rem;font:600 .6rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.06em;
     text-transform:uppercase;color:var(--pedra)}
   .cfg-v{flex:1 1 12rem;min-width:0;font-size:.88rem;color:var(--tinta2);line-height:1.45}
   .cfg-v b{color:var(--terra)}
-  .comof-fim{font:italic 400 .84rem/1.4 "Bitter",serif;color:var(--pedra);margin:0}
+  .comof-fim{font:italic 400 .84rem/1.4 "Palatino Linotype",Palatino,Georgia,serif;color:var(--pedra);margin:0}
 
   footer.rod{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--linha);font-size:.78rem;color:var(--pedra)}
   /* O reset da linha 66 zera a margem de TODO p, entao cinco paragrafos renderizavam como um
@@ -343,6 +361,17 @@
 </head>
 <body>
 <div class="env">
+
+  <!-- ITEM 3 (achado da seguranca, 23/08): rastro persistente do que foi descartado ou podado
+       da fila local — o toast some em 2,4 s, e quem nao estava olhando (aba oculta, por
+       exemplo) perde a resposta duas vezes. `mostrarPerdidas()`, la embaixo no script, preenche
+       isto na carga a partir de `mesa-brasil-perdidas` e o botao "entendi" apaga a chave. -->
+  <section class="perdidas" id="perdidas" hidden aria-label="Respostas que não chegaram a sair deste aparelho">
+    <h3>Respostas que não saíram deste aparelho</h3>
+    <p class="sub">O servidor recusou ou o teto da fila local cortou — o texto ficou guardado aqui para você copiar.</p>
+    <div id="perdidas-lista"></div>
+    <button class="btn" id="perdidas-ok" type="button">Entendi, apagar</button>
+  </section>
 
   <header class="topo">
     <span class="marca">Dashboard</span>
@@ -396,7 +425,7 @@
     <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
     <p class="nota-gasto" id="nota-gasto">Modelo e esforço são reais (saem dos arquivos de agente). Tokens e custo ainda não têm medição — nada de zero fingindo ser número.</p>
     <div class="grade-ag" id="grade-ag"></div>
-    <p id="ag-nota" style="font:600 .66rem/1.5 'IBM Plex Mono',monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
+    <p id="ag-nota" style="font:600 .66rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
 
   <section class="camada" id="pedidos">
@@ -476,6 +505,7 @@
     <p>O PIN viaja só até o Supabase Auth deste projeto, que guarda um resumo criptográfico dele e mais nada. Neste aparelho ficam a sessão e o contador de erros de PIN — os dois somem quando você sai.</p>
     <p>Fica também a <b>fila de respostas que ainda não subiram</b> (até 50, no máximo 200&nbsp;KB): ela não some ao sair, porque apagá-la jogaria fora o que você escreveu. Ela sobe sozinha assim que a rede volta; e, se isso não acontecer sozinho — o navegador às vezes não percebe que a rede voltou —, ela sobe do mesmo jeito na próxima vez que você abrir a mesa.</p>
     <p>Rodando local, fica também uma marca do último PIN recusado, que morre ao fechar a aba: é calculada a partir do PIN, mas não dá para reconstruir o PIN a partir dela — o PIN em si não fica guardado.</p>
+    <p>Quando uma resposta sua é recusada pelo servidor ou cai da fila local por excesso, o texto (até 20 delas) fica guardado neste aparelho para você copiar; a lista aparece assim que você abrir a mesa de novo, com um botão para apagar depois de ler.</p>
     <p>Nada além disso é coletado: sem rastreio, sem cookie de terceiro, sem perfil.</p>
   </footer>
 </div>
@@ -580,6 +610,43 @@
     try{ localStorage.setItem(FILA,s); return true; }
     catch(e){ console.warn("mesa: o localStorage recusou a fila ("+(e&&e.name||"erro")+") — não guardei o novo item"); return false; }
   }
+
+  // ================= A PERDA FICA GUARDADA (item 3, achado da seguranca em 23/08) =================
+  // Ate aqui, quando uma resposta era descartada DE VERDADE — recusa permanente ou teto de
+  // tentativas em `lavarUm()`, ou poda por fila herdada acima do teto em `podarFilaHerdada()` —
+  // o UNICO rastro era um toast de 2,4 s e uma linha no console. Medido com a aba OCULTA: toast
+  // visível logo após = true, 3 s depois = false, registro persistente da perda = vazio. Quem não
+  // estava olhando na hora nunca mais sabe o que perdeu. `mesa-brasil-perdidas` guarda o texto (no
+  // máximo PERDIDAS_MAX itens) e a PRÓXIMA carga mostra — ver `mostrarPerdidas()`, chamada pela
+  // partida logo abaixo de `lerMarca()`.
+  var PERDIDAS="mesa-brasil-perdidas", PERDIDAS_MAX=20;
+  function lerPerdidas(){ try{ var f=JSON.parse(localStorage.getItem(PERDIDAS)||"[]"); return Array.isArray(f)?f:[]; }catch(e){return [];} }
+  function guardarPerdida(reg,motivo){
+    var f=lerPerdidas();
+    f.push({texto:(reg&&reg.texto)||"",quando:Date.now(),motivo:String(motivo||"")});
+    if(f.length>PERDIDAS_MAX) f=f.slice(f.length-PERDIDAS_MAX);
+    try{ localStorage.setItem(PERDIDAS,JSON.stringify(f)); }
+    catch(e){ /* melhor perder o registro da perda que travar a página por causa dele */ }
+  }
+  // A PROXIMA CARGA MOSTRA. Chamada solta na partida, junto de `lerMarca()` — se não houver
+  // nada guardado, a seção fica `hidden` como já nasceu no HTML e não aparece rastro nenhum.
+  var elPerdidas=document.getElementById("perdidas"),
+      elPerdidasLista=document.getElementById("perdidas-lista"),
+      btnPerdidasOk=document.getElementById("perdidas-ok");
+  function mostrarPerdidas(){
+    var f=lerPerdidas();
+    if(!f.length){ elPerdidas.setAttribute("hidden","hidden"); return; }
+    elPerdidasLista.innerHTML=f.map(function(it){
+      var qdo=new Date(it.quando||0).toLocaleString("pt-BR");
+      return '<div class="perdidas-item"><div class="txt">'+escH(it.texto)
+        +'</div><div class="meta">'+escH(qdo)+' · '+escH(it.motivo)+'</div></div>';
+    }).join("");
+    elPerdidas.removeAttribute("hidden");
+  }
+  btnPerdidasOk.addEventListener("click",function(){
+    try{ localStorage.removeItem(PERDIDAS); }catch(e){}
+    elPerdidas.setAttribute("hidden","hidden");
+  });
 
   // ================= A SESSÃO (Supabase Auth por senha, REST puro) =================
   // Sem biblioteca: a página é autocontida e a única dependência de rede é o próprio projeto.
@@ -731,6 +798,10 @@
         // E O DESCARTE AVISA NA TELA, como a poda irma ja avisava (N10). Perder resposta do dono
         // em silencio no console e perde-la duas vezes: ele nao sabe que precisa reescrever.
         toast("Uma resposta sua não foi enviada e foi descartada — "+porque+". Se ainda for importante, escreva de novo.",true);
+        // ITEM 3 (achado da seguranca, 23/08): o toast acima some em 2,4 s e, com a aba oculta
+        // na hora do descarte, ninguem chega a ve-lo. `guardarPerdida` deixa rastro que sobrevive
+        // ao fechar a aba — a proxima carga mostra (`mostrarPerdidas()`, chamada pela partida).
+        guardarPerdida(g[0],porque);
         g.shift();
         if(!gravarFila(g)) return;
         return lavarUm();
@@ -744,6 +815,7 @@
   // é ordem de chegada: quem esperou mais tempo tem precedência) e diz no console o que cortou.
   function podarFilaHerdada(){
     var f=lerFila(); if(!f.length) return;
+    var original=f.slice();   // ITEM 3: copia intocada, para achar DEPOIS quem caiu fora
     var antes=f.length, bytesAntes=JSON.stringify(f).length;
     if(f.length>FILA_MAX) f=f.slice(0,FILA_MAX);
     while(f.length>1 && JSON.stringify(f).length>FILA_BYTES) f.pop();
@@ -759,6 +831,9 @@
     console.warn("mesa: a fila local herdada estava acima do teto ("+antes+" itens, "+bytesAntes
       +" bytes) — podei para "+f.length+". "+perdidas+" resposta(s) mais recente(s) não serão enviadas.");
     toast("A fila local estava acima do teto — "+perdidas+" resposta(s) mais recente(s) não serão enviadas.",true);
+    // ITEM 3: mesmo rastro persistente do descarte de `lavarUm()` — quem caiu fora é o FIM de
+    // `original` (a mesma conta de N9, `antes-f.length` itens, os mais recentes).
+    original.slice(f.length).forEach(function(it){ guardarPerdida(it,"fila local acima do teto"); });
   }
   // O PEDIDO DE LAVAGEM NAO SE PERDE MAIS (22/08, junto do auto-login local). A trava do A7
   // continua sendo uma so — duas lavagens simultaneas mandam o mesmo item duas vezes —, mas
@@ -785,7 +860,14 @@
       .catch(function(err){
         var st=(err && err.status)||0;
         var f=lerFila(); f.push(reg);
-        if(!gravarFila(f)) return "perdido";
+        // CONSERTO 1 (pre-integrador, 01/09): faltava o TERCEIRO caminho de perda — a fila JA
+        // ESTAVA no teto (FILA_MAX/FILA_BYTES) no instante de escrever, `gravarFila` recusa e
+        // este desfecho e "perdido" — a UNICA saida em que nada foi guardado em lugar nenhum.
+        // Medido ao vivo pelo pre-integrador com a fila pre-semeada com 50 itens: o toast
+        // transitorio some em ~2,4s e `mesa-brasil-perdidas` ficava vazio. Os outros dois
+        // caminhos de perda (`lavarUm()` e `podarFilaHerdada()`) ja chamavam `guardarPerdida`;
+        // este era o que faltava.
+        if(!gravarFila(f)){ guardarPerdida(reg,"fila local cheia ao escrever"); return "perdido"; }
         // P4 da 2a auditoria (22/08). Fora do localhost, "sem conexao — guardei e reenvio" e
         // verdade: o 401 abre o login e o flush do login esvazia a fila. Em localhost NAO ha
         // portao, entao a MESMA frase mente em duas pontas — nao foi conexao, e o reenvio
@@ -793,6 +875,15 @@
         // ate aqui, ele NAO achou: ou o arquivo nao existe, ou o PIN nele nao vale mais. A
         // resposta fica guardada de verdade (por isso nao e "perdido"), e a frase diz onde
         // mexer para ela sair.
+        // ITEM 2 (achado da seguranca, 23/08; corrigido 01/09). `permanente(st)` ja existe e ja
+        // separa "tenta de novo" de "isto nunca vai passar" (ver o comentario dela, mais abaixo)
+        // — só faltava este desfecho USAR essa distinção na hora de FALAR com quem escreveu. Sem
+        // isto, um 422/400 (recusa por DESENHO, não por rede) caía no "fila" genérico e dizer()
+        // repetia "Sem conexão — guardei e reenvio", que é a MESMA mentira que a P4 acima já
+        // consertou para o caso de localhost. O item continua indo para a fila local — ele PODE
+        // ainda ser tentado de novo por engano até a próxima lavagem descartá-lo (ver `lavarUm`,
+        // que é quem decide o descarte de verdade) —, só a frase que passa a dizer a verdade.
+        if(permanente(st)) return "recusa";
         return (LOCAL && (st===401 || st===403)) ? "fila-local-sem-sessao" : "fila";
       });
   }
@@ -809,6 +900,11 @@
       return;
     }
     if(res==="fila"){ toast(msgFila,true); return; }
+    // ITEM 2: "recusa" e o desfecho que `registrar()` passou a devolver quando `permanente(st)`
+    // é verdadeiro na PRIMEIRA tentativa — não é "sem conexão", é o servidor recusando o formato
+    // do que foi mandado. A frase nomeia isso em vez de repetir "Sem conexão — guardei e reenvio",
+    // que mentia sobre a causa.
+    if(res==="recusa"){ toast("O servidor recusou esta resposta por desenho, não por falta de conexão — guardei o texto neste aparelho.",true); return; }
     toast("Não consegui enviar NEM guardar — a fila deste aparelho está cheia. Copie o texto antes de sair.",true);
   }
   // -------- a porta: UM PIN --------
@@ -1807,6 +1903,7 @@
   // nada deste commit chega la, porque codigo novo so passa a valer na proxima carga. O alcance
   // desta linha e "toda carga a partir de agora", nao "toda aba aberta agora".
   lerMarca();
+  mostrarPerdidas();   // ITEM 3: o que caiu da fila local sobrevive ao fechar a aba — mostra aqui
   autoLoginLocal();
   // B1 DA AUDITORIA (23/08): o rodape passou a prometer que a fila "sobe sozinha assim que a rede
   // volta", e ela NAO subia — `flush()` so era chamado na carga, no login e no auto-login, entao

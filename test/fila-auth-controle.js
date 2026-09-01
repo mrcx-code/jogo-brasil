@@ -163,17 +163,35 @@ const DEFEITOS = [
     // quando foi 401, "reenvio" quando nao ha para onde). Reverter o catch de `registrar` ao
     // que ele era devolve a mentira — e a cena 18 tem de pegar isso, senao a correcao nao
     // esta medida e amanha alguem a desfaz sem que nada apite.
+    // A FORMA DESTA LINHA MUDOU em 01/09 (conserto 1, pre-integrador): o desfecho "perdido"
+    // passou a chamar `guardarPerdida` antes de devolver, para o item 3 cobrir tambem o
+    // terceiro caminho de perda (a fila ja no teto no instante de escrever). O texto abaixo
+    // acompanhou; a mutacao continua sendo a MESMA (forcar "fila" sempre, mesmo em localhost).
     id: 'P4 · o toast de localhost volta a dizer "sem conexao — guardei e reenvio"',
     cena: '[18]',
     pares: [[
       `      .catch(function(err){
         var st=(err && err.status)||0;
         var f=lerFila(); f.push(reg);
-        if(!gravarFila(f)) return "perdido";`,
+        // CONSERTO 1 (pre-integrador, 01/09): faltava o TERCEIRO caminho de perda — a fila JA
+        // ESTAVA no teto (FILA_MAX/FILA_BYTES) no instante de escrever, \`gravarFila\` recusa e
+        // este desfecho e "perdido" — a UNICA saida em que nada foi guardado em lugar nenhum.
+        // Medido ao vivo pelo pre-integrador com a fila pre-semeada com 50 itens: o toast
+        // transitorio some em ~2,4s e \`mesa-brasil-perdidas\` ficava vazio. Os outros dois
+        // caminhos de perda (\`lavarUm()\` e \`podarFilaHerdada()\`) ja chamavam \`guardarPerdida\`;
+        // este era o que faltava.
+        if(!gravarFila(f)){ guardarPerdida(reg,"fila local cheia ao escrever"); return "perdido"; }`,
       `      .catch(function(err){
         var st=(err && err.status)||0; void st;
         var f=lerFila(); f.push(reg);
-        if(!gravarFila(f)) return "perdido";
+        // CONSERTO 1 (pre-integrador, 01/09): faltava o TERCEIRO caminho de perda — a fila JA
+        // ESTAVA no teto (FILA_MAX/FILA_BYTES) no instante de escrever, \`gravarFila\` recusa e
+        // este desfecho e "perdido" — a UNICA saida em que nada foi guardado em lugar nenhum.
+        // Medido ao vivo pelo pre-integrador com a fila pre-semeada com 50 itens: o toast
+        // transitorio some em ~2,4s e \`mesa-brasil-perdidas\` ficava vazio. Os outros dois
+        // caminhos de perda (\`lavarUm()\` e \`podarFilaHerdada()\`) ja chamavam \`guardarPerdida\`;
+        // este era o que faltava.
+        if(!gravarFila(f)){ guardarPerdida(reg,"fila local cheia ao escrever"); return "perdido"; }
         if(true) return "fila";`,
     ]],
   },
