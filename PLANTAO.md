@@ -213,6 +213,33 @@ E mantenha o `PENDENTES.md` e o `ferramentas/backlog.json` **verdadeiros**. Back
 "livre" para item feito é a mesma doença que a casa caça nos portões — afirmação que o objeto não
 cumpre — no lugar exato onde se decide o que despachar.
 
+### ⚠ ACHADO ÓRFÃO SE CONFERE NO `git log` ANTES DE VIRAR ITEM (01/09)
+
+O item `canonical-jogo` mandava pôr o `<link rel="canonical">` no molde do jogo, com o aceite
+escrito e a evidência citada: *"grep agora: `src/index.html`, 0 ocorrências"*. Medido nesta
+rodada, na `main`: a linha está lá, em `src/index.html:55`, desde o commit `f79ce99` de
+**24/08** — oito dias antes de o item ser reaberto. A exceção que o build precisa para ela
+também já existia (`ferramentas/construir.js:197`).
+
+O item nasceu de uma varredura de "achados órfãos" que releu relatórios antigos de agente e
+recriou item para cada achado sem dono, **sem conferir o histórico do arquivo**. O achado do
+growth era verdadeiro em 21/08 e foi consertado em 24/08; a varredura o ressuscitou em 01/09.
+
+O custo não é o item perdido — é o **falso verde**. Quem pegasse o item e seguisse o aceite ao
+pé da letra escreveria a linha, veria `git diff` **vazio**, e teria como confirmar um achado
+que não existia mais. Um item que se cumpre sozinho com um no-op é a forma mais barata de
+fabricar trabalho que parece feito.
+
+**A regra:** antes de recriar item a partir de relatório antigo, rode `git log -S'<a asserção>'
+-- <arquivo>` e leia a mensagem do commit. É a mesma disciplina que a casa já aplica ao portão
+vermelho ("antes de consertar o produto, desconfie do portão"), aplicada um passo antes: **antes
+de despachar o conserto, desconfie de que ainda haja o que consertar.**
+
+E o que se salva de um item assim não é nada: o `canonical` existia mas **nenhum portão o
+cobria** (`test/encaixe.js` da `main`: 0 ocorrências de `canonical`). O item errado apontava
+para um buraco real ao lado do que ele descrevia. Item órfão que morre em falso positivo ainda
+merece a pergunta *"e o que garante que isto não volte?"* antes de ser fechado.
+
 ---
 
 ## 5.1 As tres coisas que o dono percebe quando o plantao esquece
