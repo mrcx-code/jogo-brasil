@@ -172,14 +172,13 @@
       "titulo": "O /jogo/ — o chamariz — ganha o <link rel=canonical> que e o unico a nao ter",
       "detalhe": "Achado da growth (onda 2, 21/08), confirmado por curl entao e por grep agora (src/index.html: 0 ocorrencias) — orfao sem item, regra do §3.1.5. Unica das 6 paginas sem canonical. Aceite: a linha entra no head do molde apontando @@BASE@@/jogo/ (mesma marca das og:), o build a troca junto, encaixe bloco 14 verde por exit real, e curl pos-deploy confirma. Fronteira ja decidida em 21/08: head/og: do jogo sao do dev-plataforma.",
       "agente": "dev-plataforma",
-      "estado": "em-curso",
+      "estado": "concluido",
       "camada": "leve",
       "territorio": [
         "src/index.html",
         "test/encaixe.js"
       ],
-      "maquina": "nuvem-20260901T1340",
-      "desde": "2026-09-01T13:42:07.368Z"
+      "desfecho": "FALSO POSITIVO no que o item descrevia, real no que faltava ao lado. A linha rel=canonical existia em src/index.html:55 desde f79ce99 (24/08), oito dias antes de o item ser reaberto, e a excecao do build tambem (construir.js:197). O que NAO existia era portao: test/encaixe.js da main tinha 0 ocorrencias de canonical. Entrou o bloco 14 com 3 assercoes (existe, marca @@BASE@@ nao sobrou crua, canonical == og:url), com as 3 injecoes refeitas a mao pelo pre-integrador — exit 1 na assercao certa em cada uma. Integrado em 8614ce2. Endereco confirmado: https://matheusferreira.cc/jogo/ (a raiz virou a porta da plataforma em 20/08)."
     },
     {
       "id": "retro-2",
