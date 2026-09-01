@@ -2177,14 +2177,23 @@ function lintComentarios() {
   // que e exatamente o defeito que este aviso existe para consertar.
   const PISO_TAXA = 0.115;      // tres quadros de 60 fps — o piso de quando o quadro de referencia sai curto
   const CLAMP_DT = 0.25;        // src/jogo.ts: Math.max(0, Math.min(0.25, (agora - ultimo) / 1000))
-  const msCego = historia.vMundo > 0 ? (CLAMP_DT * historia.vMundo) / PISO_TAXA : 83;
+  // O TETO SOBE PARA CA, E ISSO E A OUTRA METADE DA CURA (achado do QA de lote, 31/08).
+  // A primeira versao derivava o `msCego` dividindo por `PISO_TAXA` — mas o teto que a assercao
+  // usa de verdade e `max(taxa2 * 3, PISO_TAXA)`. Os dois so coincidem porque, com a velocidade
+  // de hoje, `taxa2 * 3` da **0,11478** contra o piso de **0,115**: uma margem de **0,00022 px/ms,
+  // 0,19%**. Basta `velocidadeMundo()` passar de **38,3333 px/s** para o teto real virar
+  // `taxa2 * 3`, e ai o `msCego` calculado com o piso sai GRANDE DEMAIS — o aviso cala justamente
+  // dentro do regime cego. Seria o mesmo defeito que este bloco existe para curar, com outra
+  // roupa: um numero que sobrevive a mudanca sem reclamar. Dividindo pelo teto REAL, os dois
+  // andam juntos por construcao.
+  const tetoTaxa = Math.max(taxa2 * 3, PISO_TAXA);
+  const msCego = historia.vMundo > 0 ? (CLAMP_DT * historia.vMundo) / tetoTaxa : 83;
   if (historia.salto.ms1 > msCego || historia.salto.ms2 > msCego) {
     console.log('  resume -> AVISO: quadro de ' + Math.round(Math.max(historia.salto.ms1, historia.salto.ms2))
       + 'ms, acima dos ' + msCego.toFixed(1) + 'ms em que o clamp de dt satura (0,25s x '
-      + historia.vMundo.toFixed(2) + 'px/s / ' + PISO_TAXA + ') — nesta rodada a regua de taxa nao separa'
+      + historia.vMundo.toFixed(2) + 'px/s / ' + tetoTaxa.toFixed(5) + ') — nesta rodada a regua de taxa nao separa'
       + ' quadro lento de dt despejado. Nao e reprova; e uma verificacao que nao aconteceu.');
   }
-  const tetoTaxa = Math.max(taxa2 * 3, PISO_TAXA);
   if (taxa1 > tetoTaxa) {
     errors.push('closing the story handed a huge dt to the first frame: ' + historia.salto.primeiro.toFixed(2)
       + 'px in ' + historia.salto.ms1.toFixed(0) + 'ms = ' + taxa1.toFixed(4)

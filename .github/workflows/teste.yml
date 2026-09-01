@@ -220,3 +220,28 @@ jobs:
       - name: o lock entre máquinas (o guarda recusa território de outra máquina)
         run: node test/guarda-lock.js
         timeout-minutes: 2
+
+      # OS DOIS PORTÕES DE MÃO ENTRAM NO CI (31/08) — fecha o PENDENTES 73.
+      #
+      # O item está aberto desde 23/08 e o custo dele foi medido lá: a `main` carregou **dois
+      # portões em contradição direta sobre a mesma entrada** (`salvoEm: 5e12`) por **nove dias**,
+      # e ninguém tropeçou porque nenhum dos dois rodava sozinho. O item dizia que acrescentá-los
+      # é barato, **com uma condição**: conferir antes se são estáveis, porque o `robusto-tudo`
+      # depende do save semeado e o `PENDENTES 71` mostrava a semente sendo apagada a cada 10 s.
+      #
+      # A CONDIÇÃO ESTÁ CUMPRIDA, e por medição: o 71 foi verificado em 31/08 (o
+      # `setInterval(() => salvar(), …)` já está no produto, e a regressão injetada de volta
+      # reproduz a sobrescrita aos 10 s no segundo exato). E a estabilidade foi medida aqui, com a
+      # máquina sob carga de quatro agentes: `robusto-tudo` **3 de 3 verdes**, 18 s · 17 s · 17 s;
+      # `medir-save-hostil` verde em duas execuções do ciclo completo, ~5 s.
+      #
+      # E há um motivo novo, que é o que tirou o item da fila: a cena **3c** do `robusto-tudo` —
+      # a ÚNICA linha de teste no caminho da aba oculta, escrita em 31/08 — rodava em **zero**
+      # lugares automáticos. Asserção que só existe se alguém digitar não guarda nada.
+      - name: robusto-tudo (os seis maus-tratos, e a cena 3c da aba oculta)
+        run: node test/robusto-tudo.js
+        timeout-minutes: 5
+
+      - name: save hostil (entrada não confiável não envenena o estado)
+        run: node test/medir-save-hostil.js
+        timeout-minutes: 4

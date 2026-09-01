@@ -51,7 +51,11 @@ function sec(t) { console.log('\n== ' + t + ' =='); }
 function log(t) { console.log(t); }
 
 (async () => {
-  const nav = await chromium.launch({ executablePath: require('fs').existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined });
+  // Pela definicao CANONICA, e nao por copia local: esta linha nascia com o seu proprio
+  // resolvedor de Chromium (ignorando `PW_CHROMIUM`) e recriava a duplicacao que o commit
+  // 952e3aa acabou de consolidar em `abrir.js`. Como ela ja passava `executablePath`, o
+  // `portao-navegador.js` nao a pegava — quem pegou foi o QA de lote, lendo.
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 } });
   const errosConsole = [];
   pg.on('pageerror', e => errosConsole.push(String(e)));
