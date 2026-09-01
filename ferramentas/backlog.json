@@ -107,12 +107,14 @@
    "titulo": "A rotina de validade passa a cobrir os 7 sinais que o acervo declara",
    "detalhe": "Achado 1 do vigia (22/08, dev-dados), orfao sem item ate agora — regra do §3.1.5: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais; UNESCO, STF e INCRA nao eram procurados por NINGUEM. Aceite: os 7 sinais tem dono e gatilho na rotina (quem procura, onde, quando), o conteudo-vigia.js enxerga os 7 (nao so PRODES/MapBiomas/censo), e o controle 2.8 do vigia continua mordendo com defeito injetado. Numero novo so entra com fonte primaria — o dev-dados garante ONDE mora e QUANDO vence; o que o conteudo DIZ e do historiador.",
    "agente": "dev-dados",
-   "estado": "livre",
+   "estado": "em-curso",
    "camada": "medio",
    "territorio": [
     "ferramentas/conteudo-vigia.js",
     "ferramentas/conteudo/"
-   ]
+   ],
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:24:41.319Z"
   },
   {
    "id": "fichas-lote-2",
@@ -172,12 +174,14 @@
    "titulo": "O /jogo/ — o chamariz — ganha o <link rel=canonical> que e o unico a nao ter",
    "detalhe": "Achado da growth (onda 2, 21/08), confirmado por curl entao e por grep agora (src/index.html: 0 ocorrencias) — orfao sem item, regra do §3.1.5. Unica das 6 paginas sem canonical. Aceite: a linha entra no head do molde apontando @@BASE@@/jogo/ (mesma marca das og:), o build a troca junto, encaixe bloco 14 verde por exit real, e curl pos-deploy confirma. Fronteira ja decidida em 21/08: head/og: do jogo sao do dev-plataforma.",
    "agente": "dev-plataforma",
-   "estado": "livre",
+   "estado": "em-curso",
    "camada": "leve",
    "territorio": [
     "src/index.html",
     "test/encaixe.js"
-   ]
+   ],
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:24:41.319Z"
   },
   {
    "id": "retro-2",
@@ -430,29 +434,35 @@
   {
    "id": "dashboard-sem-google",
    "titulo": "O painel e a unica pagina que ainda chama o Google, sob um rodape que diz sem rastreio",
-   "estado": "livre",
+   "estado": "em-curso",
    "papel": "dev-plataforma",
    "territorio": "dashboard/",
    "camada": "plataforma",
-   "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas."
+   "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas.",
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:24:41.319Z"
   },
   {
    "id": "recusa-por-desenho-tem-nome",
    "titulo": "O painel chama recusa por desenho de sem conexao",
-   "estado": "livre",
+   "estado": "em-curso",
    "papel": "dev-plataforma",
    "territorio": "dashboard/",
    "camada": "plataforma",
-   "detalhe": "Achado pela seguranca em 23/08 e CONFERIDO NA MAIN, nao no relato: no instante em que o servidor recusa por desenho (HTTP 422), o toast que a pessoa ve e Sem conexao - guardei e reenvio. Frase identica byte a byte no codigo de antes de tudo, entao e PRE-EXISTENTE e o commit do rodape nao piorou -- melhorou, porque antes aquela frase imprecisa era a UNICA coisa que o dono via e a perda vinha depois em silencio; agora ela e seguida, na lavagem seguinte, pelo aviso correto. Conserto de uma linha em cada lugar: registrar() ja sabe distinguir por permanente(st), falta devolver um desfecho proprio para recusa por desenho em vez de cair no generico fila, e dizer() ganhar essa frase."
+   "detalhe": "Achado pela seguranca em 23/08 e CONFERIDO NA MAIN, nao no relato: no instante em que o servidor recusa por desenho (HTTP 422), o toast que a pessoa ve e Sem conexao - guardei e reenvio. Frase identica byte a byte no codigo de antes de tudo, entao e PRE-EXISTENTE e o commit do rodape nao piorou -- melhorou, porque antes aquela frase imprecisa era a UNICA coisa que o dono via e a perda vinha depois em silencio; agora ela e seguida, na lavagem seguinte, pelo aviso correto. Conserto de uma linha em cada lugar: registrar() ja sabe distinguir por permanente(st), falta devolver um desfecho proprio para recusa por desenho em vez de cair no generico fila, e dizer() ganhar essa frase.",
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:24:41.319Z"
   },
   {
    "id": "perda-de-resposta-deixa-rastro",
    "titulo": "O aviso de perda dura 2400 ms e nao sobrevive a tela apagada",
-   "estado": "livre",
+   "estado": "em-curso",
    "papel": "dev-plataforma",
    "territorio": "dashboard/",
    "camada": "plataforma",
-   "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando."
+   "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando.",
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:24:41.319Z"
   },
   {
    "id": "endurecer-portoes",
