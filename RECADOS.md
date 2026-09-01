@@ -390,3 +390,8 @@ backlog é a verdade e está atualizado.
 `entrega/glossario-substancia-rev3` (as duas integradas agora) e `voo/glossario-substancia`. Os
 `entrega/canonical-jogo`, `entrega/dashboard-trio` e `entrega/rotina-7-sinais` continuam da lista
 anterior.
+
+**CI da rodada `nuvem-20260901T2022`: verde nas três.** `teste` #396 (`af65a8f`, o merge do
+glossário) · #397 (`afd4c76`, o diário) · #398 (`f832cd2`, o controle de governança, que é o topo
+da main e o que a Vercel publica) — as três `success`. A main está verde e o glossário de 184
+verbetes está no ar.
