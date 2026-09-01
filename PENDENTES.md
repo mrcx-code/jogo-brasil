@@ -3159,3 +3159,44 @@ verdade. O que não existe é a vigilância contra ele voltar a ser.
 o portão sair **exit 1**; e o `--autoteste` deixar de ter cobaia única — que ele injete também
 num arquivo com `'/**'`, senão o próximo buraco desta forma volta a passar. Rodar a varredura
 nos 8 arquivos e reportar o número novo de engolidos (esperado: 0).
+
+---
+
+## 93 — Três PNGs rastreados sujam a árvore a cada `npm test` — plantao (01/09)
+
+**Papercut pequeno com consequência feia**, e ninguém tinha registrado até hoje.
+
+Rodar `npm test` regenera três capturas rastreadas pelo git e elas saem **sempre diferentes**,
+sem que nada do produto tenha mudado:
+
+| arquivo | delta |
+|---|---|
+| `test/E-01-nicho-e-seta.png` | 1.625.321 → 1.510.620 bytes |
+| `test/B1-retorno-antes-do-menu.png` | 261.384 → 244.571 bytes |
+| `test/T1-ajustes-retencao.png` | 163.367 → 163.603 bytes |
+
+São ~400 KB de diferença binária por rodada, com **zero** significado. Medido nesta data
+rodando o baseline da `main`, sem entrega nenhuma aplicada.
+
+**Por que isso importa mais do que parece.** Toda rodada que roda a suíte — ou seja, toda
+rodada — termina com a árvore suja. Aí há dois desfechos, e os dois são ruins:
+
+1. quem não repara **commita**, e a `main` leva 400 KB de churn binário fingindo ser trabalho,
+   dentro de um commit cuja mensagem fala de outra coisa;
+2. quem repara **gasta atenção** desfazendo à mão, toda vez. Nesta rodada aconteceu **três
+   vezes**: eu na árvore principal e os dois agentes nos worktrees deles — o `pre-integrador`
+   inclusive relatou o descarte como higiene do próprio processo, sem saber que era conhecido,
+   porque não era.
+
+O risco maior é o (1) combinado com o funil: o `integrar.js` recusa worktree sujo que não seja
+saída de build, e estes PNGs **não** casam com `SAIDA_BUILD` (`index.html`, `pack-*.json`,
+`dist/`, `build/`). Então eles podem reprovar uma entrega boa por sujeira que a entrega não fez.
+
+**Caminhos possíveis, e nenhum é óbvio — por isso vai para a mesa em vez de eu escolher:**
+(a) tirar as três do git e gerar em pasta ignorada, se ninguém as compara entre commits;
+(b) mantê-las rastreadas e **acrescentá-las ao `SAIDA_BUILD`** do `integrar.js`, o que resolve
+o funil e não resolve o churn; (c) achar por que a captura não é determinística (fonte,
+antialiasing, hora do dia no jogo?) e fixá-la, que é o conserto de verdade e o mais caro.
+
+Território: `test/`, e o (b) toca `ferramentas/integrar.js`. Quem pegar: mede primeiro se
+alguém de fato compara esses PNGs entre commits — se ninguém compara, o (a) é barato e fecha.
