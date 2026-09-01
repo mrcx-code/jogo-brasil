@@ -1807,8 +1807,17 @@
     var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(corpo);
     var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(corpo);
     var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(corpo);
-    return Promise.all([qItens,qResp,qAg]).then(function(rs){
-      var itens=rs[0]||[], resp=rs[1]||[], ags=rs[2]||[];
+    // TUDO-OU-NADA ERA DANO MEU, e o QA pegou no mesmo dia — o conserto do servidor mudo
+    // trocou uma mentira por um sumico. Com `Promise.all`, uma tabela que falha derruba as
+    // TRES: medido pelo QA, com so a `mesa_agente` em 401 (o token vencido numa aba velha, que
+    // e o caso que motivou o conserto), uma DECISAO que o dono precisa responder e duas
+    // mensagens deixavam de aparecer na tela — sem erro no console. As tres consultas sao
+    // independentes; entao `allSettled`: desenha o que chegou, e o rodape so carimba "ao vivo"
+    // quando as tres vieram. Uma que falhe mantem "sem conexao" e repinta as idades.
+    return Promise.allSettled([qItens,qResp,qAg]).then(function(rs){
+      var val=function(i){ return rs[i].status==="fulfilled" && Array.isArray(rs[i].value) ? rs[i].value : []; };
+      var todas=rs.every(function(r){ return r.status==="fulfilled"; });
+      var itens=val(0), resp=val(1), ags=val(2);
       resp.forEach(function(r){ if(r.tipo!=="mensagem") respondidas[r.chave]=true; });
       // conversa: minhas mensagens vêm de mesa_item (tipo=mensagem); as do dono, de mesa_resposta
       var papo=[];
@@ -1833,7 +1842,14 @@
       ags.forEach(atualizaAg);
       garantirDono(ags);   // a sessao principal (o dono) tem cartao de gasto mesmo sem linha no banco
       document.getElementById("ag-nota").textContent="ao vivo · atualiza sozinho · “Acionar” abre os caminhos";
-      document.getElementById("quando").textContent="ao vivo · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+      // O RODAPE SO DIZ "AO VIVO" QUANDO AS TRES CHEGARAM. Se uma falhou, a tela esta desenhada
+      // com o que sobrou — dizer "ao vivo" ali seria a mentira do `Promise.all` resolvendo em
+      // cima de lista vazia, so que em outro lugar. E as idades sao repintadas pelo relogio,
+      // porque a `mesa_agente` pode ter sido justamente a que falhou.
+      document.getElementById("quando").textContent = todas
+        ? "ao vivo · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+        : "sem conexão — tentando de novo";
+      if(!todas) repintarIdades();
       atualizaPlacar();
     }).catch(function(){
       document.getElementById("quando").textContent="sem conexão — tentando de novo";
