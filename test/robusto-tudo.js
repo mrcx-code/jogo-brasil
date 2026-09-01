@@ -277,6 +277,73 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     });
     console.log(cena, '3b: esconder a aba gravou o save:', b.gravou, '| atraso', b.atraso + 'ms');
     if (!b.gravou || b.atraso > 200 || b.atraso < 0) falhas.push('3b: esconder a aba não gravou o save na hora');
+
+    // 3c. VOLTAR do segundo plano — o IRMÃO SEM COBERTURA do teto de 12 h (PENDENTES 72,
+    // achado do QA em 23/08 auditando outra coisa).
+    //
+    // A 3b cobre a METADE que ESCONDE. A metade que VOLTA não tinha uma linha de teste: o
+    // handler de `visibilitychange` chama
+    //     pagarAusencia(Math.max(0, Math.min((Date.now() - escondidoEm)/1000, CFG.capOfflineHoras*3600)))
+    // e esse caminho **não passa por `carregar()`** — é o único jeito de se ausentar de quem
+    // troca de app sem fechar o jogo, que é o caso comum no celular e o ÚNICO no aplicativo,
+    // onde a webview sobrevive ao segundo plano. `grep -rn` por `escondidoEm` ou
+    // `pagarAusencia` em `test/*.js` devolvia NADA.
+    //
+    // MEDIDO pelo QA: com o `Math.min` inteiro arrancado do jogo, os quatro portões saíram
+    // VERDES — `robusto-tudo` 0, `medir-save-hostil` 0, `encaixe` 0, `smoke` 0. Quatro verdes
+    // com o teto arrancado. Era a resposta à pergunta "existe caminho em que o teto some sem
+    // nenhuma cena reprovar": existe, e é este.
+    //
+    // A SENTINELA −1 é a mesma disciplina da 2c, e pela mesma razão: zero é o valor de repouso
+    // de `voltouDepoisDe`, então "vale 0" passa nos DOIS mundos — naquele em que a conta rodou
+    // e deu zero, e naquele em que ela não rodou. −1 que sobrevive é "NÃO RODOU".
+    //
+    // `salvoConhecido = discoSalvoEm()` antes de mostrar não é maquiagem: sem isso o handler
+    // cai no ramo da ABA QUE RECUOU (`discoSalvoEm() > salvoConhecido`), que recarrega e zera
+    // a marca DE PROPÓSITO — quem paga ali é a outra aba. Este bloco quer o outro ramo.
+    const c = await page.evaluate(() => {
+      salvar = function () {}; salvarRetencao = function () {};
+      fecharTelas(); fecharTudo();
+      const visivel = (v) => {
+        Object.defineProperty(document, 'hidden', { get: () => !v, configurable: true });
+        Object.defineProperty(document, 'visibilityState', { get: () => (v ? 'visible' : 'hidden'), configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      };
+      const rodar = (segundos) => {
+        visivel(false);                       // o handler carimba `escondidoEm = Date.now()`
+        escondidoEm = Date.now() - segundos * 1000;   // ...e aqui ele vira o tempo que se quer medir
+        salvoConhecido = discoSalvoEm();
+        voltouDepoisDe = -1;                  // sentinela
+        visivel(true);
+        const r = { volta: Math.round(voltouDepoisDe),
+          painel: document.getElementById('retorno').classList.contains('aberto'),
+          marca: escondidoEm };
+        fecharRetorno();
+        return r;
+      };
+      const o = {};
+      o.curta = rodar(30);                          // trocar de app por meio minuto
+      o.oito = rodar(8 * 3600);                     // ausência honesta de 8 h
+      o.anos = rodar(3 * 365 * 24 * 3600);          // o relógio do aparelho pulou 3 anos
+      o.futuro = rodar(-6 * 3600);                  // o relógio andou para TRÁS 6 h
+      o.teto = CFG.capOfflineHoras * 3600;
+      visivel(true);
+      return o;
+    });
+    console.log(cena, '3c: volta da aba oculta ->',
+      '30s', c.curta.volta + 's (papel ' + c.curta.painel + ')',
+      '| 8h', c.oito.volta + 's', '| 3 anos', c.anos.volta + 's (teto ' + c.teto + 's)',
+      '| relógio -6h', c.futuro.volta + 's');
+    for (const [nome, r] of [['curta', c.curta], ['oito', c.oito], ['anos', c.anos], ['futuro', c.futuro]]) {
+      if (r.volta === -1) falhas.push('3c/' + nome + ': o caminho da ABA OCULTA não rodou — a sentinela -1 sobreviveu, então nenhum número abaixo prova coisa alguma');
+      if (r.marca !== 0) falhas.push('3c/' + nome + ': `escondidoEm` não foi zerado (' + r.marca + ') — a mesma ausência seria paga de novo na próxima volta');
+    }
+    if (c.oito.volta !== 28800) falhas.push('3c: 8 h de aba oculta deviam valer 28.800 s, valeram ' + c.oito.volta);
+    if (c.anos.volta !== c.teto) falhas.push('3c: O TETO DE 12 H NÃO SEGUROU NA ABA OCULTA — 3 anos escondida deviam virar ' + c.teto + 's, viraram ' + c.anos.volta);
+    if (c.futuro.volta !== 0) falhas.push('3c: relógio recuado devia medir 0 s de aba oculta, mediu ' + c.futuro.volta);
+    if (c.curta.volta !== 30) falhas.push('3c: 30 s de aba oculta deviam valer 30 s, valeram ' + c.curta.volta);
+    if (c.curta.painel) falhas.push('3c: trocar de app por 30 s abriu o papel da volta na cara de alguém');
+    if (!c.oito.painel || !c.anos.painel) falhas.push('3c: uma ausência longa pela aba oculta não abriu o papel da volta');
     await page.close();
   }
 
