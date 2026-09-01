@@ -105,15 +105,53 @@ function hojeLocalISO() {
 //     É o que a tarefa mensal precisa saber ("este mês eu confiro INPE ou IBGE?"). Regra que
 //     não bate com nenhum sinal NÃO some: aparece como `(sem sinal reconhecido)`, que é o
 //     convite para acrescentar um sinal aqui — visível, e não uma gaveta.
+//
+// DONO E GATILHO (achado 1 do vigia, 22/08; item rotina-7-sinais, 01/09). Cada sinal carrega
+// `endereco` (o domínio institucional canônico onde a publicação mora — não um link fundo
+// verificado nesta sessão, que rodou sem rede; é o mesmo nível de fato público que o próprio
+// nome do órgão) e `periodicidade` (o ciclo REAL, tirado do `vence_regra` que o historiador já
+// escreveu com fonte — nunca um mês chutado à parte). `quem` é sempre o mesmo processo: a
+// tarefa mensal `alerta-validade-brasil` (WebSearch), acionada pelo plantão — o vigia aponta,
+// não abre a internet. Antes desta entrega, a tarefa só sabia procurar em três (IBGE/INPE/
+// MapBiomas, escolhidos à mão em 21/08); UNESCO, STF e INCRA não tinham gatilho nenhum.
 const SINAIS = [
-  { nome: 'IBGE', re: /\bIBGE\b|\bCenso\b/i },
-  { nome: 'INPE', re: /\bINPE\b|\bPRODES\b/i },
-  { nome: 'MapBiomas', re: /\bMapBiomas\b|\bRAD\b/i },
-  { nome: 'DOU', re: /\bDOU\b|\bDi[áa]rio Oficial\b/i },
-  { nome: 'STF', re: /\bSTF\b/i },
-  { nome: 'INCRA', re: /\bINCRA\b/i },
-  { nome: 'UNESCO', re: /\bUNESCO\b/i },
+  { nome: 'IBGE', re: /\bIBGE\b|\bCenso\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'www.ibge.gov.br — Censo Demográfico e publicações temáticas (ex.: Etnias e línguas indígenas)',
+    periodicidade: 'decenal (o Censo); reconferir também a cada nova edição de publicação temática — ver ETNIA/INDÍGENA/PARDO/QUILOMBOLA etc.' },
+  { nome: 'INPE', re: /\bINPE\b|\bPRODES\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'www.gov.br/inpe — PRODES (desmatamento da Amazônia Legal)',
+    periodicidade: '~outubro (estimativa do ciclo) e ~março (taxa consolidada) — ver DESMATAMENTO/INPE' },
+  { nome: 'MapBiomas', re: /\bMapBiomas\b|\bRAD\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'mapbiomas.org — RAD (Relatório Anual de Desmatamento)',
+    periodicidade: '~maio (RAD do ciclo) — ver MAPBIOMAS' },
+  { nome: 'DOU', re: /\bDOU\b|\bDi[áa]rio Oficial\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'www.in.gov.br — Diário Oficial da União (Imprensa Nacional)',
+    periodicidade: 'contínuo — sem ciclo fixo; acompanhar ato por ato (demarcação, titulação, nomeação) — ver DEMARCAÇÃO/MUNDURUKU/SÔNIA GUAJAJARA/PEDRA DO SAL' },
+  { nome: 'STF', re: /\bSTF\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'portal.stf.jus.br — andamento processual',
+    periodicidade: 'a cada 6 meses, enquanto a disputa segue em curso — ver MARCO TEMPORAL' },
+  { nome: 'INCRA', re: /\bINCRA\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'www.gov.br/incra — regularização quilombola',
+    periodicidade: 'contínuo — sem ciclo fixo; acompanhar publicação de título quilombola — ver PEDRA DO SAL' },
+  { nome: 'UNESCO', re: /\bUNESCO\b/i,
+    quem: 'tarefa mensal alerta-validade-brasil (plantão)',
+    endereco: 'ich.unesco.org — decisões do Comitê Intergovernamental do Patrimônio Cultural Imaterial',
+    periodicidade: 'anual — sessão de dezembro do Comitê — ver MARACATU' },
 ];
+
+// Endereço e periodicidade são exigidos dos 7 sinais — checado em runtime (não só no teste),
+// porque um sinal sem dono e gatilho é exatamente o buraco que esta entrega existe para fechar.
+for (const s of SINAIS) {
+  if (!s.endereco || !s.periodicidade || !s.quem) {
+    throw new Error('SINAIS: "' + s.nome + '" está sem dono/endereço/periodicidade — data órfã de outro tipo.');
+  }
+}
 
 function sinaisDe(regra) {
   const s = String(regra || '');
@@ -217,6 +255,12 @@ function classificar(linhas, opts) {
     total_linhas: linhas.length, total_com_validade: 0, fechadas_ignoradas: 0,
     recusas: [], vencido: [], janela_aviso: [], futuro: [], sem_data: [],
     familias: [], por_sinal: {},
+    // O dono e o gatilho dos 7 sinais, para a tarefa mensal (máquina, via --json) não ter que
+    // reabrir este arquivo para saber quem procura, onde e quando — é a mesma lista de SINAIS,
+    // sem a regex (que não serializa em JSON).
+    sinais: SINAIS.map((s) => ({
+      nome: s.nome, quem: s.quem, endereco: s.endereco, periodicidade: s.periodicidade,
+    })),
   };
 
   for (const l of linhas) {
@@ -362,8 +406,18 @@ function imprimir(r, base, contagem) {
   console.log('');
 
   const sinais = Object.keys(r.por_sinal).sort((a, b) => (r.por_sinal[b] - r.por_sinal[a]) || (a < b ? -1 : 1));
-  console.log('ONDE SE CONFERE — o que abrir (uma linha pode citar mais de um)');
-  for (const s of sinais) console.log('  ' + pad(s, 24) + String(r.por_sinal[s]).padStart(3));
+  console.log('ONDE SE CONFERE — dono e gatilho de cada sinal (uma linha pode citar mais de um)');
+  for (const s of sinais) {
+    console.log('  ' + pad(s, 12) + String(r.por_sinal[s]).padStart(3) + ' linha(s)');
+    const meta = SINAIS.find((x) => x.nome === s);
+    if (meta) {
+      console.log('      quem: ' + meta.quem);
+      console.log('      onde: ' + meta.endereco);
+      console.log('      quando: ' + meta.periodicidade);
+    } else {
+      console.log('      (sem sinal reconhecido — acrescente em SINAIS, ferramentas/conteudo-vigia.js)');
+    }
+  }
   console.log('');
 }
 

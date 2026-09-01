@@ -66,7 +66,7 @@ async function extrairDoJogo() {
 // GLOSSARIO é uma lista PLANA: um cabeçalho de grupo (campo `g`) e, depois dele, os verbetes
 // (campo `t`) até o próximo cabeçalho. A chave de um verbete é o próprio termo `t` e a chave de
 // um grupo é o próprio nome `g` — nenhum identificador inventado, porque inventar chave é
-// inventar dado (os dois foram conferidos únicos: 181 termos, 17 grupos, zero repetição).
+// inventar dado (os dois foram conferidos únicos: 184 termos, 17 grupos, zero repetição).
 //
 // A `ordem` é DENTRO do grupo, e a do grupo é dentro da lista. Isso reconstrói o array plano
 // original exatamente — e `conferir()` abaixo prova que reconstrói, em vez de supor.

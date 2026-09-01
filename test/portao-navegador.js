@@ -58,7 +58,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const AUTOTESTE = process.argv.includes('--autoteste');
+const AUTOTESTE = require.main === module && process.argv.includes('--autoteste');
 
 // ————— 1. DE ONDE SAI A LISTA —————
 
@@ -105,8 +105,16 @@ function portoesDeclarados() {
     fontes = fs.readdirSync(dir).filter((f) => /\.ya?ml$/i.test(f)).map((f) => lerSeExiste(path.join(dir, f)));
   } catch (e) { /* sem CI: a lista cai para os scripts do npm, e o total impresso denuncia */ }
   // O ciclo que o plantão roda por regra (CLAUDE.md §6) não está no YAML e é portão do mesmo
-  // jeito. Estes quatro nomes são a ÚNICA parte escrita à mão deste arquivo, e são o ciclo.
+  // jeito. Estes quatro nomes são o ciclo, e continuam sendo os únicos que o CLAUDE.md nomeia.
   fontes.push('npm test\nnode test/encaixe.js\nnode test/medir-save-hostil.js\nnode test/medir-telas-altura.js');
+  // FORA DO CICLO, MAS AINDA UM PORTÃO (dev-plataforma, 01/09, pedido pelo pré-integrador ao
+  // devolver o item `perda-de-resposta-deixa-rastro`): `rodape-verdadeiro.js` não roda pelo CI
+  // nem pelo ciclo do plantão — é chamado à mão por quem mexe em `dashboard/`. Ele MESMO já
+  // pagou o preço de lançar nu (achado do pré-integrador, 01/09: as 11 cenas dinâmicas nunca
+  // executavam nesta máquina, e só as 2 estáticas rodavam — silêncio, sem exit ≠ 0 denunciando).
+  // Ele não vira "ciclo" só por entrar aqui; esta segunda linha existe para não misturar as
+  // duas categorias na mesma frase.
+  fontes.push('node test/rodape-verdadeiro.js');
 
   const brutos = new Set();
   for (const txt of fontes) {
@@ -151,21 +159,95 @@ function requeridosLocais(rel) {
 // "0 achados" e ficou VERDE escondendo um defeito real. Falso positivo é barulhento e se
 // conserta; falso negativo é mudo e assina o verde.
 //
-// ENTÃO ESTA VERSÃO NÃO TOCA EM STRING NENHUMA — só em comentário, que é a única coisa que
-// ela precisa distinguir. `//` só conta como início de comentário quando não vem depois de
-// `:`, o que preserva `http://`, `https://` e `file://` dentro de literal. Os espaços entram
-// no lugar dos caracteres para as posições não andarem: o número da linha continua verdadeiro.
+// A TERCEIRA VERSÃO (a que valeu até 01/09) NÃO TOCAVA EM STRING NENHUMA — e por isso confundia
+// o `/*` de dentro de `'/**'` (o curinga de rota do Express/Playwright, usado em
+// `test/rodape-verdadeiro.js` e `test/fila-auth.js`) e de `'**/*'` / `'**supabase.co/**'` (o
+// "intercepta tudo" do Playwright, usado em `test/medir-leitura-secao.js`,
+// `test/medir-paginas.js`, `test/medir-plataforma-chrome.js`, `test/caminhos-do-backlog.js`)
+// com abertura de comentário de bloco DE VERDADE — PENDENTES 92. Medido antes deste conserto,
+// com a função antiga, nos 8 arquivos do alcance do portão: de 12 ocorrências brutas de
+// `chromium.launch` no texto, **só 2 sobreviviam** à varredura — as duas do próprio
+// `portao-navegador.js`, o único dos 8 que não usa nenhum desses padrões de rota.
+//
+// ESTA QUARTA VERSÃO É UMA MÁQUINA DE ESTADOS — não duas regex empilhadas —, porque a lição da
+// segunda versão continua valendo ao contrário: reconhecer aspas SEM saber que elas também
+// aparecem dentro de literais de regex teria o mesmo risco (`requeridosLocais()`, algumas
+// linhas acima, usa `['"]` duas vezes — regex com aspas dentro, no próprio arquivo do portão).
+// A saída: strings (`'…'`, `"…"`, template `` `…` `` com `${…}` aninhado) são RECONHECIDAS mas
+// NUNCA APAGADAS — o conteúdo atravessa sem mudar; só o reconhecimento de `//`/`/*` fica
+// desligado enquanto o scanner acha que está "dentro" de uma. Isso torna a confusão de aspas
+// **segura por construção**: mesmo que uma aspa escondida num literal de regex desequilibre a
+// contagem por um trecho, nada é apagado ali — o pior efeito possível é um comentário de
+// verdade deixar de ser reconhecido (falso positivo, barulhento) e NUNCA um engolimento
+// silencioso. E cada string simples/dupla tem limite de uma linha: uma aspa sem fechar antes do
+// `\n` é abandonada ali (JS de verdade já seria erro de sintaxe nesse caso) — o que impede a
+// MESMA classe de bug (comentário de bloco falso comendo dezenas de linhas) de voltar por outra
+// porta. Só o template literal, que PODE ser multi-linha de propósito (é a única sintaxe que
+// É), atravessa `\n` sem abortar.
+//
+// O QUE ESTA VERSÃO NÃO RESOLVE, medido e registrado em vez de escondido: um literal de regex
+// com barra escapada ainda pode formar um `//` ou `/*` de mentira que o scanner não reconhece
+// como regex — `test/abrir.js:100` tem `/^file:\/\//i`, cujo `\/\/` final forma duas barras
+// adjacentes lidas hoje como início de comentário de linha (o resto daquela linha some). Não
+// muda o resultado de nenhum dos 8 arquivos do alcance porque não há `chromium.launch` na mesma
+// linha, mas é uma lacuna real, não fechada por este conserto — desambiguar regex de divisão
+// exige saber o token significativo anterior (palavra-chave, identificador, operador), e isso é
+// escopo maior do que "string vs. comentário". Achado também: 9 arquivos em `test/*.js` (fora
+// do alcance de hoje) têm o mesmo padrão `\/\/` dentro de regex — não é só o `abrir.js`.
+//
+// `//` só conta como início de comentário quando não vem depois de `:`, herdado da versão
+// anterior para preservar `http://`, `https://` e `file://` fora de qualquer string — dentro de
+// uma string a proteção já vem do estado, não desta checagem.
 function semComentarios(txt) {
+  const CODIGO = 0, LINHA = 1, BLOCO = 2, ASPA1 = 3, ASPA2 = 4, TEMPLATE = 5;
+  // Pilha de contextos: o topo é o modo atual. Um quadro TEMPLATE que viu `${` empurra um
+  // quadro CODIGO com `viaTemplate = true` e `chaves` — para saber quando o `}` fecha a
+  // interpolação (e não um objeto declarado por dentro dela).
+  const pilha = [{ modo: CODIGO }];
   let fora = '';
   let i = 0;
-  while (i < txt.length) {
-    const c = txt[i], d = txt[i + 1];
-    if (c === '/' && d === '/' && txt[i - 1] !== ':') {
-      while (i < txt.length && txt[i] !== '\n') { fora += ' '; i++; }
-    } else if (c === '/' && d === '*') {
-      while (i < txt.length && !(txt[i] === '*' && txt[i + 1] === '/')) { fora += (txt[i] === '\n' ? '\n' : ' '); i++; }
-      fora += '  '; i += 2;
-    } else { fora += c; i++; }
+  const n = txt.length;
+  while (i < n) {
+    const topo = pilha[pilha.length - 1];
+    const c = txt[i], d = i + 1 < n ? txt[i + 1] : '';
+
+    if (topo.modo === LINHA) {
+      if (c === '\n') { fora += '\n'; pilha.pop(); } else { fora += ' '; }
+      i++; continue;
+    }
+    if (topo.modo === BLOCO) {
+      if (c === '*' && d === '/') { fora += '  '; i += 2; pilha.pop(); }
+      else { fora += (c === '\n' ? '\n' : ' '); i++; }
+      continue;
+    }
+    if (topo.modo === ASPA1 || topo.modo === ASPA2) {
+      const aspa = topo.modo === ASPA1 ? "'" : '"';
+      if (c === '\\' && d !== '') { fora += c + d; i += 2; continue; }
+      if (c === aspa) { fora += c; i++; pilha.pop(); continue; }
+      if (c === '\n') { fora += '\n'; i++; pilha.pop(); continue; } // sem fechar antes da linha acabar: já seria erro de sintaxe
+      fora += c; i++; continue;
+    }
+    if (topo.modo === TEMPLATE) {
+      if (c === '\\' && d !== '') { fora += c + d; i += 2; continue; }
+      if (c === '`') { fora += c; i++; pilha.pop(); continue; }
+      if (c === '$' && d === '{') { fora += c + d; i += 2; pilha.push({ modo: CODIGO, viaTemplate: true, chaves: 0 }); continue; }
+      fora += c; i++; continue;
+    }
+
+    // topo.modo === CODIGO (inclusive dentro de uma ${...} de template)
+    if (c === '/' && d === '/' && txt[i - 1] !== ':') { pilha.push({ modo: LINHA }); fora += '  '; i += 2; continue; }
+    if (c === '/' && d === '*') { pilha.push({ modo: BLOCO }); fora += '  '; i += 2; continue; }
+    if (c === "'") { pilha.push({ modo: ASPA1 }); fora += c; i++; continue; }
+    if (c === '"') { pilha.push({ modo: ASPA2 }); fora += c; i++; continue; }
+    if (c === '`') { pilha.push({ modo: TEMPLATE }); fora += c; i++; continue; }
+    if (topo.viaTemplate) {
+      if (c === '{') { topo.chaves++; fora += c; i++; continue; }
+      if (c === '}') {
+        if (topo.chaves === 0) { pilha.pop(); fora += c; i++; continue; }
+        topo.chaves--; fora += c; i++; continue;
+      }
+    }
+    fora += c; i++;
   }
   return fora;
 }
@@ -208,20 +290,26 @@ function varrer() {
 //
 // Controle que não morde é decoração, e decoração assinada de verde é pior que teste nenhum.
 // Injeta um lançamento nu num portão real, exige exit 1 apontando para ele, e restaura.
-function autoteste() {
-  const COBAIA = 'test/medir-save-hostil.js';
+//
+// DUAS COBAIAS, não uma — PENDENTES 92. Uma cobaia só (`medir-save-hostil.js`, sem `'/**'`)
+// prova que a varredura morde NAQUELE arquivo e não prova nada sobre os outros 7 do alcance
+// que usam curinga de rota. A segunda cobaia é `test/rodape-verdadeiro.js`, que TEM `'/**'`
+// seis vezes — é o próprio arquivo que a lacuna deixou cego.
+const COBAIAS = ['test/medir-save-hostil.js', 'test/rodape-verdadeiro.js'];
+
+function autotestaUmaCobaia(COBAIA) {
   const abs = path.join(RAIZ, COBAIA);
   const original = fs.readFileSync(abs, 'utf8');
   const DE = 'const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });';
   if (original.indexOf(DE) === -1) {
-    console.log('AUTOTESTE INCONCLUSIVO — a âncora sumiu de ' + COBAIA + '; conserte o autoteste, não o portão.');
-    process.exit(2);
+    console.log('  AUTOTESTE INCONCLUSIVO — a âncora sumiu de ' + COBAIA + '; conserte o autoteste, não o portão.');
+    return null;
   }
   let ok = true;
   try {
     const limpo = varrer();
-    console.log('  antes da injeção  -> nus: ' + limpo.nus.length);
-    if (limpo.nus.length !== 0) { console.log('  ✗ a árvore já estava suja; o autoteste não prova nada'); ok = false; }
+    const jaSujoAntes = limpo.nus.length !== 0;
+    if (jaSujoAntes) { console.log('  ✗ a árvore já estava suja antes de injetar em ' + COBAIA); ok = false; }
 
     // O payload é montado por concatenação, e não escrito inteiro, porque este arquivo ENTRA na
     // própria varredura — ele é um portão do CI desde 31/08. Escrito inteiro, o literal do
@@ -233,35 +321,55 @@ function autoteste() {
     fs.writeFileSync(abs, original.replace(DE, NU));
     const sujo = varrer();
     const pegou = sujo.nus.some((x) => x.indexOf(COBAIA) === 0);
-    console.log('  com o defeito     -> nus: ' + sujo.nus.length + (pegou ? ' (pegou ' + COBAIA + ')' : ' (NÃO pegou)'));
-    if (!pegou) { console.log('  ✗ o portão não mordeu'); ok = false; }
+    console.log('  ' + COBAIA + ' — antes: ' + limpo.nus.length + ' nus · com o defeito: ' +
+      sujo.nus.length + (pegou ? ' (pegou)' : ' (NÃO pegou)'));
+    if (!pegou) { console.log('  ✗ o portão não mordeu em ' + COBAIA); ok = false; }
   } finally {
     fs.writeFileSync(abs, original);   // restaura SEMPRE, inclusive se algo acima lançar
   }
   const depois = varrer();
-  console.log('  depois de restaurar -> nus: ' + depois.nus.length);
-  if (depois.nus.length !== 0) { console.log('  ✗ a restauração não voltou ao verde'); ok = false; }
-  console.log(ok ? 'AUTOTESTE OK — o portão morde e solta.' : 'AUTOTESTE FALHOU.');
+  const pegouDepois = depois.nus.some((x) => x.indexOf(COBAIA) === 0);
+  if (pegouDepois) { console.log('  ✗ a restauração de ' + COBAIA + ' não voltou ao verde'); ok = false; }
+  return ok;
+}
+
+function autoteste() {
+  let ok = true;
+  for (const COBAIA of COBAIAS) {
+    const r = autotestaUmaCobaia(COBAIA);
+    if (r === null || r === false) ok = false;
+  }
+  const final = varrer();
+  console.log('  depois de tudo restaurado -> nus: ' + final.nus.length);
+  if (final.nus.length !== 0) { console.log('  ✗ a árvore não voltou inteira ao verde'); ok = false; }
+  console.log(ok ? 'AUTOTESTE OK — o portão morde e solta, nas ' + COBAIAS.length + ' cobaias.' : 'AUTOTESTE FALHOU.');
   process.exit(ok ? 0 : 1);
 }
 
 // ————— 4. principal —————
-if (AUTOTESTE) { autoteste(); }
-else {
-  const { portoes, alcance, nus } = varrer();
-  console.log('portões derivados: ' + portoes.size + ' · com os requires locais: ' + alcance.size);
-  if (!nus.length) {
-    console.log('VERDE — todo portão diz onde o Chromium está.');
-    process.exit(0);
+if (require.main === module) {
+  if (AUTOTESTE) { autoteste(); }
+  else {
+    const { portoes, alcance, nus } = varrer();
+    console.log('portões derivados: ' + portoes.size + ' · com os requires locais: ' + alcance.size);
+    if (!nus.length) {
+      console.log('VERDE — todo portão diz onde o Chromium está.');
+      process.exit(0);
+    }
+    console.log('');
+    console.log('REPROVADO — ' + nus.length + ' lançamento(s) de Chromium sem executablePath:');
+    for (const n of nus) console.log('  ' + n);
+    console.log('');
+    console.log('O conserto é uma linha, e a função canônica já existe:');
+    console.log("  const ABRIR = require('./abrir.js');");
+    console.log('  await chromium.launch({ executablePath: ABRIR.chromiumPath() })');
+    console.log('Sem PW_CHROMIUM e sem /opt/pw-browsers/chromium ela devolve undefined, que é o');
+    console.log('lançamento nu — então numa máquina que instalou o navegador nada muda.');
+    process.exit(1);
   }
-  console.log('');
-  console.log('REPROVADO — ' + nus.length + ' lançamento(s) de Chromium sem executablePath:');
-  for (const n of nus) console.log('  ' + n);
-  console.log('');
-  console.log('O conserto é uma linha, e a função canônica já existe:');
-  console.log("  const ABRIR = require('./abrir.js');");
-  console.log('  await chromium.launch({ executablePath: ABRIR.chromiumPath() })');
-  console.log('Sem PW_CHROMIUM e sem /opt/pw-browsers/chromium ela devolve undefined, que é o');
-  console.log('lançamento nu — então numa máquina que instalou o navegador nada muda.');
-  process.exit(1);
+} else {
+  // Exportado para instrumentos de teste (ex.: test/qa-92-*.js) chamarem sem disparar o CLI —
+  // sem isto, medir semComentarios() de fora exige duplicar a função ou passar por
+  // `child_process`, e as duas formas já causaram medição da função ERRADA nesta casa.
+  module.exports = { semComentarios, launchesNus, varrer, portoesDeclarados, requeridosLocais };
 }

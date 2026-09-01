@@ -5831,6 +5831,14 @@ interpretação; IBGE, institucional, para o dado. A tese econômica não é afi
 jogador conclui. Não foi criado verbete novo — LEI DE TERRAS e LEI EUSÉBIO DE QUEIRÓS já existiam e
 já estavam ligados no GLOSSARIO_REL; verbete duplicado quebraria o índice. -->
 Fonte do dado até-hoje: IBGE, Censo Agropecuário 2017/SIDRA 6754 (76,8% dos estabelecimentos em 23% da área) — LEI DE TERRAS ·
+Virgílio Noya Pinto, *O ouro brasileiro e o comércio anglo-português* (Nacional/INL, 1979) e Laura de
+Mello e Souza, *Desclassificados do ouro* (Graal, 1982), com o Tratado de Methuen de 27/12/1703 e o
+verbete "Casas de Fundição (1603-1821)" do MAPA/Arquivo Nacional — ECONOMIA DO OURO ·
+Eric Williams, *Capitalism and Slavery* (University of North Carolina Press, 1944) e Abdias do
+Nascimento, *O genocídio do negro brasileiro* (Paz e Terra, 1978), com o Slavery Abolition Act 1833,
+a base Legacies of British Slavery da UCL e a Lei nº 3.353/1888 — A CONTA DA ESCRAVIDÃO ·
+ABEP, *Critério de Classificação Econômica Brasil* (versão em vigor desde 2015, metodologia de
+Kamakura & Mazzon sobre a POF/IBGE) — CRITÉRIO BRASIL ·
 Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
 Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
 Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
@@ -10330,3 +10338,631 @@ Medi o custo do quadro a 390×844 e deu **1,8 fps (1530) e 2,2 fps (2030)**, med
 **Isto não diz nada sobre o celular do dono:** esta máquina não tem GPU e o render sai por
 SwiftShader (software). É **piso**, não veredito. O que fica é o buraco: o guardrail 3 do spec pede
 medição de performance mobile e **ela continua sem existir** — nenhum número de aparelho real.
+
+## 01/09 — DUAS ENTREGAS INTEGRADAS, E O PORTÃO QUE DIZ VERDE SOBRE O QUE NÃO LÊ — plantao (nuvem-20260901T1340)
+
+Rodada agendada, pela fila (nenhuma issue com etiqueta `agente`). **Nome de máquina:
+`nuvem-20260901T1340`.**
+
+### A fila estava mentindo, e foi o primeiro trabalho
+
+A rodada `nuvem-20260901T0823` marcou **seis** itens `em-curso` às 08:24/08:29 e **não empurrou
+nada em cinco horas** — os quatro ramos `voo/` apontavam para o próprio commit de backlog.
+Locks vencidos (janela de 2 h): peguei quatro, devolvi dois a `livre`.
+
+### O que foi integrado
+
+**`canonical-jogo` (`8614ce2`) — e a premissa do item CAIU.** O item mandava pôr o
+`<link rel="canonical">` no molde e citava *"grep agora: 0 ocorrências"*. Medido: a linha está
+em `src/index.html:55` desde `f79ce99`, de **24/08** — oito dias antes de o item ser reaberto —
+e a exceção do build também (`construir.js:197`). O que **não** existia era portão:
+`test/encaixe.js` da `main` tinha **0** ocorrências de `canonical`. Entrou o bloco 14 com 3
+asserções (existe · a marca `@@BASE@@` não sobrou crua · canonical == `og:url`), com as três
+injeções refeitas **à mão pelo pré-integrador** — exit 1 na asserção certa em cada uma.
+Endereço confirmado: `https://matheusferreira.cc/jogo/` (a raiz virou a porta da plataforma em
+20/08, então o §8 e o item não se contradizem).
+
+**O trio do `dashboard/` (`c9ced6d`) — e ele foi DEVOLVIDO uma vez, com razão.** Os três itens
+órfãos da segurança de 23/08: Google Fonts fora do painel (que prometia "sem rastreio" no
+rodapé enquanto entregava IP e User-Agent ao Google a cada carga), a recusa 422 deixando de se
+chamar "Sem conexão", e a perda de resposta passando a deixar rastro em `mesa-brasil-perdidas`.
+
+### O que CAIU, e vale mais que o que passou
+
+**A primeira versão do trio não cumpria o próprio item 3.** O pré-integrador achou um
+**terceiro caminho de perda** que a enumeração do autor não cobria: em `registrar()`, com a
+fila já no teto ao escrever, `gravarFila()` devolve `false` e o texto sumia sem rastro — a
+mesma doença que o item existia para curar. Provado ao vivo com fila pré-semeada de 50 itens:
+`perdidasRaw=null`. Depois do conserto, o mesmo teste devolve o texto guardado e visível na
+carga seguinte. **Enumeração final conferida: 5 pontos tocam a fila, 3 perdem texto, os 3
+chamam `guardarPerdida()`.**
+
+**E a alegação "só mudei `font-family`" era falsa.** A troca de fonte quebrou o `style=` de
+`#ag-nota` com aspas não escapadas dentro de um atributo delimitado por aspas: medido com
+`getComputedStyle`, `color`, `margin-top` e `text-align` **sumiam** e a família aplicada era a
+serifa herdada. Os prints antes/depois do autor não pegaram porque o elemento estava vazio na
+hora — **print não é prova de que o CSS chegou; `getComputedStyle` é.**
+
+**Achado extra, e maior que os três itens:** a CSP do `dashboard/` **nunca foi checada por
+build nenhum**. `verificarRede()` roda uma vez só, sobre o `index.html` compilado do jogo; o
+`dashboard/index.html` era copiado byte a byte para `dist/` sem passar por checagem — desde
+que a CSP dele existe (21/08). Fechado com `conferirCspDashboard()`, que morde nas **três**
+direções (afrouxar com host novo · apertar removendo diretiva · apagar a CSP inteira), cada uma
+exit 1.
+
+### O buraco que fica aberto: `PENDENTES 92`
+
+O pré-integrador rodou **depois** do conserto — a regra do `PLANTAO.md` §8 — e achou defeito no
+**instrumento**, não no produto. `test/portao-navegador.js`, que existe para impedir Chromium
+nu, tem `semComentarios()` procurando `/*` no texto bruto **sem entender strings**.
+`rodape-verdadeiro.js` usa a rota Express `'/**'` seis vezes; o parser lê aquilo como abertura
+de comentário e **engole o arquivo até o próximo `*/`**, inclusive o `chromium.launch()` real.
+
+Medido: reinjetado o lançamento nu, o portão saiu **exit 0** — deveria ser 1. Varridos os
+`test/*.js`: **8 arquivos hoje no alcance têm ocorrência engolida**, entre eles **o próprio
+`portao-navegador.js`**. O `--autoteste` passa porque injeta sempre na mesma cobaia
+(`medir-save-hostil.js`), que não tem o padrão — **1 cobaia fixa contra 8 arquivos cegos**.
+
+**Correção honesta de uma afirmação que foi para a `main`:** o commit `532a9e7` diz que o
+`rodape-verdadeiro.js` ficou *"vigiado por"* o `portao-navegador.js`. A amarração está lá e está
+correta; a **vigilância não existe**. O que é verdade e foi medido: o arquivo roda **15/15
+cenas, exit 0, limpo, sem preload** — deixou de lançar nu de verdade. O que não existe é a
+garantia contra ele voltar.
+
+### Três armadilhas de máquina que custaram esta rodada e vão custar a próxima
+
+1. **A nuvem não apaga ramo remoto.** `git push --delete` → **HTTP 403** do GitHub (não é o
+   proxy: `recentRelayFailures` vazio, e *criar* ramo funciona no mesmo minuto). A nuvem cria
+   marcador `voo/` e nunca limpa, rodando de 4 em 4 horas. Regra nova no `PLANTAO.md` §7: **o
+   marcador é pista, o `backlog.json` é a verdade.** Ficaram para trás `voo/rotina-7-sinais` e
+   `voo/glossario-substancia`, para quem puder apagar.
+2. **O primeiro funil da nuvem morre no `tsc`.** O contêiner nasce com o `node_modules` da raiz
+   incompleto — `npm install` acrescentou **103 pacotes**, entre eles o `typescript` do
+   `package.json`. O vermelho chega **com o nome da entrega colado** (`npm test -> exit 1 /
+   merge DESFEITO`) e a entrega recusada aqui era **um arquivo de teste, +14/−1**. Medido:
+   `npm run build` na `main` limpa **antes** = exit 1, **depois** = exit 0, mesmo funil = exit 0.
+   Cada worktree de agente tem `node_modules` próprio, então **pré-integrador verde não prevê
+   este vermelho** — ele não mede a máquina onde o funil roda.
+3. **Achado órfão se confere no `git log` antes de virar item** (`PLANTAO.md` §5). O
+   `canonical-jogo` mandava consertar o que estava consertado havia 8 dias. Quem seguisse o
+   aceite ao pé da letra veria `git diff` vazio e teria **confirmado um achado que não existia**.
+
+### Uma afirmação minha que foi refutada por medição minha
+
+Escrevi no `PLANTAO.md`, **antes de medir**, que o `git push` recusado saía com **exit 0**. Sai
+com **exit 1** — o git é honesto. Quem mente é a **última linha**, que imprime `Everything
+up-to-date` depois do 403. Eu tinha canalizado o `git` para um `tail` e lido o exit **do tail**:
+`cmd 2>&1 | tail; echo $?` mede o tubo, nunca o comando. Corrigido no mesmo arquivo com as duas
+leituras lado a lado.
+
+### O painel
+
+Estava **congelado havia 5 h** mostrando dois agentes "trabalhando" da rodada morta
+(`PLANTAO.md` §5.1 — é o que o dono repara). Reescrito para o estado real. E fica medido, contra
+o que a `RETOMADA` de 27/08 dava a entender: **a nuvem ESCREVE na `mesa_agente` pelo MCP** — o
+fail-closed é da RLS do navegador/anon, não deste caminho. Painel congelado numa rodada da nuvem
+é esquecimento, não falta de acesso.
+
+### Placar
+
+| quem | rodadas | achados | reais | desmentidos |
+|---|---:|---:|---:|---:|
+| plantão | 1 | 5 | 4 | 1 (a minha, do exit 0) |
+| dev-plataforma (canonical) | 1 | 1 | 1 | 1 (a premissa do item) |
+| dev-plataforma (trio) | 2 | 4 | 4 | 0 |
+| pré-integrador (canonical) | 1 | 3 | 0 | 0 (as 3 injeções confirmaram) |
+| pré-integrador (trio) | 2 | 5 | 3 | 2 |
+
+### Próximo passo
+
+`PENDENTES 92` / item `semcomentarios-engole-o-arquivo`: fazer `semComentarios()` pular
+literais de string, reinjetar o nu e cobrar **exit 1**, dar ao `--autoteste` uma **segunda
+cobaia com o padrão `'/**'`** (cobaia única é o que deixou isso passar), e reportar a varredura
+dos 8 com **0 engolidos**. É um portão mentindo de verde e ele cobre a classe de defeito do
+`PENDENTES 88` — vale antes de qualquer item de produto.
+
+---
+
+## Diário — 2026-09-01 · plantão `nuvem-20260901T1622` · o portão que mentia, e três armadilhas da nuvem
+
+Rodada agendada (nenhuma issue com a etiqueta `agente` aberta). Duas entregas integradas pelo
+funil com **exit 0 real**, e três armadilhas estruturais da máquina da nuvem medidas e escritas
+no `PLANTAO.md` §7 — as três capazes de fazer uma rodada inteira parecer outra coisa do que é.
+
+### O que fez
+
+**1. `PENDENTES 92` fechado — o portão que dizia VERDE sobre o que nunca leu** (`6b4f0c8`).
+
+O número que resume: nos 8 arquivos sob vigilância havia **12 ocorrências brutas** de
+`chromium.launch` e **só 2 sobreviviam** ao `semComentarios()` — **7 de 8 arquivos inteiramente
+cegos**, num portão cuja única função é vigiar exatamente aqueles arquivos. Depois do conserto:
+**8 sobrevivem, 0 nus**.
+
+O conserto trocou duas regex empilhadas por uma máquina de estados que reconhece string
+(`CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE`, com `${}` aninhado e escapes).
+
+**O verde foi tratado como suspeito, não como sucesso.** O portão passou verde de primeira, o
+que é o contrário do esperado de um instrumento que passou a ler 8 arquivos novos. O
+pré-integrador provou que `portoesDeclarados()` **não mudou** no diff e que os 8 estão dentro do
+alcance de 32 — logo o verde é árvore limpa, não cegueira nova. Sem essa prova, o conserto de um
+portão que mentia de verde teria sido assinado por um segundo verde não verificado.
+
+**2. `rotina-7-sinais` integrado** (`6b42a75`/`2aeb0f9`) — os 7 sinais do acervo (IBGE, INPE,
+MapBiomas, DOU, STF, INCRA, UNESCO) ganham `quem`/`endereco`/`periodicidade`, e o módulo recusa
+carregar sem os três. Ressalva **não bloqueante** registrada: os endereços são domínio
+institucional canônico e **não** foram verificados ao vivo — nem o autor nem o auditor têm rede
+(o `curl` do auditor foi bloqueado nos 6 hosts pela política de egress). Confirmar ao vivo é da
+próxima rodada do `alerta-validade-brasil`, como o `VIGIA.md` já manda.
+
+### O que MEDIU, e é o que muda o comportamento da próxima rodada
+
+**A nuvem roda em `HEAD` DESTACADO, e `git push -u origin main` empurra um ref de 26/08.**
+Pelo reflog: `refs/heads/main` foi criado em **2026-08-26** em `e0939a9` e **nunca mais se
+moveu** — mais de trinta commits atrás — enquanto o checkout roda no que a `origin` tem. O
+refspec `main` resolve para o ref **local**, então o push manda o commit de agosto e o trabalho
+da rodada não vai junto. Controle: com um commit novo em `HEAD` destacado, `git push --dry-run
+-u origin probe` empurra o commit velho e o novo não aparece. Aqui deu recusa, que é o desfecho
+**sortudo**; o ruim é o silencioso, com `exit 0` e o commit morrendo num contêiner reciclado.
+**O `CLAUDE.md` manda fazer exatamente isso** (`push -u origin <branch>`) — é o que torna a
+pegadinha barata de cair. A forma robusta é `HEAD:refs/heads/<ramo>`.
+
+Conferido, e é a parte boa: varri o reflog atrás de commit não publicado. **Nada perdido** além
+do meu próprio commit de sonda.
+
+**Duas entregas órfãs, dadas como inexistentes.** A rodada anterior concluiu que a das 08:23
+"não empurrou nada em cinco horas" e devolveu os itens a `livre`. Errado: existiam
+`entrega/rotina-7-sinais` (`d7174e5`) e `entrega/glossario-substancia-rev2` (`2396a90`), duas
+entregas inteiras que nunca foram pelo funil. A varredura dela olhou **só `voo/`**. Regra nova:
+**`voo/` é intenção, `entrega/` é resultado, o `backlog.json` é a verdade** — procure
+`entrega/<id>` antes de devolver qualquer item a `livre`, senão a próxima rodada refaz do zero
+trabalho que já está no servidor.
+
+**A árvore da nuvem nasce sem `node_modules`, e o funil culpa a entrega.** Custou um ciclo:
+`npm test` morreu em `Cannot find module .../typescript/bin/tsc`, o funil desfez o merge e saiu
+1, e a leitura natural — *"a entrega quebrou o build"* — é falsa. O **baseline** (`npm test` na
+`main` sem a entrega) separa as duas causas em trinta segundos: vermelho antes do `npm install`,
+**exit 0** depois, e o mesmo funil passou verde sem uma linha mudada. Antes de desconfiar do
+portão, desconfie da máquina que o roda.
+
+### O que CAIU — afirmação minha refutada
+
+**Minha formulação do PENDENTES 92 era estreita demais.** Despachei dizendo que o gatilho era o
+`/*` da rota Express `'/**'`. É **qualquer string contendo `/*`** — o que inclui os curingas
+`'**/*'` e `'**supabase.co/**'` do Playwright, presentes em quatro dos oito arquivos. A causa
+raiz é a mesma; a história bonita do `'/**'` do Express é que era pequena demais. Avisei o
+agente por escrito de que diagnóstico elegante é onde eu baixo a guarda, e foi exatamente ali
+que ele derrubou.
+
+**E uma segunda, minha, no meio da rodada:** escrevi no `PLANTAO.md` que as entregas órfãs
+foram *"empurradas às 08:42 e 08:34"*. Isso é data de **commit**, não de push, e a hora do push
+não é recuperável pela API — então eu não podia afirmar que a rodada das 13:40 podia tê-las
+visto. Corrigido no mesmo arquivo (`5b1e47c`) antes de seguir. A regra não dependia disso.
+
+### O que ficou aberto
+
+- **`PENDENTES 94`** (novo, do auditor): `chromium.launch()` na **mesma linha** de um regex com
+  barra escapada é engolido — **0 detectados onde deveria haver 1**. Mesma classe do 92, vetor
+  diferente. **Não bloqueia**: varridos `test/*.js` e `ferramentas/*.js`, não existe hoje
+  nenhuma linha que junte as duas coisas. Não foi fechado porque desambiguar regex de divisão
+  exige o token significativo anterior — outra ordem de trabalho.
+- **`PENDENTES 93`** (novo): três PNGs rastreados sujam a árvore a cada `npm test` (~400 KB de
+  churn binário sem significado). Aconteceu **3×** só nesta rodada. O risco sério é que eles
+  **não** casam com `SAIDA_BUILD`, então podem reprovar entrega boa por sujeira que ela não fez.
+- **`glossario-substancia-descolonial` é ENTREGA ÓRFÃ, não item livre.** O trabalho existe em
+  `entrega/glossario-substancia-rev2` (`2396a90`): 181→184 verbetes e o corte da aspa sem página.
+  **Testado: mergeia limpo na `main` de agora.** Não integrei porque exige o passo de banco do
+  `PENDENTES 87` (rev+1 em `conteudo_glossario`, senão o funil reverte) e auditoria do
+  `historiador` — é item de rodada, não apêndice. **Auditar e integrar, nunca reescrever.**
+
+### Dúvida que apareceu
+
+O `CLAUDE.md` §Git manda `git push -u origin <branch-name>`, e na nuvem isso é a forma **errada**.
+Não mudei o `CLAUDE.md` — é lei e a correção está no `PLANTAO.md` §7 — mas duas instruções da
+casa se contradizem, e quem ler a lei primeiro cai. Vale ao dono decidir se a lei ganha a
+ressalva.
+
+### Placar
+
+| agente | rodadas | achados | reais | desmentidos |
+|---|---|---|---|---|
+| qa (portão 92) | 1 | 3 | 2 | 1 (a minha formulação estreita) |
+| pré-integrador (vigia) | 1 | 6 | 6 | 0 (as 6 alegações confirmadas com controle próprio) |
+| pré-integrador (portão 92) | 1 | 7 | 7 | 0 (+1 achado que ninguém pediu: o PENDENTES 94) |
+| plantão | 1 | 4 | 3 | 1 (a hora do push que eu não podia afirmar) |
+
+### Próximo passo
+
+**`glossario-substancia-descolonial`**, e o trabalho é **auditar e integrar** a entrega órfã, não
+reescrevê-la. Precisa do passo de banco do `PENDENTES 87` junto (rev+1 em `conteudo_glossario`)
+e do `historiador` no gatilho — o diff toca a faixa do `GLOSSARIO` em `src/jogo.ts`.
+
+**Nome de máquina desta rodada: `nuvem-20260901T1622`.**
+## 31/08 — GLOSSÁRIO: a economia real entra em três verbetes (historiador, licença de 19/08)
+
+Fecha o item `glossario-substancia-descolonial`, cuja primeira parte (LEI DE TERRAS, 24/08) está
+registrada acima. **181 → 184 verbetes**, os 17 grupos inalterados. Os três, com a régua do dono de
+24/08: substância com fonte, sem léxico de corrente; a tese é fato com fonte e o jogador conclui.
+
+**1. ECONOMIA DO OURO** (grupo COMO A ESCRAVIDÃO FOI MONTADA, ao lado de ENGENHO). `dv: 1`.
+O quinto de 20%, as Casas de Fundição mandadas criar em 1720, o Tratado de Methuen de **27 de
+dezembro de 1703** (tecido inglês entra em Portugal; vinho português paga na Inglaterra um terço
+menos de direitos que o francês), e a estimativa de **876.629 quilos** no século XVIII, atribuída a
+**Virgílio Noya Pinto**. ~~Com a frase dele sobre o destino — *"os ingleses absorviam quase 60%,
+somente com o comércio lícito"*.~~ **A frase e o percentual FORAM CORTADOS em 01/09** — a
+procedência do corte está na entrada daquela data, abaixo. O verbete diz, no próprio corpo, que é estimativa e por quê
+(contrabando; registros perdidos). **Lugar de fala:** Noya Pinto e Laura de Mello e Souza são
+historiografia econômica do período — o dado é de historiador, não de opinião, e o `dv` existe
+porque a divergência é real. Não há aqui interpretação sobre a vida de gente escravizada; a frase
+que a nomeia é curta e de fato ("quem cavou foi gente africana escravizada"), e a remissão para
+QUILOMBO é o que impede o verbete de contar só o lado de quem lucrou.
+
+**2. A CONTA DA ESCRAVIDÃO** (fecha o mesmo grupo; o subtítulo dele promete "o lucro" e faltava).
+`dv: 1`. **Slavery Abolition Act 1833**: 20 milhões de libras de indenização, perto de **40%** do
+gasto do governo britânico naquele ano, pagos a quem constava como dono pela perda da "propriedade"
+— a palavra vai entre aspas porque é vocabulário de quem indenizou. **Mais de 40 mil indenizações**,
+uma a uma, hoje na base *Legacies of British Slavery* da University College London, montada sobre os
+registros da Slave Compensation Commission. Contra isso, a **Lei nº 3.353, de 13/05/1888**, em dois
+artigos, sem previsão de nada. **Lugar de fala, e é a exigência que mais mordeu aqui:** a
+interpretação da acumulação sobre corpos negros **não** ficou com economista branco. Quem formula é
+**Eric Williams** (historiador negro de Trinidad e Tobago, *Capitalism and Slavery*, 1944), e a
+leitura brasileira do pós-abolição sem reparação é **Abdias do Nascimento** (*O genocídio do negro
+brasileiro*, 1978), já fonte de BRANQUEAMENTO e FRENTE NEGRA neste glossário. A tese de Williams
+entra **atribuída** ("economistas discutem a tese dele até hoje"), nunca como voz do jogo — é o
+`dv: 1`.
+
+**Um número que parecia bom e FICOU DE FORA**, registrado para ninguém o reabrir achando que é
+achado: a história de que o contribuinte britânico só terminou de pagar essa indenização em **2015**.
+O Tesouro do Reino Unido respondeu, em pedido de acesso à informação de 2018, que **não tem registro**
+de quanto do empréstimo de 1833 seguia em aberto; a data de 2015 é o resgate de um título perpétuo
+que consolidou dívidas de origens diferentes. Número redondo sem documento que o feche é exatamente
+o que o §2 proíbe — e este circula muito, o que o torna mais perigoso, não menos.
+
+**Clóvis Moura foi lido e NÃO entrou na linha de fonte, e o motivo é do dono.** *Dialética radical
+do Brasil negro* (1994) é o texto certo para o argumento econômico e Moura já tem verbete próprio
+aqui. Ficou fora porque a edição que se cita é da **Anita Garibaldi**, casa ligada à fundação de um
+partido, e a linha de fonte é VISÍVEL na tela: pôr esse selo debaixo de um verbete sobre acumulação
+é o rótulo de corrente que o dono recusou em 24/08 chegando pela porta dos fundos. O argumento não
+se perdeu — Williams e Abdias o sustentam sem o selo. **Se o dono quiser, a citação de Moura entra
+com uma linha dele; é decisão de estilo, não de fato.**
+
+**3. CRITÉRIO BRASIL** (fecha o grupo O DIA SEGUINTE DA ABOLIÇÃO, depois de FAVELA). Sem `dv`.
+Proposto em **1997**, mantido pela **ABEP**, versão em vigor desde **2015** (metodologia de Wagner
+Kamakura e José Afonso Mazzon sobre a POF do IBGE). Pontua posse de bens do domicílio, grau de
+instrução da pessoa de referência e acesso a serviço público — **água encanada vale 4 pontos, rua
+pavimentada 2** — e a própria ABEP avisa que os itens valem só como indicadores de capacidade de
+consumo, sem pretensão de caráter sociológico. O verbete fecha com o que a régua não contém: *"dá
+para subir de classe nela sem que um metro de terra mude de dono"* — e a remissão leva a LEI DE
+TERRAS, onde está a concentração medida pelo Censo Agropecuário 2017. **Lugar de fala:** o verbete
+descreve um INSTRUMENTO e o que o instrumento não mede; não interpreta a vida de ninguém, e por isso
+fonte institucional basta. Se ele passar a comentar quem é medido por ela, aí precisa de voz com
+lugar de fala, e isso fica anotado.
+
+**O QUE NÃO FOI LIDO, e é obrigatório dizer.** Nesta rodada o `WebFetch` estava **bloqueado pelo
+proxy de saída para todos os domínios testados** (abep.org, ie.ufrj.br, scielo.br, aba.com.br,
+wikipedia, ibge.gov.br, planalto.gov.br). Só o `WebSearch` respondeu. Consequência assumida, item a
+item: **nenhum documento primário foi aberto por mim** nesta rodada — cada número acima foi
+confirmado por **duas buscas independentes** que devolveram a mesma cifra com a mesma atribuição, e
+o que apareceu em uma fonte só **não entrou**. Em particular: (a) a frase da ABEP sobre "sem caráter
+sociológico" está **parafraseada, não citada**, porque não li o PDF do critério; (b) a frase de Noya
+Pinto está entre aspas porque as buscas a devolveram **literal e idêntica** em resultados distintos,
+mas o denominador dos "quase 60%" não está fixado por mim — por isso ela entra como *o que ele
+escreveu sobre o destino*, e não como percentual afirmado pelo jogo — **e foi exatamente este (b)
+que a rodada de 01/09 resolveu CORTANDO, ver abaixo: "devolveram literal e idêntica em buscas
+distintas" não é conferir, é repetir**; (c) **Celso Furtado ficou de
+fora da linha de fonte** de ECONOMIA DO OURO, embora o backlog o sugerisse: não li *Formação
+econômica do Brasil* nesta rodada, e o verbete não precisa dele — Noya Pinto dá o número e Methuen
+dá o mecanismo. Quem retomar isto com rede aberta: fechar (a) e (c) é meia hora de trabalho.
+
+## 01/09 — A ASPA SEM PÁGINA SAIU DE ECONOMIA DO OURO (historiador, licença de 19/08)
+
+Resolve o item **(2)** do `PENDENTES 90` e, de quebra, a primeira metade do item **(3)**. Nada
+de novo foi escrito: isto é **corte**, e a licença de 19/08 cobre exatamente cortar o que o jogo
+afirma. Ela não cobriria criar representação nova — e não criei nenhuma.
+
+### O que saiu, e o que ficou no lugar
+
+Saiu a frase *"os ingleses absorviam quase 60%, somente com o comércio lícito"*, que entrava
+**entre aspas** e atribuída a Virgílio Noya Pinto (livro impresso de 1979). Saiu **junto o número
+"quase 60%"**, e é o ponto que mais importa: ele só existia DENTRO da citação não conferida.
+Também saiu *"a estimativa mais usada pelos historiadores"*, que virou *"uma das estimativas"*.
+
+O texto final da passagem:
+
+> Uma das estimativas para o total do século é a de Virgílio Noya Pinto: 876.629 quilos. É
+> estimativa, e o jogo diz que é: houve contrabando, e parte dos registros se perdeu. Quanto
+> desse ouro parou na Inglaterra não é número fechado — depende de medir justamente o que
+> ninguém registrou.
+
+### A procedência do corte (§2, terceiro item da licença: cada corte diz de onde veio)
+
+**Quem revisou:** o agente historiador, rodada de plantão `nuvem-20260901T0823`.
+
+**Com que fonte, e por que ela tem propriedade sobre isto.** A autoridade deste corte **não é um
+historiador rival** — seria desonesto fingir que li alguém que contradiz Noya Pinto. São duas
+coisas, e as duas têm propriedade direta sobre a questão:
+
+1. **A regra da casa, que é a fonte com propriedade sobre o que o jogo pode afirmar.** O `CLAUDE.md`
+   §2 manda: *"nenhum número inventado passando por fato… sem fonte, é ficção — e então não se
+   apresenta como história"*. Aspas são uma afirmação **sobre um texto**: elas dizem que uma pessoa
+   nomeada escreveu AQUELAS palavras. Verificar isso não admite substituto — ou se abre a página,
+   ou não se faz. O placar de **21/08** já registrou este defeito exato nesta casa: *aspas que
+   citavam frase inexistente — paráfrase dentro de aspas*. Reincidir na mesma semana seria o
+   projeto não aprendendo do próprio placar.
+2. **A medição da rodada, que é o fato novo.** O `PENDENTES 90` registrava o bloqueio como
+   circunstância de *uma* máquina. **Não é:** medi em duas ferramentas independentes e o muro é o
+   mesmo (ver abaixo). Isso converte "verificar depois" em "não se verifica aqui", e um número que
+   nenhuma rodada consegue fechar não pode ficar no ar esperando.
+
+**Por que este corte é o honesto, e não o tímido.** Havia três saídas. Fechar com página estava
+fora de alcance — e *lembrar* uma página seria pior que não ter nenhuma, porque pareceria
+conferida. Tirar só as aspas deixaria o "quase 60%" de pé como afirmação do jogo, o que **piora**:
+transfere para a voz do jogo um número que nem o autor citado pôde ser conferido dizendo. Sobrou
+tirar os dois — e a checagem que decidiu foi a terceira pergunta do brief: **o verbete vive sem
+isso?** Vive, e melhor. A lição de ECONOMIA DO OURO é o **mecanismo** — Methuen, e o saldo da troca
+se acertando em ouro — e ele se apoia num tratado com data, não numa porcentagem. A frase que
+entrou no lugar **ensina o que o corte revelou**: por que essa fração não tem número fechado. Isso
+é o método do jogo (a mesma leitura crítica que ele aplica à carta jesuítica) aplicado a si mesmo.
+
+É também **coerência com o que esta mesma entrega já fez em 31/08**: ela recusou, de propósito, a
+história de que o contribuinte britânico pagou até 2015, porque o Tesouro não a fecha. Recusar o
+segundo número pela mesma régua não é perda — é a régua funcionando duas vezes.
+
+### A camada de autoria negra NÃO foi enfraquecida
+
+Verificado item a item, porque o §2 põe essa prioridade acima de tudo: o corte é **inteiro dentro
+de ECONOMIA DO OURO**, cujas fontes são historiografia econômica do período (Noya Pinto, Laura de
+Mello e Souza). **A CONTA DA ESCRAVIDÃO não foi tocada** — Eric Williams e Abdias do Nascimento
+continuam exatamente onde estavam, e é lá que mora a interpretação sobre acumulação e corpos
+negros. Nenhuma linha de lugar de fala saiu. Ao contrário: o verbete que perdeu conteúdo foi o que
+narrava o lucro do colonizador.
+
+### A REDE, e isto vale para TODAS as rodadas futuras — não repitam a tentativa
+
+Medido nesta rodada, em duas ferramentas com caminhos diferentes:
+
+- **`curl`** → `connect_rejected` pelo proxy de saída em **todos** os hosts: `legislation.gov.uk`,
+  `ucl.ac.uk`, `bdor.sibi.ufrj.br`, `edisciplinas.usp.br`.
+- **`WebFetch`** → `EGRESS_BLOCKED` em **todos** os testados, inclusive os dois repositórios que
+  teriam resolvido a questão: `bdor.sibi.ufrj.br` (Biblioteca Digital de Obras Raras da UFRJ, que
+  tem o livro de 1979 **inteiro, digitalizado e com OCR**) e `edisciplinas.usp.br` (que tem o
+  **capítulo 2, pp. 39-117**). Também bloqueados `scielo.br` e `dialnet.unirioja.es`.
+- **`WebSearch`** → **funciona**, e é a única coisa que funciona. Devolve título, link e resumo
+  indexado. **Não abre documento.**
+
+**A conclusão operacional, para não se gastar rodada nisto de novo:** existe uma cópia pública e
+íntegra do livro a um clique de distância, e **o ambiente de nuvem não a alcança**. Fechar a página
+desta citação é trabalho de uma máquina com rede aberta (ou de quem tiver o livro na mão) — nenhuma
+rodada de nuvem vai conseguir. Se alguém retomar com rede: o alvo é
+`bdor.sibi.ufrj.br/handle/doc/420`.
+
+**O que isto obriga a admitir sobre o resto da entrega, e é melhor dizer que omitir:** os números
+de A CONTA DA ESCRAVIDÃO (20 milhões de libras; perto de 40% do gasto do governo; mais de 40 mil
+indenizações) e de CRITÉRIO BRASIL (4 pontos para água encanada, 2 para rua pavimentada) estão sob
+**a mesma condição** — confirmados por busca, com o documento nunca aberto. **Não os cortei, e a
+diferença é de natureza:** cada um deles é uma afirmação sobre **o que uma norma ou um instrumento
+nomeado dispõe**, com o documento citado na linha de fonte para o leitor conferir — é a forma
+padrão dos 181 verbetes deste glossário. A aspa era outra coisa: uma afirmação sobre **as palavras
+exatas de uma pessoa**, e essa não tem como ser aproximada. Ficam anotados como dívida de segunda
+ordem para a primeira rodada com rede aberta.
+
+**Continua em aberto, do `PENDENTES 90`:** a segunda metade do item (3) — a tabela de corte do
+Critério Brasil é revista pela ABEP e o verbete a ancora em "versão em vigor desde 2015", que data
+a afirmação mas não a faz vencer sozinha; e o item (4), Clóvis Moura, que é do dono e ninguém deve
+decidir sozinho.
+
+---
+
+## 01/09 — DUAS DATAS ERRADAS NOS TRÊS VERBETES, E UMA DELAS CONTRA A PRÓPRIA FONTE CITADA
+
+Auditoria do `historiador` (rodada `hist-20260901T2022`) sobre a entrega órfã
+`entrega/glossario-substancia-rev2`, pedida pelo plantão `nuvem-20260901T2022` como portão do
+funil. **Veredito: aprova com corte.** Três cortes aplicados, cada um com procedência — que é o
+que o `CLAUDE.md` exige para um corte não ser opinião.
+
+**A lição da rodada, e ela é sobre COMO a entrega errou, não sobre o quanto:** esta entrega é a
+mais autocrítica que este glossário já recebeu. Ela cortou a própria aspa sem página, recusou o
+número bonito de "o contribuinte britânico pagou até 2015" citando a resposta do Tesouro, e
+declarou os próprios `dv: 1`. **E errou duas datas que ninguém checou.** É exatamente o que o
+`PLANTAO.md` §2 manda avisar por escrito ao despachar: *entrega honesta é onde eu baixo a
+guarda*. O brief do historiador trazia essa frase, e foi ela que encontrou o defeito — não a
+desconfiança do número que o plantão mais desconfiava, que era o dos 40% e que **não caiu**.
+
+### Corte 1 — ECONOMIA DO OURO: 1720 → lei de 11/02/1719, casas funcionando em 1725
+
+O verbete dizia que a Coroa *"em 1720 mandou criar as Casas de Fundição"*. **1720 não é o ano em
+que a Coroa mandou nada: é o ano do levante de Vila Rica, CONTRA as casas anunciadas no ano
+anterior.** O verbete publicava como ato de governo a data da revolta contra o ato.
+
+**De onde veio o corte:** do *Dicionário da administração pública brasileira do período colonial*
+(MAPA), do **Arquivo Nacional**, verbete "Casas de Fundição (1603-1821)" — **a fonte que o próprio
+verbete já listava na linha `f:`** — e do portal História Luso-Brasileira do mesmo Arquivo
+Nacional: a lei de **11 de fevereiro de 1719** autorizou a criação das casas e a cobrança do quinto
+sobre o ouro em pó; quatro delas só começaram a ser construídas em 1724 e **funcionaram a partir de
+1º de fevereiro de 1725**. Propriedade da fonte: é o órgão que guarda e descreve a documentação da
+administração colonial — registro de órgão, que é a forma que a REGRA DO DOCUMENTO manda preferir.
+
+O texto novo carrega as três datas e diz o que 1720 foi, de propósito: sem isso, a próxima sessão
+"corrige" 1719 de volta para 1720, porque 1720 é o ano que gruda na memória.
+
+### Corte 2 — CRITÉRIO BRASIL: "versão em vigor desde 2015" → "versão de 2015", consultada
+
+*"Em vigor desde 2015"* é uma afirmação sobre **hoje**, e hoje é 01/09/2026. Indexados no domínio
+`abep.org` há PDFs de alterações válidas a partir de 2021, 2022 e 2024, e um **`CCEB_2026.pdf`
+publicado em março de 2026** — posterior à entrega. A afirmação estava simplesmente vencida.
+
+**De onde veio o corte:** do repositório de documentos da **própria ABEP**, que é quem mantém o
+instrumento; ninguém tem mais propriedade sobre "qual versão está em vigor" que quem a publica.
+**A correção não foi atualizar para 2026** — o egresso desta máquina não abriu o PDF de 2026 —, foi
+**parar de afirmar vigência e dizer qual versão foi consultada**, que é verdade permanente. Os
+pontos (água encanada 4, rua pavimentada 2) ficam, agora datados na própria frase.
+
+**Manutenção, e é o único dos três que vence:** conferir no site da ABEP, a cada ano, se a
+pontuação mudou. Há `CCEB_2026` publicado que esta rodada não conseguiu abrir.
+
+### Corte 3 — A CONTA DA ESCRAVIDÃO: "ao acabar com a escravidão em suas colônias" → "ao votar o fim … em quase todas"
+
+Como estava, o verbete ensinava que a Grã-Bretanha acabou com a escravidão em suas colônias em
+1833 — errado nos três eixos. **De onde veio o corte:** do *Slavery Abolition Act 1833*, **já
+citado na linha `f:` do verbete**: sanção real em 28/08/1833, vigência em **1º de agosto de 1834**,
+exceção expressa dos territórios da Companhia das Índias Orientais, do Ceilão e de Santa Helena, e
+o regime de *apprenticeship* que só terminou em 31/07/1838. Duas palavras trocadas resolvem sem
+tocar o argumento, que é a conta.
+
+### O QUE O HISTORIADOR TENTOU DERRUBAR E NÃO CAIU — vale tanto quanto o corte
+
+- **"perto de 40% do gasto do governo naquele ano"** — o número de que o plantão mais desconfiava.
+  **Sustentado**, por duas fontes independentes com a mesma construção (Full Fact; Historic England,
+  alinhada ao UCL). É comparação de grandeza, não desembolso de 1833 — e o verbete diz o que o
+  Parlamento **votou**, não o que o Tesouro gastou. Nenhuma fonte o contradiz.
+- **"mais de 40 mil indenizações"** — sustentado, e é a formulação prudente: as fontes falam em
+  mais de 40 mil *awards* e em mais de 45 mil pedidos; a UCL publica registros de 47 mil
+  proprietários. O verbete escolheu o piso e a unidade certa (indenizações, não donos).
+- **876.629 kg atribuídos a Noya Pinto** — sustentado, com corroboração revisada por pares: a
+  Revista Clio (UFPE) atribui a ele exatamente esse número, registra a estimativa concorrente de
+  Pandiá Calógeras (948.105 kg, que incluía a Bahia) e dá a razão da divergência que o verbete já
+  dizia — contrabando e registros perdidos no incêndio da Alfândega de Lisboa em 1764. O `dv: 1`
+  está bem posto.
+- **Methuen 27/12/1703** — sustentado quanto a data, local e conteúdo. **Dívida de segunda ordem
+  registrada:** a fração "um terço menos de direitos que o francês" não foi fechada no articulado
+  (o egresso bloqueou as duas transcrições). É a leitura corrente do artigo II, não número
+  inventado, mas fica na mesma prateleira das dívidas que a própria entrega declarou.
+- **§2, verificado item a item nos três:** "propriedade" entre aspas como vocabulário de quem
+  indenizou; Williams **atribuído**, nunca na voz do jogo; nenhum "escravo" como identidade;
+  ninguém real como inimigo; nenhuma pessoa escravizada como recurso. Passa. As remissões novas
+  do `GLOSSARIO_REL` não deixam órfão.
+
+### A PAREDE DE REDE, medida e não acreditada
+
+O historiador **não tomou pela palavra** a alegação da entrega de que nenhum documento primário
+foi aberto: mediu. `curl` devolveu **CONNECT tunnel failed, 403** para `www.abep.org` e código
+**000** para o PDF da ABEP, para o FOI do Tesouro em `assets.publishing.service.gov.uk` e para
+`legislation.gov.uk`; `WebFetch` devolveu `EGRESS_BLOCKED` em quatro hosts. **Só busca indexada
+responde.** É por isso que os três cortes são todos de FORMA (data, vigência, tempo verbal) e
+nenhum troca um número por outro que também não se pôde abrir.
+
+### ⛔ DUAS PERGUNTAS QUE FICARAM PARA O DONO — lugar de fala, e §2 as torna dele
+
+O historiador achou **lacuna de lugar de fala em dois dos três verbetes** e **não a fechou
+sozinho**, porque a linha de fonte é visível na tela e escolher quem narra é escolher quem
+representa. As duas viram item de check:
+
+1. **ECONOMIA DO OURO** — a frase que nomeia gente ("quem cavou foi gente africana escravizada") e
+   a remissão para QUILOMBO são sustentadas só por historiografia econômica branca do período.
+   Nome proposto: **Clóvis Moura, *Rebeliões da senzala: quilombos, insurreições, guerrilhas*,
+   Edições Zumbi, 1959**. **Fato novo que muda a premissa da decisão de 24/08:** a recusa de Moura
+   era pelo selo de corrente da editora da edição corrente; a **1ª edição, de 1959, é da Edições
+   Zumbi**, casa que fechou três anos depois e não carrega selo nenhum.
+2. **CRITÉRIO BRASIL** — a nota da entrega dizia que "fonte institucional basta porque o verbete
+   não interpreta a vida de ninguém". **Não basta:** a última oração ("a régua enxerga o que a casa
+   comprou e não enxerga o que a família herdou") **é** interpretação sobre desigualdade, e hoje é
+   carregada por uma fonte de mercado publicitário. Nome proposto: **Marcelo Paixão (coord.),
+   *Relatório Anual das Desigualdades Raciais no Brasil 2009–2010*, LAESER/UFRJ, 2010**;
+   alternativa **Cida Bento, *O pacto da branquitude*, 2022**.
+
+Os três verbetes entraram **sem** esses nomes. Fechar a lacuna é decisão dele.
+
+---
+
+## 01/09 — DIÁRIO · `nuvem-20260901T2022` (rodada agendada, pela fila)
+
+**O que fiz.** Peguei a entrega órfã `entrega/glossario-substancia-rev2` — parada desde a manhã,
+que duas rodadas não integraram — e **auditei em vez de refazer**, como o `PLANTAO.md` §7 manda.
+Integrada como `rev3` (`af65a8f`), funil com os três portões verdes por exit code real. O item
+`glossario-substancia-descolonial` fecha **4 de 4** e sai do backlog.
+
+**O que MEDI, com número:**
+
+| | |
+|---|---|
+| glossário | **181 → 184 verbetes**, 17 grupos, **644 → 661 pares** |
+| espelho do banco | `conteudo:conferir` **exit 0**, mesmo hash `4c8b17e2…` dos dois lados |
+| chaves aplicadas no banco | **24** — 3 verbetes novos, 17 pares novos, 4 verbetes com `ordem` deslocada |
+| prova arquivo × banco | md5 igual nas 3 tabelas (`e3ac32e8…` · `3567011f…` · `7b0872bd…`) |
+| triagem §2 | **179 de 184** em `tag_s2`; as 5 restantes com parecer escrito — **nenhuma linha sem parecer** |
+| portões | `npm test` **0**, `encaixe` **0**, `espelho do conteudo` **0** |
+| baseline da máquina | `npm test` na main limpa **exit 0** antes de tudo (separa máquina de entrega) |
+
+**O que QUEBROU, e é meu.** Duas coisas, e a segunda é a que ensina.
+
+1. **O emissor novo perdeu `fonte_revisao` e carimbou `revisado_por`**, apagando o parecer §2 de
+   4 verbetes numa tabela que **não tem delete**. Peguei por inspeção antes de espalhar e
+   restaurei do rev anterior (`181 → 181` linhas com governança, provado pelo QA).
+2. **Eu afirmei ter consertado o portão disso, e o conserto não estava no ramo.** Editei na
+   **árvore principal**, commitei o ramo de uma cópia feita **antes**, e depois rodei
+   `git checkout --` na main para limpá-la para o funil. O conserto sumiu dos dois lugares e o
+   commit anterior dizia que ele existia. Consertado de verdade em `32253f2`.
+
+**O que CAIU — afirmação minha refutada, e vale mais que confirmação.** O `qa` mediu no ramo:
+`grep GOVERNANCA_HERDADA` → **0 ocorrências**; o SQL gerado carimbava `revisado_por` e omitia
+`a.fonte_revisao`; controle circular sobre o mesmo defeito **exit 0**, controle honesto **exit 1,
+6 perdas**. O diagnóstico dele é a frase que eu quero que a próxima sessão leia: **"a autocrítica
+ocupou o lugar da medição"** — e o brief dele trazia, por escrito, o aviso de que entrega honesta é
+onde eu baixo a guarda. Foi o aviso que produziu o achado.
+
+**Três regras que saem desta rodada e não são sobre glossário:**
+
+1. **O controle de uma lista nunca se escreve a partir da lista que ele controla.** Meu primeiro
+   autoteste percorria `GOVERNANCA_HERDADA` — a lista que o defeito encurta — e saía **exit 0**
+   com o defeito injetado. A cobrança passou a vir do `conteudo-puxar.js`, que é outro arquivo.
+2. **Analisador ingênuo confunde delimitador com conteúdo** (a família do `PENDENTES 92`). Dentro
+   do próprio controle novo eu paguei isso **duas vezes**: fatiei o statement no primeiro `;` (e
+   texto histórico TEM ponto-e-vírgula dentro das aspas, então o corte caía no meio de um verbete
+   e o controle acusava "não emitiu" sobre SQL correto), e casei o nome da tabela sem o prefixo
+   `public.` que o emissor escreve (o filtro nunca achava nada). **As duas falhavam pela
+   NEGATIVA** — a forma mais barata de um controle mentir.
+3. **Editar numa árvore e commitar de outra são dois lugares, e `git checkout --` não pergunta.**
+   Quando o conserto e a entrega vivem em árvores diferentes, o commit é a única prova de que o
+   conserto existe.
+
+**Dúvidas que apareceram.**
+- **A nuvem não alcança o Supabase** (`403 Host not in allowlist`), então `conteudo:puxar` não
+  roda aqui e a metade de volta do espelho fica sem o caminho normal (`PENDENTES 95`). Contornei
+  por reconstrução + prova de md5, mas isso é contorno: ou o host entra na allowlist de egresso,
+  ou o `puxar` ganha um modo `--de <arquivo>`.
+- **`gerar-glossario.js` não roda nesta máquina** (Chromium nu, `PENDENTES 98`) — reproduzido
+  igual em `origin/main`, então não é regressão. A esteira que publica `/glossario` morre em
+  silêncio numa máquina assim.
+
+**O próximo passo.** Duas coisas do dono, e são as únicas travas: `PENDENTES 96` (lugar de fala em
+ECONOMIA DO OURO e CRITÉRIO BRASIL — Clóvis Moura pela 1ª edição de 1959, sem o selo que ele
+recusou em 24/08; e Marcelo Paixão/LAESER para a régua de classe). Da minha fila: `PENDENTES 99`
+(o `default false` do `tag_s2` faz silêncio parecer decisão) e `PENDENTES 95`.
+
+**Nome de máquina desta rodada: `nuvem-20260901T2022`.**
+
+## 01/09, à noite — mac-jogo: refutação do M3 do mundo 3D (issue #10), nada derrubado
+
+Sessão interativa: o dono pediu para ler o briefing de 31/08 (colado na issue #7) e a issue #7
+inteira, e começar. `git pull --ff-only` trouxe os 50 commits do dia (glossário rev3, governança
+herdada, CI verde, e o fecho da issue #10 pela nuvem). Segui o papel que o briefing atribui ao
+Mac: **refutar com medição própria**, não ler e confiar.
+
+**O que a nuvem afirmou no fecho da issue #10 (mundo-3d M3), e o que eu MEDI de cada afirmação:**
+
+| afirmação da nuvem | o que medi | resultado |
+|---|---|---|
+| `sp.json` nunca existiu; os dois HTML buscavam ele; corrigido para `sp-contorno-ibge.json` | `grep -n "sp.json" experimentos/mundo-3d/*.html` | **0 ocorrências** nos dois arquivos — confere |
+| `npm test`: PASS (exit 0) | rodei `npm test` na `main` local | **exit 0** — confere |
+| 0 erro de console, 0 pageerror nos dois arquivos | servi `experimentos/mundo-3d/` por http (127.0.0.1:8790, nunca `file://`) e abri `sp-relevo.html` no navegador | **0 mensagens de console**, inclusive depois de arrastar a linha do tempo até 2010s | confere |
+| céu costurado à névoa (não há mais "dois céus") | print em 1530 | sem costura visível no horizonte — confere |
+| paleta mais verde (verde até `t<.75`) | print em 1530 | mata densa, sem "estepe marrom" — confere |
+| câmera: `maxDistance` 180→320, dá para ver o contorno inteiro do estado | `grep maxDistance experimentos/mundo-3d/sp-relevo.html` → linha 118, `320`; zoom-out no navegador | o estado inteiro entra na tela — confere |
+
+**Uma pegadinha que eu mesmo criei e desfiz antes de virar achado falso.** Testei primeiro
+`sp-timeline.html` (não `sp-relevo.html`) e vi `maxDistance=120`, floresta vazia, sem aldeia — ia
+reportar como regressão. Antes de escrever, li o `LEIAME.md`: `sp-timeline.html` é **a base
+anterior, aposentada, "fica como registro"** — o M3 inteiro (inclusive o commit `05a06af` da
+nuvem) só toca `sp-relevo.html`, que é o arquivo que o `LEIAME.md` já nomeia como "o atual". Não é
+regressão da nuvem; é eu não ter lido o próprio mapa do experimento antes de medir. Registro para
+a próxima sessão não repetir: **os dois arquivos coexistem de propósito, e só um é o alvo.**
+
+**Nada foi derrubado.** Todas as afirmações da nuvem se sustentaram sob medição independente. Os
+três itens que ela mesma deixou em aberto para o dono — aldeias dos povos que viviam em SP em
+1530 (§2, ela não desenhou nada sem decisão), a forma de "ilha" nas bordas do estado (3 opções
+propostas, arte recomenda a "a"), e se pixela a cena inteira ou só o avatar (arte desaconselha
+pixelar tudo) — continuam **sem decisão**, e não é papel de agente decidir nenhum dos três.
+
+**Registrado:** `mesa_agente` (Supabase, linha `Claude`) atualizada com o resultado. Comentário
+postado na issue #7 com o mesmo resumo, para as outras máquinas não remedir.
+
+**Nome de máquina desta rodada: `mac-jogo` (interativa, sem agendamento).**

@@ -268,7 +268,12 @@ function conferir(v, reg) {
   reg(c.frio === true, 'e o cartao esfria', String(c.frio));
   reg(c.animBon === 'none', 'e o CORPO para (animacao na tela, nao a classe)', c.animBon);
   reg(c.animBraco === 'none', 'e o BRACO para — e ele que le como "esta trabalhando"', c.animBraco);
-  reg(c.animFaisca === 'none' || c.opFaisca === '0', 'e a FAISCA apaga', c.animFaisca + '/op ' + c.opFaisca);
+  // SO O animationName, sem folga de opacidade: a faisca ANIMA a opacidade (o QA mediu 6 poses,
+  // uma delas em 0,18), entao aceitar "opacidade 0" fazia a assercao passar pelo INSTANTE em que
+  // o quadro foi amostrado, nao pelo estado do cartao. Uma assercao que depende de quando voce
+  // olhou nao e assercao. A pagina poe `animation:none` E `opacity:0`; o nome da animacao e o
+  // que nao varia.
+  reg(c.animFaisca === 'none', 'e a FAISCA apaga', c.animFaisca + '/op ' + c.opFaisca);
   reg(c.noAgora === false, 'e sai da faixa AGORA — posicao tambem afirma', String(c.noAgora));
   reg(/sem sinal/.test(c.st), 'e o rotulo de estado deixa de dizer "trabalhando"', c.st);
 

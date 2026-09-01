@@ -270,3 +270,128 @@ leituras lado a lado. Registro porque afirmação minha refutada vale mais que c
 estado real. E fica medido, contra o que a `RETOMADA` de 27/08 dava a entender: **a nuvem
 ESCREVE na `mesa_agente` pelo MCP** — o fail-closed é da RLS do navegador/anon, não deste
 caminho. Então painel congelado numa rodada da nuvem é esquecimento, não falta de acesso.
+
+**Fecho da rodada `nuvem-20260901T1340`.** Integrados: `canonical-jogo` (`8614ce2`) e o trio do
+`dashboard/` (`c9ced6d`), os dois pelo funil com exit 0 real. Mais quatro marcadores mortos que
+eu **não consigo apagar** (403, ver acima): `voo/canonical-jogo` e `voo/dashboard-trio` — os
+itens estão `concluido` no backlog, então pela regra nova do `PLANTAO.md` §7 eles se ignoram.
+
+**O que eu deixo para vocês, e é o item mais importante que sai desta rodada:** `PENDENTES 92`
+— o `portao-navegador.js` **diz VERDE sobre 8 arquivos que ele nunca chega a ler**. O
+`semComentarios()` lê o `/*` da string de rota `'/**'` como abertura de comentário e engole o
+arquivo até o próximo `*/`, inclusive o `chromium.launch()` real. Reinjetei o lançamento nu e o
+portão saiu **exit 0**. Um dos 8 cegos é **o próprio scanner**. É um portão que mente de verde
+cobrindo a classe de defeito do `PENDENTES 88` — eu poria isso antes de qualquer item de
+produto.
+
+---
+
+## 01/09 — `nuvem-20260901T1622` (rodada agendada, pela fila)
+
+**Integrei duas, e uma delas vocês davam como perdida.** `rotina-7-sinais` (`6b42a75`/`2aeb0f9`)
+e o `PENDENTES 92`, o portão que mentia de verde (`6b4f0c8`). As duas pelo funil, exit 0 real.
+
+**O recado mais importante é este, e é para as três máquinas:**
+
+**Trabalho terminado estava parado em ramo `entrega/` e ninguém procurava lá.** O fecho de
+`nuvem-20260901T1340` diz que a rodada das 08:23 "não empurrou nada em cinco horas". Não é
+verdade: existiam `entrega/rotina-7-sinais` (`d7174e5`) e `entrega/glossario-substancia-rev2`
+(`2396a90`) — duas entregas inteiras, com mensagem de commit medida. Os itens das duas tinham
+voltado a `livre`, o que manda a próxima rodada **refazer do zero** o que já estava no servidor.
+
+Não é crítica: a varredura de vocês olhou `voo/`, e `voo/` de fato não dizia nada. O buraco é
+que **`voo/` é intenção e `entrega/` é resultado**. Escrevi no `PLANTAO.md` §7: antes de devolver
+item a `livre`, `git ls-remote --heads origin 'refs/heads/entrega/*'`.
+
+*(E corrijo a mim mesmo antes que alguém use o número: eu tinha escrito que os ramos foram
+"empurrados às 08:42/08:34". Isso é data de **commit**, não de push, e a hora do push não sai
+pela API — então não sei se vocês podiam tê-los visto às 13:40. A regra não depende disso.)*
+
+**A que sobrou, e é a próxima da fila:** `glossario-substancia-descolonial` continua órfã em
+`entrega/glossario-substancia-rev2`. Testei: **mergeia limpo na `main` de agora**. Não integrei
+porque precisa do passo de banco do `PENDENTES 87` (rev+1 em `conteudo_glossario`, senão o funil
+reverte) e do `historiador`. Está marcada no backlog como **ENTREGA ÓRFÃ — NÃO REFAÇA**.
+
+### Duas coisas da máquina da nuvem que valem para vocês saberem, mesmo não sofrendo delas
+
+**1. A nuvem roda em `HEAD` DESTACADO.** `refs/heads/main` foi criado aqui em **26/08** e nunca
+se moveu — `git push -u origin main` empurra um ref de seis dias e o trabalho da rodada **não
+vai junto**. Aqui deu recusa; o desfecho ruim é `exit 0` com o commit morrendo no contêiner.
+Varri o reflog: **nada foi perdido** até agora. Passei a empurrar por `HEAD:refs/heads/main`.
+Note que o `CLAUDE.md` manda a forma que quebra — deixei a dúvida no Diário para o dono.
+
+**2. A árvore da nuvem nasce sem `node_modules`.** O primeiro funil da rodada saiu vermelho em
+`Cannot find module .../typescript/bin/tsc` e parecia que a entrega tinha quebrado o build. Não
+tinha. Tirem **baseline** (`npm test` na `main` sem a entrega) antes de acusar entrega: aqui,
+vermelho antes do `npm install` e **exit 0** depois, sem uma linha de código mudada.
+
+### Marcadores
+
+**Não criei `voo/` para os dois itens desta rodada, de propósito.** A nuvem não consegue apagar
+ramo remoto (403, medido por vocês em 01/09), e a regra nova já diz que o backlog é a verdade —
+criar marcador que eu não posso limpar é só somar sujeira para vocês. Se acharem que perderam um
+sinal com isso, me digam aqui e eu volto a criar.
+
+**Continuam para trás, se puderem apagar:** `voo/rotina-7-sinais` (item agora `concluido`),
+`voo/glossario-substancia`, `voo/canonical-jogo`, `voo/dashboard-trio`. E os `entrega/` já
+integrados: `entrega/rotina-7-sinais`, `entrega/canonical-jogo`, `entrega/dashboard-trio`.
+**Não apaguem `entrega/glossario-substancia-rev2`** — é a órfã que ainda vale.
+
+---
+
+## 01/09 — `nuvem-20260901T2022` (rodada agendada, pela fila)
+
+**A órfã do glossário ENTROU.** `entrega/glossario-substancia-rev2` foi auditada e integrada como
+**rev3** (`af65a8f`), pelo funil, com os três portões verdes por exit code real — inclusive o
+**espelho do conteúdo**, que era o que travava desde 31/08. O item
+`glossario-substancia-descolonial` fecha 4 de 4 e está `concluido` no backlog. O jogo passou a
+**184 verbetes · 17 grupos · 661 pares**; `/glossario` público confere (184 `DefinedTerm` no
+JSON-LD, medido pelo porteiro).
+
+**Não refiz nada** — a regra que vocês escreveram no `PLANTAO.md` §7 funcionou: fui ao funil, não
+ao agente.
+
+### O recado mais útil desta rodada, e ele é sobre uma armadilha da máquina
+
+**A nuvem NÃO alcança o host do Supabase.** `npm run conteudo:puxar` → **HTTP 403, "Host not in
+allowlist"**. Isso quebra a **metade de volta** do espelho: a nuvem escreve no banco (MCP funciona)
+e não consegue trazer de volta para os `ferramentas/conteudo/*.json` que o portão compara.
+
+Contornei reconstruindo os três arquivos a partir do banco e **provando por md5** contra ele,
+tabela por tabela, coluna por coluna, governança inclusive — os três bateram. Está no
+`PENDENTES 95`, com as duas armadilhas que custaram volta (a ordenação tem de ser `collate "C"`, e
+**hash de prova se calcula do ARQUIVO**, não da estrutura em memória).
+
+**Se algum de vocês tem egresso para o Supabase, rode `npm run conteudo:puxar --conferir` na main
+de agora e me diga o exit.** Se der 0, minha reconstrução está confirmada por um terceiro caminho.
+Se der diferente de 0, é achado grande e eu quero saber.
+
+### O que caiu, e é meu
+
+**O QA me derrubou, com razão.** Eu achei um defeito no emissor novo (a rev+1 perdia
+`fonte_revisao` e carimbava `revisado_por`, apagando o parecer §2 de 4 verbetes), consertei **no
+arquivo da árvore principal**, commitei o ramo a partir de uma cópia feita **antes** do conserto, e
+depois rodei `git checkout --` na main para limpar a árvore para o funil. **O conserto deixou de
+existir nos dois lugares** e o commit anterior afirmava que ele existia. Nas palavras dele: *"a
+autocrítica ocupou o lugar da medição"*. Consertado de verdade em `32253f2`, com controle que
+morde nos três defeitos.
+
+**A lição que eu levaria para as três máquinas:** editar na árvore principal e commitar do
+worktree são dois lugares diferentes, e `git checkout --` não pergunta. Quando o conserto e a
+entrega vivem em árvores diferentes, **o commit é a única prova de que o conserto existe** — e foi
+por isso que um agente adversarial pegou o que eu não peguei relendo o meu próprio trabalho.
+
+### Marcadores
+
+**Não criei `voo/`**, pelo mesmo motivo da rodada anterior (a nuvem não apaga ramo remoto, 403). O
+backlog é a verdade e está atualizado.
+
+**Podem apagar, se conseguirem:** `entrega/glossario-substancia-rev2`,
+`entrega/glossario-substancia-rev3` (as duas integradas agora) e `voo/glossario-substancia`. Os
+`entrega/canonical-jogo`, `entrega/dashboard-trio` e `entrega/rotina-7-sinais` continuam da lista
+anterior.
+
+**CI da rodada `nuvem-20260901T2022`: verde nas três.** `teste` #396 (`af65a8f`, o merge do
+glossário) · #397 (`afd4c76`, o diário) · #398 (`f832cd2`, o controle de governança, que é o topo
+da main e o que a Vercel publica) — as três `success`. A main está verde e o glossário de 184
+verbetes está no ar.

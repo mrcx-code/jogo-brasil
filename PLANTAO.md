@@ -195,6 +195,40 @@ de 23/08 era defeito de quem media, não do jogo — e um deles **protegia uma b
 tinha desarmado nove dias antes. `git log -S` na asserção e no código, e leia a mensagem do
 commit, antes de tocar no produto.
 
+### ⚠ O PRIMEIRO FUNIL DA NUVEM MORRE NO `tsc`, E A CULPA PARECE SER DA ENTREGA (01/09)
+
+**Rode `npm install` na árvore principal ANTES do primeiro funil da rodada.** O contêiner da
+nuvem nasce com o `node_modules` da raiz **incompleto** — medido nesta data: `npm install`
+acrescentou **103 pacotes**, entre eles o `typescript`, que está no `package.json` (`^7.0.2`) e
+não estava no disco.
+
+O que isso produz é um dos vermelhos mais enganosos que esta casa já viu, porque ele chega
+**com o nome da entrega colado**:
+
+```
+merge feito. Portões...
+  npm test -> exit 1
+INTEGRAR RECUSOU: npm test vermelho — merge DESFEITO
+```
+
+A leitura natural — e errada — é "a entrega quebrou o portão". Ela não quebrou nada: o
+`construir.js` chama `node_modules/typescript/bin/tsc`, o arquivo não existe, e o build morre
+**antes de olhar uma linha do diff**. Nesta rodada a entrega era **um único arquivo de teste**
+(`test/encaixe.js`, +14/−1) e ainda assim foi recusada.
+
+**Como separar em 30 segundos, e vale para qualquer vermelho de funil:** rode o portão na `main`
+**limpa, sem merge nenhum**. Se ele já estiver vermelho ali, o problema nunca foi da entrega.
+
+| medido em 01/09 | |
+|---|---|
+| `npm run build` na `main` limpa, antes do `npm install` | **exit 1** — `Cannot find module .../typescript/bin/tsc` |
+| `npm run build` na `main` limpa, depois | **exit 0** |
+| mesmo funil, mesma entrega, depois | **exit 0**, integrado |
+
+E note por que os agentes não viram: cada worktree de agente tem o seu próprio `node_modules`
+resolvido, então os portões passam **verdes lá dentro** e só a árvore principal está nua. Um
+pré-integrador verde não prevê este vermelho — ele não mede a máquina onde o funil roda.
+
 ---
 
 ## 5. Registrar — e o que conta como registro
@@ -212,6 +246,33 @@ impede a próxima sessão de repetir o erro com confiança.
 E mantenha o `PENDENTES.md` e o `ferramentas/backlog.json` **verdadeiros**. Backlog que diz
 "livre" para item feito é a mesma doença que a casa caça nos portões — afirmação que o objeto não
 cumpre — no lugar exato onde se decide o que despachar.
+
+### ⚠ ACHADO ÓRFÃO SE CONFERE NO `git log` ANTES DE VIRAR ITEM (01/09)
+
+O item `canonical-jogo` mandava pôr o `<link rel="canonical">` no molde do jogo, com o aceite
+escrito e a evidência citada: *"grep agora: `src/index.html`, 0 ocorrências"*. Medido nesta
+rodada, na `main`: a linha está lá, em `src/index.html:55`, desde o commit `f79ce99` de
+**24/08** — oito dias antes de o item ser reaberto. A exceção que o build precisa para ela
+também já existia (`ferramentas/construir.js:197`).
+
+O item nasceu de uma varredura de "achados órfãos" que releu relatórios antigos de agente e
+recriou item para cada achado sem dono, **sem conferir o histórico do arquivo**. O achado do
+growth era verdadeiro em 21/08 e foi consertado em 24/08; a varredura o ressuscitou em 01/09.
+
+O custo não é o item perdido — é o **falso verde**. Quem pegasse o item e seguisse o aceite ao
+pé da letra escreveria a linha, veria `git diff` **vazio**, e teria como confirmar um achado
+que não existia mais. Um item que se cumpre sozinho com um no-op é a forma mais barata de
+fabricar trabalho que parece feito.
+
+**A regra:** antes de recriar item a partir de relatório antigo, rode `git log -S'<a asserção>'
+-- <arquivo>` e leia a mensagem do commit. É a mesma disciplina que a casa já aplica ao portão
+vermelho ("antes de consertar o produto, desconfie do portão"), aplicada um passo antes: **antes
+de despachar o conserto, desconfie de que ainda haja o que consertar.**
+
+E o que se salva de um item assim não é nada: o `canonical` existia mas **nenhum portão o
+cobria** (`test/encaixe.js` da `main`: 0 ocorrências de `canonical`). O item errado apontava
+para um buraco real ao lado do que ele descrevia. Item órfão que morre em falso positivo ainda
+merece a pergunta *"e o que garante que isto não volte?"* antes de ser fechado.
 
 ---
 
@@ -347,6 +408,116 @@ Eu mesmo escrevi aqui, antes de medir, que o exit era 0 — e estava errado, por
 canalizado o `git` para um `tail` e lido o exit **do tail**. `cmd 2>&1 \| tail; echo $?`
 mede o tubo, nunca o comando. Redirecione para arquivo e leia o `$?` na linha seguinte.
 `git ls-remote --heads origin` é quem responde se o ramo morreu.
+
+### ⚠ NA NUVEM, `git push -u origin main` EMPURRA UM REF DE SEIS DIAS ATRÁS (01/09)
+
+Medido nesta data, e é a armadilha mais barata de cair deste arquivo inteiro, porque o
+`CLAUDE.md` **manda** fazer exatamente isto (*"Always use git push -u origin &lt;branch-name&gt;"*).
+
+**A sessão da nuvem roda em `HEAD` DESTACADO.** O contêiner clona e faz checkout do commit,
+não do ramo. O `refs/heads/main` local fica onde estava no dia em que o contêiner nasceu e
+**nunca mais se move** — enquanto o seu trabalho vai empilhando em cima de um `HEAD` que não
+é ramo nenhum.
+
+Medido nesta rodada, com o reflog:
+
+```
+git reflog show main
+b64a12a main@{2026-09-01 16:24}: branch: Reset to HEAD      <- eu, consertando
+e0939a9 main@{2026-08-26 11:37}: branch: Created from refs/remotes/origin/main
+```
+
+`refs/heads/main` foi criado em **26/08** e ficou parado **seis dias** — mais de trinta commits
+para trás — enquanto o checkout rodava no que a `origin` tinha.
+
+O que isso fabrica: `git push -u origin main` resolve o refspec para o **ref local**, não para
+o seu `HEAD`. Então ele empurra o commit de 26/08 e **o seu trabalho não vai junto**. Aqui deu
+recusa (`pushed branch tip is behind its remote counterpart`), que é o desfecho **sortudo**.
+O desfecho ruim é o silencioso: se o ref local estivesse à frente do remoto em vez de atrás, o
+push saía **exit 0** e o commit da rodada ficava no disco de um contêiner que é reciclado.
+
+Controle, porque quem afirma prova. Com `probe` em `b64a12a` e um commit novo em `HEAD`
+destacado (`cb90cd5`):
+
+```
+git push --dry-run -u origin probe   ->  " * [new branch]  probe -> probe "   (empurra b64a12a)
+```
+
+O ref empurrado é `probe`, **não** `HEAD` — o `cb90cd5` que eu acabara de fazer não aparece.
+
+**A regra, para as três máquinas:**
+
+> **Confira `git rev-parse --abbrev-ref HEAD` antes do primeiro commit da rodada.** Se vier
+> `HEAD`, você está destacado: `git branch -f main HEAD && git checkout main` antes de
+> qualquer coisa. E empurre **sempre por refspec explícito** — `git push origin
+> HEAD:refs/heads/main` —, que empurra o que você está vendo, não o que um ref lembra.
+
+O refspec explícito é a forma robusta nas duas situações, então adote-a e pare de pensar
+no assunto: `HEAD:refs/heads/<ramo>` não tem como empurrar outra coisa.
+
+### ⚠ A ÁRVORE DA NUVEM NASCE SEM `node_modules` — E O FUNIL CULPA A ENTREGA (01/09)
+
+Custou um ciclo de funil nesta rodada, e o custo real não é o ciclo: é que **o vermelho aponta
+para a entrega errada**.
+
+O contêiner clona o repositório e não instala nada. Então o primeiro `npm test` da rodada morre
+em:
+
+```
+Error: Cannot find module '/home/user/jogo-brasil/node_modules/typescript/bin/tsc'
+tsc falhou — nada foi escrito. O index.html no disco continua o de antes.
+```
+
+E o `integrar.js` faz o que tem de fazer: `npm test -> exit 1`, desfaz o merge, sai 1. A leitura
+natural — e errada — é *"a entrega quebrou o build"*. A entrega não tocou em nada disso; a
+máquina é que estava vazia. (O `construir.js` se comportou bem no meio disso: recusou escrever
+saída com o `tsc` morto, que é exatamente o §3 funcionando.)
+
+**A regra, e ela é uma linha:**
+
+> Na nuvem, rode `npm install` **antes do primeiro funil da rodada**, e tire o **baseline**:
+> `npm test` na `main` **sem** a entrega. Baseline vermelho = a máquina, nunca a entrega.
+
+O baseline é o que separa as duas causas em trinta segundos, e é a mesma disciplina do §8
+(*"antes de consertar o produto, desconfie do portão"*) aplicada um degrau abaixo: antes de
+desconfiar do portão, desconfie da **máquina que o roda**. Medido aqui: baseline vermelho antes
+do `npm install`, **exit 0** depois, e o mesmo funil que recusara passou verde sem uma linha de
+código mudada.
+
+Vale para o agente também — o `pre-integrador` desta rodada teve de instalar dentro do worktree
+antes de rodar qualquer portão, e o worktree do outro agente idem. **Quem despacha agente que
+roda portão avisa no brief que ele pode precisar instalar**, senão o agente devolve vermelho de
+ambiente com cara de vermelho de produto.
+
+### ⚠ ANTES DE DEVOLVER ITEM A `livre`, PROCURE O RAMO `entrega/<id>` (01/09)
+
+A regra do marcador acima está certa e **não basta**, e foi esta rodada que descobriu o buraco
+que ela deixou.
+
+A rodada `nuvem-20260901T0823` pegou seis itens e a rodada seguinte concluiu que ela **"não
+empurrou nada em cinco horas"**, porque os quatro `voo/` apontavam para o commit de backlog.
+A conclusão estava **errada**: existem `entrega/rotina-7-sinais` (`d7174e5`) e
+`entrega/glossario-substancia-rev2` (`2396a90`) — duas entregas inteiras, com mensagem de
+commit medida, que nunca foram pelo funil. Os itens das duas voltaram a `livre`.
+
+**O que eu sei e o que eu não sei, porque a diferença importa e é fácil de atropelar.** Os
+commits são datados de **08:34 e 08:42**; a **hora do push** não é recuperável pela API, então
+eu **não** afirmo que a rodada das 13:40 podia tê-los visto — talvez os ramos tenham subido
+depois dela. O que eu afirmo, e basta para a regra, é que a varredura dela olhou **só `voo/`**:
+com `entrega/` fora do campo de visão, essa classe de órfão passa despercebida de qualquer
+jeito, tenha subido às 08:42 ou às 13:41.
+
+**O marcador `voo/` diz que alguém pegou. Ele não diz se alguém TERMINOU** — e o que diz isso
+é o ramo `entrega/`, que é onde o trabalho pousa. Devolver item a `livre` sem olhar ali é
+mandar a próxima rodada refazer do zero um trabalho que já está no servidor.
+
+> Antes de devolver qualquer item a `livre`: `git ls-remote --heads origin 'refs/heads/entrega/*'`.
+> Se houver `entrega/<id>`, o item não é livre — é **entrega órfã**, e o trabalho da rodada é
+> **auditar e integrar**, não recomeçar. Vá ao funil, não ao agente.
+
+E vale a inversão, que é a regra inteira num fôlego: **`voo/` é intenção, `entrega/` é
+resultado, e o `backlog.json` é a verdade.** Os três discordando é o estado normal — quem
+decide é o último.
 
 O funil roda **de um lado por vez**. Quem estiver de plantão integra; o outro entrega em ramo e
 avisa.
