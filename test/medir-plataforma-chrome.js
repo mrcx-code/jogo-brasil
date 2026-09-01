@@ -23,6 +23,7 @@
 // folha do Google de volta (requisição proibida), e a barra forçada a quebrar (rows > 1). Se um
 // deles passar, este arquivo sai 1 dizendo que ele mesmo não presta.
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // so pelo chromiumPath(): este portao serve a propria pagina
 const fs = require('fs');
 const path = require('path');
 
@@ -195,7 +196,7 @@ const ehSerifa = (s) => /serif|georgia|palatino|iowan|times|noto serif/i.test(s 
   && !/source sans|bitter|ibm plex/i.test(s || '');
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const famBarraPorPagina = {};
   const materiaisComGrao = new Set();
 

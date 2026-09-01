@@ -34,6 +34,33 @@ jobs:
       # é reprodutível e o install não é.
       - run: npm install
 
+      # ONDE O CHROMIUM ESTÁ — estático, ~40 ms, e vem ANTES do navegador de propósito: ele é o
+      # único passo daqui que ainda funciona quando o navegador é o problema, e o valor dele é
+      # justamente falhar rápido com a mensagem certa.
+      #
+      # ELE NASCEU DE UM DEFEITO MEDIDO EM 31/08. Dez portões que este arquivo roda lançavam o
+      # Chromium NUS (`chromium.launch()`), enquanto o smoke e o encaixe passavam
+      # `executablePath`. Aqui no runner isso nunca apareceu — o passo abaixo instala o
+      # navegador e nu e vestido dão no mesmo. Numa máquina com o navegador PROVISIONADO numa
+      # build diferente da que o Playwright espera, os dez morrem: `npm test` saía 1 pelo
+      # `regua-larga.js` DEPOIS de o smoke imprimir "PASS", e morriam junto dois dos quatro
+      # portões do ciclo do plantão e o `conteudo-espelho.js`, que é o portão do funil para
+      # diff de glossário. A mensagem do Playwright manda instalar navegador — e o navegador
+      # está no disco; o que falta é dizer onde.
+      #
+      # A lista de portões que ele cobra é DERIVADA deste YAML e do package.json, não escrita à
+      # mão: portão novo entra na cobrança sozinho.
+      - name: onde o Chromium está (nenhum portão lança nu)
+        run: node test/portao-navegador.js
+        timeout-minutes: 1
+
+      # E O CONTROLE DELE, a lição 2.8 da casa: injeta um lançamento nu num portão real, exige
+      # que a varredura MORDA, e restaura. Sem isto a varredura acima é decoração assinada de
+      # verde — e decoração assinada de verde é pior que teste nenhum.
+      - name: controle do portão do navegador (prova que ele morde)
+        run: node test/portao-navegador.js --autoteste
+        timeout-minutes: 1
+
       # O smoke test precisa de um navegador de verdade. --with-deps traz as bibliotecas de
       # sistema que o Chromium pede no runner do Ubuntu; sem elas ele instala e não abre.
       - run: npx playwright install --with-deps chromium

@@ -23,6 +23,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // so pelo chromiumPath(): este portao serve a propria pagina
 
 const RAIZ = path.resolve(__dirname, '..');
 const DASH = path.join(RAIZ, 'dashboard', 'index.html');
@@ -121,7 +122,7 @@ async function lerModal(navegador, htmlPath, backlogObj, nome) {
   ok(daPlataforma.length >= 2,
     'ha agente com >= 2 itens livres para a comparacao valer (' + ESCOLHIDO + ': ' + daPlataforma.length + ')');
   const concluidos = fila.itens.filter(i => i.estado === 'concluido').map(i => i.titulo);
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   try {
     console.log('\n1) A LISTA E A FILA — os titulos do modal saem do backlog, na ordem do arquivo');
     console.log('   (' + livres.length + ' itens livres na fila; ' + daPlataforma.length + ' de ' + ESCOLHIDO + ')');

@@ -45,7 +45,7 @@ async function extrairDoJogo() {
   const { chromium } = require('playwright');
   const ABRIR = require('../test/abrir.js');
   const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto(ALVO);
   await pg.waitForTimeout(1800);
@@ -196,7 +196,7 @@ function conferir(cru, A) {
     for (const v of g.verbetes) refeita.push('V:' + v.chave);
   }
   const orig = cru.lista.filter((v) => v.g || v.t).map((v) => (v.g ? 'G:' + v.g : 'V:' + v.t));
-  if (refeita.join(' ') !== orig.join(' ')) {
+  if (refeita.join('\u0000') !== orig.join('\u0000')) {
     const i = orig.findIndex((x, k) => x !== refeita[k]);
     erros.push('a reconstrução por grupo+ordem NÃO devolve a lista original — diverge em ' + i
       + ': original ' + orig[i] + ' · refeita ' + refeita[i]);

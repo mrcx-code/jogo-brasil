@@ -12,6 +12,9 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+// O host da medição sai da constante ÚNICA que alimenta a CSP e o build (CLAUDE.md §3.2) —
+// nunca escrito à mão aqui. Quem o lê é o coletor de erros de console, lá embaixo.
+const { MEDIDA_HOST } = require('../ferramentas/medir-secao.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -174,7 +177,33 @@ async function hudNoLugar(pg) {
   });
   const erros = [];
   page.on('pageerror', e => erros.push('PAGEERROR: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error') erros.push('CONSOLE: ' + m.text()); });
+  // O COLETOR GLOBAL APLICA A MESMA REGRA QUE O BLOCO DA MEDIÇÃO JÁ APLICAVA, e não uma nova
+  // (31/08). O bloco de baixo (procure `posthog|Failed to load resource` neste arquivo) já
+  // decidiu por escrito, faz semanas: *"pedido de rede que o NAVEGADOR recusou não é defeito do
+  // jogo — um adblock de verdade escreve a mesma linha"*. Este coletor, que é o que alimenta a
+  // asserção final ERROS DE CONSOLE, nunca recebeu a regra. Dois coletores da mesma coisa, um
+  // com o critério e outro sem: é o buraco que o PENDENTES 68 nomeia, do lado de cá.
+  //
+  // O QUE FEZ APARECER: numa máquina cujo proxy recusa o host da medição, o jogo roda inteiro
+  // e o `encaixe.js` sai **1** — medido em 31/08 na `main` LIMPA, sem uma linha de mudança:
+  // uma asserção, oito linhas de `Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED`.
+  // O portão reprovava um jogo perfeito por causa da rede de quem o roda.
+  //
+  // E O FILTRO É ESTREITO DE PROPÓSITO — mais estreito que o do bloco de baixo. Ele NÃO cala
+  // "Failed to load resource" em geral: isso engoliria um `pack-*.json` que some, que é defeito
+  // de verdade e dos caros (o capítulo roda com a arte errada, sem erro nenhum). Ele cala UM
+  // host: o da medição, e só quando o próprio Chromium diz que não conseguiu buscá-lo.
+  //   · o host sai da constante ÚNICA (`MEDIDA_HOST`), a mesma que alimenta a CSP e o build —
+  //     escrever 'posthog' aqui à mão criaria a segunda cópia que o §3.2 existe para não ter;
+  //   · a URL vem de `m.location().url`, e que ela chega foi MEDIDO, não suposto:
+  //     `https://us.i.posthog.com/i/v0/e/` com `net::ERR_TUNNEL_CONNECTION_FAILED`.
+  // Erro de console SEM url, ou com url de qualquer outro lugar, continua reprovando.
+  page.on('console', m => {
+    if (m.type() !== 'error') return;
+    const url = (m.location() && m.location().url) || '';
+    if (url.indexOf(MEDIDA_HOST) === 0 && /Failed to load resource/i.test(m.text())) return;
+    erros.push('CONSOLE: ' + m.text());
+  });
   // O FLAKE DE DUAS NOITES, nomeado em 22/08 pelo log inteiro do portão (PENDENTES 52):
   // não era asserção nenhuma — era page.reload() levando net::ERR_CONNECTION_REFUSED do
   // servidor efêmero, SÓ sob a carga do funil (npm test termina segundos antes); em série

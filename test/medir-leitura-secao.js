@@ -23,6 +23,7 @@
 // atrás do texto (d cai), a citação em redonda sem serifa (c cai), e a tinta clareada perto do
 // papel (b cai). Se um passar, este arquivo sai 1 dizendo que ele mesmo não presta.
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // so pelo chromiumPath(): este portao serve a propria pagina
 const fs = require('fs');
 const path = require('path');
 
@@ -113,7 +114,7 @@ async function medir(pg, P) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
 
   for (const P of PAGINAS) {
     sec(P.chave.toUpperCase() + '  (' + P.arq + ')');

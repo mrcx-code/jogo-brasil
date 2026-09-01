@@ -42,6 +42,9 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const CHROME = require('./chrome-plataforma.js');
+// Só pelo `chromiumPath()`: este arquivo abre a página por `file://` de propósito (é um print
+// de artefato local, não uma medição do jogo), então não usa o servidor do abrir.js.
+const ABRIR = require('../test/abrir.js');
 
 // O tamanho que WhatsApp, Twitter e Facebook usam. Escrito aqui e lido pelas tags, para não
 // haver duas versões do mesmo número.
@@ -118,7 +121,7 @@ async function tirar(dir, op) {
   const destino = path.join(dir, 'compartilhar.jpg');
   const url = 'file:///' + pagina.split(path.sep).join('/');
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: 1 });
   const erros = [];
   pg.on('pageerror', (e) => erros.push('pageerror: ' + e));

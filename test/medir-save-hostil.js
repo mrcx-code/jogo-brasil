@@ -47,7 +47,7 @@ const ATAQUES_RET = [
 ];
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const erros = [];
   pg.on('pageerror', e => erros.push(e.message));

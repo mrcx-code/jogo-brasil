@@ -29,6 +29,7 @@
 // uma propriedade a mais no corpo, o interruptor que não desliga, e o teto que deixou de
 // segurar um laço. Se um deles passar, este arquivo sai 1 dizendo que ele mesmo não presta.
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // so pelo chromiumPath(): este portao serve a propria pagina
 const fs = require('fs');
 const path = require('path');
 const MED = require('../ferramentas/medir-secao.js');
@@ -208,7 +209,7 @@ function conferirCorpo(pag, c, cabecalhos, url, reprovar) {
       pag.secao + ': e ele usa as chaves de localStorage do jogo (' + MED.CHAVE_MEDIR + ')');
   }
 
-  const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  const browser = await chromium.launch({ executablePath: ABRIR.chromiumPath(), args: ['--enable-unsafe-swiftshader'] });
 
   // ============================================================
   sec('3 · adblock, 503 e servidor mudo: a página não sente, e o corpo é aberto');

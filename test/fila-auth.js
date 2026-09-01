@@ -63,6 +63,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // so pelo chromiumPath(): este portao serve a propria pagina
 
 const HTML = process.env.FILA_AUTH_HTML
   ? path.resolve(process.env.FILA_AUTH_HTML)
@@ -252,7 +253,7 @@ const estado = pag => pag.evaluate(() => ({
 }));
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
 
   // ---------------------------------------------------------------- 1
   console.log('\n[1] MUNDO DE HOJE — deslogado, INSERT anon ainda aberto');

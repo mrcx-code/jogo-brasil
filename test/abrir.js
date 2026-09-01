@@ -104,3 +104,38 @@ module.exports = function abrir(u) {
   subir();
   return 'http://127.0.0.1:' + PORTA + '/' + path.relative(RAIZ, abs).split(path.sep).join('/');
 };
+
+// ONDE ESTA O CHROMIUM — a definicao CANONICA, e ela mora aqui pelo mesmo motivo que o
+// servidor mora aqui: e o modulo que os instrumentos ja carregam.
+//
+// O DEFEITO QUE ISTO FECHA, medido em 31/08. O `smoke.js` e o `encaixe.js` lancam com
+// `executablePath`; DEZ portoes que o proprio CI e o proprio ciclo do plantao rodam lancavam
+// NUS (`chromium.launch()`), e cada um dos 63 arquivos que acertava carregava a sua PROPRIA
+// copia desta funcao. Num ambiente onde o navegador ja vem provisionado numa build diferente
+// da que o Playwright espera — esta maquina de nuvem, e qualquer maquina cujo Playwright subiu
+// de versao sem reinstalar o navegador — o lancamento nu morre assim:
+//
+//     browserType.launch: Executable doesn't exist at
+//     /opt/pw-browsers/chromium_headless_shell-1234/chrome-headless-shell-linux64/...
+//     ╔═══ Looks like Playwright was just installed or updated. ═══╗
+//
+// Medido nesta maquina: `chromium.launch()` NU **falha**; com `executablePath` devolve
+// **Chromium 141.0.7390.37**. E a mensagem aponta para o lugar errado — ela manda instalar
+// navegador, quando o navegador esta no disco e o que falta e dizer onde.
+//
+// CONSEQUENCIA REAL, e por isso isto nao e cosmetico: `npm test` sai **1** aqui, e nao no
+// smoke — no `regua-larga.js`, que roda depois dele. Quem so olhasse a ultima linha do log do
+// smoke leria "PASS" e empurraria. Junto morriam `medir-save-hostil.js` e
+// `medir-telas-altura.js` (dois dos quatro portoes que o plantao roda por regra) e o
+// `conteudo-espelho.js`, que e o portao do funil para diff de glossario.
+//
+// POR QUE E SEGURO ONDE JA FUNCIONAVA: sem `PW_CHROMIUM` e sem `/opt/pw-browsers/chromium` no
+// disco, ela devolve `undefined` — e `launch({ executablePath: undefined })` e exatamente o
+// lancamento nu. Numa maquina que rodou `npx playwright install` (o CI faz isso) nada muda.
+// O portao `test/portao-navegador.js` cobra que portao nenhum volte a lancar nu.
+module.exports.chromiumPath = function chromiumPath() {
+  for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
+    if (p && fs.existsSync(p)) return p;
+  }
+  return undefined;
+};

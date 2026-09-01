@@ -67,7 +67,7 @@ const TELAS = [
 ];
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   let falhou = false;
   for (const t of TELAS) {
     const pg = await nav.newPage();

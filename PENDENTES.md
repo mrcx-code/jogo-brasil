@@ -2666,3 +2666,172 @@ glossário no jogo é uma bomba-relógio de CI vermelho para quem integrar depoi
 gatilho `espelho` (ou uma checagem que roda `conteudo:conferir` e exige verde) — o mesmo padrão
 "pedir vira garantir" dos outros portões. Território: `ferramentas/integrar.js` + talvez
 `conteudo-conferir.js`.
+
+### ✅ FEITO — e a descoberta é que **já estava feito** (31/08)
+
+O conserto proposto **está no `integrar.js`**, em `ferramentas/integrar.js:195-200`, com o
+comentário citando este item por número: *"PENDENTES 87: editar o glossario no jogo
+dessincroniza o espelho no banco… o funil roda o espelho e REVERTE se divergir"*. A condição é
+exatamente a proposta acima (`if (exigidos.has('historiador')) portao('espelho do conteudo',
+'npm', ['run', 'conteudo:conferir'], 3)`) — o mesmo gatilho que já exige o historiador.
+
+Conferido por medição em 31/08, e não por leitura: `npm run conteudo:conferir` na `main` sai
+**0**, com `JOGO` e `BANCO` em **181 verbetes · 17 grupos · 644 pares** e o **mesmo hash**
+(`1b97fe85…`). O item ficou aberto por dias descrevendo trabalho concluído — que é a doença que
+o `PLANTAO.md` §5 nomeia: *backlog que diz "livre" para item feito é a mesma doença que a casa
+caça nos portões, no lugar exato onde se decide o que despachar.*
+
+---
+
+## 88 — DEZ portões lançavam o Chromium NUS, e `npm test` saía 1 DEPOIS de o smoke dizer PASS — plantao (31/08)
+
+**Achado e consertado em 31/08**, e ele é da família que este repositório mais teme: o portão
+que mede a coisa errada, ou não mede coisa nenhuma, sem ninguém perceber.
+
+### O que era
+
+Este repositório tem **118 lugares** que abrem um Chromium (contados no CÓDIGO, com comentário
+fora — a primeira contagem, por `grep` de arquivo, disse 125 e estava inflada por prosa que cita
+a chamada). O `smoke.js` e o `encaixe.js` passam `executablePath` — e cada arquivo que acertava
+carregava a **sua própria cópia** da função que resolve esse caminho. **Antes desta sessão: 60
+vestidos e 58 nus. Depois: 71 e 47** — e nenhum dos 47 que sobram é portão do CI ou do ciclo.
+
+Onde a máquina roda `npx playwright install`, nu e vestido dão no mesmo — é por isso que isto
+sobreviveu meses, e é por isso que **o CI nunca acusou**: o `teste.yml` instala o navegador.
+Onde o navegador vem **provisionado numa build diferente** da que o Playwright espera (uma
+máquina de nuvem; qualquer máquina cujo Playwright subiu de versão sem reinstalar o navegador),
+o lançamento nu morre — e a mensagem manda **instalar navegador**, quando o navegador está no
+disco e o que falta é dizer onde.
+
+### O estrago, medido
+
+| | |
+|---|---|
+| `chromium.launch()` nu, nesta máquina | **FALHA** — `Executable doesn't exist at …chromium_headless_shell-1234…` |
+| `chromium.launch({ executablePath: … })` | **OK — Chromium 141.0.7390.37** |
+| `npm test` | **EXIT 1** — e **não** no smoke, que imprimiu `PASS — no errors`; morria depois, no `regua-larga.js` |
+| portões do ciclo do plantão | **2 dos 4** mortos: `medir-save-hostil.js` e `medir-telas-altura.js` |
+| portão do funil para diff de glossário | `conteudo-espelho.js` morto — um diff de texto histórico seria revertido por falta de navegador, com a mensagem dizendo que o banco divergiu |
+
+**A armadilha de leitura, e ela quase me pegou:** o smoke imprime `PASS — no errors` e o
+`npm test` continua depois dele. Quem julgar pela última linha do log do smoke lê PASS e empurra
+com o `npm test` vermelho. Foi exatamente o que eu fiz na primeira medição desta sessão — julguei
+por um resumo em vez do exit code, e o resumo mentia por construção.
+
+### O que ficou
+
+- **Uma definição canônica**, exportada de `test/abrir.js` (`ABRIR.chromiumPath()`) — o módulo que
+  os instrumentos já carregam. Sem `PW_CHROMIUM` e sem `/opt/pw-browsers/chromium` ela devolve
+  `undefined`, que é o lançamento nu: **numa máquina que instalou o navegador, nada muda.**
+- **Dez portões vestidos:** `regua-larga`, `medir-save-hostil`, `medir-telas-altura`,
+  `medir-porta-secao`, `fila-auth`, `caminhos-do-backlog`, `medir-plataforma-chrome`,
+  `medir-leitura-secao`, `medir-paginas`, `ferramentas/conteudo-espelho.js`, mais o
+  `ferramentas/cartao-secao.js` que o próprio portão novo achou.
+- **`test/portao-navegador.js`** — estático, ~40 ms, no CI antes do navegador (é o único passo que
+  ainda funciona quando o navegador é o problema). A lista de portões é **derivada** do
+  `teste.yml` e do `package.json` mais um nível de `require` local — lista chumbada envelhece em
+  silêncio, e é assim que ele alcança o `conteudo-espelho.js`, que ninguém chama direto.
+- **O autoteste** (`--autoteste`) injeta um lançamento nu num portão real, exige exit 1 apontando
+  para ele, e restaura. Visto morder: `nus: 0 → 1 (pegou medir-save-hostil) → 0`.
+
+### E dois achados de brinde, os dois do próprio instrumento contra ele mesmo
+
+1. **`ferramentas/conteudo-espelho.js` era BINÁRIO para o git.** Dois bytes **NUL literais**,
+   escritos como o caractere de verdade em vez do escape, dentro de um `join()`. Efeito:
+   `git diff` não mostrava nada e todo grep do repositório o pulava (*"binary file matches"*).
+   Num portão do funil isso é sério — a correção acima entraria **invisível na revisão**.
+   Trocados pela sequência de escape: o arquivo voltou a ser texto, e a prova de que o valor não
+   mudou é o **hash do espelho, idêntico** antes e depois.
+2. **A segunda versão do portão errava para o lado perigoso, e vale guardar a lição.** Para não
+   tropeçar em prosa, ela apagava comentário **e string** antes de varrer. Um scanner que não
+   conhece literal de expressão regular lê o `"` de `.replace(/"/g, …)` (`cartao-secao.js:102`)
+   como abertura de string e **engole as 50 linhas seguintes** — entre elas o lançamento nu da
+   121. O portão foi de *"3 achados, 2 falsos"* para **"0 achados, VERDE"**, escondendo um defeito
+   real. A versão final **não toca em string nenhuma**: só comentário, com `//` valendo como
+   início só quando não vem depois de `:` (preserva `http://`). **Falso positivo é barulhento e se
+   conserta; falso negativo é mudo e assina o verde.**
+
+### O que NÃO foi feito, de propósito
+
+Sobram **47 lançamentos nus em 46 arquivos** que **não são portão** — ferramentas de arte
+(`inline-*.js`, `converter-*.js`, `cortar-*.js`), sondas e medições de mão. Elas quebram do mesmo
+jeito nesta classe de máquina, e cada uma custa uma linha. **Não entraram neste lote** para não
+misturar 62 arquivos com a mudança que precisa ser revisada; e o portão novo **não as cobra**,
+porque cobrar o que ninguém roda no CI transforma o vermelho em ruído. Quem for mexer numa delas
+e topar com o erro do Playwright: o conserto é `executablePath: ABRIR.chromiumPath()`, e a função
+já existe.
+
+---
+
+## 89 — O `encaixe.js` reprovava um jogo PERFEITO quando a rede de quem roda recusa o host da medição — plantao (31/08)
+
+**Achado e consertado em 31/08**, e ele é irmão do 88: mesma classe (o portão reprova por causa
+do ambiente, não do produto), descoberto na mesma sessão, mas por outra porta.
+
+### O que acontecia
+
+Numa máquina cujo proxy recusa `us.i.posthog.com` — que é o caso da máquina de nuvem onde a
+rotina do plantão roda —, o jogo abre, roda inteiro e não perde nada. O Chromium, porém, escreve
+no console uma linha por pedido recusado, e o coletor global do `encaixe.js` empilhava todas:
+
+```
+---- ERROS DE CONSOLE
+CONSOLE: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED   (×8)
+FALHOU em 1 asserção(ões)
+```
+
+**Medido na `main` LIMPA, sem uma linha de mudança** (com `git stash` e o `encaixe.js` da própria
+`main`): **EXIT 1**. Não era regressão de ninguém — estava assim para qualquer máquina desta
+classe, e o portão está no CI e no ciclo do plantão.
+
+### O que torna isto um defeito do PORTÃO, e não uma regra nova
+
+**A casa já tinha decidido, por escrito, semanas antes** — e num outro coletor do MESMO arquivo.
+O bloco da medição (procure `posthog|Failed to load resource` no `encaixe.js`) diz:
+
+> *"Pedido de rede que o NAVEGADOR recusou não é defeito do jogo — é exatamente o que este bloco
+> está encenando, e um adblock de verdade escreve a mesma linha."*
+
+**Dois coletores da mesma coisa, um com o critério e outro sem.** É o `PENDENTES 68` visto do
+outro lado: lá o problema era a régua e o regulado compartilharem a suposição; aqui é a mesma
+régua aplicada num lugar e esquecida no outro. E o `CLAUDE.md` §3.2 afirma que a medição cair não
+custa nada ao jogo (*"adblock, servidor mudo, 503 — medido: zero erro, zero espera"*) — a recusa
+no nível do túnel é um **quarto** modo de falha, que ninguém tinha medido, e nele o Chromium
+escreve no console de qualquer jeito, com ou sem `catch` no jogo.
+
+### O conserto, e por que ele é ESTREITO
+
+O coletor global passou a calar **um host e uma frase**, e nada além:
+
+- o host sai da constante **única** (`MEDIDA_HOST`, de `ferramentas/medir-secao.js`) — a mesma que
+  alimenta a CSP e o build. Escrever `posthog` à mão ali criaria a segunda cópia que o §3.2
+  existe para não ter;
+- a URL vem de `m.location().url`, e **que ela chega foi medido, não suposto**:
+  `https://us.i.posthog.com/i/v0/e/` com `net::ERR_TUNNEL_CONNECTION_FAILED`;
+- ele **não** cala `Failed to load resource` em geral — isso engoliria um `pack-*.json` que some,
+  que é defeito real e dos caros (o capítulo roda com a arte errada, sem erro nenhum).
+
+### A prova de que continua mordendo, nos dois sentidos
+
+Controle escrito e rodado antes de aceitar o verde:
+
+| cena | esperado | medido |
+|---|---|---|
+| A · a rede nega o host da medição | o filtro engola | engolidos 1 · **passaram 0** ✔ |
+| B · um recurso do jogo some (404) | o filtro deixe passar | engolidos 1 · **passaram 1** ✔ — `Failed to load resource: 404` com a URL `127.0.0.1:8343/nao-existe-controle-do-filtro.json` |
+
+Depois: `node test/encaixe.js` → **EXIT 0**, e o bloco ERROS DE CONSOLE imprime **`(nenhum)`** —
+ou seja, o filtro não estava escondendo mais nada junto.
+
+**E a primeira versão do controle não provava nada, o que é a lição a guardar:** a cena B negava
+`**/pack-*.json` e media zero — não porque o filtro engolisse, mas porque **no menu o jogo nunca
+pede pacote nenhum** (a arte do capítulo 1 é embutida; pacote só na chegada do capítulo 2+).
+Instrumento que não percorre o caminho da pessoa mede o próprio silêncio e assina verde.
+
+### O que fica em aberto, e é decisão de quem tiver mais contexto
+
+O controle acima é **temporário** — rodou, provou, e não ficou no repositório. Torná-lo
+permanente (um `--autoteste` no `encaixe.js`, como o `portao-navegador.js` e o `cartao-controle.js`
+já têm) custaria pouco e fecharia a categoria: hoje, se alguém alargar esse filtro por
+conveniência, nada reprova. **Não entrou neste lote** para não misturar mais uma peça na mesma
+revisão.

@@ -61,7 +61,7 @@ function contaSecao(html, rotulo, onde) {
   const sVerbetes = contaSecao(ler('glossario/index.html'), 'verbetes', 'glossario');
   const sFontes = contaSecao(ler('de-onde-vem/index.html'), 'fontes', 'de-onde-vem');
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pgn = await nav.newPage();
   await pgn.goto(ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/')));
   // ERA waitForTimeout(1500). O que se lê aqui é `EPOCAS.length` — então o estado esperado é

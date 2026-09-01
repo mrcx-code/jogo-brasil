@@ -125,7 +125,7 @@ const H1 = Number(process.argv[4] || 900);
 const TOL = 2;   // arredondamento de sub-pixel e borda; abaixo disto não é corte, é ruído
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: LARGURA, height: H1 }, hasTouch: true, isMobile: true });
   const erros = [];
   pg.on('pageerror', e => erros.push(e.message));
