@@ -993,11 +993,12 @@ async function hudNoLugar(pg) {
   sec('14 · o cartão do link não apodrece em silêncio');
   const cartao = await page.evaluate(() => {
     const m = function (sel) { const e = document.querySelector(sel); return e ? e.content : null; };
+    const c = document.querySelector('link[rel="canonical"]');
     return { titulo: document.title, desc: m('meta[name="description"]'),
       ogT: m('meta[property="og:title"]'), ogD: m('meta[property="og:description"]'),
       ogU: m('meta[property="og:url"]'), ogI: m('meta[property="og:image"]'),
       w: m('meta[property="og:image:width"]'), h: m('meta[property="og:image:height"]'),
-      tw: m('meta[name="twitter:card"]') };
+      tw: m('meta[name="twitter:card"]'), canon: c ? c.getAttribute('href') : null };
   });
   const dominio = (cartao.ogU || '').replace(/\/$/, '');
   log('   ' + cartao.titulo + ' → ' + cartao.ogI);
@@ -1005,6 +1006,10 @@ async function hudNoLugar(pg) {
     'o link tem título, descrição, imagem e cartão grande');
   ok(!!dominio && (cartao.ogI || '').indexOf(dominio + '/') === 0,
     'a imagem mora no MESMO endereço da página (as URLs mudam juntas ou a prévia quebra)');
+  // /jogo/ era a única das 6 páginas públicas sem canonical (achado do growth, onda 2, 21/08) —
+  // sem ele o Google pode tratar / e /jogo/ como duplicata e diluir o sinal de indexação.
+  ok(!!cartao.canon && cartao.canon === cartao.ogU,
+    'o canonical existe e aponta para a MESMA URL da og:url (' + cartao.canon + ') — sem ele / e /jogo/ podem ler como duplicata');
   ok(cartao.w === '1200' && cartao.h === '630',
     'o tamanho declarado é o que WhatsApp, Twitter e Facebook usam');
   const previa = fs.existsSync(path.resolve(__dirname, '..', 'dist', 'compartilhar.jpg'));
