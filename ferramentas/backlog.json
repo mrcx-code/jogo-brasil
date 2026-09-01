@@ -516,7 +516,9 @@
     "src/jogo.ts",
     "NOTES.md"
    ],
-   "estado": "livre"
+   "estado": "em-curso",
+   "maquina": "nuvem-20260901T0823",
+   "desde": "2026-09-01T08:29:32.153Z"
   }
  ]
 }
