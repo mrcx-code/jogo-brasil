@@ -607,9 +607,12 @@ const estado = pag => pag.evaluate(() => ({
         rotuloDaMesa: (function(){ const b=document.querySelector('[data-k="formato-da-mesa"] .op .lab'); return b?(b.textContent||'').trim():null; })(),
         dataV: op ? op.getAttribute('data-v') : null,
         rotulo: op ? (op.textContent || '').trim() : null,
-        // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon()
-        fill: (document.querySelector('#grade-ag .bon rect[x="4"][y="7"]') || {}).getAttribute
-          ? document.querySelector('#grade-ag .bon rect[x="4"][y="7"]').getAttribute('fill') : null,
+        // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon(). `:not(.dono)`
+        // exclui o cartao sintetico da sessao principal (garantirDono(), 25/08) — sem mesa_agente
+        // com nome exato "Claude" no mock, o painel sempre acrescenta esse cartao (cor #b5541f),
+        // e o seletor sem filtro pegava ELE em vez do agente envenenado que a cena quer medir.
+        fill: (document.querySelector('#grade-ag .ag:not(.dono) .bon rect[x="4"][y="7"]') || {}).getAttribute
+          ? document.querySelector('#grade-ag .ag:not(.dono) .bon rect[x="4"][y="7"]').getAttribute('fill') : null,
       };
     });
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
@@ -659,9 +662,13 @@ const estado = pag => pag.evaluate(() => ({
   // Ela mede tres coisas: a ORDEM dos cabecalhos, a ordem dos cards dentro dela, e que a
   // squad envenenada nao vira grupo nem atributo (a lista branca decide, o servidor nao).
   {
+    // 'Claude' (maiusculo) e o nome real da sessao principal na mesa_agente (garantirDono(),
+    // 25/08) -- desde entao a tabela SEMPRE tem essa linha em producao. Usar aqui o mesmo nome
+    // exercita o caso real (a squad 'central' inclui a sessao principal) sem acionar o cartao
+    // SINTETICO que o painel acrescenta quando nenhum "Claude" exato aparece no mock.
     const linhas = [
       { nome: 'dev-plataforma', squad: 'plataforma', ordem: 1 },
-      { nome: 'claude', squad: 'central', ordem: 2 },
+      { nome: 'Claude', squad: 'central', ordem: 2 },
       { nome: 'historiador', squad: 'acervo', ordem: 3 },
       { nome: 'arte', squad: 'jogo', ordem: 4 },
       { nome: 'fantasma', squad: 'x" onmouseover="window.__xss=9', ordem: 5 },
@@ -685,7 +692,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(a.cards === 6, 'os 6 agentes viraram 6 cards (a cena mede algo)', String(a.cards));
     ok(a.cabs === 'CENTRAL | SQUAD JOGO | SQUAD PLATAFORMA | SQUAD ACERVO',
       'os cabecalhos saem na ordem central -> jogo -> plataforma -> acervo', a.cabs);
-    ok(a.nomes === 'claude,arte,dev-plataforma,historiador,fantasma,orfa',
+    ok(a.nomes === 'Claude,arte,dev-plataforma,historiador,fantasma,orfa',
       'os cards seguem a squad, nao a ordem do servidor, e quem nao tem squad fica no fim', a.nomes);
     ok(a.comOn.length === 0 && !a.veneno && a.xss === undefined,
       'a squad envenenada nao virou atributo nem grupo', a.comOn.join(',') + ' veneno=' + a.veneno);
