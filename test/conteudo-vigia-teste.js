@@ -331,6 +331,76 @@ conferir('e o vigia inteiro, nos mesmos fixtures, morde: 1 / 2 / 2',
   && rodar(['--dir', dirInvalida, '--hoje', HOJE]).code === 2
   && rodar(['--dir', dirOrfa, '--hoje', HOJE]).code === 2);
 
+// ————— 9. OS 7 SINAIS — dono e gatilho (rotina-7-sinais, 01/09) —————
+//
+// Achado 1 do vigia (22/08): a tarefa mensal só sabia procurar em 3 fontes, e o acervo declara
+// 7 sinais — UNESCO, STF e INCRA não tinham gatilho nenhum. O conserto: cada sinal em SINAIS
+// carrega `quem` (o processo que procura), `endereco` (onde) e `periodicidade` (quando, tirada
+// do `vence_regra` que o historiador já escreveu). Aqui só o que é ESTRUTURAL (a forma da lista,
+// nunca o conteúdo dela) — os nomes dos 7 sinais são código, não corpus, então cravá-los não
+// reprova quando o historiador editar um verbete.
+console.log('\n9. OS 7 SINAIS — dono e gatilho (rotina-7-sinais, 01/09)');
+igual('SINAIS declara os 7 nomes que o acervo usa hoje (código, não corpus)',
+  V.SINAIS.map((s) => s.nome).sort(),
+  ['DOU', 'IBGE', 'INCRA', 'INPE', 'MapBiomas', 'STF', 'UNESCO']);
+conferir('nenhum sinal fica com dono, endereço ou periodicidade vazios',
+  V.SINAIS.every((s) => s.quem && s.endereco && s.periodicidade));
+
+// O controle: um sinal SEM endereço é a "data órfã" do dono — tem de travar ALTO no load do
+// módulo (é código declarado, então a checagem roda antes de qualquer arquivo ser lido). Sem a
+// trava, o mesmo sinal quebrado passa calado — a mesma forma da lição 2.8, aplicada ao dono em
+// vez de à data.
+const linhaEnderecoUnesco = "    endereco: 'ich.unesco.org — decisões do Comitê Intergovernamental do Patrimônio Cultural Imaterial',";
+const guardaDono = "for (const s of SINAIS) {\n  if (!s.endereco || !s.periodicidade || !s.quem) {\n    throw new Error('SINAIS: \"' + s.nome + '\" está sem dono/endereço/periodicidade — data órfã de outro tipo.');\n  }\n}";
+
+if (fonte.indexOf(linhaEnderecoUnesco) < 0 || fonte.indexOf(guardaDono) < 0) {
+  console.log('  PARA · o trecho do sinal UNESCO ou da trava de dono não existe mais no vigia.');
+  console.log('         Este controle envelheceu; atualize os dois pares antes de confiar no verde.');
+  falhas++;
+} else {
+  const COPIA9 = path.join(__dirname, 'tmp-vigia-defeito-sinal.js');
+  const semEndereco = fonte.split(linhaEnderecoUnesco).join("    endereco: '',")
+    .split("require('./conteudo-puxar.js')").join("require('../ferramentas/conteudo-puxar.js')");
+
+  // (a) endereço some, a TRAVA fica → tem de falhar alto (nunca sair 0 calado)
+  fs.writeFileSync(COPIA9, semEndereco, 'utf8');
+  let a;
+  try {
+    execFileSync(process.execPath, [COPIA9, '--dir', dirLimpo, '--hoje', HOJE],
+      { cwd: RAIZ, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    a = { code: 0, err: '' };
+  } catch (err) {
+    a = { code: err.status == null ? -1 : err.status, err: String(err.stderr || '') };
+  }
+  conferir('COM a trava: sinal UNESCO sem endereço falha alto (exit ' + a.code + ', nunca 0)',
+    a.code !== 0 && a.err.indexOf('sem dono/endereço/periodicidade') >= 0, a.err.slice(0, 200));
+
+  // (b) o mesmo endereço vazio, mas a TRAVA some também → passa calado (o defeito injetado)
+  const semEnderecoSemGuarda = semEndereco.split(guardaDono).join('');
+  fs.writeFileSync(COPIA9, semEnderecoSemGuarda, 'utf8');
+  let b;
+  try {
+    execFileSync(process.execPath, [COPIA9, '--dir', dirLimpo, '--hoje', HOJE],
+      { cwd: RAIZ, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    b = { code: 0 };
+  } catch (err) {
+    b = { code: err.status == null ? -1 : err.status };
+  }
+  conferir('estraguei: a trava de dono some → o sinal sem endereço passa calado (exit ' + b.code + ')',
+    b.code === 0, 'a cópia sem a trava deveria sair 0, igual a uma boa — e saiu ' + b.code);
+
+  fs.rmSync(COPIA9, { force: true });
+}
+
+// contraprova: o vigia INTEIRO, com a trava viva, expõe os 7 sinais no --json (é o que a
+// tarefa mensal, que é máquina, vai ler — sem reabrir este arquivo).
+const eSinaisJson = rodar(['--dir', dirLimpo, '--hoje', HOJE, '--json']);
+let jSinais = null;
+try { jSinais = JSON.parse(eSinaisJson.out); } catch (e) { /* fica null, reprova abaixo */ }
+conferir('e o vigia inteiro expõe os 7 sinais (quem/endereco/periodicidade) no --json',
+  jSinais && Array.isArray(jSinais.sinais) && jSinais.sinais.length === 7
+  && jSinais.sinais.every((s) => s.quem && s.endereco && s.periodicidade));
+
 // ————————————————————————————————————————————————————————————————————————
 limpar();
 console.log('\n' + ok + ' verde(s), ' + falhas + ' falha(s).');
