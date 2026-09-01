@@ -989,15 +989,22 @@ async function hudNoLugar(pg) {
   //  · as URLs desencontrarem quando o domínio próprio chegar (elas mudam JUNTAS ou nada);
   //  · a imagem sumir de `dist/`, que é de onde a Vercel publica;
   //  · o tamanho declarado deixar de bater com o arquivo, e o cartão sair cortado.
+  // E uma quarta, acrescentada 01/09 (achado do growth, 21/08 — /jogo/ era a única das 6
+  // páginas públicas sem <link rel="canonical">, corrigido no molde em 24/08 por f79ce99):
+  //  · o canonical desencontrar do og:url, ou sair com a marca @@BASE@@ crua porque o build
+  //    só trocou as tags og: e esqueceu a nova linha — a página publicaria um endereço que
+  //    não existe, e isso tira a página do índice em vez de deixar ela sem canonical nenhum.
   // ============================================================
   sec('14 · o cartão do link não apodrece em silêncio');
   const cartao = await page.evaluate(() => {
     const m = function (sel) { const e = document.querySelector(sel); return e ? e.content : null; };
+    const canonEl = document.querySelector('link[rel="canonical"]');
     return { titulo: document.title, desc: m('meta[name="description"]'),
       ogT: m('meta[property="og:title"]'), ogD: m('meta[property="og:description"]'),
       ogU: m('meta[property="og:url"]'), ogI: m('meta[property="og:image"]'),
       w: m('meta[property="og:image:width"]'), h: m('meta[property="og:image:height"]'),
-      tw: m('meta[name="twitter:card"]') };
+      tw: m('meta[name="twitter:card"]'),
+      canon: canonEl ? canonEl.getAttribute('href') : null };
   });
   const dominio = (cartao.ogU || '').replace(/\/$/, '');
   log('   ' + cartao.titulo + ' → ' + cartao.ogI);
@@ -1012,6 +1019,12 @@ async function hudNoLugar(pg) {
   log('   dist/compartilhar.jpg: ' + (previa ? kb + ' KB' : 'AUSENTE'));
   ok(previa, 'a imagem está em dist/, que é de onde a Vercel publica');
   ok(kb > 0 && kb < 400, 'e ela pesa ' + kb + ' KB — o robô da prévia desiste de imagem grande');
+  log('   canonical: ' + cartao.canon);
+  ok(!!cartao.canon, 'o /jogo/ tem <link rel="canonical"> — era a única das 6 páginas públicas sem');
+  ok((cartao.canon || '').indexOf('@@BASE@@') === -1,
+    'a marca @@BASE@@ não sobrou crua no canonical publicado (o build trocou de verdade)');
+  ok(cartao.canon === cartao.ogU,
+    'o canonical aponta para o MESMO endereço que og:url — as duas nascem da mesma marca em ferramentas/dominio.js');
 
   // ============================================================
   // 15 · O CAPÍTULO EM OBRA NÃO AFIRMA HISTÓRIA
