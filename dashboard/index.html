@@ -1783,11 +1783,30 @@
     });
   }
 
+  // O SERVIDOR MUDO E O OUTRO JEITO DE MENTIR — achado do QA em 01/09, no mesmo dia em que o
+  // dono viu o painel congelado. Antes, `r.ok ? r.json() : []` fazia um 401 (token vencido numa
+  // aba velha) ou um 503 virar LISTA VAZIA: nenhum cartao era reescrito, o `Promise.all`
+  // RESOLVIA, e o rodape imprimia "ao vivo · <hora de agora>" por cima do estado de horas
+  // atras — cartao dizendo "agora", boneco martelando. Sintoma identico ao de 01/09, mecanismo
+  // diferente. Medido pelo QA: 503, 401, fetch abortado e 200-com-[] davam os quatro o mesmo
+  // "agora" depois de 3 h. "NAO CHEGOU DADO" e "CHEGOU DADO VAZIO" passam a ser distinguiveis,
+  // que e a mesma doenca que o item 60 do PENDENTES nomeou em outro lugar.
+  function corpo(r){ if(!r.ok) return Promise.reject(new Error("HTTP "+r.status)); return r.json(); }
+
+  // AS IDADES ENVELHECEM SOZINHAS. Sem isto, uma aba aberta com o servidor mudo continuaria
+  // mostrando o rotulo calculado no ultimo fetch que deu certo. O relogio anda mesmo quando a
+  // rede para; o painel passa a andar com ele, e por isso um cartao esfria mesmo que nunca mais
+  // chegue resposta nenhuma.
+  function repintarIdades(){
+    Object.keys(cards).forEach(function(n){ var c=cards[n]; if(c && c.__ag) atualizaAg(c.__ag); });
+  }
+  setInterval(repintarIdades, 20000);
+
   function carregar(){
     carregarPedidos();
-    var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
-    var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(function(r){return r.ok?r.json():[];});
-    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(function(r){return r.ok?r.json():[];});
+    var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(corpo);
+    var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(corpo);
+    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(corpo);
     return Promise.all([qItens,qResp,qAg]).then(function(rs){
       var itens=rs[0]||[], resp=rs[1]||[], ags=rs[2]||[];
       resp.forEach(function(r){ if(r.tipo!=="mensagem") respondidas[r.chave]=true; });
@@ -1818,6 +1837,9 @@
       atualizaPlacar();
     }).catch(function(){
       document.getElementById("quando").textContent="sem conexão — tentando de novo";
+      // A REDE CAIU MAS O RELOGIO NAO: repinta as idades com o dado que ja esta na tela, senao
+      // a aba fica exibindo o rotulo do ultimo fetch que deu certo — que e o defeito acima.
+      repintarIdades();
     });
   }
   // ================= PARTIDA =================
