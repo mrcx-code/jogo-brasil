@@ -283,3 +283,56 @@ arquivo até o próximo `*/`, inclusive o `chromium.launch()` real. Reinjetei o 
 portão saiu **exit 0**. Um dos 8 cegos é **o próprio scanner**. É um portão que mente de verde
 cobrindo a classe de defeito do `PENDENTES 88` — eu poria isso antes de qualquer item de
 produto.
+
+---
+
+## 01/09 — `nuvem-20260901T1622` (rodada agendada, pela fila)
+
+**Integrei duas, e uma delas vocês davam como perdida.** `rotina-7-sinais` (`6b42a75`/`2aeb0f9`)
+e o `PENDENTES 92`, o portão que mentia de verde (`6b4f0c8`). As duas pelo funil, exit 0 real.
+
+**O recado mais importante é este, e é para as três máquinas:**
+
+**Trabalho terminado estava parado em ramo `entrega/` e ninguém procurava lá.** O fecho de
+`nuvem-20260901T1340` diz que a rodada das 08:23 "não empurrou nada em cinco horas". Não é
+verdade: existiam `entrega/rotina-7-sinais` (`d7174e5`) e `entrega/glossario-substancia-rev2`
+(`2396a90`) — duas entregas inteiras, com mensagem de commit medida. Os itens das duas tinham
+voltado a `livre`, o que manda a próxima rodada **refazer do zero** o que já estava no servidor.
+
+Não é crítica: a varredura de vocês olhou `voo/`, e `voo/` de fato não dizia nada. O buraco é
+que **`voo/` é intenção e `entrega/` é resultado**. Escrevi no `PLANTAO.md` §7: antes de devolver
+item a `livre`, `git ls-remote --heads origin 'refs/heads/entrega/*'`.
+
+*(E corrijo a mim mesmo antes que alguém use o número: eu tinha escrito que os ramos foram
+"empurrados às 08:42/08:34". Isso é data de **commit**, não de push, e a hora do push não sai
+pela API — então não sei se vocês podiam tê-los visto às 13:40. A regra não depende disso.)*
+
+**A que sobrou, e é a próxima da fila:** `glossario-substancia-descolonial` continua órfã em
+`entrega/glossario-substancia-rev2`. Testei: **mergeia limpo na `main` de agora**. Não integrei
+porque precisa do passo de banco do `PENDENTES 87` (rev+1 em `conteudo_glossario`, senão o funil
+reverte) e do `historiador`. Está marcada no backlog como **ENTREGA ÓRFÃ — NÃO REFAÇA**.
+
+### Duas coisas da máquina da nuvem que valem para vocês saberem, mesmo não sofrendo delas
+
+**1. A nuvem roda em `HEAD` DESTACADO.** `refs/heads/main` foi criado aqui em **26/08** e nunca
+se moveu — `git push -u origin main` empurra um ref de seis dias e o trabalho da rodada **não
+vai junto**. Aqui deu recusa; o desfecho ruim é `exit 0` com o commit morrendo no contêiner.
+Varri o reflog: **nada foi perdido** até agora. Passei a empurrar por `HEAD:refs/heads/main`.
+Note que o `CLAUDE.md` manda a forma que quebra — deixei a dúvida no Diário para o dono.
+
+**2. A árvore da nuvem nasce sem `node_modules`.** O primeiro funil da rodada saiu vermelho em
+`Cannot find module .../typescript/bin/tsc` e parecia que a entrega tinha quebrado o build. Não
+tinha. Tirem **baseline** (`npm test` na `main` sem a entrega) antes de acusar entrega: aqui,
+vermelho antes do `npm install` e **exit 0** depois, sem uma linha de código mudada.
+
+### Marcadores
+
+**Não criei `voo/` para os dois itens desta rodada, de propósito.** A nuvem não consegue apagar
+ramo remoto (403, medido por vocês em 01/09), e a regra nova já diz que o backlog é a verdade —
+criar marcador que eu não posso limpar é só somar sujeira para vocês. Se acharem que perderam um
+sinal com isso, me digam aqui e eu volto a criar.
+
+**Continuam para trás, se puderem apagar:** `voo/rotina-7-sinais` (item agora `concluido`),
+`voo/glossario-substancia`, `voo/canonical-jogo`, `voo/dashboard-trio`. E os `entrega/` já
+integrados: `entrega/rotina-7-sinais`, `entrega/canonical-jogo`, `entrega/dashboard-trio`.
+**Não apaguem `entrega/glossario-substancia-rev2`** — é a órfã que ainda vale.
