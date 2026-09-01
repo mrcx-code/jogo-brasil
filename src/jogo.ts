@@ -13153,6 +13153,36 @@ const GLOSSARIO = [
     d: "Foi para os engenhos de açúcar que se traficou gente. A escravidão no Brasil não aconteceu: foi montada, com projeto econômico e cálculo de retorno, e dava lucro.",
     f: "Stuart B. Schwartz, Segredos internos: engenhos e escravos na sociedade colonial, Companhia das Letras, 1988" },
 
+  // A ECONOMIA DO OURO entra ao lado do ENGENHO de propósito: são as duas economias que o
+  // tráfico serviu, e vê-las juntas é o que impede a leitura de que a escravidão foi um traço
+  // do açúcar nordestino. `dv: 1` porque o total do século é ESTIMATIVA e as fontes divergem —
+  // houve contrabando e parte dos registros se perdeu, e o próprio verbete diz isso em vez de
+  // publicar o número liso. O número entra atribuído a quem o calculou, nunca como "o que
+  // aconteceu": é a mesma leitura que o jogo aplica à carta jesuítica.
+  //
+  // DUAS COISAS SAÍRAM DAQUI EM 01/09, e o motivo fica escrito para ninguém as repor por
+  // parecerem boas (o PENDENTES 90 tinha as duas como dívida):
+  //   1. UMA ASPA SEM PÁGINA. O verbete citava, ENTRE ASPAS e atribuída a Noya Pinto, a frase
+  //      "os ingleses absorviam quase 60%, somente com o comércio lícito" — sem número de
+  //      página, verificada só por busca, com o livro de 1979 nunca aberto. Aspas afirmam que
+  //      alguém escreveu AQUELAS palavras, e isso é uma afirmação sobre um texto: ou se confere
+  //      no texto, ou não se faz. O placar de 21/08 já registrou exatamente este defeito nesta
+  //      casa (paráfrase dentro de aspas). Tirar só as aspas não resolvia: o "quase 60%" só
+  //      existia DENTRO da citação não conferida, então o número saiu junto — número sem
+  //      documento que o feche é ficção se passando por história (§2).
+  //      Não é perda: a lição do verbete é o MECANISMO (Methuen, e o saldo pago em ouro), que
+  //      se apoia num tratado com data e não precisa de porcentagem. E a frase que entrou no
+  //      lugar ENSINA o que o corte revelou — por que essa fração não tem número fechado.
+  //   2. "A ESTIMATIVA MAIS USADA PELOS HISTORIADORES" virou "uma das estimativas". A forma
+  //      antiga era uma afirmação sobre a HISTORIOGRAFIA (quem usa mais o quê) sem fonte
+  //      própria, que é outra maneira de afirmar sem documento.
+
+  { t: "ECONOMIA DO OURO",
+    o: "Nome do arranjo montado em torno das minas de Minas Gerais, Goiás e Mato Grosso a partir do fim do século XVII. A Coroa cobrava o quinto — a quinta parte, 20% — e pela lei de 11 de fevereiro de 1719 mandou criar as Casas de Fundição, que transformavam pó e pepita em barras carimbadas: sem o carimbo, o ouro era contrabando. Elas só começaram a funcionar em 1725, e o anúncio delas está entre as causas do levante de Vila Rica, em 1720.",
+    d: "Quem cavou foi gente africana escravizada. O metal subia até Lisboa e não parava ali: pelo Tratado de Methuen, de 27 de dezembro de 1703, o tecido inglês entrava em Portugal e o vinho português pagava na Inglaterra um terço menos de direitos que o francês — e o saldo dessa troca se acertava em ouro. Uma das estimativas para o total do século é a de Virgílio Noya Pinto: 876.629 quilos. É estimativa, e o jogo diz que é: houve contrabando, e parte dos registros se perdeu. Quanto desse ouro parou na Inglaterra não é número fechado — depende de medir justamente o que ninguém registrou.",
+    f: "Tratado de Methuen, Lisboa, 27/12/1703 · Virgílio Noya Pinto, O ouro brasileiro e o comércio anglo-português, Nacional/INL, 1979 · Laura de Mello e Souza, Desclassificados do ouro: a pobreza mineira no século XVIII, Graal, 1982 · Arquivo Nacional, MAPA — Dicionário da administração pública brasileira do período colonial, verbete “Casas de Fundição (1603-1821)”",
+    dv: 1 },
+
   { t: "SENHOR",
     o: "Do latim senior, “o mais velho”. Era o termo legal: a pessoa aparecia nos inventários como propriedade de alguém, e esse alguém tinha nome, endereço e livro-caixa.",
     d: "Quem escravizava. A palavra atravessou os séculos sem constrangimento, enquanto quem era escravizado virava “escravo” — o particípio devolve o verbo, mas o verbo precisa de sujeito. A escravidão não aconteceu: foi feita por pessoas identificáveis, com lucro registrado em cartório.",
@@ -13173,6 +13203,26 @@ const GLOSSARIO = [
     o: "Lei nº 581, de 4 de setembro de 1850. Levou o nome do ministro da Justiça que a apresentou, e veio depois de o Parlamento britânico aprovar em 1845 o Bill Aberdeen, que autorizava a Marinha inglesa a apreender navios negreiros brasileiros.",
     d: "Proibiu o tráfico atlântico para o Brasil — não a escravidão, que durou mais 38 anos. O efeito imediato foi o tráfico INTERNO: quem tinha capital passou a comprar gente do Nordeste para o café do Sudeste, e famílias foram separadas por dentro do país.",
     f: "Lei nº 581, de 4/09/1850, Planalto · Robert Conrad, Os últimos anos da escravatura no Brasil, Civilização Brasileira, 1975 · Sidney Chalhoub, A força da escravidão, Companhia das Letras, 2012" },
+
+  // FECHA O GRUPO, e é onde o subtítulo dele cobra a última palavra: "a rota, a conta, o porto,
+  // o lucro". A rota, o porto e a conta já têm verbete; faltava o lucro.
+  // Três cuidados que este verbete não pode perder, e por isso ficam escritos aqui:
+  //   1. A PALAVRA "propriedade" VAI ENTRE ASPAS. É vocabulário de quem indenizou, marcado como
+  //      tal — o mesmo tratamento que "guerra justa" recebe no grupo do vocabulário.
+  //   2. A TESE É ATRIBUÍDA, NUNCA AFIRMADA. Eric Williams entra como quem formulou, e o verbete
+  //      diz que economistas discutem a tese até hoje. `dv: 1` é por isso.
+  //   3. UM NÚMERO QUE PARECIA BOM FICOU DE FORA: a história de que o contribuinte britânico só
+  //      terminou de pagar essa indenização em 2015. O Tesouro do Reino Unido respondeu, em
+  //      pedido de acesso à informação de 2018, que NÃO tem registro de quanto do empréstimo de
+  //      1833 seguia em aberto — a data de 2015 é do resgate de um título perpétuo que juntou
+  //      dívidas de origens diferentes. Número bonito sem documento que o feche é exatamente o
+  //      que o §2 proíbe, e ele custaria mais do que rende.
+
+  { t: "A CONTA DA ESCRAVIDÃO",
+    o: "Formulação deste jogo para uma pergunta de contabilidade: o tráfico teve livro-caixa, imposto e seguro, então teve saldo — e o saldo ficou com alguém. Quem a formulou primeiro foi o historiador Eric Williams, de Trinidad e Tobago, em Capitalism and Slavery, de 1944, ligando o lucro do tráfico e das plantações aos bancos e à indústria da Inglaterra. Economistas discutem a tese dele até hoje.",
+    d: "Em 1833, ao votar o fim da escravidão em quase todas as suas colônias, o Parlamento britânico destinou 20 milhões de libras de indenização — perto de 40% do gasto do governo naquele ano — e pagou a quem constava como dono, pela perda da “propriedade”. Foram mais de 40 mil indenizações, uma a uma, com nome e endereço, hoje reunidas num banco de dados público da University College London. Quem tinha sido escravizado não recebeu nada. Cinquenta e cinco anos depois, aqui, a Lei nº 3.353 coube em dois artigos e também não previu nada. Em nenhum dos dois casos o dinheiro foi para quem trabalhou.",
+    f: "Slavery Abolition Act 1833, Reino Unido · Legacies of British Slavery, University College London — registros da Slave Compensation Commission · Lei nº 3.353, de 13/05/1888, Planalto · Eric Williams, Capitalism and Slavery, University of North Carolina Press, 1944 · Abdias do Nascimento, O genocídio do negro brasileiro, Paz e Terra, 1978",
+    dv: 1 },
 
   { g: "OS QUILOMBOS E QUEM OS ERGUEU", curto: "OS QUILOMBOS",
     sub: "As vilas erguidas por quem fugiu da escravidão — e quem vive nelas hoje." },
@@ -13417,6 +13467,19 @@ const GLOSSARIO = [
     d: "A palavra nasceu de uma guerra e de uma dívida do Estado com seus próprios soldados. O que ela nomeia — moradia autoconstruída sem título de propriedade — é o efeito direto de uma abolição sem terra e de cidades que nunca planejaram onde essa população moraria. O IBGE hoje as chama de favelas e comunidades urbanas.",
     f: "Lilian Fessler Vaz, Dos cortiços às favelas e aos edifícios de apartamentos, Cadernos IPPUR, 1994 · IBGE, Censo 2022, nota técnica sobre favelas e comunidades urbanas, 2024",
     dv: 1 },
+
+  // O CRITÉRIO BRASIL fecha o grupo do DIA SEGUINTE, e não é anacronismo: o grupo trata do que
+  // o país fez com quem libertou sem chão, e este verbete mostra a régua com que o país mede
+  // hoje quem tem o quê. Ele descreve um INSTRUMENTO e o que o instrumento não contém — não
+  // interpreta a vida de ninguém, e por isso a fonte institucional basta aqui. A conclusão fica
+  // por conta de quem lê: a remissão leva a LEI DE TERRAS, onde está a concentração medida.
+  // Não carrega `dv`: as duas afirmações do verbete (o que pontua e o que a ABEP diz que o
+  // critério é) saem do próprio documento do critério, e não há divergência a mostrar.
+
+  { t: "CRITÉRIO BRASIL",
+    o: "Nome curto do Critério de Classificação Econômica Brasil, proposto em 1997 por associações de anunciantes e de institutos de pesquisa e mantido hoje pela ABEP. É a régua com que o mercado diz “classe A”, “classe C”, “classe DE”.",
+    d: "Ele não pesa renda nem patrimônio: soma pontos por posse de bens do domicílio — banheiro, automóvel, geladeira, máquina de lavar —, pelo grau de instrução de quem é a referência da casa, e por acesso a serviço público (na versão de 2015, água encanada vale 4 pontos; rua pavimentada, 2). A própria ABEP avisa que os itens valem apenas como indicadores de capacidade de consumo, sem pretensão de caráter sociológico. A régua enxerga o que a casa comprou e não enxerga o que a família herdou: dá para subir de classe nela sem que um metro de terra mude de dono.",
+    f: "ABEP, Critério de Classificação Econômica Brasil, versão de 2015, com metodologia de Wagner Kamakura e José Afonso Mazzon sobre a Pesquisa de Orçamentos Familiares do IBGE — a ABEP revê e republica o critério periodicamente, e a versão consultada aqui é a de 2015" },
 
   { g: "O QUE NÃO PODIA SER DITO", curto: "NÃO PODIA SER DITO",
     sub: "1964–1985: a censura, o que o Estado fez, e o que as comissões oficiais concluíram depois." },
@@ -14058,8 +14121,13 @@ const GLOSSARIO_REL: { [t: string]: string[] } = {
   "DIAGRAMA DO BROOKES":   ["TRAVESSIA", "TRÁFICO ATLÂNTICO", "PESSOA ESCRAVIZADA", "TUMBEIRO"],
   // BÚZIOS entra aqui porque é a prova material da frase do verbete: tráfico é palavra de
   // comércio, e havia MOEDA. A concha é o preço.
-  "TRÁFICO ATLÂNTICO":     ["TRAVESSIA", "ENGENHO", "VALONGO", "BÚZIOS", "LEI EUSÉBIO DE QUEIRÓS"],
-  "ENGENHO":               ["TRÁFICO ATLÂNTICO", "PESSOA ESCRAVIZADA", "PALMARES", "SENHOR"],
+  "TRÁFICO ATLÂNTICO":     ["TRAVESSIA", "ENGENHO", "VALONGO", "BÚZIOS", "LEI EUSÉBIO DE QUEIRÓS", "A CONTA DA ESCRAVIDÃO"],
+  "ENGENHO":               ["TRÁFICO ATLÂNTICO", "PESSOA ESCRAVIZADA", "PALMARES", "SENHOR", "ECONOMIA DO OURO"],
+  // As duas economias e a conta delas. A ECONOMIA DO OURO manda para QUILOMBO de propósito: a
+  // região das minas foi também a das maiores fugas, e a fileira de remissões é o único lugar
+  // onde o glossário pode dizer isso sem repetir o verbete inteiro.
+  "ECONOMIA DO OURO":      ["ENGENHO", "TRÁFICO ATLÂNTICO", "A CONTA DA ESCRAVIDÃO", "QUILOMBO"],
+  "A CONTA DA ESCRAVIDÃO": ["TRÁFICO ATLÂNTICO", "ECONOMIA DO OURO", "SENHOR", "LEI ÁUREA", "LEI DE TERRAS"],
   "VALONGO":               ["TRAVESSIA", "TRÁFICO ATLÂNTICO", "SERRA DA BARRIGA"],
   "DEGREDO":               ["LEVANTE DOS MALÊS", "LIBERTO · LIBERTA", "TRAVESSIA"],
 
@@ -14081,7 +14149,7 @@ const GLOSSARIO_REL: { [t: string]: string[] } = {
   // Este grupo é o que menos se explica sozinho: uma lei só significa alguma coisa ao lado do
   // que ela deixou de fazer. Por isso todo verbete daqui aponta para FORA do grupo.
   "DIA DA CONSCIÊNCIA NEGRA":   ["ZUMBI", "LEI ÁUREA", "PALMARES", "QUILOMBOLA", "FRENTE NEGRA BRASILEIRA"],
-  "LEI ÁUREA":                  ["DIA DA CONSCIÊNCIA NEGRA", "LIBERTO · LIBERTA", "ALFORRIA", "QUILOMBOLA", "LEI DO VENTRE LIVRE", "JOSÉ DO PATROCÍNIO", "JABAQUARA"],
+  "LEI ÁUREA":                  ["DIA DA CONSCIÊNCIA NEGRA", "LIBERTO · LIBERTA", "ALFORRIA", "QUILOMBOLA", "LEI DO VENTRE LIVRE", "JOSÉ DO PATROCÍNIO", "JABAQUARA", "A CONTA DA ESCRAVIDÃO"],
   "CONSTITUIÇÃO DE 1988":       ["DEMARCAÇÃO", "QUILOMBOLA", "POVOS ORIGINÁRIOS", "MARCO TEMPORAL", "AILTON KRENAK"],
   "DIA DOS POVOS INDÍGENAS":    ["ÍNDIO", "POVOS ORIGINÁRIOS", "INDÍGENA", "ETNIA", "LEI 10.639"],
   "FUNDAÇÃO CULTURAL PALMARES": ["QUILOMBOLA", "PALMARES", "SERRA DA BARRIGA"],
@@ -14102,7 +14170,7 @@ const GLOSSARIO_REL: { [t: string]: string[] } = {
   "INDEPENDÊNCIA": ["PODER MODERADOR", "VOTO CENSITÁRIO", "TRÁFICO ATLÂNTICO"],
   "PODER MODERADOR": ["INDEPENDÊNCIA", "VOTO CENSITÁRIO", "CONSTITUIÇÃO DE 1988"],
   "VOTO CENSITÁRIO": ["PODER MODERADOR", "CORONELISMO", "VOTO FEMININO"],
-  "LEI DE TERRAS": ["LEI EUSÉBIO DE QUEIRÓS", "FAVELA", "QUILOMBOLA", "SENHOR", "ANDRÉ REBOUÇAS"],
+  "LEI DE TERRAS": ["LEI EUSÉBIO DE QUEIRÓS", "FAVELA", "QUILOMBOLA", "SENHOR", "ANDRÉ REBOUÇAS", "CRITÉRIO BRASIL"],
   "GUERRA DO PARAGUAI": ["ALFORRIA", "INDEPENDÊNCIA", "CANUDOS"],
   "CORONELISMO": ["VOTO CENSITÁRIO", "CANUDOS", "LEI DE TERRAS", "A INDÚSTRIA DA SECA"],
   "BRANQUEAMENTO": ["RACISMO CIENTÍFICO", "DEMOCRACIA RACIAL", "LEI ÁUREA", "IMPRENSA NEGRA", "MESTIÇAGEM"],
@@ -14113,6 +14181,9 @@ const GLOSSARIO_REL: { [t: string]: string[] } = {
   "FRENTE NEGRA BRASILEIRA": ["IMPRENSA NEGRA", "COTAS", "DIA DA CONSCIÊNCIA NEGRA", "MOVIMENTO NEGRO UNIFICADO", "ABDIAS DO NASCIMENTO"],
   "CANUDOS": ["FAVELA", "CORONELISMO", "LEI DE TERRAS", "SERTÃO"],
   "FAVELA": ["CANUDOS", "LEI DE TERRAS", "QUILOMBOLA", "RETIRANTE", "CAROLINA MARIA DE JESUS"],
+  // A régua de hoje mora ao lado do que ela não mede. RACISMO ESTRUTURAL entra porque é o
+  // verbete que explica por que um instrumento pode ser neutro no papel e desigual no efeito.
+  "CRITÉRIO BRASIL": ["LEI DE TERRAS", "FAVELA", "RACISMO ESTRUTURAL", "A CONTA DA ESCRAVIDÃO"],
   "DEMOCRACIA RACIAL": ["BRANQUEAMENTO", "RACISMO CIENTÍFICO", "COTAS", "PESSOA ESCRAVIZADA", "MESTIÇAGEM", "ABDIAS DO NASCIMENTO"],
   "GOLPE DE 1964": ["AI-5", "COMISSÃO NACIONAL DA VERDADE", "LEI DA ANISTIA"],
   "AI-5": ["GOLPE DE 1964", "DIRETAS JÁ", "COMISSÃO NACIONAL DA VERDADE"],

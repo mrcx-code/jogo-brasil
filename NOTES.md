@@ -5831,6 +5831,14 @@ interpretação; IBGE, institucional, para o dado. A tese econômica não é afi
 jogador conclui. Não foi criado verbete novo — LEI DE TERRAS e LEI EUSÉBIO DE QUEIRÓS já existiam e
 já estavam ligados no GLOSSARIO_REL; verbete duplicado quebraria o índice. -->
 Fonte do dado até-hoje: IBGE, Censo Agropecuário 2017/SIDRA 6754 (76,8% dos estabelecimentos em 23% da área) — LEI DE TERRAS ·
+Virgílio Noya Pinto, *O ouro brasileiro e o comércio anglo-português* (Nacional/INL, 1979) e Laura de
+Mello e Souza, *Desclassificados do ouro* (Graal, 1982), com o Tratado de Methuen de 27/12/1703 e o
+verbete "Casas de Fundição (1603-1821)" do MAPA/Arquivo Nacional — ECONOMIA DO OURO ·
+Eric Williams, *Capitalism and Slavery* (University of North Carolina Press, 1944) e Abdias do
+Nascimento, *O genocídio do negro brasileiro* (Paz e Terra, 1978), com o Slavery Abolition Act 1833,
+a base Legacies of British Slavery da UCL e a Lei nº 3.353/1888 — A CONTA DA ESCRAVIDÃO ·
+ABEP, *Critério de Classificação Econômica Brasil* (versão em vigor desde 2015, metodologia de
+Kamakura & Mazzon sobre a POF/IBGE) — CRITÉRIO BRASIL ·
 Francisco Doratioto, *Maldita guerra* (2002) e Ricardo Salles, *Guerra do Paraguai* (1990) ·
 Lilia Schwarcz, *O espetáculo das raças* (1993) — RACISMO CIENTÍFICO e BRANQUEAMENTO ·
 Schwarcz & Starling, *Brasil: uma biografia* (2015) · Walnice Nogueira Galvão, *O império do
@@ -10569,3 +10577,286 @@ reescrevê-la. Precisa do passo de banco do `PENDENTES 87` junto (rev+1 em `cont
 e do `historiador` no gatilho — o diff toca a faixa do `GLOSSARIO` em `src/jogo.ts`.
 
 **Nome de máquina desta rodada: `nuvem-20260901T1622`.**
+## 31/08 — GLOSSÁRIO: a economia real entra em três verbetes (historiador, licença de 19/08)
+
+Fecha o item `glossario-substancia-descolonial`, cuja primeira parte (LEI DE TERRAS, 24/08) está
+registrada acima. **181 → 184 verbetes**, os 17 grupos inalterados. Os três, com a régua do dono de
+24/08: substância com fonte, sem léxico de corrente; a tese é fato com fonte e o jogador conclui.
+
+**1. ECONOMIA DO OURO** (grupo COMO A ESCRAVIDÃO FOI MONTADA, ao lado de ENGENHO). `dv: 1`.
+O quinto de 20%, as Casas de Fundição mandadas criar em 1720, o Tratado de Methuen de **27 de
+dezembro de 1703** (tecido inglês entra em Portugal; vinho português paga na Inglaterra um terço
+menos de direitos que o francês), e a estimativa de **876.629 quilos** no século XVIII, atribuída a
+**Virgílio Noya Pinto**. ~~Com a frase dele sobre o destino — *"os ingleses absorviam quase 60%,
+somente com o comércio lícito"*.~~ **A frase e o percentual FORAM CORTADOS em 01/09** — a
+procedência do corte está na entrada daquela data, abaixo. O verbete diz, no próprio corpo, que é estimativa e por quê
+(contrabando; registros perdidos). **Lugar de fala:** Noya Pinto e Laura de Mello e Souza são
+historiografia econômica do período — o dado é de historiador, não de opinião, e o `dv` existe
+porque a divergência é real. Não há aqui interpretação sobre a vida de gente escravizada; a frase
+que a nomeia é curta e de fato ("quem cavou foi gente africana escravizada"), e a remissão para
+QUILOMBO é o que impede o verbete de contar só o lado de quem lucrou.
+
+**2. A CONTA DA ESCRAVIDÃO** (fecha o mesmo grupo; o subtítulo dele promete "o lucro" e faltava).
+`dv: 1`. **Slavery Abolition Act 1833**: 20 milhões de libras de indenização, perto de **40%** do
+gasto do governo britânico naquele ano, pagos a quem constava como dono pela perda da "propriedade"
+— a palavra vai entre aspas porque é vocabulário de quem indenizou. **Mais de 40 mil indenizações**,
+uma a uma, hoje na base *Legacies of British Slavery* da University College London, montada sobre os
+registros da Slave Compensation Commission. Contra isso, a **Lei nº 3.353, de 13/05/1888**, em dois
+artigos, sem previsão de nada. **Lugar de fala, e é a exigência que mais mordeu aqui:** a
+interpretação da acumulação sobre corpos negros **não** ficou com economista branco. Quem formula é
+**Eric Williams** (historiador negro de Trinidad e Tobago, *Capitalism and Slavery*, 1944), e a
+leitura brasileira do pós-abolição sem reparação é **Abdias do Nascimento** (*O genocídio do negro
+brasileiro*, 1978), já fonte de BRANQUEAMENTO e FRENTE NEGRA neste glossário. A tese de Williams
+entra **atribuída** ("economistas discutem a tese dele até hoje"), nunca como voz do jogo — é o
+`dv: 1`.
+
+**Um número que parecia bom e FICOU DE FORA**, registrado para ninguém o reabrir achando que é
+achado: a história de que o contribuinte britânico só terminou de pagar essa indenização em **2015**.
+O Tesouro do Reino Unido respondeu, em pedido de acesso à informação de 2018, que **não tem registro**
+de quanto do empréstimo de 1833 seguia em aberto; a data de 2015 é o resgate de um título perpétuo
+que consolidou dívidas de origens diferentes. Número redondo sem documento que o feche é exatamente
+o que o §2 proíbe — e este circula muito, o que o torna mais perigoso, não menos.
+
+**Clóvis Moura foi lido e NÃO entrou na linha de fonte, e o motivo é do dono.** *Dialética radical
+do Brasil negro* (1994) é o texto certo para o argumento econômico e Moura já tem verbete próprio
+aqui. Ficou fora porque a edição que se cita é da **Anita Garibaldi**, casa ligada à fundação de um
+partido, e a linha de fonte é VISÍVEL na tela: pôr esse selo debaixo de um verbete sobre acumulação
+é o rótulo de corrente que o dono recusou em 24/08 chegando pela porta dos fundos. O argumento não
+se perdeu — Williams e Abdias o sustentam sem o selo. **Se o dono quiser, a citação de Moura entra
+com uma linha dele; é decisão de estilo, não de fato.**
+
+**3. CRITÉRIO BRASIL** (fecha o grupo O DIA SEGUINTE DA ABOLIÇÃO, depois de FAVELA). Sem `dv`.
+Proposto em **1997**, mantido pela **ABEP**, versão em vigor desde **2015** (metodologia de Wagner
+Kamakura e José Afonso Mazzon sobre a POF do IBGE). Pontua posse de bens do domicílio, grau de
+instrução da pessoa de referência e acesso a serviço público — **água encanada vale 4 pontos, rua
+pavimentada 2** — e a própria ABEP avisa que os itens valem só como indicadores de capacidade de
+consumo, sem pretensão de caráter sociológico. O verbete fecha com o que a régua não contém: *"dá
+para subir de classe nela sem que um metro de terra mude de dono"* — e a remissão leva a LEI DE
+TERRAS, onde está a concentração medida pelo Censo Agropecuário 2017. **Lugar de fala:** o verbete
+descreve um INSTRUMENTO e o que o instrumento não mede; não interpreta a vida de ninguém, e por isso
+fonte institucional basta. Se ele passar a comentar quem é medido por ela, aí precisa de voz com
+lugar de fala, e isso fica anotado.
+
+**O QUE NÃO FOI LIDO, e é obrigatório dizer.** Nesta rodada o `WebFetch` estava **bloqueado pelo
+proxy de saída para todos os domínios testados** (abep.org, ie.ufrj.br, scielo.br, aba.com.br,
+wikipedia, ibge.gov.br, planalto.gov.br). Só o `WebSearch` respondeu. Consequência assumida, item a
+item: **nenhum documento primário foi aberto por mim** nesta rodada — cada número acima foi
+confirmado por **duas buscas independentes** que devolveram a mesma cifra com a mesma atribuição, e
+o que apareceu em uma fonte só **não entrou**. Em particular: (a) a frase da ABEP sobre "sem caráter
+sociológico" está **parafraseada, não citada**, porque não li o PDF do critério; (b) a frase de Noya
+Pinto está entre aspas porque as buscas a devolveram **literal e idêntica** em resultados distintos,
+mas o denominador dos "quase 60%" não está fixado por mim — por isso ela entra como *o que ele
+escreveu sobre o destino*, e não como percentual afirmado pelo jogo — **e foi exatamente este (b)
+que a rodada de 01/09 resolveu CORTANDO, ver abaixo: "devolveram literal e idêntica em buscas
+distintas" não é conferir, é repetir**; (c) **Celso Furtado ficou de
+fora da linha de fonte** de ECONOMIA DO OURO, embora o backlog o sugerisse: não li *Formação
+econômica do Brasil* nesta rodada, e o verbete não precisa dele — Noya Pinto dá o número e Methuen
+dá o mecanismo. Quem retomar isto com rede aberta: fechar (a) e (c) é meia hora de trabalho.
+
+## 01/09 — A ASPA SEM PÁGINA SAIU DE ECONOMIA DO OURO (historiador, licença de 19/08)
+
+Resolve o item **(2)** do `PENDENTES 90` e, de quebra, a primeira metade do item **(3)**. Nada
+de novo foi escrito: isto é **corte**, e a licença de 19/08 cobre exatamente cortar o que o jogo
+afirma. Ela não cobriria criar representação nova — e não criei nenhuma.
+
+### O que saiu, e o que ficou no lugar
+
+Saiu a frase *"os ingleses absorviam quase 60%, somente com o comércio lícito"*, que entrava
+**entre aspas** e atribuída a Virgílio Noya Pinto (livro impresso de 1979). Saiu **junto o número
+"quase 60%"**, e é o ponto que mais importa: ele só existia DENTRO da citação não conferida.
+Também saiu *"a estimativa mais usada pelos historiadores"*, que virou *"uma das estimativas"*.
+
+O texto final da passagem:
+
+> Uma das estimativas para o total do século é a de Virgílio Noya Pinto: 876.629 quilos. É
+> estimativa, e o jogo diz que é: houve contrabando, e parte dos registros se perdeu. Quanto
+> desse ouro parou na Inglaterra não é número fechado — depende de medir justamente o que
+> ninguém registrou.
+
+### A procedência do corte (§2, terceiro item da licença: cada corte diz de onde veio)
+
+**Quem revisou:** o agente historiador, rodada de plantão `nuvem-20260901T0823`.
+
+**Com que fonte, e por que ela tem propriedade sobre isto.** A autoridade deste corte **não é um
+historiador rival** — seria desonesto fingir que li alguém que contradiz Noya Pinto. São duas
+coisas, e as duas têm propriedade direta sobre a questão:
+
+1. **A regra da casa, que é a fonte com propriedade sobre o que o jogo pode afirmar.** O `CLAUDE.md`
+   §2 manda: *"nenhum número inventado passando por fato… sem fonte, é ficção — e então não se
+   apresenta como história"*. Aspas são uma afirmação **sobre um texto**: elas dizem que uma pessoa
+   nomeada escreveu AQUELAS palavras. Verificar isso não admite substituto — ou se abre a página,
+   ou não se faz. O placar de **21/08** já registrou este defeito exato nesta casa: *aspas que
+   citavam frase inexistente — paráfrase dentro de aspas*. Reincidir na mesma semana seria o
+   projeto não aprendendo do próprio placar.
+2. **A medição da rodada, que é o fato novo.** O `PENDENTES 90` registrava o bloqueio como
+   circunstância de *uma* máquina. **Não é:** medi em duas ferramentas independentes e o muro é o
+   mesmo (ver abaixo). Isso converte "verificar depois" em "não se verifica aqui", e um número que
+   nenhuma rodada consegue fechar não pode ficar no ar esperando.
+
+**Por que este corte é o honesto, e não o tímido.** Havia três saídas. Fechar com página estava
+fora de alcance — e *lembrar* uma página seria pior que não ter nenhuma, porque pareceria
+conferida. Tirar só as aspas deixaria o "quase 60%" de pé como afirmação do jogo, o que **piora**:
+transfere para a voz do jogo um número que nem o autor citado pôde ser conferido dizendo. Sobrou
+tirar os dois — e a checagem que decidiu foi a terceira pergunta do brief: **o verbete vive sem
+isso?** Vive, e melhor. A lição de ECONOMIA DO OURO é o **mecanismo** — Methuen, e o saldo da troca
+se acertando em ouro — e ele se apoia num tratado com data, não numa porcentagem. A frase que
+entrou no lugar **ensina o que o corte revelou**: por que essa fração não tem número fechado. Isso
+é o método do jogo (a mesma leitura crítica que ele aplica à carta jesuítica) aplicado a si mesmo.
+
+É também **coerência com o que esta mesma entrega já fez em 31/08**: ela recusou, de propósito, a
+história de que o contribuinte britânico pagou até 2015, porque o Tesouro não a fecha. Recusar o
+segundo número pela mesma régua não é perda — é a régua funcionando duas vezes.
+
+### A camada de autoria negra NÃO foi enfraquecida
+
+Verificado item a item, porque o §2 põe essa prioridade acima de tudo: o corte é **inteiro dentro
+de ECONOMIA DO OURO**, cujas fontes são historiografia econômica do período (Noya Pinto, Laura de
+Mello e Souza). **A CONTA DA ESCRAVIDÃO não foi tocada** — Eric Williams e Abdias do Nascimento
+continuam exatamente onde estavam, e é lá que mora a interpretação sobre acumulação e corpos
+negros. Nenhuma linha de lugar de fala saiu. Ao contrário: o verbete que perdeu conteúdo foi o que
+narrava o lucro do colonizador.
+
+### A REDE, e isto vale para TODAS as rodadas futuras — não repitam a tentativa
+
+Medido nesta rodada, em duas ferramentas com caminhos diferentes:
+
+- **`curl`** → `connect_rejected` pelo proxy de saída em **todos** os hosts: `legislation.gov.uk`,
+  `ucl.ac.uk`, `bdor.sibi.ufrj.br`, `edisciplinas.usp.br`.
+- **`WebFetch`** → `EGRESS_BLOCKED` em **todos** os testados, inclusive os dois repositórios que
+  teriam resolvido a questão: `bdor.sibi.ufrj.br` (Biblioteca Digital de Obras Raras da UFRJ, que
+  tem o livro de 1979 **inteiro, digitalizado e com OCR**) e `edisciplinas.usp.br` (que tem o
+  **capítulo 2, pp. 39-117**). Também bloqueados `scielo.br` e `dialnet.unirioja.es`.
+- **`WebSearch`** → **funciona**, e é a única coisa que funciona. Devolve título, link e resumo
+  indexado. **Não abre documento.**
+
+**A conclusão operacional, para não se gastar rodada nisto de novo:** existe uma cópia pública e
+íntegra do livro a um clique de distância, e **o ambiente de nuvem não a alcança**. Fechar a página
+desta citação é trabalho de uma máquina com rede aberta (ou de quem tiver o livro na mão) — nenhuma
+rodada de nuvem vai conseguir. Se alguém retomar com rede: o alvo é
+`bdor.sibi.ufrj.br/handle/doc/420`.
+
+**O que isto obriga a admitir sobre o resto da entrega, e é melhor dizer que omitir:** os números
+de A CONTA DA ESCRAVIDÃO (20 milhões de libras; perto de 40% do gasto do governo; mais de 40 mil
+indenizações) e de CRITÉRIO BRASIL (4 pontos para água encanada, 2 para rua pavimentada) estão sob
+**a mesma condição** — confirmados por busca, com o documento nunca aberto. **Não os cortei, e a
+diferença é de natureza:** cada um deles é uma afirmação sobre **o que uma norma ou um instrumento
+nomeado dispõe**, com o documento citado na linha de fonte para o leitor conferir — é a forma
+padrão dos 181 verbetes deste glossário. A aspa era outra coisa: uma afirmação sobre **as palavras
+exatas de uma pessoa**, e essa não tem como ser aproximada. Ficam anotados como dívida de segunda
+ordem para a primeira rodada com rede aberta.
+
+**Continua em aberto, do `PENDENTES 90`:** a segunda metade do item (3) — a tabela de corte do
+Critério Brasil é revista pela ABEP e o verbete a ancora em "versão em vigor desde 2015", que data
+a afirmação mas não a faz vencer sozinha; e o item (4), Clóvis Moura, que é do dono e ninguém deve
+decidir sozinho.
+
+---
+
+## 01/09 — DUAS DATAS ERRADAS NOS TRÊS VERBETES, E UMA DELAS CONTRA A PRÓPRIA FONTE CITADA
+
+Auditoria do `historiador` (rodada `hist-20260901T2022`) sobre a entrega órfã
+`entrega/glossario-substancia-rev2`, pedida pelo plantão `nuvem-20260901T2022` como portão do
+funil. **Veredito: aprova com corte.** Três cortes aplicados, cada um com procedência — que é o
+que o `CLAUDE.md` exige para um corte não ser opinião.
+
+**A lição da rodada, e ela é sobre COMO a entrega errou, não sobre o quanto:** esta entrega é a
+mais autocrítica que este glossário já recebeu. Ela cortou a própria aspa sem página, recusou o
+número bonito de "o contribuinte britânico pagou até 2015" citando a resposta do Tesouro, e
+declarou os próprios `dv: 1`. **E errou duas datas que ninguém checou.** É exatamente o que o
+`PLANTAO.md` §2 manda avisar por escrito ao despachar: *entrega honesta é onde eu baixo a
+guarda*. O brief do historiador trazia essa frase, e foi ela que encontrou o defeito — não a
+desconfiança do número que o plantão mais desconfiava, que era o dos 40% e que **não caiu**.
+
+### Corte 1 — ECONOMIA DO OURO: 1720 → lei de 11/02/1719, casas funcionando em 1725
+
+O verbete dizia que a Coroa *"em 1720 mandou criar as Casas de Fundição"*. **1720 não é o ano em
+que a Coroa mandou nada: é o ano do levante de Vila Rica, CONTRA as casas anunciadas no ano
+anterior.** O verbete publicava como ato de governo a data da revolta contra o ato.
+
+**De onde veio o corte:** do *Dicionário da administração pública brasileira do período colonial*
+(MAPA), do **Arquivo Nacional**, verbete "Casas de Fundição (1603-1821)" — **a fonte que o próprio
+verbete já listava na linha `f:`** — e do portal História Luso-Brasileira do mesmo Arquivo
+Nacional: a lei de **11 de fevereiro de 1719** autorizou a criação das casas e a cobrança do quinto
+sobre o ouro em pó; quatro delas só começaram a ser construídas em 1724 e **funcionaram a partir de
+1º de fevereiro de 1725**. Propriedade da fonte: é o órgão que guarda e descreve a documentação da
+administração colonial — registro de órgão, que é a forma que a REGRA DO DOCUMENTO manda preferir.
+
+O texto novo carrega as três datas e diz o que 1720 foi, de propósito: sem isso, a próxima sessão
+"corrige" 1719 de volta para 1720, porque 1720 é o ano que gruda na memória.
+
+### Corte 2 — CRITÉRIO BRASIL: "versão em vigor desde 2015" → "versão de 2015", consultada
+
+*"Em vigor desde 2015"* é uma afirmação sobre **hoje**, e hoje é 01/09/2026. Indexados no domínio
+`abep.org` há PDFs de alterações válidas a partir de 2021, 2022 e 2024, e um **`CCEB_2026.pdf`
+publicado em março de 2026** — posterior à entrega. A afirmação estava simplesmente vencida.
+
+**De onde veio o corte:** do repositório de documentos da **própria ABEP**, que é quem mantém o
+instrumento; ninguém tem mais propriedade sobre "qual versão está em vigor" que quem a publica.
+**A correção não foi atualizar para 2026** — o egresso desta máquina não abriu o PDF de 2026 —, foi
+**parar de afirmar vigência e dizer qual versão foi consultada**, que é verdade permanente. Os
+pontos (água encanada 4, rua pavimentada 2) ficam, agora datados na própria frase.
+
+**Manutenção, e é o único dos três que vence:** conferir no site da ABEP, a cada ano, se a
+pontuação mudou. Há `CCEB_2026` publicado que esta rodada não conseguiu abrir.
+
+### Corte 3 — A CONTA DA ESCRAVIDÃO: "ao acabar com a escravidão em suas colônias" → "ao votar o fim … em quase todas"
+
+Como estava, o verbete ensinava que a Grã-Bretanha acabou com a escravidão em suas colônias em
+1833 — errado nos três eixos. **De onde veio o corte:** do *Slavery Abolition Act 1833*, **já
+citado na linha `f:` do verbete**: sanção real em 28/08/1833, vigência em **1º de agosto de 1834**,
+exceção expressa dos territórios da Companhia das Índias Orientais, do Ceilão e de Santa Helena, e
+o regime de *apprenticeship* que só terminou em 31/07/1838. Duas palavras trocadas resolvem sem
+tocar o argumento, que é a conta.
+
+### O QUE O HISTORIADOR TENTOU DERRUBAR E NÃO CAIU — vale tanto quanto o corte
+
+- **"perto de 40% do gasto do governo naquele ano"** — o número de que o plantão mais desconfiava.
+  **Sustentado**, por duas fontes independentes com a mesma construção (Full Fact; Historic England,
+  alinhada ao UCL). É comparação de grandeza, não desembolso de 1833 — e o verbete diz o que o
+  Parlamento **votou**, não o que o Tesouro gastou. Nenhuma fonte o contradiz.
+- **"mais de 40 mil indenizações"** — sustentado, e é a formulação prudente: as fontes falam em
+  mais de 40 mil *awards* e em mais de 45 mil pedidos; a UCL publica registros de 47 mil
+  proprietários. O verbete escolheu o piso e a unidade certa (indenizações, não donos).
+- **876.629 kg atribuídos a Noya Pinto** — sustentado, com corroboração revisada por pares: a
+  Revista Clio (UFPE) atribui a ele exatamente esse número, registra a estimativa concorrente de
+  Pandiá Calógeras (948.105 kg, que incluía a Bahia) e dá a razão da divergência que o verbete já
+  dizia — contrabando e registros perdidos no incêndio da Alfândega de Lisboa em 1764. O `dv: 1`
+  está bem posto.
+- **Methuen 27/12/1703** — sustentado quanto a data, local e conteúdo. **Dívida de segunda ordem
+  registrada:** a fração "um terço menos de direitos que o francês" não foi fechada no articulado
+  (o egresso bloqueou as duas transcrições). É a leitura corrente do artigo II, não número
+  inventado, mas fica na mesma prateleira das dívidas que a própria entrega declarou.
+- **§2, verificado item a item nos três:** "propriedade" entre aspas como vocabulário de quem
+  indenizou; Williams **atribuído**, nunca na voz do jogo; nenhum "escravo" como identidade;
+  ninguém real como inimigo; nenhuma pessoa escravizada como recurso. Passa. As remissões novas
+  do `GLOSSARIO_REL` não deixam órfão.
+
+### A PAREDE DE REDE, medida e não acreditada
+
+O historiador **não tomou pela palavra** a alegação da entrega de que nenhum documento primário
+foi aberto: mediu. `curl` devolveu **CONNECT tunnel failed, 403** para `www.abep.org` e código
+**000** para o PDF da ABEP, para o FOI do Tesouro em `assets.publishing.service.gov.uk` e para
+`legislation.gov.uk`; `WebFetch` devolveu `EGRESS_BLOCKED` em quatro hosts. **Só busca indexada
+responde.** É por isso que os três cortes são todos de FORMA (data, vigência, tempo verbal) e
+nenhum troca um número por outro que também não se pôde abrir.
+
+### ⛔ DUAS PERGUNTAS QUE FICARAM PARA O DONO — lugar de fala, e §2 as torna dele
+
+O historiador achou **lacuna de lugar de fala em dois dos três verbetes** e **não a fechou
+sozinho**, porque a linha de fonte é visível na tela e escolher quem narra é escolher quem
+representa. As duas viram item de check:
+
+1. **ECONOMIA DO OURO** — a frase que nomeia gente ("quem cavou foi gente africana escravizada") e
+   a remissão para QUILOMBO são sustentadas só por historiografia econômica branca do período.
+   Nome proposto: **Clóvis Moura, *Rebeliões da senzala: quilombos, insurreições, guerrilhas*,
+   Edições Zumbi, 1959**. **Fato novo que muda a premissa da decisão de 24/08:** a recusa de Moura
+   era pelo selo de corrente da editora da edição corrente; a **1ª edição, de 1959, é da Edições
+   Zumbi**, casa que fechou três anos depois e não carrega selo nenhum.
+2. **CRITÉRIO BRASIL** — a nota da entrega dizia que "fonte institucional basta porque o verbete
+   não interpreta a vida de ninguém". **Não basta:** a última oração ("a régua enxerga o que a casa
+   comprou e não enxerga o que a família herdou") **é** interpretação sobre desigualdade, e hoje é
+   carregada por uma fonte de mercado publicitário. Nome proposto: **Marcelo Paixão (coord.),
+   *Relatório Anual das Desigualdades Raciais no Brasil 2009–2010*, LAESER/UFRJ, 2010**;
+   alternativa **Cida Bento, *O pacto da branquitude*, 2022**.
+
+Os três verbetes entraram **sem** esses nomes. Fechar a lacuna é decisão dele.

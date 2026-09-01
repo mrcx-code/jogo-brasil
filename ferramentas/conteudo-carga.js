@@ -6,7 +6,7 @@
 //
 // A REGRA DE OURO DA FRONTEIRA, e ela é a razão de esta ferramenta existir em vez de alguém
 // digitar o SQL: quando uma ferramenta precisa de dado do jogo, ela RODA O JOGO E EXTRAI.
-// Redigitar 181 verbetes com fonte à mão é como se inventa geografia sem perceber — e aqui
+// Redigitar 184 verbetes com fonte à mão é como se inventa geografia sem perceber — e aqui
 // seria pior, porque o texto é histórico e tem fonte citada.
 //
 // UMA DEFINIÇÃO SÓ DA FORMA CANÔNICA: a extração e a canonização vêm de

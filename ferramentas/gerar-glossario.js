@@ -1,7 +1,7 @@
 // GERA A PÁGINA "O GLOSSÁRIO" — a segunda seção da plataforma (19/08, publicada).
 //
 // IRMÃO de `gerar-historia.js`, mesma disciplina: UMA FONTE, DUAS SAÍDAS. O conteúdo é o mesmo
-// `GLOSSARIO` que o jogo desenha na tela do glossário — 181 verbetes em 17 grupos. Esta
+// `GLOSSARIO` que o jogo desenha na tela do glossário — 184 verbetes em 17 grupos. Esta
 // ferramenta roda o jogo headless, extrai, e gera `glossario/index.html`. Nunca há duas cópias.
 //
 // PUBLICADA em 19/08: o dono aprovou o padrão visual da /historia e mandou publicar as outras
