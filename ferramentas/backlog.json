@@ -107,14 +107,13 @@
       "titulo": "A rotina de validade passa a cobrir os 7 sinais que o acervo declara",
       "detalhe": "ENTREGA ORFA ACHADA em 01/09 por nuvem-20260901T1622: o trabalho JA EXISTE no ramo entrega/rotina-7-sinais (d7174e5, commit datado de 01/09 08:42). Em auditoria pelo pre-integrador para ir ao funil. NAO REFACA.\n\n[detalhe original] Achado 1 do vigia (22/08, dev-dados), orfao sem item ate agora — regra do §3.1.5: a tarefa mensal cobria 3 fontes e o acervo declara 7 sinais; UNESCO, STF e INCRA nao eram procurados por NINGUEM. Aceite: os 7 sinais tem dono e gatilho na rotina (quem procura, onde, quando), o conteudo-vigia.js enxerga os 7 (nao so PRODES/MapBiomas/censo), e o controle 2.8 do vigia continua mordendo com defeito injetado. Numero novo so entra com fonte primaria — o dev-dados garante ONDE mora e QUANDO vence; o que o conteudo DIZ e do historiador.",
       "agente": "dev-dados",
-      "estado": "em-curso",
+      "estado": "concluido",
       "camada": "medio",
       "territorio": [
         "ferramentas/conteudo-vigia.js",
         "ferramentas/conteudo/"
       ],
-      "maquina": "nuvem-20260901T1622",
-      "desde": "2026-09-01T16:23:44.284Z"
+      "desfecho": "INTEGRADO em 01/09 por nuvem-20260901T1622 (funil exit 0 real, commits 6b42a75/2aeb0f9). Era ENTREGA ORFA: o trabalho ja existia no ramo entrega/rotina-7-sinais (d7174e5) e o item tinha voltado a livre por engano. O pre-integrador refez as 6 alegacoes do commit com controle proprio no ARQUIVO REAL (defeito injetado -> exit 1, restaurado -> exit 0, arvore limpa), nao aceitou nenhuma por opiniao. Os 7 sinais (IBGE, INPE, MapBiomas, DOU, STF, INCRA, UNESCO) tem quem/endereco/periodicidade e o modulo RECUSA carregar sem os tres. Ressalva registrada e NAO bloqueante: os enderecos sao dominio institucional canonico e nao foram verificados ao vivo — nem o autor nem o auditor tem rede (curl bloqueado nos 6 hosts pela politica de egress da sandbox); confirmar ao vivo e tarefa da proxima rodada do alerta-validade-brasil, como o proprio VIGIA.md ja diz."
     },
     {
       "id": "fichas-lote-2",

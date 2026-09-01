@@ -455,6 +455,40 @@ O ref empurrado é `probe`, **não** `HEAD` — o `cb90cd5` que eu acabara de fa
 O refspec explícito é a forma robusta nas duas situações, então adote-a e pare de pensar
 no assunto: `HEAD:refs/heads/<ramo>` não tem como empurrar outra coisa.
 
+### ⚠ A ÁRVORE DA NUVEM NASCE SEM `node_modules` — E O FUNIL CULPA A ENTREGA (01/09)
+
+Custou um ciclo de funil nesta rodada, e o custo real não é o ciclo: é que **o vermelho aponta
+para a entrega errada**.
+
+O contêiner clona o repositório e não instala nada. Então o primeiro `npm test` da rodada morre
+em:
+
+```
+Error: Cannot find module '/home/user/jogo-brasil/node_modules/typescript/bin/tsc'
+tsc falhou — nada foi escrito. O index.html no disco continua o de antes.
+```
+
+E o `integrar.js` faz o que tem de fazer: `npm test -> exit 1`, desfaz o merge, sai 1. A leitura
+natural — e errada — é *"a entrega quebrou o build"*. A entrega não tocou em nada disso; a
+máquina é que estava vazia. (O `construir.js` se comportou bem no meio disso: recusou escrever
+saída com o `tsc` morto, que é exatamente o §3 funcionando.)
+
+**A regra, e ela é uma linha:**
+
+> Na nuvem, rode `npm install` **antes do primeiro funil da rodada**, e tire o **baseline**:
+> `npm test` na `main` **sem** a entrega. Baseline vermelho = a máquina, nunca a entrega.
+
+O baseline é o que separa as duas causas em trinta segundos, e é a mesma disciplina do §8
+(*"antes de consertar o produto, desconfie do portão"*) aplicada um degrau abaixo: antes de
+desconfiar do portão, desconfie da **máquina que o roda**. Medido aqui: baseline vermelho antes
+do `npm install`, **exit 0** depois, e o mesmo funil que recusara passou verde sem uma linha de
+código mudada.
+
+Vale para o agente também — o `pre-integrador` desta rodada teve de instalar dentro do worktree
+antes de rodar qualquer portão, e o worktree do outro agente idem. **Quem despacha agente que
+roda portão avisa no brief que ele pode precisar instalar**, senão o agente devolve vermelho de
+ambiente com cara de vermelho de produto.
+
 ### ⚠ ANTES DE DEVOLVER ITEM A `livre`, PROCURE O RAMO `entrega/<id>` (01/09)
 
 A regra do marcador acima está certa e **não basta**, e foi esta rodada que descobriu o buraco
