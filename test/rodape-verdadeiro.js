@@ -108,6 +108,15 @@ const CHAVES = [
     diz: [/marca do [úu]ltimo PIN recusado/i, /morre ao fechar a aba/i,
       /n[ãa]o d[áa] para reconstruir o PIN a partir dela/i, /o PIN em si n[ãa]o fica guardado/i],
   },
+  {
+    chave: 'mesa-brasil-perdidas', onde: 'localStorage', fica: true,
+    oque: 'o texto das respostas que o servidor recusou por desenho (422 e afins) — para o dono '
+      + 'ver e copiar, porque o toast de 2400 ms nao sobrevive a aba apagada na hora da lavagem',
+    // Item 3 do trio dashboard, 01/09. `fica:true` porque `sair()` nao a apaga — e certo que nao
+    // apague: e texto do dono pendente de recuperar, nao dado de sessao.
+    diz: [/recusa uma resposta por desenho/i, /n[ãa]o por falta de conex[ãa]o/i,
+      /fica guardado neste aparelho/i, /at[ée] voc[êe] ver o aviso e apagar/i],
+  },
 ];
 const CONHECIDA = c => CHAVES.some(k => k.chave === c);
 
@@ -566,6 +575,56 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     ok(m.n >= 4, 'o rodape esta quebrado em blocos (4 ou mais paragrafos)', 'paragrafos: ' + m.n);
     ok(m.vaos.length > 0 && m.vaos.every(v => v >= 4), 'e ha respiro VISIVEL entre eles na tela', 'vaos medidos: ' + m.vaos.join(', ') + ' px');
     console.log('    ' + m.n + ' paragrafos, vaos de ' + m.vaos.join('/') + ' px');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 11
+  console.log('\n[11] A PERDA SOBREVIVE A ABA APAGADA — item 3 do trio dashboard (01/09)');
+  cenas++;
+  // A cena 9 ja prova que o descarte aparece NA TELA quando a aba esta visivel. Esta cobre o
+  // que a seguranca mediu e o motivo desta cena existir: toast visivel logo apos = true, 3 s
+  // depois = false, registro persistente = vazio. Aqui a aba fica OCULTA (a receita do §2.7 do
+  // EQUIPE.md) no instante do descarte — o toast pode nao ter sido visto — e o que se cobra e o
+  // que sobrevive: nao o toast, o REGISTRO, com o TEXTO inteiro, na PROXIMA carga.
+  {
+    const texto = 'resposta que a aba apagada nao pode engolir';
+    const plano = { escrita: 422 };
+    const { ctx, pag, erros } = await palco(nav, plano);
+    ok(await falar(pag, texto), 'a recusa permanente cai na fila primeiro', 'nao caiu em 8 s');
+    await pag.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await ctx.setOffline(true);
+    await ctx.setOffline(false);           // dispara `online` -> flush -> lavarUm -> descarte
+    ok(await esperar(pag, () => JSON.parse(localStorage.getItem('mesa-brasil-perdidas') || '[]').length > 0),
+      'o registro persistente foi escrito mesmo com a aba oculta', 'nao apareceu em 8 s');
+    const salvo = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-perdidas') || '[]'));
+    ok(Array.isArray(salvo) && salvo.some(it => it.texto === texto),
+      'o TEXTO exato esta no registro (nao so um aviso generico)', JSON.stringify(salvo));
+
+    // A PROXIMA CARGA: reload de verdade, o mesmo que a aba fechada e reaberta depois.
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    ok(await pronta(pag), 'a carga seguinte terminou a partida', 'nao terminou em 15 s');
+    const visivel = await esperar(pag, () => {
+      const el = document.getElementById('perdidas');
+      return !!el && !el.hasAttribute('hidden') && (el.textContent || '').indexOf('resposta que a aba apagada nao pode engolir') >= 0;
+    });
+    ok(visivel, 'na proxima carga o aviso aparece com o texto — nao so no console',
+      await pag.evaluate(() => (document.getElementById('perdidas').textContent || '').slice(0, 200)));
+
+    // "JA VI, PODE APAGAR" e gesto da pessoa, e apaga de verdade — nao e so cosmetico.
+    await pag.click('#perdidas-ok');
+    ok(await esperar(pag, () => document.getElementById('perdidas').hasAttribute('hidden')),
+      'o botao esconde o aviso', 'continuou visivel');
+    const depoisApagar = await pag.evaluate(() => {
+      const v = localStorage.getItem('mesa-brasil-perdidas');
+      if (v == null) return 0;
+      try { const arr = JSON.parse(v); return Array.isArray(arr) ? arr.length : -1; } catch (e) { return -1; }
+    });
+    ok(depoisApagar === 0, 'e apaga o registro do localStorage — nao so esconde a caixa', String(depoisApagar));
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
     await ctx.close();
   }
 
