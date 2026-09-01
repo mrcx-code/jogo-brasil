@@ -53,6 +53,11 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+// CONSERTO 3 (pré-integrador, 01/09, PENDENTES 88): lançamento nu falha em silêncio numa
+// máquina cujo navegador não bate com a revisão que o Playwright instalado pede — medido: as
+// duas cenas ESTÁTICAS (1 e 2) rodavam, e as 11 DINÂMICAS nunca executavam, sem exit ≠ 0
+// denunciando isso. `ABRIR.chromiumPath()` é o mesmo padrão que `test/fila-auth.js` já usa.
+const ABRIR = require('./abrir.js');
 
 const HTML = process.env.RODAPE_HTML
   ? path.resolve(process.env.RODAPE_HTML)
@@ -215,6 +220,11 @@ async function palco(nav, plano) {
   if (plano.pinErros) {
     await ctx.addInitScript(s => localStorage.setItem('mesa-brasil-pin-erros', s), JSON.stringify(plano.pinErros));
   }
+  // Fila local ja cheia ANTES de a pagina abrir (mesmo padrao do fila-auth.js): e o unico jeito
+  // de medir o teto de escrita (CONSERTO 1, cena 15) sem tocar quarenta vezes na tela.
+  if (plano.fila) {
+    await ctx.addInitScript(s => localStorage.setItem('mesa-brasil-fila4', s), JSON.stringify(plano.fila));
+  }
   // O ESTADO HERDADO DE ONTEM: o PIN em claro que o JS da versao anterior gravou. Nao e cenario
   // inventado — e o que existe hoje na aba do plantao que atravessou um deploy.
   if (plano.pinRecusadoCru) {
@@ -355,7 +365,7 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     'lerMarca() e chamada solta no topo da partida (incondicional, sincrona)',
     'ela saiu do topo ou virou condicional — a limpeza do PIN herdado deixa de ser garantida');
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
 
   // ---------------------------------------------------------------- 3
   console.log('\n[3] EM EXECUCAO, EM LOCALHOST — fila local e a marca do PIN recusado');
@@ -676,6 +686,66 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     await pag2.goto(HOST_WEB + CAMINHO, { waitUntil: 'domcontentloaded' });
     await pronta(pag2);
     ok(pedidosGoogle === 0, 'e, na pagina de verdade, ZERO pedido sai para o Google', String(pedidosGoogle) + ' pedido(s)');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 14
+  console.log('\n[14] O style= DE #ag-nota NAO SE PARTE — CONSERTO 2 (pre-integrador, 01/09)');
+  cenas++;
+  // Achado ao vivo: a troca de fonte da item 1 trocou 'IBM Plex Mono',monospace por uma lista
+  // com familias entre ASPAS DUPLAS, e a UNICA `style="..."` do arquivo (#ag-nota) tambem usa
+  // aspas duplas para delimitar o atributo — aspa interna nao escapada fecha o atributo no
+  // primeiro `"`, e o resto (color/margin-top/text-align) vira texto solto no HTML, ignorado.
+  // Isto cobra por GETCOMPUTEDSTYLE, nao por regex sobre o texto: e a licao do proprio
+  // pre-integrador — print/regex nao prova que o CSS chegou.
+  {
+    const { ctx, pag } = await palco(nav, {});
+    const cs = await pag.evaluate(() => {
+      const el = document.getElementById('ag-nota');
+      if (!el) return null;
+      const c = getComputedStyle(el);
+      return { fontFamily: c.fontFamily, color: c.color, marginTop: c.marginTop, textAlign: c.textAlign, texto: el.textContent };
+    });
+    ok(!!cs && cs.texto.length > 0, '#ag-nota tem texto (senao a cena mediria um elemento vazio)', cs && cs.texto);
+    ok(!!cs && /mono/i.test(cs.fontFamily), 'a familia computada e monoespacada, nao a serifa herdada do corpo', cs && cs.fontFamily);
+    ok(!!cs && cs.color === 'rgb(125, 132, 121)', 'a cor computada e a --pedra do atributo, nao a --tinta padrao do body', cs && cs.color);
+    ok(!!cs && cs.marginTop !== '0px', 'a margem computada aplicou (nao ficou em 0, o padrao do body)', cs && cs.marginTop);
+    ok(!!cs && cs.textAlign === 'center', 'o alinhamento computado e center, nao o start padrao', cs && cs.textAlign);
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 15
+  console.log('\n[15] FILA-CHEIA-AO-ESCREVER TAMBEM DEIXA RASTRO — CONSERTO 1 (pre-integrador, 01/09)');
+  cenas++;
+  // O TERCEIRO caminho de perda, achado ao vivo pelo pre-integrador: `lavarUm()` (cena 9/11) e
+  // `podarFilaHerdada()` (achado de N9/N10, item 3 original) ja chamavam `guardarPerdida`. Faltava
+  // `registrar()`: quando a fila JA esta no teto (FILA_MAX=50 ou FILA_BYTES=200KB) no instante de
+  // ESCREVER uma resposta nova, `gravarFila` recusa, o desfecho e "perdido" — e o unico rastro era
+  // o toast transitorio "Nao consegui enviar NEM guardar...", que some em 2,4s sem deixar nada.
+  {
+    const cheia = Array.from({ length: 50 }, (_, i) => ({ tipo: 'mensagem', chave: 'dono', valor: null, texto: 'antiga ' + i }));
+    const plano = { escrita: 'fechada', fila: cheia };
+    const { ctx, pag, erros } = await palco(nav, plano);
+    const TEXTO_SEM_LUGAR = 'esta nao cabe em lugar nenhum e nao pode sumir sem rastro';
+    await pag.fill('#compor-txt', TEXTO_SEM_LUGAR);
+    await pag.click('#compor-btn');
+    const viuToastCheio = await esperar(pag, () => /NEM guardar/i.test(document.getElementById('toast').textContent || ''));
+    ok(viuToastCheio, 'o toast "Nao consegui enviar NEM guardar" apareceu (fila realmente cheia)', await pag.textContent('#toast'));
+    const antes = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length);
+    ok(antes === 50, 'a fila continua em 50 — o item novo NAO entrou nela (nao ha onde)', String(antes));
+    const perdidas = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-perdidas') || '[]'));
+    ok(perdidas.length === 1, 'o texto foi para mesa-brasil-perdidas — o unico lugar que sobrou', JSON.stringify(perdidas));
+    ok(!!perdidas[0] && perdidas[0].texto === TEXTO_SEM_LUGAR, 'e e o texto certo, nao um item generico', JSON.stringify(perdidas[0]));
+    ok(!!perdidas[0] && /cheia ao escrever/i.test(perdidas[0].motivo || ''), 'o motivo registrado nomeia a fila cheia (nao "recusa" nem "descarte")', perdidas[0] && perdidas[0].motivo);
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    // E O RASTRO SOBREVIVE A RECARGA, como o resto do item 3 (cena 11).
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    ok(await pronta(pag), 'a carga apos a fila cheia terminou a partida', 'nao terminou em 15 s');
+    const visivel = await esperar(pag, () => {
+      const el = document.getElementById('perdidas');
+      return el && !el.hasAttribute('hidden') && (document.getElementById('perdidas-lista').textContent || '').indexOf('nao pode sumir sem rastro') >= 0;
+    });
+    ok(visivel, 'a PROXIMA carga MOSTRA o texto que nao coube em lugar nenhum', 'a secao #perdidas nao apareceu com o texto');
     await ctx.close();
   }
 

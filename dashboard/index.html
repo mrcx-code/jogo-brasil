@@ -425,7 +425,7 @@
     <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
     <p class="nota-gasto" id="nota-gasto">Modelo e esforço são reais (saem dos arquivos de agente). Tokens e custo ainda não têm medição — nada de zero fingindo ser número.</p>
     <div class="grade-ag" id="grade-ag"></div>
-    <p id="ag-nota" style="font:600 .66rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
+    <p id="ag-nota" style="font:600 .66rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
 
   <section class="camada" id="pedidos">
@@ -860,7 +860,14 @@
       .catch(function(err){
         var st=(err && err.status)||0;
         var f=lerFila(); f.push(reg);
-        if(!gravarFila(f)) return "perdido";
+        // CONSERTO 1 (pre-integrador, 01/09): faltava o TERCEIRO caminho de perda — a fila JA
+        // ESTAVA no teto (FILA_MAX/FILA_BYTES) no instante de escrever, `gravarFila` recusa e
+        // este desfecho e "perdido" — a UNICA saida em que nada foi guardado em lugar nenhum.
+        // Medido ao vivo pelo pre-integrador com a fila pre-semeada com 50 itens: o toast
+        // transitorio some em ~2,4s e `mesa-brasil-perdidas` ficava vazio. Os outros dois
+        // caminhos de perda (`lavarUm()` e `podarFilaHerdada()`) ja chamavam `guardarPerdida`;
+        // este era o que faltava.
+        if(!gravarFila(f)){ guardarPerdida(reg,"fila local cheia ao escrever"); return "perdido"; }
         // P4 da 2a auditoria (22/08). Fora do localhost, "sem conexao — guardei e reenvio" e
         // verdade: o 401 abre o login e o flush do login esvazia a fila. Em localhost NAO ha
         // portao, entao a MESMA frase mente em duas pontas — nao foi conexao, e o reenvio

@@ -105,8 +105,16 @@ function portoesDeclarados() {
     fontes = fs.readdirSync(dir).filter((f) => /\.ya?ml$/i.test(f)).map((f) => lerSeExiste(path.join(dir, f)));
   } catch (e) { /* sem CI: a lista cai para os scripts do npm, e o total impresso denuncia */ }
   // O ciclo que o plantão roda por regra (CLAUDE.md §6) não está no YAML e é portão do mesmo
-  // jeito. Estes quatro nomes são a ÚNICA parte escrita à mão deste arquivo, e são o ciclo.
+  // jeito. Estes quatro nomes são o ciclo, e continuam sendo os únicos que o CLAUDE.md nomeia.
   fontes.push('npm test\nnode test/encaixe.js\nnode test/medir-save-hostil.js\nnode test/medir-telas-altura.js');
+  // FORA DO CICLO, MAS AINDA UM PORTÃO (dev-plataforma, 01/09, pedido pelo pré-integrador ao
+  // devolver o item `perda-de-resposta-deixa-rastro`): `rodape-verdadeiro.js` não roda pelo CI
+  // nem pelo ciclo do plantão — é chamado à mão por quem mexe em `dashboard/`. Ele MESMO já
+  // pagou o preço de lançar nu (achado do pré-integrador, 01/09: as 11 cenas dinâmicas nunca
+  // executavam nesta máquina, e só as 2 estáticas rodavam — silêncio, sem exit ≠ 0 denunciando).
+  // Ele não vira "ciclo" só por entrar aqui; esta segunda linha existe para não misturar as
+  // duas categorias na mesma frase.
+  fontes.push('node test/rodape-verdadeiro.js');
 
   const brutos = new Set();
   for (const txt of fontes) {
