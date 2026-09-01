@@ -10929,3 +10929,40 @@ recusou em 24/08; e Marcelo Paixão/LAESER para a régua de classe). Da minha fi
 (o `default false` do `tag_s2` faz silêncio parecer decisão) e `PENDENTES 95`.
 
 **Nome de máquina desta rodada: `nuvem-20260901T2022`.**
+
+## 01/09, à noite — mac-jogo: refutação do M3 do mundo 3D (issue #10), nada derrubado
+
+Sessão interativa: o dono pediu para ler o briefing de 31/08 (colado na issue #7) e a issue #7
+inteira, e começar. `git pull --ff-only` trouxe os 50 commits do dia (glossário rev3, governança
+herdada, CI verde, e o fecho da issue #10 pela nuvem). Segui o papel que o briefing atribui ao
+Mac: **refutar com medição própria**, não ler e confiar.
+
+**O que a nuvem afirmou no fecho da issue #10 (mundo-3d M3), e o que eu MEDI de cada afirmação:**
+
+| afirmação da nuvem | o que medi | resultado |
+|---|---|---|
+| `sp.json` nunca existiu; os dois HTML buscavam ele; corrigido para `sp-contorno-ibge.json` | `grep -n "sp.json" experimentos/mundo-3d/*.html` | **0 ocorrências** nos dois arquivos — confere |
+| `npm test`: PASS (exit 0) | rodei `npm test` na `main` local | **exit 0** — confere |
+| 0 erro de console, 0 pageerror nos dois arquivos | servi `experimentos/mundo-3d/` por http (127.0.0.1:8790, nunca `file://`) e abri `sp-relevo.html` no navegador | **0 mensagens de console**, inclusive depois de arrastar a linha do tempo até 2010s | confere |
+| céu costurado à névoa (não há mais "dois céus") | print em 1530 | sem costura visível no horizonte — confere |
+| paleta mais verde (verde até `t<.75`) | print em 1530 | mata densa, sem "estepe marrom" — confere |
+| câmera: `maxDistance` 180→320, dá para ver o contorno inteiro do estado | `grep maxDistance experimentos/mundo-3d/sp-relevo.html` → linha 118, `320`; zoom-out no navegador | o estado inteiro entra na tela — confere |
+
+**Uma pegadinha que eu mesmo criei e desfiz antes de virar achado falso.** Testei primeiro
+`sp-timeline.html` (não `sp-relevo.html`) e vi `maxDistance=120`, floresta vazia, sem aldeia — ia
+reportar como regressão. Antes de escrever, li o `LEIAME.md`: `sp-timeline.html` é **a base
+anterior, aposentada, "fica como registro"** — o M3 inteiro (inclusive o commit `05a06af` da
+nuvem) só toca `sp-relevo.html`, que é o arquivo que o `LEIAME.md` já nomeia como "o atual". Não é
+regressão da nuvem; é eu não ter lido o próprio mapa do experimento antes de medir. Registro para
+a próxima sessão não repetir: **os dois arquivos coexistem de propósito, e só um é o alvo.**
+
+**Nada foi derrubado.** Todas as afirmações da nuvem se sustentaram sob medição independente. Os
+três itens que ela mesma deixou em aberto para o dono — aldeias dos povos que viviam em SP em
+1530 (§2, ela não desenhou nada sem decisão), a forma de "ilha" nas bordas do estado (3 opções
+propostas, arte recomenda a "a"), e se pixela a cena inteira ou só o avatar (arte desaconselha
+pixelar tudo) — continuam **sem decisão**, e não é papel de agente decidir nenhum dos três.
+
+**Registrado:** `mesa_agente` (Supabase, linha `Claude`) atualizada com o resultado. Comentário
+postado na issue #7 com o mesmo resumo, para as outras máquinas não remedir.
+
+**Nome de máquina desta rodada: `mac-jogo` (interativa, sem agendamento).**
