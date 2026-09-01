@@ -3200,3 +3200,45 @@ antialiasing, hora do dia no jogo?) e fixá-la, que é o conserto de verdade e o
 
 Território: `test/`, e o (b) toca `ferramentas/integrar.js`. Quem pegar: mede primeiro se
 alguém de fato compara esses PNGs entre commits — se ninguém compara, o (a) é barato e fecha.
+
+---
+
+## 94 — `chromium.launch()` na MESMA linha de um regex com barra escapada é engolido — pre-integrador (01/09)
+
+**Sem instância real hoje. Registrado para não ser redescoberto do zero**, que é a única razão
+de este item existir.
+
+Achado pelo `pre-integrador` auditando o conserto do PENDENTES 92 — ou seja, pelo auditor
+rodando **depois** do conserto, que é o §8 do `PLANTAO.md` pagando por si mesmo pela segunda vez
+no mesmo dia.
+
+O `semComentarios()` novo entende string e fechou a classe do PENDENTES 92. Ele **não** entende
+**literal de regex**. Então `/^file:\/\//i` tem, no texto bruto, duas barras adjacentes (`\/\/`)
+que o varredor lê como início de comentário de linha, e o resto da linha vira espaço.
+
+O autor do conserto declarou esse gap e mediu que **o dano fica preso àquela linha** — o
+auditor confirmou byte a byte (`test/abrir.js:100` zera; 101-106 saem idênticas à entrada).
+A alegação está certa.
+
+**O que o autor não relatou, e o auditor achou com caso adversarial próprio:** se um
+`chromium.launch()` estiver **na mesma linha** de um regex desses, ele é engolido — **0
+detectados onde deveria haver 1**. É falso-negativo silencioso da mesma classe do 92, por vetor
+diferente (regex, não string de rota).
+
+**Por que não bloqueou a integração:** varridos `test/*.js` e `ferramentas/*.js` à procura de
+uma linha real que combine `chromium.launch` com barra escapada — **não existe nenhuma hoje**.
+O padrão `\/\/` dentro de regex aparece em 10 arquivos (`abrir.js`, `smoke.js`, `robusto-tudo.js`,
+`percurso.js`, `medir-acolher.js`, `medir-acompanhar.js`, `medir-historia.js`, `encaixe.js`,
+`duble-alcanca.js`), mas nunca compartilhando linha com um `launch`.
+
+**Por que não foi fechado junto:** desambiguar literal de regex de divisão (`a / b`) exige olhar
+o token significativo anterior — palavra-chave, identificador ou operador. É outra ordem de
+trabalho que "string vs. comentário", e ninguém pediu para pagá-la hoje.
+
+**Aceite, se alguém pegar:** o parser passa a reconhecer literal de regex; o controle é um
+`chromium.launch()` nu na mesma linha de `/^file:\/\//i` fazendo o portão sair **exit 1**
+(hoje sai 0). Território: `test/portao-navegador.js`.
+
+**A régua para decidir se vale:** isto é dívida latente, não defeito ativo. Se o repositório
+seguir sem nenhuma linha que junte as duas coisas, o item pode envelhecer parado sem custo —
+o que **não** pode é alguém reencontrar o buraco daqui a um mês e pagar a investigação de novo.

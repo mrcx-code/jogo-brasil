@@ -530,13 +530,12 @@
       "titulo": "O portao-navegador.js diz VERDE sobre 8 arquivos que ele nunca chega a ler (PENDENTES 92)",
       "detalhe": "Achado pelo pre-integrador em 01/09 rodando DEPOIS do conserto. semComentarios() procura /* no texto bruto sem entender strings; rodape-verdadeiro.js usa a rota Express /** seis vezes, o parser le aquilo como abertura de comentario e engole ate o proximo */ legitimo, inclusive o chromium.launch() real. Medido: reinjetado o launch nu, o portao saiu exit 0 (deveria ser 1). Varridos os test/*.js, OITO arquivos hoje no alcance tem ocorrencia engolida, entre eles o proprio portao-navegador.js. O --autoteste passa porque injeta sempre na mesma cobaia (medir-save-hostil.js), que nao tem o padrao — 1 cobaia fixa contra 8 arquivos cegos. Aceite no PENDENTES 92: semComentarios() pula literais de string; reinjetar o nu em rodape-verdadeiro.js e cobrar exit 1; o autoteste ganhar uma segunda cobaia COM o padrao /**; e a varredura dos 8 devolver 0 engolidos.",
       "agente": "qa",
-      "estado": "em-curso",
+      "estado": "concluido",
       "camada": "medio",
       "territorio": [
         "test/portao-navegador.js"
       ],
-      "maquina": "nuvem-20260901T1622",
-      "desde": "2026-09-01T16:23:29.648Z"
+      "desfecho": "INTEGRADO em 01/09 por nuvem-20260901T1622 (funil exit 0 real, 6b4f0c8). semComentarios() virou maquina de estados (CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE) que reconhece string em vez de duas regex empilhadas. MEDIDO, com sondas do pre-integrador e nao do autor: antes 12 ocorrencias brutas de chromium.launch nos 8 arquivos e SO 2 sobreviviam (7 de 8 arquivos inteiramente cegos); depois 8 sobrevivem e 0 nus. Injecao real em rodape-verdadeiro.js:368 -> exit 1 apontando arquivo:linha; restaurado -> exit 0. Autoteste passou de 1 cobaia fixa para 2 (a segunda COM o padrao). Alcance 32 arquivos com os 8 dentro, e portoesDeclarados NAO mudou no diff — entao o verde de primeira e arvore limpa, nao cegueira nova. DESMENTIDO registrado: a formulacao do despacho (\"e so o /* da rota Express\") era estreita demais — o gatilho e QUALQUER string contendo /*, inclusive os curingas **/* do Playwright. Gap latente NAO fechado virou PENDENTES 94."
     }
   ]
 }
