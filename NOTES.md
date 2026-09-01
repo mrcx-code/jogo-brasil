@@ -10966,3 +10966,85 @@ pixelar tudo) — continuam **sem decisão**, e não é papel de agente decidir 
 postado na issue #7 com o mesmo resumo, para as outras máquinas não remedir.
 
 **Nome de máquina desta rodada: `mac-jogo` (interativa, sem agendamento).**
+
+## 01/09, tarde — windows-plantao: o dono DECIDIU os tres itens do mundo 3D, e o painel parou de mentir
+
+**AS TRES DECISOES DO MUNDO 3D SAIRAM.** Ficaram abertas desde o fecho da issue #10 pela nuvem, e
+a nuvem, a arte e o mac-jogo os tres registraram, corretamente, que nao eram deles para decidir.
+Eu levei ao dono em forma clicavel, com IMAGEM — ele escolheu ver, nao ler.
+
+| pergunta | decisao dele | quem recomendava |
+|---|---|---|
+| 1 · aldeias de 1530 (§2) | **sim, aparecem — mas ele quer ver as FORMAS antes de existirem na tela** | ninguem: §2, so ele |
+| 2 · a forma do mundo (a "parede") | **(c) chapas fantasma com nome** | a arte recomendava (c) |
+| 3 · pixelar tudo ou so o avatar | **so o avatar** | a arte recomendava so o avatar |
+
+**Como a decisao 1 foi preparada, e isto e o precedente que interessa.** Nao levei a pergunta
+nua. Antes: a `pesquisadora-fontes` montou `fontes/sp-1530-povos.md` (439 linhas, cada afirmacao
+com fonte e com o motivo de aquela fonte ter propriedade sobre aquilo), e a `arte` gerou o quadro
+de 1530 COMO ESTA — floresta vazia sob o rotulo "floresta e aldeias" — para ele ver a divida da
+imagem com a palavra. As duas agentes foram proibidas por escrito de desenhar presenca humana, e
+nenhuma desenhou. **A decisao de §2 chegou a ele com imagem de um lado e fonte do outro, e nada
+criado antes do sim.**
+
+**Tres achados da ficha de fontes que mudam o que a issue #10 dizia:**
+- **"Kaingang em 1530 no planalto" e a parte mais fragil.** A ligacao documentada Guaiana ->
+  Kaingang e do **seculo XVII** (trazidos do Parana, 1672), nao do XVI. A issue listava Kaingang
+  entre os povos de 1530.
+- **Nao existe, nas fontes alcancadas, autoria indigena com descricao LITERAL da aldeia de 1530.**
+  Existe autoria Guarani viva sobre o que e uma aldeia HOJE (Kaka Wera Jecupe; Olivio Jekupe, da
+  aldeia Krukutu, em SP). A pesquisadora nao fabricou aspa: declarou que nao conseguiu extrair
+  citacao de dentro das obras nesta rodada.
+- **A pergunta de representacao que decorre disso, e ela e do dono:** os Guarani Mbya, presenca
+  indigena mais ligada a este territorio hoje, **nao sao os mesmos povos de 1530** — a presenca
+  deles e uma historia de seculos de caminhada, nao uma linha reta desde Piratininga. Se a voz
+  Guarani viva vale como lugar de fala para descrever a aldeia do mundo 3D fica REGISTRADA e
+  NAO RESPONDIDA. Nenhum agente a responde.
+
+O que a ficha sustenta, com fonte (Prezia, PUC-SP 2008): Tupi/Tupiniquim no planalto de
+Piratininga, ~12+ aldeias documentadas, ate 7 casas em torno de um patio ritual, ~500 pessoas por
+aldeia, mudanca de local a cada 3-4 anos — e **nao** por esgotamento da roca, que e a explicacao
+mais repetida e que a fonte nao confirma. E o item que fecha o §2.1: **55.295 indigenas
+autodeclarados em SP no Censo 2022**, o estado e o municipio mais diversos etnicamente do pais.
+
+**Duas ressalvas minhas nos prints, levadas ao dono junto e vistas por ele:** na opcao (c) os
+quatro nomes flutuam sobre uma laje CONTINUA, sem divisa entre eles — le como "uma coisa bege com
+quatro etiquetas" —, e a borda externa da mesa e um pentagono de aresta reta arbitraria. A
+primeira vai ser consertada nesta rodada; a segunda ficou a criterio da arte.
+
+---
+
+**O PAINEL DIZIA "AGORA" SOBRE SINAL DE 315 MINUTOS, e quem viu foi o dono.** As 10h44 o
+dashboard mostrava quatro cartoes na faixa AGORA — Claude, dev-plataforma, historiador,
+dev-dados — dizendo TRABALHANDO/agora com o boneco martelando. Medido no `mesa_agente` naquele
+instante: ultimo sinal dos quatro **315 min**, da rodada `nuvem-20260901T0823`, ja pousada. A
+rodada que estava de fato no ar (`nuvem-20260901T1340`, commit as 10h42) nunca tocou a mesa.
+
+As palavras dele foram *"se a tecnologia atual eh limitada a ponto de nao conseguimos ter isso, eh
+melhor tirar... nao faz sentido manter algo q nunca vai mostrar a realidade"*. **Nao e limite de
+tecnologia** — o painel lia STATUS sem olhar IDADE, e status e a ultima coisa que alguem escreveu.
+Quem cai, quem estoura cota e quem esquece de pousar deixa a linha acesa para sempre.
+
+Consertado no ramo `painel-sem-sinal`: acima de 45 min o rotulo vira "sem sinal ha Xh", o cartao
+esfria, o boneco PARA e ele SAI da faixa AGORA (posicao tambem afirma). Carimbo no futuro vira
+"sem sinal — carimbo no futuro" (achado do porteiro: com o clamp em zero, 10 dias adiante diziam
+"agora"). E servidor mudo deixou de virar lista vazia: `corpo()` rejeita, e as idades envelhecem
+por RELOGIO a cada 20 s, entao o cartao esfria mesmo que nunca mais chegue resposta.
+
+**O QA me reprovou tres vezes neste ramo, e a mais util foi sobre o instrumento:** o "controle"
+que eu tinha escrito nao protegia assercao nenhuma — ele REPETIA a assercao contra a copia velha
+em vez de exercita-la. Ele matou as quatro assercoes centrais e o portao continuou VERDE. Agora
+sao 7 mutantes, cada um cobrando o **conjunto exato** que deve derrubar; refiz o ataque dele e
+sai 1, nomeando as assercoes que sumiram. Exigir "acusou alguma coisa" nao bastava: outras
+assercoes acusavam no lugar das mortas.
+
+**E a decisao de produto que saiu daquela frustracao:** o quadro de agentes vai **trocar de
+fonte** (escolha do dono). Deixa de depender de alguem lembrar de escrever na tabela e passa a
+ser derivado do rastro que o trabalho gera sozinho — commit carimbado por maquina, item travado
+no backlog, CI em execucao —, com a escrita como efeito colateral do PUSH, que nao e opcional.
+Limite declarado no mesmo folego: isso e fiel por MAQUINA e por ITEM, nao por agente; liveness
+por agente nao e derivavel, entao os cartoes de agente viram elenco.
+
+**Buraco de coordenacao achado hoje, e ele e do mesmo genero:** o `mac-jogo` registrou que
+atualizou "a linha `Claude`" do `mesa_agente` — a MESMA linha que esta maquina usa. Duas maquinas
+escrevendo uma linha so: a ultima a escrever apaga a outra, em silencio. Vai para o PENDENTES.
