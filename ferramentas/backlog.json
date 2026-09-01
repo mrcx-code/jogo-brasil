@@ -511,7 +511,9 @@
         "src/jogo.ts",
         "NOTES.md"
       ],
-      "estado": "livre"
+      "estado": "em-curso",
+      "maquina": "nuvem-20260901T2022",
+      "desde": "2026-09-01T20:33:31.070Z"
     },
     {
       "id": "vestir-rodape-verdadeiro",
