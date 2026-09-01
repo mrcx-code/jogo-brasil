@@ -515,6 +515,17 @@
         "NOTES.md"
       ],
       "estado": "livre"
+    },
+    {
+      "id": "vestir-rodape-verdadeiro",
+      "titulo": "O rodape-verdadeiro.js lanca o Chromium NU — e e o portao que toda rodada de dashboard roda",
+      "detalhe": "Sobra medida do PENDENTES 88 (31/08), que vestiu 60->71 lancamentos e deixou 47 nus dizendo que nenhum dos que sobram e portao do CI ou do ciclo. Medido em 01/09 e a frase nao se sustenta para este: test/rodape-verdadeiro.js tem chromium.launch e ZERO ocorrencias de executablePath, e e exatamente o portao que a entrega do trio do dashboard precisou estender e rodar. O agente perdeu tempo e contornou com um preload local descartavel, que e o defeito se repetindo em maquina nova, como o 88 previu. Aceite: o arquivo passa a resolver o caminho pelo mesmo lugar que smoke.js e encaixe.js (test/abrir.js), o portao roda sem contorno numa maquina com o navegador provisionado em build diferente da que o playwright espera, e a contagem de nus no PENDENTES 88 e atualizada com o numero novo medido. NAO PEGAR enquanto a entrega do trio do dashboard nao estiver integrada: ela toca este mesmo arquivo.",
+      "agente": "dev-plataforma",
+      "estado": "livre",
+      "camada": "leve",
+      "territorio": [
+        "test/rodape-verdadeiro.js"
+      ]
     }
   ]
 }
