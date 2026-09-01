@@ -25,3 +25,20 @@ Abra http://localhost:8765/sp-relevo.html
 Os anos de fundação das cidades em `sp-timeline.html` são de registro municipal e precisam ser
 conferidos contra fonte citável (IBGE Cidades) — alguns têm data de povoamento ≠ data de município.
 Três (three.js) é via CDN só no experimento; produção exige self-hosted + CSP (M5 do spec).
+
+## As opções da issue #10 em imagem (01/09, direção de arte)
+Gerados para o dono decidir VENDO as perguntas 2 (a parede) e 3 (pixel). Nada aqui desenha
+aldeia, oca ou marca de presença humana — a pergunta 1 é do dono pelo §2 e continua aberta;
+o `estado-atual-1530.png` existe só para ele ver a contradição imagem × rótulo.
+
+- `gerar-opcoes.js` — escreve as 5 cópias-variante por substituição exata sobre `sp-relevo.html`
+  (erra alto se o original mudar). Rode-o de novo depois de mexer no `sp-relevo.html`.
+- `gerar-prints.js` — serve por http (nunca file://), enquadra todos os prints IGUAL via
+  `window.__prova`, e só salva print com 0 pageerror, 0 console error, 0 resposta >=400 e
+  pixel-check de que há geometria (tela preta já passou por "arte julgada" uma vez).
+- `sp-relevo-opcao-{a,b,c}.html` + `opcao-parede-{a,b,c}-{1530,1900}.png` — a forma do mundo:
+  (a) maquete em baixo-relevo, (b) ilha assumida (estado atual), (c) chapas fantasma com nome.
+- `sp-relevo-pixel-{cena,avatar}.html` + `opcao-pixel-{cena,avatar}.png` — mesmo quadro exato:
+  render inteiro a 1/4 com nearest × cena limpa com pixel art só no avatar.
+- O mar das opções a/c é uma LINHA APROXIMADA da costa (maquete, não carta náutica) — está
+  comentado no código; se virar produção, o recorte do mar sai de dado, não de reta.

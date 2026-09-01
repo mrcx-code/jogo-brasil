@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>São Paulo — relevo e o passar do tempo (protótipo)</title>
+<style>
+  *{margin:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:#0e1116;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;user-select:none}
+  #c{position:fixed;inset:0;display:block}
+  .hud{position:fixed;color:#f2ead6;z-index:5;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none}
+  .top{top:0;left:0;padding:16px 20px}
+  .top h1{font:800 1.05rem/1.1 "Georgia",serif}
+  .top .sub{font:600 .7rem/1.4 ui-monospace,monospace;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .ano{position:fixed;top:14px;right:20px;z-index:5;color:#ffe6b0;font:800 2.1rem/1 "Georgia",serif;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+  .fase{position:fixed;top:58px;right:20px;z-index:5;color:#f2ead6;font:700 .8rem/1.2 ui-monospace,monospace;opacity:.9;text-align:right}
+  .barra{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg,rgba(8,10,14,.85),transparent);display:flex;flex-direction:column;gap:8px}
+  .barra .linha{display:flex;align-items:center;gap:12px}
+  .barra input[type=range]{flex:1;accent-color:#4a8b5a;height:26px}
+  .play{pointer-events:auto;border:1px solid rgba(255,255,255,.25);background:rgba(30,34,24,.6);color:#f2ead6;width:44px;height:44px;border-radius:50%;font-size:1.1rem;cursor:pointer;flex:0 0 auto}
+  .marcos{display:flex;justify-content:space-between;color:#cdbf9d;font:600 .6rem/1 ui-monospace,monospace;opacity:.7;padding:0 46px 0 4px}
+  .dica{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:5;color:#f2ead6;font:600 .78rem/1.5 ui-monospace,monospace;text-align:center;background:rgba(10,12,8,.45);padding:10px 16px;border-radius:6px;backdrop-filter:blur(3px);transition:opacity .6s;pointer-events:none}
+  .dica.off{opacity:0}
+  .marca{position:fixed;bottom:2px;left:8px;color:#8a806a;opacity:.6;font:500 .58rem/1 ui-monospace,monospace;z-index:7;pointer-events:none}
+  /* 240px 70px rgba(18,12,4,.5) virava lama marrom nos cantos dos quadros escuros */
+  .vinheta{position:fixed;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 180px 40px rgba(10,8,4,.3)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vinheta"></div>
+<div class="hud top"><h1>São Paulo — o relevo e o passar do tempo</h1>
+  <div class="sub">protótipo · WASD ou toque para andar · arraste p/ girar</div></div>
+<div class="ano" id="ano"></div>
+<div class="fase" id="fase"></div>
+<div class="dica" id="dica">ande pelo relevo (WASD ou toque)<br>arraste a linha do tempo ↓ e veja a paisagem mudar</div>
+<div class="barra">
+  <div class="linha">
+    <button class="play" id="play">▶</button>
+    <input type="range" id="slider" min="1530" max="2030" value="1530" step="10">
+  </div>
+  <div class="marcos"><span>1530</span><span>1650</span><span>1750</span><span>1850</span><span>1950</span><span>2030</span></div>
+</div>
+<div class="marca">demo · contorno IBGE (SP) · RELEVO ESTILIZADO (não é DEM real) · natureza/ocupação ilustrativas · §2/conteúdo com o dono</div>
+
+<script type="importmap">
+{ "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" }}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const ANO0=1530, ANO1=2030, PASSO=10;
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.0;
+// o estado tem ~234 unidades de ponta a ponta (9 graus de longitude x SCALE 26); com near=150
+// metade do mundo nascia dentro da nevoa. A nevoa comeca depois do estado, nao em cima dele.
+const scene=new THREE.Scene(); scene.fog=new THREE.Fog('#e7cfa0',240,720);
+const camera=new THREE.PerspectiveCamera(50,1,0.1,1400);
+// SOL de fim de tarde — baixo e dourado, com sombra suave
+const sol=new THREE.DirectionalLight(0xffdca0,2.2); sol.position.set(-90,70,60); sol.castShadow=true;
+sol.shadow.mapSize.set(2048,2048); sol.shadow.camera.near=1; sol.shadow.camera.far=420;
+sol.shadow.camera.left=-180; sol.shadow.camera.right=180; sol.shadow.camera.top=180; sol.shadow.camera.bottom=-180;
+sol.shadow.bias=-0.0004; sol.shadow.normalBias=0.6; scene.add(sol); scene.add(sol.target);
+// o rebote vem da cor da TERRA, nao de um verde escuro: com 0x2e3a1e a encosta sombreada virava breu.
+// a AmbientLight saiu — luz chapada por cima da sombra era o que lavava o 2030.
+scene.add(new THREE.HemisphereLight(0xcfe0f0,0x54462e,.65));
+
+// projeção lat/lon -> mundo
+const CLON=-48.64, CLAT=-22.55, SCALE=26;
+const proj=(lon,lat)=>[ (lon-CLON)*SCALE, -(lat-CLAT)*SCALE ];
+
+// relevo ESTILIZADO de SP (não é DEM): Serra do Mar no litoral, planalto no interior, Mantiqueira no NE.
+function noise(x,z){ return Math.sin(x*0.07)*Math.cos(z*0.06)+Math.sin(x*0.17+z*0.11)*0.5+Math.sin(z*0.23)*0.3; }
+function elevLL(lon,lat){
+  // litoral ~ lat -24.2 (sul/sudeste). serra do mar como crista perto do litoral.
+  const inland = THREE.MathUtils.clamp((-23.8 - lat) * 0.9 + (lon + 48) * 0.15, -1, 4); // + para norte/interior
+  let e = 7 + inland*2.4;                                   // planalto sobe pro interior
+  const dSerra = Math.abs(lat + 23.9);                      // crista da Serra do Mar
+  e += Math.max(0, 9 - dSerra*22);                          // pico da serra perto do litoral
+  const dMant = Math.hypot(lon+45.3, lat+22.5);             // Mantiqueira (NE)
+  e += Math.max(0, 10 - dMant*3.0);
+  e += noise(lon*60, lat*60)*2.2;                           // montanhas/textura
+  // litoral desce pro mar
+  if(lat < -24.3) e -= (-24.3 - lat)*40;
+  return e;
+}
+
+// point-in-polygon (coords projetadas)
+function inPoly(px,pz,rings){
+  for(const ring of rings){ let inside=false;
+    for(let i=0,j=ring.length-1;i<ring.length;j=i++){ const xi=ring[i][0],zi=ring[i][1],xj=ring[j][0],zj=ring[j][1];
+      if(((zi>pz)!==(zj>pz)) && (px < (xj-xi)*(pz-zi)/(zj-zi)+xi)) inside=!inside; }
+    if(inside) return true; }
+  return false;
+}
+
+// mar aproximado: sudeste da linha da costa (maquete, nao carta nautica)
+function ehMar(lon,lat){ const latC = lon < -45 ? (-23.43+0.549*(lon+45.07)) : (-23.35+0.1*(lon+45)); return lat < latC-0.06; }
+let RINGS=[], BB, heightAt=()=>10, terra, MAT;
+let skyCanvas, skyCtx, skyTex;
+// o céu sai da MESMA cor que a névoa (base), clareando para o topo. Um céu só.
+function pintarCeu(base,p){
+  if(!skyCtx) return;
+  const topo=new THREE.Color('#f6e2b0').lerp(new THREE.Color('#ccd3d9'),p);
+  const baixo=base.clone().multiplyScalar(.82);
+  const g=skyCtx.createLinearGradient(0,0,0,256);
+  g.addColorStop(0,'#'+topo.getHexString()); g.addColorStop(.5,'#'+base.getHexString()); g.addColorStop(1,'#'+baixo.getHexString());
+  skyCtx.fillStyle=g; skyCtx.fillRect(0,0,8,256); skyTex.needsUpdate=true;
+}
+const trees=[]; let treeMesh, urbMesh;
+const hero=new THREE.Group();
+const controls=new OrbitControls(camera,canvas);
+controls.enableDamping=true; controls.dampingFactor=.1; controls.enablePan=false;
+// maxDistance 180 nao deixava afastar o bastante para ver o contorno de SP — que e o aceite do M0.5.
+controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=16; controls.maxDistance=320;
+
+fetch('sp-contorno-ibge.json').then(r=>r.json()).then(gj=>{
+  const geom=(gj.features?gj.features[0]:gj).geometry;
+  const polys=geom.type==='MultiPolygon'?geom.coordinates:[geom.coordinates];
+  let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9;
+  polys.forEach(poly=>{ const ring=poly[0].map(([lon,lat])=>{const[x,z]=proj(lon,lat);minx=Math.min(minx,x);maxx=Math.max(maxx,x);minz=Math.min(minz,z);maxz=Math.max(maxz,z);return [x,z];}); RINGS.push(ring); });
+  BB={minx,maxx,minz,maxz};
+
+  // OPCAO A: a mesa continua alem da divisa — so o litoral cai para o mar
+  minx-=42;maxx+=42;minz-=42;maxz+=42;
+  const N=170, W=maxx-minx, H=maxz-minz;
+  const g=new THREE.PlaneGeometry(W,H,N,N); g.rotateX(-Math.PI/2);
+  g.translate((minx+maxx)/2,0,(minz+maxz)/2);
+  const pos=g.attributes.position; const cols=new Float32Array(pos.count*3);
+  const cMata=new THREE.Color('#2f6b3d'), cAlta=new THREE.Color('#6b7a3a'), cRocha=new THREE.Color('#857e6f'), cAreia=new THREE.Color('#e0cfa0');
+  const cMesa=new THREE.Color('#b7ab93'); // mesa neutra de maquete
+  const invLon=(x)=>x/SCALE+CLON, invLat=(z)=>-z/SCALE+CLAT;
+  for(let i=0;i<pos.count;i++){ const x=pos.getX(i), z=pos.getZ(i);
+    const dentro=inPoly(x,z,RINGS); let y; let corFixa=null;
+    if(dentro){ y=elevLL(invLon(x),invLat(z)); }
+    else { const lo=invLon(x), la=invLat(z);
+      const latC=(lo<-45?(-23.43+0.549*(lo+45.07)):(-23.35+0.1*(lo+45)))-0.03;
+      const q=THREE.MathUtils.clamp((latC-la)/0.22,0,1); // 0=mesa, 1=mar fundo
+      y=4.5-(4.5+6)*q; corFixa=cMesa.clone().lerp(cAreia,Math.min(1,q*1.2)); } // divisa de terra: mesa; litoral: bisel
+    pos.setY(i,y);
+    // o planalto nasce em t~.32 e vai a ~.9; cortando o verde em .55 quase todo o estado saia
+    // marrom, e 1530 lia como estepe seca em vez de mata. O verde segura ate .75.
+    const t=THREE.MathUtils.clamp(y/22,0,1); let c;
+    if(corFixa) c=corFixa; else if(y<0.5) c=cAreia; else if(t<.75) c=cMata.clone().lerp(cAlta,t/.75); else c=cAlta.clone().lerp(cRocha,(t-.75)/.25);
+    cols[i*3]=c.r;cols[i*3+1]=c.g;cols[i*3+2]=c.b; }
+  g.computeVertexNormals(); g.setAttribute('color',new THREE.BufferAttribute(cols,3));
+  MAT=new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:.96});
+  terra=new THREE.Mesh(g,MAT); terra.receiveShadow=true; terra.castShadow=true; scene.add(terra);
+  heightAt=(x,z)=> inPoly(x,z,RINGS)? elevLL(invLon(x),invLat(z)) : (ehMar(invLon(x),invLat(z))?-6:4.5);
+
+  // água
+  // metalness sem envMap reflete PRETO: a agua ficava uma chapa escura. Sem metal, com aspereza media.
+  const w=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.MeshStandardMaterial({color:'#3d84a0',roughness:.42,metalness:0}));
+  w.rotation.x=-Math.PI/2; w.position.y=-1.2; w.receiveShadow=true; scene.add(w);
+  // céu em gradiente (textura de canvas — barato). Ele é REPINTADO em aplicarTempo, costurado
+  // à cor da névoa: antes o céu era pintado uma vez e só o fog mudava com o ano, então o
+  // horizonte tinha dois céus discordando — a faixa dura que dava cara de tutorial.
+  skyCanvas=document.createElement('canvas'); skyCanvas.width=8; skyCanvas.height=256; skyCtx=skyCanvas.getContext('2d');
+  skyTex=new THREE.CanvasTexture(skyCanvas); skyTex.colorSpace=THREE.SRGBColorSpace; scene.background=skyTex;
+  pintarCeu(new THREE.Color('#e7cfa0'),0);
+
+  // vegetação (instanciada) — pontos determinísticos dentro do estado
+  const rnd=(s=>()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;})(11);
+  const CAND=[]; let tent=0;
+  while(CAND.length<2600 && tent<40000){ tent++; const x=minx+rnd()*W, z=minz+rnd()*H;
+    if(inPoly(x,z,RINGS)){ const y=elevLL(invLon(x),invLat(z));
+      // cada árvore guarda a PRÓPRIA cor, para o tom não pular quando a contagem muda com o ano
+      if(y>1) CAND.push({x,y,z,s:.5+rnd()*.8,r:rnd(),cor:new THREE.Color('#3f8a4d').offsetHSL((rnd()-.5)*.1,0,(rnd()-.5)*.16)}); } }
+  // copa arredondada e clara: o cone de 6 lados em #2f5230 lia como abeto escandinavo, não mata atlântica
+  treeMesh=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1.5,0), new THREE.MeshStandardMaterial({color:'#ffffff',flatShading:true}), CAND.length);
+  const troncos=new THREE.InstancedMesh(new THREE.CylinderGeometry(.16,.22,1,5), new THREE.MeshStandardMaterial({color:0x5a3d1e}), CAND.length);
+  urbMesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1.1,1,1.1), new THREE.MeshStandardMaterial({color:'#cfc7b0',flatShading:true}), CAND.length);
+  [treeMesh,troncos,urbMesh].forEach(m=>{m.castShadow=true;m.receiveShadow=true;});
+  scene.add(treeMesh,troncos,urbMesh); treeMesh.userData={CAND,troncos};
+  aplicarTempo(ANO0);
+
+  // personagem
+  const corpo=new THREE.Mesh(new THREE.CapsuleGeometry(.8,1.5,4,8),new THREE.MeshStandardMaterial({color:'#b5541f',flatShading:true})); corpo.position.y=1.6; hero.add(corpo);
+  const cab=new THREE.Mesh(new THREE.SphereGeometry(.62,10,10),new THREE.MeshStandardMaterial({color:'#e8b98a'})); cab.position.y=3; hero.add(cab);
+  const fr=new THREE.Mesh(new THREE.ConeGeometry(.3,.8,4),new THREE.MeshStandardMaterial({color:'#33240f'})); fr.rotation.x=Math.PI/2; fr.position.set(0,1.6,.9); hero.add(fr);
+  hero.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+  scene.add(hero);
+  const sp=proj(-46.63,-23.55); hero.position.set(sp[0],heightAt(sp[0],sp[1])+1.6,sp[1]);
+  camera.position.set(sp[0],60,sp[1]+85); controls.target.set(sp[0],4,sp[1]);
+  pronto=true; window.__prova={camera,controls,scene,renderer,hero};
+});
+
+// tempo -> paisagem: mata densa -> ocupação -> urbano. densidade e "cidades" mudam.
+const M=new THREE.Object3D();
+function aplicarTempo(a){
+  const p=(a-ANO0)/(ANO1-ANO0); // 0..1
+  // fase textual
+  let fase = p<0.12?'floresta e aldeias' : p<0.4?'entradas e ocupação' : p<0.7?'fazendas e vilas' : p<0.9?'café e ferrovias' : 'metrópole';
+  document.getElementById('fase').textContent = '▸ '+fase;
+  document.getElementById('ano').textContent = a<=ANO0?'até 1530':a+'s';
+  if(!treeMesh) return;
+  const {CAND,troncos}=treeMesh.userData;
+  // mata recua com o tempo; urbano cresce perto da capital e do litoral
+  const spx=proj(-46.63,-23.55);
+  let nt=0,nu=0;
+  for(const c of CAND){ const dCap=Math.hypot(c.x-spx[0],c.z-spx[1]);
+    const urbaniza = THREE.MathUtils.clamp((p-0.35)*1.8,0,1) * THREE.MathUtils.clamp(1-dCap/70,0,1);
+    const ehUrb = c.r < urbaniza;
+    const temMata = c.r > (0.15 + p*0.6*THREE.MathUtils.clamp(1-dCap/90,0.2,1)); // mata recua, mais perto da ocupação
+    if(ehUrb){ const hh=1+ (1-dCap/70)*4*Math.min(1,p*1.4); M.position.set(c.x,c.y+hh/2,c.z); M.scale.set(1,Math.max(1,hh),1); M.rotation.y=0; M.updateMatrix(); urbMesh.setMatrixAt(nu++,M.matrix); }
+    else if(temMata){ M.position.set(c.x,c.y+2.1*c.s,c.z); M.scale.set(c.s,c.s*.72,c.s); M.rotation.y=c.x; M.updateMatrix(); treeMesh.setMatrixAt(nt,M.matrix);
+      treeMesh.setColorAt(nt,c.cor);
+      M.position.set(c.x,c.y+.5*c.s,c.z); M.scale.setScalar(c.s); M.updateMatrix(); troncos.setMatrixAt(nt,M.matrix); nt++; } }
+  treeMesh.count=nt; troncos.count=nt; urbMesh.count=nu;
+  treeMesh.instanceMatrix.needsUpdate=troncos.instanceMatrix.needsUpdate=urbMesh.instanceMatrix.needsUpdate=true;
+  if(treeMesh.instanceColor) treeMesh.instanceColor.needsUpdate=true;
+  // céu esquenta->esfria/cinza com urbanização
+  const ceu=new THREE.Color('#e7cfa0').lerp(new THREE.Color('#c2ccd2'),p*.7); scene.fog.color.copy(ceu);
+  pintarCeu(ceu,p*.7); // o céu acompanha a névoa em vez de discordar dela
+  // a metrópole esfria a luz, mas não fica sem sol: o lerp ia a .6 e lavava o 2030.
+  sol.color.copy(new THREE.Color('#ffdca0').lerp(new THREE.Color('#eef2f6'),p*.45));
+}
+
+// movimento
+const teclas={}; addEventListener('keydown',e=>teclas[e.key.toLowerCase()]=true); addEventListener('keyup',e=>teclas[e.key.toLowerCase()]=false);
+let alvo=null; const ray=new THREE.Raycaster(); let dicaOff=false, pronto=false;
+canvas.addEventListener('pointerdown',e=>{ if(!dicaOff){document.getElementById('dica').classList.add('off');dicaOff=true;} downT=performance.now();downXY=[e.clientX,e.clientY]; });
+let downT=0,downXY=[0,0];
+canvas.addEventListener('pointerup',e=>{ const dt=performance.now()-downT,dd=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]); if(dt<300&&dd<8) irPara(e); });
+function irPara(e){ if(!pronto)return; const r=canvas.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1),camera);
+  const p=new THREE.Vector3(); if(ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),-6),p)){ p.y=0; alvo=p; } }
+
+const slider=document.getElementById('slider'); let ano=ANO0,tocando=false,ultimo=0;
+slider.addEventListener('input',()=>{ano=+slider.value;aplicarTempo(ano);});
+document.getElementById('play').onclick=()=>{tocando=!tocando;document.getElementById('play').textContent=tocando?'⏸':'▶';};
+
+function tick(){
+  requestAnimationFrame(tick);
+  if(pronto){
+    const v=new THREE.Vector3(); const dir=new THREE.Vector3(); camera.getWorldDirection(dir); dir.y=0; dir.normalize();
+    const right=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,1,0)).normalize();
+    if(teclas['w']||teclas['arrowup'])v.add(dir); if(teclas['s']||teclas['arrowdown'])v.sub(dir);
+    if(teclas['d']||teclas['arrowright'])v.add(right); if(teclas['a']||teclas['arrowleft'])v.sub(right);
+    if(v.lengthSq()>0){ v.normalize().multiplyScalar(0.8); alvo=null; }
+    else if(alvo){ const to=new THREE.Vector3(alvo.x-hero.position.x,0,alvo.z-hero.position.z); if(to.length()>1.5)v.copy(to).normalize().multiplyScalar(0.8); else alvo=null; }
+    if(v.lengthSq()>0){ hero.position.x+=v.x; hero.position.z+=v.z; hero.rotation.y=Math.atan2(v.x,v.z); }
+    const gy=heightAt(hero.position.x,hero.position.z); hero.position.y += (Math.max(gy,-1)+1.6 - hero.position.y)*0.25;
+    controls.target.lerp(new THREE.Vector3(hero.position.x,hero.position.y+2,hero.position.z),0.1);
+    if(tocando && performance.now()-ultimo>650){ ultimo=performance.now(); ano=ano+PASSO>ANO1?ANO0:ano+PASSO; slider.value=ano; aplicarTempo(ano); }
+  }
+  controls.update(); renderer.render(scene,camera);
+}
+function resize(){ renderer.setSize(innerWidth,innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize',resize); resize(); tick();
+</script>
+</body>
+</html>
