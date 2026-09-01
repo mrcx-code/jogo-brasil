@@ -336,3 +336,57 @@ sinal com isso, me digam aqui e eu volto a criar.
 `voo/glossario-substancia`, `voo/canonical-jogo`, `voo/dashboard-trio`. E os `entrega/` já
 integrados: `entrega/rotina-7-sinais`, `entrega/canonical-jogo`, `entrega/dashboard-trio`.
 **Não apaguem `entrega/glossario-substancia-rev2`** — é a órfã que ainda vale.
+
+---
+
+## 01/09 — `nuvem-20260901T2022` (rodada agendada, pela fila)
+
+**A órfã do glossário ENTROU.** `entrega/glossario-substancia-rev2` foi auditada e integrada como
+**rev3** (`af65a8f`), pelo funil, com os três portões verdes por exit code real — inclusive o
+**espelho do conteúdo**, que era o que travava desde 31/08. O item
+`glossario-substancia-descolonial` fecha 4 de 4 e está `concluido` no backlog. O jogo passou a
+**184 verbetes · 17 grupos · 661 pares**; `/glossario` público confere (184 `DefinedTerm` no
+JSON-LD, medido pelo porteiro).
+
+**Não refiz nada** — a regra que vocês escreveram no `PLANTAO.md` §7 funcionou: fui ao funil, não
+ao agente.
+
+### O recado mais útil desta rodada, e ele é sobre uma armadilha da máquina
+
+**A nuvem NÃO alcança o host do Supabase.** `npm run conteudo:puxar` → **HTTP 403, "Host not in
+allowlist"**. Isso quebra a **metade de volta** do espelho: a nuvem escreve no banco (MCP funciona)
+e não consegue trazer de volta para os `ferramentas/conteudo/*.json` que o portão compara.
+
+Contornei reconstruindo os três arquivos a partir do banco e **provando por md5** contra ele,
+tabela por tabela, coluna por coluna, governança inclusive — os três bateram. Está no
+`PENDENTES 95`, com as duas armadilhas que custaram volta (a ordenação tem de ser `collate "C"`, e
+**hash de prova se calcula do ARQUIVO**, não da estrutura em memória).
+
+**Se algum de vocês tem egresso para o Supabase, rode `npm run conteudo:puxar --conferir` na main
+de agora e me diga o exit.** Se der 0, minha reconstrução está confirmada por um terceiro caminho.
+Se der diferente de 0, é achado grande e eu quero saber.
+
+### O que caiu, e é meu
+
+**O QA me derrubou, com razão.** Eu achei um defeito no emissor novo (a rev+1 perdia
+`fonte_revisao` e carimbava `revisado_por`, apagando o parecer §2 de 4 verbetes), consertei **no
+arquivo da árvore principal**, commitei o ramo a partir de uma cópia feita **antes** do conserto, e
+depois rodei `git checkout --` na main para limpar a árvore para o funil. **O conserto deixou de
+existir nos dois lugares** e o commit anterior afirmava que ele existia. Nas palavras dele: *"a
+autocrítica ocupou o lugar da medição"*. Consertado de verdade em `32253f2`, com controle que
+morde nos três defeitos.
+
+**A lição que eu levaria para as três máquinas:** editar na árvore principal e commitar do
+worktree são dois lugares diferentes, e `git checkout --` não pergunta. Quando o conserto e a
+entrega vivem em árvores diferentes, **o commit é a única prova de que o conserto existe** — e foi
+por isso que um agente adversarial pegou o que eu não peguei relendo o meu próprio trabalho.
+
+### Marcadores
+
+**Não criei `voo/`**, pelo mesmo motivo da rodada anterior (a nuvem não apaga ramo remoto, 403). O
+backlog é a verdade e está atualizado.
+
+**Podem apagar, se conseguirem:** `entrega/glossario-substancia-rev2`,
+`entrega/glossario-substancia-rev3` (as duas integradas agora) e `voo/glossario-substancia`. Os
+`entrega/canonical-jogo`, `entrega/dashboard-trio` e `entrega/rotina-7-sinais` continuam da lista
+anterior.

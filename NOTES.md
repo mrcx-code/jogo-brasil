@@ -10860,3 +10860,72 @@ representa. As duas viram item de check:
    alternativa **Cida Bento, *O pacto da branquitude*, 2022**.
 
 Os três verbetes entraram **sem** esses nomes. Fechar a lacuna é decisão dele.
+
+---
+
+## 01/09 — DIÁRIO · `nuvem-20260901T2022` (rodada agendada, pela fila)
+
+**O que fiz.** Peguei a entrega órfã `entrega/glossario-substancia-rev2` — parada desde a manhã,
+que duas rodadas não integraram — e **auditei em vez de refazer**, como o `PLANTAO.md` §7 manda.
+Integrada como `rev3` (`af65a8f`), funil com os três portões verdes por exit code real. O item
+`glossario-substancia-descolonial` fecha **4 de 4** e sai do backlog.
+
+**O que MEDI, com número:**
+
+| | |
+|---|---|
+| glossário | **181 → 184 verbetes**, 17 grupos, **644 → 661 pares** |
+| espelho do banco | `conteudo:conferir` **exit 0**, mesmo hash `4c8b17e2…` dos dois lados |
+| chaves aplicadas no banco | **24** — 3 verbetes novos, 17 pares novos, 4 verbetes com `ordem` deslocada |
+| prova arquivo × banco | md5 igual nas 3 tabelas (`e3ac32e8…` · `3567011f…` · `7b0872bd…`) |
+| triagem §2 | **179 de 184** em `tag_s2`; as 5 restantes com parecer escrito — **nenhuma linha sem parecer** |
+| portões | `npm test` **0**, `encaixe` **0**, `espelho do conteudo` **0** |
+| baseline da máquina | `npm test` na main limpa **exit 0** antes de tudo (separa máquina de entrega) |
+
+**O que QUEBROU, e é meu.** Duas coisas, e a segunda é a que ensina.
+
+1. **O emissor novo perdeu `fonte_revisao` e carimbou `revisado_por`**, apagando o parecer §2 de
+   4 verbetes numa tabela que **não tem delete**. Peguei por inspeção antes de espalhar e
+   restaurei do rev anterior (`181 → 181` linhas com governança, provado pelo QA).
+2. **Eu afirmei ter consertado o portão disso, e o conserto não estava no ramo.** Editei na
+   **árvore principal**, commitei o ramo de uma cópia feita **antes**, e depois rodei
+   `git checkout --` na main para limpá-la para o funil. O conserto sumiu dos dois lugares e o
+   commit anterior dizia que ele existia. Consertado de verdade em `32253f2`.
+
+**O que CAIU — afirmação minha refutada, e vale mais que confirmação.** O `qa` mediu no ramo:
+`grep GOVERNANCA_HERDADA` → **0 ocorrências**; o SQL gerado carimbava `revisado_por` e omitia
+`a.fonte_revisao`; controle circular sobre o mesmo defeito **exit 0**, controle honesto **exit 1,
+6 perdas**. O diagnóstico dele é a frase que eu quero que a próxima sessão leia: **"a autocrítica
+ocupou o lugar da medição"** — e o brief dele trazia, por escrito, o aviso de que entrega honesta é
+onde eu baixo a guarda. Foi o aviso que produziu o achado.
+
+**Três regras que saem desta rodada e não são sobre glossário:**
+
+1. **O controle de uma lista nunca se escreve a partir da lista que ele controla.** Meu primeiro
+   autoteste percorria `GOVERNANCA_HERDADA` — a lista que o defeito encurta — e saía **exit 0**
+   com o defeito injetado. A cobrança passou a vir do `conteudo-puxar.js`, que é outro arquivo.
+2. **Analisador ingênuo confunde delimitador com conteúdo** (a família do `PENDENTES 92`). Dentro
+   do próprio controle novo eu paguei isso **duas vezes**: fatiei o statement no primeiro `;` (e
+   texto histórico TEM ponto-e-vírgula dentro das aspas, então o corte caía no meio de um verbete
+   e o controle acusava "não emitiu" sobre SQL correto), e casei o nome da tabela sem o prefixo
+   `public.` que o emissor escreve (o filtro nunca achava nada). **As duas falhavam pela
+   NEGATIVA** — a forma mais barata de um controle mentir.
+3. **Editar numa árvore e commitar de outra são dois lugares, e `git checkout --` não pergunta.**
+   Quando o conserto e a entrega vivem em árvores diferentes, o commit é a única prova de que o
+   conserto existe.
+
+**Dúvidas que apareceram.**
+- **A nuvem não alcança o Supabase** (`403 Host not in allowlist`), então `conteudo:puxar` não
+  roda aqui e a metade de volta do espelho fica sem o caminho normal (`PENDENTES 95`). Contornei
+  por reconstrução + prova de md5, mas isso é contorno: ou o host entra na allowlist de egresso,
+  ou o `puxar` ganha um modo `--de <arquivo>`.
+- **`gerar-glossario.js` não roda nesta máquina** (Chromium nu, `PENDENTES 98`) — reproduzido
+  igual em `origin/main`, então não é regressão. A esteira que publica `/glossario` morre em
+  silêncio numa máquina assim.
+
+**O próximo passo.** Duas coisas do dono, e são as únicas travas: `PENDENTES 96` (lugar de fala em
+ECONOMIA DO OURO e CRITÉRIO BRASIL — Clóvis Moura pela 1ª edição de 1959, sem o selo que ele
+recusou em 24/08; e Marcelo Paixão/LAESER para a régua de classe). Da minha fila: `PENDENTES 99`
+(o `default false` do `tag_s2` faz silêncio parecer decisão) e `PENDENTES 95`.
+
+**Nome de máquina desta rodada: `nuvem-20260901T2022`.**

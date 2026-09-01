@@ -503,7 +503,7 @@
     {
       "id": "glossario-substancia-descolonial",
       "titulo": "Enriquecer o glossario com a economia real (escravidao, terra, extracao colonial ate hoje) — substancia com fonte, sem lexico de corrente",
-      "detalhe": "ENTREGA ORFA — NAO REFACA. O trabalho existe no ramo remoto entrega/glossario-substancia-rev2 (2396a90, commit datado de 01/09 08:34, da rodada nuvem-20260901T0823; a hora do push nao e recuperavel pela API) e NUNCA foi pelo funil; a rodada seguinte concluiu que aquela nao tinha empurrado nada e devolveu este item a livre. Confirmado em 01/09 por nuvem-20260901T1622: os tres verbetes (ECONOMIA DO OURO, A CONTA DA ESCRAVIDAO, CRITERIO BRASIL) NAO estao na main (grep em src/jogo.ts nao acha nenhum). Diff: src/jogo.ts + NOTES.md, 181->184 verbetes; a entrega tambem CORTA a aspa sem pagina (\"os ingleses absorviam quase 60%\") e o numero que so existia dentro dela, resolvendo PENDENTES 90 (2) e metade do (3). O TRABALHO DA PROXIMA RODADA E AUDITAR E INTEGRAR, nao reescrever. Gatilhos do funil: historiador + qa (toca GLOSSARIO em src/jogo.ts). ATENCAO PENDENTES 87: editar glossario no jogo EXIGE o passo de banco, e o funil reverte se esquecer. O ramo foi cortado da main 55d6eea; a main andou desde entao, entao confira o merge.\n\n[detalhe original] Linha editorial de 24/08 (NOTES 'A LINHA EDITORIAL DO CONHECIMENTO'), 3 regras no aceite: (1) substancia com fonte, nao lexico de corrente; (2) fonte com lugar de fala, nao nomear politico vivo (Jones Manoel entra como fonte; Erika Hilton NAO se cita pelo nome); (3) a tese economica e FATO COM FONTE, o jogador conclui, nunca afirmada na voz do jogo. FEITO 1 de 4: LEI DE TERRAS (integrada, com IBGE). FALTAM 3, um verbete por vez, cada um com fonte propria e citavel: (a) CRITERIO BRASIL/ABEP 1997 — a regua de 'classe' mede CONSUMO, nao riqueza; fonte: ABEP. (b) ECONOMIA DO OURO sec. XVIII, o ouro de Minas financiando a industria inglesa via Tratado de Methuen 1703; fonte: Celso Furtado. (c) A ESCRAVIZACAO COMO BASE DE ACUMULACAO — o elo economico entre a travessia (§2) e a riqueza gerada fora daqui, com numero e fonte. IMPORTANTE (PENDENTES 87): editar glossario no jogo exige o passo de banco (rev+1 via MCP + conteudo:puxar) ANTES de integrar, senao o funil desfaz o merge no portao do espelho.",
+      "detalhe": "CONCLUIDO em 01/09 por nuvem-20260901T2022. Os 4 de 4 temas fechados (LEI DE TERRAS ja estava; ECONOMIA DO OURO, A CONTA DA ESCRAVIDAO e CRITERIO BRASIL entraram agora). A entrega orfa entrega/glossario-substancia-rev2 foi AUDITADA e integrada como rev3 (af65a8f), nao refeita. O historiador derrubou 2 datas (1720 das Casas de Fundicao, que e o ano do levante CONTRA elas -- a lei e de 11/02/1719; e \"versao em vigor desde 2015\" do Criterio Brasil, havendo CCEB_2026). Passo de banco do PENDENTES 87/90 aplicado: 24 chaves, espelho integro, 184 verbetes / 17 grupos / 661 pares. Fica aberto so o que e do dono: PENDENTES 96 (lugar de fala em 2 verbetes).",
       "camada": "ACERVO",
       "agente": "historiador",
       "banca": "qa",
@@ -511,9 +511,7 @@
         "src/jogo.ts",
         "NOTES.md"
       ],
-      "estado": "em-curso",
-      "maquina": "nuvem-20260901T2022",
-      "desde": "2026-09-01T20:33:31.070Z"
+      "estado": "concluido"
     },
     {
       "id": "vestir-rodape-verdadeiro",

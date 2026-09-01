@@ -3242,3 +3242,183 @@ trabalho que "string vs. comentário", e ninguém pediu para pagá-la hoje.
 **A régua para decidir se vale:** isto é dívida latente, não defeito ativo. Se o repositório
 seguir sem nenhuma linha que junte as duas coisas, o item pode envelhecer parado sem custo —
 o que **não** pode é alguém reencontrar o buraco daqui a um mês e pagar a investigação de novo.
+
+---
+
+## 95 — A NUVEM NÃO ALCANÇA O SUPABASE PELO `conteudo:puxar`, e isso quebra a metade de volta do espelho — plantao (01/09)
+
+**Medido nesta data, e é estrutural como o 403 do `delete_ref`:** a máquina da nuvem não fala com
+o host do Supabase por HTTP direto.
+
+```
+npm run conteudo:puxar
+PUXANDO O CONTEÚDO — https://hdhqziqvrthxtgyraemk.supabase.co (chave publicável, só GET)
+Error: conteudo_glossario_grupo: HTTP 403 — Host not in allowlist:
+       hdhqziqvrthxtgyraemk.supabase.co. Add this host to your network egress settings.
+exit 1
+```
+
+**Por que isso importa mais do que parece.** O espelho do conteúdo tem duas metades: o plantão
+**escreve** no banco (via MCP, que funciona) e o `conteudo:puxar` **traz de volta** para o arquivo
+versionado que o portão `conteudo:conferir` compara. A nuvem tem a ida e **não tem a volta**. Como
+o funil roda `conteudo:conferir` sempre que o diff toca o glossário (PENDENTES 87), o efeito
+prático é: **a nuvem consegue mexer no glossário e não consegue fechar o ciclo pelo caminho
+normal.**
+
+**O que esta rodada fez, e é contorno, não conserto.** Os três `ferramentas/conteudo/*.json` foram
+**reconstruídos** a partir do banco (conteúdo do jogo recém-escrito lá; governança herdada da linha
+anterior) e depois **provados contra o banco** por md5 das três tabelas, coluna por coluna,
+governança inclusive — calculado dos dois lados com a mesma serialização (`to_json(col)#>>'{}'`
+para timestamp, para bater a forma que o PostgREST emite):
+
+| tabela | linhas | md5 do arquivo | md5 do banco |
+|---|---:|---|---|
+| `conteudo_glossario_grupo` | 17 | `e3ac32e8…` | `e3ac32e8…` |
+| `conteudo_glossario` | 184 | `25b34b5c…` | `25b34b5c…` |
+| `conteudo_glossario_rel` | 661 | `7b0872bd…` | `7b0872bd…` |
+
+**Duas armadilhas pagas ao montar essa prova, e as duas valem para quem repetir:**
+1. **A ordenação tem de ser `collate "C"`.** O `canonizarLinhas` do puxão ordena por unidade de
+   código UTF-16; `order by chave` no Postgres usa a collation do banco e dá **outra ordem** com
+   acento. Hash diferente sem uma linha de dado diferente.
+2. **O primeiro hash que eu imprimi estava errado** e me fez perseguir um fantasma: eu hasheava a
+   estrutura em memória, não o arquivo escrito. **Hash de prova se calcula do ARQUIVO**, que é o
+   objeto que vai para o git — senão prova-se a intenção, não o resultado.
+
+**O conserto de verdade, e é decisão de quem tem acesso ao ambiente:** ou o host entra na
+allowlist de egresso da nuvem (é `GET` com chave publicável que só lê o publicado e vigente —
+a mesma que o dashboard usa no navegador de qualquer pessoa), ou o `conteudo-puxar.js` ganha um
+modo `--de <arquivo.json>` que aceita as linhas obtidas por outro transporte e as escreve pela
+mesma forma canônica. A segunda opção é uma tarde e não depende de ninguém; a primeira é uma
+linha de configuração e some com o problema.
+
+**Enquanto nenhuma das duas existir:** a nuvem pode mexer no glossário, mas **tem de provar por
+md5** e escrever a prova no commit. Reconstruir sem provar é fabricar um arquivo que parece o
+banco — e o portão diria verde sobre ele, porque o portão compara o arquivo com o JOGO, nunca com
+o banco.
+
+---
+
+## 96 — Duas lacunas de LUGAR DE FALA nos verbetes novos, e as duas são do dono — historiador/dono (01/09)
+
+Achadas pelo `historiador` ao auditar a entrega do glossário. **Ele não as fechou sozinho, e está
+certo:** a linha de fonte é visível na tela, e escolher quem narra é escolher quem representa —
+§2, que é do dono.
+
+**1. ECONOMIA DO OURO.** A frase que nomeia gente ("quem cavou foi gente africana escravizada") e
+a remissão para QUILOMBO são sustentadas só por historiografia econômica branca do período (Noya
+Pinto, Laura de Mello e Souza). Proposta: **Clóvis Moura, *Rebeliões da senzala: quilombos,
+insurreições, guerrilhas*, Edições Zumbi, 1959.**
+
+**O fato novo, e ele muda a premissa da decisão de 24/08:** Moura tinha ficado de fora porque a
+edição corrente de outra obra dele carrega selo de corrente, e a linha editorial recusa isso. Mas
+a **1ª edição desta obra, de 1959, é da Edições Zumbi** — casa que fechou três anos depois de
+fundada e não carrega selo nenhum. A objeção de 24/08 não alcança esta citação.
+
+**2. CRITÉRIO BRASIL.** A nota da entrega dizia que "fonte institucional basta, porque o verbete
+não interpreta a vida de ninguém". **Não basta, e o historiador desmentiu com o próprio texto:** a
+última oração do verbete — *"a régua enxerga o que a casa comprou e não enxerga o que a família
+herdou"* — **é** interpretação sobre desigualdade, e hoje quem a carrega é uma fonte de mercado
+publicitário (a ABEP). Proposta: **Marcelo Paixão (coord.), *Relatório Anual das Desigualdades
+Raciais no Brasil 2009–2010*, LAESER/UFRJ, 2010** (economista negro, laboratório que existe para
+mostrar o que os classificadores socioeconômicos escondem sobre raça e patrimônio); alternativa
+**Cida Bento, *O pacto da branquitude*, 2022**.
+
+**Os três verbetes entraram SEM esses nomes** — o texto está no ar e correto; o que falta é a
+autoria com propriedade sobre a interpretação. Fechar é uma linha de `f:` em cada verbete, mais o
+passo de banco.
+
+---
+
+## 97 — O `--sql` do espelho perdeu `fonte_revisao` na primeira versão, e o controle que eu escrevi para isso era CIRCULAR — plantao (01/09)
+
+Registrado porque as duas metades ensinam, e a segunda ensina mais.
+
+**O defeito.** O emissor de rev+1 herdava cinco colunas de governança e deixava `fonte_revisao`
+de fora, além de carimbar `revisado_por` com o nome da máquina. Os 181 verbetes tinham
+`revisado_por` = "historiador" e `fonte_revisao` = *"parecer 21/08/2026: triagem §2 dos 181
+verbetes"* — que foi um item inteiro de backlog. **Quatro linhas perderam isso** antes de alguém
+olhar; foram restauradas a partir do rev anterior, e o `TUMBEIRO` recuperou também o
+`s2_alto aprovado pelo dono 21/08`.
+
+E vale dizer o que o defeito ensinou sobre o modelo: **deslocar a `ordem` de um verbete não é
+revisar o verbete.** Quem o revisou continua sendo quem o revisou; quem aplicou vai em
+`aprovado_por`. Carimbar `revisado_por` é assinar o parecer de outra pessoa.
+
+**A parte que vale mais: o primeiro controle não mordia.** Escrevi um autoteste que percorria
+`GOVERNANCA_HERDADA` exigindo que toda coluna dali fosse herdada. Injetado o defeito real (tirar
+`fonte_revisao` **daquela lista**), o autoteste saiu **exit 0** — ele deixava de procurar a coluna
+**junto com** o emissor. Controle que lê a mesma variável que o defeito estraga é decoração
+assinada de verde, que esta casa considera pior que teste nenhum.
+
+**O conserto:** a lista de cobrança passou a vir do `conteudo-puxar.js`, que é **outro arquivo** e
+a outra ponta do espelho — toda coluna de governança que o puxão traz do banco tem de ser herdada,
+menos as sete que o emissor decide de propósito, cada uma nomeada com o motivo. Medido, com os
+dois defeitos injetados um de cada vez:
+
+| cena | exit |
+|---|---|
+| sem defeito | **0** |
+| `fonte_revisao` fora da lista herdada | **1** — "a coluna de governança fonte_revisao não é herdada…" |
+| `revisado_por` carimbado com quem aplicou | **1** — "carimba o nome de quem aplicou 2 vez(es)…" |
+
+**A regra que sai daqui, e ela é geral:** *o controle de uma lista nunca se escreve a partir da
+lista que ele controla.* Ele se escreve a partir da outra ponta — o esquema, o outro arquivo, a
+outra ferramenta. Senão o teste encolhe junto com o defeito.
+
+---
+
+## 98 — `gerar-glossario.js` não roda nesta máquina: o lançamento nu de Chromium do PENDENTES 91 (1) agora tem número — porteiro (01/09)
+
+O `PENDENTES 91` item 1 listou **seis** `chromium.launch()` nus em `ferramentas/gerar-*.js` e disse
+que eles estão "fora do alcance do `portao-navegador.js` por desenho". Faltava a medida do custo.
+Ela apareceu hoje, ao auditar a entrega do glossário: **o gerador da página pública simplesmente
+não roda.** Ele tenta abrir `chromium_headless_shell-1234`, que não existe aqui; só a revisão
+`1194` está instalada, e é a que o `test/smoke.js` acha por fallback explícito (`PW_CHROMIUM` /
+`/opt/pw-browsers/chromium`).
+
+**Não é regressão da entrega:** o porteiro reproduziu o mesmo erro em `origin/main`. E o contorno
+que ele usou (um wrapper que só troca o `executablePath` em tempo de execução, sem tocar arquivo
+do repositório) provou que, **passado o lançamento, o gerador está certo**: saiu
+`glossario/index.html — 184 verbetes em 17 grupos, 341 KB`, com 184 blocos `DefinedTerm` no
+JSON-LD e nenhum `181` remanescente (as duas ocorrências de "181" no HTML são o ano **18**11 do
+cais, falso positivo).
+
+**Por que isto é pior do que "ferramenta que não roda":** é a esteira que publica `/glossario`, uma
+das cinco páginas da plataforma. Numa máquina onde ela morre, a página fica **velha em silêncio** —
+ninguém recebe vermelho, porque nenhum portão cobre o gerador. Hoje a página do ar teria continuado
+dizendo 181 enquanto o jogo diz 184.
+
+**Aceite, e é uma linha por arquivo:** `ferramentas/gerar-*.js` passam a usar o mesmo fallback de
+`executablePath` que o `test/smoke.js` já tem — a função existe, é só chamá-la. Território:
+`dev-plataforma` (os `gerar-*.js` são dele).
+
+---
+
+## 99 — O `tag_s2` não distingue "triado e decidido que não" de "nunca triado" — qa/dev-dados (01/09)
+
+Achado pelo `qa` ao auditar a entrega do glossário, e é do tipo que só aparece quando alguém
+olha a coluna em vez do portão.
+
+`conteudo_glossario.tag_s2` é `bool not null default false`. Então um verbete que **entra sem
+ninguém triar** fica `false` — exatamente igual a um que o historiador **leu e decidiu** que não
+toca o §2. Os três verbetes novos entraram assim: `tag_s2 = false` por default do esquema,
+`revisado_por` e `fonte_revisao` nulos. E o critério de 21/08 é, por escrito, **"na dúvida,
+true"** (176 de 181 na época). Um verbete chamado **A CONTA DA ESCRAVIDÃO** ficou marcado como
+não-§2 sem que ninguém tivesse decidido isso.
+
+**Fechado nesta rodada, para os três:** postos em `true`, com `revisado_por = historiador` e o
+parecer de hoje em `fonte_revisao` (o historiador verificou §2 item a item nos três — está no
+NOTES). Medido depois: **179 de 184 em `true`**, e as **5** que seguem `false` têm parecer
+explícito escrito ("sem superfície de representação — mecanismo/instituição").
+**Hoje nenhuma linha vigente está sem parecer.**
+
+**O que continua aberto, e é o item:** nada IMPEDE que a próxima linha entre assim de novo. O
+`values` do emissor não escreve `tag_s2` de propósito — script não dá parecer de §2, e isso está
+certo (`conteudo-carga.js` §26 diz o mesmo). O buraco é o `default false` fazendo o silêncio
+parecer decisão.
+
+**Duas saídas, e a segunda é melhor:** (a) o `conteudo-vigia.js` ganha um sinal "verbete vigente
+com `revisado_por` nulo" — barato, e transforma o silêncio em fila de trabalho; (b) a coluna vira
+`bool null` com `default null`, e aí "não sei" tem como ser dito. (b) é a modelagem correta e
+custa migração + ajuste de quem lê; (a) resolve o sintoma hoje. Território: `dev-dados`.
