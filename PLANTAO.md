@@ -462,9 +462,16 @@ que ela deixou.
 
 A rodada `nuvem-20260901T0823` pegou seis itens e a rodada seguinte concluiu que ela **"não
 empurrou nada em cinco horas"**, porque os quatro `voo/` apontavam para o commit de backlog.
-A conclusão estava **errada**. Ela empurrou: `entrega/rotina-7-sinais` (`d7174e5`, 08:42) e
-`entrega/glossario-substancia-rev2` (`2396a90`, 08:34) — duas entregas inteiras, com mensagem
-de commit medida, que nunca foram pelo funil. Os itens delas voltaram a `livre`.
+A conclusão estava **errada**: existem `entrega/rotina-7-sinais` (`d7174e5`) e
+`entrega/glossario-substancia-rev2` (`2396a90`) — duas entregas inteiras, com mensagem de
+commit medida, que nunca foram pelo funil. Os itens das duas voltaram a `livre`.
+
+**O que eu sei e o que eu não sei, porque a diferença importa e é fácil de atropelar.** Os
+commits são datados de **08:34 e 08:42**; a **hora do push** não é recuperável pela API, então
+eu **não** afirmo que a rodada das 13:40 podia tê-los visto — talvez os ramos tenham subido
+depois dela. O que eu afirmo, e basta para a regra, é que a varredura dela olhou **só `voo/`**:
+com `entrega/` fora do campo de visão, essa classe de órfão passa despercebida de qualquer
+jeito, tenha subido às 08:42 ou às 13:41.
 
 **O marcador `voo/` diz que alguém pegou. Ele não diz se alguém TERMINOU** — e o que diz isso
 é o ramo `entrega/`, que é onde o trabalho pousa. Devolver item a `livre` sem olhar ali é
