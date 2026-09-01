@@ -10330,3 +10330,125 @@ Medi o custo do quadro a 390×844 e deu **1,8 fps (1530) e 2,2 fps (2030)**, med
 **Isto não diz nada sobre o celular do dono:** esta máquina não tem GPU e o render sai por
 SwiftShader (software). É **piso**, não veredito. O que fica é o buraco: o guardrail 3 do spec pede
 medição de performance mobile e **ela continua sem existir** — nenhum número de aparelho real.
+
+## 01/09 — DUAS ENTREGAS INTEGRADAS, E O PORTÃO QUE DIZ VERDE SOBRE O QUE NÃO LÊ — plantao (nuvem-20260901T1340)
+
+Rodada agendada, pela fila (nenhuma issue com etiqueta `agente`). **Nome de máquina:
+`nuvem-20260901T1340`.**
+
+### A fila estava mentindo, e foi o primeiro trabalho
+
+A rodada `nuvem-20260901T0823` marcou **seis** itens `em-curso` às 08:24/08:29 e **não empurrou
+nada em cinco horas** — os quatro ramos `voo/` apontavam para o próprio commit de backlog.
+Locks vencidos (janela de 2 h): peguei quatro, devolvi dois a `livre`.
+
+### O que foi integrado
+
+**`canonical-jogo` (`8614ce2`) — e a premissa do item CAIU.** O item mandava pôr o
+`<link rel="canonical">` no molde e citava *"grep agora: 0 ocorrências"*. Medido: a linha está
+em `src/index.html:55` desde `f79ce99`, de **24/08** — oito dias antes de o item ser reaberto —
+e a exceção do build também (`construir.js:197`). O que **não** existia era portão:
+`test/encaixe.js` da `main` tinha **0** ocorrências de `canonical`. Entrou o bloco 14 com 3
+asserções (existe · a marca `@@BASE@@` não sobrou crua · canonical == `og:url`), com as três
+injeções refeitas **à mão pelo pré-integrador** — exit 1 na asserção certa em cada uma.
+Endereço confirmado: `https://matheusferreira.cc/jogo/` (a raiz virou a porta da plataforma em
+20/08, então o §8 e o item não se contradizem).
+
+**O trio do `dashboard/` (`c9ced6d`) — e ele foi DEVOLVIDO uma vez, com razão.** Os três itens
+órfãos da segurança de 23/08: Google Fonts fora do painel (que prometia "sem rastreio" no
+rodapé enquanto entregava IP e User-Agent ao Google a cada carga), a recusa 422 deixando de se
+chamar "Sem conexão", e a perda de resposta passando a deixar rastro em `mesa-brasil-perdidas`.
+
+### O que CAIU, e vale mais que o que passou
+
+**A primeira versão do trio não cumpria o próprio item 3.** O pré-integrador achou um
+**terceiro caminho de perda** que a enumeração do autor não cobria: em `registrar()`, com a
+fila já no teto ao escrever, `gravarFila()` devolve `false` e o texto sumia sem rastro — a
+mesma doença que o item existia para curar. Provado ao vivo com fila pré-semeada de 50 itens:
+`perdidasRaw=null`. Depois do conserto, o mesmo teste devolve o texto guardado e visível na
+carga seguinte. **Enumeração final conferida: 5 pontos tocam a fila, 3 perdem texto, os 3
+chamam `guardarPerdida()`.**
+
+**E a alegação "só mudei `font-family`" era falsa.** A troca de fonte quebrou o `style=` de
+`#ag-nota` com aspas não escapadas dentro de um atributo delimitado por aspas: medido com
+`getComputedStyle`, `color`, `margin-top` e `text-align` **sumiam** e a família aplicada era a
+serifa herdada. Os prints antes/depois do autor não pegaram porque o elemento estava vazio na
+hora — **print não é prova de que o CSS chegou; `getComputedStyle` é.**
+
+**Achado extra, e maior que os três itens:** a CSP do `dashboard/` **nunca foi checada por
+build nenhum**. `verificarRede()` roda uma vez só, sobre o `index.html` compilado do jogo; o
+`dashboard/index.html` era copiado byte a byte para `dist/` sem passar por checagem — desde
+que a CSP dele existe (21/08). Fechado com `conferirCspDashboard()`, que morde nas **três**
+direções (afrouxar com host novo · apertar removendo diretiva · apagar a CSP inteira), cada uma
+exit 1.
+
+### O buraco que fica aberto: `PENDENTES 92`
+
+O pré-integrador rodou **depois** do conserto — a regra do `PLANTAO.md` §8 — e achou defeito no
+**instrumento**, não no produto. `test/portao-navegador.js`, que existe para impedir Chromium
+nu, tem `semComentarios()` procurando `/*` no texto bruto **sem entender strings**.
+`rodape-verdadeiro.js` usa a rota Express `'/**'` seis vezes; o parser lê aquilo como abertura
+de comentário e **engole o arquivo até o próximo `*/`**, inclusive o `chromium.launch()` real.
+
+Medido: reinjetado o lançamento nu, o portão saiu **exit 0** — deveria ser 1. Varridos os
+`test/*.js`: **8 arquivos hoje no alcance têm ocorrência engolida**, entre eles **o próprio
+`portao-navegador.js`**. O `--autoteste` passa porque injeta sempre na mesma cobaia
+(`medir-save-hostil.js`), que não tem o padrão — **1 cobaia fixa contra 8 arquivos cegos**.
+
+**Correção honesta de uma afirmação que foi para a `main`:** o commit `532a9e7` diz que o
+`rodape-verdadeiro.js` ficou *"vigiado por"* o `portao-navegador.js`. A amarração está lá e está
+correta; a **vigilância não existe**. O que é verdade e foi medido: o arquivo roda **15/15
+cenas, exit 0, limpo, sem preload** — deixou de lançar nu de verdade. O que não existe é a
+garantia contra ele voltar.
+
+### Três armadilhas de máquina que custaram esta rodada e vão custar a próxima
+
+1. **A nuvem não apaga ramo remoto.** `git push --delete` → **HTTP 403** do GitHub (não é o
+   proxy: `recentRelayFailures` vazio, e *criar* ramo funciona no mesmo minuto). A nuvem cria
+   marcador `voo/` e nunca limpa, rodando de 4 em 4 horas. Regra nova no `PLANTAO.md` §7: **o
+   marcador é pista, o `backlog.json` é a verdade.** Ficaram para trás `voo/rotina-7-sinais` e
+   `voo/glossario-substancia`, para quem puder apagar.
+2. **O primeiro funil da nuvem morre no `tsc`.** O contêiner nasce com o `node_modules` da raiz
+   incompleto — `npm install` acrescentou **103 pacotes**, entre eles o `typescript` do
+   `package.json`. O vermelho chega **com o nome da entrega colado** (`npm test -> exit 1 /
+   merge DESFEITO`) e a entrega recusada aqui era **um arquivo de teste, +14/−1**. Medido:
+   `npm run build` na `main` limpa **antes** = exit 1, **depois** = exit 0, mesmo funil = exit 0.
+   Cada worktree de agente tem `node_modules` próprio, então **pré-integrador verde não prevê
+   este vermelho** — ele não mede a máquina onde o funil roda.
+3. **Achado órfão se confere no `git log` antes de virar item** (`PLANTAO.md` §5). O
+   `canonical-jogo` mandava consertar o que estava consertado havia 8 dias. Quem seguisse o
+   aceite ao pé da letra veria `git diff` vazio e teria **confirmado um achado que não existia**.
+
+### Uma afirmação minha que foi refutada por medição minha
+
+Escrevi no `PLANTAO.md`, **antes de medir**, que o `git push` recusado saía com **exit 0**. Sai
+com **exit 1** — o git é honesto. Quem mente é a **última linha**, que imprime `Everything
+up-to-date` depois do 403. Eu tinha canalizado o `git` para um `tail` e lido o exit **do tail**:
+`cmd 2>&1 | tail; echo $?` mede o tubo, nunca o comando. Corrigido no mesmo arquivo com as duas
+leituras lado a lado.
+
+### O painel
+
+Estava **congelado havia 5 h** mostrando dois agentes "trabalhando" da rodada morta
+(`PLANTAO.md` §5.1 — é o que o dono repara). Reescrito para o estado real. E fica medido, contra
+o que a `RETOMADA` de 27/08 dava a entender: **a nuvem ESCREVE na `mesa_agente` pelo MCP** — o
+fail-closed é da RLS do navegador/anon, não deste caminho. Painel congelado numa rodada da nuvem
+é esquecimento, não falta de acesso.
+
+### Placar
+
+| quem | rodadas | achados | reais | desmentidos |
+|---|---:|---:|---:|---:|
+| plantão | 1 | 5 | 4 | 1 (a minha, do exit 0) |
+| dev-plataforma (canonical) | 1 | 1 | 1 | 1 (a premissa do item) |
+| dev-plataforma (trio) | 2 | 4 | 4 | 0 |
+| pré-integrador (canonical) | 1 | 3 | 0 | 0 (as 3 injeções confirmaram) |
+| pré-integrador (trio) | 2 | 5 | 3 | 2 |
+
+### Próximo passo
+
+`PENDENTES 92` / item `semcomentarios-engole-o-arquivo`: fazer `semComentarios()` pular
+literais de string, reinjetar o nu e cobrar **exit 1**, dar ao `--autoteste` uma **segunda
+cobaia com o padrão `'/**'`** (cobaia única é o que deixou isso passar), e reportar a varredura
+dos 8 com **0 engolidos**. É um portão mentindo de verde e ele cobre a classe de defeito do
+`PENDENTES 88` — vale antes de qualquer item de produto.

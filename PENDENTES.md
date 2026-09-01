@@ -3083,3 +3083,79 @@ Nenhum bloqueou entrega; cada um tem número.
    encaixe sai 0), mas envenenamento de estado sequencial **já custou sessão nesta casa** — foi a
    causa do `PENDENTES 13`, e ninguém compara o log NUMÉRICO do encaixe antes e depois de uma
    mudança dessas: só o exit code responde por isso.
+
+---
+
+## 92 — O `portao-navegador.js` diz VERDE sobre arquivos que ele nunca chega a ler — plantao/pre-integrador (01/09)
+
+**É um portão que mente de verde, que é a classe que esta casa mais teme** — e ele foi achado
+pelo pré-integrador rodando **depois** de um conserto, não antes, que é exatamente a regra do
+`PLANTAO.md` §8 pagando por si mesma.
+
+### O que é
+
+`test/portao-navegador.js` existe para garantir que nenhum portão lance o Chromium **nu** (sem
+`executablePath`) — o defeito do `PENDENTES 88`. Para isso ele varre os arquivos e, antes de
+procurar `chromium.launch`, tira os comentários com `semComentarios()` (linhas ~158-171).
+
+`semComentarios()` procura `/*` **no texto bruto, sem entender strings**. E
+`test/rodape-verdadeiro.js` usa `'/**'` — o curinga de rota do Express — **seis vezes**
+(linhas 243, 251-253, 679, 685). O parser lê o `/*` de dentro dessa string como abertura de
+comentário de bloco, não acha um `*/` por perto, e **engole tudo até o próximo `*/` legítimo
+do arquivo**, inclusive o `chromium.launch()` real da linha 368.
+
+Prova isolada, fora do arquivo real:
+
+```js
+semComentarios("await pag.route(base + '/**', r => {});\nconst nav = await chromium.launch();\n")
+// -> "await pag.route(base + '               \n                                    \n  "
+```
+
+### O estrago, medido
+
+Reinjetado o lançamento nu em `test/rodape-verdadeiro.js` e rodado o portão que deveria pegá-lo:
+
+```
+portões derivados: 25 · com os requires locais: 32
+VERDE — todo portão diz onde o Chromium está.
+EXIT_COM_DEFEITO=0        <- deveria ser 1
+```
+
+**Não são só este arquivo.** Varridos todos os `test/*.js`, comparando quantas ocorrências de
+`chromium.launch` existem no texto contra quantas sobrevivem ao `semComentarios()`: **8
+arquivos hoje no alcance do portão têm pelo menos uma ocorrência inteiramente engolida** —
+`test/abrir.js`, `test/caminhos-do-backlog.js`, `test/fila-auth.js`,
+`test/medir-leitura-secao.js`, `test/medir-paginas.js`, `test/medir-plataforma-chrome.js`,
+`test/rodape-verdadeiro.js` e **o próprio `test/portao-navegador.js`**.
+
+### Por que o autoteste não salvou
+
+O `--autoteste` embutido sai verde e diz *"o portão morde e solta"*. Ele injeta **sempre no
+mesmo arquivo-cobaia** (`test/medir-save-hostil.js`), que não tem o padrão `'/**'`. Então ele
+prova que a varredura morde **naquele caso** e dá confiança de que morde em geral. É o aviso do
+`CLAUDE.md` sobre controle que morde sozinho mas não morde no conjunto, com número: **1 cobaia
+fixa contra 8 arquivos cegos.**
+
+### A correção honesta de uma afirmação que foi para a `main`
+
+O commit `532a9e7` diz, na mensagem, que o `rodape-verdadeiro.js` foi *"amarrado também em
+`test/portao-navegador.js`"* e ficou *"vigiado por ele"*. **A primeira metade é verdadeira e a
+segunda é falsa:** a linha `fontes.push('node test/rodape-verdadeiro.js')` está lá e está
+correta, mas o arquivo **não é vigiado**, porque a mesma string que o faz funcionar (`'/**'`) é
+a que o torna invisível ao scanner. Fica registrado aqui porque afirmação que o objeto não
+cumpre é precisamente o que esta casa caça — e ela entrou na `main` dentro de uma entrega boa,
+que é como esse tipo de coisa costuma entrar.
+
+O que **é** verdade e foi medido: `node test/rodape-verdadeiro.js` roda **15/15 cenas, exit 0,
+limpo, sem preload nenhum** nesta máquina. O `chromium.launch()` dele deixou de ser nu de
+verdade. O que não existe é a vigilância contra ele voltar a ser.
+
+### O conserto
+
+`semComentarios()` precisa pular literais de string (`'...'` e `"..."`) ao procurar `//` e
+`/*`. Não precisa ser parser JS completo — reconhecer as duas aspas e pular o conteúdo basta.
+
+**Aceite:** com o conserto, reinjetar `chromium.launch()` nu em `test/rodape-verdadeiro.js` e
+o portão sair **exit 1**; e o `--autoteste` deixar de ter cobaia única — que ele injete também
+num arquivo com `'/**'`, senão o próximo buraco desta forma volta a passar. Rodar a varredura
+nos 8 arquivos e reportar o número novo de engolidos (esperado: 0).

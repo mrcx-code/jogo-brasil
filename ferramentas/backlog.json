@@ -431,35 +431,32 @@
     {
       "id": "dashboard-sem-google",
       "titulo": "O painel e a unica pagina que ainda chama o Google, sob um rodape que diz sem rastreio",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "territorio": "dashboard/",
       "camada": "plataforma",
       "detalhe": "Achado PRE-EXISTENTE da seguranca em 23/08, auditando outra coisa. O dashboard/index.html linhas 38-40 tem dois preconnect e um stylesheet para fonts.googleapis.com. As 5 paginas da plataforma tiraram o Google Fonts em 22/08 (grep em plataforma/, historia/, glossario/, de-onde-vem/, territorio/ da zero linha); o painel tem tres. O rodape dele termina em sem rastreio, sem cookie de terceiro, sem perfil enquanto entrega IP e User-Agent ao Google a cada carga. Nao e do ramo auditado e nao reprovou nada, mas e a mesma doenca do item 60: afirmacao que a pagina nao cumpre. A chrome-plataforma.js ja tem a serifa da casa assada em data-URI, entao o conserto e trocar a fonte pela da casa e apagar as tres linhas.",
-      "maquina": "nuvem-20260901T1340",
-      "desde": "2026-09-01T13:42:07.368Z"
+      "desfecho": "Integrado em c9ced6d. Google Fonts fora (grep = 1, so comentario), CSP encolheu e passou a ser COBRADA pelo build — achado extra: a CSP do dashboard NUNCA era checada (verificarRede so olhava o index.html do jogo), buraco aberto desde 21/08, fechado com conferirCspDashboard(), que morde nas 3 direcoes."
     },
     {
       "id": "recusa-por-desenho-tem-nome",
       "titulo": "O painel chama recusa por desenho de sem conexao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "territorio": "dashboard/",
       "camada": "plataforma",
       "detalhe": "Achado pela seguranca em 23/08 e CONFERIDO NA MAIN, nao no relato: no instante em que o servidor recusa por desenho (HTTP 422), o toast que a pessoa ve e Sem conexao - guardei e reenvio. Frase identica byte a byte no codigo de antes de tudo, entao e PRE-EXISTENTE e o commit do rodape nao piorou -- melhorou, porque antes aquela frase imprecisa era a UNICA coisa que o dono via e a perda vinha depois em silencio; agora ela e seguida, na lavagem seguinte, pelo aviso correto. Conserto de uma linha em cada lugar: registrar() ja sabe distinguir por permanente(st), falta devolver um desfecho proprio para recusa por desenho em vez de cair no generico fila, e dizer() ganhar essa frase.",
-      "maquina": "nuvem-20260901T1340",
-      "desde": "2026-09-01T13:42:07.368Z"
+      "desfecho": "Integrado em c9ced6d. registrar() devolve desfecho proprio para recusa por desenho e dizer() ganhou a frase honesta."
     },
     {
       "id": "perda-de-resposta-deixa-rastro",
       "titulo": "O aviso de perda dura 2400 ms e nao sobrevive a tela apagada",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "territorio": "dashboard/",
       "camada": "plataforma",
       "detalhe": "Achado pela seguranca em 23/08, medido com a aba oculta: toast visivel logo apos = true, 3 s depois = false, e registro persistente da perda = vazio. Tela apagada na hora da lavagem significa aviso perdido sem nenhum rastro para achar depois, porque o texto ja saiu do localStorage. NAO e o bloqueante que foi consertado: quem fechou aquele foi a linha if(st), que impede a rede piscando de destruir o texto. Este item e o RESTO -- descarte legitimo, quando o servidor recusou por desenho ou houve 25 falhas com resposta. Duas formas orcadas pela seguranca: (a) ~2 linhas, um parametro fixo em toast() que pula o auto-esconder, porque e o unico toast que reporta PERDA DE DADO e 2400 ms e curto demais para isso, mas nao sobrevive a recarga; (b) escopo novo, uma chave mesa-brasil-perdidas guardando o texto descartado e mostrada na proxima carga, que resolve de verdade e OBRIGA a entrar no rodape -- chave nova sem frase nova e exit 1 na cena 2, que e o portao funcionando.",
-      "maquina": "nuvem-20260901T1340",
-      "desde": "2026-09-01T13:42:07.368Z"
+      "desfecho": "Integrado em c9ced6d, na forma (b). O pre-integrador derrubou a 1a versao: havia um TERCEIRO caminho de perda (fila cheia ao escrever, em registrar()) que nao chamava guardarPerdida() — a mesma doenca que o item existia para curar. Consertado e provado com sonda de 50 itens: perdidasRaw deixou de ser null e o texto sobrevive a proxima carga."
     },
     {
       "id": "endurecer-portoes",
@@ -520,10 +517,22 @@
       "titulo": "O rodape-verdadeiro.js lanca o Chromium NU — e e o portao que toda rodada de dashboard roda",
       "detalhe": "Sobra medida do PENDENTES 88 (31/08), que vestiu 60->71 lancamentos e deixou 47 nus dizendo que nenhum dos que sobram e portao do CI ou do ciclo. Medido em 01/09 e a frase nao se sustenta para este: test/rodape-verdadeiro.js tem chromium.launch e ZERO ocorrencias de executablePath, e e exatamente o portao que a entrega do trio do dashboard precisou estender e rodar. O agente perdeu tempo e contornou com um preload local descartavel, que e o defeito se repetindo em maquina nova, como o 88 previu. Aceite: o arquivo passa a resolver o caminho pelo mesmo lugar que smoke.js e encaixe.js (test/abrir.js), o portao roda sem contorno numa maquina com o navegador provisionado em build diferente da que o playwright espera, e a contagem de nus no PENDENTES 88 e atualizada com o numero novo medido. NAO PEGAR enquanto a entrega do trio do dashboard nao estiver integrada: ela toca este mesmo arquivo.",
       "agente": "dev-plataforma",
-      "estado": "livre",
+      "estado": "concluido",
       "camada": "leve",
       "territorio": [
         "test/rodape-verdadeiro.js"
+      ],
+      "desfecho": "Resolvido dentro da entrega do trio do dashboard (532a9e7): rodape-verdadeiro.js passou a usar ABRIR.chromiumPath() e roda 15/15 cenas limpo, sem preload. ATENCAO: a segunda metade — amarrar o arquivo ao portao-navegador.js para vigiar regressao — NAO funciona, e virou o PENDENTES 92: o scanner le o /* da string de rota (/**) como comentario e engole o chromium.launch() real. Reinjetado o launch nu, o portao continuou exit 0."
+    },
+    {
+      "id": "semcomentarios-engole-o-arquivo",
+      "titulo": "O portao-navegador.js diz VERDE sobre 8 arquivos que ele nunca chega a ler (PENDENTES 92)",
+      "detalhe": "Achado pelo pre-integrador em 01/09 rodando DEPOIS do conserto. semComentarios() procura /* no texto bruto sem entender strings; rodape-verdadeiro.js usa a rota Express /** seis vezes, o parser le aquilo como abertura de comentario e engole ate o proximo */ legitimo, inclusive o chromium.launch() real. Medido: reinjetado o launch nu, o portao saiu exit 0 (deveria ser 1). Varridos os test/*.js, OITO arquivos hoje no alcance tem ocorrencia engolida, entre eles o proprio portao-navegador.js. O --autoteste passa porque injeta sempre na mesma cobaia (medir-save-hostil.js), que nao tem o padrao — 1 cobaia fixa contra 8 arquivos cegos. Aceite no PENDENTES 92: semComentarios() pula literais de string; reinjetar o nu em rodape-verdadeiro.js e cobrar exit 1; o autoteste ganhar uma segunda cobaia COM o padrao /**; e a varredura dos 8 devolver 0 engolidos.",
+      "agente": "qa",
+      "estado": "livre",
+      "camada": "medio",
+      "territorio": [
+        "test/portao-navegador.js"
       ]
     }
   ]
