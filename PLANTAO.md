@@ -246,6 +246,48 @@ E uma de higiene que economiza confusao: **depois do funil, `git checkout -- tes
 regravam tres prints a cada rodada, e eles sujam a arvore sem que um byte de codigo tenha mudado.
 Arvore suja que nao significa nada e como se aprende a ignorar `git status`.
 
+## 5.2 COMO AS TRES MAQUINAS TRABALHAM JUNTAS — por PAPEL, nao por territorio (31/08)
+
+Decisao do dono em 31/08, e ela corrige o desenho anterior. A primeira versao dava a cada maquina
+uma **ilha** (o Mac no experimento, a nuvem na fila, o Windows na plataforma). Ele apontou o furo:
+*"uma vez que os experimentos acabarem, um lado fica meio inutil... os dois poderiam colaborar
+mais"*. Tem razao, e a evidencia estava na semana anterior: o que mais rendeu **nao foi** territorio
+separado — foi **o Mac achar um defeito meu e eu achar um dele**. Isso e colaboracao, nao divisao.
+
+**O desenho novo e por PAPEL, e os papeis giram:**
+
+- **PRODUZ** — explora, escreve, despacha frota. Cabe a quem tem plano Max e acesso a modelo forte.
+- **REFUTA** — recebe um brief curto e tenta DERRUBAR o que o outro afirmou, com medicao propria.
+  E barato em token e e onde apareceram os defeitos de verdade.
+- **INTEGRA** — segura o funil. Um so, sempre, e quem for tem de dizer que esta com ele.
+
+**A regra de plano, e ela e de projeto, nao de gentileza:** o Mac e **Pro** (cota menor), o Windows
+e a nuvem sao **Max**. Entao **Max paga o que e caro e paralelo** (frota de agentes, auditoria
+larga, exploracao); **Pro paga o que e barato e bem delimitado** (refutar uma alegacao especifica,
+revisar um diff, medir uma coisa). Mandar o Pro rodar frota queima a cota dele no meio do trabalho,
+que e o pior desfecho possivel — trava sem entregar.
+
+**Os experimentos ficam do lado Max**, por decisao dele em 31/08: e aqui que ha Fable e cota para
+iterar visual.
+
+## 5.3 A FILA DA INTEGRACAO — o pre-integrador existe e estava parado
+
+O funil roda **um por vez** e leva ~15 min de portao. Com tres maquinas produzindo, isso vira fila:
+o gargalo **se move** de token para integracao, e mais faixas autonomas so aumentam a fila.
+
+Conserto decidido em 31/08, e as duas metades ja existem:
+
+**(a) O agente `pre-integrador`.** Ele roda os portoes **DENTRO do worktree da entrega** e devolve
+o veredito com as flags prontas (`--ok-<papel>` com prova por grep, a linha de placar conferida).
+Como cada entrega tem seu worktree, isso roda **em paralelo**. O funil deixa de ser 15 minutos de
+portao e vira o merge mais a conferencia — segundos.
+
+**(b) Integrar em LOTE.** Entregas de territorios disjuntos entram numa passada so, em vez de uma
+rodada de funil por entrega. Menos execucoes dos mesmos portoes, mesma seguranca.
+
+**O que NAO muda:** o funil continua sendo **um de cada vez** (ele faz merge de verdade na main), e
+nada entra sem exit code real. O pre-integrador **adianta** o trabalho; ele nao substitui o portao.
+
 ## 6. Quando o dono escrever `check`
 
 É comando, e as regras estão no `CLAUDE.md` §6. Quatro camadas — **metas, objetivos,
