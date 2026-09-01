@@ -102,7 +102,7 @@ const controls=new OrbitControls(camera,canvas);
 controls.enableDamping=true; controls.dampingFactor=.1; controls.enablePan=false;
 controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=16; controls.maxDistance=180;
 
-fetch('sp.json').then(r=>r.json()).then(gj=>{
+fetch('sp-contorno-ibge.json').then(r=>r.json()).then(gj=>{
   const geom=(gj.features?gj.features[0]:gj).geometry;
   const polys=geom.type==='MultiPolygon'?geom.coordinates:[geom.coordinates];
   let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9;

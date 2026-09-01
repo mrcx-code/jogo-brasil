@@ -82,7 +82,7 @@ const proj=(lon,lat)=>[ (lon-CLON)*SCALE, -(lat-CLAT)*SCALE ]; // [x, z]
 // ---- o estado (extrude do contorno) ----
 const stateGroup=new THREE.Group(); scene.add(stateGroup);
 let bounds={minx:0,maxx:0,minz:0,maxz:0};
-fetch('sp.json').then(r=>r.json()).then(gj=>{
+fetch('sp-contorno-ibge.json').then(r=>r.json()).then(gj=>{
   const geom=(gj.features?gj.features[0]:gj).geometry;
   const polys = geom.type==='MultiPolygon'?geom.coordinates:[geom.coordinates];
   const mat=new THREE.MeshStandardMaterial({color:'#8a9b5a',flatShading:true,roughness:1});
