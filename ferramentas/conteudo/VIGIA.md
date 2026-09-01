@@ -99,20 +99,54 @@ O segundo eixo, **ONDE SE CONFERE**, é declarado (`SINAIS`, em `conteudo-vigia.
 MapBiomas, DOU, STF, INCRA, UNESCO. Regra que não bate com nenhum aparece como
 `(sem sinal reconhecido)` — visível, e é o convite para acrescentar o sinal ali.
 
+## OS 7 SINAIS — dono e gatilho (fechado em 01/09, item `rotina-7-sinais`)
+
+Achado 1 do vigia (22/08): a tarefa mensal sabia procurar em **três** fontes, escolhidas à mão em
+21/08 (INPE/MapBiomas/IBGE), e o acervo declara **sete** sinais — UNESCO, STF e INCRA não tinham
+gatilho nenhum. Cada linha abaixo é `quem` + `endereco` + `periodicidade` de `SINAIS`
+(`conteudo-vigia.js`), e a periodicidade é a mesma que já está escrita, com fonte, no
+`vence_regra` de cada verbete — não é mês chutado à parte, é o mesmo texto do historiador,
+consolidado por sinal.
+
+| sinal | onde (endereço) | quando (periodicidade real) | verbete(s) que a citam |
+|---|---|---|---|
+| **IBGE** | www.ibge.gov.br — Censo Demográfico e publicações temáticas | decenal (o Censo); reconferir a cada nova edição de publicação temática | ETNIA, GUARANI, INDÍGENA, MESTIÇAGEM, PARDO, QUILOMBOLA, TIKUNA, TRONCO LINGUÍSTICO, YANOMAMI, ÍNDIO, COTAS |
+| **INPE** | www.gov.br/inpe — PRODES (desmatamento da Amazônia Legal) | ~outubro (estimativa) e ~março (taxa consolidada) | DESMATAMENTO, INPE |
+| **MapBiomas** | mapbiomas.org — RAD (Relatório Anual de Desmatamento) | ~maio (RAD do ciclo) | MAPBIOMAS |
+| **DOU** | www.in.gov.br — Diário Oficial da União | contínuo — ato por ato (demarcação, titulação, nomeação) | DEMARCAÇÃO, MUNDURUKU, SÔNIA GUAJAJARA, PEDRA DO SAL |
+| **STF** | portal.stf.jus.br — andamento processual | a cada 6 meses, enquanto a disputa segue em curso | MARCO TEMPORAL |
+| **INCRA** | www.gov.br/incra — regularização quilombola | contínuo — acompanhar publicação de título quilombola | PEDRA DO SAL |
+| **UNESCO** | ich.unesco.org — decisões do Comitê Intergovernamental do Patrimônio Cultural Imaterial | anual — sessão de dezembro do Comitê | MARACATU |
+
+`quem` é o mesmo processo nos 7: a **tarefa mensal `alerta-validade-brasil`**, acionada pelo
+**plantão**. O vigia não abre a internet — ele só aponta; quem confirma se a fonte publicou é a
+tarefa, por WebSearch, no endereço acima.
+
+**O que este endereço É e o que ele NÃO É:** é o domínio institucional canônico onde a
+publicação mora — o mesmo nível de fato público que já valia para citar "INPE" ou "STF" num
+`vence_regra`. **Não** foi verificado ao vivo nesta entrega (a sessão que escreveu esta tabela
+rodou sem rede); se um endereço estiver desatualizado, é achado para quem rodar a tarefa mensal
+em seguida, não motivo para bloquear esta entrega — o dado que muda de fato (o número, a data,
+o texto do verbete) continua exigindo fonte primária e license do historiador, como sempre.
+
+`node ferramentas/conteudo-vigia.js` (sem `--json`) já imprime esta mesma tabela, sinal por
+sinal, na seção **ONDE SE CONFERE** — e `--json` traz o array `sinais` com os mesmos três campos,
+para a tarefa mensal ler direto sem reabrir este documento. O código **recusa carregar** se
+qualquer um dos 7 sinais ficar sem `quem`/`endereco`/`periodicidade` — a mesma disciplina da data
+órfã, aplicada ao dono do sinal em vez de à data.
+
 ## A integração com o alerta mensal
 
 O que existe hoje (decidido pelo dono em 21/08, registrado no NOTES.md e no PENDENTES nº 45):
 
 - **`alerta-validade-brasil`** — tarefa agendada, dia 1, 9h13, com agendamento durável (roda ao
-  abrir o app se perdeu a hora). Verifica **INPE / MapBiomas / IBGE** por WebSearch e avisa **na
-  mesa** se algo venceu; silêncio se nada venceu.
+  abrir o app se perdeu a hora). Verificava **INPE / MapBiomas / IBGE** por WebSearch e avisa **na
+  mesa** se algo venceu; silêncio se nada venceu. **A partir desta entrega, o passo 1 abaixo é o
+  que estende a busca aos 7 sinais** — o `SKILL.md` da tarefa em si mora fora deste repositório
+  (`C:\Users\User\.claude\scheduled-tasks\alerta-validade-brasil\`, na máquina do dono) e quem
+  atualiza o roteiro dela para os 7 é o plantão, na próxima janela em que a tarefa rodar.
 - **PENDENTES nº 45** — item recorrente que não fecha nunca, para que alguém olhe nas janelas
   certas mesmo sem o alerta.
-
-**O buraco que o vigia fecha:** a tarefa sabia procurar em **três** fontes, escolhidas à mão em
-21/08, e o acervo tem **sete** sinais. Ela não tinha como saber que MARACATU depende de uma
-decisão da UNESCO em dezembro, que MARCO TEMPORAL depende de STF/DOU, ou que PEDRA DO SAL depende
-do INCRA — porque essa informação estava dentro de 20 campos `vence_regra` que nada lia.
 
 **A ordem passa a ser esta, e ela é barata primeiro:**
 
