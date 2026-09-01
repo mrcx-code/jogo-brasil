@@ -188,3 +188,27 @@ segunda é a de verdade:
    `porteiro` (roster 12, não 13). O código (`.claude/agents/`, `integrar.js`, `conferir-agentes.js`)
    é independente do banco e pode ir antes ou depois do repontamento — mas o roster do banco tem de
    bater com a pasta (o `conferir-agentes.js` reprova se não bater).
+
+## ACHADO DE 01/09 — O REPONTAR NAO COBRE O QUE ESTA FORA DO REPOSITORIO
+
+O plano de repontar fala em "6 arquivos", e todos os seis estao no repositorio. **Ha um setimo
+lugar que aponta para o banco e ele mora FORA**, entao nenhuma varredura do repo o encontra:
+
+`C:\Users\User\.claude\scheduled-tasks\alerta-validade-brasil\SKILL.md` — a tarefa mensal que confere se os numeros datados (PRODES/INPE, MapBiomas, IBGE)
+venceram. Ela publica o aviso por REST em
+`https://hdhqziqvrthxtgyraemk.supabase.co/rest/v1/mesa_item`, com a chave publicavel do
+**patinhas** escrita no corpo do proprio prompt. Roda todo dia 1o.
+
+**Hoje isso esta CERTO e nao se deve mexer**: a escrita nas `mesa_*` do `brasil` esta fail-closed
+enquanto faltar o UUID do dono, entao repontar essa tarefa agora a faria falhar em silencio uma
+vez por mes -- e alarme que nao toca e pior que alarme nenhum.
+
+**No dia do repontar, ela entra na lista.** E o modo de falha dela e o mais traicoeiro do
+conjunto: ela nao quebra nada, so passa a escrever num banco que ninguem le mais. O dono
+continuaria vendo "nenhum numero venceu" para sempre.
+
+**A licao maior, e ela vale alem desta tarefa:** o repontar foi planejado varrendo o
+repositorio, e configuracao viva mora tambem em tarefa agendada, em rotina de nuvem e em
+conector. Antes de repontar, liste TODOS os lugares que falam com o banco, nao so os
+versionados. As rotinas de nuvem hoje usam o conector do Supabase (nao URL escrita a mao), entao
+elas seguem o conector -- mas conferir custa um minuto e esquecer custa um mes de silencio.
