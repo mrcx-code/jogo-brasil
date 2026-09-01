@@ -551,8 +551,14 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // material interno de trabalho servido em endereço público só pela conveniência do QR.
 //
 // A mesa NÃO passa pelas cobranças do arquivo único: ela não é o jogo, não carrega chave, não
-// fala com a rede e não entra no APK. O que ela tem de externo são as fontes do Google, que o
-// jogo não pode ter e ela pode, porque a CSP do jogo vale só para o <head> do jogo.
+// fala com a rede e não entra no APK. ATÉ 01/09 este comentário dizia que ela tinha licença para
+// as fontes do Google, que o jogo não pode ter — a seguranca achou, em 23/08 (item
+// `dashboard-sem-google`), que isso contradizia o próprio rodapé da página ("sem rastreio, sem
+// cookie de terceiro, sem perfil": carregar fonte de um terceiro a cada visita entrega IP e
+// User-Agent à Google, o que a frase não cobria). A licença SAIU: o dashboard usa a mesma serifa
+// de sistema que as outras 5 páginas da plataforma desde 22/08 (ver `ferramentas/chrome-
+// plataforma.js`), e a checagem logo abaixo (`conferirCspDashboard`) é o que garante que ela não
+// volta em silêncio.
 //
 // O PORTÃO DE SEGREDO É O MESMO DE TODO MUNDO, e deixou de ser um privilégio desta pasta
 // (N7 da re-auditoria, 21/08): ele mora em `guardaSegredo`/`copiarPublicado`, lá em cima, e
@@ -560,7 +566,46 @@ if (fs.existsSync(p('compartilhar.jpg'))) {
 // do erro — é a única página que fala com um backend com contas de verdade, e colar a
 // `service_role` "só para testar" dá acesso TOTAL ao banco ignorando RLS, o que faria da fila
 // fechada em fila-auth.sql um enfeite no mesmo instante — mas provável não é exclusivo.
+//
+// A CSP DO DASHBOARD NÃO ERA PREGADA POR NADA (achado do dev-plataforma, 01/09, ao consertar o
+// item acima): `verificarRede()` (a função com a tabela `CSP_ESPERADA`, lá em cima) só é chamada
+// sobre `saida` — o `index.html` do JOGO. O `dashboard/index.html` é copiado byte a byte
+// (`copiarPublicado`) e nunca passou por checagem de CSP nenhuma, em build nenhum. A função
+// abaixo fecha esse buraco com a MESMA disciplina (tabela por extenso, sem curinga, falha o
+// build se a diretiva mudar sem a tabela acompanhar) — mas é a SUA tabela: o dashboard fala com
+// um host diferente (Supabase, não o jogo) e não tem `img-src data:` nem pacote de arte.
+function conferirCspDashboard(origemHtml) {
+  const txt = fs.readFileSync(origemHtml, "utf8");
+  const CSP_ESPERADA_DASHBOARD = {
+    "default-src": "'self'",
+    "connect-src": "'self' https://hdhqziqvrthxtgyraemk.supabase.co",
+    "style-src": "'self' 'unsafe-inline'",
+    "img-src": "'self' data:",
+    "script-src": "'unsafe-inline'",
+    "object-src": "'none'",
+    "form-action": "'none'",
+    "base-uri": "'none'",
+  };
+  const m = txt.match(/http-equiv="Content-Security-Policy"\s+content="([^"]*)"/);
+  if (!m) throw new Error("dashboard/index.html perdeu a Content-Security-Policy do <head>");
+  const achada = {};
+  m[1].split(";").forEach(function (d) {
+    const t = d.trim(); if (!t) return;
+    const i = t.indexOf(" ");
+    achada[i < 0 ? t : t.slice(0, i)] = i < 0 ? "" : t.slice(i + 1).trim();
+  });
+  const nomes = Object.keys(CSP_ESPERADA_DASHBOARD).concat(Object.keys(achada));
+  for (const nome of nomes) {
+    if (achada[nome] !== CSP_ESPERADA_DASHBOARD[nome]) {
+      throw new Error("a CSP do dashboard mudou e a trava do build não sabe disso: `" + nome
+        + "` está \"" + (achada[nome] === undefined ? "(ausente)" : achada[nome])
+        + "\" e a tabela em ferramentas/construir.js (conferirCspDashboard) espera \""
+        + (CSP_ESPERADA_DASHBOARD[nome] === undefined ? "(ausente)" : CSP_ESPERADA_DASHBOARD[nome]) + "\"");
+    }
+  }
+}
 if (fs.existsSync(p("dashboard"))) {
+  if (fs.existsSync(p("dashboard", "index.html"))) conferirCspDashboard(p("dashboard", "index.html"));
   fs.mkdirSync(d("dashboard"), { recursive: true });
   let nDash = 0;
   for (const f of fs.readdirSync(p("dashboard"))) {

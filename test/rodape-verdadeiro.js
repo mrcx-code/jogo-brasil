@@ -108,6 +108,15 @@ const CHAVES = [
     diz: [/marca do [úu]ltimo PIN recusado/i, /morre ao fechar a aba/i,
       /n[ãa]o d[áa] para reconstruir o PIN a partir dela/i, /o PIN em si n[ãa]o fica guardado/i],
   },
+  {
+    // ITEM 3 (achado da seguranca, 23/08; conserto do dev-plataforma, 01/09): o toast de descarte
+    // (N10, ja existia) some em 2,4s e nao deixa rastro — medido com a aba OCULTA, visivel logo
+    // apos = true, 3s depois = false, registro persistente = vazio. Esta chave e o rastro.
+    chave: 'mesa-brasil-perdidas', onde: 'localStorage', fica: true,
+    oque: 'o texto (ate 20) de respostas recusadas por desenho ou podadas da fila local por excesso',
+    diz: [/recusada pelo servidor/i, /cai da fila local por excesso/i, /guardado neste aparelho/i,
+      /\b20\b/, /aparece assim que voc[êe] abrir a mesa de novo/i],
+  },
 ];
 const CONHECIDA = c => CHAVES.some(k => k.chave === c);
 
@@ -566,6 +575,107 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     ok(m.n >= 4, 'o rodape esta quebrado em blocos (4 ou mais paragrafos)', 'paragrafos: ' + m.n);
     ok(m.vaos.length > 0 && m.vaos.every(v => v >= 4), 'e ha respiro VISIVEL entre eles na tela', 'vaos medidos: ' + m.vaos.join(', ') + ' px');
     console.log('    ' + m.n + ' paragrafos, vaos de ' + m.vaos.join('/') + ' px');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 11
+  console.log('\n[11] A PERDA DEIXA RASTRO — sobrevive a recarga e some so quando o dono manda');
+  cenas++;
+  // A OUTRA METADE DO ACHADO DA CENA 9. Aquela cobra que o descarte apareca em toast; esta cobra
+  // o que o toast NAO cobre — medido pela seguranca com a aba OCULTA: toast visivel logo apos o
+  // descarte = true, 3s depois = false, registro persistente da perda = vazio. `mesa-brasil-
+  // perdidas` e o rastro, e `mostrarPerdidas()` (chamada solta junto de `lerMarca()`) o mostra na
+  // carga SEGUINTE — nao precisa de aba oculta para reproduzir, so recarregar depois do descarte.
+  {
+    const plano = { escrita: 422 };            // recusa permanente por desenho, como a cena 9
+    const { ctx, pag, erros } = await palco(nav, plano);
+    const TEXTO_PERDIDO = 'resposta que o servidor recusa e que nao pode sumir sem rastro';
+    ok(await falar(pag, TEXTO_PERDIDO), 'a recusa permanente cai na fila primeiro', 'nao caiu em 8 s');
+    await ctx.setOffline(true);
+    await ctx.setOffline(false);               // dispara o flush() que, desta vez, descarta
+    const esvaziou = await esperar(pag, () => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]').length === 0);
+    ok(esvaziou, 'a fila esvaziou depois do descarte', 'ainda tem item em 8 s');
+    // ANTES DE RECARREGAR: se o conserto nao existisse, o unico rastro seria o toast que ja
+    // sumiu (2,4 s se passaram desde o esperar() acima) — e e exatamente isso que a proxima
+    // verificacao cobra, sem depender de aba oculta para reproduzir.
+    const antesRecarga = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-perdidas') || '[]'));
+    ok(antesRecarga.length === 1, 'o rastro ja esta gravado antes mesmo de recarregar', JSON.stringify(antesRecarga));
+    ok(antesRecarga[0] && antesRecarga[0].texto === TEXTO_PERDIDO, 'e e o texto certo, nao um item generico', JSON.stringify(antesRecarga));
+
+    await pag.reload({ waitUntil: 'domcontentloaded' });
+    ok(await pronta(pag), 'a carga apos o descarte terminou a partida', 'nao terminou em 15 s');
+    const visivel = await esperar(pag, () => {
+      const el = document.getElementById('perdidas');
+      return el && !el.hasAttribute('hidden') && (document.getElementById('perdidas-lista').textContent || '').indexOf('nao pode sumir sem rastro') >= 0;
+    });
+    ok(visivel, 'a PROXIMA carga MOSTRA o que foi perdido, sem precisar de toast nenhum', 'a secao #perdidas nao apareceu com o texto');
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+
+    // O BOTAO APAGA DE VERDADE — o caminho da pessoa, nao um atalho por dentro.
+    await pag.click('#perdidas-ok');
+    const sumiu = await esperar(pag, () => {
+      const el = document.getElementById('perdidas');
+      return el && el.hasAttribute('hidden') && !localStorage.getItem('mesa-brasil-perdidas');
+    });
+    ok(sumiu, 'e "Entendi, apagar" apaga a chave E esconde a secao', 'continuou visivel ou a chave sobrou');
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 12
+  console.log('\n[12] "RECUSA POR DESENHO" TEM NOME PROPRIO — nao e mais "sem conexao"');
+  cenas++;
+  // ITEM 2 (achado da seguranca, 23/08). Ate o conserto, um 422/400 (o servidor recusando o
+  // FORMATO do que foi mandado) caia no "fila" generico e `dizer()` respondia "Sem conexao —
+  // guardei e reenvio" — a MESMA mentira que a P4 do fila-auth-controle.js ja cobra para o caso
+  // de localhost, so que aqui o motivo real e outro (nao e autenticacao, e o proprio desenho da
+  // recusa). Esta cena cobra o toast que aparece NA PRIMEIRA tentativa, antes de qualquer
+  // lavagem — e por isso NAO reusa a cena 9/11 (que cobram o DESCARTE, depois da fila).
+  {
+    const plano = { escrita: 400 };            // qualquer 4xx permanente serve; 400 != 422 da cena 9/11 de proposito
+    const { ctx, pag, erros } = await palco(nav, plano);
+    ok(await falar(pag, 'resposta que o servidor recusa por desenho, primeira tentativa'),
+      'a recusa caiu na fila logo na primeira tentativa', 'nao caiu em 8 s');
+    const viuFrase = await esperar(pag, () => /recusou esta resposta por desenho/i.test(document.getElementById('toast').textContent || ''));
+    ok(viuFrase, 'o toast da PRIMEIRA tentativa nomeia a recusa por desenho', await pag.textContent('#toast'));
+    const toast12 = await pag.textContent('#toast');
+    ok(!/sem conex/i.test(toast12 || ''), 'e NAO diz "sem conexao" — nao foi isso que aconteceu', toast12);
+    ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- 13
+  console.log('\n[13] SEM GOOGLE — item `dashboard-sem-google` (achado da seguranca, 23/08)');
+  cenas++;
+  // O rodape termina em "sem rastreio, sem cookie de terceiro, sem perfil" desde sempre — e ate
+  // 01/09 a pagina carregava tres linhas de fonts.googleapis/fonts.gstatic, entregando IP e
+  // User-Agent ao Google a cada carga. Nao e rastreio no sentido de perfil, mas e um terceiro
+  // recebendo pedido a cada visita, o que a frase do rodape nao cobria. Estatico primeiro (a
+  // fonte nao pode NEM MENCIONAR o host); dinamico depois (nenhum pedido sai de verdade).
+  {
+    // O comentario da CSP (achado, motivo, data) TEM de poder citar o host antigo por extenso —
+    // e o que o CLAUDE.md §3.2 cobra ao mudar CSP. O que nao pode existir e o <link> ou <a href>
+    // que de fato PEDEM alguma coisa a esse host, entao a checagem estatica mira so isso.
+    const mLink = fonte.match(/<(?:link|a)\b[^>]*\b(?:href|src)="[^"]*fonts\.(?:googleapis|gstatic)\.com[^"]*"[^>]*>/gi);
+    ok(!mLink, 'nenhum <link>/<a> do arquivo pede algo a fonts.googleapis/gstatic', mLink && mLink.join(' | '));
+    const mCsp = fonte.match(/http-equiv="Content-Security-Policy"\s+content="([^"]*)"/);
+    ok(!!mCsp, 'a CSP continua no <head>', 'sumiu');
+    ok(mCsp && !/fonts\.(googleapis|gstatic)\.com/i.test(mCsp[1]), 'e a CSP nao abre excecao pra ela', mCsp && mCsp[1]);
+
+    let pedidosGoogle = 0;
+    const ctx = await nav.newContext({ viewport: { width: 390, height: 844 } });
+    const pag2 = await ctx.newPage();
+    await pag2.route('https://fonts.googleapis.com/**', r => { pedidosGoogle++; return r.fulfill({ status: 200, contentType: 'text/css', body: '' }); });
+    await pag2.route('https://fonts.gstatic.com/**', r => { pedidosGoogle++; return r.fulfill({ status: 200, body: '' }); });
+    await pag2.route(HOST_WEB + '/**', r => {
+      const p = new URL(r.request().url()).pathname;
+      if (p === CAMINHO || p === CAMINHO + 'index.html')
+        return r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: fs.readFileSync(HTML) });
+      return r.fulfill({ status: 404, contentType: 'text/plain', body: '404' });
+    });
+    await pag2.route(SB + '/**', r => r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+    await pag2.goto(HOST_WEB + CAMINHO, { waitUntil: 'domcontentloaded' });
+    await pronta(pag2);
+    ok(pedidosGoogle === 0, 'e, na pagina de verdade, ZERO pedido sai para o Google', String(pedidosGoogle) + ' pedido(s)');
     await ctx.close();
   }
 
