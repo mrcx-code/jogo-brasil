@@ -409,6 +409,75 @@ canalizado o `git` para um `tail` e lido o exit **do tail**. `cmd 2>&1 \| tail; 
 mede o tubo, nunca o comando. Redirecione para arquivo e leia o `$?` na linha seguinte.
 `git ls-remote --heads origin` é quem responde se o ramo morreu.
 
+### ⚠ NA NUVEM, `git push -u origin main` EMPURRA UM REF DE SEIS DIAS ATRÁS (01/09)
+
+Medido nesta data, e é a armadilha mais barata de cair deste arquivo inteiro, porque o
+`CLAUDE.md` **manda** fazer exatamente isto (*"Always use git push -u origin &lt;branch-name&gt;"*).
+
+**A sessão da nuvem roda em `HEAD` DESTACADO.** O contêiner clona e faz checkout do commit,
+não do ramo. O `refs/heads/main` local fica onde estava no dia em que o contêiner nasceu e
+**nunca mais se move** — enquanto o seu trabalho vai empilhando em cima de um `HEAD` que não
+é ramo nenhum.
+
+Medido nesta rodada, com o reflog:
+
+```
+git reflog show main
+b64a12a main@{2026-09-01 16:24}: branch: Reset to HEAD      <- eu, consertando
+e0939a9 main@{2026-08-26 11:37}: branch: Created from refs/remotes/origin/main
+```
+
+`refs/heads/main` foi criado em **26/08** e ficou parado **seis dias** — mais de trinta commits
+para trás — enquanto o checkout rodava no que a `origin` tinha.
+
+O que isso fabrica: `git push -u origin main` resolve o refspec para o **ref local**, não para
+o seu `HEAD`. Então ele empurra o commit de 26/08 e **o seu trabalho não vai junto**. Aqui deu
+recusa (`pushed branch tip is behind its remote counterpart`), que é o desfecho **sortudo**.
+O desfecho ruim é o silencioso: se o ref local estivesse à frente do remoto em vez de atrás, o
+push saía **exit 0** e o commit da rodada ficava no disco de um contêiner que é reciclado.
+
+Controle, porque quem afirma prova. Com `probe` em `b64a12a` e um commit novo em `HEAD`
+destacado (`cb90cd5`):
+
+```
+git push --dry-run -u origin probe   ->  " * [new branch]  probe -> probe "   (empurra b64a12a)
+```
+
+O ref empurrado é `probe`, **não** `HEAD` — o `cb90cd5` que eu acabara de fazer não aparece.
+
+**A regra, para as três máquinas:**
+
+> **Confira `git rev-parse --abbrev-ref HEAD` antes do primeiro commit da rodada.** Se vier
+> `HEAD`, você está destacado: `git branch -f main HEAD && git checkout main` antes de
+> qualquer coisa. E empurre **sempre por refspec explícito** — `git push origin
+> HEAD:refs/heads/main` —, que empurra o que você está vendo, não o que um ref lembra.
+
+O refspec explícito é a forma robusta nas duas situações, então adote-a e pare de pensar
+no assunto: `HEAD:refs/heads/<ramo>` não tem como empurrar outra coisa.
+
+### ⚠ ANTES DE DEVOLVER ITEM A `livre`, PROCURE O RAMO `entrega/<id>` (01/09)
+
+A regra do marcador acima está certa e **não basta**, e foi esta rodada que descobriu o buraco
+que ela deixou.
+
+A rodada `nuvem-20260901T0823` pegou seis itens e a rodada seguinte concluiu que ela **"não
+empurrou nada em cinco horas"**, porque os quatro `voo/` apontavam para o commit de backlog.
+A conclusão estava **errada**. Ela empurrou: `entrega/rotina-7-sinais` (`d7174e5`, 08:42) e
+`entrega/glossario-substancia-rev2` (`2396a90`, 08:34) — duas entregas inteiras, com mensagem
+de commit medida, que nunca foram pelo funil. Os itens delas voltaram a `livre`.
+
+**O marcador `voo/` diz que alguém pegou. Ele não diz se alguém TERMINOU** — e o que diz isso
+é o ramo `entrega/`, que é onde o trabalho pousa. Devolver item a `livre` sem olhar ali é
+mandar a próxima rodada refazer do zero um trabalho que já está no servidor.
+
+> Antes de devolver qualquer item a `livre`: `git ls-remote --heads origin 'refs/heads/entrega/*'`.
+> Se houver `entrega/<id>`, o item não é livre — é **entrega órfã**, e o trabalho da rodada é
+> **auditar e integrar**, não recomeçar. Vá ao funil, não ao agente.
+
+E vale a inversão, que é a regra inteira num fôlego: **`voo/` é intenção, `entrega/` é
+resultado, e o `backlog.json` é a verdade.** Os três discordando é o estado normal — quem
+decide é o último.
+
 O funil roda **de um lado por vez**. Quem estiver de plantão integra; o outro entrega em ramo e
 avisa.
 
