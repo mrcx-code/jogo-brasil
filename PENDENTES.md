@@ -2984,3 +2984,102 @@ resource` continua acusando **mesmo no host da medição**.
 escrever o controle dele. O meu controle temporário testava duas direções e as duas passavam — e
 o buraco estava numa terceira que eu não imaginei, porque quem imaginou o conserto imagina as
 mesmas cenas duas vezes.
+
+---
+
+## 90 — TRÊS VERBETES DE GLOSSÁRIO PRONTOS E NÃO INTEGRADOS: o passo de banco e uma aspa sem página — plantao/historiador/dev-dados (31/08)
+
+**O texto está escrito, com fonte, e passou pelo QA. O que segura é mecânica de banco e uma
+citação — nenhum dos dois é opinião.**
+
+**Onde a entrega está:** ramo **`entrega/glossario-substancia`** no remoto (empurrado em 31/08
+justamente para não morrer com o contêiner — worktree de agente é efêmero e ramo local não
+sobrevive). O diff é de dois arquivos: `src/jogo.ts` (o bloco `GLOSSARIO`) e `NOTES.md`.
+
+Os três fecham o item `glossario-substancia-descolonial` do backlog (que tinha **1 de 4** feito,
+a LEI DE TERRAS):
+
+| verbete | o que ele mostra | fonte principal |
+|---|---|---|
+| **ECONOMIA DO OURO** | o ouro de Minas atravessa Portugal e paga indústria fora daqui, pelo Tratado de Methuen (1703) | Virgílio Noya Pinto, 1979 · Laura de Mello e Souza, 1982 · Arquivo Nacional/MAPA |
+| **A CONTA DA ESCRAVIDÃO** | 1833: o Parlamento britânico indeniza **quem constava como dono**; quem foi escravizado não recebeu nada — e a Lei nº 3.353 de 1888 também não previu nada | Eric Williams, 1944 · Legacies of British Slavery (UCL) · Slavery Abolition Act 1833 · Abdias do Nascimento, 1978 |
+| **CRITÉRIO BRASIL** | a régua de "classe" mede **posse de bens e consumo**, não renda nem patrimônio | ABEP, o próprio critério |
+
+Eles cumprem a linha editorial de 24/08 sem escorregar: a tese de Williams entra **atribuída**
+(`dv: 1`), não afirmada na voz do jogo; "propriedade" vai entre aspas como vocabulário de quem
+indenizou; e um número que ficaria bonito — a história de que o contribuinte britânico só terminou
+de pagar em 2015 — **ficou de fora** porque o Tesouro respondeu, em pedido de acesso à informação
+de 2018, que não tem registro de quanto do empréstimo de 1833 seguia em aberto. Recusar número sem
+documento que o feche é exatamente o §2 funcionando.
+
+### O que trava, medido
+
+**(1) ⛔ O ESPELHO DO CONTEÚDO.** `npm run conteudo:conferir` sai **1** com os três dentro:
+
+```
+JOGO  : 184 verbetes · 17 grupos · 661 pares · f2917388…
+BANCO : 181 verbetes · 17 grupos · 644 pares · 1b97fe85…
+DIVERGE — 24 diferença(s) em 24 chave(s)
+```
+
+Controle rodado pelo QA (`git checkout main -- src/jogo.ts` + build): **exit 0**, `181/17/644`,
+hash idêntico. A vermelhidão é dos verbetes e de mais nada. Esse passo é **portão do CI sem
+`continue-on-error`** e é portão do funil (PENDENTES 87): integrar sem aplicar o `rev+1` no banco
+**na mesma operação** deixa a `main` vermelha no ar.
+
+**O trabalho é do `dev-dados` e não é grande, mas não é digitação:** 3 `INSERT` em
+`conteudo_glossario` (`rev` 1, `estado` publicado, `vigente_ate` null) **mais o deslocamento de
+`ordem`** dos verbetes que vêm depois de ECONOMIA DO OURO no grupo dele — os outros dois fecham
+grupo e não deslocam ninguém. **A verificação é byte-exata e decide sozinha:** aplicar,
+`npm run conteudo:puxar`, `conteudo:conferir`; hash igual dos dois lados ou reverter.
+
+**Por que não fiz nesta sessão:** o plantão rodou sem ninguém acordado, e a operação escreve na
+base de conteúdo do dono. Ela é reversível e verificável, mas o custo de errá-la de madrugada é o
+histórico de revisão do acervo — e o `tag_s2` dos 181 verbetes, que foi um item inteiro de
+backlog, mora nessas linhas. Recarregar do zero pelo `conteudo-carga.js` **apagaria** esse
+trabalho: não é o caminho.
+
+**(2) A ASPA SEM PÁGINA, e é do historiador.** A frase *"os ingleses absorviam quase 60%, somente
+com o comércio lícito"* entra **entre aspas**, atribuída a um livro impresso de 1979, **sem número
+de página**, e foi verificada só por busca — o proxy desta máquina responde **403 ao CONNECT** em
+todos os hosts de fonte (`legislation.gov.uk`, `ucl.ac.uk`, `planalto.gov.br`, `abep.org`), então
+**nenhum documento primário foi aberto nesta sessão**, nem pelo historiador nem pelo QA.
+
+O placar de 21/08 registra exatamente este defeito nesta casa: *aspas que citavam frase inexistente
+— paráfrase dentro de aspas*. **Duas saídas, as duas honestas:** o historiador fecha com página, ou
+a frase vira paráfrase sem aspas. O número (`876.629 kg`) pode ficar como está — vem atribuído e o
+próprio verbete diz que é estimativa.
+
+**(3) Duas dívidas de validade** (`vence_em`, a pergunta "quando isto vence?" do CLAUDE.md §8): a
+tabela de corte do Critério Brasil é **revista todo ano** pela ABEP e o verbete cita só "versão em
+vigor desde 2015"; e *"a estimativa mais usada pelos historiadores"* é uma afirmação **sobre a
+historiografia**, sem fonte própria.
+
+**(4) §2, e já está com o dono:** a entrada ou não de Clóvis Moura na linha de fonte — a editora
+carrega selo de corrente, e a linha editorial de 24/08 manda minerar a substância e recusar o
+dicionário de corrente. Encaminhada pelo próprio autor; ninguém decidiu sozinho.
+
+---
+
+## 91 — O que o QA de lote deixou nomeado e ninguém está olhando (31/08)
+
+Nenhum bloqueou entrega; cada um tem número.
+
+1. **Seis lançamentos de Chromium nus em `ferramentas/gerar-*.js`** (`gerar-fontes`,
+   `gerar-glossario`, `gerar-historia`, `gerar-porta`, `gerar-territorio` ×2). Estão **fora do
+   alcance do `portao-navegador.js` por desenho** — não são portões. Mas são **a esteira que
+   publica as cinco páginas da plataforma**: na classe de máquina do `PENDENTES 88` elas morrem e
+   as páginas ficam velhas **em silêncio**. Nas palavras do QA: *"o portão está certo no escopo que
+   declarou; o escopo é que tem buraco."* **Não consertei porque `ferramentas/gerar-*.js` é
+   território declarado da outra máquina** — o conserto é uma linha por arquivo,
+   `executablePath: ABRIR.chromiumPath()`, e a função já existe.
+2. **`ferramentas/conteudo-*.js` e `gerar-glossario.js` afirmam "181 verbetes" e "644 pares" em
+   comentário** — números que, com o item 90 aplicado, passam a ser 184/661. Comentário que
+   envelhece é como a próxima sessão herda um fato falso.
+3. **`test/medir-nos-indexados.js` não está em portão nenhum.** Nasceu como diagnóstico de uma
+   pergunta já respondida; sem dono, vira arquivo morto na próxima varredura de código.
+4. **O bloco 33(e) do `encaixe.js` deixa o estado global mais sujo do que achou** — `R.dias` 2 → 60
+   e `S.fronteira` `CAP_GENTE` → 0 para os 20+ blocos seguintes. Empiricamente inofensivo (o
+   encaixe sai 0), mas envenenamento de estado sequencial **já custou sessão nesta casa** — foi a
+   causa do `PENDENTES 13`, e ninguém compara o log NUMÉRICO do encaixe antes e depois de uma
+   mudança dessas: só o exit code responde por isso.

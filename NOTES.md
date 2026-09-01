@@ -10129,6 +10129,84 @@ doença que o `PLANTAO.md` §5 nomeia, no lugar exato onde se decide o que despa
 
 Registro novo: `PENDENTES 88` (os portões nus) e `PENDENTES 89` (o coletor de console).
 
+### A SEGUNDA METADE DA NOITE — o QA de lote derrubou o conserto de quem o escreveu
+
+Quatro agentes rodaram em worktree: `dev-jogo` (endurecer portões), `qa` (os seis nós indexados),
+`historiador` (três verbetes) e, depois, um **QA de lote** com um brief que mandava começar
+**pela minha entrega**, com o meu viés declarado por escrito: *"eu achei o defeito, escrevi o
+conserto, escrevi o portão que o vigia E escrevi o controle que diz que o portão morde — ninguém
+auditou nada disso além de mim"*.
+
+**Ele achou, e é o achado mais valioso da noite.** O Chromium usa a MESMA frase, `Failed to load
+resource`, para duas coisas opostas: `net::ERR_…` (*não cheguei lá* — rede de quem roda) e *the
+server responded with a status of 404* (*cheguei, e levei um não* — **culpa do jogo**). O meu
+filtro pegava a frase inteira e calava as duas. Ou seja: engolia o **404 do próprio endereço da
+medição**, que é endereço malformado — e o §3.2 já dizia que errar ali *"falha em SILÊNCIO: os dois
+endereços respondem 200 OK a qualquer chave"*. **O 4xx era o único sinal que ainda sobrava, e o
+meu filtro o tirou.**
+
+Conserto de uma linha (exigir `net::ERR_`), verificado nos dois sentidos: com o buraco de volta o
+controle sai **1** apontando as cenas D e E; com o conserto, **0**, seis cenas certas. E o controle
+do QA virou **permanente e está no CI** — e ele não espelha o filtro, **extrai** o corpo do coletor
+do `encaixe.js` por âncora e compila: espelho divergiria em silêncio, que é a doença do
+`PENDENTES 68`.
+
+**A lição, e ela não é sobre este filtro:** quem escreve o conserto não pode ser o único a escrever
+o controle dele. O meu controle temporário testava duas direções e as duas passavam; o buraco
+estava numa terceira que eu não imaginei, porque quem imagina o conserto imagina as mesmas cenas
+duas vezes.
+
+### Uma correção minha, que muda o que a próxima sessão conclui
+
+**O lançamento nu voltou a funcionar nesta máquina, e não é desmentido do item — é o ambiente que
+mudou no meio da sessão.** `/opt/pw-browsers` ganhou `chromium_headless_shell-1234` enquanto os
+agentes rodavam (algum deles rodou `npx playwright install`). A imagem traz a build **1194**; o
+`playwright` que o `npm install` resolve hoje é **1.62.1**, que pede a **1234** — então **o defeito
+volta em toda máquina nova**, e a medição original (`npm test` exit 1 em `regua-larga.js:70`) está
+no log desta sessão. O QA fechou a outra ponta com o disco mentido: `chromiumPath()` devolve
+`undefined` e `launch({executablePath: undefined})` abre o mesmo Chromium — **o conserto custa zero
+onde o nu já funciona**.
+
+### O que entrou, e o que ficou fora de propósito
+
+**Integrados pelo funil, portões verdes:**
+- **O endurecimento** — a cena **3c** do `robusto-tudo`, a **única** linha de teste no caminho da
+  aba oculta, cobrando o teto de 12 h em quatro doses (30 s · 8 h · 3 anos · −6 h). Vista mordendo:
+  com o `Math.min` arrancado, `robusto-tudo` **1** enquanto `smoke` e `medir-save-hostil` seguem
+  **0** — o *"quatro verdes com o teto arrancado"* de 23/08 reproduzido, agora com um vermelho no
+  meio. **E das quatro premissas do meu brief, três já estavam no código:** a rodada verificou em
+  vez de reescrever, que é a diferença entre fechar item e fingir.
+- **Os seis nós indexados** — medidos no jogo vivo, não lidos no código. Ficam fora mesmo, e o
+  "conserto que não inventa nada" **inventa**: copiar os campos criaria **placa fantasma** e
+  entregaria conteúdo do capítulo 3 a quem está no 1. As duas armadilhas confirmadas por medição.
+- **`PENDENTES 73` fechado no caminho:** `robusto-tudo` e `medir-save-hostil` entraram no CI. O
+  item exigia conferir estabilidade antes; medido com a máquina sob carga de quatro agentes:
+  **3 de 3 verdes**, 18 s · 17 s · 17 s. Sem isso a cena 3c rodaria em **zero** lugares
+  automáticos.
+- **Meia cura corrigida:** o `msCego` derivava pelo `PISO_TAXA` quando o teto real é
+  `max(taxa2*3, PISO)` — os dois só coincidiam por **0,00022 px/ms (0,19%)**. Bastava a velocidade
+  passar de 38,3333 px/s para o aviso calar **dentro** do regime cego: o mesmo defeito que o bloco
+  existe para curar, de roupa nova.
+
+**NÃO integrado, e está em `PENDENTES 90`:** os **três verbetes** (ECONOMIA DO OURO · A CONTA DA
+ESCRAVIDÃO · CRITÉRIO BRASIL), que fecham 3 dos 4 do item `glossario-substancia-descolonial`. O
+texto está bom e passou pelo QA; o que segura são duas coisas mecânicas. **(a)** o espelho do
+conteúdo sai **1** (`184/17/661` no jogo contra `181/17/644` no banco) e esse é portão do CI e do
+funil — precisa do `rev+1` no banco na mesma operação, e isso escreve na base do dono, de
+madrugada, sem ninguém acordado; recarregar do zero apagaria o `tag_s2` dos 181 verbetes, que foi
+um item inteiro de backlog. **(b)** uma citação de Noya Pinto entra **entre aspas sem número de
+página**, verificada só por busca — o proxy desta máquina responde **403 ao CONNECT** em todos os
+hosts de fonte, então **nenhum documento primário foi aberto nesta sessão**. O placar de 21/08 tem
+exatamente esse defeito registrado. A entrega está viva no ramo **`entrega/glossario-substancia`**.
+
+### Placar da noite
+
+`plantao nuvem 1/3/3/1` · `dev-jogo 1/4/1/3` · `qa nós 1/2/2/0` · `qa lote 1/7/6/2`.
+Os desmentidos do QA de lote foram **dois contra ele mesmo**: uma dose de teste que era **inerte**
+(não existe momento com `cena === 1`) e que quase o fez acusar uma asserção boa de cega; e uma
+sonda que contou um `setInterval` **dentro de um comentário**. Os dois foram pegos antes de virar
+acusação — que é o que a disciplina de imprimir o estado antes de concluir existe para fazer.
+
 ---
 
 ## 01/09 — CI vermelho 2 rodadas seguidas: card sintético do dono duplicava no painel — plantao/mac (baile cedo)
