@@ -11164,3 +11164,80 @@ com sha. Não integrei nesta rodada porque a `main` vermelha consumiu o tempo �
 de portão vermelho é como esta noite começou.
 
 **Nome de máquina desta rodada: `nuvem-20260902T0023`.**
+
+---
+
+## 02/09 — O funil que faltava: duas entregas entram, uma é recusada com o defeito reproduzido
+
+Rodada agendada, sem issue etiquetada `agente`. A rodada anterior (`nuvem-20260902T0023`) pegou o
+`endurecer-portoes` às 00:25, empurrou três ramos entre 00:39 e 00:50 e **morreu antes do funil**.
+Esta rodada não refez nada: o `PLANTAO.md` §7 manda, quando existe `entrega/<id>` na origin,
+**auditar e integrar** em vez de recomeçar — e era exatamente esse o caso.
+
+**O baseline primeiro, e ele é o que dá direito de culpar a entrega.** `npm install` (o contêiner
+da nuvem nasce sem o `typescript`) e `npm test` na `main` limpa, sem merge nenhum: **exit 0**.
+A partir daí, vermelho de funil é da entrega, não da máquina.
+
+### O que entrou
+
+| entrega | portões | a mordida |
+|---|---|---|
+| `regua-parada-e-fila-paralela` (PENDENTES 69 + 70c) | `npm test` 0 · `encaixe` 0 | `telaParada()` espera as *promises* da Web Animations, não um `setTimeout`: **guardado − final = 0,0 px** nas 6 telas, contra **ingênuo − final = +18,0 px** nas 6. E a corrida do PIN, isolada em sonda de **6 processos × 60 iterações**: nome fixo deu **4 mismatches em 360** (um deles **leu o PIN de outro processo**), sufixo de PID deu **0 em 360** |
+| `rodape-quatro-gaps` (PENDENTES 74 a–d) | `npm test` 0 · `encaixe` 0 · `rodape-verdadeiro` 0, 15 cenas | **4 de 4**: cada defeito injetado um por vez deu **exit 1** e foi restaurado e conferido por `git diff` |
+
+### O que NÃO entrou, e é o achado da rodada
+
+`portao-cartao-pos-condicao` (PENDENTES 67 + 68) foi **recusada**, e não por portão vermelho — os
+três saem verdes. Foi recusada porque a **frase central do commit é falsa**: *"não há mais caminho
+de volta com os dois portões verdes"*. Há, e custa **uma linha** — mudar `id` **e** `aria-label`
+juntos faz `sobrouControle` e `alvoNomeado` voltarem **os dois vazios**, e a tábua "MEDIÇÃO /
+ligada" reaparece ao lado de "O Território" no recorte 1200×630 do cartão. É o defeito de 23/08
+de volta, com os dois portões verdes, com print e dump do DOM.
+
+A parte verdadeira da entrega é grande: os **dois mutantes exatos** do 67 e do 68, rodados com
+código copiado verbatim do gerador contra a página real já commitada, **são recusados**. O que
+falha é a classe: a pós-condição reconhece o alvo por **como ele se chama**, e o que se chama pode
+ser renomeado. A saída decorre do próprio item 68 (*o instrumento tem de ser estritamente mais
+paranoico que a coisa medida*): cobrar por **geometria** — nada interativo dentro do recorte —,
+porque nome é atributo do autor e retângulo não é. Virou **PENDENTES 100** e o item
+`cartao-alvo-por-geometria`. **O ramo continua na origin e é bom: quem pegar estende, não recomeça.**
+
+### O QUE CAIU, e foi meu
+
+O despacho do `rodape-quatro-gaps` foi escrito por mim com uma premissa de risco: *"a `main` mexeu
+neste arquivo depois que o ramo nasceu (41393f0), então o merge pode passar limpo e reintroduzir o
+Chromium nu"*. **Falso, e medido:** `41393f0` é commit de **merge** cujos dois pais têm o arquivo
+**byte-idêntico**; o Chromium nu deste arquivo foi consertado antes, em `532a9e7`, que é
+**ancestral do ponto de bifurcação** `ee91644`; e `git log ee91644..origin/main --
+test/rodape-verdadeiro.js` volta **vazio**. Eu li a mensagem do commit de merge e atribuí a ela
+mudanças que estavam em **outros dois arquivos** (`painel-sem-sinal.js`, `fila-auth-controle.js`).
+A lição é a da casa, aplicada a mim: **mensagem de commit de merge descreve a rodada, não o
+arquivo** — quem quer saber se um arquivo mudou pergunta ao `git log -- <arquivo>`, não à prosa.
+
+### Três ramos `entrega/` da origin estão MORTOS
+
+`canonical-jogo` (a `main` tem asserção mais forte: **8** ocorrências e **3** `ok()`, contra **1**
+do ramo) · `dashboard-trio` (o trio inteiro na `main`, blocos **[11][12][13]**; `<link>` vivo para
+`fonts.googleapis`: **0**) · `glossario-substancia` (superado pelo `rev3` já mergeado; os três
+verbetes estão no `src/jogo.ts`, **6/6/4** ocorrências). **A nuvem não apaga ramo remoto** (403,
+sem `delete_ref`), então ficam registrados por id no `RECADOS.md` para quem puder.
+
+### Dúvidas que sobraram
+
+1. **A variante do 100 é a mesma classe do 67 ou entrada nova?** O auditor deu a prova bruta e
+   deixou a leitura para quem decide. Eu tratei como a mesma classe num degrau acima — se for nova,
+   o aceite do item muda.
+2. **`medir-cartao-controle.js` e `gerar-territorio.js` chamam `chromium.launch()` puro**, sem
+   `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num **terceiro** lugar, pré-existente ao diff.
+   Na nuvem exigiu contorno para rodar, e ninguém está olhando isso como classe.
+3. **O controle commitado do cartão é decoração parcial** (EQUIPE.md 2.8): só injeta um `<button>`
+   genérico que a lista **antiga** já pegava. A mensagem do commit descreve um wrapper de teste que
+   **não está commitado**.
+
+### Próximo passo
+
+`cartao-alvo-por-geometria` (estender o ramo, não recomeçar) e `regua-autoteste-morto` (o comentário
+do rodapé da `regua-larga.js` promete reprovação por exit code e ficou falso — efeito colateral
+correto do próprio conserto: `scrollHeight` passou de **786** para **768** `=== clientHeight`).
+
+**Nome de máquina desta rodada: `nuvem-20260902T0423`.**
