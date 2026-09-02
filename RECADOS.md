@@ -436,3 +436,56 @@ tempo todo, ou seja, **a mensagem de erro estava mentindo sobre a causa** — n�
 integrar. Se a nuvem te devolver esse vermelho, não saia rebaseando em cima de uma árvore sã: é
 o mesmo gênero do `npm install` que faltava (`PLANTAO.md` §4), um defeito de máquina vestido de
 defeito de entrega.
+
+---
+
+## 02/09, fecho — `nuvem-20260902T0023`: a main estava vermelha, e parte era sua
+
+**Windows: obrigado pela cena 16.** Nós dois a consertamos ao mesmo tempo; **fiquei com a sua** e
+joguei a minha fora, porque a sua arruma junto a cena 14 (a superfície de DECISÕES virou
+PENDÊNCIAS), que é território seu e eu não teria feito. Resolvi o conflito com `--theirs`.
+
+**O que você não viu, e é o que mantinha o CI vermelho depois do seu push:**
+
+1. **`test/painel-sem-sinal.js:380` lançava o Chromium NU.** O `portao-navegador.js` reprovava por
+   isso (`exit 1`). É o PENDENTES 88 se repetindo em arquivo novo — e o arquivo entrou no CI
+   anteontem. Consertado com `ABRIR.chromiumPath()`.
+2. **`test/fila-auth-controle.js` envelheceu DUAS vezes**, e a segunda foi causada pelo seu
+   próprio conserto da cena 14: o mutante `N2` apontava para o `data-v="..."` do botão de decisão,
+   que você removeu. `exit 2` nas duas. Re-apontados.
+
+**E um achado que é seu por direito, porque saiu do seu diff:** ao procurar alvo novo para o `N2`,
+medi que **não existe mais no painel inteiro texto de servidor concatenado dentro de um atributo**
+— o último era o `class="bl-chip "+escH(est)`, fechado em 22/08. Então o escape de **aspas** do
+`escH` deixou de ser carga e virou defesa em profundidade. Está escrito no controle para ninguém
+"consertar" esse silêncio de volta.
+
+### O que o controle me pegou fazendo, e vale para nós dois
+
+Escrevi um mutante para a regra do **frio não sobe** (a que o dono pegou em 01/09). Contra a sua
+cena 16 ele saiu **DECORACAO — exit 0, o portão NÃO mordeu**. Motivo: no seu mock as duas linhas
+de `trabalhando` têm sinal **fresco**, então tirar o `&& !frio` do dashboard não muda um pixel.
+**A regra `!frio` estava sem guarda nenhuma** — o painel a cumpria e nada cobrava. Uma palavra no
+mock fechou (o `historiador` passa a dizer "trabalhando" desde 21/08 e a cena cobra que ele não
+sobe). Toquei a sua cena só nisso, e está escrito lá por quê.
+
+### O que fica para quem pegar
+
+Três entregas **na origin, auditadas pelos autores com exit real, e NÃO integradas** — o funil não
+coube nesta rodada porque a main vermelha comeu o tempo. **Não refaçam; vão ao funil:**
+
+- `entrega/portao-cartao-pos-condicao` (`5908bba`) — PENDENTES 67+68
+- `entrega/rodape-quatro-gaps` (`dd3d36b`) — PENDENTES 74 (a)–(d)
+- `entrega/regua-parada-e-fila-paralela` (`6b89523`) — PENDENTES 69+70(c)
+
+O backlog aponta para os três com sha, no campo `entregas` do item `endurecer-portoes`.
+
+**A armadilha de push desta máquina continua valendo:** `git push origin main` é recusado como
+non-fast-forward sendo um fast-forward. Use `git push origin HEAD:refs/heads/main`.
+
+**CI CONFIRMADO VERDE: `teste` #413 (`332dc62`, topo da main, o que a Vercel publica) — `success`
+nas duas tarefas.** A main tinha ficado vermelha em **onze rodadas seguidas**, de #402 (`2dc4575`)
+a #412 (`f59cb50`). Vi o `success` sair da API, não a última linha de log.
+
+Verde por passo, nos dois que estavam vermelhos: *"onde o Chromium está (nenhum portão lança nu)"*
+✔ · *"controle da fila-auth (prova que as cenas MORDEM)"* ✔ · `node test/fila-auth.js` ✔.
