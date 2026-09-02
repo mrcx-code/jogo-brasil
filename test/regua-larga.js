@@ -53,6 +53,34 @@ const path = require('path');
 const ABRIR = require('./abrir.js');
 const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
+// A CURA ERA PELA METADE (PENDENTES 69, achado do QA em 23/08): esperar `.aberta` não é
+// esperar a mobília PARAR. `estilo.css:587` roda `brota .42s` em `#telaMenu.aberta > *`, com
+// `.12s` de atraso no terceiro filho (o poste) — a tela só assenta em ~540ms, e uma régua que lê
+// geometria antes disso mede um layout que ainda está andando. Medido nesta rodada, na MESMA
+// máquina: com só a espera de `.aberta`, o `#btnConfig` ainda se move até 18px depois da leitura
+// em 3 de 6 telas.
+//
+// O CONSERTO É O MESMO `telaParada()` que o `test/encaixe.js` já usa (linha 75 de lá, 21/08) —
+// reaproveitado aqui, não reinventado. Ele não fica num módulo compartilhado porque o território
+// desta rodada é só este arquivo e o `fila-auth.js`: `encaixe.js` não expõe `module.exports`,
+// então importar de lá rodaria a suíte inteira dele por engano. A cópia é intencional e a
+// implementação é idêntica; se o `encaixe.js` mudar essa função, releia-a aqui.
+async function telaParada(pg, id) {
+  return await pg.evaluate(async (id) => {
+    const t0 = performance.now();
+    const tela = document.getElementById(id);
+    if (!tela) return { ms: 0, quantas: 0, achou: false };
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const vivas = (tela.getAnimations ? tela.getAnimations({ subtree: true }) : [])
+      .filter(a => a.animationName !== 'respira' && a.playState !== 'idle')
+      .filter(a => !(a.effect && a.effect.getTiming && a.effect.getTiming().iterations === Infinity))
+      .map(a => a.finished.catch(() => {}));
+    await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
+    await new Promise(r => requestAnimationFrame(r));
+    return { ms: Math.round(performance.now() - t0), quantas: vivas.length, achou: true };
+  }, id);
+}
+
 // largura -> piso de fonte legível naquela largura (da tabela de faixas da direção de arte)
 const TELAS = [
   { nome: 'tablet retrato',   w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
@@ -80,6 +108,10 @@ const TELAS = [
     await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
       && document.getElementById('telaMenu').classList.contains('aberta'),
       null, { timeout: 30000 }).catch(() => {});
+    // METADE QUE FALTAVA (PENDENTES 69): `.aberta` só diz que a classe foi ligada, não que a
+    // mobília do menu parou de andar (`brota .42s`, atraso de .12s no poste). Sem isto a régua
+    // mede um layout ainda em movimento.
+    await telaParada(pg, 'telaMenu');
     if (process.env.REGUA_DEFEITO) {
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
     }
@@ -312,6 +344,9 @@ const TELAS = [
     await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
       && document.getElementById('telaMenu').classList.contains('aberta'),
       null, { timeout: 30000 }).catch(() => {});
+    // mesma metade que faltava: as tábuas lidas abaixo (`m.tabuas`, `#poste`, `#menuSub`) também
+    // brotam — esperar a mobília parar antes de ler geometria.
+    await telaParada(pg, 'telaMenu');
     if (process.env.REGUA_CHAO) {
       await pg.evaluate((d) => {
         // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a
