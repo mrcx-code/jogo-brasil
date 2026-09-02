@@ -1,0 +1,73 @@
+TIPOGRAFIA EMBUTIDA DO CARTÃO DE LINK — proveniência e licença
+==============================================================
+
+O QUE É ISTO, EM UMA LINHA
+--------------------------
+A fonte que `ferramentas/cartao-secao.js` injeta na página ANTES de tirar o print de
+1200x630. Ela existe para o cartão publicado parar de depender das fontes instaladas na
+máquina que o gera. Ela NÃO entra em nenhuma página publicada: o `index.html` das seções
+não a referencia, não a embute, e não muda um byte por causa dela.
+
+A FONTE
+-------
+Família ............ Gelasio
+Versão ............. Version 1.008   (lida da tabela `name`, nameID 5, dos dois arquivos)
+Desenho ............ Eben Sorkin
+Direitos ........... Copyright 2022 The Gelasio Project Authors
+                     (https://github.com/SorkinType/Gelasio)
+Licença ............ SIL Open Font License, Version 1.1
+Arquivo da licença . OFL.txt (nesta pasta, 4.387 bytes, cópia byte a byte da que veio junto)
+Nome reservado ..... NENHUM. A linha de copyright do OFL.txt não declara "with Reserved
+                     Font Name"; a única ocorrência da expressão no arquivo é a definição
+                     genérica do §"Reserved Font Name" da própria licença (linha 33).
+
+DE ONDE VEIO, EXATAMENTE
+------------------------
+Repositório upstream .. https://github.com/google/fonts   (ramo `main`, pasta `ofl/gelasio`)
+Baixado em ............ 2026-09-02, por `curl` direto de raw.githubusercontent.com
+Arquivos baixados ..... ofl/gelasio/Gelasio[wght].ttf
+                        ofl/gelasio/Gelasio-Italic[wght].ttf
+                        ofl/gelasio/OFL.txt
+Origem do upstream .... o METADATA.pb de lá aponta para
+                        https://github.com/SorkinType/Gelasio
+                        commit 9228e69b160d79f33950e026293f6e13ba9780d0
+
+O QUE FOI MODIFICADO
+--------------------
+Os bytes das fontes: NADA. São os arquivos originais, sem subconjunto, sem reencode, sem
+conversão de formato. Só o NOME DO ARQUIVO mudou, porque o colchete do nome original
+(`Gelasio[wght].ttf`) é caractere de glob e atrapalha em linha de comando:
+
+  Gelasio[wght].ttf         ->  Gelasio-wght.ttf          168.556 bytes
+  Gelasio-Italic[wght].ttf  ->  Gelasio-Italic-wght.ttf   174.212 bytes
+
+sha256 (confira com `sha256sum ferramentas/tipografia/*`):
+  4daecea457258c9ebeb8bc99ed3fd24353618bfad3ea4b93fa0b5d0468fc04e4  Gelasio-wght.ttf
+  52559e845a4d33514e5f93bb9ae7dbeae1894a53f2c565a15f18af40cd337c09  Gelasio-Italic-wght.ttf
+  b393cb01867c919b44381512120dc3e4c954c7b47e2035c405f3a324799a4d29  OFL.txt
+
+POR QUE GELASIO, E O QUE ISSO CUSTA
+-----------------------------------
+A pilha declarada em `ferramentas/chrome-plataforma.js` é
+  --titulo   "Palatino Linotype", Palatino, Georgia, serif
+  --leitura  Georgia, "Iowan Old Style", "Times New Roman", "Noto Serif", serif
+Gelasio é **metricamente compatível com Georgia** — está escrito na descrição oficial do
+próprio google/fonts (`DESCRIPTION.en_us.html`: "metrics compatible with Georgia in its
+Regular, Bold, Italic and Bold Italic weights"). Georgia é a PRIMEIRA da pilha de leitura,
+que é a maior área de texto do recorte do cartão nas quatro seções medidas.
+
+O QUE ELA NÃO RESOLVE, DITO SEM ENFEITE: Palatino. Não há clone métrico de Palatino com
+licença que esta máquina possa verificar:
+  - URW P052 (o que o Ghostscript distribui) é AGPL v3, e a EXCEÇÃO do arquivo LICENSE
+    de github.com/ArtifexSoftware/urw-base35-fonts cobre apenas "a Postscript or PDF
+    file" — página HTML não está coberta. Lido em 2026-09-02, texto integral no relatório
+    da rodada. RECUSADA por isso, não por gosto.
+  - TeX Gyre Pagella (GUST Font License = LPPL 1.3c) tem licença boa — o texto dela foi
+    lido nesta rodada, dentro do pacote npm `typeface-tex-gyre-pagella@1.1.13` — mas
+    aquele pacote NÃO traz os binários da fonte, e as duas origens que trazem
+    (www.gust.org.pl e mirrors.ctan.org) são NEGADAS pela política de egresso desta
+    máquina (403 no CONNECT, registrado em /__agentproxy/status).
+Então o cartão gerado a partir daqui perde a distinção Palatino(título) x Georgia(corpo).
+NESTA MÁQUINA ELE JÁ A PERDIA: medido em 2026-09-02 por hash de bitmap, `--titulo` e
+`--leitura` resolviam no MESMO glifo (Liberation Serif). Trocar isso por uma decisão de
+arte é o passo seguinte, e é de arte, não de porteiro.
