@@ -19,23 +19,27 @@
     },
     {
       "id": "fonte-embutida-sem-portao",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "titulo": "O test/cartao-fonte-embutida.js existe e morde, mas ninguem o roda — a mesma doenca que acabamos de curar ao lado",
       "territorio": "package.json,.github/workflows/teste.yml,ferramentas/integrar.js,test/cartao-controle.js",
       "camada": "esteira",
       "aceite": "As tres recusas novas passam a ser rodadas por alguem (npm test, CI ou funil), provado por exit code no lugar novo. Alternativa igualmente boa: fundir as tres injecoes na lista DEFEITOS do test/cartao-controle.js, uma linha por defeito.",
-      "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto."
+      "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
     },
     {
       "id": "csp-paginas-publicas",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "titulo": "As cinco paginas publicas nao tem NENHUMA Content-Security-Policy — so o jogo tem",
       "territorio": "vercel.json,ferramentas/chrome-plataforma.js,ferramentas/gerar-porta.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-territorio.js",
       "camada": "esteira",
       "aceite": "As paginas publicas passam a ter CSP, e um portao reprova por exit code a pagina publicada sem ela. Mordida provada por injecao: exit 1 com a CSP removida de uma delas, exit 0 com todas. A CSP escrita por extenso, sem curinga, como manda o CLAUDE.md §3 — e o commit diz o que passou a ser permitido.",
-      "detalhe": "Achado pelo porteiro em 02/09 na entrega cartao-fonte-embutida, FORA do escopo dela. Conferido por mim (nuvem-20260902T1234) com grep proprio: plataforma/, glossario/, historia/, de-onde-vem/ e territorio/ tem ZERO ocorrencia de Content-Security-Policy; so o index.html do jogo tem 1. O vercel.json so declara headers para /dashboard, /dashboard/ e /dashboard/(.*) — as cinco paginas ficam descobertas nas duas pontas, nem no HTML nem no cabecalho de servidor. O CLAUDE.md §3 trata a CSP como trava seria e ela existe no jogo desde 10/08; as paginas publicas nasceram depois e nunca ganharam a sua. Risco hoje e baixo (paginas estaticas, sem entrada de usuario, sem credencial), mas sao paginas de PRODUCAO e push na main publica sozinho."
+      "detalhe": "Achado pelo porteiro em 02/09 na entrega cartao-fonte-embutida, FORA do escopo dela. Conferido por mim (nuvem-20260902T1234) com grep proprio: plataforma/, glossario/, historia/, de-onde-vem/ e territorio/ tem ZERO ocorrencia de Content-Security-Policy; so o index.html do jogo tem 1. O vercel.json so declara headers para /dashboard, /dashboard/ e /dashboard/(.*) — as cinco paginas ficam descobertas nas duas pontas, nem no HTML nem no cabecalho de servidor. O CLAUDE.md §3 trata a CSP como trava seria e ela existe no jogo desde 10/08; as paginas publicas nasceram depois e nunca ganharam a sua. Risco hoje e baixo (paginas estaticas, sem entrada de usuario, sem credencial), mas sao paginas de PRODUCAO e push na main publica sozinho.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
     },
     {
       "id": "backlog-no-dashboard",
@@ -612,15 +616,15 @@
     },
     {
       "id": "secao-numero-envelhece",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "titulo": "A porta e o glossario publicos dizem 181 verbetes e a fonte tem 184 — portao que compare afirmado x extraido",
       "territorio": "test/,ferramentas/gerar-glossario.js,ferramentas/gerar-porta.js",
       "camada": "esteira",
       "aceite": "Um portao compara o numero AFIRMADO nas paginas publicas com o EXTRAIDO do jogo headless e reprova por EXIT CODE. Mordida provada por injecao: exit 1 com a pagina velha commitada de hoje (181), exit 0 depois de regerar (184). Regerar a saida so DEPOIS do 101b resolvido — ver a trava la.",
       "detalhe": "PENDENTES 101a, medido em 02/09 por nuvem-20260902T0823. O medir-porta-secao.js compara porta x secao e as DUAS estao erradas pelo mesmo numero, entao ele fica verde: duas copias que concordam entre si e discordam da fonte. O gerador esta certo; falta o GATILHO que obriga a rodar. Disciplina irma: o espelho do conteudo do PENDENTES 87, que o funil ja roda quando o diff toca o glossario. || AGRAVADO pelo porteiro em 02/09: o JSON-LD DefinedTermSet da pagina commitada tem 181 entradas DefinedTerm, contadas programaticamente — tres verbetes reais estao fora dos DADOS ESTRUTURADOS indexaveis, nao so de um numero em texto corrido. Crawler e rich snippet que leem schema.org nao tem como saber que existem. Risco de SEO de outra ordem.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
     },
     {
       "id": "cartao-fonte-do-host",
@@ -651,15 +655,15 @@
     },
     {
       "id": "regua-terceira-receita",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "titulo": "A regua-larga pega elemento tirado do fluxo, e isso nao esta documentado nem tem sonda",
       "territorio": "test/regua-larga.js",
       "camada": "esteira",
       "aceite": "O rodape ganha a terceira receita, com mordida provada por injecao: exit 1 com o defeito, exit 0 sem.",
       "detalhe": "Achado do QA em 02/09 auditando entrega/regua-autoteste-vivo, FORA do escopo da entrega e nao bloqueante. Existe defeito de UMA UNICA injecao que morde depois do telaParada(): REGUA_DEFEITO com poste em position:absolute e top:9999px reprova 2 de 6 (landscape 899 e phone deitado 926), exit 1 medido. Isso mostra que a regua nao depende so da combinacao — ela tambem pega elemento tirado do fluxo normal. Hoje o rodape documenta 2 receitas (a combinacao e a HIERARQUIA) e nenhuma assercao cobre esta classe.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
     },
     {
       "id": "controle-cartao-sem-dono",
