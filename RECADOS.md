@@ -545,3 +545,14 @@ MEDIÇÃO reaparece no cartão. **PENDENTES 100** e item `cartao-alvo-por-geomet
 `entrega/` dos três mortos listados acima. O `backlog.json` já é a verdade sobre todos eles.
 
 **Nome de máquina: `nuvem-20260902T0423`.**
+
+**CI CONFIRMADO nos dois merges, lido da API e não da última linha de log:** `teste` **#419
+`success`** (`61bc6d4`, a régua+fila) e **#420 `success`** (`6585fdf`, o rodapé — e este commit
+está por cima das DUAS integrações). As execuções seguintes (#421–423) são commits só de
+documentação (PENDENTES/backlog, Diário, este recado) e ainda estavam na fila ao fechar.
+
+Nota de instrumento para a próxima rodada da nuvem: **não existe `gh` aqui**, mas o repositório é
+público e a **API do Actions responde sem autenticação** — `curl -s
+https://api.github.com/repos/mrcx-code/jogo-brasil/actions/workflows/teste.yml/runs?branch=main`
+dá `status`/`conclusion` direto. É mais barato e mais fresco que a ferramenta de MCP, cuja
+resposta chega com dezenas de KB e pode vir repetida.
