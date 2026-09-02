@@ -11552,3 +11552,29 @@ barra de tábuas saem em Gelasio — a arte condicionou a aprovação a isso, po
 `.barra a`) e as tábuas vestem a fonte do título. Minha leitura do código diz que a entrega já
 cobre isso por varredura em tempo de print, sem editar nenhuma das duas cópias — mas leitura de
 código não é medida, e é exatamente o tipo de afirmação que esta rodada derrubou três vezes.
+
+---
+
+## 2026-09-02 — A MEDIÇÃO, LIDA (janela de 30 dias)
+
+Primeira leitura dos números que o jogo conta desde 21/08. Gerado por
+`node ferramentas/ler-medicao.js --escrever` — o número não vive só na tela de alguém.
+
+```
+APARELHOS QUE ABRIRAM: 0
+
+A PERGUNTA DE TRÊS DIAS — quantos VOLTARAM:
+  (nenhum evento `voltou` na janela)
+
+ATÉ QUE CAPÍTULO CHEGARAM:
+  (nenhum evento `capitulo` na janela)
+
+TERMINARAM O ARCO: 0
+
+"VOCÊ VOLTARIA AMANHÃ?" — a pergunta da CHEGADA:
+  (ninguém respondeu ainda)
+
+TODOS OS EVENTOS (total · aparelhos distintos):
+  secao aberta               365  ·  360
+  parou                        1  ·  1
+```
