@@ -511,7 +511,7 @@ const servidor = http.createServer(function (req, res) {
   // e nunca foi para a tela do dono.
 
   // O que está parado esperando o dono. Substituiu o roadmap: para onde o jogo vai já mora
-  // no BACKLOG.md e no PRODUTO.md — o que faltava era a lista do que eu não decido sozinho.
+  // no docs/arquivo/BACKLOG.md e no docs/arquivo/PRODUTO.md — o que faltava era a lista do que eu não decido sozinho.
   if (req.method === 'GET' && url === '/pendencias') {
     let r = null;
     try { r = fs.readFileSync(path.join(__dirname, 'pendencias.json'), 'utf8'); } catch (e) {}

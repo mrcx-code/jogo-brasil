@@ -3,7 +3,7 @@
 // O `encaixe.js` prova que a placa nasce no capítulo certo e que ela não estourou a trava de
 // tela poluída. Nenhum dos dois diz se ela ESTÁ LEGÍVEL, e é para isso que este arquivo
 // existe: para cada capítulo, um print com a placa vindo pela estrada (silhueta alta e parada
-// contra os itens, que são baixos e móveis — o risco declarado no JOGABILIDADE.md) e um com a
+// contra os itens, que são baixos e móveis — o risco declarado no docs/arquivo/JOGABILIDADE.md) e um com a
 // fala do momento aberta, a placa ainda em quadro.
 //
 //   node test/prints-marcos.js [index.html] [caps separados por vírgula]

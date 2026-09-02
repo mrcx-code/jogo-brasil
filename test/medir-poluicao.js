@@ -121,7 +121,7 @@ const CAPS = (process.argv[5]
         const floatsN = floats.length;
         const placaN = (typeof marcoAtivo !== 'undefined' && marcoAtivo &&
           marcoAtivo.wx - worldX <= W + 44 && marcoAtivo.wx - worldX >= -30) ? 1 : 0;
-        // O CANTEIRO É UM OBJETO, e entra na conta (MUTIRAO.md §3.3). O `typeof` deixa este
+        // O CANTEIRO É UM OBJETO, e entra na conta (docs/arquivo/MUTIRAO.md §3.3). O `typeof` deixa este
         // instrumento medir também o binário de ANTES da obra, para os dois lados da régua
         // saírem do MESMO código — sem ele, o "antes" mediria um contador a menos.
         //

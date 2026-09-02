@@ -1,6 +1,6 @@
 // A PARTIÇÃO DA ARTE — quem viaja no arquivo de abertura e quem espera ser pedido.
 //
-// Motivo, com número (RELATORIO-PESO.md): o jogo levava 16,6 s para aceitar o primeiro toque
+// Motivo, com número (docs/arquivo/RELATORIO-PESO.md): o jogo levava 16,6 s para aceitar o primeiro toque
 // num celular em 3G, e 91% do peso é imagem. A abertura carregava a arte dos DOZE capítulos
 // antes de deixar alguém jogar o primeiro. Com a arte de cada capítulo chegando quando a
 // pessoa chega nele, a abertura cai para ~8,7 s — e, o que importa mais, PARA DE CRESCER:
