@@ -869,12 +869,26 @@ ${MED.script('territorio')}
   pg2.on('requestfailed', (r) => urlsFalhas.push(r.url()));
   pg2.on('response', (r) => { if (r.status() >= 400) urlsFalhas.push(r.url()); });
   await pg2.goto(ALVO_PAG);
-  // A FONTE ENTRA CEDO, como na irmã cartao-secao.js: o navegador tem os 1400+600 ms da
-  // entrada da câmera para decidir sobre ela, e `document.fonts.ready` resolve bem antes do
-  // `__pronto`. Não toca em NENHUM byte de `territorio/index.html` — vive só nesta página em
-  // memória, como o GRAO_FORA do cartao-secao.js.
+  // A FONTE ENTRA CEDO, como na irmã cartao-secao.js. Não toca em NENHUM byte de
+  // `territorio/index.html` — vive só nesta página em memória, como o GRAO_FORA do
+  // cartao-secao.js.
+  //
+  // MEDIDO NESTA RODADA (a corrida que só aparecia às vezes): `document.fonts.ready` SOZINHO
+  // não basta aqui. Ele resolve "não há carregamento PENDENTE" — e nada fica pendente
+  // enquanto nenhum texto da página pediu a família "Gelasio" ainda (a troca que faz isso só
+  // acontece bem mais tarde, perto do print). Sem um `document.fonts.load(...)` explícito
+  // aqui, duas regenerações seguidas do MESMO comando produziam cartões diferentes: numa a
+  // largura já refletia a Gelasio quando a barra recalculava a rolagem, na outra ainda não —
+  // e a tábua "O Território" saía cortada só na segunda. `document.fonts.load()` FORÇA a
+  // decodificação do base64 (que não depende de rede, mas é assíncrona do mesmo jeito) antes
+  // de qualquer leitura de layout depender dela.
   await pg2.addStyleTag({ content: TIPO.css({ defeito: process.env.CARTAO_TIPOGRAFIA_DEFEITO }) });
-  await pg2.evaluate(() => document.fonts.ready);
+  await pg2.evaluate(async (familia) => {
+    const q = '"' + familia + '"';
+    try { await document.fonts.load('700 46px ' + q); } catch (e) { /* status conta a historia, mais abaixo */ }
+    try { await document.fonts.load('italic 400 16px ' + q); } catch (e) { /* idem */ }
+    try { await document.fonts.ready; } catch (e) { /* idem */ }
+  }, TIPO.FAMILIA);
   // `__pronto` marca o fim da ENTRADA da câmera (1400 ms) + 600. Os pinos só terminam de
   // acender em 1400 + 4*80 + 260 = 1980 ms, e o pulso deles fica bom um respiro depois —
   // por isso a espera extra. Print tirado cedo mostraria a placa chegando e pinos apagados.
