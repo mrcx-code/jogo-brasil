@@ -2240,6 +2240,25 @@ teto some sem nenhuma cena reprovar. E o irmao esquecido do `carregar()`.
 
 ## 73 — `robusto-tudo` e `medir-save-hostil` estao FORA do CI, e foi isso que deixou a contradicao viver nove dias — plantao
 
+> **RESOLVIDO — 01/09, commit `e2d92a3` ("Fecha as ressalvas do QA de lote e poe robusto-tudo e
+> save-hostil no CI"). Marcado aqui em 02/09 pelo plantao `nuvem-20260902T0023`, que foi pegar o
+> item `endurecer-portoes` e achou este pedaco ja feito e ainda escrito como aberto.**
+>
+> Medido na `main` de hoje: `.github/workflows/teste.yml` tem `node test/robusto-tudo.js`
+> (timeout 5 min) e `node test/medir-save-hostil.js` (timeout 4 min), com o comentario que
+> registra o motivo de o item ter saido da fila — a cena **3c** do `robusto-tudo`, a UNICA linha
+> de teste no caminho da aba oculta, rodava em **zero** lugares automaticos. A condicao que o
+> item exigia antes de acrescentar ("conferir se sao estaveis, porque o `robusto-tudo` depende do
+> save semeado") foi atendida pelo caminho certo: o **PENDENTES 71 fechou primeiro**, em 31/08,
+> exatamente na ordem que este item sugeria.
+>
+> **A licao nao e sobre o CI, e sobre este arquivo.** O item ficou fechado no codigo e aberto no
+> `PENDENTES.md` por um dia inteiro, e chegou a esta rodada dentro do escopo de um item do
+> backlog — quem pegasse ao pe da letra escreveria as duas linhas de novo, veria `git diff`
+> vazio, e teria como **confirmar um achado que ja nao existia**. E o mesmo falso verde do
+> `canonical-jogo` (`PLANTAO.md` §5), sete dias depois, e a cura e a mesma: `git log -S` na
+> assercao ANTES de despachar o conserto.
+
 O `.github/workflows/teste.yml` roda 12 portoes. **Estes dois nao estao entre eles** — sao
 portoes de mao.
 
