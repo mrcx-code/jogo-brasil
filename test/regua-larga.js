@@ -494,3 +494,31 @@ const TELAS = [
 //   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'
 // devolve o nível 2 ao tamanho dos portões — que é literalmente o estado de antes desta rodada —
 // e a régua sai 1 em todas as seis telas. Verificado nesta rodada, com o número no NOTES.md.
+//
+// A TERCEIRA RECEITA — TIRAR DO FLUXO (02/09, achado do QA ao auditar regua-parada-e-fila-paralela,
+// item regua-terceira-receita). As duas receitas acima precisam de DUAS injeções que se encontram
+// (crescer + perder a rolagem). Esta classe morde com UMA injeção só, e a régua já a pegava sem
+// que ninguém a tivesse escrito nem verificado o número:
+//
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'
+//
+// reprova em exatamente 2 de 6 (landscape 899 e phone deitado 926), exit 1 — medido nesta rodada.
+// O QA relatou o mesmo par de telas com top:9999px em vez de top:0px, e o número bateu, mas a causa
+// que ele apontou (a posição vertical, "fora da viewport") NÃO é a causa real — verificado
+// separando as duas variáveis nesta rodada:
+//
+//   REGUA_DEFEITO='#poste{top:9999px!important}'                       (SEM position:absolute)
+//     — top não tem efeito nenhum num elemento static; passa nas seis, exit 0.
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'  (top plausível, DENTRO
+//     da viewport) — reprova as MESMAS duas telas, exit 1.
+//
+// Ou seja: QUEM MORDE É O position:absolute, não o valor do top. Diagnosticado por que: o #poste
+// participa do grid cinemático (estilo.css, grid-template-rows) nessas duas larguras; tirá-lo do
+// fluxo faz o algoritmo de posição estática do CSS calcular um `left` a partir de onde ele estaria
+// (medido: left vira -141px), e o resultado transborda a JANELA PELA LARGURA — o btnConfig sai à
+// direita da tela (right ~1010px contra janela de 899px), não por baixo. É por isso que só estas
+// duas telas mordem: são as únicas do bloco largo em que o poste vive dentro daquele grid; nas
+// outras quatro ele está numa faixa diferente do layout e sair do fluxo não desloca nada horizontal
+// o bastante para vazar. A receita certa para reproduzir esta classe é "tirar o elemento do fluxo
+// normal" (position:absolute/fixed sem realocar), não "botá-lo fora da viewport" — são defeitos
+// de origem diferente e só o primeiro precisa de uma injeção só para morder aqui.
