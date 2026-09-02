@@ -559,22 +559,26 @@
     {
       "id": "regua-autoteste-morto",
       "titulo": "O autoteste do rodape da regua-larga.js virou decoracao pelo proprio conserto",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "territorio": "test/regua-larga.js",
       "camada": "esteira",
       "aceite": "O comentario do rodape (linhas 454-458) passa a documentar um defeito que AINDA morde depois de telaParada(), e quem escrever prova por injecao: exit 1 com o defeito, exit 0 sem. O REGUA_DEFEITO de hoje (overflow-y:hidden em 926x428) sai ou ganha companhia.",
-      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem."
+      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
     },
     {
       "id": "cartao-alvo-por-geometria",
       "titulo": "O portao do cartao cobra o alvo por NOME, e nome se renomeia — passar a cobrar por geometria",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "territorio": "ferramentas/gerar-territorio.js,test/medir-cartao-controle.js",
       "camada": "esteira",
       "aceite": "A variante do PENDENTES 100 (mudar id E aria-label juntos) passa a REPROVAR por exit code, provada por injecao contra a pagina real territorio/index.html: exit 1 com o mutante, exit 0 sem ele. E o controle commitado passa a exercitar os tres mutantes (67, 68 e este) contra a pagina real, em vez do button generico que a lista antiga ja pegava.",
-      "detalhe": "PENDENTES 100, achado pelo pre-integrador em 02/09 ao auditar entrega/portao-cartao-pos-condicao antes do funil — a entrega foi recusada por isto. Medido, com print no enquadramento 1200x630 do cartao real: com id=medirBt2 e aria-label=Contagem ligada. Toque para desligar., sobrouControle e alvoNomeado voltam os DOIS vazios e a tabua MEDICAO reaparece ao lado de O Territorio, que e o defeito de 23/08 que o item 67 existe para impedir. A causa e de classe: a pos-condicao reconhece o alvo por COMO ELE SE CHAMA, e o que se chama pode ser renomeado. A saida decorre do proprio item 68 (o instrumento tem de ser estritamente mais paranoico que a coisa medida): cobrar POSICAO E GEOMETRIA — nenhum elemento interativo dentro do recorte 1200x630 —, porque nome e atributo do autor e retangulo nao e. PARTE DO TRABALHO JA EXISTE na origin em entrega/portao-cartao-pos-condicao (5908bba), aprovado pelo porteiro pelo angulo de pagina publica; estenda esse ramo, nao comece do zero."
+      "detalhe": "PENDENTES 100, achado pelo pre-integrador em 02/09 ao auditar entrega/portao-cartao-pos-condicao antes do funil — a entrega foi recusada por isto. Medido, com print no enquadramento 1200x630 do cartao real: com id=medirBt2 e aria-label=Contagem ligada. Toque para desligar., sobrouControle e alvoNomeado voltam os DOIS vazios e a tabua MEDICAO reaparece ao lado de O Territorio, que e o defeito de 23/08 que o item 67 existe para impedir. A causa e de classe: a pos-condicao reconhece o alvo por COMO ELE SE CHAMA, e o que se chama pode ser renomeado. A saida decorre do proprio item 68 (o instrumento tem de ser estritamente mais paranoico que a coisa medida): cobrar POSICAO E GEOMETRIA — nenhum elemento interativo dentro do recorte 1200x630 —, porque nome e atributo do autor e retangulo nao e. PARTE DO TRABALHO JA EXISTE na origin em entrega/portao-cartao-pos-condicao (5908bba), aprovado pelo porteiro pelo angulo de pagina publica; estenda esse ramo, nao comece do zero.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
     }
   ]
 }
