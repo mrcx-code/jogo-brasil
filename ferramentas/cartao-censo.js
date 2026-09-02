@@ -60,7 +60,8 @@
 // continua com a varredura genérica de `fixed|sticky`.
 //
 // UMA FONTE, DOIS CHAMADORES. `ferramentas/gerar-territorio.js` (que recusa construir) e
-// `test/medir-cartao-controle.js` (que recusa aprovar o artefato commitado) chamam ESTA função,
+// `test/cartao-quadro-controle.js` (que recusa aprovar o artefato commitado; renomeado em 02/09,
+// era `test/medir-cartao-controle.js`) chamam ESTA função,
 // em vez das duas cópias que antes juravam ser idênticas e não eram — a do gerador não tinha o
 // `|| e.id === 'medirBt'` que a do teste tinha, embora o comentário mandasse ser idêntica byte a
 // byte. Comentário não é portão; `require` é.
@@ -219,7 +220,7 @@ function pontosDoHtml(html) {
 // forma que a lista ANTIGA já pegava. Ela nunca exercitou os mutantes que de fato quebraram o
 // portão, e a mensagem do commit descrevia um wrapper de teste que não estava commitado; o auditor
 // teve de reconstruí-lo para provar E para desmentir. Então os mutantes ficam aqui, versionados,
-// ao lado da coisa que eles atacam: `test/medir-cartao-controle.js` os roda contra a página real e
+// ao lado da coisa que eles atacam: `test/cartao-quadro-controle.js` os roda contra a página real e
 // `ferramentas/gerar-territorio.js` os aceita por `CARTAO_MUTANTE=<nome>` para ser visto recusando
 // a própria build.
 //

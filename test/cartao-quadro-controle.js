@@ -25,7 +25,13 @@
 // lá e não aqui, este arquivo reprova dizendo que a tabela envelheceu, em vez de aprovar um
 // cartão que ele já não sabe medir.
 //
-// Uso: node test/medir-cartao-controle.js   (sai 1 se algum controle couber no cartão)
+// Uso: node test/cartao-quadro-controle.js   (sai 1 se algum controle couber no cartão)
+//
+// RENOMEADO em 02/09 (plantao nuvem-20260902T1234, item controle-cartao-sem-dono): chamava-se
+// `medir-cartao-controle.js`, e o nome ficava a uma palavra de `test/cartao-controle.js` — o
+// OUTRO portão de cartão, que mede peso/forma do JPEG (og:image), não o que sobra dentro do
+// recorte. O nome novo é o que o primeiro `console.log` deste arquivo já dizia: "O CARTÃO DE
+// LINK NÃO LEVA CONTROLE DENTRO [DO QUADRO]".
 // A COBRANÇA DO ALVO NOMEADO CAIU EM 02/09 E FOI SUBSTITUÍDA POR CENSO (PENDENTES 100).
 // As duas pós-condições de 02/09 reconheciam o interruptor por COMO ELE SE CHAMA — id, aria-label,
 // `position` — e uma variante de UMA LINHA (trocar o id E o aria-label juntos) devolvia a tábua

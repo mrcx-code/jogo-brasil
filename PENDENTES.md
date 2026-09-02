@@ -3665,6 +3665,17 @@ em vez de provar que alguém escreveu as mesmas letras duas vezes.
    ser mais paranoica que a coisa medida se ninguém a lê. **Custo estimado: 31 s** (medido nesta
    máquina, com os 8 carregamentos da página 3D do censo). Território: quem manda no
    `.github/workflows/teste.yml` e no `integrar.js`.
+
+   **FECHADO em 02/09 por nuvem-20260902T1234 (item `controle-cartao-sem-dono`).** Renomeado para
+   `test/cartao-quadro-controle.js` (junto no mesmo commit, como o pré-integrador pediu — os dois
+   nomes lado a lado num YAML não existem mais). Roda em dois lugares: passo novo no
+   `.github/workflows/teste.yml`, logo depois de `cartao-controle.js` no job `portoes` (mesmo
+   Chromium já instalado, EXIT REAL 0 em 32,48 s medido isolado); e um portão a mais no
+   `ferramentas/integrar.js` (constante `CARTAO_CENSO`) quando o diff toca
+   `ferramentas/gerar-territorio.js`, `ferramentas/cartao-censo.js` ou `territorio/`. As
+   referências dentro de `ferramentas/gerar-territorio.js` (3 comentários) ficaram com o nome
+   velho — fora do território desta entrega, outro agente nele agora — registrado como órfão
+   consciente, sem efeito funcional (são prosa, não código lido).
 2. **A barra do cartão continua cortando a primeira tábua.** No `compartilhar.jpg` commitado ela lê
    "istória"; regerado nesta máquina, ". História". É a mesma família do defeito de 23/08 ("comeu A
    História e deixou lossário") e **nenhum portão olha para isso** — o censo cobra QUEM está no
