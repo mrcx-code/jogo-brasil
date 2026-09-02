@@ -3717,3 +3717,85 @@ em vez de provar que alguém escreveu as mesmas letras duas vezes.
    não tem nada a ver com o evento. Consertado no mesmo ramo, e **sem afrouxar**: as URLs que
    falharam são recolhidas COM a URL, e as linhas de console de recurso (que não trazem URL) só são
    perdoadas quando TODA URL que falhou é a do host da medição. Qualquer outra volta a recusar.
+
+### 102 · Os 4 residuais do censo do cartão (item `censo-cartao-residuais`) — o (1) fechado, os outros 3 medidos e deixados
+
+O pré-integrador, ao APROVAR `entrega/cartao-geometria` em 02/09, mediu quatro residuais e os
+declarou NÃO bloqueantes — o teto honesto da régua do censo. O aceite mandou fechar só o (1), que
+era o único com print de defeito reproduzido; os outros três ficam aqui, medidos, para quem passar
+por ali.
+
+**(1) FECHADO — `ferramentas/cartao-censo.js`, função `censoDoQuadro`.** O censo só olhava para o
+que é INTERATIVO (seletor + `tabindex`); uma `<div>` sem `onclick`, sem `tabindex` e sem `role`,
+lendo "MEDIÇÃO ligada", colada dentro da `.barra` de verdade, nunca acionava o filtro e o censo
+voltava VAZIO — o defeito visual de 23/08 reproduzido com o portão verde (print do pré-integrador).
+**Não é o modo de falha do PENDENTES 100** (lá o alvo era um interruptor DE VERDADE; virá-lo `<div>`
+inerte seria desfazer o botão, não fugir do censo) — aqui o cartão é uma FOTO, e o que aparece nela
+não depende de ser clicável.
+
+A régua virou DUAS PASSADAS: a primeira (inalterada) casa elementos INTERATIVOS contra a lista de
+permitidos e, ao aceitar um, registra o próprio elemento (`aceitos`) e o CONTÊINER dele (`donos` —
+`.barra`, `.lista`…), sempre por terem sido PROVADOS reais (um filho aceito dentro), nunca por nome.
+A segunda passada varre TODOS os descendentes de cada `dono` provado e reprova quem não é um aceito
+nem parte interna de um aceito — interativo ou não. Uma `.barra` ou `.lista` de MENTIRA plantada do
+lado de fora não vira `dono` de graça: só convenceria a primeira passada com um link cujo `href` E
+rótulo batessem com o dado real, e aí já teria caído antes.
+
+Mutante novo, versionado junto dos outros sete em `ferramentas/cartao-censo.js` (`MUTANTES.m106`):
+a `<div>` inerte, sem nenhum atributo interativo, colada na `.barra` real. `test/cartao-quadro-controle.js`
+já roda os OITO contra o `territorio/index.html` commitado.
+
+**MORDIDA PROVADA POR INJEÇÃO, com os dois EXIT CODE reais do terminal:**
+- Censo com a lógica ANTIGA (uma passada só) + o mutante `m106` novo → `node
+  test/cartao-quadro-controle.js` → **EXIT REAL 1**, com a linha `X CONTROLE DO CENSO m106: o censo
+  RECUSA o mutante — PASSOU LIMPO, o buraco do PENDENTES 100 está aberto de novo` — reproduzindo
+  exatamente o achado do pré-integrador.
+- Arquivo restaurado para a lógica NOVA (duas passadas) → mesmo comando → **EXIT REAL 0**, com `ok
+  CONTROLE DO CENSO m106: o censo RECUSA o mutante (dentro de um contêiner já provado do cartão, mas
+  fora da lista de permitidos — não depende de ser clicável…)`.
+
+**MEDIDA DE FALSO-POSITIVO** (o cuidado pedido: "se o censo passar a contar TUDO que tem texto, ele
+pode reprovar coisa legítima"): rodado contra o `territorio/index.html` REAL de hoje, sem mutante
+nenhum — únicas duas linhas que usam o censo (`territorio: o censo do quadro só achou o que a lista
+de permitidos autoriza` e `CONTROLE DO CENSO sem mutante: o censo APROVA a página como está`) — as
+duas **`ok`**, zero estranhos. A segunda passada não vira "todo texto reprova": ela só varre dentro
+de contêineres já PROVADOS por um filho aceito, então o `h1`, o `<p class="sub">` e a caixa de
+estatísticas do censo de 2022 (fora de `.barra`/`.lista`) nunca entram na varredura — medido à parte
+com uma sonda descartável que listou os 20 elementos de texto visíveis no recorte antes de escrever
+o conserto.
+
+**(2) CONFIRMADO — risco zero hoje.** `querySelectorAll('body *')` não atravessa shadow DOM nem
+`<iframe>`. Grep próprio, direto (não herdado do pré-integrador): `grep -c attachShadow` e `grep -ci
+"<iframe"` em `ferramentas/cartao-secao.js`, `ferramentas/gerar-territorio.js`,
+`ferramentas/chrome-plataforma.js` e nos QUATRO artefatos commitados (`historia/index.html`,
+`glossario/index.html`, `de-onde-vem/index.html`, `territorio/index.html`) — **0 em todos**. Anotação
+que fica: se algum dia entrar um `<iframe>` ou um `attachShadow` numa dessas páginas, o censo (e o
+`controlesNoQuadro` do teste) para de enxergar o que está dentro — nenhum portão hoje cobra isso.
+
+**(3) CONFIRMADO — gap real, custo de uma folha de estilo.** `innerText` não vê `::after`. Sonda:
+abri `territorio/index.html`, apliquei a exclusão real, injetei só um `<style>` com
+`.barra a.aqui::after { content: " ligada" }` (sem tocar o DOM do `<a>`) — `innerText` do elemento
+**não mudou** (`"O Território"` antes e depois) e o censo devolveu `estranhos: []` os dois lados. A
+foto real mostraria "O Território ligada"; o censo não tem como ver. Não é o modo de falha do (1)
+(lá faltava INSPECIONAR o elemento; aqui o elemento É inspecionado e aceito, só o texto que ele
+declara está incompleto) — por isso fica como item separado, não dobrado no mesmo conserto.
+
+**(4) CONFIRMADO — cosmético hoje, linha e arquivo batem.** `ferramentas/gerar-territorio.js:852`:
+`const doHostDaMedicao = (u) => u.indexOf(MED.MEDIDA_HOST) === 0;`, com `MEDIDA_HOST =
+'https://us.i.posthog.com'` (`ferramentas/medir-secao.js:44`). Prefixo, não origem: uma URL como
+`https://us.i.posthog.com.qualquercoisa/x` seria perdoada como "falha do host da medição" mesmo sem
+ser. Risco hoje é mesmo cosmético — nenhum código do repositório constrói uma URL desse formato, e a
+CSP (`connect-src 'self' https://us.i.posthog.com`, sem curinga) já bloqueia o navegador de tentar
+qualquer host que não seja exatamente esses dois — mas é bug de classe (comparação por prefixo em
+vez de origem) e o mesmo padrão poderia reaparecer em outro lugar. Troca sugerida para quando alguém
+passar por ali: `new URL(u).origin === new URL(MED.MEDIDA_HOST).origin`.
+
+**Nenhuma das quatro classificações do pré-integrador foi derrubada** — as quatro se confirmaram
+como ele descreveu (o (1) real e bloqueante o bastante para ter print; os outros três reais mas sem
+caminho de exploração hoje). O viés que o plantão avisou (*"entrega que ache defeito contra si mesma
+é onde eu baixo a guarda"*) não achou nada mais frouxo aqui: a régua dele já era honesta.
+
+Território tocado: só `ferramentas/cartao-censo.js` (o `test/cartao-quadro-controle.js` não precisou
+de mudança — os oito mutantes já rodam pelo `Object.keys(CENSO.MUTANTES)`). Portão rodado:
+`node test/cartao-quadro-controle.js`, EXIT REAL 0. `npm test` cheio rodado uma vez antes de
+entregar (tokenmaxxing, PLANTAO §3.2).
