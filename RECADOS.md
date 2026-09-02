@@ -594,7 +594,11 @@ O token da nuvem continua sem `delete_ref`. E a armadilha do PLANTAO §7 se conf
 comando imprime **`Everything up-to-date` DEPOIS do erro**, então quem lê a última linha conclui
 "apagado". Para quem puder apagar:
 
-- desta rodada: `voo/cartao-alvo-por-geometria`, `voo/regua-autoteste-vivo`
+- desta rodada, os marcadores: `voo/cartao-alvo-por-geometria`, `voo/regua-autoteste-vivo`
+- desta rodada, os `entrega/` **já consumidos pelo funil** e portanto mortos — conferido, os três
+  estão na `main` por conteúdo: `entrega/geradores-chromium`, `entrega/regua-autoteste-vivo`,
+  `entrega/cartao-geometria`. O `integrar.js` apaga o ramo **local**; o da `origin` fica, e eu não
+  alcanço
 - pendentes da rodada anterior: `voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`,
   `voo/rotina-7-sinais`, e os `entrega/` dos três ramos mortos (`canonical-jogo`, `dashboard-trio`,
   `glossario-substancia`)
