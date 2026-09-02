@@ -494,3 +494,59 @@ const TELAS = [
 //   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'
 // devolve o nível 2 ao tamanho dos portões — que é literalmente o estado de antes desta rodada —
 // e a régua sai 1 em todas as seis telas. Verificado nesta rodada, com o número no NOTES.md.
+//
+// A TERCEIRA RECEITA — TIRAR DO FLUXO (02/09, achado do QA ao auditar regua-parada-e-fila-paralela,
+// item regua-terceira-receita). As duas receitas acima precisam de DUAS injeções que se encontram
+// (crescer + perder a rolagem). Esta classe morde com UMA injeção só, e a régua já a pegava sem
+// que ninguém a tivesse escrito nem verificado o número:
+//
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'
+//
+// reprova em exatamente 2 de 6 (landscape 899 e phone deitado 926), exit 1 — medido nesta rodada.
+// O QA relatou o mesmo par de telas com top:9999px em vez de top:0px, e o número bateu, mas a causa
+// que ele apontou (a posição vertical, "fora da viewport") NÃO é a causa real — verificado
+// separando as duas variáveis nesta rodada:
+//
+//   REGUA_DEFEITO='#poste{top:9999px!important}'                       (SEM position:absolute)
+//     — passa nas seis, exit 0.
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'  (top plausível, DENTRO
+//     da viewport) — reprova as MESMAS duas telas, exit 1.
+//
+// Ou seja: QUEM MORDE É O position:absolute, não o valor do top.
+//
+// ⚠ E O PORQUÊ DISSO FOI ESCRITO ERRADO AQUI ANTES, DUAS VEZES SEGUIDAS — o que é a própria
+// lição desta receita. A primeira versão dizia que a causa era "fora da viewport". A segunda
+// (esta, corrigida) dizia que `top:9999px` passa porque *"top não tem efeito num elemento
+// static"* e que as outras quatro telas *"não se deslocam"*. As DUAS frases são falsas, e o QA
+// as derrubou com número em 02/09:
+//
+//   · **`#poste` NÃO é static** — `src/estilo.css:659` declara `#poste{position:relative}`, e
+//     `getComputedStyle(#poste).position` responde `relative` nas seis. Então `top` TEM efeito:
+//     com `top:9999px` o `#btnConfig` vai de `top 960` para `top 10959` (tablet retrato), os
+//     9999 px inteiros, nas SEIS telas.
+//   · **Ele passa mesmo assim porque a rolagem resgata.** `#telaMenu{overflow-y:auto}` ganha
+//     9999 px de `scrollHeight` (1024 → 11023), e o resgate por rolagem da própria régua
+//     alcança o botão. Não é o defeito que some — é o instrumento que o alcança.
+//   · **As outras quatro TAMBÉM se deslocam.** `tablet paisagem`, `notebook` e `ultrawide` estão
+//     no MESMO grid (`#telaMenu` com `display:grid` e `grid-template-rows`) e saem 384 / 384 /
+//     392 px POR BAIXO — passam porque a rolagem vertical as resgata (`scrollTop` 438/438/446).
+//     A única que não vaza por eixo nenhum é `tablet retrato`, e é a única cujo `#telaMenu` é
+//     `flex` em vez de `grid`.
+//
+// **O QUE SEPARA 2 DE 6 É O EIXO, NÃO A FAIXA DO LAYOUT.** Nas duas que mordem, o `left` estático
+// vira negativo (−141px em 899, −265px em 926) e o `#btnConfig` transborda PELA DIREITA (770..1010
+// contra janela de 899; 921..1165 contra 926). A régua rola no Y e resgata o transbordo vertical;
+// no X ela não olha. Por isso mordem duas e não seis.
+//
+// A receita certa para reproduzir esta classe continua sendo "tirar o elemento do fluxo normal"
+// (`position:absolute/fixed` sem realocar) — mas o que a régua está medindo aí é **transbordo
+// horizontal**, e é isso que a próxima pessoa precisa saber para não repetir o diagnóstico errado
+// pela terceira vez. `test/poste-fora-do-fluxo.js` prega os três fatos acima por exit code, para
+// esta correção não depender de alguém ler comentário.
+//
+// ⚠ E FICA UM ACHADO ABERTO, que esta receita não resolve e não deve fingir que resolve: o
+// `#telaMenu` tem `overflow-x: auto` computado, e com esta injeção sobram 141 px (899) e 265 px
+// (926) de rolagem HORIZONTAL. Um dedo real poderia arrastar de lado e chegar ao botão — e a
+// régua chama isso de PRESO. Ou seja, esta terceira receita pode estar simulando um defeito que
+// não é "botão inalcançável", e sim a limitação de um eixo só do instrumento. Item de backlog
+// `regua-eixo-x-nao-olhado`; não conserte aqui sem medir aquilo primeiro.
