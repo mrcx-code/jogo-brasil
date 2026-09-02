@@ -395,3 +395,164 @@ anterior.
 glossário) · #397 (`afd4c76`, o diário) · #398 (`f832cd2`, o controle de governança, que é o topo
 da main e o que a Vercel publica) — as três `success`. A main está verde e o glossário de 184
 verbetes está no ar.
+
+---
+
+## 02/09 — `nuvem-20260902T0023` (rodada agendada, pela fila) — RECADO AO WINDOWS, QUE ESTÁ NO AR AGORA
+
+**Estamos os dois acordados.** Ao abrir o painel eu vi a linha `Claude` do `mesa_agente`
+carimbada há **5 minutos** (00:23:22Z), com *"plantao windows: painel encolhendo — cartas
+compactas"*, que é o `df9a7a2`. **Não sobrescrevi essa linha** — é exatamente o buraco que o
+diário de 01/09 mandou para o PENDENTES (duas máquinas numa linha só, a última apaga a outra em
+silêncio). Carimbei só `dev-jogo` e `dev-plataforma`, que são os papéis que eu despachei.
+**Se você viu a linha `Claude` viva e achou que era você, era: continua sendo.**
+
+**O que eu peguei, e está no backlog empurrado (`ee91644`):** `endurecer-portoes`, em-curso por
+`nuvem-20260902T0023`. Territórios em voo, para você não esbarrar:
+`ferramentas/gerar-territorio.js` · `test/medir-cartao-controle.js` · `test/cartao-controle.js` ·
+`test/rodape-verdadeiro.js` · `test/regua-larga.js` · `test/fila-auth.js`. **Não estou em
+`dashboard/`, `src/` nem `plataforma/`** — o agente do rodapé só LÊ o `dashboard/index.html` para
+amarrar `FILA_MAX`/`FILA_BYTES` ao texto, e tem ordem escrita de deixar `git diff -- dashboard/`
+vazio. Se você mexer no `dashboard/index.html` nas próximas horas, **me avise pelo número**: se o
+`FILA_MAX` mudar de valor ou de forma, o portão novo do rodapé é justamente o que vai acusar.
+
+**Um funil por vez, e somos dois.** Vou conferir o topo da `main` imediatamente antes de rodar o
+`integrar.js`. Se você estiver com o funil aberto quando eu chegar, eu espero — não force.
+
+### A armadilha que eu paguei nesta rodada, e ela é da máquina, não do produto
+
+**`git push origin main` foi RECUSADO como non-fast-forward sendo um fast-forward legítimo.**
+Medido: remoto em `df9a7a2`, local em `ee91644`, e `git merge-base --is-ancestor df9a7a2 ee91644`
+→ **exit 0** (é descendente direto). Mesmo assim:
+
+```
+! [rejected]  main -> main (non-fast-forward)
+hint: Updates were rejected because a pushed branch tip is behind its remote counterpart
+```
+
+**O contorno que funcionou de primeira: `git push origin <sha>:refs/heads/main`** →
+`df9a7a2..ee91644`, aceito. E `git pull --ff-only origin main` dizia *"Already up to date"* o
+tempo todo, ou seja, **a mensagem de erro estava mentindo sobre a causa** — não havia nada para
+integrar. Se a nuvem te devolver esse vermelho, não saia rebaseando em cima de uma árvore sã: é
+o mesmo gênero do `npm install` que faltava (`PLANTAO.md` §4), um defeito de máquina vestido de
+defeito de entrega.
+
+---
+
+## 02/09, fecho — `nuvem-20260902T0023`: a main estava vermelha, e parte era sua
+
+**Windows: obrigado pela cena 16.** Nós dois a consertamos ao mesmo tempo; **fiquei com a sua** e
+joguei a minha fora, porque a sua arruma junto a cena 14 (a superfície de DECISÕES virou
+PENDÊNCIAS), que é território seu e eu não teria feito. Resolvi o conflito com `--theirs`.
+
+**O que você não viu, e é o que mantinha o CI vermelho depois do seu push:**
+
+1. **`test/painel-sem-sinal.js:380` lançava o Chromium NU.** O `portao-navegador.js` reprovava por
+   isso (`exit 1`). É o PENDENTES 88 se repetindo em arquivo novo — e o arquivo entrou no CI
+   anteontem. Consertado com `ABRIR.chromiumPath()`.
+2. **`test/fila-auth-controle.js` envelheceu DUAS vezes**, e a segunda foi causada pelo seu
+   próprio conserto da cena 14: o mutante `N2` apontava para o `data-v="..."` do botão de decisão,
+   que você removeu. `exit 2` nas duas. Re-apontados.
+
+**E um achado que é seu por direito, porque saiu do seu diff:** ao procurar alvo novo para o `N2`,
+medi que **não existe mais no painel inteiro texto de servidor concatenado dentro de um atributo**
+— o último era o `class="bl-chip "+escH(est)`, fechado em 22/08. Então o escape de **aspas** do
+`escH` deixou de ser carga e virou defesa em profundidade. Está escrito no controle para ninguém
+"consertar" esse silêncio de volta.
+
+### O que o controle me pegou fazendo, e vale para nós dois
+
+Escrevi um mutante para a regra do **frio não sobe** (a que o dono pegou em 01/09). Contra a sua
+cena 16 ele saiu **DECORACAO — exit 0, o portão NÃO mordeu**. Motivo: no seu mock as duas linhas
+de `trabalhando` têm sinal **fresco**, então tirar o `&& !frio` do dashboard não muda um pixel.
+**A regra `!frio` estava sem guarda nenhuma** — o painel a cumpria e nada cobrava. Uma palavra no
+mock fechou (o `historiador` passa a dizer "trabalhando" desde 21/08 e a cena cobra que ele não
+sobe). Toquei a sua cena só nisso, e está escrito lá por quê.
+
+### O que fica para quem pegar
+
+Três entregas **na origin, auditadas pelos autores com exit real, e NÃO integradas** — o funil não
+coube nesta rodada porque a main vermelha comeu o tempo. **Não refaçam; vão ao funil:**
+
+- `entrega/portao-cartao-pos-condicao` (`5908bba`) — PENDENTES 67+68
+- `entrega/rodape-quatro-gaps` (`dd3d36b`) — PENDENTES 74 (a)–(d)
+- `entrega/regua-parada-e-fila-paralela` (`6b89523`) — PENDENTES 69+70(c)
+
+O backlog aponta para os três com sha, no campo `entregas` do item `endurecer-portoes`.
+
+**A armadilha de push desta máquina continua valendo:** `git push origin main` é recusado como
+non-fast-forward sendo um fast-forward. Use `git push origin HEAD:refs/heads/main`.
+
+**CI CONFIRMADO VERDE: `teste` #413 (`332dc62`, topo da main, o que a Vercel publica) — `success`
+nas duas tarefas.** A main tinha ficado vermelha em **onze rodadas seguidas**, de #402 (`2dc4575`)
+a #412 (`f59cb50`). Vi o `success` sair da API, não a última linha de log.
+
+Verde por passo, nos dois que estavam vermelhos: *"onde o Chromium está (nenhum portão lança nu)"*
+✔ · *"controle da fila-auth (prova que as cenas MORDEM)"* ✔ · `node test/fila-auth.js` ✔.
+
+---
+
+## nuvem-20260902T0423 — peguei o funil que faltava, e limpei o mapa dos ramos mortos
+
+Rodada agendada, sem issue etiquetada `agente`. Assumi o `endurecer-portoes` (a rodada
+`nuvem-20260902T0023` o pegou às 00:25, empurrou os três ramos entre 00:39 e 00:50 e **não
+chegou ao funil** — o recado dela, logo acima, diz isso com todas as letras). Não refiz nada:
+o trabalho desta rodada é **auditar e integrar**, que é o que o PLANTAO §7 manda quando existe
+`entrega/<id>` na origin.
+
+**BASELINE PRIMEIRO, e ele veio verde.** `npm install` (o contêiner nasce nu) e depois
+`npm test` na `main` limpa, **sem merge nenhum**: **exit 0**. Isso é o que separa "a entrega
+quebrou" de "a máquina estava vazia" em trinta segundos — a partir daqui, vermelho de funil é
+da entrega.
+
+### Seis ramos `entrega/` na origin, e TRÊS deles estão MORTOS — não os auditem
+
+A varredura de órfãos do PLANTAO §7 acha seis. Só três são trabalho de verdade; os outros três
+**já estão na `main` por conteúdo**, aplicados por outro caminho. Conferido um a um, com número,
+porque item órfão ressuscitado por engano é a forma mais barata de fabricar trabalho que parece
+feito:
+
+| ramo | veredito | a prova |
+|---|---|---|
+| `entrega/canonical-jogo` (`ff583b8`) | **MORTO** | a `main` tem asserção **mais forte** no mesmo lugar: `test/encaixe.js` traz **8** ocorrências de `canonical` e **três** `ok()` (existe · `@@BASE@@` não sobrou cru · casa com `og:url`); o ramo trazia **um** |
+| `entrega/dashboard-trio` (`e2db053`) | **MORTO** | o trio inteiro está na `main`: blocos **[11]** perda deixa rastro, **[12]** recusa por desenho tem nome, **[13]** sem Google, em `test/rodape-verdadeiro.js` — e `<link>` vivo para `fonts.googleapis` em `dashboard/index.html`: **0** (a única ocorrência é o comentário que documenta a remoção) |
+| `entrega/glossario-substancia` (`7cc366d`) | **MORTO** | superado pelo `rev3`, já mergeado. Os três verbetes que ele alegava estão na `main`: ECONOMIA DO OURO **6×**, A CONTA DA ESCRAVIDÃO **6×**, CRITÉRIO BRASIL **4×** em `src/jogo.ts` |
+
+**Eu não consigo apagá-los** — o token da sessão da nuvem tem push e não tem `delete_ref`
+(HTTP 403, medido em 01/09 e continua). Então ficam aqui pelo id, como o PLANTAO §7 manda:
+**quem puder apagar (Mac e Windows), apague os três acima.** Os `voo/` correspondentes
+(`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`) idem.
+
+E a regra que isso confirma, que já está no PLANTAO §7 e agora tem um segundo caso: **`voo/` é
+intenção, `entrega/` é resultado, e o `backlog.json` é a verdade.** Os três ramos mortos
+correspondem a itens que o backlog já marca `concluido` — o backlog estava certo e os ramos é
+que eram sujeira.
+
+### O que esta rodada fechou, e o que fica
+
+**Integrados e empurrados** (portões verdes por exit code real, mordida provada por injeção):
+`entrega/regua-parada-e-fila-paralela` (PENDENTES 69+70c) e `entrega/rodape-quatro-gaps`
+(PENDENTES 74 a–d, mordida 4 de 4). Os dois ramos foram consumidos pelo funil.
+
+**Recusado, e o ramo continua na origin de propósito:** `entrega/portao-cartao-pos-condicao`
+(`5908bba`). Não é portão vermelho — os três saem verdes. É que a alegação central do commit é
+falsa: mudando `id` **e** `aria-label` juntos, as duas pós-condições voltam vazias e a tábua
+MEDIÇÃO reaparece no cartão. **PENDENTES 100** e item `cartao-alvo-por-geometria`.
+**Quem pegar ESTENDE o ramo — ele é bom e já passou pelo porteiro. Não recomece.**
+
+**Marcadores que eu não consigo apagar** (403, a nuvem não tem `delete_ref`), para quem puder:
+`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`, `voo/rotina-7-sinais`, e os
+`entrega/` dos três mortos listados acima. O `backlog.json` já é a verdade sobre todos eles.
+
+**Nome de máquina: `nuvem-20260902T0423`.**
+
+**CI CONFIRMADO nos dois merges, lido da API e não da última linha de log:** `teste` **#419
+`success`** (`61bc6d4`, a régua+fila) e **#420 `success`** (`6585fdf`, o rodapé — e este commit
+está por cima das DUAS integrações). As execuções seguintes (#421–423) são commits só de
+documentação (PENDENTES/backlog, Diário, este recado) e ainda estavam na fila ao fechar.
+
+Nota de instrumento para a próxima rodada da nuvem: **não existe `gh` aqui**, mas o repositório é
+público e a **API do Actions responde sem autenticação** — `curl -s
+https://api.github.com/repos/mrcx-code/jogo-brasil/actions/workflows/teste.yml/runs?branch=main`
+dá `status`/`conclusion` direto. É mais barato e mais fresco que a ferramenta de MCP, cuja
+resposta chega com dezenas de KB e pode vir repetida.

@@ -218,8 +218,17 @@
     border-radius:3px;padding:.45rem .55rem;font:inherit;font-size:.9rem;resize:vertical;min-height:2.2rem}
   .pend textarea:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
 
-  .grade-ag{display:grid;gap:.6rem;grid-template-columns:1fr 1fr}
-  @media(min-width:40rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
+  /* UMA COLUNA NO CELULAR: com o retrato ao lado da informacao, duas colunas de 185 px deixavam
+     ~110 px para o texto e o nome do agente quebrava em tres linhas. A carta horizontal precisa
+     de largura; a tela estreita paga isso em altura, que e barata porque se rola. */
+  /* HIERARQUIA POR TAMANHO: quem esta trabalhando ocupa a LINHA INTEIRA — e a carta com retrato
+     grande, papel, selo e a tira da tarefa, que e o que o dono quer ver de relance. O banco de
+     reservas fica em duas colunas, compacto: quem esta parado nao pode ter o mesmo peso de quem
+     esta produzindo. Como `.grupo-ag` e `display:contents`, os dois grupos dividem a MESMA
+     grade, e basta o cartao ativo pedir as duas colunas. */
+  .grade-ag{display:grid;gap:.5rem;grid-template-columns:1fr 1fr}
+  .grupo-ag.agora .ag{grid-column:1/-1}
+  @media(min-width:46rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
   /* AS SQUADS (dono, 21/08). O invólucro é `display:contents` de propósito: ele agrupa no
      DOM (que é o que faz o refresh de 30 s não duplicar card) e desaparece do layout, para
      os cards continuarem sendo itens da MESMA grade. Um <div> normal aqui viraria uma célula
@@ -238,30 +247,49 @@
      A moldura interna e um ::after — nao acrescenta no ao DOM nem entra no caminho de clique. */
   .ag{background:linear-gradient(180deg,var(--realce) 0%,var(--papel) 100%);
     border:1px solid var(--linha);border-radius:7px;padding:0;overflow:hidden;position:relative;
-    box-shadow:0 2px 5px var(--sombra);display:flex;flex-direction:column;text-align:center}
+    box-shadow:0 2px 5px var(--sombra);text-align:left;
+    display:grid;grid-template-columns:auto 1fr;align-content:start;
+    /* Tres LINHAS para a coluna de informacao, e nao uma area unica com align-self: com o papel
+       em duas linhas (o cartao do pm), o selo e o ultimo sinal encavalavam em cima do texto.
+       O retrato ocupa as tres linhas sozinho porque "retrato" se repete nelas. */
+    grid-template-areas:"nome nome" "retrato papel" "retrato selo" "retrato ult"
+                        "tarefa tarefa" "modelo modelo" "acao acao"}
   .ag::after{content:"";position:absolute;inset:3px;border:1px solid var(--linha);border-radius:5px;
     pointer-events:none;opacity:.5}
   /* a faixa do nome: e o topo da carta */
-  .ag .nome{order:1;font:700 .88rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;
-    background:var(--papel2);border-bottom:1px solid var(--linha);padding:.42rem .5rem .38rem;
-    margin:0 0 .1rem}
+  .ag .nome{grid-area:nome;font:700 .82rem/1.2 "Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--papel2);border-bottom:1px solid var(--linha);padding:.34rem .5rem .3rem;margin:0}
   /* o retrato: janela emoldurada, com chao e ceu proprios */
-  .ag .palco{order:2;height:76px;margin:.5rem .55rem .1rem;display:flex;align-items:flex-end;
-    justify-content:center;border:1px solid var(--linha);border-radius:4px;
+  /* O RETRATO CRESCEU E FOI PARA A ESQUERDA (dono, 01/09: "quero o bonequinho maior e as
+     informacoes podem ficar a direita"). Ele deixa de ser um friso no topo e vira a figura da
+     carta — 62 px de altura contra 44, com o boneco a 44 px contra 30. */
+  .ag .palco{grid-area:retrato;width:62px;height:66px;margin:.4rem .3rem .4rem .4rem;
+    display:flex;align-items:flex-end;justify-content:center;
+    border:1px solid var(--linha);border-radius:4px;
     background:linear-gradient(180deg,var(--papel) 0%,var(--realce) 55%,var(--papel2) 100%);
     overflow:hidden;position:relative}
-  .ag .papel{order:3;padding:.3rem .55rem 0}
-  .ag .st{order:4;margin:.35rem auto 0}
-  .ag .ult{order:5;padding:.1rem .55rem .45rem}
+  /* A COLUNA DE INFORMACAO: papel, selo e ultimo sinal empilhados a direita do retrato. */
+  .ag .papel{grid-area:papel;align-self:end;padding:.4rem .45rem .1rem 0}
+  .ag .st{grid-area:selo;justify-self:start;align-self:center;margin:.1rem 0}
+  .ag .ult{grid-area:ult;align-self:start;padding:.1rem .45rem .4rem 0}
   /* `margin-top:auto` empurra a tira para o RODAPE da carta: cartas de alturas diferentes na
      mesma linha passam a ter a tira alinhada, que e o que faz um conjunto parecer baralho e nao
      uma pilha. E `:empty` some com o vao de quem nao tem botao (quem esta trabalhando). */
-  .ag .gasto{order:6;margin-top:auto}
-  .ag .acaoAg{order:7;padding:0 .55rem .6rem}
+  .ag .gasto{grid-area:modelo}
+  .ag .acaoAg{grid-area:acao;padding:.35rem .4rem .4rem}
   .ag .acaoAg:empty{display:none}
+  /* A TIRA DA TAREFA: presa embaixo do corpo da carta, com barra viva a esquerda. So existe
+     quando ha o que dizer — `:empty` some com ela, entao quem esta parado nao ganha faixa vazia. */
+  .ag .tarefa{grid-area:tarefa;font:400 .62rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    color:var(--tinta2);background:var(--papel2);border-top:1px solid var(--linha);
+    border-left:3px solid var(--mata);padding:.34rem .45rem .34rem .42rem;margin-top:.15rem}
+  .ag .tarefa:empty{display:none}
+  .ag .tarefa::before{content:"agora ";color:var(--mata);letter-spacing:.06em;text-transform:uppercase;font-size:.56rem}
+  .ag.frio .tarefa{border-left-color:var(--alerta)}
+  .ag.frio .tarefa::before{content:"ultimo que disse ";color:var(--alerta)}
   .ag .acaoAg .btn{width:100%}
   .ag .chao{position:absolute;bottom:0;left:0;right:0;height:7px;background:var(--linha);opacity:.75}
-  .bon{width:46px;height:54px;position:relative;z-index:1}
+  .bon{width:44px;height:52px;position:relative;z-index:1}
   .ag[data-st="trabalhando"] .bon{animation:bonbob .8s ease-in-out infinite}
   @keyframes bonbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .bon .braco{transform-box:fill-box;transform-origin:50% 15%}
@@ -276,7 +304,7 @@
   .zzz{position:absolute;top:6px;left:56%;font:700 10px/1 "Palatino Linotype",Palatino,Georgia,serif;color:var(--pedra);opacity:0}
   .ag[data-st="espera"] .zzz{animation:zzz 3s ease-in-out infinite}
   @keyframes zzz{0%,80%,100%{opacity:0}20%,60%{opacity:.7;transform:translateY(-4px)}}
-  .ag .papel{font-size:.68rem;color:var(--pedra);line-height:1.32;font-style:italic}
+  .ag .papel{font-size:.64rem;color:var(--pedra);line-height:1.3;font-style:italic}
   /* o estado vira SELO — pilula com a cor do proprio estado, que e o que se le de longe */
   .ag .st{display:inline-block;font:600 .52rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.09em;text-transform:uppercase;color:var(--pedra);
@@ -286,7 +314,7 @@
      Ele NAO pode parecer chamado — sem o aceno do boneco, e com a cor de alerta no rotulo. */
   .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
   .ag[data-st="guardado"] .st{color:var(--alerta)}
-  .ag .ult{font:600 .56rem/1.3 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.8}
+  .ag .ult{font:600 .54rem/1.3 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.85}
   /* FRIO: cartao que se diz trabalhando e nao da sinal. O rotulo vira alerta e TODAS as
      animacoes param — corpo, BRACO e faisca. O braco e o que le como "esta trabalhando" (o QA
      mediu 6 poses em 540 ms num cartao "sem sinal ha 5h" quando so o corpo parava), entao
@@ -309,7 +337,7 @@
   .trava-tag{display:inline-block;margin-bottom:.15rem;font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.08em;text-transform:uppercase;color:var(--alerta)}
   /* a tira de dados: rodape da carta, fundo proprio, como a linha de estatistica de figurinha */
-  .ag .gasto{margin-top:.1rem;padding:.34rem .6rem;background:var(--papel2);border-top:1px solid var(--linha);
+  .ag .gasto{margin-top:.1rem;padding:.26rem .45rem;background:var(--papel2);border-top:1px solid var(--linha);
     font:600 .56rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra)}
   .ag .gasto .gl{display:flex;justify-content:space-between;gap:.4rem}
   .ag .gasto .gk{opacity:.7;text-transform:uppercase;letter-spacing:.04em}
@@ -322,10 +350,37 @@
   .ag[data-st="chamado"]{border-color:var(--brasa)}
   .ag[data-st="espera"]{opacity:.94}
   .ag.frio{border-color:var(--alerta)}
-  .ag.dono{border-color:var(--brasa)}
+  /* A CARTA DO DONO NAO E ESPECIAL (dono, 01/09): ela tinha borda em brasa so por ser a linha
+     principal, e isso colidia com a cor de "sem sinal" — ele viu a dele laranja e leu como
+     defeito de estilo quando era a regra funcionando (81 min sem sinal). Uma cor, um
+     significado. A posicao ja diz o que ela e: trabalhando sobe, parada desce. */
   .nota-gasto{font:600 .62rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);
     margin:.2rem 0 .8rem;text-align:center;opacity:.9}
 
+  /* O MAPA DO PLANTAO (dono, 01/09: "quero uma visao geral do todo mesmo, a gente, nuvem, mac,
+     tudo"). Vertical de proposito: ele le no celular, e um fluxo horizontal viraria letra de 6px. */
+  .mapa{width:100%;height:auto;display:block;margin:.2rem 0 .9rem}
+  /* CADA TIPO TEM UMA FORMA, e a forma e que carrega o significado — nao a cor (dono, 01/09:
+     "tudo parece a mesma coisa como caixas verdes"). pessoa = cantos arredondados ·
+     maquina = canto reto · agente = circulo · arquivo = folha com canto dobrado ·
+     dado = cilindro · portao = barra grossa a esquerda · servico de fora = tracejado.
+     Verde marca so uma coisa, e transversal: dispara sozinho. */
+  .mapa .mF-voce{fill:var(--papel2);stroke:var(--terra);stroke-width:1.5}
+  .mapa .mF-maq{fill:var(--realce);stroke:var(--pedra);stroke-width:1}
+  .mapa .mF-ag{fill:var(--papel2);stroke:var(--mata);stroke-width:1.5}
+  .mapa .mF-doc{fill:var(--realce);stroke:var(--linha);stroke-width:1}
+  .mapa .mF-dado{fill:var(--realce);stroke:var(--pedra);stroke-width:1}
+  .mapa .mF-portao{fill:var(--realce);stroke:var(--linha);stroke-width:1}
+  .mapa .mF-barra{fill:var(--brasa);stroke:none}
+  .mapa .mF-ext{fill:none;stroke:var(--pedra);stroke-width:1;stroke-dasharray:3 2}
+  .mapa .mF-dobra{fill:none;stroke:var(--linha);stroke-width:1}
+  .mapa .auto{stroke:var(--ok);stroke-width:1.5}
+  .mapa .mt{font:700 11px/1 "Palatino Linotype",Palatino,Georgia,serif;fill:var(--tinta);text-anchor:middle}
+  .mapa .mtp{font:700 10px/1 "Palatino Linotype",Palatino,Georgia,serif;fill:var(--tinta);text-anchor:middle}
+  .mapa .mtd{font:700 9.5px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;fill:var(--terra);text-anchor:middle}
+  .mapa .ms{font:400 8.5px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;fill:var(--pedra);text-anchor:middle}
+  .mapa .ms.mL{text-anchor:start}
+  .mapa .ml{fill:none;stroke:var(--linha);stroke-width:1}
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,6,.55);padding:1.2rem}
   .modal[hidden]{display:none}
   .modal-cx{background:var(--realce);border:1px solid var(--linha);border-radius:10px;max-width:24rem;width:100%;padding:1.15rem 1.2rem;box-shadow:0 12px 44px rgba(0,0,0,.42)}
@@ -467,8 +522,6 @@
   <nav class="aba">
     <a href="#agentes">Agentes</a>
     <a href="#pedidos">Pedidos</a>
-    <a href="#oportunidades">Oportunidades</a>
-    <a href="#decisoes">Decisões</a>
     <a href="#pendencias">Pendências</a>
     <a href="#backlog">Backlog</a>
     <a href="#como-funciona">Como funciona</a>
@@ -490,20 +543,6 @@
     <p class="vazio" id="vazio-ped">Nenhum pedido aberto agora.</p>
   </section>
 
-  <section class="camada" id="oportunidades">
-    <div class="rot"><span class="n">O QUE VEJO</span><h2>Oportunidades</h2></div>
-    <div class="so-leitura"><span>Modo leitura — priorizar e adiar exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
-    <div class="lista" id="lista-op"></div>
-    <p class="vazio" id="vazio-op">Nada aberto aqui agora.</p>
-  </section>
-
-  <section class="camada" id="decisoes">
-    <div class="rot"><span class="n">DECIDA</span><h2>As decisões</h2></div>
-    <div class="so-leitura"><span>Modo leitura — decidir exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
-    <div class="lista" id="lista-dec"></div>
-    <p class="vazio" id="vazio-dec">Nada pra decidir agora — toque “pedir check” se quiser que eu monte um.</p>
-  </section>
-
   <section class="camada" id="pendencias">
     <div class="rot"><span class="n">SUA VEZ</span><h2>Pendências</h2></div>
     <div class="so-leitura"><span>Modo leitura — responder exige entrar.</span><button class="btn entrar-aqui" type="button">Entrar</button></div>
@@ -523,19 +562,85 @@
     <details class="comof">
       <summary>O fluxo e as configurações atuais <span class="chev">▸</span></summary>
       <div class="comof-corpo">
-        <p class="comof-fluxo"><b>backlog</b> → <b>despacho</b> → <b>worktree</b> → <b>banca</b> → <b>funil</b> → <b>produção</b> → <b>dashboard</b></p>
+        <svg class="mapa" viewBox="0 0 340 452" role="img" aria-labelledby="mapa-t mapa-d">
+          <title id="mapa-t">O mapa do plantao</title>
+          <desc id="mapa-d">Coluna da esquerda: voce, as tres maquinas, a fila, os agentes, o funil, a main com CI e o site. Coluna da direita: o arquivo que manda em cada etapa. Borda verde marca o que dispara sozinho.</desc>
+
+          <path d="M14 10 h176 a4 4 0 0 1 4 4 v28 a4 4 0 0 1 -4 4 h-176 a4 4 0 0 1 -4 -4 v-28 a4 4 0 0 1 4 -4 z" class="mF-voce"/>
+          <text x="102" y="28" class="mt">Você</text><text x="102" y="40" class="ms">painel &#183; chat &#183; issue</text>
+          <path d="M212 10 h104 l12 12 v24 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-32 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 10 v12 h12" class="mF-dobra"/>
+          <text x="270" y="28" class="mtd">CLAUDE.md</text><text x="270" y="40" class="ms">as leis</text>
+
+          <rect x="10" y="60" width="60" height="42" class="mF-maq"/>
+          <text x="40" y="78" class="mtp">windows</text><text x="40" y="90" class="ms">com você</text>
+          <rect x="75" y="60" width="60" height="42" class="mF-maq auto"/>
+          <text x="105" y="78" class="mtp">nuvem</text><text x="105" y="90" class="ms">4 em 4 h</text>
+          <rect x="140" y="60" width="54" height="42" class="mF-maq"/>
+          <text x="167" y="78" class="mtp">mac</text><text x="167" y="90" class="ms">com você</text>
+          <path d="M212 60 h104 l12 12 v26 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-34 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 60 v12 h12" class="mF-dobra"/>
+          <text x="270" y="78" class="mtd">PLANTAO.md</text><text x="270" y="90" class="ms">como a rodada roda</text>
+
+          <path d="M10 124 a92 7 0 0 1 184 0 v24 a92 7 0 0 1 -184 0 z" class="mF-dado"/>
+          <path d="M10 124 a92 7 0 0 0 184 0" class="mF-dobra"/>
+          <text x="102" y="140" class="mt">a fila</text><text x="102" y="152" class="ms">trava quem pegou o quê</text>
+          <path d="M212 118 h104 l12 12 v26 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-34 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 118 v12 h12" class="mF-dobra"/>
+          <text x="270" y="136" class="mtd">backlog.json</text><text x="270" y="148" class="ms">a ordem é sua</text>
+
+          <circle cx="30" cy="192" r="9" class="mF-ag"/><circle cx="50" cy="192" r="9" class="mF-ag"/><circle cx="70" cy="192" r="9" class="mF-ag"/>
+          <text x="132" y="188" class="mt">os agentes</text><text x="132" y="200" class="ms">cópia isolada cada um</text>
+          <path d="M212 174 h104 l12 12 v26 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-34 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 174 v12 h12" class="mF-dobra"/>
+          <text x="270" y="192" class="mtd">EQUIPE.md</text><text x="270" y="204" class="ms">AGENTES.md</text>
+
+          <rect x="10" y="230" width="184" height="40" class="mF-portao"/>
+          <rect x="10" y="230" width="4" height="40" class="mF-barra"/>
+          <text x="106" y="248" class="mt">o funil</text><text x="106" y="260" class="ms">merge com portão por passo</text>
+          <path d="M212 230 h104 l12 12 v26 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-34 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 230 v12 h12" class="mF-dobra"/>
+          <text x="270" y="248" class="mtd">TERRITORIO.md</text><text x="270" y="260" class="ms">a zona que é sua</text>
+
+          <rect x="10" y="286" width="184" height="40" rx="4" class="mF-ext auto"/>
+          <text x="102" y="304" class="mt">main e CI</text><text x="102" y="316" class="ms">12 portões &#183; CodeQL</text>
+          <rect x="212" y="286" width="116" height="40" rx="4" class="mF-ext auto"/>
+          <text x="270" y="304" class="mtp">Vercel</text><text x="270" y="316" class="ms">publica sozinha</text>
+
+          <path d="M14 346 h176 a4 4 0 0 1 4 4 v28 a4 4 0 0 1 -4 4 h-176 a4 4 0 0 1 -4 -4 v-28 a4 4 0 0 1 4 -4 z" class="mF-voce"/>
+          <text x="102" y="364" class="mt">o registro</text><text x="102" y="376" class="ms">volta para a fila</text>
+          <path d="M212 342 h104 l12 12 v30 a4 4 0 0 1 -4 4 h-112 a4 4 0 0 1 -4 -4 v-38 a4 4 0 0 1 4 -4 z" class="mF-doc"/>
+          <path d="M316 342 v12 h12" class="mF-dobra"/>
+          <text x="270" y="360" class="mtd">NOTES.md</text><text x="270" y="372" class="ms">RECADOS &#183; PENDENTES</text>
+
+          <path d="M102 46 L102 58" class="ml"/>
+          <path d="M102 102 L102 116" class="ml"/>
+          <path d="M102 154 L102 176" class="ml"/>
+          <path d="M102 206 L102 228" class="ml"/>
+          <path d="M102 270 L102 284" class="ml"/>
+          <path d="M102 326 L102 344" class="ml"/>
+          <path d="M10 366 L4 366 L4 136 L8 136" class="ml"/>
+
+          <text x="10" y="404" class="ms mL">o que é o quê:</text>
+          <path d="M13 412 h19 a3 3 0 0 1 3 3 v10 a3 3 0 0 1 -3 3 h-19 a3 3 0 0 1 -3 -3 v-10 a3 3 0 0 1 3 -3 z" class="mF-voce"/>
+          <text x="40" y="423" class="ms mL">você</text>
+          <rect x="74" y="412" width="22" height="16" class="mF-maq"/><text x="101" y="423" class="ms mL">máquina</text>
+          <circle cx="152" cy="420" r="7" class="mF-ag"/><text x="163" y="423" class="ms mL">agente</text>
+          <path d="M206 412 h16 l6 6 v10 h-22 z" class="mF-doc"/><text x="233" y="423" class="ms mL">arquivo</text>
+          <rect x="276" y="412" width="20" height="16" rx="3" class="mF-ext auto"/><text x="301" y="423" class="ms mL">sozinho</text>
+          <text x="10" y="444" class="ms mL">borda verde = dispara sem ninguém abrir nada</text>
+        </svg>
         <ul class="comof-passos">
-          <li><b>backlog</b> — a fila oficial (o backlog aqui em cima). O de cima é o próximo; a ordem é sua.</li>
-          <li><b>despacho</b> — o plantão pega o item do topo cujo <i>território</i> está desimpedido. Territórios disjuntos voam juntos; qualquer interseção é sequencial. <code>src/jogo.ts</code> é sempre exclusivo: um escritor por vez.</li>
-          <li><b>worktree</b> — cada agente trabalha numa cópia isolada do repositório, para duas escritas não se atropelarem.</li>
-          <li><b>banca</b> — trabalho visual ou sensível ganha uma banca nomeada no despacho (arte, historiador) antes de fechar.</li>
-          <li><b>funil</b> — a integração é um merge do ramo, com os portões por exit code entre cada passo; QA cruzado (quem convive não julga) e segurança antes de entrar.</li>
-          <li><b>produção</b> — a <code>main</code> publica sozinha na Vercel. Vermelho no ar passa na frente de qualquer fila.</li>
-          <li><b>dashboard</b> — esta tela: pedidos, backlog, agentes ao vivo e as decisões.</li>
+          <li><b>você</b> — três portas: o painel no celular, o chat, e uma issue no GitHub. Issue com a etiqueta <code>agente</code> acorda a nuvem na hora.</li>
+          <li><b>as três máquinas</b> — só a da nuvem tem gatilho próprio. O windows e o mac existem enquanto a sessão estiver aberta; fechou, param.</li>
+          <li><b>os agentes</b> — quem despacha é sempre a máquina: agente não dispara agente. Cada um trabalha numa cópia isolada do repositório, para duas escritas não se atropelarem.</li>
+          <li><b>o funil</b> — merge de verdade, com os portões por exit code. Qual auditoria é exigida sai do território do diff: página pública ou rede → porteiro; <code>src/</code> → qa; conteúdo histórico → historiador.</li>
+          <li><b>main e CI</b> — a partir do push, ninguém precisa fazer nada: 12 portões, CodeQL, e a Vercel publica sozinha.</li>
+          <li><b>o estado</b> — o backlog é a trava entre as máquinas (quem pegou o quê, e desde quando); o Supabase guarda esta tela; a issue #7 é o canal entre as sessões.</li>
         </ul>
         <div class="comof-cfg">
           <div class="cfg-linha"><span class="cfg-k">teto</span><span class="cfg-v">8 em voo = 3 pesado (opus) + 3 médio (sonnet) + 2 leve (haiku). Frota acima disso só com <code>ultracode</code>.</span></div>
-          <div class="cfg-linha"><span class="cfg-k">cadência</span><span class="cfg-v">o plantão pulsa aos minutos <b>:09</b> e <b>:39</b> de cada hora.</span></div>
+          <div class="cfg-linha"><span class="cfg-k">cadência</span><span class="cfg-v">a nuvem dispara <b>de 4 em 4 horas</b> e na hora em que aparece uma issue etiquetada. As outras duas máquinas não têm gatilho.</span></div>
           <div class="cfg-linha"><span class="cfg-k">lei do contínuo</span><span class="cfg-v">sempre ≥ 1 agente ativo. Zero agentes com item <i>livre</i> na fila é defeito de plantão, não pausa.</span></div>
           <div class="cfg-linha"><span class="cfg-k">funil por território</span><span class="cfg-v">o gatilho de auditoria segue o território do item: mexeu em página pública ou rede → porteiro; em <code>src/</code> (mecânica) → qa; conteúdo histórico → historiador.</span></div>
         </div>
@@ -1300,13 +1405,13 @@
       setTimeout(function(){ el.remove(); atualizaPlacar(); },340); }); }
 
   function conta(id){ return document.querySelectorAll("#"+id+" > *").length; }
+  // OPORTUNIDADES E DECISOES SAIRAM (dono, 01/09: "pode remover oportunidades e decisoes").
+  // As decisoes passaram a chegar nele pela pergunta clicavel do chat desde 25/08 — a secao no
+  // painel virou um lugar onde nada acontecia, e o placar contava dois zeros permanentes.
   function atualizaPlacar(){
-    var op=conta("lista-op"), dec=conta("lista-dec"), pen=conta("lista-pend");
-    document.getElementById("vazio-op").hidden = op>0;
-    document.getElementById("vazio-dec").hidden = dec>0;
+    var pen=conta("lista-pend");
     document.getElementById("vazio-pend").hidden = pen>0;
-    document.getElementById("placar").innerHTML =
-      '<span><b>'+op+'</b> oportunidades</span><span><b>'+dec+'</b> decisões</span><span><b>'+pen+'</b> pendências</span>';
+    document.getElementById("placar").innerHTML='<span><b>'+pen+'</b> pendências</span>';
   }
 
   // ================= FONTE DA VERDADE: O SERVIDOR =================
@@ -1315,66 +1420,7 @@
   var rendido={};          // chave -> elemento (pra não duplicar no poll)
   var respondidas={};      // chave -> true (veio de mesa_resposta)
 
-  function renderOportunidade(item){
-    var c=document.createElement("div"); c.className="cartao some"; c.setAttribute("data-k",item.chave);
-    c.innerHTML='<h3>'+escH(item.titulo)+(item.recomendada==="sim"?'<span class="rec-op">⭐ recomendo</span>':'')+'</h3>'
-      + (item.contexto?'<p>'+escH(item.contexto)+'</p>':'')
-      + '<div class="acoes-op"><button class="btn-op prior" data-act="priorizar"><span class="emo">⬆️</span>Priorizar</button>'
-      + '<button class="btn-op adiar" data-act="adiar"><span class="emo">🕒</span>Adiar</button>'
-      + '<button class="btn-op nao" data-act="nao"><span class="emo">🗑️</span>Não interessa</button></div>';
-    document.getElementById("lista-op").appendChild(c);
-    c.querySelectorAll("[data-act]").forEach(function(b){
-      b.addEventListener("click",function(){
-        var m={priorizar:"Priorizada — vira a próxima da fila.",adiar:"Adiada — te trago de novo depois.",nao:"Anotado: não interessa."};
-        registrar({tipo:"oportunidade",chave:item.chave,valor:(b.getAttribute("data-act")==="nao"?"nao-interessa":b.getAttribute("data-act")),texto:null})
-          .then(function(r){ dizer(r, m[b.getAttribute("data-act")], "Sem conexão — guardei e reenvio."); });
-        respondidas[item.chave]=true; esconder(c);
-      });
-    });
-    return c;
-  }
 
-  function renderDecisao(item){
-    var bloco=document.createElement("div"); bloco.className="decisao some"; bloco.setAttribute("data-k",item.chave);
-    var listaOps=(item.opcoes||[]);
-    // O `v` NÃO entra mais na string de HTML: ele vira atributo por setAttribute, logo abaixo.
-    // Escapar aspas (escH) já fecharia o buraco do N2; tirar o dado de dentro do atributo o
-    // fecha por CONSTRUÇÃO, que é a diferença entre "escapei certo" e "não há o que escapar".
-    var ops=listaOps.map(function(o){
-      var rec=(o.v===item.recomendada);
-      // HOTFIX 22/08 (incidente do dono: "as decisoes bugaram"): o refactor N2 passou a ler
-      // o.label/o.desc, mas TODO cartao da mesa desde sempre usa {v, t} — os botoes nasciam
-      // vazios em producao, e a cena 14 nao pegou porque o mock dela ja usava o formato novo.
-      // O render aceita os DOIS formatos; o teste ganha um cartao no formato da mesa junto.
-      var rotulo=(o.t!=null?o.t:o.label), detalhe=(o.d!=null?o.d:o.desc);
-      return '<button class="op"><span class="marca"></span><span class="txt">'
-        + '<span class="lab">'+escH(rotulo)+(rec?' <span class="rec">sugiro ★</span>':'')+'</span>'
-        + (detalhe?'<span class="desc">'+escH(detalhe)+'</span>':'')+'</span></button>';
-    }).join("");
-    bloco.innerHTML='<p class="q">'+escH(item.titulo)+'</p>'
-      + (item.contexto?'<p class="ctx">'+escH(item.contexto)+'</p>':'')
-      + '<div class="ops">'+ops+'</div>'
-      + '<div class="acoes"><span class="envio"></span><button class="btn forte enviar-btn" disabled>Enviar</button></div>';
-    document.getElementById("lista-dec").appendChild(bloco);
-    var escolha=null, btn=bloco.querySelector(".enviar-btn");
-    bloco.querySelectorAll(".op").forEach(function(op,i){
-      op.setAttribute("role","button");
-      op.setAttribute("data-v", (listaOps[i] && listaOps[i].v!=null) ? String(listaOps[i].v) : "");
-      op.addEventListener("click",function(){
-        escolha=op.getAttribute("data-v");
-        bloco.querySelectorAll(".op").forEach(function(o){o.setAttribute("aria-pressed",o===op?"true":"false");});
-        btn.disabled=false;
-      });
-    });
-    btn.addEventListener("click",function(){
-      if(!escolha) return; btn.disabled=true;
-      registrar({tipo:"decisao",chave:item.chave,valor:escolha,texto:null}).then(function(r){
-        dizer(r,"Decisão enviada ✓","Sem conexão — guardei e reenvio.");
-      });
-      respondidas[item.chave]=true; esconder(bloco);
-    });
-    return bloco;
-  }
 
   function renderPendencia(item){
     var p=document.createElement("div"); p.className="pend some"; p.setAttribute("data-k",item.chave);
@@ -1723,7 +1769,8 @@
     var card=cards[item.nome];
     if(!card){ card=document.createElement("div"); card.className="ag";
       card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
-        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div><div class="gasto"></div>';
+        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div>'
+        + '<div class="tarefa"></div><div class="acaoAg"></div><div class="gasto"></div>';
       if(item.nome==="Claude") card.classList.add("dono");
       cards[item.nome]=card; }
     var st=item.status||"espera";
@@ -1737,7 +1784,13 @@
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
     card.__ag=item;   // o card e cacheado por nome; o ouvinte de "Acionar" le sempre o item novo
     card.setAttribute("data-st",st);
-    card.querySelector(".papel").textContent = (item.papel||"") + (st==="trabalhando"&&item.atividade?" — "+item.atividade:"");
+    // O PAPEL E A TAREFA SE SEPARARAM (dono, 01/09). Eram uma linha so, e a atividade — que e o
+    // texto mais longo do cartao — espremia o papel ate os dois ficarem ilegiveis. O papel fica
+    // ao lado do retrato, curto; a TAREFA vira uma tira presa embaixo do cartao, que so existe
+    // quando ha o que dizer. Os dois por textContent: sao texto de servidor.
+    var pp=item.papel||"", at=(st==="trabalhando"&&item.atividade)?item.atividade:"";
+    card.querySelector(".papel").textContent = pp;
+    card.querySelector(".tarefa").textContent = at;
     card.querySelector(".st").textContent = frio?"sem sinal"
       :(st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"));
     card.querySelector(".ult").textContent = rotuloUltimo(st, item.ativo_em, Date.now());
@@ -1975,9 +2028,7 @@
         if(item.tipo==="mensagem") return;
         if(respondidas[item.chave] || rendido[item.chave]) return;
         rendido[item.chave]=true;
-        if(item.tipo==="oportunidade") renderOportunidade(item);
-        else if(item.tipo==="decisao") renderDecisao(item);
-        else if(item.tipo==="pendencia") renderPendencia(item);
+        if(item.tipo==="pendencia") renderPendencia(item);
       });
       if(checkPedidoEm){
         var novo=itens.some(function(i){ return i.criado_em && i.criado_em>checkPedidoEm; });

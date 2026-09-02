@@ -688,7 +688,7 @@ FPS 61 no smoke; zero imagem nova. Prints `COMP-A-*`/`COMP-D-*` em `test/`.
 ## Onda 5 — IMPLEMENTADA (2026-08-07): VOLTAR É AMANHECER
 
 **A decisão, e por que a chuva perdeu.** Meu roteiro previa chuva no PÓS-CHUVA; o PM
-propôs no `SPRINT.md` §3.3 trocar por uma onda do retorno. A decisão é minha, e decido
+propôs no `docs/arquivo/SPRINT.md` §3.3 trocar por uma onda do retorno. A decisão é minha, e decido
 **pelo retorno** — não por deferência, mas porque a chuva perde no confronto com os meus
 próprios princípios:
 

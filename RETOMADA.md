@@ -103,7 +103,7 @@ revertendo a fila de lançamento que eu estava seguindo:
 
 > *"o foco nao eh lancar logo, bora construir com tudo que acreditamos"*
 
-Consequência prática: o `LANCAMENTO.md` deixou de ser a fila. Tela de entrada, som no primeiro
+Consequência prática: o `docs/arquivo/LANCAMENTO.md` deixou de ser a fila. Tela de entrada, som no primeiro
 toque, código de seis letras — tudo isso desceu. O que subiu foi **conteúdo e profundidade**.
 
 ---
@@ -162,7 +162,7 @@ Em ordem. Tudo abaixo já tem "sim" do dono; não precisa perguntar de novo.
    O QUE TEM FONTE (método). Aprovados junto com o item 2, na forma *"os dois em paralelo"*.
    Regem-se pela **REGRA DO DOCUMENTO** (§2.6): só se afirma o que um documento público afirma,
    e o jogo mostra qual; nunca nomeia político; o sujeito é sempre quem sustenta, nunca quem
-   governa. O material está em `HISTORIA-CONTEMPORANEO.md`.
+   governa. O material está em `docs/arquivo/HISTORIA-CONTEMPORANEO.md`.
 2. **Profundidade nos 10** — dar a cada capítulo um verbo próprio na mão. Hoje cinco capítulos
    jogam idêntico. Os dois que já têm verbo são o molde: **ACOMPANHAR** em SALVADOR (um toque
    abre conversa, e conversa só anda andando) e **ACOLHER** em PALMARES.
@@ -388,10 +388,10 @@ registrar perde o trabalho duas vezes, porque some o código E o diagnóstico.
 
 `CLAUDE.md` — a lei (§2 representação, §3 técnica, §6 o check) · `NOTES.md` — o Diário, as
 fontes por capítulo, o glossário de 52+ verbetes · `PENDENTES.md` — o que está pela metade ·
-`DIRECAO.md` — a visão de arte e as ondas · `COLABORAR.md` — o contrato do colaborador ·
-`LANCAMENTO.md` — o que falta para lançar (**despriorizado por decisão do dono em 13/08**) ·
-`HISTORIA-CONTEMPORANEO.md` — o material dos três capítulos do presente · `MUTIRAO.md` ·
-`ROBUSTEZ.md` · `RELATORIO-PESO.md` · `CINCO-MINUTOS.md` · `DIA-3.md` · `AUDITORIA.md`.
+`DIRECAO.md` — a visão de arte e as ondas · `docs/arquivo/COLABORAR.md` — o contrato do colaborador ·
+`docs/arquivo/LANCAMENTO.md` — o que falta para lançar (**despriorizado por decisão do dono em 13/08**) ·
+`docs/arquivo/HISTORIA-CONTEMPORANEO.md` — o material dos três capítulos do presente · `docs/arquivo/MUTIRAO.md` ·
+`docs/arquivo/ROBUSTEZ.md` · `docs/arquivo/RELATORIO-PESO.md` · `docs/arquivo/CINCO-MINUTOS.md` · `docs/arquivo/DIA-3.md` · `docs/arquivo/AUDITORIA.md`.
 
 ---
 

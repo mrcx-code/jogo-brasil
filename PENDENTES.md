@@ -2240,6 +2240,25 @@ teto some sem nenhuma cena reprovar. E o irmao esquecido do `carregar()`.
 
 ## 73 — `robusto-tudo` e `medir-save-hostil` estao FORA do CI, e foi isso que deixou a contradicao viver nove dias — plantao
 
+> **RESOLVIDO — 01/09, commit `e2d92a3` ("Fecha as ressalvas do QA de lote e poe robusto-tudo e
+> save-hostil no CI"). Marcado aqui em 02/09 pelo plantao `nuvem-20260902T0023`, que foi pegar o
+> item `endurecer-portoes` e achou este pedaco ja feito e ainda escrito como aberto.**
+>
+> Medido na `main` de hoje: `.github/workflows/teste.yml` tem `node test/robusto-tudo.js`
+> (timeout 5 min) e `node test/medir-save-hostil.js` (timeout 4 min), com o comentario que
+> registra o motivo de o item ter saido da fila — a cena **3c** do `robusto-tudo`, a UNICA linha
+> de teste no caminho da aba oculta, rodava em **zero** lugares automaticos. A condicao que o
+> item exigia antes de acrescentar ("conferir se sao estaveis, porque o `robusto-tudo` depende do
+> save semeado") foi atendida pelo caminho certo: o **PENDENTES 71 fechou primeiro**, em 31/08,
+> exatamente na ordem que este item sugeria.
+>
+> **A licao nao e sobre o CI, e sobre este arquivo.** O item ficou fechado no codigo e aberto no
+> `PENDENTES.md` por um dia inteiro, e chegou a esta rodada dentro do escopo de um item do
+> backlog — quem pegasse ao pe da letra escreveria as duas linhas de novo, veria `git diff`
+> vazio, e teria como **confirmar um achado que ja nao existia**. E o mesmo falso verde do
+> `canonical-jogo` (`PLANTAO.md` §5), sete dias depois, e a cura e a mesma: `git log -S` na
+> assercao ANTES de despachar o conserto.
+
 O `.github/workflows/teste.yml` roda 12 portoes. **Estes dois nao estao entre eles** — sao
 portoes de mao.
 
@@ -3422,3 +3441,56 @@ parecer decisão.
 com `revisado_por` nulo" — barato, e transforma o silêncio em fila de trabalho; (b) a coluna vira
 `bool null` com `default null`, e aí "não sei" tem como ser dito. (b) é a modelagem correta e
 custa migração + ajuste de quem lê; (a) resolve o sintoma hoje. Território: `dev-dados`.
+
+---
+
+## 100 — O portão do cartão fecha os dois mutantes do 67 e 68, e uma variante de UMA LINHA passa limpa — qa/dev-plataforma (02/09)
+
+**Achado pelo `pre-integrador` em 02/09, auditando `entrega/portao-cartao-pos-condicao` (`5908bba`)
+antes do funil. A entrega NÃO foi integrada por causa disto** — o ramo continua na `origin`, e o
+que falta é uma linha, não uma reescrita.
+
+**O que a entrega alega, e a parte que é verdade.** Ela troca a cobrança de ESFORÇO ("quantos nós
+eu escondi") por duas pós-condições de RESULTADO em `ferramentas/gerar-territorio.js`:
+`sobrouControle` (varre `body *` e reprova elemento fixed/sticky que bata na lista paranoica) e
+`alvoNomeado` (reprova se o botão continuar visível por `id` OU por `aria-label` "Medição…").
+Isso funciona: os **dois mutantes exatos** do PENDENTES 67 e 68, reproduzidos com código copiado
+verbatim do gerador e rodados contra a página real `territorio/index.html` já commitada, são
+**recusados** — `sobrouControle: div.qaDiv @ 354,31 44x44` e `alvoNomeado: #medirBt2 escondido=false`.
+
+**O que é falso é a frase central do commit — "não há mais caminho de volta com os dois portões
+verdes".** Existe, e custa uma linha a mais que o mutante do QA: **mudar o `id` E o `aria-label`
+juntos.** O `aria-label` deixa de começar com "Medição", o `id` deixa de ser o esperado, e as duas
+pós-condições passam vazias:
+
+```
+exclusao escondeu: .med, .vaoMedida
+estado do botao real apos exclusao: id=medirBt2 | aria-label=Contagem ligada. Toque para desligar.
+  | position=static | display=flex | rect=334,31 69x44
+sobrouControle: []   alvoNomeado: []
+```
+
+Com print no mesmo enquadramento 1200×630 do cartão real: a tábua **"MEDIÇÃO / ligada" volta ao
+lado de "O Território"** — o defeito de 23/08 que o item 67 existe para impedir, de volta, com os
+dois portões **verdes**. É a mesma doença que o 67 nomeia, num degrau acima: a pós-condição
+continua reconhecendo o alvo por **como ele se chama**, e o que se chama pode ser renomeado.
+
+**A saída, e ela decorre do próprio item 68** (*o instrumento tem de ser estritamente mais
+paranoico que a coisa medida*): parar de identificar o alvo por nome e passar a cobrá-lo por
+**posição e geometria** — nenhum elemento interativo dentro do recorte 1200×630 do cartão, seja
+qual for o `id` ou o rótulo. Nome é atributo do autor; retângulo não é.
+
+**Dois achados menores da mesma auditoria, para não se perderem:**
+- **O CONTROLE já commitado em `test/medir-cartao-controle.js` é decoração parcial** (EQUIPE.md 2.8):
+  as 4 linhas `ok` só injetam um `<button>` genérico sticky — que a lista **antiga** já pegava.
+  Ele nunca exercita os mutantes específicos do 67 (span+static+id) nem do 68 (div+onclick+tabindex)
+  contra a página real. A mensagem do commit descreve um wrapper de teste que **não está commitado**,
+  e foi por isso que o auditor teve de reconstruí-lo para provar — e para desmentir.
+- **`sobrouControle` no gerador não é byte a byte igual** ao corpo de `test/medir-cartao-controle.js`
+  (falta o `|| e.id === 'medirBt'`), embora o comentário mande ser IDÊNTICO. Não achamos caminho
+  explorável por causa disso — `alvoNomeado` cobre o caso —, mas é a divergência que a régua da
+  própria casa reprovaria se fosse cobrada por assinatura.
+
+**Nota de máquina, não da entrega:** `medir-cartao-controle.js` e `gerar-territorio.js` chamam
+`chromium.launch()` **puro**, sem `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num terceiro lugar,
+pré-existente ao diff. Na nuvem isso exigiu contorno para rodar.

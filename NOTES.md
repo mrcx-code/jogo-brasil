@@ -11048,3 +11048,196 @@ por agente nao e derivavel, entao os cartoes de agente viram elenco.
 **Buraco de coordenacao achado hoje, e ele e do mesmo genero:** o `mac-jogo` registrou que
 atualizou "a linha `Claude`" do `mesa_agente` — a MESMA linha que esta maquina usa. Duas maquinas
 escrevendo uma linha so: a ultima a escrever apaga a outra, em silencio. Vai para o PENDENTES.
+
+---
+
+## 02/09, madrugada — A MAIN ESTAVA VERMELHA E NINGUÉM TINHA VISTO — plantão `nuvem-20260902T0023`
+
+Rodada agendada, sem issue etiquetada. Peguei `endurecer-portoes` da fila (decidido pelo dono em
+23/08) e o trabalho que rendeu não foi o item: foi o que apareceu ao abrir o CI antes de despachar
+o funil.
+
+### O que estava quebrado, medido por exit code real na `main` limpa
+
+**Último verde: `teste` #401 (`c041f6f`). Vermelho em #402, #403, #404 e #405** — quatro rodadas,
+começando no merge `2dc4575` do `painel-sem-sinal`. Três pushes por cima do vermelho sem ninguém
+reparar. `main` é produção (`CLAUDE.md` §3.5).
+
+| portão | antes | causa |
+|---|---:|---|
+| `test/portao-navegador.js` | **exit 1** | `test/painel-sem-sinal.js:380` lança o Chromium **nu** |
+| `test/fila-auth.js` | **exit 1** (2 falhas, as duas na cena [16]) | a cena afirmava cabeçalhos de SQUAD |
+| `test/fila-auth-controle.js` | **exit 2** | dois mutantes de squad envelhecidos |
+
+As três têm a mesma raiz: as **squads saíram do painel** em 01/09 (`ba3f609`, decisão do dono) e os
+portões que as afirmavam ficaram para trás. O lançamento nu é outra coisa — é o **PENDENTES 88 se
+repetindo em arquivo novo, exatamente como ele próprio previu**, num portão que entrou no CI dois
+dias antes.
+
+### A colisão de duas máquinas, e como ela se resolveu
+
+O `windows-plantao` estava **no ar ao mesmo tempo** (carimbo de 5 min na linha `Claude` do
+`mesa_agente` quando abri). Não sobrescrevi essa linha — é o buraco que o diário de 01/09 mandou
+para o PENDENTES — e deixei recado com os territórios em voo.
+
+Enquanto eu consertava, **ele consertou a cena 16 também**, por conta própria e melhor: a versão
+dele arruma junto a cena 14 (a superfície de DECISÕES saiu do painel e a cena migrou para
+PENDÊNCIAS), que é território dele e eu não teria feito. **Fiquei com a dele e joguei a minha
+fora** — o merge foi resolvido com `--theirs` no `test/fila-auth.js`. Os dois consertos que ele
+**não** fez (o Chromium nu e o controle envelhecido) são os que sobreviveram da minha ponta.
+
+Trabalho duplicado: uma cena. O custo real foi meu, e o recado que evitaria estava escrito tarde
+demais — eu empurrei a reivindicação do item no backlog **antes** de trabalhar, mas o vermelho do
+CI não é item de backlog e não tinha onde ser reivindicado.
+
+### O que CAIU, e é meu: o controle me pegou fabricando decoração
+
+Escrevi um mutante novo — *"o frio volta a subir"* — para guardar a regra que o dono pegou em 01/09
+(cartão dizendo "trabalhando" com sinal de 315 min não pode ficar na faixa AGORA). Contra a **minha**
+cena 16 ele mordia. Contra a **do windows**, o controle devolveu:
+
+```
+DECORACAO  faixas · o frio volta a subir  -> exit 0, 0 falha(s) — o portao NAO mordeu o defeito
+```
+
+Motivo, medido: no mock dele as duas linhas de `trabalhando` têm **sinal fresco**, então tirar o
+`&& !frio` do dashboard não muda um pixel. **A regra `!frio` estava sem guarda nenhuma** — o
+painel a cumpria e nada cobrava. Uma palavra no mock resolveu (o `historiador` passa a dizer
+"trabalhando" desde 21/08 e a cena cobra que ele **não** sobe).
+
+Isto é o instrumento funcionando contra quem o escreveu: eu teria empurrado uma asserção verde que
+não protegia nada, e **decoração assinada de verde é pior que teste nenhum**.
+
+### O achado que vale mais que o conserto: um escape que virou defesa em profundidade
+
+Ao re-apontar o mutante `N2` (o alvo dele era o `data-v="..."` do botão de decisão, que sumiu),
+fui procurar outra superfície onde texto de servidor é concatenado **dentro de um atributo**.
+**Não existe mais nenhuma no painel inteiro.** A última era o chip do backlog
+(`class="bl-chip "+escH(est)`), fechada em 22/08 pela nota (b) da segurança — hoje o estado só
+escolhe uma chave da tabela `CHIP` e entra por `classList.add`, com o rótulo por `textContent`.
+
+Consequência que fica escrita para ninguém "consertar" de volta: **o escape de ASPAS do `escH`
+deixou de ser carga e virou defesa em profundidade.** Um mutante que só tire as aspas passa
+invisível — não porque a cena afrouxou, mas porque a superfície que ele guardava foi eliminada. O
+`N2` foi re-apontado para o escape que ainda carrega peso (esquecer o `escH` no título da
+pendência), e volta a morder: **exit 1, 3 falhas, 3 na cena [14]**.
+
+### Números da rodada
+
+- `portao-navegador.js` 1 → **0** · `fila-auth.js` 1 → **0** (24 cenas) · `fila-auth-controle.js`
+  2 → 1 → **0** (22 defeitos pegos)
+- 3 mutantes re-apontados + 1 novo; **1 deles nasceu decoração e foi provado assim pelo controle**
+- 3 entregas dos agentes, empurradas para a origin e **não integradas** (ver abaixo)
+
+### As três entregas, e o que elas mediram
+
+| ramo | cobre | o número que ficou |
+|---|---|---|
+| `entrega/regua-parada-e-fila-paralela` (`6b89523`) | PENDENTES 69 + 70(c) | delta do `#btnConfig` **18 px → 0 px** nas 6 telas; portão em **19,2–19,5 s** contra 28–30 s do relógio cheio remedido hoje |
+| `entrega/portao-cartao-pos-condicao` (`5908bba`) | PENDENTES 67 + 68 | a pós-condição recusa o mutante que a contagem aprovava; lista paranoica devolve vazio nas 4 páginas intactas |
+| `entrega/rodape-quatro-gaps` (`dd3d36b`) | PENDENTES 74 (a)–(d) | 15 cenas, agora cobradas por número |
+
+**Duas afirmações minhas foram derrubadas pelos próprios agentes**, e as duas por medição:
+- *"o conserto do 67 são ~6 linhas"* — **falso**: a pós-condição de "mesma leitura do instrumento"
+  sozinha **não pega** o mutante do QA (o botão deixa de flutuar; só o invólucro flutua). Foram
+  precisas duas pós-condições independentes, ~75 linhas.
+- *"os quatro gaps do rodapé são pequenos e independentes"* — **parcialmente falso** no gap (a):
+  fechar o drift de VALOR cabe no arquivo de teste, mas sobreviver a mudança de FORMA
+  (`FILA_MAX` virar `LIMITES.fila`) exigiria tocar o `dashboard/`. Ficou fechado para valor, e
+  reprova alto (falso positivo, nunca falso negativo) se a forma mudar.
+
+### Dúvidas que ficam
+
+1. **Ninguém tem egresso para o Supabase pelo `conteudo:puxar`** (403, PENDENTES 95) — segue
+   valendo; o MCP funciona, o `fetch` do node não.
+2. O gap (a) do rodapé só fica robusto a refatoração se o `dashboard/index.html` ganhar um
+   comentário-contrato (`// AMARRACAO: FILA_MAX=...`). É território compartilhado e **não foi
+   decidido sozinho**.
+3. `ferramentas/gerar-territorio.js` **não roda cru** nesta máquina: o proxy recusa CONNECT para
+   `us.i.posthog.com` e o gate morre por um `ERR_TUNNEL_CONNECTION_FAILED` alheio ao que ele mede.
+   Outros portões já filtram isso; este não. Não abri item — vai como dúvida.
+
+### Próximo passo
+
+**O funil dos três ramos.** Eles estão na origin, não são órfãos, e o backlog aponta para os três
+com sha. Não integrei nesta rodada porque a `main` vermelha consumiu o tempo — e integrar por cima
+de portão vermelho é como esta noite começou.
+
+**Nome de máquina desta rodada: `nuvem-20260902T0023`.**
+
+---
+
+## 02/09 — O funil que faltava: duas entregas entram, uma é recusada com o defeito reproduzido
+
+Rodada agendada, sem issue etiquetada `agente`. A rodada anterior (`nuvem-20260902T0023`) pegou o
+`endurecer-portoes` às 00:25, empurrou três ramos entre 00:39 e 00:50 e **morreu antes do funil**.
+Esta rodada não refez nada: o `PLANTAO.md` §7 manda, quando existe `entrega/<id>` na origin,
+**auditar e integrar** em vez de recomeçar — e era exatamente esse o caso.
+
+**O baseline primeiro, e ele é o que dá direito de culpar a entrega.** `npm install` (o contêiner
+da nuvem nasce sem o `typescript`) e `npm test` na `main` limpa, sem merge nenhum: **exit 0**.
+A partir daí, vermelho de funil é da entrega, não da máquina.
+
+### O que entrou
+
+| entrega | portões | a mordida |
+|---|---|---|
+| `regua-parada-e-fila-paralela` (PENDENTES 69 + 70c) | `npm test` 0 · `encaixe` 0 | `telaParada()` espera as *promises* da Web Animations, não um `setTimeout`: **guardado − final = 0,0 px** nas 6 telas, contra **ingênuo − final = +18,0 px** nas 6. E a corrida do PIN, isolada em sonda de **6 processos × 60 iterações**: nome fixo deu **4 mismatches em 360** (um deles **leu o PIN de outro processo**), sufixo de PID deu **0 em 360** |
+| `rodape-quatro-gaps` (PENDENTES 74 a–d) | `npm test` 0 · `encaixe` 0 · `rodape-verdadeiro` 0, 15 cenas | **4 de 4**: cada defeito injetado um por vez deu **exit 1** e foi restaurado e conferido por `git diff` |
+
+### O que NÃO entrou, e é o achado da rodada
+
+`portao-cartao-pos-condicao` (PENDENTES 67 + 68) foi **recusada**, e não por portão vermelho — os
+três saem verdes. Foi recusada porque a **frase central do commit é falsa**: *"não há mais caminho
+de volta com os dois portões verdes"*. Há, e custa **uma linha** — mudar `id` **e** `aria-label`
+juntos faz `sobrouControle` e `alvoNomeado` voltarem **os dois vazios**, e a tábua "MEDIÇÃO /
+ligada" reaparece ao lado de "O Território" no recorte 1200×630 do cartão. É o defeito de 23/08
+de volta, com os dois portões verdes, com print e dump do DOM.
+
+A parte verdadeira da entrega é grande: os **dois mutantes exatos** do 67 e do 68, rodados com
+código copiado verbatim do gerador contra a página real já commitada, **são recusados**. O que
+falha é a classe: a pós-condição reconhece o alvo por **como ele se chama**, e o que se chama pode
+ser renomeado. A saída decorre do próprio item 68 (*o instrumento tem de ser estritamente mais
+paranoico que a coisa medida*): cobrar por **geometria** — nada interativo dentro do recorte —,
+porque nome é atributo do autor e retângulo não é. Virou **PENDENTES 100** e o item
+`cartao-alvo-por-geometria`. **O ramo continua na origin e é bom: quem pegar estende, não recomeça.**
+
+### O QUE CAIU, e foi meu
+
+O despacho do `rodape-quatro-gaps` foi escrito por mim com uma premissa de risco: *"a `main` mexeu
+neste arquivo depois que o ramo nasceu (41393f0), então o merge pode passar limpo e reintroduzir o
+Chromium nu"*. **Falso, e medido:** `41393f0` é commit de **merge** cujos dois pais têm o arquivo
+**byte-idêntico**; o Chromium nu deste arquivo foi consertado antes, em `532a9e7`, que é
+**ancestral do ponto de bifurcação** `ee91644`; e `git log ee91644..origin/main --
+test/rodape-verdadeiro.js` volta **vazio**. Eu li a mensagem do commit de merge e atribuí a ela
+mudanças que estavam em **outros dois arquivos** (`painel-sem-sinal.js`, `fila-auth-controle.js`).
+A lição é a da casa, aplicada a mim: **mensagem de commit de merge descreve a rodada, não o
+arquivo** — quem quer saber se um arquivo mudou pergunta ao `git log -- <arquivo>`, não à prosa.
+
+### Três ramos `entrega/` da origin estão MORTOS
+
+`canonical-jogo` (a `main` tem asserção mais forte: **8** ocorrências e **3** `ok()`, contra **1**
+do ramo) · `dashboard-trio` (o trio inteiro na `main`, blocos **[11][12][13]**; `<link>` vivo para
+`fonts.googleapis`: **0**) · `glossario-substancia` (superado pelo `rev3` já mergeado; os três
+verbetes estão no `src/jogo.ts`, **6/6/4** ocorrências). **A nuvem não apaga ramo remoto** (403,
+sem `delete_ref`), então ficam registrados por id no `RECADOS.md` para quem puder.
+
+### Dúvidas que sobraram
+
+1. **A variante do 100 é a mesma classe do 67 ou entrada nova?** O auditor deu a prova bruta e
+   deixou a leitura para quem decide. Eu tratei como a mesma classe num degrau acima — se for nova,
+   o aceite do item muda.
+2. **`medir-cartao-controle.js` e `gerar-territorio.js` chamam `chromium.launch()` puro**, sem
+   `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num **terceiro** lugar, pré-existente ao diff.
+   Na nuvem exigiu contorno para rodar, e ninguém está olhando isso como classe.
+3. **O controle commitado do cartão é decoração parcial** (EQUIPE.md 2.8): só injeta um `<button>`
+   genérico que a lista **antiga** já pegava. A mensagem do commit descreve um wrapper de teste que
+   **não está commitado**.
+
+### Próximo passo
+
+`cartao-alvo-por-geometria` (estender o ramo, não recomeçar) e `regua-autoteste-morto` (o comentário
+do rodapé da `regua-larga.js` promete reprovação por exit code e ficou falso — efeito colateral
+correto do próprio conserto: `scrollHeight` passou de **786** para **768** `=== clientHeight`).
+
+**Nome de máquina desta rodada: `nuvem-20260902T0423`.**

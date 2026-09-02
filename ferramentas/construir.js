@@ -89,7 +89,7 @@ function pagarArteUmaVez(js) {
 }
 // ---- A ARTE DE CADA CAPÍTULO SAI DA PORTA DE ENTRADA ----
 // O jogo levava 16,6 s para aceitar o primeiro toque em 3G porque trazia a arte dos doze
-// capítulos antes de deixar alguém tocar no primeiro (RELATORIO-PESO.md). Aqui ela sai para
+// capítulos antes de deixar alguém tocar no primeiro (docs/arquivo/RELATORIO-PESO.md). Aqui ela sai para
 // `pack-<nome>.json`, ao lado do index.html, e o jogo a busca quando a pessoa chega no
 // capítulo. Quem decide o que vai em cada pacote é `ferramentas/pacotes.js` — a MESMA tabela
 // que o jogo recebe embutida logo abaixo, porque duas cópias divergiriam em silêncio.
@@ -246,7 +246,7 @@ if (externo.length) throw new Error('referência externa na saída: ' + externo.
 // ---- O CONTRATO DA REDE, COBRADO ----
 // A trava acima cobra `src=` e `href=`. Ela NÃO vê um `fetch()`, e por isso ela sozinha virou
 // uma garantia que só parecia existir no dia em que o jogo passou a buscar os pacotes de arte
-// (achado do RELATORIO-PESO.md, §5). Trava que não acompanha o contrato dá falsa segurança.
+// (achado do docs/arquivo/RELATORIO-PESO.md, §5). Trava que não acompanha o contrato dá falsa segurança.
 //
 // O contrato, escrito por extenso. O jogo pode alcançar DUAS coisas e nada mais:
 //   (a) o pacote de arte do PRÓPRIO domínio. Um caminho relativo, montado por uma função só, a

@@ -462,13 +462,30 @@
     {
       "id": "endurecer-portoes",
       "titulo": "Uma rodada so de endurecimento: fecha PENDENTES 67 a 74",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "dev-jogo",
       "territorio": "test/,ferramentas/gerar-territorio.js",
       "camada": "esteira",
-      "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado.",
-      "maquina": "nuvem-20260902T0023",
-      "desde": "2026-09-02T00:25:12.811Z"
+      "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado.  ||  ESTADO EM 02/09 (nuvem-20260902T0423, o funil que faltava): 71, 72 e 73 ja estavam RESOLVIDOS; 70(a) e 70(b) fecharam em 31/08. DOIS dos tres ramos foram INTEGRADOS E EMPURRADOS nesta rodada, com mordida provada por injecao: entrega/regua-parada-e-fila-paralela (PENDENTES 69+70c) e entrega/rodape-quatro-gaps (PENDENTES 74 a-d, mordida 4 de 4). SOBRA SO O 67+68: o ramo entrega/portao-cartao-pos-condicao (5908bba) foi AUDITADO E RECUSADO — ele fecha os dois mutantes exatos, mas uma variante de UMA LINHA (mudar id E aria-label juntos) passa limpa pelas duas pos-condicoes e devolve a tabua MEDICAO ao cartao com os dois portoes verdes, com print e dump em maos. Esta no PENDENTES 100 e no item cartao-alvo-por-geometria. NAO REFACA O RAMO: ele e bom e esta na origin; falta cobrar o alvo por GEOMETRIA (nada interativo dentro do recorte 1200x630) em vez de por nome.",
+      "maquina": null,
+      "desde": null,
+      "entregas": [
+        {
+          "ramo": "entrega/portao-cartao-pos-condicao",
+          "sha": "5908bba",
+          "cobre": "PENDENTES 67+68"
+        },
+        {
+          "ramo": "entrega/rodape-quatro-gaps",
+          "sha": "dd3d36b",
+          "cobre": "PENDENTES 74 (a)-(d)"
+        },
+        {
+          "ramo": "entrega/regua-parada-e-fila-paralela",
+          "sha": "6b89523",
+          "cobre": "PENDENTES 69+70(c)"
+        }
+      ]
     },
     {
       "id": "contato-placeholder",
@@ -538,6 +555,30 @@
         "test/portao-navegador.js"
       ],
       "desfecho": "INTEGRADO em 01/09 por nuvem-20260901T1622 (funil exit 0 real, 6b4f0c8). semComentarios() virou maquina de estados (CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE) que reconhece string em vez de duas regex empilhadas. MEDIDO, com sondas do pre-integrador e nao do autor: antes 12 ocorrencias brutas de chromium.launch nos 8 arquivos e SO 2 sobreviviam (7 de 8 arquivos inteiramente cegos); depois 8 sobrevivem e 0 nus. Injecao real em rodape-verdadeiro.js:368 -> exit 1 apontando arquivo:linha; restaurado -> exit 0. Autoteste passou de 1 cobaia fixa para 2 (a segunda COM o padrao). Alcance 32 arquivos com os 8 dentro, e portoesDeclarados NAO mudou no diff — entao o verde de primeira e arvore limpa, nao cegueira nova. DESMENTIDO registrado: a formulacao do despacho (\"e so o /* da rota Express\") era estreita demais — o gatilho e QUALQUER string contendo /*, inclusive os curingas **/* do Playwright. Gap latente NAO fechado virou PENDENTES 94."
+    },
+    {
+      "id": "regua-autoteste-morto",
+      "titulo": "O autoteste do rodape da regua-larga.js virou decoracao pelo proprio conserto",
+      "estado": "em-curso",
+      "papel": "dev-jogo",
+      "territorio": "test/regua-larga.js",
+      "camada": "esteira",
+      "aceite": "O comentario do rodape (linhas 454-458) passa a documentar um defeito que AINDA morde depois de telaParada(), e quem escrever prova por injecao: exit 1 com o defeito, exit 0 sem. O REGUA_DEFEITO de hoje (overflow-y:hidden em 926x428) sai ou ganha companhia.",
+      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
+    },
+    {
+      "id": "cartao-alvo-por-geometria",
+      "titulo": "O portao do cartao cobra o alvo por NOME, e nome se renomeia — passar a cobrar por geometria",
+      "estado": "em-curso",
+      "papel": "dev-plataforma",
+      "territorio": "ferramentas/gerar-territorio.js,test/medir-cartao-controle.js",
+      "camada": "esteira",
+      "aceite": "A variante do PENDENTES 100 (mudar id E aria-label juntos) passa a REPROVAR por exit code, provada por injecao contra a pagina real territorio/index.html: exit 1 com o mutante, exit 0 sem ele. E o controle commitado passa a exercitar os tres mutantes (67, 68 e este) contra a pagina real, em vez do button generico que a lista antiga ja pegava.",
+      "detalhe": "PENDENTES 100, achado pelo pre-integrador em 02/09 ao auditar entrega/portao-cartao-pos-condicao antes do funil — a entrega foi recusada por isto. Medido, com print no enquadramento 1200x630 do cartao real: com id=medirBt2 e aria-label=Contagem ligada. Toque para desligar., sobrouControle e alvoNomeado voltam os DOIS vazios e a tabua MEDICAO reaparece ao lado de O Territorio, que e o defeito de 23/08 que o item 67 existe para impedir. A causa e de classe: a pos-condicao reconhece o alvo por COMO ELE SE CHAMA, e o que se chama pode ser renomeado. A saida decorre do proprio item 68 (o instrumento tem de ser estritamente mais paranoico que a coisa medida): cobrar POSICAO E GEOMETRIA — nenhum elemento interativo dentro do recorte 1200x630 —, porque nome e atributo do autor e retangulo nao e. PARTE DO TRABALHO JA EXISTE na origin em entrega/portao-cartao-pos-condicao (5908bba), aprovado pelo porteiro pelo angulo de pagina publica; estenda esse ramo, nao comece do zero.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
     }
   ]
 }

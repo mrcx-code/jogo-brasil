@@ -170,7 +170,7 @@ Regras práticas que decorrem disso:
 
    **A partir de 2026-08-10 há uma exceção, e ela é a única**: a arte dos capítulos 2+ sai para
    `pack-*.json` ao lado do `index.html` e o jogo a busca quando a pessoa **chega no capítulo**.
-   Aprovado pelo dono depois de ler o `RELATORIO-PESO.md`: o jogo levava **16,65 s** para aceitar
+   Aprovado pelo dono depois de ler o `docs/arquivo/RELATORIO-PESO.md`: o jogo levava **16,65 s** para aceitar
    o primeiro toque num celular em 3G, e passou a levar **6,30 s** — e, o que decidiu, a porta de
    entrada **parou de crescer** com cada capítulo novo. Três coisas não se negociam nessa
    exceção, e as três são cobradas por teste: **(a)** o jogo nunca fica sem chão — enquanto o
@@ -485,7 +485,7 @@ Produção: <https://matheusferreira.cc> — o domínio do dono, decidido por el
 ("tenho meu domínio matheusferreira.cc, quero usar ele por enquanto"). O jogo mora na **raiz**.
 Enquanto o DNS não estiver apontado, `jogo-brasil-mrcx.vercel.app` continua no ar e funcionando;
 o que fica errado nesse meio-tempo é só a prévia do link. O que falta fazer na Vercel está em
-uma tela só no `LANCAMENTO.md`, seção **O DOMÍNIO**.
+uma tela só no `docs/arquivo/LANCAMENTO.md`, seção **O DOMÍNIO**.
 
 **O endereço mora numa linha só**, `ferramentas/dominio.js`. O molde `src/index.html` escreve
 uma marca e o build a troca nas duas tags `og:` — trocar de domínio, de subdomínio ou de

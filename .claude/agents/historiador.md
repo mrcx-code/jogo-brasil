@@ -16,7 +16,7 @@ Você escreve a história do Brasil neste jogo. **A regra é mais dura que o có
 
 ## Leia primeiro
 `CLAUDE.md` §2 inteiro, `TERRITORIO.md`, `NOTES.md` (fontes por capítulo) e
-`HISTORIA-CONTEMPORANEO.md`.
+`docs/arquivo/HISTORIA-CONTEMPORANEO.md`.
 
 ## O PORTÃO DE §2 — você PARA, não decide
 Estas coisas são **do dono** e você nunca as resolve sozinho:

@@ -94,19 +94,43 @@ const DEFEITOS = [
         '  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }',
       ],
       [
-        `      return '<button class="op"><span class="marca"></span><span class="txt">'`,
-        `      return '<button class="op" data-v="'+escH(o.v)+'"><span class="marca"></span><span class="txt">'`,
+        // RE-APONTADO em 02/09 (`nuvem-20260902T0023`). O par antigo devolvia o valor do servidor
+        // para dentro de `data-v="..."` no botao de DECISAO — e as decisoes sairam do painel em
+        // 01/09 (elas chegam ao dono pela pergunta clicavel do chat desde 25/08). O controle
+        // parou com "envelheceu" (exit 2), que e o comportamento certo, e este e o conserto.
+        //
+        // E O ACHADO QUE VALE MAIS QUE O CONSERTO, medido ao procurar um alvo novo: **nao existe
+        // mais, no painel inteiro, texto de servidor concatenado dentro de um ATRIBUTO.** O
+        // ultimo era o chip do backlog (`class="bl-chip "+escH(est)`), fechado em 22/08 pela
+        // nota (b) da seguranca — hoje o estado so ESCOLHE uma chave da tabela CHIP e entra por
+        // `classList.add`, com o rotulo por `textContent`. Consequencia: o escape de ASPAS do
+        // `escH` deixou de ser carga e virou defesa em profundidade, e um mutante que so tira as
+        // aspas passaria INVISIVEL pela cena 14 — nao porque a cena afrouxou, mas porque a
+        // superficie que ele guardava foi eliminada. Registrado para ninguem "consertar" esse
+        // silencio de volta.
+        //
+        // O alvo novo e o escape que AINDA carrega peso na superficie que sobrou (pendencias):
+        // esquecer o `escH` no titulo e a regressao de verdade, e o payload `<img src=x onerror>`
+        // vira elemento na hora. Com os dois pares juntos o mutante le como uma coisa so — "o
+        // escape regrediu" — e a cena 14 o pega por `imgs`, por `xss` e por `comOn`.
+        `    p.innerHTML='<h3>'+escH(item.titulo)+'</h3>'`,
+        `    p.innerHTML='<h3>'+item.titulo+'</h3>'`,
       ],
     ],
   },
   {
-    // As squads (dono, 21/08). Defeito 1: o agrupamento simplesmente nao existe — e o estado
-    // de ontem, com os cards soltos na ordem do servidor. Se a cena 16 passar assim, ela nao
-    // esta medindo o agrupamento, esta medindo que a pagina abre.
-    id: 'squads · o agrupamento por squad some (card solto na grade)',
+    // As duas faixas. Defeito 1: o agrupamento simplesmente nao existe — e o estado de ontem,
+    // com os cards soltos na ordem do servidor. Se a cena 16 passar assim, ela nao esta medindo
+    // o agrupamento, esta medindo que a pagina abre.
+    //
+    // RE-APONTADO em 02/09 (`nuvem-20260902T0023`): o alvo era a linha das SQUADS, que saiu do
+    // painel em 01/09 (ba3f609). O controle fez exatamente o que devia — parou com "o controle
+    // envelheceu" (exit 2) em vez de aprovar calado —, e o conserto e re-apontar, nao apagar: o
+    // agrupamento continua vivo, so trocou de criterio (`grupoDe(item.squad)` -> `grupoBanco()`).
+    id: 'faixas · o agrupamento some (card solto na grade)',
     cena: '[16]',
     pares: [[
-      `    var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
+      `    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoBanco();
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo`,
       '    g.appendChild(card);',
     ]],
@@ -115,9 +139,24 @@ const DEFEITOS = [
     // Defeito 2, e e o que o dono pediu para nao acontecer: o grupo deixa de ser criado UMA
     // vez. Com isto cada volta do refresh de 7 s cria invólucro e cabecalho novos — a grade
     // some aos poucos atras de cabecalhos repetidos, sem erro de console, sem nada quebrar.
-    id: 'squads · o grupo renasce a cada volta (o refresh duplica os cabecalhos)',
+    // Re-apontado em 02/09 junto com o de cima: a memoizacao deixou de ser um mapa `grupos[]`
+    // e virou duas variaveis, uma por faixa.
+    id: 'faixas · a faixa renasce a cada volta (o refresh duplica os cabecalhos)',
     cena: '[16]',
-    pares: [['    if(grupos[chave]) return grupos[chave];', '    if(false) return grupos[chave];']],
+    pares: [['    if(faixaAgora) return faixaAgora;', '    if(false) return faixaAgora;']],
+  },
+  {
+    // Defeito 3, NOVO em 02/09, e ele guarda a regra que o DONO pegou antes de nos: cartao que
+    // diz "trabalhando" e nao da sinal ha horas nao pode ficar na faixa AGORA (01/09 — quatro
+    // cartoes na faixa AGORA com sinal de 315 min; palavras dele: "nao faz sentido manter algo
+    // q nunca vai mostrar a realidade"). Sem o `!frio` a posicao volta a mentir mesmo com o
+    // rotulo honesto — e posicao afirma tanto quanto texto.
+    id: 'faixas · o frio volta a subir (a faixa AGORA mente de novo, agora so na posicao)',
+    cena: '[16]',
+    pares: [[
+      '    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoBanco();',
+      '    var alvo=(st==="trabalhando")?grupoAgora():grupoBanco();',
+    ]],
   },
   {
     // PIN, 22/08. O gate de localhost e uma linha so, e uma linha so e exatamente o tipo de
@@ -296,7 +335,14 @@ let ruins = 0;
 // sobre um arquivo intacto. A quebra do arquivo manda, e cada alvo tem a sua.
 const comEOL = (s, texto) => s.split('\n').join(texto.indexOf('\r\n') >= 0 ? '\r\n' : '\n');
 
+// UM DEFEITO SO, quando se esta consertando um controle especifico: cada mutante levanta um
+// navegador e roda a suite inteira, entao a suite toda leva ~20 min nesta maquina. `SO=trecho`
+// roda so os que casam. Isso nao afrouxa nada — no CI a variavel nao existe, e o portao continua
+// cobrando todos. Foi o que tornou possivel descobrir, com cuidado, que uma primeira tentativa de
+// conserto do N2 estava saindo DECORACAO — sem esperar 20 minutos por tentativa.
+const SO = process.env.SO || '';
 for (const d of DEFEITOS) {
+  if (SO && d.id.indexOf(SO) < 0) continue;
   const paraPin = d.alvo === 'pin';
   const fonte = paraPin ? srcPin : src;
   const copia = paraPin ? COPIA_PIN : COPIA;
