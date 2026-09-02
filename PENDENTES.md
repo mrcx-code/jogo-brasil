@@ -3494,3 +3494,60 @@ qual for o `id` ou o rótulo. Nome é atributo do autor; retângulo não é.
 **Nota de máquina, não da entrega:** `medir-cartao-controle.js` e `gerar-territorio.js` chamam
 `chromium.launch()` **puro**, sem `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num terceiro lugar,
 pré-existente ao diff. Na nuvem isso exigiu contorno para rodar.
+
+---
+
+## 101 — A seção pública está 3 verbetes atrasada, e o gerador assa a fonte do host no cartão publicado — dev-plataforma/porteiro (02/09)
+
+**Achado pela linha principal do plantão `nuvem-20260902T0823`**, ao consertar o PENDENTES 91/98
+nos quatro geradores (`entrega/geradores-chromium`, `8f9eab0`). O conserto é pequeno e está
+provado; **o que ele revelou ao rodar é maior que ele**, e são duas coisas independentes.
+
+### 101a · A porta e o glossário públicos mentem o número, e é a doença de 22/08 de volta
+
+Rodados os quatro geradores contra a `main` de hoje, a saída **diverge do que está commitado**:
+
+| arquivo | commitado | gerado hoje |
+|---|---|---|
+| `glossario/index.html` (`<meta description>`, `og:description`, corpo) | **181 verbetes** | **184** |
+| `plataforma/index.html` (portal + cartão) | **181 verbetes** | **184** |
+
+Três verbetes entraram no `src/jogo.ts` e **nenhuma das duas páginas públicas foi regerada**. É
+exatamente a classe de erro que criou o `gerar-porta.js` em 22/08 — *"a porta dizia 60 fontes
+enquanto DE ONDE VEM já dizia 61"* —, só que agora a página envelhece mesmo sendo gerada, porque
+**ninguém roda o gerador**. O portão `medir-porta-secao.js` compara porta × seção, e as duas
+estão erradas **pelo mesmo número**, então ele fica verde: duas cópias que concordam entre si e
+discordam da fonte.
+
+**O que falta é o gatilho, não o gerador.** Aceite sugerido: um portão que compare o número
+AFIRMADO nas páginas com o EXTRAÍDO do jogo headless e reprove por exit code — a mesma disciplina
+do espelho do conteúdo (PENDENTES 87), que o funil já roda quando o diff toca o glossário.
+
+### 101b · O cartão publicado muda de tipografia conforme a máquina que o gera — trava de publicação
+
+**Medido, com as duas imagens olhadas lado a lado** (`glossario/compartilhar.jpg`, recorte
+1200×630 real): regerar nesta máquina muda o número **e a fonte**. Os três cartões encolheram
+~10% em bytes — `de-onde-vem` 87.538 → 79.409, `glossario` 81.115 → 76.385, `historia` 83.486 →
+74.829 —, e a comparação visual mostra por quê: **os botões da barra estreitaram, o corpo do
+texto quebra em outro ponto, o peso do serifado mudou.** Não é compressão: é **substituição de
+fonte**. Esta máquina não tem as fontes que a máquina que gerou os cartões commitados tinha.
+
+**A consequência é de infraestrutura, não de estética:** o gerador de seção **não é
+determinístico entre máquinas**. Qualquer uma das três que rode `gerar-*.js` publica um cartão
+com a tipografia do próprio host — e o push na `main` publica sozinho, então isso chega ao
+WhatsApp de quem receber o link.
+
+**Por isso esta rodada NÃO empurrou a saída regerada**, embora o número 184 esteja certo: separar
+a deriva legítima (181→184) da ilegítima (fonte trocada) exigiria uma máquina qualificada, e
+esta não é. Empurrar cartão publicado a partir de máquina que renderiza diferente é a definição
+de mudança externa sem sign-off (`CLAUDE.md` §8 e as travas do plantão).
+
+**Aceite:** ou o gerador passa a **embutir a fonte** que usa (como o build já faz com a arte, e
+aí qualquer máquina gera o mesmo byte), ou ele **recusa rodar** onde a fonte esperada não existe
+— e nesse caso quem recusa diz qual fonte faltou. As duas saídas são cobráveis por exit code; a
+terceira ("cuidado ao rodar") não é, e por isso não conta.
+
+**Dúvida honesta que fica, e ela é do dono ou do porteiro:** não dá para saber **qual das duas
+renderizações é a certa**. A commitada pode ser a de uma máquina bem montada — ou a de outra
+máquina com fallback, congelada há semanas. Descobrir isso é o primeiro passo do aceite, e é
+barato: gerar o mesmo cartão nas três máquinas e comparar.
