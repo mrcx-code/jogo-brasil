@@ -4,7 +4,8 @@
     "territorio": "Todo item nao-concluido declara `territorio`: a lista de caminhos/arquivos que ele toca. E o dado do despacho simultaneo: territorios DISJUNTOS = os itens podem voar juntos; qualquer INTERSECAO = sequencial, na ordem da fila. `src/jogo.ts` e SEMPRE exclusivo — no maximo UM item em voo que o toque, mesmo em regioes diferentes (arquivo de 15 mil linhas, um escritor por vez). A zona do dono (TERRITORIO.md — a tela ONDE FOI) nao e territorio de item nenhum.",
     "camada": "Camada de motor sugerida por item (EQUIPE.md §3.2, decisao do dono 22/08): pesado=opus (max 3) · medio=sonnet (max 3) · leve=haiku (max 2). Teto total: 8. Frota acima disso so com `ultracode` do dono.",
     "continuo": "Decisao do dono 22/08: sempre pelo menos 1 agente da equipe ativo. Se ha item `livre` cujo territorio esta desimpedido, o plantao nunca fica com zero agentes em voo (EQUIPE.md §3.3).",
-    "estados": "livre (despachavel) · bloqueado (diz por que e por quem) · em-curso · do-dono (so ele destrava) · concluido (fica como registro, desce para o fim)"
+    "estados": "livre (despachavel) · bloqueado (diz por que e por quem) · em-curso · do-dono (so ele destrava) · concluido (fica como registro, desce para o fim)",
+    "aceite": "Item livre ou em-curso declara aceite: a frase verificavel de quando parar, no tom dos 28 exemplos deste arquivo. em-curso declara tambem maquina e desde (o lock). territorio de item despachavel e sempre ARRAY. O dono do item e UM campo: agente (papel e legado aceito na leitura, mas nunca os dois juntos). Cobrado a cada push por ferramentas/conferir-item.js — mutantes no --controle."
   },
   "itens": [
     {
@@ -12,7 +13,10 @@
       "estado": "livre",
       "papel": "arte",
       "titulo": "A margem esquerda de 268 px do molde e que produz o istoria no recorte quadrado — nao a largura da fonte",
-      "territorio": "ferramentas/cartao-secao.js,ferramentas/chrome-plataforma.js",
+      "territorio": [
+        "ferramentas/cartao-secao.js",
+        "ferramentas/chrome-plataforma.js"
+      ],
       "camada": "esteira",
       "aceite": "A primeira tabua sobrevive ao recorte QUADRADO centrado (x 285..915), nao so ao 1200x630. Mordida provada por injecao. Medir antes e depois no recorte quadrado, nao no canvas cheio — e o quadrado que produz o defeito.",
       "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada."
@@ -83,6 +87,7 @@
     {
       "id": "caminho-do-ceu",
       "titulo": "O CAMINHO-DO-CEU: chao repetido na vertical para a personagem entrar no retrato SEM comer o ceu",
+      "aceite": "As 4 condicoes da arte do PENDENTES 54, todas: (1) costura vertical julgada POR PRINT pela arte ANTES de portao verde; (2) o 390x844 de referencia ganha a heroina — destravar so Pixel/iPhone Max faz o item DESCER, nao fechar; (3) regua inteira verde: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos alternados. Fecha o PENDENTES 53 junto, e CHAO_HOME_LIGADO vira true.",
       "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
       "agente": "dev-jogo",
       "estado": "livre",
@@ -112,6 +117,7 @@
     {
       "id": "trilha-palmares",
       "titulo": "Trilha batida entre os povoados de Palmares",
+      "aceite": "A trilha existe na rua de PALMARES, na familia pixel art do capitulo (PALMARES e pixel cru — nada de tom continuo), FPS piso 58 medido, prints antes/depois commitados. Duvida NOVA de representacao durante a implementacao = PARE e pergunta fechada ao dono; nada se decide no worktree.",
       "detalhe": "Decidido pelo dono em 21/08 (§2): a rede dos mocambos como coisa VIVIDA, na linguagem pixel — a trilha marcada no chao do capitulo PALMARES. Design ja decidido por ele; o que este item faz e implementar com cuidado. Aceite: a trilha existe na rua de PALMARES, na familia pixel art do capitulo (auditoria 21/08: PALMARES e pixel cru — a trilha nao pode chegar em tom continuo), FPS piso 58, prints antes/depois. TRAVA ESCRITA: qualquer duvida NOVA de representacao que a implementacao levantar e PARE — volta ao dono em pergunta fechada, nao se decide no worktree.",
       "agente": "dev-jogo",
       "estado": "livre",
@@ -127,6 +133,7 @@
     {
       "id": "gesto-ainda-aqui",
       "titulo": "Gesto de AINDA AQUI: plantar e colher junto",
+      "aceite": "O gesto existe no capitulo AINDA AQUI, legivel sem texto, na familia visual do capitulo; FPS piso 58 medido; prints antes/depois; historiador confere o que o gesto AFIRMA (quem planta, o que se colhe — nada generico que trate povos como categoria unica). Duvida nova de representacao = PARE, pergunta fechada ao dono.",
       "detalhe": "Decidido pelo dono em 21/08 (§2). Mesmo contrato da trilha: design dele, implementacao nossa, duvida nova de representacao = PARE em pergunta fechada. Aceite: o gesto existe no capitulo AINDA AQUI, legivel sem texto, na familia visual do capitulo; FPS piso 58; prints antes/depois; historiador confere o que o gesto AFIRMA (quem planta, o que se colhe — nada generico que trate povos como categoria unica).",
       "agente": "dev-jogo",
       "estado": "livre",
@@ -154,6 +161,7 @@
     {
       "id": "fichas-lote-2",
       "titulo": "Fichas de fonte do lote 2 do territorio (pesquisadora le e tabela; historiador julga)",
+      "aceite": "Uma ficha por candidato dos grupos NENHUM/CUIDADO, no formato do lote 1: CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro), lugar de fala anotado quando houver. Fonte que nao abrir num host tenta o segundo antes de escrever \"nao deu para ler\". Nenhuma decisao de representacao: o historiador julga e o dono aprova pino a pino.",
       "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
       "agente": "pesquisadora-fontes",
       "estado": "livre",
@@ -178,6 +186,7 @@
     {
       "id": "coerencia-sobras",
       "titulo": "Sobras da coerencia visual: a costura de JABAQUARA + o que o pixel-vence nao alcancou",
+      "aceite": "(A) Print da costura nova de JABAQUARA julgado pela arte, nenhuma outra pintura tocada — correcao de POSICAO do offset da copia espelhada, nao de arte. (B) So se o registro do achado for LOCALIZADO primeiro (o PENDENTES 47 citado nao existe; grep no DIRECAO.md deste ramo = 0); sem registro, B nao se faz e o item fecha so com A.",
       "detalhe": "Duas partes. (A) DIAGNOSTICADA e despachavel: deslocar a emenda do espelho de JABAQUARA — a raiz detalhada forma rosto simetrico na costura (DIRECAO.md, auditoria 21/08, print test/COER-jabaquara-costura.png); correcao de POSICAO do offset da copia espelhada, nao de arte. Aceite: print da costura nova julgado pela arte, nenhuma outra pintura tocada. (B) A CONFIRMAR ANTES DE FAZER: o plano da FRENTE borrado/os 3 de pixel cru — o backlog antigo citava um PENDENTES 47 que NAO EXISTE (a numeracao pula de 46 para 48) e o registro do achado da arte nao esta no DIRECAO.md deste ramo (grep=0). Primeiro passo da parte B e localizar o registro na rodada da arte; sem registro, B nao se faz — nada inventado.",
       "agente": "dev-jogo",
       "estado": "livre",
@@ -192,6 +201,7 @@
     {
       "id": "poste-alturas-curtas",
       "titulo": "O poste em telas de ALTURA curta: gatilho por altura (~830) e o caso 480x320",
+      "aceite": "O gatilho do poste passa a ser ALTURA disponivel (corte medido ~830 px), nao largura; na cinematica a faixa da direita alarga ANTES de dividir em duas pistas; 480x320 ou entra no duas-colunas ou a rolagem vira decisao ESCRITA com numero; regua-larga e encaixe verdes por exit code real nos tres viewports medidos (1366x768, 926x428, 480x320).",
       "detalhe": "PENDENTES 49b + 50, medidos dos dois lados: 1366x768 (notebook) rola 73 px com CONFIGURACOES fora da vista; 926x428 rola 205; 480x320 rola 95 com oito tabuas (401 px numa tela de 320). A resposta ja existe no repo — o poste de DOIS LADOS — e o que esta errado e o GATILHO: por largura (700-899) quando o que decide e ALTURA disponivel (corte medido ~830 px em 1366). Aceite: gatilho por altura; na cinematica, faixa da direita alargada ANTES de dividir em duas pistas (duas pistas em 360-460 px dao ~175 cada, abaixo do que DE ONDE VEM precisa a escala 3 — medido, esta no PENDENTES 50); 480x320 ou entra no duas-colunas ou a rolagem vira decisao ESCRITA com numero; regua-larga e encaixe verdes por exit real.",
       "agente": "dev-jogo",
       "estado": "livre",
@@ -220,6 +230,7 @@
     {
       "id": "retro-2",
       "titulo": "Segunda retro do pm pelo placar (as ~20 rodadas desde a primeira)",
+      "aceite": "Numeros somados do periodo (as ~20 linhas de placar desde 21/08), o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido — entregue como texto para o integrador pregar no EQUIPE.md.",
       "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
       "agente": "pm",
       "estado": "livre",
@@ -232,6 +243,7 @@
     {
       "id": "territorio-rico",
       "titulo": "Território RICO — estados, rios (expostos e aterrados), flora/fauna, pontos históricos",
+      "aceite": "O mapa ganha as camadas COM FONTE: divisas e rios expostos (IBGE), rios aterrados com fonte por cidade, natureza por bioma (arte julga por print), pontos historicos SO dos pinos que o dono aprovou pino a pino — nada entra sem aprovacao. Interativo no clique/hover e usavel no celular. Entrega com prints antes/depois para o dono julgar contra o feedback de 21/08 (melhorou mas nao brilha os olhos).",
       "detalhe": "LIBERADO em 23/08 na saida do windows-plantao. Ficou em-curso por aquela maquina, e maquina que saiu deixando item travado bloqueia a outra no territorio inteiro (ferramentas/gerar-territorio.js e territorio/) ate o lock vencer. Feedback do dono 21/08: melhorou mas nao brilha os olhos. Divisas e rios com fonte (IBGE); rios aterrados com fonte por cidade; natureza por bioma (arte); pontos historicos por lugar (historiador, §2). Interativo no clique/hover; celular com calma.",
       "agente": "dev-plataforma",
       "estado": "livre",
@@ -461,8 +473,12 @@
       "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
       "estado": "livre",
       "papel": "dev-plataforma",
-      "territorio": "ferramentas/medir-secao.js,ferramentas/chrome-plataforma.js",
+      "territorio": [
+        "ferramentas/medir-secao.js",
+        "ferramentas/chrome-plataforma.js"
+      ],
       "camada": "plataforma",
+      "aceite": "O rotulo fixo da barra passa a \"medicao anonima\" SOMENTE se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar o scrollWidth da barra — medido, nao estimado. Se nao couber, o item fecha SEM mudanca e com o numero medido registrado: a explicacao completa continua no rodape, e a growth aceitou assim.",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim."
     },
     {
@@ -686,7 +702,10 @@
       "estado": "livre",
       "papel": "porteiro",
       "titulo": "A barra do cartao publicado decepa a primeira tabua — o compartilhar.jpg le istoria — e nenhum portao olha",
-      "territorio": "ferramentas/gerar-territorio.js,ferramentas/cartao-secao.js",
+      "territorio": [
+        "ferramentas/gerar-territorio.js",
+        "ferramentas/cartao-secao.js"
+      ],
       "camada": "esteira",
       "banca": "arte (veredito visual) + porteiro (pagina publica)",
       "aceite": "Um portao le o TEXTO dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada. Mordida provada por injecao.",
@@ -713,7 +732,14 @@
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "Cartoes de link com tipografia velha — A ENTREGA ESTA PRONTA em origin/entrega/cartoes-tipografia, falta so auditar e integrar",
-      "territorio": "ferramentas/gerar-territorio.js,test/cartao-tipografia-fresca.js,package.json,historia/compartilhar.jpg,de-onde-vem/compartilhar.jpg,territorio/compartilhar.jpg",
+      "territorio": [
+        "ferramentas/gerar-territorio.js",
+        "test/cartao-tipografia-fresca.js",
+        "package.json",
+        "historia/compartilhar.jpg",
+        "de-onde-vem/compartilhar.jpg",
+        "territorio/compartilhar.jpg"
+      ],
       "aceite": "NAO REFACA O TRABALHO. O ramo origin/entrega/cartoes-tipografia existe, com 2 commits e portao proprio. Falta UMA medicao antes do funil: rodar o gerador do territorio 8 vezes seguidas e provar que o hash da regiao estavel aguenta. A entrega mediu 4 e a corrida de fonte aparecia 1 vez em 2 antes do conserto — 8 e o que separa conserto de sorte. Depois disso, funil normal.",
       "detalhe": "Rodada nuvem-20260902T2022. A entrega DESMENTIU o proprio item: sao QUATRO cartoes com o nav, nao cinco — o quinto (compartilhar.jpg da raiz) e o HUD do jogo, fonte pixel-art do jogo.ts, e gerar-porta.js nunca gerou cartao nenhum. Mancha de tinta medida: historia 870 -> 902, de-onde-vem 871 -> 902, glossario 897 inalterado; territorio por largura de avanco (recuo do host 1777,92 -> familia embutida 1910,34). Achado novo fora do item: gerar-territorio.js nunca teve @font-face nem verificacao, porque tira o proprio print e nunca passou pelo cartao-secao.js. O portao proprio dela achou DOIS defeitos no codigo dela antes de qualquer injecao: a barra alargada invalidava o scrollIntoView (tabua 48 px fora da borda, falha SILENCIOSA) e document.fonts.ready nao basta (resolve nada pendente, e nada pende ate algum texto PEDIR a familia; conserto: document.fonts.load explicito). O pre-integrador que mediria as 8 rodadas foi morto pelo reinicio do conteiner — por isso o item nao foi integrado, e nao por defeito conhecido. Ele regera BINARIO que publica sozinho no push (o cartao do WhatsApp), entao a determinismo e o que decide."
     },
@@ -749,7 +775,11 @@
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "O host ainda aparece 13x literal no vercel.json — a metade do aceite que NAO foi feita",
-      "territorio": "vercel.json,ferramentas/medir-secao.js,ferramentas/construir.js",
+      "territorio": [
+        "vercel.json",
+        "ferramentas/medir-secao.js",
+        "ferramentas/construir.js"
+      ],
       "aceite": "O host sai de MEDIDA_HOST para o vercel.json de verdade (hoje sao 13 literais). A METADE DO PORTAO JA ESTA FEITA e nao se refaz: test/qa-vercel-host.js cobra o vercel.json pelo JSON depois do parse e morde 5 de 5 injecoes. O que falta e a fonte unica.",
       "detalhe": "Rodada nuvem-20260902T2022 entregou o PORTAO e nao a constante. Medido: vercel.json com 0 linha de diff, 13 literais intactos. O QA derrubou a promessa do conferirVercelJson (ferramentas/construir.js), que varre por TEXTO: das cinco injecoes so a de regiao morde — http:// rebaixado, erro de dedo (psthog), escape unicode \\u0070 e connect-src removido saem BUILD exit 0, e ainda imprimindo 12 ocorrencias todas == MEDIDA_HOST, porque candidatos.length nao e cobrado contra nada. Pior: as 5 ocorrencias que decidem cabecalho servido JA eram cobertas pelo bloco B do test/csp-paginas.js da main, entao a cobertura unica do conferirVercelJson sao as 8 que nao decidem cabecalho nenhum — e la ele e cego a 4 de 5 classes. O qa-vercel-host.js (parse do JSON) cobre isso e nasce exit 0 contra a main. Ao pegar este item: corrigir tambem o comentario do conferirVercelJson, que promete pegar erro de dedo e nao pega."
     },
@@ -759,7 +789,10 @@
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "Arte nova sem pacote engorda a porta de entrada e o build so AVISA — 61 KB hoje",
-      "territorio": "ferramentas/pacotes.js,ferramentas/construir.js",
+      "territorio": [
+        "ferramentas/pacotes.js",
+        "ferramentas/construir.js"
+      ],
       "aceite": "O build REPROVA (exit 1) quando entra arte que nenhuma tabela classifica, ou entao cobra um teto escrito que nao pode subir sem alguem mudar o numero de proposito. Mordida provada por injecao. Junto: decidir o pacote do vao-cidade-africana e escrever a decisao na tabela, nao deixar no silencio.",
       "detalhe": "Medido por nuvem-20260902T1623 em 02/09. O CTX_B64[vao-cidade-africana] e a UNICA chave de CTX sem prefixo capN, entao a regex do pacoteDoEndereco nao o classifica, conhecido() devolve false, e ele viaja na PORTA DE ENTRADA — 61 KB. E o CLAUDE.md §3 diz que a porta de entrada PAROU DE CRESCER com cada capitulo novo, garantia que hoje e sustentada por um AVISO que ninguem reprova. Medido tambem: a string aparece UMA vez so no src/jogo.ts (a definicao) e em nenhum aberturaImg, entao a imagem esta embutida e NENHUM codigo a exibe. O PENDENTES ja a diagnosticara na lista de aprovadas-nao-embutidas e sugeria o pacote salvador — mas ela ja esta embutida, o que aquela nota nao sabia. Cuidado antes de escolher: ela e do marco A cidade africana, e marco vive em A HISTORIA, que alguem pode abrir sem ter chegado em SALVADOR."
     },
@@ -769,7 +802,9 @@
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco de RETRATO da regua-larga.js nao tem nenhuma assercao de alcancabilidade de botao",
-      "territorio": "test/regua-larga.js",
+      "territorio": [
+        "test/regua-larga.js"
+      ],
       "aceite": "Decidir se o laco de retrato PRECISA de um cfgOk equivalente ao das seis telas largas (que mede se #btnConfig esta dentro da janela); hoje o laco de retrato so mede altura de dedo e inercia do diorama, nunca alcancabilidade. Se sim: acrescentar a assercao e provar as tres receitas mordendo por injecao (exit 1 real + restaura exit 0). Se nao: escrever por que retrato nao precisa, com numero que sustente.",
       "detalhe": "Achado do dev-jogo em 02/09 ao fechar regua-eixo-x-nao-olhado: religar REGUA_DEFEITO no laco de retrato (antes nunca lido ali) nao bastou para as tres receitas documentadas (combo margin-top+overflow-y:hidden, hierarquia dos botoes nivel 2, terceira position:absolute) morderem -- 0 de 3, exit 0 nas seis telas de retrato nos tres casos, medido. Para 'combo' o motivo e cobertura: sonda a parte confirmou que #btnConfig FICA inalcancavel em retrato sob o mesmo CSS (top ate 1030 contra janela de ate 932), mas nada no laco de retrato pergunta isso. Para 'hierarquia' o motivo e conceitual: o laco de retrato nao diferencia portais de nivel 2 (m.portais/m.utilidade so existem no laco das telas largas). Para 'terceira' o motivo e estrutural: em retrato #telaMenu e position:fixed (medido via getComputedStyle), entao vira o containing block do #poste absoluto e top:0 nunca sai do viewport -- diferente das telas largas, onde #telaMenu nao e fixed nas larguras que mordem.",
       "maquina": "nuvem-20260902T2022",
@@ -781,7 +816,11 @@
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A segunda passada do censo acusa decoracao legitima em 4 de 5 paginas — e e estreita demais em 3 de 4 mutantes",
-      "territorio": "ferramentas/cartao-censo.js,ferramentas/chrome-plataforma.js,test/qa-censo-passo2.js",
+      "territorio": [
+        "ferramentas/cartao-censo.js",
+        "ferramentas/chrome-plataforma.js",
+        "test/qa-censo-passo2.js"
+      ],
       "aceite": "A segunda passada para de acusar span.vaoMedida sem parar de recusar o m106 e o q107d. Mordida provada por injecao nos dois sentidos: o falso-positivo some E os mutantes continuam recusados. Medir de novo as cinco paginas.",
       "detalhe": "Achado pelo QA em 02/09 refutando a entrega censo-foto, e e um desmentido de alegacao escrita: a entrega mediu zero falso-positivo contra o territorio e declarou zero geral. Medido pelo QA nas cinco: plataforma/index.html 1, historia 1, glossario 1, de-onde-vem 1, territorio 0 — e o acusado e sempre o mesmo span.vaoMedida, espacador aria-hidden que o proprio chrome-plataforma.js escreve dentro da .barra. O territorio escapa so porque a exclusao dele esconde .vaoMedida explicitamente. Nenhum portao esta vermelho hoje porque o censo so esta ligado ao territorio — mas o exemplar vivo ja esta no repositorio esperando a exclusao mudar. Junto, a outra ponta: 3 dos 4 mutantes que o QA escreveu ESCAPAM (texto inerte sobre o mapa no lugar onde o m105 mora; dentro de .env, conteiner sem filho aceito que nunca vira dono; e texto por ::after de uma tabua aceita). Cobertura medida no cartao real: 0 julgados, 14 absolvidos — a passada esta dormente no artefato commitado e so morde quando algo novo aparece."
     }

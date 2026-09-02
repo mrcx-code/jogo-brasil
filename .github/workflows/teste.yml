@@ -114,6 +114,13 @@ jobs:
         timeout-minutes: 2
       - run: node ferramentas/conferir-fila.js
         timeout-minutes: 2
+      # O CONTRATO DO ITEM (02/09): a fila nao secar e uma pergunta; o que esta nela ser
+      # DESPACHAVEL e outra. 9 dos 16 itens livres nao tinham aceite — o agente pegava sem
+      # saber quando parar. O --controle roda 6 mutantes no proprio arquivo (licao 2.8).
+      - run: node ferramentas/conferir-item.js
+        timeout-minutes: 2
+      - run: node ferramentas/conferir-item.js --controle
+        timeout-minutes: 2
       - run: node ferramentas/conferir-agentes.js
         timeout-minutes: 2
 
