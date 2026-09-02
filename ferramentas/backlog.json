@@ -720,7 +720,7 @@
     },
     {
       "id": "regua-eixo-x-nao-olhado",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "A regua-larga nunca olha o eixo X, e a terceira receita pode estar simulando um defeito que nao existe",
@@ -728,7 +728,8 @@
       "aceite": "Decidir, COM MEDICAO, se transbordo horizontal alcancavel por rolagem lateral conta como PRESO. Se contar, a mensagem de falha passa a imprimir left/right/innerWidth (hoje so imprime top/bottom, e foi isso que produziu o diagnostico errado duas vezes). Se nao contar, a terceira receita muda de exemplo.",
       "detalhe": "Achado do QA em 02/09. O #telaMenu tem overflow-x:auto computado, e com a receita da terceira classe sobram 141 px (landscape 899) e 265 px (phone deitado 926) de rolagem HORIZONTAL — um dedo real poderia arrastar de lado e chegar ao botao, e a regua chama isso de PRESO. Junto: a mensagem de falha imprime (top 371, bottom 415, janela 500), numeros todos DENTRO da janela, porque a falha e horizontal e a mensagem so tem numeros verticais. E REGUA_DEFEITO nunca alcanca o bloco de RETRATO: as 6 telas de retrato nunca receberam injecao nenhuma, entao nenhuma das tres receitas foi provada contra metade da suite.",
       "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z"
+      "desde": "2026-09-02T20:23:56.595Z",
+      "resolucao": "Resolvido 02/09 por dev-jogo (nuvem-20260902T2022). DECISAO (com medicao): transbordo alcancavel so por rolagem lateral CONTA como PRESO. sobraX e 0 nas seis telas largas em producao (sem defeito nenhum); overflow-x:auto nunca e declarado em estilo.css para #telaMenu (so overflow-y:auto, linhas 847/1026) -- e efeito colateral do spec CSS, nao decisao de design. So aparece sobra (141px em 899x500, 265px em 926x428) sob o defeito INJETADO position:absolute -- nunca em producao. O resgate continua so em Y (que resgata um overflow-y ESCRITO de proposito); a mensagem de falha passa a imprimir left/right/largura sempre, alem de top/bottom/janela -- e o que estava faltando e produziu diagnostico errado duas vezes. Item 3 do pedido tambem resolvido parcialmente: REGUA_DEFEITO agora e lido no laco de retrato tambem (antes nunca era). Achado aberto NESTA rodada, reportado e NAO consertado por cima: 0 das 3 receitas documentadas mordem em retrato mesmo com a chave ligada, porque o laco de retrato nao tem assercao de alcancabilidade nenhuma (so altura de dedo e inercia do diorama) -- virou o item novo regua-retrato-sem-alcancabilidade."
     },
     {
       "id": "jogo-connect-src-sem-portao",
@@ -763,6 +764,18 @@
       "territorio": "ferramentas/pacotes.js,ferramentas/construir.js",
       "aceite": "O build REPROVA (exit 1) quando entra arte que nenhuma tabela classifica, ou entao cobra um teto escrito que nao pode subir sem alguem mudar o numero de proposito. Mordida provada por injecao. Junto: decidir o pacote do vao-cidade-africana e escrever a decisao na tabela, nao deixar no silencio.",
       "detalhe": "Medido por nuvem-20260902T1623 em 02/09. O CTX_B64[vao-cidade-africana] e a UNICA chave de CTX sem prefixo capN, entao a regex do pacoteDoEndereco nao o classifica, conhecido() devolve false, e ele viaja na PORTA DE ENTRADA — 61 KB. E o CLAUDE.md §3 diz que a porta de entrada PAROU DE CRESCER com cada capitulo novo, garantia que hoje e sustentada por um AVISO que ninguem reprova. Medido tambem: a string aparece UMA vez so no src/jogo.ts (a definicao) e em nenhum aberturaImg, entao a imagem esta embutida e NENHUM codigo a exibe. O PENDENTES ja a diagnosticara na lista de aprovadas-nao-embutidas e sugeria o pacote salvador — mas ela ja esta embutida, o que aquela nota nao sabia. Cuidado antes de escolher: ela e do marco A cidade africana, e marco vive em A HISTORIA, que alguem pode abrir sem ter chegado em SALVADOR."
+    },
+    {
+      "id": "regua-retrato-sem-alcancabilidade",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O laco de RETRATO da regua-larga.js nao tem nenhuma assercao de alcancabilidade de botao",
+      "territorio": "test/regua-larga.js",
+      "aceite": "Decidir se o laco de retrato PRECISA de um cfgOk equivalente ao das seis telas largas (que mede se #btnConfig esta dentro da janela); hoje o laco de retrato so mede altura de dedo e inercia do diorama, nunca alcancabilidade. Se sim: acrescentar a assercao e provar as tres receitas mordendo por injecao (exit 1 real + restaura exit 0). Se nao: escrever por que retrato nao precisa, com numero que sustente.",
+      "detalhe": "Achado do dev-jogo em 02/09 ao fechar regua-eixo-x-nao-olhado: religar REGUA_DEFEITO no laco de retrato (antes nunca lido ali) nao bastou para as tres receitas documentadas (combo margin-top+overflow-y:hidden, hierarquia dos botoes nivel 2, terceira position:absolute) morderem -- 0 de 3, exit 0 nas seis telas de retrato nos tres casos, medido. Para 'combo' o motivo e cobertura: sonda a parte confirmou que #btnConfig FICA inalcancavel em retrato sob o mesmo CSS (top ate 1030 contra janela de ate 932), mas nada no laco de retrato pergunta isso. Para 'hierarquia' o motivo e conceitual: o laco de retrato nao diferencia portais de nivel 2 (m.portais/m.utilidade so existem no laco das telas largas). Para 'terceira' o motivo e estrutural: em retrato #telaMenu e position:fixed (medido via getComputedStyle), entao vira o containing block do #poste absoluto e top:0 nunca sai do viewport -- diferente das telas largas, onde #telaMenu nao e fixed nas larguras que mordem.",
+      "maquina": "nuvem-20260902T2022",
+      "desde": "2026-09-02T00:00:00.000Z"
     }
   ]
 }
