@@ -91,9 +91,18 @@ const PUB = /^(plataforma|historia|glossario|de-onde-vem|territorio|dashboard)\/
 // (fila-auth.sql), no esquema, no proprio funil ou no guarda integrava com --placar e mais nada.
 const REDE = /^dashboard\/|^ferramentas\/(receber|construir|servir|pin-local|fila-auth|conteudo-esquema|conteudo-)|^src\/index\.html$|^\.github\/workflows\/|^vercel\.json$|^\.claude\/(hooks|settings)|^ferramentas\/integrar\.js$/;
 const MEC = /^src\/(jogo\.ts|estilo\.css)$|^test\//;
+// O CARTAO SEM CONTROLE NO QUADRO (item controle-cartao-sem-dono, 02/09) — o unico controle que
+// exercita os 7 mutantes do CENSO contra territorio/index.html COMMITADO. Ele nao entra no
+// gatilho `porteiro` (que já pega gerar-territorio.js e territorio/ pela regra PUB acima); é um
+// portao A MAIS, do mesmo jeito que o historiador dispara "espelho do conteudo" mais abaixo —
+// porque o defeito que ele existe para pegar (o interruptor de medição reaparecendo dentro do
+// recorte 1200x630 publicado) já vazou uma vez (23/08) com o porteiro presente e sem ele.
+const CARTAO_CENSO = /^ferramentas\/gerar-territorio\.js$|^ferramentas\/cartao-censo\.js$|^territorio\//;
+let tocaCartaoCenso = false;
 for (const a of arquivos) {
   if (PUB.test(a) || REDE.test(a)) exigidos.add('porteiro');
   if (MEC.test(a)) exigidos.add('qa');
+  if (CARTAO_CENSO.test(a)) tocaCartaoCenso = true;
 }
 if (arquivos.includes('src/jogo.ts')) {
   const diffJogo = git(['diff', 'main...' + ramo, '--', 'src/jogo.ts']).out;
@@ -130,6 +139,11 @@ if (SO_GATILHOS) {
       (p === 'porteiro' && (PUB.test(a) || REDE.test(a))) ||
       (p === 'qa' && MEC.test(a)) || (p === 'historiador' && a === 'src/jogo.ts'));
     console.log('  exige "' + p + '": ' + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
+  }
+  if (tocaCartaoCenso) {
+    const dele = arquivos.filter(a => CARTAO_CENSO.test(a));
+    console.log('  exige PORTÃO EXTRA "cartao sem controle no quadro" (test/cartao-quadro-controle.js): '
+      + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
   }
   process.exit(0);
 }
@@ -198,6 +212,10 @@ portao('encaixe', process.execPath, [path.join(RAIZ, 'test', 'encaixe.js')], 12)
   // entrega que muda texto de verbete precisa ter feito o passo de banco (rev+1 via MCP) e o
   // `npm run conteudo:puxar` ANTES de integrar — senao este portao desfaz o merge e diz isto.
   if (exigidos.has('historiador')) portao('espelho do conteudo', 'npm', ['run', 'conteudo:conferir'], 3);
+  // item controle-cartao-sem-dono (02/09): diff que toca o gerador do TERRITÓRIO, o censo do
+  // cartão ou a própria saída publicada roda o controle que exercita os 7 mutantes contra a
+  // página real — vermelho aqui desfaz o merge, do mesmo jeito que os dois portões de cima.
+  if (tocaCartaoCenso) portao('cartao sem controle no quadro', process.execPath, [path.join(RAIZ, 'test', 'cartao-quadro-controle.js')], 2);
 
 // ---- prega o placar ----
 const eq = path.join(RAIZ, 'EQUIPE.md');

@@ -217,6 +217,21 @@ jobs:
         run: node test/cartao-controle.js
         timeout-minutes: 8
 
+      # O CARTAO DE LINK NAO LEVA CONTROLE DENTRO DO QUADRO (item controle-cartao-sem-dono, 02/09).
+      # Pendurado logo depois do passo de cima DE PROPOSITO, e nao por acaso: este job ja instalou
+      # o Chromium (linha 166) e o passo acima ja e o dono do assunto "cartao de link" — nao vale a
+      # pena um segundo job so para isto. E OUTRO ARQUIVO do que o de cima: aquele mede PESO/FORMA
+      # do JPEG (og:image); este mede o que SOBRA DENTRO DO RECORTE 1200x630 (nenhum controle
+      # interativo visivel numa foto que nao pode ser tocada), incluindo os 7 mutantes do CENSO
+      # contra territorio/index.html commitado. Desde 23/08 e ate 02/09 ele so rodou a mao — o
+      # PENDENTES 100 (o botao "MEDICAO / ligada" reaparecendo no cartao publicado) so foi pego
+      # porque alguem lembrou de chama-lo manualmente. Nao le rede nem escreve nada: abre os 4
+      # arquivos HTML commitados (historia/glossario/de-onde-vem/territorio) por um servidor local
+      # proprio (test/abrir.js). Custo medido: ~31 s.
+      - name: cartao de link — nenhum controle dentro do quadro (censo)
+        run: node test/cartao-quadro-controle.js
+        timeout-minutes: 2
+
       # O painel dizia "agora" sobre quatro cartoes cujo ultimo sinal tinha 315 minutos (01/09,
       # 10h44 — o dono viu antes de nos). Status nao e prova de vida: quem cai deixa a linha
       # acesa. Este portao cobra que o rotulo diga a IDADE do sinal, e carrega o controle que
