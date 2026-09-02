@@ -11552,3 +11552,118 @@ barra de tábuas saem em Gelasio — a arte condicionou a aprovação a isso, po
 `.barra a`) e as tábuas vestem a fonte do título. Minha leitura do código diz que a entrega já
 cobre isso por varredura em tempo de print, sem editar nenhuma das duas cópias — mas leitura de
 código não é medida, e é exatamente o tipo de afirmação que esta rodada derrubou três vezes.
+
+---
+
+## Diário — 02/09, rodada da tarde (`nuvem-20260902T1623`)
+
+**A rodada inteira acabou sendo sobre a mesma doença: controle que morde e ninguém roda.** Não foi
+planejado — dois dos quatro itens já eram disso, e os outros dois viraram disso ao serem auditados.
+
+### O que entrou na `main` (quatro entregas, quatro pelo funil, portões verdes por exit code real)
+
+1. **`secao-numero-envelhece`** — a porta e o glossário públicos afirmavam **181 verbetes** contra
+   **184** da fonte. Os três ausentes, por nome: `ECONOMIA DO OURO`, `A CONTA DA ESCRAVIDÃO`,
+   `CRITÉRIO BRASIL`. E eles não estavam fora só do JSON-LD: estavam fora do **corpo visível** da
+   página, e o 181 vazava por **`meta description` e `og:description`** — ou seja, era o número que
+   o WhatsApp mostrava. Portão novo compara AFIRMADO × EXTRAÍDO do jogo headless em três camadas
+   (texto, corpo por nome, dados estruturados por nome), 14 checagens, pendurado no `npm test`.
+2. **`csp-paginas-publicas`** — as páginas de **produção** não tinham CSP nenhuma. Entram por
+   cabeçalho no `vercel.json`, sem curinga, com regra própria para `/territorio/`.
+3. **`fonte-embutida-sem-portao`** — três recusas que mordiam e ninguém rodava, fundidas no
+   `cartao-controle.js`, que já tem passo próprio no CI.
+4. **`regua-terceira-receita`** — a terceira classe de defeito que a régua pega, escrita e pregada.
+
+### O que CAIU — e isto vale mais que o que foi confirmado
+
+**Três afirmações minhas, derrubadas com número pelo agente que eu despachei:**
+- *"São cinco páginas públicas descobertas."* **Falso: são sete rotas**, e `/plataforma/` **nem é
+  rota** (o build a copia para `dist/index.html`, ou seja `/`). Faltavam `/mesa/` e `/jogo/`.
+- *"Risco é baixo, são estáticas sem entrada de usuário."* **Falso.** As cinco fazem POST ao
+  PostHog a cada carga, e `/territorio/` **executa código que ela mesma constrói em runtime**
+  (`URL.createObjectURL` + import por `blob:`).
+- *"Uma CSP resolve as cinco."* **Falso, medido:** sem `blob:`, `/territorio/` perde a placa 3D —
+  o canvas cai de **390×844 para 300×150**.
+
+**Uma explicação minha que estava errada DUAS VEZES SEGUIDAS**, e o QA a derrubou:
+a terceira receita da régua. O **número** sempre esteve certo (2 de 6; morde o `position:absolute`,
+não o valor do `top`). O **mecanismo** escrito no rodapé era falso:
+- `#poste` **não é `static`** — `src/estilo.css:659` diz `position: relative`. Então `top` **tem**
+  efeito: `top:9999px` desloca o `#btnConfig` de `top 960` para `top 10959`, nas **seis** telas.
+  Ele passa porque `#telaMenu{overflow-y:auto}` ganha 9999 px de `scrollHeight` e **a rolagem
+  resgata** — não é o defeito que some, é o instrumento que o alcança.
+- *"As outras quatro não se deslocam"* — **falso**: três delas saem **384 / 384 / 392 px por
+  baixo**, no mesmo grid, e passam pelo mesmo resgate vertical.
+- **O que separa 2 de 6 é o EIXO, não a faixa do layout:** nas duas que mordem, o `left` estático
+  vira negativo (−141 px e −265 px) e o botão transborda **pela direita**. A régua rola no Y; no X
+  ela não olha.
+
+A lição não é sobre o poste. É que **a mesma classe de erro passou por dois portões verdes** porque
+o que estava errado era a prosa, e prosa nenhum portão lê. Por isso entrou o
+`test/poste-fora-do-fluxo.js`, que prega os três fatos por exit code.
+
+**Uma afirmação do QA, derrubada por medição:** *"2 pedidos `blob:` por carga no `/territorio/`"* —
+medido **1** no caso bloqueado e **0** no permitido.
+
+**E uma afirmação minha sobre o QA que eu mesmo errei:** dei o autoteste do portão de cabeçalhos por
+morto porque `QA_CAB_DEFEITO=nosniff` saiu **0**. A chave é o **nome do cabeçalho**, não o apelido:
+com `X-Frame-Options`, `X-Content-Type-Options` e `Referrer-Policy` ele sai **1** nos três. O
+instrumento estava certo; a minha entrada é que estava errada — que é exatamente a armadilha que o
+PLANTÃO §8 manda checar antes de culpar o portão.
+
+### O que o QA reprovou, e foi consertado antes de entrar
+
+A CSP foi **REPROVADA** em três pontos, os três reais:
+- **Três dos quatro cabeçalhos não eram cobrados por nada.** O portão *imprimia* `XFO=DENY
+  nosniff=sim`, e a coluna **lia como cobertura**. Provado removendo um por vez: `exit 0` nas três.
+  Asserção que passa por vazio.
+- **`/jogo`, `/jogo/` e `/jogo/(.*)` eram as únicas 3 de 22 regras com CSP e sem `nosniff` nem
+  `Referrer-Policy`** — e `/jogo/(.*)` é quem serve os `pack-*.json`, na rota mais visitada.
+  Agora são **22 de 22** com os quatro.
+- **O portão não estava ligado em lugar nenhum.** Os três portões novos desta rodada foram
+  pendurados no CI no mesmo dia, porque nasceriam com a doença que a rodada curou.
+
+### Números medidos
+
+| | |
+|---|---|
+| verbetes: afirmado × fonte | 181 → **184** (confirmado por 3 vias independentes) |
+| regras do `vercel.json` com os 4 cabeçalhos | 3 de 22 → **22 de 22** |
+| erros de console nas 7 rotas com CSP | **0**, piso de ruído **0** em duas rodadas |
+| `pack-cais.json` com e sem o cabeçalho novo do `/jogo/` | **774.678 bytes** nos dois |
+| ramos mortos na origin | **21 de 24** (15 `entrega/` + 9 `voo/`) |
+| baseline da `main` antes de tudo | `build` **0**, `npm test` **0** (depois do `npm install`) |
+
+### O que quebrou / o que me atrapalhou
+
+- **A `main` divergiu no meio do funil** (a outra máquina empurrou). Resolvido com `merge`, nunca
+  `rebase`, e com `npm test` + `encaixe` rodados **na árvore combinada** antes do push — o funil
+  havia gateado o meu merge, não a combinação.
+- **Eu mesmo caí na regra de token que escrevi no brief dos agentes:** grepei `src/jogo.ts` e puxei
+  61 KB de base64 para a saída. Use `grep -c` ou `-o`.
+- **`git push --delete` continua 403 na nuvem** — quarta medição: exit real **1**, e a última linha
+  do log ainda é `Everything up-to-date`.
+
+### Dúvida que ficou aberta
+
+**A terceira receita da régua pode estar simulando um defeito que não existe.** `#telaMenu` tem
+`overflow-x: auto`, e sobram 141 px / 265 px de rolagem **horizontal** — um dedo real poderia
+arrastar de lado e chegar ao botão, e a régua chama isso de `PRESO`. Não consertei: decidir isso
+exige medir o gesto, não o layout. Item `regua-eixo-x-nao-olhado`.
+
+### O próximo passo
+
+1. **Rodar `CSP_AO_VIVO=https://matheusferreira.cc node test/csp-paginas.js` depois do primeiro
+   deploy.** É o único elo que a nuvem **não consegue** fechar: o proxy recusa a Vercel com 403,
+   então está provado que o `vercel.json` está certo e **não** que a Vercel casa os `source` do
+   jeito que o portão os casa. É exatamente o modo de falha silencioso do §3.
+2. **PARA O DONO, e é a única coisa desta rodada que não é minha:** `frame-ancestors 'none'` +
+   `X-Frame-Options: DENY` fecham a moldura de **todas** as seções e do jogo. Ninguém poderá embutir
+   o `/glossario/` ou a placa 3D do `/territorio/` num `<iframe>` de blog, portal ou escola — e isso
+   fecha um caminho de alcance real, num produto cuja direção é alcance. Foi aplicado porque é a
+   trava de segurança e o `/dashboard/` já fazia assim, e porque **reverter é apagar duas linhas por
+   grupo**. Mas a decisão é dele.
+3. Os cinco itens novos do backlog, com destaque para `cartoes-tipografia-defasada` (a plataforma
+   está mostrando **duas** serifas nos cartões de link agora) e `jogo-connect-src-sem-portao`.
+
+**Nome de máquina: `nuvem-20260902T1623`.**

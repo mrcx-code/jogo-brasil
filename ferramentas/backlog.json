@@ -28,11 +28,11 @@
       "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto.",
       "maquina": "nuvem-20260902T1623",
       "desde": "2026-09-02T16:25:27.270Z",
-      "resolucao": "Feito em 02/09 por nuvem-20260902T1623, escolhendo a ALTERNATIVA do proprio aceite (fundir), por coordenacao: package.json estava com outro agente na mesma rodada, e test/cartao-controle.js ja e chamado pelo CI (.github/workflows/teste.yml, passo cartao de link), entao fundir ali coloca as tres recusas sob portao sem tocar package.json nem o workflow. As tres entradas de DEFEITOS entraram usando o mesmo mecanismo (env CARTAO_TIPOGRAFIA_DEFEITO) que test/cartao-fonte-embutida.js ja usava; esse arquivo foi REMOVIDO no mesmo commit, para nao sobrar copia orfa ao lado da copia fundida. As DUAS afirmacoes do item foram reverificadas, nao aceitas de repeticao: (1) as tres recusas AINDA mordem hoje — provado com harness proprio fora do test, chamando ferramentas/cartao-secao.js direto com cada CARTAO_TIPOGRAFIA_DEFEITO: exit 1 nos tres, exit 0 no controle negativo repetido tres vezes; (2) ninguem rodava — confirmado por grep (so aparecia em ferramentas/backlog.json, descritivo, nenhum require/run real). Depois da fusao, rodado o portao ja fundido (test/cartao-controle.js) limpo: exit 0, 49 verificacoes (as 8 do quadro A, incluindo as 3 novas, mais as 41 da parte B). Mordida confirmada NO LUGAR NOVO com injecao real no codigo de producao: tipografia-cartao.js:137 (pularTitulo) alterado para sempre false -> test/cartao-controle.js caiu para exit 1 apontando exatamente a linha CONTROLE titulo-fora; restaurado -> exit 0 de novo, arvore limpa (git status/diff confirmam)."
+      "resolucao": "Integrado 02/09 por nuvem-20260902T1623. As tres recusas fundidas na lista DEFEITOS do test/cartao-controle.js, que ja tem passo no CI sem continue-on-error. QA provou as tres no lugar novo por mutacao real. test/cartao-fonte-embutida.js removido."
     },
     {
       "id": "csp-paginas-publicas",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "titulo": "As cinco paginas publicas nao tem NENHUMA Content-Security-Policy — so o jogo tem",
       "territorio": "vercel.json,ferramentas/chrome-plataforma.js,ferramentas/gerar-porta.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-territorio.js",
@@ -40,7 +40,8 @@
       "aceite": "As paginas publicas passam a ter CSP, e um portao reprova por exit code a pagina publicada sem ela. Mordida provada por injecao: exit 1 com a CSP removida de uma delas, exit 0 com todas. A CSP escrita por extenso, sem curinga, como manda o CLAUDE.md §3 — e o commit diz o que passou a ser permitido.",
       "detalhe": "Achado pelo porteiro em 02/09 na entrega cartao-fonte-embutida, FORA do escopo dela. Conferido por mim (nuvem-20260902T1234) com grep proprio: plataforma/, glossario/, historia/, de-onde-vem/ e territorio/ tem ZERO ocorrencia de Content-Security-Policy; so o index.html do jogo tem 1. O vercel.json so declara headers para /dashboard, /dashboard/ e /dashboard/(.*) — as cinco paginas ficam descobertas nas duas pontas, nem no HTML nem no cabecalho de servidor. O CLAUDE.md §3 trata a CSP como trava seria e ela existe no jogo desde 10/08; as paginas publicas nasceram depois e nunca ganharam a sua. Risco hoje e baixo (paginas estaticas, sem entrada de usuario, sem credencial), mas sao paginas de PRODUCAO e push na main publica sozinho.",
       "maquina": "nuvem-20260902T1623",
-      "desde": "2026-09-02T16:25:27.270Z"
+      "desde": "2026-09-02T16:25:27.270Z",
+      "resolucao": "Integrado 02/09 por nuvem-20260902T1623. CSP por CABECALHO no vercel.json, sem curinga, com regra propria para /territorio/ (blob:). 22 de 22 regras com os quatro cabecalhos. QA reprovou 3 pontos e os 3 foram fechados no mesmo ramo. FALTA: rodar CSP_AO_VIVO=https://matheusferreira.cc node test/csp-paginas.js depois do primeiro deploy — a nuvem nao alcanca a Vercel (403 do proxy)."
     },
     {
       "id": "backlog-no-dashboard",
@@ -617,7 +618,7 @@
     },
     {
       "id": "secao-numero-envelhece",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "titulo": "A porta e o glossario publicos dizem 181 verbetes e a fonte tem 184 — portao que compare afirmado x extraido",
       "territorio": "test/,ferramentas/gerar-glossario.js,ferramentas/gerar-porta.js",
@@ -625,7 +626,8 @@
       "aceite": "Um portao compara o numero AFIRMADO nas paginas publicas com o EXTRAIDO do jogo headless e reprova por EXIT CODE. Mordida provada por injecao: exit 1 com a pagina velha commitada de hoje (181), exit 0 depois de regerar (184). Regerar a saida so DEPOIS do 101b resolvido — ver a trava la.",
       "detalhe": "PENDENTES 101a, medido em 02/09 por nuvem-20260902T0823. O medir-porta-secao.js compara porta x secao e as DUAS estao erradas pelo mesmo numero, entao ele fica verde: duas copias que concordam entre si e discordam da fonte. O gerador esta certo; falta o GATILHO que obriga a rodar. Disciplina irma: o espelho do conteudo do PENDENTES 87, que o funil ja roda quando o diff toca o glossario. || AGRAVADO pelo porteiro em 02/09: o JSON-LD DefinedTermSet da pagina commitada tem 181 entradas DefinedTerm, contadas programaticamente — tres verbetes reais estao fora dos DADOS ESTRUTURADOS indexaveis, nao so de um numero em texto corrido. Crawler e rich snippet que leem schema.org nao tem como saber que existem. Risco de SEO de outra ordem.",
       "maquina": "nuvem-20260902T1623",
-      "desde": "2026-09-02T16:25:27.270Z"
+      "desde": "2026-09-02T16:25:27.270Z",
+      "resolucao": "Integrado 02/09 por nuvem-20260902T1623. Portao medir-numero-envelhece.js compara AFIRMADO x EXTRAIDO em 3 camadas (texto com minimo de ocorrencias, corpo por NOME, JSON-LD por NOME), 14 checagens, no npm test. Os 3 ausentes eram ECONOMIA DO OURO, A CONTA DA ESCRAVIDAO e CRITERIO BRASIL, e estavam fora do JSON-LD, fora do CORPO VISIVEL e do og:description. QA confirmou 184 por tres vias e testou o minimo por APAGAMENTO em 8 injecoes, todas exit 1."
     },
     {
       "id": "cartao-fonte-do-host",
@@ -656,7 +658,7 @@
     },
     {
       "id": "regua-terceira-receita",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "titulo": "A regua-larga pega elemento tirado do fluxo, e isso nao esta documentado nem tem sonda",
       "territorio": "test/regua-larga.js",
@@ -664,7 +666,8 @@
       "aceite": "O rodape ganha a terceira receita, com mordida provada por injecao: exit 1 com o defeito, exit 0 sem.",
       "detalhe": "Achado do QA em 02/09 auditando entrega/regua-autoteste-vivo, FORA do escopo da entrega e nao bloqueante. Existe defeito de UMA UNICA injecao que morde depois do telaParada(): REGUA_DEFEITO com poste em position:absolute e top:9999px reprova 2 de 6 (landscape 899 e phone deitado 926), exit 1 medido. Isso mostra que a regua nao depende so da combinacao — ela tambem pega elemento tirado do fluxo normal. Hoje o rodape documenta 2 receitas (a combinacao e a HIERARQUIA) e nenhuma assercao cobre esta classe.",
       "maquina": "nuvem-20260902T1623",
-      "desde": "2026-09-02T16:25:27.270Z"
+      "desde": "2026-09-02T16:25:27.270Z",
+      "resolucao": "Integrado 02/09 por nuvem-20260902T1623. O QA REPROVOU a primeira redacao e tinha razao: o numero estava certo e o mecanismo escrito estava falso em dois pontos. Reescrito e pregado por test/poste-fora-do-fluxo.js."
     },
     {
       "id": "controle-cartao-sem-dono",
@@ -702,6 +705,56 @@
       "detalhe": "Medidos pelo pre-integrador em 02/09 ao aprovar entrega/cartao-geometria, e declarados por ele como NAO bloqueantes. (1) O censo conta INTERATIVO, nao conta o que esta na FOTO: uma div sem onclick, sem tabindex e sem role, lendo MEDICAO ligada, entra na barra e o censo volta VAZIO — o defeito visual de 23/08 reproduzido com o portao verde, com print. Nao e o modo de falha do 67/68/100 (la o alvo era interruptor de verdade, e transforma-lo em div inerte nao e rename, e desfazer o botao), mas e o teto honesto da regua. (2) querySelectorAll(body *) nao atravessa shadow DOM nem iframe; risco HOJE zero, medido: 0 attachShadow e 0 iframe nas quatro fontes. (3) innerText nao ve ::after — injetando font-size:0 mais content no pseudo-elemento, o elemento continua casando href e rotulo e o cartao sai lendo O ligada; custa uma folha de estilo. (4) doHostDaMedicao casa por PREFIXO (indexOf === 0), entao us.i.posthog.com.qualquercoisa seria perdoado; cosmetico, trocar por igualdade de origem quando alguem passar ali.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "cartoes-tipografia-defasada",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "Quatro dos cinco cartoes de link ficaram com a tipografia velha — a plataforma mostra DUAS serifas",
+      "territorio": "ferramentas/gerar-porta.js,ferramentas/gerar-historia.js,ferramentas/gerar-fontes.js,ferramentas/gerar-territorio.js",
+      "aceite": "Os cinco cartoes saem da MESMA tipografia, medido pela mancha de tinta do nav (hoje glossario=622 px e os outros=592 px, com texto identico nos cinco). Portao que reprove por exit code quando um cartao commitado nao bate com o que o gerador atual produz — regerar sem portao conserta o sintoma e deixa a causa de pe.",
+      "detalhe": "Achado pelo QA em 02/09 auditando secao-numero-envelhece, FORA do escopo dela. O commit 872ed92 (02/09) embutiu a Gelasio e NAO regerou os cartoes; os cinco da main eram de ba3ec1d (26/08). A entrega secao-numero-envelhece regerou UM (o do glossario) como efeito colateral de regerar a pagina, entao agora ha um cartao com a serifa da casa e quatro sem. Medido: nav do glossario 622 px de tinta, historia 592, de-onde-vem 592."
+    },
+    {
+      "id": "regua-eixo-x-nao-olhado",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "A regua-larga nunca olha o eixo X, e a terceira receita pode estar simulando um defeito que nao existe",
+      "territorio": "test/regua-larga.js,test/poste-fora-do-fluxo.js",
+      "aceite": "Decidir, COM MEDICAO, se transbordo horizontal alcancavel por rolagem lateral conta como PRESO. Se contar, a mensagem de falha passa a imprimir left/right/innerWidth (hoje so imprime top/bottom, e foi isso que produziu o diagnostico errado duas vezes). Se nao contar, a terceira receita muda de exemplo.",
+      "detalhe": "Achado do QA em 02/09. O #telaMenu tem overflow-x:auto computado, e com a receita da terceira classe sobram 141 px (landscape 899) e 265 px (phone deitado 926) de rolagem HORIZONTAL — um dedo real poderia arrastar de lado e chegar ao botao, e a regua chama isso de PRESO. Junto: a mensagem de falha imprime (top 371, bottom 415, janela 500), numeros todos DENTRO da janela, porque a falha e horizontal e a mensagem so tem numeros verticais. E REGUA_DEFEITO nunca alcanca o bloco de RETRATO: as 6 telas de retrato nunca receberam injecao nenhuma, entao nenhuma das tres receitas foi provada contra metade da suite."
+    },
+    {
+      "id": "jogo-connect-src-sem-portao",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "O connect-src self que traz a arte de onze capitulos nao e exercitado por portao nenhum",
+      "territorio": "test/csp-paginas.js",
+      "aceite": "Um portao carrega /jogo/ e prova que um pack-*.json BAIXA (bytes > 0), reprovando por exit code se a CSP o bloquear. Mordida provada por injecao: acrescentar connect-src ao cabecalho do /jogo/ tem de dar exit 1. Custo estimado pelo QA: ~6 linhas no bloco E.",
+      "detalhe": "Achado do QA em 02/09. Medido: /jogo/ carregado por 4 s no menu faz ZERO pedido de mesma origem (pedidos nao-documento = 1, e e o POST do PostHog), entao nenhum portao desta casa exercita o caminho dos pacotes. Uma linha a mais naquele cabecalho deixa o jogo com a arte do capitulo 1 em TODO LUGAR, sem erro de console (o recuo e silencioso POR DESENHO, CLAUDE.md §3 letra a) e com todo portao verde. O QA provou que hoje nao quebra: mesmos 774.678 bytes do pack-cais com e sem o cabecalho novo, com controle negativo (connect-src restritivo -> Failed to fetch)."
+    },
+    {
+      "id": "csp-host-nao-sai-da-constante",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "O host da medicao aparece 13x literal no vercel.json — o §3 manda que ele saia de UMA constante so",
+      "territorio": "vercel.json,ferramentas/medir-secao.js,ferramentas/construir.js",
+      "aceite": "O host sai de MEDIDA_HOST tambem para o vercel.json, como ja sai para a CSP do jogo (construir.js:350). Portao que reprove por exit code se as duas pontas divergirem.",
+      "detalhe": "Achado do QA em 02/09. O CLAUDE.md §3 diz por extenso que o host sai de UMA constante so (MEDIDA_HOST, ferramentas/medir-secao.js:44) precisamente porque errar nele FALHA EM SILENCIO: os dois enderecos respondem 200 OK a qualquer chave e o sintoma seria um painel vazio semanas depois. A CSP do jogo deriva da constante; a CSP nova das paginas nao deriva de nada — 13 literais no vercel.json e 1 na tabela pregada do portao."
+    },
+    {
+      "id": "porta-entrada-cresce-em-silencio",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "Arte nova sem pacote engorda a porta de entrada e o build so AVISA — 61 KB hoje",
+      "territorio": "ferramentas/pacotes.js,ferramentas/construir.js",
+      "aceite": "O build REPROVA (exit 1) quando entra arte que nenhuma tabela classifica, ou entao cobra um teto escrito que nao pode subir sem alguem mudar o numero de proposito. Mordida provada por injecao. Junto: decidir o pacote do vao-cidade-africana e escrever a decisao na tabela, nao deixar no silencio.",
+      "detalhe": "Medido por nuvem-20260902T1623 em 02/09. O CTX_B64[vao-cidade-africana] e a UNICA chave de CTX sem prefixo capN, entao a regex do pacoteDoEndereco nao o classifica, conhecido() devolve false, e ele viaja na PORTA DE ENTRADA — 61 KB. E o CLAUDE.md §3 diz que a porta de entrada PAROU DE CRESCER com cada capitulo novo, garantia que hoje e sustentada por um AVISO que ninguem reprova. Medido tambem: a string aparece UMA vez so no src/jogo.ts (a definicao) e em nenhum aberturaImg, entao a imagem esta embutida e NENHUM codigo a exibe. O PENDENTES ja a diagnosticara na lista de aprovadas-nao-embutidas e sugeria o pacote salvador — mas ela ja esta embutida, o que aquela nota nao sabia. Cuidado antes de escolher: ela e do marco A cidade africana, e marco vive em A HISTORIA, que alguem pode abrir sem ter chegado em SALVADOR."
     }
   ]
 }
