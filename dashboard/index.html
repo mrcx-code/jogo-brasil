@@ -1612,16 +1612,13 @@
     // continua sendo uma escolha valida do dono.
     var lista=daFila.concat([CAMINHO_LIVRE]);
     modalTit.textContent="Acionar "+item.nome;
+    // AS DUAS FRASES ABAIXO FICARAM VERDADEIRAS EM 02/09: a fila passou a tentar de novo
+    // sozinha (`agendarBacklog`, mais abaixo), entao nenhuma das duas precisa mais mandar
+    // recarregar a pagina a mao — ver o comentario grande junto de `carregarBacklog`.
     modalSub.textContent = backlogEstado==="carregando"
-      ? "Ainda estou lendo a fila (backlog.json). Se isto nao mudar em alguns segundos, recarregue a pagina — e o unico jeito de tentar de novo."
-      /* A FRASE NAO PODE PROMETER REABRIR O MODAL — achado do growth em 24/08, e e a mesma
-         familia que esta entrega veio consertar. A versao anterior dizia "abra de novo em um
-         instante", mas `carregarBacklog()` roda UMA VEZ no load, sem timeout e sem
-         AbortController: se o fetch pendurar, reabrir o modal nao dispara pedido nenhum — so
-         recarregar a pagina tenta de novo. Medido pelo QA: a frase seguia identica em 1 s,
-         11 s e 31 s. Sobrou uma promessa que nao se cumpre, e agora ela diz a saida real. */
+      ? "Ainda estou lendo a fila (backlog.json) — tentando sozinho, sem precisar recarregar a pagina."
       : backlogEstado!=="ok"
-      ? "Não consegui ler a fila (backlog.json) — estes NÃO são os itens do backlog. Só o caminho aberto abaixo."
+      ? "Não consegui ler a fila agora (backlog.json) — continuo tentando sozinho; por enquanto, só o caminho aberto abaixo."
       : (daFila.length
           ? "Da fila oficial, na ordem do backlog — o de cima é o próximo."
           : "Nada livre para " + item.nome + " agora. O que existe está travado — o motivo de cada um está abaixo.");
@@ -1936,8 +1933,31 @@
     var s=t.join(" · ");
     return s.length>64 ? s.slice(0,61)+"…" : s;
   }
+  // ============= A FILA FICA CONECTADA (dono, 02/09) =============
+  // Ate aqui `carregarBacklog()` rodava UMA VEZ no load, sem teto e sem AbortController. Duas
+  // consequencias, e o dono bateu na primeira ao vivo: um fetch que falhasse (rede, deploy no
+  // meio, blip) deixava "Nao consegui ler a fila" ATE a pessoa recarregar a pagina a mao — e um
+  // fetch que PENDURASSE (proxy, portal cativo) deixava a mesma frase de "carregando" para
+  // sempre, medido pelo QA identica em 1 s, 11 s e 31 s. Palavras dele: *"deve ler o nosso
+  // backlog e sempre estarem conectados, nao faz sentido esse trabalhar no que for mais valioso
+  // agora [aparecer por causa de uma falha transitoria]"*.
+  //
+  // TETO_TENTATIVA_MS existe porque sem ele o retry nunca dispara: uma promessa pendurada nao
+  // FALHA, so nunca resolve — e o proximo agendamento so roda depois que esta terminar.
+  // `AbortController` e quem forca o fim. Falhando, `agendarBacklog` tenta de novo com espera
+  // crescente (4 s, 8 s, 16 s... teto de 60 s) ATE conseguir uma vez; depois de conseguir,
+  // continua atualizando sozinha a cada 2 min — o backlog muda a cada deploy do plantao, e a
+  // aba fica aberta por horas.
+  //
+  // UMA FALHA DEPOIS DE JA TER FUNCIONADO NAO APAGA O QUE JA E VERDADE: o catch so derruba
+  // `backlogEstado` (e esconde a secao) se AINDA NAO tinha conseguido nenhuma vez — a mesma
+  // regra que o painel de agentes aprendeu com o servidor mudo em 01/09: dado que nao chegou e
+  // dado que chegou vazio sao coisas diferentes, e nenhum dos dois apaga um estado bom anterior.
+  var TETO_TENTATIVA_MS=8000, ESPERA_INICIAL_MS=4000, ESPERA_MAX_MS=60000, ESPERA_OK_MS=120000;
   function carregarBacklog(){
-    return fetch("backlog.json",{headers:{}}).then(function(r){
+    var ctrl=(typeof AbortController!=="undefined") ? new AbortController() : null;
+    var relogio=ctrl ? setTimeout(function(){ ctrl.abort(); }, TETO_TENTATIVA_MS) : null;
+    return fetch("backlog.json",{headers:{}, signal: ctrl?ctrl.signal:undefined}).then(function(r){
       if(!r.ok) throw 0;
       return r.json();
     }).then(function(j){
@@ -1955,8 +1975,14 @@
       // "não consegui ler a fila". As duas frases estão no modal.
       backlogPorAgente=indexarBacklog(itens); backlogTravas=indexarTravas(itens); backlogEstado="ok";
       var abertos=itens.filter(function(it){ return it && it.estado!=="concluido"; });
-      if(!abertos.length) throw 0;
-      var cont=document.getElementById("lista-backlog"); cont.innerHTML="";
+      var cont=document.getElementById("lista-backlog");
+      if(!abertos.length){
+        // A FILA FOI LIDA e nao tem nada aberto: isto NAO e falha, entao nao passa pelo catch —
+        // ele e o lugar de "nao sei", nao de "sei que esta vazia". A secao some de verdade.
+        document.getElementById("backlog").hidden=true;
+        return;
+      }
+      cont.innerHTML="";
       abertos.forEach(function(it){
         var est=String(it.estado||"livre");
         var conhecido=Object.prototype.hasOwnProperty.call(CHIP,est);
@@ -1975,8 +2001,20 @@
       document.getElementById("backlog").hidden=false;
       document.getElementById("vazio-backlog").hidden=true;
     }).catch(function(){
-      if(backlogEstado!=="ok") backlogEstado="falhou";  // 404, JSON quebrado, rede: a fila NAO foi lida
-      document.getElementById("backlog").hidden=true;   // sem backlog, sem seção — silencioso
+      if(backlogEstado!=="ok"){
+        backlogEstado="falhou";                            // 404, JSON quebrado, rede: a fila NAO foi lida
+        document.getElementById("backlog").hidden=true;     // sem backlog, sem seção — silencioso
+      }
+      // backlogEstado ja era "ok": uma falha de REFRESH nao apaga a lista que ja esta na tela.
+    }).then(function(){ if(relogio) clearTimeout(relogio); });
+  }
+  var esperaProximaTentativa=ESPERA_INICIAL_MS;
+  function agendarBacklog(){
+    carregarBacklog().then(function(){
+      var proxima;
+      if(backlogEstado==="ok"){ esperaProximaTentativa=ESPERA_INICIAL_MS; proxima=ESPERA_OK_MS; }
+      else { proxima=esperaProximaTentativa; esperaProximaTentativa=Math.min(esperaProximaTentativa*2, ESPERA_MAX_MS); }
+      setTimeout(agendarBacklog, proxima);
     });
   }
 
@@ -2059,7 +2097,7 @@
   // servidor sobre quem entrou — a conta e uma so e sintetica. Um pedido a menos por carga.
   if(ses && ses.expira_em && (ses.expira_em-Date.now())<60000) refrescar();
   carregar();
-  carregarBacklog();     // uma vez: o backlog é estático (dist/dashboard/backlog.json), muda a cada build
+  agendarBacklog();      // tenta ate conseguir, e depois refaz sozinha a cada 2 min — ver o comentario junto de carregarBacklog
   setInterval(carregar, 7000);
   podarFilaHerdada();   // antes do flush: fila acima do teto não drena, ela precisa caber primeiro
   flush();
