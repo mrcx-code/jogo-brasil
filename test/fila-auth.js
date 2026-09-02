@@ -575,18 +575,16 @@ const estado = pag => pag.evaluate(() => ({
     };
     const { ctx, pag, erros } = await palco(nav, {
       leitura: {
+        // A CENA MUDOU DE SUPERFICIE EM 01/09, e nao de assunto. As secoes OPORTUNIDADES e
+        // DECISOES sairam do painel por decisao do dono (as decisoes chegam nele pela pergunta
+        // clicavel do chat desde 25/08). O que este bloco protege — texto de servidor
+        // envenenado nao vira atributo nem elemento — vale para QUALQUER superficie que
+        // renderize dado do servidor, e a que sobrou e a de PENDENCIAS. Migrada para la, com o
+        // mesmo payload. Se algum dia a cena ficar sem superficie de novo, ela tem de MUDAR de
+        // alvo, nunca ser apagada: e a unica que exercita escH no caminho real.
         mesa_item: [{
-          tipo: 'decisao', chave: 'envenenada', titulo: veneno.texto, contexto: veneno.texto,
-          recomendada: veneno.v, criado_em: '2026-08-21T00:00:00Z',
-          opcoes: [{ v: veneno.v, label: veneno.texto, desc: veneno.texto }],
-        }, {
-          // O CARTAO NO FORMATO REAL DA MESA ({v, t}) — hotfix de 22/08: o refactor N2 passou a
-          // ler o.label/o.desc, TODO cartao de producao usa {v, t}, e os botoes nasceram VAZIOS
-          // no aparelho do dono. Nenhuma cena pegou porque o unico mock usava o formato novo.
-          // Este cartao cobra que o rotulo do formato da mesa CHEGA ao botao.
-          tipo: 'decisao', chave: 'formato-da-mesa', titulo: 'formato {v,t} da mesa',
-          contexto: 'cartao real', recomendada: 'a', criado_em: '2026-08-21T00:00:01Z',
-          opcoes: [{ v: 'a', t: 'ROTULO-DA-MESA-VISIVEL' }, { v: 'b', t: 'segunda-opcao' }],
+          tipo: 'pendencia', chave: 'envenenada', titulo: veneno.texto, contexto: veneno.texto,
+          criado_em: '2026-08-21T00:00:00Z',
         }],
         // `squad` entrou na leitura em 21/08 e vem envenenada aqui pela mesma razao que `cor`:
         // campo novo do servidor e campo novo de ataque ate alguem provar o contrario.
@@ -599,14 +597,12 @@ const estado = pag => pag.evaluate(() => ({
       document.querySelectorAll('*').forEach(el => {
         for (const a of el.attributes) if (/^on/i.test(a.name)) comOn.push(el.tagName + '[' + a.name + ']');
       });
-      const op = document.querySelector('#lista-dec .op');
+      const alvo = document.querySelector('[data-k="envenenada"]');
       return {
         comOn, xss: window.__xss,
-        imgs: document.querySelectorAll('#lista-dec img, #grade-ag img').length,
-        ops: document.querySelectorAll('[data-k="envenenada"] .op').length,
-        rotuloDaMesa: (function(){ const b=document.querySelector('[data-k="formato-da-mesa"] .op .lab'); return b?(b.textContent||'').trim():null; })(),
-        dataV: op ? op.getAttribute('data-v') : null,
-        rotulo: op ? (op.textContent || '').trim() : null,
+        imgs: document.querySelectorAll('#lista-pend img, #grade-ag img').length,
+        ops: alvo ? 1 : 0,
+        rotulo: alvo ? (alvo.textContent || '').trim() : null,
         // o `cor` do agente pinta a camisa: o <rect> de x=4,y=7 do boneco de bon(). `:not(.dono)`
         // exclui o cartao sintetico da sessao principal (garantirDono(), 25/08) — sem mesa_agente
         // com nome exato "Claude" no mock, o painel sempre acrescenta esse cartao (cor #b5541f),
@@ -616,12 +612,14 @@ const estado = pag => pag.evaluate(() => ({
       };
     });
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
-    ok(m.ops === 1, 'a decisao envenenada foi renderizada (a cena mede algo)', String(m.ops));
+    ok(m.ops === 1, 'a pendencia envenenada foi renderizada (a cena mede algo)', String(m.ops));
     ok(m.comOn.length === 0, 'NENHUM atributo on* no DOM inteiro', m.comOn.join(','));
     ok(m.xss === undefined, 'nada executou (window.__xss segue indefinido)', String(m.xss));
     ok(m.imgs === 0, 'o <img> do payload virou texto, nao elemento', String(m.imgs));
-    ok(m.dataV === veneno.v, 'o valor da opcao chega INTEIRO como dado (escapar nao e mutilar)', String(m.dataV));
-    ok((m.rotuloDaMesa||'').indexOf('ROTULO-DA-MESA-VISIVEL') === 0, 'o formato {v,t} da mesa poe o ROTULO no botao (hotfix 22/08 — os botoes nasciam vazios em producao)', String(m.rotuloDaMesa));
+    // As duas assercoes que sairam eram sobre a ANATOMIA da decisao (o `data-v` do botao e o
+    // formato {v,t} do rotulo). Elas nao tem mais sujeito: a superficie foi removida em 01/09, e
+    // assercao sem sujeito passa por construcao — o pior tipo de verde. O que elas protegiam de
+    // verdade (o dado chega inteiro e escapado) continua nas duas linhas abaixo.
     ok((m.rotulo || '').indexOf('<img') >= 0, 'e a marcacao do payload aparece como texto na tela', m.rotulo);
     ok(m.fill === '#7d8479', 'a cor invalida do agente cai no cinza padrao (o A3 continua fechado)', String(m.fill));
     await ctx.close();
@@ -653,7 +651,7 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 16
-  console.log('\n[16] AS SQUADS — agrupa na ordem, e o refresh NAO duplica card');
+  console.log('\n[16] AS DUAS FAIXAS — quem trabalha sobe, e o refresh NAO duplica card');
   cenas++;
   // A organizacao em squads (dono, 21/08) tem um risco que nao e visual: `atualizaAg` cacheia
   // card por nome e a pagina recarrega sozinha a cada 7 s. Agrupamento feito com `appendChild`
@@ -666,11 +664,17 @@ const estado = pag => pag.evaluate(() => ({
     // 25/08) -- desde entao a tabela SEMPRE tem essa linha em producao. Usar aqui o mesmo nome
     // exercita o caso real (a squad 'central' inclui a sessao principal) sem acionar o cartao
     // SINTETICO que o painel acrescenta quando nenhum "Claude" exato aparece no mock.
+    // AS SQUADS SAIRAM EM 01/09 (decisao do dono). O que a cena mede muda de assunto e nao de
+    // valor: antes era a ORDEM dos quatro cabecalhos; agora e a regra que os substituiu — quem
+    // esta trabalhando sobe para a faixa AGORA e todo o resto desce para o banco de reservas.
+    // A `squad` envenenada FICA no mock de proposito: o painel deixou de PEDIR essa coluna, e a
+    // cena passa a provar que ela nao entra nem quando o servidor a manda assim mesmo.
+    const agora = new Date().toISOString();
     const linhas = [
       { nome: 'dev-plataforma', squad: 'plataforma', ordem: 1 },
-      { nome: 'Claude', squad: 'central', ordem: 2 },
+      { nome: 'Claude', squad: 'central', ordem: 2, status: 'trabalhando', ativo_em: agora },
       { nome: 'historiador', squad: 'acervo', ordem: 3 },
-      { nome: 'arte', squad: 'jogo', ordem: 4 },
+      { nome: 'arte', squad: 'jogo', ordem: 4, status: 'trabalhando', ativo_em: agora },
       { nome: 'fantasma', squad: 'x" onmouseover="window.__xss=9', ordem: 5 },
       { nome: 'orfa', squad: null, ordem: 6 },
     ].map(l => Object.assign({ papel: 'papel', cor: '#7d8479', status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z' }, l));
@@ -683,24 +687,26 @@ const estado = pag => pag.evaluate(() => ({
       return {
         cards: document.querySelectorAll('#grade-ag .ag').length,
         nomes: Array.from(document.querySelectorAll('#grade-ag .ag .nome')).map(n => n.textContent).join(','),
-        cabs: Array.from(document.querySelectorAll('#grade-ag .cab-squad')).map(n => n.textContent).join(' | '),
+        cabs: Array.from(document.querySelectorAll('#grade-ag .cab-squad')).map(n => n.textContent.split(' ')[0]).join(' | '),
+        emAgora: Array.from(document.querySelectorAll('.grupo-ag.agora .ag .nome')).map(n => n.textContent).sort().join(','),
         comOn, xss: window.__xss, veneno: document.getElementById('grade-ag').innerHTML.indexOf('onmouseover') >= 0,
       };
     });
     await pag.waitForTimeout(600);
     const a = await ler();
     ok(a.cards === 6, 'os 6 agentes viraram 6 cards (a cena mede algo)', String(a.cards));
-    ok(a.cabs === 'CENTRAL | SQUAD JOGO | SQUAD PLATAFORMA | SQUAD ACERVO',
-      'os cabecalhos saem na ordem central -> jogo -> plataforma -> acervo', a.cabs);
+    ok(a.cabs === 'AGORA | BANCO', 'duas faixas, nesta ordem: AGORA em cima, BANCO embaixo', a.cabs);
+    ok(a.emAgora === 'Claude,arte', 'so quem trabalha COM SINAL FRESCO fica na faixa AGORA', a.emAgora);
     ok(a.nomes === 'Claude,arte,dev-plataforma,historiador,fantasma,orfa',
-      'os cards seguem a squad, nao a ordem do servidor, e quem nao tem squad fica no fim', a.nomes);
+      'e quem trabalha vem primeiro na grade, seja qual for a ordem do servidor', a.nomes);
     ok(a.comOn.length === 0 && !a.veneno && a.xss === undefined,
-      'a squad envenenada nao virou atributo nem grupo', a.comOn.join(',') + ' veneno=' + a.veneno);
+      'a squad envenenada nao entra nem quando o servidor a manda (a coluna deixou de ser lida)',
+      a.comOn.join(',') + ' veneno=' + a.veneno);
     // o painel recarrega sozinho a cada 7 s; esperar o refresh e o ponto da cena
     await pag.waitForTimeout(7600);
     const b = await ler();
     ok(b.cards === 6, 'depois de um refresh de verdade continuam 6 cards (nada duplicou)', String(b.cards));
-    ok(b.cabs === a.cabs, 'e nenhum cabecalho de squad nasceu de novo', b.cabs);
+    ok(b.cabs === a.cabs, 'e nenhuma faixa nasceu de novo', b.cabs);
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
     await ctx.close();
   }
