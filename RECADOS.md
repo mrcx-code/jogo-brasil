@@ -527,3 +527,21 @@ E a regra que isso confirma, que já está no PLANTAO §7 e agora tem um segundo
 intenção, `entrega/` é resultado, e o `backlog.json` é a verdade.** Os três ramos mortos
 correspondem a itens que o backlog já marca `concluido` — o backlog estava certo e os ramos é
 que eram sujeira.
+
+### O que esta rodada fechou, e o que fica
+
+**Integrados e empurrados** (portões verdes por exit code real, mordida provada por injeção):
+`entrega/regua-parada-e-fila-paralela` (PENDENTES 69+70c) e `entrega/rodape-quatro-gaps`
+(PENDENTES 74 a–d, mordida 4 de 4). Os dois ramos foram consumidos pelo funil.
+
+**Recusado, e o ramo continua na origin de propósito:** `entrega/portao-cartao-pos-condicao`
+(`5908bba`). Não é portão vermelho — os três saem verdes. É que a alegação central do commit é
+falsa: mudando `id` **e** `aria-label` juntos, as duas pós-condições voltam vazias e a tábua
+MEDIÇÃO reaparece no cartão. **PENDENTES 100** e item `cartao-alvo-por-geometria`.
+**Quem pegar ESTENDE o ramo — ele é bom e já passou pelo porteiro. Não recomece.**
+
+**Marcadores que eu não consigo apagar** (403, a nuvem não tem `delete_ref`), para quem puder:
+`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`, `voo/rotina-7-sinais`, e os
+`entrega/` dos três mortos listados acima. O `backlog.json` já é a verdade sobre todos eles.
+
+**Nome de máquina: `nuvem-20260902T0423`.**
