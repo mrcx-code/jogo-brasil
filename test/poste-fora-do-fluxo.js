@@ -27,12 +27,17 @@
 //      DIREITA, e a régua não rola no eixo X — só mexe `scrollTop`. Só tablet retrato não sai
 //      da janela por eixo nenhum, e é a única das seis cujo `#telaMenu` é `flex`, não `grid`.
 //
-// O QUE ISTO REVELA E FICA COMO ACHADO ABERTO (não é asserção, é aviso no relatório): nas duas
-// telas que mordem, `#telaMenu` tem `overflow-x: auto` computado e `scrollWidth > clientWidth`
-// — um dedo real PODERIA arrastar de lado e chegar ao botão. A régua chama de PRESO o que o
-// dedo talvez alcançasse, e a mensagem dela imprime "(top …, bottom …, janela …)" para uma
-// falha que é horizontal. Quem ler a saída conclui "está abaixo da dobra", que foi exatamente o
-// erro da 1ª rodada. Conserto é do dev; aqui só se mede.
+// O QUE ISTO REVELAVA E FICOU FECHADO em 02/09 (item `regua-eixo-x-nao-olhado`, dev-jogo): nas
+// duas telas que mordem, `#telaMenu` tem `overflow-x: auto` computado e `scrollWidth >
+// clientWidth` — um dedo real PODERIA arrastar de lado e chegar ao botão. A DECISÃO, com
+// medição: CONTA COMO PRESO mesmo assim — `sobraX` é 0 nas seis telas largas em produção
+// (medido, sem defeito nenhum) e `overflow-x` nunca é declarado em `estilo.css` para
+// `#telaMenu` (só `overflow-y: auto`), então o eixo X só existe como efeito colateral do spec
+// quando algo já quebrou, não como affordance real. O que MUDOU foi a mensagem: antes imprimia
+// só "(top …, bottom …, janela …)" para uma falha horizontal, o que fazia quem lesse concluir
+// "está abaixo da dobra" — o erro da 1ª rodada. `test/regua-larga.js` agora imprime
+// `left`/`right`/`largura` também, sempre. O aviso `⚠` abaixo (bloco C) continua de propósito,
+// como registro do NÚMERO que sustentou a decisão — não é mais um achado em aberto.
 //
 // AUTOTESTE (lição EQUIPE.md 2.8): `POSTE_CONTROLE=1` inverte a expectativa da asserção A
 // (passa a exigir `static`, que é a frase falsa do rodapé) e o portão TEM de sair 1.
@@ -166,10 +171,14 @@ async function medir(nav, t, css) {
     if (MORDEM.has(t.nome)) {
       ok(m.vazaX && !m.vazaY, t.nome.padEnd(18) + ' vaza pela DIREITA e NÃO por baixo — ' + info);
       ok(!m.cabeDepois, t.nome.padEnd(18) + ' a rolagem vertical NÃO resgata (a régua só mexe scrollTop)');
-      // não é asserção de aprovação: é o achado que fica visível na saída
+      // não é asserção de aprovação: é o registro do número que sustenta a DECISÃO de 02/09
+      // (item regua-eixo-x-nao-olhado) — conta como PRESO porque sobraX é 0 em produção nas
+      // seis telas e overflow-x nunca é declarado em estilo.css. A mensagem da régua já não
+      // mente mais (imprime left/right/largura também).
       console.log('   ⚠ ' + t.nome.padEnd(16) + ' #telaMenu overflow-x=' + m.menuOverflowX
-        + ' com ' + m.menuSobraX + ' px de sobra horizontal — o dedo talvez alcançasse;'
-        + ' a régua chama de PRESO e imprime só top/bottom');
+        + ' com ' + m.menuSobraX + ' px de sobra horizontal (0 em produção) — o dedo talvez'
+        + ' alcançasse, mas a régua chama de PRESO por decisão, e agora a mensagem inclui os'
+        + ' dois eixos');
     } else {
       ok(!m.vazaX, t.nome.padEnd(18) + ' NÃO vaza pela direita — ' + info);
       ok(m.cabeDepois, t.nome.padEnd(18) + ' alcançável'
