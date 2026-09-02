@@ -950,10 +950,16 @@ const estado = pag => pag.evaluate(() => ({
   // o le, nem este teste (um log de falha imprimiria o PIN dele).
   {
     const pinLocal = require(MOD_PIN);
-    const ARQ = path.join(__dirname, 'tmp-pin-local-cena23.txt');
+    // NOME ÚNICO POR PROCESSO (PENDENTES 70c, 02/09): os três nomes eram FIXOS, então rodar
+    // esta suíte em paralelo consigo mesma (dois processos node) media colisão de arquivo — o
+    // processo B apagava ou reescrevia o arquivo que o processo A tinha acabado de criar — em
+    // vez de medir intermitência de verdade. `process.pid` basta para separar processos
+    // concorrentes na MESMA máquina, que é o único cenário em que a colisão pode ocorrer.
+    const SUFIXO = '-' + process.pid;
+    const ARQ = path.join(__dirname, 'tmp-pin-local-cena23' + SUFIXO + '.txt');
     const PIN_FALSO = '90071992';
     fs.writeFileSync(ARQ, PIN_FALSO + '\r\n');
-    const AUSENTE = path.join(__dirname, 'tmp-pin-local-que-nao-existe.txt');
+    const AUSENTE = path.join(__dirname, 'tmp-pin-local-que-nao-existe' + SUFIXO + '.txt');
     try { fs.unlinkSync(AUSENTE); } catch (e) { /* ja nao existia */ }
 
     // Um `res` de mentira que so anota o que lhe pediram. E um `console` capturado, porque
@@ -1021,7 +1027,7 @@ const estado = pag => pag.evaluate(() => ({
     ok(semArquivo.atendeu === false && semArquivo.r.st === 0,
       'sem o arquivo do dono a rota nao existe — e o desfecho e o MESMO do nao-loopback',
       'atendeu=' + semArquivo.atendeu + ' status=' + semArquivo.r.st);
-    const VAZIO = path.join(__dirname, 'tmp-pin-local-vazio.txt');
+    const VAZIO = path.join(__dirname, 'tmp-pin-local-vazio' + SUFIXO + '.txt');
     fs.writeFileSync(VAZIO, '   \n');
     ok(chamar('GET', '/pin-local', '127.0.0.1', VAZIO).atendeu === false, 'arquivo em branco tambem nao vira rota');
     // O ARQUIVO MORA FORA DO DOCROOT (S1 da auditoria, 22/08). Enquanto ele vivia em
@@ -1047,7 +1053,9 @@ const estado = pag => pag.evaluate(() => ({
       ok(/^ferramentas\/\*\.local\*$/m.test(gi) && /^ferramentas\/mesa-pin\*$/m.test(gi),
         'e o .gitignore guarda ferramentas/*.local* e mesa-pin* (defesa em profundidade)', '');
     }
-    fs.unlinkSync(ARQ); fs.unlinkSync(VAZIO);
+    // limpeza tolerante: cada arquivo é só desta cena, deste processo — nunca do vizinho.
+    try { fs.unlinkSync(ARQ); } catch (e) { /* nada a fazer */ }
+    try { fs.unlinkSync(VAZIO); } catch (e) { /* nada a fazer */ }
   }
 
   // ---------------------------------------------------------------- 24
