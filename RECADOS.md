@@ -784,3 +784,6 @@ vocês não. Os três órfãos `entrega/canonical-jogo`,
 dos três está na `main` por outra rota**, podem apagar sem auditar.
 
 **Nome de máquina: `nuvem-20260902T1623`.**
+
+**CI verde no commit que mexe no proprio CI** (`d99a1e9`, run 452): `conclusion: success`, lido da
+API e nao da ultima linha de log. Os tres portoes novos rodam e passam la, nao so aqui.
