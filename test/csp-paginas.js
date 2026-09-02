@@ -45,6 +45,26 @@
 // a conexao, o `route` NAO chega a disparar e a violacao de `connect-src` aparece assim mesmo —
 // que e exatamente o que se quer medir. O contador `medicoes` e impresso por isso.
 //
+// F. O ELO QUE NENHUMA CHECAGEM LOCAL FECHA — o cabecalho que a VERCEL de fato serve.
+//
+// Tudo acima prova que o vercel.json esta certo e que a politica nao quebra as paginas. Nada
+// disso prova que a Vercel APLICOU o cabecalho: um `source` que ela case diferente do que este
+// portao resolve daria portao verde e producao descoberta, em silencio — que e exatamente o
+// modo de falha que o CLAUDE.md §3 descreve para a CSP do jogo ("falha em SILENCIO").
+//
+// Entao o portao sabe olhar um endereco de verdade:
+//
+//     CSP_AO_VIVO=https://matheusferreira.cc node test/csp-paginas.js
+//
+// Ele pede cada rota publicada e cobra o cabecalho Content-Security-Policy que veio na
+// RESPOSTA, contra a MESMA tabela. Nao entra no CI: depende de deploy pronto e de rede. E o
+// comando de UMA LINHA que o plantao roda depois do primeiro deploy — e que ele pode repetir
+// a qualquer momento sem credencial nenhuma.
+//
+// PROVA DE MORDIDA DELE: apontado para um servidor que NAO manda o cabecalho, ele reprova.
+//     node ferramentas/servir.js 8199 dist &
+//     CSP_AO_VIVO=http://127.0.0.1:8199 node test/csp-paginas.js   -> exit 1
+//
 // PROVA DE MORDIDA (EQUIPE.md 2.8: instrumento que nunca foi visto reprovando e decoracao):
 //   CSP_INJETAR_FALHA=/glossario/  node test/csp-paginas.js    -> exit 1
 //   node test/csp-paginas.js                                    -> exit 0
@@ -59,6 +79,7 @@ const RAIZ = path.resolve(__dirname, '..');
 const DIST = path.join(RAIZ, 'dist');
 const VERCEL = path.join(RAIZ, 'vercel.json');
 const INJETAR = process.env.CSP_INJETAR_FALHA || '';
+const AO_VIVO = (process.env.CSP_AO_VIVO || '').replace(/\/$/, '');
 
 const falhas = [];
 const reprovar = m => falhas.push(m);
@@ -324,6 +345,42 @@ async function medirPagina(nav, rota) {
 
   await nav.close();
   servidor.close();
+
+  // ============================================================================
+  // F. AO VIVO — o cabecalho que o servidor de verdade manda. So quando pedido.
+  if (AO_VIVO) {
+    console.log('');
+    console.log('AO VIVO — o cabecalho que ' + AO_VIVO + ' manda de verdade');
+    for (const pg of publicadas) {
+      const esperada = CSP_ESPERADA[pg.rota];
+      let cab = null, situacao = '';
+      try {
+        const r = await fetch(AO_VIVO + pg.rota, { redirect: 'follow' });
+        situacao = String(r.status);
+        cab = r.headers.get('content-security-policy');
+      } catch (e) {
+        reprovar('F. ' + pg.rota + ' nao respondeu em ' + AO_VIVO + ': ' + String(e.message).slice(0, 90));
+        console.log('  ' + pg.rota.padEnd(15) + ' NAO RESPONDEU');
+        continue;
+      }
+      console.log('  ' + pg.rota.padEnd(15) + ' HTTP ' + situacao + '  CSP=' + (cab ? 'sim' : 'NAO'));
+      if (!cab) {
+        reprovar('F. ' + pg.rota + ' respondeu ' + situacao + ' SEM cabecalho Content-Security-Policy.'
+          + ' O vercel.json diz que ela tem uma; o servidor de verdade nao a esta mandando.');
+        continue;
+      }
+      if (cab.indexOf('*') >= 0) reprovar('F. ' + pg.rota + ' tem CURINGA na CSP servida: ' + cab);
+      if (!esperada) continue;
+      const achada = partirCsp(cab);
+      for (const n of [...new Set(Object.keys(esperada).concat(Object.keys(achada)))].sort()) {
+        if (achada[n] !== esperada[n]) {
+          reprovar('F. a CSP SERVIDA em ' + pg.rota + ' nao e a que o vercel.json declara: `' + n
+            + '` veio "' + (achada[n] === undefined ? '(ausente)' : achada[n]) + '" e a tabela espera "'
+            + (esperada[n] === undefined ? '(ausente)' : esperada[n]) + '"');
+        }
+      }
+    }
+  }
 
   console.log('');
   if (falhas.length) {
