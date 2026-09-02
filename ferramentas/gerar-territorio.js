@@ -906,10 +906,79 @@ ${MED.script('territorio')}
     if (a && a.scrollIntoView) a.scrollIntoView({ inline: "nearest", block: "nearest" });
     return fora;
   }, MED.ID_BOTAO);
-  if (foraDoCartao.length < 2) {
-    throw new Error("RECUSADO: a exclusão do cartão achou só " + foraDoCartao.length
-      + " controle(s) [" + foraDoCartao.join(", ") + "] — esperado ao menos a frase e o "
-      + "interruptor. Alguém moveu um controle e o cartão ia sair com ele dentro.");
+  console.log('  exclusão do cartão escondeu ' + foraDoCartao.length + ' nó(s): ' + foraDoCartao.join(', '));
+
+  // PÓS-CONDIÇÃO, NÃO ESFORÇO (PENDENTES 67, voto do QA em 23/08, revisto em 02/09).
+  //
+  // A régua ANTERIOR era "escondeu pelo menos 2 nós" — quantos nós a exclusão tocou. Isso cobra
+  // ESFORÇO, e o QA reproduziu o caminho de volta com os DOIS PORTÕES VERDES: alguém embrulha o
+  // interruptor num `<span style="position:sticky">`, o BOTÃO em si vira `position:static` (o
+  // wrapper é quem flutua agora, não ele) e muda de id. A exclusão de cima ainda esconde ".med"
+  // e ".vaoMedida" — dois nós, o "esforço" antigo continuava satisfeito — mas nem o `#idBotao`
+  // (o id mudou) nem "flutua && matches(ALVOS)" (o próprio botão deixou de flutuar) alcançam o
+  // interruptor, que fica visível dentro do quadro.
+  //
+  // A régua agora é RESULTADO: depois da exclusão, relê o quadro com OS MESMOS OLHOS do
+  // instrumento do QA (`test/medir-cartao-controle.js`, `ehControleParanoico` + `flutua`) e
+  // recusa se sobrou QUALQUER controle — não importa quantos a exclusão escondeu para chegar lá.
+  //
+  // ESTE CORPO TEM DE FICAR IDÊNTICO ao `ehControleParanoico` de test/medir-cartao-controle.js —
+  // é cópia de propósito (a mesma razão do `ALVOS_CONTROLE` ali: um instrumento que só reformula
+  // o próprio gerador com outras palavras não é um segundo par de olhos). Mudou lá, mude aqui.
+  const sobrouControle = await pg2.evaluate(([L, A]) => {
+    function ehControleParanoico(e) {
+      if (e.matches('button, [role="button"], input, select, summary, [onclick], label, [contenteditable]')) return true;
+      const tab = e.getAttribute('tabindex');
+      if (tab !== null && tab !== '-1') return true;
+      if (e.matches('a[href]') && !e.closest('.barra')) return true;
+      return false;
+    }
+    const achados = [];
+    document.querySelectorAll('body *').forEach((e) => {
+      const s = getComputedStyle(e);
+      const flutua = s.position === 'fixed' || s.position === 'sticky';
+      if (!(flutua && ehControleParanoico(e))) return;
+      if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return;
+      const r = e.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return;
+      if (r.right <= 0 || r.bottom <= 0 || r.left >= L || r.top >= A) return;
+      achados.push({ alvo: (e.id ? '#' + e.id : e.tagName.toLowerCase() + '.' + (e.className || '')),
+        x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) });
+    });
+    return achados;
+  }, [1200, 630]);
+  if (sobrouControle.length) {
+    throw new Error('RECUSADO: sobrou controle no quadro depois da exclusão do cartão: '
+      + JSON.stringify(sobrouControle));
+  }
+
+  // A SEGUNDA METADE, e é a que a pós-condição de cima NÃO cobre sozinha: o mutante do QA tira
+  // exatamente a marca "flutua" do BOTÃO (só o wrapper flutua), então a varredura acima — que só
+  // olha o próprio elemento, de propósito, para não reprovar as cinco tábuas de lugar que moram
+  // dentro do "#palco"/".env" fixos — não o alcança. O que aquele truque NÃO apaga é A FRASE: o
+  // rótulo "medição" e o `aria-label` "Medição ligada/desligada" são o contrato deste botão com
+  // quem lê, e ninguém reescreve os dois só para escapar de um teste. Então o alvo nomeado é
+  // achado por DOIS caminhos independentes — o id que `MED.ID_BOTAO` exporta OU a frase — e
+  // qualquer um dos dois, se ainda visível no quadro depois da exclusão, recusa a build.
+  const alvoNomeado = await pg2.evaluate(([L, A, idBotao]) => {
+    const porId = document.getElementById(idBotao);
+    const porFrase = Array.from(document.querySelectorAll('[aria-label]'))
+      .find((e) => /^Medição/.test(e.getAttribute('aria-label') || ''));
+    const alvos = [porId, porFrase].filter((e, i, arr) => e && arr.indexOf(e) === i);
+    return alvos.map((e) => {
+      const s = getComputedStyle(e);
+      const r = e.getBoundingClientRect();
+      const escondido = s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0
+        || r.width < 1 || r.height < 1
+        || r.right <= 0 || r.bottom <= 0 || r.left >= L || r.top >= A;
+      return { alvo: (e.id ? '#' + e.id : e.tagName.toLowerCase()), escondido,
+        x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) };
+    });
+  }, [1200, 630, MED.ID_BOTAO]);
+  const interruptorVisivel = alvoNomeado.filter((a) => !a.escondido);
+  if (interruptorVisivel.length) {
+    throw new Error('RECUSADO: o interruptor de medição (achado por id ou pela frase "Medição") '
+      + 'continua no quadro depois da exclusão: ' + JSON.stringify(interruptorVisivel));
   }
   await pg2.waitForTimeout(120);
   await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });

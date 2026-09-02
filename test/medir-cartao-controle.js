@@ -112,14 +112,34 @@ async function excluir(pg, modo) {
 //     mapa, e `div.env`, o envelope). Flutuar não é o defeito; flutuar E convidar o dedo é.
 // O `#medirBt` é nomeado à parte porque é o caso que já quebrou uma vez: se algum dia ele
 // deixar de flutuar e continuar no quadro, a promessa segue quebrada do mesmo jeito.
-const ALVOS = 'button, [role="button"], input, select, summary';
+//
+// A LISTA É PARANOICA DESDE 02/09 (achado do QA na re-auditoria, PENDENTES 68): a antiga
+// (`button, [role="button"], input, select, summary`) é A MESMA do `ferramentas/gerar-territorio.js`
+// — um lugar para consertar e o MESMO buraco para os dois. Uma `<div onclick tabindex="0">`
+// colada na barra escapava dos dois. A função de baixo é ESTRITAMENTE MAIS LARGA que a do
+// gerador — a regra da casa é essa (instrumento mais largo que o gerador, nunca igual): se ela
+// achar algo que a exclusão do gerador não pega, é a exclusão que se alarga, não esta função que
+// se estreita. `a[href]` exclui a `.barra` de propósito — as tábuas de navegação são links de
+// verdade e ficam no cartão em toda página; um link fora dela (nota de rodapé, "abrir no jogo")
+// é o que a régua não pode deixar passar.
+//
+// ESTE CORPO TEM DE FICAR IDÊNTICO ao da pós-condição de `ferramentas/gerar-territorio.js`
+// (procure `ehControleParanoico` lá) — cópia de propósito, pela mesma razão do `ALVOS_CONTROLE`:
+// mudou lá, mude aqui.
 async function controlesNoQuadro(pg) {
-  return pg.evaluate(([L, A, ALVOS]) => {
+  return pg.evaluate(([L, A]) => {
+    function ehControleParanoico(e) {
+      if (e.matches('button, [role="button"], input, select, summary, [onclick], label, [contenteditable]')) return true;
+      const tab = e.getAttribute('tabindex');
+      if (tab !== null && tab !== '-1') return true;
+      if (e.matches('a[href]') && !e.closest('.barra')) return true;
+      return false;
+    }
     const achados = [];
     document.querySelectorAll('body *').forEach((e) => {
       const s = getComputedStyle(e);
       const flutua = s.position === 'fixed' || s.position === 'sticky';
-      if (!((flutua && e.matches(ALVOS)) || e.id === 'medirBt')) return;
+      if (!((flutua && ehControleParanoico(e)) || e.id === 'medirBt')) return;
       if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return;
       const r = e.getBoundingClientRect();
       if (r.width < 1 || r.height < 1) return;
@@ -132,7 +152,7 @@ async function controlesNoQuadro(pg) {
       });
     });
     return achados;
-  }, [L, A, ALVOS]);
+  }, [L, A]);
 }
 
 (async () => {
