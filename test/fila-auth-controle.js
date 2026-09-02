@@ -335,7 +335,14 @@ let ruins = 0;
 // sobre um arquivo intacto. A quebra do arquivo manda, e cada alvo tem a sua.
 const comEOL = (s, texto) => s.split('\n').join(texto.indexOf('\r\n') >= 0 ? '\r\n' : '\n');
 
+// UM DEFEITO SO, quando se esta consertando um controle especifico: cada mutante levanta um
+// navegador e roda a suite inteira, entao a suite toda leva ~20 min nesta maquina. `SO=trecho`
+// roda so os que casam. Isso nao afrouxa nada — no CI a variavel nao existe, e o portao continua
+// cobrando todos. Foi o que tornou possivel descobrir, com cuidado, que uma primeira tentativa de
+// conserto do N2 estava saindo DECORACAO — sem esperar 20 minutos por tentativa.
+const SO = process.env.SO || '';
 for (const d of DEFEITOS) {
+  if (SO && d.id.indexOf(SO) < 0) continue;
   const paraPin = d.alvo === 'pin';
   const fonte = paraPin ? srcPin : src;
   const copia = paraPin ? COPIA_PIN : COPIA;
