@@ -230,11 +230,37 @@
     padding-top:.5rem;margin-top:.25rem}
   .grupo-ag:first-child .cab-squad{border-top:0;padding-top:0;margin-top:0}
   .grupo-ag.agora .cab-squad{color:var(--ok)}
-  .ag{background:var(--realce);border:1px solid var(--linha);border-radius:4px;padding:.6rem .6rem .7rem;
-    box-shadow:0 1px 2px var(--sombra);display:flex;flex-direction:column;align-items:center;gap:.25rem;text-align:center}
-  .ag .palco{width:100%;height:60px;display:flex;align-items:flex-end;justify-content:center;
-    background:linear-gradient(180deg,transparent 60%,var(--papel2));border-radius:3px;overflow:hidden;position:relative}
-  .ag .chao{position:absolute;bottom:0;left:0;right:0;height:6px;background:var(--linha)}
+  /* ============ A CARTINHA (dono, 01/09: "tipo cards mesmo... cartinhas") ============
+     O cartao era uma caixa com texto centralizado. Vira CARTA: faixa de nome no topo, retrato
+     emoldurado no meio, e uma tira de dados no rodape — a leitura de figurinha, que e como ele
+     descreveu. A ORDEM VEM DO CSS (`order`), nao do DOM: o JS que monta o cartao nao muda, e o
+     portao que le `.nome`, `.st`, `.ult`, `.bon` e `.faisca` continua achando tudo onde estava.
+     A moldura interna e um ::after — nao acrescenta no ao DOM nem entra no caminho de clique. */
+  .ag{background:linear-gradient(180deg,var(--realce) 0%,var(--papel) 100%);
+    border:1px solid var(--linha);border-radius:7px;padding:0;overflow:hidden;position:relative;
+    box-shadow:0 2px 5px var(--sombra);display:flex;flex-direction:column;text-align:center}
+  .ag::after{content:"";position:absolute;inset:3px;border:1px solid var(--linha);border-radius:5px;
+    pointer-events:none;opacity:.5}
+  /* a faixa do nome: e o topo da carta */
+  .ag .nome{order:1;font:700 .88rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--papel2);border-bottom:1px solid var(--linha);padding:.42rem .5rem .38rem;
+    margin:0 0 .1rem}
+  /* o retrato: janela emoldurada, com chao e ceu proprios */
+  .ag .palco{order:2;height:76px;margin:.5rem .55rem .1rem;display:flex;align-items:flex-end;
+    justify-content:center;border:1px solid var(--linha);border-radius:4px;
+    background:linear-gradient(180deg,var(--papel) 0%,var(--realce) 55%,var(--papel2) 100%);
+    overflow:hidden;position:relative}
+  .ag .papel{order:3;padding:.3rem .55rem 0}
+  .ag .st{order:4;margin:.35rem auto 0}
+  .ag .ult{order:5;padding:.1rem .55rem .45rem}
+  /* `margin-top:auto` empurra a tira para o RODAPE da carta: cartas de alturas diferentes na
+     mesma linha passam a ter a tira alinhada, que e o que faz um conjunto parecer baralho e nao
+     uma pilha. E `:empty` some com o vao de quem nao tem botao (quem esta trabalhando). */
+  .ag .gasto{order:6;margin-top:auto}
+  .ag .acaoAg{order:7;padding:0 .55rem .6rem}
+  .ag .acaoAg:empty{display:none}
+  .ag .acaoAg .btn{width:100%}
+  .ag .chao{position:absolute;bottom:0;left:0;right:0;height:7px;background:var(--linha);opacity:.75}
   .bon{width:46px;height:54px;position:relative;z-index:1}
   .ag[data-st="trabalhando"] .bon{animation:bonbob .8s ease-in-out infinite}
   @keyframes bonbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -250,9 +276,11 @@
   .zzz{position:absolute;top:6px;left:56%;font:700 10px/1 "Palatino Linotype",Palatino,Georgia,serif;color:var(--pedra);opacity:0}
   .ag[data-st="espera"] .zzz{animation:zzz 3s ease-in-out infinite}
   @keyframes zzz{0%,80%,100%{opacity:0}20%,60%{opacity:.7;transform:translateY(-4px)}}
-  .ag .nome{font:700 .9rem/1 "Palatino Linotype",Palatino,Georgia,serif}
-  .ag .papel{font-size:.72rem;color:var(--pedra);line-height:1.2}
-  .ag .st{font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--pedra)}
+  .ag .papel{font-size:.68rem;color:var(--pedra);line-height:1.32;font-style:italic}
+  /* o estado vira SELO — pilula com a cor do proprio estado, que e o que se le de longe */
+  .ag .st{display:inline-block;font:600 .52rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--pedra);
+    border:1px solid currentColor;border-radius:999px;padding:.2rem .5rem .18rem;opacity:.9}
   .ag[data-st="trabalhando"] .st{color:var(--ok)} .ag[data-st="chamado"] .st{color:var(--brasa)}
   /* GUARDADO, NAO ENVIADO (24/08): o chamado esta na fila deste aparelho e o servidor nao o viu.
      Ele NAO pode parecer chamado — sem o aceno do boneco, e com a cor de alerta no rotulo. */
@@ -280,13 +308,20 @@
   .trava p{margin:.2rem 0 0;font-size:.72rem;line-height:1.4;color:var(--pedra)}
   .trava-tag{display:inline-block;margin-bottom:.15rem;font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.08em;text-transform:uppercase;color:var(--alerta)}
-  .ag .gasto{margin-top:.45rem;padding-top:.4rem;border-top:1px dashed var(--linha);
+  /* a tira de dados: rodape da carta, fundo proprio, como a linha de estatistica de figurinha */
+  .ag .gasto{margin-top:.1rem;padding:.34rem .6rem;background:var(--papel2);border-top:1px solid var(--linha);
     font:600 .56rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra)}
   .ag .gasto .gl{display:flex;justify-content:space-between;gap:.4rem}
   .ag .gasto .gk{opacity:.7;text-transform:uppercase;letter-spacing:.04em}
   .ag .gasto .gv{color:var(--tinta);text-align:right}
   .ag .gasto .gv.fraco{color:var(--pedra);opacity:.8;font-style:italic}
   .ag .gasto .gv.caro{color:var(--brasa)}
+  /* A MOLDURA DIZ O ESTADO antes de qualquer texto: quem trabalha tem a borda viva, quem
+     esta sem sinal tem a de alerta, e a carta do dono e a unica em brasa. */
+  .ag[data-st="trabalhando"]{border-color:var(--ok)}
+  .ag[data-st="chamado"]{border-color:var(--brasa)}
+  .ag[data-st="espera"]{opacity:.94}
+  .ag.frio{border-color:var(--alerta)}
   .ag.dono{border-color:var(--brasa)}
   .nota-gasto{font:600 .62rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);
     margin:.2rem 0 .8rem;text-align:center;opacity:.9}
