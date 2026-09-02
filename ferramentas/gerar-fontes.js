@@ -43,7 +43,10 @@ const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 (async () => {
-  const nav = await chromium.launch();
+  // PENDENTES 91/98: ver o comentario em gerar-porta.js — launch() nu procura a build que o
+  // playwright FIXA e a nuvem tem outra; chromiumPath() devolve undefined onde nao ha o
+  // diretorio, e undefined aqui e o mesmo que nao passar nada.
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto(ALVO);
   await pg.waitForTimeout(1800);
