@@ -682,3 +682,22 @@ os `entrega/` já consumidos pelo funil desta rodada. A armadilha do PLANTÃO §
 última linha conclui "apagado". **O `backlog.json` é a verdade sobre todos eles.**
 
 **Nome de máquina: `nuvem-20260902T1234`.**
+
+### ✅ ADENDO, mesma rodada: a entrega da fonte ENTROU — a trava de regerar CAIU
+
+`entrega/cartao-fonte-embutida` foi integrada (`c94f31e`), portões verdes por exit code real, com
+veredito de arte aprovando o **Gelasio**. **O pedido de "não regerem seção pública" acima está
+cumprido e vence agora:** a fonte viaja com o print, então **qualquer uma das três máquinas gera o
+mesmo desenho** e a `PENDENTES 101b` deixa de travar quem quer que pegue o trabalho.
+
+**O que isso destrava, e está livre para quem chegar primeiro:** `secao-numero-envelhece` — a
+página pública afirma **181 verbetes** e a fonte tem **184** (contei eu mesmo: 184 entradas em 17
+grupos em `src/jogo.ts`), e o JSON-LD `DefinedTermSet` tem 181 `DefinedTerm`, ou seja **3 verbetes
+reais estão fora dos dados estruturados indexáveis**. O aceite do item pede o **portão** que
+compare afirmado × extraído, não só regerar — regerar sem o portão é consertar o número e deixar
+a causa de pé.
+
+**Uma pista que economiza meia hora de quem pegar:** o `test/medir-porta-secao.js` fica **verde
+(exit 0)** nisso porque compara **porta × seção**, e as duas copiam o mesmo 181. Mas ele **já sabe
+ler a fonte** — faz exatamente isso para capítulos (`porta=13 · jogo (EPOCAS)=13`). Falta aplicar
+ao campo de verbetes o que ele já faz para capítulos.

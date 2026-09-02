@@ -8,6 +8,16 @@
   },
   "itens": [
     {
+      "id": "cartao-margem-esquerda",
+      "estado": "livre",
+      "papel": "arte",
+      "titulo": "A margem esquerda de 268 px do molde e que produz o istoria no recorte quadrado — nao a largura da fonte",
+      "territorio": "ferramentas/cartao-secao.js,ferramentas/chrome-plataforma.js",
+      "camada": "esteira",
+      "aceite": "A primeira tabua sobrevive ao recorte QUADRADO centrado (x 285..915), nao so ao 1200x630. Mordida provada por injecao. Medir antes e depois no recorte quadrado, nao no canvas cheio — e o quadrado que produz o defeito.",
+      "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada."
+    },
+    {
       "id": "fonte-embutida-sem-portao",
       "estado": "livre",
       "papel": "dev-plataforma",
@@ -614,7 +624,7 @@
     },
     {
       "id": "cartao-fonte-do-host",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "titulo": "O cartao publicado renderiza com fallback de sistema: --titulo pede Palatino sem @font-face, e o controle compara texto de CSS",
       "territorio": "ferramentas/gerar-fontes.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-porta.js,ferramentas/gerar-territorio.js",
@@ -622,8 +632,9 @@
       "aceite": "Embutir a fonte como @font-face, no mesmo padrao que o build ja usa para arte em base64 — isso resolve as DUAS pontas de uma vez: determinismo entre maquinas E torna possivel o controle checar document.fonts.check() contra uma familia que carregou de verdade. Mordida provada por injecao no cartao-secao.js: exit 1 quando a fonte pedida nao carrega, exit 0 quando carrega. O controle de HOJE (getComputedStyle().fontFamily) sai ou ganha companhia, porque ele nao pode reprovar esta classe em maquina nenhuma.",
       "detalhe": "PENDENTES 101b + 101c. A CAUSA FOI ACHADA pelo porteiro em 02/09 e a duvida do item caiu: chrome-plataforma.js:28 declara --titulo: \"Palatino Linotype\",Palatino,Georgia,serif SEM nenhum @font-face. Na nuvem, fc-list para palatino/georgia devolve ZERO e fc-match serif devolve DejaVu Serif — entao a renderizacao da nuvem e provadamente o ultimo recurso da cadeia, nao a intencao de design, e a commitada esta mais perto do que o design pede. NAO e mais preciso gerar nas tres maquinas para descobrir qual e a certa. O agravante (101c): cartao-secao.js cobra getComputedStyle(h1).fontFamily === CHROME.TITULO, e isso devolve a LISTA DECLARADA no CSS, nunca o glifo pintado — provado ao vivo, a string voltou intacta numa maquina pintando DejaVu. O controle nunca reprova esta classe em maquina nenhuma; foi desenhado assim para evitar um falso positivo de Google Fonts assincrona e supercorrigiu para a cegueira total.",
       "banca": "porteiro (pagina publica) + arte (veredito visual)",
-      "maquina": "nuvem-20260902T1234",
-      "desde": "2026-09-02T12:36:19.905Z"
+      "maquina": null,
+      "desde": null,
+      "resolucao": "Feito em 02/09 por nuvem-20260902T1234, com veredito de ARTE aprovando o Gelasio. A fonte (OFL 1.1, Version 1.008, licenca lida) entra por @font-face em base64 EM MEMORIA, na hora do print: zero byte publicado, zero KB nas paginas, zero em 3G. As tres recusas novas mordem por injecao (fonte-nao-carrega, sem-familias, titulo-fora: exit 1 cada; sem defeito exit 0). O controle antigo por getComputedStyle FICA com companhia em vez de sair, porque ele reprova OUTRA classe (troca da pilha declarada por uma sans) e tira-lo trocaria uma cegueira por outra. A URW P052 foi recusada com o texto lido: AGPL com excecao so para PostScript/PDF. A condicao da arte (chrome-plataforma.js prega a pilha do titulo duas vezes, e as tabuas vestem a fonte do titulo) esta satisfeita SEM editar a linha 196: a varredura por igualdade de token veste as tabuas, provado no pixel — .barra a mede 1893,05 px, igual a Gelasio pura e diferente do recuo do host em 1779,42 px. FICA PENDENTE, item proprio: fonte-embutida-sem-portao, porque o test/cartao-fonte-embutida.js morde e ninguem o roda ainda."
     },
     {
       "id": "geradores-fora-do-portao",
