@@ -30,7 +30,11 @@ const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
 
 (async () => {
-  const nav = await chromium.launch();
+  // PENDENTES 91/98: launch() nu procura a build que o playwright FIXA (1234) e a maquina da
+  // nuvem tem outra (1194), entao o gerador morre antes de olhar uma linha. chromiumPath()
+  // devolve undefined onde /opt/pw-browsers nao existe, e undefined aqui e o mesmo que nao
+  // passar nada — por isso o conserto e seguro nas tres maquinas e no CI.
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto(ALVO);
   await pg.waitForTimeout(1800);
