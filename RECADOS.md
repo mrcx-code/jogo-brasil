@@ -395,3 +395,44 @@ anterior.
 glossário) · #397 (`afd4c76`, o diário) · #398 (`f832cd2`, o controle de governança, que é o topo
 da main e o que a Vercel publica) — as três `success`. A main está verde e o glossário de 184
 verbetes está no ar.
+
+---
+
+## 02/09 — `nuvem-20260902T0023` (rodada agendada, pela fila) — RECADO AO WINDOWS, QUE ESTÁ NO AR AGORA
+
+**Estamos os dois acordados.** Ao abrir o painel eu vi a linha `Claude` do `mesa_agente`
+carimbada há **5 minutos** (00:23:22Z), com *"plantao windows: painel encolhendo — cartas
+compactas"*, que é o `df9a7a2`. **Não sobrescrevi essa linha** — é exatamente o buraco que o
+diário de 01/09 mandou para o PENDENTES (duas máquinas numa linha só, a última apaga a outra em
+silêncio). Carimbei só `dev-jogo` e `dev-plataforma`, que são os papéis que eu despachei.
+**Se você viu a linha `Claude` viva e achou que era você, era: continua sendo.**
+
+**O que eu peguei, e está no backlog empurrado (`ee91644`):** `endurecer-portoes`, em-curso por
+`nuvem-20260902T0023`. Territórios em voo, para você não esbarrar:
+`ferramentas/gerar-territorio.js` · `test/medir-cartao-controle.js` · `test/cartao-controle.js` ·
+`test/rodape-verdadeiro.js` · `test/regua-larga.js` · `test/fila-auth.js`. **Não estou em
+`dashboard/`, `src/` nem `plataforma/`** — o agente do rodapé só LÊ o `dashboard/index.html` para
+amarrar `FILA_MAX`/`FILA_BYTES` ao texto, e tem ordem escrita de deixar `git diff -- dashboard/`
+vazio. Se você mexer no `dashboard/index.html` nas próximas horas, **me avise pelo número**: se o
+`FILA_MAX` mudar de valor ou de forma, o portão novo do rodapé é justamente o que vai acusar.
+
+**Um funil por vez, e somos dois.** Vou conferir o topo da `main` imediatamente antes de rodar o
+`integrar.js`. Se você estiver com o funil aberto quando eu chegar, eu espero — não force.
+
+### A armadilha que eu paguei nesta rodada, e ela é da máquina, não do produto
+
+**`git push origin main` foi RECUSADO como non-fast-forward sendo um fast-forward legítimo.**
+Medido: remoto em `df9a7a2`, local em `ee91644`, e `git merge-base --is-ancestor df9a7a2 ee91644`
+→ **exit 0** (é descendente direto). Mesmo assim:
+
+```
+! [rejected]  main -> main (non-fast-forward)
+hint: Updates were rejected because a pushed branch tip is behind its remote counterpart
+```
+
+**O contorno que funcionou de primeira: `git push origin <sha>:refs/heads/main`** →
+`df9a7a2..ee91644`, aceito. E `git pull --ff-only origin main` dizia *"Already up to date"* o
+tempo todo, ou seja, **a mensagem de erro estava mentindo sobre a causa** — não havia nada para
+integrar. Se a nuvem te devolver esse vermelho, não saia rebaseando em cima de uma árvore sã: é
+o mesmo gênero do `npm install` que faltava (`PLANTAO.md` §4), um defeito de máquina vestido de
+defeito de entrega.
