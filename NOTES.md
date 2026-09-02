@@ -11241,3 +11241,65 @@ do rodapé da `regua-larga.js` promete reprovação por exit code e ficou falso 
 correto do próprio conserto: `scrollHeight` passou de **786** para **768** `=== clientHeight`).
 
 **Nome de máquina desta rodada: `nuvem-20260902T0423`.**
+
+---
+
+## 02/09 — `regua-autoteste-morto`: o rodapé não morria decoração, faltava companhia
+
+dev-jogo, plantão `nuvem-20260902T0823`. Confirmado com medição própria: o comentário promete
+`REGUA_DEFEITO='#telaMenu{overflow-y:hidden!important}'` reprovar por exit code, e isolado ele
+**não reprova mais nenhuma das 6 telas largas** — `scrollHeight === clientHeight` nas seis com
+`telaParada()` (786→768, como o pré-integrador mediu). Sem overflow de verdade para começo de
+conversa, esconder o overflow não muda nada.
+
+| tela | baseline (scroll/client) | só `margin-top:250px` no poste | só `overflow-y:hidden` | os dois juntos |
+|---|---|---|---|---|
+| tablet retrato 768×1024 | 1024/1024 | 1111/1024 (overflow real) — alcançável (rola) | 1024/1024 — alcançável | **PRESO** |
+| tablet paisagem 1024×768 | 768/768 | 768/768 (grade absorve a margem) — alcançável | 768/768 — alcançável | alcançável |
+| notebook 1366×768 | 768/768 | 768/768 (idem) — alcançável | 768/768 — alcançável | alcançável |
+| landscape 899×500 | 500/500 | 665/500 (overflow real) — alcançável (rola) | 500/500 — alcançável | **PRESO** |
+| phone deitado 926×428 | 428/428 | 449/428 (overflow real) — alcançável (rola) | 428/428 — alcançável | **PRESO** |
+| ultrawide 1920×1080 | 1080/1080 | 1080/1080 (grade absorve) — alcançável | 1080/1080 — alcançável | alcançável |
+
+**A premissa de que `margin-top:250px` sozinho reprova 3 de 6 estava errada** — medido: sozinho
+ele PASSA nas seis (exit 0), porque cria overflow real em 3 delas mas a régua rola de verdade e
+alcança (não é decoração, é resgate legítimo do `overflow-y:auto` que continua intacto). Nas
+outras 3 (tablet paisagem, notebook, ultrawide) a grade cinemática (`grid-template-rows:
+minmax(0,1fr) auto auto`, estilo.css ~1009) absorve a margem na linha do logo e nem chega a criar
+overflow — desenhado para não estourar sozinho.
+
+O que reprova de verdade em exatamente 3 de 6 (as mesmas três que ganham overflow — tablet
+retrato, landscape 899, phone deitado 926) é a COMBINAÇÃO: a marcenaria cresce (estande-in de uma
+tábua nova, já aconteceu com o GLOSSÁRIO) **e** a rolagem quebra no mesmo commit. Editado o
+rodapé de `test/regua-larga.js` para `REGUA_DEFEITO='#poste{margin-top:250px!important}
+#telaMenu{overflow-y:hidden!important}'` — as duas provas de injeção, na mesma versão do arquivo:
+
+```
+$ REGUA_DEFEITO='#poste{margin-top:250px!important} #telaMenu{overflow-y:hidden!important}' node test/regua-larga.js
+  ✗ tablet retrato   · ... configurações PRESO → CONFIGURAÇÕES inalcançável: fora da janela ...
+  ✓ tablet paisagem  · ... configurações alcançável
+  ✓ notebook         · ... configurações alcançável
+  ✗ landscape 899    · ... configurações PRESO → ...
+  ✗ phone deitado 926 · ... configurações PRESO → ...
+  ✓ ultrawide 1920   · ... configurações alcançável
+RÉGUA DE RESPONSIVIDADE: REPROVOU ...
+$ echo $?
+1
+
+$ node test/regua-larga.js
+  ✓ (as seis) ... configurações alcançável
+RÉGUA DE RESPONSIVIDADE: PASSOU ...
+$ echo $?
+0
+```
+
+A asserção `HIERARQUIA` do mesmo rodapé (`#poste .telaBtn.sec{width:...}`) não foi tocada e
+continua mordendo — reverificada nesta rodada, exit 1 com o defeito injetado, para não deixar
+achado velho sem prova nova antes de mexer perto dele.
+
+Nada em `src/` tocado. Território único: `test/regua-larga.js`.
+
+**Placar:** `nuvem-20260902T0823 · 1 rodada · 2 achados · 1 confirmado, 1 desmentido (o próprio,
+antes de virar código) · 0 do dono`.
+
+**Nome de máquina desta rodada: `nuvem-20260902T0823`.**
