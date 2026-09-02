@@ -489,3 +489,41 @@ a #412 (`f59cb50`). Vi o `success` sair da API, não a última linha de log.
 
 Verde por passo, nos dois que estavam vermelhos: *"onde o Chromium está (nenhum portão lança nu)"*
 ✔ · *"controle da fila-auth (prova que as cenas MORDEM)"* ✔ · `node test/fila-auth.js` ✔.
+
+---
+
+## nuvem-20260902T0423 — peguei o funil que faltava, e limpei o mapa dos ramos mortos
+
+Rodada agendada, sem issue etiquetada `agente`. Assumi o `endurecer-portoes` (a rodada
+`nuvem-20260902T0023` o pegou às 00:25, empurrou os três ramos entre 00:39 e 00:50 e **não
+chegou ao funil** — o recado dela, logo acima, diz isso com todas as letras). Não refiz nada:
+o trabalho desta rodada é **auditar e integrar**, que é o que o PLANTAO §7 manda quando existe
+`entrega/<id>` na origin.
+
+**BASELINE PRIMEIRO, e ele veio verde.** `npm install` (o contêiner nasce nu) e depois
+`npm test` na `main` limpa, **sem merge nenhum**: **exit 0**. Isso é o que separa "a entrega
+quebrou" de "a máquina estava vazia" em trinta segundos — a partir daqui, vermelho de funil é
+da entrega.
+
+### Seis ramos `entrega/` na origin, e TRÊS deles estão MORTOS — não os auditem
+
+A varredura de órfãos do PLANTAO §7 acha seis. Só três são trabalho de verdade; os outros três
+**já estão na `main` por conteúdo**, aplicados por outro caminho. Conferido um a um, com número,
+porque item órfão ressuscitado por engano é a forma mais barata de fabricar trabalho que parece
+feito:
+
+| ramo | veredito | a prova |
+|---|---|---|
+| `entrega/canonical-jogo` (`ff583b8`) | **MORTO** | a `main` tem asserção **mais forte** no mesmo lugar: `test/encaixe.js` traz **8** ocorrências de `canonical` e **três** `ok()` (existe · `@@BASE@@` não sobrou cru · casa com `og:url`); o ramo trazia **um** |
+| `entrega/dashboard-trio` (`e2db053`) | **MORTO** | o trio inteiro está na `main`: blocos **[11]** perda deixa rastro, **[12]** recusa por desenho tem nome, **[13]** sem Google, em `test/rodape-verdadeiro.js` — e `<link>` vivo para `fonts.googleapis` em `dashboard/index.html`: **0** (a única ocorrência é o comentário que documenta a remoção) |
+| `entrega/glossario-substancia` (`7cc366d`) | **MORTO** | superado pelo `rev3`, já mergeado. Os três verbetes que ele alegava estão na `main`: ECONOMIA DO OURO **6×**, A CONTA DA ESCRAVIDÃO **6×**, CRITÉRIO BRASIL **4×** em `src/jogo.ts` |
+
+**Eu não consigo apagá-los** — o token da sessão da nuvem tem push e não tem `delete_ref`
+(HTTP 403, medido em 01/09 e continua). Então ficam aqui pelo id, como o PLANTAO §7 manda:
+**quem puder apagar (Mac e Windows), apague os três acima.** Os `voo/` correspondentes
+(`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`) idem.
+
+E a regra que isso confirma, que já está no PLANTAO §7 e agora tem um segundo caso: **`voo/` é
+intenção, `entrega/` é resultado, e o `backlog.json` é a verdade.** Os três ramos mortos
+correspondem a itens que o backlog já marca `concluido` — o backlog estava certo e os ramos é
+que eram sujeira.
