@@ -559,12 +559,12 @@
     {
       "id": "regua-autoteste-morto",
       "titulo": "O autoteste do rodape da regua-larga.js virou decoracao pelo proprio conserto",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "territorio": "test/regua-larga.js",
       "camada": "esteira",
       "aceite": "O comentario do rodape (linhas 454-458) passa a documentar um defeito que AINDA morde depois de telaParada(), e quem escrever prova por injecao: exit 1 com o defeito, exit 0 sem. O REGUA_DEFEITO de hoje (overflow-y:hidden em 926x428) sai ou ganha companhia.",
-      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem.",
+      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem. || FEITO E INTEGRADO em 02/09 por nuvem-20260902T0823 (entrega/regua-autoteste-vivo, portoes verdes por exit code, QA independente aprovou). O QUE CAIU, e foi contra o numero deste proprio item: o margin-top:250px sozinho NAO reprova 3 de 6 — passa nas 6 (exit 0), e o QA exagerou para 2000px e ainda deu exit 0, porque a rolagem de verdade sempre resgata e resgate legitimo nao e defeito. O overflow-y:hidden sozinho tambem nao morde (0 de 6). So a COMBINACAO reprova, 3 de 6. A exigencia de duas injecoes para esta classe e real e o QA nao conseguiu derrubar.",
       "maquina": "nuvem-20260902T0823",
       "desde": "2026-09-02T08:24:31.817Z"
     },
@@ -614,6 +614,43 @@
       "camada": "esteira",
       "aceite": "O portao passa a cobrir os gerar-*.js. Mordida provada por injecao: reintroduzir chromium.launch() nu num deles da exit 1; sem ele, exit 0.",
       "detalhe": "PENDENTES 101d, achado pelo porteiro em 02/09 auditando entrega/geradores-chromium. PRE-EXISTENTE e nao regressao — o portao-navegador cobre 33 portoes (exit 0) e os gerar-*.js ficam de fora por desenho, porque nao sao chamados pelo CI nem pelo package.json, e o PENDENTES 91 ja registrava. Anotado porque a entrega que consertou os quatro NAO fecha o buraco: e a pergunta do PLANTAO 5 antes de dar item por fechado (e o que garante que isto nao volte?) e a resposta hoje e nada.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "regua-terceira-receita",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "titulo": "A regua-larga pega elemento tirado do fluxo, e isso nao esta documentado nem tem sonda",
+      "territorio": "test/regua-larga.js",
+      "camada": "esteira",
+      "aceite": "O rodape ganha a terceira receita, com mordida provada por injecao: exit 1 com o defeito, exit 0 sem.",
+      "detalhe": "Achado do QA em 02/09 auditando entrega/regua-autoteste-vivo, FORA do escopo da entrega e nao bloqueante. Existe defeito de UMA UNICA injecao que morde depois do telaParada(): REGUA_DEFEITO com poste em position:absolute e top:9999px reprova 2 de 6 (landscape 899 e phone deitado 926), exit 1 medido. Isso mostra que a regua nao depende so da combinacao — ela tambem pega elemento tirado do fluxo normal. Hoje o rodape documenta 2 receitas (a combinacao e a HIERARQUIA) e nenhuma assercao cobre esta classe.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "controle-cartao-sem-dono",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "titulo": "O test/medir-cartao-controle.js nao e rodado por ninguem — nem npm test, nem funil, nem CI",
+      "territorio": ".github/workflows/teste.yml,ferramentas/integrar.js,package.json",
+      "camada": "esteira",
+      "aceite": "O controle passa a ser rodado por alguem, e quem escrever mostra por exit code que ele roda de verdade no lugar novo. Custo medido: 31 s.",
+      "detalhe": "Achado pelo dev-plataforma em 02/09 na entrega cartao-geometria, que NAO wirou porque workflow e funil nao sao territorio dele. O CI roda test/cartao-controle.js, que e OUTRO ARQUIVO. Desde 23/08 o medir-cartao-controle so rodou a mao. Consequencia: e o unico controle que exercita os mutantes do cartao contra a pagina real, e ele so morde quando alguem lembra de chama-lo — que e a definicao de portao que nao protege.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "cartao-decepa-primeira-tabua",
+      "estado": "livre",
+      "papel": "porteiro",
+      "titulo": "A barra do cartao publicado decepa a primeira tabua — o compartilhar.jpg le istoria — e nenhum portao olha",
+      "territorio": "ferramentas/gerar-territorio.js,ferramentas/cartao-secao.js",
+      "camada": "esteira",
+      "banca": "arte (veredito visual) + porteiro (pagina publica)",
+      "aceite": "Um portao le o TEXTO dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada. Mordida provada por injecao.",
+      "detalhe": "Achado pelo dev-plataforma em 02/09. O territorio/compartilhar.jpg COMMITADO le istoria em vez de A Historia; regerado na nuvem le ponto Historia. E a mesma familia do defeito de 23/08 (cromo vazando para dentro da imagem que o WhatsApp mostra) e PIOROU com a tabua Jogar que a main acrescentou. Nenhum portao olha para isso: os que existem cobram quem NAO pode estar no recorte, e nenhum cobra que quem PODE esteja inteiro. Cuidado ao consertar: o PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte.",
       "maquina": null,
       "desde": null
     }
