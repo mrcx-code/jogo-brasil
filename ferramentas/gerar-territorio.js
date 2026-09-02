@@ -40,6 +40,10 @@ const MED = require('./medir-secao.js');
 // O CHROME DA PLATAFORMA (arte, 22/08) — a barra de tábuas e as texturas. O TERRITÓRIO já usava
 // a paleta exata da casa (foi dela que os tokens saíram); aqui entra a mesma nav das outras 4.
 const CHROME = require('./chrome-plataforma.js');
+// O CENSO DO CARTÃO (PENDENTES 67 · 68 · 100). Uma fonte só: a mesma função que o gerador usa
+// para RECUSAR construir é a que `test/medir-cartao-controle.js` usa para recusar aprovar o
+// `compartilhar.jpg` já commitado. Os mutantes que a provam moram lá também.
+const CENSO = require('./cartao-censo.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -88,7 +92,10 @@ function lerThree() {
   const honestidade = mHon[1];
 
   // ------------------------------------------------------------------- os dados, do jogo rodando
-  const nav = await chromium.launch();
+  // PENDENTES 91/98 — `chromium.launch()` NU falha nesta maquina (o navegador esta no disco,
+  // em /opt/pw-browsers/chromium, e o que falta e dizer onde). `ABRIR.chromiumPath()` devolve
+  // undefined onde ja funcionava, entao o lancamento continua identico no CI.
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   const erros = [];
   pg.on('pageerror', (e) => erros.push(String(e)));
@@ -823,11 +830,35 @@ ${MED.script('territorio')}
   const ALVO_PAG = ABRIR('file:///' + path.join(dir, 'index.html').split(path.sep).join('/'));
   // o mesmo flag do test/ver-territorio.js — sem ele o Chromium headless recusa WebGL e a
   // página cai no recuo digno, que é uma tela de texto: cartão vazio, e ninguém veria.
-  const nav2 = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  const nav2 = await chromium.launch({ args: ['--enable-unsafe-swiftshader'], executablePath: ABRIR.chromiumPath() });
   const pg2 = await nav2.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
   const errosPag = [];
+  // A BUILD NÃO PODE DEPENDER DA MEDIÇÃO, e isto foi MEDIDO nesta rodada (02/09). Com o
+  // `chromium.launch()` nu consertado, o gerador passou a rodar nesta máquina — e passou a
+  // RECUSAR, não pelo cartão, mas porque o POST anônimo para `MEDIDA_HOST` não sai daqui:
+  //   RECUSADO: erro na página ao tirar o cartão: console: Failed to load resource: 404
+  // O §3 do CLAUDE.md é explícito: "o jogo NUNCA depende dela (adblock, servidor mudo, 503)".
+  // Uma build que quebra porque o host da contagem está fora inverte exatamente isso — e o
+  // artefato em questão é um JPEG, que não tem nada a ver com o evento. Então a falha de rede
+  // DAQUELE host (e só dele, pelo nome que `medir-secao.js` exporta — nada de string solta que
+  // envelhece à parte) é anotada e ignorada. Qualquer outro erro continua recusando a build.
+  // A ATRIBUIÇÃO NÃO É POR TEXTO, e isso importa: a linha de console do Chromium para um recurso
+  // que falhou é "Failed to load resource: …" SEM a URL, então filtrar por ela às cegas engoliria
+  // também um 404 de imagem que o cartão precisa. Em vez disso, os pedidos com falha são
+  // RECOLHIDOS COM A URL, e as linhas de console de recurso só são perdoadas quando TODA URL que
+  // falhou naquela carga é a da medição. Se qualquer outra falhar, tudo volta a recusar.
+  const ruidoMedicao = [];
+  const urlsFalhas = [];
+  const doHostDaMedicao = (u) => u.indexOf(MED.MEDIDA_HOST) === 0;
+  const consoleRecurso = [];
   pg2.on('pageerror', (e) => errosPag.push('pageerror: ' + e));
-  pg2.on('console', (m) => { if (m.type() === 'error') errosPag.push('console: ' + m.text()); });
+  pg2.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    const t = 'console: ' + m.text();
+    (/Failed to load resource/.test(t) ? consoleRecurso : errosPag).push(t);
+  });
+  pg2.on('requestfailed', (r) => urlsFalhas.push(r.url()));
+  pg2.on('response', (r) => { if (r.status() >= 400) urlsFalhas.push(r.url()); });
   await pg2.goto(ALVO_PAG);
   // `__pronto` marca o fim da ENTRADA da câmera (1400 ms) + 600. Os pinos só terminam de
   // acender em 1400 + 4*80 + 260 = 1980 ms, e o pulso deles fica bom um respiro depois —
@@ -842,6 +873,17 @@ ${MED.script('territorio')}
   // Os dois cabem folgados na faixa de 20 a 300 KB. Um cartão de link é a única coisa deste
   // repositório que ninguém revê depois de publicada — o robô da rede social busca uma vez e
   // guarda por semanas. Então quem cobra é o estado da CENA, não o tamanho do arquivo.
+  // O DEFEITO ENFIADO DE PROPÓSITO (EQUIPE.md 2.8) — `CARTAO_MUTANTE=m100 node ferramentas/gerar-territorio.js`
+  // injeta na página, ANTES das pós-condições, o mutante de mesmo nome de `ferramentas/cartao-censo.js`,
+  // e a build TEM de sair 1. Régua de cartão que ninguém viu recusando é decoração, e esta já foi
+  // decoração duas vezes: em 23/08 (cobrava esforço) e em 02/09 (cobrava nome). Sem a variável,
+  // nada muda — a linha é inerte no caminho normal.
+  const MUTANTE = process.env.CARTAO_MUTANTE || '';
+  if (MUTANTE) {
+    if (!CENSO.MUTANTES[MUTANTE]) throw new Error('CARTAO_MUTANTE desconhecido: ' + MUTANTE + ' (há: ' + Object.keys(CENSO.MUTANTES).join(', ') + ')');
+    await pg2.evaluate(CENSO.MUTANTES[MUTANTE]);
+    console.log('  !! CARTAO_MUTANTE=' + MUTANTE + ' injetado na página — a build TEM de recusar');
+  }
   const semWebGL = await pg2.evaluate(() => document.body.classList.contains('sem'));
   if (semWebGL) throw new Error('RECUSADO: a página caiu no recuo sem WebGL — o cartão sairia sem mapa (medido: 54 KB, dentro da faixa de peso)');
   const acesos = await pg2.evaluate(() => window.__acesos());
@@ -908,58 +950,47 @@ ${MED.script('territorio')}
   }, MED.ID_BOTAO);
   console.log('  exclusão do cartão escondeu ' + foraDoCartao.length + ' nó(s): ' + foraDoCartao.join(', '));
 
-  // PÓS-CONDIÇÃO, NÃO ESFORÇO (PENDENTES 67, voto do QA em 23/08, revisto em 02/09).
+  // PÓS-CONDIÇÃO POR CENSO — quem PODE aparecer, não quem é proibido (PENDENTES 67 · 68 · 100).
   //
-  // A régua ANTERIOR era "escondeu pelo menos 2 nós" — quantos nós a exclusão tocou. Isso cobra
-  // ESFORÇO, e o QA reproduziu o caminho de volta com os DOIS PORTÕES VERDES: alguém embrulha o
-  // interruptor num `<span style="position:sticky">`, o BOTÃO em si vira `position:static` (o
-  // wrapper é quem flutua agora, não ele) e muda de id. A exclusão de cima ainda esconde ".med"
-  // e ".vaoMedida" — dois nós, o "esforço" antigo continuava satisfeito — mas nem o `#idBotao`
-  // (o id mudou) nem "flutua && matches(ALVOS)" (o próprio botão deixou de flutuar) alcançam o
-  // interruptor, que fica visível dentro do quadro.
+  // A régua de 23/08 cobrava ESFORÇO ("escondeu pelo menos 2 nós"). A de 02/09 passou a cobrar
+  // RESULTADO ("sobrou algum controle?"), e isso pegou os dois mutantes conhecidos — mas continuou
+  // reconhecendo o alvo por COMO ELE SE CHAMA (id, `aria-label`, `position`), e o que se chama pode
+  // ser renomeado: uma linha a mais (trocar o `id` E o `aria-label` juntos) devolvia a tábua
+  // MEDIÇÃO ao recorte com os dois portões verdes. É o PENDENTES 100, com dump.
   //
-  // A régua agora é RESULTADO: depois da exclusão, relê o quadro com OS MESMOS OLHOS do
-  // instrumento do QA (`test/medir-cartao-controle.js`, `ehControleParanoico` + `flutua`) e
-  // recusa se sobrou QUALQUER controle — não importa quantos a exclusão escondeu para chegar lá.
+  // AGORA A LISTA MUDOU DE LADO. O censo pergunta, de todo elemento interativo cujo RETÂNGULO cai
+  // dentro do recorte 1200x630 — flutuando ou não, com id ou sem —, se ele está na lista do que
+  // este cartão deve conter. A lista é derivada do dado que gerou a página: os links da barra saem
+  // do `<nav>` que o `chrome-plataforma.js` acabou de escrever, e as tábuas de lugar saem de
+  // `D.pontos`, o mesmo MAPA_PONTOS extraído do jogo lá em cima. Renomear deixou de ser fuga e
+  // virou a forma mais rápida de cair FORA da lista.
   //
-  // ESTE CORPO TEM DE FICAR IDÊNTICO ao `ehControleParanoico` de test/medir-cartao-controle.js —
-  // é cópia de propósito (a mesma razão do `ALVOS_CONTROLE` ali: um instrumento que só reformula
-  // o próprio gerador com outras palavras não é um segundo par de olhos). Mudou lá, mude aqui.
-  const sobrouControle = await pg2.evaluate(([L, A]) => {
-    function ehControleParanoico(e) {
-      if (e.matches('button, [role="button"], input, select, summary, [onclick], label, [contenteditable]')) return true;
-      const tab = e.getAttribute('tabindex');
-      if (tab !== null && tab !== '-1') return true;
-      if (e.matches('a[href]') && !e.closest('.barra')) return true;
-      return false;
-    }
-    const achados = [];
-    document.querySelectorAll('body *').forEach((e) => {
-      const s = getComputedStyle(e);
-      const flutua = s.position === 'fixed' || s.position === 'sticky';
-      if (!(flutua && ehControleParanoico(e))) return;
-      if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return;
-      const r = e.getBoundingClientRect();
-      if (r.width < 1 || r.height < 1) return;
-      if (r.right <= 0 || r.bottom <= 0 || r.left >= L || r.top >= A) return;
-      achados.push({ alvo: (e.id ? '#' + e.id : e.tagName.toLowerCase() + '.' + (e.className || '')),
-        x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) });
-    });
-    return achados;
-  }, [1200, 630]);
-  if (sobrouControle.length) {
-    throw new Error('RECUSADO: sobrou controle no quadro depois da exclusão do cartão: '
-      + JSON.stringify(sobrouControle));
+  // O porquê de não ser "zero interativo no recorte" está medido no cabeçalho de
+  // `ferramentas/cartao-censo.js`: são NOVE os elementos interativos legítimos deste cartão (4
+  // links da barra + 5 tábuas de lugar), e a régua ingênua reprovaria o desenho certo.
+  //
+  // UMA FONTE, DOIS CHAMADORES: `test/medir-cartao-controle.js` chama a MESMA função, em vez da
+  // cópia que jurava ser idêntica a esta e não era.
+  const permitidos = CENSO.permitidosTerritorio(CHROME.barraHtml('territorio'), D.pontos);
+  const estranhos = await pg2.evaluate(CENSO.censoDoQuadro,
+    [CENSO.L, CENSO.A, permitidos, CENSO.SELETOR_INTERATIVO]);
+  if (estranhos.length) {
+    throw new Error('RECUSADO: o cartão do TERRITÓRIO tem elemento interativo fora da lista de '
+      + 'permitidos dentro do recorte ' + CENSO.L + 'x' + CENSO.A + ': ' + JSON.stringify(estranhos));
   }
 
-  // A SEGUNDA METADE, e é a que a pós-condição de cima NÃO cobre sozinha: o mutante do QA tira
-  // exatamente a marca "flutua" do BOTÃO (só o wrapper flutua), então a varredura acima — que só
-  // olha o próprio elemento, de propósito, para não reprovar as cinco tábuas de lugar que moram
-  // dentro do "#palco"/".env" fixos — não o alcança. O que aquele truque NÃO apaga é A FRASE: o
-  // rótulo "medição" e o `aria-label` "Medição ligada/desligada" são o contrato deste botão com
-  // quem lê, e ninguém reescreve os dois só para escapar de um teste. Então o alvo nomeado é
-  // achado por DOIS caminhos independentes — o id que `MED.ID_BOTAO` exporta OU a frase — e
-  // qualquer um dos dois, se ainda visível no quadro depois da exclusão, recusa a build.
+  // O ALVO NOMEADO — que o censo acima JÁ SUBSUME, e por isso mesmo fica.
+  //
+  // Ele era a segunda metade quando a primeira exigia "flutua". Não é mais: o censo pega o
+  // interruptor por retângulo, sem perguntar como ele se chama, e foi visto pegando os sete
+  // mutantes. Mantê-lo custa um `evaluate` e paga por dois motivos concretos: (1) se algum dia a
+  // lista de permitidos for alargada por engano — que é o modo de falha de toda lista positiva —,
+  // este aqui continua nomeando o alvo que já quebrou o cartão uma vez; (2) a mensagem de erro
+  // dele diz "o interruptor de medição", que é o diagnóstico, enquanto o censo diz "elemento fora
+  // da lista", que é o sintoma. Duas leituras discordando é informação; uma só não é.
+  //
+  // O que ele NÃO é mais: suficiente. Trocar o `id` E o `aria-label` juntos passa por aqui limpo —
+  // é o PENDENTES 100, e é o censo que fecha aquilo, não esta função.
   const alvoNomeado = await pg2.evaluate(([L, A, idBotao]) => {
     const porId = document.getElementById(idBotao);
     const porFrase = Array.from(document.querySelectorAll('[aria-label]'))
@@ -983,6 +1014,16 @@ ${MED.script('territorio')}
   await pg2.waitForTimeout(120);
   await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });
   await nav2.close();
+  // a atribuição das linhas "Failed to load resource", agora que a carga terminou e as URLs que
+  // falharam estão todas recolhidas.
+  const falhasForaDaMedicao = urlsFalhas.filter((u) => !doHostDaMedicao(u));
+  falhasForaDaMedicao.forEach((u) => errosPag.push('recurso falhou: ' + u));
+  if (falhasForaDaMedicao.length) errosPag.push.apply(errosPag, consoleRecurso);
+  else ruidoMedicao.push.apply(ruidoMedicao, consoleRecurso);
+  if (ruidoMedicao.length) {
+    console.log('  (a medição não saiu desta máquina e isso NÃO recusa a build — §3: o jogo nunca '
+      + 'depende dela: ' + ruidoMedicao.length + ' ocorrência(s), ex.: ' + ruidoMedicao[0] + ')');
+  }
   if (errosPag.length) throw new Error('RECUSADO: erro na página ao tirar o cartão: ' + errosPag[0]);
 
   const kbShot = fs.statSync(shot).size / 1024;

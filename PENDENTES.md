@@ -3494,3 +3494,62 @@ qual for o `id` ou o rótulo. Nome é atributo do autor; retângulo não é.
 **Nota de máquina, não da entrega:** `medir-cartao-controle.js` e `gerar-territorio.js` chamam
 `chromium.launch()` **puro**, sem `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num terceiro lugar,
 pré-existente ao diff. Na nuvem isso exigiu contorno para rodar.
+
+### FECHADO em 02/09 por `entrega/cartao-geometria` (dev-plataforma) — e o que a hipótese custou
+
+**A saída proposta ("nenhum elemento interativo dentro do recorte") FOI MEDIDA E É FALSA.** Contra
+a página real, depois da exclusão do gerador, há **NOVE elementos interativos legítimos** dentro do
+1200x630: 4 links `a.tabua` da barra e 5 tábuas de lugar `button.pl` (União dos Palmares AL · Rio
+de Janeiro RJ · Salvador BA · Santos SP · Brasília DF), todos `position:static`, todos no cartão
+desde 21/08. A régua ingênua reprovaria o desenho CERTO — e régua que reprova o certo é a que
+alguém afrouxa inteira na primeira vez que ela grita.
+
+**O que entrou no lugar, e a virada é de lado da lista:** `ferramentas/cartao-censo.js`. A régua
+deixa de enumerar o que é PROIBIDO (lista de nomes, infinita, sempre um rename atrás) e passa a
+enumerar o que é PERMITIDO, derivado do dado que gerou a página — os `href` E os rótulos do `<nav>`
+que o `chrome-plataforma.js` escreveu, e as tábuas de lugar de `D.pontos`. Quem cai dentro do
+recorte e não está na lista, reprova: **flutuando ou não, com id ou sem, com qualquer `aria-label`.**
+Renomear deixou de ser fuga e virou a forma mais rápida de cair FORA da lista.
+
+**A geometria entra duas vezes:** (1) quem é INSPECIONADO é decidido por retângulo, não por
+`position` — é isso que alcança o mutante `static` do 100; (2) um permitido tem de caber na CAIXA DE
+ROLAGEM do contêiner que ele diz ser dele, o que derruba o impostor que rouba identidade legítima e
+se muda de lugar.
+
+**Sete mutantes, todos vistos reprovando** (`CARTAO_MUTANTE=<nome> node ferramentas/gerar-territorio.js`,
+e o mesmo conjunto no controle de `test/medir-cartao-controle.js`): `m67` `m68` `m100` mais quatro
+ADVERSARIAIS escritos para derrubar a régua nova. **`m103` PASSOU na primeira versão** — apagar a
+tábua "A História" e vestir o interruptor com o `href` dela —, e é por causa dele que o RÓTULO
+entrou na lista junto do `href`. Mutante que já passou uma vez é a única prova de que a régua mudou
+por medição e não por gosto.
+
+**Os dois achados menores fechados junto:** o controle agora exercita os mutantes REAIS contra
+`territorio/index.html` (antes era um `<button>` genérico sticky que a lista antiga já pegava), e as
+duas cópias que juravam ser idênticas viraram **um `require`** — a assinatura da tabela do
+instrumento passou a ser `require('./cartao-censo.js')`, que prova que os dois RODAM o mesmo código
+em vez de provar que alguém escreveu as mesmas letras duas vezes.
+
+**Os três `chromium.launch()` nus foram consertados** no mesmo ramo (`ABRIR.chromiumPath()`), e o
+`test/portao-navegador.js` continua VERDE (33 arquivos no alcance).
+
+### O QUE SOBROU, e é achado novo desta rodada
+
+1. **`test/medir-cartao-controle.js` NÃO É RODADO POR NINGUÉM.** Não está no `npm test`, não está no
+   `ferramentas/integrar.js` e não está no `.github/workflows/teste.yml` (que roda o
+   `test/cartao-controle.js`, que é outro arquivo — peso e forma do `og:image`). Desde 23/08 este
+   portão só rodou à mão. É a mesma doença num degrau acima do PENDENTES 100: não adianta a régua
+   ser mais paranoica que a coisa medida se ninguém a lê. **Custo estimado: 31 s** (medido nesta
+   máquina, com os 8 carregamentos da página 3D do censo). Território: quem manda no
+   `.github/workflows/teste.yml` e no `integrar.js`.
+2. **A barra do cartão continua cortando a primeira tábua.** No `compartilhar.jpg` commitado ela lê
+   "istória"; regerado nesta máquina, ". História". É a mesma família do defeito de 23/08 ("comeu A
+   História e deixou lossário") e **nenhum portão olha para isso** — o censo cobra QUEM está no
+   quadro, não se o texto de quem está foi decepado. Piorou com a tábua "Jogar" que a `main`
+   acrescentou à barra. Território: `chrome-plataforma.js` + o enquadramento do gerador.
+3. **A build recusava porque a MEDIÇÃO não sai desta máquina.** Com o `chromium.launch()` nu
+   consertado, o gerador passou a rodar e passou a RECUSAR — não pelo cartão, mas porque o POST
+   anônimo para `MEDIDA_HOST` falha aqui: `RECUSADO: erro na página ao tirar o cartão: console:
+   Failed to load resource: 404`. O §3 manda o contrário ("o jogo NUNCA depende dela"), e um JPEG
+   não tem nada a ver com o evento. Consertado no mesmo ramo, e **sem afrouxar**: as URLs que
+   falharam são recolhidas COM a URL, e as linhas de console de recurso (que não trazem URL) só são
+   perdoadas quando TODA URL que falhou é a do host da medição. Qualquer outra volta a recusar.
