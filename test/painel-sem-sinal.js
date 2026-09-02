@@ -51,6 +51,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const HTML = process.env.PAINEL_HTML ? path.resolve(process.env.PAINEL_HTML)
@@ -377,7 +378,7 @@ const ESPERADO = {
   const fonte = fs.readFileSync(HTML, 'utf8');
   const teto = tetoDaPagina(fonte);
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   try {
     console.log('[1] O TETO E O DA PAGINA, e ele e o combinado');
     ok(teto === TETO_ACORDADO, 'SEM_SINAL_MIN da pagina e ' + TETO_ACORDADO + ' min', teto);

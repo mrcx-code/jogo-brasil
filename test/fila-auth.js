@@ -653,27 +653,46 @@ const estado = pag => pag.evaluate(() => ({
   }
 
   // ---------------------------------------------------------------- 16
-  console.log('\n[16] AS SQUADS — agrupa na ordem, e o refresh NAO duplica card');
+  console.log('\n[16] AS DUAS FAIXAS — quem trabalha sobe, quem esfria desce, e o refresh NAO duplica card');
   cenas++;
-  // A organizacao em squads (dono, 21/08) tem um risco que nao e visual: `atualizaAg` cacheia
-  // card por nome e a pagina recarrega sozinha a cada 7 s. Agrupamento feito com `appendChild`
-  // a cada volta duplicaria a grade inteira sem ninguem perceber por um tempo — o painel so
-  // ficaria "estranho". Entao esta cena espera UM refresh de verdade e conta de novo.
-  // Ela mede tres coisas: a ORDEM dos cabecalhos, a ordem dos cards dentro dela, e que a
-  // squad envenenada nao vira grupo nem atributo (a lista branca decide, o servidor nao).
+  // Reescrita em 02/09 pelo plantao `nuvem-20260902T0023`. A cena nasceu para as SQUADS (dono,
+  // 21/08) e as squads SAIRAM do painel em 01/09 (ba3f609, "o painel encolhe") — ela ficou
+  // afirmando cabecalhos que a pagina nao produz mais e reprovou a `main` em 4 rodadas de CI
+  // seguidas. Nao foi enfraquecida para caber: o agrupamento continua existindo, so mudou de
+  // criterio (era `grupoDe(item.squad)`, virou `grupoBanco()`), entao ela passa a cobrar o
+  // criterio NOVO, que e mais dificil de acertar por acaso que o antigo.
+  //
+  // O risco original nao mudou e continua sendo o ponto: `atualizaAg` cacheia card por nome e a
+  // pagina recarrega sozinha a cada 7 s. Agrupamento feito com `appendChild` a cada volta
+  // duplicaria a grade inteira sem ninguem perceber por um tempo — o painel so ficaria
+  // "estranho". Entao a cena espera UM refresh de verdade e conta de novo.
+  //
+  // Ela mede quatro coisas: a ORDEM das faixas, que FRIO NAO SOBE (a regra que o painel ganhou
+  // em 01/09 depois de o dono ver quatro cartoes dizendo "agora" sobre sinal de 315 min), que o
+  // refresh nao duplica nada, e que texto de servidor envenenado nao vira atributo.
   {
     // 'Claude' (maiusculo) e o nome real da sessao principal na mesa_agente (garantirDono(),
     // 25/08) -- desde entao a tabela SEMPRE tem essa linha em producao. Usar aqui o mesmo nome
-    // exercita o caso real (a squad 'central' inclui a sessao principal) sem acionar o cartao
-    // SINTETICO que o painel acrescenta quando nenhum "Claude" exato aparece no mock.
+    // exercita o caso real sem acionar o cartao SINTETICO que o painel acrescenta quando nenhum
+    // "Claude" exato aparece no mock.
+    //
+    // A ordem do array e de proposito DIFERENTE da ordem esperada na tela: `dev-plataforma` e o
+    // 4o que o servidor manda e tem de sair em 1o lugar, porque sobe para a faixa AGORA. Se a
+    // assercao de nomes casasse com a ordem do servidor, ela nao mediria agrupamento nenhum.
+    const AGORA = new Date().toISOString();          // sinal fresco: sobe
+    const VELHO = '2026-08-21T00:00:00Z';            // muito alem do SEM_SINAL_MIN: nao sobe
     const linhas = [
-      { nome: 'dev-plataforma', squad: 'plataforma', ordem: 1 },
-      { nome: 'Claude', squad: 'central', ordem: 2 },
-      { nome: 'historiador', squad: 'acervo', ordem: 3 },
-      { nome: 'arte', squad: 'jogo', ordem: 4 },
-      { nome: 'fantasma', squad: 'x" onmouseover="window.__xss=9', ordem: 5 },
-      { nome: 'orfa', squad: null, ordem: 6 },
-    ].map(l => Object.assign({ papel: 'papel', cor: '#7d8479', status: 'espera', atividade: '', ativo_em: '2026-08-21T00:00:00Z' }, l));
+      // trabalhando, mas SEM SINAL ha dias: o caso que o dono pegou no celular. Desce.
+      { nome: 'Claude', status: 'trabalhando', ativo_em: VELHO, ordem: 1 },
+      { nome: 'historiador', ordem: 2 },
+      { nome: 'arte', ordem: 3 },
+      // o unico que sobe: trabalhando E com sinal de agora
+      { nome: 'dev-plataforma', status: 'trabalhando', ativo_em: AGORA, ordem: 4 },
+      // veneno nos DOIS campos de servidor que a pagina desenha: `cor` entra por innerHTML (foi
+      // o vetor real da auditoria de 21/08, hoje contido por regex) e `atividade` entra no papel.
+      { nome: 'fantasma', cor: 'x" onmouseover="window.__xss=9', atividade: 'y" onmouseover="window.__xss=9', ordem: 5 },
+      { nome: 'orfa', ordem: 6 },
+    ].map(l => Object.assign({ papel: 'papel', cor: '#7d8479', status: 'espera', atividade: '', ativo_em: VELHO }, l));
     const { ctx, pag, erros } = await palco(nav, { leitura: { mesa_agente: linhas } });
     const ler = () => pag.evaluate(() => {
       const comOn = [];
@@ -690,17 +709,17 @@ const estado = pag => pag.evaluate(() => ({
     await pag.waitForTimeout(600);
     const a = await ler();
     ok(a.cards === 6, 'os 6 agentes viraram 6 cards (a cena mede algo)', String(a.cards));
-    ok(a.cabs === 'CENTRAL | SQUAD JOGO | SQUAD PLATAFORMA | SQUAD ACERVO',
-      'os cabecalhos saem na ordem central -> jogo -> plataforma -> acervo', a.cabs);
-    ok(a.nomes === 'Claude,arte,dev-plataforma,historiador,fantasma,orfa',
-      'os cards seguem a squad, nao a ordem do servidor, e quem nao tem squad fica no fim', a.nomes);
+    ok(a.cabs === 'AGORA — trabalhando | BANCO DE RESERVAS — esperando para entrar',
+      'a faixa AGORA vem primeiro e o banco embaixo', a.cabs);
+    ok(a.nomes === 'dev-plataforma,Claude,historiador,arte,fantasma,orfa',
+      'so quem trabalha COM SINAL sobe: o 4o do servidor sai em 1o, e o frio desce', a.nomes);
     ok(a.comOn.length === 0 && !a.veneno && a.xss === undefined,
-      'a squad envenenada nao virou atributo nem grupo', a.comOn.join(',') + ' veneno=' + a.veneno);
+      'o texto de servidor envenenado nao virou atributo', a.comOn.join(',') + ' veneno=' + a.veneno);
     // o painel recarrega sozinho a cada 7 s; esperar o refresh e o ponto da cena
     await pag.waitForTimeout(7600);
     const b = await ler();
     ok(b.cards === 6, 'depois de um refresh de verdade continuam 6 cards (nada duplicou)', String(b.cards));
-    ok(b.cabs === a.cabs, 'e nenhum cabecalho de squad nasceu de novo', b.cabs);
+    ok(b.cabs === a.cabs, 'e nenhum cabecalho de faixa nasceu de novo', b.cabs);
     ok(erros.length === 0, 'zero erro de console', erros.join(' | '));
     await ctx.close();
   }

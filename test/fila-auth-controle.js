@@ -100,13 +100,18 @@ const DEFEITOS = [
     ],
   },
   {
-    // As squads (dono, 21/08). Defeito 1: o agrupamento simplesmente nao existe — e o estado
-    // de ontem, com os cards soltos na ordem do servidor. Se a cena 16 passar assim, ela nao
-    // esta medindo o agrupamento, esta medindo que a pagina abre.
-    id: 'squads · o agrupamento por squad some (card solto na grade)',
+    // As duas faixas. Defeito 1: o agrupamento simplesmente nao existe — e o estado de ontem,
+    // com os cards soltos na ordem do servidor. Se a cena 16 passar assim, ela nao esta medindo
+    // o agrupamento, esta medindo que a pagina abre.
+    //
+    // RE-APONTADO em 02/09 (`nuvem-20260902T0023`): o alvo era a linha das SQUADS, que saiu do
+    // painel em 01/09 (ba3f609). O controle fez exatamente o que devia — parou com "o controle
+    // envelheceu" (exit 2) em vez de aprovar calado —, e o conserto e re-apontar, nao apagar: o
+    // agrupamento continua vivo, so trocou de criterio (`grupoDe(item.squad)` -> `grupoBanco()`).
+    id: 'faixas · o agrupamento some (card solto na grade)',
     cena: '[16]',
     pares: [[
-      `    var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);
+      `    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoBanco();
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo`,
       '    g.appendChild(card);',
     ]],
@@ -115,9 +120,24 @@ const DEFEITOS = [
     // Defeito 2, e e o que o dono pediu para nao acontecer: o grupo deixa de ser criado UMA
     // vez. Com isto cada volta do refresh de 7 s cria invólucro e cabecalho novos — a grade
     // some aos poucos atras de cabecalhos repetidos, sem erro de console, sem nada quebrar.
-    id: 'squads · o grupo renasce a cada volta (o refresh duplica os cabecalhos)',
+    // Re-apontado em 02/09 junto com o de cima: a memoizacao deixou de ser um mapa `grupos[]`
+    // e virou duas variaveis, uma por faixa.
+    id: 'faixas · a faixa renasce a cada volta (o refresh duplica os cabecalhos)',
     cena: '[16]',
-    pares: [['    if(grupos[chave]) return grupos[chave];', '    if(false) return grupos[chave];']],
+    pares: [['    if(faixaAgora) return faixaAgora;', '    if(false) return faixaAgora;']],
+  },
+  {
+    // Defeito 3, NOVO em 02/09, e ele guarda a regra que o DONO pegou antes de nos: cartao que
+    // diz "trabalhando" e nao da sinal ha horas nao pode ficar na faixa AGORA (01/09 — quatro
+    // cartoes na faixa AGORA com sinal de 315 min; palavras dele: "nao faz sentido manter algo
+    // q nunca vai mostrar a realidade"). Sem o `!frio` a posicao volta a mentir mesmo com o
+    // rotulo honesto — e posicao afirma tanto quanto texto.
+    id: 'faixas · o frio volta a subir (a faixa AGORA mente de novo, agora so na posicao)',
+    cena: '[16]',
+    pares: [[
+      '    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoBanco();',
+      '    var alvo=(st==="trabalhando")?grupoAgora():grupoBanco();',
+    ]],
   },
   {
     // PIN, 22/08. O gate de localhost e uma linha so, e uma linha so e exatamente o tipo de
