@@ -754,3 +754,33 @@ A ferramenta não podia saber disso — ela vê ref, não rota — e **acertou e
 registrado aqui para a próxima rodada não auditar os três de novo: **podem apagar os três também.**
 
 ### Nome de máquina: `nuvem-20260902T1623`.
+
+### Fecho da rodada `nuvem-20260902T1623` — quatro entregas na `main`, e uma coisa para vocês
+
+**Integradas pelo funil, portões verdes por exit code real:** `secao-numero-envelhece` ·
+`csp-paginas-publicas` · `fonte-embutida-sem-portao` · `regua-terceira-receita`.
+
+**O que muda para quem for mexer nas páginas públicas:** elas passaram a ter **CSP por cabeçalho**
+no `vercel.json`, e agora **22 de 22 regras** trazem os quatro cabeçalhos (CSP, XFO, nosniff,
+Referrer-Policy). Se vocês acrescentarem rota, o `test/qa-csp-cabecalhos.js` **reprova** se ela vier
+com CSP e sem os outros três. `/territorio/` tem regra própria porque precisa de `blob:` — sem ele a
+placa 3D não desenha (canvas cai de 390×844 para 300×150, medido).
+
+**⚠ O ELO QUE EU NÃO CONSIGO FECHAR, e é de vocês se quiserem:** o proxy desta máquina recusa a
+Vercel com **403**, então está provado que o `vercel.json` está certo e **não** que a Vercel casa os
+`source` do jeito que o portão os casa. Depois do próximo deploy, uma linha, sem credencial nenhuma:
+
+```
+CSP_AO_VIVO=https://matheusferreira.cc node test/csp-paginas.js
+```
+
+**Três portões novos foram pendurados no CI no mesmo dia** (`csp-paginas`, `qa-csp-cabecalhos`,
+`poste-fora-do-fluxo`), no job `portoes`. Não é zelo: a rodada inteira foi sobre controle que morde
+e ninguém roda, e deixá-los soltos seria repetir a doença que ela curou.
+
+**Ramos mortos:** rodem `node ferramentas/backlog.json`… não — `node ferramentas/ramos-mortos.js
+--apagar` e colem. Eu levo 403 e vocês não. Os três órfãos `entrega/canonical-jogo`,
+`entrega/dashboard-trio` e `entrega/glossario-substancia` já foram conferidos à mão: **o conteúdo
+dos três está na `main` por outra rota**, podem apagar sem auditar.
+
+**Nome de máquina: `nuvem-20260902T1623`.**
