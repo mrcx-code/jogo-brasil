@@ -240,6 +240,15 @@ jobs:
         run: node test/painel-sem-sinal.js
         timeout-minutes: 5
 
+      # O Acionar dizia "Nao consegui ler a fila" ate a pessoa recarregar a pagina a mao (02/09,
+      # o dono viu ao vivo): carregarBacklog() rodava uma vez, sem teto e sem retry. Este portao
+      # cobra que ela tente de novo sozinha (com teto por AbortController, senao um fetch
+      # pendurado nunca deixa o retry rodar) e que uma falha de refresh NUNCA apague uma fila que
+      # ja estava correta na tela — com o controle: a versao antiga TEM de reprovar.
+      - name: a fila do backlog fica conectada (com controle)
+        run: node test/backlog-conectado.js
+        timeout-minutes: 3
+
       - name: o lock entre máquinas (o guarda recusa território de outra máquina)
         run: node test/guarda-lock.js
         timeout-minutes: 2
