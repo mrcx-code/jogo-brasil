@@ -53,6 +53,34 @@ const path = require('path');
 const ABRIR = require('./abrir.js');
 const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
+// A CURA ERA PELA METADE (PENDENTES 69, achado do QA em 23/08): esperar `.aberta` não é
+// esperar a mobília PARAR. `estilo.css:587` roda `brota .42s` em `#telaMenu.aberta > *`, com
+// `.12s` de atraso no terceiro filho (o poste) — a tela só assenta em ~540ms, e uma régua que lê
+// geometria antes disso mede um layout que ainda está andando. Medido nesta rodada, na MESMA
+// máquina: com só a espera de `.aberta`, o `#btnConfig` ainda se move até 18px depois da leitura
+// em 3 de 6 telas.
+//
+// O CONSERTO É O MESMO `telaParada()` que o `test/encaixe.js` já usa (linha 75 de lá, 21/08) —
+// reaproveitado aqui, não reinventado. Ele não fica num módulo compartilhado porque o território
+// desta rodada é só este arquivo e o `fila-auth.js`: `encaixe.js` não expõe `module.exports`,
+// então importar de lá rodaria a suíte inteira dele por engano. A cópia é intencional e a
+// implementação é idêntica; se o `encaixe.js` mudar essa função, releia-a aqui.
+async function telaParada(pg, id) {
+  return await pg.evaluate(async (id) => {
+    const t0 = performance.now();
+    const tela = document.getElementById(id);
+    if (!tela) return { ms: 0, quantas: 0, achou: false };
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const vivas = (tela.getAnimations ? tela.getAnimations({ subtree: true }) : [])
+      .filter(a => a.animationName !== 'respira' && a.playState !== 'idle')
+      .filter(a => !(a.effect && a.effect.getTiming && a.effect.getTiming().iterations === Infinity))
+      .map(a => a.finished.catch(() => {}));
+    await Promise.race([Promise.all(vivas), new Promise(r => setTimeout(r, 20000))]);
+    await new Promise(r => requestAnimationFrame(r));
+    return { ms: Math.round(performance.now() - t0), quantas: vivas.length, achou: true };
+  }, id);
+}
+
 // largura -> piso de fonte legível naquela largura (da tabela de faixas da direção de arte)
 const TELAS = [
   { nome: 'tablet retrato',   w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
@@ -80,6 +108,10 @@ const TELAS = [
     await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
       && document.getElementById('telaMenu').classList.contains('aberta'),
       null, { timeout: 30000 }).catch(() => {});
+    // METADE QUE FALTAVA (PENDENTES 69): `.aberta` só diz que a classe foi ligada, não que a
+    // mobília do menu parou de andar (`brota .42s`, atraso de .12s no poste). Sem isto a régua
+    // mede um layout ainda em movimento.
+    await telaParada(pg, 'telaMenu');
     if (process.env.REGUA_DEFEITO) {
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
     }
@@ -312,6 +344,9 @@ const TELAS = [
     await pg.waitForFunction(() => typeof S !== 'undefined' && !!document.getElementById('telaMenu')
       && document.getElementById('telaMenu').classList.contains('aberta'),
       null, { timeout: 30000 }).catch(() => {});
+    // mesma metade que faltava: as tábuas lidas abaixo (`m.tabuas`, `#poste`, `#menuSub`) também
+    // brotam — esperar a mobília parar antes de ler geometria.
+    await telaParada(pg, 'telaMenu');
     if (process.env.REGUA_CHAO) {
       await pg.evaluate((d) => {
         // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a
@@ -418,10 +453,42 @@ const TELAS = [
 })();
 
 // AUTOTESTE (lição EQUIPE.md 2.8 — instrumento nunca visto reprovando é decoração):
-//   REGUA_DEFEITO='#telaMenu{overflow-y:hidden!important}' node test/regua-larga.js
-// prende CONFIGURAÇÕES em 926×428 (e em toda tela cujo poste dependa da rolagem) e reprova por
-// exit code. A primeira versão desta asserção (com `scrollIntoView`) NÃO mordia esse defeito —
-// ver o comentário grande acima. Reprova de verdade com a versão atual, verificado nesta rodada.
+// ESTE BLOCO JÁ FOI ACHADO DECORAÇÃO UMA VEZ — item `regua-autoteste-morto` (02/09). O efeito
+// colateral CORRETO de `telaParada()` (PENDENTES 69/70c) é que `#telaMenu` deixou de ter
+// overflow de verdade nas seis telas largas: medido nesta rodada, `scrollHeight === clientHeight`
+// nas seis, contra o antigo 786×768 (18px de sobra que era só a mobília ainda andando). Sem
+// overflow para começo de conversa, `#telaMenu{overflow-y:hidden!important}` sozinho não tem o
+// que esconder — testado isoladamente nesta rodada: PASSOU nas seis, exit 0. O exemplo tinha
+// virado decoração.
+//
+//   REGUA_DEFEITO='#poste{margin-top:250px!important} #telaMenu{overflow-y:hidden!important}' \
+//     node test/regua-larga.js
+//
+// O DEFEITO GANHOU COMPANHIA em vez de sair, porque a asserção que ele guarda (o resgate por
+// `overflow-y` REAL, não `scrollIntoView`) só é exercitada quando existe overflow de verdade para
+// resgatar. `margin-top:250px` no `#poste` é o estande-in para "a marcenaria cresceu" — o mesmo
+// tipo de mudança que já quebrou o deitado quando o GLOSSÁRIO virou a quinta tábua (comentário
+// de `estilo.css` sobre o `#telaMenu{overflow-y:auto}`, logo acima da regra). Medido nesta
+// rodada, testado SEPARADO antes de combinar (para não confundir "cresceu" com "ficou preso"):
+//
+//   só `margin-top:250px` no poste (overflow-y:auto intacto) — PASSOU nas seis, exit 0. Cria
+//   overflow real em 3 das 6 (tablet retrato 1111×1024, landscape 899 665×500, phone deitado 926
+//   449×428), mas a régua rola de verdade e alcança, porque a rolagem AINDA FUNCIONA — não é
+//   decoração, é resgate legítimo. Nas outras 3 (tablet paisagem, notebook, ultrawide) a grade
+//   cinemática absorve a margem na linha do logo (`grid-template-rows: minmax(0,1fr) auto auto`,
+//   estilo.css ~1009) e nem chega a criar overflow — o painel é feito para não estourar sozinho.
+//
+//   só `overflow-y:hidden` (sem crescer o poste) — PASSOU nas seis, exit 0, pela razão do
+//   parágrafo acima: nada para esconder.
+//
+//   OS DOIS JUNTOS — cresce E perde a rolagem — REPROVA em exatamente 3 de 6 (as mesmas três que
+//   ganham overflow: tablet retrato, landscape 899, phone deitado 926), exit 1. É a combinação
+//   plausível: a marcenaria ganha uma tábua (já aconteceu uma vez) NO MESMO commit em que a
+//   rolagem quebra (typo, merge, refactor) — não duas coisas que acontecem juntas por acaso, mas
+//   o tipo de regressão em que se fica cego para a segunda por já ter mexido na primeira. A
+//   primeira versão desta asserção (com `scrollIntoView`) NÃO mordia nem esta combinação — ver o
+//   comentário grande acima. Reprova de verdade com a versão atual (exit 1 com o defeito, exit 0
+//   sem — as duas saídas de terminal desta rodada estão no NOTES.md).
 //
 // E o autoteste da HIERARQUIA (21/08), pela mesma lição:
 //   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'

@@ -8,6 +8,40 @@
   },
   "itens": [
     {
+      "id": "cartao-margem-esquerda",
+      "estado": "livre",
+      "papel": "arte",
+      "titulo": "A margem esquerda de 268 px do molde e que produz o istoria no recorte quadrado — nao a largura da fonte",
+      "territorio": "ferramentas/cartao-secao.js,ferramentas/chrome-plataforma.js",
+      "camada": "esteira",
+      "aceite": "A primeira tabua sobrevive ao recorte QUADRADO centrado (x 285..915), nao so ao 1200x630. Mordida provada por injecao. Medir antes e depois no recorte quadrado, nao no canvas cheio — e o quadrado que produz o defeito.",
+      "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada."
+    },
+    {
+      "id": "fonte-embutida-sem-portao",
+      "estado": "em-curso",
+      "papel": "dev-plataforma",
+      "titulo": "O test/cartao-fonte-embutida.js existe e morde, mas ninguem o roda — a mesma doenca que acabamos de curar ao lado",
+      "territorio": "package.json,.github/workflows/teste.yml,ferramentas/integrar.js,test/cartao-controle.js",
+      "camada": "esteira",
+      "aceite": "As tres recusas novas passam a ser rodadas por alguem (npm test, CI ou funil), provado por exit code no lugar novo. Alternativa igualmente boa: fundir as tres injecoes na lista DEFEITOS do test/cartao-controle.js, uma linha por defeito.",
+      "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
+    },
+    {
+      "id": "csp-paginas-publicas",
+      "estado": "em-curso",
+      "papel": "porteiro",
+      "titulo": "As cinco paginas publicas nao tem NENHUMA Content-Security-Policy — so o jogo tem",
+      "territorio": "vercel.json,ferramentas/chrome-plataforma.js,ferramentas/gerar-porta.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-territorio.js",
+      "camada": "esteira",
+      "aceite": "As paginas publicas passam a ter CSP, e um portao reprova por exit code a pagina publicada sem ela. Mordida provada por injecao: exit 1 com a CSP removida de uma delas, exit 0 com todas. A CSP escrita por extenso, sem curinga, como manda o CLAUDE.md §3 — e o commit diz o que passou a ser permitido.",
+      "detalhe": "Achado pelo porteiro em 02/09 na entrega cartao-fonte-embutida, FORA do escopo dela. Conferido por mim (nuvem-20260902T1234) com grep proprio: plataforma/, glossario/, historia/, de-onde-vem/ e territorio/ tem ZERO ocorrencia de Content-Security-Policy; so o index.html do jogo tem 1. O vercel.json so declara headers para /dashboard, /dashboard/ e /dashboard/(.*) — as cinco paginas ficam descobertas nas duas pontas, nem no HTML nem no cabecalho de servidor. O CLAUDE.md §3 trata a CSP como trava seria e ela existe no jogo desde 10/08; as paginas publicas nasceram depois e nunca ganharam a sua. Risco hoje e baixo (paginas estaticas, sem entrada de usuario, sem credencial), mas sao paginas de PRODUCAO e push na main publica sozinho.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
+    },
+    {
       "id": "backlog-no-dashboard",
       "titulo": "O backlog na tela do dashboard, conectado as equipes",
       "detalhe": "Decisao do dono 22/08: \"bora passar o backlog pro dash e conectar com as equipes, quero tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo\". O dashboard passa a mostrar o backlog.json (itens, estado, agente, TERRITORIO e camada), com reordenacao do dono protegida pelo hash anti-lost-update que o POST /backlog ja exige (PENDENTES 48). Aceite: (a) o dono ve e reordena a fila no celular; (b) a tela mostra, por item, se o territorio esta LIVRE ou colidindo com item em voo (o dado e o campo territorio deste arquivo — regra: disjuntos = simultaneo, intersecao = sequencial, src/jogo.ts exclusivo); (c) escrita continua pelo caminho ja auditado (RLS/fila), zero rota nova sem a seguranca; (d) squads/agentes da mesa aparecem ao lado da fila (mesa_agente ja agrupada por squad).",
@@ -462,13 +496,13 @@
     {
       "id": "endurecer-portoes",
       "titulo": "Uma rodada so de endurecimento: fecha PENDENTES 67 a 74",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "territorio": "test/,ferramentas/gerar-territorio.js",
       "camada": "esteira",
-      "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado.  ||  ESTADO EM 02/09 (nuvem-20260902T0023): 73 JA ESTAVA FEITO desde 01/09 (e2d92a3) e so faltava marcar — feito. 70(a) e 70(b) fechados em 31/08. Restam ENTREGUES E NAO INTEGRADOS, tres ramos JA EMPURRADOS para a origin — NAO REFACA, va ao funil: entrega/portao-cartao-pos-condicao (5908bba, PENDENTES 67+68), entrega/rodape-quatro-gaps (dd3d36b, PENDENTES 74 a-d), entrega/regua-parada-e-fila-paralela (6b89523, PENDENTES 69+70c). Falta so o funil dos tres.",
-      "maquina": "nuvem-20260902T0023",
-      "desde": "2026-09-02T00:25:12.811Z",
+      "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado.  ||  ESTADO EM 02/09 (nuvem-20260902T0423, o funil que faltava): 71, 72 e 73 ja estavam RESOLVIDOS; 70(a) e 70(b) fecharam em 31/08. DOIS dos tres ramos foram INTEGRADOS E EMPURRADOS nesta rodada, com mordida provada por injecao: entrega/regua-parada-e-fila-paralela (PENDENTES 69+70c) e entrega/rodape-quatro-gaps (PENDENTES 74 a-d, mordida 4 de 4). SOBRA SO O 67+68: o ramo entrega/portao-cartao-pos-condicao (5908bba) foi AUDITADO E RECUSADO — ele fecha os dois mutantes exatos, mas uma variante de UMA LINHA (mudar id E aria-label juntos) passa limpa pelas duas pos-condicoes e devolve a tabua MEDICAO ao cartao com os dois portoes verdes, com print e dump em maos. Esta no PENDENTES 100 e no item cartao-alvo-por-geometria. NAO REFACA O RAMO: ele e bom e esta na origin; falta cobrar o alvo por GEOMETRIA (nada interativo dentro do recorte 1200x630) em vez de por nome. || FECHADO em 02/09: o 67+68 era o que faltava e entrou pelo funil como entrega/cartao-geometria (censo default-deny). Os tres ramos da leva estao integrados.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": null,
       "entregas": [
         {
           "ramo": "entrega/portao-cartao-pos-condicao",
@@ -555,6 +589,118 @@
         "test/portao-navegador.js"
       ],
       "desfecho": "INTEGRADO em 01/09 por nuvem-20260901T1622 (funil exit 0 real, 6b4f0c8). semComentarios() virou maquina de estados (CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE) que reconhece string em vez de duas regex empilhadas. MEDIDO, com sondas do pre-integrador e nao do autor: antes 12 ocorrencias brutas de chromium.launch nos 8 arquivos e SO 2 sobreviviam (7 de 8 arquivos inteiramente cegos); depois 8 sobrevivem e 0 nus. Injecao real em rodape-verdadeiro.js:368 -> exit 1 apontando arquivo:linha; restaurado -> exit 0. Autoteste passou de 1 cobaia fixa para 2 (a segunda COM o padrao). Alcance 32 arquivos com os 8 dentro, e portoesDeclarados NAO mudou no diff — entao o verde de primeira e arvore limpa, nao cegueira nova. DESMENTIDO registrado: a formulacao do despacho (\"e so o /* da rota Express\") era estreita demais — o gatilho e QUALQUER string contendo /*, inclusive os curingas **/* do Playwright. Gap latente NAO fechado virou PENDENTES 94."
+    },
+    {
+      "id": "regua-autoteste-morto",
+      "titulo": "O autoteste do rodape da regua-larga.js virou decoracao pelo proprio conserto",
+      "estado": "concluido",
+      "papel": "dev-jogo",
+      "territorio": "test/regua-larga.js",
+      "camada": "esteira",
+      "aceite": "O comentario do rodape (linhas 454-458) passa a documentar um defeito que AINDA morde depois de telaParada(), e quem escrever prova por injecao: exit 1 com o defeito, exit 0 sem. O REGUA_DEFEITO de hoje (overflow-y:hidden em 926x428) sai ou ganha companhia.",
+      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem. || FEITO E INTEGRADO em 02/09 por nuvem-20260902T0823 (entrega/regua-autoteste-vivo, portoes verdes por exit code, QA independente aprovou). O QUE CAIU, e foi contra o numero deste proprio item: o margin-top:250px sozinho NAO reprova 3 de 6 — passa nas 6 (exit 0), e o QA exagerou para 2000px e ainda deu exit 0, porque a rolagem de verdade sempre resgata e resgate legitimo nao e defeito. O overflow-y:hidden sozinho tambem nao morde (0 de 6). So a COMBINACAO reprova, 3 de 6. A exigencia de duas injecoes para esta classe e real e o QA nao conseguiu derrubar.",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
+    },
+    {
+      "id": "cartao-alvo-por-geometria",
+      "titulo": "O portao do cartao cobra o alvo por NOME, e nome se renomeia — passar a cobrar por geometria",
+      "estado": "concluido",
+      "papel": "dev-plataforma",
+      "territorio": "ferramentas/gerar-territorio.js,test/medir-cartao-controle.js",
+      "camada": "esteira",
+      "aceite": "A variante do PENDENTES 100 (mudar id E aria-label juntos) passa a REPROVAR por exit code, provada por injecao contra a pagina real territorio/index.html: exit 1 com o mutante, exit 0 sem ele. E o controle commitado passa a exercitar os tres mutantes (67, 68 e este) contra a pagina real, em vez do button generico que a lista antiga ja pegava.",
+      "detalhe": "PENDENTES 100, achado pelo pre-integrador em 02/09 ao auditar entrega/portao-cartao-pos-condicao antes do funil — a entrega foi recusada por isto. Medido, com print no enquadramento 1200x630 do cartao real: com id=medirBt2 e aria-label=Contagem ligada. Toque para desligar., sobrouControle e alvoNomeado voltam os DOIS vazios e a tabua MEDICAO reaparece ao lado de O Territorio, que e o defeito de 23/08 que o item 67 existe para impedir. A causa e de classe: a pos-condicao reconhece o alvo por COMO ELE SE CHAMA, e o que se chama pode ser renomeado. A saida decorre do proprio item 68 (o instrumento tem de ser estritamente mais paranoico que a coisa medida): cobrar POSICAO E GEOMETRIA — nenhum elemento interativo dentro do recorte 1200x630 —, porque nome e atributo do autor e retangulo nao e. PARTE DO TRABALHO JA EXISTE na origin em entrega/portao-cartao-pos-condicao (5908bba), aprovado pelo porteiro pelo angulo de pagina publica; estenda esse ramo, nao comece do zero. || FEITO E INTEGRADO em 02/09 por nuvem-20260902T0823. A saida NAO foi a proposta no item: o dev mediu e DERRUBOU a premissa (ha 9 interativos LEGITIMOS no recorte, e cobrar zero quebraria o build de quem nao errou). O que fechou foi INVERTER A LISTA: default-deny com permitidos DERIVADOS de MAPA_PONTOS extraido do jogo headless, geometria decidindo quem e inspecionado e se um permitido esta na caixa de rolagem dele. Pre-integrador tentou 7 fugas: 2 recusadas, 5 escaparam sem devolver controle ao recorte, e a mais forte (href e rotulo exatos) so escapa apagando a tabua legitima — ai o cartao publica outro conteudo. Determinismo conferido (md5 do index.html identico ao regerar).",
+      "maquina": "nuvem-20260902T0823",
+      "desde": "2026-09-02T08:24:31.817Z"
+    },
+    {
+      "id": "secao-numero-envelhece",
+      "estado": "em-curso",
+      "papel": "dev-plataforma",
+      "titulo": "A porta e o glossario publicos dizem 181 verbetes e a fonte tem 184 — portao que compare afirmado x extraido",
+      "territorio": "test/,ferramentas/gerar-glossario.js,ferramentas/gerar-porta.js",
+      "camada": "esteira",
+      "aceite": "Um portao compara o numero AFIRMADO nas paginas publicas com o EXTRAIDO do jogo headless e reprova por EXIT CODE. Mordida provada por injecao: exit 1 com a pagina velha commitada de hoje (181), exit 0 depois de regerar (184). Regerar a saida so DEPOIS do 101b resolvido — ver a trava la.",
+      "detalhe": "PENDENTES 101a, medido em 02/09 por nuvem-20260902T0823. O medir-porta-secao.js compara porta x secao e as DUAS estao erradas pelo mesmo numero, entao ele fica verde: duas copias que concordam entre si e discordam da fonte. O gerador esta certo; falta o GATILHO que obriga a rodar. Disciplina irma: o espelho do conteudo do PENDENTES 87, que o funil ja roda quando o diff toca o glossario. || AGRAVADO pelo porteiro em 02/09: o JSON-LD DefinedTermSet da pagina commitada tem 181 entradas DefinedTerm, contadas programaticamente — tres verbetes reais estao fora dos DADOS ESTRUTURADOS indexaveis, nao so de um numero em texto corrido. Crawler e rich snippet que leem schema.org nao tem como saber que existem. Risco de SEO de outra ordem.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
+    },
+    {
+      "id": "cartao-fonte-do-host",
+      "estado": "concluido",
+      "papel": "porteiro",
+      "titulo": "O cartao publicado renderiza com fallback de sistema: --titulo pede Palatino sem @font-face, e o controle compara texto de CSS",
+      "territorio": "ferramentas/gerar-fontes.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-porta.js,ferramentas/gerar-territorio.js",
+      "camada": "esteira",
+      "aceite": "Embutir a fonte como @font-face, no mesmo padrao que o build ja usa para arte em base64 — isso resolve as DUAS pontas de uma vez: determinismo entre maquinas E torna possivel o controle checar document.fonts.check() contra uma familia que carregou de verdade. Mordida provada por injecao no cartao-secao.js: exit 1 quando a fonte pedida nao carrega, exit 0 quando carrega. O controle de HOJE (getComputedStyle().fontFamily) sai ou ganha companhia, porque ele nao pode reprovar esta classe em maquina nenhuma.",
+      "detalhe": "PENDENTES 101b + 101c. A CAUSA FOI ACHADA pelo porteiro em 02/09 e a duvida do item caiu: chrome-plataforma.js:28 declara --titulo: \"Palatino Linotype\",Palatino,Georgia,serif SEM nenhum @font-face. Na nuvem, fc-list para palatino/georgia devolve ZERO e fc-match serif devolve DejaVu Serif — entao a renderizacao da nuvem e provadamente o ultimo recurso da cadeia, nao a intencao de design, e a commitada esta mais perto do que o design pede. NAO e mais preciso gerar nas tres maquinas para descobrir qual e a certa. O agravante (101c): cartao-secao.js cobra getComputedStyle(h1).fontFamily === CHROME.TITULO, e isso devolve a LISTA DECLARADA no CSS, nunca o glifo pintado — provado ao vivo, a string voltou intacta numa maquina pintando DejaVu. O controle nunca reprova esta classe em maquina nenhuma; foi desenhado assim para evitar um falso positivo de Google Fonts assincrona e supercorrigiu para a cegueira total.",
+      "banca": "porteiro (pagina publica) + arte (veredito visual)",
+      "maquina": null,
+      "desde": null,
+      "resolucao": "Feito em 02/09 por nuvem-20260902T1234, com veredito de ARTE aprovando o Gelasio. A fonte (OFL 1.1, Version 1.008, licenca lida) entra por @font-face em base64 EM MEMORIA, na hora do print: zero byte publicado, zero KB nas paginas, zero em 3G. As tres recusas novas mordem por injecao (fonte-nao-carrega, sem-familias, titulo-fora: exit 1 cada; sem defeito exit 0). O controle antigo por getComputedStyle FICA com companhia em vez de sair, porque ele reprova OUTRA classe (troca da pilha declarada por uma sans) e tira-lo trocaria uma cegueira por outra. A URW P052 foi recusada com o texto lido: AGPL com excecao so para PostScript/PDF. A condicao da arte (chrome-plataforma.js prega a pilha do titulo duas vezes, e as tabuas vestem a fonte do titulo) esta satisfeita SEM editar a linha 196: a varredura por igualdade de token veste as tabuas, provado no pixel — .barra a mede 1893,05 px, igual a Gelasio pura e diferente do recuo do host em 1779,42 px. FICA PENDENTE, item proprio: fonte-embutida-sem-portao, porque o test/cartao-fonte-embutida.js morde e ninguem o roda ainda."
+    },
+    {
+      "id": "geradores-fora-do-portao",
+      "estado": "concluido",
+      "papel": "dev-plataforma",
+      "titulo": "Os quatro gerar-*.js ficam fora do test/portao-navegador.js, entao o launch nu pode voltar sem ninguem ver",
+      "territorio": "test/portao-navegador.js",
+      "camada": "esteira",
+      "aceite": "O portao passa a cobrir os gerar-*.js. Mordida provada por injecao: reintroduzir chromium.launch() nu num deles da exit 1; sem ele, exit 0.",
+      "detalhe": "PENDENTES 101d, achado pelo porteiro em 02/09 auditando entrega/geradores-chromium. PRE-EXISTENTE e nao regressao — o portao-navegador cobre 33 portoes (exit 0) e os gerar-*.js ficam de fora por desenho, porque nao sao chamados pelo CI nem pelo package.json, e o PENDENTES 91 ja registrava. Anotado porque a entrega que consertou os quatro NAO fecha o buraco: e a pergunta do PLANTAO 5 antes de dar item por fechado (e o que garante que isto nao volte?) e a resposta hoje e nada.",
+      "maquina": null,
+      "desde": null,
+      "resolucao": "Feito em 02/09 por nuvem-20260902T1234. O portao-navegador.js ganhou uma QUARTA fonte de derivacao (leitura de diretorio de ferramentas/ filtrando gerar-*.js), na mesma via que ele ja usava para o rodape-verdadeiro, mais uma terceira cobaia no --autoteste. Medido: 26 derivados/33 com requires -> 31/40, exit 0 nas duas pontas; injecao de launch() nu deu exit 1 na linha certa nos 4 arquivos testados, exit 0 apos restaurar; o glob nao reprova gerar-*.js legitimo sem navegador (ficticio criado pelo pre-integrador: exit 0). CORRECAO DE REGISTRO: sao CINCO geradores, nao quatro — e o quinto, fora do commit 8f9eab0, e o gerar-territorio.js (vestido 31 min depois em 9be0694), NAO o gerar-fontes.js, que ja estava nos quatro. O PENDENTES 91 de 31/08 ja nomeava os cinco."
+    },
+    {
+      "id": "regua-terceira-receita",
+      "estado": "em-curso",
+      "papel": "dev-jogo",
+      "titulo": "A regua-larga pega elemento tirado do fluxo, e isso nao esta documentado nem tem sonda",
+      "territorio": "test/regua-larga.js",
+      "camada": "esteira",
+      "aceite": "O rodape ganha a terceira receita, com mordida provada por injecao: exit 1 com o defeito, exit 0 sem.",
+      "detalhe": "Achado do QA em 02/09 auditando entrega/regua-autoteste-vivo, FORA do escopo da entrega e nao bloqueante. Existe defeito de UMA UNICA injecao que morde depois do telaParada(): REGUA_DEFEITO com poste em position:absolute e top:9999px reprova 2 de 6 (landscape 899 e phone deitado 926), exit 1 medido. Isso mostra que a regua nao depende so da combinacao — ela tambem pega elemento tirado do fluxo normal. Hoje o rodape documenta 2 receitas (a combinacao e a HIERARQUIA) e nenhuma assercao cobre esta classe.",
+      "maquina": "nuvem-20260902T1623",
+      "desde": "2026-09-02T16:25:27.270Z"
+    },
+    {
+      "id": "controle-cartao-sem-dono",
+      "estado": "concluido",
+      "papel": "dev-plataforma",
+      "titulo": "O test/medir-cartao-controle.js nao e rodado por ninguem — nem npm test, nem funil, nem CI",
+      "territorio": ".github/workflows/teste.yml,ferramentas/integrar.js,package.json",
+      "camada": "esteira",
+      "aceite": "O controle passa a ser rodado por alguem, e quem escrever mostra por exit code que ele roda de verdade no lugar novo. Custo medido: 31 s.",
+      "detalhe": "Achado pelo dev-plataforma em 02/09 na entrega cartao-geometria, que NAO wirou porque workflow e funil nao sao territorio dele. O CI roda test/cartao-controle.js, que e OUTRO ARQUIVO. Desde 23/08 o medir-cartao-controle so rodou a mao. Consequencia: e o unico controle que exercita os mutantes do cartao contra a pagina real, e ele so morde quando alguem lembra de chama-lo — que e a definicao de portao que nao protege. || ONDE POR, pelo pre-integrador em 02/09: no teste.yml colado no passo da linha 217, que ja e o dono do assunto cartao de link e ja paga um Chromium; e uma linha no funil quando o diff tocar gerar-territorio.js, cartao-censo.js ou territorio/. AVISO DELE, e vale ouro: se fizer, RENOMEIE um dos dois no mesmo commit — cartao-controle.js e medir-cartao-controle.js lado a lado num YAML e a proxima meia hora perdida de alguem. || FEITO em 02/09 por nuvem-20260902T1234. RENOMEADO test/medir-cartao-controle.js -> test/cartao-quadro-controle.js (git mv), com todas as referencias editaveis atualizadas (ferramentas/cartao-censo.js, 2 linhas). ferramentas/gerar-territorio.js NAO foi tocado (3 comentarios com o nome velho) porque esta fora do territorio desta entrega — outro agente esta nele agora; fica registrado como referencia intencionalmente desatualizada, sem efeito funcional (sao comentarios de prosa, nao codigo lido por nada). WIRADO em DOIS lugares: (1) .github/workflows/teste.yml, passo novo logo apos 'cartao de link (peso e forma...)' (linha 217 antiga), no MESMO job 'portoes' que ja instala o Chromium e ja roda o irmao — node test/cartao-quadro-controle.js visto rodando EXIT REAL 0 em 32,48s (medido isolado nesta maquina, fora do CI). (2) ferramentas/integrar.js: constante CARTAO_CENSO (gerar-territorio.js | cartao-censo.js | territorio/) dispara um PORTAO A MAIS apos o merge (mesmo padrao do 'espelho do conteudo' que o historiador ja dispara), e tambem aparece no --so-gatilhos como 'PORTÃO EXTRA'. Prova do gatilho, sem rodar o funil de verdade (fora do territorio integrar): branch descartavel tocando territorio/ mostrou o portao extra citado; branch descartavel tocando so NOTES.md nao mostrou. Duvida levada ao plantao: vale a pena tambem tocar cartao-secao.js e ferramentas/gerar-territorio.js quando o outro agente liberar, para o nome velho nao sobreviver so como comentario morto.",
+      "maquina": "nuvem-20260902T1234",
+      "desde": "2026-09-02T12:36:19.905Z"
+    },
+    {
+      "id": "cartao-decepa-primeira-tabua",
+      "estado": "livre",
+      "papel": "porteiro",
+      "titulo": "A barra do cartao publicado decepa a primeira tabua — o compartilhar.jpg le istoria — e nenhum portao olha",
+      "territorio": "ferramentas/gerar-territorio.js,ferramentas/cartao-secao.js",
+      "camada": "esteira",
+      "banca": "arte (veredito visual) + porteiro (pagina publica)",
+      "aceite": "Um portao le o TEXTO dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada. Mordida provada por injecao.",
+      "detalhe": "Achado pelo dev-plataforma em 02/09. O territorio/compartilhar.jpg COMMITADO le istoria em vez de A Historia; regerado na nuvem le ponto Historia. E a mesma familia do defeito de 23/08 (cromo vazando para dentro da imagem que o WhatsApp mostra) e PIOROU com a tabua Jogar que a main acrescentou. Nenhum portao olha para isso: os que existem cobram quem NAO pode estar no recorte, e nenhum cobra que quem PODE esteja inteiro. Cuidado ao consertar: o PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "censo-cartao-residuais",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "titulo": "Os 4 residuais do censo do cartao — o teto honesto da regua, medidos e declarados",
+      "territorio": "ferramentas/cartao-censo.js,test/cartao-quadro-controle.js",
+      "camada": "esteira",
+      "aceite": "Fechar o (1), que e o unico com print de defeito reproduzido. Os outros tres sao anotacao ate alguem passar por ali. Mordida provada por injecao em cada um que for fechado.",
+      "detalhe": "Medidos pelo pre-integrador em 02/09 ao aprovar entrega/cartao-geometria, e declarados por ele como NAO bloqueantes. (1) O censo conta INTERATIVO, nao conta o que esta na FOTO: uma div sem onclick, sem tabindex e sem role, lendo MEDICAO ligada, entra na barra e o censo volta VAZIO — o defeito visual de 23/08 reproduzido com o portao verde, com print. Nao e o modo de falha do 67/68/100 (la o alvo era interruptor de verdade, e transforma-lo em div inerte nao e rename, e desfazer o botao), mas e o teto honesto da regua. (2) querySelectorAll(body *) nao atravessa shadow DOM nem iframe; risco HOJE zero, medido: 0 attachShadow e 0 iframe nas quatro fontes. (3) innerText nao ve ::after — injetando font-size:0 mais content no pseudo-elemento, o elemento continua casando href e rotulo e o cartao sai lendo O ligada; custa uma folha de estilo. (4) doHostDaMedicao casa por PREFIXO (indexOf === 0), entao us.i.posthog.com.qualquercoisa seria perdoado; cosmetico, trocar por igualdade de origem quando alguem passar ali.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }

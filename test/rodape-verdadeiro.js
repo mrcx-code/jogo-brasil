@@ -26,9 +26,12 @@
 //       que ele NAO consegue resolver e REPROVACAO, nao silencio — a armadilha classica de uma
 //       varredura por regex e achar que "nao encontrei" quer dizer "nao existe". Ele confere
 //       tambem que todo `setItem(` do arquivo foi visto por essa conta, e varre atribuicao
-//       direta de propriedade (`localStorage.x = ...`).
+//       direta de propriedade tanto por PONTO (`localStorage.x = ...`) quanto por COLCHETE com
+//       chave literal (`localStorage["x"] = ...`) — a forma de colchete foi acrescentada em
+//       PENDENTES 74d; antes dela so o (A) via esse caminho, e so se alguma cena o exercitasse.
 //       LIMITE: chave montada em tempo de execucao (concatenacao, template, indireta por
-//       variavel reatribuida) ele NAO resolve — e por isso ele REPROVA ao inves de ignorar.
+//       variavel reatribuida, ou colchete com identificador nao-literal) ele NAO resolve — e
+//       por isso ele REPROVA ao inves de ignorar.
 //
 // Alem das chaves, ele cobra as afirmacoes que o rodape faz sobre COMPORTAMENTO, e cobra na
 // pratica, nao no texto: o que o rodape diz que some ao sair some mesmo (sair() e chamado de
@@ -101,7 +104,12 @@ const CHAVES = [
     // DNS morto) nao disparam nada — nesses dois a fila fica parada ate a proxima carga, e e
     // isso que a frase passou a dizer. Consertar isso no codigo seria pior: e justamente o
     // caminho que apaga o texto do dono (ver cena 8).
-    diz: [/fila de respostas/i, /n[ãa]o some ao sair/i, /50/, /200/, /na pr[óo]xima vez que voc[êe] abrir a mesa/i],
+    // OS NUMEROS (50, 200) SAIRAM DAQUI DE PROPOSITO (PENDENTES 74a) — nao porque deixaram de
+    // ser cobrados, mas porque um literal `/50/` aqui e a MESMA doenca do item 60: bate com
+    // FILA_MAX/FILA_BYTES por coincidencia, e continuaria batendo (falso) se um mudasse e o
+    // outro nao. Quem cobra os dois numeros agora e a secao "AMARRACAO COM O DASHBOARD" abaixo,
+    // que le FILA_MAX/FILA_BYTES do PROPRIO ARQUIVO e exige que o rodape cite O MESMO numero.
+    diz: [/fila de respostas/i, /n[ãa]o some ao sair/i, /na pr[óo]xima vez que voc[êe] abrir a mesa/i],
   },
   {
     chave: 'mesa-brasil-pin-local-recusado', onde: 'sessionStorage', fica: true,
@@ -124,6 +132,14 @@ const CHAVES = [
   },
 ];
 const CONHECIDA = c => CHAVES.some(k => k.chave === c);
+
+// ============================ QUANTAS CENAS ESTE ARQUIVO TEM (PENDENTES 74b) ============================
+// Nada cobrava `cenas === N`: apagar uma cena imprimia "PASSOU: 9 cenas" e saia 0 — um portao que
+// encolhe EM SILENCIO. O numero e DECLARADO, nao contado sozinho: quem acrescenta ou remove uma
+// cena tem de mexer aqui tambem, de proposito — e e essa fricção que torna a mudanca visivel em
+// vez de invisivel. (O arquivo passou de 5 para 10 cenas em cinco voltas, e de 10 para 15 na volta
+// do pre-integrador de 01/09 — sem este numero, nenhuma das duas mudancas teria deixado rastro.)
+const CENAS_ESPERADAS = 15;
 
 let falhas = 0, cenas = 0;
 function ok(cond, msg, extra) {
@@ -175,12 +191,47 @@ function varrerFonte(src) {
   // que ele usa — e um teste que finge cobrir tudo e pior que um que declara o que cobre.
   const total = (src.match(/\.setItem\(/g) || []).length;
   const avulsos = total - vistos;
-  // Atribuicao direta de propriedade nao passa por setItem nenhum.
+  // Atribuicao direta de propriedade nao passa por setItem nenhum. Duas formas: PONTO
+  // (localStorage.x=...) e COLCHETE com chave literal (localStorage["x"]=...) — a segunda
+  // faltava (PENDENTES 74d): `foo.setItem(` e `foo.x=` eram lidos, mas `foo["x"]=` nao, e so
+  // seria pego pelo metodo (A) se alguma cena da EXECUCAO exercitasse esse caminho por acaso.
   const props = [];
   const reProp = /(localStorage|sessionStorage)\s*\.\s*([A-Za-z_$][\w$]*)\s*=(?!=)/g;
   const METODOS = ['setItem', 'getItem', 'removeItem', 'clear', 'key', 'length'];
   while ((m = reProp.exec(src))) if (METODOS.indexOf(m[2]) < 0) props.push(m[1] + '.' + m[2]);
+  // LIMITE do colchete, declarado como os outros dois: so resolve CHAVE LITERAL entre aspas
+  // simples ou duplas. `localStorage[var]=...` com `var` nao string continua fora do alcance
+  // deste metodo — mesma categoria de "so o (A) ve", ja declarada acima para o (B) inteiro.
+  const reBracket = /(localStorage|sessionStorage)\s*\[\s*(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*\]\s*=(?!=)/g;
+  while ((m = reBracket.exec(src))) props.push(m[1] + '[' + JSON.stringify(m[3]) + ']');
   return { chaves: [...chaves], naoResolvidos, avulsos, props };
+}
+
+// ============================ A AMARRACAO COM O DASHBOARD (PENDENTES 74a) ============================
+// A cena 1 cobrava `/50/` e `/200/` como TEXTO SOLTO, sem ler o codigo — bate hoje por coincidencia
+// com `FILA_MAX=50` e `FILA_BYTES=200*1024` (dashboard/index.html), e continuaria batendo (falso)
+// se um dos dois mudasse e o outro nao seguisse. Esta funcao LE o valor de verdade da FONTE do
+// dashboard, para o rodape ser cobrado contra O NUMERO QUE O CODIGO USA, nao contra um literal
+// congelado no teste.
+//
+// LIMITE, escrito por extenso e no MESMO espirito do `varrerFonte` acima (que reprova, nunca
+// ignora, o que nao consegue resolver): isto so resolve a FORMA ATUAL da declaracao —
+// `var FILA_MAX=50` / `FILA_BYTES=200*1024` como literais numericos soltos. Se a declaracao
+// mudar de FORMA (por exemplo `const FILA_MAX = LIMITES.fila`), esta funcao devolve `null` para
+// aquele campo, e quem usa o resultado abaixo REPROVA em voz alta ("nao consegui derivar…") em
+// vez de deixar de checar em silencio. Isto significa que a amarracao NAO sobrevive sozinha a uma
+// mudanca de FORMA — e essa e a resposta medida, nao suposta, a pergunta de ate onde ela aguenta:
+// aguenta o VALOR mudar (e reprova se o rodape nao acompanhar), nao aguenta a FORMA mudar sem
+// que este teste mude junto. Consertar isso de verdade (por exemplo com um comentario-contrato
+// que sobreviva a qualquer forma, tipo `// AMARRACAO: FILA_MAX=50 FILA_BYTES_KB=200`) mexeria na
+// FORMA do dashboard.js — fora do territorio desta rodada, e por isso fica registrado, nao feito.
+function derivarLimitesFila(src) {
+  const mMax = src.match(/\bFILA_MAX\s*=\s*(\d+)\b/);
+  const mBytes = src.match(/\bFILA_BYTES\s*=\s*(\d+)\s*\*\s*1024\b/);
+  return {
+    filaMax: mMax ? Number(mMax[1]) : null,
+    filaBytesKB: mBytes ? Number(mBytes[1]) : null,
+  };
 }
 
 // ============================ O PALCO ============================
@@ -345,6 +396,24 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     for (const re of k.diz)
       ok(re.test(rodape), 'o rodape diz ' + re + ' (por causa de ' + k.chave + ')', k.oque);
   }
+  // A AMARRACAO (PENDENTES 74a): o rodape tem de citar o MESMO numero que FILA_MAX/FILA_BYTES no
+  // dashboard — derivado da FONTE, nao um literal congelado aqui. Se `FILA_MAX` virar 100 e o
+  // rodape continuar dizendo "50", isto reprova; hoje os dois batem e por isso passa.
+  const LIMITES = derivarLimitesFila(fonte);
+  ok(LIMITES.filaMax !== null,
+    'consegui derivar FILA_MAX do dashboard (a amarracao nao quebrou de FORMA)',
+    'a declaracao de FILA_MAX mudou de forma — este teste nao a alcanca mais, ver derivarLimitesFila()');
+  if (LIMITES.filaMax !== null)
+    ok(new RegExp('\\b' + LIMITES.filaMax + '\\b').test(rodape),
+      'o rodape cita ' + LIMITES.filaMax + ' — o MESMO FILA_MAX que o dashboard usa agora, nao um literal fixo',
+      rodape);
+  ok(LIMITES.filaBytesKB !== null,
+    'consegui derivar FILA_BYTES (em KB) do dashboard (a amarracao nao quebrou de FORMA)',
+    'a declaracao de FILA_BYTES mudou de forma — este teste nao a alcanca mais, ver derivarLimitesFila()');
+  if (LIMITES.filaBytesKB !== null)
+    ok(new RegExp('\\b' + LIMITES.filaBytesKB + '\\b').test(rodape),
+      'o rodape cita ' + LIMITES.filaBytesKB + ' KB — o MESMO FILA_BYTES que o dashboard usa agora, nao um literal fixo',
+      rodape);
 
   // ---------------------------------------------------------------- 2
   console.log('\n[2] VARREDURA ESTATICA — todo setItem do arquivo aponta para chave da tabela');
@@ -529,7 +598,16 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
     }
     const f = await pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-brasil-fila4') || '[]'));
     ok(f.length === 1, 'depois de ' + PISCADAS + ' piscadas, a resposta do dono AINDA esta la', 'a fila esvaziou — o texto foi descartado por causa do Wi-Fi');
-    ok(!f[0] || !f[0].tentativas, 'e nenhuma tentativa foi consumida — falha de rede nao diz nada sobre o item', f[0] && JSON.stringify(f[0].tentativas));
+    // SEM ANISTIA (PENDENTES 74c): a forma antiga (`!f[0] || !f[0].tentativas`) passava
+    // VACUAMENTE quando a fila esvaziava — `f[0]` virava `undefined`, `!f[0]` era verdadeiro, e
+    // a segunda assercao "passava" sem checar coisa nenhuma, disfarcando o mesmo defeito que a
+    // assercao acima ja tinha pego. Decisao (nao anistia declarada, porque a checagem TEM objeto
+    // sempre que a de cima passa): a condicao passa a EXIGIR `f.length===1` explicitamente, entao
+    // ela so pode passar quando ha de fato um item para julgar — se a fila esvaziou, esta linha
+    // reprova tambem, em vez de ficar muda.
+    ok(f.length === 1 && !f[0].tentativas,
+      'e nenhuma tentativa foi consumida — falha de rede nao diz nada sobre o item',
+      f.length === 1 ? JSON.stringify(f[0].tentativas) : 'a fila nao tem 1 item (f.length=' + f.length + ') — sem objeto para julgar, e isto NAO passa por tabela vazia');
     ok(erros.length === 0, 'zero erro de script na pagina', erros.join(' | '));
     await ctx.close();
   }
@@ -750,6 +828,15 @@ const naFila = pag => pag.evaluate(() => JSON.parse(localStorage.getItem('mesa-b
   }
 
   await nav.close();
+
+  // O PORTAO NAO PODE ENCOLHER EM SILENCIO (PENDENTES 74b). Apagar uma cena fazia o rodape
+  // imprimir "PASSOU: 9 cenas" e sair 0 — a mesma verdade a menos, sem ninguem avisado. Esta
+  // e a ULTIMA assercao de proposito: se ela reprovar sozinha, e sinal de que uma cena sumiu
+  // (ou nasceu) sem que CENAS_ESPERADAS tenha acompanhado.
+  ok(cenas === CENAS_ESPERADAS,
+    'o arquivo ainda tem ' + CENAS_ESPERADAS + ' cenas (nenhuma sumiu, nenhuma nasceu sem ser contada)',
+    'contei ' + cenas + ' — atualize CENAS_ESPERADAS de proposito se a mudanca for intencional');
+
   console.log('\n' + (falhas ? 'REPROVOU: ' + falhas + ' verificacao(oes) em ' + cenas + ' cenas'
     : 'PASSOU: ' + cenas + ' cenas, nenhuma falha'));
   process.exit(falhas ? 1 : 0);

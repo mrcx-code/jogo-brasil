@@ -25,11 +25,26 @@
 // lá e não aqui, este arquivo reprova dizendo que a tabela envelheceu, em vez de aprovar um
 // cartão que ele já não sabe medir.
 //
-// Uso: node test/medir-cartao-controle.js   (sai 1 se algum controle couber no cartão)
+// Uso: node test/cartao-quadro-controle.js   (sai 1 se algum controle couber no cartão)
+//
+// RENOMEADO em 02/09 (plantao nuvem-20260902T1234, item controle-cartao-sem-dono): chamava-se
+// `medir-cartao-controle.js`, e o nome ficava a uma palavra de `test/cartao-controle.js` — o
+// OUTRO portão de cartão, que mede peso/forma do JPEG (og:image), não o que sobra dentro do
+// recorte. O nome novo é o que o primeiro `console.log` deste arquivo já dizia: "O CARTÃO DE
+// LINK NÃO LEVA CONTROLE DENTRO [DO QUADRO]".
+// A COBRANÇA DO ALVO NOMEADO CAIU EM 02/09 E FOI SUBSTITUÍDA POR CENSO (PENDENTES 100).
+// As duas pós-condições de 02/09 reconheciam o interruptor por COMO ELE SE CHAMA — id, aria-label,
+// `position` — e uma variante de UMA LINHA (trocar o id E o aria-label juntos) devolvia a tábua
+// MEDIÇÃO ao recorte com os dois portões verdes. O `ferramentas/cartao-censo.js` explica a virada
+// inteira: a lista mudou de lado, de "o que é proibido" para "o que este cartão pode conter".
+// É de lá que sai a leitura E os mutantes — uma fonte só, em vez das duas cópias que juravam ser
+// idênticas e não eram (a do gerador não tinha o `|| e.id === 'medirBt'` que esta tinha).
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const ABRIR = require('./abrir.js');
+const CENSO = require('../ferramentas/cartao-censo.js');
+const CHROME = require('../ferramentas/chrome-plataforma.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const L = 1200, A = 630;   // o enquadramento que as redes pedem, e o que os geradores usam
@@ -41,8 +56,11 @@ const CARTOES = [
     assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico' },
   { secao: 'de-onde-vem', pag: 'de-onde-vem/index.html', gerador: 'ferramentas/cartao-secao.js',
     assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico' },
+  // A ASSINATURA DO TERRITÓRIO DEIXOU DE SER UM TRECHO COPIADO e passou a ser o `require` do
+  // módulo comum. É estritamente melhor: casar uma string prova que alguém escreveu as mesmas
+  // letras nos dois lugares; casar o `require` prova que os dois RODAM o mesmo código.
   { secao: 'territorio', pag: 'territorio/index.html', gerador: 'ferramentas/gerar-territorio.js',
-    assinatura: 'flutua && e.matches(ALVOS_CONTROLE)', modo: 'controles' },
+    assinatura: "require('./cartao-censo.js')", modo: 'controles', censo: true },
 ];
 
 let falhas = 0;
@@ -112,14 +130,37 @@ async function excluir(pg, modo) {
 //     mapa, e `div.env`, o envelope). Flutuar não é o defeito; flutuar E convidar o dedo é.
 // O `#medirBt` é nomeado à parte porque é o caso que já quebrou uma vez: se algum dia ele
 // deixar de flutuar e continuar no quadro, a promessa segue quebrada do mesmo jeito.
-const ALVOS = 'button, [role="button"], input, select, summary';
+//
+// A LISTA É PARANOICA DESDE 02/09 (achado do QA na re-auditoria, PENDENTES 68): a antiga
+// (`button, [role="button"], input, select, summary`) é A MESMA do `ferramentas/gerar-territorio.js`
+// — um lugar para consertar e o MESMO buraco para os dois. Uma `<div onclick tabindex="0">`
+// colada na barra escapava dos dois. A função de baixo é ESTRITAMENTE MAIS LARGA que a do
+// gerador — a regra da casa é essa (instrumento mais largo que o gerador, nunca igual): se ela
+// achar algo que a exclusão do gerador não pega, é a exclusão que se alarga, não esta função que
+// se estreita. `a[href]` exclui a `.barra` de propósito — as tábuas de navegação são links de
+// verdade e ficam no cartão em toda página; um link fora dela (nota de rodapé, "abrir no jogo")
+// é o que a régua não pode deixar passar.
+//
+// ESTA FUNÇÃO CONTINUA VALENDO PARA AS TRÊS SEÇÕES DE TEXTO (A HISTÓRIA, glossário, DE ONDE VEM),
+// que são geradas pelo `cartao-secao.js` com a varredura genérica de fixed/sticky e cujo conteúdo
+// é texto corrido com links — um censo lá precisa de lista própria e é outro território.
+// PARA O TERRITÓRIO ela deixou de ser a régua principal: quem cobra é o CENSO
+// (`ferramentas/cartao-censo.js`), que não pergunta se o alvo flutua nem como ele se chama. Ela
+// fica como segunda leitura, porque duas leituras discordando é informação e uma só não é.
 async function controlesNoQuadro(pg) {
-  return pg.evaluate(([L, A, ALVOS]) => {
+  return pg.evaluate(([L, A]) => {
+    function ehControleParanoico(e) {
+      if (e.matches('button, [role="button"], input, select, summary, [onclick], label, [contenteditable]')) return true;
+      const tab = e.getAttribute('tabindex');
+      if (tab !== null && tab !== '-1') return true;
+      if (e.matches('a[href]') && !e.closest('.barra')) return true;
+      return false;
+    }
     const achados = [];
     document.querySelectorAll('body *').forEach((e) => {
       const s = getComputedStyle(e);
       const flutua = s.position === 'fixed' || s.position === 'sticky';
-      if (!((flutua && e.matches(ALVOS)) || e.id === 'medirBt')) return;
+      if (!((flutua && ehControleParanoico(e)) || e.id === 'medirBt')) return;
       if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return;
       const r = e.getBoundingClientRect();
       if (r.width < 1 || r.height < 1) return;
@@ -132,12 +173,26 @@ async function controlesNoQuadro(pg) {
       });
     });
     return achados;
-  }, [L, A, ALVOS]);
+  }, [L, A]);
+}
+
+// O CENSO, do lado de quem só tem o artefato. A lista de permitidos sai do MESMO dado que gerou a
+// página: os links da barra do `chrome-plataforma.js`, e as tábuas de lugar lidas da FORMA que o
+// gerador escreveu no HTML em disco — `window.D` não é global (medido: `undefined`), e usar a
+// página viva como fonte da própria lista seria circular para o mutante injetado.
+async function censoDaPagina(pg, arqHtml) {
+  const permitidos = CENSO.permitidosTerritorio(
+    CHROME.barraHtml('territorio'),
+    CENSO.pontosDoHtml(fs.readFileSync(arqHtml, 'utf8')));
+  if (permitidos.length < 2) throw new Error('lista de permitidos degenerada (' + permitidos.length + ') — o censo reprovaria a página certa');
+  return pg.evaluate(CENSO.censoDoQuadro, [L, A, permitidos, CENSO.SELETOR_INTERATIVO]);
 }
 
 (async () => {
   console.log('O CARTÃO DE LINK NÃO LEVA CONTROLE DENTRO — ' + L + 'x' + A);
-  const nav = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  // PENDENTES 91/98 num terceiro lugar: sem `executablePath` o lancamento nu falha nesta
+  // maquina, e `chromiumPath()` devolve undefined onde ja funcionava.
+  const nav = await chromium.launch({ args: ['--enable-unsafe-swiftshader'], executablePath: ABRIR.chromiumPath() });
 
   for (const c of CARTOES) {
     const arq = path.join(RAIZ, c.pag);
@@ -158,11 +213,19 @@ async function controlesNoQuadro(pg) {
     }
     const escondidos = await excluir(pg, c.modo);
     const sobrou = await controlesNoQuadro(pg);
+    // A SEGUNDA LEITURA, e é a que não depende de nome nenhum: o CENSO. Só o TERRITÓRIO por
+    // enquanto — é a única seção cuja lista de permitidos é derivável do dado que gerou a página.
+    let estranhos = [];
+    if (c.censo) estranhos = await censoDaPagina(pg, arq);
     await pg.close();
 
     ok(sobrou.length === 0, c.secao + ': zero cromo flutuante no quadro depois da exclusão ('
       + escondidos + ' nó(s) escondido(s))'
       + (sobrou.length ? ' — sobrou ' + JSON.stringify(sobrou) : ''));
+    if (c.censo) {
+      ok(estranhos.length === 0, c.secao + ': o censo do quadro só achou o que a lista de '
+        + 'permitidos autoriza' + (estranhos.length ? ' — ESTRANHOS ' + JSON.stringify(estranhos) : ''));
+    }
   }
 
   // ------------------------------------------------------- O CONTROLE (EQUIPE.md 2.8)
@@ -195,6 +258,61 @@ async function controlesNoQuadro(pg) {
     await pg.close();
     const achou = achados.some((a) => a.alvo === '#qaIntruso');
     ok(achou === deveAchar, 'CONTROLE ' + nome + ' — achou=' + achou);
+  }
+
+  // ------------------------------- O CONTROLE DO CENSO — os mutantes REAIS, na página REAL
+  //
+  // POR QUE ESTE BLOCO EXISTE, e é achado de auditoria, não capricho (PENDENTES 100, 02/09): o
+  // controle de cima injeta um `<button>` genérico STICKY — a forma que a lista ANTIGA já pegava.
+  // Ele nunca exercitou nenhum dos mutantes que de fato quebraram o portão, e a mensagem do commit
+  // descrevia um wrapper de teste que não estava commitado. Isso é decoração parcial (EQUIPE.md
+  // 2.8): as linhas verdes acima não provavam o que diziam provar.
+  //
+  // Agora os SETE mutantes de `ferramentas/cartao-censo.js` rodam contra `territorio/index.html`,
+  // o artefato commitado, com a exclusão do gerador aplicada por cima — que é exatamente a
+  // condição em que o cartão é fotografado. Cada um TEM de aparecer no censo.
+  //
+  // O `m103` é o que vale mais: ele PASSOU na primeira versão da régua nova (que casava só o
+  // `href`) e é a razão de o rótulo da tábua entrar na lista de permitidos. Mutante que já passou
+  // uma vez é a única prova de que a régua mudou por medição.
+  console.log('\n=== CONTROLE DO CENSO — os mutantes do PENDENTES 67/68/100 na página real');
+  const arqTerr = path.join(RAIZ, 'territorio', 'index.html');
+  if (!fs.existsSync(arqTerr)) {
+    ok(false, 'CONTROLE DO CENSO: territorio/index.html não existe');
+  } else {
+    for (const nome of Object.keys(CENSO.MUTANTES)) {
+      const pg = await nav.newPage({ viewport: { width: L, height: A }, deviceScaleFactor: 1 });
+      await pg.goto(ABRIR('file:///' + arqTerr.split(path.sep).join('/')));
+      await pg.evaluate(() => document.fonts.ready).catch(() => {});
+      await pg.waitForFunction('window.__pronto === true', null, { timeout: 30000 }).catch(() => {});
+      await pg.waitForTimeout(600);
+      let erroMutante = '';
+      await pg.evaluate(CENSO.MUTANTES[nome]).catch((e) => { erroMutante = String(e.message || e); });
+      await excluir(pg, 'controles');           // a mesma exclusão que o gerador aplica
+      const estranhos = erroMutante ? [] : await censoDaPagina(pg, arqTerr);
+      await pg.close();
+      if (erroMutante) {
+        // mutante que não consegue nem se instalar é régua cega, não régua verde
+        ok(false, 'CONTROLE DO CENSO ' + nome + ': o mutante não pôde ser injetado — ' + erroMutante);
+      } else {
+        ok(estranhos.length > 0, 'CONTROLE DO CENSO ' + nome + ': o censo RECUSA o mutante'
+          + (estranhos.length ? ' (' + estranhos[0].motivo + ' — ' + estranhos[0].alvo + ' @ '
+            + estranhos[0].x + ',' + estranhos[0].y + ' ' + estranhos[0].w + 'x' + estranhos[0].h + ')'
+            : ' — PASSOU LIMPO, o buraco do PENDENTES 100 está aberto de novo'));
+      }
+    }
+    // e o contraponto, sem o qual as linhas de cima não dizem nada: SEM mutante o censo tem de
+    // ficar vazio. Uma régua que grita sempre é tão inútil quanto uma que nunca grita.
+    const pg = await nav.newPage({ viewport: { width: L, height: A }, deviceScaleFactor: 1 });
+    await pg.goto(ABRIR('file:///' + arqTerr.split(path.sep).join('/')));
+    await pg.evaluate(() => document.fonts.ready).catch(() => {});
+    await pg.waitForFunction('window.__pronto === true', null, { timeout: 30000 }).catch(() => {});
+    await pg.waitForTimeout(600);
+    await excluir(pg, 'controles');
+    const limpo = await censoDaPagina(pg, arqTerr);
+    await pg.close();
+    ok(limpo.length === 0, 'CONTROLE DO CENSO sem mutante: o censo APROVA a página como está'
+      + (limpo.length ? ' — ESTRANHOS ' + JSON.stringify(limpo) : ''));
   }
 
   await nav.close();

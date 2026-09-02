@@ -3441,3 +3441,279 @@ parecer decisão.
 com `revisado_por` nulo" — barato, e transforma o silêncio em fila de trabalho; (b) a coluna vira
 `bool null` com `default null`, e aí "não sei" tem como ser dito. (b) é a modelagem correta e
 custa migração + ajuste de quem lê; (a) resolve o sintoma hoje. Território: `dev-dados`.
+
+---
+
+## 100 — O portão do cartão fecha os dois mutantes do 67 e 68, e uma variante de UMA LINHA passa limpa — qa/dev-plataforma (02/09)
+
+**Achado pelo `pre-integrador` em 02/09, auditando `entrega/portao-cartao-pos-condicao` (`5908bba`)
+antes do funil. A entrega NÃO foi integrada por causa disto** — o ramo continua na `origin`, e o
+que falta é uma linha, não uma reescrita.
+
+**O que a entrega alega, e a parte que é verdade.** Ela troca a cobrança de ESFORÇO ("quantos nós
+eu escondi") por duas pós-condições de RESULTADO em `ferramentas/gerar-territorio.js`:
+`sobrouControle` (varre `body *` e reprova elemento fixed/sticky que bata na lista paranoica) e
+`alvoNomeado` (reprova se o botão continuar visível por `id` OU por `aria-label` "Medição…").
+Isso funciona: os **dois mutantes exatos** do PENDENTES 67 e 68, reproduzidos com código copiado
+verbatim do gerador e rodados contra a página real `territorio/index.html` já commitada, são
+**recusados** — `sobrouControle: div.qaDiv @ 354,31 44x44` e `alvoNomeado: #medirBt2 escondido=false`.
+
+**O que é falso é a frase central do commit — "não há mais caminho de volta com os dois portões
+verdes".** Existe, e custa uma linha a mais que o mutante do QA: **mudar o `id` E o `aria-label`
+juntos.** O `aria-label` deixa de começar com "Medição", o `id` deixa de ser o esperado, e as duas
+pós-condições passam vazias:
+
+```
+exclusao escondeu: .med, .vaoMedida
+estado do botao real apos exclusao: id=medirBt2 | aria-label=Contagem ligada. Toque para desligar.
+  | position=static | display=flex | rect=334,31 69x44
+sobrouControle: []   alvoNomeado: []
+```
+
+Com print no mesmo enquadramento 1200×630 do cartão real: a tábua **"MEDIÇÃO / ligada" volta ao
+lado de "O Território"** — o defeito de 23/08 que o item 67 existe para impedir, de volta, com os
+dois portões **verdes**. É a mesma doença que o 67 nomeia, num degrau acima: a pós-condição
+continua reconhecendo o alvo por **como ele se chama**, e o que se chama pode ser renomeado.
+
+**A saída, e ela decorre do próprio item 68** (*o instrumento tem de ser estritamente mais
+paranoico que a coisa medida*): parar de identificar o alvo por nome e passar a cobrá-lo por
+**posição e geometria** — nenhum elemento interativo dentro do recorte 1200×630 do cartão, seja
+qual for o `id` ou o rótulo. Nome é atributo do autor; retângulo não é.
+
+**Dois achados menores da mesma auditoria, para não se perderem:**
+- **O CONTROLE já commitado em `test/medir-cartao-controle.js` é decoração parcial** (EQUIPE.md 2.8):
+  as 4 linhas `ok` só injetam um `<button>` genérico sticky — que a lista **antiga** já pegava.
+  Ele nunca exercita os mutantes específicos do 67 (span+static+id) nem do 68 (div+onclick+tabindex)
+  contra a página real. A mensagem do commit descreve um wrapper de teste que **não está commitado**,
+  e foi por isso que o auditor teve de reconstruí-lo para provar — e para desmentir.
+- **`sobrouControle` no gerador não é byte a byte igual** ao corpo de `test/medir-cartao-controle.js`
+  (falta o `|| e.id === 'medirBt'`), embora o comentário mande ser IDÊNTICO. Não achamos caminho
+  explorável por causa disso — `alvoNomeado` cobre o caso —, mas é a divergência que a régua da
+  própria casa reprovaria se fosse cobrada por assinatura.
+
+**Nota de máquina, não da entrega:** `medir-cartao-controle.js` e `gerar-territorio.js` chamam
+`chromium.launch()` **puro**, sem `ABRIR.chromiumPath()` — é o PENDENTES 91/98 num terceiro lugar,
+pré-existente ao diff. Na nuvem isso exigiu contorno para rodar.
+
+---
+
+## 101 — A seção pública está 3 verbetes atrasada, e o gerador assa a fonte do host no cartão publicado — dev-plataforma/porteiro (02/09)
+
+**Achado pela linha principal do plantão `nuvem-20260902T0823`**, ao consertar o PENDENTES 91/98
+nos quatro geradores (`entrega/geradores-chromium`, `8f9eab0`). O conserto é pequeno e está
+provado; **o que ele revelou ao rodar é maior que ele**, e são duas coisas independentes.
+
+### 101a · A porta e o glossário públicos mentem o número, e é a doença de 22/08 de volta
+
+Rodados os quatro geradores contra a `main` de hoje, a saída **diverge do que está commitado**:
+
+| arquivo | commitado | gerado hoje |
+|---|---|---|
+| `glossario/index.html` (`<meta description>`, `og:description`, corpo) | **181 verbetes** | **184** |
+| `plataforma/index.html` (portal + cartão) | **181 verbetes** | **184** |
+
+Três verbetes entraram no `src/jogo.ts` e **nenhuma das duas páginas públicas foi regerada**. É
+exatamente a classe de erro que criou o `gerar-porta.js` em 22/08 — *"a porta dizia 60 fontes
+enquanto DE ONDE VEM já dizia 61"* —, só que agora a página envelhece mesmo sendo gerada, porque
+**ninguém roda o gerador**. O portão `medir-porta-secao.js` compara porta × seção, e as duas
+estão erradas **pelo mesmo número**, então ele fica verde: duas cópias que concordam entre si e
+discordam da fonte.
+
+**PROVADO por exit code, e o portão se autoincrimina.** `node test/medir-porta-secao.js` na
+`main` de hoje, com o jogo em 184:
+
+```
+OK  momentos: porta=47 · historia=47
+OK  verbetes: porta=181 · glossario=181
+OK  fontes: porta=61 · de-onde-vem=61
+OK  capítulos: porta=13 · jogo (EPOCAS)=13
+porta×seção: 4/4 batem.
+EXIT REAL=0
+```
+
+Ele imprime a palavra `OK` ao lado do número errado e sai **verde**, porque a única coisa que ele
+compara é porta **contra** seção — nunca contra o jogo, que é a fonte. É a mesma doença do
+PENDENTES 68 (*o instrumento tem de ser estritamente mais paranoico que a coisa medida*) num
+lugar novo: aqui o instrumento é tão paranoico quanto duas cópias que se copiaram.
+
+**AGRAVADO PELO PORTEIRO na mesma data, e isto é maior que o número em texto:** não são só o
+`<meta description>` e o `og:description` que mentem. O **JSON-LD `DefinedTermSet`** da página
+commitada tem **181 entradas `DefinedTerm`**, contadas programaticamente — ou seja, **três
+verbetes reais estão ausentes dos dados estruturados indexáveis**. Crawler e rich snippet que
+leem `schema.org` não têm como saber que esses três existem. O risco de SEO é de outra ordem que
+"um número errado no texto", e reforça que o conserto certo é **regerar com máquina qualificada**,
+não deixar a página velha no ar.
+
+**O que falta é o gatilho, não o gerador.** Aceite sugerido: um portão que compare o número
+AFIRMADO nas páginas com o EXTRAÍDO do jogo headless e reprove por exit code — a mesma disciplina
+do espelho do conteúdo (PENDENTES 87), que o funil já roda quando o diff toca o glossário.
+
+### 101b · O cartão publicado muda de tipografia conforme a máquina que o gera — trava de publicação
+
+**Medido, com as duas imagens olhadas lado a lado** (`glossario/compartilhar.jpg`, recorte
+1200×630 real): regerar nesta máquina muda o número **e a fonte**. Os três cartões encolheram
+~10% em bytes — `de-onde-vem` 87.538 → 79.409, `glossario` 81.115 → 76.385, `historia` 83.486 →
+74.829 —, e a comparação visual mostra por quê: **os botões da barra estreitaram, o corpo do
+texto quebra em outro ponto, o peso do serifado mudou.** Não é compressão: é **substituição de
+fonte**. Esta máquina não tem as fontes que a máquina que gerou os cartões commitados tinha.
+
+**A consequência é de infraestrutura, não de estética:** o gerador de seção **não é
+determinístico entre máquinas**. Qualquer uma das três que rode `gerar-*.js` publica um cartão
+com a tipografia do próprio host — e o push na `main` publica sozinho, então isso chega ao
+WhatsApp de quem receber o link.
+
+**Por isso esta rodada NÃO empurrou a saída regerada**, embora o número 184 esteja certo: separar
+a deriva legítima (181→184) da ilegítima (fonte trocada) exigiria uma máquina qualificada, e
+esta não é. Empurrar cartão publicado a partir de máquina que renderiza diferente é a definição
+de mudança externa sem sign-off (`CLAUDE.md` §8 e as travas do plantão).
+
+**Aceite:** ou o gerador passa a **embutir a fonte** que usa (como o build já faz com a arte, e
+aí qualquer máquina gera o mesmo byte), ou ele **recusa rodar** onde a fonte esperada não existe
+— e nesse caso quem recusa diz qual fonte faltou. As duas saídas são cobráveis por exit code; a
+terceira ("cuidado ao rodar") não é, e por isso não conta.
+
+**A DÚVIDA CAIU NO MESMO DIA — o porteiro achou a causa, e ela responde qual renderização é a
+certa.** Eu tinha escrito aqui que *"não dá para saber qual das duas é a certa"* e que descobrir
+exigiria gerar nas três máquinas. Não exige. Medido por ele:
+
+- `ferramentas/chrome-plataforma.js:28` declara `--titulo: "Palatino Linotype",Palatino,Georgia,serif`
+  — **sem nenhum `@font-face`**. É fallback de fonte de sistema puro.
+- Nesta máquina, `fc-list | grep -i "palatino\|georgia"` devolve **zero**, e `fc-match serif`
+  devolve **DejaVu Serif**.
+
+Logo: **a renderização da nuvem é provadamente o último recurso da cadeia, não a intenção de
+design.** A commitada está mais perto do que o design pede. Isso não torna a página commitada
+correta (ela ainda mente 181), mas resolve a pergunta que travava o item.
+
+### 101c · O controle que deveria pegar isto compara texto de CSS, não o glifo pintado
+
+**Provado ao vivo pelo porteiro, e é a lição 2.8 do `EQUIPE.md` num lugar novo.**
+`ferramentas/cartao-secao.js` cobra `getComputedStyle(h1).fontFamily === CHROME.TITULO`. Mas
+`getComputedStyle().fontFamily` devolve **a lista declarada no CSS**, nunca a fonte que o
+navegador de fato pintou: numa `pg.setContent()` com a mesma declaração, ele devolveu a string
+`"Palatino Linotype", Palatino, Georgia, serif` **intacta** — na mesma máquina que estava
+pintando DejaVu Serif.
+
+**Consequência:** esse controle **nunca reprova esta classe de defeito, em máquina nenhuma.** Ele
+foi desenhado assim de propósito, para evitar um falso positivo anterior (Google Fonts
+assíncrona), e supercorrigiu para o lado cego — trocou o falso positivo por cegueira total.
+
+#### ⚠ CORREÇÃO DE 02/09 (`nuvem-20260902T1234`): não é DejaVu — o Chromium pinta **Liberation Serif**
+
+O 101b acima diz que esta máquina renderiza **DejaVu Serif**. A metade que ele mediu está certa:
+`fc-match serif` responde DejaVu mesmo — re-medido hoje. O que está errado é a **inferência**, e
+ela é a que importa: o que o `fc-match` responde **não é** o que o Chromium pinta.
+
+Medido pelo porteiro em 02/09 por **hash de bitmap** (48 px, FNV do canal alfa), que é a única
+medida que olha o glifo em vez de perguntar ao sistema:
+
+| hash / largura de avanço | quem cai nesse grupo |
+|---|---|
+| `d9f9577f` · 917,20 px | `serif` · a pilha do `--titulo` · a pilha do `--leitura` · Liberation Serif · Times New Roman · Tinos · Nimbus Roman · **uma família inexistente** |
+| `6167a9ce` · 1123,88 px | DejaVu Serif |
+| `11e38e47` · 907,15 px | FreeSerif |
+
+A pilha do `--titulo` cai no grupo do **Liberation Serif**, não no do DejaVu. E isso **casa com o
+sintoma** que o próprio 101b registrou ("os botões da barra estreitaram"): Liberation tem métrica
+de Times, ~18% mais estreita — DejaVu é mais **larga** e teria alargado a barra, não estreitado.
+O sintoma sempre desmentiu a causa escrita; ninguém tinha cruzado os dois.
+
+**Duas coisas que saem daqui e valem mais que o nome da fonte:**
+
+1. **`fc-match` não é instrumento para esta pergunta.** Ele responde pela cadeia do fontconfig do
+   sistema; o Chromium tem a sua própria. Usar um para afirmar o outro é o mesmo erro de categoria
+   do 101c (perguntar ao CSS o que só o pixel sabe), num lugar novo.
+2. **Nesta máquina o cartão já perdia a distinção título × corpo:** `--titulo` e `--leitura` caem
+   no MESMO hash. A diferença entre a voz encorpada e a de ler já estava desfeita aqui, antes de
+   qualquer conserto — e nenhum controle via, porque todos perguntavam ao CSS.
+
+**E as duas pontas se resolvem com o mesmo conserto:** embutir a fonte como `@font-face`, no
+mesmo padrão que o build já usa para embutir arte em base64. Aí qualquer máquina gera o mesmo
+byte **e** o controle passa a poder checar `document.fonts.check()` contra uma família que
+carregou de verdade — o que hoje ele não pode fazer, porque não há `@font-face` para checar.
+
+### 101d · Os quatro geradores consertados estão fora do alcance do portão que vigia o padrão
+
+Achado do porteiro, **pré-existente e não regressão**: `test/portao-navegador.js` cobre 33 portões
+(`exit 0`) e os quatro `gerar-*.js` ficam de fora por desenho — não são chamados pelo CI nem pelo
+`package.json`, e o PENDENTES 91 já registrava isso. Fica anotado porque **nada nesta entrega
+fecha o buraco**: se alguém reintroduzir `chromium.launch()` nu num desses quatro amanhã, nenhum
+portão morde. É a pergunta que o PLANTAO §5 manda fazer antes de dar item por fechado — *"e o
+que garante que isto não volte?"* — e a resposta hoje é: nada.
+### FECHADO em 02/09 por `entrega/cartao-geometria` (dev-plataforma) — e o que a hipótese custou
+
+**A saída proposta ("nenhum elemento interativo dentro do recorte") FOI MEDIDA E É FALSA.** Contra
+a página real, depois da exclusão do gerador, há **NOVE elementos interativos legítimos** dentro do
+1200x630: 4 links `a.tabua` da barra e 5 tábuas de lugar `button.pl` (União dos Palmares AL · Rio
+de Janeiro RJ · Salvador BA · Santos SP · Brasília DF), todos `position:static`, todos no cartão
+desde 21/08. A régua ingênua reprovaria o desenho CERTO — e régua que reprova o certo é a que
+alguém afrouxa inteira na primeira vez que ela grita.
+
+> **Este parágrafo já envelheceu, e a data dele é o mesmo dia — a nota fica de propósito.** Ao
+> integrar, com a `main` de 02/09 mergeada, são **6 tábuas** na barra e a lista derivada tem
+> **11 entradas**, não 4 e 9: a tábua "Jogar" entrou na barra nesta mesma data. **O código se
+> ajustou sozinho** — a lista sai de `MAPA_PONTOS` extraído do jogo headless, então ela absorveu
+> a tábua nova sem uma linha mudar, e é essa a prova viva de que a derivação é derivação. Só a
+> **prosa** redigitou o número e envelheceu em horas. É a doença do PENDENTES 101a — número
+> redigitado à mão que envelhece sozinho — aparecendo dentro do texto que a documenta.
+
+**O que entrou no lugar, e a virada é de lado da lista:** `ferramentas/cartao-censo.js`. A régua
+deixa de enumerar o que é PROIBIDO (lista de nomes, infinita, sempre um rename atrás) e passa a
+enumerar o que é PERMITIDO, derivado do dado que gerou a página — os `href` E os rótulos do `<nav>`
+que o `chrome-plataforma.js` escreveu, e as tábuas de lugar de `D.pontos`. Quem cai dentro do
+recorte e não está na lista, reprova: **flutuando ou não, com id ou sem, com qualquer `aria-label`.**
+Renomear deixou de ser fuga e virou a forma mais rápida de cair FORA da lista.
+
+**A geometria entra duas vezes:** (1) quem é INSPECIONADO é decidido por retângulo, não por
+`position` — é isso que alcança o mutante `static` do 100; (2) um permitido tem de caber na CAIXA DE
+ROLAGEM do contêiner que ele diz ser dele, o que derruba o impostor que rouba identidade legítima e
+se muda de lugar.
+
+**Sete mutantes, todos vistos reprovando** (`CARTAO_MUTANTE=<nome> node ferramentas/gerar-territorio.js`,
+e o mesmo conjunto no controle de `test/medir-cartao-controle.js`): `m67` `m68` `m100` mais quatro
+ADVERSARIAIS escritos para derrubar a régua nova. **`m103` PASSOU na primeira versão** — apagar a
+tábua "A História" e vestir o interruptor com o `href` dela —, e é por causa dele que o RÓTULO
+entrou na lista junto do `href`. Mutante que já passou uma vez é a única prova de que a régua mudou
+por medição e não por gosto.
+
+**Os dois achados menores fechados junto:** o controle agora exercita os mutantes REAIS contra
+`territorio/index.html` (antes era um `<button>` genérico sticky que a lista antiga já pegava), e as
+duas cópias que juravam ser idênticas viraram **um `require`** — a assinatura da tabela do
+instrumento passou a ser `require('./cartao-censo.js')`, que prova que os dois RODAM o mesmo código
+em vez de provar que alguém escreveu as mesmas letras duas vezes.
+
+**Os três `chromium.launch()` nus foram consertados** no mesmo ramo (`ABRIR.chromiumPath()`), e o
+`test/portao-navegador.js` continua VERDE (33 arquivos no alcance).
+
+### O QUE SOBROU, e é achado novo desta rodada
+
+1. **`test/medir-cartao-controle.js` NÃO É RODADO POR NINGUÉM.** Não está no `npm test`, não está no
+   `ferramentas/integrar.js` e não está no `.github/workflows/teste.yml` (que roda o
+   `test/cartao-controle.js`, que é outro arquivo — peso e forma do `og:image`). Desde 23/08 este
+   portão só rodou à mão. É a mesma doença num degrau acima do PENDENTES 100: não adianta a régua
+   ser mais paranoica que a coisa medida se ninguém a lê. **Custo estimado: 31 s** (medido nesta
+   máquina, com os 8 carregamentos da página 3D do censo). Território: quem manda no
+   `.github/workflows/teste.yml` e no `integrar.js`.
+
+   **FECHADO em 02/09 por nuvem-20260902T1234 (item `controle-cartao-sem-dono`).** Renomeado para
+   `test/cartao-quadro-controle.js` (junto no mesmo commit, como o pré-integrador pediu — os dois
+   nomes lado a lado num YAML não existem mais). Roda em dois lugares: passo novo no
+   `.github/workflows/teste.yml`, logo depois de `cartao-controle.js` no job `portoes` (mesmo
+   Chromium já instalado, EXIT REAL 0 em 32,48 s medido isolado); e um portão a mais no
+   `ferramentas/integrar.js` (constante `CARTAO_CENSO`) quando o diff toca
+   `ferramentas/gerar-territorio.js`, `ferramentas/cartao-censo.js` ou `territorio/`. As
+   referências dentro de `ferramentas/gerar-territorio.js` (3 comentários) ficaram com o nome
+   velho — fora do território desta entrega, outro agente nele agora — registrado como órfão
+   consciente, sem efeito funcional (são prosa, não código lido).
+2. **A barra do cartão continua cortando a primeira tábua.** No `compartilhar.jpg` commitado ela lê
+   "istória"; regerado nesta máquina, ". História". É a mesma família do defeito de 23/08 ("comeu A
+   História e deixou lossário") e **nenhum portão olha para isso** — o censo cobra QUEM está no
+   quadro, não se o texto de quem está foi decepado. Piorou com a tábua "Jogar" que a `main`
+   acrescentou à barra. Território: `chrome-plataforma.js` + o enquadramento do gerador.
+3. **A build recusava porque a MEDIÇÃO não sai desta máquina.** Com o `chromium.launch()` nu
+   consertado, o gerador passou a rodar e passou a RECUSAR — não pelo cartão, mas porque o POST
+   anônimo para `MEDIDA_HOST` falha aqui: `RECUSADO: erro na página ao tirar o cartão: console:
+   Failed to load resource: 404`. O §3 manda o contrário ("o jogo NUNCA depende dela"), e um JPEG
+   não tem nada a ver com o evento. Consertado no mesmo ramo, e **sem afrouxar**: as URLs que
+   falharam são recolhidas COM a URL, e as linhas de console de recurso (que não trazem URL) só são
+   perdoadas quando TODA URL que falhou é a do host da medição. Qualquer outra volta a recusar.

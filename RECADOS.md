@@ -489,3 +489,215 @@ a #412 (`f59cb50`). Vi o `success` sair da API, não a última linha de log.
 
 Verde por passo, nos dois que estavam vermelhos: *"onde o Chromium está (nenhum portão lança nu)"*
 ✔ · *"controle da fila-auth (prova que as cenas MORDEM)"* ✔ · `node test/fila-auth.js` ✔.
+
+---
+
+## nuvem-20260902T0423 — peguei o funil que faltava, e limpei o mapa dos ramos mortos
+
+Rodada agendada, sem issue etiquetada `agente`. Assumi o `endurecer-portoes` (a rodada
+`nuvem-20260902T0023` o pegou às 00:25, empurrou os três ramos entre 00:39 e 00:50 e **não
+chegou ao funil** — o recado dela, logo acima, diz isso com todas as letras). Não refiz nada:
+o trabalho desta rodada é **auditar e integrar**, que é o que o PLANTAO §7 manda quando existe
+`entrega/<id>` na origin.
+
+**BASELINE PRIMEIRO, e ele veio verde.** `npm install` (o contêiner nasce nu) e depois
+`npm test` na `main` limpa, **sem merge nenhum**: **exit 0**. Isso é o que separa "a entrega
+quebrou" de "a máquina estava vazia" em trinta segundos — a partir daqui, vermelho de funil é
+da entrega.
+
+### Seis ramos `entrega/` na origin, e TRÊS deles estão MORTOS — não os auditem
+
+A varredura de órfãos do PLANTAO §7 acha seis. Só três são trabalho de verdade; os outros três
+**já estão na `main` por conteúdo**, aplicados por outro caminho. Conferido um a um, com número,
+porque item órfão ressuscitado por engano é a forma mais barata de fabricar trabalho que parece
+feito:
+
+| ramo | veredito | a prova |
+|---|---|---|
+| `entrega/canonical-jogo` (`ff583b8`) | **MORTO** | a `main` tem asserção **mais forte** no mesmo lugar: `test/encaixe.js` traz **8** ocorrências de `canonical` e **três** `ok()` (existe · `@@BASE@@` não sobrou cru · casa com `og:url`); o ramo trazia **um** |
+| `entrega/dashboard-trio` (`e2db053`) | **MORTO** | o trio inteiro está na `main`: blocos **[11]** perda deixa rastro, **[12]** recusa por desenho tem nome, **[13]** sem Google, em `test/rodape-verdadeiro.js` — e `<link>` vivo para `fonts.googleapis` em `dashboard/index.html`: **0** (a única ocorrência é o comentário que documenta a remoção) |
+| `entrega/glossario-substancia` (`7cc366d`) | **MORTO** | superado pelo `rev3`, já mergeado. Os três verbetes que ele alegava estão na `main`: ECONOMIA DO OURO **6×**, A CONTA DA ESCRAVIDÃO **6×**, CRITÉRIO BRASIL **4×** em `src/jogo.ts` |
+
+**Eu não consigo apagá-los** — o token da sessão da nuvem tem push e não tem `delete_ref`
+(HTTP 403, medido em 01/09 e continua). Então ficam aqui pelo id, como o PLANTAO §7 manda:
+**quem puder apagar (Mac e Windows), apague os três acima.** Os `voo/` correspondentes
+(`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`) idem.
+
+E a regra que isso confirma, que já está no PLANTAO §7 e agora tem um segundo caso: **`voo/` é
+intenção, `entrega/` é resultado, e o `backlog.json` é a verdade.** Os três ramos mortos
+correspondem a itens que o backlog já marca `concluido` — o backlog estava certo e os ramos é
+que eram sujeira.
+
+### O que esta rodada fechou, e o que fica
+
+**Integrados e empurrados** (portões verdes por exit code real, mordida provada por injeção):
+`entrega/regua-parada-e-fila-paralela` (PENDENTES 69+70c) e `entrega/rodape-quatro-gaps`
+(PENDENTES 74 a–d, mordida 4 de 4). Os dois ramos foram consumidos pelo funil.
+
+**Recusado, e o ramo continua na origin de propósito:** `entrega/portao-cartao-pos-condicao`
+(`5908bba`). Não é portão vermelho — os três saem verdes. É que a alegação central do commit é
+falsa: mudando `id` **e** `aria-label` juntos, as duas pós-condições voltam vazias e a tábua
+MEDIÇÃO reaparece no cartão. **PENDENTES 100** e item `cartao-alvo-por-geometria`.
+**Quem pegar ESTENDE o ramo — ele é bom e já passou pelo porteiro. Não recomece.**
+
+**Marcadores que eu não consigo apagar** (403, a nuvem não tem `delete_ref`), para quem puder:
+`voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`, `voo/rotina-7-sinais`, e os
+`entrega/` dos três mortos listados acima. O `backlog.json` já é a verdade sobre todos eles.
+
+**Nome de máquina: `nuvem-20260902T0423`.**
+
+**CI CONFIRMADO nos dois merges, lido da API e não da última linha de log:** `teste` **#419
+`success`** (`61bc6d4`, a régua+fila) e **#420 `success`** (`6585fdf`, o rodapé — e este commit
+está por cima das DUAS integrações). As execuções seguintes (#421–423) são commits só de
+documentação (PENDENTES/backlog, Diário, este recado) e ainda estavam na fila ao fechar.
+
+Nota de instrumento para a próxima rodada da nuvem: **não existe `gh` aqui**, mas o repositório é
+público e a **API do Actions responde sem autenticação** — `curl -s
+https://api.github.com/repos/mrcx-code/jogo-brasil/actions/workflows/teste.yml/runs?branch=main`
+dá `status`/`conclusion` direto. É mais barato e mais fresco que a ferramenta de MCP, cuja
+resposta chega com dezenas de KB e pode vir repetida.
+
+---
+
+## 02/09, manhã — `nuvem-20260902T0823`: três entregas na `main`, e o que eu NÃO empurrei de propósito
+
+**Integrado e empurrado**, portões verdes por exit code real nos três funis:
+`entrega/geradores-chromium` (os 4 `gerar-*.js` resolvem o Chromium) · `entrega/regua-autoteste-vivo`
+(PENDENTES do rodapé da régua) · `entrega/cartao-geometria` (PENDENTES 100, o censo *default-deny*).
+Os três ramos foram consumidos pelo funil. `endurecer-portoes` fechou junto — o 67+68 era o que
+faltava dele.
+
+### ⚠ NÃO REGEREM SEÇÃO PÚBLICA ATÉ O `cartao-fonte-do-host` — e o motivo é medido
+
+`ferramentas/chrome-plataforma.js:28` declara `--titulo: "Palatino Linotype",Palatino,Georgia,serif`
+**sem nenhum `@font-face`**. Nesta máquina de nuvem, `fc-list` para essas famílias devolve **zero** e
+`fc-match serif` devolve **DejaVu Serif** — então o cartão que eu geraria aqui sai com **fallback de
+último recurso**, e push na `main` publica sozinho.
+
+**O que isso significa para vocês, e é o inverso do que parece:** vocês provavelmente **têm** as
+fontes, então **vocês são a máquina qualificada e eu não sou.** Se um de vocês rodar
+`gerar-glossario.js` e `gerar-porta.js` e empurrar, resolve o **PENDENTES 101a** de uma vez — a
+página pública afirma **181 verbetes** e o jogo tem **184**, e o JSON-LD `DefinedTermSet` tem 181
+`DefinedTerm`, ou seja **3 verbetes reais estão fora dos dados estruturados indexáveis**.
+
+**Antes de empurrar, confiram uma coisa:** rodem `fc-match serif` aí. Se não devolver uma das três
+famílias, vocês estão no mesmo barco e o certo é fazer o `@font-face` primeiro
+(item `cartao-fonte-do-host`), não regerar.
+
+E não confiem no portão para isso: `ferramentas/cartao-secao.js` cobra `getComputedStyle().fontFamily`
+contra a string declarada no CSS, que **nunca é o glifo pintado** — provado ao vivo, a string voltou
+intacta numa máquina pintando DejaVu. **Ele não reprova esta classe em máquina nenhuma.**
+
+### Marcadores que eu não consigo apagar (403 re-medido hoje, exit real 1)
+
+O token da nuvem continua sem `delete_ref`. E a armadilha do PLANTAO §7 se confirmou de novo: o
+comando imprime **`Everything up-to-date` DEPOIS do erro**, então quem lê a última linha conclui
+"apagado". Para quem puder apagar:
+
+- desta rodada, os marcadores: `voo/cartao-alvo-por-geometria`, `voo/regua-autoteste-vivo`
+- desta rodada, os `entrega/` **já consumidos pelo funil** e portanto mortos — conferido, os três
+  estão na `main` por conteúdo: `entrega/geradores-chromium`, `entrega/regua-autoteste-vivo`,
+  `entrega/cartao-geometria`. O `integrar.js` apaga o ramo **local**; o da `origin` fica, e eu não
+  alcanço
+- pendentes da rodada anterior: `voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`,
+  `voo/rotina-7-sinais`, e os `entrega/` dos três ramos mortos (`canonical-jogo`, `dashboard-trio`,
+  `glossario-substancia`)
+
+O `backlog.json` já é a verdade sobre todos eles — os itens estão `concluido`.
+
+### Três itens novos que valem mais que a nota
+
+- **`controle-cartao-sem-dono`** — `test/medir-cartao-controle.js` **não é rodado por ninguém**: nem
+  `npm test`, nem o funil, nem o CI (que roda `cartao-controle.js`, **outro arquivo**). É o único
+  controle que exercita os 7 mutantes contra a página real e desde 23/08 só rodou à mão. Custo: 31 s.
+  **Se forem wirar, renomeiem um dos dois no mesmo commit** — os dois nomes lado a lado num YAML é a
+  próxima meia hora perdida de alguém.
+- **`cartao-decepa-primeira-tabua`** — o `territorio/compartilhar.jpg` publicado lê **"istória"**, e
+  piorou com a tábua "Jogar" que entrou hoje. Os portões cobram *quem* está no recorte; nenhum cobra
+  que quem **pode** estar esteja **inteiro**.
+- **`geradores-fora-do-portao`** — os 4 `gerar-*.js` ficam fora do `portao-navegador.js`. Consertei o
+  `launch()` nu neles e **não fechei o buraco**: se alguém reintroduzir amanhã, nenhum portão morde.
+
+**Nome de máquina: `nuvem-20260902T0823`.**
+
+**CI CONFIRMADO nos três merges desta rodada, lido da API e não da última linha de log:**
+`teste` **#429 success** (`geradores-chromium`), **#430 success** (`regua-autoteste-vivo`) e
+**#432 success** (`cartao-geometria`). As execuções seguintes são commits só de documentação
+(backlog, Diário, este recado) e ainda estavam na fila ao fechar.
+
+---
+
+## 02/09, tarde — `nuvem-20260902T1234`: dois portões sem dono ganharam dono, e a fonte do cartão ficou DECIDIDA
+
+**Integrado e empurrado**, portões verdes por exit code real nos dois funis:
+`entrega/geradores-portao` (o `portao-navegador.js` passa a cobrir os `gerar-*.js`) e
+`entrega/controle-cartao-dono` (o controle do cartão entra no CI e no funil, com rename).
+
+### ⚠ O `cartao-fonte-do-host` está RESOLVIDO no mecanismo, e vocês precisam saber ANTES de regerar
+
+O recado da rodada anterior dizia que **vocês** eram a máquina qualificada para regerar as seções,
+porque vocês têm as fontes e eu não. **Isso mudou, e o motivo é que a premissa estava errada.**
+
+A causa não era "a nuvem não tem Palatino". Era **não haver `@font-face` nenhuma** — então *toda*
+máquina publica a fonte que ela por acaso tem instalada, e as três publicariam coisas diferentes.
+Vocês não eram os qualificados; vocês eram só uma terceira variação.
+
+**O que já está na origin** (`entrega/cartao-fonte-embutida`, `872ed92`, aprovada pela arte, em
+pré-integração ao escrever isto): Gelasio (OFL 1.1) embutida em base64 **em memória, na hora do
+print** — zero byte publicado, zero KB nas páginas, zero em 3G. Depois disso o cartão para de
+depender do host, e **qualquer uma das três máquinas gera o mesmo desenho**.
+
+**Consequência prática para vocês: não regerem seção pública ainda.** Não pela razão antiga (a
+minha fonte errada), e sim porque agora há uma decisão de tipografia entrando — regerar com
+Palatino agora e integrar a fonte depois produz duas gerações incompatíveis na mesma semana.
+**Esperem esta entrega entrar.** Aí qualquer máquina serve, e o `secao-numero-envelhece`
+(a página diz **181** e a fonte tem **184**, com 3 verbetes fora do JSON-LD) destrava para quem
+pegar primeiro.
+
+### Correção de um número que estava no PENDENTES e vocês podem ter lido
+
+O `101b` dizia que esta máquina renderiza **DejaVu Serif**. **Não renderiza — é Liberation Serif.**
+`fc-match serif` responde DejaVu, e essa parte estava medida certa; o erro foi concluir que o
+`fc-match` diz o que o **Chromium** pinta. Não diz — são cadeias diferentes. Medido por hash de
+bitmap, a pilha do `--titulo` cai no grupo do Liberation (917,20 px), não no do DejaVu (1123,88).
+E o sintoma registrado no próprio 101b — *"os botões da barra estreitaram"* — sempre desmentiu a
+causa escrita: Liberation tem métrica de Times, ~18% mais estreita; DejaVu é mais **larga**.
+
+**A lição que sobra é maior que o nome da fonte:** `fc-match` não é instrumento para "que fonte o
+navegador pintou". É o mesmo erro de categoria do 101c (perguntar ao CSS o que só o pixel sabe).
+
+### Dois itens novos, e o primeiro é de vocês se quiserem
+
+- **`csp-paginas-publicas`** — as **cinco páginas públicas não têm CSP nenhuma** (grep próprio:
+  zero em `plataforma/`, `glossario/`, `historia/`, `de-onde-vem/`, `territorio/`; só o
+  `index.html` do jogo tem uma). O `vercel.json` só cobre `/dashboard`. São páginas de produção.
+- **`fonte-embutida-sem-portao`** — o controle novo da fonte morde mas ninguém o roda. Mesma
+  doença que esta rodada curou ao lado; depende da entrega da fonte entrar.
+
+### Marcadores que eu continuo não conseguindo apagar (403 re-medido, exit real 1)
+
+`voo/geradores-fora-do-portao`, `voo/controle-cartao-sem-dono`, `voo/cartao-fonte-do-host`, mais
+os `entrega/` já consumidos pelo funil desta rodada. A armadilha do PLANTÃO §7 se confirmou pela
+**terceira vez**: o comando imprime `Everything up-to-date` **depois** do erro, então quem lê a
+última linha conclui "apagado". **O `backlog.json` é a verdade sobre todos eles.**
+
+**Nome de máquina: `nuvem-20260902T1234`.**
+
+### ✅ ADENDO, mesma rodada: a entrega da fonte ENTROU — a trava de regerar CAIU
+
+`entrega/cartao-fonte-embutida` foi integrada (`c94f31e`), portões verdes por exit code real, com
+veredito de arte aprovando o **Gelasio**. **O pedido de "não regerem seção pública" acima está
+cumprido e vence agora:** a fonte viaja com o print, então **qualquer uma das três máquinas gera o
+mesmo desenho** e a `PENDENTES 101b` deixa de travar quem quer que pegue o trabalho.
+
+**O que isso destrava, e está livre para quem chegar primeiro:** `secao-numero-envelhece` — a
+página pública afirma **181 verbetes** e a fonte tem **184** (contei eu mesmo: 184 entradas em 17
+grupos em `src/jogo.ts`), e o JSON-LD `DefinedTermSet` tem 181 `DefinedTerm`, ou seja **3 verbetes
+reais estão fora dos dados estruturados indexáveis**. O aceite do item pede o **portão** que
+compare afirmado × extraído, não só regerar — regerar sem o portão é consertar o número e deixar
+a causa de pé.
+
+**Uma pista que economiza meia hora de quem pegar:** o `test/medir-porta-secao.js` fica **verde
+(exit 0)** nisso porque compara **porta × seção**, e as duas copiam o mesmo 181. Mas ele **já sabe
+ler a fonte** — faz exatamente isso para capítulos (`porta=13 · jogo (EPOCAS)=13`). Falta aplicar
+ao campo de verbetes o que ele já faz para capítulos.

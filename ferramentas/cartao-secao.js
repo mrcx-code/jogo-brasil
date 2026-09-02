@@ -36,12 +36,26 @@
 //   (e) O GRÃO DO PAPEL SAI DO PRINT — a única coisa da PÁGINA que o cartão não mostra, e a
 //       única textura envolvida. O bloco GRAO_FORA abaixo tem a medição que decidiu isso.
 //
+//   (f) A FONTE VIAJA COM O PRINT, e o que se confere é o GLIFO PINTADO. A cobrança (c) lê
+//       `getComputedStyle`, que devolve a LISTA DECLARADA — ela nunca soube dizer qual
+//       família o navegador desenhou, e por isso NUNCA reprovou, em máquina nenhuma, o
+//       cartão sair com a tipografia do host (PENDENTES 101b/101c). Desde 02/09 a página
+//       recebe, EM MEMÓRIA e só para o print, um `@font-face` com a fonte embutida em
+//       base64 (ferramentas/tipografia/, licença OFL 1.1), toda pilha de serifa da casa
+//       passa a começar por ela, e três recusas cobram o resultado: nenhum elemento
+//       trocado · a fonte não carregou · o título não está sendo pintado nela. A terceira
+//       mede LARGURA DE AVANÇO, não CSS — a única prova possível de qual glifo saiu.
+//       Nenhum byte de `<secao>/index.html` muda por causa disto.
+//
 // E o print sai a `deviceScaleFactor: 1` de propósito: a 2 ele sairia 2400×1260 e desmentiria
 // as tags `og:image:width`/`height` que o próprio gerador escreve.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const CHROME = require('./chrome-plataforma.js');
+// A FONTE QUE VIAJA COM O PRINT (PENDENTES 101b/101c, 02/09). O porque, a medicao que o
+// pediu e a licenca estao em ferramentas/tipografia-cartao.js e em ferramentas/tipografia/.
+const TIPO = require('./tipografia-cartao.js');
 // Só pelo `chromiumPath()`: este arquivo abre a página por `file://` de propósito (é um print
 // de artefato local, não uma medição do jogo), então não usa o servidor do abrir.js.
 const ABRIR = require('../test/abrir.js');
@@ -129,6 +143,10 @@ async function tirar(dir, op) {
 
   try {
     await pg.goto(url);
+    // (f) A FONTE ENTRA ANTES DE `document.fonts.ready`, para o navegador ja ter decidido
+    // sobre ela quando a espera abaixo resolver. Ela nao encosta em nenhum byte publicado:
+    // vive so nesta pagina em memoria, como o GRAO_FORA la em cima.
+    await pg.addStyleTag({ content: TIPO.css({ defeito: process.env.CARTAO_TIPOGRAFIA_DEFEITO }) });
     // As fontes do Google chegam por rede. `document.fonts.ready` resolve quando o navegador
     // terminou de decidir sobre TODAS elas — inclusive decidindo que não vêm.
     await pg.evaluate(() => document.fonts.ready);
@@ -220,6 +238,86 @@ async function tirar(dir, op) {
         + ' identidade visual — confira var(--titulo) e ferramentas/chrome-plataforma.js.');
     }
 
+    // ---- (f) O QUE O PRINT PINTA, e nao mais so o que o CSS pede ----
+    //
+    // A CONFERENCIA ACIMA NAO REPROVA ESTA CLASSE DE DEFEITO EM MAQUINA NENHUMA, e isso foi
+    // provado ao vivo (PENDENTES 101c): `getComputedStyle().fontFamily` devolve a LISTA
+    // DECLARADA, nunca a familia que o navegador desenhou. Numa maquina sem Palatino e sem
+    // Georgia ela devolve a string "Palatino Linotype", Palatino, Georgia, serif inteira e
+    // intacta enquanto o Chromium pinta Liberation Serif. Ela continua aqui porque pega OUTRA
+    // coisa — alguem trocar a pilha declarada por uma sans — e e ela que os dois controles de
+    // test/cartao-controle.js exercitam. O que faltava era isto:
+    //
+    // ORDEM E REQUISITO, nao gosto. A troca abaixo prepende a familia embutida a toda pilha
+    // de serifa da casa; se ela rodasse ANTES, a igualdade de lista acima leria a pilha ja
+    // trocada e reprovaria a pagina limpa. Antes: cobra-se o que a pagina PEDE. Depois:
+    // garante-se o que o print PINTA.
+    const troca = await pg.evaluate((cfg) => {
+      const lista = (s) => String(s || '').split(',')
+        .map((x) => x.trim().replace(/^["']|["']$/g, '').toLowerCase());
+      // IGUALDADE de token, nunca substring: `sans-serif` CONTEM `serif`, e foi assim que o
+      // portao do cartao ficou mudo por um dia em 22/08 (o comentario esta no controle).
+      const daCasa = (fam) => lista(fam).some((t) => cfg.familias.indexOf(t) >= 0);
+      const alvos = [document.documentElement, document.body,
+        ...document.querySelectorAll('body *')]
+        .filter((el) => !(cfg.pularTitulo && el.tagName === 'H1'));
+      // Colhe TUDO antes de escrever: escrever no pai muda a computada do filho por heranca,
+      // e um segundo passe prependeria a familia duas vezes.
+      const colhido = alvos.map((el) => [el, getComputedStyle(el).fontFamily])
+        .filter(([, fam]) => daCasa(fam));
+      colhido.forEach(([el, fam]) => { el.style.fontFamily = '"' + cfg.familia + '",' + fam; });
+      return colhido.length;
+    }, { familia: TIPO.FAMILIA, familias: TIPO.familias(process.env.CARTAO_TIPOGRAFIA_DEFEITO),
+         pularTitulo: TIPO.pularTitulo(process.env.CARTAO_TIPOGRAFIA_DEFEITO) });
+
+    const fonte = await pg.evaluate(async (cfg) => {
+      const q = '"' + cfg.familia + '"';
+      try { await document.fonts.load('700 46px ' + q); } catch (e) { /* status conta a historia */ }
+      try { await document.fonts.load('italic 400 16px ' + q); } catch (e) { /* idem */ }
+      try { await document.fonts.ready; } catch (e) { /* idem */ }
+      // A MEDIDA NAO E `getComputedStyle` E NAO E `document.fonts.check()`. A primeira le CSS;
+      // a segunda responde TRUE DEMAIS (ela pergunta "da para desenhar isto agora?", e da,
+      // com o recuo — medido em 22/08). Aqui se mede a LARGURA DE AVANCO de uma cadeia de
+      // prova, que so pode sair igual se o glifo for o mesmo.
+      const larg = (fam) => {
+        const s = document.createElement('span');
+        s.textContent = 'Glossario acoes RSTUVW gjpqy 0123456789';
+        s.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;'
+          + 'font-size:96px;font-weight:400;font-style:normal;font-family:' + fam;
+        document.body.appendChild(s);
+        const w = s.getBoundingClientRect().width;
+        s.remove();
+        return Math.round(w * 100) / 100;
+      };
+      const h1 = document.querySelector('h1');
+      const nome = (f) => f.family.replace(/^['"]|['"]$/g, '');
+      return {
+        carregadas: [...document.fonts].filter((f) => f.status === 'loaded').map(nome),
+        estados: [...document.fonts].map((f) => nome(f) + '/' + f.style + ':' + f.status),
+        larguraTitulo: h1 ? larg(getComputedStyle(h1).fontFamily) : null,
+        larguraEmbutida: larg(q),
+        larguraRecuo: larg('"__nenhuma familia com este nome 4f9c__"'),
+      };
+    }, { familia: TIPO.FAMILIA });
+
+    if (troca === 0) {
+      throw new Error('RECUSADO: nenhum elemento da pagina veste a serifa da casa, entao nao ha'
+        + ' o que fixar — o cartao sairia na fonte do host. Confira var(--titulo)/var(--leitura)'
+        + ' e ferramentas/tipografia-cartao.js (FAMILIAS_SERIFA).');
+    }
+    if (fonte.carregadas.indexOf(TIPO.FAMILIA) < 0) {
+      throw new Error('RECUSADO: a fonte embutida "' + TIPO.FAMILIA + '" nao carregou — o cartao'
+        + ' sairia com a tipografia desta maquina, que e o defeito que PENDENTES 101b registrou.'
+        + ' Estado de document.fonts: ' + JSON.stringify(fonte.estados)
+        + '. Confira ferramentas/tipografia/ (os .ttf e o OFL.txt existem?).');
+    }
+    if (fonte.larguraTitulo !== fonte.larguraEmbutida || fonte.larguraTitulo === fonte.larguraRecuo) {
+      throw new Error('RECUSADO: o titulo nao esta sendo PINTADO na fonte embutida (largura da'
+        + ' cadeia de prova: pilha do titulo ' + fonte.larguraTitulo + ' px, "' + TIPO.FAMILIA
+        + '" ' + fonte.larguraEmbutida + ' px, recuo do host ' + fonte.larguraRecuo + ' px).'
+        + ' Iguais a primeira e a segunda, e diferente da terceira, e o que prova o glifo.');
+    }
+
     // um quadro para o repintar sem o grão pousar antes do obturador
     await pg.waitForTimeout(120);
     await pg.screenshot({ path: destino, type: 'jpeg', quality: op.qualidade || QUALIDADE });
@@ -230,7 +328,8 @@ async function tirar(dir, op) {
       throw new Error('RECUSADO: ' + path.basename(dir) + '/compartilhar.jpg saiu com '
         + kb.toFixed(0) + ' KB — fora da faixa de ' + KB_MIN + ' a ' + KB_MAX + ' KB');
     }
-    return { kb: kb, titulo: cena.titulo, escondidos: escondidos, topo: cena.topo, base: cena.base };
+    return { kb: kb, titulo: cena.titulo, escondidos: escondidos, topo: cena.topo, base: cena.base,
+      fixados: troca, fonte: TIPO.FAMILIA };
   } finally {
     await nav.close();
   }
