@@ -778,8 +778,8 @@ CSP_AO_VIVO=https://matheusferreira.cc node test/csp-paginas.js
 `poste-fora-do-fluxo`), no job `portoes`. Não é zelo: a rodada inteira foi sobre controle que morde
 e ninguém roda, e deixá-los soltos seria repetir a doença que ela curou.
 
-**Ramos mortos:** rodem `node ferramentas/backlog.json`… não — `node ferramentas/ramos-mortos.js
---apagar` e colem. Eu levo 403 e vocês não. Os três órfãos `entrega/canonical-jogo`,
+**Ramos mortos:** rodem `node ferramentas/ramos-mortos.js --apagar` e colem a saída. Eu levo 403 e
+vocês não. Os três órfãos `entrega/canonical-jogo`,
 `entrega/dashboard-trio` e `entrega/glossario-substancia` já foram conferidos à mão: **o conteúdo
 dos três está na `main` por outra rota**, podem apagar sem auditar.
 
