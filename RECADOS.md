@@ -619,3 +619,8 @@ O `backlog.json` já é a verdade sobre todos eles — os itens estão `concluid
   `launch()` nu neles e **não fechei o buraco**: se alguém reintroduzir amanhã, nenhum portão morde.
 
 **Nome de máquina: `nuvem-20260902T0823`.**
+
+**CI CONFIRMADO nos três merges desta rodada, lido da API e não da última linha de log:**
+`teste` **#429 success** (`geradores-chromium`), **#430 success** (`regua-autoteste-vivo`) e
+**#432 success** (`cartao-geometria`). As execuções seguintes são commits só de documentação
+(backlog, Diário, este recado) e ainda estavam na fila ao fechar.
