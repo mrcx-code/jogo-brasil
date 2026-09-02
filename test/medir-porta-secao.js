@@ -14,6 +14,15 @@
 // PROVA DE QUE REPROVA (lição 2.8): PORTA_SECAO_DEFEITO=1 envelhece o número de fontes da porta
 // em memória (como o "60 vs 61" real) e o portão tem de sair 1. Um portão que nunca foi visto
 // reprovando é decoração.
+//
+// O QUE ESTE PORTÃO NÃO VÊ, E CUSTOU DEZ DIAS DE PÁGINA MENTINDO (02/09, PENDENTES 101a). Ele
+// compara porta com seção — e as duas são GERADAS pelo mesmo dado. Quando ninguém roda o gerador,
+// as duas envelhecem JUNTAS e ele fica VERDE: medido, porta=181 e glossário=181 enquanto o
+// `GLOSSARIO` do jogo tinha 184. Cópia que concorda com cópia não é verificação; é eco. Só três
+// dos quatro pares aqui tocam a fonte (o de capítulos, que lê `EPOCAS` do jogo).
+// O portão que fecha esse buraco é o `test/medir-numero-envelhece.js`: ele compara TODA página
+// pública com o número EXTRAÍDO do jogo headless, e confere o JSON-LD do glossário nome por nome.
+// Este continua valendo pelo que ele diz melhor: QUAL das duas superfícies divergiu da outra.
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');

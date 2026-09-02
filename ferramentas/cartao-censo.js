@@ -89,6 +89,42 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   const usados = Object.create(null);
   const estranhos = [];
 
+  // VISIBILIDADE + RECORTE, num lugar só — as duas passadas abaixo usam a mesma sequência; ela
+  // vive aqui para as duas nunca poderem divergir.
+  function visivel(e) {
+    const s = getComputedStyle(e);
+    if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return null;
+    const r = e.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return null;
+    // O RETÂNGULO cai dentro do recorte? É esta linha — e não o `position` — que decide quem é
+    // inspecionado. O mutante do PENDENTES 100 é `position:static` e cai aqui do mesmo jeito.
+    if (r.right <= 0 || r.bottom <= 0 || r.left >= L || r.top >= A) return null;
+    return { s: s, r: r };
+  }
+  function retratar(e, s, r) {
+    return {
+      alvo: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '')
+        + (e.className ? '.' + String(e.className).replace(/\s+/g, '.') : ''),
+      posicao: s.position,
+      href: e.getAttribute('href') || '',
+      aria: e.getAttribute('aria-label') || '',
+      texto: norm(e.innerText).slice(0, 44),
+      x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height),
+    };
+  }
+
+  // O QUE O PASSO 1 DEIXA PRONTO PARA O PASSO 2 USAR (censo-cartao-residuais, item 1 — "o censo
+  // conta INTERATIVO, não conta o que está na FOTO"):
+  //   `aceitos` — elementos que casaram com um permitido; as partes internas deles (o `<span
+  //               class="uf">` dentro do `button.pl`, os rótulos dentro do botão de medição) não
+  //               são revistas de novo no passo 2 — já estão cobertas pelo pai aceito.
+  //   `donos`   — os contêineres REAIS (`.barra`, `.lista`…) descobertos por terem ao menos UM
+  //               filho aceito dentro deles. Nunca por NOME: um `<div class="barra">` de mentira
+  //               plantado ao lado da barra verdadeira não vira "dono" de graça — só convence o
+  //               passo 1, com um link cujo href E rótulo batam com o dado real.
+  const aceitos = [];
+  const donos = [];   // elementos DOM (não objetos): os contêineres que o passo 1 já provou reais
+
   document.querySelectorAll('body *').forEach((e) => {
     // 1) É interativo? (por seletor OU por tabindex que entra na ordem de foco)
     let interativo = e.matches(SELETOR_INTERATIVO);
@@ -98,25 +134,9 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
     }
     if (!interativo) return;
 
-    // 2) Está VISÍVEL? (o que a exclusão escondeu sai daqui, e é assim que a exclusão "passa")
-    const s = getComputedStyle(e);
-    if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return;
-    const r = e.getBoundingClientRect();
-    if (r.width < 1 || r.height < 1) return;
-
-    // 3) O RETÂNGULO cai dentro do recorte? É esta linha — e não o `position` — que decide quem é
-    //    inspecionado. O mutante do PENDENTES 100 é `position:static` e cai aqui do mesmo jeito.
-    if (r.right <= 0 || r.bottom <= 0 || r.left >= L || r.top >= A) return;
-
-    const retrato = {
-      alvo: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '')
-        + (e.className ? '.' + String(e.className).replace(/\s+/g, '.') : ''),
-      posicao: s.position,
-      href: e.getAttribute('href') || '',
-      aria: e.getAttribute('aria-label') || '',
-      texto: norm(e.innerText).slice(0, 44),
-      x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height),
-    };
+    const v = visivel(e);
+    if (!v) return;   // 2)+3) visível e dentro do recorte — o que a exclusão escondeu sai daqui
+    const retrato = retratar(e, v.s, v.r);
 
     // 4) DEFAULT-DENY: casa com alguma entrada da lista de permitidos?
     // Uma entrada casa só se TODAS as chaves que ela declara casarem. Os links da barra declaram
@@ -151,7 +171,7 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
     const cx0 = rd.left - dono.scrollLeft, cy0 = rd.top - dono.scrollTop;
     const cx1 = cx0 + dono.scrollWidth, cy1 = cy0 + dono.scrollHeight;
     const F = 4;   // folga de subpixel e de borda
-    if (r.left < cx0 - F || r.top < cy0 - F || r.right > cx1 + F || r.bottom > cy1 + F) {
+    if (v.r.left < cx0 - F || v.r.top < cy0 - F || v.r.right > cx1 + F || v.r.bottom > cy1 + F) {
       retrato.motivo = 'permitido "' + rotulo + '" escapou da caixa de rolagem de ' + entrada.dentro
         + ' (' + Math.round(cx0) + ',' + Math.round(cy0) + ' até ' + Math.round(cx1) + ',' + Math.round(cy1) + ')';
       estranhos.push(retrato); return;
@@ -162,6 +182,43 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
     const ch = entrada.__i + '|' + rotulo;
     if (usados[ch]) { retrato.motivo = 'identidade permitida repetida: ' + rotulo; estranhos.push(retrato); return; }
     usados[ch] = true;
+
+    // ACEITO: registra o elemento e o contêiner dele para o passo 2.
+    aceitos.push(e);
+    if (donos.indexOf(dono) === -1) donos.push(dono);
+  });
+
+  // PASSO 2 — QUEM MORA DENTRO DE UM CONTÊINER JÁ PROVADO REAL, MESMO SEM SER INTERATIVO.
+  //
+  // POR QUE ESTE PASSO EXISTE (censo-cartao-residuais, item 1, print do pré-integrador em 02/09):
+  // uma `<div>` sem `onclick`, sem `tabindex` e sem `role`, lendo "MEDIÇÃO ligada", colada dentro
+  // da `.barra` de verdade, nunca acionava o filtro "1) É interativo?" acima e o censo voltava
+  // VAZIO — o defeito visual de 23/08 reproduzido com o portão verde. O cartão é uma FOTO: o que
+  // aparece nela não depende de ser clicável.
+  //
+  // NÃO é o modo de falha do PENDENTES 67/68/100 — lá o alvo era um interruptor DE VERDADE, e
+  // transformá-lo numa `<div>` inerte não seria disfarce, seria desfazer o botão (mudança de
+  // produto, não fuga de censo). Aqui é o oposto: um elemento que NUNCA foi interativo, plantado
+  // no MEIO do conteúdo que o cartão já mostra, e que a régua anterior não tinha como enxergar
+  // porque só olhava para quem convida o dedo.
+  //
+  // A régua não vira "todo texto reprova" (isso trocaria este buraco por um de falso-positivo —
+  // ver o cabeçalho do arquivo e a régua da casa: nenhuma exclusão geral, só o que já foi provado
+  // pertencer). Em vez disso, ela usa os `donos` que o passo 1 JÁ PROVOU reais — contêineres com
+  // pelo menos um filho aceito dentro — e varre TODOS os descendentes deles. Quem não é um aceito
+  // nem faz parte interna de um aceito (o `<span class="uf">` dentro do `button.pl`, os rótulos
+  // dentro do botão de medição) é estranho, interativo ou não.
+  donos.forEach((dono) => {
+    dono.querySelectorAll('*').forEach((e) => {
+      if (aceitos.indexOf(e) !== -1) return;                          // já aceito no passo 1
+      if (aceitos.some((a) => a !== e && a.contains(e))) return;      // parte interna de um aceito
+      const v = visivel(e);
+      if (!v) return;
+      const retrato = retratar(e, v.s, v.r);
+      retrato.motivo = 'dentro de um contêiner já provado do cartão, mas fora da lista de'
+        + ' permitidos — não depende de ser clicável (censo-cartao-residuais item 1)';
+      estranhos.push(retrato);
+    });
   });
 
   return estranhos;
@@ -306,6 +363,22 @@ const MUTANTES = {
     d.style.cssText = 'position:absolute;left:900px;top:420px;width:120px;height:40px;background:#333;color:#fff;z-index:99';
     d.textContent = 'ligado';
     document.body.appendChild(d);
+  },
+  // ITEM (1) DO censo-cartao-residuais (02/09) — o residual com print, o único que o aceite
+  // manda fechar. Uma `<div>` INERTE: sem `onclick`, sem `tabindex`, sem `role` — nada que a
+  // pergunta "1) É interativo?" do passo 1 alcance — lendo "MEDIÇÃO ligada", colada dentro da
+  // `.barra` DE VERDADE (não uma barra impostora: é a mesma `.barra` que já tem os quatro links
+  // aceitos, então ela já é um `dono` provado antes deste mutante rodar). Só o passo 2 (varrer os
+  // descendentes de um `dono` provado, sem exigir interatividade) alcança isto — é o mutante que
+  // teria passado limpo pela régua de antes do item 1, com print do pré-integrador para provar.
+  m106: () => {
+    const barra = document.querySelector('.barra');
+    if (!barra) throw new Error('mutante m106: nao achei .barra na pagina');
+    const d = document.createElement('div');
+    d.className = 'medFoto';
+    d.textContent = 'MEDIÇÃO ligada';
+    d.style.cssText = 'display:inline-flex;align-items:center;padding:0 8px;height:44px;color:#fff';
+    barra.appendChild(d);
   },
 };
 

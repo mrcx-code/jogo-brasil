@@ -151,7 +151,22 @@ const TELAS = [
             b = cfg.getBoundingClientRect();
           }
           alcancavel = cabe(b);
-          if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', janela ' + J + ')';
+          // A DECISÃO DO EIXO X (item `regua-eixo-x-nao-olhado`, 02/09, re-medida pelo dev-jogo):
+          // transbordo alcançável só por ROLAGEM LATERAL continua contando como PRESO — não é
+          // "sem sair da mensagem", é escolha com número. Medido nesta rodada, nas SEIS telas
+          // largas, `#telaMenu` tem `overflow-x` sempre `auto` mas `scrollWidth-clientWidth`
+          // (sobraX) é **0 em produção, nas seis**, porque `overflow-x` nunca é DECLARADO em
+          // `estilo.css` para `#telaMenu` (só `overflow-y: auto`, linhas 847/1026) — o `auto` do
+          // eixo X é efeito colateral do spec (UA força o eixo oposto a `auto` quando só um dos
+          // dois é `visible`), não uma decisão de design. Só aparece sobra (141 px em 899×500,
+          // 265 px em 926×428) sob o defeito INJETADO `#poste{position:absolute;top:0}` — nunca
+          // em produção. Diferente do resgate vertical, que resgata um `overflow-y:auto`
+          // ESCRITO de propósito (o próprio poste rolar em tela baixa é comportamento intencional
+          // documentado no CSS), rolar de lado aqui seria premiar um eixo que ninguém decidiu ter.
+          // Por isso o resgate CONTINUA só em Y — a mudança é a MENSAGEM, que deixa de mentir:
+          // antes só imprimia top/bottom/janela mesmo quando a falha era horizontal (produziu
+          // diagnóstico errado duas vezes, EQUIPE.md); agora imprime os dois eixos sempre.
+          if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', altura ' + J + ' · left ' + Math.round(b.left) + ', right ' + Math.round(b.right) + ', largura ' + L + ')';
           else {
             const cx = Math.round((b.left + b.right) / 2), cy = Math.round((Math.max(b.top, 0) + Math.min(b.bottom, J)) / 2);
             const alvo = document.elementFromPoint(cx, cy);
@@ -347,6 +362,14 @@ const TELAS = [
     // mesma metade que faltava: as tábuas lidas abaixo (`m.tabuas`, `#poste`, `#menuSub`) também
     // brotam — esperar a mobília parar antes de ler geometria.
     await telaParada(pg, 'telaMenu');
+    // ATÉ 02/09 O RETRATO NUNCA RECEBIA REGUA_DEFEITO (item `regua-eixo-x-nao-olhado`, achado 3
+    // do QA, confirmado nesta rodada): a chave só era lida no laço das seis telas largas, acima.
+    // Metade da suíte nunca tinha sido provada contra defeito nenhum. Mesma injeção, mesmo ponto
+    // do ciclo (depois da mobília parar, antes de ler geometria).
+    if (process.env.REGUA_DEFEITO) {
+      await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
+      await pg.waitForTimeout(50);
+    }
     if (process.env.REGUA_CHAO) {
       await pg.evaluate((d) => {
         // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a
@@ -494,3 +517,110 @@ const TELAS = [
 //   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'
 // devolve o nível 2 ao tamanho dos portões — que é literalmente o estado de antes desta rodada —
 // e a régua sai 1 em todas as seis telas. Verificado nesta rodada, com o número no NOTES.md.
+//
+// A TERCEIRA RECEITA — TIRAR DO FLUXO (02/09, achado do QA ao auditar regua-parada-e-fila-paralela,
+// item regua-terceira-receita). As duas receitas acima precisam de DUAS injeções que se encontram
+// (crescer + perder a rolagem). Esta classe morde com UMA injeção só, e a régua já a pegava sem
+// que ninguém a tivesse escrito nem verificado o número:
+//
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'
+//
+// reprova em exatamente 2 de 6 (landscape 899 e phone deitado 926), exit 1 — medido nesta rodada.
+// O QA relatou o mesmo par de telas com top:9999px em vez de top:0px, e o número bateu, mas a causa
+// que ele apontou (a posição vertical, "fora da viewport") NÃO é a causa real — verificado
+// separando as duas variáveis nesta rodada:
+//
+//   REGUA_DEFEITO='#poste{top:9999px!important}'                       (SEM position:absolute)
+//     — passa nas seis, exit 0.
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'  (top plausível, DENTRO
+//     da viewport) — reprova as MESMAS duas telas, exit 1.
+//
+// Ou seja: QUEM MORDE É O position:absolute, não o valor do top.
+//
+// ⚠ E O PORQUÊ DISSO FOI ESCRITO ERRADO AQUI ANTES, DUAS VEZES SEGUIDAS — o que é a própria
+// lição desta receita. A primeira versão dizia que a causa era "fora da viewport". A segunda
+// (esta, corrigida) dizia que `top:9999px` passa porque *"top não tem efeito num elemento
+// static"* e que as outras quatro telas *"não se deslocam"*. As DUAS frases são falsas, e o QA
+// as derrubou com número em 02/09:
+//
+//   · **`#poste` NÃO é static** — `src/estilo.css:659` declara `#poste{position:relative}`, e
+//     `getComputedStyle(#poste).position` responde `relative` nas seis. Então `top` TEM efeito:
+//     com `top:9999px` o `#btnConfig` vai de `top 960` para `top 10959` (tablet retrato), os
+//     9999 px inteiros, nas SEIS telas.
+//   · **Ele passa mesmo assim porque a rolagem resgata.** `#telaMenu{overflow-y:auto}` ganha
+//     9999 px de `scrollHeight` (1024 → 11023), e o resgate por rolagem da própria régua
+//     alcança o botão. Não é o defeito que some — é o instrumento que o alcança.
+//   · **As outras quatro TAMBÉM se deslocam.** `tablet paisagem`, `notebook` e `ultrawide` estão
+//     no MESMO grid (`#telaMenu` com `display:grid` e `grid-template-rows`) e saem 384 / 384 /
+//     392 px POR BAIXO — passam porque a rolagem vertical as resgata (`scrollTop` 438/438/446).
+//     A única que não vaza por eixo nenhum é `tablet retrato`, e é a única cujo `#telaMenu` é
+//     `flex` em vez de `grid`.
+//
+// **O QUE SEPARA 2 DE 6 É O EIXO, NÃO A FAIXA DO LAYOUT.** Nas duas que mordem, o `left` estático
+// vira negativo (−141px em 899, −265px em 926) e o `#btnConfig` transborda PELA DIREITA (770..1010
+// contra janela de 899; 921..1165 contra 926). A régua rola no Y e resgata o transbordo vertical;
+// no X ela não olha. Por isso mordem duas e não seis.
+//
+// A receita certa para reproduzir esta classe continua sendo "tirar o elemento do fluxo normal"
+// (`position:absolute/fixed` sem realocar) — mas o que a régua está medindo aí é **transbordo
+// horizontal**, e é isso que a próxima pessoa precisa saber para não repetir o diagnóstico errado
+// pela terceira vez. `test/poste-fora-do-fluxo.js` prega os três fatos acima por exit code, para
+// esta correção não depender de alguém ler comentário.
+//
+// ⚠ O ACHADO ACIMA FOI FECHADO — item `regua-eixo-x-nao-olhado` (02/09, dev-jogo). A pergunta
+// era: transbordo alcançável só por ROLAGEM LATERAL conta como PRESO? Re-medido nesta rodada,
+// com sonda própria (`test/tmp-sonda-eixo-x.js`, descartada — não entra no commit):
+//
+//   · `#telaMenu` tem `overflow-x:auto` computado nas SEIS telas largas, sempre — mas
+//     `scrollWidth - clientWidth` é **0 em produção, nas seis**, sem nenhum defeito injetado.
+//     `overflow-x` nunca é DECLARADO em `estilo.css` para `#telaMenu` (só `overflow-y: auto`,
+//     linhas 847/1026) — o `auto` do eixo X é o efeito colateral do próprio spec do CSS (a UA
+//     força o eixo oposto a `auto` quando só um dos dois é `visible`), não uma decisão de
+//     design. Só aparece sobra (141 px em 899×500, 265 px em 926×428) sob o defeito INJETADO
+//     `#poste{position:absolute;top:0}` — nunca em produção.
+//   · Simulando o arrasto de verdade (`menu.scrollLeft = menu.scrollWidth`, o que um dedo real
+//     faria), o botão FICA dentro da janela nas duas telas (medido: `cabeDepois: true`) — a
+//     rolagem lateral tecnicamente alcança.
+//
+// **A DECISÃO: CONTA COMO PRESO — o resgate continua só em Y, e a régua REPROVA.** O motivo não
+// é "o dedo não alcançaria" (alcançaria); é que o resgate vertical existente resgata um
+// `overflow-y:auto` ESCRITO de propósito (o poste rolar em tela baixa é comportamento
+// documentado no CSS, testado e intencional), enquanto o `overflow-x:auto` aqui é um acidente
+// de spec que NUNCA tem conteúdo em produção — validar um eixo que ninguém decidiu ter e que só
+// existe sob defeito injetado premiaria a sorte do CSS, não uma affordance real da tela. O que
+// MUDOU não é o veredito, é a MENSAGEM: antes imprimia só `top`/`bottom`/`janela` mesmo quando a
+// falha era horizontal — isso produziu diagnóstico errado duas vezes (EQUIPE.md). Agora a
+// mensagem sempre inclui `left`/`right`/`largura` também (ver o bloco `motivo =` acima, no laço
+// das seis telas largas) — quem ler a falha de 899×500 vê `left 770, right 1010, largura 899` e
+// não confunde mais com "abaixo da dobra".
+//
+// ⚠ E UM SEGUNDO ACHADO, deste MESMO item de backlog, item 3 do pedido ("REGUA_DEFEITO nunca
+// alcança o bloco de RETRATO"): a chave agora É lida no laço das seis telas de retrato também
+// (acima, logo depois de `telaParada`). Mas ligar o fio não bastou — medido nesta rodada, EXIT
+// CODE REAL de cada receita contra as SEIS telas de retrato, com a régua JÁ ATUALIZADA:
+//
+//   REGUA_DEFEITO='#poste{margin-top:250px!important} #telaMenu{overflow-y:hidden!important}' \
+//     node test/regua-larga.js   →   exit 1 (as 899/926 de sempre reprovam), retrato 6/6 ✓.
+//   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}' \
+//     node test/regua-larga.js   →   exit 1 (a hierarquia reprova nas seis TELAS), retrato 6/6 ✓.
+//   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}' \
+//     node test/regua-larga.js   →   exit 1 (899/926 de novo), retrato 6/6 ✓.
+//
+// **NENHUMA DAS TRÊS RECEITAS MORDE EM RETRATO — 0 de 3 — mesmo com a chave ligada lá.** E não é
+// porque a injeção falhou: para a receita "combo", medido À PARTE (sonda descartada) que
+// `#btnConfig` FICA inalcançável em retrato sob esse mesmo CSS (top chega a 1030 contra janela
+// de até 932). O laço de RETRATO simplesmente **não tem nenhuma asserção de alcançabilidade** —
+// ele só confere altura de dedo (`b.h < 44`) e a inércia/sobreposição do diorama da home; nunca
+// pergunta se `#btnConfig` está dentro da janela. Para "hierarquia" e "terceira" o motivo é
+// outro e estrutural, não de cobertura: "hierarquia" testa a distância entre portais e nível 2
+// (`m.portais`/`m.utilidade`), que só existe no laço das TELAS — retrato não tem essa
+// diferenciação. "terceira" não morde porque em retrato `#telaMenu` é `position:fixed` (medido:
+// `getComputedStyle`), então vira o CONTAINING BLOCK do `#poste` absoluto — `top:0` ancora no
+// topo do próprio viewport (que é fixo e cobre a tela inteira), nunca sai da janela; em
+// TELAS o `#telaMenu` não é fixed nas larguras que mordem, então `top:0` conta a partir do
+// fluxo normal do documento e estoura. **REPORTADO, NÃO CONSERTADO POR CIMA** (pedido
+// explícito do plantão): acrescentar um `cfgOk` ao laço de retrato é trabalho novo, não parte
+// deste item — proposto como item de backlog separado abaixo neste comentário para a próxima
+// rodada decidir se vale (a régua de retrato mede outra coisa, arte/diorama, e pode ser opção
+// legítima ela nunca ter testado alcançabilidade de botão, mas isso precisa ser DECISÃO, não
+// lacuna).

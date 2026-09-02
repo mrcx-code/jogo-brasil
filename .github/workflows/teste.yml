@@ -166,6 +166,36 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # o build primeiro: varios portoes leem o index.html da RAIZ, que e saida
       - run: npm run build
+
+      # OS TRES PORTOES QUE NASCERAM NA RODADA DE 02/09 (nuvem-20260902T1623) E PRECISAVAM DE DONO.
+      # A rodada inteira foi sobre controle que morde e ninguem roda — o item fonte-embutida-sem-portao
+      # curou um caso e estes tres nasceriam com a MESMA doenca se ficassem so no disco. O QA cobrou
+      # isto por escrito nos dois relatorios ("nasce com a doenca que a entrega 2 curou" e "portao de
+      # seguranca que so roda se alguem digitar o comando nao protege uma main que publica sozinha").
+      #
+      # Ficam aqui, e nao no `npm test`, pelo motivo que o job inteiro existe: os tres leem `dist/`
+      # ou abrem o Chromium, e este job ja instalou o navegador (linha 166) e ja construiu (linha 168).
+      - name: CSP das paginas publicas (cobertura, tabela pregada, e o navegador)
+        run: node test/csp-paginas.js
+        timeout-minutes: 3
+
+      # O IRMAO DELE, e a razao de serem DOIS: o de cima cobra a CSP; este cobra os outros tres
+      # cabecalhos (XFO, nosniff, Referrer-Policy), que o de cima IMPRIMIA sem cobrar. Medido pelo QA
+      # em 02/09, removendo um por vez do vercel.json: `csp-paginas.js` saia 0 nas tres remocoes.
+      # Regra condicional de proposito (rota que tem CSP tem de ter os tres), para continuar
+      # verdadeira quando uma rota nova entrar sem CSP.
+      - name: cabecalhos que acompanham a CSP (XFO, nosniff, Referrer-Policy)
+        run: node test/qa-csp-cabecalhos.js
+        timeout-minutes: 2
+
+      # A TERCEIRA RECEITA DA REGUA, pregada por exit code em vez de por comentario — porque a
+      # explicacao dela ja foi escrita ERRADA duas vezes seguidas (02/09), e as duas passaram no
+      # portao. Ele prega que `#poste` e `relative`, que `top` desloca de verdade, que quem resgata
+      # e o `overflow-y`, e que o 2-de-6 e do eixo X.
+      - name: poste fora do fluxo (a mecanica da terceira receita, com autoteste)
+        run: node test/poste-fora-do-fluxo.js
+        timeout-minutes: 3
+
       # OS PORTÕES QUE EXISTIAM E NÃO RODAVAM (23/08, pergunta do dono: "esse smoke que passa,
       # vale alguma outra camada de teste?").
       #
