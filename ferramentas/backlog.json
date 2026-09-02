@@ -19,7 +19,7 @@
     },
     {
       "id": "fonte-embutida-sem-portao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "titulo": "O test/cartao-fonte-embutida.js existe e morde, mas ninguem o roda — a mesma doenca que acabamos de curar ao lado",
       "territorio": "package.json,.github/workflows/teste.yml,ferramentas/integrar.js,test/cartao-controle.js",
@@ -27,7 +27,8 @@
       "aceite": "As tres recusas novas passam a ser rodadas por alguem (npm test, CI ou funil), provado por exit code no lugar novo. Alternativa igualmente boa: fundir as tres injecoes na lista DEFEITOS do test/cartao-controle.js, uma linha por defeito.",
       "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto.",
       "maquina": "nuvem-20260902T1623",
-      "desde": "2026-09-02T16:25:27.270Z"
+      "desde": "2026-09-02T16:25:27.270Z",
+      "resolucao": "Feito em 02/09 por nuvem-20260902T1623, escolhendo a ALTERNATIVA do proprio aceite (fundir), por coordenacao: package.json estava com outro agente na mesma rodada, e test/cartao-controle.js ja e chamado pelo CI (.github/workflows/teste.yml, passo cartao de link), entao fundir ali coloca as tres recusas sob portao sem tocar package.json nem o workflow. As tres entradas de DEFEITOS entraram usando o mesmo mecanismo (env CARTAO_TIPOGRAFIA_DEFEITO) que test/cartao-fonte-embutida.js ja usava; esse arquivo foi REMOVIDO no mesmo commit, para nao sobrar copia orfa ao lado da copia fundida. As DUAS afirmacoes do item foram reverificadas, nao aceitas de repeticao: (1) as tres recusas AINDA mordem hoje — provado com harness proprio fora do test, chamando ferramentas/cartao-secao.js direto com cada CARTAO_TIPOGRAFIA_DEFEITO: exit 1 nos tres, exit 0 no controle negativo repetido tres vezes; (2) ninguem rodava — confirmado por grep (so aparecia em ferramentas/backlog.json, descritivo, nenhum require/run real). Depois da fusao, rodado o portao ja fundido (test/cartao-controle.js) limpo: exit 0, 49 verificacoes (as 8 do quadro A, incluindo as 3 novas, mais as 41 da parte B). Mordida confirmada NO LUGAR NOVO com injecao real no codigo de producao: tipografia-cartao.js:137 (pularTitulo) alterado para sempre false -> test/cartao-controle.js caiu para exit 1 apontando exatamente a linha CONTROLE titulo-fora; restaurado -> exit 0 de novo, arvore limpa (git status/diff confirmam)."
     },
     {
       "id": "csp-paginas-publicas",
