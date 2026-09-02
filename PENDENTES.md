@@ -3519,6 +3519,23 @@ enquanto DE ONDE VEM já dizia 61"* —, só que agora a página envelhece mesmo
 estão erradas **pelo mesmo número**, então ele fica verde: duas cópias que concordam entre si e
 discordam da fonte.
 
+**PROVADO por exit code, e o portão se autoincrimina.** `node test/medir-porta-secao.js` na
+`main` de hoje, com o jogo em 184:
+
+```
+OK  momentos: porta=47 · historia=47
+OK  verbetes: porta=181 · glossario=181
+OK  fontes: porta=61 · de-onde-vem=61
+OK  capítulos: porta=13 · jogo (EPOCAS)=13
+porta×seção: 4/4 batem.
+EXIT REAL=0
+```
+
+Ele imprime a palavra `OK` ao lado do número errado e sai **verde**, porque a única coisa que ele
+compara é porta **contra** seção — nunca contra o jogo, que é a fonte. É a mesma doença do
+PENDENTES 68 (*o instrumento tem de ser estritamente mais paranoico que a coisa medida*) num
+lugar novo: aqui o instrumento é tão paranoico quanto duas cópias que se copiaram.
+
 **O que falta é o gatilho, não o gerador.** Aceite sugerido: um portão que compare o número
 AFIRMADO nas páginas com o EXTRAÍDO do jogo headless e reprove por exit code — a mesma disciplina
 do espelho do conteúdo (PENDENTES 87), que o funil já roda quando o diff toca o glossário.
