@@ -659,7 +659,7 @@
       "estado": "livre",
       "papel": "dev-plataforma",
       "titulo": "Os 4 residuais do censo do cartao — o teto honesto da regua, medidos e declarados",
-      "territorio": "ferramentas/cartao-censo.js,test/medir-cartao-controle.js",
+      "territorio": "ferramentas/cartao-censo.js,test/cartao-quadro-controle.js",
       "camada": "esteira",
       "aceite": "Fechar o (1), que e o unico com print de defeito reproduzido. Os outros tres sao anotacao ate alguem passar por ali. Mordida provada por injecao em cada um que for fechado.",
       "detalhe": "Medidos pelo pre-integrador em 02/09 ao aprovar entrega/cartao-geometria, e declarados por ele como NAO bloqueantes. (1) O censo conta INTERATIVO, nao conta o que esta na FOTO: uma div sem onclick, sem tabindex e sem role, lendo MEDICAO ligada, entra na barra e o censo volta VAZIO — o defeito visual de 23/08 reproduzido com o portao verde, com print. Nao e o modo de falha do 67/68/100 (la o alvo era interruptor de verdade, e transforma-lo em div inerte nao e rename, e desfazer o botao), mas e o teto honesto da regua. (2) querySelectorAll(body *) nao atravessa shadow DOM nem iframe; risco HOJE zero, medido: 0 attachShadow e 0 iframe nas quatro fontes. (3) innerText nao ve ::after — injetando font-size:0 mais content no pseudo-elemento, o elemento continua casando href e rotulo e o cartao sai lendo O ligada; custa uma folha de estilo. (4) doHostDaMedicao casa por PREFIXO (indexOf === 0), entao us.i.posthog.com.qualquercoisa seria perdoado; cosmetico, trocar por igualdade de origem quando alguem passar ali.",
