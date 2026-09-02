@@ -588,7 +588,7 @@
       "territorio": "test/,ferramentas/gerar-glossario.js,ferramentas/gerar-porta.js",
       "camada": "esteira",
       "aceite": "Um portao compara o numero AFIRMADO nas paginas publicas com o EXTRAIDO do jogo headless e reprova por EXIT CODE. Mordida provada por injecao: exit 1 com a pagina velha commitada de hoje (181), exit 0 depois de regerar (184). Regerar a saida so DEPOIS do 101b resolvido — ver a trava la.",
-      "detalhe": "PENDENTES 101a, medido em 02/09 por nuvem-20260902T0823. O medir-porta-secao.js compara porta x secao e as DUAS estao erradas pelo mesmo numero, entao ele fica verde: duas copias que concordam entre si e discordam da fonte. O gerador esta certo; falta o GATILHO que obriga a rodar. Disciplina irma: o espelho do conteudo do PENDENTES 87, que o funil ja roda quando o diff toca o glossario.",
+      "detalhe": "PENDENTES 101a, medido em 02/09 por nuvem-20260902T0823. O medir-porta-secao.js compara porta x secao e as DUAS estao erradas pelo mesmo numero, entao ele fica verde: duas copias que concordam entre si e discordam da fonte. O gerador esta certo; falta o GATILHO que obriga a rodar. Disciplina irma: o espelho do conteudo do PENDENTES 87, que o funil ja roda quando o diff toca o glossario. || AGRAVADO pelo porteiro em 02/09: o JSON-LD DefinedTermSet da pagina commitada tem 181 entradas DefinedTerm, contadas programaticamente — tres verbetes reais estao fora dos DADOS ESTRUTURADOS indexaveis, nao so de um numero em texto corrido. Crawler e rich snippet que leem schema.org nao tem como saber que existem. Risco de SEO de outra ordem.",
       "maquina": null,
       "desde": null
     },
@@ -596,12 +596,24 @@
       "id": "cartao-fonte-do-host",
       "estado": "livre",
       "papel": "porteiro",
-      "titulo": "O cartao publicado muda de tipografia conforme a maquina que o gera — o gerador nao e deterministico",
+      "titulo": "O cartao publicado renderiza com fallback de sistema: --titulo pede Palatino sem @font-face, e o controle compara texto de CSS",
       "territorio": "ferramentas/gerar-fontes.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-porta.js,ferramentas/gerar-territorio.js",
       "camada": "esteira",
-      "aceite": "Ou o gerador EMBUTE a fonte que usa (qualquer maquina gera o mesmo byte), ou ele RECUSA rodar onde a fonte esperada nao existe, dizendo qual faltou. As duas saidas sao cobraveis por exit code; um aviso em comentario nao conta. PRIMEIRO PASSO, e e barato: gerar o mesmo cartao nas tres maquinas e comparar, porque ninguem sabe qual renderizacao e a certa.",
-      "detalhe": "PENDENTES 101b, medido em 02/09 por nuvem-20260902T0823 com as duas imagens olhadas lado a lado no recorte 1200x630 real. Regerar na nuvem encolheu os tres cartoes ~10% em bytes (de-onde-vem 87538->79409, glossario 81115->76385, historia 83486->74829) e mudou a tipografia: botoes da barra mais estreitos, corpo quebrando em outro ponto, peso do serifado diferente. Nao e compressao, e substituicao de fonte. Como push na main publica sozinho, isso chega ao WhatsApp de quem recebe o link. Esta rodada NAO empurrou a saida regerada por causa disto, mesmo com o numero 184 estando certo.",
+      "aceite": "Embutir a fonte como @font-face, no mesmo padrao que o build ja usa para arte em base64 — isso resolve as DUAS pontas de uma vez: determinismo entre maquinas E torna possivel o controle checar document.fonts.check() contra uma familia que carregou de verdade. Mordida provada por injecao no cartao-secao.js: exit 1 quando a fonte pedida nao carrega, exit 0 quando carrega. O controle de HOJE (getComputedStyle().fontFamily) sai ou ganha companhia, porque ele nao pode reprovar esta classe em maquina nenhuma.",
+      "detalhe": "PENDENTES 101b + 101c. A CAUSA FOI ACHADA pelo porteiro em 02/09 e a duvida do item caiu: chrome-plataforma.js:28 declara --titulo: \"Palatino Linotype\",Palatino,Georgia,serif SEM nenhum @font-face. Na nuvem, fc-list para palatino/georgia devolve ZERO e fc-match serif devolve DejaVu Serif — entao a renderizacao da nuvem e provadamente o ultimo recurso da cadeia, nao a intencao de design, e a commitada esta mais perto do que o design pede. NAO e mais preciso gerar nas tres maquinas para descobrir qual e a certa. O agravante (101c): cartao-secao.js cobra getComputedStyle(h1).fontFamily === CHROME.TITULO, e isso devolve a LISTA DECLARADA no CSS, nunca o glifo pintado — provado ao vivo, a string voltou intacta numa maquina pintando DejaVu. O controle nunca reprova esta classe em maquina nenhuma; foi desenhado assim para evitar um falso positivo de Google Fonts assincrona e supercorrigiu para a cegueira total.",
       "banca": "porteiro (pagina publica) + arte (veredito visual)",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "geradores-fora-do-portao",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "titulo": "Os quatro gerar-*.js ficam fora do test/portao-navegador.js, entao o launch nu pode voltar sem ninguem ver",
+      "territorio": "test/portao-navegador.js",
+      "camada": "esteira",
+      "aceite": "O portao passa a cobrir os gerar-*.js. Mordida provada por injecao: reintroduzir chromium.launch() nu num deles da exit 1; sem ele, exit 0.",
+      "detalhe": "PENDENTES 101d, achado pelo porteiro em 02/09 auditando entrega/geradores-chromium. PRE-EXISTENTE e nao regressao — o portao-navegador cobre 33 portoes (exit 0) e os gerar-*.js ficam de fora por desenho, porque nao sao chamados pelo CI nem pelo package.json, e o PENDENTES 91 ja registrava. Anotado porque a entrega que consertou os quatro NAO fecha o buraco: e a pergunta do PLANTAO 5 antes de dar item por fechado (e o que garante que isto nao volte?) e a resposta hoje e nada.",
       "maquina": null,
       "desde": null
     }

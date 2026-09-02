@@ -3536,6 +3536,14 @@ compara é porta **contra** seção — nunca contra o jogo, que é a fonte. É 
 PENDENTES 68 (*o instrumento tem de ser estritamente mais paranoico que a coisa medida*) num
 lugar novo: aqui o instrumento é tão paranoico quanto duas cópias que se copiaram.
 
+**AGRAVADO PELO PORTEIRO na mesma data, e isto é maior que o número em texto:** não são só o
+`<meta description>` e o `og:description` que mentem. O **JSON-LD `DefinedTermSet`** da página
+commitada tem **181 entradas `DefinedTerm`**, contadas programaticamente — ou seja, **três
+verbetes reais estão ausentes dos dados estruturados indexáveis**. Crawler e rich snippet que
+leem `schema.org` não têm como saber que esses três existem. O risco de SEO é de outra ordem que
+"um número errado no texto", e reforça que o conserto certo é **regerar com máquina qualificada**,
+não deixar a página velha no ar.
+
 **O que falta é o gatilho, não o gerador.** Aceite sugerido: um portão que compare o número
 AFIRMADO nas páginas com o EXTRAÍDO do jogo headless e reprove por exit code — a mesma disciplina
 do espelho do conteúdo (PENDENTES 87), que o funil já roda quando o diff toca o glossário.
@@ -3564,7 +3572,42 @@ aí qualquer máquina gera o mesmo byte), ou ele **recusa rodar** onde a fonte e
 — e nesse caso quem recusa diz qual fonte faltou. As duas saídas são cobráveis por exit code; a
 terceira ("cuidado ao rodar") não é, e por isso não conta.
 
-**Dúvida honesta que fica, e ela é do dono ou do porteiro:** não dá para saber **qual das duas
-renderizações é a certa**. A commitada pode ser a de uma máquina bem montada — ou a de outra
-máquina com fallback, congelada há semanas. Descobrir isso é o primeiro passo do aceite, e é
-barato: gerar o mesmo cartão nas três máquinas e comparar.
+**A DÚVIDA CAIU NO MESMO DIA — o porteiro achou a causa, e ela responde qual renderização é a
+certa.** Eu tinha escrito aqui que *"não dá para saber qual das duas é a certa"* e que descobrir
+exigiria gerar nas três máquinas. Não exige. Medido por ele:
+
+- `ferramentas/chrome-plataforma.js:28` declara `--titulo: "Palatino Linotype",Palatino,Georgia,serif`
+  — **sem nenhum `@font-face`**. É fallback de fonte de sistema puro.
+- Nesta máquina, `fc-list | grep -i "palatino\|georgia"` devolve **zero**, e `fc-match serif`
+  devolve **DejaVu Serif**.
+
+Logo: **a renderização da nuvem é provadamente o último recurso da cadeia, não a intenção de
+design.** A commitada está mais perto do que o design pede. Isso não torna a página commitada
+correta (ela ainda mente 181), mas resolve a pergunta que travava o item.
+
+### 101c · O controle que deveria pegar isto compara texto de CSS, não o glifo pintado
+
+**Provado ao vivo pelo porteiro, e é a lição 2.8 do `EQUIPE.md` num lugar novo.**
+`ferramentas/cartao-secao.js` cobra `getComputedStyle(h1).fontFamily === CHROME.TITULO`. Mas
+`getComputedStyle().fontFamily` devolve **a lista declarada no CSS**, nunca a fonte que o
+navegador de fato pintou: numa `pg.setContent()` com a mesma declaração, ele devolveu a string
+`"Palatino Linotype", Palatino, Georgia, serif` **intacta** — na mesma máquina que estava
+pintando DejaVu Serif.
+
+**Consequência:** esse controle **nunca reprova esta classe de defeito, em máquina nenhuma.** Ele
+foi desenhado assim de propósito, para evitar um falso positivo anterior (Google Fonts
+assíncrona), e supercorrigiu para o lado cego — trocou o falso positivo por cegueira total.
+
+**E as duas pontas se resolvem com o mesmo conserto:** embutir a fonte como `@font-face`, no
+mesmo padrão que o build já usa para embutir arte em base64. Aí qualquer máquina gera o mesmo
+byte **e** o controle passa a poder checar `document.fonts.check()` contra uma família que
+carregou de verdade — o que hoje ele não pode fazer, porque não há `@font-face` para checar.
+
+### 101d · Os quatro geradores consertados estão fora do alcance do portão que vigia o padrão
+
+Achado do porteiro, **pré-existente e não regressão**: `test/portao-navegador.js` cobre 33 portões
+(`exit 0`) e os quatro `gerar-*.js` ficam de fora por desenho — não são chamados pelo CI nem pelo
+`package.json`, e o PENDENTES 91 já registrava isso. Fica anotado porque **nada nesta entrega
+fecha o buraco**: se alguém reintroduzir `chromium.launch()` nu num desses quatro amanhã, nenhum
+portão morde. É a pergunta que o PLANTAO §5 manda fazer antes de dar item por fechado — *"e o
+que garante que isto não volte?"* — e a resposta hoje é: nada.
