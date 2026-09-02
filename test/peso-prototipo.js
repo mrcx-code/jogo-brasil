@@ -15,7 +15,7 @@
 //      `onload` das peças (que já chama redesenharFundo()) redesenha — sem erro de console.
 //
 // A cópia NÃO é produção: é um protótipo de medida. O que ele não difere (herói, mobs,
-// vegetação por época — mais ~250 KB por capítulo) está anotado no RELATORIO-PESO.md.
+// vegetação por época — mais ~250 KB por capítulo) está anotado no docs/arquivo/RELATORIO-PESO.md.
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");

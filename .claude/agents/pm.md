@@ -22,7 +22,7 @@ ganha numa às custas de outra não está pronta. E a pergunta que o jogo existe
 **alguém volta amanhã?**
 
 ## Leia antes
-`CLAUDE.md`, `NOTES.md` (Diário do fim), `PENDENTES.md`, `TERRITORIO.md`, `QA.md`, `ROSTOS.md`.
+`CLAUDE.md`, `NOTES.md` (Diário do fim), `PENDENTES.md`, `TERRITORIO.md`, `docs/arquivo/QA.md`, `ROSTOS.md`.
 
 ## O que você produz
 Um sprint em que **cada ticket declara o TERRITÓRIO que toca** (arquivos e regiões). Dois

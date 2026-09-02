@@ -950,7 +950,7 @@ function lintComentarios() {
   // nada: no pior caso um save torto ganha cenario). O que nao pode e valor de outro tipo, chave
   // inventada, ou negativo — e o que MENOS pode e regredir num recarregamento, porque "cada
   // estagio fica de pe para sempre" e a trava estrutural contra a palicada chamar a guerra para
-  // dentro da mecanica (§2 / MUTIRAO.md R4).
+  // dentro da mecanica (§2 / docs/arquivo/MUTIRAO.md R4).
   const obraSuja = await page.evaluate(() => ({
     sujo: JSON.stringify(valida(ESQUEMA_SAVE.obra,
       { roca: 5e9, palicada: 'muitas', casa: -3, x: 9 })),
@@ -1148,7 +1148,7 @@ function lintComentarios() {
   if (som.desligado !== 0) errors.push('sound is off and something still made an audio node');
 
   // ---- O GESTO: segurar o MUNDO na faixa final ergue a obra, e nunca vira rajada ----
-  // Tres coisas de uma vez, e as tres sao promessas do MUTIRAO.md:
+  // Tres coisas de uma vez, e as tres sao promessas do docs/arquivo/MUTIRAO.md:
   //   · segurar em QUALQUER ponto do mundo trabalha (sem alvo, sem metade certa, sem timing);
   //   · a personagem PARA — trabalhar e literalmente parar de andar, e e esse o custo;
   //   · o golpe NAO dispara durante a obra: no maximo UM, o do toque que iniciou o gesto.

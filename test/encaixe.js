@@ -1780,7 +1780,7 @@ async function hudNoLugar(pg) {
   // lado curto é a ALTURA, então o único eixo que quebra era o único que ninguém media.
   //
   // Este bloco é a trava. Ele não mede beleza: mede que TODA tábua do menu está inteira
-  // dentro da tela e recebe o dedo, nas duas medidas que o `LANCAMENTO.md` chama de deitado.
+  // dentro da tela e recebe o dedo, nas duas medidas que o `docs/arquivo/LANCAMENTO.md` chama de deitado.
   // ============================================================
   // ============================================================
   // 24 · A OBRA DO LUGAR — o mutirão avança com gente, não avança sem, e ninguém é gasto
@@ -1878,7 +1878,7 @@ async function hudNoLugar(pg) {
   //   (d) a fotografia carimbada CEDO. Se `obraVista` fosse carimbada ao ABRIR a tela e não
   //       no fim de montá-la, a página diria "nada mudou" para sempre, e o defeito seria
   //       invisível — é justamente a frase que faz voltar.
-  //   (e) UM DÍGITO DA OBRA na página. O MUTIRAO.md é literal: a obra não tem número em lugar
+  //   (e) UM DÍGITO DA OBRA na página. O docs/arquivo/MUTIRAO.md é literal: a obra não tem número em lugar
   //       nenhum, o progresso é o desenho. Um "3/6" que alguém acrescente por gentileza
   //       transforma trabalho coletivo em placar.
   //   (f) o DESENHO parar de crescer. Se a chapa da página deixar de responder a `S.obra`, a
