@@ -594,7 +594,7 @@
     },
     {
       "id": "cartao-fonte-do-host",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "titulo": "O cartao publicado renderiza com fallback de sistema: --titulo pede Palatino sem @font-face, e o controle compara texto de CSS",
       "territorio": "ferramentas/gerar-fontes.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-porta.js,ferramentas/gerar-territorio.js",
@@ -602,20 +602,20 @@
       "aceite": "Embutir a fonte como @font-face, no mesmo padrao que o build ja usa para arte em base64 — isso resolve as DUAS pontas de uma vez: determinismo entre maquinas E torna possivel o controle checar document.fonts.check() contra uma familia que carregou de verdade. Mordida provada por injecao no cartao-secao.js: exit 1 quando a fonte pedida nao carrega, exit 0 quando carrega. O controle de HOJE (getComputedStyle().fontFamily) sai ou ganha companhia, porque ele nao pode reprovar esta classe em maquina nenhuma.",
       "detalhe": "PENDENTES 101b + 101c. A CAUSA FOI ACHADA pelo porteiro em 02/09 e a duvida do item caiu: chrome-plataforma.js:28 declara --titulo: \"Palatino Linotype\",Palatino,Georgia,serif SEM nenhum @font-face. Na nuvem, fc-list para palatino/georgia devolve ZERO e fc-match serif devolve DejaVu Serif — entao a renderizacao da nuvem e provadamente o ultimo recurso da cadeia, nao a intencao de design, e a commitada esta mais perto do que o design pede. NAO e mais preciso gerar nas tres maquinas para descobrir qual e a certa. O agravante (101c): cartao-secao.js cobra getComputedStyle(h1).fontFamily === CHROME.TITULO, e isso devolve a LISTA DECLARADA no CSS, nunca o glifo pintado — provado ao vivo, a string voltou intacta numa maquina pintando DejaVu. O controle nunca reprova esta classe em maquina nenhuma; foi desenhado assim para evitar um falso positivo de Google Fonts assincrona e supercorrigiu para a cegueira total.",
       "banca": "porteiro (pagina publica) + arte (veredito visual)",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260902T1234",
+      "desde": "2026-09-02T12:36:19.905Z"
     },
     {
       "id": "geradores-fora-do-portao",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "titulo": "Os quatro gerar-*.js ficam fora do test/portao-navegador.js, entao o launch nu pode voltar sem ninguem ver",
       "territorio": "test/portao-navegador.js",
       "camada": "esteira",
       "aceite": "O portao passa a cobrir os gerar-*.js. Mordida provada por injecao: reintroduzir chromium.launch() nu num deles da exit 1; sem ele, exit 0.",
       "detalhe": "PENDENTES 101d, achado pelo porteiro em 02/09 auditando entrega/geradores-chromium. PRE-EXISTENTE e nao regressao — o portao-navegador cobre 33 portoes (exit 0) e os gerar-*.js ficam de fora por desenho, porque nao sao chamados pelo CI nem pelo package.json, e o PENDENTES 91 ja registrava. Anotado porque a entrega que consertou os quatro NAO fecha o buraco: e a pergunta do PLANTAO 5 antes de dar item por fechado (e o que garante que isto nao volte?) e a resposta hoje e nada.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260902T1234",
+      "desde": "2026-09-02T12:36:19.905Z"
     },
     {
       "id": "regua-terceira-receita",
@@ -631,15 +631,15 @@
     },
     {
       "id": "controle-cartao-sem-dono",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "titulo": "O test/medir-cartao-controle.js nao e rodado por ninguem — nem npm test, nem funil, nem CI",
       "territorio": ".github/workflows/teste.yml,ferramentas/integrar.js,package.json",
       "camada": "esteira",
       "aceite": "O controle passa a ser rodado por alguem, e quem escrever mostra por exit code que ele roda de verdade no lugar novo. Custo medido: 31 s.",
       "detalhe": "Achado pelo dev-plataforma em 02/09 na entrega cartao-geometria, que NAO wirou porque workflow e funil nao sao territorio dele. O CI roda test/cartao-controle.js, que e OUTRO ARQUIVO. Desde 23/08 o medir-cartao-controle so rodou a mao. Consequencia: e o unico controle que exercita os mutantes do cartao contra a pagina real, e ele so morde quando alguem lembra de chama-lo — que e a definicao de portao que nao protege. || ONDE POR, pelo pre-integrador em 02/09: no teste.yml colado no passo da linha 217, que ja e o dono do assunto cartao de link e ja paga um Chromium; e uma linha no funil quando o diff tocar gerar-territorio.js, cartao-censo.js ou territorio/. AVISO DELE, e vale ouro: se fizer, RENOMEIE um dos dois no mesmo commit — cartao-controle.js e medir-cartao-controle.js lado a lado num YAML e a proxima meia hora perdida de alguem.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260902T1234",
+      "desde": "2026-09-02T12:36:19.905Z"
     },
     {
       "id": "cartao-decepa-primeira-tabua",
