@@ -3620,6 +3620,14 @@ de Janeiro RJ · Salvador BA · Santos SP · Brasília DF), todos `position:stat
 desde 21/08. A régua ingênua reprovaria o desenho CERTO — e régua que reprova o certo é a que
 alguém afrouxa inteira na primeira vez que ela grita.
 
+> **Este parágrafo já envelheceu, e a data dele é o mesmo dia — a nota fica de propósito.** Ao
+> integrar, com a `main` de 02/09 mergeada, são **6 tábuas** na barra e a lista derivada tem
+> **11 entradas**, não 4 e 9: a tábua "Jogar" entrou na barra nesta mesma data. **O código se
+> ajustou sozinho** — a lista sai de `MAPA_PONTOS` extraído do jogo headless, então ela absorveu
+> a tábua nova sem uma linha mudar, e é essa a prova viva de que a derivação é derivação. Só a
+> **prosa** redigitou o número e envelheceu em horas. É a doença do PENDENTES 101a — número
+> redigitado à mão que envelhece sozinho — aparecendo dentro do texto que a documenta.
+
 **O que entrou no lugar, e a virada é de lado da lista:** `ferramentas/cartao-censo.js`. A régua
 deixa de enumerar o que é PROIBIDO (lista de nomes, infinita, sempre um rename atrás) e passa a
 enumerar o que é PERMITIDO, derivado do dado que gerou a página — os `href` E os rótulos do `<nav>`

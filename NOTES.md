@@ -11303,3 +11303,120 @@ Nada em `src/` tocado. Território único: `test/regua-larga.js`.
 antes de virar código) · 0 do dono`.
 
 **Nome de máquina desta rodada: `nuvem-20260902T0823`.**
+
+---
+
+## 02/09, manhã — três entregas, e as DUAS premissas do plantão caíram por medição — `nuvem-20260902T0823`
+
+Rodada agendada, sem issue etiquetada `agente` (conferido pela API — não há `gh` nesta máquina).
+Peguei dois itens de esteira de território disjunto, os dois nascidos da auditoria do
+`pre-integrador` de 02/09 de madrugada, e a minha linha principal produziu uma terceira entrega
+enquanto eles corriam.
+
+**Baseline antes de despachar, que é o que separa "a entrega quebrou" de "a máquina estava
+vazia":** `npm install` (o contêiner nasce nu, PLANTAO §4) e CI da `main` verde (#422–424, lidos
+da API).
+
+### O que entrou na `main` — três funis, portões verdes por exit code real nos três
+
+| entrega | o que fecha | auditoria |
+|---|---|---|
+| `entrega/geradores-chromium` | os 4 `gerar-*.js` de seção pública resolvem o Chromium pelo `chromiumPath()` | porteiro |
+| `entrega/regua-autoteste-vivo` | o autoteste do rodapé da `regua-larga` volta a morder | qa |
+| `entrega/cartao-geometria` | PENDENTES 100 · o censo do cartão vira *default-deny* | pré-integrador (porteiro + qa) |
+
+### O QUE CAIU — e as duas foram contra MIM
+
+**1. "Nenhum elemento interativo dentro do recorte 1200×630."** Foi a saída que eu escrevi no
+despacho do cartão, e ela é **falsa**: medido contra a página real, há **9 interativos legítimos**
+lá dentro (tábuas da barra + botões de lugar, todos `position:static`). A minha régua **quebraria
+o build de quem não fez nada errado** — e régua que reprova o certo é a que alguém afrouxa
+inteira na primeira vez que ela grita.
+
+O que fechou foi **inverter a lista**: *default-deny* com os permitidos **derivados** de
+`MAPA_PONTOS`, extraído do jogo headless. Geometria decide **quem é inspecionado** (retângulo, não
+`position` — é isso que alcança o mutante `static`) e **se um permitido está no lugar dele**
+(caixa de rolagem do contêiner). Nome só aparece do lado do conteúdo legítimo, onde renomear te
+**tira da lista** em vez de te esconder.
+
+**Prova viva de que a derivação é derivação:** a lista absorveu sozinha a tábua "Jogar" que a
+`main` acrescentou **no mesmo dia**, de 9 para 11 entradas, sem uma linha de código mudar.
+
+**2. "O `margin-top:250px` reprova em 3 de 6 telas."** Número que eu passei no despacho da régua,
+herdado da rodada anterior. **Não reprova: passa nas 6** (exit 0). O QA exagerou para
+`margin-top:2000px` e **ainda saiu exit 0** — porque a rolagem de verdade sempre resgata, e
+resgate legítimo não é defeito. O `overflow-y:hidden` sozinho também não morde mais (0 de 6). Só
+a **combinação** reprova, 3 de 6, e o QA **tentou derrubar essa exigência e não conseguiu** — o
+que é resultado, não fracasso.
+
+**3. "Não dá para saber qual renderização do cartão é a certa."** Eu escrevi isso no PENDENTES
+101b e disse que descobrir exigiria gerar nas três máquinas. **Não exige, e caiu no mesmo dia:**
+`chrome-plataforma.js:28` pede `"Palatino Linotype",Palatino,Georgia,serif` **sem nenhum
+`@font-face`**; aqui `fc-list` para essas famílias devolve **zero** e `fc-match serif` devolve
+**DejaVu Serif**. A renderização da nuvem é o **último recurso da cadeia**, não a intenção de
+design.
+
+### O que a minha própria linha achou, e vale mais que a entrega que o achou
+
+Consertar os geradores exigiu **rodá-los**, e rodá-los revelou o PENDENTES **101**:
+
+- **101a** — `glossario/index.html` e `plataforma/index.html` publicados afirmam **181 verbetes**;
+  o jogo tem **184**. E o portão `medir-porta-secao.js` fica **verde** nisso — provado, ele
+  imprime `OK verbetes: porta=181 · glossario=181` e sai **exit 0**, porque compara porta
+  **contra** seção e nunca contra a fonte. Duas cópias que concordam entre si e discordam do
+  original. **Agravado pelo porteiro:** o **JSON-LD `DefinedTermSet`** commitado tem 181
+  `DefinedTerm`, então **3 verbetes reais estão fora dos dados estruturados indexáveis**.
+- **101b** — regerar aqui muda a **tipografia** dos cartões publicados (os três encolheram ~10%
+  em bytes). **Segurei a saída regerada de propósito**, mesmo com o 184 estando certo: push na
+  `main` publica sozinho, e máquina que renderiza com fallback não empurra cartão publicado.
+- **101c** — o controle que deveria pegar isso é **cego por construção**: `cartao-secao.js` cobra
+  `getComputedStyle(h1).fontFamily`, que devolve a **lista declarada no CSS**, nunca o glifo
+  pintado. Provado ao vivo: a string voltou intacta numa máquina pintando DejaVu. Ele foi
+  desenhado assim para evitar um falso positivo de Google Fonts assíncrona e **supercorrigiu para
+  a cegueira total**.
+- **101d** — os quatro `gerar-*.js` ficam **fora** do `portao-navegador.js` (33 portões, exit 0),
+  pré-existente pelo PENDENTES 91. A entrega conserta os quatro e **não fecha o buraco**: se
+  alguém reintroduzir o `launch()` nu amanhã, nenhum portão morde.
+
+### Números medidos nesta rodada
+
+| | |
+|---|---|
+| `chromium.launch()` nu nesta máquina | **exit 1** — playwright fixa a build **1234**, o disco tem a **1194** |
+| arquivos que lançam Chromium | **130**, dos quais **50 nus** — mas os **3 portões do funil** usam `chromiumPath()`, então o funil nunca esteve em risco |
+| geradores de seção pública nus | **5 de 5** — a nuvem não regerava seção nenhuma |
+| depois do conserto | `gerar-porta`, `gerar-fontes`, `gerar-historia`, `gerar-glossario` → **exit 0, 0, 0, 0** |
+| cartões, ao regerar aqui | `de-onde-vem` 87.538→79.409 · `glossario` 81.115→76.385 · `historia` 83.486→74.829 bytes |
+| fugas tentadas contra o censo novo | **7** · 2 recusadas · 5 escaparam **sem devolver controle ao recorte** |
+| `medir-cartao-controle.js` | **exit 0** em 3 execuções seguidas, stdout **byte a byte idêntico**, 30,9 s |
+| `territorio/index.html` ao regerar | md5 **idêntico** (`9cac00d7…`) — o HTML é determinístico; só o JPEG não é |
+
+### O que quebrou, e o que não
+
+Nada quebrou. Os três funis saíram verdes de primeira. **Uma coisa vale registrar como
+não-defeito:** o `git push --delete` continua devolvendo **403** para a nuvem (re-medido hoje,
+exit real 1) — e continua imprimindo `Everything up-to-date` **depois** do erro, que é a
+armadilha que o PLANTAO §7 documenta. Quem lê a última linha conclui "apagado" e segue.
+
+### As dúvidas que ficam
+
+1. **Qual máquina é a qualificada para regerar seção pública?** Ninguém sabe, e enquanto ninguém
+   souber a página fica mentindo 181. O conserto que resolve as duas pontas é **embutir a fonte
+   como `@font-face`**, no mesmo padrão que o build já usa para arte em base64 — aí qualquer
+   máquina gera o mesmo byte **e** o controle passa a poder checar `document.fonts.check()`.
+2. **`medir-cartao-controle.js` não é rodado por ninguém** — nem `npm test`, nem funil, nem CI (o
+   CI roda `cartao-controle.js`, **outro arquivo**). É o único controle que exercita os mutantes
+   contra a página real, e desde 23/08 só rodou à mão.
+3. **A barra do cartão decepa a primeira tábua** — o `compartilhar.jpg` commitado lê "istória", e
+   piorou com a tábua "Jogar". Os portões cobram **quem** está no recorte; nenhum cobra que quem
+   **pode** estar esteja **inteiro**.
+
+### Próximo passo
+
+`secao-numero-envelhece` e `cartao-fonte-do-host` são os dois que se destravam juntos, e o
+segundo vem primeiro — não adianta regerar a página antes de a fonte parar de depender do host.
+
+**Placar da rodada:** `nuvem-20260902T0823 · 3 entregas integradas · 4 agentes · 24 achados · 23
+reais · 3 desmentidos, os TRÊS contra premissas minhas`.
+
+**Nome de máquina: `nuvem-20260902T0823`.**

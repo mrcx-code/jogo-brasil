@@ -556,3 +556,62 @@ público e a **API do Actions responde sem autenticação** — `curl -s
 https://api.github.com/repos/mrcx-code/jogo-brasil/actions/workflows/teste.yml/runs?branch=main`
 dá `status`/`conclusion` direto. É mais barato e mais fresco que a ferramenta de MCP, cuja
 resposta chega com dezenas de KB e pode vir repetida.
+
+---
+
+## 02/09, manhã — `nuvem-20260902T0823`: três entregas na `main`, e o que eu NÃO empurrei de propósito
+
+**Integrado e empurrado**, portões verdes por exit code real nos três funis:
+`entrega/geradores-chromium` (os 4 `gerar-*.js` resolvem o Chromium) · `entrega/regua-autoteste-vivo`
+(PENDENTES do rodapé da régua) · `entrega/cartao-geometria` (PENDENTES 100, o censo *default-deny*).
+Os três ramos foram consumidos pelo funil. `endurecer-portoes` fechou junto — o 67+68 era o que
+faltava dele.
+
+### ⚠ NÃO REGEREM SEÇÃO PÚBLICA ATÉ O `cartao-fonte-do-host` — e o motivo é medido
+
+`ferramentas/chrome-plataforma.js:28` declara `--titulo: "Palatino Linotype",Palatino,Georgia,serif`
+**sem nenhum `@font-face`**. Nesta máquina de nuvem, `fc-list` para essas famílias devolve **zero** e
+`fc-match serif` devolve **DejaVu Serif** — então o cartão que eu geraria aqui sai com **fallback de
+último recurso**, e push na `main` publica sozinho.
+
+**O que isso significa para vocês, e é o inverso do que parece:** vocês provavelmente **têm** as
+fontes, então **vocês são a máquina qualificada e eu não sou.** Se um de vocês rodar
+`gerar-glossario.js` e `gerar-porta.js` e empurrar, resolve o **PENDENTES 101a** de uma vez — a
+página pública afirma **181 verbetes** e o jogo tem **184**, e o JSON-LD `DefinedTermSet` tem 181
+`DefinedTerm`, ou seja **3 verbetes reais estão fora dos dados estruturados indexáveis**.
+
+**Antes de empurrar, confiram uma coisa:** rodem `fc-match serif` aí. Se não devolver uma das três
+famílias, vocês estão no mesmo barco e o certo é fazer o `@font-face` primeiro
+(item `cartao-fonte-do-host`), não regerar.
+
+E não confiem no portão para isso: `ferramentas/cartao-secao.js` cobra `getComputedStyle().fontFamily`
+contra a string declarada no CSS, que **nunca é o glifo pintado** — provado ao vivo, a string voltou
+intacta numa máquina pintando DejaVu. **Ele não reprova esta classe em máquina nenhuma.**
+
+### Marcadores que eu não consigo apagar (403 re-medido hoje, exit real 1)
+
+O token da nuvem continua sem `delete_ref`. E a armadilha do PLANTAO §7 se confirmou de novo: o
+comando imprime **`Everything up-to-date` DEPOIS do erro**, então quem lê a última linha conclui
+"apagado". Para quem puder apagar:
+
+- desta rodada: `voo/cartao-alvo-por-geometria`, `voo/regua-autoteste-vivo`
+- pendentes da rodada anterior: `voo/canonical-jogo`, `voo/dashboard-trio`, `voo/glossario-substancia`,
+  `voo/rotina-7-sinais`, e os `entrega/` dos três ramos mortos (`canonical-jogo`, `dashboard-trio`,
+  `glossario-substancia`)
+
+O `backlog.json` já é a verdade sobre todos eles — os itens estão `concluido`.
+
+### Três itens novos que valem mais que a nota
+
+- **`controle-cartao-sem-dono`** — `test/medir-cartao-controle.js` **não é rodado por ninguém**: nem
+  `npm test`, nem o funil, nem o CI (que roda `cartao-controle.js`, **outro arquivo**). É o único
+  controle que exercita os 7 mutantes contra a página real e desde 23/08 só rodou à mão. Custo: 31 s.
+  **Se forem wirar, renomeiem um dos dois no mesmo commit** — os dois nomes lado a lado num YAML é a
+  próxima meia hora perdida de alguém.
+- **`cartao-decepa-primeira-tabua`** — o `territorio/compartilhar.jpg` publicado lê **"istória"**, e
+  piorou com a tábua "Jogar" que entrou hoje. Os portões cobram *quem* está no recorte; nenhum cobra
+  que quem **pode** estar esteja **inteiro**.
+- **`geradores-fora-do-portao`** — os 4 `gerar-*.js` ficam fora do `portao-navegador.js`. Consertei o
+  `launch()` nu neles e **não fechei o buraco**: se alguém reintroduzir amanhã, nenhum portão morde.
+
+**Nome de máquina: `nuvem-20260902T0823`.**
