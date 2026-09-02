@@ -787,3 +787,62 @@ dos três está na `main` por outra rota**, podem apagar sem auditar.
 
 **CI verde no commit que mexe no proprio CI** (`d99a1e9`, run 452): `conclusion: success`, lido da
 API e nao da ultima linha de log. Os tres portoes novos rodam e passam la, nao so aqui.
+
+---
+
+## 02/09 noite — `nuvem-20260902T2022`
+
+### Tres entregas na `main`, uma PRONTA esperando 8 rodadas de medicao
+
+**Integradas pelo funil, portoes verdes por exit code real:** `csp-constante-qa` · `censo-foto-qa` ·
+`regua-eixo-x`. As duas primeiras levam junto um portao escrito pelo QA (`test/qa-vercel-host.js` e
+`test/qa-censo-passo2.js`), porque a auditoria nao so refutou — ela entregou o substituto provado.
+
+**NAO integrada, e nao por defeito:** `origin/entrega/cartoes-tipografia` esta PRONTA, com portao
+proprio e dois commits. Falta UMA medicao: rodar o gerador do territorio **8 vezes** e provar que o
+hash da regiao estavel aguenta. A entrega mediu 4; antes do conserto a corrida de fonte aparecia
+**1 vez em 2**. O pre-integrador que faria isso foi morto por um reinicio de conteiner. Ela regera
+os `.jpg` que o WhatsApp mostra, e push na `main` publica sozinho — por isso a determinismo e o que
+decide. **Nao refacam o trabalho; auditem e integrem.**
+
+### O que o QA DERRUBOU, e vale mais que as tres integracoes
+
+1. **O portao do `vercel.json` promete o que nao cumpre.** O comentario dele diz que "erro de dedo
+   derruba o build". Das cinco injecoes, **quatro passam**: `http://` rebaixado, `psthog` (dedo),
+   escape `p`, e `connect-src` removido — todas **BUILD exit 0**, e ainda imprimindo
+   *"12 ocorrencias, todas == MEDIDA_HOST"*, porque a contagem caiu de 13 e **nada a cobra**.
+   Pior para o valor do item: as 5 ocorrencias que decidem cabecalho servido **ja eram cobertas**
+   pelo bloco B do `test/csp-paginas.js` da `main`. A cobertura unica dele sao as 8 que **nao
+   decidem cabecalho nenhum** — e la ele e cego a 4 de 5 classes. O `qa-vercel-host.js` (parse do
+   JSON, nao texto) morde **5 de 5** e nasce exit 0 contra a `main`.
+2. **O "zero falso-positivo" do censo vale so para o territorio.** Nas outras quatro paginas a
+   segunda passada acusa `span.vaoMedida` — espacador `aria-hidden` que o **proprio**
+   `chrome-plataforma.js` escreve dentro da `.barra`. Nenhum portao vermelho hoje (o censo so esta
+   ligado ao territorio), mas o exemplar vivo ja esta no repositorio. E a outra ponta: **3 dos 4**
+   mutantes de outro autor **escapam**. Item novo: `censo-vaomedida-falso-positivo`.
+
+### O achado a favor, que ninguem tinha alegado
+
+O portao do pacote exercita a **CSP real** do jogo. Tirando o `'self'` do `connect-src` do `<meta>`
+do `dist/jogo/index.html`: **exit 1**. A CSP do §3 passou a ser cobrada de verdade **pela primeira
+vez** — o `connect-src` que traz a arte de onze capitulos nunca tinha sido exercitado.
+
+### Divida registrada, para nao passar por aprovacao
+
+`entrega/regua-eixo-x` foi integrada com **`--sem-qa`**: o reinicio matou o pre-integrador que a
+auditaria. A alegacao central dela — *sobraX = 0 em producao nas seis telas largas, e os 141/265 px
+so aparecem sob defeito injetado* — **nao foi reconferida por terceiro**. O motivo esta no placar.
+
+### Ramos mortos: continuam com voces, e agora sao mais
+
+Quinta medicao da mesma armadilha, e ela se confirmou de novo: `git push --delete` daqui sai com
+**exit real 1** e a **ultima linha do log diz `Everything up-to-date`**. Quem le o fim do log
+conclui "apagado" e segue.
+
+Alem dos que ja estavam, ficaram os **5 marcadores** desta rodada (`voo/cartoes-tipografia-defasada`,
+`voo/censo-cartao-residuais`, `voo/csp-host-nao-sai-da-constante`, `voo/jogo-connect-src-sem-portao`,
+`voo/regua-eixo-x-nao-olhado`) e os ramos `entrega/csp-constante`, `entrega/censo-foto`,
+`entrega/csp-constante-qa`, `entrega/censo-foto-qa`. Rodem `node ferramentas/ramos-mortos.js --apagar`
+— **o backlog e a verdade, o marcador e so pista** (PLANTAO §7), entao podem pegar os itens sem medo.
+
+### Nome de maquina: `nuvem-20260902T2022`.

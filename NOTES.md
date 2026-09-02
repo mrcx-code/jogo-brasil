@@ -11667,3 +11667,62 @@ exige medir o gesto, não o layout. Item `regua-eixo-x-nao-olhado`.
    está mostrando **duas** serifas nos cartões de link agora) e `jogo-connect-src-sem-portao`.
 
 **Nome de máquina: `nuvem-20260902T1623`.**
+
+### 2026-09-02 (noite) · plantão `nuvem-20260902T2022` · três entregas, e duas promessas escritas que caíram
+
+Rodada agendada (sem issue com etiqueta `agente`). Cinco itens de esteira puxados da fila, quatro
+agentes em worktree isolado, territórios disjuntos, todos em **sonnet** — nenhum item mudava
+mecânica, economia ou §2, então subir de tier seria queimar token à toa.
+
+**Integradas pelo funil, portões verdes por exit code real:** `csp-constante-qa` · `censo-foto-qa` ·
+`regua-eixo-x`. Baseline medido ANTES de qualquer merge, e foi o que tornou os vermelhos legíveis:
+`npm test` na `main` limpa = **exit 0**; CI verde (run 455, lido da API, não da última linha de log).
+
+**O que MEDI:**
+
+| | |
+|---|---|
+| pacote de arte baixando em `/jogo/` | **774.678 bytes** (número do QA reconferido por dois agentes) |
+| literais do host no `vercel.json` | **13**, e continuam 13 — `vercel.json` teve **0 linha** de diff |
+| injeções que o `conferirVercelJson` **não** pega | **4 de 5** |
+| `span.vaoMedida` acusado pelo censo | **4 de 5** páginas públicas |
+| mutantes de outro autor que escapam do censo | **3 de 4** |
+| cobertura do passo 2 no cartão real | **0 julgados, 14 absolvidos** (dormente hoje) |
+| `sobraX` em produção nas seis telas largas | **0** — os 141/265 px só sob defeito injetado |
+| mancha de tinta do nav (cartões) | historia 870→902, de-onde-vem 871→902, glossário 897 inalterado |
+
+**O QUE CAIU — e vale mais que as três integrações:**
+
+1. **O portão do `vercel.json` promete o que não cumpre.** Seu próprio comentário diz que "erro de
+   dedo derruba o build". Das cinco injeções, **quatro passam** (`http://`, `psthog`, escape
+   `p`, `connect-src` removido) — todas **BUILD exit 0**, ainda imprimindo *"12 ocorrências,
+   todas == MEDIDA_HOST"*: a contagem caiu de 13 e **nada a cobra**. E as 5 ocorrências que decidem
+   cabeçalho servido **já eram cobertas** pelo bloco B do `csp-paginas.js` da `main` — a cobertura
+   única dele são as 8 que não decidem cabeçalho nenhum, e lá ele é cego a 4 de 5 classes.
+   Substituto provado entrou junto: `test/qa-vercel-host.js` (parse do JSON, não texto), 5/5.
+2. **O "zero falso-positivo" do censo valia só para uma página.** Nas outras quatro ele acusa
+   `span.vaoMedida` — espaçador `aria-hidden` que o **próprio** `chrome-plataforma.js` escreve.
+3. **"Cinco cartões" era falso: são quatro.** O quinto é o HUD do jogo; `gerar-porta.js` nunca gerou
+   cartão nenhum. O item nasceu de uma contagem errada.
+4. **Minha própria:** chamei `ferramentas/caminhos-do-backlog.js` e ele não existe — mora em
+   `test/`. Instrumento antes do produto valeu para mim também.
+
+**O achado a favor, que ninguém tinha alegado:** o portão do pacote exercita a **CSP real** do jogo
+— tirando o `'self'` do `<meta>` do `dist/jogo/index.html`, **exit 1**. O `connect-src` que traz a
+arte de onze capítulos nunca tinha sido exercitado por portão nenhum.
+
+**O que quebrou:** o contêiner reiniciou **duas vezes**. A primeira matou o pré-integrador (perdido,
+não re-despachado por tempo). A segunda matou o terceiro funil no meio — e deixou na `main` local um
+**merge sem portão confirmado** (o commit de merge existia, o de placar não). Resetei para
+`origin/main` e refiz o funil do zero. **Lição para a próxima sessão: funil morto no meio deixa
+merge não verificado no disco; a assinatura é o commit de merge SEM o commit de placar ao lado.**
+
+**Dúvida registrada, não resolvida:** a corrida de fonte do `gerar-territorio.js` foi medida em 4
+rodadas idênticas, mas aparecia **1 vez em 2** antes do conserto. Quatro não separa conserto de
+sorte — por isso `cartoes-tipografia` ficou **pronta e não integrada**.
+
+**Próximo passo:** medir as 8 rodadas e integrar `origin/entrega/cartoes-tipografia` (não refazer —
+o ramo existe); depois `censo-vaomedida-falso-positivo` e a metade não feita do
+`csp-host-nao-sai-da-constante` (a fonte única; o portão já está pronto).
+
+**Nome de máquina: `nuvem-20260902T2022`.**

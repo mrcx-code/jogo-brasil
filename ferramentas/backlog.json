@@ -696,7 +696,7 @@
     },
     {
       "id": "censo-cartao-residuais",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "titulo": "Os 4 residuais do censo do cartao — o teto honesto da regua, medidos e declarados",
       "territorio": "ferramentas/cartao-censo.js,test/cartao-quadro-controle.js",
@@ -704,19 +704,18 @@
       "aceite": "Fechar o (1), que e o unico com print de defeito reproduzido. Os outros tres sao anotacao ate alguem passar por ali. Mordida provada por injecao em cada um que for fechado.",
       "detalhe": "Medidos pelo pre-integrador em 02/09 ao aprovar entrega/cartao-geometria, e declarados por ele como NAO bloqueantes. (1) O censo conta INTERATIVO, nao conta o que esta na FOTO: uma div sem onclick, sem tabindex e sem role, lendo MEDICAO ligada, entra na barra e o censo volta VAZIO — o defeito visual de 23/08 reproduzido com o portao verde, com print. Nao e o modo de falha do 67/68/100 (la o alvo era interruptor de verdade, e transforma-lo em div inerte nao e rename, e desfazer o botao), mas e o teto honesto da regua. (2) querySelectorAll(body *) nao atravessa shadow DOM nem iframe; risco HOJE zero, medido: 0 attachShadow e 0 iframe nas quatro fontes. (3) innerText nao ve ::after — injetando font-size:0 mais content no pseudo-elemento, o elemento continua casando href e rotulo e o cartao sai lendo O ligada; custa uma folha de estilo. (4) doHostDaMedicao casa por PREFIXO (indexOf === 0), entao us.i.posthog.com.qualquercoisa seria perdoado; cosmetico, trocar por igualdade de origem quando alguem passar ali.",
       "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z"
+      "concluido_em": "2026-09-02T21:47:23.373Z",
+      "resolucao": "Residual (1) fechado: censoDoQuadro ganhou segunda passada que varre descendente NAO-interativo dentro de conteiner provado. Mutante m106 (div inerte lendo MEDICAO ligada dentro da .barra real): logica antiga -> exit 1 PASSOU LIMPO, logica nova -> exit 0 recusando. Residuais (2) (3) (4) medidos e escritos no PENDENTES 102: 0 attachShadow e 0 iframe nas cinco paginas; innerText nao ve ::after (vao real); doHostDaMedicao casa por prefixo em gerar-territorio.js:852. O QA DERRUBOU o zero-falso-positivo — ver item novo censo-vaomedida-falso-positivo."
     },
     {
       "id": "cartoes-tipografia-defasada",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "porteiro",
       "camada": "esteira",
-      "titulo": "Quatro dos cinco cartoes de link ficaram com a tipografia velha — a plataforma mostra DUAS serifas",
-      "territorio": "ferramentas/gerar-porta.js,ferramentas/gerar-historia.js,ferramentas/gerar-fontes.js,ferramentas/gerar-territorio.js",
-      "aceite": "Os cinco cartoes saem da MESMA tipografia, medido pela mancha de tinta do nav (hoje glossario=622 px e os outros=592 px, com texto identico nos cinco). Portao que reprove por exit code quando um cartao commitado nao bate com o que o gerador atual produz — regerar sem portao conserta o sintoma e deixa a causa de pe.",
-      "detalhe": "Achado pelo QA em 02/09 auditando secao-numero-envelhece, FORA do escopo dela. O commit 872ed92 (02/09) embutiu a Gelasio e NAO regerou os cartoes; os cinco da main eram de ba3ec1d (26/08). A entrega secao-numero-envelhece regerou UM (o do glossario) como efeito colateral de regerar a pagina, entao agora ha um cartao com a serifa da casa e quatro sem. Medido: nav do glossario 622 px de tinta, historia 592, de-onde-vem 592.",
-      "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z"
+      "titulo": "Cartoes de link com tipografia velha — A ENTREGA ESTA PRONTA em origin/entrega/cartoes-tipografia, falta so auditar e integrar",
+      "territorio": "ferramentas/gerar-territorio.js,test/cartao-tipografia-fresca.js,package.json,historia/compartilhar.jpg,de-onde-vem/compartilhar.jpg,territorio/compartilhar.jpg",
+      "aceite": "NAO REFACA O TRABALHO. O ramo origin/entrega/cartoes-tipografia existe, com 2 commits e portao proprio. Falta UMA medicao antes do funil: rodar o gerador do territorio 8 vezes seguidas e provar que o hash da regiao estavel aguenta. A entrega mediu 4 e a corrida de fonte aparecia 1 vez em 2 antes do conserto — 8 e o que separa conserto de sorte. Depois disso, funil normal.",
+      "detalhe": "Rodada nuvem-20260902T2022. A entrega DESMENTIU o proprio item: sao QUATRO cartoes com o nav, nao cinco — o quinto (compartilhar.jpg da raiz) e o HUD do jogo, fonte pixel-art do jogo.ts, e gerar-porta.js nunca gerou cartao nenhum. Mancha de tinta medida: historia 870 -> 902, de-onde-vem 871 -> 902, glossario 897 inalterado; territorio por largura de avanco (recuo do host 1777,92 -> familia embutida 1910,34). Achado novo fora do item: gerar-territorio.js nunca teve @font-face nem verificacao, porque tira o proprio print e nunca passou pelo cartao-secao.js. O portao proprio dela achou DOIS defeitos no codigo dela antes de qualquer injecao: a barra alargada invalidava o scrollIntoView (tabua 48 px fora da borda, falha SILENCIOSA) e document.fonts.ready nao basta (resolve nada pendente, e nada pende ate algum texto PEDIR a familia; conserto: document.fonts.load explicito). O pre-integrador que mediria as 8 rodadas foi morto pelo reinicio do conteiner — por isso o item nao foi integrado, e nao por defeito conhecido. Ele regera BINARIO que publica sozinho no push (o cartao do WhatsApp), entao a determinismo e o que decide."
     },
     {
       "id": "regua-eixo-x-nao-olhado",
@@ -728,12 +727,12 @@
       "aceite": "Decidir, COM MEDICAO, se transbordo horizontal alcancavel por rolagem lateral conta como PRESO. Se contar, a mensagem de falha passa a imprimir left/right/innerWidth (hoje so imprime top/bottom, e foi isso que produziu o diagnostico errado duas vezes). Se nao contar, a terceira receita muda de exemplo.",
       "detalhe": "Achado do QA em 02/09. O #telaMenu tem overflow-x:auto computado, e com a receita da terceira classe sobram 141 px (landscape 899) e 265 px (phone deitado 926) de rolagem HORIZONTAL — um dedo real poderia arrastar de lado e chegar ao botao, e a regua chama isso de PRESO. Junto: a mensagem de falha imprime (top 371, bottom 415, janela 500), numeros todos DENTRO da janela, porque a falha e horizontal e a mensagem so tem numeros verticais. E REGUA_DEFEITO nunca alcanca o bloco de RETRATO: as 6 telas de retrato nunca receberam injecao nenhuma, entao nenhuma das tres receitas foi provada contra metade da suite.",
       "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z",
-      "resolucao": "Resolvido 02/09 por dev-jogo (nuvem-20260902T2022). DECISAO (com medicao): transbordo alcancavel so por rolagem lateral CONTA como PRESO. sobraX e 0 nas seis telas largas em producao (sem defeito nenhum); overflow-x:auto nunca e declarado em estilo.css para #telaMenu (so overflow-y:auto, linhas 847/1026) -- e efeito colateral do spec CSS, nao decisao de design. So aparece sobra (141px em 899x500, 265px em 926x428) sob o defeito INJETADO position:absolute -- nunca em producao. O resgate continua so em Y (que resgata um overflow-y ESCRITO de proposito); a mensagem de falha passa a imprimir left/right/largura sempre, alem de top/bottom/janela -- e o que estava faltando e produziu diagnostico errado duas vezes. Item 3 do pedido tambem resolvido parcialmente: REGUA_DEFEITO agora e lido no laco de retrato tambem (antes nunca era). Achado aberto NESTA rodada, reportado e NAO consertado por cima: 0 das 3 receitas documentadas mordem em retrato mesmo com a chave ligada, porque o laco de retrato nao tem assercao de alcancabilidade nenhuma (so altura de dedo e inercia do diorama) -- virou o item novo regua-retrato-sem-alcancabilidade."
+      "resolucao": "DECIDIDO com medicao: transbordo horizontal alcancavel por rolagem lateral CONTINUA contando como PRESO. Razao medida: sobraX (scrollWidth-clientWidth) e 0 em producao nas seis telas largas; os 141 px (899) e 265 px (926) so aparecem sob defeito injetado. E overflow-x nunca e declarado em src/estilo.css para #telaMenu (so overflow-y) — o auto do eixo X e efeito colateral do spec CSS, nao decisao de design, entao validar esse eixo premiaria a sorte. A mensagem de falha passou a imprimir left/right/largura alem de top/bottom/janela, que era a causa de dois diagnosticos errados. RESSALVA: QA independente nao rodou (reinicio de conteiner) — integrado com --sem-qa e o motivo escrito no placar.",
+      "concluido_em": "2026-09-02T21:47:23.373Z"
     },
     {
       "id": "jogo-connect-src-sem-portao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "O connect-src self que traz a arte de onze capitulos nao e exercitado por portao nenhum",
@@ -741,19 +740,18 @@
       "aceite": "Um portao carrega /jogo/ e prova que um pack-*.json BAIXA (bytes > 0), reprovando por exit code se a CSP o bloquear. Mordida provada por injecao: acrescentar connect-src ao cabecalho do /jogo/ tem de dar exit 1. Custo estimado pelo QA: ~6 linhas no bloco E.",
       "detalhe": "Achado do QA em 02/09. Medido: /jogo/ carregado por 4 s no menu faz ZERO pedido de mesma origem (pedidos nao-documento = 1, e e o POST do PostHog), entao nenhum portao desta casa exercita o caminho dos pacotes. Uma linha a mais naquele cabecalho deixa o jogo com a arte do capitulo 1 em TODO LUGAR, sem erro de console (o recuo e silencioso POR DESENHO, CLAUDE.md §3 letra a) e com todo portao verde. O QA provou que hoje nao quebra: mesmos 774.678 bytes do pack-cais com e sem o cabecalho novo, com controle negativo (connect-src restritivo -> Failed to fetch).",
       "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z"
+      "concluido_em": "2026-09-02T21:47:23.373Z",
+      "resolucao": "Portao medirPacoteJogo() em test/csp-paginas.js: carrega /jogo/ e baixa pack-cais.json de verdade (774678 bytes, numero do QA reconferido). Injecao CSP_JOGO_CONNECT_TESTE com connect-src restritivo -> exit 1 Failed to fetch; limpo -> exit 0. O QA achou MAIS do que a entrega alegou: tirando o self do connect-src do meta do dist/jogo/index.html o portao da exit 1 — a CSP do §3 passou a ser cobrada de verdade pela primeira vez. Integrado em entrega/csp-constante-qa."
     },
     {
       "id": "csp-host-nao-sai-da-constante",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "porteiro",
       "camada": "esteira",
-      "titulo": "O host da medicao aparece 13x literal no vercel.json — o §3 manda que ele saia de UMA constante so",
+      "titulo": "O host ainda aparece 13x literal no vercel.json — a metade do aceite que NAO foi feita",
       "territorio": "vercel.json,ferramentas/medir-secao.js,ferramentas/construir.js",
-      "aceite": "O host sai de MEDIDA_HOST tambem para o vercel.json, como ja sai para a CSP do jogo (construir.js:350). Portao que reprove por exit code se as duas pontas divergirem.",
-      "detalhe": "Achado do QA em 02/09. O CLAUDE.md §3 diz por extenso que o host sai de UMA constante so (MEDIDA_HOST, ferramentas/medir-secao.js:44) precisamente porque errar nele FALHA EM SILENCIO: os dois enderecos respondem 200 OK a qualquer chave e o sintoma seria um painel vazio semanas depois. A CSP do jogo deriva da constante; a CSP nova das paginas nao deriva de nada — 13 literais no vercel.json e 1 na tabela pregada do portao.",
-      "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T20:23:56.595Z"
+      "aceite": "O host sai de MEDIDA_HOST para o vercel.json de verdade (hoje sao 13 literais). A METADE DO PORTAO JA ESTA FEITA e nao se refaz: test/qa-vercel-host.js cobra o vercel.json pelo JSON depois do parse e morde 5 de 5 injecoes. O que falta e a fonte unica.",
+      "detalhe": "Rodada nuvem-20260902T2022 entregou o PORTAO e nao a constante. Medido: vercel.json com 0 linha de diff, 13 literais intactos. O QA derrubou a promessa do conferirVercelJson (ferramentas/construir.js), que varre por TEXTO: das cinco injecoes so a de regiao morde — http:// rebaixado, erro de dedo (psthog), escape unicode \\u0070 e connect-src removido saem BUILD exit 0, e ainda imprimindo 12 ocorrencias todas == MEDIDA_HOST, porque candidatos.length nao e cobrado contra nada. Pior: as 5 ocorrencias que decidem cabecalho servido JA eram cobertas pelo bloco B do test/csp-paginas.js da main, entao a cobertura unica do conferirVercelJson sao as 8 que nao decidem cabecalho nenhum — e la ele e cego a 4 de 5 classes. O qa-vercel-host.js (parse do JSON) cobre isso e nasce exit 0 contra a main. Ao pegar este item: corrigir tambem o comentario do conferirVercelJson, que promete pegar erro de dedo e nao pega."
     },
     {
       "id": "porta-entrada-cresce-em-silencio",
@@ -776,6 +774,16 @@
       "detalhe": "Achado do dev-jogo em 02/09 ao fechar regua-eixo-x-nao-olhado: religar REGUA_DEFEITO no laco de retrato (antes nunca lido ali) nao bastou para as tres receitas documentadas (combo margin-top+overflow-y:hidden, hierarquia dos botoes nivel 2, terceira position:absolute) morderem -- 0 de 3, exit 0 nas seis telas de retrato nos tres casos, medido. Para 'combo' o motivo e cobertura: sonda a parte confirmou que #btnConfig FICA inalcancavel em retrato sob o mesmo CSS (top ate 1030 contra janela de ate 932), mas nada no laco de retrato pergunta isso. Para 'hierarquia' o motivo e conceitual: o laco de retrato nao diferencia portais de nivel 2 (m.portais/m.utilidade so existem no laco das telas largas). Para 'terceira' o motivo e estrutural: em retrato #telaMenu e position:fixed (medido via getComputedStyle), entao vira o containing block do #poste absoluto e top:0 nunca sai do viewport -- diferente das telas largas, onde #telaMenu nao e fixed nas larguras que mordem.",
       "maquina": "nuvem-20260902T2022",
       "desde": "2026-09-02T00:00:00.000Z"
+    },
+    {
+      "id": "censo-vaomedida-falso-positivo",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "A segunda passada do censo acusa decoracao legitima em 4 de 5 paginas — e e estreita demais em 3 de 4 mutantes",
+      "territorio": "ferramentas/cartao-censo.js,ferramentas/chrome-plataforma.js,test/qa-censo-passo2.js",
+      "aceite": "A segunda passada para de acusar span.vaoMedida sem parar de recusar o m106 e o q107d. Mordida provada por injecao nos dois sentidos: o falso-positivo some E os mutantes continuam recusados. Medir de novo as cinco paginas.",
+      "detalhe": "Achado pelo QA em 02/09 refutando a entrega censo-foto, e e um desmentido de alegacao escrita: a entrega mediu zero falso-positivo contra o territorio e declarou zero geral. Medido pelo QA nas cinco: plataforma/index.html 1, historia 1, glossario 1, de-onde-vem 1, territorio 0 — e o acusado e sempre o mesmo span.vaoMedida, espacador aria-hidden que o proprio chrome-plataforma.js escreve dentro da .barra. O territorio escapa so porque a exclusao dele esconde .vaoMedida explicitamente. Nenhum portao esta vermelho hoje porque o censo so esta ligado ao territorio — mas o exemplar vivo ja esta no repositorio esperando a exclusao mudar. Junto, a outra ponta: 3 dos 4 mutantes que o QA escreveu ESCAPAM (texto inerte sobre o mapa no lugar onde o m105 mora; dentro de .env, conteiner sem filho aceito que nunca vira dono; e texto por ::after de uma tabua aceita). Cobertura medida no cartao real: 0 julgados, 14 absolvidos — a passada esta dormente no artefato commitado e so morde quando algo novo aparece."
     }
   ]
 }
