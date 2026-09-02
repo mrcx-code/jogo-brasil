@@ -607,15 +607,16 @@
     },
     {
       "id": "geradores-fora-do-portao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "titulo": "Os quatro gerar-*.js ficam fora do test/portao-navegador.js, entao o launch nu pode voltar sem ninguem ver",
       "territorio": "test/portao-navegador.js",
       "camada": "esteira",
       "aceite": "O portao passa a cobrir os gerar-*.js. Mordida provada por injecao: reintroduzir chromium.launch() nu num deles da exit 1; sem ele, exit 0.",
       "detalhe": "PENDENTES 101d, achado pelo porteiro em 02/09 auditando entrega/geradores-chromium. PRE-EXISTENTE e nao regressao — o portao-navegador cobre 33 portoes (exit 0) e os gerar-*.js ficam de fora por desenho, porque nao sao chamados pelo CI nem pelo package.json, e o PENDENTES 91 ja registrava. Anotado porque a entrega que consertou os quatro NAO fecha o buraco: e a pergunta do PLANTAO 5 antes de dar item por fechado (e o que garante que isto nao volte?) e a resposta hoje e nada.",
-      "maquina": "nuvem-20260902T1234",
-      "desde": "2026-09-02T12:36:19.905Z"
+      "maquina": null,
+      "desde": null,
+      "resolucao": "Feito em 02/09 por nuvem-20260902T1234. O portao-navegador.js ganhou uma QUARTA fonte de derivacao (leitura de diretorio de ferramentas/ filtrando gerar-*.js), na mesma via que ele ja usava para o rodape-verdadeiro, mais uma terceira cobaia no --autoteste. Medido: 26 derivados/33 com requires -> 31/40, exit 0 nas duas pontas; injecao de launch() nu deu exit 1 na linha certa nos 4 arquivos testados, exit 0 apos restaurar; o glob nao reprova gerar-*.js legitimo sem navegador (ficticio criado pelo pre-integrador: exit 0). CORRECAO DE REGISTRO: sao CINCO geradores, nao quatro — e o quinto, fora do commit 8f9eab0, e o gerar-territorio.js (vestido 31 min depois em 9be0694), NAO o gerar-fontes.js, que ja estava nos quatro. O PENDENTES 91 de 31/08 ja nomeava os cinco."
     },
     {
       "id": "regua-terceira-receita",
