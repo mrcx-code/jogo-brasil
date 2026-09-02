@@ -604,6 +604,44 @@ function conferirCspDashboard(origemHtml) {
     }
   }
 }
+
+// O HOST DA MEDICAO NO vercel.json -- ACHADO DO QA EM 02/09 (item `csp-host-nao-sai-da-
+// constante`). A CSP das PAGINAS (item acima, `conferirCspDashboard`, e a do jogo em
+// `verificarRede`) ja cobrava o proprio <head>; o cabecalho que a Vercel manda para as oito
+// familias de rota (/, /historia, /glossario, /de-onde-vem, /territorio, /mesa, /jogo,
+// /dashboard, cada uma em ate tres formas) vive so em `vercel.json`, um JSON estatico que
+// ninguem gera -- e o host da medicao esta `https://us.i.posthog.com` DIGITADO ali, a mao, em
+// cada bloco que precisa dele. Duas copias do mesmo endereco divergem em SILENCIO: os dois
+// hosts do PostHog respondem 200 OK a qualquer coisa, e o sintoma seria um painel vazio
+// semanas depois -- o mesmo erro de regiao de 10/08, so que agora nas paginas em vez do jogo
+// (CLAUDE.md paragrafo 3).
+//
+// Como `vercel.json` nao passa pelo build (a Vercel o le direto do commit, nao de `dist/`),
+// gerar cada campo dele a partir de `MEDIDA_HOST` exigiria reescrever a config inteira -- mais
+// risco do que o achado pede. O portao faz a outra metade do trabalho: varre o arquivo inteiro
+// atras de qualquer coisa que PARECA um host de medicao (mesmo dominio-base) e reprova o build
+// se algum deles nao for BYTE A BYTE igual a `MEDIDA_HOST`. Nenhum literal correto passa
+// despercebido -- e um literal errado (regiao trocada, host de teste esquecido, erro de dedo)
+// derruba o build antes de chegar a Vercel.
+function conferirVercelJson() {
+  const caminho = p("vercel.json");
+  if (!fs.existsSync(caminho)) throw new Error("vercel.json sumiu da raiz -- a Vercel fica sem CSP nenhuma para publicar");
+  const txt = fs.readFileSync(caminho, "utf8");
+  JSON.parse(txt); // se nao for JSON valido, e melhor falhar aqui do que na Vercel
+  const candidatos = txt.match(/https:\/\/[a-z0-9.-]*posthog[a-z0-9.-]*/gi) || [];
+  if (!candidatos.length) {
+    throw new Error("vercel.json nao tem host de medicao nenhum -- sumiu o connect-src da CSP das paginas?");
+  }
+  const divergentes = candidatos.filter(function (h) { return h !== MEDIDA_HOST; });
+  if (divergentes.length) {
+    throw new Error("vercel.json tem host de medicao que nao bate com MEDIDA_HOST (" + MEDIDA_HOST
+      + "): " + JSON.stringify(Array.from(new Set(divergentes)))
+      + " -- as duas pontas (ferramentas/medir-secao.js e vercel.json) divergiram.");
+  }
+  console.log("  vercel.json: " + candidatos.length + " ocorrencia(s) do host de medicao, todas == MEDIDA_HOST");
+}
+conferirVercelJson();
+
 if (fs.existsSync(p("dashboard"))) {
   if (fs.existsSync(p("dashboard", "index.html"))) conferirCspDashboard(p("dashboard", "index.html"));
   fs.mkdirSync(d("dashboard"), { recursive: true });
