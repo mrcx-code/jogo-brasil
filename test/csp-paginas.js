@@ -80,6 +80,15 @@ const DIST = path.join(RAIZ, 'dist');
 const VERCEL = path.join(RAIZ, 'vercel.json');
 const INJETAR = process.env.CSP_INJETAR_FALHA || '';
 const AO_VIVO = (process.env.CSP_AO_VIVO || '').replace(/\/$/, '');
+// PROVA DE MORDIDA DO ITEM `jogo-connect-src-sem-portao` (02/09): o cabecalho de /jogo/ hoje e
+// SO_MOLDURA (so `frame-ancestors`), sem `connect-src` nenhum -- e e por isso que o fetch do
+// pack-*.json (mesma origem) passa. O risco real e alguem acrescentar `connect-src` aquela
+// tabela um dia e esquecer o `'self'` dos pacotes (exatamente o erro que a CSP do JOGO evita
+// desde 10/08, CLAUDE.md paragrafo 3). Esta variavel simula isso EM MEMORIA, sem tocar o
+// vercel.json em disco: acrescenta um `connect-src` restritivo (sem 'self') ao cabecalho que o
+// servidor local manda para /jogo/, e o bloco E abaixo tem de reprovar.
+//   CSP_JOGO_CONNECT_TESTE="https://us.i.posthog.com"  node test/csp-paginas.js   -> exit 1
+const CONNECT_TESTE = process.env.CSP_JOGO_CONNECT_TESTE || '';
 
 const falhas = [];
 const reprovar = m => falhas.push(m);
@@ -176,7 +185,36 @@ function cabecalhosDaRota(rota) {
     for (const h of (r.headers || [])) saida[h.key] = h.value;   // a Vercel: a ultima casa vence
   }
   if (INJETAR && rota === INJETAR) delete saida['Content-Security-Policy'];
+  if (CONNECT_TESTE && rota === '/jogo/' && saida['Content-Security-Policy']) {
+    saida['Content-Security-Policy'] = saida['Content-Security-Policy'] + '; connect-src ' + CONNECT_TESTE;
+  }
   return saida;
+}
+// O PACOTE DE ARTE, BAIXADO DE VERDADE. Ate 02/09 nenhum portao carregava /jogo/ e ficava tempo
+// suficiente, ou fazia qualquer coisa, para exercitar o `fetch(caminhoPacote(nome))` de
+// `src/jogo.ts` -- medido: /jogo/ parado no menu por 4s faz UM pedido de rede (o POST do
+// PostHog) e ZERO pedido de mesma origem. O recuo de pacote que falha e SILENCIOSO por desenho
+// (CLAUDE.md paragrafo 3, letra a: "o jogo nunca fica sem chao"), entao uma CSP que bloqueia o
+// fetch nao aparece como erro de console nem como pagina branca -- so como capitulo 8 (Cais)
+// pintado com a arte do capitulo 1, pra sempre, em producao. Isto chama o mesmo `fetch` que o
+// jogo chama (relativo, sem cabecalho especial) e mede bytes de verdade.
+async function medirPacoteJogo(nav, porta) {
+  const ctx = await nav.newContext({ viewport: { width: 390, height: 844 } });
+  const pg = await ctx.newPage();
+  await pg.goto('http://127.0.0.1:' + porta + '/jogo/', { waitUntil: 'load', timeout: 45000 })
+    .catch(function () { /* o proprio fetch abaixo relata o que faltou */ });
+  const r = await pg.evaluate(async function () {
+    try {
+      const resp = await fetch('pack-cais.json');
+      if (!resp.ok) return { ok: false, status: resp.status, bytes: 0 };
+      const buf = await resp.arrayBuffer();
+      return { ok: true, status: resp.status, bytes: buf.byteLength };
+    } catch (e) {
+      return { ok: false, erro: String((e && e.message) || e), bytes: 0 };
+    }
+  });
+  await ctx.close();
+  return r;
 }
 function partirCsp(txt) {
   const d = {};
@@ -333,6 +371,19 @@ async function medirPagina(nav, rota) {
     // uma pagina branqueada tambem passa com zero erro; o conteudo e o que prova que ela abriu
     if (m.nos < 20) reprovar('E. ' + rota + ' rendeu so ' + m.nos + ' no(s) — a pagina branqueou.');
   }
+
+  // E (extra) — O PACOTE DE ARTE BAIXA DE VERDADE, item `jogo-connect-src-sem-portao`.
+  if (CONNECT_TESTE) console.log('*** INJECAO DE CONNECT-SRC RESTRITIVO EM /jogo/: "' + CONNECT_TESTE + '" ***');
+  const pacote = await medirPacoteJogo(nav, PORTA);
+  console.log('  ' + '/jogo/ pack-cais.json'.padEnd(24)
+    + (pacote.ok ? 'OK ' + pacote.bytes + ' bytes' : 'FALHOU ' + (pacote.erro || ('HTTP ' + pacote.status))));
+  if (!pacote.ok || pacote.bytes <= 0) {
+    reprovar('E. /jogo/ nao conseguiu baixar pack-cais.json (arte do capitulo, mesma origem): '
+      + (pacote.erro || ('HTTP ' + pacote.status)) + '. O recuo e SILENCIOSO por desenho (CLAUDE.md'
+      + ' §3, letra a) — sem este portao, uma CSP que bloqueia o fetch chegaria a producao sem'
+      + ' erro de console nenhum, so com a arte do capitulo 1 em todo lugar.');
+  }
+
   // /mesa/ navega sozinha por <meta refresh>. Aqui o que se mede e se a CSP dela DEIXA a
   // navegacao acontecer; os erros de console depois do salto sao do /dashboard/, que fala com o
   // Supabase e tem portao proprio no build, entao nao se contam a esta rota.
