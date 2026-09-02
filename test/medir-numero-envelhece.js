@@ -30,7 +30,8 @@
 //   * o defeito SOB DEMANDA, para quando as páginas estiverem em dia: `NUMERO_DEFEITO=verbetes`
 //     envelhece em memória o número EXTRAÍDO (a fonte), e todas as afirmações sobre verbetes têm
 //     de divergir. Valores aceitos: qualquer chave de VERDADE (verbetes, momentos, fontes,
-//     capitulos, gruposGloss, gruposFontes, momentosFonte).
+//     capitulos, gruposGloss, gruposFontes, momentosFonte, momentosHoje) — as 8 foram vistas
+//     saindo 1, uma a uma.
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
@@ -55,6 +56,9 @@ const AFIRMACOES = [
   { pagina: 'glossario/index.html', rotulo: 'grupos', verdade: 'gruposGloss', minimo: 1 },
   { pagina: 'historia/index.html', rotulo: 'momentos', verdade: 'momentos', minimo: 1 },
   { pagina: 'historia/index.html', rotulo: 'com fonte', verdade: 'momentosFonte', minimo: 1 },
+  // O terceiro número da /historia: quantos momentos trazem a LEITURA DE HOJE (campo `com`), que
+  // entra na página como interpretação e não como fato. Envelhece igual aos outros.
+  { pagina: 'historia/index.html', rotulo: 'com a leitura de hoje', verdade: 'momentosHoje', minimo: 1 },
   { pagina: 'de-onde-vem/index.html', rotulo: 'fontes', verdade: 'fontes', minimo: 3 },
   { pagina: 'de-onde-vem/index.html', rotulo: 'grupos', verdade: 'gruposFontes', minimo: 1 },
 ];
@@ -107,6 +111,7 @@ function ocorrencias(html, rotulo) {
     return {
       momentos: mom.length,
       momentosFonte: mom.filter((m) => m.f).length,
+      momentosHoje: mom.filter((m) => m.com).length,
       verbetes: GLOSSARIO.filter((v) => v.t && !v.g).length,
       gruposGloss: GLOSSARIO.filter((v) => v.g).length,
       fontes: FONTES.filter((v) => v.t && !v.g).length,
@@ -129,7 +134,8 @@ function ocorrencias(html, rotulo) {
     console.error('[DEFEITO] verdade.' + DEFEITO + ' envelhecida para ' + VERDADE[DEFEITO]);
   }
   console.log('jogo (fonte): ' + VERDADE.verbetes + ' verbetes em ' + VERDADE.gruposGloss
-    + ' grupos · ' + VERDADE.momentos + ' momentos (' + VERDADE.momentosFonte + ' com fonte) · '
+    + ' grupos · ' + VERDADE.momentos + ' momentos (' + VERDADE.momentosFonte + ' com fonte, '
+    + VERDADE.momentosHoje + ' com a leitura de hoje) · '
     + VERDADE.fontes + ' fontes em ' + VERDADE.gruposFontes + ' grupos · '
     + VERDADE.capitulos + ' capítulos');
 
