@@ -467,8 +467,8 @@
       "territorio": "test/,ferramentas/gerar-territorio.js",
       "camada": "esteira",
       "detalhe": "DECIDIDO PELO DONO em 23/08 como a proxima rodada, contra voltar ao produto e contra medir o retorno primeiro. Sao quase todos sobre a FORMA do portao, nao sobre o produto: 67 o portao do cartao cobra ESFORCO (quantos nos escondi) em vez de RESULTADO (sobrou algum?), e ha caminho de volta ao defeito com os dois portoes verdes; 68 gerador e instrumento partilham a lista de alvos, entao tem o MESMO buraco -- a regra que saiu disso e que o instrumento tem de ser estritamente mais paranoico que a coisa medida; 69 a regua-larga recebeu metade da cura e mede um botao a ate 223 px do lugar final; 70 tres cegueiras (jogoPronto sem guarda de null vira no-op de 64 ms na pagina errada, a regua de taxa fica cega acima de 83 ms sem avisar, e o fila-auth nao e paralelizavel por nome fixo de arquivo); 73 robusto-tudo e medir-save-hostil fora do CI, que foi o que deixou dois portoes se contradizerem por nove dias; 74 cinco gaps do rodape, sendo o primeiro a mesma doenca do item 60 num lugar novo. ORDEM SUGERIDA: 73 depois do 71, porque o robusto-tudo depende do save semeado.  ||  ESTADO EM 02/09 (nuvem-20260902T0023): 73 JA ESTAVA FEITO desde 01/09 (e2d92a3) e so faltava marcar — feito. 70(a) e 70(b) fechados em 31/08. Restam ENTREGUES E NAO INTEGRADOS, tres ramos JA EMPURRADOS para a origin — NAO REFACA, va ao funil: entrega/portao-cartao-pos-condicao (5908bba, PENDENTES 67+68), entrega/rodape-quatro-gaps (dd3d36b, PENDENTES 74 a-d), entrega/regua-parada-e-fila-paralela (6b89523, PENDENTES 69+70c). Falta so o funil dos tres.",
-      "maquina": "nuvem-20260902T0023",
-      "desde": "2026-09-02T00:25:12.811Z",
+      "maquina": "nuvem-20260902T0423",
+      "desde": "2026-09-02T04:25:00.031Z",
       "entregas": [
         {
           "ramo": "entrega/portao-cartao-pos-condicao",
