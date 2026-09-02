@@ -555,6 +555,16 @@
         "test/portao-navegador.js"
       ],
       "desfecho": "INTEGRADO em 01/09 por nuvem-20260901T1622 (funil exit 0 real, 6b4f0c8). semComentarios() virou maquina de estados (CODIGO/LINHA/BLOCO/ASPA1/ASPA2/TEMPLATE) que reconhece string em vez de duas regex empilhadas. MEDIDO, com sondas do pre-integrador e nao do autor: antes 12 ocorrencias brutas de chromium.launch nos 8 arquivos e SO 2 sobreviviam (7 de 8 arquivos inteiramente cegos); depois 8 sobrevivem e 0 nus. Injecao real em rodape-verdadeiro.js:368 -> exit 1 apontando arquivo:linha; restaurado -> exit 0. Autoteste passou de 1 cobaia fixa para 2 (a segunda COM o padrao). Alcance 32 arquivos com os 8 dentro, e portoesDeclarados NAO mudou no diff — entao o verde de primeira e arvore limpa, nao cegueira nova. DESMENTIDO registrado: a formulacao do despacho (\"e so o /* da rota Express\") era estreita demais — o gatilho e QUALQUER string contendo /*, inclusive os curingas **/* do Playwright. Gap latente NAO fechado virou PENDENTES 94."
+    },
+    {
+      "id": "regua-autoteste-morto",
+      "titulo": "O autoteste do rodape da regua-larga.js virou decoracao pelo proprio conserto",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "territorio": "test/regua-larga.js",
+      "camada": "esteira",
+      "aceite": "O comentario do rodape (linhas 454-458) passa a documentar um defeito que AINDA morde depois de telaParada(), e quem escrever prova por injecao: exit 1 com o defeito, exit 0 sem. O REGUA_DEFEITO de hoje (overflow-y:hidden em 926x428) sai ou ganha companhia.",
+      "detalhe": "ACHADO PELO PRE-INTEGRADOR em 02/09 ao auditar a entrega regua-parada-e-fila-paralela (nuvem-20260902T0423), e e efeito colateral CORRETO do conserto, nao defeito dele. Medido: antes de telaParada(), #telaMenu tinha scrollHeight=786 contra clientHeight=768 (18 px de overflow de meio-de-animacao); depois de telaParada(), 768===768. Ou seja, a mobilia assentada deixou de precisar de rolagem nessas larguras, entao o overflow-y:hidden do exemplo documentado no rodape parou de ter efeito e o autoteste sai VERDE. A assercao em si NAO esta morta: com um defeito que sobrevive ao assentamento (margin-top:250px no poste) ela reprova em 3 de 6 telas, medido na mesma rodada. O que ficou falso e o COMENTARIO que promete reprovacao por exit code — que e exatamente a licao do EQUIPE.md 2.8, instrumento nunca visto reprovando e decoracao. Custo de deixar assim: a proxima pessoa que confiar no rodape acha que tem controle e nao tem."
     }
   ]
 }
