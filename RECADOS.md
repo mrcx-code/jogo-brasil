@@ -624,3 +624,61 @@ O `backlog.json` já é a verdade sobre todos eles — os itens estão `concluid
 `teste` **#429 success** (`geradores-chromium`), **#430 success** (`regua-autoteste-vivo`) e
 **#432 success** (`cartao-geometria`). As execuções seguintes são commits só de documentação
 (backlog, Diário, este recado) e ainda estavam na fila ao fechar.
+
+---
+
+## 02/09, tarde — `nuvem-20260902T1234`: dois portões sem dono ganharam dono, e a fonte do cartão ficou DECIDIDA
+
+**Integrado e empurrado**, portões verdes por exit code real nos dois funis:
+`entrega/geradores-portao` (o `portao-navegador.js` passa a cobrir os `gerar-*.js`) e
+`entrega/controle-cartao-dono` (o controle do cartão entra no CI e no funil, com rename).
+
+### ⚠ O `cartao-fonte-do-host` está RESOLVIDO no mecanismo, e vocês precisam saber ANTES de regerar
+
+O recado da rodada anterior dizia que **vocês** eram a máquina qualificada para regerar as seções,
+porque vocês têm as fontes e eu não. **Isso mudou, e o motivo é que a premissa estava errada.**
+
+A causa não era "a nuvem não tem Palatino". Era **não haver `@font-face` nenhuma** — então *toda*
+máquina publica a fonte que ela por acaso tem instalada, e as três publicariam coisas diferentes.
+Vocês não eram os qualificados; vocês eram só uma terceira variação.
+
+**O que já está na origin** (`entrega/cartao-fonte-embutida`, `872ed92`, aprovada pela arte, em
+pré-integração ao escrever isto): Gelasio (OFL 1.1) embutida em base64 **em memória, na hora do
+print** — zero byte publicado, zero KB nas páginas, zero em 3G. Depois disso o cartão para de
+depender do host, e **qualquer uma das três máquinas gera o mesmo desenho**.
+
+**Consequência prática para vocês: não regerem seção pública ainda.** Não pela razão antiga (a
+minha fonte errada), e sim porque agora há uma decisão de tipografia entrando — regerar com
+Palatino agora e integrar a fonte depois produz duas gerações incompatíveis na mesma semana.
+**Esperem esta entrega entrar.** Aí qualquer máquina serve, e o `secao-numero-envelhece`
+(a página diz **181** e a fonte tem **184**, com 3 verbetes fora do JSON-LD) destrava para quem
+pegar primeiro.
+
+### Correção de um número que estava no PENDENTES e vocês podem ter lido
+
+O `101b` dizia que esta máquina renderiza **DejaVu Serif**. **Não renderiza — é Liberation Serif.**
+`fc-match serif` responde DejaVu, e essa parte estava medida certa; o erro foi concluir que o
+`fc-match` diz o que o **Chromium** pinta. Não diz — são cadeias diferentes. Medido por hash de
+bitmap, a pilha do `--titulo` cai no grupo do Liberation (917,20 px), não no do DejaVu (1123,88).
+E o sintoma registrado no próprio 101b — *"os botões da barra estreitaram"* — sempre desmentiu a
+causa escrita: Liberation tem métrica de Times, ~18% mais estreita; DejaVu é mais **larga**.
+
+**A lição que sobra é maior que o nome da fonte:** `fc-match` não é instrumento para "que fonte o
+navegador pintou". É o mesmo erro de categoria do 101c (perguntar ao CSS o que só o pixel sabe).
+
+### Dois itens novos, e o primeiro é de vocês se quiserem
+
+- **`csp-paginas-publicas`** — as **cinco páginas públicas não têm CSP nenhuma** (grep próprio:
+  zero em `plataforma/`, `glossario/`, `historia/`, `de-onde-vem/`, `territorio/`; só o
+  `index.html` do jogo tem uma). O `vercel.json` só cobre `/dashboard`. São páginas de produção.
+- **`fonte-embutida-sem-portao`** — o controle novo da fonte morde mas ninguém o roda. Mesma
+  doença que esta rodada curou ao lado; depende da entrega da fonte entrar.
+
+### Marcadores que eu continuo não conseguindo apagar (403 re-medido, exit real 1)
+
+`voo/geradores-fora-do-portao`, `voo/controle-cartao-sem-dono`, `voo/cartao-fonte-do-host`, mais
+os `entrega/` já consumidos pelo funil desta rodada. A armadilha do PLANTÃO §7 se confirmou pela
+**terceira vez**: o comando imprime `Everything up-to-date` **depois** do erro, então quem lê a
+última linha conclui "apagado". **O `backlog.json` é a verdade sobre todos eles.**
+
+**Nome de máquina: `nuvem-20260902T1234`.**
