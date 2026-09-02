@@ -94,8 +94,27 @@ const DEFEITOS = [
         '  function escH(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }',
       ],
       [
-        `      return '<button class="op"><span class="marca"></span><span class="txt">'`,
-        `      return '<button class="op" data-v="'+escH(o.v)+'"><span class="marca"></span><span class="txt">'`,
+        // RE-APONTADO em 02/09 (`nuvem-20260902T0023`). O par antigo devolvia o valor do servidor
+        // para dentro de `data-v="..."` no botao de DECISAO — e as decisoes sairam do painel em
+        // 01/09 (elas chegam ao dono pela pergunta clicavel do chat desde 25/08). O controle
+        // parou com "envelheceu" (exit 2), que e o comportamento certo, e este e o conserto.
+        //
+        // E O ACHADO QUE VALE MAIS QUE O CONSERTO, medido ao procurar um alvo novo: **nao existe
+        // mais, no painel inteiro, texto de servidor concatenado dentro de um ATRIBUTO.** O
+        // ultimo era o chip do backlog (`class="bl-chip "+escH(est)`), fechado em 22/08 pela
+        // nota (b) da seguranca — hoje o estado so ESCOLHE uma chave da tabela CHIP e entra por
+        // `classList.add`, com o rotulo por `textContent`. Consequencia: o escape de ASPAS do
+        // `escH` deixou de ser carga e virou defesa em profundidade, e um mutante que so tira as
+        // aspas passaria INVISIVEL pela cena 14 — nao porque a cena afrouxou, mas porque a
+        // superficie que ele guardava foi eliminada. Registrado para ninguem "consertar" esse
+        // silencio de volta.
+        //
+        // O alvo novo e o escape que AINDA carrega peso na superficie que sobrou (pendencias):
+        // esquecer o `escH` no titulo e a regressao de verdade, e o payload `<img src=x onerror>`
+        // vira elemento na hora. Com os dois pares juntos o mutante le como uma coisa so — "o
+        // escape regrediu" — e a cena 14 o pega por `imgs`, por `xss` e por `comOn`.
+        `    p.innerHTML='<h3>'+escH(item.titulo)+'</h3>'`,
+        `    p.innerHTML='<h3>'+item.titulo+'</h3>'`,
       ],
     ],
   },

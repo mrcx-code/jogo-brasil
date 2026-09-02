@@ -673,7 +673,13 @@ const estado = pag => pag.evaluate(() => ({
     const linhas = [
       { nome: 'dev-plataforma', squad: 'plataforma', ordem: 1 },
       { nome: 'Claude', squad: 'central', ordem: 2, status: 'trabalhando', ativo_em: agora },
-      { nome: 'historiador', squad: 'acervo', ordem: 3 },
+      // FRIO: diz "trabalhando" e nao da sinal desde 21/08. Acrescentado em 02/09 pelo plantao
+      // `nuvem-20260902T0023`, e nao por gosto: o controle de mutacao provou que sem esta linha
+      // a regra `!frio` do painel estava SEM GUARDA. Com as duas linhas de "trabalhando" tendo
+      // sinal fresco, tirar o `&& !frio` do dashboard nao mudava nada na tela, e o mutante saia
+      // DECORACAO (exit 0, "o portao NAO mordeu o defeito"). E a regra que o DONO pegou antes de
+      // nos em 01/09 — quatro cartoes na faixa AGORA com sinal de 315 min.
+      { nome: 'historiador', squad: 'acervo', ordem: 3, status: 'trabalhando' },
       { nome: 'arte', squad: 'jogo', ordem: 4, status: 'trabalhando', ativo_em: agora },
       { nome: 'fantasma', squad: 'x" onmouseover="window.__xss=9', ordem: 5 },
       { nome: 'orfa', squad: null, ordem: 6 },
@@ -696,7 +702,7 @@ const estado = pag => pag.evaluate(() => ({
     const a = await ler();
     ok(a.cards === 6, 'os 6 agentes viraram 6 cards (a cena mede algo)', String(a.cards));
     ok(a.cabs === 'AGORA | BANCO', 'duas faixas, nesta ordem: AGORA em cima, BANCO embaixo', a.cabs);
-    ok(a.emAgora === 'Claude,arte', 'so quem trabalha COM SINAL FRESCO fica na faixa AGORA', a.emAgora);
+    ok(a.emAgora === 'Claude,arte', 'so quem trabalha COM SINAL FRESCO fica na faixa AGORA (o historiador diz trabalhando ha 12 dias e NAO sobe)', a.emAgora);
     ok(a.nomes === 'Claude,arte,dev-plataforma,historiador,fantasma,orfa',
       'e quem trabalha vem primeiro na grade, seja qual for a ordem do servidor', a.nomes);
     ok(a.comOn.length === 0 && !a.veneno && a.xss === undefined,
