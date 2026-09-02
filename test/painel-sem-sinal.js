@@ -124,8 +124,8 @@ function mutantes(fonte) {
     html: trocaUnica(fonte, /\.ag\.frio \.faisca\{[^}]*\}/, '', 'a regra CSS de .ag.frio .faisca') });
   // M4 · o cartao frio volta a subir para a faixa AGORA
   fora.push({ nome: 'M4 frio sobe para a faixa AGORA',
-    html: trocaUnica(fonte, /var alvo=\(st==="trabalhando" && !frio\)\?grupoAgora\(\):grupoDe\(item\.squad\);/,
-      'var alvo=(st==="trabalhando")?grupoAgora():grupoDe(item.squad);', 'a escolha de grupo') });
+    html: trocaUnica(fonte, /var alvo=\(st==="trabalhando" && !frio\)\?grupoAgora\(\):grupoBanco\(\);/,
+      'var alvo=(st==="trabalhando")?grupoAgora():grupoBanco();', 'a escolha de grupo') });
   // M7 · o rotulo de ESTADO volta a dizer sempre "trabalhando"
   fora.push({ nome: 'M7 estado sempre "trabalhando"',
     html: trocaUnica(fonte, /card\.querySelector\("\.st"\)\.textContent = frio\?"sem sinal"/,

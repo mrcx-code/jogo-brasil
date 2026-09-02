@@ -272,6 +272,14 @@
   .ag.frio .faisca{animation:none !important;opacity:0}
   /* GASTO / TOKENMAXXING (25/08): modelo e esforco sao REAIS (saem do frontmatter dos agentes);
      tokens e custo NAO tem medicao ainda, entao mostram "sem medicao" — instrumento nao mente. */
+  /* O QUE TRAVA (01/09): motivo por item, dentro do modal do Acionar. Discreto de proposito —
+     e contexto para a decisao, nao a decisao. */
+  .travas{display:grid;gap:.5rem;margin-bottom:.7rem}
+  .trava{border-left:3px solid var(--linha);padding:.35rem 0 .35rem .6rem}
+  .trava b{display:block;font:600 .8rem/1.3 "Palatino Linotype",Palatino,Georgia,serif}
+  .trava p{margin:.2rem 0 0;font-size:.72rem;line-height:1.4;color:var(--pedra)}
+  .trava-tag{display:inline-block;margin-bottom:.15rem;font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--alerta)}
   .ag .gasto{margin-top:.45rem;padding-top:.4rem;border-top:1px dashed var(--linha);
     font:600 .56rem/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra)}
   .ag .gasto .gl{display:flex;justify-content:space-between;gap:.4rem}
@@ -434,7 +442,7 @@
 
   <section class="camada" id="agentes">
     <div class="rot"><span class="n">A MÁQUINA</span><h2>Os agentes</h2></div>
-    <p class="nota-gasto" id="nota-gasto">Modelo e esforço são reais (saem dos arquivos de agente). Tokens e custo ainda não têm medição — nada de zero fingindo ser número.</p>
+    <p class="nota-gasto" id="nota-gasto">Quem está trabalhando fica em cima; o resto espera no banco. O modelo sai do arquivo do agente.</p>
     <div class="grade-ag" id="grade-ag"></div>
     <p id="ag-nota" style="font:600 .66rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--pedra);margin-top:.7rem;text-align:center"></p>
   </section>
@@ -1397,46 +1405,18 @@
     "historiador":"opus","juridico":"opus","pesquisadora-fontes":"sonnet","porteiro":"opus",
     "pm":"fable","pre-integrador":"haiku","qa":"opus"
   };
-  // apelido do frontmatter -> chave canonica na tabela de preco (ferramentas/precos-modelo.json)
-  var MODELO_CANON={opus:"claude-opus-4-8",sonnet:"claude-sonnet-4-5",haiku:"claude-haiku-4-5",fable:"claude-fable-5"};
   var MODELO_ROTULO={opus:"Opus 4.8",sonnet:"Sonnet 4.5",haiku:"Haiku 4.5",fable:"Fable 5"};
-  var PRECOS=null;   // preenchido por fetch; null = tabela nao lida => "aguardando tabela de preço"
-  // A tabela e servida ao lado do dashboard (o build copia ferramentas/precos-modelo.json para
-  // dist/dashboard/). Same-origin, dentro do connect-src 'self'. Se 404 (servido cru da pasta),
-  // o custo cai em "aguardando tabela de preço" — degrada, nao quebra.
-  fetch("precos-modelo.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
-    .then(function(j){ if(j&&j.modelos) PRECOS=j; pintarGastoTodos(); }).catch(function(){});
-  function precoDe(apelido){
-    if(!PRECOS) return null;
-    var m=PRECOS.modelos&&PRECOS.modelos[MODELO_CANON[apelido]];
-    return (m&&typeof m.out_por_mtok==="number")?m:null;
-  }
-  // Custo estimado por 1 milhao de tokens de SAIDA — a ancora honesta: e o output que domina o
-  // custo e o unico numero que nao depende de saber a mistura cache/input desta sessao. Rotulado
-  // como ESTIMATIVA, nunca como medicao. Fable a 50 e o dobro de um Opus a 25 — o painel destaca.
-  function custoEstim(apelido){
-    var m=precoDe(apelido);
-    if(!m) return {txt:"aguardando tabela de preço",caro:false};
-    var caro=m.out_por_mtok>=50;
-    return {txt:"~US$ "+m.out_por_mtok.toFixed(2)+" / Mtok saída"+(caro?" (2× um Opus)":""),caro:caro};
-  }
+  // SO O MODELO. Decisao do dono em 01/09: *"nos agentes aparece la custo, tokens, esforco, acho
+  // que vale so manter o modelo mesmo porque o resto nao esta agregando muito valor"*. E ele
+  // estava certo pelo motivo mais duro possivel: das cinco linhas, TRES diziam literalmente
+  // "sem medicao ainda" — ocupavam espaco para informar que nao informavam. A tabela de precos,
+  // o fetch dela e a estimativa por Mtok sairam junto; nada aqui os usava alem daquelas linhas.
+  // Se um dia houver medicao de verdade, ela volta com o numero, nao com o lugar do numero.
   function pintarGasto(card,nome){
     var slot=card.querySelector(".gasto"); if(!slot) return;
     var apelido=META_AGENTE[nome];
     var mod = apelido ? MODELO_ROTULO[apelido]||apelido : "herda";
-    var ce = apelido ? custoEstim(apelido) : {txt:"aguardando tabela de preço",caro:false};
-    // tokens/custo REAIS so se o banco trouxer as colunas (podem nao existir) — senao, honesto.
-    var ag=card.__ag||{};
-    var temTok=typeof ag.tokens_acum==="number";
-    var temCusto=typeof ag.custo_acum_usd==="number";
-    var tokTxt=temTok?(ag.tokens_acum>=1000?(ag.tokens_acum/1000).toFixed(1)+"k":String(ag.tokens_acum)):"sem medição ainda";
-    var custoTxt=temCusto?("US$ "+ag.custo_acum_usd.toFixed(2)):"sem medição ainda";
-    slot.innerHTML=
-       '<div class="gl"><span class="gk">modelo</span><span class="gv'+(apelido?"":" fraco")+'">'+escH(mod)+'</span></div>'
-      +'<div class="gl"><span class="gk">esforço</span><span class="gv fraco">herda</span></div>'
-      +'<div class="gl"><span class="gk">tokens</span><span class="gv'+(temTok?"":" fraco")+'">'+escH(tokTxt)+'</span></div>'
-      +'<div class="gl"><span class="gk">custo</span><span class="gv'+(temCusto?"":" fraco")+'">'+escH(custoTxt)+'</span></div>'
-      +'<div class="gl"><span class="gk">estim.</span><span class="gv'+(ce.caro?" caro":" fraco")+'">'+escH(ce.txt)+'</span></div>';
+    slot.innerHTML='<div class="gl"><span class="gk">modelo</span><span class="gv'+(apelido?"":" fraco")+'">'+escH(mod)+'</span></div>';
   }
   function pintarGastoTodos(){ for(var n in cards){ if(cards[n]) pintarGasto(cards[n],n); } }
 
@@ -1475,6 +1455,7 @@
   // ficavam invisiveis — 4 deles do dev-plataforma. Por isso `agente || papel`.
   var CAMINHO_LIVRE={id:"livre",l:"Trabalhar no que for mais valioso agora"};
   var backlogPorAgente=null;   // null = fila nao lida (nao confundir com fila vazia, que e {})
+  var backlogTravas=null;      // o que impede cada agente de ter item livre
   // TRES estados, nao dois: enquanto o fetch esta no ar, "nao consegui ler" seria mentira por
   // alguns milissegundos — e o dono pode clicar em Acionar antes de a fila chegar.
   var backlogEstado="carregando";   // "carregando" | "ok" | "falhou"
@@ -1512,6 +1493,31 @@
     });
     return mapa;
   }
+  // ============= O QUE TRAVA CADA AGENTE (dono, 01/09) =============
+  // Ate hoje, agente sem item livre abria um modal dizendo "nao ha item livre para <fulano>
+  // agora" e oferecia so o caminho generico. Medido em 01/09: **10 itens livres cobrindo 4 dos
+  // 12 agentes** — ou seja, em oito cartoes o Acionar nao acionava nada e nao explicava por que.
+  // O dono pediu o oposto, com todas as letras: *"caso tenha alguma dependencia, tudo bem nao
+  // aparecer nada, e ai pode aparecer que pra desbloquear esse agente a gente precisa fazer tal
+  // coisa antes"*. A informacao SEMPRE existiu no backlog (`estado` + `nota`); o painel e que
+  // nao a mostrava. Isto so LE — nada de novo e afirmado.
+  var TRAVA={bloqueado:"bloqueado", "do-dono":"espera voce", "em-curso":"ja em voo"};
+  function indexarTravas(itens){
+    var mapa=Object.create(null);
+    (Array.isArray(itens)?itens:[]).forEach(function(it){
+      if(!it || !TRAVA[it.estado]) return;
+      var quem=it.agente||it.papel;
+      if(typeof quem!=="string" || !quem) return;
+      var tit=(typeof it.titulo==="string"&&it.titulo)?it.titulo:it.id;
+      if(typeof tit!=="string") return;
+      // A NOTA E TEXTO DE SERVIDOR e entra so por textContent, mais abaixo. Aqui ela e apenas
+      // guardada e cortada — nota longa vira paragrafo que empurra o botao para fora da tela.
+      var nota=(typeof it.nota==="string" && it.nota) ? it.nota.slice(0,220) : "";
+      (mapa[quem]||(mapa[quem]=[])).push({t:tit, por:TRAVA[it.estado], nota:nota,
+        maquina:(typeof it.maquina==="string"?it.maquina.slice(0,40):"")});
+    });
+    return mapa;
+  }
   var modal=document.getElementById("modal"), modalOps=document.getElementById("modal-ops"),
       modalTit=document.getElementById("modal-tit"), modalSub=document.getElementById("modal-sub"),
       modalConf=document.getElementById("modal-confirmar"),
@@ -1537,8 +1543,25 @@
       ? "Não consegui ler a fila (backlog.json) — estes NÃO são os itens do backlog. Só o caminho aberto abaixo."
       : (daFila.length
           ? "Da fila oficial, na ordem do backlog — o de cima é o próximo."
-          : "Não há item livre na fila para " + item.nome + " agora — só o caminho aberto abaixo.");
+          : "Nada livre para " + item.nome + " agora. O que existe está travado — o motivo de cada um está abaixo.");
     modalEsc=null; modalConf.disabled=true; modalOps.innerHTML="";
+    // POR QUE NAO HA NADA: o motivo, item a item, em vez de uma frase generica. So aparece quando
+    // a fila FOI LIDA e nao ha item livre — se ela nao foi lida, dizer "esta travado" seria
+    // afirmar a partir de ausencia, que e o defeito que o `conferir-mesa.js` existe para pegar.
+    var travas=(backlogEstado==="ok" && !daFila.length && backlogTravas && backlogTravas[item.nome]) || [];
+    if(travas.length){
+      var cx=document.createElement("div"); cx.className="travas";
+      travas.slice(0,4).forEach(function(t){
+        var li=document.createElement("div"); li.className="trava";
+        var tit=document.createElement("b"); tit.textContent=t.t;           // textContent: dado de servidor
+        var tag=document.createElement("span"); tag.className="trava-tag";
+        tag.textContent=t.por+(t.maquina?" ("+t.maquina+")":"");
+        li.appendChild(tag); li.appendChild(tit);
+        if(t.nota){ var n=document.createElement("p"); n.textContent=t.nota; li.appendChild(n); }
+        cx.appendChild(li);
+      });
+      modalOps.appendChild(cx);
+    }
     lista.forEach(function(c){
       var b=document.createElement("button"); b.className="modal-op"; b.type="button"; b.textContent=c.l;
       b.addEventListener("click",function(){ modalEsc=c;
@@ -1599,54 +1622,40 @@
     else if(st==="chamado"){ slot.innerHTML='<button class="btn leve" disabled>chamado ✓</button>'; }
     else { slot.innerHTML=''; }
   }
-  // ================= AS SQUADS (dono, 21/08) =================
-  // A coluna `mesa_agente.squad` diz de quem é cada superfície: central (quem serve os três),
-  // jogo, plataforma, acervo. Aqui ela só ESCOLHE UM GRUPO — e é isso que a torna inofensiva:
-  // o valor do servidor é comparado contra esta lista branca e NUNCA entra no HTML. Quem entra
-  // é o rótulo daqui, por textContent. Squad desconhecida (ou nula, ou um objeto) cai no grupo
-  // final, que não tem cabeçalho. Regra do dia (N2): todo dado de servidor é hostil.
-  var ORDEM_SQUAD=["central","jogo","plataforma","acervo"], FORA="_sem-squad";
-  var ROTULO_SQUAD={central:"CENTRAL",jogo:"SQUAD JOGO",plataforma:"SQUAD PLATAFORMA",acervo:"SQUAD ACERVO"};
-  var grupos={};
-  // ================= A FAIXA "AGORA" (dono, 22/08) =================
-  // "quero bater o olho e ver quem esta trabalhando." Quem esta com status `trabalhando` sobe
-  // para uma faixa no TOPO, acima de todas as squads — os ativos nunca ficam escondidos no meio.
-  // Ela nasce LAZY: so existe quando ha pelo menos um ativo. Isso nao e detalhe — enquanto
-  // ninguem trabalha, nenhum cabecalho "AGORA" aparece na tela (e nenhum `.cab-squad` a mais
-  // entra no DOM). Quando o ultimo ativo sai, a faixa se esconde em vez de virar cabecalho orfao.
-  // Reordenar e MOVER o card cacheado (appendChild move o no que ja existe), nunca recria — por
-  // isso o refresh de 7 s nao duplica nem pisca.
-  var faixaAgora=null;
+  // ============= DUAS FAIXAS, E SO DUAS (dono, 01/09) =============
+  // AS SQUADS SAIRAM. Decisao dele, com a razao dita: *"como tem essa parte central, squad nao
+  // sei o que, nao vale a pena ter squads, a gente pode so colocar todos os agentes disponiveis
+  // como se fosse os que estao no banco de reservas, esperando para entrar, e os que estao
+  // ativos em cima"*. Quatro cabecalhos para doze cartoes era estrutura a mais para informacao
+  // de menos — e a squad nao respondia nenhuma pergunta que o dono faz olhando o painel. As
+  // duas que ele faz sao: quem esta trabalhando agora, e quem esta disponivel.
+  //
+  // Reordenar e MOVER o cartao cacheado (appendChild move o no que ja existe), nunca recriar —
+  // por isso o refresh nao duplica nem pisca. As duas faixas nascem LAZY e se escondem vazias.
+  var faixaAgora=null, faixaBanco=null;
+  function faixa(qual){
+    var env=document.createElement("div"); env.className="grupo-ag"+(qual==="agora"?" agora":"");
+    var cab=document.createElement("div"); cab.className="cab-squad";
+    cab.textContent = qual==="agora" ? "AGORA — trabalhando" : "BANCO DE RESERVAS — esperando para entrar";
+    env.appendChild(cab);
+    return env;
+  }
   function grupoAgora(){
     if(faixaAgora) return faixaAgora;
-    var env=document.createElement("div"); env.className="grupo-ag agora";
-    var cab=document.createElement("div"); cab.className="cab-squad";
-    cab.textContent="AGORA — trabalhando"; env.appendChild(cab);
-    g.insertBefore(env, g.firstChild);   // sempre o topo
-    faixaAgora=env; return env;
+    faixaAgora=faixa("agora");
+    g.insertBefore(faixaAgora, g.firstChild);   // sempre o topo
+    return faixaAgora;
+  }
+  function grupoBanco(){
+    if(faixaBanco) return faixaBanco;
+    faixaBanco=faixa("banco");
+    g.appendChild(faixaBanco);                  // sempre embaixo
+    return faixaBanco;
   }
   function ajustarAgora(){
-    if(!faixaAgora) return;
-    faixaAgora.style.display = faixaAgora.querySelector(".ag") ? "" : "none";
-  }
-  // O invólucro nasce UMA vez por squad e é inserido na posição certa da ordem — por isso
-  // squad vazia não deixa cabeçalho órfão na tela, e por isso o refresh de 30 s não duplica
-  // nada: `atualizaAg` só move um card quando o pai dele mudou.
-  function grupoDe(squad){
-    var chave=ORDEM_SQUAD.indexOf(squad)>=0?squad:FORA;
-    if(grupos[chave]) return grupos[chave];
-    var env=document.createElement("div"); env.className="grupo-ag";
-    if(ROTULO_SQUAD[chave]){
-      var cab=document.createElement("div"); cab.className="cab-squad";
-      cab.textContent=ROTULO_SQUAD[chave]; env.appendChild(cab);
-    }
-    var pos=chave===FORA?ORDEM_SQUAD.length:ORDEM_SQUAD.indexOf(chave), antes=null;
-    for(var i=pos+1;i<=ORDEM_SQUAD.length;i++){
-      var k=i===ORDEM_SQUAD.length?FORA:ORDEM_SQUAD[i];
-      if(grupos[k]){ antes=grupos[k]; break; }
-    }
-    g.insertBefore(env,antes);
-    grupos[chave]=env; return env;
+    // Faixa sem ninguem se esconde, em vez de virar cabecalho orfao na tela.
+    if(faixaAgora) faixaAgora.style.display = faixaAgora.querySelector(".ag") ? "" : "none";
+    if(faixaBanco) faixaBanco.style.display = faixaBanco.querySelector(".ag") ? "" : "none";
   }
   function desde(iso){ if(!iso) return "—"; var t=new Date(iso).getTime(); if(isNaN(t)) return "—";
     var s=Math.max(0,(Date.now()-t)/1000); if(s<90) return "agora";
@@ -1683,13 +1692,13 @@
       if(item.nome==="Claude") card.classList.add("dono");
       cards[item.nome]=card; }
     var st=item.status||"espera";
-    // ATIVO SOBE: trabalhando vai para a faixa AGORA (topo); o resto fica na squad. Como o card
+    // ATIVO SOBE: trabalhando vai para a faixa AGORA (topo); o resto desce para o banco. Como o card
     // e cacheado por nome e so se move quando o pai troca, isto reordena sem recriar nem piscar.
     // FRIO NAO SOBE. A faixa AGORA e a resposta a "tem gente trabalhando neste instante?" —
     // um cartao sem sinal ha horas responde "nao sei", e "nao sei" no topo e a mentira de novo,
-    // so que em posicao em vez de em texto. Ele desce para a squad dele com o rotulo honesto.
+    // so que em posicao em vez de em texto. Ele desce para o banco com o rotulo honesto.
     var frio=(st==="trabalhando") && semSinal(item.ativo_em, Date.now());
-    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoDe(item.squad);
+    var alvo=(st==="trabalhando" && !frio)?grupoAgora():grupoBanco();
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
     card.__ag=item;   // o card e cacheado por nome; o ouvinte de "Acionar" le sempre o item novo
     card.setAttribute("data-st",st);
@@ -1856,7 +1865,7 @@
       // propósito: mesmo que não haja item ABERTO para listar aqui, `backlogPorAgente` deixa de
       // ser `null` — ou seja, "li a fila e ela não tem item para você" fica distinguível de
       // "não consegui ler a fila". As duas frases estão no modal.
-      backlogPorAgente=indexarBacklog(itens); backlogEstado="ok";
+      backlogPorAgente=indexarBacklog(itens); backlogTravas=indexarTravas(itens); backlogEstado="ok";
       var abertos=itens.filter(function(it){ return it && it.estado!=="concluido"; });
       if(!abertos.length) throw 0;
       var cont=document.getElementById("lista-backlog"); cont.innerHTML="";
@@ -1906,7 +1915,7 @@
     carregarPedidos();
     var qItens=fetch(SB_URL+"/rest/v1/mesa_item?select=tipo,chave,titulo,contexto,opcoes,recomendada,criado_em&estado=eq.aberto&order=ordem,criado_em",{headers:H}).then(corpo);
     var qResp=fetch(SB_URL+"/rest/v1/mesa_resposta?select=tipo,chave,texto,criado_em&order=criado_em",{headers:H}).then(corpo);
-    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem,squad&order=ordem",{headers:H}).then(corpo);
+    var qAg=fetch(SB_URL+"/rest/v1/mesa_agente?select=nome,papel,cor,status,atividade,ativo_em,ordem&order=ordem",{headers:H}).then(corpo);
     // TUDO-OU-NADA ERA DANO MEU, e o QA pegou no mesmo dia — o conserto do servidor mudo
     // trocou uma mentira por um sumico. Com `Promise.all`, uma tabela que falha derruba as
     // TRES: medido pelo QA, com so a `mesa_agente` em 401 (o token vencido numa aba velha, que

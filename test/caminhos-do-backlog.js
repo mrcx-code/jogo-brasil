@@ -146,7 +146,11 @@ async function lerModal(navegador, htmlPath, backlogObj, nome) {
     const m3 = await lerModal(nav, DASH, fila, 'ninguem-tem-item');
     ok(m3.textos && m3.textos.length === 1 && m3.textos[0] === 'Trabalhar no que for mais valioso agora',
       'sobra so o recuo honesto, e ele existe');
-    ok(/n[aã]o h[aá] item livre na fila/i.test(m3.sub || ''), 'e a tela DIZ que a fila nao tem item para ele: "' + m3.sub + '"');
+    // A FRASE MUDOU EM 01/09, e o PORQUE importa: o dono pediu que, quando nao ha item livre, a
+    // tela diga O QUE TRAVA o agente em vez de so constatar a ausencia (*"pode aparecer que pra
+    // desbloquear esse agente a gente precisa fazer tal coisa antes"*). O que este portao cobra
+    // continua sendo o mesmo: a tela tem de AFIRMAR a ausencia, nao ficar muda.
+    ok(/nada livre para/i.test(m3.sub || ''), 'e a tela DIZ que a fila nao tem item livre para ele: "' + m3.sub + '"');
 
     console.log('\n4) FILA QUE NAO CARREGA NAO INVENTA ITEM');
     const m4 = await lerModal(nav, DASH, null, ESCOLHIDO);   // 404 no backlog.json
@@ -163,7 +167,7 @@ async function lerModal(navegador, htmlPath, backlogObj, nome) {
 
     console.log('\n6) CONTROLE — o portao foi visto reprovando (mutante: a fila nao alimenta a lista)');
     const fonte = fs.readFileSync(DASH, 'utf8');
-    const alvo = 'backlogPorAgente=indexarBacklog(itens); backlogEstado="ok";';
+    const alvo = 'backlogPorAgente=indexarBacklog(itens); backlogTravas=indexarTravas(itens); backlogEstado="ok";';
     ok(fonte.indexOf(alvo) >= 0, 'a linha que liga a fila aos caminhos existe e e unica');
     const mutante = path.join(__dirname, 'tmp-caminhos-mutante.html');
     fs.writeFileSync(mutante, fonte.replace(alvo, 'backlogEstado="ok";'));
