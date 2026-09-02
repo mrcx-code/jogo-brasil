@@ -41,7 +41,13 @@
 //   1. `.github/workflows/*.yml` — todo `node <arquivo>.js` e todo `npm run <script>`;
 //   2. `package.json` — o corpo dos scripts que o CI e o ciclo chamam;
 //   3. um nível de `require` local a partir de cada um deles, que é o que alcança o
-//      `conteudo-espelho.js` (ninguém o chama direto: quem o chama é o `conteudo-conferir`).
+//      `conteudo-espelho.js` (ninguém o chama direto: quem o chama é o `conteudo-conferir`);
+//   4. o DIRETÓRIO `ferramentas/`, para todo `gerar-*.js` (dev-plataforma, 02/09, item
+//      `geradores-fora-do-portao`, PENDENTES 91/98/101d). Estes não estão no YAML nem no
+//      `package.json` — publicam as páginas da plataforma à mão ou pela mesa — e um deles já
+//      ficou meses sem rodar nesta nuvem por um `chromium.launch()` nu sem que nenhum portão
+//      visse. Achados por GLOB, não por nome, para a mesma regra do parágrafo acima valer aqui
+//      também: um `gerar-*.js` novo entra sozinho.
 //
 // Se amanhã o CI ganhar um portão novo, ele entra nesta cobrança sozinho. Se o CI PERDER um,
 // esta lista encolhe junto — e é por isso que o portão também imprime quantos achou: uma
@@ -115,6 +121,22 @@ function portoesDeclarados() {
   // Ele não vira "ciclo" só por entrar aqui; esta segunda linha existe para não misturar as
   // duas categorias na mesma frase.
   fontes.push('node test/rodape-verdadeiro.js');
+  // FORA DO CICLO, MAS AINDA UM PORTÃO (dev-plataforma, 02/09, item `geradores-fora-do-portao`,
+  // PENDENTES 91/98/101d): os `ferramentas/gerar-*.js` publicam as páginas da plataforma (porta,
+  // glossário, história, fontes, território) e não são chamados nem pelo CI nem pelo
+  // `package.json` — são disparados à mão, ou pela mesa, quando o conteúdo muda. Já pagaram o
+  // preço do lançamento nu: PENDENTES 98 mediu `gerar-glossario.js` morto nesta nuvem meses
+  // depois de o defeito existir, porque nenhum portão cobria o gerador e a página ficou velha em
+  // silêncio. Achados por DIRETÓRIO — não por nome —, pela mesma razão do bloco de cima: um
+  // `gerar-*.js` novo entra nesta cobrança sozinho, sem ninguém lembrar de atualizar uma lista, e
+  // se a pasta perder um a lista encolhe junto (o total impresso denuncia, como em todo lugar
+  // deste arquivo).
+  try {
+    const geradores = fs.readdirSync(path.join(RAIZ, 'ferramentas'))
+      .filter((f) => /^gerar-.*\.js$/.test(f))
+      .map((f) => 'node ferramentas/' + f);
+    fontes.push(geradores.join('\n'));
+  } catch (e) { /* sem a pasta: a lista cai para o resto, e o total impresso denuncia */ }
 
   const brutos = new Set();
   for (const txt of fontes) {
@@ -291,11 +313,17 @@ function varrer() {
 // Controle que não morde é decoração, e decoração assinada de verde é pior que teste nenhum.
 // Injeta um lançamento nu num portão real, exige exit 1 apontando para ele, e restaura.
 //
-// DUAS COBAIAS, não uma — PENDENTES 92. Uma cobaia só (`medir-save-hostil.js`, sem `'/**'`)
-// prova que a varredura morde NAQUELE arquivo e não prova nada sobre os outros 7 do alcance
-// que usam curinga de rota. A segunda cobaia é `test/rodape-verdadeiro.js`, que TEM `'/**'`
-// seis vezes — é o próprio arquivo que a lacuna deixou cego.
-const COBAIAS = ['test/medir-save-hostil.js', 'test/rodape-verdadeiro.js'];
+// TRÊS COBAIAS, não duas — PENDENTES 92 e 101d/`geradores-fora-do-portao`. Uma cobaia só
+// (`medir-save-hostil.js`, sem `'/**'`) prova que a varredura morde NAQUELE arquivo e não prova
+// nada sobre os outros 7 do alcance que usam curinga de rota. A segunda cobaia é
+// `test/rodape-verdadeiro.js`, que TEM `'/**'` seis vezes — é o próprio arquivo que a lacuna
+// deixou cego. A TERCEIRA é `ferramentas/gerar-porta.js`, e prova uma categoria diferente das
+// duas primeiras: ela só entra no alcance pela descoberta por DIRETÓRIO (o bloco novo que lista
+// `ferramentas/gerar-*.js`), não pelo YAML nem pelo `package.json` nem pela linha `fontes.push`
+// escrita à mão do `rodape-verdadeiro.js`. Sem esta cobaia, o autoteste provaria as duas formas
+// antigas de achar um portão e ficaria mudo sobre a nova — a mesma lacuna que a segunda cobaia
+// fechou para o curinga de rota, agora para o glob.
+const COBAIAS = ['test/medir-save-hostil.js', 'test/rodape-verdadeiro.js', 'ferramentas/gerar-porta.js'];
 
 function autotestaUmaCobaia(COBAIA) {
   const abs = path.join(RAIZ, COBAIA);
