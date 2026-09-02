@@ -453,10 +453,42 @@ const TELAS = [
 })();
 
 // AUTOTESTE (lição EQUIPE.md 2.8 — instrumento nunca visto reprovando é decoração):
-//   REGUA_DEFEITO='#telaMenu{overflow-y:hidden!important}' node test/regua-larga.js
-// prende CONFIGURAÇÕES em 926×428 (e em toda tela cujo poste dependa da rolagem) e reprova por
-// exit code. A primeira versão desta asserção (com `scrollIntoView`) NÃO mordia esse defeito —
-// ver o comentário grande acima. Reprova de verdade com a versão atual, verificado nesta rodada.
+// ESTE BLOCO JÁ FOI ACHADO DECORAÇÃO UMA VEZ — item `regua-autoteste-morto` (02/09). O efeito
+// colateral CORRETO de `telaParada()` (PENDENTES 69/70c) é que `#telaMenu` deixou de ter
+// overflow de verdade nas seis telas largas: medido nesta rodada, `scrollHeight === clientHeight`
+// nas seis, contra o antigo 786×768 (18px de sobra que era só a mobília ainda andando). Sem
+// overflow para começo de conversa, `#telaMenu{overflow-y:hidden!important}` sozinho não tem o
+// que esconder — testado isoladamente nesta rodada: PASSOU nas seis, exit 0. O exemplo tinha
+// virado decoração.
+//
+//   REGUA_DEFEITO='#poste{margin-top:250px!important} #telaMenu{overflow-y:hidden!important}' \
+//     node test/regua-larga.js
+//
+// O DEFEITO GANHOU COMPANHIA em vez de sair, porque a asserção que ele guarda (o resgate por
+// `overflow-y` REAL, não `scrollIntoView`) só é exercitada quando existe overflow de verdade para
+// resgatar. `margin-top:250px` no `#poste` é o estande-in para "a marcenaria cresceu" — o mesmo
+// tipo de mudança que já quebrou o deitado quando o GLOSSÁRIO virou a quinta tábua (comentário
+// de `estilo.css` sobre o `#telaMenu{overflow-y:auto}`, logo acima da regra). Medido nesta
+// rodada, testado SEPARADO antes de combinar (para não confundir "cresceu" com "ficou preso"):
+//
+//   só `margin-top:250px` no poste (overflow-y:auto intacto) — PASSOU nas seis, exit 0. Cria
+//   overflow real em 3 das 6 (tablet retrato 1111×1024, landscape 899 665×500, phone deitado 926
+//   449×428), mas a régua rola de verdade e alcança, porque a rolagem AINDA FUNCIONA — não é
+//   decoração, é resgate legítimo. Nas outras 3 (tablet paisagem, notebook, ultrawide) a grade
+//   cinemática absorve a margem na linha do logo (`grid-template-rows: minmax(0,1fr) auto auto`,
+//   estilo.css ~1009) e nem chega a criar overflow — o painel é feito para não estourar sozinho.
+//
+//   só `overflow-y:hidden` (sem crescer o poste) — PASSOU nas seis, exit 0, pela razão do
+//   parágrafo acima: nada para esconder.
+//
+//   OS DOIS JUNTOS — cresce E perde a rolagem — REPROVA em exatamente 3 de 6 (as mesmas três que
+//   ganham overflow: tablet retrato, landscape 899, phone deitado 926), exit 1. É a combinação
+//   plausível: a marcenaria ganha uma tábua (já aconteceu uma vez) NO MESMO commit em que a
+//   rolagem quebra (typo, merge, refactor) — não duas coisas que acontecem juntas por acaso, mas
+//   o tipo de regressão em que se fica cego para a segunda por já ter mexido na primeira. A
+//   primeira versão desta asserção (com `scrollIntoView`) NÃO mordia nem esta combinação — ver o
+//   comentário grande acima. Reprova de verdade com a versão atual (exit 1 com o defeito, exit 0
+//   sem — as duas saídas de terminal desta rodada estão no NOTES.md).
 //
 // E o autoteste da HIERARQUIA (21/08), pela mesma lição:
 //   REGUA_DEFEITO='#poste .telaBtn.sec{width:min(78vw,320px)!important;min-height:61px!important}'
