@@ -701,3 +701,56 @@ a causa de pé.
 (exit 0)** nisso porque compara **porta × seção**, e as duas copiam o mesmo 181. Mas ele **já sabe
 ler a fonte** — faz exatamente isso para capítulos (`porta=13 · jogo (EPOCAS)=13`). Falta aplicar
 ao campo de verbetes o que ele já faz para capítulos.
+
+---
+
+## 02/09 tarde — `nuvem-20260902T1623`
+
+### A varredura de ramos mortos virou comando: `ferramentas/ramos-mortos.js`
+
+Toda rodada vinha refazendo à mão a mesma conta, com as duas regras do PLANTÃO §7 na cabeça ao
+mesmo tempo (*"o marcador `voo/` é pista, o backlog é a verdade"* e *"antes de devolver item a
+`livre`, procure o `entrega/<id>`"*). Agora é uma linha.
+
+**O número desta data, medido:** a origin carregava **15 ramos `entrega/` e 9 `voo/`** — e **21
+estavam mortos**. Doze `entrega/` já eram ancestrais da `main`; os nove `voo/` apontavam para item
+`concluido` (7) ou para item que **nem existe mais no backlog** (2: `dashboard-trio`,
+`glossario-substancia`).
+
+```
+node ferramentas/ramos-mortos.js            # classifica (exit 0 — é relatório, não portão)
+node ferramentas/ramos-mortos.js --apagar   # cospe os comandos, um por linha
+```
+
+**O controle está provado, e as quatro pernas mordem** (injetado no backlog, observado, restaurado):
+item `livre` com marcador → *"marcador mente"*; `em-curso` sem `desde` → *"a trava não sustenta"*;
+`em-curso` com `desde` de 2.431 min → *"vencido (> 120)"*; e os quatro em voo de verdade voltaram a
+aparecer vivos depois do restore.
+
+**O que ele NÃO faz, de propósito:** não apaga nada. A nuvem leva **403** — re-medido aqui pela
+**quarta vez**, e a armadilha do §7 se confirmou de novo: `exit` real **1**, e a **última linha do
+log é `Everything up-to-date`**. Quem lê o fim do log conclui "apagado" e segue. Quem apaga é a
+máquina que tem `delete_ref` — **vocês**.
+
+### Para o Mac / Windows: 21 refs para apagar, e a lista sai pronta
+
+Rodem `node ferramentas/ramos-mortos.js --apagar` e colem. Não copiei a lista para cá de propósito
+— ela envelhece, e o comando não.
+
+### Os TRÊS órfãos que a ferramenta se recusa a chamar de mortos, e ela está certa
+
+`entrega/canonical-jogo`, `entrega/dashboard-trio` e `entrega/glossario-substancia` têm commit que
+a `main` não tem, então a regra do §7 os classifica como *"entrega órfã — auditar e integrar, não
+recomeçar"*. **Conferi os três à mão nesta rodada e o conteúdo dos três JÁ ESTÁ na `main`, por
+outra rota:**
+
+| órfão | o que ele traz | na `main` hoje |
+|---|---|---|
+| `canonical-jogo` | `test/encaixe.js` +6, cobrindo o `canonical` de `/jogo/` | **8** ocorrências de `canonical` no `encaixe.js` |
+| `dashboard-trio` | Google Fonts fora + 2 desfechos do dashboard | resta **1** ocorrência de `fonts.googleapis`, e é um **comentário** que documenta a remoção |
+| `glossario-substancia` | 3 verbetes de economia real | os 3 estão lá (entrou pelo `rev2`/`rev3`, que o funil consumiu) |
+
+A ferramenta não podia saber disso — ela vê ref, não rota — e **acertou em não chutar**. Fica
+registrado aqui para a próxima rodada não auditar os três de novo: **podem apagar os três também.**
+
+### Nome de máquina: `nuvem-20260902T1623`.
