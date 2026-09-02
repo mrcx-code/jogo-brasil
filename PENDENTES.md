@@ -3598,6 +3598,35 @@ pintando DejaVu Serif.
 foi desenhado assim de propósito, para evitar um falso positivo anterior (Google Fonts
 assíncrona), e supercorrigiu para o lado cego — trocou o falso positivo por cegueira total.
 
+#### ⚠ CORREÇÃO DE 02/09 (`nuvem-20260902T1234`): não é DejaVu — o Chromium pinta **Liberation Serif**
+
+O 101b acima diz que esta máquina renderiza **DejaVu Serif**. A metade que ele mediu está certa:
+`fc-match serif` responde DejaVu mesmo — re-medido hoje. O que está errado é a **inferência**, e
+ela é a que importa: o que o `fc-match` responde **não é** o que o Chromium pinta.
+
+Medido pelo porteiro em 02/09 por **hash de bitmap** (48 px, FNV do canal alfa), que é a única
+medida que olha o glifo em vez de perguntar ao sistema:
+
+| hash / largura de avanço | quem cai nesse grupo |
+|---|---|
+| `d9f9577f` · 917,20 px | `serif` · a pilha do `--titulo` · a pilha do `--leitura` · Liberation Serif · Times New Roman · Tinos · Nimbus Roman · **uma família inexistente** |
+| `6167a9ce` · 1123,88 px | DejaVu Serif |
+| `11e38e47` · 907,15 px | FreeSerif |
+
+A pilha do `--titulo` cai no grupo do **Liberation Serif**, não no do DejaVu. E isso **casa com o
+sintoma** que o próprio 101b registrou ("os botões da barra estreitaram"): Liberation tem métrica
+de Times, ~18% mais estreita — DejaVu é mais **larga** e teria alargado a barra, não estreitado.
+O sintoma sempre desmentiu a causa escrita; ninguém tinha cruzado os dois.
+
+**Duas coisas que saem daqui e valem mais que o nome da fonte:**
+
+1. **`fc-match` não é instrumento para esta pergunta.** Ele responde pela cadeia do fontconfig do
+   sistema; o Chromium tem a sua própria. Usar um para afirmar o outro é o mesmo erro de categoria
+   do 101c (perguntar ao CSS o que só o pixel sabe), num lugar novo.
+2. **Nesta máquina o cartão já perdia a distinção título × corpo:** `--titulo` e `--leitura` caem
+   no MESMO hash. A diferença entre a voz encorpada e a de ler já estava desfeita aqui, antes de
+   qualquer conserto — e nenhum controle via, porque todos perguntavam ao CSS.
+
 **E as duas pontas se resolvem com o mesmo conserto:** embutir a fonte como `@font-face`, no
 mesmo padrão que o build já usa para embutir arte em base64. Aí qualquer máquina gera o mesmo
 byte **e** o controle passa a poder checar `document.fonts.check()` contra uma família que

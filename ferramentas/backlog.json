@@ -8,6 +8,26 @@
   },
   "itens": [
     {
+      "id": "fonte-embutida-sem-portao",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "titulo": "O test/cartao-fonte-embutida.js existe e morde, mas ninguem o roda — a mesma doenca que acabamos de curar ao lado",
+      "territorio": "package.json,.github/workflows/teste.yml,ferramentas/integrar.js,test/cartao-controle.js",
+      "camada": "esteira",
+      "aceite": "As tres recusas novas passam a ser rodadas por alguem (npm test, CI ou funil), provado por exit code no lugar novo. Alternativa igualmente boa: fundir as tres injecoes na lista DEFEITOS do test/cartao-controle.js, uma linha por defeito.",
+      "detalhe": "Declarado pelo proprio porteiro em 02/09 como o buraco que a entrega dele NAO fecha: package.json e o workflow eram territorio de outro agente na mesma rodada. E literalmente a mesma doenca do item controle-cartao-sem-dono, fechado nesta rodada — controle que so morde quando alguem lembra de chamar. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a resposta: nada. Depende de entrega/cartao-fonte-embutida entrar; se ela for recusada pela banca de arte, este item morre junto."
+    },
+    {
+      "id": "csp-paginas-publicas",
+      "estado": "livre",
+      "papel": "porteiro",
+      "titulo": "As cinco paginas publicas nao tem NENHUMA Content-Security-Policy — so o jogo tem",
+      "territorio": "vercel.json,ferramentas/chrome-plataforma.js,ferramentas/gerar-porta.js,ferramentas/gerar-glossario.js,ferramentas/gerar-historia.js,ferramentas/gerar-territorio.js",
+      "camada": "esteira",
+      "aceite": "As paginas publicas passam a ter CSP, e um portao reprova por exit code a pagina publicada sem ela. Mordida provada por injecao: exit 1 com a CSP removida de uma delas, exit 0 com todas. A CSP escrita por extenso, sem curinga, como manda o CLAUDE.md §3 — e o commit diz o que passou a ser permitido.",
+      "detalhe": "Achado pelo porteiro em 02/09 na entrega cartao-fonte-embutida, FORA do escopo dela. Conferido por mim (nuvem-20260902T1234) com grep proprio: plataforma/, glossario/, historia/, de-onde-vem/ e territorio/ tem ZERO ocorrencia de Content-Security-Policy; so o index.html do jogo tem 1. O vercel.json so declara headers para /dashboard, /dashboard/ e /dashboard/(.*) — as cinco paginas ficam descobertas nas duas pontas, nem no HTML nem no cabecalho de servidor. O CLAUDE.md §3 trata a CSP como trava seria e ela existe no jogo desde 10/08; as paginas publicas nasceram depois e nunca ganharam a sua. Risco hoje e baixo (paginas estaticas, sem entrada de usuario, sem credencial), mas sao paginas de PRODUCAO e push na main publica sozinho."
+    },
+    {
       "id": "backlog-no-dashboard",
       "titulo": "O backlog na tela do dashboard, conectado as equipes",
       "detalhe": "Decisao do dono 22/08: \"bora passar o backlog pro dash e conectar com as equipes, quero tarefas simultaneas sem conflitos e sempre pelo menos 1 agente da equipe ativo continuo\". O dashboard passa a mostrar o backlog.json (itens, estado, agente, TERRITORIO e camada), com reordenacao do dono protegida pelo hash anti-lost-update que o POST /backlog ja exige (PENDENTES 48). Aceite: (a) o dono ve e reordena a fila no celular; (b) a tela mostra, por item, se o territorio esta LIVRE ou colidindo com item em voo (o dado e o campo territorio deste arquivo — regra: disjuntos = simultaneo, intersecao = sequencial, src/jogo.ts exclusivo); (c) escrita continua pelo caminho ja auditado (RLS/fila), zero rota nova sem a seguranca; (d) squads/agentes da mesa aparecem ao lado da fila (mesa_agente ja agrupada por squad).",
