@@ -417,10 +417,17 @@
   .cartao.pedido{border-left-color:var(--terra)}
   .cartao.pedido .prog{margin-top:.35rem;font-size:.86rem;color:var(--pedra)}
 
-  /* BACKLOG — vista de leitura */
+  /* BACKLOG — o CARTAO RICO (dono, 02/09: "o backlog ta tao pobrinho, quais campos temos por
+     item?"). Antes mostrava so titulo + selo + agente + territorio truncado — 3 dos ~10 campos
+     que um item pode ter. Agora: papel/camada como subtitulo, territorio por INTEIRO (nao mais
+     truncado em 64 chars — o dono le no celular, e cortar o caminho do arquivo e cortar
+     informacao de trabalho), o criterio de ACEITE quando existe (e ele e o que decide "pronto",
+     entao ganha destaque proprio), quem esta em voo e desde quando, a NOTA quando existe, e o
+     DETALHE inteiro atras de um <details> nativo — sem JS novo, sem duplicar o que "Como
+     funciona" ja faz com <details>. Compacto fechado, completo aberto. */
   .bl-item{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
     padding:.7rem .8rem;margin:0 0 .55rem;box-shadow:0 1px 2px var(--sombra);
-    display:grid;grid-template-columns:1fr auto;gap:.35rem .7rem;align-items:start}
+    display:grid;grid-template-columns:1fr auto;gap:.3rem .7rem;align-items:start}
   .bl-item .bl-tit{font:700 .96rem/1.25 "Palatino Linotype",Palatino,Georgia,serif;grid-column:1}
   .bl-item .bl-chip{grid-column:2;grid-row:1;justify-self:end;align-self:start;
     font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;
@@ -433,6 +440,21 @@
     letter-spacing:.04em;color:var(--pedra)}
   .bl-item .bl-meta .bl-ag{text-transform:uppercase}
   .bl-item .bl-meta .terr{color:var(--tinta2);text-transform:none;letter-spacing:0}
+  .bl-item .bl-voo{grid-column:1/-1;font:600 .62rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    color:var(--brasa)}
+  .bl-item .bl-nota{grid-column:1/-1;font-size:.72rem;line-height:1.4;color:var(--tinta2);
+    font-style:italic;border-left:2px solid var(--linha);padding-left:.5rem}
+  .bl-item .bl-aceite{grid-column:1/-1;font-size:.74rem;line-height:1.42;background:var(--papel2);
+    border-radius:3px;padding:.4rem .55rem}
+  .bl-item .bl-aceite b{display:block;font:600 .56rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--mata);margin-bottom:.15rem}
+  .bl-item .bl-mais{grid-column:1/-1;font-size:.8rem}
+  .bl-item .bl-mais summary{cursor:pointer;font:600 .62rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--pedra);list-style:none}
+  .bl-item .bl-mais summary::-webkit-details-marker{display:none}
+  .bl-item .bl-mais summary::before{content:"▸ ";color:var(--pedra)}
+  .bl-item .bl-mais[open] summary::before{content:"▾ "}
+  .bl-item .bl-mais p{margin:.4rem 0 0;line-height:1.5;color:var(--tinta2)}
 
   /* COMO FUNCIONA — dobravel, leitura */
   details.comof{background:var(--realce);border:1px solid var(--linha);border-radius:4px;
@@ -1929,8 +1951,16 @@
   // vira classe nenhuma (o chip fica na cor neutra) e o rotulo vai por textContent.
   var CHIP={livre:"livre","em-curso":"em curso",bloqueado:"bloqueado","do-dono":"do dono",concluido:"concluído"};
   function terrCurto(t){
-    if(!Array.isArray(t) || !t.length) return "";
-    var s=t.join(" · ");
+    // O CAMPO VEM DOS DOIS JEITOS (medido em 02/09): metade dos itens grava territorio como
+    // ARRAY, a outra metade como STRING JA SEPARADA POR VIRGULA. So aceitar array descartava a
+    // informacao em silencio nos itens de string — nenhum erro, o dado so nunca aparecia.
+    var lista;
+    if(Array.isArray(t)) lista=t;
+    else if(typeof t==="string" && t) lista=t.split(",");
+    else return "";
+    lista=lista.map(function(x){ return String(x).trim(); }).filter(Boolean);
+    if(!lista.length) return "";
+    var s=lista.join(" · ");
     return s.length>64 ? s.slice(0,61)+"…" : s;
   }
   // ============= A FILA FICA CONECTADA (dono, 02/09) =============
@@ -1987,15 +2017,61 @@
         var est=String(it.estado||"livre");
         var conhecido=Object.prototype.hasOwnProperty.call(CHIP,est);
         var el=document.createElement("div"); el.className="bl-item";
-        el.innerHTML='<div class="bl-tit">'+escH(it.titulo||it.id||"—")+'</div>'
-          + '<div class="bl-meta"><span class="bl-ag">'+escH(it.agente||"—")+'</span>'
-          + (terrCurto(it.territorio)?' · <span class="terr">'+escH(terrCurto(it.territorio))+'</span>':'')+'</div>';
-        // o chip nao passa por string de HTML: classe da lista branca, rotulo por textContent
-        var chip=document.createElement("span");
-        chip.classList.add("bl-chip");
+
+        // TITULO E CHIP — como antes, so textContent para dado de servidor.
+        var tit=document.createElement("div"); tit.className="bl-tit";
+        tit.textContent=it.titulo||it.id||"—";
+        var chip=document.createElement("span"); chip.className="bl-chip";
         if(conhecido) chip.classList.add(est);
-        chip.textContent = conhecido ? CHIP[est] : est;
-        el.insertBefore(chip, el.children[1]);   // entre o titulo e a meta (grid: coluna 2, linha 1)
+        chip.textContent=conhecido?CHIP[est]:est;
+        el.appendChild(tit); el.appendChild(chip);
+
+        // SUBTITULO — quem, que tipo de trabalho, onde. O territorio agora sai INTEIRO (o dono
+        // le no celular; truncar caminho de arquivo e truncar informacao de trabalho).
+        var quem=it.agente||it.papel||"";
+        var terr=terrCurto(it.territorio);
+        if(quem||it.camada||terr){
+          var meta=document.createElement("div"); meta.className="bl-meta";
+          if(quem){ var ag=document.createElement("span"); ag.className="bl-ag"; ag.textContent=quem; meta.appendChild(ag); }
+          if(it.camada){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(" · "));
+            meta.appendChild(document.createTextNode(String(it.camada))); }
+          if(terr){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(" · "));
+            var tr=document.createElement("span"); tr.className="terr"; tr.textContent=terr; meta.appendChild(tr); }
+          el.appendChild(meta);
+        }
+
+        // EM VOO — quem pegou e desde quando, reaproveitando o mesmo desde() dos agentes.
+        if(it.maquina){
+          var voo=document.createElement("div"); voo.className="bl-voo";
+          voo.textContent="em voo — "+it.maquina+(it.desde?" · desde "+desde(it.desde):"");
+          el.appendChild(voo);
+        }
+
+        // ACEITE — o criterio de "pronto", quando existe. Ganha destaque proprio porque e o
+        // campo que decide se o item pode fechar, nao so descrever o item.
+        if(it.aceite){
+          var ac=document.createElement("div"); ac.className="bl-aceite";
+          var acB=document.createElement("b"); acB.textContent="aceite"; ac.appendChild(acB);
+          ac.appendChild(document.createTextNode(String(it.aceite)));
+          el.appendChild(ac);
+        }
+
+        // NOTA — contexto extra, geralmente o motivo de estar travado.
+        if(it.nota){
+          var nt=document.createElement("div"); nt.className="bl-nota"; nt.textContent=String(it.nota);
+          el.appendChild(nt);
+        }
+
+        // DETALHE — atras de <details> nativo: compacto fechado, completo aberto. Mesmo padrao
+        // que "Como funciona" ja usa nesta pagina, sem JS novo.
+        if(it.detalhe){
+          var det=document.createElement("details"); det.className="bl-mais";
+          var sum=document.createElement("summary"); sum.textContent="detalhe";
+          var p=document.createElement("p"); p.textContent=String(it.detalhe);
+          det.appendChild(sum); det.appendChild(p);
+          el.appendChild(det);
+        }
+
         cont.appendChild(el);
       });
       document.getElementById("backlog").hidden=false;
