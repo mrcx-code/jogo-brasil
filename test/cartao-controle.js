@@ -31,12 +31,23 @@
 //
 // As quatro seções entram: as três de papel (o item og-image-secoes) e o TERRITÓRIO, que já
 // tinha cartão desde 21/08 e agora tem quem o vigie.
+//
+// OS TRÊS DEFEITOS DE TIPOGRAFIA, fundidos aqui em 02/09 (item fonte-embutida-sem-portao).
+// Nasceram em `test/cartao-fonte-embutida.js`, escrito na MESMA rodada que embutiu a fonte
+// Gelasio (PENDENTES 101b) — separado porque este arquivo estava em uso por outra entrega
+// naquela hora. Provado por injeção que os três mordem (exit 1 cada, exit 0 sem defeito), mas
+// nenhum lugar os chamava: não npm test, não CI, não funil — a mesma doença do item
+// controle-cartao-sem-dono, fechado ao lado na rodada anterior. Este arquivo já é chamado pelo
+// CI (.github/workflows/teste.yml, passo "cartão de link"), então fundir aqui os coloca sob
+// portão sem tocar `package.json` nem o workflow. O arquivo separado foi removido no mesmo
+// commit desta fusão — mantê-lo ao lado, sem dono, seria o mesmo buraco com um nome diferente.
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
 const CARTAO = require('../ferramentas/cartao-secao.js');
 const { BASE } = require('../ferramentas/dominio.js');
+const TIPO = require('../ferramentas/tipografia-cartao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const TMP = path.join(RAIZ, 'test', 'tmp-cartao');
@@ -98,7 +109,8 @@ function meta(html, sel) {
   // ============================================================
   // A · O CONTROLE — quatro defeitos, quatro recusas
   // ============================================================
-  sec('A · o portão do cartão visto REPROVANDO (cinco defeitos injetados)');
+  sec('A · o portão do cartão visto REPROVANDO (oito defeitos injetados: cinco de forma/peso, '
+    + 'três de tipografia embutida — ' + TIPO.FAMILIA + ' ' + TIPO.VERSAO + ')');
   const molde = fs.readFileSync(path.join(RAIZ, 'historia', 'index.html'), 'utf8');
   fs.mkdirSync(TMP, { recursive: true });
 
@@ -140,13 +152,37 @@ function meta(html, sel) {
       remendo: (h) => h,
       op: { qualidade: 1 },
       espera: /fora da faixa de/
+    },
+    // OS TRÊS DE BAIXO são de tipografia-cartao.js — fundidos de test/cartao-fonte-embutida.js
+    // (ver o comentário no topo do arquivo). Não remendam o HTML: ligam
+    // `CARTAO_TIPOGRAFIA_DEFEITO`, que `ferramentas/tipografia-cartao.js` lê para simular a
+    // fonte embutida quebrando de três jeitos distintos.
+    {
+      nome: 'a fonte embutida não carrega (src aponta para bytes que não são fonte)',
+      remendo: (h) => h,
+      env: { CARTAO_TIPOGRAFIA_DEFEITO: 'fonte-nao-carrega' },
+      espera: /a fonte embutida .* nao carregou/
+    },
+    {
+      nome: 'a lista de famílias da serifa da casa sai vazia (nada é trocado)',
+      remendo: (h) => h,
+      env: { CARTAO_TIPOGRAFIA_DEFEITO: 'sem-familias' },
+      espera: /nenhum elemento da pagina veste a serifa da casa/
+    },
+    {
+      nome: 'a fonte carrega e o corpo troca, mas o h1 fica de fora',
+      remendo: (h) => h,
+      env: { CARTAO_TIPOGRAFIA_DEFEITO: 'titulo-fora' },
+      espera: /o titulo nao esta sendo PINTADO na fonte embutida/
     }
   ];
 
   for (const d of DEFEITOS) {
     fs.writeFileSync(path.join(TMP, 'index.html'), d.remendo(molde));
+    if (d.env) for (const k in d.env) process.env[k] = d.env[k];
     let erro = null;
     try { await CARTAO.tirar(TMP, d.op || {}); } catch (e) { erro = String(e.message || e); }
+    if (d.env) for (const k in d.env) delete process.env[k];
     ok(!!erro && d.espera.test(erro), 'CONTROLE "' + d.nome + '": '
       + (erro ? 'recusou — ' + erro.slice(0, 90).replace(/\s+/g, ' ') : 'PASSOU, e não podia'));
   }
