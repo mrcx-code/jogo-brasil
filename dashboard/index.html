@@ -218,8 +218,17 @@
     border-radius:3px;padding:.45rem .55rem;font:inherit;font-size:.9rem;resize:vertical;min-height:2.2rem}
   .pend textarea:focus{outline:2px solid var(--brasa);outline-offset:1px;border-color:var(--terra)}
 
+  /* UMA COLUNA NO CELULAR: com o retrato ao lado da informacao, duas colunas de 185 px deixavam
+     ~110 px para o texto e o nome do agente quebrava em tres linhas. A carta horizontal precisa
+     de largura; a tela estreita paga isso em altura, que e barata porque se rola. */
+  /* HIERARQUIA POR TAMANHO: quem esta trabalhando ocupa a LINHA INTEIRA — e a carta com retrato
+     grande, papel, selo e a tira da tarefa, que e o que o dono quer ver de relance. O banco de
+     reservas fica em duas colunas, compacto: quem esta parado nao pode ter o mesmo peso de quem
+     esta produzindo. Como `.grupo-ag` e `display:contents`, os dois grupos dividem a MESMA
+     grade, e basta o cartao ativo pedir as duas colunas. */
   .grade-ag{display:grid;gap:.5rem;grid-template-columns:1fr 1fr}
-  @media(min-width:40rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
+  .grupo-ag.agora .ag{grid-column:1/-1}
+  @media(min-width:46rem){.grade-ag{grid-template-columns:1fr 1fr 1fr}}
   /* AS SQUADS (dono, 21/08). O invólucro é `display:contents` de propósito: ele agrupa no
      DOM (que é o que faz o refresh de 30 s não duplicar card) e desaparece do layout, para
      os cards continuarem sendo itens da MESMA grade. Um <div> normal aqui viraria uma célula
@@ -238,29 +247,49 @@
      A moldura interna e um ::after — nao acrescenta no ao DOM nem entra no caminho de clique. */
   .ag{background:linear-gradient(180deg,var(--realce) 0%,var(--papel) 100%);
     border:1px solid var(--linha);border-radius:7px;padding:0;overflow:hidden;position:relative;
-    box-shadow:0 2px 5px var(--sombra);display:flex;flex-direction:column;text-align:center}
+    box-shadow:0 2px 5px var(--sombra);text-align:left;
+    display:grid;grid-template-columns:auto 1fr;align-content:start;
+    /* Tres LINHAS para a coluna de informacao, e nao uma area unica com align-self: com o papel
+       em duas linhas (o cartao do pm), o selo e o ultimo sinal encavalavam em cima do texto.
+       O retrato ocupa as tres linhas sozinho porque "retrato" se repete nelas. */
+    grid-template-areas:"nome nome" "retrato papel" "retrato selo" "retrato ult"
+                        "tarefa tarefa" "modelo modelo" "acao acao"}
   .ag::after{content:"";position:absolute;inset:3px;border:1px solid var(--linha);border-radius:5px;
     pointer-events:none;opacity:.5}
   /* a faixa do nome: e o topo da carta */
-  .ag .nome{order:1;font:700 .8rem/1.2 "Palatino Linotype",Palatino,Georgia,serif;
-    background:var(--papel2);border-bottom:1px solid var(--linha);padding:.32rem .4rem .28rem;margin:0}
+  .ag .nome{grid-area:nome;font:700 .82rem/1.2 "Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--papel2);border-bottom:1px solid var(--linha);padding:.34rem .5rem .3rem;margin:0}
   /* o retrato: janela emoldurada, com chao e ceu proprios */
-  .ag .palco{order:2;height:44px;margin:.3rem .35rem .05rem;display:flex;align-items:flex-end;
-    justify-content:center;border:1px solid var(--linha);border-radius:4px;
+  /* O RETRATO CRESCEU E FOI PARA A ESQUERDA (dono, 01/09: "quero o bonequinho maior e as
+     informacoes podem ficar a direita"). Ele deixa de ser um friso no topo e vira a figura da
+     carta — 62 px de altura contra 44, com o boneco a 44 px contra 30. */
+  .ag .palco{grid-area:retrato;width:62px;height:66px;margin:.4rem .3rem .4rem .4rem;
+    display:flex;align-items:flex-end;justify-content:center;
+    border:1px solid var(--linha);border-radius:4px;
     background:linear-gradient(180deg,var(--papel) 0%,var(--realce) 55%,var(--papel2) 100%);
     overflow:hidden;position:relative}
-  .ag .papel{order:3;padding:.22rem .42rem 0}
-  .ag .st{order:4;margin:.25rem auto 0}
-  .ag .ult{order:5;padding:.08rem .42rem .3rem}
+  /* A COLUNA DE INFORMACAO: papel, selo e ultimo sinal empilhados a direita do retrato. */
+  .ag .papel{grid-area:papel;align-self:end;padding:.4rem .45rem .1rem 0}
+  .ag .st{grid-area:selo;justify-self:start;align-self:center;margin:.1rem 0}
+  .ag .ult{grid-area:ult;align-self:start;padding:.1rem .45rem .4rem 0}
   /* `margin-top:auto` empurra a tira para o RODAPE da carta: cartas de alturas diferentes na
      mesma linha passam a ter a tira alinhada, que e o que faz um conjunto parecer baralho e nao
      uma pilha. E `:empty` some com o vao de quem nao tem botao (quem esta trabalhando). */
-  .ag .gasto{order:6;margin-top:auto}
-  .ag .acaoAg{order:7;padding:.35rem .4rem .4rem}
+  .ag .gasto{grid-area:modelo}
+  .ag .acaoAg{grid-area:acao;padding:.35rem .4rem .4rem}
   .ag .acaoAg:empty{display:none}
+  /* A TIRA DA TAREFA: presa embaixo do corpo da carta, com barra viva a esquerda. So existe
+     quando ha o que dizer — `:empty` some com ela, entao quem esta parado nao ganha faixa vazia. */
+  .ag .tarefa{grid-area:tarefa;font:400 .62rem/1.4 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    color:var(--tinta2);background:var(--papel2);border-top:1px solid var(--linha);
+    border-left:3px solid var(--mata);padding:.34rem .45rem .34rem .42rem;margin-top:.15rem}
+  .ag .tarefa:empty{display:none}
+  .ag .tarefa::before{content:"agora ";color:var(--mata);letter-spacing:.06em;text-transform:uppercase;font-size:.56rem}
+  .ag.frio .tarefa{border-left-color:var(--alerta)}
+  .ag.frio .tarefa::before{content:"ultimo que disse ";color:var(--alerta)}
   .ag .acaoAg .btn{width:100%}
   .ag .chao{position:absolute;bottom:0;left:0;right:0;height:7px;background:var(--linha);opacity:.75}
-  .bon{width:30px;height:35px;position:relative;z-index:1}
+  .bon{width:44px;height:52px;position:relative;z-index:1}
   .ag[data-st="trabalhando"] .bon{animation:bonbob .8s ease-in-out infinite}
   @keyframes bonbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .bon .braco{transform-box:fill-box;transform-origin:50% 15%}
@@ -275,7 +304,7 @@
   .zzz{position:absolute;top:6px;left:56%;font:700 10px/1 "Palatino Linotype",Palatino,Georgia,serif;color:var(--pedra);opacity:0}
   .ag[data-st="espera"] .zzz{animation:zzz 3s ease-in-out infinite}
   @keyframes zzz{0%,80%,100%{opacity:0}20%,60%{opacity:.7;transform:translateY(-4px)}}
-  .ag .papel{font-size:.62rem;color:var(--pedra);line-height:1.28;font-style:italic}
+  .ag .papel{font-size:.64rem;color:var(--pedra);line-height:1.3;font-style:italic}
   /* o estado vira SELO — pilula com a cor do proprio estado, que e o que se le de longe */
   .ag .st{display:inline-block;font:600 .52rem/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     letter-spacing:.09em;text-transform:uppercase;color:var(--pedra);
@@ -285,7 +314,7 @@
      Ele NAO pode parecer chamado — sem o aceno do boneco, e com a cor de alerta no rotulo. */
   .ag[data-st="guardado"] .bon{opacity:.5;filter:grayscale(.6)}
   .ag[data-st="guardado"] .st{color:var(--alerta)}
-  .ag .ult{font:600 .56rem/1.3 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.8}
+  .ag .ult{font:600 .54rem/1.3 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color:var(--pedra);opacity:.85}
   /* FRIO: cartao que se diz trabalhando e nao da sinal. O rotulo vira alerta e TODAS as
      animacoes param — corpo, BRACO e faisca. O braco e o que le como "esta trabalhando" (o QA
      mediu 6 poses em 540 ms num cartao "sem sinal ha 5h" quando so o corpo parava), entao
@@ -1740,7 +1769,8 @@
     var card=cards[item.nome];
     if(!card){ card=document.createElement("div"); card.className="ag";
       card.innerHTML='<div class="palco"><span class="chao"></span><span class="faisca"></span><span class="zzz">z</span>'+bon(/^#[0-9a-fA-F]{3,8}$/.test(item.cor||"")?item.cor:"#7d8479") /* A3: cor validada — era o unico texto de servidor sem escape e ROUBAVA o refresh_token via innerHTML (auditoria seguranca 21/08) */+'</div>'
-        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div><div class="acaoAg"></div><div class="gasto"></div>';
+        + '<div class="nome">'+escH(item.nome)+'</div><div class="papel"></div><div class="st"></div><div class="ult"></div>'
+        + '<div class="tarefa"></div><div class="acaoAg"></div><div class="gasto"></div>';
       if(item.nome==="Claude") card.classList.add("dono");
       cards[item.nome]=card; }
     var st=item.status||"espera";
@@ -1754,9 +1784,13 @@
     if(card.parentNode!==alvo) alvo.appendChild(card);   // idempotente: só move quando trocou de grupo
     card.__ag=item;   // o card e cacheado por nome; o ouvinte de "Acionar" le sempre o item novo
     card.setAttribute("data-st",st);
-    // PAPEL VAZIO NAO DEIXA TRAVESSAO SOLTO: o separador so existe quando ha os dois lados.
+    // O PAPEL E A TAREFA SE SEPARARAM (dono, 01/09). Eram uma linha so, e a atividade — que e o
+    // texto mais longo do cartao — espremia o papel ate os dois ficarem ilegiveis. O papel fica
+    // ao lado do retrato, curto; a TAREFA vira uma tira presa embaixo do cartao, que so existe
+    // quando ha o que dizer. Os dois por textContent: sao texto de servidor.
     var pp=item.papel||"", at=(st==="trabalhando"&&item.atividade)?item.atividade:"";
-    card.querySelector(".papel").textContent = pp && at ? pp+" — "+at : (pp||at);
+    card.querySelector(".papel").textContent = pp;
+    card.querySelector(".tarefa").textContent = at;
     card.querySelector(".st").textContent = frio?"sem sinal"
       :(st==="trabalhando"?"trabalhando":(st==="chamado"?"chamado":"em espera"));
     card.querySelector(".ult").textContent = rotuloUltimo(st, item.ativo_em, Date.now());
