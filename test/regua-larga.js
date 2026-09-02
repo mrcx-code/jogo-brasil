@@ -508,17 +508,45 @@ const TELAS = [
 // separando as duas variáveis nesta rodada:
 //
 //   REGUA_DEFEITO='#poste{top:9999px!important}'                       (SEM position:absolute)
-//     — top não tem efeito nenhum num elemento static; passa nas seis, exit 0.
+//     — passa nas seis, exit 0.
 //   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}'  (top plausível, DENTRO
 //     da viewport) — reprova as MESMAS duas telas, exit 1.
 //
-// Ou seja: QUEM MORDE É O position:absolute, não o valor do top. Diagnosticado por que: o #poste
-// participa do grid cinemático (estilo.css, grid-template-rows) nessas duas larguras; tirá-lo do
-// fluxo faz o algoritmo de posição estática do CSS calcular um `left` a partir de onde ele estaria
-// (medido: left vira -141px), e o resultado transborda a JANELA PELA LARGURA — o btnConfig sai à
-// direita da tela (right ~1010px contra janela de 899px), não por baixo. É por isso que só estas
-// duas telas mordem: são as únicas do bloco largo em que o poste vive dentro daquele grid; nas
-// outras quatro ele está numa faixa diferente do layout e sair do fluxo não desloca nada horizontal
-// o bastante para vazar. A receita certa para reproduzir esta classe é "tirar o elemento do fluxo
-// normal" (position:absolute/fixed sem realocar), não "botá-lo fora da viewport" — são defeitos
-// de origem diferente e só o primeiro precisa de uma injeção só para morder aqui.
+// Ou seja: QUEM MORDE É O position:absolute, não o valor do top.
+//
+// ⚠ E O PORQUÊ DISSO FOI ESCRITO ERRADO AQUI ANTES, DUAS VEZES SEGUIDAS — o que é a própria
+// lição desta receita. A primeira versão dizia que a causa era "fora da viewport". A segunda
+// (esta, corrigida) dizia que `top:9999px` passa porque *"top não tem efeito num elemento
+// static"* e que as outras quatro telas *"não se deslocam"*. As DUAS frases são falsas, e o QA
+// as derrubou com número em 02/09:
+//
+//   · **`#poste` NÃO é static** — `src/estilo.css:659` declara `#poste{position:relative}`, e
+//     `getComputedStyle(#poste).position` responde `relative` nas seis. Então `top` TEM efeito:
+//     com `top:9999px` o `#btnConfig` vai de `top 960` para `top 10959` (tablet retrato), os
+//     9999 px inteiros, nas SEIS telas.
+//   · **Ele passa mesmo assim porque a rolagem resgata.** `#telaMenu{overflow-y:auto}` ganha
+//     9999 px de `scrollHeight` (1024 → 11023), e o resgate por rolagem da própria régua
+//     alcança o botão. Não é o defeito que some — é o instrumento que o alcança.
+//   · **As outras quatro TAMBÉM se deslocam.** `tablet paisagem`, `notebook` e `ultrawide` estão
+//     no MESMO grid (`#telaMenu` com `display:grid` e `grid-template-rows`) e saem 384 / 384 /
+//     392 px POR BAIXO — passam porque a rolagem vertical as resgata (`scrollTop` 438/438/446).
+//     A única que não vaza por eixo nenhum é `tablet retrato`, e é a única cujo `#telaMenu` é
+//     `flex` em vez de `grid`.
+//
+// **O QUE SEPARA 2 DE 6 É O EIXO, NÃO A FAIXA DO LAYOUT.** Nas duas que mordem, o `left` estático
+// vira negativo (−141px em 899, −265px em 926) e o `#btnConfig` transborda PELA DIREITA (770..1010
+// contra janela de 899; 921..1165 contra 926). A régua rola no Y e resgata o transbordo vertical;
+// no X ela não olha. Por isso mordem duas e não seis.
+//
+// A receita certa para reproduzir esta classe continua sendo "tirar o elemento do fluxo normal"
+// (`position:absolute/fixed` sem realocar) — mas o que a régua está medindo aí é **transbordo
+// horizontal**, e é isso que a próxima pessoa precisa saber para não repetir o diagnóstico errado
+// pela terceira vez. `test/poste-fora-do-fluxo.js` prega os três fatos acima por exit code, para
+// esta correção não depender de alguém ler comentário.
+//
+// ⚠ E FICA UM ACHADO ABERTO, que esta receita não resolve e não deve fingir que resolve: o
+// `#telaMenu` tem `overflow-x: auto` computado, e com esta injeção sobram 141 px (899) e 265 px
+// (926) de rolagem HORIZONTAL. Um dedo real poderia arrastar de lado e chegar ao botão — e a
+// régua chama isso de PRESO. Ou seja, esta terceira receita pode estar simulando um defeito que
+// não é "botão inalcançável", e sim a limitação de um eixo só do instrumento. Item de backlog
+// `regua-eixo-x-nao-olhado`; não conserte aqui sem medir aquilo primeiro.
