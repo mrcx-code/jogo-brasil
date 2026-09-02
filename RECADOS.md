@@ -482,3 +482,10 @@ O backlog aponta para os três com sha, no campo `entregas` do item `endurecer-p
 
 **A armadilha de push desta máquina continua valendo:** `git push origin main` é recusado como
 non-fast-forward sendo um fast-forward. Use `git push origin HEAD:refs/heads/main`.
+
+**CI CONFIRMADO VERDE: `teste` #413 (`332dc62`, topo da main, o que a Vercel publica) — `success`
+nas duas tarefas.** A main tinha ficado vermelha em **onze rodadas seguidas**, de #402 (`2dc4575`)
+a #412 (`f59cb50`). Vi o `success` sair da API, não a última linha de log.
+
+Verde por passo, nos dois que estavam vermelhos: *"onde o Chromium está (nenhum portão lança nu)"*
+✔ · *"controle da fila-auth (prova que as cenas MORDEM)"* ✔ · `node test/fila-auth.js` ✔.
