@@ -930,6 +930,20 @@
       "detalhe": "Achado pelo QA independente em 03/09 auditando censo-cobertura-e-propriedades, DEPOIS de a entrega ja ter fechado os 6 mecanismos do achado original. Nao e regressao: e o teto que a entrega declarou, com a diferenca de que a JUSTIFICATIVA do teto era falsa. A entrega afirmava que a enumeracao estava do lado que ABSOLVE e que esquecer viraria reprovacao barulhenta; o codigo diz o contrario (decorativoInerte = aria-hidden E innerText vazio E !pinta(), entao mecanismo nao escrito e ABSOLVIDO) e o QA mediu por pixel: backdrop-filter:invert(1) 5662 px, border-image sem border-width 3936 px, ::marker 109 px, list-style-image 1800 px, content:url() no proprio elemento 5700 px. Os dois ultimos nem estavam no teto declarado. A frase falsa ja foi corrigida na main (commit da correcao, 03/09); o BURACO continua aberto. Medido do outro lado tambem, e por isso a lista e curta: filter:drop-shadow, mask, clip-path, scrollbar e ::first-line pintam ZERO px numa caixa vazia — nao fogem.",
       "maquina": "nuvem-20260903T0822",
       "desde": "2026-09-03T08:24:09.329Z"
+    },
+    {
+      "id": "poste-sobre-a-proposta",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O laco nunca cobra sobreposicao entre DUAS pecas de mobilia — o poste sobe por cima da proposta e ninguem ve",
+      "territorio": [
+        "test/regua-larga.js"
+      ],
+      "aceite": "Decidir se a regua passa a cobrar a faixa entre o topo do #poste e a base do #menuSub, e com que piso. ATENCAO medida: uma assercao faixa>0 crua passaria HOJE com 9 px de folga em 320x568 — piso apertado demais para entrar de carona numa outra entrega, e por isso o achado virou item em vez de remendo. Se a decisao for cobrar, prova de mordida por injecao (exit 1 real + restaura exit 0); se for nao cobrar, o numero que sustenta.",
+      "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-retrato-sem-alcancabilidade, e deixado aberto DE PROPOSITO por ele em vez de remendado junto — o que esta certo. Sob a receita terceira, em retrato, o #telaMenu e position:fixed (getComputedStyle, 6/6) e vira o containing block do #poste absoluto, entao o poste SOBE por cima da proposta: a faixa (topo do poste menos base do #menuSub) vai a -146/-188/-134/-291/-321/-328 px nas seis telas de retrato, contra 9 a 140 positivos em producao. Conferido em 03/09 pela nuvem-20260903T0822 que nao e item conhecido: grep de menuSub no backlog e no PENDENTES nao acha, e o laco so cobra 0% de sobreposicao da caixa DELA (a personagem) com o poste, as tabuas e a frase de proposta — nunca entre duas pecas de mobilia entre si. Nota da mesma medicao: sob terceira o botao continua alcancavel e tocavel (159 px de folga em 320x568), entao isto e sobreposicao visual, nao alcancabilidade — sao buracos diferentes.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
