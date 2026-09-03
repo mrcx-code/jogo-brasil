@@ -773,7 +773,7 @@
     },
     {
       "id": "csp-host-nao-sai-da-constante",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "O host ainda aparece 13x literal no vercel.json — a metade do aceite que NAO foi feita",
@@ -783,7 +783,9 @@
         "ferramentas/construir.js"
       ],
       "aceite": "O host sai de MEDIDA_HOST para o vercel.json de verdade (hoje sao 13 literais). A METADE DO PORTAO JA ESTA FEITA e nao se refaz: test/qa-vercel-host.js cobra o vercel.json pelo JSON depois do parse e morde 5 de 5 injecoes. O que falta e a fonte unica.",
-      "detalhe": "Rodada nuvem-20260902T2022 entregou o PORTAO e nao a constante. Medido: vercel.json com 0 linha de diff, 13 literais intactos. O QA derrubou a promessa do conferirVercelJson (ferramentas/construir.js), que varre por TEXTO: das cinco injecoes so a de regiao morde — http:// rebaixado, erro de dedo (psthog), escape unicode \\u0070 e connect-src removido saem BUILD exit 0, e ainda imprimindo 12 ocorrencias todas == MEDIDA_HOST, porque candidatos.length nao e cobrado contra nada. Pior: as 5 ocorrencias que decidem cabecalho servido JA eram cobertas pelo bloco B do test/csp-paginas.js da main, entao a cobertura unica do conferirVercelJson sao as 8 que nao decidem cabecalho nenhum — e la ele e cego a 4 de 5 classes. O qa-vercel-host.js (parse do JSON) cobre isso e nasce exit 0 contra a main. Ao pegar este item: corrigir tambem o comentario do conferirVercelJson, que promete pegar erro de dedo e nao pega."
+      "detalhe": "Rodada nuvem-20260902T2022 entregou o PORTAO e nao a constante. Medido: vercel.json com 0 linha de diff, 13 literais intactos. O QA derrubou a promessa do conferirVercelJson (ferramentas/construir.js), que varre por TEXTO: das cinco injecoes so a de regiao morde — http:// rebaixado, erro de dedo (psthog), escape unicode \\u0070 e connect-src removido saem BUILD exit 0, e ainda imprimindo 12 ocorrencias todas == MEDIDA_HOST, porque candidatos.length nao e cobrado contra nada. Pior: as 5 ocorrencias que decidem cabecalho servido JA eram cobertas pelo bloco B do test/csp-paginas.js da main, entao a cobertura unica do conferirVercelJson sao as 8 que nao decidem cabecalho nenhum — e la ele e cego a 4 de 5 classes. O qa-vercel-host.js (parse do JSON) cobre isso e nasce exit 0 contra a main. Ao pegar este item: corrigir tambem o comentario do conferirVercelJson, que promete pegar erro de dedo e nao pega.",
+      "maquina": "nuvem-20260903T0023",
+      "desde": "2026-09-03T00:27:46.206Z"
     },
     {
       "id": "porta-entrada-cresce-em-silencio",
