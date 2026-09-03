@@ -22,10 +22,30 @@
 //   **UM ORÁCULO DE PIXEL, e uma CATRACA em cima dele.** O oráculo tem câmera (Playwright), então
 //   ele não precisa de lista nenhuma para responder "isto pintou?". A catraca compara a resposta
 //   do oráculo com a resposta do censo, mecanismo a mecanismo, e REPROVA toda divergência que não
-//   esteja registrada aqui com o número que ela mediu. Verde deixa de significar "não há buraco" e
-//   passa a significar, cobrado por exit code: **"o conjunto de fugas é exatamente o registrado"**.
+//   esteja registrada aqui com o número que ela mediu.
 //   Acrescentar mecanismo ao catálogo não pede mudança nenhuma no corpo do teste; se ele fugir, a
 //   catraca fica vermelha sozinha e diz o nome dele.
+//
+//   ⚠ **O QUE O VERDE DESTA CATRACA SIGNIFICA — e o que ele NÃO significa.** Esta linha dizia, até
+//   03/09, que verde passava a significar *"o conjunto de fugas é exatamente o registrado"*. **Não
+//   significa, e a frase caiu com número** (QA cruzado de 03/09, auditando `censo-cinco-fugas-medidas`).
+//   O verde significa o que está medido e nada além: **dos mecanismos que o catálogo enumera, os
+//   que fogem são exatamente os registrados, com o tamanho registrado.** Mecanismo fora do catálogo
+//   continua sem ninguém medindo — foi assim que o `::before::marker` apareceu como **8ª fuga**: a
+//   catraca **PEGA** ela quando escrita à mão, mas ninguém a pôs no catálogo, então nenhuma
+//   execução a exercita. **Rede furada é melhor que rede nenhuma; não é rede fechada.**
+//
+//   Reproduzido em 03/09 por `nuvem-20260903T1623`, com exit code real:
+//     CATRACA_EXTRA_NOME=pseudoMarkerDoPseudo \
+//     CATRACA_EXTRA_ESTILO='.qaFuga::before{content:"";display:list-item;list-style-type:none}
+//                           .qaFuga::before::marker{content:"XXXXX";color:#f00;font-size:40px}' \
+//     node test/qa-censo-pintura-fora.js      →  exit 1 · "FUGA pseudoMarkerDoPseudo 495 px"
+//
+//   **E o 495 não contradiz os 183 px que o QA mediu — os dois estão certos, e a diferença é o
+//   aviso.** O tamanho de uma fuga é propriedade da REGRA que se escreve (aqui, um marcador de
+//   40 px), não do mecanismo. Então número de fuga no catálogo é referência da regra que o mediu,
+//   nunca constante do CSS: ao registrar um mecanismo, registre a regra junto, senão o próximo a
+//   medir acha que achou divergência quando só mudou a tinta.
 //
 // O ORÁCULO, e por que ele é `visibility:hidden` e não uma segunda carga da página.
 // A primeira versão desta sonda comparava DUAS CARGAS (uma com o mutante, outra sem) e mediu
@@ -34,9 +54,30 @@
 // instrumento com cara de achado — e o `span.vaoMedida` real EXISTE para ocupar espaço, então
 // "deslocou" nunca poderia ser o critério.
 // O oráculo certo é `visibility:hidden` no PRÓPRIO mutante, na MESMA carga: o leiaute não muda um
-// pixel e toda a pintura dele (inclusive `::before`, `::after`, `::marker` e a alça de `resize`)
-// desaparece. O diff passa a ser, por construção, exatamente os pixels que aquele elemento pinta.
-// Medido depois da troca: `zoom:2` = **0 px**, que é a resposta certa.
+// pixel, e a pintura dele — `::before`, `::after`, `::marker` e a alça de `resize` incluídos —
+// some nos casos que o catálogo cobre. Medido depois da troca: `zoom:2` = **0 px**, que é a
+// resposta certa.
+//
+// ⚠ **ELE NÃO É COMPLETO "POR CONSTRUÇÃO", E ESTA FRASE JÁ DISSE QUE ERA.** Dizia aqui que o diff
+// passava a ser *"por construção, exatamente os pixels que aquele elemento pinta"*. **Caiu, com
+// dois furos medidos** (QA cruzado, 03/09):
+//
+//   **Furo A — `visibility` é herdada, e pseudo-elemento pode RECUSAR a herança.** Um `::before`
+//   que redeclara `visibility:visible` continua pintando enquanto o oráculo já apagou o hospedeiro:
+//   o oráculo lê **0 px** onde a tinta do próprio mutante é **367 px**. O oráculo dá a resposta
+//   errada com a cara de certa — que é o pior desfecho para um instrumento.
+//
+//   **Furo B — o recorte de 48 px de folga perde marcador deslocado.** Um `::before::marker`
+//   empurrado a **330 px** cai FORA do recorte; medido com recorte de 400 px, ele conta **~550 px**.
+//   A folga de 48 px é o que zera o piso de ruído (ver abaixo) e é, ao mesmo tempo, o que corta
+//   tinta longe: as duas coisas puxam para lados opostos e hoje a folga está calibrada pelo piso.
+//
+// Os dois furos são **conhecidos e não bloqueantes** — não pioram nada, e a catraca com eles pega
+// mais que a régua sozinha. Fechá-los é o item `censo-oraculo-dois-furos` parte B (apagar o mutante
+// do DOM em vez de escondê-lo, o que é imune à herança, com recorte alargado). O instrumento que
+// mede os dois furos já existe: `test/qa-catraca-oraculo.js`, no ramo `qa/censo-cinco` (`97f1ccf`),
+// já visto mordendo (`QA_ORACULO=b` → exit 1, `QA_MUTANTE_MUDO=1` → exit 1). **Traga-o, não o
+// reescreva.**
 //
 // O PISO DE RUÍDO, e ele é cobrado por exit code em CADA medição.
 // O mapa do TERRITÓRIO anima sozinho. Comparar o quadro INTEIRO de 1200x630 dá diferença sem

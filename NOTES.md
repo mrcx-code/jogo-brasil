@@ -12240,3 +12240,30 @@ uma reordenação futura passaria sem portão.
 
 **Placar da rodada:** 1 QA em lote · 1 achado · 1 real · 0 desmentidos do QA — e **3 afirmações
 minhas caíram** (as duas que eu mesmo derrubei durante a construção, mais A2, derrubada por ele).
+
+**Segundo item da rodada: `censo-oraculo-dois-furos` PARTE A** (a parte B fica livre, e o aceite
+diz que as duas fecham separadas). Duas frases do cabeçalho de `test/qa-censo-pintura-fora.js`
+prometiam mais do que a catraca cumpre, e o QA cruzado de 03/09 derrubou as duas com número:
+
+1. *"o diff passa a ser, **por construção**, exatamente os pixels que aquele elemento pinta"* —
+   não passa. **Furo A:** `visibility` é herdada e pseudo-elemento pode **recusar** a herança, então
+   um `::before{visibility:visible}` segue pintando depois de o oráculo apagar o hospedeiro: ele lê
+   **0 px** onde a tinta é **367 px** — resposta errada com cara de certa. **Furo B:** a folga de
+   48 px do recorte perde marcador deslocado (`::before::marker` a **330 px** cai fora; com recorte
+   de 400 px conta **~550 px**). A folga é o que zera o piso de ruído **e** o que corta tinta longe:
+   as duas coisas puxam para lados opostos, e hoje ela está calibrada pelo piso.
+2. *"verde passa a significar: o conjunto de fugas é **exatamente** o registrado"* — não significa.
+   Verde significa **dos mecanismos que o catálogo enumera**, os que fogem são os registrados.
+   Fora do catálogo ninguém mede — foi assim que o `::before::marker` ficou como **8ª fuga**.
+
+**Reproduzi a 8ª fuga em vez de repetir o número do QA, e foi bom ter feito:** exit real **1**,
+`FUGA pseudoMarkerDoPseudo` — mas **495 px**, não os 183 px que ele mediu. **Os dois estão certos.**
+O tamanho de uma fuga é propriedade da **regra que se escreve** (usei um marcador de 40 px), não do
+mecanismo. Daí a regra nova que ficou escrita no cabeçalho: **número de fuga no catálogo é
+referência da regra que o mediu, nunca constante do CSS** — registre a regra junto, senão o próximo
+a medir acha divergência onde só mudou a tinta.
+
+Portões depois da mudança (só comentário, mas o arquivo é instrumento): catraca **exit 0** ·
+`smoke` **exit 0**, FPS 62. A parte B (apagar o mutante do DOM em vez de escondê-lo, imune à
+herança, com recorte alargado; e pôr o marker no catálogo) continua **livre**, com o instrumento
+que a mede já escrito em `qa/censo-cinco` (`97f1ccf`) — **trazer, não reescrever**.
