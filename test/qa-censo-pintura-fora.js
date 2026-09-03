@@ -66,12 +66,34 @@
 //        "FUGA backdropFilter 5700 px" + "FUGA pseudoBackdrop 3600 px"
 //      Ela troca aquele pedaço por `false` na função que o Playwright serializa. Sem o env, exit 0.
 //
-// O QUE ESTE ARQUIVO NÃO RESOLVE, dito em vez de escondido. O catálogo continua sendo uma lista,
-// e mecanismo que não está nele não é medido. A diferença em relação ao teto de ontem é de
-// NATUREZA, não de tamanho: a lista de ontem estava dentro da régua e absolvia em silêncio o que
-// não conhecia; esta está dentro do TESTE e, para tudo o que conhece, a resposta vem da CÂMERA.
-// Acrescentar um nome aqui custa uma linha e nenhum raciocínio — e a linha vermelha aparece
-// sozinha se a régua não o cobrir.
+// O QUE ESTE ARQUIVO NÃO RESOLVE, dito em vez de escondido — e o primeiro item foi achado
+// FURANDO ESTA MESMA CATRACA de propósito, depois de escrita, com número.
+//
+//   1. **PINTURA QUE NÃO É DO PRÓPRIO ELEMENTO — o furo, e ele é grande.** O oráculo é
+//      `visibility:hidden` NO MUTANTE, então ele só enxerga o que o MUTANTE pinta. Um mutante que
+//      apenas RE-ESTILIZA conteúdo já aceito escapa das duas pontas ao mesmo tempo:
+//        CATRACA_EXTRA_NOME=furoVizinho \
+//        CATRACA_EXTRA_ESTILO='.lista .pl{background:#0f0}' node test/qa-censo-pintura-fora.js
+//      devolve `inerte 0 px censo=ABSOLVE` e **exit 0** — enquanto o cartão muda **15.135 px** na
+//      caixa da `.lista` (medido: 384x67, `.pl` com fundo verde). O censo não vê porque as tábuas
+//      de lugar são PERMITIDAS por identidade (href/rótulo) e ele nunca pergunta como elas se
+//      parecem; o oráculo não vê porque a tinta não sai quando o mutante some.
+//      É a mesma CLASSE do `q107c` de `test/qa-censo-passo2.js` (texto entrando por `::after` de
+//      uma tábua aceita), que já está lá declarado como ALCANCE não cobrado. Continua aberto, e
+//      agora com o tamanho medido em vez de suposto. Fechar isso é outro item e é de outra
+//      natureza: exigiria o censo comparar a APARÊNCIA do conteúdo aceito com uma referência, e
+//      não mais só a identidade dele.
+//
+//   2. **UMA SUPERFÍCIE SÓ.** Tudo aqui é medido no `territorio/index.html`, na `.lista`. Um
+//      mecanismo cuja tinta dependa do que está ATRÁS (é o caso de `backdrop-filter`) pode medir
+//      diferente noutra das cinco páginas. O varrimento das cinco continua sendo do bloco 1 de
+//      `test/qa-censo-passo2.js`, que cobra ZERO falso-positivo em cada uma.
+//
+//   3. **O CATÁLOGO CONTINUA SENDO UMA LISTA**, e mecanismo que não está nele não é medido. A
+//      diferença em relação ao teto de ontem é de NATUREZA, não de tamanho: a lista de ontem
+//      estava dentro da RÉGUA e absolvia em silêncio o que não conhecia; esta está dentro do
+//      TESTE e, para tudo o que conhece, a resposta vem da CÂMERA. Acrescentar um nome aqui custa
+//      uma linha e nenhum raciocínio — e a linha vermelha aparece sozinha se a régua não o cobrir.
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
