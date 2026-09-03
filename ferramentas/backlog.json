@@ -63,7 +63,7 @@
     },
     {
       "id": "cartao-margem-esquerda",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "arte",
       "titulo": "A margem esquerda de 268 px do molde e que produz o istoria no recorte quadrado — nao a largura da fonte",
       "territorio": [
@@ -74,7 +74,8 @@
       "aceite": "A primeira tabua sobrevive ao recorte QUADRADO centrado (x 285..915), nao so ao 1200x630. Mordida provada por injecao. Medir antes e depois no recorte quadrado, nao no canvas cheio — e o quadrado que produz o defeito.",
       "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "resolucao": "INTEGRADO 03/09 por nuvem-20260903T2022 (funil exit 0 real; npm test, encaixe e os tres portoes extra do censo do cartao todos exit 0). A margem esquerda do molde era mesmo a causa nas TRES secoes de leitura: o h1 nascia em x=268 contra o recorte quadrado que corta em 285, e passa a 304 por injecao de padding-left EM MEMORIA so no print — nenhum byte de <secao>/index.html muda, mesmo mecanismo do GRAO_FORA. Mordida: CARTAO_MARGEM_DEFEITO=1 recusa a geracao (exit 1), sem a variavel exit 0, e a regressao fica coberta em CI pelo cartao-controle.js (teste.yml linha 344), que sai exit 1 com 8 falhas de 49 sob o mutante — medido pelo porteiro, nao presumido. Sonda no ARTEFATO (JPEG decodificado): tinta comeca em 304/306/306. Os tres jpg de producao DIMINUIRAM de peso e regeneram byte-identicos numa maquina SEM EGRESSO, que e a prova mais forte contra a licao de 02/09 (gerador assando fonte do host). DERRUBOU a afirmacao herdada de que o defeito era identico nos quatro: o cartao do territorio usa outro molde (position:fixed;inset:0), h1 em x=27, e no recorte quadrado o titulo SOME INTEIRO — outra categoria, fora deste territorio, e cartao-decepa-primeira-tabua continua livre com esse numero."
     },
     {
       "id": "fonte-embutida-sem-portao",
