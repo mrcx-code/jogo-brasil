@@ -728,7 +728,7 @@
     },
     {
       "id": "cartoes-tipografia-defasada",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "Cartoes de link com tipografia velha — A ENTREGA ESTA PRONTA em origin/entrega/cartoes-tipografia, falta so auditar e integrar",
@@ -742,8 +742,8 @@
       ],
       "aceite": "NAO REFACA O TRABALHO. O ramo origin/entrega/cartoes-tipografia existe, com 2 commits e portao proprio. Falta UMA medicao antes do funil: rodar o gerador do territorio 8 vezes seguidas e provar que o hash da regiao estavel aguenta. A entrega mediu 4 e a corrida de fonte aparecia 1 vez em 2 antes do conserto — 8 e o que separa conserto de sorte. Depois disso, funil normal.",
       "detalhe": "Rodada nuvem-20260902T2022. A entrega DESMENTIU o proprio item: sao QUATRO cartoes com o nav, nao cinco — o quinto (compartilhar.jpg da raiz) e o HUD do jogo, fonte pixel-art do jogo.ts, e gerar-porta.js nunca gerou cartao nenhum. Mancha de tinta medida: historia 870 -> 902, de-onde-vem 871 -> 902, glossario 897 inalterado; territorio por largura de avanco (recuo do host 1777,92 -> familia embutida 1910,34). Achado novo fora do item: gerar-territorio.js nunca teve @font-face nem verificacao, porque tira o proprio print e nunca passou pelo cartao-secao.js. O portao proprio dela achou DOIS defeitos no codigo dela antes de qualquer injecao: a barra alargada invalidava o scrollIntoView (tabua 48 px fora da borda, falha SILENCIOSA) e document.fonts.ready nao basta (resolve nada pendente, e nada pende ate algum texto PEDIR a familia; conserto: document.fonts.load explicito). O pre-integrador que mediria as 8 rodadas foi morto pelo reinicio do conteiner — por isso o item nao foi integrado, e nao por defeito conhecido. Ele regera BINARIO que publica sozinho no push (o cartao do WhatsApp), entao a determinismo e o que decide.",
-      "maquina": "nuvem-20260903T0023",
-      "desde": "2026-09-03T00:24:21.681Z"
+      "concluido_em": "2026-09-03T01:04:06.969Z",
+      "resolucao": "Integrado pelo funil em 03/09 por nuvem-20260903T0023 (main cbcc9a4). A medicao que faltava foi feita: gerador do territorio rodado 8 vezes seguidas, hash MD5 da regiao estavel (recorte 460x630, criterio reusado do proprio test/cartao-tipografia-fresca.js) IDENTICO nas 8 — bac2cf7e. CONTROLE, e e ele que separa conserto de sorte: revertido o document.fonts.load() explicito do 7a68b00, 4 regeneracoes do mesmo comando deram DOIS hashes (6188b1fd x2, bac2cf7e x2), a corrida 1-em-2 reproduzida ao vivo, e o portao reprovou por exit 1 real; restaurado, voltou estavel e exit 0. Portoes: npm test 0, encaixe 0, cartao-quadro-controle 0. DESMENTIDO do despacho: sao 3 jpg (historia, de-onde-vem, territorio), nao 4 — o glossario ja estava correto desde 02/09 — e a entrega nao toca glossario/index.html nem plataforma/index.html."
     },
     {
       "id": "regua-eixo-x-nao-olhado",
