@@ -9,16 +9,29 @@
 // pessoa que escreveu a correção — e mutante feito sob medida para a correção passa sempre
 // (EQUIPE.md 2.8). Este arquivo faz as três coisas que faltavam:
 //
-//   1. MUTANTES DE OUTRO AUTOR (`q107a..d`), com outra forma de pôr texto inerte na foto.
+//   1. MUTANTES DE OUTRO AUTOR (`q107a..e`), com outra forma de pôr texto inerte na foto.
 //   2. A COBERTURA da segunda passada, em número: quantos elementos ela JULGA e quantos ela
 //      ABSOLVE por ancestralidade. Se ela absolvesse quase tudo, seria um no-op de aparência boa.
 //   3. O VARRIMENTO DE FALSO-POSITIVO nas páginas públicas geradas, e não só no
 //      `territorio/index.html` — é o único teste que decide se a entrega derruba a `main`.
 //
+// ATUALIZADO em 03/09 (item `censo-vaomedida-falso-positivo`): a primeira versão deste arquivo
+// SÓ cobrava por exit code o falso-positivo do território (linha `if (p.secao === 'territorio')`
+// mais abaixo) — media as outras quatro páginas e só IMPRIMIA. Foi assim que o falso-positivo do
+// `span.vaoMedida` (porta 1, historia 1, glossario 1, de-onde-vem 1 — sempre o mesmo elemento)
+// ficou visível no número sem nunca derrubar o portão: o comentário deste cabeçalho já dizia "não
+// só no territorio/index.html", mas o código não cumpria. Agora cumpre: a asserção de ZERO
+// estranhos corre nas CINCO páginas, não numa.
+//
 // O QUE ESTE ARQUIVO COBRA POR EXIT CODE, e por que só isto:
-//   · `m106` (do autor) e `q107d` (meu, em OUTRO contêiner provado — a `.lista`, não a `.barra`)
-//     têm de ser recusados. Se a segunda passada virar no-op num refactor, isto fica vermelho.
-//   · a página real, com a exclusão do gerador aplicada, tem de sair com ZERO estranhos.
+//   · as CINCO páginas públicas, cada uma com a exclusão que o gerador dela aplicaria, têm de sair
+//     com ZERO estranhos — nenhum falso-positivo em nenhuma das cinco, não só na que tem gerador
+//     hoje.
+//   · `m106` (do autor), `q107d` (meu, em OUTRO contêiner provado — a `.lista`, não a `.barra`) e
+//     `q107e` (meu, o MESMO nome e o MESMO `aria-hidden` do vão real, mas COM texto) têm de ser
+//     recusados. Se a segunda passada virar no-op num refactor, ou se o conserto do
+//     falso-positivo virar "ignora `aria-hidden`" em vez de "ignora `aria-hidden` SEM CONTEÚDO",
+//     isto fica vermelho.
 // Os mutantes que ESCAPAM (`q107a`, `q107b`, `q107c`) são impressos como ALCANCE, não como falha:
 // a entrega nunca prometeu alcançá-los, e portão que cobra promessa que ninguém fez fica vermelho
 // na `main` limpa — vermelho de instrumento com cara de vermelho de produto (EQUIPE.md).
@@ -138,6 +151,25 @@ const Q107 = {
     d.textContent = 'MEDIÇÃO ligada';
     l.appendChild(d);
   },
+  // (e) — AUDITORIA DO CONSERTO `censo-vaomedida-falso-positivo` (03/09): usa o MESMO atributo
+  //     que o `span.vaoMedida` real usa (`aria-hidden="true"`, sem `role`, sem `onclick`) para
+  //     provar que a nova exceção NÃO é "deixa passar quem tem aria-hidden" — é "deixa passar
+  //     quem tem aria-hidden E NADA para ler". Este tem texto. Se a régua tivesse virado "ignora
+  //     todo aria-hidden", este mutante passaria limpo. CLASSE PROPOSITALMENTE DIFERENTE de
+  //     `vaoMedida`: a exclusão de `excluir(pg,'controles')` (linha 63 acima, cópia fiel da do
+  //     gerador) apaga por NOME quem se chama `.vaoMedida` antes de fotografar — usar o mesmo
+  //     nome testaria a EXCLUSÃO do gerador, não a REGRA do censo, e o mutante morreria por um
+  //     motivo que não é o que se quer medir aqui. Cobrado por exit code.
+  q107e: () => {
+    const barra = document.querySelector('.barra');
+    if (!barra) throw new Error('q107e: nao achei .barra');
+    const s = document.createElement('span');
+    s.className = 'qa107e';
+    s.setAttribute('aria-hidden', 'true'); // o MESMO atributo do vão real
+    s.style.cssText = 'display:inline-flex;align-items:center;height:40px;padding:0 8px;color:#fff';
+    s.textContent = 'MEDIÇÃO ligada';     // a diferença que importa: tem texto
+    barra.appendChild(s);
+  },
 };
 
 // ------------------------------------------------------------------------------- A COBERTURA
@@ -205,16 +237,19 @@ async function cobertura(pg, permitidos) {
       + '  universo=' + cob.universo + ' julgados=' + cob.julgados + ' absolvidos=' + (cob.absolvidosPorAceito + cob.absolvidosPorPai)
       + ' invisíveis=' + cob.invisiveis + '  visíveis na foto=' + cob.visiveisNaFoto);
     est.forEach((e) => console.log('       ESTRANHO ' + e.alvo + ' @' + e.x + ',' + e.y + ' — ' + e.motivo));
-    if (p.secao === 'territorio') {
-      ok(est.length === 0, 'territorio: o censo aprova o cartão real (é ele que o gerador cobra)');
-    }
+    // ANTES (03/09) só o território era cobrado por exit code aqui — é hoje a única página com
+    // gerador que chama o censo. As outras quatro nunca reprovavam nada por conta disso, mesmo
+    // achando o `span.vaoMedida` todo dia (achado do QA em 02/09, censo-vaomedida-falso-positivo).
+    // AGORA o censo é medido como se as CINCO tivessem o mesmo portão: nenhuma pode carregar um
+    // falso-positivo esperando o dia em que ganhar gerador próprio.
+    ok(est.length === 0, p.secao + ': o censo aprova o cartão desta seção (zero falso-positivo)');
   }
 
   // ---------------------------------------------------------------- 2. OS MUTANTES DE OUTRO AUTOR
   console.log('\n=== 2. MUTANTES DE OUTRO AUTOR contra territorio/index.html');
   const arqT = path.join(RAIZ, 'territorio', 'index.html');
   const permT = permitidosDe('territorio', arqT);
-  const PEGA_POR_EXIT = { q107d: true };
+  const PEGA_POR_EXIT = { q107d: true, q107e: true };
   for (const nome of Object.keys(Q107)) {
     const pg = await abrirPagina(nav, arqT);
     let erro = '';

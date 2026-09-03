@@ -208,12 +208,48 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // pelo menos um filho aceito dentro — e varre TODOS os descendentes deles. Quem não é um aceito
   // nem faz parte interna de um aceito (o `<span class="uf">` dentro do `button.pl`, os rótulos
   // dentro do botão de medição) é estranho, interativo ou não.
+  //
+  // O FALSO-POSITIVO DE `censo-vaomedida-falso-positivo` (achado do QA em 02/09, cinco páginas
+  // medidas: porta 1, historia 1, glossario 1, de-onde-vem 1, territorio 0): a `<span
+  // class="vaoMedida" aria-hidden="true">` que `chrome-plataforma.js` escreve na `.barra` é um
+  // VÃO — reserva de espaço para o interruptor sticky, sem texto, sem `role`, sem borda, sem
+  // `background`. Ela mora dentro de `.barra` (um `dono` provado, porque a barra tem links
+  // aceitos), então o passo 2 a alcançava e a reprovava — e só não reprovava no TERRITÓRIO porque
+  // o gerador daquela página esconde `.vaoMedida` PELO NOME antes de fotografar. Alargar a lista
+  // de nomes aqui teria feito exatamente o que este arquivo inteiro existe para não fazer (ver o
+  // cabeçalho: "nome é atributo do autor, e o que se chama pode ser renomeado") — e teria escondido
+  // o próximo vão do mesmo jeito que o de 23/08 escondeu o interruptor.
+  //
+  // A PERGUNTA CERTA NÃO É "COMO SE CHAMA", É "O QUE APARECE NA FOTO". O item 1 (censo-cartao-
+  // residuais) reprova texto inerte porque texto inerte é o que o defeito de 23/08 pôs na foto —
+  // "MEDIÇÃO / ligada" lida por cima do link cortado. Um elemento marcado `aria-hidden="true"`
+  // (o sinal de acessibilidade que diz "isto não carrega informação — ignore") E sem NENHUM texto
+  // próprio E sem `background-image` não pinta pixel nenhum na foto além de espaço em branco: não
+  // há o que revisar. Isso é uma CLASSE (o par "invisível para leitor de tela" + "sem conteúdo
+  // visual"), não um nome — é por isso que ela não precisa de lista, e é por isso que `m106` e
+  // `q107d`, que têm TEXTO ("MEDIÇÃO ligada") e não têm `aria-hidden`, continuam caindo nela sem
+  // exceção nenhuma (provado nos dois sentidos por `test/qa-censo-passo2.js`, que também injeta um
+  // `q107e`: mesmo `aria-hidden="true"`, mas COM texto — continua reprovado, para provar que a
+  // regra lê o conteúdo, não decora o atributo).
+  //
+  // O QUE ISTO NÃO FECHA, dito em vez de escondido: um elemento que pinta TEXTO por imagem de
+  // fundo (`background-image` com letras desenhadas) ou por `::after`/`::before` (que `innerText`
+  // já não vê — item 3 do censo-cartao-residuais, PENDENTES 102) escapa da mesma forma que
+  // escapava antes desta linha. Não é regressão: a régua nunca alcançou pseudo-elemento, e a
+  // checagem de `background-image` aqui é para não abrir uma porta NOVA (texto por imagem
+  // disfarçado de vão), não para fechar uma que já estava aberta.
+  function decorativoInerte(e, s) {
+    return e.getAttribute('aria-hidden') === 'true'
+      && norm(e.innerText) === ''
+      && (!s.backgroundImage || s.backgroundImage === 'none');
+  }
   donos.forEach((dono) => {
     dono.querySelectorAll('*').forEach((e) => {
       if (aceitos.indexOf(e) !== -1) return;                          // já aceito no passo 1
       if (aceitos.some((a) => a !== e && a.contains(e))) return;      // parte interna de um aceito
       const v = visivel(e);
       if (!v) return;
+      if (decorativoInerte(e, v.s)) return;   // vão aria-hidden sem texto e sem imagem — não é foto
       const retrato = retratar(e, v.s, v.r);
       retrato.motivo = 'dentro de um contêiner já provado do cartão, mas fora da lista de'
         + ' permitidos — não depende de ser clicável (censo-cartao-residuais item 1)';
