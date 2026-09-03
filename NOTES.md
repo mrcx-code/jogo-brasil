@@ -11970,3 +11970,116 @@ consertos escritos no `aceite` do item, que voltou a `livre`. **Não recomece do
 `censo-cinco-fugas-medidas` trazendo o instrumento do QA em vez de reescrevê-lo.
 
 **Nome de máquina desta rodada: `nuvem-20260903T0422`.**
+
+### 2026-09-03 (manhã) · plantão `nuvem-20260903T0822` · duas entregas integradas, e cinco afirmações caíram — três delas minhas
+
+**Nome de máquina: `nuvem-20260903T0822`.** Sem issue etiquetada `agente`; rodada agendada,
+trabalho puxado da fila. Quatro itens pegos, **nenhum marcador `voo/` criado** — ver a decisão
+abaixo, que é dela que essa ausência decorre.
+
+**Integrado pelo funil, portões verdes por exit code real (`npm test` 0, `encaixe` 0 nas duas):**
+
+1. **`csp-tabela-de-rotas-e-conjunto`** — o portão que guardava o `vercel.json` era a maior
+   superfície aberta do repositório. `test/qa-vercel-quadro.js` mutava **em disco** o arquivo que
+   a Vercel publica a cada push na `main`, e o gancho de restauração não sobrevivia a sinal:
+   `timeout -s TERM` → exit **124** deixando **21 linhas a mais**; `-s KILL` → exit **137**, mesmo
+   estrago; e o `process.on('SIGINT')` era código morto porque `spawnSync` bloqueia o laço.
+   Consertado por mutação **em memória** (um `-r` que desvia a leitura para `os.tmpdir()`), com
+   `git status` vazio depois de TERM e de KILL, e md5 do `vercel.json` intacto — conferido
+   independentemente pelo QA, inclusive **a partir de outro cwd** (`RAIZ` sai de `__dirname`).
+   **Achado que ninguém pediu, e é o maior da rodada:** `Access-Control-Allow-Origin: *` numa
+   página pública atravessava **os quatro portões verdes** — build 0, `qa-vercel-host` 0,
+   `qa-vercel-diretiva-repetida` 0, `qa-csp-cabecalhos` 0 — porque todos cobravam **valor** e
+   nenhum cobrava o **conjunto de chaves**. Fechado; os 14 payloads do QA (incluindo caixa alta e
+   minúscula) saem **exit 1**. As regras inertes eram **14 de 22**, não 8, e viraram asserção
+   contada pelas **duas** ordens de precedência, então ela não envelhece com a hipótese.
+2. **`regua-retrato-sem-alcancabilidade`** — decisão **SIM** para `cfgOk` no laço de retrato, mais
+   `conferirDegrau`; os dois blocos do laço largo viraram funções compartilhadas e o laço largo
+   saiu **byte a byte idêntico** em 4 controles (com piso de ruído medido antes: duas execuções
+   sem mudança = 0 bytes).
+
+**O QUE CAIU — e três das cinco eram minhas.** Esta é a parte que vale mais que as integrações:
+
+- **Minha, desmentida com número:** justifiquei o despacho da régua com o par **1030/932**. Ele é
+  medido **sob defeito injetado**; em produção a mesma tela lê **912/932**. Defeito injetado prova
+  **visibilidade do instrumento**, nunca **necessidade da asserção**. O que sustenta a decisão é
+  outro número, que o agente foi buscar: **4 px de folga** e **`scrollHeight − clientHeight = 0`
+  nas seis telas** de retrato — a configuração mais apertada das 12 da régua.
+- **Minha, desmentida com três razões:** propus resolver o `vercel.json` "restaurando de cópia na
+  entrada". Não fecha o buraco, só encurta a janela — **quem publica não é a próxima execução, é o
+  `git push`**; a cópia feita do arquivo atual **canoniza o veneno** de uma execução morta; e nome
+  fixo com duas execuções em paralelo dá vermelho intermitente.
+- **Minha, e quase virou achado falso:** fui derrubar a afirmação de que
+  `CTX_B64[vao-cidade-africana]` é a única chave sem prefixo `capN`, medi **4** e ia registrar a
+  refutação. Era **erro meu** — recortei 400 KB a partir de `CTX_B64` e li **atravessando a
+  fronteira** para `QUAD_B64`. O item estava certo: 1 de 19, **60,9 KB** confirmados.
+- **Herdada, desmentida:** o diagnóstico de 02/09 dizia que a receita `hierarquia` não mordia em
+  retrato *"por motivo conceitual — o retrato não diferencia nível 2"*. Falso: o DOM diferencia
+  (4 portais e 4 `sec` em 6/6, degrau de **52–74 px** de largura). **Era o laço que não olhava.**
+- **Do agente contra si mesmo:** o primeiro oráculo do censo mediu `zoom:2` como **49.737 px** de
+  fuga. Não era — `zoom` empurra os vizinhos e o diff contava **deslocamento como tinta**. Com
+  `visibility:hidden` no mutante, `zoom:2` dá **0 px**.
+
+**O que o QA derrubou nas entregas que eu já tinha elogiado** (e é por isso que ele vem antes de
+integrar, não depois):
+
+- **`cfgOk` não dispara só na conjunção testada.** Terceira conjunção achada:
+  `#poste{margin-top:250px}` + `#telaMenu{touch-action:none}` → régua **exit 0**, retrato 0/6,
+  zero linhas `PRESO` — com o botão de **118 a 243 px abaixo da borda nas seis telas**. O resgate
+  do laço é `p.scrollTop = p.scrollHeight`, **rolagem de script, que o dedo não tem**. O
+  comentário da própria função diz *"rola de verdade só quem o dedo conseguiria rolar"*, e
+  `touch-action` é a propriedade que decide isso — e não é lida. Item `regua-touch-action`.
+- **A lista de chaves nova fecha *qual chave*, não *qual valor*.** `Referrer-Policy: unsafe-url`
+  sai **0 nos quatro portões**; das 4 chaves, 3 têm valor cobrado e 1 não. E o conjunto é fechado
+  **dentro** de `headers[].headers`: as chaves de **topo** do `vercel.json` não têm portão nenhum
+  — um `redirects` de `/glossario/(.*)` para outro domínio passa nos quatro, e é **mais forte que
+  qualquer CSP**, porque a pessoa nem chega na página cuja política foi conferida diretiva por
+  diretiva. Item `vercel-valor-e-topo`.
+- **A frase "14 inertes nas duas ordens" só vale contando `index.html`.** Contando tudo o que
+  `dist/` serve (30 alvos, com os `pack-*.json`), pela primeira-vence dá **8**. `/jogo/(.*)`, que
+  o próprio repositório chama de rota mais visitada do site, é rotulado inerte **enquanto serve os
+  pacotes de arte**. Não é vermelho de produto — é o texto declarando teto mais largo que o medido.
+
+**Decidido e escrito: a nuvem para de criar marcador `voo/`** (item `marcador-voo-so-acumula`,
+saída (a) do aceite). O que decidiu foi número: a saída (b) **já estava construída** —
+`ferramentas/ramos-mortos.js`, de 02/09 — e **já tinha sido pedida em 4 rodadas** do `RECADOS.md`.
+Resultado: **0 refs apagados**, e o canal foi de **9 para 23** marcadores em 24 h (`entrega/` de 15
+para 28). Cruzado com o `backlog.json`: **22 de 23 mortos**. O 403 foi re-medido pela quinta vez
+com o `$?` lido de arquivo — **exit 1**, e a última linha impressa continua sendo
+`Everything up-to-date`. Confirmado que **não é o proxy** e que o GitHub MCP **não tem** ferramenta
+de apagar ramo. Resíduo que nenhuma sessão fecha: o prompt agendado ainda manda criar o marcador
+(`PENDENTES 102`).
+
+**Erro de processo meu, consertado onde ele é lido:** a regra *"avise o agente que o worktree nasce
+sem `node_modules`"* existe desde 01/09 — e eu a omiti nos **três** briefs de hoje, porque ela
+morava no §4 (ciclo de integração) e quem escreve brief lê o §2. Cada agente pagou o minuto e
+refez o diagnóstico sozinho (`npm install` = **103 pacotes**). Movida para o §2. **Regra que mora
+longe de quem a executa não é regra, é anotação.**
+
+**Também caí num trap já documentado**, o que não é achado e sim leitura que faltou: a nuvem roda
+em `HEAD` **destacado**, e `git push -u origin main` empurra o ref local obsoleto — aqui, de dois
+commits atrás. Está no `PLANTAO.md` desde 01/09.
+
+**O que NÃO entrou, e por quê:** `censo-cinco-fugas-medidas` está **pronta e empurrada**
+(`entrega/censo-cinco-fugas-medidas`, `047c393`, árvore limpa) e **não foi integrada** — o pré-voo
+exige `qa` + `porteiro` e a rodada bateu o teto de tempo antes de despachar o QA. O item voltou a
+`livre` com o ramo nomeado para ninguém recomeçar do zero. Ela derrubou a própria premissa:
+**eram cinco fugas, são sete** — `resize` + `overflow≠visible` (18 px) e
+`::before{content:"";display:list-item}` (25 px) **não estavam em teto nenhum**, e a segunda foi
+achada **pela própria catraca**. Piso de ruído: quadro inteiro dá 194/850/1028/1107 px em quatro
+execuções; o recorte caixa+48 dá **0**, cobrado em **cada um dos 46 mecanismos**. E ela **furou a
+própria catraca com número**: re-estilizar conteúdo já *aceito* muda **15.135 px** e a catraca lê
+**0 / ABSOLVE** — item `censo-restilizar-o-aceito`.
+
+**Dúvida que fica aberta e que a nuvem não fecha:** a precedência do array `headers` da Vercel é
+**inferida, não documentada**. Três hipóteses, e a terceira muda a severidade (as duas regras
+viajam e o navegador aplica a **interseção** — nesse caso "inerte" é nome errado). `WebFetch` de
+`vercel.com` volta `EGRESS_BLOCKED` **para o agente e para a minha linha**, então não é sorte de
+uma execução. Item `vercel-precedencia-de-headers`, para máquina com egresso.
+
+**Próximo passo:** despachar `qa` + `porteiro` sobre `entrega/censo-cinco-fugas-medidas` e levá-la
+ao funil; depois `vercel-valor-e-topo` e `regua-touch-action`, que já têm instrumento escrito e
+visto mordendo no ramo `qa/csp-e-regua-0903` (`a4525b9`) — trazer, não reescrever.
+
+**Placar da rodada:** 3 agentes de entrega + 1 QA em lote · 20 achados · 20 reais · 5 desmentidos
+(3 meus, 1 herdado, 1 do agente contra si mesmo).

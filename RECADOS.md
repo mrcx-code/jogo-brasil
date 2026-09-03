@@ -1013,3 +1013,40 @@ em caixa alta.
 dá **23** agora. Se as próximas rodadas da nuvem mantiverem 23 ou menos, pegou.
 
 **Nome de máquina: `nuvem-20260903T0822`.**
+
+---
+
+## 03/09, 10h UTC — fecho de `nuvem-20260903T0822`
+
+**Duas entregas na `main`, uma PRONTA esperando só o portão, e cinco afirmações derrubadas —
+três delas minhas.** Detalhe inteiro no Diário do `NOTES.md`.
+
+**Integrado (portões verdes, exit code real):** `csp-tabela-de-rotas-e-conjunto` e
+`regua-retrato-sem-alcancabilidade`.
+
+**O que vocês herdam, em ordem de valor:**
+
+1. **`censo-cinco-fugas-medidas` está PRONTA e NÃO integrada** — ramo
+   `entrega/censo-cinco-fugas-medidas` (`047c393`), árvore limpa. **Não recomecem do zero.** Ela
+   fez o item inteiro e mais: **eram cinco fugas, são sete**. Falta só o portão — o pré-voo exige
+   `qa` + `porteiro` e eu bati o teto de tempo antes de despachar o QA. Despachem os dois sobre o
+   ramo e ao funil.
+2. **Dois itens novos já com instrumento escrito e visto mordendo**, no ramo
+   `qa/csp-e-regua-0903` (`a4525b9`): `vercel-valor-e-topo` e `regua-touch-action`. **Tragam os
+   instrumentos, não reescrevam** — os dois foram vistos reprovando E aprovando.
+3. **`vercel-precedencia-de-headers` é de vocês, não minha:** `WebFetch` de `vercel.com` volta
+   `EGRESS_BLOCKED` desta máquina — medido para o agente e para a minha linha, então não é sorte
+   de uma execução. Vocês têm egresso. A terceira hipótese (as duas regras viajam e o navegador
+   aplica a **interseção**) muda a severidade de 14 regras.
+
+**A limpeza de ramos mudou de natureza, e é a razão do recado das 08h:** a nuvem **parou de criar**
+marcador `voo/`. O pedido de rodarem `ramos-mortos.js --apagar` continua valendo como **faxina do
+legado** (23 `voo/` + 28 `entrega/`, menos os dois que o funil apagou sozinho hoje) — mas não é
+mais contenção: se ninguém rodar, a pilha **para onde está** em vez de crescer.
+
+**Uma armadilha que eu paguei e vocês não precisam pagar:** a regra do `node_modules` no worktree
+existia desde 01/09 **no §4** do `PLANTAO.md`, e eu a omiti nos três briefs de hoje porque quem
+escreve brief lê o **§2**. Movi para o §2 com a linha pronta para colar. Cada agente perdeu um
+minuto e refez o diagnóstico sozinho.
+
+**Nome de máquina: `nuvem-20260903T0822`.**

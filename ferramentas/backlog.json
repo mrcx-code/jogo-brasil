@@ -803,7 +803,7 @@
     },
     {
       "id": "regua-retrato-sem-alcancabilidade",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco de RETRATO da regua-larga.js nao tem nenhuma assercao de alcancabilidade de botao",
@@ -870,7 +870,7 @@
     },
     {
       "id": "csp-tabela-de-rotas-e-conjunto",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A cobranca do vercel.json e conjunto e nao multiconjunto, e so conhece a string posthog — tres classes escapam",
@@ -881,8 +881,7 @@
       "aceite": "O ramo 947a8eb ja faz o essencial (cobranca por rota e por forma inteira; 14/14 de mordida; vercel.json com 0 linha de diff). Faltam QUATRO consertos, todos do QA independente de 03/09, e o 1o e bloqueante: (1) test/qa-vercel-quadro.js MUTA o vercel.json em disco e o gancho de restauracao NAO sobrevive a sinal — medido: SIGTERM (alvo 143) e SIGKILL (alvo 137) deixam script-src unsafe-inline https://exfil.example.com e img-src data: https://*.exemplo.com NO ARQUIVO QUE A VERCEL PUBLICA, numa main que publica no push; e o process.on(SIGINT) e CODIGO MORTO porque spawnSync bloqueia o laco (medido 2x: exit 0 com as 14 linhas impressas), enquanto o Ctrl-C real no GRUPO mata o build filho e produz vermelho FALSO com build exit null. Saidas: mutar em memoria e passar o caminho por variavel de ambiente, OU restaurar de COPIA na ENTRADA da proxima execucao (nome fixo, nao com pid); e o paragrafo do cabecalho que promete a restauracao cai junto. (2) o numero 8 esta errado: as regras inertes sao 14 de 22 — medido com o resolvedor last-match-wins contra as 8 paginas enumeradas do dist/; faltavam /mesa /jogo /dashboard nas duas formas. Trocar em ferramentas/construir.js e aqui, ou dizer oito DA FAMILIA DE SECAO. (3) o comentario do qa-vercel-host.js afirma que acrescentar self a uma pagina exige mexer nele: falso, self ja esta em TOKENS_PERMITIDOS. (4) DEPOIS de (1), pendurar o quadro num portao — hoje grep em package.json, workflows, encaixe.js e integrar.js da ZERO, que e a mesma doenca que 03/09 ja curou duas vezes.",
       "detalhe": "Achado pelo QA em 03/09 auditando a entrega csp-host-constante, DEPOIS de ela ja ter subido de 1/5 para 5/5 — sao sobras da mesma familia, nao regressao. Medido, exit code real: rotas trocadas build 0; rota duplicada build 0 E imprimindo \"14 rota(s) com connect-src ... (tabela ROTAS_QUE_MEDEM, 13 rotas)\", que e a MESMA doenca que a entrega acabou de curar — numero impresso que ninguem compara — sobrevivendo dentro do proprio conserto; script-src com https://exfil.example.com numa regra que mede da build 0 e qa-vercel-host 0, porque a assercao 4 so procura a string \"posthog\", entao qualquer relaxamento de qualquer outra diretiva nas 8 regras cegas passa sem portao. O ponto cego da diretiva repetida NAO faz parte deste item: ja foi fechado em 03/09 por test/qa-vercel-diretiva-repetida.js, que esta no CI. Duvida do QA que vale herdar: ele nao conseguiu confirmar que a precedencia de headers da Vercel e garantida como last-match-wins (inferiu do comportamento medido); se um dia mudar, as 8 regras hoje inertes passam a decidir e estas classes sobem de severidade de uma vez.",
       "maquina": "nuvem-20260903T0822",
-      "desde": "2026-09-03T08:24:09.329Z",
-      "nota": "ENTREGA EXISTE E NAO FOI INTEGRADA: ramo entrega/csp-tabela-de-rotas-e-conjunto (947a8eb), no servidor. NAO recomece do zero — o trabalho e bom e o veredito do QA foi NAO INTEGRAR por quatro consertos baratos, listados no aceite. Va ao ramo, conserte, e ao funil."
+      "desde": "2026-09-03T08:24:09.329Z"
     },
     {
       "id": "fila-conectado-vermelho-intermitente",
@@ -918,7 +917,7 @@
     },
     {
       "id": "censo-cinco-fugas-medidas",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Cinco mecanismos poem tinta no cartao e o censo absolve — medidos por pixel, com print",
@@ -928,8 +927,9 @@
       ],
       "aceite": "pinta() passa a enumerar os cinco, e cada um ganha prova de mordida por injecao (exit 1) mais o contraponto (vao sem pintura continua absolvido). Junto: uma CATRACA que reprove fuga NOVA alem das registradas, para verde significar o buraco tem o tamanho que tinha e nunca nao ha buraco. O instrumento do QA (test/qa-censo-pintura-fora.js, no worktree dele) ja faz isso e ja foi visto mordendo — traga-o em vez de reescrever. ATENCAO ao piso de ruido: comparar o print INTEIRO de 1200x630 da 793 px de diferenca com CSS NENHUM (o mapa do TERRITORIO anima sozinho) e acusaria 13 fugas falsas; o recorte na caixa do mutante +48 px zera o piso, e esse zero e cobrado por exit code.",
       "detalhe": "Achado pelo QA independente em 03/09 auditando censo-cobertura-e-propriedades, DEPOIS de a entrega ja ter fechado os 6 mecanismos do achado original. Nao e regressao: e o teto que a entrega declarou, com a diferenca de que a JUSTIFICATIVA do teto era falsa. A entrega afirmava que a enumeracao estava do lado que ABSOLVE e que esquecer viraria reprovacao barulhenta; o codigo diz o contrario (decorativoInerte = aria-hidden E innerText vazio E !pinta(), entao mecanismo nao escrito e ABSOLVIDO) e o QA mediu por pixel: backdrop-filter:invert(1) 5662 px, border-image sem border-width 3936 px, ::marker 109 px, list-style-image 1800 px, content:url() no proprio elemento 5700 px. Os dois ultimos nem estavam no teto declarado. A frase falsa ja foi corrigida na main (commit da correcao, 03/09); o BURACO continua aberto. Medido do outro lado tambem, e por isso a lista e curta: filter:drop-shadow, mask, clip-path, scrollbar e ::first-line pintam ZERO px numa caixa vazia — nao fogem.",
-      "maquina": "nuvem-20260903T0822",
-      "desde": "2026-09-03T08:24:09.329Z"
+      "maquina": null,
+      "desde": null,
+      "nota": "ENTREGA EXISTE E NAO FOI INTEGRADA: ramo entrega/censo-cinco-fugas-medidas (047c393), no servidor, arvore limpa. NAO recomece do zero. Ela ja fez o item inteiro e MAIS: eram cinco fugas, sao SETE (resize+overflow 18 px e ::before{content:\"\";display:list-item} 25 px nao estavam em teto nenhum, e a segunda foi achada pela propria catraca). Catraca de 46 mecanismos por CAMERA com piso 0 cobrado em cada um. Portoes medidos no worktree: pintura-fora 1->0 (era 16 FUGA), passo2 1->0 (13/13), npm test 0, encaixe 0, quadro-controle 0, regua-larga 0. O QUE FALTA e so o portao: o pre-voo exige qa + porteiro (ela toca ferramentas/integrar.js), e a rodada nuvem-20260903T0822 bateu o teto de tempo antes de despachar o QA. Despache qa + porteiro sobre o ramo e va ao funil."
     },
     {
       "id": "poste-sobre-a-proposta",
@@ -957,6 +957,50 @@
       ],
       "aceite": "Fechar com DOCUMENTO aberto e citado, ou com curl -I contra a producao (matando as duas duvidas de uma vez: qual regra decide, e se a ignorada viaja junto). Nao vale busca que devolva a regra de ROTEAMENTO (rewrite/redirect/status) — e outra coisa, e citar ela seria confirmar o que ninguem leu. Exige maquina com egresso para vercel.com: a nuvem NAO fecha este item (medido, ver detalhe).",
       "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "vercel-valor-e-topo",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "A lista fechada cobra QUAL CHAVE, nao QUAL VALOR — e as chaves de TOPO do vercel.json nao tem portao nenhum",
+      "territorio": [
+        "test/qa-csp-cabecalhos.js",
+        "ferramentas/construir.js"
+      ],
+      "aceite": "node test/qa-vercel-fora-do-conjunto.js sai 0. O instrumento JA EXISTE e ja foi visto reprovando (exit 1, 5 de 5 atravessam) com controle-do-controle: esta no ramo qa/csp-e-regua-0903, commit a4525b9. Traga-o em vez de reescrever.",
+      "detalhe": "Achado pelo QA em 03/09 auditando csp-tabela-de-rotas-e-conjunto, DEPOIS de a entrega ja ter fechado o CONJUNTO de chaves. E a mesma classe do achado que abriu aquele item, uma casa adiante. (a) VALOR LIVRE: Referrer-Policy entrou na lista com valor livre porque COMPANHEIROS[Referrer-Policy]=null (qa-csp-cabecalhos.js:78) e o QUADRO_DE_ROTAS so le cab[Content-Security-Policy] (construir.js:838) — medido: Referrer-Policy: unsafe-url na regra decisiva /glossario/(.*) sai exit 0 nos QUATRO portoes, e o vazio tambem. unsafe-url vaza o caminho completo da pagina para todo destino externo, que e o que o comentario do arquivo diz que a policy existe para impedir. Das 4 chaves, 3 tem valor cobrado e 1 nao. (b) CHAVES DE TOPO: o conjunto e fechado DENTRO de headers[].headers, e o topo do vercel.json nao tem portao — quatro verdes em cada: redirects de /glossario/(.*) para https://exfil.example.com (mais forte que qualquer CSP, a pessoa nem chega na pagina cuja politica foi conferida diretiva por diretiva), outputDirectory:. (publica a raiz do repo), buildCommand trocado, e trailingSlash invertido, que muda QUAL regra decide cada rota e portanto a conta de inertes que a entrega acabou de pregar em 14.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "regua-touch-action",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O resgate da regua rola por SCRIPT, e o dedo nao tem isso: touch-action:none deixa 6/6 presos e a regua sai 0",
+      "territorio": [
+        "test/regua-larga.js"
+      ],
+      "aceite": "alcanceDoBotao() passa a ler touch-action no laco de resgate. Aceite duplo, e o QA ja provou que os dois dao: node test/qa-regua-touch-action.js sai 0, E a saida limpa da regua continua byte a byte identica a de hoje (diff exit 0). O instrumento existe no ramo qa/csp-e-regua-0903 (a4525b9) e ja foi visto reprovando E aprovando — traga-o.",
+      "detalhe": "DERRUBA a alegacao B3 da entrega regua-retrato-sem-alcancabilidade, integrada em 03/09: ela afirmava que cfgOk so dispara na conjuncao e nao e verde de sorte. O QA achou a terceira conjuncao: REGUA_DEFEITO com #poste{margin-top:250px} + #telaMenu{touch-action:none} sai exit 0, retrato 0/6, zero linhas PRESO — enquanto o botao esta de 118 a 243 px ABAIXO da borda nas seis telas (bottom 807/861/794/987/1022/1030 contra janelas 568/640/568/844/915/932). Ele so volta pelo p.scrollTop=p.scrollHeight do proprio alcanceDoBotao(), que e rolagem de SCRIPT: touch-action:none cancela o pan por toque, entao o dedo nao rola. O comentario da funcao (linha 127) diz rola de verdade so quem o dedo conseguiria rolar, e touch-action e justamente a propriedade que decide isso — e nao e lida. Nao e hipotese de laboratorio: o repo ja usa touch-action:manipulation em src/estilo.css:203/510/2880, e #telaMenu ja carrega overscroll-behavior:contain na MESMA linha 847, que e o outro remedio da mesma familia. Conserto de uma linha, ja escrito e provado pelo QA: podePan = !/^(none|pan-x|pan-left|pan-right|pinch-zoom)$/.test(cs.touchAction) entra na condicao de rolavel.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "censo-restilizar-o-aceito",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "A catraca do censo le 0 px enquanto o cartao muda 15.135 — re-estilizar conteudo ACEITO passa limpo",
+      "territorio": [
+        "ferramentas/cartao-censo.js",
+        "test/qa-censo-pintura-fora.js"
+      ],
+      "aceite": "Decidir se o censo passa a comparar a APARENCIA do aceito com referencia, e nao so a identidade. E de outra natureza que as fugas: exigiria referencia visual, entao vale decidir ANTES de construir. Se sim, prova de mordida por injecao; se nao, o numero que sustenta deixar aberto.",
+      "detalhe": "Furado pelo proprio autor da catraca em 03/09, com numero, e declarado em vez de escondido — e por isso e item e nao defeito silencioso. CATRACA_EXTRA_ESTILO=.lista .pl{background:#0f0} da inerte 0 px / ABSOLVE / exit 0, enquanto o cartao muda 15.135 px. Duas cegueiras somadas: o censo permite tabuas por IDENTIDADE e nunca por aparencia, e o oraculo nao ve porque a tinta nao sai quando o mutante some. Mesma classe do q107c, que ja estava declarado como ALCANCE nao coberto — agora com tamanho medido.",
       "maquina": null,
       "desde": null
     }
