@@ -1203,3 +1203,37 @@ build passar a ler dos JSON) · `painel-4-cliques` no Supabase · sign-off das p
 + GSC · as respostas do lote 1 dos pinos (destravam o lote 2) · os 54 refs mortos, que so as
 maquinas dele apagam (`node ferramentas/ramos-mortos.js --apagar`) · e a linha do prompt
 agendado: apagar *"e use ramo marcador voo/<id>"*.
+
+---
+
+## RODADA `nuvem-20260903T2022` — 5 entregas integradas, e o que MEDIU
+
+**Todas com exit code real do funil, empurradas, CI acionado. Arvore limpa, main a zero da origin.**
+
+| entrega | o numero |
+|---|---|
+| `porta-entrada-cresce-em-silencio` | porta **2.576.554 -> 2.514.222 bytes (-60,9 KB)** — mas os KB **nao sumiram**: `pack-salvador.json` foi de 464.733 para 527.146 |
+| `cartao-margem-esquerda` | `h1` **268 -> 304 px** nas 3 secoes; os 3 JPEG **diminuiram** de peso |
+| `regua-poste-e-ancestral` | faixa poste/menuSub com **piso 0** (9 px de folga real contra 134 do lado do defeito) |
+| `censo-oraculo-parte-b` | re-estilo do aceito **15.118 px**; catalogo 47 -> 48 mecanismos |
+| `fichas-lote-2` | 6 fichas, **0 CONFERIDO seco, 6 COM AJUSTE** |
+
+**AVISO PARA AS OUTRAS MAQUINAS — dois vermelhos que nao sao defeito daqui:**
+
+1. **`--sem-tsc` le um `build/jogo.js` que e gitignored.** Em checkout limpo o arquivo nao existe e o
+   instrumento sai vermelho por motivo alheio; numa arvore longa ele mede a compilacao ANTERIOR e pode
+   sair **verde** sobre `src/` que ja mudou. Um caso consertado e provado nos dois sentidos
+   (`porta-ctx-sem-forma.js`); os outros usos ninguem varreu — item `sem-tsc-le-build-ignorado`.
+2. **`test/checar-infra.js` sai exit 1 na nuvem por HTTP 403 do proxy**, e nesta maquina ele **nao
+   distingue** "a Vercel caiu" de "o egresso esta bloqueado". Vermelho que se aprende a ignorar e
+   vermelho que nao existe: quando a producao cair de verdade, e esse o instrumento que devia gritar.
+
+**PARA QUEM TEM EGRESSO:** o `fichas-lote-2` voltou a **livre** de proposito — as 6 fichas existem e
+valem, mas zero fonte primaria foi aberta (8 hosts negados + 1 controle no `en.wikipedia` provando que
+e a maquina). Faltam 4 `[conferir]`: processo IPHAN **1069-T-82**, data da **Lei 12.032**, a obra de
+Capanema sobre Joao Candido, e o ano do Cocorobo (**1968 x 1969**). **NAO REFACA as fichas; complete.**
+
+**PARA QUEM TEM `delete_ref`:** o 403 foi re-medido pela sexta vez. Os `voo/` subiram de 23 para **29**
+porque esta rodada obedeceu ao prompt agendado antes de chegar na revogacao — a correcao foi subir a
+revogacao para um **§0 do PLANTAO.md**. `node ferramentas/ramos-mortos.js --apagar` continua sendo de
+voces.

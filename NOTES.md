@@ -12361,3 +12361,128 @@ TODOS OS EVENTOS (total · aparelhos distintos):
   secao aberta              1482  ·  1477
   parou                        1  ·  1
 ```
+## Diário — 03/09, noite · plantão `nuvem-20260903T2022` · cinco entregas, e o dia em que eu fui o mais desmentido
+
+**Nome de máquina: `nuvem-20260903T2022`.** Sem issue etiquetada `agente`; rodada agendada, trabalho
+puxado da fila. Cinco frentes de território disjunto, cinco entregas, **cinco integradas pelo funil
+com exit code real** — e o saldo mais útil da noite não são elas, são as sete afirmações que caíram,
+**quatro delas minhas**.
+
+### O que entrou, com o número que cada uma existia para produzir
+
+| entrega | o número |
+|---|---|
+| `porta-entrada-cresce-em-silencio` | porta de entrada **2.576.554 → 2.514.222 bytes (−60,9 KB)**, reproduzido byte a byte por três medições independentes |
+| `cartao-margem-esquerda` | `h1` **268 → 304 px** nas três seções; os três JPEG de produção **diminuíram** (84.073→83.848, 82.504→81.562, 87.350→86.476) |
+| `regua-poste-e-ancestral` | faixa poste/menuSub cobrada com **piso 0**; as duas injeções de `touch-action` passam de exit 0 para exit 1 em 6/6 |
+| `censo-oraculo-parte-b` | re-estilo do aceito **15.118 px** (herdado 15.135 — variação de máquina, fenômeno bate); catálogo de 47 para 48 mecanismos |
+| `fichas-lote-2` | 6 fichas, **0 CONFERIDO seco, 6 COM AJUSTE** |
+
+### O QUE CAIU — e isto vale mais que as cinco integrações
+
+- **Minha, e a mais cara:** escrevi no despacho das fichas que os pinos D1/D2/D5 *"já estão no jogo, o
+  jogo afirma isso em produção hoje"*, e dei urgência de conteúdo-no-ar ao brief. **Falso.** Medido:
+  `territorio/index.html` tem **0** campos `"texto"`; a frase do Valongo no `index.html` da raiz, **0**
+  ocorrências. O `PINOS-PROPOSTA.md` diz na **linha 6**, em negrito, *"Nada daqui está no jogo"* — e eu
+  **imprimi essa linha na minha própria tela** ao montar o despacho. `— JÁ NO JOGO` no título do pino é
+  o CAPÍTULO, não a frase.
+- **Minha, medida contra uma série que existia justamente para me pegar:** o `PENDENTES 102` mantinha a
+  contagem `voo/` = 23 (08h) e 23 (16h). Eu criei **seis** marcadores e o servidor foi a **29**. A
+  contenção supunha que ler o `PLANTAO.md` antes de despachar bastasse — mas a revogação mora na
+  **linha 386 de um arquivo de 646**, e o §3.2 do mesmo arquivo manda **ler por faixa para poupar
+  token**. Li do §1 ao §6, dei por lido, e obedeci à linha do prompt agendado, que aparece antes e é
+  explícita. **Duas ordens no ar ao mesmo tempo, e venceu a que chegou primeiro.** Subi a revogação
+  para um **§0**, junto com a outra ordem que o prompt contradiz (funil em segundo plano). É a mesma
+  correção que a manhã de 03/09 aplicou à regra do `node_modules` — a mesma classe de erro **em doze
+  horas**.
+- **Minha, e virou item errado:** criei `cartao-margem-sem-controle` lendo a ressalva do QA sem medir.
+  O porteiro mediu: `test/cartao-controle.js` **já estava** no `teste.yml` (linha 344) e sai **exit 1
+  com 8 falhas de 49** sob o mutante. **Ressalva de QA também é afirmação, e também se confere antes
+  de virar item** — é o mesmo erro que a casa caça nos portões, cometido um passo antes.
+- **Herdada, derrubada pela arte:** *"o defeito é idêntico nos quatro cartões, x=268 em todos"*. O
+  cartão do **território** usa outro molde inteiro (`position:fixed;inset:0`), o `h1` nasce em **x=27**,
+  e no recorte quadrado o título **some inteiro** em vez de perder a primeira letra. Outra categoria,
+  mais grave, e não se conserta com a mesma margem — `cartao-decepa-primeira-tabua` continua `livre`
+  por isso, agora com o número.
+- **Do agente contra si mesmo (censo):** a afirmação herdada de que o instrumento de um furo *"fica
+  vermelho sozinho quando o furo fecha"* **não se sustentou** — rodou depois do conserto e continuou
+  exit 0, porque é reprodução hardcoded que não chama o código de produção. Apagado por medição, não
+  por auto-detecção, e a discrepância ficou escrita no cabeçalho.
+- **Do porteiro contra si mesmo:** deu vermelho no `porta-ctx-sem-forma.js` e quase reportou como
+  defeito da entrega. Era contaminação dele — uma chave `phx_` que ele injetara minutos antes ficara
+  compilada em `build/jogo.js`, e o `--sem-tsc` a releu. **Foi esse tropeço que produziu o achado real
+  da noite** (abaixo).
+- **Do próprio autor do censo:** duas correções testadas e **descartadas com número** antes da que
+  ficou — `remove()` do DOM quebra o `display:flex` da lista (mecanismos "inertes" passaram a medir
+  **~102.800 px** de reflow) e resetar `cssText` levou `zoom` de 0 a **143.311**.
+
+### O achado que não estava em item nenhum: `--sem-tsc` mede o passado
+
+`--sem-tsc` faz o `construir.js` pular a compilação e ler `build/jogo.js`, que é **gitignored**
+(`.gitignore:17`) e não rastreado. Duas consequências, e a segunda é a grave:
+
+- em **checkout limpo** (o CI) o arquivo não existe e o instrumento sai **vermelho** por motivo que
+  nada tem a ver com o que ele mede — medido: 3 falhas;
+- numa árvore longa, onde várias entregas passaram, ele mede **a compilação anterior**, não o `src/` de
+  agora, e pode sair **verde** sobre código que já mudou. **Verde falso é o pior dos dois, porque
+  ninguém o procura.**
+
+Consertado no caso conhecido (a primeira passada compila de verdade e deixa o arquivo fresco), **com
+prova nos dois sentidos**: `build/jogo.js` movido para fora → **exit 0** (antes, 3 falhas); injeção do
+defeito → **exit 1** (a mordida continua viva); `npm test` → **exit 0**. E o passo foi **ligado ao
+CI** no mesmo commit, porque as duas correções separadas se anulam: ligar sem consertar cria o
+vermelho falso que o passo existe para curar. Os **outros** usos de `--sem-tsc` ninguém varreu —
+item `sem-tsc-le-build-ignorado`.
+
+### O que o QA e o porteiro cobraram e que os autores não tinham medido
+
+- **Garantias (a) e (b) do `CLAUDE.md` §3, medidas no jogo VIVO** com `pack-salvador.json` em 404 **e**
+  em `abort`: SALVADOR roda com a arte do capítulo 1 (pintura de 137.303 chars, rua anda 34 px), zero
+  erro, a leitura abre, e a 2ª entrada **refaz o pedido** (1→2). A exceção ao arquivo único continua
+  honrando o que prometeu.
+- **Garantia (c)**, que o QA declarou não ter medido e o porteiro fechou **no artefato**: CSP do `<head>`
+  **idêntica byte a byte** ao merge-base, `caminhoPacote()` na forma exata cobrada, só **2** `fetch` no
+  arquivo publicado, chave `phc_`. Os três portões mordem por injeção **com controle negativo**
+  (caminho absoluto → 1, curinga na CSP → 1, chave `phx_` → 1, sem injeção → 0), e o build falha
+  **fechado** nos três, sem escrever um byte do `index.html`.
+- **A prova mais forte contra a lição de 02/09** (gerador assando fonte do host no cartão publicado):
+  os três cartões **regeneram byte-idênticos numa máquina sem egresso**. Isso vale mais que ler o
+  código.
+
+### O que NÃO fechou, e por quê
+
+- **`fichas-lote-2` foi integrada e voltou a `livre`.** O aceite pede fonte primária **aberta** e
+  **zero** foi aberta: o egresso nega os 8 hosts testados, com um controle no `en.wikipedia` provando
+  que é a máquina e não a fonte. Por isso cada citação carimba grau **[A]/[B]/[C]** e nenhum veredito
+  repousa em busca; o QA conferiu 5 citações [A] por amostragem e todas batem. **Item integrado não é
+  item cumprido.** Faltam 4 `[conferir]` que ficaram *avançados* e não fechados: processo IPHAN
+  **1069-T-82**, data da **Lei 12.032**, a obra de Capanema sobre João Cândido, e o ano do Cocorobó
+  (**1968 × 1969**, divergência registrada). **Não refaça as fichas; complete-as.**
+- **O `check` não saiu clicável, e não foi esquecimento.** A ferramenta de pergunta clicável nativa
+  **não existe no registro da sessão agendada** (medido 3×: `select:AskUserQuestion` → *No matching
+  deferred tools found*). O §6 exige essa forma e **proíbe** as duas alternativas, então numa rodada
+  agendada as três portas fecham ao mesmo tempo. Saída usada: quatro camadas escritas + decisões em
+  lista numerada com opções e ⭐, nenhuma página publicada. O dono cobrou duas vezes e disse que só
+  responde no clicável — as quatro decisões ficaram montadas no `RECADOS.md` para a sessão do app
+  renderizar sem remontar. `PENDENTES 104`.
+
+### Duas coisas para o dono, e nenhuma é minha para resolver
+
+1. **`CTX_B64["vao-cidade-africana"]`** — a panorâmica de "A cidade africana" pesa 60,9 KB e **nada a
+   exibe** (1 ocorrência em `src/jogo.ts`, a própria definição). Os KB **não sumiram, mudaram de lado
+   da porta**: `pack-salvador.json` foi de 464.733 para 527.146 bytes. Ela deve ser (a) ligada à
+   exibição em SALVADOR, (b) ligada a um marcador de A HISTÓRIA, ou (c) sair? É §2.
+2. **A linha do prompt agendado** — apagar *"e use ramo marcador `voo/<id>`"*. Uma linha, e encerra a
+   corrida entre dois textos que se contradizem.
+
+### Próximo passo
+
+`territorio/compartilhar.jpg` (o único dos quatro cartões que não sobrevive ao recorte quadrado, e o
+único que ninguém tinha medido); a varredura dos outros `--sem-tsc`; e o cartão da PORTA, que promete
+um jogo quando a porta é a proposta desde 19/08 — medido: `plataforma/index.html` aponta `og:image`
+para o HUD de partida, 165,8 KB.
+
+**Placar da rodada:** 5 agentes de entrega + 1 QA em lote + 1 porteiro · 5 entregas · **5 integradas,
+0 recusadas** · 7 afirmações derrubadas (**4 minhas**, 1 herdada, 2 de agentes contra si mesmos) · 4
+itens novos abertos, 1 item morto refutado, 1 item integrado que **voltou a livre por não ter
+cumprido o aceite**.

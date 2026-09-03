@@ -344,6 +344,21 @@ jobs:
         run: node test/cartao-controle.js
         timeout-minutes: 8
 
+      # A PORTA DE ENTRADA PAROU DE CRESCER EM SILENCIO — e a prova disso precisava de dono.
+      # O CLAUDE.md §3 afirma ao leitor que a porta parou de crescer com cada capitulo novo; e a
+      # garantia que justificou a unica excecao ao arquivo unico (os pack-*.json, aprovados
+      # depois de o jogo cair de 16,65 s para 6,30 s no primeiro toque em 3G). Ate 03/09 ela era
+      # sustentada por um AVISO que ninguem reprovava, e uma imagem de 60,9 KB viajava na porta
+      # sem que nenhuma tabela a classificasse. A trava agora reprova no build, e ELA roda em
+      # todo build — o que NAO rodava era a prova de que a trava morde. Achado pelo porteiro em
+      # 03/09: grep de porta-ctx-sem-forma no package.json e neste arquivo dava ZERO.
+      # Vai junto com o conserto do --sem-tsc no proprio teste: sem ele, este passo nasceria
+      # VERMELHO em checkout limpo (build/jogo.js e gitignored), que e o defeito que o passo
+      # existe para curar. Medido antes de ligar: com build/jogo.js movido para fora, exit 0.
+      - name: a porta de entrada nao cresce em silencio (com controle)
+        run: node test/porta-ctx-sem-forma.js
+        timeout-minutes: 8
+
       # O CARTAO DE LINK NAO LEVA CONTROLE DENTRO DO QUADRO (item controle-cartao-sem-dono, 02/09).
       # Pendurado logo depois do passo de cima DE PROPOSITO, e nao por acaso: este job ja instalou
       # o Chromium (linha 166) e o passo acima ja e o dono do assunto "cartao de link" — nao vale a

@@ -138,6 +138,55 @@ const PACK_DO_CTX_PREFIXO = { cap1: null, cap2: "palmares", cap3: "hoje", cap4: 
   cap5: "cais", cap6: "jabaquara", cap7: "pequenaafrica",
   cap8: "portas", cap9: "naodito", cap10: "praca" };
 
+// ---- EXCEÇÕES NOMEADAS DE CTX_B64 — chaves que não nascem de "capítulo novo" (03/09) ----
+// `PACK_DO_CTX_PREFIXO` cobre a forma normal, `capN-alguma-coisa`. Mas nem toda chave de
+// CTX_B64 nasce de um capítulo: `vao-cidade-africana` é a panorâmica do MARCO "A cidade
+// africana" (commit 10119fe, 07/08) e nunca teve prefixo `capN` — é batizada pelo nome do
+// marco, não do capítulo. A regex `^cap\d+` nunca a via, `conhecido()` devolvia `false`, e ela
+// pesava **60,9 KB (62.371 bytes de data URI)** na PORTA DE ENTRADA em silêncio — medido por
+// nuvem-20260902T1623 em 02/09 e CONFERIDO de forma independente por nuvem-20260903T0822 em
+// 03/09 (ver NOTES.md e ferramentas/backlog.json, item `porta-entrada-cresce-em-silencio`).
+//
+// Nenhum código exibe esta imagem hoje — a chave aparece UMA vez em src/jogo.ts (a própria
+// definição) e em nenhum `aberturaImg` nem marcador de QUAD_B64 (conferido por
+// `git grep -c` antes de decidir). Aponto para "salvador" porque é onde PENDENTES.md já a
+// triava ("`ctx-vao-cidade-africana` — a Salvador panorâmica do marco 'A cidade africana' […]
+// o pacote provável é `salvador`") e porque o resto do CTX de SALVADOR (cap4-*) já mora nesse
+// pacote. **Isto resolve só a CLASSIFICAÇÃO — tira o peso da abertura de qualquer forma.** Se um
+// dia a imagem for ligada a exibição (dentro de SALVADOR, ou a um marcador de A HISTÓRIA, que
+// abre sem passar por SALVADOR), qual pacote é o certo é decisão de conteúdo — §2 do CLAUDE.md,
+// não desta tabela — e continua em aberto para o dono.
+//
+// Cada linha aqui é ESCRITA À MÃO, nunca por regex — é assim que uma chave batizada fora do
+// padrão `capN` para de ser invisível para sempre.
+const PACK_DO_CTX_EXTRA = { "vao-cidade-africana": "salvador" };
+
+// A FORMA de uma chave de CTX_B64, separando duas causas de "não classificada" que produzem o
+// MESMO `null`/`false` mas pedem reação diferente do build:
+//   · "capitulo" — a chave TEM cara de capítulo (`capN-...`) mas esse N ainda não está em
+//     `PACK_DO_CTX_PREFIXO`. É a assinatura normal de um capítulo em obra: a tabela cresce
+//     sozinha quando o capítulo ganha texto, e até lá é AVISO, não erro — quem está integrando
+//     arte nova no meio de uma sessão não merece um build vermelho por causa de uma tabela.
+//   · "desconhecida" — a chave não bate NEM com `capN` NEM com uma linha de
+//     `PACK_DO_CTX_EXTRA`. Diferente do caso acima, esta NUNCA se resolve sozinha crescendo uma
+//     tabela de capítulo — foi exatamente o que aconteceu com `vao-cidade-africana`: nenhum
+//     capítulo novo a "alcançaria" um dia, porque ela não tem forma de capítulo nenhuma. É ERRO,
+//     cobrado por `ferramentas/construir.js` com exit 1 — ver o bloco logo abaixo do aviso de
+//     arte nova.
+// ATENÇÃO: esta função vale só para CTX_B64. As outras tabelas (CENARIO_*, MOB_B64, DROP_B64,
+// RETRATO_B64, FRENTE_B64) são indexadas por NÚMERO, e todo número "novo" cabe na tabela
+// crescendo — não têm o mesmo modo de falha e não usam esta função. QUAD_B64 e TRAV_B64 também
+// não usam: `conhecido()` já devolve `true` para as duas sempre (ver abaixo), então elas nunca
+// entram na lista de "fora" e este código nunca as toca — é a regra POR TABELA, não global, que
+// evita os 21 falsos positivos que uma regex `capN` genérica sobre QUAD_B64/TRAV_B64 acusaria
+// (as 20 chaves de QUAD_B64 e a `mar` de TRAV_B64 não têm prefixo `capN`, e é assim de propósito).
+function formaCtxDaChave(chave) {
+  const k = String(chave);
+  if (Object.prototype.hasOwnProperty.call(PACK_DO_CTX_EXTRA, k)) return "extra";
+  if (/^cap\d+/.test(k)) return "capitulo";
+  return "desconhecida";
+}
+
 // ---- as páginas verticais (QUAD_B64) ----
 // `p1`..`p6` abrem a linha do tempo e ficam na abertura — são as primeiras coisas que alguém
 // vê ao tocar A HISTÓRIA. As com sufixo (`p08-captura`, `p09-navio`…) são as cinco da
@@ -183,7 +232,9 @@ function pacoteDoEndereco(caminho) {
   }
   if (c === "FRENTE_B64") return PACK_DO_BLOCO[FRENTE_OITAVA_BLOCO[Math.floor(caminho[1] / 8)]] || null;
   if (c === "CTX_B64") {
-    const m = String(caminho[1]).match(/^(cap\d+)/);
+    const chave = String(caminho[1]);
+    if (Object.prototype.hasOwnProperty.call(PACK_DO_CTX_EXTRA, chave)) return PACK_DO_CTX_EXTRA[chave];
+    const m = chave.match(/^(cap\d+)/);
     return (m && PACK_DO_CTX_PREFIXO[m[1]]) || null;
   }
   if (c === "QUAD_B64") return packDaPagina(String(caminho[1]));
@@ -212,7 +263,9 @@ function conhecido(caminho) {
   if (c === "GENTE_EP_B64") return true;
   if (c === "FRENTE_B64") return Math.floor(caminho[1] / 8) < FRENTE_OITAVA_BLOCO.length;
   if (c === "CTX_B64") {
-    const m = String(caminho[1]).match(/^(cap\d+)/);
+    const chave = String(caminho[1]);
+    if (Object.prototype.hasOwnProperty.call(PACK_DO_CTX_EXTRA, chave)) return true;
+    const m = chave.match(/^(cap\d+)/);
     return !!(m && Object.prototype.hasOwnProperty.call(PACK_DO_CTX_PREFIXO, m[1]));
   }
   if (c === "QUAD_B64" || c === "TRAV_B64") return true;
@@ -226,4 +279,5 @@ const CONTAINERS = ["CENARIO_ALTO_B64", "CENARIO_CHAO_B64", "HERO_B64", "MOB_B64
 
 // `PACK_DO_RETRATO` sai daqui para o `construir.js` poder COBRAR que ele não tenha posição
 // vazia — mapa escrito à mão com posição esquecida é 16 KB na porta de entrada, em silêncio.
-module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, PACK_DO_RETRATO, CONTAINERS, pacoteDoEndereco, conhecido };
+module.exports = { PACK_DA_CENA, PACK_DO_BLOCO, PACK_DO_CTX_PREFIXO, PACK_DO_CTX_EXTRA,
+  PACK_DO_RETRATO, CONTAINERS, pacoteDoEndereco, conhecido, formaCtxDaChave };

@@ -19,8 +19,11 @@
 //
 // A PROVA, com exit code real. Este arquivo:
 //   1. copia `qa-censo-pintura-fora.js` para um arquivo-irmão temporário (para os `require`
-//      relativos continuarem resolvendo) e troca `FUGAS_REGISTRADAS = {}` por
-//      `FUGAS_REGISTRADAS = { <mecanismo extra>: 1 }` — um número propositalmente ERRADO;
+//      relativos continuarem resolvendo) e ACRESCENTA ao `FUGAS_REGISTRADAS` de lá — por regex,
+//      preservando o que já estiver registrado, nunca substituindo o objeto inteiro (SUBSTITUIR
+//      apagaria qualquer fuga já declarada e a catraca reprovaria por "FUGA NOVA", que é um
+//      motivo de vermelho diferente do que esta prova mede) — um `<mecanismo extra>: 1`, um
+//      número propositalmente ERRADO;
 //   2. roda a cópia com `CATRACA_EXTRA_NOME`/`CATRACA_EXTRA_ESTILO` do próprio cabeçalho de lá
 //      (o `pseudoMarkerDoPseudo`, que mede ~367-495 px conforme a máquina — nunca 1);
 //   3. apaga a cópia;
@@ -48,15 +51,27 @@ function ok(cond, msg) { console.log((cond ? '  ok  ' : '  X   ') + msg); if (!c
 (async () => {
   console.log('A CATRACA "COM O TAMANHO REGISTRADO" — prova de que o número nunca é comparado');
 
+  // O ALVO ERA UM LITERAL EXATO (`const FUGAS_REGISTRADAS = {};`), e ISSO QUEBROU em 03/09 (parte
+  // B de `censo-oraculo-dois-furos`) no primeiro dia em que o registro deixou de estar vazio —
+  // `netoMarkerCustom` entrou como fuga DECLARADA (dívida, não buraco: `getComputedStyle` não
+  // resolve `::before::marker`, ver o comentário ao lado da entrada no CATÁLOGO). O casamento
+  // agora é por REGEX, capturando o CONTEÚDO do objeto — o que quer que ele seja hoje —, e o
+  // mecanismo de prova é ACRESCENTADO ao lado do que já está registrado, nunca no lugar: se ele
+  // SUBSTITUÍSSE o objeto inteiro, `netoMarkerCustom` sumiria do registro e a catraca reprovaria
+  // por "FUGA NOVA" (o mecanismo do catálogo sem registro) — um motivo de vermelho diferente do
+  // que este arquivo existe para provar, e a prova ficaria sem sentido.
   const fonte = fs.readFileSync(ORIGINAL, 'utf8');
-  const alvo = 'const FUGAS_REGISTRADAS = {};';
-  if (fonte.indexOf(alvo) === -1) {
-    console.log('  X   não achei "' + alvo + '" em ' + ORIGINAL + ' — o arquivo mudou, reveja este teste');
+  const re = /const FUGAS_REGISTRADAS = \{([^}]*)\};/;
+  const mReg = fonte.match(re);
+  if (!mReg) {
+    console.log('  X   não achei "const FUGAS_REGISTRADAS = {...};" em ' + ORIGINAL + ' — o arquivo mudou, reveja este teste');
     process.exit(1);
   }
   const NOME_EXTRA = 'provaTamanhoIgnorado';
   const NUMERO_ERRADO = 1; // deliberadamente absurdo; a fuga real mede centenas de px
-  const patch = fonte.replace(alvo, 'const FUGAS_REGISTRADAS = { ' + NOME_EXTRA + ': ' + NUMERO_ERRADO + ' };');
+  const dentroDeHoje = mReg[1].trim();
+  const novoDentro = (dentroDeHoje ? dentroDeHoje + ', ' : '') + NOME_EXTRA + ': ' + NUMERO_ERRADO;
+  const patch = fonte.replace(re, 'const FUGAS_REGISTRADAS = { ' + novoDentro + ' };');
   fs.writeFileSync(TEMP, patch);
 
   let saida = '', exitCode = 0;
