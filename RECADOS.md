@@ -1157,3 +1157,49 @@ git push origin --delete entrega/glossario-substancia  # os 3 verbetes estao la,
 
 **NAO apaguem `entrega/ramos-mortos-raso`** enquanto ele nao entrar pelo funil — e a entrega
 desta rodada, e o programa a marca DE PE com razao.
+
+---
+
+## CHECK DE 03/09 21h UTC — AS QUATRO DECISOES, PRONTAS PARA SAIR CLICAVEIS
+
+Montado por `nuvem-20260903T2022`. **Nao saiu clicavel porque a sessao agendada da nuvem nao tem
+a ferramenta de pergunta clicavel nativa** (medido 3x: `select:AskUserQuestion` devolve
+*No matching deferred tools found*; detalhe e saidas no `PENDENTES 104`). O dono cobrou duas
+vezes e disse que so responde no clicavel — entao as quatro ficam AQUI, prontas.
+
+**QUEM PEGAR ISTO NUMA SESSAO COM O CLICAVEL: renderize as quatro na ferramenta nativa, sem
+remontar nada.** Nenhuma foi respondida; silencio nao e aprovacao.
+
+**1. A fila esta enviesada para instrumento. O que a proxima rodada pega?**
+Medido: 26 dos 56 concluidos sao `esteira`; 9 dos 18 vivos tambem. Os 5 itens que tocam
+`src/jogo.ts` estao parados desde 21-22/08 — e a causa e estrutural: `src/jogo.ts` e
+escritor-unico, entao no maximo 1 voa por vez enquanto a esteira voa 4.
+- (a) ESTRELA Um item de produto do `src/jogo.ts` (`caminho-do-ceu` primeiro, priorizado por ele
+  em 22/08) — o jogo volta a mudar de aparencia; a esteira anda mais devagar.
+- (b) Segue esteira — os portoes ficam mais duros e o produto continua parado.
+- (c) Metade e metade: 1 de produto + 2 de esteira por rodada.
+
+**2. O mundo 3D nao e alcancavel pela nuvem.**
+Medido: `grep` no backlog = 0 itens de mundo-3d. Ultimo commit em `experimentos/mundo-3d/`:
+01/09. A nuvem roda de 4 em 4 horas e so puxa da fila, entao nunca toca o foco declarado em 27/08.
+- (a) ESTRELA Criar itens de M3 no backlog com aceite escrito — a nuvem passa a tocar.
+- (b) Fica so com o Mac/Windows — anda so quando ele esta na maquina.
+- (c) Pausa o 3D ate o jogo 2D fechar.
+
+**3. `ler-a-medicao` — parado com ele desde 23/08 (11 dias).**
+Sem a chave, a pergunta de tres dias nao tem resposta: leitura de 02/09 deu 0 aparelhos, 0
+voltou, 0 capitulo, 0 terminou, 0 resposta de "voltaria amanha?".
+- (a) ESTRELA Criar a chave de leitura agora — a pergunta ganha resposta na proxima rodada.
+- (b) Esperar mais — segue endurecendo portao sem saber se alguem volta.
+- (c) Desligar a pergunta e decidir por outro criterio.
+
+**4. O e-mail de contato — destrava DOIS itens com uma resposta.**
+- (a) ESTRELA Dar o endereco — `/privacidade/` sai e as pecas 02/03 perdem o placeholder.
+- (b) Fica para novembro, junto com a rodada A da divulgacao.
+
+**Abaixo do clicavel, o que continua dele e nao cabe nas quatro:** `b3-criterio-voz` (regua de §2
+sobre autoinclusao discursiva, parada desde 22/08, trava o historiador) · `avenida-a` fase 2 (o
+build passar a ler dos JSON) · `painel-4-cliques` no Supabase · sign-off das pecas de divulgacao
++ GSC · as respostas do lote 1 dos pinos (destravam o lote 2) · os 54 refs mortos, que so as
+maquinas dele apagam (`node ferramentas/ramos-mortos.js --apagar`) · e a linha do prompt
+agendado: apagar *"e use ramo marcador voo/<id>"*.
