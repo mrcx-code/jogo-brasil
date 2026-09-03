@@ -233,12 +233,14 @@
       "aceite": "Numeros somados do periodo (as ~20 linhas de placar desde 21/08), o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido — entregue como texto para o integrador pregar no EQUIPE.md.",
       "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
       "agente": "pm",
-      "estado": "livre",
+      "estado": "em-curso",
       "camada": "medio",
       "territorio": [
         "EQUIPE.md",
         ".claude/agents/"
-      ]
+      ],
+      "maquina": "nuvem-20260903T1230",
+      "desde": "2026-09-03T12:34:47.646Z"
     },
     {
       "id": "territorio-rico",
