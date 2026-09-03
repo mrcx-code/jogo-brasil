@@ -124,6 +124,20 @@ jobs:
       - run: node ferramentas/conferir-agentes.js
         timeout-minutes: 2
 
+      # O PORTAO QUE MORDIA E NINGUEM RODAVA (03/09, nuvem-20260903T0023). E a MESMA doenca que a
+      # rodada de 02/09 curou tres vezes, reaparecida no portao que aquela rodada escreveu: o
+      # qa-vercel-host.js nasceu bom — le o vercel.json DEPOIS do parse (nao por texto) e morde 5 de
+      # 5 injecoes, onde o conferirVercelJson do build mordia 1 de 5 — e foi para o disco sem dono.
+      # Medido aqui: grep por 'qa-vercel-host' no package.json e nos workflows dava ZERO. Ele
+      # guardava o host do vercel.json, que decide o cabecalho servido nas paginas publicas, e
+      # dependia de alguem digitar o comando numa main que publica sozinha no push.
+      #
+      # Fica NESTE job, e nao no `portoes`: ele nao abre navegador nem le `dist/` (so JSON.parse do
+      # vercel.json), entao esperar o Chromium instalar seria atrasar o retorno de graca.
+      - name: o host do vercel.json sai da constante (parse do JSON, nao do texto)
+        run: node test/qa-vercel-host.js
+        timeout-minutes: 2
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados
