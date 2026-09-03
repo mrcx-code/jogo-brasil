@@ -288,11 +288,12 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // A REGRA QUE FICA NO LUGAR DA FRASE: acrescentar mecanismo a esta lista FECHA buraco; o
   // buraco existe até alguém acrescentar. Verde AQUI continua significando "o buraco tem o
   // tamanho que tinha", nunca "não há buraco" — o que mudou é que agora existe UM LUGAR onde o
-  // tamanho é medido por CÂMERA e cobrado por exit code: `test/qa-censo-pintura-fora.js` mede 46
+  // tamanho é medido por CÂMERA e cobrado por exit code: `test/qa-censo-pintura-fora.js` mede 48
   // mecanismos por pixel (com o piso de ruído do recorte cobrado em ZERO, porque o mapa anima e
-  // o quadro inteiro dá 850–1107 px de ruído sem mutante nenhum) e REPROVA toda divergência que
-  // não esteja registrada lá. Hoje o conjunto de fugas registrado é VAZIO. Quem acrescentar
-  // mecanismo àquele catálogo não precisa mexer em teste nenhum: se a régua não o cobrir, a
+  // o quadro inteiro dá ~1100 px de ruído sem mutante nenhum) e REPROVA toda divergência que
+  // não esteja registrada lá. Hoje o conjunto de fugas registrado tem UM nome — `netoMarkerCustom`,
+  // ver "O QUE CONTINUA ABERTO" abaixo. Quem acrescentar mecanismo àquele catálogo não precisa
+  // mexer em teste nenhum: se a régua não o cobrir, a
   // catraca fica vermelha sozinha e diz o nome dele.
   //
   // O QUE ISTO CUSTA EM FALSO-POSITIVO, medido antes de escrever e não depois: nas CINCO páginas
@@ -302,12 +303,40 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // novo: zero, contra um universo julgado de 1 por página.
   //
   // O QUE CONTINUA ABERTO, com o nome de cada um (o teto desta função, dito em vez de escondido).
-  // ATUALIZADO EM 03/09 DUAS VEZES: pelo QA independente, que mediu POR PIXEL em vez de
-  // argumentar, e pelo item que fechou o que ele mediu.
+  // ATUALIZADO EM 03/09 TRÊS VEZES: pelo QA independente, que mediu POR PIXEL em vez de
+  // argumentar; pelo item que fechou o que ele mediu; e pela parte B de `censo-oraculo-dois-
+  // furos`, que fechou o oráculo em si (a régua de teste, não esta função) e mediu uma NONA fuga
+  // enquanto testava a oitava.
   //
-  //   FUGA MEDIDA E AINDA ABERTA: **nenhuma**. As sete estão fechadas e cobradas por exit code
-  //   em dois lugares — `test/qa-censo-passo2.js` (treze mecanismos, um a um) e
-  //   `test/qa-censo-pintura-fora.js` (46 medidos por câmera, com a catraca).
+  //   FUGA MEDIDA E AINDA ABERTA (nesta função — `pinta()`): **`netoMarkerCustom`** — o `::marker`
+  //   de um `::before`/`::after` (um "neto" de pseudo-elemento) com `content` próprio, quando o
+  //   pseudo em si usa `list-style-type:none` (sem marcador padrão para `pintaMarcador`/
+  //   `pseudoPinta` fecharem). MEDIDO: 367 px nesta máquina (183–495 px conforme a máquina — o
+  //   catálogo mede a RELAÇÃO, não a constante), decidido **não fechar** em 03/09
+  //   (`nuvem-20260903T2022`, item `censo-oraculo-dois-furos` parte B): `getComputedStyle` não
+  //   resolve pseudo-elemento ENCADEADO (`getComputedStyle(e, '::before::marker')` devolve uma
+  //   `CSSStyleDeclaration` VAZIA mesmo com a regra aplicando), então esta função não tem como
+  //   perguntar ao navegador se aquele marcador pinta sem reimplementar casamento de seletor CSS
+  //   sobre `document.styleSheets` — uma ordem de fragilidade diferente do resto do módulo. Fica
+  //   registrada, cobrada por nome em `test/qa-censo-pintura-fora.js` (`FUGAS_REGISTRADAS`), ao
+  //   lado de `fundoClipTexto` em `FALSOS_REGISTRADOS`: dívida declarada, não buraco escondido.
+  //   As outras sete (as fechadas em 03/09) continuam cobradas por exit code em dois lugares —
+  //   `test/qa-censo-passo2.js` (treze mecanismos, um a um) e `test/qa-censo-pintura-fora.js`
+  //   (48 medidos por câmera, com a catraca, oráculo consertado na parte B).
+  //
+  //   ALCANCE — NÃO É PINTURA, É IDENTIDADE (fora de `pinta()`, decidido em vez de fechado):
+  //   `censo-restilizar-o-aceito` (03/09, `nuvem-20260903T2022`). O passo 1 aceita uma tábua de
+  //   lugar por HREF/RÓTULO e nunca pergunta como ela SE PARECE — uma regra que re-estiliza um
+  //   elemento JÁ ACEITO (`.lista .pl{background:#0f0}`, por exemplo) muda **15.118 px** na
+  //   caixa da `.lista` (medido nesta máquina; outra máquina já mediu 15.135 px do mesmo
+  //   fenômeno) sem reprovação nenhuma, e nem o oráculo da catraca de `test/qa-censo-pintura-
+  //   fora.js` vê isso — ele fotografa o mutante que INJETA, não o elemento que RE-ESTILIZA.
+  //   DECIDIDO NÃO FECHAR: comparar aparência exigiria referência visual por elemento aceito (25
+  //   ao todo nas cinco páginas), cada uma sujeita ao mesmo piso de ruído do mapa que este módulo
+  //   já paga (~1100 px de ruído no quadro cheio) e precisando de re-baseline a cada conteúdo
+  //   novo — e o vetor exige ACESSO DE COMMIT ao repositório, a mesma fronteira de confiança de
+  //   qualquer outra linha de `src/`/`ferramentas/`, não um vetor de runtime. Ver a explicação
+  //   completa, com as duas contas, no cabeçalho de `test/qa-censo-pintura-fora.js`.
   //
   //   NÃO FOGE, e por medição e não por confiança — pinta ZERO px numa caixa vazia:
   //     `filter:drop-shadow` · `filter:invert` · `mask` · `clip-path` · `scrollbar` de contêiner
