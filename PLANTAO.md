@@ -366,9 +366,14 @@ Canal: `RECADOS.md` (append-only, resolve por união) e a **issue #7** (`gh issu
 --comments`, `gh issue comment 7 --body-file`). Mensagem direta entre sessões **não chega** —
 medido pelas duas partes.
 
-Protocolo ao pegar item: `em-curso` + `maquina` + `desde` no backlog, **empurre na hora**, e
-`git push origin HEAD:refs/heads/voo/<id>` como marcador atômico. Apague o marcador ao terminar —
-marcador esquecido faz o outro lado achar que o território está ocupado.
+Protocolo ao pegar item: `em-curso` + `maquina` + `desde` no backlog, **empurre na hora**. Esse
+é o lock inteiro.
+
+~~E `git push origin HEAD:refs/heads/voo/<id>` como marcador atômico.~~ **REVOGADO PARA A NUVEM
+EM 03/09** — ver a decisão duas seções abaixo (`marcador-voo-so-acumula`): a nuvem não consegue
+apagar ref (403), então criar marcador era só produzir lixo, e o canal chegou a 22 de 23 mortos.
+Mac e Windows podem seguir criando, porque apagam; e quem criar, apaga ao terminar — marcador
+esquecido faz o outro lado achar que o território está ocupado.
 
 ### ⚠ O MARCADOR NÃO É A VERDADE — O BACKLOG É (01/09)
 
@@ -408,6 +413,65 @@ Eu mesmo escrevi aqui, antes de medir, que o exit era 0 — e estava errado, por
 canalizado o `git` para um `tail` e lido o exit **do tail**. `cmd 2>&1 \| tail; echo $?`
 mede o tubo, nunca o comando. Redirecione para arquivo e leia o `$?` na linha seguinte.
 `git ls-remote --heads origin` é quem responde se o ramo morreu.
+
+### ✅ DECIDIDO EM 03/09: A NUVEM PARA DE CRIAR MARCADOR `voo/` (item `marcador-voo-so-acumula`)
+
+O protocolo do §7 acima manda criar `voo/<id>` ao pegar item. **Essa linha morre aqui, para a
+nuvem.** A decisão é entre as duas saídas que o item escreveu — (a) parar de criar, ou (b)
+manter e ganhar um coveiro — e é **(a)**, por número, não por gosto.
+
+**O que decidiu, e é o achado desta rodada:** a saída (b) **já estava construída e já foi
+tentada quatro vezes**. O `ferramentas/ramos-mortos.js` existe desde 02/09, classifica certo e
+cospe os comandos de apagar; o `RECADOS.md` pede *"rodem `--apagar` e colem"* em **4 rodadas
+seguidas** (linhas 737, 781, 845, 894). Resultado medido:
+
+| | 02/09 | 03/09 08h UTC |
+|---|---|---|
+| marcadores `voo/` no servidor | **9** | **23** |
+| ramos `entrega/` no servidor | 15 | **28** |
+| refs apagados pelos quatro pedidos | — | **0** |
+
+Um plano de limpeza que depende de uma ação humana que não aconteceu em quatro pedidos não é
+plano de limpeza. E enquanto ele não acontece, o canal **cresceu 156% em 24 h**.
+
+**Cruzamento de hoje, com o `backlog.json` como verdade:** dos 23 marcadores, **18** apontam
+para item `concluido`, **4** não têm item nenhum, e **1** está vivo — e esse um só está vivo
+porque esta rodada o marcou quatro minutos antes de contar. **22 de 23 são ruído.**
+
+**Re-medido hoje pela quinta vez, com exit code real** (`git push origin --delete voo/censo-vaomedida`,
+redirecionado para arquivo, `$?` lido na linha seguinte):
+
+```
+EXIT REAL = 1
+error: RPC failed; HTTP 403
+...
+Everything up-to-date          <- a última linha, mentindo, como sempre
+```
+
+Confirmado também que **não é o proxy** (`__agentproxy/status` com `recentRelayFailures` vazio)
+e que **não há saída pelo GitHub MCP**: o servidor tem `create_branch` e não tem delete de ramo.
+A nuvem só acrescenta. Isso não vai mudar.
+
+**O que passa a valer, para as três máquinas:**
+
+1. **A nuvem NÃO cria `voo/<id>`.** O lock é `estado: em-curso` + `maquina` + `desde` no
+   `backlog.json`, empurrado na hora — que é o que o §7 de 01/09 já tinha feito ser a verdade.
+   O marcador não decidia nada desde então; só produzia lixo.
+2. **Mac e Windows podem continuar criando**, porque eles apagam. Se preferirem parar também,
+   melhor — mas para eles é escolha, não conserto.
+3. **O legado fica com quem tem `delete_ref`:** `node ferramentas/ramos-mortos.js --apagar` e
+   colar. A diferença é que agora a pilha **para de crescer** mesmo que ninguém rode.
+
+**Como saber se funcionou, sem acreditar em mim:** o número de hoje é **23**. Se as próximas
+rodadas da nuvem o mantiverem em 23 (ou o virem cair, se alguém apagar), (a) pegou. Se ele
+subir, alguma rodada ainda está criando marcador — e o culpado é o prompt agendado, não este
+arquivo (ver a nota logo abaixo).
+
+> ⚠ **O PROMPT AGENDADO DA NUVEM AINDA MANDA CRIAR O MARCADOR** — a linha *"use ramo marcador
+> `voo/<id>`"* está no texto guardado do agendamento, que roda fora do repositório e **nenhuma
+> sessão consegue editar**. Quem entrar de plantão pela nuvem: **este arquivo é posterior e
+> vence** — o prompt manda ler o `PLANTAO.md` antes de despachar, e é isto que ele diz. Está no
+> `PENDENTES.md` como a única linha que precisa da mão do dono para fechar o item.
 
 ### ⚠ NA NUVEM, `git push -u origin main` EMPURRA UM REF DE SEIS DIAS ATRÁS (01/09)
 

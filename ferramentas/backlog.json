@@ -901,7 +901,7 @@
     },
     {
       "id": "marcador-voo-so-acumula",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Os 21 marcadores voo/ do servidor sao 21/21 mortos, e a nuvem nao pode apagar nenhum",
@@ -912,7 +912,8 @@
       "aceite": "Uma decisao ESCRITA entre duas saidas, com o motivo: (a) o marcador voo/ deixa de ser criado — o backlog.json ja e a verdade que decide ocupacao, e o PLANTAO.md perde a instrucao de cria-lo; ou (b) o marcador continua e ganha um coveiro que roda numa maquina que PODE apagar (Mac/Windows), varrendo voo/<id> cujo item esteja concluido ou livre. Nao vale deixar como esta. Se (b), o coveiro tem prova de mordida: cria marcador morto, roda, mostra que sumiu.",
       "detalhe": "Medido por nuvem-20260903T0422 em 03/09, cruzando git ls-remote com o estado do backlog.json: dos 21 refs/heads/voo/* no servidor, 17 apontam para item concluido, 3 nao tem item nenhum no backlog, e 0 estao vivos. O canal e 21/21 ruido. O PLANTAO.md ja previu o mecanismo (a nuvem cria marcador e nunca o limpa, e roda de 4 em 4 horas) e ja resolveu a leitura (o marcador e pista, nunca prova; quem decide e o backlog.json). O que ficou sem resolver e a PRODUCAO do lixo. Medido tambem, e confirma a causa raiz com exit code real: git push origin --delete voo/canonical-jogo sai EXIT 1 com HTTP 403, e a ultima linha que imprime e Everything up-to-date — a armadilha que o proprio PLANTAO documenta. Entao a nuvem so acrescenta, nunca subtrai, e cada rodada dela piora o canal. Esta rodada acrescentou mais 3 de proposito, por consistencia de protocolo, e eles entram na conta.",
       "maquina": "nuvem-20260903T0822",
-      "desde": "2026-09-03T08:24:09.329Z"
+      "desde": "2026-09-03T08:24:09.329Z",
+      "nota": "DECIDIDO (a) em 03/09 por nuvem-20260903T0822: a nuvem para de criar marcador voo/. Motivo medido: (b) ja existia (ramos-mortos.js, 02/09), foi pedido em 4 rodadas do RECADOS e deu 0 apagamentos, enquanto voo/ ia de 9 para 23 em 24h; 22 de 23 mortos; 403 re-medido com exit real 1. Escrito no PLANTAO.md §7. Residuo do dono (uma linha do prompt agendado) no PENDENTES 102."
     },
     {
       "id": "censo-cinco-fugas-medidas",

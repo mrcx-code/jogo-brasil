@@ -3799,3 +3799,34 @@ Território tocado: só `ferramentas/cartao-censo.js` (o `test/cartao-quadro-con
 de mudança — os oito mutantes já rodam pelo `Object.keys(CENSO.MUTANTES)`). Portão rodado:
 `node test/cartao-quadro-controle.js`, EXIT REAL 0. `npm test` cheio rodado uma vez antes de
 entregar (tokenmaxxing, PLANTAO §3.2).
+
+---
+
+## 102 — A linha `voo/<id>` do PROMPT AGENDADO da nuvem precisa da mão do dono — plantao (03/09)
+
+**Isto é a única coisa que falta para fechar `marcador-voo-so-acumula`, e nenhuma sessão pode
+fazê-la.** A decisão está tomada e escrita no `PLANTAO.md` §7 (03/09): a nuvem **para de criar**
+marcador `voo/<id>`, porque não consegue apagá-lo (403, medido pela quinta vez, exit real 1) e
+porque a saída alternativa — o coveiro `ferramentas/ramos-mortos.js`, que existe desde 02/09 —
+foi pedida em **4 rodadas** do `RECADOS.md` e produziu **0 apagamentos**, enquanto os marcadores
+iam de **9 para 23 em 24 h**.
+
+**O que sobra:** o texto guardado do agendamento da nuvem ainda diz *"use ramo marcador
+`voo/<id>`"*. Esse texto roda **fora do repositório** e não há sessão que o edite — nem eu, nem
+agente nenhum. Enquanto ele estiver lá, cada rodada nova lê uma ordem que o `PLANTAO.md`
+revoga.
+
+**Contenção que já está no ar, e por isso isto não é urgente:** o próprio prompt manda ler o
+`PLANTAO.md` **antes** de despachar, e a revogação está escrita lá em caixa alta, com a data e o
+número. Uma rodada que leia como mandado não cria marcador. Foi o que esta rodada fez.
+
+**A mão do dono, em uma linha:** apagar do prompt agendado a frase *"e use ramo marcador
+voo/<id>"*. Nada mais.
+
+**Como conferir se pegou, sem acreditar em ninguém:** `git ls-remote origin 'refs/heads/voo/*' | wc -l`
+dá **23** em 03/09 08h UTC. Se as próximas rodadas da nuvem mantiverem 23 ou menos, pegou. Se
+subir, alguma rodada obedeceu ao prompt em vez do arquivo.
+
+**Legado, para quem tem `delete_ref` (Mac e Windows):** `node ferramentas/ramos-mortos.js --apagar`
+e colar. São 23 `voo/` e 28 `entrega/` no servidor hoje. Isso continua valendo — mas agora a
+pilha para de crescer mesmo que ninguém rode.
