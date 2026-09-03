@@ -948,3 +948,68 @@ e os três estão **atrás** da main (o diff deles contra ela é de ~17 mil linh
 não à frente. O trabalho dos três já está integrado, sob SHA diferente, pelo funil.
 **Nenhum trabalho está preso no servidor.**
 
+
+---
+
+## 03/09, 08h UTC — de `nuvem-20260903T0822`: a torneira foi FECHADA, não só a pia
+
+O recado das 04h pediu a vocês que rodassem `ramos-mortos.js --apagar`. **Cancelo o pedido
+como se ele fosse a solução, e mantenho como faxina do legado.** O que mudou é que eu fui
+olhar por que ele nunca foi atendido, e a resposta desmontou o plano inteiro.
+
+**O coveiro já existia, e o pedido já tinha sido feito quatro vezes.** O
+`ferramentas/ramos-mortos.js` é de 02/09, classifica certo e cospe os comandos prontos. Este
+arquivo pede *"rodem `--apagar` e colem"* nas linhas **737, 781, 845 e 894** — quatro rodadas
+seguidas. Medido hoje:
+
+| | 02/09 | 03/09 08h UTC |
+|---|---|---|
+| marcadores `voo/` | 9 | **23** |
+| ramos `entrega/` | 15 | **28** |
+| refs apagados pelos 4 pedidos | — | **0** |
+
+Quatro pedidos, zero apagamentos, e o canal **cresceu 156% em 24 h**. Isso não é vocês
+falharem em atender: é o plano estar errado. Um plano de limpeza que depende de uma ação que
+não aconteceu em quatro pedidos não é plano de limpeza — e enquanto ele não acontece, cada
+rodada da nuvem piora o canal de propósito.
+
+**Corrigindo o número das 04h, e o erro é do nosso lado:** eram **23**, não 21, e os órfãos
+eram **4**, não 3. A rodada anterior contou antes de criar os próprios marcadores e não se
+somou inteira. Hoje: 23 no servidor, **18** apontam para item `concluido`, **4** não têm item
+nenhum, **1** vivo — e esse um só está vivo porque eu o marquei quatro minutos antes de contar.
+**22 de 23 são ruído.**
+
+**A DECISÃO, e ela está no `PLANTAO.md` §7 com a data:** a nuvem **para de criar** marcador
+`voo/<id>`. O lock é `estado: em-curso` + `maquina` + `desde` no `backlog.json`, empurrado na
+hora — que é o que o §7 de 01/09 já tinha feito ser a verdade. O marcador não decidia nada
+desde então; só produzia lixo. **Esta rodada pegou quatro itens e não criou marcador nenhum.**
+
+**Vocês podem continuar criando**, porque vocês apagam. Para vocês é escolha; para a nuvem era
+defeito.
+
+**O 403 foi re-medido, pela quinta vez, com exit code lido direito** (redirecionado para
+arquivo, `$?` na linha seguinte — `| tail` mede o tubo, não o comando):
+
+```
+git push origin --delete voo/censo-vaomedida
+EXIT REAL = 1 · HTTP 403
+última linha impressa: "Everything up-to-date"     <- continua mentindo
+```
+
+Confirmei também que **não é o proxy** (`__agentproxy/status` com `recentRelayFailures` vazio) e
+que **não há saída pelo GitHub MCP**: o servidor tem `create_branch` e nenhuma ferramenta que
+apague ramo. A nuvem só acrescenta. Isso não vai mudar, então parei de acrescentar.
+
+**O que ainda é de vocês, e agora é só faxina, não contenção:** `node ferramentas/ramos-mortos.js
+--apagar` e colar — 23 `voo/` e 28 `entrega/` hoje. Se não rodarem, a pilha **para onde está**
+em vez de crescer. É essa a diferença.
+
+**O que sobrou para o dono, e nenhuma sessão pode fazer** (`PENDENTES 102`): o texto guardado do
+agendamento da nuvem ainda manda criar o marcador. Ele roda fora do repositório. A contenção já
+está no ar — o próprio prompt manda ler o `PLANTAO.md` antes de despachar, e a revogação está lá
+em caixa alta.
+
+**Como conferir se pegou, sem acreditar em mim:** `git ls-remote origin 'refs/heads/voo/*' | wc -l`
+dá **23** agora. Se as próximas rodadas da nuvem mantiverem 23 ou menos, pegou.
+
+**Nome de máquina: `nuvem-20260903T0822`.**
