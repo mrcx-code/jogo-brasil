@@ -47,6 +47,25 @@
 //       mede LARGURA DE AVANÇO, não CSS — a única prova possível de qual glifo saiu.
 //       Nenhum byte de `<secao>/index.html` muda por causa disto.
 //
+//   (g) A MARGEM ESQUERDA DO MOLDE, e o que o recorte QUADRADO do WhatsApp/Twitter faz com
+//       ela (arte, 03/09 — item cartao-margem-esquerda). O card de 1200×630 não é só assim
+//       que ele é mostrado: em vários lugares (pré-visualização em círculo, cartão de perfil,
+//       algumas dobras do feed) o cliente recorta um QUADRADO CENTRADO — x de (LARGURA-ALTURA)/2
+//       até LARGURA-(LARGURA-ALTURA)/2, ou seja 285..915 nesta medida. Medido nas três páginas
+//       publicadas em 03/09: o `<h1>` nasce em x=268/270/271 e a caixa da primeira tábua da
+//       barra nasce em x=275 — as três, porque as três compartilham o MESMO `.env{max-width:
+//       44rem;margin:0 auto;padding:2.6rem 1.25rem 5rem}` do molde (não é a tipografia: o
+//       Gelasio muda a LARGURA do título, não a ORIGEM da caixa). Isso é ANTES de 285: o
+//       recorte quadrado morde a primeira letra do título e a moldura da primeira tábua.
+//       Este arquivo não edita `.env` — não é dele, é de `gerar-historia.js`/`gerar-
+//       glossario.js`/`gerar-fontes.js`. O que ele faz, no mesmo lugar onde já faz o GRAO_FORA
+//       e a fonte embutida (EM MEMÓRIA, só no print, nenhum byte da página publicada muda), é
+//       empurrar esse contêiner para a direita o bastante para sobreviver ao recorte, com uma
+//       folga contra antialiasing/arredondamento — e DEPOIS medir a posição REAL (não o CSS
+//       pedido) do título e da primeira tábua, para reprovar se a correção não pegar (troca de
+//       nome de classe no molde, por exemplo — falha FECHADA, não silenciosa).
+//       NÃO CONFUNDIR com a decisão de serifa (fechada): a régua aqui é ESPAÇO, não fonte.
+//
 // E o print sai a `deviceScaleFactor: 1` de propósito: a 2 ele sairia 2400×1260 e desmentiria
 // as tags `og:image:width`/`height` que o próprio gerador escreve.
 const { chromium } = require('playwright');
@@ -112,6 +131,28 @@ const KB_MAX = 300;
 // quatro seções. Uma textura nova entrando no papel derruba aquele portão, não este arquivo.
 const GRAO_FORA = ':root{--graoPx:none!important}';
 
+// ---- (g) A MARGEM ESQUERDA — ver o item (g) no comentário do topo do arquivo ----
+//
+// O NÚMERO NÃO É REDIGITADO: `MARGEM_SEGURA` sai da MESMA conta que produz o "285..915" do
+// item cartao-margem-esquerda — (LARGURA-ALTURA)/2 — porque é assim que um recorte quadrado
+// centrado nasce de um retângulo 1200×630. Se `LARGURA`/`ALTURA` mudarem um dia, esta conta
+// muda junto, em vez de ficar um "285" solto que ninguém lembra de onde veio.
+const MARGEM_SEGURA = Math.round((LARGURA - ALTURA) / 2); // 285
+// A FOLGA é colchão, não frouxidão: compensa a variação de até ~3 px entre glifos (o "A" e o
+// "O" não têm o mesmo avanço à esquerda dentro da própria caixa, medido em 03/09) e o
+// arredondamento do próprio recorte quadrado feito por cada cliente (não são todos px-exatos).
+const MARGEM_FOLGA = 12;
+// A CORREÇÃO, só no print (mesmo mecanismo do GRAO_FORA e da fonte embutida acima: entra em
+// memória, na página já carregada, e nenhum byte de `<secao>/index.html` muda por causa dela).
+// Empurra o `.env` — o contêiner centralizado do molde das três páginas de leitura — para a
+// direita: valor ABSOLUTO (não "+X" sobre o padding que já existe), para não depender de
+// quanto esse padding vale hoje, que não é deste arquivo. Medido: com este valor o título
+// nasce a partir de x≈298 nas três páginas (ver test/cartao-margem-controle.js) — folga real
+// acima de MARGEM_SEGURA+MARGEM_FOLGA=297. Se o seletor `.env` um dia deixar de existir no
+// molde, esta regra não morde nada (CSS solto não quebra build) — e é por isso que a posição
+// REAL é MEDIDA e cobrada logo abaixo, em vez de confiar só nesta injeção.
+const MARGEM_CSS = '.env{padding-left:56px!important}';
+
 // As tags do <head>, montadas de uma vez para nenhuma seção esquecer metade delas. A URL vem
 // SEMPRE da BASE de ferramentas/dominio.js — endereço escrito à mão numa tag og: é o jeito
 // clássico de a prévia quebrar quando o domínio muda, e em silêncio.
@@ -153,8 +194,10 @@ async function tirar(dir, op) {
     // e um respiro para o primeiro layout com as fontes já trocadas
     await pg.waitForTimeout(250);
 
-    // ---- (b) fora do print: o interruptor da medição, tudo o que flutua, e o grão ----
-    const escondidos = await pg.evaluate((graoFora) => {
+    // ---- (b) fora do print: o interruptor da medição, tudo o que flutua, o grão — e (g) a
+    // margem esquerda, exceto quando CARTAO_MARGEM_DEFEITO pede para ela ficar fora (mutante) ----
+    const margemCss = process.env.CARTAO_MARGEM_DEFEITO ? '' : MARGEM_CSS;
+    const escondidos = await pg.evaluate((cfg) => {
       let n = 0;
       document.querySelectorAll('.med').forEach((e) => { e.style.display = 'none'; n++; });
       document.querySelectorAll('body *').forEach((e) => {
@@ -162,17 +205,20 @@ async function tirar(dir, op) {
         if (p === 'fixed' || p === 'sticky') { e.style.display = 'none'; n++; }
       });
       // O grão de 2 px sai SÓ do print (ver GRAO_FORA lá em cima: 183 -> 93 KB). A página não
-      // muda; o que muda é a foto dela.
+      // muda; o que muda é a foto dela. A margem esquerda (g) viaja no MESMO elemento de estilo.
       const st = document.createElement('style');
-      st.textContent = graoFora;
+      st.textContent = cfg.graoFora + cfg.margemCss;
       document.head.appendChild(st);
       window.scrollTo(0, 0);
       return n;
-    }, GRAO_FORA);
+    }, { graoFora: GRAO_FORA, margemCss: margemCss });
 
     const cena = await pg.evaluate(() => {
       const h1 = document.querySelector('h1');
       const r = h1 ? h1.getBoundingClientRect() : null;
+      // (g) a primeira tábua da barra — sempre a marca "BRASIL" (chrome-plataforma.js).
+      const tabua = document.querySelector('.barra a');
+      const rt = tabua ? tabua.getBoundingClientRect() : null;
       // Um botão só conta se ALGUM pixel dele cai dentro do quadro do print.
       const dentro = (b) => b.width > 0 && b.height > 0
         && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth;
@@ -183,6 +229,10 @@ async function tirar(dir, op) {
         titulo: h1 ? h1.textContent.trim() : null,
         topo: r ? Math.round(r.top) : null,
         base: r ? Math.round(r.bottom) : null,
+        // (g) posição REAL do título e da primeira tábua — não o CSS pedido, o retângulo que
+        // o layout realmente produziu depois da correção (ou da falta dela, no mutante).
+        esquerda: r ? Math.round(r.left) : null,
+        tabuaEsquerda: rt ? Math.round(rt.left) : null,
         // AS FAMÍLIAS QUE DE FATO CHEGARAM. `document.fonts` é o conjunto de @font-face que a
         // página conhece — vazio quando a folha do Google não veio. Só entram as que estão
         // `loaded`: uma que ficou em `unloaded` é uma que o navegador nunca desenhou.
@@ -206,6 +256,23 @@ async function tirar(dir, op) {
       throw new Error('RECUSADO: o título "' + cena.titulo + '" não cabe no quadro do cartão (topo '
         + cena.topo + ', base ' + cena.base + ' de ' + ALTURA + ' px) — o cartão mostraria um miolo'
         + ' sem nome. Se algo novo entrou acima do cabeçalho, ele tem de caber junto.');
+    }
+    // (g) A MARGEM ESQUERDA — o recorte QUADRADO centrado que WhatsApp/Twitter usam corta em
+    // x=MARGEM_SEGURA de cada lado. Título ou primeira tábua nascendo antes disso é a mesma
+    // "mordida" que o item cartao-decepa-primeira-tabua descreveu, medida por RETÂNGULO real
+    // (não pelo CSS pedido), então uma correção que pare de morder (troca de classe no molde,
+    // por exemplo) reprova aqui em vez de publicar um cartão mordido em silêncio.
+    if (cena.esquerda !== null && cena.esquerda < MARGEM_SEGURA) {
+      throw new Error('RECUSADO: o título "' + cena.titulo + '" nasce em x=' + cena.esquerda
+        + ' — antes do recorte QUADRADO centrado que WhatsApp/Twitter usam (corta em x='
+        + MARGEM_SEGURA + '..' + (LARGURA - MARGEM_SEGURA) + '). A primeira letra sairia mordida'
+        + ' nesse recorte. Confira MARGEM_CSS e o `.env` do molde da página.');
+    }
+    if (cena.tabuaEsquerda !== null && cena.tabuaEsquerda < MARGEM_SEGURA) {
+      throw new Error('RECUSADO: a primeira tábua da barra nasce em x=' + cena.tabuaEsquerda
+        + ' — antes do recorte QUADRADO centrado (corta em x=' + MARGEM_SEGURA + '..'
+        + (LARGURA - MARGEM_SEGURA) + '). A moldura da tábua sairia mordida nesse recorte.'
+        + ' Confira MARGEM_CSS e o `.env` do molde da página.');
     }
     if (cena.botoes.length) {
       throw new Error('RECUSADO: controle visível dentro do quadro do cartão — ' + cena.botoes[0]
@@ -329,10 +396,10 @@ async function tirar(dir, op) {
         + kb.toFixed(0) + ' KB — fora da faixa de ' + KB_MIN + ' a ' + KB_MAX + ' KB');
     }
     return { kb: kb, titulo: cena.titulo, escondidos: escondidos, topo: cena.topo, base: cena.base,
-      fixados: troca, fonte: TIPO.FAMILIA };
+      esquerda: cena.esquerda, tabuaEsquerda: cena.tabuaEsquerda, fixados: troca, fonte: TIPO.FAMILIA };
   } finally {
     await nav.close();
   }
 }
 
-module.exports = { LARGURA, ALTURA, QUALIDADE, KB_MIN, KB_MAX, tags, tirar };
+module.exports = { LARGURA, ALTURA, QUALIDADE, KB_MIN, KB_MAX, MARGEM_SEGURA, tags, tirar };
