@@ -891,6 +891,19 @@
       "detalhe": "Medido em 03/09 por nuvem-20260903T0023, lido da API e nao do log. Run 464 (commit 185ea98, que so mexia em ferramentas/backlog.json marcando dois itens em-curso) falhou no job portoes com \"FILA MENTE OU SOME: 1 falha(s)\". Os runs 465, 466, 467, 468, 469 e 470 passaram, todos com o MESMO conteudo de backlog ou um superconjunto dele — entao nao e o dado, e tempo. As tres cenas de CONTROLE aparecem verdes no log da propria falha (a copia antiga fica presa em carregando, faz uma tentativa so em 9 s, e sem agendarBacklog dez minutos depois ainda e um pedido so), o que aponta a assercao intermitente para o lado do retry/agendamento e nao para o do controle. NAO foi consertado nesta rodada de proposito: mexer em assercao de tempo sem reproduzir o vermelho e trocar um sorteio por outro. E o mesmo padrao ja pago em 23/08 — reprovacao por sorteio que se chamava de carga de maquina — e naquela vez a causa era portao disputando porta com portao.",
       "maquina": "nuvem-20260903T0422",
       "desde": "2026-09-03T04:26:08.340Z"
+    },
+    {
+      "id": "marcador-voo-so-acumula",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "Os 21 marcadores voo/ do servidor sao 21/21 mortos, e a nuvem nao pode apagar nenhum",
+      "territorio": [
+        "PLANTAO.md",
+        "ferramentas/backlog.json"
+      ],
+      "aceite": "Uma decisao ESCRITA entre duas saidas, com o motivo: (a) o marcador voo/ deixa de ser criado — o backlog.json ja e a verdade que decide ocupacao, e o PLANTAO.md perde a instrucao de cria-lo; ou (b) o marcador continua e ganha um coveiro que roda numa maquina que PODE apagar (Mac/Windows), varrendo voo/<id> cujo item esteja concluido ou livre. Nao vale deixar como esta. Se (b), o coveiro tem prova de mordida: cria marcador morto, roda, mostra que sumiu.",
+      "detalhe": "Medido por nuvem-20260903T0422 em 03/09, cruzando git ls-remote com o estado do backlog.json: dos 21 refs/heads/voo/* no servidor, 17 apontam para item concluido, 3 nao tem item nenhum no backlog, e 0 estao vivos. O canal e 21/21 ruido. O PLANTAO.md ja previu o mecanismo (a nuvem cria marcador e nunca o limpa, e roda de 4 em 4 horas) e ja resolveu a leitura (o marcador e pista, nunca prova; quem decide e o backlog.json). O que ficou sem resolver e a PRODUCAO do lixo. Medido tambem, e confirma a causa raiz com exit code real: git push origin --delete voo/canonical-jogo sai EXIT 1 com HTTP 403, e a ultima linha que imprime e Everything up-to-date — a armadilha que o proprio PLANTAO documenta. Entao a nuvem so acrescenta, nunca subtrai, e cada rodada dela piora o canal. Esta rodada acrescentou mais 3 de proposito, por consistencia de protocolo, e eles entram na conta."
     }
   ]
 }
