@@ -9,6 +9,20 @@
   },
   "itens": [
     {
+      "id": "medicao-desligada-caminho-escolar",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "medio",
+      "titulo": "ECA Digital: quem chega pelo link de professor nasce com a medicao DESLIGADA — decisao do dono em 03/09",
+      "territorio": [
+        "src/jogo.ts",
+        "plataforma/privacidade-texto.md",
+        "divulgacao/rascunhos/02-texto-professores.md"
+      ],
+      "aceite": "Um jeito de o jogo distinguir 'cheguei pelo link de divulgacao escolar' de todo o resto do publico, testado nos dois sentidos: (a) chegando por esse caminho, medirLigado nasce false ANTES de qualquer evento poder disparar — mesma prova de portao que o teste ja aplica ao interruptor manual (zero pedido ao PostHog); (b) chegando por qualquer outro caminho (link comum, compartilhamento, PWA salvo), medirLigado continua nascendo true, sem regressao. Uma vez que a pessoa toca no interruptor (em qualquer sentido), a ESCOLHA DELA passa a valer sobre o padrao de origem, para sempre naquele aparelho — o padrao por link e so a primeira leitura, nunca uma jaula. Some ao ESQUEMA_SAVE se algo novo for persistido. Atualize plataforma/privacidade-texto.md (secao R1) e divulgacao/rascunhos/02-texto-professores.md com o link/parametro final assim que o mecanismo existir — hoje o rascunho so diz 'o link', sem forma de distinguir professor de qualquer outra pessoa.",
+      "detalhe": "Decisao do dono em 03/09, respondendo o achado do juridico (item pagina-privacidade): a Lei 15.211/2025 (ECA Digital), vigente desde 17/03/2026, pede configuracao mais protetiva por padrao para servico de acesso provavel por crianca. Escolhida a opcao intermediaria: desligada SO no caminho escolar, ligada no resto — preserva o numero da pergunta de tres dias no publico geral e reduz o risco exatamente onde ele e maior (turma de fundamental II). Mecanismo de deteccao AINDA NAO EXISTE: hoje so ha 'o link' (raiz do dominio), sem parametro nem caminho dedicado — desenhar isso e a primeira metade do trabalho, antes de mexer no valor padrao. medirLigado nasce true em src/jogo.ts:3898 e so muda por leitura de localStorage (linha 3923, CHAVE_MEDIR='jogo_brasil_medir') ou pelo toque manual (linha 3934). territorio inclui src/jogo.ts, entao entra na fila do escritor unico do monolito — ha dois itens na frente (caminho-do-ceu em voo, privacidade-dois-consertos-pequenos livre)."
+    },
+    {
       "id": "privacidade-dois-consertos-pequenos",
       "estado": "livre",
       "agente": "dev-jogo",
@@ -525,7 +539,7 @@
     {
       "id": "pagina-privacidade",
       "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
-      "detalhe": "CORRECAO em 03/09: o texto de 23/08 alegado no backlog NUNCA EXISTIU no repositorio (grep + git log -S por 4 termos juridicos, so a propria linha deste cartao aparece) — viveu na saida de uma sessao de agente e se perdeu. Reescrito do zero em 03/09 pelo juridico: plataforma/privacidade-texto.md (599 linhas, fonte — nao e saida de build). O e-mail brasilpatinhas@gmail.com ja foi autorizado pelo dono para o campo de contato. Falta (1) o NOME do controlador, marcado como [NOME DO CONTROLADOR] no arquivo, e (2) uma decisao de produto nova e mais serio que so o nome: a Lei 15.211/2025 (ECA Digital), em vigor desde 17/03/2026, obriga configuracao MAIS PROTETIVA POR PADRAO para servico de acesso provavel por crianca — e o plano mira fundamental II. Isso pode significar que a medicao (hoje LIGADA por padrao, decisao do dono de 22/08, ANTERIOR a essa lei) precisa nascer DESLIGADA. Tres caminhos escritos no proprio arquivo (secao R1), nenhum decidido ainda. Depois que o dono responder as duas coisas: dev-plataforma constroi a pagina de verdade a partir do texto (gerar-*.js), o que ainda nao foi feito.",
+      "detalhe": "CORRECAO em 03/09: o texto de 23/08 alegado no backlog NUNCA EXISTIU no repositorio (grep + git log -S por 4 termos juridicos, so a propria linha deste cartao aparece) — viveu na saida de uma sessao de agente e se perdeu. Reescrito do zero em 03/09 pelo juridico: plataforma/privacidade-texto.md (599 linhas, fonte — nao e saida de build). O e-mail brasilpatinhas@gmail.com ja foi autorizado pelo dono para o campo de contato. A decisao do ECA Digital (secao R1) FOI TOMADA em 03/09: medicao desligada so no caminho escolar, ligada no resto — mecanismo ainda por construir, item medicao-desligada-caminho-escolar. Falta so o NOME do controlador, marcado como [NOME DO CONTROLADOR] no arquivo — pergunta direta ao dono. Depois disso: dev-plataforma constroi a pagina de verdade a partir do texto (gerar-*.js, ainda nao feito), e o texto de R1 precisa de uma frase atualizada contando a decisao tomada em vez de listar tres caminhos em aberto.",
       "agente": "dev-plataforma",
       "estado": "do-dono",
       "camada": "medio",
