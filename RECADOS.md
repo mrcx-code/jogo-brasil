@@ -1050,3 +1050,110 @@ escreve brief lê o **§2**. Movi para o §2 com a linha pronta para colar. Cada
 minuto e refez o diagnóstico sozinho.
 
 **Nome de máquina: `nuvem-20260903T0822`.**
+
+---
+
+## 03/09 16h UTC · `nuvem-20260903T1623` — o `ramos-mortos.js` mentia, e a nuvem era o pior lugar para ele rodar
+
+**O que eu MEDI.** O mesmo `ferramentas/ramos-mortos.js`, em quatro clones do mesmo repositório,
+sobre os 32 ramos `entrega/`: clone profundo **29 ancestrais / 3 órfãos** (a verdade); `--depth=186`
+29/3; `--depth=20` **7/25**; `--depth=1` **0/32**. O contêiner da nuvem clona raso (186 commits
+nesta sessão), e `merge-base --is-ancestor` sobre um sha que não está no disco sai ≠ 0 — que o
+programa lia como **ÓRFÃO**.
+
+**Consequência para vocês dois:** todo relatório de ramos mortos que a nuvem produziu até hoje
+subdeclarou o que dá para apagar. Quando forem rodar `node ferramentas/ramos-mortos.js --apagar`,
+rodem da **versão nova** (ramo `entrega/ramos-mortos-raso`, ou a `main` depois que ela entrar) —
+a antiga vai poupar ramo que já podia ter ido embora. Mac e Windows têm clone profundo, então lá o
+número já estava certo; o que muda para vocês é só confiar no que a nuvem publicar daqui em diante.
+
+**Auditei os 8 que pareciam órfãos e NENHUM tinha trabalho a salvar.** `regua-parada-e-fila-paralela`,
+`rodape-quatro-gaps`, `glossario-substancia-rev2`, `rev3` e `rotina-7-sinais` já são ancestrais da
+`main`. Os outros três entraram por outra rota: `canonical-jogo` (a `main` tem asserção mais forte,
+que cobra também `@@BASE@@` cru), `glossario-substancia` (os 3 verbetes estão lá na versão revista
+pelo historiador) e `dashboard-trio` (commit `bccbf16`). **Não recomecem nenhum dos oito.**
+
+**Contagem de hoje, para a série que o PLANTAO §7 pediu para acompanhar:**
+`voo/` = **23**, o mesmo de 03/09 08h UTC → a decisão de a nuvem parar de criar marcador **pegou**.
+`entrega/` = **28 → 33 em 24 h**, ainda subindo, porque só vocês têm `delete_ref` e ninguém apagou.
+**O pedido continua de pé, e é o quinto:** rodem `node ferramentas/ramos-mortos.js --apagar` e
+colem. Agora vale mais, porque a lista finalmente está certa.
+
+**Ficou aberto, e é para quem tiver egresso:** a profundidade do clone da nuvem **varia** e não
+achei onde se configura. Enquanto variar, vale varrer `ferramentas/` atrás de outros usos de
+`merge-base`/`rev-list` que respondam sobre ancestralidade sem se defender do clone raso — eu
+consertei o que encontrei, não afirmo que era o único.
+
+### A LISTA DE APAGAR, agora correta — 03/09 16hUTC, gerada pelo `ramos-mortos.js` consertado
+
+**52 refs mortos.** Com a versao antiga, num clone raso, boa parte deles sairia como ORFAO e
+voces poupariam ramo que ja podia ter ido embora. Colem numa maquina com `delete_ref`:
+
+```bash
+git push origin --delete voo/canonical-jogo
+git push origin --delete voo/cartao-alvo-por-geometria
+git push origin --delete voo/cartao-fonte-do-host
+git push origin --delete voo/cartoes-tipografia-defasada
+git push origin --delete voo/censo-cartao-residuais
+git push origin --delete voo/censo-cobertura-e-propriedades
+git push origin --delete voo/censo-vaomedida
+git push origin --delete voo/censo-vaomedida-falso-positivo
+git push origin --delete voo/controle-cartao-sem-dono
+git push origin --delete voo/csp-host-nao-sai-da-constante
+git push origin --delete voo/csp-paginas-publicas
+git push origin --delete voo/csp-tabela-de-rotas-e-conjunto
+git push origin --delete voo/dashboard-trio
+git push origin --delete voo/fila-conectado-vermelho-intermitente
+git push origin --delete voo/fonte-embutida-sem-portao
+git push origin --delete voo/geradores-fora-do-portao
+git push origin --delete voo/glossario-substancia
+git push origin --delete voo/jogo-connect-src-sem-portao
+git push origin --delete voo/regua-autoteste-morto
+git push origin --delete voo/regua-eixo-x-nao-olhado
+git push origin --delete voo/regua-terceira-receita
+git push origin --delete voo/rotina-7-sinais
+git push origin --delete voo/secao-numero-envelhece
+git push origin --delete entrega/cartao-fonte-embutida
+git push origin --delete entrega/cartao-geometria
+git push origin --delete entrega/cartoes-tipografia
+git push origin --delete entrega/censo-cinco-fugas-medidas
+git push origin --delete entrega/censo-cobertura-e-propriedades
+git push origin --delete entrega/censo-foto
+git push origin --delete entrega/censo-foto-qa
+git push origin --delete entrega/controle-cartao-dono
+git push origin --delete entrega/csp-constante
+git push origin --delete entrega/csp-constante-qa
+git push origin --delete entrega/csp-paginas-publicas
+git push origin --delete entrega/csp-tabela-de-rotas-e-conjunto
+git push origin --delete entrega/fila-conectado-vermelho-intermitente
+git push origin --delete entrega/fonte-embutida-sem-portao
+git push origin --delete entrega/geradores-chromium
+git push origin --delete entrega/geradores-portao
+git push origin --delete entrega/glossario-substancia-rev2
+git push origin --delete entrega/glossario-substancia-rev3
+git push origin --delete entrega/portao-cartao-pos-condicao
+git push origin --delete entrega/regua-autoteste-vivo
+git push origin --delete entrega/regua-eixo-x
+git push origin --delete entrega/regua-parada-e-fila-paralela
+git push origin --delete entrega/regua-retrato-sem-alcancabilidade
+git push origin --delete entrega/regua-terceira-receita
+git push origin --delete entrega/regua-touch-action
+git push origin --delete entrega/rodape-quatro-gaps
+git push origin --delete entrega/rotina-7-sinais
+git push origin --delete entrega/secao-numero-envelhece
+git push origin --delete entrega/vercel-valor-e-topo
+```
+
+**Mais estes tres, que o programa marca DE PE e eu auditei POR CONTEUDO nesta rodada** — os
+tres tem commit fora da `main`, entao o programa faz certo em nao decidir sozinho, mas o
+conteudo dos tres ja entrou por outra rota (o porque de cada um esta no Diario de hoje no
+`NOTES.md`). **Podem apagar:**
+
+```bash
+git push origin --delete entrega/canonical-jogo        # a main tem assercao MAIS forte
+git push origin --delete entrega/dashboard-trio        # entrou no commit bccbf16
+git push origin --delete entrega/glossario-substancia  # os 3 verbetes estao la, revistos
+```
+
+**NAO apaguem `entrega/ramos-mortos-raso`** enquanto ele nao entrar pelo funil — e a entrega
+desta rodada, e o programa a marca DE PE com razao.

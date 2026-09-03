@@ -594,6 +594,45 @@ decide é o último.
 O funil roda **de um lado por vez**. Quem estiver de plantão integra; o outro entrega em ramo e
 avisa.
 
+### ⚠ NA NUVEM, O CLONE É RASO — E ELE MENTE SOBRE `entrega/` PARA O LADO CARO (03/09)
+
+A regra acima (*"procure o ramo `entrega/<id>`; se houver, audite e integre"*) está certa e
+**depende de uma pergunta que o clone da nuvem não sabe responder**: se o ramo já está na `main`.
+
+O contêiner clona **raso** (medido nesta data: `is-shallow-repository` = true, **186 commits**).
+Num clone raso o commit que o `ls-remote` devolve **não está no disco**, então `rev-list` e
+`merge-base --is-ancestor` saem ≠ 0 — e a leitura natural desse ≠ 0 é *"não está na main"*, ou
+seja **órfão**. Ramo já consumido pelo funil passa a parecer trabalho perdido.
+
+Medido com o **mesmo** `ferramentas/ramos-mortos.js` em quatro clones do mesmo repositório, sobre
+os 32 ramos `entrega/` que a origin carregava:
+
+| clone | ancestrais | declarados ÓRFÃO |
+|---|---|---|
+| profundo (`--unshallow`) | 29 | **3** ← a verdade |
+| `--depth=186` | 29 | 3 |
+| `--depth=20` | 7 | **25** |
+| `--depth=1` | 0 | **32 de 32** |
+
+Nesta rodada isso apareceu como **8 órfãos** numa varredura à mão. Depois do `--unshallow`, eram
+**3**; conferidos por conteúdo, os 3 também já tinham entrado por outra rota. **Órfãos de verdade:
+zero.** Seguir a regra do §7 ao pé da letra teria mandado a rodada auditar e integrar oito ramos
+consumidos — trabalho fabricado, no lugar onde se decide o que despachar.
+
+> **A regra:** na nuvem, `git fetch --unshallow origin` **antes** de perguntar qualquer coisa sobre
+> ancestralidade. E `--unshallow` sozinho **não basta**: `--depth` implica `--single-branch`, então
+> aprofundar a `main` deixa os tips de `entrega/*` de fora — busque-os também
+> (`git fetch origin '+refs/heads/entrega/*:refs/remotes/origin/entrega/*'`).
+
+O `ramos-mortos.js` passou a fazer as duas coisas sozinho e ganhou um terceiro desfecho,
+**DESCONHECIDO**, para o caso de não conseguir: *"não sei" é um desfecho e tem de aparecer com esse
+nome — órfão só se alguém mediu*. Cobrado por `test/ramos-mortos-veredito.js` (6 checagens, sem
+rede, mordida provada por injeção).
+
+E a lição que generaliza, que é irmã do §8: **antes de desconfiar do portão, desconfie da máquina
+que o roda** — aqui não foi o `node_modules` vazio, foi a *história* vazia. Ferramenta que responde
+sobre o repositório tem de conferir primeiro se enxerga o repositório inteiro.
+
 ---
 
 ## 8. As três regras que a noite de 23/08 produziu
