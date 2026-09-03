@@ -605,40 +605,135 @@ function conferirCspDashboard(origemHtml) {
   }
 }
 
-// O HOST DA MEDICAO NO vercel.json -- ACHADO DO QA EM 02/09 (item `csp-host-nao-sai-da-
-// constante`). A CSP das PAGINAS (item acima, `conferirCspDashboard`, e a do jogo em
-// `verificarRede`) ja cobrava o proprio <head>; o cabecalho que a Vercel manda para as oito
-// familias de rota (/, /historia, /glossario, /de-onde-vem, /territorio, /mesa, /jogo,
-// /dashboard, cada uma em ate tres formas) vive so em `vercel.json`, um JSON estatico que
-// ninguem gera -- e o host da medicao esta `https://us.i.posthog.com` DIGITADO ali, a mao, em
-// cada bloco que precisa dele. Duas copias do mesmo endereco divergem em SILENCIO: os dois
-// hosts do PostHog respondem 200 OK a qualquer coisa, e o sintoma seria um painel vazio
-// semanas depois -- o mesmo erro de regiao de 10/08, so que agora nas paginas em vez do jogo
-// (CLAUDE.md paragrafo 3).
+// O HOST DA MEDIÇÃO NO vercel.json — a CONTA DE 02/09, PAGA EM 03/09 (item
+// `csp-host-nao-sai-da-constante`).
 //
-// Como `vercel.json` nao passa pelo build (a Vercel o le direto do commit, nao de `dist/`),
-// gerar cada campo dele a partir de `MEDIDA_HOST` exigiria reescrever a config inteira -- mais
-// risco do que o achado pede. O portao faz a outra metade do trabalho: varre o arquivo inteiro
-// atras de qualquer coisa que PARECA um host de medicao (mesmo dominio-base) e reprova o build
-// se algum deles nao for BYTE A BYTE igual a `MEDIDA_HOST`. Nenhum literal correto passa
-// despercebido -- e um literal errado (regiao trocada, host de teste esquecido, erro de dedo)
-// derruba o build antes de chegar a Vercel.
+// A CSP das PÁGINAS (`conferirCspDashboard` acima, e a do jogo em `verificarRede`) já cobrava o
+// próprio <head>; o cabeçalho que a Vercel manda para as quatro famílias de rota que MEDEM (/,
+// /historia, /glossario, /de-onde-vem, /territorio — cada uma em até três formas) vive só em
+// `vercel.json`, e o host está `https://us.i.posthog.com` DIGITADO ali, à mão, treze vezes. Duas
+// cópias do mesmo endereço divergem em SILÊNCIO: os dois hosts do PostHog respondem 200 OK a
+// qualquer coisa, e o sintoma seria um painel vazio semanas depois — o mesmo erro de região de
+// 10/08, agora nas páginas em vez do jogo (CLAUDE.md §3).
+//
+// POR QUE COBRAR E NÃO GERAR, e a pergunta foi feita de propósito porque gerar é a saída bonita.
+// `vercel.json` é lido pela VERCEL, do commit, ANTES de o `buildCommand` rodar — escrever esse
+// arquivo dentro do build é um no-op na implantação que importa (vercel/community discussão 3323,
+// resposta de mcsdevv em 29/04/2021: "this is not something that's possible currently"; o caminho
+// que existe hoje para configuração gerada é o `vercel.ts`, que é outra decisão e é do dono). Um
+// build que gerasse o `vercel.json` deixaria o disco local certo e a produção servindo os bytes
+// velhos: fonte dupla com cara de única, que é PIOR que treze literais honestos. E o repositório
+// já respondeu esta pergunta duas vezes do mesmo jeito — o host em `src/index.html` e o
+// `ENDERECO_MEDIDA` em `src/jogo.ts` também são literais escritos à mão e COBRADOS byte a byte
+// contra `MEDIDA_HOST` (medido em 03/09: trocar a região no `src/index.html` derruba o build,
+// exit 1). "Sair de uma constante só" aqui significa NENHUM literal poder divergir dela sem o
+// build recusar — e é essa a garantia, não a de que ninguém digitou.
+//
+// O QUE MUDOU DE MÉTODO, e é a correção de uma promessa que este comentário fazia e não cumpria.
+// A versão de 02/09 dizia que "um literal errado (região trocada, host de teste esquecido, ERRO
+// DE DEDO) derruba o build". Não derrubava: ela varria o TEXTO com uma regex, e quem não casasse
+// com a regex era invisível. Medido em 03/09, injetando na 2ª ocorrência (a regra `/historia`,
+// que nenhuma rota publicada resolve, logo o `test/csp-paginas.js` também não a vê), com o exit
+// code lido do comando e não do tubo: `http://` rebaixado, `psthog`, o escape unicode do `p` e o
+// `connect-src` removido saíam BUILD **exit 0** — e ainda imprimindo "12 ocorrência(s), todas ==
+// MEDIDA_HOST", porque a contagem não era cobrada contra nada. Quatro de cinco passavam.
+//
+// A CORREÇÃO É COBRAR O JSON, NÃO O TEXTO. Depois do `JSON.parse` o escape unicode já virou letra,
+// o esquema está inteiro dentro do valor, e o `connect-src` de cada regra é uma string que se
+// compara com `MEDIDA_HOST` byte a byte — sem regex e sem lista de grafias possíveis. Quatro
+// cobranças, e cada uma existe por uma classe de erro:
+//   1. toda regra que declara `connect-src` declara EXATAMENTE `MEDIDA_HOST` — nem outro esquema,
+//      nem outra região, nem um host a mais na lista;
+//   2. regra da FAMÍLIA DE SEÇÃO (a que tem `default-src 'none'` e `img-src`, isto é, página de
+//      leitura, que manda evento) sem `connect-src` é rota que perdeu a contagem em silêncio;
+//   3. a TABELA PREGADA abaixo: as rotas que medem são estas treze, por nome. É ela que pega a
+//      regra INTEIRA sumindo do arquivo — caso em que as contagens relativas continuam batendo
+//      entre si e nada mais reprova. Mexer nela é a forma de dizer, no commit, que rota passou a
+//      medir; é deliberadamente chata de mudar por acidente, como a CSP_ESPERADA acima;
+//   4. nenhuma menção a "posthog" sobra fora de um `connect-src` já conferido — pega o host
+//      escrito numa diretiva errada (`script-src`), num campo que não é cabeçalho, ou numa grafia
+//      que só o parse desfaz. Consequência aceita e de propósito: o host tem de estar escrito por
+//      extenso no arquivo, sem escape, mesmo que o valor parseado esteja certo.
+// O controle que prova que isto morde é `test/qa-vercel-host.js` (`QA_VERCEL_DEFEITO=<modo>`),
+// escrito pelo QA em 02/09 e mantido de propósito como implementação INDEPENDENTE desta: duas
+// leituras do mesmo arquivo que têm de concordar valem mais que uma função chamada de dois lugares.
+const ROTAS_QUE_MEDEM = [
+  "/",                                                      // a porta
+  "/historia", "/historia/", "/historia/(.*)",              // A HISTÓRIA
+  "/glossario", "/glossario/", "/glossario/(.*)",           // o GLOSSÁRIO
+  "/de-onde-vem", "/de-onde-vem/", "/de-onde-vem/(.*)",     // DE ONDE VEM
+  "/territorio", "/territorio/", "/territorio/(.*)",        // ONDE FOI
+  // /mesa, /jogo e /dashboard NÃO entram, e a ausência é a regra: a CSP delas não tem
+  // `connect-src` nenhum (a do jogo mora no <meta> do próprio arquivo e é sagrada; a da mesa é um
+  // coto de redirecionamento; a do dashboard é só moldura, `frame-ancestors`).
+];
 function conferirVercelJson() {
   const caminho = p("vercel.json");
   if (!fs.existsSync(caminho)) throw new Error("vercel.json sumiu da raiz -- a Vercel fica sem CSP nenhuma para publicar");
   const txt = fs.readFileSync(caminho, "utf8");
-  JSON.parse(txt); // se nao for JSON valido, e melhor falhar aqui do que na Vercel
-  const candidatos = txt.match(/https:\/\/[a-z0-9.-]*posthog[a-z0-9.-]*/gi) || [];
-  if (!candidatos.length) {
-    throw new Error("vercel.json nao tem host de medicao nenhum -- sumiu o connect-src da CSP das paginas?");
+  let vercel;
+  try {
+    vercel = JSON.parse(txt); // se nao for JSON valido, e melhor falhar aqui do que na Vercel
+  } catch (e) {
+    throw new Error("vercel.json nao e JSON valido -- a Vercel publicaria sem cabecalho nenhum: " + e.message);
   }
-  const divergentes = candidatos.filter(function (h) { return h !== MEDIDA_HOST; });
-  if (divergentes.length) {
-    throw new Error("vercel.json tem host de medicao que nao bate com MEDIDA_HOST (" + MEDIDA_HOST
-      + "): " + JSON.stringify(Array.from(new Set(divergentes)))
-      + " -- as duas pontas (ferramentas/medir-secao.js e vercel.json) divergiram.");
+  const regras = Array.isArray(vercel.headers) ? vercel.headers : [];
+  if (!regras.length) throw new Error("vercel.json nao tem regra de cabecalho nenhuma -- sumiu o bloco `headers`?");
+
+  function partirCsp(valor) {
+    const d = {};
+    String(valor).split(";").forEach(function (dir) {
+      const t = dir.trim(); if (!t) return;
+      const i = t.indexOf(" ");
+      d[i < 0 ? t : t.slice(0, i)] = i < 0 ? "" : t.slice(i + 1).trim();
+    });
+    return d;
   }
-  console.log("  vercel.json: " + candidatos.length + " ocorrencia(s) do host de medicao, todas == MEDIDA_HOST");
+  const tem = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+
+  const conferidas = [];
+  const problemas = [];
+  for (const r of regras) {
+    const source = String((r && r.source) || "");
+    const cab = {};
+    for (const h of ((r && r.headers) || [])) cab[h.key] = h.value;
+    const csp = cab["Content-Security-Policy"];
+    if (!csp) continue;
+    const d = partirCsp(csp);
+    if (tem(d, "connect-src")) {
+      conferidas.push(source);
+      if (d["connect-src"] !== MEDIDA_HOST) {
+        problemas.push('a rota "' + source + '" abre connect-src para "' + d["connect-src"]
+          + '" e MEDIDA_HOST e "' + MEDIDA_HOST + '" -- por extenso, com esquema, byte a byte (CLAUDE.md paragrafo 3)');
+      }
+    } else if (d["default-src"] === "'none'" && tem(d, "img-src")) {
+      problemas.push('a rota "' + source + '" e da familia de secao (default-src \'none\' + img-src)'
+        + " e NAO declara connect-src: ela perdeu a contagem anonima em silencio");
+    }
+  }
+  const faltando = ROTAS_QUE_MEDEM.filter(function (s) { return conferidas.indexOf(s) < 0; });
+  const sobrando = conferidas.filter(function (s) { return ROTAS_QUE_MEDEM.indexOf(s) < 0; });
+  if (faltando.length) {
+    problemas.push("a tabela ROTAS_QUE_MEDEM (ferramentas/construir.js) exige connect-src em rota(s) que o"
+      + " vercel.json nao tem mais: " + JSON.stringify(faltando)
+      + " -- se a rota saiu de proposito, tire-a da tabela no MESMO commit");
+  }
+  if (sobrando.length) {
+    problemas.push("rota(s) com connect-src que a tabela ROTAS_QUE_MEDEM nao conhece: " + JSON.stringify(sobrando)
+      + " -- acrescente a tabela, no mesmo commit, dizendo por que aquela rota mede");
+  }
+  const mencoes = (txt.match(/posthog/gi) || []).length;
+  if (mencoes !== conferidas.length) {
+    problemas.push('a palavra "posthog" aparece ' + mencoes + " vez(es) no vercel.json e ha "
+      + conferidas.length + " connect-src conferido(s) -- ha mencao ao host fora de um connect-src"
+      + " (outra diretiva? outro campo? grafia com escape que so o parse desfaz?)");
+  }
+  if (problemas.length) {
+    throw new Error("vercel.json e MEDIDA_HOST divergiram -- a Vercel serviria isto para as paginas:\n  - "
+      + problemas.join("\n  - "));
+  }
+  console.log("  vercel.json: " + conferidas.length + " rota(s) com connect-src, todas == MEDIDA_HOST"
+    + " (tabela ROTAS_QUE_MEDEM, " + ROTAS_QUE_MEDEM.length + " rotas)");
 }
 conferirVercelJson();
 
