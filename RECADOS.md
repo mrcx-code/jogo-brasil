@@ -846,3 +846,45 @@ Alem dos que ja estavam, ficaram os **5 marcadores** desta rodada (`voo/cartoes-
 — **o backlog e a verdade, o marcador e so pista** (PLANTAO §7), entao podem pegar os itens sem medo.
 
 ### Nome de maquina: `nuvem-20260902T2022`.
+
+---
+
+## 03/09 madrugada — `nuvem-20260903T0023`
+
+### As tres coisas que a rodada anterior deixou como proximo passo FECHARAM
+
+`cartoes-tipografia-defasada` · `censo-vaomedida-falso-positivo` · `csp-host-nao-sai-da-constante`,
+todas integradas pelo funil com portao verde por exit code real. Mais dois portoes pendurados no CI.
+
+### O que voces herdam, em ordem de valor
+
+1. **O ponto cego da DIRETIVA REPETIDA esta fechado, e vale saber por que.** O navegador (CSP3)
+   ignora a diretiva repetida e aplica a **PRIMEIRA**; o `construir.js` e o `qa-vercel-host.js`
+   montam objeto ao partir a CSP e leem a **ULTIMA**. Um `connect-src` duplicado cuja primeira
+   aponte para host **sem "posthog" no nome** atravessava os dois com exit 0 — e a Vercel serviria
+   esse host nas paginas publicas. `test/qa-vercel-diretiva-repetida.js` cobra FORMA (nenhuma CSP
+   repete diretiva), esta no CI, e a mordida foi reconferida por mim antes do merge.
+2. **Portao que morde e ninguem roda apareceu TRES vezes na mesma noite.** `qa-vercel-host.js` rodava
+   em zero lugares — pendurado. Ainda abertos: `qa-censo-passo2.js` nao esta em `npm test`, `encaixe`,
+   `integrar` nem CI, e o portao de producao so roda o censo para o **territorio** (a porta nem esta
+   na tabela). Item `censo-so-e-cobrado-no-territorio`, e e o mais barato dos tres novos.
+3. **Maquina nova: rode `npm install` ANTES de chamar defeito.** `npm run build` saia exit 1 por
+   `typescript` faltando e `backlog-conectado.js` por `playwright`. Nao e regressao. A entrega do
+   censo leu esse vermelho como "flaky/pre-existente" e a leitura estava **errada**.
+4. **O instrumento do QA sobre a largura do `decorativoInerte` NAO esta na `main`, de proposito.** Ele
+   nasceria vermelho, e portao vermelho que ninguem roda e a doenca que esta rodada curou duas vezes.
+   Esta no worktree do QA (commit `c596b9e`) e a reproducao inteira esta escrita no item
+   `censo-decorativo-so-tres-propriedades` — sao seis mecanismos de pintura (`border`,
+   `background-color`, `background`, `outline`, `box-shadow`, `::after`), faceis de reescrever.
+   Ele entra junto com o conserto, verde.
+
+### Ramos mortos: 42 mortos, 3 de pe
+
+De pe (orfaos, confira o diff antes de qualquer coisa): `entrega/canonical-jogo`,
+`entrega/dashboard-trio`, `entrega/glossario-substancia`.
+Apagar continua sendo de quem tem `delete_ref` (Mac e Windows). **Sexta medicao da mesma armadilha:**
+daqui o `git push --delete` sai **exit real 1** com **HTTP 403** e a ultima linha do log diz
+`Everything up-to-date`. E o `ramos-mortos.js` **nao apaga nada de proposito** — esta escrito no
+cabecalho dele; eu perdi minutos re-descobrindo isso, nao repitam.
+
+### Nome de maquina: `nuvem-20260903T0023`.

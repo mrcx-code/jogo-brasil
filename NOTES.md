@@ -11749,3 +11749,114 @@ o ramo existe); depois `censo-vaomedida-falso-positivo` e a metade não feita do
 `csp-host-nao-sai-da-constante` (a fonte única; o portão já está pronto).
 
 **Nome de máquina: `nuvem-20260902T2022`.**
+
+---
+
+## Diário — 03/09, madrugada (`nuvem-20260903T0023`)
+
+Rodada agendada (nenhuma issue com a etiqueta `agente`). O `próximo passo` que a rodada anterior
+deixou escrito eram três itens, e **os três fecharam** — mais dois portões que nasceram no caminho.
+
+### O que entrou na `main`, pelo funil, com portão verde por exit code real
+
+1. **`cartoes-tipografia-defasada`** — a entrega estava PRONTA desde 02/09 esperando **uma** medição,
+   e a medição foi feita: gerador do território rodado **8 vezes seguidas**, hash MD5 da região
+   estável (recorte 460×630, critério reusado do próprio portão) **idêntico nas 8** (`bac2cf7e`),
+   enquanto o JPEG inteiro variou em todas — esperado, os pinos são animados por `performance.now()`
+   e é por isso que o portão recorta antes de comparar.
+   **O controle é o que separa conserto de sorte:** revertido o `document.fonts.load()` explícito do
+   `7a68b00`, **4 regenerações do mesmo comando deram DOIS hashes** (`6188b1fd` ×2, `bac2cf7e` ×2) —
+   a corrida "1 em 2" do backlog reproduzida ao vivo — e o portão reprovou por **exit 1** real;
+   restaurado, voltou estável e exit 0. Ela regera os `.jpg` que o WhatsApp mostra, e push na `main`
+   publica sozinho: por isso o determinismo era o que decidia.
+2. **`censo-vaomedida-falso-positivo`** — fechado por **regra**, não por lista de nomes. A saída fácil
+   (acrescentar `.vaoMedida` à exclusão) foi recusada, e com razão: é a mesma exclusão-por-nome que já
+   escondia o defeito no território enquanto ele vazava nas outras quatro. `decorativoInerte()` escapa
+   só quem tem `aria-hidden=true` **E** `innerText` vazio **E** sem `background-image`.
+   Dez números re-medidos por terceiro, com o módulo ANTIGO e o NOVO lado a lado: porta 1→0, historia
+   1→0, glossario 1→0, de-onde-vem 1→0, territorio 0→0.
+3. **`csp-host-nao-sai-da-constante`** — e a metade que faltava saiu **ao contrário do que o item
+   imaginava**. Ver abaixo.
+4. **`test/qa-vercel-diretiva-repetida.js`** — portão novo, nascido da auditoria, e o único que não
+   herda o ponto cego dos outros dois.
+
+### O que CAIU — e é o que vale mais desta rodada
+
+- **Caiu o meu viés declarado, e com fonte.** Eu escrevi no brief que "gerar o `vercel.json` é a
+  solução bonita e desconfio de mim nisso". **Gerar é no-op**: a Vercel lê o arquivo do commit
+  **antes** de rodar o `buildCommand` — e a prova mais forte não é a discussão de 2021 citada no
+  commit (o QA não a alcançou; o proxy responde 403 a `vercel.com`), é que **o próprio `vercel.json`
+  carrega o `"buildCommand": "npm run build"`**, logo tem de ser parseado antes. Corroborado pelo
+  fonte da CLI (`compile-vercel-config.ts`). Então a fonte única virou **cobrança**, que é o mesmo
+  padrão já usado em `src/index.html` e `src/jogo.ts`. `conferirVercelJson` foi de **1/5 para 5/5**
+  injeções mordendo, com `vercel.json` em **0 linha de diff**.
+- **Caiu "duas leituras independentes que têm de concordar".** O QA canonizou os dois corpos e
+  comparou: o parser de CSP do `construir.js` e do `qa-vercel-host.js` é **idêntico token a token**.
+  Era transliteração. E duas leituras que compartilham o parser compartilham o cego — o cego existe:
+  **o navegador (CSP3) ignora a diretiva repetida e aplica a PRIMEIRA** (medido em Chromium, 1ª
+  passou, 2ª bloqueada), enquanto os dois portões montam objeto e leem a **ÚLTIMA**. Um `connect-src`
+  duplicado cuja primeira aponte para host **sem "posthog" no nome** atravessava os dois com exit 0, e
+  a Vercel serviria esse host nas páginas públicas. Fechado no mesmo dia, e o portão está no CI.
+- **Caiu a tabela do A3 da entrega da CSP:** medidas as **treze** ocorrências uma a uma, o padrão é
+  **1·4·7·10·13**, não 1·2·3 — o total (5 de 13) estava certo, os rótulos deslocados em um. E "só a
+  forma `/(.*)` decide o cabeçalho" é falso: a ocorrência 1 é `/`, a porta, e morde.
+- **Caiu a frase do censo contra ela mesma:** o comentário diz que a pergunta virou *"isto pinta algo
+  na foto?"* e o código pergunta por **três propriedades**. `border`, `background-color`, o atalho
+  `background`, `outline`, `box-shadow` e `::after` — **seis de seis escapam**, confirmado **com
+  print**, não só com número. Não é regressão (antes da entrega tudo com `aria-hidden` inerte caía
+  igual) e não é o aceite deste item: virou item novo.
+- **Caíram duas minhas, pequenas.** (a) Li o 403 do `git push --delete` como achado novo; o cabeçalho
+  do `ramos-mortos.js` já o registra como medido **quatro vezes**, e o arquivo não apaga nada de
+  propósito — apagar é da máquina que tem `delete_ref`. Parei em vez de insistir. (b) O meu despacho
+  listou os arquivos errados da entrega dos cartões: são **3** `.jpg` (historia, de-onde-vem,
+  territorio) e não 4 — o glossário já estava correto desde 02/09.
+
+### O vermelho que NÃO era defeito de produto
+
+`npm run build` na raiz saía **exit 1** (`Cannot find module .../typescript/bin/tsc`) e
+`test/backlog-conectado.js` idem por `playwright`. **Não é regressão: é máquina sem `npm install`.**
+Depois de instalar, build **exit 0**. Registro isto porque a entrega do censo leu esse mesmo vermelho
+como *"flaky/pré-existente"* — e essa leitura estava errada. Quem entrar de plantão numa máquina nova:
+instale antes de chamar defeito.
+
+### O padrão que apareceu três vezes na mesma noite
+
+**Portão que morde e ninguém roda.** `test/qa-vercel-host.js` lê o `vercel.json` depois do parse e
+morde 5 de 5 — e rodava em **zero** lugares (`grep` no `package.json` e nos workflows: nada), guardando
+o host que decide o cabeçalho servido numa `main` que publica sozinha no push. Pendurado no CI, no job
+leve (não abre navegador nem lê `dist/`), com a mordida reconferida antes: limpo 0 · região `eu.` 1 ·
+`psthog` 1 · restaurado 0, `vercel.json` de volta a 0 linha de diff. O mesmo diagnóstico apareceu no
+censo (`qa-censo-passo2.js` não está em `npm test`, `encaixe`, `integrar` nem CI; e o portão de
+produção só roda o censo para o **território** — a porta nem está na tabela) e no portão da diretiva
+repetida, que já entrou pendurado.
+
+**Por isso o instrumento do QA sobre a largura da regra NÃO foi trazido para a `main`:** ele nasceria
+vermelho, e portão vermelho que ninguém roda é a doença que esta rodada consertou duas vezes na mesma
+noite. Ele entra junto com o conserto, verde, ou não entra.
+
+### Itens novos, todos de achado medido e nenhum inventado
+
+`censo-decorativo-so-tres-propriedades` · `censo-so-e-cobrado-no-territorio` ·
+`csp-tabela-de-rotas-e-conjunto` (rotas **trocadas** → build 0; rota que mede **duplicada** → build 0
+imprimindo *"14 rota(s) … tabela 13 rotas"*, a mesma doença do número que ninguém compara sobrevivendo
+dentro do próprio conserto; e host estranho em **outra** diretiva de regra que mede → build 0, porque
+a asserção só conhece a string "posthog").
+
+### Dúvida que fica
+
+O QA **não** conseguiu confirmar que a precedência de `headers` da Vercel é garantida como
+*last-match-wins* — inferiu do comportamento medido, e `vercel.com` responde 403 no proxy. Se isso
+mudar, as **8 regras hoje inertes** passam a decidir o cabeçalho e as três classes do
+`csp-tabela-de-rotas-e-conjunto` sobem de severidade de uma vez.
+
+### Ramos mortos
+
+**42 mortos, 3 de pé** (`entrega/canonical-jogo`, `entrega/dashboard-trio`,
+`entrega/glossario-substancia` — órfãos, confira o diff antes). Continuam com quem tem `delete_ref`:
+daqui o `git push --delete` sai **exit real 1** com HTTP 403, e a última linha do log ainda diz
+`Everything up-to-date`, que é a armadilha. **Quinta medição registrada; sexta feita hoje.**
+
+**Próximo passo:** os três itens novos são disjuntos entre si e cabem numa rodada só —
+`censo-so-e-cobrado-no-territorio` é o mais barato e fecha o "verificado só à mão" das quatro páginas.
+
+**Nome de máquina: `nuvem-20260903T0023`.**

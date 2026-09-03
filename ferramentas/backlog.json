@@ -773,7 +773,7 @@
     },
     {
       "id": "csp-host-nao-sai-da-constante",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "O host ainda aparece 13x literal no vercel.json — a metade do aceite que NAO foi feita",
@@ -784,8 +784,8 @@
       ],
       "aceite": "O host sai de MEDIDA_HOST para o vercel.json de verdade (hoje sao 13 literais). A METADE DO PORTAO JA ESTA FEITA e nao se refaz: test/qa-vercel-host.js cobra o vercel.json pelo JSON depois do parse e morde 5 de 5 injecoes. O que falta e a fonte unica.",
       "detalhe": "Rodada nuvem-20260902T2022 entregou o PORTAO e nao a constante. Medido: vercel.json com 0 linha de diff, 13 literais intactos. O QA derrubou a promessa do conferirVercelJson (ferramentas/construir.js), que varre por TEXTO: das cinco injecoes so a de regiao morde — http:// rebaixado, erro de dedo (psthog), escape unicode \\u0070 e connect-src removido saem BUILD exit 0, e ainda imprimindo 12 ocorrencias todas == MEDIDA_HOST, porque candidatos.length nao e cobrado contra nada. Pior: as 5 ocorrencias que decidem cabecalho servido JA eram cobertas pelo bloco B do test/csp-paginas.js da main, entao a cobertura unica do conferirVercelJson sao as 8 que nao decidem cabecalho nenhum — e la ele e cego a 4 de 5 classes. O qa-vercel-host.js (parse do JSON) cobre isso e nasce exit 0 contra a main. Ao pegar este item: corrigir tambem o comentario do conferirVercelJson, que promete pegar erro de dedo e nao pega.",
-      "maquina": "nuvem-20260903T0023",
-      "desde": "2026-09-03T00:27:46.206Z"
+      "concluido_em": "2026-09-03T01:51:40.457Z",
+      "resolucao": "Integrado pelo funil em 03/09 por nuvem-20260903T0023. A METADE QUE FALTAVA foi feita, mas NAO como o item imaginava: gerar o vercel.json a partir de MEDIDA_HOST e no-op, porque a Vercel le o arquivo do commit ANTES de rodar o buildCommand — a prova mais forte esta no proprio arquivo, que carrega o \"buildCommand\": \"npm run build\" e por isso tem de ser parseado antes. Entao a fonte unica virou COBRANCA e nao geracao, que e o mesmo padrao ja usado em src/index.html e src/jogo.ts. conferirVercelJson reescrito para ler o JSON depois do parse: 5 de 5 injecoes mordem (era 1 de 5), mais duas classes que nenhum portao pegava (regra apagada inteira e rota nova que mede fora da tabela ROTAS_QUE_MEDEM, 13 rotas pregadas). vercel.json com 0 linha de diff, os 13 literais intactos por extenso. O comentario mentiroso que prometia pegar erro de dedo foi reescrito. QA independente refez as cinco injecoes com controle de ruido e derrubou duas afirmacoes da entrega (a tabela do A3 deslocada em um; e a de leitura INDEPENDENTE, que era transliteracao). Do que a auditoria abriu: o qa-vercel-host.js entrou no CI e o portao da diretiva repetida nasceu e entrou junto; o resto virou o item csp-tabela-de-rotas-e-conjunto."
     },
     {
       "id": "porta-entrada-cresce-em-silencio",
@@ -858,6 +858,19 @@
       ],
       "aceite": "O censo (censoDaPagina) passa a ser cobrado por exit code nas cinco paginas, ou fica escrito por que alguma fica de fora. O portao que cobrir isso roda em lugar automatico — npm test ou CI —, nao so a mao. Provar com injecao que ele morde em cada pagina que passar a cobrir.",
       "detalhe": "Achado pelo QA em 03/09, junto com a auditoria do censo-vaomedida. Medido no codigo: em test/cartao-quadro-controle.js o censo:true so esta setado na linha do territorio da tabela CARTOES; para historia, glossario e de-onde-vem o portao roda so controlesNoQuadro, a regua antiga por nome e posicao, que nunca teria pego o span.vaoMedida (ela exige fixed/sticky mais seletor de controle, ou id===medirBt, e o vao nao bate nenhum). A porta (plataforma/index.html) nem esta na tabela. Consequencia: o conserto do falso-positivo nas quatro paginas e verificado SO por test/qa-censo-passo2.js, que nao esta em npm test, nem no encaixe.js, nem no integrar.js, nem no CI — e puramente instrumento de QA rodado a mao. Quem tocar chrome-plataforma.js ou cartao-secao.js sem lembrar de rodar aquele arquivo nao tem nada automatico pegando a regressao. E a MESMA doenca que esta rodada ja consertou uma vez hoje no test/qa-vercel-host.js, que morde 5 de 5 e rodava em zero lugares. O QA nota que a lista de permitidos derivavel ja existe (permitidosDe, no proprio qa-censo-passo2.js), entao ligar censo:true para as outras paginas parece barato — medir antes de afirmar."
+    },
+    {
+      "id": "csp-tabela-de-rotas-e-conjunto",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "A cobranca do vercel.json e conjunto e nao multiconjunto, e so conhece a string posthog — tres classes escapam",
+      "territorio": [
+        "ferramentas/construir.js",
+        "test/qa-vercel-host.js"
+      ],
+      "aceite": "As tres classes passam a morder, provadas por injecao com exit code: (1) duas rotas TROCADAS entre si na tabela; (2) uma rota que mede DUPLICADA — e a linha impressa para de se contradizer sozinha; (3) host estranho em OUTRA diretiva de uma regra que mede (script-src, img-src). Mais a quarta, se couber no mesmo conserto: rota com CSP fora da forma familia-de-seccao e SEM connect-src, que hoje a assercao 2 nao ve. Nenhuma das cinco injecoes ja cobradas pode deixar de morder — re-medir as cinco.",
+      "detalhe": "Achado pelo QA em 03/09 auditando a entrega csp-host-constante, DEPOIS de ela ja ter subido de 1/5 para 5/5 — sao sobras da mesma familia, nao regressao. Medido, exit code real: rotas trocadas build 0; rota duplicada build 0 E imprimindo \"14 rota(s) com connect-src ... (tabela ROTAS_QUE_MEDEM, 13 rotas)\", que e a MESMA doenca que a entrega acabou de curar — numero impresso que ninguem compara — sobrevivendo dentro do proprio conserto; script-src com https://exfil.example.com numa regra que mede da build 0 e qa-vercel-host 0, porque a assercao 4 so procura a string \"posthog\", entao qualquer relaxamento de qualquer outra diretiva nas 8 regras cegas passa sem portao. O ponto cego da diretiva repetida NAO faz parte deste item: ja foi fechado em 03/09 por test/qa-vercel-diretiva-repetida.js, que esta no CI. Duvida do QA que vale herdar: ele nao conseguiu confirmar que a precedencia de headers da Vercel e garantida como last-match-wins (inferiu do comportamento medido); se um dia mudar, as 8 regras hoje inertes passam a decidir e estas classes sobem de severidade de uma vez."
     }
   ]
 }
