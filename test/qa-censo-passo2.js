@@ -378,9 +378,14 @@ async function cobertura(pg, permitidos) {
     const est = erro ? [] : await pg.evaluate(CENSO.censoDoQuadro, [L, A, permT, CENSO.SELETOR_INTERATIVO]);
     await pg.close();
     if (erro) { ok(false, 'pintura ' + nome + ': o mutante não pôde ser injetado — ' + erro); continue; }
-    ok(est.length > 0 && est.some(doPasso2), 'pintura ' + nome + ' (' + PINTA[nome] + '): o censo RECUSA'
-      + (est.length ? ' (' + est[0].alvo + ' @' + est[0].x + ',' + est[0].y + ')'
-        : ' — PASSOU LIMPO, aria-hidden sem texto voltou a ser absolvido pintando'));
+    // A FRASE DIZ O QUE TEM DE VALER, e a linha vermelha diz o que valeu — antes ela dizia "o
+    // censo RECUSA" e emendava "PASSOU LIMPO" na mesma linha, o que se lê como uma contradição
+    // justamente no momento em que alguém está lendo depressa por causa do vermelho.
+    const pego = est.length > 0 && est.some(doPasso2);
+    ok(pego, 'pintura ' + nome + ' (' + String(PINTA[nome]).slice(0, 56)
+      + (String(PINTA[nome]).length > 56 ? '…' : '') + ') tem de ser RECUSADA pelo censo'
+      + (pego ? ' — recusou (' + est[0].alvo + ' @' + est[0].x + ',' + est[0].y + ')'
+        : ' — PASSOU LIMPO: aria-hidden sem texto voltou a ser absolvido pintando'));
   }
   // e o contraponto: o MESMO span sem pintar nada continua absolvido (zero falso-positivo novo)
   const pgV = await abrirPagina(nav, arqT);
