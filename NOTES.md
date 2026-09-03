@@ -12267,3 +12267,20 @@ Portões depois da mudança (só comentário, mas o arquivo é instrumento): cat
 `smoke` **exit 0**, FPS 62. A parte B (apagar o mutante do DOM em vez de escondê-lo, imune à
 herança, com recorte alargado; e pôr o marker no catálogo) continua **livre**, com o instrumento
 que a mede já escrito em `qa/censo-cinco` (`97f1ccf`) — **trazer, não reescrever**.
+
+**E a parte A cresceu um pouco, com motivo:** em vez de deixar o tamanho dos dois furos descrito em
+prosa no cabeçalho, **trouxe o instrumento que os mede** — `test/qa-catraca-oraculo.js`, do ramo
+`qa/censo-cinco` (`97f1ccf`), **sem reescrever uma linha**, que é o que o próprio item mandava. Agora
+o furo é cobrado por exit code, e o dia em que a parte B fechar um deles o registro fica **vermelho
+sozinho** pedindo para ser apagado. Provei as duas mordidas antes de trazer, com exit real:
+`QA_ORACULO=b` → **1**, `QA_MUTANTE_MUDO=1` → **1**, limpo → **0**.
+
+**E rodá-lo aqui derrubou os números que eu ia copiar.** O cabeçalho dele registra **183 px** no
+furo A e **~550 px** no furo B; nesta máquina o mesmo arquivo imprime **367 px nos dois** — e sai
+**exit 0**. Não é regressão: ele afere a **RELAÇÃO** (oráculo lê 0 enquanto a câmera lê > 0), que é o
+que constitui o furo, e nunca a constante. Se eu tivesse copiado o número do item para o cabeçalho
+sem rodar — que era exatamente o que eu estava prestes a fazer — teria escrito como medição minha um
+número que esta máquina não produz. **É a segunda vez na mesma rodada que copiar número de outra
+medição quase virou afirmação falsa** (a primeira foi a 8ª fuga: 495 px aqui contra 183 px lá).
+Virou regra escrita nos dois cabeçalhos: **número de pintura é referência da regra e da máquina que
+a mediu; o que se cobra é a relação.**

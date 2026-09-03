@@ -67,17 +67,27 @@
 //   o oráculo lê **0 px** onde a tinta do próprio mutante é **367 px**. O oráculo dá a resposta
 //   errada com a cara de certa — que é o pior desfecho para um instrumento.
 //
-//   **Furo B — o recorte de 48 px de folga perde marcador deslocado.** Um `::before::marker`
-//   empurrado a **330 px** cai FORA do recorte; medido com recorte de 400 px, ele conta **~550 px**.
-//   A folga de 48 px é o que zera o piso de ruído (ver abaixo) e é, ao mesmo tempo, o que corta
-//   tinta longe: as duas coisas puxam para lados opostos e hoje a folga está calibrada pelo piso.
+//   **Furo B — o recorte de 48 px de folga perde tinta deslocada.** Um `::before` com
+//   `margin-left:330px` põe o marcador fora do recorte: o de 48 px lê **0 px** e o de 400 px conta
+//   **367 px**. A folga de 48 px é o que zera o piso de ruído (ver abaixo) e é, ao mesmo tempo, o
+//   que corta tinta longe: as duas coisas puxam para lados opostos e hoje ela está calibrada pelo
+//   piso.
+//
+// **OS NÚMEROS ACIMA SÃO DESTA MÁQUINA, e o registro original traz outros — os dois estão certos.**
+// O cabeçalho do `qa-catraca-oraculo.js` registra 183 px no furo A e ~550 px no furo B; rodado aqui
+// em 03/09 por `nuvem-20260903T1623`, o mesmo arquivo imprime **367 px nos dois**. Não é regressão
+// nem erro de ninguém: o instrumento **afere a RELAÇÃO** (oráculo lê 0 enquanto a câmera lê > 0),
+// que é o que constitui o furo, e nunca a constante — por isso ele sai **exit 0** com números
+// diferentes dos escritos. É a mesma regra do catálogo, uma camada acima: **número de pintura é
+// referência da regra e da máquina que a mediu; o que se cobra é a relação.**
 //
 // Os dois furos são **conhecidos e não bloqueantes** — não pioram nada, e a catraca com eles pega
-// mais que a régua sozinha. Fechá-los é o item `censo-oraculo-dois-furos` parte B (apagar o mutante
-// do DOM em vez de escondê-lo, o que é imune à herança, com recorte alargado). O instrumento que
-// mede os dois furos já existe: `test/qa-catraca-oraculo.js`, no ramo `qa/censo-cinco` (`97f1ccf`),
-// já visto mordendo (`QA_ORACULO=b` → exit 1, `QA_MUTANTE_MUDO=1` → exit 1). **Traga-o, não o
-// reescreva.**
+// mais que a régua sozinha. Fechá-los é o item `censo-oraculo-dois-furos` **parte B** (apagar o
+// mutante do DOM em vez de escondê-lo, o que é imune à herança, com recorte alargado), que segue
+// aberto. O que esta entrega fez foi **trazer o instrumento que os mede** — `qa-catraca-oraculo.js`,
+// do ramo `qa/censo-cinco` (`97f1ccf`), sem reescrever uma linha: assim o tamanho dos furos passa a
+// ser cobrado por exit code em vez de descrito aqui em prosa, e o dia em que a parte B fechar um
+// deles o registro correspondente fica **vermelho sozinho**, pedindo para ser apagado.
 //
 // O PISO DE RUÍDO, e ele é cobrado por exit code em CADA medição.
 // O mapa do TERRITÓRIO anima sozinho. Comparar o quadro INTEIRO de 1200x630 dá diferença sem
