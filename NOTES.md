@@ -12313,3 +12313,25 @@ aparecendo apenas em comentário (`grep` conferido). A minha explicação da div
 
 **Placar da rodada (2ª entrega):** 1 QA · 5 alegações auditadas · 4 de pé · **1 caiu** (a minha
 terceira frase) · 1 instrumento novo.
+
+**ARMADILHA NOVA, e ela é da MÁQUINA, não do produto: o funil da nuvem morre no teto de 10 min do
+shell.** O `integrar.js` da 2ª entrega rodou **quatro portões verdes** (`npm test`, `encaixe`,
+`cartao sem controle no quadro`, `alcance da segunda passada do censo` — todos exit 0), **fez o
+merge**, e foi **morto pelo teto de tempo** antes de rodar o último portão e pregar o placar. O
+`timeout` que eu passei (30 min) **não vale**: o teto do shell desta máquina é **10 min**, e ele
+ganha em silêncio.
+
+**O desfecho é enganoso e por isso vale escrito:** a `main` fica com o merge **feito** e o funil
+**sem ter terminado** — sem `MERGE_HEAD`, árvore limpa, tudo parecendo normal. Quem só olhasse
+`git status` concluiria "integrou". Quem só olhasse o código de saída (143) concluiria "falhou e
+desfez", e **empurraria de novo** ou recomeçaria a entrega. As duas leituras estão erradas.
+
+**O que fazer quando acontecer** (foi o que fiz): ler o log do funil até onde ele chegou, rodar
+**à mão** os portões que faltavam (aqui: `qa-censo-pintura-fora` **exit 0**, `qa-catraca-oraculo`
+**exit 0**, `qa-catraca-tamanho-ignorado` **exit 0**), pregar o placar no `EQUIPE.md` à mão, e
+empurrar. **Não rode o funil de novo** — o merge já está no histórico.
+
+**Para a próxima rodada:** um funil que roda seis portões não cabe em 10 min nesta máquina. Ou se
+roda `integrar.js` em segundo plano (`run_in_background`), ou se aceita terminá-lo à mão como aqui.
+A primeira é melhor e é o que eu faria: o teto não é negociável, e descobrir isso no meio do merge
+é o pior momento.
