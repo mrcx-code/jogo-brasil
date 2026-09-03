@@ -130,22 +130,36 @@ async function alcanceDoBotao(pg) {
         let b = cfg.getBoundingClientRect();
         let bloqueioToque = '';
         if (!cabe(b)) {
-          // rola de verdade só quem o dedo conseguiria rolar: overflow-y auto/scroll com sobra
-          // real E, desde 03/09, touch-action que não cancele o pan — achado do QA:
-          // `#telaMenu{touch-action:none}` deixava o `overflow-y:auto` resgatar por `scrollTop`
-          // de SCRIPT enquanto nenhum dedo tem esse gesto.
+          // O BLOQUEIO É DA CADEIA INTEIRA, NÃO SÓ DO ANCESTRAL QUE ROLA (item
+          // `regua-ancestral-acima-do-menu`, 03/09). `touch-action` não é herdado — o navegador
+          // calcula o valor USADO para um toque pela INTERSEÇÃO do valor computado em CADA
+          // ancestral do ponto tocado até a raiz do documento (spec CSS Touch Action §5.2). Um
+          // `none` em QUALQUER elo do caminho cancela o pan do dedo ali, mesmo que esse elo não
+          // seja o que tem `overflow-y` — foi por isso que a versão anterior (que só olhava
+          // `touch-action` no MESMO elemento que tinha overflow) deixava passar `body{touch-action:
+          // none}` (ancestral ACIMA de `#telaMenu`, fora do laço antigo que parava em `p===menu`)
+          // e `#poste{touch-action:none}` (elo ENTRE `cfg` e o ancestral que rola, sem overflow
+          // próprio). As duas confirmadas reproduzindo nesta rodada antes deste conserto: exit 0,
+          // 6/6 "configurações alcançável" — número no commit.
           for (let p = cfg.parentElement; p; p = p.parentElement) {
             const cs = getComputedStyle(p);
-            const temOverflow = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
-              && p.scrollHeight - p.clientHeight > 1;
-            const taOk = dedoRola(cs.touchAction);
-            if (temOverflow && taOk) p.scrollTop = p.scrollHeight;
-            else if (temOverflow && !taOk && !bloqueioToque) {
+            if (!dedoRola(cs.touchAction) && !bloqueioToque) {
               bloqueioToque = (p.id ? '#' + p.id : p.tagName.toLowerCase())
-                + ' rola (overflow-y: ' + cs.overflowY + ') mas touch-action: ' + cs.touchAction.trim()
-                + ' cancela o pan do dedo';
+                + ' touch-action: ' + cs.touchAction.trim() + ' cancela o pan do dedo';
             }
-            if (p === menu) break;
+            if (p === document.documentElement) break;
+          }
+          // rola de verdade só quem o dedo conseguiria rolar: overflow-y auto/scroll com sobra
+          // real, E só se NENHUM elo da cadeia (acima) cancelar o pan — se cancelar, nenhum dedo
+          // produz o gesto que levaria o `scrollTop` a se mexer, então o script também não tenta.
+          if (!bloqueioToque) {
+            for (let p = cfg.parentElement; p; p = p.parentElement) {
+              const cs = getComputedStyle(p);
+              const rolavel = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
+                && p.scrollHeight - p.clientHeight > 1;
+              if (rolavel) p.scrollTop = p.scrollHeight;
+              if (p === menu) break;
+            }
           }
           b = cfg.getBoundingClientRect();
         }
@@ -492,6 +506,28 @@ const TELAS = [
     // ---- e os dois níveis do poste, pela função compartilhada com o laço das telas largas ----
     conferirDegrau(m.portais || [], m.utilidade || [], probs);
 
+    // ---- POSTE SOBRE A PROPOSTA (03/09, item `poste-sobre-a-proposta`) ----
+    // Até aqui `faixa` só alimentava `cabe` — e `cabe` só é lida dentro do `if (!m.ligado) {…}
+    // else if (cabe) {…}`, e a chave `CHAO_HOME_LIGADO` nasce DESLIGADA (veto da arte, 22/08).
+    // Em produção HOJE isso significa que o ramo que olha `faixa` nunca roda: a régua checava
+    // inércia do chão e nada mais, e duas peças de MOBÍLIA (`#poste`, `#menuSub`) podiam se
+    // sobrepor sem que nenhuma asserção percebesse — confirmado sob a receita `terceira`
+    // (`#poste{position:absolute;top:0px}`, que faz `#telaMenu:fixed` virar containing block do
+    // `#poste` absoluto em retrato): `faixa` cai a −146/−188/−134/−291/−321/−328 px nas seis
+    // telas e a régua continuava dizendo ✓ para todas — a checagem de inércia (chaoHome/GROUND)
+    // não vê nada, porque a receita não mexe em nenhum dos dois.
+    //
+    // O PISO É 0, não 8 (o RESPIRO da personagem) nem outro número redondo sem motivo: 0 é a
+    // definição de "não se sobrepõe" (topo do poste tocando a base da proposta ainda não é
+    // sobreposição), e é o piso que sobra mais longe dos dois lados que se mede hoje — 9 px de
+    // folga contra a pior tela de produção (320×568) e 134 px de folga contra a MENOR magnitude
+    // do defeito medido (−134, em 390×568). Um piso de 8 (copiando o RESPIRO) deixaria só 1 px de
+    // sobra em 320×568 e reprovaria por um ajuste de CSS ínfimo que não cria sobreposição
+    // nenhuma — é exatamente o "apertado demais para carona" que o item avisa. É INDEPENDENTE de
+    // `m.ligado`/`cabe`: mobília não pode se cruzar mesmo com a personagem desligada.
+    if (faixa < 0) probs.push('POSTE sobre a PROPOSTA: faixa (topo do #poste − base do #menuSub) é '
+      + faixa.toFixed(1) + 'px — negativa, as duas peças de mobília se cruzam');
+
     if (!m.ligado) {
       // ---- INÉRCIA (veto da arte, 22/08). A chave está desligada: a linha do chão não pode ter
       // se mexido em tela NENHUMA de retrato — nem nas duas em que a régua diria que dá. É esta
@@ -741,9 +777,14 @@ const TELAS = [
 //                 que mordem, e é por isso que lá estoura pela direita. Receita que não morde
 //                 porque não há defeito é conhecimento; esta é dessas.
 //
-// O QUE FICOU MEDIDO E **NÃO** VIROU ASSERÇÃO (é buraco conhecido, não item fechado): sob
-// `terceira`, em retrato, o poste sobe POR CIMA da proposta — a `faixa` (topo do poste menos a
-// base do `#menuSub`) vai a **−146/−188/−134/−291/−321/−328 px** nas seis, contra 9..140 px
-// positivos em produção. O laço só cobra sobreposição contra a caixa DELA (a personagem), nunca
-// entre `#poste` e `#menuSub`. Uma asserção `faixa > 0` passaria hoje com **9 px** de folga na
-// 320×568 — apertado o bastante para exigir decisão própria, não um acréscimo de carona.
+// ISTO VIROU ASSERÇÃO em 03/09, item `poste-sobre-a-proposta` (a decisão está no bloco
+// `POSTE SOBRE A PROPOSTA`, junto de `faixa` no laço de retrato, acima). Sob `terceira`, em
+// retrato, o poste sobe POR CIMA da proposta — a `faixa` (topo do poste menos a base do
+// `#menuSub`) ia a **−146/−188/−134/−291/−321/−328 px** nas seis, contra 9..140 px positivos em
+// produção, e o laço só cobrava sobreposição contra a caixa DELA (a personagem, e só quando
+// `CHAO_HOME_LIGADO` — que nasce desligada), nunca entre `#poste` e `#menuSub` diretamente.
+// PISO ESCOLHIDO: **0**, não `faixa > 0` cru nem o RESPIRO de 8 — o número está no comentário do
+// bloco da asserção. Prova de mordida (exit code real, `REGUA_DEFEITO='#poste{position:absolute;
+// top:0px}'`): antes desta asserção, exit 1 só pelas telas largas (899/926) e retrato 6/6 verde
+// (a falha real, medida); depois, exit 1 continua e as seis telas de retrato passam a reprovar
+// por `POSTE sobre a PROPOSTA`. Limpo (sem `REGUA_DEFEITO`), exit 0 de novo.
