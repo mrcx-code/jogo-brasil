@@ -728,7 +728,7 @@
     },
     {
       "id": "cartoes-tipografia-defasada",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "Cartoes de link com tipografia velha — A ENTREGA ESTA PRONTA em origin/entrega/cartoes-tipografia, falta so auditar e integrar",
@@ -741,7 +741,9 @@
         "territorio/compartilhar.jpg"
       ],
       "aceite": "NAO REFACA O TRABALHO. O ramo origin/entrega/cartoes-tipografia existe, com 2 commits e portao proprio. Falta UMA medicao antes do funil: rodar o gerador do territorio 8 vezes seguidas e provar que o hash da regiao estavel aguenta. A entrega mediu 4 e a corrida de fonte aparecia 1 vez em 2 antes do conserto — 8 e o que separa conserto de sorte. Depois disso, funil normal.",
-      "detalhe": "Rodada nuvem-20260902T2022. A entrega DESMENTIU o proprio item: sao QUATRO cartoes com o nav, nao cinco — o quinto (compartilhar.jpg da raiz) e o HUD do jogo, fonte pixel-art do jogo.ts, e gerar-porta.js nunca gerou cartao nenhum. Mancha de tinta medida: historia 870 -> 902, de-onde-vem 871 -> 902, glossario 897 inalterado; territorio por largura de avanco (recuo do host 1777,92 -> familia embutida 1910,34). Achado novo fora do item: gerar-territorio.js nunca teve @font-face nem verificacao, porque tira o proprio print e nunca passou pelo cartao-secao.js. O portao proprio dela achou DOIS defeitos no codigo dela antes de qualquer injecao: a barra alargada invalidava o scrollIntoView (tabua 48 px fora da borda, falha SILENCIOSA) e document.fonts.ready nao basta (resolve nada pendente, e nada pende ate algum texto PEDIR a familia; conserto: document.fonts.load explicito). O pre-integrador que mediria as 8 rodadas foi morto pelo reinicio do conteiner — por isso o item nao foi integrado, e nao por defeito conhecido. Ele regera BINARIO que publica sozinho no push (o cartao do WhatsApp), entao a determinismo e o que decide."
+      "detalhe": "Rodada nuvem-20260902T2022. A entrega DESMENTIU o proprio item: sao QUATRO cartoes com o nav, nao cinco — o quinto (compartilhar.jpg da raiz) e o HUD do jogo, fonte pixel-art do jogo.ts, e gerar-porta.js nunca gerou cartao nenhum. Mancha de tinta medida: historia 870 -> 902, de-onde-vem 871 -> 902, glossario 897 inalterado; territorio por largura de avanco (recuo do host 1777,92 -> familia embutida 1910,34). Achado novo fora do item: gerar-territorio.js nunca teve @font-face nem verificacao, porque tira o proprio print e nunca passou pelo cartao-secao.js. O portao proprio dela achou DOIS defeitos no codigo dela antes de qualquer injecao: a barra alargada invalidava o scrollIntoView (tabua 48 px fora da borda, falha SILENCIOSA) e document.fonts.ready nao basta (resolve nada pendente, e nada pende ate algum texto PEDIR a familia; conserto: document.fonts.load explicito). O pre-integrador que mediria as 8 rodadas foi morto pelo reinicio do conteiner — por isso o item nao foi integrado, e nao por defeito conhecido. Ele regera BINARIO que publica sozinho no push (o cartao do WhatsApp), entao a determinismo e o que decide.",
+      "maquina": "nuvem-20260903T0023",
+      "desde": "2026-09-03T00:24:21.681Z"
     },
     {
       "id": "regua-eixo-x-nao-olhado",
@@ -812,7 +814,7 @@
     },
     {
       "id": "censo-vaomedida-falso-positivo",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A segunda passada do censo acusa decoracao legitima em 4 de 5 paginas — e e estreita demais em 3 de 4 mutantes",
@@ -822,7 +824,9 @@
         "test/qa-censo-passo2.js"
       ],
       "aceite": "A segunda passada para de acusar span.vaoMedida sem parar de recusar o m106 e o q107d. Mordida provada por injecao nos dois sentidos: o falso-positivo some E os mutantes continuam recusados. Medir de novo as cinco paginas.",
-      "detalhe": "Achado pelo QA em 02/09 refutando a entrega censo-foto, e e um desmentido de alegacao escrita: a entrega mediu zero falso-positivo contra o territorio e declarou zero geral. Medido pelo QA nas cinco: plataforma/index.html 1, historia 1, glossario 1, de-onde-vem 1, territorio 0 — e o acusado e sempre o mesmo span.vaoMedida, espacador aria-hidden que o proprio chrome-plataforma.js escreve dentro da .barra. O territorio escapa so porque a exclusao dele esconde .vaoMedida explicitamente. Nenhum portao esta vermelho hoje porque o censo so esta ligado ao territorio — mas o exemplar vivo ja esta no repositorio esperando a exclusao mudar. Junto, a outra ponta: 3 dos 4 mutantes que o QA escreveu ESCAPAM (texto inerte sobre o mapa no lugar onde o m105 mora; dentro de .env, conteiner sem filho aceito que nunca vira dono; e texto por ::after de uma tabua aceita). Cobertura medida no cartao real: 0 julgados, 14 absolvidos — a passada esta dormente no artefato commitado e so morde quando algo novo aparece."
+      "detalhe": "Achado pelo QA em 02/09 refutando a entrega censo-foto, e e um desmentido de alegacao escrita: a entrega mediu zero falso-positivo contra o territorio e declarou zero geral. Medido pelo QA nas cinco: plataforma/index.html 1, historia 1, glossario 1, de-onde-vem 1, territorio 0 — e o acusado e sempre o mesmo span.vaoMedida, espacador aria-hidden que o proprio chrome-plataforma.js escreve dentro da .barra. O territorio escapa so porque a exclusao dele esconde .vaoMedida explicitamente. Nenhum portao esta vermelho hoje porque o censo so esta ligado ao territorio — mas o exemplar vivo ja esta no repositorio esperando a exclusao mudar. Junto, a outra ponta: 3 dos 4 mutantes que o QA escreveu ESCAPAM (texto inerte sobre o mapa no lugar onde o m105 mora; dentro de .env, conteiner sem filho aceito que nunca vira dono; e texto por ::after de uma tabua aceita). Cobertura medida no cartao real: 0 julgados, 14 absolvidos — a passada esta dormente no artefato commitado e so morde quando algo novo aparece.",
+      "maquina": "nuvem-20260903T0023",
+      "desde": "2026-09-03T00:24:21.681Z"
     }
   ]
 }
