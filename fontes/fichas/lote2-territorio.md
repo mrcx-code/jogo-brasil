@@ -48,6 +48,264 @@ jogo (21/08) — o carimbo existe para que ele não possa acontecer por descuido
 
 ---
 
+## ✅ ADENDO (03/09, máquina Windows com egresso) — OS 4 `[conferir]` QUE FALTAVAM
+
+Continuação desta ficha, não reescrita. A rodada anterior (`nuvem-20260903T2022`) tinha o
+egresso de rede negado para todo host oficial — provado com controle (`en.wikipedia.org`
+também bloqueado ali). Esta máquina **tem** egresso: o mesmo controle (`en.wikipedia.org`)
+respondeu `200`, e a maioria dos hosts oficiais também respondeu, com uma exceção
+(`planalto.gov.br` segue de fora — três tentativas, `curl` estabelece a conexão TCP/TLS e o
+servidor não devolve nada em 15–40 s; não é bloqueio de política, é o próprio host).
+
+Abri as quatro fontes primárias que faltavam. PDF sempre fatiado por página com `pdftotext`
+(nunca lido inteiro), como manda o método do lote 1. Onde um caminho morreu (a maioria dos
+links antigos de `portal.iphan.gov.br/uploads/ckfinder/...` redireciona hoje para a home,
+genérica, sem o documento), usei o Internet Archive como segundo host antes de desistir —
+o documento é o mesmo, o servidor é outro, e isso está registrado em cada citação abaixo com
+o endereço exato. Nenhuma citação aqui é `[C]`: todas são `[A]`, lidas por mim, com
+`arquivo:linha` ou URL e trecho exato.
+
+### 1 — Processo IPHAN 1069-T-82 (Serra da Barriga)
+
+**Fonte A:** IPHAN. *Lista/Guia de Bens Tombados* (atualização de 2012), arquivo
+`guia de bens tombados atualizado em 2012.pdf`. O endereço original
+(`portal.iphan.gov.br/uploads/ckfinder/arquivos/...`) redireciona hoje para a home do
+portal — lido via Internet Archive, snapshot de 10/11/2022:
+`web.archive.org/web/20221110073101/http://portal.iphan.gov.br/uploads/ckfinder/arquivos/guia%20de%20bens%20tombados%20atualizado%20em%202012.pdf`.
+**Onde:** página 8 do PDF (rodapé numera "5"), entrada "União dos Palmares".
+
+**Citação literal [A]** (extração por `pdftotext -f 8 -l 8 -layout`; a acentuação sai
+corrompida no extrator — reproduzida como saiu, sem eu corrigir):
+> "Bem / Inscrição Serra da Barriga, parte mais acantilada, conforme descrição constante na
+> Informação nº123/85 [...] Nome atribuído Serra da Barriga [...] Outras denom. Quilombo dos
+> Palmares; República dos Palmares [...] Nº Processo 1069-T-82 [...] Livro Histórico Nº
+> inscr.: 501 ;Vol. 1 ;F. 091 ;Data: 19/02/1986 [...] Liv. Arq./Etn./Psg. Nº inscr.: 090 ;Vol.
+> 1 ;F. 042 ;Data: 19/02/1986"
+
+**Fonte B, cruzamento independente:** IPHAN. *Bens Tombados e Processos de Tombamento em
+Andamento* (atualização de 09/12/2015), arquivo `Lista Bens Tombados por Estado.pdf`. Mesmo
+problema de endereço morto — lido via Internet Archive, snapshot de 31/07/2023:
+`web.archive.org/web/20230731122404/http://portal.iphan.gov.br/uploads/ckfinder/arquivos/Lista%20Bens%20Tombados%20por%20Estado.pdf`.
+**Onde:** página 1 do PDF, linha "Serra da Barriga, parte mais acantilada...".
+**Citação literal [A]** (`pdftotext -f 1 -l 1 -layout`):
+> "Paisagem Serra da Barriga, parte mais acantilada, conforme descrição constante na
+> Informação nº123/85, [...] TOMBADO fev-86 fev-86" (as duas colunas de inscrição —
+> Arqueológico/Etnográfico/Paisagístico e Histórico — dão "fev-86")
+
+**O que isto fecha:** o número do processo — **1069-T-82** — sobe de [C] para **[A]**, lido
+em dois documentos oficiais do IPHAN, independentes entre si. É exatamente o registro que a
+ficha original já tinha localizado por busca; agora está lido.
+
+**O que isto NÃO fecha, e é achado novo — a data do dia mudou de candidato:**
+Nenhuma das duas fontes [A] confirma **31/01/1986**, que era a "convergência" registrada em
+grau [C] no `NOTES.md` e na ficha original. As duas fontes [A] convergem, isso sim, em
+**19/02/1986** (uma dá o dia exato; a outra dá "fev-86", compatível). **Fevereiro, não
+janeiro** — nos dois Livros do Tombo (Histórico e Arqueológico/Etnográfico/Paisagístico).
+
+Não afirmo que isso resolve a divergência 1985×1986 nem a de janeiro×fevereiro — registro uma
+hipótese, não uma conclusão, porque **não tenho fonte que diga isto explicitamente**: pode
+haver uma data de **decisão do tombamento** (deliberação do Conselho Consultivo do IPHAN, a
+que normalmente vira efeméride — candidata a ser 31/01/1986; é a data que o site *Alma Preta*
+usa em matéria de 31/01/2025, "Há 39 anos, no dia 31 de janeiro de 1986, o governo federal
+decretou o tombamento") e uma data de **inscrição nos Livros do Tombo** (o registro formal no
+cadastro — 19/02/1986, é o que os dois documentos institucionais que abri afirmam). É comum
+no rito do tombamento essas datas divergirem, mas eu não vi nenhum documento que faça essa
+distinção sobre a Serra da Barriga especificamente — é a leitura mais econômica do que tenho,
+não um fato verificado.
+
+**Veredito, sobre a frase do pino ("tombada pelo IPHAN desde 1986"):** o **ano** está
+confirmado em [A], por duas fontes institucionais independentes. **CONFERIDO no que o pino
+afirma** (só o ano). A divergência de **dia** (31/01 × 19/02) é interna ao verbete do jogo,
+que já opta por não fechar — e agora tem fonte [A] para as duas pontas dessa opção, caso o
+historiador queira citá-las. Isto atualiza a ficha 1, seção 1.2.
+
+---
+
+### 2 — Data exata da Lei nº 12.032/2009 (Sepé Tiaraju)
+
+**Fonte A:** LexML — Rede de Informação Legislativa e Jurídica, registro da norma federal.
+`www.lexml.gov.br/urn/urn:lex:br:federal:lei:2009-09-21;12032`. Lida diretamente, sem
+Internet Archive — o host respondeu.
+**Citação literal [A]:**
+> "Lei nº 12.032, de 21 de Setembro de 2009 [...] Data 21/09/2009 [...] Ementa Inscreve o
+> nome de Sepé Tiaraju no Livro dos Heróis da Pátria. [...] Publicação Original 2009-09-22
+> Diário Oficial da União. Seção 1. 22/09/2009. p. 1"
+
+**Fonte B, o texto integral da norma:** Câmara dos Deputados, Legislação Informatizada.
+`www2.camara.gov.br/legin/fed/lei/2009/lei-12032-21-setembro-2009-591299-publicacaooriginal-116386-pl.html`.
+Lida diretamente.
+**Citação literal [A], a norma inteira (dois artigos):**
+> "LEI Nº 12.032, DE 21 DE SETEMBRO DE 2009. Inscreve o nome de Sepé Tiaraju no Livro dos
+> Heróis da Pátria. O VICE-PRESIDENTE DA REPÚBLICA, no exercício do cargo de PRESIDENTE DA
+> REPÚBLICA. Faço saber que o Congresso Nacional decreta e eu sanciono a seguinte Lei: Art.
+> 1º Em comemoração aos 250 (duzentos e cinquenta) anos da morte de Sepé Tiaraju, será
+> inscrito no Livro dos Heróis da Pátria, que se encontra no Panteão da Liberdade e da
+> Democracia, o nome de José Tiaraju, o Sepé Tiaraju, herói guarani missioneiro
+> rio-grandense. Art. 2º Esta Lei entra em vigor na data de sua publicação. Brasília, 21 de
+> setembro de 2009; 188º da Independência e 121º da República."
+
+**O que isto fecha:** os três achados da ficha 4.1 (data errada na linha de fonte do pino;
+"Heróis" sem "e Heroínas"; "liderou" não sustentado pela lei) — que estavam em grau [C] via
+buscador — **sobem para [A]**, lidos na íntegra por duas vias independentes (LexML, que
+aponta o Diário Oficial; Câmara dos Deputados, publicação original). O
+`[conferir texto no Planalto]` do pino está **fechado**, mesmo sem ter aberto especificamente
+`planalto.gov.br` (que segue de fora nesta máquina — três tentativas, ver nota no topo do
+adendo): o texto oficial foi lido por duas fontes equivalentes, não é o mesmo host falhando
+duas vezes disfarçado de confirmação.
+
+**Detalhe novo, sem uso proposto pela ficha:** a lei foi sancionada por **José Alencar Gomes
+da Silva**, então Vice-Presidente no exercício da Presidência. É dado de rodapé, registrado
+por precisão bibliográfica; não é sujeito de frase alguma nesta ficha, e o §2.6 do
+`CLAUDE.md` não muda por causa disso — nomear quem assinou não é narrar uma ação política
+dele.
+
+**Veredito, atualizando 4.1:** de "COM AJUSTE, ressalva honesta [C]" para **COM AJUSTE,
+CONFERIDO em [A].** A frase exata a mudar continua a mesma — "de 21/10/2009" → "**de
+21/09/2009**", DOU de 22/09/2009 — agora sem ressalva de grau.
+
+---
+
+### 3 — A obra de Capanema sobre João Cândido: referência completa e três citações novas
+
+**Referência bibliográfica completa, livro [A]** (Editora Malê — página do produto,
+`editoramale.com.br`, lida diretamente; cruzada com Amazon e Estante Virtual, convergentes):
+> CAPANEMA, Sílvia. *João Cândido e os navegantes negros: a Revolta da Chibata e a segunda
+> abolição.* Rio de Janeiro: Malê, 2022. 404 p. ISBN 978-85-92736-72-9.
+
+**Referência bibliográfica completa, artigo [A]** (metadado lido diretamente na página do
+SciELO, tags `citation_*` do HTML — não é texto devolvido por buscador, é o metadado que a
+própria revista publica):
+> ALMEIDA, Silvia Capanema P. de. "Do marinheiro João Cândido ao Almirante Negro: conflitos
+> memoriais na construção do herói de uma revolta centenária." **Revista Brasileira de
+> História**, v. 31, n. 61, p. 61–84, 2011. DOI: 10.1590/S0102-01882011000100004. ISSN
+> 0102-0188 (impresso) / 1806-9347 (on-line). Filiação da autora, no artigo: Université
+> Paris 13.
+
+Nota de forma: a autora assina o artigo como **"Silvia Capanema P. de Almeida"** — nome mais
+completo que o "Sílvia Capanema" usado na capa do livro de 2022. É a mesma pessoa; o artigo
+de 2011 é a origem acadêmica do livro, mesmo tema, mesma tese central.
+
+**Abri o PDF do artigo (acesso aberto no SciELO) e fatiei por página com `pdftotext -f N -l N
+-layout` — três citações literais [A] que não existiam na ficha original:**
+
+> "tomando o controle dos navios mais importantes da frota da época - sobretudo os grandes
+> encouraçados Minas Gerais, São Paulo e o scout Bahia [...] Os marinheiros, na maioria
+> negros, pardos e oriundos do Norte e do Nordeste do Brasil, exigiam melhores condições e o
+> fim dos castigos corporais, em particular, a abolição da chibata." (p. 62)
+
+> "Como os marinheiros eram, na maioria, negros, pardos e mestiços, e sua reivindicação
+> primeira era a abolição da chibata - símbolo das punições a que os escravos se submetiam
+> [...]" (p. 80)
+
+> "o Estado autorizou a publicação de um decreto que previa o desligamento da Marinha dos
+> elementos considerados 'nocivos à disciplina' a bordo dos navios (decreto 8400, de 28 nov.
+> 1910)" (p. 62) — achado extra, fora do pedido, registrado porque é o único número de norma
+> desta ficha inteira que ficou com fonte [A] lida.
+
+**O que isto fecha, dos achados 5.2, 5.3 e 5.4 da ficha original:**
+- **5.2 ("quase todos negros")** — grau [A] agora: Capanema escreve **"na maioria negros,
+  pardos"** (p. 62) e, adiante, **"na maioria, negros, pardos e mestiços"** (p. 80). "Quase
+  todos" segue mais forte do que a fonte sustenta. **Veredito mantido (COM AJUSTE), grau
+  [A].**
+- **5.3 ("A exigência era uma: parar de açoitar")** — a citação da p. 62 mostra **duas**
+  exigências, não uma: "exigiam melhores condições **e** o fim dos castigos corporais". A p.
+  80 chama a abolição da chibata de reivindicação "**primeira**" — primeira, não única.
+  **Veredito mantido (COM AJUSTE), grau [A]: "primeira" é o que a fonte sustenta, "única"
+  não.**
+- **5.4 ("os maiores navios de guerra do país")** — agora tem fonte [A]: "os grandes
+  encouraçados Minas Gerais, São Paulo **e o scout Bahia**" — três navios nomeados, não dois.
+  Passa de "plausível, não conferida" para **CONFERIDO em [A]**, com um ajuste: se o pino
+  nomear os navios, são três.
+
+**O que isto NÃO fecha:** os números de norma que o pino manda conferir sobre o **decreto de
+anistia** e os **debates no Congresso** continuam sem fonte aberta — o único número de
+decreto que apareceu na leitura foi o **8.400, de 28/11/1910** (desligamento de "elementos
+nocivos à disciplina", não a anistia em si), e não estava no pedido original.
+
+**Resposta parcial à pergunta 3 da ficha (a voz de João Cândido) — achado nesta leitura, sem
+decidir por mim:** o artigo de Capanema tem, em nota de rodapé [A], exatamente o caminho que
+a ficha original perguntava se existia:
+> "Outros testemunhos de João Cândido estão registrados em: MOREL, 2009; MIS. *João Cândido,
+> o almirante negro.* Rio de Janeiro: Gryphus; Museu da Imagem e do Som, 1999." (nota 16,
+> p. 82)
+
+E, na nota 14 (p. 82):
+> "João Cândido é internado em janeiro de 1911 no hospital dos alienados e, em seguida, no
+> Hospital da Marinha, na prisão da Ilha das Cobras. Ele ficou quase dois anos nessas
+> instituições, quando escreveu ou ditou as suas memórias e bordou três toalhas, de acordo
+> com diferentes fontes." — com referência a MOREL, Marco (org.), 2009 (edição das memórias)
+> e CARVALHO, José Murilo de. "Os bordados de João Cândido", 1998.
+
+**Isto não decide a pergunta 3.** Abrir o volume do MIS (1999) ou a organização de Morel
+(2009) e fichar um trecho em 1ª pessoa é trabalho de outra rodada, e usá-lo continua sendo
+decisão do dono (é representação). Mas agora existe um caminho bibliográfico nomeado — não
+uma esperança sem endereço.
+
+---
+
+### 4 — Ano do Cocorobó: 1968 × 1969, resolvido com fonte primária (as duas datas existem, e não competem)
+
+**Fonte A, institucional — a própria autora da obra:** DNOCS — Departamento Nacional de
+Obras Contra as Secas. *"Açude Cocorobó, na Bahia, se entrelaça com a história de Canudos."*
+`gov.br/dnocs`, publicado 27/04/2023. Lida diretamente (HTML renderizado pelo servidor; o
+texto está embutido na página, só não aparece numa extração ingênua por regex — precisou de
+busca no HTML bruto).
+
+**Citações literais [A]:**
+> "Construída entre 1951 e 1968, a barragem é o principal manancial hídrico da região"
+> (subtítulo do artigo / meta description, duas ocorrências)
+
+> "A barragem do Açude Cocorobó teve sua construção iniciada em 1951, por administração
+> direta do DNOCS. [...] de 1951 até 1966, foram executados 600.000 m³ ou 48% da obra.
+> Durante o ano de 1967, a barragem atingiu seu volume total, tendo sido feitos neste
+> período, 650.000 m³ de aterro compactado. [...] Segundo publicação da professora da
+> Universidade de São Paulo (USP), Walnice Galvão, a barragem foi concluída em 1968."
+
+**Fonte B, evento acadêmico — a origem do "1969" que a ficha original via como
+divergência:** UNEB — Universidade do Estado da Bahia / Centro de Estudos Euclides da Cunha
+(CEEC), com o DNOCS-BA como coorganizador (o folder nomeia funcionários do DNOCS entre os
+"animadores"). *Folder Açude 50 Anos* — programação do seminário "O Açude Cocorobó, 50 anos"
+(13/03/2019). `agenciadecomunicacao.uneb.br`. PDF de 1 página, baixado e lido inteiro (uma
+página só não precisa fatiar).
+
+**Citação literal [A]:**
+> "Em março de 1969 o Açude Cocorobó estava cheio de água, 245 milhões de metros cúbicos
+> desse precioso líquido deixavam saudades da Velha Canudos e da Segunda Canudos [...] 50
+> anos depois, em 13 de março de 2019, data do aniversário do beato Antônio Conselheiro
+> [...]"
+
+**A resolução, e ela não escolhe entre as datas — mostra que elas não competem:** as duas
+fontes primárias não se contradizem; descrevem **dois eventos diferentes**, cada um com data
+e fonte próprias:
+1. **1968** — a barragem foi **construída/concluída** (fonte DNOCS, citando a pesquisa de
+   Walnice Nogueira Galvão — a mesma pesquisadora que a ficha original já apontava como
+   melhor lugar de fala do lote para Canudos, por consciência social como critério).
+2. **Março de 1969** — o reservatório estava **cheio** (245 milhões de m³), que é quando as
+   ruínas de Belo Monte/Canudos ficaram de fato **submersas** (fonte UNEB/DNOCS-BA, num
+   evento de 2019 que conta "50 anos" a partir de março de 1969 — a conta bate: 1969+50=2019).
+
+É o intervalo normal entre concluir uma barragem e o reservatório atrás dela encher — não é
+uma divergência entre fontes que discordam do mesmo fato, é duas datas para dois fatos
+diferentes, e as duas agora têm fonte [A].
+
+**Veredito, atualizando 6.3:** o `[conferir ano da barragem]` **fecha**. O pino ("depois um
+açude cobriu o lugar") não precisa de ano nenhum — mas se o historiador quiser um, a frase
+mais precisa tecnicamente é algo como "a barragem, concluída em 1968, formou um reservatório
+que cobriu o lugar em 1969", porque é a **cheia** — não a **construção** — que de fato "cobre"
+um lugar. As duas datas têm fonte [A] agora, cada uma para o que afirma; nenhuma das duas
+está errada.
+
+---
+
+**Fechamento do adendo:** os quatro `[conferir]` do despacho avançam de [C]/não-aberto para
+[A]. Nenhum vira decisão de representação — seguem sendo dado tabelado para o historiador
+julgar e o dono aprovar. A pergunta 3 (voz de João Cândido) ganhou caminho bibliográfico, não
+resposta. As perguntas 1, 2 e 4 da seção "PERGUNTAS FECHADAS PARA O DONO", no fim desta ficha,
+continuam integralmente abertas — são de representação, não de fonte, e este adendo não as
+toca.
+
+---
+
 ## ⚠ DESTAQUE 1 — A PREMISSA DO DESPACHO ESTÁ ERRADA, E ISSO MUDA A URGÊNCIA
 
 O despacho diz que D1, D2 e D5 "**JÁ ESTÃO NO JOGO** — o jogo já afirma isso em produção hoje,
@@ -186,6 +444,13 @@ Por quê: o pino afirma seco o que o jogo, em produção e de propósito, se rec
 pino não pode ser menos cuidadoso que o verbete que ele aponta. Ou o pino carrega a ressalva,
 ou o processo 1069-T-82 é aberto por uma máquina com egress e a divergência morre nas duas
 telas ao mesmo tempo.
+
+> **ATUALIZADO 03/09 (máquina Windows, com egresso) — ver ADENDO no topo da ficha, item 1.**
+> O processo **1069-T-82** foi lido em [A] em dois documentos oficiais do IPHAN. O **ano**
+> (1986) está confirmado; o **dia** ganhou um segundo candidato com fonte [A] — 19/02/1986,
+> não só 31/01/1986 — e a ficha original NÃO escolhe entre os dois. Ver ADENDO, item 1, para
+> as duas citações e a hipótese (não confirmada) de que sejam dois atos administrativos
+> diferentes.
 
 ---
 
@@ -637,6 +902,12 @@ que o jogo já faz nas cartas jesuíticas.
 1. **"Lei nº 12.032, de 21/10/2009"** → **21/09/2009**, publicada no DOU de 22/09/2009. É
    erro de data na linha de fonte, e o `[conferir texto no Planalto]` **não fecha nesta
    máquina** — fecha quando o Planalto abrir.
+
+> **ATUALIZADO 03/09 (máquina Windows, com egresso) — ver ADENDO no topo da ficha, item 2.**
+> O texto integral da Lei nº 12.032/2009 foi lido em [A] (LexML + Câmara dos Deputados,
+> Legislação Informatizada). Os três achados abaixo sobem de [C] para [A]; o
+> `[conferir texto no Planalto]` fecha, ainda que `planalto.gov.br` em si continue sem
+> responder nesta máquina — o texto foi lido por duas fontes equivalentes.
 2. **"Sepé Tiaraju, que liderou essa recusa, está inscrito no Livro..."** → a lei sustenta a
    inscrição e a expressão *"herói guarani missioneiro rio-grandense"*; **não sustenta
    "liderou"**. Ou a liderança ganha fonte própria, ou a frase se separa em duas.
@@ -761,6 +1032,16 @@ entrar no jogo.** Ela localiza a bibliografia e derruba duas frases. Nenhuma cit
 Capanema existe aqui. Um pino sobre um massacre e uma revolta com pessoa real nomeada não entra
 com fonte de grau [C].
 
+> **ATUALIZADO 03/09 (máquina Windows, com egresso) — ver ADENDO no topo da ficha, item 3.**
+> A obra de Capanema (livro 2022 e artigo 2011) foi aberta e lida diretamente: referência
+> bibliográfica completa, e três citações literais em [A] confirmam 5.2 (maioria negros e
+> mestiços, não "quase todos"), 5.3 (chibata era a reivindicação "primeira", não "única" —
+> havia mais de uma) e 5.4 (três navios nomeados: Minas Gerais, São Paulo e o scout Bahia).
+> O aviso de escopo acima deixa de valer no que depende de citação literal: agora existem
+> três, todas de Capanema, todas [A]. Os números de norma (anistia, debates no Congresso)
+> continuam sem fonte aberta. A pergunta 3 (voz de João Cândido) ganhou um caminho
+> bibliográfico concreto (MIS, 1999; Morel, org., 2009) — ver ADENDO.
+
 ---
 
 # FICHA 6 — D15. Canudos (Canudos, BA)
@@ -860,6 +1141,13 @@ inglês, a afirmação de que a submersão teria sido *"um esforço deliberado p
 memórias"* da repressão. **É interpretação forte, sem documento, numa fonte terciária.** Se
 entrar no pino vira exatamente o tipo de afirmação que o §2.6 proíbe (conclusão apresentada
 como fato). Registro para que ninguém a puxe achando que veio da ficha.
+
+> **ATUALIZADO 03/09 (máquina Windows, com egresso) — ver ADENDO no topo da ficha, item 4.**
+> O `[conferir ano da barragem]` fecha: DNOCS (fonte institucional, oficial) confirma **1968**
+> para a conclusão da construção, citando a pesquisa de Walnice Nogueira Galvão; um folder da
+> UNEB/DNOCS-BA (2019) confirma **março de 1969** para o reservatório cheio — que é quando as
+> ruínas de Canudos ficaram de fato submersas. As duas datas têm fonte [A] agora e não
+> competem: são dois eventos diferentes (construção × enchimento). Ver ADENDO, item 4.
 
 ---
 
@@ -1000,3 +1288,32 @@ lei federal, ISA). A condição de 19/08 é de aprovação, não de preferência
   (processo IPHAN 1069-T-82 · data da Lei 12.032 · obra de Capanema · ano do Cocorobó com
   divergência), todos em grau [C]. **Avançar não é fechar.**
 - **Não decidi nada de representação.** As quatro perguntas acima vão ao dono como estão.
+
+---
+
+## ATUALIZACAO 03/09 (maquina Windows, mesma sessao) - o que MUDOU desde o paragrafo acima
+
+O paragrafo "O que esta ficha NAO fez" acima descreve com precisao o que a rodada
+nuvem-20260903T2022 fez e nao fez, e fica como esta - e registro historico, nao se apaga.
+Esta secao diz o que uma segunda rodada, na mesma sessao, com egresso de rede, mudou:
+
+- **Abri quatro fontes primarias externas**, todas em grau [A] (arquivo/pagina lida por mim,
+  com citacao literal e local exato): duas listas oficiais do IPHAN (processo 1069-T-82), o
+  texto integral da Lei no 12.032/2009 (LexML + Camara dos Deputados), o artigo academico de
+  Silvia Capanema na Revista Brasileira de Historia (SciELO, PDF fatiado por pagina) mais a
+  ficha bibliografica do livro de 2022, e duas paginas institucionais sobre o Acude Cocorobo
+  (DNOCS oficial + folder de evento UNEB/DNOCS-BA). Ver ADENDO no topo desta ficha para as
+  citacoes completas.
+- **Os quatro itens [conferir] que a rodada anterior tinha avancado em [C] fecham em [A]**
+  nesta atualizacao - processo IPHAN, data da Lei 12.032, obra de Capanema (com tres
+  citacoes literais novas), ano do Cocorobo (resolvido como dois eventos distintos, nao uma
+  divergencia). Nenhum fechamento e "CONFERIDO seco": todos vem com o que a fonte NAO diz,
+  como o metodo pede.
+- **Nao decidi nada de representacao nesta atualizacao tambem.** As quatro perguntas da
+  secao "PERGUNTAS FECHADAS PARA O DONO" continuam integralmente abertas - nenhuma delas
+  dependia de egresso de rede; sao de julgamento do historiador e aprovacao do dono, nao de
+  fonte.
+- **Um achado novo apareceu e nao estava no pedido:** a data de 1986 do tombamento da Serra
+  da Barriga tem agora DOIS candidatos com fonte [A] (31/01 e 19/02), nao um com fonte e um
+  sem. Registrado no ADENDO, item 1, com a hipotese nao confirmada de que sejam dois atos
+  administrativos diferentes (decisao x inscricao nos livros).
