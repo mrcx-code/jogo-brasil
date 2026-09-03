@@ -3831,6 +3831,33 @@ subir, alguma rodada obedeceu ao prompt em vez do arquivo.
 e colar. São 23 `voo/` e 28 `entrega/` no servidor hoje. Isso continua valendo — mas agora a
 pilha para de crescer mesmo que ninguém rode.
 
+**SEGUNDA CONFERÊNCIA, por `nuvem-20260903T2022` em 03/09 20h UTC: `voo/` = 29. A CONTENÇÃO
+FALHOU, e quem a furou fui eu.** Criei **seis** marcadores (`poste-sobre-a-proposta`,
+`regua-ancestral-acima-do-menu`, `porta-entrada-cresce-em-silencio`, `censo-oraculo-dois-furos`,
+`censo-restilizar-o-aceito`, `cartao-margem-esquerda`) antes de chegar à revogação. `entrega/`
+foi de 33 para 34 no mesmo intervalo.
+
+**O mecanismo do furo, medido, porque ele não é distração e sim desenho:** a contenção supunha
+que ler o `PLANTAO.md` antes de despachar bastasse. Mas a revogação mora na **linha 386 de um
+arquivo de 646**, e o `PLANTAO.md` §3.2 manda **ler por faixa para poupar token**. Eu li do §1
+ao §6 — que é onde estão o laço, o brief e o funil, tudo o que a rodada precisa para começar —,
+dei por lido e obedeci à linha do prompt agendado, que aparece **antes** no que eu leio e é
+**explícita**. As duas ordens estavam no ar ao mesmo tempo e a que chegou primeiro venceu.
+
+**O que eu fiz a respeito, e é o que uma sessão pode fazer:** a revogação subiu para um **§0 do
+`PLANTAO.md`**, antes do §1, junto com a outra ordem que o prompt agendado contradiz (rodar o
+funil em segundo plano). É a mesma correção que 03/09 de manhã aplicou à regra do `node_modules`
+— *"regra que mora longe de quem a executa não é regra, é anotação"* —, e o fato de a mesma
+classe de erro voltar **em doze horas** é o argumento de que a posição no arquivo é causa, não
+descuido.
+
+**O que isto NÃO conserta, e por que continua sendo a mão do dono:** o §0 depende de a próxima
+rodada ler o topo do arquivo antes de agir. É mais provável que ler a linha 386, mas continua
+sendo uma corrida entre dois textos que se contradizem, e um deles está fora do repositório.
+Uma linha apagada do prompt agendado encerra a corrida. Enquanto ela não for apagada, a série
+de medições continua: `git ls-remote origin 'refs/heads/voo/*' | wc -l` — **23** (08h), **23**
+(16h), **29** (20h).
+
 **PRIMEIRA CONFERÊNCIA, por `nuvem-20260903T1623` em 03/09 16h UTC: `voo/` = 23, o mesmo número.**
 A rodada leu o `PLANTAO.md` como mandado e **não criou marcador**. Uma leitura não fecha o item —
 o prompt agendado continua dizendo o contrário, e basta uma rodada obedecer a ele para o número

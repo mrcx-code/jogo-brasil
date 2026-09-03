@@ -9,6 +9,38 @@ Vale para qualquer sessão, em qualquer máquina.
 
 ---
 
+## 0. AS DUAS ORDENS DO PROMPT AGENDADO QUE ESTE ARQUIVO REVOGA — leia antes de despachar
+
+Estão aqui em cima **porque estavam lá embaixo e isso não funcionou.** As duas moram no §7 e no
+§4, e uma rodada que lê por faixa para poupar token dispara os agentes muito antes de chegar
+neles. Medido em 03/09, e é a segunda vez em doze horas que a casa paga a mesma conta — a
+primeira foi a regra do `node_modules`, que morava no §4 e foi omitida em três briefs seguidos
+por quem escrevia brief lendo o §2. **Regra que mora longe de quem a executa não é regra, é
+anotação.**
+
+**1. NÃO crie o marcador `voo/<id>`, mesmo que o prompt agendado mande.** Decidido em 03/09
+(item `marcador-voo-so-acumula`, saída (a)); o porquê inteiro, com os números, está no §7. A
+nuvem **cria e não apaga** (403 do GitHub, re-medido pela sexta vez em 03/09 20h UTC — e a
+última linha do log continua dizendo `Everything up-to-date` com exit 0 no tubo). Quem decide se
+um item está ocupado é o `backlog.json` (`estado: em-curso` **e** `desde` dentro de 2 h); o
+marcador é pista, nunca prova.
+
+> **A contenção falhou na segunda medição, e o registro é meu.** O `PENDENTES 102` apostou que
+> bastava o prompt mandar ler este arquivo antes de despachar. A rodada `nuvem-20260903T1623`
+> leu e não criou nenhum (23 → 23). A rodada `nuvem-20260903T2022` — esta — **criou seis**, e o
+> servidor foi de **23 para 29**, porque eu li o §1 ao §6, dei por lido e obedeci à linha do
+> prompt. Ler o arquivo inteiro não é o conserto: **a ordem de leitura é que estava errada**, e
+> é isso que este §0 corrige. A mão do dono continua sendo o conserto definitivo, e é uma linha:
+> apagar do prompt agendado a frase *"e use ramo marcador `voo/<id>`"*.
+
+**2. RODE O FUNIL EM SEGUNDO PLANO.** `node ferramentas/integrar.js` leva mais que o teto de
+10 minutos do shell desta máquina. Quando ele é morto pelo teto, o desfecho é **enganoso nas
+duas leituras**: a `main` fica com o merge FEITO, sem `MERGE_HEAD` e com a árvore limpa — quem
+olha `git status` conclui "integrou", quem olha o exit 143 conclui "falhou e desfez" e empurra
+de novo. As duas erram. Detalhe no Diário de 03/09 (tarde).
+
+---
+
 ## 1. O laço, que é a coisa toda
 
 Uma sessão de plantão **não espera pedido**. Ela roda num laço:
