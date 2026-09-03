@@ -122,20 +122,35 @@ async function alcanceDoBotao(pg) {
       else {
         const J = window.innerHeight, L = window.innerWidth;
         const cabe = (r) => r.top >= -2 && r.bottom <= J + 2 && r.left >= -2 && r.right <= L + 2;
+        // o pan vertical por TOQUE é o que `touch-action` decide, e a régua espelha aqui a mesma
+        // lista que o QA mediu em `test/qa-regua-touch-action.js` (03/09): `none`, `pan-x`,
+        // `pan-left`, `pan-right` e `pinch-zoom` sozinho cancelam; `auto`, `manipulation` e
+        // `pan-y` deixam.
+        const dedoRola = (ta) => !/^(none|pan-x|pan-left|pan-right|pinch-zoom)$/.test(String(ta).trim());
         let b = cfg.getBoundingClientRect();
+        let bloqueioToque = '';
         if (!cabe(b)) {
-          // rola de verdade só quem o dedo conseguiria rolar
+          // rola de verdade só quem o dedo conseguiria rolar: overflow-y auto/scroll com sobra
+          // real E, desde 03/09, touch-action que não cancele o pan — achado do QA:
+          // `#telaMenu{touch-action:none}` deixava o `overflow-y:auto` resgatar por `scrollTop`
+          // de SCRIPT enquanto nenhum dedo tem esse gesto.
           for (let p = cfg.parentElement; p; p = p.parentElement) {
             const cs = getComputedStyle(p);
-            const rolavel = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
+            const temOverflow = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
               && p.scrollHeight - p.clientHeight > 1;
-            if (rolavel) p.scrollTop = p.scrollHeight;
+            const taOk = dedoRola(cs.touchAction);
+            if (temOverflow && taOk) p.scrollTop = p.scrollHeight;
+            else if (temOverflow && !taOk && !bloqueioToque) {
+              bloqueioToque = (p.id ? '#' + p.id : p.tagName.toLowerCase())
+                + ' rola (overflow-y: ' + cs.overflowY + ') mas touch-action: ' + cs.touchAction.trim()
+                + ' cancela o pan do dedo';
+            }
             if (p === menu) break;
           }
           b = cfg.getBoundingClientRect();
         }
         alcancavel = cabe(b);
-        if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', altura ' + J + ' · left ' + Math.round(b.left) + ', right ' + Math.round(b.right) + ', largura ' + L + ')';
+        if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', altura ' + J + ' · left ' + Math.round(b.left) + ', right ' + Math.round(b.right) + ', largura ' + L + ')' + (bloqueioToque ? ' — ' + bloqueioToque : '');
         else {
           const cx = Math.round((b.left + b.right) / 2), cy = Math.round((Math.max(b.top, 0) + Math.min(b.bottom, J)) / 2);
           const alvo = document.elementFromPoint(cx, cy);
