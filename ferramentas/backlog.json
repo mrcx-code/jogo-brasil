@@ -1043,6 +1043,21 @@
       "detalhe": "Achado pelo QA cruzado em 03/09 auditando censo-cinco-fugas-medidas, e NAO bloqueante (rede furada e melhor que rede nenhuma; nao piora nada) — por isso a entrega foi integrada e isto virou item. O oraculo visibility:hidden nao e completo por construcao: (furo A) visibility e herdada e o pseudo-elemento RECUSA a heranca, entao o oraculo le 0 px enquanto a tinta do proprio mutante e 367 px; (furo B) o recorte de 48 px perde marcador deslocado (::before::marker a 330 px cai fora; recorte de 400 conta ~550 px). A 8a fuga da regua e ::before::marker — o marcador DO pseudo, uma camada abaixo do que a regua olha: crua a catraca PEGA (exit 1, FUGA 183px), mas ninguem a pos no catalogo, logo ninguem a mede. Instrumento test/qa-catraca-oraculo.js empurrado em origin/qa/censo-cinco (97f1ccf), arvore limpa.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "ramos-mortos-mente-em-clone-raso",
+      "estado": "em-curso",
+      "maquina": "nuvem-20260903T1623",
+      "desde": "2026-09-03T16:31:48.412Z",
+      "papel": "dev-plataforma",
+      "titulo": "ramos-mortos.js declara ORFAO o que nao consegue ver: em clone raso o veredito inverte",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-veredito.js"
+      ],
+      "camada": "esteira",
+      "aceite": "O classificador distingue TRES estados (ancestral / orfao / desconhecido) e nunca diz ORFAO sobre sha que nao esta no disco. Portao novo com mordida provada por injecao: reverter para o ehAncestral de dois estados tem de dar exit 1.",
+      "detalhe": "Medido em 03/09 por nuvem-20260903T1623 com o mesmo tool em quatro clones do mesmo repo: profundo 3 orfaos, depth=186 3, depth=20 25, depth=1 32 de 32. A nuvem SEMPRE clona raso, e o §7 do PLANTAO manda auditar e integrar todo entrega/ orfao — entao o instrumento fabrica trabalho que nao existe, no lugar exato onde a rodada decide o que despachar."
     }
   ]
 }
