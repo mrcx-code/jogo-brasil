@@ -72,44 +72,61 @@
 // some nos casos que o catálogo cobre. Medido depois da troca: `zoom:2` = **0 px**, que é a
 // resposta certa.
 //
-// ⚠ **ELE NÃO É COMPLETO "POR CONSTRUÇÃO", E ESTA FRASE JÁ DISSE QUE ERA.** Dizia aqui que o diff
-// passava a ser *"por construção, exatamente os pixels que aquele elemento pinta"*. **Caiu, com
-// dois furos medidos** (QA cruzado, 03/09):
+// ⚠ **DUAS FRASES JÁ ERRARAM SOBRE "POR CONSTRUÇÃO" NESTE PARÁGRAFO, E A HISTÓRIA FICA AQUI EM VEZ
+// DE SER APAGADA.** A primeira dizia que o diff era *"por construção, exatamente os pixels que
+// aquele elemento pinta"*. Caiu com dois furos medidos pelo QA cruzado em 03/09 — FURO A
+// (`visibility` é herdada, e um `::before` podia redeclarar `visibility:visible` e continuar
+// pintando depois de o hospedeiro já estar `hidden` — o oráculo lia 0 px onde a tinta era de
+// centenas) e FURO B (o recorte de 48 px de folga perdia tinta deslocada além dele).
 //
-//   **Furo A — `visibility` é herdada, e pseudo-elemento pode RECUSAR a herança.** Um `::before`
-//   que redeclara `visibility:visible` continua pintando enquanto o oráculo já apagou o hospedeiro:
-//   o oráculo lê **0 px** onde a tinta do próprio mutante é **367 px**. O oráculo dá a resposta
-//   errada com a cara de certa — que é o pior desfecho para um instrumento.
+// OS DOIS FORAM FECHADOS EM 03/09 (item `censo-oraculo-dois-furos`, parte B), e o conserto NÃO foi
+// "esconder melhor" — foi trocar O QUE o oráculo desliga. Hoje, ao medir se o mutante pintou,
+// ele (1) põe `visibility:hidden` NO HOSPEDEIRO — layout-neutro, e já bastava para todo mecanismo
+// que pinta pela CAIXA do próprio elemento (border, background, outline, box-shadow, backdrop-
+// filter, border-image, o `::marker` PADRÃO de `list-item`, a alça de `resize`, `content`
+// substituído) — E (2) DESLIGA A FOLHA DE ESTILO inteira que `injetar()` cria para `arg.estilo`
+// (`disabled=true`, não `visibility`). Como a declaração `content` que cria QUALQUER pseudo-
+// elemento do mutante vive NAQUELA MESMA folha, desligá-la apaga o `::before`/`::after` por
+// inteiro — não sobra pseudo nenhum para ter `visibility` própria, então não há herança para
+// recusar. Duas tentativas mais óbvias foram MEDIDAS e DESCARTADAS antes desta (apagar o nó do
+// DOM; resetar o `style.cssText` inteiro) — as duas quebravam o LEIAUTE da `.lista` (que é
+// `display:flex`) para mecanismos que mudam o tamanho da caixa, como `zoom`, trocando os dois
+// furos por um terceiro maior. A explicação inteira, com os números desta máquina, está junto do
+// oráculo em si, mais abaixo. O recorte também mudou — ver `FOLGA`.
 //
-//   **Furo B — o recorte de 48 px de folga perde tinta deslocada.** Um `::before` com
-//   `margin-left:330px` põe o marcador fora do recorte: o de 48 px lê **0 px** e o de 400 px conta
-//   **367 px**. A folga de 48 px é o que zera o piso de ruído (ver abaixo) e é, ao mesmo tempo, o
-//   que corta tinta longe: as duas coisas puxam para lados opostos e hoje ela está calibrada pelo
-//   piso.
+// A SEGUNDA FRASE, escrita nesta mesma correção: **não a repito.** "Por construção, completo" já
+// errou uma vez neste parágrafo — o que fica é que os DOIS furos medidos (herança de `visibility`
+// e recorte curto) estão fechados, cobrados por regressão no próprio CATÁLOGO
+// (`pseudoLonge` — FECHADO, prova que a folga alargada alcança tinta a 330 px) e não que nenhum
+// furo A/B-like possa existir de novo — a próxima prova disso é medir, não declarar.
 //
-// **OS NÚMEROS ACIMA SÃO DESTA MÁQUINA, e o registro original traz outros — os dois estão certos.**
-// O cabeçalho do `qa-catraca-oraculo.js` registra 183 px no furo A e ~550 px no furo B; rodado aqui
-// em 03/09 por `nuvem-20260903T1623`, o mesmo arquivo imprime **367 px nos dois**. Não é regressão
-// nem erro de ninguém: o instrumento **afere a RELAÇÃO** (oráculo lê 0 enquanto a câmera lê > 0),
-// que é o que constitui o furo, e nunca a constante — por isso ele sai **exit 0** com números
-// diferentes dos escritos. É a mesma regra do catálogo, uma camada acima: **número de pintura é
-// referência da regra e da máquina que a mediu; o que se cobra é a relação.**
+// UM TERCEIRO MECANISMO FICOU ABERTO NA MESMA RODADA, DECIDIDO EM VEZ DE FECHADO:
+// `netoMarkerCustom` — o `::marker` de um `::before`/`::after` (o "neto"), com `content` próprio.
+// Ver a entrada dele no CATÁLOGO logo abaixo para a medição e a decisão por extenso; fica
+// registrado em `FUGAS_REGISTRADAS`, não fechado em `pinta()`, porque `getComputedStyle` não
+// resolve pseudo-elemento encadeado — provado, não suposto.
 //
-// Os dois furos são **conhecidos e não bloqueantes** — não pioram nada, e a catraca com eles pega
-// mais que a régua sozinha. Fechá-los é o item `censo-oraculo-dois-furos` **parte B** (apagar o
-// mutante do DOM em vez de escondê-lo, o que é imune à herança, com recorte alargado), que segue
-// aberto. O que esta entrega fez foi **trazer o instrumento que os mede** — `qa-catraca-oraculo.js`,
-// do ramo `qa/censo-cinco` (`97f1ccf`), sem reescrever uma linha: assim o tamanho dos furos passa a
-// ser cobrado por exit code em vez de descrito aqui em prosa, e o dia em que a parte B fechar um
-// deles o registro correspondente fica **vermelho sozinho**, pedindo para ser apagado.
+// O INSTRUMENTO QUE MEDIA OS DOIS FUROS ANTIGOS, `test/qa-catraca-oraculo.js`, FOI APAGADO NESTA
+// ENTREGA (03/09, parte B). Ele reproduzia, à parte e sem chamar este arquivo, a estratégia ANTIGA
+// (só `visibility:hidden`, sem desligar a folha) — e por ser uma cópia independente, ele NÃO ficou
+// vermelho sozinho quando o oráculo real mudou (a promessa de "fica vermelho sozinho", escrita por
+// quem o trouxe, não se sustentou: é uma reprodução hardcoded da estratégia antiga, não um teste
+// do código de produção). Confirmado com exit code real, ANTES de apagar: rodado sem tocar uma
+// linha, ele continuou `ok` — mede uma propriedade de "`visibility:hidden` sozinho, sem desligar a
+// folha" que é verdadeira para sempre, independente do que este arquivo faz hoje. O que prova que
+// os furos fecharam DE VERDADE, aqui, é `pseudoLonge` (FECHADO no catálogo abaixo) e a ausência
+// estrutural de qualquer `visibility` sobrevivente para recusar — os dois medidos NESTE arquivo,
+// que é o que roda no portão.
 //
 // O PISO DE RUÍDO, e ele é cobrado por exit code em CADA medição.
 // O mapa do TERRITÓRIO anima sozinho. Comparar o quadro INTEIRO de 1200x630 dá diferença sem
-// mutante nenhum — medido nesta máquina em duas execuções: **194 px** e **1028 px**, e 1028 px
-// acusaria dezenas de fugas falsas. O recorte na caixa do mutante mais 48 px de folga zera o piso,
-// e o zero é COBRADO, não confiado: antes de trocar qualquer coisa, o teste tira DUAS fotos
-// idênticas do mesmo recorte e exige diferença zero. Instrumento que não cobra o próprio piso
-// mede ruído e chama de achado — foi o que quase aconteceu duas vezes aqui.
+// mutante nenhum — medido nesta máquina em várias execuções: entre **~1100 e ~1108 px**, e isso
+// acusaria dezenas de fugas falsas. O recorte na caixa do mutante mais a folga (`FOLGA`, hoje
+// 400 px — ver o comentário ao lado da constante) zera o piso NESTA POSIÇÃO (medido nos nove
+// valores de folga entre 48 e 400, zero nos nove), e o zero é COBRADO, não confiado: antes de
+// trocar qualquer coisa, o teste tira DUAS fotos idênticas do mesmo recorte e exige diferença
+// zero. Instrumento que não cobra o próprio piso mede ruído e chama de achado — foi o que quase
+// aconteceu duas vezes aqui.
 //
 // ELA JÁ FOI VISTA MORDENDO, das duas maneiras (EQUIPE.md 2.8 — instrumento que ninguém viu
 // reprovando é decoração), e as duas com exit code REAL:
@@ -134,20 +151,53 @@
 // O QUE ESTE ARQUIVO NÃO RESOLVE, dito em vez de escondido — e o primeiro item foi achado
 // FURANDO ESTA MESMA CATRACA de propósito, depois de escrita, com número.
 //
-//   1. **PINTURA QUE NÃO É DO PRÓPRIO ELEMENTO — o furo, e ele é grande.** O oráculo é
-//      `visibility:hidden` NO MUTANTE, então ele só enxerga o que o MUTANTE pinta. Um mutante que
-//      apenas RE-ESTILIZA conteúdo já aceito escapa das duas pontas ao mesmo tempo:
+//   1. **PINTURA QUE NÃO É DO PRÓPRIO ELEMENTO — o furo, e ele é grande.** O oráculo (mesmo
+//      depois da parte B) segue medindo só o que o MUTANTE INJETADO pinta — é o `.qaFuga` que
+//      ele acende e apaga. Um mutante que apenas RE-ESTILIZA conteúdo JÁ ACEITO (não injeta nada
+//      novo, só muda a folha de um elemento que o censo já aprovou) escapa das duas pontas ao
+//      mesmo tempo:
 //        CATRACA_EXTRA_NOME=furoVizinho \
 //        CATRACA_EXTRA_ESTILO='.lista .pl{background:#0f0}' node test/qa-censo-pintura-fora.js
-//      devolve `inerte 0 px censo=ABSOLVE` e **exit 0** — enquanto o cartão muda **15.135 px** na
-//      caixa da `.lista` (medido: 384x67, `.pl` com fundo verde). O censo não vê porque as tábuas
-//      de lugar são PERMITIDAS por identidade (href/rótulo) e ele nunca pergunta como elas se
-//      parecem; o oráculo não vê porque a tinta não sai quando o mutante some.
+//      devolve `inerte 0 px censo=ABSOLVE` e **exit 0** — reproduzido em 03/09
+//      (`nuvem-20260903T2022`) e confirmado: o oráculo não muda porque o `.qaFuga` que ele liga e
+//      desliga é OUTRO elemento, nunca o `.pl` que a regra mira. O que muda de verdade é a caixa
+//      da `.lista`: **15.118 px** nesta máquina (medido fora da catraca, comparando a MESMA
+//      captura antes/depois de aplicar a regra, sem mutante nenhum — o registro anterior, de
+//      outra máquina, tinha **15.135 px**; a mesma disciplina do resto deste arquivo: o que se
+//      cobra é a ORDEM DE GRANDEZA e o fenômeno, não a constante). O censo não vê porque as
+//      tábuas de lugar são PERMITIDAS por IDENTIDADE (href/rótulo) e nunca pergunta como elas SE
+//      PARECEM; o oráculo não vê porque ele só fotografa o `.qaFuga` que injeta, e este mutante
+//      não injeta nada.
 //      É a mesma CLASSE do `q107c` de `test/qa-censo-passo2.js` (texto entrando por `::after` de
-//      uma tábua aceita), que já está lá declarado como ALCANCE não cobrado. Continua aberto, e
-//      agora com o tamanho medido em vez de suposto. Fechar isso é outro item e é de outra
-//      natureza: exigiria o censo comparar a APARÊNCIA do conteúdo aceito com uma referência, e
-//      não mais só a identidade dele.
+//      uma tábua aceita), que já está lá declarado como ALCANCE não cobrado.
+//
+//      DECISÃO (item `censo-restilizar-o-aceito`, 03/09, `nuvem-20260903T2022`): **NÃO** fechar
+//      agora — fica registrado como ALCANCE aberto, com o número, não como buraco escondido. As
+//      duas contas que sustentam o NÃO, medidas antes de decidir (não supostas):
+//        · **O custo de FECHAR** seria de outra ORDEM que os 48 mecanismos acima: aqui o
+//          catálogo testa UM mutante injetado contra UMA caixa fixa. Comparar APARÊNCIA do
+//          aceito contra referência pediria uma imagem de referência por ELEMENTO ACEITO — os 9
+//          do TERRITÓRIO (4 links da `.barra` + 5 `button.pl`) mais os 4 links da `.barra` em
+//          cada uma das outras quatro páginas — **25 referências**, cada uma sujeita ao MESMO
+//          piso de ruído do mapa que animou este arquivo inteiro (~1100 px no quadro cheio desta
+//          máquina) e que precisaria ser medido e recortado 25 vezes, não 1. E teria de ser
+//          RE-BASELINED a cada conteúdo novo — arte de capítulo, PONTO novo no mapa, mudança de
+//          rótulo —, que é exatamente o tipo de evento que este repositório já tem com
+//          frequência (ver `docs/arquivo/`, a evolução ano a ano do §8 do `CLAUDE.md`). Referência
+//          que precisa ser re-aprovada toda hora ou vira ruído que alguém ignora (ela reprova o
+//          certo) ou vira rito que ninguém confere de verdade (ela deixa de proteger) — as duas
+//          são o modo de falha que este arquivo inteiro existe para evitar do outro lado.
+//        · **O custo de DEIXAR ABERTO** é o de hoje: **15.118 px** de mudança visível sem
+//          reprovação, **mas** o vetor exige ESCREVER CSS no repositório (a `arg.estilo` só
+//          existe porque `CATRACA_EXTRA_ESTILO` a injeta como sonda de teste; no mundo real, o
+//          equivalente é editar `territorio/index.html`/`src/estilo.css` e mandar pelo build) —
+//          é a MESMA fronteira de confiança que qualquer outra linha de `src/` ou `ferramentas/`:
+//          quem tem acesso de commit já pode mudar o que o cartão mostra de dezenas de outras
+//          formas sem precisar deste furo específico. Não é um vetor de runtime (XSS, conteúdo de
+//          usuário) — é a mesma classe do `q107c`, que já está aberto há mais tempo sem incidente.
+//      Se a conta acima mudar — um vetor de RUNTIME aparecer, ou o custo de referência cair por
+//      alguma técnica que não pede 25 baselines —, a decisão é revisitável; até lá, fechar com
+//      "não, e aqui está o número" é o desfecho deste item, não uma pendência.
 //
 //   2. **UMA SUPERFÍCIE SÓ.** Tudo aqui é medido no `territorio/index.html`, na `.lista`. Um
 //      mecanismo cuja tinta dependa do que está ATRÁS (é o caso de `backdrop-filter`) pode medir
@@ -211,6 +261,39 @@ const CATALOGO = {
   pseudoItemDeLista: { estilo: '.qaFuga::before{content:"";display:list-item;list-style-type:disc;color:#f00;margin-left:20px}' },
   pseudoItemDeListaImagem: { estilo: '.qaFuga::after{content:"";display:list-item;list-style-image:url("' + SVG + '");margin-left:44px}' },
 
+  // A NONA — REGRESSÃO DO FURO B (`test/qa-catraca-oraculo.js`), acrescentada em 03/09 na parte B
+  // de `censo-oraculo-dois-furos`: um `::before` com a tinta a 330 px da caixa do mutante, dentro
+  // dos 400 px de folga de hoje e fora dos 48 px de antes. Com a folga alargada, a câmera E o
+  // oráculo enxergam os dois, e este mecanismo devolve `FECHADO` — é o contraponto que prova que a
+  // folga maior fecha o furo, e não só o desloca.
+  pseudoLonge: { estilo: '.qaFuga::before{content:"";display:block;width:60px;height:30px;background:#0ff;margin-left:330px}' },
+  // A DÉCIMA — O `::marker` DE UM PSEUDO-ELEMENTO (o "neto"), acrescentada em 03/09 na parte B.
+  // Achada por `test/qa-catraca-oraculo.js` como o CONTRAPONTO da prova dos furos: um `::before`
+  // que vira item de lista com `list-style-type:none` (sem marcador PADRÃO) mas ganha um `::marker`
+  // PRÓPRIO, com `content` custom, por uma regra `.qaFuga::before::marker{...}` — 367 px nesta
+  // máquina (183–495 px conforme a máquina, a mesma disciplina do resto do catálogo: o que se
+  // cobra é a relação, não a constante).
+  //
+  // DECISÃO (item 1, sub-item 3, `censo-oraculo-dois-furos` parte B): ENTRA no catálogo — SIM.
+  // Não fica fora só porque é raro ou difícil: é um mecanismo de pintura real, e a régua deste
+  // arquivo é "o que a câmera vê", não "o que é fácil de perguntar". Mas ele NÃO foi fechado em
+  // `pinta()` (`ferramentas/cartao-censo.js`), e a razão é medida, não preguiça: `getComputedStyle`
+  // não resolve pseudo-elemento ENCADEADO. Provado com uma sonda (`getComputedStyle(e,
+  // '::before::marker')`) contra a MESMA regra que pinta 367 px na câmera: devolve uma
+  // `CSSStyleDeclaration` VAZIA — `content=''`, `display=''` — enquanto `getComputedStyle(e,
+  // '::before')` e `getComputedStyle(e, '::marker')` (os dois de UM nível só) funcionam normalmente.
+  // Não há como `censoDoQuadro` — que roda dentro do `pg.evaluate`, sem câmera — perguntar ao
+  // navegador "o `::marker` do `::before` deste elemento pinta?": a única alternativa seria
+  // reimplementar o casamento de seletor CSS por cima de `document.styleSheets`, textualmente, o
+  // que é uma ORDEM DE FRAGILIDADE diferente do resto deste módulo (que já desconfia de listas —
+  // ver o cabeçalho) e trocaria uma fuga medida por um falso-positivo ou falso-negativo não
+  // medido. Fica registrado em `FUGAS_REGISTRADAS`, ao lado do `fundoClipTexto` em
+  // `FALSOS_REGISTRADOS`: dívida declarada, não buraco escondido.
+  netoMarkerCustom: {
+    estilo: '.qaFuga::before{content:"";display:list-item;list-style-type:none}'
+      + ' .qaFuga::before::marker{content:"XXXX";color:#ff0000;font-size:20px}',
+  },
+
   // A SEXTA, que não estava em teto nenhum — nem no declarado, nem no que o corrigiu.
   agarraAuto: { css: 'resize:both;overflow:auto' },
   agarraHidden: { css: 'resize:both;overflow:hidden' },
@@ -245,10 +328,21 @@ const CATALOGO = {
 // Os dois registros abaixo SÃO a catraca. Vazio no primeiro é o estado desta entrega; qualquer
 // coisa que apareça e não esteja escrita aqui deixa o exit code vermelho, com o nome e o número.
 //
-// FUGA = a câmera vê tinta E o censo absolve. É o buraco. Depois desta entrega o conjunto é VAZIO,
-// e é isso que a catraca prega: a próxima fuga tem de ser DECIDIDA por alguém (escrevendo o nome
-// aqui, com o número que ela mede) em vez de aparecer sozinha no cartão publicado.
-const FUGAS_REGISTRADAS = {};
+// FUGA = a câmera vê tinta E o censo absolve. É o buraco. A próxima fuga tem de ser DECIDIDA por
+// alguém (escrevendo o nome aqui, com o número que ela mede) em vez de aparecer sozinha no cartão
+// publicado.
+//
+// UMA FUGA FICA, DECIDIDA EM 03/09 (item 1, sub-item 3, `censo-oraculo-dois-furos` parte B):
+// `netoMarkerCustom` — o `::marker` de um `::before`/`::after` (o "neto" do pseudo), com `content`
+// próprio, quando o pseudo em si usa `list-style-type:none` (sem marcador PADRÃO para
+// `pintaMarcador`/`pseudoPinta` fecharem). Ver o comentário ao lado da entrada no CATÁLOGO acima
+// para a medição que provou a causa: `getComputedStyle` não resolve pseudo-elemento encadeado
+// (`::before::marker` devolve uma `CSSStyleDeclaration` vazia), então `ferramentas/cartao-
+// censo.js` não tem como perguntar ao navegador se aquilo pinta — e reimplementar casamento de
+// seletor CSS por cima de `document.styleSheets` é uma ordem de fragilidade diferente do resto
+// deste módulo. Fica registrada, ao lado do `fundoClipTexto` em `FALSOS_REGISTRADOS`: dívida
+// declarada, não buraco escondido — e a régua deste arquivo continua cobrando o TAMANHO dela.
+const FUGAS_REGISTRADAS = { netoMarkerCustom: 367 };
 
 // FALSO-POSITIVO = a câmera não vê tinta E o censo recusa. Não é buraco de segurança — é a régua
 // sendo mais paranoica que o navegador —, mas é dívida, porque régua que reprova o certo é a
@@ -297,7 +391,14 @@ async function abrirPagina(nav) {
 function injetar(arg) {
   const l = document.querySelector('.lista');
   if (!l) throw new Error('nao achei .lista (a .barra NAO serve — overflow-x:auto tira o mutante da janela)');
-  if (arg.estilo) { const st = document.createElement('style'); st.textContent = arg.estilo; document.head.appendChild(st); }
+  // `id="qaEstilo"` (não só a var local `st`, que este `evaluate` não devolve): é o gancho que o
+  // ORÁCULO usa para DESLIGAR a folha inteira mais tarde — ver o motivo perto de `window.__qaFuga`.
+  if (arg.estilo) {
+    const st = document.createElement('style');
+    st.id = 'qaEstilo';
+    st.textContent = arg.estilo;
+    document.head.appendChild(st);
+  }
   const s = document.createElement('span');
   s.className = 'qaFuga';
   s.setAttribute('aria-hidden', 'true');   // o MESMO atributo do vão real
@@ -311,10 +412,27 @@ function injetar(arg) {
   return { x: r.left, y: r.top, w: r.width, h: r.height };
 }
 
-// O RECORTE: a caixa do mutante mais 48 px de folga, presa dentro do quadro. A folga não é
-// enfeite — `outline-offset`, `box-shadow` e a alça de `resize` pintam FORA do retângulo do
-// elemento, e um recorte justo os leria como zero.
-const FOLGA = 48;
+// O RECORTE: a caixa do mutante mais FOLGA px, presa dentro do quadro. A folga não é enfeite —
+// `outline-offset`, `box-shadow` e a alça de `resize` pintam FORA do retângulo do elemento, e um
+// recorte justo os leria como zero.
+//
+// ERA 48 ATÉ 03/09 (parte B de `censo-oraculo-dois-furos`), E FOI ALARGADA PARA 400 POR MEDIÇÃO,
+// NÃO POR PALPITE — é exatamente o FURO B que `test/qa-catraca-oraculo.js` mediu (arquivo APAGADO
+// nesta mesma entrega — ver a nota histórica logo acima, perto do início do cabeçalho): um
+// `::before` com `margin-left:330px` põe a tinta a 330 px da caixa do mutante, e 48 não alcança.
+// `400` foi escolhido por ser o recorte que aquele instrumento já usava como "ORÁCULO B" (a folha
+// desligada, que não depende de recorte nenhum) para PROVAR o furo — reusar o mesmo número aqui
+// fecha o mesmo caso pelo lado do recorte. A REGRESSÃO fica aqui dentro agora, no catálogo
+// (`pseudoLonge`, logo abaixo), em vez de num arquivo à parte.
+//
+// O RISCO ÓBVIO — alargar o recorte pode alcançar o `#palco` (o mapa `position:fixed;inset:0` que
+// ANIMA por trás de tudo, e que é a razão de o quadro INTEIRO ter piso de ruído de ~1000 px, ver
+// o bloco 1 abaixo) — foi MEDIDO antes de trocar o número, não assumido: nesta posição (a `.lista`
+// do TERRITÓRIO) o piso de ruído do recorte segue ZERO até 400 px de folga (medido: 48, 80, 120,
+// 160, 200, 260, 330, 350, 400 — os nove, zero nos nove). O bloco 1 abaixo CONTINUA cobrando isso
+// a cada execução — se o mapa um dia animar também nesta região, ou se a folga crescer mais, a
+// asserção do piso reprova antes de qualquer número virar achado falso.
+const FOLGA = 400;
 function recortar(r) {
   const x0 = Math.max(0, Math.floor(r.x - FOLGA)), y0 = Math.max(0, Math.floor(r.y - FOLGA));
   const x1 = Math.min(L, Math.ceil(r.x + r.w + FOLGA)), y1 = Math.min(A, Math.ceil(r.y + r.h + FOLGA));
@@ -423,7 +541,44 @@ async function diferenca(aux, a, b) {
     // O PISO DESTA MEDIÇÃO, cobrado aqui e não uma vez só lá em cima: cada mecanismo mexe na
     // caixa, e um recorte que passe a pegar o mapa deixaria de ter piso zero SÓ NAQUELE caso.
     const outraVez = await pg.screenshot({ clip });
-    await pg.evaluate(() => { window.__qaFuga.style.visibility = 'hidden'; });
+    // O ORÁCULO — ATÉ 03/09 escondia o mutante com `visibility:hidden` NELE MESMO, e só isso. Era
+    // o FURO A (`test/qa-catraca-oraculo.js`, parte B de `censo-oraculo-dois-furos`): `visibility`
+    // é HERDADA, e um pseudo-elemento pode REDECLARAR `visibility:visible` e continuar pintando
+    // depois de o hospedeiro já estar `hidden` — o oráculo lia 0 px onde a tinta do próprio
+    // mutante era de centenas de px.
+    //
+    // A PRIMEIRA CORREÇÃO TENTADA FOI `window.__qaFuga.remove()` — apagar o nó do DOM inteiro (que
+    // É imune a herança: sem hospedeiro não há pseudo-elemento) — E, SEPARADAMENTE, resetar o
+    // `style.cssText` para a caixa nua em vez de só escondê-la. AS DUAS FORAM MEDIDAS E
+    // DESCARTADAS, por dois motivos de reflow diferentes:
+    //   1. `.remove()` — a `.lista` é `display:flex`, e tirar um filho dela FAZ O LAYOUT RE-FLUIR:
+    //      os vizinhos se reposicionam, e o recorte (geometria FIXA, medida antes da remoção) passa
+    //      a fotografar outra coisa. Medido: os mecanismos que deveriam ser `inerte 0 px` passaram a
+    //      medir ~102.800 px — o ruído do reflow, não do mutante.
+    //   2. Resetar `style.cssText` por inteiro — layout-neutro para border/outline/box-shadow
+    //      (com `box-sizing:border-box` a caixa EXTERNA não muda), mas `zoom` é uma propriedade DE
+    //      LAYOUT: `zoom:2` (do catálogo `zoom`, que o censo já absolve corretamente hoje) dobra a
+    //      caixa e empurra os vizinhos da `.lista`, e resetar o cssText desfaz isso NO MEIO da
+    //      medição. Medido: `zoom` foi de `inerte 0 px` para `FUGA 143.311 px` — reflow de novo,
+    //      disfarçado de achado.
+    //
+    // O QUE FICA, e fecha o furo A sem repetir os dois erros acima: `visibility:hidden` continua NO
+    // HOSPEDEIRO (layout-neutro por construção — é o que já funcionava para border, background,
+    // outline, box-shadow, backdrop-filter, border-image, o `::marker` PADRÃO de `list-item`, a
+    // alça de `resize` e `content` substituído; `zoom` incluído, porque esconder não muda o
+    // tamanho da caixa) — E, JUNTO, a folha de `arg.estilo` (marcada com `id="qaEstilo"` em
+    // `injetar()`) é DESLIGADA por `disabled=true`. Sem a folha, a declaração `content` que cria
+    // o `::before`/`::after` deixa de existir — `content` computa `normal`, não há pseudo-elemento
+    // NENHUM gerado, e não sobra `visibility` de ninguém para herdar OU recusar: a folha inteira
+    // some, a redeclaração de `visibility:visible` some junto porque estava NA MESMA folha. Nem
+    // `visibility:hidden` nem `disabled=true` tocam em `width`/`height`/`zoom` do hospedeiro —
+    // os dois são layout-neutros, e é isso que o piso de cada mecanismo (medido logo abaixo, a
+    // cada iteração) cobra.
+    await pg.evaluate(() => {
+      window.__qaFuga.style.visibility = 'hidden';
+      const st = document.getElementById('qaEstilo');
+      if (st) st.disabled = true;
+    });
     const semEle = await pg.screenshot({ clip });
     await pg.close();
     const piso = await diferenca(aux, comEle, outraVez);
