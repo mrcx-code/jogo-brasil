@@ -97,7 +97,16 @@ const MEC = /^src\/(jogo\.ts|estilo\.css)$|^test\//;
 // portao A MAIS, do mesmo jeito que o historiador dispara "espelho do conteudo" mais abaixo —
 // porque o defeito que ele existe para pegar (o interruptor de medição reaparecendo dentro do
 // recorte 1200x630 publicado) já vazou uma vez (23/08) com o porteiro presente e sem ele.
-const CARTAO_CENSO = /^ferramentas\/gerar-territorio\.js$|^ferramentas\/cartao-censo\.js$|^territorio\//;
+//
+// ALARGADO EM 03/09 (item `censo-so-e-cobrado-no-territorio`), e o alargamento tem número: o
+// censo passou a ser cobrado nas CINCO superfícies (a porta mais as quatro seções), então o
+// gatilho antigo — que só olhava para `gerar-territorio.js`, `cartao-censo.js` e `territorio/` —
+// deixava de fora exatamente quem mexe nas outras quatro. `chrome-plataforma.js` escreve a
+// `.barra` que É a lista de permitidos das cinco; `cartao-secao.js` é o gerador dos três cartões
+// de texto; e as quatro pastas publicadas são o artefato que o censo lê. Os dois testes entram
+// também: mudar a régua sem rodá-la é como o falso-positivo do `span.vaoMedida` ficou quatro
+// páginas no repositório sem ninguém ver.
+const CARTAO_CENSO = /^ferramentas\/(gerar-territorio|cartao-censo|cartao-secao|chrome-plataforma)\.js$|^(territorio|historia|glossario|de-onde-vem|plataforma)\/|^test\/(cartao-quadro-controle|qa-censo-passo2)\.js$/;
 let tocaCartaoCenso = false;
 for (const a of arquivos) {
   if (PUB.test(a) || REDE.test(a)) exigidos.add('porteiro');
@@ -142,7 +151,8 @@ if (SO_GATILHOS) {
   }
   if (tocaCartaoCenso) {
     const dele = arquivos.filter(a => CARTAO_CENSO.test(a));
-    console.log('  exige PORTÃO EXTRA "cartao sem controle no quadro" (test/cartao-quadro-controle.js): '
+    console.log('  exige PORTÕES EXTRA do censo do cartão (test/cartao-quadro-controle.js + '
+      + 'test/qa-censo-passo2.js): '
       + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
   }
   process.exit(0);
@@ -216,6 +226,26 @@ portao('encaixe', process.execPath, [path.join(RAIZ, 'test', 'encaixe.js')], 12)
   // cartão ou a própria saída publicada roda o controle que exercita os 7 mutantes contra a
   // página real — vermelho aqui desfaz o merge, do mesmo jeito que os dois portões de cima.
   if (tocaCartaoCenso) portao('cartao sem controle no quadro', process.execPath, [path.join(RAIZ, 'test', 'cartao-quadro-controle.js')], 2);
+  // O SEGUNDO PORTÃO DO CENSO (item `censo-so-e-cobrado-no-territorio`, 03/09). O de cima cobra
+  // as CINCO páginas publicadas e os 8 mutantes contra o TERRITÓRIO; este cobra o ALCANCE da
+  // segunda passada — os mutantes de outro autor (`q107d`, `q107e`), os SEIS mecanismos de
+  // pintura que um `aria-hidden` sem texto usa para aparecer na foto, e o contraponto que impede
+  // o conserto de virar falso-positivo. Ele existia desde 02/09 e rodava em ZERO lugares: nem
+  // `npm test`, nem `encaixe.js`, nem o funil, nem o CI. Instrumento de QA não é portão — é a
+  // mesma doença que esta casa curou no `medir-cartao-controle.js` (02/09) e no
+  // `qa-vercel-host.js` (03/09), e é a terceira vez.
+  //
+  // POR QUE AQUI E NÃO NO `npm test`: o `npm test` é o laço curto que todo agente roda dezenas de
+  // vezes por sessão, e estes dois pagam Chromium e abrem vinte e uma páginas — medido nesta
+  // máquina, 39,1 s e 77,2 s. Somar 116 s a cada `npm test` é o jeito mais rápido de alguém parar
+  // de rodar `npm test`. O funil é onde se decide o que entra na `main`, roda uma vez por entrega,
+  // e já é o dono deste assunto pela linha de cima. (O `cartao-quadro-controle.js` roda ADEMAIS no
+  // CI, incondicional, desde 02/09 — então a cobertura das cinco páginas tem dois lugares
+  // automáticos, não um.)
+  //
+  // O TETO DE 4 MINUTOS não é chute: são 3,1× os 77,2 s medidos, a mesma folga que a linha de cima
+  // tem (2 min para 39,1 s). Timeout de portão não vira "lento", vira VERMELHO que desfaz o merge.
+  if (tocaCartaoCenso) portao('alcance da segunda passada do censo', process.execPath, [path.join(RAIZ, 'test', 'qa-censo-passo2.js')], 4);
 
 // ---- prega o placar ----
 const eq = path.join(RAIZ, 'EQUIPE.md');
