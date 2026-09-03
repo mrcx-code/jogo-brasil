@@ -1031,18 +1031,16 @@
     },
     {
       "id": "censo-oraculo-dois-furos",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "dev-jogo",
       "camada": "esteira",
-      "titulo": "A catraca do censo promete mais do que cumpre: oraculo visibility:hidden tem 2 furos e ::before::marker e 8a fuga sem catalogo",
+      "titulo": "PARTE B do censo-oraculo-dois-furos: oraculo apaga o mutante do DOM (imune a heranca) + recorte alargado + ::before::marker no catalogo",
       "territorio": [
         "ferramentas/cartao-censo.js",
         "test/qa-censo-pintura-fora.js"
       ],
       "aceite": "Duas coisas, e as duas podem fechar separadas. (A) ABRANDAR as duas frases superestimadas — o cabecalho de qa-censo-pintura-fora.js diz por-construcao-exatamente-os-pixels e verde-igual-fugas-registradas, e o QA derrubou as duas com numero; o texto passa a dizer o que a catraca REALMENTE garante. (B) DECIDIR, com medicao antes de construir: o oraculo passa a APAGAR o mutante do DOM (imune a heranca de visibility) com recorte alargado, e ::before::marker entra no catalogo/regua? Se sim, prova de mordida por injecao para as 3 variantes que o QA mediu (exit 1 real) + controle limpo exit 0. Traga test/qa-catraca-oraculo.js do ramo qa/censo-cinco (97f1ccf) em vez de reescrever — ele ja registra o tamanho dos 2 furos e ja foi visto mordendo (QA_ORACULO=b exit 1, QA_MUTANTE_MUDO=1 exit 1).",
-      "detalhe": "Achado pelo QA cruzado em 03/09 auditando censo-cinco-fugas-medidas, e NAO bloqueante (rede furada e melhor que rede nenhuma; nao piora nada) — por isso a entrega foi integrada e isto virou item. O oraculo visibility:hidden nao e completo por construcao: (furo A) visibility e herdada e o pseudo-elemento RECUSA a heranca, entao o oraculo le 0 px enquanto a tinta do proprio mutante e 367 px; (furo B) o recorte de 48 px perde marcador deslocado (::before::marker a 330 px cai fora; recorte de 400 conta ~550 px). A 8a fuga da regua e ::before::marker — o marcador DO pseudo, uma camada abaixo do que a regua olha: crua a catraca PEGA (exit 1, FUGA 183px), mas ninguem a pos no catalogo, logo ninguem a mede. Instrumento test/qa-catraca-oraculo.js empurrado em origin/qa/censo-cinco (97f1ccf), arvore limpa.",
-      "maquina": "nuvem-20260903T1623",
-      "desde": "2026-09-03T17:01:01.703Z"
+      "detalhe": "PARTE A FEITA em 03/09 por nuvem-20260903T1623 (as tres frases superestimadas do cabecalho de test/qa-censo-pintura-fora.js abrandadas, e os dois furos + o furo do tamanho agora REGISTRADOS por instrumento: test/qa-catraca-oraculo.js e test/qa-catraca-tamanho-ignorado.js, os dois exit 0). Falta so a parte B: apagar o mutante do DOM em vez de escondê-lo, recorte alargado, e decidir se ::before::marker entra no catalogo. Quando fechar um furo, o instrumento correspondente fica VERMELHO sozinho pedindo para ser apagado — e o cabecalho tem de ser corrigido junto."
     },
     {
       "id": "ramos-mortos-mente-em-clone-raso",
