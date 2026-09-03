@@ -37,6 +37,10 @@
 // A NOVA ASSERÇÃO (alcançável): em toda largura da tabela, o ÚLTIMO botão do poste
 // (`#btnConfig`) tem de estar alcançável — existir, ter caixa, e (se estiver além da dobra)
 // SÓ pode ser trazido de volta por um ANCESTRAL com `overflow-y: auto|scroll` de verdade.
+// **E DESDE 03/09 ELA VALE TAMBÉM NAS SEIS TELAS DE RETRATO**, junto com a do degrau dos dois
+// níveis do poste — as duas viraram função compartilhada pelos dois laços (`alcanceDoBotao()` e
+// `conferirDegrau()`, logo abaixo). O porquê, com os números da decisão, está no rodapé do
+// arquivo, na seção do item `regua-retrato-sem-alcancabilidade`.
 //
 // A PRIMEIRA VERSÃO DESTA ASSERÇÃO ERA DECORAÇÃO, E FICOU PROVADO NESTA MESMA RODADA (lição
 // EQUIPE.md 2.8): usava `cfg.scrollIntoView()`, que o navegador cumpre mexendo o `scrollTop`
@@ -81,6 +85,104 @@ async function telaParada(pg, id) {
   }, id);
 }
 
+// ============================================================
+// O ALCANCE DO ÚLTIMO BOTÃO — UMA função, DOIS laços (03/09, item `regua-retrato-sem-alcancabilidade`)
+//
+// Este bloco era código INLINE dentro do `pg.evaluate` do laço das telas largas, e por isso o
+// laço de RETRATO nunca teve como perguntar a mesma coisa. Virou função porque a resposta do
+// item foi SIM: retrato precisa da asserção. O número que decidiu está no rodapé do arquivo —
+// em produção, em retrato, o `#btnConfig` fecha a 4 px da borda de baixo em 320×568 e 390×568
+// **sem um pixel de rolagem para recuar** (`scrollHeight − clientHeight = 0` nas seis).
+//
+// A DECISÃO DO EIXO X (item `regua-eixo-x-nao-olhado`, 02/09) continua valendo e mora aqui:
+// transbordo alcançável só por ROLAGEM LATERAL conta como PRESO. Medido, nas SEIS telas largas,
+// `#telaMenu` tem `overflow-x` sempre `auto` mas `scrollWidth-clientWidth` é **0 em produção,
+// nas seis**, porque `overflow-x` nunca é DECLARADO em `estilo.css` para `#telaMenu` (só
+// `overflow-y: auto`, linhas 847/1026) — o `auto` do eixo X é efeito colateral do spec (a UA
+// força o eixo oposto a `auto` quando só um dos dois é `visible`), não uma decisão de design.
+// Só aparece sobra (141 px em 899×500, 265 px em 926×428) sob o defeito INJETADO
+// `#poste{position:absolute;top:0}` — nunca em produção. Diferente do resgate vertical, que
+// resgata um `overflow-y:auto` ESCRITO de propósito. Por isso o resgate é só em Y, e a MENSAGEM
+// imprime os dois eixos sempre — imprimir só top/bottom produziu diagnóstico errado duas vezes.
+//
+// ⚠ ELA MEXE NO `scrollTop` DOS ANCESTRAIS, e isso decide ONDE ela pode ser chamada. No laço das
+// telas largas ela vem ANTES da leitura de geometria — como já vinha, porque o bloco inline era a
+// primeira coisa do `evaluate`. No laço de RETRATO ela vem DEPOIS: lá as asserções comparam a
+// caixa da personagem (derivada de `GROUND`/`HX`, em coordenadas de viewport, insensível à
+// rolagem) com as caixas do poste e das tábuas (`getBoundingClientRect`, que ANDA quando se rola).
+// Chamá-la antes compararia uma caixa rolada com uma não-rolada e fabricaria sobreposição do nada.
+async function alcanceDoBotao(pg) {
+  return await pg.evaluate(() => {
+    const menu = document.querySelector('#telaMenu');
+    const cfg = document.getElementById('btnConfig');
+    let alcancavel = false, tocavel = false, motivo = 'não existe';
+    if (cfg) {
+      const b0 = cfg.getBoundingClientRect();
+      if (b0.width === 0 || b0.height === 0) motivo = 'caixa vazia';
+      else {
+        const J = window.innerHeight, L = window.innerWidth;
+        const cabe = (r) => r.top >= -2 && r.bottom <= J + 2 && r.left >= -2 && r.right <= L + 2;
+        let b = cfg.getBoundingClientRect();
+        if (!cabe(b)) {
+          // rola de verdade só quem o dedo conseguiria rolar
+          for (let p = cfg.parentElement; p; p = p.parentElement) {
+            const cs = getComputedStyle(p);
+            const rolavel = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
+              && p.scrollHeight - p.clientHeight > 1;
+            if (rolavel) p.scrollTop = p.scrollHeight;
+            if (p === menu) break;
+          }
+          b = cfg.getBoundingClientRect();
+        }
+        alcancavel = cabe(b);
+        if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', altura ' + J + ' · left ' + Math.round(b.left) + ', right ' + Math.round(b.right) + ', largura ' + L + ')';
+        else {
+          const cx = Math.round((b.left + b.right) / 2), cy = Math.round((Math.max(b.top, 0) + Math.min(b.bottom, J)) / 2);
+          const alvo = document.elementFromPoint(cx, cy);
+          tocavel = !!(alvo && (alvo === cfg || cfg.contains(alvo)));
+          if (!tocavel) motivo = 'coberto por ' + (alvo ? (alvo.tagName + (alvo.id ? '#' + alvo.id : '')) : '(nada)');
+        }
+      }
+    }
+    return { cfgOk: alcancavel && tocavel, cfgMotivo: motivo };
+  });
+}
+
+// ---- A HIERARQUIA DOS PORTÕES (increment 2 da home, 21/08) ----
+// O defeito que isto existe para não ter de novo: até 21/08 seis das sete tábuas do poste eram a
+// MESMA tábua — medido, 273×50 em rgb(124,85,44) para A HISTÓRIA, GLOSSÁRIO, CONFIGURAÇÕES e a do
+// mapa. Uma home de plataforma que dá o mesmo peso a "o acervo de 181 verbetes" e a "configurações"
+// não está dizendo o que a direção mandou dizer. A régua mede a DISTÂNCIA entre os dois níveis, não
+// a receita de cada um: quem quiser trocar a madeira, a largura ou a letra pode — o que não pode é
+// o degrau sumir.
+//
+// TAMBÉM VIROU FUNÇÃO EM 03/09, e pelo mesmo motivo do alcance: o degrau EXISTE em retrato e
+// ninguém o media. Medido em produção nas seis telas de retrato — portais 250..320 px de largura
+// contra 198..246 do nível 2 (degrau de 52 a 74 px) e 51..53 de altura contra 44 (degrau de 7 a 9).
+// A receita `hierarquia` apaga esse degrau em RETRATO tanto quanto nas telas largas (degrau de
+// largura vai a 0 nas seis, e o de altura fica NEGATIVO: −8 a −10, o nível 2 mais alto que o
+// portão), e mesmo assim o laço de retrato dava verde. Isso não era "o defeito não existe ali", era
+// o instrumento cego.
+function conferirDegrau(P, U, probs) {
+  // QUATRO desde 21/08: DE ONDE VEM saiu de dentro de CONFIGURAÇÕES e subiu ao topo por decisão do
+  // dono. O número é cobrado de propósito — o modo de falha que este bloco existe para pegar é uma
+  // tábua desaparecer do topo em silêncio, e "3 ou 4, tanto faz" não pega isso.
+  if (P.length !== 4) { probs.push('o topo do poste tem ' + P.length + ' portões, e a direção pede 4 (JOGAR · A HISTÓRIA · GLOSSÁRIO · DE ONDE VEM)'); return; }
+  // (a) os quatro portões são IGUAIS entre si — é o que diz "isto é a plataforma inteira"
+  const lp = Math.min(...P.map(p => p.w)), Lp = Math.max(...P.map(p => p.w));
+  const ap = Math.min(...P.map(p => p.h)), Ap = Math.max(...P.map(p => p.h));
+  if (Lp - lp > 1) probs.push('os portões não têm a mesma largura (' + P.map(p => p.id + ' ' + p.w.toFixed(0)).join(', ') + ')');
+  if (Ap - ap > 1) probs.push('os portões não têm a mesma altura (' + P.map(p => p.id + ' ' + p.h.toFixed(0)).join(', ') + ')');
+  // (b) e a utilidade é MENOR — em largura e em altura. 16 px e 6 px são o degrau mínimo que ainda
+  //     se lê de longe; abaixo disso o print de 21/08 mostra dois níveis que leem como um só.
+  U.forEach(function (u) {
+    if (u.w > lp - 16) probs.push(u.id + ' (nível 2) tem ' + u.w.toFixed(0) + 'px de largura contra ' + lp.toFixed(0) + ' do portão — o degrau sumiu');
+    if (u.h > ap - 6) probs.push(u.id + ' (nível 2) tem ' + u.h.toFixed(0) + 'px de altura contra ' + ap.toFixed(0) + ' do portão — o degrau sumiu');
+    // o degrau nunca desce abaixo do polegar: 44 px é piso, não sugestão (lição de 14/08)
+    if (u.h < 44) probs.push(u.id + ' (nível 2) caiu para ' + u.h.toFixed(1) + 'px — abaixo dos 44 de dedo');
+  });
+}
+
 // largura -> piso de fonte legível naquela largura (da tabela de faixas da direção de arte)
 const TELAS = [
   { nome: 'tablet retrato',   w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
@@ -122,67 +224,16 @@ const TELAS = [
       await pg.evaluate(() => { chaoHome = 0.60; GROUND = Math.round(H * 0.60); redesenharFundo(); });
       await pg.waitForTimeout(150);
     }
+    // O ALCANCE VEM ANTES DA GEOMETRIA aqui, e é exatamente onde ele já rodava: o bloco inline
+    // que virou `alcanceDoBotao()` era a primeira coisa deste `evaluate`. A ordem importa porque
+    // a função rola os ancestrais — ver o ⚠ no cabeçalho dela.
+    const alc = await alcanceDoBotao(pg);
     const m = await pg.evaluate(() => {
       const px = (sel) => { const el = document.querySelector(sel); return el ? parseFloat(getComputedStyle(el).fontSize) : null; };
       const larg = (sel) => { const el = document.querySelector(sel); return el ? el.getBoundingClientRect().width : null; };
       const menu = document.querySelector('#telaMenu');
       const visivel = !!menu && getComputedStyle(menu).display !== 'none' && menu.getBoundingClientRect().width > 0;
 
-      // o último botão do poste: existe, tem caixa, e — se estiver além da dobra — algum
-      // ancestral com overflow-y REALMENTE rolável (auto/scroll, e com o que rolar) o resgata?
-      const cfg = document.getElementById('btnConfig');
-      let alcancavel = false, tocavel = false, motivo = 'não existe';
-      if (cfg) {
-        const b0 = cfg.getBoundingClientRect();
-        if (b0.width === 0 || b0.height === 0) motivo = 'caixa vazia';
-        else {
-          const J = window.innerHeight, L = window.innerWidth;
-          const cabe = (r) => r.top >= -2 && r.bottom <= J + 2 && r.left >= -2 && r.right <= L + 2;
-          let b = cfg.getBoundingClientRect();
-          if (!cabe(b)) {
-            // rola de verdade só quem o dedo conseguiria rolar
-            for (let p = cfg.parentElement; p; p = p.parentElement) {
-              const cs = getComputedStyle(p);
-              const rolavel = (cs.overflowY === 'auto' || cs.overflowY === 'scroll')
-                && p.scrollHeight - p.clientHeight > 1;
-              if (rolavel) p.scrollTop = p.scrollHeight;
-              if (p === menu) break;
-            }
-            b = cfg.getBoundingClientRect();
-          }
-          alcancavel = cabe(b);
-          // A DECISÃO DO EIXO X (item `regua-eixo-x-nao-olhado`, 02/09, re-medida pelo dev-jogo):
-          // transbordo alcançável só por ROLAGEM LATERAL continua contando como PRESO — não é
-          // "sem sair da mensagem", é escolha com número. Medido nesta rodada, nas SEIS telas
-          // largas, `#telaMenu` tem `overflow-x` sempre `auto` mas `scrollWidth-clientWidth`
-          // (sobraX) é **0 em produção, nas seis**, porque `overflow-x` nunca é DECLARADO em
-          // `estilo.css` para `#telaMenu` (só `overflow-y: auto`, linhas 847/1026) — o `auto` do
-          // eixo X é efeito colateral do spec (UA força o eixo oposto a `auto` quando só um dos
-          // dois é `visible`), não uma decisão de design. Só aparece sobra (141 px em 899×500,
-          // 265 px em 926×428) sob o defeito INJETADO `#poste{position:absolute;top:0}` — nunca
-          // em produção. Diferente do resgate vertical, que resgata um `overflow-y:auto`
-          // ESCRITO de propósito (o próprio poste rolar em tela baixa é comportamento intencional
-          // documentado no CSS), rolar de lado aqui seria premiar um eixo que ninguém decidiu ter.
-          // Por isso o resgate CONTINUA só em Y — a mudança é a MENSAGEM, que deixa de mentir:
-          // antes só imprimia top/bottom/janela mesmo quando a falha era horizontal (produziu
-          // diagnóstico errado duas vezes, EQUIPE.md); agora imprime os dois eixos sempre.
-          if (!alcancavel) motivo = 'fora da janela mesmo depois de rolar o(s) ancestral(is) rolável(eis) (top ' + Math.round(b.top) + ', bottom ' + Math.round(b.bottom) + ', altura ' + J + ' · left ' + Math.round(b.left) + ', right ' + Math.round(b.right) + ', largura ' + L + ')';
-          else {
-            const cx = Math.round((b.left + b.right) / 2), cy = Math.round((Math.max(b.top, 0) + Math.min(b.bottom, J)) / 2);
-            const alvo = document.elementFromPoint(cx, cy);
-            tocavel = !!(alvo && (alvo === cfg || cfg.contains(alvo)));
-            if (!tocavel) motivo = 'coberto por ' + (alvo ? (alvo.tagName + (alvo.id ? '#' + alvo.id : '')) : '(nada)');
-          }
-        }
-      }
-
-      // ---- A HIERARQUIA DOS PORTÕES (increment 2 da home, 21/08) ----
-      // O defeito que isto existe para não ter de novo: até 21/08 seis das sete tábuas do poste
-      // eram a MESMA tábua — medido, 273×50 em rgb(124,85,44) para A HISTÓRIA, GLOSSÁRIO,
-      // CONFIGURAÇÕES e a do mapa. Uma home de plataforma que dá o mesmo peso a "o acervo de 167
-      // verbetes" e a "configurações" não está dizendo o que a direção mandou dizer. A régua
-      // mede a DISTÂNCIA entre os dois níveis, não a receita de cada um: quem quiser trocar a
-      // madeira, a largura ou a letra pode — o que não pode é o degrau sumir.
       const caixa = function (el) {
         const cs = getComputedStyle(el), r = el.getBoundingClientRect();
         return { id: el.id, w: r.width, h: r.height, op: parseFloat(cs.opacity) };
@@ -232,8 +283,6 @@ const TELAS = [
         painel: larg('#poste'),
         logo: larg('#logoImg'),
         tela: window.innerWidth,
-        cfgOk: alcancavel && tocavel,
-        cfgMotivo: motivo,
         portais: portais,
         utilidade: utilidade,
       };
@@ -246,7 +295,7 @@ const TELAS = [
     if (m.cta == null || m.cta < t.pisoCta) probs.push('cta ' + (m.cta == null ? 'ausente' : m.cta.toFixed(1) + 'px') + ' < piso ' + t.pisoCta);
     // em tela larga (>=900) o painel não pode ocupar quase a tela toda — isso é o "menu esticado"
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
-    if (!m.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + m.cfgMotivo);
+    if (!alc.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + alc.cfgMotivo);
     if (!m.chaoIntacto) probs.push('a linha do chão MEXEU fora do retrato: GROUND ' + m.chaoGround
       + ' contra ' + Math.round(m.chaoH * 0.68) + ' (0,68 de H=' + m.chaoH + ')');
     // o piso de tinta é 0,6% da tela: medido 3,4% em 390×844 e 1,5% no ultrawide (a folha
@@ -255,29 +304,8 @@ const TELAS = [
     if (m.dioMotivo) probs.push('diorama da home: ' + m.dioMotivo);
     else if (m.dioTinta < 0.6) probs.push('diorama da home sem plano da frente: ' + m.dioTinta.toFixed(2) + '% de folha densa (piso 0,6%)');
 
-    // ---- os dois níveis do poste, medidos ----
-    const P = m.portais || [], U = m.utilidade || [];
-    // QUATRO desde 21/08: DE ONDE VEM saiu de dentro de CONFIGURAÇÕES e subiu ao topo por
-    // decisão do dono. O número é cobrado de propósito — o modo de falha que este bloco existe
-    // para pegar é uma tábua desaparecer do topo em silêncio, e "3 ou 4, tanto faz" não pega
-    // isso. Se um quinto portão for decidido um dia, muda-se aqui E na tabela do estilo.css.
-    if (P.length !== 4) probs.push('o topo do poste tem ' + P.length + ' portões, e a direção pede 4 (JOGAR · A HISTÓRIA · GLOSSÁRIO · DE ONDE VEM)');
-    else {
-      // (a) os três portões são IGUAIS entre si — é o que diz "isto é a plataforma inteira"
-      const lp = Math.min(...P.map(p => p.w)), Lp = Math.max(...P.map(p => p.w));
-      const ap = Math.min(...P.map(p => p.h)), Ap = Math.max(...P.map(p => p.h));
-      if (Lp - lp > 1) probs.push('os portões não têm a mesma largura (' + P.map(p => p.id + ' ' + p.w.toFixed(0)).join(', ') + ')');
-      if (Ap - ap > 1) probs.push('os portões não têm a mesma altura (' + P.map(p => p.id + ' ' + p.h.toFixed(0)).join(', ') + ')');
-      // (b) e a utilidade é MENOR — em largura e em altura. 16 px e 6 px são o degrau mínimo
-      //     que ainda se lê de longe; abaixo disso o print de 21/08 mostra dois níveis que
-      //     leem como um só, que é exatamente o estado anterior.
-      U.forEach(function (u) {
-        if (u.w > lp - 16) probs.push(u.id + ' (nível 2) tem ' + u.w.toFixed(0) + 'px de largura contra ' + lp.toFixed(0) + ' do portão — o degrau sumiu');
-        if (u.h > ap - 6) probs.push(u.id + ' (nível 2) tem ' + u.h.toFixed(0) + 'px de altura contra ' + ap.toFixed(0) + ' do portão — o degrau sumiu');
-        // o degrau nunca desce abaixo do polegar: 44 px é piso, não sugestão (lição de 14/08)
-        if (u.h < 44) probs.push(u.id + ' (nível 2) caiu para ' + u.h.toFixed(1) + 'px — abaixo dos 44 de dedo');
-      });
-    }
+    // ---- os dois níveis do poste, medidos (a função é compartilhada com o laço de retrato) ----
+    conferirDegrau(m.portais || [], m.utilidade || [], probs);
 
     const linha = t.nome.padEnd(16) + ' · ' + t.w + 'x' + t.h
       + ' · proposta ' + (m.frase != null ? m.frase.toFixed(1) : '—') + 'px'
@@ -287,7 +315,7 @@ const TELAS = [
       + ' · portões ' + ((m.portais || []).length ? (m.portais[0].w.toFixed(0) + 'x' + m.portais[0].h.toFixed(0)) : '—')
       + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
       + ' · diorama ' + (m.dioTinta >= 0 ? m.dioTinta.toFixed(2) + '%' : 'AUSENTE')
-      + ' · configurações ' + (m.cfgOk ? 'alcançável' : 'PRESO');
+      + ' · configurações ' + (alc.cfgOk ? 'alcançável' : 'PRESO');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
   }
@@ -404,14 +432,28 @@ const TELAS = [
           return { id: b.id, t: r.top, b: r.bottom, l: r.left, r: r.right, h: r.height }; });
       const subR = document.getElementById('menuSub').getBoundingClientRect();
       const posteR = document.getElementById('poste').getBoundingClientRect();
+      // OS DOIS NÍVEIS TAMBÉM EM RETRATO (03/09). Medido antes de escrever a asserção: o degrau
+      // EXISTE nas seis telas de retrato — portais 250..320 de largura contra 198..246 do nível 2
+      // (52 a 74 px), e 51..53 de altura contra 44 (7 a 9 px). Não é um conceito só das telas
+      // largas; o laço daqui é que nunca o media.
+      const naTela = (el) => getComputedStyle(el).display !== 'none';
+      const caixa = (el) => { const r = el.getBoundingClientRect(); return { id: el.id, w: r.width, h: r.height }; };
+      const portais = [...document.querySelectorAll('#poste .telaBtn.portal')].filter(naTela).map(caixa);
+      const utilidade = [...document.querySelectorAll('#poste .telaBtn.sec')].filter(naTela).map(caixa);
       return {
         W, H, GROUND, ESCALA, chaoHome, ela, ligado: CHAO_HOME_LIGADO,
         subBase: sub.topo + sub.alt, posteTopo: poste.topo,
         subCx: { t: subR.top, b: subR.bottom, l: subR.left, r: subR.right },
         posteCx: { t: posteR.top, b: posteR.bottom, l: posteR.left, r: posteR.right },
-        tabuas
+        tabuas, portais, utilidade
       };
     });
+    // ⚠ O ALCANCE VEM DEPOIS DA GEOMETRIA, e a ordem NÃO é gosto: `alcanceDoBotao()` rola os
+    // ancestrais roláveis, e as asserções acima comparam a caixa DELA (derivada de GROUND/HX, em
+    // coordenadas de viewport, imune à rolagem) com caixas de DOM lidas por
+    // `getBoundingClientRect` (que andam quando se rola). Medir o alcance antes fabricaria
+    // sobreposição do nada em toda tela que tivesse rolagem — ver o cabeçalho da função.
+    const alc = await alcanceDoBotao(pg);
     await pg.close();
 
     const cruza = (a, b) => Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l))
@@ -424,6 +466,16 @@ const TELAS = [
 
     // o piso de dedo vale em retrato também — o despacho pede que ele fique INTOCADO
     m.tabuas.forEach(b => { if (b.h < 44) probs.push(b.id + ' tem ' + b.h.toFixed(1) + 'px — abaixo dos 44 de dedo'); });
+
+    // ---- ALCANÇABILIDADE EM RETRATO (03/09, item `regua-retrato-sem-alcancabilidade`) ----
+    // A MESMA asserção das seis telas largas, com o MESMO resgate (só em Y, e só por ancestral com
+    // `overflow-y` de verdade). A decisão de acrescentá-la é numérica e está no rodapé: em produção
+    // o `#btnConfig` fecha a **4 px** da borda de baixo em 320×568 e 390×568 e a rolagem NÃO existe
+    // (`scrollHeight − clientHeight = 0` nas seis) — é a configuração mais apertada das doze telas
+    // da régua, e era a única metade que não tinha portão nenhum de alcance.
+    if (!alc.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + alc.cfgMotivo);
+    // ---- e os dois níveis do poste, pela função compartilhada com o laço das telas largas ----
+    conferirDegrau(m.portais || [], m.utilidade || [], probs);
 
     if (!m.ligado) {
       // ---- INÉRCIA (veto da arte, 22/08). A chave está desligada: a linha do chão não pode ter
@@ -460,6 +512,9 @@ const TELAS = [
       + ' · chão ' + (m.chaoHome ? m.chaoHome.toFixed(4) + ' (subiu)' : '0,6800')
       + ' · GROUND ' + m.GROUND + '/' + m.H
       + ' · ela ' + elaCx.l.toFixed(0) + '..' + elaCx.r.toFixed(0) + ' x ' + elaCx.t.toFixed(0) + '..' + elaCx.b.toFixed(0)
+      + ' · portões ' + ((m.portais || []).length ? (m.portais[0].w.toFixed(0) + 'x' + m.portais[0].h.toFixed(0)) : '—')
+      + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
+      + ' · configurações ' + (alc.cfgOk ? 'alcançável' : 'PRESO')
       + ' · ' + (!m.ligado
         ? 'chave DESLIGADA (inércia) — a régua diria ' + (cabe ? 'ENTRA' : 'não entra')
         : (cabe ? 'ENTRA' : 'não entra (fica atrás do poste)'));
@@ -472,7 +527,7 @@ const TELAS = [
     console.error('\nRÉGUA DE RESPONSIVIDADE: REPROVOU — a home em tela larga voltou a ficar ilegível, esticada ou com o poste preso.');
     process.exit(1);
   }
-  console.log('\nRÉGUA DE RESPONSIVIDADE: PASSOU — proposta legível, painel contido e poste alcançável em tablet, notebook e telefone deitado.');
+  console.log('\nRÉGUA DE RESPONSIVIDADE: PASSOU — proposta legível, painel contido, e poste com os dois níveis e o último botão alcançável em tablet, notebook, telefone deitado E nas seis telas de retrato.');
 })();
 
 // AUTOTESTE (lição EQUIPE.md 2.8 — instrumento nunca visto reprovando é decoração):
@@ -606,21 +661,74 @@ const TELAS = [
 //   REGUA_DEFEITO='#poste{position:absolute!important;top:0px!important}' \
 //     node test/regua-larga.js   →   exit 1 (899/926 de novo), retrato 6/6 ✓.
 //
-// **NENHUMA DAS TRÊS RECEITAS MORDE EM RETRATO — 0 de 3 — mesmo com a chave ligada lá.** E não é
-// porque a injeção falhou: para a receita "combo", medido À PARTE (sonda descartada) que
-// `#btnConfig` FICA inalcançável em retrato sob esse mesmo CSS (top chega a 1030 contra janela
-// de até 932). O laço de RETRATO simplesmente **não tem nenhuma asserção de alcançabilidade** —
-// ele só confere altura de dedo (`b.h < 44`) e a inércia/sobreposição do diorama da home; nunca
-// pergunta se `#btnConfig` está dentro da janela. Para "hierarquia" e "terceira" o motivo é
-// outro e estrutural, não de cobertura: "hierarquia" testa a distância entre portais e nível 2
-// (`m.portais`/`m.utilidade`), que só existe no laço das TELAS — retrato não tem essa
-// diferenciação. "terceira" não morde porque em retrato `#telaMenu` é `position:fixed` (medido:
-// `getComputedStyle`), então vira o CONTAINING BLOCK do `#poste` absoluto — `top:0` ancora no
-// topo do próprio viewport (que é fixo e cobre a tela inteira), nunca sai da janela; em
-// TELAS o `#telaMenu` não é fixed nas larguras que mordem, então `top:0` conta a partir do
-// fluxo normal do documento e estoura. **REPORTADO, NÃO CONSERTADO POR CIMA** (pedido
-// explícito do plantão): acrescentar um `cfgOk` ao laço de retrato é trabalho novo, não parte
-// deste item — proposto como item de backlog separado abaixo neste comentário para a próxima
-// rodada decidir se vale (a régua de retrato mede outra coisa, arte/diorama, e pode ser opção
-// legítima ela nunca ter testado alcançabilidade de botão, mas isso precisa ser DECISÃO, não
-// lacuna).
+// **NENHUMA DAS TRÊS RECEITAS MORDIA EM RETRATO — 0 de 3 — mesmo com a chave ligada lá.** O laço
+// de retrato não tinha asserção de alcançabilidade nenhuma: só conferia altura de dedo
+// (`b.h < 44`) e a inércia/sobreposição do diorama da home.
+//
+// ============================================================================================
+// A DECISÃO — item `regua-retrato-sem-alcancabilidade` (03/09, dev-jogo). **SIM, retrato precisa.**
+//
+// O NÚMERO QUE DECIDE NÃO É O 1030 CONTRA 932, e isso é a primeira coisa a dizer, porque foi ele
+// que motivou o item. Aquele par é medido SOB O DEFEITO INJETADO; em produção a mesma tela lê
+// **912 contra 932**, dentro da janela. Um defeito injetado nunca prova que a asserção é
+// necessária — prova só que o instrumento CONSEGUIRIA vê-lo. O que decide é a produção:
+//
+//   · em produção, retrato, o `#btnConfig` fecha a **4 px** da borda de baixo em 320×568 e
+//     390×568 (bottom 564 contra janela 568), e a **17–20 px** nas outras quatro;
+//   · e não há para onde recuar: `scrollHeight − clientHeight = 0` nas **seis** telas de retrato.
+//
+// É a configuração mais apertada das doze telas da régua, e era a única metade sem portão de
+// alcance. Nas telas largas, quando o poste cresce, a rolagem existe e resgata; em retrato, hoje,
+// não há rolagem nenhuma porque tudo cabe — por 4 px.
+//
+// O QUE EU TENTEI E NÃO CONSEGUI DERRUBAR (a refutação foi pedida, e foi feita):
+//   · "cresceu, logo prendeu" — FALSO, e é o cenário mais provável de todos. Só
+//     `#poste{margin-top:250px}` (sem matar a rolagem) cria overflow real em retrato
+//     (243/238/230/163/127/118 px nas seis) e o botão **continua alcançável nas seis** pelo
+//     resgate legítimo — `cabeY: true`, medido. Crescer a marcenaria NÃO é defeito em retrato, e
+//     a asserção nova continua verde, corretamente.
+//   · "matou a rolagem, logo prendeu" — FALSO também: só `#telaMenu{overflow-y:hidden}` passa nas
+//     seis (`sobraY = 0`, não há o que esconder).
+//   · Ou seja, `cfgOk` em retrato só dispara na CONJUNÇÃO (cresce E perde a rolagem) — a mesma
+//     conjunção que já é o autoteste das telas largas. Não é asserção que passa sempre por sorte:
+//     é asserção que passa sempre porque hoje o layout cabe, e reprova 6/6 quando não couber.
+//   · O que a mantém longe de decoração, e é o argumento de cobertura: o `overflow-y:auto` de que
+//     ela depende vem de `estilo.css:847`, regra **sem media query**, enquanto existe um bloco
+//     `@media (orientation: portrait) and (max-height: 600px)` (estilo.css:1086) que governa
+//     exatamente as duas telas de 4 px de folga. Um `overflow:hidden` posto ali — o conserto
+//     clássico de rubber-band em telefone — seria invisível para as seis telas largas.
+//
+// AS TRÊS RECEITAS, RE-MEDIDAS COM A ASSERÇÃO NOVA (exit code real, cada uma rodada sozinha):
+//
+//   combo       — `#poste{margin-top:250px} #telaMenu{overflow-y:hidden}`
+//                 exit 1. Retrato passa a reprovar **6 de 6** (era 0): bottom 807/861/794/987/
+//                 1022/1030 contra janelas 568/640/568/844/915/932, sem resgate em Y **nem em X**
+//                 (`cabeXY: false` nas seis). Restaurado: exit 0.
+//   hierarquia  — `#poste .telaBtn.sec{width:min(78vw,320px);min-height:61px}`
+//                 exit 1. Retrato passa a reprovar **6 de 6** (era 0) — e o motivo do 0 anterior
+//                 era CEGUEIRA DO INSTRUMENTO, não ausência de defeito. Medido antes de escrever
+//                 uma linha: o degrau EXISTE em retrato (portais 250..320 de largura contra
+//                 198..246 do nível 2; 51..53 de altura contra 44) e a receita o apaga lá tanto
+//                 quanto nas telas largas (degrau de largura → 0 nas seis; o de altura fica
+//                 NEGATIVO, −8 a −10: o nível 2 vira MAIS ALTO que o portão). `cfgOk` sozinho
+//                 não pegaria isto — nas três telas em que o botão sai da dobra a rolagem
+//                 legítima nasce (61/56/48 px) e resgata. Quem pega é `conferirDegrau()`, agora
+//                 compartilhado pelos dois laços. Restaurado: exit 0.
+//   terceira    — `#poste{position:absolute;top:0px}`
+//                 exit 1 (pelas 899/926 de sempre), e retrato continua **6/6 verde — de propósito,
+//                 porque o defeito NÃO EXISTE ali**, e agora há número: em retrato `#telaMenu` é
+//                 `position:fixed` (medido por `getComputedStyle` nas seis), então é o CONTAINING
+//                 BLOCK do `#poste` absoluto e `top:0` ancora no topo do próprio viewport. O botão
+//                 SOBE em vez de sumir — 320×568: de `top 520` para `top 365`, `bottom 409` numa
+//                 janela de 568, ou seja **159 px de folga**, `left 61 .. right 259` em 320 de
+//                 largura, `elementFromPoint` devolve o próprio botão (`tocavel: true`) e não há
+//                 sobra em eixo nenhum. Nas telas largas o `#telaMenu` não é fixed nas larguras
+//                 que mordem, e é por isso que lá estoura pela direita. Receita que não morde
+//                 porque não há defeito é conhecimento; esta é dessas.
+//
+// O QUE FICOU MEDIDO E **NÃO** VIROU ASSERÇÃO (é buraco conhecido, não item fechado): sob
+// `terceira`, em retrato, o poste sobe POR CIMA da proposta — a `faixa` (topo do poste menos a
+// base do `#menuSub`) vai a **−146/−188/−134/−291/−321/−328 px** nas seis, contra 9..140 px
+// positivos em produção. O laço só cobra sobreposição contra a caixa DELA (a personagem), nunca
+// entre `#poste` e `#menuSub`. Uma asserção `faixa > 0` passaria hoje com **9 px** de folga na
+// 320×568 — apertado o bastante para exigir decisão própria, não um acréscimo de carona.
