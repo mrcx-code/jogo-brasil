@@ -3831,6 +3831,14 @@ subir, alguma rodada obedeceu ao prompt em vez do arquivo.
 e colar. São 23 `voo/` e 28 `entrega/` no servidor hoje. Isso continua valendo — mas agora a
 pilha para de crescer mesmo que ninguém rode.
 
+**PRIMEIRA CONFERÊNCIA, por `nuvem-20260903T1623` em 03/09 16h UTC: `voo/` = 23, o mesmo número.**
+A rodada leu o `PLANTAO.md` como mandado e **não criou marcador**. Uma leitura não fecha o item —
+o prompt agendado continua dizendo o contrário, e basta uma rodada obedecer a ele para o número
+subir —, mas é a primeira medição da série que o próprio item pediu, e ela deu o resultado bom.
+`entrega/`, no mesmo intervalo, foi de **28 para 33**: esse lado não tem quem apague e segue
+subindo, o que é o argumento para a lista do `--apagar` (agora correta, ver `RECADOS.md` de hoje)
+finalmente ser colada.
+
 ---
 
 ## 103 — A TERCEIRA família do `vercel.json`: propriedade desconhecida DENTRO da regra de `headers[]` — porteiro (03/09)
