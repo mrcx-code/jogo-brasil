@@ -802,7 +802,7 @@
     },
     {
       "id": "regua-retrato-sem-alcancabilidade",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco de RETRATO da regua-larga.js nao tem nenhuma assercao de alcancabilidade de botao",
@@ -811,8 +811,8 @@
       ],
       "aceite": "Decidir se o laco de retrato PRECISA de um cfgOk equivalente ao das seis telas largas (que mede se #btnConfig esta dentro da janela); hoje o laco de retrato so mede altura de dedo e inercia do diorama, nunca alcancabilidade. Se sim: acrescentar a assercao e provar as tres receitas mordendo por injecao (exit 1 real + restaura exit 0). Se nao: escrever por que retrato nao precisa, com numero que sustente.",
       "detalhe": "Achado do dev-jogo em 02/09 ao fechar regua-eixo-x-nao-olhado: religar REGUA_DEFEITO no laco de retrato (antes nunca lido ali) nao bastou para as tres receitas documentadas (combo margin-top+overflow-y:hidden, hierarquia dos botoes nivel 2, terceira position:absolute) morderem -- 0 de 3, exit 0 nas seis telas de retrato nos tres casos, medido. Para 'combo' o motivo e cobertura: sonda a parte confirmou que #btnConfig FICA inalcancavel em retrato sob o mesmo CSS (top ate 1030 contra janela de ate 932), mas nada no laco de retrato pergunta isso. Para 'hierarquia' o motivo e conceitual: o laco de retrato nao diferencia portais de nivel 2 (m.portais/m.utilidade so existem no laco das telas largas). Para 'terceira' o motivo e estrutural: em retrato #telaMenu e position:fixed (medido via getComputedStyle), entao vira o containing block do #poste absoluto e top:0 nunca sai do viewport -- diferente das telas largas, onde #telaMenu nao e fixed nas larguras que mordem.",
-      "maquina": "nuvem-20260902T2022",
-      "desde": "2026-09-02T00:00:00.000Z"
+      "maquina": "nuvem-20260903T0822",
+      "desde": "2026-09-03T08:24:09.329Z"
     },
     {
       "id": "censo-vaomedida-falso-positivo",
@@ -869,7 +869,7 @@
     },
     {
       "id": "csp-tabela-de-rotas-e-conjunto",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A cobranca do vercel.json e conjunto e nao multiconjunto, e so conhece a string posthog — tres classes escapam",
@@ -879,8 +879,8 @@
       ],
       "aceite": "O ramo 947a8eb ja faz o essencial (cobranca por rota e por forma inteira; 14/14 de mordida; vercel.json com 0 linha de diff). Faltam QUATRO consertos, todos do QA independente de 03/09, e o 1o e bloqueante: (1) test/qa-vercel-quadro.js MUTA o vercel.json em disco e o gancho de restauracao NAO sobrevive a sinal — medido: SIGTERM (alvo 143) e SIGKILL (alvo 137) deixam script-src unsafe-inline https://exfil.example.com e img-src data: https://*.exemplo.com NO ARQUIVO QUE A VERCEL PUBLICA, numa main que publica no push; e o process.on(SIGINT) e CODIGO MORTO porque spawnSync bloqueia o laco (medido 2x: exit 0 com as 14 linhas impressas), enquanto o Ctrl-C real no GRUPO mata o build filho e produz vermelho FALSO com build exit null. Saidas: mutar em memoria e passar o caminho por variavel de ambiente, OU restaurar de COPIA na ENTRADA da proxima execucao (nome fixo, nao com pid); e o paragrafo do cabecalho que promete a restauracao cai junto. (2) o numero 8 esta errado: as regras inertes sao 14 de 22 — medido com o resolvedor last-match-wins contra as 8 paginas enumeradas do dist/; faltavam /mesa /jogo /dashboard nas duas formas. Trocar em ferramentas/construir.js e aqui, ou dizer oito DA FAMILIA DE SECAO. (3) o comentario do qa-vercel-host.js afirma que acrescentar self a uma pagina exige mexer nele: falso, self ja esta em TOKENS_PERMITIDOS. (4) DEPOIS de (1), pendurar o quadro num portao — hoje grep em package.json, workflows, encaixe.js e integrar.js da ZERO, que e a mesma doenca que 03/09 ja curou duas vezes.",
       "detalhe": "Achado pelo QA em 03/09 auditando a entrega csp-host-constante, DEPOIS de ela ja ter subido de 1/5 para 5/5 — sao sobras da mesma familia, nao regressao. Medido, exit code real: rotas trocadas build 0; rota duplicada build 0 E imprimindo \"14 rota(s) com connect-src ... (tabela ROTAS_QUE_MEDEM, 13 rotas)\", que e a MESMA doenca que a entrega acabou de curar — numero impresso que ninguem compara — sobrevivendo dentro do proprio conserto; script-src com https://exfil.example.com numa regra que mede da build 0 e qa-vercel-host 0, porque a assercao 4 so procura a string \"posthog\", entao qualquer relaxamento de qualquer outra diretiva nas 8 regras cegas passa sem portao. O ponto cego da diretiva repetida NAO faz parte deste item: ja foi fechado em 03/09 por test/qa-vercel-diretiva-repetida.js, que esta no CI. Duvida do QA que vale herdar: ele nao conseguiu confirmar que a precedencia de headers da Vercel e garantida como last-match-wins (inferiu do comportamento medido); se um dia mudar, as 8 regras hoje inertes passam a decidir e estas classes sobem de severidade de uma vez.",
-      "maquina": "",
-      "desde": "",
+      "maquina": "nuvem-20260903T0822",
+      "desde": "2026-09-03T08:24:09.329Z",
       "nota": "ENTREGA EXISTE E NAO FOI INTEGRADA: ramo entrega/csp-tabela-de-rotas-e-conjunto (947a8eb), no servidor. NAO recomece do zero — o trabalho e bom e o veredito do QA foi NAO INTEGRAR por quatro consertos baratos, listados no aceite. Va ao ramo, conserte, e ao funil."
     },
     {
@@ -901,7 +901,7 @@
     },
     {
       "id": "marcador-voo-so-acumula",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Os 21 marcadores voo/ do servidor sao 21/21 mortos, e a nuvem nao pode apagar nenhum",
@@ -910,11 +910,13 @@
         "ferramentas/backlog.json"
       ],
       "aceite": "Uma decisao ESCRITA entre duas saidas, com o motivo: (a) o marcador voo/ deixa de ser criado — o backlog.json ja e a verdade que decide ocupacao, e o PLANTAO.md perde a instrucao de cria-lo; ou (b) o marcador continua e ganha um coveiro que roda numa maquina que PODE apagar (Mac/Windows), varrendo voo/<id> cujo item esteja concluido ou livre. Nao vale deixar como esta. Se (b), o coveiro tem prova de mordida: cria marcador morto, roda, mostra que sumiu.",
-      "detalhe": "Medido por nuvem-20260903T0422 em 03/09, cruzando git ls-remote com o estado do backlog.json: dos 21 refs/heads/voo/* no servidor, 17 apontam para item concluido, 3 nao tem item nenhum no backlog, e 0 estao vivos. O canal e 21/21 ruido. O PLANTAO.md ja previu o mecanismo (a nuvem cria marcador e nunca o limpa, e roda de 4 em 4 horas) e ja resolveu a leitura (o marcador e pista, nunca prova; quem decide e o backlog.json). O que ficou sem resolver e a PRODUCAO do lixo. Medido tambem, e confirma a causa raiz com exit code real: git push origin --delete voo/canonical-jogo sai EXIT 1 com HTTP 403, e a ultima linha que imprime e Everything up-to-date — a armadilha que o proprio PLANTAO documenta. Entao a nuvem so acrescenta, nunca subtrai, e cada rodada dela piora o canal. Esta rodada acrescentou mais 3 de proposito, por consistencia de protocolo, e eles entram na conta."
+      "detalhe": "Medido por nuvem-20260903T0422 em 03/09, cruzando git ls-remote com o estado do backlog.json: dos 21 refs/heads/voo/* no servidor, 17 apontam para item concluido, 3 nao tem item nenhum no backlog, e 0 estao vivos. O canal e 21/21 ruido. O PLANTAO.md ja previu o mecanismo (a nuvem cria marcador e nunca o limpa, e roda de 4 em 4 horas) e ja resolveu a leitura (o marcador e pista, nunca prova; quem decide e o backlog.json). O que ficou sem resolver e a PRODUCAO do lixo. Medido tambem, e confirma a causa raiz com exit code real: git push origin --delete voo/canonical-jogo sai EXIT 1 com HTTP 403, e a ultima linha que imprime e Everything up-to-date — a armadilha que o proprio PLANTAO documenta. Entao a nuvem so acrescenta, nunca subtrai, e cada rodada dela piora o canal. Esta rodada acrescentou mais 3 de proposito, por consistencia de protocolo, e eles entram na conta.",
+      "maquina": "nuvem-20260903T0822",
+      "desde": "2026-09-03T08:24:09.329Z"
     },
     {
       "id": "censo-cinco-fugas-medidas",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Cinco mecanismos poem tinta no cartao e o censo absolve — medidos por pixel, com print",
@@ -923,7 +925,9 @@
         "test/qa-censo-passo2.js"
       ],
       "aceite": "pinta() passa a enumerar os cinco, e cada um ganha prova de mordida por injecao (exit 1) mais o contraponto (vao sem pintura continua absolvido). Junto: uma CATRACA que reprove fuga NOVA alem das registradas, para verde significar o buraco tem o tamanho que tinha e nunca nao ha buraco. O instrumento do QA (test/qa-censo-pintura-fora.js, no worktree dele) ja faz isso e ja foi visto mordendo — traga-o em vez de reescrever. ATENCAO ao piso de ruido: comparar o print INTEIRO de 1200x630 da 793 px de diferenca com CSS NENHUM (o mapa do TERRITORIO anima sozinho) e acusaria 13 fugas falsas; o recorte na caixa do mutante +48 px zera o piso, e esse zero e cobrado por exit code.",
-      "detalhe": "Achado pelo QA independente em 03/09 auditando censo-cobertura-e-propriedades, DEPOIS de a entrega ja ter fechado os 6 mecanismos do achado original. Nao e regressao: e o teto que a entrega declarou, com a diferenca de que a JUSTIFICATIVA do teto era falsa. A entrega afirmava que a enumeracao estava do lado que ABSOLVE e que esquecer viraria reprovacao barulhenta; o codigo diz o contrario (decorativoInerte = aria-hidden E innerText vazio E !pinta(), entao mecanismo nao escrito e ABSOLVIDO) e o QA mediu por pixel: backdrop-filter:invert(1) 5662 px, border-image sem border-width 3936 px, ::marker 109 px, list-style-image 1800 px, content:url() no proprio elemento 5700 px. Os dois ultimos nem estavam no teto declarado. A frase falsa ja foi corrigida na main (commit da correcao, 03/09); o BURACO continua aberto. Medido do outro lado tambem, e por isso a lista e curta: filter:drop-shadow, mask, clip-path, scrollbar e ::first-line pintam ZERO px numa caixa vazia — nao fogem."
+      "detalhe": "Achado pelo QA independente em 03/09 auditando censo-cobertura-e-propriedades, DEPOIS de a entrega ja ter fechado os 6 mecanismos do achado original. Nao e regressao: e o teto que a entrega declarou, com a diferenca de que a JUSTIFICATIVA do teto era falsa. A entrega afirmava que a enumeracao estava do lado que ABSOLVE e que esquecer viraria reprovacao barulhenta; o codigo diz o contrario (decorativoInerte = aria-hidden E innerText vazio E !pinta(), entao mecanismo nao escrito e ABSOLVIDO) e o QA mediu por pixel: backdrop-filter:invert(1) 5662 px, border-image sem border-width 3936 px, ::marker 109 px, list-style-image 1800 px, content:url() no proprio elemento 5700 px. Os dois ultimos nem estavam no teto declarado. A frase falsa ja foi corrigida na main (commit da correcao, 03/09); o BURACO continua aberto. Medido do outro lado tambem, e por isso a lista e curta: filter:drop-shadow, mask, clip-path, scrollbar e ::first-line pintam ZERO px numa caixa vazia — nao fogem.",
+      "maquina": "nuvem-20260903T0822",
+      "desde": "2026-09-03T08:24:09.329Z"
     }
   ]
 }
