@@ -224,7 +224,8 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // residuais) reprova texto inerte porque texto inerte é o que o defeito de 23/08 pôs na foto —
   // "MEDIÇÃO / ligada" lida por cima do link cortado. Um elemento marcado `aria-hidden="true"`
   // (o sinal de acessibilidade que diz "isto não carrega informação — ignore") E sem NENHUM texto
-  // próprio E sem `background-image` não pinta pixel nenhum na foto além de espaço em branco: não
+  // próprio E que não põe tinta nenhuma na foto (ver `decorativoInerte` logo abaixo, e os seis
+  // mecanismos que ela enumera) não deixa pixel nenhum além de espaço em branco: não
   // há o que revisar. Isso é uma CLASSE (o par "invisível para leitor de tela" + "sem conteúdo
   // visual"), não um nome — é por isso que ela não precisa de lista, e é por isso que `m106` e
   // `q107d`, que têm TEXTO ("MEDIÇÃO ligada") e não têm `aria-hidden`, continuam caindo nela sem
@@ -232,16 +233,83 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // `q107e`: mesmo `aria-hidden="true"`, mas COM texto — continua reprovado, para provar que a
   // regra lê o conteúdo, não decora o atributo).
   //
-  // O QUE ISTO NÃO FECHA, dito em vez de escondido: um elemento que pinta TEXTO por imagem de
-  // fundo (`background-image` com letras desenhadas) ou por `::after`/`::before` (que `innerText`
-  // já não vê — item 3 do censo-cartao-residuais, PENDENTES 102) escapa da mesma forma que
-  // escapava antes desta linha. Não é regressão: a régua nunca alcançou pseudo-elemento, e a
-  // checagem de `background-image` aqui é para não abrir uma porta NOVA (texto por imagem
-  // disfarçado de vão), não para fechar uma que já estava aberta.
+  // A FRASE ACIMA PROMETIA MAIS DO QUE O CÓDIGO PERGUNTAVA, e o QA derrubou isso em 03/09 com
+  // PRINT (item `censo-decorativo-so-tres-propriedades`). A primeira versão desta função pedia
+  // TRÊS propriedades — `aria-hidden="true"` E `innerText` vazio E sem `background-image` — e
+  // dizia que isso era "não pinta pixel nenhum na foto além de espaço em branco". Não era: um
+  // `<span aria-hidden="true">` SEM TEXTO, injetado na `.lista` do TERRITÓRIO, aparece como
+  // caixa nítida no recorte 1200x630 por SEIS caminhos diferentes, e o censo devolvia
+  // `estranhos=[]` nos seis. Medido nesta máquina, 6 de 6 escaparam, com print de cada um:
+  // `border:4px solid red` · `background-color:#ff00ff` · o atalho `background:#00ff00` ·
+  // `outline` · `box-shadow` · `::after` com `content:""` e `background`.
+  // (Armadilha registrada pelo próprio QA e reconferida aqui: injetar na `.barra` NÃO serve de
+  // prova — ela tem `overflow-x:auto` e empurra o mutante para fora da janela, fabricando um
+  // "escapou" que é do instrumento, não da régua. A `.lista` não rola.)
+  //
+  // ENTÃO A PERGUNTA PASSA A SER A QUE A FRASE PROMETIA: **este elemento põe alguma tinta na
+  // foto?** E ela é enumerada, mecanismo a mecanismo, porque não há como perguntar isso ao
+  // navegador de dentro da página — `censoDoQuadro` roda dentro do `pg.evaluate` e não tem
+  // câmera. Enumerar é uma lista, e este arquivo desconfia de listas (ver o cabeçalho) — mas a
+  // assimetria aqui é a oposta da que faz lista apodrecer: esta lista está do lado do que
+  // ABSOLVE. Mecanismo de pintura que ninguém lembrou de escrever aqui não vira fuga, vira
+  // REPROVAÇÃO — o elemento simplesmente não é absolvido e cai no passo 2. O custo de esquecer
+  // é falso-positivo (barulhento, alguém conserta), não falso-negativo (silencioso, publica).
+  //
+  // O QUE ISTO CUSTA EM FALSO-POSITIVO, medido antes de escrever e não depois: nas CINCO páginas
+  // o passo 2 julga exatamente UM elemento, e é sempre o mesmo `span.vaoMedida` — `bgImg=none`,
+  // `bgColor=rgba(0,0,0,0)`, bordas `0px/none`, `outline 0px none`, `box-shadow none`,
+  // `::before`/`::after` com `content:none`. Ele continua absolvido pelos seis. Falso-positivo
+  // novo: zero, contra um universo julgado de 1 por página.
+  //
+  // O QUE CONTINUA ABERTO, com o nome de cada um (o teto desta função, dito em vez de escondido):
+  // `filter`/`backdrop-filter` (um `drop-shadow` pinta sem tocar box-shadow), `mask`/`clip-path`
+  // sobre um pai, `border-image` sem `border-width`, `::marker` e `::first-line`, `scrollbar`
+  // visível de um contêiner com `overflow`, e conteúdo pintado por um DESCENDENTE — este último
+  // só em aparência: descendente de elemento NÃO aceito é varrido pelo mesmo laço do passo 2 e
+  // julgado por si, então quem pinta é pego, ainda que pelo nó de baixo.
   function decorativoInerte(e, s) {
-    return e.getAttribute('aria-hidden') === 'true'
-      && norm(e.innerText) === ''
-      && (!s.backgroundImage || s.backgroundImage === 'none');
+    if (e.getAttribute('aria-hidden') !== 'true') return false;   // acessibilidade diz "ignore"
+    if (norm(e.innerText) !== '') return false;                   // ...e não há o que ler
+    return !pinta(e, s);                                          // ...nem o que ver
+  }
+  // ALFA DE UMA COR COMPUTADA. O Chromium devolve `rgba(r, g, b, a)` para tudo que tem
+  // transparência e `rgb(r, g, b)` para o resto; `transparent` computa `rgba(0, 0, 0, 0)`.
+  function alfa(c) {
+    if (!c) return 0;
+    const m = /rgba?\(([^)]+)\)/.exec(c);
+    if (!m) return 1;                       // cor que não sei ler conta como opaca (default-deny)
+    const p = m[1].split(/[,/]/);
+    return p.length >= 4 ? parseFloat(p[3]) : 1;
+  }
+  // A CAIXA PINTA? Vale para o elemento e para os pseudo-elementos — os dois têm as mesmas
+  // propriedades de caixa, e é por isso que a checagem é uma função só.
+  function pintaCaixa(s) {
+    if (s.backgroundImage && s.backgroundImage !== 'none') return true;
+    if (alfa(s.backgroundColor) > 0) return true;
+    if (s.boxShadow && s.boxShadow !== 'none') return true;
+    if (parseFloat(s.outlineWidth) > 0 && s.outlineStyle !== 'none' && alfa(s.outlineColor) > 0) return true;
+    for (const lado of ['Top', 'Right', 'Bottom', 'Left']) {
+      const estilo = s['border' + lado + 'Style'];
+      if (parseFloat(s['border' + lado + 'Width']) > 0 && estilo !== 'none' && estilo !== 'hidden'
+        && alfa(s['border' + lado + 'Color']) > 0) return true;
+    }
+    return false;
+  }
+  // O PSEUDO-ELEMENTO PINTA? `content:none` é o caso de quem não tem pseudo nenhum. `content:""`
+  // é o vão de verdade — só pinta se a caixa dele pintar (foi assim que o sexto mutante entrou).
+  // Qualquer outro `content` (texto entre aspas, `url()`, `counter()`, `attr()`) pinta por
+  // definição: é justamente o buraco do `::after` que o `innerText` nunca viu (PENDENTES 102,
+  // item 3), e é ele que este ramo fecha para quem se declara `aria-hidden`.
+  function pseudoPinta(e, qual) {
+    const s = getComputedStyle(e, qual);
+    if (!s) return false;
+    const c = s.content;
+    if (!c || c === 'none' || c === 'normal') return false;
+    if (c !== '""' && c !== "''") return true;
+    return pintaCaixa(s);
+  }
+  function pinta(e, s) {
+    return pintaCaixa(s) || pseudoPinta(e, '::before') || pseudoPinta(e, '::after');
   }
   donos.forEach((dono) => {
     dono.querySelectorAll('*').forEach((e) => {
@@ -249,7 +317,7 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
       if (aceitos.some((a) => a !== e && a.contains(e))) return;      // parte interna de um aceito
       const v = visivel(e);
       if (!v) return;
-      if (decorativoInerte(e, v.s)) return;   // vão aria-hidden sem texto e sem imagem — não é foto
+      if (decorativoInerte(e, v.s)) return;   // vão aria-hidden que não lê nem pinta — não é foto
       const retrato = retratar(e, v.s, v.r);
       retrato.motivo = 'dentro de um contêiner já provado do cartão, mas fora da lista de'
         + ' permitidos — não depende de ser clicável (censo-cartao-residuais item 1)';
@@ -418,4 +486,22 @@ const MUTANTES = {
   },
 };
 
-module.exports = { L, A, SELETOR_INTERATIVO, censoDoQuadro, permitidosTerritorio, pontosDoHtml, MUTANTES };
+// ---------------------------------------------------------------------------------------------
+// A LISTA DE QUALQUER UMA DAS CINCO SUPERFÍCIES, num lugar só (item `censo-so-e-cobrado-no-
+// territorio`, 03/09). Até este dia, `test/cartao-quadro-controle.js` (o portão, que roda no CI e
+// no funil) só chamava o censo para o TERRITÓRIO, e `test/qa-censo-passo2.js` (instrumento de mão,
+// que não rodava em lugar nenhum) tinha a versão genérica escrita dentro dele. Duas cópias de uma
+// regra, e a que rodava era a mais estreita — que é exatamente a forma como o defeito de 23/08
+// voltou. Agora as duas chamam ESTA função, e o `require` é o portão (a mesma lição do cabeçalho:
+// comentário não é portão).
+//
+// A DIFERENÇA ENTRE AS CINCO É UMA SÓ: o TERRITÓRIO tem as tábuas de lugar (`button.pl`), lidas
+// do HTML em disco na forma que o gerador escreveu. As outras quatro são texto corrido sob a
+// mesma barra, então a lista delas é só a barra daquela seção.
+const CHROME = require('./chrome-plataforma.js');
+function permitidosDaPagina(secao, html) {
+  return permitidosTerritorio(CHROME.barraHtml(secao),
+    secao === 'territorio' ? pontosDoHtml(html) : []);
+}
+
+module.exports = { L, A, SELETOR_INTERATIVO, censoDoQuadro, permitidosTerritorio, permitidosDaPagina, pontosDoHtml, MUTANTES };
