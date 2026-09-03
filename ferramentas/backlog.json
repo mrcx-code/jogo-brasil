@@ -871,6 +871,18 @@
       ],
       "aceite": "As tres classes passam a morder, provadas por injecao com exit code: (1) duas rotas TROCADAS entre si na tabela; (2) uma rota que mede DUPLICADA — e a linha impressa para de se contradizer sozinha; (3) host estranho em OUTRA diretiva de uma regra que mede (script-src, img-src). Mais a quarta, se couber no mesmo conserto: rota com CSP fora da forma familia-de-seccao e SEM connect-src, que hoje a assercao 2 nao ve. Nenhuma das cinco injecoes ja cobradas pode deixar de morder — re-medir as cinco.",
       "detalhe": "Achado pelo QA em 03/09 auditando a entrega csp-host-constante, DEPOIS de ela ja ter subido de 1/5 para 5/5 — sao sobras da mesma familia, nao regressao. Medido, exit code real: rotas trocadas build 0; rota duplicada build 0 E imprimindo \"14 rota(s) com connect-src ... (tabela ROTAS_QUE_MEDEM, 13 rotas)\", que e a MESMA doenca que a entrega acabou de curar — numero impresso que ninguem compara — sobrevivendo dentro do proprio conserto; script-src com https://exfil.example.com numa regra que mede da build 0 e qa-vercel-host 0, porque a assercao 4 so procura a string \"posthog\", entao qualquer relaxamento de qualquer outra diretiva nas 8 regras cegas passa sem portao. O ponto cego da diretiva repetida NAO faz parte deste item: ja foi fechado em 03/09 por test/qa-vercel-diretiva-repetida.js, que esta no CI. Duvida do QA que vale herdar: ele nao conseguiu confirmar que a precedencia de headers da Vercel e garantida como last-match-wins (inferiu do comportamento medido); se um dia mudar, as 8 regras hoje inertes passam a decidir e estas classes sobem de severidade de uma vez."
+    },
+    {
+      "id": "fila-conectado-vermelho-intermitente",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "test/backlog-conectado.js reprovou 1 vez em 7 no CI com conteudo que passa nas outras 6",
+      "territorio": [
+        "test/backlog-conectado.js"
+      ],
+      "aceite": "Ou a assercao intermitente passa a ser determinista (e a prova e roda-la N vezes seguidas no CI, nao na maquina calma, mostrando N verdes), ou fica escrito no proprio arquivo QUAL assercao depende de tempo e por que ela nao pode ser deterministica. Portao que reprova por sorteio precisa de uma das duas — a terceira saida, deixar como esta, e a que ensina a ignorar vermelho.",
+      "detalhe": "Medido em 03/09 por nuvem-20260903T0023, lido da API e nao do log. Run 464 (commit 185ea98, que so mexia em ferramentas/backlog.json marcando dois itens em-curso) falhou no job portoes com \"FILA MENTE OU SOME: 1 falha(s)\". Os runs 465, 466, 467, 468, 469 e 470 passaram, todos com o MESMO conteudo de backlog ou um superconjunto dele — entao nao e o dado, e tempo. As tres cenas de CONTROLE aparecem verdes no log da propria falha (a copia antiga fica presa em carregando, faz uma tentativa so em 9 s, e sem agendarBacklog dez minutos depois ainda e um pedido so), o que aponta a assercao intermitente para o lado do retry/agendamento e nao para o do controle. NAO foi consertado nesta rodada de proposito: mexer em assercao de tempo sem reproduzir o vermelho e trocar um sorteio por outro. E o mesmo padrao ja pago em 23/08 — reprovacao por sorteio que se chamava de carga de maquina — e naquela vez a causa era portao disputando porta com portao."
     }
   ]
 }
