@@ -33,7 +33,18 @@ const CONSTRUIR = path.join(RAIZ, 'ferramentas', 'construir.js');
 const PRELOAD = path.join(__dirname, 'porta-ctx-injecao.js');
 const MARCA = /\[injecao-porta-ctx\] (\d+) chave\(s\) apagada\(s\)/;
 
-function rodarBuild(remover) {
+// `comTsc` existe por causa de um vermelho FALSO que o porteiro reproduziu em 03/09, e que
+// custaria uma sessão a quem o encontrasse no CI. `--sem-tsc` faz o `construir.js` pular a
+// compilação e ler `build/jogo.js` — que é **gitignored** (`.gitignore:17`) e não rastreado.
+// Num checkout limpo, que é exatamente o caso do CI, esse arquivo NÃO EXISTE, e as três
+// asserções saíam vermelhas por um motivo que nada tem a ver com o defeito que elas medem.
+// Pior que a ausência é a versão VELHA: numa árvore onde outra entrega já compilou, o
+// `--sem-tsc` mede o que foi compilado da última vez, não o `src/` de agora — e aí ele fabrica
+// verde falso, que ninguém procuraria. Foi assim que o próprio porteiro se auto-desmentiu:
+// uma chave `phx_` injetada por ele minutos antes tinha ficado compilada ali dentro.
+// Conserto: a PRIMEIRA passada compila de verdade e deixa `build/jogo.js` fresco; as
+// seguintes reaproveitam com `--sem-tsc`, que era o ganho de tempo original.
+function rodarBuild(remover, comTsc) {
   const args = [];
   const env = Object.assign({}, process.env);
   if (remover) {
@@ -42,7 +53,8 @@ function rodarBuild(remover) {
   } else {
     delete env.PORTA_CTX_REMOVER;
   }
-  args.push(CONSTRUIR, '--sem-tsc');   // --sem-tsc: este teste mede a classificação de arte, não o tsc — mais rápido, e o tsc já roda no `npm test`
+  args.push(CONSTRUIR);
+  if (!comTsc) args.push('--sem-tsc');   // --sem-tsc: este teste mede a classificação de arte, não o tsc — mais rápido, e o tsc já roda no `npm test`
   const r = spawnSync(process.execPath, args, { cwd: RAIZ, encoding: 'utf8', env: env, maxBuffer: 64 * 1024 * 1024 });
   const saida = String(r.stdout || '') + String(r.stderr || '');
   const m = saida.match(MARCA);
@@ -99,7 +111,8 @@ console.log('');
 console.log('3) o build de verdade (processo separado), com a injeção de require.cache');
 
 {
-  const semDefeito = rodarBuild(null);
+  // COM tsc, e só esta: ela é quem deixa `build/jogo.js` fresco para as duas seguintes.
+  const semDefeito = rodarBuild(null, true);
   ok(semDefeito.code === 0, 'SEM injeção (repositório como está): build sai 0 — ' + 'exit=' + semDefeito.code);
   ok(!/CTX_B64 tem \d+ chave/.test(semDefeito.saida), 'e não imprime a mensagem de CTX_B64 sem forma');
 }

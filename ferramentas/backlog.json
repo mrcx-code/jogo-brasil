@@ -9,8 +9,34 @@
   },
   "itens": [
     {
-      "id": "cartao-margem-sem-controle",
+      "id": "porta-cartao-vende-o-jogo",
       "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "medio",
+      "titulo": "O cartao da PORTA promete um jogo, e desde 19/08 a porta e a proposta — e ela e a superficie de maior alcance",
+      "territorio": [
+        "ferramentas/gerar-porta.js",
+        "ferramentas/cartao-secao.js"
+      ],
+      "aceite": "A porta ganha cartao proprio, no molde dos tres que acabaram de ser provados em 03/09 (injecao em memoria, sobrevive ao recorte quadrado x 285..915, peso abaixo de 90 KB, 1200x630, zero recurso externo — provado por regenerar byte-identico OFFLINE). Mordida provada por injecao. O que o cartao DIZ e da alcada do dono (§2 e sign-off de publicacao): a entrega leva a proposta em pergunta fechada, nao escolhe sozinha.",
+      "detalhe": "Medido pelo porteiro em 03/09: plataforma/index.html aponta og:image para https://matheusferreira.cc/compartilhar.jpg, que e o HUD de PARTIDA (165,8 KB). Desde a decisao do dono em 19/08 a porta de entrada e a PROPOSTA e o jogo e UMA secao — a que traz gente. Entao a porta e a unica das cinco superficies publicas em que o que o WhatsApp mostra contradiz o que a pagina diz, e e a de maior alcance. As tres secoes de leitura acabaram de ganhar cartao proprio nesta mesma rodada; a porta e a que mais precisava e ficou de fora."
+    },
+    {
+      "id": "sem-tsc-le-build-ignorado",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "--sem-tsc mede o que foi compilado da ultima vez, nao o src/ de agora — e o verde falso e o pior dos dois",
+      "territorio": [
+        "test/",
+        "ferramentas/construir.js"
+      ],
+      "aceite": "Varrer TODOS os usos de --sem-tsc e decidir, um a um, se o instrumento pode ler build/jogo.js sem compilar. Onde nao puder, a primeira passada compila (precedente ja aplicado em test/porta-ctx-sem-forma.js) ou o teste aborta com mensagem clara se o arquivo nao existir. Prova nos DOIS sentidos, por instrumento tocado: com build/jogo.js movido para fora continua exit 0 (nao fabrica vermelho falso) E a injecao do defeito continua exit 1 (nao perdeu a mordida).",
+      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda."
+    },
+    {
+      "id": "cartao-margem-sem-controle",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A assercao de margem do cartao morde, mas nenhum portao a ve reprovar — e ha referencia pendurada para um controle que nao existe",
@@ -19,7 +45,9 @@
         "ferramentas/cartao-secao.js"
       ],
       "aceite": "O defeito de margem entra na lista DEFEITOS do test/cartao-controle.js, que ja tem passo no CI sem continue-on-error, com o mutante CARTAO_MARGEM_DEFEITO. Mordida provada no lugar novo por exit code real. Junto: a referencia pendurada em cartao-secao.js:150 aponta para arquivo existente ou sai, e o comentario que diz x aproximadamente 298 passa a dizer 304, que e o medido.",
-      "detalhe": "Ressalva do QA em 03/09 sobre entrega/cartao-margem-esquerda, declarada antes de integrar. A assercao de margem MORDE — o QA provou a mao, inclusive com o .env renomeado para .envX (falha fechada) —, mas cartao-secao.js:150 referencia test/cartao-margem-controle.js, que NAO foi commitado, e o cartao-controle.js so exercita o caminho limpo (h1=304, passa). Em CI a assercao nunca e vista REPROVANDO. E literalmente a mesma doenca do item fonte-embutida-sem-portao, fechado em 02/09, e o conserto tem precedente pronto: fundir o defeito na lista DEFEITOS, uma linha por defeito. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a mesma resposta de sempre: nada."
+      "detalhe": "Ressalva do QA em 03/09 sobre entrega/cartao-margem-esquerda, declarada antes de integrar. A assercao de margem MORDE — o QA provou a mao, inclusive com o .env renomeado para .envX (falha fechada) —, mas cartao-secao.js:150 referencia test/cartao-margem-controle.js, que NAO foi commitado, e o cartao-controle.js so exercita o caminho limpo (h1=304, passa). Em CI a assercao nunca e vista REPROVANDO. E literalmente a mesma doenca do item fonte-embutida-sem-portao, fechado em 02/09, e o conserto tem precedente pronto: fundir o defeito na lista DEFEITOS, uma linha por defeito. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a mesma resposta de sempre: nada.",
+      "maquina": "nuvem-20260903T2022",
+      "resolucao": "MORREU EM GRANDE PARTE REFUTADO, 03/09, e o desmentido foi do porteiro contra a ressalva do QA — que era a unica base deste item. O QA disse que nenhum portao ve a assercao de margem REPROVAR. O porteiro mediu em vez de acreditar: test/cartao-controle.js JA ESTA no teste.yml (linha 344, sem continue-on-error) e sai exit 1 com o mutante CARTAO_MARGEM_DEFEITO=1, com 8 falhas de 49. A cobertura em CI existia desde antes do item. Sobrava residuo real e pequeno, e ele foi consertado no mesmo commit: o ponteiro pendurado em cartao-secao.js para um test/cartao-margem-controle.js que NUNCA foi commitado (grep no repo: a unica ocorrencia era a propria linha), e o numero do comentario, que dizia x aprox 298 quando o medido e 304. LICAO: ressalva de QA tambem e afirmacao, e tambem se confere antes de virar item — eu criei este item lendo o relatorio dele sem medir, que e o mesmo erro que a casa caca nos portoes."
     },
     {
       "id": "regua-touch-action-multivalor",

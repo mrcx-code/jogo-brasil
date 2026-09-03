@@ -146,9 +146,16 @@ const MARGEM_FOLGA = 12;
 // memória, na página já carregada, e nenhum byte de `<secao>/index.html` muda por causa dela).
 // Empurra o `.env` — o contêiner centralizado do molde das três páginas de leitura — para a
 // direita: valor ABSOLUTO (não "+X" sobre o padding que já existe), para não depender de
-// quanto esse padding vale hoje, que não é deste arquivo. Medido: com este valor o título
-// nasce a partir de x≈298 nas três páginas (ver test/cartao-margem-controle.js) — folga real
-// acima de MARGEM_SEGURA+MARGEM_FOLGA=297. Se o seletor `.env` um dia deixar de existir no
+// quanto esse padding vale hoje, que não é deste arquivo. Medido — e o número foi CORRIGIDO em
+// 03/09 pelo porteiro, que mediu de novo em vez de acreditar: o título nasce em **304** nas três
+// páginas (retângulo real do `h1`; a tinta no JPEG começa em 304/306/306), não no "≈298" que
+// esta linha afirmava. A folga acima de MARGEM_SEGURA+MARGEM_FOLGA=297 é maior que a anunciada
+// — mas número em comentário que ninguém remede é como um "298" vira fato daqui a duas sessões.
+// Quem cobre isto em CI é `test/cartao-controle.js` (passo próprio no `teste.yml`, sem
+// `continue-on-error`), com o mutante `CARTAO_MARGEM_DEFEITO=1`: medido, ele sai exit 1 com 8
+// falhas de 49. A referência anterior era para um `test/cartao-margem-controle.js` que NUNCA
+// FOI COMMITADO — ponteiro pendurado, achado pelo QA e conferido por `grep` (a única ocorrência
+// no repositório era esta própria linha). Se o seletor `.env` um dia deixar de existir no
 // molde, esta regra não morde nada (CSS solto não quebra build) — e é por isso que a posição
 // REAL é MEDIDA e cobrada logo abaixo, em vez de confiar só nesta injeção.
 const MARGEM_CSS = '.env{padding-left:56px!important}';
