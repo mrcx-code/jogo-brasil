@@ -962,7 +962,7 @@
     },
     {
       "id": "vercel-valor-e-topo",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A lista fechada cobra QUAL CHAVE, nao QUAL VALOR — e as chaves de TOPO do vercel.json nao tem portao nenhum",
@@ -972,12 +972,12 @@
       ],
       "aceite": "node test/qa-vercel-fora-do-conjunto.js sai 0. O instrumento JA EXISTE e ja foi visto reprovando (exit 1, 5 de 5 atravessam) com controle-do-controle: esta no ramo qa/csp-e-regua-0903, commit a4525b9. Traga-o em vez de reescrever.",
       "detalhe": "Achado pelo QA em 03/09 auditando csp-tabela-de-rotas-e-conjunto, DEPOIS de a entrega ja ter fechado o CONJUNTO de chaves. E a mesma classe do achado que abriu aquele item, uma casa adiante. (a) VALOR LIVRE: Referrer-Policy entrou na lista com valor livre porque COMPANHEIROS[Referrer-Policy]=null (qa-csp-cabecalhos.js:78) e o QUADRO_DE_ROTAS so le cab[Content-Security-Policy] (construir.js:838) — medido: Referrer-Policy: unsafe-url na regra decisiva /glossario/(.*) sai exit 0 nos QUATRO portoes, e o vazio tambem. unsafe-url vaza o caminho completo da pagina para todo destino externo, que e o que o comentario do arquivo diz que a policy existe para impedir. Das 4 chaves, 3 tem valor cobrado e 1 nao. (b) CHAVES DE TOPO: o conjunto e fechado DENTRO de headers[].headers, e o topo do vercel.json nao tem portao — quatro verdes em cada: redirects de /glossario/(.*) para https://exfil.example.com (mais forte que qualquer CSP, a pessoa nem chega na pagina cuja politica foi conferida diretiva por diretiva), outputDirectory:. (publica a raiz do repo), buildCommand trocado, e trailingSlash invertido, que muda QUAL regra decide cada rota e portanto a conta de inertes que a entrega acabou de pregar em 14.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260903T1230",
+      "desde": "2026-09-03T12:31:04.805Z"
     },
     {
       "id": "regua-touch-action",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O resgate da regua rola por SCRIPT, e o dedo nao tem isso: touch-action:none deixa 6/6 presos e a regua sai 0",
@@ -986,8 +986,8 @@
       ],
       "aceite": "alcanceDoBotao() passa a ler touch-action no laco de resgate. Aceite duplo, e o QA ja provou que os dois dao: node test/qa-regua-touch-action.js sai 0, E a saida limpa da regua continua byte a byte identica a de hoje (diff exit 0). O instrumento existe no ramo qa/csp-e-regua-0903 (a4525b9) e ja foi visto reprovando E aprovando — traga-o.",
       "detalhe": "DERRUBA a alegacao B3 da entrega regua-retrato-sem-alcancabilidade, integrada em 03/09: ela afirmava que cfgOk so dispara na conjuncao e nao e verde de sorte. O QA achou a terceira conjuncao: REGUA_DEFEITO com #poste{margin-top:250px} + #telaMenu{touch-action:none} sai exit 0, retrato 0/6, zero linhas PRESO — enquanto o botao esta de 118 a 243 px ABAIXO da borda nas seis telas (bottom 807/861/794/987/1022/1030 contra janelas 568/640/568/844/915/932). Ele so volta pelo p.scrollTop=p.scrollHeight do proprio alcanceDoBotao(), que e rolagem de SCRIPT: touch-action:none cancela o pan por toque, entao o dedo nao rola. O comentario da funcao (linha 127) diz rola de verdade so quem o dedo conseguiria rolar, e touch-action e justamente a propriedade que decide isso — e nao e lida. Nao e hipotese de laboratorio: o repo ja usa touch-action:manipulation em src/estilo.css:203/510/2880, e #telaMenu ja carrega overscroll-behavior:contain na MESMA linha 847, que e o outro remedio da mesma familia. Conserto de uma linha, ja escrito e provado pelo QA: podePan = !/^(none|pan-x|pan-left|pan-right|pinch-zoom)$/.test(cs.touchAction) entra na condicao de rolavel.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260903T1230",
+      "desde": "2026-09-03T12:31:04.805Z"
     },
     {
       "id": "censo-restilizar-o-aceito",
