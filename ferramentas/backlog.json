@@ -1005,6 +1005,35 @@
       "detalhe": "Furado pelo proprio autor da catraca em 03/09, com numero, e declarado em vez de escondido — e por isso e item e nao defeito silencioso. CATRACA_EXTRA_ESTILO=.lista .pl{background:#0f0} da inerte 0 px / ABSOLVE / exit 0, enquanto o cartao muda 15.135 px. Duas cegueiras somadas: o censo permite tabuas por IDENTIDADE e nunca por aparencia, e o oraculo nao ve porque a tinta nao sai quando o mutante some. Mesma classe do q107c, que ja estava declarado como ALCANCE nao coberto — agora com tamanho medido.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "regua-ancestral-acima-do-menu",
+      "estado": "livre",
+      "papel": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O laco do touch-action para em #telaMenu — ancestral ACIMA dele e elo intermediario ainda dao falso verde",
+      "territorio": [
+        "test/regua-larga.js"
+      ],
+      "aceite": "Decidir se o laco de alcanceDoBotao() vai ate a raiz do documento. Se sim, prova de mordida por injecao (exit 1 real + restaura exit 0) para AS DUAS injecoes medidas, e a saida limpa da regua tem de continuar byte a byte identica (diff exit 0) — foi esse duplo que fechou o conserto parcial. Se nao, o numero que sustenta deixar aberto. ATENCAO ao efeito contrario avisado: touch-action:pan-y PERMITE rolagem vertical; tratar pan-y como none fabrica falso PRESO e deixa a regua mais burra, nao mais esperta.",
+      "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-touch-action, e DERRUBANDO a propria hipotese de que ler touch-action no ancestral rolavel resolvia o caso inteiro. Duas injecoes continuam dando falso verde DEPOIS do conserto, cada uma reaproveitando #poste{margin-top:250px} para criar a sobra: (a) body{touch-action:none} — ancestral ACIMA de #telaMenu, fora do laco que para em p===menu — sai exit 0, 6/6 configuracoes alcancavel; (b) #poste{touch-action:none} — o proprio poste, que fica ENTRE cfg e #telaMenu mas nao e o ancestral que rola — sai exit 0, 6/6 alcancavel. Ele NAO remendou de carona, e a justificativa dele e o que este item tem de atacar: a semantica de intersecao de touch-action entre ancestral e descendente nao pode ser verificada com toque FISICO numa maquina headless (dispatchEvent sintetico nao aciona reconhecimento nativo de gesto), e alargar sem verificar arrisca o falso PRESO. O QA do lote de 03/09 recebeu a tarefa de atacar essa justificativa — leia o veredito dele antes de comecar.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "vercel-propriedade-dentro-da-regra",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "has/missing tornam a regra CONDICIONAL sem mudar um byte do source nem do headers — CSP verde nos cinco portoes e nao servida",
+      "territorio": [
+        "ferramentas/construir.js",
+        "test/qa-vercel-fora-do-conjunto.js"
+      ],
+      "aceite": "O conjunto de PROPRIEDADES por regra de headers[] passa a ser fechado no mesmo conferirVercelJson(), do mesmo jeito que o conjunto de CHAVES ja e. Mordida provada por injecao para has, missing e destination (exit 1 real), mais o controle: arquivo limpo continua exit 0. Junto: a semantica de has/missing esta INFERIDA e nao lida na fonte — a maquina que fechar isto tem de ter egresso para vercel.com e citar o documento, ou dizer por extenso que continua inferida.",
+      "detalhe": "Achado pelo porteiro em 03/09 fechando vercel-valor-e-topo, e e a TERCEIRA familia — nao e subconjunto de nenhuma das duas que abriram aquele item: nao e chave de cabecalho (a CHAVES_PERMITIDAS nao alcanca) nem chave de topo (a TOPO_DO_VERCEL tambem nao). E propriedade desconhecida DENTRO da regra de headers[], entre source e headers: o unico lugar que nenhum dos cinco portoes le. Medido DEPOIS do conserto, cada injecao sozinha, na regra decisiva /glossario/(.*): has:[{type:header,key:x-nunca-enviado}] sai 0.0.0.0; missing:[{type:header,key:accept}] sai 0.0.0.0; destination:https://exfil.example.com sai 0.0.0.0. has/missing sao a classe GRAVE e sao qualitativamente piores que as outras duas: a CSP continua escrita inteira, pregada no QUADRO_DE_ROTAS e verde nos cinco portoes, e nao e servida numa visita normal. E o unico defeito da familia que deixa o arquivo conferido byte a byte E a pagina publica sem politica. Registrado tambem como PENDENTES 103 no ramo entrega/vercel-valor-e-topo. NAO foi consertado de carona, a pedido do plantao.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
