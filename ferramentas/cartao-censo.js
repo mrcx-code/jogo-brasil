@@ -270,9 +270,30 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // vazia — `filter:drop-shadow`, `mask`, `clip-path`, scrollbar de contêiner, `::first-line`.
   // Não há o que borrar nem o que recortar onde não há tinta.
   //
+  // ---------------------------------------------------------------------------------------
+  // OS CINCO FORAM FECHADOS EM 03/09 (item `censo-cinco-fugas-medidas`), E FORAM SETE.
+  // Ao medir os cinco um a um para fechá-los, a mesma câmera achou mais dois que não estavam em
+  // teto nenhum — nem no declarado de manhã, nem na medição do QA que o corrigiu à tarde:
+  //   6ª  a ALÇA DE `resize`, o canto agarrável que o Chromium desenha sozinho — 18 px, e só
+  //       quando `overflow` sai de `visible` (com `overflow:visible` pinta ZERO, medido);
+  //   7ª  o PSEUDO-ELEMENTO virando ITEM DE LISTA (`::before{content:"";display:list-item}`),
+  //       que ganha um `::marker` PRÓPRIO — 25 px, uma camada abaixo do `::marker` do elemento.
+  // A 7ª foi achada pela CATRACA de `test/qa-censo-pintura-fora.js` na primeira vez em que ela
+  // rodou contra a régua já corrigida, o que é exatamente o que ela existe para fazer.
+  // Fechadas junto, e por medição dos DOIS lados, as variantes que a forma ingênua de cada
+  // conserto deixaria passar: `content:linear-gradient()` e `content:image-set()` (5700 px cada,
+  // onde um teste por `url(` fecharia um terço), `list-style-type:"AB"` (126 px), `::marker` com
+  // `content` (132 px), e `backdrop-filter`/`border-image` dentro de `::after` (3600 e 1600 px).
+  //
   // A REGRA QUE FICA NO LUGAR DA FRASE: acrescentar mecanismo a esta lista FECHA buraco; o
-  // buraco existe até alguém acrescentar. Verde aqui significa "o buraco tem o tamanho que
-  // tinha em 03/09", nunca "não há buraco".
+  // buraco existe até alguém acrescentar. Verde AQUI continua significando "o buraco tem o
+  // tamanho que tinha", nunca "não há buraco" — o que mudou é que agora existe UM LUGAR onde o
+  // tamanho é medido por CÂMERA e cobrado por exit code: `test/qa-censo-pintura-fora.js` mede 46
+  // mecanismos por pixel (com o piso de ruído do recorte cobrado em ZERO, porque o mapa anima e
+  // o quadro inteiro dá 850–1107 px de ruído sem mutante nenhum) e REPROVA toda divergência que
+  // não esteja registrada lá. Hoje o conjunto de fugas registrado é VAZIO. Quem acrescentar
+  // mecanismo àquele catálogo não precisa mexer em teste nenhum: se a régua não o cobrir, a
+  // catraca fica vermelha sozinha e diz o nome dele.
   //
   // O QUE ISTO CUSTA EM FALSO-POSITIVO, medido antes de escrever e não depois: nas CINCO páginas
   // o passo 2 julga exatamente UM elemento, e é sempre o mesmo `span.vaoMedida` — `bgImg=none`,
@@ -281,19 +302,28 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // novo: zero, contra um universo julgado de 1 por página.
   //
   // O QUE CONTINUA ABERTO, com o nome de cada um (o teto desta função, dito em vez de escondido).
-  // ATUALIZADO EM 03/09 pelo QA independente, que mediu POR PIXEL em vez de argumentar — e a
-  // medição separou o teto em duas metades que antes estavam misturadas numa lista só:
+  // ATUALIZADO EM 03/09 DUAS VEZES: pelo QA independente, que mediu POR PIXEL em vez de
+  // argumentar, e pelo item que fechou o que ele mediu.
   //
-  //   FUGA MEDIDA, com print (o censo absolve e a tinta aparece no cartão 1200×630):
-  //     `backdrop-filter:invert(1)` 5662 px · `border-image` sem `border-width` 3936 px ·
-  //     `::marker` (com `display:list-item`) 109 px · `list-style-image` 1800 px ·
-  //     `content:url(...)` no próprio elemento 5700 px.
-  //   Os dois últimos NÃO estavam nesta lista antes de 03/09 — ninguém os tinha nomeado, que é
-  //   precisamente o modo de falha que a frase derrubada acima jurava ser impossível.
+  //   FUGA MEDIDA E AINDA ABERTA: **nenhuma**. As sete estão fechadas e cobradas por exit code
+  //   em dois lugares — `test/qa-censo-passo2.js` (treze mecanismos, um a um) e
+  //   `test/qa-censo-pintura-fora.js` (46 medidos por câmera, com a catraca).
   //
   //   NÃO FOGE, e por medição e não por confiança — pinta ZERO px numa caixa vazia:
-  //     `filter:drop-shadow` · `mask` · `clip-path` · `scrollbar` de contêiner com `overflow` ·
-  //     `::first-line`. Não há o que borrar nem o que recortar onde não há tinta.
+  //     `filter:drop-shadow` · `filter:invert` · `mask` · `clip-path` · `scrollbar` de contêiner
+  //     (inclusive com `::-webkit-scrollbar` pintado e com `scrollbar-color`) · `::first-line` ·
+  //     `zoom` · `column-rule` · `cursor:url()` · `caret-color` · `text-shadow` ·
+  //     `-webkit-box-reflect` · `appearance` · `mix-blend-mode` · `-webkit-text-stroke` ·
+  //     `text-decoration` · `-webkit-tap-highlight-color` · `content:"texto"` (o Chromium só
+  //     substitui elemento por conteúdo SUBSTITUÍDO, nunca por cadeia de texto) ·
+  //     `resize` com `overflow:visible` · `border-image` com largura efetiva zero.
+  //     Não há o que borrar nem o que recortar onde não há tinta.
+  //
+  //   FALSO-POSITIVO CONHECIDO, registrado em vez de escondido (é dívida, não buraco): um
+  //   `background-image` posto só para colorir texto (`-webkit-background-clip:text`) num
+  //   elemento VAZIO pinta ZERO px e esta régua recusa. Fica assim de propósito — no dia em que
+  //   houver letra, ele pinta —, e o registro dele mora em `FALSOS_REGISTRADOS`, na catraca, para
+  //   a lista não crescer sem alguém decidir.
   //
   // E conteúdo pintado por um DESCENDENTE — este último
   // só em aparência: descendente de elemento NÃO aceito é varrido pelo mesmo laço do passo 2 e
@@ -313,7 +343,10 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
     return p.length >= 4 ? parseFloat(p[3]) : 1;
   }
   // A CAIXA PINTA? Vale para o elemento e para os pseudo-elementos — os dois têm as mesmas
-  // propriedades de caixa, e é por isso que a checagem é uma função só.
+  // propriedades de caixa, e é por isso que a checagem é uma função só. É também por isso que
+  // `backdrop-filter` e `border-image` entram AQUI e não no `pinta()`: os dois fogem pelo
+  // `::after` exatamente como fogem pelo elemento (medido: `::after{content:"";backdrop-filter}`
+  // 3600 px, `::after{content:"";border-image}` 1600 px), e uma checagem só fecha os dois lados.
   function pintaCaixa(s) {
     if (s.backgroundImage && s.backgroundImage !== 'none') return true;
     if (alfa(s.backgroundColor) > 0) return true;
@@ -324,7 +357,73 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
       if (parseFloat(s['border' + lado + 'Width']) > 0 && estilo !== 'none' && estilo !== 'hidden'
         && alfa(s['border' + lado + 'Color']) > 0) return true;
     }
+    // (1) BACKDROP-FILTER — 5700 px medidos numa caixa 150x38 vazia. Não é tinta PRÓPRIA: é a
+    // pintura do que está ATRÁS, reprocessada dentro do retângulo. Nenhuma das checagens acima
+    // podia vê-lo, porque a caixa continua sem fundo, sem borda e sem sombra.
+    if (s.backdropFilter && s.backdropFilter !== 'none') return true;
+    if (s.webkitBackdropFilter && s.webkitBackdropFilter !== 'none') return true;
+    // (2) BORDER-IMAGE — 3000 px medidos, e o caminho é `border-width:0`: a moldura vem da
+    // imagem, não da borda, então o laço de `borderXWidth` acima devolve zero em todos os lados.
+    // A LARGURA EFETIVA é o que decide, e ela tem duas formas: valor com unidade (ou `auto`), que
+    // pinta sozinho; e número puro, que MULTIPLICA a largura da borda — e aí só pinta se alguma
+    // borda tiver largura. Medido dos dois lados: `border-image:<g> 30 / 10px` pinta 3000 px e
+    // `border:0 solid transparent;border-image:<g> 30 / 0 / 14px` pinta ZERO. Sem esta distinção
+    // o conserto trocaria a fuga por um falso-positivo, que é a doença que este arquivo já teve.
+    if (s.borderImageSource && s.borderImageSource !== 'none') {
+      const temBorda = ['Top', 'Right', 'Bottom', 'Left']
+        .some((l) => parseFloat(s['border' + l + 'Width']) > 0);
+      const larguras = String(s.borderImageWidth || '').trim().split(/\s+/);
+      for (let i = 0; i < larguras.length; i++) {
+        const v = larguras[i];
+        if (v === 'auto') return true;
+        const n = parseFloat(v);
+        if (!(n > 0)) continue;
+        if (/[a-z%]/i.test(v)) return true;   // tem unidade: pinta por si
+        if (temBorda) return true;            // número puro: multiplica a borda
+      }
+    }
     return false;
+  }
+  // (3) O MARCADOR DE ITEM DE LISTA (`::marker`) — 25 px com `disc`, 1600 px com
+  // `list-style-image`, 126 px com `list-style-type:"AB"`. Ele não é `::before` nem `::after`, é
+  // uma caixa gerada FORA do retângulo do elemento, e nenhuma das duas checagens de pseudo o
+  // alcançava. A porta de entrada é `display:list-item` — sem ela não há marcador, e é isso que
+  // impede esta regra de reprovar todo elemento (`list-style-type` computa `disc` em QUALQUER
+  // `<span>`; sem a exigência de `list-item` isto reprovaria a página inteira).
+  // Medido do lado que ABSOLVE também: `display:list-item;list-style-type:none` pinta ZERO, e
+  // `list-style-type:none` com `::marker{content:""}` pinta ZERO — os dois continuam absolvidos.
+  function pintaMarcador(e, s) {
+    if (!/list-item/.test(s.display || '')) return false;
+    if (s.listStyleImage && s.listStyleImage !== 'none') return true;
+    if (s.listStyleType && s.listStyleType !== 'none') return true;
+    const m = getComputedStyle(e, '::marker');
+    if (!m) return false;
+    const c = m.content;
+    if (!c || c === 'none' || c === 'normal') return false;
+    return c.replace(/(["'])(?:\\.|(?!\1)[^\\])*\1/g, '').trim() !== '';
+  }
+  // (4) `content` NO PRÓPRIO ELEMENTO — 5700 px. Isto substitui o elemento inteiro por um
+  // conteúdo gerado, e o `innerText` continua vazio: é a fuga mais silenciosa das cinco, porque
+  // não há pseudo-elemento nenhum para o `pseudoPinta` olhar.
+  // NÃO É SÓ `url()`, e foi medido: `content:linear-gradient(...)` e `content:image-set(...)`
+  // pintam os mesmos 5700 px. Um teste por `url(` teria fechado um terço do buraco.
+  // O LADO QUE ABSOLVE, também medido: `content:"XXXX"` pinta ZERO — o Chromium só troca o
+  // elemento por conteúdo SUBSTITUÍDO (imagem), nunca por texto. Então a pergunta não é "há
+  // content?", é "sobra alguma coisa depois de tirar as cadeias de texto?".
+  function pintaConteudo(s) {
+    const c = s.content;
+    if (!c || c === 'none' || c === 'normal') return false;
+    return c.replace(/(["'])(?:\\.|(?!\1)[^\\])*\1/g, '').trim() !== '';
+  }
+  // (5) A ALÇA DE REDIMENSIONAR (`resize`) — 18 px, o canto agarrável que o Chromium desenha
+  // sozinho. É o mecanismo que NÃO estava em teto nenhum: nem no declarado em 03/09, nem na
+  // medição do QA que o corrigiu. Achado aqui, por pixel, na caixa recortada.
+  // A CONDIÇÃO É DUPLA e foi medida: `resize:both` sozinho pinta ZERO, porque o Chromium só
+  // desenha a alça quando `overflow` sai de `visible`. Cobrar só `resize` inventaria um
+  // falso-positivo onde o navegador não põe tinta.
+  function pintaAgarra(s) {
+    if (!s.resize || s.resize === 'none') return false;
+    return !(s.overflowX === 'visible' && s.overflowY === 'visible');
   }
   // O PSEUDO-ELEMENTO PINTA? `content:none` é o caso de quem não tem pseudo nenhum. `content:""`
   // é o vão de verdade — só pinta se a caixa dele pintar (foi assim que o sexto mutante entrou).
@@ -337,10 +436,23 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
     const c = s.content;
     if (!c || c === 'none' || c === 'normal') return false;
     if (c !== '""' && c !== "''") return true;
+    // O PSEUDO-ELEMENTO TAMBÉM PODE SER ITEM DE LISTA, e aí ELE ganha um `::marker`. Achado por
+    // pixel DEPOIS de a régua já cobrir os cinco mecanismos e o `::marker` do elemento: um
+    // `::before{content:"";display:list-item;list-style-type:disc}` pinta **25 px** e o censo
+    // absolvia — `pintaCaixa` não vê marcador, e `pintaMarcador` só olha o elemento. É o mesmo
+    // mecanismo uma camada abaixo, e foi a catraca deste arquivo que o encontrou, na primeira vez
+    // em que ela foi usada para o que existe. O `display` do pseudo é a porta, pela mesma razão de
+    // sempre: `listStyleType` computa `disc` em qualquer pseudo, e sem a exigência de `list-item`
+    // isto reprovaria todo `::before{content:""}` do repositório.
+    if (/list-item/.test(s.display || '')) {
+      if (s.listStyleImage && s.listStyleImage !== 'none') return true;
+      if (s.listStyleType && s.listStyleType !== 'none') return true;
+    }
     return pintaCaixa(s);
   }
   function pinta(e, s) {
-    return pintaCaixa(s) || pseudoPinta(e, '::before') || pseudoPinta(e, '::after');
+    return pintaCaixa(s) || pseudoPinta(e, '::before') || pseudoPinta(e, '::after')
+      || pintaMarcador(e, s) || pintaConteudo(s) || pintaAgarra(s);
   }
   donos.forEach((dono) => {
     dono.querySelectorAll('*').forEach((e) => {

@@ -32,11 +32,14 @@
 //     recusados. Se a segunda passada virar no-op num refactor, ou se o conserto do
 //     falso-positivo virar "ignora `aria-hidden`" em vez de "ignora `aria-hidden` SEM CONTEÚDO",
 //     isto fica vermelho.
-//   · OS SEIS MECANISMOS DE PINTURA (bloco 3, acrescentado em 03/09 pelo item
-//     `censo-decorativo-so-tres-propriedades`): `border`, `background-color`, o atalho
-//     `background`, `outline`, `box-shadow` e `::after` com `background`. Um `aria-hidden` SEM
-//     TEXTO que pinta por qualquer um deles tem de ser recusado — os seis escapavam limpos até
-//     este dia, com print. E o CONTRAPONTO junto: o mesmo vão sem pintar nada continua absolvido,
+//   · OS TREZE MECANISMOS DE PINTURA (bloco 3, acrescentado em 03/09 pelo item
+//     `censo-decorativo-so-tres-propriedades` com SEIS, e levado a treze no mesmo dia pelo item
+//     `censo-cinco-fugas-medidas`): `border`, `background-color`, o atalho `background`,
+//     `outline`, `box-shadow`, `::after` com `background`, `backdrop-filter`, `border-image`,
+//     `::marker`, `list-style-image`, `content` no próprio elemento, a alça de `resize` e o
+//     `::before` virando item de lista. Um `aria-hidden` SEM TEXTO que pinta por qualquer um
+//     deles tem de ser recusado — os treze escapavam limpos, cada um com o seu dia e o seu
+//     número de pixels. E o CONTRAPONTO junto: o mesmo vão sem pintar nada continua absolvido,
 //     senão o conserto teria trocado o falso-negativo por um falso-positivo do mesmo tamanho.
 //
 // ESTE ARQUIVO DEIXOU DE SER SÓ INSTRUMENTO DE MÃO EM 03/09 (item `censo-so-e-cobrado-no-
@@ -201,6 +204,15 @@ const Q107 = {
 //
 // TODOS os seis são cobrados por exit code, um a um: se alguém estreitar `decorativoInerte` de
 // volta, o mecanismo exato que voltou a escapar aparece pelo nome na linha vermelha.
+//
+// PASSOU DE SEIS A TREZE EM 03/09 (item `censo-cinco-fugas-medidas`). Os seis de cima fecharam o
+// que o QA mediu naquela manhã; as sete de baixo são as fugas que sobraram DEPOIS — as cinco que
+// o QA mediu por pixel à tarde (e que a régua absolvia com o portão verde), mais duas achadas
+// pela catraca nova. Cada número aqui é o que a câmera contou numa caixa de 150x38 dentro da
+// `.lista`, com o piso de ruído do recorte cobrado em zero; o instrumento que os mede um a um,
+// com o oráculo de `visibility:hidden`, é `test/qa-censo-pintura-fora.js`.
+const SVG_QA = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22'
+  + ' height=%2240%22%3E%3Crect width=%2240%22 height=%2240%22 fill=%22%23ff0000%22/%3E%3C/svg%3E';
 const PINTA = {
   border: 'border:4px solid red',
   backgroundColor: 'background-color:#ff00ff',
@@ -208,6 +220,16 @@ const PINTA = {
   outline: 'outline:4px solid #00ffff',
   boxShadow: 'box-shadow:0 0 0 6px #ffcc00',
   pseudoAfter: '__AFTER__',   // ::after com content:"" e background — sem texto para o innerText ver
+  // as CINCO fugas medidas pelo QA em 03/09 (5700 · 3000 · 25 · 1600 · 5700 px nesta caixa)
+  backdropFilter: 'backdrop-filter:invert(1)',
+  borderImage: 'border-image:linear-gradient(#f00,#00f) 30 / 10px',
+  marcador: 'display:list-item;list-style-type:disc;color:#f00;margin-left:20px',
+  listStyleImage: 'display:list-item;list-style-image:url("' + SVG_QA + '");margin-left:44px',
+  contentNoElemento: 'content:url("' + SVG_QA + '")',
+  // a SEXTA (18 px, a alça de redimensionar) e a SÉTIMA (25 px, o pseudo virando item de lista),
+  // as duas fora de qualquer teto declarado até este dia
+  agarraDeRedimensionar: 'resize:both;overflow:auto',
+  pseudoItemDeLista: '__AFTER_LISTA__',
 };
 function injetarPintura(css) {
   const l = document.querySelector('.lista');
@@ -217,9 +239,11 @@ function injetarPintura(css) {
   s.setAttribute('aria-hidden', 'true');   // o MESMO atributo do vão real
   // e NENHUM texto: é exatamente o par que a regra antiga absolvia
   let base = 'display:inline-block;width:150px;height:38px;vertical-align:middle;';
-  if (css === '__AFTER__') {
+  const regra = { __AFTER__: '.qaPinta::after{content:"";display:block;width:150px;height:38px;background:#ff3300}',
+    __AFTER_LISTA__: '.qaPinta::after{content:"";display:list-item;list-style-type:disc;color:#f00;margin-left:20px}' }[css];
+  if (regra) {
     const st = document.createElement('style');
-    st.textContent = '.qaPinta::after{content:"";display:block;width:150px;height:38px;background:#ff3300}';
+    st.textContent = regra;
     document.head.appendChild(st);
   } else { base += css; }
   s.style.cssText = base;
@@ -344,7 +368,8 @@ async function cobertura(pg, permitidos) {
   // ------------------------------------------------- 3. OS SEIS MECANISMOS DE PINTURA (03/09)
   // Um a um, com o exit code de cada um. Antes do conserto de `decorativoInerte`, os seis
   // devolviam `estranhos=[]` com a caixa visível no recorte (print no relatório da rodada).
-  console.log('\n=== 3. PINTA NA FOTO SEM TEXTO — os seis mecanismos, na .lista do território');
+  console.log('\n=== 3. PINTA NA FOTO SEM TEXTO — os ' + Object.keys(PINTA).length
+    + ' mecanismos, na .lista do território');
   for (const nome of Object.keys(PINTA)) {
     const pg = await abrirPagina(nav, arqT);
     let erro = '';

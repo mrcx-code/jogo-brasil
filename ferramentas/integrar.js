@@ -106,7 +106,7 @@ const MEC = /^src\/(jogo\.ts|estilo\.css)$|^test\//;
 // de texto; e as quatro pastas publicadas são o artefato que o censo lê. Os dois testes entram
 // também: mudar a régua sem rodá-la é como o falso-positivo do `span.vaoMedida` ficou quatro
 // páginas no repositório sem ninguém ver.
-const CARTAO_CENSO = /^ferramentas\/(gerar-territorio|cartao-censo|cartao-secao|chrome-plataforma)\.js$|^(territorio|historia|glossario|de-onde-vem|plataforma)\/|^test\/(cartao-quadro-controle|qa-censo-passo2)\.js$/;
+const CARTAO_CENSO = /^ferramentas\/(gerar-territorio|cartao-censo|cartao-secao|chrome-plataforma)\.js$|^(territorio|historia|glossario|de-onde-vem|plataforma)\/|^test\/(cartao-quadro-controle|qa-censo-passo2|qa-censo-pintura-fora)\.js$/;
 let tocaCartaoCenso = false;
 for (const a of arquivos) {
   if (PUB.test(a) || REDE.test(a)) exigidos.add('porteiro');
@@ -152,7 +152,7 @@ if (SO_GATILHOS) {
   if (tocaCartaoCenso) {
     const dele = arquivos.filter(a => CARTAO_CENSO.test(a));
     console.log('  exige PORTÕES EXTRA do censo do cartão (test/cartao-quadro-controle.js + '
-      + 'test/qa-censo-passo2.js): '
+      + 'test/qa-censo-passo2.js + test/qa-censo-pintura-fora.js): '
       + dele.slice(0, 5).join(', ') + (dele.length > 5 ? ' (+' + (dele.length - 5) + ')' : ''));
   }
   process.exit(0);
@@ -246,6 +246,16 @@ portao('encaixe', process.execPath, [path.join(RAIZ, 'test', 'encaixe.js')], 12)
   // O TETO DE 4 MINUTOS não é chute: são 3,1× os 77,2 s medidos, a mesma folga que a linha de cima
   // tem (2 min para 39,1 s). Timeout de portão não vira "lento", vira VERMELHO que desfaz o merge.
   if (tocaCartaoCenso) portao('alcance da segunda passada do censo', process.execPath, [path.join(RAIZ, 'test', 'qa-censo-passo2.js')], 4);
+  // O TERCEIRO PORTÃO DO CENSO (item `censo-cinco-fugas-medidas`, 03/09), e ele é de outra
+  // NATUREZA que os dois de cima. Aqueles perguntam à régua se ela recusa o mutante; este
+  // pergunta à CÂMERA se o mutante pintou, e só então compara com a régua. É a diferença entre
+  // cobrar uma lista e cobrar um resultado — e é ela que faz "verde" deixar de significar "não há
+  // buraco" e passar a significar "o conjunto de fugas é exatamente o registrado".
+  // Sem este portão, a régua volta a ser uma enumeração que absolve em silêncio o que ninguém
+  // escreveu, que é o defeito que a entrega de 03/09 declarou impossível e não era.
+  // O TETO DE 6 MINUTOS: são 46 mecanismos, cada um com uma carga da página e três fotos —
+  // medido nesta máquina em 118 s, e 6 min é 3,0× isso, a mesma folga dos dois de cima.
+  if (tocaCartaoCenso) portao('catraca da pintura fora do censo', process.execPath, [path.join(RAIZ, 'test', 'qa-censo-pintura-fora.js')], 6);
 
 // ---- prega o placar ----
 const eq = path.join(RAIZ, 'EQUIPE.md');
