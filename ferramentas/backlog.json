@@ -9,6 +9,18 @@
   },
   "itens": [
     {
+      "id": "mundo-3d-m3-forma-aldeias",
+      "estado": "do-dono",
+      "agente": "arte",
+      "titulo": "Mundo 3D M3: tres formas de FORMA para as aldeias de 1530 aparecerem — so o dono escolhe",
+      "territorio": [
+        "experimentos/mundo-3d/"
+      ],
+      "camada": "JOGO",
+      "detalhe": "SPEC-MUNDO-3D.md, marco M3 (identidade 'futurismo ancestral'): o aceite e 'veredito do arte + o dono aprova o look'. A issue #10 fechou a metade mecanica (arte julgou a v1, cortes aplicados, 0 erro de console). Uma rodada seguinte (worktree local, nunca empurrada ate agora) gerou tres variantes de como as aldeias/o relevo de 1530 aparecem no mundo — empurradas hoje (03/09) para origin/experimento/mundo-3d-formas-1530, commit 85388de ('tres formas de FORMA para as aldeias aparecerem, para o dono escolher'). Ninguem olhou ainda: o experimento so roda por http (npx http-server em experimentos/mundo-3d/, nunca file://) e a decisao e de representacao (§2 toca aldeias/povos originarios em 1530), entao nenhum agente pode escolher por ele. Depois que ele escolher, a fila destrava: M4 (conteudo historico por cidade/ano, tambem com o dono/§2) e M5 (producao: three self-hosted, CSP, onde a secao mora).",
+      "aceite": "O dono abre origin/experimento/mundo-3d-formas-1530 (npx http-server dentro de experimentos/mundo-3d/, nunca abrir o arquivo direto) e diz qual das tres formas fica — ou pede uma quarta. Fecha quando ele responder; nenhum agente decide sozinho."
+    },
+    {
       "id": "cartao-margem-esquerda",
       "estado": "em-curso",
       "papel": "arte",

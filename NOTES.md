@@ -12335,3 +12335,29 @@ empurrar. **Não rode o funil de novo** — o merge já está no histórico.
 roda `integrar.js` em segundo plano (`run_in_background`), ou se aceita terminá-lo à mão como aqui.
 A primeira é melhor e é o que eu faria: o teto não é negociável, e descobrir isso no meio do merge
 é o pior momento.
+
+---
+
+## 2026-09-03 — A MEDIÇÃO, LIDA (janela de 30 dias)
+
+Primeira leitura dos números que o jogo conta desde 21/08. Gerado por
+`node ferramentas/ler-medicao.js --escrever` — o número não vive só na tela de alguém.
+
+```
+APARELHOS QUE ABRIRAM: 0
+
+A PERGUNTA DE TRÊS DIAS — quantos VOLTARAM:
+  (nenhum evento `voltou` na janela)
+
+ATÉ QUE CAPÍTULO CHEGARAM:
+  (nenhum evento `capitulo` na janela)
+
+TERMINARAM O ARCO: 0
+
+"VOCÊ VOLTARIA AMANHÃ?" — a pergunta da CHEGADA:
+  (ninguém respondeu ainda)
+
+TODOS OS EVENTOS (total · aparelhos distintos):
+  secao aberta              1482  ·  1477
+  parou                        1  ·  1
+```
