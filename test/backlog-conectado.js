@@ -31,6 +31,26 @@
 // (exatamente o caso de agendarBacklog reagendando a si mesmo), fica para tras. `runFor` avanca
 // em passos e processa essas cascatas, que e o que um retry encadeado precisa.
 //
+// E POR QUE O AVANCO VAI EM PASSOS, COM CEDENCIA DE TEMPO REAL ENTRE ELES — 03/09, e este e o
+// conserto de um VERMELHO POR SORTEIO que quase virou folclore. Medido: com `runFor('00:14')` de
+// uma vez so, este portao reprovava **1 vez em 30** na maquina calma e **1 vez em 7** no CI
+// (run 464), sempre na MESMA assercao ("mais de uma tentativa de fetch em 14 s") e sempre com
+// pedidos=1. A causa NAO e o produto — e a corrida entre dois relogios:
+//
+//   - o relogio FALSO da pagina anda quando `runFor` manda, e 14 s falsos passam em poucos
+//     milissegundos de tempo real;
+//   - a rejeicao do fetch abortado pelo `AbortController` (aos 8 s falsos) NAO e um timer: ela
+//     volta pela rede do Chromium, em tempo REAL, e so ai o `.catch` roda e o `agendarBacklog`
+//     agenda a proxima tentativa para dali a 4 s falsos.
+//
+// Num unico `runFor(14 s)` a rejeicao muitas vezes chega DEPOIS de o relogio falso ja ter passado
+// dos 12 s — o retry e agendado para um instante que a janela ja deixou para tras, e o portao le
+// "o produto nao tentou de novo" quando o produto tentaria. Sob carga a corrida vira regra:
+// medido em 03/09 com cinco processos ocupando a maquina, o avanco de uma vez deu **11 falhas em
+// 12**, e o avanco em passos deu **0 em 12**. `avancar()` abaixo cede tempo real entre os passos,
+// que e o unico jeito de a cascata alcancar o relogio. Nenhuma assercao foi afrouxada: a promessa
+// cobrada continua sendo "segunda tentativa dentro de 14 s".
+//
 // O CONTROLE (EQUIPE.md 2.8): a copia com o comportamento ANTIGO restaurado (sem teto, sem
 // guarda) TEM de reprovar nas mesmas cenas. Se ela passar, o portao nao prova nada.
 //
@@ -138,6 +158,36 @@ async function abrir(nav, html, opts) {
   return { ctx, pag, estado, erros };
 }
 
+// avanca `segundos` do relogio FALSO em pedacos, cedendo tempo REAL entre eles (ver o cabecalho:
+// e o que deixa a rejeicao do fetch abortado alcancar o relogio). `ate` corta cedo quando a
+// condicao ja aconteceu, entao o passo fino nao custa tempo de CI.
+async function avancar(pag, segundos, opts) {
+  opts = opts || {};
+  const passo = opts.passo || 1;
+  for (let t = 0; t < segundos; t += passo) {
+    await pag.clock.runFor(Math.min(passo, segundos - t) * 1000);
+    await pag.waitForTimeout(20);   // tempo REAL do lado do Node — o relogio da pagina fica parado
+    if (opts.ate && await opts.ate()) return true;
+  }
+  return false;
+}
+
+// espera o estado da fila ASSENTAR (sair de "carregando") lendo o modal pelo caminho da pessoa,
+// em tempo real. Substitui o `waitForTimeout(700)` fixo que a cena 3 usava: 700 ms e uma aposta
+// na velocidade da maquina, e a maquina do CI nao e a daqui (EQUIPE.md 2.1 e 2.8).
+async function esperarSubAssentado(pag, nome, ms) {
+  const fim = Date.now() + (ms || 15000);
+  let ultimo = '';
+  for (;;) {
+    const m = await modalDe(pag, nome);
+    ultimo = (m && m.sub) || '';
+    if (ultimo && !/Ainda estou lendo/.test(ultimo)) return ultimo;
+    await pag.evaluate(() => { const b = document.getElementById('modal-cancelar'); if (b) b.click(); });
+    if (Date.now() > fim) return ultimo;
+    await pag.waitForTimeout(100);
+  }
+}
+
 async function esperarCard(pag, nome) {
   // o cartao so existe depois que o primeiro ciclo de carregar() monta os agentes — clicar
   // antes disso e testar o harness, nao o produto.
@@ -182,8 +232,10 @@ async function backlogVisivel(pag) {
       await p.pag.evaluate(() => document.getElementById('modal-cancelar').click());
       // 8 s de teto + 4 s da primeira espera de retry + folga: a SEGUNDA tentativa so e
       // agendada DEPOIS que a primeira aborta, entao 9 s nao bastam — foi o que a primeira
-      // versao deste teste mediu errado.
-      await p.pag.clock.runFor('00:14');
+      // versao deste teste mediu errado. Em PASSOS (ver o cabecalho): de uma vez so, a rejeicao
+      // do abort chegava depois de o relogio falso ja ter passado do retry, e o portao reprovava
+      // por sorteio.
+      await avancar(p.pag, 14, { ate: () => p.estado.pedidos >= 2 });
       const depois = await modalDe(p.pag, 'arte');
       ok(!/Ainda estou lendo/.test(depois.sub || ''), 'depois do teto, NAO fica preso em "ainda estou lendo"', depois.sub);
       ok(/Não consegui ler|continuo tentando/.test(depois.sub || ''), 'e diz que nao conseguiu e que continua tentando', depois.sub);
@@ -212,7 +264,14 @@ async function backlogVisivel(pag) {
       // agora o servidor comeca a pendurar TODA resposta futura — simula o deploy no meio ou o
       // blip de rede que a rodada seguinte de fetch encontra.
       p.estado.pendura = true;
-      await p.pag.clock.runFor('02:10'); // passa do ciclo de sucesso (2 min) + o teto da tentativa
+      const pedidosAntes = p.estado.pedidos;
+      // passa do ciclo de sucesso (2 min) + o teto da tentativa, em passos de 5 s falsos.
+      await avancar(p.pag, 130, { passo: 5 });
+      // ESTA ASSERCAO EXISTE PARA A CENA NAO PASSAR PELO MOTIVO ERRADO (achado de 03/09): se o
+      // refresh nunca chegar a ser tentado, "nada foi apagado" e verdade sem provar nada. Com o
+      // avanco de uma vez so, era exatamente isso que podia acontecer em silencio.
+      ok(p.estado.pedidos > pedidosAntes, 'o refresh periodico FOI tentado (senao a cena nao prova nada)',
+        pedidosAntes + ' -> ' + p.estado.pedidos);
 
       const depois = await backlogVisivel(p.pag);
       resultadoCena2 = { antes, depois };
@@ -230,10 +289,10 @@ async function backlogVisivel(pag) {
         backlogInicial: { itens: [{ id: 'x', titulo: 'feito', agente: 'arte', estado: 'concluido' }] },
         agentes: [agente('arte', 'direção de arte')],
       });
-      await p.pag.waitForTimeout(700);
-      const m = await modalDe(p.pag, 'arte');
-      ok(/Nada livre para/.test(m.sub || ''), 'o Acionar diz que nao ha item livre — nao que a fila falhou', m.sub);
-      ok(!/Não consegui ler/.test(m.sub || ''), 'e nao confunde "vazia de verdade" com "nao consegui ler"', m.sub);
+      await esperarCard(p.pag, 'arte');
+      const sub = await esperarSubAssentado(p.pag, 'arte');
+      ok(/Nada livre para/.test(sub), 'o Acionar diz que nao ha item livre — nao que a fila falhou', sub);
+      ok(!/Não consegui ler/.test(sub), 'e nao confunde "vazia de verdade" com "nao consegui ler"', sub);
       ok(p.erros.length === 0, 'zero erro de console', p.erros.join(' | '));
       await p.ctx.close();
     }
@@ -242,7 +301,10 @@ async function backlogVisivel(pag) {
     {
       const p = await abrir(nav, velha, { pendura: true, agentes: [agente('arte', 'direção de arte')] });
       await esperarCard(p.pag, 'arte');
-      await p.pag.clock.runFor('00:14');
+      // o CONTROLE tem de correr pelo MESMO instrumento da cena 1 — avanco em passos inclusive.
+      // Se o controle andasse pelo caminho antigo, a comparacao mediria dois testes, nao dois
+      // produtos (EQUIPE.md 2.8).
+      await avancar(p.pag, 14);
       const m = await modalDe(p.pag, 'arte');
       ok(/Ainda estou lendo|Se isto nao mudar/.test(m.sub || ''),
         'CONTROLE cena 1: a copia antiga FICA PRESA em "carregando" (prova que o teto e o retry sao o que resolve)', m.sub);
@@ -260,7 +322,7 @@ async function backlogVisivel(pag) {
       await esperarCard(p.pag, 'arte');
       await p.pag.waitForFunction(() => !document.getElementById('backlog').hidden, null, { timeout: 15000 })
         .catch(() => {});
-      await p.pag.clock.runFor('10:00'); // dez minutos: bem alem do ciclo de 2 min do conserto
+      await avancar(p.pag, 600, { passo: 15 }); // dez minutos: bem alem do ciclo de 2 min do conserto
       ok(p.estado.pedidos === 1, 'CONTROLE cena 2: sem agendarBacklog, dez minutos depois AINDA e um pedido so', p.estado.pedidos);
       await p.ctx.close();
     }
