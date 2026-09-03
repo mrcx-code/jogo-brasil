@@ -814,7 +814,7 @@
     },
     {
       "id": "censo-vaomedida-falso-positivo",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A segunda passada do censo acusa decoracao legitima em 4 de 5 paginas — e e estreita demais em 3 de 4 mutantes",
@@ -826,7 +826,9 @@
       "aceite": "A segunda passada para de acusar span.vaoMedida sem parar de recusar o m106 e o q107d. Mordida provada por injecao nos dois sentidos: o falso-positivo some E os mutantes continuam recusados. Medir de novo as cinco paginas.",
       "detalhe": "Achado pelo QA em 02/09 refutando a entrega censo-foto, e e um desmentido de alegacao escrita: a entrega mediu zero falso-positivo contra o territorio e declarou zero geral. Medido pelo QA nas cinco: plataforma/index.html 1, historia 1, glossario 1, de-onde-vem 1, territorio 0 — e o acusado e sempre o mesmo span.vaoMedida, espacador aria-hidden que o proprio chrome-plataforma.js escreve dentro da .barra. O territorio escapa so porque a exclusao dele esconde .vaoMedida explicitamente. Nenhum portao esta vermelho hoje porque o censo so esta ligado ao territorio — mas o exemplar vivo ja esta no repositorio esperando a exclusao mudar. Junto, a outra ponta: 3 dos 4 mutantes que o QA escreveu ESCAPAM (texto inerte sobre o mapa no lugar onde o m105 mora; dentro de .env, conteiner sem filho aceito que nunca vira dono; e texto por ::after de uma tabua aceita). Cobertura medida no cartao real: 0 julgados, 14 absolvidos — a passada esta dormente no artefato commitado e so morde quando algo novo aparece.",
       "maquina": "nuvem-20260903T0023",
-      "desde": "2026-09-03T00:24:21.681Z"
+      "desde": "2026-09-03T00:24:21.681Z",
+      "concluido_em": "2026-09-03T00:42:34.000Z",
+      "resolucao": "NAO foi alargar a lista (cogitado e recusado: acrescentar .vaoMedida a exclusao repetiria o proprio defeito do item — nome e atributo do autor, e e exatamente essa doenca que cartao-censo.js existe para nao ter). O conserto foi na REGRA: censoDoQuadro ganhou decorativoInerte(e,s) — um elemento so escapa do passo 2 se tiver aria-hidden=true E innerText vazio E sem background-image. E uma CLASSE (o par acessibilidade-diz-que-nao-ha-informacao + nao-ha-nada-para-ver), nao uma lista de nomes: nao pergunta como o elemento se chama. span.vaoMedida bate nos tres (aria-hidden real, sem texto, sem imagem) e passa a ser absolvido nas 5 paginas. m106 e q107d nao tem aria-hidden e continuam caindo. Mutante novo q107e (meu, adversarial): classe deliberadamente DIFERENTE de vaoMedida com aria-hidden=true E TEXTO 'MEDICAO ligada' — prova que a regra le CONTEUDO, nao decora o atributo; cobrado por exit code junto com q107d. As CINCO paginas passaram a ser cobradas por exit code no proprio arquivo (antes so o territorio tinha ok(), as outras quatro so imprimiam). Mordida nos dois sentidos, numeros e exit codes reais no relatorio da sessao. O que NAO fechei: q107a (fora de qualquer dono, passo2 nao alcanca por desenho, closing exigiria varrer a pagina toda e reabriria falso-positivo), q107b (dentro de .env, que nunca vira dono por nao ter filho aceito) e q107c (::after, invisivel a innerText — gap ja registrado no PENDENTES 102 item 3). Os tres sao alcance conhecido, nao cobrados por exit code, ja documentados no cabecalho do proprio teste."
     }
   ]
 }
