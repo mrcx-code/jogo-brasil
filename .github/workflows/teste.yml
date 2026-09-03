@@ -183,6 +183,37 @@ jobs:
         run: node test/qa-vercel-quadro.js
         timeout-minutes: 5
 
+      # O QUE OS QUATRO ACIMA NAO OLHAVAM (03/09, item `vercel-valor-e-topo`). Escrito pelo QA
+      # auditando a entrega `csp-tabela-de-rotas-e-conjunto`, que fechou QUAIS CHAVES de cabecalho
+      # uma regra pode declarar. Ele mediu a mesma classe de buraco uma casa adiante e nasceu
+      # VERMELHO de proposito: 5 de 5 injecoes atravessando os quatro portoes, exit 1.
+      #
+      # SO ENTROU AQUI DEPOIS DE VERDE, que e o que o cabecalho dele manda e a razao de ele nao ter
+      # sido pendurado quando foi escrito. As duas familias foram fechadas do lado do PRODUTO:
+      #   · VALOR de chave permitida — `Referrer-Policy` estava na lista com valor LIVRE, e nenhum
+      #     dos quatro olhava o valor dela. Medido antes: `Referrer-Policy: unsafe-url` na regra
+      #     DECISIVA /glossario/(.*) saia exit 0 nos QUATRO, e `unsafe-url` manda o caminho completo
+      #     da pagina para todo destino externo. Fechado por lista fechada em qa-csp-cabecalhos.js;
+      #   · chave de TOPO do vercel.json — os quatro so olhavam `vercel.headers`. Medido antes:
+      #     `redirects` para outro dominio, `outputDirectory: "."`, `buildCommand` trocado e
+      #     `trailingSlash` invertido saiam exit 0 nos quatro. Um `redirects` externo e mais forte
+      #     que qualquer CSP: a pessoa nem chega na pagina cuja politica foi conferida. Fechado pela
+      #     tabela TOPO_DO_VERCEL no conferirVercelJson() do ferramentas/construir.js.
+      #
+      # Ele nao substitui os quatro: ele e o CONTROLE DELES, e por isso roda os quatro por dentro,
+      # um de cada vez, e exige que algum saia != 0 em cada injecao. Tem tambem um caso de CONTROLE
+      # (o CORS aberto que a entrega anterior fechou) que TEM de morder — sem ele, um harness
+      # quebrado passaria por prova de buraco (licao 2.8).
+      #
+      # Fica NESTE job pela mesma razao dos de cima: nao abre navegador e nao depende de dist/
+      # pre-existente. Roda 24 processos (6 casos x 4 portoes), dos quais 6 sao builds completos.
+      # O vercel.json da raiz NUNCA e escrito — a injecao vai para os.tmpdir() com o pid no nome e
+      # a leitura e desviada por test/qa-vercel-injecao.js; o proprio arquivo reprova se o desvio
+      # parar de pegar, e reprova tambem se o vercel.json da raiz mudar durante a execucao.
+      - name: o que a lista fechada nao fecha (valor de cabecalho e chave de topo do vercel.json)
+        run: node test/qa-vercel-fora-do-conjunto.js
+        timeout-minutes: 5
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados
