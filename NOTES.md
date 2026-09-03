@@ -12181,3 +12181,21 @@ ancestralidade tem de se defender sozinha, como esta passou a fazer — mas **n�
 Vale uma varredura por `merge-base`/`rev-list` em `ferramentas/` numa próxima rodada.
 
 **Próximo passo:** integrar `entrega/ramos-mortos-raso` pelo funil depois do veredito do QA.
+
+**Duas afirmações minhas que CAÍRAM na mesma rodada, e a segunda melhorou o diagnóstico:**
+
+1. *"Deve haver outras ferramentas com o mesmo ponto cego."* **Caiu.** Varredura por
+   `merge-base|rev-list|is-ancestor|--depth|is-shallow|branch --contains` em `ferramentas/`,
+   `test/` e `.github/`: **uma única ocorrência**, a do próprio `ramos-mortos.js:59`. A dúvida que
+   eu tinha deixado aberta no parágrafo acima fica **fechada** — era o único.
+2. *"O `integrar.js` deve sofrer do mesmo mal"* — a linha 80 usa `git diff --name-status -M
+   main...<ramo>`, e três pontos exigem base de fusão; sem ela o diff sairia vazio e o funil
+   **não exigiria portão nenhum**, integrando sem auditoria. Seria grave. **Caiu, medido:** clone
+   `--depth=1` + `git fetch origin entrega/ramos-mortos-raso` + `git diff main...alvo` →
+   **exit real 0** e os 5 arquivos certos.
+
+**E o porquê de (2) cair é o que afia o diagnóstico do defeito principal:** o `integrar.js`
+**busca** o ramo antes de perguntar, e `git fetch` aprofunda a história o quanto for preciso para
+o ref pedido. O `ramos-mortos.js` só fazia `ls-remote`, que devolve **sha sem objeto** — ele
+perguntava sobre commits que nunca pediu. A regra fica mais estreita e mais útil do que eu tinha
+escrito: o perigo não é "clone raso", é **perguntar sobre um sha que você não buscou**.
