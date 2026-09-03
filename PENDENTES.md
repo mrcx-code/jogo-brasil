@@ -3868,6 +3868,41 @@ finalmente ser colada.
 
 ---
 
+## 104 — O `check` NÃO TEM COMO SAIR CLICÁVEL numa rodada agendada da nuvem — plantao (03/09)
+
+**Medido em 03/09 21h UTC por `nuvem-20260903T2022`, e o dono cobrou na hora** (*"nao veio o
+clicavel kkkk de novo esqueceu"*). Não foi esquecimento: **a ferramenta de pergunta clicável
+nativa não está no registro de ferramentas da sessão agendada da nuvem.** Conferido três vezes,
+inclusive pedindo pelo nome exato (`select:AskUserQuestion` → *No matching deferred tools
+found*), mais duas buscas por palavra-chave que devolveram só ferramentas alheias.
+
+**Por que isto é estrutural e não um contratempo:** o `CLAUDE.md` §6 fecha a forma do check com
+todas as letras — *"SEMPRE clicável nativo, SEMPRE SEM EXCEÇÃO"*, e **proíbe** as duas saídas
+que sobram (publicar Artifact/página, inventar layout). Numa rodada agendada as três opções
+estão fechadas ao mesmo tempo: a permitida não existe, e as proibidas continuam proibidas. A
+sessão do app/CLI **tem** a ferramenta; a agendada não. Então a regra não está errada — ela
+pressupõe uma sessão que o `check` nem sempre acontece dentro.
+
+**O que a rodada fez, e por que esta é a menos ruim das saídas:** entregou as quatro camadas
+escritas na conversa (metas · objetivos · oportunidades · decisões) e as decisões em **lista
+numerada com opções nomeadas, consequência dita e a recomendada marcada com ⭐** — que é a forma
+que o próprio §6 descreve como base (*"Ele responde por número — 1. C, 2. A"*) e a mesma que ele
+manda usar para o excedente das quatro perguntas. Nenhuma página foi publicada.
+
+**As saídas, e as duas primeiras são dele:**
+1. **Pedir `check` na sessão do app/CLI**, não na agendada — sai clicável, sem mudar nada.
+2. **Emendar o §6** com uma linha dizendo o que vale quando a ferramenta não existe (a lista
+   numerada), para a proibição não fechar as três portas de uma vez. **Escrever no `CLAUDE.md`
+   é dele** — é lei, e ele a reforçou em 25/08 justamente para ela não ser reinterpretada por
+   sessão nenhuma. Eu não emendo.
+3. Não fazer nada: cada `check` agendado repete a cobrança, e a rodada gasta o tempo
+   reconferindo o registro de ferramentas antes de responder.
+
+**Como conferir sem acreditar em mim:** numa rodada agendada, `ToolSearch` com
+`select:AskUserQuestion`. Se um dia devolver a ferramenta, este item morreu sozinho e some.
+
+---
+
 ## 103 — A TERCEIRA família do `vercel.json`: propriedade desconhecida DENTRO da regra de `headers[]` — porteiro (03/09)
 
 **Achado separado de propósito, e não consertado de carona.** Ele apareceu no item

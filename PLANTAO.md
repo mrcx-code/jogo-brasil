@@ -33,7 +33,16 @@ marcador é pista, nunca prova.
 > é isso que este §0 corrige. A mão do dono continua sendo o conserto definitivo, e é uma linha:
 > apagar do prompt agendado a frase *"e use ramo marcador `voo/<id>`"*.
 
-**2. RODE O FUNIL EM SEGUNDO PLANO.** `node ferramentas/integrar.js` leva mais que o teto de
+**2. SE O DONO ESCREVER `check` AQUI, ele NÃO sai clicável — e não é esquecimento seu.** A
+ferramenta de pergunta clicável nativa **não existe no registro da sessão agendada** (medido em
+03/09, `select:AskUserQuestion` → *No matching deferred tools found*). O `CLAUDE.md` §6 exige
+essa forma e proíbe as duas alternativas (Artifact e layout inventado), então numa rodada
+agendada as três portas estão fechadas ao mesmo tempo. **Entregue as quatro camadas escritas na
+conversa e as decisões em lista numerada com opções, consequência dita e ⭐ na recomendada** — é
+a forma-base que o próprio §6 descreve —, **diga em uma linha que a ferramenta não existe aqui**,
+e **nunca publique página**. Detalhe e as saídas: `PENDENTES 104`.
+
+**3. RODE O FUNIL EM SEGUNDO PLANO.** `node ferramentas/integrar.js` leva mais que o teto de
 10 minutos do shell desta máquina. Quando ele é morto pelo teto, o desfecho é **enganoso nas
 duas leituras**: a `main` fica com o merge FEITO, sem `MERGE_HEAD` e com a árvore limpa — quem
 olha `git status` conclui "integrou", quem olha o exit 143 conclui "falhou e desfez" e empurra
