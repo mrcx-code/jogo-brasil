@@ -9,6 +9,7 @@
     "test": "npm run build && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js",
     "regua": "node test/regua-larga.js",
     "numero": "node test/medir-numero-envelhece.js",
+    "cartao:fresco": "node test/cartao-tipografia-fresca.js",
     "start": "npm run build && node ferramentas/servir.js 8199",
     "servir": "node ferramentas/servir.js 8199",
     "mesa": "node ferramentas/receber.js",

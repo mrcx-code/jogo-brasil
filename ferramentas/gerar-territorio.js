@@ -44,6 +44,15 @@ const CHROME = require('./chrome-plataforma.js');
 // para RECUSAR construir é a que `test/medir-cartao-controle.js` usa para recusar aprovar o
 // `compartilhar.jpg` já commitado. Os mutantes que a provam moram lá também.
 const CENSO = require('./cartao-censo.js');
+// A FONTE QUE VIAJA COM O CARTÃO (item cartoes-tipografia-defasada, 02/09). Este cartão
+// NUNCA teve a mesma proteção que `cartao-secao.js` ganhou em 872ed92 — ele tira o próprio
+// print (não passa por `cartao-secao.js`, porque o censo exige o crivo por RETÂNGULO que só
+// `cartao-censo.js` sabe fazer). O gerador reusa o MÓDULO da fonte (mesmo @font-face, mesma
+// licença, mesma lista de famílias derivada de CHROME.TITULO/LEITURA) sem tocar em
+// `cartao-secao.js` nem em `chrome-plataforma.js` — os dois são território de outro item em
+// voo nesta rodada. Nenhum byte de `territorio/index.html` muda por causa disto: a fonte
+// entra SÓ na página em memória, na hora do print, exatamente como a irmã já faz.
+const TIPO = require('./tipografia-cartao.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'index.html').split(path.sep).join('/'));
@@ -860,6 +869,26 @@ ${MED.script('territorio')}
   pg2.on('requestfailed', (r) => urlsFalhas.push(r.url()));
   pg2.on('response', (r) => { if (r.status() >= 400) urlsFalhas.push(r.url()); });
   await pg2.goto(ALVO_PAG);
+  // A FONTE ENTRA CEDO, como na irmã cartao-secao.js. Não toca em NENHUM byte de
+  // `territorio/index.html` — vive só nesta página em memória, como o GRAO_FORA do
+  // cartao-secao.js.
+  //
+  // MEDIDO NESTA RODADA (a corrida que só aparecia às vezes): `document.fonts.ready` SOZINHO
+  // não basta aqui. Ele resolve "não há carregamento PENDENTE" — e nada fica pendente
+  // enquanto nenhum texto da página pediu a família "Gelasio" ainda (a troca que faz isso só
+  // acontece bem mais tarde, perto do print). Sem um `document.fonts.load(...)` explícito
+  // aqui, duas regenerações seguidas do MESMO comando produziam cartões diferentes: numa a
+  // largura já refletia a Gelasio quando a barra recalculava a rolagem, na outra ainda não —
+  // e a tábua "O Território" saía cortada só na segunda. `document.fonts.load()` FORÇA a
+  // decodificação do base64 (que não depende de rede, mas é assíncrona do mesmo jeito) antes
+  // de qualquer leitura de layout depender dela.
+  await pg2.addStyleTag({ content: TIPO.css({ defeito: process.env.CARTAO_TIPOGRAFIA_DEFEITO }) });
+  await pg2.evaluate(async (familia) => {
+    const q = '"' + familia + '"';
+    try { await document.fonts.load('700 46px ' + q); } catch (e) { /* status conta a historia, mais abaixo */ }
+    try { await document.fonts.load('italic 400 16px ' + q); } catch (e) { /* idem */ }
+    try { await document.fonts.ready; } catch (e) { /* idem */ }
+  }, TIPO.FAMILIA);
   // `__pronto` marca o fim da ENTRADA da câmera (1400 ms) + 600. Os pinos só terminam de
   // acender em 1400 + 4*80 + 260 = 1980 ms, e o pulso deles fica bom um respiro depois —
   // por isso a espera extra. Print tirado cedo mostraria a placa chegando e pinos apagados.
@@ -1011,6 +1040,91 @@ ${MED.script('territorio')}
     throw new Error('RECUSADO: o interruptor de medição (achado por id ou pela frase "Medição") '
       + 'continua no quadro depois da exclusão: ' + JSON.stringify(interruptorVisivel));
   }
+  // A TROCA — o MESMO mecanismo de `cartao-secao.js`: prepende a família embutida a todo
+  // elemento cujo font-family declarado é a serifa da casa (nav, h1, corpo do censo — a
+  // lista de famílias sai de TIPO.familias(), derivada de CHROME.TITULO/LEITURA, então
+  // cobre a pilha exata da barra E as pilhas Georgia-primeiro do corpo desta página, sem
+  // precisar listar os dois). IGUALDADE de token, nunca substring (sans-serif CONTÉM serif).
+  const trocaT = await pg2.evaluate((cfg) => {
+    const lista = (s) => String(s || '').split(',')
+      .map((x) => x.trim().replace(/^["']|["']$/g, '').toLowerCase());
+    const daCasa = (fam) => lista(fam).some((t) => cfg.familias.indexOf(t) >= 0);
+    const alvos = [document.documentElement, document.body,
+      ...document.querySelectorAll('body *')]
+      .filter((el) => !(cfg.pularTitulo && el.tagName === 'H1'));
+    const colhido = alvos.map((el) => [el, getComputedStyle(el).fontFamily])
+      .filter(([, fam]) => daCasa(fam));
+    colhido.forEach(([el, fam]) => { el.style.fontFamily = '"' + cfg.familia + '",' + fam; });
+    return colhido.length;
+  }, { familia: TIPO.FAMILIA, familias: TIPO.familias(process.env.CARTAO_TIPOGRAFIA_DEFEITO),
+       pularTitulo: TIPO.pularTitulo(process.env.CARTAO_TIPOGRAFIA_DEFEITO) });
+  // A TROCA ALARGA A BARRA (a fonte embutida é mais larga que a do host, medido em
+  // ferramentas/tipografia-cartao.js), e isso INVALIDA o scrollIntoView que a própria
+  // página já tinha feito na carga — com a fonte estreita. Sem refazer, a tábua "aqui"
+  // (O Território) sai cortada no cartão, no lugar exato onde antes era a PRIMEIRA que
+  // saía (PENDENTES "O QUE SOBROU" item 2 — mesma família de defeito, gatilho novo). Mesma
+  // receita que a exclusão de controles já usa: zera o scroll-padding e o scrollLeft antes
+  // de refazer, para não herdar um deslocamento calculado para a largura antiga.
+  if (trocaT > 0) {
+    // POR ARITMÉTICA, NÃO POR `scrollIntoView` — medido nesta rodada: com o botão .medida
+    // já escondido (display:none) pela exclusão acima, `scrollIntoView({inline:'nearest'})`
+    // devolvia a tábua "aqui" ainda 48 px fora da borda direita da barra (aquiRight 458 x
+    // barraRight 409), sem lançar erro — falha silenciosa. offsetLeft/offsetWidth não
+    // dependem de heurística de scroll do motor: encostar a borda direita da tábua na borda
+    // direita da barra é aritmética, e o clamp final impede um scrollLeft negativo ou além
+    // do fim quando a tábua já cabe inteira sem rolar.
+    await pg2.evaluate(() => {
+      document.querySelectorAll('.barra').forEach((b) => { b.style.scrollPaddingRight = '0px'; });
+      const b = document.querySelector('.barra');
+      const a = document.querySelector('.barra a.aqui');
+      if (!b || !a) return;
+      const alvo = (a.offsetLeft + a.offsetWidth) - b.clientWidth;
+      b.scrollLeft = Math.max(0, Math.min(alvo, b.scrollWidth - b.clientWidth));
+    });
+  }
+
+  const fonteT = await pg2.evaluate(async (cfg) => {
+    const q = '"' + cfg.familia + '"';
+    try { await document.fonts.load('700 46px ' + q); } catch (e) { /* status conta a historia */ }
+    try { await document.fonts.ready; } catch (e) { /* idem */ }
+    const larg = (fam) => {
+      const s = document.createElement('span');
+      s.textContent = 'Territorio acoes RSTUVW gjpqy 0123456789';
+      s.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;'
+        + 'font-size:96px;font-weight:400;font-style:normal;font-family:' + fam;
+      document.body.appendChild(s);
+      const w = s.getBoundingClientRect().width;
+      s.remove();
+      return Math.round(w * 100) / 100;
+    };
+    const h1 = document.querySelector('h1');
+    const nome = (f) => f.family.replace(/^['"]|['"]$/g, '');
+    return {
+      carregadas: [...document.fonts].filter((f) => f.status === 'loaded').map(nome),
+      estados: [...document.fonts].map((f) => nome(f) + '/' + f.style + ':' + f.status),
+      larguraTitulo: h1 ? larg(getComputedStyle(h1).fontFamily) : null,
+      larguraEmbutida: larg(q),
+      larguraRecuo: larg('"__nenhuma familia com este nome 4f9c__"'),
+    };
+  }, { familia: TIPO.FAMILIA });
+
+  if (trocaT === 0) {
+    throw new Error('RECUSADO: nenhum elemento da página do TERRITÓRIO veste a serifa da casa,'
+      + ' então não há o que fixar — o cartão sairia na fonte do host. Confira'
+      + ' ferramentas/chrome-plataforma.js e ferramentas/tipografia-cartao.js (FAMILIAS_SERIFA).');
+  }
+  if (fonteT.carregadas.indexOf(TIPO.FAMILIA) < 0) {
+    throw new Error('RECUSADO: a fonte embutida "' + TIPO.FAMILIA + '" não carregou no cartão do'
+      + ' TERRITÓRIO — o cartão sairia com a tipografia desta máquina. Estado de document.fonts: '
+      + JSON.stringify(fonteT.estados) + '. Confira ferramentas/tipografia/ (os .ttf e o OFL.txt existem?).');
+  }
+  if (fonteT.larguraTitulo !== fonteT.larguraEmbutida || fonteT.larguraTitulo === fonteT.larguraRecuo) {
+    throw new Error('RECUSADO: o título "O território" não está sendo PINTADO na fonte embutida'
+      + ' (largura da cadeia de prova: pilha do título ' + fonteT.larguraTitulo + ' px, "'
+      + TIPO.FAMILIA + '" ' + fonteT.larguraEmbutida + ' px, recuo do host ' + fonteT.larguraRecuo
+      + ' px). Iguais a primeira e a segunda, e diferente da terceira, é o que prova o glifo.');
+  }
+
   await pg2.waitForTimeout(120);
   await pg2.screenshot({ path: shot, type: 'jpeg', quality: 85 });
   await nav2.close();
