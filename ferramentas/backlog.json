@@ -9,6 +9,31 @@
   },
   "itens": [
     {
+      "id": "cartao-margem-sem-controle",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "A assercao de margem do cartao morde, mas nenhum portao a ve reprovar — e ha referencia pendurada para um controle que nao existe",
+      "territorio": [
+        "test/cartao-controle.js",
+        "ferramentas/cartao-secao.js"
+      ],
+      "aceite": "O defeito de margem entra na lista DEFEITOS do test/cartao-controle.js, que ja tem passo no CI sem continue-on-error, com o mutante CARTAO_MARGEM_DEFEITO. Mordida provada no lugar novo por exit code real. Junto: a referencia pendurada em cartao-secao.js:150 aponta para arquivo existente ou sai, e o comentario que diz x aproximadamente 298 passa a dizer 304, que e o medido.",
+      "detalhe": "Ressalva do QA em 03/09 sobre entrega/cartao-margem-esquerda, declarada antes de integrar. A assercao de margem MORDE — o QA provou a mao, inclusive com o .env renomeado para .envX (falha fechada) —, mas cartao-secao.js:150 referencia test/cartao-margem-controle.js, que NAO foi commitado, e o cartao-controle.js so exercita o caminho limpo (h1=304, passa). Em CI a assercao nunca e vista REPROVANDO. E literalmente a mesma doenca do item fonte-embutida-sem-portao, fechado em 02/09, e o conserto tem precedente pronto: fundir o defeito na lista DEFEITOS, uma linha por defeito. A pergunta do PLANTAO §5 (e o que garante que isto nao volte?) tem hoje a mesma resposta de sempre: nada."
+    },
+    {
+      "id": "regua-touch-action-multivalor",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "touch-action multi-valor escapa do laco: pan-x pinch-zoom bloqueia o pan vertical e a regua le como rolavel",
+      "territorio": [
+        "test/regua-larga.js"
+      ],
+      "aceite": "Decidir se o laco passa a tratar os VALORES de touch-action em vez de casar string exata. Se sim, mordida provada por injecao para pan-x pinch-zoom (exit 1 real) MAIS o controle que impede o efeito contrario: pan-y, manipulation e auto continuam exit 0, porque falso-vermelho e pior que o furo. Se nao, o numero que sustenta deixar aberto.",
+      "detalhe": "Achado pelo QA em 03/09 auditando entrega/regua-poste-e-ancestral, FORA do escopo dela, e por isso virou item em vez de remendo. O regex do laco e ^(none|pan-x|pan-left|pan-right|pinch-zoom)$ e casa STRING EXATA. Uma combinacao valida como \"pan-x pinch-zoom\" bloqueia o pan VERTICAL (nao tem pan-y) e mesmo assim escapa do regex, entao a regua a trata como rolavel. Reproduzido pelo QA: #poste{margin-top:250px} + #telaMenu{touch-action:pan-x pinch-zoom} sai exit 0, sem a linha que cancela o pan. E FURO (perde bloqueio real), nao falso-vermelho, e o valor e exotico — mas o comentario do proprio arquivo afirma cobrir combinacoes, e afirmacao que o objeto nao cumpre e o que esta casa caca nos portoes. Esta e a TERCEIRA conjuncao da regua em dois dias; as duas anteriores tambem reaproveitavam #poste{margin-top:250px}."
+    },
+    {
       "id": "cartao-margem-esquerda",
       "estado": "em-curso",
       "papel": "arte",
@@ -166,14 +191,13 @@
       "aceite": "Uma ficha por candidato dos grupos NENHUM/CUIDADO, no formato do lote 1: CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro), lugar de fala anotado quando houver. Fonte que nao abrir num host tenta o segundo antes de escrever \"nao deu para ler\". Nenhuma decisao de representacao: o historiador julga e o dono aprova pino a pino.",
       "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
       "agente": "pesquisadora-fontes",
-      "estado": "em-curso",
+      "estado": "livre",
       "camada": "medio",
       "territorio": [
         "territorio/",
         "fontes/"
       ],
-      "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:40:00.000Z"
+      "nota": "PARCIAL, integrado 03/09 por nuvem-20260903T2022 no ramo entrega/fichas-lote-2 (funil exit 0). As 6 fichas EXISTEM em fontes/fichas/lote2-territorio.md (1.002 linhas) e valem, mas o item NAO FECHA: o aceite pede fonte primaria ABERTA e ZERO foi aberta — o egresso desta maquina nega todos os hosts (8 testados: planalto, camara, lexml, presidencia, unesco, iphan, ebc, mais um controle en.wikipedia para provar que e a maquina e nao a fonte). Por isso cada citacao carimba grau de evidencia: [A] lida com arquivo:linha no proprio repo, [B] verificada em rodada anterior com procedencia, [C] devolvida por buscador — e NENHUM veredito repousa em [C]. QA conferiu 5 citacoes [A] por amostragem: todas batem. O QUE FALTA E DE MAQUINA COM EGRESSO: abrir os 4 [conferir] que ficaram avancados e nao fechados — processo IPHAN 1069-T-82, data da Lei 12.032, a obra de Capanema sobre Joao Candido, e o ano do Cocorobo (1968 x 1969, divergencia registrada). NAO REFACA as fichas; complete-as."
     },
     {
       "id": "pinos-lote-2",
@@ -716,7 +740,8 @@
       "aceite": "Um portao le o TEXTO dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada. Mordida provada por injecao.",
       "detalhe": "Achado pelo dev-plataforma em 02/09. O territorio/compartilhar.jpg COMMITADO le istoria em vez de A Historia; regerado na nuvem le ponto Historia. E a mesma familia do defeito de 23/08 (cromo vazando para dentro da imagem que o WhatsApp mostra) e PIOROU com a tabua Jogar que a main acrescentou. Nenhum portao olha para isso: os que existem cobram quem NAO pode estar no recorte, e nenhum cobra que quem PODE esteja inteiro. Cuidado ao consertar: o PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte.",
       "maquina": null,
-      "desde": null
+      "desde": null,
+      "nota": "MEDIDO EM 03/09 pela arte, e MUDA O ITEM: o cartao do territorio NAO tem o mesmo defeito dos outros tres nem se conserta com a mesma margem. Ele usa outro molde inteiro (position:fixed;inset:0 com padding:0.9rem, nao o .env centralizado de 44rem), o h1 nasce em x=27 contra os 268 das tres secoes, e no recorte quadrado (que comeca em 285) o titulo O territorio SOME INTEIRO, em vez de perder a primeira letra. E defeito de outra categoria e mais severo. A entrega cartao-margem-esquerda nao o tocou de proposito (territorio de gerar-territorio.js) e por isso este item continua livre: precisa de correcao propria. O QA acrescentou que ninguem mediu a posicao do titulo dele contra o recorte quadrado ate agora."
     },
     {
       "id": "censo-cartao-residuais",
@@ -938,7 +963,7 @@
     },
     {
       "id": "poste-sobre-a-proposta",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco nunca cobra sobreposicao entre DUAS pecas de mobilia — o poste sobe por cima da proposta e ninguem ve",
@@ -948,7 +973,8 @@
       "aceite": "Decidir se a regua passa a cobrar a faixa entre o topo do #poste e a base do #menuSub, e com que piso. ATENCAO medida: uma assercao faixa>0 crua passaria HOJE com 9 px de folga em 320x568 — piso apertado demais para entrar de carona numa outra entrega, e por isso o achado virou item em vez de remendo. Se a decisao for cobrar, prova de mordida por injecao (exit 1 real + restaura exit 0); se for nao cobrar, o numero que sustenta.",
       "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-retrato-sem-alcancabilidade, e deixado aberto DE PROPOSITO por ele em vez de remendado junto — o que esta certo. Sob a receita terceira, em retrato, o #telaMenu e position:fixed (getComputedStyle, 6/6) e vira o containing block do #poste absoluto, entao o poste SOBE por cima da proposta: a faixa (topo do poste menos base do #menuSub) vai a -146/-188/-134/-291/-321/-328 px nas seis telas de retrato, contra 9 a 140 positivos em producao. Conferido em 03/09 pela nuvem-20260903T0822 que nao e item conhecido: grep de menuSub no backlog e no PENDENTES nao acha, e o laco so cobra 0% de sobreposicao da caixa DELA (a personagem) com o poste, as tabuas e a frase de proposta — nunca entre duas pecas de mobilia entre si. Nota da mesma medicao: sob terceira o botao continua alcancavel e tocavel (159 px de folga em 320x568), entao isto e sobreposicao visual, nao alcancabilidade — sao buracos diferentes.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "resolucao": "INTEGRADO 03/09 por nuvem-20260903T2022 (funil exit 0 real, npm test 0, encaixe 0). Decidido SIM, cobrar, com piso 0 — escolhido com numero e nao por gosto: sobram 9 px na pior tela real de producao (320x568) contra 134 px de folga do lado do defeito (a menor magnitude medida). Piso 8 deixaria 1 px em 320x568 e reprovaria ajuste de CSS que nao sobrepoe nada, que era exatamente o risco que o achado avisou. A assercao e INCONDICIONAL (fora de m.ligado/cabe, que so rodam com CHAO_HOME_LIGADO, e ela nasce desligada — aquele ramo nunca mediu isto em producao). Mordida: a terceira receita sai exit 1 em 6/6 com os mesmos -146/-188/-134/-291/-321/-328; saida limpa byte a byte identica ao pai (diff exit 0), com piso de ruido zero medido em duas rodadas. QA independente confirmou sem derrubar nada."
     },
     {
       "id": "vercel-precedencia-de-headers",
@@ -992,7 +1018,7 @@
     },
     {
       "id": "censo-restilizar-o-aceito",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A catraca do censo le 0 px enquanto o cartao muda 15.135 — re-estilizar conteudo ACEITO passa limpo",
@@ -1003,11 +1029,12 @@
       "aceite": "Decidir se o censo passa a comparar a APARENCIA do aceito com referencia, e nao so a identidade. E de outra natureza que as fugas: exigiria referencia visual, entao vale decidir ANTES de construir. Se sim, prova de mordida por injecao; se nao, o numero que sustenta deixar aberto.",
       "detalhe": "Furado pelo proprio autor da catraca em 03/09, com numero, e declarado em vez de escondido — e por isso e item e nao defeito silencioso. CATRACA_EXTRA_ESTILO=.lista .pl{background:#0f0} da inerte 0 px / ABSOLVE / exit 0, enquanto o cartao muda 15.135 px. Duas cegueiras somadas: o censo permite tabuas por IDENTIDADE e nunca por aparencia, e o oraculo nao ve porque a tinta nao sai quando o mutante some. Mesma classe do q107c, que ja estava declarado como ALCANCE nao coberto — agora com tamanho medido.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "resolucao": "FECHADO EM NAO, 03/09 por nuvem-20260903T2022, e o aceite previa este desfecho (decidir com medicao antes de construir; se nao, o numero que sustenta deixar aberto). Re-medido nesta maquina em vez de herdado: o re-estilo do aceito move 15.118 px (herdado 15.135 — variacao de maquina, o fenomeno bate). Custo de deixar aberto: 15.118 px sem reprovacao, mas o vetor exige acesso de COMMIT ao repositorio, a mesma fronteira de qualquer linha de src/ — nao e runtime nem XSS. Custo de fechar: referencia visual para 25 elementos aceitos em 5 paginas, cada um sujeito ao mesmo piso de ruido do mapa (~1100 px no quadro cheio) que este arquivo ja pagou caro para resolver para UMA caixa, e com re-baseline a cada conteudo novo — o que colide de frente com evolucao ano a ano, que e requisito do produto."
     },
     {
       "id": "regua-ancestral-acima-do-menu",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco do touch-action para em #telaMenu — ancestral ACIMA dele e elo intermediario ainda dao falso verde",
@@ -1017,7 +1044,8 @@
       "aceite": "Decidir se o laco de alcanceDoBotao() vai ate a raiz do documento. Se sim, prova de mordida por injecao (exit 1 real + restaura exit 0) para AS DUAS injecoes medidas, e a saida limpa da regua tem de continuar byte a byte identica (diff exit 0) — foi esse duplo que fechou o conserto parcial. Se nao, o numero que sustenta deixar aberto. ATENCAO ao efeito contrario avisado: touch-action:pan-y PERMITE rolagem vertical; tratar pan-y como none fabrica falso PRESO e deixa a regua mais burra, nao mais esperta.",
       "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-touch-action, e DERRUBANDO a propria hipotese de que ler touch-action no ancestral rolavel resolvia o caso inteiro. Duas injecoes continuam dando falso verde DEPOIS do conserto, cada uma reaproveitando #poste{margin-top:250px} para criar a sobra: (a) body{touch-action:none} — ancestral ACIMA de #telaMenu, fora do laco que para em p===menu — sai exit 0, 6/6 configuracoes alcancavel; (b) #poste{touch-action:none} — o proprio poste, que fica ENTRE cfg e #telaMenu mas nao e o ancestral que rola — sai exit 0, 6/6 alcancavel. Ele NAO remendou de carona, e a justificativa dele e o que este item tem de atacar: a semantica de intersecao de touch-action entre ancestral e descendente nao pode ser verificada com toque FISICO numa maquina headless (dispatchEvent sintetico nao aciona reconhecimento nativo de gesto), e alargar sem verificar arrisca o falso PRESO. O QA do lote de 03/09 recebeu a tarefa de atacar essa justificativa — leia o veredito dele antes de comecar. | ATUALIZADO pela nuvem-20260903T1230 apos o QA em lote: o QA DERRUBOU a justificativa do dev-jogo de que headless nao modela a intersecao de touch-action. getComputedStyle(el).touchAction sobre a cadeia inteira ate html classifica a regra do spec SEM toque (none/pan-x/pan-left/pan-right/pinch-zoom sozinho bloqueiam pan-y). Logo o laco PODE subir ate html e fechar os dois gaps — o item e mais amplo do que o dev-jogo achou possivel. Instrumento pronto: test/qa-lote-0903-touch-intersecao.js no ramo qa/lote-0903 (5ea30e4), ja visto rodando — traga em vez de reescrever.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "resolucao": "INTEGRADO 03/09 por nuvem-20260903T2022 (mesmo funil). Decidido SIM: o laco de alcanceDoBotao passa a percorrer a cadeia ate document.documentElement, porque touch-action NAO e herdado — o navegador calcula o valor usado pela INTERSECCAO do computado em cada ancestral do ponto tocado ate a raiz (CSS Touch Action Level 1 §5.2). O laco anterior so olhava o mesmo elemento que tinha overflow-y, entao bloqueio em outro elo passava batido. Achado do bloqueio (cadeia inteira) separado do resgate por scrollTop (segue restrito a menu) para nao confundir quem ROLA com quem BLOQUEIA. Mordida dos dois lados: body{touch-action:none} e #poste{touch-action:none} saiam exit 0 com 6/6 alcancavel e passam a exit 1 com 6/6 PRESO, com o elo nomeado na mensagem. Guarda de falso-vermelho medida: pan-y e manipulation continuam exit 0. As duas injecoes foram reproduzidas na main ANTES de tocar codigo (regra do achado orfao) e as duas se confirmaram."
     },
     {
       "id": "vercel-propriedade-dentro-da-regra",
@@ -1036,7 +1064,7 @@
     },
     {
       "id": "censo-oraculo-dois-furos",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "PARTE B do censo-oraculo-dois-furos: oraculo apaga o mutante do DOM (imune a heranca) + recorte alargado + ::before::marker no catalogo",
@@ -1047,7 +1075,8 @@
       "aceite": "Duas coisas, e as duas podem fechar separadas. (A) ABRANDAR as duas frases superestimadas — o cabecalho de qa-censo-pintura-fora.js diz por-construcao-exatamente-os-pixels e verde-igual-fugas-registradas, e o QA derrubou as duas com numero; o texto passa a dizer o que a catraca REALMENTE garante. (B) DECIDIR, com medicao antes de construir: o oraculo passa a APAGAR o mutante do DOM (imune a heranca de visibility) com recorte alargado, e ::before::marker entra no catalogo/regua? Se sim, prova de mordida por injecao para as 3 variantes que o QA mediu (exit 1 real) + controle limpo exit 0. Traga test/qa-catraca-oraculo.js do ramo qa/censo-cinco (97f1ccf) em vez de reescrever — ele ja registra o tamanho dos 2 furos e ja foi visto mordendo (QA_ORACULO=b exit 1, QA_MUTANTE_MUDO=1 exit 1).",
       "detalhe": "PARTE A FEITA em 03/09 por nuvem-20260903T1623 (as tres frases superestimadas do cabecalho de test/qa-censo-pintura-fora.js abrandadas, e os dois furos + o furo do tamanho agora REGISTRADOS por instrumento: test/qa-catraca-oraculo.js e test/qa-catraca-tamanho-ignorado.js, os dois exit 0). Falta so a parte B: apagar o mutante do DOM em vez de escondê-lo, recorte alargado, e decidir se ::before::marker entra no catalogo. Quando fechar um furo, o instrumento correspondente fica VERMELHO sozinho pedindo para ser apagado — e o cabecalho tem de ser corrigido junto.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "resolucao": "INTEGRADO 03/09 por nuvem-20260903T2022 (funil exit 0 real: npm test 0, encaixe 0, cartao-quadro-controle 0, qa-censo-passo2 0, qa-censo-pintura-fora 0). Parte B fechada. A correcao que ficou NAO foi a primeira nem a segunda: remove() do DOM e reset de cssText foram testados e DESCARTADOS COM NUMERO (o primeiro quebra o display:flex da lista e mecanismos inertes passaram a medir ~102.800 px de reflow; o segundo levou zoom de 0 para 143.311). Ficou visibility:hidden no hospedeiro MAIS desligar a folha de arg.estilo inteira (disabled=true) — como a declaracao content do pseudo mora nessa mesma folha, desliga-la apaga qualquer ::before/::after independente de heranca redeclarada. Recorte de 48 para 400 px, validado sem contaminacao do #palco animado. ::before::marker entra no catalogo (48 mecanismos) como fuga DECLARADA e nao fechada, com sonda direta provando que getComputedStyle do pseudo devolve declaracao vazia mesmo com a regra pintando. DERRUBOU a propria premissa herdada: o instrumento do furo NAO fica vermelho sozinho — rodou apos o conserto e continuou exit 0, porque e reproducao hardcoded que nao chama o codigo de producao; apagado por medicao, nao por auto-deteccao, e a discrepancia ficou registrada no cabecalho."
     },
     {
       "id": "ramos-mortos-mente-em-clone-raso",
