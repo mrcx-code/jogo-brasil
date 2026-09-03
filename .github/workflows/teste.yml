@@ -138,6 +138,23 @@ jobs:
         run: node test/qa-vercel-host.js
         timeout-minutes: 2
 
+      # O PONTO CEGO QUE OS DOIS PORTOES ACIMA COMPARTILHAM (03/09, achado do QA auditando a
+      # entrega csp-host-constante). Nao e mais um portao de host: e o unico que nao herda o cego.
+      #
+      # O construir.js e o qa-vercel-host.js partem a CSP montando um OBJETO, entao leem a ULTIMA
+      # ocorrencia de cada diretiva. O navegador faz o contrario: a CSP3 manda ignorar a diretiva
+      # repetida e aplicar a PRIMEIRA — medido em Chromium com tres origens locais, a 1a passou e a
+      # 2a foi bloqueada. Consequencia medida: um connect-src duplicado, com a PRIMEIRA apontando
+      # para um host que nao tenha "posthog" no nome, atravessa os dois com exit 0, e a Vercel
+      # serviria esse host nas paginas publicas. A duplicata com host do posthog so morde por
+      # acidente, porque ai a contagem de "posthog" vai a 14.
+      #
+      # Por isso ele cobra FORMA e nao valor — nenhuma CSP do vercel.json repete diretiva nenhuma —
+      # e vale igual para script-src e img-src.
+      - name: nenhuma CSP do vercel.json repete diretiva (o navegador aplica a PRIMEIRA)
+        run: node test/qa-vercel-diretiva-repetida.js
+        timeout-minutes: 2
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados

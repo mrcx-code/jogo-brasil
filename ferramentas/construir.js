@@ -655,8 +655,18 @@ function conferirCspDashboard(origemHtml) {
 //      que só o parse desfaz. Consequência aceita e de propósito: o host tem de estar escrito por
 //      extenso no arquivo, sem escape, mesmo que o valor parseado esteja certo.
 // O controle que prova que isto morde é `test/qa-vercel-host.js` (`QA_VERCEL_DEFEITO=<modo>`),
-// escrito pelo QA em 02/09 e mantido de propósito como implementação INDEPENDENTE desta: duas
-// leituras do mesmo arquivo que têm de concordar valem mais que uma função chamada de dois lugares.
+// escrito pelo QA em 02/09.
+//
+// AQUI ESTAVA ESCRITO que ele era mantido como implementação INDEPENDENTE desta, e que "duas
+// leituras do mesmo arquivo que têm de concordar valem mais que uma função chamada de dois
+// lugares". A frase CAIU na auditoria de 03/09, e a correção fica no lugar da promessa: o QA
+// canonizou os dois corpos e comparou — o parser de CSP dos dois arquivos é IDÊNTICO token a
+// token, módulo nome de identificador e estilo de aspas. É transliteração, não segunda leitura.
+// Duas leituras que compartilham o parser compartilham o PONTO CEGO, e o ponto cego existe e foi
+// medido: os dois montam um objeto ao partir a CSP e leem a ÚLTIMA diretiva, enquanto o navegador
+// (CSP3) ignora a repetida e aplica a PRIMEIRA — medido em Chromium, 1ª passou e 2ª bloqueada.
+// Quem fecha isso é `test/qa-vercel-diretiva-repetida.js`, que cobra FORMA (nenhuma CSP repete
+// diretiva) em vez de valor, e por isso não herda o mesmo cego.
 const ROTAS_QUE_MEDEM = [
   "/",                                                      // a porta
   "/historia", "/historia/", "/historia/(.*)",              // A HISTÓRIA
