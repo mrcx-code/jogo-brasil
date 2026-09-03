@@ -165,6 +165,57 @@ ok(lConsumidoDoente.indexOf('ÓRFÃO') !== -1,
   'CONTROLE: com o classificador de dois estados, o ramo consumido volta a sair ÓRFÃO — a cena 1 morde',
   lConsumidoDoente);
 
+// ── CENA 4 — a linha 95 sozinha, isolada ──────────────────────────────────────────────────────
+// ACHADA PELO QA em 03/09, contra este próprio portão, e é o tipo de buraco que só um adversário
+// externo vê: a injeção acima derruba `classificar()` **junto com** o `--unshallow`, então ela
+// prova "classificador quebrado + busca quebrada" e nunca "classificador quebrado sozinho". Como
+// o `--unshallow` roda ANTES de `classificar()` e já deixa `temCommit()` verdadeiro para os dois
+// shas do palco, a linha `if (!temCommit(sha)) return 'desconhecido'` ficava **código morto** nas
+// cenas 1-3. Um regresso de uma linha — `'desconhecido'` virando `'orfao'`, que é o defeito
+// original voltando por um merge malfeito — passava **verde 3 vezes seguidas** (medido pelo QA).
+//
+// O que isola a linha: um clone **profundo** (nada a aprofundar) e **`--single-branch`** (os tips
+// de `entrega/*` não vieram), com a busca dos refs `entrega/*` falhando. Aí `temCommit()` é falso
+// de verdade, com os dois consertos do programa intactos — e a única coisa que decide o veredito
+// é a linha 95. Não é cenário artificial: é exatamente o que acontece quando o `fetch` dos refs
+// leva 403, rate limit ou rede caída, que o próprio programa já trata com aviso.
+function montarSemEntregas(fonteDoPrograma) {
+  const dir = path.join(palco, 'unico' + ++nClones);
+  git(palco, 'clone', '--quiet', '--single-branch', '--branch', 'main', 'file://' + origem, dir);
+  fs.mkdirSync(path.join(dir, 'ferramentas'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'ferramentas', 'ramos-mortos.js'), fonteDoPrograma);
+  fs.writeFileSync(path.join(dir, 'ferramentas', 'backlog.json'), JSON.stringify({
+    itens: [{ id: 'ja-consumido', estado: 'concluido' }, { id: 'orfao-de-verdade', estado: 'concluido' }],
+  }, null, 2));
+  return dir;
+}
+
+// a busca dos `entrega/*` falha — e SÓ ela; o `--unshallow` do programa fica intacto.
+const semBusca = PROGRAMA.replace(
+  /git\('fetch', 'origin', '--quiet', '\+refs\/heads\/entrega\/\*:refs\/remotes\/origin\/entrega\/\*'\);/,
+  "throw new Error('busca dos refs entrega/ indisponivel (palco da cena 4)');");
+ok(semBusca !== PROGRAMA, 'a cena 4 conseguiu desarmar SÓ a busca dos refs entrega/');
+
+const semEntregas = montarSemEntregas(semBusca);
+ok(git(semEntregas, 'rev-parse', '--is-shallow-repository').trim() === 'false',
+  'o palco da cena 4 é PROFUNDO (senão quem responde é o --unshallow, não a linha 95)');
+const saidaSemBusca = rodarEm(semEntregas);
+const lSemBusca = linhaDe(saidaSemBusca, 'orfao-de-verdade');
+console.log('   sem a busca dos entrega/, órfão → ' + (lSemBusca || '(ausente)'));
+ok(lSemBusca.indexOf('ÓRFÃO') === -1 && lSemBusca.indexOf('não está neste clone') !== -1,
+  'commit que o clone nunca buscou sai como NÃO MEDIDO, nunca como ÓRFÃO', lSemBusca);
+
+// e o controle da cena 4: o defeito de UMA linha, com os dois consertos de pé.
+const linha95Doente = semBusca.replace(
+  "if (!temCommit(sha)) return 'desconhecido';",
+  "if (!temCommit(sha)) return 'orfao';");
+ok(linha95Doente !== semBusca, 'o controle da cena 4 conseguiu injetar o defeito de uma linha só');
+const lLinha95 = linhaDe(rodarEm(montarSemEntregas(linha95Doente)), 'orfao-de-verdade');
+console.log('   com a linha 95 doente, órfão → ' + (lLinha95 || '(ausente)'));
+ok(lLinha95.indexOf('ÓRFÃO') !== -1,
+  'CONTROLE: trocar só `desconhecido` por `orfao` na linha 95 volta a mentir — a cena 4 morde',
+  lLinha95);
+
 // ── e a versão profunda continua respondendo o mesmo ───────────────────────────────────────────
 // A mesma pergunta num clone completo: as duas leituras têm de coincidir, que é a coisa toda.
 const fundo = path.join(palco, 'fundo');

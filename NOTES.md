@@ -12199,3 +12199,44 @@ Vale uma varredura por `merge-base`/`rev-list` em `ferramentas/` numa próxima r
 o ref pedido. O `ramos-mortos.js` só fazia `ls-remote`, que devolve **sha sem objeto** — ele
 perguntava sobre commits que nunca pediu. A regra fica mais estreita e mais útil do que eu tinha
 escrito: o perigo não é "clone raso", é **perguntar sobre um sha que você não buscou**.
+
+**O QA derrubou o MEU PRÓPRIO PORTÃO, e este é o achado que eu não teria encontrado sozinho.**
+Ele confirmou A1 (reproduziu a tabela com clones **independentes**: 0/33, 7/26, 29/4 — o `+1` em
+cada linha é o próprio ramo desta entrega, que é órfão de verdade e não existia quando eu medi),
+confirmou A3 (rodou com proxy morto em `127.0.0.1:1`, com `origin` apontando para
+`example.invalid`, com o `backlog.json` do projeto movido para fora, em `HEAD` destacado, duas
+vezes seguidas — **exit 0** em todas, e zero lixo em `os.tmpdir()`) e confirmou A4 (conferiu os 8
+por conteúdo; achou inclusive que os 3 verbetes do glossário migraram para
+`ferramentas/conteudo/conteudo_glossario.json` com `revisado_por: historiador` e parecer de
+01/09 — rota diferente, conteúdo revisto, **nada perdido**).
+
+**E reprovou A2 com um caso que eu tinha na frente do nariz.** A minha injeção derrubava
+`classificar()` **junto com** o `--unshallow`, então ela provava *"classificador quebrado + busca
+quebrada"* e nunca *"classificador quebrado sozinho"*. Como o `--unshallow` roda **antes** de
+`classificar()` e já deixa `temCommit()` verdadeiro para os dois shas do palco, a linha
+`if (!temCommit(sha)) return 'desconhecido'` era **código morto** nas cenas 1-3: trocá-la por
+`return 'orfao'` — que é o defeito original voltando por um merge malfeito — **passava verde, 3
+vezes seguidas** (medido por ele).
+
+**Cena 4, que fecha isso**, e o que a torna possível: clone **profundo** (nada a aprofundar) e
+**`--single-branch`** (os tips de `entrega/*` não vieram), com a busca dos refs falhando e os dois
+consertos do programa **intactos**. Aí `temCommit()` é falso de verdade e a única coisa que decide
+o veredito é aquela linha. Não é cenário artificial: é o que acontece quando o `fetch` leva 403 ou
+rate limit, que o programa já trata com aviso.
+
+Medido depois da cena 4, com o defeito exato que o QA descreveu (só a linha 95, os dois `fetch`
+funcionando): **exit real 1**, onde antes era 0. Portão de **6 → 11 checagens**.
+
+**A lição, e ela é sobre quem escreve o próprio controle:** as duas vezes em que esta entrega
+"achou defeito contra si mesma" foram durante a construção, por mim — e foi exatamente isso que me
+deixou confiante. O buraco que sobrou só aparece testando **o exemplo citado no comentário do
+próprio código** e tentando quebrá-lo **isolado**. Injeção que combina dois defeitos numa mordida
+só é meia mordida, e ela assina de verde a metade que não testou.
+
+**Dois gaps que o QA deixou anotados e eu NÃO fechei nesta rodada** (não inventei conserto para
+caber no tempo): não há cena para `ls-remote` devolver refs **parciais** (paginação/rate limit), e
+nada trava que o `--apagar` só itere `mortos` — o código está certo hoje (itera só `mortos`), mas
+uma reordenação futura passaria sem portão.
+
+**Placar da rodada:** 1 QA em lote · 1 achado · 1 real · 0 desmentidos do QA — e **3 afirmações
+minhas caíram** (as duas que eu mesmo derrubei durante a construção, mais A2, derrubada por ele).
