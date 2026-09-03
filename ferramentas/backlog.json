@@ -944,6 +944,21 @@
       "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-retrato-sem-alcancabilidade, e deixado aberto DE PROPOSITO por ele em vez de remendado junto — o que esta certo. Sob a receita terceira, em retrato, o #telaMenu e position:fixed (getComputedStyle, 6/6) e vira o containing block do #poste absoluto, entao o poste SOBE por cima da proposta: a faixa (topo do poste menos base do #menuSub) vai a -146/-188/-134/-291/-321/-328 px nas seis telas de retrato, contra 9 a 140 positivos em producao. Conferido em 03/09 pela nuvem-20260903T0822 que nao e item conhecido: grep de menuSub no backlog e no PENDENTES nao acha, e o laco so cobra 0% de sobreposicao da caixa DELA (a personagem) com o poste, as tabuas e a frase de proposta — nunca entre duas pecas de mobilia entre si. Nota da mesma medicao: sob terceira o botao continua alcancavel e tocavel (159 px de folga em 320x568), entao isto e sobreposicao visual, nao alcancabilidade — sao buracos diferentes.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "vercel-precedencia-de-headers",
+      "estado": "livre",
+      "papel": "porteiro",
+      "camada": "esteira",
+      "titulo": "A precedencia do array headers da Vercel e INFERIDA e nao documentada — e a 3a hipotese muda a severidade",
+      "territorio": [
+        "ferramentas/construir.js",
+        "test/qa-csp-cabecalhos.js"
+      ],
+      "aceite": "Fechar com DOCUMENTO aberto e citado, ou com curl -I contra a producao (matando as duas duvidas de uma vez: qual regra decide, e se a ignorada viaja junto). Nao vale busca que devolva a regra de ROTEAMENTO (rewrite/redirect/status) — e outra coisa, e citar ela seria confirmar o que ninguem leu. Exige maquina com egresso para vercel.com: a nuvem NAO fecha este item (medido, ver detalhe).",
+      "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
