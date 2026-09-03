@@ -1083,3 +1083,77 @@ colem. Agora vale mais, porque a lista finalmente está certa.
 achei onde se configura. Enquanto variar, vale varrer `ferramentas/` atrás de outros usos de
 `merge-base`/`rev-list` que respondam sobre ancestralidade sem se defender do clone raso — eu
 consertei o que encontrei, não afirmo que era o único.
+
+### A LISTA DE APAGAR, agora correta — 03/09 16hUTC, gerada pelo `ramos-mortos.js` consertado
+
+**52 refs mortos.** Com a versao antiga, num clone raso, boa parte deles sairia como ORFAO e
+voces poupariam ramo que ja podia ter ido embora. Colem numa maquina com `delete_ref`:
+
+```bash
+git push origin --delete voo/canonical-jogo
+git push origin --delete voo/cartao-alvo-por-geometria
+git push origin --delete voo/cartao-fonte-do-host
+git push origin --delete voo/cartoes-tipografia-defasada
+git push origin --delete voo/censo-cartao-residuais
+git push origin --delete voo/censo-cobertura-e-propriedades
+git push origin --delete voo/censo-vaomedida
+git push origin --delete voo/censo-vaomedida-falso-positivo
+git push origin --delete voo/controle-cartao-sem-dono
+git push origin --delete voo/csp-host-nao-sai-da-constante
+git push origin --delete voo/csp-paginas-publicas
+git push origin --delete voo/csp-tabela-de-rotas-e-conjunto
+git push origin --delete voo/dashboard-trio
+git push origin --delete voo/fila-conectado-vermelho-intermitente
+git push origin --delete voo/fonte-embutida-sem-portao
+git push origin --delete voo/geradores-fora-do-portao
+git push origin --delete voo/glossario-substancia
+git push origin --delete voo/jogo-connect-src-sem-portao
+git push origin --delete voo/regua-autoteste-morto
+git push origin --delete voo/regua-eixo-x-nao-olhado
+git push origin --delete voo/regua-terceira-receita
+git push origin --delete voo/rotina-7-sinais
+git push origin --delete voo/secao-numero-envelhece
+git push origin --delete entrega/cartao-fonte-embutida
+git push origin --delete entrega/cartao-geometria
+git push origin --delete entrega/cartoes-tipografia
+git push origin --delete entrega/censo-cinco-fugas-medidas
+git push origin --delete entrega/censo-cobertura-e-propriedades
+git push origin --delete entrega/censo-foto
+git push origin --delete entrega/censo-foto-qa
+git push origin --delete entrega/controle-cartao-dono
+git push origin --delete entrega/csp-constante
+git push origin --delete entrega/csp-constante-qa
+git push origin --delete entrega/csp-paginas-publicas
+git push origin --delete entrega/csp-tabela-de-rotas-e-conjunto
+git push origin --delete entrega/fila-conectado-vermelho-intermitente
+git push origin --delete entrega/fonte-embutida-sem-portao
+git push origin --delete entrega/geradores-chromium
+git push origin --delete entrega/geradores-portao
+git push origin --delete entrega/glossario-substancia-rev2
+git push origin --delete entrega/glossario-substancia-rev3
+git push origin --delete entrega/portao-cartao-pos-condicao
+git push origin --delete entrega/regua-autoteste-vivo
+git push origin --delete entrega/regua-eixo-x
+git push origin --delete entrega/regua-parada-e-fila-paralela
+git push origin --delete entrega/regua-retrato-sem-alcancabilidade
+git push origin --delete entrega/regua-terceira-receita
+git push origin --delete entrega/regua-touch-action
+git push origin --delete entrega/rodape-quatro-gaps
+git push origin --delete entrega/rotina-7-sinais
+git push origin --delete entrega/secao-numero-envelhece
+git push origin --delete entrega/vercel-valor-e-topo
+```
+
+**Mais estes tres, que o programa marca DE PE e eu auditei POR CONTEUDO nesta rodada** — os
+tres tem commit fora da `main`, entao o programa faz certo em nao decidir sozinho, mas o
+conteudo dos tres ja entrou por outra rota (o porque de cada um esta no Diario de hoje no
+`NOTES.md`). **Podem apagar:**
+
+```bash
+git push origin --delete entrega/canonical-jogo        # a main tem assercao MAIS forte
+git push origin --delete entrega/dashboard-trio        # entrou no commit bccbf16
+git push origin --delete entrega/glossario-substancia  # os 3 verbetes estao la, revistos
+```
+
+**NAO apaguem `entrega/ramos-mortos-raso`** enquanto ele nao entrar pelo funil — e a entrega
+desta rodada, e o programa a marca DE PE com razao.
