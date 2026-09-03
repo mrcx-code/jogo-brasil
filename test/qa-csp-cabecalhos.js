@@ -56,6 +56,22 @@
 // achado que abriu este item — a cobrança olhava UMA coisa (lá, uma diretiva; aqui, três chaves) e
 // não via as outras. Por isso a lista abaixo é FECHADA: chave que não estiver nela reprova, e
 // acrescentar uma é dizer no commit o que passou a ser servido.
+//
+// ----------------------------------------------------------------------------
+// UMA CASA ADIANTE, E A MESMA CLASSE PELA TERCEIRA VEZ — porteiro, 03/09, item
+// `vercel-valor-e-topo`. O QA auditou o conserto acima e mediu o buraco seguinte: fechou-se QUAL
+// CHAVE, não QUAL VALOR. Das quatro chaves permitidas, três tinham valor cobrado
+// (`Content-Security-Policy` pelo QUADRO_DE_ROTAS do build, `X-Frame-Options` = DENY e
+// `X-Content-Type-Options` = nosniff aqui) e a quarta, `Referrer-Policy`, entrou com valor LIVRE.
+// O instrumento que mediu isso é `test/qa-vercel-fora-do-conjunto.js`, que injeta em memória e lê
+// o exit code real dos QUATRO portões, um de cada vez. O conserto é o `COMPANHEIROS` abaixo, onde
+// o valor daquela chave passou de `null` a uma LISTA FECHADA — o porquê está escrito lá, junto
+// com os dois exit codes que o justificam.
+//
+// A segunda família que aquele instrumento mediu — as CHAVES DE TOPO do `vercel.json`
+// (`redirects`, `outputDirectory`, `buildCommand`, `trailingSlash`) — não se conserta aqui: ela é
+// sobre a FORMA DO ARQUIVO, não sobre cabeçalho, e foi fechada no `conferirVercelJson()` do
+// `ferramentas/construir.js`, ao lado do QUADRO_DE_ROTAS, que é onde a forma do arquivo já morava.
 const fs = require('fs');
 const path = require('path');
 
@@ -66,19 +82,51 @@ const DEFEITO = process.env.QA_CAB_DEFEITO || '';
 // memória, e este portão tem de sair 1.
 //   QA_CAB_EXTRA="Access-Control-Allow-Origin: *" node test/qa-csp-cabecalhos.js   -> exit 1
 const EXTRA = process.env.QA_CAB_EXTRA || '';
+// A prova de mordida do VALOR: TROCA o valor de uma chave que já existe, em todas as regras que a
+// declaram, e este portão tem de sair 1. Existe para este arquivo ser provável sozinho, sem
+// depender do harness — o controle permanente continua sendo `test/qa-vercel-fora-do-conjunto.js`.
+//   QA_CAB_VALOR="Referrer-Policy: unsafe-url" node test/qa-csp-cabecalhos.js      -> exit 1
+//   QA_CAB_VALOR="Referrer-Policy: " node test/qa-csp-cabecalhos.js                -> exit 1
+const VALOR = process.env.QA_CAB_VALOR || '';
 
 // Os três que acompanham uma CSP. O porquê de cada um fica escrito aqui, porque cabeçalho sem
 // porquê escrito é cabeçalho que alguém tira por conveniência seis meses depois.
+//
+// O VALOR É COBRADO NOS TRÊS. String = valor único; lista = conjunto FECHADO de valores aceitos.
 const COMPANHEIROS = {
   'X-Frame-Options': 'DENY',
   //  o par de `frame-ancestors 'none'` para navegador velho que não lê CSP nível 2.
   'X-Content-Type-Options': 'nosniff',
   //  sem ele o navegador pode ADIVINHAR o tipo de um JSON ou de um .jpg e executá-lo como HTML;
   //  é o que separa um `pack-*.json` de um vetor de XSS de mesma origem.
-  'Referrer-Policy': null,
-  //  valor livre (as rotas de leitura usam strict-origin-when-cross-origin, as de painel usam
-  //  no-referrer). O que se cobra é que EXISTA uma: sem ela o caminho completo da página vaza
-  //  para todo destino externo, e algumas destas URLs dizem o que a pessoa estava lendo.
+  'Referrer-Policy': ['no-referrer', 'strict-origin-when-cross-origin'],
+  //  AQUI ESTAVA `null`, isto é, valor LIVRE, e o comentário dizia "o que se cobra é que EXISTA
+  //  uma". Era a primeira das duas famílias que o `test/qa-vercel-fora-do-conjunto.js` mediu
+  //  atravessando os QUATRO portões. Medido antes do conserto, com exit code real do terminal, na
+  //  regra DECISIVA `/glossario/(.*)` — a que decide o cabeçalho servido no glossário — e com a
+  //  leitura desviada por `test/qa-vercel-injecao.js` (o `vercel.json` da raiz nunca é escrito):
+  //
+  //      Referrer-Policy: unsafe-url  ->  construir.js 0 · qa-vercel-host.js 0
+  //                                       qa-vercel-diretiva-repetida.js 0 · este arquivo 0
+  //      Referrer-Policy: ""          ->  os mesmos quatro exit 0
+  //
+  //  `unsafe-url` manda o CAMINHO COMPLETO da página para todo destino externo, inclusive em
+  //  downgrade para http — exatamente o que o comentário anterior dizia que a policy existe para
+  //  impedir, enquanto deixava o valor livre para dizer o contrário. `""` é o mesmo buraco de
+  //  graça: presente para quem só confere presença, inerte para o navegador.
+  //
+  //  A LISTA É O QUE ESTÁ EM USO, e nada além: as rotas de leitura usam
+  //  `strict-origin-when-cross-origin` e as de painel (/mesa, /dashboard) usam `no-referrer`.
+  //  Acrescentar um terceiro valor é dizer no commit o que passou a vazar — a mesma disciplina da
+  //  CHAVES_PERMITIDAS logo abaixo e da CSP do §3. Ficaram de fora DE PROPÓSITO os valores que
+  //  parecem inofensivos e não são: `no-referrer-when-downgrade` manda o caminho completo em todo
+  //  salto same-scheme, e `origin` / `origin-when-cross-origin` mandam a origem até para http.
+  //
+  //  O QUE ESTA LISTA NÃO FAZ, e é escolha, não esquecimento: ela não prega QUAL das duas vai em
+  //  QUAL rota. Trocar uma pela outra não vaza nada — `no-referrer` numa rota de leitura é mais
+  //  restrito, e `strict-origin-when-cross-origin` num painel manda a ORIGEM e nunca o caminho.
+  //  Pregar rota a rota duplicaria o QUADRO_DE_ROTAS do build sem fechar vazamento nenhum; o que
+  //  vaza é valor FORA da lista, e é isso que esta linha cobra.
 };
 
 // A LISTA FECHADA das chaves que uma regra do vercel.json pode declarar. Não é preferência: é a
@@ -115,6 +163,17 @@ if (EXTRA) {
   console.error('[DEFEITO] acrescentei "' + chave + ': ' + valor + '" a ' + regras.length
     + ' regra(s), em memória');
 }
+if (VALOR) {
+  const corte = VALOR.indexOf(':');
+  const chave = (corte < 0 ? VALOR : VALOR.slice(0, corte)).trim();
+  const valor = corte < 0 ? '' : VALOR.slice(corte + 1).trim();
+  let n = 0;
+  for (const r of regras) {
+    for (const h of (r.headers || [])) if (h.key === chave) { h.value = valor; n++; }
+  }
+  console.error('[DEFEITO] troquei o valor de "' + chave + '" para "' + valor + '" em ' + n
+    + ' regra(s), em memória');
+}
 
 const falhas = [];
 const reprovar = (m) => falhas.push(m);
@@ -144,17 +203,23 @@ for (const r of regras) {
     + ' ' + (csp ? 'sim' : ' - ').padEnd(4)
     + ' ' + String(m['X-Frame-Options'] || '-').padEnd(5)
     + ' ' + String(m['X-Content-Type-Options'] || '-').padEnd(8)
-    + ' ' + String(m['Referrer-Policy'] || '-'));
+    + ' ' + String(m['Referrer-Policy'] === undefined ? '-' : (m['Referrer-Policy'] || '(vazio)')));
   if (!csp) continue;
   comCsp++;
   for (const [chave, valor] of Object.entries(COMPANHEIROS)) {
     const achado = m[chave];
+    const aceitos = Array.isArray(valor) ? valor : [valor];
     if (achado === undefined) {
       reprovar(src + ' declara Content-Security-Policy e NÃO declara "' + chave + '". Rota que'
         + ' recebe política recebe as quatro — o portão da CSP imprime esta coluna e não a cobra,'
         + ' então sem esta linha ninguém percebe a que faltou.');
-    } else if (valor !== null && achado !== valor) {
-      reprovar(src + ': "' + chave + '" está "' + achado + '" e tem de ser "' + valor + '".');
+    } else if (aceitos.indexOf(achado) < 0) {
+      reprovar(src + ': "' + chave + '" está "' + achado + '" e tem de ser um de '
+        + JSON.stringify(aceitos) + '. Presença sem valor cobrado é meia cobrança: medido em'
+        + ' 03/09, `Referrer-Policy: unsafe-url` e `Referrer-Policy: ""` na regra decisiva'
+        + ' /glossario/(.*) saíam exit 0 nos QUATRO portões do vercel.json, e `unsafe-url` manda o'
+        + ' caminho completo da página para todo destino externo. Foi de propósito? acrescente o'
+        + ' valor em COMPANHEIROS, no mesmo commit, e escreva o que ele passou a deixar vazar.');
     }
   }
   if (csp.indexOf('*') >= 0) {
@@ -173,4 +238,5 @@ if (falhas.length) {
   falhas.forEach((f) => console.error('  - ' + f));
   process.exit(1);
 }
-console.log('cabeçalhos: toda rota com CSP traz também XFO=DENY, nosniff e Referrer-Policy.');
+console.log('cabeçalhos: toda rota com CSP traz também XFO=DENY, nosniff e uma Referrer-Policy de '
+  + JSON.stringify(COMPANHEIROS['Referrer-Policy']) + ' — chave e VALOR cobrados nos três.');

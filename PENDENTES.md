@@ -3830,3 +3830,57 @@ subir, alguma rodada obedeceu ao prompt em vez do arquivo.
 **Legado, para quem tem `delete_ref` (Mac e Windows):** `node ferramentas/ramos-mortos.js --apagar`
 e colar. São 23 `voo/` e 28 `entrega/` no servidor hoje. Isso continua valendo — mas agora a
 pilha para de crescer mesmo que ninguém rode.
+
+---
+
+## 103 — A TERCEIRA família do `vercel.json`: propriedade desconhecida DENTRO da regra de `headers[]` — porteiro (03/09)
+
+**Achado separado de propósito, e não consertado de carona.** Ele apareceu no item
+`vercel-valor-e-topo`, que fechou as duas famílias que o QA tinha medido (VALOR de chave permitida
+e chave de TOPO). O brief do item mandou procurar a terceira antes de fechar e, se achasse,
+**deixar escrita como achado separado em vez de remendar junto** — que é o que o autor do item
+anterior fez e foi o certo. Está aqui por isso, e não por falta de conserto: ele cabe em poucas
+linhas.
+
+**O que é.** As cinco cobranças que hoje existem sobre o `vercel.json` leem, de cada regra de
+`headers[]`, exatamente duas coisas: `source` e `headers`. O objeto da regra aceita mais
+propriedades, e o que estiver nelas não é lido por portão nenhum — não é chave de cabeçalho (a
+`CHAVES_PERMITIDAS` não alcança) nem chave de topo (a `TOPO_DO_VERCEL`, escrita neste item, também
+não).
+
+**Medido, DEPOIS do conserto desta entrega**, cada injeção sozinha, com a leitura desviada por
+`test/qa-vercel-injecao.js` (o `vercel.json` da raiz nunca é escrito), exit code real do terminal,
+na ordem `construir.js` · `qa-vercel-host.js` · `qa-vercel-diretiva-repetida.js` ·
+`qa-csp-cabecalhos.js`:
+
+| injeção na regra `/glossario/(.*)` | exit dos quatro |
+|---|---|
+| `has: [{ type: "header", key: "x-nunca-enviado" }]` | **0 · 0 · 0 · 0** |
+| `missing: [{ type: "header", key: "accept" }]` | **0 · 0 · 0 · 0** |
+| `destination: "https://exfil.example.com"` | **0 · 0 · 0 · 0** |
+
+**Por que `has`/`missing` são o caso grave, e é uma classe nova, não uma dose menor.** As duas
+outras famílias mudavam algo que se vê: um valor, uma chave. Estas tornam a regra **CONDICIONAL**
+sem mudar um byte do `source` nem do `headers`. A CSP de `/glossario/(.*)` continua escrita
+inteira, continua pregada no `QUADRO_DE_ROTAS` e continua **verde nos cinco portões** — e
+simplesmente não é servida numa visita normal, porque a condição não casa. É o único defeito desta
+família inteira que deixa o arquivo conferido byte a byte e a página pública sem política.
+
+**O que está medido e o que é inferido, e a distinção é a mesma da dúvida de precedência já
+registrada no `conferirVercelJson()`:** o que eu medi com exit code é que **os quatro portões
+saem 0**. O que `has`/`missing` fazem na Vercel é conhecido por documentação que **esta máquina
+não alcança** — `openapi.vercel.sh` e `vercel.com` estão bloqueados pelo proxy de egresso (medido:
+`curl` exit 56, "CONNECT tunnel failed, response 403`). A existência de `has`/`missing` em regras
+de `headers` veio de busca, não de leitura da fonte. **Escrito como inferido, não como sabido** —
+e quem fechar isto confirma com a documentação ou com medição contra a produção.
+
+**O conserto proposto, e ele é pequeno.** No mesmo `conferirVercelJson()` do
+`ferramentas/construir.js`, ao lado da `TOPO_DO_VERCEL`: conjunto FECHADO de propriedades por
+regra — hoje `source` e `headers`, e nada mais —, com a mesma disciplina (propriedade a mais
+reprova, e acrescentar uma é dizer no commit o que ela passou a fazer). A prova de mordida cabe
+como três casos novos no `test/qa-vercel-fora-do-conjunto.js`, que já tem a bancada montada.
+
+**Enquanto não for feito:** o buraco é de quem tem acesso de escrita ao repositório, como os
+outros dois eram — não é alcançável de fora. Fica registrado para não ser redescoberto do zero, e
+está escrito também no cabeçalho do `test/qa-vercel-fora-do-conjunto.js`, que é onde a próxima
+pessoa vai olhar.

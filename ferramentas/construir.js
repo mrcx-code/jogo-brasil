@@ -700,6 +700,10 @@ function conferirCspDashboard(origemHtml) {
 //      comparação passou a ser contra o QUADRO, não contra uma contagem tirada do mesmo arquivo.
 //      Era essa a brecha da duplicata: 14 menções == 14 rotas conferidas fecha consigo mesma.
 //      Consequência aceita e de propósito: o host tem de estar escrito por extenso, sem escape.
+//   7. as CHAVES DE TOPO do arquivo, contra a tabela `TOPO_DO_VERCEL` — conjunto EXATO (chave a
+//      mais E chave a menos reprovam) e valor comparado. Acrescentado em 03/09 pelo item
+//      `vercel-valor-e-topo`, e é a família que os quatro portões inteiros não viam: eles só
+//      olham `vercel.headers`. O porquê, com os exit codes que o mediram, está na tabela.
 // O `connect-src` do quadro sai de `MEDIDA_HOST`, nunca de um literal — é o que mantém a promessa
 // de fonte única: nenhum dos treze literais do `vercel.json` pode divergir da constante em silêncio.
 //
@@ -781,6 +785,57 @@ const QUADRO_DE_ROTAS = [
 const ROTAS_QUE_MEDEM = QUADRO_DE_ROTAS
   .filter(function (par) { return Object.prototype.hasOwnProperty.call(par[1], "connect-src"); })
   .map(function (par) { return par[0]; });
+// AS CHAVES DE TOPO DO vercel.json — porteiro, 03/09, item `vercel-valor-e-topo`.
+//
+// A SEGUNDA FAMÍLIA que o `test/qa-vercel-fora-do-conjunto.js` mediu atravessando os QUATRO
+// portões, e ela é maior que a primeira: os quatro só olham `vercel.headers`. Tudo o que está
+// FORA daquele array — e é o que decide o que a Vercel constrói, de onde ela serve e para onde ela
+// manda a pessoa ANTES de a página existir — não tinha portão nenhum. Medido antes do conserto,
+// cada injeção sozinha, com a leitura desviada por `test/qa-vercel-injecao.js` (o `vercel.json` da
+// raiz nunca é escrito) e o exit code lido do terminal, na ordem construir.js · qa-vercel-host.js ·
+// qa-vercel-diretiva-repetida.js · qa-csp-cabecalhos.js:
+//
+//   redirects: [{source:"/glossario/(.*)", destination:"https://exfil.example.com/:path*"}] 0·0·0·0
+//   outputDirectory: "."      (publica a raiz do repositório em vez de dist/)               0·0·0·0
+//   buildCommand: outro comando                                                             0·0·0·0
+//   trailingSlash: invertido                                                                0·0·0·0
+//
+// O `redirects` é o pior dos quatro e mostra por que a família importa: ele é MAIS FORTE que
+// qualquer CSP, porque a pessoa nem chega na página cuja política foi conferida diretiva por
+// diretiva. Vinte e duas regras de cabeçalho pregadas byte a byte não valem nada se três linhas
+// acima delas mandarem o glossário para outro domínio.
+//
+// A COBRANÇA É DE CONJUNTO EXATO, chave E valor, e cada uma das três partes tem razão medida:
+//   · chave A MAIS reprova — é o `redirects`, o `rewrites`, o `cleanUrls`, o `public`, e é o
+//     `routes`, que é o caso limite: `routes` é a configuração legada e, quando está presente,
+//     DESLIGA `headers`, `redirects`, `rewrites`, `cleanUrls` e `trailingSlash` de uma vez. Uma
+//     chave, e o bloco inteiro que esta função confere vira letra morta;
+//   · chave A MENOS reprova — e isto NÃO estava no instrumento, que só injetava adição e troca de
+//     valor. Medido aqui, na mesma bancada e com os mesmos quatro comandos: apagar
+//     `outputDirectory` (a Vercel cai para o ajuste do painel, que este repositório não versiona)
+//     saía 0·0·0·0, e apagar `trailingSlash` saía 0·0·0·0;
+//   · o VALOR é comparado — é a lição da `Referrer-Policy` do `test/qa-csp-cabecalhos.js`, que
+//     entrou na lista de chaves permitidas com valor LIVRE e por isso não cobrava nada. Presença
+//     sem valor cobrado é meia cobrança, e a metade que falta é sempre a que vaza.
+//
+// POR QUE AQUI E NÃO NUM PORTÃO NOVO: é a mesma disciplina do QUADRO_DE_ROTAS, sobre o mesmo
+// arquivo, e o build é o único dos quatro que roda em `npm test` e no funil. Deliberadamente
+// chata de mudar por acidente: mexer nesta tabela é dizer, no commit, o que a Vercel passou a
+// fazer com este repositório.
+//
+// NADA PASSOU A SER PERMITIDO: a tabela é a transcrição do topo que já estava no ar (0 linha de
+// diff no `vercel.json`). A PROVA DE MORDIDA é `test/qa-vercel-fora-do-conjunto.js`, que injeta as
+// quatro e exige que algum portão saia != 0 — ele nasceu VERMELHO, com 5 de 5 injeções
+// atravessando, e asserção sem controle é decoração (EQUIPE.md 2.8).
+const CONFERIDA_PELO_QUADRO = { conferidaPeloQuadro: true };
+const TOPO_DO_VERCEL = {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",   // o mesmo build que escreve o dist/ conferido logo abaixo
+  "outputDirectory": "dist",         // e e o dist/ que ele escreve, nunca a raiz do repositorio
+  "framework": null,                 // nenhum preset: quem manda e o buildCommand acima
+  "trailingSlash": true,             // muda QUAL regra de cabecalho decide cada rota -- ver o quadro
+  "headers": CONFERIDA_PELO_QUADRO,  // o conteudo e o QUADRO_DE_ROTAS, conferido regra a regra
+};
 function conferirVercelJson() {
   const caminho = p("vercel.json");
   if (!fs.existsSync(caminho)) throw new Error("vercel.json sumiu da raiz -- a Vercel fica sem CSP nenhuma para publicar");
@@ -812,6 +867,42 @@ function conferirVercelJson() {
   const mostrar = function (v) { return v === undefined ? "(ausente)" : '"' + v + '"'; };
 
   const problemas = [];
+
+  // 0. AS CHAVES DE TOPO: conjunto EXATO e valor comparado. Vem antes das regras de proposito --
+  //    o que esta aqui decide o que a Vercel constroi, de onde ela serve e para onde ela manda a
+  //    pessoa ANTES de a pagina existir, e um `redirects` externo e mais forte que qualquer CSP.
+  const topoNoArquivo = Object.keys(vercel).sort();
+  const topoNoQuadro = Object.keys(TOPO_DO_VERCEL).sort();
+  const topoAMais = topoNoArquivo.filter(function (k) { return topoNoQuadro.indexOf(k) < 0; });
+  const topoAMenos = topoNoQuadro.filter(function (k) { return topoNoArquivo.indexOf(k) < 0; });
+  if (topoAMais.length) {
+    problemas.push("o vercel.json tem chave(s) de TOPO que a tabela TOPO_DO_VERCEL"
+      + " (ferramentas/construir.js) nao conhece: " + JSON.stringify(topoAMais)
+      + " -- os quatro portoes do vercel.json so olham `headers`, entao chave de topo entrava em"
+      + " producao sem decisao nenhuma. `redirects`/`rewrites` mandam a pessoa para outro dominio"
+      + " ANTES da pagina cuja CSP foi conferida diretiva por diretiva, e `routes` DESLIGA o bloco"
+      + " `headers` inteiro. Foi de proposito? acrescente a chave na tabela, no MESMO commit, e"
+      + " escreva o que ela passou a fazer");
+  }
+  if (topoAMenos.length) {
+    problemas.push("o vercel.json PERDEU chave(s) de TOPO que a tabela TOPO_DO_VERCEL pede: "
+      + JSON.stringify(topoAMenos) + " -- chave apagada nao e neutra: sem `outputDirectory` a"
+      + " Vercel cai para o ajuste do painel, que este repositorio nao versiona, e sem"
+      + " `trailingSlash` muda QUAL regra de cabecalho decide cada rota");
+  }
+  for (const chave of topoNoQuadro) {
+    if (TOPO_DO_VERCEL[chave] === CONFERIDA_PELO_QUADRO) continue;  // `headers`: e o quadro abaixo
+    if (topoAMenos.indexOf(chave) >= 0) continue;                   // ja reportada logo acima
+    const achadoTopo = JSON.stringify(vercel[chave]);
+    const esperadoTopo = JSON.stringify(TOPO_DO_VERCEL[chave]);
+    if (achadoTopo !== esperadoTopo) {
+      problemas.push('a chave de TOPO "' + chave + '" do vercel.json esta ' + achadoTopo
+        + " e a tabela TOPO_DO_VERCEL espera " + esperadoTopo
+        + " -- presenca sem valor cobrado e meia cobranca (foi assim que a Referrer-Policy ficou"
+        + ' com valor livre ate 03/09), e `outputDirectory: "."` publica a raiz do repositorio,'
+        + " isto e, o que este build nunca conferiu");
+    }
+  }
 
   // 1. O QUADRO, NA ORDEM E COM REPETICAO. Conjunto nao ve troca nem duplicata; isto ve.
   const fontes = regras.map(function (r) { return String((r && r.source) || ""); });
@@ -887,7 +978,8 @@ function conferirVercelJson() {
     throw new Error("vercel.json divergiu do QUADRO_DE_ROTAS -- a Vercel serviria isto para as paginas:\n  - "
       + problemas.join("\n  - "));
   }
-  console.log("  vercel.json: " + regras.length + " regra(s), na ordem do QUADRO_DE_ROTAS e com a CSP"
+  console.log("  vercel.json: " + topoNoQuadro.length + " chave(s) de topo (conjunto exato e valor); "
+    + regras.length + " regra(s), na ordem do QUADRO_DE_ROTAS e com a CSP"
     + " conferida diretiva por diretiva; " + medindoNoArquivo + " medem, todas == MEDIDA_HOST");
 }
 conferirVercelJson();
