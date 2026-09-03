@@ -30,10 +30,24 @@
 //   03/09, que verde passava a significar *"o conjunto de fugas é exatamente o registrado"*. **Não
 //   significa, e a frase caiu com número** (QA cruzado de 03/09, auditando `censo-cinco-fugas-medidas`).
 //   O verde significa o que está medido e nada além: **dos mecanismos que o catálogo enumera, os
-//   que fogem são exatamente os registrados, com o tamanho registrado.** Mecanismo fora do catálogo
-//   continua sem ninguém medindo — foi assim que o `::before::marker` apareceu como **8ª fuga**: a
-//   catraca **PEGA** ela quando escrita à mão, mas ninguém a pôs no catálogo, então nenhuma
-//   execução a exercita. **Rede furada é melhor que rede nenhuma; não é rede fechada.**
+//   que fogem são exatamente os registrados — **pelo NOME, e só pelo nome.** Mecanismo fora do
+//   catálogo continua sem ninguém medindo — foi assim que o `::before::marker` apareceu como
+//   **8ª fuga**: a catraca **PEGA** ela quando escrita à mão, mas ninguém a pôs no catálogo, então
+//   nenhuma execução a exercita. **Rede furada é melhor que rede nenhuma; não é rede fechada.**
+//
+//   ⚠ **E O NÚMERO AO LADO DO NOME NÃO É COBRADO POR NADA.** Esta caixa dizia *"com o tamanho
+//   registrado"* — escrito por mim nesta rodada, e **derrubado pelo QA na auditoria desta própria
+//   entrega, horas depois.** A comparação é `!(n in FUGAS_REGISTRADAS)` (linha ~429): testa a
+//   **chave**, e o valor ao lado nunca é lido. Registrar um mecanismo com o número errado — typo,
+//   número copiado de outra fuga — passa **verde**. Provado com exit code real: mecanismo
+//   registrado com **1 px** contra fuga que mede **495 px** → **exit 0**, reproduzido 2×.
+//   Cobrado agora por `test/qa-catraca-tamanho-ignorado.js`, que **registra** o buraco em vez de o
+//   descrever: no dia em que alguém fizer o valor ser comparado, aquele arquivo fica vermelho
+//   sozinho pedindo para ser apagado.
+//
+//   **A frase caiu na MESMA caixa em que eu já tinha corrigido dois números no mesmo dia**, e essa
+//   é a lição de método: quem acaba de se corrigir duas vezes numa frase para de reler a metade
+//   que sobrou. Corrigir uma afirmação não vacina as vizinhas.
 //
 //   Reproduzido em 03/09 por `nuvem-20260903T1623`, com exit code real:
 //     CATRACA_EXTRA_NOME=pseudoMarkerDoPseudo \

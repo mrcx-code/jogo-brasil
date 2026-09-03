@@ -12284,3 +12284,32 @@ número que esta máquina não produz. **É a segunda vez na mesma rodada que co
 medição quase virou afirmação falsa** (a primeira foi a 8ª fuga: 495 px aqui contra 183 px lá).
 Virou regra escrita nos dois cabeçalhos: **número de pintura é referência da regra e da máquina que
 a mediu; o que se cobra é a relação.**
+
+**E o QA achou a TERCEIRA frase superestimada, na mesma caixa que eu tinha acabado de consertar.**
+Eu escrevi, nesta rodada, que o verde da catraca significa *"os que fogem são exatamente os
+registrados, **com o tamanho registrado**"*. A segunda metade é falsa: a comparação é
+`!(n in FUGAS_REGISTRADAS)` — testa a **chave**, e o valor numérico ao lado **nunca é lido**.
+Registrar um mecanismo com o número errado (typo, número copiado de outra fuga) passa verde.
+Provado por ele com exit real: mecanismo registrado com **1 px** contra fuga que mede **495 px** →
+**exit 0**, reproduzido 2×, com piso de ruído zero entre execuções.
+
+**A frase caiu na mesma caixa em que eu já tinha corrigido DOIS números no mesmo dia**, e é a lição
+de método da rodada inteira: **quem acaba de se corrigir duas vezes numa frase para de reler a
+metade que sobrou.** Corrigir uma afirmação não vacina as vizinhas — e foi exatamente o viés que eu
+declarei por escrito no brief dele ("quem acabou de se corrigir duas vezes fica convencido de que
+está calibrado; procure a terceira"). O aviso funcionou: ele procurou onde eu disse e achou.
+
+Corrigido para *"pelo NOME, e só pelo nome"*, e o buraco passou a ser **registrado por instrumento**
+em vez de descrito: `test/qa-catraca-tamanho-ignorado.js` (escrito por ele, trazido sem reescrever,
+**exit 0**) — no dia em que alguém fizer o valor ser comparado, ele fica vermelho sozinho pedindo
+para ser apagado. É o mesmo padrão do `qa-catraca-oraculo.js`: **buraco conhecido vira registro
+cobrado, nunca nota de rodapé.**
+
+O QA confirmou o resto com exit code real: o `qa-catraca-oraculo.js` veio **sem uma linha mudada**
+(`diff` exit 0), as duas mordidas valem aqui, e — o que eu mais queria que fosse verdade, logo o
+que mandei atacar com mais força — as asserções dele **só usam `=== 0` e `> 0`**, com 183 e 550
+aparecendo apenas em comentário (`grep` conferido). A minha explicação da divergência 183/550 vs
+367 não era racionalização.
+
+**Placar da rodada (2ª entrega):** 1 QA · 5 alegações auditadas · 4 de pé · **1 caiu** (a minha
+terceira frase) · 1 instrumento novo.
