@@ -112,10 +112,13 @@ async function abrirPagina(nav, arq) {
   await pg.waitForTimeout(600);
   return pg;
 }
+// MIGRADO EM 03/09, e o motivo é que a frase estava errada antes de ser verdade: o commit da
+// entrega afirmava "uma fonte para os dois chamadores", mas só o `cartao-quadro-controle.js`
+// tinha migrado — este aqui mantinha a cópia local. Idênticas naquele dia, e é assim que a
+// divergência começa. O QA independente pegou a afirmação, não o defeito (não havia defeito
+// vivo); a correção é migrar, para que a afirmação passe a ser verdadeira.
 function permitidosDe(secao, arq) {
-  return CENSO.permitidosTerritorio(
-    CHROME.barraHtml(secao),
-    secao === 'territorio' ? CENSO.pontosDoHtml(fs.readFileSync(arq, 'utf8')) : []);
+  return CENSO.permitidosDaPagina(secao, fs.readFileSync(arq, 'utf8'));
 }
 const doPasso2 = (e) => /contêiner já provado/.test(e.motivo || '');
 

@@ -249,11 +249,30 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // ENTÃO A PERGUNTA PASSA A SER A QUE A FRASE PROMETIA: **este elemento põe alguma tinta na
   // foto?** E ela é enumerada, mecanismo a mecanismo, porque não há como perguntar isso ao
   // navegador de dentro da página — `censoDoQuadro` roda dentro do `pg.evaluate` e não tem
-  // câmera. Enumerar é uma lista, e este arquivo desconfia de listas (ver o cabeçalho) — mas a
-  // assimetria aqui é a oposta da que faz lista apodrecer: esta lista está do lado do que
-  // ABSOLVE. Mecanismo de pintura que ninguém lembrou de escrever aqui não vira fuga, vira
-  // REPROVAÇÃO — o elemento simplesmente não é absolvido e cai no passo 2. O custo de esquecer
-  // é falso-positivo (barulhento, alguém conserta), não falso-negativo (silencioso, publica).
+  // câmera. Enumerar é uma lista, e este arquivo desconfia de listas (ver o cabeçalho).
+  //
+  // ⚠ AQUI ESTAVA ESCRITA UMA FRASE FALSA, E ELA ERA O QUE SUSTENTAVA O TETO. Dizia que "a
+  // assimetria aqui é a oposta": que esta lista estaria do lado que ABSOLVE, e que portanto
+  // mecanismo esquecido viraria REPROVAÇÃO barulhenta, nunca fuga silenciosa. **É o contrário**,
+  // e o próprio código diz: `decorativoInerte = aria-hidden E innerText vazio E !pinta()`. Para
+  // o mecanismo que ninguém escreveu, `pinta()` devolve FALSO, `!pinta()` vira VERDADE, e o
+  // elemento é ABSOLVIDO. A enumeração está do lado que REPROVA — esquecer um mecanismo é
+  // falso-negativo SILENCIOSO, que é exatamente o modo de falha que a frase jurava impossível.
+  //
+  // Derrubado pelo QA independente em 03/09, por PIXEL e com print, não por leitura: cinco
+  // mecanismos põem tinta no cartão 1200×630 e o censo devolve `estranhos=[]` —
+  // `backdrop-filter:invert(1)` 5662 px · `border-image` sem `border-width` 3936 px ·
+  // `::marker` 109 px · `list-style-image` 1800 px · `content:url(...)` no próprio elemento
+  // 5700 px. Os dois últimos NÃO estavam no teto declarado: ninguém os tinha nomeado.
+  //
+  // O que sobrevive da defesa antiga, e sobrevive por MEDIÇÃO e não por argumento: os
+  // mecanismos que se suspeitava escaparem e NÃO escapam, porque pintam ZERO px numa caixa
+  // vazia — `filter:drop-shadow`, `mask`, `clip-path`, scrollbar de contêiner, `::first-line`.
+  // Não há o que borrar nem o que recortar onde não há tinta.
+  //
+  // A REGRA QUE FICA NO LUGAR DA FRASE: acrescentar mecanismo a esta lista FECHA buraco; o
+  // buraco existe até alguém acrescentar. Verde aqui significa "o buraco tem o tamanho que
+  // tinha em 03/09", nunca "não há buraco".
   //
   // O QUE ISTO CUSTA EM FALSO-POSITIVO, medido antes de escrever e não depois: nas CINCO páginas
   // o passo 2 julga exatamente UM elemento, e é sempre o mesmo `span.vaoMedida` — `bgImg=none`,
@@ -261,10 +280,22 @@ function censoDoQuadro([L, A, permitidos, SELETOR_INTERATIVO]) {
   // `::before`/`::after` com `content:none`. Ele continua absolvido pelos seis. Falso-positivo
   // novo: zero, contra um universo julgado de 1 por página.
   //
-  // O QUE CONTINUA ABERTO, com o nome de cada um (o teto desta função, dito em vez de escondido):
-  // `filter`/`backdrop-filter` (um `drop-shadow` pinta sem tocar box-shadow), `mask`/`clip-path`
-  // sobre um pai, `border-image` sem `border-width`, `::marker` e `::first-line`, `scrollbar`
-  // visível de um contêiner com `overflow`, e conteúdo pintado por um DESCENDENTE — este último
+  // O QUE CONTINUA ABERTO, com o nome de cada um (o teto desta função, dito em vez de escondido).
+  // ATUALIZADO EM 03/09 pelo QA independente, que mediu POR PIXEL em vez de argumentar — e a
+  // medição separou o teto em duas metades que antes estavam misturadas numa lista só:
+  //
+  //   FUGA MEDIDA, com print (o censo absolve e a tinta aparece no cartão 1200×630):
+  //     `backdrop-filter:invert(1)` 5662 px · `border-image` sem `border-width` 3936 px ·
+  //     `::marker` (com `display:list-item`) 109 px · `list-style-image` 1800 px ·
+  //     `content:url(...)` no próprio elemento 5700 px.
+  //   Os dois últimos NÃO estavam nesta lista antes de 03/09 — ninguém os tinha nomeado, que é
+  //   precisamente o modo de falha que a frase derrubada acima jurava ser impossível.
+  //
+  //   NÃO FOGE, e por medição e não por confiança — pinta ZERO px numa caixa vazia:
+  //     `filter:drop-shadow` · `mask` · `clip-path` · `scrollbar` de contêiner com `overflow` ·
+  //     `::first-line`. Não há o que borrar nem o que recortar onde não há tinta.
+  //
+  // E conteúdo pintado por um DESCENDENTE — este último
   // só em aparência: descendente de elemento NÃO aceito é varrido pelo mesmo laço do passo 2 e
   // julgado por si, então quem pinta é pego, ainda que pelo nó de baixo.
   function decorativoInerte(e, s) {
