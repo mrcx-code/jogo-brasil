@@ -9,6 +9,18 @@
   },
   "itens": [
     {
+      "id": "privacidade-dois-consertos-pequenos",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "Dois consertos de 1-3 linhas que o juridico achou medindo em vez de copiar o comentario",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "As duas, cada uma com prova por medicao em navegador (nao so leitura de codigo), e npm test seguindo verde. (1) medirCarregar() em src/jogo.ts so deve sortear/gravar o identificador anonimo quando medirLigado for true — hoje sorteia e grava ANTES do if(!medirLigado) return, ao contrario do que o comentario de ferramentas/medir-secao.js afirma (nao vaza request nenhum, mas a frase e falsa e o dado fica gravado sem necessidade). Medir antes/depois com jogo_brasil_medir='nao' posto antes de qualquer script: hoje grava um id (ex. 96b444cf...); depois do conserto tem que dar null, igual ao glossario/porta. (2) o botao APAGAR MEU PROGRESSO tem UM unico removeItem (linha ~10469, o de jogo_brasil_retencao) e nao remove jogo_brasil_anon — art. 18 VI da LGPD pede que o caminho de exclusao realmente exclua. Acrescente o removeItem do identificador SEM tocar em jogo_brasil_medir (apagar a escolha de privacidade ao zerar a partida religaria a medicao sem avisar, que seria pior).",
+      "detalhe": "Achado pelo juridico em 03/09 escrevendo o texto de plataforma/privacidade-texto.md (item pagina-privacidade): ao evitar copiar frases de privacidade sem checar se sao verdade, ele mediu duas em navegador e as duas eram falsas. Territorio e so src/jogo.ts, entao entra na fila do escritor unico do monolito — pode esperar o item em voo agora (caminho-do-ceu) liberar."
+    },
+    {
       "id": "mundo-3d-m3-forma-aldeias",
       "estado": "do-dono",
       "agente": "arte",
@@ -513,7 +525,7 @@
     {
       "id": "pagina-privacidade",
       "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
-      "detalhe": "DECIDIDO pelo dono 23/08: fazer depois, ANTES da divulgacao de novembro. O juridico ja escreveu o texto INTEIRO (esta no relatorio dele de 23/08): falta o nome do controlador e um e-mail de contato, que sao decisao dele. A lei pede identificar quem responde (art. 9 I), canal para exercicio de direitos (art. 18) e base legal escrita (art. 7 IX, legitimo interesse). Vira URGENTE quando a rodada A da divulgacao for disparada — o plano mira ensino fundamental II, ou seja criancas de 11 anos (art. 14).",
+      "detalhe": "CORRECAO em 03/09: o texto de 23/08 alegado no backlog NUNCA EXISTIU no repositorio (grep + git log -S por 4 termos juridicos, so a propria linha deste cartao aparece) — viveu na saida de uma sessao de agente e se perdeu. Reescrito do zero em 03/09 pelo juridico: plataforma/privacidade-texto.md (599 linhas, fonte — nao e saida de build). O e-mail brasilpatinhas@gmail.com ja foi autorizado pelo dono para o campo de contato. Falta (1) o NOME do controlador, marcado como [NOME DO CONTROLADOR] no arquivo, e (2) uma decisao de produto nova e mais serio que so o nome: a Lei 15.211/2025 (ECA Digital), em vigor desde 17/03/2026, obriga configuracao MAIS PROTETIVA POR PADRAO para servico de acesso provavel por crianca — e o plano mira fundamental II. Isso pode significar que a medicao (hoje LIGADA por padrao, decisao do dono de 22/08, ANTERIOR a essa lei) precisa nascer DESLIGADA. Tres caminhos escritos no proprio arquivo (secao R1), nenhum decidido ainda. Depois que o dono responder as duas coisas: dev-plataforma constroi a pagina de verdade a partir do texto (gerar-*.js), o que ainda nao foi feito.",
       "agente": "dev-plataforma",
       "estado": "do-dono",
       "camada": "medio",
@@ -1029,7 +1041,7 @@
     },
     {
       "id": "vercel-precedencia-de-headers",
-      "estado": "em-curso",
+      "estado": "livre",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A precedencia do array headers da Vercel e INFERIDA e nao documentada — e a 3a hipotese muda a severidade",
@@ -1039,8 +1051,9 @@
       ],
       "aceite": "Fechar com DOCUMENTO aberto e citado, ou com curl -I contra a producao (matando as duas duvidas de uma vez: qual regra decide, e se a ignorada viaja junto). Nao vale busca que devolva a regra de ROTEAMENTO (rewrite/redirect/status) — e outra coisa, e citar ela seria confirmar o que ninguem leu. Exige maquina com egresso para vercel.com: a nuvem NAO fecha este item (medido, ver detalhe).",
       "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso.",
-      "maquina": "windows-plantao-20260903T2246",
-      "desde": "2026-09-03T22:46:30.000Z"
+      "nota": "TENTATIVA em 03/09 pelo windows-plantao (pre-integrador, sandbox do agente): tambem bateu EGRESS_BLOCKED tentando vercel.com/docs, e o curl -I contra matheusferreira.cc nao achou duas regras conflitantes no MESMO path pra observar qual vence (os headers sao identicos por desenho onde ele olhou). O agente declarou o item fechado como 'documentado e gerenciado' SEM satisfazer o aceite (nem documento citado, nem medicao de conflito real) — devolvido a livre. NAO CONTA como tentativa de maquina com egresso pleno: o sandbox do agente parece ter a mesma restricao da nuvem para este host especifico, mesmo rodando nesta maquina Windows. Quem pegar de novo: confirme egresso a vercel.com/docs ANTES de aceitar o item como fechavel por aqui, ou ache duas rotas do vercel.json que colidem de verdade para testar por curl.",
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "vercel-valor-e-topo",
