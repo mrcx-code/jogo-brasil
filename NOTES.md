@@ -12240,3 +12240,76 @@ uma reordenação futura passaria sem portão.
 
 **Placar da rodada:** 1 QA em lote · 1 achado · 1 real · 0 desmentidos do QA — e **3 afirmações
 minhas caíram** (as duas que eu mesmo derrubei durante a construção, mais A2, derrubada por ele).
+
+**Segundo item da rodada: `censo-oraculo-dois-furos` PARTE A** (a parte B fica livre, e o aceite
+diz que as duas fecham separadas). Duas frases do cabeçalho de `test/qa-censo-pintura-fora.js`
+prometiam mais do que a catraca cumpre, e o QA cruzado de 03/09 derrubou as duas com número:
+
+1. *"o diff passa a ser, **por construção**, exatamente os pixels que aquele elemento pinta"* —
+   não passa. **Furo A:** `visibility` é herdada e pseudo-elemento pode **recusar** a herança, então
+   um `::before{visibility:visible}` segue pintando depois de o oráculo apagar o hospedeiro: ele lê
+   **0 px** onde a tinta é **367 px** — resposta errada com cara de certa. **Furo B:** a folga de
+   48 px do recorte perde marcador deslocado (`::before::marker` a **330 px** cai fora; com recorte
+   de 400 px conta **~550 px**). A folga é o que zera o piso de ruído **e** o que corta tinta longe:
+   as duas coisas puxam para lados opostos, e hoje ela está calibrada pelo piso.
+2. *"verde passa a significar: o conjunto de fugas é **exatamente** o registrado"* — não significa.
+   Verde significa **dos mecanismos que o catálogo enumera**, os que fogem são os registrados.
+   Fora do catálogo ninguém mede — foi assim que o `::before::marker` ficou como **8ª fuga**.
+
+**Reproduzi a 8ª fuga em vez de repetir o número do QA, e foi bom ter feito:** exit real **1**,
+`FUGA pseudoMarkerDoPseudo` — mas **495 px**, não os 183 px que ele mediu. **Os dois estão certos.**
+O tamanho de uma fuga é propriedade da **regra que se escreve** (usei um marcador de 40 px), não do
+mecanismo. Daí a regra nova que ficou escrita no cabeçalho: **número de fuga no catálogo é
+referência da regra que o mediu, nunca constante do CSS** — registre a regra junto, senão o próximo
+a medir acha divergência onde só mudou a tinta.
+
+Portões depois da mudança (só comentário, mas o arquivo é instrumento): catraca **exit 0** ·
+`smoke` **exit 0**, FPS 62. A parte B (apagar o mutante do DOM em vez de escondê-lo, imune à
+herança, com recorte alargado; e pôr o marker no catálogo) continua **livre**, com o instrumento
+que a mede já escrito em `qa/censo-cinco` (`97f1ccf`) — **trazer, não reescrever**.
+
+**E a parte A cresceu um pouco, com motivo:** em vez de deixar o tamanho dos dois furos descrito em
+prosa no cabeçalho, **trouxe o instrumento que os mede** — `test/qa-catraca-oraculo.js`, do ramo
+`qa/censo-cinco` (`97f1ccf`), **sem reescrever uma linha**, que é o que o próprio item mandava. Agora
+o furo é cobrado por exit code, e o dia em que a parte B fechar um deles o registro fica **vermelho
+sozinho** pedindo para ser apagado. Provei as duas mordidas antes de trazer, com exit real:
+`QA_ORACULO=b` → **1**, `QA_MUTANTE_MUDO=1` → **1**, limpo → **0**.
+
+**E rodá-lo aqui derrubou os números que eu ia copiar.** O cabeçalho dele registra **183 px** no
+furo A e **~550 px** no furo B; nesta máquina o mesmo arquivo imprime **367 px nos dois** — e sai
+**exit 0**. Não é regressão: ele afere a **RELAÇÃO** (oráculo lê 0 enquanto a câmera lê > 0), que é o
+que constitui o furo, e nunca a constante. Se eu tivesse copiado o número do item para o cabeçalho
+sem rodar — que era exatamente o que eu estava prestes a fazer — teria escrito como medição minha um
+número que esta máquina não produz. **É a segunda vez na mesma rodada que copiar número de outra
+medição quase virou afirmação falsa** (a primeira foi a 8ª fuga: 495 px aqui contra 183 px lá).
+Virou regra escrita nos dois cabeçalhos: **número de pintura é referência da regra e da máquina que
+a mediu; o que se cobra é a relação.**
+
+**E o QA achou a TERCEIRA frase superestimada, na mesma caixa que eu tinha acabado de consertar.**
+Eu escrevi, nesta rodada, que o verde da catraca significa *"os que fogem são exatamente os
+registrados, **com o tamanho registrado**"*. A segunda metade é falsa: a comparação é
+`!(n in FUGAS_REGISTRADAS)` — testa a **chave**, e o valor numérico ao lado **nunca é lido**.
+Registrar um mecanismo com o número errado (typo, número copiado de outra fuga) passa verde.
+Provado por ele com exit real: mecanismo registrado com **1 px** contra fuga que mede **495 px** →
+**exit 0**, reproduzido 2×, com piso de ruído zero entre execuções.
+
+**A frase caiu na mesma caixa em que eu já tinha corrigido DOIS números no mesmo dia**, e é a lição
+de método da rodada inteira: **quem acaba de se corrigir duas vezes numa frase para de reler a
+metade que sobrou.** Corrigir uma afirmação não vacina as vizinhas — e foi exatamente o viés que eu
+declarei por escrito no brief dele ("quem acabou de se corrigir duas vezes fica convencido de que
+está calibrado; procure a terceira"). O aviso funcionou: ele procurou onde eu disse e achou.
+
+Corrigido para *"pelo NOME, e só pelo nome"*, e o buraco passou a ser **registrado por instrumento**
+em vez de descrito: `test/qa-catraca-tamanho-ignorado.js` (escrito por ele, trazido sem reescrever,
+**exit 0**) — no dia em que alguém fizer o valor ser comparado, ele fica vermelho sozinho pedindo
+para ser apagado. É o mesmo padrão do `qa-catraca-oraculo.js`: **buraco conhecido vira registro
+cobrado, nunca nota de rodapé.**
+
+O QA confirmou o resto com exit code real: o `qa-catraca-oraculo.js` veio **sem uma linha mudada**
+(`diff` exit 0), as duas mordidas valem aqui, e — o que eu mais queria que fosse verdade, logo o
+que mandei atacar com mais força — as asserções dele **só usam `=== 0` e `> 0`**, com 183 e 550
+aparecendo apenas em comentário (`grep` conferido). A minha explicação da divergência 183/550 vs
+367 não era racionalização.
+
+**Placar da rodada (2ª entrega):** 1 QA · 5 alegações auditadas · 4 de pé · **1 caiu** (a minha
+terceira frase) · 1 instrumento novo.
