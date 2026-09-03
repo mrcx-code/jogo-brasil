@@ -69,6 +69,14 @@ na hora de escrever o brief.
 **Peça a linha do placar** (`EQUIPE.md` §5) no formato: rodadas, achados, reais, desmentidos.
 É o que faz a próxima rodada não redescobrir o mesmo buraco.
 
+**Avise que o worktree nasce sem `node_modules`.** Uma linha: *"o seu worktree pode nascer sem
+`node_modules`; se o build morrer em `Cannot find module .../typescript/bin/tsc`, rode
+`npm install` — é a máquina, não a entrega"*. A regra já existia no §4 desde 01/09, em prosa, e
+**mesmo assim eu a omiti nos três briefs de 03/09** — porque quem escreve brief lê o §2, não o
+§4. Custou um minuto a cada agente e um diagnóstico que eles tiveram de refazer sozinhos
+(medido: `npm install` = **103 pacotes**). Regra que mora longe de quem a executa não é regra, é
+anotação; por isso ela passou a morar aqui também.
+
 ---
 
 ## 3. Quantos agentes, e de que tipo
