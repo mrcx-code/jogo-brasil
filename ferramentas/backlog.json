@@ -10,7 +10,7 @@
   "itens": [
     {
       "id": "cartao-margem-esquerda",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "arte",
       "titulo": "A margem esquerda de 268 px do molde e que produz o istoria no recorte quadrado — nao a largura da fonte",
       "territorio": [
@@ -19,7 +19,9 @@
       ],
       "camada": "esteira",
       "aceite": "A primeira tabua sobrevive ao recorte QUADRADO centrado (x 285..915), nao so ao 1200x630. Mordida provada por injecao. Medir antes e depois no recorte quadrado, nao no canvas cheio — e o quadrado que produz o defeito.",
-      "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada."
+      "detalhe": "Separado pela arte em 02/09 do item cartao-decepa-primeira-tabua, e a separacao e o achado: nenhum dos quatro cartoes medidos toca a coluna 0 nem a 1199 — zero pixel escuro nas bordas nos quatro. O istoria so aparece em recorte QUADRADO centrado e e IDENTICO nos quatro, porque o conteudo comeca em x=268 em todos. Logo e margem esquerda do molde, ortogonal a tipografia, e existe HOJE com Palatino no que esta no ar. O Gelasio, 13,3% mais largo no titulo, cresce so para a DIREITA e cabe com 19 px de folga ate no quadrado. Nao misturar com a decisao de serifa, que ja esta fechada.",
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "fonte-embutida-sem-portao",
@@ -791,7 +793,7 @@
     },
     {
       "id": "porta-entrada-cresce-em-silencio",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "Arte nova sem pacote engorda a porta de entrada e o build so AVISA — 61 KB hoje",
@@ -801,7 +803,9 @@
       ],
       "aceite": "O build REPROVA (exit 1) quando entra arte que nenhuma tabela classifica, ou entao cobra um teto escrito que nao pode subir sem alguem mudar o numero de proposito. Mordida provada por injecao. Junto: decidir o pacote do vao-cidade-africana e escrever a decisao na tabela, nao deixar no silencio.",
       "detalhe": "Medido por nuvem-20260902T1623 em 02/09. O CTX_B64[vao-cidade-africana] e a UNICA chave de CTX sem prefixo capN, entao a regex do pacoteDoEndereco nao o classifica, conhecido() devolve false, e ele viaja na PORTA DE ENTRADA — 61 KB. E o CLAUDE.md §3 diz que a porta de entrada PAROU DE CRESCER com cada capitulo novo, garantia que hoje e sustentada por um AVISO que ninguem reprova. Medido tambem: a string aparece UMA vez so no src/jogo.ts (a definicao) e em nenhum aberturaImg, entao a imagem esta embutida e NENHUM codigo a exibe. O PENDENTES ja a diagnosticara na lista de aprovadas-nao-embutidas e sugeria o pacote salvador — mas ela ja esta embutida, o que aquela nota nao sabia. Cuidado antes de escolher: ela e do marco A cidade africana, e marco vive em A HISTORIA, que alguem pode abrir sem ter chegado em SALVADOR.",
-      "nota": "CONFERIDO em 03/09 por nuvem-20260903T0822, so leitura, sem tocar em codigo: o numero bate — 60,9 KB (62.371 bytes de data URI) embutidos no index.html da raiz, e a chave nao aparece em pacote nenhum. E dentro de CTX_B64 ela E a unica sem prefixo capN (1 de 19). AVISO PARA QUEM PEGAR, medido no mesmo passe: NAO aplique a regex capN as outras tabelas. QUAD_B64 tem 20 chaves e as 20 sao sem prefixo (p1..p6, p07-africa, ...), e TRAV_B64 tem mar — um portao que cobre capN em todas as tabelas acusa 21 falsos positivos de uma vez. QUAD_B64 e de A HISTORIA, que abre do menu sem jogar, entao ela mora na porta de entrada de proposito. A regra que o portao precisa e por TABELA, nao global. Eu tentei derrubar a afirmacao do item e falhei: cheguei a medir 4 chaves sem prefixo, mas era erro meu — recortei 400 KB a partir de CTX_B64 e vazei para QUAD_B64."
+      "nota": "CONFERIDO em 03/09 por nuvem-20260903T0822, so leitura, sem tocar em codigo: o numero bate — 60,9 KB (62.371 bytes de data URI) embutidos no index.html da raiz, e a chave nao aparece em pacote nenhum. E dentro de CTX_B64 ela E a unica sem prefixo capN (1 de 19). AVISO PARA QUEM PEGAR, medido no mesmo passe: NAO aplique a regex capN as outras tabelas. QUAD_B64 tem 20 chaves e as 20 sao sem prefixo (p1..p6, p07-africa, ...), e TRAV_B64 tem mar — um portao que cobre capN em todas as tabelas acusa 21 falsos positivos de uma vez. QUAD_B64 e de A HISTORIA, que abre do menu sem jogar, entao ela mora na porta de entrada de proposito. A regra que o portao precisa e por TABELA, nao global. Eu tentei derrubar a afirmacao do item e falhei: cheguei a medir 4 chaves sem prefixo, mas era erro meu — recortei 400 KB a partir de CTX_B64 e vazei para QUAD_B64.",
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "regua-retrato-sem-alcancabilidade",
@@ -933,7 +937,7 @@
     },
     {
       "id": "poste-sobre-a-proposta",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco nunca cobra sobreposicao entre DUAS pecas de mobilia — o poste sobe por cima da proposta e ninguem ve",
@@ -942,8 +946,8 @@
       ],
       "aceite": "Decidir se a regua passa a cobrar a faixa entre o topo do #poste e a base do #menuSub, e com que piso. ATENCAO medida: uma assercao faixa>0 crua passaria HOJE com 9 px de folga em 320x568 — piso apertado demais para entrar de carona numa outra entrega, e por isso o achado virou item em vez de remendo. Se a decisao for cobrar, prova de mordida por injecao (exit 1 real + restaura exit 0); se for nao cobrar, o numero que sustenta.",
       "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-retrato-sem-alcancabilidade, e deixado aberto DE PROPOSITO por ele em vez de remendado junto — o que esta certo. Sob a receita terceira, em retrato, o #telaMenu e position:fixed (getComputedStyle, 6/6) e vira o containing block do #poste absoluto, entao o poste SOBE por cima da proposta: a faixa (topo do poste menos base do #menuSub) vai a -146/-188/-134/-291/-321/-328 px nas seis telas de retrato, contra 9 a 140 positivos em producao. Conferido em 03/09 pela nuvem-20260903T0822 que nao e item conhecido: grep de menuSub no backlog e no PENDENTES nao acha, e o laco so cobra 0% de sobreposicao da caixa DELA (a personagem) com o poste, as tabuas e a frase de proposta — nunca entre duas pecas de mobilia entre si. Nota da mesma medicao: sob terceira o botao continua alcancavel e tocavel (159 px de folga em 320x568), entao isto e sobreposicao visual, nao alcancabilidade — sao buracos diferentes.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "vercel-precedencia-de-headers",
@@ -987,7 +991,7 @@
     },
     {
       "id": "censo-restilizar-o-aceito",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "A catraca do censo le 0 px enquanto o cartao muda 15.135 — re-estilizar conteudo ACEITO passa limpo",
@@ -997,12 +1001,12 @@
       ],
       "aceite": "Decidir se o censo passa a comparar a APARENCIA do aceito com referencia, e nao so a identidade. E de outra natureza que as fugas: exigiria referencia visual, entao vale decidir ANTES de construir. Se sim, prova de mordida por injecao; se nao, o numero que sustenta deixar aberto.",
       "detalhe": "Furado pelo proprio autor da catraca em 03/09, com numero, e declarado em vez de escondido — e por isso e item e nao defeito silencioso. CATRACA_EXTRA_ESTILO=.lista .pl{background:#0f0} da inerte 0 px / ABSOLVE / exit 0, enquanto o cartao muda 15.135 px. Duas cegueiras somadas: o censo permite tabuas por IDENTIDADE e nunca por aparencia, e o oraculo nao ve porque a tinta nao sai quando o mutante some. Mesma classe do q107c, que ja estava declarado como ALCANCE nao coberto — agora com tamanho medido.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "regua-ancestral-acima-do-menu",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "O laco do touch-action para em #telaMenu — ancestral ACIMA dele e elo intermediario ainda dao falso verde",
@@ -1011,8 +1015,8 @@
       ],
       "aceite": "Decidir se o laco de alcanceDoBotao() vai ate a raiz do documento. Se sim, prova de mordida por injecao (exit 1 real + restaura exit 0) para AS DUAS injecoes medidas, e a saida limpa da regua tem de continuar byte a byte identica (diff exit 0) — foi esse duplo que fechou o conserto parcial. Se nao, o numero que sustenta deixar aberto. ATENCAO ao efeito contrario avisado: touch-action:pan-y PERMITE rolagem vertical; tratar pan-y como none fabrica falso PRESO e deixa a regua mais burra, nao mais esperta.",
       "detalhe": "Medido pelo dev-jogo em 03/09 ao fechar regua-touch-action, e DERRUBANDO a propria hipotese de que ler touch-action no ancestral rolavel resolvia o caso inteiro. Duas injecoes continuam dando falso verde DEPOIS do conserto, cada uma reaproveitando #poste{margin-top:250px} para criar a sobra: (a) body{touch-action:none} — ancestral ACIMA de #telaMenu, fora do laco que para em p===menu — sai exit 0, 6/6 configuracoes alcancavel; (b) #poste{touch-action:none} — o proprio poste, que fica ENTRE cfg e #telaMenu mas nao e o ancestral que rola — sai exit 0, 6/6 alcancavel. Ele NAO remendou de carona, e a justificativa dele e o que este item tem de atacar: a semantica de intersecao de touch-action entre ancestral e descendente nao pode ser verificada com toque FISICO numa maquina headless (dispatchEvent sintetico nao aciona reconhecimento nativo de gesto), e alargar sem verificar arrisca o falso PRESO. O QA do lote de 03/09 recebeu a tarefa de atacar essa justificativa — leia o veredito dele antes de comecar. | ATUALIZADO pela nuvem-20260903T1230 apos o QA em lote: o QA DERRUBOU a justificativa do dev-jogo de que headless nao modela a intersecao de touch-action. getComputedStyle(el).touchAction sobre a cadeia inteira ate html classifica a regra do spec SEM toque (none/pan-x/pan-left/pan-right/pinch-zoom sozinho bloqueiam pan-y). Logo o laco PODE subir ate html e fechar os dois gaps — o item e mais amplo do que o dev-jogo achou possivel. Instrumento pronto: test/qa-lote-0903-touch-intersecao.js no ramo qa/lote-0903 (5ea30e4), ja visto rodando — traga em vez de reescrever.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "vercel-propriedade-dentro-da-regra",
@@ -1031,7 +1035,7 @@
     },
     {
       "id": "censo-oraculo-dois-furos",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "PARTE B do censo-oraculo-dois-furos: oraculo apaga o mutante do DOM (imune a heranca) + recorte alargado + ::before::marker no catalogo",
@@ -1040,7 +1044,9 @@
         "test/qa-censo-pintura-fora.js"
       ],
       "aceite": "Duas coisas, e as duas podem fechar separadas. (A) ABRANDAR as duas frases superestimadas — o cabecalho de qa-censo-pintura-fora.js diz por-construcao-exatamente-os-pixels e verde-igual-fugas-registradas, e o QA derrubou as duas com numero; o texto passa a dizer o que a catraca REALMENTE garante. (B) DECIDIR, com medicao antes de construir: o oraculo passa a APAGAR o mutante do DOM (imune a heranca de visibility) com recorte alargado, e ::before::marker entra no catalogo/regua? Se sim, prova de mordida por injecao para as 3 variantes que o QA mediu (exit 1 real) + controle limpo exit 0. Traga test/qa-catraca-oraculo.js do ramo qa/censo-cinco (97f1ccf) em vez de reescrever — ele ja registra o tamanho dos 2 furos e ja foi visto mordendo (QA_ORACULO=b exit 1, QA_MUTANTE_MUDO=1 exit 1).",
-      "detalhe": "PARTE A FEITA em 03/09 por nuvem-20260903T1623 (as tres frases superestimadas do cabecalho de test/qa-censo-pintura-fora.js abrandadas, e os dois furos + o furo do tamanho agora REGISTRADOS por instrumento: test/qa-catraca-oraculo.js e test/qa-catraca-tamanho-ignorado.js, os dois exit 0). Falta so a parte B: apagar o mutante do DOM em vez de escondê-lo, recorte alargado, e decidir se ::before::marker entra no catalogo. Quando fechar um furo, o instrumento correspondente fica VERMELHO sozinho pedindo para ser apagado — e o cabecalho tem de ser corrigido junto."
+      "detalhe": "PARTE A FEITA em 03/09 por nuvem-20260903T1623 (as tres frases superestimadas do cabecalho de test/qa-censo-pintura-fora.js abrandadas, e os dois furos + o furo do tamanho agora REGISTRADOS por instrumento: test/qa-catraca-oraculo.js e test/qa-catraca-tamanho-ignorado.js, os dois exit 0). Falta so a parte B: apagar o mutante do DOM em vez de escondê-lo, recorte alargado, e decidir se ::before::marker entra no catalogo. Quando fechar um furo, o instrumento correspondente fica VERMELHO sozinho pedindo para ser apagado — e o cabecalho tem de ser corrigido junto.",
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:35:00.000Z"
     },
     {
       "id": "ramos-mortos-mente-em-clone-raso",
