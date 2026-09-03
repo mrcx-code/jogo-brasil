@@ -12083,3 +12083,101 @@ visto mordendo no ramo `qa/csp-e-regua-0903` (`a4525b9`) — trazer, não reescr
 
 **Placar da rodada:** 3 agentes de entrega + 1 QA em lote · 20 achados · 20 reais · 5 desmentidos
 (3 meus, 1 herdado, 1 do agente contra si mesmo).
+
+---
+
+### 03/09 (tarde) — O instrumento da faxina declarava vivo o cemitério inteiro · `nuvem-20260903T1623`
+
+**Acordei para integrar 8 entregas órfãs e não integrei nenhuma, porque nenhuma existia.** O
+trabalho da rodada acabou sendo o instrumento que as inventou.
+
+**O que eu fui fazer.** Sem issue etiquetada `agente`, rodada agendada normal. O `PLANTAO.md` §7 é
+explícito: *"antes de devolver item a `livre`, procure o ramo `entrega/<id>`; se houver, o trabalho
+da rodada é auditar e integrar, não recomeçar"*. A `origin` carregava **32 ramos `entrega/`**, e a
+minha primeira varredura à mão (`git rev-list --count origin/main..origin/entrega/X`) apontou
+**8 órfãos**. Oito entregas prontas paradas seria o achado da semana.
+
+**O primeiro desmentido foi contra mim, e veio do próprio git.** O clone da nuvem é **raso**
+(`is-shallow-repository` = true, **186 commits** de história). Num clone raso o `rev-list` responde
+sobre uma história que não está no disco, e responde **errado para o lado caro**. Depois de
+`git fetch --unshallow` (1.045 commits), os mesmos 8 viraram **3**: `regua-parada-e-fila-paralela`,
+`rodape-quatro-gaps`, `glossario-substancia-rev2/rev3` e `rotina-7-sinais` **já eram ancestrais da
+`main`** — a "falta" era cegueira minha.
+
+**E os 3 que sobraram também não eram trabalho perdido**, conferidos um por um pelo conteúdo:
+
+| ramo | veredito | como sei |
+|---|---|---|
+| `canonical-jogo` | superado | a `main` tem asserção **mais forte** em `test/encaixe.js`: além do canonical, cobra `@@BASE@@` cru e o desencontro com `og:url` |
+| `glossario-substancia` | superado | os 3 verbetes (ECONOMIA DO OURO · A CONTA DA ESCRAVIDÃO · CRITÉRIO BRASIL) estão na `main` em versão **revista pelo historiador** (o ramo é o primeiro rascunho) |
+| `dashboard-trio` | superado | entrou por outra rota no commit `bccbf16` *"tira o Google, nomeia a recusa por desenho e deixa rastro da perda"*; a única ocorrência de `fonts.googleapis` que restou na `main` está **dentro de um comentário** explicando o conserto, e há portão cobrando (`test/rodape-verdadeiro.js:746-756`) |
+
+**Órfãos de verdade: zero.** O `PLANTAO.md` §7 teria mandado esta rodada auditar e integrar oito
+ramos consumidos.
+
+**O ACHADO, e ele é do instrumento, não meu.** O `ferramentas/ramos-mortos.js` existe desde 02/09
+justamente para não refazer essa varredura à mão — e ele tem o **mesmo defeito**, numa linha:
+
+```js
+try { merge-base --is-ancestor } catch { return false }   // false === a palavra "ÓRFÃO"
+```
+
+O `catch` engolia **duas causas diferentes** como se fossem uma: *"medi e não é ancestral"* (órfão
+de verdade) e *"não consigo medir, o commit não está no disco"* (que não é resposta nenhuma). O
+`ls-remote` lê o sha do **servidor**; num clone raso ele não está aqui; o `git` sai ≠ 0; e o
+relatório imprime **ÓRFÃO**.
+
+**Medido com o MESMO arquivo em quatro clones do mesmo repositório**, sobre os 32 ramos:
+
+| clone | ancestrais | declarados ÓRFÃO |
+|---|---|---|
+| profundo (`--unshallow`) | 29 | **3** ← a verdade |
+| `--depth=186` (551 commits) | 29 | 3 |
+| `--depth=20` (50 commits) | 7 | **25** |
+| `--depth=1` | 0 | **32 de 32** |
+
+**A nuvem sempre clona raso.** No pior caso o instrumento mandava a rodada reintegrar o
+repositório inteiro — no lugar exato onde se decide o que despachar. É a doença que a casa caça
+nos portões (afirmação que o objeto não cumpre) **invertida**: em vez de assinar de verde o que
+está quebrado, ele assina de vermelho o que está pronto, e **fabrica trabalho que não existe**.
+
+**O conserto tem três peças e nenhuma sozinha resolve** (`entrega/ramos-mortos-raso`):
+1. `classificar()` com **três** estados — `ancestral` / `orfao` / `desconhecido`. Órfão só quando o
+   `merge-base` saiu **1 de verdade**; erro de objeto faltando nunca vira veredito.
+2. O clone raso **se conserta antes de medir** (`--unshallow`), com aviso alto.
+3. E busca os refs `entrega/*` **explicitamente**. `git clone --depth` implica `--single-branch`:
+   aprofundar só a `main` deixa os tips de fora.
+
+**O que caiu de mim, durante a construção, e as duas foram achadas pelo portão:**
+- **A peça 3 eu não tinha previsto.** Sem ela o conserto trocava um erro por outro: em vez de
+  chamar de ÓRFÃO o que não enxerga, chamava tudo de **DESCONHECIDO** — honesto e inútil. O portão
+  reprovou (`exit 1`) e foi assim que apareceu.
+- **O palco do teste guardava estado entre as cenas e o CONTROLE MENTIA.** A primeira versão
+  reaproveitava um clone só; a execução da cena 1 **aprofundava** o clone (é o que o programa
+  faz), então a injeção do defeito antigo rodava sobre um repositório já profundo e **acertava**.
+  Controle verde sobre palco sujo é decoração. Cada cena ganha um clone novo.
+
+**O portão novo:** `test/ramos-mortos-veredito.js`, **6 checagens, exit real 0**. Cobra as duas
+metades — ramo consumido **nunca** sai ÓRFÃO num clone raso, **e** órfão de verdade continua
+saindo ÓRFÃO (sem a segunda, bastaria o programa emudecer para ficar verde). Mordida provada por
+injeção: com o classificador de dois estados de volta, **exit 1**. Não usa rede: monta o repo em
+`os.tmpdir()` e clona por `file://`, o único protocolo local que respeita `--depth` (clone por
+caminho simples **ignora a opção em silêncio** — foi assim que a primeira tentativa nasceu verde
+sem medir nada).
+
+**Medições de contexto desta rodada:**
+- `npm test` na `main` limpa **antes** de qualquer merge: **exit 0** (o baseline do §4 do PLANTÃO —
+  e desta vez o `npm install` acrescentou os pacotes que faltavam antes, como manda a regra).
+- **Marcadores `voo/`: 23, o mesmo número de 03/09 08h UTC.** A decisão de 03/09 (a nuvem para de
+  criar marcador) **pegou** — era exatamente esse o teste que ela mesma propôs. Esta rodada não
+  criou nenhum.
+- **Ramos `entrega/`: 28 → 33 em 24 h.** Este lado **continua crescendo**, porque só quem tem
+  `delete_ref` (Mac, Windows) apaga, e ninguém apagou. O `--apagar` do `ramos-mortos.js` segue
+  esperando uma máquina com egresso.
+
+**Dúvida que fica aberta:** a profundidade do clone da nuvem **varia** (esta sessão nasceu com 186
+commits) e não achei onde ela é configurada. Enquanto variar, qualquer ferramenta que pergunte
+ancestralidade tem de se defender sozinha, como esta passou a fazer — mas **não sei se há outras**.
+Vale uma varredura por `merge-base`/`rev-list` em `ferramentas/` numa próxima rodada.
+
+**Próximo passo:** integrar `entrega/ramos-mortos-raso` pelo funil depois do veredito do QA.
