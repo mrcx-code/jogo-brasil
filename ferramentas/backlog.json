@@ -919,7 +919,7 @@
     },
     {
       "id": "censo-cinco-fugas-medidas",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Cinco mecanismos poem tinta no cartao e o censo absolve — medidos por pixel, com print",
@@ -929,8 +929,8 @@
       ],
       "aceite": "pinta() passa a enumerar os cinco, e cada um ganha prova de mordida por injecao (exit 1) mais o contraponto (vao sem pintura continua absolvido). Junto: uma CATRACA que reprove fuga NOVA alem das registradas, para verde significar o buraco tem o tamanho que tinha e nunca nao ha buraco. O instrumento do QA (test/qa-censo-pintura-fora.js, no worktree dele) ja faz isso e ja foi visto mordendo — traga-o em vez de reescrever. ATENCAO ao piso de ruido: comparar o print INTEIRO de 1200x630 da 793 px de diferenca com CSS NENHUM (o mapa do TERRITORIO anima sozinho) e acusaria 13 fugas falsas; o recorte na caixa do mutante +48 px zera o piso, e esse zero e cobrado por exit code.",
       "detalhe": "Achado pelo QA independente em 03/09 auditando censo-cobertura-e-propriedades, DEPOIS de a entrega ja ter fechado os 6 mecanismos do achado original. Nao e regressao: e o teto que a entrega declarou, com a diferenca de que a JUSTIFICATIVA do teto era falsa. A entrega afirmava que a enumeracao estava do lado que ABSOLVE e que esquecer viraria reprovacao barulhenta; o codigo diz o contrario (decorativoInerte = aria-hidden E innerText vazio E !pinta(), entao mecanismo nao escrito e ABSOLVIDO) e o QA mediu por pixel: backdrop-filter:invert(1) 5662 px, border-image sem border-width 3936 px, ::marker 109 px, list-style-image 1800 px, content:url() no proprio elemento 5700 px. Os dois ultimos nem estavam no teto declarado. A frase falsa ja foi corrigida na main (commit da correcao, 03/09); o BURACO continua aberto. Medido do outro lado tambem, e por isso a lista e curta: filter:drop-shadow, mask, clip-path, scrollbar e ::first-line pintam ZERO px numa caixa vazia — nao fogem.",
-      "maquina": null,
-      "desde": null,
+      "maquina": "nuvem-20260903T1230",
+      "desde": "2026-09-03T12:36:19.052Z",
       "nota": "ENTREGA EXISTE E NAO FOI INTEGRADA: ramo entrega/censo-cinco-fugas-medidas (047c393), no servidor, arvore limpa. NAO recomece do zero. Ela ja fez o item inteiro e MAIS: eram cinco fugas, sao SETE (resize+overflow 18 px e ::before{content:\"\";display:list-item} 25 px nao estavam em teto nenhum, e a segunda foi achada pela propria catraca). Catraca de 46 mecanismos por CAMERA com piso 0 cobrado em cada um. Portoes medidos no worktree: pintura-fora 1->0 (era 16 FUGA), passo2 1->0 (13/13), npm test 0, encaixe 0, quadro-controle 0, regua-larga 0. O QUE FALTA e so o portao: o pre-voo exige qa + porteiro (ela toca ferramentas/integrar.js), e a rodada nuvem-20260903T0822 bateu o teto de tempo antes de despachar o QA. Despache qa + porteiro sobre o ramo e va ao funil."
     },
     {
