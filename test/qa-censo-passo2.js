@@ -32,6 +32,18 @@
 //     recusados. Se a segunda passada virar no-op num refactor, ou se o conserto do
 //     falso-positivo virar "ignora `aria-hidden`" em vez de "ignora `aria-hidden` SEM CONTEÚDO",
 //     isto fica vermelho.
+//   · OS SEIS MECANISMOS DE PINTURA (bloco 3, acrescentado em 03/09 pelo item
+//     `censo-decorativo-so-tres-propriedades`): `border`, `background-color`, o atalho
+//     `background`, `outline`, `box-shadow` e `::after` com `background`. Um `aria-hidden` SEM
+//     TEXTO que pinta por qualquer um deles tem de ser recusado — os seis escapavam limpos até
+//     este dia, com print. E o CONTRAPONTO junto: o mesmo vão sem pintar nada continua absolvido,
+//     senão o conserto teria trocado o falso-negativo por um falso-positivo do mesmo tamanho.
+//
+// ESTE ARQUIVO DEIXOU DE SER SÓ INSTRUMENTO DE MÃO EM 03/09 (item `censo-so-e-cobrado-no-
+// territorio`). Ele é disparado pelo funil (`ferramentas/integrar.js`, gatilho `CARTAO_CENSO`)
+// junto com `test/cartao-quadro-controle.js` sempre que o diff toca o censo, o chrome da barra,
+// os geradores de cartão ou qualquer uma das cinco páginas publicadas. Portão que morde e ninguém
+// roda é a doença que esta casa já curou três vezes.
 // Os mutantes que ESCAPAM (`q107a`, `q107b`, `q107c`) são impressos como ALCANCE, não como falha:
 // a entrega nunca prometeu alcançá-los, e portão que cobra promessa que ninguém fez fica vermelho
 // na `main` limpa — vermelho de instrumento com cara de vermelho de produto (EQUIPE.md).
@@ -100,10 +112,13 @@ async function abrirPagina(nav, arq) {
   await pg.waitForTimeout(600);
   return pg;
 }
+// MIGRADO EM 03/09, e o motivo é que a frase estava errada antes de ser verdade: o commit da
+// entrega afirmava "uma fonte para os dois chamadores", mas só o `cartao-quadro-controle.js`
+// tinha migrado — este aqui mantinha a cópia local. Idênticas naquele dia, e é assim que a
+// divergência começa. O QA independente pegou a afirmação, não o defeito (não havia defeito
+// vivo); a correção é migrar, para que a afirmação passe a ser verdadeira.
 function permitidosDe(secao, arq) {
-  return CENSO.permitidosTerritorio(
-    CHROME.barraHtml(secao),
-    secao === 'territorio' ? CENSO.pontosDoHtml(fs.readFileSync(arq, 'utf8')) : []);
+  return CENSO.permitidosDaPagina(secao, fs.readFileSync(arq, 'utf8'));
 }
 const doPasso2 = (e) => /contêiner já provado/.test(e.motivo || '');
 
@@ -171,6 +186,58 @@ const Q107 = {
     barra.appendChild(s);
   },
 };
+
+// ------------------------------------ OS SEIS MECANISMOS DE PINTURA (item 03/09,
+// `censo-decorativo-so-tres-propriedades`). O QA derrubou a FRASE do conserto anterior: o
+// comentário prometia que a pergunta virara "isto pinta algo na foto?" e o código perguntava por
+// TRÊS propriedades (`aria-hidden` E `innerText` vazio E sem `background-image`). Um `<span
+// aria-hidden="true">` SEM TEXTO aparece no recorte por seis caminhos que aquelas três não
+// cobriam, e o censo devolvia `estranhos=[]` nos seis — confirmado com print, não só com número.
+//
+// A ARMADILHA QUE O PRÓPRIO QA REGISTROU, e por isso todos estes injetam na `.lista`: a `.barra`
+// tem `overflow-x:auto` e empurra o mutante para fora da janela do contêiner. Injetar lá fabrica
+// um "escapou" que é do instrumento, não da régua — foi assim que o primeiro instrumento dele deu
+// falso negativo. A `.lista` das tábuas de lugar não rola, e é `dono` provado do mesmo jeito.
+//
+// TODOS os seis são cobrados por exit code, um a um: se alguém estreitar `decorativoInerte` de
+// volta, o mecanismo exato que voltou a escapar aparece pelo nome na linha vermelha.
+const PINTA = {
+  border: 'border:4px solid red',
+  backgroundColor: 'background-color:#ff00ff',
+  backgroundAtalho: 'background:#00ff00',
+  outline: 'outline:4px solid #00ffff',
+  boxShadow: 'box-shadow:0 0 0 6px #ffcc00',
+  pseudoAfter: '__AFTER__',   // ::after com content:"" e background — sem texto para o innerText ver
+};
+function injetarPintura(css) {
+  const l = document.querySelector('.lista');
+  if (!l) throw new Error('pintura: nao achei .lista (a .barra NAO serve — overflow-x:auto tira o mutante da janela)');
+  const s = document.createElement('span');
+  s.className = 'qaPinta';
+  s.setAttribute('aria-hidden', 'true');   // o MESMO atributo do vão real
+  // e NENHUM texto: é exatamente o par que a regra antiga absolvia
+  let base = 'display:inline-block;width:150px;height:38px;vertical-align:middle;';
+  if (css === '__AFTER__') {
+    const st = document.createElement('style');
+    st.textContent = '.qaPinta::after{content:"";display:block;width:150px;height:38px;background:#ff3300}';
+    document.head.appendChild(st);
+  } else { base += css; }
+  s.style.cssText = base;
+  l.appendChild(s);
+}
+// O CONTRAPONTO, sem o qual os seis acima não dizem nada: o MESMO span, no MESMO lugar, sem
+// pintar nada — tem de continuar ABSOLVIDO. É o `span.vaoMedida` real reduzido à sua classe.
+// Sem esta linha, "alargar a régua" poderia ter virado "reprova todo aria-hidden", que é o
+// falso-positivo que o item `censo-vaomedida-falso-positivo` acabou de fechar.
+function injetarVaoInerte() {
+  const l = document.querySelector('.lista');
+  if (!l) throw new Error('vao inerte: nao achei .lista');
+  const s = document.createElement('span');
+  s.className = 'qaVaoInerte';
+  s.setAttribute('aria-hidden', 'true');
+  s.style.cssText = 'display:inline-block;width:150px;height:38px;vertical-align:middle';
+  l.appendChild(s);
+}
 
 // ------------------------------------------------------------------------------- A COBERTURA
 // Quantos elementos a segunda passada JULGA e quantos ela ABSOLVE. Roda com a MESMA lista de
@@ -273,6 +340,31 @@ async function cobertura(pg, permitidos) {
   await pgM.close();
   ok(estM.length > 0 && estM.some(doPasso2), 'm106 (do autor): recusado PELA SEGUNDA PASSADA'
     + (estM.length ? ' (' + estM[0].alvo + ')' : ' — PASSOU LIMPO'));
+
+  // ------------------------------------------------- 3. OS SEIS MECANISMOS DE PINTURA (03/09)
+  // Um a um, com o exit code de cada um. Antes do conserto de `decorativoInerte`, os seis
+  // devolviam `estranhos=[]` com a caixa visível no recorte (print no relatório da rodada).
+  console.log('\n=== 3. PINTA NA FOTO SEM TEXTO — os seis mecanismos, na .lista do território');
+  for (const nome of Object.keys(PINTA)) {
+    const pg = await abrirPagina(nav, arqT);
+    let erro = '';
+    await pg.evaluate(injetarPintura, PINTA[nome]).catch((e) => { erro = String(e.message || e); });
+    await excluir(pg, 'controles');
+    const est = erro ? [] : await pg.evaluate(CENSO.censoDoQuadro, [L, A, permT, CENSO.SELETOR_INTERATIVO]);
+    await pg.close();
+    if (erro) { ok(false, 'pintura ' + nome + ': o mutante não pôde ser injetado — ' + erro); continue; }
+    ok(est.length > 0 && est.some(doPasso2), 'pintura ' + nome + ' (' + PINTA[nome] + '): o censo RECUSA'
+      + (est.length ? ' (' + est[0].alvo + ' @' + est[0].x + ',' + est[0].y + ')'
+        : ' — PASSOU LIMPO, aria-hidden sem texto voltou a ser absolvido pintando'));
+  }
+  // e o contraponto: o MESMO span sem pintar nada continua absolvido (zero falso-positivo novo)
+  const pgV = await abrirPagina(nav, arqT);
+  await pgV.evaluate(injetarVaoInerte);
+  await excluir(pgV, 'controles');
+  const estV = await pgV.evaluate(CENSO.censoDoQuadro, [L, A, permT, CENSO.SELETOR_INTERATIVO]);
+  await pgV.close();
+  ok(estV.length === 0, 'CONTRAPONTO: vão aria-hidden sem texto E sem pintura nenhuma continua ABSOLVIDO'
+    + (estV.length ? ' — FALSO-POSITIVO ' + JSON.stringify(estV) : ''));
 
   await nav.close();
   if (falhas) { console.log('\nREPROVADO — ' + falhas + ' problema(s)'); process.exit(1); }

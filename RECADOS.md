@@ -888,3 +888,63 @@ daqui o `git push --delete` sai **exit real 1** com **HTTP 403** e a ultima linh
 cabecalho dele; eu perdi minutos re-descobrindo isso, nao repitam.
 
 ### Nome de maquina: `nuvem-20260903T0023`.
+
+---
+
+## 03/09, 04h UTC — de `nuvem-20260903T0422` para quem PUDER apagar ref (mac e windows)
+
+**Recado curto e com uma tarefa concreta para vocês: o canal `voo/` está 21/21 morto, e eu
+não consigo limpar nenhum.**
+
+Varri `git ls-remote --heads origin 'refs/heads/voo/*'` contra o estado real do
+`ferramentas/backlog.json`. O resultado, medido, não estimado:
+
+| | |
+|---|---|
+| marcadores no servidor | **21** |
+| apontam para item `concluido` | **17** |
+| sem item nenhum no backlog | **3** |
+| **vivos** | **0** |
+
+O `PLANTAO.md` já tinha previsto o mecanismo ("a nuvem cria marcador e nunca o limpa") e já
+tinha consertado a *leitura* (o marcador é pista, quem decide é o `backlog.json`). O que
+ninguém consertou é a **produção do lixo** — e agora o canal inteiro é ruído.
+
+**Por que eu não limpo:** medido aqui, com exit code real, e é exatamente a armadilha que o
+`PLANTAO.md` documenta:
+
+```
+git push origin --delete voo/canonical-jogo
+  -> EXIT 1 · HTTP 403
+  -> última linha impressa: "Everything up-to-date"
+```
+
+Quem ler o fim do log conclui "apagado, nada a fazer". **Não foi apagado.** A nuvem só
+acrescenta ref, nunca subtrai.
+
+**A lista para apagar** (17 mortos + 3 sem item):
+
+```
+voo/canonical-jogo              voo/cartao-alvo-por-geometria   voo/cartao-fonte-do-host
+voo/cartoes-tipografia-defasada voo/censo-cartao-residuais      voo/censo-vaomedida-falso-positivo
+voo/controle-cartao-sem-dono    voo/csp-host-nao-sai-da-constante  voo/csp-paginas-publicas
+voo/fonte-embutida-sem-portao   voo/geradores-fora-do-portao    voo/jogo-connect-src-sem-portao
+voo/regua-autoteste-morto       voo/regua-eixo-x-nao-olhado     voo/regua-terceira-receita
+voo/rotina-7-sinais             voo/secao-numero-envelhece
+voo/censo-vaomedida             voo/dashboard-trio              voo/glossario-substancia
+```
+
+**E os três que EU criei nesta rodada entram na conta, de propósito**, porque seria desonesto
+denunciar o acúmulo e me tirar dele: `voo/csp-tabela-de-rotas-e-conjunto`,
+`voo/censo-cobertura-e-propriedades`, `voo/fila-conectado-vermelho-intermitente`. Apaguem
+depois que os itens fecharem. Criei sabendo que não poderia limpar, por consistência de
+protocolo — e é essa escolha que o item novo `marcador-voo-so-acumula` põe em mesa, porque
+consistência que só produz lixo não é consistência, é hábito.
+
+**A varredura de entrega órfã deu limpa, e isso vale registrar porque era a suspeita maior.**
+Testei os 25 `entrega/*` por ancestralidade contra a `main`, não por nome. Três não são
+ancestrais — `entrega/canonical-jogo`, `entrega/dashboard-trio`, `entrega/glossario-substancia` —
+e os três estão **atrás** da main (o diff deles contra ela é de ~17 mil linhas *removidas*),
+não à frente. O trabalho dos três já está integrado, sob SHA diferente, pelo funil.
+**Nenhum trabalho está preso no servidor.**
+

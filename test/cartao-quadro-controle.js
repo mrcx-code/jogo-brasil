@@ -49,13 +49,37 @@ const CHROME = require('../ferramentas/chrome-plataforma.js');
 const RAIZ = path.resolve(__dirname, '..');
 const L = 1200, A = 630;   // o enquadramento que as redes pedem, e o que os geradores usam
 
+// O CENSO VALE PARA AS CINCO SUPERFÍCIES DESDE 03/09 (item `censo-so-e-cobrado-no-territorio`).
+//
+// ANTES, `censo: true` estava numa linha só — a do TERRITÓRIO. Para A HISTÓRIA, o glossário e o
+// DE ONDE VEM este portão rodava só `controlesNoQuadro`, a régua antiga por NOME e POSIÇÃO
+// (`fixed|sticky` + seletor de controle, ou `id === 'medirBt'`), e a PORTA nem estava na tabela.
+// Medido antes de consertar, com o defeito na mão: uma `<div>` inerte lendo "MEDICAO ligada",
+// colada na `.barra` de `historia/index.html`, saiu deste arquivo com **exit 0** — e o mesmo
+// defeito dava **exit 1** em `test/qa-censo-passo2.js`, que não estava em `npm test`, nem no
+// `encaixe.js`, nem no `integrar.js`, nem no CI. A proteção existia e não era cobrada em lugar
+// nenhum: instrumento de QA não é portão.
+//
+// A LISTA DE PERMITIDOS DAS OUTRAS QUATRO já era derivável — é a barra que o `chrome-plataforma.js`
+// escreve para aquela seção, o mesmo dado que gerou a página. É `CENSO.permitidosDaPagina`, uma
+// função só para as cinco (antes eram duas cópias, e a que rodava era a mais estreita).
 const CARTOES = [
+  // A PORTA não tem cartão PRÓPRIO hoje: o `og:image` dela aponta para o `compartilhar.jpg` da
+  // RAIZ, que é HUD de partida do jogo — não há gerador de cartão para ela, e por isso não há
+  // exclusão para assinar. Ela entra assim mesmo, e por dois motivos concretos: (a) ela carrega
+  // a MESMA `.barra` das outras quatro, então uma regressão no chrome comum aparece aqui antes de
+  // aparecer num cartão publicado; (b) o dia em que ela ganhar cartão próprio, a régua já está de
+  // pé. A linha `semCartaoProprio` abaixo cobra que essa premissa continue verdadeira — se
+  // alguém der um cartão à porta, este arquivo reprova pedindo a assinatura, em vez de aprovar
+  // um cartão que ele já não sabe medir.
+  { secao: 'porta', pag: 'plataforma/index.html', gerador: null, assinatura: null,
+    semCartaoProprio: 'plataforma/compartilhar.jpg', modo: 'generico', censo: true },
   { secao: 'historia', pag: 'historia/index.html', gerador: 'ferramentas/cartao-secao.js',
-    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico' },
+    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico', censo: true },
   { secao: 'glossario', pag: 'glossario/index.html', gerador: 'ferramentas/cartao-secao.js',
-    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico' },
+    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico', censo: true },
   { secao: 'de-onde-vem', pag: 'de-onde-vem/index.html', gerador: 'ferramentas/cartao-secao.js',
-    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico' },
+    assinatura: "p === 'fixed' || p === 'sticky'", modo: 'generico', censo: true },
   // A ASSINATURA DO TERRITÓRIO DEIXOU DE SER UM TRECHO COPIADO e passou a ser o `require` do
   // módulo comum. É estritamente melhor: casar uma string prova que alguém escreveu as mesmas
   // letras nos dois lugares; casar o `require` prova que os dois RODAM o mesmo código.
@@ -180,10 +204,11 @@ async function controlesNoQuadro(pg) {
 // página: os links da barra do `chrome-plataforma.js`, e as tábuas de lugar lidas da FORMA que o
 // gerador escreveu no HTML em disco — `window.D` não é global (medido: `undefined`), e usar a
 // página viva como fonte da própria lista seria circular para o mutante injetado.
-async function censoDaPagina(pg, arqHtml) {
-  const permitidos = CENSO.permitidosTerritorio(
-    CHROME.barraHtml('territorio'),
-    CENSO.pontosDoHtml(fs.readFileSync(arqHtml, 'utf8')));
+// GENÉRICO DESDE 03/09: recebe a seção, e a lista sai de `CENSO.permitidosDaPagina` — a mesma
+// função que `test/qa-censo-passo2.js` usa. Duas cópias dessa regra é como a página CERTA passou
+// a ser medida por uma régua e as outras quatro por nenhuma.
+async function censoDaPagina(pg, secao, arqHtml) {
+  const permitidos = CENSO.permitidosDaPagina(secao, fs.readFileSync(arqHtml, 'utf8'));
   if (permitidos.length < 2) throw new Error('lista de permitidos degenerada (' + permitidos.length + ') — o censo reprovaria a página certa');
   return pg.evaluate(CENSO.censoDoQuadro, [L, A, permitidos, CENSO.SELETOR_INTERATIVO]);
 }
@@ -198,9 +223,16 @@ async function censoDaPagina(pg, arqHtml) {
     const arq = path.join(RAIZ, c.pag);
     if (!fs.existsSync(arq)) { ok(false, c.secao + ': a página não existe (' + c.pag + ')'); continue; }
     // a assinatura primeiro: sem ela a tabela acima já não descreve o gerador
-    const fonte = fs.readFileSync(path.join(RAIZ, c.gerador), 'utf8');
-    ok(fonte.indexOf(c.assinatura) >= 0, c.secao + ': a exclusão do ' + c.gerador
-      + ' ainda é a que esta tabela descreve');
+    if (c.assinatura) {
+      const fonte = fs.readFileSync(path.join(RAIZ, c.gerador), 'utf8');
+      ok(fonte.indexOf(c.assinatura) >= 0, c.secao + ': a exclusão do ' + c.gerador
+        + ' ainda é a que esta tabela descreve');
+    } else {
+      // sem gerador de cartão não há exclusão para assinar — o que se cobra é que ela CONTINUE
+      // não existindo. Ganhar um cartão é mudança boa; entrar sem assinatura é a tabela envelhecendo.
+      ok(!fs.existsSync(path.join(RAIZ, c.semCartaoProprio)), c.secao + ': continua sem cartão próprio ('
+        + c.semCartaoProprio + ' não existe) — se ganhou um, acrescente gerador e assinatura nesta tabela');
+    }
 
     const pg = await nav.newPage({ viewport: { width: L, height: A }, deviceScaleFactor: 1 });
     await pg.goto(ABRIR('file:///' + arq.split(path.sep).join('/')));
@@ -213,10 +245,11 @@ async function censoDaPagina(pg, arqHtml) {
     }
     const escondidos = await excluir(pg, c.modo);
     const sobrou = await controlesNoQuadro(pg);
-    // A SEGUNDA LEITURA, e é a que não depende de nome nenhum: o CENSO. Só o TERRITÓRIO por
-    // enquanto — é a única seção cuja lista de permitidos é derivável do dado que gerou a página.
+    // A SEGUNDA LEITURA, e é a que não depende de nome nenhum: o CENSO. Nas CINCO superfícies
+    // desde 03/09 — a lista de permitidos das quatro páginas de texto é a barra que o
+    // `chrome-plataforma.js` escreveu para aquela seção, o mesmo dado que gerou a página.
     let estranhos = [];
-    if (c.censo) estranhos = await censoDaPagina(pg, arq);
+    if (c.censo) estranhos = await censoDaPagina(pg, c.secao, arq);
     await pg.close();
 
     ok(sobrou.length === 0, c.secao + ': zero cromo flutuante no quadro depois da exclusão ('
@@ -289,7 +322,7 @@ async function censoDaPagina(pg, arqHtml) {
       let erroMutante = '';
       await pg.evaluate(CENSO.MUTANTES[nome]).catch((e) => { erroMutante = String(e.message || e); });
       await excluir(pg, 'controles');           // a mesma exclusão que o gerador aplica
-      const estranhos = erroMutante ? [] : await censoDaPagina(pg, arqTerr);
+      const estranhos = erroMutante ? [] : await censoDaPagina(pg, 'territorio', arqTerr);
       await pg.close();
       if (erroMutante) {
         // mutante que não consegue nem se instalar é régua cega, não régua verde
@@ -309,10 +342,50 @@ async function censoDaPagina(pg, arqHtml) {
     await pg.waitForFunction('window.__pronto === true', null, { timeout: 30000 }).catch(() => {});
     await pg.waitForTimeout(600);
     await excluir(pg, 'controles');
-    const limpo = await censoDaPagina(pg, arqTerr);
+    const limpo = await censoDaPagina(pg, 'territorio', arqTerr);
     await pg.close();
     ok(limpo.length === 0, 'CONTROLE DO CENSO sem mutante: o censo APROVA a página como está'
       + (limpo.length ? ' — ESTRANHOS ' + JSON.stringify(limpo) : ''));
+  }
+
+  // ------------------------------------ O CENSO MORDE EM CADA UMA DAS CINCO (03/09, EQUIPE.md 2.8)
+  //
+  // As quinze linhas verdes lá de cima não provam nada sozinhas: `censo: true` numa linha da tabela
+  // pode estar ligado a uma lista de permitidos tão larga que aprova qualquer coisa. E ligar o
+  // censo para quatro páginas novas é exatamente o momento em que ninguém viu a régua reprovando
+  // NELAS — foi assim que o `medir-telas-altura.js` passou em 8 de 8 com três telas que não podiam
+  // reprovar.
+  //
+  // Então o mutante do item 1 (`m106`: uma `<div>` INERTE lendo "MEDIÇÃO ligada", sem `onclick`,
+  // sem `tabindex` e sem `role`, colada na `.barra` de verdade) é injetado numa a uma, com a
+  // exclusão daquela linha aplicada por cima, e o censo daquela seção TEM de recusá-lo. É o mesmo
+  // defeito que, medido em 03/09 antes deste bloco existir, saía deste arquivo com exit 0 quando
+  // plantado em `historia/index.html`.
+  console.log('\n=== O CENSO MORDE EM CADA UMA DAS CINCO SUPERFÍCIES (m106 por página)');
+  for (const c of CARTOES) {
+    const arq = path.join(RAIZ, c.pag);
+    if (!fs.existsSync(arq)) { ok(false, c.secao + ': a página não existe (' + c.pag + ')'); continue; }
+    const pg = await nav.newPage({ viewport: { width: L, height: A }, deviceScaleFactor: 1 });
+    await pg.goto(ABRIR('file:///' + arq.split(path.sep).join('/')));
+    await pg.evaluate(() => document.fonts.ready).catch(() => {});
+    if (c.modo !== 'generico') {
+      await pg.waitForFunction('window.__pronto === true', null, { timeout: 30000 }).catch(() => {});
+      await pg.waitForTimeout(900);
+    } else {
+      await pg.waitForTimeout(300);
+    }
+    let erroMutante = '';
+    await pg.evaluate(CENSO.MUTANTES.m106).catch((e) => { erroMutante = String(e.message || e); });
+    await excluir(pg, c.modo);
+    const estranhos = erroMutante ? [] : await censoDaPagina(pg, c.secao, arq);
+    await pg.close();
+    if (erroMutante) {
+      ok(false, 'MORDIDA ' + c.secao + ': o mutante não pôde ser injetado — ' + erroMutante);
+    } else {
+      ok(estranhos.length > 0, 'MORDIDA ' + c.secao + ': o censo RECUSA a tábua inerte plantada na barra'
+        + (estranhos.length ? ' (' + estranhos[0].alvo + ' @' + estranhos[0].x + ',' + estranhos[0].y + ')'
+          : ' — PASSOU LIMPO, o censo desta página não protege nada'));
+    }
   }
 
   await nav.close();
