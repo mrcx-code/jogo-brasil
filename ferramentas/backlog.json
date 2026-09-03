@@ -1046,9 +1046,7 @@
     },
     {
       "id": "ramos-mortos-mente-em-clone-raso",
-      "estado": "em-curso",
-      "maquina": "nuvem-20260903T1623",
-      "desde": "2026-09-03T16:31:48.412Z",
+      "estado": "concluido",
       "papel": "dev-plataforma",
       "titulo": "ramos-mortos.js declara ORFAO o que nao consegue ver: em clone raso o veredito inverte",
       "territorio": [
@@ -1057,7 +1055,8 @@
       ],
       "camada": "esteira",
       "aceite": "O classificador distingue TRES estados (ancestral / orfao / desconhecido) e nunca diz ORFAO sobre sha que nao esta no disco. Portao novo com mordida provada por injecao: reverter para o ehAncestral de dois estados tem de dar exit 1.",
-      "detalhe": "Medido em 03/09 por nuvem-20260903T1623 com o mesmo tool em quatro clones do mesmo repo: profundo 3 orfaos, depth=186 3, depth=20 25, depth=1 32 de 32. A nuvem SEMPRE clona raso, e o §7 do PLANTAO manda auditar e integrar todo entrega/ orfao — entao o instrumento fabrica trabalho que nao existe, no lugar exato onde a rodada decide o que despachar."
+      "detalhe": "Medido em 03/09 por nuvem-20260903T1623 com o mesmo tool em quatro clones do mesmo repo: profundo 3 orfaos, depth=186 3, depth=20 25, depth=1 32 de 32. A nuvem SEMPRE clona raso, e o §7 do PLANTAO manda auditar e integrar todo entrega/ orfao — entao o instrumento fabrica trabalho que nao existe, no lugar exato onde a rodada decide o que despachar.",
+      "feito": "2026-09-03 por nuvem-20260903T1623. Portao test/ramos-mortos-veredito.js, 11 checagens, exit 0; o defeito isolado da linha 95 (achado do QA) da exit 1."
     }
   ]
 }
