@@ -281,7 +281,7 @@ medida, e as medidas estão em `ferramentas/recusadas.json`.
     faixa indicada; aqui escolheu x=1526, com 16 px de tinta. `node test/separar-encosto.js
     assets/entrada/cap4-sprite-v3.png saida.png 1500 1600 3`.
 
-### Aprovado pela triagem, ainda NÃO embutido (5)
+### Aprovado pela triagem, ainda NÃO embutido (4)
 
 Nenhum destes tem defeito conhecido — só não chegaram a entrar porque a integração parou.
 
@@ -290,13 +290,23 @@ Nenhum destes tem defeito conhecido — só não chegaram a entrar porque a inte
   recortados com folga, em magenta limpo. São OBJETOS, que é o que a §2 exige do que a mão
   alcança: a frase de abertura do capítulo já promete exatamente estes três.
 - **`cap3-obj-galao-v2`** — o galão de 20 L de AINDA AQUI, centrado e com contorno duro.
-- **`ctx-vao-cidade-africana`** — a Salvador panorâmica do marco "A cidade africana". **Atenção
-  de peso:** o prefixo do arquivo é `vao`, e `PACK_DO_CTX_PREFIXO` (`ferramentas/pacotes.js`) só
-  conhece `cap1..cap4`. Sem uma linha nova ali, `pacoteDoEndereco` devolve `null`, a imagem cai
-  na PORTA DE ENTRADA e o build avisa. Ela é de marco, não de capítulo: o pacote provável é
-  `salvador`, e a decisão tem de ser escrita na tabela, não deixada no silêncio.
 - **`trav-mar`** — o mar aberto da TRAVESSIA, sem navio e sem gente. Vai para `TRAV_B64`, que
   inteiro já viaja no pacote `travessia`.
+
+`ctx-vao-cidade-africana` SAIU desta lista em 03/09 — a nota acima estava desatualizada em dois
+pontos: (a) ela já estava embutida desde 15/08 (`ferramentas/processadas.json`), não "ainda não
+embutida"; (b) o prefixo `vao` nunca teve como ganhar linha em `PACK_DO_CTX_PREFIXO` (que só lê
+`capN`), então ela pesava **60,9 KB (62.371 bytes)** na PORTA DE ENTRADA em silêncio — achado do
+item `porta-entrada-cresce-em-silencio`, medido por nuvem-20260902T1623 e conferido por
+nuvem-20260903T0822. **Consertado nesta rodada:** `PACK_DO_CTX_EXTRA` classifica a chave por
+nome para o pacote `salvador` (é onde o CTX de SALVADOR já mora, e onde PENDENTES já a triava),
+e o build passa a REPROVAR (exit 1) se uma chave de CTX_B64 sem forma `capN` aparecer sem entrada
+nessa tabela — ver `ferramentas/pacotes.js` (`formaCtxDaChave`) e `ferramentas/construir.js`.
+**O que continua em aberto, e é do dono (§2), não desta entrega:** nenhum código exibe esta
+imagem hoje (a chave aparece uma vez só em `src/jogo.ts`, a própria definição — conferido por
+`git grep -c`). A pergunta "ela deveria ser exibida em SALVADOR, ligada a um marcador de A
+HISTÓRIA, ou sair do repositório?" não foi decidida — só a classificação técnica, que serve às
+três respostas igualmente.
 
 ### Não entrou (10), com o número em `recusadas.json`
 

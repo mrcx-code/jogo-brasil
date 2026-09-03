@@ -793,7 +793,7 @@
     },
     {
       "id": "porta-entrada-cresce-em-silencio",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "dev-jogo",
       "camada": "esteira",
       "titulo": "Arte nova sem pacote engorda a porta de entrada e o build so AVISA — 61 KB hoje",
@@ -805,7 +805,9 @@
       "detalhe": "Medido por nuvem-20260902T1623 em 02/09. O CTX_B64[vao-cidade-africana] e a UNICA chave de CTX sem prefixo capN, entao a regex do pacoteDoEndereco nao o classifica, conhecido() devolve false, e ele viaja na PORTA DE ENTRADA — 61 KB. E o CLAUDE.md §3 diz que a porta de entrada PAROU DE CRESCER com cada capitulo novo, garantia que hoje e sustentada por um AVISO que ninguem reprova. Medido tambem: a string aparece UMA vez so no src/jogo.ts (a definicao) e em nenhum aberturaImg, entao a imagem esta embutida e NENHUM codigo a exibe. O PENDENTES ja a diagnosticara na lista de aprovadas-nao-embutidas e sugeria o pacote salvador — mas ela ja esta embutida, o que aquela nota nao sabia. Cuidado antes de escolher: ela e do marco A cidade africana, e marco vive em A HISTORIA, que alguem pode abrir sem ter chegado em SALVADOR.",
       "nota": "CONFERIDO em 03/09 por nuvem-20260903T0822, so leitura, sem tocar em codigo: o numero bate — 60,9 KB (62.371 bytes de data URI) embutidos no index.html da raiz, e a chave nao aparece em pacote nenhum. E dentro de CTX_B64 ela E a unica sem prefixo capN (1 de 19). AVISO PARA QUEM PEGAR, medido no mesmo passe: NAO aplique a regex capN as outras tabelas. QUAD_B64 tem 20 chaves e as 20 sao sem prefixo (p1..p6, p07-africa, ...), e TRAV_B64 tem mar — um portao que cobre capN em todas as tabelas acusa 21 falsos positivos de uma vez. QUAD_B64 e de A HISTORIA, que abre do menu sem jogar, entao ela mora na porta de entrada de proposito. A regra que o portao precisa e por TABELA, nao global. Eu tentei derrubar a afirmacao do item e falhei: cheguei a medir 4 chaves sem prefixo, mas era erro meu — recortei 400 KB a partir de CTX_B64 e vazei para QUAD_B64.",
       "maquina": "nuvem-20260903T2022",
-      "desde": "2026-09-03T20:35:00.000Z"
+      "desde": "2026-09-03T20:35:00.000Z",
+      "concluido_em": "2026-09-03T21:40:00.000Z",
+      "resolucao": "Ramo entrega/porta-entrada-cresce-em-silencio. Duas pecas: (1) PACK_DO_CTX_EXTRA (ferramentas/pacotes.js) classifica CTX_B64[vao-cidade-africana] por NOME para o pacote salvador — decisao TECNICA, escrita na tabela, com o porque por extenso no comentario; (2) formaCtxDaChave() separa capitulo em obra (prefixo capN sem entrada ainda na tabela — AVISO, cresce sozinho) de forma desconhecida (nem capN nem PACK_DO_CTX_EXTRA — ERRO, ferramentas/construir.js derruba com exit 1). A REGRA E SO DE CTX_B64, nunca global: QUAD_B64 (20 chaves sem prefixo capN, p1..p6, p07-africa...) e TRAV_B64 (mar) nao sao tocadas, e o teste prova isso como controle perigoso (conhecido()===true nas 21, direto, sem subprocesso). Mordida provada por injecao SEM tocar pacotes.js em disco: test/porta-ctx-injecao.js muta o require.cache (mesmo padrao de test/qa-vercel-injecao.js, mas para modulo em vez de arquivo de config) e test/porta-ctx-sem-forma.js roda o build de verdade em processo separado — sem a chave: exit 1, com a chave (repositorio real): exit 0, restauracao (processo seguinte sem a injecao): exit 0. index.html da raiz: 2.576.554 -> 2.514.222 bytes (wc -c), delta -62.332 bytes (~60,9 KB), e pack-salvador.json cresceu de 454 KB/36 imagens para 515 KB/37 imagens — o mesmo numero medido, agora do lado certo da porta. PENDENTE PARA O DONO (nao decidido aqui, e2 do CLAUDE.md): nenhum codigo exibe esta imagem hoje (1 ocorrencia em src/jogo.ts, a propria definicao, conferido por git grep -c) — ela deveria ser ligada a exibicao em SALVADOR, a um marcador de A HISTORIA, ou sair do repositorio? A classificacao tecnica serve as tres respostas igualmente."
     },
     {
       "id": "regua-retrato-sem-alcancabilidade",

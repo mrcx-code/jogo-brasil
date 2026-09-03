@@ -142,10 +142,14 @@ const separado = separarPacotes(jsCru);
 // merece um build vermelho por causa de uma tabela — merece uma linha dizendo o que falta.
 {
   const fora = new Map();
+  const ctxDesconhecida = [];   // CTX_B64 sem forma de capítulo E sem entrada em PACK_DO_CTX_EXTRA
   for (const a of separado.achados) {
     if (PACOTES.conhecido(a.caminho)) continue;
     const nome = a.caminho[0] + '[' + a.caminho.slice(1).join('][') + ']';
     fora.set(nome, (fora.get(nome) || 0) + (a.fim - a.ini));
+    if (a.caminho[0] === 'CTX_B64' && PACOTES.formaCtxDaChave(a.caminho[1]) === 'desconhecida') {
+      ctxDesconhecida.push({ chave: String(a.caminho[1]), bytes: a.fim - a.ini });
+    }
   }
   if (fora.size) {
     let bytes = 0;
@@ -153,6 +157,29 @@ const separado = separarPacotes(jsCru);
     console.warn('AVISO: ' + fora.size + ' imagem(ns) de arte NOVA não estão em nenhum pacote e pesam '
       + Math.round(bytes / 1024) + ' KB na porta de entrada — acrescente a linha em ferramentas/pacotes.js:\n  '
       + [...fora.keys()].slice(0, 12).join(', '));
+  }
+  // ---- PORTA-ENTRADA-CRESCE-EM-SILENCIO (03/09) — A REGRA É POR TABELA, NÃO GLOBAL ----
+  // O aviso acima existe de propósito para não reprovar QUEM ESTÁ INTEGRANDO UM CAPÍTULO NOVO
+  // no meio de uma sessão (chave `capN-...` cujo N ainda não está em PACK_DO_CTX_PREFIXO — a
+  // tabela cresce sozinha e não há erro nenhum aí). Mas isso deixou uma classe de defeito
+  // silenciosa: `CTX_B64["vao-cidade-africana"]` não tinha prefixo `capN` NENHUM — não é
+  // "capítulo em obra", é uma chave que a tabela nunca teria como reconhecer sozinha, e ela
+  // pagou 60,9 KB (62.371 bytes) na PORTA DE ENTRADA por semanas sem uma única linha de erro.
+  // `formaCtxDaChave()` (ferramentas/pacotes.js) separa as duas causas; só a "desconhecida"
+  // derruba o build.
+  //
+  // NÃO GENERALIZE ESTA REGEX PARA AS OUTRAS TABELAS. `QUAD_B64` tem 20 chaves e as 20 são sem
+  // prefixo `capN` (`p1`..`p6`, `p07-africa`, `p08-captura`…), e `TRAV_B64` tem `mar` — as duas
+  // são de propósito assim (`conhecido()` já devolve `true` para as duas sempre, então nunca
+  // entram aqui). Um portão `capN` aplicado globalmente acusaria os 21 falsos positivos de uma
+  // vez só (medido por nuvem-20260903T0822 em 03/09). A trava é SÓ de CTX_B64.
+  if (ctxDesconhecida.length) {
+    let bytes = 0;
+    for (const f of ctxDesconhecida) bytes += f.bytes;
+    throw new Error('CTX_B64 tem ' + ctxDesconhecida.length + ' chave(s) sem forma de capítulo (`capN-...`) '
+      + 'e sem entrada em PACK_DO_CTX_EXTRA (ferramentas/pacotes.js): ' + ctxDesconhecida.map(f => f.chave).join(', ')
+      + ' — ' + Math.round(bytes / 1024) + ' KB pesariam na PORTA DE ENTRADA em silêncio, sem sequer o aviso acima '
+      + 'crescer a tabela sozinha um dia. Acrescente uma linha em PACK_DO_CTX_EXTRA apontando o pacote certo.');
   }
 }
 
