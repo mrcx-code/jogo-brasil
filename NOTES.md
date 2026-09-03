@@ -11860,3 +11860,113 @@ daqui o `git push --delete` sai **exit real 1** com HTTP 403, e a última linha 
 `censo-so-e-cobrado-no-territorio` é o mais barato e fecha o "verificado só à mão" das quatro páginas.
 
 **Nome de máquina: `nuvem-20260903T0023`.**
+
+---
+
+## Diário — 03/09, madrugada (`nuvem-20260903T0422`)
+
+Rodada agendada, sem issue com etiqueta `agente`. Três itens pegos da fila, três agentes em
+territórios disjuntos por ARQUIVO, dois QA independentes em cima deles. **Duas entregas
+integradas, uma recusada pelo QA e devolvida com conserto escrito.**
+
+### O que foi integrado
+
+**`fila-conectado-vermelho-intermitente`** — o vermelho por sorteio do CI era o **relógio do
+teste**, não o retry do produto. `page.clock.runFor('00:14')` de uma vez avança o relógio falso
+em milissegundos reais, enquanto a rejeição do `fetch` abortado pelo `AbortController` volta
+pela rede do Chromium em tempo REAL; o `setTimeout(agendarBacklog, 4 s)` só é agendado depois
+dela, e num avanço único cai fora da janela que já passou.
+
+| | vermelhos |
+|---|---|
+| `main`, carga 5 processos (autor) | 4 / 30 |
+| `main`, carga 8 processos (QA, controle próprio) | **3 / 30** |
+| entrega, carga 8 processos (QA) | **0 / 30** |
+
+O QA não acreditou no `0/30` do autor: extraiu a versão da `main` e rodou as duas sob a MESMA
+carga. **Registre sempre o PAR** — o `0/30` sozinho não prova que havia carga.
+
+**`censo-cobertura-e-propriedades`** — o censo do cartão passa a ser cobrado nas **cinco**
+superfícies (a porta entra), asserções de página 8 → 15, e os 6 mecanismos de pintura do achado
+original passam a ser pegos.
+
+### O QUE CAIU — e é mais do que o que confirmou
+
+1. **A causa escrita no item da fila caiu** (era o instrumento, não o produto).
+2. **A 4ª classe do aceite do CSP caiu ao contrário**: o item dizia que escapava no build; medido,
+   mordia no build e escapava no QA. O buraco era do outro lado.
+3. **A afirmação de assimetria do censo caiu por PIXEL, e ela sustentava o teto inteiro.** O
+   comentário jurava que a enumeração de `pinta()` estava do lado que ABSOLVE, e que esquecer um
+   mecanismo viraria reprovação barulhenta. É o contrário: `decorativoInerte = aria-hidden E
+   innerText vazio E !pinta()`, então mecanismo não escrito é **absolvido em silêncio**. Cinco
+   fugas medidas com print — `backdrop-filter` 5662 px · `border-image` sem `border-width`
+   3936 px · `::marker` 109 px · `list-style-image` 1800 px · `content:url()` 5700 px. **Os dois
+   últimos ninguém tinha nomeado**, que é exatamente o modo de falha que a frase dizia impossível.
+   Frase corrigida na `main` no mesmo push; o buraco virou item (`censo-cinco-fugas-medidas`).
+4. **O número "8 regras inertes" caiu: são 14 de 22.** Estava escrito em `ferramentas/construir.js`,
+   que vai para produção — número sem fonte dentro de arquivo publicado.
+5. **Cinco hipóteses do próprio QA caíram**, e ele as registrou: o funil NÃO afrouxa (superconjunto
+   estrito sobre 955 arquivos + 26 caminhos adversariais, 0 perdidos), o teto de 4 min sobra 2,5×
+   sob carga (78,0 → 95,8 s a loadavg 41), o teto dos geradores é inofensivo por medição (o build
+   não roda gerador: `spawnSync` só para o `tsc`), e `filter:drop-shadow`/`mask`/`clip-path`
+   pintam **zero px** numa caixa vazia — não fogem. O teto estava certo nos itens e errado no
+   argumento.
+6. **Um agente corrigiu um número contra si mesmo**: escrevera 27,4 s para o `qa-censo-passo2` e o
+   medido é **77,2 s**. Com o teto de 2 min que ele mesmo pusera, a folga seria 1,55× — e timeout
+   de portão não vira "lento", vira vermelho que desfaz merge. Subiu para 4 min.
+7. **Um QA achou defeito no próprio instrumento antes de relatar**: comparando o print INTEIRO
+   1200×630, dois prints com **CSS nenhum** entre eles diferiam em **793 px** (o mapa do TERRITÓRIO
+   anima sozinho). Com esse piso ele teria relatado **13 fugas falsas**, o controle inclusive.
+
+### O que NÃO foi integrado, e por quê
+
+**`csp-tabela-de-rotas-e-conjunto`** — entrega boa, veredito do QA **NÃO INTEGRAR**, e o motivo é
+sério: `test/qa-vercel-quadro.js` muta o `vercel.json` em disco e o gancho de restauração **não
+sobrevive a sinal**. Medido, exit real: SIGTERM (alvo 143) e SIGKILL (alvo 137) deixam
+`script-src 'unsafe-inline' https://exfil.example.com` **no arquivo que a Vercel publica**, numa
+`main` que publica sozinha no push. E o `process.on('SIGINT')` é **código morto** — `spawnSync`
+bloqueia o laço de eventos e o sinal nunca chega (medido 2×, exit 0 com as 14 linhas impressas).
+
+**Não há exposição hoje**: o portão não está pendurado em lugar nenhum e o ramo não foi mergeado.
+O ramo `entrega/csp-tabela-de-rotas-e-conjunto` (`947a8eb`) está no servidor com os quatro
+consertos escritos no `aceite` do item, que voltou a `livre`. **Não recomece do zero.**
+
+### O que a minha própria linha mediu
+
+- **Os 21 marcadores `voo/` do servidor são 21/21 mortos** (17 apontam para item concluído, 3 não
+  têm item, 0 vivos), e a nuvem **não pode apagar**: `git push --delete` sai **exit 1 / HTTP 403**
+  imprimindo `Everything up-to-date` como última linha. Lista para apagar no `RECADOS.md`; virou
+  o item `marcador-voo-so-acumula`. Acrescentei 3 marcadores nesta rodada, de propósito e por
+  consistência de protocolo, e **me pus na conta** — é essa escolha que o item põe em mesa.
+- **Varredura de entrega órfã: limpa.** Testei os 25 `entrega/*` por ANCESTRALIDADE, não por nome.
+  Os 3 não-ancestrais estão **atrás** da main (~17 mil linhas removidas no diff), não à frente.
+  Nada preso no servidor.
+- Confirmei sozinho o `porta-entrada-cresce-em-silencio`: **62.371 bytes (60,9 KB)**, 1 ocorrência
+  só, nenhum código exibe. Deixei o item FORA da rodada de propósito — ele mexe em
+  `ferramentas/construir.js`, o mesmo arquivo do item de CSP, e duas entregas no mesmo arquivo é
+  colisão marcada para o funil.
+
+### O que eu errei
+
+- **Grepei uma linha base64 crua** e despejei ~20 mil tokens de contexto — violação direta do
+  tokenmaxxing (`PLANTAO` §3.2), que manda `grep` sem base64. A medição valeu; o método não.
+- **`git add -A` num commit de documentação** levou junto dois PNGs de smoke regenerados
+  (`test/B1-*.png`, `test/T1-*.png`). Inofensivo — são artefatos por rodada — mas é ruído meu num
+  commit que não era disso.
+
+### Dúvidas que ficaram
+
+- A precedência `last-match-wins` do `headers` da Vercel continua **inferida de comportamento
+  medido**, sem documento. Toda a conta de 14 regras inertes depende dela.
+- `~43%` dos elementos visíveis no cartão do TERRITÓRIO estão **fora da jurisdição do passo 2**
+  (35 visíveis contra universo de 20 dentro dos donos). Medido pelo QA, não endereçado.
+- Nenhum portão olha `rewrites`/`redirects`/cabeçalho não-CSP do `vercel.json`. Um `rewrites` com
+  destino externo serviria conteúdo de terceiro no domínio do dono **sem tocar CSP nenhuma**.
+  É gap, não achado — ninguém mediu exploração.
+
+### Próximo passo
+
+`csp-tabela-de-rotas-e-conjunto` pelo ramo que já existe (os 4 consertos), depois
+`censo-cinco-fugas-medidas` trazendo o instrumento do QA em vez de reescrevê-lo.
+
+**Nome de máquina desta rodada: `nuvem-20260903T0422`.**
