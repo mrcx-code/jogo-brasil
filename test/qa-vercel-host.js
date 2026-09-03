@@ -1,4 +1,5 @@
 // QA — O HOST DA MEDIÇÃO NO `vercel.json`, COBRADO PELO JSON E NÃO PELO TEXTO (02/09)
+//       ampliado em 03/09 (item `csp-tabela-de-rotas-e-conjunto`) com o que é cobrável SEM tabela.
 //
 //   node test/qa-vercel-host.js
 //   QA_VERCEL_DEFEITO=esquema node test/qa-vercel-host.js     -> tem de sair 1
@@ -33,19 +34,61 @@
 // `ferramentas/cartao-censo.js` faz para o censo: enumerar o que é PROIBIDO perde para uma
 // renomeação; enumerar o que é PERMITIDO, não.
 //
-// O QUE ESTE ARQUIVO COBRA, e cada linha diz por quê:
-//   1. toda regra do `vercel.json` cuja CSP declara `connect-src` declara EXATAMENTE `MEDIDA_HOST`
-//      — nem outro esquema, nem outra região, nem host a mais;
-//   2. o NÚMERO de regras com `connect-src` é o número de regras da família de seção (as que têm
-//      `default-src 'none'` e `img-src`), para uma rota não perder a contagem em silêncio;
-//   3. nenhuma menção a "posthog" sobra em lugar nenhum do arquivo fora de um `connect-src` já
-//      conferido — pega o host escrito numa diretiva errada (`script-src`, por exemplo).
+// ============================================================================
+// O QUE ESTE ARQUIVO PASSOU A COBRAR EM 03/09, E POR QUE ELE NÃO GANHOU A TABELA
+//
+// O `ferramentas/construir.js` ganhou no mesmo dia um QUADRO_DE_ROTAS: as 22 regras por nome, na
+// ordem, cada uma com a CSP inteira esperada. Copiar esse quadro para cá seria repetir o erro que
+// a auditoria de 03/09 já apontou uma vez — dois corpos transliterados não são duas leituras, e
+// duas leituras que compartilham a mesma tabela compartilham o mesmo erro NA tabela. Então a
+// divisão é de NATUREZA, e é ela que faz este arquivo continuar valendo alguma coisa:
+//
+//   · o BUILD cobra o que só uma tabela sabe — QUE rota tem QUE política (troca de `source`,
+//     rota reordenada, diretiva a mais ou a menos numa rota específica);
+//   · este arquivo cobra o que é verdade SEM tabela nenhuma, e por isso sobrevive a um erro
+//     dentro do quadro.
+//
+// As cinco cobranças table-free, e cada uma existe por uma classe medida com exit code real:
+//   1. toda regra cuja CSP declara `connect-src` declara EXATAMENTE `MEDIDA_HOST`;
+//   2. regra da família de seção (`default-src 'none'` + `img-src`, isto é, página de leitura, que
+//      manda evento) sem `connect-src` perdeu a contagem em silêncio;
+//   3. NENHUM `source` aparece duas vezes. Regra duplicada é sempre erro: a segunda sobrescreve a
+//      primeira em silêncio, e o arquivo passa a dizer duas coisas sobre a mesma rota. Medido em
+//      03/09, com a regra `/historia` duplicada: BUILD exit 0 e este arquivo exit 0, imprimindo
+//      "14 rota(s) … todas == MEDIDA_HOST" — número que ninguém comparava com nada;
+//   4. TODO TOKEN de TODA diretiva de TODA CSP do arquivo está na lista do que é PERMITIDO:
+//      `'none'`, `'self'`, `'unsafe-inline'`, `data:`, `blob:` e o `MEDIDA_HOST` — este último só
+//      dentro de `connect-src`. É esta que pega o relaxamento em OUTRA diretiva sem saber o nome
+//      do host estranho: medido em 03/09, `script-src 'unsafe-inline' https://exfil.example.com`
+//      na regra `/historia` dava BUILD exit 0 e este arquivo exit 0, porque a cobrança antiga só
+//      procurava a string "posthog". Enumerar o PERMITIDO não tem esse buraco.
+//
+//      O QUE ESTA LISTA PEGA E O QUE NÃO PEGA, e o parágrafo anterior mentia sobre isso. Estava
+//      escrito aqui que "acrescentar `'self'` a uma página exige mexer aqui e escrever por quê".
+//      É FALSO: `'self'` já está em TOKENS_PERMITIDOS, então acrescentá-lo a uma página passa por
+//      este arquivo sem ruído nenhum. Medido em 03/09, com o desvio de `test/qa-vercel-injecao.js`
+//      e exit code real do terminal:
+//        `img-src data: 'self'` na regra `/historia`      -> este arquivo **exit 0**
+//        `script-src 'unsafe-inline' 'unsafe-eval'` idem   -> este arquivo **exit 1**
+//          ("token estranho na CSP de "/historia", diretiva `script-src`: "'unsafe-eval'"")
+//      A lista pega o token que NÃO está nela — host novo, `'unsafe-eval'`, `'strict-dynamic'`,
+//      nonce, hash. Ela NÃO pega a redistribuição dos cinco tokens que já são permitidos entre as
+//      diretivas: `'self'` migrando para `script-src`, `blob:` saindo de ONDE FOI e aparecendo no
+//      GLOSSÁRIO. Quem pega ISSO é o QUADRO_DE_ROTAS do build, que compara diretiva por diretiva
+//      contra a política esperada de cada rota — e é por isso que os dois portões existem. Comentário
+//      falso num portão é pior que comentário nenhum: ele faz a próxima pessoa confiar na cobertura
+//      errada;
+//   5. nenhuma CSP repete diretiva, e nenhum valor tem curinga. A repetida importa porque quem
+//      monta um objeto ao partir a CSP fica com a ÚLTIMA e o navegador (CSP3) aplica a PRIMEIRA —
+//      quem cobra isso no arquivo inteiro é `test/qa-vercel-diretiva-repetida.js`; aqui a mesma
+//      cobrança existe para que a asserção 4 seja SÃ, e não para substituí-lo.
+//
+// O QUE ESTE ARQUIVO NÃO VÊ, e está escrito para ninguém confundir verde com cobertura: ele NÃO vê
+// duas rotas trocando de política entre si (o conjunto de tokens do arquivo não muda), nem rota
+// reordenada. Isso é do quadro do build, e a prova de mordida dele é `test/qa-vercel-quadro.js`.
 //
 // PROVA DE MORDIDA (EQUIPE.md 2.8): `QA_VERCEL_DEFEITO=<modo>` aplica a injeção EM MEMÓRIA e este
-// arquivo tem de sair 1. Os cinco modos são os cinco da tabela acima; os cinco foram vistos
-// saindo 1, e sem a variável o arquivo sai 0 contra o `vercel.json` de hoje (13 ocorrências).
-// Ele é verde na `main` limpa também — a `main` e a entrega têm o MESMO `vercel.json` (0 linhas
-// de diff), então isto não é portão que nasce vermelho.
+// arquivo tem de sair 1. Sem a variável ele sai 0 contra o `vercel.json` de hoje.
 const fs = require('fs');
 const path = require('path');
 
@@ -61,11 +104,16 @@ const TROCAS = {
   digito: 'https://us.i.psthog.com',
   unicode: 'https://eu.i.\\u0070osthog.com',
 };
-
-let falhas = 0;
-function ok(cond, msg) { console.log((cond ? '  ok  ' : '  X   ') + msg); if (!cond) falhas++; return !!cond; }
+const MODOS = ['regiao', 'esquema', 'digito', 'unicode', 'sumir', 'duplicata', 'exfil', 'curinga', 'repetida'];
 
 let texto = fs.readFileSync(ARQ, 'utf8');
+function ondeMede(v) {
+  // a 2ª ocorrência do host é a regra `/historia`, sem barra final: nenhuma rota publicada a
+  // resolve, então ela é o ponto cego do `test/csp-paginas.js`.
+  return v.headers.findIndex(function (r) {
+    return String(r.source) === '/historia';
+  });
+}
 if (DEFEITO) {
   // A INJEÇÃO ATACA A SEGUNDA OCORRÊNCIA (a regra `/historia`, sem barra final) DE PROPÓSITO:
   // nenhuma rota publicada a resolve, então ela é o ponto cego do `test/csp-paginas.js` e o único
@@ -77,38 +125,71 @@ if (DEFEITO) {
   } else if (TROCAS[DEFEITO]) {
     texto = texto.replace(new RegExp(HOST.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
       function (m) { n++; return n === 1 ? TROCAS[DEFEITO] : m; });
+  } else if (DEFEITO === 'duplicata' || DEFEITO === 'exfil' || DEFEITO === 'curinga' || DEFEITO === 'repetida') {
+    // estes três mexem na ESTRUTURA, então é mais honesto mexer no objeto e reserializar
+    const v = JSON.parse(texto);
+    const i = ondeMede(v);
+    if (i < 0) { console.error('a regra /historia sumiu do vercel.json — a injeção não tem onde morder'); process.exit(2); }
+    if (DEFEITO === 'duplicata') {
+      v.headers.splice(i + 1, 0, JSON.parse(JSON.stringify(v.headers[i])));
+    } else {
+      const h = v.headers[i].headers.find(function (x) { return x.key === 'Content-Security-Policy'; });
+      if (DEFEITO === 'exfil') h.value = h.value.replace("script-src 'unsafe-inline'", "script-src 'unsafe-inline' https://exfil.example.com");
+      if (DEFEITO === 'curinga') h.value = h.value.replace('img-src data:', 'img-src data: https://*.exemplo.com');
+      // a repetida usa o MESMO valor de propósito: assim a comparação de valor não tem o que
+      // reprovar e sobra só a cobrança de FORMA, que é a que está sendo provada aqui.
+      if (DEFEITO === 'repetida') h.value = h.value.replace("script-src 'unsafe-inline';", "script-src 'unsafe-inline'; script-src 'unsafe-inline';");
+    }
+    texto = JSON.stringify(v, null, 2) + '\n';
   } else {
-    console.error('QA_VERCEL_DEFEITO desconhecido: ' + DEFEITO + ' (há: regiao, esquema, digito, unicode, sumir)');
+    console.error('QA_VERCEL_DEFEITO desconhecido: ' + DEFEITO + ' (há: ' + MODOS.join(', ') + ')');
     process.exit(2);
   }
-  console.log('*** DEFEITO INJETADO EM MEMÓRIA: ' + DEFEITO + ' na 2ª ocorrência (regra /historia) ***');
+  console.log('*** DEFEITO INJETADO EM MEMÓRIA: ' + DEFEITO + ' na regra /historia ***');
 }
+
+let falhas = 0;
+function ok(cond, msg) { console.log((cond ? '  ok  ' : '  X   ') + msg); if (!cond) falhas++; return !!cond; }
 
 const vercel = JSON.parse(texto);   // se não for JSON válido, falhar aqui já é o resultado certo
 const regras = vercel.headers || [];
 ok(regras.length > 0, 'vercel.json tem ' + regras.length + ' regra(s) de cabeçalho');
 
+// O parser devolve as diretivas E as que apareceram mais de uma vez: quem monta objeto fica com a
+// ÚLTIMA e o navegador aplica a PRIMEIRA, então sem esta lista a asserção 4 seria cega para um
+// token estranho escondido numa diretiva repetida.
 function partir(csp) {
   const d = {};
+  const repetidas = [];
   String(csp).split(';').forEach(function (p) {
     const t = p.trim(); if (!t) return;
     const i = t.indexOf(' ');
-    d[i < 0 ? t : t.slice(0, i)] = i < 0 ? '' : t.slice(i + 1).trim();
+    const nome = i < 0 ? t : t.slice(0, i);
+    if (Object.prototype.hasOwnProperty.call(d, nome) && repetidas.indexOf(nome) < 0) repetidas.push(nome);
+    d[nome] = i < 0 ? '' : t.slice(i + 1).trim();
   });
-  return d;
+  return { diretivas: d, repetidas: repetidas };
 }
 
+// 4. O QUE É PERMITIDO APARECER numa CSP deste arquivo, por extenso. Acrescentar um token aqui é a
+//    forma de dizer, no commit, o que passou a ser alcançável — e nada além disto passa.
+const TOKENS_PERMITIDOS = ["'none'", "'self'", "'unsafe-inline'", 'data:', 'blob:'];
+
 let comConnect = 0, familiaSecao = 0;
+const fontes = [];
 for (const r of regras) {
+  const fonte = String(r.source || '');
+  fontes.push(fonte);
   const cab = {};
   for (const h of (r.headers || [])) cab[h.key] = h.value;
   const csp = cab['Content-Security-Policy'];
   if (!csp) continue;
-  const d = partir(csp);
+  const lido = partir(csp);
+  const d = lido.diretivas;
   // 1. o valor do connect-src, byte a byte, DEPOIS do JSON.parse
   if (Object.prototype.hasOwnProperty.call(d, 'connect-src')) {
     comConnect++;
-    ok(d['connect-src'] === HOST, 'connect-src de "' + r.source + '" == MEDIDA_HOST'
+    ok(d['connect-src'] === HOST, 'connect-src de "' + fonte + '" == MEDIDA_HOST'
       + (d['connect-src'] === HOST ? '' : ' — está "' + d['connect-src'] + '" e MEDIDA_HOST é "' + HOST + '"'));
   }
   // 2. a família de seção: quem tem `default-src 'none'` E `img-src` é página de leitura, e
@@ -116,15 +197,38 @@ for (const r of regras) {
   if (d['default-src'] === "'none'" && Object.prototype.hasOwnProperty.call(d, 'img-src')) {
     familiaSecao++;
     ok(Object.prototype.hasOwnProperty.call(d, 'connect-src'),
-      '"' + r.source + '" é da família de seção e declara connect-src'
+      '"' + fonte + '" é da família de seção e declara connect-src'
       + (Object.prototype.hasOwnProperty.call(d, 'connect-src') ? '' : ' — SUMIU: esta rota perdeu a contagem em silêncio'));
+  }
+  // 5. nenhuma diretiva repetida (a asserção 4 lê a última; o navegador aplica a primeira)
+  ok(lido.repetidas.length === 0, 'a CSP de "' + fonte + '" não repete diretiva'
+    + (lido.repetidas.length ? ' — repete ' + JSON.stringify(lido.repetidas) + ', e o navegador (CSP3)'
+      + ' aplica a PRIMEIRA: a segunda é invisível para quem monta um objeto' : ''));
+  // 4. todo token de toda diretiva está na lista do que é PERMITIDO
+  for (const nome of Object.keys(d)) {
+    const tokens = String(d[nome]).split(/\s+/).filter(function (t) { return t.length > 0; });
+    for (const t of tokens) {
+      const permitido = TOKENS_PERMITIDOS.indexOf(t) >= 0 || (t === HOST && nome === 'connect-src');
+      if (!permitido) {
+        ok(false, 'token estranho na CSP de "' + fonte + '", diretiva `' + nome + '`: "' + t + '"'
+          + ' — o permitido é ' + TOKENS_PERMITIDOS.join(' ') + ', mais o MEDIDA_HOST dentro de'
+          + ' connect-src. Abrir a CSP é decisão que se escreve no commit (CLAUDE.md §3)');
+      }
+    }
   }
 }
 ok(comConnect === familiaSecao && comConnect > 0,
   'toda rota com connect-src é da família de seção e vice-versa — ' + comConnect + ' de ' + familiaSecao);
 
-// 3. nenhuma menção solta ao host fora de um connect-src conferido (host numa diretiva errada,
-//    host num campo que não é cabeçalho, host num comentário-que-não-existe-em-JSON…)
+// 3. nenhum `source` duas vezes. Regra duplicada é sempre erro: a segunda sobrescreve a primeira e
+//    o arquivo passa a dizer duas coisas sobre a mesma rota, sem que contagem nenhuma mude.
+const repetidos = fontes.filter(function (s, i) { return fontes.indexOf(s) !== i; })
+  .filter(function (s, i, a) { return a.indexOf(s) === i; });
+ok(repetidos.length === 0, 'nenhum `source` aparece duas vezes no vercel.json'
+  + (repetidos.length ? ' — repetido(s): ' + JSON.stringify(repetidos) : ''));
+
+// nenhuma menção solta ao host fora de um connect-src conferido (host numa diretiva errada,
+// host num campo que não é cabeçalho, host num comentário-que-não-existe-em-JSON…)
 const mencoes = (texto.match(/posthog/gi) || []).length;
 ok(mencoes === comConnect, 'a palavra "posthog" aparece ' + mencoes + ' vez(es) no arquivo e há '
   + comConnect + ' connect-src conferido(s) — sobra nenhuma'

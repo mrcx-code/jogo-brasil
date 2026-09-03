@@ -639,44 +639,148 @@ function conferirCspDashboard(origemHtml) {
 // MEDIDA_HOST", porque a contagem não era cobrada contra nada. Quatro de cinco passavam.
 //
 // A CORREÇÃO É COBRAR O JSON, NÃO O TEXTO. Depois do `JSON.parse` o escape unicode já virou letra,
-// o esquema está inteiro dentro do valor, e o `connect-src` de cada regra é uma string que se
-// compara com `MEDIDA_HOST` byte a byte — sem regex e sem lista de grafias possíveis. Quatro
-// cobranças, e cada uma existe por uma classe de erro:
-//   1. toda regra que declara `connect-src` declara EXATAMENTE `MEDIDA_HOST` — nem outro esquema,
-//      nem outra região, nem um host a mais na lista;
-//   2. regra da FAMÍLIA DE SEÇÃO (a que tem `default-src 'none'` e `img-src`, isto é, página de
-//      leitura, que manda evento) sem `connect-src` é rota que perdeu a contagem em silêncio;
-//   3. a TABELA PREGADA abaixo: as rotas que medem são estas treze, por nome. É ela que pega a
-//      regra INTEIRA sumindo do arquivo — caso em que as contagens relativas continuam batendo
-//      entre si e nada mais reprova. Mexer nela é a forma de dizer, no commit, que rota passou a
-//      medir; é deliberadamente chata de mudar por acidente, como a CSP_ESPERADA acima;
-//   4. nenhuma menção a "posthog" sobra fora de um `connect-src` já conferido — pega o host
-//      escrito numa diretiva errada (`script-src`), num campo que não é cabeçalho, ou numa grafia
-//      que só o parse desfaz. Consequência aceita e de propósito: o host tem de estar escrito por
-//      extenso no arquivo, sem escape, mesmo que o valor parseado esteja certo.
-// O controle que prova que isto morde é `test/qa-vercel-host.js` (`QA_VERCEL_DEFEITO=<modo>`),
-// escrito pelo QA em 02/09.
+// o esquema está inteiro dentro do valor, e cada diretiva de cada regra é uma string que se
+// compara byte a byte — sem regex e sem lista de grafias possíveis.
+//
+// O QUE MUDOU NA SEGUNDA VOLTA, 03/09 (item `csp-tabela-de-rotas-e-conjunto`), e as três razões
+// foram MEDIDAS com exit code real ANTES de qualquer conserto, injetando em disco e restaurando:
+//   · `/territorio` e `/glossario` TROCANDO de `source` (o território perde o `blob:` que faz a
+//     placa 3D desenhar; o glossário ganha CSP mais frouxa que a dele) -> BUILD **exit 0**;
+//   · a regra `/historia` DUPLICADA -> BUILD **exit 0**, e ainda imprimindo "14 rota(s) com
+//     connect-src … (tabela ROTAS_QUE_MEDEM, 13 rotas)" — o mesmo número impresso e não comparado
+//     que esta cobrança tinha acabado de curar do lado do texto, sobrevivendo dentro do conserto;
+//   · `script-src 'unsafe-inline' https://exfil.example.com` na regra `/historia` -> BUILD
+//     **exit 0** e `node test/qa-vercel-host.js` **exit 0**.
+// As três têm a mesma causa: a cobrança olhava UMA diretiva (`connect-src`) e comparava a lista de
+// rotas como CONJUNTO. Conjunto não vê troca (o conjunto é o mesmo) nem duplicata (idem), e uma
+// diretiva não vê as outras sete. E as regras que nenhuma rota publicada decide não tinham portão
+// nenhum sobre as outras diretivas.
+//
+// QUANTAS SÃO ESSAS REGRAS: **14 de 22**, e o número aqui esteve ERRADO. A primeira volta deste
+// bloco escreveu "oito" — contando só a família de seção (`/historia`, `/glossario`,
+// `/de-onde-vem`, `/territorio`, nas formas sem barra e com barra) e esquecendo `/mesa`, `/jogo` e
+// `/dashboard`, que sofrem exatamente a mesma coisa, também nas duas formas. O QA de 03/09 pegou.
+// Recontado com o resolvedor last-match-wins do `test/csp-paginas.js` contra as 8 páginas
+// enumeradas de `dist/` (`/`, `/dashboard/`, `/de-onde-vem/`, `/glossario/`, `/historia/`,
+// `/jogo/`, `/mesa/`, `/territorio/`), regra a regra:
+//   · 7 formas SEM barra final (`/historia`, `/glossario`, `/de-onde-vem`, `/territorio`,
+//     `/mesa`, `/jogo`, `/dashboard`) não casam com rota publicada NENHUMA;
+//   · 7 formas COM barra final casam, mas a forma `(.*)` vem depois e sobrescreve por
+//     last-match-wins;
+//   · decidem cabeçalho de verdade 8: `/` e as sete `(.*)`.
+// Só `/` é literal e decisiva ao mesmo tempo. A conta velha subestimava o problema em 6 regras —
+// e era do lado errado: menos cobertura do que se pensava, não mais.
+//
+// E O NÚMERO NÃO DEPENDE DA DÚVIDA DE PRECEDÊNCIA (a de baixo). Recontado pela hipótese
+// CONTRÁRIA, primeira-que-casa-vence, dá **14 de 22 também** — o que muda é QUAIS 14: pela última
+// vencem as 7 formas `(.*)`, pela primeira vencem as 7 com barra final. Estável nas duas: `/`
+// decide, e as 7 formas SEM barra final não casam com página publicada nenhuma. Por isso o
+// `test/qa-vercel-quadro.js` conta pelas DUAS ordens e exige 14 nas duas, em vez de escolher uma
+// hipótese e envelhecer com ela.
+//
+// O QUE COBRA AGORA, e cada item existe por uma classe medida:
+//   1. o QUADRO_DE_ROTAS abaixo é a lista de `source` do arquivo, NA ORDEM e com repetição —
+//      multiconjunto, não conjunto. Pega rota trocada, duplicada, apagada, nova e reordenada. A
+//      ORDEM conta porque a Vercel aplica a ÚLTIMA regra que casa: mudar a ordem muda qual regra
+//      decide o cabeçalho servido;
+//   2. a CSP de cada rota é comparada com a do quadro DIRETIVA POR DIRETIVA, nos dois sentidos
+//      (diretiva a mais reprova tanto quanto diretiva a menos) — é a mesma disciplina da
+//      `CSP_ESPERADA` do <head> e da `CSP_ESPERADA_DASHBOARD`, agora estendida às 22 regras;
+//   3. nenhum CURINGA em valor nenhum (CLAUDE.md §3: por extenso, com esquema, `*` nunca);
+//   4. nenhuma CSP repete diretiva. Isto não é zelo: o parser aqui monta um objeto e fica com a
+//      ÚLTIMA ocorrência, enquanto o navegador (CSP3) ignora a repetida e aplica a PRIMEIRA — sem
+//      esta linha, uma segunda `script-src` frouxa escondida antes da conferida passaria pela
+//      comparação acima. Quem cobra isso no arquivo inteiro é `test/qa-vercel-diretiva-repetida.js`;
+//      aqui a mesma cobrança existe para que a comparação de forma inteira seja SÃ, não para
+//      substituí-lo;
+//   5. os DOIS números impressos são comparados ANTES de serem impressos: o de regras (contra o
+//      tamanho do quadro, pelo item 1) e o de rotas que medem (contra `ROTAS_QUE_MEDEM`, que é
+//      DERIVADO do quadro — quem declara `connect-src` mede);
+//   6. nenhuma menção a "posthog" sobra no texto fora de uma rota que o quadro diz que mede — e a
+//      comparação passou a ser contra o QUADRO, não contra uma contagem tirada do mesmo arquivo.
+//      Era essa a brecha da duplicata: 14 menções == 14 rotas conferidas fecha consigo mesma.
+//      Consequência aceita e de propósito: o host tem de estar escrito por extenso, sem escape.
+// O `connect-src` do quadro sai de `MEDIDA_HOST`, nunca de um literal — é o que mantém a promessa
+// de fonte única: nenhum dos treze literais do `vercel.json` pode divergir da constante em silêncio.
+//
+// NADA PASSOU A SER PERMITIDO. O quadro é a transcrição do `vercel.json` que já estava no ar
+// (0 linha de diff nele); o que mudou é que agora nenhuma diretiva de nenhuma das 22 regras pode
+// mudar sem esta tabela mudar junto, no mesmo commit.
+//
+// A PROVA DE MORDIDA é `test/qa-vercel-quadro.js`: ele injeta cada classe NO ARQUIVO, roda ESTE
+// build, lê o exit code de verdade e restaura. Asserção sem controle é decoração (EQUIPE.md 2.8).
+// O controle anterior, `test/qa-vercel-host.js` (`QA_VERCEL_DEFEITO=<modo>`), continua e continua
+// no CI: ele lê o mesmo arquivo SEM o quadro, então o que ele cobra sobrevive a um erro no quadro.
 //
 // AQUI ESTAVA ESCRITO que ele era mantido como implementação INDEPENDENTE desta, e que "duas
 // leituras do mesmo arquivo que têm de concordar valem mais que uma função chamada de dois
 // lugares". A frase CAIU na auditoria de 03/09, e a correção fica no lugar da promessa: o QA
-// canonizou os dois corpos e comparou — o parser de CSP dos dois arquivos é IDÊNTICO token a
-// token, módulo nome de identificador e estilo de aspas. É transliteração, não segunda leitura.
-// Duas leituras que compartilham o parser compartilham o PONTO CEGO, e o ponto cego existe e foi
-// medido: os dois montam um objeto ao partir a CSP e leem a ÚLTIMA diretiva, enquanto o navegador
-// (CSP3) ignora a repetida e aplica a PRIMEIRA — medido em Chromium, 1ª passou e 2ª bloqueada.
-// Quem fecha isso é `test/qa-vercel-diretiva-repetida.js`, que cobra FORMA (nenhuma CSP repete
-// diretiva) em vez de valor, e por isso não herda o mesmo cego.
-const ROTAS_QUE_MEDEM = [
-  "/",                                                      // a porta
-  "/historia", "/historia/", "/historia/(.*)",              // A HISTÓRIA
-  "/glossario", "/glossario/", "/glossario/(.*)",           // o GLOSSÁRIO
-  "/de-onde-vem", "/de-onde-vem/", "/de-onde-vem/(.*)",     // DE ONDE VEM
-  "/territorio", "/territorio/", "/territorio/(.*)",        // ONDE FOI
-  // /mesa, /jogo e /dashboard NÃO entram, e a ausência é a regra: a CSP delas não tem
-  // `connect-src` nenhum (a do jogo mora no <meta> do próprio arquivo e é sagrada; a da mesa é um
-  // coto de redirecionamento; a do dashboard é só moldura, `frame-ancestors`).
+// canonizou os dois corpos e comparou — o parser de CSP dos dois arquivos era IDÊNTICO token a
+// token, módulo nome de identificador e estilo de aspas. Era transliteração, não segunda leitura.
+//
+// DÚVIDA HERDADA E NÃO RESOLVIDA (do QA em 03/09; procurada de novo no mesmo dia e NÃO fechada):
+// não há documento da Vercel que GARANTA a precedência do array `headers` quando duas regras casam
+// com a mesma rota e trazem a MESMA chave de cabeçalho. O comportamento é INFERIDO DE MEDIÇÃO. O
+// que a documentação alcançável desta máquina afirma como "a primeira que casa vence" é a regra de
+// ROTEAMENTO (rewrite/redirect/status), que é outra coisa — citá-la aqui seria confirmar o que não
+// se leu. Ficam TRÊS hipóteses vivas, nenhuma confirmada em documento: (a) a última vence, que é o
+// que o `test/csp-paginas.js` resolve e o que foi medido; (b) a primeira vence; (c) as duas viajam
+// e o navegador aplica a INTERSECÇÃO das políticas — e se for (c), "inerte" é nome errado e a
+// regra hoje ignorada é ENFORÇADA junto. Nas três, o barato é o mesmo e é o que o quadro faz:
+// cobrar as 22 como se qualquer uma pudesse decidir. **Escrito como inferido, não como sabido** —
+// e quem for fechar isto fecha com documento ou com medição contra a produção, não com busca.
+const CSP_SECAO_VERCEL = {
+  // A PORTA, A HISTÓRIA, o GLOSSÁRIO, DE ONDE VEM: páginas de leitura, geradas por
+  // `ferramentas/gerar-*.js`, com script e estilo INLINE e toda imagem em `data:`.
+  "default-src": "'none'",
+  "script-src": "'unsafe-inline'",
+  "style-src": "'unsafe-inline'",
+  "img-src": "data:",
+  "connect-src": MEDIDA_HOST,   // a contagem anônima do §3, e sai da constante, não de um literal
+  "base-uri": "'none'",
+  "form-action": "'none'",
+  "frame-ancestors": "'none'",  // clickjacking; SÓ funciona por cabeçalho, nunca por <meta>
+};
+const CSP_TERRITORIO_VERCEL = Object.assign({}, CSP_SECAO_VERCEL, {
+  // ONDE FOI monta os dois módulos do three.js em tempo de execução e os importa por `blob:`.
+  // Dar `blob:` às outras quatro seria fazer da CSP única a mais frouxa das cinco.
+  "script-src": "'unsafe-inline' blob:",
+});
+const CSP_MESA_VERCEL = {
+  // /mesa/ é um coto de três linhas que redireciona para /dashboard/ por <meta refresh>.
+  "default-src": "'none'", "base-uri": "'none'", "form-action": "'none'", "frame-ancestors": "'none'",
+};
+const CSP_SO_MOLDURA_VERCEL = {
+  // /jogo/ e /dashboard/ já carregam a CSP DELES no <head> (a do jogo é sagrada, §3). O cabeçalho
+  // acrescenta só a diretiva que o <meta> não consegue expressar. Duas políticas valem por
+  // INTERSECÇÃO, então isto não restringe script, style, img nem connect de nenhuma das duas.
+  "frame-ancestors": "'none'",
+};
+// A LISTA É NA ORDEM DO ARQUIVO e com repetição — é multiconjunto, e mexer nela é a forma de
+// dizer, no commit, que a CSP de uma rota mudou. Deliberadamente chata de mudar por acidente.
+const QUADRO_DE_ROTAS = [
+  ["/", CSP_SECAO_VERCEL],                                                              // a porta
+  ["/historia", CSP_SECAO_VERCEL], ["/historia/", CSP_SECAO_VERCEL],
+  ["/historia/(.*)", CSP_SECAO_VERCEL],                                                 // A HISTÓRIA
+  ["/glossario", CSP_SECAO_VERCEL], ["/glossario/", CSP_SECAO_VERCEL],
+  ["/glossario/(.*)", CSP_SECAO_VERCEL],                                                // o GLOSSÁRIO
+  ["/de-onde-vem", CSP_SECAO_VERCEL], ["/de-onde-vem/", CSP_SECAO_VERCEL],
+  ["/de-onde-vem/(.*)", CSP_SECAO_VERCEL],                                              // DE ONDE VEM
+  ["/territorio", CSP_TERRITORIO_VERCEL], ["/territorio/", CSP_TERRITORIO_VERCEL],
+  ["/territorio/(.*)", CSP_TERRITORIO_VERCEL],                                          // ONDE FOI
+  ["/mesa", CSP_MESA_VERCEL], ["/mesa/", CSP_MESA_VERCEL], ["/mesa/(.*)", CSP_MESA_VERCEL],
+  ["/jogo", CSP_SO_MOLDURA_VERCEL], ["/jogo/", CSP_SO_MOLDURA_VERCEL],
+  ["/jogo/(.*)", CSP_SO_MOLDURA_VERCEL],
+  ["/dashboard", CSP_SO_MOLDURA_VERCEL], ["/dashboard/", CSP_SO_MOLDURA_VERCEL],
+  ["/dashboard/(.*)", CSP_SO_MOLDURA_VERCEL],
 ];
+// QUEM MEDE É QUEM DECLARA `connect-src` NO QUADRO — derivado, nunca digitado duas vezes. /mesa,
+// /jogo e /dashboard ficam de fora, e a ausência é a regra: a CSP delas não tem `connect-src`
+// nenhum (a do jogo mora no <meta> do próprio arquivo e é sagrada; a da mesa é um coto de
+// redirecionamento; a do dashboard é só moldura, `frame-ancestors`).
+const ROTAS_QUE_MEDEM = QUADRO_DE_ROTAS
+  .filter(function (par) { return Object.prototype.hasOwnProperty.call(par[1], "connect-src"); })
+  .map(function (par) { return par[0]; });
 function conferirVercelJson() {
   const caminho = p("vercel.json");
   if (!fs.existsSync(caminho)) throw new Error("vercel.json sumiu da raiz -- a Vercel fica sem CSP nenhuma para publicar");
@@ -690,60 +794,101 @@ function conferirVercelJson() {
   const regras = Array.isArray(vercel.headers) ? vercel.headers : [];
   if (!regras.length) throw new Error("vercel.json nao tem regra de cabecalho nenhuma -- sumiu o bloco `headers`?");
 
+  // Devolve o mapa de diretivas E a lista das que apareceram mais de uma vez: quem monta objeto
+  // fica com a ULTIMA, e o navegador aplica a PRIMEIRA -- sem esta lista a comparacao de forma
+  // inteira seria cega para uma diretiva frouxa escondida antes da conferida.
   function partirCsp(valor) {
     const d = {};
+    const repetidas = [];
     String(valor).split(";").forEach(function (dir) {
       const t = dir.trim(); if (!t) return;
       const i = t.indexOf(" ");
-      d[i < 0 ? t : t.slice(0, i)] = i < 0 ? "" : t.slice(i + 1).trim();
+      const nome = i < 0 ? t : t.slice(0, i);
+      if (Object.prototype.hasOwnProperty.call(d, nome) && repetidas.indexOf(nome) < 0) repetidas.push(nome);
+      d[nome] = i < 0 ? "" : t.slice(i + 1).trim();
     });
-    return d;
+    return { diretivas: d, repetidas: repetidas };
   }
-  const tem = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+  const mostrar = function (v) { return v === undefined ? "(ausente)" : '"' + v + '"'; };
 
-  const conferidas = [];
   const problemas = [];
-  for (const r of regras) {
-    const source = String((r && r.source) || "");
+
+  // 1. O QUADRO, NA ORDEM E COM REPETICAO. Conjunto nao ve troca nem duplicata; isto ve.
+  const fontes = regras.map(function (r) { return String((r && r.source) || ""); });
+  const doQuadro = QUADRO_DE_ROTAS.map(function (par) { return par[0]; });
+  const naOrdem = fontes.length === doQuadro.length
+    && fontes.every(function (s, i) { return s === doQuadro[i]; });
+  if (!naOrdem) {
+    problemas.push("a lista de `source` do vercel.json nao e a do QUADRO_DE_ROTAS (ferramentas/construir.js),"
+      + " na ORDEM e com repeticao:\n      arquivo (" + fontes.length + "): " + JSON.stringify(fontes)
+      + "\n      quadro  (" + doQuadro.length + "): " + JSON.stringify(doQuadro)
+      + "\n    -- pega rota TROCADA, DUPLICADA, apagada, nova e reordenada. A ordem conta porque a"
+      + " Vercel aplica a ULTIMA regra que casa. Mudou a rota de proposito? mude o quadro no MESMO commit");
+  }
+  // Se a ordem bateu, cada regra e conferida contra a linha de MESMO indice -- que e o unico jeito
+  // de uma DUPLICATA ser conferida contra a linha certa. Se nao bateu, cai para o nome, so para que
+  // os problemas de diretiva aparecam junto com o de ordem, em vez de um por rodada.
+  const porFonte = {};
+  for (const par of QUADRO_DE_ROTAS) porFonte[par[0]] = par[1];
+
+  let medindoNoArquivo = 0;
+  for (let i = 0; i < regras.length; i++) {
+    const r = regras[i];
+    const source = fontes[i];
     const cab = {};
     for (const h of ((r && r.headers) || [])) cab[h.key] = h.value;
     const csp = cab["Content-Security-Policy"];
-    if (!csp) continue;
-    const d = partirCsp(csp);
-    if (tem(d, "connect-src")) {
-      conferidas.push(source);
-      if (d["connect-src"] !== MEDIDA_HOST) {
-        problemas.push('a rota "' + source + '" abre connect-src para "' + d["connect-src"]
-          + '" e MEDIDA_HOST e "' + MEDIDA_HOST + '" -- por extenso, com esquema, byte a byte (CLAUDE.md paragrafo 3)');
-      }
-    } else if (d["default-src"] === "'none'" && tem(d, "img-src")) {
-      problemas.push('a rota "' + source + '" e da familia de secao (default-src \'none\' + img-src)'
-        + " e NAO declara connect-src: ela perdeu a contagem anonima em silencio");
+    const esperada = naOrdem ? QUADRO_DE_ROTAS[i][1] : porFonte[source];
+    if (!esperada) continue;   // o problema 1 ja disse que esta rota nao esta no quadro
+    if (!csp) {
+      problemas.push('a rota "' + source + '" perdeu o cabecalho Content-Security-Policy -- o quadro'
+        + " diz que ela tem um, e pagina publicada sem CSP nao vai para producao");
+      continue;
     }
+    const lido = partirCsp(csp);
+    if (lido.repetidas.length) {
+      problemas.push('a CSP da rota "' + source + '" repete a(s) diretiva(s) ' + JSON.stringify(lido.repetidas)
+        + " -- o navegador (CSP3) aplica a PRIMEIRA e ignora a repetida, entao a segunda e invisivel"
+        + " para qualquer leitor que monte um objeto (ver test/qa-vercel-diretiva-repetida.js)");
+    }
+    // 2. FORMA INTEIRA, nos dois sentidos: diretiva a mais reprova tanto quanto diretiva a menos.
+    const nomes = Object.keys(esperada).concat(Object.keys(lido.diretivas))
+      .filter(function (n, k, a) { return a.indexOf(n) === k; }).sort();
+    for (const n of nomes) {
+      if (lido.diretivas[n] !== esperada[n]) {
+        problemas.push('a CSP da rota "' + source + '" mudou e o QUADRO_DE_ROTAS nao sabe disso: `'
+          + n + "` esta " + mostrar(lido.diretivas[n]) + " e o quadro espera " + mostrar(esperada[n])
+          + " -- CSP que se afrouxa por conveniencia e o comeco de nao ter CSP (CLAUDE.md paragrafo 3)");
+      }
+      // 3. nenhum curinga, nunca -- por extenso, com esquema (CLAUDE.md paragrafo 3)
+      if (lido.diretivas[n] !== undefined && String(lido.diretivas[n]).indexOf("*") >= 0) {
+        problemas.push('a CSP da rota "' + source + '" tem CURINGA em `' + n + "`: "
+          + mostrar(lido.diretivas[n]) + " -- por extenso, com esquema, nenhum curinga, nunca");
+      }
+    }
+    if (Object.prototype.hasOwnProperty.call(lido.diretivas, "connect-src")) medindoNoArquivo++;
   }
-  const faltando = ROTAS_QUE_MEDEM.filter(function (s) { return conferidas.indexOf(s) < 0; });
-  const sobrando = conferidas.filter(function (s) { return ROTAS_QUE_MEDEM.indexOf(s) < 0; });
-  if (faltando.length) {
-    problemas.push("a tabela ROTAS_QUE_MEDEM (ferramentas/construir.js) exige connect-src em rota(s) que o"
-      + " vercel.json nao tem mais: " + JSON.stringify(faltando)
-      + " -- se a rota saiu de proposito, tire-a da tabela no MESMO commit");
+  // 5. O NUMERO QUE SE IMPRIME E COMPARADO ANTES DE SER IMPRESSO.
+  if (medindoNoArquivo !== ROTAS_QUE_MEDEM.length) {
+    problemas.push("o vercel.json tem " + medindoNoArquivo + " rota(s) com connect-src e o QUADRO_DE_ROTAS"
+      + " pede " + ROTAS_QUE_MEDEM.length + " (" + JSON.stringify(ROTAS_QUE_MEDEM) + ")"
+      + " -- rota que perde o connect-src perde a contagem anonima em silencio");
   }
-  if (sobrando.length) {
-    problemas.push("rota(s) com connect-src que a tabela ROTAS_QUE_MEDEM nao conhece: " + JSON.stringify(sobrando)
-      + " -- acrescente a tabela, no mesmo commit, dizendo por que aquela rota mede");
-  }
+  // 6. Nenhuma mencao solta ao host, e a comparacao e contra o QUADRO -- contra uma contagem tirada
+  //    do mesmo arquivo ela fecharia consigo mesma (foi assim que a duplicata passou verde).
   const mencoes = (txt.match(/posthog/gi) || []).length;
-  if (mencoes !== conferidas.length) {
-    problemas.push('a palavra "posthog" aparece ' + mencoes + " vez(es) no vercel.json e ha "
-      + conferidas.length + " connect-src conferido(s) -- ha mencao ao host fora de um connect-src"
-      + " (outra diretiva? outro campo? grafia com escape que so o parse desfaz?)");
+  if (mencoes !== ROTAS_QUE_MEDEM.length) {
+    problemas.push('a palavra "posthog" aparece ' + mencoes + " vez(es) no vercel.json e o QUADRO_DE_ROTAS"
+      + " pede " + ROTAS_QUE_MEDEM.length + " rota(s) que medem -- ha mencao ao host fora de um"
+      + " connect-src conferido (outra diretiva? outro campo? grafia com escape que so o parse desfaz?)"
+      + " ou uma rota que mede a mais/a menos");
   }
   if (problemas.length) {
-    throw new Error("vercel.json e MEDIDA_HOST divergiram -- a Vercel serviria isto para as paginas:\n  - "
+    throw new Error("vercel.json divergiu do QUADRO_DE_ROTAS -- a Vercel serviria isto para as paginas:\n  - "
       + problemas.join("\n  - "));
   }
-  console.log("  vercel.json: " + conferidas.length + " rota(s) com connect-src, todas == MEDIDA_HOST"
-    + " (tabela ROTAS_QUE_MEDEM, " + ROTAS_QUE_MEDEM.length + " rotas)");
+  console.log("  vercel.json: " + regras.length + " regra(s), na ordem do QUADRO_DE_ROTAS e com a CSP"
+    + " conferida diretiva por diretiva; " + medindoNoArquivo + " medem, todas == MEDIDA_HOST");
 }
 conferirVercelJson();
 
