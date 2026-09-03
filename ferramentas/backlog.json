@@ -166,12 +166,14 @@
       "aceite": "Uma ficha por candidato dos grupos NENHUM/CUIDADO, no formato do lote 1: CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro), lugar de fala anotado quando houver. Fonte que nao abrir num host tenta o segundo antes de escrever \"nao deu para ler\". Nenhuma decisao de representacao: o historiador julga e o dono aprova pino a pino.",
       "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
       "agente": "pesquisadora-fontes",
-      "estado": "livre",
+      "estado": "em-curso",
       "camada": "medio",
       "territorio": [
         "territorio/",
         "fontes/"
-      ]
+      ],
+      "maquina": "nuvem-20260903T2022",
+      "desde": "2026-09-03T20:40:00.000Z"
     },
     {
       "id": "pinos-lote-2",
@@ -235,14 +237,13 @@
       "aceite": "Numeros somados do periodo (as ~20 linhas de placar desde 21/08), o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido — entregue como texto para o integrador pregar no EQUIPE.md.",
       "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
       "agente": "pm",
-      "estado": "em-curso",
+      "estado": "livre",
       "camada": "medio",
       "territorio": [
         "EQUIPE.md",
         ".claude/agents/"
       ],
-      "maquina": "nuvem-20260903T1230",
-      "desde": "2026-09-03T12:34:47.646Z"
+      "nota": "LOCK VENCIDO devolvido a livre em 03/09 20h40 UTC por nuvem-20260903T2022: estava em-curso por nuvem-20260903T1230 desde 12:34 (8h, contra a validade de 2h) e NAO ha ramo entrega/retro-2 na origin (git ls-remote, 0 refs) — conferido antes de devolver, como manda o PLANTAO §7."
     },
     {
       "id": "territorio-rico",
