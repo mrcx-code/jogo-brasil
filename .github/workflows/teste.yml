@@ -155,6 +155,34 @@ jobs:
         run: node test/qa-vercel-diretiva-repetida.js
         timeout-minutes: 2
 
+      # O CONTROLE DO QUADRO DE ROTAS (03/09, item `csp-tabela-de-rotas-e-conjunto`). Os dois
+      # passos acima cobram o vercel.json; ESTE cobra que o portao do BUILD morde. O
+      # `conferirVercelJson()` do construir.js passou a comparar as 22 regras contra um
+      # QUADRO_DE_ROTAS — lista de `source` na ORDEM e com repeticao, CSP diretiva por diretiva.
+      # Assercao nova sem controle e decoracao, e decoracao assinada de verde e pior que teste
+      # nenhum (licao 2.8): este arquivo injeta 13 defeitos e exige exit != 0 em cada um, mais um
+      # caso limpo que exige exit 0, mais o numero de regras INERTES medido contra dist/.
+      #
+      # Medido antes de pendurar: grep por 'qa-vercel-quadro' no package.json, nos workflows, no
+      # encaixe.js e no integrar.js dava ZERO. Portao que ninguem roda e decoracao — a MESMA doenca
+      # que 03/09 ja curou duas vezes (medir-cartao-controle.js, qa-vercel-host.js), e seria a
+      # quarta.
+      #
+      # SO FOI PENDURADO DEPOIS DE ELE PARAR DE ESCREVER O vercel.json EM DISCO. A versao anterior
+      # mutava o arquivo e restaurava num gancho que nao sobrevive a sinal: medido, `timeout -s TERM`
+      # (exit 124) e `timeout -s KILL` (exit 137) deixavam a regra /historia DUPLICADA no arquivo que
+      # a Vercel publica. Pendurar isso no CI, que roda a cada push numa main que publica sozinha,
+      # seria multiplicar o risco em vez de fecha-lo. Hoje a injecao vai para os.tmpdir() e um
+      # pre-carregamento (`test/qa-vercel-injecao.js`) desvia a leitura — o vercel.json da raiz nunca
+      # e aberto para escrita, e o proprio arquivo reprova se o desvio parar de pegar.
+      #
+      # Fica NESTE job: ele roda 14 builds (medido, 44,7 s nesta maquina) e nao abre navegador nem
+      # depende de `dist/` pre-existente, entao esperar o Chromium do job `portoes` seria atraso de
+      # graca. O teto de 5 min e 6,7x o medido.
+      - name: o quadro de rotas do vercel.json morde (13 injecoes + limpo + regras inertes)
+        run: node test/qa-vercel-quadro.js
+        timeout-minutes: 5
+
       # O ESPELHO DO CONTEUDO — INFORMATIVO POR ENQUANTO, E ISSO E DE PROPOSITO.
       #
       # A Avenida A fase 1 (22/08) poe o glossario do banco em arquivos versionados

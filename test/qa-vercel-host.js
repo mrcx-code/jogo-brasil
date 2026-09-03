@@ -61,8 +61,23 @@
 //      dentro de `connect-src`. É esta que pega o relaxamento em OUTRA diretiva sem saber o nome
 //      do host estranho: medido em 03/09, `script-src 'unsafe-inline' https://exfil.example.com`
 //      na regra `/historia` dava BUILD exit 0 e este arquivo exit 0, porque a cobrança antiga só
-//      procurava a string "posthog". Enumerar o PERMITIDO não tem esse buraco — e é de propósito
-//      que acrescentar `'self'` a uma página exija mexer aqui e escrever por quê;
+//      procurava a string "posthog". Enumerar o PERMITIDO não tem esse buraco.
+//
+//      O QUE ESTA LISTA PEGA E O QUE NÃO PEGA, e o parágrafo anterior mentia sobre isso. Estava
+//      escrito aqui que "acrescentar `'self'` a uma página exige mexer aqui e escrever por quê".
+//      É FALSO: `'self'` já está em TOKENS_PERMITIDOS, então acrescentá-lo a uma página passa por
+//      este arquivo sem ruído nenhum. Medido em 03/09, com o desvio de `test/qa-vercel-injecao.js`
+//      e exit code real do terminal:
+//        `img-src data: 'self'` na regra `/historia`      -> este arquivo **exit 0**
+//        `script-src 'unsafe-inline' 'unsafe-eval'` idem   -> este arquivo **exit 1**
+//          ("token estranho na CSP de "/historia", diretiva `script-src`: "'unsafe-eval'"")
+//      A lista pega o token que NÃO está nela — host novo, `'unsafe-eval'`, `'strict-dynamic'`,
+//      nonce, hash. Ela NÃO pega a redistribuição dos cinco tokens que já são permitidos entre as
+//      diretivas: `'self'` migrando para `script-src`, `blob:` saindo de ONDE FOI e aparecendo no
+//      GLOSSÁRIO. Quem pega ISSO é o QUADRO_DE_ROTAS do build, que compara diretiva por diretiva
+//      contra a política esperada de cada rota — e é por isso que os dois portões existem. Comentário
+//      falso num portão é pior que comentário nenhum: ele faz a próxima pessoa confiar na cobertura
+//      errada;
 //   5. nenhuma CSP repete diretiva, e nenhum valor tem curinga. A repetida importa porque quem
 //      monta um objeto ao partir a CSP fica com a ÚLTIMA e o navegador (CSP3) aplica a PRIMEIRA —
 //      quem cobra isso no arquivo inteiro é `test/qa-vercel-diretiva-repetida.js`; aqui a mesma

@@ -653,10 +653,30 @@ function conferirCspDashboard(origemHtml) {
 //     **exit 0** e `node test/qa-vercel-host.js` **exit 0**.
 // As três têm a mesma causa: a cobrança olhava UMA diretiva (`connect-src`) e comparava a lista de
 // rotas como CONJUNTO. Conjunto não vê troca (o conjunto é o mesmo) nem duplicata (idem), e uma
-// diretiva não vê as outras sete. As oito regras que nenhuma rota publicada decide — as quatro
-// formas sem barra (`/historia`, `/glossario`, `/de-onde-vem`, `/territorio`), que rota nenhuma
-// resolve, e as quatro com barra, que a forma `(.*)` sobrescreve por last-match-wins — não tinham
-// portão nenhum sobre as outras diretivas.
+// diretiva não vê as outras sete. E as regras que nenhuma rota publicada decide não tinham portão
+// nenhum sobre as outras diretivas.
+//
+// QUANTAS SÃO ESSAS REGRAS: **14 de 22**, e o número aqui esteve ERRADO. A primeira volta deste
+// bloco escreveu "oito" — contando só a família de seção (`/historia`, `/glossario`,
+// `/de-onde-vem`, `/territorio`, nas formas sem barra e com barra) e esquecendo `/mesa`, `/jogo` e
+// `/dashboard`, que sofrem exatamente a mesma coisa, também nas duas formas. O QA de 03/09 pegou.
+// Recontado com o resolvedor last-match-wins do `test/csp-paginas.js` contra as 8 páginas
+// enumeradas de `dist/` (`/`, `/dashboard/`, `/de-onde-vem/`, `/glossario/`, `/historia/`,
+// `/jogo/`, `/mesa/`, `/territorio/`), regra a regra:
+//   · 7 formas SEM barra final (`/historia`, `/glossario`, `/de-onde-vem`, `/territorio`,
+//     `/mesa`, `/jogo`, `/dashboard`) não casam com rota publicada NENHUMA;
+//   · 7 formas COM barra final casam, mas a forma `(.*)` vem depois e sobrescreve por
+//     last-match-wins;
+//   · decidem cabeçalho de verdade 8: `/` e as sete `(.*)`.
+// Só `/` é literal e decisiva ao mesmo tempo. A conta velha subestimava o problema em 6 regras —
+// e era do lado errado: menos cobertura do que se pensava, não mais.
+//
+// E O NÚMERO NÃO DEPENDE DA DÚVIDA DE PRECEDÊNCIA (a de baixo). Recontado pela hipótese
+// CONTRÁRIA, primeira-que-casa-vence, dá **14 de 22 também** — o que muda é QUAIS 14: pela última
+// vencem as 7 formas `(.*)`, pela primeira vencem as 7 com barra final. Estável nas duas: `/`
+// decide, e as 7 formas SEM barra final não casam com página publicada nenhuma. Por isso o
+// `test/qa-vercel-quadro.js` conta pelas DUAS ordens e exige 14 nas duas, em vez de escolher uma
+// hipótese e envelhecer com ela.
 //
 // O QUE COBRA AGORA, e cada item existe por uma classe medida:
 //   1. o QUADRO_DE_ROTAS abaixo é a lista de `source` do arquivo, NA ORDEM e com repetição —
@@ -698,11 +718,17 @@ function conferirCspDashboard(origemHtml) {
 // canonizou os dois corpos e comparou — o parser de CSP dos dois arquivos era IDÊNTICO token a
 // token, módulo nome de identificador e estilo de aspas. Era transliteração, não segunda leitura.
 //
-// DÚVIDA HERDADA E NÃO RESOLVIDA (do QA, 03/09): não há documento da Vercel que GARANTA
-// last-match-wins na precedência de `headers` — o comportamento foi inferido de medição. Se um dia
-// mudar, as oito regras hoje inertes passam a decidir o cabeçalho servido de uma vez. Enquanto a
-// dúvida existir, o barato é cobrar as 22 como se qualquer uma pudesse decidir, que é o que o
-// quadro faz.
+// DÚVIDA HERDADA E NÃO RESOLVIDA (do QA em 03/09; procurada de novo no mesmo dia e NÃO fechada):
+// não há documento da Vercel que GARANTA a precedência do array `headers` quando duas regras casam
+// com a mesma rota e trazem a MESMA chave de cabeçalho. O comportamento é INFERIDO DE MEDIÇÃO. O
+// que a documentação alcançável desta máquina afirma como "a primeira que casa vence" é a regra de
+// ROTEAMENTO (rewrite/redirect/status), que é outra coisa — citá-la aqui seria confirmar o que não
+// se leu. Ficam TRÊS hipóteses vivas, nenhuma confirmada em documento: (a) a última vence, que é o
+// que o `test/csp-paginas.js` resolve e o que foi medido; (b) a primeira vence; (c) as duas viajam
+// e o navegador aplica a INTERSECÇÃO das políticas — e se for (c), "inerte" é nome errado e a
+// regra hoje ignorada é ENFORÇADA junto. Nas três, o barato é o mesmo e é o que o quadro faz:
+// cobrar as 22 como se qualquer uma pudesse decidir. **Escrito como inferido, não como sabido** —
+// e quem for fechar isto fecha com documento ou com medição contra a produção, não com busca.
 const CSP_SECAO_VERCEL = {
   // A PORTA, A HISTÓRIA, o GLOSSÁRIO, DE ONDE VEM: páginas de leitura, geradas por
   // `ferramentas/gerar-*.js`, com script e estilo INLINE e toda imagem em `data:`.
