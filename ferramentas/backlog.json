@@ -831,6 +831,33 @@
       "desde": "2026-09-03T00:24:21.681Z",
       "concluido_em": "2026-09-03T00:42:34.000Z",
       "resolucao": "NAO foi alargar a lista (cogitado e recusado: acrescentar .vaoMedida a exclusao repetiria o proprio defeito do item — nome e atributo do autor, e e exatamente essa doenca que cartao-censo.js existe para nao ter). O conserto foi na REGRA: censoDoQuadro ganhou decorativoInerte(e,s) — um elemento so escapa do passo 2 se tiver aria-hidden=true E innerText vazio E sem background-image. E uma CLASSE (o par acessibilidade-diz-que-nao-ha-informacao + nao-ha-nada-para-ver), nao uma lista de nomes: nao pergunta como o elemento se chama. span.vaoMedida bate nos tres (aria-hidden real, sem texto, sem imagem) e passa a ser absolvido nas 5 paginas. m106 e q107d nao tem aria-hidden e continuam caindo. Mutante novo q107e (meu, adversarial): classe deliberadamente DIFERENTE de vaoMedida com aria-hidden=true E TEXTO 'MEDICAO ligada' — prova que a regra le CONTEUDO, nao decora o atributo; cobrado por exit code junto com q107d. As CINCO paginas passaram a ser cobradas por exit code no proprio arquivo (antes so o territorio tinha ok(), as outras quatro so imprimiam). Mordida nos dois sentidos, numeros e exit codes reais no relatorio da sessao. O que NAO fechei: q107a (fora de qualquer dono, passo2 nao alcanca por desenho, closing exigiria varrer a pagina toda e reabriria falso-positivo), q107b (dentro de .env, que nunca vira dono por nao ter filho aceito) e q107c (::after, invisivel a innerText — gap ja registrado no PENDENTES 102 item 3). Os tres sao alcance conhecido, nao cobrados por exit code, ja documentados no cabecalho do proprio teste."
+    },
+    {
+      "id": "censo-decorativo-so-tres-propriedades",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "decorativoInerte promete perguntar se pinta na foto e pergunta por TRES propriedades — seis mecanismos de pintura escapam",
+      "territorio": [
+        "ferramentas/cartao-censo.js",
+        "test/qa-censo-passo2.js"
+      ],
+      "aceite": "Um elemento aria-hidden SEM texto que pinta na foto volta a ser acusado, e o span.vaoMedida continua absolvido. Mordida provada nos dois sentidos por injecao, com os SEIS mecanismos medidos um a um (border, background-color, o atalho background, outline, box-shadow, ::after com background) e o exit code de cada um. Re-medir as cinco paginas: os dez numeros nao podem piorar (porta/historia/glossario/de-onde-vem 0, territorio 0).",
+      "detalhe": "Achado pelo QA em 03/09 refutando a entrega censo-vaomedida-falso-positivo, e NAO e regressao dela: antes da entrega tudo com aria-hidden inerte caia igual, entao e teto que ela deixou aberto sem citar como aberto. O que caiu foi a FRASE: o comentario diz que a pergunta virou \"isto pinta algo na foto?\" e o codigo pergunta por tres propriedades (aria-hidden=true E innerText vazio E sem background-image), que e coisa mais estreita. Confirmado COM PRINT e nao so com numero: um span aria-hidden sem texto, injetado em .lista (nao em .barra, que tem overflow-x auto e tirava o mutante da janela — o primeiro instrumento do proprio QA deu falso escapou por isso), com border 4px solid red aparece como caixa vermelha nitida na foto e com background-color #ff00ff como bloco magenta solido, e o censo devolve zero estranhos nos dois. Seis de seis mecanismos escapam limpos, estranhos=[] e exit 0. O QA escreveu um instrumento para isso (test/qa-decorativo-inerte-largura.js, commit c596b9e no worktree dele) que NAO foi trazido para a main de proposito: portao que nasce vermelho e ninguem roda e a doenca que esta casa ja curou tres vezes — ele entra junto com o conserto, verde, ou nao entra."
+    },
+    {
+      "id": "censo-so-e-cobrado-no-territorio",
+      "estado": "livre",
+      "papel": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "A protecao do censo vale automaticamente so para o territorio; nas outras quatro paginas ninguem roda nada",
+      "territorio": [
+        "test/cartao-quadro-controle.js",
+        "test/qa-censo-passo2.js",
+        ".github/workflows/teste.yml"
+      ],
+      "aceite": "O censo (censoDaPagina) passa a ser cobrado por exit code nas cinco paginas, ou fica escrito por que alguma fica de fora. O portao que cobrir isso roda em lugar automatico — npm test ou CI —, nao so a mao. Provar com injecao que ele morde em cada pagina que passar a cobrir.",
+      "detalhe": "Achado pelo QA em 03/09, junto com a auditoria do censo-vaomedida. Medido no codigo: em test/cartao-quadro-controle.js o censo:true so esta setado na linha do territorio da tabela CARTOES; para historia, glossario e de-onde-vem o portao roda so controlesNoQuadro, a regua antiga por nome e posicao, que nunca teria pego o span.vaoMedida (ela exige fixed/sticky mais seletor de controle, ou id===medirBt, e o vao nao bate nenhum). A porta (plataforma/index.html) nem esta na tabela. Consequencia: o conserto do falso-positivo nas quatro paginas e verificado SO por test/qa-censo-passo2.js, que nao esta em npm test, nem no encaixe.js, nem no integrar.js, nem no CI — e puramente instrumento de QA rodado a mao. Quem tocar chrome-plataforma.js ou cartao-secao.js sem lembrar de rodar aquele arquivo nao tem nada automatico pegando a regressao. E a MESMA doenca que esta rodada ja consertou uma vez hoje no test/qa-vercel-host.js, que morde 5 de 5 e rodava em zero lugares. O QA nota que a lista de permitidos derivavel ja existe (permitidosDe, no proprio qa-censo-passo2.js), entao ligar censo:true para as outras paginas parece barato — medir antes de afirmar."
     }
   ]
 }
