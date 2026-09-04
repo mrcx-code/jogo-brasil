@@ -8859,14 +8859,67 @@ function rolarFundo() {
   // carregando o termo que cobre a faixa de baixo, `dy + dh >= ch`, e este laço não roda
   // nenhuma vez — o jogo, o deitado e o desktop ficam byte a byte no que já estava medido.
   const altChao = g.dh * (1 - linha);
+  // `costurasY` guarda a altura de CADA costura vertical nova (a linha em que uma cópia da
+  // peça de chão encontra a próxima) — é o que o bloco COSTURA_COBRE abaixo usa para tapar as
+  // que a arte reprovou. Fica vazio (e o bloco de cobertura não faz nada) sempre que o laço
+  // acima não rodar — que é o caso de sempre fora da home em retrato.
+  const costurasY: number[] = [];
   if (altChao > 0.5) {
     let yb = g.dy + g.dh;
     // Teto de 12 cópias: guarda contra uma geometria degenerada (peça de chão de 1 px de
     // altura) virar laço infinito dentro do quadro. Na pior tela medida são DUAS.
     for (let n = 1; n <= 12 && yb < g.ch; n++) {
+      costurasY.push(yb);
       ladrilhar(pChao, 1, yb, altChao, rep[3], undefined, undefined, undefined,
         jan[0], jan[1], (n & 1) === 1);
       yb += altChao;
+    }
+  }
+  // ===== COSTURA_COBRE: tapar a costura vertical nos capítulos que a arte pediu (03/09) =====
+  //
+  // JULGAMENTO DA ARTE sobre os prints de `test/prints-costura.js`, capítulo a capítulo: a
+  // TÉCNICA foi aprovada em 12 dos 13 — inclusive SALVADOR, o pior caso possível (calçamento
+  // de pedra espelhado é pedra, sem rosto). REPROVOU só em AINDA AQUI: quatro
+  // "mariposas"/máscaras bilaterais nas margens das duas costuras — o mesmo precedente de
+  // JABAQUARA (raiz detalhada forma rosto simétrico na emenda). PALMARES e A PEQUENA ÁFRICA
+  // têm ressalva mais leve e PASSAM soltos, mas o pedido da arte foi cobrir os três — a peça
+  // já existe para o primeiro, e reaproveitá-la nos outros dois não custa desenho novo.
+  //
+  // A COBERTURA: duas moitas do FRENTE do PRÓPRIO capítulo por costura — a mesma família de
+  // sprite que já tapa a emenda horizontal em `matoDaEmenda()`, então a textura não é
+  // estranha ao cenário. Posição determinística (hash da costura × do lado × do capítulo,
+  // nunca `Math.random()`) e DELIBERADAMENTE NÃO ESPELHADA — usar posições espelhadas seria
+  // repetir, na cobertura, o defeito que ela existe para tapar.
+  //
+  // ONDE ELAS VÃO: na MARGEM lateral, fora da coluna do `#poste` — é ali que a costura fica
+  // visível (dentro da coluna a madeira do poste já esconde tudo, "pode entrar atrás da
+  // tábua" da própria margem, e é por isso que a régua da personagem não precisa saber desta
+  // camada: ela nunca alcança a área tocável das tábuas, que fica ~11% de largura para
+  // dentro da margem).
+  const COSTURA_COBRE = [12, 5, 1]; // índices de EPOCAS — AINDA AQUI · A PEQUENA ÁFRICA · PALMARES
+  if (costurasY.length && COSTURA_COBRE.indexOf(epocaAtual()) >= 0) {
+    const blocoCobre = frenteBloco();
+    if (blocoCobre >= 0) {
+      const posteEl = document.getElementById("poste");
+      const pr = posteEl ? posteEl.getBoundingClientRect() : null;
+      const kx = g.cw / telaW();                 // CSS px -> px de dispositivo
+      const margL = pr ? pr.left * kx : g.cw * 0.11;
+      const margR = pr ? (telaW() - pr.right) * kx : g.cw * 0.11;
+      const larguraDev = 64 * kx;                 // >= 60 px CSS pedidos pela arte
+      costurasY.forEach(function (ySeam, si) {
+        [0, 1].forEach(function (lado) {
+          const h = (((si + 1) * 2654435761) ^ ((lado + 1) * 40503) ^ (epocaAtual() * 97 + 11)) >>> 0;
+          const iSpr = blocoCobre + ((h >>> 5) % 8);
+          const im = FRENTE_SPR[iSpr];
+          if (!im || !im.complete || !im.naturalWidth) return;
+          const altDev = larguraDev * (im.naturalHeight / im.naturalWidth);
+          const centroX = lado === 0 ? Math.max(larguraDev / 2, margL / 2)
+                                      : g.cw - Math.max(larguraDev / 2, margR / 2);
+          const jitterY = (((h >>> 17) % 9) - 4) * kx; // ±4 px CSS, pedido pela arte
+          fx.drawImage(im, Math.round(centroX - larguraDev / 2),
+            Math.round(ySeam + jitterY - altDev / 2), Math.round(larguraDev), Math.round(altDev));
+        });
+      });
     }
   }
   // A COSTURA DA EMENDA — só onde nada a cobre.

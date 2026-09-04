@@ -8382,11 +8382,39 @@ function rolarFundo() {
     ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
     ladrilhar(pChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3], undefined, undefined, undefined, jan[0], jan[1]);
     const altChao = g.dh * (1 - linha);
+    const costurasY = [];
     if (altChao > 0.5) {
         let yb = g.dy + g.dh;
         for (let n = 1; n <= 12 && yb < g.ch; n++) {
+            costurasY.push(yb);
             ladrilhar(pChao, 1, yb, altChao, rep[3], undefined, undefined, undefined, jan[0], jan[1], (n & 1) === 1);
             yb += altChao;
+        }
+    }
+    const COSTURA_COBRE = [12, 5, 1];
+    if (costurasY.length && COSTURA_COBRE.indexOf(epocaAtual()) >= 0) {
+        const blocoCobre = frenteBloco();
+        if (blocoCobre >= 0) {
+            const posteEl = document.getElementById("poste");
+            const pr = posteEl ? posteEl.getBoundingClientRect() : null;
+            const kx = g.cw / telaW();
+            const margL = pr ? pr.left * kx : g.cw * 0.11;
+            const margR = pr ? (telaW() - pr.right) * kx : g.cw * 0.11;
+            const larguraDev = 64 * kx;
+            costurasY.forEach(function (ySeam, si) {
+                [0, 1].forEach(function (lado) {
+                    const h = (((si + 1) * 2654435761) ^ ((lado + 1) * 40503) ^ (epocaAtual() * 97 + 11)) >>> 0;
+                    const iSpr = blocoCobre + ((h >>> 5) % 8);
+                    const im = FRENTE_SPR[iSpr];
+                    if (!im || !im.complete || !im.naturalWidth)
+                        return;
+                    const altDev = larguraDev * (im.naturalHeight / im.naturalWidth);
+                    const centroX = lado === 0 ? Math.max(larguraDev / 2, margL / 2)
+                        : g.cw - Math.max(larguraDev / 2, margR / 2);
+                    const jitterY = (((h >>> 17) % 9) - 4) * kx;
+                    fx.drawImage(im, Math.round(centroX - larguraDev / 2), Math.round(ySeam + jitterY - altDev / 2), Math.round(larguraDev), Math.round(altDev));
+                });
+            });
         }
     }
     if (rep[2] && dimH(pAlto)) {
