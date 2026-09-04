@@ -76,7 +76,7 @@
     },
     {
       "id": "sem-contagem-sem-modo-injecao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "A assercao SEM_CONTAGEM (qa-vercel-host) morde mas nenhuma rodada automatica exercita ela",
@@ -85,8 +85,7 @@
       ],
       "aceite": "QA_VERCEL_DEFEITO ganha um 10o modo que injeta connect-src na rota /privacidade/ (ou outra sem-medicao), pra assercao SEM_CONTAGEM sair vista reprovando por um comando, sem precisar editar vercel.json a mao.",
       "detalhe": "Achado pelo QA em 04/09: a assercao existe e morde (confirmado editando vercel.json manualmente — connect-src injetado em /privacidade/ fez qa-vercel-host sair exit 1), mas os 9 modos existentes de QA_VERCEL_DEFEITO miram todos /historia. Mesma classe do EQUIPE.md licao 2.8 (controle que ninguem roda e decoracao).",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T16:51:47.841Z"
+      "feito": "Integrado 04/09 em duas rodadas (e355b08 -> 3 achados QA -> 9a22d95 -> merge 46c7ac4). 10o modo (privacidade) faz SEM_CONTAGEM reprovar por comando: 10/10 mordem por exit code, controle limpo exit 0, vercel.json 0 diff. Revisao 1 (QA) achou e consertou comentario falso + gap real (nenhum runner automatico exercitava os 10 modos) -- criou test/qa-vercel-host-controle.js, pendurado no CI. Revisao 2 (porteiro+qa independentes) achou 2 problemas NESSA correcao: comentario com numero errado (3 linhas X alegadas, 4 reais, medido por mutante) e o proprio controle novo nao provava ter executado todos os 10 modos (fix: contagem de iteracoes reais cobrada contra MODOS.length, provado injetando o mesmo continue que a revisao demonstrou). Duas rodadas de auditoria adversarial ate fechar de verdade."
     },
     {
       "id": "cartoes-sociais-peso-mudou-sem-explicacao",
