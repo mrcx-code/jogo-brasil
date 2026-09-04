@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js",
+    "test": "npm run build && node test/dist-inventario.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
     "aceiro": "node test/aceiro-sem-coleta.js",
