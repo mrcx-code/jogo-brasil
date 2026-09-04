@@ -9,6 +9,42 @@
   },
   "itens": [
     {
+      "id": "csp-injetar-falha-no-op-windows",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "CSP_INJETAR_FALHA e um no-op SILENCIOSO no Git Bash/Windows — sai exit 0 achando que mordeu",
+      "territorio": [
+        "test/csp-paginas.js"
+      ],
+      "aceite": "O teste recusa (exit 2, mensagem clara) quando a rota passada em CSP_INJETAR_FALHA nao for uma chave conhecida de CSP_ESPERADA, em vez de imprimir 'INJECAO DE DEFEITO ATIVA' pra uma rota que o path-mangling do Git Bash inventou (ex: C:/Program Files/Git/privacidade/) e sair 0 sem testar nada.",
+      "detalhe": "Achado pelo QA em 04/09 auditando a entrega de /privacidade/: CSP_INJETAR_FALHA=/privacidade/ vira C:/Program Files/Git/privacidade/ no Git Bash (MSYS path conversion), o teste nao acha essa rota, nao remove nenhuma CSP de verdade, e sai exit 0 — parecendo que a mordida foi provada quando na verdade nada foi exercitado. Vale igual pro /glossario/ documentado no cabecalho do arquivo. Pre-existente, nao introduzido pela entrega de privacidade."
+    },
+    {
+      "id": "sem-contagem-sem-modo-injecao",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "A assercao SEM_CONTAGEM (qa-vercel-host) morde mas nenhuma rodada automatica exercita ela",
+      "territorio": [
+        "test/qa-vercel-host.js"
+      ],
+      "aceite": "QA_VERCEL_DEFEITO ganha um 10o modo que injeta connect-src na rota /privacidade/ (ou outra sem-medicao), pra assercao SEM_CONTAGEM sair vista reprovando por um comando, sem precisar editar vercel.json a mao.",
+      "detalhe": "Achado pelo QA em 04/09: a assercao existe e morde (confirmado editando vercel.json manualmente — connect-src injetado em /privacidade/ fez qa-vercel-host sair exit 1), mas os 9 modos existentes de QA_VERCEL_DEFEITO miram todos /historia. Mesma classe do EQUIPE.md licao 2.8 (controle que ninguem roda e decoracao)."
+    },
+    {
+      "id": "cartoes-sociais-peso-mudou-sem-explicacao",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "leve",
+      "titulo": "4 cartoes sociais publicados mudaram de peso na entrega de /privacidade/ e ninguem revisou por que",
+      "territorio": [
+        "ferramentas/cartao-secao.js"
+      ],
+      "aceite": "Investigar por que territorio/historia/de-onde-vem/glossario compartilhar.jpg mudaram de bytes (-1677/+854/+1192/-9) numa entrega que so acrescentou link no rodape. Suspeito nomeado pelo QA: document.fonts.ready sobre fontes DE REDE em cartao-secao.js:198-200 tornando o print nao-deterministico entre rodadas. Se confirmado, o gerador de cartao passa a embutir a fonte em memoria antes do print (mesma tecnica ja usada no cartao da porta), fechando a dependencia de rede.",
+      "detalhe": "Achado pelo QA em 04/09: os 2 portoes de cartao passam (sem vazamento de dado), mas o diff de peso nao tem explicacao no relatorio da entrega, e um gerador dependente de rede faz qualquer ramo futuro carregar ruido nao-deterministico nos cartoes publicados."
+    },
+    {
       "id": "privacidade-link-nos-ajustes",
       "estado": "livre",
       "agente": "dev-jogo",
