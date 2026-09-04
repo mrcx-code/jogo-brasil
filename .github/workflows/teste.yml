@@ -276,6 +276,29 @@ jobs:
         run: node test/csp-paginas.js
         timeout-minutes: 3
 
+      # A MORDIDA DE CSP_INJETAR_FALHA, ATE 04/09 NUNCA EXERCITADA SOZINHA (item
+      # `csp-injetar-falha-nunca-exercitado-em-ci`). O passo acima prova que o caminho LIMPO sai 0;
+      # este prova a outra metade — que apagar a CSP de uma rota de verdade em memoria (nenhum
+      # arquivo em disco e tocado) faz o MESMO arquivo sair 1. Sem isto, `csp-paginas.js` nunca
+      # apareceu em script nenhum do package.json nem em bloco `env:` de workflow nenhum: a prova
+      # de que ele morde so existia se alguem lembrasse de rodar a mao — a mesma doenca que
+      # `test/portao-navegador.js` e `test/qa-vercel-host.js` ja curaram para outros dois portoes.
+      # `/glossario/` e uma rota valida (esta na tabela CSP_ESPERADA), entao a rejeicao por rota
+      # desconhecida (exit 2, que e "portao mal chamado" e nao "portao mordeu") nunca dispara aqui.
+      - name: CSP_INJETAR_FALHA morde (o caminho sujo tem de sair 1, nao 0)
+        run: |
+          set +e
+          CSP_INJETAR_FALHA=/glossario/ node test/csp-paginas.js
+          codigo=$?
+          set -e
+          echo "csp-paginas.js com CSP_INJETAR_FALHA=/glossario/ saiu $codigo"
+          if [ "$codigo" -ne 1 ]; then
+            echo "ESPERAVA exit 1 (o portao mordeu) e saiu $codigo — ou o portao parou de morder,"
+            echo "ou a rota /glossario/ deixou de ser valida (nesse caso o exit e 2, nao 1)."
+            exit 1
+          fi
+        timeout-minutes: 3
+
       # O IRMAO DELE, e a razao de serem DOIS: o de cima cobra a CSP; este cobra os outros tres
       # cabecalhos (XFO, nosniff, Referrer-Policy), que o de cima IMPRIMIA sem cobrar. Medido pelo QA
       # em 02/09, removendo um por vez do vercel.json: `csp-paginas.js` saia 0 nas tres remocoes.
@@ -292,6 +315,23 @@ jobs:
       - name: poste fora do fluxo (a mecanica da terceira receita, com autoteste)
         run: node test/poste-fora-do-fluxo.js
         timeout-minutes: 3
+
+      # A PLACA 3D DO TERRITORIO (item `ver-territorio-fora-do-ci`, achado pelo QA em 04/09): os
+      # 3 controles deste arquivo (a cor do topo contra a luz adoecida, a camada das divisas com
+      # os dois defeitos que ela existe para pegar, e o enquadramento contra a regra antiga que
+      # escondia 144 px de placa atras do painel do censo em 360x640) nunca rodavam fora da mao de
+      # alguem. FICOU VERMELHO ao ser pendurado aqui, por DUAS causas que a auditoria isolou antes
+      # de mexer no produto (nenhuma das duas e defeito do jogo):
+      #   1. lancava o Chromium NU (a mesma doenca de `test/portao-navegador.js`) e morria em
+      #      0,56 s nesta maquina, antes de abrir qualquer pagina — corrigido com o mesmo
+      #      `ABRIR.chromiumPath()` que os outros portoes ja usam;
+      #   2. contava como erro de console o favicon 404 (o servidor de teste so serve arquivo que
+      #      existe) e o ERR_TUNNEL_CONNECTION_FAILED da contagem anonima (us.i.posthog.com, que
+      #      esta maquina de nuvem bloqueia no proxy) — os dois ja tinham precedente de filtro em
+      #      test/qa-privacidade-muda.js e test/qa-salvador-vivo.js, e faltavam aqui.
+      - name: a placa 3D do territorio (cor, divisas, enquadramento — com os 3 controles)
+        run: node test/ver-territorio.js
+        timeout-minutes: 8
 
       # OS PORTÕES QUE EXISTIAM E NÃO RODAVAM (23/08, pergunta do dono: "esse smoke que passa,
       # vale alguma outra camada de teste?").
