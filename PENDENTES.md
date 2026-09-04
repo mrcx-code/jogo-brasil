@@ -4279,8 +4279,10 @@ Diário do NOTES.md, 2026-09-04.
    um BALDE d'água (medido em 04/09, abrindo os dois). A lista `MOBS` de `test/inline-objetos.js`
    foi montada pelo nome e herdou a troca: a vaga `drum` (água) recebe a trouxa e a vaga `cash`
    (comida) recebe o balde. **Não corrigi**, e a razão é que hoje isso não chega à tela — o mob de
-   SALVADOR é GENTE (`GENTE_EP_SPR.salvador`), e o objeto só apareceria se a folha de gente
-   sumisse. Quem for mexer em `MOBS` conserta lá, ou renomeia os dois arquivos.
+   SALVADOR é GENTE. **Medido, não deduzido** (04/09, jogo aberto, pacote de SALVADOR já baixado):
+   `pessoaNaRua() = true`, e `mobFrame()` devolve quadro de gente (**189×299**, `mobEhGente = true`)
+   para os **três** tipos, `smog`/`barrel`/`cash` — os `cap4-obj-*` nunca são desenhados na rua.
+   Quem for mexer em `MOBS` conserta lá, ou renomeia os dois arquivos.
 3. **`cap4-obj-v2` (item 289 desta lista) continua de pé** e ganhou uma medida: as três artes têm
    objeto **cortado pela linha da célula** — o tabuleiro encosta na borda direita, o balde também,
    e o quadro do balde ainda trazia o fragmento de um objeto vizinho. O fragmento eu aparei
