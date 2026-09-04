@@ -89,6 +89,11 @@
 //
 // PROVA DE MORDIDA (EQUIPE.md 2.8): `QA_VERCEL_DEFEITO=<modo>` aplica a injeção EM MEMÓRIA e este
 // arquivo tem de sair 1. Sem a variável ele sai 0 contra o `vercel.json` de hoje.
+//
+// São DEZ modos, e o décimo (`privacidade`) nasceu em 04/09 porque os nove primeiros miravam todos
+// uma rota que MEDE — o que deixava a asserção 4b (a inversão de `SEM_CONTAGEM`) sem um comando que
+// a fizesse reprovar. Ela mordia à mão, editando o `vercel.json`, e mordida que só existe à mão é a
+// que ninguém repete. O raciocínio inteiro do modo está na caixa dele, junto da injeção.
 const fs = require('fs');
 const path = require('path');
 
@@ -104,7 +109,15 @@ const TROCAS = {
   digito: 'https://us.i.psthog.com',
   unicode: 'https://eu.i.\\u0070osthog.com',
 };
-const MODOS = ['regiao', 'esquema', 'digito', 'unicode', 'sumir', 'duplicata', 'exfil', 'curinga', 'repetida'];
+const MODOS = ['regiao', 'esquema', 'digito', 'unicode', 'sumir', 'duplicata', 'exfil', 'curinga', 'repetida',
+  'privacidade'];
+
+// O ALVO DO 10º MODO, e ele não é `/historia` de propósito (04/09, item `sem-contagem-sem-modo-injecao`).
+// Os nove modos acima miram todos uma rota que MEDE, então nenhum deles chega perto da asserção 4b —
+// a inversão que cobra `/privacidade/` NÃO ter connect-src. Resultado: uma asserção que morde de
+// verdade (provada à mão, editando o `vercel.json`) e que rodada nenhuma exercitava, que é o
+// "instrumento nunca visto reprovando é decoração" da lição 2.8 do EQUIPE.md com outro nome.
+const ALVO_SEM_CONTAGEM = '/privacidade/';
 
 let texto = fs.readFileSync(ARQ, 'utf8');
 function ondeMede(v) {
@@ -114,12 +127,51 @@ function ondeMede(v) {
     return String(r.source) === '/historia';
   });
 }
+function ondeNaoMede(v) {
+  return v.headers.findIndex(function (r) {
+    return String(r.source) === ALVO_SEM_CONTAGEM;
+  });
+}
 if (DEFEITO) {
   // A INJEÇÃO ATACA A SEGUNDA OCORRÊNCIA (a regra `/historia`, sem barra final) DE PROPÓSITO:
   // nenhuma rota publicada a resolve, então ela é o ponto cego do `test/csp-paginas.js` e o único
   // lugar onde a cobrança do `vercel.json` é a ÚNICA que existe.
   let n = -1;
-  if (DEFEITO === 'sumir') {
+  let alvo = '/historia';
+  if (DEFEITO === 'privacidade') {
+    // O 10º MODO: a rota que NÃO mede passa a declarar `connect-src`.
+    //
+    // ELE USA O PRÓPRIO MEDIDA_HOST, e isso é escolha, não preguiça — é o mesmo argumento que a
+    // `repetida` já faz duas caixas abaixo. Com um host de terceiro (`https://exfil.example.com`)
+    // o arquivo sairia 1 por TRÊS caminhos ao mesmo tempo — a asserção 1 (valor != MEDIDA_HOST),
+    // a 4 (token fora da lista) e a 4b —, e um vermelho que três asserções produzem não prova
+    // NENHUMA delas. Com o host certo, a asserção 1 confere e passa, a lista de tokens confere e
+    // passa, e a contagem de "posthog" continua batendo com `comConnect` (as duas sobem 1). Sobra
+    // reprovando só o que este modo existe para exercitar.
+    //
+    // O QUE ELE PROVA E O QUE NÃO PROVA, escrito para ninguém ler cobertura demais no verde: as
+    // linhas que ficam vermelhas são DUAS, e as duas por causa de `/privacidade/` —
+    //   X   "/privacidade/" está na lista SEM_CONTAGEM e NÃO declara connect-src — mas declara: …
+    //   X   toda rota com connect-src é da família de seção e vice-versa — 14 de 13
+    // A segunda é o agregado, e ele reprova junto porque `comConnect` conta a rota nova enquanto
+    // `familiaSecao` não. Consequência honesta: apagar a LINHA da asserção 4b não faz este modo
+    // ficar verde (o agregado ainda morde), mas apagar o BLOCO `if (SEM_CONTAGEM…)` inteiro faz —
+    // a rota cairia no `else`, seria contada como família de seção, e as duas passariam. É por
+    // isso que o modo mira a lista, e não só a linha.
+    const v = JSON.parse(texto);
+    const i = ondeNaoMede(v);
+    if (i < 0) { console.error('a regra ' + ALVO_SEM_CONTAGEM + ' sumiu do vercel.json — a injeção não tem onde morder'); process.exit(2); }
+    const h = v.headers[i].headers.find(function (x) { return x.key === 'Content-Security-Policy'; });
+    if (!h) { console.error('a regra ' + ALVO_SEM_CONTAGEM + ' não tem CSP — a injeção não tem onde morder'); process.exit(2); }
+    const antes = h.value;
+    h.value = antes.replace('img-src data:; ', 'img-src data:; connect-src ' + HOST + '; ');
+    if (h.value === antes) {
+      console.error('a CSP de ' + ALVO_SEM_CONTAGEM + ' mudou de forma e a injeção não pegou — conserte o modo, não o portão');
+      process.exit(2);
+    }
+    texto = JSON.stringify(v, null, 2) + '\n';
+    alvo = ALVO_SEM_CONTAGEM;
+  } else if (DEFEITO === 'sumir') {
     texto = texto.replace(new RegExp('connect-src ' + HOST.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '; ', 'g'),
       function (m) { n++; return n === 1 ? '' : m; });
   } else if (TROCAS[DEFEITO]) {
@@ -145,7 +197,7 @@ if (DEFEITO) {
     console.error('QA_VERCEL_DEFEITO desconhecido: ' + DEFEITO + ' (há: ' + MODOS.join(', ') + ')');
     process.exit(2);
   }
-  console.log('*** DEFEITO INJETADO EM MEMÓRIA: ' + DEFEITO + ' na regra /historia ***');
+  console.log('*** DEFEITO INJETADO EM MEMÓRIA: ' + DEFEITO + ' na regra ' + alvo + ' ***');
 }
 
 let falhas = 0;
