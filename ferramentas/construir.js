@@ -705,6 +705,16 @@ function conferirCspDashboard(origemHtml) {
 // `test/qa-vercel-quadro.js` conta pelas DUAS ordens e exige 14 nas duas, em vez de escolher uma
 // hipótese e envelhecer com ela.
 //
+// 04/09, DUAS CORREÇÕES NESTE PARÁGRAFO, e as duas foram medidas, não relidas:
+//   · OS NÚMEROS ENVELHECERAM. `/privacidade` entrou nas três formas (item `pagina-privacidade`),
+//     então são **16 de 25**, não 14 de 22 — quem já está certo é o `INERTES_ESPERADAS = 16` do
+//     `test/qa-vercel-quadro.js`, que é asserção; a prosa aqui é que ficou para trás, que é
+//     exatamente a doença que este bloco inteiro existe para tratar;
+//   · A DÚVIDA DE PRECEDÊNCIA FOI FECHADA (bloco lá embaixo, antes de `CSP_SECAO_VERCEL`): a
+//     resposta é (c) — TODAS as que casam rodam —, e as formas SEM barra final não decidem nada
+//     por causa do 308 do `trailingSlash`, que termina o roteamento antes delas, e NÃO por
+//     precedência de cabeçalho. Contar pelas duas ordens continua certo e continua barato.
+//
 // O QUE COBRA AGORA, e cada item existe por uma classe medida:
 //   1. o QUADRO_DE_ROTAS abaixo é a lista de `source` do arquivo, NA ORDEM e com repetição —
 //      multiconjunto, não conjunto. Pega rota trocada, duplicada, apagada, nova e reordenada. A
@@ -749,17 +759,66 @@ function conferirCspDashboard(origemHtml) {
 // canonizou os dois corpos e comparou — o parser de CSP dos dois arquivos era IDÊNTICO token a
 // token, módulo nome de identificador e estilo de aspas. Era transliteração, não segunda leitura.
 //
-// DÚVIDA HERDADA E NÃO RESOLVIDA (do QA em 03/09; procurada de novo no mesmo dia e NÃO fechada):
-// não há documento da Vercel que GARANTA a precedência do array `headers` quando duas regras casam
-// com a mesma rota e trazem a MESMA chave de cabeçalho. O comportamento é INFERIDO DE MEDIÇÃO. O
-// que a documentação alcançável desta máquina afirma como "a primeira que casa vence" é a regra de
-// ROTEAMENTO (rewrite/redirect/status), que é outra coisa — citá-la aqui seria confirmar o que não
-// se leu. Ficam TRÊS hipóteses vivas, nenhuma confirmada em documento: (a) a última vence, que é o
-// que o `test/csp-paginas.js` resolve e o que foi medido; (b) a primeira vence; (c) as duas viajam
-// e o navegador aplica a INTERSECÇÃO das políticas — e se for (c), "inerte" é nome errado e a
-// regra hoje ignorada é ENFORÇADA junto. Nas três, o barato é o mesmo e é o que o quadro faz:
-// cobrar as 22 como se qualquer uma pudesse decidir. **Escrito como inferido, não como sabido** —
-// e quem for fechar isto fecha com documento ou com medição contra a produção, não com busca.
+// A DÚVIDA DE PRECEDÊNCIA — FECHADA EM 04/09 (item `vercel-precedencia-de-headers`), e a resposta
+// é a hipótese (c), com uma correção que nenhuma das três previa. Estava aqui, de 03/09 até 04/09,
+// que a precedência do array `headers` era INFERIDA DE MEDIÇÃO e que ficavam três hipóteses vivas:
+// (a) a última que casa vence · (b) a primeira vence · (c) TODAS as que casam se aplicam. Fechada
+// desta máquina Windows, que tem egresso — a nuvem e o sandbox de agente batem EGRESS_BLOCKED em
+// vercel.com, e é por isso que o item ficou parado dois dias.
+//
+// A RESPOSTA: **TODAS as regras que casam se aplicam** — (c) —, e entre as que trazem a MESMA
+// chave o valor é SOBRESCRITO pela última, não somado. Então (c) e o resolvedor last-match-wins do
+// `test/csp-paginas.js` NÃO se contradizem: (c) descreve QUAIS regras rodam, last-match-wins
+// descreve QUAL VALOR sobra na chave disputada. As duas são verdade ao mesmo tempo.
+//
+// COMO SE SABE, e cada prova é de uma natureza diferente:
+//
+//   1. O MECANISMO, na implementação da própria Vercel. `@vercel/routing-utils` 6.5.0 é o pacote
+//      que converte `vercel.json` em rotas. `getTransformedRoutes({headers, trailingSlash})` sobre
+//      ESTE arquivo devolve as 25 regras de `headers[]` como 25 rotas, e **as 25 carregam
+//      `continue: true`** (medido: `routes.filter(r => r.continue === true).length === 25`).
+//   2. O QUE `continue` SIGNIFICA, em documento oficial aberto e lido em 04/09:
+//      <https://vercel.com/docs/build-output-api/configuration>, tabela do `Source` route —
+//      `continue`: *"A boolean to change matching behavior. If true, routing will continue even
+//      when the src is matched."* Rota que não interrompe é rota que não exclui a seguinte: por
+//      construção, nenhuma regra de `headers[]` impede outra de casar.
+//   3. SOBRESCREVE, NÃO SOMA — medido na PRODUÇÃO em 04/09. `curl -sSI
+//      https://matheusferreira.cc/historia/` casa DUAS regras (`/historia/` e `/historia/(.*)`,
+//      conferido pelas regexes compiladas no item 1) e devolve **4** linhas de cabeçalho, uma de
+//      cada chave — não 8, e nenhuma repetida. Se fosse `append`, o navegador receberia duas CSP e
+//      aplicaria a INTERSECÇÃO, que era o medo da hipótese (c); ele recebe UMA.
+//   4. AS `(.*)` ESTÃO VIVAS, e não só na página feliz: `/historia/xpto/` responde **404 COM** as
+//      quatro (só a regra `(.*)` casa), e `/naoexiste/` responde **404 sem CSP nenhuma** (não casa
+//      regra alguma). Cabeçalho de segurança não depende de a página existir.
+//   5. POR QUE AS FORMAS SEM BARRA FINAL NÃO DECIDEM NADA — e o motivo NÃO é precedência de
+//      cabeçalho, que é como estava escrito aqui. `curl` em `/historia`, `/glossario` e `/jogo`
+//      devolve **308 só com `Location`, zero cabeçalho de segurança**. A causa está na ORDEM
+//      compilada: as duas rotas 308 do `trailingSlash` vêm ANTES das 25 e **não têm `continue`**,
+//      então terminam o roteamento antes de qualquer regra de cabeçalho rodar.
+//
+// O QUE A DOCUMENTAÇÃO NÃO DIZ — anotado para ninguém refazer a busca. A seção `headers` de
+// <https://vercel.com/docs/project-configuration/vercel-json> descreve `source`, `headers`, `has` e
+// `missing`, e **não diz uma palavra** sobre múltiplas regras casando o mesmo caminho; e
+// <https://vercel.com/docs/headers> é sobre cabeçalhos de sistema e também não diz. Existe a frase
+// *"Modify actions from all matching rules still apply"* em
+// <https://vercel.com/docs/routing/project-routing-rules>, que bate com o que foi medido — mas ela
+// é sobre as regras de PROJETO (painel/CDN), e a mesma página diz que elas são *"separate from
+// deployment-level routes defined in `vercel.json`"*. Fica como corroboração, nunca como a citação:
+// era exatamente esse o erro que o aceite do item proibia.
+//
+// O QUE ISTO MUDA NA CONTA DE INERTES, e é a metade que interessa. O VALOR SERVIDO não muda: o
+// resolvedor last-match-wins continua certo, então o número (16 de 25, hoje) continua certo. Muda a
+// PALAVRA: "inerte" está errada para METADE delas. As 8 formas COM barra final casam, rodam e têm
+// os cabeçalhos aplicados — só perdem o valor para a `(.*)` idêntica que vem depois. A consequência
+// tem dente: uma chave que exista numa forma e **falte** na regra seguinte SOBREVIVE na resposta,
+// porque não há quem sobrescreva — uma regra contada como inerte passaria a decidir sozinha. Isso
+// hoje NÃO é buraco aberto, e o que o fecha é outro portão: o `test/qa-csp-cabecalhos.js` mantém
+// `CHAVES_PERMITIDAS` (nenhuma quinta chave entra) e cobra que toda regra com CSP declare as três
+// companheiras com valor fixo. Ou seja: a mislabelagem é de PALAVRA, não de exposição — mas ela
+// deixa de ser inofensiva no instante em que aquele portão afrouxar, e é por isso que fica escrito
+// aqui em vez de virar nota de rodapé. As outras 8 (formas SEM barra final) são inalcançáveis de
+// verdade, pelo motivo do item 5. Nas duas metades o barato é o mesmo e é o que o quadro faz:
+// cobrar as 25 como se qualquer uma pudesse decidir.
 const CSP_SECAO_VERCEL = {
   // A PORTA, A HISTÓRIA, o GLOSSÁRIO, DE ONDE VEM: páginas de leitura, geradas por
   // `ferramentas/gerar-*.js`, com script e estilo INLINE e toda imagem em `data:`.

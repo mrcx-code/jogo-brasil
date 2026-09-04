@@ -1222,7 +1222,7 @@
     },
     {
       "id": "vercel-precedencia-de-headers",
-      "estado": "em-curso",
+      "estado": "concluido",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A precedencia do array headers da Vercel e INFERIDA e nao documentada — e a 3a hipotese muda a severidade",
@@ -1231,10 +1231,11 @@
         "test/qa-csp-cabecalhos.js"
       ],
       "aceite": "Fechar com DOCUMENTO aberto e citado, ou com curl -I contra a producao (matando as duas duvidas de uma vez: qual regra decide, e se a ignorada viaja junto). Nao vale busca que devolva a regra de ROTEAMENTO (rewrite/redirect/status) — e outra coisa, e citar ela seria confirmar o que ninguem leu. Exige maquina com egresso para vercel.com: a nuvem NAO fecha este item (medido, ver detalhe).",
-      "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso.",
+      "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso. FECHADO em 04/09 pelo porteiro nesta maquina Windows, que TEM egresso a vercel.com (WebFetch voltou as paginas inteiras) e a matheusferreira.cc.",
       "nota": "TENTATIVA em 03/09 pelo windows-plantao (pre-integrador, sandbox do agente): tambem bateu EGRESS_BLOCKED tentando vercel.com/docs, e o curl -I contra matheusferreira.cc nao achou duas regras conflitantes no MESMO path pra observar qual vence (os headers sao identicos por desenho onde ele olhou). O agente declarou o item fechado como 'documentado e gerenciado' SEM satisfazer o aceite (nem documento citado, nem medicao de conflito real) — devolvido a livre. NAO CONTA como tentativa de maquina com egresso pleno: o sandbox do agente parece ter a mesma restricao da nuvem para este host especifico, mesmo rodando nesta maquina Windows. Quem pegar de novo: confirme egresso a vercel.com/docs ANTES de aceitar o item como fechavel por aqui, ou ache duas rotas do vercel.json que colidem de verdade para testar por curl.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T16:51:47.842Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "HIPOTESE (c) CONFIRMADA, com uma correcao que nenhuma das tres previa: TODAS as regras que casam rodam, E entre as que trazem a MESMA chave o valor e SOBRESCRITO pela ultima (nao somado) — entao (c) e o resolvedor last-match-wins do csp-paginas.js nao se contradizem: (c) diz QUAIS regras rodam, last-match-wins diz QUAL VALOR sobra. Cinco provas. (1) MECANISMO, na implementacao da propria Vercel: @vercel/routing-utils 6.5.0, getTransformedRoutes({headers,trailingSlash}) sobre o vercel.json deste repo devolve as 25 regras de headers[] como 25 rotas e as 25 carregam continue:true (routes.filter(r=>r.continue===true).length===25). (2) DOCUMENTO OFICIAL ABERTO E LIDO: https://vercel.com/docs/build-output-api/configuration , tabela do Source route, continue = \"A boolean to change matching behavior. If true, routing will continue even when the src is matched.\" (3) SOBRESCREVE E NAO SOMA, medido em producao: curl -sSI https://matheusferreira.cc/historia/ casa DUAS regras (/historia/ e /historia/(.*), conferido pelas regexes compiladas) e devolve 4 linhas de cabeçalho, uma por chave, nenhuma repetida — se fosse append seriam 8 e o navegador aplicaria interseccao, que era o medo de (c). (4) as (.*) estao vivas ate no 404: /historia/xpto/ da 404 COM as quatro, /naoexiste/ da 404 SEM CSP nenhuma. (5) as formas SEM barra final nao decidem nada, mas NAO por precedencia de cabeçalho: /historia, /glossario e /jogo dao 308 so com Location, zero cabeçalho de seguranca, porque as duas rotas 308 do trailingSlash vem ANTES das 25 e NAO tem continue, terminando o roteamento. A DOC NAO DIZ (anotado para ninguem refazer a busca): a secao headers de https://vercel.com/docs/project-configuration/vercel-json descreve source/headers/has/missing e nao diz nada sobre multiplas regras casando o mesmo caminho; https://vercel.com/docs/headers tambem nao. A frase \"Modify actions from all matching rules still apply\" existe em https://vercel.com/docs/routing/project-routing-rules e bate com o medido, mas e sobre regras de PROJETO (painel/CDN) e a propria pagina diz que sao \"separate from deployment-level routes defined in vercel.json\" — fica como corroboracao, nunca como a citacao, que era o erro que o aceite proibia. O QUE MUDA NA CONTA: o valor servido nao muda e o numero (16 de 25 hoje; INERTES_ESPERADAS=16 no test/qa-vercel-quadro.js) continua certo. Muda a PALAVRA: \"inerte\" esta errada para METADE — as 8 formas COM barra final casam, rodam e sao aplicadas, so perdem o valor para a (.*) identica que vem depois, e uma chave que exista numa forma e FALTE na seguinte SOBREVIVERIA na resposta (hoje as 25 carregam as mesmas 4 chaves, entao nao acontece). As outras 8 sao inalcancaveis de verdade, pelo 308. Escrito com as provas em ferramentas/construir.js (bloco acima de CSP_SECAO_VERCEL, mais correcao do 14-de-22 envelhecido para 16-de-25) e em test/qa-vercel-quadro.js. Nenhum comportamento de producao tocado: 0 linha de diff em vercel.json."
     },
     {
       "id": "vercel-valor-e-topo",
@@ -1352,7 +1353,7 @@
     },
     {
       "id": "ramos-mortos-apagar-sem-trava",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar nao recusa apagar ramo de item em-curso nem o ramo do proprio HEAD",
@@ -1362,8 +1363,7 @@
       ],
       "aceite": "O --apagar recusa (exit != 0, mensagem nomeando o ramo) quando o entrega/<id> casa com item de estado em-curso no backlog.json, e quando o ramo e o do HEAD atual. Mordida provada por injecao nos dois casos. A rede de seguranca deixa de ser \"confira a lista acima antes de colar\".",
       "detalhe": "Achado pelo QA em 04/09 no gap-check da entrega ramos-mortos-conteudo. Vale para a versao da MAIN tambem, nao so para a entrega recusada: hoje o --apagar cospe os comandos de apagar sem nenhuma trava, e a unica protecao e a pessoa ler a lista. Como quem tem delete_ref e o Mac e o Windows (a nuvem sai 403), quem cola e justamente quem nao acompanhou a rodada que criou o ramo.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T16:50:03.701Z"
+      "feito": "Integrado 04/09 (commit 95a3ea4, funil 05345e5/3c2a7e7). Duas travas em recusaDe(): item entrega/<id> em-curso no backlog, e ramo do HEAD atual -- pula o ramo recusado (nao aborta a lista), exit !=0 nomeando o ramo. Provado por injecao real no repositorio (70->69 comandos) e por test/ramos-mortos-apagar-travas.js (15 checagens, controle positivo + 2 injecoes separadas). QA independente (aacf7f760564b3e72) confirmou a mordida das 2 travas isoladamente fora do arquivo (RAMOS_MORTOS_JS apontando pra copias doentes), refutou a propria hipotese sobre bloqueado, e achou 3 gaps reais registrados como itens separados (prefixo entrega/x vs entrega/x-qa; worktree irmao; backlog local desatualizado)."
     },
     {
       "id": "ramos-mortos-fora-do-ci",
@@ -1573,6 +1573,44 @@
       ],
       "aceite": "O guarda passa a decidir pelo EFEITO e nao pela ocorrencia da string: comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado; escrita de verdade continua recusada. Mordida provada nos dois sentidos por injecao, e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade.",
       "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava."
+    },
+    {
+      "id": "ramos-mortos-trava-prefixo-entrega",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava por item em-curso casa so por igualdade exata, entrega/<id>-qa passa incolume",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-apagar-travas.js"
+      ],
+      "aceite": "Recusar entrega/<x> tambem quando o id de um item em-curso for prefixo de <x> na fronteira \"-\" (ex.: item em-curso \"censo-foto\" recusa entrega/censo-foto E entrega/censo-foto-qa). Mordida provada por injecao com um par prefixo real.",
+      "detalhe": "Achado pelo QA (aacf7f760564b3e72) revisando ramos-mortos-apagar-sem-trava em 04/09: hoje 4 pares prefixo ja existem nos ramos entrega/ reais (censo-foto/-qa, csp-constante/-qa, glossario-substancia/-rev2/-rev3) e 33 de 48 ramos entrega/ nao tem item nenhum no backlog. Nenhum par tem item em-curso agora, entao nao sangra hoje, mas o padrao e recorrente (ramo -qa criado para revisar uma entrega original que ainda esta em-curso)."
+    },
+    {
+      "id": "ramos-mortos-trava-worktree-irmao",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava do HEAD so olha o HEAD desta copia, nao worktrees irmaos do mesmo clone",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-apagar-travas.js"
+      ],
+      "aceite": "git worktree list (ou equivalente) entra na checagem: recusar tambem um ramo que esteja checked-out em QUALQUER worktree do clone, nao so o HEAD da copia que roda o comando.",
+      "detalhe": "Achado pelo QA (aacf7f760564b3e72) em 04/09, reproduzido: com entrega/alvo checked-out num worktree irmao do mesmo clone e HEAD na main na copia que roda --apagar, sai exit 0 e o comando de apagar entrega/alvo aparece na lista. Menor risco que ramos-mortos-trava-prefixo-entrega porque esta casa usa nomes worktree-agent-* para a maioria dos worktrees de agente, nao entrega/*, mas ainda e uma janela real."
+    },
+    {
+      "id": "ramos-mortos-trava-backlog-desatualizado",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava de item em-curso le backlog.json do disco local, pode estar atras da origin",
+      "territorio": [
+        "ferramentas/ramos-mortos.js"
+      ],
+      "aceite": "Depois do git fetch origin main que o programa ja faz (para classificacao), tambem ler git show origin/main:ferramentas/backlog.json e unir com o estado local (origin decide em caso de conflito) antes de aplicar a trava de item em-curso -- com recuo automatico para o disco se o show falhar (rede fora, etc).",
+      "detalhe": "Levantada pelo proprio dev-jogo (aadec0fa4ca817901) e confirmada como nao-bloqueante pelo QA (aacf7f760564b3e72) em 04/09: a trava le o backlog.json LOCAL (ramos-mortos.js:116), antes do fetch (linha 123) usado para outra finalidade. Um item marcado em-curso por outra maquina ha pouco pode nao aparecer se o clone nao deu pull. Estado ANTERIOR a esta entrega era zero trava -- barrar so por igualdade local ja e estritamente melhor, entao nao bloqueia a integracao, mas fecha a janela de verdade."
     },
     {
       "id": "quadros-de-gente-vazios-na-fonte",

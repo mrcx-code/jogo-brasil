@@ -28,6 +28,15 @@
 // tem `delete_ref` (Mac e Windows); a nuvem cola a saída do `--apagar` no RECADOS e segue. Um
 // programa que apaga ref remota sozinho é exatamente o tipo de coisa que não se quer rodando
 // sem alguém olhando.
+//
+// ⚠ E POR ISSO MESMO O `--apagar` TEM DUAS TRAVAS — achado do QA em 04/09, no gap-check de uma
+// entrega vizinha. A rede de segurança do `--apagar` era a linha *"confira a lista acima antes de
+// colar"*, e essa linha pede exatamente a coisa que a divisão de trabalho torna impossível: quem
+// TEM `delete_ref` é o Mac e o Windows (a nuvem sai 403), então quem cola é justamente quem **não
+// acompanhou a rodada que criou o ramo** e não tem como conferir nada. Uma instrução dirigida a
+// alguém que não pode cumpri-la não é proteção; é a ausência de proteção com nome de proteção.
+// As duas travas estão em `recusaDe()`, lá embaixo, e cada uma tem cena e injeção em
+// `test/ramos-mortos-apagar-travas.js`.
 'use strict';
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -202,9 +211,68 @@ for (const r of refsRemotos('refs/heads/entrega/*')) {
   ]);
 }
 
+// ── AS DUAS TRAVAS DO `--apagar` ───────────────────────────────────────────────────────────────
+// Elas não corrigem a CLASSIFICAÇÃO — um ramo recusado aqui continua morto pelo critério que o
+// pôs em MORTOS. Elas param a única coisa **irreversível** que sai deste arquivo: a linha
+// `git push origin --delete`, que outra máquina cola sem contexto.
+//
+// TRAVA 1 — `entrega/<id>` cujo item está `em-curso` no backlog. A pergunta que ela responde não é
+// "o trabalho já está na main?" (a classificação responde isso, contra um `origin/main` buscado
+// AGORA), e sim "alguém ainda vai empurrar para este ramo?". Entre a medição e a colagem passam
+// minutos ou horas, em máquinas diferentes; um ramo ancestral às 10h pode ter commit novo às 11h,
+// e a corrida é real porque o PLANTÃO despacha em paralelo. `em-curso` é a declaração de que há
+// mão no ramo, e é a única informação que este arquivo tem sobre o FUTURO dele.
+//
+// Só vale para `entrega/`, e a exclusão do `voo/` é deliberada: a expiração de 2 h do marcador
+// (`VALIDADE_MS`) é uma decisão medida em 23/08 sobre rodadas de 2 a 67 min, e existe justamente
+// para que marcador esquecido de item `em-curso` VÁ para MORTOS. Estender a trava ao `voo/`
+// desfaria a regra do §7 (*"o marcador é pista, nunca prova"*) por um efeito colateral.
+//
+// TRAVA 2 — o ramo do HEAD desta cópia. Serrar o galho em que se está sentado nunca é o que se
+// quis: quem roda o comando de dentro do worktree da própria entrega vê o remoto sumir embaixo do
+// que está commitando. HEAD solto (detached) não é ramo e não tem o que proteger.
+//
+// A ESCOLHA: PULA O RECUSADO, NÃO ABORTA A LISTA — e o motivo é o comportamento de quem lê.
+// Abortar tudo devolveria uma saída sem comando nenhum, e a pessoa que precisa apagar 14 ramos
+// mortos escreveria os 14 à mão a partir da seção MORTOS — sem trava nenhuma, que é pior que o
+// estado de hoje. Pulando, a lista colável sai COMPLETA e SEGURA (os recusados não estão nela),
+// o bloco RECUSADO diz nome e motivo, e o **exit != 0** é o que impede a recusa de passar
+// despercebida num log longo.
+function ramoDoHEAD() {
+  try {
+    const nome = git('rev-parse', '--abbrev-ref', 'HEAD').trim();
+    return nome && nome !== 'HEAD' ? nome : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+const RAMO_ATUAL = ramoDoHEAD();
+
+// Devolve o motivo da recusa, ou `null` se o ref pode entrar na lista de apagar.
+function recusaDe(ref) {
+  const nome = ref.replace(/^refs\/heads\//, '');
+  if (RAMO_ATUAL && nome === RAMO_ATUAL) {
+    return 'É O RAMO DO HEAD desta cópia — não se apaga o galho em que se está sentado';
+  }
+  const m = /^entrega\/(.+)$/.exec(nome);
+  if (m) {
+    const item = porId.get(m[1]);
+    if (item && item.estado === 'em-curso') {
+      return 'o item `' + m[1] + '` está EM-CURSO no backlog'
+        + (item.maquina ? ' (' + item.maquina + ')' : '')
+        + ' — pode haver commit novo depois desta medição';
+    }
+  }
+  return null;
+}
+
 if (!SO_VIVOS) {
   console.log('MORTOS — ' + mortos.length + ' ref(s), nada a salvar:');
-  for (const [ref, por] of mortos) console.log('  ' + ref.padEnd(46) + ' ' + por);
+  for (const [ref, por] of mortos) {
+    const recusa = recusaDe(ref);
+    console.log('  ' + ref.padEnd(46) + ' ' + por + (recusa ? ' · ⛔ RECUSADO no --apagar' : ''));
+  }
   if (!mortos.length) console.log('  (nenhum)');
   console.log('');
 }
@@ -223,8 +291,29 @@ if (naoSei.length) {
 }
 
 if (APAGAR) {
+  const recusados = [];
+  const liberados = [];
+  for (const [ref] of mortos) {
+    const por = recusaDe(ref);
+    if (por) recusados.push([ref, por]);
+    else liberados.push(ref);
+  }
+
   console.log('');
   console.log('# Para a máquina que TEM delete_ref (Mac, Windows). A nuvem leva 403 aqui.');
-  console.log('# Confira a lista acima antes de colar — este arquivo classifica, não decide por você.');
-  for (const [ref] of mortos) console.log('git push origin --delete ' + ref.replace('refs/heads/', ''));
+  console.log('# Esta lista já saiu SEM os refs recusados abaixo — colar o bloco inteiro é seguro.');
+  for (const ref of liberados) console.log('git push origin --delete ' + ref.replace('refs/heads/', ''));
+  if (!liberados.length) console.log('# (nenhum ref liberado para apagar)');
+
+  if (recusados.length) {
+    console.log('');
+    console.log('RECUSADO — ' + recusados.length + ' ref(s) que este arquivo NÃO manda apagar:');
+    for (const [ref, por] of recusados) console.log('  ' + ref.replace('refs/heads/', '').padEnd(46) + ' ' + por);
+    console.log('');
+    console.log('Nada foi apagado — este arquivo nunca apaga. Para apagar um destes mesmo assim, é');
+    console.log('à mão e de olho aberto: mude o item no backlog (ou saia deste ramo) e rode de novo.');
+    // `exitCode` em vez de `process.exit(1)`: a saída acima ainda pode estar na fila do pipe, e o
+    // `exit` a corta no Windows. Este bloco é a última coisa do arquivo, então basta marcar.
+    process.exitCode = 1;
+  }
 }

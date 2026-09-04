@@ -251,6 +251,19 @@ try {
 // servido HOJE a página nenhuma. É o lugar mais barato para uma CSP frouxa passar despercebida —
 // e é exatamente por isso que o QUADRO_DE_ROTAS cobra as 22 como se qualquer uma pudesse decidir.
 //
+// FECHADA EM 04/09 — A DÚVIDA ABAIXO TEM RESPOSTA, E A ASSERÇÃO CONTINUA CERTA. A hipótese
+// verdadeira é a (c): TODAS as regras que casam rodam (as 25 saem de `@vercel/routing-utils` 6.5.0
+// com `continue: true`, e a doc oficial do `Source` route define `continue` como "routing will
+// continue even when the src is matched" — <https://vercel.com/docs/build-output-api/configuration>).
+// O medo embutido em (c) — duas CSP viajando e o navegador aplicando a interseção — NÃO acontece:
+// medido em produção, `/historia/` casa duas regras e recebe 4 linhas de cabeçalho, uma por chave,
+// então chave repetida é SOBRESCRITA pela última. Por isso last-match-wins segue sendo o resolvedor
+// certo e este número segue certo. O que muda é a PALAVRA: as 8 formas com barra final não são
+// inertes, são sobrescritas — chave que falte na regra seguinte sobreviveria. As 8 formas SEM barra
+// final são inalcançáveis mesmo, mas pelo 308 do `trailingSlash`, que vem antes delas e não tem
+// `continue`, e não por precedência de cabeçalho. Prova inteira em `ferramentas/construir.js`, no
+// bloco logo acima de `CSP_SECAO_VERCEL`. Contar pelas DUAS ordens continua sendo o certo a fazer.
+//
 // A DÚVIDA QUE NÃO SE RESOLVE AQUI, E COMO ESTA ASSERÇÃO SOBREVIVE A ELA. Qual regra vence quando
 // duas casam com a mesma rota é INFERIDO DE MEDIÇÃO, NÃO DOCUMENTADO: a documentação da Vercel
 // alcançável desta máquina não afirma a precedência do array `headers` para a MESMA chave de
@@ -330,7 +343,8 @@ if (inertesUltima.length !== INERTES_ESPERADAS || inertesPrimeira.length !== INE
     + ' Rota nova? página nova em dist/? mude o número no MESMO commit e diga por quê.');
 } else {
   console.log('  ok  ' + INERTES_ESPERADAS + ' nas duas ordens — o número não depende da precedência,'
-    + ' que continua INFERIDA e não documentada');
+    + ' que desde 04/09 também não é mais dúvida: TODAS as que casam rodam, e chave repetida'
+    + ' é sobrescrita pela última (provas em ferramentas/construir.js, acima de CSP_SECAO_VERCEL)');
 }
 
 console.log('');
