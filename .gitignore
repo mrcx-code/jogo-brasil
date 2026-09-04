@@ -82,17 +82,14 @@ test/DIO-*-1366x768.png
 test/DIO-*-844x390.png
 test/DIO-*-390x568.png
 
-# O CAMINHO-DO-CEU (PENDENTES 54, 03/09). `node test/prints-costura.js` gera 26 arquivos — a
-# home e a tira da costura de cada um dos treze capitulos — e eles somam 22 MB. Refazem-se em UM
-# comando, e sao MATERIAL DE JULGAMENTO da arte, nao prova de numero: o que sustenta os numeros
-# do NOTES.md e o par CEU-ANTES/CEU-DEPOIS (dsf1, ~430 KB cada, versionado) mais as DUAS tiras
-# que cobrem os extremos de textura — PINDORAMA (mata: a costura some) e SALVADOR (calcamento de
-# pedra: a costura e onde mais aparece, porque la nao ha mato na emenda para escondê-la).
-# Mesma regra do DIO-*, do HOME2-* e do TERRITORIO-3d-* logo acima.
-test/COSTURA-home-*.png
-test/COSTURA-tira-*.png
-!test/COSTURA-tira-00-PINDORAMA.png
-!test/COSTURA-tira-03-SALVADOR.png
+# O CAMINHO-DO-CEU (PENDENTES 54, 03/09-04/09). `node test/prints-costura.js` gera 26 arquivos —
+# a home e a tira da costura de cada um dos treze capitulos, 22 MB ao todo — e ELES FICAM
+# VERSIONADOS, os 26. Nao sao saida descartavel de bancada: sao a PROVA em que o veredito da arte
+# se apoia (condicao 1 do aceite, julgada capitulo a capitulo), e prova sem commit e decoracao
+# (EQUIPE.md, licao 2.8). Refazem-se num comando quando a arte pedir revisao futura, mas o par que
+# sustentou a aprovacao de 04/09 fica no historico. Mesma logica do DIO-*, do HOME2-* e do
+# TERRITORIO-3d-* logo acima, com uma diferenca: aqueles sao amostra; isto e a suite inteira,
+# porque a suite inteira foi o que a arte julgou.
 
 # quem sou eu, para o lock entre maquinas (PR #4) — nunca versionado: cada maquina tem o seu
 .claude/maquina
