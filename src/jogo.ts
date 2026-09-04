@@ -4143,10 +4143,14 @@ const ORIGEM_ESCOLA = "escola";
 function chegouPelaEscola() {
   try {
     if (!location.search) return false;
-    const v = new URLSearchParams(location.search).get(ORIGEM_BUSCA);
-    // minúsculas e aparado: `?origem=Escola` colado de um e-mail é a mesma chegada, e errar
-    // para o lado de PROTEGER é o único erro barato que este bloco tem.
-    return typeof v === "string" && v.trim().toLowerCase() === ORIGEM_ESCOLA;
+    // A CHAVE também é lida sem distinguir maiúscula — `?ORIGEM=escola` (autocapitalização de
+    // teclado, ou colada de um app que capitaliza parâmetro) tem de proteger igual a `?origem=`.
+    // GAP achado pela revisão adversarial (04/09): só o VALOR era normalizado, a chave não —
+    // `?ORIGEM=escola` caía no "não decidiu nada" e nascia LIGADO, o erro caro deste bloco.
+    for (const [k, v] of new URLSearchParams(location.search)) {
+      if (k.toLowerCase() === ORIGEM_BUSCA && v.trim().toLowerCase() === ORIGEM_ESCOLA) return true;
+    }
+    return false;
   } catch (e) { return false; }
 }
 function medirCarregar() {
