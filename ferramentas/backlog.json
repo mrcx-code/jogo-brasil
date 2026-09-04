@@ -1352,7 +1352,7 @@
     },
     {
       "id": "ramos-mortos-apagar-sem-trava",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar nao recusa apagar ramo de item em-curso nem o ramo do proprio HEAD",
@@ -1362,8 +1362,7 @@
       ],
       "aceite": "O --apagar recusa (exit != 0, mensagem nomeando o ramo) quando o entrega/<id> casa com item de estado em-curso no backlog.json, e quando o ramo e o do HEAD atual. Mordida provada por injecao nos dois casos. A rede de seguranca deixa de ser \"confira a lista acima antes de colar\".",
       "detalhe": "Achado pelo QA em 04/09 no gap-check da entrega ramos-mortos-conteudo. Vale para a versao da MAIN tambem, nao so para a entrega recusada: hoje o --apagar cospe os comandos de apagar sem nenhuma trava, e a unica protecao e a pessoa ler a lista. Como quem tem delete_ref e o Mac e o Windows (a nuvem sai 403), quem cola e justamente quem nao acompanhou a rodada que criou o ramo.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T16:50:03.701Z"
+      "feito": "Integrado 04/09 (commit 95a3ea4, funil 05345e5/3c2a7e7). Duas travas em recusaDe(): item entrega/<id> em-curso no backlog, e ramo do HEAD atual -- pula o ramo recusado (nao aborta a lista), exit !=0 nomeando o ramo. Provado por injecao real no repositorio (70->69 comandos) e por test/ramos-mortos-apagar-travas.js (15 checagens, controle positivo + 2 injecoes separadas). QA independente (aacf7f760564b3e72) confirmou a mordida das 2 travas isoladamente fora do arquivo (RAMOS_MORTOS_JS apontando pra copias doentes), refutou a propria hipotese sobre bloqueado, e achou 3 gaps reais registrados como itens separados (prefixo entrega/x vs entrega/x-qa; worktree irmao; backlog local desatualizado)."
     },
     {
       "id": "ramos-mortos-fora-do-ci",
@@ -1573,6 +1572,44 @@
       ],
       "aceite": "O guarda passa a decidir pelo EFEITO e nao pela ocorrencia da string: comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado; escrita de verdade continua recusada. Mordida provada nos dois sentidos por injecao, e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade.",
       "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava."
+    },
+    {
+      "id": "ramos-mortos-trava-prefixo-entrega",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava por item em-curso casa so por igualdade exata, entrega/<id>-qa passa incolume",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-apagar-travas.js"
+      ],
+      "aceite": "Recusar entrega/<x> tambem quando o id de um item em-curso for prefixo de <x> na fronteira \"-\" (ex.: item em-curso \"censo-foto\" recusa entrega/censo-foto E entrega/censo-foto-qa). Mordida provada por injecao com um par prefixo real.",
+      "detalhe": "Achado pelo QA (aacf7f760564b3e72) revisando ramos-mortos-apagar-sem-trava em 04/09: hoje 4 pares prefixo ja existem nos ramos entrega/ reais (censo-foto/-qa, csp-constante/-qa, glossario-substancia/-rev2/-rev3) e 33 de 48 ramos entrega/ nao tem item nenhum no backlog. Nenhum par tem item em-curso agora, entao nao sangra hoje, mas o padrao e recorrente (ramo -qa criado para revisar uma entrega original que ainda esta em-curso)."
+    },
+    {
+      "id": "ramos-mortos-trava-worktree-irmao",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava do HEAD so olha o HEAD desta copia, nao worktrees irmaos do mesmo clone",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-apagar-travas.js"
+      ],
+      "aceite": "git worktree list (ou equivalente) entra na checagem: recusar tambem um ramo que esteja checked-out em QUALQUER worktree do clone, nao so o HEAD da copia que roda o comando.",
+      "detalhe": "Achado pelo QA (aacf7f760564b3e72) em 04/09, reproduzido: com entrega/alvo checked-out num worktree irmao do mesmo clone e HEAD na main na copia que roda --apagar, sai exit 0 e o comando de apagar entrega/alvo aparece na lista. Menor risco que ramos-mortos-trava-prefixo-entrega porque esta casa usa nomes worktree-agent-* para a maioria dos worktrees de agente, nao entrega/*, mas ainda e uma janela real."
+    },
+    {
+      "id": "ramos-mortos-trava-backlog-desatualizado",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar: trava de item em-curso le backlog.json do disco local, pode estar atras da origin",
+      "territorio": [
+        "ferramentas/ramos-mortos.js"
+      ],
+      "aceite": "Depois do git fetch origin main que o programa ja faz (para classificacao), tambem ler git show origin/main:ferramentas/backlog.json e unir com o estado local (origin decide em caso de conflito) antes de aplicar a trava de item em-curso -- com recuo automatico para o disco se o show falhar (rede fora, etc).",
+      "detalhe": "Levantada pelo proprio dev-jogo (aadec0fa4ca817901) e confirmada como nao-bloqueante pelo QA (aacf7f760564b3e72) em 04/09: a trava le o backlog.json LOCAL (ramos-mortos.js:116), antes do fetch (linha 123) usado para outra finalidade. Um item marcado em-curso por outra maquina ha pouco pode nao aparecer se o clone nao deu pull. Estado ANTERIOR a esta entrega era zero trava -- barrar so por igualdade local ja e estritamente melhor, entao nao bloqueia a integracao, mas fecha a janela de verdade."
     }
   ]
 }
