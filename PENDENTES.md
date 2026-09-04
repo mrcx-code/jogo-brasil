@@ -4308,7 +4308,11 @@ Diário do NOTES.md, 2026-09-04.
    altura não se vê; num pedido de arte novo, vale pedir margem.
 ---
 
-## 107 — `/dashboard/backlog.json` publica em texto claro que há pinos "PARE" e deliberação sobre nomear alguém — para o dono (04/09)
+## 108 — `/dashboard/backlog.json` publica em texto claro que há pinos "PARE" e deliberação sobre nomear alguém — para o dono (04/09)
+
+*(Renumerado de 107 para 108 — colisão com o item de SALVADOR, escrito por outra máquina no mesmo
+período; `merge=union` juntou os dois sem conflito, exatamente como o `RECADOS.md` de 23/08 já
+tinha registrado que aconteceria. Deixo a nota aqui para quem procurar pelo número antigo.)*
 
 Achado pelo QA ao auditar `territorio-rico`. **Não é do commit que ele auditava** — é pré-existente,
 achado no caminho, e a régua nova (item anterior, que fechou o vazamento de
