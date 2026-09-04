@@ -66,6 +66,51 @@
 //       nome de classe no molde, por exemplo — falha FECHADA, não silenciosa).
 //       NÃO CONFUNDIR com a decisão de serifa (fechada): a régua aqui é ESPAÇO, não fonte.
 //
+//   (h) O CARTÃO AINDA DEPENDE DA MÁQUINA QUE O GERA — só que menos, e agora com número
+//       (item `cartoes-sociais-peso-mudou-sem-explicacao`, 04/09). O item nasceu de quatro
+//       cartões que mudaram de peso numa entrega que só acrescentou um link no RODAPÉ
+//       (`bd63663`, a página /privacidade/): território −1677, história +854, de-onde-vem
+//       +1192, glossário −9 bytes. A hipótese em pauta era rede (fonte do Google chegando por
+//       timing), e ela está REFUTADA — o bloco acima diz por quê. O que foi medido no lugar:
+//
+//       1. NÃO HÁ NÃO-DETERMINISMO ENTRE RODADAS, nas três seções. Dois `node
+//          ferramentas/gerar-{historia,fontes,glossario}.js` seguidos, sem tocar em nada:
+//          md5 IGUAL e byte IGUAL nas duas — 84.702 · 87.668 · 81.553. (O quarto cartão, o do
+//          território, É não-determinístico, e por outra causa já documentada: dois runs
+//          seguidos deram 89.799 e 89.814 bytes, md5 diferente, por causa da brasa pulsante
+//          dos pinos 3D. Ele não passa por este arquivo.)
+//       2. O QUE MUDOU FOI A MÁQUINA, e está no `git log`: `a7a82a7`/`1484f0a` saíram da
+//          nuvem (autor `Claude`, fuso +0000, Linux) e `bd63663` saiu da máquina do dono
+//          (autor `mrcx-code`, fuso −0300, Windows). Nenhum byte da PÁGINA visível no quadro
+//          mudou entre as duas (o link novo vive num `<p class="med">` do rodapé, que este
+//          arquivo esconde ANTES do print e que está fora dos 630 px de qualquer jeito).
+//       3. A DIFERENÇA TEM DUAS PARTES, separadas por sobreposição de mancha de tinta (IoU
+//          da tinta binarizada, por faixa de linhas, entre o JPEG de `a7a82a7` e o de
+//          `bd63663` — história):
+//            barra de tábuas (y 48–95)     IoU 0,977  ← mesmo desenho, outro antialias
+//            selo + título   (y 127–224)   IoU 0,952  ← idem: a Gelasio embutida FUNCIONA
+//            `.conta`, mono  (y 300–325)   IoU 0,123  ← OUTRO TIPO DE LETRA, não antialias
+//            `.quando`, mono (y 398–420)   IoU 0,364  ← idem
+//          Ou seja: a serifa viaja com o print desde 02/09 e a prova disso é o IoU alto; o que
+//          NÃO viaja é o MONO. `--mono` é `ui-monospace,…,Consolas,monospace`
+//          (chrome-plataforma.js) e não está — de propósito — em `FAMILIAS_SERIFA`, então
+//          esses elementos continuam pintados pela fonte do host: Consolas no Windows,
+//          DejaVu/Liberation no Linux. É o defeito do PENDENTES 101b, sobrevivendo no mono.
+//       4. O RESTO (o IoU 0,95–0,98 da serifa) é rasterização do sistema — DirectWrite contra
+//          FreeType — e NÃO tem conserto por embutir fonte: o mesmo glifo, na mesma posição,
+//          com outro filtro de suavização. Print de navegador não é byte-idêntico entre
+//          sistemas operacionais, e afirmar o contrário seria prometer o impossível.
+//
+//       O QUE ESTE ARQUIVO PASSOU A FAZER COM ISSO, já que consertar (4) é impossível e
+//       consertar (3) é decisão de ARTE (trocar o mono do cartão por serifa muda o desenho
+//       publicado) ou exige um segundo binário de fonte com licença conferida: ele CONTA as
+//       forasteiras — todo elemento com texto próprio DENTRO do quadro cuja família pintada
+//       não é a embutida — e RECUSA se aparecer uma que não esteja na lista fixa abaixo.
+//       Assim o que hoje é uma dependência de máquina CONHECIDA e de tamanho medido não pode
+//       crescer em silêncio: o dia em que um bloco novo entrar na página vestido de mono, ou
+//       de qualquer coisa que não seja a serifa da casa, a geração para em vez de publicar um
+//       cartão que muda de cara conforme quem apertou o botão.
+//
 // E o print sai a `deviceScaleFactor: 1` de propósito: a 2 ele sairia 2400×1260 e desmentiria
 // as tags `og:image:width`/`height` que o próprio gerador escreve.
 const { chromium } = require('playwright');
@@ -160,6 +205,27 @@ const MARGEM_FOLGA = 12;
 // REAL é MEDIDA e cobrada logo abaixo, em vez de confiar só nesta injeção.
 const MARGEM_CSS = '.env{padding-left:56px!important}';
 
+// ---- (h) AS FORASTEIRAS — o que, dentro do quadro, ainda é pintado pela máquina ----
+//
+// A lista é FIXA e curta de propósito: ela é o inventário do que hoje sai em `var(--mono)`
+// dentro dos 1200×630 das três seções, medido em 04/09 (o seletor, a caixa e o texto de cada
+// um estão no relatório do item). Nada aqui é aspiração — é o retrato do que existe:
+//     .conta       as três seções  ("47 momentos · 47 com fonte…", "61 fontes · 11 grupos"…)
+//     .quando      história        ("há mais de onze mil anos")
+//     .hojeR       história        ("quem lê hoje")
+//     .grupo > h2  de-onde-vem e glossário (o cabeçalho do primeiro grupo)
+//
+// POR QUE UMA LISTA, E NÃO UM NÚMERO. Um teto ("no máximo 3 forasteiras") aprovaria a troca de
+// uma por outra em silêncio, que é exatamente o modo de falha que este bloco existe para pegar.
+// E por que RECUSAR em vez de só contar: a mesma razão do resto do arquivo — num cartão de link
+// ninguém confere, e o robô do WhatsApp guarda o que buscou por semanas.
+//
+// SE VOCÊ VEIO PARAR AQUI PORQUE A GERAÇÃO RECUSOU: a resposta certa quase nunca é acrescentar
+// o seletor novo nesta lista. É perguntar por que aquele bloco não veste a serifa da casa —
+// crescer esta lista é aumentar, de propósito, a parte do cartão que muda de cara conforme a
+// máquina. Acrescente só quando for decisão de arte, e escreva no commit qual foi.
+const HOST_ESPERADO = ['.conta', '.quando', '.hojeR', '.grupo > h2'];
+
 // As tags do <head>, montadas de uma vez para nenhuma seção esquecer metade delas. A URL vem
 // SEMPRE da BASE de ferramentas/dominio.js — endereço escrito à mão numa tag og: é o jeito
 // clássico de a prévia quebrar quando o domínio muda, e em silêncio.
@@ -195,8 +261,15 @@ async function tirar(dir, op) {
     // sobre ela quando a espera abaixo resolver. Ela nao encosta em nenhum byte publicado:
     // vive so nesta pagina em memoria, como o GRAO_FORA la em cima.
     await pg.addStyleTag({ content: TIPO.css({ defeito: process.env.CARTAO_TIPOGRAFIA_DEFEITO }) });
-    // As fontes do Google chegam por rede. `document.fonts.ready` resolve quando o navegador
-    // terminou de decidir sobre TODAS elas — inclusive decidindo que não vêm.
+    // ESTA ESPERA NÃO É DE REDE, e a linha que dizia que era custou um item inteiro do backlog
+    // (`cartoes-sociais-peso-mudou-sem-explicacao`, 04/09). Ela dizia "as fontes do Google chegam
+    // por rede" — verdade até 22/08, quando a onda 1 tirou o Google das páginas. Medido por
+    // `grep` em 04/09: ZERO ocorrências de `fonts.googleapis`/`fonts.gstatic` nas cinco páginas
+    // publicadas (a única do repositório é um comentário no dashboard descrevendo a remoção).
+    // A única fonte que esta página carrega é a `@font-face` em base64 da linha acima, que já
+    // está em memória — então o que se espera aqui é o navegador terminar de DECIDIR sobre ela,
+    // não uma viagem de rede. O comentário velho fez um parecer de QA concluir que o print era
+    // não-determinístico por timing de rede; ele não é (medido logo abaixo, no bloco (h)).
     await pg.evaluate(() => document.fonts.ready);
     // e um respiro para o primeiro layout com as fontes já trocadas
     await pg.waitForTimeout(250);
@@ -392,6 +465,59 @@ async function tirar(dir, op) {
         + ' Iguais a primeira e a segunda, e diferente da terceira, e o que prova o glifo.');
     }
 
+    // ---- (h) O CENSO DAS FORASTEIRAS — ver o bloco (h) no comentário do topo do arquivo ----
+    //
+    // Roda DEPOIS da troca, de propósito: antes dela toda a página é forasteira, e o censo não
+    // diria nada. Depois, sobra exatamente o que a troca não alcançou — que é o que muda de
+    // desenho conforme a máquina que apertou o botão.
+    //
+    // O DEFEITO ENFIADO DE PROPÓSITO (EQUIPE 2.8: portão nunca visto reprovando é decoração):
+    // `CARTAO_FORASTEIRA_DEFEITO=1` esvazia a lista fixa, e então as forasteiras que HOJE são
+    // legítimas passam a ser desconhecidas e a geração TEM de recusar. Medido: exit 1.
+    const esperado = process.env.CARTAO_FORASTEIRA_DEFEITO ? [] : HOST_ESPERADO;
+    const forasteiras = await pg.evaluate((cfg) => {
+      const dentro = (b) => b.width > 0 && b.height > 0
+        && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth;
+      // Só elementos com texto PRÓPRIO: sem isto cada ancestral do parágrafo entraria na conta
+      // por herança, e o censo viraria a árvore inteira em vez do lugar onde a tinta cai.
+      const temTextoProprio = (el) => [...el.childNodes]
+        .some((n) => n.nodeType === 3 && n.textContent.trim().length > 0);
+      // `className` de um nó SVG é um SVGAnimatedString, e `String()` nele devolve
+      // "[object SVGAnimatedString]" — o atributo é o que serve para nomear o alvo no erro.
+      const nome = (el) => {
+        const c = (el.getAttribute('class') || '').trim();
+        return el.tagName.toLowerCase() + (c ? '.' + c.split(/\s+/).join('.') : '');
+      };
+      const out = [];
+      document.querySelectorAll('body *').forEach((el) => {
+        if (!temTextoProprio(el)) return;
+        const cs = getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return;
+        if (!dentro(el.getBoundingClientRect())) return;
+        const primeira = cs.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, '');
+        if (primeira === cfg.familia) return;
+        out.push({
+          alvo: nome(el),
+          familia: cs.fontFamily,
+          texto: (el.textContent || '').trim().slice(0, 40),
+          previsto: cfg.esperado.some((s) => { try { return el.matches(s); } catch (e) { return false; } }),
+        });
+      });
+      return out;
+    }, { familia: TIPO.FAMILIA, esperado: esperado });
+
+    const desconhecidas = forasteiras.filter((f) => !f.previsto);
+    if (desconhecidas.length) {
+      throw new Error('RECUSADO: ' + desconhecidas.length + ' elemento(s) dentro do quadro do'
+        + ' cartão são pintados por uma fonte DESTA MÁQUINA, e não pela embutida "' + TIPO.FAMILIA
+        + '" — o primeiro é ' + desconhecidas[0].alvo + ' ("' + desconhecidas[0].texto + '"),'
+        + ' font-family: ' + desconhecidas[0].familia + '. O cartão publicado sairia com desenho'
+        + ' diferente conforme quem o gerou (medido em 04/09 entre Linux e Windows: sobreposição'
+        + ' de tinta 0,12 no mono contra 0,95 na serifa embutida). Ou vista esse bloco com a'
+        + ' serifa da casa, ou — se for decisão de arte — acrescente o seletor a HOST_ESPERADO'
+        + ' dizendo no commit qual foi a decisão.');
+    }
+
     // um quadro para o repintar sem o grão pousar antes do obturador
     await pg.waitForTimeout(120);
     await pg.screenshot({ path: destino, type: 'jpeg', quality: op.qualidade || QUALIDADE });
@@ -403,10 +529,14 @@ async function tirar(dir, op) {
         + kb.toFixed(0) + ' KB — fora da faixa de ' + KB_MIN + ' a ' + KB_MAX + ' KB');
     }
     return { kb: kb, titulo: cena.titulo, escondidos: escondidos, topo: cena.topo, base: cena.base,
-      esquerda: cena.esquerda, tabuaEsquerda: cena.tabuaEsquerda, fixados: troca, fonte: TIPO.FAMILIA };
+      esquerda: cena.esquerda, tabuaEsquerda: cena.tabuaEsquerda, fixados: troca, fonte: TIPO.FAMILIA,
+      // (h) quantos blocos DENTRO do quadro ainda dependem da fonte do host. Sai no retorno para
+      // o relatório poder dizer o número em vez de "poucos" — e para ele ser visível se subir.
+      forasteiras: forasteiras.length, forasteirasAlvos: forasteiras.map((f) => f.alvo) };
   } finally {
     await nav.close();
   }
 }
 
-module.exports = { LARGURA, ALTURA, QUALIDADE, KB_MIN, KB_MAX, MARGEM_SEGURA, tags, tirar };
+module.exports = { LARGURA, ALTURA, QUALIDADE, KB_MIN, KB_MAX, MARGEM_SEGURA, HOST_ESPERADO,
+  tags, tirar };
