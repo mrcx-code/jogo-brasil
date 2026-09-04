@@ -12,10 +12,12 @@ algum dia isso virar problema prático, é reversível). O e-mail de contato (`b
 foi autorizado pelo dono em chat, em 03/09, para uso na página de privacidade e nas peças de
 divulgação.
 
-**Leia as RESSALVAS no fim do arquivo antes de publicar.** R1 ainda muda decisão de produto (o
-padrão da medição contra o ECA Digital, em vigor desde 17/03/2026 e posterior à decisão do dono
-de 22/08). R6 e R7 — duas afirmações de privacidade que o código não cumpria — foram medidas
-nesta rodada e **consertadas em 04/09**; o texto abaixo já reflete o conserto.
+**Leia as RESSALVAS no fim do arquivo antes de publicar.** R1 (o padrão da medição contra o ECA
+Digital, em vigor desde 17/03/2026 e posterior à decisão do dono de 22/08) foi **decidida pelo
+dono em 03/09 e implementada em 04/09**: quem chega por `?origem=escola` nasce com a medição
+desligada, todo o resto continua nascendo ligado — medido nos dois sentidos, ver R1. R6 e R7 —
+duas afirmações de privacidade que o código não cumpria — foram medidas nesta rodada e
+**consertadas em 04/09**; o texto abaixo já reflete o conserto.
 
 **Como este texto foi conferido:** cada afirmação foi lida contra o código, não contra o que o
 repositório diz sobre si mesmo — e duas foram medidas em navegador, porque ler não bastava. Os
@@ -383,10 +385,40 @@ não tem saída elegante.
 **DECIDIDO pelo dono em 03/09/2026 (chat):** caminho 2 — desligada por padrão só quando o
 contexto é escolar (o link divulgado a professores, ou um caminho dedicado), ligada no resto.
 Reduz o risco onde ele é maior (turma de fundamental II) e preserva o número no acesso geral.
-**O mecanismo de detecção ainda não existe** — hoje só há "o link" (raiz do domínio), sem forma
-de distinguir professor de qualquer outra pessoa. Isso é o item `medicao-desligada-caminho-escolar`
-do backlog, na fila de `src/jogo.ts`; até ele entrar, a medição continua nascendo ligada em
-TODOS os caminhos, inclusive o escolar — esta política descreve o alvo, não o estado atual.
+**FEITO em 04/09/2026** (item `medicao-desligada-caminho-escolar`, `src/jogo.ts`). O mecanismo
+não existia — havia só "o link", a raiz do domínio, sem forma de distinguir professor de
+qualquer outra pessoa — e passou a ser um parâmetro na busca do endereço, e nada além disso:
+
+**`https://matheusferreira.cc/jogo/?origem=escola`** é o link que vai nas peças de divulgação
+escolar (`divulgacao/rascunhos/02-texto-professores.md`).
+
+- **Nenhum palpite sobre quem abriu.** Não há impressão digital de aparelho, nem inferência por
+  horário, rede ou idade. Quem carrega o contexto escolar é o LINK que o professor recebeu, que
+  é a única coisa que já sabia disso. Criar dado de criança para decidir se se pode medir
+  criança seria o contrário do que a lei pede.
+- **O parâmetro não é medido nem enviado.** Ele não vira propriedade de evento nenhum, não está
+  na lista branca do portão de privacidade, e a cabeça `Referrer-Policy:
+  strict-origin-when-cross-origin` da rota `/jogo/` impede que a busca atravesse por cabeçalho
+  para outro domínio. O portão que já exigia que o evento de erro levasse o caminho "sem
+  domínio, sem consulta e sem âncora" continua verde.
+- **A escolha protetiva é gravada na MESMA chave da barra da plataforma** (`jogo_brasil_medir`),
+  então ela não depende do parâmetro continuar no endereço: o favorito de amanhã, o glossário e
+  a linha do tempo também nascem calados naquele aparelho.
+- **Não é jaula.** Só "sim"/"nao" contam como decisão gravada; o padrão por origem só tem voz
+  quando não há decisão nenhuma. Um toque no interruptor, em qualquer sentido, ganha de toda
+  chegada futura, com ou sem parâmetro.
+
+**MEDIDO, e nos dois sentidos** (`test/encaixe.js` bloco 17c, exit 0):
+
+| Chegada | `medirLigado` ao nascer | Pedidos ao PostHog | `jogo_brasil_anon` | `jogo_brasil_medir` |
+| --- | --- | --- | --- | --- |
+| `?origem=escola` | **false** | **0** | **não sorteado** | `"nao"` |
+| link comum (sem busca) | true | 2 | sorteado | (nada gravado) |
+| `?utm_source=zap&origem=jornal` | true | 2 | sorteado | (nada gravado) |
+| escola → tocou no interruptor → voltou pelo mesmo link escolar | true | 3 | sorteado | `"sim"` |
+
+A segunda e a terceira linhas são metade do teste, não enfeite: uma proteção que também
+desligasse o público geral seria tão errada quanto uma que não desligasse ninguém.
 
 Isto continua sendo pergunta para advogado de verdade num ponto: se a leitura de que "acesso
 provável por criança" se aplica aqui está certa, e se o caminho escolhido cobre a obrigação por

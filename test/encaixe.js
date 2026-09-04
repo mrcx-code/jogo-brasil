@@ -1193,6 +1193,15 @@ async function hudNoLugar(pg) {
   // `op.esperado` é a válvula dos blocos 18 e 20: eles PROVOCAM um defeito de propósito, e sem
   // ela o próprio erro encenado seria contado como erro do jogo. `op.provocar` roda com a
   // página já viva, depois da espera, e antes da conferência de que a partida seguiu.
+  //
+  // TRÊS OPÇÕES ENTRARAM COM O CAMINHO ESCOLAR (04/09), e as três são de forma, não de regra:
+  //  · `op.busca`    — a busca do endereço (`?origem=escola`). O padrão continua sendo nenhuma.
+  //  · `op.ausencia` — espera pelo RELÓGIO em vez de esperar por um pedido. É a mesma escolha
+  //                    que o modo `desligado` já fazia e pelo mesmo motivo escrito ali:
+  //                    ausência não tem estado a esperar, só se prova deixando o tempo passar.
+  //  · `op.antes`    — roda na página com o jogo vivo, ZERA os pedidos e recarrega (com
+  //                    `op.buscaVolta`, se houver). É o que deixa provar "a escolha manual
+  //                    ganha do padrão por origem" numa carga que vem DEPOIS da escolha.
   async function rodarMedida(modo, op) {
     op = op || {};
     const pg = await browser.newPage({
@@ -1220,7 +1229,11 @@ async function hudNoLugar(pg) {
         if (modo === 'mudo') return;                       // aceita e nunca responde
         return route.fulfill({ status: 503, body: 'fora do ar' });
       }
-      if (u === ORIGEM || u === ORIGEM.slice(0, -1)) {
+      // A BUSCA SAI DA COMPARAÇÃO (04/09): com `?origem=escola` no endereço, `u` deixava de
+      // casar e a navegação caía no `route.abort()` do fim — a página nem carregava, e o teste
+      // do caminho escolar "passaria" medindo uma tela em branco.
+      const semBusca = u.split('#')[0].split('?')[0];
+      if (semBusca === ORIGEM || semBusca === ORIGEM.slice(0, -1)) {
         // `op.injetar` entra no HTML SERVIDO, como último script do corpo — depois do jogo,
         // que registra os ganchos de erro no topo do módulo. Tem de ser assim e não por
         // `createElement('script')`: o Chromium só dá `filename` a script que veio do
@@ -1239,7 +1252,7 @@ async function hudNoLugar(pg) {
       return route.abort();
     });
     const t0 = Date.now();
-    await pg.goto(ORIGEM);
+    await pg.goto(ORIGEM + (op.busca || ''));
     if (modo === 'desligado') {
       // desliga pelo BOTÃO da tela, como a pessoa desligaria, e recarrega
       await jogoPronto(pg);                                  // era waitForTimeout(600)
@@ -1249,6 +1262,13 @@ async function hudNoLugar(pg) {
       });
       pedidos.length = 0;
       await pg.reload();
+    } else if (op.antes) {
+      await jogoPronto(pg);
+      await pg.evaluate(op.antes);
+      pedidos.length = 0;
+      // `goto` e não `reload`: a segunda carga pode ter OUTRA busca, e é essa diferença que o
+      // bloco 17c mede (chegou pela escola, escolheu, e volta pelo mesmo link escolar).
+      await pg.goto(ORIGEM + (op.buscaVolta !== undefined ? op.buscaVolta : (op.busca || '')));
     }
     // AS DUAS METADES DESTE BLOCO PEDEM ESPERAS DIFERENTES, e misturá-las num relógio só era o
     // defeito (23/08):
@@ -1258,7 +1278,7 @@ async function hudNoLugar(pg) {
     //                 tem estado a esperar: só se prova deixando o tempo passar. Aqui o relógio
     //                 é o instrumento certo, e ele FICA, de propósito e por escrito.
     await jogoPronto(pg);
-    if (modo === 'desligado') {
+    if (modo === 'desligado' || op.ausencia) {
       await pg.waitForTimeout(1400);      // a janela em que um pedido apareceria se fosse aparecer
     } else {
       const t1 = Date.now();
@@ -1267,7 +1287,7 @@ async function hudNoLugar(pg) {
     let colhido = null;
     if (op.provocar) {
       colhido = await op.provocar(pg);
-      if (modo === 'desligado') {
+      if (modo === 'desligado' || op.ausencia) {
         await pg.waitForTimeout(600);     // de novo a AUSÊNCIA: só o relógio a prova
       } else {
         // o `provocar` dispara eventos; espera-se a CHEGADA do próximo, com teto de 10 s
@@ -1283,9 +1303,17 @@ async function hudNoLugar(pg) {
       await new Promise(r => setTimeout(r, 500));
       return { andou: worldX - antes, tela: document.getElementById('telaCompletude').classList.contains('aberta') };
     });
+    // O ESTADO CRU, para o bloco 17c: o valor da variável do jogo e as duas chaves do aparelho.
+    // O `medirLigado` é lido de dentro da página, e não deduzido do número de pedidos — são
+    // duas afirmações diferentes ("nasceu desligado" e "não saiu byte"), e o item pede as duas.
+    const estado = await pg.evaluate(() => ({
+      ligado: typeof medirLigado === 'boolean' ? medirLigado : null,
+      medir: (function () { try { return localStorage.getItem('jogo_brasil_medir'); } catch (e) { return 'ERRO'; } })(),
+      anon: (function () { try { return localStorage.getItem('jogo_brasil_anon'); } catch (e) { return 'ERRO'; } })()
+    })).catch(() => ({ ligado: null, medir: 'ERRO', anon: 'ERRO' }));
     const ms = Date.now() - t0;
     await pg.close();
-    return { modo, pedidos, ruins, vivo, ms, colhido };
+    return { modo, pedidos, ruins, vivo, ms, colhido, estado };
   }
   // os eventos que saíram, abertos — é assim que os blocos 18/19/20 leem o que foi medido
   const eventos = r => r.pedidos.map(p => { try { return JSON.parse(p.corpo || '{}'); } catch (e) { return {}; } });
@@ -1567,6 +1595,83 @@ async function hudNoLugar(pg) {
         ? 'com a contagem desligada não sai UM byte — nem no boot, nem ao abrir A HISTÓRIA, nem ao SAIR para a plataforma'
         : 'a contagem está desligada e ainda saíram ' + desl.pedidos.length + ' pedido(s)');
     ok(desl.vivo.andou > 1 && desl.vivo.tela, 'e o jogo desligado continua sendo o mesmo jogo');
+  }
+
+  // ============================================================
+  // 17c · O CAMINHO ESCOLAR NASCE DESLIGADO — e a escolha da pessoa ganha dele
+  //
+  // A LEI E A DECISÃO. Lei nº 15.211/2025 (ECA Digital), em vigor desde 17/03/2026: serviço de
+  // acesso provável por criança nasce na configuração mais protetiva. O dono decidiu em 03/09 o
+  // caminho do meio — desligada por padrão SÓ no link que vai para professores, ligada no resto,
+  // para não perder a pergunta de três dias no público geral. Este bloco é o que separa a
+  // decisão da intenção, e ele mede os DOIS sentidos, porque uma proteção que também desliga o
+  // público geral seria tão errada quanto uma que não desliga ninguém:
+  //
+  //  (a) `?origem=escola` → `medirLigado` nasce FALSE e nem um byte sai. É a mesma prova do
+  //      interruptor acima (AUSÊNCIA medida no relógio), mais duas leituras que o interruptor
+  //      não precisava: a variável do jogo, e o `jogo_brasil_anon` que NÃO pode ter sido
+  //      sorteado — a régua do achado R6, de 04/09.
+  //  (b) endereço comum, e endereço comum COM OUTRA busca (link compartilhado com `utm_`, que é
+  //      o formato de metade dos links que circulam em grupo de WhatsApp) → continua ligado. Sem
+  //      esta metade, um parâmetro escrito errado desligaria a medição do site inteiro e o
+  //      portão bateria palma.
+  //  (c) chegou pela escola, TOCOU no interruptor, e voltou PELO MESMO LINK ESCOLAR → continua
+  //      ligado. É a diferença entre um padrão e uma jaula, e é a única das três que só se prova
+  //      com duas cargas de página.
+  // ============================================================
+  sec('17c · o link escolar nasce desligado, o resto do público não, e o toque ganha dos dois');
+  const BUSCA_ESCOLA = '?origem=escola';
+  // (a) o link do professor
+  const esc = await rodarMedida('adblock', { busca: BUSCA_ESCOLA, ausencia: true })
+    .catch(e => ({ erro: String(e) }));
+  if (esc.erro) { ok(false, 'o caminho escolar explodiu — ' + esc.erro); }
+  else {
+    log('   [escola] ' + esc.pedidos.length + ' pedido(s) | medirLigado=' + esc.estado.ligado
+      + ' | jogo_brasil_medir=' + JSON.stringify(esc.estado.medir)
+      + ' | jogo_brasil_anon=' + JSON.stringify(esc.estado.anon));
+    ok(esc.estado.ligado === false,
+      'chegando por ' + BUSCA_ESCOLA + ', `medirLigado` NASCE false — não é desligado depois, nasce assim');
+    ok(esc.pedidos.length === 0,
+      esc.pedidos.length === 0
+        ? 'e não saiu UM byte para a medição em toda a carga da página'
+        : 'o caminho escolar ainda mandou ' + esc.pedidos.length + ' pedido(s)');
+    ok(esc.estado.anon === null,
+      'e o identificador anônimo NEM FOI SORTEADO — `jogo_brasil_anon` continua vazio (régua do R6)');
+    ok(esc.estado.medir === 'nao',
+      'a escolha protetiva fica GRAVADA na mesma chave da barra da plataforma, então o favorito de'
+      + ' amanhã e o glossário também nascem calados (jogo_brasil_medir=' + esc.estado.medir + ')');
+    ok(esc.vivo.andou > 1 && esc.vivo.tela, 'e o jogo é o mesmo jogo — a rua andou e A HISTÓRIA abriu');
+  }
+  // (b) todo o resto do público, com e sem busca — a metade que impede a proteção de vazar
+  for (const [nome, busca] of [['link comum', ''], ['link compartilhado', '?utm_source=zap&origem=jornal']]) {
+    const g = await rodarMedida('adblock', { busca }).catch(e => ({ erro: String(e) }));
+    if (g.erro) { ok(false, '[' + nome + '] explodiu — ' + g.erro); continue; }
+    log('   [' + nome + ' ' + JSON.stringify(busca) + '] ' + g.pedidos.length + ' pedido(s) | medirLigado='
+      + g.estado.ligado + ' | jogo_brasil_medir=' + JSON.stringify(g.estado.medir));
+    ok(g.estado.ligado === true && g.pedidos.length > 0,
+      '[' + nome + '] continua nascendo LIGADO e mediu (' + g.pedidos.length + ' pedido) — a proteção'
+      + ' não vazou para o público geral');
+    ok(g.estado.medir === null,
+      '[' + nome + '] e nada foi gravado em jogo_brasil_medir: quem não decidiu nada continua sem decisão'
+      + ' no aparelho (' + JSON.stringify(g.estado.medir) + ')');
+  }
+  // (c) a escolha da pessoa ganha do padrão de origem, e ganha PARA SEMPRE naquele aparelho
+  const escVolta = await rodarMedida("adblock", {
+    busca: BUSCA_ESCOLA,
+    // liga pelo BOTÃO da tela, como a pessoa ligaria — e não escrevendo no localStorage à mão,
+    // que provaria o localStorage e não o interruptor
+    antes: () => {
+      fecharTudo(); abrirTela('telaConfig'); montarConfig();
+      document.getElementById('btnMedir').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    }
+  }).catch(e => ({ erro: String(e) }));
+  if (escVolta.erro) { ok(false, 'a volta pelo link escolar explodiu — ' + escVolta.erro); }
+  else {
+    log('   [escola → tocou → voltou pela escola] ' + escVolta.pedidos.length + ' pedido(s) | medirLigado='
+      + escVolta.estado.ligado + ' | jogo_brasil_medir=' + JSON.stringify(escVolta.estado.medir));
+    ok(escVolta.estado.medir === 'sim' && escVolta.estado.ligado === true && escVolta.pedidos.length > 0,
+      'quem chegou pela escola e TOCOU no interruptor volta pelo MESMO link e continua ligado —'
+      + ' o padrão por origem é a primeira leitura, nunca uma jaula (' + escVolta.pedidos.length + ' pedido)');
   }
 
   // ============================================================
