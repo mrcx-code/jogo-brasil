@@ -351,6 +351,26 @@ Se a sua sessao nao tiver acesso ao banco, **diga isso ao dono** em vez de deixa
 silencio — a diferenca entre nao poder e nao lembrar e exatamente o que o painel existe para
 mostrar.
 
+> ⚠ **A COLUNA E `nome`, NUNCA `papel` — e errar isso nao acusa erro nenhum** (medido em 04/09
+> por `nuvem-20260904T1623`, que caiu nela). A `mesa_agente` tem as duas: `nome` guarda o nome do
+> arquivo em `.claude/agents/` (`dev-jogo`, `historiador`, …) e `papel` guarda o rotulo humano
+> que aparece no painel (`motor & esteira do jogo`, `texto com fonte`, …). Quem vem do
+> `.claude/agents/` — que e todo mundo, porque e de la que se despacha — chuta `papel` e escreve
+> **num alvo que nao existe**.
+>
+> | controle, mesma sintaxe, mesma intencao | resultado |
+> |---|---|
+> | `update mesa_agente … where papel='dev-jogo' returning nome` | **`[]`** — 0 linhas, **sem erro** |
+> | `update mesa_agente … where nome='dev-jogo' returning nome` | **1 linha** |
+> | dos 11 arquivos de `.claude/agents/`, quantos casam com `nome` | **11 de 11** |
+> | … quantos casam com `papel` | **0 de 12** |
+>
+> O desfecho e o pior possivel para um painel: a rodada acha que reportou, o dono ve congelado, e
+> **as duas coisas continuam parecendo iguais de fora** — que e exatamente a doenca que este
+> paragrafo foi escrito para curar, entrando por outra porta. `UPDATE` que casa 0 linhas e sucesso
+> em SQL; se o seu cliente nao mostra a contagem, **peça `returning nome`** e confira que voltou
+> linha. Item aberto para a trava: `painel-update-silencioso`.
+
 **TODO PEDIDO DELE VIRA LINHA, para nenhum prompt ser esquecido.** Ele pediu isso por escrito
 ("quero poder ir marcando eles como feito para q sumam da lista"). Pedido novo entra na tabela
 `mesa_pedido`; pedido atendido vira `feito` e sai da vista dele. **Nao marque feito o que esta
