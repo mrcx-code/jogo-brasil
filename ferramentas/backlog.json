@@ -153,7 +153,7 @@
     },
     {
       "id": "fala-arte-emprestada-obsoleta-em-5-capitulos",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "historiador",
       "camada": "medio",
       "titulo": "A frase 'a arte ainda é emprestada de outro capítulo' está obsoleta em CINCO capítulos, não só O CAIS",
@@ -162,8 +162,7 @@
       ],
       "aceite": "Reescrever a fala equivalente nos 5 capitulos (O CAIS linha 2112, JABAQUARA 2260, A PEQUENA AFRICA 2303, AS PORTAS 2351, O QUE NAO PODIA SER DITO 2404) para refletir que a arte propria ja existe em todos (pintura + 24 quadros de gente cada). E texto de capitulo (abertura/fecho/querer) -- territorio do historiador, sob a licenca de 19/08 (revisar o que ja esta escrito para parar de ser falso, nao decidir o que passa a existir). O CAIS tem dois achados juntos, nao um: a fala tambem promete o verbo errado (diz 'cavar', a mecanica e 'acolher') -- sugestao pronta abaixo. JABAQUARA e o pior caso: diz 'a gente e as coisas daqui nao foram desenhadas', e a gente FOI.",
       "detalhe": "Achado pelo dev-jogo em 04/09 medindo o item original (que so cobria O CAIS). Grep confirmou: os 5 capitulos tem pintura propria (arte 12,7,8,9,10 -- nenhuma compartilhada) e 24 quadros de gente propria cada, todos em CAP_FILA ou CAPS_VERBO. Sugestoes NAO APLICADAS (dev-jogo nao mexe em fala, e territorio do historiador): O CAIS fala 4 (linha 2111) -> 'Aqui, alcancar e acolher quem passa -- o mesmo gesto de Palmares. Neste capitulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela nao devolveu, ele diz que nao sabe.'; O CAIS fala 5 (linha 2112) -> 'E a rua que voce vai andar e a de HOJE -- a Saude e a Gamboa de agora, por cima da pedra. Quem atravessa a tela e gente daqui e de agora. O que ainda vem emprestado de outro capitulo e o que fica no chao, e o jogo prefere dizer isso a fingir.' (resolve o verbo, a obsolescencia E a ancora de 'isto e HOJE' que faltava). Os outros 4 capitulos precisam da mesma leitura, caso a caso -- nenhuma sugestao pronta ainda.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit f7689a9, npm test exit 0 e encaixe exit 0 REAIS. Seis falas reescritas (O CAIS abertura[3] e [4]; JABAQUARA, A PEQUENA AFRICA, AS PORTAS e O QUE NAO PODIA SER DITO abertura[4]) mais SALVADOR pelo item irmao. O ENUNCIADO DO ITEM CAIU na medicao e isso e o registro que importa: nao eram cinco falas obsoletas do mesmo jeito -- METADE de cada uma continuava verdadeira, porque o que fica no chao (o drop) segue emprestado nos cinco (dropDe -> DROP_SPR[capArte()], arteCap 3 = AINDA AQUI, e soltarDrop() e chamado ANTES de ramificar). Tambem caiu a afirmacao de que nenhuma pintura era compartilhada: a arte 10 e vestida por quatro capitulos. E a sugestao pronta que o dev-jogo deixou para O CAIS foi provada REPROVANDO o encaixe.js bloco 5 (exit 1 por injecao) -- se aplicada ao pe da letra teria quebrado o portao. QA atacou por 6 frentes e nao derrubou nenhuma afirmacao da entrega, com A/B de duas construcoes: 13/13 capitulos com a porta do glossario identica."
     },
     {
       "id": "salvador-drop-ritual-vira-trabalho",
@@ -1425,7 +1424,7 @@
     },
     {
       "id": "fala-acaraje-dupla-natureza",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "historiador",
       "camada": "texto",
       "titulo": "A fala nova classifica os tres como o que e de santo, e para o ACARAJE isso achata a dupla natureza que o proprio verbete preserva",
@@ -1434,8 +1433,7 @@
       ],
       "aceite": "Decidir se a oracao final da abertura[4] de SALVADOR distingue o acaraje dos outros dois, ou se a generalizacao e aceitavel. Se mudar: sem tocar verbete, sem fonte nova, e sem perder os tres NOMES na fala — que e o que mantem a porta AS PALAVRAS DAQUI aberta para BUZIOS (medido: sem o nome, ele sai da navegacao do capitulo por completo).",
       "detalhe": "Achado pelo QA em 04/09, no gap-check da entrega que ele aprovou. O verbete ACARAJE do proprio jogo diz Comida vendida no tabuleiro das ganhadeiras... e comida de santo... Trabalho e fe na mesma bandeja. A fala nova, com o dois-pontos, poe os tres sob o que e de santo. Para buzios e pano da costa isso bate com os verbetes e com as fontes (Hogendorn & Johnson; Aline Santiago/Casa do Alaka; IPHAN). Para o acaraje achata a dupla natureza — e e o acaraje que a ganhadeira VENDE na rua neste mesmo capitulo. O QA registrou que nao ve representacao nova sendo criada (a frase explica uma regra de jogo com o vocabulario de dentro), so imprecisao contra o verbete que ela abre.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit f7689a9. A historiadora DECIDIU distinguir, e o que decidiu nao foi teoria: quem o jogo poe nesta rua e a ganhadeira, e a fala tres linhas acima diz que ela vende, carrega e negocia -- o acaraje e o que ela VENDE, entao arquiva-lo so em o que e de santo apaga a metade do trabalho. A fala passou a ser: Buzios, pano da costa e acaraje nao se recolhem: o que e de santo se conta. E o acaraje e as duas coisas: trabalho e fe. Sem tocar verbete, sem fonte nova, e com os TRES NOMES preservados -- que era a condicao mecanica do aceite, porque sem eles BUZIOS sai da navegacao do capitulo por completo (medido no jogo vivo pelo QA: SALVADOR segue com 7 verbetes e BUZIOS alcancavel). Fontes das duas metades: IPHAN Livro dos Saberes 2005, registro aberto a pedido da propria associacao das baianas, e Cecilia Moreira Soares, As ganhadeiras, Afro-Asia 17, UFBA 1996. RESSALVA DO QA, nao bloqueante e ja na fila: o mesmo argumento de dupla natureza vale para PANO DA COSTA, cujo verbete diz indumentaria das baianas no seculo XIX E peca de protecao nas casas de culto -- a entrega aplicou o proprio criterio a um dos tres."
     },
     {
       "id": "painel-update-silencioso",
@@ -1473,7 +1471,7 @@
         "src/jogo.ts"
       ],
       "aceite": "Ler as tres aberturas caso a caso, como a historiadora fez nas cinco: separar o que continua verdadeiro do que ficou falso, e reescrever so a metade falsa. NAO aplicar a forma pronta das cinco -- foi medido nesta rodada que a generalizacao produz a mentira que se gaba.",
-      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI."
+      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI. ACRESCENTADO pelo QA na mesma rodada (achado G3), e ele muda a leitura: A PRACA e o SEXTO da familia, mas e MENOS falsa que os cinco, nao mais. GENTE_EP_B64.praca tem 24 quadros autorais -- so que 21 com tinta, porque 3 estao vazios (ver item quadros-de-gente-vazios-na-fonte). Entao a arte daqui nao chegou nao e verdade, mas ja chegou inteira tambem nao e. Quem pegar este item le os dois juntos, senao escreve a terceira frase falsa da serie."
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
@@ -1611,6 +1609,69 @@
       ],
       "aceite": "Depois do git fetch origin main que o programa ja faz (para classificacao), tambem ler git show origin/main:ferramentas/backlog.json e unir com o estado local (origin decide em caso de conflito) antes de aplicar a trava de item em-curso -- com recuo automatico para o disco se o show falhar (rede fora, etc).",
       "detalhe": "Levantada pelo proprio dev-jogo (aadec0fa4ca817901) e confirmada como nao-bloqueante pelo QA (aacf7f760564b3e72) em 04/09: a trava le o backlog.json LOCAL (ramos-mortos.js:116), antes do fetch (linha 123) usado para outra finalidade. Um item marcado em-curso por outra maquina ha pouco pode nao aparecer se o clone nao deu pull. Estado ANTERIOR a esta entrega era zero trava -- barrar so por igualdade local ja e estritamente melhor, entao nao bloqueia a integracao, mas fecha a janela de verdade."
+    },
+    {
+      "id": "quadros-de-gente-vazios-na-fonte",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "medio",
+      "titulo": "SEIS quadros de gente estao VAZIOS na fonte e o jogo poe objeto no lugar da pessoa no meio da rua -- em A PRACA, 3 de 24",
+      "territorio": [
+        "src/jogo.ts",
+        "test/"
+      ],
+      "aceite": "Duas coisas, e a segunda importa mais que a primeira. (1) Preencher ou remover os 6 quadros vazios, para o jogo parar de mostrar barril/saco onde devia haver pedestre. (2) Um portao que CONTE quadro que chega: nenhum instrumento hoje conta, e foi por isso que seis passaram. A regua ja existe e e do proprio jogo -- esperando(im) trata naturalWidth <= 1 como pixel de espera; o portao tem de usar a MESMA regua, senao ele aceita o GIF 1x1 que o build carimba e anuncia pacote chegou sobre quadro em branco.",
+      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada."
+    },
+    {
+      "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O bloco 5 do encaixe.js compara a fala com um modelo de motor que deixou de existir em 16/08 -- e por isso aprova fala que promete verbo que o capitulo nao tem",
+      "territorio": [
+        "test/encaixe.js",
+        "src/jogo.ts"
+      ],
+      "aceite": "O bloco 5 passa a derivar o motor do CODIGO e nao de uma constante congelada: temAcolher tem de sair de capFila() e temPalavra de CAPS_VERBO, e nao de i === CAP_GENTE / i === CAP_PALAVRA. Mordida provada por injecao, e o caso ja esta escrito: a fala injetada em O ACEIRO (que esta em CAPS_VERBO e NAO tem fila) prometendo a fila tem de sair exit 1 -- hoje sai 0 nos dois portoes. E o comentario obsoleto de src/jogo.ts:1467 (gente e so PALMARES, e la que existe fila) sai junto, porque e a mesma afirmacao congelada em outro lugar.",
+      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado."
+    },
+    {
+      "id": "qa-fala-salvador-caixa-amigo-falso",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
+      "territorio": [
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
+      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao."
+    },
+    {
+      "id": "caixa-da-fala-so-medida-em-salvador",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O teto de 260 caracteres e contagem na FONTE, e a caixa DE VERDADE so e medida por um instrumento que existe so para SALVADOR",
+      "territorio": [
+        "test/"
+      ],
+      "aceite": "A medicao de caixa (a que abre o jogo e conta linha em 320x568, 360x640 e 390x844) passa a valer para toda fala de abertura e fecho, nao so a de SALVADOR. Mordida provada: uma fala fabricada que caiba em 260 caracteres e mesmo assim transborde a 320x568 tem de sair exit 1.",
+      "detalhe": "Achado G5 do QA em 04/09 (nuvem-20260904T1623). A fala nova de SALVADOR ficou com 258 caracteres contra o teto de 260 -- DOIS de folga -- e o teto conta caracteres na fonte, que nao e a mesma coisa que caber na tela. Medido por ele nesta rodada, so para SALVADOR: 6 linhas a 390x844 e 360x640, 7 linhas a 320x568, base 550 <= 568, nao rola em nenhuma. Nenhuma outra fala do jogo tem essa medicao. O CLAUDE.md manda mobile primeiro, e 320x568 e o pior caso real."
+    },
+    {
+      "id": "nada-cruza-a-fala-com-o-pedido-de-arte",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "Cinco falas agora AFIRMAM propriedade de arte, e nada cruza o que a fala afirma com o que o pedido de arte e o empacotador dizem",
+      "territorio": [
+        "test/",
+        "ferramentas/pacotes.js"
+      ],
+      "aceite": "Um portao que cruze a afirmacao da fala com a verdade de ferramentas/necessario.json + ferramentas/pacotes.js, para os capitulos que afirmam. Mordida provada: virar um capitulo para pintura emprestada sem mexer na fala tem de sair exit 1. A sonda do QA (test/qa-falas-arte-vivo.js, commit 9f93dcf no worktree dele) ja cobre os cinco e e o ponto de partida: NAO reescreva, componha.",
+      "detalhe": "Achado G7 do QA em 04/09 (nuvem-20260904T1623). A entrega desta rodada trocou cinco falas que diziam a arte e emprestada por cinco que dizem a arte ja e propria. A segunda forma e MAIS falsificavel que a primeira: ela envelhece no dia em que alguem trocar uma pintura, e nenhum portao acusa. E a verdade mora em dois arquivos que hoje so se leem a mao. E exatamente a doenca que o item salvador-fala-sem-portao abriu noutro endereco: a metade que FALA nao tem portao."
     }
   ]
 }
