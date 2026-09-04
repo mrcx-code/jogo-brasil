@@ -4340,3 +4340,9 @@ virou falsa é pior que nenhuma) — independente da decisão sobre torná-lo pr
 de acesso (hoje é só "noindex, Disallow" — descoberto por link, não por busca, mas alcançável por
 quem tiver a URL), ou se a nota simplesmente precisa ser atualizada/reescrita para não descrever
 deliberação em aberto de um jeito que também funcionaria para uma futura.
+
+**RESOLVIDO em 04/09 — decisão do dono:** reescrever a nota, sem controle de acesso novo no
+`dashboard/`. `ferramentas/backlog.json`, item `pinos-lote-2`: a frase "PARE continua fora até o
+dono decidir a regra dos 5" virou "os grupos fora do escopo deste lote continuam fora até revisão
+do dono" — mesmo sentido operacional para quem já conhece o vocabulário do `PINOS-PROPOSTA.md`, sem
+nomear "PARE" nem uma "regra dos 5" para quem só tem o link do dashboard.
