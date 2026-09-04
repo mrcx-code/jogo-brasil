@@ -191,7 +191,18 @@ for (const { rota, dir } of todas) {
     let m;
     while ((m = re.exec(html))) valoresReferenciados.push(m[2]);
   }
-  const referenciaReal = f => valoresReferenciados.some(v => v === f || v.endsWith('/' + f));
+  // 2a BRECHA achada pela revisao adversarial (04/09, agente ab4eb82fc129f73b2): `content=` casa
+  // QUALQUER `<meta>`, e nem todo meta aponta arquivo — `og:type content="website"`,
+  // `og:locale content="pt_BR"`, `og:site_name content="BRASIL"` aceitavam um arquivo PLANTADO
+  // com esses nomes. Medido: 5 nomes plantados passaram com exit 0. TODO arquivo publicado hoje
+  // (29 de 29) tem extensao no ultimo segmento do caminho; nenhum valor de meta que nao aponta
+  // arquivo tem. Exigir a extensao fecha as duas brechas com a MESMA regra, sem precisar
+  // distinguir og:image de og:type por dentro do regex.
+  const apontaArquivo = v => {
+    const ultimo = v.split('/').pop();
+    return !!ultimo && ultimo.includes('.');
+  };
+  const referenciaReal = f => valoresReferenciados.some(v => apontaArquivo(v) && (v === f || v.endsWith('/' + f)));
 
   const citados = [];
   const porExcecao = [];
