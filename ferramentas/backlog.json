@@ -179,7 +179,7 @@
     },
     {
       "id": "medicao-desligada-caminho-escolar",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "medio",
       "titulo": "ECA Digital: quem chega pelo link de professor nasce com a medicao DESLIGADA — decisao do dono em 03/09",
@@ -189,7 +189,9 @@
         "divulgacao/rascunhos/02-texto-professores.md"
       ],
       "aceite": "Um jeito de o jogo distinguir 'cheguei pelo link de divulgacao escolar' de todo o resto do publico, testado nos dois sentidos: (a) chegando por esse caminho, medirLigado nasce false ANTES de qualquer evento poder disparar — mesma prova de portao que o teste ja aplica ao interruptor manual (zero pedido ao PostHog); (b) chegando por qualquer outro caminho (link comum, compartilhamento, PWA salvo), medirLigado continua nascendo true, sem regressao. Uma vez que a pessoa toca no interruptor (em qualquer sentido), a ESCOLHA DELA passa a valer sobre o padrao de origem, para sempre naquele aparelho — o padrao por link e so a primeira leitura, nunca uma jaula. Some ao ESQUEMA_SAVE se algo novo for persistido. Atualize plataforma/privacidade-texto.md (secao R1) e divulgacao/rascunhos/02-texto-professores.md com o link/parametro final assim que o mecanismo existir — hoje o rascunho so diz 'o link', sem forma de distinguir professor de qualquer outra pessoa.",
-      "detalhe": "Decisao do dono em 03/09, respondendo o achado do juridico (item pagina-privacidade): a Lei 15.211/2025 (ECA Digital), vigente desde 17/03/2026, pede configuracao mais protetiva por padrao para servico de acesso provavel por crianca. Escolhida a opcao intermediaria: desligada SO no caminho escolar, ligada no resto — preserva o numero da pergunta de tres dias no publico geral e reduz o risco exatamente onde ele e maior (turma de fundamental II). Mecanismo de deteccao AINDA NAO EXISTE: hoje so ha 'o link' (raiz do dominio), sem parametro nem caminho dedicado — desenhar isso e a primeira metade do trabalho, antes de mexer no valor padrao. medirLigado nasce true em src/jogo.ts:3898 e so muda por leitura de localStorage (linha 3923, CHAVE_MEDIR='jogo_brasil_medir') ou pelo toque manual (linha 3934). territorio inclui src/jogo.ts, entao entra na fila do escritor unico do monolito — ha dois itens na frente (caminho-do-ceu em voo, privacidade-dois-consertos-pequenos livre)."
+      "detalhe": "Decisao do dono em 03/09, respondendo o achado do juridico (item pagina-privacidade): a Lei 15.211/2025 (ECA Digital), vigente desde 17/03/2026, pede configuracao mais protetiva por padrao para servico de acesso provavel por crianca. Escolhida a opcao intermediaria: desligada SO no caminho escolar, ligada no resto — preserva o numero da pergunta de tres dias no publico geral e reduz o risco exatamente onde ele e maior (turma de fundamental II). Mecanismo de deteccao AINDA NAO EXISTE: hoje so ha 'o link' (raiz do dominio), sem parametro nem caminho dedicado — desenhar isso e a primeira metade do trabalho, antes de mexer no valor padrao. medirLigado nasce true em src/jogo.ts:3898 e so muda por leitura de localStorage (linha 3923, CHAVE_MEDIR='jogo_brasil_medir') ou pelo toque manual (linha 3934). territorio inclui src/jogo.ts, entao entra na fila do escritor unico do monolito — ha dois itens na frente (caminho-do-ceu em voo, privacidade-dois-consertos-pequenos livre).",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T20:47:07.947Z"
     },
     {
       "id": "privacidade-dois-consertos-pequenos",
