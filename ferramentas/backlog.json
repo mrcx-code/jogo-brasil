@@ -179,7 +179,7 @@
     },
     {
       "id": "medicao-desligada-caminho-escolar",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "medio",
       "titulo": "ECA Digital: quem chega pelo link de professor nasce com a medicao DESLIGADA — decisao do dono em 03/09",
@@ -190,8 +190,7 @@
       ],
       "aceite": "Um jeito de o jogo distinguir 'cheguei pelo link de divulgacao escolar' de todo o resto do publico, testado nos dois sentidos: (a) chegando por esse caminho, medirLigado nasce false ANTES de qualquer evento poder disparar — mesma prova de portao que o teste ja aplica ao interruptor manual (zero pedido ao PostHog); (b) chegando por qualquer outro caminho (link comum, compartilhamento, PWA salvo), medirLigado continua nascendo true, sem regressao. Uma vez que a pessoa toca no interruptor (em qualquer sentido), a ESCOLHA DELA passa a valer sobre o padrao de origem, para sempre naquele aparelho — o padrao por link e so a primeira leitura, nunca uma jaula. Some ao ESQUEMA_SAVE se algo novo for persistido. Atualize plataforma/privacidade-texto.md (secao R1) e divulgacao/rascunhos/02-texto-professores.md com o link/parametro final assim que o mecanismo existir — hoje o rascunho so diz 'o link', sem forma de distinguir professor de qualquer outra pessoa.",
       "detalhe": "Decisao do dono em 03/09, respondendo o achado do juridico (item pagina-privacidade): a Lei 15.211/2025 (ECA Digital), vigente desde 17/03/2026, pede configuracao mais protetiva por padrao para servico de acesso provavel por crianca. Escolhida a opcao intermediaria: desligada SO no caminho escolar, ligada no resto — preserva o numero da pergunta de tres dias no publico geral e reduz o risco exatamente onde ele e maior (turma de fundamental II). Mecanismo de deteccao AINDA NAO EXISTE: hoje so ha 'o link' (raiz do dominio), sem parametro nem caminho dedicado — desenhar isso e a primeira metade do trabalho, antes de mexer no valor padrao. medirLigado nasce true em src/jogo.ts:3898 e so muda por leitura de localStorage (linha 3923, CHAVE_MEDIR='jogo_brasil_medir') ou pelo toque manual (linha 3934). territorio inclui src/jogo.ts, entao entra na fila do escritor unico do monolito — ha dois itens na frente (caminho-do-ceu em voo, privacidade-dois-consertos-pequenos livre).",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T20:47:07.947Z"
+      "feito": "Integrado 04/09 (commits ddf58de/e8d8dcb/c162681/1a0da66, funil 0e5a9f8/c22c11e). chegouPelaEscola() le ?origem=escola (chave e valor normalizados apos o achado do QA); medirCarregar() reescrita para tratar jogo_brasil_medir como registro de DECISAO -- so sim/nao contam, e o padrao por origem so vale enquanto ninguem decidiu. Escolha manual (qualquer sentido) vence para sempre naquele aparelho. 0 campos novos no ESQUEMA_SAVE (reusa a chave existente, cala tambem as paginas da plataforma de quebra). Defeito de instrumento achado e consertado antes de medir (matcher de rota do encaixe.js ignorava query string). 2 rodadas de auditoria adversarial (porteiro+qa independentes) acharam e fecharam 2 problemas reais: claim absoluta na peca de divulgacao (nao mencionava excecao de decisao previa) e gap de privacidade real (chave da busca nao normalizada). test/qa-eca-escolar.js (16 asserçoes) e test/encaixe.js bloco 17c entraram no npm test. Dividas registradas, nao bloqueantes: (1) paginas da plataforma (glossario/historia/de-onde-vem) ainda nao leem ?origem=escola -- item novo para dev-plataforma; (2) texto PUBLICADO de /privacidade/ nao menciona o caminho escolar (so notas internas) -- regerar e trabalho do dev-plataforma quando a fila permitir."
     },
     {
       "id": "privacidade-dois-consertos-pequenos",
@@ -1775,6 +1774,34 @@
       ],
       "aceite": "Trocar a comparacao byte-a-byte por uma comparacao por regiao/IoU (a mesma tecnica que test/cartao-controle.js ja usa para o territorio, por causa dos pinos 3D nao-deterministicos) OU pendurar o teste no CI e aceitar que ele so vale na maquina que gerou os bytes commitados (documentando isso no cabecalho, sem pendurar no workflow do GitHub).",
       "detalhe": "Achado pelo dev-plataforma em 04/09 investigando cartoes-sociais-peso-mudou-sem-explicacao: os cartoes de historia/de-onde-vem/glossario variam entre maquinas por rasterizacao de fonte do SO (DirectWrite Windows vs FreeType Linux), com IoU 0.95-0.98 nos blocos que ja usam fonte embutida -- diferenca visual imperceptivel mas bytes diferentes. test/cartao-tipografia-fresca.js compara por md5/bytes, entao ele nunca esteve no .github/workflows/teste.yml (rodaria vermelho la) e ninguem notou."
+    },
+    {
+      "id": "paginas-plataforma-nao-leem-origem-escola",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "medio",
+      "titulo": "Glossario/A Historia/De Onde Vem nao leem ?origem=escola -- quem entra so pelo glossario continua medido",
+      "territorio": [
+        "ferramentas/medir-secao.js",
+        "ferramentas/gerar-glossario.js",
+        "ferramentas/gerar-historia.js",
+        "ferramentas/gerar-de-onde-vem.js"
+      ],
+      "aceite": "As paginas da plataforma (nao o jogo) passam a ler o mesmo parametro ?origem=escola e gravar jogo_brasil_medir=nao da mesma forma que src/jogo.ts ja faz (ver chegouPelaEscola() e a reescrita de medirCarregar() em src/jogo.ts, integradas 04/09). Mesma prova de portao: nasce desligado por esse caminho, continua ligado por qualquer outro, decisao manual previa vence.",
+      "detalhe": "Levantado pelo dev-jogo em 04/09 fechando medicao-desligada-caminho-escolar: o mecanismo (parametro de URL + chave compartilhada jogo_brasil_medir) protege o jogo e, por tabela, cala as paginas da plataforma NO MESMO APARELHO depois que a pessoa passou pelo jogo -- mas quem entra direto pelo link de professor para o GLOSSARIO (sem nunca abrir o jogo) continua sendo medido, porque as paginas nunca leem o parametro por si mesmas. Territorio de dev-plataforma, nao dev-jogo."
+    },
+    {
+      "id": "privacidade-publicada-nao-menciona-caminho-escolar",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "leve",
+      "titulo": "O texto PUBLICADO de /privacidade/ nao menciona o caminho escolar -- so as notas internas do markdown-fonte descrevem",
+      "territorio": [
+        "plataforma/privacidade-texto.md",
+        "ferramentas/gerar-privacidade.js"
+      ],
+      "aceite": "Acrescentar ao texto PUBLICAVEL (secao 9, Criancas e adolescentes, ou onde fizer mais sentido) uma frase afirmando o mecanismo do caminho escolar -- ja documentado nas notas internas da secao R1. Depois: node ferramentas/gerar-privacidade.js e confirmar fidelidade texto->HTML.",
+      "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina."
     }
   ]
 }
