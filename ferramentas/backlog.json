@@ -1536,7 +1536,43 @@
         "test/"
       ],
       "aceite": "Decidir: (a) sao artefato, entram no .gitignore e param de sujar; (b) sao referencia visual e ficam versionados, e entao alguem precisa OLHAR o diff deles, que e o que ninguem faz hoje. Se (a), conferir que nenhum teste depende de eles existirem no disco.",
-      "detalhe": "Levantado pelo dev-jogo em 04/09 (nuvem-20260904T1623), que os encontrou ja sujos no proprio baseline e os deixou fora do commit. O PLANTAO.md 5.1 ja manda git checkout -- test/ depois do funil como higiene, o que e o sintoma tratado e nao a causa. E a frase do proprio PLANTAO diz o custo: arvore suja que nao significa nada e como se aprende a ignorar git status."
+      "detalhe": "Levantado pelo dev-jogo em 04/09 (nuvem-20260904T1623), que os encontrou ja sujos no proprio baseline e os deixou fora do commit. O PLANTAO.md 5.1 ja manda git checkout -- test/ depois do funil como higiene, o que e o sintoma tratado e nao a causa. E a frase do proprio PLANTAO diz o custo: arvore suja que nao significa nada e como se aprende a ignorar git status. ACRESCENTADO na mesma rodada pelo porteiro (achado A2): o test/ver-territorio.js, que ACABOU de entrar no CI, suja 8 PNG RASTREADOS por execucao (test/TERRITORIO-3d*.png, um deles Bin 1132096 -> 1103212). No runner e inofensivo; na maquina de quem rodar o portao local e arvore suja, com risco de um git add -A varrer 1 MB de binario nao deterministico -- armadilha que esta casa ja pagou. A decisao artefato-ou-referencia deixou de ser sobre 4 PNGs e passou a ser sobre 12."
+    },
+    {
+      "id": "passo-csp-assere-codigo-nao-motivo",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "O passo de CI que prova a mordida da CSP assere o exit CODE e nao o MOTIVO -- com a pasta publicada do glossario ausente ele sai 1 por 404 e ficaria verde sem a mordida ter sido exercitada",
+      "territorio": [
+        ".github/workflows/teste.yml"
+      ],
+      "aceite": "O passo passa a exigir o MOTIVO alem do codigo: mandar a saida para arquivo e cobrar por grep a linha que so aparece quando a injecao mordeu (a que nomeia /glossario/ publicada sem CSP), alem do -ne 1. Mordida provada nos dois sentidos: com a pasta publicada ausente o passo tem de REPROVAR em vez de passar; com a injecao mordendo de verdade, passar.",
+      "detalhe": "Achado A1 do porteiro em 04/09 (nuvem-20260904T1623), auditando a entrega portoes-orfaos-pendurados, e ele o classificou NAO BLOQUEANTE com a medicao que justifica: fabricou o falso-verde apagando a pasta publicada do glossario, o csp-paginas.js saiu 1 por OUTRO motivo (404, a pagina branqueou) e o passo ficaria verde. Nao bloqueia porque o passo LIMPO imediatamente anterior tambem sai 1 nessa situacao e derruba o job ANTES -- medido, e ele restaurou com npm run build conferindo por diff -r exit 0. Mas isso e um acoplamento NOMEADO: a corretude do passo 7 depende de o passo 6 continuar imediatamente antes e sem continue-on-error. Conserto e de uma linha."
+    },
+    {
+      "id": "guarda-recusa-escrever-em-saida-e-nao-recusa-apagar",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O hook guarda.js recusa ESCRITA na pasta de saida de build e nao recusa APAGAR -- a trava tem meia cara",
+      "territorio": [
+        ".claude/hooks/"
+      ],
+      "aceite": "O guarda passa a recusar remocao na pasta de saida pelo mesmo caminho que ja recusa escrita. Mordida provada nos dois sentidos: um rm -rf ali dentro recusado; o mesmo comando fora dela passa. Se a saida for NAO recusar (a pasta e regeneravel por npm run build), o numero que sustenta e dizer isso no proprio texto da recusa, para a trava parar de prometer o que nao cumpre.",
+      "detalhe": "Achado A3 do porteiro em 04/09 (nuvem-20260904T1623), incidental e fora da entrega que ele auditava, medido na mesma sessao: um cp -r para dentro da pasta de saida foi RECUSADO pelo portao (.claude/hooks/guarda.js:127); um rm -rf da MESMA pasta, na MESMA sessao, executou sem uma palavra. Severidade baixa porque a pasta e regeneravel. O que incomoda nao e o risco, e a assimetria: uma trava que barra a metade barata e deixa passar a metade cara ensina a confiar nela mais do que ela merece."
+    },
+    {
+      "id": "guarda-le-o-texto-do-comando-nao-o-efeito",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O guarda.js recusa comando que apenas MENCIONA o caminho protegido -- corpo de heredoc e dado, nao comando",
+      "territorio": [
+        ".claude/hooks/"
+      ],
+      "aceite": "O guarda passa a decidir pelo EFEITO e nao pela ocorrencia da string: comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado; escrita de verdade continua recusada. Mordida provada nos dois sentidos por injecao, e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade.",
+      "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava."
     }
   ]
 }
