@@ -91,8 +91,156 @@ function lerThree() {
   return { core, mod };
 }
 
+// ------------------------------------------------- a geografia do IBGE, do arquivo commitado
+// Ela NÃO é buscada aqui. `ferramentas/baixar-malha.js` fala com o IBGE à mão, escreve
+// `territorio/malha-ibge.json` com a data e o crédito dentro, e é esse arquivo que entra na
+// página. O gerador continua sem rede — a mesma regra que faz o build não depender da contagem
+// anônima (CLAUDE.md §3) vale aqui: um host de fora não decide se a página existe.
+//
+// O CRÉDITO É LIDO, NUNCA REDIGITADO — mesma disciplina da frase da honestidade logo abaixo.
+// Se a malha for baixada de novo com outra data ou outra qualidade, a linha impressa muda
+// junto. Uma segunda cópia do crédito envelheceria em separado, e crédito errado num mapa é
+// afirmação falsa sobre quem mediu o país.
+const CAMINHO_MALHA = path.join(RAIZ, 'territorio', 'malha-ibge.json');
+function lerMalha() {
+  if (!fs.existsSync(CAMINHO_MALHA)) {
+    throw new Error('RECUSADO: falta territorio/malha-ibge.json — rode: node ferramentas/baixar-malha.js');
+  }
+  const m = JSON.parse(fs.readFileSync(CAMINHO_MALHA, 'utf8'));
+  if (!m.procedencia || !m.procedencia.credito || !m.procedencia.baixado_em) {
+    throw new Error('RECUSADO: malha-ibge.json sem bloco `procedencia` — a página não pode creditar o que não sabe de onde veio');
+  }
+  if (!Array.isArray(m.ufs) || m.ufs.length !== 27) {
+    throw new Error('RECUSADO: malha-ibge.json tem ' + ((m.ufs || []).length) + ' unidades da federação, e o Brasil tem 27');
+  }
+  for (const uf of m.ufs) {
+    if (!uf.sigla || !uf.nome || !Array.isArray(uf.aneis) || !uf.aneis.length) {
+      throw new Error('RECUSADO: unidade da federação incompleta na malha: ' + JSON.stringify(uf.sigla || uf.codigo));
+    }
+    if (typeof uf.pop2022 !== 'number' || !(uf.pop2022 > 0)) {
+      throw new Error('RECUSADO: ' + uf.sigla + ' sem população do Censo 2022 na malha');
+    }
+  }
+  return m;
+}
+
+// ------------------------------------------------------ SÓ AS DIVISAS INTERNAS, e o porquê
+//
+// O PRIMEIRO DESENHO TRAÇOU O ANEL INTEIRO DE CADA ESTADO e ficou com um defeito visível no
+// litoral do Nordeste: onde a costa do IBGE cai DENTRO do contorno desenhado à mão, o anel do
+// estado era traçado ali e sobrava uma tira de placa sem estado nenhum entre a linha e a borda
+// — que lê como erro de desenho, porque é.
+//
+// A CORREÇÃO NÃO É APARAR A TIRA, É NÃO DESENHAR AQUELA LINHA. A borda oceânica de um estado
+// não é divisa de nada: a divisa ali é o litoral, e o litoral já está desenhado — é a própria
+// silhueta da placa. O que a lista de aceite pede são as DIVISAS, e divisa é o que separa dois
+// estados.
+//
+// E DÁ PARA SABER QUAL É QUAL SEM CHUTAR, porque a malha do IBGE é topologicamente limpa.
+// MEDIDO nesta malha: 5.588 arestas, 3.815 distintas, e o histograma tem exatamente dois
+// valores — 2.042 arestas aparecem UMA vez (fronteira do país: oceano ou país vizinho) e 1.773
+// aparecem DUAS (a mesma aresta percorrida pelos dois estados que ela separa). Nenhuma aparece
+// três vezes ou mais. Então "compartilhada por dois" é o teste, e ele é exato, não heurístico.
+//
+// AS ARESTAS VIRAM LINHAS ENCADEADAS em vez de 1.773 segmentos soltos: com segmento solto cada
+// junta é um toco, e num traço de 1,7 texel os tocos aparecem como serrilha nos cantos. Ligadas,
+// o lineJoin:round faz o seu trabalho.
+function divisasInternas(malha) {
+  const chave = (a, b) => {
+    const ka = a[0] + ',' + a[1], kb = b[0] + ',' + b[1];
+    return ka < kb ? ka + '|' + kb : kb + '|' + ka;
+  };
+  const conta = new Map();
+  for (const uf of malha.ufs) for (const anel of uf.aneis) {
+    for (let i = 0; i + 1 < anel.length; i++) {
+      const k = chave(anel[i], anel[i + 1]);
+      conta.set(k, (conta.get(k) || 0) + 1);
+    }
+  }
+  const tresOuMais = [...conta.values()].filter((v) => v > 2).length;
+  if (tresOuMais) {
+    throw new Error('RECUSADO: ' + tresOuMais + ' aresta(s) da malha são compartilhadas por mais '
+      + 'de dois estados — a malha deixou de ser topologicamente limpa e o teste "compartilhada '
+      + '= divisa interna" parou de valer. Confira a qualidade baixada em ferramentas/baixar-malha.js.');
+  }
+  // adjacência só com as compartilhadas, cada aresta uma vez
+  const pos = new Map(), adj = new Map();
+  const vistas = new Set();
+  const nome = (p) => p[0] + ',' + p[1];
+  for (const uf of malha.ufs) for (const anel of uf.aneis) {
+    for (let i = 0; i + 1 < anel.length; i++) {
+      const a = anel[i], b = anel[i + 1], k = chave(a, b);
+      if (conta.get(k) < 2 || vistas.has(k)) continue;
+      vistas.add(k);
+      const na = nome(a), nb = nome(b);
+      pos.set(na, a); pos.set(nb, b);
+      if (!adj.has(na)) adj.set(na, []);
+      if (!adj.has(nb)) adj.set(nb, []);
+      adj.get(na).push(nb); adj.get(nb).push(na);
+    }
+  }
+  const usada = new Set();
+  const linhas = [];
+  const anda = (comeco) => {
+    const linha = [pos.get(comeco)];
+    let atual = comeco;
+    for (;;) {
+      const vizinhos = adj.get(atual) || [];
+      let proximo = null;
+      for (const v of vizinhos) {
+        const k = atual < v ? atual + '|' + v : v + '|' + atual;
+        if (!usada.has(k)) { usada.add(k); proximo = v; break; }
+      }
+      if (!proximo) break;
+      linha.push(pos.get(proximo));
+      atual = proximo;
+    }
+    if (linha.length > 1) linhas.push(linha);
+  };
+  // começa pelas PONTAS (grau ímpar): quem começa no meio de um caminho o parte em dois e
+  // devolve duas linhas onde havia uma. Só depois os ciclos, que não têm ponta.
+  for (const [n, vs] of adj) if (vs.length % 2 === 1) anda(n);
+  for (const [n] of adj) {
+    const vs = adj.get(n) || [];
+    const sobrou = vs.some((v) => !usada.has(n < v ? n + '|' + v : v + '|' + n));
+    if (sobrou) anda(n);
+  }
+  return { linhas, arestas: vistas.size };
+}
+
+// A DIVISA NÃO PODE ENCOSTAR NO PONTO QUE O INSTRUMENTO LÊ, e esta guarda existe porque as duas
+// coisas passaram a dividir a mesma superfície. O `test/ver-territorio.js` julga a paleta travada
+// pela MEDIANA de um retalho de 5x5 no centro do quadrado da projeção — um ponto que hoje cai em
+// Mato Grosso, longe de tudo. Uma divisa é tinta ESCURA: se um dia a malha mudar (o IBGE publica
+// nova divisão territorial, alguém troca a tolerância) e uma linha passar perto dali, o portão da
+// cor cairia com uma mensagem sobre LUZ — e a causa seria geografia. Um dia inteiro de diagnóstico
+// no lugar errado. Medido hoje: a divisa mais próxima está a 69,7 texels (6,80% da largura da
+// placa). A régua é 8 texels, que é o retalho de 5 mais a largura do traço com folga.
+const FOLGA_SONDA_TEXELS = 8;
+function conferirSonda(malha, TEX, lim) {
+  let perto = Infinity, quem = null;
+  for (const uf of malha.ufs) {
+    for (const anel of uf.aneis) {
+      for (const c of anel) {
+        // o mesmo `proj` da página, na fração 0..1 da placa; a sonda lê o centro, (0,5 · 0,5)
+        const x = (c[0] - lim.O) / (lim.L - lim.O), y = (lim.N - c[1]) / (lim.N - lim.S);
+        const d = Math.hypot(x - 0.5, y - 0.5);
+        if (d < perto) { perto = d; quem = uf.sigla; }
+      }
+    }
+  }
+  const texels = perto * TEX;
+  if (texels < FOLGA_SONDA_TEXELS) {
+    throw new Error('RECUSADO: uma divisa (' + quem + ') passa a ' + texels.toFixed(1)
+      + ' texels do ponto em que test/ver-territorio.js lê a cor do topo — abaixo da folga de '
+      + FOLGA_SONDA_TEXELS + '. O portão da cor reprovaria falando de LUZ, e a causa seria a GEOGRAFIA.');
+  }
+  return { texels, quem };
+}
+
 (async () => {
   const three = lerThree();
+  const malha = lerMalha();
 
   // ------------------------------------------------------------ a frase da honestidade, verbatim
   const fonteTs = fs.readFileSync(path.join(RAIZ, 'src', 'jogo.ts'), 'utf8');
@@ -137,6 +285,17 @@ function lerThree() {
   if (semCap.length) throw new Error('RECUSADO: ponto sem capítulo em EPOCAS: ' + semCap[0].cidade);
   D.honestidade = honestidade;
 
+  // A TEXTURA DO TOPO PASSOU A SER UM MAPA, então o número dela sai daqui e viaja para a página:
+  // é ele que decide o tamanho do texel, e é contra o texel que a simplificação da malha foi
+  // escolhida (ver ferramentas/baixar-malha.js). Um número só, nos dois lados.
+  const TEX = 1024;
+  D.tex = TEX;
+  D.ufs = malha.ufs;
+  D.creditoMalha = malha.procedencia.credito;
+  const divisas = divisasInternas(malha);
+  D.divisas = divisas.linhas;
+  const sonda = conferirSonda(malha, TEX, { N: D.N, S: D.S, O: D.O, L: D.L });
+
   // ------------------------------------------------------------------------ a lista de lugares
   // Existe por DUAS razões e as duas são de acesso: teclado (o canvas não é focável) e o recuo
   // sem WebGL — nesse caso ela é a única forma de chegar ao conteúdo, e o conteúdo continua
@@ -148,6 +307,18 @@ function lerThree() {
   const censoLinhas = D.censo.map((c) =>
     `        <div class="cLin"><span class="cR">${esc(c[0])}</span><span class="cV">${esc(c[1])}</span></div>`
   ).join('\n');
+
+  // AS 27 UNIDADES EM TEXTO, para o recuo sem WebGL. Sem WebGL não há placa, e sem placa não há
+  // como tocar num estado — a camada nova sumiria inteira justamente para quem já tem menos.
+  // Vai como TEXTO e não como botão de propósito: o cartão do link é recortado em 1200x630 e o
+  // censo de `cartao-censo.js` reprova elemento interativo que não esteja na lista de permitidos;
+  // 27 botões novos ou alargariam aquela lista ou quebrariam o cartão. Texto informa e não entra
+  // naquela conta. (O que fica em falta está escrito no relatório: teclado para os estados
+  // QUANDO há WebGL — hoje eles só respondem ao ponteiro.)
+  const milhar = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const ufsTexto = malha.ufs
+    .map((u) => `${esc(u.nome)} (${esc(u.sigla)}) ${milhar(u.pop2022)}`)
+    .join(' · ');
 
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -271,8 +442,23 @@ ${MED.estilo()}  /* no papel do censo a linha da medição é crédito, como as 
   #semwebgl { display:none; align-self:flex-start; margin-top:.9rem; width:min(30rem,100%); }
   #semwebgl h2 { margin:0 0 .35rem; font:400 1.05rem/1.25 Georgia,serif; }
   #semwebgl p { margin:0 0 .5rem; font-size:.88rem; color:var(--tinta2); }
+  /* a lista das 27 é longa e é referência, não leitura corrida: menor, e rolando dentro do
+     próprio bloco para não empurrar o link de voltar ao jogo para fora da tela */
+  .ufsLista { font-size:.78rem !important; line-height:1.5; max-height:11rem; overflow-y:auto; }
   body.sem #palco { display:none; }
   body.sem #semwebgl { display:block; }
+
+  /* TELA BAIXA: O PAINEL NÃO PODE COMER A PÁGINA.
+     MEDIDO em 360x640: o painel do censo ocupava 395 px dos 640 — 62% da tela — e sobrava tão
+     pouco que o enquadramento tinha de escolher entre uma placa minúscula e uma placa por cima
+     do cabeçalho. A causa não é o mapa, é o painel: os três números do censo são o conteúdo, e
+     abaixo deles vêm quatro parágrafos de CRÉDITO, que são para quem procura, não para quem
+     chega. Com teto de altura, os números continuam à vista e os créditos rolam dentro do
+     papel — que é o que se faz com nota de rodapé quando a página é pequena.
+     Só onde o problema existe: tela estreita E baixa. Em 390x844 nada muda. */
+  @media (max-width:819px) and (max-height:780px) {
+    #censo { max-height:46vh; overflow-y:auto; }
+  }
 
   @media (min-width:820px) {
     .env { padding:1.5rem 1.6rem; }
@@ -300,7 +486,8 @@ ${MED.estilo()}  /* no papel do censo a linha da medição é crédito, como as 
   <header>
 ${CHROME.barraHtml('territorio')}
     <h1>O território</h1>
-    <p class="sub">Os lugares onde cada capítulo do jogo aconteceu. Toque num pino.</p>
+    <p class="sub">Os lugares onde cada capítulo do jogo aconteceu, e as 27 unidades da
+      federação. Toque num pino — ou num estado.</p>
     <nav class="lista" aria-label="lugares">
 ${lista}
     </nav>
@@ -313,6 +500,7 @@ ${lista}
 ${censoLinhas}
     <p class="fonte">${esc(D.censoFonte)}</p>
     <p class="fonte">${esc(D.honestidade)}</p>
+    <p class="fonte">${esc(D.creditoMalha)}</p>
     ${MED.rodape()}
   </section>
 
@@ -320,6 +508,8 @@ ${censoLinhas}
     <h2>Este aparelho não desenha em 3D.</h2>
     <p>A placa em relevo precisa de WebGL, e o navegador aqui não o oferece. Os lugares
       continuam acima: toque no nome de qualquer um para ler o cartão.</p>
+    <p class="ufsLista"><strong>As 27 unidades da federação e a população de cada uma no Censo
+      de 2022:</strong> ${ufsTexto}.</p>
     <p><a class="kJogar" href="/jogo/">abrir o mapa dentro do jogo →</a></p>
   </section>
 </div>
@@ -375,6 +565,7 @@ function montarCartao(i) {
 
 function escolher(i) {
   selecionado = i;
+  if (i >= 0) ufEscolhida(-1, true);            // pino e estado não ficam abertos juntos
   for (let k = 0; k < botoes.length; k++) botoes[k].setAttribute("aria-pressed", k === i ? "true" : "false");
   document.body.classList.toggle("comCartao", i >= 0);
   if (i < 0) { elCartao.classList.remove("aberto"); return; }
@@ -388,7 +579,86 @@ for (let k = 0; k < botoes.length; k++) {
     if (window.__mirar) window.__mirar(selecionado);
   });
 }
-document.addEventListener("keydown", function (e) { if (e.key === "Escape") { escolher(-1); if (window.__mirar) window.__mirar(-1); } });
+
+/* ------------------------------------------------------------------ o cartão do ESTADO
+   Mesma folha de papel do cartão do pino, outro conteúdo. O número é o do Censo 2022 e vem do
+   malha-ibge.json; o crédito dele está impresso no painel do censo, embaixo, junto com o da
+   malha — a página não afirma número sem dizer de onde ele saiu. */
+let ufSel = -1;
+
+// milhar com ponto, à mão e não por toLocaleString: a página é um artefato GERADO, e o cartão
+// do link é tirado dela numa máquina que pode ter outro idioma instalado. Formatar aqui é o que
+// faz o mesmo comando produzir os mesmos bytes em qualquer lugar.
+function milhar(n) {
+  const s = String(Math.round(n));
+  let saida = "";
+  for (let i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 === 0) saida += ".";
+    saida += s[i];
+  }
+  return saida;
+}
+
+function montarCartaoUF(k) {
+  const uf = D.ufs[k];
+  elCartaoP.textContent = "";
+  const h = texto(elCartaoP, "h2", "kCidade", uf.nome);
+  texto(h, "span", "uf", uf.sigla);
+  if (uf.regiao) texto(elCartaoP, "p", "kOnde", "Região " + uf.regiao);
+
+  const bloco = texto(elCartaoP, "div", "kCap");
+  texto(bloco, "h3", null, milhar(uf.pop2022) + " pessoas");
+  texto(bloco, "p", "kQuando", "População residente, Censo Demográfico 2022");
+
+  // OS CAPÍTULOS QUE ACONTECERAM AQUI — a costura entre a camada nova e a que já existia.
+  // Sai de D.pontos, que é o MAPA_PONTOS do jogo: nenhum lugar novo é afirmado.
+  const daqui = [];
+  for (let i = 0; i < D.pontos.length; i++) {
+    if (D.pontos[i].uf === uf.sigla) daqui.push(D.pontos[i]);
+  }
+  for (let i = 0; i < daqui.length; i++) {
+    const p = daqui[i];
+    for (let c = 0; c < p.caps.length; c++) {
+      const b = texto(elCartaoP, "div", "kCap");
+      texto(b, "h3", null, p.caps[c].nome);
+      if (p.caps[c].quando) texto(b, "p", "kQuando", p.caps[c].quando);
+      texto(b, "p", "kEnd", p.cidade);
+    }
+  }
+
+  const pe = texto(elCartaoP, "div", "kPe");
+  if (daqui.length) {
+    const a = texto(pe, "a", "kJogar", "jogar \\u2192");
+    a.href = "/jogo/";
+  } else {
+    texto(pe, "span", "kEnd", "nenhum capítulo do jogo se passa aqui — ainda");
+  }
+  const b = texto(pe, "button", "kFecha", "fechar");
+  b.type = "button";
+  b.addEventListener("click", function () { ufEscolhida(-1); });
+}
+
+// "calado" existe para escolher() poder fechar o estado sem reentrar: sem ele, fechar o
+// estado a partir do pino chamaria escolher(-1) de volta e apagaria o pino recém-aberto.
+function ufEscolhida(k, calado) {
+  ufSel = k;
+  if (window.__realce) window.__realce(k);
+  if (k < 0) {
+    if (!calado) { document.body.classList.remove("comCartao"); elCartao.classList.remove("aberto"); }
+    return;
+  }
+  selecionado = -1;
+  for (let i = 0; i < botoes.length; i++) botoes[i].setAttribute("aria-pressed", "false");
+  montarCartaoUF(k);
+  document.body.classList.add("comCartao");
+  elCartao.classList.add("aberto");
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.key !== "Escape") return;
+  escolher(-1); ufEscolhida(-1);
+  if (window.__mirar) window.__mirar(-1);
+});
 
 /* ------------------------------------------------------------------ WebGL, ou o recuo digno */
 function temWebGL() {
@@ -430,18 +700,91 @@ const camera = new THREE.PerspectiveCamera(33, 1, 0.05, 40);
 const render = new THREE.WebGLRenderer({ canvas: document.getElementById("palco"), antialias: true });
 render.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-/* ---- o grão do topo: o MESMO hash01 e as MESMAS doses da Onda 11 (poro 11%, cisco 5,5%),
-   e é por isso que a placa parece do mesmo material que o chrome do jogo. Zero byte de arte. */
+/* ================================================================== O TOPO É UM MAPA
+   O topo era uma chapa de grão repetida 2x2. Passou a ser uma CARTA: o mesmo grão, e por cima
+   as divisas das 27 unidades da federação, do IBGE.
+
+   POR QUE NA TEXTURA E NÃO EM GEOMETRIA. Uma divisa desenhada como THREE.Line custa uma
+   chamada de desenho por estado, briga com o topo pelo mesmo Z (o z-fighting aparece como
+   pontilhado que pisca ao girar) e tem 1 px de largura fixa, que some quando a placa é vista de
+   longe e engorda quando a câmera aproxima. Pintada na textura, ela é anti-serrilhada pelo
+   canvas, tem largura em TEXEL (ou seja, escala junto com a placa), não acrescenta um triângulo
+   sequer e continua cabendo nas MESMAS 19 chamadas de desenho de antes.
+
+   A TEXTURA DEIXOU DE REPETIR, e é isso que a faz virar mapa. O ExtrudeGeometry gera o UV do
+   topo a partir do próprio x,y da forma, que vai de -0,5 a 0,5; com repeat 1 e offset 0,5
+   esse intervalo vira 0..1 e um texel passa a ter endereço geográfico fixo. Com o repeat 2
+   de antes, o mesmo texel aparecia em quatro lugares do país — o que é ótimo para grão e
+   impossível para divisa.
+
+   O GRÃO NÃO MUDOU DE ESCALA, e isso foi calculado, não tentado: antes eram 512 px repetidos
+   2x, ou seja 1024 texels na largura da placa, com célula de 2 px (1/512 da placa) e 8 células
+   de mancha por repetição (16 na placa). Agora são 1024 px sem repetição: célula de 2 px dá o
+   MESMO 1/512, e M=16 dá as MESMAS 16 manchas na largura. Muda o sorteio, não o material.
+
+   O QUE A CLIPAGEM RESOLVE DE GRAÇA. O contorno da placa é o desenhado à mão do jogo (zona do
+   dono, e a página diz isso em voz alta); a malha do IBGE é geografia exata. Os dois não
+   coincidem — medido: 0,40% da largura da placa em média, 3,61% no pior ponto — e o IBGE ainda
+   traz as ilhas oceânicas, que caem fora da placa (a leste, até 6,1% além da borda). Um
+   ctx.clip() no contorno da placa resolve os três casos de uma vez: o que passa da borda
+   simplesmente não é pintado. Sobra o litoral desenhado à mão como litoral, e as divisas
+   INTERNAS — que são as exatas, e são as que a lista de aceite pede — inteiras. */
 function hash01(k) { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
-function texturaTopo() {
-  const N = 512, CEL = 2;
+const TEX = D.tex;
+
+/* o contorno da placa em coordenadas de textura. É o MESMO D.contorno que extruda a placa —
+   não há uma segunda cópia do litoral para desencontrar da primeira. */
+function caminhoPlaca(g) {
+  g.beginPath();
+  for (let i = 0; i < D.contorno.length; i++) {
+    const p = proj(D.contorno[i][0], D.contorno[i][1]);
+    const x = p.x * TEX, y = p.y * TEX;
+    if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+  }
+  g.closePath();
+}
+
+function caminhoUF(g, uf) {
+  g.beginPath();
+  for (let a = 0; a < uf.aneis.length; a++) {
+    const anel = uf.aneis[a];
+    for (let i = 0; i < anel.length; i++) {
+      const p = proj(anel[i][1], anel[i][0]);      // o GeoJSON guarda [lon, lat]
+      const x = p.x * TEX, y = p.y * TEX;
+      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    g.closePath();
+  }
+}
+
+/* AS DIVISAS — só as INTERNAS, já encadeadas pelo gerador (ver divisasInternas() no Node).
+   A borda oceânica de cada estado não entra: ali a divisa é o litoral, e o litoral é a própria
+   silhueta da placa. Cada linha aqui é uma aresta que dois estados dividem. */
+function tracarDivisas(g) {
+  g.lineJoin = "round"; g.lineCap = "round";
+  g.strokeStyle = "#8a7147";
+  g.lineWidth = 1.7;                                // 1,7 texel ≈ 1,2 px na tela a 1366
+  g.beginPath();
+  for (let k = 0; k < D.divisas.length; k++) {
+    const linha = D.divisas[k];
+    for (let i = 0; i < linha.length; i++) {
+      const p = proj(linha[i][1], linha[i][0]);
+      const x = p.x * TEX, y = p.y * TEX;
+      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+  }
+  g.stroke();
+}
+
+function fundoDoTopo() {
+  const N = TEX, CEL = 2;
   const c = document.createElement("canvas");
   c.width = N; c.height = N;
   const g = c.getContext("2d");
   g.fillStyle = "#e9d8ae"; g.fillRect(0, 0, N, N);
-  // mancha larga na segunda cor travada — ruído de valor sobre uma malha de 8, interpolado,
+  // mancha larga na segunda cor travada — ruído de valor sobre uma malha de 16, interpolado,
   // para o topo não ser uma chapa lisa de uma cor só
-  const M = 8, lat = [];
+  const M = 16, lat = [];
   for (let j = 0; j <= M; j++) for (let i = 0; i <= M; i++) lat[j * (M + 1) + i] = hash01((i % M) * 41.3 + (j % M) * 97.7 + 13.1);
   const img = g.getImageData(0, 0, N, N), dd = img.data;
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
@@ -466,13 +809,49 @@ function texturaTopo() {
       g.fillRect(x * CEL, y * CEL, CEL, CEL);
     }
   }
-  const t = new THREE.CanvasTexture(c);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(2, 2);
-  t.offset.set(0.5, 0.5);
+  g.save(); caminhoPlaca(g); g.clip(); tracarDivisas(g); g.restore();
+  return c;
+}
+
+/* DOIS CANVAS, e o segundo é o que paga o realce por um preço que o dedo não sente.
+   cvBase guarda grão + divisas e é desenhado UMA vez (é o caro: 1 M de pixels de ruído).
+   cvTopo é o que a textura lê; realçar um estado é drawImage(cvBase) + um preenchimento +
+   needsUpdate, sem refazer ruído nenhum. Medido no relatório do gerador, abaixo. */
+let cvBase = null, cvTopo = null, texTopo = null;
+function texturaTopo() {
+  cvBase = fundoDoTopo();
+  cvTopo = document.createElement("canvas");
+  cvTopo.width = cvTopo.height = TEX;
+  cvTopo.getContext("2d").drawImage(cvBase, 0, 0);
+  const t = new THREE.CanvasTexture(cvTopo);
+  // ClampToEdge e não Repeat: a textura deixou de ladrilhar, e um UV que escapasse por
+  // arredondamento deve grudar na borda em vez de reaparecer do outro lado do país.
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  t.offset.set(0.5, 0.5);              // repeat continua 1: o UV -0,5..0,5 do extrude vira 0..1
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = Math.min(4, render.capabilities.getMaxAnisotropy());
+  texTopo = t;
   return t;
+}
+
+/* O REALCE. Pintado na MESMA textura, com o MESMO clip — então ele não vaza da placa nem
+   quando a geografia do IBGE passa do litoral desenhado à mão, que é o caso em vários pontos
+   do Nordeste. Regra "evenodd" no preenchimento porque um estado pode ter anel interno. */
+function pintarTopo(iUf) {
+  if (!cvTopo) return;
+  const g = cvTopo.getContext("2d");
+  g.clearRect(0, 0, TEX, TEX);
+  g.drawImage(cvBase, 0, 0);
+  if (iUf >= 0) {
+    g.save();
+    caminhoPlaca(g); g.clip();
+    g.fillStyle = "rgba(235,167,72,.34)";
+    caminhoUF(g, D.ufs[iUf]);
+    g.fill("evenodd");
+    tracarDivisas(g);                  // o traço volta por cima: realce não apaga divisa
+    g.restore();
+  }
+  texTopo.needsUpdate = true;
 }
 
 /* ---- as bandas do toon: três degraus, e o de cima vale 1 para o topo sair EXATAMENTE na cor
@@ -581,11 +960,22 @@ function areaUtil() {
     const x = Math.min(esq + folga * 2, W * 0.5);
     return { x: x, y: folga, w: W - x - folga * 2.5, h: H - folga * 2 };
   }
-  // tela estreita: a placa vive na faixa entre a última linha do cabeçalho e o painel
-  const topo = cab[cab.length - 1].bottom + folga;
+  /* tela estreita: a placa vive na faixa entre a última linha do cabeçalho e o painel.
+
+     O PISO É O PAINEL, E ELE NÃO CEDE. A versão anterior, quando a faixa ficava apertada,
+     devolvia um retângulo FIXO (22% a 72% da altura) que ignorava onde o painel começava — e o
+     painel é papel OPACO. MEDIDO na página publicada: em 390x844 a placa passava 67 px por
+     baixo dele e em 360x640, 202 px; ou seja, o Rio Grande do Sul era desenhado atrás de uma
+     folha e ninguém o via. Em 360x640 o defeito é ANTERIOR a esta camada (media 144 px sem o
+     crédito novo), e a linha do IBGE só o aumentou — mas o conserto é o mesmo.
+
+     A REGRA NOVA: o teto sobe, o piso nunca desce. Quando não cabe, a placa avança para cima —
+     sobre o cabeçalho, que é texto claro em fundo escuro e continua legível por cima dela — em
+     vez de mergulhar sob o papel. Mapa menor e inteiro vale mais que mapa maior pela metade. */
   const base = censo.top - folga;
-  if (base - topo < H * 0.28) return { x: folga, y: H * 0.22, w: W - folga * 2, h: H * 0.5 };
-  return { x: folga, y: topo, w: W - folga * 2, h: base - topo };
+  let topo = cab[cab.length - 1].bottom + folga;
+  if (base - topo < H * 0.28) topo = Math.max(folga, base - H * 0.28);
+  return { x: folga, y: topo, w: W - folga * 2, h: Math.max(60, base - topo) };
 }
 
 /* O enquadramento: desloca a lente (setViewOffset) para o centro óptico cair no meio da área
@@ -718,6 +1108,116 @@ window.__centro = function () {
    que esperou a brasa terminar — um print tirado cedo mostra a placa certa com os pinos
    apagados, e nada no arquivo denunciaria isso depois. */
 window.__acesos = function () { return pinos.filter(function (p) { return p.aceso > 0.9; }).length; };
+/* ---------------------------------------------------------- ONDE O DEDO CAIU, EM LATITUDE
+   O pino é achado em PIXELS (44 px de tela, porque o alvo é pequeno). O estado é achado em
+   GEOGRAFIA: o raio da câmera é cruzado com o plano do topo da placa, o ponto vira lat/lon
+   pela projeção inversa e a resposta sai de um ponto-em-polígono na malha do IBGE. É exato por
+   construção e não depende de o estado ter um mesh próprio — nenhum estado tem.
+
+   unproject e não um raycaster: a câmera usa setViewOffset para enquadrar a placa na área
+   livre, e as duas coisas leem a MESMA projectionMatrixInverse. Um cálculo escrito à mão com
+   fov e aspect ignoraria o deslocamento da lente e erraria o alvo exatamente onde a página
+   trabalha mais — em tela larga, com a placa fora do centro. */
+const planoY = ALTURA;
+const auxNDC = new THREE.Vector3(), auxDir = new THREE.Vector3();
+function ondeNaPlaca(px, py) {
+  const l = render.domElement.clientWidth, a = render.domElement.clientHeight;
+  auxNDC.set((px / l) * 2 - 1, -(py / a) * 2 + 1, 0.5).unproject(camera);
+  auxDir.copy(auxNDC).sub(camera.position);
+  if (Math.abs(auxDir.y) < 1e-9) return null;
+  const t = (planoY - camera.position.y) / auxDir.y;
+  if (t <= 0) return null;                       // o plano está atrás da câmera
+  const x = camera.position.x + auxDir.x * t, z = camera.position.z + auxDir.z * t;
+  const fx = x / LARG + 0.5, fy = z / LARG + 0.5;
+  if (fx < 0 || fx > 1 || fy < 0 || fy > 1) return null;
+  return { lat: D.N - fy * (D.N - D.S), lon: D.O + fx * (D.L - D.O) };
+}
+
+/* a caixa de cada estado, calculada uma vez: 27 comparações baratas descartam quase tudo antes
+   de a conta cara (5.633 arestas na malha inteira) rodar. É o que deixa o hover seguir o mouse
+   sem custar quadro. */
+const caixas = D.ufs.map(function (uf) {
+  let o = 999, l = -999, n = -999, s = 999;
+  for (let a = 0; a < uf.aneis.length; a++) for (let i = 0; i < uf.aneis[a].length; i++) {
+    const c = uf.aneis[a][i];
+    if (c[0] < o) o = c[0]; if (c[0] > l) l = c[0];
+    if (c[1] < s) s = c[1]; if (c[1] > n) n = c[1];
+  }
+  return { o: o, l: l, n: n, s: s };
+});
+
+function ufEm(lat, lon) {
+  for (let k = 0; k < D.ufs.length; k++) {
+    const b = caixas[k];
+    if (lon < b.o || lon > b.l || lat < b.s || lat > b.n) continue;
+    // cruzamentos por PARIDADE sobre TODOS os anéis do estado: com anel interno (buraco) a
+    // paridade se inverte de novo lá dentro, que é a resposta certa sem tratar buraco à parte.
+    let dentro = false;
+    const aneis = D.ufs[k].aneis;
+    for (let a = 0; a < aneis.length; a++) {
+      const anel = aneis[a];
+      for (let i = 0, j = anel.length - 1; i < anel.length; j = i++) {
+        const xi = anel[i][0], yi = anel[i][1], xj = anel[j][0], yj = anel[j][1];
+        if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) dentro = !dentro;
+      }
+    }
+    if (dentro) return k;
+  }
+  return -1;
+}
+
+window.__realce = pintarTopo;
+// o instrumento precisa perguntar "que estado está sob este pixel?" sem fingir um toque
+window.__ufNoPixel = function (px, py) {
+  const g = ondeNaPlaca(px, py);
+  if (!g) return null;
+  const k = ufEm(g.lat, g.lon);
+  return { lat: g.lat, lon: g.lon, uf: k < 0 ? null : D.ufs[k].sigla };
+};
+window.__ufSel = function () { return ufSel < 0 ? null : D.ufs[ufSel].sigla; };
+// A SILHUETA DA PLACA EM PIXELS DE TELA. O instrumento precisa dela para cobrar que nenhum
+// pedaço do país fique atrás do painel de papel — e precisa da silhueta DE VERDADE, não da
+// caixa da projeção: a caixa é um retângulo em lat/lon que sobra por todos os lados do
+// contorno, e cobrar por ela acusa invasão de 2 px onde não há placa nenhuma (medido em
+// 1024x768). Aqui sai o mesmo D.contorno que extruda a placa, ponto a ponto.
+window.__contorno = function () {
+  const fora = [];
+  for (let i = 0; i < D.contorno.length; i++) {
+    const p = proj(D.contorno[i][0], D.contorno[i][1]);
+    const v = new THREE.Vector3((p.x - 0.5) * LARG, ALTURA, (p.y - 0.5) * LARG).project(camera);
+    const l = render.domElement.clientWidth, a = render.domElement.clientHeight;
+    fora.push([(v.x * 0.5 + 0.5) * l, (-v.y * 0.5 + 0.5) * a]);
+  }
+  return fora;
+};
+// lat/lon -> pixel de CSS. É a ida do caminho que ondeNaPlaca() faz na volta, e o instrumento
+// precisa dela para mirar DENTRO de um estado escolhido pelo nome em vez de chutar coordenada
+// de tela — que muda a cada largura de viewport.
+window.__telaDe = function (lat, lon) {
+  const p = proj(lat, lon);
+  const v = new THREE.Vector3((p.x - 0.5) * LARG, ALTURA, (p.y - 0.5) * LARG).project(camera);
+  const l = render.domElement.clientWidth, a = render.domElement.clientHeight;
+  return { x: (v.x * 0.5 + 0.5) * l, y: (-v.y * 0.5 + 0.5) * a };
+};
+// um ponto BEM DENTRO de cada estado: o vértice da malha mais distante de qualquer divisa serve
+// mal (fica no meio de nada mas pode ser numa ilha). Aqui é o ponto interno do polígono mais
+// longe da borda entre os candidatos de uma grade grossa — barato e sempre dentro, inclusive
+// para estados côncavos, onde o centro da caixa cai FORA (o Pará e o Amazonas são os casos).
+window.__dentroDe = function (sigla) {
+  let k = -1;
+  for (let i = 0; i < D.ufs.length; i++) if (D.ufs[i].sigla === sigla) k = i;
+  if (k < 0) return null;
+  const b = caixas[k];
+  let melhor = null, longe = -1;
+  for (let i = 1; i < 24; i++) for (let j = 1; j < 24; j++) {
+    const lon = b.o + (b.l - b.o) * i / 24, lat = b.s + (b.n - b.s) * j / 24;
+    if (ufEm(lat, lon) !== k) continue;
+    let d = Math.min(lon - b.o, b.l - lon, lat - b.s, b.n - lat);
+    if (d > longe) { longe = d; melhor = { lat: lat, lon: lon }; }
+  }
+  return melhor;
+};
+
 const palco = render.domElement;
 let toqueX = 0, toqueY = 0, toqueT = 0;
 palco.addEventListener("pointerdown", function (e) { toqueX = e.clientX; toqueY = e.clientY; toqueT = performance.now(); });
@@ -725,9 +1225,37 @@ palco.addEventListener("pointerup", function (e) {
   if (performance.now() - toqueT > 700) return;
   if (Math.abs(e.clientX - toqueX) > 12 || Math.abs(e.clientY - toqueY) > 12) return;
   const r = palco.getBoundingClientRect();
-  const i = pinoPerto(e.clientX - r.left, e.clientY - r.top);
-  escolher(i >= 0 && i !== selecionado ? i : -1);
-  window.__mirar(selecionado);
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  // O PINO GANHA DO ESTADO, e não é preferência: o pino cabe dentro de um estado, então quem
+  // desempatasse pelo estado tornaria todo pino inalcançável.
+  const i = pinoPerto(px, py);
+  if (i >= 0) { escolher(i !== selecionado ? i : -1); window.__mirar(selecionado); return; }
+  const g = ondeNaPlaca(px, py);
+  const k = g ? ufEm(g.lat, g.lon) : -1;
+  if (selecionado >= 0) { escolher(-1); window.__mirar(-1); }
+  ufEscolhida(k >= 0 && k !== ufSel ? k : -1);
+});
+
+/* HOVER É DO MOUSE, E SÓ DELE. No celular não existe passar por cima: pointerType de toque
+   pinta o estado no instante do toque e o deixaria aceso ao levantar o dedo, o que lê como
+   seleção que ninguém fez. O toque decide pelo pointerup acima; aqui é só o mouse. */
+let hoverUF = -1;
+palco.addEventListener("pointermove", function (e) {
+  if (e.pointerType === "touch") return;
+  const r = palco.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const sobrePino = pinoPerto(px, py) >= 0;
+  const g = sobrePino ? null : ondeNaPlaca(px, py);
+  const k = g ? ufEm(g.lat, g.lon) : -1;
+  palco.style.cursor = (sobrePino || k >= 0) ? "pointer" : "default";
+  if (k === hoverUF) return;
+  hoverUF = k;
+  // o escolhido manda no realce; o hover só pinta quando não há estado aberto
+  if (ufSel < 0) pintarTopo(k);
+});
+palco.addEventListener("pointerleave", function () {
+  hoverUF = -1;
+  if (ufSel < 0) pintarTopo(-1);
 });
 
 /* ================================================================== O LAÇO
@@ -820,6 +1348,15 @@ ${MED.script('territorio')}
   console.log('territorio/index.html gerado — ' + D.pontos.length + ' lugares, '
     + D.pontos.reduce((a, p) => a + p.caps.length, 0) + ' capítulos, ' + D.contorno.length + ' pontos de contorno');
   console.log('  peso: ' + kb + ' KB cru, ' + gz + ' KB gzip (three.js inline = ' + kbThree + ' KB dos ' + kb + ')');
+  const vert = malha.ufs.reduce((a, u) => a + u.aneis.reduce((b, r) => b + r.length, 0), 0);
+  console.log('  geografia: 27 unidades da federação, ' + vert + ' vértices, textura de '
+    + TEX + ' px (1 texel = ' + ((D.L - D.O) / TEX).toFixed(4) + '° de longitude)');
+  console.log('  divisas internas: ' + divisas.arestas + ' arestas compartilhadas por dois estados, '
+    + 'encadeadas em ' + divisas.linhas.length + ' linha(s) — a fronteira do país NÃO é traçada '
+    + '(a silhueta da placa já é o litoral)');
+  console.log('  ' + malha.procedencia.credito);
+  console.log('  a divisa mais próxima da sonda de cor do test/ver-territorio.js está a '
+    + sonda.texels.toFixed(1) + ' texels (' + sonda.quem + '), folga exigida ' + FOLGA_SONDA_TEXELS);
 
   // ------------------------------------------------------- a imagem do cartão do link, da PRÓPRIA página
   //

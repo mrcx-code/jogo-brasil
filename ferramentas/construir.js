@@ -1138,18 +1138,40 @@ if (fs.existsSync(p("plataforma", "privacidade-texto.md"))) {
 for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio', 'privacidade']) {
   if (!fs.existsSync(p(secao))) continue;
   fs.mkdirSync(d(secao), { recursive: true });
+  // DOCUMENTO DE TRABALHO NÃO SE PUBLICA (achado da segurança, 23/08). Este laço copiava TUDO
+  // da pasta, e por isso `territorio/PINOS-PROPOSTA.md` — o rascunho da historiadora, com 49
+  // pinos ainda NÃO aprovados, cinco marcados PARE e dezenas de "[conferir]" — respondia 200 em
+  // produção, fora de qualquer Disallow, sem nenhuma página que o buscasse. É §2: proposta de
+  // representação não aprovada, legível como se fosse posição do projeto. Nenhuma página
+  // consome `.md`; quem precisar de um no ar, põe em dashboard/, que tem Disallow e cabeçalho.
+  //
+  // A REGRA DE 23/08 FECHOU A PORTA PELA EXTENSÃO, E SOBROU A GÊMEA (achado em 04/09). O mesmo
+  // rascunho existe em JSON — `territorio/pinos-proposta.json`, 27 KB com o texto candidato de
+  // cada um dos 49 pinos, os 5 PARE inclusive — e continuava sendo publicado, porque não termina
+  // em `.md`. Era exatamente o mesmo problema de §2 pela mesma pasta, e a régua não o via.
+  //
+  // ENTÃO A REGRA DEIXA DE SER SOBRE EXTENSÃO E PASSA A SER SOBRE USO: publica-se o `index.html`
+  // e o que ELE cita. Um arquivo que nenhuma página busca não tem por que responder 200 — e essa
+  // formulação se mantém sozinha, porque no dia em que uma seção passar a buscar um `.json` o
+  // nome dele aparece no HTML e ele volta a viajar, sem ninguém precisar lembrar de uma lista.
+  // Hoje isso deixa de fora os dois arquivos que só alimentam GERADOR: `pinos-proposta.json` e
+  // `malha-ibge.json` (este entra na página embutido, não buscado).
+  // O CASAMENTO É COM O NOME PRECEDIDO DE BARRA, e não com o nome solto: a página do TERRITÓRIO
+  // CITA `malha-ibge.json` num comentário de código, explicando de onde a geografia vem, e com a
+  // busca solta essa menção em PROSA bastava para publicar 100 KB que ninguém pede. Referência de
+  // verdade é caminho — `/territorio/compartilhar.jpg` —, então a barra é o que separa citar de
+  // usar. O erro que sobra é na direção certa: uma página que busque `dados.json` sem barra deixa
+  // de publicá-lo e QUEBRA ALTO, em vez de vazar em silêncio, que é o modo de falha que esta
+  // regra existe para acabar.
+  const html = fs.readFileSync(p(secao, 'index.html'), 'utf8');
   let n = 0;
+  const deixados = [];
   for (const f of fs.readdirSync(p(secao))) {
-    // DOCUMENTO DE TRABALHO NÃO SE PUBLICA (achado da segurança, 23/08). Este laço copiava TUDO
-    // da pasta, e por isso `territorio/PINOS-PROPOSTA.md` — o rascunho da historiadora, com 49
-    // pinos ainda NÃO aprovados, cinco marcados PARE e dezenas de "[conferir]" — respondia 200 em
-    // produção, fora de qualquer Disallow, sem nenhuma página que o buscasse. É §2: proposta de
-    // representação não aprovada, legível como se fosse posição do projeto. Nenhuma página
-    // consome `.md`; quem precisar de um no ar, põe em dashboard/, que tem Disallow e cabeçalho.
-    if (/\.md$/i.test(f)) continue;
+    if (f !== 'index.html' && (/\.md$/i.test(f) || html.indexOf('/' + f) < 0)) { deixados.push(f); continue; }
     copiarPublicado(p(secao, f), d(secao, f)); n++;
   }
-  console.log('  ' + secao + '/ copiada para dist/' + secao + '/ — ' + n + ' arquivo(s)');
+  console.log('  ' + secao + '/ copiada para dist/' + secao + '/ — ' + n + ' arquivo(s)'
+    + (deixados.length ? ' (não publicados, porque nenhuma página os cita: ' + deixados.join(', ') + ')' : ''));
 }
 
 // OS PACOTES DE ARTE, nos dois lugares em que o index.html também está — e pelo mesmo motivo
