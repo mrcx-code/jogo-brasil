@@ -1499,7 +1499,40 @@ Desde 22/08 o interruptor de medicao e UM so (mesma chave de localStorage, decis
 Duas noites seguidas (funil da growth 21/08, funil do link-jogo 22/08) o encaixe reprovou 1-2 assercoes na 1a tentativa, passou na 2a, e o log do funil NAO diz QUAL assercao mordeu — ele guarda so o fim da saida, e a falha rola para fora. Sem o nome da assercao, flake nao vira diagnostico. Conserto: o integrar.js salva a saida INTEIRA do encaixe num arquivo ao lado (encaixe-vermelho-<data>.log) quando exit != 0, e imprime o caminho. Uma linha de tee com exit real preservado.
 
 
-## 53 — Em RETRATO a personagem esta 100% escondida atras do poste — arte/dono
+## 53 — Em RETRATO a personagem esta 100% escondida atras do poste — arte/dono — **FEITO em 03/09 (dev-jogo), FALTA SO O VEREDITO DA ARTE**
+
+**Ela entra em QUATRO das sete telas de retrato medidas, e a de REFERENCIA e uma delas.** Medido
+em 03/09, com a chave `CHAO_HOME_LIGADO` subida e o caminho-do-ceu do PENDENTES 54 feito
+(`node test/regua-larga.js`, exit 0):
+
+| tela | faixa livre | precisa | o que acontece | chao |
+|---|---:|---:|---|---|
+| 320x568 | 9,0 | 104 | **nao entra** — nada se mexe | 0,6800 |
+| 360x640 | 16,0 | 104 | **nao entra** | 0,6800 |
+| 390x568 | 9,0 | 104 | **nao entra** | 0,6800 |
+| 390x844 | **120,0** (era 83) | 104 | **ENTRA** — era o caso que doia | **0,4384** |
+| 412x915 | 156,0 (era 119) | 104 | **ENTRA** | 0,4563 |
+| 430x932 | 165,0 (era 128) | 104 | **ENTRA** | 0,4614 |
+| 768x1024 | 207,0 | 192 | **ENTRA** (tablet em retrato, achado desta rodada) | 0,5313 |
+
+Nas quatro em que ela entra: **zero px2** de cruzamento com o poste, com as oito tabuas e com a
+proposta, e respiro de 8 px acima e abaixo cumprido nas quatro. Nas tres em que nao entra, a
+regua cobra que NADA se mexeu (`GROUND == round(H x 0,68)`), e cobra por asserção.
+
+**O que destravou o 390x844 foi COMPOSICAO, nao motor** — que e exatamente onde o PENDENTES 54
+dizia estar a alavanca. Faltavam 21 px (83 contra 104) e foram comprados 37, divididos entre as
+duas pecas de cima em `src/estilo.css`: **19 px de respiro do topo** (`#telaMenu{padding-top}`) e
+**18 px de teto do logo** (`#logoImg{max-height}`), por uma reta continua (`clamp`) que vale ZERO
+abaixo de 700 px de altura. A conta e do layout e por isso e barata: o `#poste` tem
+`margin-top: auto`, entao todo pixel raspado ACIMA da base da proposta vira pixel de faixa, um
+por um. As tres telas curtas e o telefone deitado ficam byte a byte.
+
+**As tres saidas que 22/08 recusou continuam recusadas** — nenhuma delas foi usada. Nao se
+encolheu poste, nao se desenhou segunda figura, e `GROUND`/`fitCanvas` continuam com o 0,68 de
+sempre em todo lugar que nao seja a home em retrato.
+
+**⚠ O QUE FALTA: o veredito da ARTE sobre a costura vertical (condicao 1 do 54).** Os prints
+estao gerados e o item nao fecha sem ele. Ver o 54.
 
 Medido em 22/08 (dev-jogo, increment 2 da home), pelo DOM e nao pelo olho: a caixa dela na home
 mede **x 82..122 · y 486..574** em 390x844 e **x 82..122 · y 298..386** em 390x568, e o poste
@@ -1569,7 +1602,117 @@ volta provada: home 218 -> JOGAR 311 -> home 218 -> girado deitado 140 (0,68 de 
 de volta 218 -> `fecharTelas` 311, zero erro de console.
 
 
-## 54 — O CAMINHO-DO-CEU: destravar a subida do chao no retrato — dev-jogo/arte — **PRIORIZADO**
+## 54 — O CAMINHO-DO-CEU: destravar a subida do chao no retrato — dev-jogo/arte — **FEITO em 03/09; 3 DAS 4 CONDICOES MEDIDAS, A 1a (VEREDITO DA ARTE) ESTA NA MESA**
+
+**O caminho foi feito, e ele fez mais do que se esperava dele: o ceu nao so ficou — ficou MAIS
+inteiro do que estava no ar.** A peca de CHAO passou a se repetir espelhada na vertical em
+`rolarFundo()`, o mesmo truque que ja elimina a emenda na horizontal, e com isso o termo que
+obrigava a pintura a cobrir a faixa de baixo saiu do `Math.max` de `redesenharFundo()`.
+
+### O QUE FOI MEDIDO (`node test/medir-caminho-do-ceu.js`, exit 0, tudo na MESMA execucao)
+
+**A peca de CEU que fica em quadro** — o numero que responde ao veto de 22/08 palavra por
+palavra (*"o MAR some, e o mar e o que a home diz sem escrever"*):
+
+| tela | publicado | caminho-do-ceu | o caminho VETADO daria |
+|---|---:|---:|---:|
+| 390x844 | 70,8% | **71,2%** | 26,0% |
+| 412x915 | 70,8% | **76,2%** | 28,0% |
+| 430x932 | 70,8% | **75,1%** | 28,6% |
+
+Ou seja: o caminho vetado mostraria **um quarto** do ceu, e este mostra **mais que o publicado**.
+O par de prints `test/CEU-ANTES-390x844.png` / `test/CEU-DEPOIS-390x844.png` e a mesma coisa em
+imagem — no DEPOIS a baia, os navios e as montanhas estao no alto, o logo tem ceu atras da folha,
+e ela esta em cena.
+
+**A pintura ENCOLHE, e isso e ganho de nitidez de brinde:** 0,624 a 0,641x a publicada, o que
+derruba a ampliacao de cerca de 1,69x para ~1,08x na home em retrato — o §6 do CLAUDE.md avisa
+que a pintura e desenhada AMPLIADA e que isso e o que mais falta nela.
+
+**⚠ O SEGUNDO TERMO CAIU JUNTO, e so o print mostrou.** A primeira versao tirou do `Math.max` so
+o termo de cobertura do chao e deixou o `ch/ih`. Os numeros pareciam bons (pintura 0,781x) e o
+print reprovou: com `ch/ih` a tela passava a cortar a pintura em **31,2%** da altura em vez de
+21,9%, e o que mora nesses 9 pontos e justamente o ceu e o mar — a home virava parede de copas,
+que e a objecao da arte chegando pelo outro lado. Fica registrado porque a licao e geral: **numero
+de geometria nao substitui o print quando o que se julga e enquadramento.**
+
+### INERCIA — o jogo nao se mexeu um pixel
+
+Com a fracao de sempre (jogo, deitado, desktop, telas curtas), `dw`/`dh`/`dy` batem com a conta
+ANTIGA com erro de **0,000 px** nas oito telas medidas, e o laco de repeticao roda **zero**
+voltas. O termo so sai do `Math.max` quando `gd < CHAO_FRAC`, que e a home em retrato e mais nada.
+
+### AS QUATRO CONDICOES DA ARTE — onde cada uma esta
+
+1. **COSTURA VERTICAL JULGADA POR PRINT** — ⏳ **NA MESA DA ARTE, e o item nao fecha sem isto.**
+   `node test/prints-costura.js` gera, para os treze capitulos, a home inteira em 390x844 e uma
+   TIRA da camada `#fundoHD` nua, recortada na faixa das costuras, em px de dispositivo 1:1, com
+   marcas de 1 px nas bordas apontando a altura exata de cada uma. Duas ficam versionadas por
+   cobrirem os extremos de textura: `test/COSTURA-tira-00-PINDORAMA.png` (mata — a costura some na
+   terra) e `test/COSTURA-tira-03-SALVADOR.png` (calcamento de pedra — e onde mais aparece, porque
+   la `frenteBloco() < 0` e nao ha mato na emenda para escondê-la). Em 390x844 as duas costuras
+   caem em y=543 e y=716 (CSS), ou seja **atras do poste**, com ~43 px de cada lado a mostra.
+   O precedente JABAQUARA e o motivo de a arte olhar: simetria em textura organica fabrica rosto.
+2. **A REFERENCIA 390x844 GANHOU A HEROINA** — ✅ faixa **83 -> 120 px** contra os 104 que a regua
+   pede, e ela ENTRA. O item nao desceu de prioridade: nao destravou so Pixel e iPhone Max.
+3. **A REGUA INTEIRA** — ✅ `node test/regua-larga.js` exit **0** nas doze telas. Zero px2 de
+   sobreposicao com poste, tabuas e proposta; respiro >= 8 px dos dois lados; piso de 44 px das
+   tabuas intocado (medido 44 no nivel 2 e 51-53 nos portoes, nas seis de retrato).
+4. **FPS EM A/B NA MESMA CARGA, ORDEM ALTERNADA** — ✅ e com um TERCEIRO lado que a condicao nao
+   pedia e sem o qual o numero nao valeria: `A'` e a mesma condicao de `A`, medida noutro momento,
+   e o delta A'-A e o RUIDO da maquina. Ordem `A B A' | A' B A`, 24 amostras por tela, `worldX`
+   empurrado entre rodadas para o quadro do sprite (e o braco) mudar a cada amostra.
+
+   | tela | A | B | CUSTO B-A | RUIDO A'-A |
+   |---|---:|---:|---:|---:|
+   | 412x915 | 23,3 | 23,8 | **+0,6 FPS (+2,4%)** | +1,6 FPS (+6,7%) |
+   | 390x844 | 25,5 | 26,3 | **+0,8 FPS (+3,2%)** | +0,5 FPS (+1,8%) |
+   | 390x568 (0 copias) | 39,5 | 41,3 | +1,8 FPS (+4,6%) | +1,0 FPS (+2,4%) |
+
+   **O custo esta dentro do ruido nas tres, e o sinal ate saiu positivo** — o que faz sentido: a
+   pintura encolheu 36%, entao o passe desenha MENOS pixel por copia. Para nao depender de um FPS
+   headless sem GPU, o mesmo instrumento cronometra o passe direto (400 chamadas de `rolarFundo()`
+   por lado, ordem alternada): **+0,010 ms/quadro em 412x915 e +0,007 em 390x844**, que a 60 Hz
+   sao **0,06% e 0,04%** do orcamento de um quadro. Em 390x568, onde a linha nao sobe e o laco de
+   repeticao roda zero voltas, o custo mede **-0,005 ms** — ruido, e o controle negativo certo.
+   (Precedente que a condicao cita: o vento custou 9 FPS e foi cortado por medicao em 22/08.)
+
+### UM ACHADO QUE NAO ESTAVA NO ITEM: o TABLET EM RETRATO nao tinha regua nenhuma
+
+`tablet retrato` (768x1024) mora na lista das telas LARGAS da `regua-larga.js` **e e retrato**,
+entao `medirChaoDaHome()` sobe a linha la — e a unica assercao que o alcancava era `chaoIntacto`,
+a que diz que ela NAO pode subir. Com a chave ligada, a regua reprovou nele, corretamente e por
+motivo errado. Afrouxar aquela assercao seria o conserto errado (e ela que impede um erro na
+guarda de orientacao de reenquadrar o notebook em silencio). O conserto foi dar ao tablet em
+retrato a MESMA regua dos dois lados, extraindo `lerChao()`/`conferirChao()` para os dois lacos
+compartilharem. Medido antes de escrever a assercao, nas tres resolucoes de tablet em retrato que
+existem de verdade: 768x1024 faixa 207/192 respiro 15/16 · 810x1080 faixa 245/192 respiro 33/36 ·
+600x960 faixa 175/148 respiro 21/22 — **cruzamento 0 px2 nas tres**. O iPad Pro em retrato
+(1024x1366) cai na home CINEMATICA por largura e a linha NAO sobe la (`chaoHome = 0`, medido).
+
+### OS CONTROLES DO AUTOTESTE FORAM REFEITOS (licao 2.8)
+
+Os antigos (`ligar`, `ligar-real`) passaram a injetar o estado de PRODUCAO quando a chave subiu —
+controle que injeta producao e decoracao. Os tres novos, com exit code real desta rodada:
+
+- `REGUA_CHAO=espremer` (chao a 0,60 com a chave ligada) — **exit 1, reprova 12 de 12**.
+- `REGUA_CHAO=nao-subir` (chave ligada, `chaoHome` zerado a mao) — **exit 1, reprova 4**: as
+  quatro telas de retrato em que a faixa da. E o controle do lado que este item existe para
+  garantir.
+- `REGUA_CHAO=desligar` (chave baixada e medida refeita) — **exit 0**, aprovado pelo ramo de
+  INERCIA. E o controle POSITIVO do estado publicado entre 22/08 e 02/09, e o que prova que
+  aquele ramo continua vivo em vez de ter morrido junto com o veto.
+- E as receitas de `REGUA_DEFEITO` continuam mordendo: a da hierarquia sai **exit 1 em 12 de 12**.
+
+**A chave subiu:** `CHAO_HOME_LIGADO = false -> true` em `src/jogo.ts`. Tudo o mais (a medida, a
+regua, os portoes, os controles) ja estava no lugar, como o 54 previa.
+
+---
+
+*(O texto abaixo e o do item como ele foi escrito em 22/08, mantido inteiro porque e o material
+da decisao e porque a condicao 1 dele ainda nao foi respondida.)*
+
+## 54 (o item original, 22/08) — destravar a subida do chao no retrato — dev-jogo/arte
 
 **Medido em 22/08, na mesma rodada que fez o 53, com print antes/depois em
 `test/CHAO-ANTES-412x915.png` e `test/CHAO-DEPOIS-412x915.png`.** Nao e efeito colateral de

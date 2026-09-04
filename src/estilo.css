@@ -592,10 +592,27 @@
   /* O MENU é a mata. O véu é quase nenhum — só um assentamento no pé, onde o poste finca,
      e um nada no céu para o logo não disputar com nuvem clara. Quem dá legibilidade é a
      MADEIRA opaca das tábuas, não o escurecimento do mundo. */
+  /* ===== A FAIXA DA HEROÍNA: 37 px comprados no retrato ALTO (03/09, caminho-do-céu) =====
+     O PENDENTES 53 mediu e parou aqui: em 390×844 a faixa livre entre a base da proposta e o
+     topo do poste dá **83 px** e a régua do dono pede **104** (os 88 dela mais 8 de respiro de
+     cada lado). Faltavam 21, e o PENDENTES 54 escreveu onde estava a alavanca — *"na composição
+     (logo um degrau menor, ou a proposta mais colada nele), não no motor"*.
+     A conta é do LAYOUT e é o que torna isto barato: o `#poste` tem `margin-top: auto`, ou seja
+     está ancorado na borda de baixo. Todo pixel raspado ACIMA da base da proposta vira pixel de
+     faixa, um por um — nada desce, o bloco de cima é que sobe.
+     O CUSTO SE DIVIDE entre as duas peças (19 px de respiro do topo + 18 px de logo) em vez de
+     sair inteiro de uma: 37 px de um logo só o encolheriam 18%, e ele é a primeira coisa que a
+     pessoa vê — o dono já mandou aumentá-lo uma vez ("meio longe, pequenininho").
+     E É UMA RETA, NÃO UM DEGRAU: `clamp` de 0 a 19 px entre 700 e 844 de altura. Abaixo de 700
+     a raspagem é ZERO por aritmética, então 320×568, 390×568 e 360×640 — as três telas em que a
+     personagem nunca cabe — ficam byte a byte no que já estava medido, e o telefone DEITADO
+     também (390 px de altura). Um `@media (min-height: …)` faria a mesma coisa com um salto de
+     37 px numa linha invisível; a reta não fabrica degrau nenhum. */
   #telaMenu { background:
     linear-gradient(180deg, rgba(10,9,6,.30) 0%, rgba(10,9,6,.06) 34%,
                             rgba(10,9,6,.10) 62%, rgba(10,9,6,.52) 100%);
-    justify-content: flex-start; padding-top: var(--mTopo);
+    justify-content: flex-start;
+    padding-top: calc(var(--mTopo) - clamp(0px, calc(13.2vh - 92.4px), 19px));
     /* O PÉ DA TELA É DO POSTE, e o respiro dele passou a ser recheio do próprio poste. É o que
        permite ao mastro terminar EXATAMENTE na borda de baixo em vez de atravessá-la — ver o
        `bottom: 0` do `#poste::before` e a rolagem fantasma que ele criava. */
@@ -611,8 +628,13 @@
      de largura de um 390×932, e era ele o inquilino mais caro da faixa que não fechava.
      Com `height: auto` mais um teto de altura fluido, ele encolhe proporcional sem deformar —
      e nas telas altas o teto nunca é alcançado, então nada muda onde já estava bom. */
+  /* A SEGUNDA METADE DOS 37 PX (03/09): 18 px de teto de altura, pela mesma reta e pelo mesmo
+     motivo do `padding-top` acima. Em 390×844 o logo passa de 201,4 para 183,4 px — 8,9% menor,
+     contra os 18% que ele perderia se pagasse os 37 sozinho. Abaixo de 700 px de altura a
+     raspagem é zero, então as telas curtas (onde o logo JÁ está no piso de 104) não se mexem. */
   #logoImg { image-rendering: pixelated; width: min(72vw, 300px); height: auto;
-    max-height: var(--mLogoAlt); object-fit: contain;
+    max-height: calc(var(--mLogoAlt) - clamp(0px, calc(12.5vh - 87.5px), 18px));
+    object-fit: contain;
     margin-bottom: var(--mLogoBaixo); filter: drop-shadow(0 5px 0 rgba(0,0,0,.6));
     animation: respira 4.2s ease-in-out infinite; }
   /* respiro lento: vivo sem ser inquieto. Jogo bom se mexe pouco e no ritmo certo. */

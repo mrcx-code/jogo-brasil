@@ -4300,20 +4300,40 @@ const CHAO_FRAC_MIN = 0.34;          // trava de sanidade: a pintura não sobe m
 // E o argumento que fecha: seriam DUAS HOMES conforme a altura do aparelho, na PORTA DE
 // ENTRADA da plataforma — "não parecem do mesmo jogo".
 //
-// LIGA JUNTO COM O CAMINHO-DO-CÉU DO PENDENTES 54, NUNCA SOZINHA. Aquele caminho (repetir a
-// peça de chão espelhada na vertical, o mesmo truque que já elimina a emenda na horizontal)
-// derruba a exigência de "a faixa de baixo tem de ser coberta pela pintura" — e aí a pintura
-// fica MENOR que hoje, com MAIS céu, e as três objeções acima deixam de existir. As quatro
-// condições da arte para aquele dia estão escritas por extenso no PENDENTES 54.
+// ===== E ELA SUBIU EM 03/09, COM O CAMINHO-DO-CÉU FEITO (PENDENTES 54) =====
+//
+// A condição que a arte pôs era "liga junto com o caminho-do-céu, nunca sozinha", e o caminho
+// está feito: a peça de chão se repete espelhada na vertical em `rolarFundo()`, o mesmo truque
+// que já elimina a emenda na horizontal. Com isso o termo que obrigava a pintura a cobrir a
+// faixa de baixo saiu do `Math.max` de `redesenharFundo()` e as três objeções do veto caíram —
+// medido nesta rodada, no MESMO instrumento (`test/medir-caminho-do-ceu.js`):
+//
+//   · a pintura passa a ser **0,624×** a publicada em 412×915 e **0,640×** em 430×932, contra
+//     **1,699×** e **1,683×** do caminho vetado (número final, depois de tirar `ch/ih` do
+//     `Math.max` — ver o comentário de `redesenharFundo`; a primeira versão desta medida,
+//     0,781×, era do `scale` com `ch/ih` ainda dentro, e o print reprovou aquela). Ela ENCOLHE
+//     onde encolher significa mostrar MAIS céu, não menos;
+//   · da peça de CÉU que fica em quadro sobe de 70,8% (publicado) para **76,2%** no Pixel e
+//     **75,1%** no iPhone Max — o alto do enquadramento não só fica onde estava, fica com MAIS
+//     céu do que a home publicada tem hoje;
+//   · e as SEIS telas de retrato passaram a ter a MESMA composição, que era o argumento que
+//     fechava o veto ("duas homes por altura de aparelho na porta de entrada"). Faltavam 21 px
+//     de faixa em 390×844 e eles foram comprados na composição (37 px: 19 de respiro do topo e
+//     18 de teto do logo, por reta contínua) — 83 → 120 px de faixa contra os 104 que a régua
+//     pede.
+//
+// O QUE CONTINUA VERDADE, e é o contrato de inércia: com a fração de sempre nada mudou de
+// lugar. Medido nas oito telas (seis de retrato, o deitado e o notebook): `dw`, `dh` e `dy`
+// batem com a conta ANTIGA com erro de **0,000 px**, e o laço de repetição roda **zero** voltas.
 //
 // É `let` e não `const` por UMA razão só, e nenhuma linha do jogo a escreve: o autoteste da
-// régua a liga à mão para provar que a régua do retrato volta a morder (lição 2.8) — ver
-// `REGUA_CHAO=ligar` no rodapé de `test/regua-larga.js`.
+// régua a mexe à mão para provar que a régua do retrato morde dos dois lados (lição 2.8) — ver
+// `REGUA_CHAO=` no rodapé de `test/regua-larga.js`.
 //
 // E ela É UMA CHAVE DEDICADA de propósito: a arte foi explícita em NÃO reaproveitar o
 // `CHAO_FRAC_MIN` como interruptor. Trava de sanidade não vira chave — quem lesse 0,34 daqui a
 // um mês não teria como saber que aquele número estava desligando uma decisão de composição.
-let CHAO_HOME_LIGADO = false;
+let CHAO_HOME_LIGADO = true;
 let chaoHome = 0;                    // 0 = fração de sempre; senão a fração só da home retrato
 function fracChao() { return chaoHome || CHAO_FRAC; }
 // A MEDIDA SAI DO LAYOUT, NUNCA DO `getBoundingClientRect` — e isto é a lição 2.4 aplicada
@@ -7571,10 +7591,40 @@ function redesenharFundo() {
   const gs = FUNDO_GROUND_SRC, gd = fracChao();
   // scale must: cover width; keep the sky above the ground line covered (dy<=0); and keep the
   // ground band below covered (dy+dh>=ch). The last term dominates for these tall paintings.
-  const scale = Math.max(cw / iw, ch / ih, gd * ch / (gs * ih), (1 - gd) * ch / ((1 - gs) * ih));
+  //
+  // ===== E É O ÚLTIMO TERMO QUE O CAMINHO-DO-CÉU DERRUBA (PENDENTES 54) =====
+  //
+  // Ele é a razão inteira da ampliação de 1,64× que a arte vetou em 22/08: pedir que 25% de
+  // chão de fonte cubram 52% de tela só se resolve esticando a pintura toda, e o que sai de
+  // quadro é o alto — o céu e o mar. Com a peça de chão se repetindo espelhada para baixo em
+  // `rolarFundo()`, cobrir a faixa deixou de ser trabalho da escala.
+  //
+  // ELE SÓ SAI ONDE A LINHA SUBIU, e isto não é timidez — é o contrato de inércia: com a
+  // fração de sempre (`gd == CHAO_FRAC`, que é o jogo, o deitado e o desktop) o termo continua
+  // no `Math.max`, a conta devolve exatamente os mesmos `scale`, `dw`, `dh` e `dy` de antes
+  // desta mudança, e o laço de repetição lá embaixo não roda nenhuma volta. O único lugar do
+  // mundo em que a geometria muda é a home em retrato, que é onde o item pediu que mudasse.
+  //
+  // ⚠ E O TERMO `ch/ih` CAI JUNTO, o que NÃO era óbvio e foi o par de prints que mostrou. Com
+  // ele no `max` a subida em 390×844 dava `dh` 844 e `dy` −263 (dsf1): a pintura ficava menor,
+  // sim, mas a tela passava a cortá-la em **31,2%** da altura em vez de 21,9% — e o que mora
+  // nesses 9 pontos é exatamente o CÉU e o MAR. O print DEPOIS mostrava uma parede de copas no
+  // alto e o logo sem recorte, que é a objeção da arte inteira, só que por outro caminho.
+  // `ch/ih` existia para garantir cobertura de altura, e cobertura de altura passou a ser
+  // trabalho da repetição — mantê-lo era pagar duas vezes pela mesma coisa, em céu.
+  // Medido depois de tirá-lo, na mesma tela: `dh` 693, `dy` −150, corte no topo **21,6%** e
+  // **71,2%** da peça de céu em quadro, contra 70,8% do estado publicado. O céu não só fica —
+  // fica um fio mais inteiro do que estava.
+  const subiu = gd < CHAO_FRAC;
+  const scale = subiu
+    ? Math.max(cw / iw, gd * ch / (gs * ih))
+    : Math.max(cw / iw, ch / ih, gd * ch / (gs * ih), (1 - gd) * ch / ((1 - gs) * ih));
   const dw = iw * scale, dh = ih * scale;
   let dy = gd * ch - gs * dh;
-  dy = Math.min(0, Math.max(ch - dh, dy));   // keep the box fully covered
+  // O piso `ch - dh` é o que mantinha a caixa coberta por baixo — e com a repetição ele passa
+  // a ser justamente o que NÃO pode morder: empurrar a pintura para baixo para tapar a faixa
+  // desalinharia o chão pintado do GROUND, que é a armadilha nº 1 do §7 (ela levita).
+  dy = subiu ? Math.min(0, dy) : Math.min(0, Math.max(ch - dh, dy));
   // Park the geometry; the scroll is redrawn every frame from it, which is far cheaper than
   // recomputing the cover-fit each time.
   fundoGeo = { dw: dw, dh: dh, dy: dy, cw: cw, ch: ch };
@@ -8739,7 +8789,9 @@ function rolarFundo() {
   fx.imageSmoothingEnabled = !temGrao;
   // `ini`/`fim` recortam uma JANELA da fonte: é assim que a emenda do espelho se move de
   // coluna sem tocar em nenhuma outra pintura (ver JANELA_CHAO).
-  function ladrilhar(im, fracao, dy, dh, espelhar, sy?, sh?, alfa?, ini?, fim?) {
+  // `espY` é o CAMINHO-DO-CÉU (PENDENTES 54): o mesmo espelho, no outro eixo. Ver o bloco
+  // grande logo abaixo das duas chamadas de sempre.
+  function ladrilhar(im, fracao, dy, dh, espelhar, sy?, sh?, alfa?, ini?, fim?, espY?) {
     const a = ini === undefined ? 0 : ini, b = fim === undefined ? 1 : fim;
     const fonteW = dimW(im), sx = fonteW * a, sw = fonteW * (b - a);
     const tw = g.dw * (b - a);             // a largura do que se repete, no destino
@@ -8763,10 +8815,14 @@ function rolarFundo() {
       // Recorte na FONTE: a costura da emenda redesenha só as primeiras linhas da peça de
       // baixo. Sem recorte (sy/sh indefinidos) é a imagem inteira, como sempre foi.
       const fy = sy === undefined ? 0 : sy, fh = sh === undefined ? dimH(im) : sh;
-      if (espelhado) {
+      if (espelhado || espY) {
         fx.save();
-        fx.translate(x + tw, 0); fx.scale(-1, 1);
-        fx.drawImage(im, sx, fy, sw, fh, 0, dy, tw, dh);
+        // Em X o espelho é o de sempre. Em Y, `translate(0, dy+dh); scale(1,-1)` faz a linha
+        // de BAIXO da peça cair em `dy+dh` e a de CIMA em `dy` — a peça inteira de cabeça
+        // para baixo, exatamente no mesmo retângulo em que ela cairia direita.
+        if (espelhado) { fx.translate(x + tw, 0); fx.scale(-1, 1); } else { fx.translate(x, 0); }
+        if (espY) { fx.translate(0, dy + dh); fx.scale(1, -1); }
+        fx.drawImage(im, sx, fy, sw, fh, 0, espY ? 0 : dy, tw, dh);
         fx.restore();
       } else {
         fx.drawImage(im, sx, fy, sw, fh, x, dy, tw, dh);
@@ -8782,6 +8838,94 @@ function rolarFundo() {
   ladrilhar(pAlto, fracAlto > 0 ? fracAlto : 1, g.dy, g.dh * linha, rep[0]);
   ladrilhar(pChao, 1, g.dy + g.dh * linha, g.dh * (1 - linha), rep[3], undefined, undefined, undefined,
     jan[0], jan[1]);
+  // ===== O CAMINHO-DO-CÉU: a peça de CHÃO se repete PARA BAIXO, espelhada (PENDENTES 54) =====
+  //
+  // O QUE ISTO DESTRAVA. Enquanto a faixa abaixo da linha do chão só podia ser coberta pela
+  // própria pintura, `redesenharFundo` era obrigado a AMPLIAR a imagem inteira quando a linha
+  // subia — só existe 25% de chão na fonte contra 52% de faixa pedida. Medido em 22/08: 1,64×
+  // de ampliação em 412×915, e o que saía de quadro era o alto — o céu, o mar e as montanhas.
+  // A arte vetou por isso, e com razão: o mar é a única palavra que a home diz sozinha.
+  //
+  // Com o chão podendo se repetir, aquela exigência cai. O `scale` volta a ser governado pela
+  // caixa, a pintura fica MENOR que hoje (mais céu, não menos) e a faixa que sobra embaixo é
+  // preenchida com a mesma peça de chão, de cabeça para baixo e de cabeça para cima, alternando.
+  //
+  // POR QUE ESPELHADA, e é o mesmo argumento do §4 do CLAUDE.md no outro eixo: uma borda só
+  // encontra o próprio reflexo, então não há junta que o olho possa achar. Emenda reta entre
+  // duas cópias iguais é uma linha; emenda contra o reflexo é continuidade.
+  //
+  // ⚠ A CONTRAPARTIDA, e ela é a razão de a arte julgar isto por PRINT: simetria em textura
+  // orgânica FABRICA ROSTO — a auditoria de 21/08 achou um em JABAQUARA, numa costura que
+  // também era espelho não-intencional. A linha nasce sob suspeita e é olhada, capítulo a
+  // capítulo, antes de a chave subir.
+  //
+  // CUSTO QUANDO A LINHA NÃO SOBE: ZERO passes. Com `gd == CHAO_FRAC` o `scale` continua
+  // carregando o termo que cobre a faixa de baixo, `dy + dh >= ch`, e este laço não roda
+  // nenhuma vez — o jogo, o deitado e o desktop ficam byte a byte no que já estava medido.
+  const altChao = g.dh * (1 - linha);
+  // `costurasY` guarda a altura de CADA costura vertical nova (a linha em que uma cópia da
+  // peça de chão encontra a próxima) — é o que o bloco COSTURA_COBRE abaixo usa para tapar as
+  // que a arte reprovou. Fica vazio (e o bloco de cobertura não faz nada) sempre que o laço
+  // acima não rodar — que é o caso de sempre fora da home em retrato.
+  const costurasY: number[] = [];
+  if (altChao > 0.5) {
+    let yb = g.dy + g.dh;
+    // Teto de 12 cópias: guarda contra uma geometria degenerada (peça de chão de 1 px de
+    // altura) virar laço infinito dentro do quadro. Na pior tela medida são DUAS.
+    for (let n = 1; n <= 12 && yb < g.ch; n++) {
+      costurasY.push(yb);
+      ladrilhar(pChao, 1, yb, altChao, rep[3], undefined, undefined, undefined,
+        jan[0], jan[1], (n & 1) === 1);
+      yb += altChao;
+    }
+  }
+  // ===== COSTURA_COBRE: tapar a costura vertical nos capítulos que a arte pediu (03/09) =====
+  //
+  // JULGAMENTO DA ARTE sobre os prints de `test/prints-costura.js`, capítulo a capítulo: a
+  // TÉCNICA foi aprovada em 12 dos 13 — inclusive SALVADOR, o pior caso possível (calçamento
+  // de pedra espelhado é pedra, sem rosto). REPROVOU só em AINDA AQUI: quatro
+  // "mariposas"/máscaras bilaterais nas margens das duas costuras — o mesmo precedente de
+  // JABAQUARA (raiz detalhada forma rosto simétrico na emenda). PALMARES e A PEQUENA ÁFRICA
+  // têm ressalva mais leve e PASSAM soltos, mas o pedido da arte foi cobrir os três — a peça
+  // já existe para o primeiro, e reaproveitá-la nos outros dois não custa desenho novo.
+  //
+  // A COBERTURA: duas moitas do FRENTE do PRÓPRIO capítulo por costura — a mesma família de
+  // sprite que já tapa a emenda horizontal em `matoDaEmenda()`, então a textura não é
+  // estranha ao cenário. Posição determinística (hash da costura × do lado × do capítulo,
+  // nunca `Math.random()`) e DELIBERADAMENTE NÃO ESPELHADA — usar posições espelhadas seria
+  // repetir, na cobertura, o defeito que ela existe para tapar.
+  //
+  // ONDE ELAS VÃO: na MARGEM lateral, fora da coluna do `#poste` — é ali que a costura fica
+  // visível (dentro da coluna a madeira do poste já esconde tudo, "pode entrar atrás da
+  // tábua" da própria margem, e é por isso que a régua da personagem não precisa saber desta
+  // camada: ela nunca alcança a área tocável das tábuas, que fica ~11% de largura para
+  // dentro da margem).
+  const COSTURA_COBRE = [12, 5, 1]; // índices de EPOCAS — AINDA AQUI · A PEQUENA ÁFRICA · PALMARES
+  if (costurasY.length && COSTURA_COBRE.indexOf(epocaAtual()) >= 0) {
+    const blocoCobre = frenteBloco();
+    if (blocoCobre >= 0) {
+      const posteEl = document.getElementById("poste");
+      const pr = posteEl ? posteEl.getBoundingClientRect() : null;
+      const kx = g.cw / telaW();                 // CSS px -> px de dispositivo
+      const margL = pr ? pr.left * kx : g.cw * 0.11;
+      const margR = pr ? (telaW() - pr.right) * kx : g.cw * 0.11;
+      const larguraDev = 64 * kx;                 // >= 60 px CSS pedidos pela arte
+      costurasY.forEach(function (ySeam, si) {
+        [0, 1].forEach(function (lado) {
+          const h = (((si + 1) * 2654435761) ^ ((lado + 1) * 40503) ^ (epocaAtual() * 97 + 11)) >>> 0;
+          const iSpr = blocoCobre + ((h >>> 5) % 8);
+          const im = FRENTE_SPR[iSpr];
+          if (!im || !im.complete || !im.naturalWidth) return;
+          const altDev = larguraDev * (im.naturalHeight / im.naturalWidth);
+          const centroX = lado === 0 ? Math.max(larguraDev / 2, margL / 2)
+                                      : g.cw - Math.max(larguraDev / 2, margR / 2);
+          const jitterY = (((h >>> 17) % 9) - 4) * kx; // ±4 px CSS, pedido pela arte
+          fx.drawImage(im, Math.round(centroX - larguraDev / 2),
+            Math.round(ySeam + jitterY - altDev / 2), Math.round(larguraDev), Math.round(altDev));
+        });
+      });
+    }
+  }
   // A COSTURA DA EMENDA — só onde nada a cobre.
   //
   // As duas peças foram geradas separadas, então a de cima acaba numa coisa e a de baixo
