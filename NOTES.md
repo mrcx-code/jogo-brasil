@@ -12619,3 +12619,119 @@ e vai na mesma mesa da costura.
 `npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/regua-larga.js` **exit 0** nas
 doze telas. Controles do autoteste, com exit code real: `espremer` **1** (12/12), `nao-subir` **1**
 (4), `desligar` **0** (o positivo, ramo de inércia), `REGUA_DEFEITO` da hierarquia **1** (12/12).
+
+---
+
+## 2026-09-04 — SALVADOR: o que a mão recolhe deixa de ser objeto de culto (dev-jogo)
+
+**A decisão é do dono, de 03/09, e esta sessão só a executou: TROCA.** A auditoria §2 dos treze
+capítulos (PENDENTES 105, achado 1) mostrou que os três drops de SALVADOR eram **acarajé, pano da
+costa e búzios** — e o §2.4 item 5 do CLAUDE.md é categórico e sem exceção: *"objeto ritual não é
+colecionável — entra como fala, nunca como drop"*. O búzio é instrumento de adivinhação no
+candomblé; o acarajé é comida de santo, e é a **própria ficha do IPHAN** (Ofício das Baianas de
+Acarajé, Livro dos Saberes, 2005) que o diz, a mesma que o verbete do jogo já cita; o pano da costa
+é o **alaká** das casas de culto (Aline Santiago, *O sacrifício dos fios do Alaká*, PPGAV/EBA-UFRJ;
+Raul Lody, *Pano da costa*, Funarte, 1977) — as três fontes já estavam no glossário deste jogo.
+E a incoerência era **interna**: o capítulo vizinho, O CAIS, tinha RECUSADO búzios como item de
+escavação pela MESMA regra (NOTES.md:4952). Mesmo objeto, mesma regra, decisão oposta.
+
+**O que mudou, e é só o objeto.** `concluirAlcance()`, `soltarDrop()` e `coletarDrop()` estão
+intocados — mesma faixa de energia, mesmos três contadores (`RECURSO_DE`: flor/água/comida), mesmos
+ícones fixos do painel. A troca é uma linha da lista `DROPS` de `test/inline-objetos.js`, que é
+quem escreve o bloco `DROP_B64` em `src/jogo.ts`. **Nenhum verbete foi apagado**: ACARAJÉ, PANO DA
+COSTA e BÚZIOS continuam contando a dimensão sagrada, que é exatamente o que a regra manda — tirar
+da mão, nunca calar.
+
+### O índice, medido e não suposto
+
+O nome dos arquivos diz `cap4` e SALVADOR é o **quarto capítulo**, o que sugere 3. **É 2.** Sai do
+`arteCap: 2` que a própria época declara (`src/jogo.ts:2144`), e foi confirmado com o jogo aberto:
+`iEp('salvador') = 3`, `cenarioDaEpoca = 5`, `capArte() = 2`. O sufixo `cap4` é o número do PEDIDO
+na mesa, não o do capítulo — está escrito no cabeçalho do `inline-objetos.js` e continua sendo a
+única coisa do repositório em que os dois números divergem. O portão novo **não confia no 2**: ele
+lê o `arteCap` da fonte.
+
+### A arte: os três já desenhados serviam — depois de aparados
+
+`cap4-obj-tabuleiro`, `cap4-obj-trouxa` e `cap4-obj-agua` estavam em `assets/objetos/` e não
+chegavam à tela (o mob de SALVADOR é GENTE desde 16/08, então o objeto que atravessa a rua nunca é
+desenhado). Usá-los **direto** não servia, e a medida diz por quê: o drop é escalado por
+`DROP_TARGET / naturalHeight`, então **margem vazia dentro do quadro encolhe o objeto na tela**.
+
+| | folha | na tela, direto | depois de aparar |
+|---|---|---|---|
+| tabuleiro | 120×120, tinta em 46 das 120 linhas | **9×9** | **20×9** |
+| balde d'água (`cap4-obj-trouxa`) | 149×120, com fragmento de outro objeto em 0..17 | **11×9**, descentrado | **7×9** limpo |
+| trouxa de roupa (`cap4-obj-agua`) | 107×120, tinta em 66 linhas | **8×9** | **11×9** |
+
+O fragmento do quadro do balde é a armadilha do §5 ("corte em células iguais") vista de perto: duas
+ilhas de colunas separadas por 40 colunas vazias. Como o drop é centrado pela **largura da imagem**,
+o fragmento não era só sujeira — empurrava o balde para fora do próprio centro, para longe da sombra
+e do "+". `test/aparar-objeto.js` (novo) recorta na mancha, e com `--maior-ilha` fica só com a ilha
+mais larga. Erro de recompressão **medido na escala de exibição**: **0,93 · 0,48 · 1,25** de 255,
+contra a régua de **2,6** do §6.
+
+**Uma anotação de arte que fica para quem for pedir a v2:** os nomes de `cap4-obj-agua` e
+`cap4-obj-trouxa` estão **trocados** em relação ao que os arquivos desenham (o primeiro é a trouxa,
+o segundo é o balde). A lista de drops foi montada pelo **conteúdo**, casando com o que a pessoa que
+atravessa a rua carrega (`GENTE_FILEIRA`: barril→drum, trouxa→cash, tabuleiro→smog) — ir pelo nome
+do arquivo poria balde na vaga da comida. A lista `MOBS` herdou a troca e ficou como estava, porque
+não chega à tela; está em PENDENTES 107.
+
+### Peso
+
+Medido na MESMA execução, com o `index.html` **byte a byte idêntico** antes e depois (2.504.791 B,
+o mesmo dos dois lados — a arte de capítulo 2+ mora no pacote, não na porta de entrada):
+
+- `pack-salvador.json`: **527.146 B → 513.238 B** (−13.908 B, **−2,6%**). Todos os outros dez
+  pacotes: **idênticos**.
+- Um desvio de caminho que vale registrar: numa medição intermediária o `index.html` **cresceu 6,8
+  KB e todos os pacotes engordaram**, sem que nada de conteúdo mudasse. Causa: `inline-objetos.js`
+  regrava os quatro blocos a partir de `assets/`, e os arquivos de `assets/` **têm o perfil ICC** que
+  o `test/tirar-icc.js` tira do `src/jogo.ts`. Rodar o `tirar-icc.js` depois do `inline-*` não é
+  conselho de estilo do §6: é a diferença entre 8,18 e 8,19 MB de pacote.
+
+### O portão novo, e a prova de que ele morde
+
+`test/salvador-drop-sem-ritual.js`, no `npm test` (e em `npm run ritual`). Compara **pixel
+decodificado**, nunca bytes — o bloco embutido passa pelo `tirar-icc.js`, que muda os bytes e não
+muda um pixel, e uma regravação em outra qualidade enganaria um hash. Assinatura: a imagem reduzida
+a 16×16 sobre cinza. A matriz inteira sai no log, então a folga do limiar é **visível**: mesma
+figura **0,0**, e a menor distância entre figuras diferentes deste conjunto é **33,4** — o limiar é
+12.
+
+Ele cobra três coisas, e as três foram vistas **reprovando**, com exit code real:
+
+| controle | como | exit |
+|---|---|---|
+| o ritual volta ao drop | `DROPS[2]` de volta para `drop-cap4-1/2/3`, `inline-objetos` + `tirar-icc` + `build` de verdade | **1**, 12 falhas — 6 na fonte e 6 no `pack-salvador.json`, que é o que o aparelho baixa |
+| o verbete é apagado junto | `t: "BÚZIOS"` → `t: "CONCHA"` em `src/jogo.ts` | **1** |
+| restaurado | mesmo caminho, de volta | **0**, e o `build` volta byte a byte ao do lado bom |
+
+A segunda linha é a razão de o portão ter duas mandíbulas: apagar o verbete passaria pela primeira
+cobrança e seria o erro **oposto** ao que a regra quer.
+
+### O instrumento que mediu errado, e como o controle o pegou
+
+O `aparar-objeto.js` nasceu medindo a recompressão comparando o **canvas** de origem contra a
+**imagem** regravada, e acusava erro médio de **11,3 de 255** — quatro vezes a régua. O que salvou
+foi o controle barato: rodar o mesmo par a `q=0,80` e a `q=0,95`. Deu **11,41** e **11,34**. Erro
+que não se mexe com a qualidade não é compressão; é instrumento. Canvas e imagem não interpolam a
+borda transparente do mesmo jeito ao reduzir. Com os dois lados passando pelo mesmo caminho
+(referência gravada em PNG sem perda e decodificada como imagem), o mesmo par mede **2,42** no
+tamanho da folha e **0,68** na escala de exibição.
+
+### O que eu NÃO fiz, e é de propósito
+
+A fala de abertura de SALVADOR (`src/jogo.ts:2173`) ainda diz *"No chão ficam acarajé, pano da costa
+e búzios"* — a **única** superfície do jogo que nomeia o drop (varri o repositório inteiro por
+nome, não só por arte: HUD, ícones, contadores, LINHA_TEMPO e glossário não nomeiam nenhum). Com a
+troca, o jogo passa a dizer "acarajé" e desenhar um tabuleiro. **`abertura` é texto de capítulo e
+não é da minha mão** — a correção proposta, que não toca fato nem verbete, está em PENDENTES 107.
+
+### Portões
+
+`npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/salvador-drop-sem-ritual.js`
+**exit 0**. Prints do drop em jogo, no mesmo enquadramento: `test/SALVDROP-antes.png` (acarajé, pano
+e búzios no chão de pedra) e `test/SALVDROP-depois.png` (tabuleiro, balde e trouxa),
+com `-perto.png` e `-inteira.png` de cada.

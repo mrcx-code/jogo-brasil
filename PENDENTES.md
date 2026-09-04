@@ -4250,3 +4250,40 @@ absoluto, porta de rede, contenção de CPU/Chromium) — vale investigar QUAL �
 de confiar em qualquer resultado de teste rodado fora do worktree principal sob carga pesada. Não
 investiguei a causa exata (qual recurso colide) porque o achado mais urgente — produção correta —
 já estava resolvido, e a questão de instrumento fica aberta para quem quiser.
+
+## 107 — SALVADOR trocou o drop ritual pelo objeto de trabalho; sobraram UMA FALA e UMA lista de MOB — dev-jogo (04/09)
+
+O achado 1 do item **105** (§2.4 item 5: *"objeto ritual não é colecionável — entra como fala, nunca
+como drop"*) está **executado**, com a decisão do dono de 03/09: **TROCA**. Acarajé, pano da costa e
+búzios saíram do chão de SALVADOR; entraram tabuleiro, balde d'água e trouxa de roupa. Os três
+verbetes do glossário **ficaram** — a regra tira da mão, não cala —, e um portão novo
+(`test/salvador-drop-sem-ritual.js`, no `npm test`) cobra as duas metades. Detalhes e números no
+Diário do NOTES.md, 2026-09-04.
+
+**Ficam três coisas, e as três são de outra mão que não a minha:**
+
+1. **A FALA DE ABERTURA AINDA DIZ OS TRÊS NOMES ANTIGOS — e é a única superfície do jogo que
+   nomeia o drop.** `src/jogo.ts:2173`, `EPOCAS[3].abertura[4]`:
+   *"Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua. **No chão
+   ficam acarajé, pano da costa e búzios**, e são os mesmos três contadores de sempre."*
+   Com a troca feita, essa segunda oração passou a descrever o que não está mais lá: o jogo diz
+   "acarajé" e desenha um tabuleiro. **Não editei de propósito** — `abertura`/`fecho`/`querer` são
+   texto de capítulo (historiadora sob a licença de 19/08, e o §2 acima dela), e trocar drop é
+   motor, mas reescrever fala não é. É correção de uma oração e não muda fato histórico nenhum: a
+   primeira metade da frase já lista exatamente os três objetos que agora caem no chão.
+   **Sugestão para quem tem a caneta** (não aplicada): *"Pela ladeira vem tabuleiro, barril d'água
+   e trouxa de roupa — o trabalho da rua, e é ele que fica no chão para você juntar: são os mesmos
+   três contadores de sempre."* Nenhum verbete é tocado por isto.
+2. **Os nomes de dois arquivos de arte estão trocados em relação ao que eles desenham** —
+   `assets/objetos/cap4-obj-agua.webp` desenha uma TROUXA de roupa e `cap4-obj-trouxa.webp` desenha
+   um BALDE d'água (medido em 04/09, abrindo os dois). A lista `MOBS` de `test/inline-objetos.js`
+   foi montada pelo nome e herdou a troca: a vaga `drum` (água) recebe a trouxa e a vaga `cash`
+   (comida) recebe o balde. **Não corrigi**, e a razão é que hoje isso não chega à tela — o mob de
+   SALVADOR é GENTE (`GENTE_EP_SPR.salvador`), e o objeto só apareceria se a folha de gente
+   sumisse. Quem for mexer em `MOBS` conserta lá, ou renomeia os dois arquivos.
+3. **`cap4-obj-v2` (item 289 desta lista) continua de pé** e ganhou uma medida: as três artes têm
+   objeto **cortado pela linha da célula** — o tabuleiro encosta na borda direita, o balde também,
+   e o quadro do balde ainda trazia o fragmento de um objeto vizinho. O fragmento eu aparei
+   (`test/aparar-objeto.js`, maior ilha de colunas); o corte da borda não tem como ser desfeito
+   sem a folha de origem, que não está no repositório (`assets/entrada` está vazia). A 9 px de
+   altura não se vê; num pedido de arte novo, vale pedir margem.
