@@ -9,6 +9,30 @@
   },
   "itens": [
     {
+      "id": "palmares-emenda-horizontal-rosto",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "PALMARES: a emenda horizontal do cenario (nao a home) fabrica rosto simetrico nos arbustos em worldX inicial",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "Mesmo criterio ja usado pra costura vertical (banca=arte, julgamento por print): romper a simetria no eixo x≈195 CSS da rua de PALMARES no worldX inicial — deslocar a copia espelhada, variar a vegetacao entre copias, ou qualquer tecnica que ja exista no repositorio pra isso. Prova por print antes/depois, arte julga.",
+      "detalhe": "Achado pela arte em 04/09, banca do item caminho-do-ceu, fora do escopo dele (e a emenda HORIZONTAL do cenario de jogo, nao a costura vertical da home). Mesma classe de defeito que JABAQUARA ja pagou: simetria em textura organica fabrica rosto/forma indesejada. Print de prova: PAR-03-B-jogo.png no scratchpad da rodada de 04/09."
+    },
+    {
+      "id": "pequena-africa-costura-ressalva",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "A PEQUENA ÁFRICA: argolas viram olhos ovais nas duas margens da costura vertical, mesma altura",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "Ressalva FORTE mas o capitulo PASSOU no julgamento da arte (04/09) — nao e bloqueante. Se for barato, cobrir com moita do FRENTE do capitulo (mesma tecnica de aceiro-fogo... nao, mesma tecnica do item caminho-do-ceu: COSTURA_COBRE). Se nao for barato, deixar como esta — a arte julgou aceitavel.",
+      "detalhe": "Achado pela arte em 04/09, banca do item caminho-do-ceu: as argolas da pintura, repetidas pela costura vertical nova, viram duas formas ovais simetricas (leem como olhos) nas margens das DUAS costuras deste capitulo, na mesma altura y=543, flanqueando a placa. Nao e o precedente JABAQUARA pleno (a arte nao vetou), mas e a ressalva mais forte entre as que passaram."
+    },
+    {
       "id": "aceiro-fogo-vira-gente",
       "estado": "livre",
       "agente": "dev-jogo",
