@@ -199,6 +199,28 @@ operacionais, e as três se cobram pelo `ferramentas/backlog.json`:
    orquestração acima do teto continua exigindo `ultracode` do dono. Manter 1 vivo é o piso;
    o teto continua sendo o teto.
 
+### 3.4 PISO DE PRODUTO — o despacho começa pelo que a pessoa vê (retro de 03/09, §7)
+
+Complemento do §3.3, com a mesma forma: **zero item de PRODUTO em voo com item de produto livre é
+defeito de plantão**, igual ao zero-em-voo. Medido na retro do §7: 61 rodadas desde 23/08, 42
+sobre instrumento ou painel, **zero sobre o jogo que se joga**; 5 de 350 commits tocando `src/`.
+
+1. **Produto** é o que muda o que uma pessoa vê, joga ou lê: `src/` (o jogo), arte, texto do
+   acervo (verbete, ficha, capítulo), conteúdo de página pública, o cartão de link. **Instrumento**
+   é o resto: `test/`, `ferramentas/` que não gera página, `dashboard/`, CI, `vercel.json`, CSP,
+   faxina de ramos.
+2. **A ordem do despacho:** o primeiro item que sobe numa rodada é de produto; instrumento sobe
+   depois, nos lugares que sobrarem do teto do §3.2. Instrumento passa na frente em dois casos só,
+   nomeados no diário: a `main` está vermelha (§3, que já era regra), ou ele bloqueia **por id** um
+   item de produto.
+3. **`src/jogo.ts` escritor-único não é desculpa:** produto também é acervo, plataforma e arte —
+   há sempre território de produto disjunto. Se nenhum item de produto pode voar (tudo
+   `do-dono`/`bloqueado`/território travado), o diário diz isso com os ids, como o §3.3 manda
+   para a fila vazia.
+4. **O que NÃO muda:** a regra da retro 1 (§3.1.5 — ressalva confirmada vira item, no mesmo
+   commit) fica inteira; ela só deixa de furar a fila. O dono continua reordenando na mesa; isto
+   é o padrão do pm até ele reordenar.
+
 ## 4. O portão, sempre por EXIT CODE
 
 ```bash
@@ -344,6 +366,132 @@ prega a linha do placar.** Linha de placar não se integra com achado órfão �
 disciplina do "reverteu? escreve no PENDENTES no mesmo commit", aplicada ao funil. O QA
 CRUZADO (§3.1) herda: re-auditar achado que já tem item aberto é PULADO automático, com o id
 do item na justificativa.
+
+## 7. Retro do pm — 03/09 (a segunda)
+
+Lido o §5 inteiro desde a retro de 21/08: de `21/08 pm squads` a `03/09 nuvem-20260903T2022` são
+**85 linhas e 95 rodadas** (contando as voltas de re-auditoria). O item falava em "~20 linhas de
+21–22/08"; o placar seguiu crescendo por doze dias e a retro cobre tudo, em três trechos — porque
+eles não se parecem, e a diferença entre eles é o achado.
+
+**Os números.** Classificação linha a linha à mão (36 das 61 linhas desde 23/08 abandonaram as
+sete colunas), soma por script — a lição do "contei 14, o grep disse 15":
+
+| trecho | linhas | rodadas | achados | reais | desmentidos | do dono | qa PULADO / ok |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 21–22/08 | 24 | 28 | 107 | 105 | 3 (2,8%) | 18 | 16 / 0 |
+| 23–31/08 | 18 | 23 | 70 | 60 | 11 (15,7%) | 1 | 0 / 12 |
+| 01–03/09 | 43 | 44 | 194 | 186 | 48 (24,7%) | 0 | 1 / 38 |
+| **período** | **85** | **95** | **371** | **351** | **62 (16,7%)** | **19** | 17 / 50 |
+
+Duas coisas que a tabela diz e a retro 1 não podia ver:
+
+- **Reais + desmentidos ≠ achados, e é de propósito.** Desde 23/08 a coluna passou a contar
+  afirmação que CAIU — do autor, do despacho ou do QA contra a própria hipótese — e não achado
+  que era falso. Então 24,7% em setembro não é a máquina piorando: é o QA rodando. Em 21–22/08 o
+  QA foi PULADO em 16 das 24 linhas; **o 0,9% que a retro 1 elogiou foi medido com quase ninguém
+  tentando refutar.** Com o QA rodando, 1 em cada 4 afirmações cai. Desmentido baixo com QA
+  pulado não é precisão, é ausência de refutação — fica como correção à retro 1, que é minha.
+- **"Do dono" foi de 18 para 1 para 0.** A retro 1 lia "do dono alto é bom". Zero em 43 linhas
+  seguidas tem duas causas, as duas medidas: o trabalho migrou para território sem §2 (abaixo), e
+  os 8 itens `do-dono` estão parados — `ler-a-medicao` desde 23/08 (11 dias), `b3-criterio-voz`
+  desde 22/08 — com o check de 03/09 21h montado no `RECADOS.md` e sem sair clicável, porque a
+  sessão agendada da nuvem não tem a ferramenta.
+
+**O que a máquina faz bem (com número):** o adversarial virou rotina e pega o autor antes do
+merge — 50 `qa:ok` desde 23/08 contra 0 antes; 13 defeitos injetados mordendo numa única
+auditoria (23/08, 5 voltas). Achou em produção o que nenhum portão olhava: 58 de 118 lançamentos
+de Chromium nus (31/08), um portão dizendo verde sobre 8 arquivos que nunca lia (01/09), as
+páginas públicas sem CSP nenhuma (02/09), o instrumento da faxina fabricando 8 órfãos de 0
+(03/09). E a regra da retro 1 funcionou: o `og:image` medido 3× em 21/08 fechou em 22/08, e o
+sprint a aplicou mais duas vezes (`rotina-7-sinais`, `canonical-jogo`).
+
+**Onde ela desperdiça (com número), e é uma coisa só vista de dois lados.**
+
+**Lado 1 — a máquina virou para dentro.** Desde 23/08: 61 linhas, **42 (69%) sobre instrumento ou
+painel** (36 portão/teste/ferramenta, 6 dashboard/fila interna); **12 (20%) mudaram algo que uma
+pessoa vê ou lê** (o interruptor de privacidade, Lei de Terras, os 184 verbetes, o cartão de
+link com fonte embutida, a porta 60 KB mais leve); **zero mudou o jogo que se joga.** O git diz
+o mesmo sem depender da minha classificação: dos **350 commits** na `main` desde 23/08, **5
+tocam `src/`** (quatro de texto de glossário e uma linha de canonical) e **210 tocam `test/` ou
+`ferramentas/`** — em 21–22/08 eram 11 em 205. Três instrumentos comeram **29 rodadas**: a
+régua-larga (9), o censo do cartão de link (14) e a CSP/`vercel.json` (6). O censo mede se um
+botão vazou para a foto de 1200×630 que o WhatsApp mostra; teve mais rodadas em doze dias que o
+jogo inteiro. Os quatro itens de produto do `src/jogo.ts` (`trilha-palmares`, `gesto-ainda-aqui`,
+`caminho-do-ceu`, `poste-alturas-curtas`) esperam desde **21–22/08**; o primeiro entrou em curso
+hoje, 03/09 22:46 UTC. E o termômetro do laço: **0 aparelhos abriram o jogo em 30 dias** (lido em
+02 e 03/09) — o item que daria a resposta está com o dono há 11 dias.
+
+Nada disso foi trabalho errado: cinco daqueles achados eram defeito real em produção. O
+desperdício é de **proporção**, e o mecanismo que a produz tem quatro peças, todas escritas por
+nós: (1) a regra da retro 1 — achado confirmado sem dono vira item no mesmo commit; (2) o QA
+cruzado, que devolve 1–3 ressalvas "não bloqueantes" por auditoria e elas viram item ("virou
+item" aparece em 11 linhas, 8 desde 01/09); (3) o §3.3 — zero em voo é defeito, então o plantão
+despacha o que estiver livre; (4) `src/jogo.ts` escritor-único — um item de jogo voa enquanto a
+esteira voa quatro. Medido no backlog: **32 dos 63 concluídos (51%) têm território só de
+instrumento** (`test/`, `ferramentas/` que não gera página, `dashboard/`, CI, `vercel.json`). A
+fila que a nuvem puxa de 4 em 4 horas se alimenta de si mesma: cada volta produz uma ressalva
+sobre o instrumento da volta anterior.
+
+**Lado 2 — a premissa do despacho, o erro mais repetido do período.** **30 dos 62 desmentidos
+(48%) foram contra o despacho, o brief ou o item** — número, causa, lista de arquivos ou risco
+que quem despachou escreveu sem medir — em 20 linhas distintas; desde 01/09, 25 de 48 (52%). Com
+o número: 31/08, três das quatro premissas do brief já estavam no código; `canonical-jogo`,
+reaberto para uma linha que existia havia 8 dias; `cartao-fonte-embutida`, três desmentidos "os
+três contra o plantão"; `fila-conectado`, a causa escrita no item era falsa; `fichas-lote-2`, o
+despacho dizia "já em produção" enquanto a linha 6 do `PINOS-PROPOSTA.md` dizia o contrário — e
+quem despachou a imprimiu na própria tela. O custo é a primeira medição de cada uma dessas 20
+rodadas, gasta refutando o brief em vez de cumprindo o item. É a doença que a casa caça nos
+portões — afirmação que o objeto não cumpre — cometida um passo antes, no lugar onde se decide o
+que despachar. Vai como ajuste de prompt (abaixo), não como mudança de processo: é erro de um
+papel; a proporção é erro do desenho.
+
+**A mudança de processo (uma): o despacho ganha PISO DE PRODUTO — §3.4.** Zero item de produto
+em voo com item de produto livre passa a ser defeito de plantão, na mesma forma do zero-em-voo do
+§3.3. A regra da retro 1 fica inteira: ressalva confirmada continua virando item; só deixa de
+furar a fila. Consequência dita: um dos até 8 lugares em voo é sempre de produto, então a
+esteira endurece mais devagar (o portão que hoje fecha numa rodada da nuvem fecha em duas); o
+jogo muda um item por rodada; e a decisão 1 do check de 03/09 21h — que perguntava exatamente
+isto ao dono, com a opção (a) recomendada — ganha um padrão até ele reordenar na mesa, em vez de
+esperar mais doze dias. O que eu NÃO escolhi, e por quê: proibir ressalva de instrumento de virar
+item cortaria a entrada do laço, mas desfaria a regra da retro 1 que acabou de fechar três
+achados órfãos; e a premissa medida (lado 2) é regra de prompt, não de fila.
+
+**Ajuste de prompt onde o placar mostrou o MESMO agente errando mais de uma vez** — aplicados em
+`.claude/agents/`, frontmatter intacto. Onde não houve repetição não inventei ajuste: `qa`,
+`historiador`, `pesquisadora-fontes`, `arte`, `pre-integrador`, `dev-dados` e `juridico` ficam
+como estão (os "desmentidos meus" do QA em 23/08, 31/08 e 03/09 são hipótese dele caindo por
+medição dele — é o trabalho, não erro).
+
+- **`pm`** (e o plantão, que escreve o brief) — a premissa se mede antes de virar item, 30 de 62:
+  todo número, causa, lista de arquivos ou risco em `detalhe`/`aceite`/brief leva o comando que o
+  produziu ou vai marcado HIPÓTESE; item recriado de relatório antigo passa por `git log -S`
+  (`PLANTAO.md` §5); ressalva de QA também é afirmação e se confere antes de virar item (03/09:
+  `cartao-margem-sem-controle` nasceu de uma ressalva que o `teste.yml:344` já desmentia). O brief
+  é do plantão e o `PLANTAO.md` §2 está fora do território deste item — **uma linha para o
+  integrador pregar lá, apontando para cá**: *"Todo número, causa, lista de arquivos ou risco no
+  brief leva o comando que o produziu, ou vai marcado HIPÓTESE (EQUIPE.md §7: 30 de 62)."*
+- **`dev-plataforma`** — o cabeçalho afirma mais do que o código prova, 6 vezes em 5 rodadas
+  (23/08 a 4ª frase falsa embarcada no commit que tirava três; 24/08 a frase que prometia reabrir
+  o modal; 03/09 o comentário "isto pinta algo na foto?" sobre código que pergunta três
+  propriedades; o commit que dizia "migrou" sem migrar; 27,4 s escritos contra 77,2 medidos; a
+  catraca "por construção" com as duas promessas falsas). Regra: cada frase do `feito`, do commit e
+  do cabeçalho de instrumento nomeia a asserção que a prova; número é o desta execução; o que não
+  tem prova vai em `duvida`.
+- **`dev-jogo`** — a explicação do mecanismo é afirmação, 2 vezes derrubada pelo QA com o conserto
+  certo (23/08 "a guarda de null mudou o número", refutada por três medições; 03/09 "headless não
+  modela a interseção de touch-action", derrubada por `getComputedStyle` até `html`). Regra: a
+  frase que diz POR QUE o conserto funciona leva a medição que a separa da alternativa, ou vai em
+  `duvida`.
+- **`porteiro`** — assinou `porteiro:ok` na própria entrega 2 vezes (02/09 `csp-paginas-publicas`;
+  03/09 `porteiro+qa`), contra 1 vez certa (03/09 `vercel-valor-e-topo`: PULADO com a cobertura
+  nomeada). Regra: se a entrega é sua, o seu veredito é PULADO com a cobertura nomeada — quem
+  edita não julga (§3.1); o adversário é o `qa` central.
+
+**Uma nota sobre o próprio placar, sem virar regra nova:** 36 das 61 linhas desde 23/08 não têm
+as sete colunas, e esta retro precisou classificá-las à mão antes de somar. A linha do §5 é uma
+tabela para ser somada por script; a próxima retro custa metade se ela voltar a sê-lo.
+
 | 21/08 pm squads | 1 | 3 | 3 | 0 | 0 | esqueleto das 3 squads no AGENTES.md + QA CRUZADO como par.3.1 do funil (matriz de lentes; quem reprovou re-audita com sonda propria, precedente da 2a volta) + dev-dados RASCUNHO em .claude/agents/ (ativa com fase 1; antes, BLOQUEADO por instrucao propria) + retro par.6 pelo placar: 15 rodadas/117 achados/0,9 por cento desmentido em 21/08, desperdicio nomeado (og:image medido 3x, aplicado 0) e a regra nova — achado confirmado sem dono vira item de backlog no mesmo commit da linha. O achado contra ele: contou 14 rodadas a mao, o grep disse 15, corrigido antes do amend. Nao conferido do worktree (sem MCP la): mesa_agente.squad e os 20 vence_regra — documentados como declarado |
 | 21/08 dupla squads | 1 | 4 | 4 | 0 | 0 | dev-plataforma no painel + 2 miudezas + PENDENTES 48. Agrupamento por squad com involucro display:contents criado UMA vez (atualizaAg cacheia card por nome, refresh de 7s) e o portao novo espera um refresh DE VERDADE — com o cache do grupo removido o painel vai a 8 cabecalhos, visto reprovando. Squad do servidor tratada como hostil (lista branca + rotulo local por textContent, envenenada na cena 14). Lost update fechado por hash sha1 dos bytes em disco, POST devolve o hash novo; provado por curl nos 5 casos, inclusive reenvio de base velha -> 409, o incidente de 21/08 reproduzido e barrado. Achado fora do despacho: bloco 30 do encaixe PISCA (5px folga 4, 1 em 3), controle em git stash provou que nao e do diff — PENDENTES 49, dev-jogo. fila-auth 16 cenas, controle 8/8  · aud: growth:PULADO(dashboard e noindex+Disallow no robots e ferramentas/ nao e publicado — nenhuma superficie de descoberta muda) seguranca:PULADO(o diff APLICA os tres consertos que a propria seguranca prescreveu na re-auditoria (N9 palavra certa na poda, N10 toast, N11 diagnostico no BLOCO 1) e trata squad como entrada hostil por lista branca com cena envenenada; a unica pendencia dela e o curl dos cabecalhos POS-deploy, que o plantao executa logo apos o push e registra no diario) qa:PULADO(os 4 portoes por exit code com controle novo visto mordendo 2 defeitos injetados (8 cabecalhos com o cache removido; grupo renascendo); cena 16 conta cards depois de um refresh real de 7,6s) |
 | 22/08 dupla f1 | 1 | 4 | 3 | 1 | 0 | dev-plataforma na Avenida A fase 1: conteudo:puxar (REST anonimo, chave publicavel, guarda de deriva de coluna) + conteudo:conferir (diff POR CHAVE, o espelho so dava a primeira) + os 3 JSON versionados 17/181/644 com o metadado real (176 tag_s2, 34 s2_alto, 5 vence_em) e o passo INFORMATIVO no CI com o gatilho de virar portao escrito. O achado que a fase existe para dar: 8 divergencias em 6 chaves, jogo cd5a...bd7e contra banco 2457...c858 (o mesmo hash da carga de 21/08 — o banco esta congelado). O desmentido foi contra o despacho: INDIGENA nao mudou, sao 6 chaves e nao 8 verbetes. 3o achado: autocrlf sujaria os JSON sem um byte mudar -> .gitattributes eol=lf. Caminho VERDE exercitado (hashes convergem em cd5a...bd7e), o que prova que as 8 sao texto e nao formato; autoteste 5/5 exigindo a chave certa. Jogo, src/ e CSP intocados; zero escrita no banco  · aud: seguranca:PULADO(rede nova: NENHUMA — o puxar e script node de leitura REST com a MESMA chave publicavel do dashboard, trava mecanica que recusa chave nao-publicavel, zero escrita; o passo do CI e continue-on-error informativo; CSP do jogo intocada (git diff src/ vazio)) |

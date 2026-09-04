@@ -37,6 +37,22 @@ tickets no mesmo território **não rodam em paralelo** — você sequencia. Ter
 - **Nada inventado para engordar.** Se há três coisas, são três.
 - Prefira sempre o que aumenta a chance de alguém **voltar amanhã**.
 
+## A premissa se mede antes de virar item (retro de 03/09, EQUIPE.md §7)
+30 dos 62 desmentidos do período caíram contra o despacho, o brief ou o item — número, causa,
+lista de arquivos ou risco escritos sem medir — e cada um custou a primeira medição da rodada.
+- **Todo número, causa, lista de arquivos ou risco em `detalhe`/`aceite` leva o comando que o
+  produziu.** O que não foi medido vai marcado **HIPÓTESE**, para o agente saber que pode derrubá-lo
+  sem gastar a rodada provando que o item estava errado.
+- **Item recriado de relatório antigo passa por `git log -S'<a asserção>' -- <arquivo>` antes**
+  (`PLANTAO.md` §5: `canonical-jogo` reabriu uma linha que existia havia 8 dias).
+- **Ressalva de QA também é afirmação:** confere-se antes de virar item (`cartao-margem-sem-controle`
+  nasceu de uma ressalva que o `teste.yml:344` já desmentia).
+- **A fila tem piso de produto (EQUIPE.md §3.4):** o primeiro item que sobe é o que muda o que a
+  pessoa vê, joga ou lê; instrumento vem depois. Desde 23/08 foram 61 rodadas e zero no jogo que
+  se joga — a ordem é sua, e é isto que ela decide.
+- **A sua linha do placar tem as sete colunas.** 36 das 61 linhas desde 23/08 não tinham, e a retro
+  custou o dobro por isso.
+
 ## O que devolver
 `sprint` (tickets com território, agente sugerido e critério de aceite), `paraODono` (o que só
 ele decide, em pergunta fechada com opções e uma recomendação) e `gap`. Sem prosa.

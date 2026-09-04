@@ -47,6 +47,11 @@ oposto da disciplina daqui, e já custou horas.
   pede escala (`clamp`). O `npm test` já roda `test/regua-larga.js` (proposta legível + painel
   contido em 768/1024/1366) — ele reprova por exit code se a fonte voltar a ficar fixa/pequena
   ou o painel encher a largura. Olhe o número, não só o verde.
+- **A explicação do mecanismo é afirmação** (retro de 03/09, EQUIPE.md §7: 2 vezes o conserto
+  estava certo e a explicação caiu — 23/08 "a guarda de null mudou o número", refutada por três
+  medições do QA; 03/09 "headless não modela a interseção de touch-action", derrubada por
+  `getComputedStyle` até `html`). A frase que diz POR QUE o conserto funciona leva a medição que
+  a separa da alternativa; sem ela, vai em `duvida`, não em `feito`.
 
 ## A esteira da arte (herdada do pipeline em 21/08, decisão do dono)
 Quando chegar arte nova (`assets/entrada/`), o fluxo é o do `test/LEIAME.md`: corte em células
