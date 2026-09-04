@@ -10,15 +10,27 @@
   "itens": [
     {
       "id": "csp-injetar-falha-no-op-windows",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "CSP_INJETAR_FALHA e um no-op SILENCIOSO no Git Bash/Windows — sai exit 0 achando que mordeu",
       "territorio": [
         "test/csp-paginas.js"
       ],
-      "aceite": "O teste recusa (exit 2, mensagem clara) quando a rota passada em CSP_INJETAR_FALHA nao for uma chave conhecida de CSP_ESPERADA, em vez de imprimir 'INJECAO DE DEFEITO ATIVA' pra uma rota que o path-mangling do Git Bash inventou (ex: C:/Program Files/Git/privacidade/) e sair 0 sem testar nada.",
-      "detalhe": "Achado pelo QA em 04/09 auditando a entrega de /privacidade/: CSP_INJETAR_FALHA=/privacidade/ vira C:/Program Files/Git/privacidade/ no Git Bash (MSYS path conversion), o teste nao acha essa rota, nao remove nenhuma CSP de verdade, e sai exit 0 — parecendo que a mordida foi provada quando na verdade nada foi exercitado. Vale igual pro /glossario/ documentado no cabecalho do arquivo. Pre-existente, nao introduzido pela entrega de privacidade."
+      "feito": "04/09. Reproduzido antes de consertar (versao pre-conserto: exit 0, CSP nao removida). Teste agora recusa exit 2 em rota fora de CSP_ESPERADA, nomeando o Git Bash como causa. QA rodou o controle que faltava e confirmou: nenhum chamador do repo passa essa env (nao esta em package.json/CI/funil), entao exit1->exit2 nao quebra nada. Integrado (placar 04/09)."
+    },
+    {
+      "id": "csp-injetar-falha-nunca-exercitado-em-ci",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "A mordida de CSP_INJETAR_FALHA nunca e exercitada automaticamente — nem CI, nem npm test, nem funil passam essa env",
+      "territorio": [
+        "test/csp-paginas.js",
+        ".github/workflows/teste.yml"
+      ],
+      "aceite": "Um passo de CI (ou um segundo comando dentro do job existente) roda csp-paginas.js com CSP_INJETAR_FALHA numa rota valida e EXIGE exit 1 — provando em toda execucao que o portao ainda morde, nao so quando alguem lembra de rodar a mao.",
+      "detalhe": "Achado pelo QA em 04/09 ao auditar o conserto do path-mangling (item anterior, ja fechado): mesma doenca curada em 02/09 para outro portao (\"portao de seguranca que so roda se alguem digitar o comando nao protege uma main que publica sozinha\"). csp-paginas.js nem aparece em nenhum script do package.json nem em bloco env: do CI — o job so roda o caminho limpo."
     },
     {
       "id": "sem-contagem-sem-modo-injecao",
