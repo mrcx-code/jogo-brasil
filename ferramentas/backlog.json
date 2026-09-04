@@ -138,7 +138,7 @@
     },
     {
       "id": "aceiro-fogo-vira-gente",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "pesado",
       "titulo": "O ACEIRO: mantém gente na rua, tira a coleta — decisão do dono em 04/09",
@@ -147,8 +147,7 @@
       ],
       "aceite": "A mão continua alcançando quem atravessa (brigadista, apanhadora de sempre-vivas, vaqueiro), mas o que a pessoa carrega deixa de ser recolhido como impacto — soltarDrop()/coletarDrop() param de disparar para este capítulo especificamente (concluirAlcance() precisa saber diferenciar, sem quebrar os outros capítulos de gente-na-rua que SIM coletam, tipo PALMARES). O comentário do bloco ABAFAR (~2662-2669) e o de ~2505 — hoje falsos, dizem 'nunca pessoa, sempre fogo' — passam a descrever o que realmente acontece: gente de verdade, sem coleta. Prova por injeção: screenshot antes/depois do toque em O ACEIRO, e teste que confirma S.energia/S.recursos não sobe ao alcançar ali (mas continua subindo em PALMARES, controle negativo). npm test verde.",
       "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito').",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T18:02:57.885Z"
+      "feito": "Integrado 04/09 (commit 68d14c9, funil 8989ff8/7a5d489). capSemColeta() guarda a primeira e unica linha de soltarDrop() (agora provado unica por teste -- gap achado pelo QA e fechado na mesma rodada), cobre passarPalavra() pelo mesmo if. Medido antes/depois na mesma execucao: O ACEIRO 3 drops/+9 coleta -> 0/0, toque continua +3; PALMARES controle negativo intacto (3/+9 nos dois). As 3 pessoas continuam em quadro (dead false, naRua true). 2 comentarios falsos desde 18/08 corrigidos, sem repetir a frase antiga (grep cobrado por teste). QA independente (medicao propria, 2 binarios) e historiador independente (diff linha a linha, 0 fala tocada) confirmaram sem ressalva."
     },
     {
       "id": "fala-arte-emprestada-obsoleta-em-5-capitulos",
@@ -1718,6 +1717,18 @@
       ],
       "aceite": "A mensagem por lugar nomeia a tabela e o arquivo. Conserto de 12 caracteres, escrito pelo QA: acrescentar (acrescente em APROVADOS, test/salvador-drop-sem-ritual.js) na mensagem por lugar.",
       "detalhe": "Achado A1 do QA em 04/09 (nuvem-20260904T1623). No caso de BLOCO novo a mensagem se explica sozinha (bloco novo sem arte aprovada e vermelho de proposito). No caso REALISTA -- arte nova num bloco existente -- as duas linhas sao DROP_B64[2] tem 4 arte(s), a lista branca declara 3 e src DROP_B64[2][3] nao tem arte aprovada declarada para este lugar: nenhuma nomeia APROVADOS nem o arquivo. E o preco da lista branca e justamente esse vermelho por desenho, entao a mensagem e a unica coisa entre ele e uma hora perdida do proximo plantao achando que quebrou o jogo."
+    },
+    {
+      "id": "padrao-coleta-pessoa-onze-capitulos",
+      "estado": "do-dono",
+      "agente": null,
+      "camada": "pesado",
+      "titulo": "O ACEIRO mantinha gente FICA + coleta SAI. O MESMO padrao (pessoa larga item, jogador recolhe) existe em ONZE capitulos -- so 1 foi mexido. Os outros dez continuam como estao?",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "Decisao do dono: manter a coleta nos outros dez capitulos (a leitura de que a abertura de cada um nomeia CARGA DE TRABALHO, nao PESSOA COMO RECURSO, e portanto e diferente de O ACEIRO) OU aplicar capSemColeta() a algum/todos eles tambem.",
+      "detalhe": "Levantada pelo dev-jogo em 04/09 ao consertar aceiro-fogo-vira-gente (PENDENTES 105, achado 3) e confirmada por QA independente com medicao no jogo vivo: os onze capitulos em que quem atravessa a rua e gente (CAP_FILA + CAPS_VERBO) sao pindorama, palmares, cais, salvador, jabaquara, pequenaafrica, portas, naodito, praca, segurou, temfonte. O dono decidiu tirar a coleta de UM (O ACEIRO). Nos outros dez, a leitura do dev-jogo e do historiador (que revisou a entrega) e que a abertura de cada capitulo nomeia a CARGA DE TRABALHO que a pessoa leva (tabuleiro, balde, trouxa de roupa etc.) e a mecanica le como troca/reciprocidade, nao como pessoa virando recurso -- mas isso e leitura, e representacao (S2 do CLAUDE.md) decide-se com o dono, nao sozinho. Nada foi tocado nos outros dez capitulos."
     }
   ]
 }
