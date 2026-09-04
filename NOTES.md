@@ -12822,3 +12822,69 @@ Controles novos, com exit code real, porque portão que ninguém viu reprovar é
   em voo em outro item; **não toquei**.
 - **Rios, flora/fauna e pontos históricos** seguem fora, esperando aprovação pino a pino.
 
+
+### 04/09 — a entrega que o funil RECUSOU, e ela se denunciou sozinha
+
+`entrega/ramos-mortos-conteudo` (`f6ee368`, 360 inserções) reescrevia o veredito `ORFAO` do
+`ramos-mortos.js` como pergunta de conteúdo. Mandei o QA tentar derrubá-la avisando por escrito do
+meu viés — *"esta entrega me agrada porque derrubou as duas afirmações que eu mesmo escrevi no
+brief; agente que se desmente é onde eu baixo a guarda, e se alguma régua ficou mais frouxa, diga"*.
+
+**Ficou, e o QA achou onde.** O que a derrubou não precisou ser fabricado: rodada no repositório
+real, **a ferramenta do próprio ramo classifica o PRÓPRIO RAMO como `ABSORVIDO-POR-OUTRA-ROTA`** e
+o põe na lista do `--apagar`. Reproduzido por mim, de dentro do worktree do ramo: **exit 0**, linha
+80 da saída, enquanto `git merge-base --is-ancestor` sai **exit 1** — o ramo não está na `main`.
+360 linhas de trabalho na lista de exclusão.
+
+A evidência que sustentou o falso positivo eram as strings `"ECONOMIA DO OURO"` e
+`"CRITÉRIO BRASIL"`. No ramo elas existem em **uma linha de comentário** — a que documenta a camada
+1 do extrator. Na `main` existem como **verbetes de glossário homônimos**. A ferramenta casou o
+exemplo escrito na própria documentação com um verbete de outro assunto e concluiu absorção.
+
+**O sentido é o caro, e não é simétrico.** Um falso `NAO-E-ANCESTRAL` custa uma conferência a mais.
+Um falso `ABSORVIDO` **esconde trabalho perdido**: o ramo sai da lista e ninguém olha de novo. O
+veredito velho (`ORFAO`) errava barato; o novo erra caro.
+
+**Falso `ABSORVIDO` reproduzido em 4 de 6 cenas fabricadas:** prosa sozinha · conteúdo **revertido**
+na main (o `-S` conta a remoção, e o `CLAUDE.md` §6 autoriza reverter pela metade, então isso não é
+laboratório) · citação em comentário · **39 ocorrências** (o teto de 40 não tem medição nenhuma:
+39 → MORTOS, 41 → DE PÉ, e a direção é invertida — quanto mais genérico o símbolo, mais fácil o
+`ABSORVIDO`).
+
+**Prova circular, medida:** a evidência de `glossario-substancia` apontava `76184d7`, que é o
+**Diário de 04/09**. O `git log -S` lista do mais novo para o mais velho e o código pega
+`linhas[0]` — e nesta casa o commit mais novo que tocou qualquer string é sistematicamente o
+Diário. *O registro de que a rodada conferiu o ramo virou a prova de que o ramo foi absorvido.*
+
+**Dois achados colaterais que valem além desta entrega:**
+1. O extrator é **cego a camelCase** (a camada 2 exige `-` ou `_`), então o código novo de qualquer
+   ramo de JavaScript é invisível a ele — e os "símbolos característicos" acabam sendo sempre a
+   documentação, nunca o trabalho.
+2. `execFileSync` com `maxBuffer` de 1 MiB lança **ENOBUFS** em diff grande (medido:
+   `entrega/salvador-drop-ritual` tem **1.159.921 bytes**) e o `catch (_) {}` faz a ferramenta
+   dizer *"nenhum símbolo característico deu para extrair"* — **frase falsa**: ela não leu o diff e
+   afirma que leu. Toda entrega de arte cai aí.
+
+### A lição, e ela é sobre mim, não sobre o agente
+
+O portão do autor cresceu de **6 para 23 checagens**, e as 23 passam. Mas **nenhuma delas ataca o
+mecanismo novo**: todas as cenas de conteúdo constroem absorção verdadeira, com símbolo único e
+sintético. Não existe uma única cena de **coincidência**. Nas palavras do QA, e eu assino:
+*"um portão que cresce quatro vezes sem ganhar uma única cena hostil ao desfecho novo não ficou
+quatro vezes mais duro — ficou quatro vezes mais confiante."* Eu li **23** como rigor quando era
+**volume**.
+
+E o crédito que o agente ganhou ao se desmentir em duas coisas verdadeiras foi gasto por mim numa
+terceira, nova e não testada. Desmentir-se é sinal de honestidade, **não** de cobertura.
+
+### O que se salva, e não se refaz
+
+O diff de **três pontos** (medido em `canonical-jogo`: dois pontos = 189 arquivos / 29.367 linhas;
+três pontos = 1 arquivo / 7 linhas), o rótulo `PARCIAL`, e as duas injeções que mordem **no
+conjunto** (exit 1 reprovando 11 de 23 e 7 de 23). O ramo fica na origin.
+
+E o portão de aceite do conserto **já existe**: `test/ramos-mortos-falso-absorvido.js`, empurrado
+como `entrega/ramos-mortos-falso-absorvido` (`fcf3de0`) para não morrer com o contêiner. Seis
+cenas, sem rede, com controle positivo. Hoje a versão da entrega reprova **5 de 6** e a da main
+reprova **1 de 6** (só o controle positivo) — **nenhuma das duas passa, de propósito**: o conserto
+está pronto quando ele passar inteiro.

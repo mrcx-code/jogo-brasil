@@ -185,7 +185,7 @@
     },
     {
       "id": "sem-tsc-le-build-ignorado",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "--sem-tsc mede o que foi compilado da ultima vez, nao o src/ de agora — e o verde falso e o pior dos dois",
@@ -194,9 +194,7 @@
         "ferramentas/construir.js"
       ],
       "aceite": "Varrer TODOS os usos de --sem-tsc e decidir, um a um, se o instrumento pode ler build/jogo.js sem compilar. Onde nao puder, a primeira passada compila (precedente ja aplicado em test/porta-ctx-sem-forma.js) ou o teste aborta com mensagem clara se o arquivo nao existir. Prova nos DOIS sentidos, por instrumento tocado: com build/jogo.js movido para fora continua exit 0 (nao fabrica vermelho falso) E a injecao do defeito continua exit 1 (nao perdeu a mordida).",
-      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda.",
-      "maquina": "nuvem-20260904T0823",
-      "desde": "2026-09-04T08:33:23.236Z"
+      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda."
     },
     {
       "id": "cartao-margem-sem-controle",
@@ -1291,18 +1289,42 @@
     },
     {
       "id": "ramos-mortos-orfao-por-conteudo",
-      "estado": "em-curso",
+      "estado": "livre",
       "agente": "dev-jogo",
       "camada": "esteira",
-      "titulo": "ramos-mortos.js chama ORFAO o que ja entrou por outra rota — 3 de 3 falsos em 04/09, e a causa NAO e mais o clone raso",
+      "titulo": "ramos-mortos.js: o ORFAO vira pergunta de conteudo — 1a tentativa RECUSADA pelo QA, o ramo dela se autoapagava",
       "territorio": [
         "ferramentas/ramos-mortos.js",
         "test/ramos-mortos-veredito.js"
       ],
-      "aceite": "O veredito ORFAO deixa de ser afirmacao seca. Para cada ramo que a ancestralidade nao encontra na main, a ferramenta imprime junto: (a) o diff --stat contra origin/main, e (b) o resultado de um git log -S sobre pelo menos um simbolo caracteristico do ramo, que e o que revela a entrada por outra rota. O nome do desfecho passa a dizer o que ele realmente sabe (ex. NAO-E-ANCESTRAL, confira por conteudo) em vez de ORFAO, que se le como trabalho perdido. Mordida provada por injecao nos DOIS sentidos: um ramo cujo conteudo ESTA na main por outro commit nao pode sair classificado como trabalho a integrar (exit/rotulo diferente), e um ramo com conteudo de verdade ausente continua sendo apontado. npm test verde.",
-      "detalhe": "Medido pela rodada nuvem-20260904T0422, com o clone JA aprofundado (713 commits, contra os 186 de 03/09) — entao esta e uma causa DIFERENTE da de 03/09, que era o clone raso. A ferramenta acertou a ancestralidade nos tres casos e ainda assim os tres vereditos ORFAO eram inuteis: entrega/canonical-jogo (main ja tem canonical 8x em test/encaixe.js) · entrega/glossario-substancia (os tres verbetes ECONOMIA DO OURO, CRITERIO BRASIL e A CONTA DA ESCRAVIDAO ja estao em src/jogo.ts, entraram pelas rev2/rev3) · entrega/dashboard-trio (as tres metades entraram pelos commits bccbf16 e 532a9e7; a main esta ADIANTE do ramo — 38 RECUSA contra 36, 7 desfecho contra 5 — e o merge da 2 conflitos em 26 hunks). Orfaos de verdade nesta rodada: ZERO, pela segunda vez seguida. O custo nao e o ramo esquecido: e o PLANTAO §7 mandar auditar e integrar tres ramos consumidos, que e trabalho FABRICADO no lugar exato onde se decide o que despachar. E o mesmo remendo que o desfecho DESCONHECIDO de 03/09 tentou dar, um degrau adiante: ali o problema era nao enxergar a historia, aqui e enxergar a historia e mesmo assim nao saber responder a pergunta que interessa, que nunca foi de ancestralidade e sim de conteudo.",
-      "maquina": "nuvem-20260904T0823",
-      "desde": "2026-09-04T08:33:23.236Z"
+      "aceite": "Vale o aceite anterior (evidencia por diff --stat de TRES pontos e git log -S junto do veredito, e o rotulo dizendo o que a ferramenta realmente sabe), MAIS as cinco travas que a 1a tentativa nao tinha e que o QA mediu uma a uma: (1) o commit que ACHOU o simbolo tem de tocar algum caminho que o RAMO tocou, descontados os arquivos de registro (NOTES/PENDENTES/RECADOS/PLANTAO/docs/backlog.json) — sem isso o Diario da propria rodada vira a prova de que o ramo foi absorvido, que e circular; (2) o simbolo tem de estar VIVO na ponta da main, nao apenas aparecer na historia — senao conteudo REVERTIDO (que o CLAUDE.md 6 autoriza) sai ABSORVIDO; (3) a confianca da camada tem de CHEGAR em avaliarConteudo — hoje extrairSimbolos termina em .map(([s])=>s) e joga os pontos fora, entao a camada 4 (prosa, a que o proprio autor chama de fraca) produz ABSORVIDO sozinha; (4) o teto de ocorrencias precisa de medicao (o 40 nao tem nenhuma: 39 vai para MORTOS e 41 fica DE PE, e a direcao e invertida — quanto mais generico o simbolo, mais facil o ABSORVIDO); (5) execFileSync com maxBuffer de 1 MiB lanca ENOBUFS em diff grande (medido: entrega/salvador-drop-ritual tem 1.159.921 bytes) e o catch(_) vazio faz a ferramenta dizer \"nenhum simbolo caracteristico deu para extrair\" — frase FALSA: ela nao leu o diff e afirma que leu. Toda entrega de arte cai ai. O PORTAO DE ACEITE JA EXISTE e nao se reescreve: test/ramos-mortos-falso-absorvido.js, no ramo entrega/ramos-mortos-falso-absorvido (fcf3de0), 6 cenas sem rede com controle positivo. O conserto esta pronto quando ELE passa inteiro — hoje a versao da entrega reprova 5 de 6 e a da main reprova 1 de 6 (so o controle positivo), e nenhuma das duas passa, de proposito.",
+      "detalhe": "RECUSADO PELO FUNIL EM 04/09, antes de entrar — a entrega esta em entrega/ramos-mortos-conteudo (f6ee368) e NAO foi integrada. O que a derrubou nao precisou ser fabricado: rodada no repositorio real, a ferramenta do proprio ramo classifica O PROPRIO RAMO como ABSORVIDO-POR-OUTRA-ROTA e o poe na lista do --apagar, enquanto git merge-base --is-ancestor sai exit 1 (nao esta na main). Reproduzido pelo plantao de dentro do worktree do ramo: exit 0, linha 80 da saida. A evidencia que sustentou o falso positivo eram as strings ECONOMIA DO OURO e CRITERIO BRASIL, que no ramo existem em UMA linha de COMENTARIO (a que documenta a camada 1 do extrator) e na main existem como verbetes de glossario homonimos — a ferramenta casou o exemplo escrito na propria documentacao com um verbete de outro assunto. Falso ABSORVIDO reproduzido em 4 de 6 cenas fabricadas pelo QA: prosa sozinha, conteudo revertido, citacao em comentario, e 39 ocorrencias. O sentido e o caro e nao e simetrico: um falso NAO-E-ANCESTRAL custa uma conferencia; um falso ABSORVIDO ESCONDE TRABALHO PERDIDO, porque o ramo sai da lista e ninguem olha de novo. Achado colateral estrutural: o extrator e CEGO a camelCase (a camada 2 exige - ou _), entao o codigo novo de qualquer ramo de JavaScript desta casa e invisivel a ele e os \"simbolos caracteristicos\" acabam sendo sempre a documentacao, nunca o trabalho. O que se SALVA da tentativa e real e nao se refaz: o diff de TRES pontos (medido em canonical-jogo: dois pontos = 189 arquivos e 29.367 linhas, tres pontos = 1 arquivo e 7 linhas), o rotulo PARCIAL, e as 23 checagens com duas injecoes que mordem NO CONJUNTO (exit 1, reprovando 11 de 23 e 7 de 23)."
+    },
+    {
+      "id": "ramos-mortos-apagar-sem-trava",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js --apagar nao recusa apagar ramo de item em-curso nem o ramo do proprio HEAD",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-veredito.js"
+      ],
+      "aceite": "O --apagar recusa (exit != 0, mensagem nomeando o ramo) quando o entrega/<id> casa com item de estado em-curso no backlog.json, e quando o ramo e o do HEAD atual. Mordida provada por injecao nos dois casos. A rede de seguranca deixa de ser \"confira a lista acima antes de colar\".",
+      "detalhe": "Achado pelo QA em 04/09 no gap-check da entrega ramos-mortos-conteudo. Vale para a versao da MAIN tambem, nao so para a entrega recusada: hoje o --apagar cospe os comandos de apagar sem nenhuma trava, e a unica protecao e a pessoa ler a lista. Como quem tem delete_ref e o Mac e o Windows (a nuvem sai 403), quem cola e justamente quem nao acompanhou a rodada que criou o ramo."
+    },
+    {
+      "id": "ramos-mortos-fora-do-ci",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ferramentas/ramos-mortos.js nao esta em portao nenhum do CI — so o teste irmao, sobre um palco que o autor desenhou",
+      "territorio": [
+        ".github/workflows/teste.yml",
+        "package.json"
+      ],
+      "aceite": "Decidir se ramos-mortos.js entra no npm test / no CI e com que palco. Se entrar, o palco nao pode ser so o que o autor desenhou: precisa de pelo menos uma cena hostil ao desfecho que a ferramenta mais quer dar. Se NAO entrar, o numero que sustenta deixar de fora.",
+      "detalhe": "Achado pelo QA em 04/09. E a ferramenta que decide se um ramo de entrega e trabalho perdido ou lixo — ou seja, ela manda uma rodada inteira trabalhar, ou faz um trabalho sumir — e nao passa por portao nenhum."
     }
   ]
 }

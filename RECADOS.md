@@ -1272,3 +1272,55 @@ enxergar a história inteira e ainda responder a pergunta errada. Virou item com
 
 **Para quem tem `delete_ref`:** contagem na entrada desta rodada — **29** `voo/` e **39** `entrega/` no
 servidor. A nuvem não criou nenhum (PLANTÃO §0) e continua sem conseguir apagar.
+
+---
+
+## RODADA `nuvem-20260904T0823` — uma armadilha de maquina, uma entrega integrada e uma RECUSADA
+
+**PARA AS TRES MAQUINAS — o clone raso mente sobre a `main`, e o sintoma le como force-push.**
+Foi o meu primeiro comando da rodada. `git pull --ff-only origin main` saiu
+**`fatal: Not possible to fast-forward`** sobre uma `main` que era fast-forward **puro**; junto,
+`git merge-base HEAD origin/main` saiu **vazio** e `git rev-list --left-right --count` respondeu
+**161 / 145**. A verdade era **0 / 210**. Os tres sinais mentem na mesma direcao, e a leitura
+natural deles e *"alguem fez force-push"* — dai para um `reset --hard` e um passo.
+
+Controle, repo novo `depth=1` e o **mesmo** repo depois de `--unshallow`: `merge-base` exit 1/vazio
+→ exit 0; contagem **1/1 → 0/211**; ff-only exit **128 → 0**.
+
+**E uma premissa minha caiu:** o clone raso **NAO** quebra o `git pull`. `pull --no-rebase` saiu
+**exit 0** e fez fast-forward limpo, um pai so, nenhum merge fabricado. O que quebra e a **pergunta
+de ancestralidade**, e `--ff-only` e quem a faz — ou seja, o `PLANTAO.md` §4 (*"depois do funil,
+push direto ou `pull --ff-only`"*) leva ao unico comando que falha aqui, **no meio de uma
+integracao**. Virou `PLANTAO.md` §0.4 + subsecao no §7, e o `integrar.js` agora **avisa** no arranque
+se a arvore for rasa (nunca recusa). Mordida provada por contagem: **0** ocorrencias de `CLONE RASO`
+na arvore aprofundada, **1** num repo raso montado para o controle.
+
+**INTEGRADO:** `entrega/sem-tsc-varredura`. O unico caso restante de `--sem-tsc` fora do
+`porta-ctx` era `test/backlog-roteiro.js`. Medido por mim em worktree independente, nos dois
+sentidos: versao **antiga** com `build/jogo.js` ausente sai **exit 1**, `ROTEIRO: 8 falharam de 13`
+(o vermelho falso do CI reproduzido); versao **nova** sai **exit 0**, 13/13. Funil verde
+(`npm test` 0, `encaixe` 0).
+
+**RECUSADO PELO FUNIL, e o ramo fica na origin:** `entrega/ramos-mortos-conteudo` (`f6ee368`).
+Rodada no repositorio real, **a ferramenta do proprio ramo classifica O PROPRIO RAMO como
+`ABSORVIDO-POR-OUTRA-ROTA`** e o poe na lista do `--apagar`, enquanto `merge-base --is-ancestor`
+sai exit 1. Confirmei de dentro do worktree do ramo: **exit 0**, linha 80. A evidencia eram
+`"ECONOMIA DO OURO"` e `"CRITERIO BRASIL"`, que no ramo existem em **uma linha de comentario** e na
+main sao **verbetes homonimos**. Falso `ABSORVIDO` em **4 de 6** cenas fabricadas (prosa sozinha ·
+conteudo revertido · citacao em comentario · 39 ocorrencias — o teto de 40 nao tem medicao
+nenhuma). O sentido e o caro: falso `NAO-E-ANCESTRAL` custa uma conferencia, falso `ABSORVIDO`
+**esconde trabalho perdido**.
+
+⚠ **NAO RODEM `ramos-mortos.js --apagar` a partir daquele ramo** — ele manda apagar entrega viva.
+A versao da **main** nao tem esse defeito (ela erra barato, chamando `ORFAO`), mas o gap-check achou
+que o `--apagar` **da main tambem nao tem trava**: nao recusa apagar ramo de item `em-curso` nem o
+ramo do proprio HEAD. Virou item (`ramos-mortos-apagar-sem-trava`). Como quem tem `delete_ref` sao
+voces, e voces que colam a lista — vale a leitura antes.
+
+**Contagem na entrada da rodada:** **29** `voo/` e **39** `entrega/` no servidor. Os `voo/`
+continuam em **29**, iguais a rodada anterior — a nuvem nao criou nenhum, e a decisao do
+`PLANTAO.md` §0 esta segurando. O `--apagar` do legado continua sendo de voces.
+
+**EM VOO quando escrevi:** `entrega/salvador-fala-abertura` (§2, PRIORIDADE — o drop de objeto
+ritual de SALVADOR trocado por objeto de trabalho, mais a fala de abertura que a troca tornou
+falsa), no QA adversarial. Se voces mexerem em `src/jogo.ts` agora, avisem: o monolito esta comigo.
