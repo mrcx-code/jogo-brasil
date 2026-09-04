@@ -559,7 +559,7 @@ código, e duas foram medidas em navegador porque ler não bastava (R6 e R7). On
 | **No jogo**, o ID só nasce com a medição ligada | `src/jogo.ts` — `medirGarantirId()`, chamada em `medirCarregar()` e no fim de `medir()`. **Consertado em 04/09 — era R6** |
 | Desligar desliga de verdade (nada sai) | `src/jogo.ts` — `medir()` sai na 1ª linha se `!medirLigado`. **Medido: zero pedidos ao PostHog** |
 | O botão APAGAR remove o ID | `src/jogo.ts` — `zerarJogo()` chama `removeItem(CHAVE_ANON)`, e não toca `jogo_brasil_medir`. **Consertado em 04/09 — era R7** |
-| O interruptor é um só para jogo e páginas | chave `jogo_brasil_medir` compartilhada — `src/jogo.ts` linha 3892 e `ferramentas/medir-secao.js` |
+| O interruptor é um só para jogo e páginas | chave `jogo_brasil_medir` compartilhada — `src/jogo.ts` linha 3934 e `ferramentas/medir-secao.js` |
 | Interruptor na barra do topo | `ferramentas/medir-secao.js` — `ID_BOTAO`, `botaoHtml()`; subiu para o chrome em 23/08 |
 | O que fica no aparelho | chaves `jogo_brasil_v1`, `jogo_brasil_retencao`, `jogo_brasil_medir`, `jogo_brasil_anon`, `jogo_brasil_muro` |
 | O único campo de digitar, e que ele não sai | `src/index.html` linha 441 (`#glCampo`); não há propriedade de busca na lista branca |
