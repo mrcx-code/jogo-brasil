@@ -96,7 +96,9 @@
     },
     {
       "id": "privacidade-link-nos-ajustes",
-      "estado": "livre",
+      "estado": "em-curso",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "Link para /privacidade/ falta na tela de AJUSTES do jogo (só está no rodapé das 5 páginas)",
@@ -108,7 +110,9 @@
     },
     {
       "id": "palmares-emenda-horizontal-rosto",
-      "estado": "livre",
+      "estado": "em-curso",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "PALMARES: a emenda horizontal do cenario (nao a home) fabrica rosto simetrico nos arbustos em worldX inicial",
@@ -144,7 +148,9 @@
     },
     {
       "id": "cais-fala-obsoleta-e-verbo-errado",
-      "estado": "livre",
+      "estado": "em-curso",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "O CAIS: a quinta fala da abertura mente (diz que a arte é emprestada, já chegou própria) e o verbo dito não é o que a mecânica faz",
@@ -183,7 +189,9 @@
     },
     {
       "id": "privacidade-dois-consertos-pequenos",
-      "estado": "livre",
+      "estado": "em-curso",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "Dois consertos de 1-3 linhas que o juridico achou medindo em vez de copiar o comentario",
