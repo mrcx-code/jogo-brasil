@@ -3964,3 +3964,83 @@ como três casos novos no `test/qa-vercel-fora-do-conjunto.js`, que já tem a ba
 outros dois eram — não é alcançável de fora. Fica registrado para não ser redescoberto do zero, e
 está escrito também no cabeçalho do `test/qa-vercel-fora-do-conjunto.js`, que é onde a próxima
 pessoa vai olhar.
+
+---
+
+## 105 — Auditoria dos 13 capítulos contra o §2, via ultracode: 3 achados ALTA, um confirmado por verificação adversarial — plantao/ultracode (03/09)
+
+Rodada `ultracode` pedida pelo dono, 13 capítulos auditados em paralelo (um agente por capítulo,
+opus, lendo CLAUDE.md §2 inteiro + o conteúdo do capítulo em `src/jogo.ts`), com segunda camada de
+verificação adversarial (um segundo agente tentando REFUTAR cada achado, com as próprias mãos, sem
+herdar o raciocínio do primeiro). **A rodada foi interrompida pelo limite de sessão da conta** (reset
+23:20 America/Sao_Paulo) no meio da verificação — a auditoria dos 13 capítulos terminou 13 de 13, a
+verificação terminou só 15 de 40 achados. **7 capítulos ficam sem NENHUMA verificação**: O CAIS QUE
+VOLTOU À LUZ, A PRAÇA, O QUE NÃO PODIA SER DITO, O QUE SEGUROU, O QUE TEM FONTE, O ACEIRO, AINDA AQUI.
+
+**Contagem de achados brutos (antes de qualquer verificação) por capítulo:** PALMARES 0 · A PEQUENA
+ÁFRICA 4 · SALVADOR 4 · AS PORTAS 1 · JABAQUARA 3 · PINDORAMA 3 · O CAIS QUE VOLTOU À LUZ 5 · A PRAÇA
+3 · O QUE NÃO PODIA SER DITO 4 · O QUE SEGUROU 3 · O QUE TEM FONTE 3 · O ACEIRO 4 · AINDA AQUI 3.
+Total: 40. A maioria é severidade baixa/média (fonte fraca, redação que poderia ser mais precisa). Só
+TRÊS acharam severidade ALTA, e são os três que importam de verdade:
+
+### 1. SALVADOR — objeto ritual como drop colecionável (§2 item 4.5) — CONFIRMADO por verificação adversarial
+
+Búzios, pano da costa e acarajé caem como drop em SALVADOR e entram em `S.energia`/`S.recursos`
+(`concluirAlcance()`, `soltarDrop()` incondicional na linha ~1195; `coletarDrop()` linha ~890). A
+regra é categórica e sem exceção: "Objeto ritual não é colecionável — entra como fala, nunca como
+drop" (§2, item 4.5). A verificação adversarial tentou quatro linhas de refutação e as quatro caíram,
+e ainda achou duas peças de contexto que agravam:
+
+- **Já foi decidido no capítulo VIZINHO, ao contrário.** `NOTES.md:4953` aplica a mesma regra ao
+  capítulo O CAIS para RECUSAR búzios como item de escavação — mesmo objeto, mesma regra, decisão
+  OPOSTA em SALVADOR.
+- **A pendência foi vista e ignorada.** `docs/arquivo/SPRINT.md:134-139`, ticket T1 de SALVADOR:
+  "Drops continuam nascendo no chão (acarajé, pano, búzios)... ⚠ decisão-do-dono antes de ir à main
+  (§2...)" — o aviso existia, foi escrito, e o código foi para produção sem resposta.
+- **O próprio pedido de arte se contradiz.** `ferramentas/necessario.json:60`: "Decisão do projeto:
+  NENHUMA escrita árabe como item — escrita sagrada não é colecionável" — na MESMA frase que pede
+  búzios e pano da costa como item.
+- **A troca é barata.** Já existem objetos de trabalho de rua desenhados e não usados
+  (`cap4-obj-*`: tabuleiro, trouxa, água) em `assets/objetos/`.
+
+**A pergunta, na forma exata em que já foi feita ao dono em 09/08 e nunca respondida: o drop continua
+ou troca?**
+
+### 2. O CAIS QUE VOLTOU À LUZ — a salvaguarda do texto existe só como intenção, não em tela (§2.2 + §2.4.3) — NÃO VERIFICADO (achado bruto, detalhado)
+
+O capítulo é sobre o cais do Valongo — maior porto de desembarque de africanos escravizados das
+Américas — e tem gente de verdade atravessando a rua (`GENTE_EP_B64.cais`, 24 quadros), que a mão
+alcança e que entra numa fila que anda atrás da protagonista (`acolherPessoa`). O PRÓPRIO comentário
+do capítulo escreve a condição: "PALMARES e SALVADOR são os capítulos em que quem atravessa a tela é
+GENTE, e isso só se sustenta com o texto que explica por quê. Sem esse texto escrito, pessoa na rua
+não entra" (`src/jogo.ts` ~2054-2056). **O texto que explica não existe em tela.** O rótulo do
+capítulo diz "século XIX" e a primeira fala fixa "Foi construído em 1811" — mas o brief de arte
+original (`ferramentas/necessario.json`, item `gente-cais`) pedia "TRÊS pessoas da Saúde/Gamboa, Rio
+de Janeiro, HOJE... gente contemporânea, nunca cena de época". Sem o texto que marca "isto é hoje",
+figuras que a mão alcança e "recolhe" numa fila num capítulo sobre o maior porto de desembarque podem
+ser lidas como gente daquele tempo naquele cais — a leitura exata que §2.2/§2.4.3 existem para
+impedir. **Não decidido — precisa da verificação adversarial que não rodou, e do dono.**
+
+### 3. O ACEIRO — a garantia de §2 escrita no código não é verdade na build (§2 item 4 + regra prática) — NÃO VERIFICADO (achado bruto, detalhado)
+
+O comentário do bloco ABAFAR (`src/jogo.ts` ~2662-2669) afirma: "O que atravessa a tela ali continua
+sendo FOGO — nunca pessoa, nunca maquina, nunca marca (§2)". **Isso deixou de ser verdade quando
+`aceiro` entrou em `CAPS_VERBO` em 18/08** — `pessoaNaRua()` passa a valer true no capítulo, e
+`mobFrame()` troca o objeto pela folha de gente: uma brigadista, uma apanhadora de flores
+sempre-vivas, um vaqueiro (comunidade tradicional reconhecida). A mão os alcança e o que carregam cai
+como drop recolhido. O próprio `PENDENTES.md §18` registrou o desenho aprovado dizendo o contrário
+("Fogo nunca é pessoa nem máquina"), e o `§19` já nomeou esta CLASSE de erro antes: "arte de gente e
+mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito". **O achado aqui é
+factual, não decide se pessoa-na-rua é aceitável em O ACEIRO — isso é do dono. O que é fato é que a
+garantia escrita no código é falsa, e garantia de §2 falsa no registro é pior que garantia nenhuma.**
+Precisa da verificação adversarial que não rodou.
+
+### O que fica pendente
+
+Continuar a verificação dos 7 capítulos sem checagem (O CAIS, A PRAÇA, O QUE NÃO PODIA SER DITO, O
+QUE SEGUROU, O QUE TEM FONTE, O ACEIRO, AINDA AQUI) assim que o limite de sessão resetar. O relatório
+bruto completo (13 auditorias + 15 verificações) está em
+`C:\Users\User\.claude\projects\C--Users-User-Downloads-jogo-brasil\6a4dc769-e89d-42a7-b775-bae7f3d1a2b0\subagents\workflows\wf_2ac10252-4f7\journal.jsonl`
+— não apagar antes de terminar de ler os 25 achados ainda não vistos (os 12 capítulos com achado
+menos os 3 já detalhados acima têm mais 22 achados baixa/média não listados aqui, a maioria sobre
+fonte fraca ou redação imprecisa, não sobre mecânica).
