@@ -69,6 +69,25 @@
 //   CSP_INJETAR_FALHA=/glossario/  node test/csp-paginas.js    -> exit 1
 //   node test/csp-paginas.js                                    -> exit 0
 // A variavel apaga a CSP daquela rota EM MEMORIA, sem tocar no disco.
+//
+// ARMADILHA DO GIT BASH NO WINDOWS, e ela ja fez este portao mentir (item
+// `csp-injetar-falha-no-op-windows`, achado pelo QA em 04/09 auditando a entrega de
+// /privacidade/). O MSYS converte todo argumento que PARECE caminho absoluto, e a variavel acima
+// e exatamente isso. Medido nesta maquina:
+//
+//     CSP_INJETAR_FALHA=/privacidade/ node -e "console.log(process.env.CSP_INJETAR_FALHA)"
+//     -> C:/Program Files/Git/privacidade/
+//
+// Ate 04/09 o portao aceitava esse valor calado: imprimia "INJECAO DE DEFEITO ATIVA" para uma
+// rota inventada pelo MSYS, nao apagava CSP nenhuma, e saia **exit 0** — a pior saida possivel
+// para uma prova de mordida, porque ela parece a prova e nao e. O bloco `CONFERIR A INJECAO`
+// mais abaixo passou a RECUSAR (exit 2) rota que nao esteja em CSP_ESPERADA. O exit e 2, e nao
+// 1, de proposito: 1 significa "o portao mordeu" e e o que a prova de mordida procura; 2
+// significa "o portao foi mal chamado e nao mediu nada". Confundir os dois e o defeito de novo.
+// Como passar a rota sem o MSYS comer:
+//     MSYS_NO_PATHCONV=1 CSP_INJETAR_FALHA=/privacidade/ node test/csp-paginas.js   (Git Bash)
+//     $env:CSP_INJETAR_FALHA='/privacidade/'; node test/csp-paginas.js              (PowerShell)
+// As duas formas foram medidas: chegam intactas em process.env.
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -187,6 +206,27 @@ const CSP_ESPERADA = {
   '/jogo/': SO_MOLDURA,
   '/dashboard/': SO_MOLDURA,
 };
+
+// ============================================================================
+// CONFERIR A INJECAO — antes de qualquer medicao, porque injecao que nao pega nada e um
+// portao que mente verde. Ver a ARMADILHA DO GIT BASH no cabecalho deste arquivo.
+if (INJETAR && !Object.prototype.hasOwnProperty.call(CSP_ESPERADA, INJETAR)) {
+  console.error('RECUSADO — CSP_INJETAR_FALHA: rota desconhecida: "' + INJETAR + '"');
+  console.error('  chaves validas: ' + Object.keys(CSP_ESPERADA).join(' '));
+  if (/^[A-Za-z]:[\\/]/.test(INJETAR)) {
+    console.error('');
+    console.error('  Esse valor tem cara de caminho do Windows, entao provavelmente foi o Git Bash:');
+    console.error('  o MSYS converte todo argumento que parece caminho absoluto, e "/privacidade/"');
+    console.error('  chega aqui como "C:/Program Files/Git/privacidade/". Passe assim:');
+    console.error('    MSYS_NO_PATHCONV=1 CSP_INJETAR_FALHA=<rota> node test/csp-paginas.js');
+    console.error('    $env:CSP_INJETAR_FALHA=\'<rota>\'; node test/csp-paginas.js   (PowerShell)');
+  }
+  console.error('');
+  console.error('  Nada foi medido. Este exit e 2, e nao 1, de proposito: 1 e "o portao mordeu",');
+  console.error('  que e o que a prova de mordida procura; 2 e "o portao foi mal chamado".');
+  process.exit(2);
+}
+
 // As paginas que o navegador abre de verdade neste portao. /dashboard/ fica de fora porque fala
 // com o Supabase (bloqueado pelo proxy desta maquina) e ja tem portao proprio no build
 // (`conferirCspDashboard`); /mesa/ entra por um caminho proprio, mais abaixo, porque ele navega.
