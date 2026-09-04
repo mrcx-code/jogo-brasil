@@ -246,12 +246,36 @@ function julgarDivisas(uf) {
 
 (async () => {
   let falhas = 0;
-  const nav = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  // executablePath, nunca lancamento nu — a mesma regra que test/portao-navegador.js cobra dos
+  // outros portoes. Achado ao pendurar este arquivo em npm test (04/09): lancado nu, ele MORRIA
+  // nesta maquina em 0,56 s, antes de abrir qualquer pagina — o Playwright deste projeto espera
+  // a build chromium_headless_shell-1234 e a maquina so tem a 1194 provisionada em
+  // /opt/pw-browsers. ABRIR.chromiumPath() e a mesma resolucao que csp-paginas.js e os demais
+  // portoes ja usam; sem ela este arquivo nunca teria sido visto passando fora do CI (que
+  // reinstala o navegador antes de cada job).
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath(), args: ['--enable-unsafe-swiftshader'] });
   for (const t of TELAS) {
     const pg = await nav.newPage({ viewport: { width: t.l, height: t.a }, deviceScaleFactor: 2 });
     const erros = [];
+    const ignorados = [];
+    // DOIS RUÍDOS QUE NÃO SÃO O JOGO, ACHADOS AO PENDURAR ESTE ARQUIVO EM npm test (04/09):
+    //   1. a contagem anônima da página (us.i.posthog.com) não sobe de dentro de um sandbox
+    //      com proxy — o pedido morre em ERR_TUNNEL_CONNECTION_FAILED. É a MÁQUINA, não o jogo
+    //      (mesmo filtro em test/qa-salvador-vivo.js), e sem ele este portão reprovaria SEMPRE
+    //      nesta máquina, decoração de vermelho em vez de medir WebGL — a mesma armadilha que a
+    //      lição 2.8 da casa persegue, só que ao contrário (vermelho que não fala nada de real).
+    //   2. o favicon que o Chromium pede sozinho — 404 porque test/abrir.js só serve arquivo
+    //      que existe (mesmo filtro em test/qa-privacidade-muda.js).
+    const REDE_EXTERNA = /posthog|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/;
     pg.on('pageerror', (e) => erros.push('pageerror: ' + e));
-    pg.on('console', (m) => { if (m.type() === 'error') erros.push('console: ' + m.text()); });
+    pg.on('console', (m) => {
+      if (m.type() !== 'error') return;
+      const t = m.text();
+      // o "Failed to load resource: 404" nao carrega a URL no TEXTO — so em location().url,
+      // que e exatamente onde qa-privacidade-muda.js confere o favicon.
+      const url = (m.location && m.location().url) || '';
+      (REDE_EXTERNA.test(t) || /\/favicon\.ico$/.test(url) ? ignorados : erros).push('console: ' + t);
+    });
     await pg.goto(ALVO);
     await pg.waitForFunction('window.__pronto === true', null, { timeout: 20000 }).catch(() => {});
 
@@ -412,6 +436,7 @@ function julgarDivisas(uf) {
       + ' · cartão ' + (toque.aberto ? 'abriu: ' + JSON.stringify(toque.texto) : 'FECHADO')
       + ' · erros: ' + erros.length);
     for (const e of erros.slice(0, 3)) console.log('     ' + e);
+    if (ignorados.length) console.log('     (ignorado, é a máquina e não o jogo: ' + ignorados[0] + ')');
     if (erros.length) falhas++;
     await pg.close();
   }
