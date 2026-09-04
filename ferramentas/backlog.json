@@ -1430,6 +1430,19 @@
       "detalhe": "Achado pelo QA em 04/09, no gap-check da entrega que ele aprovou. O verbete ACARAJE do proprio jogo diz Comida vendida no tabuleiro das ganhadeiras... e comida de santo... Trabalho e fe na mesma bandeja. A fala nova, com o dois-pontos, poe os tres sob o que e de santo. Para buzios e pano da costa isso bate com os verbetes e com as fontes (Hogendorn & Johnson; Aline Santiago/Casa do Alaka; IPHAN). Para o acaraje achata a dupla natureza — e e o acaraje que a ganhadeira VENDE na rua neste mesmo capitulo. O QA registrou que nao ve representacao nova sendo criada (a frase explica uma regra de jogo com o vocabulario de dentro), so imprecisao contra o verbete que ela abre.",
       "maquina": "nuvem-20260904T1623",
       "desde": "2026-09-04T16:25:38.093Z"
+    },
+    {
+      "id": "painel-update-silencioso",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "Escrever no painel com a coluna errada (papel em vez de nome) casa 0 linhas e NAO acusa erro — a rodada acha que reportou e o dono ve congelado",
+      "territorio": [
+        "ferramentas/",
+        "dashboard/"
+      ],
+      "aceite": "Uma forma unica de escrever no mesa_agente que RECUSA quando casa 0 linhas — helper em ferramentas/ que so aceita nome de .claude/agents/ (ou Claude) e devolve exit != 0 se o returning vier vazio. Mordida provada por injecao: chamar com dev-jogo-inexistente tem de sair exit 1; chamar com dev-jogo sai exit 0 e a linha muda. Se a saida escolhida for so documentar, o numero que sustenta e a contagem de rodadas que ja erraram.",
+      "detalhe": "Medido em 04/09 por nuvem-20260904T1623, que caiu nela na propria rodada. mesa_agente tem nome (= arquivo em .claude/agents/) e papel (rotulo humano do painel). Quem despacha vem do .claude/agents/ e chuta papel. Controle nos dois sentidos: where papel=dev-jogo returning nome -> [] (0 linhas, sem erro); where nome=dev-jogo -> 1 linha. Dos 11 arquivos de .claude/agents/, 11 casam com nome e 0 de 12 casam com papel. E a mesma doenca do PLANTAO 5.1 (painel congelado nao diz ninguem trabalhou, diz nao da para saber) entrando por outra porta, e a que o dono ja cobrou em 21/08. Escrito no PLANTAO.md 5.1 no mesmo commit."
     }
   ]
 }
