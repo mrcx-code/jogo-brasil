@@ -13235,3 +13235,133 @@ material ainda serve.
 
 **Painel.** `mesa_agente` estava com um **fantasma**: `produto` em `trabalhando` desde 03/09 12:37,
 **24h+** sem pouso. Limpo, com o motivo escrito no proprio campo.
+
+### 2026-09-04 · historiadora · a nota de honestidade da arte estava falsa pela METADE, nao inteira (`nuvem-20260904T1623`)
+
+**Quem revisou e sob que licenca.** Agente historiadora, licenca do dono de 2026-08-19 (`CLAUDE.md`
+§2). As falas mexidas **nao afirmam historia**: afirmam uma coisa sobre o proprio jogo — que a arte
+era emprestada — e essa afirmacao envelheceu. Conserto de mentira, nao representacao nova. Nenhum
+verbete tocado, nenhuma fonte nova, nenhuma decisao de quem representa quem.
+
+#### A conferencia que derrubou o enunciado da rodada
+
+Chegou como "os cinco capitulos tem arte propria (artes 12, 7, 8, 9, 10 — **nenhuma
+compartilhada**), entao as cinco falas estao obsoletas do mesmo jeito". Medido no codigo desta
+arvore, item por item, e **duas coisas do enunciado cairam**:
+
+| capitulo | pintura (`arte`) | quem atravessa a tela | o que fica no chao |
+|---|---|---|---|
+| O CAIS | 12 · propria (`PACK_DA_CENA[12]`="cais") | `GENTE_EP_SPR.cais` 3×8=24 · propria | **emprestado** |
+| JABAQUARA | 7 · propria | `GENTE_EP_SPR.jabaquara` 24 · propria | **emprestado** |
+| A PEQUENA AFRICA | 8 · propria | `GENTE_EP_SPR.pequenaafrica` 24 · propria | **emprestado** |
+| AS PORTAS | 9 · propria | `GENTE_EP_SPR.portas` 24 · propria | **emprestado** |
+| O QUE NAO PODIA SER DITO | 10 · propria, e **compartilhada** | `GENTE_EP_SPR.naodito` 24 · propria | **emprestado** |
+
+1. **"O que fica no chao" CONTINUA emprestado nos cinco, e isso salvou a reescrita.** A cadeia e
+   `dropDe()` → `DROP_SPR[capArte()]`; `capArte()` devolve `blocoArte(e)`, que e o campo `arteCap`;
+   os cinco declaram `arteCap: 3`; e `DONO_DO_BLOCO[3]` e `"hoje"` — AINDA AQUI. O drop cai nos
+   cinco: `concluirAlcance()` chama `soltarDrop()` **antes** de ramificar entre fila, palavra e
+   dano, entao nao ha capitulo em que a oracao seja vazia. Reescrever as cinco para "esta tudo
+   pronto" teria trocado uma frase falsa por outra **na direcao pior**, a que se gaba.
+2. **A pintura `[10]` E compartilhada.** A PRACA, O QUE SEGUROU e O ACEIRO vestem a mesma. So que
+   quem EMPRESTA e O QUE NAO PODIA SER DITO (`PACK_DA_CENA[10]` = "naodito"), e a abertura de A
+   PRACA ja diz isso em voz alta. Para a fala **daquele** capitulo a pintura e propria — a
+   conclusao aguenta, o enunciado nao.
+
+O que era falso mesmo: **"o que atravessa a tela"**. `mobFrame()` so cai em `MOB_SPR` quando
+`pessoaNaRua()` e falso ou o pacote ainda nao chegou, e `pessoaNaRua() = capFila() || capPalavra()`
+— os cinco entram por uma das duas listas (`CAP_FILA`: cais, jabaquara, pequenaafrica; `CAPS_VERBO`:
+portas, naodito). Folha propria nos cinco.
+
+**O pior caso era JABAQUARA e e §2.** A fala dizia *"a gente e as coisas daqui nao foram
+desenhadas"* — e a gente FOI. Um capitulo sobre quilombo apagando por escrito a existencia da gente
+que ele desenhou e o oposto do que o §2 pede. O pedido de arte `gente-jabaquara`
+(`ferramentas/necessario.json`) descreve quem sao: estivador com saca de cafe, vendedora de
+tabuleiro, ferroviario com lanterna, e a trava *"NADA de corrente ou ferro em ninguem — quem aparece
+e gente trabalhando livre"*.
+
+#### O segundo achado de O CAIS: o verbo prometido nao era o da mao
+
+A fala dizia *"alcancar e cavar para saber"*. O CAIS esta em `CAP_FILA`, entao `concluirAlcance()`
+cai em `if (gente) { m.dead = true; acolherPessoa(...) }` — um toque, e quem esperava vira e passa a
+andar na fila. Ninguem cava. Passou a: *"Aqui, alcancar e juntar gente na pedra: um toque, e quem
+esperava vira e caminha com voce."* A oracao epistemica (*"nada se inventa: o que a terra devolveu,
+o jogo conta"*) **nao foi tocada** — e o argumento do capitulo e continua verdadeira.
+
+**A sugestao que chegou pronta foi RECUSADA, e nao por gosto — ela quebra o portao.** Ela escrevia
+*"Aqui, alcancar e acolher quem passa — o mesmo gesto de Palmares"*. O `encaixe.js` bloco 5 casa
+`/alcancar e acolher|vem ficar|passa a andar com voce/` contra `i === CAP_GENTE`, e CAP_GENTE e
+PALMARES **e so ele**, porque `capGente()` abre tambem o MUTIRAO — ligar O CAIS ali faria a roca do
+quilombo crescer com gente do Rio, em silencio. **Medido, nao suposto:** injetada a frase num
+`index.html` de copia e rodado `JOGO_HTML=... node test/encaixe.js`, o portao devolveu **exit 1** com
+`FALHA O CAIS QUE VOLTOU A LUZ: o texto e o motor concordam sobre ACOLHER`. Com a frase escrita,
+exit 0. JABAQUARA (*"abrir caminho"*) e A PEQUENA AFRICA (*"guardar o lugar"*) ja resolviam assim:
+cada capitulo da fila nomeia o gesto no idioma dele.
+
+#### As falas, antes e depois
+
+- **O CAIS** abertura[3] — antes: *"Aqui, alcancar e cavar para saber. Neste capitulo nada se
+  inventa…"* · depois: *"Aqui, alcancar e juntar gente na pedra: um toque, e quem esperava vira e
+  caminha com voce. Neste capitulo nada se inventa…"* (206 car.)
+- **O CAIS** abertura[4] — antes: *"O que atravessa a tela e o que fica no chao ainda sao
+  emprestados de outro capitulo: a arte deste cais nao chegou…"* · depois: *"A pintura e quem
+  atravessa a tela ja sao deste capitulo — quem passa e gente da Saude e da Gamboa de hoje, sobre a
+  pedra que voltou a luz. Emprestado, so o que fica no chao. Os tres contadores la em cima sao os
+  mesmos de sempre."* (228 car.) — que a gente que passa e **contemporanea** nao e leitura minha:
+  esta no pedido `gente-cais`, *"TRES pessoas da Saude/Gamboa, Rio de Janeiro, HOJE… o capitulo e o
+  de HOJE sobre o cais: gente contemporanea, nunca cena de epoca"*.
+- **JABAQUARA** abertura[4] — antes: *"…a gente e as coisas daqui nao foram desenhadas."* · depois:
+  *"A serra e a gente que desce por ela ja foram desenhadas para este capitulo. O que ainda vem
+  emprestado de outro e so o que fica no chao, e o jogo prefere dizer isso a fingir. Os tres
+  contadores la em cima sao os mesmos de sempre."* (229 car.)
+- **A PEQUENA AFRICA** abertura[4] — antes: *"…as coisas desta rua nao foram desenhadas."* · depois:
+  *"A rua e quem atravessa a tela ja foram desenhadas para este capitulo. …"* (223 car.)
+- **AS PORTAS** abertura[4] — antes: *"…as coisas desta escola nao foram desenhadas."* · depois:
+  *"O patio e quem atravessa a tela ja foram desenhados para este capitulo. …"* (225 car.)
+- **O QUE NAO PODIA SER DITO** abertura[4] — antes: *"…as coisas desta rua nao foram desenhadas."* ·
+  depois: *"A rua e quem atravessa a tela ja foram desenhadas para este capitulo. …"* (223 car.)
+
+**A nota de honestidade FICA, e nao foi decisao minha remover nem manter** — ela e promessa ao
+jogador, e mexer no que o jogo promete e do dono. Ela encolheu para caber no que ainda e verdade.
+A proposta de aposenta-la esta na secao "para o dono", abaixo.
+
+#### ITEM 2 — o acaraje debaixo de "o que e de santo"
+
+- **Antes:** *"Pela ladeira vem tabuleiro, barril d'agua e trouxa de roupa — o trabalho da rua, e e
+  ele que fica no chao, nos mesmos tres contadores de sempre. Acaraje, pano da costa e buzios ficam
+  fora do chao: o que e de santo se conta, nao se recolhe."*
+- **Depois (258 car.):** *"Pela ladeira vem tabuleiro, barril d'agua e trouxa de roupa — o trabalho
+  da rua, e e ele que fica no chao, nos tres contadores de sempre. Buzios, pano da costa e acaraje
+  nao se recolhem: o que e de santo se conta. E o acaraje e as duas coisas: trabalho e fe."*
+
+**Por que mudou, com a fonte.** Para buzios e pano da costa a oracao esta certa e as fontes ja
+creditadas no capitulo a sustentam (Hogendorn & Johnson, *The Shell Money of the Slave Trade*, 1986;
+Aline Santiago, *"O sacrificio dos fios do Alaka"*, PPGAV/EBA-UFRJ, com a Casa do Alaka do Ile Axe
+Opo Afonja). Para o acaraje ela achatava a **dupla natureza** que o verbete deste mesmo jogo ja
+preserva com fonte: *"Comida vendida no tabuleiro das ganhadeiras desde o seculo XIX, e comida de
+santo… Trabalho e fe na mesma bandeja"* — **IPHAN, Oficio das Baianas de Acaraje, Livro dos Saberes,
+2005**. A fonte tem lugar de fala sobre o oficio porque o registro foi aberto **a pedido da propria
+associacao das baianas**, e a ficha do IPHAN e quem consigna a ligacao com o culto.
+
+**O que decidiu, e e o argumento do capitulo, nao teoria:** quem o jogo poe nesta rua e a
+**ganhadeira**, e a fala tres linhas acima diz que ela *"vende, carrega e negocia de sol a sol"*. O
+acaraje e justamente o que ela VENDE. Arquiva-lo so em "de santo" apaga a metade do trabalho — o
+mesmo esvaziamento que o comentario do verbete PANO DA COSTA ja nomeia (*"sobrava a roupa e sumia o
+motivo dela"*), com o sinal trocado. Fonte com propriedade sobre a metade do trabalho: **Cecilia
+Moreira Soares, "As ganhadeiras: mulher e resistencia negra em Salvador no seculo XIX", Afro-Asia
+nº 17, 1996, UFBA** — ja creditada no fecho deste capitulo.
+
+**O que nao mudou, de proposito:** nenhum verbete, nenhuma fonte nova, os tres seguem **fora do
+chao** (§2.4.5 tira da mao, nao cala), e os **tres nomes continuam na fala**. *"nos mesmos tres
+contadores"* virou *"nos tres contadores"* so pelo teto de 260 caracteres da caixa que revela letra
+a letra.
+
+**Medido antes e depois, com instrumento proprio** (`capPalavras()` lido no navegador, os treze
+capitulos): a porta AS PALAVRAS DAQUI ficou **identica byte a byte**. SALVADOR continua com **7**
+verbetes — PANO DA COSTA · GANHADEIRA · ALFORRIA · ACARAJE · DEGREDO · BUZIOS · MALE — e **BUZIOS
+continua alcancavel**, o que era o risco mecanico do item: a fala e o unico caminho ate ele.
+
+#### Os portoes
+
+`npm test` **exit 0** (inclui `§2 vocabulary -> 322 authored lines checked | 0 hits`, o teto de 260
+caracteres e `salvador-drop-sem-ritual`) · `node test/encaixe.js` **exit 0**.
