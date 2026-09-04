@@ -1498,6 +1498,45 @@
       ],
       "aceite": "O guarda passa a barrar tambem comando NAO-git que escreva fora do worktree do agente (cd para a raiz compartilhada + npm/node). Mordida provada por injecao nos dois sentidos: um cd para a raiz compartilhada seguido de npm run build tem de ser recusado; o mesmo comando dentro do proprio worktree passa. Se a saida for NAO barrar (falso positivo caro demais), o numero que sustenta e quantas vezes ja aconteceu.",
       "detalhe": "Reportado pelo proprio agente que caiu nele, em 04/09 (dev-jogo da rodada nuvem-20260904T1623), como duvida declarada e nao escondida. Ele rodou npm install, npm run build e testes em /home/user/jogo-brasil (a checkout compartilhada, sem sufixo de worktree) por engano no comeco da rodada, e deixou la um test/tmp-salvador-mutante.html (gitignored), que ele mesmo removeu. O guarda so intercepta git e -C. Conferido pelo plantao depois do pouso: a arvore compartilhada estava LIMPA (0 alteracoes, 0 arquivo temporario, HEAD no merge 29e8f63) -- ou seja, desta vez nao custou nada. O risco e o build: a checkout compartilhada e a que roda o FUNIL, e o PLANTAO.md ja registra que um node_modules ou um index.html em estado inesperado ali produz vermelho de funil com o nome da entrega colado."
+    },
+    {
+      "id": "ritual-fora-do-drop-sem-lista-branca",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "A trava do par.2 (objeto ritual nao e colecionavel) so tem lista branca no lugar de DROP -- fora dele, um buzio ACLARADO passa",
+      "territorio": [
+        "test/salvador-drop-sem-ritual.js",
+        "test/qa-ritual-varredura.js"
+      ],
+      "aceite": "Decidir o que se faz onde a lista branca nao cabe. MOB_B64, ICONE_B64, FRENTE_B64 e GENTE_EP_B64 sao centenas de artes sem tabela de aprovacao possivel, e la sobra a lista negra, cujo buraco esta MEDIDO. Saidas: (a) baixar o limiar so para esses blocos, com o custo de falso positivo medido; (b) assinatura invariante a brilho/matiz em vez de distancia crua; (c) aceitar o buraco e dizer isso no cabecalho, que ja e o estado de hoje. Qualquer saida precisa da medicao dos 13 disfarces, que ja existe em test/qa-ritual-disfarce.js.",
+      "detalhe": "Nomeado pelo proprio dev-jogo em 04/09 (nuvem-20260904T1623) ao fechar ritual-limiar-e-espelho, e ele escreveu nos cabecalhos em vez de esconder. Medido, com limiar 12: brilho x1,25 = 14,0 (o caminho de volta MAIS BARATO, e nao e geometria); matiz +40 graus = 21,9; moldura +12% = 28,8; espelho vertical 52,0; 180 graus 52,2; 90 graus 53,9. Um buzio aclarado em MOB_B64 passa hoje. A frase dele resume por que isto nao se resolve medindo melhor: a lista branca funciona por TROCAR A PERGUNTA (de isto e um buzio para isto e ESTE arquivo), e fora do lugar de drop a pergunta nao pode ser trocada -- la ele conseguiu fazer o CABECALHO honesto, nao o portao."
+    },
+    {
+      "id": "aprovados-duplicada-sem-assercao",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "A tabela APROVADOS do portao do ritual esta repetida em 2 arquivos e nada assere que elas concordam",
+      "territorio": [
+        "test/salvador-drop-sem-ritual.js",
+        "test/qa-ritual-disfarce.js"
+      ],
+      "aceite": "Uma assercao que reprova se as duas tabelas divergirem, ou uma fonte unica lida pelos dois. Mordida provada por injecao: tirar uma arte de uma das listas tem de sair exit 1. E o portao passa a DIZER, na mensagem de falha, que capitulo novo com drop novo fica vermelho ate a arte entrar em APROVADOS -- e o preco da lista branca, e de proposito, mas vai surpreender alguem que nao leu isto.",
+      "detalhe": "Declarado pelo dev-jogo em 04/09 (nuvem-20260904T1623) como sobra descoberta do proprio conserto, escrito no comentario e sem nada que o cobre. O sentido do erro e o caro: se as duas divergirem, o sinal e de que uma arte de drop entrou SEM passar pelo portao -- ou seja, a divergencia e exatamente o evento que o portao existe para pegar."
+    },
+    {
+      "id": "prints-smoke-artefato-ou-referencia",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "Os 4 PNGs que o smoke regrava a cada npm test sujam a arvore sem um byte de codigo mudar -- artefato ou referencia?",
+      "territorio": [
+        ".gitignore",
+        "test/"
+      ],
+      "aceite": "Decidir: (a) sao artefato, entram no .gitignore e param de sujar; (b) sao referencia visual e ficam versionados, e entao alguem precisa OLHAR o diff deles, que e o que ninguem faz hoje. Se (a), conferir que nenhum teste depende de eles existirem no disco.",
+      "detalhe": "Levantado pelo dev-jogo em 04/09 (nuvem-20260904T1623), que os encontrou ja sujos no proprio baseline e os deixou fora do commit. O PLANTAO.md 5.1 ja manda git checkout -- test/ depois do funil como higiene, o que e o sintoma tratado e nao a causa. E a frase do proprio PLANTAO diz o custo: arvore suja que nao significa nada e como se aprende a ignorar git status."
     }
   ]
 }
