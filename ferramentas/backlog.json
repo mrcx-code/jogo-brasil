@@ -76,7 +76,7 @@
     },
     {
       "id": "sem-contagem-sem-modo-injecao",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "A assercao SEM_CONTAGEM (qa-vercel-host) morde mas nenhuma rodada automatica exercita ela",
@@ -84,7 +84,9 @@
         "test/qa-vercel-host.js"
       ],
       "aceite": "QA_VERCEL_DEFEITO ganha um 10o modo que injeta connect-src na rota /privacidade/ (ou outra sem-medicao), pra assercao SEM_CONTAGEM sair vista reprovando por um comando, sem precisar editar vercel.json a mao.",
-      "detalhe": "Achado pelo QA em 04/09: a assercao existe e morde (confirmado editando vercel.json manualmente — connect-src injetado em /privacidade/ fez qa-vercel-host sair exit 1), mas os 9 modos existentes de QA_VERCEL_DEFEITO miram todos /historia. Mesma classe do EQUIPE.md licao 2.8 (controle que ninguem roda e decoracao)."
+      "detalhe": "Achado pelo QA em 04/09: a assercao existe e morde (confirmado editando vercel.json manualmente — connect-src injetado em /privacidade/ fez qa-vercel-host sair exit 1), mas os 9 modos existentes de QA_VERCEL_DEFEITO miram todos /historia. Mesma classe do EQUIPE.md licao 2.8 (controle que ninguem roda e decoracao).",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T16:51:47.841Z"
     },
     {
       "id": "cartoes-sociais-peso-mudou-sem-explicacao",
@@ -1220,7 +1222,7 @@
     },
     {
       "id": "vercel-precedencia-de-headers",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "camada": "esteira",
       "titulo": "A precedencia do array headers da Vercel e INFERIDA e nao documentada — e a 3a hipotese muda a severidade",
@@ -1231,8 +1233,8 @@
       "aceite": "Fechar com DOCUMENTO aberto e citado, ou com curl -I contra a producao (matando as duas duvidas de uma vez: qual regra decide, e se a ignorada viaja junto). Nao vale busca que devolva a regra de ROTEAMENTO (rewrite/redirect/status) — e outra coisa, e citar ela seria confirmar o que ninguem leu. Exige maquina com egresso para vercel.com: a nuvem NAO fecha este item (medido, ver detalhe).",
       "detalhe": "Herdada do QA em 03/09 e re-medida pelo porteiro na mesma data. O repositorio trata 14 das 22 regras de header como INERTES, e essa palavra depende de uma precedencia que ninguem leu. Tres hipoteses, e a terceira nem o QA tinha considerado: (a) a ultima que casa vence; (b) a primeira vence; (c) as duas viajam e o NAVEGADOR aplica a INTERSECCAO das politicas — e nesse caso inerte e nome errado, porque a regra ignorada esta sendo ENFORCADA junto. O porteiro ja blindou o que dava para blindar sem a resposta: a assercao conta pelas duas ordens e exige 14 nas duas, entao ela nao envelhece com a hipotese. O que continua em aberto e a severidade das 14. MEDIDO em 03/09 pela nuvem-20260903T0822, e por isso o item diz que a nuvem nao fecha: WebFetch de vercel.com/docs volta EGRESS_BLOCKED do proxy desta maquina, exatamente como voltou para o agente. Mac e Windows tem egresso.",
       "nota": "TENTATIVA em 03/09 pelo windows-plantao (pre-integrador, sandbox do agente): tambem bateu EGRESS_BLOCKED tentando vercel.com/docs, e o curl -I contra matheusferreira.cc nao achou duas regras conflitantes no MESMO path pra observar qual vence (os headers sao identicos por desenho onde ele olhou). O agente declarou o item fechado como 'documentado e gerenciado' SEM satisfazer o aceite (nem documento citado, nem medicao de conflito real) — devolvido a livre. NAO CONTA como tentativa de maquina com egresso pleno: o sandbox do agente parece ter a mesma restricao da nuvem para este host especifico, mesmo rodando nesta maquina Windows. Quem pegar de novo: confirme egresso a vercel.com/docs ANTES de aceitar o item como fechavel por aqui, ou ache duas rotas do vercel.json que colidem de verdade para testar por curl.",
-      "maquina": null,
-      "desde": null
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T16:51:47.842Z"
     },
     {
       "id": "vercel-valor-e-topo",
