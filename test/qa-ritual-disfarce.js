@@ -59,6 +59,46 @@ const RITUAL = { 'drop-cap4-1': 'acarajé', 'drop-cap4-2': 'pano da costa', 'dro
 const APROVADOS = ['drop-semente', 'drop-broto', 'drop-peixe', 'drop-cap2-1',
   'drop-cap4-tabuleiro', 'drop-cap4-balde', 'drop-cap4-trouxa', 'drop-cap3-1'];
 
+// ── AS DUAS TABELAS TÊM DE CONCORDAR, e agora isso é exit code (04/09) ───────────────────
+// A lista acima estava repetida à mão e **nada** conferia que ela batia com a do portão.
+//
+// O QUE A DIVERGÊNCIA ESTRAGA, medido e CORRIGIDO pelo QA: ela **infla o relatório**, não abre
+// buraco no portão. O portão é autoridade da própria tabela e mordeu em quatro injeções com a
+// tabela dele intacta. Mas com 6 dos 8 nomes aqui, três linhas desta tabela sobem — espelhado
+// vertical 35,2 → 38,2 · rodado 180° 34,9 → 36,6 · rodado 90° 34,4 → 34,5 — e a lista branca
+// passa a **parecer mais segura do que é**. Apodrecimento de documentação, e este arquivo
+// existe justamente para ser a documentação medida.
+//
+// Por que ler o TEXTO do portão em vez de `require`: o portão é uma IIFE que sobe o Chromium e
+// chama `process.exit` ao ser carregado — requerê-lo executaria o portão inteiro aqui dentro.
+// Extrair a declaração é a leitura mais barata que não muda o portão de forma.
+const FONTE_PORTAO = path.join(__dirname, 'salvador-drop-sem-ritual.js');
+(function conferirTabelas() {
+  const txt = fs.readFileSync(FONTE_PORTAO, 'utf8');
+  const m = txt.match(/\nconst APROVADOS = (\[[\s\S]*?\n\]);/);
+  if (!m) {
+    console.error('não achei `const APROVADOS = [...]` em test/salvador-drop-sem-ritual.js — ' +
+      'o portão mudou de forma e este controle deixou de saber o que comparar.');
+    process.exit(1);
+  }
+  const doPortao = [].concat.apply([], new Function('return ' + m[1])());
+  const a = doPortao.slice().sort(), b = APROVADOS.slice().sort();
+  const so = (x, y) => x.filter(n => y.indexOf(n) < 0);
+  if (a.length !== b.length || a.some((n, i) => n !== b[i])) {
+    console.error('\nAS DUAS TABELAS APROVADOS DIVERGIRAM.');
+    console.error('  portão  (test/salvador-drop-sem-ritual.js): ' + doPortao.length + ' nome(s)');
+    console.error('  aqui    (test/qa-ritual-disfarce.js):       ' + APROVADOS.length + ' nome(s)');
+    console.error('  só no portão: ' + (so(a, b).join(', ') || '—'));
+    console.error('  só aqui:      ' + (so(b, a).join(', ') || '—'));
+    console.error('\n  A coluna BRANCA desta tabela mede o disfarce contra as artes aprovadas.');
+    console.error('  Com a lista incompleta ela INFLA e a lista branca parece mais segura do que é.');
+    console.error('  CONSERTO: iguale a lista deste arquivo à do portão (o portão é a autoridade).\n');
+    process.exit(1);
+  }
+  console.log('as duas tabelas APROVADOS concordam: ' + doPortao.length +
+    ' nome(s), lidos de test/salvador-drop-sem-ritual.js e conferidos contra os daqui.');
+})();
+
 (async () => {
   const nav = await chromium.launch({ executablePath: chromiumPath() });
   const pg = await nav.newPage();
