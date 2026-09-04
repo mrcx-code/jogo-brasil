@@ -83,6 +83,12 @@ const limpo = rodar('');
 ok(limpo.status === 0, 'sem QA_VERCEL_DEFEITO o portão sai 0 contra o vercel.json de hoje — saiu ' + limpo.status);
 
 // 3. cada modo sai 1 E imprime ao menos uma linha `X`
+// GAP fechado em 04/09 (achado do QA revisando esta própria entrega): um `continue` ou um `return`
+// cedo demais dentro deste laço faz sobrar modo sem rodar, e a linha final ("ok — N modo(s)
+// mordem") mente por omissão — ela conta `MODOS.length`, não quantas iterações de fato
+// executaram. `executados` é a prova de que o laço não pulou ninguém: incrementa só quando o
+// corpo do laço termina, e é cobrado contra `MODOS.length` antes do veredito final.
+let executados = 0;
 for (const m of MODOS) {
   const r = rodar(m);
   ok(r.status === 1 && r.vermelhas.length > 0,
@@ -96,7 +102,11 @@ for (const m of MODOS) {
       + (nomeia ? '' : ' — as linhas vermelhas foram: ' + JSON.stringify(r.vermelhas.map(function (l) { return l.trim().slice(0, 80); }))
         + '. Se sobrou só o agregado, a asserção 4b parou de morder e o vermelho está mentindo sobre a causa'));
   }
+  executados++;
 }
+ok(executados === MODOS.length, 'o laço rodou os ' + MODOS.length + ' modo(s) lidos do código-fonte, nenhum pulado — rodou '
+  + executados + (executados === MODOS.length ? '' : ' — algum `continue`/`return`/exceção cortou o laço cedo, e o veredito'
+    + ' final ("ok — N modo(s) mordem") mentiria por omissão'));
 
 // 4. modo inexistente sai 2
 const errado = rodar('modo-que-nao-existe-' + process.pid);

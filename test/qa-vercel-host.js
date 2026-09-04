@@ -162,9 +162,10 @@ if (DEFEITO) {
     //   apagar só o AGREGADO ............. modo exit 1, 1 linha X, e ela é a da SEM_CONTAGEM.
     //     É ESTA a que prova o modo: a asserção 4b morde SOZINHA, sem o agregado carregando ela.
     //   neutralizar o BLOCO `if (SEM_CONTAGEM…)` .. o CONTROLE (sem injeção nenhuma) já sai 1, com
-    //     TRÊS linhas X — porque as outras duas rotas da lista (`/privacidade` e
-    //     `/privacidade/(.*)`) também são da família pela forma e também não declaram connect-src,
-    //     então caem no `else` e são cobradas por um connect-src que não têm.
+    //     QUATRO linhas X, medidas por mutante e exit code real, não contadas de cabeça: as TRÊS
+    //     rotas da lista (`/privacidade`, `/privacidade/` e `/privacidade/(.*)`) caem no `else` e
+    //     são cobradas por um connect-src que não têm — mais o AGREGADO, que também reprova
+    //     ("13 de 16") porque `familiaSecao` passa a contar as três.
     //
     // A terceira linha corrige o que este comentário afirmava até 04/09 — que apagar o bloco
     // "faria as duas passarem". É FALSO, e por sorte na direção segura: o bloco não é removível em
