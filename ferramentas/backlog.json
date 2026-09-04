@@ -1461,7 +1461,7 @@
     },
     {
       "id": "falas-arte-praca-segurou-aceiro",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "historiador",
       "camada": "texto",
       "titulo": "A PRACA / O QUE SEGUROU / O ACEIRO tem a mesma familia de defeito das 5 falas ja consertadas — e METADE da fala e falsa, nao a fala inteira",
@@ -1470,8 +1470,7 @@
       ],
       "aceite": "Ler as tres aberturas caso a caso, como a historiadora fez nas cinco: separar o que continua verdadeiro do que ficou falso, e reescrever so a metade falsa. NAO aplicar a forma pronta das cinco -- foi medido nesta rodada que a generalizacao produz a mentira que se gaba.",
       "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI. ACRESCENTADO pelo QA na mesma rodada (achado G3), e ele muda a leitura: A PRACA e o SEXTO da familia, mas e MENOS falsa que os cinco, nao mais. GENTE_EP_B64.praca tem 24 quadros autorais -- so que 21 com tinta, porque 3 estao vazios (ver item quadros-de-gente-vazios-na-fonte). Entao a arte daqui nao chegou nao e verdade, mas ja chegou inteira tambem nao e. Quem pegar este item le os dois juntos, senao escreve a terceira frase falsa da serie.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T22:33:11.472Z"
+      "feito": "Integrado 04/09 (commit 9af510e + ee72878, funil 6db126e/1285d28). A abertura de A PRACA tinha SO METADE da fala falsa: pintura continua emprestada (verdade, mantida), quem atravessa ja e arte propria mas 3 de 24 quadros vazios -- reescrita para \"ja foi desenhado pra ca, mas nao inteiro\". Alegacao original do item (SEGUROU e ACEIRO tem a mesma familia de defeito) foi DESMENTIDA -- nao ha frase falsa neles, nao mexidos. Historiador se autocorrigiu (teto de caracteres medido errado na 1a tentativa). QA independente decodificou o pacote (nao so a fonte) e deixou PROVA VIVA que reprova no dia em que os 3 quadros forem preenchidos. 2a conferencia do historiador confirmou tudo e achou o §2 novo (PINDORAMA), registrado em quadros-de-gente-vazios-na-fonte."
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
@@ -1623,13 +1622,13 @@
       "estado": "livre",
       "agente": "dev-jogo",
       "camada": "medio",
-      "titulo": "SEIS quadros de gente estao VAZIOS na fonte e o jogo poe objeto no lugar da pessoa no meio da rua -- em A PRACA, 3 de 24",
+      "titulo": "S2: SEIS quadros de gente estao VAZIOS na fonte e o jogo poe objeto no lugar da pessoa -- PINDORAMA (povos originarios) e um deles, sobe a prioridade",
       "territorio": [
         "src/jogo.ts",
         "test/"
       ],
       "aceite": "Duas coisas, e a segunda importa mais que a primeira. (1) Preencher ou remover os 6 quadros vazios, para o jogo parar de mostrar barril/saco onde devia haver pedestre. (2) Um portao que CONTE quadro que chega: nenhum instrumento hoje conta, e foi por isso que seis passaram. A regua ja existe e e do proprio jogo -- esperando(im) trata naturalWidth <= 1 como pixel de espera; o portao tem de usar a MESMA regua, senao ele aceita o GIF 1x1 que o build carimba e anuncia pacote chegou sobre quadro em branco.",
-      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada. RECONFERIDO pelo QA na segunda rodada, sobre a main de hoje: os 6 continuam la, exatamente os mesmos, e nenhuma das duas entregas de portao os toca. E uma nota nova que fecha o diagnostico: a varredura de 518 imagens reporta 0 imagens nao decodificaram -- porque o pixel de espera 1x1 DECODIFICA. Ou seja, o instrumento que varre o repositorio inteiro passa por cima do G2 sem ve-lo, pela mesma razao que o instrumento do QA passou na primeira rodada. Nenhum portao desta casa conta quadro que CHEGA; todos contam quadro que EXISTE."
+      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada. RECONFERIDO pelo QA na segunda rodada, sobre a main de hoje: os 6 continuam la, exatamente os mesmos, e nenhuma das duas entregas de portao os toca. E uma nota nova que fecha o diagnostico: a varredura de 518 imagens reporta 0 imagens nao decodificaram -- porque o pixel de espera 1x1 DECODIFICA. Ou seja, o instrumento que varre o repositorio inteiro passa por cima do G2 sem ve-lo, pela mesma razao que o instrumento do QA passou na primeira rodada. Nenhum portao desta casa conta quadro que CHEGA; todos contam quadro que EXISTE. ||| ESCALADO para S2 em 04/09 pela historiadora (agente a4cbeb93c1f1605d7), revisando de forma independente a correcao de A PRACA: PINDORAMA tem 1 dos 6 quadros vazios (indice 23) e esta em CAP_FILA -- pessoaNaRua() vale true, entao o motor troca a pessoa por barril/saco em 1 de 8 passos NO CAPITULO DOS POVOS ORIGINARIOS. CLAUDE.md S2.1: povos originarios nao sao categoria generica nem estagio superado -- um bug de asset que troca a pessoa por objeto no capitulo especifico de povos originarios pede prioridade mais alta que os outros 5 quadros vazios (praca, temfonte, segurou), que sao de capitulos sem essa sensibilidade extra. TEMFONTE tambem tem 1 vazio (indice 16) -- confirmar se e capitulo de povos originarios ou nao antes de decidir a ordem exata dos 6."
     },
     {
       "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
@@ -1779,7 +1778,7 @@
     },
     {
       "id": "paginas-plataforma-nao-leem-origem-escola",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "Glossario/A Historia/De Onde Vem nao leem ?origem=escola -- quem entra so pelo glossario continua medido",
@@ -1791,8 +1790,7 @@
       ],
       "aceite": "As paginas da plataforma (nao o jogo) passam a ler o mesmo parametro ?origem=escola e gravar jogo_brasil_medir=nao da mesma forma que src/jogo.ts ja faz (ver chegouPelaEscola() e a reescrita de medirCarregar() em src/jogo.ts, integradas 04/09). Mesma prova de portao: nasce desligado por esse caminho, continua ligado por qualquer outro, decisao manual previa vence.",
       "detalhe": "Levantado pelo dev-jogo em 04/09 fechando medicao-desligada-caminho-escolar: o mecanismo (parametro de URL + chave compartilhada jogo_brasil_medir) protege o jogo e, por tabela, cala as paginas da plataforma NO MESMO APARELHO depois que a pessoa passou pelo jogo -- mas quem entra direto pelo link de professor para o GLOSSARIO (sem nunca abrir o jogo) continua sendo medido, porque as paginas nunca leem o parametro por si mesmas. Territorio de dev-plataforma, nao dev-jogo.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T22:33:11.473Z"
+      "feito": "Integrado 04/09 (commit c298301, funil manual 643cddb/d1dcf7a apos conflito em package.json). ferramentas/medir-secao.js ganhou fiacaoEscolha(), replicando o mecanismo ECA Digital do jogo nas 6 paginas da plataforma (as 3 do titulo + territorio, a porta, e /privacidade/, acrescentada por decisao propria do dev-plataforma). 2 rodadas de auditoria adversarial (porteiro+qa) acharam e fecharam 2 gaps reais: anti-staleness cobria so metade do bloco emitido (a IIFE de decisao ficava fora, mutacao real passava verde -- alargado); flyer de professores so protegia o link do jogo, os outros 3 links continuavam desprotegidos na pratica (corrigido, 4 links agora)."
     },
     {
       "id": "privacidade-publicada-nao-menciona-caminho-escolar",
@@ -1806,6 +1804,18 @@
       ],
       "aceite": "Acrescentar ao texto PUBLICAVEL (secao 9, Criancas e adolescentes, ou onde fizer mais sentido) uma frase afirmando o mecanismo do caminho escolar -- ja documentado nas notas internas da secao R1. Depois: node ferramentas/gerar-privacidade.js e confirmar fidelidade texto->HTML.",
       "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina."
+    },
+    {
+      "id": "territorio-jpeg-brasa-nao-deterministico",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "territorio/compartilhar.jpg nao e deterministico entre rodadas do gerador -- causa raiz nomeada (brasa de pino)",
+      "territorio": [
+        "ferramentas/gerar-territorio.js"
+      ],
+      "aceite": "Gerar o cartao de territorio com reducedMotion (prefers-reduced-motion: reduce, ou parar o relogio/pulso antes do print) para a brasa dos pinos 3D nao variar entre rodadas -- ou aceitar e documentar que este cartao especifico e o unico intencionalmente nao-deterministico, e o portao/teste que compara byte a byte precisa saber disso.",
+      "detalhe": "Achado pelo porteiro em 04/09 revisando paginas-plataforma-nao-leem-origem-escola: 3 execucoes seguidas do gerador sem mudar nada deram 89.814 (HEAD) -> 89.809 -> 89.789 -> 89.797 bytes, sha1 distintos -- so o territorio, as outras 3 secoes reproduzem byte a byte. Causa raiz NOMEADA em ferramentas/gerar-territorio.js:1301: pulso = PARADO ? 0.5 : 0.5+0.5*Math.sin(agora/1450 + i*1.7), com a pagina do print aberta sem reducedMotion e o print tirado apos espera de relogio. E a MESMA classe que o QA mediu em 23/08 (EQUIPE.md: os bytes do JPEG sao brasa de pino), nao causa nova -- mas nunca tinha sido corrigida, so aceita."
     }
   ]
 }
