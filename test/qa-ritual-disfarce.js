@@ -14,10 +14,27 @@
 // bytes do arquivo de referência. Então "mesma figura = 0,0" é a medida do caso que não vai
 // acontecer.
 //
-// Este arquivo fabrica cinco disfarces de cada uma das três artes rituais e imprime a distância
+// Este arquivo fabrica disfarces de cada uma das três artes rituais e imprime a distância
 // de cada um até a referência, contra os dois números que decidem: o LIMIAR (12) e o mínimo
 // medido entre figuras DIFERENTES neste repositório (29,9 — test/qa-ritual-varredura.js).
 // Disfarce que passar dos 12 é um caminho de volta que o portão não fecha.
+//
+// ── 04/09, segunda passada (dev-jogo): DE 5 DISFARCES PARA 13, e foi isso que decidiu ────
+// Com cinco casos, o espelho horizontal parecia o vizinho a remendar, porque era o único
+// vizinho MEDIDO. O item de backlog chegou propondo justamente esse remendo:
+// `min(d(a,b), d(a,espelho(b)))`. As oito linhas novas (espelho vertical, 180°, 90°, 8°,
+// matiz, brilho, moldura, espelho+aparado) mostram que ele é remendo de CASO:
+//
+//   · compra **2 de 13** — e as duas são a mesma transformação;
+//   · **7 continuam passando**, e a mais barata não é geometria nenhuma:
+//     **brilho ×1,25 = 14,0**, um filtro, a mesma figura na tela.
+//
+// Foi essa tabela que fez `test/salvador-drop-sem-ritual.js` virar LISTA BRANCA em vez de
+// ganhar o espelho: lista negra só pega o disfarce que alguém já imaginou. A coluna do
+// espelho ficou, porque custa uma linha e é tudo o que sobra fora do lugar de drop.
+//
+// Instrumento medido contra si mesmo: a linha "idêntico" tem de dar 0,0 nas duas colunas —
+// se der outra coisa, é o instrumento que mudou, não o jogo.
 //
 //   node test/qa-ritual-disfarce.js
 
@@ -36,6 +53,11 @@ const LIMIAR = 12;                 // o do portão do autor
 const PISO_DIFERENTE = 29.9;       // menor distância entre figuras DIFERENTES, varredura de 518
 
 const RITUAL = { 'drop-cap4-1': 'acarajé', 'drop-cap4-2': 'pano da costa', 'drop-cap4-3': 'búzios' };
+// A lista branca de `test/salvador-drop-sem-ritual.js`, repetida aqui para medir a TERCEIRA
+// coluna: a que diz por que a lista branca fecha as treze linhas. Se as duas listas
+// discordarem um dia, é sinal de que uma arte de drop entrou sem passar por lá.
+const APROVADOS = ['drop-semente', 'drop-broto', 'drop-peixe', 'drop-cap2-1',
+  'drop-cap4-tabuleiro', 'drop-cap4-balde', 'drop-cap4-trouxa', 'drop-cap3-1'];
 
 (async () => {
   const nav = await chromium.launch({ executablePath: chromiumPath() });
@@ -45,7 +67,8 @@ const RITUAL = { 'drop-cap4-1': 'acarajé', 'drop-cap4-2': 'pano da costa', 'dro
   const linhas = [];
   for (const nome of Object.keys(RITUAL)) {
     const uri = 'data:image/webp;base64,' + fs.readFileSync(path.join(OBJ, nome + '.webp')).toString('base64');
-    const r = await pg.evaluate(async function (u) {
+    const r = await pg.evaluate(async function (args) {
+      const u = args.u;
       async function carregar(x) { const im = new Image(); im.src = x; await im.decode(); return im; }
       function assinatura(im) {
         const c = document.createElement('canvas'); c.width = 16; c.height = 16;
@@ -87,36 +110,117 @@ const RITUAL = { 'drop-cap4-1': 'acarajé', 'drop-cap4-2': 'pano da costa', 'dro
         return r;
       }
 
+      // 04/09, segunda passada (dev-jogo): de 5 disfarces para 13. Os 5 originais não bastavam
+      // para decidir entre "remendar o espelho" e "virar lista branca" — o espelho parecia o
+      // vizinho único porque era o único vizinho MEDIDO. Com 13, o mais barato de todos
+      // aparece, e não é geometria: brilho ×1,25.
+      function girado(g) {
+        const rad = g * Math.PI / 180;
+        const r = document.createElement('canvas'); r.width = w; r.height = h;
+        const x = r.getContext('2d'); x.translate(w / 2, h / 2); x.rotate(rad); x.drawImage(c, -w / 2, -h / 2);
+        return r;
+      }
+      function filtrado(f) {
+        const r = document.createElement('canvas'); r.width = w; r.height = h;
+        const x = r.getContext('2d'); x.filter = f; x.drawImage(c, 0, 0);
+        return r;
+      }
       const casos = {
         'idêntico (o caso do autor)': u,
         'recomprimido q=0,50': c.toDataURL('image/webp', 0.5),
         'aparado na mancha (esteira real)': recortado().toDataURL('image/webp', 0.8),
         'reduzido a 60%': reduzido(0.6).toDataURL('image/webp', 0.8),
-        'espelhado': espelho().toDataURL('image/webp', 0.8)
+        'espelhado (horizontal)': espelho().toDataURL('image/webp', 0.8),
+        'espelhado vertical': (function () {
+          const r = document.createElement('canvas'); r.width = w; r.height = h;
+          const x = r.getContext('2d'); x.translate(0, h); x.scale(1, -1); x.drawImage(c, 0, 0); return r;
+        })().toDataURL('image/webp', 0.8),
+        'rodado 180°': girado(180).toDataURL('image/webp', 0.8),
+        'rodado 90°': (function () {
+          const r = document.createElement('canvas'); r.width = h; r.height = w;
+          const x = r.getContext('2d'); x.translate(h, 0); x.rotate(Math.PI / 2); x.drawImage(c, 0, 0); return r;
+        })().toDataURL('image/webp', 0.8),
+        'rodado 8° (torto de leve)': girado(8).toDataURL('image/webp', 0.8),
+        'paleta: matiz +40°': filtrado('hue-rotate(40deg)').toDataURL('image/webp', 0.8),
+        'paleta: brilho ×1,25': filtrado('brightness(1.25)').toDataURL('image/webp', 0.8),
+        'espelho + aparado': (function () {
+          const r = document.createElement('canvas'); r.width = nw; r.height = nh;
+          const x = r.getContext('2d'); x.translate(nw, 0); x.scale(-1, 1);
+          x.drawImage(c, x0, y0, nw, nh, 0, 0, nw, nh); return r;
+        })().toDataURL('image/webp', 0.8),
+        'moldura +12% (recuado)': (function () {
+          const r = document.createElement('canvas'); r.width = w; r.height = h;
+          r.getContext('2d').drawImage(c, w * 0.06, h * 0.06, w * 0.88, h * 0.88); return r;
+        })().toDataURL('image/webp', 0.8)
       };
+      // duas assinaturas da referência: normal e refletida. A segunda é o que permite medir
+      // `min(d(a,b), d(a,espelho(b)))` — a saída que este arquivo ajudou a RECUSAR.
       const base = assinatura(im);
-      const out = { tam: w + 'x' + h, recorte: nw + 'x' + nh, casos: {} };
+      function assEspelhada(im2) {
+        const cc = document.createElement('canvas'); cc.width = 16; cc.height = 16;
+        const x = cc.getContext('2d');
+        x.fillStyle = '#808080'; x.fillRect(0, 0, 16, 16);
+        x.imageSmoothingEnabled = true;
+        x.translate(16, 0); x.scale(-1, 1);
+        x.drawImage(im2, 0, 0, 16, 16);
+        const d = x.getImageData(0, 0, 16, 16).data;
+        const v = []; for (let i = 0; i < d.length; i += 4) v.push(d[i], d[i + 1], d[i + 2]);
+        return v;
+      }
+      const refEsp = assEspelhada(im);
+      // as oito artes APROVADAS, assinadas: é contra elas que a lista branca decide
+      const aprov = [];
+      for (const au of args.aprovados) { const ai = await carregar(au); aprov.push(assinatura(ai)); }
+      const out = { tam: w + 'x' + h, recorte: nw + 'x' + nh, casos: {}, casosEsp: {}, casosWL: {} };
       for (const k of Object.keys(casos)) {
         const a = assinatura(await carregar(casos[k]));
-        let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - base[i]);
+        let s = 0, se = 0;
+        for (let i = 0; i < a.length; i++) { s += Math.abs(a[i] - base[i]); se += Math.abs(a[i] - refEsp[i]); }
         out.casos[k] = s / a.length;
+        out.casosEsp[k] = Math.min(s / a.length, se / a.length);
+        let mw = Infinity;
+        aprov.forEach(function (p) {
+          let t = 0; for (let i = 0; i < a.length; i++) t += Math.abs(a[i] - p[i]);
+          mw = Math.min(mw, t / a.length);
+        });
+        out.casosWL[k] = mw;
       }
       return out;
-    }, uri);
+    }, { u: uri, aprovados: APROVADOS.map(n => 'data:image/webp;base64,' + fs.readFileSync(path.join(OBJ, n + '.webp')).toString('base64')) });
     linhas.push({ nome, r });
   }
   await nav.close();
 
-  console.log('distância de cada DISFARCE até a arte ritual original (limiar do portão: ' + LIMIAR
-    + '; figuras diferentes começam em ' + PISO_DIFERENTE + ')\n');
+  console.log('distância de cada DISFARCE até a arte ritual original (limiar: ' + LIMIAR
+    + '; figuras diferentes começam em ' + PISO_DIFERENTE + ')');
+  console.log('coluna d = distância simples · coluna e = com espelho, min(d(a,b), d(a,espelho(b)))');
+  console.log('o veredito é do PIOR dos três rituais em cada linha.\n');
   const chaves = Object.keys(linhas[0].r.casos);
-  console.log('  ' + 'disfarce'.padEnd(34) + Object.keys(RITUAL).map(n => n.replace('drop-cap4-', 'rit-').padStart(9)).join('') + '   veredito');
+  console.log('  ' + 'disfarce'.padEnd(34) + '      d      e     wl   negra  negra+esp   BRANCA');
+  let compraEspelho = 0, sobra = [], piorWL = Infinity;
   chaves.forEach(function (k) {
-    const vals = linhas.map(l => l.r.casos[k]);
-    const pior = Math.max.apply(null, vals);
-    console.log('  ' + k.padEnd(34) + vals.map(v => v.toFixed(1).padStart(9)).join('') +
-      '   ' + (pior <= LIMIAR ? 'PEGO pelo portão' : 'PASSA pelo portão' + (pior >= PISO_DIFERENTE ? ' (e nem parece a mesma figura)' : '')));
+    const pior = Math.max.apply(null, linhas.map(l => l.r.casos[k]));
+    const piorE = Math.max.apply(null, linhas.map(l => l.r.casosEsp[k]));
+    // a lista BRANCA pega quando o disfarce não é NENHUMA arte aprovada: o pior caso é o
+    // disfarce que mais se APROXIMA de alguma aprovada, então aqui vale o MÍNIMO dos três.
+    const menorWL = Math.min.apply(null, linhas.map(l => l.r.casosWL[k]));
+    piorWL = Math.min(piorWL, menorWL);
+    const v1 = pior <= LIMIAR, v2 = piorE <= LIMIAR, v3 = menorWL > LIMIAR;
+    if (!v1 && v2) compraEspelho++;
+    if (!v2) sobra.push(k + ' (' + piorE.toFixed(1) + ')');
+    console.log('  ' + k.padEnd(34) + pior.toFixed(1).padStart(7) + piorE.toFixed(1).padStart(7) +
+      menorWL.toFixed(1).padStart(7) + '   ' + (v1 ? 'PEGO ' : 'passa').padEnd(8) +
+      (v2 ? 'PEGO ' : 'passa').padEnd(11) + (v3 ? 'PEGO' : 'PASSA'));
   });
+  console.log('\n  a lista BRANCA pega ' + chaves.length + ' de ' + chaves.length +
+    ' — o disfarce que mais se aproxima de uma arte aprovada ainda está a ' + piorWL.toFixed(1) +
+    ' (limiar ' + LIMIAR + ', folga ' + (piorWL / LIMIAR).toFixed(1) + '×).');
+  console.log('  o espelho compra ' + compraEspelho + ' de ' + chaves.length + ' disfarces.');
+  console.log('  continuam passando (' + sobra.length + '): ' + sobra.join(' · '));
+  console.log('  o MAIS BARATO dos que passam é o que decide o desenho do portão — e ele não é');
+  console.log('  geometria: brilho ×1,25, um filtro só, a mesma figura na tela.');
   linhas.forEach(l => console.log('\n  ' + RITUAL[l.nome] + ': quadro ' + l.r.tam + ', mancha ' + l.r.recorte));
   console.log('\n(este arquivo é DIAGNÓSTICO: ele não reprova nada, ele diz de que tamanho é o buraco)');
+  console.log('(em lugar de DROP o buraco está fechado por LISTA BRANCA desde 04/09 —');
+  console.log(' test/salvador-drop-sem-ritual.js. Fora dele, esta tabela é o que sobra aberto.)');
 })().catch(e => { console.error(e); process.exit(1); });
