@@ -777,6 +777,23 @@ const CSP_TERRITORIO_VERCEL = Object.assign({}, CSP_SECAO_VERCEL, {
   // Dar `blob:` às outras quatro seria fazer da CSP única a mais frouxa das cinco.
   "script-src": "'unsafe-inline' blob:",
 });
+const CSP_PRIVACIDADE_VERCEL = {
+  // /privacidade/ é a política de privacidade (ferramentas/gerar-privacidade.js, 04/09). É a
+  // ÚNICA página pública SEM `connect-src`, e a ausência é a afirmação: ela não manda evento
+  // nenhum. As cinco seções mandam um `secao aberta` cujo texto — na seção 3 desta própria
+  // política — diz "qual das CINCO seções foi aberta"; medir a página de privacidade a tornaria
+  // falsa no mesmo commit. Sem `connect-src`, o `default-src 'none'` já barra qualquer conexão:
+  // a página não tem para onde falar, e isso é cobrado pelo navegador, não pela boa intenção.
+  // Ela carrega o INTERRUPTOR (que só lê e grava localStorage) porque a política promete, em
+  // duas seções, que ele está na barra do topo de qualquer página.
+  "default-src": "'none'",
+  "script-src": "'unsafe-inline'",   // 2 <script> inline (a barra e a fiação do interruptor)
+  "style-src": "'unsafe-inline'",    // 1 <style> inline
+  "img-src": "data:",                // as texturas do chrome, em data-URI
+  "base-uri": "'none'",
+  "form-action": "'none'",           // zero <form> (medido)
+  "frame-ancestors": "'none'",
+};
 const CSP_MESA_VERCEL = {
   // /mesa/ é um coto de três linhas que redireciona para /dashboard/ por <meta refresh>.
   "default-src": "'none'", "base-uri": "'none'", "form-action": "'none'", "frame-ancestors": "'none'",
@@ -799,6 +816,8 @@ const QUADRO_DE_ROTAS = [
   ["/de-onde-vem/(.*)", CSP_SECAO_VERCEL],                                              // DE ONDE VEM
   ["/territorio", CSP_TERRITORIO_VERCEL], ["/territorio/", CSP_TERRITORIO_VERCEL],
   ["/territorio/(.*)", CSP_TERRITORIO_VERCEL],                                          // ONDE FOI
+  ["/privacidade", CSP_PRIVACIDADE_VERCEL], ["/privacidade/", CSP_PRIVACIDADE_VERCEL],
+  ["/privacidade/(.*)", CSP_PRIVACIDADE_VERCEL],                                        // a POLÍTICA
   ["/mesa", CSP_MESA_VERCEL], ["/mesa/", CSP_MESA_VERCEL], ["/mesa/(.*)", CSP_MESA_VERCEL],
   ["/jogo", CSP_SO_MOLDURA_VERCEL], ["/jogo/", CSP_SO_MOLDURA_VERCEL],
   ["/jogo/(.*)", CSP_SO_MOLDURA_VERCEL],
@@ -1023,7 +1042,10 @@ if (fs.existsSync(p("dashboard"))) {
     ["User-agent: *", "Disallow: /dashboard", "Sitemap: " + BASE + "/sitemap.xml", ""].join("\n"));
   // O SITEMAP (growth, 21/08): sem ele o Google só acha as páginas por link, e não havia sinal
   // de indexação nenhuma. As seis URLs públicas; o dashboard fica de fora de propósito.
-  const urlsMapa = ["/", "/jogo/", "/historia/", "/glossario/", "/de-onde-vem/", "/territorio/"];
+  // `/privacidade/` entrou em 04/09: é página pública, indexável de propósito (política de
+  // privacidade que o buscador não acha é política que ninguém lê) e não tem nada de interno.
+  const urlsMapa = ["/", "/jogo/", "/historia/", "/glossario/", "/de-onde-vem/", "/territorio/",
+    "/privacidade/"];
   escreverPublicado(d("sitemap.xml"),
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + urlsMapa.map(function (u) { return "  <url><loc>" + BASE + u + "</loc></url>"; }).join("\n")
@@ -1082,7 +1104,38 @@ if (fs.existsSync(p("ferramentas", "precos-modelo.json"))) {
 // `territorio` entrou em 21/08: a placa 3D do país, gerada do MAPA_* do jogo por
 // ferramentas/gerar-territorio.js. Ela é página separada de propósito — carrega three.js
 // inline e não pode pesar na porta de entrada do jogo, que é o que carrega em 3G.
-for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio']) {
+// A PÁGINA /privacidade/ TEM DE ESTAR EM DIA COM O TEXTO — e quem cobra é o build (04/09).
+//
+// As quatro seções acima extraem do JOGO, e o `test/medir-numero-envelhece.js` pega quando elas
+// envelhecem. A política extrai de `plataforma/privacidade-texto.md`, e o modo de falha dela é o
+// mesmo com uma agravante: uma página de privacidade desatualizada não é um número feio, é uma
+// afirmação falsa sobre o que o site faz com os dados de quem lê — o que o §3 do CLAUDE.md chama
+// de pior que não ter nenhuma. Aqui a comparação é BYTE A BYTE contra o que o gerador produz
+// AGORA (ele é determinístico: nenhum navegador, nenhuma data de relógio, nenhuma aleatoriedade),
+// então editar o texto e esquecer de rodar o gerador deixa de ser possível em silêncio.
+if (fs.existsSync(p("plataforma", "privacidade-texto.md"))) {
+  const gp = require("./gerar-privacidade.js");
+  // FIM DE LINHA FORA DA COMPARAÇÃO, e é a lição do PENDENTES 62 aplicada antes de custar: o
+  // `.gitattributes` já trava `index.html text eol=lf` (o padrão casa por nome, em qualquer
+  // pasta), mas comparar CR faria este portão ficar VERMELHO por ruído no dia em que essa linha
+  // mudasse — e árvore vermelha por ruído deixa de ser sinal. Diferença de CR não é diferença de
+  // texto; o resto é comparado caractere a caractere.
+  const semCr = (s) => String(s).replace(/\r\n/g, "\n");
+  const esperado = semCr(gp.gerar().html);
+  const noDisco = fs.existsSync(gp.DESTINO) ? semCr(fs.readFileSync(gp.DESTINO, "utf8")) : null;
+  if (noDisco === null) {
+    throw new Error("privacidade/index.html nao existe e a fonte plataforma/privacidade-texto.md sim."
+      + " Rode: node ferramentas/gerar-privacidade.js");
+  }
+  if (noDisco !== esperado) {
+    throw new Error("privacidade/index.html NAO bate com plataforma/privacidade-texto.md (" + noDisco.length
+      + " bytes no disco, " + esperado.length + " gerados agora). O texto mudou e a pagina nao."
+      + " Rode: node ferramentas/gerar-privacidade.js");
+  }
+  console.log("  privacidade/index.html confere caractere a caractere com plataforma/privacidade-texto.md");
+}
+
+for (const secao of ['historia', 'glossario', 'de-onde-vem', 'territorio', 'privacidade']) {
   if (!fs.existsSync(p(secao))) continue;
   fs.mkdirSync(d(secao), { recursive: true });
   let n = 0;

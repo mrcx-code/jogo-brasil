@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A política de privacidade da plataforma BRASIL: o que fica no seu aparelho, o que sai daqui, e o interruptor que desliga a contagem anônima em um toque. Sem cadastro, sem anúncio, sem venda de dados.">
+<meta property="og:title" content="Privacidade — BRASIL">
+<meta property="og:description" content="Sem cadastro, sem login, sem anúncio. O que sai daqui é uma contagem anônima, e dá para desligar em um toque.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRASIL">
+<meta property="og:url" content="https://matheusferreira.cc/privacidade/">
+<meta property="og:locale" content="pt_BR">
+<link rel="canonical" href="https://matheusferreira.cc/privacidade/">
+<title>Privacidade — BRASIL</title>
+<style>
+  /* chrome-plataforma.js — a língua visual do jogo (arte, 22/08). NÃO editar aqui:
+     a fonte é ferramentas/chrome-plataforma.js e o build regenera. */
+  :root{
+    --ch-papel:#e9d8ae; --ch-papel2:#d8c391; --ch-tinta:#33240f;
+    --madeira:#7a5430; --madeira2:#6d4b28; --madeira3:#503319;
+    --contorno:#191510; --ouro:#eba748; --ouro2:#f3c05c;
+    --leitura:Georgia,"Iowan Old Style","Times New Roman","Noto Serif",serif; --titulo:"Palatino Linotype",Palatino,Georgia,serif; --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --veioPx:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABgCAYAAADVenpJAAADs0lEQVR42u2d607bMBSAK+V3doGNgUs3jTGgY8AuL5a3zGNlQlqlqnIcX44dX74jff9QaO2vzvGx42w2gaH67lbH3N9P4/BuhrcSbIi0gQDEqRBfbJjG4cwH1XdbHbafbxqHPoSK+unhFQRAACJRg/+yweO6NyHQMwhAROrwJ0eubaBlEUD8g+5taLgj/0iQ4ff6+goCIED32wcG+bJiGodPOhAAAWSmDXP/YInDUOSBVdJkKD0bUX13b6KmexwCtCxABQLvPRFJ4lyneyveAq50IAACEJmK/TcQSsEIkIEAuW7omMbhMgTbJLT5Gj4CsIhD5PWDvD6GFkGA5hvkwodavg8CtC6AbemVwbPe+SYCEEUM1TsTqu9ehCh6owcCIABBEETCJDKrTZOnhY5TljZ6zOG74WV2K1Z4uz97cncMArQugOq7xwWcNotO4/DRkrlFljtJHBr0uw0rjLAPIdj8AwRoXIDnEBrKdZ58CPh/PyVBAAQIG/pSDY2pksjQJC63x7K9BUWAxgUosCTcSxJ7SJ7G4Y0k4kkgAiCAawdcSqL67puJDITTFpRaXpVDAPbSOSUn2mXXaRy2ktDSfkk1AiBAtbequQUhY4k6tPQ6d3Tu0hG6BAIQ/4cs24WnvQQRPv+tMHNleJHrI0DrAtReOpRaLtZc91GC4la5EKAyASrMIbIoLNkem284Tl9bCnZIgq1KywiAAM7Tq6w2R3p0TFEHOUzj8N6GlB8IAVoQQPXdDx0Jv7jt5tKmXvViaC+ngzARAAEWL6hdvo1Qmj08sLGVgHmQnFEIQFRdL1AmKvxB86JNBBAUwHZ6kmraUuurXTTfc2ciu/kpAmQuQOrkii1dyX6gOxsQoHUBEhRqrEg4hPo+4HHlyQdJQh/mPSJscQwBGheAWD0ZvJeAlkSA6hom6mPZvreCCEneuQ5+GQjgfKGox6MbkqrzEBqc1jkJp/rusw0I0LoAsUuTR4huy17h1vIiSU33XAQoWQDX6YFDh6+zSkUgABFnCF8i6aNlqV725Priy9Q7b4IP+kSAxgVIOI05M7HCyLdqg0htYHHdyBL78XgEQADxHENJ4CCq68GN2kfMfG9RB1yP6T9QY5KJADEFcH0NeumvQy/tQAfXR74M6DfnIkDjAmTYQbkeGRt3kyWBAETGEbp8He2lTwQCEIR3MknLIEDyD6IkqCDZvZGkJBMRoGYBlo6C0VBlB7d8r0GAwjrsQpK54+V8SV1wyv0lVq5J3mLShwBtC/APeCJVJXjlbBcAAAAASUVORK5CYII=);
+    --graoPx:url(data:image/png;base64,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);
+    /* A PAUTA DO CADERNO — portada de src/estilo.css (a mesma receita da caixa de fala do
+       jogo): risco de 1px a cada 11px, e 11 é METADE da entrelinha de 22 do corpo de leitura,
+       o que faz a linha de texto POUSAR na pauta em vez de flutuar sobre ela (onda 6 do jogo).
+       É MEDIDA, não cópia — o valor viajou, o arquivo não. */
+    --pauta:repeating-linear-gradient(0deg, rgba(120,90,40,.06) 0 1px, transparent 1px 11px);
+  }
+  :root {
+    --papel:#e9d8ae; --papel2:#d8c391; --tinta:#33240f; --tinta2:#5a4c36;
+    --pedra:#857658; --mata:#2f5230; --terra:#7a4a13; --brasa:#b5541f;
+    --linha:#cbbc98; --realce:#f0e4c4; --sombra:rgba(29,20,10,.10);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
+    --pedra:#838a7c; --mata:#8fbf7f; --terra:#d09a63; --brasa:#e8834a;
+    --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
+  } }
+  :root[data-theme="dark"] {
+    --papel:#14170f; --papel2:#1c2016; --tinta:#ece6d6; --tinta2:#b0b5a6;
+    --pedra:#838a7c; --mata:#8fbf7f; --terra:#d09a63; --brasa:#e8834a;
+    --linha:#2e3427; --realce:#222719; --sombra:rgba(0,0,0,.3);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--tinta);
+    font:400 17px/1.62 var(--leitura); -webkit-text-size-adjust:100%; }
+  .env { max-width:44rem; margin:0 auto; padding:2.6rem 1.25rem 5rem; }
+  header.topo { margin-bottom:2rem; }
+  h1 { font:700 clamp(2rem,8vw,2.9rem)/1.05 var(--titulo); margin:0 0 .6rem;
+    text-wrap:balance; letter-spacing:-.015em; }
+  .politica > p { color:var(--tinta2); margin:.2rem 0 .5rem; }
+  .politica > p.data { font:600 .78rem/1.5 var(--mono); color:var(--pedra);
+    letter-spacing:.03em; margin:.2rem 0 2.2rem; }
+
+  /* Cada seção numerada é uma FOLHA de papel limpo (.cartaoCampo do chrome): é ela que mascara
+     o grão do fundo atrás da coluna de leitura — a regra da onda 3 da arte, 22/08. */
+  .bloco { padding:1.1rem 1.15rem 1.2rem; margin:0 0 1.1rem; }
+  .bloco h2 { font:700 1.05rem/1.35 var(--mono); letter-spacing:.05em;
+    text-transform:uppercase; color:var(--terra); margin:0 0 .9rem;
+    padding-bottom:.5rem; border-bottom:1px solid var(--linha); }
+  .bloco p { margin:0 0 .8rem; }
+  .bloco p:last-child, .bloco ul:last-child, .bloco ol:last-child { margin-bottom:0; }
+  .bloco ul, .bloco ol { margin:0 0 .9rem; padding-left:1.25rem; }
+  .bloco li { margin:0 0 .5rem; }
+  .bloco strong { color:var(--tinta); }
+  code { font:400 .92em/1.4 var(--mono); background:var(--realce);
+    padding:.05em .3em; border-radius:2px; overflow-wrap:anywhere; }
+  a { color:var(--terra); }
+  a:hover { color:var(--brasa); }
+
+  /* A TABELA DA SEÇÃO 3 — "o que sai daqui". Duas colunas de texto não cabem em 390 px, então
+     abaixo de 560 ela vira lista: cada linha é um par, com o "quando" acima em destaque. O
+     cabeçalho continua no HTML (e para leitor de tela), só não ocupa duas colunas na tela
+     estreita. Nenhuma palavra some — some a grade. */
+  .rolaTab { margin:0 0 .9rem; }
+  .tab { width:100%; border-collapse:collapse; font-size:.94rem; }
+  .tab th { text-align:left; font:600 .74rem/1.4 var(--mono); letter-spacing:.06em;
+    text-transform:uppercase; color:var(--terra); padding:.35rem .5rem .45rem;
+    border-bottom:1px solid var(--linha); vertical-align:top; }
+  .tab td { padding:.5rem; border-bottom:1px solid var(--linha); vertical-align:top;
+    overflow-wrap:anywhere; }
+  .tab td:first-child { color:var(--tinta); font-weight:600; width:34%; }
+  @media (max-width:560px) {
+    .tab, .tab thead, .tab tbody, .tab tr, .tab th, .tab td { display:block; width:auto; }
+    .tab th { border:0; padding:0 0 .3rem; }
+    .tab tr { border-bottom:1px solid var(--linha); padding:.55rem 0; }
+    .tab td { border:0; padding:0 0 .25rem; }
+    .tab td:first-child { width:auto; }
+  }
+
+  footer.rod { margin-top:2.2rem; padding-top:1.3rem; border-top:1px solid var(--linha);
+    font-size:.86rem; color:var(--pedra); }
+  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }
+  /* A BARRA DE TÁBUAS (arte, 22/08): fileira de tábuas de madeira com o veio como
+     PRIMEIRA camada de background e o contorno da casa. JOGAR sempre presente e primeiro depois
+     da marca; a página atual é a tábua escura "pressionada". Alvo de toque >=44x44; UMA linha
+     sempre (nowrap); em tela estreita rola na horizontal, nunca quebra. */
+  .barra{ display:flex; flex-wrap:nowrap; align-items:stretch; gap:6px; margin:0 0 1.7rem;
+    padding:7px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; background:transparent; }
+  .barra::-webkit-scrollbar{ height:0; display:none; }
+  .barra a{ flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    min-height:44px; padding:0 15px; text-decoration:none; white-space:nowrap;
+    font:600 .82rem/1 "Palatino Linotype",Palatino,Georgia,serif; letter-spacing:.02em;
+    color:#fff4e0; border-radius:3px;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s,transform .1s; }
+  .barra a:hover{ filter:brightness(1.08); }
+  .barra a:active{ transform:translateY(1px); }
+  /* TINTA ÚNICA (arte, 22/08): uma regra só na barra — o dourado marca AÇÃO (JOGAR) e
+     ONDE-VOCÊ-ESTÁ (.aqui); todo o resto, inclusive a marca BRASIL, é creme. A marca se
+     distingue por peso e espaçamento, não por cor, para o dourado ter um único significado. */
+  .barra a.marca{ font-weight:700; letter-spacing:.16em; }
+  .barra a.jogar{ font-weight:700; color:var(--ouro2); }
+  .barra a.aqui{ color:var(--ouro2); cursor:default;
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno);
+    transform:translateY(1px); text-shadow:0 1px 0 rgba(0,0,0,.6); }
+  .barra a.aqui:hover{ filter:none; }
+
+  /* O INTERRUPTOR DA MEDIÇÃO (23/08) — a única tábua que não é link, e a única GRUDADA.
+     POR QUE ELE SUBIU: o jurídico mediu que, no rodapé, ele ficava a 116 telas de rolagem do
+     topo em algumas páginas. O dono decidiu manter a medição ligada por padrão, e a condição
+     para isso ser defensável é desligar ser fácil — o que quer dizer alcançável de qualquer
+     página, sem procurar.
+     POR QUE ELE E STICKY E NAO A SETIMA TABUA DA FILA: a 390 px a barra transborda, e uma sétima tábua no
+     fim nasceria FORA da vista — exatamente o defeito que a .aqui já pagou (ver o
+     scrollIntoView abaixo). Grudado à direita ele fica visível em qualquer posição de rolagem
+     da barra, e sem wrapper nenhum: a barra continua sendo UM elemento, que é o que o
+     areaUtil() do TERRITÓRIO mede e o que o portão conta como uma linha.
+     O CUSTO, DITO: ele cobre ~80 px da direita da barra enquanto ela está rolada; as tábuas
+     por baixo continuam alcançáveis rolando, e nenhuma delas some — só o vão da direita
+     encolhe. Era isso ou a sétima tábua invisível.
+     DUAS LINHAS porque o estado tem de ser LEGÍVEL SEM TOCAR: rótulo fixo em cima, estado
+     embaixo. Alvo >=44x44 como as outras, e sem uma cor nova: ligada é a tábua levantada,
+     desligada é a tábua afundada (a mesma gramática do .aqui). O dourado continua com um
+     significado só — ação e onde-você-está —, então ele não entra aqui. */
+  .barra .medida{ flex:0 0 auto; position:sticky; right:0; z-index:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:44px; min-width:44px; padding:0 11px; border:0; cursor:pointer;
+    color:#fff4e0; border-radius:3px;
+    font-family:"Palatino Linotype",Palatino,Georgia,serif;
+    background:var(--veioPx,none), linear-gradient(180deg,var(--madeira),var(--madeira2) 55%,var(--madeira3));
+    box-shadow: inset 0 2px 0 rgba(255,222,170,.24), inset 0 -3px 0 rgba(0,0,0,.34),
+                inset 0 0 0 2px var(--contorno), 0 3px 0 rgba(0,0,0,.4),
+                -9px 0 12px rgba(10,8,6,.55);
+    text-shadow:0 2px 0 rgba(0,0,0,.45); transition:filter .14s; }
+  .barra .medida .medRot{ font-size:.55rem; line-height:1.1; letter-spacing:.1em;
+    text-transform:uppercase; opacity:.72; }
+  .barra .medida .medEst{ font-size:.78rem; line-height:1.15; font-weight:700; letter-spacing:.01em; }
+  .barra .medida:hover{ filter:brightness(1.08); }
+  .barra .medida:active{ transform:translateY(1px); }
+  .barra .medida[aria-pressed="false"]{
+    background:var(--veioPx,none), linear-gradient(180deg,#2c1c0b,#20140a);
+    box-shadow: inset 0 3px 7px rgba(0,0,0,.6), inset 0 0 0 2px var(--contorno),
+                -9px 0 12px rgba(10,8,6,.55); }
+  .barra .medida[aria-pressed="false"] .medEst{ color:#c3b096; }
+  /* O VÃO ATRÁS DO INTERRUPTOR, e ele conserta um defeito que o primeiro print mostrou: na
+     página O TERRITÓRIO a tábua .aqui é a ÚLTIMA, a barra rola até ela na carga, e ela parava
+     EMBAIXO do interruptor grudado — sobrava a letra "O" de "O Território". Ou seja, a mesma
+     falha de "ninguém sabia onde estava" que o scrollIntoView tinha resolvido, de volta por
+     outra porta. São duas peças e as duas são necessárias: o VÃO cria a rolagem extra para
+     existir uma posição em que a última tábua não fica sob o interruptor, e o
+     scroll-padding-right faz o scrollIntoView PARAR nessa posição em vez de encostar a tábua
+     na borda. Sem o vão o navegador grampeia no fim e a tábua volta para baixo do botão. */
+  .barra{ scroll-padding-right:86px; }
+  .barra .vaoMedida{ flex:0 0 78px; }
+  /* onda 3 da arte (22/08): papel de campo nas seções de leitura. Fonte: chrome-plataforma.js */
+  .fundoCampo{ background:var(--graoPx,none), var(--pauta), var(--papel); }
+  .cartaoCampo{ position:relative; background:var(--pauta), linear-gradient(180deg,var(--papel),var(--papel2));
+    border:0; border-radius:3px;
+    box-shadow: inset 0 0 0 2px var(--contorno,#191510), inset 0 0 0 4px var(--madeira,#7a5430),
+                0 3px 0 rgba(10,8,6,.28), 0 6px 14px rgba(0,0,0,.16); }
+  .faixaCampo{ background:var(--graoPx,none), var(--papel2); }
+  .citaCampo{ font-family:var(--leitura); font-style:italic; }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body class="fundoCampo">
+<div class="env">
+  <header class="topo">
+    <nav class="barra" aria-label="Seções da plataforma BRASIL">
+      <a href="/" class="marca">BRASIL</a>
+      <a href="/jogo/" class="tabua jogar">Jogar</a>
+      <a href="/historia" class="tabua">A História</a>
+      <a href="/glossario" class="tabua">Glossário</a>
+      <a href="/de-onde-vem" class="tabua">De Onde Vem</a>
+      <a href="/territorio" class="tabua">O Território</a>
+      <button type="button" id="medirBt" class="medida" aria-pressed="true" aria-label="Medição ligada. Toque para desligar." title="A contagem anônima desta plataforma. Vale para o aparelho inteiro, jogo incluído."><span class="medRot" aria-hidden="true">medição</span><span class="medEst" data-estado>ligada</span></button><span class="vaoMedida" aria-hidden="true"></span>
+    </nav>
+    <script>(function(){try{var a=document.querySelector('.barra a.aqui');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'nearest',block:'nearest'});}catch(e){}})();</script>
+  </header>
+
+  <main class="politica" id="politica">
+    <h1>Privacidade</h1>
+    <p><strong>BRASIL — matheusferreira.cc</strong></p>
+    <p class="data">Última atualização: <time datetime="2026-09-04">4 de setembro de 2026</time></p>
+    <section class="bloco cartaoCampo" id="em-uma-tela">
+      <h2>Em uma tela</h2>
+      <p>Esta plataforma não pede seu nome, não pede seu e-mail, não tem cadastro e não tem login. Não há anúncio nenhum aqui e nada do que você faz é vendido, trocado ou usado para te mostrar propaganda.</p>
+      <p>O que você joga e o que você lê fica guardado <strong>no seu aparelho</strong>. O que sai daqui é uma contagem anônima: que alguém abriu, até que capítulo foi, se voltou no dia seguinte. Nada disso diz quem você é.</p>
+      <p>E dá para desligar. O interruptor <strong>medição</strong> fica na barra do topo de qualquer página e na tela de AJUSTES do jogo. Desligado, não sai um byte — nem do jogo, nem das páginas.</p>
+      <p>Se quiser falar com quem responde por isto: <strong><a href="mailto:brasilpatinhas@gmail.com">brasilpatinhas@gmail.com</a></strong>.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="1-quem-responde-por-esta-plataforma">
+      <h2>1. Quem responde por esta plataforma</h2>
+      <p>O controlador dos dados pessoais tratados aqui — quem decide o que é coletado e por quê, nos termos do art. 9º, I da Lei nº 13.709/2018 (LGPD) — é:</p>
+      <p><strong>BRASIL</strong> — projeto pessoal, mantido no Brasil, sem pessoa jurídica constituída. Contato: <strong><a href="mailto:brasilpatinhas@gmail.com">brasilpatinhas@gmail.com</a></strong></p>
+      <p>Este mesmo e-mail é o canal para qualquer pergunta, pedido ou reclamação sobre privacidade. Não há intermediário: quem lê é quem decide.</p>
+      <p>O BRASIL é um projeto pessoal, sem fins comerciais. Não há empresa por trás, não há investidor, não há publicidade e não há venda de nada.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="2-o-que-fica-no-seu-aparelho-e-nunca-sai">
+      <h2>2. O que fica no seu aparelho — e nunca sai dele</h2>
+      <p>O jogo guarda o seu progresso no <strong>armazenamento local do navegador</strong> (<code>localStorage</code>), no seu próprio aparelho. Isso não é enviado para lugar nenhum.</p>
+      <p>O que fica aí:</p>
+      <ul><li><strong>o seu jogo</strong>: em que capítulo você está, o que você já construiu, quais falas já viu;</li><li><strong>a sua rotina</strong>: em quantos dias distintos você jogou, quanto tempo ao todo, quantas vezes abriu A HISTÓRIA e DE ONDE VEM, quantas vezes chegou ao fim;</li><li><strong>a sua escolha sobre a medição</strong>: ligada ou desligada;</li><li><strong>um número sorteado</strong>, do qual falamos na seção 4.</li></ul>
+      <p><strong>Como apagar.</strong> O botão <strong>APAGAR MEU PROGRESSO</strong>, na tela de AJUSTES, zera a partida e apaga o registro de rotina. Para apagar <strong>tudo</strong>, inclusive o número sorteado e a sua escolha sobre a medição, apague os dados do site no seu navegador — é o único caminho que limpa a chave inteira, e ele não depende de nós.</p>
+      <p><strong>O que você digita na busca do glossário não sai daqui.</strong> É o único campo de escrever que existe na plataforma inteira, e o que você escreve nele nunca é enviado.</p>
+      <p>Não existe conta, não existe senha, não existe formulário, não existe comentário e não existe placar público. Não há nada aqui onde você possa escrever o seu nome.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="3-o-que-sai-daqui-e-e-so-isto">
+      <h2>3. O que sai daqui — e é só isto</h2>
+      <p>Quando a medição está ligada, a plataforma manda avisos curtos e anônimos para uma ferramenta de contagem (ver seção 6). Os avisos são estes, e não há outros:</p>
+      <div class="rolaTab"><table class="tab"><thead><tr><th>Quando</th><th>O que o aviso diz</th></tr></thead><tbody><tr><td>Você abre o jogo</td><td>que alguém abriu · em que capítulo estava · em quantos dias distintos já jogou · quantos minutos ao todo · se já chegou ao fim alguma vez</td></tr><tr><td>Você volta noutro dia</td><td>o número do dia (2º dia, 3º dia…)</td></tr><tr><td>Você chega num capítulo novo</td><td>o número e o nome do capítulo · os minutos jogados · o dia</td></tr><tr><td>Você chega ao fim</td><td>quantas vezes chegou · os minutos · o dia</td></tr><tr><td>Você abre A HISTÓRIA</td><td>quantas vezes já abriu · o dia · se veio pela tela do fim</td></tr><tr><td>Você abre DE ONDE VEM</td><td>quantas vezes já abriu · o dia · se veio pela tela do fim</td></tr><tr><td>Você abre as palavras do capítulo</td><td>o número do capítulo · o dia</td></tr><tr><td>Você fecha o jogo ou troca de aba</td><td>em que capítulo parou · quantos minutos ao todo · quanto durou esta sessão</td></tr><tr><td>O jogo quebra</td><td>a mensagem do erro, o arquivo e a linha — <strong>nada da sua partida</strong>; no máximo três por vez</td></tr><tr><td>Você responde &quot;você voltaria amanhã?&quot;</td><td>a palavra que você escolheu entre três (<em>volto</em>, <em>talvez</em>, <em>não</em>) · o dia · os minutos</td></tr><tr><td>Você clica na nota que leva do jogo para o resto da plataforma</td><td>só que o clique aconteceu, e nada mais</td></tr><tr><td>Você abre uma seção da plataforma</td><td>qual das cinco seções foi aberta (A História, Glossário, De Onde Vem, Onde Foi, ou a página de entrada)</td></tr></tbody></table></div>
+      <p>Junto de cada aviso vai a <strong>hora</strong> em que ele saiu e duas marcas técnicas: uma dizendo que ele veio deste site (e não da biblioteca de terceiros, que não usamos) e outra que marca o tráfego das nossas próprias máquinas de teste, para não confundi-lo com o de gente de verdade.</p>
+      <p><strong>Nada mais viaja.</strong> Não vai o tamanho da sua tela, nem o seu idioma, nem o seu fuso horário, nem o seu navegador, nem a página de onde você veio, nem o que você digitou, nem qualquer detalhe da sua partida além dos que estão na tabela acima. A lista de campos permitidos é fixa e conferida por um teste automático a cada publicação: campo novo que ninguém aprovou faz a publicação falhar.</p>
+      <p><strong>Por que estes avisos existem.</strong> Para responder uma pergunta só, sobre o produto e não sobre você: <em>alguém volta no dia seguinte?</em> E, no caso do aviso de erro: <em>o que está quebrando no aparelho de outras pessoas?</em> Sem isso, quem faz esta plataforma não tem como saber onde ela falha.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="4-o-numero-sorteado-e-por-que-ele-existe">
+      <h2>4. O número sorteado — e por que ele existe</h2>
+      <p>Para saber que &quot;voltou no 3º dia&quot; é a mesma pessoa do 1º dia, a plataforma precisa de alguma marca constante. A marca é um <strong>número de 32 dígitos, sorteado pelo seu próprio navegador</strong>, na primeira vez que você abre.</p>
+      <p>Sobre ele, com todas as letras:</p>
+      <ul><li><strong>não veio de você</strong>: não é o seu aparelho, não é o seu navegador, não é a sua hora, não é a sua tela. É um sorteio, e nada mais;</li><li><strong>não leva a você</strong>: ele não é cruzado com nada, não é vendido, não é enviado a ninguém além da ferramenta de contagem, e não existe em lugar nenhum uma tabela ligando esse número a uma pessoa;</li><li><strong>fica no seu aparelho</strong> e some quando você apaga os dados do site. Aí nasce outro, e o anterior vira um número órfão que não aponta para lugar nenhum;</li><li><strong>com a medição desligada, ele não sai</strong> — e nas páginas da plataforma ele nem chega a ser sorteado. No jogo, ele é gerado e guardado no seu aparelho mesmo com a medição desligada, e fica ali sem nunca ser enviado a lugar nenhum. É um número parado no seu navegador; ainda assim, preferimos dizer isso a arredondar para &quot;não existe&quot;.</li></ul>
+      <p>Ainda assim, tratamos esse número como <strong>dado pessoal</strong>, porque ele permite distinguir uma visita de outra ao longo do tempo — e é por isso que esta política existe, em vez de a plataforma se declarar &quot;anônima&quot; e encerrar o assunto.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="5-o-que-nao-e-coletado">
+      <h2>5. O que <strong>não</strong> é coletado</h2>
+      <p>Nunca, em nenhuma circunstância, e cada linha aqui é uma escolha de projeto, não um esquecimento:</p>
+      <ul><li><strong>seu nome, seu e-mail, seu telefone</strong> — não há onde digitá-los;</li><li><strong>seu IP.</strong> Todo pedido de internet carrega um endereço, porque sem ele a resposta não teria para onde voltar. Cada aviso que sai daqui manda, escrita no próprio pedido, a ordem de <strong>descartar o endereço em vez de guardá-lo</strong> — e, com isso, de não usá-lo para descobrir a sua cidade ou o seu bairro. O IP não é armazenado nem transformado em localização;</li><li><strong>nenhuma ficha sua.</strong> O aviso pede explicitamente que a ferramenta conte o evento e <strong>não abra perfil de pessoa</strong> — nem anônimo. Perfil anônimo continua sendo uma ficha que cresce;</li><li><strong>nenhum cookie.</strong> Não usamos a biblioteca da ferramenta de medição (que criaria um) e os pedidos são feitos com cookie desligado, de ida e de volta;</li><li><strong>nenhum rastreio automático de clique, rolagem ou toque; nenhum mapa de calor; nenhuma gravação de sessão;</strong></li><li><strong>nenhum anúncio, nenhuma medição de publicidade, nenhum pixel de rede social;</strong></li><li><strong>nenhum dado sensível</strong> (art. 5º, II da LGPD): não perguntamos e não inferimos origem, religião, opinião política, saúde, vida sexual ou filiação a nada;</li><li><strong>nenhuma venda, aluguel ou troca de dados.</strong> Não há a quem vender: não há nada que identifique ninguém.</li></ul>
+    </section>
+    <section class="bloco cartaoCampo" id="6-com-quem-esses-avisos-sao-compartilhad">
+      <h2>6. Com quem esses avisos são compartilhados, e onde ficam</h2>
+      <p>Duas empresas participam do funcionamento da plataforma, como <strong>operadoras</strong> (art. 5º, VII da LGPD) — elas processam em nome do controlador e não usam nada disto para fins próprios:</p>
+      <ul><li><strong>PostHog Inc. (Estados Unidos)</strong> — recebe e guarda os avisos de contagem descritos na seção 3. É a ferramenta que responde &quot;quantas pessoas voltaram no dia 3&quot;.</li><li><strong>Vercel Inc. (Estados Unidos)</strong> — hospeda as páginas. Como qualquer serviço de hospedagem, ela recebe o endereço de IP do seu pedido para conseguir entregar a página, e mantém registros técnicos de funcionamento por prazo definido por ela. Esse é o mínimo técnico de qualquer site na internet, e não alimenta a nossa contagem.</li></ul>
+      <p><strong>Isso é uma transferência internacional de dados</strong> (art. 33 da LGPD): os servidores das duas ficam fora do Brasil. O que viaja para a primeira é o que está na tabela da seção 3 — sem nome, sem e-mail, sem IP guardado e sem ficha de pessoa.</p>
+      <p>Fora dessas duas, os dados só seriam compartilhados por <strong>ordem judicial ou requisição legal</strong> válida — e, se isso acontecer, é bom saber o que existe para entregar: uma contagem sem nome, sem e-mail e sem IP.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="7-por-quanto-tempo">
+      <h2>7. Por quanto tempo</h2>
+      <ul><li><strong>No seu aparelho:</strong> enquanto você quiser. Some quando você apaga os dados do site.</li><li><strong>Na ferramenta de contagem:</strong> os avisos ficam guardados pelo prazo de retenção do plano contratado, e são apagados por lá quando ele vence. Como não há ficha de pessoa, o que resta são contagens agregadas.</li><li><strong>Nos registros de hospedagem:</strong> pelo prazo do provedor.</li></ul>
+      <p>Não há obrigação legal de guardar registro de acesso neste caso — o art. 15 do Marco Civil da Internet (Lei nº 12.965/2014) obriga a isso os provedores de aplicação constituídos como pessoa jurídica, que exerçam a atividade de forma organizada, profissional e com fins econômicos. Não é o caso aqui, e não guardamos.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="8-com-que-base-legal-fazemos-isso">
+      <h2>8. Com que base legal fazemos isso</h2>
+      <p>O tratamento descrito na seção 3 se apoia no <strong>legítimo interesse do controlador</strong> (art. 7º, IX da LGPD). Em português: é o interesse legítimo de quem faz uma plataforma educativa gratuita em saber se ela funciona — se as pessoas voltam, onde elas param, e o que quebra.</p>
+      <p>O art. 10 da LGPD exige que esse interesse passe por um teste, e é este:</p>
+      <ul><li><strong>Finalidade concreta e declarada:</strong> medir retenção e defeito. Nada além disso, e nada de publicidade, venda ou perfilamento.</li><li><strong>Necessidade e mínimo indispensável:</strong> cada campo da tabela da seção 3 responde a uma pergunta específica. Não coletamos IP, tela, idioma, fuso, navegador nem página de origem — itens que praticamente toda ferramenta de medição coleta por padrão e que aqui foram desligados de propósito.</li><li><strong>Expectativa razoável:</strong> um site que conta quantas visitas teve é o esperado. Um site que monta uma ficha sobre quem visita não é — e é justamente isso que não fazemos.</li><li><strong>Salvaguardas e transparência:</strong> esta política, a frase que aparece na própria tela de AJUSTES do jogo e no rodapé das páginas, e o interruptor que desliga tudo em um toque.</li></ul>
+      <p><strong>Você pode se opor.</strong> O art. 18, § 2º da LGPD garante o direito de se opor a tratamento feito com dispensa de consentimento. Aqui, exercer esse direito não exige e-mail nenhum: é o interruptor <strong>medição</strong>, na barra do topo de qualquer página e na tela de AJUSTES do jogo. Um toque, sem confirmação, sem pergunta, valendo para o site inteiro. Desligado, nenhum aviso é enviado — nem o de erro.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="9-criancas-e-adolescentes">
+      <h2>9. Crianças e adolescentes</h2>
+      <p>Esta plataforma foi feita para ser usada em escola e em casa, inclusive por crianças. Isso muda o que se pode fazer, e o art. 14 da LGPD é claro: o tratamento tem de ser <strong>no melhor interesse da criança e do adolescente</strong>.</p>
+      <p>O que isso significa aqui, de forma concreta:</p>
+      <ul><li><strong>Nada aqui pede ou aceita dado de identificação.</strong> Não há cadastro, não há login, não há campo de nome, não há foto, não há contato. Isso cumpre o art. 14, § 4º da LGPD, que proíbe condicionar a participação de crianças em jogos e aplicações ao fornecimento de dados além do estritamente necessário: aqui, o estritamente necessário é <strong>nenhum</strong>.</li><li><strong>Nenhum perfilamento, nenhuma publicidade.</strong> Não existe anúncio nesta plataforma, não existe publicidade dirigida e não existe construção de perfil de comportamento — nem para fins próprios, nem para terceiros.</li><li><strong>Nenhum dado sensível, nenhum contato entre usuários, nenhuma compra.</strong> Não há chat, não há mensagem, não há loja, não há caixa de recompensa, não há moeda paga.</li><li><strong>O que sai é contagem, não retrato.</strong> Os avisos da seção 3 dizem &quot;alguém chegou ao capítulo 4&quot; — não dizem quem, nem de onde, nem em que escola.</li><li><strong>Desligar é fácil, e vale para tudo.</strong> O interruptor está na barra do topo de toda página. Uma criança, uma mãe, um pai ou um professor desliga em um toque, sem criar conta e sem pedir permissão a ninguém.</li></ul>
+      <p><strong>Para pais, mães, responsáveis e professores.</strong> Se a turma ou a criança usa esta plataforma e você prefere que nada seja contado, desligue o interruptor <strong>medição</strong> no aparelho — vale para o site inteiro, jogo incluído. Se preferir escrever, o e-mail é <strong><a href="mailto:brasilpatinhas@gmail.com">brasilpatinhas@gmail.com</a></strong> e o pedido é atendido. Qualquer pedido feito por um responsável legal sobre o uso por uma criança tem prioridade sobre o interesse desta plataforma em medir qualquer coisa.</p>
+      <p><strong>Sobre a base legal, no caso de criança.</strong> A ANPD firmou, no Enunciado CD/ANPD nº 1, de 2023, que o tratamento de dados de crianças e adolescentes pode se apoiar em qualquer das hipóteses dos arts. 7º e 11 da LGPD, desde que o melhor interesse seja observado e prevaleça no caso concreto. É o que se aplica aqui, com a ressalva de que, em qualquer conflito entre medir e o melhor interesse de uma criança, o melhor interesse ganha — e o interruptor existe para que isso não dependa de ninguém pedir.</p>
+      <p>Esta seção foi escrita para ser entendida por quem a lei protege, e não só por adulto — como manda o art. 14, § 6º da LGPD. Se alguma parte dela ficou difícil, escreva e nós reescrevemos.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="10-os-seus-direitos">
+      <h2>10. Os seus direitos</h2>
+      <p>O art. 18 da LGPD te dá estes direitos, e eles valem aqui:</p>
+      <ul><li><strong>saber se existe algum dado seu</strong> e ter acesso a ele;</li><li><strong>corrigir</strong> dado incompleto, inexato ou desatualizado;</li><li><strong>anonimizar, bloquear ou eliminar</strong> dado desnecessário, excessivo ou tratado fora da lei;</li><li><strong>pedir a portabilidade</strong> a outro fornecedor;</li><li><strong>pedir a eliminação</strong> dos dados;</li><li><strong>saber com quem os dados foram compartilhados</strong> — a seção 6 já responde;</li><li><strong>se opor</strong> ao tratamento feito com dispensa de consentimento — o interruptor da seção 8;</li><li><strong>rever decisões automatizadas</strong> — não existe nenhuma aqui: a plataforma não decide nada sobre ninguém.</li></ul>
+      <p><strong>Como exercer:</strong> escreva para <strong><a href="mailto:brasilpatinhas@gmail.com">brasilpatinhas@gmail.com</a></strong>. A resposta sai em até 15 dias, e não custa nada (art. 18, § 5º e art. 19, II da LGPD).</p>
+      <p><strong>Uma limitação honesta, e ela é a favor da sua privacidade.</strong> Como não coletamos nada que identifique você, na maior parte dos casos <strong>não temos como localizar &quot;os seus dados&quot;</strong> — não existe uma ficha sua para consultar, corrigir ou apagar (art. 12 da LGPD). O que dá para fazer, e que resolve o problema na prática:</p>
+      <ol><li><strong>Apagar tudo o que é seu, na hora, sem pedir a ninguém:</strong> apague os dados do site no seu navegador. Isso apaga o progresso, o registro de rotina e o número sorteado. (O botão APAGAR MEU PROGRESSO, na tela de AJUSTES, zera a partida e o registro de rotina, mas mantém o número sorteado — para apagá-lo também, use o navegador.)</li><li><strong>Impedir que qualquer coisa nova saia:</strong> desligue o interruptor <strong>medição</strong>.</li><li><strong>Pedir a eliminação de avisos já enviados:</strong> se você souber o número sorteado do seu aparelho (ele fica no armazenamento local do navegador, na chave <code>jogo_brasil_anon</code>), mande esse número por e-mail e nós pedimos a eliminação dos avisos ligados a ele. Não precisamos de mais nada seu para isso — e não peça.</li></ol>
+      <p><strong>Reclamação.</strong> Se a resposta não te satisfizer, você pode reclamar à <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong> — gov.br/anpd —, como prevê o art. 18, § 1º da LGPD.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="11-seguranca">
+      <h2>11. Segurança</h2>
+      <p>Os avisos saem cifrados (HTTPS). A chave usada pelo navegador para enviá-los é uma chave <strong>publicável</strong>, que só permite mandar evento e nunca ler nada — e a publicação da plataforma falha automaticamente se alguém tentar trocá-la por uma chave de acesso completo. As páginas declaram uma política de conteúdo (<code>Content-Security-Policy</code>) que só permite ao navegador alcançar o próprio domínio e o endereço da contagem; qualquer outro destino é bloqueado pelo próprio navegador.</p>
+      <p>Se ocorrer um incidente de segurança com risco relevante, ele será comunicado à ANPD e às pessoas afetadas, na forma do art. 48 da LGPD — e, na prática, o comunicado será publicado nesta mesma página, porque não temos o e-mail de ninguém para avisar.</p>
+    </section>
+    <section class="bloco cartaoCampo" id="12-mudancas-nesta-politica">
+      <h2>12. Mudanças nesta política</h2>
+      <p>Esta página muda <strong>no mesmo dia</strong> em que mudar o que a plataforma coleta — nunca depois. É uma regra escrita do projeto: afirmação de privacidade que virou falsa é pior do que não ter nenhuma. A data no topo diz da última vez que isso aconteceu, e mudanças relevantes ficam anotadas abaixo.</p>
+      <p><strong>Histórico</strong></p>
+      <ul><li>4 de setembro de 2026 — primeira versão.</li></ul>
+      <p><em>Dúvida, pedido, reclamação ou correção: <strong><a href="mailto:brasilpatinhas@gmail.com">brasilpatinhas@gmail.com</a></strong>.</em></p>
+    </section>
+  </main>
+
+  <footer class="rod">
+    <p>Esta é a política de privacidade da plataforma <strong>BRASIL</strong>. O texto é gerado de
+      uma fonte só (<code>plataforma/privacidade-texto.md</code>), e cada afirmação dele foi
+      conferida contra o código que ela descreve.</p>
+    <p class="med">Esta página não conta nada: ela é a única da plataforma que não envia evento
+      nenhum. O interruptor da barra do topo vale para o resto do site e para o jogo.</p>
+  </footer>
+</div>
+<script>
+(function () {
+  // A MESMA chave do jogo e das cinco seções: uma pessoa, uma decisão, um site.
+  var K_MEDIR = "jogo_brasil_medir";
+  var ligado = true;
+  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }
+  var bt = document.getElementById("medirBt");
+  function pintar() {
+    if (!bt) return;
+    // Só o pedaço do ESTADO é reescrito: o rótulo "medição" fica, e é ele que diz do que
+    // este botão trata quando a barra está rolada e só ele aparece.
+    var est = bt.querySelector("[data-estado]");
+    if (est) est.textContent = ligado ? "ligada" : "desligada";
+    else bt.textContent = ligado ? "medição: ligada" : "medição: desligada";
+    bt.setAttribute("aria-pressed", ligado ? "true" : "false");
+    bt.setAttribute("aria-label", ligado ? "Medição ligada. Toque para desligar."
+      : "Medição desligada. Toque para ligar.");
+  }
+  if (bt) bt.addEventListener("click", function () {
+    ligado = !ligado;
+    try { localStorage.setItem(K_MEDIR, ligado ? "sim" : "nao"); } catch (e) {}
+    pintar();
+  });
+  pintar();
+})();
+</script>
+</body>
+</html>
