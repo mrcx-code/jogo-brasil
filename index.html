@@ -4563,7 +4563,7 @@ const EPOCAS = [
             "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5 — a Emenda Dante de Oliveira —, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
             "Em 25 de abril de 1984 ela foi a voto: 298 sim, 65 não, 3 abstenções. Faltaram 22 para o quórum, e a Câmara registrou o resultado como rejeição. A proposta nem chegou a ser apreciada pelo Senado.",
             "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra.",
-            "A pintura desta praça e o que atravessa a tela ainda são emprestados do capítulo anterior — a rua continua a rua, e a arte daqui não chegou. Os três contadores lá em cima são os mesmos de sempre."
+            "A pintura ainda é emprestada do capítulo anterior, e o que fica no chão vem de outro. Quem atravessa a tela já foi desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa. Os três contadores lá em cima são os mesmos de sempre."
         ],
         aberturaImg: ["cap10-comicio", "cap10-comicio", "cap10-depois", null, null],
         fecho: [
@@ -5364,8 +5364,11 @@ function chegouPelaEscola() {
     try {
         if (!location.search)
             return false;
-        const v = new URLSearchParams(location.search).get(ORIGEM_BUSCA);
-        return typeof v === "string" && v.trim().toLowerCase() === ORIGEM_ESCOLA;
+        for (const [k, v] of new URLSearchParams(location.search)) {
+            if (k.toLowerCase() === ORIGEM_BUSCA && v.trim().toLowerCase() === ORIGEM_ESCOLA)
+                return true;
+        }
+        return false;
     }
     catch (e) {
         return false;
