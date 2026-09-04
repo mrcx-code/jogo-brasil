@@ -13365,3 +13365,97 @@ continua alcancavel**, o que era o risco mecanico do item: a fala e o unico cami
 
 `npm test` **exit 0** (inclui `§2 vocabulary -> 322 authored lines checked | 0 hits`, o teto de 260
 caracteres e `salvador-drop-sem-ritual`) · `node test/encaixe.js` **exit 0**.
+
+### 2026-09-04 · dev-jogo · O ACEIRO: a gente fica, a coleta sai (`entrega/aceiro-fogo-vira-gente`)
+
+**O que estava em produção, e o §2 é explícito sobre isso.** A regra proíbe transformar pessoa em
+*"recurso, inimigo, obstáculo ou coisa a coletar"*. Em O ACEIRO quem atravessa a rua é gente —
+brigadista, apanhadora de sempre-vivas, vaqueiro, 24 quadros próprios em `GENTE_EP_B64.aceiro` — e
+alcançar essa gente disparava `soltarDrop()`/`coletarDrop()` como em qualquer outro capítulo: o que
+a pessoa carregava virava impacto e enchia os três contadores do topo.
+
+**Ninguém decidiu isso; veio de carona.** Em 18/08 `aceiro` entrou em `CAPS_VERBO` para ganhar o
+verbo ABAFAR. Com isso `pessoaNaRua()` passou a valer true, `mobFrame()` trocou o objeto pela folha
+de gente — e `concluirAlcance()` continuou chamando `soltarDrop()` sem perguntar de que capítulo se
+tratava. É a mesma CLASSE de erro que o `PENDENTES §19` já tinha nomeado: *"arte de gente e mecânica
+de gente são a MESMA decisão"*. Achado pela auditoria §2 dos treze capítulos (`PENDENTES 105`,
+achado 3, ALTA, **confirmado sem ressalva** na verificação adversarial de 04/09).
+
+**A decisão do dono, 04/09, tem duas metades e as duas foram executadas:** a **presença humana
+FICA** (era intencional, e a mão continua alcançando quem atravessa) e o **gesto de coletar SAI**.
+
+#### O corte, e por que ele mora onde mora
+
+Uma função nova, `capSemColeta()`, na família de `capConferir()`/`capPalavra()` — lê o `id` da época
+e nomeia **um** capítulo. A guarda é a primeira linha de `soltarDrop()`, e isso é escolha: é a
+**única boca por onde drop nasce**, então a corrente sem dedo (`passarPalavra()`) fica coberta pelo
+mesmo `if`, e um caminho novo amanhã também. Sem drop não nasce `coletarDrop()`, e sem `coletarDrop()`
+`S.energia` e `S.recursos` não têm por onde subir por ter alcançado alguém ali.
+
+**Não é mudança global, e a diferença é o item inteiro.** Nos outros capítulos de gente na rua o que
+fica no chão é a carga de trabalho que a pessoa trouxe, nomeada na abertura de cada um; ela continua
+caindo. Quem prova isso é o **controle negativo** do teste, não uma promessa.
+
+#### Medido, antes e depois, na MESMA execução
+
+O portão neutraliza a própria guarda (`window.capSemColeta`) para medir os dois estados na mesma
+carga — sem isso, "0 drops" não provaria nada, porque um capítulo em que ninguém é alcançado também
+dá 0. Três pessoas alcançadas por rodada, uma de cada tipo, andando:
+
+| rodada | drops | recursos | impacto do toque | impacto da coleta |
+|---|---|---|---|---|
+| O ACEIRO, guarda desligada (**antes**) | 3 | +3 | +3 | **+9** |
+| O ACEIRO, guarda ligada (**depois**) | **0** | **0** | +3 | **0** |
+| PALMARES, guarda ligada (**controle**) | 3 | +3 | +3 | +9 |
+
+A corrente, medida à parte: `passarPalavra()` atende **1** pessoa nos dois casos e deixa **1** drop
+sem a guarda e **0** com ela — a palavra continua passando sem o dedo, e não é porta dos fundos.
+
+**O que NÃO mudou, e é a outra metade da decisão:** as três pessoas continuam alcançáveis, viram
+portadoras (`sabe`), **não morrem, não se dissipam e continuam em quadro** (`dead false`, `dying 0`)
+— o teste cobra as três coisas por pessoa. E o toque continua rendendo `ganhoClique()` (+3 por
+rodada), que é a economia base do jogo em todo capítulo: sem ela O ACEIRO travaria, e a mudança
+seria outra, muito maior, que ninguém pediu.
+
+**Os comentários que a auditoria pegou mentindo foram reescritos**, e são dois: o do bloco ABAFAR
+(garantia de §2 que dizia que o que atravessa a tela ali não era pessoa — falso desde 18/08) e o do
+cabeçalho da época, onde *"fogo, nunca pessoa"* é sobre o **adversário** e já foi lido como se fosse
+sobre quem atravessa. A frase antiga **não é repetida** em lugar nenhum do `src/` de propósito: o
+portão reprova a volta dela por texto, e uma cópia num comentário o cegaria. Ela fica citada no
+`PENDENTES 105`, que é o lugar do registro.
+
+#### O portão
+
+`test/aceiro-sem-coleta.js`, novo, no `npm test` (e em `npm run aceiro`). Ele cobra quatro coisas
+juntas, e nenhuma sozinha bastaria: **(1)** o antes/depois acima, na mesma execução; **(2)** o
+controle negativo de PALMARES — é o que separa "consertei O ACEIRO" de "quebrei a coleta do jogo
+inteiro"; **(3)** a pessoa continua na rua, porque tirar a coleta tirando a gente passaria em (1) e
+seria o erro oposto; **(4)** a corrente. Mais a forma do corte lida na fonte: a guarda é a primeira
+linha de `soltarDrop()`, `capSemColeta()` nomeia **um** id, e `aceiro` continua em `CAPS_VERBO`.
+
+**Duas armadilhas de instrumento, pagas nesta sessão e escritas no arquivo do teste:**
+- a folha de gente de O ACEIRO viaja em `pack-naodito.json` e o jogo só a busca quando a pessoa
+  **chega** no capítulo; pôr `S.cenario` na mão não dispara nada. Sem `garantirEpoca()` + espera, o
+  print mostrava o objeto do capítulo 1 no lugar da brigadista — medição da rua errada, sem erro;
+- a primeira versão do print dormia 2,6 s depois do toque, e nesse tempo a personagem **andava por
+  cima do que tinha caído e recolhia**: o print "antes" mostrava chão limpo e o teste reprovava o
+  código certo. Agora ele espera a **coisa certa** (`m.sabe`), como o `abrirMenuParado` do encaixe.
+
+**Prints:** `test/ACEIRO-COLETA-{ANTES,DEPOIS}-{1-antes,2-depois}-do-toque.png`. Olhados lado a
+lado: no ANTES sobe um `+3`, estoura o brilho da coleta e o contador de água vai a **1**; no DEPOIS
+os três contadores ficam em **0**, não há float nem brilho, e a brigadista está ali, ao lado dela,
+andando.
+
+#### Os portões
+
+`npm test` **exit 0** (inclui o `aceiro-sem-coleta` novo) · `node test/encaixe.js` **exit 0**
+(410 asserções, nenhum erro de console).
+
+#### A dúvida que sai daqui, e ela é do dono
+
+O padrão "pessoa alcançada deixa no chão o que trazia, e a mão recolhe" **não é de O ACEIRO** — ele
+é de TODOS os onze capítulos em que quem atravessa a rua é gente (`CAP_FILA` + `CAPS_VERBO`). O que
+o dono decidiu em 04/09 foi tirá-lo de UM. Nos outros a abertura nomeia a carga e a leitura é de
+trabalho e reciprocidade, não de coleta de pessoa — mas isso é leitura, e representação decide-se
+com ele. **Não mexi em mais nenhum**, e registro a pergunta em vez de responder sozinho.
+
