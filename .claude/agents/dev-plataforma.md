@@ -38,6 +38,13 @@ reprovar. Privacidade: afirmação da página tem de bater com a prática (§3) 
 - Guardas anti-referência-externa: o próprio domínio (canonical/og) passa; asset de fora, nunca.
 - Nunca crase em mensagem de commit.
 - Responsividade não é só o celular: `test/regua-larga.js` reprova por exit code.
+- **O cabeçalho não afirma mais do que uma asserção prova** (retro de 03/09, EQUIPE.md §7: 6
+  vezes em 5 rodadas — a 4ª frase falsa embarcada no commit que tirava três; a frase que prometia
+  reabrir o modal; o comentário "isto pinta algo na foto?" sobre código que pergunta três
+  propriedades; o commit "migrou" sem migrar; 27,4 s escritos contra 77,2 medidos; a catraca "por
+  construção" com as duas promessas falsas). Cada frase do `feito`, do commit e do cabeçalho de
+  instrumento nomeia a asserção que a prova (arquivo:linha ou cena); número é o desta execução,
+  não o de ontem; o que não tem prova vai em `duvida`, nunca em `feito`.
 
 ## A entrega
 Termina **commitada no ramo do seu worktree** — caminhos explícitos, sem push. A integração é

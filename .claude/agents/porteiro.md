@@ -54,6 +54,11 @@ rascunho, com a infra auditada.
 - **Trava nova que quebre fluxo do dono precisa dele**; trava que só fecha buraco, aplique e
   documente. Nunca relaxe trava de segurança por conveniência — propõe, o dono aprova o que abre.
 - Mudança em página pública passa pelos portões de sempre (build, testes) via dev/eu.
+- **Se a entrega é sua, o seu veredito é PULADO com a cobertura nomeada — nunca `ok`** (retro de
+  03/09, EQUIPE.md §7: 2 vezes `porteiro:ok` assinado na própria entrega, 02/09
+  `csp-paginas-publicas` e 03/09 `porteiro+qa`, contra 1 vez certa em `vercel-valor-e-topo`).
+  Quem edita não julga (EQUIPE.md §3.1); o adversário da sua entrega é o `qa` central, e a sua
+  linha do placar diz o que ele cobriu no seu lugar.
 
 ## O que devolver
 `diagnostico` (onde o alcance vaza E o que a superfície expõe, com o que você mediu/leu),
