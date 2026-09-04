@@ -12527,11 +12527,14 @@ com poste, tábuas e proposta, e respiro ≥ 8 px dos dois lados.
 **Inércia:** `dw`/`dh`/`dy` batem com a conta ANTIGA com erro de **0,000 px** nas oito telas
 medidas, e o laço de repetição roda **zero** voltas fora da home em retrato.
 
-**Custo:** FPS em A/B/A′ com ordem alternada e pose variando — **+0,6 / +0,8 / +1,8 FPS** de custo
-contra **+1,6 / +0,5 / +1,0** de ruído do próprio instrumento; o custo está dentro do ruído nas
-três telas. O passe cronometrado direto (400 chamadas de `rolarFundo()` por lado) dá **+0,010 ms** e
-**+0,007 ms** por quadro, que a 60 Hz são **0,06%** e **0,04%** do orçamento. Onde a linha não sobe,
-**−0,005 ms** — ruído, e o controle negativo certo.
+**Custo:** o bloco de FPS em A/B/A′ (ordem alternada, pose variando) **não tem poder de resolução
+para separar sinal de ruído** neste headless sem GPU — achado do QA, confirmado numa remedição:
+o sinal saiu invertido de uma rodada para a outra, ambas dentro do mesmo ruído do instrumento.
+**A conclusão continua de pé, mas apoiada no outro instrumento:** o passe cronometrado direto
+(400 chamadas de `rolarFundo()` por lado, determinístico, sem depender do escalonador de
+quadros) põe o custo em **≤ 0,10%** do orçamento de um quadro a 60 Hz — **+0,010 ms** em 412×915
+e **+0,007 ms** em 390×844 (0,06% e 0,04%). Onde a linha não sobe, **−0,005 ms** — ruído, e o
+controle negativo certo.
 
 **De brinde, nitidez:** a pintura na home em retrato encolhe para 0,624–0,641× a publicada, o que
 derruba a ampliação de ~1,69× para ~1,08× — o §6 do CLAUDE.md avisa que a pintura é desenhada

@@ -4308,10 +4308,14 @@ const CHAO_FRAC_MIN = 0.34;          // trava de sanidade: a pintura não sobe m
 // faixa de baixo saiu do `Math.max` de `redesenharFundo()` e as três objeções do veto caíram —
 // medido nesta rodada, no MESMO instrumento (`test/medir-caminho-do-ceu.js`):
 //
-//   · a pintura passa a ser **0,781×** a publicada em 412×915 e 430×932, contra os **1,638×**
-//     do caminho vetado. Ela ENCOLHE onde encolher significa mostrar MAIS céu, não menos;
-//   · o céu que sai de quadro cai de 513 para 502 px de dispositivo no Pixel — ou seja o alto
-//     do enquadramento fica onde estava, e o mar e as montanhas continuam lá;
+//   · a pintura passa a ser **0,624×** a publicada em 412×915 e **0,640×** em 430×932, contra
+//     **1,699×** e **1,683×** do caminho vetado (número final, depois de tirar `ch/ih` do
+//     `Math.max` — ver o comentário de `redesenharFundo`; a primeira versão desta medida,
+//     0,781×, era do `scale` com `ch/ih` ainda dentro, e o print reprovou aquela). Ela ENCOLHE
+//     onde encolher significa mostrar MAIS céu, não menos;
+//   · da peça de CÉU que fica em quadro sobe de 70,8% (publicado) para **76,2%** no Pixel e
+//     **75,1%** no iPhone Max — o alto do enquadramento não só fica onde estava, fica com MAIS
+//     céu do que a home publicada tem hoje;
 //   · e as SEIS telas de retrato passaram a ter a MESMA composição, que era o argumento que
 //     fechava o veto ("duas homes por altura de aparelho na porta de entrada"). Faltavam 21 px
 //     de faixa em 390×844 e eles foram comprados na composição (37 px: 19 de respiro do topo e
