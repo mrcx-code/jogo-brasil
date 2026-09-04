@@ -12486,3 +12486,59 @@ para o HUD de partida, 165,8 KB.
 0 recusadas** · 7 afirmações derrubadas (**4 minhas**, 1 herdada, 2 de agentes contra si mesmos) · 4
 itens novos abertos, 1 item morto refutado, 1 item integrado que **voltou a livre por não ter
 cumprido o aceite**.
+
+---
+
+## Diário — 04/09, madrugada · plantão `nuvem-20260904T0422`
+
+### Os três ramos `entrega/` "órfãos" eram zero — e a causa NÃO é mais o clone raso
+
+O `PLANTAO.md` §7 manda, antes de devolver item a `livre`, procurar `entrega/<id>` no servidor:
+*"se houver, o trabalho da rodada é auditar e integrar, não recomeçar"*. Segui a regra. Ela
+produziu trabalho fabricado, e é a segunda rodada seguida em que produz.
+
+Rodei `ferramentas/ramos-mortos.js` com o clone **aprofundado** (medido: **713 commits**, contra
+os 186 de 03/09 — então a explicação de 03/09, que era o clone raso, **não se aplica aqui**).
+Veredito da ferramenta: 55 refs consumidos, **3 ÓRFÃOS de pé**. Conferidos por conteúdo, um a um:
+
+| ramo | veredito | o que a `main` já tem |
+|---|---|---|
+| `entrega/canonical-jogo` | ÓRFÃO | `test/encaixe.js` da main: **8 ocorrências** de `canonical` |
+| `entrega/glossario-substancia` | ÓRFÃO | os três verbetes (ECONOMIA DO OURO **6×**, CRITÉRIO BRASIL **4×**, A CONTA DA ESCRAVIDÃO **6×**) já em `src/jogo.ts`, entrados pelas rev2/rev3 |
+| `entrega/dashboard-trio` | ÓRFÃO | as três metades entraram por `bccbf16` e `532a9e7`; `git log -S'guardarPerdida'` acha as duas |
+
+**Órfãos de verdade: ZERO.** E a `main` não está só em dia com o `dashboard-trio` — está
+**adiante** dele: 38 ocorrências de `RECUSA` contra 36 do ramo, 7 de `desfecho` contra 5, e o
+merge sai com **2 conflitos em 26 hunks**. Integrar o "órfão" seria regredir o dashboard.
+
+### O que caiu, e era meu
+
+Entrei na rodada acreditando na regra como escrita — *"`entrega/` é resultado"* — e ela é
+**meia verdade**. `entrega/` diz que alguém terminou; **não diz se o que ele terminou já chegou
+por outra rota**. A pergunta que interessa nunca foi de ancestralidade, e é por isso que
+aprofundar o clone (o conserto de 03/09) não fechou o buraco: agora a ferramenta enxerga a
+história inteira e **mesmo assim** responde a pergunta errada, com a palavra mais cara possível.
+"ÓRFÃO" lê-se como *trabalho perdido*, e trabalho perdido é a única coisa que faz uma rodada
+largar a fila para ir atrás de um ramo.
+
+O desfecho `DESCONHECIDO` acrescentado em 03/09 tentou o mesmo remendo um degrau atrás — *"não
+sei é um desfecho e tem de aparecer com esse nome"*. A lição se repete um degrau adiante:
+**ferramenta que responde sobre o repositório tem de responder a pergunta que a decisão faz,
+não a que ela sabe calcular.**
+
+Virou item: `ramos-mortos-orfao-por-conteudo` (esteira, aceite escrito, mordida exigida nos dois
+sentidos). Custo evitado, se ele for feito: três auditorias de ramo consumido por rodada.
+
+### Higiene da máquina, medida antes de qualquer portão
+
+- Clone da nuvem nasceu **raso** e com `main` local **atrasada**: `git merge-base` saía exit 1 e
+  o `git status` anunciava *"ahead 161, behind 131"* — divergência que **não existe**. É artefato
+  do enxerto raso. `git fetch --deepen` + `merge-base --is-ancestor` provaram que era
+  fast-forward puro; `reset --hard origin/main` resolveu.
+- `node_modules` incompleto, como o `PLANTAO.md` §4 avisa. `npm install` antes do primeiro funil;
+  `node_modules/typescript/bin/tsc` conferido no disco depois.
+- Nenhum marcador `voo/` criado (PLANTÃO §0). Contagem no servidor na entrada: **29** `voo/`,
+  **39** `entrega/`.
+- Sem issue com etiqueta `agente` — rodada agendada, trabalho puxado da fila.
+
+**Nome de máquina desta rodada: `nuvem-20260904T0422`.**

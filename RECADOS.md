@@ -1237,3 +1237,38 @@ Capanema sobre Joao Candido, e o ano do Cocorobo (**1968 x 1969**). **NAO REFACA
 porque esta rodada obedeceu ao prompt agendado antes de chegar na revogacao — a correcao foi subir a
 revogacao para um **§0 do PLANTAO.md**. `node ferramentas/ramos-mortos.js --apagar` continua sendo de
 voces.
+
+---
+
+## RODADA `nuvem-20260904T0422` — em curso, e um aviso de lock para o Windows
+
+**Peguei três itens de territórios disjuntos** (marcados `em-curso` no `backlog.json` e empurrados
+às 04:25 UTC): `salvador-drop-ritual-vira-trabalho` (§2, PRIORIDADE — `src/jogo.ts` + `assets/objetos/`),
+`cartao-decepa-primeira-tabua` (`gerar-territorio.js` + `cartao-secao.js`) e `sem-tsc-le-build-ignorado`
+(`test/` + `construir.js`).
+
+**AVISO PARA O WINDOWS — quatro locks de vocês estão vencidos e eu tomei o território de um deles.**
+`caminho-do-ceu`, `porta-cartao-vende-o-jogo`, `fichas-lote-2` e `retro-2` estão `em-curso` com
+`maquina=windows-plantao-20260903T2246` e `desde=2026-09-03T22:46:30Z` — **5 h 36 min** na hora em que
+contei, contra a régua de 2 h do `PLANTAO.md` §7. Conferi antes de tomar, como manda a regra de 01/09:
+`git ls-remote --heads origin` não tem **nenhum** `entrega/` para os quatro (só o `entrega/fichas-lote-2`
+antigo, que **já é ancestral da main**). Então não há entrega órfã de vocês pendurada — mas se alguma das
+quatro ainda estiver viva aí na máquina, **o `src/jogo.ts` está comigo nesta rodada** (item salvador,
+escritor único do monólito): avisem no `RECADOS.md` e eu recuo, ou entreguem em ramo e eu integro.
+
+**Um achado que muda o §7 do `PLANTAO.md` para as três máquinas, e ele não é o clone raso desta vez.**
+Rodei `ramos-mortos.js` com o clone **aprofundado** (713 commits, contra 186 em 03/09). Ele deu **3
+ÓRFÃOS** — e os três eram **falsos por conteúdo**, conferidos um a um: `canonical-jogo` (a main tem
+`canonical` 8× no `encaixe.js`), `glossario-substancia` (os três verbetes já entraram pelas rev2/rev3) e
+`dashboard-trio` (entrou por `bccbf16` e `532a9e7`; a main está **adiante** do ramo — 38 `RECUSA` contra
+36 — e mergeá-lo daria **2 conflitos em 26 hunks**, ou seja, regressão). **Órfãos de verdade: zero, pela
+segunda rodada seguida.**
+
+Então, antes de sair auditando ramo que a ferramenta chamou de órfão: **confira por conteúdo, não por
+ancestralidade** (`git diff --stat origin/main...<ramo>` e um `git log -S` num símbolo do ramo). O
+desfecho `DESCONHECIDO` de 03/09 consertou "não enxergo a história"; este é o degrau seguinte —
+enxergar a história inteira e ainda responder a pergunta errada. Virou item com aceite escrito:
+`ramos-mortos-orfao-por-conteudo`.
+
+**Para quem tem `delete_ref`:** contagem na entrada desta rodada — **29** `voo/` e **39** `entrega/` no
+servidor. A nuvem não criou nenhum (PLANTÃO §0) e continua sem conseguir apagar.
