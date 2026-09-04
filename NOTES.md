@@ -13074,3 +13074,93 @@ caminho da pessoa (`avancarFala()`, que é o que o toque chama): seis linhas na 
 (`scrollHeight` 197 = `clientHeight` 197), com o mesmo padrão da fala de 255 caracteres que já
 cabia. As duas sondas são descartáveis (`test/tmp-*`, no `.gitignore`) e a tabela acima é o que
 elas devolveram.
+
+### 04/09 — SALVADOR: o objeto de culto sai da mão, e a fala não emudece
+
+**A violação estava em produção.** `CLAUDE.md` §2.4 item 5: *"objeto ritual não é colecionável —
+entra como fala, nunca como drop"*. Em SALVADOR os três drops eram **acarajé, pano da costa e
+búzios**, recolhidos do chão pela mão do jogador. O dono decidiu em 03/09: **TROCA**. Entrou pelo
+funil `entrega/salvador-fala-abertura`, em duas metades e com dois autores.
+
+**Metade A — o drop.** Os três passam a ser **tabuleiro, balde d'água e trouxa de roupa**. O bloco
+`DROP_B64` foi **regerado** pela ferramenta, nunca editado à mão. `concluirAlcance()`,
+`soltarDrop()`, `coletarDrop()`, `RECURSO_DE` e `DROP_IDX`: intocados — o QA mediu no jogo vivo e
+confirmou que a economia é **idêntica** à do capítulo 1 (mão 3/3/3, U2 6/6/6, automático 1,5/1,5/1,5).
+`pack-salvador.json` **527.146 → 513.238 B (−2,64%)**; os outros dez pacotes intocados.
+
+**Metade B — a fala que a troca tornou falsa.** `EPOCAS[3].abertura[4]` dizia *"No chão ficam
+acarajé, pano da costa e búzios"* — com a troca feita, o jogo **diria "acarajé" e desenharia um
+tabuleiro**. A frase agora **troca de papel em vez de trocar de assunto**: *"…o trabalho da rua, e é
+ele que fica no chão, nos mesmos três contadores de sempre. Acarajé, pano da costa e búzios ficam
+fora do chão: o que é de santo se conta, não se recolhe."*
+
+### O achado que salvou a entrega do erro OPOSTO
+
+A redação proposta no `PENDENTES 107` **apagava os três nomes**. A historiadora a recusou com
+medição, e o QA reproduziu com instrumento próprio: `capPalavrasCalcular()` monta a porta
+**AS PALAVRAS DAQUI** casando `abertura + fecho + querer` contra o título de cada verbete, e os três
+**só casam por esta frase**.
+
+| redação | verbetes que SALVADOR oferece |
+|---|---|
+| com os nomes | **7** — PANO DA COSTA · GANHADEIRA · ALFORRIA · ACARAJÉ · DEGREDO · BÚZIOS · MALÊ |
+| sem os nomes | **4** — perde exatamente PANO DA COSTA, ACARAJÉ e BÚZIOS |
+| restaurada | **7**, os mesmos |
+
+O §2.4.5 tira da **mão** e **não cala**. Apagar os nomes teria consertado a violação criando a
+oposta — e o QA precisou a consequência: sem os nomes, PANO DA COSTA e ACARAJÉ continuam a um
+clique por GANHADEIRA, mas **BÚZIOS sai da navegação do capítulo por completo**.
+
+### O que a auditoria adversarial CONFIRMOU, e o que DESMENTIU
+
+Confirmadas com exit code real: índice 2 é só salvador · economia intocada · o aparo da arte
+reproduzido **bit a bit** (20×9 · 7×9 · 11×9, erro 0,933 · 0,476 · 1,249 de 255 contra a régua de
+2,6, e os arquivos saíram com **os bytes exatos** dos commitados) · o portão novo morde **no
+conjunto** (`npm test` inteiro com o ritual de volta: **exit 1, 12 falhas**, 6 na fonte e 6 no
+pacote, distância 0,0) · ruído do instrumento **zero** (duas rodadas byte a byte iguais) · varredura
+própria de **518 imagens + 11 pacotes**: nenhum objeto de culto sobrou recolhível em caminho nenhum.
+
+**Desmentido:** a mensagem de `780ddda` cita `index.html` = 2.504.791 B; o arquivo mede
+**2.518.457**. A identidade byte a byte é verdadeira, o número citado não.
+
+### As duas ressalvas com que ela entrou, e por que entrou assim
+
+**A — a metade que FALA não tem portão.** Silenciar os três nomes passa `npm test` **e**
+`encaixe.js` com **exit 0**. O portão novo confere que a string `t: "BÚZIOS"` existe na fonte, não
+que a porta do capítulo chega nela. E o buraco é de classe: **nada liga a fala ao drop** — se o drop
+trocar de novo, a fala volta a mentir e nenhum portão acusa. Foi literalmente o que aconteceu nesta
+rodada; só não foi ao ar porque as duas metades entraram no mesmo funil. Remendo pronto e visto
+reprovando: `test/qa-salvador-vivo.js`.
+
+**B — a promessa que o portão não cumpre.** O cabeçalho diz que "mover búzios para outro capítulo é
+a mesma violação com outro endereço". **Búzios espelhado** em `DROP_B64[3]` — o bloco que **dez
+capítulos** vestem — passa a suíte inteira com **exit 0**. E a folga do limiar 12 não é a alegada:
+a janela real é **9,1 < 12 < 29,9** (1,3× de um lado, 2,4× do outro); os 33,4 escritos eram a
+distância do par pano-da-costa/tabuleiro-novo, **não** a folga.
+
+**Por que integrei mesmo assim, e a razão fica escrita:** o estado anterior é violação inequívoca do
+§2.4.5, já reconhecida pelo dono. As duas ressalvas são sobre **cobertura de portão**, não sobre a
+entrega. Segurar deixaria o pior estado no ar. As duas viraram item com o instrumento já commitado.
+
+### O que vai para o dono, e é §2
+
+O QA levantou, ao auditar a entrega que ele mesmo aprovou: a arte nova do **tabuleiro é uma bandeja
+coberta por pano listrado com franja**, e a **trouxa é do mesmo tecido** — o mesmo motivo têxtil do
+"pano da costa" que acabou de sair, e o mesmo que a ganhadeira usa na cintura no sprite de gente.
+A medida que sustenta a pergunta: entre as **518 imagens do jogo**, a mais parecida com o pano da
+costa é **justamente o tabuleiro novo (33,4)**. Nas palavras dele: *"a pergunta é se a troca tirou o
+culto da mão ou tirou o nome dele"*. Não bloqueia — mas §2 é dele.
+
+Segundo item de texto, menor: a oração final põe os três sob *"o que é de santo"*. Para búzios e
+pano da costa isso bate com os verbetes e as fontes; para o **acarajé** achata a dupla natureza que
+o próprio verbete preserva (*"Trabalho e fé na mesma bandeja"*) — e é o acarajé que a ganhadeira
+**vende** neste mesmo capítulo.
+
+### A lição da rodada, e ela é sobre mim
+
+Duas vezes hoje eu li **honestidade** como **cobertura**. Na entrega do `ramos-mortos` eu li 23
+checagens como rigor quando era volume. Aqui eu avisei o QA do meu viés por escrito — *"esta entrega
+conserta uma violação do §2 que está em produção agora, e eu quero que ela entre; querer que entre é
+exatamente o estado em que se aceita prova fraca"* — e foi esse aviso que rendeu as duas ressalvas.
+**Um agente que se desmente está sendo honesto, não está sendo abrangente.** As duas coisas se
+parecem e não são a mesma.
