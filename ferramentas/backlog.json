@@ -1473,7 +1473,7 @@
         "src/jogo.ts"
       ],
       "aceite": "Ler as tres aberturas caso a caso, como a historiadora fez nas cinco: separar o que continua verdadeiro do que ficou falso, e reescrever so a metade falsa. NAO aplicar a forma pronta das cinco -- foi medido nesta rodada que a generalizacao produz a mentira que se gaba.",
-      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI."
+      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI. ACRESCENTADO pelo QA na mesma rodada (achado G3), e ele muda a leitura: A PRACA e o SEXTO da familia, mas e MENOS falsa que os cinco, nao mais. GENTE_EP_B64.praca tem 24 quadros autorais -- so que 21 com tinta, porque 3 estao vazios (ver item quadros-de-gente-vazios-na-fonte). Entao a arte daqui nao chegou nao e verdade, mas ja chegou inteira tambem nao e. Quem pegar este item le os dois juntos, senao escreve a terceira frase falsa da serie."
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
@@ -1573,6 +1573,69 @@
       ],
       "aceite": "O guarda passa a decidir pelo EFEITO e nao pela ocorrencia da string: comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado; escrita de verdade continua recusada. Mordida provada nos dois sentidos por injecao, e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade.",
       "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava."
+    },
+    {
+      "id": "quadros-de-gente-vazios-na-fonte",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "medio",
+      "titulo": "SEIS quadros de gente estao VAZIOS na fonte e o jogo poe objeto no lugar da pessoa no meio da rua -- em A PRACA, 3 de 24",
+      "territorio": [
+        "src/jogo.ts",
+        "test/"
+      ],
+      "aceite": "Duas coisas, e a segunda importa mais que a primeira. (1) Preencher ou remover os 6 quadros vazios, para o jogo parar de mostrar barril/saco onde devia haver pedestre. (2) Um portao que CONTE quadro que chega: nenhum instrumento hoje conta, e foi por isso que seis passaram. A regua ja existe e e do proprio jogo -- esperando(im) trata naturalWidth <= 1 como pixel de espera; o portao tem de usar a MESMA regua, senao ele aceita o GIF 1x1 que o build carimba e anuncia pacote chegou sobre quadro em branco.",
+      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada."
+    },
+    {
+      "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O bloco 5 do encaixe.js compara a fala com um modelo de motor que deixou de existir em 16/08 -- e por isso aprova fala que promete verbo que o capitulo nao tem",
+      "territorio": [
+        "test/encaixe.js",
+        "src/jogo.ts"
+      ],
+      "aceite": "O bloco 5 passa a derivar o motor do CODIGO e nao de uma constante congelada: temAcolher tem de sair de capFila() e temPalavra de CAPS_VERBO, e nao de i === CAP_GENTE / i === CAP_PALAVRA. Mordida provada por injecao, e o caso ja esta escrito: a fala injetada em O ACEIRO (que esta em CAPS_VERBO e NAO tem fila) prometendo a fila tem de sair exit 1 -- hoje sai 0 nos dois portoes. E o comentario obsoleto de src/jogo.ts:1467 (gente e so PALMARES, e la que existe fila) sai junto, porque e a mesma afirmacao congelada em outro lugar.",
+      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado."
+    },
+    {
+      "id": "qa-fala-salvador-caixa-amigo-falso",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
+      "territorio": [
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
+      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao."
+    },
+    {
+      "id": "caixa-da-fala-so-medida-em-salvador",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O teto de 260 caracteres e contagem na FONTE, e a caixa DE VERDADE so e medida por um instrumento que existe so para SALVADOR",
+      "territorio": [
+        "test/"
+      ],
+      "aceite": "A medicao de caixa (a que abre o jogo e conta linha em 320x568, 360x640 e 390x844) passa a valer para toda fala de abertura e fecho, nao so a de SALVADOR. Mordida provada: uma fala fabricada que caiba em 260 caracteres e mesmo assim transborde a 320x568 tem de sair exit 1.",
+      "detalhe": "Achado G5 do QA em 04/09 (nuvem-20260904T1623). A fala nova de SALVADOR ficou com 258 caracteres contra o teto de 260 -- DOIS de folga -- e o teto conta caracteres na fonte, que nao e a mesma coisa que caber na tela. Medido por ele nesta rodada, so para SALVADOR: 6 linhas a 390x844 e 360x640, 7 linhas a 320x568, base 550 <= 568, nao rola em nenhuma. Nenhuma outra fala do jogo tem essa medicao. O CLAUDE.md manda mobile primeiro, e 320x568 e o pior caso real."
+    },
+    {
+      "id": "nada-cruza-a-fala-com-o-pedido-de-arte",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "Cinco falas agora AFIRMAM propriedade de arte, e nada cruza o que a fala afirma com o que o pedido de arte e o empacotador dizem",
+      "territorio": [
+        "test/",
+        "ferramentas/pacotes.js"
+      ],
+      "aceite": "Um portao que cruze a afirmacao da fala com a verdade de ferramentas/necessario.json + ferramentas/pacotes.js, para os capitulos que afirmam. Mordida provada: virar um capitulo para pintura emprestada sem mexer na fala tem de sair exit 1. A sonda do QA (test/qa-falas-arte-vivo.js, commit 9f93dcf no worktree dele) ja cobre os cinco e e o ponto de partida: NAO reescreva, componha.",
+      "detalhe": "Achado G7 do QA em 04/09 (nuvem-20260904T1623). A entrega desta rodada trocou cinco falas que diziam a arte e emprestada por cinco que dizem a arte ja e propria. A segunda forma e MAIS falsificavel que a primeira: ela envelhece no dia em que alguem trocar uma pintura, e nenhum portao acusa. E a verdade mora em dois arquivos que hoje so se leem a mao. E exatamente a doenca que o item salvador-fala-sem-portao abriu noutro endereco: a metade que FALA nao tem portao."
     }
   ]
 }
