@@ -1350,7 +1350,7 @@
     },
     {
       "id": "ramos-mortos-apagar-sem-trava",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar nao recusa apagar ramo de item em-curso nem o ramo do proprio HEAD",
@@ -1359,7 +1359,9 @@
         "test/ramos-mortos-veredito.js"
       ],
       "aceite": "O --apagar recusa (exit != 0, mensagem nomeando o ramo) quando o entrega/<id> casa com item de estado em-curso no backlog.json, e quando o ramo e o do HEAD atual. Mordida provada por injecao nos dois casos. A rede de seguranca deixa de ser \"confira a lista acima antes de colar\".",
-      "detalhe": "Achado pelo QA em 04/09 no gap-check da entrega ramos-mortos-conteudo. Vale para a versao da MAIN tambem, nao so para a entrega recusada: hoje o --apagar cospe os comandos de apagar sem nenhuma trava, e a unica protecao e a pessoa ler a lista. Como quem tem delete_ref e o Mac e o Windows (a nuvem sai 403), quem cola e justamente quem nao acompanhou a rodada que criou o ramo."
+      "detalhe": "Achado pelo QA em 04/09 no gap-check da entrega ramos-mortos-conteudo. Vale para a versao da MAIN tambem, nao so para a entrega recusada: hoje o --apagar cospe os comandos de apagar sem nenhuma trava, e a unica protecao e a pessoa ler a lista. Como quem tem delete_ref e o Mac e o Windows (a nuvem sai 403), quem cola e justamente quem nao acompanhou a rodada que criou o ramo.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T16:50:03.701Z"
     },
     {
       "id": "ramos-mortos-fora-do-ci",
