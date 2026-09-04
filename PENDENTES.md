@@ -4071,3 +4071,39 @@ quebrando §2. Ficam registrados aqui, não viraram item de backlog individual p
 de baixo risco; o relatório completo com trecho, local e justificativa de cada um está no journal do
 workflow: `wf_c36b3335-bf1` (a auditoria original, capítulos que fecharam de primeira, está em
 `wf_2ac10252-4f7`). Quem for revisar texto histórico por outro motivo deveria ler este bloco antes.
+
+---
+
+## 106 — `encaixe.js` reprovou o retro-2 (docs puro) por instrumento, não por defeito — e o `push` correu na frente do funil — plantao (04/09)
+
+**O erro, com todas as letras: eu li `git log` e empurrei pro `origin/main` ENQUANTO o funil ainda
+rodava em segundo plano**, antes dele terminar de rodar `test/encaixe.js`. O funil reprovou depois
+("INTEGRAR RECUSOU: encaixe vermelho — merge DESFEITO") e desfez o merge NA ÁRVORE LOCAL, mas o
+commit já tinha ido pro servidor. Por um tempo, `origin/main` teve um commit que a própria máquina
+que o gerou tinha rejeitado.
+
+**A investigação, e o que ela realmente achou:** a entrega do retro-2 (`worktree-agent-a28212480b4eedcf6`)
+toca só 5 arquivos, todos `.md` (`EQUIPE.md` + 4 prompts de agente) — zero código, zero conteúdo de
+jogo. `test/encaixe.js` testa mecânica (retenção, capítulos, notas de história) e não tem como ler
+prompt de agente. Rodei o mesmo `encaixe.js` de três jeitos: (1) na árvore principal, sem o retro-2
+— PASSOU; (2) num worktree separado (`/tmp/verificar-origin`), com o retro-2 — FALHOU, duas vezes,
+com contagens de asserção DIFERENTES entre as duas (1 e depois 2); (3) revertido o retro-2 nesse
+MESMO worktree separado, árvore byte a byte igual à (1) — **FALHOU DE NOVO**, com a mesma dupla
+contagem. **Isso prova que o defeito não estava no conteúdo — estava no worktree** (`/tmp/verificar-origin`,
+provavelmente contenção de recurso: várias outras sessões de agente rodando Chromium em paralelo
+nesta máquina no mesmo instante). Confirmação final: mesclei o retro-2 de volta na árvore principal
+e rodei `node test/encaixe.js` sozinho — **PASSOU, exit 0**, junto com `npm test` inteiro.
+
+**O conserto:** nenhum código mudou. Mesclei `origin/main` (que já tinha o retro-2, correto) com o
+`main` local (que tinha o cartão da porta), sem conflito, `npm test` e `encaixe.js` verdes, e
+empurrei — commit `7769b50`. Nada foi perdido, nada ficou quebrado no ar além do intervalo entre o
+push precoce e este commit (poucos minutos).
+
+**A lição, e ela é sobre PROCESSO, não sobre este achado:** nunca ler `git log`/checar estado e
+empurrar enquanto um `integrar.js` em segundo plano ainda não devolveu o resultado final — o `tail`
+de um log parcial não é prova de que o funil terminou. E: **um teste que passa numa árvore e falha
+numa cópia byte a byte idêntica noutro worktree é sinal de dependência de ambiente** (caminho
+absoluto, porta de rede, contenção de CPU/Chromium) — vale investigar QUAL é essa dependência antes
+de confiar em qualquer resultado de teste rodado fora do worktree principal sob carga pesada. Não
+investiguei a causa exata (qual recurso colide) porque o achado mais urgente — produção correta —
+já estava resolvido, e a questão de instrumento fica aberta para quem quiser.
