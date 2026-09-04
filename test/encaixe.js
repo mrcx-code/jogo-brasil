@@ -2216,6 +2216,68 @@ async function hudNoLugar(pg) {
         (r.baixos.length ? ' — ' + r.baixos.join(', ') : ''));
     }
   }
+
+  // ---- E OS AJUSTES EM RETRATO CURTO, que é onde esta régua não olhava ----
+  //
+  // O BURACO, achado por auditoria em 04/09: o laço acima visita a tela de AJUSTES DEITADA
+  // (844×390) e no tablet (1024×768), e mais nenhuma altura. A nota de margem que o papel
+  // ganhou nesse mesmo dia custa 45 px, e em retrato curto ela CORTAVA — medido, antes do
+  // conserto: a 360×640 (o Android mais comum do país) o título ficava em −3..50, ou seja,
+  // parte dele fora da tela por cima; a 320×568 (iPhone SE de 1ª geração) o título em −6..47
+  // E o VOLTAR em 528..572 de uma tela de 568. As duas passaram por esta régua sem uma
+  // reprovação, porque nenhuma das duas era medida.
+  //
+  // POR QUE ESTAS DUAS E NÃO OUTRAS: 640 e 568 são as duas alturas de retrato que ainda
+  // aparecem em aparelho de verdade, e são também as duas pontas dos dois regimes de CSS
+  // desta tela — 640 cai na RAMPA (601..720) e 568 no PISO COMPRIMIDO (≤600). Uma de cada
+  // lado do degrau é o que faz a asserção cobrir os dois caminhos, e não o mesmo duas vezes.
+  //
+  // MONTA pelo caminho real (`montarConfig()`): tela aberta e não montada tem 10 nós e cabe
+  // em qualquer altura — foi assim que este defeito já escapou duas vezes (ver o comentário
+  // do `estilo.css` e o PENDENTES 25).
+  for (const vp of [{ w: 360, h: 640, nome: 'Android comum 360×640' },
+                    { w: 320, h: 568, nome: 'iPhone SE 1ª ger. 320×568' }]) {
+    await page.setViewportSize({ width: vp.w, height: vp.h });
+    await page.evaluate(() => { fecharTelas(); montarConfig(); abrirTela('telaConfig'); });
+    await telaParada(page, 'telaConfig');
+    const r = await page.evaluate(() => {
+      const H = document.documentElement.clientHeight, W = document.documentElement.clientWidth;
+      const tela = document.getElementById('telaConfig');
+      const fora = [], baixos = [];
+      tela.querySelectorAll('.telaBtn, .telaTit, .telaTxt, #cfgInfo, #cfgPriv').forEach(function (e) {
+        const s = getComputedStyle(e);
+        if (s.display === 'none' || s.visibility === 'hidden') return;
+        const b = e.getBoundingClientRect();
+        if (b.width <= 0 || b.height <= 0) return;
+        const id = e.id || e.className.split(' ')[0];
+        if (b.top < -1 || b.bottom > H + 1 || b.left < -1 || b.right > W + 1) {
+          fora.push(id + ' ' + Math.round(b.top) + '..' + Math.round(b.bottom) +
+                    ' x ' + Math.round(b.left) + '..' + Math.round(b.right));
+        }
+        if (e.classList.contains('telaBtn') && b.height < 44) baixos.push(id + ' ' + Math.round(b.height));
+      });
+      // a nota de privacidade tem de continuar ALCANÇÁVEL: 44 px de dedo e o centro dela
+      // recebendo o toque. Ela existe só para ser tocada — cortar altura dela seria trocar
+      // um defeito visível por um invisível.
+      const a = document.querySelector('#cfgPriv a');
+      const ab = a ? a.getBoundingClientRect() : null;
+      const alvo = ab ? document.elementFromPoint((ab.left + ab.right) / 2, (ab.top + ab.bottom) / 2) : null;
+      return { fora, baixos, temNota: !!a,
+        notaAlt: ab ? Math.round(ab.height) : 0,
+        notaRecebe: !!(alvo && (alvo === a || a.contains(alvo))) };
+    });
+    ok(!r.fora.length, vp.nome + ' · AJUSTES: tudo dentro da tela, sem precisar rolar' +
+      (r.fora.length ? ' — FORA: ' + r.fora.slice(0, 4).join(' | ') : ''));
+    ok(!r.baixos.length, vp.nome + ' · AJUSTES: toda tábua com 44 px de dedo' +
+      (r.baixos.length ? ' — ' + r.baixos.join(', ') : ''));
+    // a nota só existe em http e fora da raiz; quando existe, é cobrada
+    if (r.temNota) {
+      ok(r.notaAlt >= 44, vp.nome + ' · AJUSTES: a nota de privacidade mantém os 44 px de dedo ('
+        + r.notaAlt + ')');
+      ok(r.notaRecebe, vp.nome + ' · AJUSTES: e o centro dela recebe o toque');
+    }
+  }
+
   // devolve a medida da casa antes do bloco 22, que mede JOGO e não tela
   await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => { fecharTelas(); });
