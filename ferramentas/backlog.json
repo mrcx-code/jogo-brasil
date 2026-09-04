@@ -430,7 +430,7 @@
     {
       "id": "pinos-lote-2",
       "titulo": "Lote 2 dos pinos do territorio (10 seguintes, com as licoes do lote 1)",
-      "detalhe": "O historiador monta o lote 2 para o dashboard, incorporando o que o lote 1 ensinou: a frase sem lastro documental CAI antes de ir ao dono (Palmas-ecoa-Palmares), numero so com censo/fonte citada (candangos 42.332), e toda confianca media chega [conferir] ja conferida pelas fichas. Aceite: 10 pinos em pergunta fechada no dashboard, cada um com fonte e grupo (NENHUM/CUIDADO); PARE continua fora ate o dono decidir a regra dos 5.",
+      "detalhe": "O historiador monta o lote 2 para o dashboard, incorporando o que o lote 1 ensinou: a frase sem lastro documental CAI antes de ir ao dono (Palmas-ecoa-Palmares), numero so com censo/fonte citada (candangos 42.332), e toda confianca media chega [conferir] ja conferida pelas fichas. Aceite: 10 pinos em pergunta fechada no dashboard, cada um com fonte e grupo (NENHUM/CUIDADO); os grupos fora do escopo deste lote continuam fora ate revisao do dono.",
       "agente": "historiador",
       "estado": "bloqueado",
       "camada": "pesado",
