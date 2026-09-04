@@ -1461,7 +1461,7 @@
     },
     {
       "id": "falas-arte-praca-segurou-aceiro",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "historiador",
       "camada": "texto",
       "titulo": "A PRACA / O QUE SEGUROU / O ACEIRO tem a mesma familia de defeito das 5 falas ja consertadas — e METADE da fala e falsa, nao a fala inteira",
@@ -1469,7 +1469,9 @@
         "src/jogo.ts"
       ],
       "aceite": "Ler as tres aberturas caso a caso, como a historiadora fez nas cinco: separar o que continua verdadeiro do que ficou falso, e reescrever so a metade falsa. NAO aplicar a forma pronta das cinco -- foi medido nesta rodada que a generalizacao produz a mentira que se gaba.",
-      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI. ACRESCENTADO pelo QA na mesma rodada (achado G3), e ele muda a leitura: A PRACA e o SEXTO da familia, mas e MENOS falsa que os cinco, nao mais. GENTE_EP_B64.praca tem 24 quadros autorais -- so que 21 com tinta, porque 3 estao vazios (ver item quadros-de-gente-vazios-na-fonte). Entao a arte daqui nao chegou nao e verdade, mas ja chegou inteira tambem nao e. Quem pegar este item le os dois juntos, senao escreve a terceira frase falsa da serie."
+      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI. ACRESCENTADO pelo QA na mesma rodada (achado G3), e ele muda a leitura: A PRACA e o SEXTO da familia, mas e MENOS falsa que os cinco, nao mais. GENTE_EP_B64.praca tem 24 quadros autorais -- so que 21 com tinta, porque 3 estao vazios (ver item quadros-de-gente-vazios-na-fonte). Entao a arte daqui nao chegou nao e verdade, mas ja chegou inteira tambem nao e. Quem pegar este item le os dois juntos, senao escreve a terceira frase falsa da serie.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T22:33:11.472Z"
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
@@ -1777,7 +1779,7 @@
     },
     {
       "id": "paginas-plataforma-nao-leem-origem-escola",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "Glossario/A Historia/De Onde Vem nao leem ?origem=escola -- quem entra so pelo glossario continua medido",
@@ -1788,7 +1790,9 @@
         "ferramentas/gerar-de-onde-vem.js"
       ],
       "aceite": "As paginas da plataforma (nao o jogo) passam a ler o mesmo parametro ?origem=escola e gravar jogo_brasil_medir=nao da mesma forma que src/jogo.ts ja faz (ver chegouPelaEscola() e a reescrita de medirCarregar() em src/jogo.ts, integradas 04/09). Mesma prova de portao: nasce desligado por esse caminho, continua ligado por qualquer outro, decisao manual previa vence.",
-      "detalhe": "Levantado pelo dev-jogo em 04/09 fechando medicao-desligada-caminho-escolar: o mecanismo (parametro de URL + chave compartilhada jogo_brasil_medir) protege o jogo e, por tabela, cala as paginas da plataforma NO MESMO APARELHO depois que a pessoa passou pelo jogo -- mas quem entra direto pelo link de professor para o GLOSSARIO (sem nunca abrir o jogo) continua sendo medido, porque as paginas nunca leem o parametro por si mesmas. Territorio de dev-plataforma, nao dev-jogo."
+      "detalhe": "Levantado pelo dev-jogo em 04/09 fechando medicao-desligada-caminho-escolar: o mecanismo (parametro de URL + chave compartilhada jogo_brasil_medir) protege o jogo e, por tabela, cala as paginas da plataforma NO MESMO APARELHO depois que a pessoa passou pelo jogo -- mas quem entra direto pelo link de professor para o GLOSSARIO (sem nunca abrir o jogo) continua sendo medido, porque as paginas nunca leem o parametro por si mesmas. Territorio de dev-plataforma, nao dev-jogo.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T22:33:11.473Z"
     },
     {
       "id": "privacidade-publicada-nao-menciona-caminho-escolar",
