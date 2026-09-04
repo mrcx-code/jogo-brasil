@@ -6,9 +6,11 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js",
+    "test": "npm run build && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
+    "ritual:varredura": "node test/qa-ritual-varredura.js",
+    "ritual:disfarce": "node test/qa-ritual-disfarce.js",
     "aceiro": "node test/aceiro-sem-coleta.js",
     "salvador-vivo": "node test/qa-salvador-vivo.js",
     "ramos-mortos": "node test/ramos-mortos-veredito.js",
