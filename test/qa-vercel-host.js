@@ -154,10 +154,23 @@ if (DEFEITO) {
     //   X   "/privacidade/" está na lista SEM_CONTAGEM e NÃO declara connect-src — mas declara: …
     //   X   toda rota com connect-src é da família de seção e vice-versa — 14 de 13
     // A segunda é o agregado, e ele reprova junto porque `comConnect` conta a rota nova enquanto
-    // `familiaSecao` não. Consequência honesta: apagar a LINHA da asserção 4b não faz este modo
-    // ficar verde (o agregado ainda morde), mas apagar o BLOCO `if (SEM_CONTAGEM…)` inteiro faz —
-    // a rota cairia no `else`, seria contada como família de seção, e as duas passariam. É por
-    // isso que o modo mira a lista, e não só a linha.
+    // `familiaSecao` não.
+    //
+    // O QUE SOBRA DE VERMELHO QUANDO SE TIRA UMA DAS DUAS, medido pelo QA em 04/09 com mutantes do
+    // próprio portão e exit code real (não é raciocínio, é tabela):
+    //   apagar só a LINHA da 4b .......... modo exit 1, 1 linha X (o agregado, "14 de 13"). Certo.
+    //   apagar só o AGREGADO ............. modo exit 1, 1 linha X, e ela é a da SEM_CONTAGEM.
+    //     É ESTA a que prova o modo: a asserção 4b morde SOZINHA, sem o agregado carregando ela.
+    //   neutralizar o BLOCO `if (SEM_CONTAGEM…)` .. o CONTROLE (sem injeção nenhuma) já sai 1, com
+    //     TRÊS linhas X — porque as outras duas rotas da lista (`/privacidade` e
+    //     `/privacidade/(.*)`) também são da família pela forma e também não declaram connect-src,
+    //     então caem no `else` e são cobradas por um connect-src que não têm.
+    //
+    // A terceira linha corrige o que este comentário afirmava até 04/09 — que apagar o bloco
+    // "faria as duas passarem". É FALSO, e por sorte na direção segura: o bloco não é removível em
+    // silêncio, ele é removível em vermelho. Fica escrito porque comentário falso num portão é
+    // pior que comentário nenhum, e este arquivo já cobra isso de si mesmo na asserção 4.
+    // O modo continua mirando a LISTA, e não só a linha, porque é a lista que nomeia a exceção.
     const v = JSON.parse(texto);
     const i = ondeNaoMede(v);
     if (i < 0) { console.error('a regra ' + ALVO_SEM_CONTAGEM + ' sumiu do vercel.json — a injeção não tem onde morder'); process.exit(2); }

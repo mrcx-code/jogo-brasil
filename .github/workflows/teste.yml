@@ -138,6 +138,25 @@ jobs:
         run: node test/qa-vercel-host.js
         timeout-minutes: 2
 
+      # A PROVA DE MORDIDA DO PASSO ACIMA, E ELA FALTAVA (04/09, achado do QA auditando a entrega
+      # do 10o modo de injecao). O passo acima roda o portao LIMPO, e so. As dez injecoes de
+      # QA_VERCEL_DEFEITO — as dez provas de que cada assercao dele morde — so aconteciam se alguem
+      # DIGITASSE a variavel de ambiente. Medido em 04/09, grep por 'QA_VERCEL_DEFEITO' fora do
+      # proprio arquivo: package.json 0 · workflows 0 · test/encaixe.js 0 · ferramentas/integrar.js 0.
+      #
+      # E a licao 2.8 do EQUIPE.md um nivel acima: uma assercao some do portao, os dez modos passam
+      # a sair 0, e nenhuma rodada nota. O molde ja existia — test/qa-vercel-quadro.js faz isto pelo
+      # QUADRO_DE_ROTAS e esta pendurado 40 linhas abaixo; faltava o equivalente para os modos.
+      #
+      # Ele tambem cobra o que a auditoria mediu: que o modo `privacidade` reprove NOMEANDO
+      # SEM_CONTAGEM (o vermelho dele tem duas causas, e sem esta linha ele poderia passar a vir so
+      # do agregado sem ninguem ver), e que o vercel.json do disco nao mude (sha256 antes/depois) —
+      # a versao antiga de um portao vizinho mutava o arquivo e um sinal deixava a politica
+      # envenenada no arquivo que a Vercel publica.
+      - name: os 10 modos de injecao do qa-vercel-host mordem por exit code (e o limpo sai 0)
+        run: node test/qa-vercel-host-controle.js
+        timeout-minutes: 3
+
       # O PONTO CEGO QUE OS DOIS PORTOES ACIMA COMPARTILHAM (03/09, achado do QA auditando a
       # entrega csp-host-constante). Nao e mais um portao de host: e o unico que nao herda o cego.
       #
