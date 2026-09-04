@@ -52,10 +52,40 @@ const RETRATOS = ['retrato-cap1', 'retrato-cap2', 'retrato-cais', 'retrato-cap4'
 const DROPS = [
   ['drop-semente', 'drop-broto', 'drop-peixe'],
   ['drop-cap2-1'],
-  // SALVADOR: acarajé, pano da costa dobrado, búzios. A lista é a trava de representação do
-  // relatório do historiador, escrita aqui porque é aqui que ela se quebraria: escrita árabe
-  // sagrada NUNCA vira item, imagem ou coisa a recolher. Nada religioso entra nesta linha.
-  ['drop-cap4-1', 'drop-cap4-2', 'drop-cap4-3'],
+  // SALVADOR: tabuleiro, balde d'água, trouxa de roupa — O TRABALHO DA RUA, e nada de culto.
+  //
+  // ERA acarajé, pano da costa e búzios (`drop-cap4-1/2/3`, que continuam em assets/objetos
+  // como registro e não entram em tabela nenhuma). Isso violava o §2.4 item 5 do CLAUDE.md,
+  // que é categórico: "objeto ritual não é colecionável — entra como fala, nunca como drop".
+  // O búzio é instrumento de adivinhação no candomblé, o acarajé é comida de santo (é a
+  // própria ficha do IPHAN que diz isso) e o pano da costa é o alaká das casas de culto — e o
+  // capítulo VIZINHO, O CAIS, já tinha RECUSADO búzios como item de escavação pela mesma
+  // regra (NOTES.md:4952). Mesmo objeto, mesma regra, decisão oposta. A auditoria §2 dos treze
+  // capítulos achou isso em 03/09, quatro refutações adversariais caíram, e o dono decidiu:
+  // TROCA. Os três verbetes do glossário (ACARAJÉ, PANO DA COSTA, BÚZIOS) FICAM, e é neles que
+  // a dimensão sagrada continua sendo contada — a regra não manda calar, manda tirar da mão.
+  //
+  // A ORDEM VAI PELO QUE A PESSOA DA RUA CARREGA, não pelo nome do arquivo, e as duas coisas
+  // divergem aqui. Quem atravessa a rua em SALVADOR é GENTE (`GENTE_EP_SPR.salvador`), e
+  // `GENTE_FILEIRA` já casa carga com vaga: barril→drum, trouxa→cash, tabuleiro→smog. O drop
+  // é o que essa pessoa TROUXE e deixou no chão, então ele tem de ser a carga dela:
+  //   smog  ← tabuleiro     (quem passa leva tabuleiro)
+  //   drum  ← BALDE D'ÁGUA, que é o que `cap4-obj-trouxa.webp` desenha
+  //   cash  ← TROUXA DE ROUPA, que é o que `cap4-obj-agua.webp` desenha
+  // MEDIDO em 04/09 abrindo os três arquivos: os nomes de `cap4-obj-agua` e `cap4-obj-trouxa`
+  // estão TROCADOS em relação ao que eles desenham. A lista de `MOBS` acima herdou a troca e
+  // não foi mexida aqui (mob de SALVADOR é gente, o objeto nunca chega à tela) — está anotado
+  // em PENDENTES para quem for tocar `MOBS`. Ir pelo nome do arquivo põe balde na vaga da
+  // comida e trouxa na vaga da água.
+  //
+  // E NÃO SÃO OS `cap4-obj-*` DIRETO, por uma medida: o drop é escalado por
+  // `DROP_TARGET / naturalHeight`, então a margem vazia daqueles quadros ENCOLHE o objeto na
+  // tela — o tabuleiro saía 9x9 px com 46 das 120 linhas de tinta, e o quadro do balde ainda
+  // trazia o fragmento de um objeto vizinho cortado pela célula, que descentrava o balde.
+  // `test/aparar-objeto.js` recorta na mancha (e na maior ilha de colunas, no caso do balde) e
+  // regrava a 0,80. Na tela: 9x9 → 20x9 · 11x9 → 7x9 limpo · 8x9 → 11x9. Erro de recompressão
+  // na escala de exibição: 0,93 · 0,48 · 1,25 de 255, contra a régua de 2,6 do §6.
+  ['drop-cap4-tabuleiro', 'drop-cap4-balde', 'drop-cap4-trouxa'],
   ['drop-cap3-1']
 ];
 const ICONES = { folha: 'icone-folha', agua: 'icone-agua', cesto: 'icone-cesto', passo: 'icone-passo' };
