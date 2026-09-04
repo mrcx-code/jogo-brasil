@@ -4262,8 +4262,18 @@ Diário do NOTES.md, 2026-09-04.
 
 **Ficam três coisas, e as três são de outra mão que não a minha:**
 
-1. **A FALA DE ABERTURA AINDA DIZ OS TRÊS NOMES ANTIGOS — e é a única superfície do jogo que
-   nomeia o drop.** `src/jogo.ts:2173`, `EPOCAS[3].abertura[4]`:
+1. ~~**A FALA DE ABERTURA AINDA DIZ OS TRÊS NOMES ANTIGOS**~~ — **FEITO em 04/09 pela
+   historiadora**, sob a licença de 19/08 (Diário do NOTES.md do mesmo dia). A fala nova:
+   *"Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua, e é ele que
+   fica no chão, nos mesmos três contadores de sempre. Acarajé, pano da costa e búzios ficam fora
+   do chão: o que é de santo se conta, não se recolhe."*
+   **A sugestão abaixo foi RECUSADA, e por medida:** ela não nomeia os três, e apagar os nomes
+   **fecha a porta AS PALAVRAS DAQUI para três verbetes**. `capPalavrasCalcular()` casa o texto de
+   `abertura + fecho + querer` contra o título de cada verbete, e os três só casam por ESTA frase:
+   medido com o jogo aberto, SALVADOR cai de **7 para 4** palavras, perdendo exatamente PANO DA
+   COSTA, ACARAJÉ e BÚZIOS. A regra do §2.4 item 5 tira da mão e **não cala** — então a frase troca
+   de papel em vez de trocar de assunto. A redação aplicada mede **7, os mesmos sete**.
+   Fica registrado o que estava aqui:
    *"Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua. **No chão
    ficam acarajé, pano da costa e búzios**, e são os mesmos três contadores de sempre."*
    Com a troca feita, essa segunda oração passou a descrever o que não está mais lá: o jogo diz
@@ -4274,6 +4284,13 @@ Diário do NOTES.md, 2026-09-04.
    **Sugestão para quem tem a caneta** (não aplicada): *"Pela ladeira vem tabuleiro, barril d'água
    e trouxa de roupa — o trabalho da rua, e é ele que fica no chão para você juntar: são os mesmos
    três contadores de sempre."* Nenhum verbete é tocado por isto.
+   **Uma frase acima ficou imprecisa e vale corrigir aqui** (historiadora, 04/09): a primeira
+   metade **não** lista os três objetos que caem — ela descreve **quem desce a ladeira**, que é a
+   folha de gente, e ali o mob carrega mesmo um **barril de aduelas** (fileira 0 do
+   `pack-salvador.json`, olhada quadro a quadro; fileira 1 trouxa atada, fileira 2 tabuleiro na
+   cabeça). O que **cai** é um **balde**. Por isso a fala nova fala do trabalho da rua como
+   categoria e não renomeia objeto nenhum: a palavra "barril" está certa para o mob, e trocá-la
+   quebraria o que já estava certo. Se um dia o mob deixar de ser gente, esta linha volta a valer.
 2. **Os nomes de dois arquivos de arte estão trocados em relação ao que eles desenham** —
    `assets/objetos/cap4-obj-agua.webp` desenha uma TROUXA de roupa e `cap4-obj-trouxa.webp` desenha
    um BALDE d'água (medido em 04/09, abrindo os dois). A lista `MOBS` de `test/inline-objetos.js`

@@ -2170,7 +2170,40 @@ const EPOCAS = [
       // o fecho vem derrubar tres telas depois. Fonte: Reis, 2003, ja creditado no capitulo.
       "Pela mesma rua corre outra coisa além de mercadoria: recado. Muitos africanos daqui são muçulmanos — os malês — e se reúnem à noite para ensinar uns aos outros a ler e a escrever em árabe.",
       "Estamos na véspera. Aqui, alcançar é levar palavra: quem você alcança passa a saber o que precisa saber.",
-      "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua. No chão ficam acarajé, pano da costa e búzios, e são os mesmos três contadores de sempre."
+      // A FALA VIROU FALSA QUANDO O DROP TROCOU (04/09, historiadora sob a licença de 19/08).
+      // O §2.4 item 5 é categórico — "objeto ritual não é colecionável: entra como fala, nunca
+      // como drop" — e a entrega de 04/09 tirou acarajé, pano da costa e búzios do chão desta
+      // rua, pondo tabuleiro, balde d'água e trouxa no lugar. A oração "No chão ficam acarajé,
+      // pano da costa e búzios" passou a descrever o que não está mais lá: o jogo dizia
+      // "acarajé" e desenhava um tabuleiro. Isto é conserto de uma oração, não fato novo.
+      //
+      // OS TRÊS NOMES FICAM NA FALA, E É MEDIDA, NÃO GOSTO. `capPalavrasCalcular()` monta a
+      // porta AS PALAVRAS DAQUI casando o texto de `abertura + fecho + querer` contra o título
+      // de cada verbete. Medido nesta árvore, antes e depois: SALVADOR oferece SETE verbetes, e
+      // PANO DA COSTA, ACARAJÉ e BÚZIOS são três deles — os três só casam POR ESTA FRASE.
+      // Apagar os nomes junto com o drop fecharia a porta dos três verbetes e faria o jogo
+      // emudecer sobre eles, que é o erro oposto e da mesma gravidade: a regra tira da MÃO, não
+      // cala. Por isso a frase troca de PAPEL em vez de trocar de assunto — eles saem do chão e
+      // continuam ditos, que é literalmente o "entra como fala" da regra.
+      //
+      // "DE SANTO" É O IDIOMA DE DENTRO, e é ele que dá propriedade à frase: é a palavra da
+      // própria prática (comida de santo, mãe de santo), não descrição de fora. A dimensão de
+      // culto dos três já está afirmada com fonte nos verbetes deste jogo, e são fontes da
+      // comunidade que a pratica ou do órgão que a registrou a pedido dela: IPHAN, Ofício das
+      // Baianas de Acarajé, Livro dos Saberes, 2005 (a ficha registra o ofício ligado ao culto
+      // dos orixás); Aline Santiago, "O sacrifício dos fios do Alaká", PPGAV/EBA-UFRJ, e a Casa
+      // do Alaká do Ilê Axé Opô Afonjá, que tece até hoje; Hogendorn & Johnson, The Shell Money
+      // of the Slave Trade, 1986, para o cauri. Nenhum verbete, nenhuma fonte e nenhum número
+      // foram tocados aqui — só esta linha.
+      //
+      // "BARRIL D'ÁGUA" FICA, e foi conferido em vez de suposto: a primeira metade descreve
+      // QUEM DESCE A LADEIRA, que é a folha de gente (`GENTE_EP_SPR.salvador`), não o drop.
+      // Olhadas as três fileiras da folha no pacote: fileira 0 carrega um BARRIL de aduelas nas
+      // costas, fileira 1 uma trouxa atada, fileira 2 um tabuleiro na cabeça. A palavra está
+      // certa para o mob. O objeto que CAI no chão é um balde — a diferença está registrada no
+      // PENDENTES 107, e é por isso que a segunda oração passou a falar do trabalho da rua como
+      // categoria, sem renomear objeto nenhum.
+      "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua, e é ele que fica no chão, nos mesmos três contadores de sempre. Acarajé, pano da costa e búzios ficam fora do chão: o que é de santo se conta, não se recolhe."
     ],
     // o porto abre, porque "a cidade alta e lá embaixo o porto" é ele; fica na frase das
     // ganhadeiras, que é a rua trabalhando. O pátio entra em "se reúnem à noite para ensinar" —
