@@ -369,7 +369,20 @@ mostrar.
 > **as duas coisas continuam parecendo iguais de fora** — que e exatamente a doenca que este
 > paragrafo foi escrito para curar, entrando por outra porta. `UPDATE` que casa 0 linhas e sucesso
 > em SQL; se o seu cliente nao mostra a contagem, **peça `returning nome`** e confira que voltou
-> linha. Item aberto para a trava: `painel-update-silencioso`.
+> linha.
+>
+> **CONSERTADO em 04/09** (item `painel-update-silencioso`, ver `ferramentas/mesa-agente-atualizar.sql`):
+> pare de escrever `UPDATE mesa_agente` cru. Chame a funcao, pelo MCP do Supabase (projeto
+> `brasil`, `frrmiompmxjbpoxegyeb`):
+>
+> ```sql
+> select mesa_agente_atualizar('dev-jogo', 'trabalhando', 'o que esta rodada descobriu, nao "concluido"');
+> ```
+>
+> Ela **RAISE EXCEPTION** se `p_nome` nao casar nenhuma linha — o erro chega na resposta do
+> `execute_sql`, nao mais um `[]` silencioso. Provado por injecao: `mesa_agente_atualizar('dev-jogo-inexistente', ...)`
+> sai em erro `P0002`; `mesa_agente_atualizar('Claude', ...)` (ou qualquer nome real) devolve a
+> linha atualizada.
 
 **TODO PEDIDO DELE VIRA LINHA, para nenhum prompt ser esquecido.** Ele pediu isso por escrito
 ("quero poder ir marcando eles como feito para q sumam da lista"). Pedido novo entra na tabela
