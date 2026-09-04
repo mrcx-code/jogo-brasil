@@ -378,11 +378,42 @@
   // O padrão é LIGADO, e quem diz isso na cara é o INTERRUPTOR DA BARRA: ele nasce
   // com "ligada" escrito nele. O rodapé deixou de contar o estado em 23/08, quando o
   // botão subiu para a barra — lá ele diz onde o controle está, não como ele está.
-  // Só a string exata "nao" desliga: um
-  // localStorage adulterado que traga outra coisa erra para o lado de respeitar o que a
-  // página MOSTRA, que é o que a pessoa leu.
+  // A ÚNICA exceção ao padrão ligado é o caminho escolar (`?origem=escola`), abaixo.
+  // A CHAVE GUARDA UMA DECISÃO, E DECISÃO NÃO SE SOBRESCREVE. Só "sim" e "nao" contam como
+  // decisão gravada — chave ausente, string vazia ou localStorage adulterado à mão é
+  // "ninguém decidiu ainda", e é só nesse caso que o padrão por origem tem voz. É isto que
+  // impede o link escolar de virar jaula: um toque no interruptor ganha de toda chegada
+  // futura, com ou sem parâmetro. Mesma leitura do `medirCarregar()` do src/jogo.ts.
   var ligado = true;
-  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }
+  function chegouPelaEscola() {
+    var achou = false;
+    try {
+      if (!location.search) return false;
+      // A CHAVE também é lida sem distinguir maiúscula: `?ORIGEM=escola` (autocapitalização
+      // de teclado, ou colada de um app que capitaliza parâmetro) protege igual a `?origem=`.
+      new URLSearchParams(location.search).forEach(function (v, k) {
+        if (String(k).toLowerCase() === "origem" && String(v).trim().toLowerCase() === "escola") achou = true;
+      });
+    } catch (e) { return false; }
+    return achou;
+  }
+  (function () {
+    var g = null;
+    try { g = localStorage.getItem(K_MEDIR); } catch (e) { g = null; }
+    var decidido = (g === "sim" || g === "nao") ? g : "";
+    if (!decidido && chegouPelaEscola()) {
+      // GRAVA, e não é detalhe: sem gravar, a proteção duraria só enquanto o parâmetro
+      // estivesse no endereço — a mesma criança abrindo pelo favorito amanhã voltaria a ser
+      // medida sem nunca ter escolhido isso. E como a chave é a MESMA do jogo, gravar aqui
+      // também cala o jogo e as outras seções.
+      try { localStorage.setItem(K_MEDIR, "nao"); } catch (e) {}
+      ligado = false;
+    } else {
+      // Só a string exata "nao" desliga: um localStorage adulterado que traga outra coisa
+      // erra para o lado de respeitar o que a página MOSTRA, que é o que a pessoa leu.
+      ligado = decidido !== "nao";
+    }
+  })();
   function sorteado() {
     var b = new Uint8Array(16), s = "", i;
     try { crypto.getRandomValues(b); } catch (e) {

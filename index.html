@@ -5364,8 +5364,11 @@ function chegouPelaEscola() {
     try {
         if (!location.search)
             return false;
-        const v = new URLSearchParams(location.search).get(ORIGEM_BUSCA);
-        return typeof v === "string" && v.trim().toLowerCase() === ORIGEM_ESCOLA;
+        for (const [k, v] of new URLSearchParams(location.search)) {
+            if (k.toLowerCase() === ORIGEM_BUSCA && v.trim().toLowerCase() === ORIGEM_ESCOLA)
+                return true;
+        }
+        return false;
     }
     catch (e) {
         return false;
