@@ -125,6 +125,25 @@ try {
   console.log('AVISO: não consegui buscar a origin/main (' + e.message.split('\n')[0] + ').');
   console.log('       A classificação de `entrega/` abaixo pode estar velha.');
 }
+
+// A TRAVA DE ITEM EM-CURSO NÃO PODE CONFIAR SÓ NO DISCO LOCAL — achado do QA em 04/09. O
+// `backlog.json` deste clone pode estar atrás da origin: outra máquina trava um item minutos antes
+// desta leitura, e sem isto o item parece `livre` aqui enquanto já está `em-curso` lá. Depois do
+// `fetch` acima, lemos também o backlog QUE A ORIGIN TEM, e a origin decide em caso de conflito —
+// é ela quem qualquer outra máquina publicou por último. Recuo automático para o disco se o `show`
+// falhar (rede fora, clone sem esse commit ainda, etc.), e o recuo é DITO, nunca silencioso: quem
+// lê a saída precisa saber qual fonte valeu antes de confiar na trava.
+let fonteBacklog = 'disco local';
+try {
+  const brutoRemoto = JSON.parse(git('show', 'origin/main:ferramentas/backlog.json'));
+  const itensRemoto = Array.isArray(brutoRemoto) ? brutoRemoto : brutoRemoto.itens || Object.values(brutoRemoto);
+  for (const item of itensRemoto) porId.set(item.id, item); // origin decide em caso de conflito
+  fonteBacklog = 'disco local + origin/main (união; origin decide em conflito)';
+} catch (e) {
+  fonteBacklog = 'SÓ disco local — recuo automático: git show origin/main:ferramentas/backlog.json falhou (' + e.message.split('\n')[0] + ')';
+}
+console.log('backlog usado para a trava de item em-curso: ' + fonteBacklog);
+console.log('');
 // O CLONE RASO SE CONSERTA ANTES DE MEDIR, não depois de errar. O contêiner da nuvem clona com
 // profundidade limitada (medido em 03/09: 186 commits no clone da sessão), e sem isto a tabela do
 // bloco `classificar` acontece de novo toda rodada. `--unshallow` é uma busca só, custa segundos,
@@ -211,7 +230,7 @@ for (const r of refsRemotos('refs/heads/entrega/*')) {
   ]);
 }
 
-// ── AS DUAS TRAVAS DO `--apagar` ───────────────────────────────────────────────────────────────
+// ── AS TRÊS TRAVAS DO `--apagar` ──────────────────────────────────────────────────────────────
 // Elas não corrigem a CLASSIFICAÇÃO — um ramo recusado aqui continua morto pelo critério que o
 // pôs em MORTOS. Elas param a única coisa **irreversível** que sai deste arquivo: a linha
 // `git push origin --delete`, que outra máquina cola sem contexto.
@@ -232,6 +251,16 @@ for (const r of refsRemotos('refs/heads/entrega/*')) {
 // quis: quem roda o comando de dentro do worktree da própria entrega vê o remoto sumir embaixo do
 // que está commitando. HEAD solto (detached) não é ramo e não tem o que proteger.
 //
+// TRAVA 2b — o ramo do HEAD de QUALQUER worktree IRMÃO do mesmo clone, não só desta cópia. Achado
+// do QA em 04/09: um agente que roda `--apagar` de uma cópia parada na `main` não via o ramo que
+// outro agente do MESMO clone está com `entrega/<x>` checked-out num worktree vizinho — `rev-parse
+// HEAD` só enxerga a própria árvore de trabalho. `git worktree list --porcelain` enxerga todas.
+//
+// TRAVA 1 — item `em-curso` que é PREFIXO de `<x>` na fronteira `-`, não só igual. Achado do QA
+// em 04/09: `entrega/<id>-qa` (o ramo de revisão de uma entrega que ainda está em-curso) passava
+// incólume porque a comparação antiga era só `porId.get(m[1])`, igualdade exata. A fronteira TEM
+// de ser o hífen — `censo-foto` não pode recusar `entrega/censo-fotografia`, que é outro id.
+//
 // A ESCOLHA: PULA O RECUSADO, NÃO ABORTA A LISTA — e o motivo é o comportamento de quem lê.
 // Abortar tudo devolveria uma saída sem comando nenhum, e a pessoa que precisa apagar 14 ramos
 // mortos escreveria os 14 à mão a partir da seção MORTOS — sem trava nenhuma, que é pior que o
@@ -249,18 +278,54 @@ function ramoDoHEAD() {
 
 const RAMO_ATUAL = ramoDoHEAD();
 
+// Todo ramo com HEAD em algum worktree DESTE CLONE — o principal (onde `--apagar` está rodando) e
+// cada `git worktree add` irmão. O `RAMO_ATUAL` já entra aqui (a própria cópia é um worktree do
+// clone), e fica calculado à parte só como FALLBACK: se `git worktree list` falhar ou não existir
+// (git antigo), a proteção da própria cópia continua de pé por `rev-parse --abbrev-ref HEAD`, que
+// é um comando mais velho e mais simples. Worktree com HEAD destacado (sem `branch`) não entra —
+// não é ramo, não tem o que proteger.
+function ramosProtegidosPorWorktree() {
+  const ramos = new Set();
+  if (RAMO_ATUAL) ramos.add(RAMO_ATUAL);
+  try {
+    const saida = git('worktree', 'list', '--porcelain');
+    for (const bloco of saida.split(/\n\n+/)) {
+      const m = /^branch refs\/heads\/(.+)$/m.exec(bloco);
+      if (m) ramos.add(m[1]);
+    }
+  } catch (_) { /* sem suporte a worktree ou comando falhou: só o RAMO_ATUAL acima fica protegido */ }
+  return ramos;
+}
+
+const RAMOS_PROTEGIDOS = ramosProtegidosPorWorktree();
+
+// Devolve o item `em-curso` cujo id CASA com `alvo` — igual, ou prefixo dele na fronteira `-`.
+// `null` se nenhum casar. Nunca usa substring crua: o caractere seguinte ao id tem de ser `-`.
+function itemEmCursoQueCasa(alvo) {
+  const exato = porId.get(alvo);
+  if (exato && exato.estado === 'em-curso') return exato;
+  for (const item of porId.values()) {
+    if (item.estado === 'em-curso' && alvo.startsWith(item.id + '-')) return item;
+  }
+  return null;
+}
+
 // Devolve o motivo da recusa, ou `null` se o ref pode entrar na lista de apagar.
 function recusaDe(ref) {
   const nome = ref.replace(/^refs\/heads\//, '');
-  if (RAMO_ATUAL && nome === RAMO_ATUAL) {
-    return 'É O RAMO DO HEAD desta cópia — não se apaga o galho em que se está sentado';
+  if (RAMOS_PROTEGIDOS.has(nome)) {
+    return nome === RAMO_ATUAL
+      ? 'É O RAMO DO HEAD desta cópia — não se apaga o galho em que se está sentado'
+      : 'está com HEAD em OUTRO WORKTREE deste clone — não se apaga o galho em que uma cópia irmã está sentada';
   }
   const m = /^entrega\/(.+)$/.exec(nome);
   if (m) {
-    const item = porId.get(m[1]);
-    if (item && item.estado === 'em-curso') {
-      return 'o item `' + m[1] + '` está EM-CURSO no backlog'
+    const item = itemEmCursoQueCasa(m[1]);
+    if (item) {
+      const porPrefixo = item.id !== m[1];
+      return 'o item `' + item.id + '` está EM-CURSO no backlog'
         + (item.maquina ? ' (' + item.maquina + ')' : '')
+        + (porPrefixo ? ' — `' + nome + '` começa com o id dele na fronteira `-`' : '')
         + ' — pode haver commit novo depois desta medição';
     }
   }
