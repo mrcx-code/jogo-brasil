@@ -269,7 +269,13 @@ try {
 //
 // Mudou de propósito (rota nova, página nova em dist/)? mude este número no MESMO commit e diga
 // no commit por quê — é a mesma disciplina do quadro, e é de propósito que seja chata.
-const INERTES_ESPERADAS = 14;
+// 04/09: 14 -> 16. A rota `/privacidade/` entrou (item `pagina-privacidade`) com as MESMAS três
+// formas das outras seções, e ela acrescenta exatamente 2 inertes em qualquer das hipóteses de
+// precedência: a forma SEM barra final (`/privacidade`) não casa com página publicada nenhuma, e
+// das duas que casam uma perde para a outra — pela última-vence perde `/privacidade/`, pela
+// primeira-vence perde `/privacidade/(.*)`. O número continua estável nas duas ordens, que é o
+// que esta asserção existe para exigir.
+const INERTES_ESPERADAS = 16;
 const DIST = path.join(RAIZ, 'dist');
 function paginasPublicadas(dir, prefixo) {
   let fora = [];

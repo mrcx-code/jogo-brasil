@@ -175,6 +175,16 @@ function partir(csp) {
 //    forma de dizer, no commit, o que passou a ser alcançável — e nada além disto passa.
 const TOKENS_PERMITIDOS = ["'none'", "'self'", "'unsafe-inline'", 'data:', 'blob:'];
 
+// 4b. A EXCEÇÃO NOMEADA À REGRA "página de leitura mede" (04/09, item `pagina-privacidade`).
+//     `/privacidade/` é da família de seção pela forma (default-src 'none' + img-src) e NÃO mede
+//     por decisão escrita: a seção 3 do texto dela descreve o evento como "qual das CINCO seções
+//     foi aberta", então uma sexta seção medida tornaria falsa, no mesmo commit, uma frase da
+//     página que existe para dizer a verdade sobre a medição. A exceção é uma LISTA POR EXTENSO,
+//     e a asserção dela é INVERTIDA: estas rotas têm de NÃO ter connect-src. Assim o portão morde
+//     nos dois sentidos — some o connect-src de uma seção que mede, ou aparece um numa que não
+//     devia medir. Rota nova só entra aqui junto com o motivo, como qualquer tabela desta casa.
+const SEM_CONTAGEM = ['/privacidade', '/privacidade/', '/privacidade/(.*)'];
+
 let comConnect = 0, familiaSecao = 0;
 const fontes = [];
 for (const r of regras) {
@@ -195,10 +205,16 @@ for (const r of regras) {
   // 2. a família de seção: quem tem `default-src 'none'` E `img-src` é página de leitura, e
   //    página de leitura manda evento — se ela perdeu o connect-src, perdeu a contagem.
   if (d['default-src'] === "'none'" && Object.prototype.hasOwnProperty.call(d, 'img-src')) {
-    familiaSecao++;
-    ok(Object.prototype.hasOwnProperty.call(d, 'connect-src'),
-      '"' + fonte + '" é da família de seção e declara connect-src'
-      + (Object.prototype.hasOwnProperty.call(d, 'connect-src') ? '' : ' — SUMIU: esta rota perdeu a contagem em silêncio'));
+    const tem = Object.prototype.hasOwnProperty.call(d, 'connect-src');
+    if (SEM_CONTAGEM.indexOf(fonte) >= 0) {
+      ok(!tem, '"' + fonte + '" está na lista SEM_CONTAGEM e NÃO declara connect-src'
+        + (tem ? ' — mas declara: esta rota passou a poder falar com a rede, e o texto da própria'
+          + ' página diz que ela não manda evento nenhum. Mude os dois juntos ou nenhum' : ''));
+    } else {
+      familiaSecao++;
+      ok(tem, '"' + fonte + '" é da família de seção e declara connect-src'
+        + (tem ? '' : ' — SUMIU: esta rota perdeu a contagem em silêncio'));
+    }
   }
   // 5. nenhuma diretiva repetida (a asserção 4 lê a última; o navegador aplica a primeira)
   ok(lido.repetidas.length === 0, 'a CSP de "' + fonte + '" não repete diretiva'

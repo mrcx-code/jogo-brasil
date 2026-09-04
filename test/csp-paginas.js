@@ -89,6 +89,21 @@ const AO_VIVO = (process.env.CSP_AO_VIVO || '').replace(/\/$/, '');
 // servidor local manda para /jogo/, e o bloco E abaixo tem de reprovar.
 //   CSP_JOGO_CONNECT_TESTE="https://us.i.posthog.com"  node test/csp-paginas.js   -> exit 1
 const CONNECT_TESTE = process.env.CSP_JOGO_CONNECT_TESTE || '';
+// PROVA DE MORDIDA DA ROTA /privacidade/ (04/09, item `pagina-privacidade`). A política afirma,
+// no rodapé dela e por omissão de `connect-src` na tabela acima, que aquela página NAO manda
+// evento nenhum. Uma afirmação dessas precisa de portão, senão ela é só uma frase — e o modo de
+// falha é silencioso: alguém acrescenta `MED.script(...)` ao gerador um dia e a página passa a
+// medir sem que nada quebre. Esta variável injeta EM MEMORIA (o disco nunca é tocado) um `fetch`
+// para o host da medição dentro de /privacidade/, e o portão tem de reprovar por DOIS caminhos
+// independentes: a violação de CSP (o `default-src 'none'` barra a conexão antes de ela sair) e,
+// se um dia a CSP afrouxar, a contagem de `medicoes` daquela rota.
+//   CSP_PRIV_MEDE_TESTE=1 node test/csp-paginas.js   -> exit 1 (a CSP barra: violacao de connect-src)
+//   CSP_PRIV_MEDE_TESTE=2 node test/csp-paginas.js   -> exit 1 (a CSP tambem afrouxada SO no
+//                                                     servidor local: o pedido sai e quem morde e
+//                                                     a contagem de `medicoes`)
+// O modo 2 existe porque, com a CSP inteira, a segunda asserção NUNCA seria vista reprovando —
+// ela é a rede de baixo, e rede que ninguém viu segurar é decoração (EQUIPE.md 2.8).
+const PRIV_MEDE = process.env.CSP_PRIV_MEDE_TESTE || '';
 
 const falhas = [];
 const reprovar = m => falhas.push(m);
@@ -129,6 +144,22 @@ const TERRITORIO = Object.assign({}, SECAO, {
   // das cinco, que e o comeco de nao ter CSP.
   'script-src': "'unsafe-inline' blob:",
 });
+const PRIVACIDADE = {
+  // A POLÍTICA DE PRIVACIDADE (04/09). É a SECAO menos o `connect-src`, e a ausência é o ponto:
+  // esta é a única página pública que não manda evento nenhum. A seção 3 do texto dela descreve
+  // o `secao aberta` como "qual das CINCO seções foi aberta" — medir a própria política tornaria
+  // essa frase falsa no mesmo commit. Sem `connect-src`, quem barra é o `default-src 'none'`, e
+  // quem cobra é o navegador: se algum dia alguém puser um `fetch` aqui, o bloco E abaixo acusa
+  // uma violação de CSP em vez de deixar passar. Ela carrega o INTERRUPTOR da medição (que só
+  // lê e grava `localStorage`), porque o texto promete que ele está na barra de qualquer página.
+  'default-src': "'none'",
+  'script-src': "'unsafe-inline'",
+  'style-src': "'unsafe-inline'",
+  'img-src': 'data:',
+  'base-uri': "'none'",
+  'form-action': "'none'",
+  'frame-ancestors': "'none'",
+};
 const MESA = {
   // /mesa/ e um coto de 3 linhas que redireciona para /dashboard/ por <meta refresh>. Zero
   // script, zero style, zero imagem: a CSP mais fechada que existe cabe nela inteira.
@@ -151,6 +182,7 @@ const CSP_ESPERADA = {
   '/glossario/': SECAO,
   '/de-onde-vem/': SECAO,
   '/territorio/': TERRITORIO,
+  '/privacidade/': PRIVACIDADE,
   '/mesa/': MESA,
   '/jogo/': SO_MOLDURA,
   '/dashboard/': SO_MOLDURA,
@@ -158,7 +190,8 @@ const CSP_ESPERADA = {
 // As paginas que o navegador abre de verdade neste portao. /dashboard/ fica de fora porque fala
 // com o Supabase (bloqueado pelo proxy desta maquina) e ja tem portao proprio no build
 // (`conferirCspDashboard`); /mesa/ entra por um caminho proprio, mais abaixo, porque ele navega.
-const NO_NAVEGADOR = ['/', '/historia/', '/glossario/', '/de-onde-vem/', '/territorio/', '/jogo/'];
+const NO_NAVEGADOR = ['/', '/historia/', '/glossario/', '/de-onde-vem/', '/territorio/',
+  '/privacidade/', '/jogo/'];
 
 // ============================================================================
 // D. O RESOLVEDOR — que cabecalho a Vercel vai servir para uma rota.
@@ -315,12 +348,23 @@ const servidor = http.createServer(function (req, res) {
       alvo = path.join(alvo, 'index.html');
     }
   } catch (e) { /* o readFile abaixo responde 404 */ }
-  fs.readFile(alvo, function (err, buf) {
+  fs.readFile(alvo, function (err, buf0) {
     if (err) { res.writeHead(404).end('404'); return; }
+    let buf = buf0;
+    if (PRIV_MEDE && rel === '/privacidade/') {
+      buf = Buffer.from(String(buf0).replace('</body>',
+        '<script>fetch("https://us.i.posthog.com/i/v0/e/",{method:"POST",body:"{}"})'
+        + '["catch"](function(){});</' + 'script></body>'), 'utf8');
+    }
     const cab = Object.assign({
       'Content-Type': TIPOS[path.extname(alvo).toLowerCase()] || 'application/octet-stream',
       'Cache-Control': 'no-store'
     }, cabecalhosDaRota(rel));
+    // modo 2 do controle: afrouxa a CSP SÓ no que o servidor local manda (nunca na tabela que os
+    // blocos A/B/C conferem), para o pedido injetado sair e a asserção de `medicoes` ser a que morde.
+    if (PRIV_MEDE === '2' && rel === '/privacidade/' && cab['Content-Security-Policy']) {
+      cab['Content-Security-Policy'] += '; connect-src https://us.i.posthog.com';
+    }
     res.writeHead(200, cab); res.end(buf);
   });
 });
@@ -370,6 +414,14 @@ async function medirPagina(nav, rota) {
       + ' CSP aplicada: ' + [...new Set(m.erros)].slice(0, 3).join(' | '));
     // uma pagina branqueada tambem passa com zero erro; o conteudo e o que prova que ela abriu
     if (m.nos < 20) reprovar('E. ' + rota + ' rendeu so ' + m.nos + ' no(s) — a pagina branqueou.');
+    // A POLITICA NAO MEDE, e aqui isso vira numero. Ver CSP_PRIV_MEDE_TESTE no topo.
+    if (rota === '/privacidade/' && m.medicoes !== 0) {
+      reprovar('E. /privacidade/ mandou ' + m.medicoes + ' evento(s) para a medicao. Ela e a unica'
+        + ' pagina publica que nao mede: a secao 3 do proprio texto dela diz que o evento conta'
+        + ' "qual das CINCO secoes foi aberta", e uma sexta secao medida tornaria essa frase falsa'
+        + ' no mesmo commit. Se a decisao mudou, mude o TEXTO, a tabela PRIVACIDADE deste portao e'
+        + ' as SECOES do ferramentas/medir-secao.js juntos.');
+    }
   }
 
   // E (extra) — O PACOTE DE ARTE BAIXA DE VERDADE, item `jogo-connect-src-sem-portao`.

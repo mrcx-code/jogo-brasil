@@ -106,9 +106,9 @@ de contagem (ver seção 6). Os avisos são estes, e não há outros:
 | Você abre A HISTÓRIA | quantas vezes já abriu · o dia · se veio pela tela do fim |
 | Você abre DE ONDE VEM | quantas vezes já abriu · o dia · se veio pela tela do fim |
 | Você abre as palavras do capítulo | o número do capítulo · o dia |
-| Você fecha o jogo ou troca de aba | em que capítulo parou · quantos minutos ao todo · quanto durou esta sessão |
+| Você fecha o jogo ou troca de aba | em que capítulo parou · quantos minutos ao todo · quanto durou esta sessão · quanto desse tempo você teve a mão no jogo, e não só a aba aberta |
 | O jogo quebra | a mensagem do erro, o arquivo e a linha — **nada da sua partida**; no máximo três por vez |
-| Você responde "você voltaria amanhã?" | a palavra que você escolheu entre três (*volto*, *talvez*, *não*) · o dia · os minutos |
+| Você responde "você voltaria amanhã?" | a palavra que você escolheu entre três (*volto*, *talvez*, *não*) · o dia · os minutos · quantas vezes você já chegou ao fim |
 | Você clica na nota que leva do jogo para o resto da plataforma | só que o clique aconteceu, e nada mais |
 | Você abre uma seção da plataforma | qual das cinco seções foi aberta (A História, Glossário, De Onde Vem, Onde Foi, ou a página de entrada) |
 

@@ -85,7 +85,10 @@ for (const linha of diffCru) {
 }
 if (!arquivos.length) morre('o ramo não traz mudança nenhuma sobre a main.');
 const exigidos = new Set();
-const PUB = /^(plataforma|historia|glossario|de-onde-vem|territorio|dashboard)\/|^ferramentas\/gerar-/;
+// `privacidade/` entrou em 04/09 com a página da política: ela é pública, é a única que faz
+// afirmação sobre o que o site coleta, e por isso é a que menos pode ir ao ar sem o olho do
+// porteiro. (`ferramentas/gerar-privacidade.js` já cairia no `^ferramentas/gerar-`; a pasta não.)
+const PUB = /^(plataforma|historia|glossario|de-onde-vem|territorio|privacidade|dashboard)\/|^ferramentas\/gerar-/;
 // REDE = o que pede olho de infra/seguranca (hoje do PORTEIRO). Alargado em 24/08 (PENDENTES 82): antes, apagar o bloco
 // headers do vercel.json (CSP, X-Frame-Options do /dashboard), mexer no pin-local, na RLS
 // (fila-auth.sql), no esquema, no proprio funil ou no guarda integrava com --placar e mais nada.

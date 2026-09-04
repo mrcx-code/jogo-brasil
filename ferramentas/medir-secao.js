@@ -101,11 +101,19 @@ const TETO = 4;
 // UM SÓ, EM TODA A PLATAFORMA. Não sobrou um segundo botão no rodapé de propósito: dois
 // controles da MESMA preferência, um deles fora da vista, é o jeito mais barato de a página
 // mostrar "ligada" num canto e "desligada" no outro.
+// A PORTA PARA A POLÍTICA INTEIRA (04/09, item `pagina-privacidade`). A frase acima é o resumo
+// de UMA tela; a política completa (o que fica no aparelho, com quem os avisos são
+// compartilhados, a base legal, os direitos do art. 18, o e-mail para exercê-los) é a página
+// `/privacidade/`, gerada de `plataforma/privacidade-texto.md`. Até 04/09 NENHUMA das cinco
+// páginas apontava para ela — medido por grep: zero ocorrências de "/privacidade" nas cinco.
+// O link mora AQUI, e não em cada gerador, pelo mesmo motivo de o botão morar aqui: cinco
+// cópias de uma afirmação de privacidade são cinco lugares para ela envelhecer diferente.
 function rodape() {
   return '<p class="med">Esta página conta uma abertura anônima — <strong>qual seção foi '
     + 'aberta</strong>, e nada mais. Sem nome, sem e-mail, sem IP, sem cookie: só um número '
     + 'sorteado que fica neste aparelho. O interruptor fica na barra do topo, em toda página. '
-    + 'Desligar desliga de verdade, aqui e no jogo.</p>';
+    + 'Desligar desliga de verdade, aqui e no jogo. '
+    + '<a href="/privacidade/">Política de privacidade</a>.</p>';
 }
 
 // ------------------------------------------------------------------ o interruptor, no chrome
@@ -134,6 +142,59 @@ function botaoHtml() {
 // ninguém lê é uma promessa de que mudá-lo faz alguma coisa.
 function estilo() {
   return '  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }\n';
+}
+
+// ---------------------------------------------------------- a FIAÇÃO do botão, escrita uma vez
+//
+// Ela saiu de dentro do `script()` em 04/09, quando a página `/privacidade/` passou a precisar do
+// INTERRUPTOR sem precisar do EVENTO (ver `scriptInterruptor()` logo abaixo). Duas cópias deste
+// laço seriam duas versões do que o botão faz — e o dia em que uma mudasse sem a outra, o
+// interruptor mostraria "ligada" numa página e "desligada" na vizinha, com a mesma chave por
+// baixo. Os bytes que ela emite são os mesmos de antes: o comentário que a explica continua no
+// `script()`, onde sempre esteve.
+function fiacaoBotao() {
+  return ''
++ '  var bt = document.getElementById(' + JSON.stringify(ID_BOTAO) + ');\n'
++ '  function pintar() {\n'
++ '    if (!bt) return;\n'
++ '    // Só o pedaço do ESTADO é reescrito: o rótulo "medição" fica, e é ele que diz do que\n'
++ '    // este botão trata quando a barra está rolada e só ele aparece.\n'
++ '    var est = bt.querySelector("[data-estado]");\n'
++ '    if (est) est.textContent = ligado ? "ligada" : "desligada";\n'
++ '    else bt.textContent = ligado ? "medição: ligada" : "medição: desligada";\n'
++ '    bt.setAttribute("aria-pressed", ligado ? "true" : "false");\n'
++ '    bt.setAttribute("aria-label", ligado ? "Medição ligada. Toque para desligar."\n'
++ '      : "Medição desligada. Toque para ligar.");\n'
++ '  }\n'
++ '  if (bt) bt.addEventListener("click", function () {\n'
++ '    ligado = !ligado;\n'
++ '    try { localStorage.setItem(K_MEDIR, ligado ? "sim" : "nao"); } catch (e) {}\n'
++ '    pintar();\n'
++ '  });\n'
++ '  pintar();\n';
+}
+
+// -------------------------------------------------- o interruptor SEM o evento (`/privacidade/`)
+//
+// POR QUE UMA PÁGINA COM BOTÃO E SEM MEDIÇÃO. A política de privacidade promete, na seção "Em uma
+// tela" e de novo na seção 8, que o interruptor **medição** fica "na barra do topo de qualquer
+// página" — então ela precisa do controle. E a seção 3 dela descreve o evento `secao aberta`
+// dizendo, com todas as letras, "qual das **cinco** seções foi aberta". Fazer a página de
+// privacidade virar a sexta seção medida tornaria FALSA, no mesmo commit, uma frase da página que
+// existe para dizer a verdade sobre a medição — e o §3 do CLAUDE.md é claro sobre qual das duas
+// coisas é pior. Então aqui não há `fetch`, não há chave, não há identificador sorteado e não há
+// endereço: só a leitura da escolha, o botão e a gravação da escolha. A CSP da rota acompanha
+// (sem `connect-src` nenhum — ver o QUADRO_DE_ROTAS do ferramentas/construir.js).
+function scriptInterruptor() {
+  return '<script>\n'
++ '(function () {\n'
++ '  // A MESMA chave do jogo e das cinco seções: uma pessoa, uma decisão, um site.\n'
++ '  var K_MEDIR = ' + JSON.stringify(CHAVE_MEDIR) + ';\n'
++ '  var ligado = true;\n'
++ '  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }\n'
++ fiacaoBotao()
++ '})();\n'
++ '</' + 'script>';
 }
 
 // ---------------------------------------------------------------- o bloco que roda na página
@@ -208,24 +269,7 @@ function script(secao) {
 + '  // O BOTÃO ESTÁ NA BARRA DO TOPO desde 23/08, e este bloco é a fiação dele. O script vem\n'
 + '  // depois do <nav>, então o alvo já existe; o `if (!bt)` continua porque uma página futura\n'
 + '  // pode ter medição sem chrome, e medir nunca pode quebrar por causa de um botão ausente.\n'
-+ '  var bt = document.getElementById(' + JSON.stringify(ID_BOTAO) + ');\n'
-+ '  function pintar() {\n'
-+ '    if (!bt) return;\n'
-+ '    // Só o pedaço do ESTADO é reescrito: o rótulo "medição" fica, e é ele que diz do que\n'
-+ '    // este botão trata quando a barra está rolada e só ele aparece.\n'
-+ '    var est = bt.querySelector("[data-estado]");\n'
-+ '    if (est) est.textContent = ligado ? "ligada" : "desligada";\n'
-+ '    else bt.textContent = ligado ? "medição: ligada" : "medição: desligada";\n'
-+ '    bt.setAttribute("aria-pressed", ligado ? "true" : "false");\n'
-+ '    bt.setAttribute("aria-label", ligado ? "Medição ligada. Toque para desligar."\n'
-+ '      : "Medição desligada. Toque para ligar.");\n'
-+ '  }\n'
-+ '  if (bt) bt.addEventListener("click", function () {\n'
-+ '    ligado = !ligado;\n'
-+ '    try { localStorage.setItem(K_MEDIR, ligado ? "sim" : "nao"); } catch (e) {}\n'
-+ '    pintar();\n'
-+ '  });\n'
-+ '  pintar();\n'
++ '' + fiacaoBotao()
 + '  medir();\n'
 + '})();\n'
 + '</' + 'script>';
@@ -234,5 +278,5 @@ function script(secao) {
 module.exports = {
   MEDIDA_HOST, ENDERECO_MEDIDA, MEDIDA_CHAVE,
   CHAVE_MEDIR, CHAVE_ANON, ID_BOTAO, EVENTO, SECOES, PERMITIDAS, TETO,
-  rodape, estilo, botaoHtml, script
+  rodape, estilo, botaoHtml, script, scriptInterruptor
 };
