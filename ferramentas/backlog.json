@@ -110,17 +110,15 @@
     },
     {
       "id": "palmares-emenda-horizontal-rosto",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T13:43:17.000Z",
-      "agente": "dev-jogo",
+      "estado": "livre",
+      "agente": "arte",
       "camada": "leve",
-      "titulo": "PALMARES: a emenda horizontal do cenario (nao a home) fabrica rosto simetrico nos arbustos em worldX inicial",
+      "titulo": "PALMARES: emenda horizontal fabrica rosto na peça de CIMA a 32% da caminhada — as duas técnicas óbvias foram refutadas por medição, precisa de decisão de composição",
       "territorio": [
         "src/jogo.ts"
       ],
-      "aceite": "Mesmo criterio ja usado pra costura vertical (banca=arte, julgamento por print): romper a simetria no eixo x≈195 CSS da rua de PALMARES no worldX inicial — deslocar a copia espelhada, variar a vegetacao entre copias, ou qualquer tecnica que ja exista no repositorio pra isso. Prova por print antes/depois, arte julga.",
-      "detalhe": "Achado pela arte em 04/09, banca do item caminho-do-ceu, fora do escopo dele (e a emenda HORIZONTAL do cenario de jogo, nao a costura vertical da home). Mesma classe de defeito que JABAQUARA ja pagou: simetria em textura organica fabrica rosto/forma indesejada. Print de prova: PAR-03-B-jogo.png no scratchpad da rodada de 04/09."
+      "aceite": "A arte julga os 3 prints (PAL-EIXO-A-como-esta.png, B-sem-espelho.png, rua-390x844.png) e decide o caminho — dev-jogo so aplica depois. O idioma do COSTURA_COBRE (moita determinista sobre o eixo) e candidato, mas o rosto fica na COPA, longe da linha do chao onde FRENTE_SPR normalmente atua — e composicao nova, decisao da arte.",
+      "detalhe": "ATUALIZADO em 04/09 pelo dev-jogo, que MEDIU em vez de aplicar: a premissa original do item estava ERRADA — nao e 'worldX inicial', o eixo aparece a 32,1% da caminhada (contraste 94,4-96,5% contra piso de ruido 11,7%), na peca de CIMA (fracao 0,45), x≈192 CSS quando worldX≈458. As DUAS tecnicas que o aceite antigo sugeria foram testadas e as duas caem: (1) deslocar a copia espelhada NAO remove o eixo, so move ele (prova estrutural, reflexao e invariante a translacao da copia refletida — mesma conclusao ja medida pra JABAQUARA); (2) desligar o espelho da peca de cima troca o rosto por um corte vertical duro (a coluna mais dura sobe de 2,17x para 2,47x de |dI/dx|, medido e visto no print B). Precisa de decisao de composicao nova, nao so tecnica."
     },
     {
       "id": "pequena-africa-costura-ressalva",
@@ -147,18 +145,16 @@
       "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito')."
     },
     {
-      "id": "cais-fala-obsoleta-e-verbo-errado",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T13:43:17.000Z",
-      "agente": "dev-jogo",
-      "camada": "leve",
-      "titulo": "O CAIS: a quinta fala da abertura mente (diz que a arte é emprestada, já chegou própria) e o verbo dito não é o que a mecânica faz",
+      "id": "fala-arte-emprestada-obsoleta-em-5-capitulos",
+      "estado": "livre",
+      "agente": "historiador",
+      "camada": "medio",
+      "titulo": "A frase 'a arte ainda é emprestada de outro capítulo' está obsoleta em CINCO capítulos, não só O CAIS",
       "territorio": [
         "src/jogo.ts"
       ],
-      "aceite": "Duas frases, sem mudar mecânica. (1) A quinta fala de abertura (~linha 2103, hoje 'O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo...') passa a refletir que a arte própria já existe (24 quadros de gente contemporânea + pintura própria) — e ganha a âncora que falta hoje: nenhuma linha em tela diz ao jogador que a rua é HOJE (o capítulo é sobre pessoas contemporâneas da Saúde/Gamboa, não do século XIX). (2) a quarta fala (~linha 2102, 'Aqui, alcançar é cavar para saber') troca o verbo por um que bata com o que a mecânica faz de verdade — acolher, não cavar (mesmo gesto de PALMARES). npm test verde.",
-      "detalhe": "PENDENTES 105: achados CONFIRMADOS por verificação adversarial (severidade rebaixada de alta pra média — a arte já entregue é inequivocamente contemporânea, então a leitura mais grave de §2.2 não se sustenta). Território leve, só texto, sem decisão de representação nova — a representação (gente cruzando o cais) já foi decidida quando arte-cais foi aprovada 15/08 em ROSTOS.md."
+      "aceite": "Reescrever a fala equivalente nos 5 capitulos (O CAIS linha 2112, JABAQUARA 2260, A PEQUENA AFRICA 2303, AS PORTAS 2351, O QUE NAO PODIA SER DITO 2404) para refletir que a arte propria ja existe em todos (pintura + 24 quadros de gente cada). E texto de capitulo (abertura/fecho/querer) -- territorio do historiador, sob a licenca de 19/08 (revisar o que ja esta escrito para parar de ser falso, nao decidir o que passa a existir). O CAIS tem dois achados juntos, nao um: a fala tambem promete o verbo errado (diz 'cavar', a mecanica e 'acolher') -- sugestao pronta abaixo. JABAQUARA e o pior caso: diz 'a gente e as coisas daqui nao foram desenhadas', e a gente FOI.",
+      "detalhe": "Achado pelo dev-jogo em 04/09 medindo o item original (que so cobria O CAIS). Grep confirmou: os 5 capitulos tem pintura propria (arte 12,7,8,9,10 -- nenhuma compartilhada) e 24 quadros de gente propria cada, todos em CAP_FILA ou CAPS_VERBO. Sugestoes NAO APLICADAS (dev-jogo nao mexe em fala, e territorio do historiador): O CAIS fala 4 (linha 2111) -> 'Aqui, alcancar e acolher quem passa -- o mesmo gesto de Palmares. Neste capitulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela nao devolveu, ele diz que nao sabe.'; O CAIS fala 5 (linha 2112) -> 'E a rua que voce vai andar e a de HOJE -- a Saude e a Gamboa de agora, por cima da pedra. Quem atravessa a tela e gente daqui e de agora. O que ainda vem emprestado de outro capitulo e o que fica no chao, e o jogo prefere dizer isso a fingir.' (resolve o verbo, a obsolescencia E a ancora de 'isto e HOJE' que faltava). Os outros 4 capitulos precisam da mesma leitura, caso a caso -- nenhuma sugestao pronta ainda."
     },
     {
       "id": "salvador-drop-ritual-vira-trabalho",
