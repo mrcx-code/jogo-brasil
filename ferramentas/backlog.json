@@ -545,8 +545,8 @@
     },
     {
       "id": "painel-4-cliques",
-      "titulo": "Os 4 cliques do dono no painel Supabase (fecham o auth de verdade)",
-      "detalhe": "Quatro ajustes no painel do Supabase que so o dono alcanca. O motivo de cada um esta no PENDENTES.md e na auditoria da seguranca de 22/08 — fora do que e publicado. Fora do repo.",
+      "titulo": "3 dos 4 cliques do dono no painel Supabase ja aplicados — o 4o e bloqueado pelo plano Free",
+      "detalhe": "ATUALIZADO em 04/09: item estava marcado como se nada tivesse sido feito. Na verdade, aplicados nesta sessao (com o dono guiado pelo navegador): cadastro OFF, Secure password change ON, minimo 8 caracteres. O 4o (leaked passwords / Prevent use of leaked passwords) NAO e um clique pendente do dono — e um recurso do plano Pro do Supabase, indisponivel no Free tier deste projeto. Fica do-dono so pela pergunta: vale fazer upgrade de plano por essa unica trava, ou aceitar o risco residual? Motivo de cada ajuste no PENDENTES.md e na auditoria de seguranca de 22/08.",
       "agente": "dono",
       "estado": "do-dono",
       "territorio": [
@@ -809,20 +809,20 @@
     {
       "id": "contato-placeholder",
       "titulo": "As pecas 02 e 03 ficam com placeholder no contato ate o dono dar o endereco",
-      "estado": "do-dono",
+      "estado": "concluido",
       "papel": "porteiro",
       "territorio": "divulgacao/",
       "camada": "divulgacao",
-      "detalhe": "DECIDIDO PELO DONO em 23/08: use placeholder. As pecas 02 (professores) e 03 (press-kit) prometem um canal de retorno que nao existe. O texto ja tem sign-off dele; o que falta e o endereco. NAO inventar e-mail, NAO cortar a promessa -- o placeholder fica e o ENVIO espera. Quando ele der o endereco, e trocar o marcador em duas pecas e mandar."
+      "feito": "04/09. O dono deu o endereco em chat (brasilpatinhas@gmail.com, autorizado explicitamente para privacidade E pecas de divulgacao). Este item ESTAVA CONCLUIDO SO PELA METADE: o e-mail so tinha ido pra plataforma/privacidade-texto.md, as 2 pecas de divulgacao (02-texto-professores.md, 03-press-kit-minimo.md) continuavam com o marcador [A DEFINIR] -- achado ao revisar o modal de Acionar arte, que mostrou o item mundo-3d-m3-forma-aldeias mas escondia que havia outros itens do-dono desatualizados. Corrigido nos dois arquivos agora."
     },
     {
       "id": "ler-a-medicao",
       "titulo": "Ninguem nunca leu o que medimos ha tres dias -- construir a leitura",
-      "estado": "do-dono",
+      "estado": "concluido",
       "papel": "porteiro",
       "territorio": "ferramentas/ler-medicao.js",
       "camada": "plataforma",
-      "detalhe": "DECIDIDO PELO DONO em 23/08, no check de fechamento: ele cria a chave QUANDO O LIMITE SEMANAL RESETAR, nao agora. A ferramenta ja esta pronta (ferramentas/ler-medicao.js, feita pelo mac-jogo) e sai com mensagem clara sem a chave, de proposito. CONSEQUENCIA ACEITA E DITA: mais uma semana contando aberturas sem ninguem ler, e a pergunta de tres dias segue sem resposta -- entao a rodada de endurecimento de portao acontece SEM saber se alguem volta, o que ele decidiu de olhos abertos. NAO cobrar dele antes disso; NAO tentar contornar com estimativa. DECIDIDO PELO DONO em 23/08, contra ele mesmo ler o painel e contra deixar para depois. O DIAGNOSTICO: as 5 paginas contam aberturas desde 21/08 e NENHUMA ferramenta do repositorio busca esses numeros. Medir sem ler e pior que nao medir, porque cria a sensacao de que a pergunta de tres dias esta sendo respondida. DEPENDENCIA QUE BLOQUEIA, e ela e de credencial: a chave embutida no jogo e a PUBLICAVEL (phc_), que so MANDA evento -- ler exige uma chave pessoal de leitura, que e SEGREDO e NUNCA pode entrar no repositorio nem no build. DESENHO: a ferramenta le a chave de uma variavel de ambiente (POSTHOG_LEITURA) ou de um arquivo local no .gitignore, e sai com mensagem clara se ela nao existir -- nunca com a chave escrita em lugar nenhum. O dono cria a chave no painel do PostHog (Personal API key, so leitura) e a poe na maquina; eu nunca a vejo. O QUE ELA DEVE RESPONDER, e nada alem disso: quantas pessoas abriram, quantas VOLTARAM no dia seguinte e no terceiro, ate que capitulo chegaram, e a resposta da pergunta voce voltaria amanha. Escreve o resultado no NOTES.md com a data, para o numero nao viver so na tela de alguem. O build tem de RECUSAR se essa chave aparecer no index.html -- a mesma trava que ja existe para a phc_."
+      "feito": "02-04/09. A chave foi criada pelo dono (rotacionada, roll em vez de delete+create), salva em ferramentas/posthog.local (gitignored). Lida 3 vezes: 02/09 (0 aberturas), 03/09 (0 aberturas, secao aberta 365), 04/09 (0 aberturas, secao aberta 1482 -- trafego na plataforma, nao no jogo). Escrito no NOTES.md com data nas 3. Item ficou marcado do-dono por esquecimento depois de resolvido -- mesma classe de erro do painel-4-cliques e contato-placeholder, achados juntos ao revisar o modal Acionar arte."
     },
     {
       "id": "medir-telas",

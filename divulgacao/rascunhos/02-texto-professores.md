@@ -35,7 +35,7 @@ currículo específico — isso exigiria checagem que não foi feita).
 > É gratuito e não pede cadastro para ler ou jogar. A plataforma conta quantas vezes cada
 > página abre, de forma anônima — sem nome, sem e-mail; dá pra desligar isso no rodapé de
 > qualquer página, e vale pro aparelho inteiro, jogo incluído. Se usar em sala e quiser mandar
-> um retorno (o que funcionou, o que travou), [CANAL DE CONTATO A DEFINIR — sign-off do dono].
+> um retorno (o que funcionou, o que travou), escreva para brasilpatinhas@gmail.com.
 
 **Nota interna:** o rascunho não afirma "alinhado à BNCC" nem cita nenhuma habilidade de
 currículo específica — isso precisaria de checagem que não foi feita nesta rodada. Se o dono

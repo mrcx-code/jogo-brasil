@@ -65,7 +65,7 @@ assinam.)*
 
 ## Contato
 
-[A DEFINIR — canal de contato para imprensa fica com o dono antes de qualquer envio.]
+brasilpatinhas@gmail.com
 
 ## Material de apoio
 
