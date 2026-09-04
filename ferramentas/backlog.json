@@ -1511,7 +1511,7 @@
     },
     {
       "id": "aprovados-duplicada-sem-assercao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "A tabela APROVADOS esta repetida em 2 arquivos e nada assere que concordam -- a divergencia INFLA o relatorio (nao abre buraco no portao)",
@@ -1521,8 +1521,8 @@
       ],
       "aceite": "Um assert de 3 linhas no disfarce (require da tabela do portao, ou comparacao de conjuntos) que reprove se as duas divergirem. Mordida provada por injecao: cortar a tabela do disfarce de 8 para 6 nomes tem de sair exit 1 -- hoje sai 0. E o portao passa a DIZER, na mensagem de falha do caso realista, onde se conserta (ver item irmao mensagem-do-portao-do-ritual-nao-diz-onde-consertar).",
       "detalhe": "Declarado pelo dev-jogo em 04/09 (nuvem-20260904T1623) como sobra descoberta do proprio conserto. ATENCAO -- A PREMISSA ORIGINAL DESTE ITEM ESTAVA ERRADA E FOI REFUTADA PELO QA NA MESMA RODADA, com medicao. Eu escrevi aqui que a divergencia seria o sinal de que uma arte de drop entrou SEM passar pelo portao. E falso: o portao e autoridade da propria tabela e mordeu em QUATRO injecoes diferentes (drop novo; drop novo em bloco existente; ritual com a lista branca esticada; buzios espelhado) com a tabela dele intacta. O que a divergencia estraga e o RELATORIO: com 6 de 8 nomes, tres linhas da tabela do disfarce INFLAM -- espelhado vertical 35,2 vira 38,2, rodado 180 graus 34,9 vira 36,6, rodado 90 graus 34,4 vira 34,5 -- e a lista branca passa a parecer MAIS segura do que e. Apodrecimento de documentacao, nao buraco de portao. Prioridade cai de acordo, e fica o registro de que quem escreveu o item (o plantao) errou o diagnostico e o QA o corrigiu com numero.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "prints-smoke-artefato-ou-referencia",
@@ -1682,7 +1682,7 @@
     },
     {
       "id": "varredura-do-ritual-nao-esta-em-portao-nenhum",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "A trava do par.2 FORA do lugar de drop e cobrada por um portao que NADA roda -- buzios no icone do HUD deixa npm test verde",
@@ -1691,12 +1691,12 @@
       ],
       "aceite": "Pendurar test/qa-ritual-varredura.js no npm test, DEPOIS do npm run build e ANTES do smoke (ela le a SAIDA, nao a fonte -- ver o item portao-le-fonte-varredura-le-saida). A linha exata ja foi escrita pelo dev-jogo: node test/qa-ritual-varredura.js encadeado por && antes do smoke; ela roda em 9,4s e nao sobe servidor, entao nao disputa porta. Mordida a reprovar depois de pendurada: buzios em ICONE_B64.folha tem de derrubar npm test. NAO pendurar test/qa-ritual-disfarce.js: medido, ele tem ZERO asserts (sai exit 0 com a tabela sabotada) -- e gerador de tabela, nao portao.",
       "detalhe": "Achado do QA em 04/09 (nuvem-20260904T1623) e provado 0 contra 1, que e a forma mais forte que esta casa aceita. Ele injetou buzios em ICONE_B64.folha -- o icone de um dos tres contadores do HUD, a arte mais vista do jogo, na tela em TODO capitulo -- rodou npm run build e mediu: npm test exit 0, salvador-drop-sem-ritual.js exit 0 (tudo verde), e SO a varredura pegou, exit 1, distancia 0.0, em index.html embutida numero 94. Ou seja: hoje a trava do CLAUDE.md 2.4.5 fora de lugar-de-drop existe, morde, e nao roda. Custo de pendurar: 9,4s sobre ~118s. O dev-jogo que escreveu a entrega recomendou pendurar e o QA concordou depois de medir -- os dois pela mesma razao, e nenhum dos dois editou o package.json porque ele estava com outra entrega.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "portao-le-fonte-varredura-le-saida",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "Armadilha de operacao: o portao do ritual le FONTE + pacotes e a varredura le SAIDA -- rodada a mao sem rebuildar, ela MENTE",
@@ -1706,8 +1706,8 @@
       ],
       "aceite": "Os dois instrumentos passam a DIZER, no cabecalho e na saida, o que leem e que precisam de npm run build para valer. Melhor ainda: a varredura recusa rodar (ou avisa alto) se o index.html no disco for mais velho que o src/jogo.ts -- e a mesma disciplina do PLANTAO.md sobre o smoke, que le a saida e por isso passa no arquivo de ontem.",
       "detalhe": "Achado A3 do QA em 04/09 (nuvem-20260904T1623), e ele PAGOU por isso duas vezes na mesma rodada, o que e a melhor evidencia de que morde: (1) com buzios no ICONE_B64 do src, a varredura saiu exit 0 ate ele rodar npm run build; (2) o portao saiu exit 1 depois de ele restaurar o src, porque o pack-salvador.json no disco ainda era do build anterior. Ele registrou isso como desmentido da propria disciplina, e e a mesma classe da rodada anterior dele. Dentro do npm test o problema nao existe, porque o build vem antes -- por isso o item irmao manda pendurar a varredura DEPOIS do build.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "rede-externa-e-substring-de-texto-e-engole-erro-real",
@@ -1726,7 +1726,7 @@
     },
     {
       "id": "mensagem-do-portao-do-ritual-nao-diz-onde-consertar",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "A mensagem de falha do portao do ritual diz O QUE, nao diz ONDE consertar -- e o caso realista e o mais fraco",
@@ -1735,8 +1735,8 @@
       ],
       "aceite": "A mensagem por lugar nomeia a tabela e o arquivo. Conserto de 12 caracteres, escrito pelo QA: acrescentar (acrescente em APROVADOS, test/salvador-drop-sem-ritual.js) na mensagem por lugar.",
       "detalhe": "Achado A1 do QA em 04/09 (nuvem-20260904T1623). No caso de BLOCO novo a mensagem se explica sozinha (bloco novo sem arte aprovada e vermelho de proposito). No caso REALISTA -- arte nova num bloco existente -- as duas linhas sao DROP_B64[2] tem 4 arte(s), a lista branca declara 3 e src DROP_B64[2][3] nao tem arte aprovada declarada para este lugar: nenhuma nomeia APROVADOS nem o arquivo. E o preco da lista branca e justamente esse vermelho por desenho, entao a mensagem e a unica coisa entre ele e uma hora perdida do proximo plantao achando que quebrou o jogo.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "padrao-coleta-pessoa-onze-capitulos",

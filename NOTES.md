@@ -13693,3 +13693,45 @@ resposta muda a prioridade do item que ficou livre.
 **Próximo passo:** os 32 arquivos sem filtro, começando pelos que estão dentro do `npm test` e do
 funil. E a entrega do `dev-jogo` (família do portão do ritual) ficou em voo ao fim desta rodada —
 ela precisa rebasear o `package.json`, que a `windows-plantao` reescreveu no meio do caminho.
+
+### ADENDO (a entrega que estava em voo quando escrevi o acima)
+
+O `dev-jogo` pousou e **entrou pelo funil** (`npm test` exit 0 · `encaixe` exit 0). Com isso a
+rodada fecha **8 de 8 itens**, e o que ela tem de melhor nao e nenhum dos meus achados:
+
+**O controle 0-contra-1 foi REPRODUZIDO nesta maquina.** Com búzios injetados em
+`ICONE_B64.folha` — o icone do contador do HUD, que aparece em todo capitulo:
+
+| | |
+|---|---|
+| cadeia ANTIGA do `npm test` | **EXIT 0** em 118 s — tudo verde, **inclusive o portao do ritual** |
+| cadeia NOVA | **EXIT 1** em 17 s |
+
+Ou seja: a trava do **§2** fora do lugar de DROP passou de escrita para **cobrada**. Era o que o
+`RECADOS` de 04/09 (tarde) chamava de *"o item que mais paga da fila"*, e o numero mostra por que.
+
+**E ele desmentiu a si mesmo com medicao, que e o registro mais util do dia.** A leitura ingenua
+(`npm test` 135 s → 157 s) dava **+22 s** para a varredura. Medido na MESMA arvore, com e sem:
+**+11 s** (arvore antiga) e **+12 s** (pos-merge) — o resto era ruido entre execucoes. O **9,4 s**
+que o `RECADOS` afirmava fica confirmado em ordem de grandeza e **otimista em ~2 s**. Comparacao
+entre execucoes diferentes nao mede diferenca; so a mesma arvore mede.
+
+Tres duvidas dele que ficam abertas, e nenhuma e bloqueante:
+1. Ele escolheu **RECUSAR** (exit 2) em vez de avisar quando a saida esta mais velha que a fonte,
+   e **nao mediu a alternativa contra si** — nao ha numero que separe "aviso lido" de "aviso
+   ignorado". Por isso existe a porta com nome (`QA_ACEITA_SAIDA_VELHA=1`).
+2. A varredura continua sendo **lista negra** fora do lugar de drop: brilho ×1,25 mede 14,0 e passa
+   do limiar 12. **Pendurar fechou o caso, nao a classe** — o item `ritual-fora-do-drop-sem-lista-branca`
+   continua livre e continua sendo o certo.
+3. O guarda de `mtime` **nunca dispara dentro do `npm test`** (o build e o primeiro elo: a saida
+   nasce 88 s mais nova que a fonte). Ele so protege o uso **a mao** — que e exatamente onde o QA
+   pagou as duas pontas em 04/09.
+
+**Fronteira respeitada e conferida por mim:** o diff tem 5 arquivos e **nenhum em `src/`**. O
+`src/jogo.ts` foi mutado transitoriamente 3 vezes para fabricar as mordidas — exigencia literal do
+aceite — e restaurado com `md5sum -c` OK; nada disso esta em commit. E o `package.json` ficou com
+**as 3 `dist-inventario` da `windows-plantao` E a varredura**: a linha disputada nao perdeu nada de
+ninguem.
+
+**Fecho da rodada:** backlog **28 livres · 97 concluidos · 8 do dono · 1 em-curso** (da outra
+maquina) · **0 travados no meu nome**. Dois funis, os dois verdes por exit code real.
