@@ -140,7 +140,7 @@
     },
     {
       "id": "aceiro-fogo-vira-gente",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "pesado",
       "titulo": "O ACEIRO: mantém gente na rua, tira a coleta — decisão do dono em 04/09",
@@ -148,7 +148,9 @@
         "src/jogo.ts"
       ],
       "aceite": "A mão continua alcançando quem atravessa (brigadista, apanhadora de sempre-vivas, vaqueiro), mas o que a pessoa carrega deixa de ser recolhido como impacto — soltarDrop()/coletarDrop() param de disparar para este capítulo especificamente (concluirAlcance() precisa saber diferenciar, sem quebrar os outros capítulos de gente-na-rua que SIM coletam, tipo PALMARES). O comentário do bloco ABAFAR (~2662-2669) e o de ~2505 — hoje falsos, dizem 'nunca pessoa, sempre fogo' — passam a descrever o que realmente acontece: gente de verdade, sem coleta. Prova por injeção: screenshot antes/depois do toque em O ACEIRO, e teste que confirma S.energia/S.recursos não sobe ao alcançar ali (mas continua subindo em PALMARES, controle negativo). npm test verde.",
-      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito')."
+      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito').",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T18:02:57.885Z"
     },
     {
       "id": "fala-arte-emprestada-obsoleta-em-5-capitulos",
