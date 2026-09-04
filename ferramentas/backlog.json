@@ -9,6 +9,29 @@
   },
   "itens": [
     {
+      "id": "aceiro-fogo-vira-gente",
+      "estado": "do-dono",
+      "agente": "dev-jogo",
+      "camada": "pesado",
+      "titulo": "O ACEIRO: o codigo promete 'nunca pessoa, sempre fogo' e a build tem gente de verdade sendo tocada e recolhida",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. O comentário do bloco ABAFAR (src/jogo.ts ~2662-2669) e da linha ~2505 afirmam que o que atravessa a tela é sempre FOGO, nunca pessoa — mas `aceiro` entrou em CAPS_VERBO em 18/08, o que liga pessoaNaRua() e troca o objeto pela folha de gente (GENTE_EP_B64.aceiro: uma brigadista, uma apanhadora de flores sempre-vivas, um vaqueiro — comunidade tradicional reconhecida). A mão os alcança e o que carregam vira drop coletado como impacto (soltarDrop() incondicional). O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito'). NÃO é decisão de agente: pessoa de comunidade tradicional virando o que se toca e cujo carga se recolhe é representação, e §2 manda parar e perguntar ao dono. Três caminhos possíveis, nenhum decidido: (a) reverte pra só fogo/objeto abstrato, cumprindo a garantia escrita; (b) mantém gente cruzando mas remove a coleta do que carregam (a mão toca, não recolhe); (c) mantém como está e só corrige o comentário do código pra parar de afirmar garantia falsa (não resolve a representação, só a documentação)."
+    },
+    {
+      "id": "cais-fala-obsoleta-e-verbo-errado",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "O CAIS: a quinta fala da abertura mente (diz que a arte é emprestada, já chegou própria) e o verbo dito não é o que a mecânica faz",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "Duas frases, sem mudar mecânica. (1) A quinta fala de abertura (~linha 2103, hoje 'O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo...') passa a refletir que a arte própria já existe (24 quadros de gente contemporânea + pintura própria) — e ganha a âncora que falta hoje: nenhuma linha em tela diz ao jogador que a rua é HOJE (o capítulo é sobre pessoas contemporâneas da Saúde/Gamboa, não do século XIX). (2) a quarta fala (~linha 2102, 'Aqui, alcançar é cavar para saber') troca o verbo por um que bata com o que a mecânica faz de verdade — acolher, não cavar (mesmo gesto de PALMARES). npm test verde.",
+      "detalhe": "PENDENTES 105: achados CONFIRMADOS por verificação adversarial (severidade rebaixada de alta pra média — a arte já entregue é inequivocamente contemporânea, então a leitura mais grave de §2.2 não se sustenta). Território leve, só texto, sem decisão de representação nova — a representação (gente cruzando o cais) já foi decidida quando arte-cais foi aprovada 15/08 em ROSTOS.md."
+    },
+    {
       "id": "salvador-drop-ritual-vira-trabalho",
       "estado": "livre",
       "agente": "dev-jogo",

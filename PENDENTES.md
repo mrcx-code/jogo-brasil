@@ -4044,3 +4044,30 @@ bruto completo (13 auditorias + 15 verificações) está em
 — não apagar antes de terminar de ler os 25 achados ainda não vistos (os 12 capítulos com achado
 menos os 3 já detalhados acima têm mais 22 achados baixa/média não listados aqui, a maioria sobre
 fonte fraca ou redação imprecisa, não sobre mecânica).
+
+### FECHAMENTO da auditoria (verificação dos 7 capítulos que faltavam) — plantao/ultracode (04/09)
+
+Os 25 achados brutos dos 7 capítulos pendentes (O CAIS, A PRAÇA, O QUE NÃO PODIA SER DITO, O QUE
+SEGUROU, O QUE TEM FONTE, O ACEIRO, AINDA AQUI) passaram pela verificação adversarial. **17
+confirmados, 8 refutados.** Os 13 capítulos estão agora com auditoria E verificação completas.
+
+**Achado ALTA de O CAIS foi REBAIXADO para MÉDIA na verificação.** A verificação foi conferir a arte
+já entregue (`GENTE_EP_B64.cais`, 24 quadros) em vez de confiar no relato: são pessoas contemporâneas
+sem ambiguidade — um entregador de bicicleta com bag térmica, uma senhora com carrinho de feira, um
+rapaz com fone de ouvido. Não sustenta a leitura de "gente escravizada de 1811" que fazia o achado
+original ser ALTA. O que sobrevive, confirmado: a quinta fala da abertura do capítulo está OBSOLETA E
+FALSA — diz "a arte deste cais não chegou, é emprestada de outro capítulo", quando já chegou arte
+própria; e o verbo que o texto promete ("alcançar é cavar") não é o que a mecânica faz (é "acolher",
+igual a PALMARES). Nenhuma linha em tela diz ao jogador que a rua é HOJE, o que seria a âncora que
+falta. Effort baixo: 2-3 frases de texto, sem mudança de mecânica.
+
+**O ACEIRO segue ALTA, confirmado sem ressalva.** Ver item de backlog `aceiro-fogo-vira-gente` — a
+pergunta é do dono.
+
+**Os outros 15 achados confirmados** (média/baixa, nos 7 capítulos) são majoritariamente sobre
+procedência de fonte (número certo, mas apontando pro documento errado ou pra tela errada) e
+comentários de código desatualizados que podem confundir uma sessão futura — nenhum é mecânica
+quebrando §2. Ficam registrados aqui, não viraram item de backlog individual por serem numerosos e
+de baixo risco; o relatório completo com trecho, local e justificativa de cada um está no journal do
+workflow: `wf_c36b3335-bf1` (a auditoria original, capítulos que fecharam de primeira, está em
+`wf_2ac10252-4f7`). Quem for revisar texto histórico por outro motivo deveria ler este bloco antes.
