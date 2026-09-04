@@ -22,7 +22,7 @@
     },
     {
       "id": "portao-conjunto-publicado-por-secao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "Nenhum portao cobra O CONJUNTO do que uma secao publica em dist/ — foi assim que pinos-proposta.json vazou por 12 dias",
@@ -32,8 +32,7 @@
       ],
       "aceite": "Um teste assere o CONJUNTO de arquivos de cada dist/<secao>/ contra uma lista permitida (so o que index.html + compartilhar.jpg citam, ou equivalente) -- fechando a CLASSE de vazamento, nao so a instancia do pinos-proposta.json ja consertada.",
       "detalhe": "Achado estrutural do QA em 04/09: a regra de 23/08 tambem nao tinha portao (so bloqueava por extensao .md), e foi assim que a gemea em JSON sobreviveu 12 dias publicando os 49 pinos candidatos (incl 5 PARE) em producao. O conserto do item territorio-rico fecha a INSTANCIA (regra virou baseada em uso), mas nao a CLASSE -- proximo arquivo esquecido pode vazar do mesmo jeito. test/csp-paginas.js anda por dist/ mas so cobra CSP de index.html, nao o inventario.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T19:15:15.302Z"
+      "feito": "Integrado 04/09 (commits 70c02ad/247d27d, funil a79a496/d4b87f2). test/dist-inventario.js le dist/<secao>/ no disco e reprova arquivo nao referenciado de verdade (src=/href=/content=/fetch com extensao no valor) nem coberto por excecao pregada com cobranca. Achou e consertou de quebra um orfao real (dist/dashboard/precos-modelo.json). Pendurado no npm test, roda cedo (linha ~33, falha rapido). Duas rodadas de auditoria adversarial acharam e fecharam 2 gaps reais na propria checagem antes de integrar: mencao em prosa contava como citacao (6 casos, incl a mesma classe .md de 23/08), e content= de qualquer meta contava mesmo sem apontar arquivo (5 casos). Os 11 casos totais viraram testes de regressao permanentes (test/dist-inventario-mencao-nao-e-citacao.js, test/dist-inventario-meta-sem-arquivo.js). Gap teorico remanescente (arquivo CITADO mas ausente do disco -- 404 de og:image) sem caso vivo hoje, nao fechado de proposito (fora do escopo do item)."
     },
     {
       "id": "ver-territorio-fora-do-ci",
