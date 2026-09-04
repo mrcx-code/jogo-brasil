@@ -1751,6 +1751,20 @@
       ],
       "aceite": "Decisao do dono: manter a coleta nos outros dez capitulos (a leitura de que a abertura de cada um nomeia CARGA DE TRABALHO, nao PESSOA COMO RECURSO, e portanto e diferente de O ACEIRO) OU aplicar capSemColeta() a algum/todos eles tambem.",
       "detalhe": "Levantada pelo dev-jogo em 04/09 ao consertar aceiro-fogo-vira-gente (PENDENTES 105, achado 3) e confirmada por QA independente com medicao no jogo vivo: os onze capitulos em que quem atravessa a rua e gente (CAP_FILA + CAPS_VERBO) sao pindorama, palmares, cais, salvador, jabaquara, pequenaafrica, portas, naodito, praca, segurou, temfonte. O dono decidiu tirar a coleta de UM (O ACEIRO). Nos outros dez, a leitura do dev-jogo e do historiador (que revisou a entrega) e que a abertura de cada capitulo nomeia a CARGA DE TRABALHO que a pessoa leva (tabuleiro, balde, trouxa de roupa etc.) e a mecanica le como troca/reciprocidade, nao como pessoa virando recurso -- mas isso e leitura, e representacao (S2 do CLAUDE.md) decide-se com o dono, nao sozinho. Nada foi tocado nos outros dez capitulos."
+    },
+    {
+      "id": "filtro-de-console-copiado-por-arquivo",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "33 de 35 portoes contam erro de console SEM filtro nenhum -- a decisao esta copiada por arquivo, e foi a copia que produziu o 3o caso",
+      "territorio": [
+        "test/"
+      ],
+      "aceite": "A decisao \"este erro de console e do produto ou da rede da maquina?\" passa a viver em UM lugar que os portoes importam, em vez de uma regex copiada (ou ausente) por arquivo. Mordida provada nos dois sentidos e em mais de um portao: um console.error do proprio produto que mencione o host da medicao tem de ser CONTADO; o erro de rede da maquina (origem = MEDIDA_HOST) continua ignorado. NAO fazer de uma vez nos 33: o aceite pede o helper + a adocao nos portoes que estao DENTRO do npm test, e o numero de quantos ficaram de fora, para virar item proprio.",
+      "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
