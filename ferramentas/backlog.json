@@ -70,7 +70,7 @@
     },
     {
       "id": "salvador-drop-ritual-vira-trabalho",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "pesado",
       "titulo": "PRIORIDADE — SALVADOR: o drop de objeto ritual (búzios/pano da costa/acarajé) troca para objeto de trabalho de rua, decisão do dono em 03/09",
@@ -79,7 +79,9 @@
         "assets/objetos/"
       ],
       "aceite": "Os três drops de SALVADOR (hoje búzios/pano da costa/acarajé, artes de índice 2 em DROP_B64) deixam de ser objeto ritual e passam a ser objeto de trabalho de rua — os já desenhados e não usados em assets/objetos/ (cap4-obj-*: tabuleiro, trouxa, água) são os candidatos naturais, confira se servem antes de pedir arte nova. concluirAlcance()/soltarDrop()/coletarDrop() continuam funcionando igual (mesma faixa de energia/recursos), só o OBJETO muda — os verbetes do glossário (PANO DA COSTA, BÚZIOS, ACARAJÉ, ~linha 13317-13333) permanecem contando a dimensão sagrada deles, só param de ser o que a mão recolhe fisicamente. Prova por injeção: screenshot antes/depois do drop em jogo, e teste que confirma nenhum objeto ritual sobrevive como DROP_B64 índice 2. npm test verde.",
-      "detalhe": "PENDENTES 105 (auditoria §2 dos 13 capítulos, ultracode, 03/09): achado CONFIRMADO por verificação adversarial — quatro tentativas de refutar caíram. §2 item 4.5 é categórico e sem exceção: 'objeto ritual não é colecionável — entra como fala, nunca como drop'. A pendência já tinha sido escrita em docs/arquivo/SPRINT.md ticket T1 de SALVADOR ('⚠ decisão-do-dono antes de ir à main') e nunca respondida antes de ir para produção — e o mesmo objeto (búzios) foi RECUSADO como item no capítulo O CAIS (mesma regra, decisão oposta), então a inconsistência já era visível internamente. O dono respondeu em 03/09: TROCA. src/jogo.ts é escritor único — confira se caminho-do-ceu (em-curso) ainda está com lock válido (desde < 2h) antes de despachar; se vencido, este item pode furar a fila por severidade."
+      "detalhe": "PENDENTES 105 (auditoria §2 dos 13 capítulos, ultracode, 03/09): achado CONFIRMADO por verificação adversarial — quatro tentativas de refutar caíram. §2 item 4.5 é categórico e sem exceção: 'objeto ritual não é colecionável — entra como fala, nunca como drop'. A pendência já tinha sido escrita em docs/arquivo/SPRINT.md ticket T1 de SALVADOR ('⚠ decisão-do-dono antes de ir à main') e nunca respondida antes de ir para produção — e o mesmo objeto (búzios) foi RECUSADO como item no capítulo O CAIS (mesma regra, decisão oposta), então a inconsistência já era visível internamente. O dono respondeu em 03/09: TROCA. src/jogo.ts é escritor único — confira se caminho-do-ceu (em-curso) ainda está com lock válido (desde < 2h) antes de despachar; se vencido, este item pode furar a fila por severidade.",
+      "maquina": "nuvem-20260904T0422",
+      "desde": "2026-09-04T04:25:25.849Z"
     },
     {
       "id": "medicao-desligada-caminho-escolar",
@@ -136,7 +138,7 @@
     },
     {
       "id": "sem-tsc-le-build-ignorado",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "--sem-tsc mede o que foi compilado da ultima vez, nao o src/ de agora — e o verde falso e o pior dos dois",
@@ -145,7 +147,9 @@
         "ferramentas/construir.js"
       ],
       "aceite": "Varrer TODOS os usos de --sem-tsc e decidir, um a um, se o instrumento pode ler build/jogo.js sem compilar. Onde nao puder, a primeira passada compila (precedente ja aplicado em test/porta-ctx-sem-forma.js) ou o teste aborta com mensagem clara se o arquivo nao existir. Prova nos DOIS sentidos, por instrumento tocado: com build/jogo.js movido para fora continua exit 0 (nao fabrica vermelho falso) E a injecao do defeito continua exit 1 (nao perdeu a mordida).",
-      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda."
+      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda.",
+      "maquina": "nuvem-20260904T0422",
+      "desde": "2026-09-04T04:25:25.849Z"
     },
     {
       "id": "cartao-margem-sem-controle",
@@ -877,7 +881,7 @@
     },
     {
       "id": "cartao-decepa-primeira-tabua",
-      "estado": "livre",
+      "estado": "em-curso",
       "papel": "porteiro",
       "titulo": "A barra do cartao publicado decepa a primeira tabua — o compartilhar.jpg le istoria — e nenhum portao olha",
       "territorio": [
@@ -888,8 +892,8 @@
       "banca": "arte (veredito visual) + porteiro (pagina publica)",
       "aceite": "Um portao le o TEXTO dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada. Mordida provada por injecao.",
       "detalhe": "Achado pelo dev-plataforma em 02/09. O territorio/compartilhar.jpg COMMITADO le istoria em vez de A Historia; regerado na nuvem le ponto Historia. E a mesma familia do defeito de 23/08 (cromo vazando para dentro da imagem que o WhatsApp mostra) e PIOROU com a tabua Jogar que a main acrescentou. Nenhum portao olha para isso: os que existem cobram quem NAO pode estar no recorte, e nenhum cobra que quem PODE esteja inteiro. Cuidado ao consertar: o PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte.",
-      "maquina": null,
-      "desde": null,
+      "maquina": "nuvem-20260904T0422",
+      "desde": "2026-09-04T04:25:25.849Z",
       "nota": "MEDIDO EM 03/09 pela arte, e MUDA O ITEM: o cartao do territorio NAO tem o mesmo defeito dos outros tres nem se conserta com a mesma margem. Ele usa outro molde inteiro (position:fixed;inset:0 com padding:0.9rem, nao o .env centralizado de 44rem), o h1 nasce em x=27 contra os 268 das tres secoes, e no recorte quadrado (que comeca em 285) o titulo O territorio SOME INTEIRO, em vez de perder a primeira letra. E defeito de outra categoria e mais severo. A entrega cartao-margem-esquerda nao o tocou de proposito (territorio de gerar-territorio.js) e por isso este item continua livre: precisa de correcao propria. O QA acrescentou que ninguem mediu a posicao do titulo dele contra o recorte quadrado ate agora."
     },
     {
