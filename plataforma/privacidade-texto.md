@@ -5,10 +5,12 @@ em 2026-09-03 para o item `pagina-privacidade` do backlog. Montar a página HTML
 `dev-plataforma` e não foi feito aqui — este arquivo entrega só o texto, para ele não ter de
 escrever direito enquanto escreve HTML.
 
-**O texto NÃO está publicável ainda.** Falta uma coisa e uma só: o **nome do controlador**, que
-está marcado no lugar exato como `[NOME DO CONTROLADOR — o dono preenche]`. O e-mail de contato
-(`brasilpatinhas@gmail.com`) foi autorizado pelo dono em chat, em 03/09, para uso na página de
-privacidade e nas peças de divulgação.
+**O nome do controlador foi decidido pelo dono em 03/09/2026 (chat):** o projeto **BRASIL**, sem
+nome de pessoa física — decisão dele, feita sabendo do custo (identificar um projeto em vez de
+uma pessoa é mais anônimo, mas é uma identificação de controlador mais fraca perante a LGPD; se
+algum dia isso virar problema prático, é reversível). O e-mail de contato (`brasilpatinhas@gmail.com`)
+foi autorizado pelo dono em chat, em 03/09, para uso na página de privacidade e nas peças de
+divulgação.
 
 **Leia as RESSALVAS no fim do arquivo antes de publicar.** Três delas mudam decisão de produto
 ou de código, não só de texto: R1 (o padrão da medição contra o ECA Digital, em vigor desde
@@ -53,8 +55,7 @@ Se quiser falar com quem responde por isto: **brasilpatinhas@gmail.com**.
 O controlador dos dados pessoais tratados aqui — quem decide o que é coletado e por quê, nos
 termos do art. 9º, I da Lei nº 13.709/2018 (LGPD) — é:
 
-**[NOME DO CONTROLADOR — o dono preenche]**
-Pessoa física, no Brasil.
+**BRASIL** — projeto pessoal, mantido no Brasil, sem pessoa jurídica constituída.
 Contato: **brasilpatinhas@gmail.com**
 
 Este mesmo e-mail é o canal para qualquer pergunta, pedido ou reclamação sobre privacidade.
@@ -380,18 +381,17 @@ padrão, a pergunta de três dias praticamente deixa de ter resposta — quase n
 interruptor por vontade própria. É um conflito real entre o alvo do produto e a lei nova, e
 não tem saída elegante.
 
-**Três caminhos, em ordem de risco:**
-1. **Desligada por padrão em tudo.** Risco jurídico mínimo, medição praticamente zerada.
-2. **Desligada por padrão só quando o contexto é escolar** (por exemplo, para quem chega pelo
-   link divulgado a professores, ou por uma página `/escola`), ligada no resto. Reduz muito o
-   risco onde ele é maior e preserva o número no acesso geral. É a que eu recomendaria se
-   fosse minha, mas ela cria caminho novo e é trabalho de dev.
-3. **Manter como está**, apoiado no argumento de que a medição não faz perfilamento, não
-   coleta identificador de pessoa nem IP e não sustenta publicidade — ou seja, já é
-   substancialmente a configuração mais protetiva disponível, faltando só o padrão do
-   interruptor. É defensável e é um argumento honesto; não é seguro.
+**DECIDIDO pelo dono em 03/09/2026 (chat):** caminho 2 — desligada por padrão só quando o
+contexto é escolar (o link divulgado a professores, ou um caminho dedicado), ligada no resto.
+Reduz o risco onde ele é maior (turma de fundamental II) e preserva o número no acesso geral.
+**O mecanismo de detecção ainda não existe** — hoje só há "o link" (raiz do domínio), sem forma
+de distinguir professor de qualquer outra pessoa. Isso é o item `medicao-desligada-caminho-escolar`
+do backlog, na fila de `src/jogo.ts`; até ele entrar, a medição continua nascendo ligada em
+TODOS os caminhos, inclusive o escolar — esta política descreve o alvo, não o estado atual.
 
-**Isto é pergunta para advogado de verdade**, e a pergunta pronta está no fim deste arquivo.
+Isto continua sendo pergunta para advogado de verdade num ponto: se a leitura de que "acesso
+provável por criança" se aplica aqui está certa, e se o caminho escolhido cobre a obrigação por
+completo. A pergunta pronta está no fim deste arquivo.
 
 ### R2. Legítimo interesse para dado de criança — sustenta, com condição
 

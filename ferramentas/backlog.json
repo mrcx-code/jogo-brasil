@@ -552,14 +552,15 @@
     {
       "id": "pagina-privacidade",
       "titulo": "A pagina /privacidade/ — obrigatoria antes de novembro",
-      "detalhe": "CORRECAO em 03/09: o texto de 23/08 alegado no backlog NUNCA EXISTIU no repositorio (grep + git log -S por 4 termos juridicos, so a propria linha deste cartao aparece) — viveu na saida de uma sessao de agente e se perdeu. Reescrito do zero em 03/09 pelo juridico: plataforma/privacidade-texto.md (599 linhas, fonte — nao e saida de build). O e-mail brasilpatinhas@gmail.com ja foi autorizado pelo dono para o campo de contato. A decisao do ECA Digital (secao R1) FOI TOMADA em 03/09: medicao desligada so no caminho escolar, ligada no resto — mecanismo ainda por construir, item medicao-desligada-caminho-escolar. Falta so o NOME do controlador, marcado como [NOME DO CONTROLADOR] no arquivo — pergunta direta ao dono. Depois disso: dev-plataforma constroi a pagina de verdade a partir do texto (gerar-*.js, ainda nao feito), e o texto de R1 precisa de uma frase atualizada contando a decisao tomada em vez de listar tres caminhos em aberto.",
+      "estado": "livre",
       "agente": "dev-plataforma",
-      "estado": "do-dono",
       "camada": "medio",
       "territorio": [
         "plataforma/",
         "ferramentas/gerar-*.js"
-      ]
+      ],
+      "aceite": "Construir a pagina /privacidade/ de verdade a partir de plataforma/privacidade-texto.md (a fonte, ja completa e sem marcador pendente) — gerador no padrao dos outros (gerar-*.js), extraindo do texto, nunca redigitando. Preencher [DATA DA PUBLICACAO] com a data real do deploy. Rota nova entra na tabela de CSP do vercel.json (regra propria se precisar, como territorio/ tem). Link para /privacidade/ aparece em algum lugar alcancavel das 5 paginas publicas (rodape ou similar) — hoje nenhuma pagina aponta pra ela. npm test verde, portao de CSP cobrindo a rota nova.",
+      "detalhe": "Texto fechado em 03/09: nome do controlador decidido pelo dono (BRASIL, o projeto, sem pessoa fisica) e a decisao do ECA Digital (secao R1) registrada no proprio arquivo (caminho 2: desligada so no escolar, mecanismo em medicao-desligada-caminho-escolar). O texto e a fonte completa — so falta CONSTRUIR a pagina, que nunca foi feito. plataforma/privacidade-texto.md e leitura obrigatoria antes de gerar (tem as ressalvas R2-R7 tambem, nao so R1)."
     },
     {
       "id": "professores-desligar",
