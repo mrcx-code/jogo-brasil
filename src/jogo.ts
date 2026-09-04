@@ -2099,8 +2099,38 @@ const EPOCAS = [
       "Isto é o Rio de Janeiro, e este chão de pedra tem nome: cais do Valongo. Foi construído em 1811, por ordem do príncipe regente, e fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas.",
       "Entre 1811 e 1831 — o período em que se sabe que ele funcionou — o Rio recebeu cerca de 550 mil africanos para serem escravizados. É o número da pesquisa que escavou esta pedra.",
       "Em 1843 mandaram construir outro cais por cima deste, para o desembarque de uma princesa. O Valongo não foi destruído: foi coberto. E ficou embaixo do chão por quase dois séculos.",
-      "Aqui, alcançar é cavar para saber. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe.",
-      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo: a arte deste cais não chegou, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
+      // "CAVAR PARA SABER" PROMETIA UM VERBO QUE A MÃO NÃO FAZ (04/09, historiadora sob a
+      // licença de 19/08). Medido no código, não suposto: O CAIS está em `CAP_FILA`, então
+      // `concluirAlcance()` cai no ramo `if (gente) { m.dead = true; acolherPessoa(...) }` — um
+      // toque, e quem esperava na rua vira e passa a andar na fila atrás da protagonista.
+      // Ninguém cava nada. O `encaixe.js` bloco 5 existe exatamente contra isto ("se um dia a
+      // mecânica sair e o texto ficar, isto reprova"), e a tese do produto proíbe o jogo
+      // prometer o que não entrega. A frase epistêmica que fecha a fala — "nada se inventa" —
+      // não foi tocada: ela é o argumento do capítulo e continua verdadeira.
+      //
+      // ⚠ NÃO ESCREVER "alcançar é acolher" AQUI, e não é gosto: o `encaixe.js` bloco 5 casa
+      // `/alcançar é acolher|vem ficar|passa a andar com você/` contra `i === CAP_GENTE`, e
+      // CAP_GENTE é PALMARES e só ele — porque `capGente()` abre também o MUTIRÃO. A sugestão
+      // que chegou pronta usava essa palavra e teria REPROVADO o portão. JABAQUARA ("abrir
+      // caminho") e A PEQUENA ÁFRICA ("guardar o lugar") já resolvem o mesmo problema assim:
+      // cada capítulo da fila nomeia o gesto no idioma dele.
+      "Aqui, alcançar é juntar gente na pedra: um toque, e quem esperava vira e caminha com você. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe.",
+      // A NOTA DE HONESTIDADE FICOU FALSA (04/09, historiadora). Ela dizia que o que atravessa
+      // a tela E o que fica no chão eram emprestados. Medido nesta árvore, item por item:
+      //   · a PINTURA é `arte: [12]`, índice de nenhum outro capítulo, e `PACK_DA_CENA[12]`
+      //     é "cais" — pintura própria desde 15/08;
+      //   · QUEM ATRAVESSA A TELA sai de `GENTE_EP_SPR.cais` (3 fileiras × 8 quadros = 24),
+      //     porque `mobFrame()` só cai em `MOB_SPR` quando `pessoaNaRua()` é falso ou o pacote
+      //     ainda não chegou — e O CAIS está em `CAP_FILA`. Folha própria;
+      //   · O QUE FICA NO CHÃO **continua emprestado**, e isto foi o que a medição salvou:
+      //     `dropDe()` lê `DROP_SPR[capArte()]`, `capArte()` devolve `arteCap` = 3, e
+      //     `DONO_DO_BLOCO[3]` é "hoje" — o drop é o de AINDA AQUI.
+      // Metade da frase envelheceu e metade continua verdadeira. Trocá-la inteira por "está
+      // tudo pronto" seria trocar uma frase falsa por outra na direção pior, a que se gaba.
+      // Que a gente que passa é contemporânea não é leitura minha: está no pedido de arte
+      // `gente-cais` em ferramentas/necessario.json — "TRÊS pessoas da Saúde/Gamboa, Rio de
+      // Janeiro, HOJE… o capítulo é o de HOJE sobre o cais: gente contemporânea".
+      "A pintura e quem atravessa a tela já são deste capítulo — quem passa é gente da Saúde e da Gamboa de hoje, sobre a pedra que voltou à luz. Emprestado, só o que fica no chão. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a pedra segura as duas primeiras — a primeira a nomeia, a segunda conta quanta gente
     // passou por ela. A terceira fala de ser COBERTA, e é outro assunto: o chão de cima, sem
@@ -2203,7 +2233,27 @@ const EPOCAS = [
       // certa para o mob. O objeto que CAI no chão é um balde — a diferença está registrada no
       // PENDENTES 107, e é por isso que a segunda oração passou a falar do trabalho da rua como
       // categoria, sem renomear objeto nenhum.
-      "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua, e é ele que fica no chão, nos mesmos três contadores de sempre. Acarajé, pano da costa e búzios ficam fora do chão: o que é de santo se conta, não se recolhe."
+      // O ACARAJÉ PERDIA METADE DE SI DEBAIXO DE "O QUE É DE SANTO" (04/09, historiadora sob a
+      // licença de 19/08). Para búzios e pano da costa a oração está certa e as fontes acima a
+      // sustentam. Para o acarajé ela achata a DUPLA natureza que o verbete deste mesmo jogo
+      // preserva com fonte: "Comida vendida no tabuleiro das ganhadeiras desde o século XIX, e
+      // comida de santo… Trabalho e fé na mesma bandeja" (IPHAN, Ofício das Baianas de
+      // Acarajé, Livro dos Saberes, 2005 — registro aberto a pedido da própria associação das
+      // baianas, então a fonte tem lugar de fala sobre o ofício).
+      //
+      // POR QUE ISSO NÃO É PREGUISMO, e é o que decidiu a mudança: quem o jogo põe na rua
+      // DESTE capítulo é a ganhadeira, e a fala de abertura logo acima diz que ela "vende,
+      // carrega e negocia de sol a sol". O acarajé é justamente o que ela VENDE. Arquivar a
+      // palavra só em "de santo" apaga a metade do trabalho — o mesmo esvaziamento que o
+      // comentário do verbete PANO DA COSTA já nomeia, e que o §2 proíbe.
+      //
+      // O QUE NÃO MUDOU, de propósito: nenhum verbete foi tocado, nenhuma fonte nova entrou,
+      // os TRÊS NOMES continuam na fala (medido: sem eles a porta AS PALAVRAS DAQUI de
+      // SALVADOR cai de 7 verbetes para 4 e BÚZIOS sai da navegação do capítulo por completo,
+      // porque esta frase é o único caminho até ele), e os três seguem FORA do chão — o §2.4.5
+      // tira da mão, não cala. "nos mesmos três contadores" virou "nos três contadores" só
+      // pelo teto de 260 caracteres da caixa que revela letra a letra.
+      "Pela ladeira vem tabuleiro, barril d'água e trouxa de roupa — o trabalho da rua, e é ele que fica no chão, nos três contadores de sempre. Búzios, pano da costa e acarajé não se recolhem: o que é de santo se conta. E o acarajé é as duas coisas: trabalho e fé."
     ],
     // o porto abre, porque "a cidade alta e lá embaixo o porto" é ele; fica na frase das
     // ganhadeiras, que é a rua trabalhando. O pátio entra em "se reúnem à noite para ensinar" —
@@ -2248,7 +2298,16 @@ const EPOCAS = [
       "Nos anos 1880, gente escravizada abandonou em massa as fazendas de café do interior e desceu a serra a pé, pela estrada que margeia a linha férrea — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas.",
       "No morro do Jabaquara havia um reduto — um quilombo — organizado desde 1882. Quem o liderava era Quintino de Lacerda, sergipano, que fora escravizado em Santos como cozinheiro de ganho e ficou livre naquela mesma década.",
       "Aqui, alcançar é abrir caminho: o da serra, para quem ainda está descendo, e o da roça, para quem já chegou.",
-      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — a gente e as coisas daqui não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
+      // ESTA ERA A PIOR DAS CINCO, E O MOTIVO É §2 (04/09, historiadora sob a licença de 19/08).
+      // Ela dizia "a gente daqui não foi desenhada" — e a gente FOI: `GENTE_EP_SPR.jabaquara`
+      // tem 3 fileiras × 8 quadros, e o pedido `gente-jabaquara` em necessario.json descreve
+      // quem são (estivador com saca, vendedora de tabuleiro, ferroviário com lanterna, e a
+      // trava "NADA de corrente ou ferro em ninguém"). Um capítulo sobre quilombo apagando POR
+      // ESCRITO a existência da gente que ele desenhou é o oposto do que o §2 pede.
+      // A PINTURA também é própria desde 10/08 (`arte: [7]`, `PACK_DA_CENA[7]` = "jabaquara").
+      // O QUE CONTINUA VERDADE: o drop. `dropDe()` → `DROP_SPR[capArte()]` → `arteCap` 3 →
+      // `DONO_DO_BLOCO[3]` = "hoje". Por isso a frase encolhe em vez de sumir.
+      "A serra e a gente que desce por ela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a serra segura as duas primeiras: a primeira a nomeia, a segunda é a descida por ela.
     // O morro entra quando o texto chega no reduto, que é o outro assunto — e é o lugar, nunca
@@ -2291,7 +2350,11 @@ const EPOCAS = [
       "Muita gente daqui tinha vindo da Bahia, no êxodo que ficou conhecido como diáspora baiana. Uma delas era Hilária Batista de Almeida, nascida em Santo Amaro da Purificação em 1854, que veio para o Rio aos 22 anos.",
       "Ficou conhecida como Tia Ciata. Era quituteira e iyakekerê no terreiro de João Alabá, e na casa dela as festas eram famosas — sobretudo as rodas de partido-alto.",
       "Aqui, alcançar é guardar o lugar: o pedaço de cidade, a casa, e a roda que acontece dentro dela.",
-      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
+      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora). Pintura própria (`arte: [8]`,
+      // `PACK_DA_CENA[8]` = "pequenaafrica"); quem atravessa a tela sai de
+      // `GENTE_EP_SPR.pequenaafrica`, 3×8 = 24 quadros, e o capítulo está em `CAP_FILA`, então
+      // `mobFrame()` usa a folha própria. O drop continua o de AINDA AQUI (`arteCap` 3).
+      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a rua da Praça Onze segura as duas primeiras: a primeira nomeia o território, a segunda é
     // quem chegou nele. A casa entra quando o texto chega na casa — e mostra o LUGAR, nunca a
@@ -2339,7 +2402,12 @@ const EPOCAS = [
       "A Constituição de 1934 abriu uma: eleitores eram “os brasileiros de um e de outro sexo, maiores de 18 annos”. No parágrafo seguinte, o mesmo artigo fechou outra: não podiam se alistar “os que não saibam ler e escrever”.",
       "A chave estava prometida ali perto, na mesma Constituição: “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. Em 1940 o IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais.",
       "Aqui, alcançar é abrir a porta. E este capítulo conta as duas metades de cada uma: a que se abriu, e a que continuou trancada no mesmo papel.",
-      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta escola não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
+      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora). Pintura própria (`arte: [9]`,
+      // `PACK_DA_CENA[9]` = "portas"); quem atravessa a tela sai de `GENTE_EP_SPR.portas`,
+      // 3×8 = 24 quadros — este capítulo entra por `CAPS_VERBO`, e `pessoaNaRua()` é
+      // `capFila() || capPalavra()`, então a folha própria acende aqui também. O drop continua
+      // o de AINDA AQUI (`arteCap` 3 → `DONO_DO_BLOCO[3]` = "hoje").
+      "O pátio e quem atravessa a tela já foram desenhados para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // o pátio segura as duas primeiras: a primeira o nomeia, a segunda é a porta do voto, e
     // o lugar não muda enquanto o assunto é a norma. A sala à noite entra quando o texto
@@ -2392,7 +2460,14 @@ const EPOCAS = [
       "Em 13 de dezembro de 1968 o Ato Institucional nº 5 deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
       "O art. 11 pôs fora de “qualquer apreciação judicial” tudo o que fosse feito com ele. Em 1970 um decreto-lei mandou a Polícia Federal conferir livros e revistas antes de saírem — e quem publicasse o não liberado perdia todos os exemplares.",
       "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais.",
-      "O que atravessa a tela e o que fica no chão ainda são emprestados de outro capítulo — as coisas desta rua não foram desenhadas. Os três contadores lá em cima são os mesmos de sempre."
+      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora), com UMA diferença que vale
+      // registrar e que derrubou a afirmação de que "nenhuma das cinco pinturas é
+      // compartilhada": a pintura `[10]` É compartilhada — A PRAÇA, O QUE SEGUROU e O ACEIRO
+      // vestem esta mesma. Só que quem a EMPRESTA é este capítulo: `PACK_DA_CENA[10]` é
+      // "naodito", e a abertura de A PRAÇA já diz em voz alta que veste a do anterior. Para a
+      // fala DAQUI, então, a pintura é própria. Quem atravessa a tela sai de
+      // `GENTE_EP_SPR.naodito` (3×8 = 24), via `CAPS_VERBO`. O drop continua o de AINDA AQUI.
+      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a rua segura as duas primeiras: a primeira a nomeia, a segunda é a norma, e norma não
     // tem paisagem. A banca entra quando o texto chega no que se imprime e no que se vende —
