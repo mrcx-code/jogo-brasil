@@ -3793,7 +3793,13 @@ let drops = [], mutiraoT = 0, chamada = null, chamadaT = 0, mobChao = 0;
 let chamadaDobrada = false, diaNovo = false, voltouDepoisDe = 0;
 let escondidoEm = 0;
 let amanhecerPendente = false;
+function capSemColeta() {
+    const e = EPOCAS[epocaAtual()];
+    return !!e && e.id === "aceiro";
+}
 function soltarDrop(m, sx) {
+    if (capSemColeta())
+        return;
     drops.push({
         wx: worldX + sx + 5, type: m.type, t: 0,
         valor: CFG.dropBase * bonusDias()

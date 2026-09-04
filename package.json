@@ -6,9 +6,10 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js",
+    "test": "npm run build && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/aceiro-sem-coleta.js",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
+    "aceiro": "node test/aceiro-sem-coleta.js",
     "numero": "node test/medir-numero-envelhece.js",
     "cartao:fresco": "node test/cartao-tipografia-fresca.js",
     "start": "npm run build && node ferramentas/servir.js 8199",

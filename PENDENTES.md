@@ -4207,6 +4207,18 @@ falta. Effort baixo: 2-3 frases de texto, sem mudança de mecânica.
 **O ACEIRO segue ALTA, confirmado sem ressalva.** Ver item de backlog `aceiro-fogo-vira-gente` — a
 pergunta é do dono.
 
+> **~~ACHADO 3 (O ACEIRO)~~ — EXECUTADO em 04/09 pelo `dev-jogo`, com a decisão do dono do mesmo
+> dia: a gente FICA, a coleta SAI.** `capSemColeta()` guarda a primeira linha de `soltarDrop()` e
+> nomeia um capítulo só; `test/aceiro-sem-coleta.js` entrou no `npm test`. Medido antes/depois na
+> mesma execução: O ACEIRO ia de **3 drops / +3 recursos / +9 de impacto de coleta** para
+> **0 / 0 / 0**, e PALMARES, no mesmo teste como controle negativo, continua em **3 / +3 / +9**.
+> As três pessoas seguem alcançáveis e em quadro. Os dois comentários falsos foram reescritos.
+> Números, prints e as duas armadilhas de instrumento no Diário do `NOTES.md`, 2026-09-04.
+> **Fica UMA pergunta aberta, e é do dono:** o padrão "pessoa alcançada deixa no chão o que trazia"
+> vale para os **onze** capítulos de gente na rua, não só para O ACEIRO. O dono tirou de um. Nos
+> outros a abertura nomeia a carga e a leitura é de trabalho, não de coleta de pessoa — mas isso é
+> leitura, e §2 não se decide sozinho. Nada foi tocado neles.
+
 **Os outros 15 achados confirmados** (média/baixa, nos 7 capítulos) são majoritariamente sobre
 procedência de fonte (número certo, mas apontando pro documento errado ou pra tela errada) e
 comentários de código desatualizados que podem confundir uma sessão futura — nenhum é mecânica

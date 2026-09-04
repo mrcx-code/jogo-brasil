@@ -876,7 +876,40 @@ let amanhecerPendente = false;
 // owner: atualizarWand() removed with the AUTO-FIRE skill.
 // owner: comprarSkill() removed with the AUTO-FIRE skill.
 
+// ===== ONDE A MÃO NÃO RECOLHE NADA — O ACEIRO (04/09) =====
+// Fecha o achado 3 da auditoria §2 dos treze capítulos (PENDENTES 105, severidade ALTA,
+// "confirmado sem ressalva" na verificação adversarial de 04/09), com a decisão do dono no
+// mesmo dia: **a gente FICA e o gesto de coletar SAI.**
+//
+// O que estava errado, em uma frase: o §2 proíbe transformar pessoa em "recurso, inimigo,
+// obstáculo ou coisa a coletar", e em O ACEIRO ninguém decidiu que ela seria — a folha de
+// gente do capítulo (brigadista, apanhadora de sempre-vivas, vaqueiro) entrou junto com o
+// verbo ABAFAR em 18/08, `aceiro` foi para `CAPS_VERBO`, `pessoaNaRua()` passou a valer true,
+// e o drop veio de carona por `concluirAlcance()` chamar `soltarDrop()` sem perguntar nada.
+// A mão continua alcançando quem atravessa (isso o dono manteve, e era intencional desde
+// 18/08); o que para é o que cai no chão para ser recolhido depois.
+//
+// **NÃO É MUDANÇA GLOBAL, e é por isso que a pergunta é por CAPÍTULO.** Nos outros capítulos
+// de gente na rua — PALMARES e a família de `CAP_FILA`, SALVADOR e a de `CAPS_VERBO` — o que
+// fica no chão é a CARGA DE TRABALHO que a pessoa trouxe, nomeada na abertura de cada um
+// ("tabuleiro, barril d'água e trouxa de roupa"), e ela continua caindo. Mexer nisso seria
+// outra decisão, e ela é do dono; ver a `duvida` do relatório desta entrega.
+//
+// **O PORTÃO É AQUI, na única boca por onde drop nasce**, e não nos dois pontos que chamam
+// (`concluirAlcance` e `passarPalavra`). Uma regra do §2 que vale só enquanto alguém lembrar
+// dela já custou uma sessão neste repositório — é a mesma lição escrita no cabeçalho de
+// `test/salvador-drop-sem-ritual.js`. Sem drop não nasce `coletarDrop()`, e sem `coletarDrop()`
+// `S.energia` e `S.recursos` não têm por onde subir por ter alcançado alguém aqui.
+// (O toque em si continua rendendo `ganhoClique()` como em todo capítulo — é a economia base
+// do jogo, não a pessoa virando recurso —, então o capítulo não trava.)
+// O portão que cobra isto é `test/aceiro-sem-coleta.js`, com PALMARES no mesmo teste como
+// controle negativo.
+function capSemColeta() {
+  const e = EPOCAS[epocaAtual()];
+  return !!e && e.id === "aceiro";
+}
 function soltarDrop(m, sx) {
+  if (capSemColeta()) return;
   drops.push({
     wx: worldX + sx + 5, type: m.type, t: 0,
     // the day streak is the only multiplier left standing; the rest belonged to features
@@ -1192,7 +1225,9 @@ function concluirAlcance(m: Mob, sx: number, auto?: boolean) {
   else if (capPalavra()) { palavraDedo++; virarPortadora(m); }
   else m.dying = 8;
   registrarChegada(true);     // alcançada: o mundo responde a isto tanto quanto ao que passa
-  soltarDrop(m, sx);          // o que ela TROUXE fica no chão; a pessoa, não
+  // o que ela TROUXE fica no chão; a pessoa, não — MENOS em O ACEIRO, onde nada fica: ver
+  // `capSemColeta()`, que é onde a decisão do dono de 04/09 mora e onde ela é cobrada.
+  soltarDrop(m, sx);
   burst(sx + 8, GROUND - 14, pessoa ? 12 : 16, pessoa ? ["#f3dda6", "#fbeec4", "#e6c98a"]
     : m.type === "cash" ? ["#ffcd75", "#ffe9b0", "#e8edf6"]
     : m.type === "barrel" ? ["#7fb356", "#b5e08c", "#6fdd94"] : ["#9a92aa", "#8d5bd6", "#6fdd94"]);
@@ -1310,6 +1345,8 @@ function passarPalavra() {
       if (Math.abs(q.wx - p.wx) > PALAVRA_JANELA) continue;
       // atendida SEM o dedo, e o mundo responde exatamente como responde ao dedo: o mesmo
       // registro de cuidado e o mesmo que ela trazia ficando no chão. Nada aqui é bônus.
+      // Em O ACEIRO não fica nada, aqui nem no dedo — `soltarDrop()` sai na primeira linha por
+      // `capSemColeta()`, para a corrente não ser a porta dos fundos da mesma regra.
       q.hp = 0;
       registrarChegada(true);
       soltarDrop(q, Math.round(q.wx - worldX));
@@ -2619,10 +2656,15 @@ const EPOCAS = [
     nome: "O ACEIRO",
     quando: "cerrado · agosto, hoje",
     // ESCRITO EM 16/08, pelo desenho do HISTORIA-CONTEMPORANEO.md (Parte 1) — os cinco
-    // movimentos: o adversário na tela não tem rosto (fogo, nunca pessoa); o sistema se nomeia
-    // por ONDE FALTA, não por quem lucra; o número que impede o palanque (Censo) vem ANTES do
-    // número que acusa (MapBiomas); a pressão entra ENTRE ASPAS com o nome de quem mediu; e a
-    // tese é a nota do INPE: o número já subiu e já caiu — decisão, não destino.
+    // movimentos: o ADVERSÁRIO na tela não tem rosto (é o fogo e a estação seca, nunca uma
+    // pessoa); o sistema se nomeia por ONDE FALTA, não por quem lucra; o número que impede o
+    // palanque (Censo) vem ANTES do número que acusa (MapBiomas); a pressão entra ENTRE ASPAS
+    // com o nome de quem mediu; e a tese é a nota do INPE: o número já subiu e já caiu —
+    // decisão, não destino.
+    // ⚠ "fogo, nunca pessoa" É SOBRE O ADVERSÁRIO, e este comentário já foi lido como se fosse
+    // sobre QUEM ATRAVESSA A TELA — que é gente desde 18/08 (brigadista, apanhadora de
+    // sempre-vivas, vaqueiro) e continua sendo por decisão do dono em 04/09. O que mudou em
+    // 04/09 é que ninguém deixa mais nada no chão aqui: ver `capSemColeta()`.
     // ⚠ PERECÍVEL: é o primeiro capítulo cujo dado sai TODO ANO. Cada fala carrega a data
     // dentro da frase; a linha de manutenção anual está no NOTES.md deste commit.
     // A identidade da brigadista segue a recomendação aprovada: DO LUGAR, sem se rotular —
@@ -2781,9 +2823,27 @@ CAP_PALAVRA = iEp("salvador");
 // fogo avanca se voce nao for, e abafar exige ANDAR, porque o aceiro se abre andando. Correr
 // nao abafa, e isso e a decisao central da rua dele, do mesmo jeito que discricao e andar em
 // O QUE NAO PODIA SER DITO.
-// O que atravessa a tela ali continua sendo FOGO — nunca pessoa, nunca maquina, nunca marca
-// (§2). A folha de gente do capitulo desenha quem TRABALHA na beira do fogo: brigadista,
-// apanhadora de sempre-vivas, vaqueiro.
+//
+// ===== O QUE ATRAVESSA A TELA AQUI E GENTE, E ESTE COMENTARIO DIZIA O CONTRARIO =====
+// Ele garantia que o que cruza a rua deste capitulo nao era pessoa nenhuma — so fogo (a frase
+// exata esta citada no PENDENTES 105, e nao se repete aqui de proposito: `aceiro-sem-coleta.js`
+// reprova a volta dela, e uma copia no comentario cegaria o portao).
+// Isso deixou de ser verdade na MESMA linha que entrou logo abaixo: com
+// `aceiro` em `CAPS_VERBO`, `pessoaNaRua()` vale true e `mobFrame()` troca o objeto pela folha
+// de gente do capitulo. Quem atravessa e brigadista, apanhadora de sempre-vivas e vaqueiro —
+// tres pessoas, desenhadas, alcancaveis. A garantia de §2 escrita no codigo era falsa, e
+// garantia falsa e pior que garantia nenhuma: foi assim que a auditoria de 03-04/09 achou isto
+// (PENDENTES 105, achado 3, ALTA, confirmado sem ressalva).
+//
+// O QUE VALE HOJE, decidido pelo dono em 04/09, e as duas metades sao a mesma decisao:
+//  · A PRESENCA HUMANA FICA. Era intencional desde 18/08, e continua: a mao alcanca quem
+//    atravessa, com a mesma gramatica de gente dos outros capitulos (sem pisca, sem estilhaco,
+//    sem empurrao, sem barra de vida — ver `pessoaNaRua()`).
+//  · A COLETA SAI. Ninguem deixa nada no chao neste capitulo, e por isso `S.energia` e
+//    `S.recursos` nao sobem por ter alcancado alguem aqui. O corte mora em `capSemColeta()`,
+//    dentro de `soltarDrop()`, e e cobrado por `test/aceiro-sem-coleta.js`.
+// O adversario continua sem rosto: o que a rua opoe e o FOGO e a estacao seca, nunca uma
+// pessoa, nunca uma maquina, nunca uma marca.
 // O QUE SEGUROU entra em 18/08 com CHEGAR (PENDENTES 18). O verbo ja estava escrito na
 // abertura do capitulo antes de existir mecanica: "chegar na ultima casa". Aqui ele e a
 // familia da conversa — um toque abre, o tempo ao lado resolve — e o sentido e o de quem bate
