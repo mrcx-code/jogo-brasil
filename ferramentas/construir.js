@@ -1143,16 +1143,25 @@ if (fs.existsSync(p("ferramentas", "backlog.json"))) {
   console.log("  ferramentas/backlog.json -> dist/dashboard/backlog.json (a fila, atras do Disallow)");
 }
 
-// A TABELA DE PRECO DE MODELO (dono, 25/08). O dashboard mostra o custo ESTIMADO por agente e le
-// os precos por `fetch("precos-modelo.json")` RELATIVO — mesmo desenho do backlog acima. A fonte
-// e `ferramentas/precos-modelo.json` (com URL e data da tabela oficial), que ferramentas/ nao
-// publica; entao o build a copia para dentro de dist/dashboard/. Se ela nao existir, o dashboard
-// cai em "aguardando tabela de preço" e nada quebra. Sem PIN/token/segredo: passa como todo byte.
-if (fs.existsSync(p("ferramentas", "precos-modelo.json"))) {
-  fs.mkdirSync(d("dashboard"), { recursive: true });
-  copiarPublicado(p("ferramentas", "precos-modelo.json"), d("dashboard", "precos-modelo.json"));
-  console.log("  ferramentas/precos-modelo.json -> dist/dashboard/precos-modelo.json (preco por modelo, atras do Disallow)");
-}
+// A TABELA DE PRECO DE MODELO — A COPIA SAIU EM 04/09, e quem a achou foi o portao novo.
+//
+// Ela entrou em 25/08 (dono): o dashboard mostrava o custo ESTIMADO por agente e lia os precos
+// por `fetch("precos-modelo.json")` RELATIVO, mesmo desenho do backlog acima, e o build copiava
+// `ferramentas/precos-modelo.json` para dentro de dist/dashboard/ porque ferramentas/ nao publica.
+//
+// EM 01/09 O LEITOR SAIU e a copia ficou. O commit ba3f609 ("O painel encolhe: squads saem, o
+// cartao fica so com o modelo") tirou do dashboard as tres mencoes a `precos-modelo.json`; medido
+// hoje: `grep -c precos-modelo.json dashboard/index.html` -> 0. De 01/09 a 04/09 o arquivo foi
+// publicado em `/dashboard/precos-modelo.json` sem uma unica pagina que o buscasse — orfao
+// respondendo 200, que e exatamente a classe do `pinos-proposta.json`, so que com conteudo
+// inofensivo (tabela de preco publica, atras do Disallow).
+//
+// Quem achou foi `test/dist-inventario.js` na PRIMEIRA execucao, antes de qualquer injecao de
+// defeito. A regra que o laco das secoes ja aplica desde 04/09 — publica-se o `index.html` e o
+// que ELE cita — vale aqui pelo mesmo motivo, e a copia sai por ela. A FONTE FICA:
+// `ferramentas/precos-modelo.json` continua no repositorio, versionada, com URL e data da tabela
+// oficial. O dia em que o painel de custo voltar, volta o `fetch` e volta esta copia junto — e o
+// portao passa a aceita-la sozinho, porque o nome estara no HTML.
 
 // AS SEÇÕES DA PLATAFORMA — decidido pelo dono em 19/08: o jogo vira UMA seção, e as seções que
 // já existem (A HISTÓRIA, e depois o glossário e DE ONDE VEM) ganham endereço próprio. Ao
