@@ -13164,3 +13164,74 @@ conserta uma violação do §2 que está em produção agora, e eu quero que ela
 exatamente o estado em que se aceita prova fraca"* — e foi esse aviso que rendeu as duas ressalvas.
 **Um agente que se desmente está sendo honesto, não está sendo abrangente.** As duas coisas se
 parecem e não são a mesma.
+
+---
+
+## 04/09 — a rodada que foi buscar trabalho pronto em vez de comecar trabalho novo
+### maquina: `nuvem-20260904T1231`
+
+**O que fiz.** Nenhuma issue com etiqueta `agente`, e a fila estava **inteiramente livre** (0
+`em-curso`, 29 `livre`, 71 `concluido`). O reflexo seria pegar item novo. Em vez disso, segui o
+`PLANTAO.md` §7 — *"antes de devolver item a livre, procure o ramo `entrega/<id>`"* — e a rodada
+inteira virou **auditoria e integracao de entrega orfa**. Havia trabalho terminado parado no
+servidor, um dos ramos empurrado **duas horas antes** de eu acordar.
+
+**O que MEDI.**
+
+| | |
+|---|---|
+| baseline `npm test` na main limpa, antes de qualquer funil | **exit 0** (entao vermelho seria da entrega, nunca da maquina) |
+| ramos que o `ramos-mortos.js` declarou DE PE | **6** |
+| desses, orfaos **de verdade** (conferidos por conteudo) | **2** — ou seja, **ORFAO acertou 2 de 6** |
+| backlog no merge vs na main | **110 e 110**, 0 ids sumidos, **0 regressoes de estado**, diff vazio |
+| `voo/` no servidor | **29**, igual a rodada anterior — 2 rodadas seguidas sem criar marcador |
+| entregas integradas, portoes verdes | **2** (`npm test` 0 e `encaixe` 0 nas duas) |
+
+**O que entrou.** (1) `entrega/ramos-mortos-falso-absorvido` — portao contra o falso `ABSORVIDO`,
+mordida provada por injecao nos dois sentidos com restauracao conferida por md5. (2)
+`entrega/qa-salvador-instrumentos` — os 5 instrumentos QA de SALVADOR que ficaram de fora quando o
+produto entrou: a entrega `salvador-fala-abertura` foi integrada e o QA dela nao. O argumento que
+decidiu nao foi o tamanho do diff: a main ja tinha **dois itens livres**
+(`salvador-fala-sem-portao`, `ritual-limiar-e-espelho`) cujo aceite diz *"o instrumento JA EXISTE,
+commitado em `e742cb0`: NAO reescreva, componha"* — **itens apontando para arquivos que nao existiam
+na main.** O backlog estava descrevendo um estado que nao existia.
+
+**O QUE CAIU — tres afirmacoes minhas, refutadas na mesma rodada.** Registro porque vale mais que
+confirmacao.
+
+1. **"`dashboard-trio` guarda um achado de seguranca nao integrado."** Contei `fonts.googleapis`
+   **1 na main, 0 no ramo** e li como *"o ramo tira o Google e a main ainda tem"*. **Errado.** A
+   ocorrencia na main esta **dentro de um comentario que documenta a propria remocao**
+   (`dashboard/index.html:21`); o commit `bccbf16` ja tinha tirado por outra rota. O grep contou a
+   **prosa que descreve o conserto** como se fosse o defeito.
+   **E o mesmo mecanismo que fez o funil recusar `ramos-mortos-conteudo` ontem** ("ECONOMIA DO OURO"
+   citada em comentario casando com verbete homonimo). Cai nele **a mao**, um dia depois, sem estar
+   usando a ferramenta — o que muda o diagnostico do item livre `ramos-mortos-orfao-por-conteudo`:
+   o problema **nao e da implementacao**, e da ideia de decidir absorcao por casamento de string.
+   Qualquer conserto que continue comparando texto vai reencontrar isto.
+2. **"O merge vai fazer o backlog andar para tras."** Nao faz — 110/110, 0 regressoes, diff vazio.
+3. **"As +21 linhas do `integrar.js` mudam o veredito do funil."** Nao mudam: e so `avisaSeRaso()`,
+   que imprime aviso em clone raso e **nunca recusa**. Ironia util: **esta rodada foi testemunha do
+   defeito que ela avisa** — o clone nasceu raso e o `pull --ff-only` mentiu antes do
+   `fetch --unshallow`, exatamente como o §0.4 descreve.
+
+**A RESSALVA que a proxima sessao precisa saber.** `test/ramos-mortos-falso-absorvido.js` e
+**VERMELHO POR DESENHO**: e o **aceite** do conserto de conteudo que ainda nao foi escrito, nao um
+teste de regressao. Hoje e inofensivo porque **nada o roda** (fora do `npm test` e do `encaixe.js`).
+Fica perigoso no dia em que alguem colar `node test/ramos-mortos-falso-absorvido.js` na lista do
+`npm test` **sem ler o cabecalho** — vai parecer portao quebrado quando e portao esperando conserto.
+
+**Duvida que apareceu e nao resolvi.** A mordida de `qa-fala-salvador-caixa.js` **nao foi medida** —
+o auditor rodou limpo (exit 0) e **disse que nao mediu**, em vez de alegar. Os outros 2 dos 5
+(`qa-ritual-disfarce`, `qa-salvador-porta-indireta`) sao **diagnostico honesto**: nao tem assert, e
+um se declara como tal na propria saida. Nao e decoracao, porque nao finge morder — mas convem nao
+conta-los como portao.
+
+**Proximo passo.** O item livre `ramos-mortos-orfao-por-conteudo` agora tem evidencia nova e mais
+forte (o achado 1 acima) e um aceite ja commitado. E quem tiver `delete_ref` pode apagar
+`entrega/canonical-jogo`, `entrega/glossario-substancia` e `entrega/dashboard-trio`, conferidos por
+conteudo como absorvidos — **menos** `entrega/ramos-mortos-conteudo`, que e o recusado e cujo
+material ainda serve.
+
+**Painel.** `mesa_agente` estava com um **fantasma**: `produto` em `trabalhando` desde 03/09 12:37,
+**24h+** sem pouso. Limpo, com o motivo escrito no proprio campo.

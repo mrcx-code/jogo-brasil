@@ -1324,3 +1324,84 @@ continuam em **29**, iguais a rodada anterior — a nuvem nao criou nenhum, e a 
 **EM VOO quando escrevi:** `entrega/salvador-fala-abertura` (§2, PRIORIDADE — o drop de objeto
 ritual de SALVADOR trocado por objeto de trabalho, mais a fala de abertura que a troca tornou
 falsa), no QA adversarial. Se voces mexerem em `src/jogo.ts` agora, avisem: o monolito esta comigo.
+
+---
+
+## 04/09 · `nuvem-20260904T1231` — a rodada nao pegou item novo: foi buscar trabalho PRONTO no servidor
+
+**O que eu fiz:** nenhuma issue com etiqueta `agente`, e a fila estava **inteiramente livre** (0
+`em-curso`, 29 `livre`). Pelo `PLANTAO.md` §7, antes de pegar item novo procurei `entrega/<id>` — e a
+rodada inteira virou **auditoria e integracao de entrega orfa**, nao trabalho novo.
+
+### O numero que interessa a voces: ORFAO acertou 2 de 6
+
+O `ramos-mortos.js` (versao da main, arvore ja aprofundada) declarou **6 ramos DE PE**. Conferidos
+POR CONTEUDO, um a um:
+
+| ramo | verdade medida |
+|---|---|
+| `canonical-jogo` | **ABSORVIDO** — a main tem a assercao e ela e mais FORTE que a do ramo (3 checagens contra 2: `encaixe.js:1023/1025/1027`, incluindo a marca `@@BASE@@` crua, que o ramo nao cobria) |
+| `glossario-substancia` | **ABSORVIDO** — superado por `rev2`/`rev3`, ambos ancestrais da main |
+| `dashboard-trio` | **ABSORVIDO** — commit `bccbf16` tirou o Google Fonts por outra rota; item `dashboard-sem-google` esta `concluido` |
+| `ramos-mortos-conteudo` | **RECUSADO PELO FUNIL** de proposito (o de voces, 03/09) — nao e orfao |
+| `qa-salvador-instrumentos` | **ORFAO DE VERDADE** — integrado nesta rodada |
+| `ramos-mortos-falso-absorvido` | **ORFAO DE VERDADE** — integrado nesta rodada |
+
+O erro do instrumento e todo para o **lado barato** (super-reporta orfao), que e o sentido certo.
+Isso alimenta direto o item livre `ramos-mortos-orfao-por-conteudo`.
+
+### O QUE CAIU — uma afirmacao minha, refutada por mim mesmo na mesma rodada
+
+Afirmei a meio caminho que `dashboard-trio` guardava um achado de **seguranca** nao integrado:
+contei `fonts.googleapis` **1 na main, 0 no ramo** e li como *"o ramo tira o Google e a main ainda
+tem"*.
+
+**Errado, e o modo de errar e o que importa.** A ocorrencia na main esta **dentro de um comentario
+que documenta a propria remocao** (`dashboard/index.html:21`). O grep contou a **prosa que descreve o
+conserto** como se fosse o defeito — exatamente o mecanismo que fez voces recusarem
+`ramos-mortos-conteudo` ontem ("ECONOMIA DO OURO" citada em comentario casando com verbete
+homonimo). Cai na mesma armadilha **a mao**, um dia depois, sem estar usando a ferramenta.
+
+Isso reforca o item `ramos-mortos-orfao-por-conteudo` com uma evidencia nova: o problema **nao e da
+implementacao**, e da ideia de decidir absorcao por casamento de string. Qualquer conserto que
+continue comparando texto vai reencontrar isto.
+
+### O que entrou na main
+
+1. **`entrega/ramos-mortos-falso-absorvido`** — `npm test` 0, `encaixe` 0, INTEGRADO.
+   ⚠ **RESSALVA QUE VOCES PRECISAM SABER:** o arquivo e **VERMELHO POR DESENHO**. Ele e o
+   **aceite** do conserto de conteudo que ainda nao existe, nao um teste de regressao. Hoje e
+   inofensivo porque **nada o roda** (fora do `npm test` e do `encaixe.js`). Fica perigoso no dia em
+   que alguem colar `node test/ramos-mortos-falso-absorvido.js` na lista do `npm test` sem ler o
+   cabecalho. Mordida provada por injecao nos dois sentidos, com restauracao conferida por md5.
+2. **`entrega/qa-salvador-instrumentos`** — os 5 instrumentos QA de SALVADOR que ficaram de fora
+   quando o produto entrou (`salvador-fala-abertura` foi integrada, o QA dela nao). Motivo forte
+   para integrar: a main ja tinha **dois itens livres** (`salvador-fala-sem-portao`,
+   `ritual-limiar-e-espelho`) cujo aceite diz *"o instrumento JA EXISTE, commitado em `e742cb0`:
+   NAO reescreva, componha"* — itens apontando para arquivos que nao existiam na main.
+
+### Duas suspeitas minhas que MORRERAM na medicao (registro porque valem mais que confirmacao)
+
+- **"O merge vai fazer o backlog andar para tras."** Nao faz: **110 itens na main e 110 no merge, 0
+  ids sumidos, 0 regressoes de estado, diff byte a byte vazio.** O `ort` resolveu certo porque o ramo
+  nunca tocou o campo depois que a main avancou.
+- **"As +21 linhas do `integrar.js` mudam o veredito do funil."** Nao mudam: e so `avisaSeRaso()`,
+  que imprime aviso em clone raso e **nunca recusa** (0 `morre()`, 0 `process.exit` != 0 na funcao).
+  Ironia util: **esta rodada foi testemunha do defeito que ela avisa** — o clone nasceu raso e o
+  `pull --ff-only` mentiu antes do `fetch --unshallow`.
+
+### Contagem de ramos
+
+`voo/`: **29** — igual a rodada anterior. **Duas rodadas seguidas da nuvem sem criar marcador**: a
+decisao do `PLANTAO.md` §0 esta segurando. Esta rodada tambem nao criou.
+`entrega/`: 45 na entrada. O `--apagar` do legado continua sendo de voces (a nuvem leva 403).
+
+**Podem apagar com seguranca** (conferidos por conteudo, absorvidos por outra rota):
+`entrega/canonical-jogo`, `entrega/glossario-substancia`, `entrega/dashboard-trio`.
+**NAO apaguem** `entrega/ramos-mortos-conteudo` — e o recusado, e o material dele ainda serve ao
+item livre.
+
+### Painel
+
+`mesa_agente` estava com um **fantasma**: `produto` em `trabalhando` desde 03/09 12:37, **24h+** sem
+pouso. Limpo, com o motivo escrito no proprio campo.
