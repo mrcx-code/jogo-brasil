@@ -13604,3 +13604,134 @@ segurando), `entrega/` 48. Worktrees limpos: 5 -> 0. Dois merges com a outra maq
 
 **Proximo passo:** pendurar a varredura do ritual no `npm test` (item pronto, linha escrita, 9,4 s)
 — e o unico dos 13 que fecha um buraco de **§2** em vez de um de esteira.
+
+---
+
+## 04/09 (noite) · `nuvem-20260904T2022` — o portão que reprovava a casa inteira era o proxy
+
+Rodada agendada, sem issue etiquetada `agente` (modo B: pegar da fila). Oito itens travados em
+**três territórios disjuntos**, três agentes em worktree, integração em **lote**.
+
+### O achado que mandou na rodada: a `main` estava VERMELHA, e não era de ninguém
+
+Tirei o baseline antes de despachar qualquer coisa — `npm test` na `main` limpa, sem entrega
+nenhuma. **Exit real 1.** Quem reprovava: `test/aceiro-sem-coleta.js`, em *"nenhum erro de console
+(1)"*, com `net::ERR_TUNNEL_CONNECTION_FAILED`.
+
+Sonda própria (Playwright, mesmo `test/abrir.js`, mesmo viewport) nomeou a URL:
+
+| | |
+|---|---|
+| URL que falha | `https://us.i.posthog.com/i/v0/e/` |
+| ou seja | o `MEDIDA_HOST` do §3, bloqueado pelo proxy do contêiner |
+| `location().url` nesse erro | **vem PREENCHIDO** |
+| execuções vermelhas | **3 de 3**, exit 1 real, mesma causa |
+
+O gate entrou no `npm test` às **15:29** (`0f1406e`) e o funil saiu verde às **16:49**
+(`8d32c4a`) — *depois*. Então não é sorteio: o que mudou entre 16:49 e a noite foi a
+**alcançabilidade do host**, e o portão lia isso como defeito de produto.
+
+**Consequência que valia a rodada inteira:** enquanto isso estivesse de pé, **todo funil sairia
+vermelho com o nome da entrega colado** — a armadilha do `PLANTAO.md` §4, chegando pela porta da
+rede em vez da porta do `node_modules`. Estendi o território do `qa` em voo para incluir o arquivo.
+
+### A classe é 33× maior que o item dizia
+
+Varredura: **35 arquivos em `test/` contam erro de console e só DOIS filtravam qualquer coisa** —
+os dois do item do QA. Os outros 33 não filtravam nada. O item nasceu com dois arquivos; o defeito
+tinha trinta e cinco.
+
+O `qa` não fez uma quarta cópia da regex: **extraiu `test/rede-externa.js`** (decide por origem
+contra `MEDIDA_HOST`, e `url` vazio **nunca** vira ignorado — o lado seguro é acusar). Três
+arquivos já o usam. Sobram 32, no item `filtro-de-console-copiado-por-arquivo`.
+
+### O que entrou, medido
+
+| | |
+|---|---|
+| funil (lote de 2 entregas disjuntas) | `npm test` **exit 0** · `encaixe` **exit 0** · INTEGRADO |
+| `test/aceiro-sem-coleta.js` | **exit 1 (3/3) → exit 0** |
+| travas do `ramos-mortos --apagar` | 3 fechadas · asserções **15 → 30** · exit 0 real |
+| itens fechados | 4 (1 do `qa`, 3 do `dev-plataforma`) |
+| `voo/` no servidor | **29** — quinta rodada seguida sem criar marcador, §0 segue segurando |
+
+### O QUE CAIU — três afirmações, e duas eram minhas
+
+1. **"O baseline está verde."** Eu li o `exit code 0` da notificação de fundo, que era o do `echo`
+   final, não o do `npm test`. Real: **1**. É a lição do tubo (`PLANTAO.md` §7) entrando por uma
+   porta nova — não foi `cmd | tail`, foi `cmd; echo $?` num comando composto. **A regra que
+   generaliza: só vale exit code lido do MESMO comando que você quer medir.**
+2. **"O vermelho parece intermitente."** Eu disse isso ao agente por escrito. Medido: **3/3
+   constante**. O `qa` mediu por conta própria e chegou ao mesmo — e o custo de eu não ter medido
+   antes de afirmar seria ele caçando flake que não existe.
+3. **"`encaixe.js` é um portão que ninguém roda."** Falso: o funil roda `npm test` **e**
+   `encaixe.js` (`integrar.js:241-242`), e há motivo escrito no arquivo para instrumentos pesados
+   morarem no funil e não no `npm test` (116 s a mais fariam as pessoas pararem de rodar o laço
+   curto). Hipótese minha, morta em dois minutos de `grep`.
+
+### O órfão que parecia resgate e não era
+
+`ferramentas/ramos-mortos.js` apontou 4 órfãos. `entrega/canonical-jogo` parecia o resgate que o
+`PLANTAO.md` §5 descreve (*"o canonical existia mas nenhum portão o cobria"*). **Não é:** a `main`
+já cobre a mesma asserção, e **melhor** — o commit `8cb495a`, do mesmo dia do órfão, também checa
+que a marca `@@BASE@@` não sobrou crua, coisa que o órfão não faz. Duas tentativas paralelas; uma
+entrou. **`entrega/canonical-jogo` pode ser apagado.** É o §5 aplicado a mim: antes de integrar
+órfão, desconfie de que ainda haja o que integrar.
+
+Os outros três não são desta rodada: `dashboard-trio` (território da outra máquina),
+`glossario-substancia` (mexe em `src/jogo.ts`, ocupado, e exige o passo de banco do `PENDENTES` 87),
+`ramos-mortos-conteudo` (o recusado de 03/09, material ainda serve a item livre).
+
+### Dúvida que fica
+
+O proxy bloqueia `us.i.posthog.com` **por política de organização** (o agente colheu
+`connect_rejected... organization policy`). Isso é estável ou muda de contêiner para contêiner? Se
+for estável, todo portão da nuvem que abrir o jogo inteiro herda o risco e os 32 restantes viram
+prioridade; se oscila, explica o verde das 16:49 e o item pode ir devagar. **Não medi**, e a
+resposta muda a prioridade do item que ficou livre.
+
+**Próximo passo:** os 32 arquivos sem filtro, começando pelos que estão dentro do `npm test` e do
+funil. E a entrega do `dev-jogo` (família do portão do ritual) ficou em voo ao fim desta rodada —
+ela precisa rebasear o `package.json`, que a `windows-plantao` reescreveu no meio do caminho.
+
+### ADENDO (a entrega que estava em voo quando escrevi o acima)
+
+O `dev-jogo` pousou e **entrou pelo funil** (`npm test` exit 0 · `encaixe` exit 0). Com isso a
+rodada fecha **8 de 8 itens**, e o que ela tem de melhor nao e nenhum dos meus achados:
+
+**O controle 0-contra-1 foi REPRODUZIDO nesta maquina.** Com búzios injetados em
+`ICONE_B64.folha` — o icone do contador do HUD, que aparece em todo capitulo:
+
+| | |
+|---|---|
+| cadeia ANTIGA do `npm test` | **EXIT 0** em 118 s — tudo verde, **inclusive o portao do ritual** |
+| cadeia NOVA | **EXIT 1** em 17 s |
+
+Ou seja: a trava do **§2** fora do lugar de DROP passou de escrita para **cobrada**. Era o que o
+`RECADOS` de 04/09 (tarde) chamava de *"o item que mais paga da fila"*, e o numero mostra por que.
+
+**E ele desmentiu a si mesmo com medicao, que e o registro mais util do dia.** A leitura ingenua
+(`npm test` 135 s → 157 s) dava **+22 s** para a varredura. Medido na MESMA arvore, com e sem:
+**+11 s** (arvore antiga) e **+12 s** (pos-merge) — o resto era ruido entre execucoes. O **9,4 s**
+que o `RECADOS` afirmava fica confirmado em ordem de grandeza e **otimista em ~2 s**. Comparacao
+entre execucoes diferentes nao mede diferenca; so a mesma arvore mede.
+
+Tres duvidas dele que ficam abertas, e nenhuma e bloqueante:
+1. Ele escolheu **RECUSAR** (exit 2) em vez de avisar quando a saida esta mais velha que a fonte,
+   e **nao mediu a alternativa contra si** — nao ha numero que separe "aviso lido" de "aviso
+   ignorado". Por isso existe a porta com nome (`QA_ACEITA_SAIDA_VELHA=1`).
+2. A varredura continua sendo **lista negra** fora do lugar de drop: brilho ×1,25 mede 14,0 e passa
+   do limiar 12. **Pendurar fechou o caso, nao a classe** — o item `ritual-fora-do-drop-sem-lista-branca`
+   continua livre e continua sendo o certo.
+3. O guarda de `mtime` **nunca dispara dentro do `npm test`** (o build e o primeiro elo: a saida
+   nasce 88 s mais nova que a fonte). Ele so protege o uso **a mao** — que e exatamente onde o QA
+   pagou as duas pontas em 04/09.
+
+**Fronteira respeitada e conferida por mim:** o diff tem 5 arquivos e **nenhum em `src/`**. O
+`src/jogo.ts` foi mutado transitoriamente 3 vezes para fabricar as mordidas — exigencia literal do
+aceite — e restaurado com `md5sum -c` OK; nada disso esta em commit. E o `package.json` ficou com
+**as 3 `dist-inventario` da `windows-plantao` E a varredura**: a linha disputada nao perdeu nada de
+ninguem.
+
+**Fecho da rodada:** backlog **28 livres · 97 concluidos · 8 do dono · 1 em-curso** (da outra
+maquina) · **0 travados no meu nome**. Dois funis, os dois verdes por exit code real.

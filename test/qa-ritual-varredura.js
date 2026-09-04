@@ -37,8 +37,21 @@
 // colunas. Enquanto a coluna do espelho ficar bem acima do limiar, o espelho não fabricou
 // falso positivo nenhum. É por isso que ele imprime as duas e não só a que decide.
 //
+// ── O QUE ESTE ARQUIVO LÊ, e por que a frase importa (04/09, achado A3 do QA) ─────────────
+// **Ele lê a SAÍDA**: o `index.html` da raiz mais os `pack-*.json` da raiz. Não lê `src/`.
+// O portão irmão (`test/salvador-drop-sem-ritual.js`) lê o contrário — a FONTE `src/jogo.ts`
+// mais os pacotes. Rodados a mão **sem `npm run build`**, os dois mentem, e o QA pagou as
+// duas pontas na mesma rodada: esta varredura saiu **exit 0** com búzios já injetado no `src`,
+// porque o `index.html` do disco ainda era o de antes.
+//
+// Desde 04/09 isso deixou de ser conselho: `test/saida-fresca.js` **recusa medir** (exit 2) se
+// o `index.html` for mais velho que qualquer fonte de `src/`. Para medir mesmo assim os bytes
+// que estão no disco — uso legítimo que o `CLAUDE.md` §6 nomeia —, `QA_ACEITA_SAIDA_VELHA=1`.
+// Dentro do `npm test` nada disso dispara: o build é o primeiro elo da corrente.
+//
 //   node test/qa-ritual-varredura.js
 //   QA_LIMIAR=12 node test/qa-ritual-varredura.js
+//   QA_ACEITA_SAIDA_VELHA=1 node test/qa-ritual-varredura.js   # medir o artefato do disco
 
 const { chromium } = require('playwright');
 const path = require('path');
@@ -52,6 +65,14 @@ function chromiumPath() {
 const RAIZ = path.resolve(__dirname, '..');
 const OBJ = path.join(RAIZ, 'assets', 'objetos');
 const LIMIAR = Number(process.env.QA_LIMIAR || 12);
+
+// A saída no disco tem de corresponder à fonte, senão este instrumento mede o artefato de
+// ontem e diz verde. Recusa com exit 2; a porta com nome é QA_ACEITA_SAIDA_VELHA=1.
+require('./saida-fresca.js').cobrar(
+  'test/qa-ritual-varredura.js',
+  ['index.html'].concat(fs.readdirSync(RAIZ).filter(f => /^pack-.*\.json$/.test(f)).sort()),
+  ['src/jogo.ts', 'src/index.html', 'src/estilo.css']
+);
 
 // As três artes que a entrega tirou do chão. Elas continuam no repositório de propósito —
 // são o registro do que foi trocado e a referência contra a qual esta varredura mede.
@@ -95,6 +116,9 @@ function uris() {
   const { lista, vistos } = uris();
   console.log('varridas ' + lista.length + ' imagens únicas (index.html + ' +
     fs.readdirSync(RAIZ).filter(f => /^pack-.*\.json$/.test(f)).length + ' pacotes)');
+  console.log('ESTE INSTRUMENTO LÊ A SAÍDA CONSTRUÍDA (index.html + pack-*.json), não `src/`.');
+  console.log('  o portão irmão test/salvador-drop-sem-ritual.js lê a FONTE (src/jogo.ts) + pacotes.');
+  console.log('  sem `npm run build` antes, os dois medem coisas de épocas diferentes.');
 
   const refs = Object.keys(RITUAL).map(function (n) {
     return { nome: n, uri: 'data:image/webp;base64,' + fs.readFileSync(path.join(OBJ, n + '.webp')).toString('base64') };
