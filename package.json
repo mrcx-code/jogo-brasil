@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js",
+    "test": "npm run build && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js && node test/qa-praca-quadro-vazio-vira-objeto.js",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
     "ritual:varredura": "node test/qa-ritual-varredura.js",
