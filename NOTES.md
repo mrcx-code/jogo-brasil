@@ -13459,3 +13459,148 @@ o dono decidiu em 04/09 foi tirá-lo de UM. Nos outros a abertura nomeia a carga
 trabalho e reciprocidade, não de coleta de pessoa — mas isso é leitura, e representação decide-se
 com ele. **Não mexi em mais nenhum**, e registro a pergunta em vez de responder sozinho.
 
+---
+
+## 04/09 (tarde) · `nuvem-20260904T1623` — tres entregas, e as tres derrubaram quem as pediu
+
+**Maquina: `nuvem-20260904T1623`.** Sem issue etiquetada `agente`; rodada agendada. Peguei um
+cluster de **7 itens** que o QA de 04/09 tinha aberto, em tres frentes de territorio disjunto, e
+**as tres foram pelo funil com exit code real 0**.
+
+### O que entrou na main
+
+| entrega | commit | portoes |
+|---|---|---|
+| `falas-arte-propria` | `f7689a9` | `npm test` 0 · `encaixe` 0 |
+| `ritual-limiar-espelho` | `22829bf` | `npm test` 0 · `encaixe` 0 |
+| `portoes-orfaos-pendurados` | `f58dcfa` | `npm test` 0 · `encaixe` 0 |
+
+**Baseline tirado ANTES de qualquer merge**, que e o que separa "a entrega quebrou" de "a maquina
+esta vazia" em trinta segundos: `npm test` **exit 0** e `encaixe` **exit 0** na `main` limpa.
+
+### O ACHADO DE PRODUTO DO DIA — e o jogador ve, agora, em producao
+
+**Seis quadros de gente estao VAZIOS na fonte.** Os data-URI tem **143 a 147 caracteres** (o de
+`segurou` tem **SEIS**) contra 10.500+ dos reais: `praca` [7, 16, 23], `pindorama` [23],
+`temfonte` [16], `segurou` [23]. Em **A PRACA a pedestre vira barril ou saco em 3 de 24 quadros**.
+
+E o modo como o achado apareceu e a licao inteira desta casa num paragrafo. O instrumento que o QA
+escreveu para medir isso esperava `im.naturalWidth > 0` — e o build **carimba um GIF 1x1** em toda
+imagem que viaja. Com `> 0`, o instrumento anunciou *"pacote chegou"* para A PRACA **com tres
+quadros em branco na mesma medida**. Consertado para `> 1`, que e a regua do proprio jogo
+(`esperando(im)`), o defeito apareceu. **Instrumento nao medido contra si mesmo nao mede nada** — e
+na segunda rodada ele reconferiu e achou o irmao disso: a varredura de 518 imagens reporta *"0
+imagens nao decodificaram"* **porque o pixel de espera 1x1 DECODIFICA**. Nenhum portao desta casa
+conta quadro que **chega**; todos contam quadro que **existe**. Virou item
+`quadros-de-gente-vazios-na-fonte`.
+
+### A TRAVA DO §2 TINHA BURACO DO LADO QUE O JOGADOR BAIXA
+
+O portao `salvador-drop-sem-ritual.js` e a trava do `CLAUDE.md` §2.4.5 (*objeto ritual nao e
+colecionavel*) feita mecanica. Medido nesta rodada: **ele lia UM pacote de onze**, e o que faltava
+(`pack-hoje`) carrega justamente `DROP_B64[3][0]` — **o bloco que dez capitulos vestem**. O aceite
+do item mirava na fonte; o buraco era maior que o aceite. Agora sao **5 enderecos onde havia 3**, e
+**derivados** por `readdirSync`, nao listados — nao envelhecem com o proximo pacote.
+
+**As duas saidas que o item propunha foram medidas antes de escolher, e a que ele listava primeiro
+PERDEU:** `min(d(a,b), d(a, espelho(b)))` compra **2 de 13** disfarces. O caminho de volta mais
+barato **nao e geometria**: brilho x1,25 = **14,0** contra limiar 12 (matiz +40 graus 21,9; moldura
++12% 28,8; espelho vertical 52,0; 180 graus 52,2; 90 graus 53,9). O espelho so parecia unico porque
+era o unico **medido** — os 5 disfarces anteriores nao continham nenhum filtro de cor. A lista
+branca fecha **13/13** com folga minima 31,5, e a janela passou a ser **cobrada a cada execucao**
+(`0,00 < 12 < 27,0`). O `33,4` que o cabecalho alegava como folga era a distancia de um par
+qualquer e **nao era folga de nada**.
+
+**E a trava continua com buraco FORA do lugar de drop, escrito e nao escondido:** em `MOB_B64`,
+`ICONE_B64`, `FRENTE_B64` e `GENTE_EP_B64` nao ha lista branca possivel, e la **um buzio aclarado
+passa hoje**. A frase do dev-jogo e o diagnostico: a lista branca funciona por **trocar a
+pergunta** (de *"isto e um buzio"* para *"isto e ESTE arquivo"*), e fora do drop a pergunta nao
+pode ser trocada — ali ele conseguiu fazer o **cabecalho** honesto, nao o portao.
+
+**Provado 0 contra 1 pelo QA, e e o argumento mais forte da rodada:** buzios injetado em
+`ICONE_B64.folha` — o icone de um dos tres contadores do HUD, na tela em **todo capitulo** — deixa
+`npm test` **exit 0** e o portao do ritual **exit 0**; **so a varredura pega** (exit 1, distancia
+0.0). Ou seja: a trava do §2 fora do lugar de drop **existe, morde, e nao roda**. Custo de
+pendurar: **9,4 s** sobre ~118 s. Item `varredura-do-ritual-nao-esta-em-portao-nenhum`, com a linha
+exata escrita e a ordem que importa (**depois** do build — ver o item irmao).
+
+### QUATRO PORTOES QUE NAO RODAVAM, E UM QUE FICOU DE FORA COM NUMERO
+
+Tres entraram (`qa-salvador-vivo`, `ver-territorio`, e o passo que exige **exit 1** do
+`csp-paginas` com `CSP_INJETAR_FALHA`). Custo marginal **7,7 s** sobre ~125 s.
+
+O quarto **nao entrou, e a decisao e o entregavel**: `ramos-mortos.js` toca a rede em **6** lugares
+e **sempre sai 0** — e relatorio, nao portao. O argumento que fechou: ele mora em `ferramentas/`,
+nao em `test/`, entao pendura-lo faria o `npm test` **depender do GitHub estar de pe**, e uma
+piscada de rede viraria `main` vermelha. Entrou o irmao sem rede (2,8 s, 11 checagens).
+
+**Ao pendurar o `ver-territorio.js` ele saiu VERMELHO — e eram dois defeitos DO TESTE**, conferidos
+com `git log -S` antes de tocar em nada: `chromium.launch` nu (a mesma doenca de
+`portao-navegador.js`) e filtro de ruido de rede/favicon ausente, ambos com precedente na casa. **O
+produto nao foi tocado para satisfazer o portao** — que e a regra do §8 funcionando.
+
+### O QUE CAIU — e e o que vale mais
+
+1. **O enunciado que EU escrevi no brief.** Afirmei *"as cinco falas estao obsoletas do mesmo
+   jeito"*. Falso: **metade de cada uma continuava verdadeira**, porque o que fica no chao (o drop)
+   segue emprestado nos cinco (`dropDe()` -> `arteCap: 3` = AINDA AQUI, e `soltarDrop()` e chamado
+   **antes** de ramificar). Aplicar a forma pronta teria trocado uma mentira por outra **na direcao
+   pior: a que se gaba**.
+2. **A sugestao pronta que eu repassei** para O CAIS foi provada **REPROVANDO** o `encaixe.js`
+   bloco 5 — exit 1 por injecao. Ao pe da letra, teria quebrado o portao.
+3. **"Nenhuma pintura compartilhada"** (arte 12,7,8,9,10): a **10 e vestida por quatro capitulos**.
+4. **Uma premissa que escrevi num ITEM do backlog.** Registrei que a divergencia entre as duas
+   tabelas `APROVADOS` seria o sinal de que uma arte entrou sem passar pelo portao. **Falso,
+   medido:** o portao e autoridade da propria tabela e mordeu em **quatro** injecoes com a tabela
+   dele intacta. O que a divergencia estraga e o **relatorio** — tres linhas inflam (35,2 -> 38,2) e
+   a lista branca parece **mais segura do que e**. Apodrecimento de documentacao, nao buraco de
+   portao; a prioridade do item caiu de acordo.
+5. **O enquadramento do proprio item do ritual**, que listava o espelho como a saida provavel.
+6. **Quatro hipoteses do porteiro**, entre elas a minha suspeita do `pipefail`: **nao ha tubo** no
+   bloco onde ele pudesse morder.
+7. **A disciplina do QA contra ele mesmo, duas vezes:** mediu a varredura contra o `index.html` de
+   **antes** do build (exit 0 onde devia ser 1) e o portao contra um `pack-salvador.json` de um
+   build anterior (exit 1 onde devia ser 0). **Fonte e saida sao coisas diferentes**, e `md5sum -c`
+   do `src` nao basta — tem de reconstruir. Virou item `portao-le-fonte-varredura-le-saida`.
+
+### QUATRO ACHADOS DE PROCESSO, e um deles nao veio de agente nenhum
+
+1. **O painel aceita `update` com a coluna errada casando 0 linhas, sem erro.** `mesa_agente` tem
+   `nome` (= o arquivo em `.claude/agents/`) e `papel` (o rotulo humano). Quem despacha vem do
+   `.claude/agents/` e chuta `papel`. Controle: `where papel='dev-jogo' returning nome` -> **`[]`,
+   0 linhas, sem erro**; `where nome='dev-jogo'` -> **1 linha**. Dos 11 arquivos, **11 casam com
+   `nome` e 0 de 12 com `papel`**. Escrito no `PLANTAO.md` §5.1 — e **a outra maquina o consertou
+   em minutos** (`mesa_agente_atualizar()`, que agora levanta excecao em vez de silenciar).
+2. **O guarda de isolamento so barra `git`.** Um agente em worktree rodou `npm install`,
+   `npm run build` e testes na checkout **compartilhada** (a que roda o funil) e o reportou como
+   duvida declarada. Conferido no pouso: arvore compartilhada **limpa**, 0 alteracoes.
+3. **O `guarda.js` decide pelo TEXTO do comando, nao pelo efeito.** Ele recusou um `git commit`
+   cuja **mensagem** citava o caminho protegido para explicar um achado. Nada seria escrito la. **E
+   a mesma armadilha que o guarda do `gh` ja pagou** (`RETOMADA.md` §7: bloqueava a escrita de um
+   arquivo que apenas *mencionava* `gh pr create`) — mesma classe, outro guarda, e ninguem tinha
+   ligado os dois.
+4. **O `guarda.js` recusa ESCRITA na pasta de saida e nao recusa `rm -rf`.** Baixa, porque a pasta
+   e regeneravel; o que incomoda e a assimetria.
+
+### Duvidas que ficaram
+
+- **A nota de honestidade sobre a arte gasta `abertura[4]` — a ultima linha antes de jogar — em
+  SEIS capitulos.** Ela nasceu quando a arte ERA emprestada. A historiadora **nao decidiu de
+  proposito**: mudar isso muda o que o jogo promete ao jogador. Esta como `do-dono`.
+- **O filtro `REDE_EXTERNA` casa substring do TEXTO** e engoliu **2 de 3** erros REAIS fabricados.
+  O caso perigoso e concreto: um `fetch` do **proprio dominio** morto no proxy sai com o mesmo
+  texto e seria arquivado como *"e a maquina"*.
+- **A PRACA, O QUE SEGUROU e O ACEIRO** tem a mesma familia de defeito das cinco falas — mas A
+  PRACA e **MENOS falsa** que elas, nao mais, por causa dos quadros vazios. Quem pegar o item le os
+  dois juntos, senao escreve a terceira frase falsa da serie.
+
+### Numeros da rodada
+
+Backlog: **133 itens** · 86 concluidos · 37 livres · **7 do dono** · 0 travados no meu nome ao
+fechar. **13 itens novos** abertos, todos com dono, aceite e medicao. Ramos no servidor: `voo/`
+**29** (quarta rodada seguida da nuvem sem criar marcador — a decisao do `PLANTAO.md` §0 segue
+segurando), `entrega/` 48. Worktrees limpos: 5 -> 0. Dois merges com a outra maquina resolvidos por
+**uniao de id**, com **0 ids perdidos** dos dois lados nas duas vezes.
+
+**Proximo passo:** pendurar a varredura do ritual no `npm test` (item pronto, linha escrita, 9,4 s)
+— e o unico dos 13 que fecha um buraco de **§2** em vez de um de esteira.

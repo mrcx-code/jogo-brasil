@@ -35,7 +35,7 @@
     },
     {
       "id": "ver-territorio-fora-do-ci",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "test/ver-territorio.js (3 controles bons) nao esta no npm test nem no CI",
@@ -45,8 +45,7 @@
       ],
       "aceite": "ver-territorio.js entra no npm test ou no job de portoes do CI. Confirma que os 3 controles continuam mordendo depois de pendurado.",
       "detalhe": "Achado pelo QA em 04/09: foi a ausencia deste portao automatico que deixou 144px da placa escondidos atras do painel em 360x640 passarem sem ninguem notar ate esta rodada.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit f58dcfa. test/ver-territorio.js entrou no job portoes do CI. O que a rodada aprendeu no caminho vale mais que o item: ao pendurar, o portao saiu VERMELHO -- e eram DOIS defeitos DO TESTE, nao do produto, conferidos com git log -S antes de qualquer conserto. (1) lancava chromium.launch nu, a mesma doenca de test/portao-navegador.js, e morria em 0,56s antes de abrir pagina; corrigido com ABRIR.chromiumPath(). (2) contava como erro de console o favicon 404 e o ERR_TUNNEL_CONNECTION_FAILED da medicao anonima, com precedentes ja existentes na casa. O produto NAO foi tocado para satisfazer o portao. Porteiro e QA conferiram depois, em separado: os 3 controles vistos REPROVANDO e os 3 negativos aprovando; portao-navegador.js exit 0 com 48 portoes derivados; a trava do lancamento nu reinjetada e vista mordendo (exit 1 na linha 256). Custo: 158,5s, teto de 8min = 3x de folga."
     },
     {
       "id": "csp-injetar-falha-no-op-windows",
@@ -61,7 +60,7 @@
     },
     {
       "id": "csp-injetar-falha-nunca-exercitado-em-ci",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "A mordida de CSP_INJETAR_FALHA nunca e exercitada automaticamente — nem CI, nem npm test, nem funil passam essa env",
@@ -71,8 +70,7 @@
       ],
       "aceite": "Um passo de CI (ou um segundo comando dentro do job existente) roda csp-paginas.js com CSP_INJETAR_FALHA numa rota valida e EXIGE exit 1 — provando em toda execucao que o portao ainda morde, nao so quando alguem lembra de rodar a mao.",
       "detalhe": "Achado pelo QA em 04/09 ao auditar o conserto do path-mangling (item anterior, ja fechado): mesma doenca curada em 02/09 para outro portao (\"portao de seguranca que so roda se alguem digitar o comando nao protege uma main que publica sozinha\"). csp-paginas.js nem aparece em nenhum script do package.json nem em bloco env: do CI — o job so roda o caminho limpo.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit f58dcfa. Um passo novo no job portoes roda csp-paginas.js com CSP_INJETAR_FALHA=/glossario/ e EXIGE exit 1. O porteiro provou a mordida NOS DOIS SENTIDOS, e nao pelo relatorio: extraiu o corpo do run: do YAML por PARSER e o rodou sob set -eo pipefail, o shell real do Actions -- mordida viva, passo exit 0; mordida DESARMADA num mutante, passo exit 1. Restauracao por sha256 e git status vazio. Conferiu ainda que a inversao nao tem tubo (set +e; codigo=$?; set -e), que o passo nao tem if:, continue-on-error nem needs:, e que o gatilho e push:[main] alem de pull_request -- ou seja, roda na main que publica sozinha, que era o ponto inteiro do item. RESSALVA ja na fila (item passo-csp-assere-codigo-nao-motivo): o passo assere o exit CODE e nao o MOTIVO."
     },
     {
       "id": "sem-contagem-sem-modo-injecao",
@@ -1367,7 +1365,7 @@
     },
     {
       "id": "ramos-mortos-fora-do-ci",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ferramentas/ramos-mortos.js nao esta em portao nenhum do CI — so o teste irmao, sobre um palco que o autor desenhou",
@@ -1377,12 +1375,11 @@
       ],
       "aceite": "Decidir se ramos-mortos.js entra no npm test / no CI e com que palco. Se entrar, o palco nao pode ser so o que o autor desenhou: precisa de pelo menos uma cena hostil ao desfecho que a ferramenta mais quer dar. Se NAO entrar, o numero que sustenta deixar de fora.",
       "detalhe": "Achado pelo QA em 04/09. E a ferramenta que decide se um ramo de entrega e trabalho perdido ou lixo — ou seja, ela manda uma rodada inteira trabalhar, ou faz um trabalho sumir — e nao passa por portao nenhum.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Fechado em 04/09 (nuvem-20260904T1623) por DECISAO MEDIDA, que era exatamente o que o aceite pedia: ramos-mortos.js NAO entra, e o numero que sustenta ficar de fora esta aqui. Ele toca a rede (6 ocorrencias contadas pelo QA -- o porteiro tinha contado 4, e a conclusao nao muda) e o proprio cabecalho dele ja diz que e relatorio e nao portao: sempre sai 0. Hangá-lo em CI seria um portao que nao tem como falhar, cujo veredito depende do estado AO VIVO dos ramos remotos e nao do diff sob teste -- zero sinal, custo de rede a cada push numa main que publica sozinha. O argumento que fechou, dado pelo QA: o arquivo mora em ferramentas/ e nao em test/, entao pendura-lo faria o npm test DEPENDER DO GITHUB ESTAR DE PE, e uma piscada de rede viraria main vermelha. Em vez dele entrou o irmao test/ramos-mortos-veredito.js, que exercita a classificar() de verdade sem rede (clones file:// em os.tmpdir()): 2,8s, 11 checagens, e ele JA TINHA a cena hostil que o aceite exigia -- a cena 2 impede o classificador de virar covarde e sempre dizer MORTO para ficar limpo."
     },
     {
       "id": "salvador-fala-sem-portao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "Silenciar os tres nomes na fala de SALVADOR passa npm test e encaixe com exit 0 — a metade que FALA nao tem portao",
@@ -1392,12 +1389,11 @@
       ],
       "aceite": "test/qa-salvador-vivo.js entra no npm test. Ele confere no jogo VIVO que a porta AS PALAVRAS DAQUI de SALVADOR continua alcancando os sete verbetes (PANO DA COSTA, GANHADEIRA, ALFORRIA, ACARAJE, DEGREDO, BUZIOS, MALE) — nao que a string do verbete existe na fonte, que e o que o portao de hoje confere. Mordida ja provada pelo QA: exit 1 com 3 falhas sobre a fala silenciada, exit 0 na arvore integrada. O instrumento JA EXISTE, commitado em entrega/qa-salvador-instrumentos (e742cb0): NAO reescreva, componha.",
       "detalhe": "Ressalva A do QA de 04/09 sobre entrega/salvador-fala-abertura, integrada com a ressalva ABERTA. O CLAUDE.md 2.4.5 tira da MAO e NAO CALA, e calar e o erro oposto e mais silencioso: hoje apagar acaraje, pano da costa e buzios da fala passa npm test E encaixe.js com exit 0. Medido pelo QA com controle de cache: sem os nomes a porta do capitulo cai de 7 para 4 verbetes; PANO DA COSTA e ACARAJE continuam a um clique por GANHADEIRA, mas BUZIOS sai da navegacao do capitulo POR COMPLETO. E o gap-check acrescentou o buraco de classe: nada liga a fala ao drop — se o drop trocar de novo, a fala volta a mentir e nenhum portao acusa. Foi exatamente isso que aconteceu nesta rodada, e so nao foi a producao porque a troca e a revisao da fala entraram no mesmo funil.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit f58dcfa, npm test e encaixe exit 0 REAIS. test/qa-salvador-vivo.js entrou no script test do package.json por COMPOSICAO -- o instrumento nao foi reescrito, como o aceite mandava. Mordida provada duas vezes por gente diferente: o dev-jogo silenciou os tres nomes rituais num mutante descartavel e viu exit 1 com 4 falhas; o QA atacou a granularidade e mediu que trocar UMA palavra (buzios por conchas) derruba a porta de 7 para 6 verbetes e sai exit 1 com exatamente 1 falha. O QA tambem conferiu que ele esta pendurado do jeito que foi desenhado: sem env, alvo = index.html da raiz que o npm test acabou de reconstruir, encadeado por && sem concorrencia de porta. CONSEQUENCIA que o proximo plantao precisa saber, e nao e defeito: o npm test passou a ser portao de TEXTO para uma frase."
     },
     {
       "id": "ritual-limiar-e-espelho",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "O portao do ritual promete capitulo nenhum e nao cumpre: buzios ESPELHADO no bloco que dez capitulos vestem passa com exit 0",
@@ -1407,8 +1403,7 @@
       ],
       "aceite": "Ou a mandibula da whitelist se estende aos outros blocos de DROP_B64, ou a blacklist passa a medir min(d(a,b), d(a, espelho(b))). Mordida provada por injecao: buzios espelhado em DROP_B64[3] (o bloco que dez capitulos vestem) tem de sair exit 1, e o controle inverso — arte legitima de trabalho — continua exit 0. E o cabecalho do portao passa a dizer a janela MEDIDA, nao a alegada.",
       "detalhe": "Ressalva B do QA de 04/09. O cabecalho do portao promete que mover buzios para outro capitulo e a mesma violacao com outro endereco, e NAO cumpre quando a arte nao vem bit a bit igual: buzios espelhado em DROP_B64[3] passa npm test inteiro com exit 0 (caso 4 fabricado pelo QA). E a folga do limiar 12 nao e a alegada: a janela real medida e 9,1 < 12 < 29,9 — figura diferente mais proxima do repositorio inteiro (518 imagens x 3 rituais) = 29,9, e o disfarce que o portao PRECISA pegar mais distante (buzios reduzido a 60%) = 9,1 —, contra os 33,4 escritos no cabecalho, que eram a distancia do par pano-da-costa/tabuleiro-novo e nao a folga. Nao e cara ou coroa (1,3x de um lado, 2,4x do outro), mas afirmacao que o objeto nao cumpre e o que esta casa caca nos portoes. Os dois instrumentos do QA estao em entrega/qa-salvador-instrumentos (e742cb0): qa-ritual-varredura.js varre 518 imagens + 11 pacotes, e qa-ritual-disfarce.js mede o limiar contra 5 disfarces.",
-      "maquina": "nuvem-20260904T1623",
-      "desde": "2026-09-04T16:25:38.093Z"
+      "feito": "Integrado pelo funil em 04/09 (nuvem-20260904T1623), commit 22829bf, npm test e encaixe exit 0 REAIS. O portao do CLAUDE.md 2.4.5 virou LISTA BRANCA, e as DUAS saidas que o item propunha foram medidas antes de escolher: a do espelho compra 2 de 13 disfarces e PERDEU, porque o caminho de volta mais barato nao e geometria -- brilho x1,25 = 14,0 contra limiar 12. A lista branca fecha 13/13 com folga minima 31,5. ACHADO ALEM DO ACEITE, e maior que ele: o portao lia UM pacote de onze, e o que faltava (pack-hoje) carrega justamente DROP_B64[3][0], o bloco que dez capitulos vestem -- a trava tinha buraco do lado que o JOGADOR BAIXA, nao da fonte. Agora sao 5 enderecos onde havia 3, e DERIVADOS por readdirSync, nao listados: nao envelhecem com o proximo pacote. A janela passou a ser cobrada a cada execucao (0,00 < 12 < 27,0) e o cabecalho cita a saida de um comando committed em vez de memoria -- o 33,4 que ele alegava como folga era a distancia de um par qualquer e nao era folga de nada. QA provou por A/B contra o portao ANTERIOR: buzios espelhado em DROP_B64[3][0] sai exit 0 tudo verde no de antes e exit 1 com 3 falhas no novo."
     },
     {
       "id": "tabuleiro-pano-listrado-do-dono",
@@ -1516,13 +1511,13 @@
       "estado": "livre",
       "agente": "qa",
       "camada": "esteira",
-      "titulo": "A tabela APROVADOS do portao do ritual esta repetida em 2 arquivos e nada assere que elas concordam",
+      "titulo": "A tabela APROVADOS esta repetida em 2 arquivos e nada assere que concordam -- a divergencia INFLA o relatorio (nao abre buraco no portao)",
       "territorio": [
         "test/salvador-drop-sem-ritual.js",
         "test/qa-ritual-disfarce.js"
       ],
-      "aceite": "Uma assercao que reprova se as duas tabelas divergirem, ou uma fonte unica lida pelos dois. Mordida provada por injecao: tirar uma arte de uma das listas tem de sair exit 1. E o portao passa a DIZER, na mensagem de falha, que capitulo novo com drop novo fica vermelho ate a arte entrar em APROVADOS -- e o preco da lista branca, e de proposito, mas vai surpreender alguem que nao leu isto.",
-      "detalhe": "Declarado pelo dev-jogo em 04/09 (nuvem-20260904T1623) como sobra descoberta do proprio conserto, escrito no comentario e sem nada que o cobre. O sentido do erro e o caro: se as duas divergirem, o sinal e de que uma arte de drop entrou SEM passar pelo portao -- ou seja, a divergencia e exatamente o evento que o portao existe para pegar."
+      "aceite": "Um assert de 3 linhas no disfarce (require da tabela do portao, ou comparacao de conjuntos) que reprove se as duas divergirem. Mordida provada por injecao: cortar a tabela do disfarce de 8 para 6 nomes tem de sair exit 1 -- hoje sai 0. E o portao passa a DIZER, na mensagem de falha do caso realista, onde se conserta (ver item irmao mensagem-do-portao-do-ritual-nao-diz-onde-consertar).",
+      "detalhe": "Declarado pelo dev-jogo em 04/09 (nuvem-20260904T1623) como sobra descoberta do proprio conserto. ATENCAO -- A PREMISSA ORIGINAL DESTE ITEM ESTAVA ERRADA E FOI REFUTADA PELO QA NA MESMA RODADA, com medicao. Eu escrevi aqui que a divergencia seria o sinal de que uma arte de drop entrou SEM passar pelo portao. E falso: o portao e autoridade da propria tabela e mordeu em QUATRO injecoes diferentes (drop novo; drop novo em bloco existente; ritual com a lista branca esticada; buzios espelhado) com a tabela dele intacta. O que a divergencia estraga e o RELATORIO: com 6 de 8 nomes, tres linhas da tabela do disfarce INFLAM -- espelhado vertical 35,2 vira 38,2, rodado 180 graus 34,9 vira 36,6, rodado 90 graus 34,4 vira 34,5 -- e a lista branca passa a parecer MAIS segura do que e. Apodrecimento de documentacao, nao buraco de portao. Prioridade cai de acordo, e fica o registro de que quem escreveu o item (o plantao) errou o diagnostico e o QA o corrigiu com numero."
     },
     {
       "id": "prints-smoke-artefato-ou-referencia",
@@ -1622,7 +1617,7 @@
         "test/"
       ],
       "aceite": "Duas coisas, e a segunda importa mais que a primeira. (1) Preencher ou remover os 6 quadros vazios, para o jogo parar de mostrar barril/saco onde devia haver pedestre. (2) Um portao que CONTE quadro que chega: nenhum instrumento hoje conta, e foi por isso que seis passaram. A regua ja existe e e do proprio jogo -- esperando(im) trata naturalWidth <= 1 como pixel de espera; o portao tem de usar a MESMA regua, senao ele aceita o GIF 1x1 que o build carimba e anuncia pacote chegou sobre quadro em branco.",
-      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada."
+      "detalhe": "Achado G2 do QA em 04/09 (nuvem-20260904T1623), no gap-check da entrega falas-arte-propria -- nao e defeito da entrega, apareceu ao ataca-la. Medido na fonte: praca indices 7/16/23, pindorama 23, temfonte 16, segurou 23. Os data-URI tem 143-147 caracteres (o de segurou tem SEIS) contra 10.500+ dos reais. Vivo: praca 21/24 com tinta, os outros tres 23/24. Em A PRACA a pedestre vira barril/saco em 1 de 8 quadros da fileira 0 e 2 de 8 da fileira 2. E o modo como o achado apareceu e a licao: o proprio instrumento do QA esperava naturalWidth > 0 e por isso anunciou pacote chegou para A PRACA com tres quadros em branco; consertado para > 1, a regua do jogo, o defeito apareceu. Instrumento nao medido contra si mesmo nao mede nada. RECONFERIDO pelo QA na segunda rodada, sobre a main de hoje: os 6 continuam la, exatamente os mesmos, e nenhuma das duas entregas de portao os toca. E uma nota nova que fecha o diagnostico: a varredura de 518 imagens reporta 0 imagens nao decodificaram -- porque o pixel de espera 1x1 DECODIFICA. Ou seja, o instrumento que varre o repositorio inteiro passa por cima do G2 sem ve-lo, pela mesma razao que o instrumento do QA passou na primeira rodada. Nenhum portao desta casa conta quadro que CHEGA; todos contam quadro que EXISTE."
     },
     {
       "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
@@ -1673,6 +1668,56 @@
       ],
       "aceite": "Um portao que cruze a afirmacao da fala com a verdade de ferramentas/necessario.json + ferramentas/pacotes.js, para os capitulos que afirmam. Mordida provada: virar um capitulo para pintura emprestada sem mexer na fala tem de sair exit 1. A sonda do QA (test/qa-falas-arte-vivo.js, commit 9f93dcf no worktree dele) ja cobre os cinco e e o ponto de partida: NAO reescreva, componha.",
       "detalhe": "Achado G7 do QA em 04/09 (nuvem-20260904T1623). A entrega desta rodada trocou cinco falas que diziam a arte e emprestada por cinco que dizem a arte ja e propria. A segunda forma e MAIS falsificavel que a primeira: ela envelhece no dia em que alguem trocar uma pintura, e nenhum portao acusa. E a verdade mora em dois arquivos que hoje so se leem a mao. E exatamente a doenca que o item salvador-fala-sem-portao abriu noutro endereco: a metade que FALA nao tem portao."
+    },
+    {
+      "id": "varredura-do-ritual-nao-esta-em-portao-nenhum",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "A trava do par.2 FORA do lugar de drop e cobrada por um portao que NADA roda -- buzios no icone do HUD deixa npm test verde",
+      "territorio": [
+        "package.json"
+      ],
+      "aceite": "Pendurar test/qa-ritual-varredura.js no npm test, DEPOIS do npm run build e ANTES do smoke (ela le a SAIDA, nao a fonte -- ver o item portao-le-fonte-varredura-le-saida). A linha exata ja foi escrita pelo dev-jogo: node test/qa-ritual-varredura.js encadeado por && antes do smoke; ela roda em 9,4s e nao sobe servidor, entao nao disputa porta. Mordida a reprovar depois de pendurada: buzios em ICONE_B64.folha tem de derrubar npm test. NAO pendurar test/qa-ritual-disfarce.js: medido, ele tem ZERO asserts (sai exit 0 com a tabela sabotada) -- e gerador de tabela, nao portao.",
+      "detalhe": "Achado do QA em 04/09 (nuvem-20260904T1623) e provado 0 contra 1, que e a forma mais forte que esta casa aceita. Ele injetou buzios em ICONE_B64.folha -- o icone de um dos tres contadores do HUD, a arte mais vista do jogo, na tela em TODO capitulo -- rodou npm run build e mediu: npm test exit 0, salvador-drop-sem-ritual.js exit 0 (tudo verde), e SO a varredura pegou, exit 1, distancia 0.0, em index.html embutida numero 94. Ou seja: hoje a trava do CLAUDE.md 2.4.5 fora de lugar-de-drop existe, morde, e nao roda. Custo de pendurar: 9,4s sobre ~118s. O dev-jogo que escreveu a entrega recomendou pendurar e o QA concordou depois de medir -- os dois pela mesma razao, e nenhum dos dois editou o package.json porque ele estava com outra entrega."
+    },
+    {
+      "id": "portao-le-fonte-varredura-le-saida",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "Armadilha de operacao: o portao do ritual le FONTE + pacotes e a varredura le SAIDA -- rodada a mao sem rebuildar, ela MENTE",
+      "territorio": [
+        "test/qa-ritual-varredura.js",
+        "test/salvador-drop-sem-ritual.js"
+      ],
+      "aceite": "Os dois instrumentos passam a DIZER, no cabecalho e na saida, o que leem e que precisam de npm run build para valer. Melhor ainda: a varredura recusa rodar (ou avisa alto) se o index.html no disco for mais velho que o src/jogo.ts -- e a mesma disciplina do PLANTAO.md sobre o smoke, que le a saida e por isso passa no arquivo de ontem.",
+      "detalhe": "Achado A3 do QA em 04/09 (nuvem-20260904T1623), e ele PAGOU por isso duas vezes na mesma rodada, o que e a melhor evidencia de que morde: (1) com buzios no ICONE_B64 do src, a varredura saiu exit 0 ate ele rodar npm run build; (2) o portao saiu exit 1 depois de ele restaurar o src, porque o pack-salvador.json no disco ainda era do build anterior. Ele registrou isso como desmentido da propria disciplina, e e a mesma classe da rodada anterior dele. Dentro do npm test o problema nao existe, porque o build vem antes -- por isso o item irmao manda pendurar a varredura DEPOIS do build."
+    },
+    {
+      "id": "rede-externa-e-substring-de-texto-e-engole-erro-real",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "O filtro REDE_EXTERNA casa SUBSTRING DO TEXTO do console e engoliu 2 de 3 erros REAIS fabricados -- e vale para dois portoes",
+      "territorio": [
+        "test/ver-territorio.js",
+        "test/qa-salvador-vivo.js"
+      ],
+      "aceite": "O filtro passa a decidir pela ORIGEM e nao pelo texto: testar m.location().url contra o host da medicao, que e o que a outra metade do mesmo filtro (a do favicon) ja faz certo. Mordida provada nos dois sentidos: um console.error do proprio produto que MENCIONE posthog ou ERR_TUNNEL_CONNECTION_FAILED tem de ser CONTADO; o erro real de rede externa continua ignorado. Vale para os DOIS arquivos.",
+      "detalhe": "Achado B1 do QA em 04/09 (nuvem-20260904T1623), e o unico ataque dele que pegou nesta entrega -- contra o proprio precedente dele. Fabricou tres console.error na pagina: um falha real ao montar o mapa (posthog) ENGOLIDO; um o pacote do territorio nao chegou: net::ERR_TUNNEL_CONNECTION_FAILED ENGOLIDO; o controle sem palavra de filtro CONTADO, exit 1. Dois de tres. O caso perigoso e concreto nesta maquina: um fetch do PROPRIO dominio (um pack-*.json) que morresse no proxy sairia com o mesmo texto e seria arquivado como e a maquina. Nao bloqueou a entrega porque o filtro e byte a byte o precedente de test/qa-salvador-vivo.js:61, escrito pelo proprio QA -- o defeito e dele antes de ser de quem copiou."
+    },
+    {
+      "id": "mensagem-do-portao-do-ritual-nao-diz-onde-consertar",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "A mensagem de falha do portao do ritual diz O QUE, nao diz ONDE consertar -- e o caso realista e o mais fraco",
+      "territorio": [
+        "test/salvador-drop-sem-ritual.js"
+      ],
+      "aceite": "A mensagem por lugar nomeia a tabela e o arquivo. Conserto de 12 caracteres, escrito pelo QA: acrescentar (acrescente em APROVADOS, test/salvador-drop-sem-ritual.js) na mensagem por lugar.",
+      "detalhe": "Achado A1 do QA em 04/09 (nuvem-20260904T1623). No caso de BLOCO novo a mensagem se explica sozinha (bloco novo sem arte aprovada e vermelho de proposito). No caso REALISTA -- arte nova num bloco existente -- as duas linhas sao DROP_B64[2] tem 4 arte(s), a lista branca declara 3 e src DROP_B64[2][3] nao tem arte aprovada declarada para este lugar: nenhuma nomeia APROVADOS nem o arquivo. E o preco da lista branca e justamente esse vermelho por desenho, entao a mensagem e a unica coisa entre ele e uma hora perdida do proximo plantao achando que quebrou o jogo."
     }
   ]
 }
