@@ -159,9 +159,7 @@
     },
     {
       "id": "porta-cartao-vende-o-jogo",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260903T2246",
-      "desde": "2026-09-03T22:46:30.000Z",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "O cartao da PORTA promete um jogo, e desde 19/08 a porta e a proposta — e ela e a superficie de maior alcance",
@@ -170,7 +168,8 @@
         "ferramentas/cartao-secao.js"
       ],
       "aceite": "A porta ganha cartao proprio, no molde dos tres que acabaram de ser provados em 03/09 (injecao em memoria, sobrevive ao recorte quadrado x 285..915, peso abaixo de 90 KB, 1200x630, zero recurso externo — provado por regenerar byte-identico OFFLINE). Mordida provada por injecao. O que o cartao DIZ e da alcada do dono (§2 e sign-off de publicacao): a entrega leva a proposta em pergunta fechada, nao escolhe sozinha.",
-      "detalhe": "Medido pelo porteiro em 03/09: plataforma/index.html aponta og:image para https://matheusferreira.cc/compartilhar.jpg, que e o HUD de PARTIDA (165,8 KB). Desde a decisao do dono em 19/08 a porta de entrada e a PROPOSTA e o jogo e UMA secao — a que traz gente. Entao a porta e a unica das cinco superficies publicas em que o que o WhatsApp mostra contradiz o que a pagina diz, e e a de maior alcance. As tres secoes de leitura acabaram de ganhar cartao proprio nesta mesma rodada; a porta e a que mais precisava e ficou de fora."
+      "detalhe": "Medido pelo porteiro em 03/09: plataforma/index.html aponta og:image para https://matheusferreira.cc/compartilhar.jpg, que e o HUD de PARTIDA (165,8 KB). Desde a decisao do dono em 19/08 a porta de entrada e a PROPOSTA e o jogo e UMA secao — a que traz gente. Entao a porta e a unica das cinco superficies publicas em que o que o WhatsApp mostra contradiz o que a pagina diz, e e a de maior alcance. As tres secoes de leitura acabaram de ganhar cartao proprio nesta mesma rodada; a porta e a que mais precisava e ficou de fora.",
+      "feito": "03-04/09 windows-plantao. Cartao proprio da porta (82,9 KB, deterministico, md5 igual em 4 geracoes). Dono escolheu manter o texto como esta. QA independente confirmou as 4 alegacoes + mordida na entrada nova do censo. Integrado d1eb784."
     },
     {
       "id": "sem-tsc-le-build-ignorado",
@@ -299,9 +298,7 @@
       "aceite": "As 4 condicoes da arte do PENDENTES 54, todas: (1) costura vertical julgada POR PRINT pela arte ANTES de portao verde; (2) o 390x844 de referencia ganha a heroina — destravar so Pixel/iPhone Max faz o item DESCER, nao fechar; (3) regua inteira verde: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos alternados. Fecha o PENDENTES 53 junto, e CHAO_HOME_LIGADO vira true.",
       "detalhe": "PENDENTES 54, PRIORIZADO pelo dono em 22/08. Repetir a peca de CHAO espelhada na vertical em rolarFundo() derruba a restricao que obrigava ampliar a pintura 1,64x — o ceu e o mar (a travessia) ficam. Criterio de aceite = as 4 CONDICOES DA ARTE, escritas no PENDENTES 54: (1) costura vertical julgada POR PRINT pela arte antes de portao verde (precedente JABAQUARA: simetria fabrica rosto); (2) o 390x844 de referencia TEM de ganhar a heroina (faltam 21 px de faixa; alavanca na composicao) — destravar so Pixel/iPhone Max faz o item DESCER em vez de fechar; (3) regua de hoje inteira: 0% sobreposicao, respiro >=8, piso 44 px; (4) FPS em A/B na mesma carga com bracos ALTERNADOS. Fecha o PENDENTES 53 junto. No fim, CHAO_HOME_LIGADO=false vira true.",
       "agente": "dev-jogo",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260903T2246",
-      "desde": "2026-09-03T22:46:30.000Z",
+      "estado": "concluido",
       "camada": "pesado",
       "territorio": [
         "src/jogo.ts",
@@ -309,7 +306,8 @@
         "test/regua-larga.js",
         "test/medir-conversa.js"
       ],
-      "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes"
+      "banca": "arte (costura por print + composicao nos 6 retratos), criterio numerico escrito nas 4 condicoes",
+      "feito": "03-04/09 windows-plantao. As 4 condicoes medidas e verdes (faixa 83,0->120,0px, 0px2 sobreposicao, inercia 0,000px, FPS dentro do orcamento). Banca dupla da arte: vetou AINDA AQUI na 1a rodada (mascaras bilaterais), aprovou apos COSTURA_COBRE=[12,5,1] cobrir com moitas do FRENTE. QA independente confirmou as 6 alegacoes com instrumento proprio, 2 achados corrigidos antes do merge. CHAO_HOME_LIGADO=true. Integrado d65b562."
     },
     {
       "id": "auto-login-local",
@@ -375,15 +373,13 @@
       "aceite": "Uma ficha por candidato dos grupos NENHUM/CUIDADO, no formato do lote 1: CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro), lugar de fala anotado quando houver. Fonte que nao abrir num host tenta o segundo antes de escrever \"nao deu para ler\". Nenhuma decisao de representacao: o historiador julga e o dono aprova pino a pino.",
       "detalhe": "Preparacao SEM decisao: a pesquisadora-fontes abre as fontes primarias dos candidatos [conferir] que virao no lote 2 dos pinos (grupos NENHUM/CUIDADO da lista de 49), no mesmo formato do lote 1 (6 fichas, 22/08): CONFERIDO seco ou COM AJUSTE, pagina citada, PDF fatiado (nunca inteiro — a queda da 1a tentativa virou disciplina). Aceite: uma ficha por candidato com fonte primaria aberta e lugar de fala anotado quando houver; o que nao abrir em um host tenta o segundo antes de escrever \"nao deu para ler\" (licao 19/08). Nada disso decide representacao: o historiador julga e o dono aprova pino a pino.",
       "agente": "pesquisadora-fontes",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260903T2246",
-      "desde": "2026-09-03T22:46:30.000Z",
+      "estado": "concluido",
       "camada": "medio",
       "territorio": [
         "territorio/",
         "fontes/"
       ],
-      "nota": "PARCIAL, integrado 03/09 por nuvem-20260903T2022 no ramo entrega/fichas-lote-2 (funil exit 0). As 6 fichas EXISTEM em fontes/fichas/lote2-territorio.md (1.002 linhas) e valem, mas o item NAO FECHA: o aceite pede fonte primaria ABERTA e ZERO foi aberta — o egresso desta maquina nega todos os hosts (8 testados: planalto, camara, lexml, presidencia, unesco, iphan, ebc, mais um controle en.wikipedia para provar que e a maquina e nao a fonte). Por isso cada citacao carimba grau de evidencia: [A] lida com arquivo:linha no proprio repo, [B] verificada em rodada anterior com procedencia, [C] devolvida por buscador — e NENHUM veredito repousa em [C]. QA conferiu 5 citacoes [A] por amostragem: todas batem. O QUE FALTA E DE MAQUINA COM EGRESSO: abrir os 4 [conferir] que ficaram avancados e nao fechados — processo IPHAN 1069-T-82, data da Lei 12.032, a obra de Capanema sobre Joao Candido, e o ano do Cocorobo (1968 x 1969, divergencia registrada). NAO REFACA as fichas; complete-as."
+      "feito": "03-04/09. Os 4 [conferir] que faltavam fechados por maquina com egresso real: processo IPHAN 1069-T-82, data da Lei 12.032 (21/09, nao 21/10), obra de Capanema (referencia completa + 3 citacoes), ano do Cocorobo (1968x1969 = dois eventos, nao divergencia). Achado extra: data de inscricao do tombamento da Serra da Barriga e 19/02/1986, nao 31/01/1986 como circulava (hipotese, nao resolvido). Zero desmentido. Integrado 650f0b0."
     },
     {
       "id": "pinos-lote-2",
@@ -447,15 +443,13 @@
       "aceite": "Numeros somados do periodo (as ~20 linhas de placar desde 21/08), o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido — entregue como texto para o integrador pregar no EQUIPE.md.",
       "detalhe": "A primeira retro (21/08, EQUIPE.md §6) rendeu a regra do achado-orfao — que este proprio sprint aplicou 2 vezes (rotina-7-sinais, canonical-jogo). Desde ela o placar ganhou ~20 linhas (21-22/08, o trecho mais denso da maquina). Aceite: numeros somados do periodo, o desperdicio nomeado COM numero, UMA mudanca de processo (nao cinco), e um ajuste de prompt por agente onde o placar mostrar erro repetido.",
       "agente": "pm",
-      "estado": "em-curso",
-      "maquina": "windows-plantao-20260903T2246",
-      "desde": "2026-09-03T22:46:30.000Z",
+      "estado": "concluido",
       "camada": "medio",
       "territorio": [
         "EQUIPE.md",
         ".claude/agents/"
       ],
-      "nota": "LOCK VENCIDO devolvido a livre em 03/09 20h40 UTC por nuvem-20260903T2022: estava em-curso por nuvem-20260903T1230 desde 12:34 (8h, contra a validade de 2h) e NAO ha ramo entrega/retro-2 na origin (git ls-remote, 0 refs) — conferido antes de devolver, como manda o PLANTAO §7."
+      "feito": "03-04/09. 85 linhas/95 rodadas medidas: 371 achados, 62 desmentidos (30 contra o despacho/brief). Achado central: 42 de 61 rodadas desde 23/08 foram sobre instrumento, zero mudaram o jogo jogavel (5 de 350 commits em src/). Mudanca de processo: EQUIPE.md §3.4, piso de produto na fila. Prompt ajustado em 4 agentes (pm, dev-plataforma, dev-jogo, porteiro) com o numero do erro repetido. Integrado 5ee87bb (reconciliado apos falso alarme do encaixe.js, ver PENDENTES 106)."
     },
     {
       "id": "territorio-rico",
