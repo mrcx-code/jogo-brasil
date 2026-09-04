@@ -127,7 +127,7 @@ const protegido = (r) => r.pedidos === 0 && r.medir === 'nao' && r.anon === null
   // continua medindo a turma. Então ele é emitido UMA vez, e as seis páginas o recebem igual.
   const blocos = PAGINAS.map((p) => {
     const t = fs.readFileSync(path.join(RAIZ, p.arq), 'utf8');
-    const m = t.match(/function chegouPelaEscola\(\)[\s\S]*?\n  \}\n/);
+    const m = t.match(/var ligado = true;[\s\S]*?\n  \}\)\(\);\n/);
     return { rot: p.rot, txt: m ? m[0].replace(/\r/g, '') : null };
   });
   ok(blocos.every((b) => b.txt),
@@ -138,7 +138,7 @@ const protegido = (r) => r.pedidos === 0 && r.medir === 'nao' && r.anon === null
   // A PÁGINA NO DISCO É SAÍDA, E SAÍDA ENVELHECE. Sem esta linha, mexer no `medir-secao.js` e
   // esquecer de rodar os geradores deixaria este portão medindo as páginas de ontem — verde,
   // e falso. É o mesmo modo de falha que tirou o smoke test do `file://`.
-  const agora = (MED.script('historia').match(/function chegouPelaEscola\(\)[\s\S]*?\n  \}\n/) || [])[0];
+  const agora = (MED.script('historia').match(/var ligado = true;[\s\S]*?\n  \}\)\(\);\n/) || [])[0];
   ok(!!agora && blocos[0].txt === agora.replace(/\r/g, ''),
     'e o que está no disco é o que o módulo emite AGORA — as páginas não são a saída de ontem');
 
