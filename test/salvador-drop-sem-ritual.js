@@ -99,7 +99,19 @@
 // (É 2, e não 3 como o sufixo `cap4` dos arquivos sugere — o sufixo é o número do PEDIDO na
 // mesa, não o do capítulo.)
 //
+// ── O QUE ESTE ARQUIVO LÊ, e por que a frase importa (04/09, achado A3 do QA) ─────────────
+// **Ele lê a FONTE `src/jogo.ts` MAIS os `pack-*.json` da raiz**, que são SAÍDA de build. É
+// essa mistura que o faz mentir quando rodado a mão: o QA restaurou o `src` e este portão
+// continuou **exit 1**, porque o `pack-salvador.json` do disco ainda era do build com o
+// defeito. `md5sum -c` do `src` não basta — tem de reconstruir.
+//
+// O irmão `test/qa-ritual-varredura.js` lê o oposto: só a SAÍDA (index.html + pacotes).
+// Desde 04/09 os dois passam por `test/saida-fresca.js`, que **recusa medir** (exit 2) se os
+// pacotes forem mais velhos que a fonte. Porta com nome: `QA_ACEITA_SAIDA_VELHA=1`.
+// Dentro do `npm test` nada disso dispara — o build é o primeiro elo da corrente.
+//
 //   node test/salvador-drop-sem-ritual.js
+//   QA_ACEITA_SAIDA_VELHA=1 node test/salvador-drop-sem-ritual.js   # medir os pacotes do disco
 
 const { chromium } = require('playwright');
 const path = require('path');
@@ -133,6 +145,21 @@ const VERBETES = ['ACARAJÉ', 'PANO DA COSTA', 'BÚZIOS'];
 // Distância abaixo da qual duas assinaturas são "a mesma figura". A janela medida que o
 // sustenta está no cabeçalho e é recobrada no fim deste arquivo: 0,00 < 12 < 27,0.
 const LIMIAR = 12;
+// A cauda que toda mensagem de falha da LISTA BRANCA carrega. Ela diz ONDE se conserta, que é
+// o que faltava: no caso realista (arte nova num bloco existente) as duas linhas vermelhas
+// eram "DROP_B64[2] tem 4 arte(s), a lista branca declara 3" e "src DROP_B64[2][3] não tem
+// arte aprovada declarada para este lugar" — nenhuma das duas nomeava a tabela nem o arquivo.
+const ONDE = '  →  drop novo? acrescente a arte em APROVADOS, test/salvador-drop-sem-ritual.js' +
+  ' (e a mesma na de test/qa-ritual-disfarce.js, que confere se as duas concordam)';
+
+// Este portão lê a FONTE (src/jogo.ts) + os pacotes, que são SAÍDA. Pacote mais velho que a
+// fonte já produziu exit 1 onde devia ser 0 (QA, 04/09). Recusa com exit 2; porta com nome:
+// QA_ACEITA_SAIDA_VELHA=1.
+require('./saida-fresca.js').cobrar(
+  'test/salvador-drop-sem-ritual.js',
+  fs.readdirSync(RAIZ).filter(f => /^pack-.*\.json$/.test(f)).sort(),
+  ['src/jogo.ts', 'src/index.html', 'src/estilo.css']
+);
 
 let falhas = 0;
 function ok(cond, msg) { console.log((cond ? '  ok   ' : '  FALHA ') + msg); if (!cond) falhas++; }
@@ -146,6 +173,9 @@ function semComentario(txt) {
 
 (async () => {
   const src = fs.readFileSync(FONTE, 'utf8');
+  console.log('ESTE PORTÃO LÊ A FONTE (src/jogo.ts) + os pack-*.json, que são SAÍDA de build.');
+  console.log('  o irmão test/qa-ritual-varredura.js lê a SAÍDA inteira (index.html + pacotes).');
+  console.log('  sem `npm run build` antes, os dois medem coisas de épocas diferentes.');
 
   // ---- 1. de quem é o bloco de arte de SALVADOR, lido de EPOCAS ----
   const limpo = semComentario(src);
@@ -254,14 +284,23 @@ function semComentario(txt) {
   // espelhado, rodado, aclarado ou recortado continua não sendo `drop-cap3-1`.
   ok(DROP.length === APROVADOS.length,
     'DROP_B64 tem ' + DROP.length + ' bloco(s), a lista branca declara ' + APROVADOS.length +
-    ' (bloco novo sem arte aprovada é vermelho de propósito)');
+    ' (bloco novo sem arte aprovada é vermelho de propósito)' +
+    (DROP.length === APROVADOS.length ? '' : ONDE));
   let piorIdentidade = 0, menorErrada = Infinity, ondeErrada = '';
   function cobrarLugar(nome, i, j) {
     const esperado = APROVADOS[i] && APROVADOS[i][j];
-    if (!esperado) { ok(false, nome + ' não tem arte aprovada declarada para este lugar'); return; }
+    // A mensagem diz ONDE se conserta, e não só O QUE quebrou. O vermelho de "drop novo
+    // legítimo" é POR DESENHO (é o preço da lista branca) — então esta frase é a única coisa
+    // entre ele e uma hora perdida do próximo plantão achando que quebrou o jogo. (Achado A1
+    // do QA, 04/09.)
+    if (!esperado) {
+      ok(false, nome + ' não tem arte aprovada declarada para este lugar' + ONDE);
+      return;
+    }
     const d = dist(nome, 'ok:' + esperado);
     piorIdentidade = Math.max(piorIdentidade, d);
-    ok(d <= LIMIAR, nome + ' É a arte aprovada ' + esperado + ' (distância ' + d.toFixed(1) + ' ≤ ' + LIMIAR + ')');
+    ok(d <= LIMIAR, nome + ' É a arte aprovada ' + esperado + ' (distância ' + d.toFixed(1) + ' ≤ ' + LIMIAR + ')' +
+      (d <= LIMIAR ? '' : ONDE));
     // e não é nenhuma das outras: mede a separação da própria lista branca
     nomesAprovados.forEach(function (n) {
       if (n === esperado) return;
@@ -271,7 +310,8 @@ function semComentario(txt) {
   }
   DROP.forEach(function (lista, i) {
     ok(APROVADOS[i] && lista.length === APROVADOS[i].length,
-      'DROP_B64[' + i + '] tem ' + lista.length + ' arte(s), a lista branca declara ' + ((APROVADOS[i] || []).length));
+      'DROP_B64[' + i + '] tem ' + lista.length + ' arte(s), a lista branca declara ' + ((APROVADOS[i] || []).length) +
+      (APROVADOS[i] && lista.length === APROVADOS[i].length ? '' : ONDE));
     lista.forEach(function (_, j) { cobrarLugar('src DROP_B64[' + i + '][' + j + ']', i, j); });
   });
   doPack.forEach(function (d) {
