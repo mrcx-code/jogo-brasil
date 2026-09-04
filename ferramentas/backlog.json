@@ -10,14 +10,15 @@
   "itens": [
     {
       "id": "aceiro-fogo-vira-gente",
-      "estado": "do-dono",
+      "estado": "livre",
       "agente": "dev-jogo",
       "camada": "pesado",
-      "titulo": "O ACEIRO: o codigo promete 'nunca pessoa, sempre fogo' e a build tem gente de verdade sendo tocada e recolhida",
+      "titulo": "O ACEIRO: mantém gente na rua, tira a coleta — decisão do dono em 04/09",
       "territorio": [
         "src/jogo.ts"
       ],
-      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. O comentário do bloco ABAFAR (src/jogo.ts ~2662-2669) e da linha ~2505 afirmam que o que atravessa a tela é sempre FOGO, nunca pessoa — mas `aceiro` entrou em CAPS_VERBO em 18/08, o que liga pessoaNaRua() e troca o objeto pela folha de gente (GENTE_EP_B64.aceiro: uma brigadista, uma apanhadora de flores sempre-vivas, um vaqueiro — comunidade tradicional reconhecida). A mão os alcança e o que carregam vira drop coletado como impacto (soltarDrop() incondicional). O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito'). NÃO é decisão de agente: pessoa de comunidade tradicional virando o que se toca e cujo carga se recolhe é representação, e §2 manda parar e perguntar ao dono. Três caminhos possíveis, nenhum decidido: (a) reverte pra só fogo/objeto abstrato, cumprindo a garantia escrita; (b) mantém gente cruzando mas remove a coleta do que carregam (a mão toca, não recolhe); (c) mantém como está e só corrige o comentário do código pra parar de afirmar garantia falsa (não resolve a representação, só a documentação)."
+      "aceite": "A mão continua alcançando quem atravessa (brigadista, apanhadora de sempre-vivas, vaqueiro), mas o que a pessoa carrega deixa de ser recolhido como impacto — soltarDrop()/coletarDrop() param de disparar para este capítulo especificamente (concluirAlcance() precisa saber diferenciar, sem quebrar os outros capítulos de gente-na-rua que SIM coletam, tipo PALMARES). O comentário do bloco ABAFAR (~2662-2669) e o de ~2505 — hoje falsos, dizem 'nunca pessoa, sempre fogo' — passam a descrever o que realmente acontece: gente de verdade, sem coleta. Prova por injeção: screenshot antes/depois do toque em O ACEIRO, e teste que confirma S.energia/S.recursos não sobe ao alcançar ali (mas continua subindo em PALMARES, controle negativo). npm test verde.",
+      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito')."
     },
     {
       "id": "cais-fala-obsoleta-e-verbo-errado",
