@@ -34,8 +34,10 @@ currículo específico — isso exigiria checagem que não foi feita).
 >
 > É gratuito e não pede cadastro para ler ou jogar. A plataforma conta quantas vezes cada
 > página abre, de forma anônima — sem nome, sem e-mail. **Quem entra pelo link do jogo aqui de
-> cima já entra com essa contagem DESLIGADA**, sem precisar mexer em nada: ele é o link de sala
-> de aula e vem assim de propósito. Se quiser ligar, ou desligar noutro aparelho, o interruptor
+> cima já entra com essa contagem DESLIGADA**, sem precisar mexer em nada — é o link de sala de
+> aula e vem assim de propósito. (A única exceção: se alguém já tiver ligado a contagem antes
+> naquele mesmo aparelho, essa escolha manual continua valendo.) Se quiser ligar, ou desligar
+> noutro aparelho, o interruptor
 > **medição** fica no topo de qualquer página e na tela de AJUSTES do jogo, e vale pro aparelho
 > inteiro. Se usar em sala e quiser mandar um retorno (o que funcionou, o que travou), escreva
 > para brasilpatinhas@gmail.com.
