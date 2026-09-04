@@ -185,7 +185,7 @@
     },
     {
       "id": "sem-tsc-le-build-ignorado",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "--sem-tsc mede o que foi compilado da ultima vez, nao o src/ de agora — e o verde falso e o pior dos dois",
@@ -194,9 +194,7 @@
         "ferramentas/construir.js"
       ],
       "aceite": "Varrer TODOS os usos de --sem-tsc e decidir, um a um, se o instrumento pode ler build/jogo.js sem compilar. Onde nao puder, a primeira passada compila (precedente ja aplicado em test/porta-ctx-sem-forma.js) ou o teste aborta com mensagem clara se o arquivo nao existir. Prova nos DOIS sentidos, por instrumento tocado: com build/jogo.js movido para fora continua exit 0 (nao fabrica vermelho falso) E a injecao do defeito continua exit 1 (nao perdeu a mordida).",
-      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda.",
-      "maquina": "nuvem-20260904T0823",
-      "desde": "2026-09-04T08:33:23.236Z"
+      "detalhe": "Achado pelo porteiro em 03/09 na secao \"o que ninguem esta olhando\", DEPOIS de ele mesmo tropecar nele: deu um vermelho no porta-ctx-sem-forma.js que era contaminacao propria — uma chave phx_ que ele injetara minutos antes tinha ficado compilada em build/jogo.js, e o --sem-tsc a releu. build/ e gitignored (.gitignore:17) e nao rastreado. Duas consequencias, e a segunda e a grave: em checkout LIMPO (o CI) o arquivo nao existe e o instrumento sai VERMELHO por motivo que nada tem a ver com o que ele mede; numa arvore longa, onde varias entregas passaram, ele mede a compilacao ANTERIOR e pode sair VERDE sobre um src/ que ja mudou. Verde falso e o pior dos dois porque ninguem o procura. UM caso ja foi consertado e provado nos dois sentidos (porta-ctx-sem-forma.js, 03/09, com o passo ligado ao teste.yml no mesmo commit); o item e para os OUTROS usos, que ninguem varreu ainda."
     },
     {
       "id": "cartao-margem-sem-controle",
