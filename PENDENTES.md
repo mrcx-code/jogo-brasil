@@ -4250,3 +4250,34 @@ absoluto, porta de rede, contenção de CPU/Chromium) — vale investigar QUAL �
 de confiar em qualquer resultado de teste rodado fora do worktree principal sob carga pesada. Não
 investiguei a causa exata (qual recurso colide) porque o achado mais urgente — produção correta —
 já estava resolvido, e a questão de instrumento fica aberta para quem quiser.
+
+---
+
+## 107 — `/dashboard/backlog.json` publica em texto claro que há pinos "PARE" e deliberação sobre nomear alguém — para o dono (04/09)
+
+Achado pelo QA ao auditar `territorio-rico`. **Não é do commit que ele auditava** — é pré-existente,
+achado no caminho, e a régua nova (item anterior, que fechou o vazamento de
+`territorio/pinos-proposta.json`) não cobre esta porta porque `dashboard/` é copiado por outro
+caminho de propósito (é a mesa de trabalho da equipe, não uma seção pública).
+
+**O fato medido:** `dashboard/backlog.json` responde **200 público** (só tem `Disallow` no
+`robots.txt`, que não é controle de acesso — é pedido de cortesia a rastreador). O arquivo contém a
+nota, ainda presente no item `pinos-lote-2`: *"2 decisões do lote 1 seguem abertas: João Cândido
+nomeado?, PARE visíveis ou fora?"* — ou seja, o endereço público diz que existem pinos marcados
+**PARE** (rejeitados) e que nomear uma pessoa real (João Cândido) segue em deliberação.
+
+**Por que isto sobe para o dono e não vira conserto de agente:** não é sobre vazar o CONTEÚDO dos
+pinos rejeitados (isso já foi fechado no item anterior) — é sobre o fato de que a EXISTÊNCIA da
+deliberação em si já é informação sobre representação em aberto, publicamente legível. §2 do
+CLAUDE.md é categórico: representação decide-se com o dono, e isso inclui decidir o que fica visível
+sobre o PROCESSO de decidir, não só o resultado.
+
+**Bônus, achado pelo mesmo QA:** essa nota está **desatualizada** — as duas decisões do lote 1 já
+foram tomadas em 21/08 (registradas no topo do `PINOS-PROPOSTA.md`). Então o dashboard hoje afirma
+uma dúvida que não existe mais, o que é seu próprio problema (`§3 do CLAUDE.md`: afirmação que
+virou falsa é pior que nenhuma) — independente da decisão sobre torná-lo privado ou não.
+
+**Não decidido, e não é meu para decidir:** se `dashboard/` deveria ganhar alguma forma de controle
+de acesso (hoje é só "noindex, Disallow" — descoberto por link, não por busca, mas alcançável por
+quem tiver a URL), ou se a nota simplesmente precisa ser atualizada/reescrita para não descrever
+deliberação em aberto de um jeito que também funcionaria para uma futura.

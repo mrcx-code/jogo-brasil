@@ -9,6 +9,44 @@
   },
   "itens": [
     {
+      "id": "territorio-botoes-lugar-atras-da-placa",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "leve",
+      "titulo": "4 de 5 botoes de lugar ficam com contraste 1,21-1,77:1 atras da placa do territorio em 360x640 (agravamento de bug pre-existente)",
+      "territorio": [
+        "ferramentas/chrome-plataforma.js"
+      ],
+      "aceite": "julgarSobreposicao() passa a perguntar tambem sobre .lista, nao so #censo. Fundo opaco no .pl resolve sem mexer no enquadramento da placa (sugestao do QA). Contraste dos 5 botoes >= 4,5:1 (WCAG) nas telas medidas. npm test + ver-territorio.js verdes.",
+      "detalhe": "Achado pelo QA em 04/09 auditando territorio-rico: NAO e regressao do item (a main ja tinha 2 de 5 botoes abaixo de 1,5:1 em 360x640 -- Santos 1,31, Salvador 1,49 -- e a tela ficou MELHOR no conjunto, porque antes metade do pais sumia sob o papel). E agravamento: virou 4 de 5. julgarSobreposicao() so olha #censo, nunca .lista -- e o espelho exato do bug que a regua foi escrita pra pegar."
+    },
+    {
+      "id": "portao-conjunto-publicado-por-secao",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "Nenhum portao cobra O CONJUNTO do que uma secao publica em dist/ — foi assim que pinos-proposta.json vazou por 12 dias",
+      "territorio": [
+        "test/csp-paginas.js",
+        "ferramentas/construir.js"
+      ],
+      "aceite": "Um teste assere o CONJUNTO de arquivos de cada dist/<secao>/ contra uma lista permitida (so o que index.html + compartilhar.jpg citam, ou equivalente) -- fechando a CLASSE de vazamento, nao so a instancia do pinos-proposta.json ja consertada.",
+      "detalhe": "Achado estrutural do QA em 04/09: a regra de 23/08 tambem nao tinha portao (so bloqueava por extensao .md), e foi assim que a gemea em JSON sobreviveu 12 dias publicando os 49 pinos candidatos (incl 5 PARE) em producao. O conserto do item territorio-rico fecha a INSTANCIA (regra virou baseada em uso), mas nao a CLASSE -- proximo arquivo esquecido pode vazar do mesmo jeito. test/csp-paginas.js anda por dist/ mas so cobra CSP de index.html, nao o inventario."
+    },
+    {
+      "id": "ver-territorio-fora-do-ci",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "esteira",
+      "titulo": "test/ver-territorio.js (3 controles bons) nao esta no npm test nem no CI",
+      "territorio": [
+        ".github/workflows/teste.yml",
+        "package.json"
+      ],
+      "aceite": "ver-territorio.js entra no npm test ou no job de portoes do CI. Confirma que os 3 controles continuam mordendo depois de pendurado.",
+      "detalhe": "Achado pelo QA em 04/09: foi a ausencia deste portao automatico que deixou 144px da placa escondidos atras do painel em 360x640 passarem sem ninguem notar ate esta rodada."
+    },
+    {
       "id": "csp-injetar-falha-no-op-windows",
       "estado": "concluido",
       "agente": "porteiro",
