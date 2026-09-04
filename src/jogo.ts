@@ -2081,19 +2081,28 @@ const EPOCAS = [
     nome: "O CAIS QUE VOLTOU À LUZ",
     quando: "Rio de Janeiro · século XIX",
     arteCap: 3,
-    // A PINTURA AINDA É EMPRESTADA, e mudou de dono neste commit: era `[3]` — a serra da
-    // Barriga, mata fechada — porque a regra do capítulo em obra manda vestir a pintura do
-    // capítulo ANTERIOR, e o anterior é PALMARES. Essa regra vale para quem não afirma nada;
-    // a partir do momento em que o texto diz "isto é o Rio de Janeiro, e este chão de pedra é
-    // o cais do Valongo", pintura vira afirmação de lugar (§2) e a escolha passa a ser "qual
-    // a MENOS falsa que existe hoje". É a `[4]`, de SALVADOR: cidade colonial de pedra, ladeira
-    // e mar. Continua sendo outra cidade, e por isso `cap-cais-fundo-alto`/`-chao` estão
-    // pedidos em ferramentas/necessario.json. Enquanto não chegam, as duas primeiras falas
-    // são cobertas pela imagem de contexto (quando ELA chegar) e o desencaixe fica só no jogo.
-    // `arte: [12]` desde 15/08 — a pintura PROPRIA do cais, no fim da lista de CAPS.
-    // Vestia a [4], que e SALVADOR, e isso era divida de §2 registrada no PENDENTES: o texto
-    // deste capitulo diz "isto e o Rio de Janeiro" e a pintura mostrava outra cidade.
-    // Pintura afirma lugar, e por isso ela nao e detalhe de acabamento.
+    // ===== O QUE DESTE CAPÍTULO É PRÓPRIO E O QUE AINDA É EMPRESTADO =====
+    // Conferido campo a campo em 04/09, porque este comentário se contradizia — dizia "a
+    // pintura AINDA é emprestada… é a [4], de SALVADOR" e, quatro linhas abaixo, "`arte: [12]`
+    // desde 15/08, a pintura PRÓPRIA do cais". A segunda é a verdadeira; a primeira é o
+    // histórico de como se chegou nela, e ficava lida como estado atual.
+    //
+    // PRÓPRIO hoje:
+    //   · a PINTURA — `arte: [12]`, o cais, no fim da lista de CAPS. Vestiu a [3] (serra da
+    //     Barriga) e depois a [4] (SALVADOR) enquanto era capítulo em obra; as duas eram
+    //     dívida de §2 registrada no PENDENTES, porque o texto diz "isto é o Rio de Janeiro" e
+    //     a tela mostrava outra cidade. Pintura afirma lugar — não é acabamento;
+    //   · QUEM ATRAVESSA A TELA — `GENTE_EP_B64.cais`, 24 quadros próprios (três pessoas × oito
+    //     de caminhada), gente CONTEMPORÂNEA da Saúde/Gamboa: entregador de bicicleta, senhora
+    //     com carrinho de feira, rapaz de fone. `cais` está em `CAP_FILA`, então `pessoaNaRua()`
+    //     é verdadeiro e o verbo aqui é ACOLHER, o mesmo de PALMARES — não "cavar".
+    //
+    // AINDA EMPRESTADO de AINDA AQUI, por `arteCap: 3`: a folha da protagonista, o retrato do
+    // capítulo e o que fica no chão (`DROP_B64[3]`).
+    //
+    // ⚠ A QUINTA FALA DA ABERTURA AINDA DESCREVE O ESTADO ANTIGO e por isso está falsa em
+    // metade — ver o item `cais-fala-obsoleta-e-verbo-errado` no backlog. Fala é território do
+    // historiador; este comentário não a corrige, só deixa de alimentá-la.
     cenas: 1, lugar: "cais", arte: [12],
     abertura: [
       "Isto é o Rio de Janeiro, e este chão de pedra tem nome: cais do Valongo. Foi construído em 1811, por ordem do príncipe regente, e fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas.",
@@ -3946,6 +3955,33 @@ function novoIdAnonimo() {
   for (let i = 0; i < 16; i++) s += (b[i] + 256).toString(16).slice(1);
   return s;
 }
+// O NÚMERO SÓ NASCE QUANDO HÁ O QUE CONTAR (04/09, achado R6 do jurídico).
+//
+// Até aqui o sorteio e a gravação moravam dentro de `medirCarregar()`, ANTES de qualquer
+// olhada no interruptor — então quem chegava com a medição DESLIGADA saía com um
+// `jogo_brasil_anon` gravado no aparelho que nunca serviria para nada. Não vazava pedido
+// nenhum (o `medir()` sai na primeira linha), mas gravava um dado que ninguém pediu, e a
+// frase de `ferramentas/medir-secao.js` afirmava o contrário: *"com o interruptor desligado
+// nada é gravado, nada é sorteado e nada sai"*. Nas PÁGINAS isso já era verdade — a função
+// `id()` de lá só é chamada depois do `if (!ligado) return`. No jogo, não era.
+//
+// MEDIDO (navegador headless, `jogo_brasil_medir` posto em "nao" ANTES de qualquer script):
+// antes, `jogo_brasil_anon` vinha com 32 hex; depois, `null` — igual ao glossário e à porta.
+//
+// Ele fica em função separada e não colado no `medir()` por um caso real: quem DESLIGA e
+// depois RELIGA passa por `medirTrocar()`, que não repete o `medirCarregar()` (a trava
+// `medirCarregado` já está de pé). Sem esta função o primeiro evento depois de religar sairia
+// com `distinct_id` vazio — o defeito que o conserto teria criado.
+function medirGarantirId() {
+  if (medirId) return;
+  let guardado: string | null = null;
+  try { guardado = localStorage.getItem(CHAVE_ANON); } catch (e) { guardado = null; }
+  medirId = typeof guardado === "string" && /^[0-9a-f]{32}$/.test(guardado) ? guardado : "";
+  if (!medirId) {
+    medirId = novoIdAnonimo();
+    try { localStorage.setItem(CHAVE_ANON, medirId); } catch (e) {}
+  }
+}
 function medirCarregar() {
   if (medirCarregado) return;
   medirCarregado = true;
@@ -3954,13 +3990,7 @@ function medirCarregar() {
   // ser real. Só a string exata "nao" desliga: um `localStorage` adulterado que traga
   // qualquer outra coisa erra para o lado de continuar respeitando o que a tela mostra.
   try { medirLigado = localStorage.getItem(CHAVE_MEDIR) !== "nao"; } catch (e) { medirLigado = true; }
-  let guardado: string | null = null;
-  try { guardado = localStorage.getItem(CHAVE_ANON); } catch (e) { guardado = null; }
-  medirId = typeof guardado === "string" && /^[0-9a-f]{32}$/.test(guardado) ? guardado : "";
-  if (!medirId) {
-    medirId = novoIdAnonimo();
-    try { localStorage.setItem(CHAVE_ANON, medirId); } catch (e) {}
-  }
+  if (medirLigado) medirGarantirId();
 }
 function medirTrocar() {
   medirCarregar();
@@ -3978,6 +4008,9 @@ function medir(nome: string, props?: Record<string, any>, chave?: string) {
   if (chave) { if (medirJaVisto[chave]) return; medirJaVisto[chave] = 1; }
   if (medirEnviados >= MEDIDA_TETO) return;
   medirEnviados++;
+  // Só AQUI, no último degrau antes do pedido sair: religar o interruptor, ou apagar o
+  // progresso e continuar jogando, deixa `medirId` vazio, e é esta linha que o refaz.
+  medirGarantirId();
   const corpo = {
     api_key: MEDIDA_CHAVE,
     event: nome,
@@ -10642,6 +10675,19 @@ function zerarJogo() {
                                // pelo menu é da partida que acabou de deixar de existir.
   salvar();
   try { localStorage.removeItem(CHAVE_RET); } catch (e) {}
+  // ...E O NÚMERO SORTEADO VAI JUNTO (04/09, achado R7 do jurídico). O art. 18, VI da LGPD
+  // pede que o caminho de eliminação realmente elimine, e este botão era o único que a
+  // plataforma tinha para oferecer: ele apagava a partida e o registro de rotina e deixava
+  // `jogo_brasil_anon` de pé, que é justamente o único dado deste aparelho que já viajou.
+  // `medirId` zera na memória junto — quem continuar jogando depois de apagar sorteia OUTRO
+  // número em `medirGarantirId()`, que é o que "apagar" tem de significar.
+  //
+  // O QUE NÃO SE APAGA AQUI, e é decisão, não esquecimento: `CHAVE_MEDIR`. Zerar a escolha
+  // de privacidade junto com a partida religaria a medição de quem a desligou, sem avisar —
+  // um botão de apagar que ressuscita o que a pessoa mandou parar é pior que o defeito que
+  // ele conserta.
+  try { localStorage.removeItem(CHAVE_ANON); } catch (e) {}
+  medirId = "";
   // A retenção volta ao padrão INTEIRA — inclusive a janela dos primeiros 60 s, que só faz
   // sentido para um save novo, e é isso que APAGAR MEU PROGRESSO cria. `marcarDia()` recomeça
   // a contagem em 1 no próximo carregamento (ou já agora, pelo autosave).
@@ -12850,6 +12896,43 @@ function montarConfig() {
     pixelRotulo(linha, l[0], 1, l[1]);
     box.appendChild(linha);
   });
+  // ===== A POLÍTICA INTEIRA, A UM TOQUE (04/09) =====
+  //
+  // O texto-fonte da política (`plataforma/privacidade-texto.md`) pede o link em DOIS lugares:
+  // no rodapé das cinco páginas e AQUI. O rodapé foi feito em 04/09 e esta metade ficou — e
+  // ela é a metade que importa mais, porque é nesta tela que a pessoa está quando a pergunta
+  // aparece. As quinze linhas acima dizem o essencial em português de gente; o que elas não
+  // cabem dizer — as bases legais, os prazos, o caminho de eliminação, a ANPD — está lá.
+  //
+  // POR QUE NOTA DE MARGEM E NÃO TÁBUA: a régua da casa é madeira para AÇÃO DE JOGO e papel
+  // para leitura (a mesma que decidiu a saída da CHEGADA). Uma quinta tábua aqui daria a este
+  // link o peso de um botão de jogo e empurraria o APAGAR e o VOLTAR para baixo da dobra nas
+  // telas curtas, que é o defeito que três consultas de mídia desta tela existem para não ter.
+  // Ele nasce DENTRO do papel, como última linha dele — que é onde a frase que ele completa
+  // acabou de ser lida.
+  //
+  // AS DUAS GUARDAS SÃO AS MESMAS DA SAÍDA DA CHEGADA, e pelo mesmo motivo: aberto com dois
+  // cliques (`file:`) não há servidor, e no aplicativo do Capacitor o jogo É a raiz — nos dois
+  // casos `/privacidade/` não existe, e um link de privacidade que dá em nada é pior que
+  // link nenhum. Sem evento: contar quem abre a política seria medir exatamente a pessoa que
+  // foi ler o que se mede dela.
+  // (não precisa remover a nota antiga: `box.textContent = ""` lá em cima já esvaziou o papel,
+  //  e é por isso que esta função pode ser chamada a cada toque de interruptor sem acumular.)
+  if (location.protocol.indexOf("http") === 0 && location.pathname !== "/") {
+    const nota = document.createElement("div");
+    nota.id = "cfgPriv";
+    const a = document.createElement("a");
+    a.setAttribute("href", "/privacidade/");
+    a.setAttribute("target", "_self");
+    // UMA LINHA, E ISSO FOI MEDIDO, não escolhido por gosto: com a frase de contexto na
+    // frente ("por extenso, com as bases legais e os prazos:") a nota ocupava três linhas, o
+    // papel ia de 273 para 356 px de altura e o bloco 6 do `encaixe.js` reprovava o telefone
+    // DEITADO (844×390) — cfgInfo 69..425 numa tela de 390. O contexto já está nas linhas
+    // acima; o que faltava era a porta.
+    a.textContent = "a política de privacidade →";
+    nota.appendChild(a);
+    box.appendChild(nota);
+  }
   pixelRotulo($("btnSom"), S.som ? "SOM: LIGADO" : "SOM: DESLIGADO", 2, "#f2e8ce");
   // O interruptor. Fica ENTRE o som e o apagar, e não no fim: quem procura por ele está
   // procurando por privacidade, e enterrar o controle abaixo do botão destrutivo é o jeito

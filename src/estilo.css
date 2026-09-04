@@ -810,6 +810,17 @@
     box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
                 inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
                 0 7px 0 rgba(0,0,0,.45); }
+  /* A ÚLTIMA LINHA DO PAPEL É UMA NOTA DE MARGEM (04/09): o link para /privacidade/. Mesmo
+     material da saída da CHEGADA (`#fimPlataforma`) — é o que o jogo já usa para dizer uma
+     coisa a mais sem interromper —, só que em tinta de PAPEL e não de tela escura, porque
+     aqui o fundo é claro. `padding` de 13px em cima e embaixo dá os 44 px de alvo de dedo que
+     esta tela cobra de tudo o que se toca desde 10/08; a nota inteira, e não só a âncora,
+     rende porque o texto que a antecede é parte da frase. */
+  #telaConfig #cfgPriv { font: var(--margem); font-style: normal; font-weight: 400;
+    color: #6b4f2a; max-width: 26em; text-align: left; margin-top: 2px; }
+  #telaConfig #cfgPriv a { color: #5c3210; text-decoration: underline dotted;
+    text-underline-offset: 3px; display: inline-block; padding: 13px 3px; }
+  #telaConfig #cfgPriv a:active { color: #8a5a1c; }
   /* TÁBUA DE MADEIRA — dois materiais no jogo inteiro, cada um com um sentido: PEDRA é
      ferramenta de jogo (a barra de baixo, os nichos de contador), MADEIRA é coisa posta no
      lugar (as placas das telas). A tábua tem as mesmas quatro coisas da laje, todas em
@@ -2034,8 +2045,13 @@
       padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
     #telaConfig .telaTit { grid-column: 1 / -1; margin-bottom: 8px; }
     /* o papel ocupa a coluna da esquerda inteira, ao lado das quatro tábuas */
+    /* O RESPIRO PAGA A NOTA DE PRIVACIDADE (04/09), e é respiro que cede — nunca palavra nem
+       alvo de dedo, que é a régua desta tela desde 10/08. Medido: com a nota dentro do papel
+       e o gap em 5px, o papel ia a 69..407 numa tela de 390 e o bloco 6 do `encaixe.js`
+       reprovava por 17 px. São 16 vãos entre as linhas; 5 → 3 devolve 32 px, o dobro do que
+       falta, e a âncora fica com os 13 px de recheio que lhe dão os 44 px de altura tocável. */
     #telaConfig #cfgInfo { grid-column: 1; grid-row: 2 / span 5; align-self: center;
-      gap: 5px; padding: 10px 14px; }
+      gap: 3px; padding: 10px 14px; }
     #telaConfig .telaBtn { grid-column: 2; width: auto; min-width: min(34vw, 260px);
       padding: 12px 18px; margin: 0 0 6px; }
   }
