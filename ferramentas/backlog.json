@@ -1445,6 +1445,18 @@
       ],
       "aceite": "Uma forma unica de escrever no mesa_agente que RECUSA quando casa 0 linhas — helper em ferramentas/ que so aceita nome de .claude/agents/ (ou Claude) e devolve exit != 0 se o returning vier vazio. Mordida provada por injecao: chamar com dev-jogo-inexistente tem de sair exit 1; chamar com dev-jogo sai exit 0 e a linha muda. Se a saida escolhida for so documentar, o numero que sustenta e a contagem de rodadas que ja erraram.",
       "detalhe": "Medido em 04/09 por nuvem-20260904T1623, que caiu nela na propria rodada. mesa_agente tem nome (= arquivo em .claude/agents/) e papel (rotulo humano do painel). Quem despacha vem do .claude/agents/ e chuta papel. Controle nos dois sentidos: where papel=dev-jogo returning nome -> [] (0 linhas, sem erro); where nome=dev-jogo -> 1 linha. Dos 11 arquivos de .claude/agents/, 11 casam com nome e 0 de 12 casam com papel. E a mesma doenca do PLANTAO 5.1 (painel congelado nao diz ninguem trabalhou, diz nao da para saber) entrando por outra porta, e a que o dono ja cobrou em 21/08. Escrito no PLANTAO.md 5.1 no mesmo commit."
+    },
+    {
+      "id": "encaixe-sem-portao-para-anon-desligado",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "test/encaixe.js nao cobre o que a politica de privacidade agora promete sobre jogo_brasil_anon",
+      "territorio": [
+        "test/encaixe.js"
+      ],
+      "aceite": "Duas asserções novas no bloco 17 (ou onde o encaixe ja cobre medicao): (1) com jogo_brasil_medir=nao posto antes de qualquer script, abrir o JOGO nao grava jogo_brasil_anon (ja e coberto assim nas paginas por medir-paginas.js/qa-privacidade-muda.js, falta so no jogo); (2) apertar APAGAR MEU PROGRESSO remove jogo_brasil_anon do localStorage sem remover jogo_brasil_medir. npm test verde.",
+      "detalhe": "Achado pelo porteiro (revisao independente do branch privacidade-texto-sync-r6-r7, 04/09): o texto publicado em /privacidade/ agora afirma essas duas coisas sobre o JOGO (medirGarantirId em src/jogo.ts:3975-3984, zerarJogo em 10689) mas nenhum teste automatico as prende -- um refactor futuro pode tornar a politica falsa em silencio, exatamente o que CLAUDE.md §3 chama de pior que nenhuma afirmacao."
     }
   ]
 }
