@@ -20,6 +20,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const ALVO = ABRIR('file:///' + path.join(RAIZ, 'territorio', 'index.html').split(path.sep).join('/'));
@@ -260,13 +261,17 @@ function julgarDivisas(uf) {
     const ignorados = [];
     // DOIS RUÍDOS QUE NÃO SÃO O JOGO, ACHADOS AO PENDURAR ESTE ARQUIVO EM npm test (04/09):
     //   1. a contagem anônima da página (us.i.posthog.com) não sobe de dentro de um sandbox
-    //      com proxy — o pedido morre em ERR_TUNNEL_CONNECTION_FAILED. É a MÁQUINA, não o jogo
-    //      (mesmo filtro em test/qa-salvador-vivo.js), e sem ele este portão reprovaria SEMPRE
-    //      nesta máquina, decoração de vermelho em vez de medir WebGL — a mesma armadilha que a
-    //      lição 2.8 da casa persegue, só que ao contrário (vermelho que não fala nada de real).
+    //      com proxy — o pedido morre em ERR_TUNNEL_CONNECTION_FAILED. É a MÁQUINA, não o jogo.
     //   2. o favicon que o Chromium pede sozinho — 404 porque test/abrir.js só serve arquivo
     //      que existe (mesmo filtro em test/qa-privacidade-muda.js).
-    const REDE_EXTERNA = /posthog|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/;
+    //
+    // ATÉ 04/09 O RUÍDO 1 SAÍA POR SUBSTRING DE TEXTO (`/posthog|ERR_TUNNEL_CONNECTION_FAILED|
+    // ERR_PROXY/`), e essa é a falha que o QA mediu na rodada nuvem-20260904T2022: um
+    // `console.error()` REAL do próprio jogo que só MENCIONASSE uma dessas palavras era engolido
+    // do mesmo jeito que o ruído de verdade — dois de três erros fabricados de propósito sumiam.
+    // `ehRuidoDeRedeExterna` (test/rede-externa.js) decide pela ORIGEM
+    // (`m.location().url` contra `MEDIDA_HOST`), a mesma regra já provada em `test/encaixe.js` e
+    // no controle de `test/filtro-console-controle.js` — nunca pelo texto.
     pg.on('pageerror', (e) => erros.push('pageerror: ' + e));
     pg.on('console', (m) => {
       if (m.type() !== 'error') return;
@@ -274,7 +279,7 @@ function julgarDivisas(uf) {
       // o "Failed to load resource: 404" nao carrega a URL no TEXTO — so em location().url,
       // que e exatamente onde qa-privacidade-muda.js confere o favicon.
       const url = (m.location && m.location().url) || '';
-      (REDE_EXTERNA.test(t) || /\/favicon\.ico$/.test(url) ? ignorados : erros).push('console: ' + t);
+      (ehRuidoDeRedeExterna(m) || /\/favicon\.ico$/.test(url) ? ignorados : erros).push('console: ' + t);
     });
     await pg.goto(ALVO);
     await pg.waitForFunction('window.__pronto === true', null, { timeout: 20000 }).catch(() => {});

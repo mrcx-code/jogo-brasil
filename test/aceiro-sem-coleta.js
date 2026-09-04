@@ -30,12 +30,25 @@
 //   4. A CORRENTE NÃO É PORTA DOS FUNDOS — `passarPalavra()` atende sem o dedo e chamava
 //      `soltarDrop()` por conta própria. O caminho sem toque é exercitado à parte.
 //
+// O QUE FOI ACRESCENTADO EM 04/09 (rodada nuvem-20260904T2022, plantão): este arquivo entrou no
+// `npm test` no commit `0f1406e` sem filtro NENHUM para o console de erro — todo `console.error`
+// virava falha, e o pedido anônimo para a contagem (us.i.posthog.com) morre em
+// ERR_TUNNEL_CONNECTION_FAILED dentro de QUALQUER sandbox com proxy fechado. Medido: 3 de 3
+// execuções seguidas nesta máquina reprovam com exit 1, sempre pela mesma causa — não é
+// intermitente, é constante enquanto o host da medição não for alcançável daqui. Sem filtro, a
+// rede de quem roda o teste — não o jogo — derrubava o `npm test` inteiro, e todo funil desta
+// rodada saía vermelho com o nome de uma entrega alheia colado nele. `ehRuidoDeRedeExterna`
+// (test/rede-externa.js) decide pela ORIGEM (`m.location().url` contra `MEDIDA_HOST`), a mesma
+// regra já provada em `test/encaixe.js` e no controle de `test/filtro-console-controle.js` —
+// nunca por substring de texto, que é o defeito que motivou a rodada.
+//
 //   node test/aceiro-sem-coleta.js
 
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 const ARQ = process.env.JOGO_HTML || path.resolve(__dirname, '..', 'index.html');
 const ALVO = /^https?:\/\//i.test(ARQ) ? ARQ : ABRIR('file://' + path.resolve(ARQ));
@@ -82,9 +95,11 @@ const sec = t => console.log('\n---- ' + t);
   // ============================================================
   const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
-  const erros = [];
+  const erros = [], ignorados = [];
   pg.on('pageerror', e => erros.push('PAGEERROR ' + e.message));
-  pg.on('console', m => { if (m.type() === 'error') erros.push('CONSOLE ' + m.text()); });
+  // A MEDIÇÃO ANÔNIMA (us.i.posthog.com) não sobe de dentro de um sandbox com proxy — ver o
+  // cabeçalho. `ehRuidoDeRedeExterna` decide pela ORIGEM, nunca pelo texto.
+  pg.on('console', m => { if (m.type() === 'error') (ehRuidoDeRedeExterna(m) ? ignorados : erros).push('CONSOLE ' + m.text()); });
   await pg.goto(ALVO);
   await pg.waitForTimeout(1200);
   await pg.evaluate(() => { fecharTelas(); fecharTudo(); });
@@ -288,6 +303,7 @@ const sec = t => console.log('\n---- ' + t);
     'print DEPOIS: nada caiu, nada foi recolhido, e a pessoa ainda ali');
   console.log('   prints ACEIRO-COLETA-{ANTES,DEPOIS}-{1-antes,2-depois}-do-toque.png em test/');
 
+  if (ignorados.length) console.log('\n(erro de console ignorado, é a máquina e não o jogo: ' + ignorados[0] + ')');
   ok(erros.length === 0, 'nenhum erro de console (' + erros.length + ')');
   erros.slice(0, 5).forEach(e => console.log('     ' + e));
 

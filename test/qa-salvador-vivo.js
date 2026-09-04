@@ -27,6 +27,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
@@ -57,8 +58,14 @@ function ok(cond, msg) { console.log((cond ? '  ok    ' : '  FALHA ') + msg); if
   // CLAUDE.md manda justamente que o jogo não dependa dela. Contar esse erro como falha faria
   // este instrumento reprovar sempre nesta máquina, que é o jeito mais rápido de um portão
   // virar decoração. Ele é impresso e não conta.
-  const REDE_EXTERNA = /posthog|ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/;
-  page.on('console', m => { if (m.type() === 'error') (REDE_EXTERNA.test(m.text()) ? ignorados : erros).push('CONSOLE: ' + m.text()); });
+  //
+  // ATÉ 04/09 A DECISÃO ERA POR SUBSTRING DE TEXTO (`/posthog|ERR_TUNNEL_CONNECTION_FAILED|
+  // ERR_PROXY/`), e essa é a falha que o QA mediu na rodada nuvem-20260904T2022: um
+  // `console.error()` REAL do próprio jogo que só MENCIONASSE uma dessas palavras era engolido
+  // do mesmo jeito que o ruído de verdade. `ehRuidoDeRedeExterna` (test/rede-externa.js) decide
+  // pela ORIGEM (`m.location().url` contra `MEDIDA_HOST`) — a mesma regra já provada em
+  // `test/encaixe.js` e no controle de `test/filtro-console-controle.js` — nunca pelo texto.
+  page.on('console', m => { if (m.type() === 'error') (ehRuidoDeRedeExterna(m) ? ignorados : erros).push('CONSOLE: ' + m.text()); });
   await page.goto(ALVO);
   await page.waitForTimeout(900);
 
