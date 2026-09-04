@@ -5358,15 +5358,40 @@ function medirGarantirId() {
         catch (e) { }
     }
 }
+const ORIGEM_BUSCA = "origem";
+const ORIGEM_ESCOLA = "escola";
+function chegouPelaEscola() {
+    try {
+        if (!location.search)
+            return false;
+        const v = new URLSearchParams(location.search).get(ORIGEM_BUSCA);
+        return typeof v === "string" && v.trim().toLowerCase() === ORIGEM_ESCOLA;
+    }
+    catch (e) {
+        return false;
+    }
+}
 function medirCarregar() {
     if (medirCarregado)
         return;
     medirCarregado = true;
+    let guardado = null;
     try {
-        medirLigado = localStorage.getItem(CHAVE_MEDIR) !== "nao";
+        guardado = localStorage.getItem(CHAVE_MEDIR);
     }
     catch (e) {
-        medirLigado = true;
+        guardado = null;
+    }
+    const decidido = guardado === "sim" || guardado === "nao" ? guardado : "";
+    if (!decidido && chegouPelaEscola()) {
+        try {
+            localStorage.setItem(CHAVE_MEDIR, "nao");
+        }
+        catch (e) { }
+        medirLigado = false;
+    }
+    else {
+        medirLigado = decidido !== "nao";
     }
     if (medirLigado)
         medirGarantirId();

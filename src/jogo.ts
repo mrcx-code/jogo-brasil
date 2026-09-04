@@ -4117,14 +4117,70 @@ function medirGarantirId() {
     try { localStorage.setItem(CHAVE_ANON, medirId); } catch (e) {}
   }
 }
+// ===== O CAMINHO ESCOLAR NASCE DESLIGADO (04/09) =====
+//
+// DE ONDE VEIO. A Lei nº 15.211/2025 (ECA Digital) está em vigor desde 17/03/2026 e obriga
+// serviço de **acesso provável por criança** a nascer na configuração mais protetiva. O
+// jurídico levantou isso em 04/09 (ressalva R1 de `plataforma/privacidade-texto.md`) e o dono
+// decidiu em 03/09 o caminho do meio, com todas as letras: **desligada por padrão só quando o
+// contexto é escolar — o link divulgado a professores —, ligada no resto**. O que isso protege
+// é a turma de fundamental II, que é onde o risco é maior; o que isso preserva é a pergunta de
+// três dias no público geral, que morreria com um padrão desligado para todo mundo.
+//
+// O MECANISMO NÃO EXISTIA, e é isto: um parâmetro na busca do endereço. `?origem=escola`,
+// e nada mais. Não há impressão digital, não há palpite sobre horário, sobre rede ou sobre
+// idade de quem abriu — qualquer coisa desse tipo seria criar dado de criança para decidir se
+// se pode medir criança, que é o contrário do que a lei pede. Quem carrega o contexto é o LINK
+// que o professor recebeu, e o link é a única coisa que já sabia disso.
+//
+// O QUE O PARÂMETRO NÃO FAZ, e é de propósito: ele não vira propriedade de evento nenhum, não
+// entra na lista branca do `encaixe.js` bloco 17 e não sai deste aparelho. A cabeça de
+// `vercel.json` para `/jogo/` manda `Referrer-Policy: strict-origin-when-cross-origin`, então
+// nem por cabeçalho a busca atravessa para outro domínio. Ele é lido uma vez, vira uma escolha
+// gravada, e acabou.
+const ORIGEM_BUSCA = "origem";
+const ORIGEM_ESCOLA = "escola";
+function chegouPelaEscola() {
+  try {
+    if (!location.search) return false;
+    // A CHAVE também é lida sem distinguir maiúscula — `?ORIGEM=escola` (autocapitalização de
+    // teclado, ou colada de um app que capitaliza parâmetro) tem de proteger igual a `?origem=`.
+    // GAP achado pela revisão adversarial (04/09): só o VALOR era normalizado, a chave não —
+    // `?ORIGEM=escola` caía no "não decidiu nada" e nascia LIGADO, o erro caro deste bloco.
+    for (const [k, v] of new URLSearchParams(location.search)) {
+      if (k.toLowerCase() === ORIGEM_BUSCA && v.trim().toLowerCase() === ORIGEM_ESCOLA) return true;
+    }
+    return false;
+  } catch (e) { return false; }
+}
 function medirCarregar() {
   if (medirCarregado) return;
   medirCarregado = true;
   // O padrão é LIGADO, e a tela diz isso na cara. Padrão desligado seria honesto e mediria
   // zero; o que faz a diferença é a pessoa poder desligar em dois toques e o desligamento
-  // ser real. Só a string exata "nao" desliga: um `localStorage` adulterado que traga
-  // qualquer outra coisa erra para o lado de continuar respeitando o que a tela mostra.
-  try { medirLigado = localStorage.getItem(CHAVE_MEDIR) !== "nao"; } catch (e) { medirLigado = true; }
+  // ser real.
+  //
+  // A CHAVE GUARDA UMA DECISÃO, E DECISÃO NÃO SE SOBRESCREVE. Só "sim" e "nao" contam como
+  // decisão gravada — qualquer outro conteúdo (chave ausente, string vazia, `localStorage`
+  // adulterado à mão) é "ninguém decidiu ainda", e é só nesse caso que o padrão por origem
+  // tem voz. É isto que impede o link escolar de virar jaula: a pessoa toca no interruptor
+  // uma vez, em qualquer sentido, e a escolha dela passa a ganhar de toda chegada futura,
+  // com ou sem parâmetro. O `medirTrocar()` abaixo é quem grava, e a barra da plataforma
+  // grava a MESMA chave (ver `ferramentas/medir-secao.js`) — uma pessoa, uma decisão, um site.
+  let guardado: string | null = null;
+  try { guardado = localStorage.getItem(CHAVE_MEDIR); } catch (e) { guardado = null; }
+  const decidido = guardado === "sim" || guardado === "nao" ? guardado : "";
+  if (!decidido && chegouPelaEscola()) {
+    // GRAVA, e não é detalhe: sem gravar, a proteção duraria só enquanto o parâmetro estivesse
+    // no endereço — a mesma criança abrindo pelo favorito no dia seguinte voltaria a ser
+    // medida sem nunca ter escolhido isso. E como a chave é a MESMA das páginas, gravar aqui
+    // também cala o glossário e a linha do tempo, que é para onde o mesmo link manda a turma.
+    // O que NÃO é gravado é o identificador anônimo: `medirGarantirId()` não roda abaixo.
+    try { localStorage.setItem(CHAVE_MEDIR, "nao"); } catch (e) {}
+    medirLigado = false;
+  } else {
+    medirLigado = decidido !== "nao";
+  }
   if (medirLigado) medirGarantirId();
 }
 function medirTrocar() {
