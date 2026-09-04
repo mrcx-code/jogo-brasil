@@ -19,6 +19,19 @@
 // O build roda com `--sem-tsc`: o que está sob teste é o guarda, não o compilador, e o tsc
 // custa a maior parte do relógio. Todas as cenas escrevem numa CÓPIA e o original volta no
 // `finally` — se este arquivo morrer no meio, o backlog continua o que era.
+//
+// `comTsc` na PRIMEIRA chamada existe pelo mesmo motivo do `porta-ctx-sem-forma.js` (03/09,
+// item `sem-tsc-le-build-ignorado`): `--sem-tsc` faz `construir.js` pular a compilação e ler
+// `build/jogo.js` direto — que é **gitignored** (`.gitignore:17`). Antes deste conserto TODAS
+// as seis chamadas de `construir()` passavam `--sem-tsc`, inclusive a primeira. Num checkout
+// limpo (o caso do CI) `build/jogo.js` não existe e as 13 asserções deste arquivo saíam
+// vermelhas por ENOENT dentro do `construir.js` — nada a ver com o `guardaRoteiro`, que é o
+// que este arquivo mede. Medido: com `build/jogo.js` movido para fora, 8 das 13 asserções
+// falhavam (as 5 restantes "passavam" por coincidência de sinal, não pelo texto certo).
+// Conserto: a PRIMEIRA passada (`hoje`) compila de verdade e deixa `build/jogo.js` fresco;
+// as cinco seguintes reaproveitam com `--sem-tsc`, que era o ganho de tempo original. Aqui não
+// há risco do outro sentido (verde falso sobre `src/` mudado): `guardaRoteiro` só lê
+// `ferramentas/backlog.json` — o conteúdo de `build/jogo.js` nunca entra na asserção.
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -34,9 +47,10 @@ function ok(cond, msg) {
   return !!cond;
 }
 
-function construir() {
-  const r = spawnSync(process.execPath, [path.join(RAIZ, 'ferramentas', 'construir.js'), '--sem-tsc'],
-    { cwd: RAIZ, encoding: 'utf8' });
+function construir(comTsc) {
+  const args = [path.join(RAIZ, 'ferramentas', 'construir.js')];
+  if (!comTsc) args.push('--sem-tsc');
+  const r = spawnSync(process.execPath, args, { cwd: RAIZ, encoding: 'utf8' });
   return { code: r.status, saida: (r.stdout || '') + (r.stderr || '') };
 }
 
@@ -45,14 +59,15 @@ function comItem(item) {
   const fila = JSON.parse(ORIGINAL.toString('utf8'));
   fila.itens.unshift(item);
   fs.writeFileSync(FILA, JSON.stringify(fila, null, 2));
-  return construir();
+  return construir(false);
 }
 
 console.log('\n=== o guarda do roteiro: item nao-concluido nao descreve defesa ausente\n');
 
 try {
   // ---- 1. o estado real: a fila de hoje passa, e chega publicada ----
-  const hoje = construir();
+  // COM tsc, e só esta: ela é quem deixa `build/jogo.js` fresco para as cinco seguintes.
+  const hoje = construir(true);
   ok(hoje.code === 0, 'a fila REAL de hoje constroi verde (exit ' + hoje.code + ')');
   const publicado = path.join(RAIZ, 'dist', 'dashboard', 'backlog.json');
   ok(fs.existsSync(publicado), 'e a fila chega em dist/dashboard/backlog.json');
@@ -109,7 +124,7 @@ try {
 }
 
 // ---- 6. e a arvore volta verde com a fila restaurada ----
-const fim = construir();
+const fim = construir(false);
 ok(fim.code === 0, 'com a fila restaurada, o build volta a passar (exit ' + fim.code + ')');
 ok(Buffer.compare(fs.readFileSync(FILA), ORIGINAL) === 0,
   'e ferramentas/backlog.json esta byte a byte como estava antes deste teste');
