@@ -32,6 +32,11 @@ const TELAS = [
   { nome: 'TERRITORIO-3d-mobile.png', l: 390, a: 844 },
   { nome: 'TERRITORIO-3d-768.png', l: 768, a: 1024 },
   { nome: 'TERRITORIO-3d-1024.png', l: 1024, a: 768 },
+  // 360x640 entrou em 04/09 porque foi ELE que expôs o defeito da placa sob o papel: das cinco
+  // telas é a mais baixa, e é a única em que o cabeçalho mais o painel do censo não deixam os
+  // 28% de faixa que `areaUtil()` pede. Medido antes do conserto: 144 px de placa escondidos
+  // atrás do painel — defeito ANTERIOR à camada das divisas, que nenhuma das outras quatro via.
+  { nome: 'TERRITORIO-3d-360.png', l: 360, a: 640 },
 ];
 
 function hex(p) { return '#' + [p[0], p[1], p[2]].map((v) => v.toString(16).padStart(2, '0')).join(''); }
@@ -79,6 +84,164 @@ async function lerTopoMediana(pg) {
       return v[(v.length - 1) >> 1];
     });
   }).catch(() => null);
+}
+
+// ------------------------------------------------------------------ A CAMADA DAS DIVISAS
+//
+// Três coisas, e as três são o que a camada nova promete:
+//   (a) tocar DENTRO de um estado abre o cartão daquele estado — e o alvo é escolhido pelo
+//       NOME, com a página dizendo onde ele cai na tela, porque coordenada de tela chutada
+//       muda a cada viewport e passaria a testar outra coisa em cada uma das quatro telas;
+//   (b) o realce PINTA de verdade — a cor no ponto tocado tem de mudar, dentro de uma faixa.
+//       Sem isto o cartão podia abrir com a placa igualzinha e o teste passaria mentindo;
+//   (c) o pino GANHA do estado. Todo pino está dentro de algum estado, então uma ordem de
+//       desempate errada tornaria os cinco pinos inalcançáveis — e o cartão do pino, que é o
+//       conteúdo mais antigo desta página, sumiria sem nenhum portão notar.
+//
+// MEDIR E JULGAR SÃO DUAS FUNÇÕES, e é de propósito: o CONTROLE do fim do arquivo chama
+// exatamente estas, e não uma cópia mais frouxa (EQUIPE.md 2.8 — controle mais frouxo que a
+// cobrança não prova nada).
+async function medirDivisas(pg) {
+  return pg.evaluate(async () => {
+    const c = document.getElementById('palco');
+    const r = c.getBoundingClientRect();
+    const ev = (t, x, y) => c.dispatchEvent(new PointerEvent(t, { clientX: x, clientY: y, bubbles: true, pointerType: 'mouse' }));
+    const esc = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    if (!window.__dentroDe || !window.__telaDe || !window.__ufSel) return { erro: 'a página não expõe os ganchos da camada de divisas' };
+    // A CÂMERA PRECISA TER PARADO ANTES DA PRIMEIRA LEITURA, e isto já produziu um número
+    // falso: o teste do cartão do Rio, logo acima, faz a câmera se aproximar do pino; o Escape
+    // começa o caminho de volta, que leva 600 ms. Lendo a cor 120 ms depois, o "antes" e o
+    // "depois" caíam em pontos DIFERENTES da placa — e o Δ saía 214/255 em três das quatro
+    // telas, que é a diferença entre a placa e a mesa escura, não entre realçado e não
+    // realçado. Um portão verde pelo motivo errado. Espera a volta inteira, com folga.
+    esc();
+    await new Promise((s) => setTimeout(s, 900));
+
+    const alvo = window.__dentroDe('AM');            // longe dos cinco pinos e grande na tela
+    if (!alvo) return { erro: 'nao achei ponto dentro do AM' };
+    const p = window.__telaDe(alvo.lat, alvo.lon);
+    const fx = p.x / c.clientWidth, fy = 1 - p.y / c.clientHeight;
+    const antes = window.__cor(fx, fy);
+    const quem = window.__ufNoPixel(p.x, p.y);
+
+    ev('pointerdown', p.x + r.left, p.y + r.top);
+    ev('pointerup', p.x + r.left, p.y + r.top);
+    await new Promise((s) => setTimeout(s, 450));
+    const depois = window.__cor(fx, fy);
+    // e a PROVA de que os dois tiros foram no mesmo alvo: escolher um estado não mexe a
+    // câmera (só o pino faz dolly), então o mesmo lat/lon tem de cair no mesmo pixel. Se
+    // andou, o Δ acima não fala de realce nenhum e o número não vale.
+    const p2 = window.__telaDe(alvo.lat, alvo.lon);
+    const andou = Math.max(Math.abs(p2.x - p.x), Math.abs(p2.y - p.y));
+    const tit = (document.querySelector('#cartao .kCidade') || {}).textContent || '';
+    const sel = window.__ufSel();
+
+    // (c) o pino ganha: mira o CENTRO do pino de Brasília e o cartão tem de ser o do lugar
+    esc();
+    await new Promise((s) => setTimeout(s, 120));
+    const pp = window.__pos(4);
+    ev('pointerdown', pp.x + r.left, pp.y + r.top);
+    ev('pointerup', pp.x + r.left, pp.y + r.top);
+    await new Promise((s) => setTimeout(s, 450));
+    const titPino = (document.querySelector('#cartao .kCidade') || {}).textContent || '';
+    const selPino = window.__ufSel();
+    esc();
+    return { quem, tit, sel, antes, depois, andou, titPino, selPino };
+  }).catch((e) => ({ erro: String(e).slice(0, 120) }));
+}
+
+// ------------------------------------------------ A PLACA NÃO PODE FICAR ATRÁS DO PAPEL
+//
+// O painel do censo é papel OPACO. A placa é desenhada no canvas, ATRÁS dele. Se o
+// enquadramento puser parte do país embaixo do painel, essa parte simplesmente não existe para
+// quem olha — e nada acusa: não há erro de console, a cor do topo continua certa, o cartão
+// continua abrindo, o print continua "bonito" porque o que sumiu foi justamente o que não
+// aparece. Foi assim que 144 px de Rio Grande do Sul ficaram escondidos em 360x640 sem nenhum
+// portão notar.
+//
+// A MEDIDA É GEOMÉTRICA, não de pixel: a página projeta a SILHUETA da placa para a tela e o
+// teste pergunta se algum pedaço dela cai dentro do retângulo do painel. Duas perguntas, porque
+// uma só deixa passar um caso: (1) algum ponto do contorno cai sobre o papel — é o caso comum,
+// a placa descendo por baixo do painel; (2) algum canto do painel cai DENTRO do contorno — é o
+// caso de o painel estar inteiramente por cima do país, sem que a borda cruze nada.
+//
+// A REGRA VALE COM A CÂMERA EM REPOUSO, e essa ressalva é a diferença entre um portão e um
+// alarme falso: escolher um pino faz um dolly de propósito (0,8x da distância), e aí a placa
+// PODE passar por baixo do painel — é o preço combinado de chegar perto. O que não pode é o
+// enquadramento de repouso esconder país. Este medidor viu a diferença do jeito difícil: rodando
+// logo depois do teste do cartão do Rio, ele media a cena AINDA aproximada e acusava 185 px de
+// invasão em 1366x768, onde em repouso a folga é de 49 px. Zera a seleção e espera a volta.
+async function medirSobreposicao(pg) {
+  return pg.evaluate(async () => {
+    if (!window.__contorno) return { erro: 'a página não expõe __contorno' };
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await new Promise((s) => setTimeout(s, 900));
+    const c = document.getElementById('censo').getBoundingClientRect();
+    // a silhueta com os lados subdivididos: dois vértices vizinhos do contorno podem estar a
+    // dezenas de pixels um do outro, e o pedaço de reta entre eles também é placa
+    const bruto = window.__contorno();
+    const pts = [];
+    for (let i = 0; i < bruto.length; i++) {
+      const a = bruto[i], b = bruto[(i + 1) % bruto.length];
+      for (let k = 0; k < 12; k++) pts.push([a[0] + (b[0] - a[0]) * k / 12, a[1] + (b[1] - a[1]) * k / 12]);
+    }
+    const noPapel = (p) => p[0] >= c.left && p[0] <= c.right && p[1] >= c.top && p[1] <= c.bottom;
+    let dentro = 0, fundo = 0;
+    for (const p of pts) {
+      if (!noPapel(p)) continue;
+      dentro++;
+      // o quanto ele entrou: a menor distância até sair do retângulo
+      fundo = Math.max(fundo, Math.min(p[0] - c.left, c.right - p[0], p[1] - c.top, c.bottom - p[1]));
+    }
+    // e o caso inverso: um canto do painel dentro da silhueta
+    const emPoli = (x, y) => {
+      let d = false;
+      for (let i = 0, j = bruto.length - 1; i < bruto.length; j = i++) {
+        const xi = bruto[i][0], yi = bruto[i][1], xj = bruto[j][0], yj = bruto[j][1];
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) d = !d;
+      }
+      return d;
+    };
+    const cantos = [[c.left, c.top], [c.right, c.top], [c.left, c.bottom], [c.right, c.bottom]]
+      .filter((q) => emPoli(q[0], q[1])).length;
+    return { pontos: dentro, cantos: cantos, fundo: Math.round(fundo),
+      censo: { t: Math.round(c.top), b: Math.round(c.bottom), l: Math.round(c.left), r: Math.round(c.right) } };
+  }).catch((e) => ({ erro: String(e).slice(0, 120) }));
+}
+
+function julgarSobreposicao(r) {
+  if (r.erro) return { ok: false, texto: r.erro };
+  if (r.pontos > 0 || r.cantos > 0) {
+    return { ok: false, texto: 'a placa fica atrás do painel de papel do censo — ' + r.pontos
+      + ' ponto(s) da silhueta caem sobre o papel (até ' + r.fundo + ' px para dentro) e '
+      + r.cantos + ' canto(s) do painel caem sobre o país. Essa parte fica invisível. Painel em '
+      + JSON.stringify(r.censo) };
+  }
+  return { ok: true, texto: 'a silhueta inteira da placa fica fora do painel do censo' };
+}
+
+function julgarDivisas(uf) {
+  if (uf.erro) return { ok: false, texto: uf.erro };
+  const achou = !!(uf.quem && uf.quem.uf === 'AM');
+  const abriu = uf.sel === 'AM' && uf.tit.indexOf('Amazonas') >= 0;
+  const delta = Math.max.apply(null, uf.antes.map((v, k) => Math.abs(v - uf.depois[k])));
+  // A FAIXA TEM TETO, e o teto é o que pega a leitura desalinhada. O realce é uma demão de
+  // laranja a 34% sobre o topo: MEDIDO, ele desloca a cor 34–35 de 255 nas quatro telas. Um Δ
+  // de 200 não é realce mais forte — é a sonda tendo lido a mesa escura num dos dois tiros, que
+  // foi exatamente o defeito deste teste na primeira vez que ele rodou.
+  const pintou = delta >= 8 && delta <= 90;
+  const parada = uf.andou <= 1;
+  const pinoGanha = uf.selPino === null && uf.titPino.indexOf('Brasília') >= 0;
+  const ok = achou && abriu && pintou && parada && pinoGanha;
+  if (ok) {
+    return { ok: true, delta, texto: 'toque no AM abre "' + uf.tit.trim() + '", realce muda a cor em '
+      + delta + '/255 com a câmera parada, e o pino de Brasília continua ganhando do estado' };
+  }
+  return { ok: false, delta, texto: 'ponto cai no AM: ' + achou + ' (' + JSON.stringify(uf.quem)
+    + '), cartão do estado: ' + abriu + ' (' + JSON.stringify(uf.tit) + '/' + JSON.stringify(uf.sel)
+    + '), realce pintou: ' + pintou + ' (Δcor ' + delta + '/255, faixa 8 a 90)'
+    + ', câmera parada entre os dois tiros: ' + parada + ' (andou ' + uf.andou.toFixed(1) + ' px, teto 1)'
+    + ', pino ganha do estado: ' + pinoGanha + ' (' + JSON.stringify(uf.titPino) + '/' + JSON.stringify(uf.selPino) + ')' };
 }
 
 (async () => {
@@ -179,6 +342,69 @@ async function lerTopoMediana(pg) {
       falhas++;
     }
 
+    // a placa não pode ficar atrás do papel — medida e julgada pelas MESMAS funções do controle
+    const sobre = julgarSobreposicao(await medirSobreposicao(pg));
+    if (!sobre.ok) { console.log('  ' + t.nome + ': ' + sobre.texto); falhas++; }
+    else console.log('     enquadramento: ' + sobre.texto);
+
+    // a camada das divisas — medida e julgada pelas MESMAS funções que o controle usa
+    const veredito = julgarDivisas(await medirDivisas(pg));
+    if (!veredito.ok) { console.log('  ' + t.nome + ': a camada das divisas falhou — ' + veredito.texto); falhas++; }
+    else console.log('     divisas: ' + veredito.texto);
+
+    // O PRINT DO ESTADO ESCOLHIDO — a prova visual da camada nova, para o dono comparar com o
+    // antes. A Bahia é o primeiro alvo porque ela tem capítulo do jogo (Salvador), então o
+    // cartão mostra as duas coisas que ele passou a juntar: o número do Censo e a história que
+    // se passou ali.
+    //
+    // O RECUO PARA O AMAZONAS NÃO É DESLEIXO, é o desempate funcionando: em 390x844 e 360x640 a
+    // placa é pequena e os 44 px do pino de Salvador cobrem o miolo da Bahia, então o toque
+    // abre o pino — que é a ordem certa. A cobertura está medida logo abaixo.
+    let quemPrint = null;
+    for (const sigla of ['BA', 'AM']) {
+      const deu = await pg.evaluate(async (s) => {
+        const c = document.getElementById('palco');
+        const r = c.getBoundingClientRect();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        await new Promise((x) => setTimeout(x, 900));
+        const alvo = window.__dentroDe(s);
+        if (!alvo) return false;
+        const p = window.__telaDe(alvo.lat, alvo.lon);
+        for (const t of ['pointerdown', 'pointerup']) {
+          c.dispatchEvent(new PointerEvent(t, { clientX: p.x + r.left, clientY: p.y + r.top, bubbles: true, pointerType: 'mouse' }));
+        }
+        await new Promise((x) => setTimeout(x, 600));
+        return window.__ufSel() === s;
+      }, sigla);
+      if (deu) { quemPrint = sigla; break; }
+    }
+    if (quemPrint) await pg.screenshot({ path: path.join(RAIZ, 'test', t.nome.replace('.png', '-estado.png')) });
+    else { console.log('  ' + t.nome + ': não consegui abrir o cartão de nenhum estado para o print'); falhas++; }
+
+    // QUANTO DA PLACA O DEDO NÃO ALCANÇA COMO ESTADO. Os 44 px de raio de cada pino existem
+    // porque o pino é pequeno; o efeito colateral é que, quanto menor a placa na tela, maior a
+    // fatia do país em que o toque abre o pino em vez do estado. É a tensão real entre as duas
+    // camadas desta página, e ela só aparece com número — num print as duas parecem conviver.
+    const cobertura = await pg.evaluate(() => {
+      const c = document.getElementById('palco');
+      const L = c.clientWidth, A = c.clientHeight;
+      const RAIO = 44;
+      const pinos = [];
+      for (let i = 0; i < document.querySelectorAll('.pl').length; i++) pinos.push(window.__pos(i));
+      let placa = 0, sob = 0;
+      for (let y = 0; y < A; y += 4) for (let x = 0; x < L; x += 4) {
+        if (!window.__ufNoPixel(x, y)) continue;      // fora da placa
+        placa++;
+        for (const p of pinos) {
+          if ((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) < RAIO * RAIO) { sob++; break; }
+        }
+      }
+      return { placa: placa, sob: sob };
+    });
+    const pct = cobertura.placa ? (cobertura.sob / cobertura.placa * 100).toFixed(1) : '?';
+    console.log('     pinos cobrem ' + pct + '% da placa (o toque ali abre o pino, não o estado)'
+      + ' · print do estado: ' + (quemPrint || 'nenhum'));
+
     const custo = await pg.evaluate(() => ({ t: window.__primeiro || 0, i: window.__info || {} }));
     console.log('     primeiro quadro em ' + Math.round(custo.t) + ' ms · '
       + custo.i.chamadas + ' chamadas de desenho · ' + custo.i.triangulos + ' triângulos');
@@ -253,6 +479,94 @@ async function lerTopoMediana(pg) {
       }
     }
   }
+  // ----------------------------------------- O CONTROLE DAS DIVISAS (EQUIPE.md 2.8)
+  //
+  // O portão acima nasceu nesta rodada e já mostrou que sabe mentir: na primeira versão ele
+  // media a cor com a câmera em movimento e devolvia 214/255 achando que media realce. Então
+  // ele não entra sem prova de que REPROVA — e a prova são os dois defeitos que ele existe para
+  // pegar, injetados de propósito na página publicada, servida de uma origem falsa. Quem julga
+  // é `julgarDivisas`, a MESMA função da cobrança, e não uma régua paralela.
+  //
+  //   · "estado ganha do pino": inverte a ordem de desempate do pointerup. A placa continua
+  //     bonita, o cartão do estado continua abrindo — e os cinco pinos ficam inalcançáveis.
+  //     É o defeito que nenhum print pegaria.
+  //   · "realce mudo": pintarTopo devolve sem pintar. O cartão do estado abre igual, e a placa
+  //     não responde. É o defeito que só a leitura de pixel pega.
+  {
+    const ORIGEM = 'https://territorio-divisas.local/';
+    const bruto = fs.readFileSync(path.join(RAIZ, 'territorio', 'index.html'), 'utf8');
+    const alvoPino = '  const i = pinoPerto(px, py);\n  if (i >= 0) {';
+    const semPino = bruto.replace(alvoPino, '  const i = -1;\n  if (i >= 0) {');
+    const alvoRealce = 'function pintarTopo(iUf) {\n  if (!cvTopo) return;';
+    const semRealce = bruto.replace(alvoRealce, 'function pintarTopo(iUf) {\n  if (cvTopo) return;');
+    if (semPino === bruto || semRealce === bruto) {
+      console.log('  CONTROLE divisas: não achei a linha para injetar o defeito — o controle não rodou');
+      falhas++;
+    } else {
+      for (const [nome, html, deveReprovar] of [
+        ['estado ganha do pino', semPino, true],
+        ['realce mudo', semRealce, true],
+        ['página intacta', bruto, false],
+      ]) {
+        const pg = await nav.newPage({ viewport: { width: 1366, height: 768 }, deviceScaleFactor: 2 });
+        await pg.route('**/*', (r) => (r.request().url().indexOf(ORIGEM) === 0
+          ? r.fulfill({ contentType: 'text/html; charset=utf-8', body: html })
+          : r.abort()));
+        await pg.goto(ORIGEM);
+        await pg.waitForFunction('window.__pronto === true', null, { timeout: 20000 }).catch(() => {});
+        const v = julgarDivisas(await medirDivisas(pg));
+        await pg.close();
+        const certo = (!v.ok) === deveReprovar;
+        console.log('  CONTROLE divisas · ' + nome + ': ' + (v.ok ? 'aprovou' : 'REPROVOU')
+          + (certo ? ' (como devia)' : ' — ERRADO') + ' — ' + v.texto);
+        if (!certo) falhas++;
+      }
+    }
+  }
+
+  // ------------------------------------- O CONTROLE DO ENQUADRAMENTO (EQUIPE.md 2.8)
+  //
+  // O defeito injetado é a REGRA ANTIGA, palavra por palavra: o retângulo fixo de 22% a 72% da
+  // altura, que ignorava onde o painel começava. Ele esconde a placa em 360x640 e em 390x844, e
+  // é o que estava publicado até 04/09. Servir a regra velha e ver o portão reprovar é a prova
+  // de que ele pega o defeito que motivou o conserto — e não outra coisa.
+  {
+    const ORIGEM = 'https://territorio-enquadra.local/';
+    const bruto = fs.readFileSync(path.join(RAIZ, 'territorio', 'index.html'), 'utf8');
+    const novo = '  const base = censo.top - folga;\n'
+      + '  let topo = cab[cab.length - 1].bottom + folga;\n'
+      + '  if (base - topo < H * 0.28) topo = Math.max(folga, base - H * 0.28);\n'
+      + '  return { x: folga, y: topo, w: W - folga * 2, h: Math.max(60, base - topo) };';
+    const velho = '  const topo = cab[cab.length - 1].bottom + folga;\n'
+      + '  const base = censo.top - folga;\n'
+      + '  if (base - topo < H * 0.28) return { x: folga, y: H * 0.22, w: W - folga * 2, h: H * 0.5 };\n'
+      + '  return { x: folga, y: topo, w: W - folga * 2, h: base - topo };';
+    const regraVelha = bruto.replace(novo, velho);
+    if (regraVelha === bruto) {
+      console.log('  CONTROLE enquadramento: não achei a regra nova para trocar pela velha — o controle não rodou');
+      falhas++;
+    } else {
+      for (const [nome, html, tela, deveReprovar] of [
+        ['regra antiga (retângulo fixo) em 360x640', regraVelha, { l: 360, a: 640 }, true],
+        ['regra antiga (retângulo fixo) em 390x844', regraVelha, { l: 390, a: 844 }, true],
+        ['página intacta em 360x640', bruto, { l: 360, a: 640 }, false],
+      ]) {
+        const pg = await nav.newPage({ viewport: { width: tela.l, height: tela.a }, deviceScaleFactor: 1 });
+        await pg.route('**/*', (r) => (r.request().url().indexOf(ORIGEM) === 0
+          ? r.fulfill({ contentType: 'text/html; charset=utf-8', body: html })
+          : r.abort()));
+        await pg.goto(ORIGEM);
+        await pg.waitForFunction('window.__pronto === true', null, { timeout: 20000 }).catch(() => {});
+        const v = julgarSobreposicao(await medirSobreposicao(pg));
+        await pg.close();
+        const certo = (!v.ok) === deveReprovar;
+        console.log('  CONTROLE enquadramento · ' + nome + ': ' + (v.ok ? 'aprovou' : 'REPROVOU')
+          + (certo ? ' (como devia)' : ' — ERRADO') + ' — ' + v.texto);
+        if (!certo) falhas++;
+      }
+    }
+  }
+
   await nav.close();
   const kb = (fs.statSync(path.join(RAIZ, 'territorio', 'index.html')).size / 1024).toFixed(0);
   console.log('  página: ' + kb + ' KB');

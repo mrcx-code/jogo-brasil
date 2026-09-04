@@ -12692,6 +12692,136 @@ conteúdo antes de tomar, como manda a regra de 01/09.
 
 Três entregas em voo, territórios disjuntos: `salvador-drop-ritual` (§2, PRIORIDADE — o drop de
 objeto ritual de SALVADOR), `sem-tsc-varredura` e `ramos-mortos-conteudo`.
+## 2026-09-04 — O TERRITÓRIO GANHA AS DIVISAS DO IBGE (dev-plataforma, worktree)
+
+Fatia do item `territorio-rico`. O feedback do dono em 21/08 era *"melhorou mas não brilha os
+olhos"*, e o print explicava por quê: a placa era uma chapa lisa com cinco pinos. Agora ela é uma
+carta — as 27 unidades da federação, com nome, região e população, e cada uma responde ao toque.
+
+### O que NÃO entrou, e por quê
+
+**Nenhum pino histórico.** O aceite do item é explícito: *"pontos históricos SÓ dos pinos que o
+dono aprovou pino a pino — nada entra sem aprovação"*. Varri o repositório atrás de aprovações e
+**não há nenhuma**: os 49 candidatos de `territorio/PINOS-PROPOSTA.md` seguem candidatos, e as duas
+decisões de 21/08 no topo daquele arquivo (João Cândido pode ser nomeado; os 5 PARE ficam fora) não
+aprovam pino nenhum a entrar. Então a camada histórica está **bloqueada por decisão dele**, não por
+falta de trabalho. Rios (expostos e aterrados) e flora/fauna também não entraram — os candidatos
+daqueles grupos são pinos com texto, e caem na mesma trava.
+
+O que entrou é a camada que **não afirma nada sobre gente**: geografia administrativa e um número
+do Censo. §2 não é tocado.
+
+### As fontes, e quando elas vencem
+
+Tudo vem do IBGE, por `ferramentas/baixar-malha.js`, que é a **única** coisa neste repositório que
+fala com a rede para desenhar o mapa — e fala **uma vez**, à mão. O resultado é commitado em
+`territorio/malha-ibge.json` com a data dentro; o gerador da página continua sem rede.
+
+- **Contorno das 27 UFs** — IBGE, API de malhas v3, `intrarregiao=UF`, qualidade `intermediaria`.
+  Vence quando o IBGE publicar nova divisão territorial.
+- **Sigla, nome e região** — IBGE, API de localidades v1.
+- **População residente** — IBGE, Censo Demográfico 2022 (agregado 4709, variável 93). Vence no
+  próximo Censo.
+
+O rótulo e a unidade da variável saem da **resposta** do IBGE, não redigitados; a linha de crédito
+que a página imprime é montada no baixador e lida de lá pelo gerador — uma cópia só.
+
+### O que foi medido
+
+- **A malha simplificada.** Douglas–Peucker, tolerância **0,02°**, escolhida contra o texel e não
+  no olho: a textura tem 1024 px para 39,19° de longitude, então um texel vale 0,0383°. Quatro
+  doses medidas (vértices · cru · gzip · erro máximo): 0,01° → 9.549 · 164 KB · 47 KB · 0,26 texel;
+  **0,02° → 5.633 · 99 KB · 31 KB · 0,52 texel**; 0,03° → 3.837 · 68 KB · 21 KB · 0,78 texel;
+  0,05° → 2.358 · 44 KB · 14 KB · **1,30 texel** — a primeira que passa de um texel, e aí a divisa
+  começa a mentir.
+- **O contorno do jogo contra a costa do IBGE.** O desenhado à mão (52 pontos, zona do dono) está a
+  **0,40% da largura da placa em média** e **3,61% no pior ponto** da costa real; o IBGE ainda traz
+  as ilhas oceânicas, que caem até **6,1% além** da borda leste. Por isso a placa continua com a
+  silhueta dele e a malha é **clipada** nela — e por isso a frase da honestidade dele continua
+  verdadeira e continua impressa.
+- **Só as divisas internas são traçadas.** A malha é topologicamente limpa: das 5.588 arestas,
+  **2.042 aparecem uma vez** (fronteira do país) e **1.773 duas** (a divisa entre dois estados);
+  nenhuma três. Traçar o anel inteiro deixava uma tira de placa sem estado no litoral do Nordeste,
+  que lia como erro de desenho. Traço só o que dois estados dividem, encadeado em **94 linhas**.
+- **Custo.** Página **784 → 931 KB** cru (**250 KB gzip**). Chamadas de desenho **19 → 19** e
+  triângulos **2.372 → 2.372**: a camada inteira é textura, não geometria. Primeiro quadro
+  **~240 → ~350 ms**, que é o ruído a 1024² em vez de 512².
+- **O grão não mudou de escala**, e isso é conta, não tentativa: antes 512 px repetidos 2× davam
+  1024 texels na largura da placa, célula de 2 px (1/512 da placa) e 16 manchas; agora 1024 px sem
+  repetição, célula 2 px (o mesmo 1/512) e M=16 (as mesmas 16). A cor do topo continua **0/255 fora
+  da faixa travada** nas cinco telas.
+- **O realce.** Desloca a cor no ponto tocado em **34–35 de 255**, medido nas quatro telas.
+- **Os pinos cobrem parte da placa.** Os 44 px de raio de cada pino, contra a área da placa na
+  tela: **5,8%** em 1366×768 · **9,6%** em 1024×768 · **13,5%** em 768×1024 · **28,2%** em 390×844 ·
+  **39,8%** em 360×640. É a tensão real entre as duas camadas: quanto menor a placa, maior a fatia
+  do país onde o toque abre o pino em vez do estado. O pino ganhar é a ordem certa (todo pino está
+  dentro de um estado), mas no telefone pequeno isso é quase 40% do mapa.
+
+### O que quebrou — três vezes, e as três por medir o instante errado
+
+1. **A placa estava sendo desenhada atrás do painel de papel.** Achado pelo portão novo, não pelo
+   olho. Medido: **67 px** escondidos em 390×844 e **202 px** em 360×640. Em 360×640 o defeito é
+   **anterior** a esta camada (144 px sem a linha de crédito nova) — a linha do IBGE só o aumentou.
+   A causa é o ramo de emergência do `areaUtil()`, que devolvia um retângulo FIXO de 22% a 72% da
+   altura ignorando onde o painel começava. Regra nova: **o teto sobe, o piso nunca desce**. Mais
+   o painel com teto de altura em tela baixa (ele comia **62% dos 640 px**), com os créditos
+   rolando dentro do papel. Depois: **0 px** de invasão nas cinco telas.
+2. **O Δ de cor do realce saiu 214/255 em três telas** e eu quase o registrei como número. Era o
+   teste lendo "antes" com a câmera ainda voltando do dolly do teste anterior: os dois tiros caíam
+   em pontos diferentes da placa, e 214 é a diferença entre a placa e a mesa escura. Com a espera
+   certa: **34–35**. A faixa do portão passou a ter **teto** (8 a 90) justamente para pegar isso.
+3. **O portão do enquadramento acusou 185 px de invasão onde havia 49 px de folga** — mesma
+   família: media a cena ainda aproximada pelo pino. E, corrigido isso, ainda acusava **2 px** em
+   1024×768, porque eu amostrava a **caixa da projeção** (um retângulo em lat/lon) em vez da
+   silhueta. A página passou a expor `__contorno()` e o portão pergunta pela placa de verdade.
+
+> As três são a mesma lição, e ela já está no `EQUIPE.md` (2.4 e 2.9): **antes de acreditar no
+> número, pergunte em que instante ele foi lido.** Nenhuma das três apareceria num print.
+
+### E um achado de §2 que caiu no colo: a gêmea do rascunho continuava publicada
+
+Olhando o que o build copiava para `dist/`, apareceu isto: **`territorio/pinos-proposta.json`
+respondia 200 em produção** — 27 KB com o texto candidato dos 49 pinos, os cinco marcados **PARE**
+inclusive. É a MESMA proposta de representação não aprovada que a segurança tirou do ar em 23/08…
+tirando só o `PINOS-PROPOSTA.md`. A regra daquele dia fechou a porta **pela extensão**, e a gêmea
+em JSON passou por baixo dela por um ano de commits sem ninguém ver.
+
+A regra deixou de ser sobre extensão e passou a ser sobre **uso**: publica-se o `index.html` e o
+que ele **cita como caminho**. Não é lista — lista envelhece e alguém esquece de acrescentar; é a
+própria página dizendo o que precisa. Medido depois: as cinco seções publicam exatamente
+`index.html` + `compartilhar.jpg`, e ficam de fora `pinos-proposta.json`, `PINOS-PROPOSTA.md` e
+`malha-ibge.json` (que entra embutido, não buscado).
+
+O casamento exige a **barra** antes do nome, e isso também foi medido: a página do TERRITÓRIO cita
+`malha-ibge.json` num comentário de código, e com busca por nome solto essa menção em prosa
+bastava para publicar 100 KB que ninguém pede. O erro que sobra é na direção segura — página que
+busque um arquivo sem barra quebra alto, em vez de vazar em silêncio.
+
+### Portões e controles
+
+`npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/ver-territorio.js` **exit 0**
+nas **cinco** telas (360×640 entrou nesta rodada — foi ela que expôs o defeito do papel).
+
+Controles novos, com exit code real, porque portão que ninguém viu reprovar é decoração:
+
+- `estado ganha do pino` → **REPROVOU** (o toque no pino de Brasília abria "Goiás");
+- `realce mudo` → **REPROVOU** (Δcor 0/255);
+- `regra antiga do enquadramento` → **REPROVOU** em 360×640 (214 pontos da silhueta sobre o papel,
+  até 116 px para dentro) e em 390×844 (68 pontos, até 51 px);
+- página intacta → **aprovou** nos três.
+
+### O que fica pendente
+
+- **Teclado não alcança os estados** quando há WebGL. Os 27 respondem a ponteiro e toque; a lista
+  `.pl` continua sendo só dos cinco lugares. Não pus 27 botões porque o censo do cartão de link
+  (`cartao-censo.js`) reprova interativo fora da lista de permitidos no recorte 1200×630 — alargar
+  aquela lista é decisão de outro item. No recuo sem WebGL as 27 entram como **texto**, com a
+  população, então o conteúdo não some para quem não tem 3D.
+- **A barra de tábuas perde a rolagem depois de um resize** — a tábua "aqui" deixa de estar em
+  quadro. Aparece nos prints tirados após o teste de giro. É de `chrome-plataforma.js`, que está
+  em voo em outro item; **não toquei**.
+- **Rios, flora/fauna e pontos históricos** seguem fora, esperando aprovação pino a pino.
+
 
 ### 04/09 — a entrega que o funil RECUSOU, e ela se denunciou sozinha
 
