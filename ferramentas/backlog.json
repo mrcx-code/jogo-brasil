@@ -1247,6 +1247,19 @@
       "aceite": "O classificador distingue TRES estados (ancestral / orfao / desconhecido) e nunca diz ORFAO sobre sha que nao esta no disco. Portao novo com mordida provada por injecao: reverter para o ehAncestral de dois estados tem de dar exit 1.",
       "detalhe": "Medido em 03/09 por nuvem-20260903T1623 com o mesmo tool em quatro clones do mesmo repo: profundo 3 orfaos, depth=186 3, depth=20 25, depth=1 32 de 32. A nuvem SEMPRE clona raso, e o §7 do PLANTAO manda auditar e integrar todo entrega/ orfao — entao o instrumento fabrica trabalho que nao existe, no lugar exato onde a rodada decide o que despachar.",
       "feito": "2026-09-03 por nuvem-20260903T1623. Portao test/ramos-mortos-veredito.js, 11 checagens, exit 0; o defeito isolado da linha 95 (achado do QA) da exit 1."
+    },
+    {
+      "id": "ramos-mortos-orfao-por-conteudo",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "ramos-mortos.js chama ORFAO o que ja entrou por outra rota — 3 de 3 falsos em 04/09, e a causa NAO e mais o clone raso",
+      "territorio": [
+        "ferramentas/ramos-mortos.js",
+        "test/ramos-mortos-veredito.js"
+      ],
+      "aceite": "O veredito ORFAO deixa de ser afirmacao seca. Para cada ramo que a ancestralidade nao encontra na main, a ferramenta imprime junto: (a) o diff --stat contra origin/main, e (b) o resultado de um git log -S sobre pelo menos um simbolo caracteristico do ramo, que e o que revela a entrada por outra rota. O nome do desfecho passa a dizer o que ele realmente sabe (ex. NAO-E-ANCESTRAL, confira por conteudo) em vez de ORFAO, que se le como trabalho perdido. Mordida provada por injecao nos DOIS sentidos: um ramo cujo conteudo ESTA na main por outro commit nao pode sair classificado como trabalho a integrar (exit/rotulo diferente), e um ramo com conteudo de verdade ausente continua sendo apontado. npm test verde.",
+      "detalhe": "Medido pela rodada nuvem-20260904T0422, com o clone JA aprofundado (713 commits, contra os 186 de 03/09) — entao esta e uma causa DIFERENTE da de 03/09, que era o clone raso. A ferramenta acertou a ancestralidade nos tres casos e ainda assim os tres vereditos ORFAO eram inuteis: entrega/canonical-jogo (main ja tem canonical 8x em test/encaixe.js) · entrega/glossario-substancia (os tres verbetes ECONOMIA DO OURO, CRITERIO BRASIL e A CONTA DA ESCRAVIDAO ja estao em src/jogo.ts, entraram pelas rev2/rev3) · entrega/dashboard-trio (as tres metades entraram pelos commits bccbf16 e 532a9e7; a main esta ADIANTE do ramo — 38 RECUSA contra 36, 7 desfecho contra 5 — e o merge da 2 conflitos em 26 hunks). Orfaos de verdade nesta rodada: ZERO, pela segunda vez seguida. O custo nao e o ramo esquecido: e o PLANTAO §7 mandar auditar e integrar tres ramos consumidos, que e trabalho FABRICADO no lugar exato onde se decide o que despachar. E o mesmo remendo que o desfecho DESCONHECIDO de 03/09 tentou dar, um degrau adiante: ali o problema era nao enxergar a historia, aqui e enxergar a historia e mesmo assim nao saber responder a pergunta que interessa, que nunca foi de ancestralidade e sim de conteudo."
     }
   ]
 }
