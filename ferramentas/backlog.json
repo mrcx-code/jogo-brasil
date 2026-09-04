@@ -1443,6 +1443,30 @@
       ],
       "aceite": "Uma forma unica de escrever no mesa_agente que RECUSA quando casa 0 linhas — helper em ferramentas/ que so aceita nome de .claude/agents/ (ou Claude) e devolve exit != 0 se o returning vier vazio. Mordida provada por injecao: chamar com dev-jogo-inexistente tem de sair exit 1; chamar com dev-jogo sai exit 0 e a linha muda. Se a saida escolhida for so documentar, o numero que sustenta e a contagem de rodadas que ja erraram.",
       "detalhe": "Medido em 04/09 por nuvem-20260904T1623, que caiu nela na propria rodada. mesa_agente tem nome (= arquivo em .claude/agents/) e papel (rotulo humano do painel). Quem despacha vem do .claude/agents/ e chuta papel. Controle nos dois sentidos: where papel=dev-jogo returning nome -> [] (0 linhas, sem erro); where nome=dev-jogo -> 1 linha. Dos 11 arquivos de .claude/agents/, 11 casam com nome e 0 de 12 casam com papel. E a mesma doenca do PLANTAO 5.1 (painel congelado nao diz ninguem trabalhou, diz nao da para saber) entrando por outra porta, e a que o dono ja cobrou em 21/08. Escrito no PLANTAO.md 5.1 no mesmo commit."
+    },
+    {
+      "id": "falas-arte-praca-segurou-aceiro",
+      "estado": "livre",
+      "agente": "historiador",
+      "camada": "texto",
+      "titulo": "A PRACA / O QUE SEGUROU / O ACEIRO tem a mesma familia de defeito das 5 falas ja consertadas — e METADE da fala e falsa, nao a fala inteira",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "Ler as tres aberturas caso a caso, como a historiadora fez nas cinco: separar o que continua verdadeiro do que ficou falso, e reescrever so a metade falsa. NAO aplicar a forma pronta das cinco -- foi medido nesta rodada que a generalizacao produz a mentira que se gaba.",
+      "detalhe": "Achado pela historiadora em 04/09 (nuvem-20260904T1623), FORA do escopo do item que ela pegou, e ela nao mexeu. A PRACA (abertura, ~jogo.ts:2464) diz que a pintura E o que atravessa a tela ainda sao emprestados do capitulo anterior. Medido: a pintura E emprestada (indice 10, de naodito) -- verdade; mas o que atravessa a tela e GENTE_EP_SPR.praca, 24 quadros proprios, e A PRACA esta em CAPS_VERBO -- falso. O QUE SEGUROU e O ACEIRO nao foram lidos. Contexto medido na mesma rodada: o que FICA NO CHAO (o drop) continua emprestado em TODOS, porque dropDe() segue arteCap e os capitulos declaram arteCap 3 = AINDA AQUI."
+    },
+    {
+      "id": "nota-honestidade-gasta-a-ultima-linha",
+      "estado": "do-dono",
+      "agente": "historiador",
+      "camada": "texto",
+      "titulo": "A nota de honestidade sobre a arte gasta abertura[4] -- a ultima linha antes de jogar -- em SEIS capitulos, explicando a cozinha do jogo",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "DECISAO DO DONO: a nota continua na abertura, ou se aposenta dali e vira uma linha so em DE ONDE VEM ou no fecho, devolvendo a ultima linha ao capitulo? A historiadora NAO decidiu de proposito: muda o que o jogo promete ao jogador. Se ele disser sim, o trabalho e meia hora e as seis falas viram cinco.",
+      "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela."
     }
   ]
 }
