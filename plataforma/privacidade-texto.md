@@ -12,10 +12,10 @@ algum dia isso virar problema prático, é reversível). O e-mail de contato (`b
 foi autorizado pelo dono em chat, em 03/09, para uso na página de privacidade e nas peças de
 divulgação.
 
-**Leia as RESSALVAS no fim do arquivo antes de publicar.** Três delas mudam decisão de produto
-ou de código, não só de texto: R1 (o padrão da medição contra o ECA Digital, em vigor desde
-17/03/2026 e posterior à decisão do dono de 22/08), R6 e R7 (duas afirmações de privacidade que
-o código não cumpre, medidas nesta rodada).
+**Leia as RESSALVAS no fim do arquivo antes de publicar.** R1 ainda muda decisão de produto (o
+padrão da medição contra o ECA Digital, em vigor desde 17/03/2026 e posterior à decisão do dono
+de 22/08). R6 e R7 — duas afirmações de privacidade que o código não cumpria — foram medidas
+nesta rodada e **consertadas em 04/09**; o texto abaixo já reflete o conserto.
 
 **Como este texto foi conferido:** cada afirmação foi lida contra o código, não contra o que o
 repositório diz sobre si mesmo — e duas foram medidas em navegador, porque ler não bastava. Os
@@ -79,10 +79,11 @@ O que fica aí:
 - **a sua escolha sobre a medição**: ligada ou desligada;
 - **um número sorteado**, do qual falamos na seção 4.
 
-**Como apagar.** O botão **APAGAR MEU PROGRESSO**, na tela de AJUSTES, zera a partida e apaga o
-registro de rotina. Para apagar **tudo**, inclusive o número sorteado e a sua escolha sobre a
-medição, apague os dados do site no seu navegador — é o único caminho que limpa a chave inteira,
-e ele não depende de nós.
+**Como apagar.** O botão **APAGAR MEU PROGRESSO**, na tela de AJUSTES, zera a partida, o
+registro de rotina e o número sorteado. A sua escolha sobre a medição (ligada ou desligada)
+**não** é apagada por esse botão de propósito — senão zerar a partida religaria a medição sem
+avisar. Para apagar também essa escolha, apague os dados do site no seu navegador — é o único
+caminho que limpa a chave inteira, e ele não depende de nós.
 
 **O que você digita na busca do glossário não sai daqui.** É o único campo de escrever que
 existe na plataforma inteira, e o que você escreve nele nunca é enviado.
@@ -144,10 +145,8 @@ Sobre ele, com todas as letras:
   pessoa;
 - **fica no seu aparelho** e some quando você apaga os dados do site. Aí nasce outro, e o
   anterior vira um número órfão que não aponta para lugar nenhum;
-- **com a medição desligada, ele não sai** — e nas páginas da plataforma ele nem chega a ser
-  sorteado. No jogo, ele é gerado e guardado no seu aparelho mesmo com a medição desligada, e
-  fica ali sem nunca ser enviado a lugar nenhum. É um número parado no seu navegador; ainda
-  assim, preferimos dizer isso a arredondar para "não existe".
+- **com a medição desligada, ele não sai, e nem chega a ser sorteado** — nas páginas da
+  plataforma e no jogo, os dois. Se você religar a medição depois, aí sim ele nasce.
 
 Ainda assim, tratamos esse número como **dado pessoal**, porque ele permite distinguir uma
 visita de outra ao longo do tempo — e é por isso que esta política existe, em vez de a
@@ -306,10 +305,10 @@ identifique você, na maior parte dos casos **não temos como localizar "os seus
 existe uma ficha sua para consultar, corrigir ou apagar (art. 12 da LGPD). O que dá para
 fazer, e que resolve o problema na prática:
 
-1. **Apagar tudo o que é seu, na hora, sem pedir a ninguém:** apague os dados do site no seu
-   navegador. Isso apaga o progresso, o registro de rotina e o número sorteado. (O botão
-   APAGAR MEU PROGRESSO, na tela de AJUSTES, zera a partida e o registro de rotina, mas mantém
-   o número sorteado — para apagá-lo também, use o navegador.)
+1. **Apagar tudo o que é seu, na hora, sem pedir a ninguém:** o botão **APAGAR MEU PROGRESSO**,
+   na tela de AJUSTES, zera a partida, o registro de rotina e o número sorteado — os três.
+   Apagar os dados do site no seu navegador faz o mesmo, e também limpa a sua escolha sobre a
+   medição (ela volta ao padrão na próxima vez que você abrir).
 2. **Impedir que qualquer coisa nova saia:** desligue o interruptor **medição**.
 3. **Pedir a eliminação de avisos já enviados:** se você souber o número sorteado do seu
    aparelho (ele fica no armazenamento local do navegador, na chave `jogo_brasil_anon`), mande
@@ -453,14 +452,14 @@ ferramenta interna do dono ou vira longa e confusa, ou vira imprecisa. **Mas há
 as duas URLs são publicamente alcançáveis. Se alguém abrir `/mesa` sem PIN, ela deveria dizer o
 que é. Isso é item de `dev-plataforma`, não deste texto.
 
-### R6. MEDIDO: no jogo, o número sorteado nasce mesmo com a medição DESLIGADA
+### R6. CONSERTADO (04/09): no jogo, o número sorteado nascia mesmo com a medição DESLIGADA
 
 **A afirmação que estava escrita** — em `ferramentas/medir-secao.js`, no comentário de cabeçalho:
 *"Ele só nasce se a medição estiver LIGADA; com o interruptor desligado nada é gravado, nada é
 sorteado e nada sai."*
 
-**O que a medição mostrou** (navegador headless, `jogo_brasil_medir` posto em `"nao"` **antes**
-de qualquer script rodar, 390×844, pedidos ao PostHog interceptados):
+**O que a medição mostrou, na época** (navegador headless, `jogo_brasil_medir` posto em `"nao"`
+**antes** de qualquer script rodar, 390×844, pedidos ao PostHog interceptados):
 
 | Alvo | `jogo_brasil_anon` com a medição desligada | Pedidos ao PostHog |
 | --- | --- | --- |
@@ -468,44 +467,39 @@ de qualquer script rodar, 390×844, pedidos ao PostHog interceptados):
 | Glossário, em contexto limpo | `null` | 0 |
 | Porta da plataforma, em contexto limpo | `null` | 0 |
 
-**A causa é de ordem, e está na fonte:** em `src/jogo.ts`, `medir()` chama `medirCarregar()`
-**antes** do `if (!medirLigado) return`, e é `medirCarregar()` que sorteia e grava o
-identificador — sem guarda nenhuma. Nas páginas o desenho é outro: `id()` só é chamado dentro
-do corpo do evento, depois do `if (!ligado) return`, e por isso ali a frase é verdadeira.
+**A causa era de ordem, e estava na fonte:** em `src/jogo.ts`, `medir()` chamava
+`medirCarregar()` **antes** do `if (!medirLigado) return`, e era `medirCarregar()` que sorteava
+e gravava o identificador — sem guarda nenhuma. Nas páginas o desenho já era outro: `id()` só é
+chamado dentro do corpo do evento, depois do `if (!ligado) return`, e por isso ali a frase já
+era verdadeira.
 
-**O tamanho real do risco: pequeno.** Nada sai — os zero pedidos confirmam que "desligar
-desliga de verdade" continua sendo verdade no que importa. O que existe é um número aleatório
-parado no `localStorage` de quem pediu para não ser medido.
+**O tamanho real do risco era pequeno.** Nada saía — os zero pedidos confirmavam que "desligar
+desliga de verdade" continuava sendo verdade no que importa. O que existia era um número
+aleatório parado no `localStorage` de quem pediu para não ser medido.
 
-**Por que mesmo assim entra na lista:** é uma afirmação de privacidade que o código não cumpre,
-e a regra da casa não abre exceção por tamanho. Tratei escrevendo a verdade na seção 4 desta
-política em vez de copiar a frase do comentário — foi o que me fez medir, aliás.
+**Conserto aplicado em 04/09:** nova função `medirGarantirId()`, extraída de `medirCarregar()`,
+só sorteia e grava o identificador quando `medirLigado` é verdadeiro — chamada tanto em
+`medirCarregar()` quanto no último passo de `medir()`, para cobrir também quem religa a medição
+depois de tê-la desligado. A frase do `medir-secao.js` agora é verdadeira nos dois lugares, jogo
+e páginas. Efeito colateral aceito de propósito: quem tem a medição desligada e a religa passa a
+ganhar um número novo — irrelevante para a contagem e melhor para a privacidade.
 
-**Conserto sugerido, e ele é de três linhas:** em `medirCarregar()`, só sortear e gravar o
-identificador se `medirLigado` for verdadeiro. Isso alinha o jogo às páginas, torna a frase do
-`medir-secao.js` verdadeira nos dois lugares, e permite encurtar a seção 4. Efeito colateral a
-notar antes de fazer: quem tem a medição desligada e a religa passa a ganhar um número novo —
-o que é irrelevante para a contagem e melhor para a privacidade. **É trabalho de `dev`, não
-meu**, e não toquei em `src/`.
+### R7. CONSERTADO (04/09): "APAGAR MEU PROGRESSO" não apagava o número sorteado
 
-### R7. MEDIDO: "APAGAR MEU PROGRESSO" não apaga o número sorteado
-
-`zerarJogo()` (`src/jogo.ts`) tem **um único** `removeItem` no arquivo inteiro, e ele é do
-`jogo_brasil_retencao`. O `jogo_brasil_v1` é reescrito zerado por `salvar()`; o
-`jogo_brasil_anon` e o `jogo_brasil_medir` **ficam**.
+`zerarJogo()` (`src/jogo.ts`) tinha **um único** `removeItem` no arquivo inteiro, e era o do
+`jogo_brasil_retencao`. O `jogo_brasil_v1` era reescrito zerado por `salvar()`; o
+`jogo_brasil_anon` e o `jogo_brasil_medir` **ficavam**.
 
 Para o `jogo_brasil_medir`, ficar é **certo** — apagar a escolha de privacidade de alguém ao
-zerar a partida seria religar a medição sem avisar. Para o `jogo_brasil_anon`, ficar é um furo:
-a pessoa que apertou o botão mais destrutivo da tela continua com o mesmo identificador de
-antes, e o painel de medição continua vendo a mesma "pessoa".
+zerar a partida religaria a medição sem avisar. Para o `jogo_brasil_anon`, ficar era um furo: a
+pessoa que apertou o botão mais destrutivo da tela continuava com o mesmo identificador de
+antes, e o painel de medição continuava vendo a mesma "pessoa".
 
-**Efeito jurídico:** é o caminho de eliminação (art. 18, VI) mais visível da plataforma, e ele
-não elimina o único dado que se aproxima de identificador. A seção 2 e a seção 10 desta
-política dizem isso com todas as letras em vez de prometer o que o botão não faz — mas o certo
-é consertar o botão e encurtar o texto depois.
+**Efeito jurídico:** é o caminho de eliminação (art. 18, VI) mais visível da plataforma, e agora
+ele elimina de fato o único dado que se aproxima de identificador.
 
-**Conserto sugerido:** `zerarJogo()` também remover `jogo_brasil_anon` (e **não** o
-`jogo_brasil_medir`). Uma linha. Trabalho de `dev`.
+**Conserto aplicado em 04/09:** `zerarJogo()` agora também remove `jogo_brasil_anon`, e
+deliberadamente **não** toca em `jogo_brasil_medir` — pela mesma razão do parágrafo acima.
 
 ### R8. O que este texto NÃO cobre, e vai precisar de versão nova
 
@@ -562,10 +556,10 @@ código, e duas foram medidas em navegador porque ler não bastava (R6 e R7). On
 | Host US e CSP travada | `ferramentas/medir-secao.js` (`MEDIDA_HOST`) · `src/jogo.ts` (`ENDERECO_MEDIDA`) · `vercel.json` |
 | O identificador sorteado de 16 bytes | `src/jogo.ts` — `novoIdAnonimo()`, chave `jogo_brasil_anon` |
 | **Nas páginas**, o ID só nasce com a medição ligada | `ferramentas/medir-secao.js`, função `id()` — só chamada depois do `if (!ligado) return`. **Medido** |
-| **No jogo**, o ID nasce mesmo desligado | `src/jogo.ts` — `medirCarregar()` sorteia e grava sem guarda, e roda antes do `if (!medirLigado) return`. **Medido: R6** |
+| **No jogo**, o ID só nasce com a medição ligada | `src/jogo.ts` — `medirGarantirId()`, chamada em `medirCarregar()` e no fim de `medir()`. **Consertado em 04/09 — era R6** |
 | Desligar desliga de verdade (nada sai) | `src/jogo.ts` — `medir()` sai na 1ª linha se `!medirLigado`. **Medido: zero pedidos ao PostHog** |
-| O botão APAGAR não remove o ID | `src/jogo.ts` — um único `removeItem` no arquivo, linha 10469, e é do `jogo_brasil_retencao`. **R7** |
-| O interruptor é um só para jogo e páginas | chave `jogo_brasil_medir` compartilhada — `src/jogo.ts` linha 3892 e `ferramentas/medir-secao.js` |
+| O botão APAGAR remove o ID | `src/jogo.ts` — `zerarJogo()` chama `removeItem(CHAVE_ANON)`, e não toca `jogo_brasil_medir`. **Consertado em 04/09 — era R7** |
+| O interruptor é um só para jogo e páginas | chave `jogo_brasil_medir` compartilhada — `src/jogo.ts` linha 3934 e `ferramentas/medir-secao.js` |
 | Interruptor na barra do topo | `ferramentas/medir-secao.js` — `ID_BOTAO`, `botaoHtml()`; subiu para o chrome em 23/08 |
 | O que fica no aparelho | chaves `jogo_brasil_v1`, `jogo_brasil_retencao`, `jogo_brasil_medir`, `jogo_brasil_anon`, `jogo_brasil_muro` |
 | O único campo de digitar, e que ele não sai | `src/index.html` linha 441 (`#glCampo`); não há propriedade de busca na lista branca |
@@ -586,8 +580,9 @@ meu território.
 
 **Do dono:** o nome do controlador, e a decisão de R1 (padrão da medição).
 
-**Do `dev`:** os dois consertos de três e uma linha, R6 e R7. Os dois tornam verdadeiras
-frases que hoje não são, e o segundo dá à plataforma um caminho de eliminação que funciona.
+**R6 e R7 foram consertados em 04/09** (`medirGarantirId()` e o `removeItem(CHAVE_ANON)` em
+`zerarJogo()`) — as duas seções acima já descrevem o conserto aplicado, não mais um achado
+aberto.
 
 **Do `dev-plataforma`:** montar a página `/privacidade` com este texto — sem reescrevê-lo,
 porque cada frase da seção 2 à 8 foi conferida contra uma linha de código; ligar o link dela no
