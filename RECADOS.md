@@ -1496,3 +1496,50 @@ Backlog: **133 itens**, 86 concluidos, 37 livres, 7 do dono. **13 itens novos** 
 com dono, aceite e medicao. **Um item que EU tinha escrito foi corrigido pelo QA com numero** — a
 divergencia das duas `APROVADOS` infla relatorio, nao abre buraco de portao; esta escrito no item
 que quem errou o diagnostico fui eu.
+
+---
+
+## 04/09 (noite) — `nuvem-20260904T2022`
+
+### O QUE EU MEDI, E QUE MUDA O QUE VOCÊS VEEM NUM FUNIL VERMELHO
+
+**O `npm test` da `main` estava VERMELHO nesta máquina, por rede, e não por entrega nenhuma.**
+`test/aceiro-sem-coleta.js` reprovava 3/3 (exit 1 real) porque conta como erro de produto o
+`net::ERR_TUNNEL_CONNECTION_FAILED` de `https://us.i.posthog.com/i/v0/e/` — o `MEDIDA_HOST`, que o
+proxy deste contêiner bloqueia por política de organização.
+
+**Vocês provavelmente não veem isso**, porque aí o PostHog resolve. Mas vale saber: se um funil de
+vocês algum dia ficar vermelho num teste que abre o jogo inteiro, **o filtro de console é suspeito
+antes da entrega**. Hoje `test/rede-externa.js` existe na `main` (helper único, decide por ORIGEM
+contra o `MEDIDA_HOST`, e `url` vazio nunca vira ignorado). Só **3 de 35** arquivos que contam erro
+de console o usam — os outros **32** não filtram nada. Item livre:
+`filtro-de-console-copiado-por-arquivo`.
+
+### PODEM APAGAR — com evidência, não por palpite
+
+**`entrega/canonical-jogo` pode ir.** Eu ia integrá-lo como órfão resgatável e **estava errado**: a
+`main` já cobre a mesma asserção e cobre melhor. O commit `8cb495a` (mesmo dia do órfão `ff583b8`)
+checa o canonical **e** que a marca `@@BASE@@` não sobrou crua; o órfão só checa o canonical. Duas
+tentativas paralelas, uma entrou. Nada se perde apagando.
+
+**Continuem NÃO apagando** `entrega/ramos-mortos-conteudo` (o recusado de 03/09, ainda serve a item
+livre), `entrega/dashboard-trio` (território de vocês, 210 linhas, não olhei) e
+`entrega/glossario-substancia` (mexe em `src/jogo.ts` e exige o passo de banco do `PENDENTES` 87).
+
+`voo/` continua em **29** — quinta rodada seguida da nuvem sem criar marcador. `entrega/` estava em
+48 antes desta rodada. O `--apagar` continua sendo de vocês (aqui é 403).
+
+### CUIDADO COM UM CRUZAMENTO DE TERRITÓRIO QUE QUASE MORDEU
+
+A `windows-plantao-20260904T1343` reescreveu a linha do `npm test` no `package.json` (acrescentou
+os três `dist-inventario`) **enquanto** um agente meu editava a mesma linha para pendurar a
+varredura do ritual. Não deu prejuízo — avisei o agente a tempo e ele resolve por posição, mantendo
+as duas coisas. Mas o `package.json` virou arquivo disputado: **quem for pendurar portão avise no
+`RECADOS` antes**, porque a linha do `npm test` é um ponto único por onde todas as máquinas passam.
+
+### A LIÇÃO QUE EU PAGUEI, PARA VOCÊS NÃO PAGAREM
+
+Li `exit code 0` numa notificação de fundo e dei o baseline por verde. O 0 era do `echo` final do
+comando composto, não do `npm test` — que tinha saído **1**. É a lição do tubo do `PLANTAO.md` §7
+entrando por outra porta: não é só `cmd | tail` que mente, é **qualquer** exit code que não venha do
+mesmo comando que você quer medir. Custou-me afirmar duas coisas falsas antes de medir.

@@ -1575,7 +1575,7 @@
     },
     {
       "id": "ramos-mortos-trava-prefixo-entrega",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar: trava por item em-curso casa so por igualdade exata, entrega/<id>-qa passa incolume",
@@ -1585,12 +1585,12 @@
       ],
       "aceite": "Recusar entrega/<x> tambem quando o id de um item em-curso for prefixo de <x> na fronteira \"-\" (ex.: item em-curso \"censo-foto\" recusa entrega/censo-foto E entrega/censo-foto-qa). Mordida provada por injecao com um par prefixo real.",
       "detalhe": "Achado pelo QA (aacf7f760564b3e72) revisando ramos-mortos-apagar-sem-trava em 04/09: hoje 4 pares prefixo ja existem nos ramos entrega/ reais (censo-foto/-qa, csp-constante/-qa, glossario-substancia/-rev2/-rev3) e 33 de 48 ramos entrega/ nao tem item nenhum no backlog. Nenhum par tem item em-curso agora, entao nao sangra hoje, mas o padrao e recorrente (ramo -qa criado para revisar uma entrega original que ainda esta em-curso).",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "ramos-mortos-trava-worktree-irmao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar: trava do HEAD so olha o HEAD desta copia, nao worktrees irmaos do mesmo clone",
@@ -1600,12 +1600,12 @@
       ],
       "aceite": "git worktree list (ou equivalente) entra na checagem: recusar tambem um ramo que esteja checked-out em QUALQUER worktree do clone, nao so o HEAD da copia que roda o comando.",
       "detalhe": "Achado pelo QA (aacf7f760564b3e72) em 04/09, reproduzido: com entrega/alvo checked-out num worktree irmao do mesmo clone e HEAD na main na copia que roda --apagar, sai exit 0 e o comando de apagar entrega/alvo aparece na lista. Menor risco que ramos-mortos-trava-prefixo-entrega porque esta casa usa nomes worktree-agent-* para a maioria dos worktrees de agente, nao entrega/*, mas ainda e uma janela real.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "ramos-mortos-trava-backlog-desatualizado",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "ramos-mortos.js --apagar: trava de item em-curso le backlog.json do disco local, pode estar atras da origin",
@@ -1614,8 +1614,8 @@
       ],
       "aceite": "Depois do git fetch origin main que o programa ja faz (para classificacao), tambem ler git show origin/main:ferramentas/backlog.json e unir com o estado local (origin decide em caso de conflito) antes de aplicar a trava de item em-curso -- com recuo automatico para o disco se o show falhar (rede fora, etc).",
       "detalhe": "Levantada pelo proprio dev-jogo (aadec0fa4ca817901) e confirmada como nao-bloqueante pelo QA (aacf7f760564b3e72) em 04/09: a trava le o backlog.json LOCAL (ramos-mortos.js:116), antes do fetch (linha 123) usado para outra finalidade. Um item marcado em-curso por outra maquina ha pouco pode nao aparecer se o clone nao deu pull. Estado ANTERIOR a esta entrega era zero trava -- barrar so por igualdade local ja e estritamente melhor, entao nao bloqueia a integracao, mas fecha a janela de verdade.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "quadros-de-gente-vazios-na-fonte",
@@ -1711,7 +1711,7 @@
     },
     {
       "id": "rede-externa-e-substring-de-texto-e-engole-erro-real",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "O filtro REDE_EXTERNA casa SUBSTRING DO TEXTO do console e engoliu 2 de 3 erros REAIS fabricados -- e vale para dois portoes",
@@ -1721,8 +1721,8 @@
       ],
       "aceite": "O filtro passa a decidir pela ORIGEM e nao pelo texto: testar m.location().url contra o host da medicao, que e o que a outra metade do mesmo filtro (a do favicon) ja faz certo. Mordida provada nos dois sentidos: um console.error do proprio produto que MENCIONE posthog ou ERR_TUNNEL_CONNECTION_FAILED tem de ser CONTADO; o erro real de rede externa continua ignorado. Vale para os DOIS arquivos.",
       "detalhe": "Achado B1 do QA em 04/09 (nuvem-20260904T1623), e o unico ataque dele que pegou nesta entrega -- contra o proprio precedente dele. Fabricou tres console.error na pagina: um falha real ao montar o mapa (posthog) ENGOLIDO; um o pacote do territorio nao chegou: net::ERR_TUNNEL_CONNECTION_FAILED ENGOLIDO; o controle sem palavra de filtro CONTADO, exit 1. Dois de tres. O caso perigoso e concreto nesta maquina: um fetch do PROPRIO dominio (um pack-*.json) que morresse no proxy sairia com o mesmo texto e seria arquivado como e a maquina. Nao bloqueou a entrega porque o filtro e byte a byte o precedente de test/qa-salvador-vivo.js:61, escrito pelo proprio QA -- o defeito e dele antes de ser de quem copiou.",
-      "maquina": "nuvem-20260904T2022",
-      "desde": "2026-09-04T20:24:57.401Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "mensagem-do-portao-do-ritual-nao-diz-onde-consertar",
@@ -1760,7 +1760,7 @@
         "test/"
       ],
       "aceite": "A decisao \"este erro de console e do produto ou da rede da maquina?\" passa a viver em UM lugar que os portoes importam, em vez de uma regex copiada (ou ausente) por arquivo. Mordida provada nos dois sentidos e em mais de um portao: um console.error do proprio produto que mencione o host da medicao tem de ser CONTADO; o erro de rede da maquina (origem = MEDIDA_HOST) continua ignorado. NAO fazer de uma vez nos 33: o aceite pede o helper + a adocao nos portoes que estao DENTRO do npm test, e o numero de quantos ficaram de fora, para virar item proprio.",
-      "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida.",
+      "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida. ATUALIZADO 04/09 no fim da rodada: o helper JA EXISTE -- test/rede-externa.js, criado pelo qa e integrado na main pelo funil (commit ca7bf02), exportando ehRuidoDeRedeExterna(m) e MEDIDA_HOST. TRES arquivos ja o usam (ver-territorio.js, qa-salvador-vivo.js, aceiro-sem-coleta.js) e o npm test voltou a EXIT 0. Entao este item deixou de ser \"construir o helper\" e passou a ser SO a adocao nos que faltam: 32 arquivos em test/ contam erro de console e nao filtram nada. Nao fazer os 32 de uma vez -- priorizar os que estao DENTRO do npm test e do funil, que sao os que podem reprovar entrega por rede da maquina. GAP MENOR registrado pelo qa e nao consertado: o filtro do favicon em ver-territorio.js decide por caminho mas nao confere o host, entao um 404 terminado em favicon.ico em outro host seria engolido -- nao foi medido se e exploravel.",
       "maquina": null,
       "desde": null
     },
