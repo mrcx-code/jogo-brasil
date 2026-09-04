@@ -12486,3 +12486,80 @@ para o HUD de partida, 165,8 KB.
 0 recusadas** · 7 afirmações derrubadas (**4 minhas**, 1 herdada, 2 de agentes contra si mesmos) · 4
 itens novos abertos, 1 item morto refutado, 1 item integrado que **voltou a livre por não ter
 cumprido o aceite**.
+
+---
+
+## 2026-09-04 — O CAMINHO-DO-CÉU: a heroína entra na home de retrato e o céu fica (dev-jogo, worktree)
+
+Item `caminho-do-ceu` do backlog. Fecha o **PENDENTES 54** e o **PENDENTES 53** junto, com uma
+ressalva que não é detalhe: **a condição 1 (o veredito da arte sobre a costura) está na mesa e o
+item não fecha sem ela.** Os prints estão gerados; o julgamento não é meu para dar.
+
+### O que mudou, por arquivo
+
+- **`src/jogo.ts`** — `rolarFundo()` ganhou a repetição vertical: a peça de CHÃO se redesenha para
+  baixo, espelhada, alternando, até cobrir a faixa que sobra (`ladrilhar` ganhou um parâmetro
+  `espY`, e o espelho em Y é `translate(0, dy+dh); scale(1,-1)`). Com isso o `Math.max` de
+  `redesenharFundo()` perdeu DOIS termos — mas **só quando a linha do chão sobe**. `CHAO_HOME_LIGADO`
+  passou de `false` a `true`.
+- **`src/estilo.css`** — os 37 px que faltavam em 390×844, divididos entre `#telaMenu{padding-top}`
+  (19) e `#logoImg{max-height}` (18), por reta contínua que vale zero abaixo de 700 px de altura.
+- **`test/regua-larga.js`** — `lerChao()` e `conferirChao()` extraídos e compartilhados pelos dois
+  laços (o tablet em retrato passou a ser medido pela régua da personagem); `injetarChao()` unificou
+  as receitas; os controles do autoteste foram refeitos.
+- **`test/medir-caminho-do-ceu.js`** e **`test/prints-costura.js`** — novos.
+
+### Os números (todos na MESMA execução, `node test/medir-caminho-do-ceu.js`, exit 0)
+
+**A peça de CÉU que fica em quadro** — o número que responde ao veto de 22/08:
+
+| tela | publicado | caminho-do-céu | o caminho VETADO daria |
+|---|---:|---:|---:|
+| 390×844 | 70,8% | **71,2%** | 26,0% |
+| 412×915 | 70,8% | **76,2%** | 28,0% |
+| 430×932 | 70,8% | **75,1%** | 28,6% |
+
+**A faixa livre da heroína**, e é o que o PENDENTES 53 pedia: 390×844 vai de **83 para 120 px**
+contra os 104 que a régua exige. 412×915 de 119 para 156; 430×932 de 128 para 165. Ela entra em
+**quatro** telas de retrato (as três acima mais o tablet 768×1024), com **zero px²** de cruzamento
+com poste, tábuas e proposta, e respiro ≥ 8 px dos dois lados.
+
+**Inércia:** `dw`/`dh`/`dy` batem com a conta ANTIGA com erro de **0,000 px** nas oito telas
+medidas, e o laço de repetição roda **zero** voltas fora da home em retrato.
+
+**Custo:** FPS em A/B/A′ com ordem alternada e pose variando — **+0,6 / +0,8 / +1,8 FPS** de custo
+contra **+1,6 / +0,5 / +1,0** de ruído do próprio instrumento; o custo está dentro do ruído nas
+três telas. O passe cronometrado direto (400 chamadas de `rolarFundo()` por lado) dá **+0,010 ms** e
+**+0,007 ms** por quadro, que a 60 Hz são **0,06%** e **0,04%** do orçamento. Onde a linha não sobe,
+**−0,005 ms** — ruído, e o controle negativo certo.
+
+**De brinde, nitidez:** a pintura na home em retrato encolhe para 0,624–0,641× a publicada, o que
+derruba a ampliação de ~1,69× para ~1,08× — o §6 do CLAUDE.md avisa que a pintura é desenhada
+AMPLIADA e que é isso o que mais falta nela.
+
+### O que quebrou, e as duas lições
+
+1. **Número de geometria não substitui print quando o que se julga é enquadramento.** A primeira
+   versão tirou do `Math.max` só o termo de cobertura do chão e deixou o `ch/ih`. Os números
+   pareciam bons (pintura 0,781× da publicada, "menor, logo mais céu") e o print reprovou: o corte
+   no topo da pintura subia de 21,9% para **31,2%**, e o que mora nesses 9 pontos é o céu e o mar.
+   A home virava parede de copas — a objeção da arte chegando pelo outro lado. Com `ch/ih` fora, o
+   corte volta a 21,6% e o céu em quadro passa o publicado.
+2. **O `tablet retrato` (768×1024) mora na lista das telas LARGAS e É retrato.** Com a chave ligada
+   ele subiu o chão, e a única asserção que o alcançava era a que diz que ele não pode subir. Não
+   era defeito do achado — era a régua da personagem existir só em metade da suíte. Extraí a régua
+   e o tablet passou a ser cobrado por ela: medido em 768×1024, 810×1080 e 600×960, cruzamento
+   0 px² nas três. O iPad Pro em retrato (1024×1366) cai na home cinemática por largura e a linha
+   NÃO sobe lá — `chaoHome = 0`, medido.
+
+### Dúvida que fica
+
+A pintura na home em retrato passa a ser **0,63× a do jogo**. Ir da home para o JOGAR troca a escala
+do cenário — a régua não vê isso e nenhum número que eu tenha diz se incomoda. É pergunta de arte,
+e vai na mesma mesa da costura.
+
+### Portões
+
+`npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/regua-larga.js` **exit 0** nas
+doze telas. Controles do autoteste, com exit code real: `espremer` **1** (12/12), `nao-subir` **1**
+(4), `desligar` **0** (o positivo, ramo de inércia), `REGUA_DEFEITO` da hierarquia **1** (12/12).

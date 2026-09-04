@@ -212,6 +212,138 @@ function conferirDegrau(P, U, probs) {
   });
 }
 
+// ============================================================================================
+// A RÉGUA DA LINHA DO CHÃO, EM DUAS PEÇAS COMPARTILHADAS PELOS DOIS LAÇOS (03/09)
+//
+// POR QUE ELA SAIU DE DENTRO DO LAÇO DE RETRATO. Até 02/09 a régua da personagem só existia no
+// laço das seis telas de retrato, e o laço das telas largas cobrava a NEGATIVA — `GROUND ==
+// round(H × 0,68)`, "a linha do chão não mexeu fora do retrato". As duas coisas juntas deixavam
+// um buraco que só apareceu quando a chave subiu: **`tablet retrato` (768×1024) mora na lista
+// das telas LARGAS e é retrato**, então `medirChaoDaHome()` sobe a linha lá — e a única
+// asserção que o alcançava era justamente a que diz que ela não pode subir.
+//
+// Afrouxar aquela asserção seria o conserto errado (ela é a que impede o notebook de ser
+// reenquadrado por um erro na guarda de orientação). O conserto é dar ao tablet em retrato a
+// MESMA régua dos dois lados que as seis telas de celular já tinham — medido antes de escrever
+// a asserção, nas três resoluções de tablet em retrato que existem de verdade:
+//
+//   768×1024  faixa 207 (precisa 192) · respiro 15/16 · cruzamento 0 px² com poste, tábuas e proposta
+//   810×1080  faixa 245 (precisa 192) · respiro 33/36 · cruzamento 0 px²
+//   600×960   faixa 175 (precisa 148) · respiro 21/22 · cruzamento 0 px²
+//
+// (o iPad Pro em retrato, 1024×1366, cai na home CINEMÁTICA por largura e a linha do chão NÃO
+// sobe lá — `chaoHome = 0`, medido: o poste é uma coluna à direita e ela já aparece na cena da
+// esquerda, que é o caso para o qual a subida nunca foi feita.)
+async function lerChao(pg) {
+  return await pg.evaluate(() => {
+    const off = (id) => { const e = document.getElementById(id); if (!e) return null;
+      let t = 0; for (let p = e; p && p.id !== 'telaMenu'; p = p.offsetParent) t += p.offsetTop;
+      return { topo: t, alt: e.offsetHeight }; };
+    // A CAIXA DELA É A ANALÍTICA, não a mancha do canvas — e isto foi medido antes de escrever:
+    // a caixa alfa do `#heroHD` mede 102 px de altura onde ela tem 88, porque o PLANO DA FRENTE
+    // (`desenharFrente`) é desenhado na mesma camada e a folha da quina de baixo entra na conta.
+    // Em tela deitada a mesma leitura dá 511 px de largura. A caixa que vale é a que o
+    // `desenharHeroiHD` usa: `HX*kx - dw/2` por `GROUND*ky - dh`, com `dh = HERO_TARGET*ky`.
+    const img = heroBloco('walk')[0];
+    const sc = HERO_TARGET / img.naturalHeight;
+    const kx = telaW() / W, ky = telaH() / H;
+    const dw = img.naturalWidth * sc * kx, dh = img.naturalHeight * sc * ky;
+    const ela = { x: HX * kx - dw / 2, y: GROUND * ky - dh, w: dw, h: dh };
+    const sub = off('menuSub'), poste = off('poste');
+    // as tábuas, uma a uma: a caixa dela não pode encostar em NENHUMA
+    const tabuas = [...document.querySelectorAll('#poste .telaBtn')]
+      .filter(b => getComputedStyle(b).display !== 'none')
+      .map(b => { const r = b.getBoundingClientRect();
+        return { id: b.id, t: r.top, b: r.bottom, l: r.left, r: r.right, h: r.height }; });
+    const subR = document.getElementById('menuSub').getBoundingClientRect();
+    const posteR = document.getElementById('poste').getBoundingClientRect();
+    // OS DOIS NÍVEIS TAMBÉM EM RETRATO (03/09). Medido antes de escrever a asserção: o degrau
+    // EXISTE nas seis telas de retrato — portais 250..320 de largura contra 198..246 do nível 2
+    // (52 a 74 px), e 51..53 de altura contra 44 (7 a 9 px). Não é um conceito só das telas
+    // largas; o laço daqui é que nunca o media.
+    const naTela = (el) => getComputedStyle(el).display !== 'none';
+    const caixa = (el) => { const r = el.getBoundingClientRect(); return { id: el.id, w: r.width, h: r.height }; };
+    const portais = [...document.querySelectorAll('#poste .telaBtn.portal')].filter(naTela).map(caixa);
+    const utilidade = [...document.querySelectorAll('#poste .telaBtn.sec')].filter(naTela).map(caixa);
+    return {
+      W, H, GROUND, ESCALA, chaoHome, ela, ligado: CHAO_HOME_LIGADO,
+      subBase: sub.topo + sub.alt, posteTopo: poste.topo,
+      subCx: { t: subR.top, b: subR.bottom, l: subR.left, r: subR.right },
+      posteCx: { t: posteR.top, b: posteR.bottom, l: posteR.left, r: posteR.right },
+      tabuas, portais, utilidade
+    };
+  });
+}
+// AS TRÊS RECEITAS DE `REGUA_CHAO`, num lugar só — os DOIS laços a chamam desde 03/09.
+// O defeito entra DEPOIS do boot, e NUNCA por `fitCanvas()`: a primeira coisa que ele faz é
+// chamar `medirChaoDaHome()`, que recalcula a fração pelo caminho de verdade e desfaria a
+// injeção na hora.
+async function injetarChao(pg) {
+  if (!process.env.REGUA_CHAO) return;
+  await pg.evaluate((d) => {
+    if (d === 'espremer') { chaoHome = 0.60; }
+    // `nao-subir` mantém a chave ligada e zera a fração à mão — o estado que a régua tem de
+    // acusar nas telas em que a faixa dá.
+    if (d === 'nao-subir') { chaoHome = 0; }
+    // `desligar` baixa a chave e refaz a medida pelo caminho de verdade: é o controle POSITIVO
+    // do ramo de inércia (o estado publicado entre 22/08 e 02/09).
+    if (d === 'desligar') { CHAO_HOME_LIGADO = false; medirChaoDaHome(); }
+    GROUND = Math.round(H * (chaoHome || 0.68));
+    redesenharFundo();
+  }, process.env.REGUA_CHAO);
+  await pg.waitForTimeout(200);
+}
+const RESPIRO = 8;
+// Devolve `{ faixa, precisa, cabe }` para a linha do relatório, e empurra os problemas em `probs`.
+function conferirChao(m, probs) {
+  const cruza = (a, b) => Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l))
+                        * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+  const elaCx = { l: m.ela.x, r: m.ela.x + m.ela.w, t: m.ela.y, b: m.ela.y + m.ela.h };
+  const faixa = m.posteTopo - m.subBase;
+  const precisa = m.ela.h + 2 * RESPIRO;
+  const cabe = faixa >= precisa;
+
+  // ---- POSTE SOBRE A PROPOSTA (03/09, item `poste-sobre-a-proposta`) ----
+  // O PISO É 0, não 8 (o RESPIRO da personagem) nem outro número redondo sem motivo: 0 é a
+  // definição de "não se sobrepõe" (topo do poste tocando a base da proposta ainda não é
+  // sobreposição), e é o piso que sobra mais longe dos dois lados que se mede hoje — 9 px de
+  // folga contra a pior tela de produção (320×568) e 134 px de folga contra a MENOR magnitude
+  // do defeito medido (−134, em 390×568). É INDEPENDENTE de `m.ligado`/`cabe`: mobília não pode
+  // se cruzar mesmo com a personagem desligada.
+  if (faixa < 0) probs.push('POSTE sobre a PROPOSTA: faixa (topo do #poste − base do #menuSub) é '
+    + faixa.toFixed(1) + 'px — negativa, as duas peças de mobília se cruzam');
+
+  if (!m.ligado) {
+    // ---- INÉRCIA. Foi o estado publicado entre 22/08 e 02/09 (veto da arte) e continua sendo
+    // o que a régua cobra se a chave descer de novo: a linha do chão não pode ter se mexido em
+    // tela nenhuma de retrato — nem nas em que a régua diria que dá.
+    if (m.chaoHome) probs.push('a chave está DESLIGADA e chaoHome vale ' + m.chaoHome.toFixed(4));
+    if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('a chave está DESLIGADA e GROUND é '
+      + m.GROUND + ' em vez de ' + Math.round(m.H * 0.68) + ' (0,68 de H=' + m.H + ')');
+  } else if (cabe) {
+    // ---- ELA ENTRA. Nada pode encostar nela, e o respiro é 8 dos dois lados.
+    const acima = elaCx.t - m.subBase, abaixo = m.posteTopo - elaCx.b;
+    if (acima < RESPIRO) probs.push('respiro de cima ' + acima.toFixed(1) + 'px < ' + RESPIRO);
+    if (abaixo < RESPIRO) probs.push('respiro de baixo ' + abaixo.toFixed(1) + 'px < ' + RESPIRO);
+    const sPoste = cruza(elaCx, m.posteCx), sSub = cruza(elaCx, m.subCx);
+    if (sPoste > 0) probs.push('a caixa dela cruza o POSTE em ' + Math.round(sPoste) + 'px²');
+    if (sSub > 0) probs.push('a caixa dela cruza a PROPOSTA em ' + Math.round(sSub) + 'px²');
+    m.tabuas.forEach(b => { const s = cruza(elaCx, b);
+      if (s > 0) probs.push('a caixa dela cruza a tábua ' + b.id + ' em ' + Math.round(s) + 'px²'); });
+    if (!m.chaoHome) probs.push('a faixa dá (' + faixa.toFixed(1) + ' >= ' + precisa.toFixed(1)
+      + ') e a linha do chão NÃO subiu — ela continua escondida');
+  } else {
+    // ---- NÃO DÁ: ela NÃO entra, e nada pode ter se mexido para espremê-la.
+    if (m.chaoHome) probs.push('a faixa não dá (' + faixa.toFixed(1) + ' < ' + precisa.toFixed(1)
+      + ') e mesmo assim a linha do chão subiu para ' + m.chaoHome.toFixed(4) + ' — ausente é melhor que espremida');
+    if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('GROUND ' + m.GROUND + ' != 0,68 de H=' + m.H);
+    const dentroDoPoste = elaCx.t >= m.posteCx.t - 1 && elaCx.b <= m.posteCx.b + 1
+                       && elaCx.l >= m.posteCx.l - 1 && elaCx.r <= m.posteCx.r + 1;
+    if (!dentroDoPoste) probs.push('ela não entra na faixa e TAMBÉM não está inteira atrás do poste — está meio à mostra');
+  }
+  return { faixa, precisa, cabe, elaCx };
+}
+
 // largura -> piso de fonte legível naquela largura (da tabela de faixas da direção de arte)
 const TELAS = [
   { nome: 'tablet retrato',   w: 768,  h: 1024, pisoFrase: 12, pisoCta: 7 },
@@ -246,13 +378,18 @@ const TELAS = [
     if (process.env.REGUA_DEFEITO) {
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
     }
-    // O MESMO defeito do bloco de retrato entra AQUI também, e é o controle da asserção
-    // negativa: `REGUA_CHAO=espremer` sobe a linha do chão em toda tela, inclusive nas
-    // deitadas e no notebook, e `chaoIntacto` tem de reprovar nas seis.
-    if (process.env.REGUA_CHAO === 'espremer') {
-      await pg.evaluate(() => { chaoHome = 0.60; GROUND = Math.round(H * 0.60); redesenharFundo(); });
-      await pg.waitForTimeout(150);
-    }
+    // AS MESMAS RECEITAS do bloco de retrato entram AQUI também (03/09 — antes só o `espremer`
+    // entrava, e por isso o `tablet retrato` ficava de fora dos outros dois controles depois de
+    // ganhar a régua da personagem). `espremer` sobe a linha do chão em toda tela, inclusive nas
+    // deitadas e no notebook, e ali quem reprova é `chaoIntacto`; `nao-subir` e `desligar` não
+    // mexem em nada fora do retrato — passam, corretamente.
+    await injetarChao(pg);
+    // ⚠ A RÉGUA DO CHÃO VEM ANTES DE TUDO NESTE LAÇO, e a ordem não é gosto: `alcanceDoBotao()`
+    // ROLA os ancestrais roláveis, e `conferirChao` compara a caixa DELA (derivada de GROUND/HX,
+    // em coordenadas de viewport, imune à rolagem) com caixas de DOM lidas por
+    // `getBoundingClientRect` (que andam quando se rola). Medir depois fabricaria sobreposição
+    // do nada em toda tela com rolagem — é a mesma armadilha anotada no laço de retrato.
+    const mc = (t.h > t.w) ? await lerChao(pg) : null;
     // O ALCANCE VEM ANTES DA GEOMETRIA aqui, e é exatamente onde ele já rodava: o bloco inline
     // que virou `alcanceDoBotao()` era a primeira coisa deste `evaluate`. A ordem importa porque
     // a função rola os ancestrais — ver o ⚠ no cabeçalho dela.
@@ -325,7 +462,14 @@ const TELAS = [
     // em tela larga (>=900) o painel não pode ocupar quase a tela toda — isso é o "menu esticado"
     if (t.w >= 900 && m.painel != null && m.painel > t.w * 0.6) probs.push('painel ' + m.painel.toFixed(0) + 'px ocupa >60% da largura (esticado)');
     if (!alc.cfgOk) probs.push('CONFIGURAÇÕES inalcançável: ' + alc.cfgMotivo);
-    if (!m.chaoIntacto) probs.push('a linha do chão MEXEU fora do retrato: GROUND ' + m.chaoGround
+    // A LINHA DO CHÃO, e a asserção depende da ORIENTAÇÃO desta tela, não do tamanho dela.
+    // Deitado e desktop: a negativa de sempre — o 0,68 tem de estar intocado, byte a byte, e é
+    // ela que impede um erro na guarda de orientação de reenquadrar o notebook em silêncio.
+    // Tablet em RETRATO: a régua dos DOIS lados, a mesma das seis telas de celular (ver o
+    // cabeçalho de `lerChao`, com as três resoluções medidas).
+    let cx = null;
+    if (mc) cx = conferirChao(mc, probs);
+    else if (!m.chaoIntacto) probs.push('a linha do chão MEXEU fora do retrato: GROUND ' + m.chaoGround
       + ' contra ' + Math.round(m.chaoH * 0.68) + ' (0,68 de H=' + m.chaoH + ')');
     // o piso de tinta é 0,6% da tela: medido 3,4% em 390×844 e 1,5% no ultrawide (a folha
     // cresce com a régua da tela, a tela cresce mais). Meio por cento é "há moldura"; zero é
@@ -344,7 +488,10 @@ const TELAS = [
       + ' · portões ' + ((m.portais || []).length ? (m.portais[0].w.toFixed(0) + 'x' + m.portais[0].h.toFixed(0)) : '—')
       + ' · nível 2 ' + ((m.utilidade || []).length ? (m.utilidade[0].w.toFixed(0) + 'x' + m.utilidade[0].h.toFixed(0)) : '—')
       + ' · diorama ' + (m.dioTinta >= 0 ? m.dioTinta.toFixed(2) + '%' : 'AUSENTE')
-      + ' · configurações ' + (alc.cfgOk ? 'alcançável' : 'PRESO');
+      + ' · configurações ' + (alc.cfgOk ? 'alcançável' : 'PRESO')
+      + (cx ? ' · faixa ' + cx.faixa.toFixed(1) + ' (precisa ' + cx.precisa.toFixed(1) + ')'
+              + ' · chão ' + (mc.chaoHome ? mc.chaoHome.toFixed(4) + ' (subiu)' : '0,6800')
+              + ' · ' + (cx.cabe ? 'ENTRA' : 'não entra') : '');
     if (probs.length) { console.log('  ✗ ' + linha + '  →  ' + probs.join('; ')); falhou = true; }
     else console.log('  ✓ ' + linha);
   }
@@ -367,13 +514,20 @@ const TELAS = [
   // e que ela continue inteira atrás do poste. Uma implementação que subisse o chão "um
   // pouquinho" para espremê-la reprova aqui, e é de propósito.
   //
-  // ...E HÁ UM TERCEIRO ESTADO DESDE O VETO DA ARTE (22/08): a chave `CHAO_HOME_LIGADO` nasce
-  // DESLIGADA, e com ela desligada este bloco cobra INÉRCIA — `GROUND == round(H × 0,68)` e
-  // `chaoHome == 0` nas SEIS telas de retrato, não só nas quatro em que a faixa não dá. O par
-  // 390×844 antes/depois já prova que a tela de referência não se mexeu; a asserção FIXA isso
-  // para as outras cinco, e é o que impede a subida de voltar ligada por acidente num merge.
-  // A régua dos dois lados continua inteira aqui, e volta a valer no instante em que a chave
-  // for ligada junto com o caminho-do-céu do PENDENTES 54.
+  // ...E HOUVE UM TERCEIRO ESTADO ENTRE 22/08 E 03/09: a chave `CHAO_HOME_LIGADO` nascia
+  // DESLIGADA (veto da arte), e com ela desligada este bloco cobrava INÉRCIA. **Em 03/09 ela
+  // SUBIU**, com o caminho-do-céu do PENDENTES 54 feito e medido, e a régua dos dois lados
+  // voltou a ser o que roda em produção: nas telas em que a faixa dá, a linha do chão TEM de
+  // ter subido e nada pode encostar nela; nas em que não dá, nada pode ter se mexido.
+  // O ramo de inércia continua aqui e continua vivo — ele é o que `REGUA_CHAO=desligar`
+  // exercita, e é o que voltará a valer se alguém precisar baixar a chave de novo.
+  //
+  // A FAIXA DE 390×844 PASSOU DE 83 PARA 120 px na mesma rodada, e não foi o motor que mudou:
+  // foram 37 px comprados na composição da home (19 de respiro do topo + 18 de teto do logo,
+  // por reta contínua entre 700 e 844 de altura — ver `estilo.css`, `#telaMenu`/`#logoImg`).
+  // É por isso que a tela de referência entrou junto com o Pixel e o iPhone Max, em vez de o
+  // item destravar só as duas grandes — o que teria reintroduzido as "duas homes" que o veto
+  // de 22/08 apontou como o argumento mais forte contra.
   //
   // A CAIXA DELA É A ANALÍTICA, não a mancha do canvas — e isto foi medido antes de escrever:
   // a caixa alfa do `#heroHD` mede 102 px de altura onde ela tem 88, porque o PLANO DA FRENTE
@@ -381,19 +535,21 @@ const TELAS = [
   // Em tela deitada a mesma leitura dá 511 px de largura. A caixa que vale é a que o
   // `desenharHeroiHD` usa: `HX*kx - dw/2` por `GROUND*ky - dh`, com `dh = HERO_TARGET*ky`.
   //
-  // AUTOTESTE (lição 2.8), com os TRÊS controles vistos mordendo e um positivo:
-  //   REGUA_CHAO=espremer   — chave DESLIGADA e a linha do chão mexida à mão (0,60): a asserção
-  //                           de inércia reprova nas seis de retrato E nas seis largas. É o
-  //                           controle da asserção nova.
-  //   REGUA_CHAO=ligar      — chave LIGADA à mão, sem refazer a medida: a régua do retrato volta
-  //                           a EXIGIR as entradas, e reprova nas duas telas em que a faixa dá
-  //                           ("a faixa dá e a linha do chão NÃO subiu"). É a prova de que a
-  //                           régua dos dois lados não morreu junto com o veto — ela está viva
-  //                           e só está dormindo.
-  //   REGUA_CHAO=ligar-real — chave LIGADA e a medida refeita pelo caminho de verdade: PASSA,
-  //                           com as duas telas entrando dentro da régua. É o controle POSITIVO,
-  //                           e ele existe para que "reprovou com a chave ligada" não possa ser
-  //                           confundido com "a régua reprova qualquer coisa quando ligada".
+  // AUTOTESTE (lição 2.8), refeito em 03/09 porque a chave subiu e os controles antigos
+  // deixaram de significar o que diziam (um controle que injeta o estado de produção não é
+  // controle — é decoração, e é exatamente a armadilha da lição 2.8):
+  //   REGUA_CHAO=espremer   — a linha do chão mexida à mão para 0,60 com a chave LIGADA. Reprova
+  //                           nas seis de retrato: nas três em que a faixa dá, porque ela deixa
+  //                           de ter respiro e passa a cruzar o poste; nas três em que não dá,
+  //                           pelo "ausente é melhor que espremida".
+  //   REGUA_CHAO=nao-subir  — chave LIGADA e `chaoHome` zerado à mão: a régua reprova nas TRÊS
+  //                           telas em que a faixa dá ("a faixa dá e a linha do chão NÃO subiu
+  //                           — ela continua escondida"). É o controle do lado que este item
+  //                           existe para garantir.
+  //   REGUA_CHAO=desligar   — chave BAIXADA à mão e a medida refeita: PASSA, e o ramo de INÉRCIA
+  //                           é quem a aprova (chaoHome 0 e GROUND em 0,68·H nas seis). É o
+  //                           controle POSITIVO do estado de 22/08–02/09, e é o que prova que
+  //                           aquele ramo continua vivo em vez de ter morrido junto com o veto.
   // ============================================================
   const RETRATOS = [
     { nome: 'iphone SE',      w: 320, h: 568 },
@@ -403,7 +559,6 @@ const TELAS = [
     { nome: 'pixel 7/8',      w: 412, h: 915 },
     { nome: 'iphone 15 pmax', w: 430, h: 932 },
   ];
-  const RESPIRO = 8;
   console.log('');
   for (const t of RETRATOS) {
     const pg = await nav.newPage();
@@ -427,56 +582,11 @@ const TELAS = [
       await pg.addStyleTag({ content: process.env.REGUA_DEFEITO });
       await pg.waitForTimeout(50);
     }
-    if (process.env.REGUA_CHAO) {
-      await pg.evaluate((d) => {
-        // o defeito entra DEPOIS do boot. `fitCanvas()` não serve para injetá-lo direto: a
-        // primeira coisa que ele faz é chamar `medirChaoDaHome()`, que com a chave desligada
-        // devolve `chaoHome = 0` e desfaria o defeito na hora.
-        if (d === 'espremer') { chaoHome = 0.60; }
-        // `ligar` liga a chave e NÃO refaz a medida: a régua volta ao modo dos dois lados com
-        // o chão ainda no 0,68, que é exatamente o estado que ela tem de acusar.
-        if (d === 'ligar') { CHAO_HOME_LIGADO = true; }
-        // `ligar-real` liga e refaz pelo caminho de verdade — o controle positivo.
-        if (d === 'ligar-real') { CHAO_HOME_LIGADO = true; medirChaoDaHome(); }
-        GROUND = Math.round(H * (chaoHome || 0.68));
-        redesenharFundo();
-      }, process.env.REGUA_CHAO);
-      await pg.waitForTimeout(200);
-    }
-    const m = await pg.evaluate(() => {
-      const off = (id) => { const e = document.getElementById(id); if (!e) return null;
-        let t = 0; for (let p = e; p && p.id !== 'telaMenu'; p = p.offsetParent) t += p.offsetTop;
-        return { topo: t, alt: e.offsetHeight }; };
-      // A CAIXA DELA, pela conta do `desenharHeroiHD` (alto = 0, que é ela em pé no menu)
-      const img = heroBloco('walk')[0];
-      const sc = HERO_TARGET / img.naturalHeight;
-      const kx = telaW() / W, ky = telaH() / H;
-      const dw = img.naturalWidth * sc * kx, dh = img.naturalHeight * sc * ky;
-      const ela = { x: HX * kx - dw / 2, y: GROUND * ky - dh, w: dw, h: dh };
-      const sub = off('menuSub'), poste = off('poste');
-      // as tábuas, uma a uma: a caixa dela não pode encostar em NENHUMA
-      const tabuas = [...document.querySelectorAll('#poste .telaBtn')]
-        .filter(b => getComputedStyle(b).display !== 'none')
-        .map(b => { const r = b.getBoundingClientRect();
-          return { id: b.id, t: r.top, b: r.bottom, l: r.left, r: r.right, h: r.height }; });
-      const subR = document.getElementById('menuSub').getBoundingClientRect();
-      const posteR = document.getElementById('poste').getBoundingClientRect();
-      // OS DOIS NÍVEIS TAMBÉM EM RETRATO (03/09). Medido antes de escrever a asserção: o degrau
-      // EXISTE nas seis telas de retrato — portais 250..320 de largura contra 198..246 do nível 2
-      // (52 a 74 px), e 51..53 de altura contra 44 (7 a 9 px). Não é um conceito só das telas
-      // largas; o laço daqui é que nunca o media.
-      const naTela = (el) => getComputedStyle(el).display !== 'none';
-      const caixa = (el) => { const r = el.getBoundingClientRect(); return { id: el.id, w: r.width, h: r.height }; };
-      const portais = [...document.querySelectorAll('#poste .telaBtn.portal')].filter(naTela).map(caixa);
-      const utilidade = [...document.querySelectorAll('#poste .telaBtn.sec')].filter(naTela).map(caixa);
-      return {
-        W, H, GROUND, ESCALA, chaoHome, ela, ligado: CHAO_HOME_LIGADO,
-        subBase: sub.topo + sub.alt, posteTopo: poste.topo,
-        subCx: { t: subR.top, b: subR.bottom, l: subR.left, r: subR.right },
-        posteCx: { t: posteR.top, b: posteR.bottom, l: posteR.left, r: posteR.right },
-        tabuas, portais, utilidade
-      };
-    });
+    await injetarChao(pg);
+    // A LEITURA É A COMPARTILHADA (03/09): o bloco que morava aqui virou `lerChao()` lá em cima,
+    // porque o `tablet retrato` do laço das telas largas passou a precisar da MESMA régua — ver
+    // o cabeçalho daquela função, com as três resoluções de tablet medidas.
+    const m = await lerChao(pg);
     // ⚠ O ALCANCE VEM DEPOIS DA GEOMETRIA, e a ordem NÃO é gosto: `alcanceDoBotao()` rola os
     // ancestrais roláveis, e as asserções acima comparam a caixa DELA (derivada de GROUND/HX, em
     // coordenadas de viewport, imune à rolagem) com caixas de DOM lidas por
@@ -485,12 +595,6 @@ const TELAS = [
     const alc = await alcanceDoBotao(pg);
     await pg.close();
 
-    const cruza = (a, b) => Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l))
-                          * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
-    const elaCx = { l: m.ela.x, r: m.ela.x + m.ela.w, t: m.ela.y, b: m.ela.y + m.ela.h };
-    const faixa = m.posteTopo - m.subBase;
-    const precisa = m.ela.h + 2 * RESPIRO;
-    const cabe = faixa >= precisa;
     const probs = [];
 
     // o piso de dedo vale em retrato também — o despacho pede que ele fique INTOCADO
@@ -506,57 +610,10 @@ const TELAS = [
     // ---- e os dois níveis do poste, pela função compartilhada com o laço das telas largas ----
     conferirDegrau(m.portais || [], m.utilidade || [], probs);
 
-    // ---- POSTE SOBRE A PROPOSTA (03/09, item `poste-sobre-a-proposta`) ----
-    // Até aqui `faixa` só alimentava `cabe` — e `cabe` só é lida dentro do `if (!m.ligado) {…}
-    // else if (cabe) {…}`, e a chave `CHAO_HOME_LIGADO` nasce DESLIGADA (veto da arte, 22/08).
-    // Em produção HOJE isso significa que o ramo que olha `faixa` nunca roda: a régua checava
-    // inércia do chão e nada mais, e duas peças de MOBÍLIA (`#poste`, `#menuSub`) podiam se
-    // sobrepor sem que nenhuma asserção percebesse — confirmado sob a receita `terceira`
-    // (`#poste{position:absolute;top:0px}`, que faz `#telaMenu:fixed` virar containing block do
-    // `#poste` absoluto em retrato): `faixa` cai a −146/−188/−134/−291/−321/−328 px nas seis
-    // telas e a régua continuava dizendo ✓ para todas — a checagem de inércia (chaoHome/GROUND)
-    // não vê nada, porque a receita não mexe em nenhum dos dois.
-    //
-    // O PISO É 0, não 8 (o RESPIRO da personagem) nem outro número redondo sem motivo: 0 é a
-    // definição de "não se sobrepõe" (topo do poste tocando a base da proposta ainda não é
-    // sobreposição), e é o piso que sobra mais longe dos dois lados que se mede hoje — 9 px de
-    // folga contra a pior tela de produção (320×568) e 134 px de folga contra a MENOR magnitude
-    // do defeito medido (−134, em 390×568). Um piso de 8 (copiando o RESPIRO) deixaria só 1 px de
-    // sobra em 320×568 e reprovaria por um ajuste de CSS ínfimo que não cria sobreposição
-    // nenhuma — é exatamente o "apertado demais para carona" que o item avisa. É INDEPENDENTE de
-    // `m.ligado`/`cabe`: mobília não pode se cruzar mesmo com a personagem desligada.
-    if (faixa < 0) probs.push('POSTE sobre a PROPOSTA: faixa (topo do #poste − base do #menuSub) é '
-      + faixa.toFixed(1) + 'px — negativa, as duas peças de mobília se cruzam');
-
-    if (!m.ligado) {
-      // ---- INÉRCIA (veto da arte, 22/08). A chave está desligada: a linha do chão não pode ter
-      // se mexido em tela NENHUMA de retrato — nem nas duas em que a régua diria que dá. É esta
-      // asserção que impede a subida de voltar ligada por acidente num merge, e ela é fixa: o
-      // par de prints 390×844 mostra UMA tela, isto cobra as seis.
-      if (m.chaoHome) probs.push('a chave está DESLIGADA e chaoHome vale ' + m.chaoHome.toFixed(4));
-      if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('a chave está DESLIGADA e GROUND é '
-        + m.GROUND + ' em vez de ' + Math.round(m.H * 0.68) + ' (0,68 de H=' + m.H + ')');
-    } else if (cabe) {
-      // ---- ELA ENTRA. Nada pode encostar nela, e o respiro é 8 dos dois lados.
-      const acima = elaCx.t - m.subBase, abaixo = m.posteTopo - elaCx.b;
-      if (acima < RESPIRO) probs.push('respiro de cima ' + acima.toFixed(1) + 'px < ' + RESPIRO);
-      if (abaixo < RESPIRO) probs.push('respiro de baixo ' + abaixo.toFixed(1) + 'px < ' + RESPIRO);
-      const sPoste = cruza(elaCx, m.posteCx), sSub = cruza(elaCx, m.subCx);
-      if (sPoste > 0) probs.push('a caixa dela cruza o POSTE em ' + Math.round(sPoste) + 'px²');
-      if (sSub > 0) probs.push('a caixa dela cruza a PROPOSTA em ' + Math.round(sSub) + 'px²');
-      m.tabuas.forEach(b => { const s = cruza(elaCx, b);
-        if (s > 0) probs.push('a caixa dela cruza a tábua ' + b.id + ' em ' + Math.round(s) + 'px²'); });
-      if (!m.chaoHome) probs.push('a faixa dá (' + faixa.toFixed(1) + ' >= ' + precisa.toFixed(1)
-        + ') e a linha do chão NÃO subiu — ela continua escondida');
-    } else {
-      // ---- NÃO DÁ: ela NÃO entra, e nada pode ter se mexido para espremê-la.
-      if (m.chaoHome) probs.push('a faixa não dá (' + faixa.toFixed(1) + ' < ' + precisa.toFixed(1)
-        + ') e mesmo assim a linha do chão subiu para ' + m.chaoHome.toFixed(4) + ' — ausente é melhor que espremida');
-      if (m.GROUND !== Math.round(m.H * 0.68)) probs.push('GROUND ' + m.GROUND + ' != 0,68 de H=' + m.H);
-      const dentroDoPoste = elaCx.t >= m.posteCx.t - 1 && elaCx.b <= m.posteCx.b + 1
-                         && elaCx.l >= m.posteCx.l - 1 && elaCx.r <= m.posteCx.r + 1;
-      if (!dentroDoPoste) probs.push('ela não entra na faixa e TAMBÉM não está inteira atrás do poste — está meio à mostra');
-    }
+    // ---- A RÉGUA DA LINHA DO CHÃO, pela função compartilhada com o laço das telas largas.
+    // Ela carrega o "POSTE sobre a PROPOSTA" (item `poste-sobre-a-proposta`, 03/09) e os três
+    // ramos (inércia · entra · não entra) — a explicação de cada piso está lá.
+    const { faixa, precisa, cabe, elaCx } = conferirChao(m, probs);
 
     const linha = t.nome.padEnd(16) + ' · ' + t.w + 'x' + t.h
       + ' · faixa ' + faixa.toFixed(1) + 'px (precisa ' + precisa.toFixed(1) + ')'
