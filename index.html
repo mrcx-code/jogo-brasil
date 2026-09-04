@@ -2200,6 +2200,54 @@
     #telaConfig .telaBtn { padding: 9px 22px; margin: 2px; min-height: 44px; box-sizing: border-box; }
   }
 
+  /* ============================================================================
+     E A NOTA DE PRIVACIDADE PAGA O RETRATO CURTO TAMBÉM (04/09).
+
+     O DEFEITO, medido pelo caminho real (`montarConfig()`, nunca `abrirTela` seco — tela não
+     montada tem 10 nós e cabe em qualquer altura, e é assim que este defeito já escapou duas
+     vezes nesta tela): a nota de margem que a última linha do papel ganhou custa 45 px, e
+     abaixo de ~680 px de altura eles não existiam. Medido em 360 de largura, varrendo a faixa:
+
+         altura   título antes   VOLTAR antes        veredito
+         560      −10..43        524..568            corta em cima
+         568      −6..47         528..572            corta nas DUAS bordas (iPhone SE 1ª ger.)
+         620      −8..45         581..625            corta em cima
+         640      −3..50         595..639            corta em cima (Android mais comum do país)
+         580/600  0..53 / 10..63 534..578 / 544..588 coube — o piso comprimido segurou
+         660+     2..55 e acima  610..654            coube — a rampa já estava larga
+
+     Duas faixas, e por dois motivos diferentes: 605..655 é a RAMPA (que interpola 4→8 px de
+     respiro entre 500 e 720 de altura e, com 45 px a mais no papel, deixou de caber no meio
+     dela), e 541..575 é o PISO COMPRIMIDO do bloco acima, que já estava no valor mínimo.
+
+     QUEM CEDE, e a régua é a mesma do commit que criou a nota: respiro, nunca palavra nem
+     alvo de dedo. O link continua onde está, com os 13 px de recheio que lhe dão os 44 px de
+     altura tocável — ele existe justamente para ser alcançado.
+
+     1. O RECHEIO DE BAIXO DO PAPEL VIRA ZERO, e isto não custa pixel de aparência: a âncora
+        JÁ tem 13 px de recheio próprio, então o texto continua a 13 px da borda do papel.
+        Era respiro contado duas vezes. Vale nas duas faixas (≤720).
+     2. A RAMPA DO RESPIRO GANHA UM DEGRAU MAIS BAIXO ENTRE 601 E 720, e continua rampa —
+        `clamp(4px, calc(3.33vh − 16px), 8px)` vale 4 px a 600 e 8 px a 720, que são
+        exatamente os dois vizinhos: emenda com o piso comprimido embaixo e com a rampa
+        original em cima, sem degrau em nenhuma das duas pontas. Foi por degrau que esta tela
+        teve uma faixa morta de 211 px por um ano (ver o bloco de 18/08 acima).
+     3. E O PISO COMPRIMIDO DESCE UM DEGRAU: respiro 4→3, recheio do papel 9→8, respiro da
+        tela 12→9, e a placa do título 8→6. São 26 px, e o papel ali tem 17 linhas.
+     ============================================================================ */
+  @media (orientation: portrait) and (max-height: 720px) {
+    #telaConfig #cfgInfo { padding-bottom: 0; }
+    #telaConfig #cfgPriv { margin-top: 0; }
+  }
+  @media (orientation: portrait) and (min-height: 601px) and (max-height: 720px) {
+    #telaConfig #cfgInfo { gap: clamp(4px, calc(3.33vh - 16px), 8px); }
+  }
+  @media (orientation: portrait) and (max-height: 600px) {
+    #telaConfig { padding-top: 9px; padding-bottom: 9px; }
+    #telaConfig .telaTit { margin-bottom: 6px; }
+    #telaConfig #cfgInfo { gap: 3px; padding-top: 8px; }
+  }
+
   /* E O DEGRAU DO PIOR CASO DE ALTURA (640×360). Depois das colunas sobravam 23 px na
      CHEGADA — as três tábuas voltaram aos 44 px de dedo e o título dela é uma placa de
      22 px com 10 de respiro em cima e embaixo. Quem cede é a PLACA, não a tábua: título é
