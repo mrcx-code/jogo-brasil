@@ -9,6 +9,18 @@
   },
   "itens": [
     {
+      "id": "privacidade-link-nos-ajustes",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "Link para /privacidade/ falta na tela de AJUSTES do jogo (só está no rodapé das 5 páginas)",
+      "territorio": [
+        "src/jogo.ts"
+      ],
+      "aceite": "A tela de AJUSTES do jogo (onde fica o interruptor de medição) ganha um link/texto apontando para /privacidade/ — mesmo padrão de link externo que outras telas do jogo já usam para a plataforma, se houver precedente. npm test verde.",
+      "detalhe": "Achado pelo dev-plataforma em 04/09 ao construir a página: o texto fonte (plataforma/privacidade-texto.md) pede link no rodapé E nos AJUSTES; só o rodapé das 5 páginas públicas foi feito (é território dele). AJUSTES é src/jogo.ts, território do dev-jogo."
+    },
+    {
       "id": "palmares-emenda-horizontal-rosto",
       "estado": "livre",
       "agente": "dev-jogo",
