@@ -76,7 +76,7 @@
     },
     {
       "id": "sem-contagem-sem-modo-injecao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "A assercao SEM_CONTAGEM (qa-vercel-host) morde mas nenhuma rodada automatica exercita ela",
@@ -85,8 +85,7 @@
       ],
       "aceite": "QA_VERCEL_DEFEITO ganha um 10o modo que injeta connect-src na rota /privacidade/ (ou outra sem-medicao), pra assercao SEM_CONTAGEM sair vista reprovando por um comando, sem precisar editar vercel.json a mao.",
       "detalhe": "Achado pelo QA em 04/09: a assercao existe e morde (confirmado editando vercel.json manualmente — connect-src injetado em /privacidade/ fez qa-vercel-host sair exit 1), mas os 9 modos existentes de QA_VERCEL_DEFEITO miram todos /historia. Mesma classe do EQUIPE.md licao 2.8 (controle que ninguem roda e decoracao).",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T16:51:47.841Z"
+      "feito": "Integrado 04/09 em duas rodadas (e355b08 -> 3 achados QA -> 9a22d95 -> merge 46c7ac4). 10o modo (privacidade) faz SEM_CONTAGEM reprovar por comando: 10/10 mordem por exit code, controle limpo exit 0, vercel.json 0 diff. Revisao 1 (QA) achou e consertou comentario falso + gap real (nenhum runner automatico exercitava os 10 modos) -- criou test/qa-vercel-host-controle.js, pendurado no CI. Revisao 2 (porteiro+qa independentes) achou 2 problemas NESSA correcao: comentario com numero errado (3 linhas X alegadas, 4 reais, medido por mutante) e o proprio controle novo nao provava ter executado todos os 10 modos (fix: contagem de iteracoes reais cobrada contra MODOS.length, provado injetando o mesmo continue que a revisao demonstrou). Duas rodadas de auditoria adversarial ate fechar de verdade."
     },
     {
       "id": "cartoes-sociais-peso-mudou-sem-explicacao",
@@ -141,7 +140,7 @@
     },
     {
       "id": "aceiro-fogo-vira-gente",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "pesado",
       "titulo": "O ACEIRO: mantém gente na rua, tira a coleta — decisão do dono em 04/09",
@@ -149,7 +148,9 @@
         "src/jogo.ts"
       ],
       "aceite": "A mão continua alcançando quem atravessa (brigadista, apanhadora de sempre-vivas, vaqueiro), mas o que a pessoa carrega deixa de ser recolhido como impacto — soltarDrop()/coletarDrop() param de disparar para este capítulo especificamente (concluirAlcance() precisa saber diferenciar, sem quebrar os outros capítulos de gente-na-rua que SIM coletam, tipo PALMARES). O comentário do bloco ABAFAR (~2662-2669) e o de ~2505 — hoje falsos, dizem 'nunca pessoa, sempre fogo' — passam a descrever o que realmente acontece: gente de verdade, sem coleta. Prova por injeção: screenshot antes/depois do toque em O ACEIRO, e teste que confirma S.energia/S.recursos não sobe ao alcançar ali (mas continua subindo em PALMARES, controle negativo). npm test verde.",
-      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito')."
+      "detalhe": "PENDENTES 105 (auditoria §2, ultracode, 04/09): achado CONFIRMADO por verificação adversarial, sem ressalva, severidade ALTA. Decisão do dono em 04/09: manter a presença humana (era intencional desde que `aceiro` entrou em CAPS_VERBO em 18/08), tirar só o gesto de coletar o que a pessoa carrega. O PENDENTES.md já tinha nomeado essa CLASSE de erro antes de acontecer aqui (§19: 'arte de gente e mecânica de gente são a MESMA decisão... é o §2 quebrado com pixel bonito').",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-04T18:02:57.885Z"
     },
     {
       "id": "fala-arte-emprestada-obsoleta-em-5-capitulos",
