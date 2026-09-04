@@ -9,6 +9,19 @@
   },
   "itens": [
     {
+      "id": "salvador-drop-ritual-vira-trabalho",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "pesado",
+      "titulo": "PRIORIDADE — SALVADOR: o drop de objeto ritual (búzios/pano da costa/acarajé) troca para objeto de trabalho de rua, decisão do dono em 03/09",
+      "territorio": [
+        "src/jogo.ts",
+        "assets/objetos/"
+      ],
+      "aceite": "Os três drops de SALVADOR (hoje búzios/pano da costa/acarajé, artes de índice 2 em DROP_B64) deixam de ser objeto ritual e passam a ser objeto de trabalho de rua — os já desenhados e não usados em assets/objetos/ (cap4-obj-*: tabuleiro, trouxa, água) são os candidatos naturais, confira se servem antes de pedir arte nova. concluirAlcance()/soltarDrop()/coletarDrop() continuam funcionando igual (mesma faixa de energia/recursos), só o OBJETO muda — os verbetes do glossário (PANO DA COSTA, BÚZIOS, ACARAJÉ, ~linha 13317-13333) permanecem contando a dimensão sagrada deles, só param de ser o que a mão recolhe fisicamente. Prova por injeção: screenshot antes/depois do drop em jogo, e teste que confirma nenhum objeto ritual sobrevive como DROP_B64 índice 2. npm test verde.",
+      "detalhe": "PENDENTES 105 (auditoria §2 dos 13 capítulos, ultracode, 03/09): achado CONFIRMADO por verificação adversarial — quatro tentativas de refutar caíram. §2 item 4.5 é categórico e sem exceção: 'objeto ritual não é colecionável — entra como fala, nunca como drop'. A pendência já tinha sido escrita em docs/arquivo/SPRINT.md ticket T1 de SALVADOR ('⚠ decisão-do-dono antes de ir à main') e nunca respondida antes de ir para produção — e o mesmo objeto (búzios) foi RECUSADO como item no capítulo O CAIS (mesma regra, decisão oposta), então a inconsistência já era visível internamente. O dono respondeu em 03/09: TROCA. src/jogo.ts é escritor único — confira se caminho-do-ceu (em-curso) ainda está com lock válido (desde < 2h) antes de despachar; se vencido, este item pode furar a fila por severidade."
+    },
+    {
       "id": "medicao-desligada-caminho-escolar",
       "estado": "livre",
       "agente": "dev-jogo",
