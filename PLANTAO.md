@@ -397,6 +397,17 @@ E uma de higiene que economiza confusao: **depois do funil, `git checkout -- tes
 regravam tres prints a cada rodada, e eles sujam a arvore sem que um byte de codigo tenha mudado.
 Arvore suja que nao significa nada e como se aprende a ignorar `git status`.
 
+**MARQUE `concluido` NO MESMO FOLEGO DO PUSH, nunca "depois".** Medido em 04/09: a MESMA sessao
+esqueceu de fechar um item `em-curso` **tres vezes** na mesma rodada (uma vez achada pelo proprio
+dono perguntando "vc ta esquecendo de alguns?", duas vezes achadas so numa varredura seguinte).
+O padrao do esquecimento e sempre o mesmo: `INTEGRADO` sai do funil, o push acontece, a atencao ja
+foi para o proximo despacho, e o `backlog.json` fica com `estado: em-curso` apontando para um
+trabalho que ja esta na `main` ha horas — a mesma doenca do painel congelado (PLANTAO 5.1), so que
+no backlog em vez da mesa. **O conserto e de ordem, nao de lembranca**: o `estado: concluido` +
+`feito` entra no MESMO commit que fecha a rodada — nunca num "vou lembrar de fechar depois". Se o
+funil rodou e devolveu `INTEGRADO`, o proximo comando (antes de despachar qualquer outra coisa) e
+atualizar o `backlog.json` e empurrar.
+
 ## 5.2 COMO AS TRES MAQUINAS TRABALHAM JUNTAS — por PAPEL, nao por territorio (31/08)
 
 Decisao do dono em 31/08, e ela corrige o desenho anterior. A primeira versao dava a cada maquina
