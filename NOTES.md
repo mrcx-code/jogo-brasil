@@ -12619,3 +12619,76 @@ e vai na mesma mesa da costura.
 `npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/regua-larga.js` **exit 0** nas
 doze telas. Controles do autoteste, com exit code real: `espremer` **1** (12/12), `nao-subir` **1**
 (4), `desligar` **0** (o positivo, ramo de inércia), `REGUA_DEFEITO` da hierarquia **1** (12/12).
+
+---
+
+## Diário — 04/09, manhã · plantão `nuvem-20260904T0823`
+
+### O que fiz na primeira meia hora, e por que ela quase virou um diagnóstico errado
+
+O primeiro comando da rodada — `git pull --ff-only origin main`, que é o que o `PLANTAO.md` §4
+manda usar — saiu **`fatal: Not possible to fast-forward, aborting.`**. Fui perguntar por quê e as
+duas perguntas seguintes mentiram junto com ele: `git merge-base HEAD origin/main` saiu **vazio**,
+e `git rev-list --left-right --count HEAD...origin/main` respondeu **161 / 145**.
+
+Três sinais concordando é o que torna a armadilha cara: sem ancestral comum, sem fast-forward e
+com commits "dos dois lados", a leitura natural é *"alguém fez force-push, as histórias
+divergiram"* — e o passo seguinte dessa leitura é um `reset --hard` ou um push forçado, sobre uma
+árvore que estava **perfeitamente sã**. O estado verdadeiro era fast-forward puro: **0 commits de
+um lado, 210 do outro.**
+
+A causa é o `.git/shallow` do contêiner (6 fronteiras). O `PLANTAO.md` §7 já registrava o clone
+raso mentindo sobre os ramos `entrega/*` (03/09) — esta é a mesma doença **um degrau antes**: ela
+mente sobre a `main` da própria rodada, no primeiro comando, antes de qualquer ferramenta rodar.
+
+### O que MEDI, com controle nos dois sentidos
+
+Repositório novo, `fetch --depth=1` no mesmo commit velho, depois `fetch --depth=1 origin main` —
+e o **mesmo** repositório aprofundado em seguida:
+
+| | raso (depth=1) | o MESMO repo, `--unshallow` |
+|---|---|---|
+| `git merge-base HEAD origin/main` | exit **1**, saída vazia | exit **0**, `c78672a` |
+| `rev-list --left-right --count` | **1 / 1** | **0 / 211** |
+| `git pull --ff-only origin main` | exit **128**, `fatal` | exit **0** |
+
+Na árvore desta rodada, antes e depois do `--unshallow`: **161/145 → 0/210**, `merge-base` vazio →
+`c78672a`, ff-only `fatal` → **exit 0**.
+
+### O que CAIU — e era uma afirmação minha
+
+Eu ia escrever no `PLANTAO.md` que *"o clone raso quebra o `git pull`"*. **Não quebra.**
+`git pull --no-rebase origin main` no mesmo repositório raso saiu **exit 0** e fez fast-forward
+limpo (`HEAD` foi a `73c3a32`, **um pai só** — nenhum merge fabricado), porque ele busca a `main`
+sem teto de profundidade e aprofunda o bastante sozinho.
+
+O que quebra é a **pergunta de ancestralidade**, e `--ff-only` é justamente o comando que a faz.
+Isso inverte a moral: a regra da casa (§4, *"depois do funil nunca `pull --rebase`; push direto ou
+`pull --ff-only`"*) leva você direto ao único dos dois comandos que falha aqui — e leva **no meio
+de uma integração**, que é onde um diagnóstico errado custa mais. Se eu tivesse escrito a frase que
+ia escrever, a próxima rodada leria "use `pull` normal" como contorno e o §4 continuaria mandando o
+contrário, sem ninguém saber qual dos dois valia.
+
+### O que garante que não volte
+
+Documento não garante nada — foi essa a lição do `§0` de 03/09 (*"regra que mora longe de quem a
+executa não é regra, é anotação"*). Então a regra foi pendurada onde o plantão passa: o
+`ferramentas/integrar.js` confere `--is-shallow-repository` no arranque e **avisa** (nunca recusa —
+o funil roda bem em clone raso; o que ele previne é o passo seguinte). Provado nos dois sentidos,
+por contagem de linha na saída: **0** ocorrências de `CLONE RASO` nesta árvore aprofundada (sem
+falso alarme) e **1** num repositório raso montado para o controle.
+
+Mais o `PLANTAO.md` §0.4 — porque §0 é onde moram as ordens que valem **antes** de despachar — e a
+subseção medida no §7.
+
+### Higiene da fila, no mesmo commit
+
+Os três itens que a rodada `nuvem-20260904T0422` marcou `em-curso` às 04:25 UTC nunca foram
+entregues: `git ls-remote --heads origin` não tem **nenhum** `entrega/` para os três, e o último
+commit daquela rodada é de 05:04. Lock vencido em **4 h 08** contra a régua de 2 h. Conferido por
+conteúdo antes de tomar, como manda a regra de 01/09.
+
+### Próximo passo
+
+Três entregas em voo, territórios disjuntos: `salvador-drop-ritual` (§2, PRIORIDADE — o drop de
+objeto ritual de SALVADOR), `sem-tsc-varredura` e `ramos-mortos-conteudo`.

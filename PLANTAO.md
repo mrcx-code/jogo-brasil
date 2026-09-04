@@ -42,6 +42,14 @@ conversa e as decisões em lista numerada com opções, consequência dita e ⭐
 a forma-base que o próprio §6 descreve —, **diga em uma linha que a ferramenta não existe aqui**,
 e **nunca publique página**. Detalhe e as saídas: `PENDENTES 104`.
 
+**4. `git fetch --unshallow origin` É O PRIMEIRO COMANDO DA RODADA, ANTES DO PRIMEIRO `git pull`.**
+Medido em 04/09 (o porquê inteiro, com o controle nos dois sentidos, está no §7). Sem isso o
+`git pull --ff-only origin main` sai `fatal: Not possible to fast-forward` sobre uma `main` que
+é **fast-forward puro**, e as duas perguntas que você faria em seguida mentem juntas: `merge-base`
+sai **vazio** e a contagem de divergência inventa commits dos dois lados. A leitura natural desses
+três sinais é *"as histórias divergiram, alguém fez force-push"* — e ela chega na hora pior
+possível, porque o §4 manda usar exatamente `pull --ff-only` **logo depois do funil**.
+
 **3. RODE O FUNIL EM SEGUNDO PLANO.** `node ferramentas/integrar.js` leva mais que o teto de
 10 minutos do shell desta máquina. Quando ele é morto pelo teto, o desfecho é **enganoso nas
 duas leituras**: a `main` fica com o merge FEITO, sem `MERGE_HEAD` e com a árvore limpa — quem
@@ -673,6 +681,55 @@ rede, mordida provada por injeção).
 E a lição que generaliza, que é irmã do §8: **antes de desconfiar do portão, desconfie da máquina
 que o roda** — aqui não foi o `node_modules` vazio, foi a *história* vazia. Ferramenta que responde
 sobre o repositório tem de conferir primeiro se enxerga o repositório inteiro.
+
+### ⚠ O CLONE RASO TAMBÉM MENTE SOBRE A **`main`**, E O SINTOMA É "AS HISTÓRIAS DIVERGIRAM" (04/09)
+
+A entrada de 03/09 acima mede o clone raso mentindo sobre os ramos `entrega/*`, para o lado caro.
+Esta mede o degrau **anterior**: ele mente sobre a `main` da própria rodada, no **primeiro comando**,
+antes de qualquer ferramenta rodar. Custou os primeiros minutos desta rodada.
+
+O contêiner nasceu com `.git/shallow` (6 fronteiras) e o `refs/heads/main` local parado em `c78672a`,
+de 02/09, enquanto a `origin` estava em `4e7407e`. O estado verdadeiro era **fast-forward puro**:
+0 commits de um lado, 210 do outro. O que os comandos responderam:
+
+| na árvore desta rodada, antes de `--unshallow` | |
+|---|---|
+| `git pull --ff-only origin main` | **`fatal: Not possible to fast-forward, aborting.`** |
+| `git merge-base HEAD origin/main` | **vazio** (exit 1) |
+| `git rev-list --left-right --count HEAD...origin/main` | **161 / 145** ← inventado |
+| os mesmos três, depois de `git fetch --unshallow origin` | base `c78672a` · **0 / 210** · ff **exit 0** |
+
+**Os três sinais mentem na mesma direção**, e é isso que faz a armadilha morder: sem ancestral comum,
+sem fast-forward e com commits "dos dois lados", a leitura natural é *"alguém fez force-push, as
+histórias divergiram"*. Daí para um `reset --hard` ou um push forçado é um passo — sobre uma árvore
+que estava perfeitamente sã.
+
+**Controle, porque quem afirma prova.** Repositório novo, `fetch --depth=1` no mesmo `c78672a`,
+depois `fetch --depth=1 origin main` — e o mesmo repositório aprofundado em seguida:
+
+| | raso (depth=1) | o MESMO repo, `--unshallow` |
+|---|---|---|
+| `git merge-base HEAD origin/main` | exit **1**, saída vazia | exit **0**, `c78672a` |
+| `rev-list --left-right --count` | **1 / 1** | **0 / 211** |
+| `git pull --ff-only origin main` | exit **128**, `fatal` | exit **0** |
+
+**E uma premissa minha caiu na medição, o que muda o nome do defeito.** Eu ia escrever "o clone raso
+quebra o `pull`". **Não quebra:** `git pull --no-rebase origin main` no mesmo repositório raso saiu
+**exit 0** e fez fast-forward limpo (`HEAD` foi a `73c3a32`, um pai só, nenhum merge fabricado) —
+porque ele busca a `main` sem teto de profundidade e aprofunda o bastante sozinho. O que quebra é a
+**pergunta de ancestralidade**, e `--ff-only` é justamente o comando que a faz. Ou seja: a regra da
+casa (`§4`: *"depois do funil nunca `pull --rebase`; push direto ou `pull --ff-only`"*) leva você
+direto ao único comando que falha aqui, e leva **no meio de uma integração**, que é onde um diagnóstico
+errado custa mais.
+
+> **A regra:** `git fetch --unshallow origin` **antes do primeiro `git pull` da rodada**, e não só
+> antes de perguntar sobre `entrega/*`. E `git rev-parse --is-shallow-repository` é a primeira coisa
+> a olhar diante de qualquer sinal de divergência — antes de acreditar que a `main` divergiu, confira
+> se você está enxergando a `main` inteira.
+
+É a mesma lição do §8 um degrau abaixo, e agora com dois andares: antes de desconfiar do portão,
+desconfie da máquina que o roda; e antes de desconfiar da máquina, desconfie de **quanto do
+repositório ela está enxergando**.
 
 ---
 
