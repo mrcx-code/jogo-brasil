@@ -88,7 +88,7 @@
     },
     {
       "id": "cartoes-sociais-peso-mudou-sem-explicacao",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "4 cartoes sociais publicados mudaram de peso na entrega de /privacidade/ e ninguem revisou por que",
@@ -97,8 +97,7 @@
       ],
       "aceite": "Investigar por que territorio/historia/de-onde-vem/glossario compartilhar.jpg mudaram de bytes (-1677/+854/+1192/-9) numa entrega que so acrescentou link no rodape. Suspeito nomeado pelo QA: document.fonts.ready sobre fontes DE REDE em cartao-secao.js:198-200 tornando o print nao-deterministico entre rodadas. Se confirmado, o gerador de cartao passa a embutir a fonte em memoria antes do print (mesma tecnica ja usada no cartao da porta), fechando a dependencia de rede.",
       "detalhe": "Achado pelo QA em 04/09: os 2 portoes de cartao passam (sem vazamento de dado), mas o diff de peso nao tem explicacao no relatorio da entrega, e um gerador dependente de rede faz qualquer ramo futuro carregar ruido nao-deterministico nos cartoes publicados.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-04T19:15:15.302Z"
+      "feito": "Integrado 04/09 (commit 80c6627, funil 320e1f3/8d32c4a). Hipotese do QA (fonte de rede) REFUTADA com prova: paginas nao carregam fonte de rede desde 22/08. Causa real: os 4 cartoes variaram por TROCA DE MAQUINA (nuvem Linux vs Windows do dono), decomposta por IoU em 2 partes -- 3 blocos .conta/.quando (fonte mono nao embutida, IoU 0.12-0.36, defeito real) e rasterizacao de SO nos blocos que ja usam fonte embutida (IoU 0.95-0.98, sem conserto possivel por embutir). Zero bytes publicados mudaram com o conserto. Novo portao (censo de forasteiras) reprova elemento pintado fora da lista de fontes esperadas, mordida provada. BLOQUEADO corretamente: vestir o mono com fonte embutida muda o desenho publicado (arte) ou exige binario de fonte com proveniencia (juridico) -- registrado como fora do escopo de quem achou, nao resolvido aqui. Achado novo aberto e nao um item novo ainda: test/cartao-tipografia-fresca.js compara byte-a-byte e por isso e maquina-dependente. Item ficou em em-curso por esquecimento apos integrado -- mesma classe de falha ja pega 2x nesta sessao."
     },
     {
       "id": "privacidade-link-nos-ajustes",
@@ -1762,6 +1761,18 @@
       "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "cartao-tipografia-fresca-maquina-dependente",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "test/cartao-tipografia-fresca.js compara os 3 cartoes de secao byte-a-byte -- e maquina-dependente, nunca rodou no CI",
+      "territorio": [
+        "test/cartao-tipografia-fresca.js"
+      ],
+      "aceite": "Trocar a comparacao byte-a-byte por uma comparacao por regiao/IoU (a mesma tecnica que test/cartao-controle.js ja usa para o territorio, por causa dos pinos 3D nao-deterministicos) OU pendurar o teste no CI e aceitar que ele so vale na maquina que gerou os bytes commitados (documentando isso no cabecalho, sem pendurar no workflow do GitHub).",
+      "detalhe": "Achado pelo dev-plataforma em 04/09 investigando cartoes-sociais-peso-mudou-sem-explicacao: os cartoes de historia/de-onde-vem/glossario variam entre maquinas por rasterizacao de fonte do SO (DirectWrite Windows vs FreeType Linux), com IoU 0.95-0.98 nos blocos que ja usam fonte embutida -- diferenca visual imperceptivel mas bytes diferentes. test/cartao-tipografia-fresca.js compara por md5/bytes, entao ele nunca esteve no .github/workflows/teste.yml (rodaria vermelho la) e ninguem notou."
     }
   ]
 }
