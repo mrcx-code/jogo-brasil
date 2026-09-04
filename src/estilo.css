@@ -810,6 +810,17 @@
     box-shadow: inset 0 0 0 3px #241a10, inset 0 0 0 7px #7a5430,
                 inset 0 0 0 9px rgba(20,10,2,.35), 0 5px 0 #0a0806,
                 0 7px 0 rgba(0,0,0,.45); }
+  /* A ÚLTIMA LINHA DO PAPEL É UMA NOTA DE MARGEM (04/09): o link para /privacidade/. Mesmo
+     material da saída da CHEGADA (`#fimPlataforma`) — é o que o jogo já usa para dizer uma
+     coisa a mais sem interromper —, só que em tinta de PAPEL e não de tela escura, porque
+     aqui o fundo é claro. `padding` de 13px em cima e embaixo dá os 44 px de alvo de dedo que
+     esta tela cobra de tudo o que se toca desde 10/08; a nota inteira, e não só a âncora,
+     rende porque o texto que a antecede é parte da frase. */
+  #telaConfig #cfgPriv { font: var(--margem); font-style: normal; font-weight: 400;
+    color: #6b4f2a; max-width: 26em; text-align: left; margin-top: 2px; }
+  #telaConfig #cfgPriv a { color: #5c3210; text-decoration: underline dotted;
+    text-underline-offset: 3px; display: inline-block; padding: 13px 3px; }
+  #telaConfig #cfgPriv a:active { color: #8a5a1c; }
   /* TÁBUA DE MADEIRA — dois materiais no jogo inteiro, cada um com um sentido: PEDRA é
      ferramenta de jogo (a barra de baixo, os nichos de contador), MADEIRA é coisa posta no
      lugar (as placas das telas). A tábua tem as mesmas quatro coisas da laje, todas em
@@ -2034,8 +2045,13 @@
       padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left)); }
     #telaConfig .telaTit { grid-column: 1 / -1; margin-bottom: 8px; }
     /* o papel ocupa a coluna da esquerda inteira, ao lado das quatro tábuas */
+    /* O RESPIRO PAGA A NOTA DE PRIVACIDADE (04/09), e é respiro que cede — nunca palavra nem
+       alvo de dedo, que é a régua desta tela desde 10/08. Medido: com a nota dentro do papel
+       e o gap em 5px, o papel ia a 69..407 numa tela de 390 e o bloco 6 do `encaixe.js`
+       reprovava por 17 px. São 16 vãos entre as linhas; 5 → 3 devolve 32 px, o dobro do que
+       falta, e a âncora fica com os 13 px de recheio que lhe dão os 44 px de altura tocável. */
     #telaConfig #cfgInfo { grid-column: 1; grid-row: 2 / span 5; align-self: center;
-      gap: 5px; padding: 10px 14px; }
+      gap: 3px; padding: 10px 14px; }
     #telaConfig .telaBtn { grid-column: 2; width: auto; min-width: min(34vw, 260px);
       padding: 12px 18px; margin: 0 0 6px; }
   }
@@ -2122,6 +2138,54 @@
        quinto botão caía FORA da área do texto e descia sozinho. 44 px de dedo continuam: 9+9+
        linha de 26 do bitmap = 44. */
     #telaConfig .telaBtn { padding: 9px 22px; margin: 2px; min-height: 44px; box-sizing: border-box; }
+  }
+
+  /* ============================================================================
+     E A NOTA DE PRIVACIDADE PAGA O RETRATO CURTO TAMBÉM (04/09).
+
+     O DEFEITO, medido pelo caminho real (`montarConfig()`, nunca `abrirTela` seco — tela não
+     montada tem 10 nós e cabe em qualquer altura, e é assim que este defeito já escapou duas
+     vezes nesta tela): a nota de margem que a última linha do papel ganhou custa 45 px, e
+     abaixo de ~680 px de altura eles não existiam. Medido em 360 de largura, varrendo a faixa:
+
+         altura   título antes   VOLTAR antes        veredito
+         560      −10..43        524..568            corta em cima
+         568      −6..47         528..572            corta nas DUAS bordas (iPhone SE 1ª ger.)
+         620      −8..45         581..625            corta em cima
+         640      −3..50         595..639            corta em cima (Android mais comum do país)
+         580/600  0..53 / 10..63 534..578 / 544..588 coube — o piso comprimido segurou
+         660+     2..55 e acima  610..654            coube — a rampa já estava larga
+
+     Duas faixas, e por dois motivos diferentes: 605..655 é a RAMPA (que interpola 4→8 px de
+     respiro entre 500 e 720 de altura e, com 45 px a mais no papel, deixou de caber no meio
+     dela), e 541..575 é o PISO COMPRIMIDO do bloco acima, que já estava no valor mínimo.
+
+     QUEM CEDE, e a régua é a mesma do commit que criou a nota: respiro, nunca palavra nem
+     alvo de dedo. O link continua onde está, com os 13 px de recheio que lhe dão os 44 px de
+     altura tocável — ele existe justamente para ser alcançado.
+
+     1. O RECHEIO DE BAIXO DO PAPEL VIRA ZERO, e isto não custa pixel de aparência: a âncora
+        JÁ tem 13 px de recheio próprio, então o texto continua a 13 px da borda do papel.
+        Era respiro contado duas vezes. Vale nas duas faixas (≤720).
+     2. A RAMPA DO RESPIRO GANHA UM DEGRAU MAIS BAIXO ENTRE 601 E 720, e continua rampa —
+        `clamp(4px, calc(3.33vh − 16px), 8px)` vale 4 px a 600 e 8 px a 720, que são
+        exatamente os dois vizinhos: emenda com o piso comprimido embaixo e com a rampa
+        original em cima, sem degrau em nenhuma das duas pontas. Foi por degrau que esta tela
+        teve uma faixa morta de 211 px por um ano (ver o bloco de 18/08 acima).
+     3. E O PISO COMPRIMIDO DESCE UM DEGRAU: respiro 4→3, recheio do papel 9→8, respiro da
+        tela 12→9, e a placa do título 8→6. São 26 px, e o papel ali tem 17 linhas.
+     ============================================================================ */
+  @media (orientation: portrait) and (max-height: 720px) {
+    #telaConfig #cfgInfo { padding-bottom: 0; }
+    #telaConfig #cfgPriv { margin-top: 0; }
+  }
+  @media (orientation: portrait) and (min-height: 601px) and (max-height: 720px) {
+    #telaConfig #cfgInfo { gap: clamp(4px, calc(3.33vh - 16px), 8px); }
+  }
+  @media (orientation: portrait) and (max-height: 600px) {
+    #telaConfig { padding-top: 9px; padding-bottom: 9px; }
+    #telaConfig .telaTit { margin-bottom: 6px; }
+    #telaConfig #cfgInfo { gap: 3px; padding-top: 8px; }
   }
 
   /* E O DEGRAU DO PIOR CASO DE ALTURA (640×360). Depois das colunas sobravam 23 px na
