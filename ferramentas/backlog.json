@@ -100,7 +100,7 @@
     },
     {
       "id": "privacidade-link-nos-ajustes",
-      "estado": "em-curso",
+      "estado": "concluido",
       "maquina": "windows-plantao-20260904T1343",
       "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
@@ -110,7 +110,8 @@
         "src/jogo.ts"
       ],
       "aceite": "A tela de AJUSTES do jogo (onde fica o interruptor de medição) ganha um link/texto apontando para /privacidade/ — mesmo padrão de link externo que outras telas do jogo já usam para a plataforma, se houver precedente. npm test verde.",
-      "detalhe": "Achado pelo dev-plataforma em 04/09 ao construir a página: o texto fonte (plataforma/privacidade-texto.md) pede link no rodapé E nos AJUSTES; só o rodapé das 5 páginas públicas foi feito (é território dele). AJUSTES é src/jogo.ts, território do dev-jogo."
+      "detalhe": "Achado pelo dev-plataforma em 04/09 ao construir a página: o texto fonte (plataforma/privacidade-texto.md) pede link no rodapé E nos AJUSTES; só o rodapé das 5 páginas públicas foi feito (é território dele). AJUSTES é src/jogo.ts, território do dev-jogo.",
+      "feito": "Feito em 04/09 (commit 566cd04, integrado c13392e). #cfgPriv em montarConfig() acrescenta nota de margem apontando para /privacidade/ na tela de AJUSTES, guardada pelos mesmos dois guardas de #fimPlataforma (checagem http e jogo-nao-esta-na-raiz), sem evento de medicao. Regressao de layout em retrato curto (360x640/320x568, titulo+VOLTAR cortados) achada pelo QA e corrigida em 2b7f214 (3 regras CSS max-height-gated). npm test verde. Item ficou em em-curso por esquecimento apos integrado — achado pela propria auditoria pedida pelo dono em 04/09."
     },
     {
       "id": "palmares-emenda-horizontal-rosto",
@@ -191,7 +192,7 @@
     },
     {
       "id": "privacidade-dois-consertos-pequenos",
-      "estado": "em-curso",
+      "estado": "concluido",
       "maquina": "windows-plantao-20260904T1343",
       "desde": "2026-09-04T13:43:17.000Z",
       "agente": "dev-jogo",
@@ -201,7 +202,8 @@
         "src/jogo.ts"
       ],
       "aceite": "As duas, cada uma com prova por medicao em navegador (nao so leitura de codigo), e npm test seguindo verde. (1) medirCarregar() em src/jogo.ts so deve sortear/gravar o identificador anonimo quando medirLigado for true — hoje sorteia e grava ANTES do if(!medirLigado) return, ao contrario do que o comentario de ferramentas/medir-secao.js afirma (nao vaza request nenhum, mas a frase e falsa e o dado fica gravado sem necessidade). Medir antes/depois com jogo_brasil_medir='nao' posto antes de qualquer script: hoje grava um id (ex. 96b444cf...); depois do conserto tem que dar null, igual ao glossario/porta. (2) o botao APAGAR MEU PROGRESSO tem UM unico removeItem (linha ~10469, o de jogo_brasil_retencao) e nao remove jogo_brasil_anon — art. 18 VI da LGPD pede que o caminho de exclusao realmente exclua. Acrescente o removeItem do identificador SEM tocar em jogo_brasil_medir (apagar a escolha de privacidade ao zerar a partida religaria a medicao sem avisar, que seria pior).",
-      "detalhe": "Achado pelo juridico em 03/09 escrevendo o texto de plataforma/privacidade-texto.md (item pagina-privacidade): ao evitar copiar frases de privacidade sem checar se sao verdade, ele mediu duas em navegador e as duas eram falsas. Territorio e so src/jogo.ts, entao entra na fila do escritor unico do monolito — pode esperar o item em voo agora (caminho-do-ceu) liberar."
+      "detalhe": "Achado pelo juridico em 03/09 escrevendo o texto de plataforma/privacidade-texto.md (item pagina-privacidade): ao evitar copiar frases de privacidade sem checar se sao verdade, ele mediu duas em navegador e as duas eram falsas. Territorio e so src/jogo.ts, entao entra na fila do escritor unico do monolito — pode esperar o item em voo agora (caminho-do-ceu) liberar.",
+      "feito": "Feito em 04/09 (commit 566cd04, integrado c13392e). (1) medirGarantirId(), extraida de medirCarregar(), so sorteia/grava jogo_brasil_anon quando medirLigado; chamada em medirCarregar() E no ultimo passo de medir() (cobre religar a medicao depois de desligada). (2) zerarJogo() agora remove jogo_brasil_anon (removeItem(CHAVE_ANON)) e deliberadamente NAO toca jogo_brasil_medir. Texto de plataforma/privacidade-texto.md (secoes R6/R7) sincronizado com o conserto em 04/09 (commit 01b8c4c, integrado ef9e02f, revisado por porteiro independente). npm test verde. Item ficou em em-curso por esquecimento apos integrado — achado pela propria auditoria pedida pelo dono em 04/09."
     },
     {
       "id": "mundo-3d-m3-forma-aldeias",
