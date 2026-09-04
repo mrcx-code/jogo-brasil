@@ -18,12 +18,12 @@ currículo específico — isso exigiria checagem que não foi feita).
 > Não é só um jogo. Tem quatro partes, e dá pra usar cada uma separada, conforme o que a aula
 > pedir:
 >
-> - **O Glossário** (matheusferreira.cc/glossario) — 181 verbetes com fonte, das palavras que a
->   história do Brasil usa. Serve como referência rápida ou leitura dirigida.
-> - **A História** (matheusferreira.cc/historia) — uma linha do tempo com 47 momentos, cada um
->   com a fonte à mão, dos povos que já estavam aqui até hoje.
-> - **De Onde Vem** (matheusferreira.cc/de-onde-vem) — as 61 fontes usadas em tudo isso, abertas
->   — útil se a turma quiser ir na fonte primária.
+> - **O Glossário** (matheusferreira.cc/glossario/?origem=escola) — 181 verbetes com fonte, das
+>   palavras que a história do Brasil usa. Serve como referência rápida ou leitura dirigida.
+> - **A História** (matheusferreira.cc/historia/?origem=escola) — uma linha do tempo com 47
+>   momentos, cada um com a fonte à mão, dos povos que já estavam aqui até hoje.
+> - **De Onde Vem** (matheusferreira.cc/de-onde-vem/?origem=escola) — as 61 fontes usadas em
+>   tudo isso, abertas — útil se a turma quiser ir na fonte primária.
 > - **O Jogo** (matheusferreira.cc/jogo/?origem=escola) — 13 capítulos em pixel art, uns 8 a 10
 >   minutos de jogo. Pode servir de gancho antes de uma aula, não como substituto dela.
 >
@@ -33,11 +33,11 @@ currículo específico — isso exigiria checagem que não foi feita).
 > número histórico que a plataforma afirma tem fonte citada.
 >
 > É gratuito e não pede cadastro para ler ou jogar. A plataforma conta quantas vezes cada
-> página abre, de forma anônima — sem nome, sem e-mail. **Quem entra pelo link do jogo aqui de
-> cima já entra com essa contagem DESLIGADA**, sem precisar mexer em nada — é o link de sala de
-> aula e vem assim de propósito. (A única exceção: se alguém já tiver ligado a contagem antes
-> naquele mesmo aparelho, essa escolha manual continua valendo.) Se quiser ligar, ou desligar
-> noutro aparelho, o interruptor
+> página abre, de forma anônima — sem nome, sem e-mail. **Quem entra por qualquer um dos quatro
+> links aqui de cima já entra com essa contagem DESLIGADA**, sem precisar mexer em nada — são os
+> links de sala de aula e vêm assim de propósito. (A única exceção: se alguém já tiver ligado a
+> contagem antes naquele mesmo aparelho, essa escolha manual continua valendo.) Se quiser ligar, ou
+> desligar noutro aparelho, o interruptor
 > **medição** fica no topo de qualquer página e na tela de AJUSTES do jogo, e vale pro aparelho
 > inteiro. Se usar em sala e quiser mandar um retorno (o que funcionou, o que travou), escreva
 > para brasilpatinhas@gmail.com.
@@ -47,11 +47,12 @@ currículo específica — isso precisaria de checagem que não foi feita nesta 
 quiser essa camada, é trabalho novo (do historiador, com fonte no NOTES.md), não suposição do
 growth.
 
-**Nota interna (04/09, item `medicao-desligada-caminho-escolar` do backlog):** o link do jogo
-nesta peça deixou de ser `matheusferreira.cc/jogo` e passou a ser
-**`matheusferreira.cc/jogo/?origem=escola`**. O parâmetro é o mecanismo inteiro: quem chega por
-ele nasce com a medição DESLIGADA, e a escolha fica gravada na mesma chave que a barra das
-páginas usa, então o glossário e a linha do tempo também nascem calados naquele aparelho. Isso
+**Nota interna (04/09, item `medicao-desligada-caminho-escolar`, e 04/09 item
+`paginas-plataforma-nao-leem-origem-escola`):** os QUATRO links desta peça ganharam
+`?origem=escola` — o jogo primeiro, depois glossário/história/de-onde-vem quando o mecanismo
+foi estendido às páginas da plataforma. O parâmetro é o mecanismo inteiro em cada um: quem
+chega por ele nasce com a medição DESLIGADA, e a escolha fica gravada na mesma chave que todas
+as páginas leem, então qualquer um dos quatro cala os outros três no mesmo aparelho. Isso
 cumpre a decisão do dono de 03/09 sobre o ECA Digital (ressalva R1 de
 `plataforma/privacidade-texto.md`, com a tabela do que foi medido). Duas coisas a saber antes de
 mandar esta peça:

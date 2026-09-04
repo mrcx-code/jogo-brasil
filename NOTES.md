@@ -13801,3 +13801,55 @@ jogo pratica em seis capítulos sugeriria dizer também; contra isso, (a) acresc
 capítulo ("Ela é agente comunitária de saúde…" / "Quem segura a linha é a brigadista…"), e pendurar
 recado de arte depois dela estraga o fecho; (c) sete capítulos já são silenciosos. **Fica para
 decisão de quem prioriza**, não para uma sessão de correção resolver de passagem.
+## 04/09 (dev-plataforma) — o caminho escolar passa a valer TAMBEM nas paginas da plataforma
+
+**O buraco.** O dev-jogo fechou em 04/09 o item do ECA Digital (Lei no 15.211/2025, em vigor
+desde 17/03/2026) com a decisao do dono de 03/09: `?origem=escola` no endereco e o jogo nasce com
+a medicao anonima desligada, gravando a escolha protetiva na chave compartilhada
+`jogo_brasil_medir`. Ao fechar, ele levantou o que a mudanca **nao** cobria — e o levantamento
+estava certo: como a chave e a mesma, o glossario calava **por tabela**, mas so depois que a
+pessoa passasse pelo jogo. Quem recebe do professor um link direto para o GLOSSARIO e nunca abre
+o jogo continuava sendo medido, porque **nenhuma das paginas lia o parametro por si mesma**.
+
+**O conserto, e ele e replicacao e nao reinvencao.** `ferramentas/medir-secao.js` ganhou
+`ORIGEM_BUSCA`/`ORIGEM_ESCOLA` e uma funcao emitida `fiacaoEscolha()`, com a MESMA logica do
+`medirCarregar()` do `src/jogo.ts`: normaliza a CHAVE do parametro (case-insensitive — o gap que a
+revisao adversarial achou no jogo no mesmo dia) e o VALOR (aparado, minuscula), e so grava quando
+**ninguem decidiu ainda** (so `"sim"` e `"nao"` contam como decisao; o resto e `localStorage`
+adulterado e nao vale). Ela e usada pelas DUAS familias de script do modulo — as cinco secoes e a
+pagina de privacidade, que tem o interruptor sem o evento. Duas copias do bloco divergiriam em
+silencio, e a pagina que ficasse para tras seria justamente a que continua medindo a turma.
+
+**Alcance: SEIS paginas**, nao as tres do titulo do item — A HISTORIA, GLOSSARIO, DE ONDE VEM,
+O TERRITORIO, a PORTA e /privacidade/. Chegar na politica de privacidade pelo link do professor e
+ver o interruptor dizendo "ligada" seria a unica pagina do site mentindo sobre a propria medicao.
+
+**O portao novo: `test/qa-eca-escolar-paginas.js` — 41 asseroes, exit 0, 3 defeitos vistos
+mordendo.** Ele e para as paginas o que o `qa-eca-escolar.js` e para o jogo, e cobre os mesmos
+casos de borda daquele mais dois: `?origem=jornal&origem=escola` (repetido ao contrario) e
+`?origens=escola` (chave quase certa). Medido, nas seis paginas: `?origem=escola` da **0 pedido**,
+`jogo_brasil_medir="nao"` gravado, `jogo_brasil_anon` **nem sorteado** e o botao abrindo
+"desligada"; endereco comum e `?utm_source=zap&origem=jornal` dao **1 pedido** e **nada gravado**
+(a protecao nao vazou para o publico geral); decisao manual previa (`"sim"`) **vence** o padrao de
+origem; e quem desligou a mao e depois chega pela escola continua desligado. Os tres controles:
+bloco escolar removido, CHAVE lida sem normalizar, e decisao previa sobrescrita pela origem — os
+tres fazem o portao sair 1. Ele entrou no `npm test`, e uma asserao dele existe so por causa de um
+modo de falha conhecido: a pagina no disco e **saida**, entao ele compara o que esta la com o que
+o modulo emite AGORA — sem isso, mexer no `medir-secao.js` e esquecer os geradores deixaria o
+portao medindo as paginas de ontem, verde e falso.
+
+**Portoes:** `npm test` exit **0** · `node test/encaixe.js` exit **0** · `medir-paginas` **0**
+(187) · `csp-paginas` **0** (9 paginas) · `qa-privacidade-muda` **0** · `medir-porta-secao` **0**
+(4/4). `src/` intocado (diff vazio).
+
+**Dois achados de passagem, nenhum causado por esta mudanca:**
+1. **O `index.html` da raiz estava VELHO em relacao ao `src/jogo.ts`.** O primeiro byte diferente
+   do rebuild e exatamente a normalizacao da CHAVE do `chegouPelaEscola()` — a versao commitada
+   trazia ainda o `URLSearchParams(...).get(ORIGEM_BUSCA)`, que e a que **nao** protege
+   `?ORIGEM=escola`. Ou seja: a correcao do gap adversarial estava na fonte e nao na saida. O
+   rebuild desta rodada a levou junto.
+2. **`territorio/compartilhar.jpg` NAO reproduz.** Duas execucoes seguidas de
+   `gerar-territorio.js`, sem tocar em nada: 89.814 -> 89.809 -> 89.811 bytes, sha1 diferente nas
+   duas. As outras tres secoes reproduzem byte a byte (verificado na mesma rodada). O arquivo foi
+   restaurado do HEAD para nao entrar ruido binario no commit, e isto fica registrado como item
+   novo, nao como parte desta entrega.

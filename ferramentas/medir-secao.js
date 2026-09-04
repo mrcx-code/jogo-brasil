@@ -52,6 +52,32 @@ const MEDIDA_CHAVE = 'phc_x7w7oQAVA6JJAXkrdB3Wo3oCnNx9z5C2NcvS8jmUjJpG';
 const CHAVE_MEDIR = 'jogo_brasil_medir';
 const CHAVE_ANON = 'jogo_brasil_anon';
 
+// ===== O CAMINHO ESCOLAR TAMBÉM NASCE DESLIGADO AQUI (04/09) =====
+//
+// O JOGO JÁ FAZIA, AS PÁGINAS NÃO. A Lei nº 15.211/2025 (ECA Digital) manda serviço de acesso
+// provável por criança nascer na configuração mais protetiva, e o dono decidiu em 03/09 o
+// caminho do meio: desligada por padrão SÓ quando o contexto é escolar — o link divulgado a
+// professores —, ligada no resto. O `src/jogo.ts` passou a ler `?origem=escola` e a gravar a
+// escolha protetiva na chave compartilhada; e como a chave é a mesma, o glossário CALAVA de
+// tabela — mas só depois que a pessoa passasse pelo jogo. Quem recebe do professor um link
+// direto para o GLOSSÁRIO e nunca abre o jogo continuava sendo medido, porque nenhuma das
+// páginas lia o parâmetro por si mesma. Este bloco fecha isso.
+//
+// A LÓGICA É A MESMA, DE PROPÓSITO, e não uma segunda versão dela: normaliza a CHAVE do
+// parâmetro (case-insensitive — `?ORIGEM=escola` de autocapitalização de teclado tem de
+// proteger igual) e o VALOR (aparado e em minúscula), e só grava quando NINGUÉM DECIDIU AINDA.
+// Só `"sim"` e `"nao"` contam como decisão gravada; qualquer outro conteúdo (chave ausente,
+// string vazia, `localStorage` adulterado à mão) é "ninguém decidiu", e é só nesse caso que o
+// padrão por origem tem voz. É isso que impede o link escolar de virar jaula: um toque no
+// interruptor, em qualquer sentido, ganha de toda chegada futura, com ou sem parâmetro.
+//
+// O PARÂMETRO NÃO VIRA DADO. Ele não entra em propriedade de evento nenhum, não é mandado a
+// lugar nenhum e não sai deste aparelho — é lido uma vez, vira uma escolha gravada, e acabou.
+// Nada de impressão digital, de palpite por horário ou por rede: criar dado de criança para
+// decidir se se pode medir criança é o contrário do que a lei pede.
+const ORIGEM_BUSCA = 'origem';
+const ORIGEM_ESCOLA = 'escola';
+
 // O ID DO INTERRUPTOR MORA AQUI, e o chrome da plataforma o importa daqui. O botão passou a
 // viver na BARRA DO TOPO (23/08) e a fiação continua sendo deste módulo — duas cópias da
 // string seriam duas formas de o botão existir sem ninguém o ligar em nada.
@@ -144,6 +170,57 @@ function estilo() {
   return '  .med { margin:.9rem 0 0; font-size:.82rem; line-height:1.55; }\n';
 }
 
+// ------------------------------------------------- a LEITURA DA ESCOLHA, escrita uma vez
+//
+// Ela define `var ligado` para os dois scripts abaixo — o das cinco seções e o da página de
+// privacidade — porque as duas páginas fazem a MESMA promessa e não podem responder diferente
+// ao mesmo endereço. Chegar em `/privacidade/` pelo link do professor tem de mostrar o
+// interruptor já desligado, senão a página que existe para dizer a verdade sobre a medição
+// seria a única a mentir sobre ela.
+//
+// ES5 e sem dependência, como todo este arquivo: `URLSearchParams.forEach` é API de navegador,
+// não sintaxe nova, e se ela não existir o `try` devolve `false` — errar para o lado de não
+// proteger é ruim, mas errar para o lado de quebrar a página seria pior, e o jogo faz igual.
+function fiacaoEscolha() {
+  return ''
++ '  // A CHAVE GUARDA UMA DECISÃO, E DECISÃO NÃO SE SOBRESCREVE. Só "sim" e "nao" contam como\n'
++ '  // decisão gravada — chave ausente, string vazia ou localStorage adulterado à mão é\n'
++ '  // "ninguém decidiu ainda", e é só nesse caso que o padrão por origem tem voz. É isto que\n'
++ '  // impede o link escolar de virar jaula: um toque no interruptor ganha de toda chegada\n'
++ '  // futura, com ou sem parâmetro. Mesma leitura do `medirCarregar()` do src/jogo.ts.\n'
++ '  var ligado = true;\n'
++ '  function chegouPelaEscola() {\n'
++ '    var achou = false;\n'
++ '    try {\n'
++ '      if (!location.search) return false;\n'
++ '      // A CHAVE também é lida sem distinguir maiúscula: `?ORIGEM=escola` (autocapitalização\n'
++ '      // de teclado, ou colada de um app que capitaliza parâmetro) protege igual a `?origem=`.\n'
++ '      new URLSearchParams(location.search).forEach(function (v, k) {\n'
++ '        if (String(k).toLowerCase() === ' + JSON.stringify(ORIGEM_BUSCA)
++ ' && String(v).trim().toLowerCase() === ' + JSON.stringify(ORIGEM_ESCOLA) + ') achou = true;\n'
++ '      });\n'
++ '    } catch (e) { return false; }\n'
++ '    return achou;\n'
++ '  }\n'
++ '  (function () {\n'
++ '    var g = null;\n'
++ '    try { g = localStorage.getItem(K_MEDIR); } catch (e) { g = null; }\n'
++ '    var decidido = (g === "sim" || g === "nao") ? g : "";\n'
++ '    if (!decidido && chegouPelaEscola()) {\n'
++ '      // GRAVA, e não é detalhe: sem gravar, a proteção duraria só enquanto o parâmetro\n'
++ '      // estivesse no endereço — a mesma criança abrindo pelo favorito amanhã voltaria a ser\n'
++ '      // medida sem nunca ter escolhido isso. E como a chave é a MESMA do jogo, gravar aqui\n'
++ '      // também cala o jogo e as outras seções.\n'
++ '      try { localStorage.setItem(K_MEDIR, "nao"); } catch (e) {}\n'
++ '      ligado = false;\n'
++ '    } else {\n'
++ '      // Só a string exata "nao" desliga: um localStorage adulterado que traga outra coisa\n'
++ '      // erra para o lado de respeitar o que a página MOSTRA, que é o que a pessoa leu.\n'
++ '      ligado = decidido !== "nao";\n'
++ '    }\n'
++ '  })();\n';
+}
+
 // ---------------------------------------------------------- a FIAÇÃO do botão, escrita uma vez
 //
 // Ela saiu de dentro do `script()` em 04/09, quando a página `/privacidade/` passou a precisar do
@@ -190,8 +267,7 @@ function scriptInterruptor() {
 + '(function () {\n'
 + '  // A MESMA chave do jogo e das cinco seções: uma pessoa, uma decisão, um site.\n'
 + '  var K_MEDIR = ' + JSON.stringify(CHAVE_MEDIR) + ';\n'
-+ '  var ligado = true;\n'
-+ '  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }\n'
++ fiacaoEscolha()
 + fiacaoBotao()
 + '})();\n'
 + '</' + 'script>';
@@ -215,11 +291,8 @@ function script(secao) {
 + '  // O padrão é LIGADO, e quem diz isso na cara é o INTERRUPTOR DA BARRA: ele nasce\n'
 + '  // com "ligada" escrito nele. O rodapé deixou de contar o estado em 23/08, quando o\n'
 + '  // botão subiu para a barra — lá ele diz onde o controle está, não como ele está.\n'
-+ '  // Só a string exata "nao" desliga: um\n'
-+ '  // localStorage adulterado que traga outra coisa erra para o lado de respeitar o que a\n'
-+ '  // página MOSTRA, que é o que a pessoa leu.\n'
-+ '  var ligado = true;\n'
-+ '  try { ligado = localStorage.getItem(K_MEDIR) !== "nao"; } catch (e) { ligado = true; }\n'
++ '  // A ÚNICA exceção ao padrão ligado é o caminho escolar (`?origem=escola`), abaixo.\n'
++ fiacaoEscolha()
 + '  function sorteado() {\n'
 + '    var b = new Uint8Array(16), s = "", i;\n'
 + '    try { crypto.getRandomValues(b); } catch (e) {\n'
@@ -278,5 +351,6 @@ function script(secao) {
 module.exports = {
   MEDIDA_HOST, ENDERECO_MEDIDA, MEDIDA_CHAVE,
   CHAVE_MEDIR, CHAVE_ANON, ID_BOTAO, EVENTO, SECOES, PERMITIDAS, TETO,
+  ORIGEM_BUSCA, ORIGEM_ESCOLA,
   rodape, estilo, botaoHtml, script, scriptInterruptor
 };
