@@ -20,6 +20,23 @@
 // inteiro tem de ficar muito acima do limiar; se alguém devolveu o búzio a qualquer bloco, o
 // endereço aparece aqui com distância ~0.
 //
+// ── 04/09, segunda passada: ESPELHO NA DISTÂNCIA, e o que ele custa ──────────────────────
+// Este arquivo é LISTA NEGRA por construção — fora do lugar de drop não existe tabela de arte
+// aprovada, então aqui não há a lista branca que o `test/salvador-drop-sem-ritual.js` passou a
+// usar. Sobra medir a figura contra o ritual, e a fuga medida é banal: uma figura dista **47,8**
+// do próprio reflexo horizontal. Então a distância passou a ser `min(d(a,b), d(a,espelho(b)))`.
+//
+// **O que isso compra, medido, e é POUCO:** de treze disfarces do búzios, o espelho compra
+// dois (e os dois são a mesma transformação). Continuam passando: espelho vertical 52,0 ·
+// rodado 180° 52,2 · rodado 90° 53,9 · rodado 8° 33,7 · matiz +40° 21,9 · **brilho ×1,25 =
+// 14,0** · moldura +12% 28,8. A mais barata nem é geometria. Este instrumento NÃO fecha a
+// classe; ele fecha um caso e imprime o tamanho do que sobra.
+//
+// **O que isso custa, medido nas 518 imagens:** o piso (a menor distância encontrada até um
+// ritual em todo o repositório) cai de 29,9 para o número que este arquivo imprime nas DUAS
+// colunas. Enquanto a coluna do espelho ficar bem acima do limiar, o espelho não fabricou
+// falso positivo nenhum. É por isso que ele imprime as duas e não só a que decide.
+//
 //   node test/qa-ritual-varredura.js
 //   QA_LIMIAR=12 node test/qa-ritual-varredura.js
 
@@ -100,14 +117,19 @@ function uris() {
         let v = null;
         try {
           const im = new Image(); im.src = it.uri; await im.decode();
-          const c = document.createElement('canvas'); c.width = 16; c.height = 16;
-          const x = c.getContext('2d');
-          x.fillStyle = '#808080'; x.fillRect(0, 0, 16, 16);
-          x.imageSmoothingEnabled = true;
-          x.drawImage(im, 0, 0, 16, 16);
-          const d = x.getImageData(0, 0, 16, 16).data;
-          v = [];
-          for (let i = 0; i < d.length; i += 4) { v.push(d[i], d[i + 1], d[i + 2]); }
+          const ass = function (esp) {
+            const c = document.createElement('canvas'); c.width = 16; c.height = 16;
+            const x = c.getContext('2d');
+            x.fillStyle = '#808080'; x.fillRect(0, 0, 16, 16);
+            x.imageSmoothingEnabled = true;
+            if (esp) { x.translate(16, 0); x.scale(-1, 1); }
+            x.drawImage(im, 0, 0, 16, 16);
+            const d = x.getImageData(0, 0, 16, 16).data;
+            const r = [];
+            for (let i = 0; i < d.length; i += 4) { r.push(d[i], d[i + 1], d[i + 2]); }
+            return r;
+          };
+          v = { n: ass(false), e: ass(true) };
         } catch (e) { v = null; }
         out.push(v);
       }
@@ -117,31 +139,57 @@ function uris() {
   }
   await nav.close();
 
-  function dist(a, b) {
+  function bruta(a, b) {
     if (!a || !b) return Infinity;
     let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - b[i]);
     return s / a.length;
   }
+  // simples: figura contra figura. espelho: cega ao reflexo horizontal — é a que DECIDE.
+  const dSimples = (a, b) => (a && b ? bruta(a.n, b.n) : Infinity);
+  const dEspelho = (a, b) => (a && b ? Math.min(bruta(a.n, b.n), bruta(a.n, b.e)) : Infinity);
 
   const naoDecodificou = alvos.filter((a, i) => !ass[i]);
   ok(naoDecodificou.length === 0, naoDecodificou.length + ' imagem(ns) não decodificaram (uma que não decodifica é uma que não foi medida)');
 
-  console.log('\nmenor distância do REPOSITÓRIO INTEIRO até cada arte ritual:');
+  console.log('\nmenor distância do REPOSITÓRIO INTEIRO até cada arte ritual');
+  console.log('(duas colunas: SIMPLES / com ESPELHO — a segunda decide; a primeira mostra o que o espelho custou)');
+  let pisoS = Infinity, pisoE = Infinity;
   refs.forEach(function (r, ri) {
     const linhas = [];
     for (let i = refs.length; i < alvos.length; i++) {
-      linhas.push({ d: dist(ass[i], ass[ri]), onde: alvos[i].nome, uri: alvos[i].uri });
+      linhas.push({ s: dSimples(ass[i], ass[ri]), d: dEspelho(ass[i], ass[ri]), onde: alvos[i].nome, uri: alvos[i].uri });
     }
     linhas.sort((a, b) => a.d - b.d);
     console.log('  ' + RITUAL[r.nome] + ' (' + r.nome + '):');
     linhas.slice(0, 3).forEach(function (l, k) {
       const outros = vistos.get(l.uri) || [];
-      console.log('     ' + (k + 1) + '. ' + l.d.toFixed(1) + '  ' + l.onde +
+      console.log('     ' + (k + 1) + '. ' + l.s.toFixed(1).padStart(6) + ' / ' + l.d.toFixed(1).padStart(6) + '  ' + l.onde +
         (outros.length > 1 ? '  [+' + (outros.length - 1) + ' endereço(s) com a mesma arte]' : ''));
     });
+    pisoS = Math.min(pisoS, linhas.reduce((m, l) => Math.min(m, l.s), Infinity));
+    pisoE = Math.min(pisoE, linhas[0].d);
     ok(linhas[0].d > LIMIAR, 'nenhuma arte carregada pelo jogo é ' + RITUAL[r.nome] +
-      ' (mínimo ' + linhas[0].d.toFixed(1) + ' > ' + LIMIAR + ', em ' + linhas[0].onde + ')');
+      ' nem o reflexo dele (mínimo ' + linhas[0].d.toFixed(1) + ' > ' + LIMIAR + ', em ' + linhas[0].onde + ')');
   });
+
+  console.log('\no que o espelho custou em margem, nas ' + lista.length + ' imagens:');
+  console.log('  piso simples ' + pisoS.toFixed(1) + '  →  piso com espelho ' + pisoE.toFixed(1) +
+    '   (perdeu ' + (pisoS - pisoE).toFixed(1) + '; limiar ' + LIMIAR + ')');
+  // Esta linha só faz sentido quando NÃO há ritual no repositório: aí a queda do piso mede o
+  // preço do espelho em arte legítima. Com um ritual dentro, a queda é o achado, não o custo —
+  // e afirmar "falso positivo" sobre um positivo verdadeiro seria o portão mentindo na saída.
+  if (falhas === 0) {
+    ok(pisoE > LIMIAR, 'o espelho não fabricou falso positivo: a arte legítima mais próxima de um ritual ' +
+      'continua a ' + pisoE.toFixed(1) + ' do limiar ' + LIMIAR + ' (folga ' + (pisoE / LIMIAR).toFixed(1) + '×)');
+  } else {
+    console.log('  (a queda acima é o RITUAL encontrado, não o custo do espelho — o custo em arte');
+    console.log('   legítima só se lê quando a varredura está verde)');
+  }
+  console.log('\nO QUE ESTA VARREDURA NÃO PEGA, e está medido (test/qa-ritual-disfarce.js):');
+  console.log('  espelho vertical 52,0 · rodado 180° 52,2 · rodado 90° 53,9 · rodado 8° 33,7');
+  console.log('  matiz +40° 21,9 · BRILHO ×1,25 = 14,0 · moldura +12% 28,8   — todos acima de ' + LIMIAR + '.');
+  console.log('  Em lugar de DROP isso está fechado por LISTA BRANCA (test/salvador-drop-sem-ritual.js).');
+  console.log('  Em MOB_B64/ICONE_B64/FRENTE_B64/GENTE_EP_B64 continua aberto: não há lista branca ali.');
 
   console.log(falhas ? '\n' + falhas + ' FALHA(S)' : '\ntudo verde');
   process.exit(falhas ? 1 : 0);
