@@ -2582,7 +2582,35 @@ const EPOCAS = [
       "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5 — a Emenda Dante de Oliveira —, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
       "Em 25 de abril de 1984 ela foi a voto: 298 sim, 65 não, 3 abstenções. Faltaram 22 para o quórum, e a Câmara registrou o resultado como rejeição. A proposta nem chegou a ser apreciada pelo Senado.",
       "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra.",
-      "A pintura desta praça e o que atravessa a tela ainda são emprestados do capítulo anterior — a rua continua a rua, e a arte daqui não chegou. Os três contadores lá em cima são os mesmos de sempre."
+      // METADE DESTA FALA ERA FALSA, E SÓ METADE (04/09, historiadora). Ela dizia que "a pintura
+      // E o que atravessa a tela ainda são emprestados" e que "a arte daqui não chegou". Medido
+      // nesta árvore, item por item, e a conclusão é que os dois pedaços têm respostas
+      // diferentes — por isso a forma pronta das outras cinco NÃO serve aqui:
+      //   · a PINTURA **continua emprestada**, e isso ficou: `arte: [10]`, e
+      //     `PACK_DA_CENA[10]` é "naodito" — O QUE NÃO PODIA SER DITO, que é literalmente o
+      //     capítulo anterior em `EPOCAS`. A metade verdadeira da frase antiga.
+      //   · QUEM ATRAVESSA A TELA **é daqui**: `GENTE_EP_B64.praca` são 3 fileiras × 8 = 24
+      //     quadros autorais, e `praca` está em `CAPS_VERBO`, então `pessoaNaRua()` vale true e
+      //     `mobFrame()` usa a folha própria. "A arte daqui não chegou" era falso.
+      //   · MAS ELA NÃO CHEGOU INTEIRA, e é isto que impede de copiar a frase das outras cinco:
+      //     3 dos 24 quadros são **pixel de espera 1×1** (fileira 0, quadro 7; fileira 2,
+      //     quadros 0 e 7 — decodificados aqui: 1x1 VP8X contra 149x258 dos reais). Por
+      //     `esperando(im)` (`naturalWidth <= 1`), `mobFrame()` cai no objeto nesses três: a
+      //     pedestre vira barril/saco em 1 de 8 passos de uma fileira e 2 de 8 de outra.
+      //     Escrever "já foi desenhado para este capítulo" e parar aí seria a terceira frase
+      //     falsa da série — a que se gaba. Por isso a fala diz "mas não inteiro", sem número:
+      //     número aqui é frágil e vence no dia em que os três quadros forem preenchidos.
+      //   · O QUE FICA NO CHÃO continua emprestado: `dropDe()` segue `capArte()` = `arteCap` 3,
+      //     e `DONO_DO_BLOCO[3]` é "hoje" — o drop é o de AINDA AQUI.
+      // ⚠ QUEM FECHAR O ITEM `quadros-de-gente-vazios-na-fonte` VOLTA AQUI: preenchidos os três
+      //    quadros, "mas não inteiro" passa a ser a parte falsa, e a fala vira a das outras cinco.
+      // O TETO DE 260 CARACTERES É REAL E ME PEGOU: a primeira redação saiu com 289 e o
+      // `encaixe.js` bloco 15 reprovou por exit 1 — a caixa revela letra a letra, e o teto
+      // existe para ninguém descobrir isso no telefone de alguém. Esta tem 258. O que caiu para
+      // caber foi "desta praça" e "a rua continua a rua"; o que NÃO podia cair é a fonte do
+      // empréstimo do chão, porque o drop vem de AINDA AQUI e não do capítulo anterior — juntar
+      // os dois num "também" seria trocar uma frase falsa por outra, menor.
+      "A pintura ainda é emprestada do capítulo anterior, e o que fica no chão vem de outro. Quem atravessa a tela já foi desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a praça armada segura as duas primeiras: a primeira a nomeia, a segunda é ela enchendo.
     // A praça vazia da manhã seguinte entra na fala da derrota, e é a imagem inteira do
@@ -2616,6 +2644,18 @@ const EPOCAS = [
     // A pintura continua emprestada (a peça de chão que chegou não é chão — PENDENTES §12);
     // o TEXTO não espera a tinta: capítulo escrito com pintura emprestada é honesto, o
     // contrário — tinta própria sem texto — é vitrine.
+    // LIDO EM 04/09 (historiadora) JUNTO COM A PRAÇA, e a conclusão é que este capítulo NÃO é
+    // da mesma família: **a abertura daqui não afirma nada sobre a arte.** As cinco falas
+    // consertadas em 04/09 e a de A PRAÇA existem porque uma frase dizia "a arte daqui não
+    // chegou"; aqui não há frase nenhuma a consertar, e silêncio não é afirmação falsa. O que
+    // FOI medido, para a próxima sessão não remedir: a pintura é emprestada (`arte: [10]`,
+    // `PACK_DA_CENA[10]` = "naodito"); quem atravessa a tela é próprio (`GENTE_EP_B64.segurou`,
+    // 3×8 = 24, e `segurou` está em `CAPS_VERBO`), com **1 quadro vazio** — fileira 2, quadro 7,
+    // e ele nem é imagem: o data-URI é `data:,`, seis caracteres, contra 10.500+ dos reais.
+    // O drop continua o de AINDA AQUI (`arteCap` 3). NÃO se acrescentou linha de arte à
+    // abertura: acrescentar é ESCREVER, não corrigir, e a quinta fala daqui fecha no verbo do
+    // capítulo — pendurar recado de arte depois dela estraga o fecho para resolver um problema
+    // que não existe. Fica como dúvida registrada no NOTES.md, não como decisão tomada sozinha.
     cenas: 1, lugar: "segurou", arte: [10],
     abertura: [
       "Isto é uma rua de bairro brasileiro em 2020. Ela está mais vazia do que qualquer rua que você atravessou até aqui — e o trabalho que importa é de porta em porta.",
@@ -2665,6 +2705,12 @@ const EPOCAS = [
     // sobre QUEM ATRAVESSA A TELA — que é gente desde 18/08 (brigadista, apanhadora de
     // sempre-vivas, vaqueiro) e continua sendo por decisão do dono em 04/09. O que mudou em
     // 04/09 é que ninguém deixa mais nada no chão aqui: ver `capSemColeta()`.
+    // LIDO EM 04/09 (historiadora) JUNTO COM A PRAÇA: **a abertura daqui também não afirma nada
+    // sobre a arte**, então não há metade falsa a reescrever — mesma leitura de O QUE SEGUROU.
+    // Medido, para não se remedir: a pintura é emprestada (`arte: [10]`, `PACK_DA_CENA[10]` =
+    // "naodito"); quem atravessa a tela é próprio e é o ÚNICO dos três com a folha inteira —
+    // `GENTE_EP_B64.aceiro`, 3×8 = 24 quadros, **zero vazios** (contra 3 em A PRAÇA e 1 em O QUE
+    // SEGUROU). E o drop nem entra na conta: aqui não fica nada no chão, por `capSemColeta()`.
     // ⚠ PERECÍVEL: é o primeiro capítulo cujo dado sai TODO ANO. Cada fala carrega a data
     // dentro da frase; a linha de manutenção anual está no NOTES.md deste commit.
     // A identidade da brigadista segue a recomendação aprovada: DO LUGAR, sem se rotular —

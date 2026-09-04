@@ -13735,3 +13735,69 @@ ninguem.
 
 **Fecho da rodada:** backlog **28 livres · 97 concluidos · 8 do dono · 1 em-curso** (da outra
 maquina) · **0 travados no meu nome**. Dois funis, os dois verdes por exit code real.
+
+---
+
+## 04/09 · A PRAÇA: metade da fala era falsa, e só metade (historiadora, worktree `agent-ab96d91e78734fde9`)
+
+Item `falas-arte-praca-segurou-aceiro`. As cinco falas consertadas mais cedo hoje diziam "a arte
+deste capítulo não chegou" com a arte já no arquivo. **A PRAÇA é o sexto caso da família e é o
+único que exigia leitura caso a caso**, porque a frase dela juntava duas afirmações com respostas
+opostas — e porque a folha de gente daqui não está inteira. Aplicar a forma pronta das cinco teria
+escrito a frase que se gaba.
+
+### O que foi medido nesta árvore (não suposto)
+
+`GENTE_EP_B64` decodificado quadro a quadro (base64 → cabeçalho VP8X), 13 chaves, 3 fileiras × 8:
+
+| capítulo | pintura | quem atravessa | quadros vazios | o que fica no chão |
+|---|---|---|---|---|
+| **A PRAÇA** | emprestada — `arte: [10]`, `PACK_DA_CENA[10]` = "naodito", o capítulo **anterior** | própria, `GENTE_EP_B64.praca`, 24 quadros | **3** (fileira 0 q7; fileira 2 q0 e q7) — todos **1×1 VP8X** contra 149×258 dos reais | emprestado (`arteCap` 3 → `DONO_DO_BLOCO[3]` = "hoje") |
+| **O QUE SEGUROU** | emprestada — a mesma `[10]` | própria, 24 quadros | **1** (fileira 2 q7) — nem é imagem: o data-URI é `data:,`, **6 caracteres** | emprestado |
+| **O ACEIRO** | emprestada — a mesma `[10]` | própria, 24 quadros | **0** — o único dos três com a folha inteira | nada fica: `capSemColeta()` |
+
+Os três estão em `CAPS_VERBO` (linha 2855), então `pessoaNaRua()` vale true e `mobFrame()` usa a
+folha própria. Nos quadros vazios ela **não** usa: `esperando(im)` é `naturalWidth <= 1`, e o 1×1
+cai nessa régua — o motor volta ao objeto. Efeito na tela em A PRAÇA: a pedestre vira barril/saco
+em **1 de 8 passos** de uma fileira e **2 de 8** de outra. (Bate com o achado G2 do QA, item
+`quadros-de-gente-vazios-na-fonte`, medido por outro caminho; as duas medições fecham.)
+
+### O que mudou no texto
+
+**Só A PRAÇA.** A frase antiga afirmava duas coisas e errava uma e meia:
+
+- *"A pintura desta praça … ainda [é] emprestada do capítulo anterior"* — **verdade, e ficou.**
+- *"…e o que atravessa a tela [ainda é emprestado]"* — **falso.**
+- *"a arte daqui não chegou"* — **falso**, mas o oposto ("chegou") também seria: 3 de 24 quadros
+  são pixel de espera.
+
+A fala nova não faz afirmação numérica (número aqui vence no dia em que os três quadros forem
+preenchidos) e não promete completude: diz que quem atravessa a tela **já foi desenhado para cá,
+mas não inteiro — em alguns passos entra um objeto no lugar da pessoa**, e mantém em voz alta a
+pintura e o drop emprestados. Um ⚠ no código manda quem preencher os três quadros voltar à fala.
+
+**E aqui o portão me pegou, o que vale mais registrado que escondido.** Eu tinha medido o teto de
+comprimento na fonte por regex e concluído **291**; a primeira redação saiu com **289**, "dentro do
+teto". O `encaixe.js` bloco 15 reprovou por **exit 1**: o teto é **260**, escrito no teste, porque a
+caixa revela letra a letra e uma fala de 380 caracteres levou 25 s para acabar de aparecer em 10/08.
+Meu 291 vinha de linhas que **não estão em `EPOCAS`** (o bloco da TRAVESSIA entrou na varredura) — o
+mesmo defeito que o QA de hoje descreveu por outro caminho: *instrumento não medido contra si mesmo
+não mede nada*. A fala final tem **258**. O que caiu para caber foi "desta praça" e "a rua continua a
+rua"; o que **não** podia cair era a origem do empréstimo do chão — o drop vem de AINDA AQUI, não do
+capítulo anterior, e juntar os dois num "também" trocaria uma frase falsa por outra, menor.
+
+**O QUE SEGUROU e O ACEIRO: nada a reescrever, e isso é resultado, não desistência.** A abertura
+dos dois **não afirma nada sobre a arte** — o defeito da família é uma frase falsa, e aqui não há
+frase. Ficaram só as medições em comentário, para a próxima sessão não remedir. Convenção
+conferida: das treze aberturas, só **seis** carregam a linha de arte (O CAIS, JABAQUARA, A PEQUENA
+ÁFRICA, AS PORTAS, O QUE NÃO PODIA SER DITO, A PRAÇA); o silêncio das outras sete é o normal do
+jogo, não um buraco.
+
+### Dúvida que fica (não decidi sozinha)
+
+O QUE SEGUROU e O ACEIRO **vestem pintura emprestada e não dizem**. A honestidade de arte que o
+jogo pratica em seis capítulos sugeriria dizer também; contra isso, (a) acrescentar linha é
+**escrever**, não corrigir, e o item era de correção; (b) a quinta fala dos dois fecha no verbo do
+capítulo ("Ela é agente comunitária de saúde…" / "Quem segura a linha é a brigadista…"), e pendurar
+recado de arte depois dela estraga o fecho; (c) sete capítulos já são silenciosos. **Fica para
+decisão de quem prioriza**, não para uma sessão de correção resolver de passagem.
