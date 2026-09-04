@@ -37,6 +37,27 @@ function git(args, opts) {
   return { code: r.status, out: (r.stdout || '') + (r.stderr || '') };
 }
 
+// ---- o clone raso avisa de si mesmo (04/09) ----
+// AVISO, nunca recusa: o funil roda bem em clone raso, e travá-lo aqui pararia a rodada por um
+// problema que ainda não aconteceu. O que ele previne é o passo SEGUINTE. O PLANTAO.md §4 manda
+// `pull --ff-only` logo depois do funil, e em clone raso esse comando sai
+// `fatal: Not possible to fast-forward` sobre uma main que é fast-forward puro — junto com
+// `merge-base` vazio e uma contagem de divergência inventada (medido: 161/145 onde a verdade era
+// 0/210). Os três sinais mentem na mesma direção e leem como "alguém fez force-push". O aviso
+// existe para que a próxima linha do terminal já traga o conserto, em vez de o diagnóstico
+// começar do zero no meio de uma integração. PLANTAO.md §0.4 e §7.
+function avisaSeRaso() {
+  const r = spawnSync('git', ['rev-parse', '--is-shallow-repository'],
+    { cwd: RAIZ, encoding: 'utf8', windowsHide: true });
+  if (r.status === 0 && (r.stdout || '').trim() === 'true') {
+    console.error('\n⚠ CLONE RASO — o funil roda, mas `git pull --ff-only` depois dele vai MENTIR.');
+    console.error('  Em clone raso a ancestralidade não responde: `merge-base` sai vazio, a contagem');
+    console.error('  de divergência é inventada e o ff-only recusa uma main que é fast-forward puro.');
+    console.error('  Conserto, antes do próximo pull:  git fetch --unshallow origin\n');
+  }
+}
+avisaSeRaso();
+
 // ---- argumentos ----
 const argv = process.argv.slice(2);
 const ramo = argv[0];
