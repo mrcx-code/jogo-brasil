@@ -31,18 +31,21 @@
 // perdao, e lista de perdao e como portao apodrece.
 //
 // ============================================================================
-// AS DUAS FORMAS DE CITACAO ACEITAS, e as duas foram MEDIDAS nos 30 arquivos de hoje:
+// CONSERTADO em 04/09 (revisao adversarial, agente a0389cc0bd332cfb0): a 1a versao aceitava
+// QUALQUER mencao entre aspas ou com barra em QUALQUER lugar do HTML — inclusive dentro de
+// comentario ou prosa. Provado explorável: 6 arquivos plantados no disco, citados so em texto
+// solto (um deles era `privacidade-texto.md`, a MESMA classe do vazamento de 23/08), passaram
+// os 6. A forma agora exigida é REFERENCIA REAL, nao mencao:
 //
-//   1. `/nome`  — referencia por CAMINHO. E a forma do `og:image` (`/compartilhar.jpg`, em 5 das
-//      6 paginas), de `href=` e de `src=`. E a unica forma que o laco das secoes do build aceita,
-//      de proposito: a pagina do TERRITORIO cita `malha-ibge.json` em PROSA, num comentario que
-//      explica de onde a geografia vem, e sem a barra essa mencao bastaria para publicar 100 KB
-//      que ninguem pede.
-//   2. `"nome"` ou `'nome'` — referencia RELATIVA entre aspas. E a forma do
-//      `fetch("backlog.json")` do dashboard, que nao leva barra porque precisa resolver debaixo
-//      de `/dashboard/` onde quer que a pagina esteja. Medido: sem esta forma, `backlog.json` so
-//      passaria por acidente (a string `/backlog.json` aparece num COMENTARIO da pagina, e portao
-//      que depende de um comentario e portao que quebra na primeira faxina de comentario).
+//   1. `src=`, `href=` ou `content=` — a forma do `og:image` (`content="…compartilhar.jpg"`),
+//      de `<script src=…>` e `<link href=…>`. E a unica forma que o laco das secoes do build
+//      aceita, de proposito: a pagina do TERRITORIO cita `malha-ibge.json` em PROSA, num
+//      comentario que explica de onde a geografia vem, e essa mencao NAO conta mais.
+//   2. `fetch(…)` — a forma do `fetch("backlog.json")` do dashboard, relativa (sem barra) porque
+//      precisa resolver debaixo de `/dashboard/` onde quer que a pagina esteja servida.
+//
+// As duas sao lidas por regex nos atributos/chamadas reais do HTML (`valoresReferenciados`),
+// nunca por `indexOf` solto — mencionar um nome em prosa ou comentario deixou de bastar.
 //
 // ESTE PORTAO E DE PROPOSITO MAIS FROUXO QUE O LACO DO BUILD, e isso nao e descuido. Quem decide
 // o que VIAJA e o build; quem decide o que pode ESTAR NO DISCO depois e este arquivo. Se ele
@@ -172,14 +175,32 @@ for (const { rota, dir } of todas) {
   const html = fs.readFileSync(idx, 'utf8');
   const excecoes = SEM_CITACAO[rota] || [];
 
+  // GAP achado pela revisao adversarial (04/09, agente a0389cc0bd332cfb0): a forma antiga
+  // (`html.indexOf('/' + f) >= 0` ou `'nome'`/`"nome"` soltos) casava MENCAO, nao REFERENCIA —
+  // um nome de arquivo dito em prosa ou comentario ("veja /privacidade/privacidade-texto.md")
+  // passava o portao sem nenhuma tag pedir o arquivo. Provado: 6 arquivos plantados no disco,
+  // citados so em texto solto, os 6 passaram. E a MESMA classe que motivou este portao (a
+  // gemea .md do vazamento de 23/08 é exatamente essa forma de "citacao" falsa.
+  // O CONSERTO: so conta como referencia real o que esta DENTRO de um atributo src=/href=/
+  // content= ou de uma chamada fetch(...) — as quatro formas medidas nas paginas de hoje
+  // (og:image usa content=, script/link usam src=/href=, o dashboard usa fetch("backlog.json")).
+  const valoresReferenciados = [];
+  const reAtributo = /\b(?:src|href|content)\s*=\s*(["'])((?:(?!\1)[\s\S])*)\1/g;
+  const reFetch = /\bfetch\(\s*(["'])((?:(?!\1)[\s\S])*)\1/g;
+  for (const re of [reAtributo, reFetch]) {
+    let m;
+    while ((m = re.exec(html))) valoresReferenciados.push(m[2]);
+  }
+  const referenciaReal = f => valoresReferenciados.some(v => v === f || v.endsWith('/' + f));
+
   const citados = [];
   const porExcecao = [];
   const extras = [];
   for (const f of arquivos) {
     totalArquivos++;
     if (f === 'index.html') { citados.push(f); continue; }
-    // 1. a pagina o cita? (caminho com barra, ou nome relativo entre aspas)
-    if (html.indexOf('/' + f) >= 0 || html.indexOf('"' + f + '"') >= 0 || html.indexOf("'" + f + "'") >= 0) {
+    // 1. a pagina REFERENCIA o arquivo de verdade (src=/href=/content=/fetch(), nunca mencao solta)?
+    if (referenciaReal(f)) {
       citados.push(f);
       continue;
     }
@@ -199,9 +220,10 @@ for (const { rota, dir } of todas) {
     }
     // 3. ninguem o pede e ninguem o justificou.
     extras.push(f);
-    reprovar(rota + f + ' e PUBLICADO e nenhuma pagina o cita: nao aparece em ' + rota + 'index.html'
-      + ' nem como caminho (`/' + f + '`) nem como nome relativo entre aspas (`"' + f + '"`), e nao'
-      + ' ha excecao pregada para ele em test/dist-inventario.js. Arquivo que ninguem busca nao tem'
+    reprovar(rota + f + ' e PUBLICADO e nenhuma pagina o REFERENCIA de verdade: nao aparece em '
+      + rota + 'index.html dentro de src=/href=/content= nem de um fetch(\'' + f + '\') — mencionar'
+      + ' o nome em prosa ou comentario nao conta mais, e nao ha excecao pregada para ele em'
+      + ' test/dist-inventario.js. Arquivo que ninguem busca nao tem'
       + ' por que responder 200 — foi assim que 49 pinos NAO aprovados (5 marcados PARE) ficaram'
       + ' 12 dias no ar. Se ele deve viajar, faca a pagina cita-lo; se nao deve, tire-o do build;'
       + ' se e caso de protocolo (robots.txt, sitemap.xml), pregue a excecao COM a cobranca.');
