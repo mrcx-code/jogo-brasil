@@ -69,6 +69,13 @@ const sec = t => console.log('\n---- ' + t);
   // O comentário que a auditoria pegou mentindo não pode voltar.
   ok(src.indexOf('atravessa a tela ali continua sendo FOGO') < 0,
     'o comentário "o que atravessa a tela ali continua sendo FOGO" não voltou (era falso desde 18/08)');
+  // GAP achado pela revisão adversarial (04/09): a guarda protege a ÚNICA boca de hoje, mas nada
+  // impedia uma SEGUNDA `drops.push` de nascer em outro lugar e furar por fora dela. Cobrar o
+  // CONJUNTO, não só o ponto — se um dia existir motivo pra um segundo nascedouro, este teste
+  // reprova até alguém trazer a guarda junto, em vez de deixar o furo silencioso.
+  const nascedouros = (src.match(/drops\.push/g) || []).length;
+  ok(nascedouros === 1, 'drops.push() nasce em UM lugar só (achei ' + nascedouros + ') — '
+    + 'um segundo nascedouro sem guarda furaria capSemColeta() por fora');
 
   // ============================================================
   // PARTE B — o jogo rodando.
