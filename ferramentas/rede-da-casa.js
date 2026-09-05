@@ -35,14 +35,15 @@
 //
 // A REGRA QUE ESTE ARQUIVO CUMPRE: falta de egresso nunca se disfarça de erro de credencial, e
 // NUNCA vira verde. Classificar é obrigação de quem fala com a rede; o número sozinho não basta.
-// A ASSINATURA DA RECUSA DE EGRESSO, lida do corpo REAL da resposta medida acima. Não é
-// adivinhação de forma: é a frase que o proxy desta rede escreve quando o host não está na
-// lista. Se um dia ela mudar, o portão `test/rede-da-casa-veredito.js` continua exigindo que
-// a classificação exista — o que não pode acontecer é a frase sumir e o caso virar "credencial".
-// GAP 4 DO QA: a marca era literal no espaco em branco, entao `Host  not  in  allowlist`
-// (espaco duplo) ou quebrada em duas linhas ja caia em 'credencial' -- e o corpo de um
-// proxy pode vir quebrado por largura. O `\s+` fecha isso sem afrouxar nada mais.
-const MARCA_SEM_EGRESSO = /host\s+not\s+in\s+(the\s+)?allowlist|blocked\s+by\s+(the\s+)?proxy|egress\s+(policy|denied)/i;
+// A ASSINATURA DA RECUSA DE EGRESSO, lida do corpo REAL da resposta medida acima.
+//
+// A5 DO QA (2a rodada): a 1a versao tinha QUATRO alternativas e so UMA saiu de medicao. As
+// outras tres eu inventei por simetria -- e duas delas casavam PROSA HUMANA: "This PR was
+// blocked by proxy team review" e "See our egress policy document" saiam como falta de egresso.
+// Num modulo cuja regra e "fonte ou nada", inventar assinatura por simetria e a mesma doenca que
+// ele cobra. Ficam as formas MEDIDAS, e o `\s+` (gap 4) porque corpo de proxy vem quebrado por
+// largura. Alternativa nova aqui exige corpo real colado no portao como fixture.
+const MARCA_SEM_EGRESSO = /host\s+not\s+in\s+(the\s+)?allowlist/i;
 
 // REDIGIR — achado do PORTEIRO em 05/09, consertado no mesmo fôlego em vez de virar "quando
 // alguém adotar". O caso 'credencial' abaixo repete um pedaço do CORPO da resposta na frase, e
@@ -64,8 +65,12 @@ const FORMAS_DE_SEGREDO = [
 function redigir(texto, segredos) {
   let s = String(texto == null ? '' : texto);
   // 1. o que quem chama DECLAROU — vence sempre, inclusive quando não casa forma nenhuma
+  // A4 DO QA (2a rodada): o piso de 8 caracteres descartava EM SILENCIO um segredo declarado
+  // mais curto -- quem chama disse que era segredo e a funcao decidiu que nao era, sem avisar.
+  // Segredo DECLARADO e honrado em qualquer tamanho; so string vazia/em branco e ignorada,
+  // porque essa apagaria o texto inteiro.
   for (const seg of segredos || []) {
-    if (typeof seg === 'string' && seg.length >= 8) s = s.split(seg).join('[REDIGIDO]');
+    if (typeof seg === 'string' && seg.trim() !== '') s = s.split(seg).join('[REDIGIDO]');
   }
   // 2. e as formas conhecidas, para o esquecimento de quem chama não virar vazamento
   for (const forma of FORMAS_DE_SEGREDO) s = s.replace(forma, '[REDIGIDO]');
@@ -88,6 +93,12 @@ function classificar(host, r, opcoes) {
   // dentro de um Buffer, a falta de egresso voltava a ser 'credencial': o defeito de 05/09
   // reentrando pela porta do contrato, dentro do módulo escrito para impedi-lo.
   const corpo = t.corpo == null ? '' : redigir(String(t.corpo), segredos);
+  // A3 DO QA (2a rodada): `redigir` cobria UM dos TRES campos que viram frase. `erroDeRede` e
+  // `erroDoConnect` saiam CRUS para o mesmo log publico -- e uma url com `apikey=<JWT>` dentro de
+  // um ECONNRESET entrega exatamente o que o comentario acima promete que some. Promessa que vale
+  // para um campo so nao e promessa.
+  const erroRede = t.erroDeRede == null ? '' : redigir(String(t.erroDeRede), segredos);
+  const erroConnect = t.erroDoConnect == null ? '' : redigir(String(t.erroDoConnect), segredos);
   const foi2xx = typeof t.status === 'number' && t.status >= 200 && t.status < 300;
 
   // 1. O CONNECT não completou. Aqui não existe resposta do alvo para interpretar — mas
@@ -95,27 +106,42 @@ function classificar(host, r, opcoes) {
   //    cometer, do outro lado da cerca, o pecado que este arquivo nomeia (R3 do QA):
   //    407 é o proxy pedindo CREDENCIAL, e dizer "não é credencial" ali era mentira redonda.
   if (t.erroDoConnect) {
-    const e = String(t.erroDoConnect);
-    if (/\b407\b/.test(e)) {
+    const e = erroConnect;
+    // O 8o DEFEITO DO QA, e ele NASCEU do meu conserto do R3: partir "o CONNECT nao completou"
+    // em tres foi certo, mas eu parti pela METADE -- 407 virava credencial e TODO O RESTO com
+    // tres digitos virava a afirmacao categorica "nao tem egresso, nenhuma chave conserta rota
+    // que nao existe". Entao 502/503/504 (proxy DE PE, upstream caido, o caso "nao se sabe" para
+    // o qual eu tinha acabado de criar o ramo `falhou`), 401 (o R3 consertado no 407 e VIVO no
+    // 401, com a mesma frase que era mentira) e ate 200 (aceitacao narrada como recusa: o R1 de
+    // novo, dentro do ramo reescrito para curar o R3) saiam todos como falta de egresso.
+    //
+    // E a QUESTAO 2: `\b407\b` varria o texto INTEIRO, entao "ECONNREFUSED 127.0.0.1:407" e
+    // "nao respondeu em 407 ms" viravam "o proxy exigiu autenticacao". O status se EXTRAI do
+    // inicio, nao se procura no meio -- e e a mesma licao do `cmd | tail; echo $?`: ler o lugar
+    // certo, nao um lugar onde o numero tambem aparece.
+    const m = /^HTTP\s*(\d{3})\b/.exec(e.trim());
+    const codigo = m ? Number(m[1]) : null;
+    if (codigo === 407 || codigo === 401) {
       return {
         tipo: 'credencial',
-        frase: 'o proxy exigiu autenticação para abrir o túnel até ' + host + ' (' + e
-          + '). Isto É credencial — do PROXY, não do destino: a rota existe e falta a chave dela.',
+        frase: 'o proxy exigiu autenticacao para abrir o tunel ate ' + host + ' (' + e
+          + '). Isto E credencial -- do PROXY, nao do destino: a rota existe e falta a chave dela.',
       };
     }
-    if (/\bHTTP\s*\d{3}\b/.test(e)) {
+    if (codigo !== null && codigo >= 400 && codigo < 500) {
       return {
         tipo: 'sem-egresso',
-        frase: 'esta máquina não tem egresso para ' + host + ' — o proxy recusou o CONNECT ('
-          + e + '). Não é credencial: nenhuma chave conserta rota que não existe.',
+        frase: 'esta maquina nao tem egresso para ' + host + ' — o proxy recusou o CONNECT ('
+          + e + '). Nao e credencial: nenhuma chave conserta rota que nao existe.',
       };
     }
-    // timeout, ECONNREFUSED, proxy fora do ar: não se SABE se há egresso. Afirmar que não há
-    // seria a mesma afirmação sem evidência que este arquivo cobra dos outros.
+    // 5xx (proxy de pe, upstream caido), 2xx/3xx (contrato violado: quem chama so rejeita
+    // fora de 200), timeout, ECONNREFUSED: NAO SE SABE. Afirmar falta de egresso aqui seria a
+    // mesma afirmacao sem evidencia que este arquivo cobra dos outros.
     return {
       tipo: 'falhou',
-      frase: 'não deu para abrir o túnel até ' + host + ' (' + e + '), e isto não diz se falta'
-        + ' egresso ou se o proxy está fora do ar — não afirme nenhum dos dois.',
+      frase: 'nao deu para abrir o tunel ate ' + host + ' (' + e + '), e isto nao diz se falta'
+        + ' egresso ou se o proxy/upstream esta fora do ar — nao afirme nenhum dos dois.',
     };
   }
 
@@ -154,7 +180,7 @@ function classificar(host, r, opcoes) {
   }
 
   if (t.erroDeRede) {
-    return { tipo: 'falhou', frase: 'a chamada a ' + host + ' falhou: ' + t.erroDeRede };
+    return { tipo: 'falhou', frase: 'a chamada a ' + host + ' falhou: ' + erroRede };
   }
 
   return {

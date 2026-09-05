@@ -42,7 +42,11 @@ let classificar;
 try {
   ({ classificar } = require('./rede-da-casa.js'));
 } catch (e) {
-  console.log('AVISO: não achei `ferramentas/rede-da-casa.js` (' + e.message.split('\n')[0] + ')');
+  // `e.message` estoura dentro do próprio catch quando o que foi lançado não é Error
+  // (`throw "string"`, `throw null`) — e aí o processo sai 1, que é a mentira exata que este
+  // bloco existe para não contar. Achado do QA na 2a rodada.
+  const motivo = String((e && e.message) || e).split('\n')[0];
+  console.log('AVISO: não achei `ferramentas/rede-da-casa.js` (' + motivo + ')');
   console.log('       — conferência pulada. Isto é falta de instrumento (2), não desacordo (1).');
   process.exit(2);
 }
