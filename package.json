@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/portao-navegador.js && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js && node test/qa-praca-quadro-vazio-vira-objeto.js && node test/qa-gente-quadro-que-chega.js && node test/qa-gente-quadro-dobrado.js && node test/qa-eca-escolar-paginas.js && node test/checar-ci-veredito.js && node test/rede-da-casa-veredito.js && node test/rede-da-casa-veredito.js --controle",
+    "test": "npm run build && node test/portao-navegador.js && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js && node test/qa-praca-quadro-vazio-vira-objeto.js && node test/qa-gente-quadro-que-chega.js && node test/qa-gente-quadro-dobrado.js && node test/qa-praca-o-que-a-pessoa-ve.js && node test/qa-eca-escolar-paginas.js && node test/checar-ci-veredito.js && node test/rede-da-casa-veredito.js && node test/rede-da-casa-veredito.js --controle",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
     "ritual:varredura": "node test/qa-ritual-varredura.js",
@@ -15,6 +15,8 @@
     "salvador-vivo": "node test/qa-salvador-vivo.js",
     "ramos-mortos": "node test/ramos-mortos-veredito.js",
     "gente": "node test/qa-gente-quadro-que-chega.js",
+    "gente:ve": "node test/qa-praca-o-que-a-pessoa-ve.js",
+    "gente:tira": "node test/tira-gente-fileira.js",
     "eca-escolar": "node test/qa-eca-escolar.js",
     "eca-escolar:paginas": "node test/qa-eca-escolar-paginas.js",
     "numero": "node test/medir-numero-envelhece.js",

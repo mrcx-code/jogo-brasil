@@ -2,8 +2,9 @@
 //
 // POR QUE ELE EXISTE, e a razao e um defeito de INSTRUMENTO, nao de arte. Seis dos 312 quadros
 // de `GENTE_EP_B64` nasceram **pixel de espera 1x1** — a figura nunca veio na folha entregue.
-// (Quatro ja foram remendados; em 04/09 sobram DOIS, listados em CONHECIDOS.) Nenhuma auditoria
-// desta casa viu os seis, e nao por descuido:
+// (Quatro foram remendados com a pose vizinha em 04/09; os DOIS ultimos so fecharam em 05/09,
+// quando o corte das celulas dobradas passou a produzir a pose que faltava — ver as duas listas
+// vazias abaixo.) Nenhuma auditoria desta casa viu os seis, e nao por descuido:
 //
 //   · a varredura que le 518 imagens do repositorio reporta "0 nao decodificaram" — porque um
 //     GIF/WebP 1x1 **decodifica normalmente**. Ela conta quadro que EXISTE;
@@ -34,47 +35,29 @@ const ABRIR = require('./abrir.js');
 const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
-// capitulo -> ["fQ"], os quadros vazios que este portao ACEITA hoje, com o motivo.
-const CONHECIDOS = {
-  // A PRACA (04/09): eram tres; dois foram remendados nesta data (ver REMENDOS abaixo) depois
-  // que a historiadora reescreveu a abertura e tirou a ressalva que os prendia. SOBROU o f2q7,
-  // e ele fica pelo MESMO motivo do pindorama f2q7: a fileira 2 de A PRACA nao e um laco de
-  // oito poses. Medido do WebP: f2 = 148, 148, 151, **323**, 147, 151, **322**, 1 px (mediana
-  // 151). As celulas q3 e q6 tem DUAS poses coladas lado a lado — a fileira empacota 8 poses em
-  // 6 celulas (conferido a olho na tira de contato). Os dois vizinhos de q7 sao, por adjacencia
-  // ciclica, o q6 malformado e o q0 que era vazio; e, como a cadencia da fileira ja esta
-  // quebrada pelas duas celulas dobradas, NENHUMA pose limpa dela pode ser VERIFICADA como
-  // continuacao do passo. Copiar as cegas so porque a largura bate e o que a revisao de
-  // PINDORAMA reprovou. Conserto certo: partir q3 e q6 ao meio, o que e corte visual, nao copia.
-  praca: ['f2q7'],
-  // PINDORAMA (04/09): NAO remendado de proposito. A pose vizinha (f2q6) que serviria de fonte
-  // e ELA MESMA outro defeito de corte — celula LARGA com DUAS poses da mesma pessoa lado a
-  // lado (295px contra ~131px de mediana da fileira, achado pela revisao adversarial). Copiar
-  // a celula larga trocaria "1 de 8 com barril" por "2 de 8 com a pessoa em dobro" — nao e o
-  // remendo limpo que os outros dois capitulos tiveram. Conserto certo: partir f2q6 ao meio
-  // (f2q6 + f2q7), o que exige corte visual, nao so copia — fora do escopo desta rodada.
-  pindorama: ['f2q7'],
-};
+// AS DUAS LISTAS ESVAZIARAM EM 05/09, e as duas pelo MESMO conserto. Cada uma delas dizia, em
+// voz alta, "isto aqui esta assim porque o conserto certo e partir a celula dobrada ao meio, e
+// isso e corte visual, nao copia". O corte foi feito: `test/cortar-celula-dobrada-gente.js`
+// partiu as seis celulas dobradas nos pontos que a direcao de arte julgou e aprovou
+// (`ferramentas/arte-corte-gente-dobrada-05-09.md`), e cada metade ocupou exatamente o buraco —
+// vazio ou copia — que a propria fileira ja tinha. Medido depois: **312 de 312 quadros com
+// tinta**, zero quadro vazio, zero copia byte-identica dentro de fileira.
+//
+// Entao some o buraco (as duas linhas de CONHECIDOS) E some o remendo (as quatro de REMENDOS),
+// e o §2 da arte deixa de precisar de ressalva em A PRACA e em PINDORAMA: nenhum passo troca a
+// pessoa por barril, e nenhum a desenha em dobro.
+
+// capitulo -> ["fQ"], os quadros vazios que este portao ACEITA, com o motivo.
+// VAZIA desde 05/09 — todo quadro vazio novo reprova, sem excecao a herdar.
+const CONHECIDOS = {};
 
 // E OS REMENDOS, que sao a outra metade da honestidade. Quadro tapado com a pose vizinha
 // (`test/tapar-buraco-gente.js`) TEM tinta e passaria por arte — entao ele e contado a parte:
 // quadros identicos dentro da mesma fileira sao achados por comparacao de `src` e cobrados
 // contra esta lista. Remendo que ninguem declarou reprova (e o jeito de "encher" uma folha sem
-// arte nova), e declaracao que ficou velha tambem — no dia em que a figura de verdade chegar,
-// o portao manda tirar a linha daqui.
-const REMENDOS = {
-  segurou: ['f2q7=f2q6'],     // 04/09: idem, o senhor das sacolas
-  // A PRACA (04/09), os dois que TINHAM vizinho limpo. O buraco era o f0q7 e a copia veio do
-  // f0q6 (152px, celula simples, adjacente); o outro buraco era o f2q0 e a copia veio do f2q1
-  // (148px, idem). Nos dois casos a fonte foi passada A MAO (`... praca 2 0 2:1`) e nao pelo
-  // padrao do `tapar-buraco-gente.js`: o padrao anda para tras ciclicamente e, para o f2q0,
-  // teria caido no f2q6, que e celula DOBRADA — o erro exato que fez o remendo de PINDORAMA
-  // ser revertido. Ao mexer aqui de novo, confira a largura da fonte antes de confiar no padrao.
-  praca: ['f0q7=f0q6', 'f2q1=f2q0'],
-  // O par e nomeado pelo indice MAIOR (e assim que a varredura acha a repeticao), e nao pelo
-  // quadro que estava vazio: em O QUE TEM FONTE o buraco era o f2q0 e a copia veio do f2q7.
-  temfonte: ['f2q7=f2q0'],    // 04/09: idem, quem leva a pilha de livros
-};
+// arte nova), e declaracao que ficou velha tambem.
+// VAZIA desde 05/09 — nao ha uma unica copia byte-identica dentro de fileira.
+const REMENDOS = {};
 
 let falhas = 0;
 function ok(c, m) { console.log((c ? '  ok    ' : '  FALHA ') + m); if (!c) falhas++; }

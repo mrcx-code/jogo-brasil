@@ -14457,3 +14457,83 @@ carrega escrito.
   página). Declarei no cabeçalho que é deliberado — ela responde *"o instrumento mediu a fala certa,
   inteira?"*, não *"o texto é este texto?"*. Se isso a torna quase tautológica é justamente o que o QA
   independente foi despachado para julgar.
+
+## 05/09 · As seis células dobradas de `GENTE_EP_B64` foram partidas — e eram um defeito só, visto de dois lados (dev-jogo, worktree `agent-a79df3296cc8b6e6b`)
+
+**O que fiz.** Cortei as seis células de `GENTE_EP_B64` que guardavam DUAS poses da mesma pessoa
+coladas lado a lado, nos pontos que a direção de arte julgou célula a célula e aprovou sem veto
+(`ferramentas/arte-corte-gente-dobrada-05-09.md`, ramo `worktree-agent-a17ec094608841c12`, trazido
+por merge antes de eu tocar em qualquer coisa): `praca f0q3` · `praca f2q3` · `praca f2q6` ·
+`pindorama f2q6` · `temfonte f2q5` · `segurou f2q5`.
+
+**O achado que reenquadra os dois itens.** O item 110 (célula dobrada) e o item 109 (quadro vazio)
+eram **o mesmo defeito pelos dois lados**. `test/cortar-gente.js` varre a folha em magenta por
+MANCHA e exige 8 manchas por fileira; onde duas figuras quase se tocavam ele entregava uma célula
+dobrada **e**, do outro lado da mesma fileira, um quadro vazio para fechar a conta de oito. Por
+isso a aritmética fecha sozinha: cada fileira afetada tinha exatamente um buraco (vazio ou cópia
+byte-idêntica) e exatamente uma célula dobrada, e partir a dobrada produz exatamente o quadro que
+faltava. **Nada foi inventado, nada foi copiado, nada sobrou.**
+
+**O que medi (antes → depois):**
+
+| | antes | depois |
+|---|---|---|
+| células largas nas 13 folhas | 6 | **0** |
+| quadros com tinta | 309/312 | **312/312** |
+| cópias byte-idênticas dentro de fileira | 4 | **0** |
+| passos que mostram UMA pessoa, A PRAÇA | 20/24 | **24/24** |
+| idem PINDORAMA · O QUE TEM FONTE · O QUE SEGUROU | não medido | **24/24 nos três** |
+| desvio da cabeça das 12 metades novas | — | **0 a 0,25 px de fonte** |
+
+**Por que o corte não é no meio da célula**, que é o que eu teria feito sem a arte: `src/jogo.ts`
+ancora pelo CENTRO da célula (`dx = cxm - dw/2`), então quem decide se a pessoa anda reto é onde a
+CABEÇA cai no retângulo novo — o "registre pela cabeça" do §5. Cortar no meio do vão dava até
+**10,5 px de fonte** de descasamento entre as duas metades, contra **3,5** de amplitude natural da
+fileira: um passo de lado por ciclo. Re-derivei as 12 coordenadas por conta própria antes de
+cortar e elas reproduziram exatas as da arte.
+
+**O que quebrou, e como.** Três portões irmãos reprovaram — e reprovaram **certo**, porque os três
+cobram nos dois sentidos e as declarações deles tinham acabado de ficar velhas:
+`qa-gente-quadro-dobrado.js` (6 conhecidos), `qa-gente-quadro-que-chega.js` (2 buracos + 4
+remendos), `qa-praca-quadro-vazio-vira-objeto.js` (`f2q7`). As três listas esvaziaram — daqui em
+diante qualquer dobra ou buraco novo reprova sem exceção a herdar.
+
+**O instrumento contra si mesmo.** A primeira versão de `test/cortar-celula-dobrada-gente.js`
+cobrava `tinta > 0` para aceitar uma janela e **aceitou o corredor vazio** de `praca f0q3`, porque
+ele tem DOIS pixels perdidos em `y 236..237`. Um portão que passa com 2 pixels de 5.934 não é
+portão. A régua passou a ser a altura da mancha (a janela boa mede 99,6% da altura; o corredor,
+0,8%). Testei as três travas contra o próprio arquivo antes de cortar de verdade, e o gate novo
+contra uma expectativa errada, para provar que ele ainda reprova.
+
+**Ferramenta nova:** `test/cortar-celula-dobrada-gente.js` — corte com ponto customizado numa
+célula já cortada, que **não existia** (o `cortar-gente.js` foi quem produziu a dobra, e o
+`tapar-buraco-gente.js` só copia) — e `test/tira-gente-fileira.js`, a tira de contato do DEPOIS
+com o número da cabeça ao lado da imagem. `test/qa-praca-o-que-a-pessoa-ve.js` foi pendurado no
+`npm test` **antes** do corte, como o item mandava, e passou a cobrir os quatro capítulos.
+
+**O que NÃO consertei, e não quero que se leia como consertado:** nenhuma dessas fileiras é um
+ciclo de caminhada de verdade (`praca f0` varia 3,6 pontos percentuais de abertura de pés em oito
+quadros; `praca f2`, 1,5 — elas deslizam numa lunge). Isso é arte nova, PENDENTES 112. E a
+**célula inchada** (13 quadros em 11 capítulos encolhendo a pessoa 20-29% e a soltando até 9,5 px
+do chão) ficou de fora de propósito — PENDENTES 111, com a medida que a confirma pela cabeça na
+tela.
+
+**Dúvida que registro:** PINDORAMA é §2.1, e eu não decidi nada de representação — a arte tinha
+verificado por medida que o corte não cria representação nova (mesma anciã, mesmo colar, mesma
+pintura corporal, mesma vasilha; o vão de 52 px não toca objeto nenhum) e eu confirmei a olho na
+tira. O que continua sendo do dono, nomeado e não urgente: cada capítulo mostra **três** pessoas
+em laço, e em PINDORAMA isso significa o capítulo dos povos originários representado por três
+indivíduos em repetição.
+
+**Um portão alheio reprovava, e consertá-lo revelou coisa pior que o sintoma.** O último passo do
+`npm test` (`rede-da-casa-veredito.js --controle`) reprovava com *"o mutante NÃO mudou o arquivo
+(o texto-alvo sumiu?)"* — num arquivo que esta entrega não toca (`git diff HEAD` vazio nos dois
+envolvidos, então a reprovação já existia no HEAD). A causa não era a sugerida pela mensagem: o
+texto-alvo está lá; o que não casa é a **emenda de duas linhas com `\n`** contra um arquivo que em
+máquina Windows está em disco com **CRLF**. O que isso escondia é maior que o incômodo: um mutante
+que **nunca chegava a ser aplicado** era contado como mutante que sobreviveu — para aquele mutante
+o controle não media nada, e ainda reportava o contrário. Consertado mutando sobre cópia
+normalizada e restaurando sempre o original de verdade: **os 12 mutantes passam a morder**, e o
+arquivo-alvo não troca de fim de linha por efeito colateral. PENDENTES 113.
+
+**Portões, no fim:** `npm test` e `node test/encaixe.js` **os dois verdes por exit code** (0 e 0).
