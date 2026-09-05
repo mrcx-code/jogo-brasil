@@ -14858,3 +14858,110 @@ sem git no PATH — o caminho existe no código (conjunto vazio, alcance de ante
 exercitado. E o `--autoteste` recusa rodar se as cobaias de scratch já existirem no disco: ele
 diz INCONCLUSIVO em vez de sobrescrever, então um scratch com esse nome exato deixa a quinta
 prova muda — de propósito, mas é uma boca a menos.
+
+## 05/09 · As duas ENTREGAS ÓRFÃS da fala e do verbo: auditadas, consertadas e penduradas (plantão `nuvem-20260905T1623`)
+
+Rodada agendada, sem issue etiquetada. O CI da `main` estava **verde** antes de despachar
+(`checar-ci.js` exit 0). Dois dos 17 itens livres diziam a mesma coisa no aceite — *"o trabalho
+JÁ EXISTE e está empurrado em `entrega/<id>`: auditar e integrar, NÃO recomeçar"* — e era
+verdade nos dois: `merge-base --is-ancestor` **exit 1** para ambos, contra um clone **profundo**
+(`fetch --unshallow` antes de qualquer pergunta de ancestralidade, que é o §7 do `PLANTAO.md`;
+num clone raso os dois teriam saído órfãos de qualquer jeito, e a pergunta não valeria nada).
+
+**O que as duas tinham em comum, e é o achado que governa a rodada:** as duas entregavam um
+arquivo de portão que **rodava em ZERO lugares**. Nem `package.json`, nem workflow, nem
+`encaixe.js`, nem `integrar.js`. Confirmado por `grep` nas duas árvores mescladas — no caso do
+verbo, a única ocorrência fora do próprio arquivo era o `territorio` do item no `backlog.json`,
+que é descrição e não chamada.
+
+Esta casa tem nome para isso, escrito por extenso em dois lugares (`teste.yml` ~l. 207,
+`integrar.js` ~l. 258): **"portão que ninguém roda é decoração"**, e ela já curou a mesma doença
+em `medir-cartao-controle.js` (02/09), `qa-vercel-host.js` (03/09) e `qa-vercel-quadro.js`
+(03/09). Estas eram a quarta e a quinta. **Uma asserção que morde num arquivo que ninguém invoca
+continua sendo decoração** — e as duas entregas tinham mordida provada.
+
+### Onde cada um foi pendurado, e o critério é CUSTO medido
+
+| instrumento | medido | onde foi | teto |
+|---|---|---|---|
+| `qa-verbo-e-fala.js` | **2 s** | `npm test` (+0,7% de 282 s) | herda o do funil (10 min) |
+| `qa-verbo-e-fala-controle.js` | **36 s** | passo próprio no CI | 3 min (5×) |
+| `qa-fala-cabe-de-verdade.js` | **133 s** | passo próprio no CI | 7 min (3,2×) |
+| `qa-fala-salvador-caixa.js` | **35 s** | passo próprio no CI | 2 min (3,4×) |
+
+O critério não é gosto: o `npm test` é o laço curto que todo agente roda dezenas de vezes por
+sessão, e **somar 133 s a um laço de 259 s é +51%** — a casa já recusou somar 116 s por esse
+mesmo motivo, e é por isso que `qa-censo-passo2.js` e `cartao-quadro-controle.js` moram no CI.
+Os 2 s do portão do verbo cabem no laço, e pendurá-lo ali **acende CI e funil de uma vez**, sem
+editar mais nada. Medido depois de pendurar: portões derivados **62 → 64**, alcance **259 → 261**
+— os dois entraram sozinhos na cobrança do `portao-navegador.js`, que é o desenho dele.
+
+### O que CAIU, que vale mais que o que se confirmou
+
+**1. A premissa do item `portao-fala-topo-na-tela` caiu, e ela era minha ao despachar.** O
+aceite mandava decidir se o instrumento novo **substitui** as três asserções velhas, supondo que
+fossem tautologia pura. O QA provou que **não eram subconjunto vazio: eram três EIXOS
+ortogonais**, com gatilho medido para cada um:
+
+| eixo | defeito | gatilho | o que os OUTROS dois diziam |
+|---|---|---|---|
+| alto | caixa cresce acima do teto | 1400 chars → topo −356 | base 550 **verde** |
+| pé | empurrada abaixo do pé | `margin-bottom:-120px` → base 676/568 | topo 386 **verde** |
+| corte | teto de altura engole texto | `max-height:150px` → caixa 291/150 | topo 400 e base 550 **os dois verdes** |
+
+E o eixo do **CORTE não estava coberto nem pelo instrumento novo** — o par `scrollHeight/
+clientHeight` do palco já era **coletado no `evaluate` e nunca cobrado nem impresso**, campo
+morto. O QA fechou com 2 asserções a custo zero de tempo e controle próprio. Reconferido por
+mim, exit real: `QAFALA_CORTE=1` → **104 asserções vermelhas** (52 palco + 52 papel), zero em
+topo/base/aberta. **Só DEPOIS disso** as três velhas viraram subconjunto estrito (3 pontos → 52)
+e puderam sair. Tivesse eu integrado com a premissa do item, teria trocado uma cobertura de três
+eixos por uma de um.
+
+**2. A âncora do ACEIRO era meta e não ancorava nada** — achado novo, que não estava no item.
+Das 12 âncoras do registro nominal do verbo, a do ACEIRO era `'este capítulo é esse verbo'`: uma
+oração que APONTA para um verbo sem NOMEAR nenhum, enquanto o cabeçalho promete um pedaço
+literal em que o capítulo nomeia o gesto. A/B com a MESMA injeção (abertura reescrita para
+*"Aqui a mão junta gente na fila"*, o gesto da família **oposta**):
+
+| | exit |
+|---|---|
+| âncora antiga | **0** — `ok O ACEIRO: a abertura nomeia o gesto` ← o falso verde |
+| âncora nova (`Quem abre o aceiro trabalha antes do fogo`) | **1** |
+
+A troca é de **recorte, não de texto do jogo**: mesma frase da abertura, cortada onde o gesto é
+dito em vez de onde ele é só referido. Zero byte de `src/jogo.ts`, zero afirmação histórica.
+
+**3. O portão da fala mudou de NOME**, e isso é conserto, não cosmética. Ele se chamava *"A FALA
+NOVA CABE NA CAIXA?"* e as três asserções que respondiam "cabe?" eram incapazes de reprovar:
+medido a 320×568, **3600 caracteres** davam `caixa 2117/2117` numa janela de **568**, topo
+−1566, e as três diziam `ok`. Passou a ser *"A FALA MEDIDA É A FALA DA FONTE?"*, que é o que ele
+de fato cobra. **Portão que promete no nome o que não cobra no código é a forma mais cara de
+falso verde, porque o nome é o que a próxima pessoa lê.**
+
+### O que o QA mediu e eu não teria pensado em pedir
+
+- **Piso de ruído antes de acreditar no instrumento:** 3 rodadas, uma delas **sob carga de 8
+  laços num 4-core** — `topo` idêntico nas 52 linhas das três, `base` variou 1 px em 1 de 52, e
+  a rodada sob carga saiu **byte a byte igual** à limpa. É o que dá número à tolerância de ±1.
+- **A espera é espera de verdade**, e errar erra para o lado seguro: amostrado em 11 tempos, a
+  caixa assenta em t=3700 e a espera é de 3900 (margem de 200 ms); medir cedo dá **+16 px para o
+  lado PERMISSIVO**, então máquina lenta não fabrica vermelho.
+- **A caixa FECHADA tem retângulo** (`visibility:hidden`, não `display:none`) e **passa** nas
+  duas asserções de geometria — quem guarda é só o `ok(m.aberta)`, provado pelo mutante M
+  (exit 1, 26 falhas, **todas** na guarda).
+
+### O que fica aberto, e virou item em vez de virar afirmação
+
+Três, todos declarados **NÃO MEDIDOS** pelo próprio auditor, que é a razão de serem item:
+`fala-eixo-horizontal-nao-e-medido` (os dois portões só olham o eixo vertical; o próprio
+`abrirFala` tem comentário dizendo que dois dos treze nomes já estouraram a largura útil de
+272 px — o maior buraco que sobrou); `fala-cabe-de-verdade-fora-do-funil` (os dois foram ao CI,
+falta o portão condicional no funil, e o da igualdade só pode ir depois de parar de escrever 3
+PNGs rastreados); e `as-duas-reguas-da-fala-nunca-se-encontram` (o teto de CARACTERES vive no
+`encaixe.js`, a folga de PIXEL vive no portão novo, e a relação entre as duas é comentário, não
+asserção — o auditor recusou propor o número sem medir, e disse isso com esse nome).
+
+Fica também, sem dono, do lado do verbo: `promete_colher` do bloco 5 continua **calculado,
+logado e nunca asseverado** (13 capítulos de dado morto no log); só a `abertura` é medida, nunca
+o `fecho`; e o verbo é **simulado, nunca jogado** — ninguém confere que um capítulo em `CAP_FILA`
+DESENHA a fila na tela.
