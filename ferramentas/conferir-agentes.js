@@ -33,6 +33,23 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+// GAP 5 DO QA (05/09): um `require` cru aqui acopla este portão a um arquivo novo, e se ele
+// sumir o processo morre com **exit 1** — que o cabeçalho acima reserva para "conferiu e NÃO
+// bate". Seria uma mentira do mesmo tipo que este arquivo passou a existir para não contar: um
+// código de saída afirmando algo que não foi medido. Falta de instrumento é 2, "não consegui
+// conferir", e é o que o CI e o plantão leem.
+let classificar;
+try {
+  ({ classificar } = require('./rede-da-casa.js'));
+} catch (e) {
+  // `e.message` estoura dentro do próprio catch quando o que foi lançado não é Error
+  // (`throw "string"`, `throw null`) — e aí o processo sai 1, que é a mentira exata que este
+  // bloco existe para não contar. Achado do QA na 2a rodada.
+  const motivo = String((e && e.message) || e).split('\n')[0];
+  console.log('AVISO: não achei `ferramentas/rede-da-casa.js` (' + motivo + ')');
+  console.log('       — conferência pulada. Isto é falta de instrumento (2), não desacordo (1).');
+  process.exit(2);
+}
 
 const RAIZ = path.resolve(__dirname, '..');
 const SO_SQL = process.argv.includes('--sql');
@@ -132,11 +149,24 @@ function metaDoPainel() {
       headers: { apikey: alvo.chave, Authorization: 'Bearer ' + alvo.chave },
       signal: AbortSignal.timeout(15000),
     });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    // O CORPO É A EVIDÊNCIA, e jogá-lo fora era o defeito (medido em 05/09 por
+    // nuvem-20260905T0822). Esta linha imprimia "HTTP 403" e quem lia ia caçar chave do
+    // Supabase, RLS, política — enquanto o corpo dizia, por extenso, "Host not in allowlist":
+    // a máquina não tem egresso para o host, e nenhuma chave conserta rota que não existe.
+    // Os dois casos saem com o MESMO número; só o corpo os separa. Ver ferramentas/rede-da-casa.js.
+    if (!r.ok) {
+      const corpo = await r.text().catch(() => '');
+      const v = classificar(new URL(alvo.url).hostname, { status: r.status, corpo },
+        { segredos: [alvo.chave] });
+      const e = new Error(v.frase);
+      e.tipoDeRede = v.tipo;
+      throw e;
+    }
     tabela = (await r.json()).map((x) => x.nome).sort();
   } catch (e) {
     // Sem rede não é defeito do repositório. Avisa e passa — ver o cabeçalho.
-    console.log('AVISO: não consegui ler `mesa_agente` (' + e.message + ') — conferência pulada.');
+    console.log('AVISO: não consegui ler `mesa_agente` — conferência pulada.');
+    console.log('       ' + (e.tipoDeRede ? '[' + e.tipoDeRede + '] ' : '') + e.message);
     process.exit(2);
   }
 

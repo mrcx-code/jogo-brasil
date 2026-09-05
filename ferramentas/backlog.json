@@ -758,7 +758,6 @@
       "id": "rotulo-medicao-anonima",
       "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
       "estado": "livre",
-      "papel": "dev-plataforma",
       "territorio": [
         "ferramentas/medir-secao.js",
         "ferramentas/chrome-plataforma.js"
@@ -766,7 +765,7 @@
       "camada": "plataforma",
       "aceite": "O rotulo fixo da barra passa a \"medicao anonima\" SOMENTE se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar o scrollWidth da barra — medido, nao estimado. Se nao couber, o item fecha SEM mudanca e com o numero medido registrado: a explicacao completa continua no rodape, e a growth aceitou assim.",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim.",
-      "agente": "porteiro"
+      "agente": "dev-plataforma"
     },
     {
       "id": "dashboard-sem-google",
@@ -987,7 +986,6 @@
     {
       "id": "cartao-decepa-primeira-tabua",
       "estado": "livre",
-      "papel": "porteiro",
       "titulo": "O cartão publicado: a barra decepa a primeira tábua (lê \"istoria\"), o JPEG não reproduz entre rodadas, e o portão que compara bytes nunca pôde rodar no CI",
       "territorio": [
         "ferramentas/gerar-territorio.js",
@@ -1312,7 +1310,6 @@
     {
       "id": "vercel-propriedade-dentro-da-regra",
       "estado": "livre",
-      "papel": "porteiro",
       "camada": "esteira",
       "titulo": "has/missing tornam a regra CONDICIONAL sem mudar um byte do source nem do headers — CSP verde nos cinco portoes e nao servida",
       "territorio": [
@@ -1590,7 +1587,7 @@
     },
     {
       "id": "guarda-le-o-texto-do-comando-nao-o-efeito",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "O guarda.js decide pelo TEXTO do comando, não pelo EFEITO — três buracos, um conserto (heredoc recusado, rm na saída permitido, npm fora do worktree permitido)",
@@ -1598,7 +1595,9 @@
         ".claude/hooks/"
       ],
       "aceite": "O guarda.js passa a decidir pelo EFEITO do comando e nao pela ocorrencia da string, e os tres casos medidos em 04/09 caem juntos. Mordida provada por injecao, nos dois sentidos em cada um: (1) comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado -- e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade; escrita real continua recusada. (2) rm -rf dentro da pasta de saida de build e recusado pelo mesmo caminho que ja recusa cp -r para la (.claude/hooks/guarda.js:127); o mesmo rm fora dela passa. (3) cd para a checkout compartilhada seguido de npm run build/npm install/teste e recusado; o mesmo comando dentro do proprio worktree passa. Saida NAO-BARRAR e aceitavel em (2) e (3) se o falso positivo for caro demais -- mas entao o texto da propria recusa muda para parar de prometer o que nao cumpre, e o numero que sustenta a escolha vai escrito no cabecalho do arquivo.",
-      "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava. ||| FUNDIDO em 05/09 (pm) com guarda-worktree-nao-cobre-comando-nao-git e guarda-recusa-escrever-em-saida-e-nao-recusa-apagar -- mesmo arquivo, mesma classe, mesmo arnes de injecao."
+      "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava. ||| FUNDIDO em 05/09 (pm) com guarda-worktree-nao-cobre-comando-nao-git e guarda-recusa-escrever-em-saida-e-nao-recusa-apagar -- mesmo arquivo, mesma classe, mesmo arnes de injecao. SEGUNDO CASO DA MESMA CLASSE, em outro portao, medido em 05/09 por nuvem-20260905T0520: o guardaRoteiro do construir.js recusou DUAS vezes itens desta rodada por casar palavra-chave no texto, e a segunda foi falso positivo -- a palavra marcada significava custo de modelo, o assunto do item era coordenacao entre maquinas, e nao havia defesa nenhuma sendo descrita. A regra do guardaRoteiro e boa e a primeira recusa dele estava certa; o que se paga e a forma de decidir. Nos dois portoes o padrao e o mesmo e vale escrever junto: quem decide pela OCORRENCIA de uma palavra acerta o caso e erra a vizinhanca, e o custo nao e a recusa -- e que ela ensina a driblar o portao em vez de atende-lo.",
+      "maquina": "nuvem-20260905T1223",
+      "desde": "2026-09-05T12:25:30.651Z"
     },
     {
       "id": "ramos-mortos-trava-prefixo-entrega",
@@ -1662,7 +1661,7 @@
     },
     {
       "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "O bloco 5 do encaixe.js compara a fala com um modelo de motor que deixou de existir em 16/08 -- e por isso aprova fala que promete verbo que o capitulo nao tem",
@@ -1670,11 +1669,13 @@
         "test/encaixe.js"
       ],
       "aceite": "O bloco 5 passa a derivar o motor do CODIGO e nao de uma constante congelada: temAcolher tem de sair de capFila() e temPalavra de CAPS_VERBO, e nao de i === CAP_GENTE / i === CAP_PALAVRA. Mordida provada por injecao, e o caso ja esta escrito: a fala injetada em O ACEIRO (que esta em CAPS_VERBO e NAO tem fila) prometendo a fila tem de sair exit 1 -- hoje sai 0 nos dois portoes. E o comentario obsoleto de src/jogo.ts:1467 (gente e so PALMARES, e la que existe fila) sai junto, porque e a mesma afirmacao congelada em outro lugar.\n\nESCOPO ESTREITADO em 05/09 (pm): src/jogo.ts sai do território. O conserto é do portão; a única coisa que este item tinha em src/jogo.ts era um comentário obsoleto na linha 1467, e um comentário não vale tomar o slot de escritor exclusivo do arquivo de 15 mil linhas — ele pega carona no próximo item que abrir src/jogo.ts (hoje praca-tres-celulas-mostram-pessoa-em-dobro).",
-      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado."
+      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado.",
+      "maquina": "nuvem-20260905T1223",
+      "desde": "2026-09-05T12:25:30.651Z"
     },
     {
       "id": "qa-fala-salvador-caixa-amigo-falso",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
@@ -1682,7 +1683,8 @@
         "test/qa-fala-salvador-caixa.js"
       ],
       "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
-      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao."
+      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao.",
+      "feito": "2026-09-05T13:45:00.000Z"
     },
     {
       "id": "caixa-da-fala-so-medida-em-salvador",
@@ -1959,7 +1961,7 @@
     },
     {
       "id": "ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Toda ferramenta desta casa que fala com a rede pelo modulo https do Node quebra na nuvem, e quebra com cara de credencial errada",
@@ -1967,7 +1969,66 @@
         "ferramentas/"
       ],
       "aceite": "Varrer ferramentas/ e test/ atras de quem usa https/http do Node direto contra a rede, e dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY, e nao mandar o sentinela proxy-injected como credencial). Mordida provada por injecao em cada uma: com HTTPS_PROXY definido tem de responder; sem, tem de falhar HONESTAMENTE e nunca virar verde. Se a varredura achar zero alem do checar-ci.js, esse ZERO e a entrega e fecha o item.",
-      "detalhe": "Generalizacao do que a nuvem consertou em ferramentas/checar-ci.js em 05/09 (ver commit e04d196 para o diagnostico completo). O modulo https/http do Node nao segue sozinho a configuracao de proxy de saida desta rede, entao qualquer outra ferramenta desta casa que fale direto com a rede pelo mesmo caminho pode ter o mesmo problema estrutural -- e o sintoma engana, porque le como erro de outra natureza, nao como caminho de rede errado. O conserto ja aplicado ao checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY configurado, sem voltar a depender de CLI) e o modelo a repetir em qualquer ferramenta que a varredura do aceite encontrar."
+      "detalhe": "Generalizacao do que a nuvem consertou em ferramentas/checar-ci.js em 05/09 (ver commit e04d196 para o diagnostico completo). O modulo https/http do Node nao segue sozinho a configuracao de proxy de saida desta rede, entao qualquer outra ferramenta desta casa que fale direto com a rede pelo mesmo caminho pode ter o mesmo problema estrutural -- e o sintoma engana, porque le como erro de outra natureza, nao como caminho de rede errado. O conserto ja aplicado ao checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY configurado, sem voltar a depender de CLI) e o modelo a repetir em qualquer ferramenta que a varredura do aceite encontrar.",
+      "maquina": null,
+      "desde": null,
+      "concluido_em": "2026-09-05T09:35:28.984Z",
+      "resolucao": "INTEGRADO 05/09 por nuvem-20260905T0822. O ACEITE FOI REFUTADO PELA MEDICAO, e esse e o achado: ele mandava \"dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY)\". A varredura achou CINCO ferramentas alem do checar-ci.js (baixar-malha.js, conteudo-puxar.js, ler-medicao.js, conferir-agentes.js e test/checar-infra.js) -- e o tunel nao conserta NENHUMA delas. Medido host a host, os dois caminhos: api.github.com direto da 403 \"API rate limit exceeded\" (chegou no GitHub) e por tunel da HTTP 200; os outros cinco hosts (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) dao 403 \"Host not in allowlist\" direto E CONNECT recusado 403 no tunel. O proxy recusa o proprio CONNECT para eles, por politica de egresso. Aplicar o conserto prescrito nas cinco teria custado uma sessao, mudado nada, e saido de la com cara de trabalho feito. Corrige tambem o registro do que curou o checar-ci.js: api.github.com esta na lista permitida, e o tunel nao lhe deu ROTA, deu CREDENCIAL (o proxy injeta o token na passagem). O DEFEITO REAL e de mensagem: rota e credencial saem com o MESMO 403, e ferramenta que so guarda o numero conta a historia errada -- o conferir-agentes.js dizia \"HTTP 403\" e mandava quem lesse cacar chave do Supabase, com o corpo dizendo \"Host not in allowlist\" e sendo jogado fora. Entrou ferramentas/rede-da-casa.js (classificar() pura: separa sem-egresso de credencial pelo CORPO), test/rede-da-casa-veredito.js (21 asserçoes, fixtures dos corpos reais, puro -- roda em maquina sem rede, que e onde precisa valer), o conferir-agentes.js classificando, e o portao no teste.yml. Mordida por injecao: 2 mutantes, exit 1 real nos dois, exit 0 restaurado."
+    },
+    {
+      "id": "duas-maquinas-integram-o-mesmo-ramo-de-entrega",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O lock cobre item do backlog e nao cobre ramo de entrega: duas maquinas rodaram o funil sobre o mesmo entrega/ ao mesmo tempo",
+      "territorio": [
+        "ferramentas/integrar.js",
+        "ferramentas/backlog.json"
+      ],
+      "aceite": "O funil passa a anunciar que pegou um ramo ANTES de gastar os 15 min de portao, e a enxergar anuncio de outra maquina. A forma mais barata que ja existe nesta casa e o proprio backlog: um campo por ramo (quem esta integrando e desde quando, com a mesma validade de 2h do lock de item), escrito e empurrado antes do merge. Mordida provada nos dois sentidos: com anuncio fresco de outra maquina o funil recusa e diz de quem e; sem anuncio, ou com anuncio vencido, ele roda igual a hoje. Se a saida escolhida for NAO travar, o numero que sustenta e este caso, e o item fecha dizendo isso.",
+      "detalhe": "Medido em 05/09 por nuvem-20260905T0520, que foi uma das duas maquinas. Empurrei entrega/checar-ci-honra-o-proxy e comecei o funil; o windows-plantao viu o ramo no servidor e integrou o MESMO ramo (21b2727, da4adf3) enquanto o meu rodava. Os dois funis passaram, os dois pregaram placar, e o merge dos dois lados deu conflito no backlog.json, resolvido por uniao de id: 147 itens, 0 ids perdidos, 0 duplicados, npm test exit 0 real depois. Nada se perdeu e a main ficou verde -- o custo foi so gasto de modelo e tempo de parede, mas de DUAS maquinas na mesma coisa, que e o que o lock existe para evitar. O lock de hoje protege o ITEM (estado em-curso + maquina + desde). Um ramo entrega/ empurrado nao tem dono declarado, e o PLANTAO.md 7 ENSINA a procurar ramo entrega/ orfao e integrar, porque entrega orfa ja custou caro antes -- ou seja, a casa convida o segundo integrador de proposito. O conserto nao e parar de procurar; e o ramo ter dono enquanto alguem esta com ele."
+    },
+    {
+      "id": "dono-do-item-tem-duas-grafias",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O dono de um item tem DUAS grafias (agente e papel) e isso ja deixou a main vermelha por 2h50 e quatro pushes",
+      "territorio": [
+        "ferramentas/conferir-item.js",
+        "ferramentas/conferir-fila.js",
+        "test/caminhos-do-backlog.js"
+      ],
+      "aceite": "Uma grafia so. (1) Os 41 itens com papel passam a agente no backlog.json -- e no-op para TODO leitor, porque os cinco leem dono = agente || papel (conferir-item.js:55, conferir-fila.js:47, caminhos-do-backlog.js:119, dashboard/index.html:1591 e :1612 e :2031); provar o no-op rodando os tres portoes antes e depois com a MESMA saida. (2) O conferir-item.js passa a reprovar papel SOZINHO tambem, nao so agente E papel juntos, com a mensagem dizendo qual e a grafia viva. (3) Mordida provada por injecao nas duas formas (so papel, e as duas juntas) com exit 1 real, mais o controle de arquivo limpo em exit 0. CUIDADO DE SEQUENCIA: tocar 41 itens do backlog.json colide com toda maquina que tenha item em-curso -- so pegue este item com a fila de em-curso VAZIA ou combinada no RECADOS.md, senao o merge vira conflito de uniao em 41 lugares.",
+      "detalhe": "Medido por nuvem-20260905T0822. O commit ccdc4c7 (refino do PM, 05/09) diz na propria mensagem \"agente preenchido em 3 itens que estavam vazios\" -- e os tres NAO estavam vazios: o dono deles morava em papel. O PM leu so a grafia agente, achou vazio, e escreveu por cima; em dois dos tres o dono novo ainda DISCORDAVA do antigo (rotulo-medicao-anonima: papel=dev-plataforma vs agente=porteiro; cartao-decepa-primeira-tabua: papel=porteiro vs agente=dev-plataforma). O conferir-item.js pegou (e essa e a boa noticia: o portao mordeu), mas a main ficou vermelha do run 627 ao 630 -- 4 pushes, ~2h50 -- porque ninguem olhou. Contagem no dia: 109 itens com agente, 41 com papel, 3 com os dois. Enquanto as duas grafias existirem, todo agente que escrever dono no backlog pode repetir isto, e a unica defesa e um portao que so acusa DEPOIS do push."
+    },
+    {
+      "id": "quatro-ferramentas-ainda-reportam-o-numero-cru",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "Quatro ferramentas de rede ainda reportam o 403 cru e enganam igual ao que o conferir-agentes.js fazia",
+      "territorio": [
+        "ferramentas/baixar-malha.js",
+        "ferramentas/conteudo-puxar.js",
+        "ferramentas/ler-medicao.js",
+        "test/checar-infra.js"
+      ],
+      "aceite": "As quatro passam a guardar o CORPO da resposta e a classificar por ferramentas/rede-da-casa.js (classificar()), como o conferir-agentes.js ja faz: falta de egresso sai como sem-egresso e diz que nao e credencial; 401/403 vindos do proprio destino saem como credencial. NENHUMA troca de transporte -- so mensagem, que foi a regra que manteve a entrega de 05/09 sem risco. Mordida provada por injecao em CADA uma (exit code real), e o controle de que o caminho de SUCESSO nao mudou. Se alguma das quatro nao puder ser exercitada com exit code real nesta maquina, diga isso por extenso em vez de mudar no escuro -- foi por isso que elas ficaram de fora em 05/09.",
+      "detalhe": "Sobra declarada da entrega rede-da-casa-egresso-honesto (05/09, nuvem-20260905T0822). Elas ficaram de fora porque NENHUMA e exercitada pelo CI, entao nao havia como provar a mudanca com exit code real, e mudar quatro ferramentas no escuro e o oposto do que aquela entrega defende. Os hosts das quatro (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) estao TODOS fora da lista de egresso da nuvem -- medido: 403 \"Host not in allowlist\" direto e CONNECT recusado no tunel. Consequencia pratica para quem pegar: nesta maquina o unico desfecho observavel das quatro e o de FALHA, e ele e justamente o que o item conserta; o caminho de sucesso so pode ser provado por injecao ou na maquina do dono."
+    },
+    {
+      "id": "portao-fala-topo-na-tela",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "As tres assercoes que dao NOME ao portao da caixa da fala sao tautologia: fala de 1400 caracteres passa verde a 320x568 com topo -356",
+      "territorio": [
+        "test/qa-fala-cabe-de-verdade.js",
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "aceite": "O portao passa a cobrar caixa.top >= 0, que e o unico dos quatro numeros que responde a pergunta do titulo e que hoje e IMPRESSO sem ser COBRADO, e passa a valer para as 26 conversas (13 aberturas + 13 fechos), nao so para SALVADOR. O trabalho JA EXISTE e esta empurrado em entrega/portao-fala-topo-na-tela (test/qa-fala-cabe-de-verdade.js, 26 conversas x 2 telas): auditar e integrar, NAO recomecar. Mordida ja provada pelo autor e a reconferir: QAFALA_CONTROLE=1400 reprova 26 assercoes, pior topo -466 px; limpo exit 0 com folga minima de 260 px (NAO DITO a 320x568). Decidir tambem se o instrumento novo SUBSTITUI as tres assercoes velhas ou convive com elas -- deixar tautologia assinando de verde ao lado do portao que morde e o pior dos dois mundos.",
+      "detalhe": "Achado do QA em 05/09 (auditoria de qa-fala-salvador-caixa-amigo-falso, nuvem-20260905T1223), PROVADO POR MEDICAO. O portao se chama A FALA NOVA CABE NA CAIXA? e as tres assercoes que respondem isso sao incapazes de reprovar. Medido a 320x568 reescrevendo abertura[4] na pagina: 258 chars -> caixa 269/269 topo 282 base 550 PASSA; 700 chars -> caixa 511/511 topo 40 base 550 PASSA; 1400 chars -> caixa 907/907 numa janela de 568, topo -356, base 550, e o portao diz tudo verde. Causa: #falaPalco e #falaCaixa tem overflow visible e altura auto (computed h 268.5px, minH auto, maxH none, of visible), e elemento que nao corta e nao rola tem scrollHeight === clientHeight SEMPRE -- as duas primeiras assercoes comparam um numero com ele mesmo. A terceira nao dispara porque a caixa e ancorada embaixo e cresce para cima, entao base fica constante em 550 nas tres linhas. NAO E DEFEITO DE PRODUTO HOJE, e o numero importa para nao virar panico: a maior fala do jogo e justamente a medida (SALVADOR abertura[4], 258 chars, teto 260 do encaixe.js) e a folga de pixel a 320x568 e de 282 px ~ 515 caracteres. Quem segura a linha e o teto de CARACTERES do encaixe.js, nao estas tres assercoes de pixel -- e isso nao estava escrito em lugar nenhum. CAI JUNTO uma premissa do cabecalho original do arquivo: medir antes da revelacao terminar NAO corrompe a geometria (65 de 258 chars devolvem palco 132/132 e caixa 247/247, identicos ao completo), porque #falaFantasma dimensiona a caixa empilhando todas as linhas da conversa invisiveis na mesma celula de grade. A revelacao incompleta corrompe so o ROTULO, nunca o numero."
     }
   ]
 }

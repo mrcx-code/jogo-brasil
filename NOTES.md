@@ -14076,6 +14076,220 @@ asserção para o caso que aconteceu de verdade, **arquivo novo que não filtra 
 | plantão (linha própria) | — | 4 | 4 | 1 (meu, medi a pasta errada) |
 ---
 
+## 05/09 (manhã) · `nuvem-20260905T0822` — a main estava vermelha de novo, e o conserto prescrito não consertava nada
+
+Rodada de plantão da nuvem. Duas coisas, e as duas viraram desmentido: a `main` estava **vermelha
+há ~2h50 e quatro pushes**, pela segunda vez em 24 h; e o item que eu peguei em seguida prescrevia
+um conserto que a medição **derrubou**.
+
+### 1. A MAIN VERMELHA — e desta vez o instrumento existia
+
+`node ferramentas/checar-ci.js` é agora o primeiro passo do laço (`PLANTAO.md` §1), e foi ele que
+pegou. Do run **627** (05:40 UTC) ao **630**, quatro pushes seguidos, todos vermelhos, ninguém
+olhou. **É a mesma janela da vez anterior** (2h35, quatro pushes, medida por `nuvem-20260905T0023`)
+— com a diferença de que agora a ferramenta que fecha esse buraco estava no disco havia horas.
+
+**A causa.** O commit `ccdc4c7` (refino do PM) diz na própria mensagem *"agente preenchido em 3
+itens que estavam vazios"*. **Os três não estavam vazios**: o dono deles morava no campo `papel`,
+que é a outra grafia da mesma coisa. O PM leu só a grafia `agente`, achou vazio, e escreveu por
+cima. Em **dois dos três** o dono novo ainda DISCORDAVA do antigo:
+
+| item | `papel` (antes) | `agente` (o PM escreveu) |
+|---|---|---|
+| `rotulo-medicao-anonima` | dev-plataforma | porteiro |
+| `cartao-decepa-primeira-tabua` | porteiro | dev-plataforma |
+| `vercel-propriedade-dentro-da-regra` | porteiro | porteiro |
+
+**O conserto, com a regra de decisão escrita para não virar gosto:** sobrevive o **executor**,
+nunca quem auditou, propôs, ou já está nomeado na `banca`. Em `cartao-decepa-primeira-tabua` o
+argumento é forte e vale registrar — `banca` já dizia "porteiro", então manter `papel: porteiro`
+faria executor e revisor serem a mesma pessoa, que é exatamente o que a banca existe para evitar.
+Grafia única: `agente` (109 contra 41), e é **no-op para todo leitor**, porque os cinco leem
+`dono = agente || papel`.
+
+**Medido, exit code real:** `conferir-item.js` antes **exit 1** com 3 falhas · depois **exit 0** ·
+defeito reinjetado num item só **exit 1** com a falha certa · restaurado **exit 0** ·
+`--controle` (6 mutantes) **exit 0** · `npm test` **exit 0** · `conferir-fila.js` e
+`caminhos-do-backlog.js` **exit 0**. O round-trip de `JSON.stringify(...,2)` contra o disco é
+**byte-idêntico** (281.705 = 281.705), e por isso a edição programática saiu com −4/+1 linhas em
+vez de reescrever o arquivo.
+
+**O que quase caiu comigo.** Eu ia reportar `conferir-agentes.js` como um SEGUNDO vermelho — ele
+sai **exit 2** nesta máquina. Mas o run **626**, verde às 05:39, já o rodava (está no CI desde
+24/08). Era o proxy deste contêiner, não a entrega. A regra da casa (*desconfie do portão — e da
+máquina onde ele roda — antes de tocar no produto*) valeu de novo, um passo antes do produto.
+
+**Confirmado verde**, com exit code real: `checar-ci.js` saiu **exit 0** — run 33955416781, o
+job `smoke` inteiro verde, com o `conferir-item.js` passando no passo 15, que era exatamente o
+que reprovava. A main ficou vermelha das 05:40 às 08:39 UTC.
+
+**Causa raiz aberta** como `dono-do-item-tem-duas-grafias`: enquanto as duas grafias existirem,
+todo agente que escrever dono pode repetir isto, e a única defesa é um portão que só acusa
+**depois** do push. O aceite carrega o cuidado de sequência — tocar os 41 itens colide com toda
+máquina que tenha item em-curso, então só com a fila vazia.
+
+### 2. O ITEM DO PROXY — o aceite prescrevia um conserto que não conserta
+
+Item `ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem`. O aceite mandava *"dar a todos o
+mesmo caminho do `checar-ci.js` (túnel CONNECT quando há `HTTPS_PROXY`)"*. A varredura achou cinco
+ferramentas além dele — e **o túnel não conserta nenhuma**. Medido host a host, os dois caminhos:
+
+| host | https CRU (direto) | por TÚNEL CONNECT | quem usa |
+|---|---|---|---|
+| `api.github.com` | 403 *"API rate limit exceeded"* | **HTTP 200** | `checar-ci.js` |
+| `servicodados.ibge.gov.br` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `baixar-malha.js` |
+| `<proj>.supabase.co` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `conferir-agentes.js`, `conteudo-puxar.js` |
+| `us.posthog.com` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `ler-medicao.js` |
+| `matheusferreira.cc` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `test/checar-infra.js` |
+| `us.i.posthog.com` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `test/checar-infra.js` |
+
+O proxy recusa o **próprio CONNECT** para os cinco, por política de egresso. Aplicar o conserto
+prescrito neles teria custado uma sessão, mudado exatamente nada, e saído de lá **com cara de
+trabalho feito** — que é o desfecho mais caro de todos.
+
+**E corrige o registro do que curou o `checar-ci.js`.** `api.github.com` está na lista de saída
+permitida; o que o túnel lhe deu **não foi rota, foi credencial** — o proxy injeta o token na
+passagem, e direto, sem token, o próprio GitHub responde o 403 de limite anônimo (o corpo diz
+*"API rate limit exceeded for 136.111.196.80"*, ou seja: o pedido **chegou lá**).
+
+**O defeito real é de mensagem, não de transporte.** Rota e credencial saem com o **mesmo 403**, e
+ferramenta que só guarda o número conta a história errada. Medido nesta mesma rodada, 40 minutos
+antes, no `conferir-agentes.js` — que roda no CI:
+
+```
+antes:  AVISO: não consegui ler `mesa_agente` (HTTP 403) — conferência pulada.
+depois: AVISO: não consegui ler `mesa_agente` — conferência pulada.
+        [sem-egresso] esta máquina não tem egresso para <proj>.supabase.co — o proxy
+        respondeu HTTP 403 com "host não permitido". Não é credencial: o pedido nunca
+        chegou ao destino.
+```
+
+Quem lesse a primeira ia caçar chave do Supabase, RLS e política — nada disso era o problema. O
+corpo dizia *"Host not in allowlist"* por extenso e era **jogado fora antes de alguém olhar**.
+Numa máquina sem ninguém por perto, isso é a rodada inteira perdida.
+
+**O que entrou:** `ferramentas/rede-da-casa.js` — `classificar()` é **pura** (recebe
+`{status, corpo, erroDoConnect, erroDeRede}`, devolve tipo+frase, sem tocar rede) e separa
+`sem-egresso` de `credencial` **pelo corpo**, nunca pelo número. E `test/rede-da-casa-veredito.js`,
+com fixtures dos corpos reais medidos hoje. **A pureza é requisito, não elegância:** um portão de
+rede que precisa de rede não roda no CI nem na máquina sem saída — que são os dois lugares onde
+ele mais precisa valer.
+
+**Mordida por injeção, exit code real:** `--controle` roda **7 mutantes** no objeto de verdade e
+os sete saem **exit 1**, com o arquivo restaurado intacto e o portão em **exit 0** depois. Há
+ainda uma asserção que cobra o **contrário**: 403 **sem corpo** cai em `credencial`, porque sem a
+evidência do corpo não se AFIRMA falta de egresso. (A primeira versão trazia 2 mutantes; ver a
+seção 4 — foi o QA que cobrou, e com razão.)
+
+**O que ficou de fora, declarado:** `baixar-malha.js`, `conteudo-puxar.js`, `ler-medicao.js` e
+`test/checar-infra.js` continuam reportando o número cru. Nenhuma é exercitada pelo CI, então eu
+não teria como provar a mudança com exit code real — e mudar quatro ferramentas no escuro é o
+oposto do que esta entrega defende. Virou item `quatro-ferramentas-ainda-reportam-o-numero-cru`,
+com esse motivo escrito no detalhe.
+
+### 3. O PORTEIRO ACHOU UM VAZAMENTO LATENTE, E EU CONSERTEI EM VEZ DE AGENDAR
+
+Ele liberou a entrega e deixou um achado real não-bloqueante, com o comando que o produziu:
+`classificar()` repete até 160 caracteres do CORPO da resposta na frase do caso `credencial`, e
+essa frase vai para o **log do CI, que é público**. Ele mediu que hoje é inofensivo — o caminho
+real cai em `sem-egresso` (que não imprime corpo), e a única chave em jogo é a anon publicável,
+já em texto puro no `dashboard/index.html`. A proposta dele foi consertar *"quando `pedir()` for
+adotado por outra ferramenta"*.
+
+**Consertei agora, e o argumento está na medição dele mesmo:** repare de onde vinha a segurança —
+de **quem chama**, não da função. Garantia que depende do chamador evapora na segunda ferramenta,
+e a segunda já está na fila: o item `quatro-ferramentas-ainda-reportam-o-numero-cru` vai ligar
+**quatro**. "Conserta quando alguém adotar" é o adiamento que esta casa perde de vista.
+
+`redigir(texto, segredos)` apaga duas classes antes de qualquer corpo virar frase: o que quem
+chama **declarou** (vence sempre, inclusive sem forma reconhecível), e as **formas** que esta casa
+usa — Bearer ecoado, JWT, `sb_publishable_`/`sb_secret_`, `phc_`/`phx_`, `gh[pousr]_`. E metade do
+desenho é o que ela NÃO faz: corpo sem segredo continua legível, porque redigir tudo seria perder
+a evidência que a frase existe para dar. Tem asserção própria.
+
+**Medido:** portão com as asserções novas **exit 0** (40 asserções) · mutante 3, `redigir()`
+devolvendo o texto cru, **exit 1 com 12 falhas** · restaurado **exit 0**.
+
+E o desmentido dele, que vale registrar: a hipótese *"o corpo vaza credencial hoje"* foi **testada
+e refutada por medição** — o caminho real cai em `sem-egresso`, e a chave em jogo já é pública.
+
+### 4. O QA RECUSOU A ENTREGA, E ESTAVA CERTO EM TUDO — inclusive sobre o meu viés
+
+Veredito dele: **não integra como está**. Reproduzi cada achado com medição própria antes de
+aceitar, e os quatro principais eram reais.
+
+**R1 é o achado da rodada, e é bonito porque o gatilho é a própria entrega.** `classificar()`
+testava a marca do proxy ANTES do 2xx. Então um **HTTP 200 de verdade** cujo corpo citasse
+*"Host not in allowlist"* saía como *"não tem egresso… o pedido nunca chegou ao destino"* — uma
+frase que se contradiz sozinha, porque um 2xx **é** a prova de que chegou. E o gatilho não é
+hipotético: a mensagem de commit `dd7cf2c`, desta entrega, contém a frase **três vezes**, e volta
+em `head_commit.message` pela API de commits do GitHub — que é exatamente o que o `checar-ci.js`
+lê. É a doença curada ao contrário: máquina **com** egresso mandada caçar rede que não falta.
+
+**R2** — `const corpo = typeof t.corpo === 'string' ? … : ''` descartava em silêncio um corpo
+`Buffer`, que é o que `res.on('data')` entrega. Com a marca dentro de um Buffer, a falta de
+egresso voltava a ser `credencial`: **o defeito de 05/09 reentrando pela porta do contrato, dentro
+do módulo escrito para impedi-lo.**
+
+**R3** — todo `erroDoConnect` virava `sem-egresso` com a frase *"Não é credencial"*, inclusive
+**HTTP 407, que é o proxy pedindo credencial**. A entrega cometia, do outro lado da cerca, o
+pecado que ela nomeia. Agora 407 é `credencial`, 4xx/5xx é `sem-egresso`, e timeout é `falhou` —
+porque aí não se SABE, e afirmar seria a mesma afirmação sem evidência que o módulo cobra dos
+outros.
+
+**R5 é o mais irônico e o mais barato de cair.** Pus o passo do portão **depois** do
+`conferir-agentes.js`, que numa máquina sem egresso sai 2 — e com o `bash -e` do runner o job
+morre ali. O portão puro **nunca chegava a rodar** na máquina sem saída, que é o lugar exato para
+o qual a pureza foi construída. Ele foi posto onde a **narrativa** pedia (*"logo depois do
+conferir-agentes"*), não onde a **ordem** pedia.
+
+Mais: **R4** (o portão não estava no `npm test`, ao contrário do gêmeo `checar-ci-veredito.js`),
+**R6** (4 dos 6 exports sem um único chamador — uma segunda implementação do túnel CONNECT que
+ninguém exercitava; removidos, e o módulo hoje tem **zero `require`**), o **gap 4** (a marca era
+literal no espaço: `Host  not  in  allowlist` já caía em `credencial`) e o **gap 5** (sem o
+módulo, o `conferir-agentes.js` morria no `require` com **exit 1**, que o cabeçalho dele reserva
+para *"conferiu e não bate"* — outra mentira de código de saída; agora sai 2).
+
+**O diagnóstico do meu viés, que eu peço nos briefs e desta vez levei inteiro:** *"a entrega é
+mais forte exatamente onde é interessante e mais fraca exatamente onde é rotina."* A prova de
+mordida caiu de **6 mutantes** (o padrão do `conferir-item.js --controle`, na mesma pasta) para
+**2** — e 2 passou porque a manchete era forte. O achado que refuta o próprio pedido é verdadeiro;
+ele só consumiu todo o escrutínio disponível. Agora são **7 mutantes**, e **cinco deles são os
+defeitos que o portão realmente tinha** antes de o QA olhar — não mutantes inventados para
+engordar a contagem.
+
+**O que ele tentou derrubar e NÃO conseguiu** (vale tanto quanto): a tabela de egresso bate em
+**6 de 6 linhas**, remedida host a host com script próprio; a mudança do `conferir-agentes.js` é
+mesmo só de mensagem (`EXIT_ANTES=2`, `EXIT_DEPOIS=2`, caminho de sucesso idêntico); e a pureza do
+portão é real — ele construiu uma armadilha que fecha `net`/`tls`/`dns`/`http`/`https`/`fetch`,
+**validou a armadilha com controle positivo**, e só então mediu o portão sob ela: exit 0.
+
+Uma ressalva de precisão dele que eu incorporei: o 403 direto do GitHub é do **endpoint**, não do
+host — `/rate_limit` não consome quota e responde 200 até direto. O host está na lista; o que
+falta, direto, é o token.
+
+E ele registrou que **o próprio instrumento o enganou primeiro**: a v1 da varredura de código
+morto lia o *texto* dos importadores, então o arquivo dele — que cita os quatro nomes em
+comentários — mediu a si mesmo e deu verde. Passou a ler só o que cada importador desestrutura.
+
+### ERRO DE MÉTODO QUE EU COMETI, e ele é da mesma família das lições da casa
+
+Deixei um `npm test` rodando em segundo plano e, **enquanto ele rodava**, fiz `git stash` e
+`git checkout main` — troquei a árvore debaixo dele. O resultado daquele processo não mede coisa
+nenhuma e **não pode ser citado**. É o mesmo erro que `cmd | tail; echo $?` (medir o tubo em vez do
+comando), entrando por outra porta: **medir uma árvore que não é mais a que você acha que é.**
+O `npm test` que vale é o que o funil roda sobre o merge.
+
+### O NOME DA MÁQUINA E O PRÓXIMO PASSO
+
+Máquina: **`nuvem-20260905T0822`**. Marcador `voo/` **não criado** (PLANTAO §0.1); o lock foi
+`estado: em-curso` + `maquina` + `desde` no `backlog.json`, empurrado na hora.
+
+**A dúvida que fica, e ela é do dono:** o item `dono-do-item-tem-duas-grafias` precisa da fila de
+em-curso vazia para não virar conflito em 41 lugares. Como a nuvem roda de 4 em 4 h e o windows
+trabalha em paralelo, esse momento pode não chegar sozinho — pode ser que valha combinar uma
+janela no `RECADOS.md` em vez de esperar.
+
 ## 04/09 · A PRAÇA: a ressalva "mas não inteiro" SAI da abertura, antes de os quadros serem preenchidos (historiadora, worktree `agent-a6c78fbba84664325`)
 
 Continuação direta da entrada de 04/09 acima e do item `quadros-de-gente-vazios-na-fonte`
@@ -14147,3 +14361,99 @@ barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7
 `dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
 um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
 junto.
+
+## 05/09 (tarde) · `nuvem-20260905T1223` — o item mandava `endsWith`, e `endsWith` deixaria a main VERMELHA
+
+**Máquina desta rodada: `nuvem-20260905T1223`.** Sem issue com etiqueta `agente` — rodada agendada,
+trabalho puxado da fila. CI da `main` **verde** antes do primeiro despacho (run 33959539301).
+
+**O que eu peguei.** Três itens de território disjunto, todos da mesma classe — portão que assina de
+verde o que não mediu: `encaixe-bloco5-modelo-de-motor-parou-em-1608` (`test/encaixe.js`, dev-jogo),
+`guarda-le-o-texto-do-comando-nao-o-efeito` (`.claude/hooks/guarda.js`, porteiro) e
+`qa-fala-salvador-caixa-amigo-falso` (`test/qa-fala-salvador-caixa.js`, minha linha). Lock só no
+`backlog.json`, empurrado na hora; **marcador `voo/` não criado** (PLANTÃO §0.1).
+
+### O QUE CAIU, e é o achado da rodada: a premissa do próprio item
+
+O item `qa-fala-salvador-caixa-amigo-falso` diagnosticou certo e **prescreveu errado**. O diagnóstico:
+o rótulo dizia `termina em "não se recolhe"` e o código era `indexOf(...) >= 0`, então o portão ficou
+verde **por acidente de substring** — "recolhem" contém "recolhe". Isso é verdade e está confirmado.
+
+A prescrição era trocar por `endsWith`. **Medido contra `src/jogo.ts:2302`, ela não se sustenta:**
+
+| | |
+|---|---|
+| comprimento da fala | **258 caracteres** |
+| últimos 60 | `"...santo se conta. E o acarajé é as duas coisas: trabalho e fé."` |
+| `endsWith("não se recolhe")` | **false** |
+| `endsWith("não se recolhem")` | **false** |
+| `indexOf("não se recolhem") >= 0` | true |
+
+A fala foi reescrita **de novo** depois do achado do QA (a mudança do acarajé, que o comentário logo
+acima dela em `src/jogo.ts` explica), e a frase deixou de ser o fim — virou miolo. Ou seja:
+**`endsWith` deixaria este portão VERMELHO sobre uma `main` sã**, e o passo seguinte seria alguém
+mexer no TEXTO DO JOGO para satisfazer o instrumento. É o `PLANTAO.md` §8 ao pé da letra — antes de
+consertar o produto para satisfazer um portão, desconfie do portão —, só que aplicado ao **aceite de
+um item da fila**, que é um lugar onde esta casa ainda não tinha desconfiado.
+
+**A generalização, e ela vale para a próxima rodada:** aceite escrito em cima de um texto que outra
+entrega pode reescrever **envelhece junto com o texto**. O item nasceu em 04/09 e venceu em menos de
+24 h. Antes de executar aceite que cita conteúdo literal, **releia o conteúdo** — é o irmão da regra
+do §5 do PLANTÃO (*achado órfão se confere no `git log` antes de virar item*), um degrau adiante:
+**item vivo se reconfere na fonte antes de virar código.**
+
+### O que entrou no lugar
+
+Igualdade contra a fonte da verdade: o medido na tela contra `EPOCAS[salvador].abertura[4]` lido da
+própria página. Cobra o que o rótulo promete (é ESTA fala, inteira), morde reescrita não declarada, e
+**não envelhece** — que é a doença que criou o amigo falso.
+
+**A mordida, com o controle que separa as duas formas:**
+
+| mutante | asserção ANTIGA | asserção NOVA |
+|---|---|---|
+| **A** — navega uma fala antes (`i < FALA - 1`), mede 104 de 258 | exit **1** | exit **1** |
+| **B** — mede 200 de 258 (o fragmento mora entre 170 e 184) | exit **0**, *"tudo verde"* ← o falso verde | exit **1** |
+| restaurado | — | exit **0**, md5 de `src/jogo.ts` conferido, 0 resíduo |
+
+**O mutante A não separa as duas formas, e isso fica registrado como resultado, não como erro.** Foi a
+primeira injeção que eu fiz, ela mordeu, e eu quase parei ali — uma mordida que não distingue o
+conserto do defeito não prova conserto nenhum. Só o mutante B prova, e ele é o perigo que o próprio
+cabeçalho do arquivo já descrevia desde 04/09: medir antes de a caixa terminar de revelar.
+
+`npm test` cheio no commit exato: **exit 0 real**, 443 linhas ok. Entrega em
+`entrega/qa-fala-salvador-caixa-amigo-falso` (27f7743), pré-voo exige `qa` — e como **eu fui juiz em
+causa própria duas vezes** (decidi que a premissa caiu e decidi o conserto), despachei um QA
+independente para tentar derrubar, com o meu viés escrito no brief.
+
+### A armadilha de método desta rodada: `pgrep -f` casa com o próprio vigia
+
+Custou minutos e é barata de repetir. Para esperar o `npm test` terminar sem trocar a árvore debaixo
+dele (o erro de método registrado no RECADOS de 05/09), escrevi:
+
+```
+until ! pgrep -f "test/smoke.js|npm test" >/dev/null; do sleep 15; done
+```
+
+**Esse laço não termina nunca.** O `pgrep -f` casa a linha de comando inteira, e a linha de comando do
+shell que está esperando **contém o próprio padrão**. O vigia se enxerga, conclui que o teste ainda
+roda, e espera para sempre. Pior: a leitura natural do sintoma é *"o teste travou"* — quando o teste
+já tinha terminado com exit 0. Duas vezes seguidas eu li "TESTE REAL VIVO" sobre uma máquina sem
+nenhum processo `node` (`ps -eo comm | awk '$1=="node"'` → **vazio**).
+
+É a mesma família de `cmd | tail; echo $?` (medir o tubo em vez do comando): **o instrumento entrou na
+própria medição.** Conserto: casar pelo executável (`ps -eo comm,args` filtrando `comm == node`), ou
+excluir o próprio PID (`pgrep -f ... | grep -v $$`), nunca `pgrep -f` cru sobre um padrão que o vigia
+carrega escrito.
+
+### O que fica para a próxima
+
+- Três agentes em voo ao fechar esta entrada: `dev-jogo` no `encaixe.js` bloco 5, `porteiro` no
+  `guarda.js`, `qa` refutando a minha própria entrega. Nenhum dos três pousou ainda.
+- Os 3 PNGs que os portões regravam a cada rodada sujaram a árvore de novo — descartados com
+  `git checkout -- test/` (PLANTÃO §5.1). O item `prints-smoke-artefato-ou-referencia` continua livre
+  na fila e continua sendo a cura de verdade.
+- **Dúvida que não resolvi:** a igualdade nova lê expectativa e medição da MESMA fonte (`EPOCAS` da
+  página). Declarei no cabeçalho que é deliberado — ela responde *"o instrumento mediu a fala certa,
+  inteira?"*, não *"o texto é este texto?"*. Se isso a torna quase tautológica é justamente o que o QA
+  independente foi despachado para julgar.
