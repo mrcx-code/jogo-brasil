@@ -11,6 +11,57 @@
 // espera a linha TERMINAR de ser escrita — a caixa revela ~14 caracteres por segundo, e medir
 // antes disso mede meia frase e passa — e só então lê `scrollHeight`/`clientHeight`.
 //
+// A PRIMEIRA ASSERÇÃO ERA UM AMIGO FALSO, E O CONSERTO NÃO É O QUE O ITEM PEDIA (05/09)
+//
+// Ela dizia `termina em "não se recolhe"` no rótulo e era `indexOf(...) >= 0` no código. O texto
+// foi reescrito para "não se recolhem", e o portão continuou verde **por acidente de substring** —
+// "recolhem" CONTÉM "recolhe" —, não por a promessa ter sido mantida. É a mesma classe que esta
+// casa já caçou três vezes nesta semana: decidir por casamento de string produz verde que não
+// significa nada.
+//
+// O item `qa-fala-salvador-caixa-amigo-falso` mandava trocar por `endsWith`. **A premissa dele
+// caiu na medição**, e por isso o conserto é outro. Medido em 05/09 contra `src/jogo.ts:2302`:
+//
+//   comprimento                        258 caracteres
+//   últimos 60                         "...santo se conta. E o acarajé é as duas coisas: trabalho e fé."
+//   endsWith("não se recolhe")         false
+//   endsWith("não se recolhem")        false
+//   indexOf("não se recolhem") >= 0    true
+//
+// Ou seja: a fala foi reescrita **de novo** depois do achado do QA (a mudança do acarajé, que o
+// comentário de `src/jogo.ts` logo acima dela explica), e a frase deixou de ser o fim — virou
+// miolo. `endsWith` deixaria este portão VERMELHO sobre uma `main` sã, e o passo seguinte seria
+// alguém mexer no TEXTO DO JOGO para satisfazer o instrumento. É exatamente o que o `PLANTAO.md`
+// §8 proíbe: antes de consertar o produto para satisfazer um portão, desconfie do portão.
+//
+// O QUE ENTROU NO LUGAR, e é mais forte que as duas formas: **igualdade contra a fonte da
+// verdade**. A asserção compara o que foi medido na tela com `EPOCAS[salvador].abertura[4]` lido
+// da própria página. Ela cobra o que o rótulo promete (é ESTA fala, não outra), morde qualquer
+// reescrita que não seja a declarada — inclusive uma que só MENCIONE a palavra, que é o caso que
+// o item queria pegar — e **não precisa de manutenção** quando o texto mudar de novo, que é a
+// razão de o amigo falso ter nascido.
+//
+// A MORDIDA, PROVADA POR INJEÇÃO — e o primeiro mutante NÃO separou as duas formas (05/09)
+//
+// Mutante A (a navegação para uma fala antes: `i < FALA - 1`) mede a `abertura[3]`, 104 dos 258
+// caracteres. Ele morde — mas **a asserção antiga também mordia**, então ele não prova nada
+// sobre o conserto. Está registrado porque uma medição que não separa é resultado, não erro.
+//
+// Mutante B é o que separa, e é o perigo que o cabeçalho acima já descrevia — medir antes de a
+// caixa terminar de revelar. Ele mede 200 dos 258 caracteres, e o fragmento "não se recolhe"
+// mora entre 170 e 184, ou seja **dentro do prefixo**:
+//
+//   mutante B · asserção ANTIGA (indexOf)      exit 0 — "tudo verde"   ← falso verde
+//   mutante B · asserção NOVA  (igualdade)     exit 1                  ← morde
+//   restaurado · asserção NOVA                 exit 0, md5 de src/jogo.ts conferido
+//
+// O QUE ESTE CONSERTO **NÃO** FAZ, e o item pedia: uma reescrita do texto no `src/jogo.ts` não
+// deixa este portão vermelho, porque a expectativa é lida da MESMA fonte que a medição. É
+// deliberado. Esta asserção responde "o instrumento mediu a fala certa, inteira?" — que é a
+// pergunta de que o resto do arquivo depende. "O texto é este texto?" é outra pergunta, e fixá-la
+// aqui com um fragmento na mão foi exatamente o que criou o amigo falso. Teto de caracteres e
+// regra de conteúdo continuam onde já estão, no `encaixe.js`.
+//
 //   node test/qa-fala-salvador-caixa.js
 
 const { chromium } = require('playwright');
@@ -52,15 +103,17 @@ function ok(cond, msg) { console.log((cond ? '  ok    ' : '  FALHA ') + msg); if
     await page.evaluate(() => avancarFala());              // completa a fala 5 sem virar
     await page.waitForTimeout(400);
 
-    const m = await page.evaluate(function () {
+    const m = await page.evaluate(function (FALA) {
       const txt = document.getElementById('falaTxt');
       const palco = document.getElementById('falaPalco');
       const caixa = document.getElementById('falaCaixa');
       const cs = getComputedStyle(txt);
       const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4;
       const r = txt.getBoundingClientRect();
+      const ep = EPOCAS.find(x => x.id === 'salvador');
       return {
         texto: txt.textContent,
+        esperado: ep.abertura[FALA],
         linhas: Math.round(r.height / lh),
         lh: +lh.toFixed(1),
         txt: { s: txt.scrollHeight, c: txt.clientHeight },
@@ -68,7 +121,7 @@ function ok(cond, msg) { console.log((cond ? '  ok    ' : '  FALHA ') + msg); if
         caixa: { s: caixa.scrollHeight, c: caixa.clientHeight, topo: caixa.getBoundingClientRect().top, base: caixa.getBoundingClientRect().bottom },
         janela: innerHeight
       };
-    });
+    }, FALA);
     const arq = path.join(DIR, 'QAFALA-salvador-' + w + 'x' + h + '.png');
     await page.screenshot({ path: arq });
 
@@ -76,7 +129,8 @@ function ok(cond, msg) { console.log((cond ? '  ok    ' : '  FALHA ') + msg); if
     console.log('  falaTxt   ' + m.txt.s + '/' + m.txt.c + '   falaPalco ' + m.palco.s + '/' + m.palco.c +
       '   falaCaixa ' + m.caixa.s + '/' + m.caixa.c + '  (topo ' + Math.round(m.caixa.topo) + ', base ' + Math.round(m.caixa.base) + ' de ' + m.janela + ')');
     console.log('  print: ' + arq);
-    ok(m.texto.indexOf('não se recolhe') >= 0, 'a fala medida é a nova (termina em "não se recolhe")');
+    ok(m.texto === m.esperado, 'a fala medida é EXATAMENTE EPOCAS[salvador].abertura[' + FALA + ']' +
+      ' (' + m.texto.length + ' caracteres medidos, ' + m.esperado.length + ' na fonte)');
     ok(m.palco.s <= m.palco.c + 1, 'o palco da fala não rola (' + m.palco.s + ' ≤ ' + m.palco.c + ')');
     ok(m.caixa.s <= m.caixa.c + 1, 'a caixa da fala não rola (' + m.caixa.s + ' ≤ ' + m.caixa.c + ')');
     ok(m.caixa.base <= m.janela + 1, 'a caixa termina dentro da tela (base ' + Math.round(m.caixa.base) + ' ≤ ' + m.janela + ')');
