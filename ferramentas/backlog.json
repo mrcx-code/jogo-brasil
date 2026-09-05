@@ -2077,6 +2077,50 @@
       "desde": null,
       "concluido_em": "2026-09-05T16:41:45.247Z",
       "resolucao": "INTEGRADO 05/09 por nuvem-20260905T1623 (commit b693439, direto na main: alcance test/ so, npm test e encaixe.js verdes por exit real antes do push). instrumentos() passou a filtrar por git check-ignore --stdin antes de exigir executablePath. O CRITERIO E check-ignore, NUNCA nao-rastreado: arquivo novo ainda nao commitado que ENTRARIA num git add continua no alcance, que e exatamente o instrumento novo de um agente -- so sai o que o .gitignore ja declarou que nunca sera versionado. Exit de check-ignore diferente de 0 e 1 devolve conjunto vazio e o alcance fica o de antes (alcance a mais nunca deixou passar nu; a menos deixaria). MEDIDO, exit real lido na linha seguinte ao comando: limpo exit 0 com 62 portoes derivados e alcance 259; A (scratch IGNORADO test/tmp-* lancando nu) exit 0 no portao NOVO e exit 1 no portao ANTIGO pelo mesmo arquivo via git stash, que e o A/B que prova o conserto; B (rastreavel, nunca commitado) exit 1; C (rastreado, prints-costura.js) exit 1; restaurado exit 0 com arvore limpa. E O CONTROLE VIROU PERMANENTE, que era o buraco: as 4 cobaias do --autoteste provavam que o portao MORDE e nenhuma provava que ele SOLTA, entao o filtro entraria sem nada cobrando o seu alcance. A quinta prova e um PAR DE GEMEOS -- dois arquivos de conteudo identico com o mesmo lancamento nu, cuja unica diferenca e o nome (um casa test/tmp-*, o outro nao) -- e o par e deliberado contra o falso verde mais barato num portao de alcance: um controle de um lado so passaria identico se instrumentos() devolvesse lista vazia. Mordida por injecao nos DOIS sentidos, restaurada: filtro SOME exit 1 (scratch ignorado derrubaria um funil), filtro come TUDO exit 1 (o filtro comeu arquivo rastreavel), restaurado exit 0. NAO SEI, e fica dito com esse nome: nao exercitei o caminho de maquina sem git no PATH (lido, nao rodado), e o autoteste diz INCONCLUSIVO em vez de sobrescrever scratch homonimo pre-existente, entao um scratch com esse nome exato deixa a quinta prova muda."
+    },
+    {
+      "id": "fala-eixo-horizontal-nao-e-medido",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "territorio": [
+        "test/qa-fala-cabe-de-verdade.js"
+      ],
+      "titulo": "Ninguem mede o eixo HORIZONTAL da caixa da fala: caixa.right <= innerWidth nao e cobrado por instrumento nenhum",
+      "aceite": "O portao da caixa da fala passa a cobrar tambem o eixo horizontal (caixa.right <= innerWidth e o par retrato+caixa a 320 px de largura), nos mesmos 52 pontos em que ja cobra topo, base e corte. Mordida provada por injecao nos dois sentidos: uma fala ou um nome fabricado que estoure a largura util sai exit 1; limpo continua exit 0.",
+      "detalhe": "Achado do qa em 05/09 na auditoria de portao-fala-topo-na-tela, e o proprio auditor o declarou como NAO MEDIDO -- e o maior buraco que sobrou da rodada. Os dois portoes da fala (qa-fala-cabe-de-verdade.js e qa-fala-salvador-caixa.js) so olham o eixo VERTICAL. O proprio abrirFala tem um comentario dizendo que dois dos treze nomes ja estouraram a largura util de 272 px, entao a suspeita nao e teorica -- mas ninguem mediu se estouram hoje.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "fala-cabe-de-verdade-fora-do-funil",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "territorio": [
+        "ferramentas/integrar.js",
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "titulo": "Os dois portoes da fala rodam so no CI: falta o portao condicional no funil, e o da igualdade escreve 3 PNGs rastreados",
+      "aceite": "(a) qa-fala-cabe-de-verdade.js vira portao CONDICIONAL no integrar.js, com teto de 7 min, reaproveitando o booleano tocaFaixa do EPOCAS que o arquivo JA calcula para exigir historiador, mais src/estilo.css e os dois test/qa-fala-*.js -- que e o conjunto que pode mover a caixa. (b) qa-fala-salvador-caixa.js para de escrever os 3 PNGs QAFALA-salvador-*.png na arvore rastreada (os prints vao para os.tmpdir(), como o qa-vercel-quadro.js ja faz) e SO ENTAO pode ser pendurado no funil. Mordida provada nos dois: diff que mexe na faixa do EPOCAS exige o portao; diff que nao mexe nao exige; e git status limpo depois de rodar o da igualdade.",
+      "detalhe": "Decidido em 05/09 por nuvem-20260905T1623 ao integrar portao-fala-topo-na-tela: os dois portoes foram pendurados no CI (7 min e 2 min), que ja tira os dois da condicao de decoracao a cada push. O funil fica para este item, e o motivo de (b) esta medido: o da igualdade suja a arvore com 3 PNGs rastreados depois de rodar, e pendurar no funil algo que suja a arvore repetiria a historia do qa-vercel-quadro.js, que so foi pendurado DEPOIS de parar de mutar arquivo em disco.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "as-duas-reguas-da-fala-nunca-se-encontram",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "territorio": [
+        "test/encaixe.js",
+        "test/qa-fala-cabe-de-verdade.js"
+      ],
+      "titulo": "O teto de CARACTERES e a folga de PIXEL nunca se encontram: ninguem verifica que 260 caracteres continuam cabendo",
+      "aceite": "Passa a existir uma assercao que liga as duas reguas: que o teto de caracteres do encaixe.js (260) continua cabendo na MENOR tela, medido em pixel. Hoje a coluna maior fala e impressa e nunca cobrada. Mordida provada: baixar a largura ou subir o teto de caracteres a ponto de a maior fala nao caber sai exit 1.",
+      "detalhe": "Achado do qa em 05/09 (auditoria de portao-fala-topo-na-tela). O teto de caracteres vive no encaixe.js, a folga de pixel vive no qa-fala-cabe-de-verdade.js, e a relacao entre as duas e afirmacao de COMENTARIO, nao assercao. O proprio auditor recusou propor o numero sem medir, e disse isso com esse nome: propor regua sem medir seria inventar regua.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
