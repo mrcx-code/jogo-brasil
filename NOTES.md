@@ -13853,3 +13853,124 @@ portao medindo as paginas de ontem, verde e falso.
    duas. As outras tres secoes reproduzem byte a byte (verificado na mesma rodada). O arquivo foi
    restaurado do HEAD para nao entrar ruido binario no commit, e isto fica registrado como item
    novo, nao como parte desta entrega.
+
+## 05/09 (madrugada) · `nuvem-20260905T0023` — a main estava vermelha e o portão que pega isso não rodava no funil
+
+### O ACHADO DA RODADA, E ELE APARECEU NO BASELINE
+
+Eu ia tirar o baseline por disciplina (`PLANTAO.md` §7: baseline vermelho = a máquina, nunca a
+entrega) e o baseline entregou outra coisa: **o CI da `main` reprovava desde 04/09 22:07 UTC**,
+em quatro runs seguidos do `teste.yml` (602, 603, 604, 605), no **terceiro passo**. E ele nomeia
+os culpados sozinho:
+
+```
+REPROVADO — 2 lançamento(s) de Chromium sem executablePath:
+  test/qa-eca-escolar.js:54
+  test/qa-praca-quadro-vazio-vira-objeto.js:32
+```
+
+Os dois arquivos nasceram em 04/09 (`1a0da66` 19:07 e `ee72878` 20:30, −0300), **depois** do
+conserto de 31/08 que fez de `abrir.js` `chromiumPath()` a definição canônica. Os dois já davam
+`require` em `abrir.js` — só não usavam a função. O conserto é a linha que o próprio portão
+imprime, e está em `0139bd9`.
+
+### A RAZÃO DE TER ENTRADO É ESTRUTURAL, E É ELA QUE VALIA A RODADA
+
+**O `test/portao-navegador.js` rodava no CI e não estava na linha do `npm test`** — que é o que o
+`integrar.js` roda no merge. Então as duas entregas de 04/09 **passaram pelo funil verdes** e só
+ficaram vermelhas depois de já estarem na `main`, num lugar que nenhuma rodada lê. Portão que só
+acusa depois do merge não é portão, é autópsia.
+
+Pendurado em `6db0886`, com o relógio no comando:
+
+| | exit real | tempo |
+|---|---|---|
+| `node test/portao-navegador.js` | 0 | **125 ms** |
+| `node test/portao-navegador.js --autoteste` | 0 | 553 ms |
+| `npm test` inteiro | — | ~118 s |
+
+125 ms sobre 118 s. Ele lê a FONTE por grep, **não sobe navegador nem servidor**, então não
+disputa a porta derivada do hash da raiz (⚠ `PLANTAO.md` §3) e pode vir logo depois do
+`npm run build` — antes de tudo que abre navegador, que é onde ele explica a causa em vez de
+deixar o próximo portão morrer com a mensagem do Playwright.
+
+O `--autoteste` ficou **de fora de propósito**: ele injeta defeito em três cobaias e restaura, e
+um crash no meio deixaria arquivo modificado dentro de um funil. O CI já o roda, e lá nada depende
+da árvore sobreviver.
+
+**Mordida provada por injeção, DENTRO do `npm test`**, com exit code real: sem o `executablePath`
+em `qa-eca-escolar.js:54`, `npm test` sai **exit 1** e para no portão novo, nomeando arquivo e
+linha. Restaurado: `portao-navegador.js` exit 0.
+
+### A CAUSA DE RAIZ, QUE É DA MÁQUINA E CONTRADIZ UMA ORDEM DO `PLANTAO.md`
+
+`npm install` **nesta máquina quebra os portões de navegador** — e o `PLANTAO.md` §7 manda rodar
+`npm install` antes do primeiro funil da rodada. O contêiner traz `/opt/pw-browsers/chromium-1194`
+provisionado; **não há lockfile** (está no `.gitignore`), então `npm install` resolve
+`playwright: ^1.47.0` para **1.63.0**, que procura a build **1243**. Lançamento nu morre; com
+`executablePath` funciona.
+
+As duas ordens continuam certas — só não se separam sozinhas. O portão pendurado agora é quem as
+separa, e a decisão de fundo virou item: `sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem`.
+
+### O PASSO DA CSP QUE ASSINAVA DE VERDE UMA PROVA QUE NÃO ACONTECEU
+
+Item `passo-csp-assere-codigo-nao-motivo` (achado do porteiro em 04/09), fechado em `05f5d2e`.
+Reproduzido antes de consertar, e a premissa dele estava certa:
+
+| cenário | exit | o que a saída diz |
+|---|---|---|
+| `dist/glossario/` presente | 1 | **`A. /glossario/ e publicada e NAO tem CSP nenhuma`** ← a mordida |
+| `dist/glossario/` ausente | 1 | `E. … 404 (Not Found)` + `E. … a página branqueou` |
+
+Os dois saem 1. Um exercitou a mordida, o outro não — porque a lista de páginas publicadas é
+derivada de `dist/`, então sem a pasta a rota nem entra no laço que a injeção esvazia. Um passo
+que só olha o código trata os dois como a mesma coisa.
+
+Medido nos dois sentidos, com o controle A/B contra o passo antigo:
+
+| | exit real |
+|---|---|
+| passo NOVO, árvore sã | **0** (`PASSO OK`) |
+| passo NOVO, `dist/glossario/` ausente | **1** (`o exit foi 1, mas pelo motivo ERRADO`) |
+| passo ANTIGO, mesmo cenário | **teria PASSADO** — falso verde |
+
+### O QUE CAIU, E ERA MEU
+
+**A minha primeira medição do achado do porteiro foi inválida, e por um momento pareceu
+derrubá-lo.** Removi a pasta `glossario/` da **raiz**, rodei os dois cenários e os logs saíram
+**idênticos** — o que lia como "o falso verde não existe". Não derrubava nada: o portão lê
+`dist/`, que é saída de build, e eu tinha removido a pasta errada. Refeito contra
+`dist/glossario/`, o achado se confirmou inteiro.
+
+É a lição do §7 entrando por mais uma porta: **antes de desconfiar do achado, desconfie de que
+você mediu a coisa que ele descreve.**
+
+### NÚMEROS DE HIGIENE, MEDIDOS
+
+| | |
+|---|---|
+| marcadores `voo/` no servidor | **29** — sexta rodada seguida da nuvem sem criar (a decisão (a) de 03/09 continua de pé) |
+| ramos `entrega/` órfãos de verdade | **4**, os mesmos já triados em 04/09 · órfão novo: **0** |
+| fila do dono (`mesa_pedido` não-feito) | **0** |
+| backlog | 141 itens · 27 livres · 23 livres para construtor (piso 3) · `conferir-fila.js` exit 0 |
+
+### O DESFECHO, MEDIDO PELO `conclusion` REAL DA API — NÃO PELA LISTA
+
+`main` **verde de novo**. O run 607 do `teste.yml` (o commit `0139bd9`, do conserto) fechou com os
+dois jobs em `conclusion: success` — `portoes` e `smoke`.
+
+⚠ **E vale a armadilha, porque ela é irmã da do tubo:** a listagem de runs continuava dizendo
+`status: in_progress` para o 607 **depois** de ele ter terminado. Quem lesse a lista concluiria
+"ainda rodando" e iria embora sem saber. O que responde é o **check run de cada job**
+(`get_check_run` no `job_id`), que traz `conclusion`. Vale a mesma regra do `PLANTAO.md` §7: julgue
+pelo campo que decide, não pelo primeiro que aparece.
+
+### O PRÓXIMO PASSO E A DÚVIDA QUE FICA
+
+Dois agentes ficaram em worktree nesta rodada (`ritual-fora-do-drop-sem-lista-branca` e
+`filtro-de-console-copiado-por-arquivo`); as entregas deles vão ao funil por quem estiver de
+plantão. **A dúvida que não resolvi:** o `npm test` desta máquina continua vermelho em
+`qa-praca-quadro-vazio-vira-objeto.js` pelo `net::ERR_TUNNEL_CONNECTION_FAILED` do `MEDIDA_HOST` —
+é exatamente o item do segundo agente, e enquanto ele não pousar **o funil desta máquina não fecha
+verde**. Ou seja: nesta rodada a ordem certa é integrar o filtro de console **primeiro**.
