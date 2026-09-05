@@ -29,7 +29,7 @@ let falhas = 0;
 function ok(c, m) { console.log((c ? '  ok   ' : '  FALHA ') + m); if (!c) falhas++; }
 
 (async function () {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const page = await nav.newPage({ viewport: { width: 390, height: 844 } });
   const erros = [];
   page.on('pageerror', e => erros.push(String(e)));
