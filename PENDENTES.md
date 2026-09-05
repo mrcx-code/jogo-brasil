@@ -4056,7 +4056,59 @@ manda usar para o excedente das quatro perguntas. Nenhuma página foi publicada.
 
 ---
 
-## 103 — A TERCEIRA família do `vercel.json`: propriedade desconhecida DENTRO da regra de `headers[]` — porteiro (03/09)
+## 103 — ✅ FEITO (05/09) — A TERCEIRA família do `vercel.json`: propriedade desconhecida DENTRO da regra de `headers[]` — porteiro (03/09)
+
+**FECHADO em 05/09 pelo porteiro, item `vercel-propriedade-dentro-da-regra`.** O conserto é o que
+este item propunha, e saiu do tamanho previsto: a tabela `PROPRIEDADES_DA_REGRA` no
+`conferirVercelJson()` do `ferramentas/construir.js`, ao lado da `TOPO_DO_VERCEL` — conjunto exato
+(`source` e `headers`, e nada mais), cobrado nos DOIS sentidos (propriedade a mais reprova, a menos
+também). A prova de mordida entrou como quatro casos novos no `test/qa-vercel-fora-do-conjunto.js`,
+que já tinha a bancada montada e já está pendurado no CI.
+
+**Reconfirmado antes de consertar, e o número desta vez é contra CINCO portões** (`construir.js` ·
+`qa-vercel-host.js` · `qa-vercel-diretiva-repetida.js` · `qa-csp-cabecalhos.js` · `csp-paginas.js`),
+cada injeção sozinha, na regra decisiva `/glossario/(.*)`, exit code real do terminal e desvio
+conferido em cada execução:
+
+| injeção | ANTES | DEPOIS |
+|---|---|---|
+| `has: [{ type: "header", key: "x-nunca-enviado" }]` | 0 · 0 · 0 · 0 · 0 | **1** · 0 · 0 · 0 · 0 |
+| `missing: [{ type: "header", key: "accept" }]` | 0 · 0 · 0 · 0 · 0 | **1** · 0 · 0 · 0 · 0 |
+| `destination: "https://exfil.example.com"` | 0 · 0 · 0 · 0 · 0 | **1** · 0 · 0 · 0 · 0 |
+| *controle*: arquivo limpo | 0 · 0 · 0 · 0 · 0 | 0 · 0 · 0 · 0 · 0 |
+
+Quem morde as três é o BUILD, que é o único dos cinco que roda em `npm test` e no funil. O controle
+continua verde: `vercel.json` com **0 linha de diff**.
+
+**A DÚVIDA DA SEMÂNTICA FOI FECHADA, e ela era metade do aceite.** Este item registrava com todas
+as letras que a existência e o efeito de `has`/`missing` vinham de BUSCA e não de leitura da fonte,
+porque a máquina de 03/09 batia 403 no proxy de egresso. Esta máquina Windows tem egresso, e a
+fonte foi lida em 05/09 — duas leituras, e a segunda é a que decide:
+
+1. <https://vercel.com/docs/project-configuration/vercel-json>, seção `headers`, tabela **"Header
+   object definition"** (página com `last_updated: 2026-08-14`). Verbatim: `has` — *"An optional
+   array of `has` objects with the `type`, `key` and `value` properties. Used for conditional path
+   matching based on the **presence** of specified properties."*; `missing` — a mesma frase com
+   *"**absence**"*. Confirma o que 03/09 tinha inferido.
+2. O **esquema oficial**, mais forte que a prosa porque é o que a Vercel valida:
+   <https://openapi.vercel.sh/vercel.json> (o mesmo `$schema` que o `vercel.json` deste repositório
+   declara; buscado em 05/09, HTTP 200, 420.201 bytes). Em `properties.headers.items`:
+   `additionalProperties: false`, `required: ["source","headers"]`, e
+   `properties: ["source","headers","has","missing"]` — quatro, e nada mais.
+
+**Uma CORREÇÃO ao achado de 03/09, que só a leitura do esquema trouxe:** as três injeções não são
+da mesma natureza. `has` e `missing` são **válidas** para a Vercel — ela aceita, publica, e a regra
+fica condicional em silêncio, que é o pior caso. `destination` numa regra de `headers[]` é
+**inválida** pelo `additionalProperties: false`, e o esperado é que a própria Vercel a recuse no
+deploy. Continua cobrada aqui assim mesmo: depender da validação de terceiro para o que este
+repositório afirma sobre si mesmo é aposta, e a recusa dela chegaria depois do push, não antes.
+
+**O conjunto desta casa é MENOR que o da Vercel, de propósito:** `source` e `headers`. `has`/
+`missing` são legítimas e documentadas — e este repositório nunca decidiu usar uma. Fechar em dois
+em vez de quatro é o que faz a cobrança morder hoje.
+
+*(O registro original de 03/09 segue abaixo, sem edição, porque é o diagnóstico que custou a
+sessão.)*
 
 **Achado separado de propósito, e não consertado de carona.** Ele apareceu no item
 `vercel-valor-e-topo`, que fechou as duas famílias que o QA tinha medido (VALOR de chave permitida
@@ -4107,6 +4159,10 @@ como três casos novos no `test/qa-vercel-fora-do-conjunto.js`, que já tem a ba
 outros dois eram — não é alcançável de fora. Fica registrado para não ser redescoberto do zero, e
 está escrito também no cabeçalho do `test/qa-vercel-fora-do-conjunto.js`, que é onde a próxima
 pessoa vai olhar.
+
+*(Fim do registro de 03/09. Foi feito em 05/09 — ver o cabeçalho deste item. O cabeçalho do
+`test/qa-vercel-fora-do-conjunto.js` também foi reescrito no mesmo commit, de "achado aberto" para
+o que fechou, para as duas fontes não discordarem.)*
 
 ---
 

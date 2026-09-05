@@ -19,21 +19,37 @@
 // Agora que está verde, ele É o portão que impede as duas de voltarem, e está pendurado no CI
 // (.github/workflows/teste.yml, job `smoke`, ao lado dos outros portões do vercel.json).
 //
-// ⚠ EXISTE UMA TERCEIRA FAMÍLIA, MEDIDA E **NÃO** COBERTA POR ESTE ARQUIVO — porteiro, 03/09,
-// registrada como PENDENTES 103 e deixada de fora DE PROPÓSITO, para não entrar de carona num
-// item que não a pediu. Ela não é chave de cabeçalho nem chave de topo: é PROPRIEDADE DESCONHECIDA
-// DENTRO DA REGRA de `headers[]`, isto é, entre `source` e `headers`, que é o único lugar que
-// nenhum dos cinco portões lê. Medido na mesma bancada, cada injeção sozinha, DEPOIS do conserto
-// desta entrega (construir.js · qa-vercel-host.js · qa-vercel-diretiva-repetida.js ·
-// qa-csp-cabecalhos.js):
-//     has:     [{type:"header", key:"x-nunca-enviado"}]  em /glossario/(.*)  -> 0·0·0·0
-//     missing: [{type:"header", key:"accept"}]           em /glossario/(.*)  -> 0·0·0·0
-//     destination: "https://exfil.example.com"           em /glossario/(.*)  -> 0·0·0·0
-// `has`/`missing` são graves porque tornam a regra CONDICIONAL sem mudar um byte do `source` nem
-// do `headers`: a CSP conferida diretiva por diretiva continua escrita, pregada e verde nos cinco
-// portões, e simplesmente NÃO É SERVIDA numa visita normal. O conserto cabe em poucas linhas no
-// mesmo `conferirVercelJson()` (conjunto fechado de propriedades por regra: `source` e `headers`),
-// e a decisão de fazê-lo é de quem despachar o próximo item — não deste.
+// A TERCEIRA FAMÍLIA ENTROU AQUI EM 05/09 (porteiro, item `vercel-propriedade-dentro-da-regra`), e
+// com ela os três casos `regra-has`, `regra-missing` e `regra-destination` abaixo. Ela estava
+// escrita neste cabeçalho desde 03/09 como ACHADO ABERTO — medida e deixada de fora DE PROPÓSITO,
+// para não entrar de carona num item que não a pediu — e era o PENDENTES 103.
+//
+// O QUE ERA: propriedade desconhecida DENTRO DA REGRA de `headers[]`, entre `source` e `headers`.
+// Não é chave de cabeçalho (a `CHAVES_PERMITIDAS` fecha o conjunto DENTRO de `headers[].headers`)
+// nem chave de topo (a `TOPO_DO_VERCEL` fecha o conjunto FORA de `headers[]`): era a única casa
+// que nenhum portão lia. **Reconfirmado em 05/09 antes de consertar**, cada injeção sozinha, na
+// regra decisiva `/glossario/(.*)`, com exit code real do terminal e o desvio conferido, agora
+// contra CINCO portões (construir.js · qa-vercel-host.js · qa-vercel-diretiva-repetida.js ·
+// qa-csp-cabecalhos.js · csp-paginas.js):
+//     has:     [{type:"header", key:"x-nunca-enviado"}]  -> 0·0·0·0·0
+//     missing: [{type:"header", key:"accept"}]           -> 0·0·0·0·0
+//     destination: "https://exfil.example.com"           -> 0·0·0·0·0
+// `has`/`missing` são a classe grave: tornam a regra CONDICIONAL sem mudar um byte do `source` nem
+// do `headers`, então a CSP conferida diretiva por diretiva continua escrita, pregada e verde, e
+// simplesmente NÃO É SERVIDA numa visita normal.
+//
+// O QUE FECHOU: a tabela `PROPRIEDADES_DA_REGRA` no `conferirVercelJson()` do
+// `ferramentas/construir.js` — conjunto exato (`source` e `headers`, e nada mais), nos dois
+// sentidos, com a mesma disciplina da `TOPO_DO_VERCEL`. Quem morde as três é o BUILD, exit 1.
+//
+// E A SEMÂNTICA DEIXOU DE SER INFERIDA. O PENDENTES 103 registrava, com todas as letras, que a
+// existência de `has`/`missing` vinha de busca e não de leitura da fonte, porque aquela máquina
+// batia 403 no proxy de egresso. Foi LIDA em 05/09 de uma máquina com egresso, e a citação inteira
+// está no bloco da `PROPRIEDADES_DA_REGRA`: a tabela "Header object definition" de
+// <https://vercel.com/docs/project-configuration/vercel-json> e, mais forte que a prosa porque é o
+// que a Vercel valida, o esquema oficial <https://openapi.vercel.sh/vercel.json>, que em
+// `properties.headers.items` traz `additionalProperties: false`, `required: ["source","headers"]` e
+// exatamente quatro propriedades: `source`, `headers`, `has`, `missing`.
 //
 // O QUE ELE REFUTA. Em 03/09 a entrega `csp-tabela-de-rotas-e-conjunto` fechou um buraco real: os
 // quatro portões do `vercel.json` cobravam VALOR e nenhum cobrava o CONJUNTO de chaves, então
@@ -118,6 +134,15 @@ function noCabecalho(fonte, chave, valor) {
     h.value = valor;
   });
 }
+// A TERCEIRA FAMÍLIA: propriedade DENTRO da regra, entre `source` e `headers` — nem cabeçalho, nem
+// topo. Escreve na regra, não no array de cabeçalhos dela.
+function naRegra(fonte, propriedade, valor) {
+  return comObjeto(function (v) {
+    const r = v.headers.find(function (x) { return String(x.source) === fonte; });
+    if (!r) throw new Error('a regra ' + fonte + ' sumiu do vercel.json — a injeção não tem onde morder');
+    r[propriedade] = valor;
+  });
+}
 
 const CASOS = [
   {
@@ -160,6 +185,39 @@ const CASOS = [
       return comObjeto(function (v) {
         const r = v.headers.find(function (x) { return String(x.source) === '/glossario/(.*)'; });
         r.headers.push({ key: 'Access-Control-Allow-Origin', value: '*' });
+      });
+    },
+  },
+  {
+    nome: 'regra-has',
+    porque: 'TERCEIRA família: `has` DENTRO da regra /glossario/(.*) — a regra vira CONDICIONAL sem'
+      + ' mudar um byte do `source` nem do `headers`, e a CSP conferida diretiva por diretiva'
+      + ' simplesmente não é servida numa visita normal. É documentada e válida para a Vercel'
+      + ' (esquema oficial), e é exatamente por isso que ela passa em silêncio',
+    texto: function () { return naRegra('/glossario/(.*)', 'has', [{ type: 'header', key: 'x-nunca-enviado' }]); },
+  },
+  {
+    nome: 'regra-missing',
+    porque: 'a irmã da anterior, pelo avesso: `missing` casa pela AUSÊNCIA. `accept` vai em todo'
+      + ' pedido de navegador, então a condição nunca casa e a regra nunca serve nada',
+    texto: function () { return naRegra('/glossario/(.*)', 'missing', [{ type: 'header', key: 'accept' }]); },
+  },
+  {
+    nome: 'regra-destination',
+    porque: 'propriedade que nem existe em regra de `headers[]` (o esquema oficial traz'
+      + ' `additionalProperties: false`). O esperado é que a Vercel a recuse no deploy — mas depender'
+      + ' da validação de terceiro para o que este repositório afirma sobre si mesmo é aposta, e a'
+      + ' recusa dela chegaria DEPOIS do push',
+    texto: function () { return naRegra('/glossario/(.*)', 'destination', 'https://exfil.example.com'); },
+  },
+  {
+    nome: 'regra-sem-headers',
+    porque: 'o outro sentido do conjunto: a regra decisiva do glossário PERDE o array `headers`.'
+      + ' Regra sem cabeçalho não serve política nenhuma, e `headers` é `required` no esquema oficial',
+    texto: function () {
+      return comObjeto(function (v) {
+        const r = v.headers.find(function (x) { return String(x.source) === '/glossario/(.*)'; });
+        delete r.headers;
       });
     },
   },
