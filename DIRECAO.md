@@ -914,3 +914,49 @@ pintura. Correção de posição, não de arte.
 (e então os 3 pixel art é que precisam mudar) é decisão de arquitetura visual de longo prazo —
 cito aqui, não decido. E nada disto é pergunta de representação (§2): quem está em cada rua
 continua sendo do dono via `ROSTOS.md`; esta auditoria julgou só a TÉCNICA com que a rua é pintada.
+
+---
+
+## AUDITORIA (2026-09-05): A GENTE QUE ATRAVESSA A RUA — três defeitos de célula, e só um era conhecido
+
+Relatório completo, com as coordenadas de corte e as provas: `ferramentas/arte-corte-gente-dobrada-05-09.md`.
+Ferramentas: `test/arte-receita-corte-gente.js` · `test/arte-varre-celulas-gente.js` · tiras `test/CORTE-*.png`.
+
+Varri as 13 folhas de `GENTE_EP_B64` (312 quadros). Três famílias, e a segunda e a terceira
+nunca tinham sido medidas por ninguém:
+
+**1. CÉLULA DOBRADA — 6, não 4.** Duas poses coladas numa célula só. Além das quatro do item
+(`praca f0q3/f2q3/f2q6`, `pindorama f2q6`), **`temfonte f2q5` e `segurou f2q5`**. As seis se
+cortam limpas. O ponto de corte **não é o meio geométrico**: `dx = cxm − dw/2` (jogo.ts:6395)
+ancora pelo centro da CÉLULA, então quem manda é onde a cabeça cai no retângulo novo — a regra
+de "registre pela cabeça" do §5 do CLAUDE.md, agora com número. Cortar no meio do vão deixa as
+duas metades a −14,5 e −4 do centro numa fileira cuja amplitude natural é 3,5.
+
+**2. CÉLULA INCHADA — 13 quadros em 11 capítulos, e é o defeito mais VISÍVEL dos três.**
+Como `sc = GENTE4_ALVO / naturalHeight` e `dy = GROUND − dh`, célula mais alta que a figura
+**encolhe a pessoa e a solta do chão**. Medido: 20 a 29% menor e até **9,5 px de mundo no ar**
+(21% da altura do corpo) em um passo de cada oito, em cais · segurou · palmares · **pindorama** ·
+portas · naodito · pequenaafrica · aceiro · hoje · jabaquara. Causa isolada em `pindorama f2q0`:
+**um único pixel de alfa 31 em y=318** estica a célula em 67 linhas — o desfranjamento do §5
+falhando por baixo do limiar. Some a isso `salvador`, cuja folha inteira é 13–20% menor que a
+dos outros doze (inflação uniforme, sem solavanco, prioridade menor).
+
+**3. NENHUMA DESSAS FILEIRAS É UM CICLO DE CAMINHADA — e é o achado que reenquadra tudo.**
+Medi a fase da passada (abertura dos pés em % da altura): `praca f0` varia **3,6 pp** em nove
+quadros e `praca f2` varia **1,5 pp**. Uma passada de verdade vai de ~10% (pés juntos) a ~55%
+(abertos). As duas pessoas de A PRAÇA estão travadas no máximo em TODOS os quadros: elas não
+caminham, **deslizam numa lunge**. Só `pindorama f2` alterna duas fases (43,8 → 51,4) e por isso
+lê como caminhada.
+
+**A consequência de direção, e ela vale para as próximas rodadas:** consertar corte e trim é
+higiene e deve ser feito, mas **não** produz caminhada. Quem cortar as seis células não pode
+anunciar que a rua ganhou vida — ganhou o fim de uma pessoa aparecendo em dobro. Caminhada é
+pedido de arte nova (folha com fases de verdade), e pedido de arte vive na mesa com a imagem
+embutida, não aqui.
+
+**§2:** nenhuma dúvida devolvida no corte de PINDORAMA — verificado por medida que ele não cria
+representação nova (mesma anciã, mesma vasilha, o vão de 52 px não toca objeto) e que ela não é
+golpeada (`CAP_FILA`, jogo.ts:2920). Ao contrário: o corte REMOVE a figura duplicada lado a lado,
+que foi exatamente o motivo de a historiadora barrar o remendo em 04/09. Fica nomeada para o
+dono, sem urgência, a pergunta de acervo: cada capítulo tem três pessoas em laço, e em PINDORAMA
+isso significa três indivíduos representando o capítulo dos povos originários.
