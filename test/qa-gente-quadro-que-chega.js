@@ -1,8 +1,9 @@
 // QA 04/09 — O PORTAO QUE CONTA QUADRO QUE **CHEGA**, e nao quadro que EXISTE.
 //
 // POR QUE ELE EXISTE, e a razao e um defeito de INSTRUMENTO, nao de arte. Seis dos 312 quadros
-// de `GENTE_EP_B64` sao **pixel de espera 1x1** desde que a folha foi cortada — a figura nunca
-// veio na folha entregue. Nenhuma auditoria desta casa os viu, e nao por descuido:
+// de `GENTE_EP_B64` nasceram **pixel de espera 1x1** — a figura nunca veio na folha entregue.
+// (Quatro ja foram remendados; em 04/09 sobram DOIS, listados em CONHECIDOS.) Nenhuma auditoria
+// desta casa viu os seis, e nao por descuido:
 //
 //   · a varredura que le 518 imagens do repositorio reporta "0 nao decodificaram" — porque um
 //     GIF/WebP 1x1 **decodifica normalmente**. Ela conta quadro que EXISTE;
@@ -21,13 +22,9 @@
 //       distancias que escolhem os 24 quadros e le `mobEhGente`, a MESMA variavel que o desenho
 //       le. Passo que cai no objeto generico (barril/saco no lugar da pedestre) reprova.
 //
-// A EXCECAO E NOMEADA, DATADA E SE COBRA SOZINHA. A PRACA tem tres quadros vazios que **nao
-// podem ser preenchidos sem passar pela historiadora**: a abertura do capitulo AFIRMA o defeito
-// em voz alta ("mas nao inteiro: em alguns passos entra um objeto no lugar da pessoa"), e o
-// `test/qa-praca-quadro-vazio-vira-objeto.js` cobra que essa frase tenha prova viva. Preencher
-// os tres torna a frase FALSA, e texto historico e territorio da historiadora, nao do dev.
-// Entao eles ficam listados abaixo — e o portao reprova TAMBEM se a excecao ficar velha: no dia
-// em que A PRACA for preenchida, ele manda tirar a linha daqui em vez de deixa-la mentindo.
+// A EXCECAO E NOMEADA, DATADA E SE COBRA SOZINHA — e o portao reprova TAMBEM se ela ficar
+// velha: no dia em que o quadro for preenchido, ele manda tirar a linha daqui em vez de
+// deixa-la mentindo. Foi assim que A PRACA saiu de tres excecoes para uma (04/09).
 //
 // USO:  node test/qa-gente-quadro-que-chega.js
 //       GENTE_INJETAR=aceiro:1:4 node test/qa-gente-quadro-que-chega.js   (prova que ele morde)
@@ -39,9 +36,17 @@ const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
 // capitulo -> ["fQ"], os quadros vazios que este portao ACEITA hoje, com o motivo.
 const CONHECIDOS = {
-  // A PRACA (04/09): a abertura do capitulo afirma o defeito, e `qa-praca-quadro-vazio-vira-objeto.js`
-  // cobra a afirmacao. Preencher exige reescrever a fala — historiadora, nao dev.
-  praca: ['f0q7', 'f2q0', 'f2q7'],
+  // A PRACA (04/09): eram tres; dois foram remendados nesta data (ver REMENDOS abaixo) depois
+  // que a historiadora reescreveu a abertura e tirou a ressalva que os prendia. SOBROU o f2q7,
+  // e ele fica pelo MESMO motivo do pindorama f2q7: a fileira 2 de A PRACA nao e um laco de
+  // oito poses. Medido do WebP: f2 = 148, 148, 151, **323**, 147, 151, **322**, 1 px (mediana
+  // 151). As celulas q3 e q6 tem DUAS poses coladas lado a lado — a fileira empacota 8 poses em
+  // 6 celulas (conferido a olho na tira de contato). Os dois vizinhos de q7 sao, por adjacencia
+  // ciclica, o q6 malformado e o q0 que era vazio; e, como a cadencia da fileira ja esta
+  // quebrada pelas duas celulas dobradas, NENHUMA pose limpa dela pode ser VERIFICADA como
+  // continuacao do passo. Copiar as cegas so porque a largura bate e o que a revisao de
+  // PINDORAMA reprovou. Conserto certo: partir q3 e q6 ao meio, o que e corte visual, nao copia.
+  praca: ['f2q7'],
   // PINDORAMA (04/09): NAO remendado de proposito. A pose vizinha (f2q6) que serviria de fonte
   // e ELA MESMA outro defeito de corte — celula LARGA com DUAS poses da mesma pessoa lado a
   // lado (295px contra ~131px de mediana da fileira, achado pela revisao adversarial). Copiar
@@ -59,6 +64,13 @@ const CONHECIDOS = {
 // o portao manda tirar a linha daqui.
 const REMENDOS = {
   segurou: ['f2q7=f2q6'],     // 04/09: idem, o senhor das sacolas
+  // A PRACA (04/09), os dois que TINHAM vizinho limpo. O buraco era o f0q7 e a copia veio do
+  // f0q6 (152px, celula simples, adjacente); o outro buraco era o f2q0 e a copia veio do f2q1
+  // (148px, idem). Nos dois casos a fonte foi passada A MAO (`... praca 2 0 2:1`) e nao pelo
+  // padrao do `tapar-buraco-gente.js`: o padrao anda para tras ciclicamente e, para o f2q0,
+  // teria caido no f2q6, que e celula DOBRADA — o erro exato que fez o remendo de PINDORAMA
+  // ser revertido. Ao mexer aqui de novo, confira a largura da fonte antes de confiar no padrao.
+  praca: ['f0q7=f0q6', 'f2q1=f2q0'],
   // O par e nomeado pelo indice MAIOR (e assim que a varredura acha a repeticao), e nao pelo
   // quadro que estava vazio: em O QUE TEM FONTE o buraco era o f2q0 e a copia veio do f2q7.
   temfonte: ['f2q7=f2q0'],    // 04/09: idem, quem leva a pilha de livros

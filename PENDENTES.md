@@ -4361,22 +4361,50 @@ nomear "PARE" nem uma "regra dos 5" para quem só tem o link do dashboard.
 
 ---
 
-## 109 — QUATRO quadros de gente continuam vazios: 3 de A PRAÇA (da historiadora) + 1 de PINDORAMA (precisa de corte novo) — dev-jogo (04/09, revisado apos auditoria adversarial)
+## 109 — DOIS quadros de gente continuam vazios: `praca f2q7` e `pindorama f2q7` — os dois pelo MESMO motivo, e os dois precisam de corte novo, não de cópia — dev-jogo (05/09)
 
-O item `quadros-de-gente-vazios-na-fonte` foi fechado **pela metade, de propósito**. Dos seis
-quadros 1×1 de `GENTE_EP_B64`, **dois** foram tapados de verdade (O QUE SEGUROU `f2q7`, O QUE
-TEM FONTE `f2q0`) e a pessoa parou de virar barril/saco nesses passos. Os outros quatro ficaram
-vazios, e por DOIS motivos diferentes:
+**Estado em 05/09: 310 de 312 quadros com tinta** (era 308). Dos seis quadros 1×1 originais de
+`GENTE_EP_B64`, **quatro** foram tapados com a pose vizinha e a pessoa parou de virar barril/saco
+nesses passos: O QUE SEGUROU `f2q7`, O QUE TEM FONTE `f2q0` (rodada de 04/09) e agora **A PRAÇA
+`f0q7` e `f2q0`** (05/09). Sobraram **dois**, e o motivo passou a ser o mesmo nos dois.
 
-**Os três de A PRAÇA (`f0q7`, `f2q0`, `f2q7`)** — motivo não é técnico:
-- a **abertura de A PRAÇA afirma o defeito em voz alta**: *"Quem atravessa a tela já foi
-  desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa."*
-- `test/qa-praca-quadro-vazio-vira-objeto.js` existe para cobrar que essa frase tenha **prova
-  viva**, e reprova se nenhum passo cair no objeto. Ele é perecível de propósito e diz isso na
-  mensagem de falha.
-- Preencher os três torna metade da frase **falsa**. Reescrever fala de capítulo é território da
-  **historiadora** (`EPOCAS[]`), não do dev — e a própria historiadora deixou o aviso no código,
-  ao lado da fala: *"⚠ QUEM FECHAR O ITEM `quadros-de-gente-vazios-na-fonte` VOLTA AQUI"*.
+**A PRAÇA, o que foi feito em 05/09.** A ordem do item anterior foi cumprida: a **fala primeiro**
+(historiadora, commit `cbab7d6` — a ressalva *"mas não inteiro: em alguns passos entra um objeto
+no lugar da pessoa"* saiu da abertura por subtração), e só depois a arte. Larguras reais medidas
+do WebP, por fileira:
+
+- **f0**: `149, 152, 155, **330**, 150, 147, 152, 1` (mediana 152). Tapado **`f0q7` ← `f0q6`**
+  (152 px, célula simples, adjacente) — o padrão limpo de `segurou`/`temfonte`.
+- **f2**: `1, 148, 151, **323**, 147, 151, **322**, 1` (mediana 151). Tapado **`f2q0` ← `f2q1`**
+  (148 px, idem). ⚠ A fonte foi passada **à mão** (`... praca 2 0 2:1`): o padrão do
+  `tapar-buraco-gente.js` anda para trás ciclicamente e teria caído no `f2q6`, que é célula
+  DOBRADA — exatamente o erro que fez o remendo de PINDORAMA ser revertido.
+
+**`praca f2q7` ficou de fora, e é a mesma classe de defeito do PINDORAMA.** Os dois vizinhos dele
+por adjacência cíclica são o `f2q6` (322 px, dobrado) e o `f2q0` (que estava vazio). Conferido a
+olho na tira de contato: **`f2q3` e `f2q6` têm DUAS poses coladas lado a lado** — a fileira 2
+empacota 8 poses em 6 células, ou seja **não é um laço de oito poses**. Consequência prática, e é
+ela que decidiu: com a cadência já quebrada por duas células dobradas, **nenhuma pose limpa da
+fileira pode ser VERIFICADA como continuação do passo**. Copiar `f2q1`/`f2q4`/`f2q5` só porque a
+largura bate seria copiar às cegas — que é o que a revisão adversarial de PINDORAMA reprovou.
+Deixado vazio de propósito, declarado em `CONHECIDOS`, e cobrado nominalmente (ver abaixo).
+
+**A fala nova aguenta os três estados.** Ela foi escrita para ser verdadeira com 0, 1, 2 ou os 3
+quadros preenchidos, então preencher só dois **não** a torna falsa — e é por isso que a arte pôde
+andar sem esperar uma segunda rodada de texto.
+
+**Portões atualizados no mesmo commit:**
+- `test/qa-gente-quadro-que-chega.js`: `CONHECIDOS.praca` caiu de `['f0q7','f2q0','f2q7']` para
+  `['f2q7']`; `REMENDOS.praca = ['f0q7=f0q6', 'f2q1=f2q0']` declarado (o par é nomeado pelo índice
+  MAIOR, por isso `f2q1=f2q0` e não o contrário).
+- `test/qa-praca-quadro-vazio-vira-objeto.js` **reescrito, não aposentado**. Deixou de ser prova
+  viva de um defeito (a frase que ele provava não existe mais) e passou a cobrar as três
+  afirmações que a fala nova faz — *"já foi desenhado para cá"* (23/24 passos), *"a pintura ainda
+  é emprestada do capítulo ANTERIOR"* (calculado como `EPOCAS[ep-1].id`, não gravado como
+  `"naodito"`, para que reordenar capítulos reprove aqui em vez de deixar a fala mentindo) e *"o
+  que fica no chão vem de OUTRO"* — **e prende o buraco que sobrou nominalmente**: exatamente um
+  passo cai no objeto e é o `f2q7`. Tapar o `f2q7` sem passar por aqui reprova; abrir buraco novo
+  também. Os dois portões foram medidos contra si mesmos (ver "medido" abaixo).
 
 **O de PINDORAMA (`f2q7`, no capítulo dos povos originários)** — a 1ª tentativa desta rodada
 tapou este com a pose vizinha `f2q6`, mas a **revisão adversarial (QA + historiadora, 04/09)
@@ -4395,16 +4423,25 @@ contando `pindorama f2q6`, a fonte do remendo revertido acima) têm o MESMO defe
 medido por `test/qa-gente-quadro-dobrado.js` (novo, nesta rodada) — mas nenhum deles está sendo
 usado como fonte de remendo hoje, então não bloqueiam nada agora.
 
-**O que falta, em ordem:**
-1. A historiadora decide a fala nova de A PRAÇA (teto de 260 caracteres, `encaixe.js` bloco 15;
-   a fala das outras cinco é o molde). Depois: `node test/tapar-buraco-gente.js praca 0 7` etc.,
-   tirar `praca` de `CONHECIDOS` em `test/qa-gente-quadro-que-chega.js`, declarar os remendos em
-   `REMENDOS`, e aposentar (ou reescrever) `qa-praca-quadro-vazio-vira-objeto.js`.
-2. PINDORAMA precisa de alguém partir o quadro largo `f2q6` em duas poses — arte/corte, não
-   cópia. Depois: tirar `pindorama` de `CONHECIDOS`, sem precisar declarar remendo nenhum (a
-   arte de verdade não é remendo).
-3. Considerar se os 6 quadros largos pré-existentes (fora do escopo desta rodada) merecem o
-   mesmo corte — `test/qa-gente-quadro-dobrado.js` já os lista e morde se um novo aparecer.
+**O que falta — e agora é UM problema só, com dois casos.** O que sobrou não é mais "quadro que
+faltou na folha"; é **quadro que veio COLADO no vizinho**. Cópia não resolve nenhum dos dois: os
+dois precisam de alguém **partir a célula dobrada ao meio**, o que é escolha visual de onde
+cortar, não `tapar-buraco-gente.js`.
 
-**Ordem importa em (1):** a fala primeiro, senão o jogo passa a afirmar o que deixou de ser
-verdade.
+1. **`pindorama f2q7`** (capítulo dos povos originários, §2.1 — prioridade mais alta): partir o
+   `f2q6` (295 px contra ~131 de mediana) em duas poses. Depois: tirar `pindorama` de
+   `CONHECIDOS`, sem declarar remendo nenhum (arte de verdade não é remendo).
+2. **`praca f2q7`**: partir o `f2q6` (322 px) e, no mesmo passe, o `f2q3` (323 px) — a fileira 2
+   de A PRAÇA tem DUAS células dobradas, e é por isso que ela não fecha um laço de oito. Depois:
+   tirar `f2q7` de `CONHECIDOS` **e** de `VAZIO_ESPERADO` em
+   `test/qa-praca-quadro-vazio-vira-objeto.js` (as duas linhas, senão o portão reprova).
+3. Considerar se os quadros largos restantes merecem o mesmo corte — `praca f0q3`, `segurou
+   f2q5`, `temfonte f2q5`. `test/qa-gente-quadro-dobrado.js` já os lista e morde se um novo
+   aparecer. Nenhum é fonte de remendo hoje, então não bloqueiam nada.
+
+**A lição que ficou, e ela é de ferramenta:** `tapar-buraco-gente.js` recusa fonte VAZIA mas
+**aceita fonte DOBRADA** — o padrão dele (andar para trás ciclicamente) escolheu a célula errada
+em 2 dos 3 buracos desta rodada. Ele não tem como saber sozinho: 322 px é largura legítima para
+uma folha diferente. Quem usar a ferramenta **mede a largura da fonte antes de confiar no
+padrão**, ou passa a fonte à mão. Melhoria óbvia se isto reaparecer: fazer a ferramenta recusar
+fonte cuja largura passe de ~1,5× a mediana da fileira.
