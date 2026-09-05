@@ -6,39 +6,102 @@
 //   node ferramentas/checar-ci.js
 //
 // Sai 1 se o veredito for VERMELHO (o último run COMPLETO do workflow `teste` na `main`
-// reprovou). Sai 0 nos outros dois casos (VERDE, ou DESCONHECIDO — nenhum run completo ainda).
-// A REGRA QUE ESTE ARQUIVO EXISTE PARA CUMPRIR: julgar pelo campo `conclusion` de um run
-// `completed`, NUNCA pela última linha de log e NUNCA tratando `status: in_progress` como
-// veredito — um run em andamento não é verde nem vermelho, é indefinido, e confundi-lo com
-// verde é exatamente a armadilha que deixou a main vermelha sem ninguém notar.
+// reprovou). Sai 2 se a CONSULTA falhou de verdade (rede, API, forma inesperada — ver a
+// SEGUNDA VOLTA abaixo). Sai 0 nos outros dois casos (VERDE, ou DESCONHECIDO — nenhum run
+// completo ainda). A REGRA QUE ESTE ARQUIVO EXISTE PARA CUMPRIR: julgar pelo campo
+// `conclusion` de um run `completed`, NUNCA pela última linha de log e NUNCA tratando
+// `status: in_progress` como veredito — um run em andamento não é verde nem vermelho, é
+// indefinido, e confundi-lo com verde é exatamente a armadilha que deixou a main vermelha
+// sem ninguém notar.
 //
-// TESTÁVEL SEM REDE: CI_INJETAR=<caminho.json> substitui a chamada ao `gh` por um array de
-// runs lido de arquivo (mesma forma que `gh run list --json` devolve) — é o que
+// A SEGUNDA VOLTA, e ela é a lição mais cara desta ferramenta até aqui: a 1ª versão (05/09,
+// madrugada) chamava `gh run list` via `execFileSync`. A nuvem tentou usá-la horas depois e
+// não tem `gh` instalado (usa o MCP do GitHub, não o CLI, e o CLAUDE.md dela diz isso por
+// extenso) — a falha saiu SILENCIOSA, o processo composto terminou exit 0, "de longe parecia
+// que rodou". É a mesma doença que a ferramenta existe para curar (main vermelha sem ninguém
+// notar), reproduzida dentro dela mesma, na única das três máquinas que roda sem ninguém por
+// perto — que é justamente a que não olhou o CI da vez anterior. Reescrita para não depender
+// de CLI nenhum: só o módulo `https` embutido do Node, que existe em qualquer máquina que já
+// rode este repositório. E qualquer falha de consulta agora é um ESTADO PRÓPRIO ('erro',
+// exit 2) — nunca mais silenciosamente igual a "desconhecido" nem a "verde".
+//
+// TESTÁVEL SEM REDE: CI_INJETAR=<caminho.json> substitui a consulta por um array de runs lido
+// de arquivo (mesma forma que a API devolve, já traduzida) — é o que
 // `test/checar-ci-veredito.js` usa, com fixtures gravadas de runs REAIS desta rodada.
-const { execFileSync } = require('child_process');
+// CI_INJETAR_ERRO=<motivo> força o caminho de erro sem tocar rede, para provar que ele nunca
+// vira "desconhecido" nem "verde" por acidente.
+const https = require('https');
 const fs = require('fs');
 
-function runsDoGh(workflow, limite) {
-  const bruto = execFileSync('gh', [
-    'run', 'list',
-    '--branch', 'main',
-    '--workflow', workflow,
-    '--limit', String(limite || 10),
-    '--json', 'databaseId,conclusion,status,headSha,createdAt,workflowName,url',
-  ], { encoding: 'utf8' });
-  return JSON.parse(bruto);
+// O repositório do GitHub — UMA constante, no espírito do MEDIDA_HOST/ferramentas/dominio.js
+// (CLAUDE.md §3.2/§8): mude aqui, nunca em cada chamada.
+const OWNER_REPO = 'mrcx-code/jogo-brasil';
+
+function pedidoGithub(caminho) {
+  return new Promise((resolve, reject) => {
+    const opcoes = {
+      hostname: 'api.github.com',
+      path: caminho,
+      headers: Object.assign(
+        { 'User-Agent': 'jogo-brasil-checar-ci', 'Accept': 'application/vnd.github+json' },
+        (process.env.GH_TOKEN || process.env.GITHUB_TOKEN)
+          ? { Authorization: 'Bearer ' + (process.env.GH_TOKEN || process.env.GITHUB_TOKEN) }
+          : {}
+      ),
+      timeout: 10000,
+    };
+    const req = https.get(opcoes, res => {
+      let corpo = '';
+      res.on('data', d => { corpo += d; });
+      res.on('end', () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error('GitHub API respondeu ' + res.statusCode + ' em ' + caminho + ': ' + corpo.slice(0, 300)));
+          return;
+        }
+        try {
+          resolve(JSON.parse(corpo));
+        } catch (e) {
+          reject(new Error('GitHub API devolveu JSON inválido em ' + caminho + ': ' + e.message));
+        }
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error('GitHub API não respondeu em 10s: ' + caminho)));
+    req.on('error', reject);
+  });
 }
 
-function runsParaVeredito(workflow) {
+async function runsDoGithub(workflow, limite) {
+  const json = await pedidoGithub(
+    '/repos/' + OWNER_REPO + '/actions/workflows/' + workflow + '.yml/runs' +
+    '?branch=main&per_page=' + (limite || 10)
+  );
+  if (!json || !Array.isArray(json.workflow_runs)) {
+    throw new Error('GitHub API devolveu forma inesperada (sem workflow_runs) para "' + workflow + '"');
+  }
+  return json.workflow_runs.map(r => ({
+    databaseId: r.id,
+    conclusion: r.conclusion || '',
+    status: r.status,
+    headSha: r.head_sha,
+    createdAt: r.created_at,
+    workflowName: r.name,
+    url: r.html_url,
+  }));
+}
+
+async function runsParaVeredito(workflow) {
+  if (process.env.CI_INJETAR_ERRO) {
+    throw new Error('erro injetado para teste: ' + process.env.CI_INJETAR_ERRO);
+  }
   if (process.env.CI_INJETAR) {
     const todos = JSON.parse(fs.readFileSync(process.env.CI_INJETAR, 'utf8'));
     return todos.filter(r => r.workflowName === workflow);
   }
-  return runsDoGh(workflow);
+  return runsDoGithub(workflow);
 }
 
 // A FUNÇÃO PURA — o que o teste exercita sem tocar rede. Recebe os runs de UM workflow,
-// mais recente primeiro (é a ordem que `gh run list` já devolve), e devolve o veredito mais
+// mais recente primeiro (é a ordem que a API já devolve), e devolve o veredito mais
 // autoritativo: o `conclusion` do run mais recente cujo `status` é `completed`. Runs
 // `in_progress`/`queued` mais recentes que esse são informativos (o `rodando` do retorno),
 // nunca o veredito.
@@ -54,8 +117,17 @@ function veredito(runs) {
   return { estado, run: completo, rodando: (rodando && rodando.createdAt > completo.createdAt) ? rodando : null };
 }
 
-function main() {
-  const runs = runsParaVeredito('teste');
+async function main() {
+  let runs;
+  try {
+    runs = await runsParaVeredito('teste');
+  } catch (e) {
+    console.log('CI DA MAIN: ERRO AO CONSULTAR — ' + e.message);
+    console.log('Isto NÃO é "verde" nem "desconhecido": a consulta falhou de verdade, e tratar');
+    console.log('isso como sucesso foi exatamente o bug que a nuvem achou nesta ferramenta em 05/09.');
+    process.exitCode = 2;
+    return;
+  }
   const v = veredito(runs);
   if (v.estado === 'vermelho') {
     console.log('CI DA MAIN: VERMELHO — ' + (v.run ? v.run.url : '(sem url)'));
@@ -74,5 +146,10 @@ function main() {
   process.exitCode = 0;
 }
 
-module.exports = { veredito, runsDoGh };
-if (require.main === module) main();
+module.exports = { veredito, runsDoGithub };
+if (require.main === module) {
+  main().catch(e => {
+    console.log('CI DA MAIN: ERRO INESPERADO — ' + e.message);
+    process.exitCode = 2;
+  });
+}

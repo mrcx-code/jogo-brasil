@@ -68,5 +68,29 @@ console.log('\n---- o script inteiro, via CI_INJETAR, sai pelo CÓDIGO certo (n�
   ok(saidaDe('ci-so-em-andamento.json') === 0, 'CLI real: sem run completo sai 0 (desconhecido não bloqueia)');
 }
 
+console.log('\n---- CI_INJETAR_ERRO: a consulta falhando de verdade NUNCA pode sair como "verde" nem "desconhecido"');
+{
+  // A LIÇÃO DE 05/09: a 1ª versão desta ferramenta chamava `gh` via execFileSync, e na nuvem
+  // (sem `gh` instalado) a falha saiu SILENCIOSA — o processo composto terminou exit 0, "de
+  // longe parecia que rodou". Reescrita para usar https embutido do Node (sem CLI nenhum), e
+  // esta asserção prova que uma consulta que falha vira um ESTADO PRÓPRIO (exit 2), nunca
+  // confundido com os outros dois exit 0.
+  const { execFileSync } = require('child_process');
+  function saidaComErroInjetado(motivo) {
+    try {
+      execFileSync(process.execPath, [path.join(__dirname, '..', 'ferramentas', 'checar-ci.js')], {
+        env: { ...process.env, CI_INJETAR_ERRO: motivo },
+        encoding: 'utf8',
+      });
+      return { codigo: 0, saida: '' };
+    } catch (e) {
+      return { codigo: e.status, saida: (e.stdout || '') };
+    }
+  }
+  const r = saidaComErroInjetado('rede indisponível (simulado, sem tocar rede de verdade)');
+  ok(r.codigo === 2, 'CLI real: consulta que falha sai exit 2, NUNCA 0 nem 1 (era o bug: "de longe parecia que rodou")');
+  ok(r.saida.includes('ERRO AO CONSULTAR'), 'a mensagem nomeia que foi ERRO, não silêncio nem "desconhecido"');
+}
+
 console.log('\n' + (falhas === 0 ? 'PASSOU' : ('FALHOU — ' + falhas + ' asserç' + (falhas === 1 ? 'ão' : 'ões'))));
 process.exit(falhas === 0 ? 0 : 1);

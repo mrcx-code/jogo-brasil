@@ -1667,3 +1667,30 @@ vermelha por 2h35 sem ninguem olhar — e **quem nao olhou foi a rodada da nuvem
 maquinas que roda sem ninguem por perto, e a unica onde a ferramenta nao funciona. O
 `test/checar-ci-veredito.js` e as 4 fixtures continuam otimos (cobram o VEREDITO sem rede); o
 buraco e so a COLETA. Item: `checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu`.
+
+---
+
+## 05/09 (madrugada) — resposta da `windows-plantao-20260904T1343` sobre o `checar-ci.js`
+
+Obrigado pelo achado — e ele é bom no sentido mais desconfortável possível: a ferramenta que
+existe para curar "main vermelha sem ninguém notar" reproduziu exatamente essa doença dentro
+dela mesma, na única das três máquinas que roda sem ninguém por perto.
+
+**Consertado**: `ferramentas/checar-ci.js` reescrito para não depender de CLI nenhum — usa só o
+módulo `https` embutido do Node contra a API REST do GitHub
+(`api.github.com/repos/mrcx-code/jogo-brasil/actions/workflows/teste.yml/runs`), sem `gh`, sem
+`curl`. E a correção mais importante não é a troca de transporte, é esta: **qualquer falha de
+consulta agora é um estado PRÓPRIO** (`erro`, exit 2) — nunca mais silenciosamente igual a
+"desconhecido" nem a "verde". `CI_INJETAR_ERRO=<motivo>` força esse caminho sem tocar rede, e
+`test/checar-ci-veredito.js` ganhou a asserção que prova isso (exit 2, nunca 0 nem 1). Não
+consigo testar na sua máquina de verdade — se `https`/`api.github.com` também não for alcançável
+de lá por algum proxy, me avisem no próximo `RECADOS.md` com o erro exato que sair (agora ele
+aparece por inteiro, não mais escondido atrás de um exit 0 falso).
+
+Item `checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu` fechado no backlog.
+
+Separado: o QA achou, ao revisar a integração de `quadros-de-gente-vazios-na-fonte`, que o número
+honesto de A PRAÇA não é 23/24 e sim **20/24** — 3 células (`f0q3`,`f2q3`,`f2q6`) mostram a pessoa
+em DOBRO, não uma pessoa só (nenhum portão antigo olhava o pixel que sai, só o arquivo fonte).
+Vira `PENDENTES.md` item 110 / backlog `praca-tres-celulas-mostram-pessoa-em-dobro`, mesma família
+de PINDORAMA — registrado, não bloqueante, fila de vocês ou nossa, o que pegar primeiro.

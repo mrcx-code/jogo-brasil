@@ -4445,3 +4445,67 @@ em 2 dos 3 buracos desta rodada. Ele não tem como saber sozinho: 322 px é larg
 uma folha diferente. Quem usar a ferramenta **mede a largura da fonte antes de confiar no
 padrão**, ou passa a fonte à mão. Melhoria óbvia se isto reaparecer: fazer a ferramenta recusar
 fonte cuja largura passe de ~1,5× a mediana da fileira.
+
+**QA independente (05/09, antes de integrar) confirmou as 8 alegações acima por medida própria**
+(decodificador WebP escrito do zero, os dois portões de mutação repetidos por exit code, `npm
+test`/`encaixe.js` verdes, `index.html`/`pack-naodito.json` byte-idênticos ao build) e achou mais
+duas coisas — a integração levou as duas:
+
+1. **O NÚMERO HONESTO NÃO É 23/24, É 20/24 — nenhum portão existente olhava o PIXEL que sai.** Os
+   três portões de gente medem tinta, largura e um booleano; nenhum desenha o quadro como o motor
+   desenha e olha o resultado. Novo portão, `test/qa-praca-o-que-a-pessoa-ve.js` (do QA, ainda
+   **não** pendurado no `npm test` — decisão de integração, feita agora: pendurá-lo é trabalho
+   futuro, registrado abaixo): desenha os 24 passos com a matemática do motor (centra pela
+   largura, normaliza pela altura) e mede o que sai. Resultado, com ruído zero em 3 corridas: **20
+   de 24 passos mostram UMA pessoa · 3 mostram a pessoa EM DOBRO (`f0q3`, `f2q3`, `f2q6` — as
+   mesmas três células já catalogadas como "largas" em `test/qa-gente-quadro-dobrado.js`, agora
+   com prova de que a largura não é coincidência: cada uma tem um corredor de 24-28 colunas
+   vazias na fração 0,49-0,50 da própria largura, e 2× a tinta das vizinhas) · 1 não mostra
+   pessoa (`f2q7`)**. A fala nova não fica falsa por isto — ela não afirma "cada passo mostra uma
+   pessoa", só "já foi desenhado para cá" — mas o item que classificava A PRAÇA como "310/312 com
+   tinta, resolvido" estava contando o pixel errado. **Vira item novo** (`praca-tres-celulas-mostram-pessoa-em-dobro`,
+   mesma família de PINDORAMA/§2, mesmo remédio: corte de sprite, não cópia).
+2. **A incoerência entre `f0q7` e `f2q7`, e a correção é só de REDAÇÃO, não de decisão.** O texto
+   acima disse que "a fileira 2 não é mais um laço de oito poses" e por isso "nenhuma pose limpa
+   da fileira pode ser VERIFICADA como continuação do passo" — mas a fileira 0 TAMBÉM tem célula
+   dobrada (`f0q3`, 330 px) e mesmo assim `f0q7` foi tapado com `f0q6`. As duas frases não valem
+   ao mesmo tempo. **A regra realmente aplicada, nos dois casos, foi mais estreita e é coerente**:
+   copiar SÓ o vizinho diretamente adjacente, e só se ele mesmo for limpo — nunca alcançar um
+   quadro não-adjacente só porque a largura bate. `f0q6` (vizinho de `f0q7`) é limpo → copiou.
+   `f2q6` (vizinho de `f2q7`) é a própria célula dobrada → não copiou, e não foi buscar `f2q1`/
+   `f2q4`/`f2q5` (limpos, mas não-adjacentes) porque isso seria o MESMO erro que reverteu o
+   remendo de PINDORAMA (copiar às cegas por largura bater, sem verificar a pose). A frase "a
+   fileira não é mais um laço de oito" ficou como justificativa GERAL DEMAIS; a decisão em si
+   nunca foi inconsistente.
+
+---
+
+## 110 — TRÊS células de `GENTE_EP_B64` mostram a pessoa EM DOBRO, não uma pessoa só — achado pelo QA ao revisar o item 109 (05/09)
+
+Nenhum dos três portões de gente que existiam antes de 05/09 (tinta, largura, o booleano de
+"chegou") olha o **pixel que sai** — só o arquivo fonte. `test/qa-praca-o-que-a-pessoa-ve.js`
+(QA, 05/09) desenha os 24 passos de A PRAÇA com a mesma matemática do motor (centra pela largura
+da folha, normaliza pela altura) e lê o resultado: **20/24 mostram uma pessoa · 3 mostram a
+pessoa em dobro (`f0q3`, `f2q3`, `f2q6`) · 1 mostra objeto (`f2q7`)**. As três células "em dobro"
+são as mesmas já catalogadas como largas em `test/qa-gente-quadro-dobrado.js`; a prova nova é que
+cada uma tem um corredor de 24-28 colunas vazias bem no meio (fração 0,49-0,50 da própria
+largura) e 2× a tinta das vizinhas — não é "uma pose de braço aberto", são duas figuras coladas.
+
+**Por que isto é §2 e não só estética:** o mesmo raciocínio que fez a revisão adversarial de
+PINDORAMA (04/09) julgar "pessoa em dobro" PIOR que "objeto no lugar da pessoa" — figura
+duplicada lê como ornamento, não como gente — se aplica aqui. A PRAÇA não é capítulo de povos
+originários, mas é gente real (o comício de 1984) sendo desenhada em duplicata por acidente de
+corte de sprite, não por escolha.
+
+**O que falta, e é o MESMO corte que falta em PINDORAMA e em `praca f2q7` (item 109):** alguém
+com a ferramenta de corte de sprite (`ferramentas/pacotes.js` ou equivalente) partir cada célula
+dobrada em duas poses de verdade, olhando o resultado antes de aceitar — não é `tapar-buraco-
+gente.js` (ele copia, não corta). Sugestão de ordem: como as três células de PINDORAMA/`f2q7`
+sofrem do mesmo problema, vale considerar um MUTIRÃO de corte (uma sessão de arte dedicada, com
+`arte` julgando o resultado) em vez de consertar um de cada vez em rodadas separadas — mas quem
+decidir a ordem registre a razão, não corte por hábito.
+
+**`test/qa-praca-o-que-a-pessoa-ve.js` ainda NÃO está pendurado no `npm test`** — decisão de
+integração adiada de propósito (é gate novo, medido só uma vez antes de virar portão permanente).
+Quem pegar este item: pendurá-lo primeiro (ele já morde nos dois sentidos, ruído zero em 3
+corridas) e só depois cortar as células — assim a régua existe ANTES do corte, não depois.
