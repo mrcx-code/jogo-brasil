@@ -37,6 +37,39 @@
 // colunas. Enquanto a coluna do espelho ficar bem acima do limiar, o espelho não fabricou
 // falso positivo nenhum. É por isso que ele imprime as duas e não só a que decide.
 //
+// ── 05/09, terceira passada: O BURACO DO PARÁGRAFO ACIMA ESTÁ FECHADO ────────────────────
+// O parágrafo anterior descreve o estado até 04/09 e fica de propósito: ele é o registro de
+// por que existe uma SEGUNDA medida aqui, e o `QA_TABELA=1` reimprime os números dele na
+// coluna CRUA. O que mudou é que a coluna crua deixou de ser a única.
+//
+// **A saída escolhida foi (b) do item `ritual-fora-do-drop-sem-lista-branca`: assinatura
+// invariante, em `test/assinatura-ritual.js`** — forma em vez de tinta (corte na mancha,
+// luma z-normalizada, gradiente normalizado, banco de orientações com negativo). As duas
+// medidas rodam e uma imagem só passa se passar nas DUAS. Medido nesta mesma execução, nas
+// 518 imagens da saída construída:
+//
+//   35 disfarces das três artes rituais    crua PEGA 12 · INVARIANTE PEGA **35**
+//   teto dos 35 na invariante ............ 14,8  (brilho ×1,25 combinado com giro de 8°)
+//   LIMIAR_INV .......................... 20
+//   piso de arte LEGÍTIMA ............... 28,8  (`index.html` embutida #12)
+//   janela .............................. **14,8 < 20 < 28,8**, separação 1,95×
+//
+// **(a) — "mexer no limiar" — foi medida e morreu, e o número é o contrário do que o nome
+// diz.** Baixar o limiar faz o portão pegar MENOS; para pegar o brilho ×1,25 (14,0) seria
+// preciso SUBIR o limiar acima de 14. E aí ele para: o piso legítimo da distância crua é
+// 29,9 — medido em 05/09, e está em **MOB_B64** (`pack-palmares.json MOB_B64.drum.1`), quer
+// dizer que a janela vale fora do lugar de drop também —, então um limiar de ~20 compraria
+// brilho (14,0) e matiz (21,9) e nada mais: moldura +12% (28,8) encosta no piso, e as
+// rotações (52 a 54) estão ACIMA do piso, onde limiar nenhum alcança. Duas linhas de treze,
+// gastando a folga inteira.
+//
+// **O que a invariante custa, e não se esconde:** a folga dela para o lado do falso positivo
+// é 1,44× (28,8 sobre 20), contra 2,5× da crua. Assinatura que vê menos diferença entre uma
+// figura e o disfarce dela vê menos diferença entre figuras diferentes — é a mesma
+// propriedade. Por isso ela ACRESCENTA e não substitui, e por isso o portão imprime quantas
+// imagens legítimas moram abaixo de 30: é esse número que avisa se o acervo está apertando
+// a folga. Em 05/09 são **5 de 518**.
+//
 // ── O QUE ESTE ARQUIVO LÊ, e por que a frase importa (04/09, achado A3 do QA) ─────────────
 // **Ele lê a SAÍDA**: o `index.html` da raiz mais os `pack-*.json` da raiz. Não lê `src/`.
 // O portão irmão (`test/salvador-drop-sem-ritual.js`) lê o contrário — a FONTE `src/jogo.ts`
@@ -51,11 +84,13 @@
 //
 //   node test/qa-ritual-varredura.js
 //   QA_LIMIAR=12 node test/qa-ritual-varredura.js
+//   QA_TABELA=1 node test/qa-ritual-varredura.js               # os 35 disfarces nas 2 medidas
 //   QA_ACEITA_SAIDA_VELHA=1 node test/qa-ritual-varredura.js   # medir o artefato do disco
 
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const ASS = require('./assinatura-ritual.js');   // a assinatura INVARIANTE, acrescentada em 05/09
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
@@ -161,6 +196,61 @@ function uris() {
     }, alvos.slice(k, k + passo).map(a => ({ uri: a.uri })));
     parte.forEach(p => ass.push(p));
   }
+
+  // ── SEGUNDA MEDIDA: a assinatura INVARIANTE (05/09) ────────────────────────────────────
+  // A de cima compara TINTA e é a que tem a folga grande contra a cópia quase exata. Esta
+  // compara FORMA e é a que fecha a classe do disfarce barato. As duas rodam, e uma imagem
+  // só passa se passar nas duas — a nova NÃO substitui a velha, ver test/assinatura-ritual.js.
+  await ASS.instalar(pg);
+  const gradesRef = [[], [], []];
+  for (const a of ASS.ANGULOS) for (const corte of [false, true]) {
+    if (a === 0 && corte) continue;                       // girar 0° dentro ou fora do quadro é o mesmo
+    const ls = await ASS.lumas(pg, refs.map(r => r.uri), a, corte);
+    ls.forEach((l, ri) => gradesRef[ri].push(l));
+  }
+  const bancos = gradesRef.map(g => ASS.banco(g));
+  const lumRepo = await ASS.lumas(pg, lista.map(it => it.uri));
+
+  // CONTROLE DO INSTRUMENTO, fabricado a cada execução: três disfarces das próprias artes
+  // rituais que ESTA assinatura promete pegar. Se subirem acima do limiar, o portão reprova a
+  // si mesmo antes de reprovar o jogo (lição 2.8 do EQUIPE.md).
+  const controle = [];
+  for (let ri = 0; ri < refs.length; ri++) {
+    const rec = await ASS.receitas(pg, refs[ri].uri, ASS.CONTROLE);
+    const nomes = Object.keys(rec);
+    const ls = await ASS.lumas(pg, nomes.map(k => rec[k]));
+    nomes.forEach((k, i) => controle.push({ ritual: RITUAL[refs[ri].nome], disfarce: k, v: ASS.vetor(ls[i]), ri }));
+  }
+
+  // A TABELA INTEIRA dos disfarces sai sob demanda: ela fabrica 35 imagens por ritual e não
+  // decide nada, então não paga o custo dentro do `npm test`.
+  let tabela = null;
+  if (process.env.QA_TABELA) {
+    tabela = [];
+    for (let ri = 0; ri < refs.length; ri++) {
+      const rec = await ASS.receitas(pg, refs[ri].uri);
+      const nomes = Object.keys(rec);
+      const ls = await ASS.lumas(pg, nomes.map(k => rec[k]));
+      const brutas = await pg.evaluate(async function (l) {   // a mesma assinatura CRUA da medida de cima
+        const out = [];
+        for (const u of l) {
+          try {
+            const im = new Image(); im.src = u; await im.decode();
+            const c = document.createElement('canvas'); c.width = 16; c.height = 16;
+            const x = c.getContext('2d');
+            x.fillStyle = '#808080'; x.fillRect(0, 0, 16, 16);
+            x.imageSmoothingEnabled = true;
+            x.drawImage(im, 0, 0, 16, 16);
+            const d = x.getImageData(0, 0, 16, 16).data;
+            const r = []; for (let i = 0; i < d.length; i += 4) r.push(d[i], d[i + 1], d[i + 2]);
+            out.push(r);
+          } catch (e) { out.push(null); }
+        }
+        return out;
+      }, nomes.map(k => rec[k]));
+      nomes.forEach((k, i) => tabela.push({ ri, nome: k, v: ASS.vetor(ls[i]), bruta: brutas[i] }));
+    }
+  }
   await nav.close();
 
   function bruta(a, b) {
@@ -209,11 +299,77 @@ function uris() {
     console.log('  (a queda acima é o RITUAL encontrado, não o custo do espelho — o custo em arte');
     console.log('   legítima só se lê quando a varredura está verde)');
   }
-  console.log('\nO QUE ESTA VARREDURA NÃO PEGA, e está medido (test/qa-ritual-disfarce.js):');
-  console.log('  espelho vertical 52,0 · rodado 180° 52,2 · rodado 90° 53,9 · rodado 8° 33,7');
-  console.log('  matiz +40° 21,9 · BRILHO ×1,25 = 14,0 · moldura +12% 28,8   — todos acima de ' + LIMIAR + '.');
-  console.log('  Em lugar de DROP isso está fechado por LISTA BRANCA (test/salvador-drop-sem-ritual.js).');
-  console.log('  Em MOB_B64/ICONE_B64/FRENTE_B64/GENTE_EP_B64 continua aberto: não há lista branca ali.');
+  // ── A SEGUNDA MEDIDA, a INVARIANTE (05/09) ─────────────────────────────────────────────
+  console.log('\n── assinatura INVARIANTE a brilho, matiz, moldura e giro ' +
+    '(test/assinatura-ritual.js; limiar ' + ASS.LIMIAR_INV + ') ──');
+  console.log('  banco de ' + bancos[0].length + ' orientações por ritual: ' + ASS.ANGULOS.length +
+    ' ângulos × {com, sem corte de canto} × 8 simetrias × {luma, negativo}');
+
+  // 1. o controle: o portão mede a si mesmo antes de medir o jogo
+  let piorControle = -Infinity, piorNome = '';
+  controle.forEach(function (c) {
+    const d = ASS.distancia(c.v, bancos[c.ri]);
+    if (d > piorControle) { piorControle = d; piorNome = c.ritual + ' ' + c.disfarce; }
+  });
+  ok(piorControle <= ASS.LIMIAR_INV, 'CONTROLE: os ' + controle.length + ' disfarces fabricados agora ' +
+    'continuam sendo reconhecidos (pior ' + piorControle.toFixed(1) + ' ≤ ' + ASS.LIMIAR_INV + ', ' + piorNome + ')');
+
+  // 2. a varredura propriamente dita
+  let pisoInv = Infinity;
+  const vRepo = lumRepo.map(l => ASS.vetor(l));
+  // a matriz sai UMA vez: 518 × 3 × 560 comparações já são o grosso do tempo deste arquivo,
+  // e recalculá-la para imprimir o número de vizinhos dobraria o custo à toa
+  const dInv = vRepo.map(v => bancos.map(b => ASS.distancia(v, b)));
+  refs.forEach(function (r, ri) {
+    const linhas = [];
+    for (let i = 0; i < lista.length; i++) linhas.push({ d: dInv[i][ri], onde: lista[i].onde, uri: lista[i].uri });
+    linhas.sort((a, b) => a.d - b.d);
+    console.log('  ' + RITUAL[r.nome] + ':');
+    linhas.slice(0, 3).forEach(function (l, k) {
+      const outros = vistos.get(l.uri) || [];
+      console.log('     ' + (k + 1) + '. ' + l.d.toFixed(1).padStart(6) + '  ' + l.onde +
+        (outros.length > 1 ? '  [+' + (outros.length - 1) + ' endereço(s) com a mesma arte]' : ''));
+    });
+    pisoInv = Math.min(pisoInv, linhas[0].d);
+    ok(linhas[0].d > ASS.LIMIAR_INV, 'nenhuma arte carregada pelo jogo é ' + RITUAL[r.nome] +
+      ' aclarado, tingido, emoldurado, girado ou negativado (mínimo ' + linhas[0].d.toFixed(1) +
+      ' > ' + ASS.LIMIAR_INV + ', em ' + linhas[0].onde + ')');
+  });
+  // quantas artes legítimas moram perto do limiar — é o número que diz se a folga está
+  // encolhendo com o acervo, e ele tem de ser lido junto com o verde, não em vez dele
+  const perto = dInv.map(l => Math.min.apply(null, l)).filter(d => d < ASS.LIMIAR_INV * 1.5).length;
+  console.log('  piso de arte LEGÍTIMA: ' + pisoInv.toFixed(1) + '  (limiar ' + ASS.LIMIAR_INV +
+    ', folga ' + (pisoInv / ASS.LIMIAR_INV).toFixed(2) + '×) · ' + perto + ' de ' + lista.length +
+    ' imagens abaixo de ' + (ASS.LIMIAR_INV * 1.5).toFixed(0) + ' — se este número crescer, a folga está acabando');
+
+  if (tabela) {
+    console.log('\n── OS 35 DISFARCES SOB AS DUAS MEDIDAS (QA_TABELA=1) ──');
+    console.log('  ' + 'disfarce'.padEnd(34) + '   CRUA  INVAR   veredito');
+    const nomes = tabela.filter(t => t.ri === 0).map(t => t.nome);
+    let teto = -Infinity, tn = '';
+    nomes.forEach(function (n) {
+      const lin = tabela.filter(t => t.nome === n);
+      const inv = Math.max.apply(null, lin.map(t => ASS.distancia(t.v, bancos[t.ri])));
+      const cru = Math.max.apply(null, lin.map(function (t) {
+        return t.bruta && ass[t.ri] ? Math.min(bruta(t.bruta, ass[t.ri].n), bruta(t.bruta, ass[t.ri].e)) : Infinity;
+      }));
+      if (inv > teto) { teto = inv; tn = n; }
+      console.log('  ' + n.padEnd(34) + cru.toFixed(1).padStart(7) + inv.toFixed(1).padStart(7) + '   ' +
+        (cru <= LIMIAR ? 'crua PEGA' : 'crua passa') + ' · ' + (inv <= ASS.LIMIAR_INV ? 'INVAR PEGA' : 'INVAR PASSA'));
+    });
+    console.log('\n  teto dos ' + nomes.length + ' disfarces na invariante: ' + teto.toFixed(1) + ' (' + tn + ')');
+    console.log('  JANELA: ' + teto.toFixed(1) + ' < ' + ASS.LIMIAR_INV + ' < ' + pisoInv.toFixed(1) +
+      '   (separação ' + (pisoInv / teto).toFixed(2) + '×)');
+  } else {
+    console.log('  (a tabela dos 35 disfarces sai com QA_TABELA=1 — ela fabrica 105 imagens e não decide nada)');
+  }
+
+  console.log('\nO QUE ESTA VARREDURA NÃO PEGA, e o resto está medido:');
+  console.log('  · figura DIFERENTE do mesmo objeto — outro búzio, desenhado de novo, de outro ângulo.');
+  console.log('    Nenhuma medida de pixel pega isso; quem pega é olho, e é por isso que em lugar de');
+  console.log('    DROP a trava é LISTA BRANCA (test/salvador-drop-sem-ritual.js) e não lista negra.');
+  console.log('  · a folga da invariante é mais apertada que a da crua (1,4× contra 2,5×): é o preço');
+  console.log('    de ver menos diferença entre uma figura e o disfarce dela. As duas rodam juntas.');
 
   console.log(falhas ? '\n' + falhas + ' FALHA(S)' : '\ntudo verde');
   process.exit(falhas ? 1 : 0);
