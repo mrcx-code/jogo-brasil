@@ -10,7 +10,7 @@
   "itens": [
     {
       "id": "territorio-botoes-lugar-atras-da-placa",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "4 de 5 botoes de lugar ficam com contraste 1,21-1,77:1 atras da placa do territorio em 360x640 (agravamento de bug pre-existente)",
@@ -20,8 +20,9 @@
       ],
       "aceite": "julgarSobreposicao() passa a perguntar tambem sobre .lista, nao so #censo. Fundo opaco no .pl resolve sem mexer no enquadramento da placa (sugestao do QA). Contraste dos 5 botoes >= 4,5:1 (WCAG) nas telas medidas. npm test + ver-territorio.js verdes.\n\nCORREÇÃO DE TERRITÓRIO (05/09, pm): julgarSobreposicao() está em test/ver-territorio.js:213 (grep -rn julgarSobreposicao --include=*.js . → 3 ocorrências, todas ali) e o CSS do .pl e do #censo está em ferramentas/gerar-territorio.js:378/393. ferramentas/chrome-plataforma.js não contém nenhum dos dois e não é território deste item.",
       "detalhe": "Achado pelo QA em 04/09 auditando territorio-rico: NAO e regressao do item (a main ja tinha 2 de 5 botoes abaixo de 1,5:1 em 360x640 -- Santos 1,31, Salvador 1,49 -- e a tela ficou MELHOR no conjunto, porque antes metade do pais sumia sob o papel). E agravamento: virou 4 de 5. julgarSobreposicao() so olha #censo, nunca .lista -- e o espelho exato do bug que a regua foi escrita pra pegar.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-plataforma+porteiro+qa, integrado via funil, commit a250916). Contraste dos 4 de 5 botoes de lugar corrigido de 1,00-1,01:1 para 8,56:1 em 360x640. julgarSobreposicao() em test/ver-territorio.js passou a julgar .lista alem de #censo. Esquecido de fechar no backlog no momento da integracao -- corrigido agora ao notar 2 itens em-curso sem trabalho pendente de verdade."
     },
     {
       "id": "portao-conjunto-publicado-por-secao",
@@ -1828,7 +1829,7 @@
     },
     {
       "id": "privacidade-publicada-nao-menciona-caminho-escolar",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "O texto PUBLICADO de /privacidade/ nao menciona o caminho escolar -- so as notas internas do markdown-fonte descrevem",
@@ -1838,8 +1839,9 @@
       ],
       "aceite": "Acrescentar ao texto PUBLICAVEL (secao 9, Criancas e adolescentes, ou onde fizer mais sentido) uma frase afirmando o mecanismo do caminho escolar -- ja documentado nas notas internas da secao R1. Depois: node ferramentas/gerar-privacidade.js e confirmar fidelidade texto->HTML.",
       "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (porteiro+porteiro(2a)+qa, integrado via funil, commit a77da071a2). Mecanismo ?origem=escola movido para dentro da secao 9 Criancas e adolescentes de plataforma/privacidade-texto.md, acima do corte de publicacao. Esquecido de fechar no backlog no momento da integracao -- corrigido agora."
     },
     {
       "id": "territorio-jpeg-brasa-nao-deterministico",
