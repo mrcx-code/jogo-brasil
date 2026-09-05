@@ -1936,12 +1936,12 @@
       "estado": "livre",
       "agente": "dev-plataforma",
       "camada": "esteira",
-      "titulo": "Toda ferramenta desta casa que fala com a rede pelo modulo https do Node quebra na nuvem, e quebra com cara de credencial errada",
+      "titulo": "Varrer ferramentas/ e test/ atras de quem fala com a rede sem passar pelo caminho que o checar-ci.js passou a usar",
       "territorio": [
         "ferramentas/"
       ],
-      "aceite": "Varrer ferramentas/ e test/ atras de quem usa https/http do Node direto contra a rede, e dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY, e nao mandar o sentinela proxy-injected como credencial). Mordida provada por injecao em cada uma: com HTTPS_PROXY definido tem de responder; sem, tem de falhar HONESTAMENTE e nunca virar verde. Se a varredura achar zero alem do checar-ci.js, esse ZERO e a entrega e fecha o item.",
-      "detalhe": "Generalizacao do que a nuvem mediu em 05/09 (nuvem-20260905T0520) consertando o checar-ci.js. A nuvem tem GH_TOKEN e GITHUB_TOKEN valendo a string literal proxy-injected -- a credencial real e injetada pelo PROXY DE SAIDA. O modulo https do Node nao honra HTTPS_PROXY, entao qualquer ferramenta que o use manda o sentinela literal e recebe 401, que LE COMO credencial errada e nao como caminho de rede errado. Foi o que atrasou o diagnostico aqui, e a primeira leitura do proprio plantao (a nuvem nao tem token) estava errada. curl honra o proxy e por isso funciona -- mas a reescrita de 05/09 tinha, com razao, tirado a dependencia de CLI. O conserto certo e o tunel, nao voltar ao CLI."
+      "aceite": "Toda ferramenta desta casa que fale com a rede usa o mesmo caminho ja provado no ferramentas/checar-ci.js (a funcao de tunel que ele ganhou em 05/09), em vez de abrir conexao por conta propria. Mordida provada por injecao em cada uma que a varredura achar: com o ambiente da nuvem tem de responder; sem ele, tem de falhar de forma HONESTA e nunca virar verde. Se a varredura achar ZERO alem do proprio checar-ci.js, esse zero e a entrega e fecha o item -- e vale escrever o numero, porque ninguem sabe hoje quantas sao.",
+      "detalhe": "Aberto pela nuvem em 05/09 (nuvem-20260905T0520) ao consertar o checar-ci.js, que era o unico caso conhecido. A correcao dele esta provada nos quatro sentidos com exit code real e o metodo esta escrito no campo `feito` do item checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu e no Diario do NOTES.md de 05/09. Este item existe porque a correcao foi pontual e a classe nao foi varrida: nao se sabe hoje quantas outras ferramentas abrem conexao por conta propria, e o modo como essa falha se apresenta engana o diagnostico -- ela chega com cara de credencial e o defeito e de caminho. Quem pegar comeca por um grep de require de https/http em ferramentas/ e test/."
     }
   ]
 }
