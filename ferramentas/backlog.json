@@ -2062,7 +2062,7 @@
     },
     {
       "id": "portao-navegador-varre-disco-nao-git",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "portao-navegador.js (varredura recursiva) reprova por arquivo de scratch IGNORADO pelo git -- ele varre o DISCO, nao o que sera versionado",
@@ -2071,8 +2071,8 @@
       ],
       "aceite": "O portao passa a pular arquivos que o git ignora (git check-ignore, ou ler .gitignore) antes de exigir executablePath -- scratch local nunca deveria poder derrubar um funil. Mordida provada nos dois sentidos: arquivo scratch IGNORADO que lanca nu continua passando; arquivo RASTREADO (ou rastreavel) que lanca nu continua reprovando.",
       "detalhe": "Achado em 05/09 pelo plantao ao integrar sem-lockfile-o-playwright-flutua: um arquivo test/tmp-varre.js (scratch de uma investigacao anterior, nunca commitado, casando com test/TMP* do .gitignore) lancava Chromium nu e o portao recem-tornado-recursivo reprovou o merge por causa dele. Removido do disco antes de integrar (nao fazia parte de nenhuma entrega), mas o portao continua vulneravel a qualquer scratch futuro de qualquer agente/maquina.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260905T1623",
+      "desde": "2026-09-05T16:28:35.988Z"
     }
   ]
 }

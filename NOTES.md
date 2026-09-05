@@ -14795,3 +14795,66 @@ O QUE SEGUROU e O ACEIRO **não têm** nota de arte nenhuma, e os dois vestem pi
 abertura. **O segundo motivo caiu hoje**: existe agora um lugar que não estraga nada — o fim do
 fecho, que os seis passaram a usar. O primeiro motivo continua de pé, e é do dono: escrever uma
 nota onde nunca houve é texto novo, não conserto. Fica como pergunta dele, não como decisão minha.
+
+## 05/09 · O portão do navegador julgava pelo DISCO, e um scratch que o git ignora derrubava o funil (plantão `nuvem-20260905T1623`)
+
+Item `portao-navegador-varre-disco-nao-git`, achado em 05/09 pelo próprio plantão ao integrar
+`sem-lockfile-o-playwright-flutua`. O portão tinha acabado de ganhar alcance por **varredura
+recursiva de diretório** (74 → 247 arquivos, a entrega da madrugada), e o preço vinha junto:
+diretório contém scratch. Um `test/tmp-varre.js` — sobra de investigação anterior, nunca
+commitado, casando com o `test/tmp-*` do próprio `.gitignore` — lançava Chromium nu, e o portão
+**recusou o merge por causa dele**. Na hora foi resolvido apagando o arquivo à mão.
+
+**O que estava aberto, e não é o minuto perdido:** um portão do funil cujo veredito depende de
+arquivo que não está no diff, não está no repositório e não existe na máquina de quem for
+reproduzir. Vermelho que ninguém consegue repetir é a doença que o `setInterval(salvar, …)`
+custou uma semana a esta casa — teste que falha por sorteio é mais caro que teste que falha
+sempre, porque ninguém acredita nele e todo mundo continua empurrando.
+
+**O conserto:** `instrumentos()` passou a filtrar por `git check-ignore --stdin` (uma chamada só
+para a lista inteira) antes de exigir `executablePath`.
+
+**O critério é `check-ignore`, NUNCA "não rastreado", e essa distinção é o item inteiro.**
+Arquivo novo ainda não commitado mas que ENTRARIA num `git add` continua no alcance — é
+exatamente o instrumento novo de um agente, que a ampliação de 05/09 foi feita para pegar. Só
+sai o que o `.gitignore` já declarou que nunca será versionado. Desfecho de `check-ignore` que
+não seja 0 nem 1 (árvore sem git, erro) devolve conjunto vazio e o alcance fica o de antes:
+alcance a mais nunca deixou passar lançamento nu, alcance a menos deixaria.
+
+**Medido, exit code real lido na linha seguinte ao comando (nunca `| tail; echo $?`):**
+
+| | exit |
+|---|---|
+| limpo, portão novo | **0** · 62 portões derivados · alcance **259** |
+| A · scratch IGNORADO (`test/tmp-*`) que lança nu, portão **novo** | **0** — soltou |
+| A · o MESMO arquivo contra o portão **antigo** (A/B por `git stash`) | **1**, nomeando `test/tmp-varre-cobaia.js:2` |
+| B · arquivo **rastreável** (não ignorado, nunca commitado) que lança nu | **1** — pegou |
+| C · arquivo **rastreado** (`prints-costura.js`) com nu injetado | **1** — pegou |
+| restaurado | **0**, árvore limpa |
+
+O A/B é o que prova o conserto: **mesmo arquivo, mesmo conteúdo**, portão antigo vermelho e
+portão novo verde — e as linhas B e C provam que o filtro não comeu o alcance junto.
+
+**E o controle virou permanente, que é o que faltava.** As quatro cobaias do `--autoteste`
+provam que o portão MORDE; nenhuma provava que ele SOLTA. Sem isso o filtro entraria sem nada
+cobrando o seu alcance — decoração assinada de verde, a mesma doença que este arquivo existe
+para caçar. A quinta prova é um **par de gêmeos**: dois arquivos de conteúdo idêntico, com o
+mesmo lançamento nu, cuja única diferença é o nome — um casa com `test/tmp-*`, o outro não.
+
+O par de gêmeos é deliberado contra o falso verde mais barato de fabricar num portão de alcance:
+um controle de um lado só (só o ignorado, exigindo verde) **passaria idêntico se
+`instrumentos()` devolvesse lista vazia**.
+
+**Mordida da prova nova, provada por injeção nos DOIS sentidos e restaurada:**
+
+| defeito injetado | exit | o que ela disse |
+|---|---|---|
+| o filtro SOME (o comportamento de antes do conserto) | **1** | `scratch ignorado pelo git derrubaria um funil` |
+| o filtro come TUDO (`false &&`) | **1** | `o filtro comeu arquivo rastreável — alcance furado` |
+| nenhum (restaurado) | **0** | `morde nas 4 cobaias e solta o scratch que o git ignora` |
+
+**O que eu NÃO sei, e fica dito com esse nome:** não medi o custo da chamada ao `git` em máquina
+sem git no PATH — o caminho existe no código (conjunto vazio, alcance de antes) e foi lido, não
+exercitado. E o `--autoteste` recusa rodar se as cobaias de scratch já existirem no disco: ele
+diz INCONCLUSIVO em vez de sobrescrever, então um scratch com esse nome exato deixa a quinta
+prova muda — de propósito, mas é uma boca a menos.
