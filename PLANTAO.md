@@ -63,10 +63,24 @@ de novo. As duas erram. Detalhe no Diário de 03/09 (tarde).
 Uma sessão de plantão **não espera pedido**. Ela roda num laço:
 
 ```
-escolhe o próximo trabalho  →  despacha agentes em paralelo  →  enquanto eles correm,
-faz o trabalho da própria linha  →  agente pousa  →  manda auditar  →  integra pelo funil
-→  registra o que MEDIU  →  volta ao começo
+checa o CI da main  →  escolhe o próximo trabalho  →  despacha agentes em paralelo  →  enquanto
+eles correm, faz o trabalho da própria linha  →  agente pousa  →  manda auditar  →  integra pelo
+funil  →  registra o que MEDIU  →  volta ao começo
 ```
+
+**O primeiro passo é novo (item `plantao-nao-le-o-ci`, medido por nuvem-20260905T0023 em
+05/09): a main ficou VERMELHA no CI por 2h35 e quatro pushes seguidos, e nenhuma rodada olhou —
+porque nenhum passo do laço olhava.** `node ferramentas/checar-ci.js` (sem argumento, roda de
+verdade contra `gh run list`) julga pelo `conclusion` REAL do último run **completo** do
+workflow `teste` em `main` — nunca por `status: in_progress`, que não é nem verde nem vermelho.
+Rode-o **antes de despachar o primeiro agente da rodada**:
+- **vermelho** (exit 1): diga isso alto no seu registro antes de continuar. Ou conserte primeiro
+  (é o `CLAUDE.md` §3.5: main é produção, nunca deixe quebrada), ou registre por que não
+  bloqueia — mas nunca em silêncio.
+- **verde ou desconhecido** (exit 0): siga calada, é o normal.
+Não entra no `npm test` — ele roda dentro do worktree de todo agente e dentro do próprio CI, e
+lá checar o CI de novo é recursivo e exige `gh` autenticado, que um worktree isolado pode não
+ter. É um passo do LAÇO, não um portão do funil.
 
 Nada disso pede permissão. O dono deu licença permanente (`CLAUDE.md` §5.2) e pediu ritmo
 contínuo. **Perguntar "quer que eu continue?" é desobedecer**, não ser cuidadoso.
