@@ -24,6 +24,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const PREF = process.argv[2] || 'COSTURA';
@@ -48,7 +49,7 @@ function servir() {
 
 (async () => {
   const { s, url } = await servir();
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const erros = [];
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2,
     hasTouch: true, isMobile: true });

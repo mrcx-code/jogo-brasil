@@ -14147,3 +14147,107 @@ barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7
 `dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
 um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
 junto.
+
+---
+
+## 05/09 (dev-jogo, worktree `agent-aa428f1c869655b14`) — o portão do navegador estava VERDE com 46 instrumentos mortos na nuvem
+
+Item `sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem`, aberto pela nuvem de
+madrugada com três saídas na mesa. **Escolhida a (c)**, e o achado que mudou o tamanho do item é
+que ela *não* estava "quase de pé", como o despacho supunha.
+
+### A decisão, e por que as outras duas foram recusadas
+
+`npm install` na nuvem resolve `playwright: ^1.47.0` para **1.63.0** (não há lockfile, está no
+`.gitignore`), que procura a build **1243**; o contêiner tem a **1194**. Todo lançamento **nu**
+morre com `Executable doesn't exist`, e a mensagem manda instalar navegador — apontando para o
+lugar errado, porque o navegador está no disco e o que falta é dizer onde.
+
+| saída | o que ela aposta | por que não |
+|---|---|---|
+| (a) versionar o `package-lock.json` | que a imagem do contêiner não muda | a imagem não é nossa e troca sem avisar; e o CI roda `npx playwright install`, então nem paga esse preço |
+| (b) pregar a versão exata | o mesmo, com menos maquinaria | prende Windows e Mac a uma versão velha para servir a um contêiner que amanhã é outro |
+| **(c) `executablePath` em toda parte** ⭐ | **nada** | aponta para o navegador que a máquina REALMENTE tem; onde não há provisionamento devolve `undefined`, que é o lançamento nu de antes — numa máquina que instalou, nada muda |
+
+Prender a versão é apostar que o ambiente não muda. Foi o ambiente mudando que abriu o item.
+
+### O NÚMERO, medido antes de mexer — e com a régua do próprio portão, não com um grep meu
+
+| | |
+|---|---|
+| arquivos `.js` em `test/` + `ferramentas/` | 247 |
+| que abrem Chromium | **166** |
+| alcance que o `portao-navegador.js` cobrava | **74** |
+| lançamentos **nus** | **46** |
+| deles, DENTRO do alcance | **0** |
+| deles, FORA do alcance | **46** |
+
+O portão estava verde e estava certo — e 46 instrumentos morriam na nuvem sem ninguém receber
+vermelho. **A lista derivada do CI não é falha de desenho: ela responde "quem quebra a `main`?",
+que é outra pergunta.** O custo do lançamento nu não é pago pelo CI, que roda
+`npx playwright install` e para quem nu e vestido dão no mesmo. Quem paga é a máquina com o
+navegador provisionado noutra build, e nela quem morre é o instrumento chamado **à mão**.
+
+**E o `CLAUDE.md` manda rodar quatro deles à mão:** `test/medir-na-tela.js` (§6, "meça na tela,
+não no arquivo"), `test/tirar-icc.js` (§6, "rode por último"), `test/peso-file-fetch.js` (§6, a
+prova de que `file://` recusa o fetch do pacote) e os `test/inline-*.js` (§3.1). Os quatro
+lançavam nus. Junto ia `test/prints-costura.js`, a suíte de 26 prints que sustentou o veredito da
+arte do CAMINHO-DO-CEU. O manual apontava para ferramentas mortas nesta nuvem.
+
+### O conserto, nos dois lados
+
+**Os 46 vestidos** com `ABRIR.chromiumPath()` — 20 ganharam o `require` do `abrir.js`, os outros
+26 já o tinham para montar a URL e só não o usavam para o navegador. 66 inserções, 46 deleções,
+`node --check` arquivo a arquivo, e a linha inserida casando o fim de linha do arquivo em que
+caiu (20 eram CRLF).
+
+**O alcance do portão: 74 → 247.** `test/` e `ferramentas/` inteiras, por varredura **recursiva**
+de diretório, para que instrumento novo entre sozinho. É o mesmo argumento já aceito em 02/09
+para os `ferramentas/gerar-*.js` (PENDENTES 98: um gerador ficou meses morto porque nenhum portão
+o via), agora sem o recorte por nome. Conferido que a varredura é completa e não "completa até
+onde alguém lembrou": nenhum subdiretório das duas pastas abre Chromium, e **não há um único
+`chromium.launch` fora delas**. O número de portões derivados do CI continua sendo impresso — ele
+só deixou de ser o alcance, porque continua sendo o sinal que era (uma lista que despenca de 60
+para 2 é um CI que sumiu).
+
+### A MORDIDA, com A/B contra o portão antigo
+
+O `--autoteste` prova a mordida por dentro; isto prova por fora, com o portão de `HEAD` extraído
+para rodar lado a lado. Reinjetando o lançamento nu em quatro arquivos que antes eram invisíveis:
+
+| cenário | portão NOVO | portão ANTIGO |
+|---|---|---|
+| árvore sã | 0 | 0 |
+| nu em `test/medir-na-tela.js` | **1** | 0 |
+| nu em `test/tirar-icc.js` | **1** | 0 |
+| nu em `test/inline-fundos.js` | **1** | 0 |
+| nu em `test/peso-file-fetch.js` | **1** | 0 |
+| restaurado | 0 | 0 |
+
+**Falso verde nos quatro**, no portão que existe exatamente para isso.
+
+O autoteste ganhou a **quarta cobaia**, `test/prints-costura.js` — a única das quatro que nenhuma
+das três formas antigas de achar portão alcança (não está no YAML, não está no `package.json`,
+não é `gerar-*`, ninguém a requer). Sem ela, o alcance novo entraria sem nada provando que morde,
+que é a definição de decoração assinada de verde. Morde e solta nas 4.
+
+### Portões
+
+`npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/portao-navegador.js`
+**exit 0** (247 no alcance) · `--autoteste` **exit 0**.
+
+### A dúvida que fica, e ela é da máquina e não do código
+
+Não consegui medir **nesta** máquina (Windows, sem `/opt/pw-browsers`) que a saída resolve o
+sintoma na nuvem — aqui `chromiumPath()` devolve `undefined` por construção e todo lançamento é
+nu de qualquer jeito, que é o comportamento certo e é por isso que os portões passam. O que
+sustenta a escolha é medição de terceiro, já registrada: 02/09 (`geradores-chromium`) mediu os
+quatro `gerar-*.js` indo de exit 1 para exit 0 na nuvem com uma linha de `executablePath`, e
+PENDENTES 98 mediu o mesmo no `gerar-glossario.js`. **A confirmação de que os 46 revivem tem de
+sair da nuvem** — quem pegar o plantão lá roda `node test/prints-costura.js` e
+`node test/medir-na-tela.js`, que antes morriam.
+
+### PLANTÃO
+
+`PLANTAO.md` §7 atualizado. A ordem de rodar `npm install` antes do primeiro funil **continua
+valendo inteira** — o que sai é o contra-efeito dela, não a ordem.

@@ -9,11 +9,12 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 const RAIZ = path.resolve(__dirname, '..');
 const pares = process.argv.slice(2).map(a => a.split(':'));
 if (!pares.length) { console.error('uso: converter-retrato.js entrada:saida ...'); process.exit(1); }
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   for (const [ent, sai] of pares) {
     const b64 = 'data:image/png;base64,' +

@@ -1870,19 +1870,20 @@
     },
     {
       "id": "sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem",
-      "estado": "em-curso",
+      "estado": "feito",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "Sem lockfile, npm install resolve playwright para uma versao cuja build de navegador o conteiner nao tem -- e o PLANTAO manda rodar npm install",
       "territorio": [
-        "package.json",
-        ".gitignore",
+        "test/portao-navegador.js",
+        "test/*.js (46 instrumentos)",
         "PLANTAO.md"
       ],
       "aceite": "Decidir entre as saidas e medir a escolhida: (a) versionar o package-lock.json (hoje esta no .gitignore) e fixar a versao que casa com a build provisionada; (b) pregar playwright numa versao exata no package.json; (c) aceitar a flutuacao e garantir que TODO portao use ABRIR.chromiumPath(), que e o que o portao-navegador.js ja cobra desde 05/09 -- nesse caso a saida (c) ja esta em vigor e o que falta e escreve-la no PLANTAO.md. Qualquer saida precisa da medicao: com a saida aplicada, um conteiner novo roda npm install e npm test sem erro de navegador. Cuidado: (a) muda o que o CI instala e o CI hoje roda npx playwright install, entao meca os dois lugares.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0023, e e a causa de raiz de dois vermelhos desta rodada. O conteiner traz /opt/pw-browsers/chromium-1194 e chromium_headless_shell-1194 provisionados. Nao ha lockfile (o .gitignore o exclui), entao npm install resolve playwright: ^1.47.0 para 1.63.0, que procura a build 1243. Lancamento nu morre com Executable does not exist at .../chromium_headless_shell-1243 e a mensagem manda instalar navegador, apontando para o lugar errado: o navegador esta no disco, o que falta e dizer onde. O PLANTAO 7 manda rodar npm install antes do primeiro funil da rodada -- as duas ordens sao certas e nao se separam sozinhas. A saida (c) e a mais barata e ja esta quase toda de pe.",
       "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "feito": "Decidida a saida (c) por dev-jogo em 05/09, e as outras duas recusadas com motivo: (a) lockfile e (b) versao exata resolvem prendendo o Playwright a build que UM conteiner tem hoje, e a imagem da nuvem nao e nossa, troca sem avisar, e o CI roda npx playwright install e nao paga esse preco -- prender a versao e apostar que o ambiente nao muda, e foi o ambiente mudando que abriu o item. A (c) nao aposta em nada: ABRIR.chromiumPath() aponta para o navegador que a maquina REALMENTE tem, e onde nao ha provisionamento devolve undefined, que e o lancamento nu de antes. O ACHADO que muda o tamanho do item: a (c) NAO estava quase de pe. O portao-navegador.js cobrava executablePath e estava VERDE, mas o alcance dele era derivado do CI -- 74 arquivos. Medido antes de mexer com a launchesNus() do proprio portao (nao um grep proprio): test/ e ferramentas/ tem 166 arquivos que abrem Chromium e 46 lancamentos NUS, os 46 FORA do alcance e ZERO dentro. Entre os 46, quatro que o CLAUDE.md manda rodar a mao (medir-na-tela.js, tirar-icc.js, peso-file-fetch.js, os inline-*.js) e a suite prints-costura.js, que produziu a prova do CAMINHO-DO-CEU. O manual apontava para ferramentas mortas na nuvem. Fechado nos dois lados: 46 vestidos com ABRIR.chromiumPath() (20 ganharam o require; 66 insercoes, 46 delecoes, sintaxe conferida arquivo a arquivo por node --check), e o alcance passou de 74 para 247 -- test/ e ferramentas/ inteiras por varredura RECURSIVA de diretorio, mesmo argumento ja aceito em 02/09 para os gerar-*.js, agora sem o recorte por nome. Conferido que a varredura e completa: nenhum subdiretorio das duas pastas abre Chromium e nao ha um unico chromium.launch fora delas. MORDIDA PROVADA COM A/B contra o portao antigo (extraido de HEAD), reinjetando o nu em quatro arquivos antes invisiveis: portao NOVO exit 1 nos quatro, portao ANTIGO exit 0 nos quatro -- falso verde nos quatro. Autoteste ganhou a quarta cobaia, prints-costura.js, a unica que so a varredura de diretorio alcanca (nao esta no YAML, nem no package.json, nao e gerar-* e ninguem a requer): morde e solta nas 4. npm test exit 0 e node test/encaixe.js exit 0. PLANTAO.md 7 atualizado: a ordem de rodar npm install antes do primeiro funil continua valendo inteira, agora sem o contra-efeito.",
+      "em": "2026-09-05"
     },
     {
       "id": "anti-recopia-nao-ve-arquivo-que-nao-filtra-nada",

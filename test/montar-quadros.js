@@ -13,6 +13,7 @@
 // uso: montar-quadros.js <arquivo.json | bloco@src/jogo.ts> <saida.png> [escala] [--pes=N] [--quadros=a,b,c]
 const fs = require('fs');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const args = process.argv.slice(2);
 const livres = args.filter(a => !a.startsWith('--'));
@@ -41,7 +42,7 @@ if (QUADROS) frames = QUADROS.split(',').map(s => frames[parseInt(s, 10) - 1]);
 if (!frames.length || frames.some(f => !f)) { console.error('bloco vazio ou --quadros fora da faixa'); process.exit(1); }
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   const dim = await p.evaluate(async (arg) => {
     const fr = arg.fr, ESC = arg.ESC, PES = arg.PES;

@@ -66,7 +66,7 @@ function analisarPaletaCSS() {
 (async () => {
   analisarPaletaCSS();
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   pg.on('pageerror', e => console.log('PAGEERROR: ' + e.message));
   await pg.goto(ALVO);

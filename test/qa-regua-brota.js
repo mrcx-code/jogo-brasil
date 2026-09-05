@@ -66,7 +66,7 @@ const JULGAR = () => {
 };
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   console.log('tela                  espera(ms)  btnConfig.top    depois de brota   delta   animacoes vivas');
   let pior = 0;
   for (const [nome, w, h] of TELAS) {

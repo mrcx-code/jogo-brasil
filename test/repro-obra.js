@@ -18,7 +18,7 @@ const ABRIR = require('./abrir.js');
 const VOLTAS = parseInt(process.argv[2] || '12', 10);
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({
     viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2
   });

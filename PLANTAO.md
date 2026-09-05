@@ -668,6 +668,45 @@ antes de rodar qualquer portão, e o worktree do outro agente idem. **Quem despa
 roda portão avisa no brief que ele pode precisar instalar**, senão o agente devolve vermelho de
 ambiente com cara de vermelho de produto.
 
+#### ✅ E O `npm install` PAROU DE QUEBRAR O NAVEGADOR — saída (c), decidida e medida em 05/09
+
+A ordem acima (*rode `npm install` antes do primeiro funil*) tinha um contra-efeito medido em
+05/09 por `nuvem-20260905T0023`, e por um tempo as duas ordens do `PLANTAO` pareciam se
+contradizer: o contêiner traz `chromium-1194` provisionado, **não há lockfile** (o `.gitignore`
+o exclui), e `npm install` resolve `playwright: ^1.47.0` para **1.63.0**, que procura a build
+**1243**. Todo lançamento de Chromium **nu** morria com `Executable doesn't exist`, e a mensagem
+manda instalar navegador — apontando para o lugar errado, porque o navegador está no disco e o
+que falta é dizer onde.
+
+**Decidido: saída (c) — a flutuação FICA, e o `executablePath` é que passa a ser obrigatório em
+toda parte.** As outras duas foram recusadas com motivo, não por preguiça:
+
+- **(a) versionar o `package-lock.json`** e **(b) pregar a versão exata** as duas resolvem
+  prendendo o Playwright à build que UM contêiner tem hoje. Mas a imagem da nuvem não é nossa e
+  troca sem nos avisar; o CI roda `npx playwright install` e não paga esse preço; e a máquina do
+  dono e a do Mac ficariam presas a uma versão velha para servir a um contêiner que amanhã é
+  outro. Prender a versão é apostar que o ambiente não muda — e foi o ambiente mudando que
+  abriu o item.
+- **(c) não aposta em nada**: `ABRIR.chromiumPath()` aponta para o navegador que a máquina
+  REALMENTE tem, seja ele qual for, e onde não há navegador provisionado devolve `undefined`,
+  que é exatamente o lançamento nu de antes. Numa máquina que rodou `npx playwright install`,
+  nada muda.
+
+**O que faltava para (c) estar de pé, e era mais do que parecia.** O `portao-navegador.js` já
+cobrava o `executablePath`, e estava **VERDE** — só que o alcance dele era derivado do CI: 74
+arquivos. Medido antes de mexer: `test/` e `ferramentas/` têm **166 arquivos que abrem
+Chromium** e **46 lançamentos nus**, os 46 **fora** do alcance, zero dentro. Entre eles quatro
+que o `CLAUDE.md` manda rodar à mão (`medir-na-tela.js`, `tirar-icc.js`, `peso-file-fetch.js`,
+os `inline-*.js`) e a suíte `prints-costura.js`, que produziu a prova do CAMINHO-DO-CEU.
+
+Fechado nos dois lados: os 46 vestidos, e o alcance do portão passou de 74 para **247** —
+`test/` e `ferramentas/` inteiras, por varredura recursiva de diretório, para que instrumento
+novo entre sozinho. **Mordida provada com A/B contra o portão antigo**, reinjetando o nu em
+quatro arquivos: portão novo **exit 1** nos quatro, portão antigo **exit 0** nos quatro (falso
+verde). `npm test` e `encaixe.js` exit 0.
+
+**A ordem do `npm install` continua valendo inteira, e agora sem o contra-efeito.**
+
 ### ⚠ ANTES DE DEVOLVER ITEM A `livre`, PROCURE O RAMO `entrega/<id>` (01/09)
 
 A regra do marcador acima está certa e **não basta**, e foi esta rodada que descobriu o buraco

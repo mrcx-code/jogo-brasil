@@ -14,6 +14,7 @@
 // uso: comparar-folhas.js <A: json|bloco@arq> <B> <saida.png> [--zoom=8]
 const fs = require('fs');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 const args = process.argv.slice(2);
 const pos = args.filter(a => !a.startsWith('--'));
 const ZOOM = parseFloat((args.find(a => a.startsWith('--zoom=')) || '--zoom=8').slice(7));
@@ -31,7 +32,7 @@ function ler(alvo) {
 const A = ler(pos[0]), B = ler(pos[1]);
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   const png = await p.evaluate(async (a) => {
     const carrega = (fr) => Promise.all(fr.map(f => new Promise((r, j) => {

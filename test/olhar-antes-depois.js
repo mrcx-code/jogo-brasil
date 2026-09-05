@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const RE = /data:image\/webp;base64,[A-Za-z0-9+/=]+/g;
@@ -24,7 +25,7 @@ const B = bloco(fs.readFileSync(path.join(RAIZ, 'src', 'jogo.ts'), 'utf8'))[idx]
 if (!A || !B) { console.error('imagem ' + idx + ' de ' + nome + ' nao encontrada'); process.exit(1); }
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage(); await pg.goto('about:blank');
   const png = await pg.evaluate(async function (d) {
     const carregar = async (u) => { const i = new Image(); i.src = u; await i.decode(); return i; };

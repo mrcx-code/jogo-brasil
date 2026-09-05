@@ -26,6 +26,7 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
@@ -96,7 +97,7 @@ const AMOSTRA = (ms) => new Promise((ok) => {
 
 (async () => {
   const { s, url } = await servir();
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   let falhou = false;
   const erros = [];
 

@@ -113,7 +113,7 @@ const ESTADOS = [
 
 (async () => {
   const alvo = ABRIR('file:///' + path.resolve(__dirname, '..', 'index.html').split(path.sep).join('/'));
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const linhas = [];
 
   // AUTOTESTE — a lição EQUIPE.md 2.8, e ela vale o dobro aqui: esta rodada TROCOU a régua da
