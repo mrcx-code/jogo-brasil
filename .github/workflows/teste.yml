@@ -304,16 +304,42 @@ jobs:
       # `test/portao-navegador.js` e `test/qa-vercel-host.js` ja curaram para outros dois portoes.
       # `/glossario/` e uma rota valida (esta na tabela CSP_ESPERADA), entao a rejeicao por rota
       # desconhecida (exit 2, que e "portao mal chamado" e nao "portao mordeu") nunca dispara aqui.
-      - name: CSP_INJETAR_FALHA morde (o caminho sujo tem de sair 1, nao 0)
+      # E POR QUE ELE COBRA O MOTIVO, E NAO SO O CODIGO (05/09, item
+      # `passo-csp-assere-codigo-nao-motivo`). Achado do porteiro em 04/09 e REPRODUZIDO em 05/09
+      # nesta ordem exata: com a pasta publicada `dist/glossario/` ausente, o `csp-paginas.js` sai
+      # 1 por OUTRO motivo, e a injecao nunca chega a ser exercitada — porque a lista de paginas
+      # publicadas e derivada de `dist/`, entao sem a pasta a rota nem entra no laco que a injecao
+      # esvazia. Medido, com exit code real lido do comando:
+      #
+      #   dist/glossario/ presente -> exit 1 · "A. /glossario/ e publicada e NAO tem CSP nenhuma"
+      #   dist/glossario/ ausente  -> exit 1 · "E. ... 404 (Not Found)" + "E. ... a pagina branqueou"
+      #
+      # Os dois saem 1. Um exercitou a mordida, o outro nao — e um passo que so olha o codigo os
+      # trata como a mesma coisa e assina de verde a prova que nao aconteceu. Por isso a saida vai
+      # para arquivo e a linha da mordida e cobrada por grep de string fixa.
+      #
+      # O acoplamento que isto DESFAZ: ate 04/09 a corretude deste passo dependia de o passo LIMPO
+      # imediatamente acima continuar imediatamente acima e sem `continue-on-error` (era ele quem
+      # derrubava o job nessa situacao). Agora este passo se defende sozinho.
+      - name: CSP_INJETAR_FALHA morde (exit 1 E pelo MOTIVO certo, nao por 404)
         run: |
           set +e
-          CSP_INJETAR_FALHA=/glossario/ node test/csp-paginas.js
+          CSP_INJETAR_FALHA=/glossario/ node test/csp-paginas.js > /tmp/csp-injetado.log 2>&1
           codigo=$?
           set -e
+          cat /tmp/csp-injetado.log
           echo "csp-paginas.js com CSP_INJETAR_FALHA=/glossario/ saiu $codigo"
           if [ "$codigo" -ne 1 ]; then
             echo "ESPERAVA exit 1 (o portao mordeu) e saiu $codigo — ou o portao parou de morder,"
             echo "ou a rota /glossario/ deixou de ser valida (nesse caso o exit e 2, nao 1)."
+            exit 1
+          fi
+          if ! grep -qF 'A. /glossario/ e publicada e NAO tem CSP nenhuma' /tmp/csp-injetado.log; then
+            echo "O exit foi 1, mas pelo motivo ERRADO: a linha da mordida nao apareceu."
+            echo "A injecao apaga a CSP de /glossario/ em memoria, entao a falha esperada e a"
+            echo "cobertura (bloco A). Se em vez dela vier 404 ou pagina branqueada (bloco E), a"
+            echo "pasta publicada dist/glossario/ nao existe e a mordida NUNCA foi exercitada —"
+            echo "este passo estaria assinando de verde uma prova que nao aconteceu."
             exit 1
           fi
         timeout-minutes: 3
