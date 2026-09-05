@@ -758,7 +758,7 @@
     {
       "id": "rotulo-medicao-anonima",
       "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
-      "estado": "livre",
+      "estado": "concluido",
       "territorio": [
         "ferramentas/medir-secao.js",
         "ferramentas/chrome-plataforma.js"
@@ -766,7 +766,8 @@
       "camada": "plataforma",
       "aceite": "O rotulo fixo da barra passa a \"medicao anonima\" SOMENTE se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar o scrollWidth da barra — medido, nao estimado. Se nao couber, o item fecha SEM mudanca e com o numero medido registrado: a explicacao completa continua no rodape, e a growth aceitou assim.",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim.",
-      "agente": "dev-plataforma"
+      "agente": "dev-plataforma",
+      "feito": "Fechado em 05/09 pelo porteiro SEM MUDANCA NENHUMA no codigo — NAO COUBE, e a folga era ZERO. Medido no navegador (playwright, dist/ servido em http, .barra .medida real das 5 paginas x 3 larguras 390x844 / 320x568 / 1366x768; 15 leituras, resultado identico em todas). NUMEROS: o rotulo .medRot renderiza em \"Palatino Linotype\" 8.8px, letter-spacing 0.88px, uppercase. Largura do span: MEDICAO = 49,64 px; MEDICAO ANONIMA = 105,09 px (+55,45 px, +112%). Botao inteiro (span + 22 px de padding): hoje 71,64 px com \"ligada\" e 77,89 px com \"desligada\"; com o rotulo novo, 127,09 px nos dois estados — 49,09 px ACIMA do teto de 78. scrollWidth da .barra a 390 px: 768 -> 823 (+55 px) com \"ligada\", 774 -> 823 (+49) com \"desligada\". As duas clausulas da condicao caem, e nao por pouco. O ACHADO QUE EXPLICA POR QUE ERA IMPOSSIVEL: a faixa 71-78 px que a growth escreveu e EXATAMENTE a amplitude que o botao ja percorre sozinho ao trocar de estado (71,64 ligada -> 77,89 desligada, porque quem manda na largura e a linha de baixo, \"desligada\" = 55,89 px, mais larga que \"MEDICAO\" = 49,64). Nao ha 1 px de folga para palavra alguma: qualquer rotulo mais largo que 55,89 px passa a mandar na largura e estoura os 78. Medido tambem, para a growth ter numero e nao so um nao: (a) trocar o rotulo por \"anonima\" sozinho da 74,69 px, dentro da faixa, mas perde a palavra que nomeia o botao; (b) quebrar em DUAS linhas (MEDICAO / ANONIMA) da 74,69 px com \"ligada\" e 77,89 com \"desligada\", altura do botao intacta em 44 px e scrollWidth 771/774 — ou seja, cabe na largura e no alvo, e so tropeca em +3 px de scrollWidth no estado ligada. NAO APLIQUEI (b): a condicao diz \"nem aumentar o scrollWidth\", +3 px e aumento, e alem disso empilhar tres linhas de texto numa tabua de 44 px e decisao tipografica da arte, nao deste item — que autoriza um rotulo de uma linha e mais nada. Fica registrado como caminho para a growth+arte decidirem, com o numero na mao, se acharem que vale. Zero linha de codigo tocada; nenhum portao rodado alem do conferir-item.js, porque nao houve o que testar."
     },
     {
       "id": "dashboard-sem-google",
