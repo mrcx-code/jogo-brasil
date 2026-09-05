@@ -1888,7 +1888,7 @@
     },
     {
       "id": "anti-recopia-nao-ve-arquivo-que-nao-filtra-nada",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "O portao anti-recopia sai exit 0 para arquivo NOVO que decide por erro de console e nao filtra NADA -- e isso ja aconteceu, na mesma hora",
@@ -1897,12 +1897,13 @@
       ],
       "aceite": "O portao passa a reprovar arquivo de test/ que DECIDE por erro de console (erro vira reprovacao) e nao passa pelo helper -- hoje ele so cobra duas coisas: que arquivo GOVERNADO continue no helper, e que ninguem REIMPLEMENTE o filtro a mao. Cuidado com o falso positivo que o proprio QA pagou: o portao ja reprova arquivo que carrega o padrao como CARGA de texto (sonda de teste), e o QA teve de montar as palavras por concatenacao duas vezes -- o incentivo esta invertido, quem for testar esta area precisa contornar o portao. Mordida a provar por injecao: um arquivo novo com page.on(console) sem helper e com o erro virando reprovacao tem de sair exit 1; um que so LOGA continua exit 0; e uma sonda que carrega o padrao como texto tambem continua exit 0.",
       "detalhe": "NAO E HIPOTESE, e o caso aconteceu enquanto a entrega era integrada. Medido em 05/09 por nuvem-20260905T0023: a outra maquina empurrou test/qa-gente-quadro-que-chega.js enquanto o funil rodava, com page.on(console) sem filtro nenhum, e o npm test do merge saiu exit 1 REAL em net::ERR_TUNNEL_CONNECTION_FAILED do MEDIDA_HOST -- o mesmo defeito que a entrega acabara de centralizar em 18 portoes. O portao anti-recopia saiu ANTIRECOPIA_EXIT_REAL=0 nas duas situacoes, antes e depois do conserto. A classe voltou por baixo do portao criado para ela, dentro da mesma hora, escrita por outra maquina. Conserto do arquivo em a56b4dc; o buraco do portao e este item.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.410Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "anti-recopia-burlavel-em-10-de-13-formas",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "O portao anti-recopia pega 3 de 13 formas de reescrever o filtro a mao -- includes e indexOf, as duas mais provaveis, passam",
@@ -1911,12 +1912,13 @@
       ],
       "aceite": "Fechar as formas medidas ou ESTREITAR a promessa escrita no cabecalho, que hoje e mais larga que o que o portao mede. Mordida provada por injecao, uma forma por vez, com controle limpo exit 0 antes de cada. As 10 que burlam hoje, medidas pelo QA em 05/09 com arquivo novo por forma: indexOf · includes · .match(/.../) · .exec(/.../) · .search(/.../) · regex guardada em constante · new RegExp(string) · array de palavras mais some() · comparacao de .url() por substring · e ARQUIVO EM SUBPASTA de test/, porque o readdirSync nao e recursivo. As 3 que ele pega: a forma do autor (regex literal mais .test(), a mesma aninhada em tres if, e helper local com outro nome.",
       "detalhe": "Ressalva nao bloqueante do QA em 05/09 (nuvem-20260905T0023), na auditoria de filtro-de-console-copiado-por-arquivo. A parte que FUNCIONA e vale registrar: a trava de regressao nos GOVERNADOS morde de verdade -- require removido de smoke.js da exit 1 nomeando o arquivo, restaurado da exit 0. O problema e so a promessa larga: portao anti-recopia que so pega a forma exata que o autor imaginou e decoracao, e includes/indexOf sao a forma mais provavel de alguem reescrever isso.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.410Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "rede-externa-compara-prefixo-cru-e-cala-dominio-vizinho",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "leve",
       "titulo": "ehRuidoDeRedeExterna compara prefixo cru: um dominio que COMECA com o MEDIDA_HOST e calado junto",
@@ -1925,8 +1927,9 @@
       ],
       "aceite": "Trocar url.indexOf(MEDIDA_HOST) === 0 por url === MEDIDA_HOST || url.startsWith(MEDIDA_HOST + barra). Mordida provada por unidade nos dois sentidos: o host de verdade continua calado, e os dois vizinhos passam a acusar. Conserto de uma linha.",
       "detalhe": "Achado do QA em 05/09 (nuvem-20260905T0023) como gap, medido por unidade: hoje sao CALADOS https://us.i.posthog.com.atacante.example/x e https://us.i.posthog.comx.example/x. E PRE-EXISTENTE na main, nao veio da entrega do filtro de console -- que e justamente por que ele agora importa mais: o helper deixou de ser usado por 3 arquivos e passou a ser usado por 21, entao um defeito dele deixou de ser local. Nao e explorabilidade de producao (isto e instrumento de teste), e sim uma cegueira que cresceu de tamanho.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.399Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu",
