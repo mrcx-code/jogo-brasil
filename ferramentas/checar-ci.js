@@ -31,25 +31,88 @@
 // CI_INJETAR_ERRO=<motivo> força o caminho de erro sem tocar rede, para provar que ele nunca
 // vira "desconhecido" nem "verde" por acidente.
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 // O repositório do GitHub — UMA constante, no espírito do MEDIDA_HOST/ferramentas/dominio.js
 // (CLAUDE.md §3.2/§8): mude aqui, nunca em cada chamada.
 const OWNER_REPO = 'mrcx-code/jogo-brasil';
 
-function pedidoGithub(caminho) {
+// O SENTINELA DO PROXY, e por que ele tem nome aqui (medido pela nuvem em 05/09).
+// Na maquina da nuvem, GH_TOKEN e GITHUB_TOKEN EXISTEM e valem a string literal
+// "proxy-injected": quem tem a credencial de verdade e o proxy de saida, que a injeta na
+// passagem. Mandar esse sentinela como Bearer para o GitHub da 401 -- e foi exatamente isso
+// que esta ferramenta fazia, porque o modulo `https` do Node NAO honra HTTPS_PROXY sozinho.
+// Medido nos quatro caminhos: pelo proxy com header 200 - pelo proxy sem header 200 (ele
+// injeta) - https cru com o sentinela 401 - https cru sem header 403.
+const SENTINELA_PROXY = 'proxy-injected';
+
+function tokenDeVerdade() {
+  const t = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
+  return t && t !== SENTINELA_PROXY ? t : '';
+}
+
+// Abre um tunel CONNECT quando ha proxy configurado. Sem proxy, devolve null e o pedido sai
+// direto, identico ao que era antes -- a maquina de quem tem credencial propria nao muda.
+function proxyConfigurado() {
+  const u = process.env.HTTPS_PROXY || process.env.https_proxy || '';
+  if (!u) return null;
+  try {
+    const p = new URL(u);
+    return { host: p.hostname, port: Number(p.port) || 80 };
+  } catch (e) {
+    return null;
+  }
+}
+
+function abrirTunel(proxy, destino) {
   return new Promise((resolve, reject) => {
+    const req = http.request({
+      host: proxy.host,
+      port: proxy.port,
+      method: 'CONNECT',
+      path: destino + ':443',
+      timeout: 10000,
+    });
+    req.on('connect', (res, socket) => {
+      if (res.statusCode !== 200) {
+        reject(new Error('o proxy recusou o tunel para ' + destino + ': HTTP ' + res.statusCode));
+        return;
+      }
+      resolve(socket);
+    });
+    req.on('timeout', () => req.destroy(new Error('o proxy nao respondeu ao CONNECT em 10s')));
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+function pedidoGithub(caminho) {
+  return new Promise(async (resolve, reject) => {
+    const proxy = proxyConfigurado();
+    let socket = null;
+    if (proxy) {
+      try {
+        socket = await abrirTunel(proxy, 'api.github.com');
+      } catch (e) {
+        reject(e);
+        return;
+      }
+    }
+    const token = tokenDeVerdade();
     const opcoes = {
       hostname: 'api.github.com',
       path: caminho,
       headers: Object.assign(
         { 'User-Agent': 'jogo-brasil-checar-ci', 'Accept': 'application/vnd.github+json' },
-        (process.env.GH_TOKEN || process.env.GITHUB_TOKEN)
-          ? { Authorization: 'Bearer ' + (process.env.GH_TOKEN || process.env.GITHUB_TOKEN) }
-          : {}
+        token ? { Authorization: 'Bearer ' + token } : {}
       ),
       timeout: 10000,
     };
+    if (socket) {
+      opcoes.socket = socket;
+      opcoes.agent = false;
+    }
     const req = https.get(opcoes, res => {
       let corpo = '';
       res.on('data', d => { corpo += d; });
