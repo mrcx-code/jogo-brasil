@@ -36,6 +36,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 const RAIZ = path.resolve(__dirname, '..');
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
@@ -160,7 +161,7 @@ const COSTURA_COBRE_ESPERADO = [12, 5, 1];
     const pg = await nav.newPage({ viewport: { width: ctx.w, height: ctx.h }, deviceScaleFactor: 2,
       hasTouch: ctx.w < 900, isMobile: ctx.w < 900 });
     pg.on('pageerror', e => erros.push(ctx.nome + ' PAGEERROR: ' + e.message));
-    pg.on('console', m => { if (m.type() === 'error') erros.push(ctx.nome + ' CONSOLE: ' + m.text()); });
+    pg.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push(ctx.nome + ' CONSOLE: ' + m.text()); });
     await pg.goto(url);
     await pg.waitForFunction(() => typeof S !== 'undefined' && !!window.geoFundo && !!window.geoFundo(),
       null, { timeout: 30000 }).catch(() => {});

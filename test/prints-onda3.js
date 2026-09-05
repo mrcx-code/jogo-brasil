@@ -14,6 +14,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -30,7 +31,7 @@ function chromiumPath() {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
   const errors = [];
   page.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE: ' + m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) errors.push('CONSOLE: ' + m.text()); });
   await page.goto(file);
   await page.waitForTimeout(1200);
   await page.evaluate(() => { if (typeof fecharTelas === 'function') fecharTelas(); });

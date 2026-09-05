@@ -23,6 +23,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) if (p && fs.existsSync(p)) return p;
@@ -38,7 +39,7 @@ const ROTULO = process.env.SALVDROP_ROTULO || 'agora';
   });
   const erros = [];
   page.on('pageerror', e => erros.push('PAGEERROR: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error') erros.push('CONSOLE: ' + m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push('CONSOLE: ' + m.text()); });
   await page.goto(ALVO);
   await page.waitForTimeout(900);
 
