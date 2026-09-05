@@ -14361,3 +14361,99 @@ barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7
 `dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
 um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
 junto.
+
+## 05/09 (tarde) · `nuvem-20260905T1223` — o item mandava `endsWith`, e `endsWith` deixaria a main VERMELHA
+
+**Máquina desta rodada: `nuvem-20260905T1223`.** Sem issue com etiqueta `agente` — rodada agendada,
+trabalho puxado da fila. CI da `main` **verde** antes do primeiro despacho (run 33959539301).
+
+**O que eu peguei.** Três itens de território disjunto, todos da mesma classe — portão que assina de
+verde o que não mediu: `encaixe-bloco5-modelo-de-motor-parou-em-1608` (`test/encaixe.js`, dev-jogo),
+`guarda-le-o-texto-do-comando-nao-o-efeito` (`.claude/hooks/guarda.js`, porteiro) e
+`qa-fala-salvador-caixa-amigo-falso` (`test/qa-fala-salvador-caixa.js`, minha linha). Lock só no
+`backlog.json`, empurrado na hora; **marcador `voo/` não criado** (PLANTÃO §0.1).
+
+### O QUE CAIU, e é o achado da rodada: a premissa do próprio item
+
+O item `qa-fala-salvador-caixa-amigo-falso` diagnosticou certo e **prescreveu errado**. O diagnóstico:
+o rótulo dizia `termina em "não se recolhe"` e o código era `indexOf(...) >= 0`, então o portão ficou
+verde **por acidente de substring** — "recolhem" contém "recolhe". Isso é verdade e está confirmado.
+
+A prescrição era trocar por `endsWith`. **Medido contra `src/jogo.ts:2302`, ela não se sustenta:**
+
+| | |
+|---|---|
+| comprimento da fala | **258 caracteres** |
+| últimos 60 | `"...santo se conta. E o acarajé é as duas coisas: trabalho e fé."` |
+| `endsWith("não se recolhe")` | **false** |
+| `endsWith("não se recolhem")` | **false** |
+| `indexOf("não se recolhem") >= 0` | true |
+
+A fala foi reescrita **de novo** depois do achado do QA (a mudança do acarajé, que o comentário logo
+acima dela em `src/jogo.ts` explica), e a frase deixou de ser o fim — virou miolo. Ou seja:
+**`endsWith` deixaria este portão VERMELHO sobre uma `main` sã**, e o passo seguinte seria alguém
+mexer no TEXTO DO JOGO para satisfazer o instrumento. É o `PLANTAO.md` §8 ao pé da letra — antes de
+consertar o produto para satisfazer um portão, desconfie do portão —, só que aplicado ao **aceite de
+um item da fila**, que é um lugar onde esta casa ainda não tinha desconfiado.
+
+**A generalização, e ela vale para a próxima rodada:** aceite escrito em cima de um texto que outra
+entrega pode reescrever **envelhece junto com o texto**. O item nasceu em 04/09 e venceu em menos de
+24 h. Antes de executar aceite que cita conteúdo literal, **releia o conteúdo** — é o irmão da regra
+do §5 do PLANTÃO (*achado órfão se confere no `git log` antes de virar item*), um degrau adiante:
+**item vivo se reconfere na fonte antes de virar código.**
+
+### O que entrou no lugar
+
+Igualdade contra a fonte da verdade: o medido na tela contra `EPOCAS[salvador].abertura[4]` lido da
+própria página. Cobra o que o rótulo promete (é ESTA fala, inteira), morde reescrita não declarada, e
+**não envelhece** — que é a doença que criou o amigo falso.
+
+**A mordida, com o controle que separa as duas formas:**
+
+| mutante | asserção ANTIGA | asserção NOVA |
+|---|---|---|
+| **A** — navega uma fala antes (`i < FALA - 1`), mede 104 de 258 | exit **1** | exit **1** |
+| **B** — mede 200 de 258 (o fragmento mora entre 170 e 184) | exit **0**, *"tudo verde"* ← o falso verde | exit **1** |
+| restaurado | — | exit **0**, md5 de `src/jogo.ts` conferido, 0 resíduo |
+
+**O mutante A não separa as duas formas, e isso fica registrado como resultado, não como erro.** Foi a
+primeira injeção que eu fiz, ela mordeu, e eu quase parei ali — uma mordida que não distingue o
+conserto do defeito não prova conserto nenhum. Só o mutante B prova, e ele é o perigo que o próprio
+cabeçalho do arquivo já descrevia desde 04/09: medir antes de a caixa terminar de revelar.
+
+`npm test` cheio no commit exato: **exit 0 real**, 443 linhas ok. Entrega em
+`entrega/qa-fala-salvador-caixa-amigo-falso` (27f7743), pré-voo exige `qa` — e como **eu fui juiz em
+causa própria duas vezes** (decidi que a premissa caiu e decidi o conserto), despachei um QA
+independente para tentar derrubar, com o meu viés escrito no brief.
+
+### A armadilha de método desta rodada: `pgrep -f` casa com o próprio vigia
+
+Custou minutos e é barata de repetir. Para esperar o `npm test` terminar sem trocar a árvore debaixo
+dele (o erro de método registrado no RECADOS de 05/09), escrevi:
+
+```
+until ! pgrep -f "test/smoke.js|npm test" >/dev/null; do sleep 15; done
+```
+
+**Esse laço não termina nunca.** O `pgrep -f` casa a linha de comando inteira, e a linha de comando do
+shell que está esperando **contém o próprio padrão**. O vigia se enxerga, conclui que o teste ainda
+roda, e espera para sempre. Pior: a leitura natural do sintoma é *"o teste travou"* — quando o teste
+já tinha terminado com exit 0. Duas vezes seguidas eu li "TESTE REAL VIVO" sobre uma máquina sem
+nenhum processo `node` (`ps -eo comm | awk '$1=="node"'` → **vazio**).
+
+É a mesma família de `cmd | tail; echo $?` (medir o tubo em vez do comando): **o instrumento entrou na
+própria medição.** Conserto: casar pelo executável (`ps -eo comm,args` filtrando `comm == node`), ou
+excluir o próprio PID (`pgrep -f ... | grep -v $$`), nunca `pgrep -f` cru sobre um padrão que o vigia
+carrega escrito.
+
+### O que fica para a próxima
+
+- Três agentes em voo ao fechar esta entrada: `dev-jogo` no `encaixe.js` bloco 5, `porteiro` no
+  `guarda.js`, `qa` refutando a minha própria entrega. Nenhum dos três pousou ainda.
+- Os 3 PNGs que os portões regravam a cada rodada sujaram a árvore de novo — descartados com
+  `git checkout -- test/` (PLANTÃO §5.1). O item `prints-smoke-artefato-ou-referencia` continua livre
+  na fila e continua sendo a cura de verdade.
+- **Dúvida que não resolvi:** a igualdade nova lê expectativa e medição da MESMA fonte (`EPOCAS` da
+  página). Declarei no cabeçalho que é deliberado — ela responde *"o instrumento mediu a fala certa,
+  inteira?"*, não *"o texto é este texto?"*. Se isso a torna quase tautológica é justamente o que o QA
+  independente foi despachado para julgar.
