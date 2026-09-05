@@ -20,8 +20,10 @@
 //   2. SEM `m.location().url` NUNCA é ruído — "não sei de onde veio" tem de contar como erro
 //      real, nunca virar "ignorado" por acidente (nem todo console message carrega location útil,
 //      ex.: exceção lançada de um contexto sem script);
-//   3. só é ruído se a URL COMEÇA pelo `MEDIDA_HOST` (o único host externo que a CSP do jogo
-//      permite) E o texto é exatamente "Failed to load resource: net::ERR_..." — o Chromium usa
+//   3. só é ruído se a URL É o `MEDIDA_HOST` ou continua nele por `/` (o único host externo que
+//      a CSP do jogo permite; comparar prefixo CRU calaria um domínio VIZINHO que só compartilha
+//      os caracteres — ver `ehDoHostDaMedicao` no fim do arquivo) E o texto é exatamente
+//      "Failed to load resource: net::ERR_..." — o Chromium usa
 //      essa MESMA frase para "não cheguei lá" (rede de quem roda: proxy, adblock, túnel) e para
 //      "cheguei e o servidor respondeu 404/400" (endereço errado — culpa do jogo, e o §3.2 do
 //      CLAUDE.md chama isso de pior modo de falha porque os dois endereços de verdade respondem
@@ -46,7 +48,22 @@ function ehRuidoDeRedeExterna(m) {
   if (m.type() !== 'error') return false;
   const url = (m.location && m.location().url) || '';
   if (!url) return false; // sem origem: nunca vira "ignorado" por acidente — conta como erro real
-  return url.indexOf(MEDIDA_HOST) === 0 && /Failed to load resource: net::ERR_/i.test(m.text());
+  return ehDoHostDaMedicao(url) && /Failed to load resource: net::ERR_/i.test(m.text());
 }
 
-module.exports = { ehRuidoDeRedeExterna, MEDIDA_HOST };
+// A ORIGEM É O HOST DA MEDIÇÃO — comparação EXATA ou prefixo de CAMINHO, nunca prefixo de texto.
+//
+// ACHADO DO QA em 05/09 (nuvem-20260905T0023, item `rede-externa-compara-prefixo-cru-e-cala-
+// dominio-vizinho`): a linha era `url.indexOf(MEDIDA_HOST) === 0`, prefixo CRU de string. Com
+// isso `https://us.i.posthog.com.atacante.example/x` e `https://us.i.posthog.comx.example/x`
+// eram CALADOS junto com o host de verdade — são domínios DIFERENTES, e erro deles tem de
+// acusar. Não é explorabilidade de produção (isto é instrumento de teste); é uma cegueira que
+// cresceu de tamanho quando o helper passou de 3 para 21 arquivos.
+//
+// A regra: ou a URL é o host inteiro (`https://us.i.posthog.com`), ou ela continua com `/`, que
+// é a única coisa que pode seguir um host numa URL sem trocar de host.
+function ehDoHostDaMedicao(url) {
+  return url === MEDIDA_HOST || url.startsWith(MEDIDA_HOST + '/');
+}
+
+module.exports = { ehRuidoDeRedeExterna, ehDoHostDaMedicao, MEDIDA_HOST };

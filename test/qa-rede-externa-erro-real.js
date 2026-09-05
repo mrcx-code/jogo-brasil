@@ -78,7 +78,7 @@ const CENAS = [
   await pg.evaluate(async () => { try { await fetch('https://exemplo-que-nao-existe.invalid/x'); } catch (e) { } });
   // D — console.error do próprio jogo com as palavras do ruído
   await pg.evaluate((p) => { console.error('falha ao montar a fala: ' + p); },
-    'net::' + 'ERR_TUNNEL_CONNECTION_FAILED em ' + 'post' + 'hog');
+    'net::ERR_TUNNEL_CONNECTION_FAILED em posthog');
   await pg.waitForTimeout(1500);
   await nav.close();
   srv.close();
@@ -86,11 +86,12 @@ const CENAS = [
   // classificação das cenas pelo que o Chromium realmente escreveu
   function achar(f) { return vistos.filter(f); }
   const cA = achar(v => v.url.indexOf(MEDIDA_HOST) === 0);
-  // NOTA (achado do QA, 05/09): a palavra abaixo e montada por concatenacao de proposito.
-  // Escrita inteira num literal, ela faz `test/rede-externa-sem-copia.js` REPROVAR ESTA SONDA —
-  // o portao nao distingue quem DECIDE por texto de quem CLASSIFICA uma cena fabricada. Medido:
-  // exit 1 com a forma direta, exit 0 com esta. Esta no relatorio como ressalva do portao.
-  const MARCA_REDE = 'net::' + 'ERR' + '_';
+  // NOTA HISTÓRICA (achado do QA em 05/09, RESOLVIDO no mesmo dia): esta palavra era montada por
+  // concatenação (`'ERR' + '_'`) de propósito, porque `test/rede-externa-sem-copia.js` procurava
+  // texto no arquivo inteiro e REPROVAVA ESTA SONDA — ele não distinguia quem DECIDE por texto
+  // de quem CLASSIFICA uma cena fabricada. Portão que obriga a burlá-lo ensina a burlá-lo. O
+  // portão passou a ler o arquivo como CÓDIGO, e a palavra voltou a ser escrita por extenso.
+  const MARCA_REDE = 'net::ERR_';
   const cB = achar(v => v.url.indexOf(BASE) === 0 && v.txt.indexOf(MARCA_REDE) >= 0);
   const cC = achar(v => /exemplo-que-nao-existe\.invalid/.test(v.url) || /exemplo-que-nao-existe\.invalid/.test(v.txt));
   const cD = achar(v => /falha ao montar a fala/.test(v.txt));
@@ -98,7 +99,7 @@ const CENAS = [
 
   // cena E também medida como UNIDADE, porque uma mensagem sem url nem sempre aparece no
   // navegador headless — e "não consegui fabricar" não pode virar "está coberto"
-  const falso = { type: () => 'error', text: () => 'Failed to load ' + 'resource: ' + MARCA_REDE + 'TUNNEL_CONNECTION_FAILED', location: () => ({ url: '' }) };
+  const falso = { type: () => 'error', text: () => 'Failed to load resource: ' + MARCA_REDE + 'TUNNEL_CONNECTION_FAILED', location: () => ({ url: '' }) };
   const eUnidade = ehRuidoDeRedeExterna(falso);
 
   const grupos = { A: cA, B: cB, C: cC, D: cD, E: cE };
