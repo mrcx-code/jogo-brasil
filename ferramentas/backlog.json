@@ -2042,6 +2042,20 @@
       ],
       "aceite": "O lado que a implicacao deixou de cobrir (motor TEM o verbo e a fala NAO promete) passa a ter guarda, SEM cobrar frase-molde de quem nomeia o gesto no idioma proprio. O trabalho JA EXISTE e esta empurrado em entrega/verbo-e-fala-passa-a-vazio (test/qa-verbo-e-fala.js): auditar e integrar, NAO recomecar. Ele fecha por registro nominal por id ({familia, frase}), em que cada capitulo declara a frase com que a SUA abertura nomeia o gesto -- mesma disciplina da lista de excecao do bloco 32, e capitulo novo com verbo passa a exigir uma linha visivel no diff. Mordida ja provada pelo autor e a reconferir: limpo exit 0 duas vezes (piso 0); QA_SEM_FRASE=cais exit 1 nomeando O CAIS; QA_SEM_FRASE=aceiro exit 1 nomeando O ACEIRO; injecao D exit 1 nomeando JABAQUARA, onde o encaixe.js inteiro sai 0.",
       "detalhe": "Achado do QA em 05/09 (auditoria do bloco 5, nuvem-20260905T1223), PROVADO POR INJECAO. A entrega do bloco 5 trocou igualdade por implicacao (promessa => motor) e isso foi a decisao certa -- cobrar a frase-molde de Palmares/Salvador dos outros reprova VOCABULARIO, nao divida, porque as 10 aberturas nomeiam o gesto no idioma proprio (juntar gente na pedra, abrir caminho, guardar o lugar, abrir a porta, fazer passar, chegar na ultima casa, Alcance quem puder). Mas a implicacao morde num sentido so, e o preco tem numero: o antecedente so e verdadeiro em PALMARES (acolher) e SALVADOR (palavra) -- exatamente os 2 que o modelo congelado ja testava. O bloco guarda 2 dos 12 capitulos com motor; 24 das 26 assercoes passam a vazio. PERDA DE COBERTURA REAL HOJE: ZERO -- os 10 capitulos no estado motor-tem-fala-nao-promete nomeiam todos o gesto, nenhum e divida hoje. O que existe e a AUSENCIA DE GUARDA, provada pela injecao D do QA: JABAQUARA sai de CAP_FILA e entra em CAPS_VERBO -- a mao troca de gesto e a abertura continua dizendo alcancar e abrir caminho, o da roca, para quem ja chegou -- e node test/encaixe.js INTEIRO sai EXIT 0, zero falhas. Uma abertura mentindo, portao verde. O censo do bloco 32 tambem passa, porque o capitulo continua tendo verbo, so que o outro. GAPS IRMAOS registrados na mesma auditoria: promete_colher e calculado, logado e NUNCA asseverado nas duas versoes do bloco (13 capitulos de dado morto no log); o bloco 5 mede so a primeira cena da epoca (medido estavel hoje nas 13, mas nada cobra isso); e o regex e regua invisivel -- quem esperava CAMINHA com voce (O CAIS) esta a uma palavra de passa a andar com voce, e ninguem aprovou essas duas expressoes como A definicao de promessa."
+    },
+    {
+      "id": "portao-navegador-varre-disco-nao-git",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "portao-navegador.js (varredura recursiva) reprova por arquivo de scratch IGNORADO pelo git -- ele varre o DISCO, nao o que sera versionado",
+      "territorio": [
+        "test/portao-navegador.js"
+      ],
+      "aceite": "O portao passa a pular arquivos que o git ignora (git check-ignore, ou ler .gitignore) antes de exigir executablePath -- scratch local nunca deveria poder derrubar um funil. Mordida provada nos dois sentidos: arquivo scratch IGNORADO que lanca nu continua passando; arquivo RASTREADO (ou rastreavel) que lanca nu continua reprovando.",
+      "detalhe": "Achado em 05/09 pelo plantao ao integrar sem-lockfile-o-playwright-flutua: um arquivo test/tmp-varre.js (scratch de uma investigacao anterior, nunca commitado, casando com test/TMP* do .gitignore) lancava Chromium nu e o portao recem-tornado-recursivo reprovou o merge por causa dele. Removido do disco antes de integrar (nao fazia parte de nenhuma entrega), mas o portao continua vulneravel a qualquer scratch futuro de qualquer agente/maquina.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
