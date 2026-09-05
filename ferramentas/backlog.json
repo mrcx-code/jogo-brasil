@@ -1675,7 +1675,7 @@
     },
     {
       "id": "qa-fala-salvador-caixa-amigo-falso",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
@@ -1684,8 +1684,7 @@
       ],
       "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
       "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao.",
-      "maquina": "nuvem-20260905T1223",
-      "desde": "2026-09-05T12:25:30.651Z"
+      "feito": "2026-09-05T13:45:00.000Z"
     },
     {
       "id": "caixa-da-fala-so-medida-em-salvador",
@@ -2017,6 +2016,19 @@
       ],
       "aceite": "As quatro passam a guardar o CORPO da resposta e a classificar por ferramentas/rede-da-casa.js (classificar()), como o conferir-agentes.js ja faz: falta de egresso sai como sem-egresso e diz que nao e credencial; 401/403 vindos do proprio destino saem como credencial. NENHUMA troca de transporte -- so mensagem, que foi a regra que manteve a entrega de 05/09 sem risco. Mordida provada por injecao em CADA uma (exit code real), e o controle de que o caminho de SUCESSO nao mudou. Se alguma das quatro nao puder ser exercitada com exit code real nesta maquina, diga isso por extenso em vez de mudar no escuro -- foi por isso que elas ficaram de fora em 05/09.",
       "detalhe": "Sobra declarada da entrega rede-da-casa-egresso-honesto (05/09, nuvem-20260905T0822). Elas ficaram de fora porque NENHUMA e exercitada pelo CI, entao nao havia como provar a mudanca com exit code real, e mudar quatro ferramentas no escuro e o oposto do que aquela entrega defende. Os hosts das quatro (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) estao TODOS fora da lista de egresso da nuvem -- medido: 403 \"Host not in allowlist\" direto e CONNECT recusado no tunel. Consequencia pratica para quem pegar: nesta maquina o unico desfecho observavel das quatro e o de FALHA, e ele e justamente o que o item conserta; o caminho de sucesso so pode ser provado por injecao ou na maquina do dono."
+    },
+    {
+      "id": "portao-fala-topo-na-tela",
+      "estado": "livre",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "As tres assercoes que dao NOME ao portao da caixa da fala sao tautologia: fala de 1400 caracteres passa verde a 320x568 com topo -356",
+      "territorio": [
+        "test/qa-fala-cabe-de-verdade.js",
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "aceite": "O portao passa a cobrar caixa.top >= 0, que e o unico dos quatro numeros que responde a pergunta do titulo e que hoje e IMPRESSO sem ser COBRADO, e passa a valer para as 26 conversas (13 aberturas + 13 fechos), nao so para SALVADOR. O trabalho JA EXISTE e esta empurrado em entrega/portao-fala-topo-na-tela (test/qa-fala-cabe-de-verdade.js, 26 conversas x 2 telas): auditar e integrar, NAO recomecar. Mordida ja provada pelo autor e a reconferir: QAFALA_CONTROLE=1400 reprova 26 assercoes, pior topo -466 px; limpo exit 0 com folga minima de 260 px (NAO DITO a 320x568). Decidir tambem se o instrumento novo SUBSTITUI as tres assercoes velhas ou convive com elas -- deixar tautologia assinando de verde ao lado do portao que morde e o pior dos dois mundos.",
+      "detalhe": "Achado do QA em 05/09 (auditoria de qa-fala-salvador-caixa-amigo-falso, nuvem-20260905T1223), PROVADO POR MEDICAO. O portao se chama A FALA NOVA CABE NA CAIXA? e as tres assercoes que respondem isso sao incapazes de reprovar. Medido a 320x568 reescrevendo abertura[4] na pagina: 258 chars -> caixa 269/269 topo 282 base 550 PASSA; 700 chars -> caixa 511/511 topo 40 base 550 PASSA; 1400 chars -> caixa 907/907 numa janela de 568, topo -356, base 550, e o portao diz tudo verde. Causa: #falaPalco e #falaCaixa tem overflow visible e altura auto (computed h 268.5px, minH auto, maxH none, of visible), e elemento que nao corta e nao rola tem scrollHeight === clientHeight SEMPRE -- as duas primeiras assercoes comparam um numero com ele mesmo. A terceira nao dispara porque a caixa e ancorada embaixo e cresce para cima, entao base fica constante em 550 nas tres linhas. NAO E DEFEITO DE PRODUTO HOJE, e o numero importa para nao virar panico: a maior fala do jogo e justamente a medida (SALVADOR abertura[4], 258 chars, teto 260 do encaixe.js) e a folga de pixel a 320x568 e de 282 px ~ 515 caracteres. Quem segura a linha e o teto de CARACTERES do encaixe.js, nao estas tres assercoes de pixel -- e isso nao estava escrito em lugar nenhum. CAI JUNTO uma premissa do cabecalho original do arquivo: medir antes da revelacao terminar NAO corrompe a geometria (65 de 258 chars devolvem palco 132/132 e caixa 247/247, identicos ao completo), porque #falaFantasma dimensiona a caixa empilhando todas as linhas da conversa invisiveis na mesma celula de grade. A revelacao incompleta corrompe so o ROTULO, nunca o numero."
     }
   ]
 }
