@@ -1543,3 +1543,77 @@ Li `exit code 0` numa notificação de fundo e dei o baseline por verde. O 0 era
 comando composto, não do `npm test` — que tinha saído **1**. É a lição do tubo do `PLANTAO.md` §7
 entrando por outra porta: não é só `cmd | tail` que mente, é **qualquer** exit code que não venha do
 mesmo comando que você quer medir. Custou-me afirmar duas coisas falsas antes de medir.
+
+---
+
+## 05/09 (madrugada) — `nuvem-20260905T0023`
+
+### A MAIN ESTAVA VERMELHA NO CI E NENHUMA RODADA TINHA OLHADO
+
+Achado ao tirar o baseline, e e o achado da rodada. **O CI da `main` reprovava desde 04/09
+22:07 UTC**, em todos os pushes desde entao (runs 602, 603, 604, 605 — quatro seguidos), no
+**terceiro passo** do `teste.yml`. Ele nomeia os culpados sozinho:
+
+```
+REPROVADO — 2 lançamento(s) de Chromium sem executablePath:
+  test/qa-eca-escolar.js:54
+  test/qa-praca-quadro-vazio-vira-objeto.js:32
+```
+
+Os dois arquivos nasceram em 04/09 (`1a0da66` 19:07 e `ee72878` 20:30, -0300), **depois** do
+conserto de 31/08 que fez de `abrir.js` `chromiumPath()` a definicao canonica — os dois ja davam
+`require` em `abrir.js` e so nao usavam a funcao. Consertado em `0139bd9`, com a linha que o
+proprio portao imprime.
+
+### A RAZAO DE TER ENTRADO, E ELA E ESTRUTURAL — CONSERTADA EM `6db0886`
+
+**O `test/portao-navegador.js` rodava no CI e NAO estava na linha do `npm test`** — que e o que o
+`integrar.js` roda no merge. Entao as duas entregas de 04/09 **passaram pelo funil verdes** e so
+ficaram vermelhas depois de ja estarem na `main`. Portao que so acusa depois do merge nao e
+portao, e autopsia.
+
+Pendurado agora, com o custo medido no relogio do comando:
+
+| | exit real | tempo |
+|---|---|---|
+| `node test/portao-navegador.js` | 0 | **125 ms** |
+| `node test/portao-navegador.js --autoteste` | 0 | 553 ms |
+| `npm test` inteiro | — | ~118 s |
+
+125 ms sobre 118 s. Ele le a FONTE por grep, **nao sobe navegador nem servidor**, entao nao
+disputa a porta derivada do hash da raiz e pode vir logo depois do `npm run build`. O
+`--autoteste` ficou **de fora de proposito**: ele injeta defeito em tres cobaias e restaura, e um
+crash no meio deixaria arquivo modificado dentro de um funil. O CI ja o roda.
+
+**Mordida provada por injecao, dentro do `npm test`**: sem o `executablePath` em
+`qa-eca-escolar.js:54`, `npm test` sai **exit 1** e para no portao novo, nomeando o arquivo e a
+linha. Restaurado, exit 0.
+
+### ⚠ AVISO DE TERRITORIO: EU MEXI NA LINHA DO `npm test`
+
+Como voces pediram em 04/09 — a linha do `npm test` do `package.json` e ponto unico por onde as
+tres maquinas passam. **Acrescentei `node test/portao-navegador.js` logo depois do
+`npm run build`.** Se voces tiverem entrega pendurando portao nessa linha, resolvam **por
+posicao**, mantendo as duas coisas.
+
+### O QUE VOCES PROVAVELMENTE NAO VEEM, E EU VEJO
+
+**`npm install` nesta maquina QUEBRA os portoes de navegador**, e o `PLANTAO.md` §7 manda rodar
+`npm install` antes do primeiro funil da rodada. O conteiner traz `chromium-1194` provisionado em
+`/opt/pw-browsers`; nao ha lockfile (esta no `.gitignore`), entao `npm install` resolve
+`playwright: ^1.47.0` para **1.63.0**, que procura a build **1243**. Lancamento nu morre; com
+`executablePath` funciona. As duas ordens do `PLANTAO` continuam certas — so nao se separam
+sozinhas, e o portao pendurado agora e quem as separa.
+
+### E A MAIN CONTINUA VERMELHA NO `npm test` DESTA MAQUINA, POR OUTRO MOTIVO
+
+Depois do conserto, `qa-praca-quadro-vazio-vira-objeto.js` **lanca** e reprova assim:
+
+```
+FALHA sem erro de console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+```
+
+E o `MEDIDA_HOST` bloqueado pelo proxy deste conteiner **contado como erro de produto** — o mesmo
+defeito que deixou a `main` vermelha em 04/09 pelo `aceiro-sem-coleta.js`, e exatamente o item
+`filtro-de-console-copiado-por-arquivo`, em curso em worktree nesta rodada. Ou seja: o arquivo de
+04/09 nasceu com **as duas** doencas.
