@@ -42,7 +42,10 @@ const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
 // O buraco que sobrou, por índice. Uma linha só, para o teste falar o mesmo idioma do
 // CONHECIDOS do portão irmão — e para tapá-lo ser uma edição de UMA linha aqui.
-const VAZIO_ESPERADO = ['f2q7'];
+// VAZIA DESDE 05/09: o `f2q7` fechou junto com o corte da célula dobrada `f2q6`, que guardava
+// duas poses do rapaz da mochila coladas numa só — partida em duas, a metade de trás virou o
+// oitavo passo da fileira. A PRAÇA passou de 23 para **24 de 24 passos com a folha própria**.
+const VAZIO_ESPERADO = [];
 
 let falhas = 0;
 function ok(c, m) { console.log((c ? '  ok   ' : '  FALHA ') + m); if (!c) falhas++; }

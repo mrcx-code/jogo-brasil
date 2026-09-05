@@ -4361,7 +4361,7 @@ nomear "PARE" nem uma "regra dos 5" para quem só tem o link do dashboard.
 
 ---
 
-## 109 — DOIS quadros de gente continuam vazios: `praca f2q7` e `pindorama f2q7` — os dois pelo MESMO motivo, e os dois precisam de corte novo, não de cópia — dev-jogo (05/09)
+## 109 — ~~DOIS quadros de gente continuam vazios: `praca f2q7` e `pindorama f2q7`~~ — **FEITO em 05/09 (dev-jogo)**, pelo corte das células dobradas do item 110: o item já dizia "precisam de corte novo, não de cópia", e era literalmente o mesmo corte. 312/312 quadros com tinta. Ver o FECHO no fim do item 110.
 
 **Estado em 05/09: 310 de 312 quadros com tinta** (era 308). Dos seis quadros 1×1 originais de
 `GENTE_EP_B64`, **quatro** foram tapados com a pose vizinha e a pessoa parou de virar barril/saco
@@ -4480,7 +4480,7 @@ duas coisas — a integração levou as duas:
 
 ---
 
-## 110 — TRÊS células de `GENTE_EP_B64` mostram a pessoa EM DOBRO, não uma pessoa só — achado pelo QA ao revisar o item 109 (05/09)
+## 110 — ~~TRÊS células de `GENTE_EP_B64` mostram a pessoa EM DOBRO, não uma pessoa só~~ — **FEITO em 05/09 (dev-jogo)**. Eram SEIS, não três, e o mesmo corte fechou o item 109 junto — ver o fecho no fim deste item.
 
 Nenhum dos três portões de gente que existiam antes de 05/09 (tinta, largura, o booleano de
 "chegou") olha o **pixel que sai** — só o arquivo fonte. `test/qa-praca-o-que-a-pessoa-ve.js`
@@ -4509,3 +4509,123 @@ decidir a ordem registre a razão, não corte por hábito.
 integração adiada de propósito (é gate novo, medido só uma vez antes de virar portão permanente).
 Quem pegar este item: pendurá-lo primeiro (ele já morde nos dois sentidos, ruído zero em 3
 corridas) e só depois cortar as células — assim a régua existe ANTES do corte, não depois.
+
+### FECHO EM 05/09 (dev-jogo) — e ele fecha o 109 junto, porque era um defeito só visto de dois lados
+
+**Eram SEIS células, não três.** A varredura das 13 folhas / 312 quadros (direção de arte,
+`ferramentas/arte-corte-gente-dobrada-05-09.md`) achou também `temfonte f2q5` e `segurou f2q5`,
+que nenhum item nomeava. E as duas listas — "célula dobrada" (110) e "quadro vazio" (109) — eram
+**o mesmo defeito pelos dois lados**: `test/cortar-gente.js` varre a folha em magenta por MANCHA
+e exige 8 manchas por fileira, então onde duas figuras quase se tocavam ele entregava uma célula
+dobrada **e**, do outro lado da mesma fileira, um quadro vazio. Por isso a conta fecha sozinha:
+cada fileira afetada tinha exatamente um buraco (vazio ou cópia) e exatamente uma célula dobrada,
+e partir a dobrada produz exatamente o quadro que faltava.
+
+**A ordem pedida foi cumprida:** o portão foi pendurado no `npm test` ANTES do corte, e ele
+cobre agora os quatro capítulos (era só A PRAÇA), numa sessão só de navegador.
+
+**O ponto de corte não é o meio da célula, e isto é o que mais custa se alguém refizer.** Como
+`src/jogo.ts` ancora pelo CENTRO da célula (`dx = cxm - dw/2`), quem manda é onde a CABEÇA cai no
+retângulo novo — o "registre pela cabeça" do §5. Cortar no meio do vão dava até **10,5 px de
+fonte** de descasamento entre as duas metades, contra **3,5** de amplitude natural da fileira: um
+passo de lado por ciclo. As 12 coordenadas vieram julgadas célula a célula pela direção de arte,
+sem veto, e foram **re-derivadas independentemente** antes do corte (reproduziram exatas).
+
+**Medido depois do corte:**
+
+| | antes | depois |
+|---|---|---|
+| células largas (`qa-gente-quadro-dobrado.js`, 13 folhas) | 6 | **0** |
+| quadros com tinta (`qa-gente-quadro-que-chega.js`) | 309/312 | **312/312** |
+| cópias byte-idênticas dentro de fileira | 4 | **0** |
+| passos que mostram UMA pessoa, A PRAÇA | 20/24 | **24/24** |
+| idem PINDORAMA · O QUE TEM FONTE · O QUE SEGUROU | não medido | **24/24 nos três** |
+| desvio da cabeça das 12 metades novas | — | **0 a 0,25 px de fonte** |
+
+As três listas de exceção esvaziaram (`CONHECIDOS` do dobrado, `CONHECIDOS`+`REMENDOS` do que
+chega, `VAZIO_ESPERADO` do vira-objeto) — daqui em diante qualquer dobra ou buraco novo reprova
+sem exceção a herdar. Tira de contato das cinco fileiras em `test/TIRA-*.png`; as 12 metades
+foram olhadas uma a uma e todas leem como pose completa.
+
+**Ferramenta nova:** `test/cortar-celula-dobrada-gente.js` (corte com ponto customizado, que não
+existia) e `test/tira-gente-fileira.js` (a tira do DEPOIS, com o número da cabeça ao lado).
+
+**O que este item NÃO consertou, e é bom não anunciar demais:** nenhuma dessas fileiras é um
+ciclo de caminhada de verdade — ver item novo abaixo.
+
+## 111 — CÉLULA INCHADA: 13 quadros em 11 capítulos encolhem a pessoa 20-29% e a soltam até 9,5 px do chão — dev-jogo (achado pela direção de arte em 05/09, confirmado por medida no corte das dobradas)
+
+**É o defeito irmão da célula dobrada, e é MAIOR que ele.** Pela mesma linha que ancora a gente
+(`sc = GENTE4_ALVO / img.naturalHeight`, `dy = GROUND - lift - dh`), uma célula mais ALTA que a
+figura faz duas coisas ao mesmo tempo: **encolhe a pessoa** e **a solta do chão**. Uma vez por
+ciclo de oito passos, a pessoa daquele capítulo encolhe um quarto e levita.
+
+A causa foi isolada em `pindorama f2q0` e **não é suposição**: a figura ocupa `y 1..251` e
+`x 46..156`; o resto da célula é transparente **exceto um único pixel em y=318 com alfa 31**. Um
+cisco quase invisível estica a célula em 67 linhas. É a mordida do desfranjamento do §5 falhando
+por baixo do limiar.
+
+Medido em 11 capítulos (célula · figura firme · encolhimento · flutuação em px de mundo):
+`cais f2q0` 181×341 · 137×266 · 28,2% · 9,24 — `segurou f2q0` 168×331 · 133×256 · 29,3% · 9,52 —
+`palmares f2q0` e `f2q7` ~28,1% · 9,22 — **`pindorama f2q0`** 157×319 · 111×251 · 27,1% · 8,82 —
+`portas f2q0` 27,0% · 8,93 — `naodito f2q0` 26,4% · 8,77 — `pequenaafrica f2q0` 26,0% · 8,55 —
+`aceiro f2q0` e `f2q7` ~21% · ~7,4 — `hoje f2q0` 20,6% · 7,04 — `jabaquara f2q0` 24,0% · 8,13.
+
+Em `GENTE4_ALVO = 42`, flutuar 9 px é **21% da altura do corpo**.
+
+**Confirmado independentemente em 05/09** por `test/tira-gente-fileira.js`, que mede a cabeça na
+tela: `pindorama f2q0` chega com cabeça de **8,03 px** contra **9,87** nas seis irmãs da fileira,
+e desvio de registro de **24 px de fonte** numa fileira cuja amplitude natural é ~5. Em
+`segurou f2q0`: cabeça **6,34** contra **8,01**, desvio **19**. Os dois aparecem a olho nu na
+primeira célula de `test/TIRA-pindorama-f2.png` e de `test/TIRA-segurou-f2.png`.
+
+**O conserto:** retrimar as 13 células com o mesmo limiar que o jogo usa para decidir se há
+figura, e **provar por antes/depois medindo `altura na tela` e `largura da cabeça na tela`** —
+não a dimensão do arquivo. `test/tira-gente-fileira.js` já imprime as duas colunas.
+
+**Fora do escopo da rodada de 05/09 de propósito** (o corte das dobradas e este retrim são
+independentes); registrado aqui para não se redescobrir.
+
+## 112 — NENHUMA fileira de gente é um ciclo de caminhada: A PRAÇA desliza numa lunge — arte (medido em 05/09, não é corte, é arte nova)
+
+Medida a abertura dos pés em % da altura da figura, quadro a quadro:
+`praca f0`: 56,6 · 58,6 · 60,2 · 59,0 · 58,2 · 57,8 · 56,6 · 58,6 → **amplitude 3,6 pp**;
+`praca f2`: 54,1 a 55,6 → **amplitude 1,5 pp**;
+`pindorama f2`: 43,8 · 47,4 · 44,2 · 51,0 · 44,2 · 48,2 · 44,6 · 51,4 → **alterna curto/longo**.
+
+Uma passada de verdade vai de pés juntos (~10%) a pés abertos (~55%). A PRAÇA fica travada no
+máximo em **todos** os quadros: as duas pessoas não caminham, **deslizam numa lunge**. Só
+PINDORAMA tem duas fases alternando, e por isso lê como caminhada (grossa, mas caminhada).
+
+**Isto é ARTE NOVA, não corte** — e está registrado justamente para ninguém dizer que o corte de
+05/09 consertou a caminhada. Ele não consertou: o que ele consertou foi a pessoa aparecer em
+dobro. A direção de arte deixou o diagnóstico e **não** pediu a arte na mesma rodada, porque
+pedido de arte precisa da imagem de referência na mesa (lição do `EQUIPE.md`) e refazer folha de
+gente de um capítulo passa pela fila do dono.
+
+## 113 — ~~`rede-da-casa-veredito.js --controle` reprova em máquina Windows por CRLF, e o sintoma NÃO parece isso~~ — **FEITO em 05/09 (dev-jogo)**: mutação passa a rodar sobre cópia normalizada, restauração continua escrevendo o original de verdade. **Os 12 mutantes mordem** (antes um nunca chegava a ser aplicado e era contado como sobrevivente), e o arquivo-alvo não troca de fim de linha por efeito colateral. Fica registrado porque o diagnóstico é reaproveitável — ver abaixo.
+
+O último portão do `npm test` reprova com **`a redação de segredo morre: o mutante NÃO mudou o
+arquivo (o texto-alvo sumiu?)`** — e a pergunta entre parênteses manda o leitor procurar no lugar
+errado. O texto-alvo **não sumiu**: `ferramentas/rede-da-casa.js:65-66` está exatamente como o
+mutante espera.
+
+**A causa, medida e não suposta:** o arquivo está em disco com **CRLF** (`s.includes('\r\n')` →
+`true`), e a string do mutante em `test/rede-da-casa-veredito.js:219-221` emenda as duas linhas
+com `\n`. O `String.replace` não casa, o arquivo não muda, o mutante "sobrevive" e o controle
+reprova. Não é regressão de segurança: é o gate medindo o próprio `git config autocrlf` da
+máquina. O `PENDENTES` já registra a assimetria de CRLF entre as máquinas por volta da linha 1994.
+
+**Confirmado independente da entrega de 05/09:** `git diff HEAD` dos dois arquivos envolvidos
+volta **vazio** — a reprovação existe no HEAD, com ou sem o corte das células.
+
+**O conserto aplicado:** mutar sobre uma cópia normalizada (`paraMutar`) e **restaurar sempre o
+`original` de verdade**, para o arquivo em disco não trocar de fim de linha por efeito colateral
+de rodar o portão. Conferido depois: `CONTROLE PASSOU — os 12 mutantes foram vistos reprovando`, e
+`git diff` de `ferramentas/rede-da-casa.js` volta vazio.
+
+**O que fica de lição, e é maior que o bug:** um mutante que **não chega a ser aplicado** era
+contado como mutante que sobreviveu. A mensagem dizia "o texto-alvo sumiu?" e mandava procurar no
+arquivo errado; o texto estava lá, quem não casava era a emenda de linhas. **Fica em aberto para
+quem passar:** conferir se algum outro `--controle` da casa muta por string multi-linha do mesmo
+jeito — este era o único com emenda de duas linhas entre os 12 daqui, mas ninguém varreu os outros.
