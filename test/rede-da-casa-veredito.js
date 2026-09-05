@@ -79,6 +79,34 @@ console.log('\n---- NENHUMA entrada vira silêncio: todo caminho devolve tipo e 
     '403 sem corpo cai em credencial: sem a evidência do corpo, não se AFIRMA falta de egresso');
 }
 
+console.log('\n---- CREDENCIAL NUNCA VAI PARA O LOG (achado do porteiro em 05/09)');
+{
+  // O log do CI é PÚBLICO, e o caso 'credencial' repete um pedaço do corpo na frase. As formas
+  // abaixo são as que ESTA casa usa; a última é a garantia para quem chama, que vence mesmo
+  // quando o segredo não tem forma reconhecível.
+  const casos = [
+    ['Bearer ecoado', 'no permission for Bearer eyJhbGciOiJIUzI1NiJ9.aaaaaaaaaa.bbbbbbbb', []],
+    ['JWT solto', '{"msg":"bad jwt eyJhbGciOi.QpayloadXX.sigsigsig"}', []],
+    ['chave Supabase', 'invalid key sb_publishable_kR7pCuqZrPAr24Xdr0F4Nw', []],
+    ['chave PostHog', 'bad token phc_aBcDeFgHiJkLmNoP e phx_9z8y7x6w5v4u3t2s', []],
+    ['token GitHub', 'bad credentials ghp_AbCdEfGhIjKlMnOpQrStUvWxYz0123', []],
+    ['segredo DECLARADO sem forma nenhuma', 'recusado: senha-sem-forma-alguma-123', ['senha-sem-forma-alguma-123']],
+  ];
+  for (const [nome, corpo, segredos] of casos) {
+    const v = classificar('h', { status: 401, corpo }, { segredos });
+    const cru = corpo.split(/\s+/).filter((p) => p.length >= 8 && /[A-Za-z0-9_-]{8,}/.test(p));
+    const vazou = cru.filter((p) => v.frase.includes(p) && !/^(recusado|permission|credentials)/.test(p));
+    ok(v.tipo === 'credencial', nome + ': continua sendo classificado como credencial');
+    ok(/\[REDIGIDO\]/.test(v.frase), nome + ': a frase traz [REDIGIDO] no lugar do segredo');
+    ok(vazou.length === 0, nome + ': nenhum pedaço longo do corpo sobreviveu na frase (' + vazou.join(' ') + ')');
+  }
+}
+{
+  const v = classificar('h', { status: 401, corpo: 'sem segredo nenhum aqui' });
+  ok(/sem segredo nenhum aqui/.test(v.frase),
+    'e o corpo SEM segredo continua legível — redigir tudo seria perder a evidência que a frase existe para dar');
+}
+
 console.log('\n---- CONTROLE: o portão foi visto reprovando (mutante na marca do proxy)');
 {
   // O mutante é o defeito exato que a casa cometia: perder a evidência do corpo e decidir

@@ -140,7 +140,8 @@ function metaDoPainel() {
     // Os dois casos saem com o MESMO número; só o corpo os separa. Ver ferramentas/rede-da-casa.js.
     if (!r.ok) {
       const corpo = await r.text().catch(() => '');
-      const v = classificar(new URL(alvo.url).hostname, { status: r.status, corpo });
+      const v = classificar(new URL(alvo.url).hostname, { status: r.status, corpo },
+        { segredos: [alvo.chave] });
       const e = new Error(v.frase);
       e.tipoDeRede = v.tipo;
       throw e;

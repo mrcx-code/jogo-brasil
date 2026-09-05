@@ -62,6 +62,34 @@ function credencialDeVerdade(valor) {
   return valor && valor !== SENTINELA_PROXY ? valor : '';
 }
 
+// REDIGIR — achado do PORTEIRO em 05/09, consertado no mesmo fôlego em vez de virar "quando
+// alguém adotar". O caso 'credencial' abaixo repete um pedaço do CORPO da resposta na frase, e
+// essa frase vai para o log do CI, que é PÚBLICO. Hoje isso é inofensivo, e o porteiro provou
+// por medição: o único chamador usa a chave anon publicável, que já está em texto puro no
+// repositório. Mas repare de onde vem a segurança — vem de QUEM CHAMA, não desta função. É
+// exatamente esse tipo de garantia que evapora quando a segunda ferramenta liga o mesmo caminho,
+// e o item `quatro-ferramentas-ainda-reportam-o-numero-cru` já está na fila para ligar quatro.
+// Aqui a garantia passa a ser da função: quem chama pode declarar segredos, e as formas de
+// credencial que esta casa usa somem POR FORMA, mesmo sem ninguém declarar nada.
+const FORMAS_DE_SEGREDO = [
+  /Bearer\s+[A-Za-z0-9._~+/=-]{8,}/gi,              // cabeçalho de auth ecoado de volta
+  /\bey[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}/g, // JWT (o Supabase usa)
+  /\bsb_(publishable|secret)_[A-Za-z0-9_-]{8,}/g,   // chave do Supabase, das duas naturezas
+  /\bph[cx]_[A-Za-z0-9_-]{8,}/g,                    // PostHog: a de ingestão e a de leitura
+  /\bgh[pousr]_[A-Za-z0-9]{8,}/g,                   // token do GitHub
+];
+
+function redigir(texto, segredos) {
+  let s = String(texto == null ? '' : texto);
+  // 1. o que quem chama DECLAROU — vence sempre, inclusive quando não casa forma nenhuma
+  for (const seg of segredos || []) {
+    if (typeof seg === 'string' && seg.length >= 8) s = s.split(seg).join('[REDIGIDO]');
+  }
+  // 2. e as formas conhecidas, para o esquecimento de quem chama não virar vazamento
+  for (const forma of FORMAS_DE_SEGREDO) s = s.replace(forma, '[REDIGIDO]');
+  return s;
+}
+
 // CLASSIFICAR — a função inteira do arquivo, e ela é PURA de propósito: recebe o que a
 // tentativa produziu e devolve o veredito, sem tocar rede. É isso que deixa o portão provar
 // cada caminho por injeção, sem depender de a máquina do momento ter ou não ter saída.
@@ -70,9 +98,10 @@ function credencialDeVerdade(valor) {
 //
 // tipo é um de: 'ok' · 'sem-egresso' · 'credencial' · 'falhou'
 // e 'sem-egresso' NUNCA é 'credencial', nem 'ok', nem silêncio.
-function classificar(host, r) {
+function classificar(host, r, opcoes) {
   const t = r || {};
-  const corpo = typeof t.corpo === 'string' ? t.corpo : '';
+  const segredos = (opcoes && opcoes.segredos) || [];
+  const corpo = typeof t.corpo === 'string' ? redigir(t.corpo, segredos) : '';
 
   // 1. O proxy recusou o próprio CONNECT: não há rota, ponto. Vem antes de tudo porque neste
   //    caminho não existe resposta do alvo para interpretar.
@@ -158,7 +187,7 @@ function pedir(host, caminho, opcoes) {
         socket = await abrirTunel(proxy, host, ms);
       } catch (e) {
         const r = { erroDoConnect: e.message };
-        resolve(Object.assign(r, { host, veredito: classificar(host, r) }));
+        resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
         return;
       }
     }
@@ -178,22 +207,22 @@ function pedir(host, caminho, opcoes) {
         res.on('data', (d) => { if (corpo.length < 4096) corpo += d; });
         res.on('end', () => {
           const r = { status: res.statusCode, corpo };
-          resolve(Object.assign(r, { host, veredito: classificar(host, r) }));
+          resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
         });
       }
     );
     req.on('timeout', () => {
       req.destroy();
       const r = { erroDeRede: 'timeout em ' + ms + 'ms' };
-      resolve(Object.assign(r, { host, veredito: classificar(host, r) }));
+      resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
     });
     req.on('error', (e) => {
       const r = { erroDeRede: e.code || e.message };
-      resolve(Object.assign(r, { host, veredito: classificar(host, r) }));
+      resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
     });
     if (o.corpo) req.write(o.corpo);
     req.end();
   });
 }
 
-module.exports = { classificar, pedir, proxyConfigurado, credencialDeVerdade, SENTINELA_PROXY, MARCA_SEM_EGRESSO };
+module.exports = { classificar, redigir, pedir, proxyConfigurado, credencialDeVerdade, SENTINELA_PROXY, MARCA_SEM_EGRESSO };
