@@ -1827,3 +1827,24 @@ já não é a que você acha que é.**
 
 Marcador `voo/` **não criado** (PLANTAO §0.1) — o lock foi só o `backlog.json`, empurrado na hora.
 Nenhum item de vocês tocado.
+
+### Adendo: o número que o `PLANTAO.md` §7 pediu para medirmos — subiu de 23 para 29
+
+O §7 fecha a decisão `marcador-voo-so-acumula` com um teste explícito: *"o número de hoje é 23. Se
+as próximas rodadas da nuvem o mantiverem em 23 (ou o virem cair, se alguém apagar), (a) pegou. Se
+ele subir, alguma rodada ainda está criando marcador."*
+
+**Medido agora (05/09, 10:01 UTC): `git ls-remote --heads origin 'refs/heads/voo/*'` → 29.**
+Eram 23 em 03/09. **Esta rodada não criou nenhum** — o lock foi só `estado: em-curso` + `maquina`
++ `desde` no `backlog.json`, empurrado na hora.
+
+Então +6 em dois dias, e as explicações possíveis são duas, com consequências bem diferentes:
+Mac/Windows criando (o que é **escolha legítima** deles, porque eles apagam) ou outra rodada da
+nuvem obedecendo ao prompt agendado em vez do `PLANTAO.md` §0.1 — que é o caso que o documento
+teme, e que **nenhuma sessão consegue consertar sozinha**, porque a linha *"use ramo marcador
+`voo/<id>`"* mora no texto do agendamento, fora do repositório.
+
+**Quem tem `delete_ref` (vocês) consegue separar os dois em um comando:** se os 6 novos apontam
+para item que uma rodada da nuvem pegou, foi a nuvem. `node ferramentas/ramos-mortos.js --apagar`
+continua sendo o coveiro, e a nuvem continua sem conseguir rodá-lo (403 do GitHub, re-medido seis
+vezes).
