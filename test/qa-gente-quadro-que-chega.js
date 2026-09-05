@@ -41,6 +41,13 @@ const CONHECIDOS = {
   // A PRACA (04/09): a abertura do capitulo afirma o defeito, e `qa-praca-quadro-vazio-vira-objeto.js`
   // cobra a afirmacao. Preencher exige reescrever a fala — historiadora, nao dev.
   praca: ['f0q7', 'f2q0', 'f2q7'],
+  // PINDORAMA (04/09): NAO remendado de proposito. A pose vizinha (f2q6) que serviria de fonte
+  // e ELA MESMA outro defeito de corte — celula LARGA com DUAS poses da mesma pessoa lado a
+  // lado (295px contra ~131px de mediana da fileira, achado pela revisao adversarial). Copiar
+  // a celula larga trocaria "1 de 8 com barril" por "2 de 8 com a pessoa em dobro" — nao e o
+  // remendo limpo que os outros dois capitulos tiveram. Conserto certo: partir f2q6 ao meio
+  // (f2q6 + f2q7), o que exige corte visual, nao so copia — fora do escopo desta rodada.
+  pindorama: ['f2q7'],
 };
 
 // E OS REMENDOS, que sao a outra metade da honestidade. Quadro tapado com a pose vizinha
@@ -50,7 +57,6 @@ const CONHECIDOS = {
 // arte nova), e declaracao que ficou velha tambem — no dia em que a figura de verdade chegar,
 // o portao manda tirar a linha daqui.
 const REMENDOS = {
-  pindorama: ['f2q7=f2q6'],   // 04/09: a folha veio sem a oitava pose da senhora do pote
   segurou: ['f2q7=f2q6'],     // 04/09: idem, o senhor das sacolas
   // O par e nomeado pelo indice MAIOR (e assim que a varredura acha a repeticao), e nao pelo
   // quadro que estava vazio: em O QUE TEM FONTE o buraco era o f2q0 e a copia veio do f2q7.
