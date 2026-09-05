@@ -13974,3 +13974,103 @@ plantão. **A dúvida que não resolvi:** o `npm test` desta máquina continua v
 `qa-praca-quadro-vazio-vira-objeto.js` pelo `net::ERR_TUNNEL_CONNECTION_FAILED` do `MEDIDA_HOST` —
 é exatamente o item do segundo agente, e enquanto ele não pousar **o funil desta máquina não fecha
 verde**. Ou seja: nesta rodada a ordem certa é integrar o filtro de console **primeiro**.
+
+## 05/09 (madrugada, parte 2) · `nuvem-20260905T0023` — duas entregas, e as duas derrubaram quem as pediu
+
+Rodada em lote: dois agentes em worktree, um QA independente tentando derrubar as duas antes do
+funil, e as duas integradas. **Os dois me refutaram com número, e o QA refutou um deles.**
+
+### A ENTREGA DO FILTRO DE CONSOLE — `filtro-de-console-copiado-por-arquivo`, FECHADA
+
+18 arquivos passaram a usar `test/rede-externa.js` (o helper único, que decide por **origem**
+contra o `MEDIDA_HOST`), mais um portão anti-recopia. Integrada pelo funil, `npm test` e
+`encaixe.js` **exit 0 reais**.
+
+**A minha aposta caiu, e não pelo motivo que eu dei.** Eu apostara que "a maioria dos 32 não
+filtra porque nunca precisou — não abre o jogo inteiro, ou não chama o `MEDIDA_HOST`". Errado:
+**nenhum** dos que decidem usa `page.route`; todos deixam a chamada sair. O número verdadeiro, na
+recontagem independente do QA: **45 escutam console, 24 DECIDEM** — não 18, como a entrega disse,
+nem 32, como eu disse.
+
+**A alegação central sobreviveu ao ataque**, e é a que importa, porque a doença histórica deste
+item é filtro frouxo. O QA fabricou cinco cenas em Chromium de verdade:
+
+| cena | veredito |
+|---|---|
+| `MEDIDA_HOST` inalcançável (ruído legítimo) | **CALOU** ✔ |
+| `fetch` do **próprio domínio** morrendo (`ERR_EMPTY_RESPONSE`) | **ACUSOU** ✔ |
+| `ERR_TUNNEL_CONNECTION_FAILED` de origem que **não** é o host | **ACUSOU** ✔ |
+| `console.error` do jogo com "posthog" e "ERR_TUNNEL" no texto | **ACUSOU** ✔ |
+| erro com `url` vazio | **ACUSOU** ✔ |
+
+O filtro antigo, que casava **substring do texto**, engolia 2 de 3 desses. Este não engole nenhum.
+
+### A ENTREGA DA ASSINATURA DO RITUAL — integrada como INSTRUMENTO, e o item **CONTINUA ABERTO**
+
+`test/assinatura-ritual.js` (novo) e uma **segunda** asserção no `qa-ritual-varredura.js`, limiar
+20, ao lado da crua (limiar 12) que ficou intacta. Ganho real: dos 35 disfarces do autor, a crua
+pega 12 e a invariante pega **35**, teto 14,8. Piso de arte legítima **28,8** em 518 imagens,
+**confirmado por medição independente** do QA (0 abaixo de 25, 0 abaixo de 20, 5 abaixo de 30).
+
+**Duas afirmações minhas caíram, as duas com número:**
+1. *"(a) não fecha porque baixar o limiar esbarra na janela"* — **a direção estava invertida.**
+   Pegar é `d ≤ limiar`; brilho ×1,25 = 14,0 passa porque 14,0 **>** 12. Seria preciso **subir**.
+2. *"os 29,9 foram medidos no lugar de drop, meça em MOB/ICONE/FRENTE/GENTE"* — **29,9 É o número
+   desses blocos**, em `pack-palmares.json MOB_B64.drum.1`. Eu mandei medir o que já estava medido.
+
+**E o QA derrubou a alegação-título da entrega.** Ele escreveu **31 disfarces que o autor não
+escreveu** e **12 escapam** das duas medidas juntas. A causa não é o limiar nem a métrica: é o
+**passo 1**, o corte na mancha por `alfa > 16` — **qualquer coisa que estique a caixa de alfa**
+reenquadra a figura na grade 16×16. Por isso a moldura *transparente* do autor morre e a moldura
+**opaca** não.
+
+Prova no portão vivo, que é a forma forte: búzios com **um ponto de 2×2** num quadro 20% maior →
+`qa-ritual-varredura.js` **exit 0, tudo verde**. Controle no mesmo caminho, arte idêntica →
+**exit 1**. E **nenhum limiar conserta**: os escapes medem de 20,9 a 43,2 e pousam **dentro** da
+banda legítima, cujo piso é 28,8.
+
+Então: instrumento integrado (ganho puro, nada regride), **item reaberto** com esses números no
+aceite. Fechá-lo seria assinar de verde o buraco que lhe dá nome.
+
+**Onde a minha guarda baixou, e o QA nomeou:** o `CONTROLE` que a varredura roda a cada execução
+usa **três disfarces escolhidos pelo autor, da lista do autor**. Ele não pode descobrir uma classe
+que o autor não imaginou — é a lição 2.8 com roupa nova. A franqueza da entrega sobre a folga de
+1,44× puxou a atenção para o **falso positivo** (onde está tudo bem) enquanto o lado que falha é o
+**falso negativo**.
+
+### O ACHADO QUE NÃO ERA DE NINGUÉM: A CLASSE VOLTOU POR BAIXO DO PORTÃO, NA MESMA HORA
+
+Ao mergear a entrega do filtro com o que a outra máquina empurrou **enquanto o funil rodava**, o
+`npm test` do merge saiu **exit 1 real** em `test/qa-gente-quadro-que-chega.js` — arquivo nascido
+naquela hora, com `page.on('console')` **sem filtro nenhum**, acusando o `ERR_TUNNEL` do proxy como
+erro de produto. O mesmo defeito que a entrega acabara de centralizar em 18 portões.
+
+E o portão anti-recopia **saiu `exit 0` nas duas situações**, antes e depois do conserto: ele cobra
+que arquivo *governado* continue no helper e que ninguém *reimplemente* o filtro — e não tem
+asserção para o caso que aconteceu de verdade, **arquivo novo que não filtra nada**. Consertado em
+`a56b4dc`; o buraco do portão virou item, com este caso como evidência.
+
+### ARMADILHAS DE OPERAÇÃO QUE EU PAGUEI NESTA RODADA
+
+1. **`git checkout -- test/` apaga edição de código não commitada.** O `PLANTAO.md` §5.1 manda
+   rodá-lo depois do funil (higiene: os prints regravados sujam a árvore). Ele reverteu o meu
+   conserto inteiro, e o commit seguinte saiu **`nothing to commit, working tree clean`** — que
+   **parece sucesso**. Restaure só os PNG:
+   `git checkout -- $(git diff --name-only -- 'test/*.png')`
+2. **A notificação de comando em segundo plano relata o exit do comando COMPOSTO.** Duas vezes ela
+   disse "exit code 0" enquanto o `npm test` dentro dele saíra **1** — o 0 era do `echo` final. É a
+   lição do tubo do §7 por outra porta, e a defesa é a mesma: escreva o exit num arquivo e leia de
+   lá.
+3. **`git push` recusado depois do funil não é divergência.** Duas vezes a outra máquina moveu a
+   `main` durante o funil. `pull --ff-only` não serve (há merge local); `pull --rebase` é proibido
+   pelo §4. O certo é `pull --no-rebase` — e **rodar `npm test` no merge antes de empurrar**, que
+   foi exatamente o que pegou o defeito do item anterior.
+
+### PLACAR DA RODADA
+
+| | rodadas | achados | reais | desmentidos |
+|---|---:|---:|---:|---:|
+| dev-jogo (ritual) | 1 | 6 | 5 | 3 (2 meus + 1 dele contra si) |
+| dev-jogo (console) | 1 | 18 | 18 | 0 |
+| qa (lote) | 1 | 13 | 12 | 1 (dele, contra si) |
+| plantão (linha própria) | — | 4 | 4 | 1 (meu, medi a pasta errada) |
