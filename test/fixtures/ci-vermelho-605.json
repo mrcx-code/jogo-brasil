@@ -1,0 +1,11 @@
+[
+  {
+    "databaseId": 33932926532,
+    "conclusion": "failure",
+    "status": "completed",
+    "headSha": "5890fdc121ebebe3dbb1c90dd958b8a1639acc6d",
+    "createdAt": "2026-09-05T00:25:27Z",
+    "workflowName": "teste",
+    "url": "https://github.com/mrcx-code/jogo-brasil/actions/runs/33932926532"
+  }
+]
