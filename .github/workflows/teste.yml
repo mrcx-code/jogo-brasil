@@ -124,6 +124,17 @@ jobs:
       - run: node ferramentas/conferir-agentes.js
         timeout-minutes: 2
 
+      # FALTA DE EGRESSO NUNCA SE DISFARCA DE CREDENCIAL, E NUNCA VIRA VERDE (05/09,
+      # nuvem-20260905T0822). Medido: o proxy da nuvem responde 403 "Host not in allowlist"
+      # para 5 dos 6 hosts que as ferramentas desta casa chamam, e 403 e o MESMO numero que
+      # uma chave recusada devolve. O conferir-agentes.js logo acima imprimia so o numero e
+      # mandava quem lesse cacar chave do Supabase, que nao era o problema. Este portao e
+      # PURO (nenhuma rede, fixtures dos corpos reais daquele dia), entao roda igual no CI,
+      # na nuvem sem saida, e na maquina de quem tem egresso -- que e o requisito, porque os
+      # dois lugares onde ele mais precisa valer sao justamente os que nao tem rede.
+      - run: node test/rede-da-casa-veredito.js
+        timeout-minutes: 2
+
       # O PORTAO QUE MORDIA E NINGUEM RODAVA (03/09, nuvem-20260903T0023). E a MESMA doenca que a
       # rodada de 02/09 curou tres vezes, reaparecida no portao que aquela rodada escreveu: o
       # qa-vercel-host.js nasceu bom — le o vercel.json DEPOIS do parse (nao por texto) e morde 5 de
