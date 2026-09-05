@@ -14457,3 +14457,57 @@ carrega escrito.
   página). Declarei no cabeçalho que é deliberado — ela responde *"o instrumento mediu a fala certa,
   inteira?"*, não *"o texto é este texto?"*. Se isso a torna quase tautológica é justamente o que o QA
   independente foi despachado para julgar.
+
+### Fecho da rodada `nuvem-20260905T1223` — duas integradas, e as duas auditorias derrubaram quem as pediu
+
+**INTEGRADAS pelo funil, portões verdes por exit code real (`npm test` 0, `encaixe` 0 nas duas):**
+`qa-fala-salvador-caixa-amigo-falso` e `encaixe-bloco5-modelo-de-motor-parou-em-1608`. CI da `main`
+verde depois da primeira; a segunda subiu junto com um merge da outra máquina (ver abaixo).
+
+**As duas auditorias independentes voltaram INTEGRA e as duas derrubaram números de quem entregou.
+Isso é o placar da rodada, não um detalhe:**
+
+| o que caiu | quem afirmou | o que a medição disse |
+|---|---|---|
+| *"a igualdade morde inclusive reescrita que só MENCIONE a palavra"* | **eu**, no cabeçalho | **falso** — mutante G: reescrita que só menciona sai **exit 0**. Nessa classe o `endsWith` do item era MAIS FORTE. Corrigido em `0e659ca` |
+| *"a regra de conteúdo continua no `encaixe.js`"* | **eu** | **falso** — `grep`: **zero** regra de conteúdo lá; ela vive em `test/qa-salvador-vivo.js` |
+| *"manter a igualdade derruba **12** asserções"* | dev-jogo | **são 10** — 12 é `\|CAP_FILA\|+\|CAPS_VERBO\|`, o tamanho da família, não o de reprovas: PALMARES e SALVADOR têm motor **e** frase-molde |
+| *"a injeção em O ACEIRO saía exit 0 nos dois portões"* (motivação herdada do commit) | dev-jogo | **falso** — sai **exit 1 também no portão antigo**; a injeção escolhida não discrimina |
+
+**E o meu maior medo foi medido e NÃO se confirmou**, o que também é registro: eu suspeitava que simular
+`capFila()` com `S.cenario = cenarioDaEpoca(i)` fizesse o portão afirmar sobre um motor que também não
+existe — o mesmo defeito entrando pela porta dos fundos. O QA mediu: **0 divergências** contra o modelo
+puro, contra **todas as cenas** de cada época e com estado sujo, e `S` restaurado **byte a byte**.
+
+**Os dois achados que valem mais que as entregas, e nenhum era do escopo:**
+
+1. **`portao-fala-topo-na-tela`** — as três asserções que dão NOME ao portão da caixa da fala são
+   tautologia. A 320×568 uma fala de **1400 caracteres** dá `caixa 907/907` numa janela de **568**, com
+   `topo −356`, e o portão diz *"tudo verde"*: `overflow: visible` + altura `auto` faz
+   `scrollHeight === clientHeight` **sempre**, e a caixa ancorada embaixo faz `base` ficar constante. O
+   único número que responderia (`topo`) é **impresso e não cobrado**. Não é defeito de produto hoje — a
+   maior fala do jogo é justamente a medida (258, teto 260) e a folga é de ~515 caracteres: **quem segura
+   a linha é o teto de CARACTERES do `encaixe.js`**, e isso não estava escrito em lugar nenhum.
+2. **`verbo-e-fala-passa-a-vazio`** — a implicação do bloco 5 morde num sentido só, e o antecedente só é
+   verdadeiro em **2 dos 12** capítulos com motor: **24 das 26 asserções passam a vazio**. Perda real
+   hoje: **zero** (os 10 nomeiam o gesto no idioma próprio). O que existe é ausência de guarda, provada
+   por injeção: JABAQUARA troca de família de verbo com a abertura intacta e `node test/encaixe.js`
+   **inteiro sai EXIT 0**. Uma abertura mentindo, portão verde.
+
+**As duas correções vieram com o portão pronto, e os dois estavam para MORRER no worktree do agente.**
+Nenhum dos dois QA empurrou o que construiu. Empurrei eu, para não perder:
+`entrega/portao-fala-topo-na-tela` e `entrega/verbo-e-fala-passa-a-vazio`. Os dois itens dizem no aceite
+**AUDITAR E INTEGRAR, não recomeçar** — é a regra do PLANTÃO §7 (`entrega/` é resultado) aplicada antes
+de o ramo existir. **Vale como regra para a próxima rodada: agente que constrói portão novo não empurra
+sozinho; quem despacha pergunta "onde isso está?" antes de dar o pouso por encerrado.**
+
+**Colisão com a outra máquina, resolvida sem perder nada.** O push foi recusado no meio (4 meus / 6
+dela). `pull --no-rebase` (nunca `--rebase` depois do funil, PLANTÃO §4): **0 conflitos**, backlog em
+união com **152 itens, 0 ids duplicados**, os dois fechamentos e os dois itens novos intactos,
+`conferir-item` e `conferir-fila` **exit 0**, e `npm test` na árvore MERGEADA **exit 0 real** antes de
+publicar — porque duas árvores verdes separadas não provam uma árvore verde junta.
+
+**O que fica em voo ao fechar:** `guarda-le-o-texto-do-comando-nao-o-efeito` continua `em-curso` com o
+`porteiro` — item genuinamente difícil (decidir pelo EFEITO e não pelo texto do comando, com três
+buracos e o risco de o agente se trancar fora com o próprio guarda). Se a próxima rodada o encontrar
+`em-curso` e vencido, o `PLANTAO.md` §7 manda **procurar `entrega/guarda-*` antes de devolver a livre**.

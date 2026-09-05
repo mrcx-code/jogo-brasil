@@ -1867,3 +1867,66 @@ teme, e que **nenhuma sessão consegue consertar sozinha**, porque a linha *"use
 para item que uma rodada da nuvem pegou, foi a nuvem. `node ferramentas/ramos-mortos.js --apagar`
 continua sendo o coveiro, e a nuvem continua sem conseguir rodá-lo (403 do GitHub, re-medido seis
 vezes).
+
+---
+
+## 05/09 ~14h UTC · `nuvem-20260905T1223` — duas integradas, e dois portões que quase morreram no worktree
+
+**Integradas pelo funil** (exit code real, `npm test` 0 e `encaixe` 0 nas duas):
+`qa-fala-salvador-caixa-amigo-falso` e `encaixe-bloco5-modelo-de-motor-parou-em-1608`.
+Marcador `voo/` **não criado** (PLANTÃO §0.1) — o lock foi só o `backlog.json`, empurrado na hora.
+
+### O número que o §7 manda medir: os marcadores `voo/` continuam em **29**
+
+Medido agora: `git ls-remote --heads origin 'refs/heads/voo/*'` → **29**, o mesmo que vocês mediram às
+10:01. **Esta rodada não criou nenhum.** Então, entre as duas explicações que o recado anterior deixou
+em aberto, o intervalo de hoje não acusa a nuvem.
+
+### O QUE EU PRECISO DE VOCÊS, e é a mesma coisa de sempre com um motivo novo
+
+`node ferramentas/ramos-mortos.js --apagar` e colar. A pilha subiu de novo porque **eu acrescentei
+quatro** ramos `entrega/` hoje — e três deles são de propósito e **não devem ser apagados ainda**:
+
+| ramo | o que é |
+|---|---|
+| `entrega/portao-fala-topo-na-tela` | **portão novo, não integrado** — auditar e integrar |
+| `entrega/verbo-e-fala-passa-a-vazio` | **portão novo, não integrado** — auditar e integrar |
+| `entrega/qa-fala-salvador-caixa-amigo-falso` | consumido pelo funil, pode ir |
+| `entrega/encaixe-bloco5-modelo-de-motor-parou-em-1608` | consumido pelo funil, pode ir |
+
+### O achado de processo desta rodada, e ele é de vocês também
+
+**Nenhum dos dois agentes de QA empurrou o portão que construiu.** Os dois commitaram dentro do próprio
+worktree, disseram "sem push" no relatório, e o trabalho estava a um `git worktree prune` de sumir. Os
+dois portões são reais e pegam defeito real (números abaixo). Empurrei eu, na mão, depois de ler os
+relatórios com atenção.
+
+> **Regra que eu passo a seguir e sugiro a vocês:** agente que constrói portão novo **não empurra
+> sozinho** — quem despacha pergunta *"onde isso está?"* antes de dar o pouso por encerrado. O
+> relatório dizer "commitado, árvore limpa" **não** quer dizer que está no servidor.
+
+### Os dois achados, com número, porque eles interessam a quem for pegar
+
+1. **As três asserções que dão NOME ao portão da caixa da fala são tautologia.** A 320×568 uma fala de
+   **1400 caracteres** dá `caixa 907/907` numa janela de **568**, `topo −356`, e o portão diz "tudo
+   verde": `overflow: visible` + altura `auto` ⇒ `scrollHeight === clientHeight` sempre; caixa ancorada
+   embaixo ⇒ `base` constante. **Não é defeito de produto hoje** — a maior fala do jogo é justamente a
+   medida (258, teto 260 do `encaixe.js`), folga ~515 caracteres. Quem segura a linha é o teto de
+   CARACTERES, não estas asserções de pixel.
+2. **24 das 26 asserções do bloco 5 do `encaixe.js` passam A VAZIO.** JABAQUARA troca de família de
+   verbo com a abertura intacta e `node test/encaixe.js` **inteiro sai EXIT 0**. Perda real hoje: zero.
+
+### Uma armadilha de método barata, para não custar a ninguém de novo
+
+`until ! pgrep -f "npm test"` **nunca termina**: o `pgrep -f` casa a linha de comando do próprio vigia,
+que contém o padrão escrito. O sintoma lê como *"o teste travou"* — e o teste já tinha saído 0. Irmão do
+`cmd | tail; echo $?`. Case pelo executável (`ps -eo comm,args`, filtrando `comm == node`).
+
+### O merge de vocês entrou limpo
+
+O meu push foi recusado no meio (4 meus / 6 seus). `pull --no-rebase`: **0 conflitos**, backlog em união
+com **152 itens e 0 ids duplicados**, `conferir-item` e `conferir-fila` exit 0, e **`npm test` na árvore
+MERGEADA exit 0 real** antes de publicar. Obrigado pelo CRLF do `rede-da-casa-veredito.js`.
+
+**Em voo ao fechar:** `guarda-le-o-texto-do-comando-nao-o-efeito` (`porteiro`), item difícil. Se
+encontrarem `em-curso` e vencido, **procurem `entrega/guarda-*` antes de devolver a livre** (§7).
