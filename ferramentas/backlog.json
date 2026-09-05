@@ -1473,18 +1473,6 @@
       "feito": "Integrado 04/09 (commit 9af510e + ee72878, funil 6db126e/1285d28). A abertura de A PRACA tinha SO METADE da fala falsa: pintura continua emprestada (verdade, mantida), quem atravessa ja e arte propria mas 3 de 24 quadros vazios -- reescrita para \"ja foi desenhado pra ca, mas nao inteiro\". Alegacao original do item (SEGUROU e ACEIRO tem a mesma familia de defeito) foi DESMENTIDA -- nao ha frase falsa neles, nao mexidos. Historiador se autocorrigiu (teto de caracteres medido errado na 1a tentativa). QA independente decodificou o pacote (nao so a fonte) e deixou PROVA VIVA que reprova no dia em que os 3 quadros forem preenchidos. 2a conferencia do historiador confirmou tudo e achou o §2 novo (PINDORAMA), registrado em quadros-de-gente-vazios-na-fonte."
     },
     {
-      "id": "nota-honestidade-gasta-a-ultima-linha",
-      "estado": "do-dono",
-      "agente": "historiador",
-      "camada": "texto",
-      "titulo": "A nota de honestidade sobre a arte gasta abertura[4] -- a ultima linha antes de jogar -- em SEIS capitulos, explicando a cozinha do jogo",
-      "territorio": [
-        "src/jogo.ts"
-      ],
-      "aceite": "DECISAO DO DONO: a nota continua na abertura, ou se aposenta dali e vira uma linha so em DE ONDE VEM ou no fecho, devolvendo a ultima linha ao capitulo? A historiadora NAO decidiu de proposito: muda o que o jogo promete ao jogador. Se ele disser sim, o trabalho e meia hora e as seis falas viram cinco.",
-      "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela."
-    },
-    {
       "id": "guarda-worktree-nao-cobre-comando-nao-git",
       "estado": "livre",
       "agente": "dev-plataforma",
@@ -1930,6 +1918,21 @@
       "detalhe": "Achado pelo QA (agente a7e6fc325430568eb) em 05/09 ao revisar a integracao de quadros-de-gente-vazios-na-fonte. Os 3 portoes de gente existentes medem tinta/largura/booleano, nenhum olha o pixel que sai. O novo instrumento desenha os 24 passos com a matematica do motor: 20/24 uma pessoa, 3 pessoa em dobro (f0q3,f2q3,f2q6 -- corredor de 24-28 colunas vazias na fracao 0,49-0,50 da largura, 2x a tinta das vizinhas), 1 objeto (f2q7). Ver PENDENTES.md item 110. || Ampliado em 05/09 (plantao) para incluir pindorama f2q6/f2q7, que e o MESMO defeito de corte (celula dobrada) documentado desde 04/09 e nunca fechado -- ver PENDENTES.md itens 109 e 110. Nao ha item de backlog separado para pindorama; este passa a ser o item guarda-chuva do corte de sprite pendente.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "nota-honestidade-gasta-a-ultima-linha",
+      "estado": "concluido",
+      "agente": "historiador",
+      "camada": "texto",
+      "titulo": "A nota de honestidade sobre a arte gasta abertura[4] -- a ultima linha antes de jogar -- em SEIS capitulos, explicando a cozinha do jogo",
+      "territorio": [
+        "src/jogo.ts",
+        "test/qa-praca-quadro-vazio-vira-objeto.js",
+        "NOTES.md"
+      ],
+      "aceite": "DECISAO DO DONO: a nota continua na abertura, ou se aposenta dali e vira uma linha so em DE ONDE VEM ou no fecho, devolvendo a ultima linha ao capitulo? A historiadora NAO decidiu de proposito: muda o que o jogo promete ao jogador. Se ele disser sim, o trabalho e meia hora e as seis falas viram cinco.",
+      "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela.",
+      "feito": "Feito em 05/09 pela historiadora no worktree agent-afca260b8fb840c23. O DONO DECIDIU no check do dia: a nota muda de lugar. Nos SEIS capitulos (O CAIS, JABAQUARA, A PEQUENA AFRICA, AS PORTAS, O QUE NAO PODIA SER DITO, A PRACA) a abertura passou de 5 para 4 falas -- com o querer, a leitura de entrada foi de 6 para 5 --, aberturaImg perdeu a quinta posicao (que ja era null) e a nota foi INTEIRA para o FIM do fecho, sem uma palavra reescrita. A abertura volta a terminar no verbo do capitulo. TRES decisoes medidas sustentam o destino: (1) fim do fecho e nao comeco, porque mostrarFecho() reusa aberturaImg por POSICAO e uma linha nova no comeco empurraria cada pintura de contexto para a fala seguinte -- o modo de falha do encaixe.js bloco 1; (2) fecho e nao DE ONDE VEM, porque ferramentas/gerar-fontes.js conta como fonte toda entrada com t e imprime o numero na pagina publica, e seis notas de producao fariam a plataforma anunciar seis fontes que ela nao tem; (3) a oracao dos contadores NAO viajou junto -- \"os tres contadores la em cima\" aponta para o HUD, que nao esta na tela durante o fecho, e frase que vira falsa ao mudar de lugar nao se muda de lugar. Conferido que a subtracao nao fecha porta: nenhum dos 184 verbetes casa com as palavras dela, entao AS PALAVRAS DAQUI dos seis continua igual. Estado da arte RECONFERIDO contra PACK_DA_CENA / GENTE_EP_B64 / arteCap antes de mover, nao copiado do texto antigo. npm test e node test/encaixe.js verdes por exit code; bloco 1 le \"4 falas para 4 imagens\" nos seis; bloco 15 continua com a fala mais comprida do jogo em 258 e as seis linhas movidas medem 168 a 174. Diario no NOTES.md do mesmo commit."
     }
   ]
 }
