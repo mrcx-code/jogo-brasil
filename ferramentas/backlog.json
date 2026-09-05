@@ -1596,7 +1596,7 @@
     },
     {
       "id": "guarda-le-o-texto-do-comando-nao-o-efeito",
-      "estado": "em-curso",
+      "estado": "livre",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "O guarda.js decide pelo TEXTO do comando, não pelo EFEITO — três buracos, um conserto (heredoc recusado, rm na saída permitido, npm fora do worktree permitido)",
@@ -1605,8 +1605,8 @@
       ],
       "aceite": "O guarda.js passa a decidir pelo EFEITO do comando e nao pela ocorrencia da string, e os tres casos medidos em 04/09 caem juntos. Mordida provada por injecao, nos dois sentidos em cada um: (1) comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado -- e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade; escrita real continua recusada. (2) rm -rf dentro da pasta de saida de build e recusado pelo mesmo caminho que ja recusa cp -r para la (.claude/hooks/guarda.js:127); o mesmo rm fora dela passa. (3) cd para a checkout compartilhada seguido de npm run build/npm install/teste e recusado; o mesmo comando dentro do proprio worktree passa. Saida NAO-BARRAR e aceitavel em (2) e (3) se o falso positivo for caro demais -- mas entao o texto da propria recusa muda para parar de prometer o que nao cumpre, e o numero que sustenta a escolha vai escrito no cabecalho do arquivo.",
       "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava. ||| FUNDIDO em 05/09 (pm) com guarda-worktree-nao-cobre-comando-nao-git e guarda-recusa-escrever-em-saida-e-nao-recusa-apagar -- mesmo arquivo, mesma classe, mesmo arnes de injecao. SEGUNDO CASO DA MESMA CLASSE, em outro portao, medido em 05/09 por nuvem-20260905T0520: o guardaRoteiro do construir.js recusou DUAS vezes itens desta rodada por casar palavra-chave no texto, e a segunda foi falso positivo -- a palavra marcada significava custo de modelo, o assunto do item era coordenacao entre maquinas, e nao havia defesa nenhuma sendo descrita. A regra do guardaRoteiro e boa e a primeira recusa dele estava certa; o que se paga e a forma de decidir. Nos dois portoes o padrao e o mesmo e vale escrever junto: quem decide pela OCORRENCIA de uma palavra acerta o caso e erra a vizinhanca, e o custo nao e a recusa -- e que ela ensina a driblar o portao em vez de atende-lo.",
-      "maquina": "nuvem-20260905T1223",
-      "desde": "2026-09-05T12:25:30.651Z"
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "ramos-mortos-trava-prefixo-entrega",
@@ -2062,7 +2062,7 @@
     },
     {
       "id": "portao-navegador-varre-disco-nao-git",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "portao-navegador.js (varredura recursiva) reprova por arquivo de scratch IGNORADO pelo git -- ele varre o DISCO, nao o que sera versionado",
@@ -2072,7 +2072,9 @@
       "aceite": "O portao passa a pular arquivos que o git ignora (git check-ignore, ou ler .gitignore) antes de exigir executablePath -- scratch local nunca deveria poder derrubar um funil. Mordida provada nos dois sentidos: arquivo scratch IGNORADO que lanca nu continua passando; arquivo RASTREADO (ou rastreavel) que lanca nu continua reprovando.",
       "detalhe": "Achado em 05/09 pelo plantao ao integrar sem-lockfile-o-playwright-flutua: um arquivo test/tmp-varre.js (scratch de uma investigacao anterior, nunca commitado, casando com test/TMP* do .gitignore) lancava Chromium nu e o portao recem-tornado-recursivo reprovou o merge por causa dele. Removido do disco antes de integrar (nao fazia parte de nenhuma entrega), mas o portao continua vulneravel a qualquer scratch futuro de qualquer agente/maquina.",
       "maquina": null,
-      "desde": null
+      "desde": null,
+      "concluido_em": "2026-09-05T16:41:45.247Z",
+      "resolucao": "INTEGRADO 05/09 por nuvem-20260905T1623 (commit b693439, direto na main: alcance test/ so, npm test e encaixe.js verdes por exit real antes do push). instrumentos() passou a filtrar por git check-ignore --stdin antes de exigir executablePath. O CRITERIO E check-ignore, NUNCA nao-rastreado: arquivo novo ainda nao commitado que ENTRARIA num git add continua no alcance, que e exatamente o instrumento novo de um agente -- so sai o que o .gitignore ja declarou que nunca sera versionado. Exit de check-ignore diferente de 0 e 1 devolve conjunto vazio e o alcance fica o de antes (alcance a mais nunca deixou passar nu; a menos deixaria). MEDIDO, exit real lido na linha seguinte ao comando: limpo exit 0 com 62 portoes derivados e alcance 259; A (scratch IGNORADO test/tmp-* lancando nu) exit 0 no portao NOVO e exit 1 no portao ANTIGO pelo mesmo arquivo via git stash, que e o A/B que prova o conserto; B (rastreavel, nunca commitado) exit 1; C (rastreado, prints-costura.js) exit 1; restaurado exit 0 com arvore limpa. E O CONTROLE VIROU PERMANENTE, que era o buraco: as 4 cobaias do --autoteste provavam que o portao MORDE e nenhuma provava que ele SOLTA, entao o filtro entraria sem nada cobrando o seu alcance. A quinta prova e um PAR DE GEMEOS -- dois arquivos de conteudo identico com o mesmo lancamento nu, cuja unica diferenca e o nome (um casa test/tmp-*, o outro nao) -- e o par e deliberado contra o falso verde mais barato num portao de alcance: um controle de um lado so passaria identico se instrumentos() devolvesse lista vazia. Mordida por injecao nos DOIS sentidos, restaurada: filtro SOME exit 1 (scratch ignorado derrubaria um funil), filtro come TUDO exit 1 (o filtro comeu arquivo rastreavel), restaurado exit 0. NAO SEI, e fica dito com esse nome: nao exercitei o caminho de maquina sem git no PATH (lido, nao rodado), e o autoteste diz INCONCLUSIVO em vez de sobrescrever scratch homonimo pre-existente, entao um scratch com esse nome exato deixa a quinta prova muda."
     }
   ]
 }

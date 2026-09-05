@@ -344,8 +344,44 @@ function varreDiretorio(dir) {
   return fora;
 }
 
+// O ALCANCE É O QUE SERÁ VERSIONADO, NUNCA O QUE ESTÁ NO DISCO (item
+// `portao-navegador-varre-disco-nao-git`, 05/09). A varredura recursiva do bloco acima é por
+// DIRETÓRIO, e diretório contém scratch: em 05/09, ao integrar `sem-lockfile-o-playwright-flutua`,
+// um `test/tmp-varre.js` — sobra de uma investigação anterior, nunca commitado, casando com o
+// `test/TMP*` do próprio `.gitignore` — lançava Chromium nu, e o portão recém-tornado-recursivo
+// RECUSOU O MERGE por causa dele. O arquivo foi apagado à mão e a entrega passou, mas o portão
+// continuava aberto para o próximo scratch de qualquer agente em qualquer máquina.
+//
+// O estrago não é o minuto perdido: é um portão do funil cujo veredito depende de arquivo que
+// não está no diff, não está no repositório e não existe na máquina de quem for reproduzir.
+// Vermelho que ninguém consegue repetir é a mesma doença que o `setInterval(salvar, …)` custou
+// uma semana para esta casa — teste que falha por sorteio é mais caro que teste que falha
+// sempre, porque ninguém acredita nele e todo mundo continua empurrando.
+//
+// O CRITÉRIO É `git check-ignore`, NÃO "não rastreado". A diferença é o item inteiro: arquivo
+// novo que ainda não foi commitado mas que ENTRARIA no `git add` continua no alcance — é
+// exatamente o instrumento novo do agente que a varredura de 05/09 foi ampliada para pegar. Só
+// sai o que o `.gitignore` já declarou que nunca será versionado.
+//
+// UMA CHAMADA SÓ, e ela não pode derrubar o portão: `--stdin` recebe a lista inteira de uma vez
+// (exit 0 = algum ignorado, 1 = nenhum, 128 = erro/fora de repositório). Qualquer desfecho que
+// não seja 0 ou 1 devolve conjunto VAZIO e o alcance fica o de antes — numa árvore sem git o
+// portão volta a varrer o disco, que é o comportamento seguro: alcance a mais nunca deixou
+// passar lançamento nu, e alcance a menos deixaria.
+function ignoradosPeloGit(rels) {
+  if (!rels.length) return new Set();
+  const r = require('child_process').spawnSync(
+    'git', ['-C', RAIZ, 'check-ignore', '--stdin'],
+    { input: rels.join('\n'), encoding: 'utf8' }
+  );
+  if (r.error || (r.status !== 0 && r.status !== 1)) return new Set();
+  return new Set(String(r.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean));
+}
+
 function instrumentos() {
-  return varreDiretorio('test').concat(varreDiretorio('ferramentas'));
+  const achados = varreDiretorio('test').concat(varreDiretorio('ferramentas'));
+  const ignorados = ignoradosPeloGit(achados);
+  return achados.filter((rel) => !ignorados.has(rel));
 }
 
 function varrer() {
@@ -425,16 +461,70 @@ function autotestaUmaCobaia(COBAIA) {
   return ok;
 }
 
+// A QUINTA PROVA, e ela é de outra natureza que as quatro cobaias (item
+// `portao-navegador-varre-disco-nao-git`, 05/09). As quatro acima provam que o portão MORDE; esta
+// prova que ele SOLTA o que nunca será versionado — e sem ela o filtro de `git check-ignore` que
+// `instrumentos()` passou a aplicar entraria sem nada cobrando o seu alcance, que é a definição
+// de decoração assinada de verde.
+//
+// É um A/B com um par de gêmeos, e o par é o ponto: os DOIS arquivos têm o mesmo conteúdo e o
+// mesmo lançamento nu, e a ÚNICA diferença entre eles é o nome — um casa com `test/tmp-*` do
+// `.gitignore` e o outro não. Um controle de um lado só (só o ignorado, exigindo verde) passaria
+// idêntico se `instrumentos()` devolvesse lista vazia, que é o falso verde mais barato de
+// fabricar num portão de alcance.
+function autotestaScratchIgnorado() {
+  const IGN = 'test/tmp-cobaia-ignorada.js';
+  const RAS = 'test/cobaia-rastreavel-do-autoteste.js';
+  const absIgn = path.join(RAIZ, IGN), absRas = path.join(RAIZ, RAS);
+  // Mesma disciplina de concatenação das cobaias: escrito inteiro, o literal seria lido pela
+  // própria varredura como um nu de verdade DENTRO deste arquivo.
+  const NU = "const { chromium } = require('playwright');\nasync function f(){ const b = await chromium" +
+    ".launch(); await b.close(); }\nf();\n";
+  let ok = true;
+  try {
+    if (fs.existsSync(absIgn) || fs.existsSync(absRas)) {
+      console.log('  AUTOTESTE INCONCLUSIVO — cobaia de scratch já existia no disco; não sobrescrevi.');
+      return null;
+    }
+    fs.writeFileSync(absIgn, NU);
+    fs.writeFileSync(absRas, NU);
+
+    // O git tem de concordar que um é ignorado e o outro não. Se ele não concordar (árvore sem
+    // git, `.gitignore` mudado), a prova não vale e ela diz isso em vez de assinar de verde.
+    const ignorados = ignoradosPeloGit([IGN, RAS]);
+    if (!ignorados.has(IGN) || ignorados.has(RAS)) {
+      console.log('  AUTOTESTE INCONCLUSIVO — git check-ignore não separou o par (' + IGN +
+        ' ignorado? ' + ignorados.has(IGN) + ' · ' + RAS + ' ignorado? ' + ignorados.has(RAS) + ')');
+      return null;
+    }
+
+    const r = varrer();
+    const pegouIgnorado = r.nus.some((x) => x.indexOf(IGN) === 0);
+    const pegouRastreavel = r.nus.some((x) => x.indexOf(RAS) === 0);
+    console.log('  par de gêmeos — ignorado pelo git: ' + (pegouIgnorado ? 'REPROVOU (não devia)' : 'soltou (ok)') +
+      ' · rastreável: ' + (pegouRastreavel ? 'reprovou (ok)' : 'SOLTOU (não devia)'));
+    if (pegouIgnorado) { console.log('  ✗ scratch ignorado pelo git derrubaria um funil'); ok = false; }
+    if (!pegouRastreavel) { console.log('  ✗ o filtro comeu arquivo rastreável — alcance furado'); ok = false; }
+  } finally {
+    try { fs.unlinkSync(absIgn); } catch (e) {}
+    try { fs.unlinkSync(absRas); } catch (e) {}
+  }
+  return ok;
+}
+
 function autoteste() {
   let ok = true;
   for (const COBAIA of COBAIAS) {
     const r = autotestaUmaCobaia(COBAIA);
     if (r === null || r === false) ok = false;
   }
+  const rScratch = autotestaScratchIgnorado();
+  if (rScratch === null || rScratch === false) ok = false;
   const final = varrer();
   console.log('  depois de tudo restaurado -> nus: ' + final.nus.length);
   if (final.nus.length !== 0) { console.log('  ✗ a árvore não voltou inteira ao verde'); ok = false; }
-  console.log(ok ? 'AUTOTESTE OK — o portão morde e solta, nas ' + COBAIAS.length + ' cobaias.' : 'AUTOTESTE FALHOU.');
+  console.log(ok ? 'AUTOTESTE OK — o portão morde nas ' + COBAIAS.length +
+    ' cobaias e solta o scratch que o git ignora (par de gêmeos).' : 'AUTOTESTE FALHOU.');
   process.exit(ok ? 0 : 1);
 }
 
