@@ -1498,18 +1498,18 @@
     },
     {
       "id": "ritual-fora-do-drop-sem-lista-branca",
-      "estado": "em-curso",
+      "estado": "livre",
       "agente": "dev-jogo",
       "camada": "esteira",
-      "titulo": "A trava do par.2 (objeto ritual nao e colecionavel) so tem lista branca no lugar de DROP -- fora dele, um buzio ACLARADO passa",
+      "titulo": "A trava do par.2 fora do lugar de drop: a assinatura invariante entrou e fechou 35 disfarces, mas 12 de 31 escritos por outra cabeca ESCAPAM -- o buraco continua aberto, agora com numero",
       "territorio": [
         "test/salvador-drop-sem-ritual.js",
         "test/qa-ritual-varredura.js"
       ],
-      "aceite": "Decidir o que se faz onde a lista branca nao cabe. MOB_B64, ICONE_B64, FRENTE_B64 e GENTE_EP_B64 sao centenas de artes sem tabela de aprovacao possivel, e la sobra a lista negra, cujo buraco esta MEDIDO. Saidas: (a) baixar o limiar so para esses blocos, com o custo de falso positivo medido; (b) assinatura invariante a brilho/matiz em vez de distancia crua; (c) aceitar o buraco e dizer isso no cabecalho, que ja e o estado de hoje. Qualquer saida precisa da medicao dos 13 disfarces, que ja existe em test/qa-ritual-disfarce.js.",
-      "detalhe": "Nomeado pelo proprio dev-jogo em 04/09 (nuvem-20260904T1623) ao fechar ritual-limiar-e-espelho, e ele escreveu nos cabecalhos em vez de esconder. Medido, com limiar 12: brilho x1,25 = 14,0 (o caminho de volta MAIS BARATO, e nao e geometria); matiz +40 graus = 21,9; moldura +12% = 28,8; espelho vertical 52,0; 180 graus 52,2; 90 graus 53,9. Um buzio aclarado em MOB_B64 passa hoje. A frase dele resume por que isto nao se resolve medindo melhor: a lista branca funciona por TROCAR A PERGUNTA (de isto e um buzio para isto e ESTE arquivo), e fora do lugar de drop a pergunta nao pode ser trocada -- la ele conseguiu fazer o CABECALHO honesto, nao o portao.",
-      "maquina": "nuvem-20260905T0023",
-      "desde": "2026-09-05T00:25:18.245Z"
+      "aceite": "NAO fechar este item sem fechar a familia que o QA achou em 05/09: qualquer coisa que estique a CAIXA DE ALFA reenquadra a figura na grade 16x16 e derruba a assinatura. Os escapes medidos: fundo opaco creme 21,0 · fundo opaco quase preto 27,6 · fundo opaco + folga x2 43,2 · ponto solto 2x2 no canto com quadro +20% 31,1 · o mesmo com quadro +45% 37,2 · cisalhado 0,25 20,9 · COMPOSTO fundo+giro11+brilho 36,2 · recorte perdendo 45% a esquerda 32,0. NENHUM LIMIAR CONSERTA: eles pousam entre 20,9 e 43,2 e o piso de arte legitima e 28,8. Saidas a medir: (a) corte na mancha que ignore componente desconexo pequeno e fundo opaco uniforme (ataca a causa, que e o passo 1 e nao o 3 nem o 5); (b) assinatura em varias escalas/janelas deslizantes, para o reenquadramento deixar de mover tudo; (c) aceitar e escrever no cabecalho com ESTES numeros. Qualquer saida roda contra test/qa-ritual-disfarce-independente.js do QA (31 disfarces de outra cabeca, exit 1 hoje) E contra os 35 do autor, e nao so contra os do autor. E CONSERTAR O CONTROLE: hoje a varredura assere piorControle <= 20 sobre tres disfarces escolhidos pelo autor da lista do autor, entao ela nao pode descobrir classe que o autor nao imaginou -- e a licao 2.8 com roupa nova.",
+      "detalhe": "REABERTO em 05/09 por nuvem-20260905T0023 depois da auditoria do QA, e o instrumento JA ENTROU na main (commit do funil de worktree-agent-ab63e14b1cf318c27): test/assinatura-ritual.js mais a segunda assercao no qa-ritual-varredura.js, limiar 20, ao lado da crua de limiar 12 que ficou intacta. O ganho e real e medido -- dos 35 disfarces do autor a crua pega 12 e a invariante pega 35, teto 14,8; piso legitimo 28,8 em 518 imagens confirmado por medicao INDEPENDENTE do QA (0 abaixo de 25, 0 abaixo de 20, 5 abaixo de 30); piso por capitulo em 12 grupos de 28,8 a 32,8, faixa 4,0 contra 8,8 de folga, ou seja capitulo novo nao come a folga rapido. O QUE FALTA E O QUE DA NOME AO ITEM: o portao VIVO sai exit 0 com buzios mais um ponto de 2x2 num quadro 20 por cento maior, e o controle no mesmo caminho com arte identica da exit 1 -- prova 0 contra 1 de que o buraco continua. Custo de tempo: mais 6,1 s (x1,9), medido pelo QA contra baseline proprio de 7,20 s e 6,94 s; o +3,0 s alegado pela entrega nao se reproduz. E a classe que medida de pixel nenhuma fecha continua sendo figura DIFERENTE do mesmo objeto -- outro buzio, desenhado de novo: so olho pega, e por isso no lugar de drop a trava e lista branca. Esta varredura cobra o INSTRUMENTO; o par.2 continua parando no dono.",
+      "maquina": null,
+      "desde": null
     },
     {
       "id": "aprovados-duplicada-sem-assercao",
@@ -1759,7 +1759,7 @@
     },
     {
       "id": "filtro-de-console-copiado-por-arquivo",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "33 de 35 portoes contam erro de console SEM filtro nenhum -- a decisao esta copiada por arquivo, e foi a copia que produziu o 3o caso",
@@ -1768,8 +1768,9 @@
       ],
       "aceite": "A decisao \"este erro de console e do produto ou da rede da maquina?\" passa a viver em UM lugar que os portoes importam, em vez de uma regex copiada (ou ausente) por arquivo. Mordida provada nos dois sentidos e em mais de um portao: um console.error do proprio produto que mencione o host da medicao tem de ser CONTADO; o erro de rede da maquina (origem = MEDIDA_HOST) continua ignorado. NAO fazer de uma vez nos 33: o aceite pede o helper + a adocao nos portoes que estao DENTRO do npm test, e o numero de quantos ficaram de fora, para virar item proprio.",
       "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida. ATUALIZADO 04/09 no fim da rodada: o helper JA EXISTE -- test/rede-externa.js, criado pelo qa e integrado na main pelo funil (commit ca7bf02), exportando ehRuidoDeRedeExterna(m) e MEDIDA_HOST. TRES arquivos ja o usam (ver-territorio.js, qa-salvador-vivo.js, aceiro-sem-coleta.js) e o npm test voltou a EXIT 0. Entao este item deixou de ser \"construir o helper\" e passou a ser SO a adocao nos que faltam: 32 arquivos em test/ contam erro de console e nao filtram nada. Nao fazer os 32 de uma vez -- priorizar os que estao DENTRO do npm test e do funil, que sao os que podem reprovar entrega por rede da maquina. GAP MENOR registrado pelo qa e nao consertado: o filtro do favicon em ver-territorio.js decide por caminho mas nao confere o host, entao um 404 terminado em favicon.ico em outro host seria engolido -- nao foi medido se e exploravel.",
-      "maquina": "nuvem-20260905T0023",
-      "desde": "2026-09-05T00:25:18.245Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Integrado pelo funil em 05/09 (nuvem-20260905T0023), commits bd21278+1bd7b55, npm test e encaixe exit 0 REAIS. 18 arquivos convertidos ao helper test/rede-externa.js (nao 17: git diff --name-only da 18 modificados + 1 novo), mais o portao test/rede-externa-sem-copia.js. A APOSTA DO PLANTAO CAIU, mas nao pelo motivo que ele deu: nao e que a maioria mockasse a rede (nenhum dos que decidem usa page.route), e que 14 deles simplesmente nunca filtravam nada. Recontagem do QA por caminho proprio: 45 escutam console, 24 DECIDEM (nao 18) -- a diferenca sao os 5 de plataforma (EXEMPTO, fora do territorio) e o csp-paginas.js, que o QA achou decidindo sem filtro e DESMENTIU SOZINHO ao medir: ele faz page.route do MEDIDA_HOST com fulfill 200, entao o ruido nem chega ao console dele (exit 0, erros=0 nas 7 rotas). A ALEGACAO CENTRAL SE SUSTENTOU sob ataque: o QA fabricou 5 cenas em Chromium de verdade e as tres que mais importam ACUSAM -- fetch do proprio dominio morrendo (ERR_EMPTY_RESPONSE), ERR_TUNNEL de origem que nao e o host, e erro com url vazio; so o MEDIDA_HOST inalcancavel cala. A entrega NAO reproduziu o defeito de 04/09, que era casar substring do TEXTO e engoliu 2 de 3 erros reais. EXEMPTO do encaixe.js bloco 17 confirmado por medicao independente: 503 escreve status of 503, nao net::ERR_, entao converter viraria vermelho um veredito hoje correto."
     },
     {
       "id": "cartao-tipografia-fresca-maquina-dependente",
@@ -1853,6 +1854,62 @@
       ],
       "aceite": "Decidir entre as saidas e medir a escolhida: (a) versionar o package-lock.json (hoje esta no .gitignore) e fixar a versao que casa com a build provisionada; (b) pregar playwright numa versao exata no package.json; (c) aceitar a flutuacao e garantir que TODO portao use ABRIR.chromiumPath(), que e o que o portao-navegador.js ja cobra desde 05/09 -- nesse caso a saida (c) ja esta em vigor e o que falta e escreve-la no PLANTAO.md. Qualquer saida precisa da medicao: com a saida aplicada, um conteiner novo roda npm install e npm test sem erro de navegador. Cuidado: (a) muda o que o CI instala e o CI hoje roda npx playwright install, entao meca os dois lugares.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0023, e e a causa de raiz de dois vermelhos desta rodada. O conteiner traz /opt/pw-browsers/chromium-1194 e chromium_headless_shell-1194 provisionados. Nao ha lockfile (o .gitignore o exclui), entao npm install resolve playwright: ^1.47.0 para 1.63.0, que procura a build 1243. Lancamento nu morre com Executable does not exist at .../chromium_headless_shell-1243 e a mensagem manda instalar navegador, apontando para o lugar errado: o navegador esta no disco, o que falta e dizer onde. O PLANTAO 7 manda rodar npm install antes do primeiro funil da rodada -- as duas ordens sao certas e nao se separam sozinhas. A saida (c) e a mais barata e ja esta quase toda de pe.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "anti-recopia-nao-ve-arquivo-que-nao-filtra-nada",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O portao anti-recopia sai exit 0 para arquivo NOVO que decide por erro de console e nao filtra NADA -- e isso ja aconteceu, na mesma hora",
+      "territorio": [
+        "test/rede-externa-sem-copia.js"
+      ],
+      "aceite": "O portao passa a reprovar arquivo de test/ que DECIDE por erro de console (erro vira reprovacao) e nao passa pelo helper -- hoje ele so cobra duas coisas: que arquivo GOVERNADO continue no helper, e que ninguem REIMPLEMENTE o filtro a mao. Cuidado com o falso positivo que o proprio QA pagou: o portao ja reprova arquivo que carrega o padrao como CARGA de texto (sonda de teste), e o QA teve de montar as palavras por concatenacao duas vezes -- o incentivo esta invertido, quem for testar esta area precisa contornar o portao. Mordida a provar por injecao: um arquivo novo com page.on(console) sem helper e com o erro virando reprovacao tem de sair exit 1; um que so LOGA continua exit 0; e uma sonda que carrega o padrao como texto tambem continua exit 0.",
+      "detalhe": "NAO E HIPOTESE, e o caso aconteceu enquanto a entrega era integrada. Medido em 05/09 por nuvem-20260905T0023: a outra maquina empurrou test/qa-gente-quadro-que-chega.js enquanto o funil rodava, com page.on(console) sem filtro nenhum, e o npm test do merge saiu exit 1 REAL em net::ERR_TUNNEL_CONNECTION_FAILED do MEDIDA_HOST -- o mesmo defeito que a entrega acabara de centralizar em 18 portoes. O portao anti-recopia saiu ANTIRECOPIA_EXIT_REAL=0 nas duas situacoes, antes e depois do conserto. A classe voltou por baixo do portao criado para ela, dentro da mesma hora, escrita por outra maquina. Conserto do arquivo em a56b4dc; o buraco do portao e este item.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "anti-recopia-burlavel-em-10-de-13-formas",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "O portao anti-recopia pega 3 de 13 formas de reescrever o filtro a mao -- includes e indexOf, as duas mais provaveis, passam",
+      "territorio": [
+        "test/rede-externa-sem-copia.js"
+      ],
+      "aceite": "Fechar as formas medidas ou ESTREITAR a promessa escrita no cabecalho, que hoje e mais larga que o que o portao mede. Mordida provada por injecao, uma forma por vez, com controle limpo exit 0 antes de cada. As 10 que burlam hoje, medidas pelo QA em 05/09 com arquivo novo por forma: indexOf · includes · .match(/.../) · .exec(/.../) · .search(/.../) · regex guardada em constante · new RegExp(string) · array de palavras mais some() · comparacao de .url() por substring · e ARQUIVO EM SUBPASTA de test/, porque o readdirSync nao e recursivo. As 3 que ele pega: a forma do autor (regex literal mais .test(), a mesma aninhada em tres if, e helper local com outro nome.",
+      "detalhe": "Ressalva nao bloqueante do QA em 05/09 (nuvem-20260905T0023), na auditoria de filtro-de-console-copiado-por-arquivo. A parte que FUNCIONA e vale registrar: a trava de regressao nos GOVERNADOS morde de verdade -- require removido de smoke.js da exit 1 nomeando o arquivo, restaurado da exit 0. O problema e so a promessa larga: portao anti-recopia que so pega a forma exata que o autor imaginou e decoracao, e includes/indexOf sao a forma mais provavel de alguem reescrever isso.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "rede-externa-compara-prefixo-cru-e-cala-dominio-vizinho",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "leve",
+      "titulo": "ehRuidoDeRedeExterna compara prefixo cru: um dominio que COMECA com o MEDIDA_HOST e calado junto",
+      "territorio": [
+        "test/rede-externa.js"
+      ],
+      "aceite": "Trocar url.indexOf(MEDIDA_HOST) === 0 por url === MEDIDA_HOST || url.startsWith(MEDIDA_HOST + barra). Mordida provada por unidade nos dois sentidos: o host de verdade continua calado, e os dois vizinhos passam a acusar. Conserto de uma linha.",
+      "detalhe": "Achado do QA em 05/09 (nuvem-20260905T0023) como gap, medido por unidade: hoje sao CALADOS https://us.i.posthog.com.atacante.example/x e https://us.i.posthog.comx.example/x. E PRE-EXISTENTE na main, nao veio da entrega do filtro de console -- que e justamente por que ele agora importa mais: o helper deixou de ser usado por 3 arquivos e passou a ser usado por 21, entao um defeito dele deixou de ser local. Nao e explorabilidade de producao (isto e instrumento de teste), e sim uma cegueira que cresceu de tamanho.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O ferramentas/checar-ci.js fecha plantao-nao-le-o-ci chamando gh, e a nuvem NAO TEM gh -- ele quebra exatamente na maquina onde a main ficou vermelha",
+      "territorio": [
+        "ferramentas/checar-ci.js"
+      ],
+      "aceite": "O checar-ci.js responde na nuvem tambem. Saidas: (a) cair para a API do GitHub por fetch quando o gh nao existir (a nuvem tem credencial e alcanca api.github.com); (b) aceitar um veredito vindo de fora por arquivo/stdin, que e o caminho que o test/checar-ci-veredito.js ja exercita com as fixtures; (c) detectar a ausencia do gh e sair com mensagem NOMEANDO isso em vez de despejar stack de spawn. (c) e o minimo e nao resolve o item que originou a ferramenta. Mordida a provar nas duas maquinas: com gh presente e com gh ausente, o comando tem de dar um veredito, e nunca uma stack.",
+      "detalhe": "Medido em 05/09 por nuvem-20260905T0023, na primeira vez que a ferramenta foi usada aqui. ferramentas/checar-ci.js:22 chama execFileSync(gh, [...]) e a nuvem nao tem o binario (command -v gh: NAO EXISTE; o CLAUDE.md desta sessao diz por extenso que a nuvem usa o MCP do GitHub e nao o gh). Saida real: stack de child_process com status null, signal null, e -- pior -- o processo composto ainda assim terminou 0 na notificacao, entao de longe parece que rodou. A ironia e o ponto do item: a ferramenta nasceu na mesma noite para fechar plantao-nao-le-o-ci, cujo achado foi a main VERMELHA por 2h35 sem ninguem olhar, e quem nao olhou foi a rodada da NUVEM -- a unica das tres maquinas que roda sem ninguem por perto, e a unica onde a ferramenta nao funciona. O test/checar-ci-veredito.js e as 4 fixtures sao bons e continuam valendo: eles cobram o VEREDITO sem rede, e o buraco e so a coleta.",
       "maquina": null,
       "desde": null
     }

@@ -13974,3 +13974,176 @@ plantão. **A dúvida que não resolvi:** o `npm test` desta máquina continua v
 `qa-praca-quadro-vazio-vira-objeto.js` pelo `net::ERR_TUNNEL_CONNECTION_FAILED` do `MEDIDA_HOST` —
 é exatamente o item do segundo agente, e enquanto ele não pousar **o funil desta máquina não fecha
 verde**. Ou seja: nesta rodada a ordem certa é integrar o filtro de console **primeiro**.
+
+## 05/09 (madrugada, parte 2) · `nuvem-20260905T0023` — duas entregas, e as duas derrubaram quem as pediu
+
+Rodada em lote: dois agentes em worktree, um QA independente tentando derrubar as duas antes do
+funil, e as duas integradas. **Os dois me refutaram com número, e o QA refutou um deles.**
+
+### A ENTREGA DO FILTRO DE CONSOLE — `filtro-de-console-copiado-por-arquivo`, FECHADA
+
+18 arquivos passaram a usar `test/rede-externa.js` (o helper único, que decide por **origem**
+contra o `MEDIDA_HOST`), mais um portão anti-recopia. Integrada pelo funil, `npm test` e
+`encaixe.js` **exit 0 reais**.
+
+**A minha aposta caiu, e não pelo motivo que eu dei.** Eu apostara que "a maioria dos 32 não
+filtra porque nunca precisou — não abre o jogo inteiro, ou não chama o `MEDIDA_HOST`". Errado:
+**nenhum** dos que decidem usa `page.route`; todos deixam a chamada sair. O número verdadeiro, na
+recontagem independente do QA: **45 escutam console, 24 DECIDEM** — não 18, como a entrega disse,
+nem 32, como eu disse.
+
+**A alegação central sobreviveu ao ataque**, e é a que importa, porque a doença histórica deste
+item é filtro frouxo. O QA fabricou cinco cenas em Chromium de verdade:
+
+| cena | veredito |
+|---|---|
+| `MEDIDA_HOST` inalcançável (ruído legítimo) | **CALOU** ✔ |
+| `fetch` do **próprio domínio** morrendo (`ERR_EMPTY_RESPONSE`) | **ACUSOU** ✔ |
+| `ERR_TUNNEL_CONNECTION_FAILED` de origem que **não** é o host | **ACUSOU** ✔ |
+| `console.error` do jogo com "posthog" e "ERR_TUNNEL" no texto | **ACUSOU** ✔ |
+| erro com `url` vazio | **ACUSOU** ✔ |
+
+O filtro antigo, que casava **substring do texto**, engolia 2 de 3 desses. Este não engole nenhum.
+
+### A ENTREGA DA ASSINATURA DO RITUAL — integrada como INSTRUMENTO, e o item **CONTINUA ABERTO**
+
+`test/assinatura-ritual.js` (novo) e uma **segunda** asserção no `qa-ritual-varredura.js`, limiar
+20, ao lado da crua (limiar 12) que ficou intacta. Ganho real: dos 35 disfarces do autor, a crua
+pega 12 e a invariante pega **35**, teto 14,8. Piso de arte legítima **28,8** em 518 imagens,
+**confirmado por medição independente** do QA (0 abaixo de 25, 0 abaixo de 20, 5 abaixo de 30).
+
+**Duas afirmações minhas caíram, as duas com número:**
+1. *"(a) não fecha porque baixar o limiar esbarra na janela"* — **a direção estava invertida.**
+   Pegar é `d ≤ limiar`; brilho ×1,25 = 14,0 passa porque 14,0 **>** 12. Seria preciso **subir**.
+2. *"os 29,9 foram medidos no lugar de drop, meça em MOB/ICONE/FRENTE/GENTE"* — **29,9 É o número
+   desses blocos**, em `pack-palmares.json MOB_B64.drum.1`. Eu mandei medir o que já estava medido.
+
+**E o QA derrubou a alegação-título da entrega.** Ele escreveu **31 disfarces que o autor não
+escreveu** e **12 escapam** das duas medidas juntas. A causa não é o limiar nem a métrica: é o
+**passo 1**, o corte na mancha por `alfa > 16` — **qualquer coisa que estique a caixa de alfa**
+reenquadra a figura na grade 16×16. Por isso a moldura *transparente* do autor morre e a moldura
+**opaca** não.
+
+Prova no portão vivo, que é a forma forte: búzios com **um ponto de 2×2** num quadro 20% maior →
+`qa-ritual-varredura.js` **exit 0, tudo verde**. Controle no mesmo caminho, arte idêntica →
+**exit 1**. E **nenhum limiar conserta**: os escapes medem de 20,9 a 43,2 e pousam **dentro** da
+banda legítima, cujo piso é 28,8.
+
+Então: instrumento integrado (ganho puro, nada regride), **item reaberto** com esses números no
+aceite. Fechá-lo seria assinar de verde o buraco que lhe dá nome.
+
+**Onde a minha guarda baixou, e o QA nomeou:** o `CONTROLE` que a varredura roda a cada execução
+usa **três disfarces escolhidos pelo autor, da lista do autor**. Ele não pode descobrir uma classe
+que o autor não imaginou — é a lição 2.8 com roupa nova. A franqueza da entrega sobre a folga de
+1,44× puxou a atenção para o **falso positivo** (onde está tudo bem) enquanto o lado que falha é o
+**falso negativo**.
+
+### O ACHADO QUE NÃO ERA DE NINGUÉM: A CLASSE VOLTOU POR BAIXO DO PORTÃO, NA MESMA HORA
+
+Ao mergear a entrega do filtro com o que a outra máquina empurrou **enquanto o funil rodava**, o
+`npm test` do merge saiu **exit 1 real** em `test/qa-gente-quadro-que-chega.js` — arquivo nascido
+naquela hora, com `page.on('console')` **sem filtro nenhum**, acusando o `ERR_TUNNEL` do proxy como
+erro de produto. O mesmo defeito que a entrega acabara de centralizar em 18 portões.
+
+E o portão anti-recopia **saiu `exit 0` nas duas situações**, antes e depois do conserto: ele cobra
+que arquivo *governado* continue no helper e que ninguém *reimplemente* o filtro — e não tem
+asserção para o caso que aconteceu de verdade, **arquivo novo que não filtra nada**. Consertado em
+`a56b4dc`; o buraco do portão virou item, com este caso como evidência.
+
+### ARMADILHAS DE OPERAÇÃO QUE EU PAGUEI NESTA RODADA
+
+1. **`git checkout -- test/` apaga edição de código não commitada.** O `PLANTAO.md` §5.1 manda
+   rodá-lo depois do funil (higiene: os prints regravados sujam a árvore). Ele reverteu o meu
+   conserto inteiro, e o commit seguinte saiu **`nothing to commit, working tree clean`** — que
+   **parece sucesso**. Restaure só os PNG:
+   `git checkout -- $(git diff --name-only -- 'test/*.png')`
+2. **A notificação de comando em segundo plano relata o exit do comando COMPOSTO.** Duas vezes ela
+   disse "exit code 0" enquanto o `npm test` dentro dele saíra **1** — o 0 era do `echo` final. É a
+   lição do tubo do §7 por outra porta, e a defesa é a mesma: escreva o exit num arquivo e leia de
+   lá.
+3. **`git push` recusado depois do funil não é divergência.** Duas vezes a outra máquina moveu a
+   `main` durante o funil. `pull --ff-only` não serve (há merge local); `pull --rebase` é proibido
+   pelo §4. O certo é `pull --no-rebase` — e **rodar `npm test` no merge antes de empurrar**, que
+   foi exatamente o que pegou o defeito do item anterior.
+
+### PLACAR DA RODADA
+
+| | rodadas | achados | reais | desmentidos |
+|---|---:|---:|---:|---:|
+| dev-jogo (ritual) | 1 | 6 | 5 | 3 (2 meus + 1 dele contra si) |
+| dev-jogo (console) | 1 | 18 | 18 | 0 |
+| qa (lote) | 1 | 13 | 12 | 1 (dele, contra si) |
+| plantão (linha própria) | — | 4 | 4 | 1 (meu, medi a pasta errada) |
+---
+
+## 04/09 · A PRAÇA: a ressalva "mas não inteiro" SAI da abertura, antes de os quadros serem preenchidos (historiadora, worktree `agent-a6c78fbba84664325`)
+
+Continuação direta da entrada de 04/09 acima e do item `quadros-de-gente-vazios-na-fonte`
+(`PENDENTES.md` 109). Aquela rodada deixou um ⚠ no código, ao lado da 4ª fala da abertura de A
+PRAÇA, mandando **voltar aqui** quando os três quadros vazios de `GENTE_EP_B64.praca` (`f0q7`,
+`f2q0`, `f2q7`) fossem preenchidos: a frase *"mas não inteiro: em alguns passos entra um objeto no
+lugar da pessoa"* descreve um defeito, e frase que descreve defeito consertado é tão falsa quanto
+a que se gaba. **Esta rodada é a volta ao aviso.** Nenhum quadro foi preenchido por mim — o
+preenchimento é do `dev-jogo`, em worktree paralelo; aqui só o texto mudou.
+
+### O que entrou, e por que esta forma
+
+| | |
+|---|---|
+| antes (04/09, 258 caracteres) | "A pintura ainda é emprestada do capítulo anterior, e o que fica no chão vem de outro. Quem atravessa a tela já foi desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa. Os três contadores lá em cima são os mesmos de sempre." |
+| agora | "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre." |
+| medido | **226 caracteres** (teto 260, `encaixe.js` bloco 15) · sem dígito · `npm test` exit **0** · `node test/encaixe.js` exit **0** |
+
+**A troca é uma SUBTRAÇÃO, e isso foi decidido, não economizado.** A tentação era copiar a forma
+das outras cinco falas de arte ("já foram desenhadas para este capítulo") e acrescentar a
+completude. Não dá: eu não rodei o preenchimento e não posso afirmar o que não medi. Então a fala
+nova **tira a ressalva e não põe nada no lugar**: "já foi desenhado para cá" é o que se verifica na
+fonte hoje — `GENTE_EP_B64.praca` é folha autoral deste capítulo, e isso já era verdade **antes**
+do preenchimento, medido na rodada anterior. A fala não diz "chegou inteira", não conta quadro e
+não promete completude.
+
+**A consequência prática disso é a que interessa a quem integra:** a fala nova é verdadeira nos
+dois mundos. Se o `dev-jogo` fechar os três quadros, ela está certa; se ele fechar só um ou nenhum
+(e há motivo concreto para isso — ver abaixo), ela **continua** certa, porque não afirma nada sobre
+quantos quadros têm tinta. Foi por isso que preferi a subtração à frase das outras cinco: a frase
+das cinco cria uma dependência de ordem de integração, e esta não cria nenhuma.
+
+Também ficou o que **não** podia cair, e é a mesma coisa que a rodada anterior protegeu: as duas
+fontes de empréstimo continuam nomeadas separadamente. A pintura é a do **capítulo anterior**
+(`arte: [10]`, `PACK_DA_CENA[10]` = "naodito"); o que fica no chão vem de **outro** (`dropDe()`
+segue `capArte()` = `arteCap` 3, e `DONO_DO_BLOCO[3]` é "hoje", AINDA AQUI). Juntar os dois num
+"também" seria trocar uma frase falsa por outra, menor.
+
+### Fonte
+
+**Nenhuma nova, e isto é a resposta, não a falta dela.** A fala não afirma fato histórico: ela
+descreve como o capítulo está desenhado, que é a mesma classe da frase que ela substitui e das
+cinco irmãs dela. As afirmações históricas de A PRAÇA (PEC nº 5 de 1983, a votação de 25/04/1984,
+a EC nº 25 de 1985, a Constituição de 1988) estão nas outras falas e **não foram tocadas** — as
+fontes delas continuam onde estavam, em DE ONDE VEM e nas entradas anteriores deste NOTES.
+
+### Dois ponteiros que ficaram velhos e NÃO são meus para consertar
+
+Registrado para quem integrar não descobrir no meio do funil:
+
+1. **`test/qa-praca-quadro-vazio-vira-objeto.js`** cita a frase antiga na mensagem de asserção
+   (*"em alguns passos entra um objeto no lugar da pessoa: … a frase da abertura tem prova viva"*).
+   Ele **passa hoje** — medido: 21 de 24 passos desenham a pessoa, 3 caem no objeto —, porque o que
+   ele mede é o motor, não o texto. Mas o texto que ele cobre saiu. É do `dev-jogo`, junto com o
+   preenchimento; não toquei por brief explícito.
+2. **`PENDENTES.md` 109** justifica os três quadros vazios de A PRAÇA dizendo que *"a abertura de A
+   PRAÇA afirma o defeito em voz alta"* e apontando para o ⚠ que eu acabei de consumir. Esse motivo
+   deixou de existir: **o texto não segura mais o preenchimento.** Quem fechar o item atualiza o
+   109 no mesmo commit.
+
+### O que eu vi e não estava no meu escopo
+
+Lendo o 109 para escrever isto: os vizinhos dos quadros vazios de A PRAÇA incluem **três células
+LARGAS** — `praca f0q3`, `f2q3` e `f2q6` (330, 323 e 322 px contra mediana de ~151 px da fileira,
+medido por `test/qa-gente-quadro-dobrado.js` no `npm test` desta árvore). É exatamente o defeito
+que fez o remendo de PINDORAMA ser **revertido** em 04/09: copiar célula larga troca "passo com
+barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7` é justamente
+`f2q6`, que é um dos largos. **Não é meu item e não medi mais que isso** — fica como aviso ao
+`dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
+um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
+junto.
