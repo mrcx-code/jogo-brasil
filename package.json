@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node ferramentas/construir.js",
     "tipos": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node test/portao-navegador.js && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js && node test/qa-praca-quadro-vazio-vira-objeto.js && node test/qa-gente-quadro-que-chega.js && node test/qa-gente-quadro-dobrado.js && node test/qa-praca-o-que-a-pessoa-ve.js && node test/qa-eca-escolar-paginas.js && node test/checar-ci-veredito.js && node test/rede-da-casa-veredito.js && node test/rede-da-casa-veredito.js --controle",
+    "test": "npm run build && node test/portao-navegador.js && node test/dist-inventario.js && node test/dist-inventario-mencao-nao-e-citacao.js && node test/dist-inventario-meta-sem-arquivo.js && node test/qa-ritual-varredura.js && node test/smoke.js && node test/regua-larga.js && node test/medir-numero-envelhece.js && node test/salvador-drop-sem-ritual.js && node test/qa-salvador-vivo.js && node test/qa-verbo-e-fala.js && node test/ramos-mortos-veredito.js && node test/aceiro-sem-coleta.js && node test/qa-eca-escolar.js && node test/qa-praca-quadro-vazio-vira-objeto.js && node test/qa-gente-quadro-que-chega.js && node test/qa-gente-quadro-dobrado.js && node test/qa-praca-o-que-a-pessoa-ve.js && node test/qa-eca-escolar-paginas.js && node test/checar-ci-veredito.js && node test/rede-da-casa-veredito.js && node test/rede-da-casa-veredito.js --controle",
     "regua": "node test/regua-larga.js",
     "ritual": "node test/salvador-drop-sem-ritual.js",
     "ritual:varredura": "node test/qa-ritual-varredura.js",
@@ -30,7 +30,9 @@
     "conteudo:vigia": "node ferramentas/conteudo-vigia.js",
     "app": "npm run build && cap sync android",
     "app:abrir": "cap open android",
-    "copiar": "node ferramentas/copiar.js"
+    "copiar": "node ferramentas/copiar.js",
+    "verbo-e-fala": "node test/qa-verbo-e-fala.js",
+    "verbo-e-fala:controle": "node test/qa-verbo-e-fala-controle.js"
   },
   "devDependencies": {
     "@capacitor/android": "^8.5.0",

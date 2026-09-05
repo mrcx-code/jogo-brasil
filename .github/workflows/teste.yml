@@ -69,6 +69,25 @@ jobs:
       # regra do CLAUDE.md §6, e vale para quem for ler o log aqui também.
       - run: npm test
 
+      # O CONTROLE DO PORTAO DO VERBO E DA FALA (05/09, item verbo-e-fala-passa-a-vazio). O
+      # portao em si (test/qa-verbo-e-fala.js, 2 s) roda dentro do npm test acima -- e o preco
+      # de pendura-lo la e 0,7% dos 282 s medidos, entao ele acende CI e funil de uma vez. ESTE
+      # aqui e o controle: 6 mutantes, cada um exigido a reprovar PELO MOTIVO CERTO, mais o
+      # contraponto limpo. Sao 36 s medidos, e 36 s sao 13% do npm test -- somar isso ao laco
+      # curto que todo agente roda dezenas de vezes por sessao e o jeito mais rapido de alguem
+      # parar de rodar npm test (a mesma conta que mandou qa-censo-passo2.js e
+      # cartao-quadro-controle.js para ca em vez de para la).
+      #
+      # Sem ele o portao acima e decoracao assinada de verde, e nesta entrega isso nao e
+      # hipotese: a auditoria mediu que 5 das 6 familias de assercao NUNCA tinham sido vistas
+      # reprovando -- a injecao declarada pelo autor provava so a da frase.
+      #
+      # Teto de 3 min = 5x os 36 s medidos, a mesma folga larga que o encaixe tem, porque o
+      # Chromium do runner nasce frio e timeout de portao nao vira lento, vira VERMELHO.
+      - name: controle do portão do verbo e da fala (prova que ele morde)
+        run: node test/qa-verbo-e-fala-controle.js
+        timeout-minutes: 3
+
       # O ENCAIXE TAMBEM (decisao do dono, 21/08 12:38 pelo dashboard): o CI cobria so metade
       # da lei (build+smoke) e um vermelho do encaixe ficou invisivel na main (PENDENTES 44).
       # Custa ~5 min por push; o dono aceitou o preco. Timeout largo: sao 395 asserçoes.
