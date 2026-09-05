@@ -397,23 +397,38 @@ async function hudNoLugar(pg) {
   // 5 · O VERBO PROMETIDO EXISTE NA MÃO
   //
   // Cada abertura promete um verbo. O texto é dado; a mecânica é código. Aqui só se afirma o
-  // que dá para afirmar sem jogar 30 s: que o capítulo que promete ACOLHER tem fila de
-  // acolhidas viva, e que o que promete LEVAR PALAVRA tem corrente. Se um dia a mecânica sair
-  // e o texto ficar, isto reprova — e é exatamente a mentira que a tese do produto proíbe.
+  // que dá para afirmar sem jogar 30 s: que TODA fala que soa como a promessa de acolher/levar
+  // palavra tem, por trás, o motor que a cumpre. Se um dia a mecânica sair e o texto ficar,
+  // isto reprova — e é exatamente a mentira que a tese do produto proíbe.
+  //
+  // A asserção mede só essa DIREÇÃO (promessa ⇒ motor), não a volta, e a razão é medida, não
+  // suposta: cada capítulo da mesma família nomeia o gesto no idioma dele (O CAIS "juntar gente
+  // na pedra", JABAQUARA "abrir caminho", A PEQUENA ÁFRICA "guardar o lugar" — NOTES.md 04/09) e
+  // pedir a MESMA frase-molde de PALMARES/SALVADOR nos outros quatro/seis reprova 12 capítulos
+  // que têm o motor e não usam aquela frase — medido ao trocar por igualdade nesta mesma sessão.
   // ============================================================
   sec('5 · o verbo que a abertura promete tem mecânica atrás');
   const verbos = await page.evaluate(() => {
     const r = [];
     EPOCAS.forEach(function (e, i) {
       const txt = e.abertura.join(' ');
+      // a mecânica correspondente, perguntada ao MOTOR (capFila()/capPalavra()) e não a uma
+      // constante congelada (`i === CAP_GENTE` via só existia PALMARES/SALVADOR quando havia
+      // dois verbos; hoje CAP_FILA tem cinco capítulos e CAPS_VERBO tem sete). A simulação é a
+      // mesma do censo do bloco 32: guarda S.cenario, aponta para a época i, pergunta à função
+      // real, restaura — porque capFila()/capPalavra() leem `epocaAtual()`, que lê `S.cenario`.
+      const guardado = S.cenario;
+      S.cenario = cenarioDaEpoca(i);
+      const temAcolher = capFila();
+      const temPalavra = capPalavra();
+      S.cenario = guardado;
       r.push({
         nome: e.nome,
         promete_acolher: /alcançar é acolher|vem ficar|passa a andar com você/i.test(txt),
         promete_palavra: /levar palavra|passa a saber/i.test(txt),
         promete_colher: /colher|plantar|contador/i.test(txt),
-        // a mecânica correspondente, perguntada ao motor e não ao texto
-        temAcolher: i === CAP_GENTE,
-        temPalavra: i === CAP_PALAVRA
+        temAcolher: temAcolher,
+        temPalavra: temPalavra
       });
     });
     return r;
@@ -421,8 +436,10 @@ async function hudNoLugar(pg) {
   verbos.forEach(function (v) {
     log('   ' + v.nome.padEnd(11) + ' promete[acolher ' + v.promete_acolher + ' · palavra ' + v.promete_palavra +
       ' · colher ' + v.promete_colher + '] motor[acolhe ' + v.temAcolher + ' · palavra ' + v.temPalavra + ']');
-    if (v.temAcolher !== null) ok(v.promete_acolher === v.temAcolher, v.nome + ': o texto e o motor concordam sobre ACOLHER');
-    if (v.temPalavra !== null) ok(v.promete_palavra === v.temPalavra, v.nome + ': o texto e o motor concordam sobre LEVAR PALAVRA');
+    // promessa ⇒ motor: se a fala soa como a promessa, o capítulo tem de ter a fila/corrente
+    // de verdade. O inverso (motor sem essa frase-molde) não reprova — é vocabulário, não dívida.
+    ok(!v.promete_acolher || v.temAcolher, v.nome + ': quem promete ACOLHER tem a fila de verdade');
+    ok(!v.promete_palavra || v.temPalavra, v.nome + ': quem promete LEVAR PALAVRA tem a corrente de verdade');
   });
 
   // ============================================================
