@@ -51,7 +51,7 @@ async function carga(browser, busca, op) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const linha = (rot, r) => console.log('   [' + rot + ' ' + JSON.stringify(r.busca) + '] pedidos=' + r.pedidos
     + ' | medirLigado=' + r.ligado + ' | medir=' + JSON.stringify(r.medir) + ' | anon=' + (r.anon ? 'SORTEADO' : r.anon));
 
