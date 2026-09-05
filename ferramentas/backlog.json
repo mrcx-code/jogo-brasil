@@ -1956,7 +1956,7 @@
     },
     {
       "id": "ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Toda ferramenta desta casa que fala com a rede pelo modulo https do Node quebra na nuvem, e quebra com cara de credencial errada",
@@ -1965,8 +1965,10 @@
       ],
       "aceite": "Varrer ferramentas/ e test/ atras de quem usa https/http do Node direto contra a rede, e dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY, e nao mandar o sentinela proxy-injected como credencial). Mordida provada por injecao em cada uma: com HTTPS_PROXY definido tem de responder; sem, tem de falhar HONESTAMENTE e nunca virar verde. Se a varredura achar zero alem do checar-ci.js, esse ZERO e a entrega e fecha o item.",
       "detalhe": "Generalizacao do que a nuvem consertou em ferramentas/checar-ci.js em 05/09 (ver commit e04d196 para o diagnostico completo). O modulo https/http do Node nao segue sozinho a configuracao de proxy de saida desta rede, entao qualquer outra ferramenta desta casa que fale direto com a rede pelo mesmo caminho pode ter o mesmo problema estrutural -- e o sintoma engana, porque le como erro de outra natureza, nao como caminho de rede errado. O conserto ja aplicado ao checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY configurado, sem voltar a depender de CLI) e o modelo a repetir em qualquer ferramenta que a varredura do aceite encontrar.",
-      "maquina": "nuvem-20260905T0822",
-      "desde": "2026-09-05T08:30:40.732Z"
+      "maquina": null,
+      "desde": null,
+      "concluido_em": "2026-09-05T09:35:28.984Z",
+      "resolucao": "INTEGRADO 05/09 por nuvem-20260905T0822. O ACEITE FOI REFUTADO PELA MEDICAO, e esse e o achado: ele mandava \"dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY)\". A varredura achou CINCO ferramentas alem do checar-ci.js (baixar-malha.js, conteudo-puxar.js, ler-medicao.js, conferir-agentes.js e test/checar-infra.js) -- e o tunel nao conserta NENHUMA delas. Medido host a host, os dois caminhos: api.github.com direto da 403 \"API rate limit exceeded\" (chegou no GitHub) e por tunel da HTTP 200; os outros cinco hosts (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) dao 403 \"Host not in allowlist\" direto E CONNECT recusado 403 no tunel. O proxy recusa o proprio CONNECT para eles, por politica de egresso. Aplicar o conserto prescrito nas cinco teria custado uma sessao, mudado nada, e saido de la com cara de trabalho feito. Corrige tambem o registro do que curou o checar-ci.js: api.github.com esta na lista permitida, e o tunel nao lhe deu ROTA, deu CREDENCIAL (o proxy injeta o token na passagem). O DEFEITO REAL e de mensagem: rota e credencial saem com o MESMO 403, e ferramenta que so guarda o numero conta a historia errada -- o conferir-agentes.js dizia \"HTTP 403\" e mandava quem lesse cacar chave do Supabase, com o corpo dizendo \"Host not in allowlist\" e sendo jogado fora. Entrou ferramentas/rede-da-casa.js (classificar() pura: separa sem-egresso de credencial pelo CORPO), test/rede-da-casa-veredito.js (21 asserçoes, fixtures dos corpos reais, puro -- roda em maquina sem rede, que e onde precisa valer), o conferir-agentes.js classificando, e o portao no teste.yml. Mordida por injecao: 2 mutantes, exit 1 real nos dois, exit 0 restaurado."
     },
     {
       "id": "duas-maquinas-integram-o-mesmo-ramo-de-entrega",
@@ -1994,6 +1996,21 @@
       ],
       "aceite": "Uma grafia so. (1) Os 41 itens com papel passam a agente no backlog.json -- e no-op para TODO leitor, porque os cinco leem dono = agente || papel (conferir-item.js:55, conferir-fila.js:47, caminhos-do-backlog.js:119, dashboard/index.html:1591 e :1612 e :2031); provar o no-op rodando os tres portoes antes e depois com a MESMA saida. (2) O conferir-item.js passa a reprovar papel SOZINHO tambem, nao so agente E papel juntos, com a mensagem dizendo qual e a grafia viva. (3) Mordida provada por injecao nas duas formas (so papel, e as duas juntas) com exit 1 real, mais o controle de arquivo limpo em exit 0. CUIDADO DE SEQUENCIA: tocar 41 itens do backlog.json colide com toda maquina que tenha item em-curso -- so pegue este item com a fila de em-curso VAZIA ou combinada no RECADOS.md, senao o merge vira conflito de uniao em 41 lugares.",
       "detalhe": "Medido por nuvem-20260905T0822. O commit ccdc4c7 (refino do PM, 05/09) diz na propria mensagem \"agente preenchido em 3 itens que estavam vazios\" -- e os tres NAO estavam vazios: o dono deles morava em papel. O PM leu so a grafia agente, achou vazio, e escreveu por cima; em dois dos tres o dono novo ainda DISCORDAVA do antigo (rotulo-medicao-anonima: papel=dev-plataforma vs agente=porteiro; cartao-decepa-primeira-tabua: papel=porteiro vs agente=dev-plataforma). O conferir-item.js pegou (e essa e a boa noticia: o portao mordeu), mas a main ficou vermelha do run 627 ao 630 -- 4 pushes, ~2h50 -- porque ninguem olhou. Contagem no dia: 109 itens com agente, 41 com papel, 3 com os dois. Enquanto as duas grafias existirem, todo agente que escrever dono no backlog pode repetir isto, e a unica defesa e um portao que so acusa DEPOIS do push."
+    },
+    {
+      "id": "quatro-ferramentas-ainda-reportam-o-numero-cru",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "Quatro ferramentas de rede ainda reportam o 403 cru e enganam igual ao que o conferir-agentes.js fazia",
+      "territorio": [
+        "ferramentas/baixar-malha.js",
+        "ferramentas/conteudo-puxar.js",
+        "ferramentas/ler-medicao.js",
+        "test/checar-infra.js"
+      ],
+      "aceite": "As quatro passam a guardar o CORPO da resposta e a classificar por ferramentas/rede-da-casa.js (classificar()), como o conferir-agentes.js ja faz: falta de egresso sai como sem-egresso e diz que nao e credencial; 401/403 vindos do proprio destino saem como credencial. NENHUMA troca de transporte -- so mensagem, que foi a regra que manteve a entrega de 05/09 sem risco. Mordida provada por injecao em CADA uma (exit code real), e o controle de que o caminho de SUCESSO nao mudou. Se alguma das quatro nao puder ser exercitada com exit code real nesta maquina, diga isso por extenso em vez de mudar no escuro -- foi por isso que elas ficaram de fora em 05/09.",
+      "detalhe": "Sobra declarada da entrega rede-da-casa-egresso-honesto (05/09, nuvem-20260905T0822). Elas ficaram de fora porque NENHUMA e exercitada pelo CI, entao nao havia como provar a mudanca com exit code real, e mudar quatro ferramentas no escuro e o oposto do que aquela entrega defende. Os hosts das quatro (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) estao TODOS fora da lista de egresso da nuvem -- medido: 403 \"Host not in allowlist\" direto e CONNECT recusado no tunel. Consequencia pratica para quem pegar: nesta maquina o unico desfecho observavel das quatro e o de FALHA, e ele e justamente o que o item conserta; o caminho de sucesso so pode ser provado por injecao ou na maquina do dono."
     }
   ]
 }

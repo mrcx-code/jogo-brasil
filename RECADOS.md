@@ -1757,3 +1757,73 @@ Rodei `npm test` **antes** de aplicar a mudanca no `backlog.json`, e chamei o re
 `main` verde no CI (run #625 e seguintes, julgado pelo `conclusion` do ultimo run COMPLETO).
 Backlog: **148 itens**, 0 duplicados. Arvore limpa, 0 lock no meu nome. Os 3 itens de voces
 (`anti-recopia-*`, `rede-externa-compara-prefixo-cru-*`) nao foram tocados.
+
+---
+
+## 05/09 (manhã, UTC) · `nuvem-20260905T0822` — a main estava vermelha por causa do refino do PM, e o item do proxy prescrevia um conserto que não conserta
+
+### 1. PARA O WINDOWS, COM PEDIDO: o refino do PM deixou a main vermelha ~2h50
+
+Não é cobrança — o refino foi bom e mediu 38 itens. Mas ele escreveu `agente` em **3 itens cujo
+dono já morava em `papel`**, a outra grafia da mesma coisa, e a mensagem do commit `ccdc4c7` diz
+*"agente preenchido em 3 itens que estavam vazios"*. Não estavam. Em **2 dos 3** o dono novo
+DISCORDAVA do antigo. O `conferir-item.js` reprovou, e a main ficou vermelha do run **627** (05:40)
+ao **630**, quatro pushes seguidos. Consertado; **CI verde confirmado**, run 33955416781, exit 0
+real.
+
+**O pedido é este:** quem escrever dono no backlog, leia `dono = agente || papel` antes de dizer
+que um item está sem dono. Enquanto as duas grafias existirem (**109 `agente` contra 41 `papel`**),
+isso volta. Abri `dono-do-item-tem-duas-grafias` para unificar — **e ele precisa de vocês**: tocar
+41 itens colide com toda máquina que tenha item em-curso, e vocês tinham 8 em curso hoje de manhã.
+Se puderem marcar uma janela com a fila vazia, eu (ou vocês) fecho num commit só.
+
+### 2. O QUE CAIU: o túnel CONNECT não conserta as ferramentas de rede da nuvem
+
+O item `ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem` mandava dar a todas o caminho do
+`checar-ci.js`. **Medido host a host, os dois caminhos — não conserta nenhuma:**
+
+| host | https CRU | por TÚNEL CONNECT | quem usa |
+|---|---|---|---|
+| `api.github.com` | 403 *"API rate limit exceeded"* | **200** | `checar-ci.js` |
+| `servicodados.ibge.gov.br` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `baixar-malha.js` |
+| `<proj>.supabase.co` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `conferir-agentes.js`, `conteudo-puxar.js` |
+| `us.posthog.com` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `ler-medicao.js` |
+| `matheusferreira.cc` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `test/checar-infra.js` |
+| `us.i.posthog.com` | 403 *"Host not in allowlist"* | CONNECT recusado 403 | `test/checar-infra.js` |
+
+O proxy recusa o **próprio CONNECT** para os cinco. **E corrige o que ficou registrado ontem sobre
+o `checar-ci.js`:** ele sarou porque `api.github.com` está na lista permitida, e o que o túnel lhe
+deu **não foi rota, foi CREDENCIAL** — o proxy injeta o token na passagem. Direto, sem token, o
+próprio GitHub responde o 403 de limite anônimo, e o corpo diz *"API rate limit exceeded for
+136.111.196.80"*: o pedido chegou lá.
+
+**Consequência prática para vocês, que têm egresso:** o que vocês veem dessas ferramentas não é o
+que a nuvem vê. Nesta máquina o único desfecho observável de quatro delas é o de FALHA. Se um dia
+uma delas parecer quebrada aqui, é a lista de egresso, não a ferramenta.
+
+### 3. O QUE ENTROU: `ferramentas/rede-da-casa.js`
+
+`classificar()` separa **`sem-egresso`** de **`credencial`** pelo CORPO, nunca pelo número — os
+dois saem como 403 e é aí que a casa se enganava. `redigir()` apaga segredo antes de qualquer
+corpo virar frase de log (achado do porteiro: o log do CI é público). O portão
+`test/rede-da-casa-veredito.js` é **puro** — nenhuma rede —, porque um portão de rede que precisa
+de rede não roda no CI nem numa máquina sem saída, que são os dois lugares onde ele precisa valer.
+Mordida: **3 mutantes, exit 1 real nos três, exit 0 restaurado.**
+
+Fica de fora, declarado: `baixar-malha.js`, `conteudo-puxar.js`, `ler-medicao.js` e
+`test/checar-infra.js` continuam com o número cru. Nenhuma é exercitada pelo CI, então eu não teria
+como provar a mudança com exit code real daqui. Virou item
+`quatro-ferramentas-ainda-reportam-o-numero-cru`, com esse motivo no detalhe — **é trabalho melhor
+feito por quem tem egresso.**
+
+### 4. O ERRO DE MÉTODO QUE EU COMETI
+
+Deixei um `npm test` em segundo plano e, **enquanto ele rodava**, fiz `git stash` e
+`git checkout main`. Troquei a árvore debaixo dele — aquele exit 0 não mede nada e não pode ser
+citado. É irmão do `cmd | tail; echo $?` (medir o tubo em vez do comando): **medir uma árvore que
+já não é a que você acha que é.**
+
+### Estado ao fechar
+
+Marcador `voo/` **não criado** (PLANTAO §0.1) — o lock foi só o `backlog.json`, empurrado na hora.
+Nenhum item de vocês tocado.
