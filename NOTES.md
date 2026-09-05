@@ -13974,3 +13974,77 @@ plantão. **A dúvida que não resolvi:** o `npm test` desta máquina continua v
 `qa-praca-quadro-vazio-vira-objeto.js` pelo `net::ERR_TUNNEL_CONNECTION_FAILED` do `MEDIDA_HOST` —
 é exatamente o item do segundo agente, e enquanto ele não pousar **o funil desta máquina não fecha
 verde**. Ou seja: nesta rodada a ordem certa é integrar o filtro de console **primeiro**.
+
+---
+
+## 04/09 · A PRAÇA: a ressalva "mas não inteiro" SAI da abertura, antes de os quadros serem preenchidos (historiadora, worktree `agent-a6c78fbba84664325`)
+
+Continuação direta da entrada de 04/09 acima e do item `quadros-de-gente-vazios-na-fonte`
+(`PENDENTES.md` 109). Aquela rodada deixou um ⚠ no código, ao lado da 4ª fala da abertura de A
+PRAÇA, mandando **voltar aqui** quando os três quadros vazios de `GENTE_EP_B64.praca` (`f0q7`,
+`f2q0`, `f2q7`) fossem preenchidos: a frase *"mas não inteiro: em alguns passos entra um objeto no
+lugar da pessoa"* descreve um defeito, e frase que descreve defeito consertado é tão falsa quanto
+a que se gaba. **Esta rodada é a volta ao aviso.** Nenhum quadro foi preenchido por mim — o
+preenchimento é do `dev-jogo`, em worktree paralelo; aqui só o texto mudou.
+
+### O que entrou, e por que esta forma
+
+| | |
+|---|---|
+| antes (04/09, 258 caracteres) | "A pintura ainda é emprestada do capítulo anterior, e o que fica no chão vem de outro. Quem atravessa a tela já foi desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa. Os três contadores lá em cima são os mesmos de sempre." |
+| agora | "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre." |
+| medido | **226 caracteres** (teto 260, `encaixe.js` bloco 15) · sem dígito · `npm test` exit **0** · `node test/encaixe.js` exit **0** |
+
+**A troca é uma SUBTRAÇÃO, e isso foi decidido, não economizado.** A tentação era copiar a forma
+das outras cinco falas de arte ("já foram desenhadas para este capítulo") e acrescentar a
+completude. Não dá: eu não rodei o preenchimento e não posso afirmar o que não medi. Então a fala
+nova **tira a ressalva e não põe nada no lugar**: "já foi desenhado para cá" é o que se verifica na
+fonte hoje — `GENTE_EP_B64.praca` é folha autoral deste capítulo, e isso já era verdade **antes**
+do preenchimento, medido na rodada anterior. A fala não diz "chegou inteira", não conta quadro e
+não promete completude.
+
+**A consequência prática disso é a que interessa a quem integra:** a fala nova é verdadeira nos
+dois mundos. Se o `dev-jogo` fechar os três quadros, ela está certa; se ele fechar só um ou nenhum
+(e há motivo concreto para isso — ver abaixo), ela **continua** certa, porque não afirma nada sobre
+quantos quadros têm tinta. Foi por isso que preferi a subtração à frase das outras cinco: a frase
+das cinco cria uma dependência de ordem de integração, e esta não cria nenhuma.
+
+Também ficou o que **não** podia cair, e é a mesma coisa que a rodada anterior protegeu: as duas
+fontes de empréstimo continuam nomeadas separadamente. A pintura é a do **capítulo anterior**
+(`arte: [10]`, `PACK_DA_CENA[10]` = "naodito"); o que fica no chão vem de **outro** (`dropDe()`
+segue `capArte()` = `arteCap` 3, e `DONO_DO_BLOCO[3]` é "hoje", AINDA AQUI). Juntar os dois num
+"também" seria trocar uma frase falsa por outra, menor.
+
+### Fonte
+
+**Nenhuma nova, e isto é a resposta, não a falta dela.** A fala não afirma fato histórico: ela
+descreve como o capítulo está desenhado, que é a mesma classe da frase que ela substitui e das
+cinco irmãs dela. As afirmações históricas de A PRAÇA (PEC nº 5 de 1983, a votação de 25/04/1984,
+a EC nº 25 de 1985, a Constituição de 1988) estão nas outras falas e **não foram tocadas** — as
+fontes delas continuam onde estavam, em DE ONDE VEM e nas entradas anteriores deste NOTES.
+
+### Dois ponteiros que ficaram velhos e NÃO são meus para consertar
+
+Registrado para quem integrar não descobrir no meio do funil:
+
+1. **`test/qa-praca-quadro-vazio-vira-objeto.js`** cita a frase antiga na mensagem de asserção
+   (*"em alguns passos entra um objeto no lugar da pessoa: … a frase da abertura tem prova viva"*).
+   Ele **passa hoje** — medido: 21 de 24 passos desenham a pessoa, 3 caem no objeto —, porque o que
+   ele mede é o motor, não o texto. Mas o texto que ele cobre saiu. É do `dev-jogo`, junto com o
+   preenchimento; não toquei por brief explícito.
+2. **`PENDENTES.md` 109** justifica os três quadros vazios de A PRAÇA dizendo que *"a abertura de A
+   PRAÇA afirma o defeito em voz alta"* e apontando para o ⚠ que eu acabei de consumir. Esse motivo
+   deixou de existir: **o texto não segura mais o preenchimento.** Quem fechar o item atualiza o
+   109 no mesmo commit.
+
+### O que eu vi e não estava no meu escopo
+
+Lendo o 109 para escrever isto: os vizinhos dos quadros vazios de A PRAÇA incluem **três células
+LARGAS** — `praca f0q3`, `f2q3` e `f2q6` (330, 323 e 322 px contra mediana de ~151 px da fileira,
+medido por `test/qa-gente-quadro-dobrado.js` no `npm test` desta árvore). É exatamente o defeito
+que fez o remendo de PINDORAMA ser **revertido** em 04/09: copiar célula larga troca "passo com
+barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7` é justamente
+`f2q6`, que é um dos largos. **Não é meu item e não medi mais que isso** — fica como aviso ao
+`dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
+um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
+junto.

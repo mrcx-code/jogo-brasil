@@ -2592,25 +2592,30 @@ const EPOCAS = [
       //   · QUEM ATRAVESSA A TELA **é daqui**: `GENTE_EP_B64.praca` são 3 fileiras × 8 = 24
       //     quadros autorais, e `praca` está em `CAPS_VERBO`, então `pessoaNaRua()` vale true e
       //     `mobFrame()` usa a folha própria. "A arte daqui não chegou" era falso.
-      //   · MAS ELA NÃO CHEGOU INTEIRA, e é isto que impede de copiar a frase das outras cinco:
-      //     3 dos 24 quadros são **pixel de espera 1×1** (fileira 0, quadro 7; fileira 2,
-      //     quadros 0 e 7 — decodificados aqui: 1x1 VP8X contra 149x258 dos reais). Por
-      //     `esperando(im)` (`naturalWidth <= 1`), `mobFrame()` cai no objeto nesses três: a
-      //     pedestre vira barril/saco em 1 de 8 passos de uma fileira e 2 de 8 de outra.
-      //     Escrever "já foi desenhado para este capítulo" e parar aí seria a terceira frase
-      //     falsa da série — a que se gaba. Por isso a fala diz "mas não inteiro", sem número:
-      //     número aqui é frágil e vence no dia em que os três quadros forem preenchidos.
+      //   · ELA NÃO CHEGOU INTEIRA na redação de 04/09: 3 dos 24 quadros eram **pixel de espera
+      //     1×1** (fileira 0, quadro 7; fileira 2, quadros 0 e 7 — decodificados então: 1x1 VP8X
+      //     contra 149x258 dos reais). Por `esperando(im)` (`naturalWidth <= 1`), `mobFrame()`
+      //     caía no objeto nesses três: a pedestre virava barril/saco em 1 de 8 passos de uma
+      //     fileira e 2 de 8 de outra. A fala daquele dia dizia isso em voz alta ("mas não
+      //     inteiro"), e o ⚠ que ficava aqui mandava voltar quando o item
+      //     `quadros-de-gente-vazios-na-fonte` fechasse os três quadros.
       //   · O QUE FICA NO CHÃO continua emprestado: `dropDe()` segue `capArte()` = `arteCap` 3,
       //     e `DONO_DO_BLOCO[3]` é "hoje" — o drop é o de AINDA AQUI.
-      // ⚠ QUEM FECHAR O ITEM `quadros-de-gente-vazios-na-fonte` VOLTA AQUI: preenchidos os três
-      //    quadros, "mas não inteiro" passa a ser a parte falsa, e a fala vira a das outras cinco.
-      // O TETO DE 260 CARACTERES É REAL E ME PEGOU: a primeira redação saiu com 289 e o
-      // `encaixe.js` bloco 15 reprovou por exit 1 — a caixa revela letra a letra, e o teto
-      // existe para ninguém descobrir isso no telefone de alguém. Esta tem 258. O que caiu para
-      // caber foi "desta praça" e "a rua continua a rua"; o que NÃO podia cair é a fonte do
-      // empréstimo do chão, porque o drop vem de AINDA AQUI e não do capítulo anterior — juntar
-      // os dois num "também" seria trocar uma frase falsa por outra, menor.
-      "A pintura ainda é emprestada do capítulo anterior, e o que fica no chão vem de outro. Quem atravessa a tela já foi desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa. Os três contadores lá em cima são os mesmos de sempre."
+      // A FALA DE 04/09 SAIU DAQUI, e o critério da troca vale escrito porque ele não é "agora
+      // ficou bonito": a ressalva "mas não inteiro" descreve um defeito que o preenchimento dos
+      // três quadros faz deixar de existir, e frase que descreve defeito consertado é tão falsa
+      // quanto a que se gaba. O que entrou NÃO troca uma afirmação por outra maior — ele apenas
+      // TIRA a ressalva. "Já foi desenhado para cá" é o que se verifica na fonte (a folha
+      // `GENTE_EP_B64.praca` é autoral deste capítulo, e isso já era verdade antes do
+      // preenchimento); a fala nova não diz "chegou inteira", não conta quadro e não promete
+      // completude, então ela não vira falsa nem no dia em que outro quadro faltar.
+      // O TETO DE 260 CARACTERES É REAL E JÁ PEGOU esta mesma fala: a redação de 04/09 saiu com
+      // 289 e o `encaixe.js` bloco 15 reprovou por exit 1 — a caixa revela letra a letra, e o
+      // teto existe para ninguém descobrir isso no telefone de alguém. A de 04/09 tinha 258;
+      // esta tem 226. O que NÃO podia cair, e continua aqui, é a fonte do empréstimo do chão:
+      // o drop vem de AINDA AQUI e não do capítulo anterior, e juntar os dois num "também"
+      // seria trocar uma frase falsa por outra, menor.
+      "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
     ],
     // a praça armada segura as duas primeiras: a primeira a nomeia, a segunda é ela enchendo.
     // A praça vazia da manhã seguinte entra na fala da derrota, e é a imagem inteira do
