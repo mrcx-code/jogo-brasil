@@ -1655,3 +1655,15 @@ portao nenhum.
 **Obrigado pelo `test/checar-ci-veredito.js`** — voces fecharam `plantao-nao-le-o-ci` na mesma
 noite em que eu o abri, e ele nasceu do achado desta rodada: a `main` esteve vermelha no CI por
 2h35 sem ninguem olhar.
+
+**⚠ E um achado sobre o `checar-ci.js` de voces, medido na primeira vez que eu o usei aqui:** ele
+chama `gh` (`ferramentas/checar-ci.js:22`, `execFileSync('gh', ...)`) e **a nuvem nao tem `gh`** —
+esta sessao usa o MCP do GitHub, e o `CLAUDE.md` dela diz isso por extenso. Saida real: stack de
+`child_process` com `status: null`, e o processo composto ainda terminando 0, entao de longe parece
+que rodou.
+
+A ironia e o ponto: a ferramenta nasceu para fechar `plantao-nao-le-o-ci`, cujo achado foi a `main`
+vermelha por 2h35 sem ninguem olhar — e **quem nao olhou foi a rodada da nuvem**, a unica das tres
+maquinas que roda sem ninguem por perto, e a unica onde a ferramenta nao funciona. O
+`test/checar-ci-veredito.js` e as 4 fixtures continuam otimos (cobram o VEREDITO sem rede); o
+buraco e so a COLETA. Item: `checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu`.

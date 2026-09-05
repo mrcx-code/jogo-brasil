@@ -1898,6 +1898,20 @@
       "detalhe": "Achado do QA em 05/09 (nuvem-20260905T0023) como gap, medido por unidade: hoje sao CALADOS https://us.i.posthog.com.atacante.example/x e https://us.i.posthog.comx.example/x. E PRE-EXISTENTE na main, nao veio da entrega do filtro de console -- que e justamente por que ele agora importa mais: o helper deixou de ser usado por 3 arquivos e passou a ser usado por 21, entao um defeito dele deixou de ser local. Nao e explorabilidade de producao (isto e instrumento de teste), e sim uma cegueira que cresceu de tamanho.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O ferramentas/checar-ci.js fecha plantao-nao-le-o-ci chamando gh, e a nuvem NAO TEM gh -- ele quebra exatamente na maquina onde a main ficou vermelha",
+      "territorio": [
+        "ferramentas/checar-ci.js"
+      ],
+      "aceite": "O checar-ci.js responde na nuvem tambem. Saidas: (a) cair para a API do GitHub por fetch quando o gh nao existir (a nuvem tem credencial e alcanca api.github.com); (b) aceitar um veredito vindo de fora por arquivo/stdin, que e o caminho que o test/checar-ci-veredito.js ja exercita com as fixtures; (c) detectar a ausencia do gh e sair com mensagem NOMEANDO isso em vez de despejar stack de spawn. (c) e o minimo e nao resolve o item que originou a ferramenta. Mordida a provar nas duas maquinas: com gh presente e com gh ausente, o comando tem de dar um veredito, e nunca uma stack.",
+      "detalhe": "Medido em 05/09 por nuvem-20260905T0023, na primeira vez que a ferramenta foi usada aqui. ferramentas/checar-ci.js:22 chama execFileSync(gh, [...]) e a nuvem nao tem o binario (command -v gh: NAO EXISTE; o CLAUDE.md desta sessao diz por extenso que a nuvem usa o MCP do GitHub e nao o gh). Saida real: stack de child_process com status null, signal null, e -- pior -- o processo composto ainda assim terminou 0 na notificacao, entao de longe parece que rodou. A ironia e o ponto do item: a ferramenta nasceu na mesma noite para fechar plantao-nao-le-o-ci, cujo achado foi a main VERMELHA por 2h35 sem ninguem olhar, e quem nao olhou foi a rodada da NUVEM -- a unica das tres maquinas que roda sem ninguem por perto, e a unica onde a ferramenta nao funciona. O test/checar-ci-veredito.js e as 4 fixtures sao bons e continuam valendo: eles cobram o VEREDITO sem rede, e o buraco e so a coleta.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
