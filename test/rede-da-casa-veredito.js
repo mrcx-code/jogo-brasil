@@ -213,6 +213,15 @@ if (process.argv.includes('--controle')) {
   const { execFileSync } = require('child_process');
   const alvo = path.join(__dirname, '..', 'ferramentas', 'rede-da-casa.js');
   const original = fs.readFileSync(alvo, 'utf8');
+  // CRLF, 05/09. As strings dos mutantes que emendam DUAS linhas usam `\n`, e em maquina Windows
+  // o arquivo esta em disco com `\r\n` — o `replace` nao casa, o arquivo nao muda, e o mutante e
+  // reportado como "o texto-alvo sumiu?", que manda quem le procurar no lugar errado. O texto
+  // esta la; quem nao casa e a emenda. Medido em 05/09: `rede-da-casa.js` com CRLF true, e o
+  // mutante 'a redacao de segredo morre' sobrevivendo sem nunca ter sido aplicado — ou seja, o
+  // controle reprovava dizendo o contrario do que acontecia, e para AQUELE mutante nao media nada.
+  // Mutar sobre a copia normalizada; RESTAURAR sempre o `original` de verdade, para o arquivo em
+  // disco nao trocar de fim de linha por efeito colateral de rodar o portao.
+  const paraMutar = original.replace(/\r\n/g, '\n');
   const mutantes = [
     ['a marca do proxy nunca casa', (s) => s.replace('/host\\s+not\\s+in', '/XXhost\\s+not\\s+in')],
     ['CONNECT 4xx deixa de ser sem-egresso', (s) => s.replace('codigo >= 400 && codigo < 500', 'false')],
@@ -238,8 +247,8 @@ if (process.argv.includes('--controle')) {
   let maus = 0;
   console.log('\n---- CONTROLE (--controle): ' + mutantes.length + ' mutantes no objeto de verdade');
   for (const [nome, mutar] of mutantes) {
-    const mutado = mutar(original);
-    if (mutado === original) { console.log('  FALHA ' + nome + ': o mutante NÃO mudou o arquivo (o texto-alvo sumiu?)'); maus++; continue; }
+    const mutado = mutar(paraMutar);
+    if (mutado === paraMutar) { console.log('  FALHA ' + nome + ': o mutante NÃO mudou o arquivo (o texto-alvo sumiu, ou a emenda de linhas não casa?)'); maus++; continue; }
     fs.writeFileSync(alvo, mutado);
     let saiu = 0;
     try { execFileSync(process.execPath, [__filename], { stdio: 'pipe' }); }

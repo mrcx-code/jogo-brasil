@@ -19,21 +19,33 @@
 // A REGUA: depois de normalizar pela altura, quantos CORREDORES de figura ha na celula? Um passo
 // so pode ter UM. Dois corredores separados por um vao vertical = pessoa em dobro.
 //
-// USO:  node test/qa-praca-o-que-a-pessoa-ve.js [capitulo]
+// ELE DEIXOU DE SER SO DE A PRACA EM 05/09, e a razao e que o defeito nunca foi so de la: a
+// varredura das 13 folhas achou celula dobrada em QUATRO capitulos (A PRACA com tres, PINDORAMA,
+// O QUE TEM FONTE e O QUE SEGUROU com uma cada). Rodar so em `praca` era medir um quinto do
+// problema. Agora ele varre a lista de `CAPITULOS` numa sessao so de navegador.
+//
+// USO:  node test/qa-praca-o-que-a-pessoa-ve.js [capitulo]   (sem argumento, varre os quatro)
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
 const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
-const CAP = process.argv[2] || 'praca';
+const CAPITULOS = process.argv[2] ? [process.argv[2]] : ['praca', 'pindorama', 'temfonte', 'segurou'];
 
-// Estado medido em 05/09 pelo QA, DEPOIS da entrega que tapou f0q7 e f2q0. Cada linha e um passo
-// em que a pessoa aparece em DOBRO. Nao ha nenhum a mais e nenhum a menos; o portao reprova nos
-// dois sentidos, como os irmaos dele.
-const DOBRO_CONHECIDO = { praca: ['f0q3', 'f2q3', 'f2q6'] };
-// E o passo que nao tem pessoa nenhuma (cai no barril/saco). Um so, e nomeado.
-const SEM_PESSOA = { praca: ['f2q7'] };
+// ESTADO DE 05/09, DEPOIS DO CORTE. As seis celulas dobradas foram partidas nas duas poses que
+// guardavam (`test/cortar-celula-dobrada-gente.js`, coordenadas julgadas pela direcao de arte em
+// `ferramentas/arte-corte-gente-dobrada-05-09.md`), e cada metade ocupou o buraco — vazio ou
+// copia byte-identica — que a propria fileira ja tinha. Resultado medido: **nenhum passo em
+// dobro e nenhum passo sem pessoa em capitulo nenhum dos quatro**.
+//
+// AS DUAS LISTAS VAZIAS SAO O ACEITE, e e por isso que elas ficam aqui em vez de sumir: o portao
+// reprova nos DOIS sentidos, entao uma dobra nova ou um buraco novo caem aqui na hora. Antes do
+// corte esta linha dizia `praca: ['f0q3','f2q3','f2q6']` e `praca: ['f2q7']`, com 20 de 24 passos
+// mostrando uma pessoa; agora sao 24 de 24 nos quatro capitulos.
+const DOBRO_CONHECIDO = {};
+// E o passo que nao tem pessoa nenhuma (cai no barril/saco). Nenhum, e o portao cobra isso.
+const SEM_PESSOA = {};
 
 let falhas = 0;
 function ok(c, m) { console.log((c ? '  ok    ' : '  FALHA ') + m); if (!c) falhas++; }
@@ -47,6 +59,14 @@ function ok(c, m) { console.log((c ? '  ok    ' : '  FALHA ') + m); if (!c) falh
   await page.goto(ALVO, { waitUntil: 'load' });
   await page.waitForFunction('typeof EPOCAS !== "undefined" && typeof mobFrame === "function"', { timeout: 30000 });
 
+  for (const CAP of CAPITULOS) await medirCapitulo(page, CAP);
+
+  ok(!erros.length, 'sem erro de console' + (erros.length ? ': ' + erros.slice(0, 3).join(' | ') : ''));
+  await nav.close();
+  console.log(falhas ? '\nREPROVOU (' + falhas + ')' : '\nPASSOU');
+  process.exit(falhas ? 1 : 0);
+
+  async function medirCapitulo(page, CAP) {
   // A folha de A PRACA viaja no `pack-naodito.json`; sem entrar no capitulo ela e 1x1 inteira.
   await page.evaluate((cap) => {
     const ep = EPOCAS.findIndex(e => e.id === cap);
@@ -98,7 +118,7 @@ function ok(c, m) { console.log((c ? '  ok    ' : '  FALHA ') + m); if (!c) falh
     return { passos, ALVO_ALT };
   }, CAP);
 
-  console.log('O QUE O MOTOR DESENHA — ' + CAP + ', altura normalizada ' + r.ALVO_ALT + 'px\n');
+  console.log('\nO QUE O MOTOR DESENHA — ' + CAP + ', altura normalizada ' + r.ALVO_ALT + 'px\n');
   console.log('  passo   fonte  desenhado  gente?  figuras  faixas de coluna');
   for (const p of r.passos) {
     console.log('  ' + p.id.padEnd(6) + '  ' + String(p.larguraFonte || 0).padStart(5) +
@@ -120,11 +140,10 @@ function ok(c, m) { console.log((c ? '  ok    ' : '  FALHA ') + m); if (!c) falh
 
   // O NUMERO QUE FALTAVA NO RELATORIO: quantos dos 24 passos mostram UMA pessoa inteira.
   const limpos = r.passos.filter(p => p.gente && p.corredores === 1).length;
-  console.log('   ' + limpos + ' de 24 passos mostram UMA pessoa · ' + emDobro.length +
+  console.log('   ' + CAP + ': ' + limpos + ' de 24 passos mostram UMA pessoa · ' + emDobro.length +
     ' mostram a pessoa em DOBRO · ' + semPessoa.length + ' nao mostram pessoa nenhuma');
-  ok(!erros.length, 'sem erro de console' + (erros.length ? ': ' + erros.slice(0, 3).join(' | ') : ''));
-
-  await nav.close();
-  console.log(falhas ? '\nREPROVOU (' + falhas + ')' : '\nPASSOU');
-  process.exit(falhas ? 1 : 0);
+  ok(limpos === 24, CAP + ': os 24 passos mostram UMA pessoa inteira — achei ' + limpos +
+    '. E este o numero do item: quadro dobrado tem tinta, esta na lista de largos e `mobEhGente` e true, ' +
+    'entao nenhum dos tres portoes irmaos o ve chegar.');
+  }
 })().catch(e => { console.error(e); process.exit(1); });
