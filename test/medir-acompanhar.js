@@ -14,6 +14,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 const SEG = 60;
 
@@ -128,7 +129,7 @@ async function celula(pg, nome, estrategia) {
   });
   const erros = [];
   pg.on('pageerror', e => erros.push(e.message));
-  pg.on('console', m => { if (m.type() === 'error') erros.push(m.text()); });
+  pg.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push(m.text()); });
   await pg.goto(alvo());
   await pg.waitForTimeout(1200);
 

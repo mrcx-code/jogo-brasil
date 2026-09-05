@@ -17,6 +17,7 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -42,7 +43,7 @@ let cena = '';       // rótulo do cenário corrente, para os erros de console
     const page = await (ctx || browser).newPage(ctx ? {} : { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     page.on('pageerror', e => errosConsole.push(cena + ' PAGEERROR: ' + e.message));
     page.on('console', m => {
-      if (m.type() === 'error' && !/ERR_(TUNNEL|NAME|CONNECTION)/.test(m.text())) {
+      if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) {
         errosConsole.push(cena + ' CONSOLE: ' + m.text());
       }
     });

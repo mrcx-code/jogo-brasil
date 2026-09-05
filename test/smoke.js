@@ -4,6 +4,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 // Use the sandbox chromium when it is there, otherwise whatever playwright installed.
 function chromiumPath() {
@@ -100,7 +101,7 @@ function lintComentarios() {
   problemasDeComentario.forEach(function (p) { console.log('comment lint -> ' + p); });
   const errors = [];
   page.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error' && !/ERR_(TUNNEL|NAME|CONNECTION)/.test(m.text())) errors.push('CONSOLE: ' + m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) errors.push('CONSOLE: ' + m.text()); });
 
   // ESPERAR O ESTADO, NUNCA O RELOGIO — os tres ajudantes desta casa (23/08).
   //

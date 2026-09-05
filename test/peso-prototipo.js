@@ -19,6 +19,7 @@
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
+const { ehRuidoDeRedeExterna } = require("./rede-externa.js");
 
 const RAIZ = path.join(__dirname, "..");
 const SAIDA = path.resolve(process.argv[2] ||
@@ -112,7 +113,7 @@ function chromiumPath() {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const erros = [];
   page.on("pageerror", (e) => erros.push("PAGEERROR: " + e.message));
-  page.on("console", (m) => { if (m.type() === "error") erros.push("CONSOLE: " + m.text()); });
+  page.on("console", (m) => { if (m.type() === "error" && !ehRuidoDeRedeExterna(m)) erros.push("CONSOLE: " + m.text()); });
   await page.goto(url, { waitUntil: "load", timeout: 120000 });
   await page.waitForTimeout(800);
 

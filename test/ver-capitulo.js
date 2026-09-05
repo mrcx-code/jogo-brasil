@@ -16,6 +16,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 
 function chromiumPath() {
   for (const p of [process.env.PW_CHROMIUM, '/opt/pw-browsers/chromium']) {
@@ -34,7 +35,7 @@ if (!id) { console.error('uso: node test/ver-capitulo.js <id do capítulo>'); pr
   });
   const erros = [];
   page.on('pageerror', e => erros.push('PAGEERROR: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error') erros.push('CONSOLE: ' + m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push('CONSOLE: ' + m.text()); });
   await page.goto(ABRIR('file://' + path.resolve(DIR, '..', 'index.html')));
   await page.evaluate(() => { localStorage.clear(); });
   await page.reload();
