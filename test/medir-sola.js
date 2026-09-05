@@ -34,6 +34,7 @@
 //   mede 25 a 79. Confundir os dois faz uma pose de apoio contar como voo e o passo sumir.
 const fs = require('fs');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const args = process.argv.slice(2);
 const ALVO = args.find(a => !a.startsWith('--'));
@@ -61,7 +62,7 @@ const f1 = (x) => (Math.round(x * 10) / 10).toFixed(1).replace('.', ',');
 const f2 = (x) => (Math.round(x * 100) / 100).toFixed(2).replace('.', ',');
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   const M = await p.evaluate(async (arg) => {
     const fr = arg.fr, CHAO = arg.CHAO;

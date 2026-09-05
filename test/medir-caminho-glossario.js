@@ -29,7 +29,7 @@ const dobra = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g
   .toLowerCase().replace(/[^a-z0-9º]+/g, ' ').replace(/\s+/g, ' ').trim();
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 } });
   const erros = [];
   pg.on('pageerror', e => erros.push(e.message));

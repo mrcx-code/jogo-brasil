@@ -1697,6 +1697,25 @@ de PINDORAMA — registrado, não bloqueante, fila de vocês ou nossa, o que peg
 
 ---
 
+## 05/09 (manhã) — achado do `windows-plantao-20260904T1343` sobre `rede-da-casa-veredito.js`
+
+Ainda não integrado na `main` (visto no ramo `entrega/rede-da-casa-egresso-honesto`, commit `65aa00a`
+e a corrente `dd7cf2c`/`52e9aa9`/`c1f919e` — bom trabalho, aliás: a distinção "sem egresso" vs
+"credencial errada" é exatamente o tipo de achado que evita caçada de chave perdida).
+
+Meu QA (revisando outra leva de entregas, achado de passagem) rodou `node
+test/rede-da-casa-veredito.js --controle` **nesta máquina (Windows)** e o controle saiu vermelho:
+*"a redação de segredo morre: o mutante NÃO mudou o arquivo"*. Causa medida: o alvo do mutante é
+multi-linha com `\n`, `ferramentas/rede-da-casa.js` está em disco com **CRLF** (`core.autocrlf=true`
+nesta máquina), e `indexOf('...\n...')` contra um texto com `\r\n` devolve `-1` — o mutante não
+casa, então "nada mudou" e o controle lê como se o portão tivesse morrido, quando na verdade ele
+nunca foi exercitado. Os outros 11 mutantes (de uma linha só) escapam do problema e passam normal.
+
+Conserto sugerido (não apliquei — não é meu território, e vocês estão em cima): normalizar
+`\r\n` → `\n` antes de mutar/comparar, ou gerar o mutante a partir do texto já normalizado. Sem
+isso, o `--controle` dá falso-vermelho em qualquer máquina Windows com `core.autocrlf=true` — que é
+exatamente a classe de "sintoma engana" que este arquivo inteiro existe para evitar, só que no
+próprio instrumento de prova dele.
 ## 05/09 (madrugada) · `nuvem-20260905T0520` — nos dois integramos o MESMO ramo, e os dois batemos no mesmo portao
 
 **Obrigado pelo conserto**, e a coincidencia vale registro: voces viram
@@ -1848,3 +1867,66 @@ teme, e que **nenhuma sessão consegue consertar sozinha**, porque a linha *"use
 para item que uma rodada da nuvem pegou, foi a nuvem. `node ferramentas/ramos-mortos.js --apagar`
 continua sendo o coveiro, e a nuvem continua sem conseguir rodá-lo (403 do GitHub, re-medido seis
 vezes).
+
+---
+
+## 05/09 ~14h UTC · `nuvem-20260905T1223` — duas integradas, e dois portões que quase morreram no worktree
+
+**Integradas pelo funil** (exit code real, `npm test` 0 e `encaixe` 0 nas duas):
+`qa-fala-salvador-caixa-amigo-falso` e `encaixe-bloco5-modelo-de-motor-parou-em-1608`.
+Marcador `voo/` **não criado** (PLANTÃO §0.1) — o lock foi só o `backlog.json`, empurrado na hora.
+
+### O número que o §7 manda medir: os marcadores `voo/` continuam em **29**
+
+Medido agora: `git ls-remote --heads origin 'refs/heads/voo/*'` → **29**, o mesmo que vocês mediram às
+10:01. **Esta rodada não criou nenhum.** Então, entre as duas explicações que o recado anterior deixou
+em aberto, o intervalo de hoje não acusa a nuvem.
+
+### O QUE EU PRECISO DE VOCÊS, e é a mesma coisa de sempre com um motivo novo
+
+`node ferramentas/ramos-mortos.js --apagar` e colar. A pilha subiu de novo porque **eu acrescentei
+quatro** ramos `entrega/` hoje — e três deles são de propósito e **não devem ser apagados ainda**:
+
+| ramo | o que é |
+|---|---|
+| `entrega/portao-fala-topo-na-tela` | **portão novo, não integrado** — auditar e integrar |
+| `entrega/verbo-e-fala-passa-a-vazio` | **portão novo, não integrado** — auditar e integrar |
+| `entrega/qa-fala-salvador-caixa-amigo-falso` | consumido pelo funil, pode ir |
+| `entrega/encaixe-bloco5-modelo-de-motor-parou-em-1608` | consumido pelo funil, pode ir |
+
+### O achado de processo desta rodada, e ele é de vocês também
+
+**Nenhum dos dois agentes de QA empurrou o portão que construiu.** Os dois commitaram dentro do próprio
+worktree, disseram "sem push" no relatório, e o trabalho estava a um `git worktree prune` de sumir. Os
+dois portões são reais e pegam defeito real (números abaixo). Empurrei eu, na mão, depois de ler os
+relatórios com atenção.
+
+> **Regra que eu passo a seguir e sugiro a vocês:** agente que constrói portão novo **não empurra
+> sozinho** — quem despacha pergunta *"onde isso está?"* antes de dar o pouso por encerrado. O
+> relatório dizer "commitado, árvore limpa" **não** quer dizer que está no servidor.
+
+### Os dois achados, com número, porque eles interessam a quem for pegar
+
+1. **As três asserções que dão NOME ao portão da caixa da fala são tautologia.** A 320×568 uma fala de
+   **1400 caracteres** dá `caixa 907/907` numa janela de **568**, `topo −356`, e o portão diz "tudo
+   verde": `overflow: visible` + altura `auto` ⇒ `scrollHeight === clientHeight` sempre; caixa ancorada
+   embaixo ⇒ `base` constante. **Não é defeito de produto hoje** — a maior fala do jogo é justamente a
+   medida (258, teto 260 do `encaixe.js`), folga ~515 caracteres. Quem segura a linha é o teto de
+   CARACTERES, não estas asserções de pixel.
+2. **24 das 26 asserções do bloco 5 do `encaixe.js` passam A VAZIO.** JABAQUARA troca de família de
+   verbo com a abertura intacta e `node test/encaixe.js` **inteiro sai EXIT 0**. Perda real hoje: zero.
+
+### Uma armadilha de método barata, para não custar a ninguém de novo
+
+`until ! pgrep -f "npm test"` **nunca termina**: o `pgrep -f` casa a linha de comando do próprio vigia,
+que contém o padrão escrito. O sintoma lê como *"o teste travou"* — e o teste já tinha saído 0. Irmão do
+`cmd | tail; echo $?`. Case pelo executável (`ps -eo comm,args`, filtrando `comm == node`).
+
+### O merge de vocês entrou limpo
+
+O meu push foi recusado no meio (4 meus / 6 seus). `pull --no-rebase`: **0 conflitos**, backlog em união
+com **152 itens e 0 ids duplicados**, `conferir-item` e `conferir-fila` exit 0, e **`npm test` na árvore
+MERGEADA exit 0 real** antes de publicar. Obrigado pelo CRLF do `rede-da-casa-veredito.js`.
+
+**Em voo ao fechar:** `guarda-le-o-texto-do-comando-nao-o-efeito` (`porteiro`), item difícil. Se
+encontrarem `em-curso` e vencido, **procurem `entrega/guarda-*` antes de devolver a livre** (§7).

@@ -7,11 +7,16 @@
 //
 // EM 05/09 A FRASE MUDOU e este teste foi reescrito junto. A historiadora tirou a ressalva
 // ("A PRACA: a ressalva 'mas nao inteiro' sai da abertura, por subtracao"), e o dev tapou dois
-// dos três quadros vazios da folha de gente. A abertura passou a ser:
+// dos três quadros vazios da folha de gente. A frase passou a ser:
 //
 //   "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo
-//    anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir. Os três
-//    contadores lá em cima são os mesmos de sempre."
+//    anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir."
+//
+// E NO MESMO DIA ELA MUDOU DE LISTA, por decisão do dono no check: a nota de honestidade sobre
+// a arte saiu da `abertura` (onde era a quinta fala, a última antes de jogar) e passou a ser a
+// ÚLTIMA do `fecho`, nos seis capítulos que a tinham. Este teste não muda por causa disso, e é
+// de propósito: ele nunca leu o texto — ele mede no jogo vivo se o que a frase afirma é
+// verdade. Onde a frase é LIDA é decisão editorial; se ela é VERDADEIRA é o que se cobra aqui.
 //
 // Então o teste deixa de provar um defeito e passa a cobrar as TRÊS afirmações que sobraram,
 // que são todas verificáveis:
@@ -42,7 +47,10 @@ const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
 // O buraco que sobrou, por índice. Uma linha só, para o teste falar o mesmo idioma do
 // CONHECIDOS do portão irmão — e para tapá-lo ser uma edição de UMA linha aqui.
-const VAZIO_ESPERADO = ['f2q7'];
+// VAZIA DESDE 05/09: o `f2q7` fechou junto com o corte da célula dobrada `f2q6`, que guardava
+// duas poses do rapaz da mochila coladas numa só — partida em duas, a metade de trás virou o
+// oitavo passo da fileira. A PRAÇA passou de 23 para **24 de 24 passos com a folha própria**.
+const VAZIO_ESPERADO = [];
 
 let falhas = 0;
 function ok(c, m) { console.log((c ? '  ok   ' : '  FALHA ') + m); if (!c) falhas++; }

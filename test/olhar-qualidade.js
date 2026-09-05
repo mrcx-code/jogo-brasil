@@ -7,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const mestre = process.argv[2];
 const quals = process.argv.slice(3).map(Number);
@@ -16,7 +17,7 @@ if (!mestre || !quals.length) { console.error('uso: node test/olhar-qualidade.js
 const CW = 200, CH = 150, ZOOM = 3;
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto('about:blank');
   const b64 = 'data:image/png;base64,' + fs.readFileSync(mestre).toString('base64');

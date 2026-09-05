@@ -28,14 +28,19 @@ const path = require('path');
 
 const LIMITE = +(process.env.GENTE_LIMITE || 1.6);
 
-// Estado medido em 04/09, revisado apos a auditoria adversarial achar que o remendo de
-// PINDORAMA usava uma fonte ja double-wide e foi REVERTIDO (ver PENDENTES 109). Cada linha
-// e um quadro largo que JA existia na arte entregue — nenhum e remendo.
-const CONHECIDOS = [
-  'praca f0q3', 'praca f2q3', 'praca f2q6',       // folha de A PRACA, entregue assim
-  'segurou f2q5', 'temfonte f2q5',                 // idem, um por folha
-  'pindorama f2q6',                                // a senhora do pote em dobro (nao remendada)
-];
+// A LISTA ESVAZIOU EM 05/09, e este e o dia em que ela deveria esvaziar. As seis celulas
+// dobradas foram PARTIDAS nas duas poses que guardavam, por `test/cortar-celula-dobrada-gente.js`,
+// nos pontos que a direcao de arte julgou e aprovou (`ferramentas/arte-corte-gente-dobrada-05-09.md`).
+// Cada corte produziu um quadro real que ocupou o buraco (vazio ou copia byte-identica) que a
+// propria fileira ja tinha, entao as cinco fileiras afetadas pousaram em 8 quadros autorais:
+//   praca f0 (330x258 -> 158+158) · praca f2 (323 e 322 -> 152+150 e 150+152)
+//   pindorama f2 (295x253 -> 114+136) · temfonte f2 (324 -> 162+146) · segurou f2 (314 -> 138+140)
+// Sairam 2 quadros vazios e 4 copias byte-identicas; nenhuma pose foi inventada nem copiada.
+//
+// A LISTA VAZIA E O PONTO: daqui em diante QUALQUER quadro largo reprova, sem excecao a herdar.
+// Se um dia entrar folha nova com celula dobrada, este portao a pega na entrada em vez de a
+// aceitar como "ja era assim".
+const CONHECIDOS = [];
 
 const txt = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'jogo.ts'), 'utf8');
 const ini = txt.indexOf('const GENTE_EP_B64');

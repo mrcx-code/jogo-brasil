@@ -14361,3 +14361,437 @@ barril" por "passo com a pessoa desenhada em dobro". O vizinho imediato de `f2q7
 `dev-jogo` de que o remendo de A PRAÇA pode não ser a cópia limpa que O QUE SEGUROU teve. E é mais
 um argumento para a fala ter saído por subtração: se o remendo travar de novo, o texto não trava
 junto.
+
+## 05/09 (tarde) · `nuvem-20260905T1223` — o item mandava `endsWith`, e `endsWith` deixaria a main VERMELHA
+
+**Máquina desta rodada: `nuvem-20260905T1223`.** Sem issue com etiqueta `agente` — rodada agendada,
+trabalho puxado da fila. CI da `main` **verde** antes do primeiro despacho (run 33959539301).
+
+**O que eu peguei.** Três itens de território disjunto, todos da mesma classe — portão que assina de
+verde o que não mediu: `encaixe-bloco5-modelo-de-motor-parou-em-1608` (`test/encaixe.js`, dev-jogo),
+`guarda-le-o-texto-do-comando-nao-o-efeito` (`.claude/hooks/guarda.js`, porteiro) e
+`qa-fala-salvador-caixa-amigo-falso` (`test/qa-fala-salvador-caixa.js`, minha linha). Lock só no
+`backlog.json`, empurrado na hora; **marcador `voo/` não criado** (PLANTÃO §0.1).
+
+### O QUE CAIU, e é o achado da rodada: a premissa do próprio item
+
+O item `qa-fala-salvador-caixa-amigo-falso` diagnosticou certo e **prescreveu errado**. O diagnóstico:
+o rótulo dizia `termina em "não se recolhe"` e o código era `indexOf(...) >= 0`, então o portão ficou
+verde **por acidente de substring** — "recolhem" contém "recolhe". Isso é verdade e está confirmado.
+
+A prescrição era trocar por `endsWith`. **Medido contra `src/jogo.ts:2302`, ela não se sustenta:**
+
+| | |
+|---|---|
+| comprimento da fala | **258 caracteres** |
+| últimos 60 | `"...santo se conta. E o acarajé é as duas coisas: trabalho e fé."` |
+| `endsWith("não se recolhe")` | **false** |
+| `endsWith("não se recolhem")` | **false** |
+| `indexOf("não se recolhem") >= 0` | true |
+
+A fala foi reescrita **de novo** depois do achado do QA (a mudança do acarajé, que o comentário logo
+acima dela em `src/jogo.ts` explica), e a frase deixou de ser o fim — virou miolo. Ou seja:
+**`endsWith` deixaria este portão VERMELHO sobre uma `main` sã**, e o passo seguinte seria alguém
+mexer no TEXTO DO JOGO para satisfazer o instrumento. É o `PLANTAO.md` §8 ao pé da letra — antes de
+consertar o produto para satisfazer um portão, desconfie do portão —, só que aplicado ao **aceite de
+um item da fila**, que é um lugar onde esta casa ainda não tinha desconfiado.
+
+**A generalização, e ela vale para a próxima rodada:** aceite escrito em cima de um texto que outra
+entrega pode reescrever **envelhece junto com o texto**. O item nasceu em 04/09 e venceu em menos de
+24 h. Antes de executar aceite que cita conteúdo literal, **releia o conteúdo** — é o irmão da regra
+do §5 do PLANTÃO (*achado órfão se confere no `git log` antes de virar item*), um degrau adiante:
+**item vivo se reconfere na fonte antes de virar código.**
+
+### O que entrou no lugar
+
+Igualdade contra a fonte da verdade: o medido na tela contra `EPOCAS[salvador].abertura[4]` lido da
+própria página. Cobra o que o rótulo promete (é ESTA fala, inteira), morde reescrita não declarada, e
+**não envelhece** — que é a doença que criou o amigo falso.
+
+**A mordida, com o controle que separa as duas formas:**
+
+| mutante | asserção ANTIGA | asserção NOVA |
+|---|---|---|
+| **A** — navega uma fala antes (`i < FALA - 1`), mede 104 de 258 | exit **1** | exit **1** |
+| **B** — mede 200 de 258 (o fragmento mora entre 170 e 184) | exit **0**, *"tudo verde"* ← o falso verde | exit **1** |
+| restaurado | — | exit **0**, md5 de `src/jogo.ts` conferido, 0 resíduo |
+
+**O mutante A não separa as duas formas, e isso fica registrado como resultado, não como erro.** Foi a
+primeira injeção que eu fiz, ela mordeu, e eu quase parei ali — uma mordida que não distingue o
+conserto do defeito não prova conserto nenhum. Só o mutante B prova, e ele é o perigo que o próprio
+cabeçalho do arquivo já descrevia desde 04/09: medir antes de a caixa terminar de revelar.
+
+`npm test` cheio no commit exato: **exit 0 real**, 443 linhas ok. Entrega em
+`entrega/qa-fala-salvador-caixa-amigo-falso` (27f7743), pré-voo exige `qa` — e como **eu fui juiz em
+causa própria duas vezes** (decidi que a premissa caiu e decidi o conserto), despachei um QA
+independente para tentar derrubar, com o meu viés escrito no brief.
+
+### A armadilha de método desta rodada: `pgrep -f` casa com o próprio vigia
+
+Custou minutos e é barata de repetir. Para esperar o `npm test` terminar sem trocar a árvore debaixo
+dele (o erro de método registrado no RECADOS de 05/09), escrevi:
+
+```
+until ! pgrep -f "test/smoke.js|npm test" >/dev/null; do sleep 15; done
+```
+
+**Esse laço não termina nunca.** O `pgrep -f` casa a linha de comando inteira, e a linha de comando do
+shell que está esperando **contém o próprio padrão**. O vigia se enxerga, conclui que o teste ainda
+roda, e espera para sempre. Pior: a leitura natural do sintoma é *"o teste travou"* — quando o teste
+já tinha terminado com exit 0. Duas vezes seguidas eu li "TESTE REAL VIVO" sobre uma máquina sem
+nenhum processo `node` (`ps -eo comm | awk '$1=="node"'` → **vazio**).
+
+É a mesma família de `cmd | tail; echo $?` (medir o tubo em vez do comando): **o instrumento entrou na
+própria medição.** Conserto: casar pelo executável (`ps -eo comm,args` filtrando `comm == node`), ou
+excluir o próprio PID (`pgrep -f ... | grep -v $$`), nunca `pgrep -f` cru sobre um padrão que o vigia
+carrega escrito.
+
+### O que fica para a próxima
+
+- Três agentes em voo ao fechar esta entrada: `dev-jogo` no `encaixe.js` bloco 5, `porteiro` no
+  `guarda.js`, `qa` refutando a minha própria entrega. Nenhum dos três pousou ainda.
+- Os 3 PNGs que os portões regravam a cada rodada sujaram a árvore de novo — descartados com
+  `git checkout -- test/` (PLANTÃO §5.1). O item `prints-smoke-artefato-ou-referencia` continua livre
+  na fila e continua sendo a cura de verdade.
+- **Dúvida que não resolvi:** a igualdade nova lê expectativa e medição da MESMA fonte (`EPOCAS` da
+  página). Declarei no cabeçalho que é deliberado — ela responde *"o instrumento mediu a fala certa,
+  inteira?"*, não *"o texto é este texto?"*. Se isso a torna quase tautológica é justamente o que o QA
+  independente foi despachado para julgar.
+
+### Fecho da rodada `nuvem-20260905T1223` — duas integradas, e as duas auditorias derrubaram quem as pediu
+
+**INTEGRADAS pelo funil, portões verdes por exit code real (`npm test` 0, `encaixe` 0 nas duas):**
+`qa-fala-salvador-caixa-amigo-falso` e `encaixe-bloco5-modelo-de-motor-parou-em-1608`. CI da `main`
+verde depois da primeira; a segunda subiu junto com um merge da outra máquina (ver abaixo).
+
+**As duas auditorias independentes voltaram INTEGRA e as duas derrubaram números de quem entregou.
+Isso é o placar da rodada, não um detalhe:**
+
+| o que caiu | quem afirmou | o que a medição disse |
+|---|---|---|
+| *"a igualdade morde inclusive reescrita que só MENCIONE a palavra"* | **eu**, no cabeçalho | **falso** — mutante G: reescrita que só menciona sai **exit 0**. Nessa classe o `endsWith` do item era MAIS FORTE. Corrigido em `0e659ca` |
+| *"a regra de conteúdo continua no `encaixe.js`"* | **eu** | **falso** — `grep`: **zero** regra de conteúdo lá; ela vive em `test/qa-salvador-vivo.js` |
+| *"manter a igualdade derruba **12** asserções"* | dev-jogo | **são 10** — 12 é `\|CAP_FILA\|+\|CAPS_VERBO\|`, o tamanho da família, não o de reprovas: PALMARES e SALVADOR têm motor **e** frase-molde |
+| *"a injeção em O ACEIRO saía exit 0 nos dois portões"* (motivação herdada do commit) | dev-jogo | **falso** — sai **exit 1 também no portão antigo**; a injeção escolhida não discrimina |
+
+**E o meu maior medo foi medido e NÃO se confirmou**, o que também é registro: eu suspeitava que simular
+`capFila()` com `S.cenario = cenarioDaEpoca(i)` fizesse o portão afirmar sobre um motor que também não
+existe — o mesmo defeito entrando pela porta dos fundos. O QA mediu: **0 divergências** contra o modelo
+puro, contra **todas as cenas** de cada época e com estado sujo, e `S` restaurado **byte a byte**.
+
+**Os dois achados que valem mais que as entregas, e nenhum era do escopo:**
+
+1. **`portao-fala-topo-na-tela`** — as três asserções que dão NOME ao portão da caixa da fala são
+   tautologia. A 320×568 uma fala de **1400 caracteres** dá `caixa 907/907` numa janela de **568**, com
+   `topo −356`, e o portão diz *"tudo verde"*: `overflow: visible` + altura `auto` faz
+   `scrollHeight === clientHeight` **sempre**, e a caixa ancorada embaixo faz `base` ficar constante. O
+   único número que responderia (`topo`) é **impresso e não cobrado**. Não é defeito de produto hoje — a
+   maior fala do jogo é justamente a medida (258, teto 260) e a folga é de ~515 caracteres: **quem segura
+   a linha é o teto de CARACTERES do `encaixe.js`**, e isso não estava escrito em lugar nenhum.
+2. **`verbo-e-fala-passa-a-vazio`** — a implicação do bloco 5 morde num sentido só, e o antecedente só é
+   verdadeiro em **2 dos 12** capítulos com motor: **24 das 26 asserções passam a vazio**. Perda real
+   hoje: **zero** (os 10 nomeiam o gesto no idioma próprio). O que existe é ausência de guarda, provada
+   por injeção: JABAQUARA troca de família de verbo com a abertura intacta e `node test/encaixe.js`
+   **inteiro sai EXIT 0**. Uma abertura mentindo, portão verde.
+
+**As duas correções vieram com o portão pronto, e os dois estavam para MORRER no worktree do agente.**
+Nenhum dos dois QA empurrou o que construiu. Empurrei eu, para não perder:
+`entrega/portao-fala-topo-na-tela` e `entrega/verbo-e-fala-passa-a-vazio`. Os dois itens dizem no aceite
+**AUDITAR E INTEGRAR, não recomeçar** — é a regra do PLANTÃO §7 (`entrega/` é resultado) aplicada antes
+de o ramo existir. **Vale como regra para a próxima rodada: agente que constrói portão novo não empurra
+sozinho; quem despacha pergunta "onde isso está?" antes de dar o pouso por encerrado.**
+
+**Colisão com a outra máquina, resolvida sem perder nada.** O push foi recusado no meio (4 meus / 6
+dela). `pull --no-rebase` (nunca `--rebase` depois do funil, PLANTÃO §4): **0 conflitos**, backlog em
+união com **152 itens, 0 ids duplicados**, os dois fechamentos e os dois itens novos intactos,
+`conferir-item` e `conferir-fila` **exit 0**, e `npm test` na árvore MERGEADA **exit 0 real** antes de
+publicar — porque duas árvores verdes separadas não provam uma árvore verde junta.
+
+**O que fica em voo ao fechar:** `guarda-le-o-texto-do-comando-nao-o-efeito` continua `em-curso` com o
+`porteiro` — item genuinamente difícil (decidir pelo EFEITO e não pelo texto do comando, com três
+buracos e o risco de o agente se trancar fora com o próprio guarda). Se a próxima rodada o encontrar
+`em-curso` e vencido, o `PLANTAO.md` §7 manda **procurar `entrega/guarda-*` antes de devolver a livre**.
+---
+
+## 05/09 (dev-jogo, worktree `agent-aa428f1c869655b14`) — o portão do navegador estava VERDE com 46 instrumentos mortos na nuvem
+
+Item `sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem`, aberto pela nuvem de
+madrugada com três saídas na mesa. **Escolhida a (c)**, e o achado que mudou o tamanho do item é
+que ela *não* estava "quase de pé", como o despacho supunha.
+
+### A decisão, e por que as outras duas foram recusadas
+
+`npm install` na nuvem resolve `playwright: ^1.47.0` para **1.63.0** (não há lockfile, está no
+`.gitignore`), que procura a build **1243**; o contêiner tem a **1194**. Todo lançamento **nu**
+morre com `Executable doesn't exist`, e a mensagem manda instalar navegador — apontando para o
+lugar errado, porque o navegador está no disco e o que falta é dizer onde.
+
+| saída | o que ela aposta | por que não |
+|---|---|---|
+| (a) versionar o `package-lock.json` | que a imagem do contêiner não muda | a imagem não é nossa e troca sem avisar; e o CI roda `npx playwright install`, então nem paga esse preço |
+| (b) pregar a versão exata | o mesmo, com menos maquinaria | prende Windows e Mac a uma versão velha para servir a um contêiner que amanhã é outro |
+| **(c) `executablePath` em toda parte** ⭐ | **nada** | aponta para o navegador que a máquina REALMENTE tem; onde não há provisionamento devolve `undefined`, que é o lançamento nu de antes — numa máquina que instalou, nada muda |
+
+Prender a versão é apostar que o ambiente não muda. Foi o ambiente mudando que abriu o item.
+
+### O NÚMERO, medido antes de mexer — e com a régua do próprio portão, não com um grep meu
+
+| | |
+|---|---|
+| arquivos `.js` em `test/` + `ferramentas/` | 247 |
+| que abrem Chromium | **166** |
+| alcance que o `portao-navegador.js` cobrava | **74** |
+| lançamentos **nus** | **46** |
+| deles, DENTRO do alcance | **0** |
+| deles, FORA do alcance | **46** |
+
+O portão estava verde e estava certo — e 46 instrumentos morriam na nuvem sem ninguém receber
+vermelho. **A lista derivada do CI não é falha de desenho: ela responde "quem quebra a `main`?",
+que é outra pergunta.** O custo do lançamento nu não é pago pelo CI, que roda
+`npx playwright install` e para quem nu e vestido dão no mesmo. Quem paga é a máquina com o
+navegador provisionado noutra build, e nela quem morre é o instrumento chamado **à mão**.
+
+**E o `CLAUDE.md` manda rodar quatro deles à mão:** `test/medir-na-tela.js` (§6, "meça na tela,
+não no arquivo"), `test/tirar-icc.js` (§6, "rode por último"), `test/peso-file-fetch.js` (§6, a
+prova de que `file://` recusa o fetch do pacote) e os `test/inline-*.js` (§3.1). Os quatro
+lançavam nus. Junto ia `test/prints-costura.js`, a suíte de 26 prints que sustentou o veredito da
+arte do CAMINHO-DO-CEU. O manual apontava para ferramentas mortas nesta nuvem.
+
+### O conserto, nos dois lados
+
+**Os 46 vestidos** com `ABRIR.chromiumPath()` — 20 ganharam o `require` do `abrir.js`, os outros
+26 já o tinham para montar a URL e só não o usavam para o navegador. 66 inserções, 46 deleções,
+`node --check` arquivo a arquivo, e a linha inserida casando o fim de linha do arquivo em que
+caiu (20 eram CRLF).
+
+**O alcance do portão: 74 → 247.** `test/` e `ferramentas/` inteiras, por varredura **recursiva**
+de diretório, para que instrumento novo entre sozinho. É o mesmo argumento já aceito em 02/09
+para os `ferramentas/gerar-*.js` (PENDENTES 98: um gerador ficou meses morto porque nenhum portão
+o via), agora sem o recorte por nome. Conferido que a varredura é completa e não "completa até
+onde alguém lembrou": nenhum subdiretório das duas pastas abre Chromium, e **não há um único
+`chromium.launch` fora delas**. O número de portões derivados do CI continua sendo impresso — ele
+só deixou de ser o alcance, porque continua sendo o sinal que era (uma lista que despenca de 60
+para 2 é um CI que sumiu).
+
+### A MORDIDA, com A/B contra o portão antigo
+
+O `--autoteste` prova a mordida por dentro; isto prova por fora, com o portão de `HEAD` extraído
+para rodar lado a lado. Reinjetando o lançamento nu em quatro arquivos que antes eram invisíveis:
+
+| cenário | portão NOVO | portão ANTIGO |
+|---|---|---|
+| árvore sã | 0 | 0 |
+| nu em `test/medir-na-tela.js` | **1** | 0 |
+| nu em `test/tirar-icc.js` | **1** | 0 |
+| nu em `test/inline-fundos.js` | **1** | 0 |
+| nu em `test/peso-file-fetch.js` | **1** | 0 |
+| restaurado | 0 | 0 |
+
+**Falso verde nos quatro**, no portão que existe exatamente para isso.
+
+O autoteste ganhou a **quarta cobaia**, `test/prints-costura.js` — a única das quatro que nenhuma
+das três formas antigas de achar portão alcança (não está no YAML, não está no `package.json`,
+não é `gerar-*`, ninguém a requer). Sem ela, o alcance novo entraria sem nada provando que morde,
+que é a definição de decoração assinada de verde. Morde e solta nas 4.
+
+### Portões
+
+`npm test` **exit 0** · `node test/encaixe.js` **exit 0** · `node test/portao-navegador.js`
+**exit 0** (247 no alcance) · `--autoteste` **exit 0**.
+
+### A dúvida que fica, e ela é da máquina e não do código
+
+Não consegui medir **nesta** máquina (Windows, sem `/opt/pw-browsers`) que a saída resolve o
+sintoma na nuvem — aqui `chromiumPath()` devolve `undefined` por construção e todo lançamento é
+nu de qualquer jeito, que é o comportamento certo e é por isso que os portões passam. O que
+sustenta a escolha é medição de terceiro, já registrada: 02/09 (`geradores-chromium`) mediu os
+quatro `gerar-*.js` indo de exit 1 para exit 0 na nuvem com uma linha de `executablePath`, e
+PENDENTES 98 mediu o mesmo no `gerar-glossario.js`. **A confirmação de que os 46 revivem tem de
+sair da nuvem** — quem pegar o plantão lá roda `node test/prints-costura.js` e
+`node test/medir-na-tela.js`, que antes morriam.
+
+### PLANTÃO
+
+`PLANTAO.md` §7 atualizado. A ordem de rodar `npm install` antes do primeiro funil **continua
+valendo inteira** — o que sai é o contra-efeito dela, não a ordem.
+## 05/09 · As seis células dobradas de `GENTE_EP_B64` foram partidas — e eram um defeito só, visto de dois lados (dev-jogo, worktree `agent-a79df3296cc8b6e6b`)
+
+**O que fiz.** Cortei as seis células de `GENTE_EP_B64` que guardavam DUAS poses da mesma pessoa
+coladas lado a lado, nos pontos que a direção de arte julgou célula a célula e aprovou sem veto
+(`ferramentas/arte-corte-gente-dobrada-05-09.md`, ramo `worktree-agent-a17ec094608841c12`, trazido
+por merge antes de eu tocar em qualquer coisa): `praca f0q3` · `praca f2q3` · `praca f2q6` ·
+`pindorama f2q6` · `temfonte f2q5` · `segurou f2q5`.
+
+**O achado que reenquadra os dois itens.** O item 110 (célula dobrada) e o item 109 (quadro vazio)
+eram **o mesmo defeito pelos dois lados**. `test/cortar-gente.js` varre a folha em magenta por
+MANCHA e exige 8 manchas por fileira; onde duas figuras quase se tocavam ele entregava uma célula
+dobrada **e**, do outro lado da mesma fileira, um quadro vazio para fechar a conta de oito. Por
+isso a aritmética fecha sozinha: cada fileira afetada tinha exatamente um buraco (vazio ou cópia
+byte-idêntica) e exatamente uma célula dobrada, e partir a dobrada produz exatamente o quadro que
+faltava. **Nada foi inventado, nada foi copiado, nada sobrou.**
+
+**O que medi (antes → depois):**
+
+| | antes | depois |
+|---|---|---|
+| células largas nas 13 folhas | 6 | **0** |
+| quadros com tinta | 309/312 | **312/312** |
+| cópias byte-idênticas dentro de fileira | 4 | **0** |
+| passos que mostram UMA pessoa, A PRAÇA | 20/24 | **24/24** |
+| idem PINDORAMA · O QUE TEM FONTE · O QUE SEGUROU | não medido | **24/24 nos três** |
+| desvio da cabeça das 12 metades novas | — | **0 a 0,25 px de fonte** |
+
+**Por que o corte não é no meio da célula**, que é o que eu teria feito sem a arte: `src/jogo.ts`
+ancora pelo CENTRO da célula (`dx = cxm - dw/2`), então quem decide se a pessoa anda reto é onde a
+CABEÇA cai no retângulo novo — o "registre pela cabeça" do §5. Cortar no meio do vão dava até
+**10,5 px de fonte** de descasamento entre as duas metades, contra **3,5** de amplitude natural da
+fileira: um passo de lado por ciclo. Re-derivei as 12 coordenadas por conta própria antes de
+cortar e elas reproduziram exatas as da arte.
+
+**O que quebrou, e como.** Três portões irmãos reprovaram — e reprovaram **certo**, porque os três
+cobram nos dois sentidos e as declarações deles tinham acabado de ficar velhas:
+`qa-gente-quadro-dobrado.js` (6 conhecidos), `qa-gente-quadro-que-chega.js` (2 buracos + 4
+remendos), `qa-praca-quadro-vazio-vira-objeto.js` (`f2q7`). As três listas esvaziaram — daqui em
+diante qualquer dobra ou buraco novo reprova sem exceção a herdar.
+
+**O instrumento contra si mesmo.** A primeira versão de `test/cortar-celula-dobrada-gente.js`
+cobrava `tinta > 0` para aceitar uma janela e **aceitou o corredor vazio** de `praca f0q3`, porque
+ele tem DOIS pixels perdidos em `y 236..237`. Um portão que passa com 2 pixels de 5.934 não é
+portão. A régua passou a ser a altura da mancha (a janela boa mede 99,6% da altura; o corredor,
+0,8%). Testei as três travas contra o próprio arquivo antes de cortar de verdade, e o gate novo
+contra uma expectativa errada, para provar que ele ainda reprova.
+
+**Ferramenta nova:** `test/cortar-celula-dobrada-gente.js` — corte com ponto customizado numa
+célula já cortada, que **não existia** (o `cortar-gente.js` foi quem produziu a dobra, e o
+`tapar-buraco-gente.js` só copia) — e `test/tira-gente-fileira.js`, a tira de contato do DEPOIS
+com o número da cabeça ao lado da imagem. `test/qa-praca-o-que-a-pessoa-ve.js` foi pendurado no
+`npm test` **antes** do corte, como o item mandava, e passou a cobrir os quatro capítulos.
+
+**O que NÃO consertei, e não quero que se leia como consertado:** nenhuma dessas fileiras é um
+ciclo de caminhada de verdade (`praca f0` varia 3,6 pontos percentuais de abertura de pés em oito
+quadros; `praca f2`, 1,5 — elas deslizam numa lunge). Isso é arte nova, PENDENTES 112. E a
+**célula inchada** (13 quadros em 11 capítulos encolhendo a pessoa 20-29% e a soltando até 9,5 px
+do chão) ficou de fora de propósito — PENDENTES 111, com a medida que a confirma pela cabeça na
+tela.
+
+**Dúvida que registro:** PINDORAMA é §2.1, e eu não decidi nada de representação — a arte tinha
+verificado por medida que o corte não cria representação nova (mesma anciã, mesmo colar, mesma
+pintura corporal, mesma vasilha; o vão de 52 px não toca objeto nenhum) e eu confirmei a olho na
+tira. O que continua sendo do dono, nomeado e não urgente: cada capítulo mostra **três** pessoas
+em laço, e em PINDORAMA isso significa o capítulo dos povos originários representado por três
+indivíduos em repetição.
+
+**Um portão alheio reprovava, e consertá-lo revelou coisa pior que o sintoma.** O último passo do
+`npm test` (`rede-da-casa-veredito.js --controle`) reprovava com *"o mutante NÃO mudou o arquivo
+(o texto-alvo sumiu?)"* — num arquivo que esta entrega não toca (`git diff HEAD` vazio nos dois
+envolvidos, então a reprovação já existia no HEAD). A causa não era a sugerida pela mensagem: o
+texto-alvo está lá; o que não casa é a **emenda de duas linhas com `\n`** contra um arquivo que em
+máquina Windows está em disco com **CRLF**. O que isso escondia é maior que o incômodo: um mutante
+que **nunca chegava a ser aplicado** era contado como mutante que sobreviveu — para aquele mutante
+o controle não media nada, e ainda reportava o contrário. Consertado mutando sobre cópia
+normalizada e restaurando sempre o original de verdade: **os 12 mutantes passam a morder**, e o
+arquivo-alvo não troca de fim de linha por efeito colateral. PENDENTES 113.
+
+**Portões, no fim:** `npm test` e `node test/encaixe.js` **os dois verdes por exit code** (0 e 0).
+---
+
+## 05/09 · A NOTA DE HONESTIDADE SOBRE A ARTE SAI DA ABERTURA E VAI PARA O FECHO — nos seis capítulos (historiadora, worktree `agent-afca260b8fb840c23`)
+
+**Decisão do dono, no check de 05/09**, sobre o item de backlog `nota-honestidade-gasta-a-ultima-linha`
+(levantado por mim mesma em 04/09, `nuvem-20260904T1623`, e deixado de propósito sem resposta porque
+"muda o que o jogo promete ao jogador"): a nota **muda de lugar**. Sai da última linha da `abertura`
+e vira uma linha no `fecho`, devolvendo a última linha da abertura ao capítulo.
+
+### Os seis, e o que mudou em cada um
+
+Em todos, `abertura` passou de **5 para 4 falas** (com o `querer`, que `mostrarAbertura()`
+concatena, a leitura de entrada foi de **6 para 5**), `aberturaImg` perdeu a quinta posição — que
+já era `null` — e o `fecho` ganhou uma linha no **fim**. A `abertura` volta a terminar no **verbo
+do capítulo**, que é a linha que fala do capítulo.
+
+| capítulo | o que saiu da abertura | para onde foi | por quê |
+|---|---|---|---|
+| O CAIS QUE VOLTOU À LUZ | "A pintura e quem atravessa a tela já são deste capítulo… Emprestado, só o que fica no chão." | fim do `fecho` | é o melhor encaixe dos seis: a linha imediatamente acima já é o jogo falando de si mesmo e do que **recusa** fazer (o Cemitério dos Pretos Novos, citado e não encenado). A nota da arte é o mesmo gesto no outro registro |
+| JABAQUARA | "A serra e a gente que desce por ela já foram desenhadas…" | fim do `fecho` | o fecho já pratica a recusa de número no meio dele ("a pesquisa trata esses números como exagerados e não os adota — este jogo também não"); a nota fecha a série, depois do remate que nomeia Maria Helena Machado |
+| A PEQUENA ÁFRICA | "A rua e quem atravessa a tela já foram desenhadas…" | fim do `fecho` | mesma regra; depois do remate, para não disputar a última linha com Beatriz Nascimento |
+| AS PORTAS | "O pátio e quem atravessa a tela já foram desenhados…" | fim do `fecho` | mesma regra; depois do remate de Laudelina de Campos Mello |
+| O QUE NÃO PODIA SER DITO | "A rua e quem atravessa a tela já foram desenhadas…" | fim do `fecho` | mesma regra; depois do remate da Comissão Nacional da Verdade |
+| A PRAÇA | "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior…" | fim do `fecho` | é a única das seis que fala de **pintura** emprestada, então é a que mais precisava sobreviver inteira à mudança; depois do remate ("o trabalho de juntar") |
+
+### As três decisões que sustentam o destino, e as três são medidas
+
+1. **Fim do fecho, e não começo.** `mostrarFecho()` passa `EPOCAS[i].aberturaImg` para o
+   `abrirFala()` do fecho, e `abrirFala` faz `linhas.map((_, i) => imgs[i] || null)` — associação
+   **por posição**. Uma linha nova no COMEÇO empurra cada pintura de contexto para a fala seguinte,
+   que é exatamente o modo de falha que o `encaixe.js` bloco 1 descreve ("a vertical certa na frase
+   errada é uma afirmação que ninguém escreveu"). No FIM nada se move: as posições ≥ 4 já eram
+   `null` antes e continuam `null` depois.
+2. **Fecho, e não DE ONDE VEM** — a outra saída oferecida foi medida antes de ser recusada.
+   `ferramentas/gerar-fontes.js` conta como fonte **toda entrada com `t`** e imprime o número na
+   página pública (`${nFontes} fontes · ${grupos.length} grupos`, e o mesmo número vai na
+   `<meta name="description">` e no `og:description`). Seis notas de produção ali fariam a
+   plataforma anunciar seis fontes que ela não tem, numa seção cujo trabalho inteiro é ser
+   conferível — e o rodapé dela diz, com todas as letras, "é a bibliografia que sustenta cada
+   afirmação". Nota de cozinha não é bibliografia.
+3. **A oração dos contadores NÃO viajou junto**, e é a única subtração da rodada. "Os três
+   contadores **lá em cima** são os mesmos de sempre" aponta para o HUD, que não está na tela
+   durante o fecho (`body.emTela`) e que a pessoa já usou por um capítulo inteiro quando lê aquilo.
+   Mover uma frase que **vira falsa** no lugar novo é o contrário do que a nota faz. Conferido que
+   a subtração não fecha porta nenhuma: `capPalavrasCalcular()` casa `abertura + fecho + querer`
+   contra o título de cada verbete, e nenhum dos 184 verbetes casa com as palavras dessa oração —
+   a porta AS PALAVRAS DAQUI dos seis capítulos é a mesma de antes. E os capítulos mais recentes
+   (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE) já fecham a abertura na protagonista, sem linha de
+   contador nenhuma: a subtração alinha os seis com o que o jogo já faz.
+
+### O estado da arte foi RECONFERIDO antes de mover, não copiado do texto antigo
+
+O brief mandava conferir contra `GENTE_EP_B64` / `arte` / `arteCap` em vez de acreditar na fala.
+Medido nesta árvore, e nada mudou desde 04/09:
+
+- `PACK_DA_CENA` (ferramentas/pacotes.js): `[7]`=jabaquara, `[8]`=pequenaafrica, `[9]`=portas,
+  `[10]`=naodito, `[12]`=cais. Então cinco dos seis têm **pintura própria**; A PRAÇA veste
+  `arte: [10]`, que é a de O QUE NÃO PODIA SER DITO — **o capítulo imediatamente anterior**,
+  como a fala dela diz.
+- `GENTE_EP_B64` tem chave própria para os seis (`cais`, `jabaquara`, `pequenaafrica`, `portas`,
+  `naodito`, `praca`) — quem atravessa a tela é de cada um.
+- `arteCap: 3` nos seis → `DONO_DO_BLOCO[3]` = "hoje": **o que fica no chão continua emprestado**
+  de AINDA AQUI, nos seis. É a metade da nota que permanece verdadeira e é por isso que ela não
+  foi apagada, só mudou de lugar.
+
+### Fonte
+
+**Nenhuma nova, e é a resposta e não a falta dela.** Nada aqui afirma fato histórico: a nota
+descreve como o capítulo está desenhado. Nenhuma afirmação histórica dos seis capítulos foi tocada
+— nem uma lei, nem uma data, nem um número —, e as fontes delas continuam onde estavam, em DE ONDE
+VEM e nas entradas anteriores deste NOTES.
+
+### Medido
+
+- `npm test` e `node test/encaixe.js`: **exit 0** os dois.
+- `encaixe.js` bloco 1: os seis passaram a ler **"4 falas para 4 imagens"**; os outros sete
+  capítulos continuam em 5/5 e a travessia em 17/17.
+- `encaixe.js` bloco 15 (teto de 260 da caixa que revela letra a letra): a fala mais comprida do
+  jogo continua em **258**. As seis linhas movidas medem **173, 174, 168, 170, 168 e 171** —
+  todas MENORES do que eram na abertura, porque perderam a oração dos contadores (A PRAÇA, por
+  exemplo, foi de 226 para 171).
+- Print da caixa com a linha nova, nos seis: cabe folgado — quatro a cinco linhas de texto no papel
+  a 390×844.
+
+### Um ponteiro que atualizei e um que NÃO é meu
+
+- **Atualizei** o cabeçalho de `test/qa-praca-quadro-vazio-vira-objeto.js`: ele citava a frase
+  como sendo da `abertura`. O teste **não muda** — ele nunca leu o texto, ele mede no jogo vivo se
+  o que a frase afirma é verdade —, e isso ficou escrito lá: onde a frase é LIDA é decisão
+  editorial; se ela é VERDADEIRA é o que o portão cobra.
+- **Não toquei** no `PENDENTES.md` 109, que continua justificando os quadros vazios de A PRAÇA
+  pela fala. Ele já estava desatualizado desde 04/09 (a entrada daquele dia registra isso) e é do
+  `dev-jogo`; a mudança de hoje só muda em que lista a frase está.
+
+### Dúvida que fica
+
+O QUE SEGUROU e O ACEIRO **não têm** nota de arte nenhuma, e os dois vestem pintura emprestada
+(`arte: [10]`, de "naodito"). Em 04/09 eu registrei que não escrevi nota para eles porque
+"acrescentar é ESCREVER, não corrigir" e porque pendurá-la depois do verbo estragava o fecho da
+abertura. **O segundo motivo caiu hoje**: existe agora um lugar que não estraga nada — o fim do
+fecho, que os seis passaram a usar. O primeiro motivo continua de pé, e é do dono: escrever uma
+nota onde nunca houve é texto novo, não conserto. Fica como pergunta dele, não como decisão minha.

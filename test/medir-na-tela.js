@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const RE = /data:image\/webp;base64,[A-Za-z0-9+/=]+/g;
@@ -37,7 +38,7 @@ const ALVOS = [
 ];
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage(); await pg.goto('about:blank');
   for (const alvo of ALVOS) {
     const A = bloco(velho, alvo.nome), B = bloco(novo, alvo.nome);

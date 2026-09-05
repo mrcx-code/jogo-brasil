@@ -34,7 +34,7 @@ const TELA_W = 1126, TELA_H = 1688;   // 563×844 css a dpr 2
 (async () => {
   const arqs = fs.readdirSync(DIR).filter(f => /^q-p\d+\.png$/.test(f))
     .sort((a, b) => parseInt(a.slice(3), 10) - parseInt(b.slice(3), 10));
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   console.log('página  largura   KB b64   erro médio   erro máx   (erro na tela ' + TELA_W + 'x' + TELA_H + ')');
   const soma = {}, kbs = {};

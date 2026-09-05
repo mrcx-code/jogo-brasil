@@ -21,7 +21,7 @@ const CORES = parseInt(process.argv[5] || '24', 10);
 if (!ENT || !SAI) { console.error('uso: converter-objeto.js <entrada> <saida.png> [alt] [cores]'); process.exit(1); }
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto(ABRIR('file:///' + path.resolve(ENT).replace(/\\/g, '/')));
 

@@ -20,7 +20,7 @@ const ALVO = ABRIR('file:///' + path.resolve(__dirname, '..', 'index.html').spli
 const rot = process.argv[2] || '';
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
   const erros = [];
   pg.on('pageerror', e => erros.push(e.message));

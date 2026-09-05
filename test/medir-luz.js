@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 
@@ -65,7 +66,7 @@ function linha(nome, m) {
 }
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   let falhas = 0;
 

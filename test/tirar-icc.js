@@ -59,7 +59,8 @@ console.log(n + ' webp · ' + tocadas + ' com ICC · ' + kb(antes) + ' KB -> ' +
 (async () => {
   if (verificar) {
     const { chromium } = require('playwright');
-    const nav = await chromium.launch();
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
+    const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
     const pg = await nav.newPage(); await pg.goto('about:blank');
     let pior = 0;
     for (let i = 0; i < pares.length; i += 20) {

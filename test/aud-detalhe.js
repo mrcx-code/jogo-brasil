@@ -19,7 +19,7 @@ const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html').split
   console.log('QUASE-DUPLICATAS (Δ por canal <= 6): ' + pares.length);
   pares.forEach(p => console.log('  ' + p));
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   await pg.goto(ALVO); await pg.waitForTimeout(1200);
   await pg.evaluate(() => {

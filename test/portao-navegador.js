@@ -53,6 +53,12 @@
 // esta lista encolhe junto — e é por isso que o portão também imprime quantos achou: uma
 // lista que despenca de 15 para 2 é um sinal, não um alívio.
 //
+// E DESDE 05/09 O ALCANCE É MAIOR QUE ESTA LISTA: `test/` e `ferramentas/` entram INTEIRAS, por
+// varredura recursiva de diretório. O porquê, com o número que o forçou, está no bloco 1b —
+// resumido: o CI roda `npx playwright install` e por isso NÃO paga o preço do lançamento nu;
+// quem paga é a máquina de nuvem, e nela o que morre é o instrumento chamado à mão, que esta
+// lista por construção não vê. Eram 46, e o portão estava verde.
+//
 // ============================================================================
 // COMO USAR
 //   node test/portao-navegador.js              # exit 0 = nenhum portão lança nu
@@ -296,6 +302,52 @@ function launchesNus(rel) {
   return nus;
 }
 
+// ————— 1b. O ALCANCE DEIXOU DE SER SÓ O QUE O CI CHAMA (dev-jogo, 05/09) —————
+//
+// Item `sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem`, saída (c). MEDIDO
+// antes de mexer, com a `launchesNus()` deste arquivo e não com um grep próprio: `test/` e
+// `ferramentas/` têm **166 arquivos que abrem Chromium**; o alcance derivado do CI via **74**;
+// e sobravam **46 lançamentos nus**, os 46 FORA do alcance e ZERO dentro dele. Ou seja: o
+// portão estava verde e correto, e mesmo assim 46 instrumentos morriam na nuvem sem ninguém
+// receber vermelho — exatamente o silêncio que ele foi escrito para acabar.
+//
+// POR QUE A LISTA DERIVADA DO CI NÃO BASTAVA, e não é falha do desenho dela: ela responde
+// "quem é portão?", que é a pergunta certa para *saber o que quebra a `main`*. Só que o custo
+// do lançamento nu não é pago pelo CI — o CI roda `npx playwright install` e ali nu e vestido
+// dão no mesmo. Quem paga é a MÁQUINA com o navegador provisionado numa build que o Playwright
+// não espera, e nela quem morre é o instrumento que alguém roda à mão. O `CLAUDE.md` manda
+// rodar `test/medir-na-tela.js`, `test/tirar-icc.js`, `test/peso-file-fetch.js` e os
+// `test/inline-*.js` — os quatro lançavam nus. A regra escrita no manual apontava para
+// ferramentas mortas nesta nuvem.
+//
+// É O MESMO ARGUMENTO JÁ ACEITO EM 02/09 para os `ferramentas/gerar-*.js`, agora sem o
+// recorte por nome: um gerador ficou meses morto porque nenhum portão o via (PENDENTES 98), e
+// a saída foi achá-lo por DIRETÓRIO em vez de por lista. Estender o diretório de um prefixo
+// (`gerar-*`) para as duas pastas inteiras é a generalização dessa mesma lição — e a varredura
+// RECURSIVA existe para que `test/uma-pasta-nova/instrumento.js` entre sozinho, sem ninguém
+// lembrar de nada. Medido hoje: nenhum subdiretório de `test/` ou `ferramentas/` abre Chromium,
+// e não há um único `chromium.launch` FORA dessas duas pastas — então a varredura é completa,
+// e não "completa até onde alguém lembrou".
+//
+// O NÚMERO DE PORTÕES DERIVADOS CONTINUA SENDO IMPRESSO, e continua sendo o sinal que era: uma
+// lista de portões que despenca de 60 para 2 é um CI que sumiu. Ele só deixou de ser o alcance.
+function varreDiretorio(dir) {
+  const fora = [];
+  const raizDir = path.join(RAIZ, dir);
+  let entradas = [];
+  try { entradas = fs.readdirSync(raizDir, { withFileTypes: true }); } catch (e) { return fora; }
+  for (const e of entradas) {
+    const rel = dir + '/' + e.name;
+    if (e.isDirectory()) fora.push.apply(fora, varreDiretorio(rel));
+    else if (/\.js$/.test(e.name)) fora.push(rel);
+  }
+  return fora;
+}
+
+function instrumentos() {
+  return varreDiretorio('test').concat(varreDiretorio('ferramentas'));
+}
+
 function varrer() {
   const portoes = portoesDeclarados();
   const alcance = new Set();
@@ -303,6 +355,8 @@ function varrer() {
     alcance.add(p);
     for (const r of requeridosLocais(p)) alcance.add(r);
   }
+  // Todo instrumento das duas pastas entra, seja ele chamado pelo CI ou pela mão de alguém.
+  for (const i of instrumentos()) alcance.add(i);
   const nus = [];
   for (const rel of alcance) nus.push.apply(nus, launchesNus(rel));
   return { portoes, alcance, nus };
@@ -323,7 +377,17 @@ function varrer() {
 // escrita à mão do `rodape-verdadeiro.js`. Sem esta cobaia, o autoteste provaria as duas formas
 // antigas de achar um portão e ficaria mudo sobre a nova — a mesma lacuna que a segunda cobaia
 // fechou para o curinga de rota, agora para o glob.
-const COBAIAS = ['test/medir-save-hostil.js', 'test/rodape-verdadeiro.js', 'ferramentas/gerar-porta.js'];
+//
+// A QUARTA (dev-jogo, 05/09) prova a varredura de DIRETÓRIO do bloco 1b, e ela é a única das
+// quatro que nenhuma das três formas antigas alcança: `test/prints-costura.js` não está no
+// YAML, não está no `package.json`, não é `gerar-*` e ninguém o requer — é chamado à mão por
+// quem mexe na costura dos capítulos, e é a suíte que produziu a prova em que o veredito da
+// arte do CAMINHO-DO-CEU se apoiou. Sem esta cobaia, o alcance novo entraria sem nada provando
+// que ele morde, que é a definição de decoração assinada de verde.
+const COBAIAS = [
+  'test/medir-save-hostil.js', 'test/rodape-verdadeiro.js', 'ferramentas/gerar-porta.js',
+  'test/prints-costura.js',
+];
 
 function autotestaUmaCobaia(COBAIA) {
   const abs = path.join(RAIZ, COBAIA);
@@ -379,7 +443,8 @@ if (require.main === module) {
   if (AUTOTESTE) { autoteste(); }
   else {
     const { portoes, alcance, nus } = varrer();
-    console.log('portões derivados: ' + portoes.size + ' · com os requires locais: ' + alcance.size);
+    console.log('portões derivados do CI: ' + portoes.size + ' · alcance cobrado (com os requires' +
+      ' locais e todo test/ e ferramentas/): ' + alcance.size);
     if (!nus.length) {
       console.log('VERDE — todo portão diz onde o Chromium está.');
       process.exit(0);
@@ -399,5 +464,5 @@ if (require.main === module) {
   // Exportado para instrumentos de teste (ex.: test/qa-92-*.js) chamarem sem disparar o CLI —
   // sem isto, medir semComentarios() de fora exige duplicar a função ou passar por
   // `child_process`, e as duas formas já causaram medição da função ERRADA nesta casa.
-  module.exports = { semComentarios, launchesNus, varrer, portoesDeclarados, requeridosLocais };
+  module.exports = { semComentarios, launchesNus, varrer, portoesDeclarados, requeridosLocais, instrumentos };
 }

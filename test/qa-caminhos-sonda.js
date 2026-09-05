@@ -28,6 +28,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const DASH = process.env.QA_DASH ? path.resolve(process.env.QA_DASH) : path.join(RAIZ, 'dashboard', 'index.html');
@@ -172,7 +173,7 @@ const CENAS = {
   const lista = pedida === 'todas' ? Object.keys(CENAS) : [pedida];
   if (lista.some(c => !CENAS[c])) { console.error('cena desconhecida: ' + pedida + '\ncenas: ' + Object.keys(CENAS).join(' | ') + ' | todas'); process.exit(2); }
   console.log('dashboard medido: ' + DASH);
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   try {
     for (const c of lista) { console.log('\n== ' + c + ' =='); await CENAS[c](nav); }
   } finally { await nav.close(); }

@@ -213,6 +213,13 @@ if (process.argv.includes('--controle')) {
   const { execFileSync } = require('child_process');
   const alvo = path.join(__dirname, '..', 'ferramentas', 'rede-da-casa.js');
   const original = fs.readFileSync(alvo, 'utf8');
+  // NORMALIZA CRLF ANTES DE MUTAR — achado do QA em 05/09 (windows-plantao): o mutante
+  // "a redação de segredo morre" procura uma string-alvo com `\n` literal entre as linhas.
+  // Numa máquina Windows com `core.autocrlf=true`, o arquivo em disco tem `\r\n`, o `\n` cru
+  // nunca casa, `mutado === original` vira verdadeiro e o mutante lê como "sumiu" — o mesmo
+  // sintoma que este arquivo inteiro existe para não deixar acontecer, só que no instrumento
+  // de prova dele. Os outros 11 mutantes são de uma linha só e não pegam essa doença.
+  const originalLF = original.replace(/\r\n/g, '\n');
   const mutantes = [
     ['a marca do proxy nunca casa', (s) => s.replace('/host\\s+not\\s+in', '/XXhost\\s+not\\s+in')],
     ['CONNECT 4xx deixa de ser sem-egresso', (s) => s.replace('codigo >= 400 && codigo < 500', 'false')],
@@ -238,8 +245,8 @@ if (process.argv.includes('--controle')) {
   let maus = 0;
   console.log('\n---- CONTROLE (--controle): ' + mutantes.length + ' mutantes no objeto de verdade');
   for (const [nome, mutar] of mutantes) {
-    const mutado = mutar(original);
-    if (mutado === original) { console.log('  FALHA ' + nome + ': o mutante NÃO mudou o arquivo (o texto-alvo sumiu?)'); maus++; continue; }
+    const mutado = mutar(originalLF);
+    if (mutado === originalLF) { console.log('  FALHA ' + nome + ': o mutante NÃO mudou o arquivo (o texto-alvo sumiu?)'); maus++; continue; }
     fs.writeFileSync(alvo, mutado);
     let saiu = 0;
     try { execFileSync(process.execPath, [__filename], { stdio: 'pipe' }); }

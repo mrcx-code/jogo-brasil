@@ -81,7 +81,7 @@ async function medir(pg) {
 }
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const erros = [];
   const alvo = ABRIR('file:///' + path.resolve(DIR, '..', 'index.html').split(path.sep).join('/'));
   const linhas = [];

@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const RAIZ = path.resolve(__dirname, '..');
 const ARQ = path.join(RAIZ, 'src', 'jogo.ts');
@@ -32,7 +33,7 @@ const RE_URI = /data:image\/webp;base64,[A-Za-z0-9+/=]+/g;
 
 (async () => {
   let src = fs.readFileSync(ARQ, 'utf8');
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto('about:blank');
 

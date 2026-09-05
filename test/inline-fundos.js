@@ -207,7 +207,7 @@ function embutidas(src) {
 (async () => {
   let src = fs.readFileSync(ARQ, 'utf8');
   const velhas = embutidas(src);
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   const saida = { alto: [], chao: [] };
   let kbTotal = 0, kbNovo = 0;

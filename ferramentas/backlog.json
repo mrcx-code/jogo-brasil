@@ -10,7 +10,7 @@
   "itens": [
     {
       "id": "territorio-botoes-lugar-atras-da-placa",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "4 de 5 botoes de lugar ficam com contraste 1,21-1,77:1 atras da placa do territorio em 360x640 (agravamento de bug pre-existente)",
@@ -20,8 +20,9 @@
       ],
       "aceite": "julgarSobreposicao() passa a perguntar tambem sobre .lista, nao so #censo. Fundo opaco no .pl resolve sem mexer no enquadramento da placa (sugestao do QA). Contraste dos 5 botoes >= 4,5:1 (WCAG) nas telas medidas. npm test + ver-territorio.js verdes.\n\nCORREÇÃO DE TERRITÓRIO (05/09, pm): julgarSobreposicao() está em test/ver-territorio.js:213 (grep -rn julgarSobreposicao --include=*.js . → 3 ocorrências, todas ali) e o CSS do .pl e do #censo está em ferramentas/gerar-territorio.js:378/393. ferramentas/chrome-plataforma.js não contém nenhum dos dois e não é território deste item.",
       "detalhe": "Achado pelo QA em 04/09 auditando territorio-rico: NAO e regressao do item (a main ja tinha 2 de 5 botoes abaixo de 1,5:1 em 360x640 -- Santos 1,31, Salvador 1,49 -- e a tela ficou MELHOR no conjunto, porque antes metade do pais sumia sob o papel). E agravamento: virou 4 de 5. julgarSobreposicao() so olha #censo, nunca .lista -- e o espelho exato do bug que a regua foi escrita pra pegar.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-plataforma+porteiro+qa, integrado via funil, commit a250916). Contraste dos 4 de 5 botoes de lugar corrigido de 1,00-1,01:1 para 8,56:1 em 360x640. julgarSobreposicao() em test/ver-territorio.js passou a julgar .lista alem de #censo. Esquecido de fechar no backlog no momento da integracao -- corrigido agora ao notar 2 itens em-curso sem trabalho pendente de verdade."
     },
     {
       "id": "portao-conjunto-publicado-por-secao",
@@ -119,7 +120,7 @@
     },
     {
       "id": "palmares-emenda-horizontal-rosto",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "pesado",
       "titulo": "PALMARES: rosto/Rorschach da copa espelhada — arte decidiu a composicao (sem espelho + coluna), mas a medicao que declarou a pintura SEM TRONCO viavel foi REFUTADA pelo QA — remedir antes de pedir arte nova [+ A PEQUENA ÁFRICA e JABAQUARA — fundidos 05/09]",
@@ -127,7 +128,9 @@
         "src/jogo.ts"
       ],
       "aceite": "NAO implementar ainda, e NAO enviar o pedido de arte do detalhe ainda — os dois dependem de uma remedicao que nao foi feita. Passo 1 (obrigatorio, antes de qualquer coisa): rode test/qa-tronco-criterio.js e refaça a cobertura de tronco/copa das duas pinturas de PALMARES com um criterio de mata que NAO tenha falso-negativo em sombra (o QA mediu que G>B quebra dentro da copa sombreada e SUBESTIMA a cobertura real: afrouxando para G>B-10 a pintura 2 vai de 61,4% para 101,5% do exigido, e o criterio nao-ceu chega a 114,5%). Rode tambem test/qa-eixo-terceira-regua.js (a derivada horizontal espelhada, piso de ruido mais limpo: 3,5-3,7% contra os 16,0-34,9% da regua de media-por-linha) para reavaliar o criterio de aceite (contraste <=20%), que hoje e IMENSURAVEL na pintura 3 com a regua antiga (piso dela e 34,4%, ACIMA do proprio limite de aceite). SO DEPOIS de remedir com os instrumentos corrigidos: se a cobertura real de tronco continuar abaixo do exigido nas DUAS pinturas, aí sim implemente conforme os passos 1-5 abaixo (inalterados) OU peça a arte nova com o prompt corrigido (nao o antigo — os numeros do prompt antigo estavam ~3x errados e ja foram corrigidos aqui). Os passos 1-5 da implementacao, sem mudanca: (1) peça de CIMA de PALMARES (fração 0,45) passa a repetir SEM espelho (a peça do chão continua como está — a terra é ruído e não fabrica rosto). (2) Sobre cada costura vertical da peça de cima, desenhar UMA coluna vertical determinista (mesma semente por costura, nunca aleatória, nunca espelhada) ATERRADA na linha do chão: tronco + copa, recortados da PRÓPRIA pintura de PALMARES (mesmo grão, mesma paleta — sem gradiente liso, sem vetor). Régua na TELA (390×844, dsf 2, medir com test/medir-na-tela.js): tronco com ≥ 28 px CSS de largura opaca cobrindo o eixo em TODA a altura da peça de cima, do chão até acima da linha da copa; copa ≥ 120 px CSS de largura no topo, cobrindo o degrau da linha da copa (≈15 px CSS entre as duas margens no print B, y≈15-30 CSS) e a emenda do céu. Se a pintura não tiver um tronco/copa recortável com essas medidas MESMO com o criterio corrigido, NÃO montar coluna empilhando recortes repetidos (repetição vertical lê como azulejo) — pedir arte nova com o prompt corrigido (ver detalhe). (3) Aceite por número, nos dois pontos, medidos com a regua corrigida (media-por-linha OU a terceira regua de derivada — a que der piso mais limpo em cada pintura): (a) contraste de simetria no eixo ≤ 20% do piso de ruido daquela regua especifica (nao um numero absoluto que pode ser imensuravel); (b) coluna mais dura de |dI/dx| sobre a costura ≤ 1,3× a mediana das colunas da própria pintura; (c) as duas medidas valem numa VARREDURA de worldX ao longo de um ciclo inteiro da pintura, não só no ponto do achado. (4) Prints antes/depois em 390×844 com a personagem em cena, no worldX em que a costura fica no centro da tela, salvos em test/PAL-EIXO-C-coluna.png; a arte olha o print antes de integrar. (5) A coluna nunca cobre a personagem no ponto de spawn nem a placa do capítulo; roda a 1:1 com o mundo (sem paralaxe — armadilha §7). Nenhuma figura humana, nenhum objeto, nenhum grafismo: só tronco e folha.\n\nESCOPO AMPLIADO em 05/09 (fusao do pm) -- tres capitulos, um bloco de codigo (src/jogo.ts:9215-9256), uma banca de arte, uma rodada: (A) PALMARES, como acima. (B) A PEQUENA AFRICA: argolas viram olhos ovais nas duas margens das duas costuras, mesma altura y=543, flanqueando a placa; ressalva forte que a arte ja julgou nao-bloqueante em 04/09. Atencao -- a correcao que o item original propunha (moita do FRENTE via COSTURA_COBRE) ja foi vetada pela arte dentro do escopo A, e o codigo explica por que: COSTURA_COBRE posiciona por ySeam na margem lateral, ou seja cobre emenda HORIZONTAL; a costura aqui e VERTICAL. Se a medicao do escopo A produzir uma tecnica para vertical, ela vale aqui; se nao, B fecha com o julgamento da arte de 04/09 registrado e sem mudanca. (C) JABAQUARA: raiz detalhada forma rosto simetrico na costura (print test/COER-jabaquara-costura.png, auditoria de 21/08). A correcao antiga -- deslocar o offset da copia espelhada -- esta REFUTADA pela medicao do escopo A: reflexao e invariante a translacao da copia refletida, entao o offset move o eixo, nao o remove. C entra na mesma tecnica que sair de A, ou fecha declarando que nao ha tecnica e pedindo arte.",
-      "detalhe": "ATUALIZADO em 04/09 pelo dev-jogo, que MEDIU em vez de aplicar: a premissa original do item estava ERRADA — nao e 'worldX inicial', o eixo aparece a 32,1% da caminhada (contraste 94,4-96,5% contra piso de ruido 11,7%), na peca de CIMA (fracao 0,45), x≈192 CSS quando worldX≈458. As DUAS tecnicas que o aceite antigo sugeria foram testadas e as duas caem: (1) deslocar a copia espelhada NAO remove o eixo, so move ele (prova estrutural, reflexao e invariante a translacao da copia refletida — mesma conclusao ja medida pra JABAQUARA); (2) desligar o espelho da peca de cima troca o rosto por um corte vertical duro (a coluna mais dura sobe de 2,17x para 2,47x de |dI/dx|, medido e visto no print B). Precisa de decisao de composicao nova, nao so tecnica. ||| DECISÃO DA ARTE (04/09), olhando os três prints, não a medição: O rosto É perceptível em jogo, e não é local — no print A e no da rua (C) a tela INTEIRA vira Rorschach: a linha da copa forma uma pirâmide com o pico exatamente no eixo, as palmeiras se emparelham à mesma altura dos dois lados (y≈600-700 lêem como olhos), e o aglomerado central a y≈700-950 fecha a máscara; a personagem anda na frente de um totem. É o achado de 21/08 ('duas línguas visuais') em versão de composição: nenhum outro plano do jogo é simétrico. VETOS: (a) manter o espelho — a simetria é de tela inteira, não de emenda; (b) COSTURA_COBRE adaptada para a copa — uma moita flutuando a 0,45 da pintura, sem tronco, lê como arbusto no céu, e de qualquer forma um remendo de ~60 px não desfaz uma simetria de 780 px: as palmeiras-olho continuam se espelhando ao redor dele; (c) o corte nu do print B — costura vertical dura na copa e no céu é cara de bug, pior que o rosto. APROVADO: sem espelho na peça de cima + coluna vertical aterrada sobre a costura. O raciocínio é de composição: a única forma que cobre com honestidade um corte VERTICAL é uma forma vertical, e na mata a forma vertical honesta é um tronco com copa, plantado no chão — o mesmo idioma do COSTURA_COBRE (elemento determinista da própria arte sobre o eixo), só que em pé, porque o defeito aqui é em pé. Fica ancorado no chão para não quebrar a lógica de profundidade que a moita rasteira já obedece. PEDIDO DE ARTE (só se a pintura não render tronco+copa nas medidas do aceite; copiar inteiro, anexando a pintura de PALMARES como referência — sem referência anexada as folhas de corrida custaram seis voltas): Uma árvore alta da mata atlântica em vista lateral, tronco reto do chão até acima da copa, com copa larga no topo, em pixel art com o mesmo grão e a mesma paleta de verdes e marrons da imagem anexada (é a pintura onde ela vai entrar; não invente cor nova). Fundo magenta #FF00FF puro, sem sombra no fundo. Tamanho em pixels de mundo (CORRIGIDO em 04/09 pelo dev-jogo — o numero antigo, copa 48/tronco 12-16, estava ~3x errado e nunca tinha sido escrito aqui de fato): largura total copa ≥ 143 px, tronco entre 34 e 45 px, altura 967 px (= altura da peça de cima da pintura 2, 959, + 8). Só tronco, galhos e folhas: nenhuma pessoa, nenhum animal, nenhum objeto, nenhuma pintura ou grafismo no tronco, nenhuma casa, nenhum símbolo. Uma imagem só, sem variações.' DÚVIDA para o dev-jogo medir antes de investir: que fração do tempo de caminhada a costura está na tela (largura da pintura ÷ 390 CSS)? Se for < 15%, o custo de uma coluna full-height pode não valer e eu reavalio com o número; se for ≥ 15% (é o que os prints sugerem — o eixo cruza o centro em 32% do ciclo), a coluna entra. ||| ACRESCENTADO em 04/09 pela revisao adversarial do QA (agente adf18384673373e14), NAO decidido, so registrado: a conclusao do dev-jogo de que \"a pintura nao tem tronco viavel\" foi MEDIDA com um criterio (G>B por coluna) que o QA provou ter falso-negativo real dentro de sombra na copa -- afrouxando a tolerancia em 10/255 a cobertura da pintura 2 sobe de 61,4% para 101,5% do exigido (o criterio \"nao-ceu\" da 114,5%). Isso NAO prova que a coluna e viavel (o proprio QA, olhando as pinturas, confirma o julgamento visual de \"folhagem continua, nao arvore\"), mas prova que o NUMERO 61,4%/52,7% nao sustenta a decisao de pedir arte nova -- so o julgamento visual sustenta, e julgamento visual e o trabalho da arte, nao de um script. O QA tambem achou que a simetria-sem-espelho nao reproduz exata (21,9-22,1% medido contra 25,7% alegado na pintura 2) e que o proprio criterio de aceite do item (contraste <=20%) e IMENSURAVEL na pintura 3 com a regua de media-por-linha (piso dela ali e 34,4%, ACIMA do limite) -- escreveu uma terceira regua (derivada horizontal espelhada, test/qa-eixo-terceira-regua.js) com piso mais limpo (3,5-3,7%) que resolveria isso. Os dois instrumentos do QA (test/qa-tronco-criterio.js, test/qa-eixo-terceira-regua.js) estao integrados. Recomendacao registrada: remedir com os instrumentos corrigidos ANTES de mandar o pedido de arte (mesmo corrigido) para a arte -- pode ser que a coluna seja implementavel sem arte nova. ||| NOTA DO REFINO (05/09, pm): o id diz \"emenda-horizontal\" e o defeito e numa costura VERTICAL -- o id ficou de um enquadramento anterior e foi mantido para nao quebrar a continuidade de git log -S. Nao se guie pelo id."
+      "detalhe": "ATUALIZADO em 04/09 pelo dev-jogo, que MEDIU em vez de aplicar: a premissa original do item estava ERRADA — nao e 'worldX inicial', o eixo aparece a 32,1% da caminhada (contraste 94,4-96,5% contra piso de ruido 11,7%), na peca de CIMA (fracao 0,45), x≈192 CSS quando worldX≈458. As DUAS tecnicas que o aceite antigo sugeria foram testadas e as duas caem: (1) deslocar a copia espelhada NAO remove o eixo, so move ele (prova estrutural, reflexao e invariante a translacao da copia refletida — mesma conclusao ja medida pra JABAQUARA); (2) desligar o espelho da peca de cima troca o rosto por um corte vertical duro (a coluna mais dura sobe de 2,17x para 2,47x de |dI/dx|, medido e visto no print B). Precisa de decisao de composicao nova, nao so tecnica. ||| DECISÃO DA ARTE (04/09), olhando os três prints, não a medição: O rosto É perceptível em jogo, e não é local — no print A e no da rua (C) a tela INTEIRA vira Rorschach: a linha da copa forma uma pirâmide com o pico exatamente no eixo, as palmeiras se emparelham à mesma altura dos dois lados (y≈600-700 lêem como olhos), e o aglomerado central a y≈700-950 fecha a máscara; a personagem anda na frente de um totem. É o achado de 21/08 ('duas línguas visuais') em versão de composição: nenhum outro plano do jogo é simétrico. VETOS: (a) manter o espelho — a simetria é de tela inteira, não de emenda; (b) COSTURA_COBRE adaptada para a copa — uma moita flutuando a 0,45 da pintura, sem tronco, lê como arbusto no céu, e de qualquer forma um remendo de ~60 px não desfaz uma simetria de 780 px: as palmeiras-olho continuam se espelhando ao redor dele; (c) o corte nu do print B — costura vertical dura na copa e no céu é cara de bug, pior que o rosto. APROVADO: sem espelho na peça de cima + coluna vertical aterrada sobre a costura. O raciocínio é de composição: a única forma que cobre com honestidade um corte VERTICAL é uma forma vertical, e na mata a forma vertical honesta é um tronco com copa, plantado no chão — o mesmo idioma do COSTURA_COBRE (elemento determinista da própria arte sobre o eixo), só que em pé, porque o defeito aqui é em pé. Fica ancorado no chão para não quebrar a lógica de profundidade que a moita rasteira já obedece. PEDIDO DE ARTE (só se a pintura não render tronco+copa nas medidas do aceite; copiar inteiro, anexando a pintura de PALMARES como referência — sem referência anexada as folhas de corrida custaram seis voltas): Uma árvore alta da mata atlântica em vista lateral, tronco reto do chão até acima da copa, com copa larga no topo, em pixel art com o mesmo grão e a mesma paleta de verdes e marrons da imagem anexada (é a pintura onde ela vai entrar; não invente cor nova). Fundo magenta #FF00FF puro, sem sombra no fundo. Tamanho em pixels de mundo (CORRIGIDO em 04/09 pelo dev-jogo — o numero antigo, copa 48/tronco 12-16, estava ~3x errado e nunca tinha sido escrito aqui de fato): largura total copa ≥ 143 px, tronco entre 34 e 45 px, altura 967 px (= altura da peça de cima da pintura 2, 959, + 8). Só tronco, galhos e folhas: nenhuma pessoa, nenhum animal, nenhum objeto, nenhuma pintura ou grafismo no tronco, nenhuma casa, nenhum símbolo. Uma imagem só, sem variações.' DÚVIDA para o dev-jogo medir antes de investir: que fração do tempo de caminhada a costura está na tela (largura da pintura ÷ 390 CSS)? Se for < 15%, o custo de uma coluna full-height pode não valer e eu reavalio com o número; se for ≥ 15% (é o que os prints sugerem — o eixo cruza o centro em 32% do ciclo), a coluna entra. ||| ACRESCENTADO em 04/09 pela revisao adversarial do QA (agente adf18384673373e14), NAO decidido, so registrado: a conclusao do dev-jogo de que \"a pintura nao tem tronco viavel\" foi MEDIDA com um criterio (G>B por coluna) que o QA provou ter falso-negativo real dentro de sombra na copa -- afrouxando a tolerancia em 10/255 a cobertura da pintura 2 sobe de 61,4% para 101,5% do exigido (o criterio \"nao-ceu\" da 114,5%). Isso NAO prova que a coluna e viavel (o proprio QA, olhando as pinturas, confirma o julgamento visual de \"folhagem continua, nao arvore\"), mas prova que o NUMERO 61,4%/52,7% nao sustenta a decisao de pedir arte nova -- so o julgamento visual sustenta, e julgamento visual e o trabalho da arte, nao de um script. O QA tambem achou que a simetria-sem-espelho nao reproduz exata (21,9-22,1% medido contra 25,7% alegado na pintura 2) e que o proprio criterio de aceite do item (contraste <=20%) e IMENSURAVEL na pintura 3 com a regua de media-por-linha (piso dela ali e 34,4%, ACIMA do limite) -- escreveu uma terceira regua (derivada horizontal espelhada, test/qa-eixo-terceira-regua.js) com piso mais limpo (3,5-3,7%) que resolveria isso. Os dois instrumentos do QA (test/qa-tronco-criterio.js, test/qa-eixo-terceira-regua.js) estao integrados. Recomendacao registrada: remedir com os instrumentos corrigidos ANTES de mandar o pedido de arte (mesmo corrigido) para a arte -- pode ser que a coluna seja implementavel sem arte nova. ||| NOTA DO REFINO (05/09, pm): o id diz \"emenda-horizontal\" e o defeito e numa costura VERTICAL -- o id ficou de um enquadramento anterior e foi mantido para nao quebrar a continuidade de git log -S. Nao se guie pelo id.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T16:13:54.366Z"
     },
     {
       "id": "pequena-africa-costura-ressalva",
@@ -757,7 +760,7 @@
     {
       "id": "rotulo-medicao-anonima",
       "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
-      "estado": "livre",
+      "estado": "em-curso",
       "territorio": [
         "ferramentas/medir-secao.js",
         "ferramentas/chrome-plataforma.js"
@@ -765,7 +768,9 @@
       "camada": "plataforma",
       "aceite": "O rotulo fixo da barra passa a \"medicao anonima\" SOMENTE se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar o scrollWidth da barra — medido, nao estimado. Se nao couber, o item fecha SEM mudanca e com o numero medido registrado: a explicacao completa continua no rodape, e a growth aceitou assim.",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim.",
-      "agente": "dev-plataforma"
+      "agente": "dev-plataforma",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T16:13:54.367Z"
     },
     {
       "id": "dashboard-sem-google",
@@ -985,7 +990,7 @@
     },
     {
       "id": "cartao-decepa-primeira-tabua",
-      "estado": "livre",
+      "estado": "em-curso",
       "titulo": "O cartão publicado: a barra decepa a primeira tábua (lê \"istoria\"), o JPEG não reproduz entre rodadas, e o portão que compara bytes nunca pôde rodar no CI",
       "territorio": [
         "ferramentas/gerar-territorio.js",
@@ -997,7 +1002,9 @@
       "aceite": "Um portao so, com as tres metades: (1) DETERMINISMO -- o gerador do cartao de territorio para de variar entre rodadas; causa nomeada em ferramentas/gerar-territorio.js:1301 (a brasa do pino pulsa pelo relogio), entao o print sai com prefers-reduced-motion: reduce ou com o relogio parado. Prova: 3 execucoes seguidas, sem mudar nada, com o mesmo sha1 -- hoje deram 89.814 -> 89.809 -> 89.789 -> 89.797 bytes. (2) COMPARACAO QUE ATRAVESSA MAQUINA -- o test/cartao-tipografia-fresca.js troca a comparacao byte-a-byte por regiao/IoU, a mesma tecnica que test/cartao-controle.js ja usa, e passa a rodar no CI (hoje nunca rodou: sairia vermelho no Linux, IoU 0,95-0,98 contra Windows por DirectWrite x FreeType). Se a saida for manter byte-a-byte, ele fica fora do workflow e o cabecalho diz isso por extenso, para o verde local parar de parecer cobertura. (3) O TEXTO DENTRO DO RECORTE -- um portao le o texto dentro do recorte 1200x630 e reprova por exit code quando a primeira tabua sai cortada; os portoes atuais so cobram quem NAO pode estar no recorte, nenhum cobra que quem PODE esteja inteiro. Mordida provada por injecao nas tres. Cuidado: PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte -- (1) e (2) existem justamente para destravar isso.",
       "detalhe": "Achado pelo dev-plataforma em 02/09. O territorio/compartilhar.jpg COMMITADO le istoria em vez de A Historia; regerado na nuvem le ponto Historia. E a mesma familia do defeito de 23/08 (cromo vazando para dentro da imagem que o WhatsApp mostra) e PIOROU com a tabua Jogar que a main acrescentou. Nenhum portao olha para isso: os que existem cobram quem NAO pode estar no recorte, e nenhum cobra que quem PODE esteja inteiro. Cuidado ao consertar: o PENDENTES 101b trava regerar cartao em maquina que nao tem a fonte.",
       "nota": "MEDIDO EM 03/09 pela arte, e MUDA O ITEM: o cartao do territorio NAO tem o mesmo defeito dos outros tres nem se conserta com a mesma margem. Ele usa outro molde inteiro (position:fixed;inset:0 com padding:0.9rem, nao o .env centralizado de 44rem), o h1 nasce em x=27 contra os 268 das tres secoes, e no recorte quadrado (que comeca em 285) o titulo O territorio SOME INTEIRO, em vez de perder a primeira letra. E defeito de outra categoria e mais severo. A entrega cartao-margem-esquerda nao o tocou de proposito (territorio de gerar-territorio.js) e por isso este item continua livre: precisa de correcao propria. O QA acrescentou que ninguem mediu a posicao do titulo dele contra o recorte quadrado ate agora.",
-      "agente": "dev-plataforma"
+      "agente": "dev-plataforma",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T16:13:54.367Z"
     },
     {
       "id": "censo-cartao-residuais",
@@ -1309,7 +1316,7 @@
     },
     {
       "id": "vercel-propriedade-dentro-da-regra",
-      "estado": "livre",
+      "estado": "em-curso",
       "camada": "esteira",
       "titulo": "has/missing tornam a regra CONDICIONAL sem mudar um byte do source nem do headers — CSP verde nos cinco portoes e nao servida",
       "territorio": [
@@ -1318,8 +1325,8 @@
       ],
       "aceite": "O conjunto de PROPRIEDADES por regra de headers[] passa a ser fechado no mesmo conferirVercelJson(), do mesmo jeito que o conjunto de CHAVES ja e. Mordida provada por injecao para has, missing e destination (exit 1 real), mais o controle: arquivo limpo continua exit 0. Junto: a semantica de has/missing esta INFERIDA e nao lida na fonte — a maquina que fechar isto tem de ter egresso para vercel.com e citar o documento, ou dizer por extenso que continua inferida.",
       "detalhe": "Achado pelo porteiro em 03/09 fechando vercel-valor-e-topo, e e a TERCEIRA familia — nao e subconjunto de nenhuma das duas que abriram aquele item: nao e chave de cabecalho (a CHAVES_PERMITIDAS nao alcanca) nem chave de topo (a TOPO_DO_VERCEL tambem nao). E propriedade desconhecida DENTRO da regra de headers[], entre source e headers: o unico lugar que nenhum dos cinco portoes le. Medido DEPOIS do conserto, cada injecao sozinha, na regra decisiva /glossario/(.*): has:[{type:header,key:x-nunca-enviado}] sai 0.0.0.0; missing:[{type:header,key:accept}] sai 0.0.0.0; destination:https://exfil.example.com sai 0.0.0.0. has/missing sao a classe GRAVE e sao qualitativamente piores que as outras duas: a CSP continua escrita inteira, pregada no QUADRO_DE_ROTAS e verde nos cinco portoes, e nao e servida numa visita normal. E o unico defeito da familia que deixa o arquivo conferido byte a byte E a pagina publica sem politica. Registrado tambem como PENDENTES 103 no ramo entrega/vercel-valor-e-topo. NAO foi consertado de carona, a pedido do plantao.",
-      "maquina": null,
-      "desde": null,
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T16:13:54.367Z",
       "agente": "porteiro"
     },
     {
@@ -1489,17 +1496,18 @@
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "historiador",
       "camada": "texto",
       "titulo": "A nota de honestidade sobre a arte gasta abertura[4] -- a ultima linha antes de jogar -- em SEIS capitulos, explicando a cozinha do jogo",
       "territorio": [
-        "src/jogo.ts"
+        "src/jogo.ts",
+        "test/qa-praca-quadro-vazio-vira-objeto.js",
+        "NOTES.md"
       ],
       "aceite": "DECISAO DO DONO: a nota continua na abertura, ou se aposenta dali e vira uma linha so em DE ONDE VEM ou no fecho, devolvendo a ultima linha ao capitulo? A historiadora NAO decidiu de proposito: muda o que o jogo promete ao jogador. Se ele disser sim, o trabalho e meia hora e as seis falas viram cinco.",
       "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:29:07.871Z"
+      "feito": "Feito em 05/09 pela historiadora no worktree agent-afca260b8fb840c23. O DONO DECIDIU no check do dia: a nota muda de lugar. Nos SEIS capitulos (O CAIS, JABAQUARA, A PEQUENA AFRICA, AS PORTAS, O QUE NAO PODIA SER DITO, A PRACA) a abertura passou de 5 para 4 falas -- com o querer, a leitura de entrada foi de 6 para 5 --, aberturaImg perdeu a quinta posicao (que ja era null) e a nota foi INTEIRA para o FIM do fecho, sem uma palavra reescrita. A abertura volta a terminar no verbo do capitulo. TRES decisoes medidas sustentam o destino: (1) fim do fecho e nao comeco, porque mostrarFecho() reusa aberturaImg por POSICAO e uma linha nova no comeco empurraria cada pintura de contexto para a fala seguinte -- o modo de falha do encaixe.js bloco 1; (2) fecho e nao DE ONDE VEM, porque ferramentas/gerar-fontes.js conta como fonte toda entrada com t e imprime o numero na pagina publica, e seis notas de producao fariam a plataforma anunciar seis fontes que ela nao tem; (3) a oracao dos contadores NAO viajou junto -- \"os tres contadores la em cima\" aponta para o HUD, que nao esta na tela durante o fecho, e frase que vira falsa ao mudar de lugar nao se muda de lugar. Conferido que a subtracao nao fecha porta: nenhum dos 184 verbetes casa com as palavras dela, entao AS PALAVRAS DAQUI dos seis continua igual. Estado da arte RECONFERIDO contra PACK_DA_CENA / GENTE_EP_B64 / arteCap antes de mover, nao copiado do texto antigo. npm test e node test/encaixe.js verdes por exit code; bloco 1 le \"4 falas para 4 imagens\" nos seis; bloco 15 continua com a fala mais comprida do jogo em 258 e as seis linhas movidas medem 168 a 174. Diario no NOTES.md do mesmo commit."
     },
     {
       "id": "guarda-worktree-nao-cobre-comando-nao-git",
@@ -1661,7 +1669,7 @@
     },
     {
       "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "O bloco 5 do encaixe.js compara a fala com um modelo de motor que deixou de existir em 16/08 -- e por isso aprova fala que promete verbo que o capitulo nao tem",
@@ -1670,12 +1678,11 @@
       ],
       "aceite": "O bloco 5 passa a derivar o motor do CODIGO e nao de uma constante congelada: temAcolher tem de sair de capFila() e temPalavra de CAPS_VERBO, e nao de i === CAP_GENTE / i === CAP_PALAVRA. Mordida provada por injecao, e o caso ja esta escrito: a fala injetada em O ACEIRO (que esta em CAPS_VERBO e NAO tem fila) prometendo a fila tem de sair exit 1 -- hoje sai 0 nos dois portoes. E o comentario obsoleto de src/jogo.ts:1467 (gente e so PALMARES, e la que existe fila) sai junto, porque e a mesma afirmacao congelada em outro lugar.\n\nESCOPO ESTREITADO em 05/09 (pm): src/jogo.ts sai do território. O conserto é do portão; a única coisa que este item tinha em src/jogo.ts era um comentário obsoleto na linha 1467, e um comentário não vale tomar o slot de escritor exclusivo do arquivo de 15 mil linhas — ele pega carona no próximo item que abrir src/jogo.ts (hoje praca-tres-celulas-mostram-pessoa-em-dobro).",
       "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado.",
-      "maquina": "nuvem-20260905T1223",
-      "desde": "2026-09-05T12:25:30.651Z"
+      "feito": "2026-09-05T14:10:00.000Z"
     },
     {
       "id": "qa-fala-salvador-caixa-amigo-falso",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
@@ -1684,8 +1691,7 @@
       ],
       "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
       "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao.",
-      "maquina": "nuvem-20260905T1223",
-      "desde": "2026-09-05T12:25:30.651Z"
+      "feito": "2026-09-05T13:45:00.000Z"
     },
     {
       "id": "caixa-da-fala-so-medida-em-salvador",
@@ -1829,7 +1835,7 @@
     },
     {
       "id": "privacidade-publicada-nao-menciona-caminho-escolar",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "O texto PUBLICADO de /privacidade/ nao menciona o caminho escolar -- so as notas internas do markdown-fonte descrevem",
@@ -1839,8 +1845,9 @@
       ],
       "aceite": "Acrescentar ao texto PUBLICAVEL (secao 9, Criancas e adolescentes, ou onde fizer mais sentido) uma frase afirmando o mecanismo do caminho escolar -- ja documentado nas notas internas da secao R1. Depois: node ferramentas/gerar-privacidade.js e confirmar fidelidade texto->HTML.",
       "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (porteiro+porteiro(2a)+qa, integrado via funil, commit a77da071a2). Mecanismo ?origem=escola movido para dentro da secao 9 Criancas e adolescentes de plataforma/privacidade-texto.md, acima do corte de publicacao. Esquecido de fechar no backlog no momento da integracao -- corrigido agora."
     },
     {
       "id": "territorio-jpeg-brasa-nao-deterministico",
@@ -1873,23 +1880,23 @@
     },
     {
       "id": "sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "Sem lockfile, npm install resolve playwright para uma versao cuja build de navegador o conteiner nao tem -- e o PLANTAO manda rodar npm install",
       "territorio": [
-        "package.json",
-        ".gitignore",
+        "test/portao-navegador.js",
+        "test/*.js (46 instrumentos)",
         "PLANTAO.md"
       ],
       "aceite": "Decidir entre as saidas e medir a escolhida: (a) versionar o package-lock.json (hoje esta no .gitignore) e fixar a versao que casa com a build provisionada; (b) pregar playwright numa versao exata no package.json; (c) aceitar a flutuacao e garantir que TODO portao use ABRIR.chromiumPath(), que e o que o portao-navegador.js ja cobra desde 05/09 -- nesse caso a saida (c) ja esta em vigor e o que falta e escreve-la no PLANTAO.md. Qualquer saida precisa da medicao: com a saida aplicada, um conteiner novo roda npm install e npm test sem erro de navegador. Cuidado: (a) muda o que o CI instala e o CI hoje roda npx playwright install, entao meca os dois lugares.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0023, e e a causa de raiz de dois vermelhos desta rodada. O conteiner traz /opt/pw-browsers/chromium-1194 e chromium_headless_shell-1194 provisionados. Nao ha lockfile (o .gitignore o exclui), entao npm install resolve playwright: ^1.47.0 para 1.63.0, que procura a build 1243. Lancamento nu morre com Executable does not exist at .../chromium_headless_shell-1243 e a mensagem manda instalar navegador, apontando para o lugar errado: o navegador esta no disco, o que falta e dizer onde. O PLANTAO 7 manda rodar npm install antes do primeiro funil da rodada -- as duas ordens sao certas e nao se separam sozinhas. A saida (c) e a mais barata e ja esta quase toda de pe.",
       "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.515Z"
+      "feito": "Decidida a saida (c) por dev-jogo em 05/09, e as outras duas recusadas com motivo: (a) lockfile e (b) versao exata resolvem prendendo o Playwright a build que UM conteiner tem hoje, e a imagem da nuvem nao e nossa, troca sem avisar, e o CI roda npx playwright install e nao paga esse preco -- prender a versao e apostar que o ambiente nao muda, e foi o ambiente mudando que abriu o item. A (c) nao aposta em nada: ABRIR.chromiumPath() aponta para o navegador que a maquina REALMENTE tem, e onde nao ha provisionamento devolve undefined, que e o lancamento nu de antes. O ACHADO que muda o tamanho do item: a (c) NAO estava quase de pe. O portao-navegador.js cobrava executablePath e estava VERDE, mas o alcance dele era derivado do CI -- 74 arquivos. Medido antes de mexer com a launchesNus() do proprio portao (nao um grep proprio): test/ e ferramentas/ tem 166 arquivos que abrem Chromium e 46 lancamentos NUS, os 46 FORA do alcance e ZERO dentro. Entre os 46, quatro que o CLAUDE.md manda rodar a mao (medir-na-tela.js, tirar-icc.js, peso-file-fetch.js, os inline-*.js) e a suite prints-costura.js, que produziu a prova do CAMINHO-DO-CEU. O manual apontava para ferramentas mortas na nuvem. Fechado nos dois lados: 46 vestidos com ABRIR.chromiumPath() (20 ganharam o require; 66 insercoes, 46 delecoes, sintaxe conferida arquivo a arquivo por node --check), e o alcance passou de 74 para 247 -- test/ e ferramentas/ inteiras por varredura RECURSIVA de diretorio, mesmo argumento ja aceito em 02/09 para os gerar-*.js, agora sem o recorte por nome. Conferido que a varredura e completa: nenhum subdiretorio das duas pastas abre Chromium e nao ha um unico chromium.launch fora delas. MORDIDA PROVADA COM A/B contra o portao antigo (extraido de HEAD), reinjetando o nu em quatro arquivos antes invisiveis: portao NOVO exit 1 nos quatro, portao ANTIGO exit 0 nos quatro -- falso verde nos quatro. Autoteste ganhou a quarta cobaia, prints-costura.js, a unica que so a varredura de diretorio alcanca (nao esta no YAML, nem no package.json, nao e gerar-* e ninguem a requer): morde e solta nas 4. npm test exit 0 e node test/encaixe.js exit 0. PLANTAO.md 7 atualizado: a ordem de rodar npm install antes do primeiro funil continua valendo inteira, agora sem o contra-efeito."
     },
     {
       "id": "anti-recopia-nao-ve-arquivo-que-nao-filtra-nada",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "O portao anti-recopia sai exit 0 para arquivo NOVO que decide por erro de console e nao filtra NADA -- e isso ja aconteceu, na mesma hora",
@@ -1898,12 +1905,13 @@
       ],
       "aceite": "O portao passa a reprovar arquivo de test/ que DECIDE por erro de console (erro vira reprovacao) e nao passa pelo helper -- hoje ele so cobra duas coisas: que arquivo GOVERNADO continue no helper, e que ninguem REIMPLEMENTE o filtro a mao. Cuidado com o falso positivo que o proprio QA pagou: o portao ja reprova arquivo que carrega o padrao como CARGA de texto (sonda de teste), e o QA teve de montar as palavras por concatenacao duas vezes -- o incentivo esta invertido, quem for testar esta area precisa contornar o portao. Mordida a provar por injecao: um arquivo novo com page.on(console) sem helper e com o erro virando reprovacao tem de sair exit 1; um que so LOGA continua exit 0; e uma sonda que carrega o padrao como texto tambem continua exit 0.",
       "detalhe": "NAO E HIPOTESE, e o caso aconteceu enquanto a entrega era integrada. Medido em 05/09 por nuvem-20260905T0023: a outra maquina empurrou test/qa-gente-quadro-que-chega.js enquanto o funil rodava, com page.on(console) sem filtro nenhum, e o npm test do merge saiu exit 1 REAL em net::ERR_TUNNEL_CONNECTION_FAILED do MEDIDA_HOST -- o mesmo defeito que a entrega acabara de centralizar em 18 portoes. O portao anti-recopia saiu ANTIRECOPIA_EXIT_REAL=0 nas duas situacoes, antes e depois do conserto. A classe voltou por baixo do portao criado para ela, dentro da mesma hora, escrita por outra maquina. Conserto do arquivo em a56b4dc; o buraco do portao e este item.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.410Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "anti-recopia-burlavel-em-10-de-13-formas",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "O portao anti-recopia pega 3 de 13 formas de reescrever o filtro a mao -- includes e indexOf, as duas mais provaveis, passam",
@@ -1912,12 +1920,13 @@
       ],
       "aceite": "Fechar as formas medidas ou ESTREITAR a promessa escrita no cabecalho, que hoje e mais larga que o que o portao mede. Mordida provada por injecao, uma forma por vez, com controle limpo exit 0 antes de cada. As 10 que burlam hoje, medidas pelo QA em 05/09 com arquivo novo por forma: indexOf · includes · .match(/.../) · .exec(/.../) · .search(/.../) · regex guardada em constante · new RegExp(string) · array de palavras mais some() · comparacao de .url() por substring · e ARQUIVO EM SUBPASTA de test/, porque o readdirSync nao e recursivo. As 3 que ele pega: a forma do autor (regex literal mais .test(), a mesma aninhada em tres if, e helper local com outro nome.",
       "detalhe": "Ressalva nao bloqueante do QA em 05/09 (nuvem-20260905T0023), na auditoria de filtro-de-console-copiado-por-arquivo. A parte que FUNCIONA e vale registrar: a trava de regressao nos GOVERNADOS morde de verdade -- require removido de smoke.js da exit 1 nomeando o arquivo, restaurado da exit 0. O problema e so a promessa larga: portao anti-recopia que so pega a forma exata que o autor imaginou e decoracao, e includes/indexOf sao a forma mais provavel de alguem reescrever isso.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.410Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "rede-externa-compara-prefixo-cru-e-cala-dominio-vizinho",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "leve",
       "titulo": "ehRuidoDeRedeExterna compara prefixo cru: um dominio que COMECA com o MEDIDA_HOST e calado junto",
@@ -1926,8 +1935,9 @@
       ],
       "aceite": "Trocar url.indexOf(MEDIDA_HOST) === 0 por url === MEDIDA_HOST || url.startsWith(MEDIDA_HOST + barra). Mordida provada por unidade nos dois sentidos: o host de verdade continua calado, e os dois vizinhos passam a acusar. Conserto de uma linha.",
       "detalhe": "Achado do QA em 05/09 (nuvem-20260905T0023) como gap, medido por unidade: hoje sao CALADOS https://us.i.posthog.com.atacante.example/x e https://us.i.posthog.comx.example/x. E PRE-EXISTENTE na main, nao veio da entrega do filtro de console -- que e justamente por que ele agora importa mais: o helper deixou de ser usado por 3 arquivos e passou a ser usado por 21, entao um defeito dele deixou de ser local. Nao e explorabilidade de producao (isto e instrumento de teste), e sim uma cegueira que cresceu de tamanho.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T03:26:48.399Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (dev-jogo+qa, integrado via funil, commit 2290ffd). Ficou pendente de integrar por atropelo de agenda do plantao (o QA revisou ha varias rodadas, nenhuma mudanca desde entao)."
     },
     {
       "id": "checar-ci-nao-roda-na-nuvem-que-e-onde-o-buraco-aconteceu",
@@ -1946,7 +1956,7 @@
     },
     {
       "id": "praca-tres-celulas-mostram-pessoa-em-dobro",
-      "estado": "em-curso",
+      "estado": "concluido",
       "agente": "arte",
       "camada": "medio",
       "titulo": "PENDENTES 109+110: corte de sprite pendente em GENTE_EP_B64 -- 3 celulas de A PRACA mostram pessoa em DOBRO (f0q3,f2q3,f2q6), praca f2q7 e pindorama f2q7 continuam vazios, todas do MESMO defeito de corte (celula dobrada)",
@@ -1957,8 +1967,9 @@
       ],
       "aceite": "Cortar as celulas dobradas em poses de verdade (arte julgando o resultado antes de aceitar), nao com tapar-buraco-gente.js (ele copia, nao corta). Escopo, do mais simples ao mais sensivel: (1) praca f0q3/f2q3/f2q6 -- capitulo sem sensibilidade extra de S2; (2) praca f2q7 -- fica preenchido de graca depois do corte de f2q6; (3) pindorama f2q6/f2q7 -- capitulo dos povos originarios, S2.1, PRIORIDADE MAIS ALTA dentro deste item. Pendurar test/qa-praca-o-que-a-pessoa-ve.js (ja escrito pelo QA) no npm test ANTES de cortar, para a regua existir antes da mudanca.",
       "detalhe": "Achado pelo QA (agente a7e6fc325430568eb) em 05/09 ao revisar a integracao de quadros-de-gente-vazios-na-fonte. Os 3 portoes de gente existentes medem tinta/largura/booleano, nenhum olha o pixel que sai. O novo instrumento desenha os 24 passos com a matematica do motor: 20/24 uma pessoa, 3 pessoa em dobro (f0q3,f2q3,f2q6 -- corredor de 24-28 colunas vazias na fracao 0,49-0,50 da largura, 2x a tinta das vizinhas), 1 objeto (f2q7). Ver PENDENTES.md item 110. || Ampliado em 05/09 (plantao) para incluir pindorama f2q6/f2q7, que e o MESMO defeito de corte (celula dobrada) documentado desde 04/09 e nunca fechado -- ver PENDENTES.md itens 109 e 110. Nao ha item de backlog separado para pindorama; este passa a ser o item guarda-chuva do corte de sprite pendente.",
-      "maquina": "windows-plantao-20260904T1343",
-      "desde": "2026-09-05T05:41:10.514Z"
+      "maquina": null,
+      "desde": null,
+      "feito": "Fechado em 05/09 (arte+dev-jogo+qa, integrado via funil, commit 02e98e5). As 6 celulas dobradas de GENTE_EP_B64 (praca f0q3/f2q3/f2q6, pindorama f2q6, temfonte f2q5, segurou f2q5) cortadas em poses de verdade nas coordenadas aprovadas pela arte. 312/312 quadros com tinta (era 308), zero copia byte-identica, zero celula larga. Achado que reformula PENDENTES 109+110: eram o MESMO defeito visto de dois lados (o cortador por blob gerava vazio+dobrado na mesma fileira -- cortar a dobrada produz exatamente o quadro que faltava, nada inventado). QA independente confirmou visualmente que PINDORAMA (povos originarios, S2.1) nao ganhou representacao nova (mesma anciera, colar, pintura corporal, vasilha). 2 itens novos abertos por design (PENDENTES 111: celula inchada -- pindorama f2q0 e segurou f2q0 sao os piores casos, sugestao do QA de comecar por ai dado que pindorama e S2.1; PENDENTES 112: nenhuma fileira e ciclo de caminhada real). Ferramenta nova: test/cortar-celula-dobrada-gente.js, com 3 recusas de seguranca."
     },
     {
       "id": "ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem",
@@ -2017,6 +2028,50 @@
       ],
       "aceite": "As quatro passam a guardar o CORPO da resposta e a classificar por ferramentas/rede-da-casa.js (classificar()), como o conferir-agentes.js ja faz: falta de egresso sai como sem-egresso e diz que nao e credencial; 401/403 vindos do proprio destino saem como credencial. NENHUMA troca de transporte -- so mensagem, que foi a regra que manteve a entrega de 05/09 sem risco. Mordida provada por injecao em CADA uma (exit code real), e o controle de que o caminho de SUCESSO nao mudou. Se alguma das quatro nao puder ser exercitada com exit code real nesta maquina, diga isso por extenso em vez de mudar no escuro -- foi por isso que elas ficaram de fora em 05/09.",
       "detalhe": "Sobra declarada da entrega rede-da-casa-egresso-honesto (05/09, nuvem-20260905T0822). Elas ficaram de fora porque NENHUMA e exercitada pelo CI, entao nao havia como provar a mudanca com exit code real, e mudar quatro ferramentas no escuro e o oposto do que aquela entrega defende. Os hosts das quatro (servicodados.ibge.gov.br, <proj>.supabase.co, us.posthog.com, matheusferreira.cc, us.i.posthog.com) estao TODOS fora da lista de egresso da nuvem -- medido: 403 \"Host not in allowlist\" direto e CONNECT recusado no tunel. Consequencia pratica para quem pegar: nesta maquina o unico desfecho observavel das quatro e o de FALHA, e ele e justamente o que o item conserta; o caminho de sucesso so pode ser provado por injecao ou na maquina do dono."
+    },
+    {
+      "id": "portao-fala-topo-na-tela",
+      "estado": "em-curso",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "As tres assercoes que dao NOME ao portao da caixa da fala sao tautologia: fala de 1400 caracteres passa verde a 320x568 com topo -356",
+      "territorio": [
+        "test/qa-fala-cabe-de-verdade.js",
+        "test/qa-fala-salvador-caixa.js"
+      ],
+      "aceite": "O portao passa a cobrar caixa.top >= 0, que e o unico dos quatro numeros que responde a pergunta do titulo e que hoje e IMPRESSO sem ser COBRADO, e passa a valer para as 26 conversas (13 aberturas + 13 fechos), nao so para SALVADOR. O trabalho JA EXISTE e esta empurrado em entrega/portao-fala-topo-na-tela (test/qa-fala-cabe-de-verdade.js, 26 conversas x 2 telas): auditar e integrar, NAO recomecar. Mordida ja provada pelo autor e a reconferir: QAFALA_CONTROLE=1400 reprova 26 assercoes, pior topo -466 px; limpo exit 0 com folga minima de 260 px (NAO DITO a 320x568). Decidir tambem se o instrumento novo SUBSTITUI as tres assercoes velhas ou convive com elas -- deixar tautologia assinando de verde ao lado do portao que morde e o pior dos dois mundos.",
+      "detalhe": "Achado do QA em 05/09 (auditoria de qa-fala-salvador-caixa-amigo-falso, nuvem-20260905T1223), PROVADO POR MEDICAO. O portao se chama A FALA NOVA CABE NA CAIXA? e as tres assercoes que respondem isso sao incapazes de reprovar. Medido a 320x568 reescrevendo abertura[4] na pagina: 258 chars -> caixa 269/269 topo 282 base 550 PASSA; 700 chars -> caixa 511/511 topo 40 base 550 PASSA; 1400 chars -> caixa 907/907 numa janela de 568, topo -356, base 550, e o portao diz tudo verde. Causa: #falaPalco e #falaCaixa tem overflow visible e altura auto (computed h 268.5px, minH auto, maxH none, of visible), e elemento que nao corta e nao rola tem scrollHeight === clientHeight SEMPRE -- as duas primeiras assercoes comparam um numero com ele mesmo. A terceira nao dispara porque a caixa e ancorada embaixo e cresce para cima, entao base fica constante em 550 nas tres linhas. NAO E DEFEITO DE PRODUTO HOJE, e o numero importa para nao virar panico: a maior fala do jogo e justamente a medida (SALVADOR abertura[4], 258 chars, teto 260 do encaixe.js) e a folga de pixel a 320x568 e de 282 px ~ 515 caracteres. Quem segura a linha e o teto de CARACTERES do encaixe.js, nao estas tres assercoes de pixel -- e isso nao estava escrito em lugar nenhum. CAI JUNTO uma premissa do cabecalho original do arquivo: medir antes da revelacao terminar NAO corrompe a geometria (65 de 258 chars devolvem palco 132/132 e caixa 247/247, identicos ao completo), porque #falaFantasma dimensiona a caixa empilhando todas as linhas da conversa invisiveis na mesma celula de grade. A revelacao incompleta corrompe so o ROTULO, nunca o numero.",
+      "maquina": "nuvem-20260905T1623",
+      "desde": "2026-09-05T16:25:01.913Z"
+    },
+    {
+      "id": "verbo-e-fala-passa-a-vazio",
+      "estado": "em-curso",
+      "agente": "qa",
+      "camada": "esteira",
+      "titulo": "24 das 26 assercoes do bloco 5 passam A VAZIO: JABAQUARA pode trocar de familia de verbo com a abertura intacta e o encaixe.js inteiro sai EXIT 0",
+      "territorio": [
+        "test/qa-verbo-e-fala.js",
+        "test/encaixe.js"
+      ],
+      "aceite": "O lado que a implicacao deixou de cobrir (motor TEM o verbo e a fala NAO promete) passa a ter guarda, SEM cobrar frase-molde de quem nomeia o gesto no idioma proprio. O trabalho JA EXISTE e esta empurrado em entrega/verbo-e-fala-passa-a-vazio (test/qa-verbo-e-fala.js): auditar e integrar, NAO recomecar. Ele fecha por registro nominal por id ({familia, frase}), em que cada capitulo declara a frase com que a SUA abertura nomeia o gesto -- mesma disciplina da lista de excecao do bloco 32, e capitulo novo com verbo passa a exigir uma linha visivel no diff. Mordida ja provada pelo autor e a reconferir: limpo exit 0 duas vezes (piso 0); QA_SEM_FRASE=cais exit 1 nomeando O CAIS; QA_SEM_FRASE=aceiro exit 1 nomeando O ACEIRO; injecao D exit 1 nomeando JABAQUARA, onde o encaixe.js inteiro sai 0.",
+      "detalhe": "Achado do QA em 05/09 (auditoria do bloco 5, nuvem-20260905T1223), PROVADO POR INJECAO. A entrega do bloco 5 trocou igualdade por implicacao (promessa => motor) e isso foi a decisao certa -- cobrar a frase-molde de Palmares/Salvador dos outros reprova VOCABULARIO, nao divida, porque as 10 aberturas nomeiam o gesto no idioma proprio (juntar gente na pedra, abrir caminho, guardar o lugar, abrir a porta, fazer passar, chegar na ultima casa, Alcance quem puder). Mas a implicacao morde num sentido so, e o preco tem numero: o antecedente so e verdadeiro em PALMARES (acolher) e SALVADOR (palavra) -- exatamente os 2 que o modelo congelado ja testava. O bloco guarda 2 dos 12 capitulos com motor; 24 das 26 assercoes passam a vazio. PERDA DE COBERTURA REAL HOJE: ZERO -- os 10 capitulos no estado motor-tem-fala-nao-promete nomeiam todos o gesto, nenhum e divida hoje. O que existe e a AUSENCIA DE GUARDA, provada pela injecao D do QA: JABAQUARA sai de CAP_FILA e entra em CAPS_VERBO -- a mao troca de gesto e a abertura continua dizendo alcancar e abrir caminho, o da roca, para quem ja chegou -- e node test/encaixe.js INTEIRO sai EXIT 0, zero falhas. Uma abertura mentindo, portao verde. O censo do bloco 32 tambem passa, porque o capitulo continua tendo verbo, so que o outro. GAPS IRMAOS registrados na mesma auditoria: promete_colher e calculado, logado e NUNCA asseverado nas duas versoes do bloco (13 capitulos de dado morto no log); o bloco 5 mede so a primeira cena da epoca (medido estavel hoje nas 13, mas nada cobra isso); e o regex e regua invisivel -- quem esperava CAMINHA com voce (O CAIS) esta a uma palavra de passa a andar com voce, e ninguem aprovou essas duas expressoes como A definicao de promessa.",
+      "maquina": "nuvem-20260905T1623",
+      "desde": "2026-09-05T16:25:01.929Z"
+    },
+    {
+      "id": "portao-navegador-varre-disco-nao-git",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "leve",
+      "titulo": "portao-navegador.js (varredura recursiva) reprova por arquivo de scratch IGNORADO pelo git -- ele varre o DISCO, nao o que sera versionado",
+      "territorio": [
+        "test/portao-navegador.js"
+      ],
+      "aceite": "O portao passa a pular arquivos que o git ignora (git check-ignore, ou ler .gitignore) antes de exigir executablePath -- scratch local nunca deveria poder derrubar um funil. Mordida provada nos dois sentidos: arquivo scratch IGNORADO que lanca nu continua passando; arquivo RASTREADO (ou rastreavel) que lanca nu continua reprovando.",
+      "detalhe": "Achado em 05/09 pelo plantao ao integrar sem-lockfile-o-playwright-flutua: um arquivo test/tmp-varre.js (scratch de uma investigacao anterior, nunca commitado, casando com test/TMP* do .gitignore) lancava Chromium nu e o portao recem-tornado-recursivo reprovou o merge por causa dele. Removido do disco antes de integrar (nao fazia parte de nenhuma entrega), mas o portao continua vulneravel a qualquer scratch futuro de qualquer agente/maquina.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }

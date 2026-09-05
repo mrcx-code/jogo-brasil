@@ -48,7 +48,7 @@ async function abrirMenuParado(page) {
 }
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const erros = [];
   for (const t of TELAS) {
     const pg = await nav.newPage({ viewport: { width: t.w, height: t.h }, deviceScaleFactor: 2,
