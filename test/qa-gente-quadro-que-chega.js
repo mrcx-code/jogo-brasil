@@ -34,6 +34,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const ABRIR = require('./abrir.js');
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
 const ALVO = ABRIR('file://' + path.resolve(__dirname, '..', 'index.html'));
 
 // capitulo -> ["fQ"], os quadros vazios que este portao ACEITA hoje, com o motivo.
@@ -73,7 +74,7 @@ const INJETAR = (process.env.GENTE_INJETAR || '').trim();   // "cap:fileira:quad
   const page = await nav.newPage({ viewport: { width: 390, height: 844 } });
   const erros = [];
   page.on('pageerror', e => erros.push(String(e)));
-  page.on('console', m => { if (m.type() === 'error') erros.push(m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push(m.text()); });
   await page.goto(ALVO, { waitUntil: 'load' });
   await page.waitForFunction('typeof EPOCAS !== "undefined" && typeof mobFrame === "function" && typeof esperando === "function"', { timeout: 30000 });
 
