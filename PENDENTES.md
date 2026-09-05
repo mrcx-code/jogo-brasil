@@ -4358,3 +4358,35 @@ deliberação em aberto de um jeito que também funcionaria para uma futura.
 dono decidir a regra dos 5" virou "os grupos fora do escopo deste lote continuam fora até revisão
 do dono" — mesmo sentido operacional para quem já conhece o vocabulário do `PINOS-PROPOSTA.md`, sem
 nomear "PARE" nem uma "regra dos 5" para quem só tem o link do dashboard.
+
+---
+
+## 109 — A PRAÇA continua com TRÊS quadros de gente vazios, e tirá-los é da historiadora — dev-jogo (04/09)
+
+O item `quadros-de-gente-vazios-na-fonte` foi fechado **pela metade, de propósito**. Dos seis
+quadros 1×1 de `GENTE_EP_B64`, três foram tapados (PINDORAMA `f2q7`, O QUE SEGUROU `f2q7`, O QUE
+TEM FONTE `f2q0`) e a pessoa parou de virar barril/saco nesses passos. **Os três de A PRAÇA
+(`f0q7`, `f2q0`, `f2q7`) ficaram como estavam**, e o motivo não é técnico:
+
+- a **abertura de A PRAÇA afirma o defeito em voz alta**: *"Quem atravessa a tela já foi
+  desenhado para cá, mas não inteiro: em alguns passos entra um objeto no lugar da pessoa."*
+- `test/qa-praca-quadro-vazio-vira-objeto.js` existe para cobrar que essa frase tenha **prova
+  viva**, e reprova se nenhum passo cair no objeto. Ele é perecível de propósito e diz isso na
+  mensagem de falha.
+- Preencher os três torna metade da frase **falsa**. Reescrever fala de capítulo é território da
+  **historiadora** (`EPOCAS[]`), não do dev — e a própria historiadora deixou o aviso no código,
+  ao lado da fala: *"⚠ QUEM FECHAR O ITEM `quadros-de-gente-vazios-na-fonte` VOLTA AQUI"*.
+
+**O que falta, e é uma coisa só:** a historiadora decide a fala nova de A PRAÇA (o teto de 260
+caracteres do `encaixe.js` bloco 15 vale, e a fala das outras cinco é o molde). No mesmo commit,
+o dev roda `node test/tapar-buraco-gente.js praca 0 7`, `praca 2 0`, `praca 2 7`, tira a linha
+`praca` de `CONHECIDOS` em `test/qa-gente-quadro-que-chega.js`, declara os três remendos em
+`REMENDOS`, e aposenta (ou reescreve) o `qa-praca-quadro-vazio-vira-objeto.js`, que perde o
+objeto que ele cobra. **Ordem importa:** a fala primeiro, senão o jogo passa a afirmar o que
+deixou de ser verdade.
+
+**O melhor conserto continua sendo arte:** o remendo copia a pose vizinha da mesma fileira — a
+pessoa é a mesma e ninguém some, mas uma pose fica segurada por dois tempos. Folha nova de A
+PRAÇA (e as três figuras que faltaram nas outras) resolve os quatro capítulos de vez; o portão
+`qa-gente-quadro-que-chega.js` avisa sozinho quando isso acontecer, porque cobra que todo
+remendo declarado ainda seja remendo.
