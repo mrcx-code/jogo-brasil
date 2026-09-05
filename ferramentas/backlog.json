@@ -1409,7 +1409,7 @@
     },
     {
       "id": "tabuleiro-pano-listrado-do-dono",
-      "estado": "do-dono",
+      "estado": "concluido",
       "agente": "dono",
       "camada": "representacao",
       "titulo": "PAR.2 — a arte nova do tabuleiro e uma bandeja coberta por PANO LISTRADO COM FRANJA, o mesmo motivo textil do pano da costa que acabou de sair",
@@ -1418,7 +1418,8 @@
         "assets/objetos/drop-cap4-trouxa.webp"
       ],
       "aceite": "DECISAO DO DONO. A pergunta, nas palavras do QA: a troca tirou o culto da MAO, ou tirou o NOME dele? Se for toalha comum de tabuleiro, nada a fazer. Se o motivo listrado ler como alaka, a arte troca — e ai e pedido de arte, nao conserto de codigo.",
-      "detalhe": "Levantado pelo QA em 04/09 ao auditar a entrega que ele mesmo aprovou. A medida que sustenta a pergunta: entre as 518 imagens do jogo, a mais parecida com o pano da costa (o drop ritual que saiu) e JUSTAMENTE o tabuleiro novo, distancia 33,4 — era esse o minimo da matriz do proprio autor do portao. A trouxa nova e feita do mesmo tecido listrado, e e o mesmo tecido que a ganhadeira usa na cintura no sprite de gente. NAO bloqueou a entrega, e a razao esta escrita: o estado anterior (acaraje, pano da costa e buzios recolhiveis do chao) e violacao inequivoca do 2.4.5, ja reconhecida pelo dono em 03/09, e a troca reduz a violacao em qualquer leitura da pergunta acima — segurar deixaria o pior estado no ar. Mas o 2 diz que na duvida sobre representacao quem decide e ele. Imagem: test/SALVDROP-depois-perto.png."
+      "detalhe": "Levantado pelo QA em 04/09 ao auditar a entrega que ele mesmo aprovou. A medida que sustenta a pergunta: entre as 518 imagens do jogo, a mais parecida com o pano da costa (o drop ritual que saiu) e JUSTAMENTE o tabuleiro novo, distancia 33,4 — era esse o minimo da matriz do proprio autor do portao. A trouxa nova e feita do mesmo tecido listrado, e e o mesmo tecido que a ganhadeira usa na cintura no sprite de gente. NAO bloqueou a entrega, e a razao esta escrita: o estado anterior (acaraje, pano da costa e buzios recolhiveis do chao) e violacao inequivoca do 2.4.5, ja reconhecida pelo dono em 03/09, e a troca reduz a violacao em qualquer leitura da pergunta acima — segurar deixaria o pior estado no ar. Mas o 2 diz que na duvida sobre representacao quem decide e ele. Imagem: test/SALVDROP-depois-perto.png.",
+      "feito": "Decidido pelo dono em 05/09 (check): e toalha comum de tabuleiro, motivo generico, nao le como alaka. Nada a fazer -- a troca ja reduz a violacao anterior (pano da costa + buzios recolhiveis) em qualquer leitura."
     },
     {
       "id": "fala-acaraje-dupla-natureza",
@@ -1474,7 +1475,7 @@
     },
     {
       "id": "nota-honestidade-gasta-a-ultima-linha",
-      "estado": "do-dono",
+      "estado": "em-curso",
       "agente": "historiador",
       "camada": "texto",
       "titulo": "A nota de honestidade sobre a arte gasta abertura[4] -- a ultima linha antes de jogar -- em SEIS capitulos, explicando a cozinha do jogo",
@@ -1482,7 +1483,9 @@
         "src/jogo.ts"
       ],
       "aceite": "DECISAO DO DONO: a nota continua na abertura, ou se aposenta dali e vira uma linha so em DE ONDE VEM ou no fecho, devolvendo a ultima linha ao capitulo? A historiadora NAO decidiu de proposito: muda o que o jogo promete ao jogador. Se ele disser sim, o trabalho e meia hora e as seis falas viram cinco.",
-      "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela."
+      "detalhe": "Levantado pela historiadora em 04/09 (nuvem-20260904T1623) ao reescrever as seis falas. A nota nasceu quando a arte ERA emprestada e cumpriu o papel dela; hoje, com pintura e gente proprias em cinco capitulos, ela gasta a linha que o jogador mais le para falar de producao. Ninguem propoe apagar a honestidade -- a proposta e mudar o LUGAR dela.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T05:29:07.871Z"
     },
     {
       "id": "guarda-worktree-nao-cobre-comando-nao-git",
@@ -1748,7 +1751,7 @@
     },
     {
       "id": "padrao-coleta-pessoa-onze-capitulos",
-      "estado": "do-dono",
+      "estado": "concluido",
       "agente": null,
       "camada": "pesado",
       "titulo": "O ACEIRO mantinha gente FICA + coleta SAI. O MESMO padrao (pessoa larga item, jogador recolhe) existe em ONZE capitulos -- so 1 foi mexido. Os outros dez continuam como estao?",
@@ -1756,7 +1759,8 @@
         "src/jogo.ts"
       ],
       "aceite": "Decisao do dono: manter a coleta nos outros dez capitulos (a leitura de que a abertura de cada um nomeia CARGA DE TRABALHO, nao PESSOA COMO RECURSO, e portanto e diferente de O ACEIRO) OU aplicar capSemColeta() a algum/todos eles tambem.",
-      "detalhe": "Levantada pelo dev-jogo em 04/09 ao consertar aceiro-fogo-vira-gente (PENDENTES 105, achado 3) e confirmada por QA independente com medicao no jogo vivo: os onze capitulos em que quem atravessa a rua e gente (CAP_FILA + CAPS_VERBO) sao pindorama, palmares, cais, salvador, jabaquara, pequenaafrica, portas, naodito, praca, segurou, temfonte. O dono decidiu tirar a coleta de UM (O ACEIRO). Nos outros dez, a leitura do dev-jogo e do historiador (que revisou a entrega) e que a abertura de cada capitulo nomeia a CARGA DE TRABALHO que a pessoa leva (tabuleiro, balde, trouxa de roupa etc.) e a mecanica le como troca/reciprocidade, nao como pessoa virando recurso -- mas isso e leitura, e representacao (S2 do CLAUDE.md) decide-se com o dono, nao sozinho. Nada foi tocado nos outros dez capitulos."
+      "detalhe": "Levantada pelo dev-jogo em 04/09 ao consertar aceiro-fogo-vira-gente (PENDENTES 105, achado 3) e confirmada por QA independente com medicao no jogo vivo: os onze capitulos em que quem atravessa a rua e gente (CAP_FILA + CAPS_VERBO) sao pindorama, palmares, cais, salvador, jabaquara, pequenaafrica, portas, naodito, praca, segurou, temfonte. O dono decidiu tirar a coleta de UM (O ACEIRO). Nos outros dez, a leitura do dev-jogo e do historiador (que revisou a entrega) e que a abertura de cada capitulo nomeia a CARGA DE TRABALHO que a pessoa leva (tabuleiro, balde, trouxa de roupa etc.) e a mecanica le como troca/reciprocidade, nao como pessoa virando recurso -- mas isso e leitura, e representacao (S2 do CLAUDE.md) decide-se com o dono, nao sozinho. Nada foi tocado nos outros dez capitulos.",
+      "feito": "Decidido pelo dono em 05/09 (check): mantem a coleta nos outros dez capitulos como esta. A leitura do dev-jogo e do historiador (abertura nomeia CARGA DE TRABALHO, nao pessoa-recurso) foi aceita. Nenhum trabalho de codigo necessario."
     },
     {
       "id": "filtro-de-console-copiado-por-arquivo",
