@@ -33,7 +33,19 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { classificar } = require('./rede-da-casa.js');
+// GAP 5 DO QA (05/09): um `require` cru aqui acopla este portão a um arquivo novo, e se ele
+// sumir o processo morre com **exit 1** — que o cabeçalho acima reserva para "conferiu e NÃO
+// bate". Seria uma mentira do mesmo tipo que este arquivo passou a existir para não contar: um
+// código de saída afirmando algo que não foi medido. Falta de instrumento é 2, "não consegui
+// conferir", e é o que o CI e o plantão leem.
+let classificar;
+try {
+  ({ classificar } = require('./rede-da-casa.js'));
+} catch (e) {
+  console.log('AVISO: não achei `ferramentas/rede-da-casa.js` (' + e.message.split('\n')[0] + ')');
+  console.log('       — conferência pulada. Isto é falta de instrumento (2), não desacordo (1).');
+  process.exit(2);
+}
 
 const RAIZ = path.resolve(__dirname, '..');
 const SO_SQL = process.argv.includes('--sql');

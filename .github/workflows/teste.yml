@@ -121,18 +121,28 @@ jobs:
         timeout-minutes: 2
       - run: node ferramentas/conferir-item.js --controle
         timeout-minutes: 2
-      - run: node ferramentas/conferir-agentes.js
-        timeout-minutes: 2
-
       # FALTA DE EGRESSO NUNCA SE DISFARCA DE CREDENCIAL, E NUNCA VIRA VERDE (05/09,
       # nuvem-20260905T0822). Medido: o proxy da nuvem responde 403 "Host not in allowlist"
       # para 5 dos 6 hosts que as ferramentas desta casa chamam, e 403 e o MESMO numero que
-      # uma chave recusada devolve. O conferir-agentes.js logo acima imprimia so o numero e
-      # mandava quem lesse cacar chave do Supabase, que nao era o problema. Este portao e
-      # PURO (nenhuma rede, fixtures dos corpos reais daquele dia), entao roda igual no CI,
-      # na nuvem sem saida, e na maquina de quem tem egresso -- que e o requisito, porque os
-      # dois lugares onde ele mais precisa valer sao justamente os que nao tem rede.
+      # uma chave recusada devolve. O conferir-agentes.js logo ABAIXO imprimia so o numero e
+      # mandava quem lesse cacar chave do Supabase, que nao era o problema.
+      #
+      # ELE VEM ANTES DO conferir-agentes.js, E A ORDEM E O ACHADO R5 DO QA. Este portao e
+      # PURO (nenhuma rede, fixtures dos corpos reais daquele dia) justamente para valer na
+      # maquina SEM saida -- e na primeira versao ele foi posto DEPOIS do conferir-agentes.js,
+      # que numa maquina sem egresso sai 2. Com o `shell: bash -e` do runner, o job morre ali
+      # e o portao puro NUNCA CHEGA A RODAR: a pureza era real e o beneficio dela era anulado
+      # pela colocacao. Foi posto onde a narrativa pedia ("logo depois do conferir-agentes"),
+      # nao onde a ordem correta pedia.
       - run: node test/rede-da-casa-veredito.js
+        timeout-minutes: 2
+      # E O CONTROLE DELE: 7 mutantes no objeto de verdade, cinco deles os defeitos que este
+      # portao REALMENTE tinha antes de o QA olhar. A 1a versao trazia 2, contra os 6 do
+      # conferir-item.js na mesma pasta -- a prova de mordida caiu onde o trabalho era rotina.
+      - run: node test/rede-da-casa-veredito.js --controle
+        timeout-minutes: 2
+
+      - run: node ferramentas/conferir-agentes.js
         timeout-minutes: 2
 
       # O PORTAO QUE MORDIA E NINGUEM RODAVA (03/09, nuvem-20260903T0023). E a MESMA doenca que a

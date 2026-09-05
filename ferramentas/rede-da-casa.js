@@ -5,7 +5,9 @@
 //
 //   host                        | https CRU (direto)              | por TÚNEL CONNECT | quem usa
 //   ----------------------------|---------------------------------|-------------------|----------
-//   api.github.com              | 403 "API rate limit exceeded"   | HTTP 200          | checar-ci.js
+//   api.github.com  /actions/…  | 403 "API rate limit exceeded"   | HTTP 200          | checar-ci.js
+//     (ressalva do QA: esse 403 e do ENDPOINT, nao do host — /rate_limit nao consome quota
+//      e responde 200 ate direto. O host esta na lista; o que falta direto e o token.)
 //   servicodados.ibge.gov.br    | 403 "Host not in allowlist"     | CONNECT recusa 403| baixar-malha.js
 //   <projeto>.supabase.co       | 403 "Host not in allowlist"     | CONNECT recusa 403| conferir-agentes.js, conteudo-puxar.js
 //   us.posthog.com              | 403 "Host not in allowlist"     | CONNECT recusa 403| ler-medicao.js
@@ -33,34 +35,14 @@
 //
 // A REGRA QUE ESTE ARQUIVO CUMPRE: falta de egresso nunca se disfarça de erro de credencial, e
 // NUNCA vira verde. Classificar é obrigação de quem fala com a rede; o número sozinho não basta.
-const http = require('http');
-const https = require('https');
-
-// O SENTINELA DO PROXY — mesma constante e mesma razão do `checar-ci.js`: nesta máquina
-// GH_TOKEN/GITHUB_TOKEN existem e valem a string literal "proxy-injected". Mandá-la como
-// Bearer dá 401, e o 401 lê como credencial errada quando na verdade é credencial de mentira.
-const SENTINELA_PROXY = 'proxy-injected';
-
 // A ASSINATURA DA RECUSA DE EGRESSO, lida do corpo REAL da resposta medida acima. Não é
 // adivinhação de forma: é a frase que o proxy desta rede escreve quando o host não está na
 // lista. Se um dia ela mudar, o portão `test/rede-da-casa-veredito.js` continua exigindo que
 // a classificação exista — o que não pode acontecer é a frase sumir e o caso virar "credencial".
-const MARCA_SEM_EGRESSO = /host not in allowlist|not in the allowlist|blocked by (the )?proxy|egress (policy|denied)/i;
-
-function proxyConfigurado() {
-  const u = process.env.HTTPS_PROXY || process.env.https_proxy || '';
-  if (!u) return null;
-  try {
-    const p = new URL(u);
-    return { host: p.hostname, port: Number(p.port) || 80 };
-  } catch (e) {
-    return null;
-  }
-}
-
-function credencialDeVerdade(valor) {
-  return valor && valor !== SENTINELA_PROXY ? valor : '';
-}
+// GAP 4 DO QA: a marca era literal no espaco em branco, entao `Host  not  in  allowlist`
+// (espaco duplo) ou quebrada em duas linhas ja caia em 'credencial' -- e o corpo de um
+// proxy pode vir quebrado por largura. O `\s+` fecha isso sem afrouxar nada mais.
+const MARCA_SEM_EGRESSO = /host\s+not\s+in\s+(the\s+)?allowlist|blocked\s+by\s+(the\s+)?proxy|egress\s+(policy|denied)/i;
 
 // REDIGIR — achado do PORTEIRO em 05/09, consertado no mesmo fôlego em vez de virar "quando
 // alguém adotar". O caso 'credencial' abaixo repete um pedaço do CORPO da resposta na frase, e
@@ -101,19 +83,55 @@ function redigir(texto, segredos) {
 function classificar(host, r, opcoes) {
   const t = r || {};
   const segredos = (opcoes && opcoes.segredos) || [];
-  const corpo = typeof t.corpo === 'string' ? redigir(t.corpo, segredos) : '';
+  // R2 DO QA (05/09): era `typeof t.corpo === 'string' ? … : ''`, e isso DESCARTAVA EM SILÊNCIO
+  // um corpo `Buffer` — que é exatamente o que `res.on('data')` entrega. Com a marca do proxy
+  // dentro de um Buffer, a falta de egresso voltava a ser 'credencial': o defeito de 05/09
+  // reentrando pela porta do contrato, dentro do módulo escrito para impedi-lo.
+  const corpo = t.corpo == null ? '' : redigir(String(t.corpo), segredos);
+  const foi2xx = typeof t.status === 'number' && t.status >= 200 && t.status < 300;
 
-  // 1. O proxy recusou o próprio CONNECT: não há rota, ponto. Vem antes de tudo porque neste
-  //    caminho não existe resposta do alvo para interpretar.
+  // 1. O CONNECT não completou. Aqui não existe resposta do alvo para interpretar — mas
+  //    "CONNECT não completou" NÃO É UMA COISA SÓ, e tratar as três como falta de egresso era
+  //    cometer, do outro lado da cerca, o pecado que este arquivo nomeia (R3 do QA):
+  //    407 é o proxy pedindo CREDENCIAL, e dizer "não é credencial" ali era mentira redonda.
   if (t.erroDoConnect) {
+    const e = String(t.erroDoConnect);
+    if (/\b407\b/.test(e)) {
+      return {
+        tipo: 'credencial',
+        frase: 'o proxy exigiu autenticação para abrir o túnel até ' + host + ' (' + e
+          + '). Isto É credencial — do PROXY, não do destino: a rota existe e falta a chave dela.',
+      };
+    }
+    if (/\bHTTP\s*\d{3}\b/.test(e)) {
+      return {
+        tipo: 'sem-egresso',
+        frase: 'esta máquina não tem egresso para ' + host + ' — o proxy recusou o CONNECT ('
+          + e + '). Não é credencial: nenhuma chave conserta rota que não existe.',
+      };
+    }
+    // timeout, ECONNREFUSED, proxy fora do ar: não se SABE se há egresso. Afirmar que não há
+    // seria a mesma afirmação sem evidência que este arquivo cobra dos outros.
     return {
-      tipo: 'sem-egresso',
-      frase: 'esta máquina não tem egresso para ' + host + ' — o proxy recusou o CONNECT ('
-        + t.erroDoConnect + '). Não é credencial: nenhuma chave conserta rota que não existe.',
+      tipo: 'falhou',
+      frase: 'não deu para abrir o túnel até ' + host + ' (' + e + '), e isto não diz se falta'
+        + ' egresso ou se o proxy está fora do ar — não afirme nenhum dos dois.',
     };
   }
 
-  // 2. Chegou resposta, mas quem respondeu foi o proxy dizendo que o host não é permitido.
+  // 2. O 2xx VEM ANTES DA MARCA, e a ordem é o achado R1 do QA — o mais bonito da rodada.
+  //    Antes a marca era testada primeiro, então um HTTP **200 de verdade** cujo CORPO citasse
+  //    a frase do proxy saía como "não tem egresso... o pedido nunca chegou ao destino" — uma
+  //    frase que se contradiz sozinha, porque um 2xx É a prova de que chegou. E o gatilho não é
+  //    hipotético: a mensagem de commit desta própria entrega contém "Host not in allowlist"
+  //    três vezes, e volta em `head_commit.message` pela API de commits do GitHub, que é
+  //    justamente o que o `checar-ci.js` lê. É a doença curada ao contrário: máquina COM
+  //    egresso mandada caçar rede que não falta.
+  if (foi2xx) {
+    return { tipo: 'ok', frase: 'HTTP ' + t.status };
+  }
+
+  // 3. Chegou resposta de erro, e quem respondeu foi o proxy dizendo que o host não é permitido.
   //    O NÚMERO é 403, igual ao de uma credencial recusada — o CORPO é que separa os dois,
   //    e é por isso que quem chama tem de guardar o corpo em vez de só o status.
   if (MARCA_SEM_EGRESSO.test(corpo)) {
@@ -123,10 +141,6 @@ function classificar(host, r, opcoes) {
         + (t.status || '?') + ' com "host não permitido". Não é credencial: o pedido nunca'
         + ' chegou ao destino.',
     };
-  }
-
-  if (typeof t.status === 'number' && t.status >= 200 && t.status < 300) {
-    return { tipo: 'ok', frase: 'HTTP ' + t.status };
   }
 
   // 3. Agora sim: 401/403 vindos do PRÓPRIO destino são credencial/permissão.
@@ -150,79 +164,4 @@ function classificar(host, r, opcoes) {
   };
 }
 
-function abrirTunel(proxy, destino, ms) {
-  return new Promise((resolve, reject) => {
-    const req = http.request({
-      host: proxy.host,
-      port: proxy.port,
-      method: 'CONNECT',
-      path: destino + ':443',
-      timeout: ms,
-    });
-    req.on('connect', (res, socket) => {
-      if (res.statusCode !== 200) {
-        reject(new Error('HTTP ' + res.statusCode));
-        return;
-      }
-      resolve(socket);
-    });
-    req.on('timeout', () => req.destroy(new Error('o proxy não respondeu ao CONNECT em ' + ms + 'ms')));
-    req.on('error', reject);
-    req.end();
-  });
-}
-
-// PEDIR — o caminho honesto: túnel CONNECT quando há proxy configurado (é o que dá credencial
-// injetada nos hosts permitidos), e sem proxy sai direto, idêntico ao de antes. Devolve SEMPRE
-// o veredito já classificado, junto com status e corpo, para quem chamar não ter como voltar a
-// contar a história só pelo número.
-function pedir(host, caminho, opcoes) {
-  const o = opcoes || {};
-  const ms = o.timeout || 15000;
-  return new Promise(async (resolve) => {
-    const proxy = proxyConfigurado();
-    let socket = null;
-    if (proxy) {
-      try {
-        socket = await abrirTunel(proxy, host, ms);
-      } catch (e) {
-        const r = { erroDoConnect: e.message };
-        resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
-        return;
-      }
-    }
-    const req = https.request(
-      Object.assign(
-        {
-          hostname: host,
-          path: caminho,
-          method: o.method || 'GET',
-          timeout: ms,
-          headers: Object.assign({ 'User-Agent': 'jogo-brasil', Accept: '*/*' }, o.headers || {}),
-        },
-        socket ? { socket, agent: false } : {}
-      ),
-      (res) => {
-        let corpo = '';
-        res.on('data', (d) => { if (corpo.length < 4096) corpo += d; });
-        res.on('end', () => {
-          const r = { status: res.statusCode, corpo };
-          resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
-        });
-      }
-    );
-    req.on('timeout', () => {
-      req.destroy();
-      const r = { erroDeRede: 'timeout em ' + ms + 'ms' };
-      resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
-    });
-    req.on('error', (e) => {
-      const r = { erroDeRede: e.code || e.message };
-      resolve(Object.assign(r, { host, veredito: classificar(host, r, { segredos: o.segredos }) }));
-    });
-    if (o.corpo) req.write(o.corpo);
-    req.end();
-  });
-}
-
-module.exports = { classificar, redigir, pedir, proxyConfigurado, credencialDeVerdade, SENTINELA_PROXY, MARCA_SEM_EGRESSO };
+module.exports = { classificar, redigir, MARCA_SEM_EGRESSO };

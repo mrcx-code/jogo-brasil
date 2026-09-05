@@ -11,6 +11,8 @@
 // caminho é provado com a resposta que a rede de verdade produziu naquele dia, gravada como
 // literal abaixo. Um portão de rede que precisa de rede não roda no CI nem numa máquina sem
 // saída, que são justamente os dois lugares onde ele precisaria rodar.
+const fs = require('fs');
+const path = require('path');
 const { classificar, MARCA_SEM_EGRESSO } = require('../ferramentas/rede-da-casa.js');
 
 let falhas = 0;
@@ -107,6 +109,43 @@ console.log('\n---- CREDENCIAL NUNCA VAI PARA O LOG (achado do porteiro em 05/09
     'e o corpo SEM segredo continua legível — redigir tudo seria perder a evidência que a frase existe para dar');
 }
 
+console.log('\n---- AS QUATRO REGRESSÕES QUE O QA ACHOU EM 05/09 (todas mediam errado antes)');
+{
+  // R1 — O ACHADO DA RODADA, e o gatilho dele não é hipotético: a mensagem de commit desta
+  // entrega contém "Host not in allowlist" três vezes, e volta em `head_commit.message` pela
+  // API de commits do GitHub — que é exatamente o que o `checar-ci.js` lê. Antes, um HTTP 200
+  // DE VERDADE cujo corpo citasse a frase saía como "não tem egresso... nunca chegou ao
+  // destino": uma frase que se contradiz sozinha, porque um 2xx É a prova de que chegou.
+  const v = classificar('api.github.com', { status: 200, corpo: '{"message":"... Host not in allowlist ..."}' });
+  ok(v.tipo === 'ok', 'R1: 200 de verdade com a marca no corpo é ok, NÃO sem-egresso (veio: ' + v.tipo + ')');
+  ok(!/nunca.*chegou/.test(v.frase), 'R1: e a frase não afirma que o pedido não chegou, o que o 200 desmente');
+}
+{
+  // R2 — `res.on('data')` entrega Buffer. O contrato antigo (`typeof corpo === 'string'`)
+  // descartava isso EM SILÊNCIO, e a falta de egresso voltava a ser 'credencial': o defeito de
+  // 05/09 reentrando dentro do módulo escrito para impedi-lo.
+  const v = classificar('h', { status: 403, corpo: Buffer.from(CORPO_SEM_EGRESSO) });
+  ok(v.tipo === 'sem-egresso', 'R2: corpo Buffer é lido, não descartado (veio: ' + v.tipo + ')');
+}
+{
+  // R3 — "o CONNECT não completou" não é uma coisa só, e chamar as três de falta de egresso
+  // era cometer, do outro lado da cerca, o pecado que este módulo nomeia.
+  const a = classificar('h', { erroDoConnect: 'HTTP 407' });
+  ok(a.tipo === 'credencial', 'R3: CONNECT 407 é credencial DO PROXY, não falta de egresso (veio: ' + a.tipo + ')');
+  ok(!/Não é credencial/.test(a.frase), 'R3: e a frase não afirma o contrário do que é');
+  const b = classificar('h', { erroDoConnect: 'HTTP 403' });
+  ok(b.tipo === 'sem-egresso', 'R3: CONNECT 403 continua sem-egresso');
+  const c = classificar('h', { erroDoConnect: 'o proxy não respondeu ao CONNECT em 10000ms' });
+  ok(c.tipo === 'falhou', 'R3: timeout é "falhou" — não se SABE se falta egresso, e afirmar seria o mesmo pecado');
+}
+{
+  // GAP 4 — a marca era literal no espaço em branco, e corpo de proxy vem quebrado por largura.
+  ok(classificar('h', { status: 403, corpo: 'Host  not  in  allowlist' }).tipo === 'sem-egresso',
+    'gap4: espaço duplo na marca ainda é sem-egresso');
+  ok(classificar('h', { status: 403, corpo: 'Host not\nin allowlist' }).tipo === 'sem-egresso',
+    'gap4: marca quebrada em duas linhas ainda é sem-egresso');
+}
+
 console.log('\n---- CONTROLE: o portão foi visto reprovando (mutante na marca do proxy)');
 {
   // O mutante é o defeito exato que a casa cometia: perder a evidência do corpo e decidir
@@ -116,6 +155,51 @@ console.log('\n---- CONTROLE: o portão foi visto reprovando (mutante na marca d
     'com a marca destruída, o MESMO 403 cai em credencial — é isto que a asserção acima impede');
   ok(MARCA_SEM_EGRESSO.test(CORPO_SEM_EGRESSO),
     'e a marca de verdade casa o corpo real medido em 05/09 (se deixar de casar, o portão acima cai sozinho)');
+}
+
+// --CONTROLE — a lição 2.8 da casa, no padrão do `conferir-item.js --controle`. A primeira
+// versão deste portão tinha DOIS mutantes, e o QA cobrou com razão: o vizinho de pasta usa
+// seis, e a prova de mordida caiu justamente onde o trabalho era rotina, enquanto a manchete
+// (a medição que derrubou o próprio item) levava todo o escrutínio. São sete, e CINCO deles são
+// os defeitos que o portão REALMENTE tinha em 05/09 antes de o QA olhar — não mutantes
+// inventados para engordar a contagem.
+if (process.argv.includes('--controle')) {
+  const { execFileSync } = require('child_process');
+  const alvo = path.join(__dirname, '..', 'ferramentas', 'rede-da-casa.js');
+  const original = fs.readFileSync(alvo, 'utf8');
+  const mutantes = [
+    ['a marca do proxy nunca casa', (s) => s.replace('/host\\s+not\\s+in', '/XXhost\\s+not\\s+in')],
+    ['CONNECT recusado deixa de ser sem-egresso', (s) => s.replace(
+      "        tipo: 'sem-egresso',\n        frase: 'esta máquina não tem egresso para ' + host + ' — o proxy recusou o CONNECT ('",
+      "        tipo: 'falhou',\n        frase: 'esta máquina não tem egresso para ' + host + ' — o proxy recusou o CONNECT ('")],
+    ['a redação de segredo morre', (s) => s.replace(
+      "function redigir(texto, segredos) {\n  let s = String(texto == null ? '' : texto);",
+      "function redigir(texto, segredos) {\n  return String(texto == null ? '' : texto);\n  let s = String(texto == null ? '' : texto);")],
+    ['R1 volta: a marca é testada ANTES do 2xx', (s) => s.replace('if (foi2xx) {', 'if (foi2xx && false) {')],
+    ['R2 volta: corpo Buffer é descartado', (s) => s.replace(
+      "const corpo = t.corpo == null ? '' : redigir(String(t.corpo), segredos);",
+      "const corpo = typeof t.corpo === 'string' ? redigir(t.corpo, segredos) : '';")],
+    ['R3 volta: CONNECT 407 deixa de ser credencial', (s) => s.replace("if (/\\b407\\b/.test(e)) {", 'if (false) {')],
+    ['gap4 volta: a marca é literal no espaço', (s) => s.replace('/host\\s+not\\s+in\\s+(the\\s+)?allowlist', '/host not in allowlist')],
+  ];
+  let maus = 0;
+  console.log('\n---- CONTROLE (--controle): ' + mutantes.length + ' mutantes no objeto de verdade');
+  for (const [nome, mutar] of mutantes) {
+    const mutado = mutar(original);
+    if (mutado === original) { console.log('  FALHA ' + nome + ': o mutante NÃO mudou o arquivo (o texto-alvo sumiu?)'); maus++; continue; }
+    fs.writeFileSync(alvo, mutado);
+    let saiu = 0;
+    try { execFileSync(process.execPath, [__filename], { stdio: 'pipe' }); }
+    catch (e) { saiu = e.status === undefined ? -1 : e.status; }
+    fs.writeFileSync(alvo, original);
+    const mordeu = saiu === 1;
+    console.log((mordeu ? '  ok   ' : '  FALHA ') + nome + ' -> exit ' + saiu + (mordeu ? '' : ' (esperava 1)'));
+    if (!mordeu) maus++;
+  }
+  fs.writeFileSync(alvo, original); // cinto e suspensório: restaura mesmo se algo acima escapou
+  console.log('\n' + (maus === 0 ? 'CONTROLE PASSOU — os ' + mutantes.length + ' mutantes foram vistos reprovando'
+    : 'CONTROLE FALHOU — ' + maus + ' mutante(s) passaram vivos'));
+  process.exit(maus === 0 ? 0 : 1);
 }
 
 console.log('\n' + (falhas === 0 ? 'PASSOU' : ('FALHOU — ' + falhas + ' asserç' + (falhas === 1 ? 'ão' : 'ões'))));
