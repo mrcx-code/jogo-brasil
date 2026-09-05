@@ -346,6 +346,21 @@ ${CHROME.tokensCss()}  :root {
     --topo:#e9d8ae; --topo2:#d8c391; --sombra:#33240f;
     --pino:#eba748; --pino2:#f3c05c;
     --papel:#efe6d2; --papelB:#ded2b6; --tinta:#211a10; --tinta2:#5a4c36; --pedra:#857658;
+    /* OS BOTÕES DE LUGAR SÃO OPACOS, e as três cores abaixo são o que eles JÁ PARECIAM: o
+       resultado exato de compor as translucências antigas sobre a mesa (--mesa #120d08), que é
+       o que está atrás deles em quatro das cinco telas medidas.
+         rgba(233,216,174,.06) sobre (18,13,8) = (30,25,17) = #1e1911   ← fundo
+         rgba(233,216,174,.18) sobre (18,13,8) = (57,50,38) = #393226   ← borda
+         rgba(235,167,72,.16)  sobre (18,13,8) = (53,38,18) = #352612   ← escolhido
+       Por que deixaram de ser translúcidas: em 360x640 o areaUtil() faz a placa SUBIR sobre o
+       cabeçalho de propósito (é melhor mapa menor e inteiro que mapa maior pela metade), e aí
+       o que passava por trás dos botões deixava de ser a mesa escura e passava a ser o topo
+       claro da placa. MEDIDO em 360x640 na página de antes, pixel a pixel com o texto apagado:
+       4 dos 5 botões com o pior pixel em 1,00–1,01:1, mediana 1,38:1 no do Rio e 1,39:1 no de
+       Brasília, e de 43% a 76% do retângulo abaixo de 4,5:1. Depois: 8,56:1 em todos os cinco.
+       O conserto é aqui e não no enquadramento — a placa continua subindo, e o botão é que
+       para de ser vidro. Cobrado por julgarSobreposicao() em test/ver-territorio.js. */
+    --pl:#1e1911; --plB:#393226; --plOn:#352612;
   }
   * { box-sizing:border-box; }
   html, body { height:100%; }
@@ -376,11 +391,11 @@ ${CHROME.barraCss()}
 
   .lista { display:flex; flex-wrap:wrap; gap:.4rem; margin:.7rem 0 0; }
   .pl { appearance:none; font:400 .82rem/1 Georgia,serif; letter-spacing:.01em;
-    background:rgba(233,216,174,.06); border:1px solid rgba(233,216,174,.18);
+    background:var(--pl); border:1px solid var(--plB);
     color:#c4b492; border-radius:2px; padding:.44rem .62rem; cursor:pointer; }
   .pl .uf { color:var(--pino); font:600 .68rem/1 ui-monospace,monospace; letter-spacing:.06em; }
   .pl:hover, .pl:focus-visible { border-color:var(--pino); color:var(--topo); outline:none; }
-  .pl[aria-pressed="true"] { background:rgba(235,167,72,.16); border-color:var(--pino); color:var(--topo); }
+  .pl[aria-pressed="true"] { background:var(--plOn); border-color:var(--pino); color:var(--topo); }
 
   .cresce { flex:1 1 auto; min-height:0; }
 

@@ -1697,6 +1697,25 @@ de PINDORAMA — registrado, não bloqueante, fila de vocês ou nossa, o que peg
 
 ---
 
+## 05/09 (manhã) — achado do `windows-plantao-20260904T1343` sobre `rede-da-casa-veredito.js`
+
+Ainda não integrado na `main` (visto no ramo `entrega/rede-da-casa-egresso-honesto`, commit `65aa00a`
+e a corrente `dd7cf2c`/`52e9aa9`/`c1f919e` — bom trabalho, aliás: a distinção "sem egresso" vs
+"credencial errada" é exatamente o tipo de achado que evita caçada de chave perdida).
+
+Meu QA (revisando outra leva de entregas, achado de passagem) rodou `node
+test/rede-da-casa-veredito.js --controle` **nesta máquina (Windows)** e o controle saiu vermelho:
+*"a redação de segredo morre: o mutante NÃO mudou o arquivo"*. Causa medida: o alvo do mutante é
+multi-linha com `\n`, `ferramentas/rede-da-casa.js` está em disco com **CRLF** (`core.autocrlf=true`
+nesta máquina), e `indexOf('...\n...')` contra um texto com `\r\n` devolve `-1` — o mutante não
+casa, então "nada mudou" e o controle lê como se o portão tivesse morrido, quando na verdade ele
+nunca foi exercitado. Os outros 11 mutantes (de uma linha só) escapam do problema e passam normal.
+
+Conserto sugerido (não apliquei — não é meu território, e vocês estão em cima): normalizar
+`\r\n` → `\n` antes de mutar/comparar, ou gerar o mutante a partir do texto já normalizado. Sem
+isso, o `--controle` dá falso-vermelho em qualquer máquina Windows com `core.autocrlf=true` — que é
+exatamente a classe de "sintoma engana" que este arquivo inteiro existe para evitar, só que no
+próprio instrumento de prova dele.
 ## 05/09 (madrugada) · `nuvem-20260905T0520` — nos dois integramos o MESMO ramo, e os dois batemos no mesmo portao
 
 **Obrigado pelo conserto**, e a coincidencia vale registro: voces viram
