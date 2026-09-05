@@ -1541,7 +1541,7 @@
     },
     {
       "id": "passo-csp-assere-codigo-nao-motivo",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "porteiro",
       "camada": "esteira",
       "titulo": "O passo de CI que prova a mordida da CSP assere o exit CODE e nao o MOTIVO -- com a pasta publicada do glossario ausente ele sai 1 por 404 e ficaria verde sem a mordida ter sido exercitada",
@@ -1549,7 +1549,10 @@
         ".github/workflows/teste.yml"
       ],
       "aceite": "O passo passa a exigir o MOTIVO alem do codigo: mandar a saida para arquivo e cobrar por grep a linha que so aparece quando a injecao mordeu (a que nomeia /glossario/ publicada sem CSP), alem do -ne 1. Mordida provada nos dois sentidos: com a pasta publicada ausente o passo tem de REPROVAR em vez de passar; com a injecao mordendo de verdade, passar.",
-      "detalhe": "Achado A1 do porteiro em 04/09 (nuvem-20260904T1623), auditando a entrega portoes-orfaos-pendurados, e ele o classificou NAO BLOQUEANTE com a medicao que justifica: fabricou o falso-verde apagando a pasta publicada do glossario, o csp-paginas.js saiu 1 por OUTRO motivo (404, a pagina branqueou) e o passo ficaria verde. Nao bloqueia porque o passo LIMPO imediatamente anterior tambem sai 1 nessa situacao e derruba o job ANTES -- medido, e ele restaurou com npm run build conferindo por diff -r exit 0. Mas isso e um acoplamento NOMEADO: a corretude do passo 7 depende de o passo 6 continuar imediatamente antes e sem continue-on-error. Conserto e de uma linha."
+      "detalhe": "Achado A1 do porteiro em 04/09 (nuvem-20260904T1623), auditando a entrega portoes-orfaos-pendurados, e ele o classificou NAO BLOQUEANTE com a medicao que justifica: fabricou o falso-verde apagando a pasta publicada do glossario, o csp-paginas.js saiu 1 por OUTRO motivo (404, a pagina branqueou) e o passo ficaria verde. Nao bloqueia porque o passo LIMPO imediatamente anterior tambem sai 1 nessa situacao e derruba o job ANTES -- medido, e ele restaurou com npm run build conferindo por diff -r exit 0. Mas isso e um acoplamento NOMEADO: a corretude do passo 7 depende de o passo 6 continuar imediatamente antes e sem continue-on-error. Conserto e de uma linha.",
+      "maquina": null,
+      "desde": null,
+      "feito": "Feito em 05/09 por nuvem-20260905T0023, commit 05f5d2e. Premissa do porteiro REPRODUZIDA e confirmada: com dist/glossario/ ausente o csp-paginas.js sai 1 por 404 + pagina branqueada e a linha da mordida (bloco A) nunca aparece, porque a lista de paginas publicadas e derivada de dist/ -- sem a pasta a rota nem entra no laco que a injecao esvazia. O passo passou a mandar a saida para arquivo e cobrar por grep de string fixa a linha A. /glossario/ e publicada e NAO tem CSP nenhuma, alem do -ne 1. Medido nos dois sentidos com exit real: passo NOVO em arvore sa exit 0; passo NOVO sem dist/glossario/ exit 1; controle A/B, o passo ANTIGO no mesmo cenario teria PASSADO (falso verde). REGISTRO DO QUE CAIU: a minha primeira medicao foi invalida -- removi a pasta glossario/ da RAIZ, os dois logs sairam identicos e por um momento pareceu que o achado do porteiro caia. Nao caia: o portao le dist/, e eu tinha removido a pasta errada."
     },
     {
       "id": "guarda-recusa-escrever-em-saida-e-nao-recusa-apagar",
@@ -1820,6 +1823,37 @@
       ],
       "aceite": "Gerar o cartao de territorio com reducedMotion (prefers-reduced-motion: reduce, ou parar o relogio/pulso antes do print) para a brasa dos pinos 3D nao variar entre rodadas -- ou aceitar e documentar que este cartao especifico e o unico intencionalmente nao-deterministico, e o portao/teste que compara byte a byte precisa saber disso.",
       "detalhe": "Achado pelo porteiro em 04/09 revisando paginas-plataforma-nao-leem-origem-escola: 3 execucoes seguidas do gerador sem mudar nada deram 89.814 (HEAD) -> 89.809 -> 89.789 -> 89.797 bytes, sha1 distintos -- so o territorio, as outras 3 secoes reproduzem byte a byte. Causa raiz NOMEADA em ferramentas/gerar-territorio.js:1301: pulso = PARADO ? 0.5 : 0.5+0.5*Math.sin(agora/1450 + i*1.7), com a pagina do print aberta sem reducedMotion e o print tirado apos espera de relogio. E a MESMA classe que o QA mediu em 23/08 (EQUIPE.md: os bytes do JPEG sao brasa de pino), nao causa nova -- mas nunca tinha sido corrigida, so aceita."
+    },
+    {
+      "id": "plantao-nao-le-o-ci",
+      "estado": "livre",
+      "agente": "pm",
+      "camada": "esteira",
+      "titulo": "Nenhuma etapa do laco do plantao le o CI: a main ficou VERMELHA 2h35 e quatro pushes sem ninguem olhar",
+      "territorio": [
+        "PLANTAO.md",
+        "ferramentas/"
+      ],
+      "aceite": "Ou o laco passa a ler o estado do CI da main como PRIMEIRO sinal da rodada (antes de escolher trabalho, junto com o baseline), ou uma ferramenta o faz e reprova alto. Aceite verificavel: com o CI da main vermelho, a rodada tem de DIZER isso antes de despachar o primeiro agente; com ele verde, seguir calada. Mordida provada por injecao contra um run de CI conhecidamente vermelho (o 605 serve de cobaia historica). Cuidado com a armadilha ja paga: julgar por conclusion REAL da API, nunca pela ultima linha de log nem por status in_progress, que nao e nem verde nem vermelho.",
+      "detalhe": "Medido em 05/09 por nuvem-20260905T0023. O primeiro lancamento nu entrou na main em 04/09 22:07 UTC (1a0da66) e o segundo em 23:30 (ee72878); os runs 602, 603, 604 e 605 do teste.yml sairam todos failure, e a rodada nuvem-20260904T2022, que trabalhou nesse intervalo, nao registrou nada sobre isso -- ela mediu o npm test DESTA maquina (vermelho por proxy) e nunca o CI. O prompt agendado ate cita CI verde como condicao do idle-bail, entao a intencao existe; o que falta e o passo. O CLAUDE.md 3.5 diz main e producao, nunca deixe a main quebrada, e por 2h35 ela esteve.",
+      "maquina": null,
+      "desde": null
+    },
+    {
+      "id": "sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem",
+      "estado": "livre",
+      "agente": "dev-jogo",
+      "camada": "esteira",
+      "titulo": "Sem lockfile, npm install resolve playwright para uma versao cuja build de navegador o conteiner nao tem -- e o PLANTAO manda rodar npm install",
+      "territorio": [
+        "package.json",
+        ".gitignore",
+        "PLANTAO.md"
+      ],
+      "aceite": "Decidir entre as saidas e medir a escolhida: (a) versionar o package-lock.json (hoje esta no .gitignore) e fixar a versao que casa com a build provisionada; (b) pregar playwright numa versao exata no package.json; (c) aceitar a flutuacao e garantir que TODO portao use ABRIR.chromiumPath(), que e o que o portao-navegador.js ja cobra desde 05/09 -- nesse caso a saida (c) ja esta em vigor e o que falta e escreve-la no PLANTAO.md. Qualquer saida precisa da medicao: com a saida aplicada, um conteiner novo roda npm install e npm test sem erro de navegador. Cuidado: (a) muda o que o CI instala e o CI hoje roda npx playwright install, entao meca os dois lugares.",
+      "detalhe": "Medido em 05/09 por nuvem-20260905T0023, e e a causa de raiz de dois vermelhos desta rodada. O conteiner traz /opt/pw-browsers/chromium-1194 e chromium_headless_shell-1194 provisionados. Nao ha lockfile (o .gitignore o exclui), entao npm install resolve playwright: ^1.47.0 para 1.63.0, que procura a build 1243. Lancamento nu morre com Executable does not exist at .../chromium_headless_shell-1243 e a mensagem manda instalar navegador, apontando para o lugar errado: o navegador esta no disco, o que falta e dizer onde. O PLANTAO 7 manda rodar npm install antes do primeiro funil da rodada -- as duas ordens sao certas e nao se separam sozinhas. A saida (c) e a mais barata e ja esta quase toda de pe.",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
