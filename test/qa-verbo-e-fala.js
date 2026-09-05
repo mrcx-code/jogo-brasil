@@ -64,7 +64,16 @@ const REGISTRO = {
   naodito:       { familia: 'verbo', frase: 'alcançar é fazer passar' },
   praca:         { familia: 'verbo', frase: 'alcançar é juntar' },
   segurou:       { familia: 'verbo', frase: 'chegar na última casa' },
-  aceiro:        { familia: 'verbo', frase: 'este capítulo é esse verbo' },
+  // A ÂNCORA DO ACEIRO ERA META, E POR ISSO NÃO ANCORAVA NADA — achado do QA na auditoria desta
+  // entrega (05/09), medido por injeção antes de trocar. Ela era 'este capítulo é esse verbo':
+  // uma oração que APONTA para um verbo sem NOMEAR nenhum. O que isso deixava passar, medido:
+  // reescrevendo a abertura para "Aqui a mão junta gente na fila, e este capítulo é esse verbo"
+  // — o gesto da família OPOSTA — o portão saía **exit 0** dizendo "a abertura nomeia o gesto".
+  // O comentário acima promete um pedaço literal em que o capítulo NOMEIA o gesto; das 12
+  // âncoras esta era a única que não cumpria a própria régua.
+  // A troca é de RECORTE, não de texto do jogo: é a MESMA frase da abertura, cortada onde o
+  // gesto é dito ("Quem abre o aceiro trabalha antes do fogo") em vez de onde ele é só referido.
+  aceiro:        { familia: 'verbo', frase: 'Quem abre o aceiro trabalha antes do fogo' },
   temfonte:      { familia: 'verbo', frase: 'o verbo daqui é conferir' }
 };
 
