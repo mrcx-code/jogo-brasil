@@ -4389,10 +4389,11 @@ outros dois capítulos tiveram, e entrar sem essa ressalva mentiria sobre o que 
 **O conserto certo, achado pela historiadora:** partir o quadro largo de `f2q6` ao meio, em duas
 poses (`f2q6` e `f2q7`) — isso exige escolha visual de onde cortar, não só cópia, e é trabalho de
 quem tiver a ferramenta de corte de sprite (`ferramentas/pacotes.js` ou similar) e puder olhar o
-resultado antes de aceitar. **Os outros SEIS quadros largos já existentes na `main`** (não
-causados por esta rodada: `praca` f0q3/f2q3/f2q6, `segurou` f2q5, `temfonte` f2q5) têm o MESMO
-defeito de corte, medido por `test/qa-gente-quadro-dobrado.js` (novo, nesta rodada) — mas nenhum
-deles está sendo usado como fonte de remendo hoje, então não bloqueiam nada agora.
+resultado antes de aceitar. **Os outros CINCO quadros largos já existentes na `main`** (não
+causados por esta rodada: `praca` f0q3/f2q3/f2q6, `segurou` f2q5, `temfonte` f2q5 — SEIS ao todo
+contando `pindorama f2q6`, a fonte do remendo revertido acima) têm o MESMO defeito de corte,
+medido por `test/qa-gente-quadro-dobrado.js` (novo, nesta rodada) — mas nenhum deles está sendo
+usado como fonte de remendo hoje, então não bloqueiam nada agora.
 
 **O que falta, em ordem:**
 1. A historiadora decide a fala nova de A PRAÇA (teto de 260 caracteres, `encaixe.js` bloco 15;
