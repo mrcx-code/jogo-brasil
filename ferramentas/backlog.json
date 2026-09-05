@@ -10,7 +10,7 @@
   "itens": [
     {
       "id": "territorio-botoes-lugar-atras-da-placa",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "4 de 5 botoes de lugar ficam com contraste 1,21-1,77:1 atras da placa do territorio em 360x640 (agravamento de bug pre-existente)",
@@ -19,7 +19,9 @@
         "ferramentas/gerar-territorio.js"
       ],
       "aceite": "julgarSobreposicao() passa a perguntar tambem sobre .lista, nao so #censo. Fundo opaco no .pl resolve sem mexer no enquadramento da placa (sugestao do QA). Contraste dos 5 botoes >= 4,5:1 (WCAG) nas telas medidas. npm test + ver-territorio.js verdes.\n\nCORREÇÃO DE TERRITÓRIO (05/09, pm): julgarSobreposicao() está em test/ver-territorio.js:213 (grep -rn julgarSobreposicao --include=*.js . → 3 ocorrências, todas ali) e o CSS do .pl e do #censo está em ferramentas/gerar-territorio.js:378/393. ferramentas/chrome-plataforma.js não contém nenhum dos dois e não é território deste item.",
-      "detalhe": "Achado pelo QA em 04/09 auditando territorio-rico: NAO e regressao do item (a main ja tinha 2 de 5 botoes abaixo de 1,5:1 em 360x640 -- Santos 1,31, Salvador 1,49 -- e a tela ficou MELHOR no conjunto, porque antes metade do pais sumia sob o papel). E agravamento: virou 4 de 5. julgarSobreposicao() so olha #censo, nunca .lista -- e o espelho exato do bug que a regua foi escrita pra pegar."
+      "detalhe": "Achado pelo QA em 04/09 auditando territorio-rico: NAO e regressao do item (a main ja tinha 2 de 5 botoes abaixo de 1,5:1 em 360x640 -- Santos 1,31, Salvador 1,49 -- e a tela ficou MELHOR no conjunto, porque antes metade do pais sumia sob o papel). E agravamento: virou 4 de 5. julgarSobreposicao() so olha #censo, nunca .lista -- e o espelho exato do bug que a regua foi escrita pra pegar.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T05:41:10.515Z"
     },
     {
       "id": "portao-conjunto-publicado-por-secao",
@@ -1824,7 +1826,7 @@
     },
     {
       "id": "privacidade-publicada-nao-menciona-caminho-escolar",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "leve",
       "titulo": "O texto PUBLICADO de /privacidade/ nao menciona o caminho escolar -- so as notas internas do markdown-fonte descrevem",
@@ -1833,7 +1835,9 @@
         "ferramentas/gerar-privacidade.js"
       ],
       "aceite": "Acrescentar ao texto PUBLICAVEL (secao 9, Criancas e adolescentes, ou onde fizer mais sentido) uma frase afirmando o mecanismo do caminho escolar -- ja documentado nas notas internas da secao R1. Depois: node ferramentas/gerar-privacidade.js e confirmar fidelidade texto->HTML.",
-      "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina."
+      "detalhe": "Achado pelo porteiro em 04/09 revisando medicao-desligada-caminho-escolar: hoje o mecanismo existe e funciona (integrado), mas o texto que o publico realmente le em /privacidade/ nao fala dele -- e um argumento de conformidade real que fica sem mostrar. Nao e falha (nada afirmado e falso), e uma omissao de algo que fortaleceria a pagina.",
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T05:41:10.515Z"
     },
     {
       "id": "territorio-jpeg-brasa-nao-deterministico",
@@ -1866,7 +1870,7 @@
     },
     {
       "id": "sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "Sem lockfile, npm install resolve playwright para uma versao cuja build de navegador o conteiner nao tem -- e o PLANTAO manda rodar npm install",
@@ -1877,8 +1881,8 @@
       ],
       "aceite": "Decidir entre as saidas e medir a escolhida: (a) versionar o package-lock.json (hoje esta no .gitignore) e fixar a versao que casa com a build provisionada; (b) pregar playwright numa versao exata no package.json; (c) aceitar a flutuacao e garantir que TODO portao use ABRIR.chromiumPath(), que e o que o portao-navegador.js ja cobra desde 05/09 -- nesse caso a saida (c) ja esta em vigor e o que falta e escreve-la no PLANTAO.md. Qualquer saida precisa da medicao: com a saida aplicada, um conteiner novo roda npm install e npm test sem erro de navegador. Cuidado: (a) muda o que o CI instala e o CI hoje roda npx playwright install, entao meca os dois lugares.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0023, e e a causa de raiz de dois vermelhos desta rodada. O conteiner traz /opt/pw-browsers/chromium-1194 e chromium_headless_shell-1194 provisionados. Nao ha lockfile (o .gitignore o exclui), entao npm install resolve playwright: ^1.47.0 para 1.63.0, que procura a build 1243. Lancamento nu morre com Executable does not exist at .../chromium_headless_shell-1243 e a mensagem manda instalar navegador, apontando para o lugar errado: o navegador esta no disco, o que falta e dizer onde. O PLANTAO 7 manda rodar npm install antes do primeiro funil da rodada -- as duas ordens sao certas e nao se separam sozinhas. A saida (c) e a mais barata e ja esta quase toda de pe.",
-      "maquina": null,
-      "desde": null
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T05:41:10.515Z"
     },
     {
       "id": "anti-recopia-nao-ve-arquivo-que-nao-filtra-nada",
@@ -1939,7 +1943,7 @@
     },
     {
       "id": "praca-tres-celulas-mostram-pessoa-em-dobro",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "arte",
       "camada": "medio",
       "titulo": "PENDENTES 109+110: corte de sprite pendente em GENTE_EP_B64 -- 3 celulas de A PRACA mostram pessoa em DOBRO (f0q3,f2q3,f2q6), praca f2q7 e pindorama f2q7 continuam vazios, todas do MESMO defeito de corte (celula dobrada)",
@@ -1950,8 +1954,8 @@
       ],
       "aceite": "Cortar as celulas dobradas em poses de verdade (arte julgando o resultado antes de aceitar), nao com tapar-buraco-gente.js (ele copia, nao corta). Escopo, do mais simples ao mais sensivel: (1) praca f0q3/f2q3/f2q6 -- capitulo sem sensibilidade extra de S2; (2) praca f2q7 -- fica preenchido de graca depois do corte de f2q6; (3) pindorama f2q6/f2q7 -- capitulo dos povos originarios, S2.1, PRIORIDADE MAIS ALTA dentro deste item. Pendurar test/qa-praca-o-que-a-pessoa-ve.js (ja escrito pelo QA) no npm test ANTES de cortar, para a regua existir antes da mudanca.",
       "detalhe": "Achado pelo QA (agente a7e6fc325430568eb) em 05/09 ao revisar a integracao de quadros-de-gente-vazios-na-fonte. Os 3 portoes de gente existentes medem tinta/largura/booleano, nenhum olha o pixel que sai. O novo instrumento desenha os 24 passos com a matematica do motor: 20/24 uma pessoa, 3 pessoa em dobro (f0q3,f2q3,f2q6 -- corredor de 24-28 colunas vazias na fracao 0,49-0,50 da largura, 2x a tinta das vizinhas), 1 objeto (f2q7). Ver PENDENTES.md item 110. || Ampliado em 05/09 (plantao) para incluir pindorama f2q6/f2q7, que e o MESMO defeito de corte (celula dobrada) documentado desde 04/09 e nunca fechado -- ver PENDENTES.md itens 109 e 110. Nao ha item de backlog separado para pindorama; este passa a ser o item guarda-chuva do corte de sprite pendente.",
-      "maquina": null,
-      "desde": null
+      "maquina": "windows-plantao-20260904T1343",
+      "desde": "2026-09-05T05:41:10.514Z"
     },
     {
       "id": "ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem",
