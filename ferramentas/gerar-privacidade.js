@@ -60,7 +60,15 @@ const DESTINO = path.join(RAIZ, 'privacidade', 'index.html');
 // ---------------------------------------------------------------------------------------------
 // A DATA DA PUBLICAÇÃO — uma constante, dois lugares na página, nenhum literal espalhado.
 // Trocar o dia em que isto vai ao ar é trocar ESTA linha e rodar o gerador.
-const DATA_PUBLICACAO = '2026-09-04';
+// 05/09: subiu de 2026-09-04 para 2026-09-05 porque a seção 9 mudou de texto (passou a
+// descrever o caminho escolar `?origem=escola`, que já existia no código e não estava na
+// página). A própria seção 12 promete que "a data no topo diz da última vez que isso
+// aconteceu" — deixar a data velha depois de mexer no texto seria a página mentindo sobre
+// si mesma, que é a classe de erro que este arquivo inteiro existe para evitar. O marcador
+// `[DATA DA PUBLICAÇÃO]` continua aparecendo DUAS vezes na fonte (o topo e a linha nova do
+// histórico); a linha da primeira versão passou a trazer 4 de setembro por extenso, porque
+// ela é uma data fixa do passado e não acompanha esta constante.
+const DATA_PUBLICACAO = '2026-09-05';
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 function porExtenso(iso) {

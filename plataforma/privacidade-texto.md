@@ -267,6 +267,35 @@ O que isso significa aqui, de forma concreta:
   Uma criança, uma mãe, um pai ou um professor desliga em um toque, sem criar conta e sem
   pedir permissão a ninguém.
 
+**Quando a chegada vem de uma escola, a medição já nasce desligada.** Os links que vão nas peças
+enviadas a professores levam `?origem=escola` no fim do endereço — por exemplo,
+`matheusferreira.cc/jogo/?origem=escola`. Quando o jogo ou uma das páginas da plataforma é aberto
+por um link assim, e ainda não existe escolha sua gravada naquele aparelho, a medição **começa
+desligada**: nenhum aviso é enviado, e o número sorteado da seção 4 nem chega a nascer. Isso foi
+feito olhando para a Lei nº 15.211/2025 (o ECA Digital), em vigor desde 17 de março de 2026, que
+manda um serviço de acesso provável por crianças nascer já na configuração mais protetiva de que
+ele dispõe.
+
+Quatro coisas sobre esse caminho, e as quatro importam:
+
+- **A sua escolha ganha sempre.** Se você tocar no interruptor **medição**, em qualquer um dos
+  dois sentidos, essa decisão passa a valer para toda chegada seguinte, com ou sem o parâmetro no
+  endereço. O padrão pela origem só tem voz enquanto ninguém decidiu nada naquele aparelho — o
+  link escolar não prende ninguém.
+- **Vale depois, sem depender do endereço.** O desligamento fica gravado no mesmo lugar em que
+  fica a posição do interruptor, então ele continua valendo no dia seguinte, mesmo que a pessoa
+  volte pelo favorito e sem o parâmetro, e vale para o site inteiro — jogo, glossário e linha do
+  tempo juntos.
+- **O parâmetro não é medido nem enviado.** Ele não vira propriedade de aviso nenhum e não sai do
+  seu aparelho: é lido uma vez, vira a escolha acima, e acabou.
+- **Não há palpite nenhum sobre quem abriu.** Não existe impressão digital de aparelho, nem chute
+  por idade, por horário ou pela rede. Quem carrega o contexto escolar é o link que o professor
+  recebeu — criar dado sobre uma criança para decidir se dá para medir uma criança seria o
+  contrário do que a lei pede.
+
+Fora desse caminho, a medição começa ligada, e o interruptor continua a um toque, na barra do
+topo.
+
 **Para pais, mães, responsáveis e professores.** Se a turma ou a criança usa esta plataforma e
 você prefere que nada seja contado, desligue o interruptor **medição** no aparelho — vale para
 o site inteiro, jogo incluído. Se preferir escrever, o e-mail é **brasilpatinhas@gmail.com** e
@@ -345,7 +374,9 @@ nenhuma. A data no topo diz da última vez que isso aconteceu, e mudanças relev
 anotadas abaixo.
 
 **Histórico**
-- [DATA DA PUBLICAÇÃO] — primeira versão.
+- 4 de setembro de 2026 — primeira versão.
+- [DATA DA PUBLICAÇÃO] — a seção 9 passou a descrever o caminho escolar (`?origem=escola`), que
+  já funcionava desde 4 de setembro e não estava escrito aqui. Nada mudou no que é coletado.
 
 ---
 
@@ -419,6 +450,21 @@ escolar (`divulgacao/rascunhos/02-texto-professores.md`).
 
 A segunda e a terceira linhas são metade do teste, não enfeite: uma proteção que também
 desligasse o público geral seria tão errada quanto uma que não desligasse ninguém.
+
+**CONSERTADO em 05/09: a página publicada não dizia nada disto.** Todo o mecanismo estava
+descrito AQUI, abaixo do marcador `# NOTAS INTERNAS`, que é justamente a metade que o
+`ferramentas/gerar-privacidade.js` corta fora — então a política pública descrevia uma medição
+que nasce ligada e omitia a única exceção a esse padrão, que existe por causa de uma lei. Uma
+página de privacidade que não conta a proteção que ela própria aplica é incompleta no ponto em
+que mais precisaria ser completa: o de criança. A seção 9 passou a descrever o caminho escolar
+por extenso — o parâmetro, a gravação na mesma chave do interruptor, a precedência da decisão
+manual, o parâmetro que não vira dado e a ausência de qualquer palpite sobre quem abriu. O que a
+página **não** afirma, de propósito, é conformidade: ela diz que a escolha foi feita *olhando
+para* a Lei nº 15.211/2025, porque se a leitura da lei está certa e se este caminho cobre a
+obrigação por inteiro continua sendo a pergunta 1 da lista para um advogado, no fim deste
+arquivo. A data do topo subiu para 05/09 junto (`DATA_PUBLICACAO` em
+`ferramentas/gerar-privacidade.js`) e o histórico da seção 12 ganhou a linha, porque a seção 12
+promete que a data diz da última vez que o texto mudou.
 
 Isto continua sendo pergunta para advogado de verdade num ponto: se a leitura de que "acesso
 provável por criança" se aplica aqui está certa, e se o caminho escolhido cobre a obrigação por
@@ -592,6 +638,11 @@ código, e duas foram medidas em navegador porque ler não bastava (R6 e R7). On
 | Desligar desliga de verdade (nada sai) | `src/jogo.ts` — `medir()` sai na 1ª linha se `!medirLigado`. **Medido: zero pedidos ao PostHog** |
 | O botão APAGAR remove o ID | `src/jogo.ts` — `zerarJogo()` chama `removeItem(CHAVE_ANON)`, e não toca `jogo_brasil_medir`. **Consertado em 04/09 — era R7** |
 | O interruptor é um só para jogo e páginas | chave `jogo_brasil_medir` compartilhada — `src/jogo.ts` linha 3934 e `ferramentas/medir-secao.js` |
+| **No jogo**, `?origem=escola` faz a medição nascer desligada | `src/jogo.ts` — `chegouPelaEscola()` (só lê `location.search`, chave e valor normalizados para minúscula) e o ramo `if (!decidido && chegouPelaEscola())` de `medirCarregar()`, que grava `"nao"` e **não** chama `medirGarantirId()` |
+| **Nas páginas**, o mesmo | `ferramentas/medir-secao.js` — `fiacaoEscolha()`, mesma normalização e mesma regra, emitida nas seis páginas |
+| A decisão manual vence o padrão por origem | nos dois arquivos: só `"sim"`/`"nao"` contam como decisão gravada, e o ramo da origem só roda com `decidido` vazio; `medirTrocar()` grava em qualquer sentido |
+| O parâmetro não vira propriedade de evento | não está na lista branca do `test/encaixe.js` bloco 17 nem na `PERMITIDAS` de `ferramentas/medir-secao.js`; `Referrer-Policy: strict-origin-when-cross-origin` em `vercel.json` |
+| A página publicada descreve tudo isso | seção 9 deste arquivo, **acima** do marcador `# NOTAS INTERNAS` — era o furo consertado em 05/09, ver R1 |
 | Interruptor na barra do topo | `ferramentas/medir-secao.js` — `ID_BOTAO`, `botaoHtml()`; subiu para o chrome em 23/08 |
 | O que fica no aparelho | chaves `jogo_brasil_v1`, `jogo_brasil_retencao`, `jogo_brasil_medir`, `jogo_brasil_anon`, `jogo_brasil_muro` |
 | O único campo de digitar, e que ele não sai | `src/index.html` linha 441 (`#glCampo`); não há propriedade de busca na lista branca |
