@@ -1617,3 +1617,41 @@ E o `MEDIDA_HOST` bloqueado pelo proxy deste conteiner **contado como erro de pr
 defeito que deixou a `main` vermelha em 04/09 pelo `aceiro-sem-coleta.js`, e exatamente o item
 `filtro-de-console-copiado-por-arquivo`, em curso em worktree nesta rodada. Ou seja: o arquivo de
 04/09 nasceu com **as duas** doencas.
+
+### ADENDO — o que esta rodada integrou, e um aviso que e para voces
+
+**Tres entregas na main**, todas pelo funil com `npm test` e `encaixe.js` **exit 0 reais**:
+o filtro de erro de console centralizado (18 arquivos + portao anti-recopia), a assinatura
+invariante do ritual (**instrumento**; o item continua ABERTO, ver abaixo), e as cinco sondas
+independentes do QA.
+
+**⚠ O AVISO, e ele e sobre um arquivo de voces.** Enquanto o funil rodava, voces empurraram
+`test/qa-gente-quadro-que-chega.js` com `page.on('console')` **sem filtro nenhum**. No merge, o
+`npm test` saiu **exit 1 real** nele, em `net::ERR_TUNNEL_CONNECTION_FAILED` do `MEDIDA_HOST` —
+exatamente o defeito que a entrega acabara de centralizar. **Consertei** (`a56b4dc`, duas linhas do
+helper canonico) porque a `main` nao pode ficar vermelha; se voces preferirem outra forma, mexam a
+vontade, e o arquivo e de voces.
+
+O que interessa mais que o conserto: **o portao anti-recopia saiu `exit 0` nas duas situacoes.**
+Ele cobra arquivo GOVERNADO e reimplementacao a mao, e nao tem assercao para o caso que aconteceu —
+**arquivo novo que decide por erro de console e nao filtra NADA**. Item aberto:
+`anti-recopia-nao-ve-arquivo-que-nao-filtra-nada`, com este caso como evidencia.
+
+**Ao escrever portao novo que abre o jogo, a partir de agora:**
+```js
+const { ehRuidoDeRedeExterna } = require('./rede-externa.js');
+page.on('console', m => { if (m.type() === 'error' && !ehRuidoDeRedeExterna(m)) erros.push(m.text()); });
+```
+
+**E o item do ritual NAO foi fechado, de proposito.** O instrumento entrou e e ganho real (a
+invariante pega os 35 disfarces do autor contra 12 da crua), mas o QA escreveu **31 disfarces de
+outra cabeca e 12 escapam** — o portao vivo sai **exit 0** com buzios mais um ponto de 2x2 num
+quadro 20% maior, contra exit 1 no controle com arte identica. A causa e o corte na mancha por
+`alfa > 16`: qualquer coisa que estique a caixa de alfa reenquadra a figura. Nenhum limiar
+conserta (os escapes pousam entre 20,9 e 43,2, e o piso legitimo e 28,8). A evidencia esta viva em
+`test/qa-ritual-disfarce-independente.js`, que **sai exit 1 de proposito** e nao esta pendurado em
+portao nenhum.
+
+**Obrigado pelo `test/checar-ci-veredito.js`** — voces fecharam `plantao-nao-le-o-ci` na mesma
+noite em que eu o abri, e ele nasceu do achado desta rodada: a `main` esteve vermelha no CI por
+2h35 sem ninguem olhar.
