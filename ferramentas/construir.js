@@ -741,6 +741,12 @@ function conferirCspDashboard(origemHtml) {
 //      mais E chave a menos reprovam) e valor comparado. Acrescentado em 03/09 pelo item
 //      `vercel-valor-e-topo`, e é a família que os quatro portões inteiros não viam: eles só
 //      olham `vercel.headers`. O porquê, com os exit codes que o mediram, está na tabela.
+//   8. as PROPRIEDADES DE CADA REGRA de `headers[]`, contra a tabela `PROPRIEDADES_DA_REGRA` —
+//      conjunto EXATO, nos dois sentidos. Acrescentado em 05/09 pelo item
+//      `vercel-propriedade-dentro-da-regra`, e é a TERCEIRA família: nem chave de cabeçalho, nem
+//      chave de topo, mas propriedade DENTRO da regra, entre `source` e `headers`. `has`/`missing`
+//      tornam a regra condicional em silêncio; medido, 5 portões × 3 injeções, todos exit 0. O
+//      porquê, com a citação do esquema oficial da Vercel, está na tabela.
 // O `connect-src` do quadro sai de `MEDIDA_HOST`, nunca de um literal — é o que mantém a promessa
 // de fonte única: nenhum dos treze literais do `vercel.json` pode divergir da constante em silêncio.
 //
@@ -932,6 +938,68 @@ const ROTAS_QUE_MEDEM = QUADRO_DE_ROTAS
 // diff no `vercel.json`). A PROVA DE MORDIDA é `test/qa-vercel-fora-do-conjunto.js`, que injeta as
 // quatro e exige que algum portão saia != 0 — ele nasceu VERMELHO, com 5 de 5 injeções
 // atravessando, e asserção sem controle é decoração (EQUIPE.md 2.8).
+// AS PROPRIEDADES DE CADA REGRA DE `headers[]` — porteiro, 05/09, item
+// `vercel-propriedade-dentro-da-regra`.
+//
+// A TERCEIRA FAMÍLIA, e ela não é subconjunto de nenhuma das duas acima: não é chave de CABEÇALHO
+// (a `CHAVES_PERMITIDAS` do `test/qa-csp-cabecalhos.js` fecha o conjunto DENTRO de
+// `headers[].headers`) nem chave de TOPO (a `TOPO_DO_VERCEL` logo abaixo fecha o conjunto FORA de
+// `headers[]`). É propriedade desconhecida DENTRO da regra, entre `source` e `headers` — a única
+// casa que nenhum dos cinco portões lia. Medido em 05/09, cada injeção sozinha, na regra DECISIVA
+// `/glossario/(.*)`, com a leitura desviada por `test/qa-vercel-injecao.js` e exit code real do
+// terminal, na ordem construir.js · qa-vercel-host.js · qa-vercel-diretiva-repetida.js ·
+// qa-csp-cabecalhos.js · csp-paginas.js:
+//
+//   has:     [{type:"header", key:"x-nunca-enviado"}]  -> 0·0·0·0·0
+//   missing: [{type:"header", key:"accept"}]           -> 0·0·0·0·0
+//   destination: "https://exfil.example.com"           -> 0·0·0·0·0
+//
+// POR QUE `has`/`missing` SÃO A CLASSE GRAVE, e é uma classe nova e não uma dose menor das outras:
+// elas tornam a regra CONDICIONAL sem mudar um byte do `source` nem do `headers`. A CSP de
+// `/glossario/(.*)` continua escrita inteira, continua pregada no QUADRO_DE_ROTAS e continua verde
+// em todos os portões — e simplesmente NÃO É SERVIDA numa visita normal, porque a condição não
+// casa. É o único defeito desta família que deixa o arquivo conferido byte a byte E a página
+// pública sem política.
+//
+// A SEMÂNTICA DEIXOU DE SER INFERIDA — foi LIDA na fonte oficial em 05/09, desta máquina Windows,
+// que tem egresso (a nuvem e o sandbox de agente batem 403 no proxy, e foi por isso que o item
+// ficou registrado como inferido no PENDENTES 103 de 03/09). Duas leituras, e a segunda é a que
+// decide:
+//   1. <https://vercel.com/docs/project-configuration/vercel-json>, seção `headers`, tabela
+//      "Header object definition" (página com `last_updated: 2026-08-14`) — quatro linhas, e as
+//      duas que interessam, verbatim: `has` — *"An optional array of `has` objects with the `type`,
+//      `key` and `value` properties. Used for conditional path matching based on the **presence**
+//      of specified properties."*; `missing` — a mesma frase com *"**absence**"*. Isto CONFIRMA o
+//      que a sessão de 03/09 tinha inferido: `has`/`missing` condicionam a regra.
+//   2. O ESQUEMA OFICIAL, que é mais forte que a prosa porque é o que a Vercel valida:
+//      <https://openapi.vercel.sh/vercel.json> (o mesmo `$schema` que este `vercel.json` declara,
+//      buscado em 05/09, 420.201 bytes, HTTP 200). Em `properties.headers.items`:
+//      `additionalProperties: false`, `required: ["source","headers"]`, e
+//      `properties: ["source","headers","has","missing"]` — o conjunto documentado é EXATAMENTE
+//      esses quatro, e mais nada.
+//
+// UMA CORREÇÃO AO ACHADO DE 03/09, que a leitura do esquema trouxe e vale registrar: as três
+// injeções NÃO são da mesma natureza. `has` e `missing` são VÁLIDAS para a Vercel — ela aceita,
+// publica e a regra fica condicional em silêncio, que é o pior caso possível. `destination`,
+// dentro de uma regra de `headers[]`, é INVÁLIDA pelo `additionalProperties: false` do esquema, e
+// o esperado é que a própria Vercel a recuse no deploy. Isso não a tira daqui: depender da
+// validação de terceiro para o que este repositório afirma sobre si mesmo é a mesma aposta que o
+// §3 manda não fazer, e a mensagem de erro dela chegaria depois do push, não antes.
+//
+// O CONJUNTO QUE ESTA CASA PERMITE É MENOR QUE O DA VERCEL, DE PROPÓSITO: `source` e `headers`, e
+// nada mais. `has`/`missing` são documentadas e legítimas — e este repositório nunca decidiu usar
+// uma. Fechar em dois em vez de quatro é o que faz a cobrança MORDER hoje; se um dia uma regra
+// precisar ser condicional, acrescente a propriedade AQUI, no mesmo commit, escrevendo o que ela
+// passou a fazer — que é a mesma disciplina da `TOPO_DO_VERCEL` e do QUADRO_DE_ROTAS.
+//
+// NOS DOIS SENTIDOS, como o topo: propriedade A MAIS reprova (é o buraco acima) e propriedade A
+// MENOS também. Regra sem `headers` é regra que não serve cabeçalho nenhum; regra sem `source` é
+// regra que não casa rota nenhuma — as duas deixam a página publicada sem política, e as duas são
+// `required` no esquema oficial.
+//
+// A PROVA DE MORDIDA é `test/qa-vercel-fora-do-conjunto.js`, que ganhou os três casos e já tinha a
+// bancada montada (asserção sem controle é decoração, EQUIPE.md 2.8).
+const PROPRIEDADES_DA_REGRA = ["source", "headers"];
 const CONFERIDA_PELO_QUADRO = { conferidaPeloQuadro: true };
 const TOPO_DO_VERCEL = {
   "$schema": "https://openapi.vercel.sh/vercel.json",
@@ -1006,6 +1074,39 @@ function conferirVercelJson() {
         + " -- presenca sem valor cobrado e meia cobranca (foi assim que a Referrer-Policy ficou"
         + ' com valor livre ate 03/09), e `outputDirectory: "."` publica a raiz do repositorio,'
         + " isto e, o que este build nunca conferiu");
+    }
+  }
+
+  // 0.5 AS PROPRIEDADES DE CADA REGRA: conjunto FECHADO, nos dois sentidos, do mesmo jeito que o
+  //     topo logo acima. `has`/`missing` tornam a regra CONDICIONAL sem mudar um byte do `source`
+  //     nem do `headers` -- a CSP fica escrita, pregada no quadro, verde em todo portao, e NAO e
+  //     servida. Ver o bloco da PROPRIEDADES_DA_REGRA, com a citacao do esquema oficial.
+  for (let i = 0; i < regras.length; i++) {
+    const r = regras[i];
+    if (!r || typeof r !== "object" || Array.isArray(r)) {
+      problemas.push("a regra de indice " + i + " do vercel.json nao e um objeto: " + JSON.stringify(r)
+        + " -- regra que nao e objeto nao serve cabecalho nenhum");
+      continue;
+    }
+    const ondeE = '"' + String(r.source) + '" (indice ' + i + ")";
+    const props = Object.keys(r);
+    const propAMais = props.filter(function (k) { return PROPRIEDADES_DA_REGRA.indexOf(k) < 0; });
+    const propAMenos = PROPRIEDADES_DA_REGRA.filter(function (k) { return props.indexOf(k) < 0; });
+    if (propAMais.length) {
+      problemas.push("a regra " + ondeE + " tem propriedade(s) que a PROPRIEDADES_DA_REGRA"
+        + " (ferramentas/construir.js) nao conhece: " + JSON.stringify(propAMais)
+        + " -- e a TERCEIRA familia do vercel.json, e nenhum dos cinco portoes lia aqui: nao e chave"
+        + " de cabecalho (CHAVES_PERMITIDAS) nem chave de topo (TOPO_DO_VERCEL). `has` e `missing`"
+        + " tornam a regra CONDICIONAL sem mudar um byte do `source` nem do `headers`: a CSP continua"
+        + " escrita inteira, pregada no QUADRO_DE_ROTAS e verde em todo portao, e simplesmente NAO E"
+        + " SERVIDA numa visita normal. Foi de proposito? acrescente a propriedade na tabela, no"
+        + " MESMO commit, e escreva o que ela passou a fazer");
+    }
+    if (propAMenos.length) {
+      problemas.push("a regra " + ondeE + " PERDEU propriedade(s) que a PROPRIEDADES_DA_REGRA pede: "
+        + JSON.stringify(propAMenos) + " -- as duas sao `required` no esquema oficial da Vercel:"
+        + " regra sem `headers` nao serve cabecalho nenhum e regra sem `source` nao casa rota"
+        + " nenhuma, e as duas deixam a pagina publicada sem politica");
     }
   }
 
@@ -1084,8 +1185,9 @@ function conferirVercelJson() {
       + problemas.join("\n  - "));
   }
   console.log("  vercel.json: " + topoNoQuadro.length + " chave(s) de topo (conjunto exato e valor); "
-    + regras.length + " regra(s), na ordem do QUADRO_DE_ROTAS e com a CSP"
-    + " conferida diretiva por diretiva; " + medindoNoArquivo + " medem, todas == MEDIDA_HOST");
+    + regras.length + " regra(s), na ordem do QUADRO_DE_ROTAS, cada uma com o conjunto exato de "
+    + PROPRIEDADES_DA_REGRA.length + " propriedade(s) (" + PROPRIEDADES_DA_REGRA.join(", ") + ")"
+    + " e com a CSP conferida diretiva por diretiva; " + medindoNoArquivo + " medem, todas == MEDIDA_HOST");
 }
 conferirVercelJson();
 

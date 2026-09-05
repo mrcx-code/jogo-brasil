@@ -2121,6 +2121,21 @@
       "detalhe": "Achado do qa em 05/09 (auditoria de portao-fala-topo-na-tela). O teto de caracteres vive no encaixe.js, a folga de pixel vive no qa-fala-cabe-de-verdade.js, e a relacao entre as duas e afirmacao de COMENTARIO, nao assercao. O proprio auditor recusou propor o numero sem medir, e disse isso com esse nome: propor regua sem medir seria inventar regua.",
       "maquina": null,
       "desde": null
+    },
+    {
+      "id": "vercel-source-array-atravessa-conjunto-fechado",
+      "estado": "livre",
+      "agente": "porteiro",
+      "camada": "leve",
+      "titulo": "O conjunto fechado de propriedades por regra de headers[] (vercel-propriedade-dentro-da-regra) confere as CHAVES mas nao o TIPO -- source como array de 1 elemento atravessa",
+      "territorio": [
+        "ferramentas/construir.js",
+        "test/qa-vercel-fora-do-conjunto.js"
+      ],
+      "aceite": "conferirVercelJson() passa a cobrar typeof source === \"string\" e headers array nao-vazio (o proprio schema oficial da Vercel ja declara isso). Mordida provada por injecao: source:[\"/glossario/(.*)\"] (array de 1 elemento) tem de reprovar; source string normal continua exit 0. Bonus: a mensagem de erro para headers:{} (objeto em vez de array) hoje sai como TypeError cru (object is not iterable) em construir.js:1136 -- trocar por mensagem diagnosticada como os outros casos.",
+      "detalhe": "Achado pela 2a auditoria (porteiro, agente ae090bfba914e5123) ao revisar o fechamento do item vercel-propriedade-dentro-da-regra em 05/09. Medido: {\"source\": [\"/glossario/(.*)\"], \"headers\": [...CSP intacta...]} sai exit 0 nos 5 portoes e o build escreve -- array de 1 elemento atravessa o conjunto de chaves (que estao certas) E o quadro (String([x]) devolve x). Mesma familia e mesma gravidade do destination que o item anterior ja cobrou -- nao apostar na validacao de terceiro, que chega depois do push. Nomeado, nao consertado (fora do territorio do QA que revisou).",
+      "maquina": null,
+      "desde": null
     }
   ]
 }
