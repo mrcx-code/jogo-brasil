@@ -1,6 +1,6 @@
 // VÊ E MEDE A PÁGINA "O TERRITÓRIO" — a placa 3D.
 //
-// Um print não prova nada sozinho, então este instrumento MEDE seis coisas junto com ele:
+// Um print não prova nada sozinho, então este instrumento MEDE sete coisas junto com ele:
 //   1. erro de console e falha de WebGL (o recuo digno tem de ser exceção, não o normal);
 //   2. quadros por segundo, custo do primeiro quadro e orçamento de desenho;
 //   3. a cor do topo da placa contra a FAIXA travada #e9d8ae–#d8c391 — luz mal calibrada tinge
@@ -11,9 +11,16 @@
 //   4. o toque no pino: a área de 44 px DE TELA tem de abrir o cartão mesmo errando o mesh;
 //   5. o GIRO do aparelho — os cinco pinos têm de continuar dentro da tela depois dele;
 //   6. o cartão do ponto que carrega DOIS capítulos (o Rio), que é onde o §2 mora aqui.
+//   7. `julgarSobreposicao()`: o que a placa cobre. Contra o `#censo` a régua é geométrica —
+//      papel opaco por cima do país é país que não existe. Contra a `.lista` ela é de LEITURA:
+//      sobrepor os botões de lugar é permitido (`areaUtil()` faz a placa subir sobre o
+//      cabeçalho de propósito quando a faixa aperta), APAGAR o texto deles não é. Medido na
+//      tela, pixel a pixel, contra 4,5:1 (WCAG AA, texto normal).
 //
 // Os itens 5 e 6 não são zelo: os dois REPROVARAM na primeira vez que rodaram, e os dois
-// defeitos eram reais (ver o Diário de 21/08 no NOTES.md).
+// defeitos eram reais (ver o Diário de 21/08 no NOTES.md). O item 7 nasceu do mesmo jeito e
+// pela segunda metade: até 05/09 ele só olhava o `#censo`, e foi por isso que 4 dos 5 botões
+// de lugar ficaram a 1,00–1,01:1 em 360x640 com este portão verde ao lado.
 //
 // Uso: node test/ver-territorio.js   (sai 1 se algo acima falhar)
 const { chromium } = require('playwright');
@@ -172,7 +179,81 @@ async function medirDivisas(pg) {
 // enquadramento de repouso esconder país. Este medidor viu a diferença do jeito difícil: rodando
 // logo depois do teste do cartão do Rio, ele media a cena AINDA aproximada e acusava 185 px de
 // invasão em 1366x768, onde em repouso a folga é de 49 px. Zera a seleção e espera a volta.
+// ---- WCAG: contraste entre duas cores (mesma conta de test/medir-leitura-secao.js:46-63) ----
+function canal(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+function lum(p) { return 0.2126 * canal(p[0]) + 0.7152 * canal(p[1]) + 0.0722 * canal(p[2]); }
+function parseCor(s) {
+  s = String(s || '').trim();
+  let m = s.match(/^#([0-9a-f]{6})$/i);
+  if (m) { const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  m = s.match(/rgba?\(([^)]+)\)/i);
+  if (m) { const p = m[1].split(/[,\s/]+/).map(parseFloat); return [p[0], p[1], p[2]]; }
+  return null;
+}
+function contraste(a, b) {
+  const la = lum(a), lb = lum(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+// WCAG AA para texto normal. Os botões de lugar são .82rem (~13 px) — texto normal, não grande,
+// então a régua é 4,5 e não 3,0.
+const REGRA_CONTRASTE = 4.5;
+
 async function medirSobreposicao(pg) {
+  const r = await medirGeometria(pg);
+  if (r.erro) return r;
+  // ------------------------------------------------ E A LEITURA NA TELA DOS BOTÕES DE LUGAR
+  // A geometria acima diz que a placa passa por trás dos botões; ela NÃO diz se isso estragou
+  // alguma coisa, e essa distinção é o item inteiro: `areaUtil()` faz a placa subir sobre o
+  // cabeçalho DE PROPÓSITO quando a faixa aperta. O que não pode é o texto do botão sumir.
+  // Então aqui se mede o que aparece de fato NA TELA, não um fundo suposto: o texto é apagado
+  // (color:transparent) antes do print, o print volta para dentro da página como Image, e cada
+  // pixel do retângulo do botão é fundo — não há glifo para contaminar a conta.
+  if (!r.lista.length) return r;
+  const cx = Math.max(0, Math.floor(Math.min.apply(null, r.lista.map((b) => b.r.x))));
+  const cy = Math.max(0, Math.floor(Math.min.apply(null, r.lista.map((b) => b.r.y))));
+  const cw = Math.ceil(Math.max.apply(null, r.lista.map((b) => b.r.x + b.r.w))) - cx;
+  const ch = Math.ceil(Math.max.apply(null, r.lista.map((b) => b.r.y + b.r.h))) - cy;
+  if (cw <= 0 || ch <= 0) return Object.assign(r, { erro: 'a lista de lugares não tem área na tela' });
+  // O estilo é POSTO E TIRADO. Sem tirar, os prints seguintes (-estado.png) sairiam com os
+  // botões vazios — o instrumento estragaria a prova visual que ele mesmo existe para deixar.
+  const marca = await pg.addStyleTag({ content: '.pl, .pl * { color: transparent !important; }' });
+  let buf = null, err = null;
+  try { buf = await pg.screenshot({ clip: { x: cx, y: cy, width: cw, height: ch } }); }
+  catch (e) { err = String(e).slice(0, 120); }
+  await marca.evaluate((e) => e.remove()).catch(() => {});
+  if (err) return Object.assign(r, { erro: 'não consegui tirar o print da lista: ' + err });
+  const cores = await pg.evaluate(async ([uri, cai, alvos]) => {
+    const img = new Image();
+    await new Promise((s, f) => { img.onload = s; img.onerror = f; img.src = uri; });
+    const cv = document.createElement('canvas');
+    cv.width = img.width; cv.height = img.height;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const esc = img.width / cai.w;          // 1 ou 2, conforme o deviceScaleFactor da tela
+    return alvos.map((q) => {
+      // 3 px para dentro: a borda de 1 px não é fundo de texto e não entra na conta
+      const x0 = Math.max(0, Math.round((q.x - cai.x + 3) * esc));
+      const y0 = Math.max(0, Math.round((q.y - cai.y + 3) * esc));
+      const w = Math.max(1, Math.min(Math.round((q.w - 6) * esc), img.width - x0));
+      const h = Math.max(1, Math.min(Math.round((q.h - 6) * esc), img.height - y0));
+      const d = ctx.getImageData(x0, y0, w, h).data;
+      const conta = new Map();
+      for (let i = 0; i < d.length; i += 4) {
+        const k = (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
+        conta.set(k, (conta.get(k) || 0) + 1);
+      }
+      // Array.from e não [].slice.call: um Map não é array-like, e o slice devolvia [] em
+      // silêncio — o julgamento saía "não li os pixels" com o print correto na mão.
+      return Array.from(conta, (e) => [(e[0] >> 16) & 255, (e[0] >> 8) & 255, e[0] & 255, e[1]]);
+    });
+  }, ['data:image/png;base64,' + buf.toString('base64'), { x: cx, y: cy, w: cw, h: ch },
+    r.lista.map((b) => b.r)]).catch((e) => ({ erro: String(e).slice(0, 120) }));
+  if (cores && cores.erro) return Object.assign(r, { erro: cores.erro });
+  for (let i = 0; i < r.lista.length; i++) r.lista[i].cores = cores[i];
+  return r;
+}
+
+async function medirGeometria(pg) {
   return pg.evaluate(async () => {
     if (!window.__contorno) return { erro: 'a página não expõe __contorno' };
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
@@ -205,11 +286,42 @@ async function medirSobreposicao(pg) {
     };
     const cantos = [[c.left, c.top], [c.right, c.top], [c.left, c.bottom], [c.right, c.bottom]]
       .filter((q) => emPoli(q[0], q[1])).length;
-    return { pontos: dentro, cantos: cantos, fundo: Math.round(fundo),
+
+    // ------------------------------------------------------- E AGORA A `.lista`, não só o censo
+    // A MESMA pergunta geométrica, botão a botão. Ela não vira reprovação sozinha: sobrepor a
+    // lista é permitido (ver `areaUtil()` no gerador), esconder o texto dela é que não. O que
+    // esta contagem faz é EXPLICAR o vermelho — sem ela, um contraste baixo poderia ser tinta
+    // errada, e o instrumento não saberia dizer qual dos dois defeitos está vendo.
+    const lista = [].slice.call(document.querySelectorAll('.pl')).map((b) => {
+      const q = b.getBoundingClientRect();
+      let sob = 0;
+      for (const p of pts) if (p[0] >= q.left && p[0] <= q.right && p[1] >= q.top && p[1] <= q.bottom) sob++;
+      sob += [[q.left, q.top], [q.right, q.top], [q.left, q.bottom], [q.right, q.bottom]]
+        .filter((k) => emPoli(k[0], k[1])).length;
+      return {
+        nome: (b.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 26),
+        cor: getComputedStyle(b).color,
+        sob: sob,
+        r: { x: q.left, y: q.top, w: q.width, h: q.height },
+      };
+    });
+    return { pontos: dentro, cantos: cantos, fundo: Math.round(fundo), lista: lista,
       censo: { t: Math.round(c.top), b: Math.round(c.bottom), l: Math.round(c.left), r: Math.round(c.right) } };
   }).catch((e) => ({ erro: String(e).slice(0, 120) }));
 }
 
+// JULGA AS DUAS SOBREPOSIÇÕES, e as duas têm regras DIFERENTES de propósito:
+//
+//   · contra o `#censo` a regra é geométrica e absoluta — o painel é papel opaco, então placa
+//     atrás dele é placa que não existe para quem olha, e não há conserto de cor que salve.
+//   · contra a `.lista` a regra é de LEITURA. Sobrepor a lista é permitido: `areaUtil()` faz a
+//     placa subir sobre o cabeçalho quando a faixa aperta, e o comentário do gerador diz por quê
+//     ("mapa menor e inteiro vale mais que mapa maior pela metade"). O que não pode é o texto do
+//     botão sumir dentro do topo claro da placa.
+//
+// ATÉ 05/09 ESTA FUNÇÃO SÓ OLHAVA O `#censo`, e foi assim que 4 dos 5 botões de lugar ficaram
+// ilegíveis em 360x640 sem nenhum portão acusar: medido pixel a pixel, o pior pixel em
+// 1,00–1,01:1 e a mediana em 1,38:1 no botão do Rio, com o instrumento verde do lado.
 function julgarSobreposicao(r) {
   if (r.erro) return { ok: false, texto: r.erro };
   if (r.pontos > 0 || r.cantos > 0) {
@@ -218,7 +330,37 @@ function julgarSobreposicao(r) {
       + r.cantos + ' canto(s) do painel caem sobre o país. Essa parte fica invisível. Painel em '
       + JSON.stringify(r.censo) };
   }
-  return { ok: true, texto: 'a silhueta inteira da placa fica fora do painel do censo' };
+  const lista = r.lista || [];
+  if (!lista.length) return { ok: false, texto: 'não achei nenhum botão de lugar (.pl) para medir' };
+  const semCor = lista.filter((b) => !b.cores || !b.cores.length);
+  if (semCor.length) return { ok: false, texto: 'não li os pixels de ' + semCor.length + ' botão(ões) de lugar' };
+  const ruins = [];
+  let piorGeral = Infinity, sobTotal = 0;
+  for (const b of lista) {
+    const frente = parseCor(b.cor);
+    if (!frente) return { ok: false, texto: 'não entendi a cor do botão "' + b.nome + '": ' + b.cor };
+    let pior = Infinity, abaixo = 0, total = 0;
+    for (const c of b.cores) {
+      const k = contraste(frente, c);
+      if (k < pior) pior = k;
+      total += c[3];
+      if (k < REGRA_CONTRASTE) abaixo += c[3];
+    }
+    b.pior = pior; b.abaixo = abaixo / total;
+    if (b.sob) sobTotal++;
+    if (pior < piorGeral) piorGeral = pior;
+    if (pior < REGRA_CONTRASTE) ruins.push(b);
+  }
+  if (ruins.length) {
+    return { ok: false, texto: 'a placa passa por trás da lista de lugares e ' + ruins.length + ' de '
+      + lista.length + ' botão(ões) ficam ilegíveis (WCAG AA pede ' + REGRA_CONTRASTE + ':1 para texto normal): '
+      + ruins.map((b) => '"' + b.nome + '" pior pixel ' + b.pior.toFixed(2) + ':1, '
+        + Math.round(b.abaixo * 100) + '% do retângulo abaixo da régua'
+        + (b.sob ? '' : ' (e a silhueta NÃO passa por trás dele — então o defeito é a tinta, não o enquadramento)')).join(' · ') };
+  }
+  return { ok: true, texto: 'a silhueta inteira da placa fica fora do painel do censo, e os '
+    + lista.length + ' botões de lugar (' + sobTotal + ' com a placa por trás) leem a ' + piorGeral.toFixed(2)
+    + ':1 no pior pixel (régua ' + REGRA_CONTRASTE + ':1)' };
 }
 
 function julgarDivisas(uf) {
@@ -591,6 +733,50 @@ function julgarDivisas(uf) {
         await pg.close();
         const certo = (!v.ok) === deveReprovar;
         console.log('  CONTROLE enquadramento · ' + nome + ': ' + (v.ok ? 'aprovou' : 'REPROVOU')
+          + (certo ? ' (como devia)' : ' — ERRADO') + ' — ' + v.texto);
+        if (!certo) falhas++;
+      }
+    }
+  }
+
+  // -------------------------------- O CONTROLE DOS BOTÕES DE LUGAR (05/09, EQUIPE.md 2.8)
+  //
+  // A pergunta nova de `julgarSobreposicao` — os botões da `.lista` continuam legíveis com a
+  // placa por trás? — nasceu nesta rodada, então ela não entra sem ser vista REPROVANDO. O
+  // defeito injetado é o CSS DE ANTES, palavra por palavra: os três fundos translúcidos que
+  // estavam publicados até hoje. Em 360x640 a placa sobe sobre o cabeçalho (é o que
+  // `areaUtil()` faz de propósito quando a faixa aperta) e o vidro deixa o topo claro passar
+  // por trás do texto claro do botão — medido antes do conserto: pior pixel 1,00–1,01:1 em 4
+  // dos 5 botões, 43% a 76% do retângulo abaixo de 4,5:1.
+  //
+  // A TELA É 360x640 e não outra: é a única das cinco em que a placa chega na lista. Servir o
+  // defeito em 390x844 aprovaria — e aprovaria com razão, porque lá não há sobreposição
+  // nenhuma. Um controle que reprovasse nas cinco estaria medindo a cor do botão, não o defeito.
+  {
+    const ORIGEM = 'https://territorio-botoes.local/';
+    const bruto = fs.readFileSync(path.join(RAIZ, 'territorio', 'index.html'), 'utf8');
+    const opaco = '--pl:#1e1911; --plB:#393226; --plOn:#352612;';
+    const vidro = '--pl:rgba(233,216,174,.06); --plB:rgba(233,216,174,.18); --plOn:rgba(235,167,72,.16);';
+    const comVidro = bruto.replace(opaco, vidro);
+    if (comVidro === bruto) {
+      console.log('  CONTROLE botões: não achei os fundos opacos para trocar pelos translúcidos — o controle não rodou');
+      falhas++;
+    } else {
+      for (const [nome, html, tela, deveReprovar] of [
+        ['fundo translúcido (o CSS de antes) em 360x640', comVidro, { l: 360, a: 640 }, true],
+        ['fundo translúcido (o CSS de antes) em 390x844', comVidro, { l: 390, a: 844 }, false],
+        ['página intacta em 360x640', bruto, { l: 360, a: 640 }, false],
+      ]) {
+        const pg = await nav.newPage({ viewport: { width: tela.l, height: tela.a }, deviceScaleFactor: 1 });
+        await pg.route('**/*', (r) => (r.request().url().indexOf(ORIGEM) === 0
+          ? r.fulfill({ contentType: 'text/html; charset=utf-8', body: html })
+          : r.abort()));
+        await pg.goto(ORIGEM);
+        await pg.waitForFunction('window.__pronto === true', null, { timeout: 20000 }).catch(() => {});
+        const v = julgarSobreposicao(await medirSobreposicao(pg));
+        await pg.close();
+        const certo = (!v.ok) === deveReprovar;
+        console.log('  CONTROLE botões · ' + nome + ': ' + (v.ok ? 'aprovou' : 'REPROVOU')
           + (certo ? ' (como devia)' : ' — ERRADO') + ' — ' + v.texto);
         if (!certo) falhas++;
       }
