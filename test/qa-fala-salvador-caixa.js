@@ -34,12 +34,26 @@
 // alguém mexer no TEXTO DO JOGO para satisfazer o instrumento. É exatamente o que o `PLANTAO.md`
 // §8 proíbe: antes de consertar o produto para satisfazer um portão, desconfie do portão.
 //
-// O QUE ENTROU NO LUGAR, e é mais forte que as duas formas: **igualdade contra a fonte da
-// verdade**. A asserção compara o que foi medido na tela com `EPOCAS[salvador].abertura[4]` lido
-// da própria página. Ela cobra o que o rótulo promete (é ESTA fala, não outra), morde qualquer
-// reescrita que não seja a declarada — inclusive uma que só MENCIONE a palavra, que é o caso que
-// o item queria pegar — e **não precisa de manutenção** quando o texto mudar de novo, que é a
-// razão de o amigo falso ter nascido.
+// O QUE ENTROU NO LUGAR: **igualdade contra a fonte da verdade**. A asserção compara o que foi
+// medido na tela com `EPOCAS[salvador].abertura[4]` lido da própria página. Ela cobra o que o
+// rótulo promete (é ESTA fala, inteira), e **não precisa de manutenção** quando o texto mudar de
+// novo, que é a razão de o amigo falso ter nascido.
+//
+// **Ela NÃO é estritamente mais forte que as duas formas antigas, e dizer que era foi um erro
+// meu** — derrubado pelo QA em 05/09, com mutante que eu não tinha feito. Ela é mais forte numa
+// classe e **mais fraca noutra**:
+//
+//   MUTANTE G — reescreve `abertura[4]` para um texto inteiramente outro (185 caracteres) que
+//   apenas MENCIONA "não se recolhe":
+//     asserção NOVA (igualdade)     exit 0   ← CEGA
+//     asserção ANTIGA (indexOf)     exit 0   ← cega também
+//     `endsWith`, o que o item pedia         ← MORDERIA
+//
+// Ou seja: na classe "o texto foi reescrito", o `endsWith` do item era **mais forte** que o que
+// entrou aqui. A decisão de recusá-lo continua certa pelo motivo já escrito acima — ele deixaria
+// o portão vermelho sobre uma `main` sã —, mas a troca **custou cobertura**, e o custo fica
+// escrito porque um portão que se anuncia mais forte do que é volta a ser amigo falso, agora em
+// prosa em vez de em código.
 //
 // A MORDIDA, PROVADA POR INJEÇÃO — e o primeiro mutante NÃO separou as duas formas (05/09)
 //
@@ -59,8 +73,22 @@
 // deixa este portão vermelho, porque a expectativa é lida da MESMA fonte que a medição. É
 // deliberado. Esta asserção responde "o instrumento mediu a fala certa, inteira?" — que é a
 // pergunta de que o resto do arquivo depende. "O texto é este texto?" é outra pergunta, e fixá-la
-// aqui com um fragmento na mão foi exatamente o que criou o amigo falso. Teto de caracteres e
-// regra de conteúdo continuam onde já estão, no `encaixe.js`.
+// aqui com um fragmento na mão foi exatamente o que criou o amigo falso. O teto de caracteres
+// continua no `encaixe.js`; a **regra de conteúdo desta fala** vive no `test/qa-salvador-vivo.js`
+// (`ANTIGA`/`PROPOSTA` mais a porta do glossário) — e não no `encaixe.js`, como esta linha dizia
+// antes de o QA rodar o `grep` que eu não rodei: `encaixe.js` tem **zero** regra de conteúdo.
+//
+// ⚠ E O MAIOR DEFEITO DESTE ARQUIVO NÃO É ESTE, e não foi consertado aqui (05/09, achado do QA):
+// as TRÊS asserções de geometria abaixo — as que dão nome ao portão — **são incapazes de
+// reprovar**. `#falaPalco` e `#falaCaixa` têm `overflow: visible` e altura `auto`, e elemento que
+// não corta e não rola tem `scrollHeight === clientHeight` SEMPRE: as duas primeiras comparam um
+// número com ele mesmo. A terceira também não dispara, porque a caixa é ancorada embaixo e cresce
+// para cima — `base` fica constante. Medido a 320×568: uma fala de 1400 caracteres dá
+// `caixa 907/907` numa janela de **568**, com `topo −356`, e o portão diz "tudo verde". O único
+// dos quatro números que responderia — `topo` — é IMPRESSO e não é COBRADO.
+// Não é defeito de produto hoje: a maior fala do jogo é justamente esta (258, teto 260) e a folga
+// a 320×568 é de 282 px ≈ 515 caracteres. **Quem segura a linha é o teto de CARACTERES do
+// `encaixe.js`, não estas três asserções de pixel.** Item aberto: `portao-fala-topo-na-tela`.
 //
 //   node test/qa-fala-salvador-caixa.js
 
