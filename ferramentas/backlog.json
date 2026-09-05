@@ -758,7 +758,6 @@
       "id": "rotulo-medicao-anonima",
       "titulo": "O rotulo da barra diz medicao; a growth propoe medicao anonima",
       "estado": "livre",
-      "papel": "dev-plataforma",
       "territorio": [
         "ferramentas/medir-secao.js",
         "ferramentas/chrome-plataforma.js"
@@ -766,7 +765,7 @@
       "camada": "plataforma",
       "aceite": "O rotulo fixo da barra passa a \"medicao anonima\" SOMENTE se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar o scrollWidth da barra — medido, nao estimado. Se nao couber, o item fecha SEM mudanca e com o numero medido registrado: a explicacao completa continua no rodape, e a growth aceitou assim.",
       "detalhe": "Auditoria da growth em 23/08, APROVANDO o interruptor na barra, com uma ressalva nao bloqueante: o que a pessoa VE sem tocar sao duas palavras, MEDICAO e ligada. O title e o aria-label, que sao os textos que explicam o que e medido e que e anonimo, nao aparecem em toque (mobile nao tem tooltip; aria-label so fala com leitor de tela). Antes a palavra medicao vinha cercada da frase que a explicava, no rodape; agora vem isolada num botao de nav. Proposta: trocar o rotulo fixo para medicao anonima, mesmo numero de toques para desligar e uma palavra a mais que fecha a duvida sem precisar tocar. CONDICAO: so entra se couber em 71-78 px sem esmagar o alvo de 44 px nem aumentar a rolagem da barra, que ja ganhou 162 px de scrollWidth com o botao. Se nao couber, NAO force: a explicacao completa continua no rodape e a growth aceitou assim.",
-      "agente": "porteiro"
+      "agente": "dev-plataforma"
     },
     {
       "id": "dashboard-sem-google",
@@ -987,7 +986,6 @@
     {
       "id": "cartao-decepa-primeira-tabua",
       "estado": "livre",
-      "papel": "porteiro",
       "titulo": "O cartão publicado: a barra decepa a primeira tábua (lê \"istoria\"), o JPEG não reproduz entre rodadas, e o portão que compara bytes nunca pôde rodar no CI",
       "territorio": [
         "ferramentas/gerar-territorio.js",
@@ -1312,7 +1310,6 @@
     {
       "id": "vercel-propriedade-dentro-da-regra",
       "estado": "livre",
-      "papel": "porteiro",
       "camada": "esteira",
       "titulo": "has/missing tornam a regra CONDICIONAL sem mudar um byte do source nem do headers — CSP verde nos cinco portoes e nao servida",
       "territorio": [
@@ -1981,6 +1978,20 @@
       ],
       "aceite": "O funil passa a anunciar que pegou um ramo ANTES de gastar os 15 min de portao, e a enxergar anuncio de outra maquina. A forma mais barata que ja existe nesta casa e o proprio backlog: um campo por ramo (quem esta integrando e desde quando, com a mesma validade de 2h do lock de item), escrito e empurrado antes do merge. Mordida provada nos dois sentidos: com anuncio fresco de outra maquina o funil recusa e diz de quem e; sem anuncio, ou com anuncio vencido, ele roda igual a hoje. Se a saida escolhida for NAO travar, o numero que sustenta e este caso, e o item fecha dizendo isso.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0520, que foi uma das duas maquinas. Empurrei entrega/checar-ci-honra-o-proxy e comecei o funil; o windows-plantao viu o ramo no servidor e integrou o MESMO ramo (21b2727, da4adf3) enquanto o meu rodava. Os dois funis passaram, os dois pregaram placar, e o merge dos dois lados deu conflito no backlog.json, resolvido por uniao de id: 147 itens, 0 ids perdidos, 0 duplicados, npm test exit 0 real depois. Nada se perdeu e a main ficou verde -- o custo foi so gasto de modelo e tempo de parede, mas de DUAS maquinas na mesma coisa, que e o que o lock existe para evitar. O lock de hoje protege o ITEM (estado em-curso + maquina + desde). Um ramo entrega/ empurrado nao tem dono declarado, e o PLANTAO.md 7 ENSINA a procurar ramo entrega/ orfao e integrar, porque entrega orfa ja custou caro antes -- ou seja, a casa convida o segundo integrador de proposito. O conserto nao e parar de procurar; e o ramo ter dono enquanto alguem esta com ele."
+    },
+    {
+      "id": "dono-do-item-tem-duas-grafias",
+      "estado": "livre",
+      "agente": "dev-plataforma",
+      "camada": "esteira",
+      "titulo": "O dono de um item tem DUAS grafias (agente e papel) e isso ja deixou a main vermelha por 2h50 e quatro pushes",
+      "territorio": [
+        "ferramentas/conferir-item.js",
+        "ferramentas/conferir-fila.js",
+        "test/caminhos-do-backlog.js"
+      ],
+      "aceite": "Uma grafia so. (1) Os 41 itens com papel passam a agente no backlog.json -- e no-op para TODO leitor, porque os cinco leem dono = agente || papel (conferir-item.js:55, conferir-fila.js:47, caminhos-do-backlog.js:119, dashboard/index.html:1591 e :1612 e :2031); provar o no-op rodando os tres portoes antes e depois com a MESMA saida. (2) O conferir-item.js passa a reprovar papel SOZINHO tambem, nao so agente E papel juntos, com a mensagem dizendo qual e a grafia viva. (3) Mordida provada por injecao nas duas formas (so papel, e as duas juntas) com exit 1 real, mais o controle de arquivo limpo em exit 0. CUIDADO DE SEQUENCIA: tocar 41 itens do backlog.json colide com toda maquina que tenha item em-curso -- so pegue este item com a fila de em-curso VAZIA ou combinada no RECADOS.md, senao o merge vira conflito de uniao em 41 lugares.",
+      "detalhe": "Medido por nuvem-20260905T0822. O commit ccdc4c7 (refino do PM, 05/09) diz na propria mensagem \"agente preenchido em 3 itens que estavam vazios\" -- e os tres NAO estavam vazios: o dono deles morava em papel. O PM leu so a grafia agente, achou vazio, e escreveu por cima; em dois dos tres o dono novo ainda DISCORDAVA do antigo (rotulo-medicao-anonima: papel=dev-plataforma vs agente=porteiro; cartao-decepa-primeira-tabua: papel=porteiro vs agente=dev-plataforma). O conferir-item.js pegou (e essa e a boa noticia: o portao mordeu), mas a main ficou vermelha do run 627 ao 630 -- 4 pushes, ~2h50 -- porque ninguem olhou. Contagem no dia: 109 itens com agente, 41 com papel, 3 com os dois. Enquanto as duas grafias existirem, todo agente que escrever dono no backlog pode repetir isto, e a unica defesa e um portao que so acusa DEPOIS do push."
     }
   ]
 }
