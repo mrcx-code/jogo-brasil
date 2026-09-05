@@ -1587,7 +1587,7 @@
     },
     {
       "id": "guarda-le-o-texto-do-comando-nao-o-efeito",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "medio",
       "titulo": "O guarda.js decide pelo TEXTO do comando, não pelo EFEITO — três buracos, um conserto (heredoc recusado, rm na saída permitido, npm fora do worktree permitido)",
@@ -1595,7 +1595,9 @@
         ".claude/hooks/"
       ],
       "aceite": "O guarda.js passa a decidir pelo EFEITO do comando e nao pela ocorrencia da string, e os tres casos medidos em 04/09 caem juntos. Mordida provada por injecao, nos dois sentidos em cada um: (1) comando cujo unico contato com o caminho protegido e texto dentro de heredoc, string de script ou mensagem de commit nao e recusado -- e o teste tem de conter o caso da mensagem de commit, que e o que mordeu de verdade; escrita real continua recusada. (2) rm -rf dentro da pasta de saida de build e recusado pelo mesmo caminho que ja recusa cp -r para la (.claude/hooks/guarda.js:127); o mesmo rm fora dela passa. (3) cd para a checkout compartilhada seguido de npm run build/npm install/teste e recusado; o mesmo comando dentro do proprio worktree passa. Saida NAO-BARRAR e aceitavel em (2) e (3) se o falso positivo for caro demais -- mas entao o texto da propria recusa muda para parar de prometer o que nao cumpre, e o numero que sustenta a escolha vai escrito no cabecalho do arquivo.",
-      "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava. ||| FUNDIDO em 05/09 (pm) com guarda-worktree-nao-cobre-comando-nao-git e guarda-recusa-escrever-em-saida-e-nao-recusa-apagar -- mesmo arquivo, mesma classe, mesmo arnes de injecao. SEGUNDO CASO DA MESMA CLASSE, em outro portao, medido em 05/09 por nuvem-20260905T0520: o guardaRoteiro do construir.js recusou DUAS vezes itens desta rodada por casar palavra-chave no texto, e a segunda foi falso positivo -- a palavra marcada significava custo de modelo, o assunto do item era coordenacao entre maquinas, e nao havia defesa nenhuma sendo descrita. A regra do guardaRoteiro e boa e a primeira recusa dele estava certa; o que se paga e a forma de decidir. Nos dois portoes o padrao e o mesmo e vale escrever junto: quem decide pela OCORRENCIA de uma palavra acerta o caso e erra a vizinhanca, e o custo nao e a recusa -- e que ela ensina a driblar o portao em vez de atende-lo."
+      "detalhe": "Caido pelo proprio plantao em 04/09 (nuvem-20260904T1623), ao tentar commitar os achados do porteiro: o guarda recusou um git commit cuja mensagem CITAVA o caminho protegido para explicar o achado A1. Nada seria escrito la. E EXATAMENTE a armadilha que o guarda do gh ja pagou e que esta escrita no RETOMADA.md secao 7 (ele bloqueava a escrita de um arquivo que apenas MENCIONAVA gh pr create) -- a mesma classe, noutro guarda, e ninguem tinha ligado os dois. Contorno usado na hora: escrever o script e a mensagem por arquivo em vez de heredoc. O custo real nao e o contorno: e que uma trava assim ensina a driblar trava. ||| FUNDIDO em 05/09 (pm) com guarda-worktree-nao-cobre-comando-nao-git e guarda-recusa-escrever-em-saida-e-nao-recusa-apagar -- mesmo arquivo, mesma classe, mesmo arnes de injecao. SEGUNDO CASO DA MESMA CLASSE, em outro portao, medido em 05/09 por nuvem-20260905T0520: o guardaRoteiro do construir.js recusou DUAS vezes itens desta rodada por casar palavra-chave no texto, e a segunda foi falso positivo -- a palavra marcada significava custo de modelo, o assunto do item era coordenacao entre maquinas, e nao havia defesa nenhuma sendo descrita. A regra do guardaRoteiro e boa e a primeira recusa dele estava certa; o que se paga e a forma de decidir. Nos dois portoes o padrao e o mesmo e vale escrever junto: quem decide pela OCORRENCIA de uma palavra acerta o caso e erra a vizinhanca, e o custo nao e a recusa -- e que ela ensina a driblar o portao em vez de atende-lo.",
+      "maquina": "nuvem-20260905T1223",
+      "desde": "2026-09-05T12:25:30.651Z"
     },
     {
       "id": "ramos-mortos-trava-prefixo-entrega",
@@ -1659,7 +1661,7 @@
     },
     {
       "id": "encaixe-bloco5-modelo-de-motor-parou-em-1608",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "leve",
       "titulo": "O bloco 5 do encaixe.js compara a fala com um modelo de motor que deixou de existir em 16/08 -- e por isso aprova fala que promete verbo que o capitulo nao tem",
@@ -1667,11 +1669,13 @@
         "test/encaixe.js"
       ],
       "aceite": "O bloco 5 passa a derivar o motor do CODIGO e nao de uma constante congelada: temAcolher tem de sair de capFila() e temPalavra de CAPS_VERBO, e nao de i === CAP_GENTE / i === CAP_PALAVRA. Mordida provada por injecao, e o caso ja esta escrito: a fala injetada em O ACEIRO (que esta em CAPS_VERBO e NAO tem fila) prometendo a fila tem de sair exit 1 -- hoje sai 0 nos dois portoes. E o comentario obsoleto de src/jogo.ts:1467 (gente e so PALMARES, e la que existe fila) sai junto, porque e a mesma afirmacao congelada em outro lugar.\n\nESCOPO ESTREITADO em 05/09 (pm): src/jogo.ts sai do território. O conserto é do portão; a única coisa que este item tinha em src/jogo.ts era um comentário obsoleto na linha 1467, e um comentário não vale tomar o slot de escritor exclusivo do arquivo de 15 mil linhas — ele pega carona no próximo item que abrir src/jogo.ts (hoje praca-tres-celulas-mostram-pessoa-em-dobro).",
-      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado."
+      "detalhe": "Achado G1 e G6 do QA em 04/09 (nuvem-20260904T1623), PROVADO POR INJECAO. Ele injetou em EPOCAS[aceiro].abertura[4] uma fala prometendo a fila (alcancar e juntar gente na estrada, um toque e quem esperava vira e caminha atras de voce) e npm test saiu 0 e encaixe.js saiu 0 -- e o portao AINDA IMPRIMIU satisfeito: O ACEIRO promete[acolher false] motor[acolhe false] ok o texto e o motor concordam sobre ACOLHER. Restauracao conferida por md5 e por grep da marca (exit 1). Os numeros do descompasso: temAcolher e i === CAP_GENTE (1 capitulo) enquanto CAP_FILA tem CINCO; temPalavra e i === CAP_PALAVRA (1) enquanto CAPS_VERBO tem SETE. Consequencia hoje: o portao afirma motor[acolhe false] para O CAIS, que e o capitulo desta entrega e onde capFila() e true. Nao e so cegueira a sinonimo (o casamento e por tres frases literais): o modelo do outro lado da comparacao esta errado.",
+      "maquina": "nuvem-20260905T1223",
+      "desde": "2026-09-05T12:25:30.651Z"
     },
     {
       "id": "qa-fala-salvador-caixa-amigo-falso",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "test/qa-fala-salvador-caixa.js virou amigo falso: o rotulo diz termina em e o codigo e indexOf, e recolhem contem recolhe",
@@ -1679,7 +1683,9 @@
         "test/qa-fala-salvador-caixa.js"
       ],
       "aceite": "A assercao passa a cobrar o que o rotulo promete (fim da frase, nao ocorrencia em qualquer lugar). Mordida provada por injecao nos dois sentidos: uma terceira reescrita que apenas MENCIONE a palavra sem terminar nela tem de sair exit 1. Hoje sairia 0.",
-      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao."
+      "detalhe": "Achado G4 do QA em 04/09 (nuvem-20260904T1623). O texto antigo terminava em nao se recolhe; o novo diz nao se recolhem, e o indexOf passa porque recolhem CONTEM recolhe. O portao ficou verde por acidente de substring, nao por a promessa ter sido mantida. E a mesma classe que esta casa ja caçou duas vezes nesta semana: decidir por casamento de string produz verde que nao significa nada -- foi o motivo de recusar o ramos-mortos-conteudo em 03/09 e de um falso achado de seguranca em 04/09, onde o grep contou um comentario que documentava a propria remocao.",
+      "maquina": "nuvem-20260905T1223",
+      "desde": "2026-09-05T12:25:30.651Z"
     },
     {
       "id": "caixa-da-fala-so-medida-em-salvador",
