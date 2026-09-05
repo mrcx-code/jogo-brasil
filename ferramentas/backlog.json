@@ -1826,7 +1826,7 @@
     },
     {
       "id": "plantao-nao-le-o-ci",
-      "estado": "livre",
+      "estado": "concluido",
       "agente": "pm",
       "camada": "esteira",
       "titulo": "Nenhuma etapa do laco do plantao le o CI: a main ficou VERMELHA 2h35 e quatro pushes sem ninguem olhar",
@@ -1837,7 +1837,8 @@
       "aceite": "Ou o laco passa a ler o estado do CI da main como PRIMEIRO sinal da rodada (antes de escolher trabalho, junto com o baseline), ou uma ferramenta o faz e reprova alto. Aceite verificavel: com o CI da main vermelho, a rodada tem de DIZER isso antes de despachar o primeiro agente; com ele verde, seguir calada. Mordida provada por injecao contra um run de CI conhecidamente vermelho (o 605 serve de cobaia historica). Cuidado com a armadilha ja paga: julgar por conclusion REAL da API, nunca pela ultima linha de log nem por status in_progress, que nao e nem verde nem vermelho.",
       "detalhe": "Medido em 05/09 por nuvem-20260905T0023. O primeiro lancamento nu entrou na main em 04/09 22:07 UTC (1a0da66) e o segundo em 23:30 (ee72878); os runs 602, 603, 604 e 605 do teste.yml sairam todos failure, e a rodada nuvem-20260904T2022, que trabalhou nesse intervalo, nao registrou nada sobre isso -- ela mediu o npm test DESTA maquina (vermelho por proxy) e nunca o CI. O prompt agendado ate cita CI verde como condicao do idle-bail, entao a intencao existe; o que falta e o passo. O CLAUDE.md 3.5 diz main e producao, nunca deixe a main quebrada, e por 2h35 ela esteve.",
       "maquina": null,
-      "desde": null
+      "desde": null,
+      "feito": "Feito em 05/09 por windows-plantao-20260904T1343, commit 162903a. ferramentas/checar-ci.js julga pelo conclusion REAL do ultimo run COMPLETO do workflow teste em main (nunca por status in_progress). Testado sem rede via CI_INJETAR + 4 fixtures gravadas de runs reais (o vermelho 33932926532 citado como cobaia historica no proprio item, o verde 33934651864, a combinacao real verde+dois-in_progress, e um caso de borda construido de nenhum-completo-ainda). PLANTAO.md par.1 (o laco) passa a exigir node ferramentas/checar-ci.js como primeiro passo, antes do primeiro despacho da rodada: vermelho tem de ser dito alto, verde/desconhecido segue calado. Nao entrou no npm test (recursivo dentro do CI e exige gh autenticado que um worktree isolado pode nao ter) - e um passo do LACO, nao um portao do funil. npm test 17/17 verde (adicionado test/checar-ci-veredito.js, hermetico via fixtures)."
     },
     {
       "id": "sem-lockfile-o-playwright-flutua-e-quebra-o-navegador-da-nuvem",
