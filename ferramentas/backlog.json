@@ -1956,7 +1956,7 @@
     },
     {
       "id": "ferramenta-que-fala-com-a-rede-nao-honra-o-proxy-da-nuvem",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-plataforma",
       "camada": "esteira",
       "titulo": "Toda ferramenta desta casa que fala com a rede pelo modulo https do Node quebra na nuvem, e quebra com cara de credencial errada",
@@ -1964,7 +1964,9 @@
         "ferramentas/"
       ],
       "aceite": "Varrer ferramentas/ e test/ atras de quem usa https/http do Node direto contra a rede, e dar a todos o mesmo caminho do checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY, e nao mandar o sentinela proxy-injected como credencial). Mordida provada por injecao em cada uma: com HTTPS_PROXY definido tem de responder; sem, tem de falhar HONESTAMENTE e nunca virar verde. Se a varredura achar zero alem do checar-ci.js, esse ZERO e a entrega e fecha o item.",
-      "detalhe": "Generalizacao do que a nuvem consertou em ferramentas/checar-ci.js em 05/09 (ver commit e04d196 para o diagnostico completo). O modulo https/http do Node nao segue sozinho a configuracao de proxy de saida desta rede, entao qualquer outra ferramenta desta casa que fale direto com a rede pelo mesmo caminho pode ter o mesmo problema estrutural -- e o sintoma engana, porque le como erro de outra natureza, nao como caminho de rede errado. O conserto ja aplicado ao checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY configurado, sem voltar a depender de CLI) e o modelo a repetir em qualquer ferramenta que a varredura do aceite encontrar."
+      "detalhe": "Generalizacao do que a nuvem consertou em ferramentas/checar-ci.js em 05/09 (ver commit e04d196 para o diagnostico completo). O modulo https/http do Node nao segue sozinho a configuracao de proxy de saida desta rede, entao qualquer outra ferramenta desta casa que fale direto com a rede pelo mesmo caminho pode ter o mesmo problema estrutural -- e o sintoma engana, porque le como erro de outra natureza, nao como caminho de rede errado. O conserto ja aplicado ao checar-ci.js (tunel CONNECT quando ha HTTPS_PROXY configurado, sem voltar a depender de CLI) e o modelo a repetir em qualquer ferramenta que a varredura do aceite encontrar.",
+      "maquina": "nuvem-20260905T0822",
+      "desde": "2026-09-05T08:30:40.732Z"
     },
     {
       "id": "duas-maquinas-integram-o-mesmo-ramo-de-entrega",
