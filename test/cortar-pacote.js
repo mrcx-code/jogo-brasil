@@ -21,7 +21,7 @@ const PACOTES = ['pacote-cap1-frente', 'pacote-cap2-frente', 'pacote-cap3-frente
 const COLS = 4, LINS = 2, ALTURA = 132, CORES = 22;
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   const todos = [];
 

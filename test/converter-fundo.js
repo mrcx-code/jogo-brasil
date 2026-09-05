@@ -36,7 +36,7 @@ if (!ENT || !PECA || !SAI) {
 const ALVO = PECA === 'alto' ? { w: 720, h: 959 } : { w: 720, h: 320 };
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   await pg.goto(ABRIR('file:///' + path.resolve(ENT).replace(/\\/g, '/')));
 

@@ -52,7 +52,7 @@ const LARGURAS = medir ? [520, 660, 780, 900, 1100] : [LARGURA];
     : [];
   if (!arqs.length) { console.error('nenhuma ctx-*.png em assets/entrada'); process.exit(1); }
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   const feito = {};
 

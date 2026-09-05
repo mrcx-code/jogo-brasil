@@ -9,6 +9,7 @@
 // uso: folha-png.js <arquivo.json | bloco@src/jogo.ts> <saida.png> [--ordem=a,b,c] [--esc=1]
 const fs = require('fs');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const args = process.argv.slice(2);
 const pos = args.filter(a => !a.startsWith('--'));
@@ -30,7 +31,7 @@ else frames = JSON.parse(fs.readFileSync(ALVO, 'utf8')).frames;
 const idx = ORDEM ? ORDEM.split(',').map(s => parseInt(s, 10) - 1) : frames.map((_, i) => i);
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   const png = await p.evaluate(async (a) => {
     const imgs = await Promise.all(a.fr.map(f => new Promise((r, j) => {

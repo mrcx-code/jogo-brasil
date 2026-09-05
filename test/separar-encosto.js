@@ -8,12 +8,13 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const [ENT, SAI, X0, X1, LARG] = process.argv.slice(2);
 if (!SAI) { console.error('uso: separar-encosto.js <ent.png> <sai.png> <x0> <x1> [larg]'); process.exit(1); }
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   await p.goto('file:///' + path.resolve(ENT).split(path.sep).join('/'));
   const out = await p.evaluate(async (a) => {

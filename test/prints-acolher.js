@@ -18,7 +18,7 @@ const RAIZ = path.resolve(__dirname, '..');
 const ABRIR = require('./abrir.js');
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
   pg.on('pageerror', e => console.log('PAGEERROR', e.message));
   await pg.goto(ABRIR('file://' + path.join(RAIZ, 'index.html')));

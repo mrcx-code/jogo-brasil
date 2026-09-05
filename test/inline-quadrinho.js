@@ -92,7 +92,7 @@ const ordem = function (a, b) {
     console.error('  ' + Object.keys(recusadas).length + ' entrega(s) repetida(s) NÃO entram; peça o reenvio à mesa.\n');
   }
 
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage();
   const feito = {};
   let somaPorLargura = {};

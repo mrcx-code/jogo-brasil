@@ -4,9 +4,10 @@
 // o portao tecnico ja mediu vale <= 8 antes de esta ferramenta rodar.
 //   node test/cortar-gente.js <entrada-sem-ext> <saida.json>
 const fs = require('fs'); const path = require('path'); const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 const [ent, sai] = process.argv.slice(2);
 (async () => {
-  const nav = await chromium.launch(); const pg = await nav.newPage();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() }); const pg = await nav.newPage();
   const b64 = 'data:image/png;base64,' + fs.readFileSync(path.resolve('assets/entrada', ent + '.png')).toString('base64');
   const frames = await pg.evaluate(async (u) => {
     const im = new Image(); im.src = u; await im.decode();

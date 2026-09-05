@@ -3,6 +3,7 @@
 // dois prints em momentos diferentes divergem por motivo nenhum. Aqui as duas pilhas de
 // `background` são desenhadas lado a lado, paradas, e comparadas canal a canal.
 const { chromium } = require('playwright');
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const PARES = [
   ['#btnJogar',
@@ -20,7 +21,7 @@ const PARES = [
 ];
 
 (async () => {
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const pg = await nav.newPage({ viewport: { width: 400, height: 200 } });
   await pg.goto('about:blank');
   let pior = 0;

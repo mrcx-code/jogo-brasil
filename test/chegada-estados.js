@@ -167,7 +167,7 @@ const MEDIR = function (cfg) {
 
 (async () => {
   const so = process.env.CHEGADA_SO ? process.env.CHEGADA_SO.split(',') : null;
-  const nav = await chromium.launch();
+  const nav = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const problemas = [];     // reprova
   const informe = [];       // caixa mais alta que a janela
   const acima = [];         // acima do teto da tabela do portão

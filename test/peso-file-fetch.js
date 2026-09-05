@@ -8,12 +8,13 @@
 const { chromium } = require("playwright");
 const path = require("path");
 const os = require("os");
+const ABRIR = require('./abrir.js');   // onde o Chromium esta (test/abrir.js)
 
 const DIR = process.argv[2] || path.join(os.tmpdir(), "claude", "peso-prototipo");
 const alvo = "file:///" + path.join(DIR, "index.html").replace(/\\/g, "/");
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: ABRIR.chromiumPath() });
   const p = await b.newPage();
   await p.goto(alvo);
   const r = await p.evaluate(async () => {
