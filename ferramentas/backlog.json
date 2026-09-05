@@ -1498,7 +1498,7 @@
     },
     {
       "id": "ritual-fora-do-drop-sem-lista-branca",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "dev-jogo",
       "camada": "esteira",
       "titulo": "A trava do par.2 (objeto ritual nao e colecionavel) so tem lista branca no lugar de DROP -- fora dele, um buzio ACLARADO passa",
@@ -1507,7 +1507,9 @@
         "test/qa-ritual-varredura.js"
       ],
       "aceite": "Decidir o que se faz onde a lista branca nao cabe. MOB_B64, ICONE_B64, FRENTE_B64 e GENTE_EP_B64 sao centenas de artes sem tabela de aprovacao possivel, e la sobra a lista negra, cujo buraco esta MEDIDO. Saidas: (a) baixar o limiar so para esses blocos, com o custo de falso positivo medido; (b) assinatura invariante a brilho/matiz em vez de distancia crua; (c) aceitar o buraco e dizer isso no cabecalho, que ja e o estado de hoje. Qualquer saida precisa da medicao dos 13 disfarces, que ja existe em test/qa-ritual-disfarce.js.",
-      "detalhe": "Nomeado pelo proprio dev-jogo em 04/09 (nuvem-20260904T1623) ao fechar ritual-limiar-e-espelho, e ele escreveu nos cabecalhos em vez de esconder. Medido, com limiar 12: brilho x1,25 = 14,0 (o caminho de volta MAIS BARATO, e nao e geometria); matiz +40 graus = 21,9; moldura +12% = 28,8; espelho vertical 52,0; 180 graus 52,2; 90 graus 53,9. Um buzio aclarado em MOB_B64 passa hoje. A frase dele resume por que isto nao se resolve medindo melhor: a lista branca funciona por TROCAR A PERGUNTA (de isto e um buzio para isto e ESTE arquivo), e fora do lugar de drop a pergunta nao pode ser trocada -- la ele conseguiu fazer o CABECALHO honesto, nao o portao."
+      "detalhe": "Nomeado pelo proprio dev-jogo em 04/09 (nuvem-20260904T1623) ao fechar ritual-limiar-e-espelho, e ele escreveu nos cabecalhos em vez de esconder. Medido, com limiar 12: brilho x1,25 = 14,0 (o caminho de volta MAIS BARATO, e nao e geometria); matiz +40 graus = 21,9; moldura +12% = 28,8; espelho vertical 52,0; 180 graus 52,2; 90 graus 53,9. Um buzio aclarado em MOB_B64 passa hoje. A frase dele resume por que isto nao se resolve medindo melhor: a lista branca funciona por TROCAR A PERGUNTA (de isto e um buzio para isto e ESTE arquivo), e fora do lugar de drop a pergunta nao pode ser trocada -- la ele conseguiu fazer o CABECALHO honesto, nao o portao.",
+      "maquina": "nuvem-20260905T0023",
+      "desde": "2026-09-05T00:25:18.245Z"
     },
     {
       "id": "aprovados-duplicada-sem-assercao",
@@ -1754,7 +1756,7 @@
     },
     {
       "id": "filtro-de-console-copiado-por-arquivo",
-      "estado": "livre",
+      "estado": "em-curso",
       "agente": "qa",
       "camada": "esteira",
       "titulo": "33 de 35 portoes contam erro de console SEM filtro nenhum -- a decisao esta copiada por arquivo, e foi a copia que produziu o 3o caso",
@@ -1763,8 +1765,8 @@
       ],
       "aceite": "A decisao \"este erro de console e do produto ou da rede da maquina?\" passa a viver em UM lugar que os portoes importam, em vez de uma regex copiada (ou ausente) por arquivo. Mordida provada nos dois sentidos e em mais de um portao: um console.error do proprio produto que mencione o host da medicao tem de ser CONTADO; o erro de rede da maquina (origem = MEDIDA_HOST) continua ignorado. NAO fazer de uma vez nos 33: o aceite pede o helper + a adocao nos portoes que estao DENTRO do npm test, e o numero de quantos ficaram de fora, para virar item proprio.",
       "detalhe": "Medido por nuvem-20260904T2022 em 04/09. Varredura: 35 arquivos em test/ contam erro de console (m.type() === error) e apenas DOIS tem qualquer filtro -- ver-territorio.js e qa-salvador-vivo.js, os dois do item rede-externa-e-substring-de-texto-e-engole-erro-real. Os outros 33 nao filtram nada. Consequencia medida na mesma rodada: BASELINE do npm test na main LIMPA, sem entrega nenhuma, saiu EXIT 1 REAL -- test/aceiro-sem-coleta.js (linha 87, sem filtro) reprovou em \"nenhum erro de console (1)\" com CONSOLE Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED. Sonda propria identificou a URL: https://us.i.posthog.com/i/v0/e/ -- ou seja o MEDIDA_HOST bloqueado pelo proxy do conteiner, ruido de maquina e nao defeito de produto. O aceiro-sem-coleta.js foi passado ao qa DENTRO da rodada (territorio estendido) porque enquanto ele estivesse assim todo funil sairia vermelho com o nome da entrega colado (a armadilha do PLANTAO par.4). Este item e o que SOBRA depois disso: a classe, nao o caso. E a sonda tambem respondeu a duvida que o item irmao deixou em aberto: para esta classe de erro o m.location().url VEM PREENCHIDO, entao o caminho por origem tem base medida. ATUALIZADO 04/09 no fim da rodada: o helper JA EXISTE -- test/rede-externa.js, criado pelo qa e integrado na main pelo funil (commit ca7bf02), exportando ehRuidoDeRedeExterna(m) e MEDIDA_HOST. TRES arquivos ja o usam (ver-territorio.js, qa-salvador-vivo.js, aceiro-sem-coleta.js) e o npm test voltou a EXIT 0. Entao este item deixou de ser \"construir o helper\" e passou a ser SO a adocao nos que faltam: 32 arquivos em test/ contam erro de console e nao filtram nada. Nao fazer os 32 de uma vez -- priorizar os que estao DENTRO do npm test e do funil, que sao os que podem reprovar entrega por rede da maquina. GAP MENOR registrado pelo qa e nao consertado: o filtro do favicon em ver-territorio.js decide por caminho mas nao confere o host, entao um 404 terminado em favicon.ico em outro host seria engolido -- nao foi medido se e exploravel.",
-      "maquina": null,
-      "desde": null
+      "maquina": "nuvem-20260905T0023",
+      "desde": "2026-09-05T00:25:18.245Z"
     },
     {
       "id": "cartao-tipografia-fresca-maquina-dependente",
