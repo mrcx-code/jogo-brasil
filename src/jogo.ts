@@ -1899,6 +1899,32 @@ function salvar() {
 // um povo comia, plantava ou usava é afirmação com procedência e exige fonte no NOTES.md.
 // Na dúvida, descreva a mecânica e não a história.
 //
+// A NOTA DE HONESTIDADE SOBRE A ARTE SAIU DA ABERTURA E FOI PARA O FECHO — decisão do dono no
+// check de 05/09, e ela vale para os SEIS capítulos que a tinham: O CAIS, JABAQUARA, A PEQUENA
+// ÁFRICA, AS PORTAS, O QUE NÃO PODIA SER DITO e A PRAÇA. O problema estava escrito no backlog
+// (`nota-honestidade-gasta-a-ultima-linha`, levantado pela historiadora em 04/09): a nota
+// nasceu quando a arte ERA emprestada e cumpriu o papel dela; com pintura e gente próprias em
+// cinco dos seis, ela passou a gastar a linha que a pessoa mais lê — a última antes de jogar —
+// para falar de produção. Nos seis, a `abertura` volta a terminar no VERBO do capítulo
+// ("alcançar é abrir caminho", "é guardar o lugar", "é fazer passar"), e a nota vai para o FIM
+// do `fecho`, palavra por palavra, sem nada reescrito.
+//
+// TRÊS COISAS QUE DECIDIRAM O DESTINO, e ficam escritas para ninguém refazer a conta:
+//  1. **Fim do fecho, e não começo.** O fecho REUSA `aberturaImg` posição por posição
+//     (`mostrarFecho`), então uma linha nova no COMEÇO empurra cada pintura para a fala
+//     seguinte — o modo de falha que o `encaixe.js` bloco 1 existe para pegar. No fim, nada
+//     se move: as posições que sobram já eram `null`.
+//  2. **Fecho, e não DE ONDE VEM.** A outra saída oferecida era a tela de fontes, e ela foi
+//     medida antes de ser recusada: `ferramentas/gerar-fontes.js` conta como FONTE toda
+//     entrada com `t` e imprime o número na página pública ("N fontes · M grupos"). Seis notas
+//     de produção entrando ali fariam a plataforma dizer que tem seis fontes que não tem, numa
+//     seção cujo trabalho inteiro é ser conferível. Nota de cozinha não é bibliografia.
+//  3. **A oração dos contadores NÃO viajou.** "Os três contadores lá em cima são os mesmos de
+//     sempre" aponta para o HUD, que não está na tela durante o fecho (`body.emTela`). Mover
+//     uma frase que vira falsa no lugar novo seria o contrário do que a nota faz — e os
+//     capítulos mais recentes (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE) já fecham a abertura
+//     na protagonista, sem linha de contador nenhuma.
+//
 // `aberturaImg` é a associação FALA → IMAGEM DE CONTEXTO, e é uma lista do MESMO tamanho da
 // `abertura`, posição por posição. Cada item é uma chave de `CTX_B64` ou `null`.
 //
@@ -2137,9 +2163,10 @@ const EPOCAS = [
     // AINDA EMPRESTADO de AINDA AQUI, por `arteCap: 3`: a folha da protagonista, o retrato do
     // capítulo e o que fica no chão (`DROP_B64[3]`).
     //
-    // ⚠ A QUINTA FALA DA ABERTURA AINDA DESCREVE O ESTADO ANTIGO e por isso está falsa em
-    // metade — ver o item `cais-fala-obsoleta-e-verbo-errado` no backlog. Fala é território do
-    // historiador; este comentário não a corrige, só deixa de alimentá-la.
+    // A NOTA DE HONESTIDADE SOBRE A ARTE MUDOU DE LUGAR EM 05/09 — decisão do dono, no check
+    // do dia: ela sai da última linha da `abertura` e vai para o fim do `fecho`. O que ela diz
+    // não mudou (é a medição abaixo, palavra por palavra); mudou QUANDO se lê. O porquê está
+    // escrito uma vez só, no cabeçalho de EPOCAS, e vale para os seis capítulos que a tinham.
     cenas: 1, lugar: "cais", arte: [12],
     abertura: [
       "Isto é o Rio de Janeiro, e este chão de pedra tem nome: cais do Valongo. Foi construído em 1811, por ordem do príncipe regente, e fez do porto do Rio a principal porta de entrada de africanos escravizados nas Américas.",
@@ -2160,9 +2187,28 @@ const EPOCAS = [
       // que chegou pronta usava essa palavra e teria REPROVADO o portão. JABAQUARA ("abrir
       // caminho") e A PEQUENA ÁFRICA ("guardar o lugar") já resolvem o mesmo problema assim:
       // cada capítulo da fila nomeia o gesto no idioma dele.
-      "Aqui, alcançar é juntar gente na pedra: um toque, e quem esperava vira e caminha com você. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe.",
-      // A NOTA DE HONESTIDADE FICOU FALSA (04/09, historiadora). Ela dizia que o que atravessa
-      // a tela E o que fica no chão eram emprestados. Medido nesta árvore, item por item:
+      "Aqui, alcançar é juntar gente na pedra: um toque, e quem esperava vira e caminha com você. Neste capítulo nada se inventa: o que a terra devolveu, o jogo conta; o que ela não devolveu, ele diz que não sabe."
+    ],
+    // a pedra segura as duas primeiras — a primeira a nomeia, a segunda conta quanta gente
+    // passou por ela. A terceira fala de ser COBERTA, e é outro assunto: o chão de cima, sem
+    // marca nenhuma. A última é o verbo, e nela a imagem sai (ver o cabeçalho: `null` não é
+    // buraco). A quinta posição saiu junto com a quinta fala em 05/09 — a lista de imagens tem
+    // de ter o TAMANHO da lista de falas, e o `encaixe.js` bloco 1 cobra isso.
+    aberturaImg: ["cap5-cais", "cap5-cais", "cap5-coberto", null],
+    fecho: [
+      "Em 2011, obras na zona portuária acharam a pedra de novo — exatamente duzentos anos depois de ela ter sido posta. Quem dirigiu a escavação foi a arqueóloga Tânia Andrade Lima.",
+      "Em 10 de julho de 2017 o sítio entrou na lista do Patrimônio Mundial da UNESCO, pelo critério dos lugares ligados a acontecimentos e tradições vivas de significação universal excepcional.",
+      "Quanta gente desembarcou aqui? A ONU registra estimativas de 500 mil a 1 milhão. A escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831. São réguas diferentes, e a tela DE ONDE VEM mostra as duas.",
+      "Agora duas datas, para guardar juntas. Em 7 de novembro de 1831 uma lei do Império escreveu: “Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” Está assim, com essas palavras.",
+      "Em 4 de setembro de 1850 veio outra lei, para reprimir o tráfico de africanos, e o primeiro artigo dela se refere à de 1831. Dezenove anos entre uma proibição e a lei que veio proibir de novo.",
+      "E uma recusa. A poucas ruas daqui há outro sítio, o Cemitério dos Pretos Novos, que funcionou de 1772 a 1830 e é escavado até hoje, com instituto vivo e descendentes vivos. Este jogo o cita como fonte e não o encena.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09. Ela
+      // VEIO INTEIRA, sem uma palavra reescrita — o que mudou foi o lugar. E este é o capítulo
+      // em que o lugar novo é o melhor dos seis: a linha de cima já é o jogo falando de si
+      // mesmo e do que ele recusa fazer; a nota da arte é o mesmo gesto no outro registro, e
+      // as duas se leem seguidas em vez de uma interromper a outra.
+      //
+      // O QUE ELA AFIRMA, medido em 04/09 item por item e reconferido em 05/09 antes de mover:
       //   · a PINTURA é `arte: [12]`, índice de nenhum outro capítulo, e `PACK_DA_CENA[12]`
       //     é "cais" — pintura própria desde 15/08;
       //   · QUEM ATRAVESSA A TELA sai de `GENTE_EP_SPR.cais` (3 fileiras × 8 quadros = 24),
@@ -2171,25 +2217,15 @@ const EPOCAS = [
       //   · O QUE FICA NO CHÃO **continua emprestado**, e isto foi o que a medição salvou:
       //     `dropDe()` lê `DROP_SPR[capArte()]`, `capArte()` devolve `arteCap` = 3, e
       //     `DONO_DO_BLOCO[3]` é "hoje" — o drop é o de AINDA AQUI.
-      // Metade da frase envelheceu e metade continua verdadeira. Trocá-la inteira por "está
-      // tudo pronto" seria trocar uma frase falsa por outra na direção pior, a que se gaba.
       // Que a gente que passa é contemporânea não é leitura minha: está no pedido de arte
       // `gente-cais` em ferramentas/necessario.json — "TRÊS pessoas da Saúde/Gamboa, Rio de
       // Janeiro, HOJE… o capítulo é o de HOJE sobre o cais: gente contemporânea".
-      "A pintura e quem atravessa a tela já são deste capítulo — quem passa é gente da Saúde e da Gamboa de hoje, sobre a pedra que voltou à luz. Emprestado, só o que fica no chão. Os três contadores lá em cima são os mesmos de sempre."
-    ],
-    // a pedra segura as duas primeiras — a primeira a nomeia, a segunda conta quanta gente
-    // passou por ela. A terceira fala de ser COBERTA, e é outro assunto: o chão de cima, sem
-    // marca nenhuma. As duas últimas são o verbo e a tela, e nelas a imagem sai (ver o
-    // cabeçalho: `null` não é buraco).
-    aberturaImg: ["cap5-cais", "cap5-cais", "cap5-coberto", null, null],
-    fecho: [
-      "Em 2011, obras na zona portuária acharam a pedra de novo — exatamente duzentos anos depois de ela ter sido posta. Quem dirigiu a escavação foi a arqueóloga Tânia Andrade Lima.",
-      "Em 10 de julho de 2017 o sítio entrou na lista do Patrimônio Mundial da UNESCO, pelo critério dos lugares ligados a acontecimentos e tradições vivas de significação universal excepcional.",
-      "Quanta gente desembarcou aqui? A ONU registra estimativas de 500 mil a 1 milhão. A escavação conta cerca de 550 mil chegadas ao Rio inteiro entre 1811 e 1831. São réguas diferentes, e a tela DE ONDE VEM mostra as duas.",
-      "Agora duas datas, para guardar juntas. Em 7 de novembro de 1831 uma lei do Império escreveu: “Todos os escravos, que entrarem no territorio ou portos do Brazil, vindos de fóra, ficam livres.” Está assim, com essas palavras.",
-      "Em 4 de setembro de 1850 veio outra lei, para reprimir o tráfico de africanos, e o primeiro artigo dela se refere à de 1831. Dezenove anos entre uma proibição e a lei que veio proibir de novo.",
-      "E uma recusa. A poucas ruas daqui há outro sítio, o Cemitério dos Pretos Novos, que funcionou de 1772 a 1830 e é escavado até hoje, com instituto vivo e descendentes vivos. Este jogo o cita como fonte e não o encena."
+      //
+      // A ORAÇÃO DOS CONTADORES NÃO VEIO JUNTO, e isso é subtração medida, não esquecimento:
+      // "os três contadores LÁ EM CIMA" aponta para o HUD, que não está na tela durante o
+      // fecho (`body.emTela`) e que a pessoa já usou por um capítulo inteiro quando lê isto.
+      // Mover uma frase que vira falsa ao mudar de lugar seria o contrário do que a nota faz.
+      "A pintura e quem atravessa a tela já são deste capítulo — quem passa é gente da Saúde e da Gamboa de hoje, sobre a pedra que voltou à luz. Emprestado, só o que fica no chão."
     ]
   },
   {
@@ -2343,29 +2379,36 @@ const EPOCAS = [
       "Isto é Santos, no litoral de São Paulo, nos últimos anos da escravidão. A serra fica lá em cima; aqui embaixo, o porto.",
       "Nos anos 1880, gente escravizada abandonou em massa as fazendas de café do interior e desceu a serra a pé, pela estrada que margeia a linha férrea — às vezes dentro dos vagões, com o consentimento de ferroviários abolicionistas.",
       "No morro do Jabaquara havia um reduto — um quilombo — organizado desde 1882. Quem o liderava era Quintino de Lacerda, sergipano, que fora escravizado em Santos como cozinheiro de ganho e ficou livre naquela mesma década.",
-      "Aqui, alcançar é abrir caminho: o da serra, para quem ainda está descendo, e o da roça, para quem já chegou.",
-      // ESTA ERA A PIOR DAS CINCO, E O MOTIVO É §2 (04/09, historiadora sob a licença de 19/08).
-      // Ela dizia "a gente daqui não foi desenhada" — e a gente FOI: `GENTE_EP_SPR.jabaquara`
-      // tem 3 fileiras × 8 quadros, e o pedido `gente-jabaquara` em necessario.json descreve
-      // quem são (estivador com saca, vendedora de tabuleiro, ferroviário com lanterna, e a
-      // trava "NADA de corrente ou ferro em ninguém"). Um capítulo sobre quilombo apagando POR
-      // ESCRITO a existência da gente que ele desenhou é o oposto do que o §2 pede.
-      // A PINTURA também é própria desde 10/08 (`arte: [7]`, `PACK_DA_CENA[7]` = "jabaquara").
-      // O QUE CONTINUA VERDADE: o drop. `dropDe()` → `DROP_SPR[capArte()]` → `arteCap` 3 →
-      // `DONO_DO_BLOCO[3]` = "hoje". Por isso a frase encolhe em vez de sumir.
-      "A serra e a gente que desce por ela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
+      "Aqui, alcançar é abrir caminho: o da serra, para quem ainda está descendo, e o da roça, para quem já chegou."
     ],
     // a serra segura as duas primeiras: a primeira a nomeia, a segunda é a descida por ela.
     // O morro entra quando o texto chega no reduto, que é o outro assunto — e é o lugar, nunca
-    // a reunião. As duas últimas são o verbo e a tela, e nelas a imagem sai.
-    aberturaImg: ["cap6-serra", "cap6-serra", "cap6-morro", null, null],
+    // a reunião. A última é o verbo, e nela a imagem sai. A quinta posição saiu em 05/09 junto
+    // com a quinta fala (a nota da arte, que foi para o fecho): a lista de imagens tem de ter o
+    // TAMANHO da lista de falas, e o `encaixe.js` bloco 1 cobra isso.
+    aberturaImg: ["cap6-serra", "cap6-serra", "cap6-morro", null],
     fecho: [
       "Em 1º de maio de 1888 — doze dias antes da abolição — o Correio Paulistano publicou um relatório do presidente da província de São Paulo.",
       "Ele dizia que, em vastos municípios ao mesmo tempo, “os escravos abandonaram em massa as fazendas, procurando, a princípio, abrigo no município de Santos”. Está escrito no jornal, antes da lei.",
       "Quanta gente passou por aqui, ninguém sabe. Memorialistas escreveram “mais de três mil”; outros, dez mil. A pesquisa trata esses números como exagerados e não os adota — este jogo também não.",
       "E há uma armadilha na fonte. Um memorialista de Santos escreveu que o Jabaquara foi “a suprema criação do branco em favor do negro”. A pesquisa recente lê ao contrário: quem descia a serra vinha antes de qualquer plano.",
       "A lei de 13 de maio coube em dois artigos: nada sobre terra, casa ou trabalho. Em 1893, moradores do Jabaquara foram à justiça para ficar nas roças que tinham aberto ali antes da lei, e se declararam “todos de profissão roceiros”.",
-      "Quintino de Lacerda virou vereador de Santos em 1895. A luta mudou de lugar; não acabou. Quem leu esta década pondo quem era escravizado como agente da própria história foi Maria Helena Machado."
+      "Quintino de Lacerda virou vereador de Santos em 1895. A luta mudou de lugar; não acabou. Quem leu esta década pondo quem era escravizado como agente da própria história foi Maria Helena Machado.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09 —
+      // movida por decisão do dono, sem uma palavra reescrita. Ela vem DEPOIS do remate, e a
+      // ordem é o argumento: o capítulo fecha com quem escreveu esta história, e só então o
+      // jogo fala da própria cozinha. Antes dela, a nota era a última coisa lida ANTES de
+      // jogar; agora é a última DEPOIS, que é onde o jogo já mostra as cartas (a fala três
+      // deste mesmo fecho recusa números que a pesquisa trata como exagerados).
+      //
+      // O QUE ELA AFIRMA, medido em 04/09 e reconferido em 05/09 antes de mover: a gente É
+      // daqui — `GENTE_EP_SPR.jabaquara` tem 3 fileiras × 8 quadros, e o pedido
+      // `gente-jabaquara` em necessario.json descreve quem são (estivador com saca, vendedora
+      // de tabuleiro, ferroviário com lanterna, e a trava "NADA de corrente ou ferro em
+      // ninguém"). A PINTURA é própria desde 10/08 (`arte: [7]`, `PACK_DA_CENA[7]` =
+      // "jabaquara"). O DROP continua emprestado: `dropDe()` → `DROP_SPR[capArte()]` →
+      // `arteCap` 3 → `DONO_DO_BLOCO[3]` = "hoje".
+      "A serra e a gente que desce por ela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir."
     ]
   },
   {
@@ -2395,24 +2438,29 @@ const EPOCAS = [
       "Isto é o Rio de Janeiro no começo do século XX, entre a Saúde, a Gamboa e a Praça Onze. O compositor Heitor dos Prazeres chamava este pedaço de cidade de Pequena África, e o nome ficou.",
       "Muita gente daqui tinha vindo da Bahia, no êxodo que ficou conhecido como diáspora baiana. Uma delas era Hilária Batista de Almeida, nascida em Santo Amaro da Purificação em 1854, que veio para o Rio aos 22 anos.",
       "Ficou conhecida como Tia Ciata. Era quituteira e iyakekerê no terreiro de João Alabá, e na casa dela as festas eram famosas — sobretudo as rodas de partido-alto.",
-      "Aqui, alcançar é guardar o lugar: o pedaço de cidade, a casa, e a roda que acontece dentro dela.",
-      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora). Pintura própria (`arte: [8]`,
-      // `PACK_DA_CENA[8]` = "pequenaafrica"); quem atravessa a tela sai de
-      // `GENTE_EP_SPR.pequenaafrica`, 3×8 = 24 quadros, e o capítulo está em `CAP_FILA`, então
-      // `mobFrame()` usa a folha própria. O drop continua o de AINDA AQUI (`arteCap` 3).
-      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
+      "Aqui, alcançar é guardar o lugar: o pedaço de cidade, a casa, e a roda que acontece dentro dela."
     ],
     // a rua da Praça Onze segura as duas primeiras: a primeira nomeia o território, a segunda é
     // quem chegou nele. A casa entra quando o texto chega na casa — e mostra o LUGAR, nunca a
-    // festa, pela mesma razão que o pátio de SALVADOR mostra o pátio vazio.
-    aberturaImg: ["cap7-praca", "cap7-praca", "cap7-casa", null, null],
+    // festa, pela mesma razão que o pátio de SALVADOR mostra o pátio vazio. A quinta posição
+    // saiu em 05/09 com a quinta fala (a nota da arte foi para o fecho) — a lista de imagens
+    // tem de ter o TAMANHO da lista de falas, e o `encaixe.js` bloco 1 cobra isso.
+    aberturaImg: ["cap7-praca", "cap7-praca", "cap7-casa", null],
     fecho: [
       "Numa roda na casa dela nasceu “Pelo Telefone”. Em 6 de novembro de 1916, Donga — Ernesto Joaquim Maria dos Santos — entrou com o pedido de registro na Biblioteca Nacional.",
       "Anexou uma partitura de piano da mão de Pixinguinha e um atestado de que a música tinha sido tocada pela primeira vez em 25 de outubro daquele ano. O registro saiu em 27 de novembro, com o número 3.295.",
       "Vinte e seis anos antes, o Código Penal da República tinha feito crime não ter ocupação e feito crime a capoeira, chamada pelo nome. Deixou de ser crime em 1937. A linha do tempo traz os dois artigos.",
       "As obras da Avenida Presidente Vargas duraram três anos e derrubaram 525 imóveis. Um deles era a Praça Onze, onde as tias moravam e onde as escolas de samba desfilavam. A avenida foi inaugurada em 1944.",
       "Nem tudo caiu. A Pedra do Sal, ali ao lado, é comunidade remanescente de quilombo certificada pela Fundação Cultural Palmares desde a portaria publicada no Diário Oficial da União em 20 de janeiro de 2006.",
-      "O relatório técnico saiu em 2010 e contou 25 famílias. A terra continua sem título. Quem pensou o quilombo como símbolo de resistência que continua, e não como coisa do passado, foi Beatriz Nascimento."
+      "O relatório técnico saiu em 2010 e contou 25 famílias. A terra continua sem título. Quem pensou o quilombo como símbolo de resistência que continua, e não como coisa do passado, foi Beatriz Nascimento.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09 —
+      // movida por decisão do dono, sem uma palavra reescrita, e depois do remate para não
+      // disputar a última linha com ele.
+      // MEDIÇÃO (04/09, reconferida em 05/09): pintura própria (`arte: [8]`,
+      // `PACK_DA_CENA[8]` = "pequenaafrica"); quem atravessa a tela sai de
+      // `GENTE_EP_SPR.pequenaafrica`, 3×8 = 24 quadros, e o capítulo está em `CAP_FILA`, então
+      // `mobFrame()` usa a folha própria. O drop continua o de AINDA AQUI (`arteCap` 3).
+      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir."
     ]
   },
   {
@@ -2447,25 +2495,29 @@ const EPOCAS = [
       "Isto é o pátio de uma escola pública brasileira, em algum ponto entre 1932 e 1985. Meio século em que o país escreveu porta atrás de porta — e escreveu, no mesmo papel, quem ia ficar do lado de fora.",
       "A Constituição de 1934 abriu uma: eleitores eram “os brasileiros de um e de outro sexo, maiores de 18 annos”. No parágrafo seguinte, o mesmo artigo fechou outra: não podiam se alistar “os que não saibam ler e escrever”.",
       "A chave estava prometida ali perto, na mesma Constituição: “ensino primario integral gratuito e de freqüencia obrigatoria extensivo aos adultos”. Em 1940 o IBGE registrou 56,8% de analfabetismo entre as pessoas de 10 anos ou mais.",
-      "Aqui, alcançar é abrir a porta. E este capítulo conta as duas metades de cada uma: a que se abriu, e a que continuou trancada no mesmo papel.",
-      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora). Pintura própria (`arte: [9]`,
-      // `PACK_DA_CENA[9]` = "portas"); quem atravessa a tela sai de `GENTE_EP_SPR.portas`,
-      // 3×8 = 24 quadros — este capítulo entra por `CAPS_VERBO`, e `pessoaNaRua()` é
-      // `capFila() || capPalavra()`, então a folha própria acende aqui também. O drop continua
-      // o de AINDA AQUI (`arteCap` 3 → `DONO_DO_BLOCO[3]` = "hoje").
-      "O pátio e quem atravessa a tela já foram desenhados para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
+      "Aqui, alcançar é abrir a porta. E este capítulo conta as duas metades de cada uma: a que se abriu, e a que continuou trancada no mesmo papel."
     ],
     // o pátio segura as duas primeiras: a primeira o nomeia, a segunda é a porta do voto, e
     // o lugar não muda enquanto o assunto é a norma. A sala à noite entra quando o texto
     // chega no ensino "extensivo aos adultos" — é o lugar da chave, e é lugar, nunca aula.
-    aberturaImg: ["cap8-patio", "cap8-patio", "cap8-noturno", null, null],
+    // A quinta posição saiu em 05/09 com a quinta fala (a nota da arte foi para o fecho) — a
+    // lista de imagens tem de ter o TAMANHO da lista de falas (`encaixe.js` bloco 1).
+    aberturaImg: ["cap8-patio", "cap8-patio", "cap8-noturno", null],
     fecho: [
       "A exigência de saber ler durou até 1985. Em 15 de maio daquele ano, a Emenda Constitucional nº 25 escreveu que a lei diria “a forma pela qual possam os analfabetos alistar-se eleitores e exercer o direito de voto”.",
       "Três artigos adiante, a mesma emenda escreveu: “São inelegíveis os inalistáveis e os analfabetos.” Mesmo dia, mesmo papel: pode votar, não pode ser votado. A Constituição de 1988 repetiu a frase, no art. 14, § 4º.",
       "Outra porta, a do trabalho. Em 1943 a CLT disse a quem ela não se aplicava. A profissão de empregado doméstico só ganhou lei própria em 11 de dezembro de 1972 — e essa lei exigia, para admitir alguém, “atestado de boa conduta”.",
       "Ela deu vinte dias úteis de férias por ano. A igualdade de direitos chegou com a Lei Complementar nº 150, de 2015: quarenta e três anos depois daquela lei, setenta e dois depois da CLT.",
       "E quem não esperou por nenhuma delas: em 1936, em Santos, Laudelina de Campos Mello fundou a Associação das Empregadas Domésticas do Brasil. O Estado Novo a fechou em 1942. Em 1961, em Campinas, ela fundou outra.",
-      "As entidades que vieram depois dela deram origem, em 1988, ao Sindicato dos Trabalhadores Domésticos. Cinquenta e dois anos entre a primeira associação e o sindicato — e ela viu os dois."
+      "As entidades que vieram depois dela deram origem, em 1988, ao Sindicato dos Trabalhadores Domésticos. Cinquenta e dois anos entre a primeira associação e o sindicato — e ela viu os dois.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09 —
+      // movida por decisão do dono, sem uma palavra reescrita, e depois do remate.
+      // MEDIÇÃO (04/09, reconferida em 05/09): pintura própria (`arte: [9]`,
+      // `PACK_DA_CENA[9]` = "portas"); quem atravessa a tela sai de `GENTE_EP_SPR.portas`,
+      // 3×8 = 24 quadros — este capítulo entra por `CAPS_VERBO`, e `pessoaNaRua()` é
+      // `capFila() || capPalavra()`, então a folha própria acende aqui também. O drop continua
+      // o de AINDA AQUI (`arteCap` 3 → `DONO_DO_BLOCO[3]` = "hoje").
+      "O pátio e quem atravessa a tela já foram desenhados para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir."
     ]
   },
   {
@@ -2505,20 +2557,14 @@ const EPOCAS = [
       "Isto é uma rua de centro de cidade brasileira, entre 1964 e 1985. Nada nela parece proibido, e é esse o assunto: o que não podia ser dito não estava escrito na parede. Estava escrito no Diário Oficial.",
       "Em 13 de dezembro de 1968 o Ato Institucional nº 5 deu ao Presidente o poder de decretar o recesso do Congresso. E escreveu, no art. 10: “Fica suspensa a garantia de habeas corpus, nos casos de crimes políticos”.",
       "O art. 11 pôs fora de “qualquer apreciação judicial” tudo o que fosse feito com ele. Em 1970 um decreto-lei mandou a Polícia Federal conferir livros e revistas antes de saírem — e quem publicasse o não liberado perdia todos os exemplares.",
-      "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais.",
-      // MESMA MEDIÇÃO DAS OUTRAS QUATRO (04/09, historiadora), com UMA diferença que vale
-      // registrar e que derrubou a afirmação de que "nenhuma das cinco pinturas é
-      // compartilhada": a pintura `[10]` É compartilhada — A PRAÇA, O QUE SEGUROU e O ACEIRO
-      // vestem esta mesma. Só que quem a EMPRESTA é este capítulo: `PACK_DA_CENA[10]` é
-      // "naodito", e a abertura de A PRAÇA já diz em voz alta que veste a do anterior. Para a
-      // fala DAQUI, então, a pintura é própria. Quem atravessa a tela sai de
-      // `GENTE_EP_SPR.naodito` (3×8 = 24), via `CAPS_VERBO`. O drop continua o de AINDA AQUI.
-      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
+      "Aqui, alcançar é fazer passar. É parente do gesto que a ladeira de Salvador te pôs na mão em 1835, mais de cento e trinta anos antes — e por motivos parecidos demais."
     ],
     // a rua segura as duas primeiras: a primeira a nomeia, a segunda é a norma, e norma não
     // tem paisagem. A banca entra quando o texto chega no que se imprime e no que se vende —
-    // é o lugar por onde a palavra passava, e é lugar, nunca a leitura.
-    aberturaImg: ["cap9-rua", "cap9-rua", "cap9-banca", null, null],
+    // é o lugar por onde a palavra passava, e é lugar, nunca a leitura. A quinta posição saiu
+    // em 05/09 com a quinta fala (a nota da arte foi para o fecho) — a lista de imagens tem de
+    // ter o TAMANHO da lista de falas (`encaixe.js` bloco 1).
+    aberturaImg: ["cap9-rua", "cap9-rua", "cap9-banca", null],
     fecho: [
       "Os exemplares apreendidos, dizia o decreto, “serão incinerados a sua custa”. Mas o mesmo Estado que mandava queimar papel também guardava papel: o Superior Tribunal Militar deixava o advogado levar os autos por vinte e quatro horas.",
       "Em 1979 — o ano da Lei da Anistia, a nº 6.683 — advogados e religiosos viram a brecha. Vinte e quatro horas dão para copiar. Alugaram uma sala e três máquinas de xerox em Brasília, e os funcionários achavam que era uma copiadora comum.",
@@ -2540,7 +2586,17 @@ const EPOCAS = [
       // correspondem ao total"), e a palavra AUTORES em vez de "responsáveis" — porque o cap. 16,
       // item 4, adverte que apontar autoria "não implica, por si, a atribuição de responsabilidade
       // jurídica individual". É a distinção que o §2.6 existe para preservar.
-      "E em 2014 a Comissão Nacional da Verdade contou. O relatório confirmou 434 mortes e desaparecimentos — e disse que esse número não é o total, e sim o que deu para comprovar. Nomeou 377 agentes do Estado como autores."
+      "E em 2014 a Comissão Nacional da Verdade contou. O relatório confirmou 434 mortes e desaparecimentos — e disse que esse número não é o total, e sim o que deu para comprovar. Nomeou 377 agentes do Estado como autores.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09 —
+      // movida por decisão do dono, sem uma palavra reescrita, e depois do remate.
+      // MEDIÇÃO (04/09, reconferida em 05/09), com UMA diferença que vale registrar e que
+      // derrubou a afirmação de que "nenhuma das cinco pinturas é compartilhada": a pintura
+      // `[10]` É compartilhada — A PRAÇA, O QUE SEGUROU e O ACEIRO vestem esta mesma. Só que
+      // quem a EMPRESTA é este capítulo: `PACK_DA_CENA[10]` é "naodito", e a nota de A PRAÇA
+      // diz em voz alta que veste a do anterior. Para a fala DAQUI, então, a pintura é própria.
+      // Quem atravessa a tela sai de `GENTE_EP_SPR.naodito` (3×8 = 24), via `CAPS_VERBO`. O
+      // drop continua o de AINDA AQUI.
+      "A rua e quem atravessa a tela já foram desenhadas para este capítulo. O que ainda vem emprestado de outro é só o que fica no chão, e o jogo prefere dizer isso a fingir."
     ]
   },
   {
@@ -2581,7 +2637,27 @@ const EPOCAS = [
       "Isto é uma praça, em algum ponto entre 1984 e 1988. Neste capítulo o país perde uma votação e muda assim mesmo — e é justamente essa parte que quase nunca se conta.",
       "Em 18 de abril de 1983 entrou no Congresso a Proposta de Emenda à Constituição nº 5 — a Emenda Dante de Oliveira —, que dispunha sobre a eleição direta para Presidente e Vice-Presidente. Nos meses seguintes as praças encheram.",
       "Em 25 de abril de 1984 ela foi a voto: 298 sim, 65 não, 3 abstenções. Faltaram 22 para o quórum, e a Câmara registrou o resultado como rejeição. A proposta nem chegou a ser apreciada pelo Senado.",
-      "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra.",
+      "Aqui, alcançar é juntar. Gente na praça em 1984, assinatura no papel em 1987 — e este capítulo é sobre a distância entre uma coisa e a outra."
+    ],
+    // a praça armada segura as duas primeiras: a primeira a nomeia, a segunda é ela enchendo.
+    // A praça vazia da manhã seguinte entra na fala da derrota, e é a imagem inteira do
+    // capítulo — o lugar depois, nunca a multidão, que é gente e gente não entra (§2).
+    // A quinta posição saiu em 05/09 com a quinta fala (a nota da arte foi para o fecho) — a
+    // lista de imagens tem de ter o TAMANHO da lista de falas (`encaixe.js` bloco 1).
+    aberturaImg: ["cap10-comicio", "cap10-comicio", "cap10-depois", null],
+    fecho: [
+      "A praça perdeu a votação. Treze meses depois, em 15 de maio de 1985, a Emenda Constitucional nº 25 escreveu na Constituição que o Presidente e o Vice seriam eleitos “por sufrágio universal e voto direto e secreto, em todo o País”.",
+      "Foi a mesma emenda que devolveu o voto a quem não sabia ler — a porta do capítulo anterior. E em 27 de novembro de 1985 outra emenda convocou uma Assembleia Nacional Constituinte “livre e soberana”.",
+      "O regimento dela abriu o que nenhuma constituinte brasileira tinha aberto: proposta apresentada por três entidades, com trinta mil assinaturas de eleitores, entrava para ser votada como emenda popular.",
+      "Foram 122 emendas populares, algumas com mais de um milhão de assinaturas — doze milhões ao todo, colhidas de mão em mão. Antes disso, o Senado já tinha recebido mais de 72 mil cartas deixadas em agências dos correios.",
+      "A Constituição foi promulgada em 5 de outubro de 1988. No art. 5º ela escreveu que “a prática do racismo constitui crime inafiançável e imprescritível”. No inciso seguinte pôs a tortura entre os crimes que não admitem anistia.",
+      "Guarde junto: a emenda das diretas foi rejeitada em 1984, o voto direto só voltou em 1989 — e em 1988 já estava tudo escrito. Comício não vira lei sozinho, e perder uma votação não é o fim. O que atravessou esses anos foi o trabalho de juntar.",
+      // A NOTA DE HONESTIDADE SOBRE A ARTE, que era a quinta fala da abertura até 05/09 —
+      // movida por decisão do dono, sem uma palavra reescrita, e depois do remate. É a única
+      // dos seis que fala de PINTURA emprestada, e por isso é a que mais precisava sobreviver
+      // à mudança de lugar: o `qa-praca-quadro-vazio-vira-objeto.js` cobra as três afirmações
+      // dela no jogo vivo, e ele não mede em que lista a frase está — mede se ela é verdade.
+      //
       // METADE DESTA FALA ERA FALSA, E SÓ METADE (04/09, historiadora). Ela dizia que "a pintura
       // E o que atravessa a tela ainda são emprestados" e que "a arte daqui não chegou". Medido
       // nesta árvore, item por item, e a conclusão é que os dois pedaços têm respostas
@@ -2615,19 +2691,11 @@ const EPOCAS = [
       // esta tem 226. O que NÃO podia cair, e continua aqui, é a fonte do empréstimo do chão:
       // o drop vem de AINDA AQUI e não do capítulo anterior, e juntar os dois num "também"
       // seria trocar uma frase falsa por outra, menor.
-      "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir. Os três contadores lá em cima são os mesmos de sempre."
-    ],
-    // a praça armada segura as duas primeiras: a primeira a nomeia, a segunda é ela enchendo.
-    // A praça vazia da manhã seguinte entra na fala da derrota, e é a imagem inteira do
-    // capítulo — o lugar depois, nunca a multidão, que é gente e gente não entra (§2).
-    aberturaImg: ["cap10-comicio", "cap10-comicio", "cap10-depois", null, null],
-    fecho: [
-      "A praça perdeu a votação. Treze meses depois, em 15 de maio de 1985, a Emenda Constitucional nº 25 escreveu na Constituição que o Presidente e o Vice seriam eleitos “por sufrágio universal e voto direto e secreto, em todo o País”.",
-      "Foi a mesma emenda que devolveu o voto a quem não sabia ler — a porta do capítulo anterior. E em 27 de novembro de 1985 outra emenda convocou uma Assembleia Nacional Constituinte “livre e soberana”.",
-      "O regimento dela abriu o que nenhuma constituinte brasileira tinha aberto: proposta apresentada por três entidades, com trinta mil assinaturas de eleitores, entrava para ser votada como emenda popular.",
-      "Foram 122 emendas populares, algumas com mais de um milhão de assinaturas — doze milhões ao todo, colhidas de mão em mão. Antes disso, o Senado já tinha recebido mais de 72 mil cartas deixadas em agências dos correios.",
-      "A Constituição foi promulgada em 5 de outubro de 1988. No art. 5º ela escreveu que “a prática do racismo constitui crime inafiançável e imprescritível”. No inciso seguinte pôs a tortura entre os crimes que não admitem anistia.",
-      "Guarde junto: a emenda das diretas foi rejeitada em 1984, o voto direto só voltou em 1989 — e em 1988 já estava tudo escrito. Comício não vira lei sozinho, e perder uma votação não é o fim. O que atravessou esses anos foi o trabalho de juntar."
+      // EM 05/09, ao mudar de lista, ela perdeu SÓ a oração dos contadores ("os três contadores
+      // lá em cima são os mesmos de sempre") — pelo mesmo motivo dos outros cinco: no fecho o
+      // HUD não está na tela, e frase que vira falsa ao mudar de lugar não se muda de lugar.
+      // Passou de 226 para 171 caracteres; o teto de 260 do bloco 15 vale também aqui.
+      "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior e o que fica no chão vem de outro — e o jogo prefere dizer isso a fingir."
     ]
   },
   {
@@ -2665,6 +2733,10 @@ const EPOCAS = [
     // abertura: acrescentar é ESCREVER, não corrigir, e a quinta fala daqui fecha no verbo do
     // capítulo — pendurar recado de arte depois dela estraga o fecho para resolver um problema
     // que não existe. Fica como dúvida registrada no NOTES.md, não como decisão tomada sozinha.
+    // EM 05/09 A DÚVIDA MUDOU DE FORMA, e continua dúvida: as seis notas dos outros capítulos
+    // saíram da abertura e foram para o FIM DO FECHO (decisão do dono, ver o cabeçalho de
+    // EPOCAS). Existe agora um lugar que não estraga nada — mas escrever uma nota AQUI, onde
+    // nunca houve, continua sendo escrever, e representação e texto novo não se decidem sozinha.
     cenas: 1, lugar: "segurou", arte: [10],
     abertura: [
       "Isto é uma rua de bairro brasileiro em 2020. Ela está mais vazia do que qualquer rua que você atravessou até aqui — e o trabalho que importa é de porta em porta.",

@@ -14693,3 +14693,105 @@ normalizada e restaurando sempre o original de verdade: **os 12 mutantes passam 
 arquivo-alvo não troca de fim de linha por efeito colateral. PENDENTES 113.
 
 **Portões, no fim:** `npm test` e `node test/encaixe.js` **os dois verdes por exit code** (0 e 0).
+---
+
+## 05/09 · A NOTA DE HONESTIDADE SOBRE A ARTE SAI DA ABERTURA E VAI PARA O FECHO — nos seis capítulos (historiadora, worktree `agent-afca260b8fb840c23`)
+
+**Decisão do dono, no check de 05/09**, sobre o item de backlog `nota-honestidade-gasta-a-ultima-linha`
+(levantado por mim mesma em 04/09, `nuvem-20260904T1623`, e deixado de propósito sem resposta porque
+"muda o que o jogo promete ao jogador"): a nota **muda de lugar**. Sai da última linha da `abertura`
+e vira uma linha no `fecho`, devolvendo a última linha da abertura ao capítulo.
+
+### Os seis, e o que mudou em cada um
+
+Em todos, `abertura` passou de **5 para 4 falas** (com o `querer`, que `mostrarAbertura()`
+concatena, a leitura de entrada foi de **6 para 5**), `aberturaImg` perdeu a quinta posição — que
+já era `null` — e o `fecho` ganhou uma linha no **fim**. A `abertura` volta a terminar no **verbo
+do capítulo**, que é a linha que fala do capítulo.
+
+| capítulo | o que saiu da abertura | para onde foi | por quê |
+|---|---|---|---|
+| O CAIS QUE VOLTOU À LUZ | "A pintura e quem atravessa a tela já são deste capítulo… Emprestado, só o que fica no chão." | fim do `fecho` | é o melhor encaixe dos seis: a linha imediatamente acima já é o jogo falando de si mesmo e do que **recusa** fazer (o Cemitério dos Pretos Novos, citado e não encenado). A nota da arte é o mesmo gesto no outro registro |
+| JABAQUARA | "A serra e a gente que desce por ela já foram desenhadas…" | fim do `fecho` | o fecho já pratica a recusa de número no meio dele ("a pesquisa trata esses números como exagerados e não os adota — este jogo também não"); a nota fecha a série, depois do remate que nomeia Maria Helena Machado |
+| A PEQUENA ÁFRICA | "A rua e quem atravessa a tela já foram desenhadas…" | fim do `fecho` | mesma regra; depois do remate, para não disputar a última linha com Beatriz Nascimento |
+| AS PORTAS | "O pátio e quem atravessa a tela já foram desenhados…" | fim do `fecho` | mesma regra; depois do remate de Laudelina de Campos Mello |
+| O QUE NÃO PODIA SER DITO | "A rua e quem atravessa a tela já foram desenhadas…" | fim do `fecho` | mesma regra; depois do remate da Comissão Nacional da Verdade |
+| A PRAÇA | "Quem atravessa a tela já foi desenhado para cá. A pintura ainda é emprestada do capítulo anterior…" | fim do `fecho` | é a única das seis que fala de **pintura** emprestada, então é a que mais precisava sobreviver inteira à mudança; depois do remate ("o trabalho de juntar") |
+
+### As três decisões que sustentam o destino, e as três são medidas
+
+1. **Fim do fecho, e não começo.** `mostrarFecho()` passa `EPOCAS[i].aberturaImg` para o
+   `abrirFala()` do fecho, e `abrirFala` faz `linhas.map((_, i) => imgs[i] || null)` — associação
+   **por posição**. Uma linha nova no COMEÇO empurra cada pintura de contexto para a fala seguinte,
+   que é exatamente o modo de falha que o `encaixe.js` bloco 1 descreve ("a vertical certa na frase
+   errada é uma afirmação que ninguém escreveu"). No FIM nada se move: as posições ≥ 4 já eram
+   `null` antes e continuam `null` depois.
+2. **Fecho, e não DE ONDE VEM** — a outra saída oferecida foi medida antes de ser recusada.
+   `ferramentas/gerar-fontes.js` conta como fonte **toda entrada com `t`** e imprime o número na
+   página pública (`${nFontes} fontes · ${grupos.length} grupos`, e o mesmo número vai na
+   `<meta name="description">` e no `og:description`). Seis notas de produção ali fariam a
+   plataforma anunciar seis fontes que ela não tem, numa seção cujo trabalho inteiro é ser
+   conferível — e o rodapé dela diz, com todas as letras, "é a bibliografia que sustenta cada
+   afirmação". Nota de cozinha não é bibliografia.
+3. **A oração dos contadores NÃO viajou junto**, e é a única subtração da rodada. "Os três
+   contadores **lá em cima** são os mesmos de sempre" aponta para o HUD, que não está na tela
+   durante o fecho (`body.emTela`) e que a pessoa já usou por um capítulo inteiro quando lê aquilo.
+   Mover uma frase que **vira falsa** no lugar novo é o contrário do que a nota faz. Conferido que
+   a subtração não fecha porta nenhuma: `capPalavrasCalcular()` casa `abertura + fecho + querer`
+   contra o título de cada verbete, e nenhum dos 184 verbetes casa com as palavras dessa oração —
+   a porta AS PALAVRAS DAQUI dos seis capítulos é a mesma de antes. E os capítulos mais recentes
+   (O QUE SEGUROU, O ACEIRO, O QUE TEM FONTE) já fecham a abertura na protagonista, sem linha de
+   contador nenhuma: a subtração alinha os seis com o que o jogo já faz.
+
+### O estado da arte foi RECONFERIDO antes de mover, não copiado do texto antigo
+
+O brief mandava conferir contra `GENTE_EP_B64` / `arte` / `arteCap` em vez de acreditar na fala.
+Medido nesta árvore, e nada mudou desde 04/09:
+
+- `PACK_DA_CENA` (ferramentas/pacotes.js): `[7]`=jabaquara, `[8]`=pequenaafrica, `[9]`=portas,
+  `[10]`=naodito, `[12]`=cais. Então cinco dos seis têm **pintura própria**; A PRAÇA veste
+  `arte: [10]`, que é a de O QUE NÃO PODIA SER DITO — **o capítulo imediatamente anterior**,
+  como a fala dela diz.
+- `GENTE_EP_B64` tem chave própria para os seis (`cais`, `jabaquara`, `pequenaafrica`, `portas`,
+  `naodito`, `praca`) — quem atravessa a tela é de cada um.
+- `arteCap: 3` nos seis → `DONO_DO_BLOCO[3]` = "hoje": **o que fica no chão continua emprestado**
+  de AINDA AQUI, nos seis. É a metade da nota que permanece verdadeira e é por isso que ela não
+  foi apagada, só mudou de lugar.
+
+### Fonte
+
+**Nenhuma nova, e é a resposta e não a falta dela.** Nada aqui afirma fato histórico: a nota
+descreve como o capítulo está desenhado. Nenhuma afirmação histórica dos seis capítulos foi tocada
+— nem uma lei, nem uma data, nem um número —, e as fontes delas continuam onde estavam, em DE ONDE
+VEM e nas entradas anteriores deste NOTES.
+
+### Medido
+
+- `npm test` e `node test/encaixe.js`: **exit 0** os dois.
+- `encaixe.js` bloco 1: os seis passaram a ler **"4 falas para 4 imagens"**; os outros sete
+  capítulos continuam em 5/5 e a travessia em 17/17.
+- `encaixe.js` bloco 15 (teto de 260 da caixa que revela letra a letra): a fala mais comprida do
+  jogo continua em **258**. As seis linhas movidas medem **173, 174, 168, 170, 168 e 171** —
+  todas MENORES do que eram na abertura, porque perderam a oração dos contadores (A PRAÇA, por
+  exemplo, foi de 226 para 171).
+- Print da caixa com a linha nova, nos seis: cabe folgado — quatro a cinco linhas de texto no papel
+  a 390×844.
+
+### Um ponteiro que atualizei e um que NÃO é meu
+
+- **Atualizei** o cabeçalho de `test/qa-praca-quadro-vazio-vira-objeto.js`: ele citava a frase
+  como sendo da `abertura`. O teste **não muda** — ele nunca leu o texto, ele mede no jogo vivo se
+  o que a frase afirma é verdade —, e isso ficou escrito lá: onde a frase é LIDA é decisão
+  editorial; se ela é VERDADEIRA é o que o portão cobra.
+- **Não toquei** no `PENDENTES.md` 109, que continua justificando os quadros vazios de A PRAÇA
+  pela fala. Ele já estava desatualizado desde 04/09 (a entrada daquele dia registra isso) e é do
+  `dev-jogo`; a mudança de hoje só muda em que lista a frase está.
+
+### Dúvida que fica
+
+O QUE SEGUROU e O ACEIRO **não têm** nota de arte nenhuma, e os dois vestem pintura emprestada
+(`arte: [10]`, de "naodito"). Em 04/09 eu registrei que não escrevi nota para eles porque
+"acrescentar é ESCREVER, não corrigir" e porque pendurá-la depois do verbo estragava o fecho da
+abertura. **O segundo motivo caiu hoje**: existe agora um lugar que não estraga nada — o fim do
+fecho, que os seis passaram a usar. O primeiro motivo continua de pé, e é do dono: escrever uma
+nota onde nunca houve é texto novo, não conserto. Fica como pergunta dele, não como decisão minha.
